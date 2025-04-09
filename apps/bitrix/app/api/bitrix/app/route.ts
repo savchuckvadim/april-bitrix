@@ -46,8 +46,9 @@ export async function POST(req: NextRequest) {
     requestData.query = req.nextUrl.searchParams.toString();
 
     // Логи
+    console.log('Все данные запроса  APP');
     console.log('Все данные запроса:', requestData);
-
+    console.log('body:', requestData.body);
     // Корректный редирект с методом GET
     const response = NextResponse.redirect(new URL('/auth/login', req.url), 303);
 

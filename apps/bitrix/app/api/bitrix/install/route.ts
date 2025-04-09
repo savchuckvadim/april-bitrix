@@ -46,7 +46,10 @@ export async function POST(req: NextRequest) {
     requestData.query = req.nextUrl.searchParams.toString();
 
     // Логи
+    console.log('INSTALL:', requestData);
+
     console.log('Все данные запроса:', requestData);
+    console.log('body:', requestData.body);
 
     //запрос на сервер для сохранения токенов
     //выполнение метода bx sdk app install

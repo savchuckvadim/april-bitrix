@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     let installStatus: 'success' | 'fail' = 'fail';
 
 
-    if (tokenPayload.access_token && tokenPayload.refresh_token && tokenPayload.member_id && tokenPayload.domain) {
+    if (tokenPayload.access_token && tokenPayload.refresh_token && tokenPayload.domain) {
       installStatus = install ? 'success' : 'fail';
 
 

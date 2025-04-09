@@ -133,7 +133,20 @@ export async function GET(req: NextRequest) {
     const rawBody = await req.text();
     const params = new URLSearchParams(rawBody);
 
+    const requestData: RequestData = {
 
+      body: {},
+
+      query: '',
+    };
+
+    params.forEach((value, key) => {
+      requestData.body[key] = value;
+    });
+    requestData.query = req.nextUrl.searchParams.toString();
+
+    console.log('requestData')
+    console.log(requestData)
     const event = params.get('event');
     const placement = params.get('PLACEMENT');
 
@@ -141,6 +154,8 @@ export async function GET(req: NextRequest) {
 
     let install = false;
     // let restOnly = true;
+    const memberId = requestData.body['member_id'];
+    const domain = req.nextUrl.searchParams.get('DOMAIN');
 
     if (event === 'ONAPPINSTALL') {
       // пришёл через webhook
@@ -152,8 +167,9 @@ export async function GET(req: NextRequest) {
         access_token: auth.access_token,
         refresh_token: auth.refresh_token,
         expires_in: auth.expires_in,
-        domain: auth.domain,
+        domain: domain,
         application_token: auth.application_token,
+        member_id: memberId
 
       };
     } else if (placement === 'DEFAULT') {
@@ -164,8 +180,9 @@ export async function GET(req: NextRequest) {
         access_token: params.get('AUTH_ID'),
         refresh_token: params.get('REFRESH_ID'),
         expires_in: Number(params.get('AUTH_EXPIRES')),
-        domain: params.get('DOMAIN'),
+        domain: domain,
         application_token: params.get('APP_SID'), // как fallback
+        member_id: memberId
 
       };
     }

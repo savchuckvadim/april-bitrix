@@ -52,7 +52,11 @@ export async function POST(req: NextRequest) {
     //выполнение метода bx sdk app install
 
 
-    return NextResponse.json({ error: 'Инсталяция произошла успешно' }, { status: 200 });
+    const response = NextResponse.redirect(new URL('/auth/login', req.url), 303);
+
+
+
+    return response;
   } catch (error) {
     console.error('Ошибка обработки запроса:', error);
     return NextResponse.json({ error: 'Ошибка загрузки файла' }, { status: 500 });

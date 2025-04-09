@@ -1,12 +1,34 @@
-import { Button } from "@workspace/ui/components/button"
+import { BitrixInstallPage } from "@/modules/bitrix";
 
-export default function Page() {
+
+
+// install/page.tsx
+// interface InstallPageProps {
+//   searchParams: {
+//     install?: 'success' | 'fail';
+//   };
+// }
+
+// app/install/page.tsx
+// interface PageProps {
+//   searchParams?: {
+//     [key: string]: string | string[] | undefined;
+//   };
+// }
+export default async function InstallPage({ params }: { params: Promise<{ install: 'success' | 'fail' }> }) {
+
+
+  const searchParams = await params
+  const installParam = searchParams?.install;
+  const installStatus = Array.isArray(installParam)
+    ? installParam[0]
+    : installParam;
+
+
+
   return (
-    <div className="flex items-center justify-center min-h-svh">
-      <div className="flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-bold">Установка</h1>
-        <Button size="sm">Button</Button>
-      </div>
+    <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
+      <BitrixInstallPage installStatus={installStatus === 'success' ? 'success' : 'fail'} />
     </div>
   )
 }

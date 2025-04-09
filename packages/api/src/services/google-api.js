@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const token = 'TOKEN'
+// const token = 'TOKEN'
 
 
 const instance = axios.create({

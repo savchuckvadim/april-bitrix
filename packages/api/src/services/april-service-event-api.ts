@@ -1,8 +1,8 @@
-import {API_METHOD} from "@/type/type";
+import {API_METHOD} from "../type/type";
 import axios from "axios";
 
 const prod = `https://movlar-dev.ru/api/v1/event/`;
-const dev = `https://obsessively-busy-moonfish.cloudpub.ru/api/v1/event/`;
+// const dev = `https://obsessively-busy-moonfish.cloudpub.ru/api/v1/event/`;
 
 const url = prod;
 

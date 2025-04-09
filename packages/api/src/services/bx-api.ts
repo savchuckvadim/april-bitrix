@@ -3,22 +3,22 @@
 
 import {
 
-    LoggerBrowser,
+    // LoggerBrowser,
 
     Result,
     EnumCrmEntityTypeId,
-    Text,
 
-    type ISODate
 } from '@bitrix24/b24jssdk'
 import { initializeB24Frame, B24Frame } from '@bitrix24/b24jssdk'
 import { getLayout } from "./bx-helper/activity-helper"
 
 
 export const bxAPI = {
-    // auth: () => {
-    //     AuthManager.getAuth()
-    // },
+ 
+    install: async () => {
+        const b24 = await initializeB24Frame();
+        await b24.installFinish();
+    },
     method: () => {
 
         //    const manager = new PlacementManager()
@@ -26,15 +26,13 @@ export const bxAPI = {
         // const result = await callMethod()
     },
     saleInit: async (dealId: null | number, companyId: null | number,) => {
-       const b24 = await initializeB24Frame() as B24Frame
+        const b24 = await initializeB24Frame() as B24Frame
 
         const placement = b24.placement
         console.log('b24test plcmnt')
         console.log(placement)
         const authData = b24.auth.getAuthData()
-        // const frame = new AppFrame()
-        // const b = new AuthManager(frame, MessageManager)
-        // const logger = LoggerBrowser.build('MyApp', true)
+
 
         debugger
         try {
@@ -93,7 +91,7 @@ export const bxAPI = {
         planEvent: { code: string, name: string, description: string },
         deadline: string,
         color: string,
-    
+
     ) => {
         const b24 = await initializeB24Frame() as B24Frame
         // const authData = b24.auth.getAuthData()
@@ -136,7 +134,7 @@ export const bxAPI = {
             ownerId: companyId,
             fields,
             layout,
-            
+
 
         }
 
@@ -165,5 +163,9 @@ export const bxAPI = {
         }
 
     },
+
+       // auth: () => {
+    //     AuthManager.getAuth()
+    // },
 
 }

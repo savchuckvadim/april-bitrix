@@ -1,17 +1,17 @@
-import { API_METHOD } from "@/type/type";
+import { API_METHOD } from "../type/type";
 import axios from "axios";
 
 export const onlineHeaders = {
     'content-type': 'application/json',
     'accept': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
-    'X-API-KEY': __ONLINE_API_KEY__,
+    // 'X-API-KEY': __ONLINE_API_KEY__,
     // "Origin": "http://localhost:5000", // Принудительно указываем Origin
 
 };
 const isHook = true // __SERVER__ == 'hook'
-console.log('__SERVER__')
-console.log(__SERVER__)
+// console.log('__SERVER__')
+// console.log(__SERVER__)
 export const url =  isHook ? `https://april-hook.ru/api` : `https://april-app.ru/api`
 const online = axios.create({
 

@@ -1,4 +1,4 @@
-import { API_METHOD } from "@packages/api";
+import { API_METHOD } from "../type/type";
 import axios from "axios"
 
 const url = 'https://april-hook.ru/api'
@@ -7,18 +7,18 @@ export enum AI_ENDPOINT {
 
 }
 
-interface TranscribeResponse {
-    data: {
-        resultCode: 1 | 0;
-        result: any;
-    };
-}
+// interface TranscribeResponse {
+//     data: {
+//         resultCode: 1 | 0;
+//         result: any;
+//     };
+// }
 
 const headers = {
     'content-type': 'application/json',
     'accept': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
-    'X-API-KEY': __ONLINE_API_KEY__,
+    // 'X-API-KEY': __ONLINE_API_KEY__,
 }
 
 const transcribe = axios.create({

@@ -1,7 +1,7 @@
 import { BXUser, InitBxResult} from "../type/bitrix-type";
 import { Placement, PlacementCallCard, EntitiesFromPlacement, DISPLAY_MODE } from "../type/placement-type";
 import { getDisplayMode } from "../lib/placement-util";
-import { bx } from "@workspace/api";
+// import { bx } from "@workspace/api";
 
 export const getAppPlacement = async (): Promise<{
   placement: Placement | PlacementCallCard | null;
@@ -17,7 +17,7 @@ export const getAppPlacement = async (): Promise<{
     } as Placement as Placement,
   };
 
-  result.placement = __IN_BITRIX__ ? ((await bx.getPlacement()) as Placement | null) : null;
+  // result.placement = __IN_BITRIX__ ? ((await bx.getPlacement()) as Placement | null) : null;
 
   return result;
 };
@@ -40,9 +40,9 @@ export const initAppEntities = async (
   // const isTask = isTaskPlacement(placement)
   const displayMode = getDisplayMode(placement);
 
-  if (displayMode == DISPLAY_MODE.ENTITY_CARD) {
-    __IN_BITRIX__ && (await bx.getFit());
-  }
+  // if (displayMode == DISPLAY_MODE.ENTITY_CARD) {
+  //   __IN_BITRIX__ && (await bx.getFit());
+  // }
 
   return {
     domain,

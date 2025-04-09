@@ -2,7 +2,7 @@
 import axios from "axios";
 
 
-const isHook =  __SERVER__ == 'hook'
+const isHook = false // __SERVER__ == 'hook'
 export const url = isHook ? `https://april-online.ru/api` : `https://garant-app.ru/api`
 
 
@@ -14,7 +14,7 @@ const online = axios.create({
         'content-type': 'application/json',
         'accept': 'application/json', 
         'X-Requested-With': 'XMLHttpRequest',
-        'X-API-KEY': __ONLINE_API_KEY__
+        // 'X-API-KEY': __ONLINE_API_KEY__
         
     },
 })

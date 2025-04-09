@@ -28,7 +28,7 @@ export default async function InstallPage({ params }: { params: Promise<{ instal
 
   return (
     <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
-      <BitrixInstallPage installStatus={installStatus === 'success' ? 'success' : 'fail'} />
+      <BitrixInstallPage installStatus={installStatus} />
     </div>
   )
 }

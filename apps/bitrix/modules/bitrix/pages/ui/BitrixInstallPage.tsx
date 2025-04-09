@@ -8,20 +8,23 @@ import { bxAPI } from "@workspace/api";
 
 
 export default function InstallPage({ installStatus }: { installStatus?: 'success' | 'fail' }) {
+    console.log('installStatus')
 
+    console.log(installStatus)
 
     useEffect(() => {
-        if (installStatus === "success") {
-            // 👇 Асинхронно вызываем метод install
-            (async () => {
-                try {
-                    await bxAPI.install();
-                    console.log("✅ installFinish выполнен через SDK");
-                } catch (err) {
-                    console.error("Ошибка при вызове installFinish:", err);
-                }
-            })();
-        }
+
+        // if (installStatus === "success") {
+        // 👇 Асинхронно вызываем метод install
+        (async () => {
+            try {
+                await bxAPI.install();
+                console.log("✅ installFinish выполнен через SDK");
+            } catch (err) {
+                console.error("Ошибка при вызове installFinish:", err);
+            }
+        })();
+        // }
     }, [installStatus]);
 
     let message = "⏳ Ожидание установки...";

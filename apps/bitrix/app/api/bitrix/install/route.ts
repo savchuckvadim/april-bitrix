@@ -7,6 +7,8 @@ interface RequestData {
   query: string;
 }
 
+
+//install
 export async function POST(req: NextRequest) {
   try {
 
@@ -46,15 +48,11 @@ export async function POST(req: NextRequest) {
     // Логи
     console.log('Все данные запроса:', requestData);
 
-    // Корректный редирект с методом GET
-    const response = NextResponse.redirect(new URL('/auth/login', req.url), 303);
+    //запрос на сервер для сохранения токенов
+    //выполнение метода bx sdk app install
 
-    // Устанавливаем куки, если данные есть
-    // if (body) {
-    //   response.cookies.set('bx_yo_data', JSON.stringify('body_test'), { path: '/', maxAge: 60 * 60 * 24 });
-    // }
 
-    return response;
+    return NextResponse.json({ error: 'Инсталяция произошла успешно' }, { status: 200 });
   } catch (error) {
     console.error('Ошибка обработки запроса:', error);
     return NextResponse.json({ error: 'Ошибка загрузки файла' }, { status: 500 });

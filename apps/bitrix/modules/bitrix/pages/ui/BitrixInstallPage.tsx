@@ -53,7 +53,7 @@ export default function InstallPage({ installStatus }: { installStatus?: 'succes
                     "GROUP_NAME": "konstructor_sales",
 
                 })
-
+                const list = await BX24.callMethod('placement.list',)
                 console.log('KonstructorResult')
 
                 console.log(KonstructorResult.getData())
@@ -70,7 +70,13 @@ export default function InstallPage({ installStatus }: { installStatus?: 'succes
                 console.log(plcResult.isSuccess)
                 console.log('installStatus async effect')
 
+
                 console.log(installStatus)
+                console.log('plcmnts list')
+
+                console.log(list.getData())
+
+
                 setStatus('success')
 
                 const installFinish = await BX24.installFinish();

@@ -7,16 +7,47 @@ import {
 
     Result,
     EnumCrmEntityTypeId,
+    AuthData,
 
 } from '@bitrix24/b24jssdk'
 import { initializeB24Frame, B24Frame } from '@bitrix24/b24jssdk'
 import { getLayout } from "./bx-helper/activity-helper"
+import { BXUser, CustomPlacement, Placement } from '@workspace/bx';
 
+type B24 = Awaited<ReturnType<typeof initializeB24Frame>>;
+
+export class BxService {
+    private b24: B24;
+
+    private constructor(b24Instance: B24) {
+        this.b24 = b24Instance;
+    }
+
+    static async create(): Promise<BxService> {
+        const b24 = await initializeB24Frame();
+        return new BxService(b24);
+    }
+
+    public getB24(): B24 {
+        return this.b24;
+    }
+}
+
+// Синглтон — объект класса BxService
+let bxSingleton: BxService | null = null;
+
+// Экспортируемый метод для получения оригинального b24
+export async function getBxService(): Promise<B24> {
+    if (!bxSingleton) {
+        bxSingleton = await BxService.create();
+    }
+    return bxSingleton.getB24();
+}
 
 export const bxAPI = {
- 
+
     install: async () => {
-        const b24 = await initializeB24Frame();
+        const b24 = await getBxService();
         await b24.installFinish();
     },
     method: () => {
@@ -25,8 +56,48 @@ export const bxAPI = {
         // const bx = B24Frame
         // const result = await callMethod()
     },
+    getPlacement: async (): Promise<Placement | CustomPlacement> => {
+        const b24 = await getBxService();
+        return {
+            options: b24.placement.options,
+            placement: b24.placement.title
+        }
+    },
+    getFit: async () => {
+        const b24 = await getBxService();
+        return await b24.parent.fitWindow()
+
+    },
+    getDomain: async () => {
+        const b24 = await getBxService();
+        const authData = b24.auth.getAuthData() as false | AuthData
+        // Проверка, чтобы не упасть, если authData = false
+        if (!authData) return null;
+
+        return authData.domain;
+
+
+    },
+    getCurrentUser: async () => {
+        const b24 = await getBxService();
+        let currentUser = null as null | BXUser
+        try {
+            const currentUserData = await b24.callMethod('user.current')
+            if (currentUserData) {
+                if (currentUserData.isSuccess) {
+
+                    currentUser = currentUserData.getData() as unknown as BXUser;
+
+                }
+            }
+            return currentUser;
+        } catch (error) {
+            console.log(error);
+            return currentUser;
+        }
+    },
     saleInit: async (dealId: null | number, companyId: null | number,) => {
-        const b24 = await initializeB24Frame() as B24Frame
+        const b24 = await getBxService();
 
         const placement = b24.placement
         console.log('b24test plcmnt')
@@ -93,7 +164,7 @@ export const bxAPI = {
         color: string,
 
     ) => {
-        const b24 = await initializeB24Frame() as B24Frame
+        const b24 = await getBxService();
         // const authData = b24.auth.getAuthData()
         // console.log(authData)
 
@@ -164,7 +235,7 @@ export const bxAPI = {
 
     },
 
-       // auth: () => {
+    // auth: () => {
     //     AuthManager.getAuth()
     // },
 

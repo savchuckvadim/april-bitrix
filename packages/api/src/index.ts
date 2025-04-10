@@ -13,6 +13,8 @@ export { eventServiceAPI as evs } from "./services/april-service-event-api";
 // export { bitrixAPI as bx } from "./services/bitrix-general-api";
 // export { bitrixActivityAPI as bxActivityAPI } from "./services/bitrix-activity-api"
 export { bxAPI } from "./services/bx-api"
+export { getBxService } from "./services/bx-api"
+
 export { AIServiceAPI } from "./services/ai-service"
 export { TranscribeServiceAPI } from "./services/transcribe-service"
 
@@ -20,11 +22,12 @@ export { TranscribeServiceAPI } from "./services/transcribe-service"
 
 
 //loacal storage
-// export {
-//   saveToLocalStorage,
-//   getFromLocalStorage,
-//   clearFromLocalStorage,
-// } from "./services/local-encrypt";
+export {
+  saveToLocalStorage,
+  getFromLocalStorage,
+  clearFromLocalStorage,
+  getStorageKey
+} from "./services/local-encrypt";
 
 export { localAPI as local } from "./services/local";
 

@@ -102,15 +102,15 @@ export async function POST(req: NextRequest) {
       // });
 
       // ✅ Регистрируем плэйсмент
-      await fetch(`https://${tokenPayload.domain}/rest/placement.bind`, {
-        method: 'POST',
-        body: new URLSearchParams({
-          PLACEMENT: 'DEFAULT',
-          HANDLER: 'https://front.april-app.ru/event/app/placement.php',
-          TITLE: 'Звонки тест Callings',
-          auth: tokenPayload.access_token,
-        }),
-      });
+      // await fetch(`https://${tokenPayload.domain}/rest/placement.bind`, {
+      //   method: 'POST',
+      //   body: new URLSearchParams({
+      //     PLACEMENT: 'DEFAULT',
+      //     HANDLER: 'https://front.april-app.ru/event/app/placement.php',
+      //     TITLE: 'Звонки тест Callings',
+      //     auth: tokenPayload.access_token,
+      //   }),
+      // });
     }
     const redirectUrl = new URL('/install', req.url);
     redirectUrl.searchParams.set('install', installStatus);

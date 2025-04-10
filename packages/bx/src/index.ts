@@ -19,6 +19,7 @@ export type {
   PLACEMENT_ENTITY,
   Placement,
   EntitiesFromPlacement,
+  CustomPlacement
 } from "./type/placement-type";
 
 //enum

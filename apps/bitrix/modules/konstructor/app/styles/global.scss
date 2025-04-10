@@ -1,0 +1,31 @@
+@import './variables';
+@import './typography';
+@import './chartist.scss';
+
+
+button,
+ul,
+li,
+span,
+input,
+div {
+    @extend .text--button;
+
+}
+
+ul,
+li,
+input,
+label {
+
+    background-color: white !important;
+}
+
+
+p{
+    margin: 0px;
+}
+
+// p{
+//     @extend .text--base;
+// }

@@ -5,7 +5,7 @@ export const onlineHeaders = {
     'content-type': 'application/json',
     'accept': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
-    // 'X-API-KEY': __ONLINE_API_KEY__,
+    'X-API-KEY': '__ONLINE_API_KEY__',
     // "Origin": "http://localhost:5000", // Принудительно указываем Origin
 
 };

@@ -15,11 +15,14 @@ import { BitrixInstallPage } from "@/modules/bitrix";
 //     [key: string]: string | string[] | undefined;
 //   };
 // }
-export default async function InstallPage({ params }: { params: Promise<{ install: 'success' | 'fail' }> }) {
+export default async function InstallPage({ searchParams }: { searchParams: Promise<{ install: 'success' | 'fail' }> }) {
 
 
-  const searchParams = await params
-  const installParam = searchParams?.install;
+  const params = await searchParams
+  console.log('params')
+  console.log(params)
+  debugger
+  const installParam = params?.install;
   const installStatus = Array.isArray(installParam)
     ? installParam[0]
     : installParam;

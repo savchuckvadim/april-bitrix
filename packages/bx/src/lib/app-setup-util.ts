@@ -1,5 +1,5 @@
 import { BXUser, InitBxResult} from "../type/bitrix-type";
-import { Placement, PlacementCallCard, EntitiesFromPlacement, DISPLAY_MODE } from "../type/placement-type";
+import { Placement, PlacementCallCard, EntitiesFromPlacement } from "../type/placement-type";
 import { getDisplayMode } from "../lib/placement-util";
 // import { bx } from "@workspace/api";
 

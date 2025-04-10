@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Button } from "@workspace/ui/components/button";
 import Link from "next/link";
 
-import { bxAPI } from "@workspace/api";
+import { bxAPI, getBxService } from "@workspace/api";
 
 
 export default function InstallPage({ installStatus }: { installStatus?: 'success' | 'fail' }) {
@@ -17,6 +17,37 @@ export default function InstallPage({ installStatus }: { installStatus?: 'succes
         // if (installStatus === "success") {
         // 👇 Асинхронно вызываем метод install
         (async () => {
+            const BX24 = await getBxService()
+            const plcResult = await BX24.callMethod('placement.bind', {
+                "PLACEMENT": "CRM_CONTACT_DETAIL_TAB",
+                "HANDLER": "https://front.april-app.ru/event/app/placement.php",
+                "OPTIONS": {
+                    "errorHandlerUrl": "https://front.april-app.ru/event/app/placement.php"
+                },
+                "TITLE": "Test Звонки",
+                "DESCRIPTION": "description",
+                "GROUP_NAME": "group",
+                "LANG_ALL": {
+                    "en": {
+                        "TITLE": "title",
+                        "DESCRIPTION": "description",
+                        "GROUP_NAME": "group",
+                    },
+                    "ru": {
+                        "TITLE": "заголовок",
+                        "DESCRIPTION": "описание",
+                        "GROUP_NAME": "группа",
+                    }
+                }
+            })
+
+            console.log('plcResult')
+
+            console.log(plcResult)
+        
+            console.log('installStatus async effect')
+
+            console.log(installStatus)
             try {
                 await bxAPI.install();
                 console.log("✅ installFinish выполнен через SDK");

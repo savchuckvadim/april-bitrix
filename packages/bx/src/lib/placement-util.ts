@@ -106,7 +106,7 @@ export const getEntitiesFromPlacement = async (placement: Placement | PlacementC
         currentCompany: null as null | BXCompany,
         currentDeal: null as null | BXDeal,
         currentTask: null as null | BXTask
-    }
+    } as EntitiesFromPlacement
     try {
 
 
@@ -286,7 +286,7 @@ export const getEntitiesFromPlacement = async (placement: Placement | PlacementC
 
         console.log('result')
         console.log(result)
-        return result.currentCompany ? result : null
+        return result
     } catch (error) {
         console.log('error')
         console.log(error)
@@ -296,28 +296,28 @@ export const getEntitiesFromPlacement = async (placement: Placement | PlacementC
 }
 
 
-const getCompanyIdFromtask = (task: BXTask): number | undefined => {
+// const getCompanyIdFromtask = (task: BXTask): number | undefined => {
 
-    let resultCompanyId
-    if (task) {
-        if (task.ufCrmTask) {
-            task.ufCrmTask.forEach((uf: string) => {
-                if (uf.includes("CO")) {
+//     let resultCompanyId
+//     if (task) {
+//         if (task.ufCrmTask) {
+//             task.ufCrmTask.forEach((uf: string) => {
+//                 if (uf.includes("CO")) {
 
-                    let parts = uf.split('_'); // Разделяем строку по символу '_'
-                    let type = parts[0]; // Тип - это все, что перед '_'
-                    let id = parts[1]; // ID - это все, что после '_'
-                    resultCompanyId = Number(id);
+//                     let parts = uf.split('_'); // Разделяем строку по символу '_'
+//                     let type = parts[0]; // Тип - это все, что перед '_'
+//                     let id = parts[1]; // ID - это все, что после '_'
+//                     resultCompanyId = Number(id);
 
-                }
+//                 }
 
-            })
-        }
-    }
+//             })
+//         }
+//     }
 
-    return resultCompanyId;
+//     return resultCompanyId;
 
-}
+// }
 
 
 

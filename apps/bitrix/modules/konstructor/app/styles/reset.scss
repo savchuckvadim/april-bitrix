@@ -1,0 +1,61 @@
+@import './variables';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Montserrat:wght@300;400&display=swap');
+
+
+
+/* Обнуление стилей */
+html, body, label , span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video
+// div, 
+{
+  margin: 0 !important;
+  padding: 0;
+  // border: 0;
+  // font-size: 18px;
+  font-family: $font-family-base;
+  vertical-align: baseline;
+
+}
+
+/* HTML5 элементы отображения */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+body {
+  min-height: 100vh;
+  line-height: 1;
+  // font-family: 'Inter';
+
+}
+
+ol, ul {
+  list-style: none;
+}
+
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+*{
+  box-sizing: border-box;
+}
+ul{
+  padding: 0 !important;
+ 
+
+}

@@ -4,15 +4,15 @@ export interface InitBxResult {
     domain: string;
     user: BXUser;
     placement: Placement | PlacementCallCard;
-    company: BXCompany;
-    deal: BXDeal;
-    task: BXTask
+    company: BXCompany | null;
+    deal: BXDeal | null;
+    task: BXTask | null;
     display: DISPLAY_MODE;
 
 }
 
 export enum BX_TASK_MARK {
-    NONE=null,
+    NONE='',
     GOOD='P',
     BAD='N'
 

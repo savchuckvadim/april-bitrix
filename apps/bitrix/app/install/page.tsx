@@ -21,7 +21,7 @@ export default async function InstallPage({ searchParams }: { searchParams: Prom
   const params = await searchParams
   console.log('params')
   console.log(params)
-  debugger
+
   const installParam = params?.install;
   const installStatus = Array.isArray(installParam)
     ? installParam[0]

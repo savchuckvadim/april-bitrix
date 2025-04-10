@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@workspace/ui/components/button";
 import Link from "next/link";
 
@@ -11,56 +11,68 @@ export default function InstallPage({ installStatus }: { installStatus?: 'succes
     console.log('installStatus')
 
     console.log(installStatus)
-
+    const [status, setStatus] = useState('')
     useEffect(() => {
 
         // if (installStatus === "success") {
         // 👇 Асинхронно вызываем метод install
         (async () => {
-            const BX24 = await getBxService()
-            const plcResult = await BX24.callMethod('placement.bind', {
-                "PLACEMENT": "CRM_CONTACT_DETAIL_TAB",
-                "HANDLER": "https://front.april-app.ru/event/app/placement.php",
-                "OPTIONS": {
-                    "errorHandlerUrl": "https://front.april-app.ru/event/app/placement.php"
-                },
-                "TITLE": "Test Звонки bind",
-                "DESCRIPTION": "description",
-                "GROUP_NAME": "group",
-                "LANG_ALL": {
-                   
-                    "ru": {
-                        "TITLE": "Test Звонки bind",
-                        "DESCRIPTION": "Приложение звонки Гарант Продажи",
-                        "GROUP_NAME": "event_sales",
-                    }
-                }
-            })
-
-            console.log('plcResult')
-
-            console.log(plcResult)
-            console.log('plcResult isSuccess')
-            console.log(plcResult.isSuccess)
-            console.log('installStatus async effect')
-
-            console.log(installStatus)
             try {
-                const installFinish =  await BX24.installFinish();
-               
+                const BX24 = await getBxService()
+                const plcResult = await BX24.callMethod('placement.bind', {
+                    "PLACEMENT": "CRM_COMPANY_DETAIL_TAB",
+                    "HANDLER": "https://front.april-app.ru/event/app/placement.php",
+                    "OPTIONS": {
+                        "errorHandlerUrl": "https://front.april-app.ru/event/app/placement.php"
+                    },
+                    "TITLE": "Test Звонки bind",
+                    "DESCRIPTION": "description",
+                    "GROUP_NAME": "event_sales",
+
+                })
+                const plcResultDeal = await BX24.callMethod('placement.bind', {
+                    "PLACEMENT": "CRM_DEAL_DETAIL_TAB",
+                    "HANDLER": "https://front.april-app.ru/event/app/placement.php",
+                    "OPTIONS": {
+                        "errorHandlerUrl": "https://front.april-app.ru/event/app/placement.php"
+                    },
+                    "TITLE": "Test Звонки bind",
+                    "DESCRIPTION": "description",
+                    "GROUP_NAME": "event_sales",
+
+                })
+                console.log('plcResult')
+
+                console.log(plcResult)
+
+                console.log('plcResultDeal')
+
+                console.log(plcResultDeal)
+
+                console.log('plcResult isSuccess')
+                console.log(plcResult.isSuccess)
+                console.log('installStatus async effect')
+
+                console.log(installStatus)
+                setStatus('success')
+
+                const installFinish = await BX24.installFinish();
+
                 console.log("✅ installFinish выполнен через SDK");
                 console.log(installFinish)
             } catch (err) {
                 console.error("Ошибка при вызове installFinish:", err);
+                setStatus('fail')
+
             }
         })();
         // }
     }, [installStatus]);
 
     let message = "⏳ Ожидание установки...";
-    if (installStatus === "success") {
+    if (status === "success") {
         message = "✅ Установка прошла успешно!";
-    } else if (installStatus === "fail") {
+    } else if (status === "fail") {
         message = "❌ Ошибка установки.";
     }
 

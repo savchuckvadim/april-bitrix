@@ -24,19 +24,15 @@ export default function InstallPage({ installStatus }: { installStatus?: 'succes
                 "OPTIONS": {
                     "errorHandlerUrl": "https://front.april-app.ru/event/app/placement.php"
                 },
-                "TITLE": "Test Звонки",
+                "TITLE": "Test Звонки bind",
                 "DESCRIPTION": "description",
                 "GROUP_NAME": "group",
                 "LANG_ALL": {
-                    "en": {
-                        "TITLE": "title",
-                        "DESCRIPTION": "description",
-                        "GROUP_NAME": "group",
-                    },
+                   
                     "ru": {
-                        "TITLE": "заголовок",
-                        "DESCRIPTION": "описание",
-                        "GROUP_NAME": "группа",
+                        "TITLE": "Test Звонки bind",
+                        "DESCRIPTION": "Приложение звонки Гарант Продажи",
+                        "GROUP_NAME": "event_sales",
                     }
                 }
             })
@@ -44,13 +40,16 @@ export default function InstallPage({ installStatus }: { installStatus?: 'succes
             console.log('plcResult')
 
             console.log(plcResult)
-        
+            console.log('plcResult isSuccess')
+            console.log(plcResult.isSuccess)
             console.log('installStatus async effect')
 
             console.log(installStatus)
             try {
-                await bxAPI.install();
+                const installFinish =  await BX24.installFinish();
+               
                 console.log("✅ installFinish выполнен через SDK");
+                console.log(installFinish)
             } catch (err) {
                 console.error("Ошибка при вызове installFinish:", err);
             }

@@ -56,15 +56,15 @@ export default function InstallPage({ installStatus }: { installStatus?: 'succes
                 const list = await BX24.callMethod('placement.list',)
                 console.log('KonstructorResult')
 
-                console.log(KonstructorResult.getData())
+                console.log(KonstructorResult.getData().result)
 
                 console.log('plcResult')
 
-                console.log(plcResult.getData())
+                console.log(plcResult.getData().result)
 
                 console.log('plcResultDeal')
 
-                console.log(plcResultDeal.getData())
+                console.log(plcResultDeal.getData().result)
 
                 console.log('plcResult isSuccess')
                 console.log(plcResult.isSuccess)
@@ -74,7 +74,7 @@ export default function InstallPage({ installStatus }: { installStatus?: 'succes
                 console.log(installStatus)
                 console.log('plcmnts list')
 
-                console.log(list.getData())
+                console.log(list.getData().result)
 
 
                 setStatus('success')

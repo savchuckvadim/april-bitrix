@@ -1,5 +1,6 @@
 // import "./App.scss";
 // import "bootstrap/dist/css/bootstrap.min.css";
+'use client'
 import { useAppDispatch, useAppSelector } from "../lib/hooks/redux";
 import { Suspense, useEffect } from "react";
 import { initial } from "../model/AppThunk";
@@ -12,12 +13,12 @@ import { store } from "@/modules/konstructor/app/model/store";
 //@ts-ignore
 
 
-export const App = () => (
+export const App = ({ inBitrix }: { inBitrix: boolean }) => (
   <Provider store={store}>
-    <EventApp />
+    <EventApp inBitrix={inBitrix} />
   </Provider>
 );
-const EventApp = ({ }) => {
+const EventApp = ({ inBitrix }: { inBitrix: boolean }) => {
   const dispatch = useAppDispatch();
   const app = useAppSelector((state) => state.app);
 
@@ -38,7 +39,7 @@ const EventApp = ({ }) => {
     <div>
       <div
         // data-testid='DATA.APP.TEST_ID'
-        className="app"
+        className="bg-background text-foreground"
       // style={{ display: 'flex' }}
       >
         {
@@ -46,10 +47,13 @@ const EventApp = ({ }) => {
             ? <Suspense fallback={<>Загрузка ... </>}>
               {/* <Router />
                */}
+              Конструктор Коммерческих предложений Гарант
               <></>
             </Suspense>
 
-            : <>Загрузка ... </>
+            : <p>
+              Конструктор Коммерческих предложений Гарант
+            </p>
         }
 
       </div>

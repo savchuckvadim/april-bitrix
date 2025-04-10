@@ -82,5 +82,5 @@ export type AppGetState = AppStore["getState"];
 export const store = setupStore();
 
 //@ts-ignore
-window.eventStore = store;
+// window.eventStore = store;
 

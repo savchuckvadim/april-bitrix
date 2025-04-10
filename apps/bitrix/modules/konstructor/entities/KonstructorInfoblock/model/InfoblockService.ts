@@ -3,7 +3,7 @@ import { SIBlock } from '../type/document-infoblock-type';
 // import { IPost } from '../models/IPost'
 import {  getApiHeaders, onlineURL } from '@workspace/api';
 
-const onlineHeaders = getApiHeaders(__ONLINE_API_KEY__)
+const onlineHeaders = getApiHeaders('__ONLINE_API_KEY__')
 
 
 export const infoblockAPI = createApi({

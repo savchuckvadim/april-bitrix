@@ -1,4 +1,5 @@
-import React, { FC, useState } from 'react';
+'use client';
+import React, { FC } from 'react';
 
 import { AIBlock } from '@/modules/konstructor/entities/KonstructorInfoblock/type/document-infoblock-type';
 import { Input } from '@workspace/ui/components/input'

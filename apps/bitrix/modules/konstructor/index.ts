@@ -1,4 +1,4 @@
 // import ('./bootstrap');
 // export {}
 
-export { App } from '@/modules/konstructor/app'
+export { App as KonstructorApp } from '@/modules/konstructor/app'

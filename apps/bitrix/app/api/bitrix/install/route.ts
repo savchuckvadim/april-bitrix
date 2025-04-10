@@ -1,3 +1,5 @@
+import { setupBitrixApp } from '@/app/lib/bitrix/setup';
+import { BitrixAppPayload } from '@workspace/api';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface BitrixTokenPayload {
@@ -85,32 +87,26 @@ export async function POST(req: NextRequest) {
 
     if (tokenPayload.access_token && tokenPayload.refresh_token && tokenPayload.domain) {
       installStatus = install ? 'success' : 'fail';
+      const data = {
+        code: 'sales',
+        domain: tokenPayload.domain,
+        group: 'sales',
+        status: 'active',
+        type: 'sales',
+        token: {
+          access_token: tokenPayload.access_token,
+          client_id: 'client_id',
+          client_secret: 'client_secret',
+          expires_at: new Date(Date.now() + (tokenPayload.expires_in ?? 3600) * 1000).toISOString(),
+          refresh_token: tokenPayload.refresh_token,
+          application_token: tokenPayload.application_token
 
+        }
+      } as BitrixAppPayload
+      const result = await setupBitrixApp(data);
+      console.log('endpoint online result')
+      console.log(result)
 
-      // ✅ Сохраняем в Laravel или напрямую
-      // await fetch(`${process.env.LARAVEL_API}/api/bitrix/portal/store`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     domain,
-      //     member_id: memberId,
-      //     access_token: accessToken,
-      //     refresh_token: refreshToken,
-      //     expires_at: Date.now() + expiresIn * 1000,
-      //     application_token: applicationToken,
-      //   }),
-      // });
-
-      // ✅ Регистрируем плэйсмент
-      // await fetch(`https://${tokenPayload.domain}/rest/placement.bind`, {
-      //   method: 'POST',
-      //   body: new URLSearchParams({
-      //     PLACEMENT: 'DEFAULT',
-      //     HANDLER: 'https://front.april-app.ru/event/app/placement.php',
-      //     TITLE: 'Звонки тест Callings',
-      //     auth: tokenPayload.access_token,
-      //   }),
-      // });
     }
     const redirectUrl = new URL('/install', req.url);
     redirectUrl.searchParams.set('install', installStatus);

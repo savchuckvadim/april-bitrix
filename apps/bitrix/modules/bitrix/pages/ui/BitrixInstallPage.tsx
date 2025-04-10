@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@workspace/ui/components/button";
 import Link from "next/link";
 
-import { bxAPI, getBxService } from "@workspace/api";
+import {  getBxService } from "@workspace/api";
 
 
 export default function InstallPage({ installStatus }: { installStatus?: 'success' | 'fail' }) {

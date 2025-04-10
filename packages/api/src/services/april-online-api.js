@@ -237,6 +237,7 @@ export const onlineAPI = {
     }
 }
 
+
 export const onlineGeneralAPI = {
     getCollection: async (url, method, collectionName, data) => {
         let result = null

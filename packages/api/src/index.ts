@@ -5,6 +5,22 @@ export { hookAPI as hook } from "./services/april-hook-api";
 export { url as hookURL } from "./services/april-hook-api";
 
 export { onlineAPI as online } from "./services/april-online-api";
+export { onlineGeneralAPI } from "./services/april-online-api";
+export {
+  SETUP_ENDPOINT,
+
+} from './services/online/type/setup-type'
+export type {
+
+  BitrixAppToken,
+  BitrixAppPlacement,
+  BitrixAppPayload,
+  BitrixAppPlacementPayload
+} from './services/online/type/setup-type'
+export type {
+  OnlineResponse
+} from './services/online/type/response-type'
+
 export { url as onlineURL } from "./services/april-online-api";
 export { onlineHeaders } from "./services/april-hook-api";
 

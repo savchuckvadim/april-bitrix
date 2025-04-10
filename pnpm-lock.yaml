@@ -171,9 +171,6 @@ importers:
 
   packages/bx:
     dependencies:
-      '@workspace/api':
-        specifier: workspace:*
-        version: link:../api
       react:
         specifier: ^19.0.0
         version: 19.0.0

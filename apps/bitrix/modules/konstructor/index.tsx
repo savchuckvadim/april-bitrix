@@ -22,7 +22,7 @@ const KonstructorPage: React.FC<{ inBitrix: boolean }> = ({ inBitrix }) => {
     console.log(inBitrix)
     const isClient = useIsClient()
 
-    if (!isClient) return  <PageLoaderWrapper /> // или <PageLoader />
+    if (!isClient) return  <PageLoaderWrapper  /> // или <PageLoader />
     return (
         <AppLazyContainer inBitrix={inBitrix} />
 

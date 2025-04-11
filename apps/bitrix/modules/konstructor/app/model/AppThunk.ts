@@ -60,7 +60,7 @@ export const initAppServiceTask = (
 };
 
 export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getState: AppGetState) => {
-  if (typeof window !== 'undefined') {
+  // if (typeof window !== 'undefined') {
 
 
     const state = getState();
@@ -262,7 +262,7 @@ export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getS
         appActions.loading({ status: false })
       )
     }
-  }
+  // }
 };
 
 export const reloadApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {

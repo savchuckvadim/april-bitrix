@@ -333,7 +333,9 @@ export const onlineGeneralAPI = {
             return result
         } catch (error) {
 
+            console.log('online error')
 
+            console.log(error)
 
             return result
         }

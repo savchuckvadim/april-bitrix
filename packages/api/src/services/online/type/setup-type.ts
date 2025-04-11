@@ -1,7 +1,7 @@
 export enum SETUP_ENDPOINT {
-  CHECK = 'bitrix_setup/check',
-  APP = 'bitrix_setup/app',
-  PLACEMENT = 'bitrix_setup/placement'
+  CHECK = 'bitrix-setup/check',
+  APP = 'bitrix-setup/app',
+  PLACEMENT = 'bitrix-setup/placement'
 }
 
 export interface BitrixAppToken {

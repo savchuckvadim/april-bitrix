@@ -11,9 +11,9 @@ import {
 export const setupBitrixApp = async (data: BitrixAppPayload): Promise<OnlineResponse> => {
 
     const result = await online
-        .service(SETUP_ENDPOINT.CHECK, API_METHOD.POST, 'bitrix_app', data) as Promise<OnlineResponse>;
-        console.log('online result')
-        console.log(result)
-        return result;
+        .service(SETUP_ENDPOINT.CHECK, API_METHOD.POST, 'data', data) as Promise<OnlineResponse>;
+    console.log('online result')
+    console.log(result)
+    return result;
 
 };

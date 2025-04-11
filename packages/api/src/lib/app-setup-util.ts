@@ -1,9 +1,9 @@
-import { BXUser, InitBxResult} from "../type/bitrix-type";
-import { Placement, PlacementCallCard, EntitiesFromPlacement } from "../type/placement-type";
-import { getDisplayMode } from "../lib/placement-util";
-// import { bx } from "@workspace/api";
+import { BXUser, InitBxResult } from "@workspace/bx/src/type/bitrix-type";
+import { Placement, PlacementCallCard, EntitiesFromPlacement } from "@workspace/bx/src/type/placement-type";
+import { getDisplayMode } from "./placement-util";
+import { bxAPI } from "../services/bx-api";
 
-export const getAppPlacement = async (): Promise<{
+export const getAppPlacement = async (inBitrix: boolean): Promise<{
   placement: Placement | PlacementCallCard | null;
   companyPlacement: Placement;
 }> => {
@@ -17,7 +17,7 @@ export const getAppPlacement = async (): Promise<{
     } as Placement as Placement,
   };
 
-  // result.placement = __IN_BITRIX__ ? ((await bx.getPlacement()) as Placement | null) : null;
+  result.placement = inBitrix ? ((await bxAPI.getPlacement()) as Placement | null) : null;
 
   return result;
 };

@@ -1,7 +1,7 @@
 import type { BXTask, BXUser, Placement, EntitiesFromPlacement } from "@workspace/bx";
-import { getAppPlacement, initAppEntities, getEntitiesFromPlacement } from "@workspace/bx";
+import { getAppPlacement, initAppEntities, getEntitiesFromPlacement } from "@workspace/api";
 import { bxAPI as bx } from "@workspace/api";
-import { getBxService } from "@workspace/api";
+// import { getBxService } from "@workspace/api";
 import { portalAPI } from "@workspace/pbx";
 
 import { DEV_CURRENT_USER_ID, TESTING_DOMAIN, TESTING_PLACEMENT, TESTING_USER } from "../consts/app-global";
@@ -59,11 +59,13 @@ export const initAppServiceTask = (
   // }
 };
 
-export const initial = () => async (dispatch: AppDispatch, getState: AppGetState) => {
+export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getState: AppGetState) => {
   const state = getState();
   const app = state.app;
   const isLoading = app.isLoading
-  const BX24 = await getBxService()
+  const __IN_BITRIX__ = inBitrix
+  debugger
+  // const BX24 = await getBxService()
   /**
    * 
    * TEST
@@ -104,7 +106,7 @@ export const initial = () => async (dispatch: AppDispatch, getState: AppGetState
 
     const currentRoute = state.router.current;
 
-    const fetchedDdomain = __IN_BITRIX__ ? await bx.getDomain() : null;
+    const fetchedDdomain = __IN_BITRIX__ ? await bx.getDomain() : 'april-dev.bitrix24.ru';
     let domain = fetchedDdomain ? fetchedDdomain : TESTING_DOMAIN;
 
     // console.log('domain')
@@ -120,7 +122,7 @@ export const initial = () => async (dispatch: AppDispatch, getState: AppGetState
     // let currentCompany = null
     // let currentDeal = null
 
-    const placementData = await getAppPlacement();
+    const placementData = await getAppPlacement(inBitrix);
     console.log('getAppPlacement')
     console.log(placementData)
 
@@ -238,7 +240,7 @@ export const initial = () => async (dispatch: AppDispatch, getState: AppGetState
         //         ));
 
         // }
-
+debugger
         // dispatch(getDepartment(domain, user));
         dispatch(appActions.setInitializedSuccess({}));
         dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
@@ -251,6 +253,7 @@ export const initial = () => async (dispatch: AppDispatch, getState: AppGetState
       dispatch(appActions.setInitializedError({ errorMessage: "Компания не найдена" }));
     }
     debugger
+    dispatch(appActions.setInitializedSuccess({}));
     dispatch(
       appActions.loading({ status: false })
     )
@@ -266,7 +269,7 @@ export const reloadApp = () => async (dispatch: AppDispatch, getState: AppGetSta
 
   setTimeout(() => {
 
-  
+
     dispatch(
       // initialEventApp()
       appActions.reload()

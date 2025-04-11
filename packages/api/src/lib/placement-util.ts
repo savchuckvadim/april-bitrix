@@ -1,6 +1,6 @@
-import { CustomPlacement, DISPLAY_MODE, EntitiesFromPlacement } from "../type/placement-type";
-import { BXCompany, BXDeal, BXTask } from "../type/bitrix-type";
-import { Placement, PlacementCallCard } from "../type/placement-type";
+import { CustomPlacement, DISPLAY_MODE, EntitiesFromPlacement } from "@workspace/bx/src/type/placement-type";
+import { BXCompany, BXDeal, BXTask } from "@workspace/bx/src/type/bitrix-type";
+import { Placement, PlacementCallCard } from "@workspace/bx/src/type/placement-type";
 // import { bx } from "@workspace/api";
 
 

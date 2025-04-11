@@ -1,5 +1,3 @@
-export { getAppPlacement, initAppEntities } from "./lib/app-setup-util";
-export { getEntitiesFromPlacement } from "./lib//placement-util";
 
 //type
 export type {

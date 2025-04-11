@@ -6,6 +6,9 @@
       "@/*": [
         "./*"
       ],
+      "@konstructor/*": [
+        "./modules/konstructor/*"
+      ],
       "@workspace/ui/*": [
         "../../packages/ui/src/*"
       ]

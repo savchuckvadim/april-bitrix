@@ -52,3 +52,7 @@ export { getApiHeaders } from "./lib/header";
 
 //type
 export { API_METHOD } from "./type/type";
+
+
+export { getAppPlacement, initAppEntities } from "./lib/app-setup-util";
+export { getEntitiesFromPlacement } from "./lib/placement-util";

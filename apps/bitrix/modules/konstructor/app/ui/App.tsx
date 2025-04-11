@@ -1,67 +1,70 @@
-// import "./App.scss";
-// import "bootstrap/dist/css/bootstrap.min.css";
 'use client'
-// import { useAppDispatch, useAppSelector } from "../lib/hooks/redux";
-// import { Suspense, useEffect } from "react";
-// import { initial } from "../model/AppThunk";
-// import { Router } from "@/modules/konstructor/modules/processes/routes";
-
 import { Provider } from "react-redux";
 
-import { store } from "@/modules/konstructor/app/model/store";
+import { store } from "@konstructor/app/model/store";
+import { useAppDispatch, useAppSelector } from "../lib/hooks/redux";
+import { initial } from "../model/AppThunk";
+import { Suspense, useEffect } from "react";
+import { PageLoader, usePageLoad } from "@/modules/general";
 // import { Preloader } from "@workspace/ui";
 //@ts-ignore
 
 
-export const App = ({ inBitrix }: { inBitrix: boolean }) => (
-  <Provider store={store}>
-    {/* <EventApp inBitrix={inBitrix} /> */}
-    <div className="bg-background text-foreground">
-      <p>
-        Конструктор Коммерческих предложений Гарант
-      </p>
+const App = ({ inBitrix }: { inBitrix: boolean }) => {
+
+  console.log('App')
+  console.log(inBitrix)
+  return (
+    <Provider store={store}>
+      <KonstructorApp inBitrix={inBitrix} />
+    </Provider>
+  )
+}
+  ;
+const KonstructorApp = ({ inBitrix }: { inBitrix: boolean }) => {
+  debugger
+  console.log('TARGET KonstructorApp')
+  const dispatch = useAppDispatch();
+  const app = useAppSelector((state) => state.app);
+  const { loading } = usePageLoad(app.initialized)
+
+  if (!app.initialized && !app.isLoading) {
+    dispatch(initial(inBitrix));
+  }
+
+  useEffect(() => {
+    if (!app.initialized && !app.isLoading) {
+      dispatch(initial(inBitrix));
+    }
+  }, [app])
+  //TODO:
+  // - one more task
+  // - one presentation
+  debugger
+  return (
+    <div>
+      <div
+        // data-testid='DATA.APP.TEST_ID'
+        className="bg-background text-foreground"
+      // style={{ display: 'flex' }}
+      >
+        {
+          app.initialized
+            ? <>
+              Конструктор Коммерческих предложений Гарант
+            </>
+            //  <Suspense fallback={<>Загрузка ... </>}>
+
+            //       <>
+            //     Конструктор Коммерческих предложений Гарант
+            //    </>
+            //   </Suspense>
+
+            : <PageLoader visible={true} />
+        }
+
+      </div>
     </div>
-  </Provider>
-);
-// const EventApp = ({ inBitrix }: { inBitrix: boolean }) => {
-//   const dispatch = useAppDispatch();
-//   const app = useAppSelector((state) => state.app);
-
-//   if (!app.initialized && !app.isLoading) {
-//     dispatch(initial());
-//   }
-
-//   useEffect(() => {
-//     if (!app.initialized && !app.isLoading) {
-//       dispatch(initial());
-//     }
-//   }, [app])
-//   //TODO:
-//   // - one more task
-//   // - one presentation
-//   debugger
-//   return (
-//     <div>
-//       <div
-//         // data-testid='DATA.APP.TEST_ID'
-//         className="bg-background text-foreground"
-//       // style={{ display: 'flex' }}
-//       >
-//         {
-//           app.initialized
-//             ? <Suspense fallback={<>Загрузка ... </>}>
-//               {/* <Router />
-//                */}
-//               Конструктор Коммерческих предложений Гарант
-//               <></>
-//             </Suspense>
-
-//             : <p>
-//               Конструктор Коммерческих предложений Гарант
-//             </p>
-//         }
-
-//       </div>
-//     </div>
-//   );
-// };
+  );
+};
+export default App

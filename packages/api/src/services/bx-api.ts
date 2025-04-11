@@ -10,7 +10,7 @@ import {
     AuthData,
 
 } from '@bitrix24/b24jssdk'
-import { initializeB24Frame, B24Frame } from '@bitrix24/b24jssdk'
+import { initializeB24Frame } from '@bitrix24/b24jssdk'
 import { getLayout } from "./bx-helper/activity-helper"
 import { BXUser, CustomPlacement, Placement } from '@workspace/bx';
 

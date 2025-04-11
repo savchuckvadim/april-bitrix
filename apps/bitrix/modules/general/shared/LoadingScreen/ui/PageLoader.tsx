@@ -1,11 +1,11 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Image from 'next/image'
 
 export function PageLoader({ visible }: { visible: boolean }) {
     return (
-        <AnimatePresence>
+        <div>
             {visible && (
                 <motion.div
                     className="loading-screen bg-primary"
@@ -68,6 +68,6 @@ export function PageLoader({ visible }: { visible: boolean }) {
                     ></motion.div>
                 </motion.div>
             )}
-        </AnimatePresence>
+        </div>
     )
 }

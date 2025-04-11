@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     // let restOnly = true;
     const memberId = requestData.body['member_id'];
     const domain = req.nextUrl.searchParams.get('DOMAIN');
-
+    const applicationToken = req.nextUrl.searchParams.get('APP_SID');
     if (event === 'ONAPPINSTALL') {
       // пришёл через webhook
       const auth = JSON.parse(params.get('auth') || '{}');
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
         refresh_token: auth.refresh_token,
         expires_in: auth.expires_in,
         domain: domain,
-        application_token: auth.application_token,
+        application_token: applicationToken,
         member_id: memberId
 
       };
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
         refresh_token: params.get('REFRESH_ID'),
         expires_in: Number(params.get('AUTH_EXPIRES')),
         domain: domain,
-        application_token: params.get('APP_SID'), // как fallback
+        application_token: applicationToken, // как fallback
         member_id: memberId
 
       };
@@ -99,7 +99,8 @@ export async function POST(req: NextRequest) {
           client_secret: 'client_secret',
           expires_at: new Date(Date.now() + (tokenPayload.expires_in ?? 3600) * 1000).toISOString(),
           refresh_token: tokenPayload.refresh_token,
-          application_token: tokenPayload.application_token
+          application_token: tokenPayload.application_token,
+          member_id: tokenPayload.member_id
 
         }
       } as BitrixAppPayload

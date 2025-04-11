@@ -12,10 +12,10 @@ const online = axios.create({
     withCredentials: true,
     headers: {
         'content-type': 'application/json',
-        'accept': 'application/json', 
+        'accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
         'X-API-KEY': '__ONLINE_API_KEY__'
-        
+
     },
 })
 
@@ -23,7 +23,7 @@ const online = axios.create({
 // online.defaults.redirect = "follow";
 const authOnline = axios.create({
 
-    baseURL:  url,
+    baseURL: url,
 
     withCredentials: true,
     headers: {
@@ -50,20 +50,20 @@ function getCookie(name) {
 }
 export const auth = {
     async initial() {
-        
+
         try {
             let res = await authOnline.get("/sanctum/csrf-cookie");
-            
-            return res;  
+
+            return res;
         } catch (error) {
             console.log(error)
         }
-     
+
     },
     async getSanctumTest() {
-        
+
         let res = await online.get("/sntm/test");
-        
+
         return console.log(res);
     },
 }
@@ -306,7 +306,9 @@ export const onlineGeneralAPI = {
         try {
 
             const response = await online[method](url, data)
+            console.log('online response')
 
+            console.log(response)
             if (response && response.data) {
 
                 if (response.data.resultCode === 0) {

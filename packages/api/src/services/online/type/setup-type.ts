@@ -11,6 +11,7 @@ export interface BitrixAppToken {
     refresh_token: string;
     expires_at: string; // ISO string
     application_token?: string;
+    member_id?: string;
   }
   
   export interface BitrixAppPlacement {

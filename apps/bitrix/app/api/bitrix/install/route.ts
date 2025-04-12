@@ -87,6 +87,12 @@ export async function POST(req: NextRequest) {
 
     if (tokenPayload.access_token && tokenPayload.refresh_token && tokenPayload.domain) {
       installStatus = install ? 'success' : 'fail';
+      const expiresAt = new Date(Date.now() + (tokenPayload.expires_in ?? 3600) * 1000)
+        .toISOString()
+        .replace('T', ' ')
+        .replace('Z', '')
+        .split('.')[0]; // убираем миллисекунды
+
       const data = {
         code: 'sales_base',
         domain: tokenPayload.domain,
@@ -97,7 +103,7 @@ export async function POST(req: NextRequest) {
           access_token: tokenPayload.access_token,
           client_id: 'client_id',
           client_secret: 'client_secret',
-          expires_at: new Date(Date.now() + (tokenPayload.expires_in ?? 3600) * 1000).toISOString(),
+          expires_at: expiresAt,
           refresh_token: tokenPayload.refresh_token,
           application_token: tokenPayload.application_token,
           member_id: tokenPayload.member_id

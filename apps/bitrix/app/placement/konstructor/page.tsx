@@ -6,7 +6,7 @@
 // import dynamic from 'next/dynamic'
 
 // Клиентский компонент, только на клиенте
-
+'use server'
 import KonstructorApp from '@/modules/konstructor'
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ inBitrix?: 'y' | 'n' }> }) {

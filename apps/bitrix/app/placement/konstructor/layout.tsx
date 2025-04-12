@@ -4,7 +4,7 @@
 // import { Providers } from "@/components/providers"
 
 'use server'
-export default function KonstructorLayout({
+export default async function KonstructorLayout({
   children,
 }: Readonly<{
   children: React.ReactNode

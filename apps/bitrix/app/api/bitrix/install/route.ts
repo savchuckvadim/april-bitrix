@@ -88,11 +88,11 @@ export async function POST(req: NextRequest) {
     if (tokenPayload.access_token && tokenPayload.refresh_token && tokenPayload.domain) {
       installStatus = install ? 'success' : 'fail';
       const data = {
-        code: 'sales',
+        code: 'sales_base',
         domain: tokenPayload.domain,
         group: 'sales',
         status: 'active',
-        type: 'sales',
+        type: 'base',
         token: {
           access_token: tokenPayload.access_token,
           client_id: 'client_id',

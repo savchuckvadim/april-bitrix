@@ -26,6 +26,25 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <Head>
         <style>{`
+            html::before {
+              background-size: 150px !important;
+              opacity: 1;
+              content: "";
+              display: block;
+              position: fixed;
+              z-index: 999;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: url("/logo-animate.svg") no-repeat center, #fff;
+              transition: opacity 0.3s ease-in;
+            }
+                    
+            html.loaded::before {
+              opacity: 0;
+              pointer-events: none;
+            }
             #global-loader {
               position: fixed;
               inset: 0;

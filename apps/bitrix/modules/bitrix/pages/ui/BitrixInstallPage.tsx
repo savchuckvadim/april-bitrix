@@ -53,6 +53,24 @@ export default function InstallPage({ installStatus }: { installStatus?: 'succes
                     "GROUP_NAME": "konstructor_sales",
 
                 })
+
+                const KonstructorGETResult = await BX24.callMethod('placement.bind', {
+                    "PLACEMENT": "CRM_DEAL_DETAIL_TAB",
+                    "HANDLER": "https://april-bitrix-main.vercel.app/placement/konstructor",
+                    "OPTIONS": {
+                        "errorHandlerUrl": "https://front.april-app.ru/event/app/placement.php"
+                    },
+                    "TITLE": "Test Konstructor GET bind",
+                    "DESCRIPTION": "description",
+                    "GROUP_NAME": "konstructor_sales_get",
+
+                })
+
+                console.log('KonstructorGETResult')
+
+                console.log(KonstructorGETResult.getData().result)
+
+
                 const list = await BX24.callMethod('placement.list',)
                 console.log('KonstructorResult')
 

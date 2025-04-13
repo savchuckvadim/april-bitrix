@@ -17,42 +17,36 @@ import { NextRequest, NextResponse } from 'next/server';
 //   member_id?: string | null;
 // }
 
-interface RequestData {
+// interface RequestData {
 
-  body: { [key: string]: string }
+//   body: { [key: string]: string }
 
-  query: string
-}
+//   query: string
+// }
 //api/placement/konstructor
 
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
-    const params = new URLSearchParams(rawBody);
+    console.log('rawBody')
+    console.log(rawBody)
+    // const params = new URLSearchParams(rawBody);
 
-    const requestData: RequestData = {
+    // const requestData: RequestData = {
 
-      body: {},
+    //   body: {},
 
-      query: '',
-    };
+    //   query: '',
+    // };
 
-    params.forEach((value, key) => {
-      requestData.body[key] = value;
-    });
-    requestData.query = req.nextUrl.searchParams.toString();
+    // params.forEach((value, key) => {
+    //   requestData.body[key] = value;
+    // });
+    // requestData.query = req.nextUrl.searchParams.toString();
 
-    console.log('requestData')
-    console.log(requestData)
-    // const event = params.get('event');
-    // const placement = params.get('PLACEMENT');
+    // console.log('requestData')
+    // console.log(requestData)
 
-    // let tokenPayload: Partial<BitrixTokenPayload> = {};
-
-    // // let install = false;
-    // // let restOnly = true;
-    // const memberId = requestData.body['member_id'];
-    // const domain = req.nextUrl.searchParams.get('DOMAIN');
 
     const redirectUrl = new URL('/placement/konstructor', req.url);
     redirectUrl.searchParams.set('inBitrix', 'y');
@@ -63,10 +57,19 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('[Bitrix Install] error:', error);
 
-    const errorRedirect = new URL('/install', req.url);
+    const errorRedirect = new URL('/placement/konstructor', req.url);
     errorRedirect.searchParams.set('install', 'fail');
 
     return NextResponse.redirect(errorRedirect, 302);
   }
 }
 
+    // const event = params.get('event');
+    // const placement = params.get('PLACEMENT');
+
+    // let tokenPayload: Partial<BitrixTokenPayload> = {};
+
+    // // let install = false;
+    // // let restOnly = true;
+    // const memberId = requestData.body['member_id'];
+    // const domain = req.nextUrl.searchParams.get('DOMAIN');

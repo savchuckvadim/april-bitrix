@@ -3,29 +3,22 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import './loading.css';
+// import 'pace-js/themes/blue/pace-theme-flash.css';
 // import ScaleLoader from "react-spinners/ScaleLoader";
 import Image from 'next/image';
+
+import { usePace } from '../hooks/usePace';
 const LoadingScreen = () => {
     const [isVisible, setIsVisible] = useState(true);
 
+    usePace()
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsVisible(false);
-        }, 5000); // 3 секунды прелоадер
+        }, 3000); // 3 секунды прелоадер
 
         return () => clearTimeout(timer);
     }, []);
-
-    // useEffect(() => {
-    //     if (typeof window !== "undefined" && window.Pace) {
-    //         window.Pace.on("done", () => {
-    //             setIsVisible(true);
-    //         });
-    //     }
-    // }, []);
-
-    if (isVisible) return null;
-
 
     return (
         <div className="bg-white">
@@ -33,8 +26,10 @@ const LoadingScreen = () => {
 
                 (
                     <motion.div
-                        className="loading-screen bg-primary"
+                        // className="loading-screen bg-primary"
+                        className="loading-screen bg-background"
                         initial={{ opacity: 1 }}
+
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5, ease: 'easeInOut' }}
@@ -44,7 +39,7 @@ const LoadingScreen = () => {
                          */}
                             {/* <Rabbit size={50} />
                              */}
-                            <div className='p-5 rounded-xl bg-white'>
+                            <div className='p-2 rounded-xl bg-white'>
                                 <Image
                                     src="/logo.svg"
                                     alt="Logo"
@@ -55,15 +50,17 @@ const LoadingScreen = () => {
                                 />
 
 
-                            </div>
-                            <div className='p-2 h-2 flex justify-center items-center  mt-3  rounded-xl bg-white'>
-                                {/* <ScaleLoader
+
+                            </div> <p className='mt-1 text-background'>Апрель</p>
+                            {/* <div className='p-5 h-2 flex justify-center items-center  mt-3  rounded-xl bg-white'> */}
+                            {/* <ScaleLoader
                                     className='m-0 p-0 color-foreground '
                                     height={3}
                                     width={25}
                                 // color='foreground'
                                 /> */}
-                            </div>
+                            {/* <p className='text-background'>Апрель. App. Crm for Crm</p>  */}
+                            {/* </div>  */}
                         </div>
 
                         {/* <motion.div

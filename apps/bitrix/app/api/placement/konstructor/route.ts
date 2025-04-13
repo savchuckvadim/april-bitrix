@@ -27,9 +27,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const rawBody = await req.text();
-    console.log('rawBody')
-    console.log(rawBody)
+    // const rawBody = await req.text();
+    // console.log('rawBody')
+    // console.log(rawBody)
     // const params = new URLSearchParams(rawBody);
 
     // const requestData: RequestData = {

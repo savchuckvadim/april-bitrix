@@ -7,7 +7,7 @@
 
 // Клиентский компонент, только на клиенте
 'use server'
-import { LoadingScreen } from '@/modules/general'
+
 import KonstructorApp from '@/modules/konstructor'
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ inBitrix?: 'y' | 'n' }> }) {
@@ -30,7 +30,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ i
 
   return (
     <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
-      <LoadingScreen />
+ 
       <div className="w=1/3 h=1/3 bg-foreground text-background">
         <KonstructorApp inBitrix={inBitrix} />
       </div>

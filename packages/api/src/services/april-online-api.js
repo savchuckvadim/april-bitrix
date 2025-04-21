@@ -1,4 +1,5 @@
 // import { ONLINE_API_KEY } from "@/app/secret/online-secret";
+// import { getConfig } from "@/lib/config";
 import axios from "axios";
 
 
@@ -14,7 +15,7 @@ const online = axios.create({
         'content-type': 'application/json',
         'accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
-        'X-API-KEY': '__ONLINE_API_KEY__'
+        // 'X-API-KEY': getConfig().apiKey || ''
 
     },
 })
@@ -317,6 +318,46 @@ export const onlineGeneralAPI = {
                         result = response.data.data[model]
                     } else {
                         result = response.data[model]
+                    }
+
+                } else if (response.data.resultCode === 1) {
+
+                    if (response.data.message) {
+                        console.log(`${model} ${response.data.message}`)
+                    } else {
+                        console.log(response)
+                    }
+
+                }
+            }
+
+            return result
+        } catch (error) {
+
+            console.log('online error')
+
+            console.log(error)
+
+            return result
+        }
+    },
+
+    post: async (url, method, data, headers) => {
+        let result = null
+        try {
+
+            const response = await online[method](url, data, { headers })
+            console.log('online headers response')
+
+            console.log(response)
+            if (response && response.data) {
+
+                if (response.data.resultCode === 0) {
+
+                    if (response.data.data) {
+                        result = response.data.data
+                    } else {
+                        result = response.data
                     }
 
                 } else if (response.data.resultCode === 1) {

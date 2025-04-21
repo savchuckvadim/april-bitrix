@@ -8,7 +8,8 @@ import { routerReducer } from "../../processes/routes/model/RouterSlice";
 import { portalListener } from "../../entities/Portal/PortalListener";
 // import { preloaderReducer } from "@packages/ui";
 import { documentRouterReducer } from "../../processes/konstructor";
-import { infoblockAPI, infoblockReducer } from "../../entities/KonstructorInfoblock";
+import { infoblockAPI, infoblockReducer } from "../../entities/Infoblock";
+import { portalAPI, portalReducer } from "@workspace/pbx";
 // import { complectCurrentReducer, complectProfReducer, complectUniversalReducer } from "../../entities/KonstructorComplect";
 // import { portalAPI, portalReducer } from "../../../../../../packages/pbx/src";
 
@@ -51,8 +52,8 @@ const rootReducer = combineReducers({
   infoblock: infoblockReducer,
   [infoblockAPI.reducerPath]: infoblockAPI.reducer,
   //april
-  // portal: portalReducer,
-  // [portalAPI.reducerPath]: portalAPI.reducer,
+  portal: portalReducer,
+  [portalAPI.reducerPath]: portalAPI.reducer,
 
   //fom packages
   // preloader: preloaderReducer
@@ -64,7 +65,7 @@ export const setupStore = () => {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
         .prepend(listenerMiddleware.middleware) // Добавление listener middleware в начало цепочки
-        // .concat(portalAPI.middleware)
+        .concat(portalAPI.middleware)
         .concat(infoblockAPI.middleware)
     // .concat(taskAPI.middleware),
   });

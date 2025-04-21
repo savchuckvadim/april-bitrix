@@ -64,5 +64,15 @@ export type Placement = {
     taskId?: number;
     TASK_ID?: number;
   };
-  placement: string;
+  placement: PlacementPlace;
 };
+export type PlacementPlace = 'CRM_DEAL_DETAIL_TAB' |
+  'CRM_COMPANY_DETAIL_TAB' |
+  'CRM_LEAD_DETAIL_TAB' |
+  'CRM_DEAL_DETAIL_ACTIVITY' |
+  'CRM_COMPANY_DETAIL_ACTIVITY' |
+  'CRM_LEAD_DETAIL_ACTIVITY' |
+  'CRM_DEAL_DETAIL_TOOLBAR' |
+  'CRM_COMPANY_DETAIL_TOOLBAR' |
+  'CRM_LEAD_DETAIL_TOOLBAR' |
+  'DEFAULT'

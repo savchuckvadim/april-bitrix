@@ -33,9 +33,9 @@ export const AIServiceAPI = {
         let response = null as null | AIResponse;
         try {
             console.log("ai api");
-            debugger
+
             response = (await ai[method](url, data)) as AIResponse;
-            debugger
+
             console.log(response);
         } catch (error) {
             return result;

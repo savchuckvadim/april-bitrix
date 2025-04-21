@@ -1,0 +1,28 @@
+:root.pink-light {
+  --radius: 0.5rem;
+  --background: oklch(0.87 0.0459 0); /* белый */
+  --foreground: oklch(0.145 0 0); /* почти чёрный */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.628 0.26 12); /* ярко-розовый */
+  --primary-foreground: oklch(0.985 0.02 350); /* светлый */
+  --secondary: oklch(0.95 0.01 320);
+  --secondary-foreground: oklch(0.2 0 0);
+  --muted: oklch(0.95 0.01 320);
+  --muted-foreground: oklch(0.6 0.02 330);
+  --accent: oklch(0.95 0.01 320);
+  --accent-foreground: oklch(0.2 0 0);
+  --destructive: oklch(0.55 0.25 30);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.93 0.01 320);
+  --input: oklch(0.93 0.01 320);
+  --ring: oklch(0.628 0.26 12);
+  --radius: 0.5rem;
+  --chart-1: oklch(0.75 0.25 25); /* ярко-коралловый */
+  --chart-2: oklch(0.6 0.2 180);  /* зелёно-голубой */
+  --chart-3: oklch(0.45 0.15 260); /* тёмно-синий */
+  --chart-4: oklch(0.8 0.22 85);  /* жёлто-оранжевый */
+  --chart-5: oklch(0.8 0.26 40);  /* оранжевый */
+  }

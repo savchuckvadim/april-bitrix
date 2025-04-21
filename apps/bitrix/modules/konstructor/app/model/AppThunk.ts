@@ -13,54 +13,15 @@ import { AppDispatch, AppGetState } from "./store";
 // import { eventActions } from "@/modules/konstructor/processes/event";
 import { ROUTE_EVENT } from "@/modules/konstructor/processes/routes/types/router-type";
 
-import { CustomPlacement } from "@workspace/bx";
+import { CustomPlacement, DISPLAY_MODE } from "@workspace/bx";
+import { getDisplayMode } from "@workspace/api/";
 // import { setDepartmentMode } from "@/modules/konstructor/features/Departament/model/DepartmentThunk";
 // import { preloaderActions } from "@workspace/april";
 
-export const initAppTask = (
-  dispatch: AppDispatch,
-  currentTask: BXTask | null,
-  domain: string,
-  userId: number,
-  placement: Placement
-): void => {
-  // if (!currentTask) {
-  //   dispatch(initialEventTasks(null, userId, placement.options?.ID, domain || TESTING_DOMAIN));
-  //   // dispatch(taskAPI.endpoints.fetchTasks.initiate(data));
-  // } else {
-  //   const allTasksFromCurrentTask = [currentTask] as BXTask[];
-  //   const resultEventTasks = getEvTasksFromBxTasks(allTasksFromCurrentTask);
-  //   dispatch(initialTasksFromCurrentTask(resultEventTasks));
 
-  //   // dispatch(getInitSale(null, resultEventTasks));
-  // }
-};
-
-export const initAppServiceTask = (
-  dispatch: AppDispatch,
-  currentTask: BXTask | null,
-  domain: string,
-  userId: number,
-  placement: Placement
-): void => {
-
-
-  // if (!currentTask) {
-
-  //   dispatch(initialEventServiceTasks(null, userId, placement.options?.ID, domain || TESTING_DOMAIN));
-  //   // dispatch(taskAPI.endpoints.fetchTasks.initiate(data));
-  // } else {
-
-  //   const allTasksFromCurrentTask = [currentTask] as BXTask[];
-  //   // const resultEventTasks = getEvServiceTasksFromBxTasks(allTasksFromCurrentTask);
-  //   dispatch(initialServiceTasksFromCurrentTask(allTasksFromCurrentTask));
-
-  //   // dispatch(getInitSale(null, resultEventTasks));
-  // }
-};
-
-export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getState: AppGetState) => {
-  // if (typeof window !== 'undefined') {
+export const initial = (inBitrix: boolean) =>
+  async (dispatch: AppDispatch, getState: AppGetState) => {
+    // if (typeof window !== 'undefined') {
 
 
     const state = getState();
@@ -68,7 +29,7 @@ export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getS
     const isLoading = app.isLoading
     const __IN_BITRIX__ = inBitrix
 
-    debugger
+
     // const BX24 = await getBxService()
     /**
      * 
@@ -108,10 +69,13 @@ export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getS
 
       const appType = state.app.department;
 
+
       const currentRoute = state.router.current;
 
       const fetchedDdomain = __IN_BITRIX__ ? await bx.getDomain() : 'april-dev.bitrix24.ru';
       let domain = fetchedDdomain ? fetchedDdomain : TESTING_DOMAIN;
+      dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
+
 
       // console.log('domain')
       //@ts-ignore
@@ -123,8 +87,8 @@ export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getS
       //         ID: 0
       //     }
       // } as Placement
-      // let currentCompany = null
-      // let currentDeal = null
+      let currentCompany = null
+      let currentDeal = null
 
       const placementData = await getAppPlacement(inBitrix);
       console.log('getAppPlacement')
@@ -143,6 +107,7 @@ export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getS
       console.log("app placement");
 
       console.log(placement);
+
       /**
        *
        * FOR CONFIGURABLE ACTIVITY
@@ -170,42 +135,38 @@ export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getS
           const currentTask = entitiesFromPlacement.currentTask;
           const userId = user["ID"] || DEV_CURRENT_USER_ID;
 
-          // currentCompany = entitiesFromPlacement.currentCompany
-          // currentDeal = entitiesFromPlacement.currentDeal
+          currentCompany = entitiesFromPlacement.currentCompany
+          currentDeal = entitiesFromPlacement.currentDeal
           companyPlacement = entitiesFromPlacement.companyPlacement;
           // // const isDetail = isDetailPlacement(placement)
           // // const isActivity = isActivityPlacement(placement)
           // // const isTask = isTaskPlacement(placement)
-          // const displayMode = getDisplayMode(placement)
+          const displayMode = placement ? getDisplayMode(placement) : DISPLAY_MODE.ENTITY_CARD
 
           // if (displayMode == APP_DISPLAY_MODE.ENTITY_CARD) {
           //     __IN_BITRIX__ && await bitrixAPI.getFit()
           // }
 
-          // dispatch(
-          //     appActions.
-          //         setAppData(
-          //             {
-          //                 domain,
-          //                 user,
-          //                 placement: companyPlacement,
-          //                 company: currentCompany,
-          //                 deal: currentDeal,
-          //                 display: displayMode,
-          //                 // isDetail,
-          //                 // isTask,
-          //                 task: currentTask
+          dispatch(
+            appActions.
+              setAppData(
+                {
+                  domain,
+                  user,
+                  placement: companyPlacement,
+                  company: currentCompany,
+                  deal: currentDeal,
+                  display: displayMode,
+                  // isDetail,
+                  // isTask,
+                  task: currentTask
 
-          //             }
-          //         ))
+                }
+              ))
           const appEntities = await initAppEntities(entitiesFromPlacement, domain, user, companyPlacement);
           dispatch(appActions.setAppData(appEntities));
 
-          if (appType === APP_DEP.SALES) {
-            initAppTask(dispatch, currentTask, domain, userId, companyPlacement);
-          } else if (appType === APP_DEP.SERVICE) {
-            initAppServiceTask(dispatch, currentTask, domain, userId, companyPlacement);
-          }
+
           // if (!currentTask) {
           //     const userId = user['ID'] || DEV_CURRENT_USER_ID
           //     const data = {
@@ -244,10 +205,9 @@ export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getS
           //         ));
 
           // }
-          debugger
+
           // dispatch(getDepartment(domain, user));
           dispatch(appActions.setInitializedSuccess({}));
-          dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
           dispatch(
             appActions.loading({ status: false })
           )
@@ -256,14 +216,14 @@ export const initial = (inBitrix: boolean) => async (dispatch: AppDispatch, getS
       } else {
         dispatch(appActions.setInitializedError({ errorMessage: "Компания не найдена" }));
       }
-      debugger
+
       dispatch(appActions.setInitializedSuccess({}));
       dispatch(
         appActions.loading({ status: false })
       )
     }
-  // }
-};
+    // }
+  };
 
 export const reloadApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {
 

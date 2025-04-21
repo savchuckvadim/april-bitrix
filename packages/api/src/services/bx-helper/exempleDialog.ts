@@ -646,7 +646,7 @@
 // 		dialogId = Number(dialogId)
 // 	}
 	
-// 	debugger
+// 	
 // 	return $b24.parent.imOpenHistory(
 // 		dialogId
 // 	)

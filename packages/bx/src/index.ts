@@ -3,6 +3,7 @@
 export type {
   InitBxResult,
   BXTask,
+  BXDepartment,
   BXUser,
   BXLead,
   BXCompany,

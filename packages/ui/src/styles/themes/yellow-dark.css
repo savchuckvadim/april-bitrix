@@ -1,0 +1,27 @@
+:root.yellow-dark {
+  --radius: 0.5rem;
+  --background: oklch(0.17 0.02 95);
+  --foreground: oklch(0.98 0.005 95);
+  --card: oklch(0.43 0.0652 107.58);
+  --card-foreground: oklch(0.98 0.005 95);
+  --popover: oklch(0.43 0.0652 107.58);
+  --popover-foreground: oklch(0.98 0.005 95);
+  --primary: oklch(0.78 0.21 95);
+  --primary-foreground: oklch(0.25 0.04 95);
+  --secondary: oklch(0.2 0.01 85);
+  --secondary-foreground: oklch(0.98 0.005 95);
+  --muted: oklch(0.2 0.01 85);
+  --muted-foreground: oklch(0.6 0.02 85);
+  --accent: oklch(0.2 0.01 85);
+  --accent-foreground: oklch(0.98 0.005 95);
+  --destructive: oklch(0.4 0.2 25);
+  --destructive-foreground: oklch(0.98 0.005 95);
+  --border: oklch(0.2 0.01 85);
+  --input: oklch(0.2 0.01 85);
+  --ring: oklch(0.7 0.2 90);
+  --chart-1: oklch(0.74 0.18 80);
+  --chart-2: oklch(0.6 0.16 140);
+  --chart-3: oklch(0.55 0.12 200);
+  --chart-4: oklch(0.8 0.16 90);
+  --chart-5: oklch(0.76 0.14 70);
+  }

@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "outDir": "./build/",
+        "noImplicitAny": true,
+        "module": "ESNext",
+        "target": "es5",
+        "jsx": "react-jsx",
+        "allowJs": true,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "resolveJsonModule": true,
+        "paths": {
+            "@/*": [
+                "src/*"
+            ] // Это указывает путь к алиасу
+        }
+    },
+    "ts-node": {
+        "compilerOptions": {
+            "module": "CommonJS"
+        }
+    },
+    "include": [
+        "src/**/*",
+        "src/global.d.ts"
+    ]
+}

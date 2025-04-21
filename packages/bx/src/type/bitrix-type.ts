@@ -1,5 +1,6 @@
 import { DISPLAY_MODE, Placement, PlacementCallCard } from "./placement-type";
 
+
 export interface InitBxResult {
     domain: string;
     user: BXUser;
@@ -17,6 +18,15 @@ export enum BX_TASK_MARK {
     BAD='N'
 
 }
+export interface BXDepartment {
+    ID: number
+    NAME: string
+    PARENT: string // "1"
+    SORT: number
+    UF_HEAD?: number[] | number | string[] | string // "1"
+    USERS: BXUser[] | null
+}
+
 export interface BXTask {
 
     accomplices: []
@@ -107,6 +117,7 @@ export interface BXUser {
     UF_DEPARTMENT: Array<number>
     UF_EMPLOYMENT_DATE: string
     UF_PHONE_INNER: string
+    UF_HEAD_DEPARTMENT: string
     // UF_USR_1570437798556: boolean
     USER_TYPE: string
     WORK_PHONE: string

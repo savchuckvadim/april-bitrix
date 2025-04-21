@@ -5,7 +5,7 @@ import { store } from "@konstructor/app/model/store";
 import { useAppDispatch, useAppSelector } from "../lib/hooks/redux";
 import { initial } from "../model/AppThunk";
 import { Suspense, useEffect } from "react";
-import { PageLoader, usePageLoad } from "@/modules/general";
+import { LoadingScreen, PageLoader, usePageLoad } from "@/modules/general";
 // import { Preloader } from "@workspace/ui";
 //@ts-ignore
 
@@ -22,7 +22,7 @@ const App = ({ inBitrix }: { inBitrix: boolean }) => {
 }
   ;
 const KonstructorApp = ({ inBitrix }: { inBitrix: boolean }) => {
-  debugger
+
   console.log('TARGET KonstructorApp')
   const dispatch = useAppDispatch();
   const app = useAppSelector((state) => state.app);
@@ -40,7 +40,7 @@ const KonstructorApp = ({ inBitrix }: { inBitrix: boolean }) => {
   //TODO:
   // - one more task
   // - one presentation
-  debugger
+
   return (
     <div>
       <div
@@ -60,7 +60,7 @@ const KonstructorApp = ({ inBitrix }: { inBitrix: boolean }) => {
             //    </>
             //   </Suspense>
 
-            : <PageLoader visible={true} />
+            : <LoadingScreen />
         }
 
       </div>

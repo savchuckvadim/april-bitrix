@@ -17,7 +17,7 @@ export const portalAPI = createApi({
             headers.set('X-Requested-With', onlineHeaders['X-Requested-With']);
             headers.set('accept', onlineHeaders['accept']);
             headers.set('content-type', onlineHeaders['content-type']);
-            headers.set('X-API-KEY', onlineHeaders['X-API-KEY']);
+            // headers.set('X-API-KEY', onlineHeaders['X-API-KEY']);
             return headers;
         }
     }),

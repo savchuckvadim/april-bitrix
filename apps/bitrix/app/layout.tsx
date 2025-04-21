@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google"
 import "@workspace/ui/globals.css"
+import "@workspace/theme/themes.css"
 import { Providers } from "@/components/providers"
 import { LoadingScreen } from "@/modules/general"
 

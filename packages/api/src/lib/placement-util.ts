@@ -94,7 +94,7 @@ export const getDisplayMode = (placement: Placement | PlacementCallCard): DISPLA
 export const getEntitiesFromPlacement = async (placement: Placement | PlacementCallCard | CustomPlacement, domain: string): Promise<EntitiesFromPlacement> => {
 
     let companyPlacement = {
-        placement: 'COMPANY',
+        placement: 'CRM_COMPANY_DETAIL_TAB',
         options: {
             ID: 0
         }

@@ -14,7 +14,7 @@
 
 //     let component = <Preloader />
 
-// debugger
+//
 //     switch (currentProcess) {
 
 //         case ROUTE.COMPLECT:

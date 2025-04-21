@@ -10,7 +10,7 @@ export const getAppPlacement = async (inBitrix: boolean): Promise<{
   const result = {
     placement: null as Placement | PlacementCallCard | null,
     companyPlacement: {
-      placement: "COMPANY",
+      placement: "CRM_COMPANY_DETAIL_TAB",
       options: {
         ID: 0,
       },

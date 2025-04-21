@@ -31,6 +31,7 @@ const portalSlice = createSlice({
 
         ) => {
             const payload = action.payload;
+
             state.portal = payload.portal
         },
 

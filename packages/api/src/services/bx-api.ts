@@ -13,6 +13,9 @@ import {
 import { initializeB24Frame } from '@bitrix24/b24jssdk'
 import { getLayout } from "./bx-helper/activity-helper"
 import { BXUser, CustomPlacement, Placement } from '@workspace/bx';
+import { PlacementPlace } from '@workspace/bx/src/type/placement-type';
+import { hookAPI } from './april-hook-api';
+import { API_METHOD } from '../type/type';
 
 type B24 = Awaited<ReturnType<typeof initializeB24Frame>>;
 
@@ -60,7 +63,7 @@ export const bxAPI = {
         const b24 = await getBxService();
         return {
             options: b24.placement.options,
-            placement: b24.placement.title
+            placement: b24.placement.title as PlacementPlace
         }
     },
     getFit: async () => {
@@ -96,6 +99,40 @@ export const bxAPI = {
             return currentUser;
         }
     },
+    getProtectedMethod: async (
+        method: string,
+        data: object,
+        domain: string = '',
+        inBitrix: boolean = false
+
+    ) => {
+        const b24 = await getBxService();
+        let result = null;
+        let response = null;
+        try {
+            if (inBitrix) {
+                response = await b24.callMethod(method, data);
+            } else {
+                const bxReqHookData = {
+                    domain,
+                    method,
+                    bxData: data,
+                };
+                result = await hookAPI.service("bitrix/method", API_METHOD.POST, "result", bxReqHookData);
+            }
+            if (response) {
+                result = response;
+            }
+
+            return result;
+        } catch (error) {
+            console.log("error");
+            console.log(response);
+            console.log(error);
+
+            return result;
+        }
+    },
     saleInit: async (dealId: null | number, companyId: null | number,) => {
         const b24 = await getBxService();
 
@@ -105,7 +142,7 @@ export const bxAPI = {
         const authData = b24.auth.getAuthData()
 
 
-        debugger
+
         try {
             const result = await b24.callBatch({
                 CompanyList: {

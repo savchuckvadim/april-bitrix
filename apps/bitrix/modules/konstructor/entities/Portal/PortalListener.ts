@@ -10,12 +10,12 @@ export const portalListener = () => (
             const portal = action.payload.portal
             const { dispatch, getState, condition } = listenerApi;
             await listenerApi.condition(
-                //@ts-ignore
-                (action, state: RootState) => {
 
-                    return (state.app as AppState) && // Проверяем, что `app` существует
-                        (state.app as AppState).bitrix && // Проверяем, что `bitrix` существует
-                        !!(state.app as AppState).bitrix.company
+                (action, currentState, previousState) => {
+                    const app = (currentState as RootState).app
+                    return (app as AppState) && // Проверяем, что `app` существует
+                        (app as AppState).bitrix && // Проверяем, что `bitrix` существует
+                        !!(app as AppState).bitrix.company
                 }, // Проверяем, что `company` заполнено
                 5000
             );
@@ -27,5 +27,5 @@ export const portalListener = () => (
 
         },
     })
-    
+
 )

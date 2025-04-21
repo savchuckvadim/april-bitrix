@@ -18,7 +18,7 @@
 //     (domain: string, userId: number) => async (dispatch: AppDispatchType, getState: GetStateType) => {
 //         let providers: Provider[] | undefined;
 //         let currenUserProvider: ProviderUser | undefined;
-//         debugger
+//
 //         const data = {
 //             domain,
 //             userId,
@@ -34,7 +34,7 @@
 //         removeOldPortalCache(localPrifixProviderUser)
 //         providers = await getFromLocalStorage(storageKeyProvider, secretKey);
 //         currenUserProvider = await getFromLocalStorage(storageKeyProviderUser, secretKey);
-//         debugger
+//
 //         if (!providers || !currenUserProvider) {
 //             const response = await onlineAPI
 //                 .service(
@@ -43,24 +43,24 @@
 //                     'result',
 //                     data
 //                 ) as { providers: Provider[], current: ProviderUser } | null
-//             debugger
+//
 //             if (response && response.providers && response.current) {
 //                 providers = response.providers;
 //                 currenUserProvider = response.current
 //                 await saveToLocalStorage(storageKeyProvider, providers, secretKey);
 //                 await saveToLocalStorage(storageKeyProviderUser, currenUserProvider, secretKey);
-//                 debugger
+//
 
 //             }
 //         }
 //         if (providers && currenUserProvider) {
 //             providers = providers as Provider[];
 //             currenUserProvider = currenUserProvider as ProviderUser
-//             debugger
+//
 //             const currentProvider = providers.find(p => p.id == (currenUserProvider as ProviderUser).agentId) || null;
 //             dispatch(documentProvidertAC.setInit(providers, currentProvider));
 //         }
-//         debugger
+//
 //         // provider && dispatch(documentProvidertAC.setProviderUser(provider));
 //     };
 

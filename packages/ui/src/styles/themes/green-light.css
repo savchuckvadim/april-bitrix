@@ -1,0 +1,34 @@
+:root.green-light {
+  --radius: 0.4rem;
+  --background: oklch(0.91 0.1065 141.46); /* светло-зелёный */
+  --foreground: oklch(0.24 0.04 145); /* насыщенно-зелёный текст */
+  --card: oklch(0.98 0.02 145);
+  --card-foreground: oklch(0.24 0.04 145);
+  --popover: oklch(0.98 0.02 145);
+  --popover-foreground: oklch(0.24 0.04 145);
+  --primary: oklch(0.65 0.18 142); /* основной зелёный */
+  --primary-foreground: oklch(0.98 0.02 145);
+  --secondary: oklch(0.93 0.03 145);
+  --secondary-foreground: oklch(0.26 0.04 145);
+  --muted: oklch(0.93 0.03 145);
+  --muted-foreground: oklch(0.5 0.04 145);
+  --accent: oklch(0.93 0.03 145);
+  --accent-foreground: oklch(0.24 0.04 145);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.98 0.02 0);
+  --sidebar: oklch(0.98 0.02 145);
+  --sidebar-foreground: oklch(0.24 0.04 145);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.98 0.02 145);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.98 0.02 145);
+  --border: oklch(0.93 0.03 145);
+  --input: oklch(0.93 0.03 145);
+  --ring: oklch(0.65 0.18 142);
+  --radius: 0.5rem;
+  --chart-1: oklch(0.6 0.18 142);
+  --chart-2: oklch(0.55 0.14 173);
+  --chart-3: oklch(0.45 0.12 197);
+  --chart-4: oklch(0.7 0.16 90);
+  --chart-5: oklch(0.7 0.14 120);
+  }

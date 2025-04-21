@@ -1,6 +1,11 @@
 //
 
+//config
+export { setConfig } from "./lib/config";
+
 // api
+export { backAPI, EBACK_ENDPOINT, EResultCode } from "./services/back-api";
+export type { IBackResponse } from "./services/back-api";
 export { hookAPI as hook } from "./services/april-hook-api";
 export { url as hookURL } from "./services/april-hook-api";
 
@@ -55,4 +60,4 @@ export { API_METHOD } from "./type/type";
 
 
 export { getAppPlacement, initAppEntities } from "./lib/app-setup-util";
-export { getEntitiesFromPlacement } from "./lib/placement-util";
+export { getEntitiesFromPlacement, getDisplayMode } from "./lib/placement-util";

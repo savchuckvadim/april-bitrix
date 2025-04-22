@@ -75,6 +75,8 @@ export const bxAPI = {
         const b24 = await getBxService();
         const authData = b24.auth.getAuthData() as false | AuthData
         // Проверка, чтобы не упасть, если authData = false
+        console.log('authData')
+        console.log(authData)
         if (!authData) return null;
 
         return authData.domain;

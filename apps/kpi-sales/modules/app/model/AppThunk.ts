@@ -26,6 +26,9 @@ export const initial = (inBitrix: boolean = false) =>
       console.log("user");
 
       console.log(user);
+      console.log("user");
+
+      console.log(user);
 
       dispatch(
         appActions.

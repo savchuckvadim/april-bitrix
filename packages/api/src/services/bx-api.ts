@@ -78,8 +78,11 @@ export const bxAPI = {
         console.log('authData')
         console.log(authData)
         if (!authData) return null;
-
-        return authData.domain;
+        const domain = authData.domain;
+        const hostname = new URL(domain).hostname;
+        console.log('hostname')
+        console.log(hostname)
+        return hostname;
 
 
     },

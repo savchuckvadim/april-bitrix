@@ -1,4 +1,3 @@
-
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { portalActions } from './PortalSlice';
 import { getFromLocalStorage, getStorageKey, saveToLocalStorage } from '@workspace/api/';
@@ -28,7 +27,7 @@ export const portalAPI = createApi({
                 const localPrifix = 'portal_cache';
                 const storageKey = getStorageKey(localPrifix);
                 const secretKey = data.domain || 'nmbrsdntl'; // Ваш ключ для шифрования
-                
+
                 removeOldPortalCache(localPrifix)
                 // Попробуем получить данные из кеша
                 const cachedData = await getFromLocalStorage(storageKey, secretKey);
@@ -69,7 +68,7 @@ export const portalAPI = createApi({
                 return { data: result.data.portal };
             },
 
-            onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
+            onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
                 try {
                     const { data } = await queryFulfilled;
                     dispatch(portalActions.setPortal({ portal: data }));

@@ -20,7 +20,7 @@ const LoadingScreen = () => {
         if (typeof window !== 'undefined') {
             const timer = setTimeout(() => {
                 setIsVisible(false);
-            }, 700); // 3 секунды прелоадер
+            }, 1200); // 3 секунды прелоадер
 
             return () => clearTimeout(timer);
             // setIsVisible(false)
@@ -76,7 +76,7 @@ const LoadingScreen = () => {
                             className=" p-0 m-0 horizontal-line h-[2px] bg-indigo-600"
                             initial={{ scaleX: 0 }}
                             animate={{ scaleX: 1 }}
-                            transition={{ duration: 1, ease: 'easeInOut' }}
+                            transition={{ duration: 0.6, ease: 'easeInOut' }}
                         />
                         {/* <Rabbit size={55} />
                         <p className='mt-10'>Loading...</p> */}
@@ -86,7 +86,7 @@ const LoadingScreen = () => {
                             initial={{ y: 0 }}
                             animate={{ y: '-100%' }}
                             exit={{ y: '-100%' }}
-                            transition={{ duration: 0.8, delay: 1, ease: 'easeInOut' }}
+                            transition={{ duration: 0.4, delay: 0.2, ease: 'easeInOut' }}
                         ></motion.div>
 
 
@@ -95,7 +95,7 @@ const LoadingScreen = () => {
                             initial={{ y: 0 }}
                             animate={{ y: '100%' }}
                             exit={{ y: '100%' }}
-                            transition={{ duration: 0.8, delay: 1, ease: 'easeInOut' }}
+                            transition={{ duration: 0.4, delay: 0.2, ease: 'easeInOut' }}
                         ></motion.div>
                     </motion.div>
                 </div>

@@ -1,14 +1,14 @@
 import React from 'react';
 import { useReport } from '../model';
-import { Button } from '@workspace/ui/components/button';
+
 import Filter from './Filter';
 
 import KPIReportTable from './Tables/KPIReportTable';
 import Graphics from './Graphics';
-import { DownLoad } from '@/modules/feature';
-import { ThemeToggler } from '@workspace/theme';
+
 import { Processing } from '@/modules/shared';
 import ReportHeader from './ReportHeader/ReportHeader';
+import { CallingStatistics } from '../../calling-statistics';
 const Report = () => {
     const {
         report,
@@ -38,42 +38,7 @@ const Report = () => {
             {isLoading || !isFetched ?
                 <Processing />
                 : (<>
-                    {/* <div className="flex justify-between items-center mb-4">
-                        <div className='flex flex-row'>
-                            <ThemeToggler />
-                            <h1 className="ml-2  text-xl font-bold">KPI</h1>
-
-                        </div>
-                        <div className='flex flex-row items-center '>
-
-                            <div className='mr-2'>
-                                {isFilterOpen ?
-                                    <Button
-                                        variant="default"
-
-                                        onClick={() => {
-                                            handleUpdateReport()
-                                            setIsFilterOpen(!isFilterOpen)
-                                        }}
-                                    >
-                                        {'Применить'}
-                                    </Button>
-
-                                    :
-                                    <DownLoad />
-
-
-                                }
-                            </div>
-                            <Button
-                                variant="outline"
-                                className='cursor-pointer'
-                                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            >
-                                {isFilterOpen ? 'Скрыть фильтры' : 'Показать фильтры'}
-                            </Button>
-                        </div>
-                    </div> */}
+                   
                     <ReportHeader
                         isFilterOpen={isFilterOpen}
                         setIsFilterOpen={setIsFilterOpen}
@@ -94,6 +59,9 @@ const Report = () => {
                             <KPIReportTable report={report} />
                             <div className='mt-3'>
                                 <Graphics />
+                            </div>
+                            <div>
+                                <CallingStatistics />
                             </div>
                         </div>
                     )}

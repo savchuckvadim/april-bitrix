@@ -14,5 +14,5 @@ import App from '@/modules/app/ui/App';
 // });
 
 export default function ReportPage() {
-    return <App inBitrix={false} />;
+    return <App inBitrix={true} />;
 } 

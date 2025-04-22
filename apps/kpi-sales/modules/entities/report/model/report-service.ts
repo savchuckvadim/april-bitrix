@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { getApiHeaders, hookURL } from '@workspace/api';
 import { BXUser, BXDepartment } from "@workspace/bx";
-import { ReportData, ReportCallingData, Filter, FilterInnerCode, ReportDateType } from './types/report/report-type';
+import { ReportData, FilterInnerCode, ReportDateType } from './types/report/report-type';
 
 const onlineHeaders = getApiHeaders(process.env.ONLINE_API_KEY || '')
 
@@ -53,13 +53,13 @@ export const reportAPI = createApi({
                 body: reportData
             })
         }),
-        getCallingStatistics: builder.query<ReportCallingData[], ReportRequest>({
-            query: (reportData) => ({
-                url: 'full/report/callings',
-                method: 'POST',
-                body: reportData
-            })
-        }),
+        // getCallingStatistics: builder.query<ReportCallingData[], ReportRequest>({
+        //     query: (reportData) => ({
+        //         url: 'full/report/callings',
+        //         method: 'POST',
+        //         body: reportData
+        //     })
+        // }),
         getFilter: builder.query<FilterResponse, { domain: string; userId: number }>({
             query: ({ domain, userId }) => ({
                 url: 'report/settings/get/filter',
@@ -87,7 +87,7 @@ export const reportAPI = createApi({
 
 export const {
     useGetReportQuery,
-    useGetCallingStatisticsQuery,
+    // useGetCallingStatisticsQuery,
     useGetFilterQuery,
     useSaveFilterMutation
 } = reportAPI 

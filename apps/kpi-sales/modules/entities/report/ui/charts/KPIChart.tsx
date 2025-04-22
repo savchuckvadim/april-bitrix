@@ -59,7 +59,7 @@ const KPIChart: React.FC = () => {
             },
             title: {
                 display: true,
-                text: 'KPI Report',
+                text: 'KPI Отчет',
             },
         },
         scales: {
@@ -72,7 +72,7 @@ const KPIChart: React.FC = () => {
     return (
         <Card className='bg-card text-primary'>
             <CardHeader>
-                <CardTitle>KPI Chart</CardTitle>
+                <CardTitle>KPI Отдела продаж</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className='flex flex-row justify-end cursor-pointer'>

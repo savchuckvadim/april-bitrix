@@ -1,6 +1,6 @@
 import { AppDispatch, RootState } from '@/modules/app/model/store';
 import { reportActions } from './report-slice';
-import { ReportDateType, Filter, FilterInnerCode, ReportCallingData, ReportData, FilterResponse, IFilterResponse, IDepartmentResponse } from './types/report/report-type';
+import { ReportDateType, Filter, FilterInnerCode,  IFilterResponse, IDepartmentResponse } from './types/report/report-type';
 import { format, parseISO, addDays } from 'date-fns';
 import { ReportRequest } from './report-service';
 import { departmentActions } from '../../departament';
@@ -11,6 +11,7 @@ import { EBACK_ENDPOINT, EResultCode } from '@workspace/api';
 import { getIsUserHead } from './report-util';
 import { IHookData } from '@/app/api/proxy/hook/route';
 import { getReportDataAPI } from '../lib/helpers';
+import { callingStatisticsApi } from '../../calling-statistics';
 
 
 export const getReportData = () =>
@@ -195,8 +196,8 @@ export const getReportData = () =>
             // const reportResponse = await res.json() as Array<ReportData> | null
             debugger
 
-            dispatch(getCallingStatistics(reportData));
-
+            // dispatch(getCallingStatistics(reportData));
+            dispatch(callingStatisticsApi.endpoints.getCallingStatistics.initiate(reportData));
             if (reportResponse) {
                 dispatch(reportActions.setFetchedReport({
                     report: reportResponse,
@@ -230,41 +231,6 @@ export const getReportData = () =>
         dispatch(reportActions.setLoadingReportStatus(false));
     };
 
-export const getCallingStatistics = (reportData: any) => async (dispatch: AppDispatch, getState: () => RootState) => {
-    const isLoading = getState().report.calling.isLoading;
-    if (!isLoading) {
-        dispatch(reportActions.setIsLoadingCallings(true));
-        // const reportResponse = await hookAPI.service(
-        //     'full/report/callings',
-        //     API_METHOD.POST,
-        //     'report',
-        //     reportData
-        // ) as Array<ReportCallingData> | null
-        let reportResponse: Array<ReportCallingData> | null = null;
-        try {
-            const data = {
-                url: 'full/report/callings',
-                method: API_METHOD.POST,
-                model: 'report',
-                data: reportData
-            } as IHookData
-            const response = await fetch('/api/proxy/hook', {
-                method: API_METHOD.POST,
-                headers: {
-                    'Content-Type': 'application/json', // 💥 обязательно
-                },
-                body: JSON.stringify(data),
-            });
-            reportResponse = await response.json() as Array<ReportCallingData> | null
-        } catch (error) {
-            console.error('❌ Proxy error:', error);
-        }   
-        dispatch(reportActions.setFetchedCallings(
-            reportResponse
-        ));
-        dispatch(reportActions.setIsLoadingCallings(false));
-    }
-};
 
 export const changeDate = (typeOfDate: ReportDateType, date: string) => async (dispatch: AppDispatch) => {
     dispatch(reportActions.setChangedDate({ typeOfDate, value: date }));

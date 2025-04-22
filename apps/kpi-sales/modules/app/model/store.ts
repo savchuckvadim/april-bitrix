@@ -6,6 +6,9 @@ import { reportAPI } from "@/modules/entities/report/model/report-service";
 import reportReducer from "@/modules/entities/report/model/report-slice";
 import { download } from "@/modules/feature/download";
 // import { reportMiddleware } from '@/modules/entities/report/model/report-middleware';
+import { callingStatisticsReducer } from "@/modules/entities/calling-statistics";
+import { callingStatisticsApi } from "@/modules/entities/calling-statistics/model/callingStatisticsService";
+
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -18,6 +21,8 @@ const rootReducer = combineReducers({
   [departmentAPI.reducerPath]: departmentAPI.reducer,
   report: reportReducer,
   [reportAPI.reducerPath]: reportAPI.reducer,
+  callingStatistics: callingStatisticsReducer,
+  [callingStatisticsApi.reducerPath]: callingStatisticsApi.reducer,
   download
 
 });
@@ -29,6 +34,8 @@ export const setupStore = () => {
       getDefaultMiddleware()
         // .concat(portalAPI.middleware)
         // .concat(infoblockAPI.middleware)
+        .concat(callingStatisticsApi.middleware)
+        
         .concat(departmentAPI.middleware)
         .concat(reportAPI.middleware)
     // .concat(reportMiddleware)

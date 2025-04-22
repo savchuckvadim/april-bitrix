@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { format } from 'date-fns';
-import { Filter, FilterInnerCode, KPIAction, ReportCallingData, ReportData, ReportDate, ReportDateType, ReportDetalization }
+import { Filter, FilterInnerCode, KPIAction, ReportData, ReportDate, ReportDateType, ReportDetalization }
     from "./types/report/report-type";
 
 export type ReportState = typeof initialState;
@@ -21,11 +21,11 @@ const initialState = {
         items: [] as Array<Filter>,
         current: [] as Array<Filter>,
     },
-    calling: {
-        items: null as ReportCallingData[] | null,
-        isFetched: false,
-        isLoading: false as boolean,
-    },
+    // calling: {
+    //     items: null as ReportCallingData[] | null,
+    //     isFetched: false,
+    //     isLoading: false as boolean,
+    // },
     date: {
         [ReportDateType.FROM]: getInitialDate().first as string,
         [ReportDateType.TO]: getInitialDate().current as string,
@@ -119,13 +119,13 @@ const reportSlice = createSlice({
         setFetchedReportStatus: (state: ReportState, action: PayloadAction<boolean>) => {
             state.isFetched = action.payload;
         },
-        setIsLoadingCallings: (state: ReportState, action: PayloadAction<boolean>) => {
-            state.calling.isLoading = action.payload;
-        },
-        setFetchedCallings: (state: ReportState, action: PayloadAction<ReportCallingData[] | null>) => {
-            state.calling.items = action.payload;
-            state.calling.isFetched = true;
-        },
+        // setIsLoadingCallings: (state: ReportState, action: PayloadAction<boolean>) => {
+        //     state.calling.isLoading = action.payload;
+        // },
+        // setFetchedCallings: (state: ReportState, action: PayloadAction<ReportCallingData[] | null>) => {
+        //     state.calling.items = action.payload;
+        //     state.calling.isFetched = true;
+        // },
         setCurrentReportItem: (state: ReportState, action: PayloadAction<number>) => {
             state.currentReportItem = action.payload;
         },

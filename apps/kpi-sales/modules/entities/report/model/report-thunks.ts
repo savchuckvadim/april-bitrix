@@ -21,7 +21,8 @@ export const getReportData = () =>
         const domain = state.app.domain;
         const currentUser = state.app.bitrix.user;
         const currentUserId = currentUser?.ID;
-
+        console.log('currentUserId', currentUserId)
+        console.log('domain', domain)
         if (currentUserId) {
 
 

@@ -2,8 +2,8 @@ import { API_METHOD } from "../type/type";
 import axios, { AxiosResponse } from "axios";
 
 
-//  const prod = 'https://back.april-app.ru/api/';
-const prod = `http://localhost:3000/api/`;
+ const prod = 'https://back.april-app.ru/api/';
+// const prod = `http://localhost:3000/api/`;
 const url = prod;
 
 export enum EBACK_ENDPOINT {

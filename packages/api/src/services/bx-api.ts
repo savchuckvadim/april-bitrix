@@ -91,7 +91,7 @@ export const bxAPI = {
             if (currentUserData) {
                 if (currentUserData.isSuccess) {
 
-                    currentUser = currentUserData.getData() as unknown as BXUser;
+                    currentUser = currentUserData.getData().result as unknown as BXUser;
 
                 }
             }

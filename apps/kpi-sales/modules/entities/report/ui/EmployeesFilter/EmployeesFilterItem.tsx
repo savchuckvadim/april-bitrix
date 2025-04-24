@@ -18,7 +18,7 @@ const EmployeesFilter: React.FC<EmployeesFilterItemProps> = ({ user }) => {
     return (
         <Badge
             key={user.ID}
-            variant={selectedManagers.some(manager => manager.ID === user.ID) ? "default" : "outline"}
+            variant={selectedManagers.some((manager: BXUser) => manager.ID === user.ID) ? "default" : "outline"}
             className="cursor-pointer "
             onClick={() => handleSetCurrentDepartmentItem(user.ID)}
         >

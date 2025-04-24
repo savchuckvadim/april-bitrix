@@ -1,6 +1,6 @@
 import { combineReducers, configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
 import { appReducer } from "./AppSlice";
-import { departmentAPI } from "@/modules/entities/departament";
+// import { departmentAPI } from "@/modules/entities/departament";
 import departmentReducer from "@/modules/entities/departament/model/departament-slice";
 import { reportAPI } from "@/modules/entities/report/model/report-service";
 import reportReducer from "@/modules/entities/report/model/report-slice";
@@ -18,7 +18,7 @@ const rootReducer = combineReducers({
   //april
 
   department: departmentReducer,
-  [departmentAPI.reducerPath]: departmentAPI.reducer,
+  // [departmentAPI.reducerPath]: departmentAPI.reducer,
   report: reportReducer,
   [reportAPI.reducerPath]: reportAPI.reducer,
   callingStatistics: callingStatisticsReducer,
@@ -36,7 +36,7 @@ export const setupStore = () => {
         // .concat(infoblockAPI.middleware)
         .concat(callingStatisticsApi.middleware)
         
-        .concat(departmentAPI.middleware)
+        // .concat(departmentAPI.middleware)
         .concat(reportAPI.middleware)
     // .concat(reportMiddleware)
   });

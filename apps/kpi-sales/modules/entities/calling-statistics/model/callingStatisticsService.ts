@@ -9,6 +9,7 @@ export const callingStatisticsApi = createApi({
     endpoints: (builder) => ({
         getCallingStatistics: builder.query<ReportCallingData[] | null, ReportRequest>({
             queryFn: async (reportData) => {
+
                 try {
                     const data = await fetchCallingStatistics(reportData);
                     return { data };

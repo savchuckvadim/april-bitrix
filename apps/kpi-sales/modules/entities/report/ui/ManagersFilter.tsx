@@ -12,8 +12,8 @@ const ManagersFilter: React.FC = () => {
     } = useDepartment();
 
     const isHeadManager = useAppSelector(state => state.department.isHeadManager);
-    const department = useAppSelector(state => state.department);
-
+    // const department = useAppSelector(state => state.department);
+    const { department } = useDepartment()
     if (!isHeadManager) {
         return null;
     }

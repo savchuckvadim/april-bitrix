@@ -18,14 +18,11 @@ export default function DownLoad() {
     return (
         <div className='flex flex-row items-between'>
 
-            {/* {isPdfLoading ? <Preloader /> : <Button
-                onClick={() => handleDownload(EDownloadType.PDF)}
-                className='mr-2 cursor-pointer'
-                variant='outline'>
-                PDF
-                <Download />
-            </Button>} */}
-            {isExcelLoading ? <Preloader /> : <Button
+     
+            {isExcelLoading ? <div className='mr-3'>
+                <Preloader />
+
+            </div>  : <Button
                 onClick={() => handleDownload(EDownloadType.EXCEL)}
                 className='cursor-pointer icon'
                 variant='outline'>

@@ -14,7 +14,7 @@ const Report = () => {
         report,
         isLoading,
         isFetched,
-        handleUpdateReport,
+        // handleUpdateReport,
     } = useReport();
 
 

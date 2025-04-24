@@ -22,12 +22,14 @@ const ReportInfo: FC = () => {
     return (
         <div className='flex flex-row w-full justify-center'>
             <div className='flex flex-row w-3/4 justify-between flex-wrap'>
+                {/* <p className='text-bold'>Итого</p> */}
                 <div className="space-y-2">
                     {totalKPI.map((action, i) => (
                         <ReportInfoItem key={i} action={action} color={colors[i] || ''} i={i} />
                     ))}
                 </div >
                 {/* <div className='w-1 h-full bg-gray-200'></div> */}
+                {/* <p className='text-bold mt-2'>В среднем</p> */}
                 <div className="space-y-2">
                     {mediumKPI.map((action, i) => (
                         <ReportInfoItem key={i} action={action} color={colors[i] || ''} i={i} />

@@ -6,8 +6,8 @@ export interface IFilterResponse {
     filter: Array<FilterInnerCode>,
     department: Array<number> | null,
     dates: {
-        [ReportDateType.FROM]: string,
-        [ReportDateType.TO]: string,
+        [ReportDateType.FROM]: string | EReportDateMode,
+        [ReportDateType.TO]: string | EReportDateMode,
     } | null
 }
 
@@ -23,7 +23,7 @@ export interface ReportDataParams {
         actionFieldId: string;
         currentActions: DISPLAY_VALUES_FORM;
     }
-} 
+}
 
 export type FetchedFilters = {
     [key: string]: Filter
@@ -113,8 +113,14 @@ export interface ReportDate {
     [ReportDateType.FROM]: string;
     [ReportDateType.TO]: string;
     inProcess: boolean;
+    mode: EReportDateMode;
 }
-
+export enum EReportDateMode {
+    TODAY = 'today',
+    WEEK = 'week',
+    MONTH = 'month',
+    RANGE = 'range'
+}
 export enum ReportDateType {
     FROM = 'from',
     TO = 'to'
@@ -127,7 +133,7 @@ export interface FilterResponse {
         [ReportDateType.FROM]: string;
         [ReportDateType.TO]: string;
     } | null;
-} 
+}
 
 export interface IDepartmentResponse {
     department: PBXDepartament

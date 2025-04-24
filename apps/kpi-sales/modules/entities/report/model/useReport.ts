@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { getReportData, changeDate, saveFilter } from './report-thunks';
-import { ReportDateType, Filter } from './types/report/report-type';
+import { ReportDateType, Filter, EReportDateMode } from './types/report/report-type';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { reportActions } from './report-slice';
 import { getFiltredrReport, getMediumData, getTotalData } from '../lib/report';
@@ -17,13 +17,12 @@ export const useReport = () => {
 
     const handleDateChange = (type: ReportDateType, date: string) => {
         dispatch(changeDate(type, date));
-        // dispatch(getReportData());
+     
     };
+    const handleDateModeChange = (mode: EReportDateMode) => {
+        dispatch(reportActions.setChangedDateMode({ mode }));
+    }
 
-    // const handleActionChange = (actionCode: FilterInnerCode) => {
-    //     dispatch(setCurrentActions(actionCode));
-    //     dispatch(getReportData());
-    // };
 
     const handleSaveFilter = () => {
         dispatch(saveFilter());
@@ -31,13 +30,9 @@ export const useReport = () => {
 
     const handleSetCurrentReportItem = (userId: number) => {
         dispatch(reportActions.setCurrentReportItem(userId));
-        // dispatch(getReportData());
+
     };
 
-    // const handleSetCurrentGroup = (groupId: number) => {
-    //     dispatch(reportActions.setCurrentGroup(groupId));
-    //     // dispatch(getReportData());
-    // };
 
     const handleUpdateReport = () => {
         dispatch(getReportData());
@@ -52,7 +47,7 @@ export const useReport = () => {
     const totalKPI = getTotalData(filtredReport)
     const mediumKPI = getMediumData(filtredReport, totalKPI)
 
- 
+
     return {
         report: filtredReport,
         totalKPI,
@@ -63,10 +58,11 @@ export const useReport = () => {
         actions: reportState.actions,
         isFilterLoading: reportState.isFilterLoading,
         handleDateChange,
+        handleDateModeChange,
         handleUpdateReport,
         handleSaveFilter,
         handleSetCurrentReportItem,
-        // handleSetCurrentGroup,
+    
 
     };
 }; 

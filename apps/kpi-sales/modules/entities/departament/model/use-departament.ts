@@ -1,14 +1,14 @@
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useGetDepartmentQuery } from './departament-service';
-import { departmentActions } from './departament-slice';
+// import { useGetDepartmentQuery } from './departament-service';
+import { departmentActions, DepartmentState } from './departament-slice';
 import { BXUser, BXDepartment } from "@workspace/bx";
 import { RootState } from '@/modules/app/model/store';
 
 export const useDepartment = () => {
     const dispatch = useDispatch();
-    const { data: departmentData, isLoading, error } = useGetDepartmentQuery({ domain: '' });
-    const departmentState = useSelector((state: RootState) => state.department);
+    // const { data: departmentData, isLoading, error } = useGetDepartmentQuery({ domain: '' });
+    const departmentState = useSelector((state: RootState) => state.department) as DepartmentState;
 
     const handleSetCurrentDepartmentItem = useCallback((userId: number) => {
         const { items, current } = departmentState;
@@ -33,7 +33,7 @@ export const useDepartment = () => {
         const isInCurrent = currentGroups.find((gr: BXDepartment) => gr.ID === groupId);
         const searchingGroup = groups.items.find((gr: BXDepartment) => gr.ID === groupId);
         let currentUsers = [...current];
-debugger
+
         if (searchingGroup) {
             if (isInCurrent) {
                 currentGroups = currentGroups.filter((gr: BXDepartment) => gr.ID !== groupId);
@@ -48,19 +48,17 @@ debugger
                     }
                 });
             }
-            debugger
+
             dispatch(departmentActions.setGroup({ currentUsers, currentGroups }));
         }
     }, [dispatch, departmentState]);
 
     return {
-        departmentData,
-        isLoading,
-        error,
-        departmentState,
+
+        department: departmentState,
         handleSetCurrentDepartmentItem,
         handleSetCurrentGroup,
-        setDepartmentDetalizationCurrent: (user: BXUser) => dispatch(
-            departmentActions.setDepartmentDetalizationCurrent(user))
+        // setDepartmentDetalizationCurrent: (user: BXUser) => dispatch(
+        //     departmentActions.setDepartmentDetalizationCurrent(user))
     };
 }; 

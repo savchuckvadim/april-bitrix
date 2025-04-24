@@ -1,10 +1,11 @@
 // app/api/proxy/route.ts
+import { ReportRequest } from '@/modules/entities/report/model/report-service'
 import { API_METHOD, onlineGeneralAPI } from '@workspace/api'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json()
+        const body = await req.json() as ReportRequest
         const apiKey = process.env.ONLINE_API_KEY || '' // <-- используешь напрямую здесь
         console.log(apiKey)
         if (!apiKey) {

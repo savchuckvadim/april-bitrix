@@ -1,17 +1,16 @@
 import { AppDispatch, RootState } from '@/modules/app/model/store';
 import { reportActions } from './report-slice';
-import { ReportDateType, Filter, FilterInnerCode,  IFilterResponse, IDepartmentResponse } from './types/report/report-type';
-import { format, parseISO, addDays } from 'date-fns';
+import { ReportDateType, Filter, FilterInnerCode, IFilterResponse, IDepartmentResponse, EReportDateMode } from './types/report/report-type';
 import { ReportRequest } from './report-service';
 import { departmentActions } from '../../departament';
 import { BXUser, BXDepartment } from "@workspace/bx";
 
-import { API_METHOD, backAPI} from '@workspace/api/';
+import { API_METHOD, backAPI } from '@workspace/api/';
 import { EBACK_ENDPOINT, EResultCode } from '@workspace/api';
 import { getIsUserHead } from './report-util';
-import { IHookData } from '@/app/api/proxy/hook/route';
 import { getReportDataAPI } from '../lib/helpers';
 import { callingStatisticsApi } from '../../calling-statistics';
+import {  reportDateRequestFlow } from '../lib/date-util';
 
 
 export const getReportData = () =>
@@ -30,7 +29,7 @@ export const getReportData = () =>
             const stateDepartament = stDepartament.current;
             let departament: BXUser[] | null = null;
             const report = state.report;
-            const savedFilterData = await getFilter(domain, currentUserId);
+            const savedFilterData =  await getFilter(domain, currentUserId) as null | IFilterResponse ; 
             const savedFilter = savedFilterData?.filter;
             let isHeadManager = true;
 
@@ -136,24 +135,19 @@ export const getReportData = () =>
             let dateFieldId = '';
 
             const isFirstLoad = !report.isFetched;
-            if (isFirstLoad && savedFilterData && savedFilterData.dates) {
-                dispatch(reportActions.setChangedDate({ typeOfDate: ReportDateType.FROM, value: savedFilterData.dates[ReportDateType.FROM] }));
-                dispatch(reportActions.setChangedDate({ typeOfDate: ReportDateType.TO, value: savedFilterData.dates[ReportDateType.TO] }));
-            }
+            const date = report.date;
 
-            const date = isFirstLoad && savedFilterData && savedFilterData.dates ? savedFilterData.dates : report.date;
-            const parseDateFrom = parseISO(date.from);
-            const parseDateTo = parseISO(date.to);
-            const modifiedDateTo = addDays(parseDateTo, 1);
-
-            const dateFrom = format(parseDateFrom, "dd.MM.yyyy");
-            const dateTo = format(modifiedDateTo, "dd.MM.yyyy");
-
+            const { from, to } = reportDateRequestFlow(
+                dispatch,
+                isFirstLoad,
+                savedFilterData,
+                date
+            )
             const reportData = {
                 domain,
                 filters: {
-                    dateFrom,
-                    dateTo,
+                    dateFrom: from,
+                    dateTo: to,
                     userIds: departamentIds,
                     departament,
                     userFieldId,
@@ -164,41 +158,12 @@ export const getReportData = () =>
             } as ReportRequest;
 
             const reportResponse = await getReportDataAPI(reportData);
-            // const reportResponse = await hookAPI
-            //     .service('full/report/get', API_METHOD.POST, 'report', reportData) as Array<ReportData> | null
-            // let reportResponse: Array<ReportData> | null = null;
-            // try {
-            //     const response = await fetch('/api/proxy/hook', {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json', // 💥 обязательно
-            //         },
-            //         body: JSON.stringify({
-            //             url: 'full/report/get',
-            //             method: API_METHOD.POST,
-            //             model: 'report',
-            //             data: reportData
-            //         }),
-            //     });
-            //     reportResponse = await response.json() as Array<ReportData> | null
-            // } catch (error) {
-            //     console.error('❌ Proxy error:', error);
-            // }
-            // const res = await fetch('/api/proxy/report', {
-            //     method: 'POST',
-            //     body: JSON.stringify({
-            //         url: 'full/report/get',
-            //         method: 'POST',
-            //         model: 'report',
-            //         data: reportData,
-            //     }),
-            // })
 
-            // const reportResponse = await res.json() as Array<ReportData> | null
-            debugger
-
-            // dispatch(getCallingStatistics(reportData));
-            dispatch(callingStatisticsApi.endpoints.getCallingStatistics.initiate(reportData));
+            dispatch(callingStatisticsApi.endpoints.getCallingStatistics.initiate(reportData,
+                {
+                    forceRefetch: true,
+                }
+            ));
             if (reportResponse) {
                 dispatch(reportActions.setFetchedReport({
                     report: reportResponse,
@@ -268,9 +233,13 @@ export const saveFilter = () => async (dispatch: AppDispatch, getState: () => Ro
         const domain = state.app.domain;
         const userId = state.app.bitrix.user?.ID;
         const filter = report.filter;
+        const targetModes = [EReportDateMode.TODAY, EReportDateMode.WEEK, EReportDateMode.MONTH];
+        const isMode = targetModes.includes(report.date.mode as EReportDateMode) ||
+            targetModes.includes(report.date.mode as EReportDateMode)
+
         const dates = {
-            [ReportDateType.FROM]: report.date[ReportDateType.FROM],
-            [ReportDateType.TO]: report.date[ReportDateType.TO]
+            [ReportDateType.FROM]: isMode ? report.date.mode : report.date[ReportDateType.FROM],
+            [ReportDateType.TO]: isMode ? report.date.mode : report.date[ReportDateType.TO]
         };
         const department = state.department.current.map((user: BXUser) => user.ID);
 
@@ -278,30 +247,8 @@ export const saveFilter = () => async (dispatch: AppDispatch, getState: () => Ro
         const jsonDates = JSON.stringify(dates, null, '  ');
         const jsonDepartment = JSON.stringify(department, null, '  ');
 
-        // await reportAPI.endpoints.saveFilter.initiate({
-        //     domain,
-        //     userId,
-        //     filter: {
-        //         actions: jsonFilter,
-        //         dates: jsonDates,
-        //         department: jsonDepartment
-        //     }
-        // });
-        // await onlineGeneralAPI.service(
-        //     'report/settings/filter',
-        //     API_METHOD.POST,
-        //     'filter',
-        //     {
-        //         domain, userId, filter: {
-        //             actions: jsonFilter,
-        //             dates: jsonDates,
-        //             department: jsonDepartment
-        //         }
-        //     }
 
-
-        // )
-        const response = await fetch('/api/proxy/save-filter', {
+        await fetch('/api/proxy/save-filter', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // 💥 обязательно
@@ -314,25 +261,16 @@ export const saveFilter = () => async (dispatch: AppDispatch, getState: () => Ro
                 }
             }),
         });
-        debugger
-        const result = await response.json() as { result: IFilterResponse } | null;
-        console.log('save result')
+
+        // const result = await response.json() as { result: IFilterResponse } | null;
+        // console.log('save result')
         dispatch(reportActions.setFilterLoadingStatus(false));
     }
 };
 
 export const getFilter = async (domain: string, userId: number) => {
-    //report/settings/get/filter
-
-    // let filter = await onlineGeneralAPI.service(
-    //     'report/settings/get/filter',
-    //     API_METHOD.POST,
-    //     'result',
-    //     { domain, userId }
 
 
-    // ) as IFilterResponse | null
-    debugger
     const response = await fetch('/api/proxy/filter', {
         method: 'POST',
         headers: {
@@ -340,8 +278,8 @@ export const getFilter = async (domain: string, userId: number) => {
         },
         body: JSON.stringify({ domain, userId }),
     });
-    debugger
+
     const filter = await response.json() as { result: IFilterResponse } | null;
-    return filter?.result;
+    return filter?.result || null;
 
 }

@@ -28,10 +28,14 @@ ChartJS.register(
     Legend
 );
 
-const KPIChart: React.FC = () => {
+interface KPIChartProps {
+    report: ReportData[];
+}
+
+const KPIChart: React.FC<KPIChartProps> = ({ report }) => {
     // const report = useAppSelector(state => state.report.report);
-    const actions = useAppSelector(state => state.report.actions.current);
-    const { report } = useReport()
+    // const actions = useAppSelector(state => state.report.actions.current);
+    // const { report } = useReport()
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {

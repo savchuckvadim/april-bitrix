@@ -23,10 +23,10 @@ export const fetchCallingStatistics = async (reportData: ReportRequest): Promise
 
         const backREsponse = await backAPI
             .service(EBACK_ENDPOINT.CALLING_STATISTIC_GET, API_METHOD.POST, reportData) as IBackResponse<ReportCallingData[] | null>
-            reportResponse = backREsponse.data as ReportCallingData[]
+        reportResponse = backREsponse.data as ReportCallingData[]
 
 
-        debugger
+
     } catch (error) {
         console.error('❌ Proxy error:', error);
     }

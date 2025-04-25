@@ -9,6 +9,8 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { Card } from '@workspace/ui/components/card';
+import { Tooltip, TooltipContent } from '@workspace/ui/components/tooltip';
+import { TooltipTrigger } from '@workspace/ui/components/tooltip';
 
 export interface RTableProps {
     code: string
@@ -27,9 +29,16 @@ const RTable: FC<RTableProps> = ({ code, data, firstCellName }) => {
                     <TableRow>
                         <TableHead className="w-[190px] bg-popover text-primary ">{firstCellName}</TableHead>
                         {data?.[0]?.actions.map((report, i) => (
-                            <TableHead key={`head-${code}-column-${i}`} className="text-right bg-popover text-primary">
-                                {report.name.length > 19 ? report.name.slice(0, 20) + '...' : report.name}
-                            </TableHead>
+                            <Tooltip key={`tooltip-rtable-head-${code}-column-${i}`} >
+                                <TooltipTrigger asChild>
+                                    <TableHead key={`head-${code}-column-${i}`} className="text-right bg-popover text-primary">
+                                        {report.name.length > 19 ? report.name.slice(0, 20) + '...' : report.name}
+                                    </TableHead>
+                                </TooltipTrigger>
+                                <TooltipContent className="text-xs">
+                                    {report.name}
+                                </TooltipContent>
+                            </Tooltip>
                         ))}
                     </TableRow>
                 </TableHeader>

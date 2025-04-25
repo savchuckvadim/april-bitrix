@@ -20,9 +20,13 @@ ChartJS.register(
     Tooltip,
     Legend
 );
-const CallingDashBoard = ({ report }: { report: ReportCallingData[] }) => {
+interface CallingDashBoardProps {
+    report: ReportCallingData[]
+}
+const CallingDashBoard: React.FC<CallingDashBoardProps> = ({ report }) => {
 
-
+    debugger
+    if (!report || !report.length) return null
     return (
         <Card className='bg-card text-primary'>
             <CardHeader>

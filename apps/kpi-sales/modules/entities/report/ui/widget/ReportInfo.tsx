@@ -18,7 +18,6 @@ const ReportInfo: FC = () => {
 
 
 
-    console.log(totalKPI)
     return (
         <div className='flex flex-row w-full justify-center'>
             <div className='flex flex-row w-3/4 justify-between flex-wrap'>
@@ -41,7 +40,7 @@ const ReportInfo: FC = () => {
 }
 
 const ReportInfoItem: FC<{ action: KPI, color: string, i: number }> = ({ action, color, i }) => {
-    console.log(color)
+
     return (
         <div
             key={i}

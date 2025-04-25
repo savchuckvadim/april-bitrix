@@ -3,8 +3,12 @@ import { RTable } from '@/modules/shared'
 import { getCallingStatisticsTableData } from '../../lib/ui-util'
 import { ReportCallingData } from '../../type/calling-type'
 
-export default function CallingTable({ data }: { data: ReportCallingData[] }) {
+interface CallingTableProps {
+    data: ReportCallingData[]
+}
+export default function CallingTable({ data }: CallingTableProps) {
 
+    if (!data || !data.length) return null
     const tableData = getCallingStatisticsTableData(data)
 
     return (

@@ -7,7 +7,7 @@ export interface IHookData {
     url: string
     method: API_METHOD
     model: string
-    data: any
+    data: unknown
 }
 export async function POST(req: NextRequest) {
     try {

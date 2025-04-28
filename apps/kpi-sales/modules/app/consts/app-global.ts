@@ -6,7 +6,7 @@ import { BXUser, Placement } from "@workspace/bx"
 // export const TESTING_DOMAIN = 'gsr.bitrix24.ru'
 export const TESTING_DOMAIN = 'gsirk.bitrix24.ru' as string
 export const TESTING_USER = {
-    ID: 2153,
+    ID: 5,
     ACTIVE: true,
     DATE_REGISTER: '29/08/1988',
     EMAIL: 'string',
@@ -14,8 +14,8 @@ export const TESTING_USER = {
     IS_ONLINE: 'string',
     LAST_ACTIVITY_DATE: ['string'],
     LAST_LOGIN: 'string',
-    LAST_NAME: 'SVCHK',
-    NAME: 'VADIM',
+    LAST_NAME: '',
+    NAME: 'MARINA',
     PERSONAL_BIRTHDAY: 'string',
     PERSONAL_CITY: 'string',
     PERSONAL_GENDER: 'string',

@@ -25,7 +25,7 @@ interface CallingDashBoardProps {
 }
 const CallingDashBoard: React.FC<CallingDashBoardProps> = ({ report }) => {
 
-    debugger
+
     if (!report || !report.length) return null
     return (
         <Card className='bg-card text-primary'>

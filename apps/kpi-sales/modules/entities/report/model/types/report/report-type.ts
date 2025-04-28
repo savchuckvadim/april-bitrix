@@ -137,7 +137,7 @@ export interface FilterResponse {
 
 export interface IDepartmentResponse {
     department: PBXDepartament
-    generalDepartment: BXDepartment
+    generalDepartment: BXDepartment[]
     childrenDepartments: BXDepartment[]
     allUsers: BXUser[]
 }

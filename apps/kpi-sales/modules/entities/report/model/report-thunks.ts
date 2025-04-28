@@ -64,7 +64,7 @@ export const getReportData = () =>
 
 
                 isHeadManager = getIsUserHead(departamentResponse, currentUserId);
-
+debugger
                 if (isHeadManager) {
                     if (departamentResponse.allUsers) {
                         departament = departamentResponse.allUsers.filter((u: BXUser, index: number, self: BXUser[]) =>

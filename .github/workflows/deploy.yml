@@ -23,4 +23,4 @@ jobs:
             echo "🧩 Подключение к серверу"
             cd /var/www/html/next/kpi-sales
             git pull origin main
-            docker-compose up -d --build
+            tmux new -d -s deploy-session "docker-compose up -d --build && echo ✅ Готово"

@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://next.april-app.ru/kpi-sales';
 
 //редирект next из post запроса в апп
 export async function POST(req: NextRequest) {
   try {
 
- 
+
 
     
   
-    const response = NextResponse.redirect(new URL('/report', req.url), 303);
+    const response = NextResponse.redirect(new URL('/report', siteUrl), 303);
 
  
 

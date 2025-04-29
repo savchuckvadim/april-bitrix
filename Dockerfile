@@ -4,11 +4,12 @@ FROM node:20 AS base
 WORKDIR /app
 
 # Установка PNPM
-RUN npm i -g pnpm
+RUN npm install -g npm@11.3.0 && npm install -g pnpm
 
 # Копируем все файлы сразу
 COPY . .
 
+RUN pnpm approve-builds
 # Установка зависимостей и генерация Prisma Client
 RUN pnpm config set fetch-retries 5 && \
     pnpm config set fetch-timeout 60000 && \
@@ -47,6 +48,7 @@ COPY --from=base /app/apps/kpi-sales/public ./public
 COPY --from=base /app/apps/kpi-sales/next.config.js ./next.config.js
 COPY --from=base /app/apps/kpi-sales/.env ./.env
 
+RUN pnpm approve-builds
 # Установка PNPM и зависимостей
 RUN npm i -g pnpm && \
     pnpm install --prod --no-frozen-lockfile && \

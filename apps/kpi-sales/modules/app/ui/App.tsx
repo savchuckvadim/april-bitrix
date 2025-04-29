@@ -11,6 +11,7 @@ import { Report } from "@/modules/entities/report";
 
 
 const App = ({ inBitrix }: { inBitrix: boolean }) => {
+  debugger
   return (
     // <Provider store={store}>
       <AppRoot inBitrix={inBitrix} />

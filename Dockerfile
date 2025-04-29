@@ -1,36 +1,56 @@
-# Dockerfile
-
-FROM node:20-slim AS builder
+# 🐳 Multi-stage build
+FROM node:20 AS base
 
 WORKDIR /app
-# Копируем lock-файл и package.json (ускоряет layer caching)
-COPY pnpm-lock.yaml ./
-COPY package.json ./
-COPY turbo.json ./
-COPY apps ./apps
-COPY packages ./packages 
+
+# Установка PNPM
+RUN npm i -g pnpm
+
+# Копируем все файлы сразу
 COPY . .
 
-RUN npm install -g pnpm@10.4.1
+# Установка зависимостей и генерация Prisma Client
+RUN pnpm config set fetch-retries 5 && \
+    pnpm config set fetch-timeout 60000 && \
+    pnpm install --no-frozen-lockfile 
+    # && \
+    # cd packages/prisma && \
+    # pnpm prisma generate
 
-RUN pnpm install 
-# --frozen-lockfile
-RUN pnpm exec turbo run build --filter=apps/kpi-sales
-# RUN pnpm run build 
-# --filter=apps/kpi-sales
+# Сборка NextJS API и проверка
+RUN pnpm --filter kpi-sales run build 
+# && \
+    # ls -la apps/kpi-sales/.next/build || (echo "Build failed - dist directory not found" && exit 1)
 
-# --- Runtime stage ---
-FROM node:20-slim AS runner
-
-ENV NODE_ENV=production
+# ==== PRODUCTION ====
+FROM node:20-slim AS prod
 
 WORKDIR /app
 
-# Копируем standalone билд
-COPY --from=builder /app/apps/kpi-sales/.next/standalone ./
-COPY --from=builder /app/apps/kpi-sales/public ./public
-COPY --from=builder /app/apps/kpi-sales/.next/static ./.next/static
+# Копируем только необходимые файлы
 
-EXPOSE 3000
 
-CMD ["node", "server.js"]
+# COPY --from=base /app/apps/kpi-sales/.next ./.next
+# COPY --from=base /app/apps/kpi-sales/package.json ./package.json
+# COPY --from=base /app/package.json ./root-package.json
+# COPY --from=base /app/pnpm-workspace.yaml ./
+# COPY --from=base /app/packages ./packages
+# COPY --from=base /app/apps/kpi-sales/.env ./.env
+
+COPY --from=base /app/apps/kpi-sales/.next ./.next
+COPY --from=base /app/apps/kpi-sales/package.json ./package.json
+COPY --from=base /app/package.json ./root-package.json
+COPY --from=base /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=base /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=base /app/packages ./packages
+COPY --from=base /app/apps/kpi-sales/public ./public
+COPY --from=base /app/apps/kpi-sales/next.config.js ./next.config.js
+COPY --from=base /app/apps/kpi-sales/.env ./.env
+
+# Установка PNPM и зависимостей
+RUN npm i -g pnpm && \
+    pnpm install --prod --no-frozen-lockfile && \
+    pnpm --filter kpi-sales install --prod --no-frozen-lockfile
+
+# Запуск NextJS
+CMD ["pnpm", "start"]

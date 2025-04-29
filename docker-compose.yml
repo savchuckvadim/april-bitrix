@@ -1,15 +1,20 @@
 version: '3.8'
 
 services:
-  app:
+  front-kpi-sales:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: next-kpi-sales
+    container_name: april-kpi-sales
     ports:
-      - "3000:3000"
+      - "5034:3000"         # API доступен снаружи
+    environment:
+      - IN_BITRIX=true
+
+    restart: unless-stopped
     networks:
       - next-kpi-sales-next-net
+      
 
   nginx:
     image: nginx:alpine
@@ -19,9 +24,50 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - app
+      - front-kpi-sales
     networks:
       - next-kpi-sales-next-net
 
 networks:
   next-kpi-sales-next-net:
+    driver: bridge    
+      
+  # back-api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: april-api
+  #   ports:
+  #     - "3000:3000"         # API доступен снаружи
+  #   environment:
+  #     - NODE_ENV=production
+  #     - DATABASE_URL=mysql://root:secret@localhost:3306/sociopath?schema=public
+  #     - PORT=5000
+  #   depends_on:
+  #     - mysql
+  #   restart: unless-stopped
+
+  # redis:
+  #   image: redis
+  #   container_name: sociopath_mono_redis
+  #   ports:
+  #     - "6379:6379"
+
+
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: sociopath_mono_db
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: secret
+  #     MYSQL_DATABASE: sociopath
+  #     MYSQL_USER: user
+  #     MYSQL_PASSWORD: secret
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+
+# volumes:
+#   mysql_data:
+

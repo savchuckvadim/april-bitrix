@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: april-kpi-sales
-    # ports:
-    #   - "5034:3000"         # API доступен снаружи
+    ports:
+      - "5034:3000"         # API доступен снаружи
     environment:
       - IN_BITRIX=true
 
@@ -16,21 +16,21 @@ services:
       - next-kpi-sales-next-net
       
 
-  nginx:
-    image: nginx:alpine
-    container_name: next-kpi-sales-nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - "5034:80"
-    depends_on:
-      - front-kpi-sales
-    networks:
-      - next-kpi-sales-next-net
+#   nginx:
+#     image: nginx:alpine
+#     container_name: next-kpi-sales-nginx
+#     volumes:
+#       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+#     ports:
+#       - "5034:80"
+#     depends_on:
+#       - front-kpi-sales
+#     networks:
+#       - next-kpi-sales-next-net
 
-networks:
-  next-kpi-sales-next-net:
-    driver: bridge    
+# networks:
+#   next-kpi-sales-next-net:
+#     driver: bridge    
       
   # back-api:
   #   build:

@@ -54,6 +54,7 @@ COPY --from=base /app/apps/kpi-sales/.env ./.env
 RUN pnpm install --prod --no-frozen-lockfile && \
     pnpm --filter kpi-sales install --prod --no-frozen-lockfile
 
- # npm i -g pnpm && \
+
+    
 # Запуск NextJS
 CMD ["pnpm", "start"]

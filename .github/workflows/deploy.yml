@@ -23,4 +23,8 @@ jobs:
             echo "🧩 Подключение к серверу"
             cd /var/www/html/next/kpi-sales
             git pull origin main
+            tmux kill-session -t deploy-session || true
             tmux new -d -s deploy-session "docker-compose up -d --build && echo ✅ Готово"
+            docker ps -a
+            docker logs april-kpi-sales || true
+            docker logs next-kpi-sales-nginx || true

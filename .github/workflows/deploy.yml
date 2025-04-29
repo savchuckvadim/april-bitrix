@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: ✅ CI запущен
         run: echo "🚀 GitHub Actions запущен"
-       
+
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -25,6 +25,17 @@ jobs:
             git pull origin main
             tmux kill-session -t deploy-session || true
             tmux new -d -s deploy-session "docker-compose up -d --build && echo ✅ Готово"
+
+            echo "⏳ Жду, пока контейнер april-kpi-sales поднимется..."
+            for i in {1..90}; do
+              if docker ps --filter "name=april-kpi-sales" --filter "status=running" | grep april-kpi-sales; then
+                echo "✅ Контейнер запущен!"
+                break
+              fi
+              echo "⌛ Ожидание запуска контейнера..."
+              sleep 5
+            done
+
+
             docker ps -a
             docker logs april-kpi-sales || true
-   

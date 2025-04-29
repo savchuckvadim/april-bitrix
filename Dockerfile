@@ -27,6 +27,7 @@ RUN pnpm --filter kpi-sales run build
 FROM node:20-slim AS prod
 
 WORKDIR /app
+RUN npm install -g pnpm
 
 # Копируем только необходимые файлы
 
@@ -48,11 +49,11 @@ COPY --from=base /app/apps/kpi-sales/public ./public
 COPY --from=base /app/apps/kpi-sales/next.config.js ./next.config.js
 COPY --from=base /app/apps/kpi-sales/.env ./.env
 
-RUN pnpm approve-builds
+
 # Установка PNPM и зависимостей
-RUN npm i -g pnpm && \
-    pnpm install --prod --no-frozen-lockfile && \
+RUN pnpm install --prod --no-frozen-lockfile && \
     pnpm --filter kpi-sales install --prod --no-frozen-lockfile
 
+ # npm i -g pnpm && \
 # Запуск NextJS
 CMD ["pnpm", "start"]

@@ -20,5 +20,6 @@ jobs:
             cd /var/www/html/next/kpi-sales
             git pull origin main
             pnpm install --frozen-lockfile
+            pnpm turbo prune --filter=apps/app1
             cd out
             docker-compose up -d --build

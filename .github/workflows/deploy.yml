@@ -1,4 +1,4 @@
-name: Deploy app1 on push to main
+name: Deploy kpi-sales on push to main
 
 on:
   push:
@@ -17,9 +17,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /var/www/monorepo
+            cd /var/www/html/next/kpi-sales
             git pull origin main
             pnpm install --frozen-lockfile
-            pnpm turbo prune --filter=apps/app1
             cd out
             docker-compose up -d --build

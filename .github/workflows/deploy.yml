@@ -27,4 +27,4 @@ jobs:
             tmux new -d -s deploy-session "docker-compose up -d --build && echo ✅ Готово"
             docker ps -a
             docker logs april-kpi-sales || true
-            docker logs next-kpi-sales-nginx || true
+   

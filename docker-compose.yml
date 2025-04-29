@@ -12,8 +12,8 @@ services:
       - IN_BITRIX=true
 
     restart: unless-stopped
-    networks:
-      - next-kpi-sales-next-net
+    # networks:
+    #   - next-kpi-sales-next-net
       
 
 #   nginx:

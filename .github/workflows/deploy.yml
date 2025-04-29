@@ -13,7 +13,6 @@ jobs:
       - name: ✅ CI запущен
         run: echo "🚀 GitHub Actions запущен"
        
-
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:

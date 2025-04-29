@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: april-kpi-sales
-    ports:
-      - "5034:3000"         # API доступен снаружи
+    # ports:
+    #   - "5034:3000"         # API доступен снаружи
     environment:
       - IN_BITRIX=true
 
@@ -22,7 +22,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:
-      - "80:80"
+      - "5034:80"
     depends_on:
       - front-kpi-sales
     networks:

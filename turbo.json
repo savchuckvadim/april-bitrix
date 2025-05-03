@@ -3,21 +3,46 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["ONLINE_API_KEY"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ],
+      "env": [
+        "ONLINE_API_KEY",
+        "LOG_FILE_PATH",
+        "IN_BITRIX"
+      ]
     },
     "lint": {
-      "dependsOn": ["^lint"],
-      "env": ["ONLINE_API_KEY"]
+      "dependsOn": [
+        "^lint"
+      ],
+      "env": [
+        "ONLINE_API_KEY",
+        "LOG_FILE_PATH",
+        "IN_BITRIX"
+      ]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": [
+        "^check-types"
+      ]
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": [
+        "ONLINE_API_KEY",
+        "LOG_FILE_PATH",
+        "IN_BITRIX"
+      ]
     }
   }
 }

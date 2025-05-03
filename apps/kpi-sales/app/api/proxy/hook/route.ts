@@ -31,13 +31,13 @@ export async function POST(req: NextRequest) {
         )
         // console.log(result)
         return NextResponse.json(result); 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('❌ Proxy error:', error);
 
         return NextResponse.json(
             {
                 error: 'Failed to fetch from remote API',
-                details: error?.message || error,
+                details: error instanceof Error ? error.message : String(error),
             },
             { status: 500 }
         );

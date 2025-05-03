@@ -1,14 +1,14 @@
-'use client'
-import { lazy, Suspense } from 'react';
+// 'use client'
+// import { lazy, Suspense } from 'react';
 
-export const AppLazy = lazy(() => import('./App'));
+// export const AppLazy = lazy(() => import('./App'));
 
-const AppLazyContainer = ({ inBitrix }: { inBitrix: boolean }) => {
+// const AppLazyContainer = ({ inBitrix }: { inBitrix: boolean }) => {
 
-    return <Suspense>
-        <AppLazy inBitrix={inBitrix} />
-    </Suspense>
+//     return <Suspense>
+//         <AppLazy inBitrix={inBitrix} />
+//     </Suspense>
 
-}
+// }
 
-export default AppLazyContainer
+// export default AppLazyContainer

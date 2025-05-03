@@ -12,7 +12,9 @@ import { ErrorBoundary } from "../providers/ErrorBoundary";
 //@ts-ignore
 
 
-const App = ({ inBitrix }: { inBitrix: boolean }) => {
+const App = ({ inBitrix, envBitrix }: { inBitrix: boolean, envBitrix: boolean | string | undefined }) => {
+
+  console.log('envBitrix', envBitrix)
 
   return (
 

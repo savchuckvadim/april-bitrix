@@ -2,7 +2,7 @@
 import fs from 'fs';
 // import path from 'path';
 
-export const LOG_FILE_PATH = process.env.LOG_FILE_PATH || './app/logs/server.log';
+export const LOG_FILE_PATH = process.env.LOG_FILE_PATH || './app/logs/server.json';
 
 export type LogLevel = 'info' | 'warn' | 'error';
 

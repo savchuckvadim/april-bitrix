@@ -10,9 +10,9 @@ services:
       - "5034:3000"         # API доступен снаружи
     environment:
       - IN_BITRIX=true
-      - LOG_FILE_PATH='./app/logs/server.log'
+      - LOG_FILE_PATH='/app/logs/server.json'
     volumes:
-      - logs_kpi_sales:/app/app/logs
+      - logs_kpi_sales:/app/logs
 
     restart: unless-stopped
 

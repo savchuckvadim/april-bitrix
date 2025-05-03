@@ -52,7 +52,7 @@ export const ThemeToggler = () => {
     <div className="flex items-center gap-1 text-foreground">
       {/* Кнопка переключения темы */}
       <button onClick={toggleTheme} className="cursor-pointer transition-transform duration-300">
-        {theme === 'dark' ? <MoonStar className="w-3 h-3" /> : <SunDim className="w-3 h-3" />}
+        {theme === 'dark' ? <MoonStar size={20} /> : <SunDim size={20} />}
       </button>
 
       {/* Кубик для смены схемы

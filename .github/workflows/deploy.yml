@@ -26,38 +26,16 @@ jobs:
             tmux kill-session -t deploy-session || true
             tmux new -d -s deploy-session "docker-compose up -d --build && echo ✅ Готово"
 
-            echo "⏳ 1 Жду, пока контейнер april-kpi-sales поднимется..."
-            sleep 120
+            echo "⏳ Жду, пока контейнер april-kpi-sales поднимется..."
+            for i in {1..90}; do
+              if docker ps --filter "name=april-kpi-sales" --filter "status=running" | grep april-kpi-sales; then
+                echo "✅ Контейнер запущен!"
+                break
+              fi
+              echo "⌛ Ожидание запуска контейнера..."
+              sleep 5
+            done
 
 
             docker ps -a
             docker logs april-kpi-sales || true
-
-
-            echo "⏳ 2 Жду, пока контейнер april-kpi-sales поднимется..."
-            sleep 300
-
-            docker ps -a
-            docker logs april-kpi-sales || true
-
-
-            echo "⏳ 3 Жду, пока контейнер april-kpi-sales поднимется..."
-            sleep 300
-
-            docker ps -a
-            docker logs april-kpi-sales || true
-
-
-            echo "⏳4 Жду, пока контейнер april-kpi-sales поднимется..."
-            sleep 300
-
-            docker ps -a
-            docker logs april-kpi-sales || true       
-
-
-
-            echo "⏳5 Жду, пока контейнер april-kpi-sales поднимется..."
-            sleep 300
-
-            docker ps -a
-            docker logs april-kpi-sales || true         

@@ -2,6 +2,7 @@ import { AppDispatch, AppGetState } from "@/modules/app/model/store"
 import { ReportData, ReportDateType } from "@/modules/entities/report/model/types/report/report-type";
 import { API_METHOD, backAPI, EBACK_ENDPOINT } from "@workspace/api"
 import { setDownloadStatus } from "./download-slice";
+import { logClient } from "@/modules/app/lib/helper/logClient";
 
 export enum EDownloadType {
     EXCEL = 'excel',
@@ -69,7 +70,17 @@ export const getDownload = (type: EDownloadType, report: ReportData[]) => async 
             link.click();
             link.remove();
         } else {
+            const app = getState().app
+            const domain = app.domain
+            const user = `${app.bitrix.user?.ID} ${app.bitrix.user?.NAME} ${app.bitrix.user?.LAST_NAME}`
             console.error('❌ Не blob:', blob);
+            logClient(
+                'Ошибка скачивания отчета getDownload: ❌ Не blob',
+                {
+                    domain,
+                    user
+                }
+            )
         }
     }
 

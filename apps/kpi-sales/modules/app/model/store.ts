@@ -1,4 +1,4 @@
-import { combineReducers, configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
+import { Action, AnyAction, combineReducers, configureStore, createListenerMiddleware, Dispatch, Middleware, MiddlewareAPI, ThunkAction } from "@reduxjs/toolkit";
 import { appReducer } from "./AppSlice";
 // import { departmentAPI } from "@/modules/entities/departament";
 import departmentReducer from "@/modules/entities/departament/model/departament-slice";
@@ -8,9 +8,26 @@ import { download } from "@/modules/feature/download";
 // import { reportMiddleware } from '@/modules/entities/report/model/report-middleware';
 import { callingStatisticsReducer } from "@/modules/entities/calling-statistics";
 import { callingStatisticsApi } from "@/modules/entities/calling-statistics/model/callingStatisticsService";
+import { WSClient } from "@workspace/ws";
 
 
 export const listenerMiddleware = createListenerMiddleware();
+let wsClient: WSClient;
+
+// const socketMiddleware: Middleware = (storeAPI: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
+//   // Место для обработки действий или взаимодействия с сокетом
+//   return next(action);
+// };
+
+export const initWSClient = (userId: number, domain: string) => {
+  wsClient = new WSClient(userId, domain);
+  return wsClient;
+};
+
+export const getWSClient = () => {
+  if (!wsClient) throw new Error('WSClient not initialized');
+  return wsClient;
+};
 
 const rootReducer = combineReducers({
   app: appReducer,
@@ -27,15 +44,21 @@ const rootReducer = combineReducers({
 
 });
 
+
+
 export const setupStore = () => {
   return configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware()
+      getDefaultMiddleware({
+        thunk: {
+          extraArgument: { getWSClient }, 
+        },
+      })
         // .concat(portalAPI.middleware)
         // .concat(infoblockAPI.middleware)
         .concat(callingStatisticsApi.middleware)
-        
+
         // .concat(departmentAPI.middleware)
         .concat(reportAPI.middleware)
     // .concat(reportMiddleware)
@@ -44,6 +67,20 @@ export const setupStore = () => {
 
 //listeners
 // portalListener();
+
+
+// Тип для extraArgument
+export type ThunkExtraArgument = {
+  getWSClient: typeof getWSClient;
+};
+
+// Тип для thunk
+export type AppThunk<ReturnType = void> = ThunkAction<
+  ReturnType,
+  RootState,
+  ThunkExtraArgument,
+  Action<string>
+>;
 
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppStore = ReturnType<typeof setupStore>;

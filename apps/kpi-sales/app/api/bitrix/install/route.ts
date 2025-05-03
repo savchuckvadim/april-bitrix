@@ -1,4 +1,5 @@
 import { setupBitrixApp } from '@/app/lib/bitrix/setup';
+import { logServer } from '@/app/lib/log/logServer';
 import { BitrixAppPayload } from '@workspace/api';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -38,6 +39,11 @@ export async function POST(req: NextRequest) {
 
     console.log('requestData')
     console.log(requestData)
+    logServer(
+      'error',
+      'KPI REPORT SALES api/install',
+      'error test:'+ JSON.stringify(requestData)
+    )
     const event = params.get('event');
     const placement = params.get('PLACEMENT');
 

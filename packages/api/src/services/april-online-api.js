@@ -349,7 +349,7 @@ export const onlineGeneralAPI = {
             const response = await online[method](url, data, { headers })
             console.log('online headers response')
 
-            console.log(response)
+            // console.log(response)
             if (response && response.data) {
 
                 if (response.data.resultCode === 0) {

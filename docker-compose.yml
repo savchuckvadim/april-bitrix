@@ -10,8 +10,13 @@ services:
       - "5034:3000"         # API доступен снаружи
     environment:
       - IN_BITRIX=true
+    volumes:
+      - logs_kpi_sales:/app/app/logs
 
     restart: unless-stopped
+
+volumes:
+  logs_kpi_sales:    
     # networks:
     #   - next-kpi-sales-next-net
       

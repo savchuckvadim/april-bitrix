@@ -4,13 +4,15 @@ import axios, { AxiosResponse } from "axios";
 
  const prod = 'https://back.april-app.ru/api/';
 // const prod = `http://localhost:3000/api/`;
+// const prod = `http://localhost:8334/api/`;
 const url = prod;
 
 export enum EBACK_ENDPOINT {
   DEPARTMENT = "bitrix/department/sales",
   DOWNLOAD_REPORT = "kpi-report/download",
   REPORT_GET = "kpi-report/get",
-  CALLING_STATISTIC_GET = "kpi-report/calling-statistic"
+  CALLING_STATISTIC_GET = "kpi-report/calling-statistic",
+  QUEUE_PING = 'queue/ping'
 
 }
 

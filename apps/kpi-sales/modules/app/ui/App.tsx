@@ -1,21 +1,23 @@
 'use client'
-import { Provider } from "react-redux";
-import { store } from "@/modules/app/model/store";
+
+
+
 import { useAppDispatch, useAppSelector } from "../lib/hooks/redux";
 import { initial } from "../model/AppThunk";
 import { useEffect, useState } from "react";
 import { LoadingScreen } from "@/modules/general";
 import { Report } from "@/modules/entities/report";
+import { ErrorBoundary } from "../providers/ErrorBoundary";
 // import { Preloader } from "@workspace/ui";
 //@ts-ignore
 
 
 const App = ({ inBitrix }: { inBitrix: boolean }) => {
-  debugger
+
   return (
-    // <Provider store={store}>
-      <AppRoot inBitrix={inBitrix} />
-    // </Provider>
+
+    <AppRoot inBitrix={inBitrix} />
+
   )
 }
 
@@ -39,15 +41,17 @@ const AppRoot = ({ inBitrix }: { inBitrix: boolean }) => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
- 
+    <ErrorBoundary>
+      <div className="min-h-screen bg-background">
 
-      {app.initialized ? (
-        <AppContent />
-      ) : (
-        <LoadingScreen />
-      )}
-    </div>
+
+        {app.initialized ? (
+          <AppContent />
+        ) : (
+          <LoadingScreen />
+        )}
+      </div>
+    </ErrorBoundary>
   );
 };
 

@@ -1,3 +1,4 @@
+import { logServer } from '@/app/lib/log/logServer';
 import { NextRequest, NextResponse } from 'next/server';
 
 
@@ -6,13 +7,18 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
 
- 
+    logServer(
+      'info',
+      'KPI REPORT SALES api/bitrix/app',
+      'report post to get report redirect in bitrix'
+    )
 
-    
-  
+
+
+
     const response = NextResponse.redirect(new URL('/report', req.url), 303);
 
- 
+
 
     return response;
   } catch (error) {
@@ -31,11 +37,11 @@ export async function POST(req: NextRequest) {
 
 
 
-    
-  
+
+
 //     const response = NextResponse.redirect(new URL('/report', siteUrl), 303);
 
- 
+
 
 //     return response;
 //   } catch (error) {

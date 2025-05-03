@@ -10,7 +10,9 @@ import { EBACK_ENDPOINT, EResultCode } from '@workspace/api';
 import { getIsUserHead } from './report-util';
 import { getReportDataAPI } from '../lib/helpers';
 import { callingStatisticsApi } from '../../calling-statistics';
-import {  reportDateRequestFlow } from '../lib/date-util';
+import { reportDateRequestFlow } from '../lib/date-util';
+import { kpiReportListenerHelper } from './ws-listener/KpiReporttListener';
+import { logClient } from '@/modules/app/lib/helper/logClient';
 
 
 export const getReportData = () =>
@@ -29,7 +31,7 @@ export const getReportData = () =>
             const stateDepartament = stDepartament.current;
             let departament: BXUser[] | null = null;
             const report = state.report;
-            const savedFilterData =  await getFilter(domain, currentUserId) as null | IFilterResponse ; 
+            const savedFilterData = await getFilter(domain, currentUserId) as null | IFilterResponse;
             const savedFilter = savedFilterData?.filter;
             let isHeadManager = true;
 
@@ -64,7 +66,7 @@ export const getReportData = () =>
 
 
                 isHeadManager = getIsUserHead(departamentResponse, currentUserId);
-debugger
+
                 if (isHeadManager) {
                     if (departamentResponse.allUsers) {
                         departament = departamentResponse.allUsers.filter((u: BXUser, index: number, self: BXUser[]) =>
@@ -154,10 +156,13 @@ debugger
                     dateFieldId,
                     actionFieldId,
                     currentActions
-                }
+                },
+
             } as ReportRequest;
 
             const reportResponse = await getReportDataAPI(reportData);
+            debugger
+            // kpiReportListenerHelper(dispatch, reportData, report, savedFilter)
 
             dispatch(callingStatisticsApi.endpoints.getCallingStatistics.initiate(reportData,
                 {
@@ -191,6 +196,13 @@ debugger
                         currentFilter
                     }))
                 }
+            } else {
+                logClient('get report data: Report не получен по апи', {
+                    reportData,
+                    reportResponse
+                })
+                // stack: errorInfo.componentStack,
+
             }
 
         }

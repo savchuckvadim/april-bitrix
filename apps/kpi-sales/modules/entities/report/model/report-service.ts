@@ -23,6 +23,7 @@ export interface ReportRequest {
         actionFieldId: string;
         currentActions: any;
     };
+    socketId?: string;
 }
 
 export interface FilterResponse {

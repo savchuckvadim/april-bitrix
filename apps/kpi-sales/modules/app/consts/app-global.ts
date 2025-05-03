@@ -4,9 +4,9 @@
 
 import { BXUser, Placement } from "@workspace/bx"
 // export const TESTING_DOMAIN = 'gsr.bitrix24.ru'
-export const TESTING_DOMAIN = 'gsirk.bitrix24.ru' as string
+export const TESTING_DOMAIN = 'gsr.bitrix24.ru' as string
 export const TESTING_USER = {
-    ID: 5,
+    ID: 187,
     ACTIVE: true,
     DATE_REGISTER: '29/08/1988',
     EMAIL: 'string',

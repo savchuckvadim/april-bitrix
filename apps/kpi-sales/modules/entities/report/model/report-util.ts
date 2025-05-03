@@ -3,7 +3,7 @@ import { IDepartmentResponse } from "./types/report/report-type";
 export const getIsUserHead = (department: IDepartmentResponse, currentUserId: number): boolean => {
 
     let result = false
-    debugger
+
     if (department.childrenDepartments.length) {
         [...department.childrenDepartments, ...department.generalDepartment].forEach(dep => {
             if (dep.UF_HEAD) {

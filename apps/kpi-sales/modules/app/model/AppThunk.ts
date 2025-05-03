@@ -2,11 +2,15 @@ import type { BXUser } from "@workspace/bx";
 import { bxAPI as bx } from "@workspace/api";
 import { TESTING_DOMAIN, TESTING_USER } from "../consts/app-global";
 import { appActions } from "./AppSlice";
-import { AppDispatch, AppGetState } from "./store";
+import { AppDispatch, AppGetState, AppThunk, initWSClient } from "./store";
+import { Socket, WSClient } from "@workspace/ws";
+import { socketThunk } from "./queue-ws-ping-test/QueueWsPingListener";
 
 
-export const initial = (inBitrix: boolean = false) =>
-  async (dispatch: AppDispatch, getState: AppGetState) => {
+export let socket: undefined | WSClient;
+
+export const initial = (inBitrix: boolean = false): AppThunk =>
+  async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
 
 
     const state = getState();
@@ -29,6 +33,18 @@ export const initial = (inBitrix: boolean = false) =>
       console.log("user");
 
       console.log(user);
+      initWSClient(user.ID, domain); // <- здесь создаёшь сокет
+      // const socket = getWSClient()
+      dispatch(
+        socketThunk(
+          user.ID,
+          domain
+        )
+      )
+      
+
+
+
 
       dispatch(
         appActions.

@@ -1,6 +1,6 @@
 // apps/kpi-sales/utils/logServer.ts
 import fs from 'fs';
-// import path from 'path';
+import path from 'path';
 
 export const LOG_FILE_PATH = process.env.LOG_FILE_PATH || './app/logs/server.json';
 
@@ -20,6 +20,11 @@ export function logServer(level: LogLevel, context: string, message: string) {
     context,
     message,
   };
+
+  const logDir = path.dirname(LOG_FILE_PATH);
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
 
   try {
     fs.appendFileSync(LOG_FILE_PATH, JSON.stringify(logEntry) + '\n');

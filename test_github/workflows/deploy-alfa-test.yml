@@ -1,0 +1,56 @@
+name: Deploy alfa on push to test
+
+on:
+  push:
+    branches:
+      - test
+    paths:
+      - "apps/alfa/**"  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ CI запущен
+        run: echo "🚀 GitHub Actions запущен"
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            echo "🧩 Подключение к серверу"
+            cd /var/www/html/next/test.monorepo
+            git pull origin test
+            tmux kill-session -t /front-alfa-test-deploy-session || true
+            tmux new -d -s /front-alfa-test-deploy-session "\
+            docker compose --env-file .env build front-alfa && \
+            docker compose --env-file .env up -d front-alfa && \
+            echo ✅ Готово"
+
+
+            echo "⌛ Ожидание запуска контейнера 60..."
+            sleep 60
+            echo "⌛ Ожидание запуска контейнера 60..."
+            sleep 60
+            echo "⌛ Ожидание запуска контейнера 180..."
+            sleep 180
+            echo "⌛ Ожидание запуска контейнера 180..."
+            sleep 180
+            echo "⌛ Ожидание запуска контейнера 180..."
+            sleep 180
+            echo "⌛ Ожидание запуска контейнера 180..."
+            sleep 180
+            docker ps -a
+            docker logs front-alfa-test || true
+
+
+            echo "⌛ Ожидание запуска контейнера 180..."
+            sleep 180
+            echo "⌛ Ожидание запуска контейнера 180..."
+            sleep 180
+            docker ps -a
+            docker logs front-alfa-test || true

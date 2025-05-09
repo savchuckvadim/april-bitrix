@@ -27,12 +27,18 @@ export async function GET() {
 
 
 export async function POST(req: NextRequest) {
+    const body = await req.json();
     try {
-        const body = await req.json();
+       
+        console.log('BODY')
+
+        console.log(body)
         logServer(
             body.level || 'info',
             'KPI REPORT SALES api/bitrix/app',
-            `Получен запрос с телом: ${JSON.stringify(body)}`
+            `Получен запрос с телом: ${JSON.stringify(body)}`,
+            body.domain || 'domain',
+            body.useId || 'userId',
         )
         // обработка
         return NextResponse.json({ success: true });
@@ -41,8 +47,10 @@ export async function POST(req: NextRequest) {
 
         logServer(
             'info',
-            'KPI REPORT SALES api/bitrix/app',
-            `Ошибка обработки POST /api/route: ${err?.message}`
+            'KPI REPORT SALES api/admin/logs',
+            `Ошибка обработки POST /api/route: ${err?.message}`,
+            body.domain || 'domain',
+            body.useId || 'userId',
         )
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

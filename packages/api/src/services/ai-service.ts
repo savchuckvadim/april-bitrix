@@ -1,7 +1,7 @@
 import { API_METHOD } from "../type/type";
 import axios from "axios"
 
-const url = 'http://localhost:8000/api/v1/helper/ai'
+const url = 'https://helper.april-app.ru/api/v1/helper/ai'
 export enum AI_ENDPOINT {
     RESUME = "resume",
     RECOMENDATION = "recomendation"

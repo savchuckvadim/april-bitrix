@@ -107,6 +107,7 @@ const DatesFilter: React.FC = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                         <Calendar
+                            locale={ru}
                             mode="single"
                             selected={dateFrom}
                             onSelect={(date) => handleLocalDateChange(ReportDateType.FROM, date)}
@@ -132,6 +133,7 @@ const DatesFilter: React.FC = () => {
                     <PopoverContent className="w-auto p-0">
                         <Calendar
                             className='cursor-pointer'
+                            locale={ru}
                             mode="single"
                             selected={dateTo}
                             onSelect={(date) => handleLocalDateChange(ReportDateType.TO, date)}

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { LoadingScreen } from "@/modules/general";
 import { Report } from "@/modules/entities/report";
 import { ErrorBoundary } from "../providers/ErrorBoundary";
+import { logClient } from "../lib/helper/logClient";
 // import { Preloader } from "@workspace/ui";
 //@ts-ignore
 
@@ -41,7 +42,14 @@ const AppRoot = ({ inBitrix }: { inBitrix: boolean }) => {
   if (!isClient) {
     return <LoadingScreen />;
   }
-
+  debugger
+  logClient('AppRoot', {
+    level: 'info',
+    context: 'AppRoot LOG TEST',
+    message: 'AppRoot is mounted',
+    domain: app.domain,
+    userId: app.bitrix.user?.ID,
+  });
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background">

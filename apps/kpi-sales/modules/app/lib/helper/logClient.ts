@@ -1,5 +1,6 @@
 export async function logClient(title: string, payload: any) {
-    try {
+   debugger
+  try {
       await fetch('/api/admin/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

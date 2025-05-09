@@ -161,7 +161,7 @@ export const getReportData = () =>
             } as ReportRequest;
 
             const reportResponse = await getReportDataAPI(reportData);
-            debugger
+
             // kpiReportListenerHelper(dispatch, reportData, report, savedFilter)
 
             dispatch(callingStatisticsApi.endpoints.getCallingStatistics.initiate(reportData,

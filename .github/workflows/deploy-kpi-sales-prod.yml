@@ -29,27 +29,14 @@ jobs:
             tmux new -d -s /kpi-sales-prod-deploy-session "\
             docker compose --env-file .env build front-kpi-sales && \
             docker compose --env-file .env up -d front-kpi-sales && \
+            docker ps -a > /tmp/front-kpi-sales.log && \
+            docker logs front-kpi-sales-prod >> /tmp/front-kpi-sales.log && \
             echo ✅ Готово"
 
 
             echo "⌛ Ожидание запуска контейнера 60..."
             sleep 60
-            echo "⌛ Ожидание запуска контейнера 60..."
-            sleep 60
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            docker ps -a
-            docker logs april-kpi-sales-prod || true
-
-
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
+            
             echo "⌛ Ожидание запуска контейнера 180..."
             sleep 180
             docker ps -a

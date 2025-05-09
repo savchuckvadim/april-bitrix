@@ -43,10 +43,10 @@ const AppRoot = ({ inBitrix }: { inBitrix: boolean }) => {
   if (!isClient) {
     return <LoadingScreen />;
   }
-  debugger
+  
   logClient('AppRoot', {
     level: 'info',
-    context: 'AppRoot LOG TEST',
+    context: 'AppRoot KPI REPORT SALES',
     message: 'AppRoot is mounted',
     domain: app.domain,
     userId: app.bitrix.user?.ID,

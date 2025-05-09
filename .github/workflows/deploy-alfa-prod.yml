@@ -21,6 +21,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          timeout: 30m
           script: |
             echo "🧩 Подключение к серверу"
             cd /var/www/html/next/monorepo
@@ -29,28 +30,15 @@ jobs:
             tmux new -d -s /front-alfa-prod-deploy-session "\
             docker compose --env-file .env build front-alfa && \
             docker compose --env-file .env up -d front-alfa && \
+            docker ps -a > /tmp/front-alfa.log && \
+            docker logs front-alfa-prod >> /tmp/front-alfa.log && \
             echo ✅ Готово"
 
 
             echo "⌛ Ожидание запуска контейнера 60..."
             sleep 60
-            echo "⌛ Ожидание запуска контейнера 60..."
-            sleep 60
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
+      
+  
             docker ps -a
             docker logs front-alfa-prod || true
 
-
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            docker ps -a
-            docker logs front-alfa-prod || true

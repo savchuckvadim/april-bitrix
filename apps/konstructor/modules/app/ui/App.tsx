@@ -18,6 +18,7 @@ import StartPage from "@/modules/pages/StartPage";
 
 const App = ({ inBitrix, envBitrix }: { inBitrix: boolean, envBitrix: boolean | string | undefined }) => {
 
+    console.log('KONSTRUCTOR APP')
     console.log('envBitrix', envBitrix)
 
     return (

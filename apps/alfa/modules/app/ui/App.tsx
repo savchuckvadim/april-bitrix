@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from "../lib/hooks/redux";
 
 
 const App = ({ inBitrix, envBitrix }: { inBitrix: boolean, envBitrix: boolean | string | undefined }) => {
-
+    console.log('ALFA APP')
     console.log('envBitrix', envBitrix)
 
     return (

@@ -15,6 +15,7 @@ import { logClient } from "../lib/helper/logClient";
 
 const App = ({ inBitrix, envBitrix }: { inBitrix: boolean, envBitrix: boolean | string | undefined }) => {
 
+  console.log('KPI SALES APP')
   console.log('envBitrix', envBitrix)
 
   return (

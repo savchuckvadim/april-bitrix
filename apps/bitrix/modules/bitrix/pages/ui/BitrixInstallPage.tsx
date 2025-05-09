@@ -8,6 +8,7 @@ import {  getBxService } from "@workspace/api";
 
 
 export default function InstallPage({ installStatus }: { installStatus?: 'success' | 'fail' }) {
+    console.log('BITRIX APP')
     console.log('installStatus')
 
     console.log(installStatus)

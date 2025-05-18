@@ -15,7 +15,7 @@ export const getFiltredrReport = (
 ): ReportData[] => {
 
     let resultRep = getSpreadReport(report)
-        .filter(rep => department.some(user => user.ID === rep.user.ID)) as Array<ReportData>
+        .filter(rep => department.some(user => Number(user.ID) === Number(rep.user.ID))) as Array<ReportData>
 
 
     for (const key in resultRep) {
@@ -37,7 +37,7 @@ export const getFiltredrReport = (
             resultRep[key].kpi = filtredKPI;
         }
     }
-
+    debugger
     return resultRep
 }
 

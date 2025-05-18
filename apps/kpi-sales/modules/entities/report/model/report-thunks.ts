@@ -176,6 +176,7 @@ export const getReportData = () =>
 
             )
             if (reportResponse) {
+                
                 dispatch(reportActions.setFetchedReport({
                     report: reportResponse,
                     // dateFrom: date.from,

@@ -44,8 +44,9 @@ jobs:
                 echo "✅ Контейнер обновился: $old_id → $new_id"
                 break
               fi
+              docker ps -a
               echo "⌛ Контейнер ещё старый, жду..."
-              sleep 5
+              sleep 15
             done
 
 
@@ -59,31 +60,3 @@ jobs:
             docker ps -a
             docker logs april-kpi-sales-prod || true
 
-            echo "⌛ Ожидание запуска контейнера 60..."
-            sleep 60
-            
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            docker ps -a
-            docker logs april-kpi-sales-prod || true
-
-
-            echo "⌛ Ожидание запуска контейнера 60..."
-            sleep 60
-            
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            docker ps -a
-            docker logs april-kpi-sales-prod || true
-
-
-
-
-
-            echo "⌛ Ожидание запуска контейнера 60..."
-            sleep 60
-            
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
-            docker ps -a
-            docker logs april-kpi-sales-prod || true

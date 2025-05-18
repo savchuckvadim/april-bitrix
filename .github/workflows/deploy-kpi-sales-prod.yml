@@ -18,6 +18,7 @@ jobs:
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
+          timeout: 30m
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
@@ -25,13 +26,58 @@ jobs:
             echo "🧩 Подключение к серверу"
             cd /var/www/html/next/monorepo
             git pull origin main
-            tmux kill-session -t /kpi-sales-prod-deploy-session || true
-            tmux new -d -s /kpi-sales-prod-deploy-session "\
+            tmux kill-session -t kpi-sales-prod-deploy-session || true
+
+            old_id=$(docker ps --filter "name=april-kpi-sales-prod" --format "{{.ID}}")
+
+            tmux new -d -s kpi-sales-prod-deploy-session "\
             docker compose --env-file .env build front-kpi-sales && \
             docker compose --env-file .env up -d front-kpi-sales && \
             docker ps -a > /tmp/front-kpi-sales.log && \
-            docker logs front-kpi-sales-prod >> /tmp/front-kpi-sales.log && \
+            docker logs april-kpi-sales-prod >> /tmp/front-kpi-sales.log && \
             echo ✅ Готово"
+
+            echo "⏳ Жду, пока произойдёт обновление контейнера..."
+            for i in {1..60}; do
+              new_id=$(docker ps --filter "name=april-kpi-sales-prod" --format "{{.ID}}")
+              if [ "$new_id" != "$old_id" ]; then
+                echo "✅ Контейнер обновился: $old_id → $new_id"
+                break
+              fi
+              echo "⌛ Контейнер ещё старый, жду..."
+              sleep 5
+            done
+
+
+
+
+            echo "⌛ Ожидание запуска контейнера 60..."
+            sleep 60
+            
+            echo "⌛ Ожидание запуска контейнера 180..."
+            sleep 180
+            docker ps -a
+            docker logs april-kpi-sales-prod || true
+
+            echo "⌛ Ожидание запуска контейнера 60..."
+            sleep 60
+            
+            echo "⌛ Ожидание запуска контейнера 180..."
+            sleep 180
+            docker ps -a
+            docker logs april-kpi-sales-prod || true
+
+
+            echo "⌛ Ожидание запуска контейнера 60..."
+            sleep 60
+            
+            echo "⌛ Ожидание запуска контейнера 180..."
+            sleep 180
+            docker ps -a
+            docker logs april-kpi-sales-prod || true
+
+
+
 
 
             echo "⌛ Ожидание запуска контейнера 60..."

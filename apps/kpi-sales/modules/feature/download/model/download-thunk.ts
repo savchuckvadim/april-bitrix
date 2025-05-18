@@ -74,13 +74,17 @@ export const getDownload = (type: EDownloadType, report: ReportData[]) => async 
             const domain = app.domain
             const user = `${app.bitrix.user?.ID} ${app.bitrix.user?.NAME} ${app.bitrix.user?.LAST_NAME}`
             console.error('❌ Не blob:', blob);
-            logClient(
-                'Ошибка скачивания отчета getDownload: ❌ Не blob',
+            logClient({
+                level: 'error',
+                context: 'download-thunk get download',
+                title: 'download report',
+                message: 'Ошибка скачивания отчета getDownload: ❌ Не blob',
+                domain,
+                userId: user,
+            },
                 {
-                    domain,
-                    user
-                }
-            )
+                    blob
+                })
         }
     }
 

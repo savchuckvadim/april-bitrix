@@ -41,8 +41,13 @@ export async function POST(req: NextRequest) {
     console.log(requestData)
     logServer(
       'error',
-      'KPI REPORT SALES api/install',
-      'error test:'+ JSON.stringify(requestData)
+      'install',
+      'api/bitrix/install',
+      'KPI REPORT SALES api/bitrix/install',
+      'app.domain',
+      'app.bitrix.user?.ID',
+      { requestData },
+      new Date().toISOString()
     )
     const event = params.get('event');
     const placement = params.get('PLACEMENT');

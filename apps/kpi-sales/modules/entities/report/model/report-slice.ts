@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {  format} from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Filter, FilterInnerCode, KPIAction, ReportData, ReportDate, EReportDateMode, ReportDateType, ReportDetalization }
     from "./types/report/report-type";
-import { getDatesByMode } from '../lib/date-util';
+import { getDatesByMode, normalizeToISO } from '../lib/date-util';
 
 export type ReportState = typeof initialState;
 
@@ -110,8 +110,17 @@ const reportSlice = createSlice({
             typeOfDate: ReportDateType;
             value: string;
         }>) => {
-            
-            state.date[action.payload.typeOfDate] = action.payload.value;
+            // const formatted = dayjs(action.payload.value).format('YYYY-MM-DD');
+
+            // const parseDate = parseISO(action.payload.value);
+            // 
+            // const date = format(parseDate, "dd.MM.yyyy");
+            const date = normalizeToISO(action.payload.value)
+
+            if (date) {
+                state.date[action.payload.typeOfDate] = date;
+            }
+
         },
         setChangedDateMode: (state: ReportState, action: PayloadAction<{
             mode: EReportDateMode;
@@ -125,7 +134,7 @@ const reportSlice = createSlice({
             state.date[ReportDateType.FROM] = from;
             state.date[ReportDateType.TO] = to;
             state.date.mode = mode;
-            
+
         },
         setCurrentActions: (state: ReportState, action: PayloadAction<Array<Filter>>) => {
             state.actions.current = action.payload;

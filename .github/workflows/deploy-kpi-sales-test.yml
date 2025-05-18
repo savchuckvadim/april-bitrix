@@ -25,8 +25,8 @@ jobs:
             echo "🧩 Подключение к серверу"
             cd /var/www/html/next/test.monorepo
             git pull origin test
-            tmux kill-session -t /kpi-sales-test-deploy-session || true
-            tmux new -d -s /kpi-sales-test-deploy-session "\
+            tmux kill-session -t kpi-sales-test-deploy-session || true
+            tmux new -d -s kpi-sales-test-deploy-session "\
             docker compose --env-file .env build front-kpi-sales && \
             docker compose --env-file .env up -d front-kpi-sales && \
             echo ✅ Готово"

@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 // import path from 'path';
-import { LOG_FILE_PATH, logServer } from '@/app/lib/log/logServer';
+import { LOG_FILE_PATH, LogLevel, logServer } from '@/app/lib/log/logServer';
 
 export const runtime = 'nodejs'; // <-- Добавить обязательно!
 
@@ -24,21 +24,32 @@ export async function GET() {
 }
 
 
-
-
+export type ILogServerBody = {
+    level: LogLevel;
+    title: string;
+    context: string;
+    message: string;
+    domain: string;
+    userId: string;
+    payload: unknown;
+    timestamp: string;
+}
 export async function POST(req: NextRequest) {
-    const body = await req.json();
+    const body = await req.json() as ILogServerBody;
     try {
-       
+
         console.log('BODY')
 
         console.log(body)
         logServer(
             body.level || 'info',
-            'KPI REPORT SALES api/bitrix/app',
-            `Получен запрос с телом: ${JSON.stringify(body)}`,
+            body.title || 'title log route',
+            body.context || 'context log route',
+            body.message || `Получен запрос с телом: ${JSON.stringify(body)}`,
             body.domain || 'domain',
-            body.useId || 'userId',
+            body.userId || 'userId',  
+            body.payload || {},
+            body.timestamp || new Date().toISOString(),
         )
         // обработка
         return NextResponse.json({ success: true });
@@ -46,11 +57,17 @@ export async function POST(req: NextRequest) {
         const err = error as Error;
 
         logServer(
-            'info',
+            'error',
             'KPI REPORT SALES api/admin/logs',
-            `Ошибка обработки POST /api/route: ${err?.message}`,
+            'KPI REPORT SALES api/admin/logs',
+            `Ошибка отправки лога: ${err?.message}`,
             body.domain || 'domain',
-            body.useId || 'userId',
+            body.userId || 'userId',
+            body.payload || {
+                error: err?.message,
+                errorInfo: err?.stack,
+            },
+            body.timestamp || new Date().toISOString(),
         )
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

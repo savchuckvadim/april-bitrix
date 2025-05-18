@@ -32,7 +32,8 @@ const RTable: FC<RTableProps> = ({ code, data, firstCellName }) => {
                             <Tooltip key={`tooltip-rtable-head-${code}-column-${i}`} >
                                 <TooltipTrigger asChild>
                                     <TableHead key={`head-${code}-column-${i}`} className="text-right bg-popover text-primary">
-                                        {report.name.length > 19 ? report.name.slice(0, 20) + '...' : report.name}
+                                        {/* {report.name.length > 19 ? report.name.slice(0, 20) + '...' : report.name} */}
+                                        {report.name}
                                     </TableHead>
                                 </TooltipTrigger>
                                 <TooltipContent className="text-xs">

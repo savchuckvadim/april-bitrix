@@ -54,13 +54,18 @@ export type FilterCode = 'xo_plan' | //тип события презентац�
     'call_in_money_plan' | 'call_in_money_expired' | 'call_in_money_done' | 'call_in_money_pound' | 'call_in_money_act_noresult_fail' |
 
     'presentation_plan' | 'presentation_expired' | 'presentation_done' | 'presentation_pound' | 'presentation_act_noresult_fail' |
-    'presentation_uniq_plan' | 'presentation_uniq_expired' | 'presentation_uniq_done' | 'presentation_uniq_pound' | 'presentation_uniq_act_noresult_fail' |
+    'presentation_uniq_plan' |
+    'presentation_contact_uniq_plan' |
+    'presentation_contact_uniq_done' |
+    'presentation_uniq_expired' | 'presentation_uniq_done' | 'presentation_uniq_pound' | 'presentation_uniq_act_noresult_fail' |
     'ev_offer_act_send' | 'ev_offer_pres_act_send' | 'ev_invoice_act_send' | 'ev_invoice_pres_act_send' | 'ev_contract_act_send' | 'ev_success_done' |
     'ev_fail_done'
 
 export type FilterInnerCode = 'result_communication_done' |
     'result_communication_plan' | 'call_plan' | 'call_expired' | 'call_done' | 'call_pound' | 'call_act_noresult_fail' |
     'presentation_plan' | 'presentation_expired' | 'presentation_done' | 'presentation_pound' | 'presentation_act_noresult_fail' |
+    'presentation_contact_uniq_plan' |
+    'presentation_contact_uniq_done' |
     'presentation_uniq_plan' | 'presentation_uniq_expired' | 'presentation_uniq_done' | 'presentation_uniq_pound' | 'presentation_uniq_act_noresult_fail' |
     'ev_offer_act_send' | 'ev_offer_pres_act_send' | 'ev_invoice_act_send' | 'ev_invoice_pres_act_send' | 'ev_contract_act_send' | 'ev_success_done' |
     'ev_fail_done'

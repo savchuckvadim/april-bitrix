@@ -9,9 +9,8 @@ import { API_METHOD, backAPI } from '@workspace/api/';
 import { EBACK_ENDPOINT, EResultCode } from '@workspace/api';
 import { getIsUserHead } from './report-util';
 import { getReportDataAPI } from '../lib/helpers';
-import { callingStatisticsApi } from '../../calling-statistics';
+import {  getCallingStatistics } from '../../calling-statistics';
 import { reportDateRequestFlow } from '../lib/date-util';
-import { kpiReportListenerHelper } from './ws-listener/KpiReporttListener';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 
 
@@ -145,6 +144,7 @@ export const getReportData = () =>
                 savedFilterData,
                 date
             )
+
             const reportData = {
                 domain,
                 filters: {
@@ -163,12 +163,18 @@ export const getReportData = () =>
             const reportResponse = await getReportDataAPI(reportData);
 
             // kpiReportListenerHelper(dispatch, reportData, report, savedFilter)
+            const statisticsData = { ...reportData }
+            // dispatch(callingStatisticsApi.endpoints.getCallingStatistics.initiate(statisticsData,
+            //     {
+            //         forceRefetch: true,
+            //     }
+            // ));
+            dispatch(
+                getCallingStatistics(
+                    statisticsData
+                )
 
-            dispatch(callingStatisticsApi.endpoints.getCallingStatistics.initiate(reportData,
-                {
-                    forceRefetch: true,
-                }
-            ));
+            )
             if (reportResponse) {
                 dispatch(reportActions.setFetchedReport({
                     report: reportResponse,
@@ -197,10 +203,20 @@ export const getReportData = () =>
                     }))
                 }
             } else {
-                logClient('get report data: Report не получен по апи', {
-                    reportData,
-                    reportResponse
-                })
+                logClient(
+                    {
+                        title: 'get report data: Report не получен по апи',
+                        level: 'error',
+                        context: 'getReportData',
+                        message: 'fail report data',
+                        domain: state.app.domain,
+                        userId: state.app.bitrix.user?.ID,
+                    },
+
+                    {
+                        reportData,
+                        reportResponse
+                    })
                 // stack: errorInfo.componentStack,
 
             }
@@ -211,6 +227,7 @@ export const getReportData = () =>
 
 
 export const changeDate = (typeOfDate: ReportDateType, date: string) => async (dispatch: AppDispatch) => {
+
     dispatch(reportActions.setChangedDate({ typeOfDate, value: date }));
 };
 

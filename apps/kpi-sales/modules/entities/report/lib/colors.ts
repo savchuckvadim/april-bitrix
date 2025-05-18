@@ -36,6 +36,8 @@ export const getColors = (report: any[] | undefined) => {
         presentation_pound: "rgba(255, 180, 0, 1)",
         presentation_act_noresult_fail: "rgba(255, 160, 0, 1)",
         presentation_uniq_plan: "rgba(202, 176, 255, 1)",
+        presentation_contact_uniq_plan: "rgb(255, 66, 163)",
+        presentation_contact_uniq_done: "rgb(255, 0, 140)",
         presentation_uniq_done: "rgba(166, 110, 200, 1)",
         presentation_uniq_expired: "rgba(180, 140, 220, 1)",
         presentation_uniq_pound: "rgba(160, 120, 200, 1)",
@@ -58,16 +60,16 @@ export const getColors = (report: any[] | undefined) => {
                 }
             });
         }
-        
+
         return resultColors;
     }
 
     return Object.values(reportColors);
-}; 
+};
 
 export const formatPeriod = (from: string, to: string) => {
     const fromDate = new Date(from)
     const toDate = new Date(to)
-  
+
     return `${format(fromDate, 'd MMMM yyyy', { locale: ru })} – ${format(toDate, 'd MMMM yyyy', { locale: ru })}`
-  }
+}

@@ -9,8 +9,15 @@ export async function POST(req: NextRequest) {
 
     logServer(
       'info',
+      'redirect from api/bitrix/app',
       'KPI REPORT SALES api/bitrix/app',
-      'report post to get report redirect in bitrix'
+      'report post to get report redirect in bitrix',
+      'domain',
+      'ID',
+      {
+        req: req.json(),
+      },
+      new Date().toISOString()
     )
 
 

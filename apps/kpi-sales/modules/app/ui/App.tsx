@@ -43,14 +43,15 @@ const AppRoot = ({ inBitrix }: { inBitrix: boolean }) => {
   if (!isClient) {
     return <LoadingScreen />;
   }
-  
-  logClient('AppRoot', {
+ 
+  logClient({
+    title: 'AppRoot',
     level: 'info',
     context: 'AppRoot KPI REPORT SALES',
     message: 'AppRoot is mounted',
     domain: app.domain,
     userId: app.bitrix.user?.ID,
-  });
+  }, {});
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background">
@@ -67,6 +68,7 @@ const AppRoot = ({ inBitrix }: { inBitrix: boolean }) => {
 };
 
 const AppContent = () => {
+ 
   return <Report />
 };
 

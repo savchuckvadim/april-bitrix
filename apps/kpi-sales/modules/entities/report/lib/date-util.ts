@@ -1,4 +1,4 @@
-import { addDays, endOfMonth, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
+import { addDays, endOfMonth, endOfWeek, format, isValid, parse, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { IFilterResponse, EReportDateMode, ReportDateType, ReportDate } from "../model/types/report/report-type";
 import { AppDispatch } from "@/modules/app/model/store";
 import { reportActions } from "../model";
@@ -27,6 +27,7 @@ export const getDatesByMode = (mode: EReportDateMode): {
     }
     const fromFormated = format(from, 'yyyy-MM-dd') as string;
     const toFormatted = format(to, 'yyyy-MM-dd') as string;
+
     return {
         from: fromFormated,
         to: toFormatted
@@ -74,6 +75,12 @@ export const modifyDateToReportRequest = (from: string, to: string): {
     const dateFrom = format(parseDateFrom, "dd.MM.yyyy");
     const modifiedDateTo = addDays(parseDateTo, 1);
     const dateTo = format(modifiedDateTo, "dd.MM.yyyy");
+
+
+
+
+
+
     return {
         from: dateFrom,
         to: dateTo
@@ -92,7 +99,7 @@ export const reportDateRequestFlow = (
     let date = { ...stateReportDate };
     if (isFirstLoad && savedFilterData && savedFilterData.dates) {
         const { isMode, from, to } = getDatesByRememberFilter(savedFilterData);
-        
+
         if (isMode) {
             dispatch(reportActions.setChangedDateMode({ mode: savedFilterData.dates[ReportDateType.FROM] as EReportDateMode }))
         } else {
@@ -107,10 +114,21 @@ export const reportDateRequestFlow = (
                 date[ReportDateType.FROM] = from;
                 date[ReportDateType.TO] = to;
             } else {
-                date[ReportDateType.FROM] = savedFilterData.dates[ReportDateType.FROM] as string;
-                date[ReportDateType.TO] = savedFilterData.dates[ReportDateType.TO] as string;
+                date[ReportDateType.FROM] = normalizeToISO(savedFilterData.dates[ReportDateType.FROM]) as string;
+                date[ReportDateType.TO] = normalizeToISO(savedFilterData.dates[ReportDateType.TO]) as string;
             }
         }
     }
     return modifyDateToReportRequest(date[ReportDateType.FROM], date[ReportDateType.TO])
+}
+
+
+export const normalizeToISO = (date: string): string => {
+    let parsed = parseISO(date);
+
+    if (!isValid(parsed)) {
+        parsed = parse(date, 'dd.MM.yyyy', new Date());
+    }
+
+    return isValid(parsed) ? format(parsed, 'yyyy-MM-dd') : '';
 }

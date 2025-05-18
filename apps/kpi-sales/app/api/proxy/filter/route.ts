@@ -1,6 +1,5 @@
 // app/api/proxy/route.ts
-import { httpRequestCounter } from '@/app/lib/metrics/metrics';
-import { httpRequestDuration } from '@/app/lib/metrics/metrics';
+
 import { withMetrics } from '@/app/lib/metrics/withMetrics';
 import { ReportRequest } from '@/modules/entities/report/model/report-service'
 import { API_METHOD, onlineGeneralAPI } from '@workspace/api'

@@ -3,15 +3,16 @@ import { bxAPI as bx } from "@workspace/api";
 import { TESTING_DOMAIN, TESTING_USER } from "../consts/app-global";
 import { appActions } from "./AppSlice";
 import { AppDispatch, AppGetState, AppThunk, initWSClient } from "./store";
-import { Socket, WSClient } from "@workspace/ws";
+import { WSClient } from "@workspace/ws";
 import { socketThunk } from "./queue-ws-ping-test/QueueWsPingListener";
-
+import { getInitializeData } from "../lib/initialize/konstructor.helper";
 
 export let socket: undefined | WSClient;
 
-export const initial = (inBitrix: boolean = false): AppThunk =>
+export const initial = (inBitrix: boolean = false, isPublic: boolean = false): AppThunk =>
   async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
 
+    console.log(isPublic)
 
     const state = getState();
     const app = state.app;
@@ -20,6 +21,7 @@ export const initial = (inBitrix: boolean = false): AppThunk =>
 
 
     if (!isLoading) {
+      const initializedKonstructor = await getInitializeData()
       dispatch(
         appActions.loading({ status: true })
       )
@@ -41,7 +43,7 @@ export const initial = (inBitrix: boolean = false): AppThunk =>
           domain
         )
       )
-      
+
 
 
 

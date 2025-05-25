@@ -9,11 +9,11 @@ export type { IBackResponse } from "./services/back-api";
 export { hookAPI as hook } from "./services/april-hook-api";
 export { url as hookURL } from "./services/april-hook-api";
 
-export { onlineAPI as online } from "./services/april-online-api";
+export { onlineAPI } from "./services/online/online-api";
 export { onlineGeneralAPI } from "./services/april-online-api";
 export {
   SETUP_ENDPOINT,
-
+  ONLINE_KONSTRUCTOR_ENDPOINTS
 } from './services/online/type/setup-type'
 export type {
 

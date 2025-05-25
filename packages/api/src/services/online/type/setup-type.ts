@@ -3,6 +3,15 @@ export enum SETUP_ENDPOINT {
   APP = 'bitrix-setup/app',
   PLACEMENT = 'bitrix-setup/placement'
 }
+export enum ONLINE_KONSTRUCTOR_ENDPOINTS {
+  COMPLECTS = 'garant/complects',
+  INFOBLOCKS = 'garant/infoblocks',
+  PRICES = 'prices',
+  SUPPLIES = 'supplies',
+  REGIONS = 'regions',
+  CONSULTING = 'consulting',
+}
+
 
 export interface BitrixAppToken {
     client_id: string;

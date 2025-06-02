@@ -1,0 +1,27 @@
+@media print {
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: white;
+    }
+  
+    .pdf-page {
+      page-break-after: always;
+      page-break-inside: avoid;
+      width: 210mm;
+      height: 297mm;
+      /* padding: 20mm; */
+      box-sizing: border-box;
+      page-break-inside: avoid;
+      overflow: visible;
+    }
+  
+    /* .no-break {
+      page-break-inside: avoid;
+    } */
+  
+    .force-break {
+      page-break-before: always;
+    }
+  }
+

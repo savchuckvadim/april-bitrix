@@ -26,11 +26,15 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { FontSelector } from './components/FontSelector';
+
 
 const BuilderPage: React.FC = () => {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [selectedBlockIndex, setSelectedBlockIndex] = useState<number | null>(null);
-  const [selectedStyleId, setSelectedStyleId] = useState<string>(STYLE_PRESETS[0]?.id ?? "default");
+  // const [selectedStyleId, setSelectedStyleId] = useState<string>(STYLE_PRESETS[0]?.id ?? "default");
+  const [selectedStyleId, setSelectedStyleId] = useState(STYLE_PRESETS[0]?.id ?? "default");
+  const [fontFamily, setFontFamily] = useState("Geist, sans-serif");
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -79,14 +83,14 @@ const BuilderPage: React.FC = () => {
       <div className="w-full md:w-1/4 p-4 bg-background text-foreground">
         <h2 className="text-xl font-bold mb-4">Блоки</h2>
         <div className="flex flex-col space-y-2">
-          {["header", "text", "image", "textImage", "price", "footer"].map((type) => (
+          {["hero", "header", "text", "image", "textImage", "price", "footer"].map((type) => (
             <button key={type} onClick={() => addBlock(type as Block["type"])} className="btn btn-primary">
               Добавить {type}
             </button>
           ))}
         </div>
-
-        <StyleSelector selectedId={selectedStyleId} onChange={setSelectedStyleId} />
+        <FontSelector value={fontFamily} onChange={setFontFamily} />
+        {/* <StyleSelector selectedId={selectedStyleId} onChange={setSelectedStyleId} /> */}
       </div>
 
       {/* Preview with DnD */}
@@ -95,9 +99,10 @@ const BuilderPage: React.FC = () => {
         <div
           className="p-4 border rounded"
           style={{
-            backgroundColor: selectedStyle.backgroundColor,
-            color: selectedStyle.textColor,
-            fontFamily: selectedStyle.fontFamily,
+            // backgroundColor: selectedStyle.backgroundColor,
+            // color: selectedStyle.textColor,
+            // fontFamily: selectedStyle.fontFamily,
+            fontFamily: fontFamily,
           }}
         >
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

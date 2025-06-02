@@ -1,6 +1,6 @@
 // import { ONLINE_API_KEY } from "@/app/secret/online-secret";
 // import { getConfig } from "@/lib/config";
-import { API_METHOD } from "@/type/type";
+import { API_METHOD } from "../../type/type";
 import axios from "axios";
 import { ONLINE_KONSTRUCTOR_ENDPOINTS, SETUP_ENDPOINT } from "./type/setup-type";
 

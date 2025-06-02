@@ -1,7 +1,7 @@
 
-import { OfferPreview } from '@/modules/pages';
+import OfferPreviewPageWrapper from '@/modules/pages/offer-preview/ui/PreviewWrapper';
 
 export default function OfferPreviewPage() {
   
-    return <OfferPreview/>;
+    return <OfferPreviewPageWrapper/>;
 } 

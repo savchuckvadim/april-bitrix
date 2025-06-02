@@ -3,6 +3,17 @@ import { Block } from '@/app/lib/offer-style/types';
 
 export const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
   switch (block.type) {
+    case 'hero':
+    case "hero":
+      return (
+        <div className="p-4 bg-gray-100 text-center">
+          {block.data.image && (
+            <img src={block.data.image} alt="Hero" className="w-full h-auto mb-4 rounded" />
+          )}
+          <h1 className="text-3xl font-bold">{block.data.title ?? "Hero Title"}</h1>
+          <p>{block.data.subtitle ?? "Hero subtitle or call to action"}</p>
+        </div>
+      );
     case 'header':
       return <h1 className="text-3xl font-bold my-4">{block.data.title}</h1>;
     case 'text':

@@ -3,38 +3,54 @@
 import React from 'react';
 import { useSearchParams } from 'next/navigation';
 
-import { Block, StylePreset } from '@/app/lib/offer-style/types';
-import { STYLE_PRESETS } from '@/app/lib/offer-style/styles';
-import { BlockRenderer } from '../../offer-template-settings/ui/components/BlockRenderer';
-
+import OfferHero from './components/OfferHero';
+import "@/style/print.css"
+import OfferLetter from './components/OfferLetter';
+const style = {
+  backgroundColor: '#000',
+  color: '#fff',
+  fontFamily: 'Arial',
+};
+export const faketext = 'Идейные соображения высшего порядка, а также современная методология .'
 const PreviewPage: React.FC = () => {
-  const searchParams = useSearchParams();
-  const templateParam = searchParams.get('template');
-  const dataParam = searchParams.get('data');
 
-  if (!templateParam || !dataParam) {
-    return <div>Недостаточно данных для предпросмотра.</div>;
+  const searchParams = useSearchParams();
+  const editable = searchParams.get('readonly') !== 'true';
+
+  console.log('editable', editable);
+  console.log(editable);
+  const paragraphs = faketext.split('\n\n');
+  const chunkSize = 8;
+  const pages = [];
+
+  for (let i = 0; i < paragraphs.length; i += chunkSize) {
+    pages.push(paragraphs.slice(i, i + chunkSize));
   }
 
-  const template = JSON.parse(decodeURIComponent(templateParam));
-  const data = JSON.parse(decodeURIComponent(dataParam));
-
-  const selectedStyle = STYLE_PRESETS.find((style) => style.id === template.styleId) as StylePreset;
-
   return (
-    <div
-      className="p-8"
-      style={{
-        backgroundColor: selectedStyle.backgroundColor,
-        color: selectedStyle.textColor,
-        fontFamily: selectedStyle.fontFamily,
-      }}
-    >
-      {template.blocks.map((block: Block) => (
-        <div key={block.id} className="mb-4">
-          <BlockRenderer block={{ ...block, data: { ...block.data, ...data } }} />
-        </div>
-      ))}
+    <div className="bg-white text-black min-h-screen flex flex-col items-center justify-start">
+      <div className={`pdf-page  ${editable ? 'w-[210mm] h-[297mm] border-1 border-gray-300 m-1' : ''}`}>
+        <OfferHero />
+        <OfferLetter />
+      </div>
+
+      <div className={`pdf-page  ${editable ? 'w-[210mm] h-[297mm] border-1 border-gray-300 m-1' : ''}`}>
+        {/* <OfferHero /> */}
+        <OfferLetter />
+        <OfferHero />
+      </div>
+
+      <div className={`pdf-page  ${editable ? 'w-[210mm] h-[297mm] border-1 border-gray-300 m-1' : ''}`}>
+        <h1>Next page 2</h1>
+        {/* <OfferDetails /> */}
+        <p>{faketext}</p>
+      </div>
+
+      <div className={`pdf-page  ${editable ? 'w-[210mm] h-[297mm] border-1 border-gray-300 m-1' : ''}`}>
+        <h1>Next page 3</h1>
+        {/* <OfferFooter /> */}
+        <p>{faketext}</p>
+      </div>
     </div>
   );
 };

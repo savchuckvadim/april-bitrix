@@ -1,5 +1,6 @@
 import React from 'react';
 import { Block } from '@/app/lib/offer-style/types';
+import { ImageUploader } from './ImageUploader';
 
 interface Props {
   block: Block;
@@ -12,6 +13,30 @@ export const BlockEditor: React.FC<Props> = ({ block, onChange }) => {
   };
 
   switch (block.type) {
+    case 'hero':
+      return (
+        <div className="flex flex-col gap-2">
+          <input
+            className="border p-2 rounded"
+            type="text"
+            placeholder="Заголовок"
+            value={block.data.title || ""}
+            onChange={(e) => onChange({ ...block, data: { ...block.data, title: e.target.value } })}
+          />
+          <input
+            className="border p-2 rounded"
+            type="text"
+            placeholder="Подзаголовок"
+            value={block.data.subtitle || ""}
+            onChange={(e) => onChange({ ...block, data: { ...block.data, subtitle: e.target.value } })}
+          />
+          <ImageUploader
+            // value={block.data.image}
+            // onChange={(img) => onChange({ ...block, data: { ...block.data, image: img } })}
+            onUpload={() => {}}
+          />
+        </div>
+      );
     case 'header':
       return (
         <input

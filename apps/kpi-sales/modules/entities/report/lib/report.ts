@@ -37,7 +37,7 @@ export const getFiltredrReport = (
             resultRep[key].kpi = filtredKPI;
         }
     }
-    debugger
+
     return resultRep
 }
 

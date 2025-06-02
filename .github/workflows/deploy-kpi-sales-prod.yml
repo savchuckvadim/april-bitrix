@@ -55,8 +55,7 @@ jobs:
             echo "⌛ Ожидание запуска контейнера 60..."
             sleep 60
             
-            echo "⌛ Ожидание запуска контейнера 180..."
-            sleep 180
+
             docker ps -a
             docker logs april-kpi-sales-prod || true
 

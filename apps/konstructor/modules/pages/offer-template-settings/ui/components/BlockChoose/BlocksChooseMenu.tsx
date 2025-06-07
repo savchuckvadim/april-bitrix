@@ -2,7 +2,6 @@
 import { usePdfTemplateSettings } from '@/modules/feature/offer-pdf-settings';
 import React from 'react';
 import BlockChooseItem from './BlockChooseItem';
-import { blocks } from '@/modules/feature/offer-pdf-settings/model/OfferPdfSettingsSlice';
 import { Block } from '@/app/lib/offer-style/types';
 
 const BlocksChooseMenu: React.FC<{ addBlock: (block: Block) => void }> = ({ addBlock }) => {

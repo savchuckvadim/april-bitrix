@@ -1,13 +1,15 @@
 import { PAGE_HEIGHT_MM } from "@/modules/pages/offer-preview/consts/pdf-page-layout.const";
-import { fakeText } from "@/modules/pages/offer-template-settings/ui/components/BlockChooseItem";
+import { fakeText } from "@/modules/pages/offer-template-settings/ui/components/BlockChoose/BlockChooseItem";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { v4 as uuidv4 } from "uuid";
+import { canDropBlock, getNewPage } from "../lib/state-utils/block-state.util";
 
 export interface OfferPdfSettingsState {
     current: OfferPdfSetting;
     items: OfferPdfSetting[];
     default: typeof blocks;
     editeble: OfferPdfBlock | null
+    titlePositions: typeof titlePositions
 }
 export interface OfferPdfSetting {
     id: string;
@@ -15,6 +17,40 @@ export interface OfferPdfSetting {
     style: any;
     font: OfferPdfFont;
     pages: OfferPdfPage[];
+    colors: {
+
+
+        text: {
+            code: 'text',
+            value: string;
+            name: 'Текст'
+        };
+        background: {
+            code: 'background',
+            value: string;
+            name: 'Фон'
+        };
+        border: {
+            code: 'border',
+            value: string;
+            name: 'Граница'
+        };
+        accent: {
+            code: 'accent',
+            value: string;
+            name: 'Заголовки'
+        };
+        accentText: {
+            code: 'accentText',
+            value: string;
+            name: 'Акцентный текст'
+        };
+        base: {
+            code: 'base',
+            value: string;
+            name: 'Фирменный цвет'
+        };
+    }
 }
 export interface OfferPdfPage {
     id: string;
@@ -32,6 +68,49 @@ export type OfferPdfFont = { id: number, label: string, value: string };
 //     content: any;
 //     type: 'hero' | 'letter'| 'logo' | 'stamp'| 'signature' | 'text' | 'image' | 'table' | 'divider' | 'footer' | 'header' | 'pagebreak' | 'qrcode' | 'barcode' | 'infoblocks' | 'description' | 'price' | 'manager'  ;
 // }
+const titlePositions = [
+    {
+        id: 0,
+        name: 'Слева сверху',
+        left: 0,
+        top: 0,
+        isActive: true,
+        style: 'text' as 'text' | 'border' | 'background'
+    },
+    {
+        id: 1,
+        name: 'Слева снизу',
+        left: 0,
+        top: 100,
+        isActive: true,
+        style: 'text' as 'text' | 'border' | 'background'
+    },
+    {
+        id: 2,
+        name: 'Справа сверху',
+        left: 100,
+        top: 0,
+        isActive: true,
+        style: 'text' as 'text' | 'border' | 'background'
+    },
+    {
+        id: 3,
+        name: 'Справа снизу',
+        left: 100,
+        top: 100,
+        isActive: true,
+        style: 'text' as 'text' | 'border' | 'background'
+    },
+    {
+        id: 4,
+        name: 'По центру',
+        left: 50,
+        top: 50,
+        isActive: true,
+        style: 'text' as 'text' | 'border' | 'background'
+    },
+
+]
 export const blocks = {
     hero: {
         id: '0' as string,
@@ -39,12 +118,26 @@ export const blocks = {
         name: 'Заставка',
         order: 0 as const,
         content: {
-            image: '/cover/hero.avif',
-            slogan: 'Сделайте первый шаг к успеху',
-            subtitle: 'Сделайте первый шаг к успеху',
+            image: '/cover/hero.avif' as string,
+            slogan: {
+                text: 'Сделайте первый шаг к успеху' as string,
+                position: 'relative' as 'relative' | 'absolute',
+                left: 0,
+                top: 0,
+                isActive: true,
+                style: 'text' as 'text' | 'border' | 'background'
+            },
+            subtitle: {
+                text: 'Сделайте первый шаг к успеху' as string,
+                position: 'relative' as 'relative' | 'absolute',
+                left: 0,
+                top: 0,
+                isActive: true,
+                style: 'text' as 'text' | 'border' | 'background'
+            },
         },
         height: 97,
-        exclusive: ['bigLetter',],
+        exclusive: ['bigLetter'],
         data: {},
         position: 'relative' as const
     },
@@ -121,6 +214,9 @@ export const blocks = {
             left: 0,
             top: 0,
         },
+        position: 'relative' as 'relative' | 'absolute',
+        left: 0,
+        top: 0,
         height: 5 as const,
         data: {},
 
@@ -211,13 +307,47 @@ const current: OfferPdfSetting = {
     style: {},
     font: { id: 0, label: 'Georgia', value: '"Georgia", serif' } as OfferPdfFont,
     pages: [],
+    colors: {
+        base: {
+            code: 'base',
+            value: '#000000',
+            name: 'Фирменный цвет'
+        },
+        text: {
+            code: 'text',
+            value: '#000000',
+            name: 'Текст'
+        },
+        background: {
+            code: 'background',
+            value: '#ffffff',
+            name: 'Фон'
+        },
+        border: {
+            code: 'border',
+            value: '#000000',
+            name: 'Граница'
+        },
+        accent: {
+            code: 'accent',
+            value: '#000000',
+            name: 'Заголовки'
+        },
+        accentText: {
+            code: 'accentText',
+            value: '#000000',
+            name: 'Акцентный текст'
+        },
+    }
 }
 
 const initialState = {
     current: current,
     items: [current],
-    default: blocks,
-    editeble: null as  null | OfferPdfBlock
+    default: structuredClone(blocks) as typeof blocks,
+    editeble: null as null | OfferPdfBlock,
+    titlePositions: titlePositions,
+
 } as OfferPdfSettingsState
 
 export const offerPdfSettingsSlice = createSlice({
@@ -233,7 +363,9 @@ export const offerPdfSettingsSlice = createSlice({
             state: OfferPdfSettingsState,
             action: PayloadAction<OfferPdfFont>
         ) => {
+            debugger
             state.current && (state.current.font = { id: action.payload.id, label: action.payload.label, value: action.payload.value });
+            debugger
         },
         setPage: (state: OfferPdfSettingsState,
             action: PayloadAction<OfferPdfPage>
@@ -242,7 +374,7 @@ export const offerPdfSettingsSlice = createSlice({
         },
         updatePages: (state: OfferPdfSettingsState, action: PayloadAction<OfferPdfPage[]>) => {
             if (!state.current.pages) return;
-            debugger
+
             state.current.pages = state.current.pages.map(page => {
                 const updatedPage = action.payload.find(p => p.id === page.id);
                 return updatedPage || page;
@@ -263,9 +395,9 @@ export const offerPdfSettingsSlice = createSlice({
                 const currentPage = state.current.pages[state.current.pages.length - 1];
                 if (!currentPage) return;
 
-                let currentPageHeight = currentPage?.blocks.reduce((acc, block) => acc + block.height, 0) || 0;
-                const newPageHeight = currentPageHeight + action.payload.block.height;
-                const needBlock = newPageHeight < PAGE_HEIGHT_MM;
+                // let currentPageHeight = currentPage?.blocks.reduce((acc, block) => acc + block.height, 0) || 0;
+                // const newPageHeight = currentPageHeight + action.payload.block.height;
+                const needBlock = canDropBlock(currentPage, action.payload.block);
                 if (!needBlock) {
                     state.current.pages.push({
                         id: uuidv4(),
@@ -284,17 +416,68 @@ export const offerPdfSettingsSlice = createSlice({
                 }
             }
         },
+        addNewPageWithBlock: (state: OfferPdfSettingsState,
+            action: PayloadAction<OfferPdfBlock>
+        ) => {
+            state.current.pages = state.current.pages.map(page => {
+                page.blocks = page.blocks.filter(block => block.id !== action.payload.id);
+                return page;
+            });
+            const newPage = getNewPage(action.payload, state.current.pages.length);
+            state.current.pages.push(newPage as OfferPdfPage);
+        },
+        deleteBlock: (state: OfferPdfSettingsState,
+            action: PayloadAction<{ blockId: string }>
+        ) => {
+            debugger
+            state.current.pages = state.current.pages.map(page => {
+                page.blocks = page.blocks.filter(block => block.id !== action.payload.blockId);
+                return page;
+            });
+            state.current.pages = state.current.pages.filter(page => page.blocks.length > 0);
+            debugger
+        },
         setEditeble: (state: OfferPdfSettingsState,
             action: PayloadAction<OfferPdfBlock>
         ) => {
+            debugger
             state.editeble = action.payload;
         },
-        saveEditeble: (state: OfferPdfSettingsState) => {
+        saveEditeble: (
+            state: OfferPdfSettingsState,
+
+        ) => {
+            if (!state.editeble) return;
+            state.current.pages = state.current.pages.map(page => {
+                page.blocks = page.blocks.map(block => block.id === state.editeble?.id ? state.editeble : block);
+                return page;
+            });
             state.editeble = null;
         },
         cancelEditeble: (state: OfferPdfSettingsState) => {
             state.editeble = null;
+        },
+        editBlock: (state: OfferPdfSettingsState,
+            action: PayloadAction<OfferPdfBlock>
+        ) => {
+            state.editeble = action.payload;
+        },
+        setColor: (state: OfferPdfSettingsState,
+            action: PayloadAction<{ code: keyof OfferPdfSetting['colors'], value: string }>
+        ) => {
+            state.current.colors[action.payload.code].value = action.payload.value;
+        },
+        changeHeroSlogans(
+            state: OfferPdfSettingsState,
+            action: PayloadAction<{ value: string, code: 'slogan' | 'subtitle' }>
+        ) {
+            if (!state.editeble) return;
+            if (state.editeble.type !== 'hero') return;
+            const key = action.payload.code;
+            state.editeble.content[key].text = action.payload.value;
         }
+
+
 
     }
 
@@ -305,6 +488,13 @@ export const {
     setCurrentFont,
     setPage,
     setBlock,
-    updatePages
+    deleteBlock,
+    updatePages,
+    addNewPageWithBlock,
+    setEditeble,
+    saveEditeble,
+    cancelEditeble,
+    editBlock,
+    setColor
 } = offerPdfSettingsSlice.actions;
 export const offerPdfSettingsReducer = offerPdfSettingsSlice.reducer;

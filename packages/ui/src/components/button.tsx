@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-
 import { cn } from "@workspace/ui/lib/utils"
 
 const buttonVariants = cva(
@@ -49,6 +48,9 @@ function Button({
   return (
     <Comp
       data-slot="button"
+      style={{
+        cursor: props.disabled ? 'not-allowed' : 'pointer'
+      }}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />

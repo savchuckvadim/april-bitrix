@@ -10,6 +10,7 @@ const lato = Lato({ subsets: ['latin'], weight: ['400', '700'], variable: '--fon
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-nunito' })
 
 const FONT_OPTIONS = [
+  { id: 20, label: 'Geist', value: 'Geist, serif' },
   { id: 0, label: 'Geist Sans', value: 'Geist, sans-serif' },
   { id: 1, label: 'Geist Mono', value: 'GeistMono, monospace' },
   { id: 2, label: 'Inter', value: '"Inter", sans-serif' },
@@ -42,9 +43,11 @@ export function FontSelector({
 }: {
   }) {
   const { setCurrentFont, current } = usePdfTemplateSettings();
-  const onChange = (id: number) => {
-    const font = FONT_OPTIONS.find((font) => font.id === id);
-    setCurrentFont({ id, label: font?.label ?? '', value: font?.value ?? '' });
+  const onChange = (id: string) => {
+    const numberId = Number(id)
+    const font = FONT_OPTIONS.find((font) => font.id === numberId);
+    debugger
+    font && setCurrentFont(font);
   }
   return (
     <div className="mt-4">
@@ -52,10 +55,13 @@ export function FontSelector({
       <select
         className="border p-2 rounded w-full  cursor-pointer"
         value={current.font.id}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => {
+          debugger
+          onChange(e.target.value)
+        }}
       >
         {FONT_OPTIONS.map((font) => (
-          <option key={font.value} value={font.value} onClick={() => setCurrentFont(font)}>
+          <option key={font.value} value={font.id} >
             {font.label}
           </option>
         ))}

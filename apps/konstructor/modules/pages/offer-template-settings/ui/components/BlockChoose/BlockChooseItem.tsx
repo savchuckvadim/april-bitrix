@@ -1,7 +1,6 @@
 'use client'
 
 import { OfferPdfBlock } from '@/modules/feature/offer-pdf-settings';
-import OfferHero from '@/modules/pages/offer-preview/ui/components/OfferHero';
 import Image from 'next/image';
 import React, { useState } from 'react';
 export const fakeText = 'Вот вам яркий пример современных тенденций — современная методология разработки напрямую зависит от кластеризации усилий. Есть над чем задуматься: явные признаки победы институционализации будут заблокированы в рамках своих собственных рациональных ограничений. Кстати, сделанные на базе интернет-аналитики выводы набирают популярность среди определенных слоев населения, а значит, должны быть обнародованы.'

@@ -1,13 +1,31 @@
+'use client'
 import React from 'react';
 import { Block } from '@/app/lib/offer-style/types';
 import OfferHero from '@/modules/pages/offer-preview/ui/components/OfferHero';
-import { fakeText } from './BlockChooseItem';
 import Image from 'next/image';
+import { usePdfTemplateSettings } from '@/modules/feature/offer-pdf-settings';
+
 
 export const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
+  // const { setEditeble, deleteBlock } = usePdfTemplateSettings();
+  const BlockWrapper = ({ children }: { children: React.ReactNode }) => {
+    return <div className={`w-full `}
+      style={{
+        height: `${block.height}mm`
+      }}
+    ><div className='relative'>
+        {children}
+
+     
+      </div>
+    </div>
+  }
+  const { editeble } = usePdfTemplateSettings();
+  
   switch (block.type) {
-    case 'hero':
+
     case "hero":
+      const isSelected = editeble && editeble.id === block.id && editeble.type === block.type;;
       return (
         // <div className="p-4 bg-gray-100 text-center">
         //   {block.data.image && (
@@ -16,14 +34,16 @@ export const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
         //   <h1 className="text-3xl font-bold">{block.data.title ?? "Hero Title"}</h1>
         //   <p>{block.data.subtitle ?? "Hero subtitle or call to action"}</p>
         // </div>
-        <OfferHero />
+        <BlockWrapper>
+          <OfferHero 
+          img={isSelected ? editeble?.content.image || ""   : block.content.image} 
+          title={isSelected ? editeble?.content.slogan.text || "" : block.content.slogan.text}
+          subtitle={isSelected ? editeble?.content.subtitle.text || "" : block.content.subtitle.text}
+          />
+        </BlockWrapper>
       );
     case 'header':
-      return <div className={`w-full`}
-        style={{
-          height: `${block.height}mm`
-        }}
-      >
+      return <BlockWrapper>
         {/* <h1 className="text-3xl font-bold my-4">{block.name}</h1> */}
         <div className={`flex flex-row justify-between text-xs  p-2`}>
           <div className='text-left '>
@@ -43,7 +63,7 @@ export const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
             />
           </div>
         </div>
-      </div>;
+      </BlockWrapper>;
 
     case 'bigLetter':
       return <div key={block.type} className={`w-full p-3`}

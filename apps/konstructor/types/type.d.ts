@@ -9,3 +9,6 @@ declare global {
 }
 declare const Pace: any;
 
+declare module 'pagedjs' {
+    export function Previewer(options: any): void;
+}

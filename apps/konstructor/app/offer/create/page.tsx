@@ -21,9 +21,13 @@ export default function Home() {
       </aside>
 
       {/* Main Content */}
-      <main className="w-2/3 p-4">
-        <DocumentSettingsForm />
-        <DocumentTable />
+      <main className="w-2/3 p-4 flex flex-col gap-4 items-end">
+        <div className="w-1/2">
+          <DocumentSettingsForm />
+        </div>
+        <div className="w-full">
+          <DocumentTable />
+        </div>
       </main>
     </div>
   );

@@ -1,8 +1,8 @@
 import { Action, AnyAction, combineReducers, configureStore, createListenerMiddleware, Dispatch, Middleware, MiddlewareAPI, ThunkAction } from "@reduxjs/toolkit";
 import { appReducer } from "./AppSlice";
 import { WSClient } from "@workspace/ws";
-
-
+import { offerPdfSettingsReducer } from "@/modules/feature/offer-pdf-settings";
+import { infoblockReducer } from "@/modules/entities/infoblock";
 
 
 export const listenerMiddleware = createListenerMiddleware();
@@ -26,8 +26,8 @@ export const getWSClient = () => {
 const rootReducer = combineReducers({
   app: appReducer,
 
-  //april
-
+  offerPdfSettings: offerPdfSettingsReducer,
+  infoblock: infoblockReducer,
 
 });
 
@@ -39,12 +39,12 @@ export const setupStore = () => {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         thunk: {
-          extraArgument: { getWSClient }, 
+          extraArgument: { getWSClient },
         },
       })
-        // .concat(portalAPI.middleware)
-        // .concat(infoblockAPI.middleware)
- 
+    // .concat(portalAPI.middleware)
+    // .concat(infoblockAPI.middleware)
+
     // .concat(reportMiddleware)
   });
 };

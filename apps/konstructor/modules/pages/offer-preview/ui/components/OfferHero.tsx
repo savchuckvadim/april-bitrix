@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const OfferHero = () => {
     return (
-        <div className="relative w-full h-[400px]">
+        <div className="relative  h-[97mm]">
             <Image 
                 src="/cover/hero.avif" 
                 alt="hero image" 

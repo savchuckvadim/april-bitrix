@@ -21,7 +21,7 @@ export const initial = (inBitrix: boolean = false, isPublic: boolean = false): A
 
 
     if (!isLoading) {
-      const initializedKonstructor = await getInitializeData()
+      const initializedKonstructor = await getInitializeData(dispatch)
       dispatch(
         appActions.loading({ status: true })
       )

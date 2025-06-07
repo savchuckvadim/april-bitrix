@@ -16,19 +16,22 @@ import StartPage from "@/modules/pages/StartPage";
 //@ts-ignore
 
 
-const App = ({ inBitrix, envBitrix, isPublic }: { inBitrix: boolean, envBitrix: boolean | string | undefined, isPublic: boolean }) => {
+const App = ({ children, inBitrix, envBitrix, isPublic }: { children: React.ReactNode,   inBitrix: boolean, envBitrix: boolean | string | undefined, isPublic: boolean }) => {
 
     console.log('KONSTRUCTOR APP')
     console.log('envBitrix', envBitrix)
-debugger
+
     return (
 
-        <AppRoot inBitrix={inBitrix} isPublic={isPublic} />
+        <AppRoot inBitrix={inBitrix} isPublic={isPublic}>
+            {children}
+        </AppRoot>
+
 
     )
 }
 
-const AppRoot = ({ inBitrix, isPublic }: { inBitrix: boolean, isPublic: boolean }) => {
+const AppRoot = ({ children, inBitrix, isPublic }: { children: React.ReactNode, inBitrix: boolean, isPublic: boolean }) => {
     const dispatch = useAppDispatch();
     const app = useAppSelector((state) => state.app);
     const [isClient, setIsClient] = useState(false);
@@ -57,7 +60,8 @@ const AppRoot = ({ inBitrix, isPublic }: { inBitrix: boolean, isPublic: boolean 
 
 
                 {app.initialized ? (
-                    <AppContent />
+                    // <AppContent />
+                    children
                 ) : (
                     <LoadingScreen />
                 )}

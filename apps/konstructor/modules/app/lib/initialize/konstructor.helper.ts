@@ -1,6 +1,8 @@
 import { getComplects } from "@/modules/entities/complect"
-import { getInfoBlocks } from "@/modules/entities/infoblock"
-export const getInitializeData = async (): Promise<boolean> => {
+import { AppDispatch } from "../../model/store"
+import { fetchInfoblocks } from "@/modules/entities/infoblock/model/InfoblockThunk"
+
+export const getInitializeData = async (dispatch: AppDispatch): Promise<boolean> => {
     // complects
     // infoblocks
     // prices
@@ -10,9 +12,10 @@ export const getInitializeData = async (): Promise<boolean> => {
     // legalTech
     // star
 
-    const complects = await getComplects()
-    const infoblocks = await getInfoBlocks()
-    debugger
+        const complects = await getComplects()
+    // const infoblocks = await getInfoBlocks()
+    dispatch(fetchInfoblocks())
+    
    
     return complects ? true : false
 }

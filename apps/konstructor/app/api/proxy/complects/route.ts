@@ -1,6 +1,7 @@
 // app/api/proxy/route.ts
 
 import { withMetrics } from '@/app/lib/metrics/withMetrics';
+import {  IComplect } from '@/modules/entities/complect';
 import { API_METHOD, ONLINE_KONSTRUCTOR_ENDPOINTS, onlineAPI } from '@workspace/api'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest,) {
             if (!apiKey) {
                 return new Response('Missing API key', { status: 500 })
             }
-            const result = await onlineAPI.service<{complects:any}>(
+            const result = await onlineAPI.service<{complects:IComplect[]}>(
                 ONLINE_KONSTRUCTOR_ENDPOINTS.COMPLECTS,
                 API_METHOD.GET,
                 {},

@@ -1,10 +1,6 @@
-import { EnumTelegramApp, TelegramSendMessageDto } from "../type/telegram.type"
+import { EnumTelegramApp, ITelegramBotDto, TelegramSendMessageDto } from "../type/telegram.type"
 
-interface ITelegramBotDto {
-    text: string
-    domain: string
-    userId: string
-}
+
 export const telegramSendMessage = async (dto: ITelegramBotDto) => {
     try {
 

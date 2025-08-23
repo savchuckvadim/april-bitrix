@@ -8,3 +8,10 @@ export interface TelegramSendMessageDto {
     domain: string;
     userId: string;
 }
+
+
+export interface ITelegramBotDto {
+    text: string
+    domain: string
+    userId: string
+}

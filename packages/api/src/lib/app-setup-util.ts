@@ -1,9 +1,15 @@
 import { BXUser, InitBxResult } from "@workspace/bx/src/type/bitrix-type";
-import { Placement, PlacementCallCard, EntitiesFromPlacement } from "@workspace/bx/src/type/placement-type";
+import {
+  Placement,
+  PlacementCallCard,
+  EntitiesFromPlacement,
+} from "@workspace/bx/src/type/placement-type";
 import { getDisplayMode } from "./placement-util";
 import { bxAPI } from "../services/bx-api";
 
-export const getAppPlacement = async (inBitrix: boolean): Promise<{
+export const getAppPlacement = async (
+  inBitrix: boolean,
+): Promise<{
   placement: Placement | PlacementCallCard | null;
   companyPlacement: Placement;
 }> => {
@@ -17,19 +23,18 @@ export const getAppPlacement = async (inBitrix: boolean): Promise<{
     } as Placement as Placement,
   };
 
-  result.placement = inBitrix ? ((await bxAPI.getPlacement()) as Placement | null) : null;
+  result.placement = inBitrix
+    ? ((await bxAPI.getPlacement()) as Placement | null)
+    : null;
 
   return result;
 };
-
-
-
 
 export const initAppEntities = async (
   entitiesFromPlacement: EntitiesFromPlacement,
   domain: string,
   user: BXUser,
-  placement: Placement | PlacementCallCard
+  placement: Placement | PlacementCallCard,
 ): Promise<InitBxResult> => {
   const currentCompany = entitiesFromPlacement.currentCompany;
   const currentDeal = entitiesFromPlacement.currentDeal;

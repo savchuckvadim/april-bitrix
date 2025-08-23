@@ -4,7 +4,6 @@
 // import { Chart, registerables } from 'chart.js';
 // Chart.register(...registerables);
 
-
 // const BarChart = ({ dataColors }) => {
 //   var barChartColor = getChartColorsArray(dataColors);
 //   const data = {
@@ -28,7 +27,7 @@
 //         barPercentage: 0.4
 //       },
 //       y: {
-        
+
 //       }
 //     }
 //   }

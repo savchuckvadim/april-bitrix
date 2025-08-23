@@ -1,1 +1,1 @@
-export {InstallPage as BitrixInstallPage} from './pages'
+export { InstallPage as BitrixInstallPage } from "./pages";

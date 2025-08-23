@@ -1,1 +1,1 @@
-export { ChartTotal } from './chart/ui/Chart'
+export { ChartTotal } from "./chart/ui/Chart";

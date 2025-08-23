@@ -1,12 +1,12 @@
-'use client'
+"use client";
 // import { ColorScheme, ColorSchemes } from '../provider/Theme';
-import { useTheme } from 'next-themes';
+import { useTheme } from "next-themes";
 // import { useColorScheme } from '../hook/useColorScheme';
 // import { JSX, useState } from 'react'
 // import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, MoonStar, Palette, Sparkles, SunDim } from 'lucide-react'
-import { MoonStar, SunDim } from 'lucide-react'
+import { MoonStar, SunDim } from "lucide-react";
 
-import { ColorSchemePicker } from './ColorSchemePicker';
+import { ColorSchemePicker } from "./ColorSchemePicker";
 
 // const diceIcons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6]
 // const schemeIcons: Record<ColorScheme, JSX.Element> = {
@@ -21,13 +21,13 @@ import { ColorSchemePicker } from './ColorSchemePicker';
 // }
 
 export const ThemeToggler = () => {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
   // const { scheme, setScheme } = useColorScheme()
   // const [isSpinning, setIsSpinning] = useState(false)
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   // const rollColorScheme = () => {
   //   setIsSpinning(true)
@@ -51,8 +51,11 @@ export const ThemeToggler = () => {
   return (
     <div className="flex items-center gap-1 text-foreground">
       {/* Кнопка переключения темы */}
-      <button onClick={toggleTheme} className="cursor-pointer transition-transform duration-300">
-        {theme === 'dark' ? <MoonStar size={20} /> : <SunDim size={20} />}
+      <button
+        onClick={toggleTheme}
+        className="cursor-pointer transition-transform duration-300"
+      >
+        {theme === "dark" ? <MoonStar size={20} /> : <SunDim size={20} />}
       </button>
 
       {/* Кубик для смены схемы
@@ -64,5 +67,5 @@ export const ThemeToggler = () => {
       </button> */}
       <ColorSchemePicker />
     </div>
-  )
-}
+  );
+};

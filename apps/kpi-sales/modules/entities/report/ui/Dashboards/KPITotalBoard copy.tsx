@@ -35,7 +35,7 @@
 //     // const mediumKPI = [
 
 //     // ] as KPI[]
-//     // 
+//     //
 
 //     // totalKPI.forEach(kpi => {
 
@@ -43,7 +43,6 @@
 //     //         ...kpi,
 //     //         count: Number((kpi.count / report.length).toFixed(0))
 //     //     })
-
 
 //     // })
 //     const totalKPI = getTotalData(report);
@@ -57,7 +56,6 @@
 //             kpi: mediumKPI,
 //             userName: 'В среднем'
 //         },
-
 
 //     ] as Array<ReportData>
 //     const [isShwoing, setIsShowing] = useState(false)
@@ -82,7 +80,6 @@
 //                         </Col>
 //                     </Row>
 
-
 //                     {isShwoing && <div id="bar" className="chartjs-render-monitor">
 //                         <KPIChart
 //                             dataColors={jsonColors}
@@ -95,6 +92,5 @@
 //         </Col>
 //     )
 // }
-
 
 // export default KPITotalBoard

@@ -15,10 +15,6 @@
 // export const KMV = 'КМВ'
 // export const STV = 'Ставрополь'
 
-
-
-
-
 // const initialState = {
 
 //     supplies: {
@@ -61,8 +57,6 @@
 // const RESET_GLOBAL = ' RESET_GLOBAL'
 // const REMEMBER_GLOBAL = 'REMEMBER_GLOBAL'
 
-
-
 // // AC
 // // export const setFetchedRegions = (regions) => ({ type: SET_FETCHED_REGIONS, regions })
 // // export const setSupply = (supplyId) => ({ type: SET_SUPPLY, supplyId }) //if index == 0 -> INTERNET, else -> PROKSIMA
@@ -75,19 +69,16 @@
 // const resetGlobal = () => ({ type: RESET_GLOBAL })
 // const setRememberGlobal = (global) => ({ type: REMEMBER_GLOBAL, global })
 
-
-
 // //THUNK
 
 // export const changeAndSetGlobalStatus = (bool) => (dispatch, getState) => {
 //     const first = getState().global
 //     const contract = getState().contract
- 
+
 //     dispatch(setStatus(bool))
 //     const state = getState()
 //     const global = state.global
 
-    
 //     const seccontract = getState().contract
 //     if (global.status && !global.error.region && !global.error.complect && !global.error.supply) {
 //         if (global.currentSupply && global.currentComplectsType && global.currentRegion) {
@@ -103,11 +94,9 @@
 //             }
 
 //         }else{
-            
+
 //         }
 //     } else {
-
-
 
 //     }
 
@@ -119,24 +108,20 @@
 //     dispatch(setStatus(false))
 //     dispatch(reset())
 
-
 // }
-
 
 // export const rememberGlobal = (global, regions) => (dispatch, getState) => {
 
 //     dispatch(setRememberGlobal(global))
 //     dispatch(setGlobal(global.currentSupply, global.currentComplectsType, global.currentRegion))
-   
+
 //     if(regions){
 //         dispatch(regionsAC.setRememberRegions(regions))
 //     }else{
 //         dispatch(regionsAC.setCurrentRegion(global.currentRegion))
 //     }
-    
+
 // }
-
-
 
 // const global = (state = initialState, action) => {
 
@@ -211,13 +196,11 @@
 
 //         case SET_STATUS:
 
-
 //             let message = state.message
 //             if (action.status) {
 
 //                 if (state.status !== action.status) {
 //                     let error = { ...state.error }
-
 
 //                     if (!state.currentRegion) {
 
@@ -232,9 +215,7 @@
 //                         error.supply = `Выберите ${state.supplies.name}`
 //                     }
 
-
 //                     if (!error.region && !error.complect && !error.supply) {
-
 
 //                         return { ...state, status: action.status, message: '' }
 //                     } else {
@@ -257,7 +238,6 @@
 //                     message: ''
 //                 }
 //             }
-
 
 //         case CLEAN_MESSAGE: return { ...state, error: { ...state.error, [action.name]: null } }
 

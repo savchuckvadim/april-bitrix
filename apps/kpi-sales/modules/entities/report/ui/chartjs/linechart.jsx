@@ -20,7 +20,6 @@
 //   console.log('totalValues')
 //   console.log(totalValues)
 
-
 //   const data = {
 //     labels: periodsNames,
 //     //  [

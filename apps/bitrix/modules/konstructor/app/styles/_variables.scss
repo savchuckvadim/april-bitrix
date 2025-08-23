@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap");
 
 $black-text: rgb(37, 40, 45); //$header-text-color
 $base-text: rgb(69, 74, 84);
@@ -8,21 +8,17 @@ $selected-text: rgb(37, 40, 45);
 
 $error-text: rgb(224, 70, 70);
 
-
 $black-color: rgb(50, 50, 50);
 $white-color: rgb(255, 255, 255);
 $blue-color: rgb(20, 191, 213);
 $link-color: rgba(46, 121, 234, 1);
 $light-blue-color: rgba(46, 121, 234, 0.466);
 
-
 $grey-color: rgb(181, 185, 192);
 
 $background-color: rgb(255, 255, 255);
 
-
 $test-color: rgb(244, 244, 244);
-
 
 //BTN COLORS
 $accountant: rgba(14, 201, 111, 1);
@@ -39,10 +35,9 @@ $company: rgba(151, 103, 200, 1);
 $company-pro: rgb(104, 54, 153);
 
 $btx-bg: rgb(238, 242, 244);
-$btx-btn-text-color : rgb(82, 92, 105);
+$btx-btn-text-color: rgb(82, 92, 105);
 $line-color: rgb(190, 204, 210);
 $line-color-fiolet: rgb(195, 166, 225);
-
 
 $btn-color-success: rgb(49, 98, 233);
 $btn-start-color: rgba(29, 94, 179, 1);
@@ -50,12 +45,10 @@ $btn-start-light-color: rgba(29, 94, 179, 0.253);
 $btx-blue-dark: rgb(40, 104, 212);
 $btx-green: rgb(187, 237, 33);
 $btx-blue: rgb(59, 200, 245);
-$btx-card-bckgrnd: rgb(249,250,251);
+$btx-card-bckgrnd: rgb(249, 250, 251);
 $btx-card-border: rgb(210, 228, 247);
 
-$yellow-color: rgb(226, 0, 238) ;
-
-
+$yellow-color: rgb(226, 0, 238);
 
 $btn-color-danger: rgb(224, 90, 64);
 $btn-color-error: rgb(231, 53, 74);
@@ -67,14 +60,12 @@ $large-font-size: 24px;
 // $h1-font-size: 56px;
 // $h2-font-size: 32px;
 
-
 // Веса шрифтов///////////////////////////
 
 $base-weight: 400;
 $small-weight: 600;
 // $big-weight: 700;
 // $large-weight: 800;
-
 
 // Line heights
 $base-line: 24px;
@@ -86,7 +77,6 @@ $large-line: 56px;
 $border-base: 4px;
 $border-big: 5px;
 
-
 //Высоты блоков
 
 $base-button-height: 54px;
@@ -97,7 +87,6 @@ $base-button-height: 54px;
 // $breakpoint-md: 992px;
 // $breakpoint-lg: 1200px;
 // $breakpoint-xl: 1440px;
-
 
 // Размеры шрифта
 $font-size-base: 16px;
@@ -111,15 +100,14 @@ $font-size-large: 20px;
 // $font-size-h6: 16px;
 
 // Семейства шрифтов
-$font-family-base: 'Source Sans Pro';
+$font-family-base: "Source Sans Pro";
 // $font-family-base: "Roboto";
 // $font-family-additional: 'Source Sans Pro' , sans-serif;
 
-
 //размеры контейнеров
 $internallyGlobal: 99%;
-$internally2Global : 900px;
+$internally2Global: 900px;
 $internally: 98%;
-$internally2 : 97%;
-$external : 1440px;
-$global-continer : 992px;
+$internally2: 97%;
+$external: 1440px;
+$global-continer: 992px;

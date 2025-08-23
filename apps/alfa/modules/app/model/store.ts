@@ -1,9 +1,16 @@
-import { Action, AnyAction, combineReducers, configureStore, createListenerMiddleware, Dispatch, Middleware, MiddlewareAPI, ThunkAction } from "@reduxjs/toolkit";
+import {
+  Action,
+  AnyAction,
+  combineReducers,
+  configureStore,
+  createListenerMiddleware,
+  Dispatch,
+  Middleware,
+  MiddlewareAPI,
+  ThunkAction,
+} from "@reduxjs/toolkit";
 import { appReducer } from "./AppSlice";
 import { WSClient } from "@workspace/ws";
-
-
-
 
 export const listenerMiddleware = createListenerMiddleware();
 let wsClient: WSClient;
@@ -19,7 +26,7 @@ export const initWSClient = (userId: number, domain: string) => {
 };
 
 export const getWSClient = () => {
-  if (!wsClient) throw new Error('WSClient not initialized');
+  if (!wsClient) throw new Error("WSClient not initialized");
   return wsClient;
 };
 
@@ -27,11 +34,7 @@ const rootReducer = combineReducers({
   app: appReducer,
 
   //april
-
-
 });
-
-
 
 export const setupStore = () => {
   return configureStore({
@@ -39,19 +42,18 @@ export const setupStore = () => {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         thunk: {
-          extraArgument: { getWSClient }, 
+          extraArgument: { getWSClient },
         },
-      })
-        // .concat(portalAPI.middleware)
-        // .concat(infoblockAPI.middleware)
- 
+      }),
+    // .concat(portalAPI.middleware)
+    // .concat(infoblockAPI.middleware)
+
     // .concat(reportMiddleware)
   });
 };
 
 //listeners
 // portalListener();
-
 
 // Тип для extraArgument
 export type ThunkExtraArgument = {
@@ -75,4 +77,3 @@ export const store = setupStore();
 
 //@ts-ignore
 // window.eventStore = store;
-

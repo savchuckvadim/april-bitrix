@@ -1,4 +1,3 @@
-
 // import { AppDispatch, AppGetState } from "@/app/model/store"
 // import { onlineGeneralAPI } from "@/app/services/april-online-api"
 // import { bitrixAPI } from "@/app/services/bitrix-general-api"
@@ -27,11 +26,9 @@
 //         } else {
 //             currentDeal = await onlineGeneralAPI.service('bitrixdeal', API_METHOD.POST, 'deal', getDealData)
 
-
 //         }
 
 //     }
-
 
 //     dispatch(setAppBitrixDeal(dealId, currentDeal))
 // }
@@ -49,8 +46,6 @@
 //     // __IN_BITRIX__ && currentRoute.route === ROUTE.CALLING && dispatch(getResizeCalling())
 
 //     //CHECK VERSION
-
-
 
 //     // //ATTENTION NO DELETE:
 
@@ -76,11 +71,9 @@
 
 //     // }
 
-
 //     // if (initialData) {
 
 //     //     let complects = initialData.complects
-
 
 //     //     let prices = initialData.prices
 //     //     let supplies = initialData.supplies
@@ -89,20 +82,15 @@
 //     //     let bitrixFields = initialData.bitrix
 //     //     let regions = initialData.regions
 
-
 //     //     let consalting = initialData.consalting
 //     //     let lt = initialData.legalTech
 //     //     let ltPackages = lt && lt.packages
 //     //     const star = initialData.star
 
-
 //     //     const contracts = contractsData && contractsData.items && contractsData.items.filter(item => contractsData.current.includes(item.number))
-
 
 //     //     dispatch(supplyActions.setInitialOds(supplies))
 //     //     dispatch(generateProducts(complects, supplies, contracts, consalting, ltPackages, star, prices))
-
-
 
 //     //     dispatch(setFetchedRegions(regions))
 //     //     dispatch(setPrices(prices, supplies, contracts))
@@ -114,11 +102,9 @@
 //     //     dispatch(setFetchedConsalting(consalting))
 //     //     dispatch(setFetchedStar(star))
 
-
 //     //     let state = getState()
 //     //     dispatch(setState(state))
 
 //     // }
-
 
 // }

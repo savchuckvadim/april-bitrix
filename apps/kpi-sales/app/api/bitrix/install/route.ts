@@ -1,7 +1,7 @@
-import { setupBitrixApp } from '@/app/lib/bitrix/setup';
-import { logServer } from '@/app/lib/log/logServer';
-import { BitrixAppPayload } from '@workspace/api';
-import { NextRequest, NextResponse } from 'next/server';
+import { setupBitrixApp } from "@/app/lib/bitrix/setup";
+import { logServer } from "@/app/lib/log/logServer";
+import { BitrixAppPayload } from "@workspace/api";
+import { NextRequest, NextResponse } from "next/server";
 
 interface BitrixTokenPayload {
   access_token: string | null;
@@ -13,10 +13,9 @@ interface BitrixTokenPayload {
 }
 
 interface RequestData {
+  body: { [key: string]: string };
 
-  body: { [key: string]: string }
-
-  query: string
+  query: string;
 }
 //install
 
@@ -26,10 +25,9 @@ export async function POST(req: NextRequest) {
     const params = new URLSearchParams(rawBody);
 
     const requestData: RequestData = {
-
       body: {},
 
-      query: '',
+      query: "",
     };
 
     params.forEach((value, key) => {
@@ -37,31 +35,31 @@ export async function POST(req: NextRequest) {
     });
     requestData.query = req.nextUrl.searchParams.toString();
 
-    console.log('requestData')
-    console.log(requestData)
+    console.log("requestData");
+    console.log(requestData);
     logServer(
-      'error',
-      'install',
-      'api/bitrix/install',
-      'KPI REPORT SALES api/bitrix/install',
-      'app.domain',
-      'app.bitrix.user?.ID',
+      "error",
+      "install",
+      "api/bitrix/install",
+      "KPI REPORT SALES api/bitrix/install",
+      "app.domain",
+      "app.bitrix.user?.ID",
       { requestData },
-      new Date().toISOString()
-    )
-    const event = params.get('event');
-    const placement = params.get('PLACEMENT');
+      new Date().toISOString(),
+    );
+    const event = params.get("event");
+    const placement = params.get("PLACEMENT");
 
     let tokenPayload: Partial<BitrixTokenPayload> = {};
 
     let install = false;
     // let restOnly = true;
-    const memberId = requestData.body['member_id'];
-    const domain = req.nextUrl.searchParams.get('DOMAIN');
-    const applicationToken = req.nextUrl.searchParams.get('APP_SID');
-    if (event === 'ONAPPINSTALL') {
+    const memberId = requestData.body["member_id"];
+    const domain = req.nextUrl.searchParams.get("DOMAIN");
+    const applicationToken = req.nextUrl.searchParams.get("APP_SID");
+    if (event === "ONAPPINSTALL") {
       // пришёл через webhook
-      const auth = JSON.parse(params.get('auth') || '{}');
+      const auth = JSON.parse(params.get("auth") || "{}");
       // restOnly = false;
       install = !!auth.access_token;
 
@@ -71,76 +69,75 @@ export async function POST(req: NextRequest) {
         expires_in: auth.expires_in,
         domain: domain,
         application_token: applicationToken,
-        member_id: memberId
-
+        member_id: memberId,
       };
-    } else if (placement === 'DEFAULT') {
+    } else if (placement === "DEFAULT") {
       // пришёл как iframe (PLACEMENT)
       // restOnly = false;
-      install = !!params.get('AUTH_ID');
+      install = !!params.get("AUTH_ID");
       tokenPayload = {
-        access_token: params.get('AUTH_ID'),
-        refresh_token: params.get('REFRESH_ID'),
-        expires_in: Number(params.get('AUTH_EXPIRES')),
+        access_token: params.get("AUTH_ID"),
+        refresh_token: params.get("REFRESH_ID"),
+        expires_in: Number(params.get("AUTH_EXPIRES")),
         domain: domain,
         application_token: applicationToken, // как fallback
-        member_id: memberId
-
+        member_id: memberId,
       };
     }
 
-    console.log('INSTALL: event', event);
-    console.log('INSTALL: placement', placement);
-    console.log('INSTALL: tokenPayload', tokenPayload);
+    console.log("INSTALL: event", event);
+    console.log("INSTALL: placement", placement);
+    console.log("INSTALL: tokenPayload", tokenPayload);
 
-    let installStatus: 'success' | 'fail' = 'fail';
+    let installStatus: "success" | "fail" = "fail";
 
-
-    if (tokenPayload.access_token && tokenPayload.refresh_token && tokenPayload.domain) {
-      installStatus = install ? 'success' : 'fail';
-      const expiresAt = new Date(Date.now() + (tokenPayload.expires_in ?? 3600) * 1000)
+    if (
+      tokenPayload.access_token &&
+      tokenPayload.refresh_token &&
+      tokenPayload.domain
+    ) {
+      installStatus = install ? "success" : "fail";
+      const expiresAt = new Date(
+        Date.now() + (tokenPayload.expires_in ?? 3600) * 1000,
+      )
         .toISOString()
-        .replace('T', ' ')
-        .replace('Z', '')
-        .split('.')[0]; // убираем миллисекунды
+        .replace("T", " ")
+        .replace("Z", "")
+        .split(".")[0]; // убираем миллисекунды
 
       const data = {
-        code: 'sales_base',
+        code: "sales_base",
         domain: tokenPayload.domain,
-        group: 'sales',
-        status: 'active',
-        type: 'base',
+        group: "sales",
+        status: "active",
+        type: "base",
         token: {
           access_token: tokenPayload.access_token,
-          client_id: 'client_id',
-          client_secret: 'client_secret',
+          client_id: "client_id",
+          client_secret: "client_secret",
           expires_at: expiresAt,
           refresh_token: tokenPayload.refresh_token,
           application_token: tokenPayload.application_token,
-          member_id: tokenPayload.member_id
-
-        }
-      } as BitrixAppPayload
+          member_id: tokenPayload.member_id,
+        },
+      } as BitrixAppPayload;
       const result = await setupBitrixApp(data);
-      console.log('endpoint online result')
-      console.log(result)
-
+      console.log("endpoint online result");
+      console.log(result);
     }
-    const redirectUrl = new URL('/install', req.url);
-    redirectUrl.searchParams.set('install', installStatus);
+    const redirectUrl = new URL("/install", req.url);
+    redirectUrl.searchParams.set("install", installStatus);
 
     return NextResponse.redirect(redirectUrl, 302);
-
   } catch (error) {
-    console.error('[Bitrix Install] error:', error);
+    console.error("[Bitrix Install] error:", error);
 
-    const errorRedirect = new URL('/install', req.url);
-    errorRedirect.searchParams.set('install', 'fail');
+    const errorRedirect = new URL("/install", req.url);
+    errorRedirect.searchParams.set("install", "fail");
 
     return NextResponse.redirect(errorRedirect, 302);
   }
 }
-
 
 export async function GET(req: NextRequest) {
   try {
@@ -148,10 +145,9 @@ export async function GET(req: NextRequest) {
     const params = new URLSearchParams(rawBody);
 
     const requestData: RequestData = {
-
       body: {},
 
-      query: '',
+      query: "",
     };
 
     params.forEach((value, key) => {
@@ -159,21 +155,21 @@ export async function GET(req: NextRequest) {
     });
     requestData.query = req.nextUrl.searchParams.toString();
 
-    console.log('requestData')
-    console.log(requestData)
-    const event = params.get('event');
-    const placement = params.get('PLACEMENT');
+    console.log("requestData");
+    console.log(requestData);
+    const event = params.get("event");
+    const placement = params.get("PLACEMENT");
 
     let tokenPayload: Partial<BitrixTokenPayload> = {};
 
     let install = false;
     // let restOnly = true;
-    const memberId = requestData.body['member_id'];
-    const domain = req.nextUrl.searchParams.get('DOMAIN');
+    const memberId = requestData.body["member_id"];
+    const domain = req.nextUrl.searchParams.get("DOMAIN");
 
-    if (event === 'ONAPPINSTALL') {
+    if (event === "ONAPPINSTALL") {
       // пришёл через webhook
-      const auth = JSON.parse(params.get('auth') || '{}');
+      const auth = JSON.parse(params.get("auth") || "{}");
       // restOnly = false;
       install = !!auth.access_token;
 
@@ -183,34 +179,34 @@ export async function GET(req: NextRequest) {
         expires_in: auth.expires_in,
         domain: domain,
         application_token: auth.application_token,
-        member_id: memberId
-
+        member_id: memberId,
       };
-    } else if (placement === 'DEFAULT') {
+    } else if (placement === "DEFAULT") {
       // пришёл как iframe (PLACEMENT)
       // restOnly = false;
-      install = !!params.get('AUTH_ID');
+      install = !!params.get("AUTH_ID");
       tokenPayload = {
-        access_token: params.get('AUTH_ID'),
-        refresh_token: params.get('REFRESH_ID'),
-        expires_in: Number(params.get('AUTH_EXPIRES')),
+        access_token: params.get("AUTH_ID"),
+        refresh_token: params.get("REFRESH_ID"),
+        expires_in: Number(params.get("AUTH_EXPIRES")),
         domain: domain,
-        application_token: params.get('APP_SID'), // как fallback
-        member_id: memberId
-
+        application_token: params.get("APP_SID"), // как fallback
+        member_id: memberId,
       };
     }
 
-    console.log('INSTALL: event', event);
-    console.log('INSTALL: placement', placement);
-    console.log('INSTALL: tokenPayload', tokenPayload);
+    console.log("INSTALL: event", event);
+    console.log("INSTALL: placement", placement);
+    console.log("INSTALL: tokenPayload", tokenPayload);
 
-    let installStatus: 'success' | 'fail' = 'fail';
+    let installStatus: "success" | "fail" = "fail";
 
-
-    if (tokenPayload.access_token && tokenPayload.refresh_token && tokenPayload.domain) {
-      installStatus = install ? 'success' : 'fail';
-
+    if (
+      tokenPayload.access_token &&
+      tokenPayload.refresh_token &&
+      tokenPayload.domain
+    ) {
+      installStatus = install ? "success" : "fail";
 
       // ✅ Сохраняем в Laravel или напрямую
       // await fetch(`${process.env.LARAVEL_API}/api/bitrix/portal/store`, {
@@ -228,25 +224,24 @@ export async function GET(req: NextRequest) {
 
       // ✅ Регистрируем плэйсмент
       await fetch(`https://${tokenPayload.domain}/rest/placement.bind`, {
-        method: 'POST',
+        method: "POST",
         body: new URLSearchParams({
-          PLACEMENT: 'DEFAULT',
-          HANDLER: 'https://front.april-app.ru/event/app/placement.php',
-          TITLE: 'Звонки тест Callings',
+          PLACEMENT: "DEFAULT",
+          HANDLER: "https://front.april-app.ru/event/app/placement.php",
+          TITLE: "Звонки тест Callings",
           auth: tokenPayload.access_token,
         }),
       });
     }
-    const redirectUrl = new URL('/install', req.url);
-    redirectUrl.searchParams.set('install', installStatus);
+    const redirectUrl = new URL("/install", req.url);
+    redirectUrl.searchParams.set("install", installStatus);
 
     return NextResponse.redirect(redirectUrl, 302);
-
   } catch (error) {
-    console.error('[Bitrix Install] error:', error);
+    console.error("[Bitrix Install] error:", error);
 
-    const errorRedirect = new URL('/install', req.url);
-    errorRedirect.searchParams.set('install', 'fail');
+    const errorRedirect = new URL("/install", req.url);
+    errorRedirect.searchParams.set("install", "fail");
 
     return NextResponse.redirect(errorRedirect, 302);
   }
@@ -297,10 +292,7 @@ export async function GET(req: NextRequest) {
 //     //запрос на сервер для сохранения токенов
 //     //выполнение метода bx sdk app install
 
-
 //     const response = NextResponse.redirect(new URL('/auth/login', req.url), 303);
-
-
 
 //     return response;
 //   } catch (error) {
@@ -308,9 +300,6 @@ export async function GET(req: NextRequest) {
 //     return NextResponse.json({ error: 'Ошибка загрузки файла' }, { status: 500 });
 //   }
 // }
-
-
-
 
 // export async function GET(req: NextRequest) {
 //   console.log(req)

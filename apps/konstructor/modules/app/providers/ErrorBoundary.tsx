@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { logClient } from '../lib/helper/logClient';
- // логгер на клиенте
+import React from "react";
+import { logClient } from "../lib/helper/logClient";
+// логгер на клиенте
 
 interface Props {
   children: React.ReactNode;
@@ -26,7 +26,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({ error, errorInfo });
-    logClient('React ErrorBoundary', {
+    logClient("React ErrorBoundary", {
       error: error.toString(),
       // stack: errorInfo.componentStack,
     });

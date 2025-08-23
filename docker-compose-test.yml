@@ -1,27 +1,52 @@
 version: '3.8'
 
 services:
-  app:
+ 
+
+  front-konstructor-dev:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: next-kpi-sales
+      args:
+        APP: konstructor 
+    container_name: front-konstructor-dev
+    # ports:
+    #   - "${PORT_KONSTRUCTOR}:5000" 
     ports:
-      - "3000:3000"
-    networks:
-      - next-kpi-sales-next-net
-
-  nginx:
-    image: nginx:alpine
-    container_name: next-kpi-sales-nginx
+      - "5000:3000"          # API доступен снаружи
+    environment:
+      - IN_BITRIX=true
+      - LOG_FILE_PATH=/app/logs/server.log
+      - PORT=3000
+      - PDF_PREVIEW_URL=/offer/preview?readonly=true
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - "80:80"
-    depends_on:
-      - app
+      - ./logs:/app/logs
+    restart: unless-stopped
     networks:
-      - next-kpi-sales-next-net
+      - front
+    depends_on:
+      - redis
+
+  # redis
+  redis:
+    image: redis:7
+    container_name: front-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - front
+
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: next-kpi-sales-nginx
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - front
 
 networks:
-  next-kpi-sales-next-net:
+  front:

@@ -1,35 +1,34 @@
-'use client'
-import { ChevronRight } from 'lucide-react'
-import { ThemeToggler } from '@workspace/theme'
-import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-
+"use client";
+import { ChevronRight } from "lucide-react";
+import { ThemeToggler } from "@workspace/theme";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const ThemeTogglePanel = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   // Закрыть при клике вне компонента
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div ref={ref} className="relative flex flex-row items-center">
       {/* Язычок */}
       <button
-        onClick={() => setIsOpen(prev => !prev)}
+        onClick={() => setIsOpen((prev) => !prev)}
         className=" px-0 py-1 rounded-full cursor-pointer text-muted-foreground hover:bg-accent transition"
       >
         <ChevronRight
           size={18}
-          className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -48,6 +47,5 @@ export const ThemeTogglePanel = () => {
         )}
       </AnimatePresence>
     </div>
-  )
-}
-
+  );
+};

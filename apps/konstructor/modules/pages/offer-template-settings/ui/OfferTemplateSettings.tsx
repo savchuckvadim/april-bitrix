@@ -1,113 +1,103 @@
-'use client';
+// 'use client';
 
-import React, { useState } from 'react';
-import { Block } from '@/app/lib/offer-style/types';
-import { BlockEditor } from './components/BlockEditor';
-import { v4 as uuidv4 } from 'uuid';
-import { FontSelector } from './components/FontSelector';
-import BlocksChooseMenu from './components/BlockChoose/BlocksChooseMenu';
-import {  usePdfTemplateSettings } from '@/modules/feature/offer-pdf-settings';
-import TemplateSelector from './components/TemplateSelector';
-import { Button } from '@workspace/ui/components/button';
-import Link from 'next/link';
-import { DropbleOfferTemplatePriview } from './components/TemplateKonstructorPreview/DropbleOfferTemplatePriview';
-import { ColorPicker } from '@/modules/shared';
-import OfferTemplatePriview from './components/TemplateKonstructorPreview/OfferTemplatePriview';
-import { TemplateColorsPicker } from './components/Colors/TemplateColorsPicker';
+// import React, { useState } from 'react';
 
+// import { v4 as uuidv4 } from 'uuid';
+// import { FontSelector } from './components/FontSelector';
+// import BlocksChooseMenu from './components/BlockChoose/BlocksChooseMenu';
+// import { useOfferTemplateSettings } from '@/modules/feature/offer-pdf-settings';
+// import TemplateSelector from './components/TemplateSelector';
+// import { Button } from '@workspace/ui/components/button';
+// import Link from 'next/link';
+// import { DropbleOfferTemplatePriview } from './components/TemplateKonstructorPreview/DropbleOfferTemplatePriview';
 
+// import OfferTemplatePriview from './components/TemplateKonstructorPreview/OfferTemplatePriview';
+// import { TemplateColorsPicker } from './components/Colors/TemplateColorsPicker';
+// import BlockEditorWidget from '../../../entities/offer-template-konstructor/ui/components/block-editor/BlockEditorWidget';
+// import { IOfferTemplateBlock, useOfferTemplateBlock } from '@/modules/entities/offer-template-block';
 
-const BuilderPage: React.FC = () => {
+// const BuilderPage: React.FC = () => {
 
+//   const {
+//     current,
+//     // editeble,
+//     setBlock,
+//   } = useOfferTemplateSettings();
 
+//   const { editeble, } = useOfferTemplateBlock()
 
-  const {
+//   const addBlock = (block: IOfferTemplateBlock) => {
+//     const newBlock: IOfferTemplateBlock = {
+//       ...block,
+//       id: uuidv4(),
+//     };
+//     setBlock(newBlock);
+//     // setBlocks((prev) => [...prev, newBlock]);
+//   };
 
-    setBlock,
-    current,
-    editeble,
-    items,
+//   return (<div className='flex flex-col h-screen overflow-auto'>
+//     <div className='p-4 h-15 bg-gray-200'>
+//       <div className='flex gap-2'>
+//         <Link href="/offer/preview">
+//           <Button>
+//             Сохранить Шаблон
+//           </Button>
 
-  
-  } = usePdfTemplateSettings();
+//         </Link>
 
+//         <Link href="/offer/preview">
 
+//           <Button>
+//             Сохранить как новый
+//           </Button>
+//         </Link>
+//       </div>
 
-  const addBlock = (block: Block) => {
-    const newBlock: Block = {
-      ...block,
-      id: uuidv4(),
-    };
-    setBlock(newBlock);
-    // setBlocks((prev) => [...prev, newBlock]);
-  };
+//     </div>
+//     <div className="flex flex-col md:flex-row h-[calc(100vh-150px)]">
+//       {/* Sidebar */}
+//       <div className="fixed top-15 overflow-scroll h-screen md:w-1/4 border-r border-gray-300 bg-gray-700 ">
+//         <div className="= w-full w-full p-4 bg-background text-foreground">
+//           <h1 className='text-2xl font-bold'>Настройки шаблона</h1>
 
+//           <TemplateSelector />
+//           <FontSelector />
+//           {/* <div className='flex flex-col space-y-2'>
+//             <h2 className="text-xl font-bold my-4">Цвет</h2>
+//             <ColorPicker color={current.colors.accentText || "#000000"} onChange={
+//               (color) => setColors({ ...current.colors, accentText: color })} />
+//           </div> */}
+//           <TemplateColorsPicker />
+//           <h2 className="text-xl font-bold my-4">Блоки</h2>
+//           <div className="flex flex-col space-y-2">
 
+//             <BlocksChooseMenu addBlock={(block) => addBlock(block as IOfferTemplateBlock)} />
+//           </div>
 
-  return (<div className='flex flex-col min-h-screen'>
-    <div className='p-4 h-15 bg-gray-200'>
-      <div>
-        <Link href="/offer/preview">
-          <Button>
-            Предпросмотр
-          </Button>
-        </Link>
+//         </div>
+//       </div>
+//       <div className='w-full md:w-1/4'></div>
+//       {/* Preview with DnD */}
+//       <div className="w-full md:w-2/4 p-4 ml-5"
 
-      </div>
+//       >
+//         <h2 className="text-xl font-bold mb-4">Предпросмотр</h2>
+//         <div
 
-    </div>
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-150px)]"
+//         >{!editeble
+//           ? <DropbleOfferTemplatePriview />
+//           : <OfferTemplatePriview />
+//           }
+//         </div>
+//       </div>
 
-    >
-      {/* Sidebar */}
-      <div className="fixed top-15 overflow-scroll h-screen md:w-1/4 border-r border-gray-300 bg-gray-700 ">
-        <div className="= w-full w-full p-4 bg-background text-foreground">
-          <h1 className='text-2xl font-bold'>Настройки шаблона</h1>
+//       {/* Block Editor */}
+//       <BlockEditorWidget />
 
-          <TemplateSelector />
-          <FontSelector />
-          {/* <div className='flex flex-col space-y-2'>
-            <h2 className="text-xl font-bold my-4">Цвет</h2>
-            <ColorPicker color={current.colors.accentText || "#000000"} onChange={
-              (color) => setColors({ ...current.colors, accentText: color })} />
-          </div> */}
-          <TemplateColorsPicker />
-          <h2 className="text-xl font-bold my-4">Блоки</h2>
-          <div className="flex flex-col space-y-2">
+//     </div >
 
-            <BlocksChooseMenu addBlock={(block) => addBlock(block as Block)} />
-          </div>
+//   </div>
+//   );
+// };
 
-        </div>
-      </div>
-      <div className='w-full md:w-1/4'></div>
-      {/* Preview with DnD */}
-      <div className="w-full md:w-2/4 p-4 ml-5"
-        style={{
-          backgroundColor: current.colors.background.value
-
-        }}
-      >
-        <h2 className="text-xl font-bold mb-4">Предпросмотр</h2>
-        {!editeble
-          ? <DropbleOfferTemplatePriview />
-          : <OfferTemplatePriview />
-        }
-
-      </div>
-
-      {/* Block Editor */}
-      <div className="w-full md:w-1/4 p-4 bg-background text-foreground">
-        <h2 className="text-xl font-bold mb-4">Редактор блока</h2>
-
-
-        <BlockEditor />
-
-      </div>
-    </div >
-
-  </div>
-  );
-};
-
-export default BuilderPage;
+// export default BuilderPage;

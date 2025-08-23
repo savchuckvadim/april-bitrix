@@ -19,7 +19,6 @@
 // import PulseIcon from '@bitrix24/b24icons-vue/main/PulseIcon'
 // const BXDialog = ({}) => {
 //   return (
-    
 
 // 	<ClientOnly>
 // 		<div class="mx-lg my-sm flex flex-col">
@@ -367,7 +366,7 @@
 // 													>
 // 														<PlusIcon class="size-6"/>
 // 													</button>
-													
+
 // 													<div class="flex-1">Symbolic Identifier of the Base Currency</div>
 // 												</dt>
 // 												<dd class="mt-1 text-sm leading-6 text-base-700 sm:col-span-2 sm:mt-0">

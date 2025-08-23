@@ -1,12 +1,16 @@
-import { Button } from '@workspace/ui/components/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@workspace/ui/components/tooltip';
+import { Button } from "@workspace/ui/components/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
 // import { Save, Check } from 'lucide-react';
-import { useState } from 'react';
-import { cn } from '@workspace/ui/lib/utils'; // если у тебя есть класс name helper
-import { Preloader } from '@/modules/shared';
-import { useReport } from '@/modules/entities/report/model';
-import { CheckIcon, SaveIcon } from 'lucide-react';
-import { div } from 'framer-motion/client';
+import { useState } from "react";
+import { cn } from "@workspace/ui/lib/utils"; // если у тебя есть класс name helper
+import { Preloader } from "@/modules/shared";
+import { useReport } from "@/modules/entities/report/model";
+import { CheckIcon, SaveIcon } from "lucide-react";
+import { div } from "framer-motion/client";
 
 const SaveFilter = () => {
   const { isFilterLoading, handleSaveFilter } = useReport();
@@ -22,7 +26,7 @@ const SaveFilter = () => {
   };
 
   return isFilterLoading ? (
-    <div className='flex justify-center items-center mr-3'>
+    <div className="flex justify-center items-center mr-3">
       <Preloader />
     </div>
   ) : (
@@ -32,16 +36,20 @@ const SaveFilter = () => {
           onClick={onSave}
           disabled={isFilterLoading}
           className={cn(
-            'cursor-pointer icon transition-all',
-            saved && 'text-foreground'
+            "cursor-pointer icon transition-all",
+            saved && "text-foreground",
           )}
           variant={"outline"}
         >
-          {saved ? <CheckIcon className="transition text-primay" /> : <SaveIcon />}
+          {saved ? (
+            <CheckIcon className="transition text-primay" />
+          ) : (
+            <SaveIcon />
+          )}
         </Button>
       </TooltipTrigger>
       <TooltipContent className="text-xs">
-        {saved ? 'Сохранено' : 'Сохранить фильтр'}
+        {saved ? "Сохранено" : "Сохранить фильтр"}
       </TooltipContent>
     </Tooltip>
   );

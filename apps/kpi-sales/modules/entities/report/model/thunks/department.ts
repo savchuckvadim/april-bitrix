@@ -71,4 +71,4 @@
 //             : users,
 //         departamentIds: departament.map(user => user.ID)
 //     };
-// }; 
+// };

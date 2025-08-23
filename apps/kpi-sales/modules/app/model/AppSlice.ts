@@ -1,9 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { APP_TYPE } from "../types/app/app-type";
 import { Portal } from "../types/portal/portal-type";
-import type {
-  BXUser,
-} from "@workspace/bx";
+import type { BXUser } from "@workspace/bx";
 
 export type AppState = typeof initialState;
 export enum APP_DEP {
@@ -15,9 +13,13 @@ const initialState = {
   app: APP_TYPE.REPORT as APP_TYPE,
   bitrix: {
     user: null as BXUser | null,
-
   },
-
+  client: {
+    id: "",
+    name: "",
+    isExpired: false,
+    isPunished: false,
+  },
 
   department: APP_DEP.SERVICE,
   portal: null as Portal | null,
@@ -31,8 +33,6 @@ const initialState = {
 export interface InitReport {
   domain: string;
   user: BXUser;
- 
-
 }
 const appSlice = createSlice({
   name: "app",
@@ -40,7 +40,7 @@ const appSlice = createSlice({
   reducers: {
     setAppData: (
       state: AppState,
-      action: PayloadAction<InitReport>
+      action: PayloadAction<InitReport>,
       //   {
       //     domain: string;
       //     user: BXUser | null;
@@ -51,8 +51,9 @@ const appSlice = createSlice({
       state.domain = payload.domain;
       state.bitrix.user = payload.user;
       state.initialized = true;
-
-
+      if (state.domain === "gsirk.bitrix24.ru") {
+        state.client.isExpired = true;
+      }
     },
 
     setInitializedSuccess: (state: AppState, action: PayloadAction<{}>) => {
@@ -62,7 +63,7 @@ const appSlice = createSlice({
       state: AppState,
       action: PayloadAction<{
         errorMessage: string;
-      }>
+      }>,
     ) => {
       state.initialized = true;
       state.error.status = true;
@@ -72,7 +73,7 @@ const appSlice = createSlice({
       state: AppState,
       action: PayloadAction<{
         errorMessage: string;
-      }>
+      }>,
     ) => {
       state.error.status = false;
       state.error.message = "";
@@ -81,24 +82,19 @@ const appSlice = createSlice({
       state: AppState,
       action: PayloadAction<{
         portal: Portal;
-      }>
+      }>,
     ) => {
       state.portal = action.payload.portal;
     },
-    reload: (
-      state: AppState,
-      action: PayloadAction
-
-    ) => {
-      state.initialized = false
+    reload: (state: AppState, action: PayloadAction) => {
+      state.initialized = false;
     },
-    loading: (
-      state: AppState,
-      action: PayloadAction<{status:boolean}>
-
-    ) => {
-      state.isLoading = action.payload.status
-    }
+    loading: (state: AppState, action: PayloadAction<{ status: boolean }>) => {
+      state.isLoading = action.payload.status;
+    },
+    setExpiredClient: (state: AppState, action: PayloadAction<{ isExpired: boolean }>) => {
+      state.client.isExpired = action.payload.isExpired;
+    },
   },
 });
 

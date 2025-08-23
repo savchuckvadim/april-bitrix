@@ -1,4 +1,3 @@
-
 // import { ref, type Ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
 // import { DateTime, Interval } from 'luxon'
 // import {
@@ -16,7 +15,6 @@
 // 	TypePullMessage,
 // 	StatusClose
 // } from '@bitrix24/b24jssdk'
-
 
 // // import { useI18n } from '#imports'
 
@@ -136,7 +134,7 @@
 // // 		$b24.setLogger(LoggerBrowser.build('Core', true))
 // // 		b24CurrentLang.value = $b24.getLang()
 // // 		formatterNumber.setDefLocale($b24.getLang())
-		
+
 // // 		if(locales.value.filter(i => i.code === b24CurrentLang.value).length > 0)
 // // 		{
 // // 			setLocale(b24CurrentLang.value)
@@ -146,9 +144,9 @@
 // // 		{
 // // 			$logger.warn('not support locale >>>', b24CurrentLang.value)
 // // 		}
-		
+
 // // 		await $b24.parent.setTitle('[playgrounds] Testing Frame')
-		
+
 // // 		await initB24Helper(
 // // 			$b24,
 // // 			[
@@ -160,17 +158,17 @@
 // // 			]
 // // 		)
 // // 		$isInitB24Helper.value = true
-		
+
 // // 		usePullClient()
 // // 		useSubscribePullClient(
 // // 			makeSendPullCommandHandler.bind(this),
 // // 			'main'
 // // 		)
 // // 		startPullClient()
-		
+
 // // 		isInit.value = true
 // // 		isReload.value = false
-		
+
 // // 		await makeFitWindow()
 // // 	}
 // // 	catch(error: any)
@@ -202,7 +200,7 @@
 // 	{
 // 		return getB24Helper()
 // 	}
-	
+
 // 	return null
 // })
 // // endregion ////
@@ -221,7 +219,7 @@
 // 	])
 // 	.then(() => {
 // 		isReload.value = false
-		
+
 // 		return makeFitWindow()
 // 	})
 // }
@@ -232,7 +230,7 @@
 // 	{
 // 		return false
 // 	}
-	
+
 // 	return $b24?.placement.isSliderMode
 // })
 
@@ -247,9 +245,9 @@
 
 // const stopMakeProcess = () =>
 // {
-	
+
 // 	status.value.time.stop = DateTime.now()
-	
+
 // 	if(
 // 		status.value.time.stop
 // 		&& status.value.time.start
@@ -261,7 +259,7 @@
 // 		)
 // 	}
 // 	status.value.processInfo = null
-	
+
 // 	makeFitWindow()
 // 	.then(() => {
 // 		status.value.isProcess = false
@@ -276,7 +274,7 @@
 // const reInitStatus = () =>
 // {
 // 	result = new Result()
-	
+
 // 	status.value.isProcess = false
 // 	status.value.title = 'Specify what we will test'
 // 	status.value.messages = []
@@ -299,7 +297,7 @@
 // 	status.value.progress.animation = true
 // 	status.value.progress.indicator = false
 // 	status.value.progress.value = null
-	
+
 // 	return $b24.parent.reloadWindow()
 // 		.catch((error: Error|string) =>
 // 		{
@@ -364,9 +362,9 @@
 // 	)
 // 		.then((response: StatusClose) =>
 // 		{
-			
+
 // 			$logger.warn(response)
-			
+
 // 			if(
 // 				!response.isOpenAtNewWindow
 // 				&& response.isClose
@@ -431,7 +429,7 @@
 // 	const path = $b24.slider.getUrl(url)
 // 	path.searchParams.set('moduleId', 'crm')
 // 	path.searchParams.set('entityId', 'CRM_DEAL')
-	
+
 // 	return $b24.slider.openPath(
 // 		path,
 // 		950
@@ -445,22 +443,22 @@
 // 		reInitStatus()
 // 		status.value.isProcess = true
 // 		status.value.title = 'test imCallTo'
-		
+
 // 		status.value.progress.animation = true
 // 		status.value.progress.indicator = false
 // 		status.value.progress.value = null
 // 		status.value.time.start = DateTime.now()
-		
+
 // 		return resolve(null)
 // 	})
 // 	.then(async() =>
 // 	{
 // 		status.value.messages.push('use $b24.dialog.selectUser to select a user')
-		
+
 // 		const selectedUser = await $b24.dialog.selectUser()
-		
+
 // 		$logger.info(selectedUser)
-		
+
 // 		if(selectedUser)
 // 		{
 // 			if(Number(selectedUser.id) === (b24Helper.value?.profileInfo.data.id || 0))
@@ -473,7 +471,7 @@
 // 				isVideo
 // 			)
 // 		}
-		
+
 // 		return Promise.reject(new Error('User not selected'))
 // 	})
 // 	.catch((error: Error|string) =>
@@ -495,33 +493,33 @@
 // 		status.value.isProcess = true
 // 		status.value.title = 'test ImPhoneTo'
 // 		status.value.messages.push('use $b24.parent.imPhoneTo to make call')
-		
+
 // 		status.value.progress.animation = true
 // 		status.value.progress.indicator = false
 // 		status.value.progress.value = null
 // 		status.value.time.start = DateTime.now()
-		
+
 // 		return resolve(null)
 // 	})
 // 		.then(async() =>
 // 		{
-			
+
 // 			const promptPhone = prompt(
 // 				'Please provide phone'
 // 			)
-			
+
 // 			if(null === promptPhone)
 // 			{
 // 				return Promise.resolve()
 // 			}
-			
+
 // 			const phone = String(promptPhone)
-			
+
 // 			if(phone.length < 1)
 // 			{
 // 				return Promise.reject(new Error('Empty phone number'))
 // 			}
-			
+
 // 			return $b24.parent.imPhoneTo(
 // 				phone
 // 			)
@@ -549,7 +547,7 @@
 // 		status.value.progress.indicator = false
 // 		status.value.progress.value = null
 // 		status.value.time.start = DateTime.now()
-		
+
 // 		return resolve(null)
 // 	})
 // 		.then(async() =>
@@ -557,14 +555,14 @@
 // 			const promptDialogId = prompt(
 // 				'Please provide dialogId (number|`chat${number}`|`sg${number}`|`imol|${number}`|undefined)'
 // 			)
-			
+
 // 			if(null === promptDialogId)
 // 			{
 // 				return Promise.resolve()
 // 			}
-			
+
 // 			let dialogId: any = String(promptDialogId)
-			
+
 // 			if(dialogId.length < 1)
 // 			{
 // 				dialogId = undefined
@@ -577,7 +575,7 @@
 // 			{
 // 				dialogId = Number(dialogId)
 // 			}
-			
+
 // 			return $b24.parent.imOpenMessenger(
 // 				dialogId
 // 			)
@@ -605,7 +603,7 @@
 // 		status.value.progress.indicator = false
 // 		status.value.progress.value = null
 // 		status.value.time.start = DateTime.now()
-		
+
 // 		return resolve(null)
 // 	})
 // 		.then(async() =>
@@ -630,14 +628,14 @@
 // 	const promptDialogId = prompt(
 // 		'Please provide dialogId (number|`chat${number}`|`imol|${number})'
 // 	)
-	
+
 // 	if(null === promptDialogId)
 // 	{
 // 		return Promise.resolve()
 // 	}
-	
+
 // 	let dialogId: any = String(promptDialogId)
-	
+
 // 	if(
 // 		!dialogId.startsWith('chat')
 // 		&& !dialogId.startsWith('imol')
@@ -645,8 +643,8 @@
 // 	{
 // 		dialogId = Number(dialogId)
 // 	}
-	
-// 	
+
+//
 // 	return $b24.parent.imOpenHistory(
 // 		dialogId
 // 	)
@@ -660,20 +658,20 @@
 // 		status.value.isProcess = true
 // 		status.value.title = 'test $b24.dialog.selectUsers'
 // 		status.value.messages.push('use $b24.dialog.selectUsers to select a user')
-		
+
 // 		status.value.progress.animation = true
 // 		status.value.progress.indicator = false
 // 		status.value.progress.value = null
 // 		status.value.time.start = DateTime.now()
-		
+
 // 		return resolve(null)
 // 	})
 // 	.then(async() =>
 // 	{
 // 		const selectedUsers = await $b24.dialog.selectUsers()
-		
+
 // 		$logger.info(selectedUsers)
-		
+
 // 		const list = selectedUsers.map((row: SelectedUser): string =>
 // 		{
 // 			return [
@@ -681,12 +679,12 @@
 // 				row.name,
 // 			].join(' ')
 // 		})
-		
+
 // 		if(list.length < 1)
 // 		{
 // 			list.push('~ empty ~')
 // 		}
-		
+
 // 		status.value.resultInfo = `list: ${list.join('; ')}`
 // 	})
 // 	.catch((error: Error|string) =>
@@ -714,7 +712,7 @@
 // 		status.value.title = 'test pull.application.event.add'
 // 		status.value.messages.push('use $b24.dialog.selectUsers to select a user')
 // 		status.value.messages.push('use pull.application.event.add for send event')
-		
+
 // 		status.value.progress.animation = true
 // 		status.value.progress.indicator = false
 // 		status.value.progress.value = null
@@ -730,18 +728,18 @@
 // 				row.name,
 // 			].join(' ')
 // 		})
-		
+
 // 		if(list.length < 1)
 // 		{
 // 			list.push('~ empty ~')
 // 		}
-		
+
 // 		params.userList = list
-		
+
 // 		$logger.warn('>> pull.send >>>', params)
-		
+
 // 		status.value.time.start = DateTime.now()
-		
+
 // 		return $b24.callMethod(
 // 			'pull.application.event.add',
 // 			{
@@ -765,17 +763,17 @@
 // const makeSendPullCommandHandler = (message: TypePullMessage): void =>
 // {
 // 	$logger.warn('<< pull.get <<<', message)
-	
+
 // 	if(message.command === 'reload.options')
 // 	{
 // 		$logger.info("Get pull command for update. Reinit the application")
 // 		reloadData()
 // 		return
 // 	}
-	
+
 // 	status.value.resultInfo = `command: ${message.command}; params: ${JSON.stringify(message.params)}`
 // 	stopMakeProcess()
-	
+
 // }
 // // endregion ////
 
@@ -792,7 +790,7 @@
 // 	{
 // 		problemMessageList = problemMessageList.concat(problem);
 // 	}
-	
+
 // 	return problemMessageList;
 // }
 // // endregion ////
@@ -800,7 +798,6 @@
 // watch(defTabIndex, async() =>
 // {
 // 	await nextTick()
-	
+
 // 	await $b24.parent.fitWindow()
 // })
-

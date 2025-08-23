@@ -81,4 +81,4 @@
 // //     }),
 // // })
 
-// // export const { useGetDepartmentQuery } = departmentAPI 
+// // export const { useGetDepartmentQuery } = departmentAPI

@@ -4,18 +4,16 @@
 // import { Chart, registerables } from 'chart.js';
 // Chart.register(...registerables);
 
-
 // const KPIChart = ({ dataColors, report }) => {
 //   var barChartColor = getChartColorsArray(dataColors);
 
 //   const dataSets = []
 //   const datasetsNames = report[0].kpi.map(kpi => kpi.action.name)
-  
+
 //   // [
 //   //   'Звонок запланирован',
 //   //   'Звонок совершен',
 //   //   'Звонок отказ',
-
 
 //   // ]
 //   const usersNames = report.map(rep => rep.userName)
@@ -39,7 +37,6 @@
 //         dataCounts.push(userKpi.count)
 //       }
 
-
 //     });
 //     // const colorIndex = isCallings ? i + 1 : i + 3
 //     if (total) {
@@ -58,7 +55,6 @@
 //     }
 
 //   })
-
 
 //   const data = {
 //     labels: usersNames,

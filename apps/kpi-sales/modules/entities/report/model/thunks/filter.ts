@@ -48,4 +48,4 @@
 //         await saveFilterToServer(domain, userId, filter, dates, department);
 //         dispatch(reportAC.setFilterLoadingStatus(false));
 //     }
-// }; 
+// };

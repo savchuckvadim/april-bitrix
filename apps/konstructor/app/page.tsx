@@ -1,5 +1,5 @@
-import { Button } from "@workspace/ui/components/button"
-import { APP_TITLE } from "@/modules/app/consts/app"
+import { Button } from "@workspace/ui/components/button";
+import { APP_TITLE } from "@/modules/app/consts/app";
 export default function Page() {
   return (
     <div className="flex items-center justify-center min-h-svh bg-foreground">
@@ -8,5 +8,5 @@ export default function Page() {
         <Button size="sm">Button</Button>
       </div>
     </div>
-  )
+  );
 }

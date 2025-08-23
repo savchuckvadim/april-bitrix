@@ -22,5 +22,4 @@
 //     dispatch(departmentActions.setDepartmentCurrent(updtCurrent))
 //     // const departament = await onlineGeneralAPI.service('departament', 'post', 'departament', {domain}) as Array<BitrixUser> | null
 
-
 // }

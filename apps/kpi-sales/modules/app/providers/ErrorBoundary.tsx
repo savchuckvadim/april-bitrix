@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { logClient } from '../lib/helper/logClient';
+import React from "react";
+import { logClient } from "../lib/helper/logClient";
 // логгер на клиенте
 
 interface Props {
@@ -26,22 +26,24 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({ error, errorInfo });
-    logClient({
-      title: 'React ErrorBoundary',
-      context: 'ErrorBoundary',
-      message: error.toString(),
-      domain: `app.domain`,
-      userId: `app.bitrix.user?.ID`,
-      level: 'error',
-      // stack: errorInfo.componentStack,
-    }, {
-      error: error.toString(),
-      errorInfo
-    });
+    logClient(
+      {
+        title: "React ErrorBoundary",
+        context: "ErrorBoundary",
+        message: error.toString(),
+        domain: `app.domain`,
+        userId: `app.bitrix.user?.ID`,
+        level: "error",
+        // stack: errorInfo.componentStack,
+      },
+      {
+        error: error.toString(),
+        errorInfo,
+      },
+    );
   }
 
   render() {
-  
     // if (this.state.hasError) {
     //   return (
     //     <div style={{ padding: 32 }}>

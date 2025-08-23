@@ -5,13 +5,10 @@
 //     isTopDisplayShowing: true,
 //     scrollTop: false
 
-
 // }
 
 // export const setTopDisplayStatus = (status) => ({ type: SET_TOP_DISPLAY_STATUS, status })
 // export const setScrollTopStatus = (status) => ({ type: SET_SCROLL_TOP_STATUS, status })
-
-
 
 // //THUNK
 
@@ -34,7 +31,5 @@
 //     }
 
 // }
-
-
 
 // export default display

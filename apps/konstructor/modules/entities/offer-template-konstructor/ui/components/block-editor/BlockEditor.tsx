@@ -1,68 +1,26 @@
-'use client'
-import React from 'react';
-import { ImageUploader } from './ImageUploader';
-import { usePdfTemplateSettings } from '@/modules/feature/offer-pdf-settings';
-import { OfferPdfBlock } from '@/modules/feature/offer-pdf-settings/model/OfferPdfSettingsSlice';
-import { Button } from '@workspace/ui/components/button';
-import { Save, X } from 'lucide-react';
-import Image from 'next/image';
-import { Input } from '@workspace/ui/components/input';
-
+"use client";
+import React from "react";
+import { HeroBlockEditor } from "../../../../offer-template-block/ui/hero/HeroEditor";
+import {
+  IOfferTemplateBlock,
+  useOfferTemplateBlock,
+} from "@/modules/entities/offer-template-block";
+import { LetterBlockEditor } from "@/modules/entities/offer-template-block/ui/letter/EditorLetter";
 
 export const BlockEditor: React.FC = () => {
-  const BlockWrapper = ({ children }: { children: React.ReactNode }) => {
-    return <div className='flex flex-col gap-2'>
-      {children}
-      <Button className='btn btn-sm btn-primary' onClick={() => saveEditeble()}>Сохранить <Save /></Button>
-      <Button className='btn btn-sm btn-error' onClick={() => cancelEditeble()}>Отменить <X /></Button>
-    </div>
-  }
-  const { editeble, saveEditeble, cancelEditeble, editBlock } = usePdfTemplateSettings();
-  const onChange = (block: OfferPdfBlock) => {
-    debugger;
-    editBlock(block as OfferPdfBlock);
+  const { editeble, updateBlock } = useOfferTemplateBlock();
+  const onChange = (block: IOfferTemplateBlock) => {
+    updateBlock(block as IOfferTemplateBlock);
   };
-  debugger
+
   const block = editeble;
   if (!block) return null;
 
   switch (block.type) {
-    case 'hero':
-      return (
-        <BlockWrapper>
-           <div className="relative  h-[37mm]">
-            <Image
-                src={block.content.image || "/cover/hero.avif"}
-                alt="hero image"
-                fill
-                className="object-cover"
-                priority
-            />
-        </div>
-          <Input
-            className="border p-2 rounded"
-            type="text"
-            placeholder="Заголовок"
-            defaultValue={block.content.slogan.text || ""}
-            // value={block.content.slogan.text || ""}
-            onChange={(e) => onChange({ ...block, content: { ...block.content, slogan: { ...block.content.slogan, text: e.target.value } } })}
-          />
-          <input
-            className="border p-2 rounded"
-            type="text"
-            placeholder="Подзаголовок"
-            value={block.content.subtitle.text || ""}
-            onChange={(e) => onChange({ ...block, content: { ...block.content, subtitle: { ...block.content.subtitle, text: e.target.value } } })}
-          />
-          <ImageUploader
-            // value={block.data.image}
-            // onChange={(img) => onChange({ ...block, data: { ...block.data, image: img } })}
-            onUpload={(url) => {
-              onChange({ ...block, content: { ...block.content, image: url } })
-            }}
-          />
-        </BlockWrapper>
-      );
+    case "hero":
+      return <HeroBlockEditor block={block} />;
+    case "letter":
+      return <LetterBlockEditor block={block} />;
     // case 'header':
     //   return (
     //     <input
@@ -147,12 +105,17 @@ export const BlockEditor: React.FC = () => {
     //       </button>
     //     </div>
     //   );
-    case 'footer':
+    case "footer":
       return (
         <input
           type="text"
           value={block.content.left}
-          onChange={(e) => onChange({ ...block, data: { ...block.data, left: e.target.value } })}
+          onChange={(e) =>
+            onChange({
+              ...block,
+              data: { ...block.data, left: e.target.value },
+            })
+          }
           className="border p-2 w-full"
           placeholder="Текст футера"
         />

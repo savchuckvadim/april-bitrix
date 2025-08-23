@@ -1,4 +1,3 @@
-
 //type
 export type {
   InitBxResult,
@@ -18,7 +17,7 @@ export type {
   PLACEMENT_ENTITY,
   Placement,
   EntitiesFromPlacement,
-  CustomPlacement
+  CustomPlacement,
 } from "./type/placement-type";
 
 //enum

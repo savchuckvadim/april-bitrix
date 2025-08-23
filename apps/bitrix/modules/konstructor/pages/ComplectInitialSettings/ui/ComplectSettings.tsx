@@ -1,10 +1,7 @@
-
 // import ComplectSettingsCard from '../components/ComplectSettingsCard';
 
-
-
 // const ComplectSettings = ({ }) => {
-//     // 
+//     //
 //     // const dispatch = useAppDispatch()
 //     // const navigateHandler = (route: ROUTE_DOCUMENT) => {
 //     //     dispatch(

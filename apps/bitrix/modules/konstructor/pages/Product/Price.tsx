@@ -3,12 +3,8 @@
 // import { navigate } from '@/modules/konstructor/processes/routes/model/RouterThunk';
 // import { ROUTE_DOCUMENT } from '@/modules/konstructor/processes/routes/types/router-type';
 
-
-
-
-
 // const Price = ({ }) => {
-//     // 
+//     //
 //     const dispatch = useAppDispatch()
 //     const navigateHandler = (route: ROUTE_DOCUMENT) => {
 //         dispatch(

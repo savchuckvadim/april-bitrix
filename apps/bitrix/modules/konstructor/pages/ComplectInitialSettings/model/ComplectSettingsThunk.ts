@@ -5,7 +5,6 @@
 // import { Placement } from "../types/bitrix/placement-type"
 // import { appActions } from "./ComplectSettingsSlice"
 
-
 // import { AppDispatch, AppGetState } from "./store"
 // import { getDepartment } from "@/features/Departament"
 
@@ -47,12 +46,10 @@
 //             .setInitializedSuccess({})
 //     )
 
-    
 //     // dispatch(setInitialRoute(APP_TYPE.CALLING, false))
 //     // dispatch(setPreloader(false))
 
 // }
-
 
 // // export const getBitrixData = (
 // //     appType,
@@ -78,8 +75,6 @@
 
 // //     //lead
 
-
-
 // //     let currentCompany = null
 // //     let currentDeal = null
 // //     let resultBitrixData = {
@@ -90,14 +85,9 @@
 // //     let resultDealId = null
 // //     let isHaveDeal = false
 
-
-
-
-
 // //     //get from bitrix
 // //     if (IS_PROD) {
 // //         resultBitrixData = await bitrixAPI.getDealAndCompany(placementDealId, placementCompanyId)
-
 
 // //     } else {
 // //         if (placementCompanyId) {
@@ -120,9 +110,6 @@
 
 // //     }
 
-
-
-
 // //     const resultCompany = resultBitrixData.company
 // //     const resultDeal = resultBitrixData.deal
 
@@ -132,9 +119,6 @@
 // //     if (resultDeal && resultDeal.ID) {
 // //         resultDealId = resultDeal.ID
 // //     }
-
-
-
 
 // //     dispatch(setAppData(domain, resultCompanyId, currentUserId, currentUser, token, resultDealId))
 // //     dispatch(setAppBitrixData(resultCompany, resultDeal))

@@ -51,7 +51,7 @@ const appSlice = createSlice({
   reducers: {
     setAppData: (
       state: AppState,
-      action: PayloadAction<InitBxResult>
+      action: PayloadAction<InitBxResult>,
       //   {
       //     domain: string;
       //     user: BXUser | null;
@@ -91,7 +91,7 @@ const appSlice = createSlice({
       action: PayloadAction<{
         company: null | BXCompany;
         deal: null | BXDeal;
-      }>
+      }>,
     ) => {
       const payload = action.payload;
       state.bitrix.company = payload.company;
@@ -104,7 +104,7 @@ const appSlice = createSlice({
       state: AppState,
       action: PayloadAction<{
         errorMessage: string;
-      }>
+      }>,
     ) => {
       state.initialized = true;
       state.error.status = true;
@@ -114,7 +114,7 @@ const appSlice = createSlice({
       state: AppState,
       action: PayloadAction<{
         errorMessage: string;
-      }>
+      }>,
     ) => {
       state.error.status = false;
       state.error.message = "";
@@ -123,24 +123,16 @@ const appSlice = createSlice({
       state: AppState,
       action: PayloadAction<{
         portal: Portal;
-      }>
+      }>,
     ) => {
       state.portal = action.payload.portal;
     },
-    reload: (
-      state: AppState,
-      action: PayloadAction
-
-    ) => {
-      state.initialized = false
+    reload: (state: AppState, action: PayloadAction) => {
+      state.initialized = false;
     },
-    loading: (
-      state: AppState,
-      action: PayloadAction<{status:boolean}>
-
-    ) => {
-      state.isLoading = action.payload.status
-    }
+    loading: (state: AppState, action: PayloadAction<{ status: boolean }>) => {
+      state.isLoading = action.payload.status;
+    },
   },
 });
 

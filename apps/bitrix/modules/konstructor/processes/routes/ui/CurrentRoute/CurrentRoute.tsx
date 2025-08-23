@@ -41,9 +41,6 @@
 
 // export default CurrentRoute
 
-
-
-
 // // const CurrentRoute: FC<CurrentRouteProps> = (
 // //     {
 // //         currentRoute
@@ -51,7 +48,6 @@
 // //     }) => {
 
 // //     let component = <Preloader />
-
 
 // //     switch (currentRoute) {
 

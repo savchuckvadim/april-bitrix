@@ -3,13 +3,9 @@
 // import CurrentRoute from "./CurrentRoute/CurrentRoute";
 // import { Preloader } from "@workspace/ui";
 
-
-
-
 // const Router: FC = () => {
 //     const preloader = useAppSelector(state => state.preloader.inProgress)
 //     let component = <Preloader />
-
 
 //     if (!preloader) {
 

@@ -1,1 +1,1 @@
-export { DownLoad } from './download'
+export { DownLoad } from "./download";

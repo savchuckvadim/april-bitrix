@@ -4,9 +4,8 @@
 // import { Chart, registerables } from 'chart.js';
 // Chart.register(...registerables);
 
-
 // const PieChart = ({dataColors}) => {
-//   var pieChartColors =  getChartColorsArray(dataColors); 
+//   var pieChartColors =  getChartColorsArray(dataColors);
 //   const data = {
 //     labels: ["Desktops", "Tablets"],
 //     datasets: [

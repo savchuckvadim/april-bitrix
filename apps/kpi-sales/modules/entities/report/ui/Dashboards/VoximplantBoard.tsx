@@ -6,7 +6,6 @@
 // import { ReportStateType } from "@/redux/reducers/report/report-reducer"
 // import { getFiltredCallReport } from "@/utils/reducers-utils/report/report-utils"
 
-
 // const VoximplantBoard = () => {
 //     let total = 0
 //     let medium = 0
@@ -18,8 +17,6 @@
 //     const department = useAppSelector(state => state.departament.current)
 
 //     const report = stateReport && getFiltredCallReport(stateReport, department)
-
-
 
 //     return (
 //         <Col lg={12}>
@@ -53,15 +50,15 @@
 //                     <div id="bar" className="chartjs-render-monitor">
 //                         <VoximplantChart dataColors='[
 //                             "rgba(133, 212, 212, 1)" ,
-//                             "rgba(106, 180, 242, 1)", 
-//                             "rgba(14, 201, 111, 0.8)", 
-//                             "rgba(20, 191, 213, 0.8)", 
-//                             "rgba(151, 103, 200, 0.8)", 
-//                             "rgba(104, 54, 153, 0.8)", 
-//                             "rgba(255, 13, 334, 0.8)", 
+//                             "rgba(106, 180, 242, 1)",
+//                             "rgba(14, 201, 111, 0.8)",
+//                             "rgba(20, 191, 213, 0.8)",
+//                             "rgba(151, 103, 200, 0.8)",
+//                             "rgba(104, 54, 153, 0.8)",
+//                             "rgba(255, 13, 334, 0.8)",
 //                             "rgba(104, 54, 253, 0.8)",
 //                             "rgba(151, 103, 200, 0.8)",
-//                             "rgba(20, 191, 213, 0.8)", 
+//                             "rgba(20, 191, 213, 0.8)",
 //                             "rgba(14, 201, 111, 0.8)"]'
 //                             report={report}
 //                             part={1}
@@ -69,8 +66,6 @@
 //                         />
 //                     </div>
 //                     {/* </Col>
-                       
-
 
 //                     </Row> */}
 
@@ -79,6 +74,5 @@
 //         </Col>
 //     )
 // }
-
 
 // export default VoximplantBoard

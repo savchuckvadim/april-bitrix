@@ -1,8 +1,9 @@
-
 import { APP_TYPE } from "@/modules/konstructor/app/types/app/app-type";
 import { ROUTE, routerActions } from "./RouterSlice";
-import { AppDispatch, AppGetState } from "@/modules/konstructor/app/model/store";
-
+import {
+  AppDispatch,
+  AppGetState,
+} from "@/modules/konstructor/app/model/store";
 
 // export const fetchUsers = () => async (dispatch: AppDispatch, GetState: AppStore) => {
 
@@ -17,37 +18,18 @@ import { AppDispatch, AppGetState } from "@/modules/konstructor/app/model/store"
 //     }
 
 // }
-export const setInitialRoute = (
-    appType: APP_TYPE, 
-    isHaveDeal: boolean
-) => (
-    dispatch: AppDispatch, 
-    GetState: AppGetState
-) => {
+export const setInitialRoute =
+  (appType: APP_TYPE, isHaveDeal: boolean) =>
+  (dispatch: AppDispatch, GetState: AppGetState) => {
+    const state = GetState();
+  };
 
-    const state = GetState()
+export const navigate =
+  (route: ROUTE) => (dispatch: AppDispatch, getState: AppGetState) => {
+    const state = getState();
 
-    
-
-}
-
-export const navigate = (
-    route: ROUTE
-) => (
-    dispatch: AppDispatch, getState: AppGetState
-) => {
-    
-    const state = getState()
-   
-   dispatch(
-    routerActions.setCurrent({route})
-
-   )
- 
-}
-
-
-
+    dispatch(routerActions.setCurrent({ route }));
+  };
 
 // export const back = () => (
 //     dispatch: AppDispatch, getState: AppGetState
@@ -110,8 +92,8 @@ export const navigate = (
 //             )
 //             return response.data
 //         } catch (error) {
-//             return thunkAPI.rejectWithValue('Не удалось загрузить пользователей') 
+//             return thunkAPI.rejectWithValue('Не удалось загрузить пользователей')
 //         }
-      
+
 //     }
 // )

@@ -6,9 +6,6 @@
 // export type ProviderStateType = typeof documentProviderInitialState
 // export type ActionsType = InferActionsTypes<typeof documentProvidertAC>
 
-
-
-
 // export interface ProviderUser {
 //     id: number
 //     providerName: string
@@ -39,7 +36,6 @@
 //                 isFetched: true,
 //             }
 
-
 //         case 'documentProvider/SET_INIT':
 
 //             return {
@@ -51,7 +47,6 @@
 
 //         case 'documentProvider/SET_CURRENT':
 
-
 //             return {
 //                 ...state,
 //                 current: state.items?.find(item => item[PROVIDER_KEY.ID] === action.id)
@@ -59,14 +54,10 @@
 
 //         case 'documentProvider/SET_PROVIDER_USER':
 
-
 //             return {
 //                 ...state,
 //                 user: action.provider
 //             }
-
-
-
 
 //         default:
 //             return state

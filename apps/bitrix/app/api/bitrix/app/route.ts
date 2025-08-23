@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 interface RequestData {
   headers: Record<string, string>;
@@ -7,16 +7,14 @@ interface RequestData {
   query: string;
 }
 
-
 //редирект next из post запроса в апп
 export async function POST(req: NextRequest) {
   try {
-
     const requestData: RequestData = {
       headers: {},
       body: {},
       cookies: {},
-      query: '',
+      query: "",
     };
 
     // Заголовки запроса
@@ -33,8 +31,8 @@ export async function POST(req: NextRequest) {
         requestData.body[key] = value;
       });
     } catch (err) {
-      console.log('Ошибка при парсинге тела запроса:', err);
-      requestData.body = { error: 'Не удалось распарсить тело запроса' };
+      console.log("Ошибка при парсинге тела запроса:", err);
+      requestData.body = { error: "Не удалось распарсить тело запроса" };
     }
 
     // Куки
@@ -46,25 +44,28 @@ export async function POST(req: NextRequest) {
     requestData.query = req.nextUrl.searchParams.toString();
 
     // Логи
-    console.log('Все данные запроса  APP');
-    console.log('Все данные запроса:', requestData);
-    console.log('body:', requestData.body);
+    console.log("Все данные запроса  APP");
+    console.log("Все данные запроса:", requestData);
+    console.log("body:", requestData.body);
     // Корректный редирект с методом GET
-    const response = NextResponse.redirect(new URL('/auth/login', req.url), 303);
-
- 
+    const response = NextResponse.redirect(
+      new URL("/auth/login", req.url),
+      303,
+    );
 
     return response;
   } catch (error) {
-    console.error('Ошибка обработки запроса:', error);
-    return NextResponse.json({ error: 'Ошибка загрузки файла' }, { status: 500 });
+    console.error("Ошибка обработки запроса:", error);
+    return NextResponse.json(
+      { error: "Ошибка загрузки файла" },
+      { status: 500 },
+    );
   }
 }
 
-
-
-
 export async function GET(req: NextRequest) {
-  console.log(req)
-  return NextResponse.json({ message: 'Этот маршрут поддерживает только POST-запросы' });
+  console.log(req);
+  return NextResponse.json({
+    message: "Этот маршрут поддерживает только POST-запросы",
+  });
 }

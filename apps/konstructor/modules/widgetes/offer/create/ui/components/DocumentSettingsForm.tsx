@@ -23,7 +23,10 @@ export function DocumentSettingsForm() {
   return (
     <div className="space-y-4 p-4">
       <div>
-        <label htmlFor="supplier" className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label
+          htmlFor="supplier"
+          className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
           Поставщик
         </label>
         <Select value={supplier} onValueChange={setSupplier}>
@@ -39,35 +42,73 @@ export function DocumentSettingsForm() {
       </div>
 
       <div>
-        <label htmlFor="companyName" className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label
+          htmlFor="companyName"
+          className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
           Название Компании
         </label>
-        <Input type="text" id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+        <Input
+          type="text"
+          id="companyName"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+        />
       </div>
 
       <div>
-        <label htmlFor="inn" className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label
+          htmlFor="inn"
+          className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
           ИНН
         </label>
-        <Input type="text" id="inn" value={inn} onChange={(e) => setInn(e.target.value)} />
+        <Input
+          type="text"
+          id="inn"
+          value={inn}
+          onChange={(e) => setInn(e.target.value)}
+        />
       </div>
 
       <div>
-        <label htmlFor="position" className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label
+          htmlFor="position"
+          className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
           Должность
         </label>
-        <Input type="text" id="position" value={position} onChange={(e) => setPosition(e.target.value)} />
+        <Input
+          type="text"
+          id="position"
+          value={position}
+          onChange={(e) => setPosition(e.target.value)}
+        />
       </div>
 
       <div>
-        <label htmlFor="fio" className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label
+          htmlFor="fio"
+          className="block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
           ФИО
         </label>
-        <Input type="text" id="fio" value={fio} onChange={(e) => setFio(e.target.value)} />
+        <Input
+          type="text"
+          id="fio"
+          value={fio}
+          onChange={(e) => setFio(e.target.value)}
+        />
       </div>
 
       <div className="flex items-center space-x-2">
-        <Checkbox id="make-word" checked={makeWord} onCheckedChange={(checked) => setMakeWord(checked === "indeterminate" ? false : checked)} />
+        <Checkbox
+          id="make-word"
+          checked={makeWord}
+          onCheckedChange={(checked) =>
+            setMakeWord(checked === "indeterminate" ? false : checked)
+          }
+        />
         <label
           htmlFor="make-word"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

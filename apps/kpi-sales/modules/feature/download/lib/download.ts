@@ -1,4 +1,3 @@
-
 // import { ReportData } from "@/modules/entities/report/model/types/report/report-type";
 // import { API_METHOD, backAPI, EBACK_ENDPOINT } from "@workspace/api"
 
@@ -12,13 +11,10 @@
 // }
 // export const getDownload = async (type: EDownloadType, report: ReportData[]) => {
 
-
-
 //     const data = {
 //         report,
 //         type,
 //     } as IGetDownload
-
 
 //     await backAPI.service(
 //         EBACK_ENDPOINT.DOWNLOAD_REPORT,

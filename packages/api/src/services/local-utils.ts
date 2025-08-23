@@ -2,7 +2,6 @@ import { AES } from "crypto-js";
 import encUtf8 from "crypto-js/enc-utf8";
 import { BXUser } from "@workspace/bx";
 
-
 export function getDepartmentKey() {
   const today = new Date();
   const formattedDate = `${today.getMonth() + 1}${today.getDate()}${today.getFullYear()}`;
@@ -11,9 +10,15 @@ export function getDepartmentKey() {
 
 // Функция для сохранения данных в LocalStorage
 // Функция для сохранения данных в LocalStorage
-export function saveDepartmentToLocalStorage(department: BXUser[], domain: string) {
+export function saveDepartmentToLocalStorage(
+  department: BXUser[],
+  domain: string,
+) {
   try {
-    const encryptedData = AES.encrypt(JSON.stringify(department), domain).toString(); // Шифруем данные
+    const encryptedData = AES.encrypt(
+      JSON.stringify(department),
+      domain,
+    ).toString(); // Шифруем данные
 
     const dataToStore = {
       department: encryptedData, // Зашифрованные данные департамента
@@ -40,7 +45,10 @@ export function getDepartmentFromLocalStorage(domain: string) {
 
         // Если дата в LocalStorage совпадает с сегодняшней, возвращаем данные
         if (storedDate.toDateString() === today) {
-          const decryptedData = AES.decrypt(parsedData.department, domain).toString(encUtf8);
+          const decryptedData = AES.decrypt(
+            parsedData.department,
+            domain,
+          ).toString(encUtf8);
           // console.log('department from local')
 
           return JSON.parse(decryptedData); // Возвращаем расшифрованные данные департамента

@@ -3,7 +3,7 @@
 // import { GetStateType, ReportDataParams } from "./types";
 // import { AppDispatchType } from "@/redux/store";
 
-// export const getCallingStatistics = (reportData: ReportDataParams) => 
+// export const getCallingStatistics = (reportData: ReportDataParams) =>
 //     async (dispatch: AppDispatchType, getState: GetStateType) => {
 //     const isLoading = (getState().report as ReportStateType).calling.isLoading;
 
@@ -18,4 +18,4 @@
 //         dispatch(reportAC.setFetchedCallings(reportResponse));
 //         dispatch(reportAC.setIsLoadingCallings(false));
 //     }
-// }; 
+// };

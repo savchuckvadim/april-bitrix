@@ -1,17 +1,18 @@
-import pino from 'pino';
-import path from 'path';
-import fs from 'fs';
+import pino from "pino";
+import path from "path";
+import fs from "fs";
 
-export const LOG_FILE_PATH = process.env.LOG_FILE_PATH || '/app/logs/server.log';
+export const LOG_FILE_PATH =
+  process.env.LOG_FILE_PATH || "/app/logs/server.log";
 
-export type LogLevel = 'info' | 'warn' | 'error';
+export type LogLevel = "info" | "warn" | "error";
 
 const logDir = path.dirname(LOG_FILE_PATH);
 if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
 
 const logger = pino(
   {
-    level: 'info',
+    level: "info",
     formatters: {
       level(label) {
         return { level: label };
@@ -22,10 +23,16 @@ const logger = pino(
     },
     timestamp: pino.stdTimeFunctions.isoTime,
   },
-  pino.destination(LOG_FILE_PATH)
+  pino.destination(LOG_FILE_PATH),
 );
 
 // Совместимый интерфейс с твоим старым logServer
-export function logServer(domain: string, userId: string, level: LogLevel, context: string, message: string) {
-  logger[level]({ app: 'alfa', domain, userId, context, message });
+export function logServer(
+  domain: string,
+  userId: string,
+  level: LogLevel,
+  context: string,
+  message: string,
+) {
+  logger[level]({ app: "alfa", domain, userId, context, message });
 }

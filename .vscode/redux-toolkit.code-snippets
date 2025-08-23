@@ -1,0 +1,31 @@
+{
+  "Redux Toolkit Slice": {
+    "prefix": "rtk-slice",
+    "scope": "typescript",
+    "body": [
+      "import { createSlice, PayloadAction } from '@reduxjs/toolkit';",
+      "",
+      "export interface ${1:Feature}State {",
+      "  ${2:// Add state properties here}",
+      "}",
+      "",
+      "const initialState: ${1:Feature}State = {",
+      "  ${3:// Initialize state here}",
+      "};",
+      "",
+      "export const ${4:feature}Slice = createSlice({",
+      "  name: '${4:feature}',",
+      "  initialState,",
+      "  reducers: {",
+      "    ${5:action}: (state: ${1:Feature}State, action: PayloadAction<${6:PayloadType}>) => {",
+      "      ${7:// Add reducer logic here}",
+      "    },",
+      "  },",
+      "});",
+      "",
+      "export const { ${5:action} } = ${4:feature}Slice.actions;",
+      "export const ${4:feature}Reducer = ${4:feature}Slice.reducer;"
+    ],
+    "description": "Creates a Redux Toolkit slice with TypeScript"
+  }
+} 

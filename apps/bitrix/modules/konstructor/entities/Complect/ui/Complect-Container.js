@@ -2,13 +2,8 @@
 // import ComplectsButtons from "./Complect";
 // import { createComplect } from "../../../../redux/reducers/complect/current-complect-reducer";
 
-
-
-
 // let mapStateToProps = (state) => {
 
-    
-    
 //     return {
 //         currentComplect: state.currentComplect,
 //         currentComplectsType: state.global.currentComplectsType && state.global.currentComplectsType.title,
@@ -23,7 +18,7 @@
 //     return {
 //         createComplect: (defaultComplect, index) => {
 //             dispatch(createComplect(defaultComplect, index)) //диспатч Санки (thunk from currentComplect)
-           
+
 //         },
 //     }
 // }

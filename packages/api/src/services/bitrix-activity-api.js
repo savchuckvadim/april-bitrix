@@ -13,7 +13,7 @@
 //     ) => {
 //         const auth = window.BX24.getAuth()
 //         console.log(auth)
-        
+
 //         let result = null
 //         let dealResponse = null
 //         const fields = {
@@ -28,13 +28,11 @@
 //         }
 //         let eventType = planEvent.code || 'Звонок'
 
-
 //         let title = planEvent.name
 
 //         // if (!isPlanned && currentTask) {
 //         //     title = currentTask.title
 //         // }
-
 
 //         // https://dev.1c-bitrix.ru/rest_help/crm/rest_activity/configurable/structure/actiondto.php
 //         const layout = {
@@ -198,7 +196,6 @@
 //             fields,
 //             layout,
 
-
 //         }
 
 //         try {
@@ -215,7 +212,6 @@
 
 //                 }
 
-
 //             }
 //             return result
 //         } catch (error) {
@@ -226,7 +222,6 @@
 //         }
 
 //     },
-
 
 //     setInformationPresentationInit: async (link, companyId, responsibleId, name) => {
 //         let result = null
@@ -349,7 +344,6 @@
 
 //                 }
 
-
 //             }
 //             return result
 //         } catch (error) {
@@ -361,7 +355,4 @@
 
 //     },
 
-
 // }
-
-

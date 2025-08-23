@@ -1,6 +1,21 @@
 # Dependencies
 node_modules
 .pnpm-store
+./apps/konstructor/node_modules
+./apps/alfa/node_modules
+./apps/bitrix/node_modules
+./apps/kpi-sales/node_modules
+./apps/web/node_modules
+./packages/api/node_modules
+./packages/bx/node_modules
+./packages/eslint-config/node_modules
+./packages/pbx/node_modules
+./packages/theme/node_modules
+./packages/ui/node_modules
+./packages/ws/node_modules
+./packages//typescript-config/node_modules
+
+
 
 # Build outputs
 dist

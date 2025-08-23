@@ -10,10 +10,6 @@
 // // type AuthThunkType = ThunkType<SetAuthUserDataType | ReturnType<typeof stopSubmit> | ReturnType<typeof inProgress>>
 // type ReportActionsType = InferActionsTypes<typeof reportAC>
 
-
-
-
-
 // const getInitialDate = () => {
 //     // Текущая дата
 //     const currentDate = new Date();
@@ -30,7 +26,6 @@
 //     }
 
 // }
-
 
 // const initialState = {
 //     data: null,
@@ -60,7 +55,6 @@
 //     isLoading: false as boolean,
 //     isInitialized: false as boolean,
 // }
-
 
 // //ACION CREATORS
 // export const reportAC = {
@@ -94,7 +88,6 @@
 //         report,
 
 //     } as const),
-
 
 //     setFetchedFilter: (filter: Array<Filter>, currentFilter: Array<FilterInnerCode> | null) =>
 //         ({ type: 'report/SET_FITCHED_FILTER', filter, currentFilter } as const),
@@ -130,9 +123,6 @@
 //         ({ type: 'report/SET_DETALIZATION_REPORT_CURRENT', report } as const),
 // }
 
-
-
-
 // const report = (state: StateType = initialState, action: ReportActionsType) => {
 
 //     switch (action.type) {
@@ -160,7 +150,6 @@
 //                 ...state,
 //                 filter: isNeedCut ? state.filter.filter(f => f !== action.code) : [...state.filter, action.code]
 //             };
-
 
 //         case 'report/SET_FITCHED_ACTIONS':
 //             const current = action.currentFilter && action.currentFilter.length
@@ -200,7 +189,6 @@
 //             };
 
 //         case 'report/SET_FITCHED_REPORT':
-
 
 //             return {
 //                 ...state,
@@ -244,10 +232,8 @@
 //                     ...state.calling,
 //                     isLoading: action.status,
 
-
 //                 }
 //             };
-
 
 //         case 'report/SET_FITCHED_CALLINGS':
 //             return {
@@ -260,7 +246,6 @@
 //                 }
 //             };
 //         case 'report/SET_CHANGED_DATE':
-
 
 //             // const isFetchedFromDateChange = state.date[`${action.typeOfDate}`] === action.value
 //

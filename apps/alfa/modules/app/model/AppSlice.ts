@@ -1,9 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-
-import type {
-  BXUser,
-} from "@workspace/bx";
+import type { BXUser } from "@workspace/bx";
 
 export type AppState = typeof initialState;
 export enum APP_DEP {
@@ -14,9 +11,7 @@ const initialState = {
   domain: "",
   bitrix: {
     user: null as BXUser | null,
-
   },
-
 
   department: APP_DEP.SERVICE,
   initialized: false,
@@ -29,8 +24,6 @@ const initialState = {
 export interface InitReport {
   domain: string;
   user: BXUser;
- 
-
 }
 const appSlice = createSlice({
   name: "app",
@@ -38,7 +31,7 @@ const appSlice = createSlice({
   reducers: {
     setAppData: (
       state: AppState,
-      action: PayloadAction<InitReport>
+      action: PayloadAction<InitReport>,
       //   {
       //     domain: string;
       //     user: BXUser | null;
@@ -49,8 +42,6 @@ const appSlice = createSlice({
       state.domain = payload.domain;
       state.bitrix.user = payload.user;
       state.initialized = true;
-
-
     },
 
     setInitializedSuccess: (state: AppState, action: PayloadAction<{}>) => {
@@ -60,7 +51,7 @@ const appSlice = createSlice({
       state: AppState,
       action: PayloadAction<{
         errorMessage: string;
-      }>
+      }>,
     ) => {
       state.initialized = true;
       state.error.status = true;
@@ -70,7 +61,7 @@ const appSlice = createSlice({
       state: AppState,
       action: PayloadAction<{
         errorMessage: string;
-      }>
+      }>,
     ) => {
       state.error.status = false;
       state.error.message = "";
@@ -83,20 +74,12 @@ const appSlice = createSlice({
     // ) => {
     //   state.portal = action.payload.portal;
     // },
-    reload: (
-      state: AppState,
-      action: PayloadAction
-
-    ) => {
-      state.initialized = false
+    reload: (state: AppState, action: PayloadAction) => {
+      state.initialized = false;
     },
-    loading: (
-      state: AppState,
-      action: PayloadAction<{status:boolean}>
-
-    ) => {
-      state.isLoading = action.payload.status
-    }
+    loading: (state: AppState, action: PayloadAction<{ status: boolean }>) => {
+      state.isLoading = action.payload.status;
+    },
   },
 });
 

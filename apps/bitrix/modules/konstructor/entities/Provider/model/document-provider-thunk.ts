@@ -10,9 +10,7 @@
 // import { getOfferInitialProviderId } from "@/utils/reducers-utils/document/document-provider";
 // import { getFromLocalStorage, getStorageKey, removeOldPortalCache, saveToLocalStorage } from "../../portal/lib/store-portal-util";
 
-
 // type GetStateType = () => AppStateType;
-
 
 // export const initProviders =
 //     (domain: string, userId: number) => async (dispatch: AppDispatchType, getState: GetStateType) => {
@@ -64,11 +62,8 @@
 //         // provider && dispatch(documentProvidertAC.setProviderUser(provider));
 //     };
 
-
-
 // export const initDocumentProvider =
 //     (providers: Provider[]) => async (dispatch: AppDispatchType, getState: GetStateType) => {
-
 
 //         const state = getState();
 
@@ -77,10 +72,8 @@
 //         dispatch(documentProvidertAC.setInit(providers, currentProvider));
 //     };
 
-
 // export const initProviderUser =
 //     (domain: string, userId: number) => async (dispatch: AppDispatchType, getState: GetStateType) => {
-
 
 //         const data = {
 //             domain,
@@ -96,7 +89,6 @@
 //                 data
 //             ) as ProviderUser | null
 
-
 //         provider && dispatch(documentProvidertAC.setProviderUser(provider));
 //     };
 
@@ -110,7 +102,6 @@
 //         const currentProvider = providers.find(provider => provider.id === providerId)
 
 //         if (currentProvider) {
-
 
 //             const data = {
 //                 domain,
@@ -128,7 +119,6 @@
 //                     data
 //                 ) as ProviderUser | null
 
-
 //             provider && dispatch(documentProvidertAC.setProviderUser(provider));
 //             dispatch(documentProvidertAC.setCurrent(providerId))
 
@@ -136,7 +126,6 @@
 //             dispatch(pbxDealAC.setCurrentProp(currentProvider[PROVIDER_KEY.NAME], EV_DEAL_PROP.PROVIDER))
 //         }
 //     };
-
 
 // export const setCurrentProviderByProviderThunk =
 //     (currentProvider: DocumentProvider) => async (dispatch: AppDispatchType, getState: GetStateType) => {

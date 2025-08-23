@@ -1,20 +1,15 @@
-
 // import { fillingConsalting, fillingEr, fillingFreeblocksWithUncheck, fillingInfoblocks, fillingLt, fillingPketsEr, fillingStar, newFreeblocksWithUncheck } from "../../../utils/reducers-utils/complect/complect-utils"
 
 // import { UNIVERSAL } from "../global/global-reducer"
 // import { RESET } from "../reset/reset-reducer"
 // import { setStar } from "../checkboxes/star-reducer"
 
-
 // const complectEnum = {
 //     universal: 'universal',
 
 // }
 
-
 // let initialState = null
-
-
 
 // //CONST
 // export const COMPLECT_ERROR = 'Неправильный вес комплекта'
@@ -30,16 +25,12 @@
 // const SET_FILLING_CONSALTING = 'SET_FILLING_CONSALTING'
 // const SET_STAR_IN_COMPLECT = 'SET_STAR_IN_COMPLECT'
 
-
-
-
 // /////////////////////////ACTION CREATORS
 
 // export const resetActionCreator = () => ({ type: RESET })
 
 // export const setUniversalComplect = (weight, currentComplectsType, universalComplects, regions) =>
 //     ({ type: SET_WEIGHT_AND_NAME_OF_UNIVERSAL_COMPLECT, weight, currentComplectsType, universalComplects, regions })
-
 
 // export const setCurrentComplect = (defaultComplect, index, ods, currentOd) => ({ // ==maximum
 //     type: CREATE_COMPLECT, defaultComplect, index, ods, currentOd
@@ -52,16 +43,9 @@
 // const setFillingLt = (checked, index) => ({ type: SET_FILLING_LT, checked, index })
 // const setFillingConsalting = (checked, index) => ({ type: SET_FILLING_CONSALTING, checked, index })
 
-
 // const setStarInCurrentComplect = (checked, index) => ({ type: SET_STAR_IN_COMPLECT, checked, index })
 
 // // export const setError = (error, complectsType) => ({ type: SET_ERROR, error, complectsType })  //for invalid weight
-
-
-
-
-
-
 
 // ///////////////////REDUCER
 // export const currentComplect = (state = initialState, action) => {
@@ -76,10 +60,9 @@
 //             }
 //             return state
 
-
 //         case SET_WEIGHT_AND_NAME_OF_UNIVERSAL_COMPLECT:
 //             if (state) {
-                
+
 //                 currentComplect = { ...state }
 //                 if (action.currentComplectsType.title === UNIVERSAL) {
 //                     let indexOfRightComplect = 0
@@ -96,9 +79,9 @@
 //                             currentComplect.weight = complect.weight
 //                             isSearched = true
 //                         } else if ((action.weight < complect.weight) && !isSearched && complectIndex) {
-                            
+
 //                             const searchedComplect = action.universalComplects[complectIndex - 1]
-                            
+
 //                             currentComplect.number = searchedComplect.number
 //                             currentComplect.name = searchedComplect.name
 //                             currentComplect.title = searchedComplect.title
@@ -106,14 +89,14 @@
 //                             currentComplect.shortTitle = searchedComplect.shortTitle
 //                             currentComplect.weight = searchedComplect.weight
 //                             isSearched = true
-                            
+
 //                         }
 //                     })
 //                     if (!indexOfRightComplect && action.weight) {
 //                         currentComplect.name = COMPLECT_ERROR
 //                     }
 //                     currentComplect.regions = action.regions
-                    
+
 //                     return currentComplect
 //                 }
 //                 return state
@@ -122,7 +105,6 @@
 
 //         case CHANGE_INFOBLOCK:
 //             return fillingInfoblocks(state, action.checked, action.value)
-
 
 //         case CHANGE_FREE:
 //             //action: checked, index, value
@@ -144,7 +126,6 @@
 //                                 currentComplect.freeBlocks.push(action.index)
 //                             }
 
-
 //                         }
 //                     }
 //                 }
@@ -152,7 +133,6 @@
 //             }
 
 //             return state
-
 
 //         case CHANGE_ER:
 //             // action:  checked, index
@@ -162,7 +142,6 @@
 //                     resultCurrentComplect = fillingEr(currentComplect, action.packets, action.checked, action.index)
 //                 }
 //                 return resultCurrentComplect
-
 
 //             } else {
 //                 alert('Сначала выберете комплект!')
@@ -185,10 +164,8 @@
 //         case RESET:
 //             return null
 
-
 //         default:
 //             return state
 //     }
-
 
 // }

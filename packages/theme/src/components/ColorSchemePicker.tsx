@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import { useState, useRef } from 'react'
-import { Palette } from 'lucide-react'
-import { useColorScheme } from '../hook/useColorScheme'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useOutsideClick } from '../hook/useOutsideClick'
-import { ColorScheme } from '../provider/Theme'
+import { useState, useRef } from "react";
+import { Palette } from "lucide-react";
+import { useColorScheme } from "../hook/useColorScheme";
+import { motion, AnimatePresence } from "framer-motion";
+import { useOutsideClick } from "../hook/useOutsideClick";
+import { ColorScheme } from "../provider/Theme";
 
 const schemeList = [
-  { value: 'default', color: '#1E293B' },
-  { value: 'blue', color: '#3B82F6' },
-  { value: 'violet', color: '#8B5CF6' },
-  { value: 'pink', color: '#EC4899' },
-  { value: 'red', color: '#EF4444' },
-  { value: 'orange', color: '#F97316' },
-  { value: 'yellow', color: '#FACC15' },
-  { value: 'green', color: '#22C55E' },
-]
+  { value: "default", color: "#1E293B" },
+  { value: "blue", color: "#3B82F6" },
+  { value: "violet", color: "#8B5CF6" },
+  { value: "pink", color: "#EC4899" },
+  { value: "red", color: "#EF4444" },
+  { value: "orange", color: "#F97316" },
+  { value: "yellow", color: "#FACC15" },
+  { value: "green", color: "#22C55E" },
+];
 
 export const ColorSchemePicker = () => {
-  const { scheme, setScheme } = useColorScheme()
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const { scheme, setScheme } = useColorScheme();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
-  useOutsideClick(ref, () => setOpen(false))
+  useOutsideClick(ref, () => setOpen(false));
 
   return (
     <div className="relative" ref={ref}>
@@ -32,7 +32,7 @@ export const ColorSchemePicker = () => {
         onClick={() => setOpen(!open)}
         title="Выбрать цветовую схему"
       >
-        <Palette size={20}  />
+        <Palette size={20} />
       </button>
 
       <AnimatePresence>
@@ -47,11 +47,11 @@ export const ColorSchemePicker = () => {
             {schemeList.map(({ value, color }) => (
               <button
                 key={value}
-                className={`cursor-pointer w-8 h-8 rounded-full border-2 ${scheme === value ? 'ring-2 ring-foreground' : ''}`}
+                className={`cursor-pointer w-8 h-8 rounded-full border-2 ${scheme === value ? "ring-2 ring-foreground" : ""}`}
                 style={{ backgroundColor: color }}
                 onClick={() => {
-                  setScheme(value as ColorScheme)
-                  setOpen(false)
+                  setScheme(value as ColorScheme);
+                  setOpen(false);
                 }}
               />
             ))}
@@ -59,5 +59,5 @@ export const ColorSchemePicker = () => {
         )}
       </AnimatePresence>
     </div>
-  )
-}
+  );
+};

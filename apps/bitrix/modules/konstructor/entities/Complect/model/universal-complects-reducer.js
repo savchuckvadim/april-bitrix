@@ -1,6 +1,5 @@
 // import { RESET } from "../reset/reset-reducer"
 
-
 // const initialState = {
 //     // currentComplect: null,
 //     complects: [
@@ -9,7 +8,6 @@
 //             title: 'Классик',
 //             fullTitle: 'Гарант-Классик',
 //             shortTitle: '',
-
 
 //             'isChanging': true,
 
@@ -30,7 +28,7 @@
 //             shortTitle: '',
 //             withStar: false,
 //             star:[],
-            
+
 //             'isChanging': true,
 //             weight: 1.5,
 //             'className': 'btn__universal',
@@ -47,7 +45,7 @@
 //             title: 'Универсал',
 //             fullTitle: 'Гарант-Универсал',
 //             shortTitle: '',
-         
+
 //             'isChanging': true,
 //             weight: 2,
 //             'className': 'btn__universal',
@@ -65,7 +63,6 @@
 //             title: 'Универсал+',
 //             fullTitle: 'Гарант-Универсал+',
 //             shortTitle: '',
-
 
 //             'isChanging': true,
 //             weight: 3,
@@ -103,7 +100,6 @@
 //             withStar: false,
 //             star:[],
 //             regions:[],
-
 
 //             'isChanging': true,
 //             weight: 6,
@@ -143,7 +139,6 @@
 //             withStar: false,
 //             star:[],
 //             regions:[],
-
 
 //             'isChanging': true,
 //             weight: 12,
@@ -232,12 +227,11 @@
 
 //     ],
 //     universalDefaultComplect: {
-        
+
 //         name: 'default',
 //         title: 'Универсальный комплект',
 //         fullTitle: 'Универсальный комплект',
 //         shortTitle: '',
-
 
 //         'title': '',
 //         'isChanging': true,
@@ -257,8 +251,6 @@
 //         'ersInPacket': [],
 //         'ers': [],
 
-
-
 //         'lt': [],
 //         'ltInPacket': [],
 
@@ -273,7 +265,6 @@
 // }
 // //AC
 // // export const setCurrentUniversalComplect = (currentComplectIndex) => ({ type: SET_CURRENT_UNIVERSAL_COMPLECT, currentComplectIndex })
-
 
 // //REDUCER
 // const universals = (state = initialState, action) => {

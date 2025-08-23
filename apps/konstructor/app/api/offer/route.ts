@@ -4,11 +4,23 @@ import puppeteer from "puppeteer";
 export async function GET() {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"], // важно для Vercel/Render
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      // '--disable-dev-shm-usage',
+      // '--disable-accelerated-2d-canvas',
+      // '--no-first-run',
+      // '--no-zygote',
+      // '--single-process',
+      // '--disable-gpu'
+    ],
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
   });
 
   const page = await browser.newPage();
-  const previewUrl = process.env.PDF_PREVIEW_URL || "http://localhost:5003/offer/preview?readonly=true";
+  const previewUrl =
+    process.env.PDF_PREVIEW_URL ||
+    "http://localhost:5000/offer/preview?readonly=true";
   await page.goto(previewUrl, { waitUntil: "networkidle0" });
 
   const pdfBuffer = await page.pdf({

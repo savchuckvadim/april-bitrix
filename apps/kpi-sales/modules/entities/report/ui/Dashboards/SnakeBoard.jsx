@@ -2,7 +2,6 @@
 // import LineChart from "../chartjs/linechart"
 // import { useEffect, useState } from "react"
 
-
 // const SnakeBoard = ({
 //     detalization, departament, actions, size,
 //     setDetalizationProps
@@ -46,7 +45,6 @@
 //     console.log('actions')
 
 //     console.log(actions)
-
 
 //     return (
 //         <Col lg={size}>
@@ -119,6 +117,5 @@
 //         </Col >
 //     )
 // }
-
 
 // export default SnakeBoard

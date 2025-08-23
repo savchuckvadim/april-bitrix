@@ -13,9 +13,7 @@
 // import { ROUTE_DOCUMENT } from '@/processes/routes/types/router-type';
 // import { SendCard, SendCardActionProp } from '@/shared/ui/Cards/SendCard/SendCard';
 
-
 // // TODO: https://dev.1c-bitrix.ru/rest_help/js_library/rest/files.php
-
 
 // interface ComplectSettingsCardProps {
 //     // supplies
@@ -133,7 +131,6 @@
 //                             action={action}
 //                         />
 
-
 //                         {/* </SendCard> */}
 //                     </Col>
 //                 </Row>
@@ -221,10 +218,8 @@
 
 //         //     </div>
 
-
 //         // </div>
 //     )
 // }
-
 
 // export default ComplectSettingsCard

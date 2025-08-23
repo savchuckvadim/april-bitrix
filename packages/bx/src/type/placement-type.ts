@@ -32,18 +32,18 @@ export type PlacementCallCard = {
   placement: "CALL_CARD";
 };
 export type CustomPlacement = {
-  placement: "DEFAULT",
+  placement: "DEFAULT";
   options: {
-    entityTypeId: "4",
-    entityId: number, //"158361",
-    activityId: number, //"11005",
-    companyId: number,
-    dealId: number,
-    planType: string | "fail_work",
+    entityTypeId: "4";
+    entityId: number; //"158361",
+    activityId: number; //"11005",
+    companyId: number;
+    dealId: number;
+    planType: string | "fail_work";
     // "someImportant": "qwerty",
     // "placement": "COMPANY"
-  }
-}
+  };
+};
 type PlacementCallBindEntity = {
   ENTITY_TYPE: "DEAL" | "COMPANY" | "LEAD";
   ENTITY_ID: number;
@@ -66,13 +66,14 @@ export type Placement = {
   };
   placement: PlacementPlace;
 };
-export type PlacementPlace = 'CRM_DEAL_DETAIL_TAB' |
-  'CRM_COMPANY_DETAIL_TAB' |
-  'CRM_LEAD_DETAIL_TAB' |
-  'CRM_DEAL_DETAIL_ACTIVITY' |
-  'CRM_COMPANY_DETAIL_ACTIVITY' |
-  'CRM_LEAD_DETAIL_ACTIVITY' |
-  'CRM_DEAL_DETAIL_TOOLBAR' |
-  'CRM_COMPANY_DETAIL_TOOLBAR' |
-  'CRM_LEAD_DETAIL_TOOLBAR' |
-  'DEFAULT'
+export type PlacementPlace =
+  | "CRM_DEAL_DETAIL_TAB"
+  | "CRM_COMPANY_DETAIL_TAB"
+  | "CRM_LEAD_DETAIL_TAB"
+  | "CRM_DEAL_DETAIL_ACTIVITY"
+  | "CRM_COMPANY_DETAIL_ACTIVITY"
+  | "CRM_LEAD_DETAIL_ACTIVITY"
+  | "CRM_DEAL_DETAIL_TOOLBAR"
+  | "CRM_COMPANY_DETAIL_TOOLBAR"
+  | "CRM_LEAD_DETAIL_TOOLBAR"
+  | "DEFAULT";

@@ -4,7 +4,6 @@
 // import { getColors, getMediumData, getTotalData } from "@/utils/reducers-utils/report/report-utils"
 // import ReportInfo from "../widget/ReportInfo"
 
-
 // const GraficBoard = ({ report, isCallings, size }) => {
 //     let total = 0
 //     let medium = 0
@@ -26,7 +25,6 @@
 //     const jsonColors = JSON.stringify(colors, null, 2);
 //     const totalKPI = getTotalData(report);
 //     const mediumKPI = getMediumData(report, totalKPI)
-
 
 //     return (
 //         <Col lg={size}>
@@ -73,7 +71,7 @@
 //                             </Col>
 //                             {/* <Col sm={3}>
 //                                 <div className="text-center">
-                                 
+
 //                                     <ReportInfo report={totalKPI} />
 //                                     <p className="text-muted text-truncate">В среднем в день</p>
 //                                 </div>
@@ -92,6 +90,5 @@
 //         </Col>
 //     )
 // }
-
 
 // export default GraficBoard

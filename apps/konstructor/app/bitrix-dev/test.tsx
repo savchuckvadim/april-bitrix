@@ -4,4 +4,4 @@
 //     const inBitrix = process.env.IN_BITRIX as string | boolean | undefined
 
 //     return <App inBitrix={false} isPublic={false} envBitrix={inBitrix}  />;
-// } 
+// }

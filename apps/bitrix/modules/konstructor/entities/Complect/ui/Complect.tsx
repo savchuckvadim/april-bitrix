@@ -5,14 +5,7 @@
 // import { AButton } from "@packages/ui";
 // import { ComponentPropsColors } from "@packages/ui";
 
-
-
-
 // export const Complect = ({
-
-
-
-
 
 // }) => {
 //     const dispatch = useAppDispatch()
@@ -21,8 +14,6 @@
 //     const currentComplect = useAppSelector(state => state.complectCurrent) as null | ComplectType
 //     const profs = useAppSelector(state => state.complectProf.items) as ComplectType[]
 //     const universals = useAppSelector(state => state.complectUniversal.items)
-
-
 
 //     const createComplect = () => (
 //         // dispatch(
@@ -38,7 +29,6 @@
 //         // currentComplect.name  - old version
 //         // currentComplect.title  - new version
 //         const complectName = complect.shortTitle || complect.title || complect.name       //to state
-
 
 //         return <AButton
 //             title={complectName}
@@ -60,13 +50,10 @@
 //         // number={index}
 //         // type="button" > {complectName}
 //         />
-      
-//     })
 
+//     })
 
 //     return (
 //         buttons
 //     )
 // }
-
-

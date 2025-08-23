@@ -1,14 +1,27 @@
-import type { BXTask, BXUser, Placement, EntitiesFromPlacement } from "@workspace/bx";
-import { getAppPlacement, initAppEntities, getEntitiesFromPlacement } from "@workspace/api";
+import type {
+  BXTask,
+  BXUser,
+  Placement,
+  EntitiesFromPlacement,
+} from "@workspace/bx";
+import {
+  getAppPlacement,
+  initAppEntities,
+  getEntitiesFromPlacement,
+} from "@workspace/api";
 import { bxAPI as bx } from "@workspace/api";
 // import { getBxService } from "@workspace/api";
 import { portalAPI } from "@workspace/pbx";
 
-import { DEV_CURRENT_USER_ID, TESTING_DOMAIN, TESTING_PLACEMENT, TESTING_USER } from "../consts/app-global";
+import {
+  DEV_CURRENT_USER_ID,
+  TESTING_DOMAIN,
+  TESTING_PLACEMENT,
+  TESTING_USER,
+} from "../consts/app-global";
 import { APP_DEP, appActions } from "./AppSlice";
 import { AppDispatch, AppGetState } from "./store";
 // import { getDepartment } from "@/modules/konstructor/features/Departament";
-
 
 // import { eventActions } from "@/modules/konstructor/processes/event";
 import { ROUTE_EVENT } from "@/modules/konstructor/processes/routes/types/router-type";
@@ -18,46 +31,41 @@ import { getDisplayMode } from "@workspace/api/";
 // import { setDepartmentMode } from "@/modules/konstructor/features/Departament/model/DepartmentThunk";
 // import { preloaderActions } from "@workspace/april";
 
-
-export const initial = (inBitrix: boolean) =>
+export const initial =
+  (inBitrix: boolean) =>
   async (dispatch: AppDispatch, getState: AppGetState) => {
     // if (typeof window !== 'undefined') {
 
-
     const state = getState();
     const app = state.app;
-    const isLoading = app.isLoading
-    const __IN_BITRIX__ = inBitrix
-
+    const isLoading = app.isLoading;
+    const __IN_BITRIX__ = inBitrix;
 
     // const BX24 = await getBxService()
     /**
-     * 
+     *
      * TEST
      */
     // const bxResult = __IS_PROD__ && await bxAPI.saleInit(null, null)
 
-
     /**
-     * 
+     *
      */
     if (!isLoading) {
-      dispatch(
-        appActions.loading({ status: true })
-      )
+      dispatch(appActions.loading({ status: true }));
 
       //**
       // CONFIGURABLE TEST
       //  */
-      const testPlacementData = __IN_BITRIX__ && await bx.getPlacement() as Placement | CustomPlacement
-      console.log('testPlacementData')
-      console.log(testPlacementData)
-
+      const testPlacementData =
+        __IN_BITRIX__ &&
+        ((await bx.getPlacement()) as Placement | CustomPlacement);
+      console.log("testPlacementData");
+      console.log(testPlacementData);
 
       if (testPlacementData) {
         if (testPlacementData.placement !== "DEFAULT") {
           __IN_BITRIX__ && (await bx.getFit());
-
         }
       }
 
@@ -65,17 +73,15 @@ export const initial = (inBitrix: boolean) =>
       //@ts-ignore
       // console.log(window.BX24)
 
-
-
       const appType = state.app.department;
-
 
       const currentRoute = state.router.current;
 
-      const fetchedDdomain = __IN_BITRIX__ ? await bx.getDomain() : 'april-dev.bitrix24.ru';
+      const fetchedDdomain = __IN_BITRIX__
+        ? await bx.getDomain()
+        : "april-dev.bitrix24.ru";
       let domain = fetchedDdomain ? fetchedDdomain : TESTING_DOMAIN;
       dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
-
 
       // console.log('domain')
       //@ts-ignore
@@ -87,18 +93,20 @@ export const initial = (inBitrix: boolean) =>
       //         ID: 0
       //     }
       // } as Placement
-      let currentCompany = null
-      let currentDeal = null
+      let currentCompany = null;
+      let currentDeal = null;
 
       const placementData = await getAppPlacement(inBitrix);
-      console.log('getAppPlacement')
-      console.log(placementData)
+      console.log("getAppPlacement");
+      console.log(placementData);
 
-      let placement = placementData.placement || (!__IN_BITRIX__ && TESTING_PLACEMENT);
+      let placement =
+        placementData.placement || (!__IN_BITRIX__ && TESTING_PLACEMENT);
       let companyPlacement = placementData.companyPlacement as Placement;
 
-
-      const user = __IN_BITRIX__ ? ((await bx.getCurrentUser()) as BXUser) : TESTING_USER;
+      const user = __IN_BITRIX__
+        ? ((await bx.getCurrentUser()) as BXUser)
+        : TESTING_USER;
       console.log("user");
 
       console.log(user);
@@ -124,48 +132,54 @@ export const initial = (inBitrix: boolean) =>
           }
         }
       }
-      console.log('entitiesFromPlacement')
-      console.log(placement)
+      console.log("entitiesFromPlacement");
+      console.log(placement);
       //@ts-ignore
-      const entitiesFromPlacement = (await getEntitiesFromPlacement(placement, domain)) as EntitiesFromPlacement;
-      console.log(entitiesFromPlacement)
+      const entitiesFromPlacement = (await getEntitiesFromPlacement(
+        placement,
+        domain,
+      )) as EntitiesFromPlacement;
+      console.log(entitiesFromPlacement);
       // dispatch(getCompanyContacts(entitiesFromPlacement.currentCompany.ID));
       if (entitiesFromPlacement) {
         if (entitiesFromPlacement.currentCompany) {
           const currentTask = entitiesFromPlacement.currentTask;
           const userId = user["ID"] || DEV_CURRENT_USER_ID;
 
-          currentCompany = entitiesFromPlacement.currentCompany
-          currentDeal = entitiesFromPlacement.currentDeal
+          currentCompany = entitiesFromPlacement.currentCompany;
+          currentDeal = entitiesFromPlacement.currentDeal;
           companyPlacement = entitiesFromPlacement.companyPlacement;
           // // const isDetail = isDetailPlacement(placement)
           // // const isActivity = isActivityPlacement(placement)
           // // const isTask = isTaskPlacement(placement)
-          const displayMode = placement ? getDisplayMode(placement) : DISPLAY_MODE.ENTITY_CARD
+          const displayMode = placement
+            ? getDisplayMode(placement)
+            : DISPLAY_MODE.ENTITY_CARD;
 
           // if (displayMode == APP_DISPLAY_MODE.ENTITY_CARD) {
           //     __IN_BITRIX__ && await bitrixAPI.getFit()
           // }
 
           dispatch(
-            appActions.
-              setAppData(
-                {
-                  domain,
-                  user,
-                  placement: companyPlacement,
-                  company: currentCompany,
-                  deal: currentDeal,
-                  display: displayMode,
-                  // isDetail,
-                  // isTask,
-                  task: currentTask
-
-                }
-              ))
-          const appEntities = await initAppEntities(entitiesFromPlacement, domain, user, companyPlacement);
+            appActions.setAppData({
+              domain,
+              user,
+              placement: companyPlacement,
+              company: currentCompany,
+              deal: currentDeal,
+              display: displayMode,
+              // isDetail,
+              // isTask,
+              task: currentTask,
+            }),
+          );
+          const appEntities = await initAppEntities(
+            entitiesFromPlacement,
+            domain,
+            user,
+            companyPlacement,
+          );
           dispatch(appActions.setAppData(appEntities));
-
 
           // if (!currentTask) {
           //     const userId = user['ID'] || DEV_CURRENT_USER_ID
@@ -208,42 +222,37 @@ export const initial = (inBitrix: boolean) =>
 
           // dispatch(getDepartment(domain, user));
           dispatch(appActions.setInitializedSuccess({}));
-          dispatch(
-            appActions.loading({ status: false })
-          )
-
+          dispatch(appActions.loading({ status: false }));
         }
       } else {
-        dispatch(appActions.setInitializedError({ errorMessage: "Компания не найдена" }));
+        dispatch(
+          appActions.setInitializedError({
+            errorMessage: "Компания не найдена",
+          }),
+        );
       }
 
       dispatch(appActions.setInitializedSuccess({}));
-      dispatch(
-        appActions.loading({ status: false })
-      )
+      dispatch(appActions.loading({ status: false }));
     }
     // }
   };
 
-export const reloadApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {
-
-  // dispatch(
-  //   preloaderActions
-  //     .setPreloader({ status: true })
-  // )
-
-  setTimeout(() => {
-
-
-    dispatch(
-      // initialEventApp()
-      appActions.reload()
-    )
+export const reloadApp =
+  () => async (dispatch: AppDispatch, getState: AppGetState) => {
     // dispatch(
     //   preloaderActions
-    //     .setPreloader({ status: false })
+    //     .setPreloader({ status: true })
     // )
 
-  }, 1000)
-
-}
+    setTimeout(() => {
+      dispatch(
+        // initialEventApp()
+        appActions.reload(),
+      );
+      // dispatch(
+      //   preloaderActions
+      //     .setPreloader({ status: false })
+      // )
+    }, 1000);
+  };

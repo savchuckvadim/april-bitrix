@@ -1,6 +1,8 @@
-
-
-import { combineReducers, configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
+import {
+  combineReducers,
+  configureStore,
+  createListenerMiddleware,
+} from "@reduxjs/toolkit";
 import { appReducer } from "./AppSlice";
 // import { eventReducer, eventRouterReducer } from "../../processes/event";
 import { routerReducer } from "../../processes/routes/model/RouterSlice";
@@ -45,7 +47,6 @@ const rootReducer = combineReducers({
   // event: eventReducer,
   // eventRouter: eventRouterReducer,
 
-
   // currentComplect:complectCurrentReducer,
   // profComplect:complectProfReducer,
   // universalComplect:complectUniversalReducer,
@@ -66,14 +67,13 @@ export const setupStore = () => {
       getDefaultMiddleware()
         .prepend(listenerMiddleware.middleware) // Добавление listener middleware в начало цепочки
         .concat(portalAPI.middleware)
-        .concat(infoblockAPI.middleware)
+        .concat(infoblockAPI.middleware),
     // .concat(taskAPI.middleware),
   });
 };
 
 //listeners
 portalListener();
-
 
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppStore = ReturnType<typeof setupStore>;
@@ -84,4 +84,3 @@ export const store = setupStore();
 
 //@ts-ignore
 // window.eventStore = store;
-

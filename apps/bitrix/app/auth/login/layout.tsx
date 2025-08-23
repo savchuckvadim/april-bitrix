@@ -1,6 +1,6 @@
 // import { Geist, Geist_Mono } from "next/font/google"
 
-import "@workspace/ui/globals.css"
+import "@workspace/ui/globals.css";
 // import { Providers } from "@/components/providers"
 
 // const fontSans = Geist({
@@ -16,16 +16,14 @@ import "@workspace/ui/globals.css"
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={` `}
-      >
+      <body className={` `}>
         {children}
         {/* <Providers>{children}</Providers> */}
       </body>
     </html>
-  )
+  );
 }

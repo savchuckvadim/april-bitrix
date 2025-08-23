@@ -1,9 +1,22 @@
-import { Action, AnyAction, combineReducers, configureStore, createListenerMiddleware, Dispatch, Middleware, MiddlewareAPI, ThunkAction } from "@reduxjs/toolkit";
+import {
+  Action,
+  combineReducers,
+  configureStore,
+  createListenerMiddleware,
+  Dispatch,
+  Middleware,
+  MiddlewareAPI,
+  ThunkAction,
+} from "@reduxjs/toolkit";
 import { appReducer } from "./AppSlice";
 import { WSClient } from "@workspace/ws";
-import { offerPdfSettingsReducer } from "@/modules/feature/offer-pdf-settings";
 import { infoblockReducer } from "@/modules/entities/infoblock";
-
+import { offerTemplateBlockReducer } from "@/modules/entities/offer-template-block";
+import { complectReducer } from "@/modules/entities/complect";
+import { baseTemplateReducer } from "@/modules/entities/base-template";
+import { offerTemplateReducer } from "@/modules/entities/offer-template";
+import { offerTemplateKonstructorReducer } from "@/modules/entities/offer-template-konstructor";
+import { offerReducer } from "@/modules/entities/offer";
 
 export const listenerMiddleware = createListenerMiddleware();
 let wsClient: WSClient;
@@ -19,19 +32,22 @@ export const initWSClient = (userId: number, domain: string) => {
 };
 
 export const getWSClient = () => {
-  if (!wsClient) throw new Error('WSClient not initialized');
+  if (!wsClient) throw new Error("WSClient not initialized");
   return wsClient;
 };
 
 const rootReducer = combineReducers({
   app: appReducer,
 
-  offerPdfSettings: offerPdfSettingsReducer,
+  complect: complectReducer,
   infoblock: infoblockReducer,
 
+  baseTemplate: baseTemplateReducer,
+  offer: offerReducer,
+  offerTemplate: offerTemplateReducer,
+  offerTemplateBlock: offerTemplateBlockReducer,
+  offerTemplateKonstructor: offerTemplateKonstructorReducer,
 });
-
-
 
 export const setupStore = () => {
   return configureStore({
@@ -41,7 +57,7 @@ export const setupStore = () => {
         thunk: {
           extraArgument: { getWSClient },
         },
-      })
+      }),
     // .concat(portalAPI.middleware)
     // .concat(infoblockAPI.middleware)
 
@@ -51,7 +67,6 @@ export const setupStore = () => {
 
 //listeners
 // portalListener();
-
 
 // Тип для extraArgument
 export type ThunkExtraArgument = {
@@ -75,4 +90,3 @@ export const store = setupStore();
 
 //@ts-ignore
 // window.eventStore = store;
-

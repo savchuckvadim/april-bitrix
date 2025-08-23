@@ -26,9 +26,7 @@
 //         //     return null
 //         // }
 
-
 //     },
-
 
 //     getListsItems: async (listId, departament, dateFieldForHookFrom, dateFieldForHookTo, dateFrom, dateTo) => {
 
@@ -42,7 +40,6 @@
 //             // let items = []; // Массив для сбора всех элементов для текущего отдела
 
 //             try {
-
 
 //                 const params = {
 //                     IBLOCK_TYPE_ID,
@@ -71,7 +68,6 @@
 //                 // start += Number(nxt); // Обновляем стартовую позицию
 //                 // await sleep(100); // Задержка для снижения нагрузки на API
 
-
 //                 // Добавляем собранные элементы в объект groupedItems, группируя по ID отдела
 //                 groupedItems[user.ID] = response;
 //             } catch (error) {
@@ -94,21 +90,13 @@
 //             return null
 //         }
 
-
-
-
 //     },
-
 
 //     getDomain: async () => {
 //         const auth = await BX24.getAuth()
 //         const domain = await BX24.getDomain()
 
-
-
 //         return domain
-
-
 
 //     },
 
@@ -245,7 +233,6 @@
 //         const IBLOCK_ID = 86;
 //         let result = 0; // Объект для группировки элементов по отделам
 
-
 //         try {
 //             const params = {
 //                 IBLOCK_TYPE_ID,
@@ -279,10 +266,8 @@
 //             console.error(`Ошибка при получении элементов списка для отдела ${userId}:`, error);
 //         }
 
-
 //         return result;
 //     },
-
 
 //     getUserReport: async (userId, actions, dateFrom, dateTo) => {
 //         const method = 'lists.element.get';
@@ -299,7 +284,6 @@
 //                 // }
 //             ]
 //         }; // Объект для группировки элементов по отделам
-
 
 //         try {
 //             if (actions && actions.length) {
@@ -335,7 +319,7 @@
 //                                     count: 0
 //                                 }
 //                             )
-                            
+
 //                         }
 
 //                     }
@@ -343,16 +327,11 @@
 //                 }
 //             }
 
-
 //         } catch (error) {
 //             console.error(`Ошибка при получении элементов списка для отдела ${userId}:`, error);
 //         }
 
-
 //         return result;
-
 
 //     }
 // }
-
-

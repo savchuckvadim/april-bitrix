@@ -4,7 +4,6 @@
 // import { Chart, registerables } from 'chart.js';
 // Chart.register(...registerables);
 
-
 // const DountChart = ({ dataColors }) => {
 //   var doughnutChartColors = getChartColorsArray(dataColors);
 //   const data = {

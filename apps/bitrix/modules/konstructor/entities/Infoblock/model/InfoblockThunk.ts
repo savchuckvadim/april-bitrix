@@ -2,7 +2,6 @@
 
 // export const rememberCurrentComplect = (currentComplect) => (dispatch, getState) => {
 
-
 //     if (currentComplect.type === ComplectsTypesEnum.PROF) {
 //         dispatch(createComplect(currentComplect, currentComplect.numer, true))
 //     } else {
@@ -12,7 +11,6 @@
 //         dispatch(createtUniversalDefaultComplect(currentComplect, true))
 //         // dispatch(changeUniversalComplect(currentComplect.weight, currentComplectType, universalComplects))
 //     }
-
 
 // }
 
@@ -29,7 +27,6 @@
 
 // export const createtUniversalDefaultComplect = (oldComplect = null, isRemember = false) => (dispatch, getState) => {
 
-
 //     let state = getState()
 //     let universalDefaultComplect = oldComplect || { ...state.universals.universalDefaultComplect }
 //     let ods = state.od.names
@@ -39,13 +36,11 @@
 //     dispatch(setCheckboxes(currentComplect))
 //     dispatch(changeCurrentProductAndPrice(false, isRemember))
 
-
-
 // }
 
 // export const changeUniversalComplect = (
-//     weight, 
-//     currentComplectsType, 
+//     weight,
+//     currentComplectsType,
 //     universalComplects,
 //     regions
 // ) => (dispatch, getState) => {
@@ -59,13 +54,6 @@
 
 //     }
 
-
-
-
-
-
-
-
 // export const changeStar = (checked, value) => (dispatch, getState) => {
 
 //     dispatch(setStarInCurrentComplect(checked, value))
@@ -74,9 +62,6 @@
 //     dispatch(setStar(currentComplect, contract))
 
 // }
-
-
-
 
 // export const changeInfoblock = (checked, value) => (dispatch, getState) => {
 
@@ -91,7 +76,6 @@
 //     let currentComplect = getState().currentComplect  //получает обновленный current complect
 //     dispatch(setFreeblocks(currentComplect)) //отправляет его в freeblock-reducer, чтобы обновить параметер checked на основе нового current complect
 // }
-
 
 // export const changeER = (checked, index) => (dispatch, getState) => {
 //     const packets = getState().encyclopedias[0].value
@@ -116,7 +100,6 @@
 //     dispatch(setLt(currentComplect, contract)) //отправляет его в legal-tech-reducer, чтобы обновить параметер checked на основе нового current complect
 // }
 
-
 // export const changeConsalting = (checked, index) => (dispatch, getState) => {
 //     dispatch(setFillingConsalting(checked, index))  //изменяет индексы в current complect
 
@@ -126,6 +109,3 @@
 //     dispatch(setConsalting(currentComplect, contract)) //отправляет его в legal-tech-reducer, чтобы обновить параметер checked на основе нового current complect
 //     dispatch(setFreeblocks(currentComplect)) //отправляет его в freeblock-reducer, чтобы обновить параметер checked на основе нового current complect
 // }
-
-
-

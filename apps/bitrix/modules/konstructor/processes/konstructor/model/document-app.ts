@@ -1,4 +1,3 @@
-
 // // import { setPrices } from '../deal/price-reducer';
 // // import { bitrixAPI } from '../../../services/bitrix-general-api';
 // // import { setBitrixFields } from '../deal/bitrix-fields/bitrix-fields-reducer';
@@ -24,12 +23,10 @@
 // import { BXUser } from '@/app/types/bitrix/bitrix-type';
 // import { Placement } from '@/app/types/bitrix/placement-type';
 
-
 // const COMPANY_PLACEMENT = 'CRM_COMPANY_DETAIL_ACTIVITY'
 // const DEAL_PLACEMENT = 'CRM_DEAL_DETAIL_TAB'
 // const LEAD_PLACEMENT = 'CRM_LEAD_DETAIL_TAB'
 // const LEAD_TIMELINE_PLACEMENT = 'CRM_LEAD_DETAIL_ACTIVITY'
-
 
 // //actions
 // const SET_APP_DEAL = 'SET_APP_DEAL'
@@ -40,16 +37,14 @@
 // const SET_APP_BITRIX_DATA = 'SET_APP_BITRIX_DATA'
 // const SET_INITIALIZED_SUCCESS = 'SET_INITIALIZED_SUCCESS'
 
-
 // const initialState = {
-
 
 //     dealId: null,
 //     // bitrix: {
 //     //     company: null,
 //     //     //ИНН UF_CRM_1706007840
 //     //     //ФИО UF_CRM_1706007882
-//     //     //Должность 
+//     //     //Должность
 //     //     // companyNamae
 //     //     deal: null,
 //     //     // ИНН UF_CRM_1695372881
@@ -70,7 +65,6 @@
 // const setResizeStatus = (boolean) => ({ type: SET_RESIZE_STATUS, boolean })
 // const setInitializedSuccess = () => ({ type: SET_INITIALIZED_SUCCESS })
 
-
 // //THUNK
 // export const setState = (state) => (dispatch, getState) => {
 //     dispatch({ type: 'SAVE_STATE', state })
@@ -79,7 +73,6 @@
 // // const rememberDeal = (global) => (dispatch, getState) => {
 // //     dispatch({ type: 'REMEMBER_DEAL', global })
 // // }
-
 
 // export const initial = () => async (dispatch, getState) => {
 
@@ -91,27 +84,22 @@
 //     IS_PROD && currentRoute.route !== ROUTE.CALLING && dispatch(getResize())
 //     IS_PROD && currentRoute.route === ROUTE.CALLING && dispatch(getResizeCalling())
 
-
 //     const fetchedDdomain = IS_PROD ? await bitrixAPI.getDomain() : null
 //     let domain = fetchedDdomain ? fetchedDdomain : TESTING_DOMAIN
 
 //     // await auth.getSanctumTest()
-
 
 //     if (currentRoute && currentRoute.route) {
 //         const isProd = IS_PROD
 //         let token = ''
 //         let currentCompanyId = null
 
-
 //         let placementCompanyId = null
 //         let placementDealId = null
 
 //         let dealId = IS_PROD ? null : TESTING_DEAL_ID
 
-
 //         if (currentRoute.route !== ROUTE.REPORT && currentRoute.route !== ROUTE.CALLING && currentRoute.route !== ROUTE.TRANSKRIBATION) {
-
 
 //             const currentUser = IS_PROD && await bitrixAPI.getCurrentUser()
 //             let userId = ''
@@ -121,10 +109,7 @@
 
 //             const getConstructorInitial = async () => {
 
-
 //                 //CHECK VERSION
-
-
 
 //                 //ATTENTION NO DELETE:
 
@@ -150,11 +135,9 @@
 
 //                 }
 
-
 //                 if (initialData) {
 
 //                     let complects = initialData.complects
-
 
 //                     let prices = initialData.prices
 //                     let supplies = initialData.supplies
@@ -163,20 +146,15 @@
 //                     let bitrixFields = initialData.bitrix
 //                     let regions = initialData.regions
 
-
 //                     let consalting = initialData.consalting
 //                     let lt = initialData.legalTech
 //                     let ltPackages = lt && lt.packages
 //                     const star = initialData.star
 
-
 //                     const contracts = contractsData && contractsData.items && contractsData.items.filter(item => contractsData.current.includes(item.number))
-
 
 //                     dispatch(supplyActions.setInitialOds(supplies))
 //                     dispatch(generateProducts(complects, supplies, contracts, consalting, ltPackages, star, prices))
-
-
 
 //                     dispatch(setFetchedRegions(regions))
 //                     dispatch(setPrices(prices, supplies, contracts))
@@ -188,7 +166,6 @@
 //                     dispatch(setFetchedConsalting(consalting))
 //                     dispatch(setFetchedStar(star))
 
-
 //                     let state = getState()
 //                     dispatch(setState(state))
 
@@ -198,9 +175,7 @@
 
 //             await getConstructorInitial()
 
-
 //             let placementdata = isProd && await bitrixAPI.getPlacement()
-
 
 //             if (placementdata) {
 
@@ -209,11 +184,9 @@
 //                     let ID = placementdata.options.ID
 //                     if (placementdata.placement === COMPANY_PLACEMENT || placementdata.placement === 'CRM_COMPANY_DETAIL_TAB') {
 
-
-
 //                         // const companyId = await bitrixAPI.getCompanyId()
 
-//                         // TODO 
+//                         // TODO
 //                         const companyId = ID || await bitrixAPI.getCompanyId()
 
 //                         placementCompanyId = Number(companyId)
@@ -228,7 +201,6 @@
 //                                 token,
 //                                 placementdata
 //                             ))
-
 
 //                     } else if (placementdata.placement === DEAL_PLACEMENT || placementdata.placement === 'CRM_DEAL_DETAIL_ACTIVITY') {
 
@@ -246,13 +218,7 @@
 //                                 placementdata
 //                             ))
 
-
-
-
-
-
 //                     } else if (placementdata.placement === LEAD_PLACEMENT || placementdata.placement === LEAD_TIMELINE_PLACEMENT) {
-
 
 //                     }
 //                 }
@@ -281,14 +247,12 @@
 //                 // let currentCompanyId = null
 //                 // let currentUserId = 1
 
-
 //                 dispatch(setAppData(domain, currentCompanyId, currentUserId, currentUser, '', dealId))
 //                 IS_REMEMBER_DEV && await dispatch(getRememberDeal(dealId, domain))
 //                 dispatch(setInitialRoute(APP_TYPE.KONSTRUCTOR, dealId))
 //                 dispatch(setInitializedSuccess())
 //             }
 //             // const isHaveDeal = dealId !== null
-
 
 //             // IS_DOCUMENT_TESTING
 //             //     ? dispatch(navigate(ROUTE.DOCUMENT))
@@ -298,14 +262,7 @@
 //             dispatch(setPreloader(false))
 //             IS_PROD && await bitrixAPI.getResize()
 
-
-
-
-
-
 //             //todo rename and refactoring to get and dispatch initialData
-
-
 
 //         }
 //         else if (currentRoute.route !== ROUTE.REPORT && currentRoute.route === ROUTE.CALLING) {
@@ -317,7 +274,6 @@
 //         }
 //         else {
 
-
 //             dispatch(setAppData(domain, null, null, null, '', null))
 //             dispatch(setInitializedSuccess())
 //             dispatch(setPreloader(false))
@@ -325,9 +281,7 @@
 //         }
 //     }
 
-
 // }
-
 
 // export const getBitrixData = (
 //     domain: string,
@@ -353,8 +307,6 @@
 
 //     //lead
 
-
-
 //     let currentCompany = null
 //     let currentDeal = null
 //     let resultBitrixData = {
@@ -365,7 +317,6 @@
 //     let resultDealId = null
 //     let isHaveDeal = false
 //     console.log('app get bitrix data getBitrixData')
-
 
 //     //get remember deal
 //     if (placementDealId) {
@@ -386,15 +337,11 @@
 //             dispatch(setIsRemembedStatus(true))
 //         }
 
-
-
 //     } else {
 //         dispatch(setIsRemembedStatus(true))
 //     }
 //     console.log('placementDealId')
 //     console.log(placementDealId)
-
-
 
 //     //get from bitrix
 //     if (IS_PROD) {
@@ -437,15 +384,11 @@
 //         resultDealId = resultDeal.ID
 //     }
 
-
-
-
 //     dispatch(setAppData(domain, resultCompanyId, currentUserId, currentUser, token, resultDealId))
 //     dispatch(setAppBitrixData(resultCompany, resultDeal, placement))
 //     dispatch(setInitialRoute(APP_TYPE.KONSTRUCTOR, isHaveDeal))
 
 // }
-
 
 // const getIsHaveDeal = (deal) => {
 //     let resultIsHaveDeal = false;
@@ -490,15 +433,12 @@
 //         } else {
 //             currentDeal = await onlineGeneralAPI.service('bitrixdeal', API_METHOD.POST, 'deal', getDealData)
 
-
 //         }
 
 //     }
 
-
 //     dispatch(setAppBitrixDeal(dealId, currentDeal))
 // }
-
 
 // export const getResize = () => async (dispatch, getState) => {
 //     await bitrixAPI.getResize()
@@ -508,7 +448,6 @@
 //     await bitrixAPI.getResizeCalling()
 //     dispatch(setResizeStatus(true))
 // }
-
 
 // export const app = (state = initialState, action) => {
 //     switch (action.type) {
@@ -529,7 +468,6 @@
 //             }
 
 //             return resultState
-
 
 //         case SET_APP_BITRIX_DATA:
 //             console.log('SET_APP_BITRIX_DATA')
@@ -576,7 +514,5 @@
 //     }
 
 // }
-
-
 
 // export default app

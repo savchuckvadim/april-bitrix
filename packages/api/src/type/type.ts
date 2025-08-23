@@ -1,6 +1,6 @@
 export enum API_METHOD {
-    GET = 'get',
-    POST = 'post',
-    PUT = 'put',
-    DELETE = 'delete'
+  GET = "get",
+  POST = "post",
+  PUT = "put",
+  DELETE = "delete",
 }

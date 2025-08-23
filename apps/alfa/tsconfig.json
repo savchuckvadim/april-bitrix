@@ -1,7 +1,6 @@
 {
   "extends": "@workspace/typescript-config/nextjs.json",
   "compilerOptions": {
-   
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
@@ -20,7 +19,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "../../packages/api/src/services/online/type/setup-type.ts",
-    "./types/**/*.ts",
+    "./types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

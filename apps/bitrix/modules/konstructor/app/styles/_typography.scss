@@ -1,110 +1,104 @@
-@import './variables';
+@import "./variables";
 
 // Базовые стили текста
 
 .text--button {
-
-    font-family: $font-family-base !important;
-    font-style: normal !important;
-    font-weight: 500 !important;
-    font-size: $big-font-size !important;
-    line-height: 22px !important;
-    letter-spacing: -0.7px !important;
-    text-transform: none !important;
-    line-height: 14px !important;
+  font-family: $font-family-base !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: $big-font-size !important;
+  line-height: 22px !important;
+  letter-spacing: -0.7px !important;
+  text-transform: none !important;
+  line-height: 14px !important;
 }
 
 .text {
-    font-family: $font-family-base !important;
-    font-style: normal !important;
-    font-weight: 400 !important;
-    font-size: $base-font-size !important;
-    line-height: 22px !important;
-    letter-spacing: -0.2px !important;
+  font-family: $font-family-base !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  font-size: $base-font-size !important;
+  line-height: 22px !important;
+  letter-spacing: -0.2px !important;
 }
 .text__small {
-    font-family: $font-family-base !important;
-    font-style: normal !important;
-    font-weight: 400 !important;
-    font-size: $base-font-size !important;
-    line-height: 12px !important;
-    letter-spacing: -0.2px !important;
+  font-family: $font-family-base !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  font-size: $base-font-size !important;
+  line-height: 12px !important;
+  letter-spacing: -0.2px !important;
 }
 .text__small__bold {
-    font-family: $font-family-base !important;
-    font-style: normal !important;
-    font-weight: 600 !important;
-    font-size: $base-font-size !important;
-    line-height: 12px !important;
-    letter-spacing: -0.2px !important;
+  font-family: $font-family-base !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  font-size: $base-font-size !important;
+  line-height: 12px !important;
+  letter-spacing: -0.2px !important;
 }
 .text__bold {
-    font-family: $font-family-base !important;
-    font-style: normal !important;
-    font-weight: 600 !important;
-    font-size: $base-font-size !important;
-    line-height: 22px !important;
-    letter-spacing: -0.2px !important;
+  font-family: $font-family-base !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  font-size: $base-font-size !important;
+  line-height: 22px !important;
+  letter-spacing: -0.2px !important;
 }
-
-
 
 .text__big {
-    font-family: $font-family-base !important;
-    font-style: normal !important;
-    font-weight: 600 !important;
-    font-size: $big-font-size !important;
-    line-height: 22px !important;
-    letter-spacing: 0px !important;
+  font-family: $font-family-base !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  font-size: $big-font-size !important;
+  line-height: 22px !important;
+  letter-spacing: 0px !important;
 }
 
-
 .text--large {
-    font-family: $font-family-base !important;
-    font-style: normal;
-    font-weight: 600;
-    font-size: 24px;
-    line-height: 32px;
-    /* identical to box height, or 133% */
-    letter-spacing: -0.4px;
-    color: $black-text;
-    /* Gray/100 */
+  font-family: $font-family-base !important;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 32px;
+  /* identical to box height, or 133% */
+  letter-spacing: -0.4px;
+  color: $black-text;
+  /* Gray/100 */
 }
 
 .text--xlarge {
-    font-family: $font-family-base !important;
-    font-style: normal !important;
-    font-weight: 600 !important;
-    font-size: 24px !important;
-    line-height: 36px !important;
-    /* identical to box height, or 133% */
-    letter-spacing: -0.4px !important;
-    color: $black-text ;
-    /* Gray/100 */
+  font-family: $font-family-base !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  font-size: 24px !important;
+  line-height: 36px !important;
+  /* identical to box height, or 133% */
+  letter-spacing: -0.4px !important;
+  color: $black-text;
+  /* Gray/100 */
 }
 
 .text__link {
-    @extend .text__big;
-    color: $link-color !important;
-    cursor: pointer;
-    // text-decoration-line: underline;
+  @extend .text__big;
+  color: $link-color !important;
+  cursor: pointer;
+  // text-decoration-line: underline;
 }
 
-
 .button--white {
-    @extend .text--button;
-    color: $black-text !important;
+  @extend .text--button;
+  color: $black-text !important;
 }
 
 .button--color {
-    @extend .text--button;
-    color: $white-color !important;
+  @extend .text--button;
+  color: $white-color !important;
 }
 
-
 .text--base {
-    @extend .text;
-    color: $base-text !important;
+  @extend .text;
+  color: $base-text !important;
 }
 
 // .text--selected {
@@ -117,19 +111,19 @@
 //     // color: $error-text !important;
 // }
 
-[class*=text] {
-    @extend .text;
+[class*="text"] {
+  @extend .text;
 }
 
-[class*=error] {
-    color: $error-text !important;
+[class*="error"] {
+  color: $error-text !important;
 }
 
-[class*=selected] {
-    // font-weight: 600 !important;
-    color: $selected-text !important;
+[class*="selected"] {
+  // font-weight: 600 !important;
+  color: $selected-text !important;
 }
-[class*=field-group] {
-    font-weight: 600 !important;
-    color: $selected-text !important;
+[class*="field-group"] {
+  font-weight: 600 !important;
+  color: $selected-text !important;
 }

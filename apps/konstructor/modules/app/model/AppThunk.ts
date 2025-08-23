@@ -6,83 +6,55 @@ import { AppDispatch, AppGetState, AppThunk, initWSClient } from "./store";
 import { WSClient } from "@workspace/ws";
 import { socketThunk } from "./queue-ws-ping-test/QueueWsPingListener";
 import { getInitializeData } from "../lib/initialize/konstructor.helper";
+import { fetchBaseTemplate } from "@/modules/entities/base-template";
 
 export let socket: undefined | WSClient;
 
-export const initial = (inBitrix: boolean = false, isPublic: boolean = false): AppThunk =>
+export const initial =
+  (inBitrix: boolean = false, isPublic: boolean = false): AppThunk =>
   async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
-
-    console.log(isPublic)
+    console.log(isPublic);
 
     const state = getState();
     const app = state.app;
-    const isLoading = app.isLoading
-    const __IN_BITRIX__ = inBitrix
-
+    const isLoading = app.isLoading;
+    const __IN_BITRIX__ = inBitrix;
 
     if (!isLoading) {
-      const initializedKonstructor = await getInitializeData(dispatch)
-      dispatch(
-        appActions.loading({ status: true })
-      )
+      const initializedKonstructor = await getInitializeData(dispatch);
+      dispatch(appActions.loading({ status: true }));
 
-      const domain: string = __IN_BITRIX__ ? (await bx.getDomain()) || TESTING_DOMAIN : TESTING_DOMAIN;
+      const domain: string = __IN_BITRIX__
+        ? (await bx.getDomain()) || TESTING_DOMAIN
+        : TESTING_DOMAIN;
 
-      const user = __IN_BITRIX__ ? ((await bx.getCurrentUser()) as BXUser) : TESTING_USER;
-      console.log("user");
+      dispatch(fetchBaseTemplate({ domain }));
+      const user = __IN_BITRIX__
+        ? ((await bx.getCurrentUser()) as BXUser)
+        : TESTING_USER;
 
-      console.log(user);
-      console.log("user");
-
-      console.log(user);
       initWSClient(user.ID, domain); // <- здесь создаёшь сокет
       // const socket = getWSClient()
-      dispatch(
-        socketThunk(
-          user.ID,
-          domain
-        )
-      )
-
-
-
-
+      dispatch(socketThunk(user.ID, domain));
 
       dispatch(
-        appActions.
-          setAppData(
-            {
-              domain,
-              user,
+        appActions.setAppData({
+          domain,
+          user,
+        }),
+      );
 
-
-            }
-          ))
-
-      dispatch(
-        appActions.loading({ status: false })
-      )
+      dispatch(appActions.loading({ status: false }));
       // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
-
-
-
-
     }
-
   };
 
-export const reloadApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {
-
-
-  setTimeout(() => {
-
-
-    dispatch(
-      // initialEventApp()
-      appActions.reload()
-    )
-
-
-  }, 1000)
-
-}
+export const reloadApp =
+  () => async (dispatch: AppDispatch, getState: AppGetState) => {
+    setTimeout(() => {
+      dispatch(
+        // initialEventApp()
+        appActions.reload(),
+      );
+    }, 1000);
+  };

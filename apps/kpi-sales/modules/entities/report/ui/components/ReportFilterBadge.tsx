@@ -60,7 +60,7 @@
 //                     className="text-truncate badge-action-text mb-0"
 //                     style={{
 //                         color,
-                       
+
 //                         maxWidth: "170px",
 //                     }}
 //                 >

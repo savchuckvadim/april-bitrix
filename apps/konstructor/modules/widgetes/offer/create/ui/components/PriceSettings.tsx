@@ -1,10 +1,16 @@
-import { RadioGroup,RadioGroupItem } from "@workspace/ui/components/radio-group";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@workspace/ui/components/radio-group";
 
 export function PriceSettings() {
   return (
     <div className="space-y-2 p-4">
       <h3 className="text-md font-semibold">Настройки представления цен</h3>
-      <RadioGroup defaultValue="quantity-sum" className="flex flex-col space-y-1">
+      <RadioGroup
+        defaultValue="quantity-sum"
+        className="flex flex-col space-y-1"
+      >
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="full-period" id="full-period" />
           <label

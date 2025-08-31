@@ -1,73 +1,73 @@
 @mixin flexbox(
-  $display: flex,
-  $direction: row,
-  $wrap: nowrap,
-  $justify: flex-start,
-  $align-items: stretch,
-  $align-content: stretch
+    $display: flex,
+    $direction: row,
+    $wrap: nowrap,
+    $justify: flex-start,
+    $align-items: stretch,
+    $align-content: stretch
 ) {
-  display: $display;
-  flex-direction: $direction;
-  flex-wrap: $wrap;
-  justify-content: $justify;
-  align-items: $align-items;
-  align-content: $align-content;
+    display: $display;
+    flex-direction: $direction;
+    flex-wrap: $wrap;
+    justify-content: $justify;
+    align-items: $align-items;
+    align-content: $align-content;
 }
 
 @mixin color__animation() {
-  transition-property: background-color, color;
-  transition-duration: 0.5s;
+    transition-property: background-color, color;
+    transition-duration: 0.5s;
 }
 
 @mixin gradient() {
-  background: rgb(231, 53, 74);
-  background: linear-gradient(
-    45deg,
-    rgba(198, 176, 200, 1) 0%,
-    rgba(138, 90, 162, 1) 50%,
-    rgb(255, 34, 196) 100%
-  );
-  // font-size: large;
-  animation: gradient 7s ease infinite;
-  background-size: 1500% 1500%;
-  color: rgb(255, 255, 255) !important;
-  color: $white-color;
+    background: rgb(231, 53, 74);
+    background: linear-gradient(
+        45deg,
+        rgba(198, 176, 200, 1) 0%,
+        rgba(138, 90, 162, 1) 50%,
+        rgb(255, 34, 196) 100%
+    );
+    // font-size: large;
+    animation: gradient 7s ease infinite;
+    background-size: 1500% 1500%;
+    color: rgb(255, 255, 255) !important;
+    color: $white-color;
 }
 
 @mixin button__gradient() {
-  background: $blue-color !important;
-  background: linear-gradient(
-    45deg,
-    rgba(198, 176, 200, 1) 0%,
-    rgb(119, 76, 237, 0.1) 50%,
-    rgb(108, 192, 241) 100%
-  ) !important;
-  animation: gradient 5s ease infinite !important;
-  background-size: 1500% 1500% !important;
-  // color: $white-color;
+    background: $blue-color !important;
+    background: linear-gradient(
+        45deg,
+        rgba(198, 176, 200, 1) 0%,
+        rgb(119, 76, 237, 0.1) 50%,
+        rgb(108, 192, 241) 100%
+    ) !important;
+    animation: gradient 5s ease infinite !important;
+    background-size: 1500% 1500% !important;
+    // color: $white-color;
 }
 
 @keyframes gradient {
-  0% {
-    background-position: 0 50%;
-  }
+    0% {
+        background-position: 0 50%;
+    }
 
-  50% {
-    background-position: 100% 50%;
-  }
+    50% {
+        background-position: 100% 50%;
+    }
 
-  100% {
-    background-position: 0 50%;
-  }
+    100% {
+        background-position: 0 50%;
+    }
 }
 
 // Миксины для установки фона и границы
 @mixin badge-background($color) {
-  background-color: $color;
-  border: 1px solid transparent;
+    background-color: $color;
+    border: 1px solid transparent;
 }
 
 @mixin badge-border($color) {
-  background-color: transparent;
-  border: 1px solid $color;
+    background-color: transparent;
+    border: 1px solid $color;
 }

@@ -1,60 +1,60 @@
-import type { BXUser } from "@workspace/bx";
-import { bxAPI as bx } from "@workspace/api";
-import { TESTING_DOMAIN, TESTING_USER } from "../consts/app-global";
-import { appActions } from "./AppSlice";
-import { AppDispatch, AppGetState, AppThunk, initWSClient } from "./store";
-import { WSClient } from "@workspace/ws";
-import { socketThunk } from "./queue-ws-ping-test/QueueWsPingListener";
-import { getInitializeData } from "../lib/initialize/konstructor.helper";
-import { fetchBaseTemplate } from "@/modules/entities/base-template";
+import type { BXUser } from '@workspace/bx';
+import { bxAPI as bx } from '@workspace/api';
+import { TESTING_DOMAIN, TESTING_USER } from '../consts/app-global';
+import { appActions } from './AppSlice';
+import { AppDispatch, AppGetState, AppThunk, initWSClient } from './store';
+import { WSClient } from '@workspace/ws';
+import { socketThunk } from './queue-ws-ping-test/QueueWsPingListener';
+import { getInitializeData } from '../lib/initialize/konstructor.helper';
+import { fetchBaseTemplate } from '@/modules/entities/base-template';
 
 export let socket: undefined | WSClient;
 
 export const initial =
-  (inBitrix: boolean = false, isPublic: boolean = false): AppThunk =>
-  async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
-    console.log(isPublic);
+    (inBitrix: boolean = false, isPublic: boolean = false): AppThunk =>
+    async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
+        console.log(isPublic);
 
-    const state = getState();
-    const app = state.app;
-    const isLoading = app.isLoading;
-    const __IN_BITRIX__ = inBitrix;
+        const state = getState();
+        const app = state.app;
+        const isLoading = app.isLoading;
+        const __IN_BITRIX__ = inBitrix;
 
-    if (!isLoading) {
-      const initializedKonstructor = await getInitializeData(dispatch);
-      dispatch(appActions.loading({ status: true }));
+        if (!isLoading) {
+            const initializedKonstructor = await getInitializeData(dispatch);
+            dispatch(appActions.loading({ status: true }));
 
-      const domain: string = __IN_BITRIX__
-        ? (await bx.getDomain()) || TESTING_DOMAIN
-        : TESTING_DOMAIN;
+            const domain: string = __IN_BITRIX__
+                ? (await bx.getDomain()) || TESTING_DOMAIN
+                : TESTING_DOMAIN;
 
-      dispatch(fetchBaseTemplate({ domain }));
-      const user = __IN_BITRIX__
-        ? ((await bx.getCurrentUser()) as BXUser)
-        : TESTING_USER;
+            dispatch(fetchBaseTemplate({ domain }));
+            const user = __IN_BITRIX__
+                ? ((await bx.getCurrentUser()) as BXUser)
+                : TESTING_USER;
 
-      initWSClient(user.ID, domain); // <- здесь создаёшь сокет
-      // const socket = getWSClient()
-      dispatch(socketThunk(user.ID, domain));
+            initWSClient(user.ID, domain); // <- здесь создаёшь сокет
+            // const socket = getWSClient()
+            dispatch(socketThunk(user.ID, domain));
 
-      dispatch(
-        appActions.setAppData({
-          domain,
-          user,
-        }),
-      );
+            dispatch(
+                appActions.setAppData({
+                    domain,
+                    user,
+                }),
+            );
 
-      dispatch(appActions.loading({ status: false }));
-      // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
-    }
-  };
+            dispatch(appActions.loading({ status: false }));
+            // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
+        }
+    };
 
 export const reloadApp =
-  () => async (dispatch: AppDispatch, getState: AppGetState) => {
-    setTimeout(() => {
-      dispatch(
-        // initialEventApp()
-        appActions.reload(),
-      );
-    }, 1000);
-  };
+    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+        setTimeout(() => {
+            dispatch(
+                // initialEventApp()
+                appActions.reload(),
+            );
+        }, 1000);
+    };

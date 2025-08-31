@@ -1,37 +1,37 @@
 //
 // export const TESTING_DOMAIN = 'alfacentr.bitrix24.ru'
 
-import { BXUser, Placement } from "@workspace/bx";
-export const TESTING_DOMAIN = 'gsirk.bitrix24.ru'
+import { BXUser, Placement } from '@workspace/bx';
+export const TESTING_DOMAIN = 'gsirk.bitrix24.ru';
 // export const TESTING_DOMAIN = 'gsr.bitrix24.ru'
 // export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
 export const TESTING_USER = {
-  ID: 5,
-  ACTIVE: true,
-  DATE_REGISTER: "29/08/1988",
-  EMAIL: "string",
+    ID: 5,
+    ACTIVE: true,
+    DATE_REGISTER: '29/08/1988',
+    EMAIL: 'string',
 
-  IS_ONLINE: "string",
-  LAST_ACTIVITY_DATE: ["string"],
-  LAST_LOGIN: "string",
-  LAST_NAME: "",
-  NAME: "MARINA",
-  PERSONAL_BIRTHDAY: "string",
-  PERSONAL_CITY: "string",
-  PERSONAL_GENDER: "string",
-  PERSONAL_MOBILE: "string",
-  PERSONAL_PHOTO: "string",
-  PERSONAL_WWW: "string",
-  SECOND_NAME: "string",
-  TIMESTAMP_X: ["1"],
-  TIME_ZONE_OFFSET: "string",
-  UF_DEPARTMENT: [1],
-  UF_EMPLOYMENT_DATE: "string",
-  UF_PHONE_INNER: "string",
-  // UF_USR_1570437798556: boolean
-  USER_TYPE: "string",
-  WORK_PHONE: "string",
-  WORK_POSITION: "Оператор ТМЦ",
+    IS_ONLINE: 'string',
+    LAST_ACTIVITY_DATE: ['string'],
+    LAST_LOGIN: 'string',
+    LAST_NAME: '',
+    NAME: 'MARINA',
+    PERSONAL_BIRTHDAY: 'string',
+    PERSONAL_CITY: 'string',
+    PERSONAL_GENDER: 'string',
+    PERSONAL_MOBILE: 'string',
+    PERSONAL_PHOTO: 'string',
+    PERSONAL_WWW: 'string',
+    SECOND_NAME: 'string',
+    TIMESTAMP_X: ['1'],
+    TIME_ZONE_OFFSET: 'string',
+    UF_DEPARTMENT: [1],
+    UF_EMPLOYMENT_DATE: 'string',
+    UF_PHONE_INNER: 'string',
+    // UF_USR_1570437798556: boolean
+    USER_TYPE: 'string',
+    WORK_PHONE: 'string',
+    WORK_POSITION: 'Оператор ТМЦ',
 } as BXUser;
 
 export const IS_REMEMBER_DEV = true;
@@ -47,10 +47,10 @@ export const DEV_CURRENT_USER_ID = 1;
 // 11726 lic q-2
 //DEAL
 export const TESTING_PLACEMENT = {
-  placement: "CRM_COMPANY_DETAIL_TAB",
-  options: {
-    ID: TESTING_COMPANY_ID,
-  },
+    placement: 'CRM_COMPANY_DETAIL_TAB',
+    options: {
+        ID: TESTING_COMPANY_ID,
+    },
 } as Placement;
 
 // export const TESTING_PLACEMENT = {

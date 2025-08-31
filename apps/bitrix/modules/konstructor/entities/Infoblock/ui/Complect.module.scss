@@ -1,96 +1,96 @@
-@import "../../../../styles/typography";
-@import "../../../../styles/variables";
-@import "../../../../styles/mixins";
-@import "../../../../styles/components_colors/btns_color.scss";
+@import '../../../../styles/typography';
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+@import '../../../../styles/components_colors/btns_color.scss';
 // button{
 //  @extend .text--button;
 // }
 
-[class*="btn"] {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  transition-property:
-    background-color, transform, color, text-color !important;
-  transition-duration: 0.3s !important;
-  transition-delay: 0.1s !important;
-  text-align: start;
-  // border-radius: 3px !important;
-  background-position: 36.4vh;
-  background-repeat: no-repeat;
-  margin: 1%;
-  height: 54px;
+[class*='btn'] {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    transition-property:
+        background-color, transform, color, text-color !important;
+    transition-duration: 0.3s !important;
+    transition-delay: 0.1s !important;
+    text-align: start;
+    // border-radius: 3px !important;
+    background-position: 36.4vh;
+    background-repeat: no-repeat;
+    margin: 1%;
+    height: 54px;
 }
 
 .btn__modal {
-  transition-property:
-    background-color, transform, color, text-color !important;
-  transition-duration: 0.3s !important;
-  transition-delay: 0.1s !important;
+    transition-property:
+        background-color, transform, color, text-color !important;
+    transition-duration: 0.3s !important;
+    transition-delay: 0.1s !important;
 
-  background-position: 36.4vh;
-  background-repeat: no-repeat;
-  margin: 1%;
-  // height: 54px;
-  width: 45vh !important;
+    background-position: 36.4vh;
+    background-repeat: no-repeat;
+    margin: 1%;
+    // height: 54px;
+    width: 45vh !important;
 }
 
 .btn__od {
-  width: 100%;
+    width: 100%;
 }
 
 .od__label {
-  color: none !important;
-  background-color: none !important;
+    color: none !important;
+    background-color: none !important;
 }
 
 .btn__odDrop {
-  width: 100% !important;
+    width: 100% !important;
 }
 
 .btn__modal {
-  display: none !important;
+    display: none !important;
 }
 
 .btn__result__modal,
 .btn__result__universal--active,
 .btn__result__universal {
-  height: 45px;
-  display: flex !important;
-  width: 325px !important;
-  margin: 1vh !important;
-  margin-top: 3vh !important;
+    height: 45px;
+    display: flex !important;
+    width: 325px !important;
+    margin: 1vh !important;
+    margin-top: 3vh !important;
 }
 
 .formControl {
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: flex-end !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: flex-end !important;
 }
 
 .btn__universal {
-  display: flex;
-  justify-content: center;
-  color: $black-text !important;
-  /* color: rgb(48, 42, 42) !important; */
-  background-color: rgb(242, 242, 242) !important;
-  /* border: 1px solid !important; */
+    display: flex;
+    justify-content: center;
+    color: $black-text !important;
+    /* color: rgb(48, 42, 42) !important; */
+    background-color: rgb(242, 242, 242) !important;
+    /* border: 1px solid !important; */
 }
 
 @keyframes gradient {
-  0% {
-    background-position: 0 50%;
-  }
+    0% {
+        background-position: 0 50%;
+    }
 
-  50% {
-    background-position: 100% 50%;
-  }
+    50% {
+        background-position: 100% 50%;
+    }
 
-  100% {
-    background-position: 0 50%;
-  }
+    100% {
+        background-position: 0 50%;
+    }
 }
 
 // .btn__result__universal {

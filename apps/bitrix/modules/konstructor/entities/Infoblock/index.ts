@@ -1,8 +1,8 @@
-export { DInfoblocks } from "./ui/DocumentInfoblock";
+export { DInfoblocks } from './ui/DocumentInfoblock';
 
-export { infoblockReducer, infoblockActions } from "./model/InfoblockSlice";
+export { infoblockReducer, infoblockActions } from './model/InfoblockSlice';
 
-export { infoblockAPI } from "./model/InfoblockService";
+export { infoblockAPI } from './model/InfoblockService';
 // export {
 //     complectProfReducer, complectProfActions
 

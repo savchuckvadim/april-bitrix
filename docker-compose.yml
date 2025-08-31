@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        APP: kpi-sales  
+        APP: kpi-sales
     container_name: april-kpi-sales-${SUFFIX}
     ports:
       - "${PORT_KPI_SALES}:3000"         # API доступен снаружи
@@ -17,51 +17,51 @@ services:
       - ./logs:/app/logs
     restart: unless-stopped
     networks:
-      - monitoring  
-
-  front-alfa:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        APP: alfa 
-    container_name: front-alfa-${SUFFIX}
-    ports:
-      - "${PORT_ALFA}:3000"         # API доступен снаружи
-    environment:
-      - IN_BITRIX=true
-      - LOG_FILE_PATH=/app/logs/server.log
- 
-    volumes:
-      - ./logs:/app/logs
-    restart: unless-stopped
-    networks:
       - monitoring
 
-  front-konstructor:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        APP: konstructor 
-    container_name: front-konstructor-${SUFFIX}
-    ports:
-      - "${PORT_KONSTRUCTOR}:3000"         # API доступен снаружи
-    environment:
-      - IN_BITRIX=true
-      - LOG_FILE_PATH=/app/logs/server.log
-    volumes:
-      - ./logs:/app/logs
-    restart: unless-stopped
-    networks:
-      - monitoring
+  # front-alfa:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     args:
+  #       APP: alfa
+  #   container_name: front-alfa-${SUFFIX}
+  #   ports:
+  #     - "${PORT_ALFA}:3000"         # API доступен снаружи
+  #   environment:
+  #     - IN_BITRIX=true
+  #     - LOG_FILE_PATH=/app/logs/server.log
+
+  #   volumes:
+  #     - ./logs:/app/logs
+  #   restart: unless-stopped
+  #   networks:
+  #     - monitoring
+
+  # front-konstructor:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     args:
+  #       APP: konstructor
+  #   container_name: front-konstructor-${SUFFIX}
+  #   ports:
+  #     - "${PORT_KONSTRUCTOR}:3000"         # API доступен снаружи
+  #   environment:
+  #     - IN_BITRIX=true
+  #     - LOG_FILE_PATH=/app/logs/server.log
+  #   volumes:
+  #     - ./logs:/app/logs
+  #   restart: unless-stopped
+  #   networks:
+  #     - monitoring
 
   front-bitrix:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        APP: bitrix 
+        APP: bitrix
     container_name: front-bitrix-${SUFFIX}
     ports:
       - "${PORT_BITRIX}:3000"         # API доступен снаружи
@@ -72,7 +72,7 @@ services:
       - ./logs:/app/logs
     restart: unless-stopped
     networks:
-      - monitoring    
+      - monitoring
 
 
   loki:
@@ -120,20 +120,20 @@ services:
       - "${PORT_PROMETHEUS}:9090"
     networks:
       - monitoring
-   
+
 networks:
   monitoring:
     driver: bridge
     name: monitoring
 
 volumes:
-  logs_kpi_sales:   
-  grafana-storage: 
+  logs_kpi_sales:
+  grafana-storage:
   loki-data:
 
     # networks:
     #   - next-kpi-sales-next-net
-      
+
 
 #   nginx:
 #     image: nginx:alpine
@@ -149,8 +149,8 @@ volumes:
 
 # networks:
 #   next-kpi-sales-next-net:
-#     driver: bridge    
-      
+#     driver: bridge
+
   # back-api:
   #   build:
   #     context: .

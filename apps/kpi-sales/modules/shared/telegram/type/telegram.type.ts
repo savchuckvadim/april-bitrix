@@ -1,6 +1,6 @@
 export enum EnumTelegramApp {
-    KPI_SALES = "kpi_sales",
-    KONSTRUKTOR = "konstruktor",
+    KPI_SALES = 'kpi_sales',
+    KONSTRUKTOR = 'konstruktor',
 }
 export interface TelegramSendMessageDto {
     app: EnumTelegramApp;
@@ -9,9 +9,8 @@ export interface TelegramSendMessageDto {
     userId: string;
 }
 
-
 export interface ITelegramBotDto {
-    text: string
-    domain: string
-    userId: string
+    text: string;
+    domain: string;
+    userId: string;
 }

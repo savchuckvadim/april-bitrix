@@ -1,9 +1,9 @@
 export enum APP_TYPE {
-  DOCUMENT = "document",
-  EVENT = "event",
-  // REPORT = 'report',
+    DOCUMENT = 'document',
+    EVENT = 'event',
+    // REPORT = 'report',
 
-  // TRANSKRIBATION = 'transcribation',
+    // TRANSKRIBATION = 'transcribation',
 }
 
 // export enum APP_DISPLAY_MODE {

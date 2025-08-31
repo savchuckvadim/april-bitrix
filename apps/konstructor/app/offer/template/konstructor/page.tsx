@@ -1,5 +1,5 @@
-import { OfferTemplateKonstructorPage } from "@/modules/pages";
+import { OfferTemplateKonstructorPage } from '@/modules/pages';
 
 export default function TemplateKonstructorPage() {
-  return <OfferTemplateKonstructorPage />;
+    return <OfferTemplateKonstructorPage />;
 }

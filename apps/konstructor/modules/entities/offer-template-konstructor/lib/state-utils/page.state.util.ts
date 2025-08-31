@@ -1,89 +1,91 @@
-import { AppDispatch } from "@/modules/app";
+import { AppDispatch } from '@/modules/app';
 import {
-  addNewPageWithBlock,
-  updatePages,
-} from "../../model/OfferTemplateKonstructorSlice";
-import { canDropBlock } from "./block-state.util";
-import { IOfferTemplatePage } from "@/modules/entities/offer-template/type/offer-template.type";
+    addNewPageWithBlock,
+    updatePages,
+} from '../../model/OfferTemplateKonstructorSlice';
+import { canDropBlock } from './block-state.util';
+import { IOfferTemplatePage } from '@/modules/entities/offer-template/type/offer-template.type';
 
 export const addNewPage = (
-  dispatch: AppDispatch,
-  sourcePage: IOfferTemplatePage,
-  activeId: string,
+    dispatch: AppDispatch,
+    sourcePage: IOfferTemplatePage,
+    activeId: string,
 ): void => {
-  const copySourcePage = { ...sourcePage, blocks: [...sourcePage.blocks] };
+    const copySourcePage = { ...sourcePage, blocks: [...sourcePage.blocks] };
 
-  const sourceBlockIndex = copySourcePage.blocks.findIndex(
-    (b) => b.id === activeId,
-  );
-  if (sourceBlockIndex === -1) return;
+    const sourceBlockIndex = copySourcePage.blocks.findIndex(
+        b => b.id === activeId,
+    );
+    if (sourceBlockIndex === -1) return;
 
-  const [movedBlock] = copySourcePage.blocks.splice(sourceBlockIndex, 1);
-  if (!movedBlock) return;
+    const [movedBlock] = copySourcePage.blocks.splice(sourceBlockIndex, 1);
+    if (!movedBlock) return;
 
-  dispatch(addNewPageWithBlock(movedBlock));
+    dispatch(addNewPageWithBlock(movedBlock));
 };
 
 export const updateDifferentPages = (
-  dispatch: AppDispatch,
-  sourcePage: IOfferTemplatePage,
-  targetPage: IOfferTemplatePage,
-  activeId: string,
-  overId: string | null,
+    dispatch: AppDispatch,
+    sourcePage: IOfferTemplatePage,
+    targetPage: IOfferTemplatePage,
+    activeId: string,
+    overId: string | null,
 ): void => {
-  const copySourcePage = { ...sourcePage, blocks: [...sourcePage.blocks] };
-  const copyTargetPage = { ...targetPage, blocks: [...targetPage.blocks] };
+    const copySourcePage = { ...sourcePage, blocks: [...sourcePage.blocks] };
+    const copyTargetPage = { ...targetPage, blocks: [...targetPage.blocks] };
 
-  const sourceBlockIndex = copySourcePage.blocks.findIndex(
-    (b) => b.id === activeId,
-  );
-  if (sourceBlockIndex === -1) return;
+    const sourceBlockIndex = copySourcePage.blocks.findIndex(
+        b => b.id === activeId,
+    );
+    if (sourceBlockIndex === -1) return;
 
-  const [movedBlock] = copySourcePage.blocks.splice(sourceBlockIndex, 1);
-  if (!movedBlock) return;
-  const isCanDrop = canDropBlock(copyTargetPage, movedBlock);
-  if (!isCanDrop) {
-    alert("Страница переполнена");
-    return;
-  }
+    const [movedBlock] = copySourcePage.blocks.splice(sourceBlockIndex, 1);
+    if (!movedBlock) return;
+    const isCanDrop = canDropBlock(copyTargetPage, movedBlock);
+    if (!isCanDrop) {
+        alert('Страница переполнена');
+        return;
+    }
 
-  if (overId) {
-    const targetIndex = copyTargetPage.blocks.findIndex((b) => b.id === overId);
-    copyTargetPage.blocks.splice(targetIndex, 0, movedBlock);
-  } else {
-    // Вставляем в конец страницы
-    copyTargetPage.blocks.push(movedBlock);
-  }
+    if (overId) {
+        const targetIndex = copyTargetPage.blocks.findIndex(
+            b => b.id === overId,
+        );
+        copyTargetPage.blocks.splice(targetIndex, 0, movedBlock);
+    } else {
+        // Вставляем в конец страницы
+        copyTargetPage.blocks.push(movedBlock);
+    }
 
-  dispatch(updatePages([copySourcePage, copyTargetPage]));
+    dispatch(updatePages([copySourcePage, copyTargetPage]));
 };
 
 export const updateIdenticalPages = (
-  dispatch: AppDispatch,
-  page: IOfferTemplatePage,
-  activeId: string,
-  overId: string | null,
+    dispatch: AppDispatch,
+    page: IOfferTemplatePage,
+    activeId: string,
+    overId: string | null,
 ): void => {
-  const updatedPage = { ...page, blocks: [...page.blocks] };
+    const updatedPage = { ...page, blocks: [...page.blocks] };
 
-  const fromIndex = updatedPage.blocks.findIndex((b) => b.id === activeId);
-  if (fromIndex === -1) return;
+    const fromIndex = updatedPage.blocks.findIndex(b => b.id === activeId);
+    if (fromIndex === -1) return;
 
-  const [movedBlock] = updatedPage.blocks.splice(fromIndex, 1);
-  if (!movedBlock) return;
+    const [movedBlock] = updatedPage.blocks.splice(fromIndex, 1);
+    if (!movedBlock) return;
 
-  if (overId) {
-    let toIndex = updatedPage.blocks.findIndex((b) => b.id === overId);
-    if (toIndex === -1) {
-      updatedPage.blocks.push(movedBlock);
+    if (overId) {
+        let toIndex = updatedPage.blocks.findIndex(b => b.id === overId);
+        if (toIndex === -1) {
+            updatedPage.blocks.push(movedBlock);
+        } else {
+            updatedPage.blocks.splice(toIndex, 0, movedBlock);
+        }
     } else {
-      updatedPage.blocks.splice(toIndex, 0, movedBlock);
+        updatedPage.blocks.push(movedBlock);
     }
-  } else {
-    updatedPage.blocks.push(movedBlock);
-  }
 
-  dispatch(updatePages([updatedPage]));
+    dispatch(updatePages([updatedPage]));
 };
 
 // export const updateDifferentPages = (

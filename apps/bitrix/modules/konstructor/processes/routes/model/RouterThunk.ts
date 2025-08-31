@@ -1,9 +1,9 @@
-import { APP_TYPE } from "@/modules/konstructor/app/types/app/app-type";
-import { ROUTE, routerActions } from "./RouterSlice";
+import { APP_TYPE } from '@/modules/konstructor/app/types/app/app-type';
+import { ROUTE, routerActions } from './RouterSlice';
 import {
-  AppDispatch,
-  AppGetState,
-} from "@/modules/konstructor/app/model/store";
+    AppDispatch,
+    AppGetState,
+} from '@/modules/konstructor/app/model/store';
 
 // export const fetchUsers = () => async (dispatch: AppDispatch, GetState: AppStore) => {
 
@@ -19,17 +19,17 @@ import {
 
 // }
 export const setInitialRoute =
-  (appType: APP_TYPE, isHaveDeal: boolean) =>
-  (dispatch: AppDispatch, GetState: AppGetState) => {
-    const state = GetState();
-  };
+    (appType: APP_TYPE, isHaveDeal: boolean) =>
+    (dispatch: AppDispatch, GetState: AppGetState) => {
+        const state = GetState();
+    };
 
 export const navigate =
-  (route: ROUTE) => (dispatch: AppDispatch, getState: AppGetState) => {
-    const state = getState();
+    (route: ROUTE) => (dispatch: AppDispatch, getState: AppGetState) => {
+        const state = getState();
 
-    dispatch(routerActions.setCurrent({ route }));
-  };
+        dispatch(routerActions.setCurrent({ route }));
+    };
 
 // export const back = () => (
 //     dispatch: AppDispatch, getState: AppGetState

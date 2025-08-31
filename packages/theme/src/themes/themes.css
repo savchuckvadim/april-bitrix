@@ -1,9 +1,9 @@
-@import "./default-light.css";
-@import "./default-dark.css";
-@import "./blue-light.css";
-@import "./blue-dark.css";
-@import "./violet-light.css";
-@import "./violet-dark.css";
+@import './default-light.css';
+@import './default-dark.css';
+@import './blue-light.css';
+@import './blue-dark.css';
+@import './violet-light.css';
+@import './violet-dark.css';
 
 /* 
 @theme inline {

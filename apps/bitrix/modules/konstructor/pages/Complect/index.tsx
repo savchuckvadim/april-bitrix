@@ -1,1 +1,1 @@
-export { ComplectLazy as Complect } from "./ui/ComplectLazy";
+export { ComplectLazy as Complect } from './ui/ComplectLazy';

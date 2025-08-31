@@ -1,4 +1,4 @@
-import { BitrixInstallPage } from "@/modules/bitrix";
+import { BitrixInstallPage } from '@/modules/bitrix';
 
 // install/page.tsx
 // interface InstallPageProps {
@@ -14,22 +14,22 @@ import { BitrixInstallPage } from "@/modules/bitrix";
 //   };
 // }
 export default async function InstallPage({
-  searchParams,
+    searchParams,
 }: {
-  searchParams: Promise<{ install: "success" | "fail" }>;
+    searchParams: Promise<{ install: 'success' | 'fail' }>;
 }) {
-  const params = await searchParams;
-  console.log("params");
-  console.log(params);
+    const params = await searchParams;
+    console.log('params');
+    console.log(params);
 
-  const installParam = params?.install;
-  const installStatus = Array.isArray(installParam)
-    ? installParam[0]
-    : installParam;
+    const installParam = params?.install;
+    const installStatus = Array.isArray(installParam)
+        ? installParam[0]
+        : installParam;
 
-  return (
-    <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
-      <BitrixInstallPage installStatus={installStatus} />
-    </div>
-  );
+    return (
+        <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
+            <BitrixInstallPage installStatus={installStatus} />
+        </div>
+    );
 }

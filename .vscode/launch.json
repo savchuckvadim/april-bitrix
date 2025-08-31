@@ -1,23 +1,23 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug NestJS",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["start:debug"],
-      "cwd": "${workspaceFolder}/apps/back",
-      "env": {
-        "NODE_ENV": "development",
-        "PORT": "3000"
-      },
-      "console": "integratedTerminal",
-      "protocol": "inspector",
-      "skipFiles": ["<node_internals>/**", "node_modules/**"],
-      "autoAttachChildProcesses": true,
-      "sourceMaps": true,
-      "outFiles": ["${workspaceFolder}/apps/back/dist/**/*.js"]
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug NestJS",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["start:debug"],
+            "cwd": "${workspaceFolder}/apps/back",
+            "env": {
+                "NODE_ENV": "development",
+                "PORT": "3000"
+            },
+            "console": "integratedTerminal",
+            "protocol": "inspector",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "autoAttachChildProcesses": true,
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/back/dist/**/*.js"]
+        }
+    ]
 }

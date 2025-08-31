@@ -1,19 +1,19 @@
-@import "./default-light.css";
-@import "./default-dark.css";
-@import "./blue-light.css";
-@import "./blue-dark.css";
-@import "./violet-light.css";
-@import "./violet-dark.css";
-@import "./pink-light.css";
-@import "./pink-dark.css";
-@import "./green-light.css";
-@import "./green-dark.css";
-@import "./yellow-light.css";
-@import "./yellow-dark.css";
-@import "./orange-light.css";
-@import "./orange-dark.css";
-@import "./red-light.css";
-@import "./red-dark.css";
+@import './default-light.css';
+@import './default-dark.css';
+@import './blue-light.css';
+@import './blue-dark.css';
+@import './violet-light.css';
+@import './violet-dark.css';
+@import './pink-light.css';
+@import './pink-dark.css';
+@import './green-light.css';
+@import './green-dark.css';
+@import './yellow-light.css';
+@import './yellow-dark.css';
+@import './orange-light.css';
+@import './orange-dark.css';
+@import './red-light.css';
+@import './red-dark.css';
 
 /* 
 @theme inline {

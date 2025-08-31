@@ -1,31 +1,31 @@
 .content-to-paginate {
-  /* font-family: Arial, sans-serif; */
-  font-size: 12pt;
-  width: 210mm;
+    /* font-family: Arial, sans-serif; */
+    font-size: 12pt;
+    width: 210mm;
 }
 
 @page {
-  size: A4;
-  margin: 20mm;
+    size: A4;
+    margin: 20mm;
 }
 
 .page-break {
-  break-after: page;
+    break-after: page;
 }
 
 .pagedjs_page {
-  box-shadow: 0 0 0.5mm rgba(0, 0, 0, 0.1);
-  margin: 1rem auto;
-  background: white;
+    box-shadow: 0 0 0.5mm rgba(0, 0, 0, 0.1);
+    margin: 1rem auto;
+    background: white;
 }
 
 .pagedjs_pages {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .pagedjs_page_content {
-  font-size: 12pt;
-  width: 170mm;
+    font-size: 12pt;
+    width: 170mm;
 }

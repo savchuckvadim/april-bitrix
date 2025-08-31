@@ -1,2 +1,2 @@
-export * from "./model/BaseTemplateThunk";
-export * from "./model/BaseTemplateSlice";
+export * from './model/BaseTemplateThunk';
+export * from './model/BaseTemplateSlice';

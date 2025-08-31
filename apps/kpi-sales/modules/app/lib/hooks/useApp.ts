@@ -1,5 +1,9 @@
-import { sendDownloadingReport, sendExpiredEnd, sendExpiredStart } from "../../model/AppThunk";
-import { useAppDispatch } from "./redux";
+import {
+    sendDownloadingReport,
+    sendExpiredEnd,
+    sendExpiredStart,
+} from '../../model/AppThunk';
+import { useAppDispatch } from './redux';
 
 export const useApp = () => {
     const dispatch = useAppDispatch();
@@ -7,6 +11,5 @@ export const useApp = () => {
         sendExpiredStart: () => dispatch(sendExpiredStart()),
         sendExpiredEnd: () => dispatch(sendExpiredEnd()),
         sendDownloadingReport: () => dispatch(sendDownloadingReport()),
-
     };
-};  
+};

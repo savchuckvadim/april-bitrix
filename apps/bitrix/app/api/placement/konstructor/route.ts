@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 // export async function POST(req: NextRequest) {
 //   const redirectUrl = new URL('/placement/konstructor', req.url)
@@ -25,40 +25,40 @@ import { NextRequest, NextResponse } from "next/server";
 //api/placement/konstructor
 
 export async function POST(req: NextRequest) {
-  try {
-    // const rawBody = await req.text();
-    // console.log('rawBody')
-    // console.log(rawBody)
-    // const params = new URLSearchParams(rawBody);
+    try {
+        // const rawBody = await req.text();
+        // console.log('rawBody')
+        // console.log(rawBody)
+        // const params = new URLSearchParams(rawBody);
 
-    // const requestData: RequestData = {
+        // const requestData: RequestData = {
 
-    //   body: {},
+        //   body: {},
 
-    //   query: '',
-    // };
+        //   query: '',
+        // };
 
-    // params.forEach((value, key) => {
-    //   requestData.body[key] = value;
-    // });
-    // requestData.query = req.nextUrl.searchParams.toString();
+        // params.forEach((value, key) => {
+        //   requestData.body[key] = value;
+        // });
+        // requestData.query = req.nextUrl.searchParams.toString();
 
-    // console.log('requestData')
-    // console.log(requestData)
+        // console.log('requestData')
+        // console.log(requestData)
 
-    const redirectUrl = new URL("/placement/konstructor", req.url);
-    redirectUrl.searchParams.set("inBitrix", "y");
-    redirectUrl.searchParams.set("placement", "placement");
+        const redirectUrl = new URL('/placement/konstructor', req.url);
+        redirectUrl.searchParams.set('inBitrix', 'y');
+        redirectUrl.searchParams.set('placement', 'placement');
 
-    return NextResponse.redirect(redirectUrl, 302);
-  } catch (error) {
-    console.error("[Bitrix Install] error:", error);
+        return NextResponse.redirect(redirectUrl, 302);
+    } catch (error) {
+        console.error('[Bitrix Install] error:', error);
 
-    const errorRedirect = new URL("/placement/konstructor", req.url);
-    errorRedirect.searchParams.set("install", "fail");
+        const errorRedirect = new URL('/placement/konstructor', req.url);
+        errorRedirect.searchParams.set('install', 'fail');
 
-    return NextResponse.redirect(errorRedirect, 302);
-  }
+        return NextResponse.redirect(errorRedirect, 302);
+    }
 }
 
 // const event = params.get('event');

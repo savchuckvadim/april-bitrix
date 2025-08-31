@@ -1,42 +1,42 @@
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
-import { ReportCallingData } from "../../type/calling-type";
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@workspace/ui/components/card';
+import { ReportCallingData } from '../../type/calling-type';
 
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import BitrixCallingsChart from "@/modules/entities/report/ui/chartjs/BitrixCallingsChart";
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+import BitrixCallingsChart from '@/modules/entities/report/ui/chartjs/BitrixCallingsChart';
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
 );
 interface CallingDashBoardProps {
-  report: ReportCallingData[];
+    report: ReportCallingData[];
 }
 const CallingDashBoard: React.FC<CallingDashBoardProps> = ({ report }) => {
-  if (!report || !report.length) return null;
-  return (
-    <Card className="bg-card text-primary">
-      <CardHeader>
-        <CardTitle>Статистика звонков</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <BitrixCallingsChart
-          dataColors='[
+    if (!report || !report.length) return null;
+    return (
+        <Card className="bg-card text-primary">
+            <CardHeader>
+                <CardTitle>Статистика звонков</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <BitrixCallingsChart
+                    dataColors='[
                             "rgba(133, 212, 212, 1)" ,
                             "rgba(106, 180, 242, 1)", 
                             "rgba(14, 201, 111, 0.8)", 
@@ -48,12 +48,12 @@ const CallingDashBoard: React.FC<CallingDashBoardProps> = ({ report }) => {
                             "rgba(151, 103, 200, 0.8)",
                             "rgba(20, 191, 213, 0.8)", 
                             "rgba(14, 201, 111, 0.8)"]'
-          report={report}
-          part={1}
-        />
-      </CardContent>
-    </Card>
-  );
+                    report={report}
+                    part={1}
+                />
+            </CardContent>
+        </Card>
+    );
 };
 
 export default CallingDashBoard;

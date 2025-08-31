@@ -1,5 +1,5 @@
-import { lazy } from "react";
+import { lazy } from 'react';
 
-export const ComplectLazy = lazy(() => import("./Complect"));
+export const ComplectLazy = lazy(() => import('./Complect'));
 
 // export const ComplectLazy = Complect

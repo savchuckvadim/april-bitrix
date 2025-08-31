@@ -1,1 +1,1 @@
-export { default as InstallPage } from "./ui/BitrixInstallPage";
+export { default as InstallPage } from './ui/BitrixInstallPage';

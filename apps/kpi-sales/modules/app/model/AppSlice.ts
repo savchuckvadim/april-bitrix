@@ -1,22 +1,22 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { APP_TYPE } from "../types/app/app-type";
-import { Portal } from "../types/portal/portal-type";
-import type { BXUser } from "@workspace/bx";
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { APP_TYPE } from '../types/app/app-type';
+import { Portal } from '../types/portal/portal-type';
+import type { BXUser } from '@workspace/bx';
 
 export type AppState = typeof initialState;
 export enum APP_DEP {
-    SALES = "sales",
-    SERVICE = "service",
+    SALES = 'sales',
+    SERVICE = 'service',
 }
 const initialState = {
-    domain: "",
+    domain: '',
     app: APP_TYPE.REPORT as APP_TYPE,
     bitrix: {
         user: null as BXUser | null,
     },
     client: {
-        id: "",
-        name: "",
+        id: '',
+        name: '',
         isExpired: false,
         isPunished: false,
     },
@@ -27,7 +27,7 @@ const initialState = {
     isLoading: false,
     error: {
         status: false as boolean,
-        message: "" as string,
+        message: '' as string,
     },
 };
 export interface InitReport {
@@ -35,7 +35,7 @@ export interface InitReport {
     user: BXUser;
 }
 const appSlice = createSlice({
-    name: "app",
+    name: 'app',
     initialState,
     reducers: {
         setAppData: (
@@ -76,7 +76,7 @@ const appSlice = createSlice({
             }>,
         ) => {
             state.error.status = false;
-            state.error.message = "";
+            state.error.message = '';
         },
         setPortal: (
             state: AppState,
@@ -89,10 +89,16 @@ const appSlice = createSlice({
         reload: (state: AppState, action: PayloadAction) => {
             state.initialized = false;
         },
-        loading: (state: AppState, action: PayloadAction<{ status: boolean }>) => {
+        loading: (
+            state: AppState,
+            action: PayloadAction<{ status: boolean }>,
+        ) => {
             state.isLoading = action.payload.status;
         },
-        setExpiredClient: (state: AppState, action: PayloadAction<{ isExpired: boolean }>) => {
+        setExpiredClient: (
+            state: AppState,
+            action: PayloadAction<{ isExpired: boolean }>,
+        ) => {
             state.client.isExpired = action.payload.isExpired;
         },
     },

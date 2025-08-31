@@ -1,7 +1,7 @@
-export * from "./model/OfferTemplateKonstructorSlice";
-export * from "./hook/useOfferTemplateKonstructor";
+export * from './model/OfferTemplateKonstructorSlice';
+export * from './hook/useOfferTemplateKonstructor';
 export type {
-  IOfferTemplateKonstructorState,
-  BlockPostions,
-  BlockPostion,
-} from "./type/offer-template-konstructor.type";
+    IOfferTemplateKonstructorState,
+    BlockPostions,
+    BlockPostion,
+} from './type/offer-template-konstructor.type';

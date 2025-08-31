@@ -56,23 +56,23 @@ services:
   #   networks:
   #     - monitoring
 
-  front-bitrix:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        APP: bitrix
-    container_name: front-bitrix-${SUFFIX}
-    ports:
-      - "${PORT_BITRIX}:3000"         # API доступен снаружи
-    environment:
-      - IN_BITRIX=true
-      - LOG_FILE_PATH=/app/logs/server.log
-    volumes:
-      - ./logs:/app/logs
-    restart: unless-stopped
-    networks:
-      - monitoring
+  # front-bitrix:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     args:
+  #       APP: bitrix
+  #   container_name: front-bitrix-${SUFFIX}
+  #   ports:
+  #     - "${PORT_BITRIX}:3000"         # API доступен снаружи
+  #   environment:
+  #     - IN_BITRIX=true
+  #     - LOG_FILE_PATH=/app/logs/server.log
+  #   volumes:
+  #     - ./logs:/app/logs
+  #   restart: unless-stopped
+  #   networks:
+  #     - monitoring
 
 
   loki:

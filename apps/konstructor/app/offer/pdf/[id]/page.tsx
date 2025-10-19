@@ -9,9 +9,9 @@ export default async function Page({
     params: Promise<{ id: string }>;
 }) {
     const param = await params;
-    console.log('param', param);
+    console.log('page offer pdfparam', param);
     const raw = await redis.get(`${param.id}`);
-    console.log('raw', raw);
+    // console.log('raw', raw);
 
     if (!raw) return notFound();
 

@@ -1,6 +1,7 @@
-import { IInfoBlock, IInfoBlockGroup } from '@/modules/entities/infoblock';
+import { IInfoBlockGroup } from '@/modules/entities/infoblock';
 import { IOfferTemplate } from '@/modules/entities/offer-template';
 import { IComplect } from '@/modules/entities/complect';
+import { OfferTemplateDto } from '@workspace/nest-api';
 
 export interface IOffer {
     id: string;
@@ -8,7 +9,7 @@ export interface IOffer {
     //   description: string;
     //   price: number;
     //   image: string;
-    template: IOfferTemplate;
+    template: OfferTemplateDto;
     infoblocks: IInfoBlockGroup[];
     complects: IComplect[];
 }

@@ -11,6 +11,7 @@ const RenderFormattedText: React.FC<{
         const result: React.ReactNode[] = [];
         const parts = text.split(/(<[^>]+>|<\/[^>]+>)/);
 
+        console.log('RenderFormattedText font', font);
         let currentTag: string | null = null;
 
         parts.forEach((part, index) => {
@@ -67,7 +68,7 @@ const RenderFormattedText: React.FC<{
     return (
         <div>
             {text.split('\\n').map((line, i) => (
-                <p key={i} className={`mb-0 ${font}`}>
+                <p key={i} className={`mb-0`} >
                     {parseText(line)}
                 </p>
             ))}

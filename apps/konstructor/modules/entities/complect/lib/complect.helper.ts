@@ -22,14 +22,5 @@ export const getComplects = async (): Promise<IComplect[] | undefined> => {
 
     return result;
 
-    // const response = await fetch('/api/proxy/complects', {
-    //     method: 'GET',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: null,
-    // });
-    // const data = await response.json() as IOnlineResponse<{ complects: IComplect[] }>;
 
-    // return data?.data?.complects || null;
 };

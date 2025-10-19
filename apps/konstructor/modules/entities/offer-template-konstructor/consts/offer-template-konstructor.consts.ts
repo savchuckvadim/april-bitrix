@@ -89,7 +89,7 @@ export const colors = {
 } as IOfferTemplateColors;
 
 export const defaultTemplate: IOfferTemplate = {
-    id: '0',
+    id: 0,
     name: 'Новый шаблон',
     description: 'Новый шаблон',
     // style: {},

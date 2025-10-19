@@ -1,0 +1,44 @@
+:root.beige-light {
+    --radius: 0.7rem;
+
+    --background: oklch(0.97 0.02 95);        /* мягкий крем */
+    --foreground: oklch(0.28 0.03 70);        /* тёплый графитовый текст */
+
+    --card: oklch(0.985 0.015 95);            /* чуть светлее фон */
+    --card-foreground: oklch(0.3 0.03 70);
+
+    --popover: oklch(0.99 0.015 95);          /* светлый поповер */
+    --popover-foreground: oklch(0.28 0.03 70);
+
+    --primary: oklch(0.78 0.12 65);           /* мягкий карамельный */
+    --primary-foreground: oklch(0.98 0.015 95);
+
+    --secondary: oklch(0.92 0.02 95);         /* серо-беж */
+    --secondary-foreground: oklch(0.35 0.025 70);
+
+    --muted: oklch(0.93 0.015 95);            /* чуть холоднее фон */
+    --muted-foreground: oklch(0.55 0.02 70);
+
+    --accent: oklch(0.88 0.05 85);            /* кремовый акцент */
+    --accent-foreground: oklch(0.3 0.03 70);
+
+    --destructive: oklch(0.65 0.18 30);       /* мягкий кирпичный */
+    --border: oklch(0.9 0.01 95);
+    --input: oklch(0.9 0.01 95);
+    --ring: oklch(0.78 0.12 65);
+
+    --chart-1: oklch(0.7 0.14 65);
+    --chart-2: oklch(0.75 0.1 120);
+    --chart-3: oklch(0.72 0.08 50);
+    --chart-4: oklch(0.65 0.14 30);
+    --chart-5: oklch(0.8 0.1 150);
+
+    --sidebar: oklch(0.96 0.015 95);
+    --sidebar-foreground: oklch(0.28 0.03 70);
+    --sidebar-primary: oklch(0.78 0.12 65);
+    --sidebar-primary-foreground: oklch(0.98 0.015 95);
+    --sidebar-accent: oklch(0.92 0.02 95);
+    --sidebar-accent-foreground: oklch(0.35 0.025 70);
+    --sidebar-border: oklch(0.9 0.01 95);
+    --sidebar-ring: oklch(0.78 0.12 65);
+  }

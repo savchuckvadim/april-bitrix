@@ -1,6 +1,5 @@
 import { IOfferBlockLetter } from '../../type/offer-template-block.type';
 import { useOfferTemplateBlock } from '../../hook/useOfferTemplateBlock';
-import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { estimateHeightMm } from '../../lib/text-height.util';
 
@@ -16,7 +15,7 @@ export const LetterBlockEditor = ({ block }: { block: IOfferBlockLetter }) => {
         };
         updateBlock(newBlock);
     };
-    debugger;
+
     return (
         <div>
             <div className="flex flex-col gap-2">

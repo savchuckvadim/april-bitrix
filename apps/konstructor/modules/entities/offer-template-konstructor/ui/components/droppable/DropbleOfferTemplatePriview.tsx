@@ -38,13 +38,14 @@ export const DropbleOfferTemplatePriview = () => {
         setOverId(null);
     };
 
+
     return (
         <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
             onDragStart={event => {
-                const block = findBlockById(current, event.active.id as string);
+                const block = current && findBlockById(current, event.active.id as string);
                 setDraggedBlock(block ?? null);
                 // setDraggedPage(findPageByBlockId(current, event.active.id as string) ?? null);
             }}
@@ -55,7 +56,7 @@ export const DropbleOfferTemplatePriview = () => {
                 setOverId(over.id as string);
             }}
         >
-            {current.pages.map(page => {
+            {current && current.pages.map(page => {
                 return (
                     <div
                         key={`sortable-page-${page.id}`}
@@ -85,7 +86,7 @@ export const DropbleOfferTemplatePriview = () => {
                                             setEditebleBlock(block)
                                         }
                                         onDelete={() => deleteBlock(block.id)}
-                                        // onEdit={() => setEditeble(block)}
+                                    // onEdit={() => setEditeble(block)}
                                     />
                                 ))}
                             </SortableContext>
@@ -104,9 +105,9 @@ export const DropbleOfferTemplatePriview = () => {
                         index={0}
                         overId={null}
                         isSelected={false}
-                        setEditeble={() => {}}
-                        onDelete={() => {}}
-                        // onEdit={() => { }}
+                        setEditeble={() => { }}
+                        onDelete={() => { }}
+                    // onEdit={() => { }}
                     />
                 ) : null}
             </DragOverlay>

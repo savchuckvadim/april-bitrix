@@ -1,1 +1,0 @@
-// export {PriceLazy as Price} from './PriceLazy'

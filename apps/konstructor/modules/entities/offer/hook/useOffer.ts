@@ -4,6 +4,7 @@ import { IOffer } from '../type/offer.type';
 import { v4 as uuidv4 } from 'uuid';
 import { setCurrent } from '../model/OfferSlice';
 import { useEffect } from 'react';
+import { OfferTemplateDto } from '@workspace/nest-api';
 
 export const useOffer = () => {
     const dispatch = useAppDispatch();
@@ -17,7 +18,7 @@ export const useOffer = () => {
         const offer: IOffer = {
             id: uuidv4(),
             name: complects?.[0]?.name || 'Offer',
-            template: offerTemplate,
+            template: offerTemplate as OfferTemplateDto,
             infoblocks: infoblocks,
             complects: complects,
             //   description: offerTemplate?.description,

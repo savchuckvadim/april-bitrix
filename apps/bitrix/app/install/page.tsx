@@ -1,4 +1,6 @@
-import { BitrixInstallPage } from '@/modules/bitrix';
+import { BitrixInstallPage } from "@/modules/pages";
+
+;
 
 // install/page.tsx
 // interface InstallPageProps {

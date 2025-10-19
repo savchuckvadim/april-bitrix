@@ -70,7 +70,7 @@ const SortableBlock = ({
         transform: CSS.Transform.toString(transform),
         transition,
         cursor: isDragging ? 'grabbing' : 'pointer',
-        fontFamily: current.font.value,
+        fontFamily: current?.font.value,
     };
 
     return (
@@ -93,10 +93,10 @@ const SortableBlock = ({
                 {...listeners}
             >
                 {/* {isOver && <div
-            className={`block-item h-[200px] p-2 mb-2 
-          border rounded cursor-pointer 
+            className={`block-item h-[200px] p-2 mb-2
+          border rounded cursor-pointer
           opacity-50 border-blue-500 bg-blue-100`}
-  
+
           // другие пропсы
           ></div>} */}
 

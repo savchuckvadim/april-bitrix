@@ -1,0 +1,176 @@
+version: "3.9"
+
+services:
+
+    front-bitrix:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                APP: bitrix
+        container_name: april-bitrix-${SUFFIX}
+        ports:
+            - "${PORT_BITRIX}:3000"
+        environment:
+            - IN_BITRIX=true
+            - LOG_FILE_PATH=${LOG_FILE_PATH}
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+        volumes:
+            - ./logs:/app/logs
+        restart: unless-stopped
+        depends_on:
+            - redis
+        networks:
+            - front
+
+    front-web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                APP: web
+        container_name: april-web-${SUFFIX}
+        ports:
+            - "${PORT_BITRIX}:3000"
+        environment:
+            - IN_BITRIX=true
+            - LOG_FILE_PATH=${LOG_FILE_PATH}
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+        volumes:
+            - ./logs:/app/logs
+        restart: unless-stopped
+        depends_on:
+            - redis
+        networks:
+            - front
+
+    front-konstructor:
+        build:
+            context: .
+            dockerfile: Konstructor.Dockerfile
+            args:
+                APP: konstructor
+        container_name: front-konstructor-${SUFFIX}
+        ports:
+            - "5000:3000"
+        environment:
+            - IN_BITRIX=true
+            - LOG_FILE_PATH=${LOG_FILE_PATH}
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+        volumes:
+            - ./logs:/app/logs
+        restart: unless-stopped
+        depends_on:
+            - redis
+        networks:
+            - front
+    front-kpi-sales:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                APP: kpi-sales
+        container_name: april-kpi-sales-${SUFFIX}
+        ports:
+            - "${PORT_KPI_SALES}:3000"
+        environment:
+            - IN_BITRIX=true
+            - LOG_FILE_PATH=${LOG_FILE_PATH}
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+        volumes:
+            - ./logs:/app/logs
+        restart: unless-stopped
+        depends_on:
+            - redis
+        networks:
+            - front
+
+
+    front-kpi-service:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                APP: kpi-service
+        container_name: april-kpi-service-${SUFFIX}
+        ports:
+            - "${PORT_KPI_SERVICE}:3000"
+        environment:
+            - IN_BITRIX=true
+            - LOG_FILE_PATH=${LOG_FILE_PATH}
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+        volumes:
+            - ./logs:/app/logs
+        restart: unless-stopped
+        depends_on:
+            - redis
+        networks:
+            - front
+
+    front-event-sales:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                APP: event-sales
+        container_name: april-event-sales-${SUFFIX}
+        ports:
+            - "${PORT_EVENT_SALES}:3000"
+        environment:
+            - IN_BITRIX=true
+            - LOG_FILE_PATH=${LOG_FILE_PATH}
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+        volumes:
+            - ./logs:/app/logs
+        restart: unless-stopped
+        depends_on:
+            - redis
+        networks:
+            - front
+
+
+    front-event-service:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                APP: event-service
+        container_name: april-event-service-${SUFFIX}
+        ports:
+            - "${PORT_EVENT_SERVICE}:3000"
+        environment:
+            - IN_BITRIX=true
+            - LOG_FILE_PATH=${LOG_FILE_PATH}
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+        volumes:
+            - ./logs:/app/logs
+        restart: unless-stopped
+        depends_on:
+            - redis
+        networks:
+            - front
+    redis:
+        image: redis:7
+        container_name: front-redis
+        ports:
+            - "6034:6379"
+        volumes:
+            - redis_data:/data
+        networks:
+            - front
+
+volumes:
+    redis_data:
+
+
+networks:
+    front:
+
+

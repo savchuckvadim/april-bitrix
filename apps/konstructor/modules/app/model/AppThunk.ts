@@ -7,47 +7,53 @@ import { WSClient } from '@workspace/ws';
 import { socketThunk } from './queue-ws-ping-test/QueueWsPingListener';
 import { getInitializeData } from '../lib/initialize/konstructor.helper';
 import { fetchBaseTemplate } from '@/modules/entities/base-template';
+import { fetchOfferTemplates } from '@/modules/entities/offer-template/model/OfferTemplateThunk';
 
 export let socket: undefined | WSClient;
 
 export const initial =
     (inBitrix: boolean = false, isPublic: boolean = false): AppThunk =>
-    async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
-        console.log(isPublic);
+        async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
+            console.log(isPublic);
 
-        const state = getState();
-        const app = state.app;
-        const isLoading = app.isLoading;
-        const __IN_BITRIX__ = inBitrix;
 
-        if (!isLoading) {
-            const initializedKonstructor = await getInitializeData(dispatch);
-            dispatch(appActions.loading({ status: true }));
+            const state = getState();
+            const app = state.app;
+            const isLoading = app.isLoading;
+            const __IN_BITRIX__ = inBitrix;
 
-            const domain: string = __IN_BITRIX__
-                ? (await bx.getDomain()) || TESTING_DOMAIN
-                : TESTING_DOMAIN;
+            if (!isLoading) {
+                const initializedKonstructor = await getInitializeData(dispatch);
+                dispatch(appActions.loading({ status: true }));
 
-            dispatch(fetchBaseTemplate({ domain }));
-            const user = __IN_BITRIX__
-                ? ((await bx.getCurrentUser()) as BXUser)
-                : TESTING_USER;
+                const domain: string = __IN_BITRIX__
+                    ? (await bx.getDomain()) || TESTING_DOMAIN
+                    : TESTING_DOMAIN;
 
-            initWSClient(user.ID, domain); // <- здесь создаёшь сокет
-            // const socket = getWSClient()
-            dispatch(socketThunk(user.ID, domain));
+                dispatch(fetchBaseTemplate({ domain }));
+                dispatch(fetchOfferTemplates())
 
-            dispatch(
-                appActions.setAppData({
-                    domain,
-                    user,
-                }),
-            );
 
-            dispatch(appActions.loading({ status: false }));
-            // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
-        }
-    };
+                
+                const user = __IN_BITRIX__
+                    ? ((await bx.getCurrentUser()) as BXUser)
+                    : TESTING_USER;
+
+                initWSClient(user.ID, domain); // <- здесь создаёшь сокет
+                // const socket = getWSClient()
+                dispatch(socketThunk(user.ID, domain));
+
+                dispatch(
+                    appActions.setAppData({
+                        domain,
+                        user,
+                    }),
+                );
+
+                dispatch(appActions.loading({ status: false }));
+                // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
+            }
+        };
 
 export const reloadApp =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {

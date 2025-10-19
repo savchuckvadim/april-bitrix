@@ -1,7 +1,7 @@
 import { IOfferTemplateBlock } from '../../offer-template-block/type/offer-template-block.type';
 
 export interface IOfferTemplate {
-    id: string;
+    id: number;
     name: string;
     description: string;
     font: IOfferTemplateFont;
@@ -14,7 +14,7 @@ export interface IOfferTemplatePage {
     order: number;
     type: 'letter' | 'description' | 'infoblocks' | 'price';
     name: string;
-    blocks: Array<IOfferTemplateBlock>;
+    blocks: IOfferTemplateBlock[];
 }
 
 export interface IOfferTemplateColors {

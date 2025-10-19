@@ -1,6 +1,7 @@
-import { setupBitrixApp } from '@/app/lib/bitrix/setup';
-import { BitrixAppPayload } from '@workspace/api';
+import { setupBitrixApp } from '@/app/api/bitrix/install/lib/setup';
+// import { BitrixAppPayload } from '@workspace/api';
 import { NextRequest, NextResponse } from 'next/server';
+import { getSetupDto } from './lib/util';
 
 interface BitrixTokenPayload {
     access_token: string | null;
@@ -86,30 +87,11 @@ export async function POST(req: NextRequest) {
             tokenPayload.domain
         ) {
             installStatus = install ? 'success' : 'fail';
-            const expiresAt = new Date(
-                Date.now() + (tokenPayload.expires_in ?? 3600) * 1000,
-            )
-                .toISOString()
-                .replace('T', ' ')
-                .replace('Z', '')
-                .split('.')[0]; // убираем миллисекунды
 
-            const data = {
-                code: 'sales_base',
-                domain: tokenPayload.domain,
-                group: 'sales',
-                status: 'active',
-                type: 'base',
-                token: {
-                    access_token: tokenPayload.access_token,
-                    client_id: 'client_id',
-                    client_secret: 'client_secret',
-                    expires_at: expiresAt,
-                    refresh_token: tokenPayload.refresh_token,
-                    application_token: tokenPayload.application_token,
-                    member_id: tokenPayload.member_id,
-                },
-            } as BitrixAppPayload;
+            const data = getSetupDto({
+                ...tokenPayload,
+                domain: domain,
+            });
             const result = await setupBitrixApp(data);
             console.log('endpoint online result');
             console.log(result);

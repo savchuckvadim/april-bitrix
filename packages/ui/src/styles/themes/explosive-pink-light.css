@@ -1,0 +1,45 @@
+:root.explosive-pink-light {
+    --radius: 0.7rem;
+    --background: oklch(0.98 0.08 305);
+    --foreground: oklch(0.15 0.04 300);
+
+    --card: oklch(0.97 0.02 330);
+    --card-foreground: oklch(0.15 0.04 300);
+
+    --popover: oklch(0.97 0.02 330);
+    --popover-foreground: oklch(0.15 0.04 300);
+
+    --primary: oklch(0.75 0.3 330); /* дерзкий розовый */
+    --primary-foreground: oklch(0.1 0.03 300);
+
+    --secondary: oklch(0.72 0.25 300); /* фиолетовый */
+    --secondary-foreground: oklch(0.1 0.02 310);
+
+    --muted: oklch(0.92 0.04 320);
+    --muted-foreground: oklch(0.35 0.05 300);
+
+    --accent: oklch(0.75 0.3 330 / 30%);
+    --accent-foreground: oklch(0.15 0.03 20);
+
+    --destructive: oklch(0.68 0.3 20); /* неоново-красный */
+    --destructive-foreground: oklch(0.98 0.02 0);
+
+    --border: oklch(0.88 0.05 310 / 60%);
+    --input: oklch(0.9 0.04 330 / 70%);
+    --ring: oklch(0.75 0.3 330);
+
+    --chart-1: oklch(0.65 0.27 330); /* розовый */
+    --chart-2: oklch(0.75 0.25 300); /* фиолетовый */
+    --chart-3: oklch(0.85 0.3 70);  /* лимонный */
+    --chart-4: oklch(0.8 0.28 20);  /* неон-оранжевый */
+    --chart-5: oklch(0.7 0.25 150); /* салатовый */
+
+    --sidebar: oklch(0.97 0.02 330);
+    --sidebar-foreground: oklch(0.15 0.04 300);
+    --sidebar-primary: oklch(0.75 0.3 330);
+    --sidebar-primary-foreground: oklch(0.98 0.02 0);
+    --sidebar-accent: oklch(0.85 0.25 20);
+    --sidebar-accent-foreground: oklch(0.15 0.03 20);
+    --sidebar-border: oklch(0.9 0.04 330 / 70%);
+    --sidebar-ring: oklch(0.75 0.3 330);
+  }

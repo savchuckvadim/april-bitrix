@@ -18,6 +18,7 @@ export enum EBACK_ENDPOINT {
     BASE_TEMPLATE = '/template-base/offer',
     KONSTRUCTOR_INIT = '/konstructor/init',
     TELEGRAM = '/telegram',
+    BITRIX_METHOD = 'helper/bitrix/method',
 }
 
 export interface IBackResponse<T> {

@@ -1,0 +1,294 @@
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    /* диапазон толщин */
+    /* font-style: italic;
+    font-display: swap; */
+}
+
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto.ttf') format('truetype');
+    font-weight: 100 900;
+    /* диапазон толщин */
+    /* font-style: italic;
+    font-display: swap; */
+}
+
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('/fonts/OpenSans-VariableFont_wdth,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    /* диапазон толщин */
+    /* font-style: italic;
+    font-display: swap; */
+}
+
+@font-face {
+    font-family: 'Lato';
+    src: url('/fonts/Lato-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+    /* диапазон толщин */
+    /* font-style: italic;
+    font-display: swap; */
+}
+@font-face {
+    font-family: 'Oswald';
+    src: url('/fonts/Oswald-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Zalando Sans SemiExpanded';
+    src: url('/fonts/ZalandoSansSemiExpanded-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Barlow';
+    src: url('/fonts/Barlow-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Outfit';
+    src: url('/fonts/Outfit-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+
+@font-face {
+    font-family: 'Libre Baskerville';
+    src: url('/fonts/LibreBaskerville-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+
+@font-face {
+    font-family: 'Archivo Black';
+    src: url('/fonts/ArchivoBlack-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Dancing Script';
+    src: url('/fonts/DancingScript-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'EB Garamond';
+    src: url('/fonts/EBGaramond-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Share Tech';
+    src: url('/fonts/ShareTech-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Bungee';
+    src: url('/fonts/Bungee-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/fonts/Ubuntu-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Lora';
+    src: url('/fonts/Lora-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Merriweather';
+    src: url('/fonts/Merriweather-VariableFont_opsz,wdth,wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/Montserrat-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Pacifico';
+    src: url('/fonts/Pacifico-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Noto Sans Marchen';
+    src: url('/fonts/NotoSansMarchen-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Tirra';
+    src: url('/fonts/Tirra-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Story Script';
+    src: url('/fonts/StoryScript-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'DM Serif Display';
+    src: url('/fonts/DMSerifDisplay-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Bitcount Grid Double Ink';
+    src: url('/fonts/BitcountGridDoubleInk-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'TASA Explorer';
+    src: url('/fonts/TASAExplorer-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Caveat';
+    src: url('/fonts/Caveat-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Michroma';
+    src: url('/fonts/Michroma-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Changa One';
+    src: url('/fonts/ChangaOne-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Bungee Spice';
+    src: url('/fonts/BungeeSpice-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Permanent Marker';
+    src: url('/fonts/PermanentMarker-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Be Vietnam Pro';
+    src: url('/fonts/BeVietnamPro-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Indie Flower';
+    src: url('/fonts/IndieFlower-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Orbitron';
+    src: url('/fonts/Orbitron-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Rowdies';
+    src: url('/fonts/Rowdies-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Signika Negative';
+    src: url('/fonts/SignikaNegative-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Righteous';
+    src: url('/fonts/Righteous-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+@font-face {
+    font-family: 'Sanchez';
+    src: url('/fonts/Sanchez-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+
+
+@font-face {
+    font-family: 'Noto Emoji';
+    src: url('/fonts/NotoEmoji.ttf') format('truetype');
+    font-weight: 100 900;
+    /* диапазон толщин */
+    /* font-style: italic;
+    font-display: swap; */
+}
+
+@font-face {
+    font-family: 'Noto Color Emoji';
+    src: url('/fonts/NotoColorEmoji-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+    /* диапазон толщин */
+    /* font-style: italic;
+    font-display: swap; */
+}
+@font-face {
+    font-family: 'Noto Sans Ogham';
+    src: url('/fonts/NotoSansOgham-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+
+}
+
+@font-face {
+    font-family: 'Noto Sans Nüshu';
+    src: url('/fonts/NotoSansNushu-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+}
+@font-face {
+    font-family: 'Noto Sans Phoenician';
+    src: url('/fonts/NotoSansPhoenician-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+}
+@font-face {
+    font-family: 'Noto Sans Tirhuta';
+    src: url('/fonts/NotoSansTirhuta-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+}
+@font-face {
+    font-family: 'Noto Sans Ugaritic';
+    src: url('/fonts/NotoSansUgaritic-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+}
+@font-face {
+    font-family: 'Noto Sans Mahajani';
+    src: url('/fonts/NotoSansMahajani-Regular.ttf') format('truetype');
+    font-weight: 100 900;
+}
+@font-face {
+    font-family: 'Noto Sans Lydian';
+    src: url('/fonts/NotoSansLydian-Regular.ttf') format('truetype');
+    /* font-weight: 100 900; */
+}
+

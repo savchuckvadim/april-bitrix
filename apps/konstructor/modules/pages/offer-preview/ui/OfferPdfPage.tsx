@@ -7,6 +7,7 @@ import { IOffer } from '@/modules/entities/offer';
 import { IInfoBlock } from '@/modules/entities/infoblock';
 import RenderOfferLetter from '@/modules/entities/offer-template-block/ui/letter/render-pdf/RenderOfferLetter';
 import OfferHeroPdf from '@/modules/entities/offer-template-block/ui/hero/OfferHeroPdf';
+import { IOfferBlockHero, IOfferBlockLetter } from '@/modules/entities/offer-template-block/type/offer-template-block.type';
 
 const OfferPdfPage: React.FC<{ offer: IOffer }> = ({ offer }) => {
     const editable = false;
@@ -21,6 +22,7 @@ const OfferPdfPage: React.FC<{ offer: IOffer }> = ({ offer }) => {
             });
         }
     });
+    console.log('OfferPdfPage font', offer.template.fonts);
 
     const pages = template?.pages.map((page, index) => {
         const blocks = page.blocks.map((block, index) => {
@@ -29,16 +31,16 @@ const OfferPdfPage: React.FC<{ offer: IOffer }> = ({ offer }) => {
                     return (
                         <OfferHeroPdf
                             template={template}
-                            key={`pdf-${page.id}-${index}-${block.id}`}
-                            block={block}
+                            key={`pdf-${page.id}-${index}`}
+                            block={block as unknown as IOfferBlockHero}
                         />
                     );
                 case 'letter':
                     return (
                         <RenderOfferLetter
                             template={template}
-                            key={`pdf-${page.id}-${index}-${block.id}`}
-                            block={block}
+                            key={`pdf-${page.id}-${index}-`}
+                            block={block as unknown as IOfferBlockLetter}
                         />
                     );
                 // case 'price':
@@ -47,7 +49,7 @@ const OfferPdfPage: React.FC<{ offer: IOffer }> = ({ offer }) => {
                 //   </div>
                 default:
                     return (
-                        <div key={`pdf-${page.id}-${index}-${block.id}`}>
+                        <div key={`pdf-${page.id}-${index}-}`}>
                             {block.name}
                         </div>
                     );
@@ -55,6 +57,7 @@ const OfferPdfPage: React.FC<{ offer: IOffer }> = ({ offer }) => {
         });
         return (
             <AutoPaginatedLayout
+                font={template.fonts[0]?.name || 'Arial'}
                 editable={false}
                 blocks={blocks}
                 key={`pdf-page-${page.id}`}
@@ -66,11 +69,12 @@ const OfferPdfPage: React.FC<{ offer: IOffer }> = ({ offer }) => {
             {pages}
 
             <AutoPaginatedLayout
+                font={template.fonts[0]?.name || 'Arial'}
                 editable={editable}
                 blocks={infoblocks.map((iblock, index) => {
                     return (
                         iblock.descriptionForSale && (
-                            <div
+                            <div style={{ fontFamily: template.fonts[0]?.name || 'Arial' }}
                                 key={`pdf-infoblock-${iblock.name}`}
                                 className="p-4"
                             >

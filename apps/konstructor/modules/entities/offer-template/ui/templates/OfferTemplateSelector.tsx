@@ -12,12 +12,14 @@ const OfferTemplateSelector: React.FC = () => {
             <select
                 className="border p-2 rounded w-full"
                 value={current?.id}
-                onChange={e =>
-                    setCurrent(
-                        items.find(
-                            item => item.id === e.target.value,
-                        ) as IOfferTemplate,
+                onChange={e => {
+                    const item = items?.find(
+                        item => item.id === e.target.value,
+                    ) as IOfferTemplate | undefined;
+                    item && setCurrent(
+                        item
                     )
+                }
                 }
             >
                 {items.map(template => (
@@ -25,7 +27,8 @@ const OfferTemplateSelector: React.FC = () => {
                         key={`template-select-${template.id}`}
                         value={template.id}
                     >
-                        {template.name}
+                        {/* TODO: add template name */}
+                        {`template.name`}
                     </option>
                 ))}
             </select>

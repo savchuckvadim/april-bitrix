@@ -7,7 +7,7 @@ export const OfferTemplatePriview = () => {
 
     return (
         <div>
-            {current.pages.map(page => {
+            {current && current.pages.map(page => {
                 return (
                     <div
                         key={`template-konstructor-preview-page-${page.id}`}

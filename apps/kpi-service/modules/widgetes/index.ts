@@ -1,0 +1,1 @@
+export { ChartTotal } from './chart/ui/Chart';

@@ -13,6 +13,7 @@ import { Button } from '@workspace/ui/components/button';
 import OfferLetter from '@/modules/entities/offer-template-block/ui/letter/OfferLetter';
 import { useOfferTemplateKonstructor } from '@/modules/entities/offer-template-konstructor/hook/useOfferTemplateKonstructor';
 import { useOffer } from '@/modules/entities/offer';
+import { IOfferBlockHero, IOfferBlockLetter } from '@/modules/entities/offer-template-block/type/offer-template-block.type';
 
 const style = {
     backgroundColor: '#000',
@@ -275,9 +276,9 @@ const PreviewPage: React.FC = () => {
         }
     };
 
-    console.log('editable', editable);
-    console.log(editable);
-    const paragraphs = faketext.split('\n\n');
+    // console.log('editable', editable);
+    // console.log(editable);
+    // const paragraphs = faketext.split('\n\n');
     // const chunkSize = 8;
     // const pages = [];
 
@@ -303,16 +304,16 @@ const PreviewPage: React.FC = () => {
                 case 'hero':
                     return (
                         <OfferHero
-                            key={`preview-${page.id}-${index}-${block.id}`}
-                            block={block}
+                            key={`preview-${page.id}-${index}`}
+                            block={block as unknown as IOfferBlockHero}
                         />
                     );
                 case 'letter':
                     return (
                         <OfferLetter
                             inOffer={true}
-                            key={`preview-${page.id}-${index}-${block.id}`}
-                            block={block}
+                            key={`preview-${page.id}-${index}-`}
+                            block={block as unknown as IOfferBlockLetter}
                         />
                     );
                 case 'price':
@@ -330,7 +331,7 @@ const PreviewPage: React.FC = () => {
                     );
                 default:
                     return (
-                        <div key={`preview-${page.id}-${index}-${block.id}`}>
+                        <div key={`preview-${page.id}-${index}-}`}>
                             {block.name}
                         </div>
                     );

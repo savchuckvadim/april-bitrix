@@ -1,12 +1,23 @@
 # Dependencies
 node_modules
 .pnpm-store
-./apps/konstructor/node_modules
-./apps/alfa/node_modules
+
 ./apps/bitrix/node_modules
 ./apps/kpi-sales/node_modules
+./apps/kpi-service/node_modules
+
+./apps/konstructor/node_modules
+./apps/event-sales/node_modules
+./apps/event-service/node_modules
+
+
 ./apps/web/node_modules
+
+
 ./packages/api/node_modules
+./packages/nest-api/node_modules
+./packages/open-api/node_modules
+./packages/bitrix/node_modules
 ./packages/bx/node_modules
 ./packages/eslint-config/node_modules
 ./packages/pbx/node_modules
@@ -23,10 +34,7 @@ dist
 build
 *.tsbuildinfo
 
-# Environment
-.env
-.env.*
-!.env.example
+
 
 # Version control
 .git
@@ -51,4 +59,4 @@ coverage
 
 # Misc
 .DS_Store
-*.pem 
+*.pem

@@ -12,15 +12,15 @@ RUN npm install -g npm@11.3.0 && npm install -g pnpm
 # Копируем все файлы сразу
 COPY . .
 
-RUN pnpm approve-builds
+
 # Установка зависимостей и генерация Prisma Client
 RUN pnpm config set fetch-retries 5 && \
     pnpm config set fetch-timeout 60000 && \
-    pnpm install --no-frozen-lockfile 
-   
+    pnpm install --no-frozen-lockfile
+RUN pnpm approve-builds
 
 # Сборка NextJS API и проверка
-RUN pnpm --filter ${APP} run build 
+RUN pnpm --filter ${APP} run build
 
 
 # ==== PRODUCTION ====
@@ -30,32 +30,38 @@ FROM node:20-slim AS prod
 ARG APP
 WORKDIR /app
 
-# Install Puppeteer dependencies
-RUN apt-get update && apt-get install -y \
-    chromium \
-    fonts-ipafont-gothic \
-    fonts-wqy-zenhei \
-    fonts-thai-tlwg \
-    fonts-kacst \
-    fonts-freefont-ttf \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libasound2 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcairo2 \
-    libcups2 \
-    libdbus-1-3 \
-    libexpat1 \
-    libfontconfig1 \
-    libgbm1 \
-    libgcc1 \
-    --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+# # Install Puppeteer dependencies
+# RUN apt-get update && apt-get install -y \
+#     chromium \
+#     fonts-ipafont-gothic \
+#     fonts-wqy-zenhei \
+#     fonts-thai-tlwg \
+#     fonts-kacst \
+#     fonts-freefont-ttf \
+#     libx11-xcb1 \
+#     libxcomposite1 \
+#     libasound2 \
+#     libatk1.0-0 \
+#     libatk-bridge2.0-0 \
+#     libcairo2 \
+#     libcups2 \
+#     libdbus-1-3 \
+#     libexpat1 \
+#     libfontconfig1 \
+#     libgbm1 \
+#     libgcc1 \
+#     libnss3 \
+#     libxrandr2 \
+#     libxdamage1 \
+#     libpango-1.0-0 \
+#     libcairo-gobject2 \
+#     libxshmfence1 \
+#     --no-install-recommends \
+#     && rm -rf /var/lib/apt/lists/*
 
-# Set Puppeteer to use installed Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+# # Set Puppeteer to use installed Chromium
+# ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+# ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 RUN npm install -g pnpm
 
@@ -78,7 +84,7 @@ RUN pnpm install --prod --no-frozen-lockfile && \
     pnpm --filter ${APP} install --prod --no-frozen-lockfile
 
 
-    
+
 # Запуск NextJS
 CMD ["pnpm", "start"]
 
@@ -97,11 +103,11 @@ CMD ["pnpm", "start"]
 # # Установка зависимостей и генерация Prisma Client
 # RUN pnpm config set fetch-retries 5 && \
 #     pnpm config set fetch-timeout 60000 && \
-#     pnpm install --no-frozen-lockfile 
-   
+#     pnpm install --no-frozen-lockfile
+
 
 # # Сборка NextJS API и проверка
-# RUN pnpm --filter kpi-sales run build 
+# RUN pnpm --filter kpi-sales run build
 
 
 # # ==== PRODUCTION ====
@@ -129,6 +135,6 @@ CMD ["pnpm", "start"]
 #     pnpm --filter kpi-sales install --prod --no-frozen-lockfile
 
 
-    
+
 # # Запуск NextJS
 # CMD ["pnpm", "start"]

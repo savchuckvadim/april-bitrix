@@ -15,16 +15,16 @@ export const TemplateColorsPicker = () => {
                 {isOpen ? 'Спрятать' : 'Цвета'}
             </Button>
             <div className={`${isOpen ? 'block' : 'hidden'}`}>
-                {Object.entries(current.colors).map(([key, stateColor]) => (
+                {current && Object.entries(current?.colors).map(([key, stateColor]) => (
                     <div
                         key={`color-picker-${key}`}
                         className="flex flex-col space-y-2"
                     >
                         <h2 className="text-xl font-bold my-4">
-                            {stateColor.name}
+                            {stateColor?.name}
                         </h2>
                         <ColorPicker
-                            color={stateColor.value}
+                            color={stateColor?.value}
                             onChange={color => setColor(stateColor.code, color)}
                         />
                     </div>

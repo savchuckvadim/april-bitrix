@@ -2,30 +2,30 @@
 import { FC } from 'react';
 import { IOfferBlockLetter } from '../../../type/offer-template-block.type';
 import RenderFormattedText from './RenderFormattedText';
-import { IOfferTemplate } from '@/modules/entities/offer-template/type/offer-template.type';
+import { OfferTemplateDto } from '@workspace/nest-api';
 
 const RenderOfferLetter: FC<{
     block: IOfferBlockLetter;
-    template: IOfferTemplate;
+    template: OfferTemplateDto;
 }> = ({ block, template }) => {
     const colors = template.colors;
-    const backgroundColor = colors.background.value;
+    const backgroundColor = colors?.background?.value as string;
 
     return (
         <div
             className={`flex my-2 p-3`}
             style={{
-                backgroundColor: backgroundColor,
+                backgroundColor: backgroundColor as string,
                 height: `${block.height}mm`,
             }}
         >
-            <div className="w-full">
+            <div className="w-full" >
                 <RenderFormattedText
                     text={block.content.text}
-                    textColor={colors.text.value}
-                    redColor={colors.accentText.value}
-                    titleColor={colors.accent.value}
-                    font={template.font.value}
+                    textColor={colors?.text?.value as string}
+                    redColor={colors?.accentText?.value as string}
+                    titleColor={colors?.accent?.value as string}
+                    font={template.fonts[0]?.name || ''}
                 />
             </div>
         </div>

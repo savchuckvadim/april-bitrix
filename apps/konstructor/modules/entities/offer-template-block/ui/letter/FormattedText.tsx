@@ -2,10 +2,10 @@ import { useOfferTemplateKonstructor } from '@/modules/entities/offer-template-k
 
 const FormattedText: React.FC<{ text: string }> = ({ text }) => {
     const { colors, current } = useOfferTemplateKonstructor();
-    const textColor = colors.text.value;
-    const redColor = colors.accentText.value;
-    const titleColor = colors.accent.value;
-    const font = current.font;
+    const textColor = colors?.text.value || '#000000';
+    const redColor = colors?.accentText.value || '#ff0000';
+    const titleColor = colors?.accent.value || '#3d3af6';
+    const font = current?.font || { value: 'Arial' };
 
     const parseText = (text: string) => {
         const result: React.ReactNode[] = [];
@@ -26,7 +26,7 @@ const FormattedText: React.FC<{ text: string }> = ({ text }) => {
                 result.push(
                     <strong
                         key={index}
-                        style={{ color: textColor }}
+                        style={{ color: textColor, fontFamily: font.value }}
                         className={`text-${titleColor} font-bold`}
                     >
                         {part}
@@ -36,7 +36,7 @@ const FormattedText: React.FC<{ text: string }> = ({ text }) => {
                 result.push(
                     <span
                         key={index}
-                        style={{ color: titleColor }}
+                        style={{ color: titleColor, fontFamily: font.value }}
                         className=" font-bold"
                     >
                         {part}
@@ -46,7 +46,7 @@ const FormattedText: React.FC<{ text: string }> = ({ text }) => {
                 result.push(
                     <span
                         key={index}
-                        style={{ color: redColor }}
+                        style={{ color: redColor, fontFamily: font.value }}
                         className=" font-bold"
                     >
                         {part}
@@ -54,7 +54,7 @@ const FormattedText: React.FC<{ text: string }> = ({ text }) => {
                 );
             } else {
                 result.push(
-                    <span key={index} style={{ color: textColor }}>
+                    <span key={index} style={{ color: textColor, fontFamily: font.value }}>
                         {part}
                     </span>,
                 );

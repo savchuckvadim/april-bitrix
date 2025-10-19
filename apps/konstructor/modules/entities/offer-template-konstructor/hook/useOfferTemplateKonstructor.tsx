@@ -20,8 +20,8 @@ import {
 } from '@/modules/entities/offer-template/type/offer-template.type';
 import { IOfferTemplatePage } from '@/modules/entities/offer-template/type/offer-template.type';
 import { v4 as uuidv4 } from 'uuid';
-import { setCurrent } from '@/modules/entities/offer-template/model/OfferTemplateSlice';
 import { useRouter } from 'next/navigation';
+import { saveOfferTemplateThunk } from '../../offer-template/model/OfferTemplateThunk';
 
 export const useOfferTemplateKonstructor = () => {
     const router = useRouter();
@@ -60,10 +60,13 @@ export const useOfferTemplateKonstructor = () => {
     };
 
     const saveTemplate = () => {
-        debugger;
+
         console.log('saveTemplate');
         if (!settings.current) return;
-        dispatch(setCurrent(settings.current));
+        dispatch(
+            saveOfferTemplateThunk(
+                settings.current
+            ));
         // dispatch(setCurrentTemplate(null))
         router.push('/offer/preview');
     };

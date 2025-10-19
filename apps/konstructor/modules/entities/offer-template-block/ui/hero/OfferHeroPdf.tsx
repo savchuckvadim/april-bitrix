@@ -1,13 +1,14 @@
 import { IOfferBlockHero } from '@/modules/entities/offer-template-block/type/offer-template-block.type';
 import { IOfferTemplate } from '@/modules/entities/offer-template/type/offer-template.type';
+import { OfferTemplateDto } from '@workspace/nest-api';
 import Image from 'next/image';
 import { FC } from 'react';
 
 const OfferHeroPdf: FC<{
-    template: IOfferTemplate;
-    block: IOfferBlockHero;
+    template: OfferTemplateDto;
+    block: IOfferBlockHero ;
 }> = ({ block, template }) => {
-    const { colors } = template;
+    const { colors  } = template;
 
     let style = {
         position: 'absolute',
@@ -50,7 +51,7 @@ const OfferHeroPdf: FC<{
                     <h1
                         className="text-2xl font-bold"
                         style={{
-                            color: colors?.accent.value,
+                            color: colors?.accent?.value as string,
                         }}
                     >
                         {block.content.slogan.text}
@@ -60,7 +61,7 @@ const OfferHeroPdf: FC<{
                     <p
                         className="text-sm"
                         style={{
-                            color: colors?.accentText.value,
+                            color: colors?.accentText?.value as string,
                         }}
                     >
                         {block.content.subtitle.text}

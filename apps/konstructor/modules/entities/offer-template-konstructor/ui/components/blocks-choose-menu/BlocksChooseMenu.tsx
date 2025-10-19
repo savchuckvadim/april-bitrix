@@ -22,12 +22,12 @@ const BlocksChooseMenu: React.FC<{
             {Object.values(blocks).map(block => {
                 if (
                     block.type === EOfferBlockType.letter.code &&
-                    getIsNeedFilterBlock(current, blocks.letter)
+                    current && getIsNeedFilterBlock(current, blocks.letter)
                 )
                     return null;
                 if (
                     block.type === EOfferBlockType.price.code &&
-                    getIsNeedFilterBlock(current, blocks.price)
+                    current && getIsNeedFilterBlock(current, blocks.price)
                 )
                     return null;
 

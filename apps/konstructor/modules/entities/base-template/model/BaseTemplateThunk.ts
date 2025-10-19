@@ -25,6 +25,7 @@ export const fetchBaseTemplate = createAsyncThunk<
                 const response = await getBaseTemplate(domain);
 
                 if (!response) {
+
                     return rejectWithValue('Ошибка загрузки');
                 }
                 const text = response.template.letter;
@@ -32,9 +33,11 @@ export const fetchBaseTemplate = createAsyncThunk<
 
                 return response;
             }
-            return rejectWithValue('Ошибка загрузки отсуттствует domain');
+
+            return rejectWithValue('Ошибка загрузки отсутствует domain');
         } catch (e: any) {
             return rejectWithValue(e.message || 'Ошибка загрузки');
+
         }
     },
 );

@@ -4,12 +4,12 @@ import Image from 'next/image';
 import { IOfferBlockHero } from '@/modules/entities/offer-template-block/type/offer-template-block.type';
 import { useOfferTemplateBlock } from '@/modules/entities/offer-template-block';
 import BlockPositionSelect from '@/modules/feature/position/BlockPositionSelect';
-import { useOfferTemplateKonstructor } from '@/modules/entities/offer-template-konstructor/hook/useOfferTemplateKonstructor';
+// import { useOfferTemplateKonstructor } from '@/modules/entities/offer-template-konstructor/hook/useOfferTemplateKonstructor';
 import { BlockPostion } from '@/modules/entities/offer-template-konstructor';
 import { ImageUploader } from '../components/ImageUploader';
 
 export const HeroBlockEditor = ({ block }: { block: IOfferBlockHero }) => {
-    const { positions } = useOfferTemplateKonstructor();
+    // const { positions } = useOfferTemplateKonstructor();
     const { updateBlock } = useOfferTemplateBlock();
 
     const onChange = (block: IOfferBlockHero) => {
@@ -123,7 +123,7 @@ export const HeroBlockEditor = ({ block }: { block: IOfferBlockHero }) => {
                         {positions.map((position) => (
                             <SelectItem key={position.id} value={position.id.toString()}>{position.name}</SelectItem>
                         ))}
-                    
+
                     </SelectContent>
                 </Select>
             </div> */}

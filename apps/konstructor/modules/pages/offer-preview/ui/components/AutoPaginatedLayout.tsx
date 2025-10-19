@@ -6,11 +6,13 @@ const A4_HEIGHT_PX = 1000; // 1122 =~297mm при 96dpi
 type AutoPaginatedLayoutProps = {
     blocks: React.ReactNode[];
     editable?: boolean;
+    font?: string;
 };
 
 export const AutoPaginatedLayout: React.FC<AutoPaginatedLayoutProps> = ({
     blocks,
     editable,
+    font,
 }) => {
     const [pages, setPages] = useState<React.ReactNode[][]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -87,6 +89,7 @@ export const AutoPaginatedLayout: React.FC<AutoPaginatedLayoutProps> = ({
                 .filter(page => page.length > 0)
                 .map((pageBlocks, pageIndex) => (
                     <div
+                        style={{ fontFamily: font }}
                         key={pageIndex}
                         className={`pdf-page w-[210mm] h-[297mm] mx-auto  bg-white overflow-hidden  ${editable ? 'my-4  border-1 border-gray-300 ' : ''}`}
                     >

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IBaseTemplate } from '../type/base-template.type';
 import { fetchBaseTemplate } from './BaseTemplateThunk';
+import { handleSliceError } from '@/modules/app/lib/thunk-error-handler';
 
 export interface IBaseTemplateState {
     current: IBaseTemplate | null;
@@ -32,8 +33,14 @@ const baseTemplateSlice = createSlice({
 
             state.loading = 'succeeded';
         });
+        builder.addCase(fetchBaseTemplate.rejected, (state, action) => {
+            // handleSliceError(
+            //     action,
+            //     'Ошибка загрузки базового шаблона',
+            // );
+        });
     },
 });
 
-export const {} = baseTemplateSlice.actions;
+export const { } = baseTemplateSlice.actions;
 export const baseTemplateReducer = baseTemplateSlice.reducer;

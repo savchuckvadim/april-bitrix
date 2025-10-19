@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server';
 import puppeteer from 'puppeteer';
 
 export async function GET() {
@@ -31,7 +30,7 @@ export async function GET() {
 
     await browser.close();
 
-    return new Response(pdfBuffer, {
+    return new Response(new Uint8Array(pdfBuffer), {
         headers: {
             'Content-Type': 'application/pdf',
             'Content-Disposition': 'inline; filename=offer.pdf', // or "attachment" for download

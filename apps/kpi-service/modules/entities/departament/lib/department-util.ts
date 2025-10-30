@@ -1,13 +1,13 @@
 
-import { BXDepartment, BXUser } from '@workspace/bx';
-import { BxDepartmentDto, BxDepartmentDtoDomain, DepartmentControllerGetFullDepartment200, DepartmentControllerGetFullDepartment200Department, getBitrix24Department } from '@workspace/nest-api/';
+import { BxDepartmentDataDto, BxDepartmentRequestDto, BxDepartmentRequestDtoDomain, BxDepartmentResponseDto, getBitrixDomainDepartment, } from '@workspace/nest-api/';
 import { IDepartmentResponse } from '../../report/model/types/report/report-type';
+import { IBXDepartment, IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 
 
 export function updateCurrentGroupsByUsers(
-    allGroups: BXDepartment[],
-    currentUsers: BXUser[],
-): BXDepartment[] {
+    allGroups: IBXDepartment[],
+    currentUsers: IBXUser[],
+): IBXDepartment[] {
     const currentUserIds = new Set(currentUsers.map(user => user.ID));
 
     return allGroups.filter(group => {
@@ -20,14 +20,14 @@ export function updateCurrentGroupsByUsers(
 }
 
 
-export async function getDepartmentByDomain(domain: BxDepartmentDtoDomain): Promise<DepartmentControllerGetFullDepartment200Department | undefined> {
-    const departmenttApi = getBitrix24Department()
+export async function getDepartmentByDomain(domain: BxDepartmentRequestDtoDomain): Promise<BxDepartmentDataDto | undefined> {
+    const departmenttApi = getBitrixDomainDepartment()
     const response = await departmenttApi.departmentGetFullDepartment({
-        domain,
+        domain: domain,
         department: 'service'
-    } as BxDepartmentDto) as DepartmentControllerGetFullDepartment200
+    } as BxDepartmentRequestDto) as BxDepartmentResponseDto
 
-
+    debugger
     if (
         !response?.department
     ) {
@@ -45,41 +45,41 @@ export async function getDepartmentByDomain(domain: BxDepartmentDtoDomain): Prom
 
 
 export function prepareDepartmentResponse(
-    currentUser: BXUser,
-    response: DepartmentControllerGetFullDepartment200Department,
+    currentUser: IBXUser,
+    response: BxDepartmentDataDto,
 
     filtredDepartmentIds: string[] | null
 
 ): {
-    users: BXUser[],
-    departament: BXUser[] | null,
-    groups: BXDepartment[],
-    currentGroups: BXDepartment[],
-    currentGroup: BXDepartment | undefined,
+    users: IBXUser[],
+    departament: IBXUser[] | null,
+    groups: IBXDepartment[],
+    currentGroups: IBXDepartment[],
+    currentGroup: IBXDepartment | undefined,
     isHeadManager: boolean,
 } {
     let isHeadManager = true;
-    let departament: BXUser[] | null = null;
+    let departament: IBXUser[] | null = null;
     const currentUserId = currentUser?.ID;
     const departmentResponse = {
         department: response.department as number,
-        generalDepartment: response.generalDepartment as unknown as BXDepartment[],
-        childrenDepartments: response.childrenDepartments as unknown as BXDepartment[],
-        allUsers: response.allUsers as unknown as BXUser[]
+        generalDepartment: response.generalDepartment as unknown as IBXDepartment[],
+        childrenDepartments: response.childrenDepartments as unknown as IBXDepartment[],
+        allUsers: response.allUsers as unknown as IBXUser[]
     } as IDepartmentResponse;
 
 
     isHeadManager = getIsUserHead(
         departmentResponse,
-        currentUserId,
+        Number(currentUserId),
     );
 
     if (isHeadManager) {
         if (departmentResponse.allUsers) {
             departament = departmentResponse.allUsers.filter(
-                (u: BXUser, index: number, self: BXUser[]) =>
+                (u: IBXUser, index: number, self: IBXUser[]) =>
                     index ===
-                    self.findIndex((t: BXUser) => t.ID === u.ID),
+                    self.findIndex((t: IBXUser) => t.ID === u.ID),
             );
         }
     } else {
@@ -87,32 +87,32 @@ export function prepareDepartmentResponse(
     }
 
     const groups = departmentResponse.childrenDepartments.filter(
-        (group: BXDepartment) => getIsTargetGroup(group),
+        (group: IBXDepartment) => getIsTargetGroup(group),
     );
     const currentGroup = groups.find(
-        (group: BXDepartment) =>
+        (group: IBXDepartment) =>
             getIsTargetGroup(group) &&
             group.USERS?.find(
-                (user: BXUser) => user.ID == currentUserId,
+                (user: IBXUser) => user.ID == Number(currentUserId),
             ),
     );
-    const currentGroups: BXDepartment[] = currentGroup
+    const currentGroups: IBXDepartment[] = currentGroup
         ? [currentGroup]
         : !isHeadManager
             ? []
             : groups;
-    const users: BXUser[] = [];
+    const users: IBXUser[] = [];
 
     if (
         !filtredDepartmentIds ||
         filtredDepartmentIds.length === 0
     ) {
         if (isHeadManager) {
-            currentGroups.map((group: BXDepartment) =>
-                group.USERS?.map((usr: BXUser) => {
+            currentGroups.map((group: IBXDepartment) =>
+                group.USERS?.map((usr: IBXUser) => {
                     if (
                         !users.find(
-                            (user: BXUser) => user.ID == usr.ID,
+                            (user: IBXUser) => user.ID == usr.ID,
                         )
                     ) {
                         users.push(usr);
@@ -123,7 +123,7 @@ export function prepareDepartmentResponse(
             users.push(currentUser);
         }
     } else {
-        departament?.forEach((user: BXUser) => {
+        departament?.forEach((user: IBXUser) => {
             filtredDepartmentIds.forEach((stringId: string) => {
                 const id = Number(stringId);
                 if (Number(user.ID) == id) {
@@ -144,7 +144,7 @@ export function prepareDepartmentResponse(
 
 }
 
-const getIsTargetGroup = (group: BXDepartment): boolean => {
+const getIsTargetGroup = (group: IBXDepartment): boolean => {
     return group.NAME.includes('Группа')
         || group.NAME.includes('Менеджеры ОРК')
         || group.NAME.includes('Обучение');
@@ -181,11 +181,11 @@ const getIsUserHead = (
 
 
 export function getReportInitDepartment(
-    departament: BXUser[] | null,
+    departament: IBXUser[] | null,
     filtredDepartmentIds: string[] | null,
     isHeadManager: boolean,
-    currentGroup: BXDepartment | undefined,
-    users: BXUser[],
+    currentGroup: IBXDepartment | undefined,
+    users: IBXUser[],
 ) {
     if (
         !filtredDepartmentIds ||
@@ -197,7 +197,7 @@ export function getReportInitDepartment(
             }
         }
     } else {
-        departament = users.map((user: BXUser) => user);
+        departament = users.map((user: IBXUser) => user);
     }
 
 
@@ -207,10 +207,10 @@ export function getReportInitDepartment(
 }
 
 
-export function getDepartamentIds(departament: BXUser[] | null): number[] {
+export function getDepartamentIds(departament: IBXUser[] | null): number[] {
     const departamentIds: number[] = [];
     if (departament) {
-        departament.map((user: BXUser) => departamentIds.push(user.ID));
+        departament.map((user: IBXUser) => departamentIds.push(Number(user.ID)));
     }
     return departamentIds;
 }

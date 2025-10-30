@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Kpi } from '@workspace/nest-api';
+import { KPIOrk as Kpi } from '@workspace/nest-api';
 import { getColors } from '../../lib/colors';
 import { useReport } from '../../model/useReport';
 

@@ -2,17 +2,23 @@
 // import { bxAPI as bx } from '@workspace/api';
 import { TESTING_DOMAIN, TESTING_USER } from '../consts/app-global';
 import { appActions } from './AppSlice';
-import { AppDispatch, AppGetState, AppThunk, initWSClient } from './store';
+import { AppDispatch, AppGetState, AppThunk, initWSClient, listenerMiddleware, RootState, ThunkExtraArgument } from './store';
 import { Socket, WSClient } from '@workspace/ws';
 import { socketThunk } from './queue-ws-ping-test/QueueWsPingListener';
 import { telegramSendMessage } from '@/modules/shared';
-import { getBXService } from '../lib/bitrix/get-bx-service';
+import { getBXService } from '../lib/bitrix';
+import { getDealReport } from '@/modules/entities/deals-report/lib/helper';
+import { getDealsReport } from '@/modules/entities/deals-report/model/thunk/DealsReportThunk';
+import { startStoreListeners } from './listeners/start-store-listeners';
+import { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
+
 
 export let socket: undefined | WSClient;
 
 export const initial =
     (): AppThunk =>
         async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
+
             const state = getState();
             const app = state.app;
             const isLoading = app.isLoading;
@@ -22,6 +28,9 @@ export const initial =
             }
             const { domain, user } = bxInitializedData;
 
+            // test
+
+            dispatch(getDealsReport(domain))
 
             if (!isLoading) {
                 dispatch(appActions.loading({ status: true }));
@@ -29,9 +38,9 @@ export const initial =
 
 
 
-                initWSClient(user.ID, domain); // <- здесь создаёшь сокет
+                initWSClient(Number(user.ID), domain); // <- здесь создаёшь сокет
                 // const socket = getWSClient()
-                dispatch(socketThunk(user.ID, domain));
+                dispatch(socketThunk(Number(user.ID), domain));
 
                 dispatch(
                     appActions.setAppData({

@@ -5,6 +5,7 @@ import {
     configureStore,
     createListenerMiddleware,
     Dispatch,
+    ListenerMiddlewareInstance,
     Middleware,
     MiddlewareAPI,
     ThunkAction,
@@ -20,13 +21,19 @@ import { callingStatisticsReducer } from '@/modules/entities/calling-statistics'
 import { callingStatisticsApi } from '@/modules/entities/calling-statistics/model/callingStatisticsService';
 import { WSClient } from '@workspace/ws';
 
-export const listenerMiddleware = createListenerMiddleware();
+import { dealsReportReducer, userReportReducer } from '@/modules/entities/';
+import { startStoreListeners } from './listeners/start-store-listeners';
+import { timelineReducer } from '@/modules/feature/';
+
+
 let wsClient: WSClient;
 
 // const socketMiddleware: Middleware = (storeAPI: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
 //   // Место для обработки действий или взаимодействия с сокетом
 //   return next(action);
 // };
+export const listenerMiddleware = createListenerMiddleware();
+// startStoreListeners(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>);
 
 export const initWSClient = (userId: number, domain: string) => {
     wsClient = new WSClient(userId, domain);
@@ -49,7 +56,13 @@ const rootReducer = combineReducers({
     [reportAPI.reducerPath]: reportAPI.reducer,
     callingStatistics: callingStatisticsReducer,
     [callingStatisticsApi.reducerPath]: callingStatisticsApi.reducer,
+
+    // feature
+    timelineReducer,
+
     download,
+    dealsReport: dealsReportReducer,
+    userReport: userReportReducer,
 });
 
 export const setupStore = () => {
@@ -60,7 +73,7 @@ export const setupStore = () => {
                 thunk: {
                     extraArgument: { getWSClient },
                 },
-            })
+            }).prepend(listenerMiddleware.middleware)
                 // .concat(portalAPI.middleware)
                 // .concat(infoblockAPI.middleware)
                 .concat(callingStatisticsApi.middleware)
@@ -92,7 +105,9 @@ export type AppStore = ReturnType<typeof setupStore>;
 export type AppDispatch = AppStore['dispatch'];
 export type AppGetState = AppStore['getState'];
 
+
 export const store = setupStore();
+startStoreListeners(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>);
 
 //@ts-ignore
 // window.eventStore = store;

@@ -20,7 +20,7 @@ import { getColors } from '../../lib/colors';
 import ReportInfo from '../widget/ReportInfo';
 import { EyeClosed, Eye } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
-import { ReportData } from '@workspace/nest-api';
+import { OrkReportKpiData as ReportData } from '@workspace/nest-api';
 
 ChartJS.register(
     CategoryScale,
@@ -64,7 +64,7 @@ const KPIChart: React.FC<KPIChartProps> = ({ report }) => {
         return {
             label: kpi.action.name as string,
             data,
-            backgroundColor: getColors([{ action: kpi.action }])[0] as string,
+            backgroundColor: getColors([{ id: kpi.id, count: kpi.count, action: kpi.action }])[0] as string,
         };
     });
     const data = {

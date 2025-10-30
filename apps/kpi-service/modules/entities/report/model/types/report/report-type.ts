@@ -1,6 +1,5 @@
-import { BXDepartment, BXUser } from '@workspace/bx';
-import { GetReportResponseDto } from '@workspace/nest-api';
-import { PBXDepartament, PBXFieldItem } from '@workspace/pbx';
+import { IBXDepartment, IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
+import { PBXFieldItem } from '@workspace/pbx';
 
 export interface IFilterResponse {
     filter: Array<FilterInnerCode>;
@@ -180,7 +179,7 @@ export interface FilterResponse {
 
 export interface IDepartmentResponse {
     department: number;
-    generalDepartment: BXDepartment[];
-    childrenDepartments: BXDepartment[];
-    allUsers: BXUser[];
+    generalDepartment: IBXDepartment[];
+    childrenDepartments: IBXDepartment[];
+    allUsers: IBXUser[];
 }

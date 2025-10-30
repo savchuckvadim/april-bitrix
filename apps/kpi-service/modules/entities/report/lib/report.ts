@@ -1,20 +1,22 @@
-import { BXUser } from '@workspace/bx';
 
 
-import { Filter, FilterInnerCode, Kpi, ReportData } from '@workspace/nest-api';
+
+import { IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
+import { KPIOrk, OrkKpiFilter, OrkKpiFilterInnerCode, OrkReportKpiData } from '@workspace/nest-api';
+// import { Filter, FilterInnerCode, Kpi, ReportData } from '@workspace/nest-api';
 
 export const getFiltredrReport = (
-    report: ReportData[],
-    department: BXUser[],
-    actions: Filter[],
-    filter: FilterInnerCode[],
-): ReportData[] => {
+    report: OrkReportKpiData[],
+    department: IBXUser[],
+    actions: OrkKpiFilter[],
+    filter: OrkKpiFilterInnerCode[],
+): OrkReportKpiData[] => {
     let resultRep = getSpreadReport(report).filter(rep =>
         department.some(user => Number(user.ID) === Number(rep.user.ID)),
-    ) as Array<ReportData>;
+    ) as Array<OrkReportKpiData>;
 
     for (const key in resultRep) {
-        const filtredKPI = [] as Array<Kpi>;
+        const filtredKPI = [] as Array<KPIOrk>;
         resultRep?.[key]?.kpi?.forEach(kpi => {
             if (
                 actions.some(
@@ -35,11 +37,11 @@ export const getFiltredrReport = (
 };
 
 export const getSpreadReport = (
-    report: Array<ReportData>,
-): Array<ReportData> => {
+    report: Array<OrkReportKpiData>,
+): Array<OrkReportKpiData> => {
     return report.map(report => ({
         ...report,
-        kpi: report.kpi.map((kpi: Kpi) => ({ ...kpi })),
+        kpi: report.kpi.map((kpi: KPIOrk) => ({ ...kpi })),
     }));
 };
 // export const getFiltredCallReport = (
@@ -53,13 +55,13 @@ export const getSpreadReport = (
 //     return resultRep
 // }
 
-export const getTotalData = (report: ReportData[]): Kpi[] => {
-    const totalKPI = [] as Kpi[];
+export const getTotalData = (report: OrkReportKpiData[]): KPIOrk[] => {
+    const totalKPI = [] as KPIOrk[];
     report.forEach(urep => {
         urep.kpi.forEach(kpi => {
             const totalItem = totalKPI.find(
-                (item: Kpi) => item.id === kpi.id,
-            ) as Kpi | undefined;
+                (item: KPIOrk) => item.id === kpi.id,
+            ) as KPIOrk | undefined;
             if (totalItem) {
                 totalItem.count += kpi.count;
             } else {
@@ -71,10 +73,10 @@ export const getTotalData = (report: ReportData[]): Kpi[] => {
 };
 
 export const getMediumData = (
-    report: ReportData[],
-    currentKPI: Kpi[],
-): Kpi[] => {
-    const mediumKPI = [] as Kpi[];
+    report: OrkReportKpiData[],
+    currentKPI: KPIOrk[],
+): KPIOrk[] => {
+    const mediumKPI = [] as KPIOrk[];
 
     currentKPI.forEach(kpi => {
         mediumKPI.push({

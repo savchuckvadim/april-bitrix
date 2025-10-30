@@ -1,14 +1,14 @@
-import { createSlice, PayloadAction, Slice } from '@reduxjs/toolkit';
-import { BXDepartment, BXUser } from '@workspace/bx';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { updateCurrentGroupsByUsers } from '../lib/department-util';
+import { IBXDepartment, IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 
 export interface DepartmentState {
-    items: BXUser[];
-    current: BXUser[];
+    items: IBXUser[];
+    current: IBXUser[];
     // detalization: BXUser | null;
     groups: {
-        items: BXDepartment[];
-        current: BXDepartment[];
+        items: IBXDepartment[];
+        current: IBXDepartment[];
     };
     isHeadManager: boolean;
 }
@@ -31,10 +31,10 @@ const departmentSlice = createSlice({
         setFetchedDepartment: (
             state: DepartmentState,
             action: PayloadAction<{
-                departament: BXUser[];
-                currentUsers: BXUser[];
-                groups: BXDepartment[];
-                currentGroups: BXDepartment[];
+                departament: IBXUser[];
+                currentUsers: IBXUser[];
+                groups: IBXDepartment[];
+                currentGroups: IBXDepartment[];
                 isHeadManager: boolean;
             }>,
         ) => {
@@ -51,7 +51,7 @@ const departmentSlice = createSlice({
         },
         setDepartmentCurrent: (
             state: DepartmentState,
-            action: PayloadAction<BXUser[]>,
+            action: PayloadAction<IBXUser[]>,
         ) => {
             state.current = action.payload;
             state.groups.current = updateCurrentGroupsByUsers(
@@ -63,8 +63,8 @@ const departmentSlice = createSlice({
         setGroup: (
             state: DepartmentState,
             action: PayloadAction<{
-                currentUsers: BXUser[];
-                currentGroups: BXDepartment[];
+                currentUsers: IBXUser[];
+                currentGroups: IBXDepartment[];
             }>,
         ) => {
             state.current = action.payload.currentUsers;

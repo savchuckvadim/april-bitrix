@@ -5,12 +5,19 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { BxDepartmentDtoDomain } from './bxDepartmentDtoDomain';
-import type { BxDepartmentDtoDepartment } from './bxDepartmentDtoDepartment';
+import type { BxDepartmentDtoUFHEAD } from './bxDepartmentDtoUFHEAD';
 
 export interface BxDepartmentDto {
-    /** Domain of the Bitrix24 portal */
-    domain: BxDepartmentDtoDomain;
-    /** Department group to filter by */
-    department?: BxDepartmentDtoDepartment;
+    /** Department ID */
+    ID: number;
+    /** Department name */
+    NAME: string;
+    /** Department parent */
+    PARENT: string;
+    /** Department sort */
+    SORT: number;
+    /** Department users */
+    USERS: string[];
+    /** Department head */
+    UF_HEAD: BxDepartmentDtoUFHEAD;
 }

@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    BxDepartmentDto,
-    DepartmentGetFullDepartment200,
+    BxDepartmentRequestDto,
+    BxDepartmentResponseDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
@@ -16,22 +16,24 @@ export const getBitrixDomainDepartment = () => {
     /**
      * @summary Get full department information
      */
-    const departmentGetFullDepartment = (bxDepartmentDto: BxDepartmentDto) => {
-        return customAxios<DepartmentGetFullDepartment200>({
+    const departmentGetFullDepartment = (
+        bxDepartmentRequestDto: BxDepartmentRequestDto,
+    ) => {
+        return customAxios<BxDepartmentResponseDto>({
             url: `/api/bx/department`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            data: bxDepartmentDto,
+            data: bxDepartmentRequestDto,
         });
     };
     const departmentEndpointGetFullDepartment = (
-        bxDepartmentDto: BxDepartmentDto,
+        bxDepartmentRequestDto: BxDepartmentRequestDto,
     ) => {
         return customAxios<void>({
             url: `/api/bitrix/department/sales`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            data: bxDepartmentDto,
+            data: bxDepartmentRequestDto,
         });
     };
     return { departmentGetFullDepartment, departmentEndpointGetFullDepartment };

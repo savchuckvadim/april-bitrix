@@ -1,24 +1,24 @@
-import { logServer } from '@/app/lib/log/logServer';
+// import { logServer } from '@/app/lib/log/logServer';
 import { NextRequest, NextResponse } from 'next/server';
 
 //редирект next из post запроса в апп
 export async function POST(req: NextRequest) {
     try {
-        logServer(
-            'info',
-            'redirect from api/bitrix/app',
-            'KPI REPORT SALES api/bitrix/app',
-            'report post to get report redirect in bitrix',
-            'domain',
-            'ID',
-            {
-                req: req.json(),
-            },
-            new Date().toISOString(),
-        );
+        // logServer(
+        //     'info',
+        //     'redirect from api/bitrix/app',
+        //     'KPI REPORT SALES api/bitrix/app',
+        //     'report post to get report redirect in bitrix',
+        //     'domain',
+        //     'ID',
+        //     {
+        //         req: req.json(),
+        //     },
+        //     new Date().toISOString(),
+        // );
 
         const response = NextResponse.redirect(
-            new URL('/report', req.url),
+            new URL('/report/kpi', req.url),
             303,
         );
 

@@ -1,6 +1,6 @@
 //components
 // export { AppLazyContainer as App } from './ui/AppLazyContainer';
-export { Providers } from './model/Provider';
+export { App } from './ui/App';
 //reducer
 export { appReducer, appActions } from './model/AppSlice';
 

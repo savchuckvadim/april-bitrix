@@ -1,16 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useReport } from '../model';
-
-import Filter from './Filter';
-
 import KPIReportTable from './Tables/KPIReportTable';
 import Graphics from './Graphics';
 
-import { Processing } from '@/modules/shared';
-import ReportHeader from './ReportHeader/ReportHeader';
 import { CallingStatistics } from '../../calling-statistics';
 import NoreportData from './components/NoreportData';
 import { useCallingStatistics } from '../../calling-statistics/lib/hooks/useCallingStatistics';
+
 const Report = () => {
     const {
         report,
@@ -22,10 +18,10 @@ const Report = () => {
     const { isLoading: isCallingLoading, data: callingsReport } =
         useCallingStatistics();
 
-    const [isFilterOpen, setIsFilterOpen] = React.useState(false);
-    const [mounted, setMounted] = React.useState(false);
 
-    React.useEffect(() => {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
         setMounted(true);
     }, []);
 
@@ -35,15 +31,15 @@ const Report = () => {
 
     return (
         <div className=" p-7">
-            {isLoading || !isFetched ? (
+            {/* {isLoading || !isFetched ? (
                 <Processing />
-            ) : (
+            ) : ( */}
                 <>
-                    <ReportHeader
+                    {/* <ReportHeader
                         isFilterOpen={isFilterOpen}
                         setIsFilterOpen={setIsFilterOpen}
-                    />
-                    <Filter isOpen={isFilterOpen} />
+                    /> */}
+                    {/* <Filter  /> */}
 
                     {isLoading && isFetched ? (
                         <div className="flex justify-center items-center h-5/6 mt-3">
@@ -70,7 +66,9 @@ const Report = () => {
                         </>
                     )}
                 </>
-            )}
+            {/* )} */}
+
+
         </div>
     );
 };

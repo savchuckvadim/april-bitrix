@@ -1,10 +1,11 @@
 import React from 'react';
-import { ReportData } from '@workspace/nest-api';
+
 import { getReportTableData } from '../../lib/ui-util';
 import { RTable } from '@/modules/shared';
+import { OrkReportKpiData } from '@workspace/nest-api';
 
 interface KPIReportTableProps {
-    report: ReportData[];
+    report: OrkReportKpiData[];
 }
 
 const KPIReportTable: React.FC<KPIReportTableProps> = ({ report }) => {
@@ -17,6 +18,7 @@ const KPIReportTable: React.FC<KPIReportTableProps> = ({ report }) => {
             code={tableData.code}
             firstCellName={tableData.firstCellName}
             data={tableData.data}
+            withLink={true}
         />
     );
 };

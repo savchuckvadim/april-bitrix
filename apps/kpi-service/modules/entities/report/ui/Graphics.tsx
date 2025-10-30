@@ -4,7 +4,7 @@ import GraphicBoard from './charts/GraphicBoard';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import KPITotal from './Dashboards/KPITotalBoard';
 
-import { ReportData } from '@workspace/nest-api';
+import { OrkReportKpiData as ReportData } from '@workspace/nest-api';
 
 interface GraphicsProps {
     report: ReportData[];
@@ -30,7 +30,7 @@ const Graphics: React.FC<GraphicsProps> = ({ report }) => {
     return (
         <div className="grid grid-cols-1 gap-4">
             <GraphicBoard report={report} />
-            <KPITotal />
+            {/* <KPITotal /> */}
             {/* VoximplantBoard */}
             {/* KPIReportTable */}
             {/* CallingReportTable */}

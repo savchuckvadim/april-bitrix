@@ -1,0 +1,6 @@
+export * from './model/slice/DealsReportSlice'
+export { DealsReport } from './ui/DealsReport'
+export { DealsReportTable } from './ui/DealsReportTable'
+export { DealsReportCompact } from './ui/DealsReportCompact'
+export { DealsAnalytics } from './ui/DealsAnalytics'
+export { DealsReportTimelineCompactRefactored } from './ui'

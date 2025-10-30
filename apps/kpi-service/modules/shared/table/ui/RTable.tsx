@@ -11,17 +11,23 @@ import {
 import { Card } from '@workspace/ui/components/card';
 import { Tooltip, TooltipContent } from '@workspace/ui/components/tooltip';
 import { TooltipTrigger } from '@workspace/ui/components/tooltip';
+import { useUserReport } from '@/modules/entities';
+import Link from 'next/link';
 
 export interface RTableProps {
     code: string;
     firstCellName: string;
     data: {
+        id?: number;
         name: string;
         actions: { name: string; value: number }[];
     }[];
+    withLink?: boolean;
+    onClick?: (id: number) => void;
 }
 
-const RTable: FC<RTableProps> = ({ code, data, firstCellName }) => {
+const RTable: FC<RTableProps> = ({ code, data, firstCellName, withLink, onClick }) => {
+    const { getUserReport } = useUserReport();
     return (
         <Card className="my-4 p-4 bg-popover text-primary">
             <ShadcnTable className="bg-popover text-primary">
@@ -56,7 +62,15 @@ const RTable: FC<RTableProps> = ({ code, data, firstCellName }) => {
                             key={`report-${code}-${report.name}-${userIndex}`}
                         >
                             <TableCell className="font-medium">
-                                {report.name}
+
+                                {withLink && report.id ?
+                                    <Link href={`/report/user?userId=${report.id}`} className="text-primary hover:text-blue-700">
+                                        {report.name}
+                                    </Link>
+
+                                    : <p onClick={() => report.id && onClick?.(report.id)}>
+                                        {report.name}
+                                    </p>}
                             </TableCell>
                             {report.actions.map((action, index) => (
                                 <TableCell

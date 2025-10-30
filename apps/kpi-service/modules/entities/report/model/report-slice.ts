@@ -11,7 +11,7 @@ import {
     // ReportDetalization,
 } from './types/report/report-type';
 import { getDatesByMode, normalizeToISO } from '../lib/date-util';
-import { ReportData, Filter, FilterInnerCode } from '@workspace/nest-api';
+import { OrkKpiFilter, OrkKpiFilterInnerCode, OrkReportKpiData, ReportGetFiltersDto, } from '@workspace/nest-api';
 export type ReportState = typeof initialState;
 
 const getInitialDate = () => {
@@ -28,11 +28,11 @@ const getInitialDate = () => {
 
 const initialState = {
     data: null,
-    filter: [] as Array<FilterInnerCode>,
+    filter: [] as Array<OrkKpiFilterInnerCode>,
     isFilterLoading: false as boolean,
     actions: {
-        items: [] as Array<Filter>,
-        current: [] as Array<Filter>,
+        items: [] as Array<OrkKpiFilter>,
+        current: [] as Array<OrkKpiFilter>,
     },
     // calling: {
     //     items: null as ReportCallingData[] | null,
@@ -45,7 +45,7 @@ const initialState = {
         inProcess: false as boolean,
         mode: 'range' as EReportDateMode,
     } as ReportDate,
-    report: [] as Array<ReportData>,
+    report: [] as Array<OrkReportKpiData>,
     // detalization: {
     //     report: null as ReportData | null,
     //     action: null as KPIAction | null,
@@ -55,6 +55,8 @@ const initialState = {
     isInitialized: false as boolean,
     currentReportItem: 0 as number,
     currentGroup: 0 as number,
+    isFilterOpen: false as boolean,
+
 };
 
 const reportSlice = createSlice({
@@ -64,7 +66,7 @@ const reportSlice = createSlice({
         setFetchedReport: (
             state: ReportState,
             action: PayloadAction<{
-                report: Array<ReportData>;
+                report: Array<OrkReportKpiData>;
                 dateFieldId: string;
                 actionFieldId: string;
             }>,
@@ -75,14 +77,14 @@ const reportSlice = createSlice({
         },
         setUserReport: (
             state: ReportState,
-            action: PayloadAction<ReportData>,
+            action: PayloadAction<OrkReportKpiData>,
         ) => {
             const isUpdated = state.report.some(
-                report => report.user.ID === action.payload.user.ID,
+                report => report.user.id === action.payload.user.id,
             );
             if (isUpdated) {
                 state.report = state.report.map(report =>
-                    report.user.ID === action.payload.user.ID
+                    report.user.id === action.payload.user.id
                         ? action.payload
                         : report,
                 );
@@ -93,8 +95,8 @@ const reportSlice = createSlice({
         setFetchedFilter: (
             state: ReportState,
             action: PayloadAction<{
-                filter: Array<Filter>;
-                currentFilter: Array<FilterInnerCode> | null;
+                filter: Array<OrkKpiFilter>;
+                currentFilter: Array<OrkKpiFilterInnerCode> | null;
             }>,
         ) => {
             state.filter =
@@ -111,7 +113,7 @@ const reportSlice = createSlice({
         },
         setCurrentFilter: (
             state: ReportState,
-            action: PayloadAction<FilterInnerCode>,
+            action: PayloadAction<OrkKpiFilterInnerCode>,
         ) => {
             const isNeedCut = state.filter.includes(action.payload);
             state.filter = isNeedCut
@@ -121,8 +123,8 @@ const reportSlice = createSlice({
         setFetchedActions: (
             state: ReportState,
             action: PayloadAction<{
-                actions: Array<Filter>;
-                currentFilter: Array<FilterInnerCode> | null;
+                actions: Array<OrkKpiFilter>;
+                currentFilter: Array<OrkKpiFilterInnerCode> | null;
             }>,
         ) => {
             const current =
@@ -181,7 +183,7 @@ const reportSlice = createSlice({
         },
         setCurrentActions: (
             state: ReportState,
-            action: PayloadAction<Array<Filter>>,
+            action: PayloadAction<Array<OrkKpiFilter>>,
         ) => {
             state.actions.current = action.payload;
         },
@@ -215,6 +217,12 @@ const reportSlice = createSlice({
             action: PayloadAction<number>,
         ) => {
             state.currentGroup = action.payload;
+        },
+        setIsFilterOpen: (
+            state: ReportState,
+            action: PayloadAction<boolean>,
+        ) => {
+            state.isFilterOpen = action.payload;
         },
     },
 });

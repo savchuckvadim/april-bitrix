@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { APP_TYPE } from '../types/app/app-type';
 import { Portal } from '../types/portal/portal-type';
-import type { BXUser } from '@workspace/bx';
+import { IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 
 export type AppState = typeof initialState;
 export enum APP_DEP {
@@ -12,7 +12,7 @@ const initialState = {
     domain: '',
     app: APP_TYPE.REPORT as APP_TYPE,
     bitrix: {
-        user: null as BXUser | null,
+        user: null as IBXUser | null,
     },
     client: {
         id: '',
@@ -32,7 +32,7 @@ const initialState = {
 };
 export interface InitReport {
     domain: string;
-    user: BXUser;
+    user: IBXUser | null;
 }
 const appSlice = createSlice({
     name: 'app',
@@ -51,12 +51,15 @@ const appSlice = createSlice({
             state.domain = payload.domain;
             state.bitrix.user = payload.user;
             state.initialized = true;
+
             //   if (state.domain === "gsirk.bitrix24.ru") {
             //     state.client.isExpired = true;
             //   }
+
         },
 
         setInitializedSuccess: (state: AppState, action: PayloadAction<{}>) => {
+
             state.initialized = true;
         },
         setInitializedError: (

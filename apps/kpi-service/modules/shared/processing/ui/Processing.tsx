@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 
 //Import Countdown
@@ -16,7 +17,7 @@ const Processing: React.FC = () => {
             <div className="max-w-sm w-full">
                 <div className="flex justify-center mb-6 z-0">
                     <Image
-                        src="./cover/coming-soon.svg"
+                        src="/cover/coming-soon.svg"
                         alt="processing"
                         priority
                         className="w-full h-auto z-0"

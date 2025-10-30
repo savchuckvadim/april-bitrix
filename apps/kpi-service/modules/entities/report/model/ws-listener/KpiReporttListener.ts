@@ -8,8 +8,8 @@ import { ReportRequest } from '../report-service';
 import { getReportDataAPI } from '../../lib/helpers';
 import { callingStatisticsApi } from '@/modules/entities/calling-statistics';
 import { socket } from '@/modules/app/model/AppThunk';
-import { ReportData,  Filter,
-    FilterInnerCode, } from '@workspace/nest-api';
+import { OrkReportKpiData as ReportData, OrkKpiFilter as Filter,
+    OrkKpiFilterInnerCode as FilterInnerCode, } from '@workspace/nest-api';
 
 // или wss://api.myapp.ru
 

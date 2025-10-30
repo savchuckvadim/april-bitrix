@@ -1,6 +1,6 @@
 import React from 'react';
 import KPIChart from './KPIChart';
-import { ReportData } from '@workspace/nest-api';
+import { OrkReportKpiData as ReportData } from '@workspace/nest-api';
 
 interface GraphicBoardeProps {
     report: ReportData[];

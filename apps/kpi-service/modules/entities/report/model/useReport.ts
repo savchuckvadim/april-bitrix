@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getReportData, changeDate, saveFilter } from './report-thunks';
+'use client'
+import { useEffect, useMemo } from 'react';
+import { getReportData, changeDate, saveFilter } from './thunks/report-thunks';
 import {
     ReportDateType,
-    Filter,
     EReportDateMode,
-  
+
 } from './types/report/report-type';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { reportActions } from './report-slice';
 import { getFiltredrReport, getMediumData, getTotalData } from '../lib/report';
+import { IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 
 export const useReport = () => {
     const dispatch = useAppDispatch();
@@ -48,7 +49,7 @@ export const useReport = () => {
     const filtredReport = useMemo(() => {
         return getFiltredrReport(
             reportState.report,
-            department,
+            department as IBXUser[],
             reportState.actions.current,
             reportState.filter,
         );
@@ -72,6 +73,8 @@ export const useReport = () => {
         date: reportState.date,
         actions: reportState.actions,
         isFilterLoading: reportState.isFilterLoading,
+        isFilterOpen: reportState.isFilterOpen,
+        setIsFilterOpen: (isFilterOpen: boolean) => dispatch(reportActions.setIsFilterOpen(isFilterOpen)),
         handleDateChange,
         handleDateModeChange,
         handleUpdateReport,

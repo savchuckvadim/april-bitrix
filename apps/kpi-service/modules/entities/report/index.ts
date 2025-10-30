@@ -6,3 +6,6 @@ export { reportActions } from './model';
 export { default as Report } from './ui/Report';
 
 export { getFiltredrReport } from './lib/report';
+
+
+export { ReportProvider } from './ui/providers/ReportProvider';

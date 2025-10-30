@@ -1,6 +1,6 @@
 import { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import {
-    ReportData,
+    OrkReportKpiData as ReportData,
 
 } from '@workspace/nest-api';
 import { API_METHOD, backAPI, EBACK_ENDPOINT } from '@workspace/api';

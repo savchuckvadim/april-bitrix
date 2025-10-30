@@ -42,7 +42,7 @@ export const ColorSchemePicker = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute z-50 mt-2 w-48 p-4 bg-popover rounded-md shadow-lg grid grid-cols-4 gap-2"
+                        className="absolute z-50 mt-2 w-48 p-4 bg-popover rounded-md shadow-lg grid grid-cols-1 gap-2"
                     >
                         {schemeList.map(({ value, color }) => (
                             <button

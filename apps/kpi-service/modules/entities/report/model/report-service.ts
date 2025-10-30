@@ -6,7 +6,7 @@ import {
     FilterInnerCode,
     ReportDateType,
 } from './types/report/report-type';
-import { ReportGetFiltersDto, ReportData } from '@workspace/nest-api';
+import { OrkReportKpiData, ReportGetFiltersDto, } from '@workspace/nest-api';
 
 const onlineHeaders = getApiHeaders(process.env.ONLINE_API_KEY || '');
 
@@ -29,6 +29,7 @@ export interface FilterResponse {
         [ReportDateType.FROM]: string;
         [ReportDateType.TO]: string;
     } | null;
+   
 }
 
 export const reportAPI = createApi({
@@ -43,7 +44,7 @@ export const reportAPI = createApi({
         },
     }),
     endpoints: builder => ({
-        getReport: builder.query<ReportData[], ReportRequest>({
+        getReport: builder.query<OrkReportKpiData[], ReportRequest>({
             query: reportData => ({
                 url: 'full/report/get',
                 method: 'POST',

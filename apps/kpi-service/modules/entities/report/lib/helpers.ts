@@ -1,17 +1,18 @@
 
 
+import { getOrkReport, GetOrkReportKpiResponseDto, OrkReportKpiData } from '@workspace/nest-api';
 import { ReportRequest } from '../model/report-service';
-import { getKpiReportService, GetReportResponseDto, ReportData } from '@workspace/nest-api';
+
 
 export const getReportDataAPI = async (
     reportData: ReportRequest,
-): Promise<ReportData[] | null> => {
-    let reportResponse: GetReportResponseDto | null = null;
+): Promise<OrkReportKpiData[] | null> => {
+    let reportResponse: GetOrkReportKpiResponseDto | null = null;
 
 
     try {
-        const api = getKpiReportService()
-        reportResponse = await api.kpiReportOrkEventGet({
+        const api = getOrkReport()
+        reportResponse = await api.kpiGet({
             domain: reportData.domain,
             filters: reportData.filters,
         })

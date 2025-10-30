@@ -8,6 +8,8 @@ import { TimelineTable } from './features/TimelineTable';
 import { ImplementationAnalytics } from './components/ImplementationAnalytics';
 import { useDepartment } from '@/modules/entities/departament';
 import { TimeLineTotal } from '../TimeLineTotal';
+import { Button } from '@workspace/ui/components/button';
+import { cn } from '@workspace/ui/lib/utils';
 
 interface DealsReportTimelineCompactProps {
     companies: OrkReportDealsByCompaniesDto[];
@@ -126,7 +128,7 @@ export const DealsReportTimelineCompact: React.FC<DealsReportTimelineCompactProp
     }
 
     return (
-        <div className="space-y-4">
+        <div className="container mx-auto space-y-4">
             {/* Фильтры */}
             <div className="flex flex-col gap-4 items-center justify-between">
 
@@ -135,18 +137,32 @@ export const DealsReportTimelineCompact: React.FC<DealsReportTimelineCompactProp
                         mode={timelineMode}
                         onModeChange={handleModeChange}
                     />
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setShowTotal(!showTotal)}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                        className={cn(
+                            "px-4 py-2 rounded-lg   transition-colors",
+                            showTotal ?
+                                "bg-primary text-background  hover:bg-primary/10 hover:text-primary"
+                                : "bg-primary/10 text-primary hover:bg-primary hover:text-background"
+                        )}
                     >
                         {showTotal ? 'Скрыть итоги' : 'Показать итоги'}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setShowAnalytics(!showAnalytics)}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        className={cn(
+                            "px-4 py-2 rounded-lg   transition-colors",
+                            showAnalytics ?
+                                "bg-primary text-background  hover:bg-primary/10 hover:text-primary"
+                                : "bg-primary/10 text-primary hover:bg-primary hover:text-background"
+                        )}
                     >
                         {showAnalytics ? 'Скрыть аналитику' : 'Показать аналитику'}
-                    </button>
+                    </Button>
                 </div>
                 {!showAnalytics && !showTotal && <PeriodFilterComponent
                     filter={periodFilter}

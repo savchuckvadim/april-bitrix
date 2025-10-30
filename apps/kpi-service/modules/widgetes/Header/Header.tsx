@@ -24,11 +24,7 @@ export default function Header() {
     return (
         <>
             <div className="flex justify-between items-start mb-5">
-                {/* <div className="flex flex-row">
-
-                    <h1 className="text-xl font-bold mx-2">KPI</h1>
-                    <h1 className="text-xl font-bold mx-2">Финансы</h1>
-                </div> */}
+       
                 <NavigationDynamic />
                 <div className="flex flex-row justify-end items-center gap-2">
                     <ManageReportFilterDynamic />

@@ -1,8 +1,8 @@
 import axios, { AxiosResponse, Method } from 'axios';
 import { AUTH_TOKEN_NAME } from '../consts/auth.consts';
 
-// const prod = 'https://back.april-app.ru/';
-const prod = `http://localhost:3000`;
+const prod = 'https://back.april-app.ru/';
+// const prod = `http://localhost:3000`;
 // const prod = `http://localhost:8334/`;
 const url = prod;
 // const url = 'https://dis7h8-92-63-121-184.ru.tuna.am';

@@ -13,4 +13,6 @@ export interface LoginResponseDto {
     user: UserResponseDto;
     /** Client */
     client: ClientDto;
+    /** Token */
+    token: string;
 }

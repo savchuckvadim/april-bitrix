@@ -95,8 +95,8 @@ export const getReportData =
                 const currentGroups: BXDepartment[] = currentGroup
                     ? [currentGroup]
                     : !isHeadManager
-                      ? []
-                      : groups;
+                        ? []
+                        : groups;
                 const users: BXUser[] = [];
 
                 if (
@@ -264,39 +264,39 @@ export const getReportData =
 
 export const changeDate =
     (typeOfDate: ReportDateType, date: string) =>
-    async (dispatch: AppDispatch) => {
-        dispatch(reportActions.setChangedDate({ typeOfDate, value: date }));
-    };
+        async (dispatch: AppDispatch) => {
+            dispatch(reportActions.setChangedDate({ typeOfDate, value: date }));
+        };
 
 export const setCurrentActions =
     (actionCode: FilterInnerCode) =>
-    async (dispatch: AppDispatch, getState: () => RootState) => {
-        const report = getState().report;
-        const actions = report.actions;
-        const items = actions.items;
-        const current = actions.current;
+        async (dispatch: AppDispatch, getState: () => RootState) => {
+            const report = getState().report;
+            const actions = report.actions;
+            const items = actions.items;
+            const current = actions.current;
 
-        const searchingActionInCurrent = current.find(
-            (action: Filter) => action.innerCode === actionCode,
-        );
-        let updtCurrent = [...actions.current];
-
-        if (searchingActionInCurrent) {
-            updtCurrent = updtCurrent.filter(
-                (action: Filter) => action.innerCode !== actionCode,
-            );
-        } else {
-            const addingUser = items.find(
+            const searchingActionInCurrent = current.find(
                 (action: Filter) => action.innerCode === actionCode,
             );
-            if (addingUser) {
-                updtCurrent.push(addingUser);
-            }
-        }
+            let updtCurrent = [...actions.current];
 
-        dispatch(reportActions.setCurrentFilter(actionCode));
-        dispatch(reportActions.setCurrentActions(updtCurrent));
-    };
+            if (searchingActionInCurrent) {
+                updtCurrent = updtCurrent.filter(
+                    (action: Filter) => action.innerCode !== actionCode,
+                );
+            } else {
+                const addingUser = items.find(
+                    (action: Filter) => action.innerCode === actionCode,
+                );
+                if (addingUser) {
+                    updtCurrent.push(addingUser);
+                }
+            }
+
+            dispatch(reportActions.setCurrentFilter(actionCode));
+            dispatch(reportActions.setCurrentActions(updtCurrent));
+        };
 
 export const saveFilter =
     () => async (dispatch: AppDispatch, getState: () => RootState) => {

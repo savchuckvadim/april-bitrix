@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from './redux';
-import { initial, reloadApp } from '../../model/thunk/AppThunk';
+import { initializeApp, reloadApp } from '../../model/thunk/AppThunk';
 
 export const useApp = () => {
     const dispatch = useAppDispatch();
@@ -15,7 +15,7 @@ export const useApp = () => {
 
     useEffect(() => {
         if (isClient && !app.initialized && !app.isLoading) {
-            dispatch(initial());
+            dispatch(initializeApp());
         }
 
         if (isClient && app.initialized && !app.isLoading) {

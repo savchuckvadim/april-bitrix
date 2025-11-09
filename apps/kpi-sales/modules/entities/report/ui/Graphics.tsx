@@ -30,7 +30,7 @@ const Graphics: React.FC<GraphicsProps> = ({ report }) => {
     return (
         <div className="grid grid-cols-1 gap-4">
             <GraphicBoard report={report} />
-            <KPITotal />
+            {/* <KPITotal /> */}
             {/* VoximplantBoard */}
             {/* KPIReportTable */}
             {/* CallingReportTable */}

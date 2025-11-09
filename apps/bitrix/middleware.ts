@@ -6,11 +6,26 @@ export async function middleware(req: NextRequest) {
     const cookie = await req.cookies.get(AUTH_ACCESS_TOKEN_NAME_PUBLIC);
 
     const token = cookie?.value;
+    const url = req.nextUrl;
+    const isAuthPage = url.pathname.startsWith('/auth');
+    const isProtected = url.pathname.startsWith('/standalone');
+    const pathname = url.pathname;
+
 
     console.log('token', token);
     console.log('req.nextUrl.pathname', req.nextUrl.pathname);
+
+    // ✅ Уже залогинен — не даём попасть на /auth/login
+    // if (token && isAuthPage) {
+    //     console.log('redirect to standalone');
+
+    //     return NextResponse.redirect(new URL('/standalone', req.url));
+    // }
+
+
     // Если нет токена — редирект на логин
-    if (!token && req.nextUrl.pathname.startsWith('/public')) {
+    if (!token  && isProtected) {
+        console.log('redirect to auth/login');
         return NextResponse.redirect(new URL('/auth/login', req.url));
     }
 
@@ -19,5 +34,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/public/:path*'], // защищаем только /public
+    matcher: ['/standalone/:path*'], // защищаем только /public и /auth
 };

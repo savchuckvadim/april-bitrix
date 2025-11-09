@@ -6,12 +6,17 @@ import { AppDispatch, AppGetState, AppThunk, initWSClient } from './store';
 import { Socket, WSClient } from '@workspace/ws';
 import { socketThunk } from './queue-ws-ping-test/QueueWsPingListener';
 import { telegramSendMessage } from '@/modules/shared';
+import { startWsEventsListener } from '@/modules/entities';
 
 export let socket: undefined | WSClient;
 
 export const initial =
     (inBitrix: boolean = false): AppThunk =>
     async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
+
+        //listeners
+// startUserReportAppListener(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>);
+
         const state = getState();
         const app = state.app;
         const isLoading = app.isLoading;
@@ -36,7 +41,7 @@ export const initial =
             initWSClient(user.ID, domain); // <- здесь создаёшь сокет
             // const socket = getWSClient()
             dispatch(socketThunk(user.ID, domain));
-
+debugger;
             dispatch(
                 appActions.setAppData({
                     domain,
@@ -44,6 +49,10 @@ export const initial =
                 }),
             );
 
+
+            //for user-report
+            const wsClient = getWSClient();
+            await startWsEventsListener(dispatch, wsClient);
             dispatch(appActions.loading({ status: false }));
             // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
         }

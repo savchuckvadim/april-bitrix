@@ -73,7 +73,8 @@ export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, id
                     ) : (
                         <Tooltip content={'открыть в crm'}
                             children={
-                                <Link className='text-foreground hover:text-primary' href={`https://${domain}/crm/company/details/${companyId}/`} target="_blank">
+                                <Link className='text-foreground hover:text-primary'
+                                    href={`https://${domain}/crm/company/details/${companyId}/`} target="_blank">
                                     {company}
                                 </Link>
                             } />
@@ -93,19 +94,22 @@ export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, id
                 >
                     <Tooltip content={'открыть элемент kpi в crm'}
                         children={<Link
+                            className='text-foreground hover:text-primary h-full'
                             style={{
                                 cursor: 'pointer',
                             }}
 
-                            href={`https://${domain}/company/lists/93/element/0/${item.id}/?list_section_id=`} target="_blank">
-                            <textarea
+                            href={`https://${domain}/company/lists/93/element/0/${item.id}/`} target="_blank">
+                            {/* <textarea
                                 style={{
                                     cursor: 'pointer',
                                 }}
 
-                                className='h-24 w-full min-w-[270px] resize-none overflow-hidden hover:text-primary' disabled={true}>
+                                className='h-24 w-full min-w-[270px] resize-none overflow-hidden hover:text-primary' disabled={true}> */}
+                            <p className='h-full break-all whitespace-normal'>
                                 {comment || '- нет комментария -'}
-                            </textarea>
+                            </p>
+                            {/* </textarea> */}
                         </Link>
                         } />
                 </td>

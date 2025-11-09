@@ -16,6 +16,9 @@ const schemeList = [
     { value: 'orange', color: '#F97316' },
     { value: 'yellow', color: '#FACC15' },
     { value: 'green', color: '#22C55E' },
+    { value: 'bx', color: '#30c3ef' },
+    { value: 'beige', color: '#F5F3F0' },
+    { value: 'explosive-pink', color: '#bb52d4' },
 ];
 
 export const ColorSchemePicker = () => {
@@ -42,19 +45,21 @@ export const ColorSchemePicker = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute z-50 mt-2 w-48 p-4 bg-popover rounded-md shadow-lg grid grid-cols-1 gap-2"
+                        className="absolute z-50 mt-2 p-4 bg-popover rounded-md shadow-lg"
                     >
-                        {schemeList.map(({ value, color }) => (
-                            <button
-                                key={value}
-                                className={`cursor-pointer w-8 h-8 rounded-full border-2 ${scheme === value ? 'ring-2 ring-foreground' : ''}`}
-                                style={{ backgroundColor: color }}
-                                onClick={() => {
-                                    setScheme(value as ColorScheme);
-                                    setOpen(false);
-                                }}
-                            />
-                        ))}
+                        <div className="w-full  flex flex-col gap-2">
+                            {schemeList.map(({ value, color }) => (
+                                <button
+                                    key={value}
+                                    className={`cursor-pointer w-8 h-8 rounded-full border-2 ${scheme === value ? 'ring-2 ring-foreground' : ''}`}
+                                    style={{ backgroundColor: color }}
+                                    onClick={() => {
+                                        setScheme(value as ColorScheme);
+                                        setOpen(false);
+                                    }}
+                                />
+                            ))}
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

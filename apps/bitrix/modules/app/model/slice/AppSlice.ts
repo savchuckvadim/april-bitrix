@@ -45,6 +45,11 @@ const initialState = {
         withAI: false,
         withPresentationAnimate: false,
         withColorRequired: false,
+    },
+    clientContext: {
+        isClient: false,
+        domain: '',
+        place: 'standalone' as 'standalone' | 'frame',
     }
 
 
@@ -65,6 +70,16 @@ const appSlice = createSlice({
         ) => {
 
             state.isLoading = action.payload.status;
+        },
+        setClientContext: (
+            state: AppState,
+            action: PayloadAction<{
+                isClient: boolean,
+                domain: string,
+                place: 'standalone' | 'frame',
+            }>
+        ) => {
+            state.clientContext = action.payload;
         },
         setAppData: (
             state: AppState,

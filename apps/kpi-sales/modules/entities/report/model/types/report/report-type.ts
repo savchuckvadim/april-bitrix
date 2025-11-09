@@ -145,6 +145,7 @@ type KPIListItem = {
 };
 
 export interface ReportData {
+    id: number;
     user: BXUser;
     userName?: string;
     // callings: KPICall[]

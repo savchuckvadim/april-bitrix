@@ -24,7 +24,8 @@ export * from './portal-konstructor/portal-konstructor';
 
 // KPI REPORT
 // sales report
-export * from './kpi-report/kpi-report';
+
+export * from './sales-report/sales-report';
 //ork report
 
 export * from './ork-report/ork-report';

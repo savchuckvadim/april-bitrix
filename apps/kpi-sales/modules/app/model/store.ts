@@ -1,12 +1,9 @@
 import {
     Action,
-    AnyAction,
+
     combineReducers,
     configureStore,
     createListenerMiddleware,
-    Dispatch,
-    Middleware,
-    MiddlewareAPI,
     ThunkAction,
 } from '@reduxjs/toolkit';
 import { appReducer } from './AppSlice';
@@ -19,8 +16,11 @@ import { download } from '@/modules/feature/download';
 import { callingStatisticsReducer } from '@/modules/entities/calling-statistics';
 import { callingStatisticsApi } from '@/modules/entities/calling-statistics/model/callingStatisticsService';
 import { WSClient } from '@workspace/ws';
+import { startUserReportAppListener, userReportReducer } from '@/modules/entities';
+import { reportTypeReducer } from '@/modules/feature/';
 
 export const listenerMiddleware = createListenerMiddleware();
+
 let wsClient: WSClient;
 
 // const socketMiddleware: Middleware = (storeAPI: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
@@ -49,7 +49,10 @@ const rootReducer = combineReducers({
     [reportAPI.reducerPath]: reportAPI.reducer,
     callingStatistics: callingStatisticsReducer,
     [callingStatisticsApi.reducerPath]: callingStatisticsApi.reducer,
+    reportType: reportTypeReducer,
     download,
+
+    userReport: userReportReducer,
 });
 
 export const setupStore = () => {
@@ -72,7 +75,7 @@ export const setupStore = () => {
 };
 
 //listeners
-// portalListener();
+// startUserReportAppListener(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>);
 
 // Тип для extraArgument
 export type ThunkExtraArgument = {

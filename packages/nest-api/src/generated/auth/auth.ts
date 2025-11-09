@@ -11,6 +11,7 @@ import type {
     LoginDto,
     LoginResponseDto,
     LogoutResponseDto,
+    MeResponseDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
@@ -67,12 +68,22 @@ export const getAuth = () => {
             method: 'POST',
         });
     };
+    /**
+     * @summary Me
+     */
+    const authMe = () => {
+        return customAxios<MeResponseDto>({
+            url: `/api/auth/me`,
+            method: 'GET',
+        });
+    };
     return {
         authRegisterClient,
         authLogin,
         authLogout,
         authConfirmEmail,
         authResendConfirmation,
+        authMe,
     };
 };
 export type AuthRegisterClientResult = NonNullable<
@@ -89,4 +100,7 @@ export type AuthConfirmEmailResult = NonNullable<
 >;
 export type AuthResendConfirmationResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getAuth>['authResendConfirmation']>>
+>;
+export type AuthMeResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getAuth>['authMe']>>
 >;

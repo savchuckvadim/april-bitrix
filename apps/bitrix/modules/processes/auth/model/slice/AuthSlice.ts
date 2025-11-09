@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { AuthState, AuthStateDto, IRegisterForm } from '../types';
-import { ClientDto, UserResponseDto } from '@workspace/nest-api';
+import { AuthState, AuthStateDto } from '../types';
+
 
 const initialState: AuthState = {
     isAuthenticated: false,
@@ -23,7 +23,10 @@ const authSlice = createSlice({
         setCurrentUser: (state: AuthState, action: PayloadAction<AuthStateDto | null>) => {
             state.currentUser = action.payload?.currentUser ?? null;
             state.currentClient = action.payload?.currentClient ?? null;
-            state.isAuthenticated = !!action.payload;
+            state.isAuthenticated = action.payload?.currentUser
+                && action.payload?.currentClient
+                ? true
+                : false;
         },
         loginSuccess: (state: AuthState, action: PayloadAction<AuthStateDto>) => {
             state.currentUser = action.payload.currentUser;
@@ -49,6 +52,7 @@ const authSlice = createSlice({
         },
         logout: (state: AuthState) => {
             state.currentUser = null;
+            state.currentClient = null;
             state.isAuthenticated = false;
             state.error = null;
         },

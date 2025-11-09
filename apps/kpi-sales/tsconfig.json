@@ -5,7 +5,8 @@
         "paths": {
             "@/*": ["./*"],
             "@konstructor/*": ["./modules/konstructor/*"],
-            "@workspace/ui/*": ["../../packages/ui/src/*"]
+            "@workspace/ui/*": ["../../packages/ui/src/*"],
+            "@workspace/april-ui/*": ["../../packages/april-ui/*"]
         },
         "plugins": [
             {

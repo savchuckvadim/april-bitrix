@@ -1,9 +1,15 @@
 import { ClientRegistrationRequestDto, getAuth, LoginDto } from "@workspace/nest-api";
 
-export const authHelper = {
-    login: async (dto: LoginDto ) => {
-        const api = getAuth()
-        const response = await api.authLogin(dto);
+export class AuthHelper {
+
+    private api: ReturnType<typeof getAuth>;
+
+    constructor() {
+        this.api = getAuth();
+    }
+
+    async login(dto: LoginDto) {
+        const response = await this.api.authLogin(dto);
 
 
         return {
@@ -11,20 +17,20 @@ export const authHelper = {
             user: response.user,
             client: response.client,
         };
-    },
-    register: async (dto: ClientRegistrationRequestDto) => {
-        const api = getAuth()
-        const response = await api.authRegisterClient(dto);
+    }
+    async register(dto: ClientRegistrationRequestDto) {
+
+        const response = await this.api.authRegisterClient(dto);
         return response;
-    },
-    logout: async () => {
-        const api = getAuth()
-        const response = await api.authLogout();
+    }
+    async logout() {
+
+        const response = await this.api.authLogout();
         return response;
-    },
-    getCurrentUser: async (dto: LoginDto) => {
-        const api = getAuth()
-        const response = await api.authLogin(dto);
+    }
+
+    async me() {
+        const response = await this.api.authMe();
         return response;
-    },
+    }
 };

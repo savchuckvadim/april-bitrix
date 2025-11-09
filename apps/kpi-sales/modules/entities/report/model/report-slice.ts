@@ -69,7 +69,9 @@ const reportSlice = createSlice({
                 actionFieldId: string;
             }>,
         ) => {
+
             state.report = action.payload.report;
+
             state.isFetched = true;
             state.isLoading = false;
         },
@@ -99,7 +101,7 @@ const reportSlice = createSlice({
         ) => {
             state.filter =
                 action.payload.currentFilter &&
-                action.payload.currentFilter.length
+                    action.payload.currentFilter.length
                     ? action.payload.currentFilter
                     : action.payload.filter.map(f => f.innerCode);
         },
@@ -127,10 +129,10 @@ const reportSlice = createSlice({
         ) => {
             const current =
                 action.payload.currentFilter &&
-                action.payload.currentFilter.length
+                    action.payload.currentFilter.length
                     ? action.payload.actions.filter(act =>
-                          action.payload.currentFilter?.includes(act.innerCode),
-                      )
+                        action.payload.currentFilter?.includes(act.innerCode),
+                    )
                     : action.payload.actions;
 
             state.actions = {

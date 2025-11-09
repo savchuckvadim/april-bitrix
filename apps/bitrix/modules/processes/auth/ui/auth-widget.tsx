@@ -19,8 +19,8 @@ export const AuthWidget = () => {
     const { isAuthenticated } = useAuth();
 
     const [activeTab, setActiveTab] = useState('login' as 'login' | 'register');
-
-    isAuthenticated && redirect('/public');
+debugger
+    isAuthenticated && redirect('/standalone');
 
     return (
         <div className="min-h-screen bg-gray-50">

@@ -72,7 +72,7 @@ export const getColors = (kpi: KPIOrk[]): string[] => {
     //         return resultColors;
     //     }
     // return Object.values(reportColors);
-    debugger
+
     return kpi.map(kpi => getColorByCode(kpi.action.code));
 };
 

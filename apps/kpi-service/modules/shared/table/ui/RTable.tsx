@@ -11,7 +11,7 @@ import {
 import { Card } from '@workspace/ui/components/card';
 import { Tooltip, TooltipContent } from '@workspace/ui/components/tooltip';
 import { TooltipTrigger } from '@workspace/ui/components/tooltip';
-import { useUserReport } from '@/modules/entities';
+
 import Link from 'next/link';
 
 export interface RTableProps {
@@ -27,7 +27,7 @@ export interface RTableProps {
 }
 
 const RTable: FC<RTableProps> = ({ code, data, firstCellName, withLink, onClick }) => {
-    const { getUserReport } = useUserReport();
+
     return (
         <Card className="my-4 p-4 bg-popover text-primary">
             <ShadcnTable className="bg-popover text-primary">

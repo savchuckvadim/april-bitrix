@@ -20,7 +20,7 @@ export const useUserReportItem = (item: IUserReportItem) => {
         action: item.service_ork_history_ork_event_action?.value?.name || '',
         type: item.service_ork_history_ork_event_type?.value?.name || '',
         comment: item.service_ork_history_manager_comment?.value?.value || '',
-        crm: item.service_crm?.value?.value || '',
+        crm: item.service_ork_history_crm?.value?.value || '',
         contact: item.service_ork_crm_contact?.value?.value || '',
         company,
         domain,

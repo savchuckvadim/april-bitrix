@@ -1,7 +1,10 @@
+import { BXUser } from "@workspace/bx";
+
 export interface ReportCallingData {
     userId: number;
     userName?: string;
     callings: Array<KPICall>;
+    user: BXUser;
 }
 
 export type KPICall = {

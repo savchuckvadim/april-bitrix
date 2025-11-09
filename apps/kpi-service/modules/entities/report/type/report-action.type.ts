@@ -94,7 +94,7 @@ export const OrkReportEventActionItems = {
             name: 'Сервисный сигнал обработан',
             code: OrkKpiFilterCode.et_ork_signal_ea_ork_done,
             type: 'signal',
-                order: 2,
+            order: 2,
             color: 'rgba(120, 180, 220, 0.76)'
         },
         [OrkFields.ork_event_type.items.et_ork_info.code]: {
@@ -143,7 +143,7 @@ export const OrkReportEventActionItems = {
             name: 'Презентация(уникальная) проведена',
             code: OrkKpiFilterCode.et_ork_presentation_uniq_ea_ork_done,
             type: 'presentation_uniq',
-                order: 16,
+            order: 16,
             color: 'rgba(255, 215, 0, 1)'
         },
         [OrkFields.ork_event_type.items.et_ork_edu_first.code]: {
@@ -209,7 +209,7 @@ export const getColorByCode = (code: OrkKpiFilterCode): string => {
         for (const item2 of Object.values(item)) {
             if (item2.code === code) {
                 result = item2.color;
-                debugger
+
             }
         }
     }

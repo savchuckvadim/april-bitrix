@@ -1,9 +1,10 @@
 import { AxiosError } from 'axios';
 import { AppThunk } from '../../../../app/model/store';
-import { authHelper } from '../../lib/auth.helper';
+import { AuthHelper } from '../../lib/auth.helper';
 import { authActions } from '../slice/AuthSlice';
 import { IRegisterForm, ILoginForm } from '../types';
 import { IBackResponse } from '@workspace/nest-api';
+import { appActions } from '@/modules/app/model/slice/AppSlice';
 
 
 export const loginThunk = (form: ILoginForm): AppThunk => async (dispatch) => {
@@ -12,7 +13,8 @@ export const loginThunk = (form: ILoginForm): AppThunk => async (dispatch) => {
 
     try {
         // Имитация API вызова
-        const response = await authHelper.login(form);
+        const api = new AuthHelper();
+        const response = await api.login(form);
 
         if (response.client.id && response.user.id) {
 
@@ -41,7 +43,8 @@ export const registerClientThunk = (form: IRegisterForm): AppThunk => async (dis
         }
 
         // Имитация API вызова
-        const response = await authHelper.register(form);
+        const api = new AuthHelper();
+        const response = await api.register(form);
 
 
         dispatch(authActions.registerSuccess({
@@ -69,5 +72,18 @@ export const registerUserThunk = (form: IRegisterForm): AppThunk => async (dispa
     }
 };
 export const logoutThunk = (): AppThunk => async (dispatch) => {
-    dispatch(authActions.logout());
+
+
+    try {
+        // Имитация API вызова
+        const api = new AuthHelper();
+        await api.logout();
+        debugger
+        dispatch(authActions.logout());
+        debugger
+    } catch (error) {
+        debugger
+        dispatch(authActions.loginFailure('Ошибка выхода из системы'));
+    }
+
 };

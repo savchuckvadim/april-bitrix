@@ -19,6 +19,7 @@
         "@workspace/pbx": "workspace:*",
         "@workspace/theme": "workspace:*",
         "@workspace/ui": "workspace:*",
+        "@workspace/april-ui": "workspace:*",
         "@workspace/ws": "workspace:*",
         "chart.js": "^4.4.9",
         "date-fns": "^4.1.0",

@@ -128,7 +128,7 @@ export const UserReport = ({ userId }: { userId: number }) => {
             const prevItem = index > 0 ? filtered[index - 1] : null;
             const prevCompany = prevItem?.service_ork_history_ork_crm_company?.value?.value || '';
             const currentCompany = item.service_ork_history_ork_crm_company?.value?.value || '';
-            debugger
+
             return {
                 ...item,
                 isFirstInGroup: prevCompany !== currentCompany

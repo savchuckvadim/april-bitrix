@@ -27,7 +27,7 @@ export async function getDepartmentByDomain(domain: BxDepartmentRequestDtoDomain
         department: 'service'
     } as BxDepartmentRequestDto) as BxDepartmentResponseDto
 
-    debugger
+
     if (
         !response?.department
     ) {

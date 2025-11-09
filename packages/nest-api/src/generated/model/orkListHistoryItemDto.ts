@@ -21,7 +21,7 @@ export interface OrkListHistoryItemDto {
     /** Type */
     service_ork_history_ork_event_type: OrkHistoryFieldValueDto;
     /** CRM */
-    service_crm: OrkHistoryFieldValueDto;
+    service_ork_history_crm: OrkHistoryFieldValueDto;
     /** Contact ID */
     service_ork_crm_contact: OrkHistoryFieldValueDto;
     /** Comment */

@@ -18,10 +18,11 @@ import {
 //     APP_GROUPS,
 // } from '../../modules/entities/entities';
 import { useAuth } from '@/modules/processes/auth/lib/hooks';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function PublicPage() {
-    const {  currentUser, currentClient, logout } = useAuth();
+    const { currentUser, currentClient, logout } = useAuth();
+    const router = useRouter();
 
 
     const [isLoading, setIsLoading] = useState(false);
@@ -146,8 +147,11 @@ export default function PublicPage() {
 
     // Выход из системы
     const handleLogout = () => {
+        router.push('/auth/login'); // 🚀 редирект вручную
+
         logout();
-        redirect('/public');
+
+
     };
 
 

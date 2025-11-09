@@ -1,3 +1,4 @@
+import { authActions } from "@/modules/processes/auth";
 import {
     TESTING_DOMAIN,
     TESTING_PLACEMENT,
@@ -6,36 +7,93 @@ import {
 import { appActions } from "../slice/AppSlice";
 import { AppDispatch, AppGetState } from "../store";
 import { Bitrix } from '@workspace/bitrix';
+import { AuthHelper } from "@/modules/processes/auth/lib/auth.helper";
+import { ClientDto, UserResponseDto } from "@workspace/nest-api";
 
-import { Placement } from "@workspace/bx";
-import { bxAppHelper } from "@/modules/entities/bx-app/lib/bx-app.helper";
-
-export const initial = () => async (dispatch: AppDispatch, getState: AppGetState) => {
-    // startListeners()
-    // __IN_BITRIX__ && (await bitrixAPI.getFit());
+// export const initial = () =>
+//     async (dispatch: AppDispatch, getState: AppGetState) => {
+//         // startListeners()
+//         // __IN_BITRIX__ && (await bitrixAPI.getFit());
 
 
 
+//         const state = getState();
+//         const isLoading = state.app.isLoading;
+//         console.log('app init thunk')
+
+//         if (!isLoading) {
+//             console.log('app initial')
+//             const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
+//             // await bitrix.api.getFit();
+//             const { inFrame, domain, user } = bitrix.api.getInitializedData()
+
+
+//             dispatch(appActions.isLoading({ status: true }))
+
+
+//             dispatch(appActions.setInitializedSuccess({}));
+
+//             dispatch(appActions.isLoading({ status: false }))
+//         }
+//     };
+
+export const initializeApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
-    const isLoading = state.app.isLoading;
-    console.log('app init thunk')
+    if (state.app.isLoading) return;
+debugger
+    dispatch(appActions.isLoading({ status: true }));
 
-    if (!isLoading) {
-        console.log('app initial')
+    try {
+        // 1. Определяем контекст
         const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
-        await bitrix.api.getFit();
-        const bitrixAuthData = bitrix.api.getInitializedData()
-  
-
-        dispatch(appActions.isLoading({ status: true }))
-
-
+        const { inFrame, domain, user: bitrixUser } = bitrix.api.getInitializedData();
+        const place = inFrame ? 'frame' : 'standalone';
+        dispatch(appActions.setClientContext({ isClient: inFrame, domain, place }));
+        debugger
+        // 2. Определяем пользователя
+        let user: UserResponseDto | null = null;
+        let client: ClientDto | null = null;
+        if (inFrame) {
+            debugger
+            //TODO: init for frame
+            user = bitrixUser as UserResponseDto ?? null;
+        } else {
+            debugger
+            const auth = new AuthHelper();
+            try {
+                const response = await auth.me();
+                user = response.user;
+                client = response.client;
+                debugger
+            } catch {
+                try {
+                    debugger
+                    // await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
+                    //     method: 'POST',
+                    //     credentials: 'include',
+                    // });
+                    const response = await auth.me();
+                    user = response.user;
+                    client = response.client;
+                    debugger
+                } catch {
+                    user = null;
+                }
+            }
+        }
+        debugger
+        // 3. Диспатчим пользователя
+        dispatch(authActions.setCurrentUser({ currentUser: user, currentClient: client }));
+    } catch (err) {
+        debugger
+        console.error('App init failed', err);
+        dispatch(authActions.setCurrentUser(null));
+    } finally {
+        debugger
         dispatch(appActions.setInitializedSuccess({}));
-
-        dispatch(appActions.isLoading({ status: false }))
+        dispatch(appActions.isLoading({ status: false }));
     }
 };
-
 
 export const reloadApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {
 

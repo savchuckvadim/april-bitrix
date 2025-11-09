@@ -6,6 +6,7 @@ export const getReportTableData = (report: ReportData[]): RTableProps => {
         code: `report`,
         firstCellName: 'Менеджер',
         data: report.map(report => ({
+            id: Number(report.user.ID),
             name: report.userName || 'Менеджер',
             actions: report.kpi.map(kpi => ({
                 name: kpi.action.name || 'Unknown',

@@ -23,21 +23,21 @@ debugger
     isAuthenticated && redirect('/standalone');
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background/90">
             {/* Навигационная панель */}
-            <nav className="bg-white border-b shadow-sm">
+            <nav className="bg-background/90 border-b shadow-sm">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">
-                            <h1 className="text-2xl font-bold text-gray-900">
+                            <h1 className="text-2xl font-bold text-foreground">
                                 Битрикс24 Управление
                             </h1>
                             <div className="hidden md:flex items-center gap-6">
-                                <span className="text-gray-600 font-medium">Публичный доступ</span>
+                                <span className="text-background-muted font-medium">Публичный доступ</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <Badge variant="outline" className="text-blue-600 border-blue-200">
+                            <Badge variant="outline" className="text-primary border-primary">
                                 <Users className="w-4 h-4 mr-2" />
                                 Для клиентов
                             </Badge>
@@ -49,10 +49,10 @@ debugger
             <div className="max-w-4xl mx-auto p-6">
                 {/* Заголовок */}
                 <div className="text-center mb-12">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-3xl font-bold text-foreground mb-4">
                         Управление приложениями Битрикс24
                     </h1>
-                    <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                    <p className="text-lg text-background-muted max-w-3xl mx-auto">
                         Зарегистрируйтесь и настройте интеграцию с вашим порталом Битрикс24
                     </p>
                 </div>

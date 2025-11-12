@@ -5,7 +5,12 @@ import { IUserReportItem } from "../../type/user-report.type";
 import { useUserReportItem } from '../../hooks/user-report-item.hook';
 import Link from 'next/link';
 import { Tooltip } from '@workspace/april-ui';
-import { useAppSelector } from '@/modules/app';
+import { cn } from '@workspace/ui/lib/utils';
+import { getColorCompany } from '../../lib/color-company.ui-util';
+import { Badge } from '@workspace/ui/components/badge';
+import { BadgeCent, Dot } from 'lucide-react';
+
+
 
 interface UserReportEventRowProps {
     item: IUserReportItem & {
@@ -23,6 +28,7 @@ export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, id
         title,
         domain,
         companyId,
+        companyColorName,
         type,
         comment,
         crm,
@@ -40,35 +46,44 @@ export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, id
     const isFirstInGroup = groupByCompany && (item as any).isFirstInGroup;
     const groupSize = (item as any).groupSize || 1;
 
-    debugger;
+
     return (
         <>
             {showDivider && (
-                <tr className="bg-gray-100">
+                <tr className="bg-secondary">
                     <td colSpan={8} className="px-3 py-1 border-t-2 border-background-muted"></td>
                 </tr>
             )}
             <tr
-                className={`hover:bg-blue-50/50 transition-colors cursor-pointer group ${groupByCompany ? 'border-l-4 border-transparent hover:border-blue-300' : ''
+                className={` transition-colors cursor-pointer group ${groupByCompany ? 'border-l-4 border-transparent hover:border-blue-300' : ''
                     }`}
             >
-                <td className="px-3 py-2 text-gray-600">
+                <td className="px-3 py-2 text-primary max-w-md">
                     {groupByCompany && isFirstInGroup ? (
                         <div className="flex items-center gap-2 text-foreground hover:text-primary">
                             <Tooltip content={'открыть в crm'}
                                 children={
                                     companyBxLink ? <Link href={companyBxLink} target="_blank">
-                                        {company}
-                                    </Link> : <p>{company}</p>} />
+                                        {company?.TITLE || companyId}          <Badge variant="outline" className={cn(
+                                            getColorCompany(company?.color || '')
+                                        )}><p className='text-xs'>{companyColorName}</p></Badge>
+                                    </Link> : <p>{company?.TITLE || companyId} </p>} />
 
 
 
-                            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                            <span className="text-xs text-secondary bg-background/50 px-2 py-1 rounded">
                                 {groupSize} событий
                             </span>
+                            {/* <span className="text-xs text-secondary  px-2 py-1 rounded">
+                                Цвет компании:  <Badge variant="outline" className={cn(
+                                    getColorCompany(company?.color || '')
+                                )}>{companyColorName}</Badge>
+                            </span> */}
                         </div>
                     ) : groupByCompany ? (
-                        <div className="text-foreground hover:text-primary text-sm italic">↳</div>
+                        <div className="text-foreground hover:text-primary text-sm italic">
+                            <Dot size={10} />
+                        </div>
                     ) : (
                         companyBxLink ? <Tooltip content={'открыть в crm'}
                             children={
@@ -76,41 +91,56 @@ export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, id
                                     className='text-foreground hover:text-primary'
                                     href={companyBxLink}
                                     target="_blank">
-                                    {company}
+                                    {company?.TITLE || companyId}  <Badge variant="outline" className={cn(
+                                            getColorCompany(company?.color || '')
+                                        )}><p className='text-xs'>{companyColorName}</p></Badge>
                                 </Link>
                             } />
-                            : <p>{company}</p>
+                            : <p>{companyId}</p>
                     )}
                 </td>
+
+                {/* <td className="px-3 py-2 text-xs text-gray-900 font-medium">
+
+                    <Badge variant="outline" className={cn(
+                        getColorCompany(company?.color || '')
+                    )}><p className='text-xs'>{companyColorName}</p></Badge>
+                </td> */}
                 <td className="px-3 py-2 text-foreground/60 font-medium">
                     {title}
                 </td>
-                {/* <td className="px-3 py-2 text-gray-900 font-medium">
-                {action}
-            </td>
-            <td className="px-3 py-2 text-gray-600">
-                {type}
-            </td> */}
+
+
                 <td className="px-3 py-2 text-gray-500 max-w-xs truncate" title={comment}
 
                 >
-                    {listItemBxLink ? <Tooltip content={'открыть элемент kpi в crm'}
+                    {listItemBxLink ? <Tooltip
+                        align='start'
+                        content={
+                            <div className='max-w-xl max-h-full'>
+                                <p>
+                                    {comment || 'открыть элемент kpi в crm'}
+                                </p>
+                            </div>
+
+                        }
                         children={<Link
                             style={{
                                 cursor: 'pointer',
                             }}
-
+                            className='text-primary/80 hover:text-primary'
                             href={listItemBxLink ?? ''} target="_blank">
-                            <textarea
+                            {/* <textarea
                                 style={{
                                     cursor: 'pointer',
                                 }}
+                                defaultValue={comment}
+                                value={comment || '- нет комментария -'}
+                                className='h-24 w-full min-w-[270px] resize-none overflow-hidden hover:text-primary' disabled={true} /> */}
 
-                                className='h-24 w-full min-w-[270px] resize-none overflow-hidden hover:text-primary' disabled={true}>
-                                {comment || '- нет комментария -'}
-                            </textarea>
+                            {comment || '- нет комментария -'}
                         </Link>
-                        } /> : <p>{comment || '- нет комментария -'}</p>}
+                        } /> : <p className='text-primary-foreground'>{comment || '- нет комментария -'}</p>}
                 </td>
                 {/* <td className="px-3 py-2 text-gray-600">
                     {contact}

@@ -60,11 +60,11 @@ interface EventTypeData {
 }
 
 const TIME_SCALES = [
-    { key: 'day', label: 'День', days: 1 },
-    { key: 'week', label: 'Неделя', days: 7 },
-    { key: 'month', label: 'Месяц', days: 30 },
-    { key: 'quarter', label: 'Квартал', days: 90 },
-    { key: 'year', label: 'Год', days: 365 }
+    { key: 'day', label: 'День', caseLabel: 'по дням', days: 1 },
+    { key: 'week', label: 'Неделя', caseLabel: 'по неделям', days: 7 },
+    { key: 'month', label: 'Месяц', caseLabel: 'по месяцам', days: 30 },
+    { key: 'quarter', label: 'Квартал', caseLabel: 'по кварталам', days: 90 },
+    { key: 'year', label: 'Год', caseLabel: 'по годам', days: 365 }
 ];
 
 const COLORS = [
@@ -321,7 +321,7 @@ export const UserReportChart: React.FC<UserReportChartProps> = ({
         plugins: {
             title: {
                 display: true,
-                text: `События по ${timeScaleInfo?.label.toLowerCase() || 'периодам'}ам`
+                text: `События ${timeScaleInfo?.caseLabel || 'по ' + timeScaleInfo?.label.toLowerCase() || 'периодам'}`
             },
             legend: {
                 display: true,

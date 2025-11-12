@@ -19,4 +19,10 @@ export interface PbxSalesKpiCompanyDto {
     UF_CRM_USER_CARDNUM: string;
     /** Comments */
     COMMENTS: string;
+    /** Цвет */
+    UF_CRM_OP_PROSPECTS: string;
+    /** История */
+    UF_CRM_OP_MHISTORY: string[];
+    /** Цвет code */
+    color: string;
 }

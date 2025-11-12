@@ -26,8 +26,12 @@ export const MergedReportFilters: React.FC<MergedReportFiltersProps> = ({
     onSelectAllUsers,
     onSelectAllActions,
 }) => {
+    const longest = data.reduce((prev, curr) => {
+        return (curr.actions?.length || 0) > (prev?.actions?.length || 0) ? curr : prev;
+    }, data[0]);
     const allUsers = data.map(item => item.id).filter((id): id is number => id !== undefined);
-    const allActions = data[0]?.actions.map(action => action.name) || [];
+    const allActions = longest?.actions.map(action => action.name) || [];
+
     const allUsersSelected = allUsers.length > 0 && allUsers.every(id => selectedUsers.includes(id));
     const allActionsSelected = allActions.length > 0 && allActions.every(action => selectedActions.includes(action));
 
@@ -61,14 +65,14 @@ export const MergedReportFilters: React.FC<MergedReportFiltersProps> = ({
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <Label>Менеджеры</Label>
-                        <Button
+                        {/* <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onSelectAllUsers(!allUsersSelected)}
                             className="h-auto py-1 px-2 text-xs"
                         >
                             {allUsersSelected ? 'Снять все' : 'Выбрать все'}
-                        </Button>
+                        </Button> */}
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {data.map((item) => {
@@ -93,14 +97,14 @@ export const MergedReportFilters: React.FC<MergedReportFiltersProps> = ({
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <Label>Показатели</Label>
-                        <Button
+                        {/* <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onSelectAllActions(!allActionsSelected)}
                             className="h-auto py-1 px-2 text-xs"
                         >
                             {allActionsSelected ? 'Снять все' : 'Выбрать все'}
-                        </Button>
+                        </Button> */}
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {allActions.map((actionName) => {

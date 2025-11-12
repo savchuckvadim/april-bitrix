@@ -4,6 +4,7 @@ import {
     combineReducers,
     configureStore,
     createListenerMiddleware,
+    ListenerMiddlewareInstance,
     ThunkAction,
 } from '@reduxjs/toolkit';
 import { appReducer } from './AppSlice';
@@ -16,8 +17,10 @@ import { download } from '@/modules/feature/download';
 import { callingStatisticsReducer } from '@/modules/entities/calling-statistics';
 import { callingStatisticsApi } from '@/modules/entities/calling-statistics/model/callingStatisticsService';
 import { WSClient } from '@workspace/ws';
-import { startUserReportAppListener, userReportReducer } from '@/modules/entities';
+import { userReportReducer } from '@/modules/entities';
 import { reportTypeReducer } from '@/modules/feature/';
+import { mergedReportReducer } from '@/modules/feature/merged-kpi-calling-report';
+import { startReportTypeAppListener } from '@/modules/feature/report-widget-type/model/ReportTypeAppListener';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -51,11 +54,12 @@ const rootReducer = combineReducers({
     [callingStatisticsApi.reducerPath]: callingStatisticsApi.reducer,
     reportType: reportTypeReducer,
     download,
-
+    mergedReport: mergedReportReducer,
     userReport: userReportReducer,
 });
 
 export const setupStore = () => {
+    startReportTypeAppListener(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>)
     return configureStore({
         reducer: rootReducer,
         middleware: getDefaultMiddleware =>
@@ -67,7 +71,7 @@ export const setupStore = () => {
                 // .concat(portalAPI.middleware)
                 // .concat(infoblockAPI.middleware)
                 .concat(callingStatisticsApi.middleware)
-
+                .concat(listenerMiddleware.middleware)
                 // .concat(departmentAPI.middleware)
                 .concat(reportAPI.middleware),
         // .concat(reportMiddleware)

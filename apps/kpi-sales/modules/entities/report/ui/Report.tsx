@@ -54,134 +54,150 @@ const Report = () => {
     }
 
     return (
-        <div className=" p-7">
-            {isLoading || !isFetched ? (
-                <Processing />
-            ) : (
-                <>
-                    <ReportHeader
-                        isFilterOpen={isFilterOpen}
-                        setIsFilterOpen={setIsFilterOpen}
-                    />
-                    <Filter isOpen={isFilterOpen} />
+        // <div className=" p-7">
+        //     {isLoading || !isFetched ? (
+        //         <Processing />
+        //     ) : (
+        //         <>
+        //             <div className="bg-background/50 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 min-w-full">
 
-                    {isLoading && isFetched ? (
-                        <div className="flex justify-center items-center h-5/6 mt-3">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
-                        </div>
-                    ) : (
-                        <>
-                            {!report || !report.length ? (
-                                <NoreportData />
-                            ) : (
-                                <div>
-                                    <div className="mb-4 flex justify-between items-center w-full h-10  rounded-md p-0">
+        //                 <div className="flex justify-between items-center h-15 p-5 w-full">
+        //                     <ReportHeader
+        //                         isFilterOpen={isFilterOpen}
+        //                         setIsFilterOpen={setIsFilterOpen}
+        //                     />
+        //                 </div>
+        //                 <div className="px-15">
+        //                     <Filter isOpen={isFilterOpen} />
+        //                     {
+        //                         isFilterOpen && <div className="h-screen w-screen "></div>
+        //                     }
+        //                 </div>
 
-                                        <ReportType />
-                                    </div>
-                                    {/* <div className="mb-4 flex justify-end">
+        //             </div>
+        //             {isLoading && isFetched ? (
+        //                 <div className="flex justify-center items-center h-5/6 mt-3">
+        //                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+        //                 </div>
+        //             ) : (
+        //                 <>
+        //                     {!report || !report.length ? (
+        //                         <NoreportData />
+        //                     ) : (
+        <div>
+            <div className="mt-6 mb-4 flex justify-between items-center w-full h-10  rounded-md p-0">
+
+                <ReportType />
+            </div>
+            {/* <div className="mb-4 flex justify-end">
                                         <ExportAllBlocksButton
                                             report={report}
                                             callingsReport={callingsReport as ReportCallingData[]}
                                         />
                                     </div> */}
-                                    {/* kpi report event by managers */}
-                                    {(currentReportType === EReportType.EVENTS || currentReportType === EReportType.All) && <ReportBlockWrapper
-                                        blockId="kpi-report"
-                                        title="KPI отчет по менеджерам (таблица)"
-                                        onDownload={() => {
-                                            const tableData = getReportTableData(report);
-                                            exportTableToCSV(tableData, 'kpi-report-managers.csv');
-                                        }}
-                                    >
-                                        <KPIReportTable report={report} />
-                                        <div className="mt-3">
-                                            <Graphics report={report} />
-                                        </div>
-                                        <KPIReportTotalTable report={report} />
-                                        <KPIReportTotalChart report={report} />
-                                        <div className="mt-3">
-                                            <KPISingleActionChart report={report} />
-                                        </div>
-                                    </ReportBlockWrapper>
-                                    }
+            {/* kpi report event by managers */}
+            {(currentReportType === EReportType.All) && <>
+                <ReportBlockWrapper
+                    blockId="kpi-report"
+                    title="KPI отчет по событиям"
+                    onDownload={() => {
+                        const tableData = getReportTableData(report);
+                        exportTableToCSV(tableData, 'kpi-report-managers.csv');
+                    }}
+                >
+                    <KPIReportTable report={report} />
+                    <div className="mt-3">
+                        <Graphics report={report} />
+                    </div>
+                    <KPIReportTotalTable report={report} />
+                    <KPIReportTotalChart report={report} />
+                    <div className="mt-3">
+                        <KPISingleActionChart report={report} />
+                    </div>
+                </ReportBlockWrapper>
 
 
-                                    {/* {(currentReportType === EReportType.CALLINGS || currentReportType === EReportType.All) && <ReportBlockWrapper
-                                        blockId="kpi-report-total-table"
-                                        title="KPI общие показатели (таблица)"
-                                        onDownload={() => {
-                                            const tableData = getReportTableData(report);
-                                            // Создаем таблицу с итогами
-                                            const totalData = {
-                                                code: 'total',
-                                                firstCellName: 'Показатель',
-                                                data: [{
-                                                    name: 'Итого',
-                                                    actions: tableData.data[0]?.actions.map(action => {
-                                                        const total = tableData.data.reduce((sum, user) => {
-                                                            const userAction = user.actions.find(a => a.name === action.name);
-                                                            return sum + (userAction?.value || 0);
-                                                        }, 0);
-                                                        return { name: action.name, value: total };
-                                                    }) || []
-                                                }]
-                                            };
-                                            exportTableToCSV(totalData, 'kpi-report-total.csv');
-                                        }}
-                                    >
-                                        <KPIReportTotalTable report={report} />
-                                        <KPIReportTotalChart report={report} />
-                                    </ReportBlockWrapper>
-                                    } */}
+                <ReportBlockWrapper
+                    blockId="calling-statistics"
+                    title="Статистика фактических звонков"
+                    onDownload={() => {
+                        if (callingsReport && callingsReport.length > 0) {
+                            const tableData = getCallingStatisticsTableData(callingsReport);
+                            exportTableToCSV(tableData, 'calling-statistics.csv');
+                        }
+                    }}
+                >
+                    <CallingStatistics
+                        callingsReport={callingsReport}
+                        isLoading={isCallingLoading}
+                    />
+                </ReportBlockWrapper>
 
-                                    {/*calling statistics*/}
-                                    {(currentReportType === EReportType.CALLINGS || currentReportType === EReportType.All) && <ReportBlockWrapper
-                                        blockId="calling-statistics"
-                                        title="Статистика звонков"
-                                        onDownload={() => {
-                                            if (callingsReport && callingsReport.length > 0) {
-                                                const tableData = getCallingStatisticsTableData(callingsReport);
-                                                exportTableToCSV(tableData, 'calling-statistics.csv');
-                                            }
-                                        }}
-                                    >
-                                        <CallingStatistics
-                                            callingsReport={callingsReport}
-                                            isLoading={isCallingLoading}
-                                        />
-                                    </ReportBlockWrapper>
-                                    }
 
-                                    {/*merged report*/}
-                                    {(currentReportType === EReportType.MERGED || currentReportType === EReportType.All) && report && callingsReport && <ReportBlockWrapper
-                                        blockId="merged-report"
-                                        title="Объединенный отчет KPI и звонков"
-                                        onDownload={() => {
-                                            if (report && callingsReport) {
-                                                const tableKpiData = getReportTableData(report);
-                                                const tableCallingsData = getCallingStatisticsTableData(callingsReport);
-                                                const mergedData = getMergedReportsData(tableKpiData, tableCallingsData);
-                                                exportTableToCSV(mergedData, 'merged-report.csv');
-                                            }
-                                        }}
-                                    >
-                                        <MergedReportTable report={report} callingsReport={callingsReport as ReportCallingData[]} />
-                                        <div className="mt-3">
-                                            <MergedSingleActionChart
-                                                report={report}
-                                                callingsReport={callingsReport as ReportCallingData[]}
-                                            />
-                                        </div>
-                                    </ReportBlockWrapper>
-                                    }
-                                </div>
-                            )}
-                        </>
-                    )}
-                </>
-            )}
+                <ReportBlockWrapper
+                    blockId="merged-report"
+                    title="Объединенный отчет KPI и звонков"
+                    onDownload={() => {
+                        if (report && callingsReport) {
+                            const tableKpiData = getReportTableData(report);
+                            const tableCallingsData = getCallingStatisticsTableData(callingsReport);
+                            const mergedData = getMergedReportsData(tableKpiData, tableCallingsData);
+                            exportTableToCSV(mergedData, 'merged-report.csv');
+                        }
+                    }}
+                >
+                    <MergedReportTable report={report} callingsReport={callingsReport as ReportCallingData[]} />
+                    <div className="mt-3">
+                        <MergedSingleActionChart
+                            report={report}
+                            callingsReport={callingsReport as ReportCallingData[]}
+                        />
+                    </div>
+                </ReportBlockWrapper>
+            </>
+            }
+            {(currentReportType === EReportType.EVENTS) && <div>
+                <KPIReportTable report={report} />
+                <div className="mt-3">
+                    <Graphics report={report} />
+                </div>
+                <KPIReportTotalTable report={report} />
+                <KPIReportTotalChart report={report} />
+                <div className="mt-3">
+                    <KPISingleActionChart report={report} />
+                </div>
+            </div>
+            }
+
+
+
+            {/*calling statistics*/}
+            {currentReportType === EReportType.CALLINGS && <div >
+                <CallingStatistics
+                    callingsReport={callingsReport}
+                    isLoading={isCallingLoading}
+                />
+            </div>
+            }
+
+            {/*merged report*/}
+            {currentReportType === EReportType.MERGED && report && callingsReport && <div >
+                <MergedReportTable report={report} callingsReport={callingsReport as ReportCallingData[]} />
+                <div className="mt-3">
+                    <MergedSingleActionChart
+                        report={report}
+                        callingsReport={callingsReport as ReportCallingData[]}
+                    />
+                </div>
+            </div>
+            }
         </div>
+        //                     )}
+        //                 </>
+        //             )}
+        //         </>
+        //     )}
+        // </div>
     );
 };
 

@@ -69,7 +69,7 @@ export const ReportBlockWrapper: React.FC<ReportBlockWrapperProps> = ({
                         <h3 className="text-lg font-semibold">{title}</h3>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
+                        {/* <div className="flex items-center gap-2">
                             <Checkbox
                                 id={`excel-${blockId}`}
                                 checked={state.isIncludedInExcel}
@@ -82,7 +82,7 @@ export const ReportBlockWrapper: React.FC<ReportBlockWrapperProps> = ({
                                 <FileSpreadsheet className="h-4 w-4" />
                                 В Excel
                             </Label>
-                        </div>
+                        </div> */}
                         {onDownload && (
                             <Button
                                 variant="outline"
@@ -91,7 +91,9 @@ export const ReportBlockWrapper: React.FC<ReportBlockWrapperProps> = ({
                                 className="flex items-center gap-2"
                             >
                                 <Download className="h-4 w-4" />
+                                <FileSpreadsheet className="h-4 w-4" />
                                 {downloadLabel}
+                                CSV
                             </Button>
                         )}
                     </div>

@@ -26,6 +26,9 @@ export * from './portal-konstructor/portal-konstructor';
 // sales report
 
 export * from './sales-report/sales-report';
+export * from './kpi-sales-report-download/kpi-sales-report-download';
+
+
 //ork report
 
 export * from './ork-report/ork-report';
@@ -33,5 +36,6 @@ export * from './ork-report/ork-report';
 
 //bitrix-client
 export * from './bitrix-setup-app/bitrix-setup-app';
-export * from './bitrix-app-client/bitrix-app-client';
 export * from './auth/auth';
+export * from './bitrix-app-client-app/bitrix-app-client-app';
+export * from './bitrix-app-client-client/bitrix-app-client-client';

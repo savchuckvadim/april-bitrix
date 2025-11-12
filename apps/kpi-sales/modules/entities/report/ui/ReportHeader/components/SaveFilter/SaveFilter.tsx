@@ -36,7 +36,7 @@ const SaveFilter = () => {
                     onClick={onSave}
                     disabled={isFilterLoading}
                     className={cn(
-                        'cursor-pointer icon transition-all',
+                        'h-8 cursor-pointer icon transition-all',
                         saved && 'text-foreground',
                     )}
                     variant={'outline'}

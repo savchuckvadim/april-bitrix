@@ -41,7 +41,7 @@ export const ThemeTogglePanel = () => {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -10 }}
                         transition={{ duration: 0.2 }}
-                        className=" flex flex-row items-center h-2 top-0 mx-2 bg-background "
+                        className=" flex flex-row items-center h-2 top-0 mx-2 bg-none "
                     >
                         <ThemeToggler />
                     </motion.div>

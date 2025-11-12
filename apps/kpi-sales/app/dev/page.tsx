@@ -1,9 +1,12 @@
+// import dynamic from 'next/dynamic';
 'use client';
+import { Report } from "@/modules/entities/report";
 
-import App from '@/modules/app/ui/App';
+
+// const DynamicReport = dynamic(() => import('@/modules/entities/report/ui/Report'), { ssr: false });
+
 
 export default function ReportPage() {
-    const inBitrix = process.env.IN_BITRIX as string | boolean | undefined;
-    console.log('1420 dev page');
-    return <App inBitrix={false} envBitrix={inBitrix} />;
+
+    return <Report />;
 }

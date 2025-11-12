@@ -8,6 +8,7 @@
 import type {
     ClientRegistrationRequestDto,
     ClientResponseDto,
+    GetAllClientsUsersDto,
     LoginDto,
     LoginResponseDto,
     LogoutResponseDto,
@@ -77,6 +78,55 @@ export const getAuth = () => {
             method: 'GET',
         });
     };
+    /**
+     * @summary Delete client
+     */
+    const authDeleteClient = (id: number) => {
+        return customAxios<LogoutResponseDto>({
+            url: `/api/auth/delete-client/${id}`,
+            method: 'DELETE',
+        });
+    };
+    /**
+     * @summary Delete user
+     */
+    const authDeleteUser = (id: number) => {
+        return customAxios<LogoutResponseDto>({
+            url: `/api/auth/delete-user/${id}`,
+            method: 'DELETE',
+        });
+    };
+    /**
+     * @summary Get all clients
+     */
+    const authGetAllClients = () => {
+        return customAxios<ClientResponseDto[]>({
+            url: `/api/auth/get-all-clients`,
+            method: 'GET',
+        });
+    };
+    /**
+     * @summary Get all clients users
+     */
+    const authGetAllClientsUsers = (
+        getAllClientsUsersDto: GetAllClientsUsersDto,
+    ) => {
+        return customAxios<ClientResponseDto[]>({
+            url: `/api/auth/get-all-clients-users`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: getAllClientsUsersDto,
+        });
+    };
+    /**
+     * @summary Get all clients users
+     */
+    const authGetAllUsers = () => {
+        return customAxios<ClientResponseDto[]>({
+            url: `/api/auth/get-all-users`,
+            method: 'GET',
+        });
+    };
     return {
         authRegisterClient,
         authLogin,
@@ -84,6 +134,11 @@ export const getAuth = () => {
         authConfirmEmail,
         authResendConfirmation,
         authMe,
+        authDeleteClient,
+        authDeleteUser,
+        authGetAllClients,
+        authGetAllClientsUsers,
+        authGetAllUsers,
     };
 };
 export type AuthRegisterClientResult = NonNullable<
@@ -103,4 +158,19 @@ export type AuthResendConfirmationResult = NonNullable<
 >;
 export type AuthMeResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getAuth>['authMe']>>
+>;
+export type AuthDeleteClientResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getAuth>['authDeleteClient']>>
+>;
+export type AuthDeleteUserResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getAuth>['authDeleteUser']>>
+>;
+export type AuthGetAllClientsResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllClients']>>
+>;
+export type AuthGetAllClientsUsersResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllClientsUsers']>>
+>;
+export type AuthGetAllUsersResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllUsers']>>
 >;

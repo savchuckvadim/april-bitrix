@@ -2,8 +2,8 @@ import type { BXUser } from '@workspace/bx';
 import { bxAPI as bx } from '@workspace/api';
 import { TESTING_DOMAIN, TESTING_USER } from '../consts/app-global';
 import { appActions } from './AppSlice';
-import { AppDispatch, AppGetState, AppThunk, initWSClient } from './store';
-import { Socket, WSClient } from '@workspace/ws';
+import { AppDispatch, AppGetState, AppThunk, initWSClient, listenerMiddleware, RootState, ThunkExtraArgument } from './store';
+import {  WSClient } from '@workspace/ws';
 import { socketThunk } from './queue-ws-ping-test/QueueWsPingListener';
 import { telegramSendMessage } from '@/modules/shared';
 import { startWsEventsListener } from '@/modules/entities';
@@ -11,52 +11,53 @@ import { startWsEventsListener } from '@/modules/entities';
 export let socket: undefined | WSClient;
 
 export const initial =
-    (inBitrix: boolean = false): AppThunk =>
-    async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
+    (inBitrix: boolean = true): AppThunk =>
+        async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
 
-        //listeners
-// startUserReportAppListener(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>);
+            //listeners
+            // startUserReportAppListener(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>);
+            // startReportTypeAppListener(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>)
 
-        const state = getState();
-        const app = state.app;
-        const isLoading = app.isLoading;
-        const __IN_BITRIX__ = inBitrix;
+            const state = getState();
+            const app = state.app;
+            const isLoading = app.isLoading;
+            const __IN_BITRIX__ = inBitrix;
 
-        if (!isLoading) {
-            dispatch(appActions.loading({ status: true }));
+            if (!isLoading) {
+                dispatch(appActions.loading({ status: true }));
 
-            const domain: string = __IN_BITRIX__
-                ? (await bx.getDomain()) || TESTING_DOMAIN
-                : TESTING_DOMAIN;
+                const domain: string = __IN_BITRIX__
+                    ? (await bx.getDomain()) || TESTING_DOMAIN
+                    : TESTING_DOMAIN;
 
-            const user = __IN_BITRIX__
-                ? ((await bx.getCurrentUser()) as BXUser)
-                : TESTING_USER;
-            console.log('user');
+                const user = __IN_BITRIX__
+                    ? ((await bx.getCurrentUser()) as BXUser)
+                    : TESTING_USER;
+                console.log('user');
 
-            console.log(user);
-            console.log('user');
+                console.log(user);
+                console.log('user');
 
-            console.log(user);
-            initWSClient(user.ID, domain); // <- здесь создаёшь сокет
-            // const socket = getWSClient()
-            dispatch(socketThunk(user.ID, domain));
-debugger;
-            dispatch(
-                appActions.setAppData({
-                    domain,
-                    user,
-                }),
-            );
+                console.log(user);
+                initWSClient(user.ID, domain); // <- здесь создаёшь сокет
+                // const socket = getWSClient()
+                dispatch(socketThunk(user.ID, domain));
+
+                dispatch(
+                    appActions.setAppData({
+                        domain,
+                        user,
+                    }),
+                );
 
 
-            //for user-report
-            const wsClient = getWSClient();
-            await startWsEventsListener(dispatch, wsClient);
-            dispatch(appActions.loading({ status: false }));
-            // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
-        }
-    };
+                //for user-report
+                const wsClient = getWSClient();
+                await startWsEventsListener(dispatch, wsClient);
+                dispatch(appActions.loading({ status: false }));
+                // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
+            }
+        };
 
 export const reloadApp =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {

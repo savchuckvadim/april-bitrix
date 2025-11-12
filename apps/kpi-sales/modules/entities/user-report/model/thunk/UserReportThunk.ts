@@ -16,7 +16,7 @@ export const getUserReportThunk =
 
                 const { dateFrom, dateTo } = getUserReportDate(dto.filters.dateFrom, dto.filters.dateTo);
                 const response = await getUserReport({ ...dto, filters: { ...dto.filters, dateFrom, dateTo } }) as SalesUserReportStartResponseDto;
-                debugger
+
                 if (!response) {
                     return rejectWithValue('Ошибка загрузки данных');
                 }

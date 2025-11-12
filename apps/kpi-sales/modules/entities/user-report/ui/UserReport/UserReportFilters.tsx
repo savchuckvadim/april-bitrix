@@ -5,7 +5,9 @@ import { IUserReportItem } from "../../type/user-report.type";
 import { Badge } from "@workspace/ui/components/badge";
 import { Card } from "@workspace/ui/components/card";
 import { Button } from "@workspace/ui/components/button";
-import { X, Building2 } from 'lucide-react';
+import { X, Building2, Palette } from 'lucide-react';
+import { getColorCompany } from '../../lib/color-company.ui-util';
+import { cn } from '@workspace/ui/lib/utils';
 
 interface UserReportFiltersProps {
     report: IUserReportItem[];
@@ -14,12 +16,14 @@ interface UserReportFiltersProps {
         type?: string;
         initiative?: string;
         communication?: string;
+        color?: string;
     };
     onFilterChange: (filters: {
         action?: string;
         type?: string;
         initiative?: string;
         communication?: string;
+        color?: string;
     }) => void;
     groupByCompany: boolean;
     onGroupByCompanyChange: (groupBy: boolean) => void;
@@ -41,8 +45,23 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
     const filterOptions = useMemo(() => {
         const actionMap = new Map<string, number>();
         const typeMap = new Map<string, number>();
+        const colorMap = new Map<string, number>();
         const initiativeMap = new Map<string, number>();
         const communicationMap = new Map<string, number>();
+
+        const colorNames: Record<string, string> = {
+            'green': 'зеленый',
+            'red': 'красный',
+            'yellow': 'желтый',
+            'blue': 'синий',
+            'purple': 'фиолетовый',
+            'orange': 'оранжевый',
+            'pink': 'розовый',
+            'brown': 'коричневый',
+            'gray': 'серый',
+            'black': 'черный',
+            'white': 'белый'
+        };
 
         report.forEach(item => {
             // Action filter
@@ -57,6 +76,12 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
             const typeName = item.sales_kpi_event_type?.value?.name;
             if (typeCode && typeName) {
                 typeMap.set(typeCode, (typeMap.get(typeCode) || 0) + 1);
+            }
+
+            // Color filter
+            const color = item.company?.color;
+            if (color) {
+                colorMap.set(color, (colorMap.get(color) || 0) + 1);
             }
 
             // // Initiative filter
@@ -83,6 +108,11 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
             types: Array.from(typeMap.entries()).map(([code, count]) => ({
                 code,
                 name: report.find(item => item.sales_kpi_event_type?.value?.code === code)?.sales_kpi_event_type?.value?.name || code,
+                count
+            })),
+            colors: Array.from(colorMap.entries()).map(([color, count]) => ({
+                code: color,
+                name: colorNames[color] || color,
                 count
             })),
             // initiatives: Array.from(initiativeMap.entries()).map(([code, count]) => ({
@@ -117,7 +147,7 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
     return (
         <Card className="p-4">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Фильтры</h3>
+                <h3 className="text-lg font-semibold text-foreground/80    ">Фильтры</h3>
                 <div className="flex items-center gap-3">
                     <Button
                         variant={groupByCompany ? "default" : "outline"}
@@ -131,7 +161,8 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
                     {hasActiveFilters && (
                         <button
                             onClick={clearAllFilters}
-                            className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                            style={{ cursor: 'pointer' }}
+                            className="text-sm text-foreground/60 hover:text-primary flex items-center gap-1"
                         >
                             <X className="w-4 h-4" />
                             Очистить все
@@ -144,7 +175,7 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
                 {/* Action Filter */}
                 {filterOptions.actions.length > 0 && (
                     <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Действие</h4>
+                        <h4 className="text-sm font-medium text-foreground/60 mb-2">Действие</h4>
                         <div className="flex flex-wrap gap-2">
                             {filterOptions.actions.map(option => (
                                 <Badge
@@ -163,7 +194,7 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
                 {/* Type Filter */}
                 {filterOptions.types.length > 0 && (
                     <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Тип</h4>
+                        <h4 className="text-sm font-medium text-foreground/60  mb-2">Тип</h4>
                         <div className="flex flex-wrap gap-2">
                             {filterOptions.types.map(option => (
                                 <Badge
@@ -171,6 +202,31 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
                                     variant={selectedFilters.type === option.code ? "default" : "secondary"}
                                     className="cursor-pointer hover:bg-blue-100 transition-colors"
                                     onClick={() => handleFilterToggle('type', option.code)}
+                                >
+                                    {option.name} ({option.count})
+                                </Badge>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Color Filter */}
+                {filterOptions.colors.length > 0 && (
+                    <div>
+                        <h4 className="text-sm font-medium text-foreground/60  mb-2 flex items-center gap-2">
+                            <Palette className="w-4 h-4" />
+                            Цвет компании
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                            {filterOptions.colors.map(option => (
+                                <Badge
+                                    key={option.code}
+                                    variant={selectedFilters.color === option.code ? "default" : "secondary"}
+                                    className={cn(
+                                        "cursor-pointer hover:opacity-80 transition-all",
+                                        selectedFilters.color === option.code && getColorCompany(option.code)
+                                    )}
+                                    onClick={() => handleFilterToggle('color', option.code)}
                                 >
                                     {option.name} ({option.count})
                                 </Badge>
@@ -198,7 +254,7 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
                     </div>
                 )} */}
 
-                {/* Communication Filter 
+                {/* Communication Filter
                 {filterOptions.communications.length > 0 && (
                     <div>
                         <h4 className="text-sm font-medium text-gray-700 mb-2">Коммуникация</h4>

@@ -13,7 +13,7 @@ import type {
 
 import { customAxios } from '../../lib/back-api';
 
-export const getBitrixAppClient = () => {
+export const getBitrixAppClientApp = () => {
     /**
      * @summary Get app
      */
@@ -38,14 +38,14 @@ export const getBitrixAppClient = () => {
 export type BitrixAppClientGetAppResult = NonNullable<
     Awaited<
         ReturnType<
-            ReturnType<typeof getBitrixAppClient>['bitrixAppClientGetApp']
+            ReturnType<typeof getBitrixAppClientApp>['bitrixAppClientGetApp']
         >
     >
 >;
 export type BitrixAppClientSetSecretResult = NonNullable<
     Awaited<
         ReturnType<
-            ReturnType<typeof getBitrixAppClient>['bitrixAppClientSetSecret']
+            ReturnType<typeof getBitrixAppClientApp>['bitrixAppClientSetSecret']
         >
     >
 >;

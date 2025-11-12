@@ -9,6 +9,8 @@ import type { ClientDto } from './clientDto';
 import type { UserResponseDto } from './userResponseDto';
 
 export interface ClientResponseDto {
+    /** Client ID */
+    id: number;
     /** Message */
     message: string;
     /** Client */

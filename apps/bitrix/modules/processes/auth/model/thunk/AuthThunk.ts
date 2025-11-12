@@ -15,9 +15,9 @@ export const loginThunk = (form: ILoginForm): AppThunk => async (dispatch) => {
         // Имитация API вызова
         const api = new AuthHelper();
         const response = await api.login(form);
-
+       debugger
         if (response.client.id && response.user.id) {
-
+            debugger
 
             dispatch(authActions.loginSuccess({
                 currentUser: response.user,
@@ -28,6 +28,7 @@ export const loginThunk = (form: ILoginForm): AppThunk => async (dispatch) => {
             dispatch(authActions.loginFailure('Неверный email или пароль'));
         }
     } catch (error) {
+        debugger
         dispatch(authActions.loginFailure('Ошибка входа в систему'));
     }
 };
@@ -78,11 +79,11 @@ export const logoutThunk = (): AppThunk => async (dispatch) => {
         // Имитация API вызова
         const api = new AuthHelper();
         await api.logout();
-        debugger
+
         dispatch(authActions.logout());
-        debugger
+
     } catch (error) {
-        debugger
+
         dispatch(authActions.loginFailure('Ошибка выхода из системы'));
     }
 

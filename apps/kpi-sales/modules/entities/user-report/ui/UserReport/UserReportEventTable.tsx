@@ -1,6 +1,6 @@
 'use client'
 
-import React, {  useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import { IUserReportItem } from "../../type/user-report.type";
 import { Card } from "@workspace/ui/components/card";
 import { Loader2 } from "lucide-react";
@@ -48,12 +48,15 @@ export const UserReportEventTable: React.FC<UserReportEventTableProps> = ({
         <Card className="overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                    <thead className="bg-background-muted border-b border-background-muted sticky top-0 z-10">
+                    <thead className="bg-background-muted border-b border-background-muted sticky top-0 ">
                         <tr>
-                            <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            <th className="px-3 py-2.5 text-left text-xs font-semibold z-0 uppercase tracking-wider">
                                 Компания
                             </th>
-                            <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            {/* <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider">
+                                Цвет компании
+                            </th> */}
+                            <th className="px-3 py-2.5 text-left text-xs font-semibold  uppercase tracking-wider">
                                 Событие
                             </th>
                             {/* <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -62,16 +65,16 @@ export const UserReportEventTable: React.FC<UserReportEventTableProps> = ({
                             <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 Тип
                             </th> */}
-                            <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            <th className="px-3 py-2.5 text-left text-xs font-semibold  uppercase tracking-wider">
                                 Комментарий
                             </th>
                             {/* <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 Контакт
                             </th> */}
-                            <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            <th className="px-3 py-2.5 text-left text-xs font-semibold  uppercase tracking-wider">
                                 Дата события
                             </th>
-                            <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            <th className="px-3 py-2.5 text-left text-xs font-semibold  uppercase tracking-wider">
                                 Дата следующей коммуникации
                             </th>
                             {/* <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">

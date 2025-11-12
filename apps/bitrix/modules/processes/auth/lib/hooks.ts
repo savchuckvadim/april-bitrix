@@ -8,7 +8,7 @@ import { ILoginForm } from '../model/types';
 export const useAuth = () => {
     const dispatch = useAppDispatch();
     const auth = useAppSelector((state) => state.auth);
-debugger
+
     const login = (form: ILoginForm) => dispatch(loginThunk(form));
     const registerClient = (form: IRegisterForm) => dispatch(registerClientThunk(form));
     const registerUser = (form: IRegisterForm) => dispatch(registerUserThunk(form));

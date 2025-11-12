@@ -37,33 +37,50 @@ export const UserReportStats: React.FC<UserReportStatsProps> = ({ report }) => {
     const stats = useMemo(() => {
         if (!report.length) return null;
 
-        const uniqueTypes = new Set(
-            report
-                .map(item => item.sales_kpi_event_type?.value?.name)
-                .filter(Boolean)
-        );
 
-        const uniqueActions = new Set(
-            report
-                .map(item => item.sales_kpi_event_action?.value?.name)
-                .filter(Boolean)
-        );
-
-        const withComments = report.filter(
-            item => item.sales_kpi_manager_comment?.value?.value
+        //TODO: сделать статистические показатели по менеджерам
+        // всего событий, проведено презентаций, выставлено счетов, продаж
+        const totalEvents = report.length;
+        const totalPresentations = report.filter(item =>
+            item.sales_kpi_event_type?.value?.name === 'Презентация' &&
+            item.sales_kpi_event_action?.value?.name === 'Состоялся'
         ).length;
+        const totalInvoices = report.filter(item => item.sales_kpi_event_type?.value?.name === 'Счет'  &&
+            item.sales_kpi_event_action?.value?.name === 'Отправлен').length;
+        const totalCalls = report.filter(item => item.sales_kpi_event_type?.value?.name === 'Звонок').length;
+        const totalSales = report.filter(item => item.sales_kpi_event_type?.value?.name === 'Продажа').length;
+        // const uniqueTypes = new Set(
+        //     report
+        //         .map(item => item.sales_kpi_event_type?.value?.name)
+        //         .filter(Boolean)
+        // );
 
-        const recentWeek = report.filter(item => {
-            // Простая логика: если есть дата, считать что за неделю
-            // В реальности нужно парсить дату из item
-            return true; // Пока считаем все
-        }).length;
+        // const uniqueActions = new Set(
+        //     report
+        //         .map(item => item.sales_kpi_event_action?.value?.name)
+        //         .filter(Boolean)
+        // );
+
+        // const withComments = report.filter(
+        //     item => item.sales_kpi_manager_comment?.value?.value
+        // ).length;
+
+        // const recentWeek = report.filter(item => {
+        //     // Простая логика: если есть дата, считать что за неделю
+        //     // В реальности нужно парсить дату из item
+        //     return true; // Пока считаем все
+        // }).length;
 
         return {
-            uniqueTypes: uniqueTypes.size,
-            uniqueActions: uniqueActions.size,
-            withComments,
-            recentWeek: Math.round(report.length * 0.3) // Заглушка
+            // uniqueTypes: uniqueTypes.size,
+            // uniqueActions: uniqueActions.size,
+            // withComments,
+            // recentWeek: Math.round(report.length * 0.3) // Заглушка
+            totalEvents,
+            totalPresentations,
+            totalInvoices,
+            totalCalls,
+            totalSales
         };
     }, [report]);
 
@@ -72,26 +89,26 @@ export const UserReportStats: React.FC<UserReportStatsProps> = ({ report }) => {
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard
-                title="Типов событий"
-                value={stats.uniqueTypes}
+                title="Всего событий"
+                value={stats.totalEvents}
                 icon={<Activity className="w-5 h-5 text-blue-600" />}
                 color="text-blue-600"
             />
             <StatCard
-                title="Действий"
-                value={stats.uniqueActions}
+                title="Проведено презентаций"
+                value={stats.totalPresentations}
                 icon={<TrendingUp className="w-5 h-5 text-green-600" />}
                 color="text-green-600"
             />
             <StatCard
-                title="С комментариями"
-                value={stats.withComments}
+                title="Выставлено счетов"
+                value={stats.totalInvoices}
                 icon={<MessageSquare className="w-5 h-5 text-purple-600" />}
                 color="text-purple-600"
             />
             <StatCard
-                title="За неделю"
-                value={stats.recentWeek}
+                title="Продаж"
+                value={stats.totalSales}
                 icon={<Calendar className="w-5 h-5 text-orange-600" />}
                 color="text-orange-600"
             />

@@ -22,8 +22,9 @@ export default function DownLoad() {
             ) : (
                 <Button
                     onClick={() => handleDownload(EDownloadType.EXCEL)}
-                    className="cursor-pointer icon"
+                    className="h-8 cursor-pointer icon"
                     variant="outline"
+                    style={{ cursor: 'pointer' }}
                 >
                     <Download />
                 </Button>

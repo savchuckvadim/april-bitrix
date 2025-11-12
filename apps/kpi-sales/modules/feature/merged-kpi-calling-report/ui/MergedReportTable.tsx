@@ -10,7 +10,7 @@ import { MergedReportFilters } from "./MergedReportFilters";
 import { MergedReportChart } from "./MergedReportChart";
 import { MergedReportTotalTable } from "./MergedReportTotalTable";
 import { MergedReportTotalChart } from "./MergedReportTotalChart";
-import { ManagersRating } from "./ManagersRating";
+import { useMergedReport } from '../hooks/merged-report.hook';
 
 
 interface MergedReportTableProps {
@@ -20,11 +20,12 @@ interface MergedReportTableProps {
 
 
 export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, callingsReport }) => {
-    const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-    const [selectedActions, setSelectedActions] = useState<string[]>([]);
-    debugger;
+    // const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+    // const [selectedActions, setSelectedActions] = useState<string[]>([]);
+    const { selectedUsers, selectedActions, setSelectedUsers, setSelectedActions } = useMergedReport();
     // Вычисляем данные (всегда, даже если нет данных)
     const tableKpiData = useMemo(() => {
+        
         if (!report || !report.length || !report[0]?.kpi) return null;
         return getReportTableData(report);
     }, [report]);
@@ -52,7 +53,7 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
 
         if (mergedReportsData.data[0]?.actions && mergedReportsData.data[0].actions.length > 0 && selectedActions.length === 0) {
             const allActionNames = mergedReportsData.data[0].actions.map(action => action.name);
-            debugger
+
             setSelectedActions(allActionNames);
         }
     }, [mergedReportsData, selectedUsers.length, selectedActions.length]);
@@ -83,17 +84,17 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
     // Обработчики фильтров
     const handleUserChange = (userId: number, checked: boolean) => {
         if (checked) {
-            setSelectedUsers(prev => [...prev, userId]);
+            setSelectedUsers([...selectedUsers, userId]);
         } else {
-            setSelectedUsers(prev => prev.filter(id => id !== userId));
+            setSelectedUsers(selectedUsers.filter(id => id !== userId));
         }
     };
 
     const handleActionChange = (actionName: string, checked: boolean) => {
         if (checked) {
-            setSelectedActions(prev => [...prev, actionName]);
+            setSelectedActions([...selectedActions, actionName] as string[]);
         } else {
-            setSelectedActions(prev => prev.filter(name => name !== actionName));
+            setSelectedActions(selectedActions.filter(name => name !== actionName));
         }
     };
 

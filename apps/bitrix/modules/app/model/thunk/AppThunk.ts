@@ -40,7 +40,7 @@ import { ClientDto, UserResponseDto } from "@workspace/nest-api";
 export const initializeApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
     if (state.app.isLoading) return;
-debugger
+
     dispatch(appActions.isLoading({ status: true }));
 
     try {
@@ -49,25 +49,25 @@ debugger
         const { inFrame, domain, user: bitrixUser } = bitrix.api.getInitializedData();
         const place = inFrame ? 'frame' : 'standalone';
         dispatch(appActions.setClientContext({ isClient: inFrame, domain, place }));
-        debugger
+
         // 2. Определяем пользователя
         let user: UserResponseDto | null = null;
         let client: ClientDto | null = null;
         if (inFrame) {
-            debugger
+
             //TODO: init for frame
             user = bitrixUser as UserResponseDto ?? null;
         } else {
-            debugger
+
             const auth = new AuthHelper();
             try {
                 const response = await auth.me();
                 user = response.user;
                 client = response.client;
-                debugger
+
             } catch {
                 try {
-                    debugger
+
                     // await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
                     //     method: 'POST',
                     //     credentials: 'include',
@@ -75,21 +75,21 @@ debugger
                     const response = await auth.me();
                     user = response.user;
                     client = response.client;
-                    debugger
+
                 } catch {
                     user = null;
                 }
             }
         }
-        debugger
+
         // 3. Диспатчим пользователя
         dispatch(authActions.setCurrentUser({ currentUser: user, currentClient: client }));
     } catch (err) {
-        debugger
+
         console.error('App init failed', err);
         dispatch(authActions.setCurrentUser(null));
     } finally {
-        debugger
+
         dispatch(appActions.setInitializedSuccess({}));
         dispatch(appActions.isLoading({ status: false }));
     }

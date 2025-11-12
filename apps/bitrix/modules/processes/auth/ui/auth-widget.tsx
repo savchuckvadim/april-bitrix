@@ -19,7 +19,7 @@ export const AuthWidget = () => {
     const { isAuthenticated } = useAuth();
 
     const [activeTab, setActiveTab] = useState('login' as 'login' | 'register');
-debugger
+
     isAuthenticated && redirect('/standalone');
 
     return (

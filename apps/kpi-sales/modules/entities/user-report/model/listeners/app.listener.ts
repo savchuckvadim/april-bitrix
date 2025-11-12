@@ -28,7 +28,7 @@ export const startUserReportAppListener = (
     listener: ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>,
     // wsClient: WSClient
 ) => {
-    debugger;
+
     listener.startListening({
         matcher: isAnyOf(
             appActions.setAppData,
@@ -41,7 +41,7 @@ export const startUserReportAppListener = (
             startWsEventsListener(dispatch, wsClient);
 
 
-            debugger
+
 
         },
     });
@@ -52,21 +52,25 @@ export const startUserReportAppListener = (
 export const startWsEventsListener = async (dispatch: AppDispatch, wsClient: WSClient) => {
 
 
-    debugger;
+
 
     await waitForConnection(wsClient);
 
-    wsClient.on(USER_REPORT_EVENT.PROGRESS, (payload: IUserReportItem[]) => {
-        debugger
+    wsClient.on(
+        USER_REPORT_EVENT.PROGRESS,
+        (payload: IUserReportItem[]) => {
 
-        payload
-            && payload.length > 0
-            && dispatch(userReportActions.setProgressFetchedReport(payload));
-    });
-    wsClient.on(USER_REPORT_EVENT.DONE, (payload: IUserReportItem[]) => {
-        debugger
-        dispatch(userReportActions.setFullFetchedReport(true));
-    });
 
-    debugger
+            payload
+                && payload.length > 0
+                && dispatch(userReportActions.setProgressFetchedReport(payload));
+        });
+    wsClient.on(
+        USER_REPORT_EVENT.DONE,
+        (payload: IUserReportItem[]) => {
+
+            dispatch(userReportActions.setFullFetchedReport(true));
+        });
+
+
 }

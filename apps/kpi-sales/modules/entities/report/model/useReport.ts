@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { getReportData, changeDate, saveFilter } from './report-thunks';
 import {

@@ -15,12 +15,6 @@ export async function middleware(req: NextRequest) {
     console.log('token', token);
     console.log('req.nextUrl.pathname', req.nextUrl.pathname);
 
-    // ✅ Уже залогинен — не даём попасть на /auth/login
-    // if (token && isAuthPage) {
-    //     console.log('redirect to standalone');
-
-    //     return NextResponse.redirect(new URL('/standalone', req.url));
-    // }
 
 
     // Если нет токена — редирект на логин

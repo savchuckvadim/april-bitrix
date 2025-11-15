@@ -14,17 +14,32 @@ import { LoginForm } from "./components/login-form";
 import { RegistrationForm } from "./components/registration-form";
 import { useAuth } from "../lib/hooks";
 import { redirect } from "next/navigation";
+import { Button } from "@workspace/ui/components/button";
 
 export const AuthWidget = () => {
     const { isAuthenticated, currentClient, currentUser } = useAuth();
 
     const [activeTab, setActiveTab] = useState('login' as 'login' | 'register');
 
-    isAuthenticated
+
+
+    if (
+        isAuthenticated
         && currentClient
         && currentUser
-        // && currentUser.email_verified_at
-        && redirect('/standalone');
+    ) {
+        return <div>
+            <h1>Вы уже авторизованы</h1>
+            <p>
+                {currentUser.name} {currentUser.email}
+            </p>
+            <p>Вы будете перенаправлены на страницу управления</p>
+            <Button
+                onClick={() => redirect('/standalone')}>
+                Перейти на страницу управления
+            </Button>
+        </div>
+    }
 
     return (
         <div className="min-h-screen bg-background/90">

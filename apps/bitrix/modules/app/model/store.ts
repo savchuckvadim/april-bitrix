@@ -11,9 +11,11 @@ import { WSClient } from '@workspace/ws';
 import { appReducer } from './slice/AppSlice';
 import { errorHandler } from '../lib/error-handler';
 import { authReducer } from '@/modules/processes/auth';
+import { portalReducer } from '@/modules/entities/portal/model';
+import { startPortalClientListener } from '@/modules/entities/portal/model/listener/PortalClientListener';
 
 
-export const listenerMiddleware = createListenerMiddleware();
+const listenerMiddleware = createListenerMiddleware();
 let wsClient: WSClient;
 
 // const socketMiddleware: Middleware = (storeAPI: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
@@ -47,9 +49,14 @@ export const getWSClient = () => {
 const rootReducer = combineReducers({
     app: appReducer,
     auth: authReducer,
+
+
+    //entities
+    portal: portalReducer,
 });
 
 export const setupStore = () => {
+    startPortalClientListener(listenerMiddleware);
     return configureStore({
         reducer: rootReducer,
         middleware: getDefaultMiddleware =>

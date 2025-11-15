@@ -1,13 +1,13 @@
-import { BitrixAppGetCode, getBitrixAppClient } from "@workspace/nest-api";
+import { BitrixAppGetCode, CreateBitrixAppDto, getBitrixAppClientApp, } from "@workspace/nest-api";
+const api = getBitrixAppClientApp();
+
 
 export const bxAppHelper = {
-    getBxApp: async () => {
-        const api = getBitrixAppClient();
-
+    getBxApp: async (domain: string, code: BitrixAppGetCode) => {
         try {
             const response = await api.bitrixAppClientGetApp({
-                domain: 'april-garant.bitrix24.ru',
-                code: BitrixAppGetCode.sales_full,
+                domain: domain,
+                code: code,
             });
             return response;
         } catch (error) {
@@ -17,4 +17,34 @@ export const bxAppHelper = {
 
 
     },
+    getPortalApps: async (portalId: number) => {
+        try {
+            const response = await api.bitrixAppClientGetPortalApps({
+                portalId: portalId,
+            });
+            return response;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+
+    },
+    getEnabledApps: async () => {
+        try {
+            const response = await api.bitrixAppClientGetEnabledApps();
+            return response;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    },
+    storeOrUpdateApp: async (app: CreateBitrixAppDto) => {
+        try {
+            const response = await api.bitrixAppClientCreateApp(app);
+            return response;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
 };

@@ -30,7 +30,7 @@ import {
 
     getStatusLabel,
     getStatusColor
-} from '../../../../../../../modules/entities/entities';
+} from '@/modules/entities/entities';
 
 export default function PlacementManagementPage() {
     const params = useParams();

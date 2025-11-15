@@ -1,7 +1,7 @@
 import { getBitrixSetupApp, getPortalKonstructor } from "@workspace/nest-api";
-import { getBitrixAppClient } from "@workspace/nest-api/src/generated/bitrix-app-client/bitrix-app-client";
+import { getBitrixAppClientApp } from "@workspace/nest-api/src/generated/bitrix-app-client-app/bitrix-app-client-app";
 
-export const apiApp = getBitrixAppClient()
+export const apiApp = getBitrixAppClientApp()
 export const apiSetup = getBitrixSetupApp()
 export const apiPortal = getPortalKonstructor()
 

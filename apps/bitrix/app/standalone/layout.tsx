@@ -19,6 +19,7 @@ import {
 // } from '../../modules/entities/entities';
 import { useAuth } from '@/modules/processes/auth/lib/hooks';
 import { useRouter } from 'next/navigation';
+import { PortalProvider } from '@/modules/entities/portal';
 
 export default function ClientLayout({
     children,
@@ -48,18 +49,18 @@ export default function ClientLayout({
 
     // Если пользователь авторизован
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen">
             {/* Навигационная панель */}
-            <nav className="bg-white border-b shadow-sm">
-                <div className="max-w-7xl mx-auto px-6 py-4">
+            <nav className="bg-card border-b shadow-sm border-none">
+                <div className="container mx-auto py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">
                             <h1 className="text-2xl font-bold text-gray-900">
                                 Битрикс24 Управление
                             </h1>
-                            <div className="hidden md:flex items-center gap-6">
+                            {/* <div className="hidden md:flex items-center gap-6">
                                 <span className="text-blue-600 font-medium">Личный кабинет</span>
-                            </div>
+                            </div> */}
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="text-sm text-gray-600">
@@ -73,7 +74,7 @@ export default function ClientLayout({
                 </div>
             </nav>
 
-            <div className="max-w-6xl mx-auto p-6">
+            <div className=" mx-auto ">
                 {/* Уведомления */}
                 {success && (
                     <Alert className="mb-6 border-green-200 bg-green-50">
@@ -88,9 +89,9 @@ export default function ClientLayout({
                         <AlertDescription className="text-red-800">{error}</AlertDescription>
                     </Alert>
                 )}
-
-                {children}
-
+                <PortalProvider>
+                    {children}
+                </PortalProvider>
             </div>
         </div>
     );

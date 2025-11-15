@@ -33,6 +33,9 @@ import {
     getStatusLabel,
     getStatusColor
 } from '@/modules/entities/entities';
+import { BxApp } from '@/modules/entities/bx-app';
+
+
 
 export default function PortalDashboardPage() {
     const params = useParams();
@@ -252,7 +255,7 @@ export default function PortalDashboardPage() {
                         </div>
                     </CardContent>
                 </Card>
-
+                <BxApp  />
                 <Card>
                     <CardContent className="p-6">
                         <div className="flex items-center gap-4">

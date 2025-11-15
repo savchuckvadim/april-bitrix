@@ -16,11 +16,15 @@ import { useAuth } from "../lib/hooks";
 import { redirect } from "next/navigation";
 
 export const AuthWidget = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, currentClient, currentUser } = useAuth();
 
     const [activeTab, setActiveTab] = useState('login' as 'login' | 'register');
 
-    isAuthenticated && redirect('/standalone');
+    isAuthenticated
+        && currentClient
+        && currentUser
+        // && currentUser.email_verified_at
+        && redirect('/standalone');
 
     return (
         <div className="min-h-screen bg-background/90">

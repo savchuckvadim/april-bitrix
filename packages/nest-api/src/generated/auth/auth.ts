@@ -127,6 +127,15 @@ export const getAuth = () => {
             method: 'GET',
         });
     };
+    /**
+     * @summary Get all clients portls
+     */
+    const authGetAllPortals = () => {
+        return customAxios<void>({
+            url: `/api/auth/get-all-portls`,
+            method: 'GET',
+        });
+    };
     return {
         authRegisterClient,
         authLogin,
@@ -139,6 +148,7 @@ export const getAuth = () => {
         authGetAllClients,
         authGetAllClientsUsers,
         authGetAllUsers,
+        authGetAllPortals,
     };
 };
 export type AuthRegisterClientResult = NonNullable<
@@ -173,4 +183,7 @@ export type AuthGetAllClientsUsersResult = NonNullable<
 >;
 export type AuthGetAllUsersResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllUsers']>>
+>;
+export type AuthGetAllPortalsResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllPortals']>>
 >;

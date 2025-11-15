@@ -72,7 +72,7 @@ export const getDownload =
 
                 const callingsReport = getState().callingStatistics.items;
 
-                debugger
+
                 const mergedReport = callingsReport && getMergedReportsExcelData(report, callingsReport, selectedUsers, selectedActions);
                 const kpiReport = getKpidReportsExcelData(report);
                 const widgetStyle = state.reportType.current;

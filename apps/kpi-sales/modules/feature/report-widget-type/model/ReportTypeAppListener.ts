@@ -13,7 +13,7 @@ export const startReportTypeAppListener = (listener: ListenerMiddlewareInstance<
         ),
         effect: async (action: PayloadAction<{ domain: string }>, { extra, dispatch, getState, }) => {
             const domain = action.payload.domain;
-            debugger
+
             let initWidgetStyle = EReportType.All
 
             if (domain.includes('gsr') || domain.includes('gsirk')) {

@@ -1,5 +1,5 @@
 
-import { CreateBitrixAppDto, CreateBitrixAppDtoCode, CreateBitrixAppDtoGroup, CreateBitrixAppDtoStatus, CreateBitrixAppDtoType } from "@workspace/nest-api";
+import {  CreateBitrixAppDto, CreateBitrixAppDtoCode, CreateBitrixAppDtoGroup, CreateBitrixAppDtoStatus, CreateBitrixAppDtoType } from "@workspace/nest-api";
 
 export interface BitrixTokenPayload {
     access_token?: string | null;
@@ -28,6 +28,10 @@ export const getSetupDto = (
             refresh_token: payload.refresh_token,
             application_token: payload.application_token,
             member_id: payload.member_id,
+        },
+        secret: {
+            client_id: '',
+            client_secret: '',
         },
     } as CreateBitrixAppDto;
 };

@@ -69,7 +69,7 @@ export const getKpidReportsExcelData = (reportData: ReportData[],): DownloadKpiR
 }
 
 export const getMergedReportsExcelData = (reportData: ReportData[], callingsReportData: ReportCallingData[], selectedUsers: number[], selectedActions: string[]): DownloadKpiReportItemDto[] => {
-    debugger;
+
     //todo selected actions
     // const report = getReportTableData(reportData);
     // const callingsReport = getCallingStatisticsTableData(callingsReportData);

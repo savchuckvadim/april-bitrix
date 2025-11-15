@@ -6,7 +6,11 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+    BitrixAppClientGetPortalAppsParams,
+    BitrixAppDto,
     BitrixAppEntity,
+    CreateBitrixAppDto,
+    EnabledAppDto,
     GetBitrixAppDto,
     SetSecretDto,
 } from '.././model';
@@ -33,7 +37,47 @@ export const getBitrixAppClientApp = () => {
             data: setSecretDto,
         });
     };
-    return { bitrixAppClientGetApp, bitrixAppClientSetSecret };
+    /**
+     * @summary Get portal apps
+     */
+    const bitrixAppClientGetPortalApps = (
+        params: BitrixAppClientGetPortalAppsParams,
+    ) => {
+        return customAxios<BitrixAppEntity[]>({
+            url: `/api/bitrix-app-client/get-portal-apps`,
+            method: 'GET',
+            params,
+        });
+    };
+    /**
+     * @summary Get enabled apps
+     */
+    const bitrixAppClientGetEnabledApps = () => {
+        return customAxios<EnabledAppDto[]>({
+            url: `/api/bitrix-app-client/enabled-apps`,
+            method: 'GET',
+        });
+    };
+    /**
+     * @summary Create app
+     */
+    const bitrixAppClientCreateApp = (
+        createBitrixAppDto: CreateBitrixAppDto,
+    ) => {
+        return customAxios<BitrixAppDto>({
+            url: `/api/bitrix-app-client/create-app`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: createBitrixAppDto,
+        });
+    };
+    return {
+        bitrixAppClientGetApp,
+        bitrixAppClientSetSecret,
+        bitrixAppClientGetPortalApps,
+        bitrixAppClientGetEnabledApps,
+        bitrixAppClientCreateApp,
+    };
 };
 export type BitrixAppClientGetAppResult = NonNullable<
     Awaited<
@@ -46,6 +90,31 @@ export type BitrixAppClientSetSecretResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<typeof getBitrixAppClientApp>['bitrixAppClientSetSecret']
+        >
+    >
+>;
+export type BitrixAppClientGetPortalAppsResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getBitrixAppClientApp
+            >['bitrixAppClientGetPortalApps']
+        >
+    >
+>;
+export type BitrixAppClientGetEnabledAppsResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getBitrixAppClientApp
+            >['bitrixAppClientGetEnabledApps']
+        >
+    >
+>;
+export type BitrixAppClientCreateAppResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getBitrixAppClientApp>['bitrixAppClientCreateApp']
         >
     >
 >;

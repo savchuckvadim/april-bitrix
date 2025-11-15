@@ -1,8 +1,8 @@
-import { BitrixAppGetCode, getBitrixAppClient } from '@workspace/nest-api';
+import { BitrixAppGetCode, getBitrixAppClientApp } from '@workspace/nest-api';
 
 
 export const getAppHelper = async () => {
-    const bxAppApi = getBitrixAppClient()
+    const bxAppApi = getBitrixAppClientApp()
 
     const app = await bxAppApi.bitrixAppClientGetApp({
         domain: 'april-garant.bitrix24.ru',

@@ -143,10 +143,10 @@ export default function PortalDashboardLayout({
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 w-full">
+        <div className="min-h-screen  w-full">
             {/* Навигационная панель */}
             <nav className="bg-white border-b shadow-sm">
-            Навигационная панель
+
                 {/* <div className="max-w-8xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">

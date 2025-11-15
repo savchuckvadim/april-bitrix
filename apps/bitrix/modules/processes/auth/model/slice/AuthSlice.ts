@@ -21,6 +21,7 @@ const authSlice = createSlice({
             state.error = action.payload;
         },
         setCurrentUser: (state: AuthState, action: PayloadAction<AuthStateDto | null>) => {
+            debugger
             state.currentUser = action.payload?.currentUser ?? null;
             state.currentClient = action.payload?.currentClient ?? null;
             state.isAuthenticated = action.payload?.currentUser
@@ -29,6 +30,7 @@ const authSlice = createSlice({
                 : false;
         },
         loginSuccess: (state: AuthState, action: PayloadAction<AuthStateDto>) => {
+
             state.currentUser = action.payload.currentUser;
             state.currentClient = action.payload.currentClient;
             state.isAuthenticated = true;
@@ -42,7 +44,7 @@ const authSlice = createSlice({
         registerSuccess: (state: AuthState, action: PayloadAction<AuthStateDto>) => {
             state.currentUser = action.payload.currentUser;
             state.currentClient = action.payload.currentClient;
-            state.isAuthenticated = true;
+            // state.isAuthenticated = true;
             state.isLoading = false;
             state.error = null;
         },

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@workspace/ui/components/button';
 import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 const navigation = [
     { name: 'Услуги', href: '#services' },
@@ -18,7 +19,6 @@ const navigation = [
 export const Header: React.FC = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
@@ -38,8 +38,8 @@ export const Header: React.FC = () => {
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? 'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm'
-                    : 'bg-background'
+                ? 'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm'
+                : 'bg-background'
                 }`}
         >
             <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -71,21 +71,22 @@ export const Header: React.FC = () => {
                     </div>
 
                     {/* CTA Buttons */}
-                    <div className="hidden lg:flex lg:items-center lg:space-x-4">
-                        <Button
-                            variant="ghost"
-                            onClick={() => scrollToSection('#contact')}
-                        >
-                            Вход в ЛК
-                        </Button>
-                        <Button
-                            onClick={() => scrollToSection('#contact')}
-                            className="bg-primary text-primary-foreground hover:bg-primary/90"
-                        >
-                            Зарегистрироваться
-                        </Button>
-                    </div>
-
+                    <Link href="/auth/login">
+                        <div className="hidden lg:flex lg:items-center lg:space-x-4">
+                            <Button
+                                variant="ghost"
+                                onClick={() => console.log('/auth/login')}
+                            >
+                                Вход в ЛК
+                            </Button>
+                            <Button
+                                onClick={() => console.log('/auth/login')}
+                                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            >
+                                Зарегистрироваться
+                            </Button>
+                        </div>
+                    </Link>
                     {/* Mobile menu button */}
                     <div className="lg:hidden">
                         <Button

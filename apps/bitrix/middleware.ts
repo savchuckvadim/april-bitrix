@@ -23,6 +23,11 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/auth/login', req.url));
     }
 
+    if (token && isAuthPage) {
+        console.log('redirect to standalone');
+        return NextResponse.redirect(new URL('/standalone', req.url));
+    }
+
     // Если есть токен, пропускаем
     return NextResponse.next();
 }

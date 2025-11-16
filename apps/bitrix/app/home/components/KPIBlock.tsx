@@ -87,7 +87,7 @@ export const KPIBlock: React.FC = () => {
                             <CardContent className="p-0">
                                 <div className="relative aspect-video rounded-lg overflow-hidden">
                                     <Image
-                                        src="/feat.jpg"
+                                        src="/demo/kpi_statistics_light.png"
                                         alt="Скриншот отчета KPI с интерактивными графиками"
                                         fill
                                         className="object-cover"

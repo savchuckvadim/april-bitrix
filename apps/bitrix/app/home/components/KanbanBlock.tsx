@@ -15,7 +15,7 @@ export const KanbanBlock: React.FC = () => {
                             <CardContent className="p-0">
                                 <div className="relative aspect-video rounded-lg overflow-hidden">
                                     <Image
-                                        src="/feat.jpg"
+                                        src="/demo/kanban_presentation.png"
                                         alt="Онлайн-канбан сделок с автоматическим заполнением"
                                         fill
                                         className="object-cover"

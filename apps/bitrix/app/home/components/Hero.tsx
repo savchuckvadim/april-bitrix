@@ -70,7 +70,8 @@ export const Hero: React.FC = () => {
                     <div className="relative">
                         <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl border">
                             <Image
-                                src="/feat.jpg"
+                                // src="/feat.jpg"
+                                   src="/demo/kpi_raiting_invoice_light.png"
                                 alt="Интерфейс CRM для менеджеров"
                                 fill
                                 className="object-cover"

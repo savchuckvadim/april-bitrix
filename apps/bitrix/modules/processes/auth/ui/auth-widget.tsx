@@ -21,25 +21,27 @@ export const AuthWidget = () => {
 
     const [activeTab, setActiveTab] = useState('login' as 'login' | 'register');
 
+    console.log('isAuthenticated', isAuthenticated);
+    console.log('currentClient', currentClient);
+    console.log('currentUser', currentUser);
 
-
-    if (
-        isAuthenticated
-        && currentClient
-        && currentUser
-    ) {
-        return <div>
-            <h1>Вы уже авторизованы</h1>
-            <p>
-                {currentUser.name} {currentUser.email}
-            </p>
-            <p>Вы будете перенаправлены на страницу управления</p>
-            <Button
-                onClick={() => redirect('/standalone')}>
-                Перейти на страницу управления
-            </Button>
-        </div>
-    }
+    // if (
+    //     isAuthenticated
+    //     && currentClient
+    //     && currentUser
+    // ) {
+    //     return <div>
+    //         <h1>Вы уже авторизованы</h1>
+    //         <p>
+    //             {currentUser.name} {currentUser.email}
+    //         </p>
+    //         <p>Вы будете перенаправлены на страницу управления</p>
+    //         <Button
+    //             onClick={() => redirect('/standalone')}>
+    //             Перейти на страницу управления
+    //         </Button>
+    //     </div>
+    // }
 
     return (
         <div className="min-h-screen bg-background/90">

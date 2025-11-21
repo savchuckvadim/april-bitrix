@@ -43,3 +43,5 @@ npm-debug.log*
 *.pem
 
 *.mp4
+*.docx
+*.pdf

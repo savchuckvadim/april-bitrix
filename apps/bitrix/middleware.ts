@@ -33,5 +33,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/standalone/:path*'], // защищаем только /standalone
+    matcher: ['/standalone/:path*', '/auth/:path*'], // защищаем только /standalone
 };

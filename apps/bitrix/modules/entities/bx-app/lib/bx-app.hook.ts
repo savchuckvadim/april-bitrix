@@ -10,14 +10,14 @@ export const useBxApps = (portalId: number) => {
         queryFn: async (): Promise<BitrixApp[]> => {
             const response = await bxAppHelper.getPortalApps(portalId);
             return response?.map((app) => ({
-                id: app.id as bigint,
-                portal_id: app.portal_id as bigint,
+                id: app.id as unknown as bigint,
+                portal_id: app.portal_id as unknown as bigint,
                 group: app.group as 'sales' | 'service' | 'marketing' | 'support' | 'analytics',
                 type: app.type as 'widget' | 'webhook' | 'integration',
                 code: app.code as string,
                 status: app.status as 'not_installed' | 'installing' | 'installed' | 'error',
-                createdAt: app.createdAt,
-                updatedAt: app.updatedAt,
+                createdAt: app.created_at as unknown as Date,
+                updatedAt: app.updated_at as unknown as Date,
             }) as BitrixApp) ?? [];
         }
     });

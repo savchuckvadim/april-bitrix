@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Check, ArrowRight } from 'lucide-react';
+import { scrollToSectionWithSource } from '../utils/tracking';
 
 const packages = [
     {
@@ -35,12 +36,6 @@ const packages = [
 ];
 
 export const Pricing: React.FC = () => {
-    const scrollToSection = (href: string) => {
-        const element = document.querySelector(href);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
 
     return (
         <section id="pricing" className="py-20 lg:py-28">
@@ -59,8 +54,8 @@ export const Pricing: React.FC = () => {
                         <Card
                             key={index}
                             className={`border-2 relative ${pkg.popular
-                                    ? 'border-primary shadow-lg scale-105'
-                                    : 'hover:border-primary/50'
+                                ? 'border-primary shadow-lg scale-105'
+                                : 'hover:border-primary/50'
                                 } transition-all`}
                         >
                             {pkg.popular && (
@@ -90,11 +85,11 @@ export const Pricing: React.FC = () => {
                                 </ul>
                                 <Button
                                     className={`w-full ${pkg.popular
-                                            ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                                            : ''
+                                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                        : ''
                                         }`}
                                     variant={pkg.popular ? 'default' : 'outline'}
-                                    onClick={() => scrollToSection('#contact')}
+                                    onClick={() => scrollToSectionWithSource('#contact', 'pricing')}
                                 >
                                     Выбрать пакет
                                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -108,7 +103,7 @@ export const Pricing: React.FC = () => {
                     <Button
                         variant="outline"
                         size="lg"
-                        onClick={() => scrollToSection('#contact')}
+                        onClick={() => scrollToSectionWithSource('#contact', 'pricing')}
                     >
                         Получить точный расчёт
                     </Button>

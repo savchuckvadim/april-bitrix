@@ -24,7 +24,7 @@ export const PortalProvider = ({
         </div>;
     }
     return <div className="min-h-screen bg-card">
-        <div className="container mx-auto ">
+        <div className="px-10 mx-auto ">
             портал: <span className="text-primary">{selectedPortal?.domain}</span>
         </div>
         {children}

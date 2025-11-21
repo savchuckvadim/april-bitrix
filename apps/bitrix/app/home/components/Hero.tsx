@@ -3,15 +3,9 @@ import React from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { ArrowRight, Play } from 'lucide-react';
 import Image from 'next/image';
+import { scrollToSectionWithSource } from '../utils/tracking';
 
 export const Hero: React.FC = () => {
-    const scrollToSection = (href: string) => {
-        const element = document.querySelector(href);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
     return (
         <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center pt-16 lg:pt-20 overflow-hidden">
             {/* Background gradient */}
@@ -21,10 +15,10 @@ export const Hero: React.FC = () => {
                 <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                     {/* Content */}
                     <div className="text-center lg:text-left">
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6">
+                        <h1 className="text-4xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-6">
                             CRM под ключ для отделов продаж и сервиса —{' '}
                             <span className="text-primary">
-                                запущена за недели, а не месяцы
+                                Внедряется за 5 минут. Заменяет дорогостоящие внедрения.
                             </span>
                         </h1>
                         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto lg:mx-0">
@@ -36,7 +30,7 @@ export const Hero: React.FC = () => {
                         <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 mb-8 text-sm text-muted-foreground">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-green-500 rounded-full" />
-                                <span>Внедрили у 50+ компаний</span>
+                                <span>Внедрили у 5+ компаний</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-green-500 rounded-full" />
@@ -48,7 +42,7 @@ export const Hero: React.FC = () => {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <Button
                                 size="lg"
-                                onClick={() => scrollToSection('#contact')}
+                                onClick={() => scrollToSectionWithSource('#contact', 'hero')}
                                 className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6"
                             >
                                 Зарегистрироваться
@@ -57,7 +51,7 @@ export const Hero: React.FC = () => {
                             <Button
                                 size="lg"
                                 variant="outline"
-                                onClick={() => scrollToSection('#contact')}
+                                onClick={() => scrollToSectionWithSource('#contact', 'hero')}
                                 className="text-lg px-8 py-6"
                             >
                                 <Play className="mr-2 h-5 w-5" />
@@ -71,7 +65,7 @@ export const Hero: React.FC = () => {
                         <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl border">
                             <Image
                                 // src="/feat.jpg"
-                                   src="/demo/kpi_raiting_invoice_light.png"
+                                src="/demo/kpi_raiting_invoice_light.png"
                                 alt="Интерфейс CRM для менеджеров"
                                 fill
                                 className="object-cover"

@@ -23,6 +23,7 @@ export const loginThunk = (form: ILoginForm): AppThunk => async (dispatch) => {
                 currentUser: response.user,
                 currentClient: response.client,
             }));
+            window.location.href = `/standalone`;
 
         } else {
             dispatch(authActions.loginFailure('Неверный email или пароль'));

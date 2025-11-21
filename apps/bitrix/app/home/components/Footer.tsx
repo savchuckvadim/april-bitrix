@@ -7,13 +7,16 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 const footerLinks = {
     services: [
         { name: 'Услуги', href: '#services' },
-        { name: 'Как работает', href: '#how-it-works' },
+
         { name: 'KPI', href: '#kpi' },
         { name: 'Сделки', href: '#deals' },
+        { name: 'Конструктор документов', href: '#documents' },
+        { name: 'Учет звонков', href: '#calls' },
     ],
     company: [
+        { name: 'Как работает', href: '#how-it-works' },
         { name: 'Кейсы', href: '#testimonials' },
-        { name: 'Цены', href: '#pricing' },
+        { name: 'Цены', href: '#commercial-proposal' },
         { name: 'Контакты', href: '#contact' },
     ],
     legal: [
@@ -93,10 +96,10 @@ export const Footer: React.FC = () => {
                             <li className="flex items-start gap-3">
                                 <Phone className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                                 <a
-                                    href="tel:+79991234567"
+                                    href="tel:+79620027991"
                                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
                                 >
-                                    +7 (999) 123-45-67
+                                    +7 (962) 002-79-91
                                 </a>
                             </li>
                             <li className="flex items-start gap-3">
@@ -105,13 +108,13 @@ export const Footer: React.FC = () => {
                                     href="mailto:info@april-crm.ru"
                                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
                                 >
-                                    info@april-crm.ru
+                                    april-app@mail.ru
                                 </a>
                             </li>
                             <li className="flex items-start gap-3">
                                 <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                                 <span className="text-sm text-muted-foreground">
-                                    Москва, Россия
+                                    Санкт-Петербург, Россия
                                 </span>
                             </li>
                         </ul>
@@ -124,7 +127,7 @@ export const Footer: React.FC = () => {
                         © {new Date().getFullYear()} April CRM. Все права защищены.
                     </p>
                     <div className="flex gap-6">
-                        {footerLinks.legal.map((link) => (
+                        {/* {footerLinks.legal.map((link) => (
                             <Link
                                 key={link.name}
                                 href={link.href}
@@ -132,7 +135,7 @@ export const Footer: React.FC = () => {
                             >
                                 {link.name}
                             </Link>
-                        ))}
+                        ))} */}
                     </div>
                 </div>
             </div>

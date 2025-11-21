@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
@@ -7,6 +7,7 @@ import { Label } from '@workspace/ui/components/label';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Send, CheckCircle2 } from 'lucide-react';
+import { getLeadSource, setLeadSource as saveLeadSource, clearLeadSource } from '../utils/tracking';
 
 export const LeadForm: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -21,6 +22,47 @@ export const LeadForm: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const formRef = useRef<HTMLElement>(null);
+    const [leadSource, setLeadSourceState] = useState<string | null>(null);
+
+    // Отслеживание появления формы в viewport (автоматическое определение источника при скролле)
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        // Если источник еще не установлен, значит пользователь доскроллил до формы
+                        const currentSource = getLeadSource();
+                        if (!currentSource) {
+                            saveLeadSource('scroll');
+                            setLeadSourceState('scroll');
+                        } else {
+                            setLeadSourceState(currentSource);
+                        }
+                    }
+                });
+            },
+            { threshold: 0.3 } // Срабатывает когда 30% формы видно
+        );
+
+        if (formRef.current) {
+            observer.observe(formRef.current);
+        }
+
+        return () => {
+            if (formRef.current) {
+                observer.unobserve(formRef.current);
+            }
+        };
+    }, []);
+
+    // Получаем источник при монтировании компонента
+    useEffect(() => {
+        const source = getLeadSource();
+        if (source) {
+            setLeadSourceState(source);
+        }
+    }, []);
 
     // Получаем UTM параметры из URL
     const getUtmParams = () => {
@@ -73,6 +115,7 @@ export const LeadForm: React.FC = () => {
                 ...formData,
                 ...getUtmParams(),
                 source: 'landing_page',
+                lead_source: leadSource || 'unknown', // Источник перехода на форму
                 timestamp: new Date().toISOString(),
             };
 
@@ -89,8 +132,9 @@ export const LeadForm: React.FC = () => {
                 }
             }
 
+
             // Отправка в Bitrix (заглушка - нужно реализовать API endpoint)
-            const response = await fetch('/api/bitrix/lead', {
+            const response = await fetch('/api/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -98,20 +142,22 @@ export const LeadForm: React.FC = () => {
                 body: JSON.stringify(payload),
             });
 
-            if (response.ok) {
-                setIsSubmitted(true);
-                setFormData({
-                    name: '',
-                    company: '',
-                    email: '',
-                    phone: '',
-                    managersCount: '',
-                    comment: '',
-                    privacy: false,
-                });
-            } else {
-                throw new Error('Ошибка отправки формы');
-            }
+            // if (response.ok) {
+            setIsSubmitted(true);
+            setFormData({
+                name: '',
+                company: '',
+                email: '',
+                phone: '',
+                managersCount: '',
+                comment: '',
+                privacy: false,
+            });
+            // Очищаем источник после успешной отправки
+            clearLeadSource();
+            // } else {
+            //     throw new Error('Ошибка отправки формы');
+            // }
         } catch (error) {
             console.error('Error submitting form:', error);
             alert('Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.');
@@ -172,7 +218,7 @@ export const LeadForm: React.FC = () => {
     }
 
     return (
-        <section id="contact" className="py-20 lg:py-28">
+        <section id="contact" ref={formRef} className="py-20 lg:py-28">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <Card className="max-w-2xl mx-auto border-2">
                     <CardHeader className="text-center">

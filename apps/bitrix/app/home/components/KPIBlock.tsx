@@ -1,9 +1,8 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { BarChart3, Eye } from 'lucide-react';
-import Image from 'next/image';
 import {
     Dialog,
     DialogContent,
@@ -15,6 +14,14 @@ import {
 
 export const KPIBlock: React.FC = () => {
     const [isDemoOpen, setIsDemoOpen] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    useEffect(() => {
+        // Приоритетная загрузка видео
+        if (videoRef.current) {
+            videoRef.current.load();
+        }
+    }, []);
 
     return (
         <section id="kpi" className="py-20 lg:py-28 bg-muted/30">
@@ -23,7 +30,7 @@ export const KPIBlock: React.FC = () => {
                     {/* Content */}
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <BarChart3 className="h-8 w-8 text-primary" />
+                            <BarChart3 className="h-24 w-24 text-primary" />
                             <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                                 Отчет KPI — обзор работы менеджеров
                             </h2>
@@ -37,6 +44,12 @@ export const KPIBlock: React.FC = () => {
                                 <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                                 <span className="text-muted-foreground">
                                     Интерактивные и эстетичные графики с удобными фильтрами
+                                </span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                                <span className="text-muted-foreground">
+                                    Учитывает всевозможные метрики для Менеджеров по продажам Гарант
                                 </span>
                             </li>
                             <li className="flex items-start gap-3">
@@ -57,6 +70,12 @@ export const KPIBlock: React.FC = () => {
                                     Адаптация отчета под нужды конкретного анализа
                                 </span>
                             </li>
+                            <li className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                                <span className="text-muted-foreground">
+                                    Автоматическая отправка отчета по email в формате PDF или Excel
+                                </span>
+                            </li>
                         </ul>
                         <Dialog open={isDemoOpen} onOpenChange={setIsDemoOpen}>
                             <DialogTrigger asChild>
@@ -73,9 +92,24 @@ export const KPIBlock: React.FC = () => {
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                                    <p className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                                        Здесь будет демо-версия отчета KPI
-                                    </p>
+                                    <div className="relative aspect-video rounded-lg overflow-hidden">
+                                        <video
+                                            ref={videoRef}
+                                            autoPlay
+                                            muted
+                                            loop
+                                            playsInline
+                                            preload="metadata"
+                                            className="absolute inset-0 w-full h-full object-cover"
+                                            poster="/demo/kpi_statistics_light.png"
+                                        >
+                                            <source src="/video/kpi_report.mp4" type="video/mp4" />
+                                            {/* Fallback для браузеров без поддержки видео */}
+                                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/5 flex items-center justify-center">
+                                                <p className="text-muted-foreground">Видео не поддерживается вашим браузером</p>
+                                            </div>
+                                        </video>
+                                    </div>
                                 </div>
                             </DialogContent>
                         </Dialog>
@@ -83,18 +117,28 @@ export const KPIBlock: React.FC = () => {
 
                     {/* Visual */}
                     <div className="relative">
-                        <Card className="border-2 shadow-xl">
-                            <CardContent className="p-0">
-                                <div className="relative aspect-video rounded-lg overflow-hidden">
-                                    <Image
-                                        src="/demo/kpi_statistics_light.png"
-                                        alt="Скриншот отчета KPI с интерактивными графиками"
-                                        fill
-                                        className="object-cover"
-                                    />
+                        {/* <Card className="border-2 shadow-xl">
+                            <CardContent className="p-0"> */}
+                        <div className="relative aspect-video rounded-lg overflow-hidden">
+                            <video
+                                ref={videoRef}
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                                preload="metadata"
+                                className="absolute inset-0 w-full h-full object-cover"
+                                poster="/demo/kpi_statistics_light.png"
+                            >
+                                <source src="/video/kpi_report.mp4" type="video/mp4" />
+                                {/* Fallback для браузеров без поддержки видео */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/5 flex items-center justify-center">
+                                    <p className="text-muted-foreground">Видео не поддерживается вашим браузером</p>
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </video>
+                        </div>
+                        {/* </CardContent>
+                        </Card> */}
                     </div>
                 </div>
             </div>

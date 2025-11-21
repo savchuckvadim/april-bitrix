@@ -5,30 +5,31 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
+import type { BitrixAppDtoGroup } from './bitrixAppDtoGroup';
 import type { BitrixAppDtoType } from './bitrixAppDtoType';
-import type { BitrixAppDtoStatus } from './bitrixAppDtoStatus';
-import type { BitrixAppDtoPortal } from './bitrixAppDtoPortal';
+import type { BitrixAppDtoCode } from './bitrixAppDtoCode';
+import type { PortalDto } from './portalDto';
 import type { BitrixAppDtoToken } from './bitrixAppDtoToken';
 
 export interface BitrixAppDto {
     /** ID приложения */
-    id: number;
+    id: string;
     /** Дата создания */
-    created_at?: string;
+    created_at: string;
     /** Дата обновления */
-    updated_at?: string;
+    updated_at: string;
     /** ID портала */
-    portal_id: number;
+    portal_id: string;
     /** Группа приложения */
-    group: string;
+    group?: BitrixAppDtoGroup;
     /** Тип приложения */
     type: BitrixAppDtoType;
     /** Код приложения */
-    code: string;
+    code: BitrixAppDtoCode;
     /** Статус приложения */
-    status: BitrixAppDtoStatus;
+    status: string;
     /** Информация о портале */
-    portal?: BitrixAppDtoPortal;
+    portal?: PortalDto;
     /** Токены приложения */
     token?: BitrixAppDtoToken;
     /** Размещения приложения */

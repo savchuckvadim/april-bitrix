@@ -49,7 +49,7 @@ export const ThemeToggler = () => {
     // })()
 
     return (
-        <div className="flex items-center gap-1 text-foreground">
+        <div className="flex items-center gap-1 text-foreground ">
             {/* Кнопка переключения темы */}
             <button
                 onClick={toggleTheme}

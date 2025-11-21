@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { Card, CardContent } from '@workspace/ui/components/card';
+
 import { CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -11,18 +11,16 @@ export const KanbanBlock: React.FC = () => {
                 <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                     {/* Visual */}
                     <div className="relative order-2 lg:order-1">
-                        <Card className="border-2 shadow-xl">
-                            <CardContent className="p-0">
-                                <div className="relative aspect-video rounded-lg overflow-hidden">
-                                    <Image
-                                        src="/demo/kanban_presentation.png"
-                                        alt="Онлайн-канбан сделок с автоматическим заполнением"
-                                        fill
-                                        className="object-cover"
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
+
+                        <div className="relative aspect-video rounded-lg overflow-hidden">
+                            <Image
+                                src="/demo/kanban_presentation.png"
+                                alt="Онлайн-канбан сделок с автоматическим заполнением"
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+
                     </div>
 
                     {/* Content */}

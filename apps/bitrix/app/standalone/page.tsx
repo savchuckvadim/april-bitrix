@@ -26,6 +26,7 @@ import { CabinetWidget } from '@/modules/widgetes/cabinet/ui/CabinetWidget';
 
 export default function PublicPage() {
     const { currentUser, currentClient, logout } = useAuth();
+    const { selectedPortal } = usePortal();
     const router = useRouter();
 
     // const { portals, selectedPortal } = usePortal();
@@ -34,15 +35,15 @@ export default function PublicPage() {
     const [success, setSuccess] = useState<string | null>(null);
 
 
-
+console.log('CabinetWidget');
 
     const pathname = usePathname();
 
-    // useEffect(() => {
-    //     if (selectedPortal && pathname === '/standalone') {
-    //         router.push(`/standalone/portal/${selectedPortal.id}`);
-    //     }
-    // }, [selectedPortal, pathname]);
+    useEffect(() => {
+        if (selectedPortal && pathname === '/standalone') {
+            router.push(`/standalone/portal/${selectedPortal.id}`);
+        }
+    }, [selectedPortal, pathname]);
 
 
     // Если пользователь авторизован

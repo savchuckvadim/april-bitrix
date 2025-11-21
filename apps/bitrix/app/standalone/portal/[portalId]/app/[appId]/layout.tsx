@@ -3,17 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@workspace/ui/components/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
+
 import { Badge } from '@workspace/ui/components/badge';
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
-import { Progress } from '@workspace/ui/components/progress';
+
 import {
-    ArrowLeft,
-    Settings,
-    ExternalLink,
-    CheckCircle,
-    XCircle,
+
     AlertTriangle,
     Loader,
     Briefcase,
@@ -21,17 +16,11 @@ import {
     Megaphone,
     Shield,
     BarChart3,
-    Plus,
-    RefreshCcw,
-    Zap,
-    Play,
-    Pause,
-    RotateCcw
+
 } from 'lucide-react';
 import {
     BitrixApp,
     BitrixPlacement,
-    getAppGroupLabel,
     getStatusLabel,
     getStatusColor
 } from '@/modules/entities/entities';
@@ -50,7 +39,7 @@ export default  function AppDashboardLayout({
     const [placements, setPlacements] = useState<BitrixPlacement[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isInstalling, setIsInstalling] = useState(false);
+
 
     useEffect(() => {
         const loadApp = async () => {
@@ -158,7 +147,7 @@ export default  function AppDashboardLayout({
         return icons[group as keyof typeof icons] || Briefcase;
     };
 
-   
+
 
     if (isLoading) {
         return (
@@ -181,10 +170,10 @@ export default  function AppDashboardLayout({
         );
     }
 
-    const AppIcon = getAppIcon(app.group);
-    const installedPlacements = placements.filter(p => p.status === 'installed').length;
-    const totalPlacements = placements.length;
-    const installationProgress = totalPlacements > 0 ? (installedPlacements / totalPlacements) * 100 : 0;
+    // const AppIcon = getAppIcon(app.group);
+    // const installedPlacements = placements.filter(p => p.status === 'installed').length;
+    // const totalPlacements = placements.length;
+    // const installationProgress = totalPlacements > 0 ? (installedPlacements / totalPlacements) * 100 : 0;
 
     return (
         <div className="min-h-screen bg-gray-50">

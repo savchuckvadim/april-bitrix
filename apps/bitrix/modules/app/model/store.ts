@@ -13,6 +13,8 @@ import { errorHandler } from '../lib/error-handler';
 import { authReducer } from '@/modules/processes/auth';
 import { portalReducer } from '@/modules/entities/portal/model';
 import { startPortalClientListener } from '@/modules/entities/portal/model/listener/PortalClientListener';
+import { startBxAppPortalListener } from '@/modules/entities/bx-app/model/listener/BxAppPortalListener';
+import { bxAppReducer } from '@/modules/entities/bx-app/model/slice/BxAppSlice';
 
 
 const listenerMiddleware = createListenerMiddleware();
@@ -53,10 +55,12 @@ const rootReducer = combineReducers({
 
     //entities
     portal: portalReducer,
+    bxApp: bxAppReducer,
 });
 
 export const setupStore = () => {
     startPortalClientListener(listenerMiddleware);
+    startBxAppPortalListener(listenerMiddleware);
     return configureStore({
         reducer: rootReducer,
         middleware: getDefaultMiddleware =>

@@ -21,9 +21,9 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html className="scrollbar-hide" lang="en" suppressHydrationWarning>
             <body
-                className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
+                className={`${fontSans.variable} ${fontMono.variable} scrollbar-hide  font-sans antialiased `}
             >
                 <LoadingScreen />
                 <Providers>{children}</Providers>

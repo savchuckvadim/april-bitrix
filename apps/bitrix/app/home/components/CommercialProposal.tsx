@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
-import { Download, Mail, FileText, CheckCircle2 } from 'lucide-react';
+import { Download, Mail, FileText, CheckCircle2, Loader2 } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -17,47 +17,77 @@ import { Label } from '@workspace/ui/components/label';
 const proposalPoints = [
     {
         title: 'Отчет KPI',
-        description: 'Интерактивные графики, фильтры, возможность настройки показателей "на лету"',
+        description: 'Интерактивные графики, фильтры, возможность настройки показателей "на лету. Все необходимые показатели для руководителей Отделов Продаж Гарант"',
     },
     {
-        title: 'Сделки',
-        description: 'Автоматическое заполнение полей, онлайн-канбан с актуальной информацией',
+        title: 'Автоматизированное рабочее  место',
+        description: 'Сделки, Канбаны, Аналитические списки. Автоматическое заполнение полей, онлайн-канбан с актуальной информацией',
     },
-    {
-        title: 'Списки',
-        description: 'KPI, История, Презентации — как источники данных для отчетов и карточек компаний',
-    },
-];
 
+    {
+        title: 'Встраиваемые приложения',
+        description: 'Конструктор документов. Приложение Звонки. Учитывают специфику Гарант. Экономят менеджерам часы работы',
+    },
+    // {
+    //     title: 'Приложение Звонки',
+    //     description: 'Специально настроенное приложение для планирования и отчетности по звонкам. Не пропустите ни одной презентации.',
+    // },
+    // {
+    //     title: 'Автоматизация передачи в сервис',
+    //     description: 'Автоматическая передача клиентов из Отдела продаж в отдел сервиса Гарант. Полностью настроенные из коробки отчеты и процесс поставки',
+    // },
+];
+const subtitle = `
+  Все полностью настроено из коробки. Не нужно ничего дополнительно устанавливать.
+  Если в системе будет чего то не хватать именно Вам, мы дополнительно настроим.
+  Комплекс решений охватывают все необходимые процессы для менеджеров Гарант. Приложения постоянно обновляются и
+  соответствуют актуальным требованиям Гарант. Процессы соответствуют рекомендованным тренерами и менеджерами по обучению продажам НПП Гарант-Сервис
+`;
+const description = 'Скачайте подробное КП или оставьте заявку — менеджер пришлёт документ';
 export const CommercialProposal: React.FC = () => {
     const [email, setEmail] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(false);
     const handleDownload = () => {
-        // Здесь будет логика скачивания PDF
-        // Пока просто трекинг события
+        // Трекинг события
         if (typeof window !== 'undefined' && (window as any).gtag) {
             (window as any).gtag('event', 'download_cp', {
                 event_category: 'engagement',
                 event_label: 'Commercial Proposal',
             });
         }
-        // В реальности здесь будет ссылка на PDF файл
-        alert('Скачивание КП будет доступно после добавления PDF файла');
+
+        // Скачивание PDF файла
+        const link = document.createElement('a');
+        link.href = '/offer/offer.pdf';
+        link.download = 'commercial-proposal.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
-    const handleRequestByEmail = () => {
+    const handleRequestByEmail = async () => {
+        setIsLoading(true);
         if (!email) {
             alert('Пожалуйста, введите email');
             return;
         }
         // Здесь будет отправка запроса на получение КП по email
+
+        const response = await fetch('/api/mail/send', {
+            method: 'POST',
+            body: JSON.stringify({ email }),
+        });
+        if (!response.ok) {
+            alert('Произошла ошибка при отправке запроса');
+            return;
+        }
         setIsDialogOpen(false);
-        alert('КП будет отправлено на указанный email');
+        setIsLoading(false);
     };
 
     return (
-        <section className="py-20 lg:py-28">
+        <section id='commercial-proposal' className="py-20 lg:py-28">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <Card className="border-2 border-primary/20 shadow-lg">
                     <CardHeader className="text-center">
@@ -65,11 +95,11 @@ export const CommercialProposal: React.FC = () => {
                             Коммерческое предложение
                         </CardTitle>
                         <CardDescription className="text-lg">
-                            Полная настройка автоматизации под ваш бизнес
+                            Полная настройка автоматизации для менеджеров Гарант
                         </CardDescription>
-                        <p className="text-muted-foreground mt-4">
+                        {/* <p className="text-muted-foreground mt-4">
                             Скачайте подробное КП или оставьте заявку — менеджер пришлёт документ
-                        </p>
+                        </p> */}
                     </CardHeader>
                     <CardContent>
                         {/* Краткие тезисы КП */}
@@ -87,8 +117,14 @@ export const CommercialProposal: React.FC = () => {
                                     </div>
                                 </div>
                             ))}
-                        </div>
 
+
+                        </div>
+                        <div className='text-center w-full p-5'>
+                            <p className='text-xs text-muted-foreground'>
+                                {subtitle}
+                            </p>
+                        </div>
                         {/* CTA Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Button
@@ -130,9 +166,11 @@ export const CommercialProposal: React.FC = () => {
                                         <Button
                                             onClick={handleRequestByEmail}
                                             className="w-full"
+                                            disabled={isLoading}
                                         >
                                             <FileText className="mr-2 h-4 w-4" />
-                                            Отправить КП
+                                            {isLoading ? 'Отправка...' : 'Отправить КП'}
+                                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                         </Button>
                                     </div>
                                 </DialogContent>

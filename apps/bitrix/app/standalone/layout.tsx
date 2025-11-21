@@ -1,38 +1,28 @@
 'use client';
-
-import { useState } from 'react';
-import { Button } from '@workspace/ui/components/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
-import { Input } from '@workspace/ui/components/input';
-import { Label } from '@workspace/ui/components/label';
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
 import {
-    Building,
+
     CheckCircle,
 
-    Globe,
     AlertTriangle,
 
 } from 'lucide-react';
-// import {
-//     APP_GROUPS,
-// } from '../../modules/entities/entities';
-import { useAuth } from '@/modules/processes/auth/lib/hooks';
-import { useRouter } from 'next/navigation';
+
 import { PortalProvider } from '@/modules/entities/portal';
+import { useAuth } from '@/modules/processes/auth/lib/hooks';
+import { Button } from '@workspace/ui/components/button';
+import { useRouter } from 'next/navigation';
 
 export default function ClientLayout({
     children,
+
 }: Readonly<{
     children: React.ReactNode;
+
 }>) {
-    const { currentUser, currentClient, logout } = useAuth();
+    const { logout, currentUser } = useAuth();
     const router = useRouter();
 
-
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
 
 
 
@@ -47,12 +37,15 @@ export default function ClientLayout({
 
 
 
+
+
+
     // Если пользователь авторизован
     return (
         <div className="min-h-screen">
             {/* Навигационная панель */}
-            <nav className="bg-card border-b shadow-sm border-none">
-                <div className="container mx-auto py-4">
+            <nav className="bg-card border-b shadow-sm border-none ">
+                <div className="px-10 mx-auto py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">
                             <h1 className="text-2xl font-bold text-gray-900">
@@ -76,21 +69,23 @@ export default function ClientLayout({
 
             <div className=" mx-auto ">
                 {/* Уведомления */}
-                {success && (
+                {false && (
                     <Alert className="mb-6 border-green-200 bg-green-50">
                         <CheckCircle className="h-4 w-4 text-green-600" />
-                        <AlertDescription className="text-green-800">{success}</AlertDescription>
+                        <AlertDescription className="text-green-800">{'success'}</AlertDescription>
                     </Alert>
                 )}
 
-                {error && (
+                {false && (
                     <Alert className="mb-6 border-red-200 bg-red-50">
                         <AlertTriangle className="h-4 w-4 text-red-600" />
-                        <AlertDescription className="text-red-800">{error}</AlertDescription>
+                        <AlertDescription className="text-red-800">{'error'}</AlertDescription>
                     </Alert>
                 )}
                 <PortalProvider>
-                    {children}
+
+                        {children}
+
                 </PortalProvider>
             </div>
         </div>

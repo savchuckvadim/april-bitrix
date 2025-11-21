@@ -13,7 +13,7 @@ const LoadingScreen = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsVisible(false);
-        }, 3000); // 3 секунды прелоадер
+        }, 2000); // 3 секунды прелоадер
 
         return () => clearTimeout(timer);
     }, []);

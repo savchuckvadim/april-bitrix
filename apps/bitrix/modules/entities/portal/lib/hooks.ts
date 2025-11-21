@@ -17,7 +17,7 @@ import { useAppDispatch, useAppSelector } from '@/modules/app';
 //             const response = await portalApi.bitrixClientGetClientPortals({
 //                 clientId: clientId,
 //             })
-//             debugger
+//
 //             if (response) {
 //                 return response as unknown as Portal[];
 //             }

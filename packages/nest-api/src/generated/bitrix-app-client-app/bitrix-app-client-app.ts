@@ -8,7 +8,6 @@
 import type {
     BitrixAppClientGetPortalAppsParams,
     BitrixAppDto,
-    BitrixAppEntity,
     CreateBitrixAppDto,
     EnabledAppDto,
     GetBitrixAppDto,
@@ -22,7 +21,7 @@ export const getBitrixAppClientApp = () => {
      * @summary Get app
      */
     const bitrixAppClientGetApp = (getBitrixAppDto: GetBitrixAppDto) => {
-        return customAxios<BitrixAppEntity>({
+        return customAxios<BitrixAppDto>({
             url: `/api/bitrix-app-client/get-app`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -43,7 +42,7 @@ export const getBitrixAppClientApp = () => {
     const bitrixAppClientGetPortalApps = (
         params: BitrixAppClientGetPortalAppsParams,
     ) => {
-        return customAxios<BitrixAppEntity[]>({
+        return customAxios<BitrixAppDto[]>({
             url: `/api/bitrix-app-client/get-portal-apps`,
             method: 'GET',
             params,

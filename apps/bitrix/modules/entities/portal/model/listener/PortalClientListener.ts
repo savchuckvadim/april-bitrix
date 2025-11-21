@@ -5,7 +5,7 @@ import { portalActions } from "../slice/PortalSlice";
 
 
 export const startPortalClientListener = (listener: ListenerMiddlewareInstance) => {
-    debugger
+
     listener.startListening({
         actionCreator: authActions.setCurrentUser,
         effect: async (action, listenerApi) => {
@@ -13,7 +13,7 @@ export const startPortalClientListener = (listener: ListenerMiddlewareInstance) 
             const portalApi = getBitrixAppClientClient()
             const client = action.payload?.currentClient ?? null;
             const clientId = client?.id;
-            debugger
+
             if (!clientId || !client) {
                 return;
             }
@@ -33,7 +33,7 @@ export const startPortalClientListener = (listener: ListenerMiddlewareInstance) 
         actionCreator: authActions.logout,
         effect: (action, listenerApi) => {
             console.log('setSelectedPortal', action);
-            debugger
+
             listenerApi.dispatch(portalActions.setPortals([]));
             listenerApi.dispatch(portalActions.setSelectedPortal(null));
         },

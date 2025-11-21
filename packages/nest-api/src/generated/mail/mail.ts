@@ -5,7 +5,11 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { SendEmailRequestDto, SuccessResponseDto } from '.././model';
+import type {
+    SendEmailOfferRequestDto,
+    SendEmailRequestDto,
+    SuccessResponseDto,
+} from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
@@ -21,8 +25,24 @@ export const getMail = () => {
             data: sendEmailRequestDto,
         });
     };
-    return { mailSendMail };
+    /**
+     * @summary Send Offer email
+     */
+    const mailSendMailOffer = (
+        sendEmailOfferRequestDto: SendEmailOfferRequestDto,
+    ) => {
+        return customAxios<SuccessResponseDto>({
+            url: `/api/mail/send-offer`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: sendEmailOfferRequestDto,
+        });
+    };
+    return { mailSendMail, mailSendMailOffer };
 };
 export type MailSendMailResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getMail>['mailSendMail']>>
+>;
+export type MailSendMailOfferResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getMail>['mailSendMailOffer']>>
 >;

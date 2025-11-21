@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { Button } from '@workspace/ui/components/button';
-import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
@@ -189,10 +188,10 @@ export default function CreateAppPage() {
     };
     const domain = watch("domain")
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen max-w-[1900px] bg-gray-50">
 
 
-            <div className="max-w-6xl mx-auto p-6">
+            <div className="max-w-[1200px] mx-auto px-10 py-4">
                 {/* Заголовок */}
                 <div className="mb-8">
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">

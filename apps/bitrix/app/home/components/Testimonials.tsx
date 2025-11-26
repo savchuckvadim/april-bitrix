@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { Quote } from 'lucide-react';
-import Image from 'next/image';
+
 
 const testimonials = [
     {
@@ -15,7 +15,7 @@ const testimonials = [
     {
         name: 'Мария ',
         position: 'Коммерческий директор',
-        company: 'Иркутск"',
+        company: 'Иркутск',
         text: 'Автоматизация сделок и канбан позволили руководителям видеть реальную картину в реальном времени. Теперь мы можем быстро реагировать на изменения.',
         result: 'Выполнение планов по KPI и продажам +50%',
     },

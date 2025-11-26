@@ -23,13 +23,14 @@ export async function middleware(req: NextRequest) {
     const isVideos = url.pathname.startsWith('/video');
     const isAudio = url.pathname.startsWith('/audio');
     const isDocuments = url.pathname.startsWith('/document');
+    const isDemo = url.pathname.startsWith('/demo');
 
     const isHtml = url.pathname.startsWith('/html');
     const pathname = url.pathname;
     // если путь НЕ home, НЕ standalone и НЕ auth → редирект на /home
     if (!isHomePage && !isProtected && !isAuthPage && !isFavicon && !isLogo &&
         !isApi && !isNext && !isStatic && !isPublic && !isImages && !isStyles &&
-        !isFonts && !isOffers && !isVideos && !isAudio && !isDocuments &&
+        !isFonts && !isOffers && !isVideos && !isAudio && !isDocuments && !isDemo &&
         !isHtml) {
         url.pathname = '/home';
         return NextResponse.redirect(url);

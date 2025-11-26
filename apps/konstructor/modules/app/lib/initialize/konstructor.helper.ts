@@ -4,6 +4,7 @@ import { fetchInfoblocks } from '@/modules/entities/infoblock/model/InfoblockThu
 
 export const getInitializeData = async (
     dispatch: AppDispatch,
+    domain: string,
 ): Promise<boolean> => {
     // complects
     // infoblocks
@@ -14,7 +15,7 @@ export const getInitializeData = async (
     // legalTech
     // star
 
-    const complects = await getComplects();
+    const complects = await getComplects(domain);
     // const infoblocks = await getInfoBlocks()
     dispatch(fetchComplects());
     dispatch(fetchInfoblocks());

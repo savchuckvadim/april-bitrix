@@ -15,7 +15,8 @@ export const fetchComplects = createAsyncThunk<
     'complect/fetchComplects',
     async (_, { getState, rejectWithValue, extra }) => {
         try {
-            const complect = await getComplects();
+            const domain = getState().app.domain || 'april-app.ru';
+            const complect = await getComplects(domain);
 
             if (!complect || complect.length === 0) {
                 return rejectWithValue('Ошибка загрузки');

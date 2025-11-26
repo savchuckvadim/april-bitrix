@@ -15,6 +15,7 @@ export * from './helper/helper'
 
 
 //konstructor
+export * from './konstructor/konstructor';
 export * from './garant-region/garant-region';
 export * from './offer-template-font/offer-template-font';
 export * from './konstructor-offer-template/konstructor-offer-template';

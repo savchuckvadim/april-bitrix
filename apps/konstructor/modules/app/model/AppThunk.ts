@@ -23,18 +23,18 @@ export const initial =
             const __IN_BITRIX__ = inBitrix;
 
             if (!isLoading) {
-                const initializedKonstructor = await getInitializeData(dispatch);
                 dispatch(appActions.loading({ status: true }));
 
                 const domain: string = __IN_BITRIX__
                     ? (await bx.getDomain()) || TESTING_DOMAIN
                     : TESTING_DOMAIN;
+                const initializedKonstructor = await getInitializeData(dispatch, domain);
 
                 dispatch(fetchBaseTemplate({ domain }));
                 dispatch(fetchOfferTemplates())
 
 
-                
+
                 const user = __IN_BITRIX__
                     ? ((await bx.getCurrentUser()) as BXUser)
                     : TESTING_USER;

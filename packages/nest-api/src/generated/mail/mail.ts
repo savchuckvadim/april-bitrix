@@ -38,11 +38,23 @@ export const getMail = () => {
             data: sendEmailOfferRequestDto,
         });
     };
-    return { mailSendMail, mailSendMailOffer };
+    /**
+     * @summary Get logo file
+     */
+    const mailGetLogo = () => {
+        return customAxios<void>({
+            url: `/api/mail/assets/logo`,
+            method: 'GET',
+        });
+    };
+    return { mailSendMail, mailSendMailOffer, mailGetLogo };
 };
 export type MailSendMailResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getMail>['mailSendMail']>>
 >;
 export type MailSendMailOfferResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getMail>['mailSendMailOffer']>>
+>;
+export type MailGetLogoResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getMail>['mailGetLogo']>>
 >;

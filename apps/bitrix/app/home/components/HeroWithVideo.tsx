@@ -32,10 +32,10 @@ export const HeroWithVideo: React.FC = () => {
                     playsInline
                     preload="metadata"
                     onLoadedData={handleVideoLoaded}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    poster="/demo/processing_light.png"
+                    className="absolute bg-black inset-0 w-full h-full object-cover"
+                    // poster="/demo/processing_light.png"
                 >
-                    <source src="/video/demo.mp4" type="video/mp4" />
+                    <source src="/video/hero.mp4" type="video/mp4" />
                     {/* Fallback для браузеров без поддержки видео */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/5" />
                 </video>

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 
 export const usePace = () => {
+    
     useEffect(() => {
         const loadPace = async () => {
             if (typeof window === 'undefined') return;

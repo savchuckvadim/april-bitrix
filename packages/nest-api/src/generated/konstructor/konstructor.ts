@@ -7,8 +7,10 @@
  */
 import type {
     ContractGenerateDto,
+    GetInitDataDto,
     InitDealDto,
     InitSupplyDto,
+    KonstructorInitDataDto,
     OfferDto,
     ZakupkiOfferCreateDto,
 } from '.././model';
@@ -47,10 +49,12 @@ export const getKonstructor = () => {
     /**
      * @summary Инициализационные данные для констркутора
      */
-    const konstructorInitInit = () => {
-        return customAxios<void>({
-            url: `/api/konstructor/init`,
-            method: 'GET',
+    const konstructorInitInit = (getInitDataDto: GetInitDataDto) => {
+        return customAxios<KonstructorInitDataDto>({
+            url: `/api/konstructor/init/data`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: getInitDataDto,
         });
     };
     const initSupplyInitSupply = (initSupplyDto: InitSupplyDto) => {

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { FileText, Zap, MapPin, CheckCircle2, BarChart3, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
@@ -69,7 +69,20 @@ const images = [
 
 export const DocumentBuilder: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
+    useEffect(() => {
+        // Приоритетная загрузка видео для hero секции
+        if (videoRef.current) {
+            videoRef.current.load();
+        }
+    }, []);
+
+
+    const handleVideoLoaded = () => {
+        setIsVideoLoaded(true);
+    };
     const nextSlide = () => {
         setCurrentIndex((prev) => (prev + 1) % images.length);
     };
@@ -123,11 +136,10 @@ export const DocumentBuilder: React.FC = () => {
 
                     {/* Visual - Carousel */}
                     <div className="relative">
-                        <Card className="border-2 shadow-xl">
-                            <CardContent className="p-0">
-                                <div className="relative aspect-video rounded-lg overflow-hidden group">
-                                    {/* Images */}
-                                    {images.map((image, index) => (
+
+                        <div className="relative aspect-video rounded-lg overflow-hidden group">
+                            {/* Images */}
+                            {/* {images.map((image, index) => (
                                         <div
                                             key={index}
                                             className={`absolute inset-0 transition-opacity duration-500 ${index === currentIndex ? 'opacity-100' : 'opacity-0'
@@ -141,10 +153,10 @@ export const DocumentBuilder: React.FC = () => {
                                                 priority={index === 0}
                                             />
                                         </div>
-                                    ))}
+                                    ))} */}
 
-                                    {/* Navigation Buttons */}
-                                    <Button
+                            {/* Navigation Buttons */}
+                            {/* <Button
                                         variant="ghost"
                                         size="icon"
                                         className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white z-10"
@@ -152,8 +164,8 @@ export const DocumentBuilder: React.FC = () => {
                                         aria-label="Предыдущее изображение"
                                     >
                                         <ChevronLeft className="h-6 w-6" />
-                                    </Button>
-                                    <Button
+                                    </Button> */}
+                            {/* <Button
                                         variant="ghost"
                                         size="icon"
                                         className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white z-10"
@@ -161,10 +173,10 @@ export const DocumentBuilder: React.FC = () => {
                                         aria-label="Следующее изображение"
                                     >
                                         <ChevronRight className="h-6 w-6" />
-                                    </Button>
+                                    </Button> */}
 
-                                    {/* Dots Indicator */}
-                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                            {/* Dots Indicator */}
+                            {/* <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                                         {images.map((_, index) => (
                                             <button
                                                 key={index}
@@ -176,10 +188,29 @@ export const DocumentBuilder: React.FC = () => {
                                                 aria-label={`Перейти к слайду ${index + 1}`}
                                             />
                                         ))}
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                    </div> */}
+
+
+                            <video
+                                ref={videoRef}
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                                preload="metadata"
+                                onLoadedData={handleVideoLoaded}
+                                className="absolute  w-full h-full object-cover"
+
+                            >
+                                <source src="/video/konstructor.mp4" type="video/mp4" />
+                                {/* Fallback для браузеров без поддержки видео */}
+                            </video>
+
+                            {/* Overlay для читаемости текста */}
+
+                            {/* Дополнительный градиент для лучшей читаемости */}
+                        </div>
+
                     </div>
                 </div>
             </div>

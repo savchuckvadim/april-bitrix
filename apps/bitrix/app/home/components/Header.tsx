@@ -6,6 +6,7 @@ import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import { ThemeTogglePanel } from './ThemeTogglePanel';
 import { scrollToSectionWithSource } from '../utils/tracking';
+import { cn } from '@workspace/ui/lib/utils';
 
 const navigation = [
     { name: 'Виджеты', href: '#documents' },
@@ -146,7 +147,7 @@ export const Header: React.FC = () => {
                 : 'bg-background/1 backdrop-blur text-primary supports-[backdrop-filter]:bg-background/10 shadow-sm'
                 }`}
         >
-            <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="container mx-auto px-2 sm:px-4 lg:px-1">
                 <div className="flex items-center justify-between h-16 lg:h-20">
                     {/* Logo */}
                     <div className="flex flex-row items-end gap-2 cursor-pointer">
@@ -247,8 +248,11 @@ export const Header: React.FC = () => {
 
                 {/* Mobile Navigation */}
                 {isMobileMenuOpen && (
-                    <div className="lg:hidden py-4 border-t">
-                        <div className="flex flex-col space-y-4">
+                    <div className={cn(
+                        "lg:hidden py-4 border-t h-screen",
+                        // 'bg-background backdrop-blur text-primary supports-[backdrop-filter]:bg-background/10 shadow-sm'
+                        )}>
+                        <div className="flex flex-col space-y-4 bg-background p-2 rounded-lg">
                             {navigation.map((item) => {
                                 const isActive = activeSection === item.href;
                                 return (

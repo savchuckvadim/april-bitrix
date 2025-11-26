@@ -84,7 +84,7 @@ export const KPIBlock: React.FC = () => {
                                     Посмотреть demo отчета
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-4xl">
+                            <DialogContent className="max-w-4xl lg:min-w-6xl lg:min-h-6xl">
                                 <DialogHeader>
                                     <DialogTitle>Демо отчета KPI</DialogTitle>
                                     <DialogDescription>

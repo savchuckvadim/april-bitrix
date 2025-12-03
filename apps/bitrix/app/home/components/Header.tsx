@@ -132,6 +132,9 @@ export const Header: React.FC = () => {
             setIsMobileMenuOpen(false);
         }
     };
+    if(!isScrolled){
+        return null;
+    }
 
     return (
         <header

@@ -1,55 +1,35 @@
 'use client'
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowRight, Play } from 'lucide-react';
+import { ArrowRight, Link2Off, Play } from 'lucide-react';
+import Image from 'next/image';
 import { scrollToSectionWithSource } from '../utils/tracking';
-import { ColorBends } from '@workspace/ui/components/ColorBends';
-
-export const HeroWithVideo: React.FC = () => {
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-
-    useEffect(() => {
-        // Приоритетная загрузка видео для hero секции
-        if (videoRef.current) {
-            videoRef.current.load();
-        }
-    }, []);
+import Orb from '@workspace/ui/components/Orb';
+import Aurora from '@workspace/ui/components/Aurora';
+import LiquidEther from '@workspace/ui/components/LiquidEther';
+import { cn } from '@workspace/ui/lib/utils';
+import Link from 'next/link';
 
 
-    const handleVideoLoaded = () => {
-        setIsVideoLoaded(true);
-    };
+export const Hero2: React.FC = () => {
 
+    // const { theme } = useTheme();
+    const isDark = false;
     return (
-        <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <section id="hero" className={
+            cn(
+                "relative min-h-screen flex items-center justify-center overflow-hidden"
+            )
+        }
+        style={{
+            backgroundColor: '#292b37'
+        }}
+        >
             {/* Video Background */}
             <div className="absolute inset-0">
-                <ColorBends />
+                <Orb hoverIntensity={0.2} />
             </div>
-            <div className="absolute inset-0 w-full h-full">
-                <video
-                    ref={videoRef}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    onLoadedData={handleVideoLoaded}
-                    className="absolute bg-black inset-0 w-full h-full object-cover"
-                    // poster="/demo/processing_light.png"
-                >
-                    <source src="/video/hero.mp4" type="video/mp4" />
-                    {/* Fallback для браузеров без поддержки видео */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/5" />
-                </video>
 
-                {/* Overlay для читаемости текста */}
-                <div className="absolute inset-0 bg-black/40" />
-
-                {/* Дополнительный градиент для лучшей читаемости */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
-            </div>
 
             {/* Content */}
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -79,19 +59,25 @@ export const HeroWithVideo: React.FC = () => {
 
                     {/* CTA Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button
-                            size="lg"
-                            onClick={() => scrollToSectionWithSource('#contact', 'hero_video')}
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 shadow-lg"
-                        >
-                            Установить модуль
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                        </Button>
+                        <Link href="/auth/login">
+                            <Button
+                                size="lg"
+                                // onClick={() => scrollToSectionWithSource('#contact', 'hero_video')}
+                                className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 shadow-lg"
+                            >
+                                Установить модуль
+                                <ArrowRight className="ml-2 h-5 w-5" />
+                            </Button>
+                        </Link>
                         <Button
                             size="lg"
                             variant="outline"
                             onClick={() => scrollToSectionWithSource('#contact', 'hero_video')}
-                            className="text-lg px-8 py-6 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+                            className="text-lg px-8 py-6
+                            bg-white/10 backdrop-blur-sm
+                            border-white/20
+                            text-white
+                            hover:bg-white/20"
                         >
                             <Play className="mr-2 h-5 w-5" />
                             Получить демонстрацию

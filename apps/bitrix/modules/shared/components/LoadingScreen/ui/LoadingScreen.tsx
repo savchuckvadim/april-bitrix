@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import './loading.css';
 import Image from 'next/image';
 import { usePace } from '../hooks/usePace';
-
+import Orb from '@workspace/ui/components/Orb';
+import GradientText from '@workspace/ui/components/GradientText';
 const LoadingScreen = () => {
     const [isVisible, setIsVisible] = useState(true);
 
@@ -19,21 +20,14 @@ const LoadingScreen = () => {
     }, []);
 
     return (
-        <div className="bg-white">
+        <div className="bg-orange-500">
+
             {isVisible && (
-                <motion.div
-                    // className="loading-screen bg-primary"
-                    className="loading-screen bg-background"
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                <div
+
                 >
-                    <div className="center-spinner flex flex-col justify-center items-center">
-                        {/* <div className="spinner color-primary"></div>
-                         */}
-                        {/* <Rabbit size={50} />
-                         */}
+                    <div className="bg-gray-700 center-spinner flex flex-col justify-center items-center h-full w-full">
+
                         <div className="p-4 rounded-xl bg-white border-2 border-indigo-600">
                             <Image
                                 src="/logo/logo.svg"
@@ -44,9 +38,12 @@ const LoadingScreen = () => {
                                 priority
                             />
                         </div>{' '}
-                        <p className="mt-1 text-md tracking-widest font-semibold text-indigo-600">
-                            Апрель
-                        </p>
+                        <GradientText
+                            colors={['#bb52d4', '#30c3ef', '#bb52d4', '#30c3ef',]}
+                        >   <p className="mt-1 text-md tracking-widest font-bold ">
+                                Апрель
+                            </p>
+                        </GradientText>
                         {/* <div className='p-5 h-2 flex justify-center items-center  mt-3  rounded-xl bg-white'> */}
                         {/* <ScaleLoader
                                     className='m-0 p-0 color-foreground '
@@ -58,39 +55,9 @@ const LoadingScreen = () => {
                         {/* </div>  */}
                     </div>
 
-                    <motion.div
-                        className="horizontal-line h-[2px] line-indigo-400"
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ duration: 1, ease: 'easeInOut' }}
-                    />
-                    {/* <Rabbit size={55} />
-                        <p className='mt-10'>Loading...</p> */}
-                    {/* Верхняя половина */}
-                    <motion.div
-                        className="reveal-top bg-primary"
-                        initial={{ y: 0 }}
-                        animate={{ y: '-100%' }}
-                        exit={{ y: '-100%' }}
-                        transition={{
-                            duration: 0.8,
-                            delay: 1,
-                            ease: 'easeInOut',
-                        }}
-                    ></motion.div>
 
-                    <motion.div
-                        className="reveal-bottom bg-primary"
-                        initial={{ y: 0 }}
-                        animate={{ y: '100%' }}
-                        exit={{ y: '100%' }}
-                        transition={{
-                            duration: 0.8,
-                            delay: 1,
-                            ease: 'easeInOut',
-                        }}
-                    ></motion.div>
-                </motion.div>
+
+                </div>
             )}
         </div>
     );

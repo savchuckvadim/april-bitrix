@@ -14,7 +14,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
             enableSystem
             disableTransitionOnChange
             enableColorScheme
-        >      <AprilThemeProvider>
+        >      <AprilThemeProvider
+          
+        >
                 <ReactQueryProvider>
                     <AppProvider>{children}</AppProvider>
                 </ReactQueryProvider>

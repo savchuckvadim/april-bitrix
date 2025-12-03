@@ -61,11 +61,15 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html className="scrollbar-hide" lang="en" suppressHydrationWarning>
+        <html
+            className="scrollbar-hide"
+            lang="en"
+            suppressHydrationWarning
+        >
             <body
                 className={`${fontSans.variable} ${fontMono.variable} scrollbar-hide  font-sans antialiased `}
             >
-                {/* <LoadingScreen /> */}
+                <LoadingScreen />
                 <Providers>{children}</Providers>
             </body>
         </html>

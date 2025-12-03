@@ -1,6 +1,7 @@
 import React from 'react';
 import { Header } from './components/Header';
 import { HeroWithVideo } from './components/HeroWithVideo';
+import { Hero2 } from './components/Hero2';
 import { ProblemBlock } from './components/ProblemBlock';
 import { SolutionBlock } from './components/SolutionBlock';
 import { ManagerBenefits } from './components/ManagerBenefits';
@@ -29,7 +30,7 @@ export default function HomePage() {
             <Header />
             <main className="flex-grow">
                 {/* 1. Hero-блок */}
-                <HeroWithVideo />
+                <Hero2 />
 
                 {/* 2. Проблема / Боль рынка */}
                 <ProblemBlock />

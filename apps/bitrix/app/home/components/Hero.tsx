@@ -4,11 +4,14 @@ import { Button } from '@workspace/ui/components/button';
 import { ArrowRight, Play } from 'lucide-react';
 import Image from 'next/image';
 import { scrollToSectionWithSource } from '../utils/tracking';
-
+import { ColorBends } from '@workspace/ui/components/ColorBends';
 export const Hero: React.FC = () => {
     return (
         <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center pt-16 lg:pt-20 overflow-hidden">
             {/* Background gradient */}
+            <div className="absolute inset-0">
+                <ColorBends />
+            </div>
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/5" />
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

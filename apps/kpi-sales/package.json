@@ -15,6 +15,7 @@
     "@workspace/api": "workspace:*",
     "@workspace/nest-api": "workspace:*",
     "@workspace/bx": "workspace:*",
+    "@workspace/bitrix": "workspace:*",
     "@workspace/pbx": "workspace:*",
     "@workspace/theme": "workspace:*",
     "@workspace/ui": "workspace:*",

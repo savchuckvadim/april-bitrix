@@ -2,11 +2,13 @@ import type { BXUser } from '@workspace/bx';
 import { bxAPI as bx } from '@workspace/api';
 import { TESTING_DOMAIN, TESTING_USER } from '../consts/app-global';
 import { appActions } from './AppSlice';
-import { AppDispatch, AppGetState, AppThunk, initWSClient, listenerMiddleware, RootState, ThunkExtraArgument } from './store';
-import {  WSClient } from '@workspace/ws';
+import { AppDispatch, AppGetState, AppThunk, initWSClient } from './store';
+import { WSClient } from '@workspace/ws';
 import { socketThunk } from './queue-ws-ping-test/QueueWsPingListener';
 import { telegramSendMessage } from '@/modules/shared';
 import { startWsEventsListener } from '@/modules/entities';
+// import { getBXService } from '../lib/bitrix/get-bx-service';
+// import { BitrixService } from '@workspace/bitrix';
 
 export let socket: undefined | WSClient;
 
@@ -23,6 +25,16 @@ export const initial =
             const isLoading = app.isLoading;
             const __IN_BITRIX__ = inBitrix;
 
+            // const { domain, user:initUser, bitrix } = bxData;
+            // const userFromBx = await (bitrix as BitrixService).api.call(
+            //     'user.get',
+            //     {
+            //         ID: initUser.ID,
+            //     }
+            // )
+            // debugger
+
+            // debugger
             if (!isLoading) {
                 dispatch(appActions.loading({ status: true }));
 
@@ -32,13 +44,11 @@ export const initial =
 
                 const user = __IN_BITRIX__
                     ? ((await bx.getCurrentUser()) as BXUser)
-                    : TESTING_USER;
+                    : TESTING_USER as BXUser;
                 console.log('user');
 
                 console.log(user);
-                console.log('user');
 
-                console.log(user);
                 initWSClient(user.ID, domain); // <- здесь создаёшь сокет
                 // const socket = getWSClient()
                 dispatch(socketThunk(user.ID, domain));

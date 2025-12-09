@@ -21,7 +21,7 @@ export const socketThunk =
 
         const socketId = socket.id;
         const reqData = {
-            userId,
+            userId: Number(userId),
             domain,
             socketId,
         };

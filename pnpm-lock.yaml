@@ -454,6 +454,9 @@ importers:
       '@workspace/april-ui':
         specifier: workspace:*
         version: link:../../packages/april-ui
+      '@workspace/bitrix':
+        specifier: workspace:*
+        version: link:../../packages/bitrix
       '@workspace/bx':
         specifier: workspace:*
         version: link:../../packages/bx

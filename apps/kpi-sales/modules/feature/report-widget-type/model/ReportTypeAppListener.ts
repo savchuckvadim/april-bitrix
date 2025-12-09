@@ -18,7 +18,7 @@ export const startReportTypeAppListener = (listener: ListenerMiddlewareInstance<
 
             if (domain.includes('gsr') || domain.includes('gsirk')) {
                 initWidgetStyle = EReportType.EVENTS;
-            } else if (domain.includes('alfacenter') || domain.includes('april')) {
+            } else if (domain.includes('alfacentr') || domain.includes('april')) {
 
                 initWidgetStyle = EReportType.MERGED;
             }

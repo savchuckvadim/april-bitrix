@@ -36,9 +36,9 @@ export const Hero2: React.FC = () => {
                 <div className="max-w-4xl mx-auto text-center">
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 drop-shadow-lg">
                         Готовая CRM для партнёров ГАРАНТ.{' '}
-                        <span className="text-primary">
+                        <p className="text-primary">
                             Внедряется за 5 минут. Заменяет дорогостоящие внедрения.
-                        </span>
+                        </p>
                     </h1>
                     <p className="text-xl lg:text-2xl text-white/90 mb-8 max-w-3xl mx-auto drop-shadow-md">
                         Автоматизация продаж, КП, звонков, презентаций, KPI и документации —

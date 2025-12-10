@@ -4,6 +4,7 @@ import '@workspace/theme/themes.css';
 import { Providers } from '@/components/providers';
 import LoadingScreen from '@/modules/shared/components/LoadingScreen/ui/LoadingScreen';
 import { Metadata } from 'next';
+import { YandexMetrika } from '@/components/metrika';
 
 
 const fontSans = Geist({
@@ -66,6 +67,7 @@ export default function RootLayout({
             lang="en"
             suppressHydrationWarning
         >
+            <YandexMetrika />
             <body
                 className={`${fontSans.variable} ${fontMono.variable} scrollbar-hide  font-sans antialiased `}
             >

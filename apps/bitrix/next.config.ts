@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
         ONLINE_API_KEY: process.env.ONLINE_API_KEY,
         LOG_FILE_PATH: process.env.LOG_FILE_PATH,
         IN_BITRIX: process.env.IN_BITRIX,
+        YANDEX_ID: process.env.YANDEX_ID,
     },
     // Добавляем поддержку TypeScript для конфигурации
     typescript: {

@@ -132,7 +132,7 @@ export const Header: React.FC = () => {
             setIsMobileMenuOpen(false);
         }
     };
-    if(!isScrolled){
+    if (!isScrolled) {
         return null;
     }
 
@@ -254,7 +254,7 @@ export const Header: React.FC = () => {
                     <div className={cn(
                         "lg:hidden py-4 border-t h-screen",
                         // 'bg-background backdrop-blur text-primary supports-[backdrop-filter]:bg-background/10 shadow-sm'
-                        )}>
+                    )}>
                         <div className="flex flex-col space-y-4 bg-background p-2 rounded-lg">
                             {navigation.map((item) => {
                                 const isActive = activeSection === item.href;

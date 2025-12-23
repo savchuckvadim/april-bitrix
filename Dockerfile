@@ -84,9 +84,11 @@ COPY --from=base /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=base /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=base /app/packages ./packages
 COPY --from=base /app/apps/${APP}/public ./public
-# COPY --from=base /app/apps/kpi-sales/next.config.js ./next.config.js
+
 COPY --from=base /app/apps/${APP}/next.config.ts ./next.config.ts
-COPY --from=base /app/apps/${APP}/.env ./.env
+
+#not for dokploy
+# COPY --from=base /app/apps/${APP}/.env ./.env
 
 
 # Установка PNPM и зависимостей

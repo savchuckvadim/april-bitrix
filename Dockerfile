@@ -7,6 +7,10 @@ ARG APP
 ARG ONLINE_API_KEY
 ENV ONLINE_API_KEY=${ONLINE_API_KEY}
 
+
+ENV IN_BITRIX=false
+ENV LOG_FILE_PATH='/app/logs/server.log'
+
 WORKDIR /app
 
 # Установка PNPM

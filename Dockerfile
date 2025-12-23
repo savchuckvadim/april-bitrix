@@ -4,6 +4,9 @@ FROM node:20 AS base
 
 
 ARG APP
+ARG ONLINE_API_KEY
+ENV ONLINE_API_KEY=${ONLINE_API_KEY}
+
 WORKDIR /app
 
 # Установка PNPM

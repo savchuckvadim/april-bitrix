@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-const YANDEX_ID = process.env.YANDEX_ID;
+export const YANDEX_ID = process.env.YANDEX_ID as string;
 
 export function YandexMetrika() {
     useEffect(() => {
@@ -55,16 +55,16 @@ export function YandexMetrika() {
     if (!YANDEX_ID) {
         return null;
     }
-
-    return (
-        <noscript>
-            <div>
-                <img
-                    src={`https://mc.yandex.ru/watch/${YANDEX_ID}`}
-                    style={{ position: "absolute", left: "-9999px" }}
-                    alt=""
-                />
-            </div>
-        </noscript>
-    );
+    return null;
+    // return (
+    //     <noscript>
+    //         <div>
+    //             <img
+    //                 src={`https://mc.yandex.ru/watch/${YANDEX_ID}`}
+    //                 style={{ position: "absolute", left: "-9999px" }}
+    //                 alt=""
+    //             />
+    //         </div>
+    //     </noscript>
+    // );
 }

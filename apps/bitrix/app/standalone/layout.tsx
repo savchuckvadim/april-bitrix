@@ -12,6 +12,7 @@ import { PortalProvider } from '@/modules/entities/portal';
 import { useAuth } from '@/modules/processes/auth/lib/hooks';
 import { Button } from '@workspace/ui/components/button';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function ClientLayout({
     children,
@@ -48,9 +49,11 @@ export default function ClientLayout({
                 <div className="px-10 mx-auto py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">
-                            <h1 className="text-2xl font-bold text-gray-900">
-                                Битрикс24 Управление
-                            </h1>
+                            <Link href="/standalone" className="text-2xl font-bold text-gray-900 hover:text-blue-600">
+                                <h1 className="text-2xl font-bold text-gray-900">
+                                    Битрикс24 Управление
+                                </h1>
+                            </Link>
                             {/* <div className="hidden md:flex items-center gap-6">
                                 <span className="text-blue-600 font-medium">Личный кабинет</span>
                             </div> */}

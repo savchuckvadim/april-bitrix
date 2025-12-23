@@ -4,7 +4,7 @@ import '@workspace/theme/themes.css';
 import { Providers } from '@/components/providers';
 import LoadingScreen from '@/modules/shared/components/LoadingScreen/ui/LoadingScreen';
 import { Metadata } from 'next';
-import { YandexMetrika } from '@/components/metrika';
+import { YANDEX_ID, YandexMetrika } from '@/components/metrika';
 
 
 const fontSans = Geist({
@@ -67,12 +67,26 @@ export default function RootLayout({
             lang="en"
             suppressHydrationWarning
         >
-            <YandexMetrika />
+            {/* <YandexMetrika /> */}
             <body
                 className={`${fontSans.variable} ${fontMono.variable} scrollbar-hide  font-sans antialiased `}
             >
                 <LoadingScreen />
                 <Providers>{children}</Providers>
+
+
+                {/* noscript — СТРОГО здесь */}
+                {/* {YANDEX_ID && (
+                    <noscript>
+                        <div>
+                            <img
+                                src={`https://mc.yandex.ru/watch/${YANDEX_ID}`}
+                                style={{ position: 'absolute', left: '-9999px' }}
+                                alt=""
+                            />
+                        </div>
+                    </noscript>
+                )} */}
             </body>
         </html>
     );

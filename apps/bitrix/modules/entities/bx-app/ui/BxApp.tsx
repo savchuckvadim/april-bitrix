@@ -29,7 +29,7 @@ export const BxApp = () => {
 
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-[1900px] mx-auto px-10 py-4">
-                <h1>Настройка подключений к порталу Битрикс24</h1>
+                <h1 className="text-xl font-bold my-3">Настройка подключений к порталу Битрикс24</h1>
                 {/* <Info title="BxApp" type="error">
                     {hasntEnabledApps && <div>Нет доступных приложений</div>}
                     {hasntPortalApps && <div>Нет установленных приложений</div>}

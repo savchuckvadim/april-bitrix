@@ -26,12 +26,12 @@ export const CurrentApps = ({ apps, portalId }: { apps: BitrixApp[], portalId: n
                     <Settings className="w-5 h-5" />
                     Мои Приложения
                 </CardTitle>
-                <Link href="/bitrix/placement/list">
+                {/* <Link href="/bitrix/placement/list">
                     <Button variant="outline" size="sm">
                         <Plus className="w-4 h-4 mr-2" />
                         Добавить
                     </Button>
-                </Link>
+                </Link> */}
             </div>
             <CardDescription>
                 Управление установленными виджетами

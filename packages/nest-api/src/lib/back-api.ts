@@ -8,7 +8,7 @@ const prod = `${process.env.BACK_API_URL}/` || 'http://localhost:3000';
 const url = prod;
 // const url = 'https://dis7h8-92-63-121-184.ru.tuna.am';
 
-
+console.log('url back-api nest-api-packages', url);
 
 export interface IBackResponse<T> {
     resultCode: EResultCode; // 0 - успех, 1 - ошибка

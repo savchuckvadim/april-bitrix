@@ -5,7 +5,7 @@ const prod = `${process.env.BACK_API_URL}/api/` || 'http://localhost:3000/api/';
 // const prod = `http://localhost:3000/api/`;
 // const prod = `http://localhost:8334/api/`;
 const url = prod;
-
+console.log('url back-api', url);
 export enum EBACK_ENDPOINT {
     DEPARTMENT = 'bitrix/department/sales',
     DOWNLOAD_REPORT = 'kpi-report/download',

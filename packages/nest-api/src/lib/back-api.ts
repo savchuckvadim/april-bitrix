@@ -1,7 +1,8 @@
 import axios, { Method } from 'axios';
 
 
-const prod = 'https://back.april-app.ru/';
+const prod = `${process.env.BACK_API_URL}/` || 'http://localhost:3000';
+
 // const prod = `http://localhost:3000`;
 // const prod = `http://localhost:8334/`;
 const url = prod;

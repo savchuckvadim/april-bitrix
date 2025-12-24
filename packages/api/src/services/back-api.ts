@@ -1,7 +1,7 @@
 import { API_METHOD } from '../type/type';
 import axios, { AxiosResponse } from 'axios';
 
-const prod = `${process.env.BACK_API_URL}/api/` || 'http://localhost:3000/api/';
+const prod = `https://back.april-dev.ru/api/`;
 
 const url = prod;
 console.log('url back-api', url);

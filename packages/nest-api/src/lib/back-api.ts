@@ -1,7 +1,7 @@
 import axios, { Method } from 'axios';
 
 
-const prod = `${process.env.BACK_API_URL}/` || 'http://localhost:3000';
+const prod = `https://back.april-dev.ru/`;
 const url = prod;
 
 console.log('url back-api nest-api-packages', url);

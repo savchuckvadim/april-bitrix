@@ -2,11 +2,7 @@ import axios, { Method } from 'axios';
 
 
 const prod = `${process.env.BACK_API_URL}/` || 'http://localhost:3000';
-
-// const prod = `http://localhost:3000`;
-// const prod = `http://localhost:8334/`;
 const url = prod;
-// const url = 'https://dis7h8-92-63-121-184.ru.tuna.am';
 
 console.log('url back-api nest-api-packages', url);
 

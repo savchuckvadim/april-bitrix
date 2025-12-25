@@ -7,13 +7,8 @@ import Link from 'next/link';
 import { getBxService } from '@workspace/api';
 
 export default function InstallPage({
-    installStatus,
-}: {
-    installStatus?: 'success' | 'fail';
 }) {
-    console.log('installStatus');
 
-    console.log(installStatus);
     const [status, setStatus] = useState('');
     useEffect(() => {
         // if (installStatus === "success") {
@@ -133,7 +128,7 @@ export default function InstallPage({
                     Статус установки
                 </h1>
                 <p className="text-white">{message}</p>
-                <Link href="/auth/login">
+                <Link href="/standalone/auth/login">
                     <Button size="sm" className="bg-white text-black">
                         На главную
                     </Button>

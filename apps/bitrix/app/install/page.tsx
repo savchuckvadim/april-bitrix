@@ -1,6 +1,11 @@
+'use client';
 import { BitrixInstallPage } from "@/modules/pages";
+// import dynamic from "next/dynamic";
 
-;
+// const DynamicBitrixInstallPage = dynamic(() => import('@/modules/bitrix/pages/ui/BitrixInstallPage').then(mod => mod.BitrixInstallPage), {
+//     ssr: false,
+// });
+
 
 // install/page.tsx
 // interface InstallPageProps {
@@ -15,23 +20,37 @@ import { BitrixInstallPage } from "@/modules/pages";
 //     [key: string]: string | string[] | undefined;
 //   };
 // }
-export default async function InstallPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ install: 'success' | 'fail' }>;
-}) {
-    const params = await searchParams;
-    console.log('params');
-    console.log(params);
 
-    const installParam = params?.install;
-    const installStatus = Array.isArray(installParam)
-        ? installParam[0]
-        : installParam;
+export default function InstallPage() {
+
+
 
     return (
         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
-            <BitrixInstallPage installStatus={installStatus} />
+            <BitrixInstallPage />
         </div>
     );
 }
+
+
+
+// export default async function InstallPage({
+//     searchParams,
+// }: {
+//     searchParams: Promise<{ install: 'success' | 'fail' }>;
+// }) {
+//     const params = await searchParams;
+//     console.log('params');
+//     console.log(params);
+
+//     const installParam = params?.install;
+//     const installStatus = Array.isArray(installParam)
+//         ? installParam[0]
+//         : installParam;
+
+//     return (
+//         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
+//             <BitrixInstallPage />
+//         </div>
+//     );
+// }

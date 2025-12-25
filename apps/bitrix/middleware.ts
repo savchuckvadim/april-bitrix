@@ -13,6 +13,13 @@ export async function middleware(req: NextRequest) {
     }
     const isAuthPage = url.pathname.startsWith('/auth');
     const isProtected = url.pathname.startsWith('/standalone');
+    const isInstallPage = url.pathname.startsWith('/install');
+    const isBitrixAppPage = url.pathname.startsWith('/bitrix');
+    if (isInstallPage || isBitrixAppPage) {
+        console.log(' install or bitrix app: no redirect');
+        return NextResponse.next();
+    }
+
     // const isHomePage = url.pathname.startsWith('/home');
     // const isFavicon = url.pathname.startsWith('/favicon.ico');
     // const isLogo = url.pathname.startsWith('/logo');

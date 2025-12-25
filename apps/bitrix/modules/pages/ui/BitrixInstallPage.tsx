@@ -11,17 +11,20 @@ export default function InstallPage({
 }: {
     installStatus?: 'success' | 'fail';
 }) {
+    const [isLoading, setIsLoading] = useState(true);
+
     console.log('BITRIX APP');
     console.log('installStatus');
 
     console.log(installStatus);
-    const [status, setStatus] = useState('');
+    const [status, setStatus] = useState('loading...');
     useEffect(() => {
         // if (installStatus === "success") {
         // 👇 Асинхронно вызываем метод install
         (async () => {
             try {
                 const BX24 = await getBxService();
+                console.log('BX24');
                 const plcResult = await BX24.callMethod('placement.bind', {
                     PLACEMENT: 'CRM_COMPANY_DETAIL_TAB',
                     HANDLER:
@@ -105,26 +108,29 @@ export default function InstallPage({
 
                 console.log(list.getData().result);
 
-                setStatus('success');
+
 
                 const installFinish = await BX24.installFinish();
 
                 console.log('✅ installFinish выполнен через SDK');
                 console.log(installFinish);
+                setStatus('success');
+                setIsLoading(false);
             } catch (err) {
                 console.error('Ошибка при вызове installFinish:', err);
                 setStatus('fail');
+                setIsLoading(false);
             }
         })();
         // }
     }, [installStatus]);
 
-    let message = '⏳ Ожидание установки...';
-    if (status === 'success') {
-        message = '✅ Установка прошла успешно!';
-    } else if (status === 'fail') {
-        message = '❌ Ошибка установки.';
-    }
+    let message = '✅ Установка прошла успешно!';
+    // if (status === 'success') {
+    //     message = '✅ Установка прошла успешно!';
+    // } else if (status === 'fail') {
+    //     message = '❌ Ошибка установки.';
+    // }
 
     return (
         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
@@ -132,8 +138,11 @@ export default function InstallPage({
                 <h1 className="text-2xl text-white font-bold">
                     Статус установки
                 </h1>
-                <p className="text-white">{message}</p>
-                <Link href="/auth/login">
+                <p className="text-white">{status}</p>
+                {isLoading ? <p className="text-white">⏳ Ожидание установки...</p> :
+                    <p className="text-white">{message}</p>
+                }
+                <Link href="/standalone">
                     <Button size="sm" className="bg-white text-black">
                         На главную
                     </Button>

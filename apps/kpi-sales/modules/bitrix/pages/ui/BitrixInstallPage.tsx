@@ -21,92 +21,93 @@ export default function InstallPage({
         (async () => {
             try {
                 const BX24 = await getBxService();
-                const plcResult = await BX24.callMethod('placement.bind', {
-                    PLACEMENT: 'CRM_COMPANY_DETAIL_TAB',
-                    HANDLER:
-                        'https://front.april-app.ru/event/app/placement.php',
-                    OPTIONS: {
-                        errorHandlerUrl:
-                            'https://front.april-app.ru/event/app/placement.php',
-                    },
-                    TITLE: 'Test Звонки bind',
-                    DESCRIPTION: 'description',
-                    GROUP_NAME: 'event_sales',
-                });
-                const plcResultDeal = await BX24.callMethod('placement.bind', {
-                    PLACEMENT: 'CRM_DEAL_DETAIL_TAB',
-                    HANDLER:
-                        'https://front.april-app.ru/event/app/placement.php',
-                    OPTIONS: {
-                        errorHandlerUrl:
-                            'https://front.april-app.ru/event/app/placement.php',
-                    },
-                    TITLE: 'Test Звонки bind',
-                    DESCRIPTION: 'description',
-                    GROUP_NAME: 'event_sales',
-                });
+                const installFinish = await BX24.installFinish();
+                // const plcResult = await BX24.callMethod('placement.bind', {
+                //     PLACEMENT: 'CRM_COMPANY_DETAIL_TAB',
+                //     HANDLER:
+                //         'https://front.april-app.ru/event/app/placement.php',
+                //     OPTIONS: {
+                //         errorHandlerUrl:
+                //             'https://front.april-app.ru/event/app/placement.php',
+                //     },
+                //     TITLE: 'Test Звонки bind',
+                //     DESCRIPTION: 'description',
+                //     GROUP_NAME: 'event_sales',
+                // });
+                // const plcResultDeal = await BX24.callMethod('placement.bind', {
+                //     PLACEMENT: 'CRM_DEAL_DETAIL_TAB',
+                //     HANDLER:
+                //         'https://front.april-app.ru/event/app/placement.php',
+                //     OPTIONS: {
+                //         errorHandlerUrl:
+                //             'https://front.april-app.ru/event/app/placement.php',
+                //     },
+                //     TITLE: 'Test Звонки bind',
+                //     DESCRIPTION: 'description',
+                //     GROUP_NAME: 'event_sales',
+                // });
 
-                const KonstructorResult = await BX24.callMethod(
-                    'placement.bind',
-                    {
-                        PLACEMENT: 'CRM_DEAL_DETAIL_TAB',
-                        HANDLER:
-                            'https://april-bitrix-main.vercel.app/api/placement/konstructor',
-                        OPTIONS: {
-                            errorHandlerUrl:
-                                'https://front.april-app.ru/event/app/placement.php',
-                        },
-                        TITLE: 'Test Konstructor bind',
-                        DESCRIPTION: 'description',
-                        GROUP_NAME: 'konstructor_sales',
-                    },
-                );
+                // const KonstructorResult = await BX24.callMethod(
+                //     'placement.bind',
+                //     {
+                //         PLACEMENT: 'CRM_DEAL_DETAIL_TAB',
+                //         HANDLER:
+                //             'https://april-bitrix-main.vercel.app/api/placement/konstructor',
+                //         OPTIONS: {
+                //             errorHandlerUrl:
+                //                 'https://front.april-app.ru/event/app/placement.php',
+                //         },
+                //         TITLE: 'Test Konstructor bind',
+                //         DESCRIPTION: 'description',
+                //         GROUP_NAME: 'konstructor_sales',
+                //     },
+                // );
 
-                const KonstructorGETResult = await BX24.callMethod(
-                    'placement.bind',
-                    {
-                        PLACEMENT: 'CRM_DEAL_DETAIL_TAB',
-                        HANDLER:
-                            'https://april-bitrix-main.vercel.app/placement/konstructor',
-                        OPTIONS: {
-                            errorHandlerUrl:
-                                'https://front.april-app.ru/event/app/placement.php',
-                        },
-                        TITLE: 'Test Konstructor GET bind',
-                        DESCRIPTION: 'description',
-                        GROUP_NAME: 'konstructor_sales_get',
-                    },
-                );
+                // const KonstructorGETResult = await BX24.callMethod(
+                //     'placement.bind',
+                //     {
+                //         PLACEMENT: 'CRM_DEAL_DETAIL_TAB',
+                //         HANDLER:
+                //             'https://april-bitrix-main.vercel.app/placement/konstructor',
+                //         OPTIONS: {
+                //             errorHandlerUrl:
+                //                 'https://front.april-app.ru/event/app/placement.php',
+                //         },
+                //         TITLE: 'Test Konstructor GET bind',
+                //         DESCRIPTION: 'description',
+                //         GROUP_NAME: 'konstructor_sales_get',
+                //     },
+                // );
 
-                console.log('KonstructorGETResult');
+                // console.log('KonstructorGETResult');
 
-                console.log(KonstructorGETResult.getData().result);
+                // console.log(KonstructorGETResult.getData().result);
 
-                const list = await BX24.callMethod('placement.list');
-                console.log('KonstructorResult');
+                // const list = await BX24.callMethod('placement.list');
+                // console.log('KonstructorResult');
 
-                console.log(KonstructorResult.getData().result);
+                // console.log(KonstructorResult.getData().result);
 
-                console.log('plcResult');
+                // console.log('plcResult');
 
-                console.log(plcResult.getData().result);
+                // console.log(plcResult.getData().result);
 
-                console.log('plcResultDeal');
+                // console.log('plcResultDeal');
 
-                console.log(plcResultDeal.getData().result);
+                // console.log(plcResultDeal.getData().result);
 
-                console.log('plcResult isSuccess');
-                console.log(plcResult.isSuccess);
-                console.log('installStatus async effect');
+                // console.log('plcResult isSuccess');
+                // console.log(plcResult.isSuccess);
+                // console.log('installStatus async effect');
 
-                console.log(installStatus);
-                console.log('plcmnts list');
+                // console.log(installStatus);
+                // console.log('plcmnts list');
 
-                console.log(list.getData().result);
+                // console.log(list.getData().result);
 
                 setStatus('success');
 
-                const installFinish = await BX24.installFinish();
+
 
                 console.log('✅ installFinish выполнен через SDK');
                 console.log(installFinish);
@@ -116,7 +117,7 @@ export default function InstallPage({
             }
         })();
         // }
-    }, [installStatus]);
+    }, []);
 
     let message = '⏳ Ожидание установки...';
     if (status === 'success') {

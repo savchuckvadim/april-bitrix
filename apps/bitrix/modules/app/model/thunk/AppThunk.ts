@@ -46,6 +46,7 @@ export const initializeApp = () => async (dispatch: AppDispatch, getState: AppGe
     dispatch(appActions.isLoading({ status: true }));
 
     try {
+        console.log('1. Определяем контекст');
         // 1. Определяем контекст
         const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
         console.log('bitrix');

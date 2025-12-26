@@ -16,11 +16,12 @@ const fontMono = Geist_Mono({
     variable: '--font-mono',
 });
 
-export default function RootLayout({
+export default function InstallLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    console.log('InstallLayout');
     return (
         <html
             className="scrollbar-hide"

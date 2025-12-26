@@ -48,13 +48,13 @@ export async function getBxService(): Promise<B24> {
     console.log('bxSingleton found');
     console.log(bxSingleton);
     const b24 = bxSingleton.getB24();
-    console.log('b24');
-    console.log(b24);
+
     return b24;
 }
 
 export const bxAPI = {
     install: async () => {
+        console.log('bxAPI install');
         const b24 = await getBxService();
         await b24.installFinish();
     },

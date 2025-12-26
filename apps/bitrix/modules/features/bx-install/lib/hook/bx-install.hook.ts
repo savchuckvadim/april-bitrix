@@ -34,14 +34,14 @@ export const useBxReady = () => {
         console.log('useBxReady in effect');
         if (typeof window === 'undefined') return;
         console.log('useBxReady in effect window');
-        if ((window as any).BX24) {
+        if ((window as any) !== undefined) {
             console.log('useBxReady in effect BX24');
             setReady(true);
             return;
         }
         console.log('useBxReady in effect not BX24');
         const interval = setInterval(() => {
-            if ((window as any).BX24) {
+            if ((window as any) !== undefined) {
                 setReady(true);
                 clearInterval(interval);
             }

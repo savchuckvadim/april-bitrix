@@ -35,7 +35,7 @@ import {
     getAppGroupLabel,
     getStatusLabel,
     getStatusColor
-} from '../../modules/entities/entities';
+} from '../../../modules/entities/entities';
 
 // interface OAuthConfig {
 //     client_id: string;

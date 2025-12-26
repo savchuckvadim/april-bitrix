@@ -45,7 +45,7 @@ export default function StandaloneLayout({
 
     // Если пользователь авторизован
     return (
-        <App isInstall={false} >
+
             <div className="min-h-screen">
                 {/* Навигационная панель */}
                 <Header />
@@ -72,6 +72,6 @@ export default function StandaloneLayout({
                     </PortalProvider>
                 </div>
             </div>
-        </App>
+   
     );
 }

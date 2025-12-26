@@ -27,7 +27,7 @@ import { App } from '@/modules/app';
 
 export default function HomePage() {
     return (
-        <App isInstall={false} >
+
             <div className="min-h-screen flex flex-col scrollbar-hide">
                 <Header />
                 <main className="flex-grow">
@@ -84,7 +84,7 @@ export default function HomePage() {
                 </main>
                 <Footer />
             </div>
-        </App>
+
     );
 }
 

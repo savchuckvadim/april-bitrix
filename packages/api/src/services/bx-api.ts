@@ -28,6 +28,7 @@ export class BxService {
         console.log('b24 create');
         try {
             const b24 = await initializeB24Frame();
+            await b24.init()
             console.log('b24 create success');
             const auth = await b24?.auth?.getAuthData()
             console.log('auth');

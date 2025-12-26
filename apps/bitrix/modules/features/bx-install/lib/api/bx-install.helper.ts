@@ -3,7 +3,7 @@ export const bxInstallHelper = async () => {
     console.log('bxInstallHelper');
     const BX24 = await getBxService();
     console.log('BX24');
-    console.log(BX24);
+
     const installFinish = await BX24.installFinish();
     const data = installFinish.getData().result;
     console.log('data installFinish');

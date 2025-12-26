@@ -6,7 +6,12 @@ import Link from 'next/link';
 
 import { getBxService } from '@workspace/api';
 import { BxInstall } from '@/modules/features';
+import dynamic from 'next/dynamic';
 
+const DynamicBxInstall = dynamic(() => import('@/modules/features')
+    .then(mod => mod.BxInstall), {
+    ssr: false,
+});
 // export default function InstallPage({
 
 // }) {
@@ -150,7 +155,7 @@ export default function InstallPage({
                 <h1 className="text-2xl text-white font-bold">
                     Статус установки
                 </h1>
-                <BxInstall />
+                <DynamicBxInstall />
             </div>
         </div>
     );

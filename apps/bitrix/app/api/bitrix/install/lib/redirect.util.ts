@@ -12,5 +12,5 @@ export const redirectToInstall = (req: NextRequest, installStatus: 'success' | '
         throw new Error('Cannot determine host for redirect');
     }
     const redirectUrl = `${proto}://${host}/install?install=${installStatus}`;
-    return NextResponse.redirect(redirectUrl);
+    return NextResponse.redirect(redirectUrl, 302);
 }

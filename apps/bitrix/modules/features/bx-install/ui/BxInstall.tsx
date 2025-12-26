@@ -7,6 +7,20 @@ import { useEffect } from "react";
 export const BxInstall = () => {
     const router = useRouter();
     const { isInstalled, isLoading, error } = useBxInstall();
+    console.log('BxInstall');
+    console.log('isInstalled');
+
+    console.log(isInstalled);
+
+    console.log('isLoading');
+
+    console.log(isLoading);
+
+    console.log('error');
+
+    console.log(error);
+
+
 
     useEffect(() => {
         if (isInstalled) {

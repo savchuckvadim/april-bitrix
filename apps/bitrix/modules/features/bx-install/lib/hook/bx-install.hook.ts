@@ -3,7 +3,7 @@ import { bxInstallHelper, getInstallStatus, getPlacementList } from "../api/bx-i
 import { useQuery } from "@tanstack/react-query";
 
 export const useBxInstall = () => {
-
+    console.log('useBxInstall');
 
     const query= useQuery<any, Error>({
         queryKey: ['install'],

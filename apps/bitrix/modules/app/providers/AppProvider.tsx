@@ -9,7 +9,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return (
         <Provider store={store}>
             <ErrorBoundary>
-                <App>{children}</App>
+                {children}
             </ErrorBoundary>
         </Provider>
     );

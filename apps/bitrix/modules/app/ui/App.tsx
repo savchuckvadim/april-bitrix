@@ -5,8 +5,8 @@ import { useApp } from '../lib/hooks/app';
 import { store } from '../model/store';
 import LoadingScreen from '@/modules/shared/components/LoadingScreen/ui/LoadingScreen';
 
-export const App = ({ children }: { children: React.ReactNode }) => {
-    const { initialized, isLoading, isClient } = useApp();
+export const App = ({ children, isInstall = false }: { children: React.ReactNode, isInstall: boolean | undefined  }) => {
+    const { initialized, isLoading, isClient } = useApp(isInstall);
     console.log('App');
     console.log(initialized, isLoading, isClient);
 

@@ -37,14 +37,21 @@ import { ClientDto, UserResponseDto } from "@workspace/nest-api";
 //         }
 //     };
 
-export const initializeApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {
+export const initializeApp = (isInstall: boolean | undefined = false) => async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
     console.log('initializeApp');
     console.log(state);
     if (state.app.isLoading) return;
 
     dispatch(appActions.isLoading({ status: true }));
-
+    console.log('isInstall');
+    console.log(isInstall);
+    if (isInstall) {
+        console.log('isInstall true');
+        dispatch(appActions.setInitializedSuccess({}));
+        dispatch(appActions.isLoading({ status: false }));
+        return;
+    }
     try {
         console.log('1. Определяем контекст');
         // 1. Определяем контекст

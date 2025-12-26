@@ -21,32 +21,9 @@ import { BitrixInstallPage } from "@/modules/pages";
 //   };
 // }
 
-export default function InstallPage() {
+// export default function InstallPage() {
 
-    console.log('InstallPage');
-
-    return (
-        <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
-            <BitrixInstallPage />
-        </div>
-    );
-}
-
-
-
-// export default async function InstallPage({
-//     searchParams,
-// }: {
-//     searchParams: Promise<{ install: 'success' | 'fail' }>;
-// }) {
-//     const params = await searchParams;
-//     console.log('params');
-//     console.log(params);
-
-//     const installParam = params?.install;
-//     const installStatus = Array.isArray(installParam)
-//         ? installParam[0]
-//         : installParam;
+//     console.log('InstallPage');
 
 //     return (
 //         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
@@ -54,3 +31,26 @@ export default function InstallPage() {
 //         </div>
 //     );
 // }
+
+
+
+export default async function InstallPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ install: 'success' | 'fail' }>;
+}) {
+    const params = await searchParams;
+    console.log('params');
+    console.log(params);
+
+    const installParam = params?.install;
+    const installStatus = Array.isArray(installParam)
+        ? installParam[0]
+        : installParam;
+
+    return (
+        <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
+            <BitrixInstallPage />
+        </div>
+    );
+}

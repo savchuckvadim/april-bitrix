@@ -1,19 +1,13 @@
 
-import {  CreateBitrixAppDto, CreateBitrixAppDtoCode, CreateBitrixAppDtoGroup, CreateBitrixAppDtoStatus, CreateBitrixAppDtoType } from "@workspace/nest-api";
+import {  BitrixTokenDto, CreateBitrixAppDto, CreateBitrixAppDtoCode, CreateBitrixAppDtoGroup, CreateBitrixAppDtoStatus, CreateBitrixAppDtoType, CreateBitrixAppWithTokenDto, CreateBitrixTokenDto } from "@workspace/nest-api";
+import { BitrixTokenPayload } from "./get-token-payload-by-params.util";
 
-export interface BitrixTokenPayload {
-    access_token?: string | null;
-    refresh_token?: string | null;
-    expires_in?: number;
-    domain: string | null;
-    application_token?: string | null;
-    member_id?: string | null;
 
-}
+
 export const getSetupDto = (
     payload: BitrixTokenPayload,
 
-): CreateBitrixAppDto => {
+): CreateBitrixAppWithTokenDto => {
     return {
         code: CreateBitrixAppDtoCode.sales_full,
         domain: payload.domain,
@@ -22,18 +16,14 @@ export const getSetupDto = (
         type: CreateBitrixAppDtoType.full,
         token: {
             access_token: payload.access_token,
-            // client_id: '',
-            // client_secret: '',
+
             expires_at: getExpiresAt(payload.expires_in),
             refresh_token: payload.refresh_token,
             application_token: payload.application_token,
             member_id: payload.member_id,
-        },
-        secret: {
-            client_id: '',
-            client_secret: '',
-        },
-    } as CreateBitrixAppDto;
+        } as BitrixTokenDto,
+
+    } as CreateBitrixAppWithTokenDto;
 };
 
 

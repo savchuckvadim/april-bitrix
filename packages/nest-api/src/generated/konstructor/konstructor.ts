@@ -12,6 +12,7 @@ import type {
     InitSupplyDto,
     KonstructorInitDataDto,
     OfferDto,
+    OfferWordByTemplateGenerateDto,
     ZakupkiOfferCreateDto,
 } from '.././model';
 
@@ -76,6 +77,16 @@ export const getKonstructor = () => {
             data: initDealDto,
         });
     };
+    const offerWordGenerateGenerateOfferWord = (
+        offerWordByTemplateGenerateDto: OfferWordByTemplateGenerateDto,
+    ) => {
+        return customAxios<void>({
+            url: `/api/offer-word-document/generate`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: offerWordByTemplateGenerateDto,
+        });
+    };
     return {
         zakupkiOfferCreateZakupkiOffer,
         contractGenerateGenerateContract,
@@ -83,6 +94,7 @@ export const getKonstructor = () => {
         konstructorInitInit,
         initSupplyInitSupply,
         initDealInitDeal,
+        offerWordGenerateGenerateOfferWord,
     };
 };
 export type ZakupkiOfferCreateZakupkiOfferResult = NonNullable<
@@ -116,4 +128,13 @@ export type InitSupplyInitSupplyResult = NonNullable<
 >;
 export type InitDealInitDealResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getKonstructor>['initDealInitDeal']>>
+>;
+export type OfferWordGenerateGenerateOfferWordResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getKonstructor
+            >['offerWordGenerateGenerateOfferWord']
+        >
+    >
 >;

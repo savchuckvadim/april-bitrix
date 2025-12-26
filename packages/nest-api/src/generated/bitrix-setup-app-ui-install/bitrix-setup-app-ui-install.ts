@@ -12,26 +12,28 @@ import type {
 
 import { customAxios } from '../../lib/back-api';
 
-export const getBitrixSetupAppUi = () => {
+export const getBitrixSetupAppUiInstall = () => {
     /**
      * @summary Sales Manager App for Bitrix
      */
-    const bitrixAppUiSalesManagerApp = (
+    const bitrixAppInstallSalesManagerInstall = (
         createBitrixAppWithTokenDto: CreateBitrixAppWithTokenDto,
     ) => {
         return customAxios<InstallAppFromPortalResponseDto>({
-            url: `/api/bitrix-app-ui/sales-manager`,
+            url: `/api/bitrix-app-install/sales-manager`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: createBitrixAppWithTokenDto,
         });
     };
-    return { bitrixAppUiSalesManagerApp };
+    return { bitrixAppInstallSalesManagerInstall };
 };
-export type BitrixAppUiSalesManagerAppResult = NonNullable<
+export type BitrixAppInstallSalesManagerInstallResult = NonNullable<
     Awaited<
         ReturnType<
-            ReturnType<typeof getBitrixSetupAppUi>['bitrixAppUiSalesManagerApp']
+            ReturnType<
+                typeof getBitrixSetupAppUiInstall
+            >['bitrixAppInstallSalesManagerInstall']
         >
     >
 >;

@@ -8,6 +8,7 @@
 import type { ComplectsDto } from './complectsDto';
 import type { InfoGroupsDto } from './infoGroupsDto';
 import type { RegionEntity } from './regionEntity';
+import type { ContractsDto } from './contractsDto';
 
 export interface KonstructorInitDataDto {
     /** Complects */
@@ -16,4 +17,6 @@ export interface KonstructorInitDataDto {
     infoblocks: InfoGroupsDto[];
     /** Regions */
     regions: RegionEntity[];
+    /** Contracts */
+    contracts: ContractsDto;
 }

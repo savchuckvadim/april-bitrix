@@ -40,3 +40,5 @@ export * from './bitrix-setup-app/bitrix-setup-app';
 export * from './auth/auth';
 export * from './bitrix-app-client-app/bitrix-app-client-app';
 export * from './bitrix-app-client-client/bitrix-app-client-client';
+export * from './bitrix-setup-app-ui/bitrix-setup-app-ui';
+export * from './bitrix-setup-app-ui-install/bitrix-setup-app-ui-install';

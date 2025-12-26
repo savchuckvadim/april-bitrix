@@ -9,7 +9,7 @@ import type { CreateBitrixAppDtoCode } from './createBitrixAppDtoCode';
 import type { CreateBitrixAppDtoGroup } from './createBitrixAppDtoGroup';
 import type { CreateBitrixAppDtoType } from './createBitrixAppDtoType';
 import type { CreateBitrixAppDtoStatus } from './createBitrixAppDtoStatus';
-import type { CreateBitrixSecretDto } from './createBitrixSecretDto';
+import type { CreateBitrixAppSecretDto } from './createBitrixAppSecretDto';
 
 export interface CreateBitrixAppDto {
     /** Домен портала Bitrix24 */
@@ -23,5 +23,5 @@ export interface CreateBitrixAppDto {
     /** Статус приложения */
     status: CreateBitrixAppDtoStatus;
     /** Секреты приложения */
-    secret: CreateBitrixSecretDto;
+    secret: CreateBitrixAppSecretDto;
 }

@@ -6,14 +6,11 @@
  * OpenAPI spec version: 1.0
  */
 
-/**
- * The visibility of the offer template
- */
-export type OfferTemplateVisibility =
-    (typeof OfferTemplateVisibility)[keyof typeof OfferTemplateVisibility];
+export type WordTemplateSummaryDtoVisibility =
+    (typeof WordTemplateSummaryDtoVisibility)[keyof typeof WordTemplateSummaryDtoVisibility];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const OfferTemplateVisibility = {
+export const WordTemplateSummaryDtoVisibility = {
     public: 'public',
     portal: 'portal',
     user: 'user',

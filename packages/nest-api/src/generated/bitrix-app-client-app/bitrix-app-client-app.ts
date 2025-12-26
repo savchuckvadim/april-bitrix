@@ -11,7 +11,6 @@ import type {
     CreateBitrixAppDto,
     EnabledAppDto,
     GetBitrixAppDto,
-    SetSecretDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
@@ -26,14 +25,6 @@ export const getBitrixAppClientApp = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: getBitrixAppDto,
-        });
-    };
-    const bitrixAppClientSetSecret = (setSecretDto: SetSecretDto) => {
-        return customAxios<void>({
-            url: `/api/bitrix-app-client/set-secret`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: setSecretDto,
         });
     };
     /**
@@ -72,7 +63,6 @@ export const getBitrixAppClientApp = () => {
     };
     return {
         bitrixAppClientGetApp,
-        bitrixAppClientSetSecret,
         bitrixAppClientGetPortalApps,
         bitrixAppClientGetEnabledApps,
         bitrixAppClientCreateApp,
@@ -82,13 +72,6 @@ export type BitrixAppClientGetAppResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<typeof getBitrixAppClientApp>['bitrixAppClientGetApp']
-        >
-    >
->;
-export type BitrixAppClientSetSecretResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getBitrixAppClientApp>['bitrixAppClientSetSecret']
         >
     >
 >;

@@ -28,7 +28,7 @@ export const BxInstall = () => {
         }
     }, [isInstalled, router]);
 
-    if (isLoading) {
+    if (isLoading || !isInstalled) {
         return <p className="text-white">⏳ Ожидание установки...</p>;
     }
 

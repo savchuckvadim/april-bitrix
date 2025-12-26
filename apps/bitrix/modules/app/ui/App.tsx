@@ -11,16 +11,7 @@ export const App = ({ children }: { children: React.ReactNode }) => {
     console.log(initialized, isLoading, isClient);
 
 
-    // useEffect(() => {
-    //     if (isClient) {
 
-    //         if (typeof window !== 'undefined') {
-
-    //             (window as any).store = store;
-    //         }
-
-    //     }
-    // }, [isClient]);
     return (
         <div className="h-calc(100vh - 300px)">
             {isClient && initialized && !isLoading ? (

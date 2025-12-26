@@ -39,6 +39,8 @@ import { ClientDto, UserResponseDto } from "@workspace/nest-api";
 
 export const initializeApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
+    console.log('initializeApp');
+    console.log(state);
     if (state.app.isLoading) return;
 
     dispatch(appActions.isLoading({ status: true }));
@@ -46,8 +48,18 @@ export const initializeApp = () => async (dispatch: AppDispatch, getState: AppGe
     try {
         // 1. Определяем контекст
         const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
+        console.log('bitrix');
+        console.log(bitrix);
         const { inFrame, domain, user: bitrixUser } = bitrix.api.getInitializedData();
+        console.log('bitrixUser');
+        console.log(bitrixUser);
+        console.log('inFrame');
+        console.log(inFrame);
+        console.log('domain');
+        console.log(domain);
         const place = inFrame ? 'frame' : 'standalone';
+        console.log('place');
+        console.log(place);
         dispatch(appActions.setClientContext({ isClient: inFrame, domain, place }));
 
         // 2. Определяем пользователя

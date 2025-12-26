@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { redirectToApp } from './redirect.util';
 
 interface RequestData {
     headers: Record<string, string>;
@@ -48,24 +49,18 @@ export async function POST(req: NextRequest) {
         console.log('Все данные запроса:', requestData);
         console.log('body:', requestData.body);
         // Корректный редирект с методом GET
-        const response = NextResponse.redirect(
-            new URL('/bitrix', req.url),
-            303,
-        );
+        // const response = NextResponse.redirect(
+        //     new URL('/bitrix', req.url),
+        //     303,
+        // );
 
-        return response;
+        return redirectToApp(req);
     } catch (error) {
         console.error('Ошибка обработки запроса:', error);
-        return NextResponse.json(
-            { error: 'Ошибка загрузки файла' },
-            { status: 500 },
-        );
+        return redirectToApp(req);
     }
 }
 
 export async function GET(req: NextRequest) {
-    console.log(req);
-    return NextResponse.json({
-        message: 'Этот маршрут поддерживает только POST-запросы',
-    });
+    return redirectToApp(req);
 }

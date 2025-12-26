@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const redirectToInstall = (req: NextRequest, installStatus: 'success' | 'fail') => {
+export const redirectToApp = (req: NextRequest) => {
     const headers = req.headers;
     const proto =
         headers.get('x-forwarded-proto') ??
@@ -11,8 +11,6 @@ export const redirectToInstall = (req: NextRequest, installStatus: 'success' | '
     if (!host) {
         throw new Error('Cannot determine host for redirect');
     }
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-    console.log('baseUrl', baseUrl);
-    const redirectUrl = `${baseUrl}/install?install=${installStatus}`;
+    const redirectUrl = `${proto}://${host}/bitrix`;
     return NextResponse.redirect(redirectUrl, 302);
 }

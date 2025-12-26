@@ -1,4 +1,4 @@
-import { setupBitrixApp } from '@/app/api/bitrix/install/lib/setup';
+// import { setupBitrixApp } from '@/app/api/bitrix/install/lib/setup';
 // import { BitrixAppPayload } from '@workspace/api';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSetupDto } from './lib/util';
@@ -92,9 +92,9 @@ export async function POST(req: NextRequest) {
                 ...tokenPayload,
                 domain: domain,
             });
-            const result = await setupBitrixApp(data);
-            console.log('endpoint online result');
-            console.log(result);
+            // const result = await setupBitrixApp(data);
+            // console.log('endpoint online result');
+            // console.log(result);
         }
         const redirectUrl = new URL('/install', req.url);
         redirectUrl.searchParams.set('install', installStatus);

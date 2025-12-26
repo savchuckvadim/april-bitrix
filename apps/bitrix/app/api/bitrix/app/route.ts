@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         console.log('body:', requestData.body);
         // Корректный редирект с методом GET
         const response = NextResponse.redirect(
-            new URL('/auth/login', req.url),
+            new URL('/bitrix', req.url),
             303,
         );
 

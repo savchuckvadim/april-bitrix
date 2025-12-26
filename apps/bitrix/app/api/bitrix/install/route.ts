@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSetupDto } from './lib/util';
 
+
 interface BitrixTokenPayload {
     access_token: string | null;
     refresh_token: string | null;
@@ -23,7 +24,20 @@ export async function POST(req: NextRequest) {
     try {
         const rawBody = await req.text();
         const params = new URLSearchParams(rawBody);
+        const headers = req.headers;
 
+        const proto =
+            headers.get('x-forwarded-proto') ??
+            (process.env.NODE_ENV === 'production' ? 'https' : 'http');
+
+        const host =
+            headers.get('x-forwarded-host') ??
+            headers.get('host');
+        if (!host) {
+            throw new Error('Cannot determine host for redirect');
+        }
+        const installStatus = 'success';
+        const redirectUrl = `${proto}://${host}/install?install=${installStatus}`;
         const requestData: RequestData = {
             body: {},
 
@@ -79,14 +93,14 @@ export async function POST(req: NextRequest) {
         console.log('POST INSTALL: placement', placement);
         console.log('POST INSTALL: tokenPayload', tokenPayload);
 
-        let installStatus: 'success' | 'fail' = 'fail';
+        // let installStatus: 'success' | 'fail' = 'fail';
 
         if (
             tokenPayload.access_token &&
             tokenPayload.refresh_token &&
             tokenPayload.domain
         ) {
-            installStatus = install ? 'success' : 'fail';
+            // installStatus = install ? 'success' : 'fail';
 
             const data = getSetupDto({
                 ...tokenPayload,
@@ -96,23 +110,29 @@ export async function POST(req: NextRequest) {
             // console.log('endpoint online result');
             // console.log(result);
         }
-        const redirectUrl = new URL('/install', req.url);
-        redirectUrl.searchParams.set('install', installStatus);
+        // const redirectUrl = new URL('/install', req.url);
+        // redirectUrl.searchParams.set('install', installStatus);
 
         // return NextResponse.redirect(redirectUrl, 302);
-        return NextResponse.redirect(
-            `/install?install=${installStatus}`
-        );
+
+        return NextResponse.redirect(redirectUrl);
     } catch (error) {
         console.error('[Bitrix Install] error:', error);
+        const headers = req.headers;
+        const proto =
+            headers.get('x-forwarded-proto') ??
+            (process.env.NODE_ENV === 'production' ? 'https' : 'http');
 
-        const errorRedirect = new URL('/install', req.url);
-        errorRedirect.searchParams.set('install', 'fail');
+        const host =
+            headers.get('x-forwarded-host') ??
+            headers.get('host');
+        if (!host) {
+            throw new Error('Cannot determine host for redirect');
+        }
+        const installStatus = 'fail';
+        const redirectUrl = `${proto}://${host}/install?install=${installStatus}`;
+        return NextResponse.redirect(redirectUrl);
 
-        // return NextResponse.redirect(errorRedirect, 302);
-        return NextResponse.redirect(
-            `/install?install=fail`
-        );
     }
 }
 
@@ -121,6 +141,18 @@ export async function GET(req: NextRequest) {
         const rawBody = await req.text();
         const params = new URLSearchParams(rawBody);
 
+        const headers = req.headers;
+
+        const proto =
+            headers.get('x-forwarded-proto') ??
+            (process.env.NODE_ENV === 'production' ? 'https' : 'http');
+
+        const host =
+            headers.get('x-forwarded-host') ??
+            headers.get('host');
+        if (!host) {
+            throw new Error('Cannot determine host for redirect');
+        }
         const requestData: RequestData = {
             body: {},
 
@@ -200,36 +232,52 @@ export async function GET(req: NextRequest) {
             // });
 
             // ✅ Регистрируем плэйсмент
-        //     await fetch(`https://${tokenPayload.domain}/rest/placement.bind`, {
-        //         method: 'POST',
-        //         body: new URLSearchParams({
-        //             PLACEMENT: 'DEFAULT',
-        //             HANDLER:
-        //                 'https://front.april-app.ru/event/app/placement.php',
-        //             TITLE: 'Звонки тест Callings',
-        //             auth: tokenPayload.access_token,
-        //         }),
-        //     });
+            //     await fetch(`https://${tokenPayload.domain}/rest/placement.bind`, {
+            //         method: 'POST',
+            //         body: new URLSearchParams({
+            //             PLACEMENT: 'DEFAULT',
+            //             HANDLER:
+            //                 'https://front.april-app.ru/event/app/placement.php',
+            //             TITLE: 'Звонки тест Callings',
+            //             auth: tokenPayload.access_token,
+            //         }),
+            //     });
         }
         console.log('GET installStatus');
         console.log(installStatus);
-        const redirectUrl = new URL('/install', req.url);
-        redirectUrl.searchParams.set('install', installStatus);
+        // const redirectUrl = new URL('/install', req.url);
+        // redirectUrl.searchParams.set('install', installStatus);
 
         // return NextResponse.redirect(redirectUrl, 302);
-        return NextResponse.redirect(
-            `/install?install=${installStatus}`
-        );
+
+        const redirectUrl = `https://${host}/install?install=${installStatus}`;
+
+        return NextResponse.redirect(redirectUrl);
     } catch (error) {
         console.error('[Bitrix Install] error:', error);
-
+        const installStatus = 'fail';
         const errorRedirect = new URL('/install', req.url);
         errorRedirect.searchParams.set('install', 'fail');
 
         // return NextResponse.redirect(errorRedirect, 302);
-        return NextResponse.redirect(
-            `/install?install=fail`
-        );
+        const headers = req.headers;
+
+
+        const proto =
+            headers.get('x-forwarded-proto') ??
+            (process.env.NODE_ENV === 'production' ? 'https' : 'http');
+
+        const host =
+            headers.get('x-forwarded-host') ??
+            headers.get('host');
+        if (!host) {
+            throw new Error('Cannot determine host for redirect');
+        }
+
+
+        const redirectUrl = `${proto}://${host}/install?install=${installStatus}`;
+
+        return NextResponse.redirect(redirectUrl);
     }
 }
 

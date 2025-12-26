@@ -40,9 +40,15 @@ let bxSingleton: BxService | null = null;
 // Экспортируемый метод для получения оригинального b24
 export async function getBxService(): Promise<B24> {
     if (!bxSingleton) {
+        console.log('bxSingleton not found');
         bxSingleton = await BxService.create();
     }
-    return bxSingleton.getB24();
+    console.log('bxSingleton found');
+    console.log(bxSingleton);
+    const b24 = bxSingleton.getB24();
+    console.log('b24');
+    console.log(b24);
+    return b24;
 }
 
 export const bxAPI = {

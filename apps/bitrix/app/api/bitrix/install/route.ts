@@ -75,9 +75,9 @@ export async function POST(req: NextRequest) {
             };
         }
 
-        console.log('INSTALL: event', event);
-        console.log('INSTALL: placement', placement);
-        console.log('INSTALL: tokenPayload', tokenPayload);
+        console.log('POST INSTALL: event', event);
+        console.log('POST INSTALL: placement', placement);
+        console.log('POST INSTALL: tokenPayload', tokenPayload);
 
         let installStatus: 'success' | 'fail' = 'fail';
 
@@ -99,14 +99,20 @@ export async function POST(req: NextRequest) {
         const redirectUrl = new URL('/install', req.url);
         redirectUrl.searchParams.set('install', installStatus);
 
-        return NextResponse.redirect(redirectUrl, 302);
+        // return NextResponse.redirect(redirectUrl, 302);
+        return NextResponse.redirect(
+            `/install?install=${installStatus}`
+        );
     } catch (error) {
         console.error('[Bitrix Install] error:', error);
 
         const errorRedirect = new URL('/install', req.url);
         errorRedirect.searchParams.set('install', 'fail');
 
-        return NextResponse.redirect(errorRedirect, 302);
+        // return NextResponse.redirect(errorRedirect, 302);
+        return NextResponse.redirect(
+            `/install?install=fail`
+        );
     }
 }
 
@@ -194,28 +200,36 @@ export async function GET(req: NextRequest) {
             // });
 
             // ✅ Регистрируем плэйсмент
-            await fetch(`https://${tokenPayload.domain}/rest/placement.bind`, {
-                method: 'POST',
-                body: new URLSearchParams({
-                    PLACEMENT: 'DEFAULT',
-                    HANDLER:
-                        'https://front.april-app.ru/event/app/placement.php',
-                    TITLE: 'Звонки тест Callings',
-                    auth: tokenPayload.access_token,
-                }),
-            });
+        //     await fetch(`https://${tokenPayload.domain}/rest/placement.bind`, {
+        //         method: 'POST',
+        //         body: new URLSearchParams({
+        //             PLACEMENT: 'DEFAULT',
+        //             HANDLER:
+        //                 'https://front.april-app.ru/event/app/placement.php',
+        //             TITLE: 'Звонки тест Callings',
+        //             auth: tokenPayload.access_token,
+        //         }),
+        //     });
         }
+        console.log('GET installStatus');
+        console.log(installStatus);
         const redirectUrl = new URL('/install', req.url);
         redirectUrl.searchParams.set('install', installStatus);
 
-        return NextResponse.redirect(redirectUrl, 302);
+        // return NextResponse.redirect(redirectUrl, 302);
+        return NextResponse.redirect(
+            `/install?install=${installStatus}`
+        );
     } catch (error) {
         console.error('[Bitrix Install] error:', error);
 
         const errorRedirect = new URL('/install', req.url);
         errorRedirect.searchParams.set('install', 'fail');
 
-        return NextResponse.redirect(errorRedirect, 302);
+        // return NextResponse.redirect(errorRedirect, 302);
+        return NextResponse.redirect(
+            `/install?install=fail`
+        );
     }
 }
 

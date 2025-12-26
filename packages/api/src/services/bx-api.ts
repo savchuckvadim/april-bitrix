@@ -26,6 +26,8 @@ export class BxService {
 
     static async create(): Promise<BxService> {
         const b24 = await initializeB24Frame();
+        console.log('b24 create');
+        console.log(b24?.auth?.getAuthData());
         return new BxService(b24);
     }
 

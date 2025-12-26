@@ -23,7 +23,7 @@ import { BitrixInstallPage } from "@/modules/pages";
 
 export default function InstallPage() {
 
-
+    console.log('InstallPage');
 
     return (
         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">

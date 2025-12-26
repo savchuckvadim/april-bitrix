@@ -7,19 +7,20 @@ import LoadingScreen from '@/modules/shared/components/LoadingScreen/ui/LoadingS
 
 export const App = ({ children }: { children: React.ReactNode }) => {
     const { initialized, isLoading, isClient } = useApp();
+    console.log('App');
+    console.log(initialized, isLoading, isClient);
 
 
+    // useEffect(() => {
+    //     if (isClient) {
 
-    useEffect(() => {
-        if (isClient) {
+    //         if (typeof window !== 'undefined') {
 
-            if (typeof window !== 'undefined') {
+    //             (window as any).store = store;
+    //         }
 
-                (window as any).store = store;
-            }
-
-        }
-    }, [isClient]);
+    //     }
+    // }, [isClient]);
     return (
         <div className="h-calc(100vh - 300px)">
             {isClient && initialized && !isLoading ? (

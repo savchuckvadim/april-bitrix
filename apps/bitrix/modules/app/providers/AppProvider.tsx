@@ -5,6 +5,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import App from '../ui/App';
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+    console.log('AppProvider');
     return (
         <Provider store={store}>
             <ErrorBoundary>

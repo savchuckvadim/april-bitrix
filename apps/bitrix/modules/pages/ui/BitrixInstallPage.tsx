@@ -147,7 +147,21 @@ const DynamicBxInstall = dynamic(() => import('@/modules/features')
 export default function InstallPage({
 
 }) {
+    const [isClient, setIsClient] = useState(false);
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
+    if (!isClient) {
+        return <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
+            <div className="flex flex-col items-center justify-center gap-4">
+                <h1 className="text-2xl text-white font-bold">
+                    Статус установки
+                </h1>
+                <p className="text-white">⏳ Ожидание установки...</p>
+            </div>
+        </div>;
+    }
 
     return (
         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">

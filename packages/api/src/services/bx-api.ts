@@ -25,10 +25,18 @@ export class BxService {
     }
 
     static async create(): Promise<BxService> {
-        const b24 = await initializeB24Frame();
         console.log('b24 create');
-        console.log(b24?.auth?.getAuthData());
-        return new BxService(b24);
+        try {
+        const b24 = await initializeB24Frame();
+            console.log('b24 create');
+            console.log(b24);
+            console.log(b24?.auth?.getAuthData());
+            return new BxService(b24);
+        } catch (error) {
+            console.log('b24 create error');
+            console.log(error);
+            throw error;
+        }
     }
 
     public getB24(): B24 {

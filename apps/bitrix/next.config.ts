@@ -10,6 +10,10 @@ for (const envVar of requiredEnvVars) {
 }
 
 const nextConfig: NextConfig = {
+    allowedDevOrigins: [
+
+        'https://*.bitrix24.ru',
+    ],
     env: {
         ONLINE_API_KEY: process.env.ONLINE_API_KEY,
         LOG_FILE_PATH: process.env.LOG_FILE_PATH,

@@ -2,6 +2,7 @@
 // import { BitrixAppPayload } from '@workspace/api';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSetupDto } from './lib/util';
+import { redirectToInstall } from './lib/redirect.util';
 
 
 interface BitrixTokenPayload {
@@ -26,18 +27,7 @@ export async function POST(req: NextRequest) {
         const params = new URLSearchParams(rawBody);
         const headers = req.headers;
 
-        const proto =
-            headers.get('x-forwarded-proto') ??
-            (process.env.NODE_ENV === 'production' ? 'https' : 'http');
 
-        const host =
-            headers.get('x-forwarded-host') ??
-            headers.get('host');
-        if (!host) {
-            throw new Error('Cannot determine host for redirect');
-        }
-        const installStatus = 'success';
-        const redirectUrl = `${proto}://${host}/install?install=${installStatus}`;
         const requestData: RequestData = {
             body: {},
 
@@ -115,23 +105,10 @@ export async function POST(req: NextRequest) {
 
         // return NextResponse.redirect(redirectUrl, 302);
 
-        return NextResponse.redirect(redirectUrl);
+        return redirectToInstall(req, 'success');
     } catch (error) {
         console.error('[Bitrix Install] error:', error);
-        const headers = req.headers;
-        const proto =
-            headers.get('x-forwarded-proto') ??
-            (process.env.NODE_ENV === 'production' ? 'https' : 'http');
-
-        const host =
-            headers.get('x-forwarded-host') ??
-            headers.get('host');
-        if (!host) {
-            throw new Error('Cannot determine host for redirect');
-        }
-        const installStatus = 'fail';
-        const redirectUrl = `${proto}://${host}/install?install=${installStatus}`;
-        return NextResponse.redirect(redirectUrl);
+        return redirectToInstall(req, 'fail');
 
     }
 }

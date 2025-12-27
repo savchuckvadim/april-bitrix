@@ -5,16 +5,25 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { ClientDto } from './clientDto';
-import type { UserResponseDto } from './userResponseDto';
+import type { ClientResponseDtoEmail } from './clientResponseDtoEmail';
+import type { ClientResponseDtoStatus } from './clientResponseDtoStatus';
+import type { ClientResponseDtoIsActive } from './clientResponseDtoIsActive';
+import type { ClientResponseDtoCreatedAt } from './clientResponseDtoCreatedAt';
+import type { ClientResponseDtoUpdatedAt } from './clientResponseDtoUpdatedAt';
 
 export interface ClientResponseDto {
     /** Client ID */
     id: number;
-    /** Message */
-    message: string;
-    /** Client */
-    client: ClientDto;
-    /** Owner */
-    owner: UserResponseDto;
+    /** Client name */
+    name: string;
+    /** Client email */
+    email?: ClientResponseDtoEmail;
+    /** Client status */
+    status?: ClientResponseDtoStatus;
+    /** Client is active */
+    is_active?: ClientResponseDtoIsActive;
+    /** Client created at */
+    created_at?: ClientResponseDtoCreatedAt;
+    /** Client updated at */
+    updated_at?: ClientResponseDtoUpdatedAt;
 }

@@ -42,3 +42,30 @@ export * from './bitrix-app-client-app/bitrix-app-client-app';
 export * from './bitrix-app-client-client/bitrix-app-client-client';
 export * from './bitrix-setup-app-ui/bitrix-setup-app-ui';
 export * from './bitrix-setup-app-ui-install/bitrix-setup-app-ui-install';
+
+
+
+
+
+//ADMIN
+
+export * from './admin-bitrix-app-management/admin-bitrix-app-management';
+export * from './admin-client-management/admin-client-management';
+
+
+//admin-garant
+export * from './garant/garant';
+export * from './garant-region/garant-region';
+export * from './garant-complect/garant-complect';
+
+
+export * from './konstructor-offer-template/konstructor-offer-template';
+export * from './konstructor-offer-template-image/konstructor-offer-template-image';
+
+export * from './konstructor-word-template/konstructor-word-template';
+
+export * from './garant-region/garant-region';
+export * from './offer-template-font/offer-template-font';
+export * from './user-selected-template/user-selected-template';
+
+export * from './portal-konstructor/portal-konstructor';

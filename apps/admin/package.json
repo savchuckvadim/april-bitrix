@@ -1,6 +1,7 @@
 {
-  "name": "bitrix",
-  "version": "0.0.1",
+  "name": "admin",
+  "version": "1.0.0",
+  "description": "",
   "type": "module",
   "private": true,
   "scripts": {
@@ -32,7 +33,8 @@
     "prom-client": "^15.1.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hook-form": "^7.56.3"
+    "react-hook-form": "^7.56.3",
+    "date-fns": "^3.0.0"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.91.2",
@@ -44,12 +46,8 @@
     "typescript": "^5.7.3"
   },
   "main": "eslint.config.js",
-  "directories": {
-    "lib": "lib"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "packageManager": "pnpm@10.18.0"
 }

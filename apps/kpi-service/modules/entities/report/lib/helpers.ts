@@ -2,7 +2,6 @@
 
 import { getOrkReport, GetOrkReportKpiResponseDto, OrkReportKpiData } from '@workspace/nest-api';
 import { ReportRequest } from '../model/report-service';
-import { waitForDebugger } from 'node:inspector';
 
 
 export const getReportDataAPI = async (
@@ -18,7 +17,7 @@ export const getReportDataAPI = async (
             filters: reportData.filters,
         })
         console.log('reportResponse', reportResponse);
-        waitForDebugger
+      
         return reportResponse.report || [];
     } catch (error) {
 

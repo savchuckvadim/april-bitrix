@@ -57,10 +57,16 @@ export const backAPI = {
 
             const endoint = !query ? url : `${url}/${query}`;
 
-            const axiosResponse = await evs[method](endoint, data, {
-                ...evsHeaders,
-                headers,
+            const axiosResponse = await evs.request({
+                url: endoint,
+                method,
+                data,
+                headers: {
+                    ...evsHeaders,
+                    ...headers,
+                },
             });
+
 
             response = axiosResponse.data as IBackResponse<T>;
         } catch (error) {
@@ -80,7 +86,10 @@ export const backAPI = {
         data: any,
     ): Promise<Blob> => {
         try {
-            const result = (await evs.post(url, data, {
+            const result = (await evs.request({
+                url,
+                method,
+                data,
                 headers: evsHeaders,
                 responseType: 'blob',
             })) as AxiosResponse<Blob>;

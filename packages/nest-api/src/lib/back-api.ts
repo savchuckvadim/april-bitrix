@@ -1,4 +1,5 @@
-import axios, { Method } from 'axios';
+// packages/nest-api/src/lib/back-api.ts
+import axios, { AxiosRequestConfig, Method } from 'axios';
 
 
 const prod = `https://back.april-app.ru/`;
@@ -18,15 +19,15 @@ export enum EResultCode {
     ERROR = 1,
 }
 
-const evsHeaders = {
+const $apiHeaders = {
     'content-type': 'application/json',
     'X-BACK-API-KEY': '',
 };
 
-const evs = axios.create({
+const $api = axios.create({
     baseURL: url,
     withCredentials: true,
-    headers: evsHeaders,
+    headers: $apiHeaders,
 });
 // // 🔐 автоматически добавляем JWT
 // evs.interceptors.request.use((config) => {
@@ -38,38 +39,55 @@ const evs = axios.create({
 // });
 
 
-export const customAxios = async <T>({
-    url,
-    method,
-    data,
-    params,
-    headers,
-}: {
-    url: string;
-    method: Method;
-    data?: any;
-    params?: any;
-    headers?: any;
-}): Promise<T> => {
-    // // Orval всегда ждёт, что mutator возвращает **данные**, а не { resultCode, data }
-    // const res = await backAPI.service<T>(url as EBACK_ENDPOINT, method.toLowerCase() as API_METHOD, data, params);
-    // return res.data as T; // важно вернуть именно T
+// export const customAxios = async <T>({
+//     url,
+//     method,
+//     data,
+//     params,
+//     headers,
+// }: {
+//     url: string;
+//     method: Method;
+//     data?: any;
+//     params?: any;
+//     headers?: any;
+// }): Promise<T> => {
+//     // // Orval всегда ждёт, что mutator возвращает **данные**, а не { resultCode, data }
+//     // const res = await backAPI.service<T>(url as EBACK_ENDPOINT, method.toLowerCase() as API_METHOD, data, params);
+//     // return res.data as T; // важно вернуть именно T
 
-    // const instance = axios.create({
-    //     baseURL: 'http://localhost:3000', // или prod
-    //     headers: { 'Content-Type': 'application/json', ...headers },
-    // });
+//     // const instance = axios.create({
+//     //     baseURL: 'http://localhost:3000', // или prod
+//     //     headers: { 'Content-Type': 'application/json', ...headers },
+//     // });
 
-    const res = await evs.request<IBackResponse<T>>({
-        url,
-        method: method as Method,
-        data,
-        params, // 🔹 вот здесь axios сам превращает объект в query string
-        headers,
-    });
-    if (res.data.resultCode !== EResultCode.SUCCESS) {
-        throw new Error(res.data.message || `Backend error ${url}`);
+//     const res = await evs.request<IBackResponse<T>>({
+//         url,
+//         method: method as Method,
+//         data,
+//         params, // 🔹 вот здесь axios сам превращает объект в query string
+//         headers,
+//     });
+//     if (res.data.resultCode !== EResultCode.SUCCESS) {
+//         throw new Error(res.data.message || `Backend error ${url}`);
+//     }
+// debugger
+//     return res.data.data as T;
+// };
+export const customAxios = async <T>(
+    config: AxiosRequestConfig
+): Promise<T> => {
+    // blob / arraybuffer — сразу возвращаем
+    if (config.responseType && config.responseType !== 'json') {
+        const res = await $api.request<T>(config);
+        return res.data;
     }
-debugger
+
+    const res = await $api.request<IBackResponse<T>>(config);
+
+    if (res.data.resultCode !== EResultCode.SUCCESS) {
+        throw new Error(res.data.message || `Backend error ${config.url}`);
+    }
+
     return res.data.data as T;
 };

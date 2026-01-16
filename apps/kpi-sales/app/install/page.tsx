@@ -29,7 +29,7 @@ export default async function InstallPage({
 
     return (
         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
-            <BitrixInstallPage installStatus={installStatus} />
+            <BitrixInstallPage  />
         </div>
     );
 }

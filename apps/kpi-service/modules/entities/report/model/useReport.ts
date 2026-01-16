@@ -21,9 +21,7 @@ export const useReport = () => {
         setIsMounted(true);
     }, []);
 
-    if (!isMounted) {
-        return null;
-    }
+  
     // const [filtredReport, setFiltredReport] = useState<ReportData[]>([]);
     useEffect(() => {
         if (!reportState.isFetched && !reportState.isLoading && isMounted) {

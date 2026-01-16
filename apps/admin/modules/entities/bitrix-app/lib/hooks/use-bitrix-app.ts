@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     AdminBitrixAppGetAppParams,
+    BitrixAppDto,
     CreateBitrixAppDto,
     UpdateBitrixAppDto,
 } from '@workspace/nest-api';
@@ -11,7 +12,7 @@ import { BitrixAppHelper } from '../api/bitrix-app-helper';
 const bitrixAppHelper = new BitrixAppHelper();
 
 export const useBitrixApps = () => {
-    return useQuery<any[], Error>({
+    return useQuery<BitrixAppDto[], Error>({
         queryKey: ['bitrix-apps'],
         queryFn: async () => {
             const response = await bitrixAppHelper.getAllApps();
@@ -21,7 +22,7 @@ export const useBitrixApps = () => {
 };
 
 export const useBitrixApp = (params: AdminBitrixAppGetAppParams) => {
-    return useQuery<any, Error>({
+    return useQuery<BitrixAppDto, Error>({
         queryKey: ['bitrix-app', params],
         queryFn: async () => {
             const response = await bitrixAppHelper.getApp(params);
@@ -32,7 +33,7 @@ export const useBitrixApp = (params: AdminBitrixAppGetAppParams) => {
 };
 
 export const useBitrixAppsByPortal = (domain: string) => {
-    return useQuery<any[], Error>({
+    return useQuery<BitrixAppDto[], Error>({
         queryKey: ['bitrix-apps', 'portal', domain],
         queryFn: async () => {
             const response = await bitrixAppHelper.getAppsByPortal(domain);
@@ -43,7 +44,7 @@ export const useBitrixAppsByPortal = (domain: string) => {
 };
 
 export const useBitrixAppsByPortalId = (portalId: number) => {
-    return useQuery<any[], Error>({
+    return useQuery<BitrixAppDto[], Error>({
         queryKey: ['bitrix-apps', 'portal-id', portalId],
         queryFn: async () => {
             const response =
@@ -55,7 +56,7 @@ export const useBitrixAppsByPortalId = (portalId: number) => {
 };
 
 export const useEnabledBitrixApps = () => {
-    return useQuery<any[], Error>({
+    return useQuery<BitrixAppDto[], Error>({
         queryKey: ['bitrix-apps', 'enabled'],
         queryFn: async () => {
             const response = await bitrixAppHelper.getEnabledApps();

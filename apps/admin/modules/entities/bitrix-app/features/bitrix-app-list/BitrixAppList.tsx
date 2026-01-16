@@ -29,7 +29,7 @@ export function BitrixAppList() {
 
     const confirmDelete = () => {
         if (appToDelete) {
-            deleteApp.mutate(appToDelete, {
+            deleteApp.mutate(parseInt(appToDelete, 10), {
                 onSuccess: () => {
                     setDeleteDialogOpen(false);
                     setAppToDelete(null);
@@ -48,7 +48,7 @@ export function BitrixAppList() {
             </div>
 
             <BitrixAppTable
-                data={apps || []}
+                data={Array.isArray(apps) ? apps : []}
                 isLoading={isLoading}
                 onRowClick={handleRowClick}
                 onEdit={handleEdit}

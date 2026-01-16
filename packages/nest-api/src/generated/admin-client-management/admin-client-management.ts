@@ -8,6 +8,7 @@
 import type {
     AdminClientGetAllClientsParams,
     ClientResponseDto,
+    ClientWithRelationsResponseDto,
     CreateClientDto,
     UpdateClientDto,
 } from '.././model';
@@ -42,7 +43,7 @@ export const getAdminClientManagement = () => {
      * @summary Get client by ID
      */
     const adminClientGetClientById = (id: number) => {
-        return customAxios<ClientResponseDto>({
+        return customAxios<ClientWithRelationsResponseDto>({
             url: `/api/admin/clients/${id}`,
             method: 'GET',
         });
@@ -65,7 +66,7 @@ export const getAdminClientManagement = () => {
      * @summary Delete client
      */
     const adminClientDeleteClient = (id: number) => {
-        return customAxios<void>({
+        return customAxios<boolean>({
             url: `/api/admin/clients/${id}`,
             method: 'DELETE',
         });

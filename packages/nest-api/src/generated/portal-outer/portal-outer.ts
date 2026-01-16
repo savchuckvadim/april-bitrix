@@ -5,7 +5,7 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { UpdatePortalDto } from '.././model';
+import type { UpdatePortalOuterDto } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
@@ -23,13 +23,13 @@ export const getPortalOuter = () => {
      * @summary Update portal in online server by domain
      */
     const portalOuterUpdatePortalByDomain = (
-        updatePortalDto: UpdatePortalDto,
+        updatePortalOuterDto: UpdatePortalOuterDto,
     ) => {
         return customAxios<void>({
             url: `/api/portal-outer/update`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            data: updatePortalDto,
+            data: updatePortalOuterDto,
         });
     };
     return { portalOuterGetPortalByDomain, portalOuterUpdatePortalByDomain };

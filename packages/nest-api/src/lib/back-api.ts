@@ -1,8 +1,8 @@
 import axios, { Method } from 'axios';
 
 
-const prod = `https://back.april-dev.ru/`;
-// const prod = `http://localhost:3000/`;
+// const prod = `https://back.april-dev.ru/`;
+const prod = `http://localhost:3000/`;
 const url = prod;
 
 console.log('url back-api nest-api-packages', url);
@@ -70,6 +70,6 @@ export const customAxios = async <T>({
     if (res.data.resultCode !== EResultCode.SUCCESS) {
         throw new Error(res.data.message || `Backend error ${url}`);
     }
-
+debugger
     return res.data.data as T;
 };

@@ -21,10 +21,17 @@ import {
     ArrowRight,
     Plus,
 } from 'lucide-react';
+import { AdminBitrixAppGetAppCode } from '@workspace/nest-api';
 
 export default function DashboardPage() {
-    const { data: clients, isLoading: clientsLoading } = useClients();
-    const { data: apps, isLoading: appsLoading } = useBitrixApps();
+    const { data: clients, isLoading: clientsLoading } = useClients({
+        is_active: 'true',
+        status: 'active',
+    });
+    const { data: apps, isLoading: appsLoading } = useBitrixApps({
+        code: AdminBitrixAppGetAppCode.sales_full,
+        domain: '.bitrix24.ru',
+    });
 
     const stats = React.useMemo(() => {
         const totalClients = Array.isArray(clients) ? clients.length : 0;

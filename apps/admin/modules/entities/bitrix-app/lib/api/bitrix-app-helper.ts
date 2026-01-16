@@ -1,5 +1,6 @@
 import {
     AdminBitrixAppGetAppParams,
+    BitrixAppDto,
     CreateBitrixAppDto,
     getAdminBitrixAppManagement,
     UpdateBitrixAppDto,
@@ -11,30 +12,30 @@ export class BitrixAppHelper {
         this.api = getAdminBitrixAppManagement();
     }
 
-    async getAllApps() {
+    async getAllApps(): Promise<BitrixAppDto[]> {
         const response = await this.api.adminBitrixAppGetAllApps();
-        return response;
+        return (response as unknown as BitrixAppDto[]) || [];
     }
 
-    async getApp(params: AdminBitrixAppGetAppParams) {
+    async getApp(params: AdminBitrixAppGetAppParams): Promise<BitrixAppDto> {
         const response = await this.api.adminBitrixAppGetApp(params);
-        return response;
+        return (response as unknown as BitrixAppDto);
     }
 
-    async getAppsByPortal(domain: string) {
+    async getAppsByPortal(domain: string): Promise<BitrixAppDto[]> {
         const response = await this.api.adminBitrixAppGetAppsByPortal(domain);
-        return response;
+        return (response as unknown as BitrixAppDto[]) || [];
     }
 
-    async getAppsByPortalId(portalId: number) {
+    async getAppsByPortalId(portalId: number): Promise<BitrixAppDto[]> {
         const response =
             await this.api.adminBitrixAppGetAppsByPortalId(portalId);
-        return response;
+        return (response as unknown as BitrixAppDto[]) || [];
     }
 
-    async getEnabledApps() {
+    async getEnabledApps(): Promise<BitrixAppDto[]> {
         const response = await this.api.adminBitrixAppGetEnabledApps();
-        return response;
+        return (response as unknown as BitrixAppDto[]) || [];
     }
 
     async storeOrUpdateApp(dto: CreateBitrixAppDto) {

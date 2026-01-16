@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { ClientForm } from '@/modules/entities/client/ui/client-form';
 import { useCreateClient } from '@/modules/entities/client/lib/hooks';
-import { CreateClientDto } from '@workspace/nest-api';
+import { CreateClientDto, UpdateClientDto } from '@workspace/nest-api';
 
 export default function NewClientPage() {
     const router = useRouter();
@@ -25,7 +25,7 @@ export default function NewClientPage() {
         <div className="container mx-auto py-8 max-w-2xl">
             <ClientForm
                 mode="create"
-                onSubmit={handleSubmit}
+                onSubmit={(data: CreateClientDto | UpdateClientDto) => handleSubmit(data as CreateClientDto)}
                 onCancel={handleCancel}
                 isLoading={createClient.isPending}
             />

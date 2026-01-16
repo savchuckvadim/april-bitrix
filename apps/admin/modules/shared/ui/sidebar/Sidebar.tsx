@@ -10,7 +10,9 @@ import {
     Settings,
     Home,
     ChevronRight,
+    Link2,
 } from 'lucide-react';
+import { allEntities, Entity } from '@/app/lib/initial-entities';
 
 interface NavItem {
     title: string;
@@ -18,24 +20,39 @@ interface NavItem {
     icon: React.ComponentType<{ className?: string }>;
 }
 
-const navItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutDashboard,
-    },
-    {
-        title: 'Клиенты',
-        href: '/clients',
-        icon: Users,
-    },
-    {
-        title: 'Bitrix Apps',
-        href: '/bitrix-apps',
-        icon: Settings,
-    },
-];
+// const navItems: NavItem[] = [
+//     {
+//         title: 'Dashboard',
+//         href: '/dashboard',
+//         icon: LayoutDashboard,
+//     },
+//     {
+//         title: 'Клиенты',
+//         href: '/clients',
+//         icon: Users,
+//     },
+//     {
+//         title: 'Bitrix Apps',
+//         href: '/bitrix-apps',
+//         icon: Settings,
+//     },
+// ];
+const getIconByEntityName = (entityName: string) => {
+    switch (entityName) {
+        case 'client':
+            return Users;
+        case 'bitrix-app':
+            return Settings;
+        default:
+            return Link2;
+    }
+}
 
+const getIsActive = (entity: Entity, pathname: string) => {
+    return entity.item.get.url === '/dashboard'
+        ? pathname === '/dashboard'
+        : pathname?.startsWith(entity.item.get.url);
+}
 export function SidebarAdmin() {
     const pathname = usePathname();
 
@@ -48,16 +65,13 @@ export function SidebarAdmin() {
                 </Link>
             </div>
             <nav className="flex-1 space-y-1 p-4">
-                {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive =
-                        item.href === '/dashboard'
-                            ? pathname === '/dashboard'
-                            : pathname?.startsWith(item.href);
+                {allEntities.map((item) => {
+                    const Icon = getIconByEntityName(item.item.name);
+                    const isActive = getIsActive(item, pathname);
                     return (
                         <Link
-                            key={item.href}
-                            href={item.href}
+                            key={item.item.get.url}
+                            href={item.item.get.url}
                             className={cn(
                                 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                                 isActive
@@ -66,7 +80,7 @@ export function SidebarAdmin() {
                             )}
                         >
                             <Icon className="h-5 w-5" />
-                            <span>{item.title}</span>
+                            <span>{item.item.title}</span>
                             {isActive && (
                                 <ChevronRight className="ml-auto h-4 w-4" />
                             )}
@@ -90,13 +104,13 @@ export function Sidebar() {
                 </Link>
             </div>
             <nav className="flex-1 space-y-1 p-4">
-                {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = pathname?.startsWith(item.href);
+                {allEntities.map((item) => {
+                    const Icon = getIconByEntityName(item.item.name);
+                    const isActive = getIsActive(item, pathname);
                     return (
                         <Link
-                            key={item.href}
-                            href={item.href}
+                            key={item.item.get.url}
+                            href={item.item.get.url}
                             className={cn(
                                 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                                 isActive
@@ -105,7 +119,7 @@ export function Sidebar() {
                             )}
                         >
                             <Icon className="h-5 w-5" />
-                            <span>{item.title}</span>
+                            <span>{item.item.title}</span>
                             {isActive && (
                                 <ChevronRight className="ml-auto h-4 w-4" />
                             )}

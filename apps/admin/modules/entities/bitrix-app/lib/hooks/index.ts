@@ -1,2 +1,1 @@
-export * from './use-bitrix-app';
-
+export * from './use-bitrixApp';

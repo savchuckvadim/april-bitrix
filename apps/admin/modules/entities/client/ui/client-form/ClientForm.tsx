@@ -14,14 +14,6 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@workspace/ui/components/select';
-import { Checkbox } from '@workspace/ui/components/checkbox';
 
 interface ClientFormProps {
     initialData?: UpdateClientDto;
@@ -42,18 +34,9 @@ export function ClientForm({
         register,
         handleSubmit,
         formState: { errors },
-        watch,
-        setValue,
     } = useForm<CreateClientDto | UpdateClientDto>({
-        defaultValues: initialData || {
-            name: '',
-            email: '',
-            status: 'active',
-            is_active: true,
-        },
+        defaultValues: initialData || {},
     });
-
-    const isActive = watch('is_active');
 
     const onSubmitForm = (data: CreateClientDto | UpdateClientDto) => {
         onSubmit(data);
@@ -63,84 +46,25 @@ export function ClientForm({
         <Card>
             <CardHeader>
                 <CardTitle>
-                    {mode === 'create' ? 'Создать клиента' : 'Редактировать клиента'}
+                    {mode === 'create' ? 'Создать client' : 'Редактировать client'}
                 </CardTitle>
                 <CardDescription>
                     {mode === 'create'
-                        ? 'Заполните форму для создания нового клиента'
-                        : 'Измените данные клиента'}
+                        ? 'Заполните форму для создания нового client'
+                        : 'Измените данные client'}
                 </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit(onSubmitForm)}>
                 <CardContent className="space-y-4">
+                    {/* TODO: Добавьте поля формы на основе CreateClientDto */}
                     <div className="space-y-2">
-                        <Label htmlFor="name">
-                            Имя <span className="text-destructive">*</span>
-                        </Label>
+                        <Label htmlFor="id">ID</Label>
                         <Input
-                            id="name"
-                            {...register('name', {
-                                required: 'Имя обязательно для заполнения',
-                            })}
-                            placeholder="Введите имя клиента"
+                            id="id"
+                            type="number"
+                            {...register('id' as any)}
+                            disabled={mode === 'edit'}
                         />
-                        {errors.name && (
-                            <p className="text-sm text-destructive">
-                                {errors.name.message}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            {...register('email')}
-                            placeholder="email@example.com"
-                        />
-                        {errors.email && (
-                            <p className="text-sm text-destructive">
-                                {errors.email.message}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Статус</Label>
-                        <Select
-                            value={watch('status') || 'active'}
-                            onValueChange={(value) =>
-                                setValue('status', value)
-                            }
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Выберите статус" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="active">Активен</SelectItem>
-                                <SelectItem value="inactive">
-                                    Неактивен
-                                </SelectItem>
-                                <SelectItem value="pending">Ожидает</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                        <Checkbox
-                            id="is_active"
-                            checked={isActive}
-                            onCheckedChange={(checked) =>
-                                setValue('is_active', !!checked)
-                            }
-                        />
-                        <Label
-                            htmlFor="is_active"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                            Клиент активен
-                        </Label>
                     </div>
                 </CardContent>
                 <CardFooter className="flex gap-2 justify-end">
@@ -166,4 +90,3 @@ export function ClientForm({
         </Card>
     );
 }
-

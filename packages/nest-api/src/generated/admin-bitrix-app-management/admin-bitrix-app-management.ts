@@ -7,7 +7,9 @@
  */
 import type {
     AdminBitrixAppGetAppParams,
+    BitrixAppDto,
     CreateBitrixAppDto,
+    EnabledAppDto,
     UpdateBitrixAppDto,
 } from '.././model';
 
@@ -20,7 +22,7 @@ export const getAdminBitrixAppManagement = () => {
     const adminBitrixAppStoreOrUpdateApp = (
         createBitrixAppDto: CreateBitrixAppDto,
     ) => {
-        return customAxios<void>({
+        return customAxios<BitrixAppDto>({
             url: `/api/admin/bitrix-apps/store-or-update`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -31,7 +33,7 @@ export const getAdminBitrixAppManagement = () => {
      * @summary Get Bitrix app by domain and code
      */
     const adminBitrixAppGetApp = (params: AdminBitrixAppGetAppParams) => {
-        return customAxios<void>({
+        return customAxios<BitrixAppDto>({
             url: `/api/admin/bitrix-apps/get`,
             method: 'GET',
             params,
@@ -41,7 +43,7 @@ export const getAdminBitrixAppManagement = () => {
      * @summary Get all Bitrix apps
      */
     const adminBitrixAppGetAllApps = () => {
-        return customAxios<void>({
+        return customAxios<BitrixAppDto[]>({
             url: `/api/admin/bitrix-apps`,
             method: 'GET',
         });
@@ -50,7 +52,7 @@ export const getAdminBitrixAppManagement = () => {
      * @summary Get Bitrix apps by portal domain
      */
     const adminBitrixAppGetAppsByPortal = (domain: string) => {
-        return customAxios<void>({
+        return customAxios<BitrixAppDto[]>({
             url: `/api/admin/bitrix-apps/portal/${domain}`,
             method: 'GET',
         });
@@ -59,7 +61,7 @@ export const getAdminBitrixAppManagement = () => {
      * @summary Get Bitrix apps by portal ID
      */
     const adminBitrixAppGetAppsByPortalId = (portalId: number) => {
-        return customAxios<void>({
+        return customAxios<BitrixAppDto[]>({
             url: `/api/admin/bitrix-apps/portal-id/${portalId}`,
             method: 'GET',
         });
@@ -68,7 +70,7 @@ export const getAdminBitrixAppManagement = () => {
      * @summary Get enabled Bitrix apps
      */
     const adminBitrixAppGetEnabledApps = () => {
-        return customAxios<void>({
+        return customAxios<EnabledAppDto[]>({
             url: `/api/admin/bitrix-apps/enabled`,
             method: 'GET',
         });
@@ -80,7 +82,7 @@ export const getAdminBitrixAppManagement = () => {
         id: number,
         updateBitrixAppDto: UpdateBitrixAppDto,
     ) => {
-        return customAxios<void>({
+        return customAxios<BitrixAppDto>({
             url: `/api/admin/bitrix-apps/${id}`,
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -91,7 +93,7 @@ export const getAdminBitrixAppManagement = () => {
      * @summary Delete Bitrix app
      */
     const adminBitrixAppDeleteApp = (id: string) => {
-        return customAxios<void>({
+        return customAxios<boolean>({
             url: `/api/admin/bitrix-apps/${id}`,
             method: 'DELETE',
         });

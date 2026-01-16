@@ -4,27 +4,31 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     AdminClientGetAllClientsParams,
     ClientResponseDto,
+    ClientWithRelationsResponseDto,
     CreateClientDto,
-    UpdateClientDto,
+    UpdateClientDto
 } from '@workspace/nest-api';
 import { ClientHelper } from '../api/client-helper';
 
 const clientHelper = new ClientHelper();
 
-export const useClients = (params?: AdminClientGetAllClientsParams) => {
+export const useClients = (params: AdminClientGetAllClientsParams) => {
     return useQuery<ClientResponseDto[], Error>({
         queryKey: ['clients', params],
         queryFn: async () => {
             const response = await clientHelper.getClients(
-                params || { status: '', is_active: '' },
+                params || ({} as Partial<AdminClientGetAllClientsParams>) as AdminClientGetAllClientsParams,
             );
+            console.log(response);
+            debugger;
             return response;
         },
+        enabled: !!params,
     });
 };
 
 export const useClient = (id: number) => {
-    return useQuery<ClientResponseDto, Error>({
+    return useQuery<ClientWithRelationsResponseDto, Error>({
         queryKey: ['client', id],
         queryFn: async () => {
             const response = await clientHelper.getClientById(id);
@@ -79,17 +83,6 @@ export const useDeleteClient = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['clients'] });
         },
-    });
-};
-
-export const useClientByEmail = (email: string) => {
-    return useQuery<ClientResponseDto, Error>({
-        queryKey: ['client', 'email', email],
-        queryFn: async () => {
-            const response = await clientHelper.getClientByEmail(email);
-            return response;
-        },
-        enabled: !!email,
     });
 };
 

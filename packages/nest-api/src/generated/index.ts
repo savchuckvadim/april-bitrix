@@ -54,9 +54,9 @@ export * from './admin-client-management/admin-client-management';
 
 
 //admin-garant
-export * from './garant/garant';
-export * from './garant-region/garant-region';
-export * from './garant-complect/garant-complect';
+// export * from './garant/garant';
+// export * from './garant-region/garant-region';
+// export * from './garant-complect/garant-complect';
 
 
 export * from './konstructor-offer-template/konstructor-offer-template';
@@ -69,3 +69,23 @@ export * from './offer-template-font/offer-template-font';
 export * from './user-selected-template/user-selected-template';
 
 export * from './portal-konstructor/portal-konstructor';
+
+export * from './admin-bitrix-fields-management/admin-bitrix-fields-management';
+export * from './admin-btx-categories-management/admin-btx-categories-management';
+export * from './admin-btx-deals-management/admin-btx-deals-management';
+export * from './admin-btx-leads-management/admin-btx-leads-management';
+export * from './admin-btx-companies-management/admin-btx-companies-management';
+export * from './admin-btx-contacts-management/admin-btx-contacts-management';
+export * from './admin-btx-rpas-management/admin-btx-rpas-management';
+export * from './admin-smarts-management/admin-smarts-management';
+export * from './admin-timezones-management/admin-timezones-management';
+export * from './admin-bx-rqs-management/admin-bx-rqs-management';
+
+export * from './admin-contracts-management/admin-contracts-management';
+export * from './admin-measures-management/admin-measures-management';
+
+
+export * from './admin-portal-management/admin-portal-management';
+export * from './admin-portal-measures-management/admin-portal-measures-management';
+export * from './admin-portal-contracts-management/admin-portal-contracts-management';
+export * from './admin-portal-contracts-management/admin-portal-contracts-management';

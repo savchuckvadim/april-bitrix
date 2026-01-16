@@ -7,10 +7,18 @@
  */
 
 export interface UpdatePortalDto {
-    domain: string;
-    number: number;
-    key: string;
-    clientId: string;
-    clientSecret: string;
-    hook: string;
+    /** Portal domain */
+    domain?: string;
+    /** Portal key */
+    key?: string;
+    /** Client ID */
+    client_id?: number;
+    /** C_REST_CLIENT_ID */
+    C_REST_CLIENT_ID?: string;
+    /** C_REST_CLIENT_SECRET */
+    C_REST_CLIENT_SECRET?: string;
+    /** C_REST_WEB_HOOK_URL */
+    C_REST_WEB_HOOK_URL?: string;
+    /** Portal number */
+    number?: number;
 }

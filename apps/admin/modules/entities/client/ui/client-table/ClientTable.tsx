@@ -3,17 +3,14 @@
 import * as React from 'react';
 import { ClientResponseDto } from '@workspace/nest-api';
 import { DataTable, Column } from '@/modules/shared/ui/data-table';
-import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
-import { format } from 'date-fns';
-import { ru } from 'date-fns/locale';
 
 interface ClientTableProps {
     data: ClientResponseDto[];
     isLoading?: boolean;
-    onRowClick?: (client: ClientResponseDto) => void;
-    onEdit?: (client: ClientResponseDto) => void;
-    onDelete?: (client: ClientResponseDto) => void;
+    onRowClick?: (item: ClientResponseDto) => void;
+    onEdit?: (item: ClientResponseDto) => void;
+    onDelete?: (item: ClientResponseDto) => void;
 }
 
 export function ClientTable({
@@ -32,60 +29,35 @@ export function ClientTable({
         },
         {
             id: 'name',
-            header: 'Имя',
+            header: 'name',
             accessorKey: 'name',
+            className: 'w-20',
         },
         {
             id: 'email',
-            header: 'Email',
-            cell: (row) => (
-                <span className="text-muted-foreground">
-                    {row.email || '—'}
-                </span>
-            ),
-        },
-        {
-            id: 'status',
-            header: 'Статус',
-            cell: (row) => (
-                <Badge
-                    variant={
-                        row.status === 'active'
-                            ? 'default'
-                            : row.status === 'inactive'
-                              ? 'secondary'
-                              : 'outline'
-                    }
-                >
-                    {row.status || '—'}
-                </Badge>
-            ),
+            header: 'email',
+            accessorKey: 'email',
+            className: 'w-20',
         },
         {
             id: 'is_active',
-            header: 'Активен',
-            cell: (row) => (
-                <Badge variant={row.is_active ? 'default' : 'secondary'}>
-                    {row.is_active ? 'Да' : 'Нет'}
-                </Badge>
-            ),
+            header: 'is_active',
+            accessorKey: 'is_active',
+            className: 'w-20',
         },
         {
             id: 'created_at',
-            header: 'Создан',
-            cell: (row) =>
-                row.created_at ? (
-                    <span className="text-sm text-muted-foreground">
-                        {format(
-                            new Date(row.created_at),
-                            'dd.MM.yyyy HH:mm',
-                            { locale: ru },
-                        )}
-                    </span>
-                ) : (
-                    '—'
-                ),
+            header: 'created_at',
+            accessorKey: 'created_at',
+            className: 'w-20',
         },
+        {
+            id: 'updated_at',
+            header: 'updated_at',
+            accessorKey: 'updated_at',
+            className: 'w-20',
+        },
+        // TODO: Добавьте колонки на основе полей ClientResponseDto
         {
             id: 'actions',
             header: 'Действия',
@@ -126,9 +98,8 @@ export function ClientTable({
             data={data}
             columns={columns}
             isLoading={isLoading}
-            emptyMessage="Клиенты не найдены"
+            emptyMessage="clients не найдены"
             onRowClick={onRowClick}
         />
     );
 }
-

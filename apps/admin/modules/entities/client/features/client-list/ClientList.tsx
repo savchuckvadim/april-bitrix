@@ -6,24 +6,28 @@ import { useClients, useDeleteClient } from '../../lib/hooks';
 import { ClientTable } from '../../ui/client-table';
 import { Button } from '@workspace/ui/components/button';
 import { ConfirmDialog } from '@/modules/shared/ui/confirm-dialog';
+import { ClientResponseDto } from '@workspace/nest-api';
 
 export function ClientList() {
+    debugger
     const router = useRouter();
-    const { data: clients, isLoading } = useClients();
+    const { data: clients, isLoading } = useClients({
+        is_active: 'true',
+        status: 'active',
+    });
     const deleteClient = useDeleteClient();
     const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-    const [clientToDelete, setClientToDelete] =
-        React.useState<number | null>(null);
+    const [clientToDelete, setClientToDelete] = React.useState<number | null>(null);
 
-    const handleRowClick = (client: any) => {
-        router.push(`/admin/clients/${client.id}`);
+    const handleRowClick = (client: ClientResponseDto) => {
+        router.push(`/client/${client.id}`);
     };
 
-    const handleEdit = (client: any) => {
-        router.push(`/admin/clients/${client.id}/edit`);
+    const handleEdit = (client: ClientResponseDto) => {
+        router.push(`/client/${client.id}/edit`);
     };
 
-    const handleDelete = (client: any) => {
+    const handleDelete = (client: ClientResponseDto) => {
         setClientToDelete(client.id);
         setDeleteDialogOpen(true);
     };
@@ -42,14 +46,14 @@ export function ClientList() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold">Клиенты</h1>
-                <Button onClick={() => router.push('/admin/clients/new')}>
-                    Создать клиента
+                <h1 className="text-3xl font-bold">Clients</h1>
+                <Button onClick={() => router.push('/client/new')}>
+                    Создать client
                 </Button>
             </div>
 
             <ClientTable
-                data={clients || []}
+                data={Array.isArray(clients) ? clients : []}
                 isLoading={isLoading}
                 onRowClick={handleRowClick}
                 onEdit={handleEdit}
@@ -60,7 +64,7 @@ export function ClientList() {
                 open={deleteDialogOpen}
                 onOpenChange={setDeleteDialogOpen}
                 title="Подтвердите удаление"
-                description="Вы уверены, что хотите удалить этого клиента? Это действие нельзя отменить."
+                description="Вы уверены, что хотите удалить этот client? Это действие нельзя отменить."
                 onConfirm={confirmDelete}
                 confirmLabel="Удалить"
                 variant="destructive"
@@ -68,4 +72,3 @@ export function ClientList() {
         </div>
     );
 }
-

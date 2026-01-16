@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useClient } from '@/modules/entities/client/lib/hooks';
 import { ClientCard } from '@/modules/entities/client/ui/client-card';
 import { Button } from '@workspace/ui/components/button';
+import { ClientWithRelationsResponseDto } from '@workspace/nest-api';
 
 export default function ClientDetailPage({
     params,
@@ -50,7 +51,7 @@ export default function ClientDetailPage({
                 </Button>
             </div>
             <ClientCard
-                client={client}
+                item={client as ClientWithRelationsResponseDto}
                 onEdit={() => router.push(`/admin/clients/${client.id}/edit`)}
                 onDelete={() => router.push(`/admin/clients/${client.id}/delete`)}
                 onViewDetails={() => {}}

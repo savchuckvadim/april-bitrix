@@ -1,4 +1,4 @@
-import { ClientRegistrationRequestDto, getAuth, LoginDto } from "@workspace/nest-api";
+import { ClientRegistrationRequestDto, ClientAuthResponseDto, getAuth, LoginDto } from "@workspace/nest-api";
 
 export class AuthHelper {
 
@@ -18,7 +18,7 @@ export class AuthHelper {
             client: response.client,
         };
     }
-    async register(dto: ClientRegistrationRequestDto) {
+    async register(dto: ClientRegistrationRequestDto): Promise<ClientAuthResponseDto> {
 
         const response = await this.api.authRegisterClient(dto);
         return response;

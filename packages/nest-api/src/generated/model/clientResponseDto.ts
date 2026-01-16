@@ -5,11 +5,6 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { ClientResponseDtoEmail } from './clientResponseDtoEmail';
-import type { ClientResponseDtoStatus } from './clientResponseDtoStatus';
-import type { ClientResponseDtoIsActive } from './clientResponseDtoIsActive';
-import type { ClientResponseDtoCreatedAt } from './clientResponseDtoCreatedAt';
-import type { ClientResponseDtoUpdatedAt } from './clientResponseDtoUpdatedAt';
 
 export interface ClientResponseDto {
     /** Client ID */
@@ -17,13 +12,13 @@ export interface ClientResponseDto {
     /** Client name */
     name: string;
     /** Client email */
-    email?: ClientResponseDtoEmail;
+    email?: string;
     /** Client status */
-    status?: ClientResponseDtoStatus;
+    status?: string;
     /** Client is active */
-    is_active?: ClientResponseDtoIsActive;
+    is_active?: boolean;
     /** Client created at */
-    created_at?: ClientResponseDtoCreatedAt;
+    created_at?: string;
     /** Client updated at */
-    updated_at?: ClientResponseDtoUpdatedAt;
+    updated_at?: string;
 }

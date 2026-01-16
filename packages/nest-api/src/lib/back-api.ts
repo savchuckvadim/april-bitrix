@@ -2,11 +2,11 @@
 import axios, { AxiosRequestConfig, Method } from 'axios';
 
 
-const prod = `https://back.april-app.ru/`;
-// const prod = `http://localhost:3000/`;
-const url = prod;
+// const prod = `https://back.april-app.ru/`;
+// // const prod = `http://localhost:3000/`;
+// const url = prod;
 
-console.log('url back-api nest-api-packages', url);
+// console.log('url back-api nest-api-packages', url);
 
 export interface IBackResponse<T> {
     resultCode: EResultCode; // 0 - успех, 1 - ошибка
@@ -25,7 +25,7 @@ const $apiHeaders = {
 };
 
 const $api = axios.create({
-    baseURL: url,
+    baseURL: `https://back.april-app.ru/`,
     withCredentials: true,
     headers: $apiHeaders,
 });

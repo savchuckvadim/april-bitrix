@@ -7,6 +7,8 @@ import Graphics from './Graphics';
 import { CallingStatistics } from '../../calling-statistics';
 import NoreportData from './components/NoreportData';
 import { useCallingStatistics } from '../../calling-statistics/lib/hooks/useCallingStatistics';
+export const dynamic = 'force-dynamic';
+
 
 const Report = () => {
     const {

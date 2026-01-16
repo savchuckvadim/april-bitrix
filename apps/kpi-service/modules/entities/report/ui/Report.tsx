@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import { useReport } from '../model';
 import KPIReportTable from './Tables/KPIReportTable';

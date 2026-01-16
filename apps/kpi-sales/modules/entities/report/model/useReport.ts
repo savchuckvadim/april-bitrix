@@ -16,6 +16,7 @@ export const useReport = () => {
     const reportState = useAppSelector(state => state.report);
     const department = useAppSelector(state => state.department.current);
 
+
     // const [filtredReport, setFiltredReport] = useState<ReportData[]>([]);
     useEffect(() => {
         if (!reportState.isFetched && !reportState.isLoading) {

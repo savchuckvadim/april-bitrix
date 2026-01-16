@@ -12,12 +12,14 @@ export const getReportDataAPI = async (
 
     try {
         const api = getOrkReport()
+        console.log('getReportDataAPI api', api);
+        console.log('getReportDataAPI reportData', reportData);
         reportResponse = await api.kpiGet({
             domain: reportData.domain,
             filters: reportData.filters,
         })
         console.log('reportResponse', reportResponse);
-      
+
         return reportResponse.report || [];
     } catch (error) {
 

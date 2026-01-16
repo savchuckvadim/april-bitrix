@@ -1,7 +1,7 @@
 import { API_METHOD } from '../type/type';
 import axios, { AxiosResponse } from 'axios';
 
-const prod = `https://back.april-dev.ru/api/`;
+const prod = `https://back.april-app.ru/api/`;
 
 const url = prod;
 console.log('url back-api', url);
@@ -74,13 +74,13 @@ export const backAPI = {
         return response;
     },
 
-    download: async <Blob>(
+    download: async<Blob>(
         url: EBACK_ENDPOINT,
         method: API_METHOD,
         data: any,
     ): Promise<Blob> => {
         try {
-            const result = (await evs[method](url, data, {
+            const result = (await evs.post(url, data, {
                 headers: evsHeaders,
                 responseType: 'blob',
             })) as AxiosResponse<Blob>;

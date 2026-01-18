@@ -1,11 +1,10 @@
 import { API_METHOD } from '../type/type';
 import axios, { AxiosResponse } from 'axios';
 
-const prod = `${process.env.BACK_API_URL}/api/` || 'http://localhost:3000/api/';
-// const prod = `http://localhost:3000/api/`;
-// const prod = `http://localhost:8334/api/`;
-const url = prod;
+const prod = `https://back.april-app.ru/api/`;
 
+const url = prod;
+console.log('url back-api', url);
 export enum EBACK_ENDPOINT {
     DEPARTMENT = 'bitrix/department/sales',
     DOWNLOAD_REPORT = 'kpi-report/download',
@@ -58,10 +57,16 @@ export const backAPI = {
 
             const endoint = !query ? url : `${url}/${query}`;
 
-            const axiosResponse = await evs[method](endoint, data, {
-                ...evsHeaders,
-                headers,
+            const axiosResponse = await evs.request({
+                url: endoint,
+                method,
+                data,
+                headers: {
+                    ...evsHeaders,
+                    ...headers,
+                },
             });
+
 
             response = axiosResponse.data as IBackResponse<T>;
         } catch (error) {
@@ -75,13 +80,16 @@ export const backAPI = {
         return response;
     },
 
-    download: async <Blob>(
+    download: async<Blob>(
         url: EBACK_ENDPOINT,
         method: API_METHOD,
         data: any,
     ): Promise<Blob> => {
         try {
-            const result = (await evs[method](url, data, {
+            const result = (await evs.request({
+                url,
+                method,
+                data,
                 headers: evsHeaders,
                 responseType: 'blob',
             })) as AxiosResponse<Blob>;

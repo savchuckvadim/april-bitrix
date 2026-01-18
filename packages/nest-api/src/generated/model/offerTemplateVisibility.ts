@@ -15,6 +15,6 @@ export type OfferTemplateVisibility =
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OfferTemplateVisibility = {
     public: 'public',
-    private: 'private',
+    portal: 'portal',
     user: 'user',
 } as const;

@@ -73,6 +73,9 @@ export class BitrixService {
     };
 
     public async init(domain: string, user: IBXUser) {
+        console.log('BitrixService init');
+        console.log(domain);
+        console.log(user);
         // this.cloner = new ServiceClonerFactory();
         this.api = new BitrixBaseApi({
             sendMessageAdminError: (message: string) => Promise.resolve(),

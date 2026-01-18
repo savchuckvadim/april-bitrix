@@ -1,3 +1,4 @@
+'use client';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
     callingStatisticsApi,

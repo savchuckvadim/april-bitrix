@@ -1,6 +1,6 @@
 import React from 'react';
-import { Header } from '../home/components/Header';
-import { Footer } from '../home/components/Footer';
+import { Header } from '../(app)/home/components/Header';
+import { Footer } from '../(app)/home/components/Footer';
 import { OfferContent } from './components/OfferContent';
 import { PrintStyles } from './components/PrintStyles';
 

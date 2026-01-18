@@ -50,5 +50,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "packageManager": "pnpm@10.18.0"
 }

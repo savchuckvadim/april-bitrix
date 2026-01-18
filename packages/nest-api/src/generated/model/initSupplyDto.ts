@@ -21,7 +21,7 @@ import type { ContractSpecificationDto } from './contractSpecificationDto';
 import type { SupplyReportDto } from './supplyReportDto';
 import type { PbxDealDto } from './pbxDealDto';
 import type { PbxCompanyDto } from './pbxCompanyDto';
-import type { SupplyDto } from './supplyDto';
+import type { ProductRowSupplyDto } from './productRowSupplyDto';
 
 export interface InitSupplyDto {
     /** Domain of the supply */
@@ -69,7 +69,7 @@ export interface InitSupplyDto {
     /** Client arm id */
     clientArmId: string;
     /** Supply */
-    supply: SupplyDto;
+    supply: ProductRowSupplyDto;
     /** Total sum */
     total: number;
 }

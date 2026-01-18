@@ -8,7 +8,7 @@
 import type { PlacementDto } from './placementDto';
 import type { ContractGenerateDtoContractType } from './contractGenerateDtoContractType';
 import type { ComplectDto } from './complectDto';
-import type { SupplyDto } from './supplyDto';
+import type { ProductRowSupplyDto } from './productRowSupplyDto';
 import type { PriceDto } from './priceDto';
 import type { ContractDto } from './contractDto';
 import type { RegionsDto } from './regionsDto';
@@ -39,7 +39,7 @@ export interface ContractGenerateDto {
     /** Complect of the contract */
     complect: ComplectDto[];
     /** Supply of the contract */
-    supply: SupplyDto;
+    supply: ProductRowSupplyDto;
     /** Price of the contract */
     price: PriceDto;
     /** Contract of the contract */

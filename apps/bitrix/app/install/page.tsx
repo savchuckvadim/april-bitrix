@@ -1,6 +1,11 @@
+'use client';
 import { BitrixInstallPage } from "@/modules/pages";
+// import dynamic from "next/dynamic";
 
-;
+// const DynamicBitrixInstallPage = dynamic(() => import('@/modules/bitrix/pages/ui/BitrixInstallPage').then(mod => mod.BitrixInstallPage), {
+//     ssr: false,
+// });
+
 
 // install/page.tsx
 // interface InstallPageProps {
@@ -15,6 +20,20 @@ import { BitrixInstallPage } from "@/modules/pages";
 //     [key: string]: string | string[] | undefined;
 //   };
 // }
+
+// export default function InstallPage() {
+
+//     console.log('InstallPage');
+
+//     return (
+//         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
+//             <BitrixInstallPage />
+//         </div>
+//     );
+// }
+
+
+
 export default async function InstallPage({
     searchParams,
 }: {
@@ -31,7 +50,7 @@ export default async function InstallPage({
 
     return (
         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
-            <BitrixInstallPage installStatus={installStatus} />
+            <BitrixInstallPage />
         </div>
     );
 }

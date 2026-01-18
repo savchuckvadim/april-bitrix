@@ -6,7 +6,7 @@
 //     onlineGeneralAPI as online,
 // } from '@workspace/api';
 
-import { CreateBitrixAppDto, getBitrixSetupApp} from '@workspace/nest-api';
+import {  CreateBitrixAppWithTokenDto, getBitrixSetupAppUiInstall, } from '@workspace/nest-api';
 
 // export const setupBitrixApp = async (
 //     data: BitrixAppPayload,
@@ -23,8 +23,8 @@ import { CreateBitrixAppDto, getBitrixSetupApp} from '@workspace/nest-api';
 // };
 
 
-export const setupBitrixApp = async (data: CreateBitrixAppDto) => {
-    const api = getBitrixSetupApp();
-    const result = await api.bitrixAppStoreOrUpdate(data);
+export const setupBitrixApp = async (data: CreateBitrixAppWithTokenDto) => {
+    const api = getBitrixSetupAppUiInstall();
+    const result = await api.bitrixAppInstallSalesManagerInstall(data);
     return result;
 };

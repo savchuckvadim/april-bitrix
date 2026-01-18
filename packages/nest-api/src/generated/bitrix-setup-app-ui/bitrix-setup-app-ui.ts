@@ -5,7 +5,10 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { SuccessResponseDto } from '.././model';
+import type {
+    CreateBitrixAppWithTokenDto,
+    InstallAppFromPortalResponseDto,
+} from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
@@ -13,10 +16,14 @@ export const getBitrixSetupAppUi = () => {
     /**
      * @summary Sales Manager App for Bitrix
      */
-    const bitrixAppUiSalesManagerApp = () => {
-        return customAxios<SuccessResponseDto>({
+    const bitrixAppUiSalesManagerApp = (
+        createBitrixAppWithTokenDto: CreateBitrixAppWithTokenDto,
+    ) => {
+        return customAxios<InstallAppFromPortalResponseDto>({
             url: `/api/bitrix-app-ui/sales-manager`,
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: createBitrixAppWithTokenDto,
         });
     };
     return { bitrixAppUiSalesManagerApp };

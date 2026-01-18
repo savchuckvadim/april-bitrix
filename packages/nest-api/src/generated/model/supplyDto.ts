@@ -5,10 +5,11 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
+import type { SupplyDtoContractPropSuppliesQuantity } from './supplyDtoContractPropSuppliesQuantity';
 
 export interface SupplyDto {
     /** Contract prop supplies quantity */
-    contractPropSuppliesQuantity: number;
+    contractPropSuppliesQuantity: SupplyDtoContractPropSuppliesQuantity;
     /** Contract prop 2 */
     lcontractProp2: string;
     /** Contract name */

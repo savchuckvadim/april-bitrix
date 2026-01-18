@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getReportData, changeDate, saveFilter } from './thunks/report-thunks';
 import {
     ReportDateType,
@@ -16,12 +16,18 @@ export const useReport = () => {
     const reportState = useAppSelector(state => state.report);
     const department = useAppSelector(state => state.department.current);
 
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+  
     // const [filtredReport, setFiltredReport] = useState<ReportData[]>([]);
     useEffect(() => {
-        if (!reportState.isFetched && !reportState.isLoading) {
+        if (!reportState.isFetched && !reportState.isLoading && isMounted) {
             dispatch(getReportData());
         }
-    }, [dispatch, reportState.isFetched]);
+    }, [dispatch, reportState.isFetched, isMounted]);
 
     const handleDateChange = (type: ReportDateType, date: string) => {
         dispatch(changeDate(type, date));

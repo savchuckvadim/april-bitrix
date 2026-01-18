@@ -25,8 +25,24 @@ export class BxService {
     }
 
     static async create(): Promise<BxService> {
-        const b24 = await initializeB24Frame();
-        return new BxService(b24);
+        console.log('b24 create');
+        try {
+            const b24 = await initializeB24Frame();
+            await b24.init()
+            console.log('b24 create success');
+            const auth = await b24?.auth?.getAuthData()
+            console.log('auth');
+            console.log(auth);
+            if (!auth) {
+                throw new Error('Auth data not found');
+            }
+
+            return new BxService(b24);
+        } catch (error) {
+            console.log('b24 create error');
+            console.log(error);
+            throw error;
+        }
     }
 
     public getB24(): B24 {
@@ -40,13 +56,19 @@ let bxSingleton: BxService | null = null;
 // Экспортируемый метод для получения оригинального b24
 export async function getBxService(): Promise<B24> {
     if (!bxSingleton) {
+        console.log('bxSingleton not found');
         bxSingleton = await BxService.create();
     }
-    return bxSingleton.getB24();
+    console.log('bxSingleton found');
+    console.log(bxSingleton);
+    const b24 = bxSingleton.getB24();
+
+    return b24;
 }
 
 export const bxAPI = {
     install: async () => {
+        console.log('bxAPI install');
         const b24 = await getBxService();
         await b24.installFinish();
     },

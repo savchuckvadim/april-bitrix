@@ -6,8 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+    ClientAuthResponseDto,
     ClientRegistrationRequestDto,
-    ClientResponseDto,
     GetAllClientsUsersDto,
     LoginDto,
     LoginResponseDto,
@@ -24,7 +24,7 @@ export const getAuth = () => {
     const authRegisterClient = (
         clientRegistrationRequestDto: ClientRegistrationRequestDto,
     ) => {
-        return customAxios<ClientResponseDto>({
+        return customAxios<ClientAuthResponseDto>({
             url: `/api/auth/register-client`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -100,7 +100,7 @@ export const getAuth = () => {
      * @summary Get all clients
      */
     const authGetAllClients = () => {
-        return customAxios<ClientResponseDto[]>({
+        return customAxios<ClientAuthResponseDto[]>({
             url: `/api/auth/get-all-clients`,
             method: 'GET',
         });
@@ -111,7 +111,7 @@ export const getAuth = () => {
     const authGetAllClientsUsers = (
         getAllClientsUsersDto: GetAllClientsUsersDto,
     ) => {
-        return customAxios<ClientResponseDto[]>({
+        return customAxios<ClientAuthResponseDto[]>({
             url: `/api/auth/get-all-clients-users`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -122,7 +122,7 @@ export const getAuth = () => {
      * @summary Get all clients users
      */
     const authGetAllUsers = () => {
-        return customAxios<ClientResponseDto[]>({
+        return customAxios<ClientAuthResponseDto[]>({
             url: `/api/auth/get-all-users`,
             method: 'GET',
         });

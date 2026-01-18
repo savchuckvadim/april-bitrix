@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { redirectToApp } from './redirect.util';
+import { getTokenPayLoad } from '../lib/get-token-payload-by-params.util';
+import { getSetupDto } from '../lib/get-dto-by-token-payload.util';
+import { loginByPortal } from '../lib/login-by-portal.helper';
 
 interface RequestData {
     headers: Record<string, string>;
@@ -10,62 +14,76 @@ interface RequestData {
 //редирект next из post запроса в апп
 export async function POST(req: NextRequest) {
     try {
-        const requestData: RequestData = {
-            headers: {},
-            body: {},
-            cookies: {},
-            query: '',
-        };
+        const rawBody = await req.text();
+        const params = new URLSearchParams(rawBody);
 
-        // Заголовки запроса
-        // Заголовки запроса
-        req.headers.forEach((value, key) => {
-            requestData.headers[key] = value;
-        });
+        const tokenPayload = getTokenPayLoad(req, params);
 
-        // Парсинг тела как text
-        try {
-            const rawBody = await req.text();
-            const params = new URLSearchParams(rawBody);
-            params.forEach((value, key) => {
-                requestData.body[key] = value;
-            });
-        } catch (err) {
-            console.log('Ошибка при парсинге тела запроса:', err);
-            requestData.body = { error: 'Не удалось распарсить тело запроса' };
+        if (
+            tokenPayload.access_token &&
+            tokenPayload.refresh_token &&
+            tokenPayload.domain
+        ) {
+            const data = getSetupDto(tokenPayload);
+            const result = await loginByPortal(data);
+            return redirectToApp(req);
         }
 
-        // Куки
-        req.cookies.getAll().forEach(cookie => {
-            requestData.cookies[cookie.name] = cookie.value;
-        });
-
-        // Параметры запроса
-        requestData.query = req.nextUrl.searchParams.toString();
-
-        // Логи
-        console.log('Все данные запроса  APP');
-        console.log('Все данные запроса:', requestData);
-        console.log('body:', requestData.body);
-        // Корректный редирект с методом GET
-        const response = NextResponse.redirect(
-            new URL('/auth/login', req.url),
-            303,
-        );
-
-        return response;
+        return redirectToApp(req);
     } catch (error) {
-        console.error('Ошибка обработки запроса:', error);
-        return NextResponse.json(
-            { error: 'Ошибка загрузки файла' },
-            { status: 500 },
-        );
+        console.error('[Bitrix App] error:', error);
+        return redirectToApp(req);
     }
+    //     const requestData: RequestData = {
+    //         headers: {},
+    //         body: {},
+    //         cookies: {},
+    //         query: '',
+    //     };
+
+    //     // Заголовки запроса
+    //     // Заголовки запроса
+    //     req.headers.forEach((value, key) => {
+    //         requestData.headers[key] = value;
+    //     });
+
+    //     // Парсинг тела как text
+    //     try {
+    //         const rawBody = await req.text();
+    //         const params = new URLSearchParams(rawBody);
+    //         params.forEach((value, key) => {
+    //             requestData.body[key] = value;
+    //         });
+    //     } catch (err) {
+    //         console.log('Ошибка при парсинге тела запроса:', err);
+    //         requestData.body = { error: 'Не удалось распарсить тело запроса' };
+    //     }
+
+    //     // Куки
+    //     req.cookies.getAll().forEach(cookie => {
+    //         requestData.cookies[cookie.name] = cookie.value;
+    //     });
+
+    //     // Параметры запроса
+    //     requestData.query = req.nextUrl.searchParams.toString();
+
+    //     // Логи
+    //     console.log('Все данные запроса  APP');
+    //     console.log('Все данные запроса:', requestData);
+    //     console.log('body:', requestData.body);
+    //     // Корректный редирект с методом GET
+    //     // const response = NextResponse.redirect(
+    //     //     new URL('/bitrix', req.url),
+    //     //     303,
+    //     // );
+
+    //     return redirectToApp(req);
+    // } catch (error) {
+    //     console.error('Ошибка обработки запроса:', error);
+    //     return redirectToApp(req);
+    // }
 }
 
 export async function GET(req: NextRequest) {
-    console.log(req);
-    return NextResponse.json({
-        message: 'Этот маршрут поддерживает только POST-запросы',
-    });
+    return redirectToApp(req);
 }

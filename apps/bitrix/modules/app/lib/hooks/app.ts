@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from './redux';
 import { initializeApp, reloadApp } from '../../model/thunk/AppThunk';
 
-export const useApp = () => {
+export const useApp = (isInstall: boolean | undefined = false) => {
     const dispatch = useAppDispatch();
     const app = useAppSelector(state => state.app);
     const [isClient, setIsClient] = useState(false);
@@ -15,7 +15,7 @@ export const useApp = () => {
 
     useEffect(() => {
         if (isClient && !app.initialized && !app.isLoading) {
-            dispatch(initializeApp());
+            dispatch(initializeApp(isInstall));
         }
 
         if (isClient && app.initialized && !app.isLoading) {

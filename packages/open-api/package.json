@@ -1,22 +1,22 @@
 {
-  "name": "@workspace/open-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "api:generate": "openapi-typescript http://localhost:3000/docs/api-json -o src/generated/schema.ts --root-types --group-strategy tag"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.17.1",
-  "dependencies": {
-    "openapi-fetch": "^0.14.1"
-  },
-  "devDependencies": {
-    "openapi-ts": "^0.3.4",
-    "openapi-typescript": "^7.9.1",
-    "typescript": "^5.9.3"
-  }
+    "name": "@workspace/open-api",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "api:generate": "openapi-typescript http://localhost:3000/docs/api-json -o src/generated/schema.ts --root-types --group-strategy tag"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.17.1",
+    "dependencies": {
+        "openapi-fetch": "^0.14.1"
+    },
+    "devDependencies": {
+        "openapi-ts": "^0.3.4",
+        "openapi-typescript": "^7.9.1",
+        "typescript": "^5.9.3"
+    }
 }

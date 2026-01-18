@@ -56,23 +56,23 @@ services:
   #   networks:
   #     - monitoring
 
-  front-konstructor:
-    build:
-      context: .
-      dockerfile: Konstructor.Dockerfile
-      args:
-        APP: konstructor
-    container_name: front-konstructor-${SUFFIX}
-    ports:
-      - "${PORT_KONSTRUCTOR}:3000"         # API доступен снаружи
-    environment:
-      - IN_BITRIX=true
-      - LOG_FILE_PATH=/app/logs/server.log
-    volumes:
-      - ./logs:/app/logs
-    restart: unless-stopped
-    networks:
-      - monitoring
+  # front-konstructor:
+  #   build:
+  #     context: .
+  #     dockerfile: Konstructor.Dockerfile
+  #     args:
+  #       APP: konstructor
+  #   container_name: front-konstructor-${SUFFIX}
+  #   ports:
+  #     - "${PORT_KONSTRUCTOR}:3000"         # API доступен снаружи
+  #   environment:
+  #     - IN_BITRIX=true
+  #     - LOG_FILE_PATH=/app/logs/server.log
+  #   volumes:
+  #     - ./logs:/app/logs
+  #   restart: unless-stopped
+  #   networks:
+  #     - monitoring
 
   front-bitrix:
     build:

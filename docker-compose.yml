@@ -13,6 +13,7 @@ services:
     environment:
       - IN_BITRIX=true
       - LOG_FILE_PATH=/app/logs/server.log
+      - ONLINE_API_KEY=${ONLINE_API_KEY}
     volumes:
       - ./logs:/app/logs
     restart: unless-stopped
@@ -31,6 +32,7 @@ services:
     environment:
       - IN_BITRIX=true
       - LOG_FILE_PATH=/app/logs/server.log
+      - ONLINE_API_KEY=${ONLINE_API_KEY}
     volumes:
       - ./logs:/app/logs
     restart: unless-stopped
@@ -86,6 +88,7 @@ services:
     environment:
       - IN_BITRIX=true
       - LOG_FILE_PATH=/app/logs/server.log
+      - ONLINE_API_KEY=${ONLINE_API_KEY}
     volumes:
       - ./logs:/app/logs
     restart: unless-stopped

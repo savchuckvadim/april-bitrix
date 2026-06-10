@@ -5,27 +5,33 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { QueuePingDto } from '.././model';
+import type {
+  QueuePingDto
+} from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getQueuePing = () => {
-    const queuePingGet = () => {
-        return customAxios<void>({ url: `/api/queue/test`, method: 'GET' });
-    };
-    const queuePingPing = (queuePingDto: QueuePingDto) => {
-        return customAxios<void>({
-            url: `/api/queue/ping`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: queuePingDto,
-        });
-    };
-    return { queuePingGet, queuePingPing };
-};
-export type QueuePingGetResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getQueuePing>['queuePingGet']>>
->;
-export type QueuePingPingResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getQueuePing>['queuePingPing']>>
->;
+
+
+  export const getQueuePing = () => {
+const queuePingGet = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api/queue/test`, method: 'GET'
+    },
+      );
+    }
+  const queuePingPing = (
+    queuePingDto: QueuePingDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/queue/ping`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: queuePingDto
+    },
+      );
+    }
+  return {queuePingGet,queuePingPing}};
+export type QueuePingGetResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getQueuePing>['queuePingGet']>>>
+export type QueuePingPingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getQueuePing>['queuePingPing']>>>

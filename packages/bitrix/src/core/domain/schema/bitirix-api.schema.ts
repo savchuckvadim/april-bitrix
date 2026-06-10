@@ -25,6 +25,7 @@ import { ActivitySchema } from '../../../domain/activity/bx-activity.schema';
 import { FileSchema } from '../../../domain/file/bx-file.schema';
 import { BxSmartTypeSchema } from '../../../domain/crm/smart-type';
 import { ActivityConfigurableSchema } from '../../../domain/activity-configurable/schema/bx-activity-configurable.schema';
+import { LeadSchema } from '../../../domain/crm/lead/schema/bx-lead.schema';
 
 
 export type BXApiSchema = {
@@ -32,7 +33,7 @@ export type BXApiSchema = {
         [EBXEntity.DEAL]: DealSchema;
         [EBXEntity.COMPANY]: CompanySchema;
         [EBXEntity.CONTACT]: ContactSchema;
-        [EBXEntity.USER_FIELD]: FieldsSchema;
+        [EBXEntity.LEAD]: LeadSchema;
         [EBXEntity.USER_FIELD_ENUMERATION]: FieldsEnumerationSchema;
         [EBXEntity.ACTIVITY]: ActivitySchema;
         [EBXEntity.ACTIVITY_CONFIGURABLE]: ActivityConfigurableSchema;

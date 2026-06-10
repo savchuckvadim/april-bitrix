@@ -9,12 +9,12 @@
 /**
  * Department group to filter by
  */
-export type BxDepartmentRequestDtoDepartment =
-    (typeof BxDepartmentRequestDtoDepartment)[keyof typeof BxDepartmentRequestDtoDepartment];
+export type BxDepartmentRequestDtoDepartment = typeof BxDepartmentRequestDtoDepartment[keyof typeof BxDepartmentRequestDtoDepartment];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BxDepartmentRequestDtoDepartment = {
-    sales: 'sales',
-    service: 'service',
-    tmc: 'tmc',
+  sales: 'sales',
+  service: 'service',
+  tmc: 'tmc',
 } as const;

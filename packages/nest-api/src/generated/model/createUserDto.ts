@@ -8,25 +8,25 @@
 import type { CreateUserDtoRoleId } from './createUserDtoRoleId';
 
 export interface CreateUserDto {
-    /** User name */
-    name: string;
-    /** User surname */
-    surname: string;
-    /** User email */
-    email: string;
-    /**
-     * User password
-     * @minLength 6
-     */
-    password: string;
-    /** Client ID */
-    client_id: number;
-    /** User photo URL */
-    photo?: string;
-    /** Bitrix user ID */
-    bitrix_id?: string;
-    /** Role ID */
-    role_id?: CreateUserDtoRoleId;
-    /** Email verified at */
-    email_verified_at?: string;
+  /** User name */
+  name: string;
+  /** User surname */
+  surname: string;
+  /** User email */
+  email: string;
+  /**
+   * User password
+   * @minLength 6
+   */
+  password: string;
+  /** Client ID */
+  client_id: number;
+  /** User photo URL */
+  photo?: string;
+  /** Bitrix user ID */
+  bitrix_id?: string;
+  /** Role ID */
+  role_id?: CreateUserDtoRoleId;
+  /** Email verified at */
+  email_verified_at?: string;
 }

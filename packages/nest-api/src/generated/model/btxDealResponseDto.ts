@@ -9,18 +9,18 @@ import type { BtxDealResponseDtoCreatedAt } from './btxDealResponseDtoCreatedAt'
 import type { BtxDealResponseDtoUpdatedAt } from './btxDealResponseDtoUpdatedAt';
 
 export interface BtxDealResponseDto {
-    /** Deal ID */
-    id: number;
-    /** Deal name */
-    name: string;
-    /** Deal title */
-    title: string;
-    /** Deal code */
-    code: string;
-    /** Portal ID */
-    portal_id: number;
-    /** Created at */
-    created_at?: BtxDealResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BtxDealResponseDtoUpdatedAt;
+  /** Deal ID */
+  id: number;
+  /** Deal name */
+  name: string;
+  /** Deal title */
+  title: string;
+  /** Deal code */
+  code: string;
+  /** Portal ID */
+  portal_id: number;
+  /** Created at */
+  created_at?: BtxDealResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BtxDealResponseDtoUpdatedAt;
 }

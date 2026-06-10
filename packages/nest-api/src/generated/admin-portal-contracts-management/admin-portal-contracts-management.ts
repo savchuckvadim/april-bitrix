@@ -6,122 +6,81 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    CreatePortalContractDto,
-    PortalContractGetAllPortalContractsParams,
-    PortalContractResponseDto,
-    UpdatePortalContractDto,
+  CreatePortalContractDto,
+  PortalContractGetListPortalContractsParams,
+  PortalContractResponseDto,
+  UpdatePortalContractDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getAdminPortalContractsManagement = () => {
-    /**
-     * @summary Create a new portal contract
-     */
-    const portalContractCreatePortalContract = (
-        createPortalContractDto: CreatePortalContractDto,
-    ) => {
-        return customAxios<PortalContractResponseDto>({
-            url: `/api/admin/portals/portal-contracts`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createPortalContractDto,
-        });
-    };
-    /**
-     * @summary Get all portal contracts
-     */
-    const portalContractGetAllPortalContracts = (
-        params: PortalContractGetAllPortalContractsParams,
-    ) => {
-        return customAxios<PortalContractResponseDto[]>({
-            url: `/api/admin/portals/portal-contracts`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * @summary Get portal contract by ID
-     */
-    const portalContractGetPortalContractById = (id: number) => {
-        return customAxios<PortalContractResponseDto>({
-            url: `/api/admin/portals/portal-contracts/${id}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Update portal contract
-     */
-    const portalContractUpdatePortalContract = (
-        id: number,
-        updatePortalContractDto: UpdatePortalContractDto,
-    ) => {
-        return customAxios<PortalContractResponseDto>({
-            url: `/api/admin/portals/portal-contracts/${id}`,
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            data: updatePortalContractDto,
-        });
-    };
-    /**
-     * @summary Delete portal contract
-     */
-    const portalContractDeletePortalContract = (id: number) => {
-        return customAxios<void>({
-            url: `/api/admin/portals/portal-contracts/${id}`,
-            method: 'DELETE',
-        });
-    };
-    return {
-        portalContractCreatePortalContract,
-        portalContractGetAllPortalContracts,
-        portalContractGetPortalContractById,
-        portalContractUpdatePortalContract,
-        portalContractDeletePortalContract,
-    };
-};
-export type PortalContractCreatePortalContractResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalContractsManagement
-            >['portalContractCreatePortalContract']
-        >
-    >
->;
-export type PortalContractGetAllPortalContractsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalContractsManagement
-            >['portalContractGetAllPortalContracts']
-        >
-    >
->;
-export type PortalContractGetPortalContractByIdResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalContractsManagement
-            >['portalContractGetPortalContractById']
-        >
-    >
->;
-export type PortalContractUpdatePortalContractResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalContractsManagement
-            >['portalContractUpdatePortalContract']
-        >
-    >
->;
-export type PortalContractDeletePortalContractResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalContractsManagement
-            >['portalContractDeletePortalContract']
-        >
-    >
->;
+
+
+  export const getAdminPortalContractsManagement = () => {
+/**
+ * @summary Create a new portal contract
+ */
+const portalContractCreatePortalContract = (
+    createPortalContractDto: CreatePortalContractDto,
+ ) => {
+      return customAxios<PortalContractResponseDto>(
+      {url: `/api/admin/pbx/portal-contracts`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createPortalContractDto
+    },
+      );
+    }
+  /**
+ * @summary Get all portal contracts
+ */
+const portalContractGetListPortalContracts = (
+    params?: PortalContractGetListPortalContractsParams,
+ ) => {
+      return customAxios<PortalContractResponseDto[]>(
+      {url: `/api/admin/pbx/portal-contracts`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Get portal contract by ID
+ */
+const portalContractGetPortalContractById = (
+    id: number,
+ ) => {
+      return customAxios<PortalContractResponseDto>(
+      {url: `/api/admin/pbx/portal-contracts/${id}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Update portal contract
+ */
+const portalContractUpdatePortalContract = (
+    id: number,
+    updatePortalContractDto: UpdatePortalContractDto,
+ ) => {
+      return customAxios<PortalContractResponseDto>(
+      {url: `/api/admin/pbx/portal-contracts/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePortalContractDto
+    },
+      );
+    }
+  /**
+ * @summary Delete portal contract
+ */
+const portalContractDeletePortalContract = (
+    id: number,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/admin/pbx/portal-contracts/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  return {portalContractCreatePortalContract,portalContractGetListPortalContracts,portalContractGetPortalContractById,portalContractUpdatePortalContract,portalContractDeletePortalContract}};
+export type PortalContractCreatePortalContractResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalContractsManagement>['portalContractCreatePortalContract']>>>
+export type PortalContractGetListPortalContractsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalContractsManagement>['portalContractGetListPortalContracts']>>>
+export type PortalContractGetPortalContractByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalContractsManagement>['portalContractGetPortalContractById']>>>
+export type PortalContractUpdatePortalContractResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalContractsManagement>['portalContractUpdatePortalContract']>>>
+export type PortalContractDeletePortalContractResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalContractsManagement>['portalContractDeletePortalContract']>>>

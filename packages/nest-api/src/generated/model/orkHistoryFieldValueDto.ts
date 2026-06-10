@@ -8,12 +8,12 @@
 import type { OrkHistoryFieldItemValueDto } from './orkHistoryFieldItemValueDto';
 
 export interface OrkHistoryFieldValueDto {
-    /** Field Name */
-    fieldName: string;
-    /** Field Code */
-    fieldCode: string;
-    /** Bitrix ID */
-    bitrixId: string;
-    /** Value */
-    value: OrkHistoryFieldItemValueDto;
+  /** Field Name */
+  fieldName: string;
+  /** Field Code */
+  fieldCode: string;
+  /** Bitrix ID */
+  bitrixId: string;
+  /** Value */
+  value: OrkHistoryFieldItemValueDto;
 }

@@ -10,12 +10,12 @@ import type { EnabledAppDtoGroup } from './enabledAppDtoGroup';
 import type { EnabledAppDtoType } from './enabledAppDtoType';
 
 export interface EnabledAppDto {
-    /** Code */
-    code: EnabledAppDtoCode;
-    /** Group */
-    group: EnabledAppDtoGroup;
-    /** Type */
-    type: EnabledAppDtoType;
-    /** Placements */
-    placements: string[];
+  /** Code */
+  code: EnabledAppDtoCode;
+  /** Group */
+  group: EnabledAppDtoGroup;
+  /** Type */
+  type: EnabledAppDtoType;
+  /** Placements */
+  placements: string[];
 }

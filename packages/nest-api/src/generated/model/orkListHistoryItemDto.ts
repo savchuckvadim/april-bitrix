@@ -8,36 +8,36 @@
 import type { OrkHistoryFieldValueDto } from './orkHistoryFieldValueDto';
 
 export interface OrkListHistoryItemDto {
-    /** ID */
-    id: number;
-    /** Title */
-    title: string;
-    /** Date */
-    date: string;
-    /** Responsible */
-    service_ork_history_responsible: OrkHistoryFieldValueDto;
-    /** Action */
-    service_ork_history_ork_event_action: OrkHistoryFieldValueDto;
-    /** Type */
-    service_ork_history_ork_event_type: OrkHistoryFieldValueDto;
-    /** CRM */
-    service_ork_history_crm: OrkHistoryFieldValueDto;
-    /** Contact ID */
-    service_ork_crm_contact: OrkHistoryFieldValueDto;
-    /** Comment */
-    service_ork_history_manager_comment: OrkHistoryFieldValueDto;
-    /** Event Date */
-    service_ork_history_ork_event_date: OrkHistoryFieldValueDto;
-    /** Plan Date */
-    service_ork_history_ork_plan_date: OrkHistoryFieldValueDto;
-    /** Company */
-    service_ork_history_ork_crm_company: OrkHistoryFieldValueDto;
-    /** Company ID */
-    companyId: number;
-    /** Communication */
-    service_ork_history_event_communication: OrkHistoryFieldValueDto;
-    /** Initiative */
-    service_ork_history_ork_event_initiative: OrkHistoryFieldValueDto;
-    /** Event Tag */
-    service_ork_evemt_tag: OrkHistoryFieldValueDto;
+  /** ID */
+  id: number;
+  /** Title */
+  title: string;
+  /** Date */
+  date: string;
+  /** Responsible */
+  service_ork_history_responsible: OrkHistoryFieldValueDto;
+  /** Action */
+  service_ork_history_ork_event_action: OrkHistoryFieldValueDto;
+  /** Type */
+  service_ork_history_ork_event_type: OrkHistoryFieldValueDto;
+  /** CRM */
+  service_ork_history_crm: OrkHistoryFieldValueDto;
+  /** Contact ID */
+  service_ork_crm_contact: OrkHistoryFieldValueDto;
+  /** Comment */
+  service_ork_history_manager_comment: OrkHistoryFieldValueDto;
+  /** Event Date */
+  service_ork_history_ork_event_date: OrkHistoryFieldValueDto;
+  /** Plan Date */
+  service_ork_history_ork_plan_date: OrkHistoryFieldValueDto;
+  /** Company */
+  service_ork_history_ork_crm_company: OrkHistoryFieldValueDto;
+  /** Company ID */
+  companyId: number;
+  /** Communication */
+  service_ork_history_event_communication: OrkHistoryFieldValueDto;
+  /** Initiative */
+  service_ork_history_ork_event_initiative: OrkHistoryFieldValueDto;
+  /** Event Tag */
+  service_ork_evemt_tag: OrkHistoryFieldValueDto;
 }

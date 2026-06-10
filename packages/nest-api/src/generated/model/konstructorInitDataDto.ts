@@ -11,12 +11,12 @@ import type { RegionEntity } from './regionEntity';
 import type { ContractsDto } from './contractsDto';
 
 export interface KonstructorInitDataDto {
-    /** Complects */
-    complects: ComplectsDto;
-    /** Infoblocks */
-    infoblocks: InfoGroupsDto[];
-    /** Regions */
-    regions: RegionEntity[];
-    /** Contracts */
-    contracts: ContractsDto;
+  /** Complects */
+  complects: ComplectsDto;
+  /** Infoblocks */
+  infoblocks: InfoGroupsDto[];
+  /** Regions */
+  regions: RegionEntity[];
+  /** Contracts */
+  contracts: ContractsDto;
 }

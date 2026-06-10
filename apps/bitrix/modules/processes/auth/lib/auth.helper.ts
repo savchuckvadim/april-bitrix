@@ -1,36 +1,37 @@
-import { ClientRegistrationRequestDto, ClientAuthResponseDto, getAuth, LoginDto } from "@workspace/nest-api";
+import { apiAuth } from '@/modules/shared/api';
+import type { ClientRegistrationRequestDto, ForgotPasswordDto, LoginDto, ResetPasswordDto } from '@workspace/nest-api';
 
 export class AuthHelper {
-
-    private api: ReturnType<typeof getAuth>;
-
-    constructor() {
-        this.api = getAuth();
-    }
-
     async login(dto: LoginDto) {
-        const response = await this.api.authLogin(dto);
-
-
-        return {
-
-            user: response.user,
-            client: response.client,
-        };
+        const response = await apiAuth.authLogin(dto);
+        return { user: response.user, client: response.client };
     }
-    async register(dto: ClientRegistrationRequestDto): Promise<ClientAuthResponseDto> {
 
-        const response = await this.api.authRegisterClient(dto);
-        return response;
+    async register(dto: ClientRegistrationRequestDto) {
+        return apiAuth.authRegisterClient(dto);
     }
+
     async logout() {
-
-        const response = await this.api.authLogout();
-        return response;
+        return apiAuth.authLogout();
     }
 
     async me() {
-        const response = await this.api.authMe();
-        return response;
+        return apiAuth.authMe();
     }
-};
+
+    async resendConfirmation(email: string) {
+        return apiAuth.authResendConfirmation({ email });
+    }
+
+    async forgotPassword(email: string) {
+        return apiAuth.authForgotPassword({ email });
+    }
+
+    async resetPassword(token: string, password: string) {
+        return apiAuth.authResetPassword({ token, password });
+    }
+
+    async validateResetPasswordToken(token: string) {
+        return apiAuth.authValidateResetPasswordToken(token);
+    }
+}

@@ -8,8 +8,8 @@
 import type { ComplectDto } from './complectDto';
 
 export interface ComplectsDto {
-    /** Prof */
-    prof: ComplectDto[];
-    /** Universal */
-    universal: ComplectDto[];
+  /** Prof */
+  prof: ComplectDto[];
+  /** Universal */
+  universal: ComplectDto[];
 }

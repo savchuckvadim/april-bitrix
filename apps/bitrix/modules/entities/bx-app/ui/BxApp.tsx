@@ -12,7 +12,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
 
 export const BxApp = () => {
-    debugger
+
     const { selectedPortal } = usePortal();
     const portalId = selectedPortal?.id;
     const {

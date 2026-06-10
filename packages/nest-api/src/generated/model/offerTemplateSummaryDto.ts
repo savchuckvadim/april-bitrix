@@ -8,28 +8,30 @@
 import type { OfferTemplatePageDto } from './offerTemplatePageDto';
 
 export interface OfferTemplateSummaryDto {
-    /** The id of the offer template */
-    id: string;
-    /** The portal id of the offer template */
-    portal_id: string;
-    /** The is active of the offer template */
-    is_active: boolean;
-    /** The search of the offer template */
-    search: string;
-    /** The visibility of the offer template */
-    visibility: string;
-    /** The is default of the offer template */
-    is_default: boolean;
-    /** The type of the offer template */
-    type: string;
-    /** The style of the offer template */
-    style: string;
-    /** The color of the offer template */
-    color: string;
-    /** The code of the offer template */
-    code: string;
-    /** The counter of the offer template */
-    counter: number;
-    /** The pages of the offer template */
-    pages: OfferTemplatePageDto[];
+  /** The id of the offer template */
+  id: string;
+  /** The portal id of the offer template */
+  portal_id?: number;
+  /** The is active of the offer template */
+  is_active: boolean;
+  /** The search of the offer template */
+  search: string;
+  /** The visibility of the offer template */
+  visibility: string;
+  /** The is default of the offer template */
+  is_default: boolean;
+  /** The type of the offer template */
+  type: string;
+  /** The style of the offer template */
+  style: string;
+  /** The color of the offer template */
+  color: string;
+  /** The code of the offer template */
+  code: string;
+  /** The counter of the offer template */
+  counter: number;
+  /** The creator bitrix user id of the offer template */
+  creator_bitrix_user_id: number;
+  /** The pages of the offer template */
+  pages: OfferTemplatePageDto[];
 }

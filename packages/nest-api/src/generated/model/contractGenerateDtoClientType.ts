@@ -9,13 +9,13 @@
 /**
  * Client type of the contract
  */
-export type ContractGenerateDtoClientType =
-    (typeof ContractGenerateDtoClientType)[keyof typeof ContractGenerateDtoClientType];
+export type ContractGenerateDtoClientType = typeof ContractGenerateDtoClientType[keyof typeof ContractGenerateDtoClientType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ContractGenerateDtoClientType = {
-    org_state: 'org_state',
-    org: 'org',
-    ip: 'ip',
-    fiz: 'fiz',
+  org_state: 'org_state',
+  org: 'org',
+  ip: 'ip',
+  fiz: 'fiz',
 } as const;

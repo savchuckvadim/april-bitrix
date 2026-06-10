@@ -2,9 +2,11 @@
 
 import * as React from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 import { AppProvider } from '@/modules/app';
 import { AprilThemeProvider } from '@workspace/theme';
 import { ReactQueryProvider } from './tanstack-query.provider';
+// import { ApiInitializer } from './api-initializer';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -14,8 +16,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
             enableSystem
             disableTransitionOnChange
             enableColorScheme
-        >      <AprilThemeProvider>
+        >
+            <AprilThemeProvider>
                 <ReactQueryProvider>
+                    {/* <ApiInitializer /> */}
+                    <Toaster richColors position="top-right" />
                     <AppProvider>{children}</AppProvider>
                 </ReactQueryProvider>
             </AprilThemeProvider>

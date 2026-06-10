@@ -9,8 +9,8 @@ import type { OrkReportDealItemDto } from './orkReportDealItemDto';
 import type { OrkReportCompanyItemDto } from './orkReportCompanyItemDto';
 
 export interface OrkReportDealsByCompaniesDto {
-    /** Deals */
-    deals: OrkReportDealItemDto[];
-    /** Company */
-    company: OrkReportCompanyItemDto;
+  /** Deals */
+  deals: OrkReportDealItemDto[];
+  /** Company */
+  company: OrkReportCompanyItemDto;
 }

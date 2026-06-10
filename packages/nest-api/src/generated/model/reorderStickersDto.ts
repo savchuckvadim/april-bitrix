@@ -8,8 +8,8 @@
 import type { StickerOrderDto } from './stickerOrderDto';
 
 export interface ReorderStickersDto {
-    /** The page id */
-    page_id: number;
-    /** The sticker orders */
-    sticker_orders: StickerOrderDto[];
+  /** The page id */
+  page_id: number;
+  /** The sticker orders */
+  sticker_orders: StickerOrderDto[];
 }

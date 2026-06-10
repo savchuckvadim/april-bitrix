@@ -9,8 +9,8 @@ import type { BitrixUser } from './bitrixUser';
 import type { KPICommunication } from './kPICommunication';
 
 export interface CommunicationsReportData {
-    user: BitrixUser;
-    userName: string;
-    /** KPI Communication data */
-    kpi: KPICommunication[];
+  user: BitrixUser;
+  userName: string;
+  /** KPI Communication data */
+  kpi: KPICommunication[];
 }

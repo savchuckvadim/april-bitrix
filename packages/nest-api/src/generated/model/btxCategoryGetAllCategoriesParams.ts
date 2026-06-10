@@ -7,7 +7,7 @@
  */
 
 export type BtxCategoryGetAllCategoriesParams = {
-    entity_type: string;
-    entity_id: string;
-    parent_type: string;
+entity_type: string;
+entity_id: string;
+parent_type: string;
 };

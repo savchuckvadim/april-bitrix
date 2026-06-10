@@ -9,11 +9,11 @@
 /**
  * Code
  */
-export type EnabledAppDtoCode =
-    (typeof EnabledAppDtoCode)[keyof typeof EnabledAppDtoCode];
+export type EnabledAppDtoCode = typeof EnabledAppDtoCode[keyof typeof EnabledAppDtoCode];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const EnabledAppDtoCode = {
-    sales_full: 'sales_full',
-    service_full: 'service_full',
+  sales_full: 'sales_full',
+  service_full: 'service_full',
 } as const;

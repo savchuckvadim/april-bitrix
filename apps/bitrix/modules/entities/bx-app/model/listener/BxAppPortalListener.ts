@@ -18,7 +18,10 @@ export const startBxAppPortalListener = (listener: ListenerMiddlewareInstance) =
             if (!portalId) {
                 return;
             }
+          
+            debugger
             const response = await bxAppHelper.getPortalApps(portalId);
+            debugger
             const bxApps = response as BitrixAppDto[];
             listenerApi.dispatch(bxAppActions.setBxApps(bxApps));
         },

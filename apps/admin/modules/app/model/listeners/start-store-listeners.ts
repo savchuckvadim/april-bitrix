@@ -1,10 +1,11 @@
+import { startPbxTemplateDataAppListener } from '@/modules/entities';
+import { startPortalBitrixClientListener } from '@/modules/entities/portal';
 import { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
-
-// import { setupWsInitListener } from '@/modules/app/model/queue-ws-ping-test/QueueWsPingListener';
+import { AppDispatch, RootState, ThunkExtraArgument } from '../store';
 
 export function startStoreListeners(
-    listenerMiddleware: ListenerMiddlewareInstance,
+    listenerMiddleware: ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>,
 ) {
-
-    // setupWsInitListener(listenerMiddleware);
+    startPbxTemplateDataAppListener(listenerMiddleware);
+    startPortalBitrixClientListener(listenerMiddleware);
 }

@@ -9,10 +9,10 @@ import type { CreateBitrixTokenDtoCode } from './createBitrixTokenDtoCode';
 import type { BitrixTokenDto } from './bitrixTokenDto';
 
 export interface CreateBitrixTokenDto {
-    /** Domain */
-    domain: string;
-    /** Code */
-    code: CreateBitrixTokenDtoCode;
-    /** Token */
-    token: BitrixTokenDto;
+  /** Domain */
+  domain: string;
+  /** Code */
+  code: CreateBitrixTokenDtoCode;
+  /** Token */
+  token: BitrixTokenDto;
 }

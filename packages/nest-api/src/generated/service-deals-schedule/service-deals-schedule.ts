@@ -7,36 +7,25 @@
  */
 import { customAxios } from '../../lib/back-api';
 
-export const getServiceDealsSchedule = () => {
-    const dealsScheduleMoveDealStages = () => {
-        return customAxios<void>({
-            url: `/api/deals-schedule/move-deal-stages`,
-            method: 'GET',
-        });
-    };
-    const dealsScheduleMoveDealStagesQueue = () => {
-        return customAxios<void>({
-            url: `/api/deals-schedule/move-deal-stages-queue`,
-            method: 'GET',
-        });
-    };
-    return { dealsScheduleMoveDealStages, dealsScheduleMoveDealStagesQueue };
-};
-export type DealsScheduleMoveDealStagesResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getServiceDealsSchedule
-            >['dealsScheduleMoveDealStages']
-        >
-    >
->;
-export type DealsScheduleMoveDealStagesQueueResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getServiceDealsSchedule
-            >['dealsScheduleMoveDealStagesQueue']
-        >
-    >
->;
+
+
+  export const getServiceDealsSchedule = () => {
+const dealsScheduleMoveDealStages = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api/deals-schedule/move-deal-stages`, method: 'GET'
+    },
+      );
+    }
+  const dealsScheduleMoveDealStagesQueue = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api/deals-schedule/move-deal-stages-queue`, method: 'GET'
+    },
+      );
+    }
+  return {dealsScheduleMoveDealStages,dealsScheduleMoveDealStagesQueue}};
+export type DealsScheduleMoveDealStagesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getServiceDealsSchedule>['dealsScheduleMoveDealStages']>>>
+export type DealsScheduleMoveDealStagesQueueResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getServiceDealsSchedule>['dealsScheduleMoveDealStagesQueue']>>>

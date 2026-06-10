@@ -7,6 +7,6 @@
  */
 
 export interface GetInitDataDto {
-    /** Bitrix hook auth */
-    domain: string;
+  /** Bitrix hook auth */
+  domain: string;
 }

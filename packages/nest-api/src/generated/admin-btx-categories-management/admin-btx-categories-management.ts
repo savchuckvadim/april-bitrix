@@ -6,122 +6,97 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    BtxCategoryGetAllCategoriesParams,
-    BtxCategoryResponseDto,
-    CreateBtxCategoryDto,
-    UpdateBtxCategoryDto,
+  BtxCategoryResponseDto,
+  CreateBtxCategoryDto,
+  CreateManyBtxCategoriesDto,
+  GetChildrenByPbxEntityDto,
+  UpdateBtxCategoryDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getAdminBtxCategoriesManagement = () => {
-    /**
-     * @summary Create a new btx category with optional stages
-     */
-    const btxCategoryCreateCategory = (
-        createBtxCategoryDto: CreateBtxCategoryDto,
-    ) => {
-        return customAxios<BtxCategoryResponseDto>({
-            url: `/api/admin/portals/btx-categories`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createBtxCategoryDto,
-        });
-    };
-    /**
-     * @summary Get all categories
-     */
-    const btxCategoryGetAllCategories = (
-        params: BtxCategoryGetAllCategoriesParams,
-    ) => {
-        return customAxios<BtxCategoryResponseDto[]>({
-            url: `/api/admin/portals/btx-categories`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * @summary Get category by ID
-     */
-    const btxCategoryGetCategoryById = (id: number) => {
-        return customAxios<BtxCategoryResponseDto>({
-            url: `/api/admin/portals/btx-categories/${id}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Update category
-     */
-    const btxCategoryUpdateCategory = (
-        id: number,
-        updateBtxCategoryDto: UpdateBtxCategoryDto,
-    ) => {
-        return customAxios<BtxCategoryResponseDto>({
-            url: `/api/admin/portals/btx-categories/${id}`,
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            data: updateBtxCategoryDto,
-        });
-    };
-    /**
-     * @summary Delete category
-     */
-    const btxCategoryDeleteCategory = (id: number) => {
-        return customAxios<void>({
-            url: `/api/admin/portals/btx-categories/${id}`,
-            method: 'DELETE',
-        });
-    };
-    return {
-        btxCategoryCreateCategory,
-        btxCategoryGetAllCategories,
-        btxCategoryGetCategoryById,
-        btxCategoryUpdateCategory,
-        btxCategoryDeleteCategory,
-    };
-};
-export type BtxCategoryCreateCategoryResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminBtxCategoriesManagement
-            >['btxCategoryCreateCategory']
-        >
-    >
->;
-export type BtxCategoryGetAllCategoriesResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminBtxCategoriesManagement
-            >['btxCategoryGetAllCategories']
-        >
-    >
->;
-export type BtxCategoryGetCategoryByIdResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminBtxCategoriesManagement
-            >['btxCategoryGetCategoryById']
-        >
-    >
->;
-export type BtxCategoryUpdateCategoryResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminBtxCategoriesManagement
-            >['btxCategoryUpdateCategory']
-        >
-    >
->;
-export type BtxCategoryDeleteCategoryResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminBtxCategoriesManagement
-            >['btxCategoryDeleteCategory']
-        >
-    >
->;
+
+
+  export const getAdminBtxCategoriesManagement = () => {
+/**
+ * @summary Create a new btx category with optional stages
+ */
+const portalCategoryAdminCreateCategory = (
+    createBtxCategoryDto: CreateBtxCategoryDto,
+ ) => {
+      return customAxios<BtxCategoryResponseDto>(
+      {url: `/api/admin/pbx/btx-categories`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createBtxCategoryDto
+    },
+      );
+    }
+  /**
+ * @summary Create multiple btx categories (each may include stages)
+ */
+const portalCategoryAdminCreateCategoriesBulk = (
+    createManyBtxCategoriesDto: CreateManyBtxCategoriesDto,
+ ) => {
+      return customAxios<BtxCategoryResponseDto[]>(
+      {url: `/api/admin/pbx/btx-categories/bulk`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createManyBtxCategoriesDto
+    },
+      );
+    }
+  /**
+ * @summary Get category by ID
+ */
+const portalCategoryAdminGetCategoryById = (
+    id: number,
+ ) => {
+      return customAxios<BtxCategoryResponseDto>(
+      {url: `/api/admin/pbx/btx-categories/${id}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Update category
+ */
+const portalCategoryAdminUpdateCategory = (
+    id: number,
+    updateBtxCategoryDto: UpdateBtxCategoryDto,
+ ) => {
+      return customAxios<BtxCategoryResponseDto>(
+      {url: `/api/admin/pbx/btx-categories/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateBtxCategoryDto
+    },
+      );
+    }
+  /**
+ * @summary Delete category
+ */
+const portalCategoryAdminDeleteCategory = (
+    id: number,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/admin/pbx/btx-categories/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  /**
+ * @summary Get all fields
+ */
+const portalCategoryAdminGetFieldsByEntity = (
+    getChildrenByPbxEntityDto: GetChildrenByPbxEntityDto,
+ ) => {
+      return customAxios<BtxCategoryResponseDto[]>(
+      {url: `/api/admin/pbx/btx-categories/get-by-entity`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: getChildrenByPbxEntityDto
+    },
+      );
+    }
+  return {portalCategoryAdminCreateCategory,portalCategoryAdminCreateCategoriesBulk,portalCategoryAdminGetCategoryById,portalCategoryAdminUpdateCategory,portalCategoryAdminDeleteCategory,portalCategoryAdminGetFieldsByEntity}};
+export type PortalCategoryAdminCreateCategoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminBtxCategoriesManagement>['portalCategoryAdminCreateCategory']>>>
+export type PortalCategoryAdminCreateCategoriesBulkResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminBtxCategoriesManagement>['portalCategoryAdminCreateCategoriesBulk']>>>
+export type PortalCategoryAdminGetCategoryByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminBtxCategoriesManagement>['portalCategoryAdminGetCategoryById']>>>
+export type PortalCategoryAdminUpdateCategoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminBtxCategoriesManagement>['portalCategoryAdminUpdateCategory']>>>
+export type PortalCategoryAdminDeleteCategoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminBtxCategoriesManagement>['portalCategoryAdminDeleteCategory']>>>
+export type PortalCategoryAdminGetFieldsByEntityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminBtxCategoriesManagement>['portalCategoryAdminGetFieldsByEntity']>>>

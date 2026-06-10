@@ -7,8 +7,8 @@
  */
 
 export interface CreatePortalRegionDto {
-    /** Domain of the Bitrix24 portal */
-    domain: string;
-    /** Code of the region */
-    regionCode: string;
+  /** Domain of the Bitrix24 portal */
+  domain: string;
+  /** Code of the region */
+  regionCode: string;
 }

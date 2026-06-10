@@ -5,9 +5,6 @@ export class Bitrix {
     private static instance: BitrixService | undefined;
 
     static async start(domain: string, user: IBXUser): Promise<BitrixService> {
-        console.log('start');
-        console.log(domain);
-        console.log(user);
         if (!Bitrix.instance) {
             const service = new BitrixService();
             await service.init(domain, user);

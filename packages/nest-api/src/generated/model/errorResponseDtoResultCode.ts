@@ -9,11 +9,11 @@
 /**
  * Код результата операции (1 - ошибка)
  */
-export type ErrorResponseDtoResultCode =
-    (typeof ErrorResponseDtoResultCode)[keyof typeof ErrorResponseDtoResultCode];
+export type ErrorResponseDtoResultCode = typeof ErrorResponseDtoResultCode[keyof typeof ErrorResponseDtoResultCode];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ErrorResponseDtoResultCode = {
-    NUMBER_0: 0,
-    NUMBER_1: 1,
+  NUMBER_0: 0,
+  NUMBER_1: 1,
 } as const;

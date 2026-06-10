@@ -10,6 +10,7 @@ import {
     CardTitle,
 } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
+import { Loader2 } from 'lucide-react';
 
 interface ConfirmDialogProps {
     open: boolean;
@@ -20,6 +21,7 @@ interface ConfirmDialogProps {
     confirmLabel?: string;
     cancelLabel?: string;
     variant?: 'default' | 'destructive';
+    isLoading?: boolean;
 }
 
 export function ConfirmDialog({
@@ -31,6 +33,7 @@ export function ConfirmDialog({
     confirmLabel = 'Подтвердить',
     cancelLabel = 'Отмена',
     variant = 'default',
+    isLoading = false,
 }: ConfirmDialogProps) {
     if (!open) return null;
 
@@ -57,8 +60,9 @@ export function ConfirmDialog({
                     <Button
                         variant={variant === 'destructive' ? 'destructive' : 'default'}
                         onClick={handleConfirm}
+                        disabled={isLoading}
                     >
-                        {confirmLabel}
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : confirmLabel}
                     </Button>
                 </CardFooter>
             </Card>

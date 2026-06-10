@@ -9,13 +9,13 @@
 /**
  * Status of the transcription task
  */
-export type TranscriptionResponseDtoStatus =
-    (typeof TranscriptionResponseDtoStatus)[keyof typeof TranscriptionResponseDtoStatus];
+export type TranscriptionResponseDtoStatus = typeof TranscriptionResponseDtoStatus[keyof typeof TranscriptionResponseDtoStatus];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const TranscriptionResponseDtoStatus = {
-    started: 'started',
-    processing: 'processing',
-    done: 'done',
-    error: 'error',
+  started: 'started',
+  processing: 'processing',
+  done: 'done',
+  error: 'error',
 } as const;

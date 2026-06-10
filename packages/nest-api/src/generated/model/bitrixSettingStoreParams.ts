@@ -7,5 +7,5 @@
  */
 
 export type BitrixSettingStoreParams = {
-    settingable_id: string;
+settingable_id: string;
 };

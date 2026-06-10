@@ -1,0 +1,22 @@
+{
+    "name": "@workspace/pbx-data",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "build:watch": "tsc --watch",
+        "lint": "eslint . --max-warnings 0"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.12.4",
+    "dependencies": {
+        "@workspace/bitrix": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/node": "^24.0.10"
+    }
+}

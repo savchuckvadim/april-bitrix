@@ -7,12 +7,12 @@
  */
 
 export interface SalesUserReportStartResponseDto {
-    /** ID задачи */
-    operationId: string;
-    /** Сообщение */
-    message: string;
-    /** Успешно */
-    success: boolean;
-    /** ID списка в битриксе */
-    listId: number;
+  /** ID задачи */
+  operationId: string;
+  /** Сообщение */
+  message: string;
+  /** Успешно */
+  success: boolean;
+  /** ID списка в битриксе */
+  listId: number;
 }

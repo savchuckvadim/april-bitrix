@@ -3,6 +3,7 @@ import {
     combineReducers,
     configureStore,
     createListenerMiddleware,
+    ListenerMiddlewareInstance,
     Middleware,
     ThunkAction,
 } from '@reduxjs/toolkit';
@@ -10,12 +11,16 @@ import {
 import { WSClient } from '@workspace/ws';
 import { appReducer } from './slice/AppSlice';
 import { errorHandler } from '../lib/error-handler';
+import { pbxTemplateDataReducer } from '@/modules/entities/';
+import { startStoreListeners } from './listeners/start-store-listeners';
+import { portalReducer } from '@/modules/entities/portal';
 
 
 
 
 const listenerMiddleware = createListenerMiddleware();
 let wsClient: WSClient;
+startStoreListeners(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>);
 
 // const socketMiddleware: Middleware = (storeAPI: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
 //   // Место для обработки действий или взаимодействия с сокетом
@@ -48,6 +53,9 @@ export const getWSClient = () => {
 const rootReducer = combineReducers({
     app: appReducer,
 
+    //entities
+    pbxTemplateData: pbxTemplateDataReducer,
+    portal: portalReducer,
 });
 
 export const setupStore = () => {
@@ -92,6 +100,3 @@ export type AppDispatch = AppStore['dispatch'];
 export type AppGetState = AppStore['getState'];
 
 export const store = setupStore();
-
-//@ts-ignore
-// window.eventStore = store;

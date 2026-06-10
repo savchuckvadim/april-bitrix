@@ -41,7 +41,16 @@ export {
     getFromLocalStorage,
     clearFromLocalStorage,
     getStorageKey,
+    clearOldStorageKeys,
+    removeOldPortalCache,
 } from './services/local-encrypt';
+export {
+    getLocalStorageJson,
+    setLocalStorageJson,
+    removeLocalStorageKey,
+    getLocalStorageString,
+    setLocalStorageString,
+} from './services/local-storage-sync';
 
 export { localAPI as local } from './services/local';
 

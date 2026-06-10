@@ -7,6 +7,6 @@
  */
 
 /**
- * Own tax abs
+ * Own tax abs (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend.
  */
-export type UpdatePortalRegionDtoOwnTaxAbs = { [key: string]: unknown };
+export type UpdatePortalRegionDtoOwnTaxAbs = string | number;

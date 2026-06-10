@@ -13,7 +13,7 @@ import { startWsEventsListener } from '@/modules/entities';
 export let socket: undefined | WSClient;
 
 export const initial =
-    (inBitrix: boolean = true): AppThunk =>
+    (inBitrix: boolean = false): AppThunk =>
         async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
 
             //listeners
@@ -24,7 +24,7 @@ export const initial =
             const app = state.app;
             const isLoading = app.isLoading;
             const __IN_BITRIX__ = inBitrix;
-
+debugger
             // const { domain, user:initUser, bitrix } = bxData;
             // const userFromBx = await (bitrix as BitrixService).api.call(
             //     'user.get',
@@ -32,9 +32,9 @@ export const initial =
             //         ID: initUser.ID,
             //     }
             // )
-            // debugger
+            //
 
-            // debugger
+            //
             if (!isLoading) {
                 dispatch(appActions.loading({ status: true }));
 

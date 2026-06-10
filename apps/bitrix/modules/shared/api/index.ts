@@ -1,2 +1,2 @@
 export * from './types';
-export * from './client';
+export { setupAuthInterceptor, apiAuth, apiApp, apiSetup, apiPortal, API_BASE_URL } from './api';

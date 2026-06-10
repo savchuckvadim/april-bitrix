@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { OrkReportDealsByCompaniesDto } from '@workspace/nest-api';
-import { getMinDateFromDeals, calculateCompanyStats } from './lib/utils/timeline.utils';
+import { calculateCompanyStats } from './lib/utils/timeline.utils';
 import { PeriodFilter, TimelineMode } from './model/types';
 import { PeriodFilterComponent } from './components/PeriodFilter';
 import { TimelineModeSelector } from './components/TimelineModeSelector';
@@ -10,6 +10,7 @@ import { useDepartment } from '@/modules/entities/departament';
 import { TimeLineTotal } from '../TimeLineTotal';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
+import { ExcelExportButton } from '@/modules/feature/excel-export';
 
 interface DealsReportTimelineCompactProps {
     companies: OrkReportDealsByCompaniesDto[];
@@ -31,20 +32,6 @@ export const DealsReportTimelineCompact: React.FC<DealsReportTimelineCompactProp
     const [showTotal, setShowTotal] = useState(false);
     const { department } = useDepartment()
     const allUsers = department.items || []
-    // Получаем доступные годы для фильтра
-    const availableYears = useMemo(() => {
-        if (companies.length === 0) return [new Date().getFullYear()];
-
-        const minDate = getMinDateFromDeals(companies);
-        const currentYear = new Date().getFullYear();
-        const minYear = minDate.getFullYear();
-
-        const years = [];
-        for (let year = minYear; year <= currentYear + 2; year++) {
-            years.push(year);
-        }
-        return years;
-    }, [companies]);
 
     // Получаем доступных пользователей
     const availableUsers = useMemo(() => {
@@ -76,6 +63,16 @@ export const DealsReportTimelineCompact: React.FC<DealsReportTimelineCompactProp
 
     const handleModeChange = (mode: TimelineMode) => {
         setTimelineMode(mode);
+    };
+
+    const handleExportExcel = async () => {
+        const { buildFinancialWorkbook } = await import(
+            '@/modules/feature/excel-export/builders/financial.builder'
+        );
+        await buildFinancialWorkbook({
+            filteredCompanies,
+            periodFilter,
+        });
     };
 
     const handleToggleCompany = (companyId: number) => {
@@ -133,6 +130,10 @@ export const DealsReportTimelineCompact: React.FC<DealsReportTimelineCompactProp
             <div className="flex flex-col gap-4 items-center justify-between">
 
                 <div className="flex items-center gap-4 w-full justify-end">
+                    <ExcelExportButton
+                        onBuild={handleExportExcel}
+                        label="Скачать Excel"
+                    />
                     <TimelineModeSelector
                         mode={timelineMode}
                         onModeChange={handleModeChange}
@@ -167,7 +168,6 @@ export const DealsReportTimelineCompact: React.FC<DealsReportTimelineCompactProp
                 {!showAnalytics && !showTotal && <PeriodFilterComponent
                     filter={periodFilter}
                     onFilterChange={handleFilterChange}
-                    availableYears={availableYears}
                     availableUsers={availableUsers}
                     filteredCount={filteredCompaniesCount}
                     totalCount={companies.length}

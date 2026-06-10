@@ -9,11 +9,11 @@
 /**
  * Status
  */
-export type InstallAppFromPortalResponseDtoStatus =
-    (typeof InstallAppFromPortalResponseDtoStatus)[keyof typeof InstallAppFromPortalResponseDtoStatus];
+export type InstallAppFromPortalResponseDtoStatus = typeof InstallAppFromPortalResponseDtoStatus[keyof typeof InstallAppFromPortalResponseDtoStatus];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const InstallAppFromPortalResponseDtoStatus = {
-    success: 'success',
-    fail: 'fail',
+  success: 'success',
+  fail: 'fail',
 } as const;

@@ -1,0 +1,31 @@
+{
+    "name": "@workspace/bx-rq",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "build:watch": "tsc --watch",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "peerDependencies": {
+        "@workspace/bx": "workspace:*",
+        "@workspace/api": "workspace:*",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "@reduxjs/toolkit": "^2.6.1",
+        "react-redux": "^9.2.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "@workspace/eslint-config": "workspace:^",
+        "typescript": "^5.7.3"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.12.4"
+}

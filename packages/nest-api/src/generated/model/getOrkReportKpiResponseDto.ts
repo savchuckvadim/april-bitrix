@@ -8,6 +8,6 @@
 import type { OrkReportKpiData } from './orkReportKpiData';
 
 export interface GetOrkReportKpiResponseDto {
-    /** Report data */
-    report: OrkReportKpiData[];
+  /** Report data */
+  report: OrkReportKpiData[];
 }

@@ -5,28 +5,25 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { SuccessResponseDto } from '.././model';
+import type {
+  SuccessResponseDto
+} from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getBitrixSetupInstall = () => {
-    /**
-     * @summary Install Bitrix
-     */
-    const bitrixSetupInstallInstall = () => {
-        return customAxios<SuccessResponseDto>({
-            url: `/api/bitrix-setup-install/install`,
-            method: 'POST',
-        });
-    };
-    return { bitrixSetupInstallInstall };
-};
-export type BitrixSetupInstallInstallResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getBitrixSetupInstall
-            >['bitrixSetupInstallInstall']
-        >
-    >
->;
+
+
+  export const getBitrixSetupInstall = () => {
+/**
+ * @summary Install Bitrix
+ */
+const bitrixSetupInstallInstall = (
+    
+ ) => {
+      return customAxios<SuccessResponseDto>(
+      {url: `/api/bitrix-setup-install/install`, method: 'POST'
+    },
+      );
+    }
+  return {bitrixSetupInstallInstall}};
+export type BitrixSetupInstallInstallResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getBitrixSetupInstall>['bitrixSetupInstallInstall']>>>

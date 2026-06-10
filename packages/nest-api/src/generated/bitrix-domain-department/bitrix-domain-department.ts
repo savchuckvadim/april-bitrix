@@ -6,53 +6,38 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    BxDepartmentRequestDto,
-    BxDepartmentResponseDto,
+  BxDepartmentRequestDto,
+  BxDepartmentResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getBitrixDomainDepartment = () => {
-    /**
-     * @summary Get full department information
-     */
-    const departmentGetFullDepartment = (
-        bxDepartmentRequestDto: BxDepartmentRequestDto,
-    ) => {
-        return customAxios<BxDepartmentResponseDto>({
-            url: `/api/bx/department`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: bxDepartmentRequestDto,
-        });
-    };
-    const departmentEndpointGetFullDepartment = (
-        bxDepartmentRequestDto: BxDepartmentRequestDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/bitrix/department/sales`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: bxDepartmentRequestDto,
-        });
-    };
-    return { departmentGetFullDepartment, departmentEndpointGetFullDepartment };
-};
-export type DepartmentGetFullDepartmentResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getBitrixDomainDepartment
-            >['departmentGetFullDepartment']
-        >
-    >
->;
-export type DepartmentEndpointGetFullDepartmentResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getBitrixDomainDepartment
-            >['departmentEndpointGetFullDepartment']
-        >
-    >
->;
+
+
+  export const getBitrixDomainDepartment = () => {
+/**
+ * @summary Get full department information
+ */
+const departmentGetFullDepartment = (
+    bxDepartmentRequestDto: BxDepartmentRequestDto,
+ ) => {
+      return customAxios<BxDepartmentResponseDto>(
+      {url: `/api/bx/department`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: bxDepartmentRequestDto
+    },
+      );
+    }
+  const departmentEndpointGetFullDepartment = (
+    bxDepartmentRequestDto: BxDepartmentRequestDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/bitrix/department/sales`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: bxDepartmentRequestDto
+    },
+      );
+    }
+  return {departmentGetFullDepartment,departmentEndpointGetFullDepartment}};
+export type DepartmentGetFullDepartmentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getBitrixDomainDepartment>['departmentGetFullDepartment']>>>
+export type DepartmentEndpointGetFullDepartmentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getBitrixDomainDepartment>['departmentEndpointGetFullDepartment']>>>

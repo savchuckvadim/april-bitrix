@@ -48,6 +48,6 @@ export const getIsUserHead = (
     //         }
     //     });
     // }
-    debugger
+
     return result;
 };

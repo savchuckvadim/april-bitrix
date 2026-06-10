@@ -7,16 +7,16 @@
  */
 
 export interface OrkReportCompanyItemDto {
-    /** Company id */
-    id: number;
-    /** Company title */
-    title: string;
-    /** Company assigned by id */
-    assignedById: string;
-    /** Company history */
-    history: string[];
-    /** Company arm info */
-    armInfo: string;
-    /** Is active client */
-    isActiveClient: boolean;
+  /** Company id */
+  id: number;
+  /** Company title */
+  title: string;
+  /** Company assigned by id */
+  assignedById: string;
+  /** Company history */
+  history: string[];
+  /** Company arm info */
+  armInfo: string;
+  /** Is active client */
+  isActiveClient: boolean;
 }

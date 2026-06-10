@@ -10,20 +10,20 @@ import type { SupplyFieldDtoValue } from './supplyFieldDtoValue';
 import type { SupplyDto } from './supplyDto';
 
 export interface SupplyFieldDto {
-    /** Name of the supply field */
-    name: string;
-    /** Code of the supply field */
-    code: string;
-    /** Is active of the supply field */
-    isActive: boolean;
-    /** Type of the supply field */
-    type: string;
-    /** Order of the supply field */
-    order: number;
-    /** Default value of the supply field */
-    defaultValue: SupplyFieldDtoDefaultValue;
-    /** Value of the supply field */
-    value: SupplyFieldDtoValue;
-    /** Supply of the supply field */
-    supply: SupplyDto;
+  /** Name of the supply field */
+  name: string;
+  /** Code of the supply field */
+  code: string;
+  /** Is active of the supply field */
+  isActive: boolean;
+  /** Type of the supply field */
+  type: string;
+  /** Order of the supply field */
+  order: number;
+  /** Default value of the supply field */
+  defaultValue: SupplyFieldDtoDefaultValue;
+  /** Value of the supply field */
+  value: SupplyFieldDtoValue;
+  /** Supply of the supply field */
+  supply: SupplyDto;
 }

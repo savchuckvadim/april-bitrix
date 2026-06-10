@@ -9,10 +9,10 @@ import type { UserResponseDto } from './userResponseDto';
 import type { ClientDto } from './clientDto';
 
 export interface LoginResponseDto {
-    /** User */
-    user: UserResponseDto;
-    /** Client */
-    client: ClientDto;
-    /** Token */
-    token: string;
+  /** User */
+  user: UserResponseDto;
+  /** Client */
+  client: ClientDto;
+  /** Token */
+  token: string;
 }

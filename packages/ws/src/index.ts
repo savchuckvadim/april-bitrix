@@ -4,6 +4,7 @@ export type { Socket };
 // const NEXT_PUBLIC_WS_HOST = 'ws://localhost:8334'
 
 const NEXT_PUBLIC_WS_HOST = 'https://back.april-app.ru/';
+// const NEXT_PUBLIC_WS_HOST = 'https://back.april-dev.ru/';
 // const NEXT_PUBLIC_WS_HOST = 'http://localhost:3000/';
 export class WSClient {
     public readonly socket: Socket;

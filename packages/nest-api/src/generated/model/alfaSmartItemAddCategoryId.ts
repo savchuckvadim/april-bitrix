@@ -6,10 +6,10 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AlfaSmartItemAddCategoryId =
-    (typeof AlfaSmartItemAddCategoryId)[keyof typeof AlfaSmartItemAddCategoryId];
+export type AlfaSmartItemAddCategoryId = typeof AlfaSmartItemAddCategoryId[keyof typeof AlfaSmartItemAddCategoryId];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AlfaSmartItemAddCategoryId = {
-    NUMBER_26: 26,
+  NUMBER_26: 26,
 } as const;

@@ -13,22 +13,22 @@ import type { PortalMeasureResponseDtoCreatedAt } from './portalMeasureResponseD
 import type { PortalMeasureResponseDtoUpdatedAt } from './portalMeasureResponseDtoUpdatedAt';
 
 export interface PortalMeasureResponseDto {
-    /** Portal Measure ID */
-    id: number;
-    /** Measure ID */
-    measure_id: number;
-    /** Portal ID */
-    portal_id: number;
-    /** Bitrix ID */
-    bitrixId?: PortalMeasureResponseDtoBitrixId;
-    /** Name */
-    name?: PortalMeasureResponseDtoName;
-    /** Short name */
-    shortName?: PortalMeasureResponseDtoShortName;
-    /** Full name */
-    fullName?: PortalMeasureResponseDtoFullName;
-    /** Created at */
-    created_at?: PortalMeasureResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: PortalMeasureResponseDtoUpdatedAt;
+  /** Portal Measure ID */
+  id: number;
+  /** Measure ID */
+  measure_id: number;
+  /** Portal ID */
+  portal_id: number;
+  /** Bitrix ID */
+  bitrixId?: PortalMeasureResponseDtoBitrixId;
+  /** Name */
+  name?: PortalMeasureResponseDtoName;
+  /** Short name */
+  shortName?: PortalMeasureResponseDtoShortName;
+  /** Full name */
+  fullName?: PortalMeasureResponseDtoFullName;
+  /** Created at */
+  created_at?: PortalMeasureResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: PortalMeasureResponseDtoUpdatedAt;
 }

@@ -7,7 +7,7 @@
  */
 
 export interface BXUserDto {
-    ID: string;
-    NAME: string;
-    LAST_NAME: string;
+  ID: string;
+  NAME: string;
+  LAST_NAME: string;
 }

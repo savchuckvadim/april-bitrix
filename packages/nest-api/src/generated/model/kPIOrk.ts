@@ -8,7 +8,7 @@
 import type { OrkKpiFilter } from './orkKpiFilter';
 
 export interface KPIOrk {
-    id: string;
-    action: OrkKpiFilter;
-    count: number;
+  id: string;
+  action: OrkKpiFilter;
+  count: number;
 }

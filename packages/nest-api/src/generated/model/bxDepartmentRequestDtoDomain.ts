@@ -9,14 +9,14 @@
 /**
  * Domain of the Bitrix24 portal
  */
-export type BxDepartmentRequestDtoDomain =
-    (typeof BxDepartmentRequestDtoDomain)[keyof typeof BxDepartmentRequestDtoDomain];
+export type BxDepartmentRequestDtoDomain = typeof BxDepartmentRequestDtoDomain[keyof typeof BxDepartmentRequestDtoDomain];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BxDepartmentRequestDtoDomain = {
-    'april-devbitrix24ru': 'april-dev.bitrix24.ru',
-    'april-garantbitrix24ru': 'april-garant.bitrix24.ru',
-    gsrbitrix24ru: 'gsr.bitrix24.ru',
-    gsirkbitrix24ru: 'gsirk.bitrix24.ru',
-    alfacentrbitrix24ru: 'alfacentr.bitrix24.ru',
+  'april-devbitrix24ru': 'april-dev.bitrix24.ru',
+  'april-garantbitrix24ru': 'april-garant.bitrix24.ru',
+  gsrbitrix24ru: 'gsr.bitrix24.ru',
+  gsirkbitrix24ru: 'gsirk.bitrix24.ru',
+  alfacentrbitrix24ru: 'alfacentr.bitrix24.ru',
 } as const;

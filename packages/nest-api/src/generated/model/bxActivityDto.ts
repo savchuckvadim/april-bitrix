@@ -7,8 +7,8 @@
  */
 
 export interface BxActivityDto {
-    /** Domain of the Bitrix24 portal */
-    domain: string;
-    /** ID of the lead in Bitrix24 */
-    leadId: number;
+  /** Domain of the Bitrix24 portal */
+  domain: string;
+  /** ID of the lead in Bitrix24 */
+  leadId: number;
 }

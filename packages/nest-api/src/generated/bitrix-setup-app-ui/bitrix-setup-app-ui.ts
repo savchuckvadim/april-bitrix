@@ -6,32 +6,27 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    CreateBitrixAppWithTokenDto,
-    InstallAppFromPortalResponseDto,
+  CreateBitrixAppWithTokenDto,
+  InstallAppFromPortalResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getBitrixSetupAppUi = () => {
-    /**
-     * @summary Sales Manager App for Bitrix
-     */
-    const bitrixAppUiSalesManagerApp = (
-        createBitrixAppWithTokenDto: CreateBitrixAppWithTokenDto,
-    ) => {
-        return customAxios<InstallAppFromPortalResponseDto>({
-            url: `/api/bitrix-app-ui/sales-manager`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createBitrixAppWithTokenDto,
-        });
-    };
-    return { bitrixAppUiSalesManagerApp };
-};
-export type BitrixAppUiSalesManagerAppResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getBitrixSetupAppUi>['bitrixAppUiSalesManagerApp']
-        >
-    >
->;
+
+
+  export const getBitrixSetupAppUi = () => {
+/**
+ * @summary Sales Manager App for Bitrix
+ */
+const bitrixAppUiSalesManagerApp = (
+    createBitrixAppWithTokenDto: CreateBitrixAppWithTokenDto,
+ ) => {
+      return customAxios<InstallAppFromPortalResponseDto>(
+      {url: `/api/bitrix-app-ui/sales-manager`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createBitrixAppWithTokenDto
+    },
+      );
+    }
+  return {bitrixAppUiSalesManagerApp}};
+export type BitrixAppUiSalesManagerAppResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getBitrixSetupAppUi>['bitrixAppUiSalesManagerApp']>>>

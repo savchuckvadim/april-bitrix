@@ -5,11 +5,11 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { ComplectValueDto } from './complectValueDto';
+import type { ComplectInfoblockValueDto } from './complectInfoblockValueDto';
 
 export interface ComplectDto {
-    /** Name of the complect */
-    groupsName: string;
-    /** Value of the complect */
-    value: ComplectValueDto[];
+  /** Name of the complect */
+  groupsName: string;
+  /** Value of the complect */
+  type: ComplectInfoblockValueDto[];
 }

@@ -7,6 +7,6 @@
  */
 
 export interface BxRqAddressDto {
-    /** Items of the RQ */
-    items: string[];
+  /** Items of the RQ */
+  items: string[];
 }

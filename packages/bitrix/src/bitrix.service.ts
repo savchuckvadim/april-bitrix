@@ -33,6 +33,7 @@ import { ActivityService } from './domain/activity/services/bx-activity.service'
 import { BxActivityBatchService } from './domain/activity/services/bx-activity.batch.service';
 import { BxActivityConfigurableService } from './domain/activity-configurable/services/bx-activity-configurable.service';
 import { BxActivityConfigurableBatchService } from './domain/activity-configurable/services/bx-activity-configurable.batch.service';
+import { BxLeadBatchService, BxLeadService } from './domain/crm/lead';
 
 // @Injectable()
 export class BitrixService {
@@ -43,6 +44,7 @@ export class BitrixService {
     public activity!: ActivityService;
     public activityConfigurable!: BxActivityConfigurableService;
     public deal!: BxDealService;
+    public lead!: BxLeadService;
     public company!: BxCompanyService;
     public productRow!: BxProductRowService;
     public contact!: BxContactService;
@@ -61,6 +63,7 @@ export class BitrixService {
         activity: null as unknown as BxActivityBatchService,
         activityConfigurable: null as unknown as BxActivityConfigurableBatchService,
         deal: null as unknown as BxDealBatchService,
+        lead: null as unknown as BxLeadBatchService,
         company: null as unknown as BxCompanyBatchService,
         productRow: null as unknown as BxProductRowBatchService,
         contact: null as unknown as BxContactBatchService,
@@ -85,6 +88,7 @@ export class BitrixService {
         this.initActivity();
         this.initActivityConfigurable();
         this.initDeal();
+        this.initLead();
         this.initCompany();
         this.initProductRow();
         this.initContact();
@@ -112,6 +116,11 @@ export class BitrixService {
     private initDeal() {
         this.deal = this.cloner.clone(BxDealService, this.api);
         this.batch.deal = this.cloner.clone(BxDealBatchService, this.api);
+    }
+
+    private initLead() {
+        this.lead = this.cloner.clone(BxLeadService, this.api);
+        this.batch.lead = this.cloner.clone(BxLeadBatchService, this.api);
     }
 
     private initCompany() {

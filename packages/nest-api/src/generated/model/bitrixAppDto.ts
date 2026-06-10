@@ -12,28 +12,28 @@ import type { PortalDto } from './portalDto';
 import type { BitrixAppDtoToken } from './bitrixAppDtoToken';
 
 export interface BitrixAppDto {
-    /** ID приложения */
-    id: string;
-    /** Дата создания */
-    created_at: string;
-    /** Дата обновления */
-    updated_at: string;
-    /** ID портала */
-    portal_id: string;
-    /** Группа приложения */
-    group?: BitrixAppDtoGroup;
-    /** Тип приложения */
-    type: BitrixAppDtoType;
-    /** Код приложения */
-    code: BitrixAppDtoCode;
-    /** Статус приложения */
-    status: string;
-    /** Информация о портале */
-    portal?: PortalDto;
-    /** Токены приложения */
-    token?: BitrixAppDtoToken;
-    /** Размещения приложения */
-    placements?: string[];
-    /** Настройки приложения */
-    settings?: string[];
+  /** ID приложения */
+  id: string;
+  /** Дата создания */
+  created_at: string;
+  /** Дата обновления */
+  updated_at: string;
+  /** ID портала */
+  portal_id: string;
+  /** Группа приложения */
+  group?: BitrixAppDtoGroup;
+  /** Тип приложения */
+  type: BitrixAppDtoType;
+  /** Код приложения */
+  code: BitrixAppDtoCode;
+  /** Статус приложения */
+  status: string;
+  /** Информация о портале */
+  portal?: PortalDto;
+  /** Токены приложения */
+  token?: BitrixAppDtoToken;
+  /** Размещения приложения */
+  placements?: string[];
+  /** Настройки приложения */
+  settings?: string[];
 }

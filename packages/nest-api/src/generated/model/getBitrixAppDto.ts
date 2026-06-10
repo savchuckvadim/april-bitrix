@@ -8,8 +8,8 @@
 import type { GetBitrixAppDtoCode } from './getBitrixAppDtoCode';
 
 export interface GetBitrixAppDto {
-    /** Домен портала Bitrix24 */
-    domain: string;
-    /** Уникальный код приложения */
-    code: GetBitrixAppDtoCode;
+  /** Домен портала Bitrix24 */
+  domain: string;
+  /** Уникальный код приложения */
+  code: GetBitrixAppDtoCode;
 }

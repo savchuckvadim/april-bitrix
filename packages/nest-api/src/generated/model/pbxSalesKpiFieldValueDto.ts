@@ -8,12 +8,12 @@
 import type { PbxSalesKpiFieldItemValueDto } from './pbxSalesKpiFieldItemValueDto';
 
 export interface PbxSalesKpiFieldValueDto {
-    /** Field Name */
-    fieldName: string;
-    /** Field Code */
-    fieldCode: string;
-    /** Bitrix ID */
-    bitrixId: string;
-    /** Value */
-    value: PbxSalesKpiFieldItemValueDto;
+  /** Field Name */
+  fieldName: string;
+  /** Field Code */
+  fieldCode: string;
+  /** Bitrix ID */
+  bitrixId: string;
+  /** Value */
+  value: PbxSalesKpiFieldItemValueDto;
 }

@@ -20,7 +20,7 @@ export const useClients = (params: AdminClientGetAllClientsParams) => {
                 params || ({} as Partial<AdminClientGetAllClientsParams>) as AdminClientGetAllClientsParams,
             );
             console.log(response);
-            debugger;
+            ;
             return response;
         },
         enabled: !!params,

@@ -13,28 +13,28 @@ import type { PortalContractResponseDtoCreatedAt } from './portalContractRespons
 import type { PortalContractResponseDtoUpdatedAt } from './portalContractResponseDtoUpdatedAt';
 
 export interface PortalContractResponseDto {
-    /** Portal Contract ID */
-    id: number;
-    /** Portal ID */
-    portal_id: number;
-    /** Contract ID */
-    contract_id: number;
-    /** Portal Measure ID */
-    portal_measure_id: number;
-    /** Bitrix Field Item ID */
-    bitrixfield_item_id: number;
-    /** Title */
-    title: string;
-    /** Template */
-    template?: PortalContractResponseDtoTemplate;
-    /** Order */
-    order?: PortalContractResponseDtoOrder;
-    /** Product name */
-    productName?: PortalContractResponseDtoProductName;
-    /** Description */
-    description?: PortalContractResponseDtoDescription;
-    /** Created at */
-    created_at?: PortalContractResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: PortalContractResponseDtoUpdatedAt;
+  /** Portal Contract ID */
+  id: number;
+  /** Portal ID */
+  portal_id: number;
+  /** Contract ID */
+  contract_id: number;
+  /** Portal Measure ID */
+  portal_measure_id: number;
+  /** Bitrix Field Item ID */
+  bitrixfield_item_id: number;
+  /** Title */
+  title: string;
+  /** Template */
+  template?: PortalContractResponseDtoTemplate;
+  /** Order */
+  order?: PortalContractResponseDtoOrder;
+  /** Product name */
+  productName?: PortalContractResponseDtoProductName;
+  /** Description */
+  description?: PortalContractResponseDtoDescription;
+  /** Created at */
+  created_at?: PortalContractResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: PortalContractResponseDtoUpdatedAt;
 }

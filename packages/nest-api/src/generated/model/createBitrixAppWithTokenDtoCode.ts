@@ -9,11 +9,11 @@
 /**
  * Уникальный код приложения
  */
-export type CreateBitrixAppWithTokenDtoCode =
-    (typeof CreateBitrixAppWithTokenDtoCode)[keyof typeof CreateBitrixAppWithTokenDtoCode];
+export type CreateBitrixAppWithTokenDtoCode = typeof CreateBitrixAppWithTokenDtoCode[keyof typeof CreateBitrixAppWithTokenDtoCode];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateBitrixAppWithTokenDtoCode = {
-    sales_full: 'sales_full',
-    service_full: 'service_full',
+  sales_full: 'sales_full',
+  service_full: 'service_full',
 } as const;

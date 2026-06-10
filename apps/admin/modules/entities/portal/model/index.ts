@@ -4,4 +4,7 @@ export type {
     CreatePortalDto,
     UpdatePortalDto,
     AdminPortalGetAllPortalsParams
-} from '@workspace/nest-api';
+} from './type/dto';
+export * from './slice/PortalSlice';
+export * from './thunk/curent-portal.thunk';
+export * from './listener/portal-bitrix-client.listener';

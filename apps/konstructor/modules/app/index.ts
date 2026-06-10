@@ -4,5 +4,6 @@ export * from './model/AppSlice';
 export * from './model/AppThunk';
 export * from './model/Provider';
 export type * from './model/types';
-export * from './lib/hooks/useIsClient';
+export * from './lib/hooks/is-client-mounted.hook';
+export * from './lib/hooks/auth';
 export * from './ui/App';

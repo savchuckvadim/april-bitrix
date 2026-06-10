@@ -7,24 +7,24 @@
  */
 
 export interface SmartItemDto {
-    title: string;
-    ufCrm12AccountantGos: string[];
-    ufCrm12AccountantMedical: string[];
-    ufCrm12Zakupki: string[];
-    ufCrm12Kadry: string[];
-    ufCrm12Days: string[];
-    ufCrm12Format: string[];
-    ufCrm12AddressForUdost: string;
-    ufCrm12Phone: string;
-    ufCrm12Email: string;
-    ufCrm12Comment: string;
-    ufCrm12IsPpk: string;
-    /** ФИО */
-    ufCrm12Name: string;
-    /** dealId */
-    parentId2: number;
-    /** contactId */
-    contactId: number;
-    /** companyId */
-    companyId: number;
+  title: string;
+  ufCrm12AccountantGos: string[];
+  ufCrm12AccountantMedical: string[];
+  ufCrm12Zakupki: string[];
+  ufCrm12Kadry: string[];
+  ufCrm12Days: string[];
+  ufCrm12Format: string[];
+  ufCrm12AddressForUdost: string;
+  ufCrm12Phone: string;
+  ufCrm12Email: string;
+  ufCrm12Comment: string;
+  ufCrm12IsPpk: string;
+  /** ФИО */
+  ufCrm12Name: string;
+  /** dealId */
+  parentId2: number;
+  /** contactId */
+  contactId: number;
+  /** companyId */
+  companyId: number;
 }

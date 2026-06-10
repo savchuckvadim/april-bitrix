@@ -7,6 +7,6 @@
  */
 
 export interface SendEmailOfferRequestDto {
-    /** Email */
-    email: string;
+  /** Email */
+  email: string;
 }

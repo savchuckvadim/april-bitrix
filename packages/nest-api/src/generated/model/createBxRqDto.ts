@@ -7,24 +7,24 @@
  */
 
 export interface CreateBxRqDto {
-    /** Portal ID */
-    portal_id?: number;
-    /** RQ name */
-    name?: string;
-    /** RQ code */
-    code?: string;
-    /** RQ type */
-    type?: string;
-    /** Bitrix ID */
-    bitrix_id?: string;
-    /** XML ID */
-    xml_id?: string;
-    /** Entity Type ID */
-    entity_type_id?: string;
-    /** Country ID */
-    country_id?: string;
-    /** Is active */
-    is_active?: boolean;
-    /** Sort order */
-    sort?: number;
+  /** Portal ID */
+  portal_id?: number;
+  /** RQ name */
+  name?: string;
+  /** RQ code */
+  code?: string;
+  /** RQ type */
+  type?: string;
+  /** Bitrix ID */
+  bitrix_id?: string;
+  /** XML ID */
+  xml_id?: string;
+  /** Entity Type ID */
+  entity_type_id?: string;
+  /** Country ID */
+  country_id?: string;
+  /** Is active */
+  is_active?: boolean;
+  /** Sort order */
+  sort?: number;
 }

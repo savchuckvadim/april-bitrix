@@ -9,11 +9,11 @@
 /**
  * Тип приложения
  */
-export type InstallSmartFieldsDtoAppType =
-    (typeof InstallSmartFieldsDtoAppType)[keyof typeof InstallSmartFieldsDtoAppType];
+export type InstallSmartFieldsDtoAppType = typeof InstallSmartFieldsDtoAppType[keyof typeof InstallSmartFieldsDtoAppType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const InstallSmartFieldsDtoAppType = {
-    event: 'event',
-    konstructor: 'konstructor',
+  event: 'event',
+  konstructor: 'konstructor',
 } as const;

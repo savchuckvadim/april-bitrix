@@ -7,6 +7,7 @@ import Graphics from './Graphics';
 import { CallingStatistics } from '../../calling-statistics';
 import NoreportData from './components/NoreportData';
 import { useCallingStatistics } from '../../calling-statistics/lib/hooks/useCallingStatistics';
+import { ExcelExportButton } from '@/modules/feature/excel-export';
 export const dynamic = 'force-dynamic';
 
 
@@ -30,8 +31,24 @@ const Report = () => {
         isLoading,
         isFetched,
         isNoReportData,
+        date,
+        actions,
         // handleUpdateReport,
     } = reportData;
+
+    const handleExportExcel = async () => {
+        const { buildKpiWorkbook } = await import(
+            '@/modules/feature/excel-export/builders/kpi.builder'
+        );
+        await buildKpiWorkbook({
+            report,
+            date: { from: date.from, to: date.to },
+            callings: callingsReport ?? [],
+            selectedActionNames: (actions?.current ?? [])
+                .map(a => a.name)
+                .filter((n): n is string => Boolean(n)),
+        });
+    };
     return (
         <div className=" p-7">
             {/* {isLoading || !isFetched ? (
@@ -54,6 +71,12 @@ const Report = () => {
                             <NoreportData />
                         ) : (
                             <div>
+                                <div className="flex justify-end mb-3">
+                                    <ExcelExportButton
+                                        onBuild={handleExportExcel}
+                                        label="Скачать Excel"
+                                    />
+                                </div>
                                 <KPIReportTable report={report} />
                                 <div className="mt-3">
                                     <Graphics report={report} />

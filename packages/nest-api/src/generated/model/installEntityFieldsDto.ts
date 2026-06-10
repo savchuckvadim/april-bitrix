@@ -10,14 +10,14 @@ import type { InstallEntityFieldsDtoAppType } from './installEntityFieldsDtoAppT
 import type { InstallEntityFieldsDtoEntitiesItem } from './installEntityFieldsDtoEntitiesItem';
 
 export interface InstallEntityFieldsDto {
-    /** Домен портала */
-    domain: string;
-    /** Группа полей */
-    group: InstallEntityFieldsDtoGroup;
-    /** Тип приложения */
-    appType: InstallEntityFieldsDtoAppType;
-    /** Список сущностей для установки полей */
-    entities?: InstallEntityFieldsDtoEntitiesItem[];
-    /** Список кодов полей для установки. Если не указан, устанавливаются все поля */
-    fieldCodes?: string[];
+  /** Домен портала */
+  domain: string;
+  /** Группа полей */
+  group: InstallEntityFieldsDtoGroup;
+  /** Тип приложения */
+  appType: InstallEntityFieldsDtoAppType;
+  /** Список сущностей для установки полей */
+  entities?: InstallEntityFieldsDtoEntitiesItem[];
+  /** Список кодов полей для установки. Если не указан, устанавливаются все поля */
+  fieldCodes?: string[];
 }

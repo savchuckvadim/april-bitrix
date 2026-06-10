@@ -7,22 +7,22 @@
  */
 
 export interface PbxSalesKpiCompanyDto {
-    /** Assigned By ID */
-    ASSIGNED_BY_ID: string;
-    /** ID */
-    ID: number;
-    /** Title */
-    TITLE: string;
-    /** UF_CRM_PRES_COUNT */
-    UF_CRM_PRES_COUNT: number;
-    /** UF_CRM_USER_CARDNUM */
-    UF_CRM_USER_CARDNUM: string;
-    /** Comments */
-    COMMENTS: string;
-    /** Цвет */
-    UF_CRM_OP_PROSPECTS: string;
-    /** История */
-    UF_CRM_OP_MHISTORY: string[];
-    /** Цвет code */
-    color: string;
+  /** Assigned By ID */
+  ASSIGNED_BY_ID: string;
+  /** ID */
+  ID: number;
+  /** Title */
+  TITLE: string;
+  /** UF_CRM_PRES_COUNT */
+  UF_CRM_PRES_COUNT: number;
+  /** UF_CRM_USER_CARDNUM */
+  UF_CRM_USER_CARDNUM: string;
+  /** Comments */
+  COMMENTS: string;
+  /** Цвет */
+  UF_CRM_OP_PROSPECTS: string;
+  /** История */
+  UF_CRM_OP_MHISTORY: string[];
+  /** Цвет code */
+  color: string;
 }

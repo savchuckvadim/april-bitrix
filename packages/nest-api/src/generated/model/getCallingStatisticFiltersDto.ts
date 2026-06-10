@@ -8,7 +8,7 @@
 import type { BXUserDto } from './bXUserDto';
 
 export interface GetCallingStatisticFiltersDto {
-    departament: BXUserDto[];
-    dateFrom: string;
-    dateTo: string;
+  departament: BXUserDto[];
+  dateFrom: string;
+  dateTo: string;
 }

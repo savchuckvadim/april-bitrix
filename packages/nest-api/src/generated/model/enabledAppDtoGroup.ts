@@ -9,16 +9,16 @@
 /**
  * Group
  */
-export type EnabledAppDtoGroup =
-    (typeof EnabledAppDtoGroup)[keyof typeof EnabledAppDtoGroup];
+export type EnabledAppDtoGroup = typeof EnabledAppDtoGroup[keyof typeof EnabledAppDtoGroup];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const EnabledAppDtoGroup = {
-    sales: 'sales',
-    service: 'service',
-    general: 'general',
-    npp: 'npp',
-    managment: 'managment',
-    ai: 'ai',
-    other: 'other',
+  sales: 'sales',
+  service: 'service',
+  general: 'general',
+  npp: 'npp',
+  managment: 'managment',
+  ai: 'ai',
+  other: 'other',
 } as const;

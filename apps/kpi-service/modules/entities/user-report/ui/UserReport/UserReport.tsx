@@ -14,6 +14,9 @@ import { UserReportStats } from "./UserReportStats";
 import { UserReportEventTable } from "./UserReportEventTable";
 import { UserReportFilters } from "./UserReportFilters";
 import { UserReportChart } from "./UserReportChart";
+import { ExcelExportButton } from "@/modules/feature/excel-export";
+import { useDealsReport } from "@/modules/entities/deals-report/hooks/deals-report.hook";
+import { useCallingStatistics } from "@/modules/entities/calling-statistics/lib/hooks/useCallingStatistics";
 
 const BATCH_DISPLAY_SIZE = 300; // сколько показывать за раз
 
@@ -21,6 +24,8 @@ export const UserReport = ({ userId }: { userId: number }) => {
     const { initialized } = useApp()
     const { getUserReport, report, isFetched } = useUserReport();
     const { department } = useDepartment();
+    const { deals: companies } = useDealsReport();
+    const { data: callingsReport, isLoading: isCallingsLoading } = useCallingStatistics();
 
     const [visibleCount, setVisibleCount] = useState(BATCH_DISPLAY_SIZE);
     const [selectedFilters, setSelectedFilters] = useState<{
@@ -153,6 +158,63 @@ export const UserReport = ({ userId }: { userId: number }) => {
         return department.items.find(item => item?.ID?.toString() === userId.toString());
     }, [department.items, userId]);
 
+    const handleExportExcel = async () => {
+        const { buildUserReportWorkbook } = await import(
+            "@/modules/feature/excel-export/builders/user-report.builder"
+        );
+        const userName = getUser
+            ? `${getUser.LAST_NAME ?? ""} ${getUser.NAME ?? ""}`.trim() ||
+              `Пользователь #${userId}`
+            : `Пользователь #${userId}`;
+        // Звонки по данному сотруднику из store (грузятся на входной точке kpi-report)
+        const userCallings =
+            !isCallingsLoading && callingsReport
+                ? callingsReport.find(
+                      c => Number(c.userId) === Number(userId),
+                  )?.callings ?? null
+                : null;
+
+        // Сводка по сделкам сотрудника из отчёта по сделкам (по assignedById)
+        let dealCompanies = 0;
+        let dealCount = 0;
+        let dealSum = 0;
+        companies.forEach(c => {
+            const userDeals = c.deals.filter(
+                d => Number(d.assignedById) === Number(userId),
+            );
+            if (userDeals.length > 0) {
+                dealCompanies += 1;
+                dealCount += userDeals.length;
+                dealSum += userDeals.reduce((s, d) => s + (+d.sum || 0), 0);
+            }
+        });
+        const dealsSummary = {
+            companies: dealCompanies,
+            deals: dealCount,
+            totalSum: dealSum,
+        };
+
+        await buildUserReportWorkbook({
+            userName,
+            userId,
+            allItems: report,
+            filteredItems: filteredReport,
+            selectedFilters,
+            groupByCompany,
+            callings: userCallings,
+            dealsSummary,
+            // Названия компаний — из отчёта по сделкам (как в строке таблицы на экране)
+            resolveCompanyName: (companyId: string | null) => {
+                if (!companyId) return "";
+                return (
+                    companies.find(
+                        c => Number(c.company.id) === Number(companyId),
+                    )?.company.title || companyId
+                );
+            },
+        });
+    };
+
     if (!isFetched && !report.length) {
         return (
             <div className="max-w-7xl mx-auto p-6">
@@ -193,6 +255,10 @@ export const UserReport = ({ userId }: { userId: number }) => {
                         )}
                     </h2>
                     <div className="flex items-center gap-2">
+                        <ExcelExportButton
+                            onBuild={handleExportExcel}
+                            label="Скачать Excel"
+                        />
                         <Button
                             variant={viewMode === 'table' ? "default" : "outline"}
                             size="sm"

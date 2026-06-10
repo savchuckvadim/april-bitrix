@@ -8,20 +8,20 @@
 import type { PageType } from './pageType';
 
 export type OfferTemplatePageFindAllParams = {
-    /**
-     * The offer template id
-     */
-    offer_template_id: number;
-    /**
-     * The order of the offer template page
-     */
-    order: number;
-    /**
-     * The type of the offer template page
-     */
-    type: PageType;
-    /**
-     * The is active of the offer template page
-     */
-    is_active: boolean;
+/**
+ * The offer template id
+ */
+offer_template_id: number;
+/**
+ * The order of the offer template page
+ */
+order: number;
+/**
+ * The type of the offer template page
+ */
+type: PageType;
+/**
+ * The is active of the offer template page
+ */
+is_active: boolean;
 };

@@ -8,16 +8,18 @@
 import type { ContracPortaltDtoUpdatedAt } from './contracPortaltDtoUpdatedAt';
 
 export interface ContracPortaltDto {
-    /** ID of the contract */
-    id: number;
-    /** Name of the contract */
-    name: string;
-    /** Short name of the contract */
-    shortName: string;
-    /** Full name of the contract */
-    fullName: string;
-    /** Created at of the contract */
-    created_at: string;
-    /** Updated at of the contract */
-    updated_at: ContracPortaltDtoUpdatedAt;
+  /** ID of the contract */
+  id: number;
+  /** Name of the contract */
+  name: string;
+  /** Short name of the contract */
+  shortName: string;
+  /** Full name of the contract */
+  fullName: string;
+  /** Created at of the contract */
+  created_at: string;
+  /** Updated at of the contract */
+  updated_at: ContracPortaltDtoUpdatedAt;
+  /** Product name of the contract */
+  productName: string;
 }

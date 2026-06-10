@@ -8,6 +8,6 @@
 import type { BxDepartmentDataDto } from './bxDepartmentDataDto';
 
 export interface BxDepartmentResponseDto {
-    /** Department data */
-    department: BxDepartmentDataDto;
+  /** Department data */
+  department: BxDepartmentDataDto;
 }

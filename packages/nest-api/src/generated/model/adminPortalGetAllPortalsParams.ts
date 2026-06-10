@@ -7,6 +7,6 @@
  */
 
 export type AdminPortalGetAllPortalsParams = {
-    client_id: string;
-    domain: string;
+client_id: string;
+domain: string;
 };

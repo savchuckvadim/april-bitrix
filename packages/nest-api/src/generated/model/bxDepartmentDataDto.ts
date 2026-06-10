@@ -9,12 +9,12 @@ import type { BxDepartmentDto } from './bxDepartmentDto';
 import type { BXUserDto } from './bXUserDto';
 
 export interface BxDepartmentDataDto {
-    /** Department ID */
-    department: number;
-    /** General department */
-    generalDepartment: BxDepartmentDto[];
-    /** Children departments */
-    childrenDepartments: BxDepartmentDto[];
-    /** All users */
-    allUsers: BXUserDto[];
+  /** Department ID */
+  department: number;
+  /** General department */
+  generalDepartment: BxDepartmentDto[];
+  /** Children departments */
+  childrenDepartments: BxDepartmentDto[];
+  /** All users */
+  allUsers: BXUserDto[];
 }

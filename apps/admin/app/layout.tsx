@@ -1,9 +1,10 @@
 import { Geist, Geist_Mono } from 'next/font/google';
 import '@workspace/ui/globals.css';
 import '@workspace/theme/themes.css';
-import { Providers } from '@/components/providers';
+import { Providers } from '@/providers/providers';
 import { LoadingScreen } from '@/modules/shared/ui';
 
+import { CrmShell } from '@/modules/widgets';
 
 const fontSans = Geist({
     subsets: ['latin'],
@@ -22,18 +23,19 @@ export default function RootLayout({
 }>) {
     return (
         <html
-            className="scrollbar-hide"
+            className="scrollbar-hide h-full overflow-hidden"
             lang="en"
             suppressHydrationWarning
         >
-
-            <body
-                className={`${fontSans.variable} ${fontMono.variable} scrollbar-hide  font-sans antialiased `}
-            >
+            <body className={`${fontSans.variable} ${fontMono.variable} scrollbar-hide  h-screen font-sans antialiased m-0 p-0 overflow-y-auto`}>
                 <LoadingScreen />
-                <Providers>{children}</Providers>
-
-
+                <Providers>
+                    <div className="flex h-full w-full overflow-hidden bg-card">
+                        <CrmShell>
+                            {children}
+                        </CrmShell>
+                    </div>
+                </Providers>
             </body>
         </html>
     );

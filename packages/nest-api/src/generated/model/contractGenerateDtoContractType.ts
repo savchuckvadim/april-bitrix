@@ -9,13 +9,13 @@
 /**
  * Type of the contract
  */
-export type ContractGenerateDtoContractType =
-    (typeof ContractGenerateDtoContractType)[keyof typeof ContractGenerateDtoContractType];
+export type ContractGenerateDtoContractType = typeof ContractGenerateDtoContractType[keyof typeof ContractGenerateDtoContractType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ContractGenerateDtoContractType = {
-    service: 'service',
-    abon: 'abon',
-    lic: 'lic',
-    key: 'key',
+  service: 'service',
+  abon: 'abon',
+  lic: 'lic',
+  key: 'key',
 } as const;

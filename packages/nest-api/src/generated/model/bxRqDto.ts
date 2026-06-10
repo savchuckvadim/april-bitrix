@@ -9,12 +9,12 @@ import type { BxRqAddressDto } from './bxRqAddressDto';
 import type { BxRqBankDto } from './bxRqBankDto';
 
 export interface BxRqDto {
-    /** Address of the RQ */
-    address: BxRqAddressDto;
-    /** Bank of the RQ */
-    bank: BxRqBankDto;
-    /** Preset ID of the RQ */
-    preset_id: number;
-    /** Fields of the RQ */
-    fields: string[];
+  /** Address of the RQ */
+  address: BxRqAddressDto;
+  /** Bank of the RQ */
+  bank: BxRqBankDto;
+  /** Preset ID of the RQ */
+  preset_id: number;
+  /** Fields of the RQ */
+  fields: string[];
 }

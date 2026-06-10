@@ -7,6 +7,14 @@
  */
 
 export type PortalMeasureGetAllPortalMeasuresParams = {
-    portal_id: string;
-    measure_id: string;
+/**
+ * Portal ID
+ * @nullable
+ */
+portalId?: number | null;
+/**
+ * Measure ID
+ * @nullable
+ */
+measureId?: number | null;
 };

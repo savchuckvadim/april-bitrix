@@ -10,10 +10,10 @@ import type { OrkKpiFilterInnerCode } from './orkKpiFilterInnerCode';
 import type { OrkKpiFilterCode } from './orkKpiFilterCode';
 
 export interface OrkKpiFilter {
-    order: number;
-    actionItem: FieldItem;
-    actionTypeItem: FieldItem;
-    innerCode: OrkKpiFilterInnerCode;
-    name: string;
-    code: OrkKpiFilterCode;
+  order: number;
+  actionItem: FieldItem;
+  actionTypeItem: FieldItem;
+  innerCode: OrkKpiFilterInnerCode;
+  name: string;
+  code: OrkKpiFilterCode;
 }

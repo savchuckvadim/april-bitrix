@@ -7,12 +7,16 @@
  */
 import { customAxios } from '../../lib/back-api';
 
-export const getHealth = () => {
-    const healthHealthCheck = () => {
-        return customAxios<void>({ url: `/api/health`, method: 'GET' });
-    };
-    return { healthHealthCheck };
-};
-export type HealthHealthCheckResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getHealth>['healthHealthCheck']>>
->;
+
+
+  export const getHealth = () => {
+const healthHealthCheck = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api/health`, method: 'GET'
+    },
+      );
+    }
+  return {healthHealthCheck}};
+export type HealthHealthCheckResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getHealth>['healthHealthCheck']>>>

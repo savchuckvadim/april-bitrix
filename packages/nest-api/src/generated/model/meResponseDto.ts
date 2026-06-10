@@ -7,10 +7,13 @@
  */
 import type { UserResponseDto } from './userResponseDto';
 import type { ClientDto } from './clientDto';
+import type { MeResponseDtoPortal } from './meResponseDtoPortal';
 
 export interface MeResponseDto {
-    /** User */
-    user: UserResponseDto;
-    /** Client */
-    client: ClientDto;
+  /** User */
+  user: UserResponseDto;
+  /** Client */
+  client: ClientDto;
+  /** Portal */
+  portal: MeResponseDtoPortal;
 }

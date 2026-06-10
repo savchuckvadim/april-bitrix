@@ -24,52 +24,52 @@ import type { PbxCompanyDto } from './pbxCompanyDto';
 import type { ProductRowSupplyDto } from './productRowSupplyDto';
 
 export interface InitSupplyDto {
-    /** Domain of the supply */
-    domain: string;
-    /** RPA ID of the supply */
-    rpa_id: InitSupplyDtoRpaId;
-    /** ID of the provider */
-    providerId: number;
-    /** User ID of the supply */
-    userId: InitSupplyDtoUserId;
-    /** Company ID of the supply */
-    companyId: InitSupplyDtoCompanyId;
-    /** Company name of the supply */
-    companyName: string;
-    /** Base deal ID of the supply */
-    dealId: InitSupplyDtoDealId;
-    /** Service smart ID of the supply */
-    serviceSmartId: InitSupplyDtoServiceSmartId;
-    /** Contacts  */
-    bxContacts: ContactIdDto;
-    /** Contract  */
-    contract: ContractDto;
-    /** Contract type */
-    contractType: ContractLtype;
-    /** Regions  */
-    regions: RegionsDto;
-    /** Region  */
-    region: RegionDto;
-    /** BxRQ of client */
-    bxrq: BxRqDto;
-    /** Client type */
-    clientType: ClientTypeDto;
-    /** Contract specification state of the contract */
-    contractSpecificationState: ContractSpecificationDto;
-    /** Supply report form fields */
-    supplyReport: SupplyReportDto;
-    /** PbxDealDto of the supply report */
-    bxDealItems: PbxDealDto;
-    /** PbxCompanyDto of the supply report */
-    bxCompanyItems: PbxCompanyDto;
-    /** File of current supply report */
-    file: string;
-    /** Complect arm ids */
-    complectArmIds: string[];
-    /** Client arm id */
-    clientArmId: string;
-    /** Supply */
-    supply: ProductRowSupplyDto;
-    /** Total sum */
-    total: number;
+  /** Domain of the supply */
+  domain: string;
+  /** RPA ID of the supply */
+  rpa_id: InitSupplyDtoRpaId;
+  /** ID of the provider */
+  providerId: number;
+  /** User ID of the supply */
+  userId: InitSupplyDtoUserId;
+  /** Company ID of the supply */
+  companyId: InitSupplyDtoCompanyId;
+  /** Company name of the supply */
+  companyName: string;
+  /** Base deal ID of the supply */
+  dealId: InitSupplyDtoDealId;
+  /** Service smart ID of the supply */
+  serviceSmartId: InitSupplyDtoServiceSmartId;
+  /** Contacts  */
+  bxContacts: ContactIdDto;
+  /** Contract  */
+  contract: ContractDto;
+  /** Contract type */
+  contractType: ContractLtype;
+  /** Regions  */
+  regions: RegionsDto;
+  /** Region  */
+  region: RegionDto;
+  /** BxRQ of client */
+  bxrq: BxRqDto;
+  /** Client type */
+  clientType: ClientTypeDto;
+  /** Contract specification state of the contract */
+  contractSpecificationState: ContractSpecificationDto;
+  /** Supply report form fields */
+  supplyReport: SupplyReportDto;
+  /** PbxDealDto of the supply report */
+  bxDealItems: PbxDealDto;
+  /** PbxCompanyDto of the supply report */
+  bxCompanyItems: PbxCompanyDto;
+  /** File of current supply report */
+  file: string;
+  /** Complect arm ids */
+  complectArmIds: string[];
+  /** Client arm id */
+  clientArmId: string;
+  /** Supply */
+  supply: ProductRowSupplyDto;
+  /** Total sum */
+  total: number;
 }

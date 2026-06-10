@@ -9,11 +9,11 @@
 /**
  * Download type
  */
-export type DownLoadKpiReportDtoType =
-    (typeof DownLoadKpiReportDtoType)[keyof typeof DownLoadKpiReportDtoType];
+export type DownLoadKpiReportDtoType = typeof DownLoadKpiReportDtoType[keyof typeof DownLoadKpiReportDtoType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DownLoadKpiReportDtoType = {
-    excel: 'excel',
-    pdf: 'pdf',
+  excel: 'excel',
+  pdf: 'pdf',
 } as const;

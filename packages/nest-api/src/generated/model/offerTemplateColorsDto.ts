@@ -8,14 +8,14 @@
 import type { OfferTemplateColorsItemDto } from './offerTemplateColorsItemDto';
 
 export interface OfferTemplateColorsDto {
-    /** The text color of the offer template */
-    text: OfferTemplateColorsItemDto;
-    /** The background color of the offer template */
-    background: OfferTemplateColorsItemDto;
-    /** The accent color of the offer template */
-    accent: OfferTemplateColorsItemDto;
-    /** The accent text color of the offer template */
-    accentText: OfferTemplateColorsItemDto;
-    /** The base color of the offer template */
-    base: OfferTemplateColorsItemDto;
+  /** The text color of the offer template */
+  text: OfferTemplateColorsItemDto;
+  /** The background color of the offer template */
+  background: OfferTemplateColorsItemDto;
+  /** The accent color of the offer template */
+  accent: OfferTemplateColorsItemDto;
+  /** The accent text color of the offer template */
+  accentText: OfferTemplateColorsItemDto;
+  /** The base color of the offer template */
+  base: OfferTemplateColorsItemDto;
 }

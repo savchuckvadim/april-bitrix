@@ -18,30 +18,30 @@ import type { BxRqResponseDtoCreatedAt } from './bxRqResponseDtoCreatedAt';
 import type { BxRqResponseDtoUpdatedAt } from './bxRqResponseDtoUpdatedAt';
 
 export interface BxRqResponseDto {
-    /** RQ ID */
-    id: number;
-    /** Portal ID */
-    portal_id?: BxRqResponseDtoPortalId;
-    /** RQ name */
-    name?: BxRqResponseDtoName;
-    /** RQ code */
-    code?: BxRqResponseDtoCode;
-    /** RQ type */
-    type?: BxRqResponseDtoType;
-    /** Bitrix ID */
-    bitrix_id?: BxRqResponseDtoBitrixId;
-    /** XML ID */
-    xml_id?: BxRqResponseDtoXmlId;
-    /** Entity Type ID */
-    entity_type_id?: BxRqResponseDtoEntityTypeId;
-    /** Country ID */
-    country_id?: BxRqResponseDtoCountryId;
-    /** Is active */
-    is_active?: boolean;
-    /** Sort order */
-    sort?: BxRqResponseDtoSort;
-    /** Created at */
-    created_at?: BxRqResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BxRqResponseDtoUpdatedAt;
+  /** RQ ID */
+  id: number;
+  /** Portal ID */
+  portal_id?: BxRqResponseDtoPortalId;
+  /** RQ name */
+  name?: BxRqResponseDtoName;
+  /** RQ code */
+  code?: BxRqResponseDtoCode;
+  /** RQ type */
+  type?: BxRqResponseDtoType;
+  /** Bitrix ID */
+  bitrix_id?: BxRqResponseDtoBitrixId;
+  /** XML ID */
+  xml_id?: BxRqResponseDtoXmlId;
+  /** Entity Type ID */
+  entity_type_id?: BxRqResponseDtoEntityTypeId;
+  /** Country ID */
+  country_id?: BxRqResponseDtoCountryId;
+  /** Is active */
+  is_active?: boolean;
+  /** Sort order */
+  sort?: BxRqResponseDtoSort;
+  /** Created at */
+  created_at?: BxRqResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BxRqResponseDtoUpdatedAt;
 }

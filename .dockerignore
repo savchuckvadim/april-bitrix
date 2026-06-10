@@ -1,38 +1,24 @@
 # Dependencies
+# Exclude node_modules at EVERY depth (root, apps/*, packages/*, and nested pnpm
+# node_modules). The previous explicit per-package list missed newer packages
+# (ai-api, bx-rq, pbx-data, april-theme, ...), which bloated the build context to
+# ~5GB and tripped Docker's tar on a pnpm symlink in packages/ai-api/node_modules.
 node_modules
+**/node_modules
 .pnpm-store
-
-./apps/bitrix/node_modules
-./apps/kpi-sales/node_modules
-./apps/kpi-service/node_modules
-
-./apps/konstructor/node_modules
-./apps/event-sales/node_modules
-./apps/event-service/node_modules
-
-
-./apps/web/node_modules
-
-
-./packages/api/node_modules
-./packages/nest-api/node_modules
-./packages/open-api/node_modules
-./packages/bitrix/node_modules
-./packages/bx/node_modules
-./packages/eslint-config/node_modules
-./packages/pbx/node_modules
-./packages/theme/node_modules
-./packages/ui/node_modules
-./packages/ws/node_modules
-./packages//typescript-config/node_modules
+**/.pnpm-store
 
 
 
-# Build outputs
+# Build outputs (at every depth)
 dist
+**/dist
 .next
+**/.next
 build
+**/build
 *.tsbuildinfo
+**/*.tsbuildinfo
 
 
 

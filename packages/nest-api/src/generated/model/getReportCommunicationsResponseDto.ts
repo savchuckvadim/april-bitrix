@@ -8,6 +8,6 @@
 import type { CommunicationsReportData } from './communicationsReportData';
 
 export interface GetReportCommunicationsResponseDto {
-    /** Report data */
-    report: CommunicationsReportData[];
+  /** Report data */
+  report: CommunicationsReportData[];
 }

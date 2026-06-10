@@ -8,8 +8,8 @@
 import type { OfferTemplateImageUploadImageBodyParent } from './offerTemplateImageUploadImageBodyParent';
 
 export type OfferTemplateImageUploadImageBody = {
-    file?: Blob;
-    parent?: OfferTemplateImageUploadImageBodyParent;
-    domain?: string;
-    portal_id?: number;
+  file?: Blob;
+  parent?: OfferTemplateImageUploadImageBodyParent;
+  domain?: string;
+  portal_id?: number;
 };

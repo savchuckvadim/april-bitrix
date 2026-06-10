@@ -5,24 +5,27 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { BitrixMethodDto } from '.././model';
+import type {
+  BitrixMethodDto
+} from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getHelper = () => {
-    /**
-     * @summary Call bitrix method
-     */
-    const helperBitrixMethod = (bitrixMethodDto: BitrixMethodDto) => {
-        return customAxios<void>({
-            url: `/api/helper/bitrix/method`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: bitrixMethodDto,
-        });
-    };
-    return { helperBitrixMethod };
-};
-export type HelperBitrixMethodResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getHelper>['helperBitrixMethod']>>
->;
+
+
+  export const getHelper = () => {
+/**
+ * @summary Call bitrix method
+ */
+const helperBitrixMethod = (
+    bitrixMethodDto: BitrixMethodDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/helper/bitrix/method`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: bitrixMethodDto
+    },
+      );
+    }
+  return {helperBitrixMethod}};
+export type HelperBitrixMethodResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getHelper>['helperBitrixMethod']>>>

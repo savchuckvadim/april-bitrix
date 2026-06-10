@@ -7,8 +7,8 @@
  */
 
 export interface BxRqBankItemDto {
-    /** Id of the RQ */
-    id: number;
-    /** Fields of the RQ */
-    fields: string[];
+  /** Id of the RQ */
+  id: number;
+  /** Fields of the RQ */
+  fields: string[];
 }

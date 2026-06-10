@@ -1,3 +1,5 @@
+import { ComplectDto } from "@workspace/nest-api";
+
 export interface IComplect {
     number: ComplectNumberType;
     name: ComplectTitlesEnum;
@@ -8,6 +10,7 @@ export interface IComplect {
     isChanging: boolean;
     withConsalting: boolean;
     type: ComplectsTypes;
+
 }
 
 export interface ICurrentComplect {
@@ -77,7 +80,7 @@ export type ComplectWeightType =
     | 12
     | 12.5
     | 15.5;
-type AbsType = 1 | 2 | 3 | 4 | 4.5 | 5 | 6 | 8 | 10 | 14;
+export type AbsType = 1 | 2 | 3 | 4 | 4.5 | 5 | 6 | 8 | 10 | 14;
 
 export enum ComplectNamesEnum {
     ProfBuh = 'buh',

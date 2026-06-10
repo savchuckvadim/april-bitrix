@@ -6,49 +6,44 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    AddSmartItemDto,
-    AlfaSmartItemAddParams,
-    AlfaSmartItemGetListParams,
+  AddSmartItemDto,
+  AlfaSmartItemAddParams,
+  AlfaSmartItemGetListParams
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getAlfaSmartItem = () => {
-    /**
-     * @summary Get smarts
-     */
-    const alfaSmartItemGetList = (
-        entityTypeId: string,
-        params: AlfaSmartItemGetListParams,
-    ) => {
-        return customAxios<void>({
-            url: `/api/alfa-smart-item/get-list/${entityTypeId}`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * @summary Add smart
-     */
-    const alfaSmartItemAdd = (
-        addSmartItemDto: AddSmartItemDto,
-        params: AlfaSmartItemAddParams,
-    ) => {
-        return customAxios<void>({
-            url: `/api/alfa-smart-item/add`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: addSmartItemDto,
-            params,
-        });
-    };
-    return { alfaSmartItemGetList, alfaSmartItemAdd };
-};
-export type AlfaSmartItemGetListResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getAlfaSmartItem>['alfaSmartItemGetList']>
-    >
->;
-export type AlfaSmartItemAddResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAlfaSmartItem>['alfaSmartItemAdd']>>
->;
+
+
+  export const getAlfaSmartItem = () => {
+/**
+ * @summary Get smarts
+ */
+const alfaSmartItemGetList = (
+    entityTypeId: string,
+    params: AlfaSmartItemGetListParams,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/alfa-smart-item/get-list/${entityTypeId}`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Add smart
+ */
+const alfaSmartItemAdd = (
+    addSmartItemDto: AddSmartItemDto,
+    params: AlfaSmartItemAddParams,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/alfa-smart-item/add`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addSmartItemDto,
+        params
+    },
+      );
+    }
+  return {alfaSmartItemGetList,alfaSmartItemAdd}};
+export type AlfaSmartItemGetListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAlfaSmartItem>['alfaSmartItemGetList']>>>
+export type AlfaSmartItemAddResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAlfaSmartItem>['alfaSmartItemAdd']>>>

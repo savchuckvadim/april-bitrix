@@ -6,107 +6,84 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    AlfaSmartGetAllSmartsParams,
-    AlfaSmartGetSmartCategoriesParams,
-    AlfaSmartGetSmartDataByIdParams,
-    AlfaSmartGetSmartFieldsByIdParams,
-    AlfaSmartGetSmartsParams,
+  AlfaSmartGetAllSmartsParams,
+  AlfaSmartGetSmartCategoriesParams,
+  AlfaSmartGetSmartDataByIdParams,
+  AlfaSmartGetSmartFieldsByIdParams,
+  AlfaSmartGetSmartsParams
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getAlfaSmart = () => {
-    /**
-     * @summary Get smarts
-     */
-    const alfaSmartGetSmarts = (params: AlfaSmartGetSmartsParams) => {
-        return customAxios<void>({
-            url: `/api/alfa-smart/get-smarts`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * @summary Get smart fields by id
-     */
-    const alfaSmartGetSmartFieldsById = (
-        id: string,
-        params: AlfaSmartGetSmartFieldsByIdParams,
-    ) => {
-        return customAxios<void>({
-            url: `/api/alfa-smart/get-smart/${id}`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * @summary Get smart categories
-     */
-    const alfaSmartGetSmartCategories = (
-        entityTypeId: string,
-        params: AlfaSmartGetSmartCategoriesParams,
-    ) => {
-        return customAxios<void>({
-            url: `/api/alfa-smart/get-smart-categories/${entityTypeId}`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * @summary Get smart data by id
-     */
-    const alfaSmartGetSmartDataById = (
-        entityTypeId: string,
-        params: AlfaSmartGetSmartDataByIdParams,
-    ) => {
-        return customAxios<void>({
-            url: `/api/alfa-smart/get-smart-data/${entityTypeId}`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * @summary Get all smarts
-     */
-    const alfaSmartGetAllSmarts = (params: AlfaSmartGetAllSmartsParams) => {
-        return customAxios<void>({
-            url: `/api/alfa-smart/get-all-smarts`,
-            method: 'GET',
-            params,
-        });
-    };
-    return {
-        alfaSmartGetSmarts,
-        alfaSmartGetSmartFieldsById,
-        alfaSmartGetSmartCategories,
-        alfaSmartGetSmartDataById,
-        alfaSmartGetAllSmarts,
-    };
-};
-export type AlfaSmartGetSmartsResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAlfaSmart>['alfaSmartGetSmarts']>>
->;
-export type AlfaSmartGetSmartFieldsByIdResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAlfaSmart>['alfaSmartGetSmartFieldsById']
-        >
-    >
->;
-export type AlfaSmartGetSmartCategoriesResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAlfaSmart>['alfaSmartGetSmartCategories']
-        >
-    >
->;
-export type AlfaSmartGetSmartDataByIdResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getAlfaSmart>['alfaSmartGetSmartDataById']>
-    >
->;
-export type AlfaSmartGetAllSmartsResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getAlfaSmart>['alfaSmartGetAllSmarts']>
-    >
->;
+
+
+  export const getAlfaSmart = () => {
+/**
+ * @summary Get smarts
+ */
+const alfaSmartGetSmarts = (
+    params: AlfaSmartGetSmartsParams,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/alfa-smart/get-smarts`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Get smart fields by id
+ */
+const alfaSmartGetSmartFieldsById = (
+    id: string,
+    params: AlfaSmartGetSmartFieldsByIdParams,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/alfa-smart/get-smart/${id}`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Get smart categories
+ */
+const alfaSmartGetSmartCategories = (
+    entityTypeId: string,
+    params: AlfaSmartGetSmartCategoriesParams,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/alfa-smart/get-smart-categories/${entityTypeId}`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Get smart data by id
+ */
+const alfaSmartGetSmartDataById = (
+    entityTypeId: string,
+    params: AlfaSmartGetSmartDataByIdParams,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/alfa-smart/get-smart-data/${entityTypeId}`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Get all smarts
+ */
+const alfaSmartGetAllSmarts = (
+    params: AlfaSmartGetAllSmartsParams,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/alfa-smart/get-all-smarts`, method: 'GET',
+        params
+    },
+      );
+    }
+  return {alfaSmartGetSmarts,alfaSmartGetSmartFieldsById,alfaSmartGetSmartCategories,alfaSmartGetSmartDataById,alfaSmartGetAllSmarts}};
+export type AlfaSmartGetSmartsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAlfaSmart>['alfaSmartGetSmarts']>>>
+export type AlfaSmartGetSmartFieldsByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAlfaSmart>['alfaSmartGetSmartFieldsById']>>>
+export type AlfaSmartGetSmartCategoriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAlfaSmart>['alfaSmartGetSmartCategories']>>>
+export type AlfaSmartGetSmartDataByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAlfaSmart>['alfaSmartGetSmartDataById']>>>
+export type AlfaSmartGetAllSmartsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAlfaSmart>['alfaSmartGetAllSmarts']>>>

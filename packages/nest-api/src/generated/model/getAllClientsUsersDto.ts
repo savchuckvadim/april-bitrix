@@ -7,6 +7,6 @@
  */
 
 export interface GetAllClientsUsersDto {
-    /** Client ID */
-    clientId: number;
+  /** Client ID */
+  clientId: number;
 }

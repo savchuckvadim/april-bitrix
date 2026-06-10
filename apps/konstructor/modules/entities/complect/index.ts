@@ -3,3 +3,5 @@ export * from './type/complect.type';
 
 export * from './model/ComplectSlice';
 export * from './model/ComplectThunk';
+
+export * from './ui/ComplectListMainSelect';

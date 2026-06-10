@@ -5,14 +5,13 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { TelegramSendMessageDtoApp } from './telegramSendMessageDtoApp';
 
 export interface TelegramSendMessageDto {
-    app: TelegramSendMessageDtoApp;
-    /** Text message */
-    text: string;
-    /** Domain */
-    domain: string;
-    /** User ID */
-    userId: string;
+  app: string;
+  /** Text message */
+  text: string;
+  /** Domain */
+  domain: string;
+  /** User ID */
+  userId: string;
 }

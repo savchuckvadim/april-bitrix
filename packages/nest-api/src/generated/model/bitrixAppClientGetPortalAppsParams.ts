@@ -7,8 +7,8 @@
  */
 
 export type BitrixAppClientGetPortalAppsParams = {
-    /**
-     * Portal ID
-     */
-    portalId: number;
+/**
+ * Portal ID
+ */
+portalId: number;
 };

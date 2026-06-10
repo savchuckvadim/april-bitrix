@@ -8,12 +8,12 @@
 import type { BitrixTokenGetCode } from './bitrixTokenGetCode';
 
 export type BitrixTokenGetParams = {
-    /**
-     * Domain
-     */
-    domain: string;
-    /**
-     * Code
-     */
-    code: BitrixTokenGetCode;
+/**
+ * Domain
+ */
+domain: string;
+/**
+ * Code
+ */
+code: BitrixTokenGetCode;
 };

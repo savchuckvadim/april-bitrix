@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { BitrixAppDto, BitrixAppEntity, CreateBitrixAppDto, EnabledAppDto } from "@workspace/nest-api";
 import { bxAppHelper } from "./bx-app.helper";
 import { BitrixApp } from "../../entities";
+import { bxAppActions } from "../model/slice/BxAppSlice";
 
 export const useBxApps = (portalId: number) => {
     const { data: portalApps, isLoading, error } = useQuery<BitrixApp[], Error>({
@@ -33,7 +34,9 @@ export const useBxApps = (portalId: number) => {
     const { mutate: storeOrUpdateApp, isPending: isLoadingStoreOrUpdateApp, error: errorStoreOrUpdateApp } = useMutation<BitrixAppDto | null, Error, CreateBitrixAppDto>({
         mutationFn: async (app: CreateBitrixAppDto) => {
             const response = await bxAppHelper.storeOrUpdateApp(app);
-            return response;
+            debugger
+            response && bxAppActions.addBxApp(response.app);
+            return response?.app ?? null;
         }
     });
 

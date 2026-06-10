@@ -7,5 +7,5 @@
  */
 
 export type OfferTemplateFontFindAllOfferTemplateFontParams = {
-    offer_template_id: number;
+offer_template_id: number;
 };

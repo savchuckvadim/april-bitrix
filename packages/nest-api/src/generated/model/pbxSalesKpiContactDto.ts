@@ -7,12 +7,12 @@
  */
 
 export interface PbxSalesKpiContactDto {
-    /** Name */
-    NAME: string;
-    /** Last Name */
-    LAST_NAME: string;
-    /** Second Name */
-    SECOND_NAME: string;
-    /** Post */
-    POST: string;
+  /** Name */
+  NAME: string;
+  /** Last Name */
+  LAST_NAME: string;
+  /** Second Name */
+  SECOND_NAME: string;
+  /** Post */
+  POST: string;
 }

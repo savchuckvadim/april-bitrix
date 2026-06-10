@@ -9,17 +9,17 @@
 /**
  * Тип приложения
  */
-export type BitrixAppDtoType =
-    (typeof BitrixAppDtoType)[keyof typeof BitrixAppDtoType];
+export type BitrixAppDtoType = typeof BitrixAppDtoType[keyof typeof BitrixAppDtoType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BitrixAppDtoType = {
-    webhook: 'webhook',
-    event: 'event',
-    konstructor: 'konstructor',
-    report: 'report',
-    managment: 'managment',
-    ai: 'ai',
-    other: 'other',
-    full: 'full',
+  webhook: 'webhook',
+  event: 'event',
+  konstructor: 'konstructor',
+  report: 'report',
+  managment: 'managment',
+  ai: 'ai',
+  other: 'other',
+  full: 'full',
 } as const;

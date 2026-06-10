@@ -8,6 +8,13 @@ export * from './deal/schema/bx-deal.schema';
 export * from './deal/services/bx-deal.batch.service';
 export * from './deal/services/bx-deal.service';
 
+//crm.lead
+export * from './lead/interface/bx-lead.interface';
+export * from './lead/schema/bx-lead.schema';
+export * from './lead/services/bx-lead.batch.service';
+export * from './lead/services/bx-lead.service';
+
+
 //crm.company
 export * from './company/interface/bx-company.interface';
 export * from './company/schema/bx-company.schema';
@@ -48,3 +55,8 @@ export * from './timeline/interface/bx-timeline.interface';
 export * from './timeline/schema/bx-timeline.schema';
 export * from './timeline/services/bx-timeline.batch.service';
 export * from './timeline/services/bx-timeline.service';
+
+//crm.smart-type
+export * from './smart-type/interface/smart-type.interface';
+export * from './smart-type/schema/smart-type.schema';
+export * from './smart-type/services/bx-smart-type.service';

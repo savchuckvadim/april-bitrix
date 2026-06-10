@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type WordTemplateSummaryDtoVisibility =
-    (typeof WordTemplateSummaryDtoVisibility)[keyof typeof WordTemplateSummaryDtoVisibility];
+export type WordTemplateSummaryDtoVisibility = typeof WordTemplateSummaryDtoVisibility[keyof typeof WordTemplateSummaryDtoVisibility];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const WordTemplateSummaryDtoVisibility = {
-    public: 'public',
-    portal: 'portal',
-    user: 'user',
+  public: 'public',
+  private: 'private',
+  user: 'user',
 } as const;

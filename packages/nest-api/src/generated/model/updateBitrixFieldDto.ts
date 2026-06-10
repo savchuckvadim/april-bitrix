@@ -7,18 +7,18 @@
  */
 
 export interface UpdateBitrixFieldDto {
-    /** Parent type for grouping fields */
-    parent_type?: string;
-    /** Field type */
-    type?: string;
-    /** Field title */
-    title?: string;
-    /** Field name */
-    name?: string;
-    /** Bitrix ID */
-    bitrixId?: string;
-    /** Bitrix Camel ID */
-    bitrixCamelId?: string;
-    /** Field code */
-    code?: string;
+  /** Parent type for grouping fields */
+  parent_type?: string;
+  /** Field type */
+  type?: string;
+  /** Field title */
+  title?: string;
+  /** Field name */
+  name?: string;
+  /** Bitrix ID */
+  bitrixId?: string;
+  /** Bitrix Camel ID */
+  bitrixCamelId?: string;
+  /** Field code */
+  code?: string;
 }

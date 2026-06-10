@@ -6,92 +6,79 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    ComplectEntity,
-    CreateComplectDto,
-    InfoblockLightEntity,
+  ComplectEntity,
+  CreateComplectDto,
+  InfoblockLightEntity
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getGarantComplect = () => {
-    /**
-     * @summary Создать новый комплект
-     */
-    const complectCreate = (createComplectDto: CreateComplectDto) => {
-        return customAxios<ComplectEntity>({
-            url: `/api/complect`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createComplectDto,
-        });
-    };
-    /**
-     * @summary Получить все комплекты
-     */
-    const complectFindAll = () => {
-        return customAxios<ComplectEntity[]>({
-            url: `/api/complect`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Получить комплект по ID
-     */
-    const complectFindOne = (id: string) => {
-        return customAxios<ComplectEntity>({
-            url: `/api/complect/${id}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Обновить комплект
-     */
-    const complectUpdate = (
-        id: string,
-        createComplectDto: CreateComplectDto,
-    ) => {
-        return customAxios<ComplectEntity>({
-            url: `/api/complect/${id}`,
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            data: createComplectDto,
-        });
-    };
-    /**
-     * @summary Получить список доступных инфоблоков
-     */
-    const complectGetAvailableInfoblocks = (id: string) => {
-        return customAxios<InfoblockLightEntity[]>({
-            url: `/api/complect/infoblocks/available/${id}`,
-            method: 'GET',
-        });
-    };
-    return {
-        complectCreate,
-        complectFindAll,
-        complectFindOne,
-        complectUpdate,
-        complectGetAvailableInfoblocks,
-    };
-};
-export type ComplectCreateResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getGarantComplect>['complectCreate']>>
->;
-export type ComplectFindAllResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getGarantComplect>['complectFindAll']>>
->;
-export type ComplectFindOneResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getGarantComplect>['complectFindOne']>>
->;
-export type ComplectUpdateResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getGarantComplect>['complectUpdate']>>
->;
-export type ComplectGetAvailableInfoblocksResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getGarantComplect
-            >['complectGetAvailableInfoblocks']
-        >
-    >
->;
+
+
+  export const getGarantComplect = () => {
+/**
+ * @summary Создать новый комплект
+ */
+const complectCreate = (
+    createComplectDto: CreateComplectDto,
+ ) => {
+      return customAxios<ComplectEntity>(
+      {url: `/api/complect`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createComplectDto
+    },
+      );
+    }
+  /**
+ * @summary Получить все комплекты
+ */
+const complectFindAll = (
+    
+ ) => {
+      return customAxios<ComplectEntity[]>(
+      {url: `/api/complect`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Получить комплект по ID
+ */
+const complectFindOne = (
+    id: string,
+ ) => {
+      return customAxios<ComplectEntity>(
+      {url: `/api/complect/${id}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Обновить комплект
+ */
+const complectUpdate = (
+    id: string,
+    createComplectDto: CreateComplectDto,
+ ) => {
+      return customAxios<ComplectEntity>(
+      {url: `/api/complect/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: createComplectDto
+    },
+      );
+    }
+  /**
+ * @summary Получить список доступных инфоблоков
+ */
+const complectGetAvailableInfoblocks = (
+    id: string,
+ ) => {
+      return customAxios<InfoblockLightEntity[]>(
+      {url: `/api/complect/infoblocks/available/${id}`, method: 'GET'
+    },
+      );
+    }
+  return {complectCreate,complectFindAll,complectFindOne,complectUpdate,complectGetAvailableInfoblocks}};
+export type ComplectCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantComplect>['complectCreate']>>>
+export type ComplectFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantComplect>['complectFindAll']>>>
+export type ComplectFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantComplect>['complectFindOne']>>>
+export type ComplectUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantComplect>['complectUpdate']>>>
+export type ComplectGetAvailableInfoblocksResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantComplect>['complectGetAvailableInfoblocks']>>>

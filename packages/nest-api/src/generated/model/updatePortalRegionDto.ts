@@ -10,14 +10,14 @@ import type { UpdatePortalRegionDtoOwnTax } from './updatePortalRegionDtoOwnTax'
 import type { UpdatePortalRegionDtoOwnTaxAbs } from './updatePortalRegionDtoOwnTaxAbs';
 
 export interface UpdatePortalRegionDto {
-    /** Domain of the Bitrix24 portal */
-    domain: string;
-    /** Code of the region */
-    regionCode: string;
-    /** Own AB */
-    own_abs: UpdatePortalRegionDtoOwnAbs;
-    /** Own tax */
-    own_tax: UpdatePortalRegionDtoOwnTax;
-    /** Own tax abs */
-    own_tax_abs: UpdatePortalRegionDtoOwnTaxAbs;
+  /** Domain of the Bitrix24 portal */
+  domain: string;
+  /** Code of the region */
+  regionCode: string;
+  /** Own AB (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend. */
+  own_abs?: UpdatePortalRegionDtoOwnAbs;
+  /** Own tax (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend. */
+  own_tax?: UpdatePortalRegionDtoOwnTax;
+  /** Own tax abs (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend. */
+  own_tax_abs?: UpdatePortalRegionDtoOwnTaxAbs;
 }

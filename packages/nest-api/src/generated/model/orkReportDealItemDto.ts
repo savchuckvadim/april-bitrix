@@ -8,52 +8,52 @@
 import type { OrkReportDealItemDtoCurrentContract } from './orkReportDealItemDtoCurrentContract';
 
 export interface OrkReportDealItemDto {
-    /** Deal id */
-    id: number;
-    /** Deal title */
-    title: string;
-    /** Deal stage id */
-    stageId: string;
-    /** Deal category id */
-    categoryId: string;
-    /** Deal stage name */
-    stageName: string;
-    /** Deal assigned by id */
-    assignedById: string;
-    /** Deal company id */
-    companyId: string;
-    /** Deal sum */
-    sum: string;
-    /** Deal from */
-    from: string;
-    /** Deal to */
-    to: string;
-    /** Deal month sum */
-    monthSum: number;
-    /** Deal duration */
-    duration: number;
-    /** Deal create date */
-    createDate: string;
-    /** Deal closed date */
-    closedDate: string;
-    /** Deal is closed */
-    isClosed: boolean;
-    /** Deal is won */
-    isWon: boolean;
-    /** Deal is lost */
-    isLost: boolean;
-    /** Deal is in progress */
-    isInProgress: boolean;
-    /** Deal last activity date */
-    lastActivityDate: string;
-    /** Deal status */
-    status: string;
-    /** Deal arm info */
-    armInfo: string[];
-    /** Deal complect name */
-    complectName: string;
-    /** Deal supply */
-    supply: string;
-    /** Deal current contract */
-    currentContract: OrkReportDealItemDtoCurrentContract;
+  /** Deal id */
+  id: number;
+  /** Deal title */
+  title: string;
+  /** Deal stage id */
+  stageId: string;
+  /** Deal category id */
+  categoryId: string;
+  /** Deal stage name */
+  stageName: string;
+  /** Deal assigned by id */
+  assignedById: string;
+  /** Deal company id */
+  companyId: string;
+  /** Deal sum */
+  sum: string;
+  /** Deal from */
+  from: string;
+  /** Deal to */
+  to: string;
+  /** Deal month sum */
+  monthSum: number;
+  /** Deal duration */
+  duration: number;
+  /** Deal create date */
+  createDate: string;
+  /** Deal closed date */
+  closedDate: string;
+  /** Deal is closed */
+  isClosed: boolean;
+  /** Deal is won */
+  isWon: boolean;
+  /** Deal is lost */
+  isLost: boolean;
+  /** Deal is in progress */
+  isInProgress: boolean;
+  /** Deal last activity date */
+  lastActivityDate: string;
+  /** Deal status */
+  status: string;
+  /** Deal arm info */
+  armInfo: string[];
+  /** Deal complect name */
+  complectName: string;
+  /** Deal supply */
+  supply: string;
+  /** Deal current contract */
+  currentContract: OrkReportDealItemDtoCurrentContract;
 }

@@ -9,6 +9,6 @@ import type { AddSmartItemDtoEntityTypeId } from './addSmartItemDtoEntityTypeId'
 import type { SmartItemDto } from './smartItemDto';
 
 export interface AddSmartItemDto {
-    entityTypeId: AddSmartItemDtoEntityTypeId;
-    item: SmartItemDto;
+  entityTypeId: AddSmartItemDtoEntityTypeId;
+  item: SmartItemDto;
 }

@@ -12,14 +12,14 @@ import type { OfferOptionsDtoMeasure } from './offerOptionsDtoMeasure';
 import type { SupplyDto } from './supplyDto';
 
 export interface OfferOptionsDto {
-    /** Year of the offer options */
-    year: OfferOptionsDtoYear;
-    /** Price of the offer options */
-    price: OfferOptionsDtoPrice;
-    /** Discount of the offer options */
-    discount: OfferOptionsDtoDiscount;
-    /** Measure of the offer options */
-    measure: OfferOptionsDtoMeasure;
-    /** Supply of the offer options */
-    supply: SupplyDto;
+  /** Year of the offer options */
+  year: OfferOptionsDtoYear;
+  /** Price of the offer options */
+  price: OfferOptionsDtoPrice;
+  /** Discount of the offer options */
+  discount: OfferOptionsDtoDiscount;
+  /** Measure of the offer options */
+  measure: OfferOptionsDtoMeasure;
+  /** Supply of the offer options */
+  supply: SupplyDto;
 }

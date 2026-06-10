@@ -9,12 +9,12 @@
 /**
  * The visibility of the offer template
  */
-export type OfferTemplateVisibility =
-    (typeof OfferTemplateVisibility)[keyof typeof OfferTemplateVisibility];
+export type OfferTemplateVisibility = typeof OfferTemplateVisibility[keyof typeof OfferTemplateVisibility];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OfferTemplateVisibility = {
-    public: 'public',
-    portal: 'portal',
-    user: 'user',
+  public: 'public',
+  private: 'private',
+  user: 'user',
 } as const;

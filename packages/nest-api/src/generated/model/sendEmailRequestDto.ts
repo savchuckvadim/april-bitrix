@@ -7,10 +7,10 @@
  */
 
 export interface SendEmailRequestDto {
-    /** Email */
-    email: string;
-    /** Subject */
-    subject: string;
-    /** Template */
-    body: string;
+  /** Email */
+  email: string;
+  /** Subject */
+  subject: string;
+  /** Template */
+  body: string;
 }

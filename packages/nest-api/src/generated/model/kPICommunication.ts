@@ -8,7 +8,7 @@
 import type { FilterCommunication } from './filterCommunication';
 
 export interface KPICommunication {
-    id: string;
-    action: FilterCommunication;
-    count: number;
+  id: string;
+  action: FilterCommunication;
+  count: number;
 }

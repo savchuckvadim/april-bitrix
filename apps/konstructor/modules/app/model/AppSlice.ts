@@ -1,3 +1,5 @@
+import { IBXCompany, IBXDeal } from '@bitrix/domain';
+import { IBXUser } from '@bitrix/domain/interfaces/bitrix.interface';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import type { BXUser } from '@workspace/bx';
@@ -10,7 +12,9 @@ export enum APP_DEP {
 const initialState = {
     domain: '',
     bitrix: {
-        user: null as BXUser | null,
+        user: null as IBXUser | null,
+        deal: null as IBXDeal | null,
+        company: null as IBXCompany | null,
     },
 
     department: APP_DEP.SERVICE,
@@ -20,10 +24,13 @@ const initialState = {
         status: false as boolean,
         message: '' as string,
     },
+    isSuperUser: false as boolean,
 };
-export interface InitReport {
+export interface InitApp {
     domain: string;
-    user: BXUser;
+    user: IBXUser;
+    deal: IBXDeal | null;
+    company: IBXCompany;
 }
 const appSlice = createSlice({
     name: 'app',
@@ -31,16 +38,14 @@ const appSlice = createSlice({
     reducers: {
         setAppData: (
             state: AppState,
-            action: PayloadAction<InitReport>,
-            //   {
-            //     domain: string;
-            //     user: BXUser | null;
+            action: PayloadAction<InitApp>,
 
-            //   }
         ) => {
             const payload = action.payload;
             state.domain = payload.domain;
             state.bitrix.user = payload.user;
+            state.bitrix.deal = payload.deal;
+            state.bitrix.company = payload.company;
             state.initialized = true;
         },
 
@@ -66,14 +71,7 @@ const appSlice = createSlice({
             state.error.status = false;
             state.error.message = '';
         },
-        // setPortal: (
-        //   state: AppState,
-        //   action: PayloadAction<{
-        //     portal: Portal;
-        //   }>
-        // ) => {
-        //   state.portal = action.payload.portal;
-        // },
+
         reload: (state: AppState, action: PayloadAction) => {
             state.initialized = false;
         },
@@ -82,6 +80,10 @@ const appSlice = createSlice({
             action: PayloadAction<{ status: boolean }>,
         ) => {
             state.isLoading = action.payload.status;
+        },
+
+        setDepartment: (state: AppState, action: PayloadAction<APP_DEP>) => {
+            state.department = action.payload;
         },
     },
 });

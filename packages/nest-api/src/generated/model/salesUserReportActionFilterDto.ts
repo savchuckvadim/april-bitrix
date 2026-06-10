@@ -8,14 +8,14 @@
 import type { FieldItem } from './fieldItem';
 
 export interface SalesUserReportActionFilterDto {
-    /** Код */
-    code: string;
-    /** Внутренний код */
-    innerCode: string;
-    /** Название */
-    name: string;
-    /** Действие */
-    actionItem: FieldItem;
-    /** Тип действия */
-    actionTypeItem: FieldItem;
+  /** Код */
+  code: string;
+  /** Внутренний код */
+  innerCode: string;
+  /** Название */
+  name: string;
+  /** Действие */
+  actionItem: FieldItem;
+  /** Тип действия */
+  actionTypeItem: FieldItem;
 }

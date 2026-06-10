@@ -8,7 +8,7 @@
 import type { ReportGetCommunicationsFiltersDto } from './reportGetCommunicationsFiltersDto';
 
 export interface GetReportCommunicationsRequestDto {
-    domain: string;
-    filters: ReportGetCommunicationsFiltersDto;
-    socketId?: string;
+  domain: string;
+  filters: ReportGetCommunicationsFiltersDto;
+  socketId?: string;
 }

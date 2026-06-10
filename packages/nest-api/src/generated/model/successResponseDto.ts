@@ -9,8 +9,8 @@ import type { SuccessResponseDtoResultCode } from './successResponseDtoResultCod
 import type { SuccessResponseDtoData } from './successResponseDtoData';
 
 export interface SuccessResponseDto {
-    /** Код результата операции (0 - успех) */
-    resultCode: SuccessResponseDtoResultCode;
-    /** Данные ответа */
-    data: SuccessResponseDtoData;
+  /** Код результата операции (0 - успех) */
+  resultCode: SuccessResponseDtoResultCode;
+  /** Данные ответа */
+  data: SuccessResponseDtoData;
 }

@@ -8,16 +8,16 @@
 import type { InfoblockDto } from './infoblockDto';
 
 export interface InfoGroupsDto {
-    /** Id */
-    id: number;
-    /** Code */
-    code: string;
-    /** Group Name */
-    groupName: string;
-    /** Type */
-    type: string;
-    /** Product Type */
-    productType: string;
-    /** Value */
-    value: InfoblockDto[];
+  /** Id */
+  id: number;
+  /** Code */
+  code: string;
+  /** Group Name */
+  groupName: string;
+  /** Type */
+  type: string;
+  /** Product Type */
+  productType: string;
+  /** Value */
+  value: InfoblockDto[];
 }

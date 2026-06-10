@@ -6,11 +6,11 @@
  * OpenAPI spec version: 1.0
  */
 
-export type TelegramSendMessageDtoApp =
-    (typeof TelegramSendMessageDtoApp)[keyof typeof TelegramSendMessageDtoApp];
+export type TelegramSendMessageDtoApp = typeof TelegramSendMessageDtoApp[keyof typeof TelegramSendMessageDtoApp];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const TelegramSendMessageDtoApp = {
-    kpi_sales: 'kpi_sales',
-    konstruktor: 'konstruktor',
+  kpi_sales: 'kpi_sales',
+  konstruktor: 'konstruktor',
 } as const;

@@ -12,16 +12,16 @@ import type { CreateBitrixAppWithTokenDtoStatus } from './createBitrixAppWithTok
 import type { BitrixTokenDto } from './bitrixTokenDto';
 
 export interface CreateBitrixAppWithTokenDto {
-    /** Домен портала Bitrix24 */
-    domain: string;
-    /** Уникальный код приложения */
-    code: CreateBitrixAppWithTokenDtoCode;
-    /** Группа приложения */
-    group: CreateBitrixAppWithTokenDtoGroup;
-    /** Тип приложения */
-    type: CreateBitrixAppWithTokenDtoType;
-    /** Статус приложения */
-    status: CreateBitrixAppWithTokenDtoStatus;
-    /** Токен приложения */
-    token: BitrixTokenDto;
+  /** Домен портала Bitrix24 */
+  domain: string;
+  /** Уникальный код приложения */
+  code: CreateBitrixAppWithTokenDtoCode;
+  /** Группа приложения */
+  group: CreateBitrixAppWithTokenDtoGroup;
+  /** Тип приложения */
+  type: CreateBitrixAppWithTokenDtoType;
+  /** Статус приложения */
+  status: CreateBitrixAppWithTokenDtoStatus;
+  /** Токен приложения */
+  token: BitrixTokenDto;
 }

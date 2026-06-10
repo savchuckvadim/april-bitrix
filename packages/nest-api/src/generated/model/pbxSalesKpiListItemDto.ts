@@ -10,36 +10,36 @@ import type { PbxSalesKpiCompanyDto } from './pbxSalesKpiCompanyDto';
 import type { PbxSalesKpiContactDto } from './pbxSalesKpiContactDto';
 
 export interface PbxSalesKpiListItemDto {
-    /** ID */
-    id: number;
-    /** Title */
-    title: string;
-    /** Date */
-    date: string;
-    /** Responsible */
-    sales_kpi_responsible: PbxSalesKpiFieldValueDto;
-    /** Action */
-    sales_kpi_event_action: PbxSalesKpiFieldValueDto;
-    /** Type */
-    sales_kpi_event_type: PbxSalesKpiFieldValueDto;
-    /** CRM */
-    sales_kpi_crm: PbxSalesKpiFieldValueDto;
-    /** Contact ID */
-    sales_kpi_crm_contact: PbxSalesKpiFieldValueDto;
-    /** Comment */
-    sales_kpi_manager_comment: PbxSalesKpiFieldValueDto;
-    /** Event Date */
-    sales_kpi_event_date: PbxSalesKpiFieldValueDto;
-    /** Plan Date */
-    sales_kpi_plan_date: PbxSalesKpiFieldValueDto;
-    /** Company */
-    sales_kpi_crm_company: PbxSalesKpiFieldValueDto;
-    /** Company ID */
-    companyId: number;
-    /** Contact ID */
-    contactId: number;
-    /** Company */
-    company: PbxSalesKpiCompanyDto;
-    /** Contacts */
-    contacts: PbxSalesKpiContactDto;
+  /** ID */
+  id: number;
+  /** Title */
+  title: string;
+  /** Date */
+  date: string;
+  /** Responsible */
+  sales_kpi_responsible: PbxSalesKpiFieldValueDto;
+  /** Action */
+  sales_kpi_event_action: PbxSalesKpiFieldValueDto;
+  /** Type */
+  sales_kpi_event_type: PbxSalesKpiFieldValueDto;
+  /** CRM */
+  sales_kpi_crm: PbxSalesKpiFieldValueDto;
+  /** Contact ID */
+  sales_kpi_crm_contact: PbxSalesKpiFieldValueDto;
+  /** Comment */
+  sales_kpi_manager_comment: PbxSalesKpiFieldValueDto;
+  /** Event Date */
+  sales_kpi_event_date: PbxSalesKpiFieldValueDto;
+  /** Plan Date */
+  sales_kpi_plan_date: PbxSalesKpiFieldValueDto;
+  /** Company */
+  sales_kpi_crm_company: PbxSalesKpiFieldValueDto;
+  /** Company ID */
+  companyId: number;
+  /** Contact ID */
+  contactId: number;
+  /** Company */
+  company: PbxSalesKpiCompanyDto;
+  /** Contacts */
+  contacts: PbxSalesKpiContactDto;
 }

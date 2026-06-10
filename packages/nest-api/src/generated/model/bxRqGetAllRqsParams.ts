@@ -7,5 +7,5 @@
  */
 
 export type BxRqGetAllRqsParams = {
-    portal_id: string;
+portal_id: string;
 };

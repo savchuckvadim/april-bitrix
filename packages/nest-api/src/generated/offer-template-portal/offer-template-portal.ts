@@ -5,79 +5,51 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { CreateOfferTemplatePortalDto } from '.././model';
+import type {
+  CreateOfferTemplatePortalDto
+} from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getOfferTemplatePortal = () => {
-    const offerTemplatePortalCreateOfferTemplatePortal = (
-        createOfferTemplatePortalDto: CreateOfferTemplatePortalDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/offer-template-portals`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createOfferTemplatePortalDto,
-        });
-    };
-    const offerTemplatePortalRemove = (id: number) => {
-        return customAxios<void>({
-            url: `/api/offer-template-portals/${id}`,
-            method: 'DELETE',
-        });
-    };
-    const offerTemplatePortalSetActiveTemplatePortal = (id: number) => {
-        return customAxios<void>({
-            url: `/api/offer-template-portals/${id}/active`,
-            method: 'PATCH',
-        });
-    };
-    const offerTemplatePortalSetDefault = (id: number) => {
-        return customAxios<void>({
-            url: `/api/offer-template-portals/${id}/default`,
-            method: 'PATCH',
-        });
-    };
-    return {
-        offerTemplatePortalCreateOfferTemplatePortal,
-        offerTemplatePortalRemove,
-        offerTemplatePortalSetActiveTemplatePortal,
-        offerTemplatePortalSetDefault,
-    };
-};
-export type OfferTemplatePortalCreateOfferTemplatePortalResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getOfferTemplatePortal
-            >['offerTemplatePortalCreateOfferTemplatePortal']
-        >
-    >
->;
-export type OfferTemplatePortalRemoveResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getOfferTemplatePortal
-            >['offerTemplatePortalRemove']
-        >
-    >
->;
-export type OfferTemplatePortalSetActiveTemplatePortalResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getOfferTemplatePortal
-            >['offerTemplatePortalSetActiveTemplatePortal']
-        >
-    >
->;
-export type OfferTemplatePortalSetDefaultResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getOfferTemplatePortal
-            >['offerTemplatePortalSetDefault']
-        >
-    >
->;
+
+
+  export const getOfferTemplatePortal = () => {
+const offerTemplatePortalCreateOfferTemplatePortal = (
+    createOfferTemplatePortalDto: CreateOfferTemplatePortalDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/offer-template-portals`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createOfferTemplatePortalDto
+    },
+      );
+    }
+  const offerTemplatePortalRemove = (
+    id: number,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/offer-template-portals/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  const offerTemplatePortalSetActiveTemplatePortal = (
+    id: number,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/offer-template-portals/${id}/active`, method: 'PATCH'
+    },
+      );
+    }
+  const offerTemplatePortalSetDefault = (
+    id: number,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/offer-template-portals/${id}/default`, method: 'PATCH'
+    },
+      );
+    }
+  return {offerTemplatePortalCreateOfferTemplatePortal,offerTemplatePortalRemove,offerTemplatePortalSetActiveTemplatePortal,offerTemplatePortalSetDefault}};
+export type OfferTemplatePortalCreateOfferTemplatePortalResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOfferTemplatePortal>['offerTemplatePortalCreateOfferTemplatePortal']>>>
+export type OfferTemplatePortalRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOfferTemplatePortal>['offerTemplatePortalRemove']>>>
+export type OfferTemplatePortalSetActiveTemplatePortalResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOfferTemplatePortal>['offerTemplatePortalSetActiveTemplatePortal']>>>
+export type OfferTemplatePortalSetDefaultResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOfferTemplatePortal>['offerTemplatePortalSetDefault']>>>

@@ -103,6 +103,7 @@ export const AuthWidget = () => {
                         </Tabs>
                     </CardContent>
                 </Card>
+           
             </div>
         </div>);
 };

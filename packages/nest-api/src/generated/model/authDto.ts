@@ -7,5 +7,5 @@
  */
 
 export interface AuthDto {
-    domain: string;
+  domain: string;
 }

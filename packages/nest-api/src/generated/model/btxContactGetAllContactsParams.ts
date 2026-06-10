@@ -7,5 +7,5 @@
  */
 
 export type BtxContactGetAllContactsParams = {
-    portal_id: string;
+portal_id: string;
 };

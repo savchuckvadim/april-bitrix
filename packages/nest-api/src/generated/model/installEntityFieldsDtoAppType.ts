@@ -9,11 +9,11 @@
 /**
  * Тип приложения
  */
-export type InstallEntityFieldsDtoAppType =
-    (typeof InstallEntityFieldsDtoAppType)[keyof typeof InstallEntityFieldsDtoAppType];
+export type InstallEntityFieldsDtoAppType = typeof InstallEntityFieldsDtoAppType[keyof typeof InstallEntityFieldsDtoAppType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const InstallEntityFieldsDtoAppType = {
-    event: 'event',
-    konstructor: 'konstructor',
+  event: 'event',
+  konstructor: 'konstructor',
 } as const;

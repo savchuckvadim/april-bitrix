@@ -33,7 +33,7 @@ export enum EResultCode {
 
 export const onlineAPI = {
     service: async <T>(
-        url: ONLINE_KONSTRUCTOR_ENDPOINTS | SETUP_ENDPOINT,
+        url: ONLINE_KONSTRUCTOR_ENDPOINTS | SETUP_ENDPOINT | string,
         method: API_METHOD,
         data?: any,
         headers?: any,

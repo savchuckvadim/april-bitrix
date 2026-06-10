@@ -8,10 +8,10 @@
 import type { SupplyFieldDto } from './supplyFieldDto';
 
 export interface CellsGroupDto {
-    /** Name of the cells group */
-    name: string;
-    /** Cells of the cells group */
-    cells: SupplyFieldDto[];
-    /** Target of the cells group */
-    target: string;
+  /** Name of the cells group */
+  name: string;
+  /** Cells of the cells group */
+  cells: SupplyFieldDto[];
+  /** Target of the cells group */
+  target: string;
 }

@@ -9,7 +9,7 @@ import { ConfirmDialog } from '@/modules/shared/ui/confirm-dialog';
 import { ClientResponseDto } from '@workspace/nest-api';
 
 export function ClientList() {
-    debugger
+
     const router = useRouter();
     const { data: clients, isLoading } = useClients({
         is_active: 'true',

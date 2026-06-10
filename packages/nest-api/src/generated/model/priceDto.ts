@@ -9,20 +9,20 @@ import type { CellsWrapper } from './cellsWrapper';
 import type { OfferOptionsDto } from './offerOptionsDto';
 
 export interface PriceDto {
-    /** Cells of the price */
-    cells: CellsWrapper;
-    /** Options of the price */
-    options: OfferOptionsDto;
-    /** Is default show of the price */
-    isDefaultShow: boolean;
-    /** Is table of the price */
-    isTable: boolean;
-    /** Is one measure of the price */
-    isOneMeasure: boolean;
-    /** Is discount show of the price */
-    isDiscountShow: boolean;
-    /** Is supply long of the price */
-    isSupplyLong: boolean;
-    /** Prepayment style of the price */
-    prepaymentStyle: string;
+  /** Cells of the price */
+  cells: CellsWrapper;
+  /** Options of the price */
+  options: OfferOptionsDto;
+  /** Is default show of the price */
+  isDefaultShow: boolean;
+  /** Is table of the price */
+  isTable: boolean;
+  /** Is one measure of the price */
+  isOneMeasure: boolean;
+  /** Is discount show of the price */
+  isDiscountShow: boolean;
+  /** Is supply long of the price */
+  isSupplyLong: boolean;
+  /** Prepayment style of the price */
+  prepaymentStyle: string;
 }

@@ -7,14 +7,14 @@
  */
 
 export interface PbxSalesKpiFieldItemValueDto {
-    /** ID */
-    id: number;
-    /** Bitrix ID */
-    bitrixId: number;
-    /** Name */
-    name: string;
-    /** Value */
-    value: string;
-    /** Code */
-    code: string;
+  /** ID */
+  id: number;
+  /** Bitrix ID */
+  bitrixId: number;
+  /** Name */
+  name: string;
+  /** Value */
+  value: string;
+  /** Code */
+  code: string;
 }

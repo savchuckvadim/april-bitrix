@@ -7,10 +7,10 @@
  */
 
 export interface OrkUserReportStartResponseDto {
-    /** ID задачи */
-    operationId: string;
-    /** Сообщение */
-    message: string;
-    /** Успешно */
-    success: boolean;
+  /** ID задачи */
+  operationId: string;
+  /** Сообщение */
+  message: string;
+  /** Успешно */
+  success: boolean;
 }

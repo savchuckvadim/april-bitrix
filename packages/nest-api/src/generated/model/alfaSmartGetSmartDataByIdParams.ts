@@ -7,5 +7,5 @@
  */
 
 export type AlfaSmartGetSmartDataByIdParams = {
-    domain: string;
+domain: string;
 };

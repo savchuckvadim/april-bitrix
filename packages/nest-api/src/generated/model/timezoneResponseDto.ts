@@ -9,18 +9,18 @@ import type { TimezoneResponseDtoType } from './timezoneResponseDtoType';
 import type { TimezoneResponseDtoOffset } from './timezoneResponseDtoOffset';
 
 export interface TimezoneResponseDto {
-    /** Timezone ID */
-    id: number;
-    /** Timezone name */
-    name: string;
-    /** Timezone title */
-    title: string;
-    /** Timezone value */
-    value: string;
-    /** Portal ID */
-    portal_id: number;
-    /** Timezone type */
-    type?: TimezoneResponseDtoType;
-    /** Timezone offset */
-    offset?: TimezoneResponseDtoOffset;
+  /** Timezone ID */
+  id: number;
+  /** Timezone name */
+  name: string;
+  /** Timezone title */
+  title: string;
+  /** Timezone value */
+  value: string;
+  /** Portal ID */
+  portal_id: number;
+  /** Timezone type */
+  type?: TimezoneResponseDtoType;
+  /** Timezone offset */
+  offset?: TimezoneResponseDtoOffset;
 }

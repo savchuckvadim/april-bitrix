@@ -9,14 +9,14 @@ import type { InstallSmartFieldsDtoGroup } from './installSmartFieldsDtoGroup';
 import type { InstallSmartFieldsDtoAppType } from './installSmartFieldsDtoAppType';
 
 export interface InstallSmartFieldsDto {
-    /** Домен портала */
-    domain: string;
-    /** Группа полей */
-    group: InstallSmartFieldsDtoGroup;
-    /** Тип приложения */
-    appType: InstallSmartFieldsDtoAppType;
-    /** Список entityTypeId smart сущностей для установки полей */
-    entityTypeIds?: number[];
-    /** Список кодов полей для установки. Если не указан, устанавливаются все поля */
-    fieldCodes?: string[];
+  /** Домен портала */
+  domain: string;
+  /** Группа полей */
+  group: InstallSmartFieldsDtoGroup;
+  /** Тип приложения */
+  appType: InstallSmartFieldsDtoAppType;
+  /** Список entityTypeId smart сущностей для установки полей */
+  entityTypeIds?: number[];
+  /** Список кодов полей для установки. Если не указан, устанавливаются все поля */
+  fieldCodes?: string[];
 }

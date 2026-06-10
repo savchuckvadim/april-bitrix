@@ -8,14 +8,14 @@
 import type { TranscriptionResponseDtoStatus } from './transcriptionResponseDtoStatus';
 
 export interface TranscriptionResponseDto {
-    /** Task ID for tracking transcription status */
-    taskId: string;
-    /** Status of the transcription task */
-    status: TranscriptionResponseDtoStatus;
-    /** Transcribed text (if status is done) */
-    text?: string;
-    /** Error message (if status is error) */
-    error?: string;
-    /** Transcription ID */
-    transcriptionId: number;
+  /** Task ID for tracking transcription status */
+  taskId: string;
+  /** Status of the transcription task */
+  status: TranscriptionResponseDtoStatus;
+  /** Transcribed text (if status is done) */
+  text?: string;
+  /** Error message (if status is error) */
+  error?: string;
+  /** Transcription ID */
+  transcriptionId: number;
 }

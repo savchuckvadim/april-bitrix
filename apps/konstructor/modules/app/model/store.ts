@@ -9,7 +9,8 @@ import {
     ThunkAction,
 } from '@reduxjs/toolkit';
 import { appReducer } from './AppSlice';
-import { WSClient } from '@workspace/ws';
+import { WSClient } from '@/modules/shared';
+import { WSClient as WSClientWorkspace } from '@workspace/ws';
 import { infoblockReducer } from '@/modules/entities/infoblock';
 import { offerTemplateBlockReducer } from '@/modules/entities/offer-template-block';
 import { complectReducer } from '@/modules/entities/complect';
@@ -17,6 +18,12 @@ import { baseTemplateReducer } from '@/modules/entities/base-template';
 import { offerTemplateReducer } from '@/modules/entities/offer-template';
 import { offerTemplateKonstructorReducer } from '@/modules/entities/offer-template-konstructor';
 import { offerReducer } from '@/modules/entities/offer';
+import { errorHandler } from '../lib/error-handler';
+import { wordTemplate, wordTemplatePdfPreviewReducer } from '@/modules/entities/offer-template-word/';
+import { portalReducer } from '@/modules/entities/portal';
+import { documentProviderReducer } from '@/modules/entities/provider';
+import { dealReducer } from '@/modules/entities/deal';
+import { bxrqReducer } from '@workspace/bx-rq';
 
 export const listenerMiddleware = createListenerMiddleware();
 let wsClient: WSClient;
@@ -38,16 +45,36 @@ export const getWSClient = () => {
 
 const rootReducer = combineReducers({
     app: appReducer,
+    bxrq: bxrqReducer,
 
+    deal: dealReducer,
     complect: complectReducer,
     infoblock: infoblockReducer,
+    portal: portalReducer,
 
+    documentProvider: documentProviderReducer,
     baseTemplate: baseTemplateReducer,
     offer: offerReducer,
     offerTemplate: offerTemplateReducer,
     offerTemplateBlock: offerTemplateBlockReducer,
     offerTemplateKonstructor: offerTemplateKonstructorReducer,
+    offerTemplateWord: wordTemplate,
+    wordTemplatePdfPreview: wordTemplatePdfPreviewReducer,
 });
+
+
+// Middleware для обработки ошибок
+const errorMiddleware: Middleware = storeAPI => next => action => {
+    try {
+        return next(action);
+    } catch (error) {
+        console.error('Redux Error:', error);
+        // Обрабатываем ошибку через ErrorHandler
+        errorHandler.handleAsyncError(error);
+        return next(action);
+    }
+};
+
 
 export const setupStore = () => {
     return configureStore({
@@ -55,9 +82,11 @@ export const setupStore = () => {
         middleware: getDefaultMiddleware =>
             getDefaultMiddleware({
                 thunk: {
-                    extraArgument: { getWSClient },
+                    extraArgument: { getWSClient: WSClient.getClient },
                 },
-            }),
+            })
+                .concat(errorMiddleware)
+                .concat(listenerMiddleware.middleware),
         // .concat(portalAPI.middleware)
         // .concat(infoblockAPI.middleware)
 
@@ -65,12 +94,10 @@ export const setupStore = () => {
     });
 };
 
-//listeners
-// portalListener();
 
 // Тип для extraArgument
 export type ThunkExtraArgument = {
-    getWSClient: typeof getWSClient;
+    getWSClient: () => WSClientWorkspace;
 };
 
 // Тип для thunk

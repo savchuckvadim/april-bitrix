@@ -9,11 +9,11 @@
 /**
  * Auth type of the bitrix
  */
-export type BitrixMethodDtoAuthType =
-    (typeof BitrixMethodDtoAuthType)[keyof typeof BitrixMethodDtoAuthType];
+export type BitrixMethodDtoAuthType = typeof BitrixMethodDtoAuthType[keyof typeof BitrixMethodDtoAuthType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BitrixMethodDtoAuthType = {
-    token: 'token',
-    hook: 'hook',
+  token: 'token',
+  hook: 'hook',
 } as const;

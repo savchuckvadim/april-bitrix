@@ -8,6 +8,6 @@
 import type { ReportGetFiltersDto } from './reportGetFiltersDto';
 
 export interface ReportGetRequestDto {
-    domain: string;
-    filters: ReportGetFiltersDto;
+  domain: string;
+  filters: ReportGetFiltersDto;
 }

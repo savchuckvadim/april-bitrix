@@ -8,10 +8,10 @@
 import type { CellsGroupDto } from './cellsGroupDto';
 
 export interface CellsWrapper {
-    /** General of the cells wrapper */
-    general: CellsGroupDto[];
-    /** Alternative of the cells wrapper */
-    alternative: CellsGroupDto[];
-    /** Total of the cells wrapper */
-    total: CellsGroupDto[];
+  /** General of the cells wrapper */
+  general: CellsGroupDto[];
+  /** Alternative of the cells wrapper */
+  alternative: CellsGroupDto[];
+  /** Total of the cells wrapper */
+  total: CellsGroupDto[];
 }

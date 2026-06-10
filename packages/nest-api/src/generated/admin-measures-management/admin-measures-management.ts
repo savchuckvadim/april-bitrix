@@ -6,116 +6,79 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    CreateMeasureDto,
-    MeasureResponseDto,
-    UpdateMeasureDto,
+  CreateMeasureDto,
+  MeasureResponseDto,
+  UpdateMeasureDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getAdminMeasuresManagement = () => {
-    /**
-     * @summary Create a new measure
-     */
-    const measureCreateMeasure = (createMeasureDto: CreateMeasureDto) => {
-        return customAxios<MeasureResponseDto>({
-            url: `/api/admin/measures`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createMeasureDto,
-        });
-    };
-    /**
-     * @summary Get all measures
-     */
-    const measureGetAllMeasures = () => {
-        return customAxios<MeasureResponseDto[]>({
-            url: `/api/admin/measures`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Get measure by ID
-     */
-    const measureGetMeasureById = (id: number) => {
-        return customAxios<MeasureResponseDto>({
-            url: `/api/admin/measures/${id}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Update measure
-     */
-    const measureUpdateMeasure = (
-        id: number,
-        updateMeasureDto: UpdateMeasureDto,
-    ) => {
-        return customAxios<MeasureResponseDto>({
-            url: `/api/admin/measures/${id}`,
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            data: updateMeasureDto,
-        });
-    };
-    /**
-     * @summary Delete measure
-     */
-    const measureDeleteMeasure = (id: number) => {
-        return customAxios<void>({
-            url: `/api/admin/measures/${id}`,
-            method: 'DELETE',
-        });
-    };
-    return {
-        measureCreateMeasure,
-        measureGetAllMeasures,
-        measureGetMeasureById,
-        measureUpdateMeasure,
-        measureDeleteMeasure,
-    };
-};
-export type MeasureCreateMeasureResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMeasuresManagement
-            >['measureCreateMeasure']
-        >
-    >
->;
-export type MeasureGetAllMeasuresResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMeasuresManagement
-            >['measureGetAllMeasures']
-        >
-    >
->;
-export type MeasureGetMeasureByIdResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMeasuresManagement
-            >['measureGetMeasureById']
-        >
-    >
->;
-export type MeasureUpdateMeasureResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMeasuresManagement
-            >['measureUpdateMeasure']
-        >
-    >
->;
-export type MeasureDeleteMeasureResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMeasuresManagement
-            >['measureDeleteMeasure']
-        >
-    >
->;
+
+
+  export const getAdminMeasuresManagement = () => {
+/**
+ * @summary Create a new measure
+ */
+const adminGarantMeasureCreateMeasure = (
+    createMeasureDto: CreateMeasureDto,
+ ) => {
+      return customAxios<MeasureResponseDto>(
+      {url: `/api/admin/garant/measures`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createMeasureDto
+    },
+      );
+    }
+  /**
+ * @summary Get all measures
+ */
+const adminGarantMeasureGetAllMeasures = (
+    
+ ) => {
+      return customAxios<MeasureResponseDto[]>(
+      {url: `/api/admin/garant/measures`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Get measure by ID
+ */
+const adminGarantMeasureGetMeasureById = (
+    id: number,
+ ) => {
+      return customAxios<MeasureResponseDto>(
+      {url: `/api/admin/garant/measures/${id}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Update measure
+ */
+const adminGarantMeasureUpdateMeasure = (
+    id: number,
+    updateMeasureDto: UpdateMeasureDto,
+ ) => {
+      return customAxios<MeasureResponseDto>(
+      {url: `/api/admin/garant/measures/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateMeasureDto
+    },
+      );
+    }
+  /**
+ * @summary Delete measure
+ */
+const adminGarantMeasureDeleteMeasure = (
+    id: number,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/admin/garant/measures/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  return {adminGarantMeasureCreateMeasure,adminGarantMeasureGetAllMeasures,adminGarantMeasureGetMeasureById,adminGarantMeasureUpdateMeasure,adminGarantMeasureDeleteMeasure}};
+export type AdminGarantMeasureCreateMeasureResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMeasuresManagement>['adminGarantMeasureCreateMeasure']>>>
+export type AdminGarantMeasureGetAllMeasuresResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMeasuresManagement>['adminGarantMeasureGetAllMeasures']>>>
+export type AdminGarantMeasureGetMeasureByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMeasuresManagement>['adminGarantMeasureGetMeasureById']>>>
+export type AdminGarantMeasureUpdateMeasureResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMeasuresManagement>['adminGarantMeasureUpdateMeasure']>>>
+export type AdminGarantMeasureDeleteMeasureResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMeasuresManagement>['adminGarantMeasureDeleteMeasure']>>>

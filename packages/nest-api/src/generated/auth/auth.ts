@@ -6,184 +6,228 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    ClientAuthResponseDto,
-    ClientRegistrationRequestDto,
-    GetAllClientsUsersDto,
-    LoginDto,
-    LoginResponseDto,
-    LogoutResponseDto,
-    MeResponseDto,
+  AuthResponseDto,
+  ClientAuthResponseDto,
+  ClientRegistrationRequestDto,
+  ForgotPasswordDto,
+  GetAllClientsUsersDto,
+  LoginDto,
+  LogoutResponseDto,
+  MeResponseDto,
+  ResendConfirmationDto,
+  ResetPasswordDto,
+  ResetPasswordTokenStatusDto,
+  UserResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getAuth = () => {
-    /**
-     * @summary Register new client
-     */
-    const authRegisterClient = (
-        clientRegistrationRequestDto: ClientRegistrationRequestDto,
-    ) => {
-        return customAxios<ClientAuthResponseDto>({
-            url: `/api/auth/register-client`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: clientRegistrationRequestDto,
-        });
-    };
-    /**
-     * @summary Login
-     */
-    const authLogin = (loginDto: LoginDto) => {
-        return customAxios<LoginResponseDto>({
-            url: `/api/auth/login`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: loginDto,
-        });
-    };
-    /**
-     * @summary Logout
-     */
-    const authLogout = () => {
-        return customAxios<LogoutResponseDto>({
-            url: `/api/auth/logout`,
-            method: 'POST',
-        });
-    };
-    /**
-     * @summary Confirm email
-     */
-    const authConfirmEmail = (token: string) => {
-        return customAxios<LogoutResponseDto>({
-            url: `/api/auth/confirm/${token}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Resend confirmation
-     */
-    const authResendConfirmation = () => {
-        return customAxios<LogoutResponseDto>({
-            url: `/api/auth/resend-confirmation`,
-            method: 'POST',
-        });
-    };
-    /**
-     * @summary Me
-     */
-    const authMe = () => {
-        return customAxios<MeResponseDto>({
-            url: `/api/auth/me`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Delete client
-     */
-    const authDeleteClient = (id: number) => {
-        return customAxios<LogoutResponseDto>({
-            url: `/api/auth/delete-client/${id}`,
-            method: 'DELETE',
-        });
-    };
-    /**
-     * @summary Delete user
-     */
-    const authDeleteUser = (id: number) => {
-        return customAxios<LogoutResponseDto>({
-            url: `/api/auth/delete-user/${id}`,
-            method: 'DELETE',
-        });
-    };
-    /**
-     * @summary Get all clients
-     */
-    const authGetAllClients = () => {
-        return customAxios<ClientAuthResponseDto[]>({
-            url: `/api/auth/get-all-clients`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Get all clients users
-     */
-    const authGetAllClientsUsers = (
-        getAllClientsUsersDto: GetAllClientsUsersDto,
-    ) => {
-        return customAxios<ClientAuthResponseDto[]>({
-            url: `/api/auth/get-all-clients-users`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: getAllClientsUsersDto,
-        });
-    };
-    /**
-     * @summary Get all clients users
-     */
-    const authGetAllUsers = () => {
-        return customAxios<ClientAuthResponseDto[]>({
-            url: `/api/auth/get-all-users`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Get all clients portls
-     */
-    const authGetAllPortals = () => {
-        return customAxios<void>({
-            url: `/api/auth/get-all-portls`,
-            method: 'GET',
-        });
-    };
-    return {
-        authRegisterClient,
-        authLogin,
-        authLogout,
-        authConfirmEmail,
-        authResendConfirmation,
-        authMe,
-        authDeleteClient,
-        authDeleteUser,
-        authGetAllClients,
-        authGetAllClientsUsers,
-        authGetAllUsers,
-        authGetAllPortals,
-    };
-};
-export type AuthRegisterClientResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authRegisterClient']>>
->;
-export type AuthLoginResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authLogin']>>
->;
-export type AuthLogoutResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authLogout']>>
->;
-export type AuthConfirmEmailResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authConfirmEmail']>>
->;
-export type AuthResendConfirmationResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authResendConfirmation']>>
->;
-export type AuthMeResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authMe']>>
->;
-export type AuthDeleteClientResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authDeleteClient']>>
->;
-export type AuthDeleteUserResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authDeleteUser']>>
->;
-export type AuthGetAllClientsResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllClients']>>
->;
-export type AuthGetAllClientsUsersResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllClientsUsers']>>
->;
-export type AuthGetAllUsersResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllUsers']>>
->;
-export type AuthGetAllPortalsResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllPortals']>>
->;
+
+
+  export const getAuth = () => {
+/**
+ * @summary Register new client
+ */
+const authRegisterClient = (
+    clientRegistrationRequestDto: ClientRegistrationRequestDto,
+ ) => {
+      return customAxios<ClientAuthResponseDto>(
+      {url: `/api/auth/register-client`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: clientRegistrationRequestDto
+    },
+      );
+    }
+  /**
+ * @summary Login — sets httpOnly cookies (access + refresh)
+ */
+const authLogin = (
+    loginDto: LoginDto,
+ ) => {
+      return customAxios<AuthResponseDto>(
+      {url: `/api/auth/login`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: loginDto
+    },
+      );
+    }
+  /**
+ * @summary Refresh tokens — rotates both cookies
+ */
+const authRefresh = (
+    
+ ) => {
+      return customAxios<AuthResponseDto>(
+      {url: `/api/auth/refresh`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Logout — clears cookies, revokes refresh
+ */
+const authLogout = (
+    
+ ) => {
+      return customAxios<LogoutResponseDto>(
+      {url: `/api/auth/logout`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Confirm email
+ */
+const authConfirmEmail = (
+    token: string,
+ ) => {
+      return customAxios<LogoutResponseDto>(
+      {url: `/api/auth/confirm/${token}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Повторно отправляет письмо с подтверждением email для пользователя, который еще не завершил подтверждение почты.
+ * @summary Resend email confirmation link
+ */
+const authResendConfirmation = (
+    resendConfirmationDto: ResendConfirmationDto,
+ ) => {
+      return customAxios<LogoutResponseDto>(
+      {url: `/api/auth/resend-confirmation`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: resendConfirmationDto
+    },
+      );
+    }
+  /**
+ * @summary Request password reset email
+ */
+const authForgotPassword = (
+    forgotPasswordDto: ForgotPasswordDto,
+ ) => {
+      return customAxios<LogoutResponseDto>(
+      {url: `/api/auth/forgot-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: forgotPasswordDto
+    },
+      );
+    }
+  /**
+ * @summary Validate password reset token
+ */
+const authValidateResetPasswordToken = (
+    token: string,
+ ) => {
+      return customAxios<ResetPasswordTokenStatusDto>(
+      {url: `/api/auth/reset-password/validate/${token}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Reset password using token
+ */
+const authResetPassword = (
+    resetPasswordDto: ResetPasswordDto,
+ ) => {
+      return customAxios<LogoutResponseDto>(
+      {url: `/api/auth/reset-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: resetPasswordDto
+    },
+      );
+    }
+  /**
+ * @summary Get current user and client
+ */
+const authMe = (
+    
+ ) => {
+      return customAxios<MeResponseDto>(
+      {url: `/api/auth/me`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Delete client
+ */
+const authDeleteClient = (
+    id: number,
+ ) => {
+      return customAxios<LogoutResponseDto>(
+      {url: `/api/auth/delete-client/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  /**
+ * @summary Delete user
+ */
+const authDeleteUser = (
+    id: number,
+ ) => {
+      return customAxios<LogoutResponseDto>(
+      {url: `/api/auth/delete-user/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  /**
+ * @summary Get all clients
+ */
+const authGetAllClients = (
+    
+ ) => {
+      return customAxios<ClientAuthResponseDto[]>(
+      {url: `/api/auth/get-all-clients`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Get all clients users
+ */
+const authGetAllClientsUsers = (
+    getAllClientsUsersDto: GetAllClientsUsersDto,
+ ) => {
+      return customAxios<ClientAuthResponseDto[]>(
+      {url: `/api/auth/get-all-clients-users`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: getAllClientsUsersDto
+    },
+      );
+    }
+  /**
+ * @summary Get all users
+ */
+const authGetAllUsers = (
+    
+ ) => {
+      return customAxios<UserResponseDto[]>(
+      {url: `/api/auth/get-all-users`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Get all portals
+ */
+const authGetAllPortals = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api/auth/get-all-portals`, method: 'GET'
+    },
+      );
+    }
+  return {authRegisterClient,authLogin,authRefresh,authLogout,authConfirmEmail,authResendConfirmation,authForgotPassword,authValidateResetPasswordToken,authResetPassword,authMe,authDeleteClient,authDeleteUser,authGetAllClients,authGetAllClientsUsers,authGetAllUsers,authGetAllPortals}};
+export type AuthRegisterClientResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authRegisterClient']>>>
+export type AuthLoginResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authLogin']>>>
+export type AuthRefreshResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authRefresh']>>>
+export type AuthLogoutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authLogout']>>>
+export type AuthConfirmEmailResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authConfirmEmail']>>>
+export type AuthResendConfirmationResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authResendConfirmation']>>>
+export type AuthForgotPasswordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authForgotPassword']>>>
+export type AuthValidateResetPasswordTokenResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authValidateResetPasswordToken']>>>
+export type AuthResetPasswordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authResetPassword']>>>
+export type AuthMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authMe']>>>
+export type AuthDeleteClientResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authDeleteClient']>>>
+export type AuthDeleteUserResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authDeleteUser']>>>
+export type AuthGetAllClientsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllClients']>>>
+export type AuthGetAllClientsUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllClientsUsers']>>>
+export type AuthGetAllUsersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllUsers']>>>
+export type AuthGetAllPortalsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authGetAllPortals']>>>

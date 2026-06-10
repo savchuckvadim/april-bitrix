@@ -8,10 +8,10 @@
 import type { InstallAppFromPortalResponseDtoStatus } from './installAppFromPortalResponseDtoStatus';
 
 export interface InstallAppFromPortalResponseDto {
-    /** Token */
-    token?: string;
-    /** Status */
-    status: InstallAppFromPortalResponseDtoStatus;
-    /** Message */
-    message?: string;
+  /** Token */
+  token?: string;
+  /** Status */
+  status: InstallAppFromPortalResponseDtoStatus;
+  /** Message */
+  message?: string;
 }

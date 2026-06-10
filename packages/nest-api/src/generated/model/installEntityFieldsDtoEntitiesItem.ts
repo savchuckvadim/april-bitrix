@@ -6,14 +6,18 @@
  * OpenAPI spec version: 1.0
  */
 
-export type InstallEntityFieldsDtoEntitiesItem =
-    (typeof InstallEntityFieldsDtoEntitiesItem)[keyof typeof InstallEntityFieldsDtoEntitiesItem];
+export type InstallEntityFieldsDtoEntitiesItem = typeof InstallEntityFieldsDtoEntitiesItem[keyof typeof InstallEntityFieldsDtoEntitiesItem];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const InstallEntityFieldsDtoEntitiesItem = {
-    'App\Models\Smart': 'App\Models\Smart',
-    'App\Models\BtxCompany': 'App\Models\BtxCompany',
-    'App\Models\BtxContact': 'App\Models\BtxContact',
-    'App\Models\Lead': 'App\Models\Lead',
-    'App\Models\Deal': 'App\Models\Deal',
+  'App\Models\Smart': 'App\Models\Smart',
+  'App\Models\BtxCompany': 'App\Models\BtxCompany',
+  'App\Models\BtxContact': 'App\Models\BtxContact',
+  'App\Models\Lead': 'App\Models\Lead',
+  'App\Models\BtxDeal': 'App\Models\BtxDeal',
+  'App\Models\BtxRpa': 'App\Models\BtxRpa',
+  'App\Models\BxRq': 'App\Models\BxRq',
+  'App\Models\BitrixList': 'App\Models\BitrixList',
+  'App\Models\BtxUser': 'App\Models\BtxUser',
 } as const;

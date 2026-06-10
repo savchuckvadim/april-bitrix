@@ -8,18 +8,20 @@
 import type { WordTemplateDtoVisibility } from './wordTemplateDtoVisibility';
 
 export interface WordTemplateDto {
-    id: string;
-    name: string;
-    visibility: WordTemplateDtoVisibility;
-    is_default: boolean;
-    file_path: string;
-    demo_path?: string;
-    type: string;
-    code: string;
-    tags?: string;
-    is_active: boolean;
-    counter: number;
-    template_url?: string;
-    created_at?: string;
-    updated_at?: string;
+  id: string;
+  name: string;
+  visibility: WordTemplateDtoVisibility;
+  is_default: boolean;
+  file_path: string;
+  demo_path?: string;
+  type: string;
+  code: string;
+  tags?: string;
+  is_active: boolean;
+  is_archived: boolean;
+  user_id?: number;
+  counter: number;
+  template_url?: string;
+  created_at?: string;
+  updated_at?: string;
 }

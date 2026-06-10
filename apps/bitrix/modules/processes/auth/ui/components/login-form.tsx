@@ -1,82 +1,66 @@
 'use client'
-import { useState } from "react";
-import { Label } from "@workspace/ui/components/label";
-import { Input } from "@workspace/ui/components/input";
-import { Alert } from "@workspace/ui/components/alert";
-import { AlertDescription } from "@workspace/ui/components/alert";
+
+import { Alert, AlertDescription } from "@workspace/ui/components/alert";
 import { Button } from "@workspace/ui/components/button";
-import { LogIn, Eye } from "lucide-react";
-import { EyeOff, AlertTriangle } from "lucide-react";
-import { ILoginForm } from "../../model/types";
+import { FormFieldInput } from "@workspace/ui/shared";
+import { AlertTriangle, LogIn } from "lucide-react";
+import Link from "next/link";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { ILoginForm } from "../../model/types";
 import { useAuth } from "../../lib/hooks";
 
-
 export const LoginForm = () => {
-
-
-    const [showPassword, setShowPassword] = useState(false);
     const { login, isLoading, error } = useAuth();
-    const {
-        register,
-        handleSubmit,
-        watch,
-        formState: { errors },
-    } = useForm<ILoginForm>()
+    const { control, handleSubmit } = useForm<ILoginForm>();
     const onSubmit: SubmitHandler<ILoginForm> = (data) => login(data);
-
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="login-domain">Domain</Label>
-                <Input
-                    id="login-domain"
-                    type="text"
-                    placeholder="your-domain.bitrix24.ru"
-                    defaultValue={watch('domain')}
-                    {...register("domain")}
-                    required
-                />
-            </div>
+            <FormFieldInput
+                control={control}
+                name="domain"
+                label="Domain"
+                placeholder="your-domain.bitrix24.ru"
+                rules={{ required: "Обязательное поле" }}
+                required
+            />
 
-            <div className="space-y-2">
-                <Label htmlFor="login-email">Email</Label>
-                <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="your@email.com"
-                    defaultValue={watch('email')}
-                    {...register("email")}
-                    required
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="login-password">Пароль</Label>
-                <div className="relative">
-                    <Input
-                        id="login-password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Введите пароль"
-                        defaultValue={watch('password')}
-                        {...register("password")}
-                        required
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                </div>
-            </div>
-            {(error || errors.domain || errors.email || errors.password) && (
+            <FormFieldInput
+                control={control}
+                name="email"
+                label="Email"
+                type="email"
+                placeholder="your@email.com"
+                rules={{ required: "Обязательное поле" }}
+                required
+            />
+
+            <FormFieldInput
+                control={control}
+                name="password"
+                label="Пароль"
+                type="password"
+                placeholder="Введите пароль"
+                rules={{ required: "Обязательное поле" }}
+                required
+            />
+
+            {error && (
                 <Alert variant="destructive">
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>{error || errors.domain?.message || errors.email?.message || errors.password?.message}</AlertDescription>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
+
+            <div className="flex justify-end">
+                <Link
+                    href="/auth/forgot-password"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                    Забыли пароль?
+                </Link>
+            </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                     <>

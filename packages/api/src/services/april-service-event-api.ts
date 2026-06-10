@@ -11,6 +11,8 @@ export enum EVS_ENDPOINT {
     GET_RQS = 'rq/get_rq',
     SET_RQ = 'rq/update_rq',
     SEND_EVENT = 'calling',
+    STORE_RQ = 'rq/store_rq',
+    CASE = 'case',
 }
 
 interface EVSResponse {

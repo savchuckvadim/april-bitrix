@@ -8,10 +8,10 @@
 import type { DownloadReportKpiItemDto } from './downloadReportKpiItemDto';
 
 export interface DownloadKpiReportItemDto {
-    /** Report ID - user id */
-    id: number;
-    /** User name */
-    userName: string;
-    /** KPI data */
-    kpi: DownloadReportKpiItemDto[];
+  /** Report ID - user id */
+  id: number;
+  /** User name */
+  userName: string;
+  /** KPI data */
+  kpi: DownloadReportKpiItemDto[];
 }

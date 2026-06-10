@@ -8,47 +8,55 @@
 import type { OfferWordByTemplateGenerateDtoContractType } from './offerWordByTemplateGenerateDtoContractType';
 import type { ComplectDto } from './complectDto';
 import type { SupplyDto } from './supplyDto';
-import type { PriceDto } from './priceDto';
 import type { ContractDto } from './contractDto';
-import type { RegionsDto } from './regionsDto';
-import type { RegionDto } from './regionDto';
 import type { ProductRowDto } from './productRowDto';
-import type { ProductRowSetDto } from './productRowSetDto';
+import type { ProductRowFullSetsDto } from './productRowFullSetsDto';
 import type { OfferWordByTemplateGenerateDtoClientType } from './offerWordByTemplateGenerateDtoClientType';
+import type { IOfferWordGenerateRecipientDto } from './iOfferWordGenerateRecipientDto';
+import type { IOfferWordGenerateManagerDto } from './iOfferWordGenerateManagerDto';
+import type { InvoiceDataDto } from './invoiceDataDto';
 
 export interface OfferWordByTemplateGenerateDto {
-    /** ID of the template */
-    templateId: string;
-    /** Domain of the company */
-    domain: string;
-    /** ID of the company */
-    companyId: string;
-    /** ID of the deal */
-    dealId: string;
-    /** ID of the provider */
-    providerId: number;
-    /** ID of the user */
-    userId: number;
-    /** Type of the contract */
-    contractType: OfferWordByTemplateGenerateDtoContractType;
-    /** Complect of the contract */
-    complect: ComplectDto[];
-    /** Supply of the contract */
-    supply: SupplyDto;
-    /** Price of the contract */
-    price: PriceDto;
-    /** Contract of the contract */
-    contract: ContractDto;
-    /** Regions of the contract */
-    regions: RegionsDto;
-    /** Region of the contract */
-    region: RegionDto;
-    /** Rows of the contract */
-    rows: ProductRowDto[];
-    /** Total of the contract */
-    total: ProductRowDto;
-    /** Product set of the contract */
-    productSet: ProductRowSetDto;
-    /** Client type of the contract */
-    clientType: OfferWordByTemplateGenerateDtoClientType;
+  /** ID of the template */
+  templateId: string;
+  /** ID of the invoice template */
+  invoiceTemplateId: string;
+  /** Domain of the company */
+  domain: string;
+  /** ID of the company */
+  companyId: string;
+  /** ID of the deal */
+  dealId: string;
+  /** ID of the provider */
+  providerId: number;
+  /** ID of the user */
+  userId: number;
+  /** Type of the contract */
+  contractType: OfferWordByTemplateGenerateDtoContractType;
+  /** Complect of the contract */
+  complect: ComplectDto[];
+  /** Supply of the contract */
+  supply: SupplyDto;
+  /** Contract of the contract */
+  contract: ContractDto;
+  /** Rows of the contract */
+  rows: ProductRowDto[];
+  /** Product set of the contract */
+  sets: ProductRowFullSetsDto;
+  /** Total of the contract */
+  total: ProductRowDto;
+  /** Client type of the contract */
+  clientType: OfferWordByTemplateGenerateDtoClientType;
+  /** true — в ответе link ведёт на PDF (DOCX сохраняется и конвертируется); false или не передавать — link на DOCX */
+  isWord?: boolean;
+  /** Recipient of the contract */
+  recipient: IOfferWordGenerateRecipientDto;
+  /** Manager of the contract */
+  manager: IOfferWordGenerateManagerDto;
+  /** Invoice data */
+  invoice: InvoiceDataDto;
+  /** Without queue */
+  withoutQueue: boolean;
+  /** true — сохранять документы только в Bitrix Disk; false или не передавать — сохранять и на сервере, и в Bitrix */
+  onlyBitrixSave?: boolean;
 }

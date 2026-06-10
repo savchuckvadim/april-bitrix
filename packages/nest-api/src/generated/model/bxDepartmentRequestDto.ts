@@ -9,8 +9,8 @@ import type { BxDepartmentRequestDtoDomain } from './bxDepartmentRequestDtoDomai
 import type { BxDepartmentRequestDtoDepartment } from './bxDepartmentRequestDtoDepartment';
 
 export interface BxDepartmentRequestDto {
-    /** Domain of the Bitrix24 portal */
-    domain: BxDepartmentRequestDtoDomain;
-    /** Department group to filter by */
-    department?: BxDepartmentRequestDtoDepartment;
+  /** Domain of the Bitrix24 portal */
+  domain: BxDepartmentRequestDtoDomain;
+  /** Department group to filter by */
+  department?: BxDepartmentRequestDtoDepartment;
 }

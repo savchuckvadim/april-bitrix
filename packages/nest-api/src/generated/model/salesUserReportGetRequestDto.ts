@@ -8,12 +8,12 @@
 import type { SalesUserReportFiltersDto } from './salesUserReportFiltersDto';
 
 export interface SalesUserReportGetRequestDto {
-    /** Домен */
-    domain: string;
-    /** ID сокета */
-    socketId: string;
-    /** ID пользователя */
-    userId: number;
-    /** Фильтры отчета KPI (действия) если приходят пустые то будет выгрузка всех действий */
-    filters: SalesUserReportFiltersDto;
+  /** Домен */
+  domain: string;
+  /** ID сокета */
+  socketId: string;
+  /** ID пользователя */
+  userId: number;
+  /** Фильтры отчета KPI (действия) если приходят пустые то будет выгрузка всех действий */
+  filters: SalesUserReportFiltersDto;
 }

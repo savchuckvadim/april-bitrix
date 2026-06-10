@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type CreateWordTemplateResponseDtoVisibility =
-    (typeof CreateWordTemplateResponseDtoVisibility)[keyof typeof CreateWordTemplateResponseDtoVisibility];
+export type CreateWordTemplateResponseDtoVisibility = typeof CreateWordTemplateResponseDtoVisibility[keyof typeof CreateWordTemplateResponseDtoVisibility];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateWordTemplateResponseDtoVisibility = {
-    public: 'public',
-    portal: 'portal',
-    user: 'user',
+  public: 'public',
+  private: 'private',
+  user: 'user',
 } as const;

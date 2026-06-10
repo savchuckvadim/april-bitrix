@@ -6,62 +6,44 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    InstallEntityFieldsDto,
-    InstallResultDto,
-    InstallSmartFieldsDto,
+  InstallEntityFieldsDto,
+  InstallResultDto,
+  InstallSmartFieldsDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getPbxFieldInstall = () => {
-    /**
-     * Устанавливает пользовательские поля для обычных CRM сущностей. Использует методы сущностей (company.addField, deal.getFieldsList) для работы с полями.
-     * @summary Установить поля для обычных сущностей (Lead, Company, Deal)
-     */
-    const pbxFieldInstallInstallEntityFields = (
-        installEntityFieldsDto: InstallEntityFieldsDto,
-    ) => {
-        return customAxios<InstallResultDto>({
-            url: `/api/pbx-field-install/entity`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: installEntityFieldsDto,
-        });
-    };
-    /**
-     * Устанавливает пользовательские поля для Smart сущностей. Использует userFieldConfig API для работы с полями.
-     * @summary Установить поля для Smart сущностей
-     */
-    const pbxFieldInstallInstallSmartFields = (
-        installSmartFieldsDto: InstallSmartFieldsDto,
-    ) => {
-        return customAxios<InstallResultDto>({
-            url: `/api/pbx-field-install/smart`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: installSmartFieldsDto,
-        });
-    };
-    return {
-        pbxFieldInstallInstallEntityFields,
-        pbxFieldInstallInstallSmartFields,
-    };
-};
-export type PbxFieldInstallInstallEntityFieldsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getPbxFieldInstall
-            >['pbxFieldInstallInstallEntityFields']
-        >
-    >
->;
-export type PbxFieldInstallInstallSmartFieldsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getPbxFieldInstall
-            >['pbxFieldInstallInstallSmartFields']
-        >
-    >
->;
+
+
+  export const getPbxFieldInstall = () => {
+/**
+ * Устанавливает пользовательские поля для обычных CRM сущностей. Использует методы сущностей (company.addField, deal.getFieldsList) для работы с полями.
+ * @summary Установить поля для обычных сущностей (Lead, Company, Deal)
+ */
+const pbxFieldInstallInstallEntityFields = (
+    installEntityFieldsDto: InstallEntityFieldsDto,
+ ) => {
+      return customAxios<InstallResultDto>(
+      {url: `/api/pbx-field-install/entity`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: installEntityFieldsDto
+    },
+      );
+    }
+  /**
+ * Устанавливает пользовательские поля для Smart сущностей. Использует userFieldConfig API для работы с полями.
+ * @summary Установить поля для Smart сущностей
+ */
+const pbxFieldInstallInstallSmartFields = (
+    installSmartFieldsDto: InstallSmartFieldsDto,
+ ) => {
+      return customAxios<InstallResultDto>(
+      {url: `/api/pbx-field-install/smart`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: installSmartFieldsDto
+    },
+      );
+    }
+  return {pbxFieldInstallInstallEntityFields,pbxFieldInstallInstallSmartFields}};
+export type PbxFieldInstallInstallEntityFieldsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxFieldInstall>['pbxFieldInstallInstallEntityFields']>>>
+export type PbxFieldInstallInstallSmartFieldsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxFieldInstall>['pbxFieldInstallInstallSmartFields']>>>

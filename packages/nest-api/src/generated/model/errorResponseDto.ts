@@ -8,8 +8,8 @@
 import type { ErrorResponseDtoResultCode } from './errorResponseDtoResultCode';
 
 export interface ErrorResponseDto {
-    /** Код результата операции (1 - ошибка) */
-    resultCode: ErrorResponseDtoResultCode;
-    /** Сообщение об ошибке */
-    message: string;
+  /** Код результата операции (1 - ошибка) */
+  resultCode: ErrorResponseDtoResultCode;
+  /** Сообщение об ошибке */
+  message: string;
 }

@@ -89,3 +89,30 @@ export * from './admin-portal-management/admin-portal-management';
 export * from './admin-portal-measures-management/admin-portal-measures-management';
 export * from './admin-portal-contracts-management/admin-portal-contracts-management';
 export * from './admin-portal-contracts-management/admin-portal-contracts-management';
+
+export * from './admin-garant-region/admin-garant-region';
+export * from './admin-portal-garant-region/admin-portal-garant-region';
+export * from './admin-garant-complect/admin-garant-complect';
+export * from './admin-garant-infoblock/admin-garant-infoblock';
+export * from './admin-garant-infoblock-package/admin-garant-infoblock-package';
+export * from './admin-garant-info-group/admin-garant-info-group';
+export * from './admin-garant-supply/admin-garant-supply';
+export * from './admin-garant-prof-price/admin-garant-prof-price';
+export * from './admin-garant-package/admin-garant-package';
+
+export * from './admin-transcription-store/admin-transcription-store';
+export * from './admin-ai/admin-ai';
+
+
+
+///konstructor templates
+
+export * from './offer-template-portal/offer-template-portal'
+export * from './offer-template-font/offer-template-font'
+export * from './konstructor-offer-template-image/konstructor-offer-template-image'
+export * from './konstructor-offer-template/konstructor-offer-template'
+export * from './konstructor-word-template/konstructor-word-template'
+export * from './konstructor-word-template-tags/konstructor-word-template-tags'
+export * from './portal-konstructor/portal-konstructor'
+
+export * from './admin-bitrix-fields-init-data-management/admin-bitrix-fields-init-data-management';

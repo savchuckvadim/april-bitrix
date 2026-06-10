@@ -7,6 +7,6 @@
  */
 
 export type PortalContractGetAllPortalContractsParams = {
-    portal_id: string;
-    contract_id: string;
+portal_id: string;
+contract_id?: string;
 };

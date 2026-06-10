@@ -5,38 +5,33 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { CreateBitrixSecretDto } from '.././model';
+import type {
+  CreateBitrixSecretDto
+} from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getBitrixSecret = () => {
-    const bitrixSecretStoreOrUpdate = (
-        createBitrixSecretDto: CreateBitrixSecretDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/bitrix-secret/store-or-update`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createBitrixSecretDto,
-        });
-    };
-    const bitrixSecretGetByCode = () => {
-        return customAxios<void>({
-            url: `/api/bitrix-secret/get-by-code`,
-            method: 'GET',
-        });
-    };
-    return { bitrixSecretStoreOrUpdate, bitrixSecretGetByCode };
-};
-export type BitrixSecretStoreOrUpdateResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getBitrixSecret>['bitrixSecretStoreOrUpdate']
-        >
-    >
->;
-export type BitrixSecretGetByCodeResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getBitrixSecret>['bitrixSecretGetByCode']>
-    >
->;
+
+
+  export const getBitrixSecret = () => {
+const bitrixSecretStoreOrUpdate = (
+    createBitrixSecretDto: CreateBitrixSecretDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/bitrix-secret/store-or-update`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createBitrixSecretDto
+    },
+      );
+    }
+  const bitrixSecretGetByCode = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api/bitrix-secret/get-by-code`, method: 'GET'
+    },
+      );
+    }
+  return {bitrixSecretStoreOrUpdate,bitrixSecretGetByCode}};
+export type BitrixSecretStoreOrUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getBitrixSecret>['bitrixSecretStoreOrUpdate']>>>
+export type BitrixSecretGetByCodeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getBitrixSecret>['bitrixSecretGetByCode']>>>

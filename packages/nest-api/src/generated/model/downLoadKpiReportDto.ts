@@ -10,10 +10,10 @@ import type { DownloadKpiReportItemDto } from './downloadKpiReportItemDto';
 import type { DateRangeDto } from './dateRangeDto';
 
 export interface DownLoadKpiReportDto {
-    /** Download type */
-    type: DownLoadKpiReportDtoType;
-    /** Report data */
-    report: DownloadKpiReportItemDto[];
-    /** Date range */
-    date: DateRangeDto;
+  /** Download type */
+  type: DownLoadKpiReportDtoType;
+  /** Report data */
+  report: DownloadKpiReportItemDto[];
+  /** Date range */
+  date: DateRangeDto;
 }

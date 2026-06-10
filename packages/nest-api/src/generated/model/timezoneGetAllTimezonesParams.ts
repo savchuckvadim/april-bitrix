@@ -7,5 +7,5 @@
  */
 
 export type TimezoneGetAllTimezonesParams = {
-    portal_id: string;
+portal_id: string;
 };

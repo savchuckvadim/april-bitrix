@@ -9,17 +9,17 @@
 /**
  * Type
  */
-export type EnabledAppDtoType =
-    (typeof EnabledAppDtoType)[keyof typeof EnabledAppDtoType];
+export type EnabledAppDtoType = typeof EnabledAppDtoType[keyof typeof EnabledAppDtoType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const EnabledAppDtoType = {
-    webhook: 'webhook',
-    event: 'event',
-    konstructor: 'konstructor',
-    report: 'report',
-    managment: 'managment',
-    ai: 'ai',
-    other: 'other',
-    full: 'full',
+  webhook: 'webhook',
+  event: 'event',
+  konstructor: 'konstructor',
+  report: 'report',
+  managment: 'managment',
+  ai: 'ai',
+  other: 'other',
+  full: 'full',
 } as const;

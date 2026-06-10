@@ -9,20 +9,20 @@ import type { BitrixFieldItemResponseDtoCreatedAt } from './bitrixFieldItemRespo
 import type { BitrixFieldItemResponseDtoUpdatedAt } from './bitrixFieldItemResponseDtoUpdatedAt';
 
 export interface BitrixFieldItemResponseDto {
-    /** Item ID */
-    id: number;
-    /** Bitrix Field ID */
-    bitrixfield_id: number;
-    /** Item name */
-    name: string;
-    /** Item title */
-    title: string;
-    /** Item code */
-    code: string;
-    /** Bitrix ID */
-    bitrixId: number;
-    /** Created at */
-    created_at?: BitrixFieldItemResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BitrixFieldItemResponseDtoUpdatedAt;
+  /** Item ID */
+  id: number;
+  /** Bitrix Field ID */
+  bitrixfield_id: number;
+  /** Item name */
+  name: string;
+  /** Item title */
+  title: string;
+  /** Item code */
+  code: string;
+  /** Bitrix ID */
+  bitrixId: number;
+  /** Created at */
+  created_at?: BitrixFieldItemResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BitrixFieldItemResponseDtoUpdatedAt;
 }

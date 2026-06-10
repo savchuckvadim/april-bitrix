@@ -8,8 +8,8 @@
 import type { PlacementDtoOptions } from './placementDtoOptions';
 
 export interface PlacementDto {
-    /** Placement of the contract */
-    placement: string;
-    /** Options of the placement */
-    options: PlacementDtoOptions;
+  /** Placement of the contract */
+  placement: string;
+  /** Options of the placement */
+  options: PlacementDtoOptions;
 }

@@ -6,55 +6,39 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    TranscriptionRequestDto,
-    TranscriptionResponseDto,
+  TranscriptionRequestDto,
+  TranscriptionResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getTranscription = () => {
-    /**
-     * @summary Start audio transcription
-     */
-    const transcriptionStartTranscription = (
-        transcriptionRequestDto: TranscriptionRequestDto,
-    ) => {
-        return customAxios<TranscriptionResponseDto>({
-            url: `/api/transcription`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: transcriptionRequestDto,
-        });
-    };
-    /**
-     * @summary Get transcription status and result
-     */
-    const transcriptionGetTranscriptionResult = (taskId: string) => {
-        return customAxios<TranscriptionResponseDto>({
-            url: `/api/transcription/${taskId}`,
-            method: 'GET',
-        });
-    };
-    return {
-        transcriptionStartTranscription,
-        transcriptionGetTranscriptionResult,
-    };
-};
-export type TranscriptionStartTranscriptionResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getTranscription
-            >['transcriptionStartTranscription']
-        >
-    >
->;
-export type TranscriptionGetTranscriptionResultResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getTranscription
-            >['transcriptionGetTranscriptionResult']
-        >
-    >
->;
+
+
+  export const getTranscription = () => {
+/**
+ * @summary Start audio transcription
+ */
+const transcriptionStartTranscription = (
+    transcriptionRequestDto: TranscriptionRequestDto,
+ ) => {
+      return customAxios<TranscriptionResponseDto>(
+      {url: `/api/transcription`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: transcriptionRequestDto
+    },
+      );
+    }
+  /**
+ * @summary Get transcription status and result
+ */
+const transcriptionGetTranscriptionResult = (
+    taskId: string,
+ ) => {
+      return customAxios<TranscriptionResponseDto>(
+      {url: `/api/transcription/${taskId}`, method: 'GET'
+    },
+      );
+    }
+  return {transcriptionStartTranscription,transcriptionGetTranscriptionResult}};
+export type TranscriptionStartTranscriptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getTranscription>['transcriptionStartTranscription']>>>
+export type TranscriptionGetTranscriptionResultResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getTranscription>['transcriptionGetTranscriptionResult']>>>

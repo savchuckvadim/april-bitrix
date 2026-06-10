@@ -7,5 +7,5 @@
  */
 
 export type BtxCompanyGetAllCompaniesParams = {
-    portal_id: string;
+portal_id: string;
 };

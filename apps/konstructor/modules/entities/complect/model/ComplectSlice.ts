@@ -30,7 +30,8 @@ export const complectSlice = createSlice({
             state.loading = 'pending';
         });
         builder.addCase(fetchComplects.fulfilled, (state, action) => {
-            state.prof = action.payload;
+            state.prof = action.payload.prof;
+            state.universal = action.payload.universal;
             state.loading = 'succeeded';
         });
     },

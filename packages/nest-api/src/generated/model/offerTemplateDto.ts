@@ -10,36 +10,36 @@ import type { OfferTemplateFontDto } from './offerTemplateFontDto';
 import type { OfferTemplateColorsDto } from './offerTemplateColorsDto';
 
 export interface OfferTemplateDto {
-    /** The id of the offer template */
-    id: string;
-    /** The pages of the offer template */
-    pages: OfferTemplatePageDto[];
-    /** The fonts of the offer template */
-    fonts: OfferTemplateFontDto[];
-    /** The portal id of the offer template */
-    portal_id: string;
-    /** The is active of the offer template */
-    is_active: boolean;
-    /** The search of the offer template */
-    search: string;
-    /** The visibility of the offer template */
-    visibility: string;
-    /** The is default of the offer template */
-    is_default: boolean;
-    /** The type of the offer template */
-    type: string;
-    /** The style of the offer template */
-    style: string;
-    /** The color of the offer template */
-    colors: OfferTemplateColorsDto;
-    /** The code of the offer template */
-    code: string;
-    /** The counter of the offer template */
-    counter: number;
-    /** The tags of the offer template */
-    tags: string;
-    /** The sale text 1 of the offer template */
-    sale_text_1: string;
-    /** The sale text 2 of the offer template */
-    sale_text_2: string;
+  /** The id of the offer template */
+  id: string;
+  /** The pages of the offer template */
+  pages: OfferTemplatePageDto[];
+  /** The fonts of the offer template */
+  fonts: OfferTemplateFontDto[];
+  /** The portal id of the offer template */
+  portal_id?: number;
+  /** The is active of the offer template */
+  is_active: boolean;
+  /** The search of the offer template */
+  search: string;
+  /** The visibility of the offer template */
+  visibility: string;
+  /** The is default of the offer template */
+  is_default: boolean;
+  /** The type of the offer template */
+  type: string;
+  /** The style of the offer template */
+  style: string;
+  /** The color of the offer template */
+  colors: OfferTemplateColorsDto;
+  /** The code of the offer template */
+  code: string;
+  /** The counter of the offer template */
+  counter: number;
+  /** The tags of the offer template */
+  tags: string;
+  /** The sale text 1 of the offer template */
+  sale_text_1: string;
+  /** The sale text 2 of the offer template */
+  sale_text_2: string;
 }

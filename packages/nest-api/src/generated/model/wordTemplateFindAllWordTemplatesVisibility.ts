@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type WordTemplateFindAllWordTemplatesVisibility =
-    (typeof WordTemplateFindAllWordTemplatesVisibility)[keyof typeof WordTemplateFindAllWordTemplatesVisibility];
+export type WordTemplateFindAllWordTemplatesVisibility = typeof WordTemplateFindAllWordTemplatesVisibility[keyof typeof WordTemplateFindAllWordTemplatesVisibility];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const WordTemplateFindAllWordTemplatesVisibility = {
-    public: 'public',
-    portal: 'portal',
-    user: 'user',
+  public: 'public',
+  private: 'private',
+  user: 'user',
 } as const;

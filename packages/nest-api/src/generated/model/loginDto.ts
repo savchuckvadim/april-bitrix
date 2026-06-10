@@ -7,13 +7,13 @@
  */
 
 export interface LoginDto {
-    /** User email */
-    email: string;
-    /**
-     * User password
-     * @minLength 6
-     */
-    password: string;
-    /** Domain */
-    domain: string;
+  /** User email */
+  email: string;
+  /**
+   * User password
+   * @minLength 6
+   */
+  password: string;
+  /** Domain */
+  domain: string;
 }

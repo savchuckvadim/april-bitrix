@@ -6,69 +6,44 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    CreateOfferTemplatePageStickerDto,
-    ReorderStickersDto,
+  CreateOfferTemplatePageStickerDto,
+  ReorderStickersDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getOfferTemplatePageSticker = () => {
-    const offerTemplatePageStickerCreate = (
-        createOfferTemplatePageStickerDto: CreateOfferTemplatePageStickerDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/offer-template-page-stickers`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createOfferTemplatePageStickerDto,
-        });
-    };
-    const offerTemplatePageStickerRemove = (id: number) => {
-        return customAxios<void>({
-            url: `/api/offer-template-page-stickers/${id}`,
-            method: 'DELETE',
-        });
-    };
-    const offerTemplatePageStickerReorderStickers = (
-        reorderStickersDto: ReorderStickersDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/offer-template-page-stickers/reorder`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: reorderStickersDto,
-        });
-    };
-    return {
-        offerTemplatePageStickerCreate,
-        offerTemplatePageStickerRemove,
-        offerTemplatePageStickerReorderStickers,
-    };
-};
-export type OfferTemplatePageStickerCreateResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getOfferTemplatePageSticker
-            >['offerTemplatePageStickerCreate']
-        >
-    >
->;
-export type OfferTemplatePageStickerRemoveResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getOfferTemplatePageSticker
-            >['offerTemplatePageStickerRemove']
-        >
-    >
->;
-export type OfferTemplatePageStickerReorderStickersResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getOfferTemplatePageSticker
-            >['offerTemplatePageStickerReorderStickers']
-        >
-    >
->;
+
+
+  export const getOfferTemplatePageSticker = () => {
+const offerTemplatePageStickerCreate = (
+    createOfferTemplatePageStickerDto: CreateOfferTemplatePageStickerDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/offer-template-page-stickers`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createOfferTemplatePageStickerDto
+    },
+      );
+    }
+  const offerTemplatePageStickerRemove = (
+    id: number,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/offer-template-page-stickers/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  const offerTemplatePageStickerReorderStickers = (
+    reorderStickersDto: ReorderStickersDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/offer-template-page-stickers/reorder`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: reorderStickersDto
+    },
+      );
+    }
+  return {offerTemplatePageStickerCreate,offerTemplatePageStickerRemove,offerTemplatePageStickerReorderStickers}};
+export type OfferTemplatePageStickerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOfferTemplatePageSticker>['offerTemplatePageStickerCreate']>>>
+export type OfferTemplatePageStickerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOfferTemplatePageSticker>['offerTemplatePageStickerRemove']>>>
+export type OfferTemplatePageStickerReorderStickersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOfferTemplatePageSticker>['offerTemplatePageStickerReorderStickers']>>>

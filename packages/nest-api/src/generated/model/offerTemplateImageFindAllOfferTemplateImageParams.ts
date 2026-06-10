@@ -9,17 +9,17 @@ import type { StorageType } from './storageType';
 import type { ImageParent } from './imageParent';
 
 export type OfferTemplateImageFindAllOfferTemplateImageParams = {
-    portal_id?: string;
-    /**
-     * Тип хранения
-     */
-    storage_type?: StorageType;
-    /**
-     * Родитель
-     */
-    parent?: ImageParent;
-    /**
-     * Публичный ли объект
-     */
-    is_public?: boolean;
+portal_id?: string;
+/**
+ * Тип хранения
+ */
+storage_type?: StorageType;
+/**
+ * Родитель
+ */
+parent?: ImageParent;
+/**
+ * Публичный ли объект
+ */
+is_public?: boolean;
 };

@@ -9,29 +9,30 @@
 /**
  * The type of the offer template page block
  */
-export type BlockType = (typeof BlockType)[keyof typeof BlockType];
+export type BlockType = typeof BlockType[keyof typeof BlockType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BlockType = {
-    background: 'background',
-    about: 'about',
-    hero: 'hero',
-    letter: 'letter',
-    documentNumber: 'documentNumber',
-    manager: 'manager',
-    logo: 'logo',
-    stamp: 'stamp',
-    header: 'header',
-    footer: 'footer',
-    infoblocks: 'infoblocks',
-    price: 'price',
-    slogan: 'slogan',
-    infoblocksDescription: 'infoblocksDescription',
-    lt: 'lt',
-    otherComplects: 'otherComplects',
-    comparison: 'comparison',
-    comparisonComplects: 'comparisonComplects',
-    comparisonIblocks: 'comparisonIblocks',
-    user: 'user',
-    default: 'default',
+  background: 'background',
+  about: 'about',
+  hero: 'hero',
+  letter: 'letter',
+  documentNumber: 'documentNumber',
+  manager: 'manager',
+  logo: 'logo',
+  stamp: 'stamp',
+  header: 'header',
+  footer: 'footer',
+  infoblocks: 'infoblocks',
+  price: 'price',
+  slogan: 'slogan',
+  infoblocksDescription: 'infoblocksDescription',
+  lt: 'lt',
+  otherComplects: 'otherComplects',
+  comparison: 'comparison',
+  comparisonComplects: 'comparisonComplects',
+  comparisonIblocks: 'comparisonIblocks',
+  user: 'user',
+  default: 'default',
 } as const;

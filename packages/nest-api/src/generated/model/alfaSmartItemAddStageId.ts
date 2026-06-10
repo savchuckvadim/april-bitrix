@@ -6,15 +6,15 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AlfaSmartItemAddStageId =
-    (typeof AlfaSmartItemAddStageId)[keyof typeof AlfaSmartItemAddStageId];
+export type AlfaSmartItemAddStageId = typeof AlfaSmartItemAddStageId[keyof typeof AlfaSmartItemAddStageId];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AlfaSmartItemAddStageId = {
-    NEW: 'NEW',
-    PREPARATION: 'PREPARATION',
-    CLIENT: 'CLIENT',
-    UC_JLSIU6: 'UC_JLSIU6',
-    SUCCESS: 'SUCCESS',
-    FAIL: 'FAIL',
+  NEW: 'NEW',
+  PREPARATION: 'PREPARATION',
+  CLIENT: 'CLIENT',
+  UC_JLSIU6: 'UC_JLSIU6',
+  SUCCESS: 'SUCCESS',
+  FAIL: 'FAIL',
 } as const;

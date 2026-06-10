@@ -7,7 +7,7 @@ export const useApp = () => {
     const dispatch = useAppDispatch();
     const app = useAppSelector(state => state.app);
     const [isClient, setIsClient] = useState(false);
-    const [ready, setReady] = useState(false);
+    const [isReady, setReady] = useState(false);
     // const hasCompany = app.bitrix.company && app.bitrix.company.ID;
     useEffect(() => {
         setIsClient(true);
@@ -19,20 +19,21 @@ export const useApp = () => {
         }
 
         if (isClient && app.initialized && !app.isLoading) {
-            if (!ready) {
+            if (!isReady) {
                 setReady(true);
             }
         } else {
-            if (ready) {
+            if (isReady) {
                 setReady(false);
             }
         }
     }, [isClient, app.initialized, app.isLoading, dispatch]);
-
+const companyId = app.bitrix.company?.ID || 0;
     return {
         isClient,
-        ready,
+        isReady,
         // hasCompany,
+        companyId,
         app,
         initialized: app.initialized,
         isLoading: app.isLoading,

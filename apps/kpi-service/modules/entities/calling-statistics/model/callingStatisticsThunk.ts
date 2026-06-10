@@ -6,32 +6,27 @@ import { fetchCallingStatistics } from '../lib/helper';
 
 export const getCallingStatistics =
     (reportData: ReportRequest) =>
-    async (dispatch: AppDispatch, getState: AppGetState) => {
-        const isLoading = getState().callingStatistics.isLoading;
-        if (!isLoading) {
-            dispatch(callingStatisticsActions.setLoading(true));
+        async (dispatch: AppDispatch, getState: AppGetState) => {
+            const isLoading = getState().callingStatistics.isLoading;
+            if (!isLoading) {
+                const state = getState();
+                dispatch(callingStatisticsActions.setLoading(true));
 
-            const reportResponse: ReportCallingData[] | null =
-                await fetchCallingStatistics(reportData);
-            // try {
-            //     const data = {
-            //         url: 'full/report/callings',
-            //         method: API_METHOD.POST,
-            //         model: 'report',
-            //         data: reportData
-            //     } as IHookData
-            //     const response = await fetch('/api/proxy/hook', {
-            //         method: API_METHOD.POST,
-            //         headers: {
-            //             'Content-Type': 'application/json', // 💥 обязательно
-            //         },
-            //         body: JSON.stringify(data),
-            //     });
-            //     reportResponse = await response.json() as Array<ReportCallingData> | null
-            // } catch (error) {
-            //     console.error('❌ Proxy error:', error);
-            // }
-            dispatch(callingStatisticsActions.setFetched(reportResponse));
-            dispatch(callingStatisticsActions.setLoading(false));
-        }
-    };
+                const reportResponse: ReportCallingData[] | null =
+                    await fetchCallingStatistics(reportData);
+
+                const enrichedResponse =
+                    reportResponse?.map(item => {
+                        const user = item.user;
+                        if (!user) return item;
+                        const fullName = [user.NAME, user.LAST_NAME]
+                            .filter(Boolean)
+                            .join(' ')
+                            .trim();
+                        return fullName ? { ...item, userName: fullName } : item;
+                    }) ?? null;
+
+                dispatch(callingStatisticsActions.setFetched(enrichedResponse));
+                dispatch(callingStatisticsActions.setLoading(false));
+            }
+        };

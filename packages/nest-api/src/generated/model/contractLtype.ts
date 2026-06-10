@@ -9,12 +9,13 @@
 /**
  * Contract type
  */
-export type ContractLtype = (typeof ContractLtype)[keyof typeof ContractLtype];
+export type ContractLtype = typeof ContractLtype[keyof typeof ContractLtype];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ContractLtype = {
-    service: 'service',
-    abon: 'abon',
-    lic: 'lic',
-    key: 'key',
+  service: 'service',
+  abon: 'abon',
+  lic: 'lic',
+  key: 'key',
 } as const;

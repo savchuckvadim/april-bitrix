@@ -1,66 +1,62 @@
-import type { BXUser } from '@workspace/bx';
-import { bxAPI as bx } from '@workspace/api';
-import { TESTING_DOMAIN, TESTING_USER } from '../consts/app-global';
 import { appActions } from './AppSlice';
-import { AppDispatch, AppGetState, AppThunk, initWSClient } from './store';
-import { WSClient } from '@workspace/ws';
-import { socketThunk } from './queue-ws-ping-test/QueueWsPingListener';
-import { getInitializeData } from '../lib/initialize/konstructor.helper';
+import {
+    AppDispatch,
+    AppGetState,
+    AppThunk,
+    listenerMiddleware,
+} from './store';
+
+import { appInit } from '../lib/initialize/app-init/app-init.util';
+import { startStoreListeners } from './listeners/start-store-listeners';
+
 import { fetchBaseTemplate } from '@/modules/entities/base-template';
 import { fetchOfferTemplates } from '@/modules/entities/offer-template/model/OfferTemplateThunk';
-
-export let socket: undefined | WSClient;
+import { Bitrix } from '@bitrix/bitrix';
+import { TESTING_DOMAIN, TESTING_USER } from '../consts/app-global';
+import { getInitializeData } from '../lib/initialize/konstructor-init/konstructor-init.util';
 
 export const initial =
-    (inBitrix: boolean = false, isPublic: boolean = false): AppThunk =>
+    (): AppThunk =>
         async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
-            console.log(isPublic);
-
-
             const state = getState();
             const app = state.app;
             const isLoading = app.isLoading;
-            const __IN_BITRIX__ = inBitrix;
 
             if (!isLoading) {
+                const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
+                const { domain } = bitrix.api.getInitializedData();
+
                 dispatch(appActions.loading({ status: true }));
+                startStoreListeners(listenerMiddleware);
 
-                const domain: string = __IN_BITRIX__
-                    ? (await bx.getDomain()) || TESTING_DOMAIN
-                    : TESTING_DOMAIN;
-                const initializedKonstructor = await getInitializeData(dispatch, domain);
 
+                //оснолвные данные для работы конструктора - кешируются в localStorage
+                await getInitializeData(dispatch, domain);
+
+                //init второстепенные сущности, которые можно сделать в listeners
                 dispatch(fetchBaseTemplate({ domain }));
                 dispatch(fetchOfferTemplates())
 
-
-
-                const user = __IN_BITRIX__
-                    ? ((await bx.getCurrentUser()) as BXUser)
-                    : TESTING_USER;
-
-                initWSClient(user.ID, domain); // <- здесь создаёшь сокет
-                // const socket = getWSClient()
-                dispatch(socketThunk(user.ID, domain));
-
-                dispatch(
-                    appActions.setAppData({
-                        domain,
-                        user,
-                    }),
-                );
-
-                dispatch(appActions.loading({ status: false }));
-                // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
+                //bitrix entities init
+                appInit(dispatch, () => {
+                    dispatch(appActions.loading({ status: false }));
+                });
             }
         };
 
 export const reloadApp =
-    () => async (dispatch: AppDispatch, getState: AppGetState) => {
-        setTimeout(() => {
-            dispatch(
-                // initialEventApp()
-                appActions.reload(),
-            );
-        }, 1000);
-    };
+    (): AppThunk =>
+        async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
+            const state = getState();
+            const app = state.app;
+            console.log('reload App');
+            console.log(app);
+            // const isReloading = app.isReloading;
+
+            // if (!isReloading) {
+            //     dispatch(appActions.reloading({ status: true }));
+            //     appInit(dispatch, getState, getWSClient, () => {
+            //         dispatch(appActions.reloading({ status: false }));
+            //     });
+            // }
+        };

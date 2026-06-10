@@ -9,7 +9,7 @@ import type { AlfaSmartItemAddCategoryId } from './alfaSmartItemAddCategoryId';
 import type { AlfaSmartItemAddStageId } from './alfaSmartItemAddStageId';
 
 export type AlfaSmartItemAddParams = {
-    domain: string;
-    categoryId: AlfaSmartItemAddCategoryId;
-    stageId: AlfaSmartItemAddStageId;
+domain: string;
+categoryId: AlfaSmartItemAddCategoryId;
+stageId: AlfaSmartItemAddStageId;
 };

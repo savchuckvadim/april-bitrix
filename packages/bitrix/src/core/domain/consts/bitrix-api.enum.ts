@@ -25,4 +25,7 @@ export enum EBxMethod {
     FIELD_GET = 'field.get',
     FIELDS = 'fields',
     GET_BY_ENTITY_TYPE_ID = 'getByEntityTypeId',
+    USER_FIELD_UPDATE = 'userfield.update',
+    USER_FIELD_DELETE = 'userfield.delete',
+    
 }

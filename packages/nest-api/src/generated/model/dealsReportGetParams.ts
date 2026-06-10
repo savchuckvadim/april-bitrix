@@ -7,5 +7,5 @@
  */
 
 export type DealsReportGetParams = {
-    domain: string;
+domain: string;
 };

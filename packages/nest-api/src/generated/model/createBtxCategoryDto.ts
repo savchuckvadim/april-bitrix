@@ -9,28 +9,28 @@ import type { CreateBtxCategoryDtoEntityType } from './createBtxCategoryDtoEntit
 import type { CreateBtxStageDto } from './createBtxStageDto';
 
 export interface CreateBtxCategoryDto {
-    /** Entity type (polymorphic relation) */
-    entity_type: CreateBtxCategoryDtoEntityType;
-    /** Entity ID (polymorphic relation) */
-    entity_id: number;
-    /** Parent type for grouping categories */
-    parent_type: string;
-    /** Category type */
-    type: string;
-    /** Category group */
-    group: string;
-    /** Category title */
-    title: string;
-    /** Category name */
-    name: string;
-    /** Bitrix ID */
-    bitrixId: string;
-    /** Bitrix Camel ID */
-    bitrixCamelId: string;
-    /** Category code */
-    code: string;
-    /** Is active */
-    isActive: boolean;
-    /** Category stages */
-    stages?: CreateBtxStageDto[];
+  /** Entity type (polymorphic relation) */
+  entity_type: CreateBtxCategoryDtoEntityType;
+  /** Entity ID (polymorphic relation) */
+  entity_id: number;
+  /** Parent type for grouping categories */
+  parent_type: string;
+  /** Category type */
+  type: string;
+  /** Category group */
+  group: string;
+  /** Category title */
+  title: string;
+  /** Category name */
+  name: string;
+  /** Bitrix ID */
+  bitrixId: string;
+  /** Bitrix Camel ID */
+  bitrixCamelId: string;
+  /** Category code */
+  code: string;
+  /** Is active */
+  isActive: boolean;
+  /** Category stages */
+  stages?: CreateBtxStageDto[];
 }

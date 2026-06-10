@@ -6,140 +6,93 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    AdminPortalGetAllPortalsParams,
-    AdminPortalResponseDto,
-    AdminPortalWithRelationsResponseDto,
-    CreatePortalDto,
-    UpdatePortalDto,
+  AdminPortalGetAllPortalsParams,
+  AdminPortalResponseDto,
+  CreatePortalDto,
+  UpdatePortalDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getAdminPortalManagement = () => {
-    /**
-     * @summary Create a new portal
-     */
-    const adminPortalCreatePortal = (createPortalDto: CreatePortalDto) => {
-        return customAxios<AdminPortalResponseDto>({
-            url: `/api/admin/portals`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createPortalDto,
-        });
-    };
-    /**
-     * @summary Get all portals
-     */
-    const adminPortalGetAllPortals = (
-        params: AdminPortalGetAllPortalsParams,
-    ) => {
-        return customAxios<AdminPortalResponseDto[]>({
-            url: `/api/admin/portals`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * @summary Get portal by ID
-     */
-    const adminPortalGetPortalById = (id: number) => {
-        return customAxios<AdminPortalWithRelationsResponseDto>({
-            url: `/api/admin/portals/${id}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Update portal
-     */
-    const adminPortalUpdatePortal = (
-        id: number,
-        updatePortalDto: UpdatePortalDto,
-    ) => {
-        return customAxios<AdminPortalResponseDto>({
-            url: `/api/admin/portals/${id}`,
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            data: updatePortalDto,
-        });
-    };
-    /**
-     * @summary Delete portal
-     */
-    const adminPortalDeletePortal = (id: number) => {
-        return customAxios<boolean>({
-            url: `/api/admin/portals/${id}`,
-            method: 'DELETE',
-        });
-    };
-    /**
-     * @summary Get portal by domain
-     */
-    const adminPortalGetPortalByDomain = (domain: string) => {
-        return customAxios<AdminPortalResponseDto>({
-            url: `/api/admin/portals/domain/${domain}`,
-            method: 'GET',
-        });
-    };
-    return {
-        adminPortalCreatePortal,
-        adminPortalGetAllPortals,
-        adminPortalGetPortalById,
-        adminPortalUpdatePortal,
-        adminPortalDeletePortal,
-        adminPortalGetPortalByDomain,
-    };
-};
-export type AdminPortalCreatePortalResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalManagement
-            >['adminPortalCreatePortal']
-        >
-    >
->;
-export type AdminPortalGetAllPortalsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalManagement
-            >['adminPortalGetAllPortals']
-        >
-    >
->;
-export type AdminPortalGetPortalByIdResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalManagement
-            >['adminPortalGetPortalById']
-        >
-    >
->;
-export type AdminPortalUpdatePortalResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalManagement
-            >['adminPortalUpdatePortal']
-        >
-    >
->;
-export type AdminPortalDeletePortalResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalManagement
-            >['adminPortalDeletePortal']
-        >
-    >
->;
-export type AdminPortalGetPortalByDomainResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminPortalManagement
-            >['adminPortalGetPortalByDomain']
-        >
-    >
->;
+
+
+  export const getAdminPortalManagement = () => {
+/**
+ * @summary Create a new portal
+ */
+const adminPortalCreatePortal = (
+    createPortalDto: CreatePortalDto,
+ ) => {
+      return customAxios<AdminPortalResponseDto>(
+      {url: `/api/admin/portals`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createPortalDto
+    },
+      );
+    }
+  /**
+ * @summary Get all portals
+ */
+const adminPortalGetAllPortals = (
+    params: AdminPortalGetAllPortalsParams,
+ ) => {
+      return customAxios<AdminPortalResponseDto[]>(
+      {url: `/api/admin/portals`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Get portal by ID
+ */
+const adminPortalGetPortalById = (
+    id: number,
+ ) => {
+      return customAxios<AdminPortalResponseDto>(
+      {url: `/api/admin/portals/${id}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Update portal
+ */
+const adminPortalUpdatePortal = (
+    id: number,
+    updatePortalDto: UpdatePortalDto,
+ ) => {
+      return customAxios<AdminPortalResponseDto>(
+      {url: `/api/admin/portals/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePortalDto
+    },
+      );
+    }
+  /**
+ * @summary Delete portal
+ */
+const adminPortalDeletePortal = (
+    id: number,
+ ) => {
+      return customAxios<boolean>(
+      {url: `/api/admin/portals/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  /**
+ * @summary Get portal by domain
+ */
+const adminPortalGetPortalByDomain = (
+    domain: string,
+ ) => {
+      return customAxios<AdminPortalResponseDto>(
+      {url: `/api/admin/portals/domain/${domain}`, method: 'GET'
+    },
+      );
+    }
+  return {adminPortalCreatePortal,adminPortalGetAllPortals,adminPortalGetPortalById,adminPortalUpdatePortal,adminPortalDeletePortal,adminPortalGetPortalByDomain}};
+export type AdminPortalCreatePortalResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalManagement>['adminPortalCreatePortal']>>>
+export type AdminPortalGetAllPortalsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalManagement>['adminPortalGetAllPortals']>>>
+export type AdminPortalGetPortalByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalManagement>['adminPortalGetPortalById']>>>
+export type AdminPortalUpdatePortalResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalManagement>['adminPortalUpdatePortal']>>>
+export type AdminPortalDeletePortalResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalManagement>['adminPortalDeletePortal']>>>
+export type AdminPortalGetPortalByDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalManagement>['adminPortalGetPortalByDomain']>>>

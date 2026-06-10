@@ -7,10 +7,10 @@
  */
 
 export interface DownloadReportKpiItemDto {
-    /** KPI ID */
-    id: string;
-    /** KPI action */
-    action: string;
-    /** KPI count */
-    count: number;
+  /** KPI ID */
+  id: string;
+  /** KPI action */
+  action: string;
+  /** KPI count */
+  count: number;
 }

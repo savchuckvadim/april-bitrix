@@ -6,35 +6,28 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    GetClientPortalsRequestDto,
-    SuccessResponseDto,
+  GetClientPortalsRequestDto,
+  SuccessResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getBitrixAppClientClient = () => {
-    /**
-     * Get client portals by client id
-     * @summary Get client portals
-     */
-    const bitrixClientGetClientPortals = (
-        getClientPortalsRequestDto: GetClientPortalsRequestDto,
-    ) => {
-        return customAxios<SuccessResponseDto>({
-            url: `/api/bitrix-client/get-client-portals`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: getClientPortalsRequestDto,
-        });
-    };
-    return { bitrixClientGetClientPortals };
-};
-export type BitrixClientGetClientPortalsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getBitrixAppClientClient
-            >['bitrixClientGetClientPortals']
-        >
-    >
->;
+
+
+  export const getBitrixAppClientClient = () => {
+/**
+ * Get client portals by client id
+ * @summary Get client portals
+ */
+const bitrixClientGetClientPortals = (
+    getClientPortalsRequestDto: GetClientPortalsRequestDto,
+ ) => {
+      return customAxios<SuccessResponseDto>(
+      {url: `/api/bitrix-client/get-client-portals`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: getClientPortalsRequestDto
+    },
+      );
+    }
+  return {bitrixClientGetClientPortals}};
+export type BitrixClientGetClientPortalsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getBitrixAppClientClient>['bitrixClientGetClientPortals']>>>

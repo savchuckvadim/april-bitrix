@@ -1,0 +1,24 @@
+import {
+    CreateWordTemplateRequestDto,
+    CreateWordTemplateResponseDto,
+    UpdateWordTemplateDto,
+    WordTemplateDto,
+    // WordTemplateDtoVisibility,
+    WordTemplateFindAllWordTemplatesParams,
+    WordTemplateSummaryDto,
+    // WordTemplateSummaryDtoVisibility
+} from "@workspace/nest-api";
+
+
+export interface IWordTemplateSummury extends WordTemplateSummaryDto {}
+export interface IWordTemplate extends WordTemplateDto {}
+
+
+export interface ICreateWordTemplateDto extends CreateWordTemplateRequestDto {}
+
+export interface INewWordTemplate extends CreateWordTemplateResponseDto{}
+
+export interface IUpdateWordTemplateDto extends UpdateWordTemplateDto {}
+
+
+export interface IWordTemplateFindAllParams extends WordTemplateFindAllWordTemplatesParams {}

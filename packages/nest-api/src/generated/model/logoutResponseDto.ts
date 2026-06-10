@@ -7,6 +7,6 @@
  */
 
 export interface LogoutResponseDto {
-    /** Message */
-    message: string;
+  /** Message */
+  message: string;
 }

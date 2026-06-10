@@ -9,38 +9,38 @@ import type { ContracPortaltDto } from './contracPortaltDto';
 import type { ContractMeasureDto } from './contractMeasureDto';
 
 export interface ContractDto {
-    /** ID of the contract */
-    id: number;
-    /** Contract of the contract */
-    contract: ContracPortaltDto;
-    /** Code of the contract */
-    code: string;
-    /** Short name of the contract */
-    shortName: string;
-    /** Number of the contract */
-    number: number;
-    /** April name of the contract */
-    aprilName: string;
-    /** Bitrix name of the contract */
-    bitrixName: string;
-    /** Discount of the contract */
-    discount: number;
-    /** Item ID of the contract */
-    itemId: number;
-    /** Prepayment of the contract */
-    prepayment: number;
-    /** Order of the contract */
-    order: number;
-    /** Portal measure of the contract */
-    portalMeasure: ContractMeasureDto;
-    /** Measure code of the contract */
-    measureCode: number;
-    /** Measure full name of the contract */
-    measureFullName: string;
-    /** Measure ID of the contract */
-    measureId: number;
-    /** Measure name of the contract */
-    measureName: string;
-    /** Measure number of the contract */
-    measureNumber: number;
+  /** ID of the contract */
+  id: number;
+  /** Contract of the contract */
+  contract: ContracPortaltDto;
+  /** Code of the contract */
+  code: string;
+  /** Short name of the contract */
+  shortName: string;
+  /** Number of the contract */
+  number: number;
+  /** April name of the contract */
+  aprilName: string;
+  /** Bitrix name of the contract */
+  bitrixName: string;
+  /** Discount of the contract */
+  discount: number;
+  /** Item ID of the contract */
+  itemId: number;
+  /** Prepayment of the contract */
+  prepayment: number;
+  /** Order of the contract */
+  order: number;
+  /** Portal measure of the contract */
+  portalMeasure: ContractMeasureDto;
+  /** Measure code of the contract */
+  measureCode: number;
+  /** Measure full name of the contract */
+  measureFullName: string;
+  /** Measure ID of the contract */
+  measureId: number;
+  /** Measure name of the contract */
+  measureName: string;
+  /** Measure number of the contract */
+  measureNumber: number;
 }

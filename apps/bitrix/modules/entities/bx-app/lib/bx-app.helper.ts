@@ -1,5 +1,6 @@
-import { BitrixAppGetCode, CreateBitrixAppDto, getBitrixAppClientApp, } from "@workspace/nest-api";
-const api = getBitrixAppClientApp();
+import { apiApp } from "@/modules/shared/api";
+import { BitrixAppGetCode, CreateBitrixAppDto, } from "@workspace/nest-api";
+const api = apiApp;
 
 
 export const bxAppHelper = {
@@ -22,6 +23,7 @@ export const bxAppHelper = {
             const response = await api.bitrixAppClientGetPortalApps({
                 portalId: portalId,
             });
+            debugger
             return response;
         } catch (error) {
             console.error(error);

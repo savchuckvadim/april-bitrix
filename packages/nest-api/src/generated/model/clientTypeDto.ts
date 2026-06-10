@@ -7,8 +7,8 @@
  */
 
 export interface ClientTypeDto {
-    /** Client type */
-    code: string;
-    /** Client type */
-    name: string;
+  /** Client type */
+  code: string;
+  /** Client type */
+  name: string;
 }

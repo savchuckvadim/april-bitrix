@@ -8,6 +8,6 @@
 import type { OrkReportDealsByCompaniesDto } from './orkReportDealsByCompaniesDto';
 
 export interface OrkReportDealsResponseDto {
-    /** Companies */
-    companies: OrkReportDealsByCompaniesDto[];
+  /** Companies */
+  companies: OrkReportDealsByCompaniesDto[];
 }

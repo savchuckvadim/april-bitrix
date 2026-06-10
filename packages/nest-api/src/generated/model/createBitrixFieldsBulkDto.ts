@@ -8,6 +8,6 @@
 import type { CreateBitrixFieldDto } from './createBitrixFieldDto';
 
 export interface CreateBitrixFieldsBulkDto {
-    /** Array of fields to create with their items */
-    fields: CreateBitrixFieldDto[];
+  /** Array of fields to create with their items */
+  fields: CreateBitrixFieldDto[];
 }

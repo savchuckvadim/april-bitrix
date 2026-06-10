@@ -7,6 +7,6 @@
  */
 
 /**
- * Own AB
+ * Own AB (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend.
  */
-export type UpdatePortalRegionDtoOwnAbs = { [key: string]: unknown };
+export type UpdatePortalRegionDtoOwnAbs = string | number;

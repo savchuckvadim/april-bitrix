@@ -7,34 +7,34 @@
  */
 
 export interface InfoblockDto {
-    /** Id */
-    id: number;
-    /** Name */
-    name: string;
-    /** Code */
-    code: string;
-    /** Weight */
-    weight: number;
-    /** Infogroup Id */
-    infogroupId: number;
-    /** Infohroup Code */
-    infohroupCode: string;
-    /** Infohroup Name */
-    infohroupName: string;
-    /** Short Description */
-    shortDescription: string;
-    /** Description */
-    description: string;
-    /** Description For Sale */
-    descriptionForSale: string;
-    /** Parent */
-    parent: string[];
-    /** Children */
-    children: string[];
-    /** Is Set */
-    isSet: boolean;
-    /** Is Free */
-    isFree: boolean;
-    /** Is La */
-    isLa: boolean;
+  /** Id */
+  id: number;
+  /** Name */
+  name: string;
+  /** Code */
+  code: string;
+  /** Weight */
+  weight: number;
+  /** Infogroup Id */
+  infogroupId: number;
+  /** Infohroup Code */
+  infohroupCode: string;
+  /** Infohroup Name */
+  infohroupName: string;
+  /** Short Description */
+  shortDescription: string;
+  /** Description */
+  description: string;
+  /** Description For Sale */
+  descriptionForSale: string;
+  /** Parent */
+  parent: string[];
+  /** Children */
+  children: string[];
+  /** Is Set */
+  isSet: boolean;
+  /** Is Free */
+  isFree: boolean;
+  /** Is La */
+  isLa: boolean;
 }

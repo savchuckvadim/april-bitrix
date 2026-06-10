@@ -7,6 +7,6 @@
  */
 
 export interface BitrixHookAuthRequestDto {
-    /** Bitrix hook domain */
-    domain: string;
+  /** Bitrix hook domain */
+  domain: string;
 }

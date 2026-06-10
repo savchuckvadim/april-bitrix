@@ -8,8 +8,8 @@
 import type { BitrixHookAuthRequestDto } from './bitrixHookAuthRequestDto';
 
 export interface InitDealDto {
-    /** Bitrix hook auth */
-    auth: BitrixHookAuthRequestDto;
-    /** Document id info */
-    document_id: string[];
+  /** Bitrix hook auth */
+  auth: BitrixHookAuthRequestDto;
+  /** Document id info */
+  document_id: string[];
 }

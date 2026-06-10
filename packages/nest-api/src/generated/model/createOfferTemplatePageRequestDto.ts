@@ -10,30 +10,30 @@ import type { CreateOfferTemplatePageStickerDto } from './createOfferTemplatePag
 import type { CreateOfferTemplatePageBlockRequestDto } from './createOfferTemplatePageBlockRequestDto';
 
 export interface CreateOfferTemplatePageRequestDto {
-    /** The offer template id */
-    offer_template_id: number;
-    /** The order of the offer template page */
-    order: number;
-    /** The name of the offer template page */
-    name: string;
-    /** The code of the offer template page */
-    code: string;
-    /** The type of the offer template page */
-    type: PageType;
-    /** Whether the offer template page is active */
-    is_active: boolean;
-    /** The settings of the offer template page */
-    settings: string;
-    /** The stickers of the offer template page */
-    stickers: string;
-    /** The background of the offer template page */
-    background: string;
-    /** The colors of the offer template page */
-    colors: string;
-    /** The fonts of the offer template page */
-    fonts: string;
-    /** The stickers of the offer template page */
-    stickers_items: CreateOfferTemplatePageStickerDto[];
-    /** The blocks of the offer template page */
-    blocks: CreateOfferTemplatePageBlockRequestDto[];
+  /** The offer template id */
+  offer_template_id: number;
+  /** The order of the offer template page */
+  order: number;
+  /** The name of the offer template page */
+  name: string;
+  /** The code of the offer template page */
+  code: string;
+  /** The type of the offer template page */
+  type: PageType;
+  /** Whether the offer template page is active */
+  is_active: boolean;
+  /** The settings of the offer template page */
+  settings: string;
+  /** The stickers of the offer template page */
+  stickers: string;
+  /** The background of the offer template page */
+  background: string;
+  /** The colors of the offer template page */
+  colors: string;
+  /** The fonts of the offer template page */
+  fonts: string;
+  /** The stickers of the offer template page */
+  stickers_items: CreateOfferTemplatePageStickerDto[];
+  /** The blocks of the offer template page */
+  blocks: CreateOfferTemplatePageBlockRequestDto[];
 }

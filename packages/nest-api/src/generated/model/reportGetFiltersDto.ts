@@ -9,12 +9,12 @@ import type { BXUserDto } from './bXUserDto';
 import type { ReportGetFiltersDtoCurrentActions } from './reportGetFiltersDtoCurrentActions';
 
 export interface ReportGetFiltersDto {
-    dateFrom: string;
-    dateTo: string;
-    userIds: string[];
-    departament: BXUserDto[];
-    userFieldId: string;
-    dateFieldId: string;
-    actionFieldId: string;
-    currentActions: ReportGetFiltersDtoCurrentActions;
+  dateFrom: string;
+  dateTo: string;
+  userIds: string[];
+  departament: BXUserDto[];
+  userFieldId: string;
+  dateFieldId: string;
+  actionFieldId: string;
+  currentActions: ReportGetFiltersDtoCurrentActions;
 }

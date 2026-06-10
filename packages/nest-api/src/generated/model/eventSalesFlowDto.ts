@@ -6,6 +6,4 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface EventSalesFlowDto {
-    [key: string]: unknown;
-}
+export interface EventSalesFlowDto { [key: string]: unknown }

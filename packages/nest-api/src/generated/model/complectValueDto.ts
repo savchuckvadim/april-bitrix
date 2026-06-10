@@ -7,20 +7,20 @@
  */
 
 export interface ComplectValueDto {
-    /** Name of the complect value */
-    name: string;
-    /** Title of the complect value */
-    title: string;
-    /** Number of the complect value */
-    number: number;
-    /** Code of the complect value */
-    code: string;
-    /** Checked of the complect value */
-    checked: boolean;
-    /** Weight of the complect value */
-    weight: number;
-    /** Description of the complect value */
-    description: string;
-    /** Is LA of the complect value */
-    isLa: boolean;
+  /** Name of the complect value */
+  name: string;
+  /** Title of the complect value */
+  title: string;
+  /** Number of the complect value */
+  number: number;
+  /** Code of the complect value */
+  code: string;
+  /** Checked of the complect value */
+  checked: boolean;
+  /** Weight of the complect value */
+  weight: number;
+  /** Description of the complect value */
+  description: string;
+  /** Is LA of the complect value */
+  isLa: boolean;
 }

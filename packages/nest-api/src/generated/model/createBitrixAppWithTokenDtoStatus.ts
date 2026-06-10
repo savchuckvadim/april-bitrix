@@ -9,15 +9,15 @@
 /**
  * Статус приложения
  */
-export type CreateBitrixAppWithTokenDtoStatus =
-    (typeof CreateBitrixAppWithTokenDtoStatus)[keyof typeof CreateBitrixAppWithTokenDtoStatus];
+export type CreateBitrixAppWithTokenDtoStatus = typeof CreateBitrixAppWithTokenDtoStatus[keyof typeof CreateBitrixAppWithTokenDtoStatus];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateBitrixAppWithTokenDtoStatus = {
-    active: 'active',
-    inactive: 'inactive',
-    pending: 'pending',
-    suspended: 'suspended',
-    debt: 'debt',
-    error: 'error',
+  active: 'active',
+  inactive: 'inactive',
+  pending: 'pending',
+  suspended: 'suspended',
+  debt: 'debt',
+  error: 'error',
 } as const;

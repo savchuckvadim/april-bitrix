@@ -9,12 +9,12 @@ import type { BitrixMethodDtoBxData } from './bitrixMethodDtoBxData';
 import type { BitrixMethodDtoAuthType } from './bitrixMethodDtoAuthType';
 
 export interface BitrixMethodDto {
-    /** Domain of the portal */
-    domain: string;
-    /** Method of the bitrix */
-    method: string;
-    /** Params of the bitrix */
-    bxData: BitrixMethodDtoBxData;
-    /** Auth type of the bitrix */
-    authType?: BitrixMethodDtoAuthType;
+  /** Domain of the portal */
+  domain: string;
+  /** Method of the bitrix */
+  method: string;
+  /** Params of the bitrix */
+  bxData: BitrixMethodDtoBxData;
+  /** Auth type of the bitrix */
+  authType?: BitrixMethodDtoAuthType;
 }

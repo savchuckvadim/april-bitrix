@@ -7,8 +7,8 @@
  */
 
 export interface DateRangeDto {
-    /** From date */
-    from: string;
-    /** To date */
-    to: string;
+  /** From date */
+  from: string;
+  /** To date */
+  to: string;
 }

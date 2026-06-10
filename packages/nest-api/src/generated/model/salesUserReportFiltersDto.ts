@@ -8,10 +8,10 @@
 import type { SalesUserReportActionFilterDto } from './salesUserReportActionFilterDto';
 
 export interface SalesUserReportFiltersDto {
-    /** Дата начала периода */
-    dateFrom: string;
-    /** Дата окончания периода */
-    dateTo: string;
-    /** Действия */
-    actions: SalesUserReportActionFilterDto[];
+  /** Дата начала периода */
+  dateFrom: string;
+  /** Дата окончания периода */
+  dateTo: string;
+  /** Действия */
+  actions: SalesUserReportActionFilterDto[];
 }

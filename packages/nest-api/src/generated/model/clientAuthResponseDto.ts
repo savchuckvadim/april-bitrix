@@ -7,14 +7,17 @@
  */
 import type { ClientDto } from './clientDto';
 import type { UserResponseDto } from './userResponseDto';
+import type { PortalDto } from './portalDto';
 
 export interface ClientAuthResponseDto {
-    /** Client ID */
-    id: number;
-    /** Message */
-    message: string;
-    /** Client */
-    client: ClientDto;
-    /** Owner */
-    owner: UserResponseDto;
+  /** Client ID */
+  id: number;
+  /** Message */
+  message: string;
+  /** Client */
+  client: ClientDto;
+  /** Owner */
+  owner: UserResponseDto;
+  /** Portal */
+  portal?: PortalDto;
 }

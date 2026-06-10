@@ -8,8 +8,8 @@
 import type { ContractDto } from './contractDto';
 
 export interface ContractsDto {
-    /** Current */
-    current: number[];
-    /** Items */
-    items: ContractDto[];
+  /** Current */
+  current: number[];
+  /** Items */
+  items: ContractDto[];
 }

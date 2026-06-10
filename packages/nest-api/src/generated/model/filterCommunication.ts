@@ -10,11 +10,11 @@ import type { FilterCommunicationInnerCode } from './filterCommunicationInnerCod
 import type { FilterCommunicationCode } from './filterCommunicationCode';
 
 export interface FilterCommunication {
-    order: number;
-    actionItem: FieldItem;
-    communicationItem: FieldItem;
-    initiativeItem: FieldItem;
-    innerCode: FilterCommunicationInnerCode;
-    name: string;
-    code: FilterCommunicationCode;
+  order: number;
+  actionItem: FieldItem;
+  communicationItem: FieldItem;
+  initiativeItem: FieldItem;
+  innerCode: FilterCommunicationInnerCode;
+  name: string;
+  code: FilterCommunicationCode;
 }

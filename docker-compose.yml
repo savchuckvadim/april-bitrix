@@ -95,6 +95,25 @@ services:
     networks:
       - monitoring
 
+  front-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP: admin
+    container_name: front-admin-${SUFFIX}
+    ports:
+      - "${PORT_ADMIN}:3000" # API доступен снаружи
+    environment:
+      - IN_BITRIX=true
+      - LOG_FILE_PATH=/app/logs/server.log
+      - ONLINE_API_KEY=${ONLINE_API_KEY}
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - monitoring
+
   # loki:
   #   image: grafana/loki:2.9.0
   #   container_name: front-loki-${SUFFIX}

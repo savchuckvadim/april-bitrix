@@ -8,30 +8,30 @@
 import type { SupplyReportDtoValue } from './supplyReportDtoValue';
 
 export interface SupplyReportDto {
-    /** Type of the FormFieldDto */
-    type: string;
-    /** Name of the FormFieldDto */
-    name: string;
-    /** IsRequired of the FormFieldDto */
-    isRequired: boolean;
-    /** Includes of the FormFieldDto */
-    includes: string[];
-    /** Supplies of the FormFieldDto */
-    supplies: string[];
-    /** ContractType of the FormFieldDto */
-    contractType: string[];
-    /** Group of the FormFieldDto */
-    group: string;
-    /** IsActive of the FormFieldDto */
-    isActive: boolean;
-    /** IsDisable of the FormFieldDto */
-    isDisable: boolean;
-    /** Order of the FormFieldDto */
-    order: number;
-    /** Component of the FormFieldDto */
-    component: string;
-    /** IsHidden of the FormFieldDto */
-    isHidden: boolean;
-    /** Value of the FormFieldDto */
-    value: SupplyReportDtoValue;
+  /** Type of the FormFieldDto */
+  type: string;
+  /** Name of the FormFieldDto */
+  name: string;
+  /** IsRequired of the FormFieldDto */
+  isRequired: boolean;
+  /** Includes of the FormFieldDto */
+  includes: string[];
+  /** Supplies of the FormFieldDto */
+  supplies: string[];
+  /** ContractType of the FormFieldDto */
+  contractType: string[];
+  /** Group of the FormFieldDto */
+  group: string;
+  /** IsActive of the FormFieldDto */
+  isActive: boolean;
+  /** IsDisable of the FormFieldDto */
+  isDisable: boolean;
+  /** Order of the FormFieldDto */
+  order: number;
+  /** Component of the FormFieldDto */
+  component: string;
+  /** IsHidden of the FormFieldDto */
+  isHidden: boolean;
+  /** Value of the FormFieldDto */
+  value: SupplyReportDtoValue;
 }

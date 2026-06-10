@@ -5,96 +5,92 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { CreateUserSelectedTemplateDto } from '.././model';
+import type {
+  CreateUserSelectedTemplateDto,
+  UserSelectedTemplateSetActiveUserSelectedTemplateParams,
+  UserSelectedTemplateSetFavoriteParams
+} from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getUserSelectedTemplate = () => {
-    const userSelectedTemplateCreateUserSelectedTemplate = (
-        createUserSelectedTemplateDto: CreateUserSelectedTemplateDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/user-selected-templates`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createUserSelectedTemplateDto,
-        });
-    };
-    const userSelectedTemplateRemove = (id: number) => {
-        return customAxios<void>({
-            url: `/api/user-selected-templates/${id}`,
-            method: 'DELETE',
-        });
-    };
-    const userSelectedTemplateSetCurrent = (id: number) => {
-        return customAxios<void>({
-            url: `/api/user-selected-templates/${id}/current`,
-            method: 'PATCH',
-        });
-    };
-    const userSelectedTemplateSetFavorite = (id: number) => {
-        return customAxios<void>({
-            url: `/api/user-selected-templates/${id}/favorite`,
-            method: 'PATCH',
-        });
-    };
-    const userSelectedTemplateSetActiveUserSelectedTemplate = (id: number) => {
-        return customAxios<void>({
-            url: `/api/user-selected-templates/${id}/active`,
-            method: 'PATCH',
-        });
-    };
-    return {
-        userSelectedTemplateCreateUserSelectedTemplate,
-        userSelectedTemplateRemove,
-        userSelectedTemplateSetCurrent,
-        userSelectedTemplateSetFavorite,
-        userSelectedTemplateSetActiveUserSelectedTemplate,
-    };
-};
-export type UserSelectedTemplateCreateUserSelectedTemplateResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getUserSelectedTemplate
-            >['userSelectedTemplateCreateUserSelectedTemplate']
-        >
-    >
->;
-export type UserSelectedTemplateRemoveResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getUserSelectedTemplate
-            >['userSelectedTemplateRemove']
-        >
-    >
->;
-export type UserSelectedTemplateSetCurrentResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getUserSelectedTemplate
-            >['userSelectedTemplateSetCurrent']
-        >
-    >
->;
-export type UserSelectedTemplateSetFavoriteResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getUserSelectedTemplate
-            >['userSelectedTemplateSetFavorite']
-        >
-    >
->;
-export type UserSelectedTemplateSetActiveUserSelectedTemplateResult =
-    NonNullable<
-        Awaited<
-            ReturnType<
-                ReturnType<
-                    typeof getUserSelectedTemplate
-                >['userSelectedTemplateSetActiveUserSelectedTemplate']
-            >
-        >
-    >;
+
+
+  export const getUserSelectedTemplate = () => {
+/**
+ * Create a new user selected template
+ * @summary Create user selected template
+ */
+const userSelectedTemplateCreateUserSelectedTemplate = (
+    createUserSelectedTemplateDto: CreateUserSelectedTemplateDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/user-selected-templates`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createUserSelectedTemplateDto
+    },
+      );
+    }
+  /**
+ * Delete a user selected template
+ * @summary Delete user selected template
+ */
+const userSelectedTemplateRemove = (
+    id: number,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/user-selected-templates/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  /**
+ * Set the current user selected template
+ * @summary Set current user selected template
+ */
+const userSelectedTemplateSetCurrent = (
+    createUserSelectedTemplateDto: CreateUserSelectedTemplateDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/user-selected-templates/current`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createUserSelectedTemplateDto
+    },
+      );
+    }
+  /**
+ * Set the favorite user selected template
+ * @summary Set favorite user selected template
+ */
+const userSelectedTemplateSetFavorite = (
+    createUserSelectedTemplateDto: CreateUserSelectedTemplateDto,
+    params: UserSelectedTemplateSetFavoriteParams,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/user-selected-templates/favorite`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createUserSelectedTemplateDto,
+        params
+    },
+      );
+    }
+  /**
+ * Set the active user selected template
+ * @summary Set active user selected template
+ */
+const userSelectedTemplateSetActiveUserSelectedTemplate = (
+    createUserSelectedTemplateDto: CreateUserSelectedTemplateDto,
+    params: UserSelectedTemplateSetActiveUserSelectedTemplateParams,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/user-selected-templates/active`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createUserSelectedTemplateDto,
+        params
+    },
+      );
+    }
+  return {userSelectedTemplateCreateUserSelectedTemplate,userSelectedTemplateRemove,userSelectedTemplateSetCurrent,userSelectedTemplateSetFavorite,userSelectedTemplateSetActiveUserSelectedTemplate}};
+export type UserSelectedTemplateCreateUserSelectedTemplateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUserSelectedTemplate>['userSelectedTemplateCreateUserSelectedTemplate']>>>
+export type UserSelectedTemplateRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUserSelectedTemplate>['userSelectedTemplateRemove']>>>
+export type UserSelectedTemplateSetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUserSelectedTemplate>['userSelectedTemplateSetCurrent']>>>
+export type UserSelectedTemplateSetFavoriteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUserSelectedTemplate>['userSelectedTemplateSetFavorite']>>>
+export type UserSelectedTemplateSetActiveUserSelectedTemplateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getUserSelectedTemplate>['userSelectedTemplateSetActiveUserSelectedTemplate']>>>

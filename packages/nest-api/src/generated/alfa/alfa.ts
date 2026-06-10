@@ -5,24 +5,25 @@
  * API for april-bitrix  hooks and  frontends
  * OpenAPI spec version: 1.0
  */
-import type { CreateDealBodyDto } from '.././model';
+import type {
+  CreateDealBodyDto
+} from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getAlfa = () => {
-    const alfaCreateDeal = (
-        dealId: string,
-        createDealBodyDto: CreateDealBodyDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/alfa/create-deal/${dealId}`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createDealBodyDto,
-        });
-    };
-    return { alfaCreateDeal };
-};
-export type AlfaCreateDealResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAlfa>['alfaCreateDeal']>>
->;
+
+
+  export const getAlfa = () => {
+const alfaCreateDeal = (
+    dealId: string,
+    createDealBodyDto: CreateDealBodyDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/alfa/create-deal/${dealId}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createDealBodyDto
+    },
+      );
+    }
+  return {alfaCreateDeal}};
+export type AlfaCreateDealResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAlfa>['alfaCreateDeal']>>>

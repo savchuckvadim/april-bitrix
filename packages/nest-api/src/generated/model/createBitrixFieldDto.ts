@@ -9,24 +9,24 @@ import type { CreateBitrixFieldDtoEntityType } from './createBitrixFieldDtoEntit
 import type { CreateBitrixFieldItemDto } from './createBitrixFieldItemDto';
 
 export interface CreateBitrixFieldDto {
-    /** Entity type (polymorphic relation) */
-    entity_type: CreateBitrixFieldDtoEntityType;
-    /** Entity ID (polymorphic relation) */
-    entity_id: number;
-    /** Parent type for grouping fields */
-    parent_type: string;
-    /** Field type */
-    type: string;
-    /** Field title */
-    title: string;
-    /** Field name */
-    name: string;
-    /** Bitrix ID */
-    bitrixId: string;
-    /** Bitrix Camel ID */
-    bitrixCamelId: string;
-    /** Field code */
-    code: string;
-    /** Field items (for select, multiselect, etc.) */
-    items?: CreateBitrixFieldItemDto[];
+  /** Entity type (polymorphic relation) */
+  entity_type: CreateBitrixFieldDtoEntityType;
+  /** Entity ID (polymorphic relation) */
+  entity_id: number;
+  /** Parent type for grouping fields */
+  parent_type: string;
+  /** Field type */
+  type: string;
+  /** Field title */
+  title: string;
+  /** Field name */
+  name: string;
+  /** Bitrix ID */
+  bitrixId: string;
+  /** Bitrix Camel ID */
+  bitrixCamelId: string;
+  /** Field code */
+  code: string;
+  /** Field items (for select, multiselect, etc.) */
+  items?: CreateBitrixFieldItemDto[];
 }

@@ -8,8 +8,8 @@
 import type { BlockOrderDto } from './blockOrderDto';
 
 export interface ReorderBlocksDto {
-    /** The page id */
-    page_id: number;
-    /** The block orders */
-    block_orders: BlockOrderDto[];
+  /** The page id */
+  page_id: number;
+  /** The block orders */
+  block_orders: BlockOrderDto[];
 }

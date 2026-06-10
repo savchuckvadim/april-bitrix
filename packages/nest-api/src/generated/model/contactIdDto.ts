@@ -7,6 +7,6 @@
  */
 
 export interface ContactIdDto {
-    /** Contacts ID */
-    ID: string;
+  /** Contacts ID */
+  ID: string;
 }

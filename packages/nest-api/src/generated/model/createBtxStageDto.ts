@@ -7,16 +7,16 @@
  */
 
 export interface CreateBtxStageDto {
-    /** Stage name */
-    name: string;
-    /** Stage title */
-    title: string;
-    /** Stage code */
-    code: string;
-    /** Bitrix ID */
-    bitrixId: string;
-    /** Stage color */
-    color: string;
-    /** Is active */
-    isActive: boolean;
+  /** Stage name */
+  name: string;
+  /** Stage title */
+  title: string;
+  /** Stage code */
+  code: string;
+  /** Bitrix ID */
+  bitrixId: string;
+  /** Stage color */
+  color: string;
+  /** Is active */
+  isActive: boolean;
 }

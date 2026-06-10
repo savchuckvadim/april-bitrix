@@ -7,5 +7,9 @@
  */
 
 export type BtxDealGetAllDealsParams = {
-    portal_id: string;
+/**
+ * Portal ID
+ * @nullable
+ */
+portal_id?: number | null;
 };

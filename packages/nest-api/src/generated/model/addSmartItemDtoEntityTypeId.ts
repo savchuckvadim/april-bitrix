@@ -6,10 +6,10 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AddSmartItemDtoEntityTypeId =
-    (typeof AddSmartItemDtoEntityTypeId)[keyof typeof AddSmartItemDtoEntityTypeId];
+export type AddSmartItemDtoEntityTypeId = typeof AddSmartItemDtoEntityTypeId[keyof typeof AddSmartItemDtoEntityTypeId];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AddSmartItemDtoEntityTypeId = {
-    NUMBER_1036: 1036,
+  NUMBER_1036: 1036,
 } as const;

@@ -1,8 +1,11 @@
 // export const TESTING_DOMAIN = 'gsirk.bitrix24.ru'
 // export const TESTING_DOMAIN = 'alfacentr.bitrix24.ru'
 
-import { BXUser, Placement } from '@workspace/bx';
-// export const TESTING_DOMAIN = 'gsr.bitrix24.ru'
+import { IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
+import { Placement } from '@workspace/bx';
+
+export const IS_PROD = false;
+
 export const TESTING_DOMAIN = 'april-garant.bitrix24.ru' as string;
 export const TESTING_USER = {
     ID: 1,
@@ -11,7 +14,7 @@ export const TESTING_USER = {
     EMAIL: 'string',
 
     IS_ONLINE: 'string',
-    LAST_ACTIVITY_DATE: ['string'],
+    LAST_ACTIVITY_DATE: 'string',
     LAST_LOGIN: 'string',
     LAST_NAME: '',
     NAME: 'MARINA',
@@ -31,33 +34,28 @@ export const TESTING_USER = {
     USER_TYPE: 'string',
     WORK_PHONE: 'string',
     WORK_POSITION: 'Оператор ТМЦ',
-} as BXUser;
+} as IBXUser;
+
 
 export const IS_REMEMBER_DEV = true;
-export const TESTING_DEAL_ID = 0; //11311
-export const TESTING_COMPANY_ID = 158587 as number; // 158479
+export const TESTING_DEAL_ID = 32990; //11311
+export const TESTING_COMPANY_ID = 32442 as number; // 158479
 export const DEV_CURRENT_USER_ID = 1;
-// 11822
-// 11822
-// export const TESTING_DEAL_ID = 11388
-// 10500 month
-// 10536 abon + month
-// 10550 1abon
-// 11726 lic q-2
-//DEAL
-export const TESTING_PLACEMENT = {
-    placement: 'CRM_COMPANY_DETAIL_TAB',
-    options: {
-        ID: TESTING_COMPANY_ID,
-    },
-} as Placement;
 
+//DEAL
 // export const TESTING_PLACEMENT = {
-//     placement: 'CRM_DEAL_DETAIL_TAB',
+//     placement: 'CRM_COMPANY_DETAIL_TAB',
 //     options: {
-//         ID: TESTING_DEAL_ID
-//     }
-// } as Placement
+//         ID: TESTING_COMPANY_ID,
+//     },
+// } as Placement;
+
+export const TESTING_PLACEMENT = {
+    placement: 'CRM_DEAL_DETAIL_TAB',
+    options: {
+        ID: TESTING_DEAL_ID
+    }
+} as Placement
 
 // export const TESTING_PLACEMENT = {
 //     placement: 'TASK_VIEW_TOP_PANEL', //TASK_VIEW_SIDEBAR',

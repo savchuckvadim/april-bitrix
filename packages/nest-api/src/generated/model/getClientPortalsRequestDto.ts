@@ -7,6 +7,6 @@
  */
 
 export interface GetClientPortalsRequestDto {
-    /** Client ID */
-    clientId: number;
+  /** Client ID */
+  clientId: number;
 }

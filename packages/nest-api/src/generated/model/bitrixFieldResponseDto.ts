@@ -11,30 +11,30 @@ import type { BitrixFieldResponseDtoCreatedAt } from './bitrixFieldResponseDtoCr
 import type { BitrixFieldResponseDtoUpdatedAt } from './bitrixFieldResponseDtoUpdatedAt';
 
 export interface BitrixFieldResponseDto {
-    /** Field ID */
-    id: number;
-    /** Entity type */
-    entity_type: BitrixFieldResponseDtoEntityType;
-    /** Entity ID */
-    entity_id: number;
-    /** Parent type */
-    parent_type: string;
-    /** Field type */
-    type: string;
-    /** Field title */
-    title: string;
-    /** Field name */
-    name: string;
-    /** Bitrix ID */
-    bitrixId: string;
-    /** Bitrix Camel ID */
-    bitrixCamelId: string;
-    /** Field code */
-    code: string;
-    /** Field items */
-    items?: BitrixFieldItemResponseDto[];
-    /** Created at */
-    created_at?: BitrixFieldResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BitrixFieldResponseDtoUpdatedAt;
+  /** Field ID */
+  id: number;
+  /** Entity type */
+  entity_type: BitrixFieldResponseDtoEntityType;
+  /** Entity ID */
+  entity_id: number;
+  /** Parent type */
+  parent_type: string;
+  /** Field type */
+  type: string;
+  /** Field title */
+  title: string;
+  /** Field name */
+  name: string;
+  /** Bitrix ID */
+  bitrixId: string;
+  /** Bitrix Camel ID */
+  bitrixCamelId: string;
+  /** Field code */
+  code: string;
+  /** Field items */
+  items?: BitrixFieldItemResponseDto[];
+  /** Created at */
+  created_at?: BitrixFieldResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BitrixFieldResponseDtoUpdatedAt;
 }

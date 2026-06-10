@@ -7,12 +7,16 @@
  */
 import { customAxios } from '../../lib/back-api';
 
-export const getPrometheus = () => {
-    const prometheusIndex = () => {
-        return customAxios<void>({ url: `/api/metrics`, method: 'GET' });
-    };
-    return { prometheusIndex };
-};
-export type PrometheusIndexResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getPrometheus>['prometheusIndex']>>
->;
+
+
+  export const getPrometheus = () => {
+const prometheusIndex = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api/metrics`, method: 'GET'
+    },
+      );
+    }
+  return {prometheusIndex}};
+export type PrometheusIndexResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPrometheus>['prometheusIndex']>>>

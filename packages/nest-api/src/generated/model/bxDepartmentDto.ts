@@ -8,16 +8,16 @@
 import type { BxDepartmentDtoUFHEAD } from './bxDepartmentDtoUFHEAD';
 
 export interface BxDepartmentDto {
-    /** Department ID */
-    ID: number;
-    /** Department name */
-    NAME: string;
-    /** Department parent */
-    PARENT: string;
-    /** Department sort */
-    SORT: number;
-    /** Department users */
-    USERS: string[];
-    /** Department head */
-    UF_HEAD: BxDepartmentDtoUFHEAD;
+  /** Department ID */
+  ID: number;
+  /** Department name */
+  NAME: string;
+  /** Department parent */
+  PARENT: string;
+  /** Department sort */
+  SORT: number;
+  /** Department users */
+  USERS: string[];
+  /** Department head */
+  UF_HEAD: BxDepartmentDtoUFHEAD;
 }

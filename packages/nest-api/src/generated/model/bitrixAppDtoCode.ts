@@ -9,11 +9,11 @@
 /**
  * Код приложения
  */
-export type BitrixAppDtoCode =
-    (typeof BitrixAppDtoCode)[keyof typeof BitrixAppDtoCode];
+export type BitrixAppDtoCode = typeof BitrixAppDtoCode[keyof typeof BitrixAppDtoCode];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BitrixAppDtoCode = {
-    sales_full: 'sales_full',
-    service_full: 'service_full',
+  sales_full: 'sales_full',
+  service_full: 'service_full',
 } as const;

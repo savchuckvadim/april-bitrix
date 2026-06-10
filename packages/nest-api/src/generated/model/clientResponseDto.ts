@@ -7,18 +7,18 @@
  */
 
 export interface ClientResponseDto {
-    /** Client ID */
-    id: number;
-    /** Client name */
-    name: string;
-    /** Client email */
-    email?: string;
-    /** Client status */
-    status?: string;
-    /** Client is active */
-    is_active?: boolean;
-    /** Client created at */
-    created_at?: string;
-    /** Client updated at */
-    updated_at?: string;
+  /** Client ID */
+  id: number;
+  /** Client name */
+  name: string;
+  /** Client email */
+  email?: string;
+  /** Client status */
+  status?: string;
+  /** Client is active */
+  is_active?: boolean;
+  /** Client created at */
+  created_at?: string;
+  /** Client updated at */
+  updated_at?: string;
 }

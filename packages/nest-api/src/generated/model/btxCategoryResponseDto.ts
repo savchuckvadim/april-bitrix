@@ -11,34 +11,34 @@ import type { BtxCategoryResponseDtoCreatedAt } from './btxCategoryResponseDtoCr
 import type { BtxCategoryResponseDtoUpdatedAt } from './btxCategoryResponseDtoUpdatedAt';
 
 export interface BtxCategoryResponseDto {
-    /** Category ID */
-    id: number;
-    /** Entity type */
-    entity_type: BtxCategoryResponseDtoEntityType;
-    /** Entity ID */
-    entity_id: number;
-    /** Parent type */
-    parent_type: string;
-    /** Category type */
-    type: string;
-    /** Category group */
-    group: string;
-    /** Category title */
-    title: string;
-    /** Category name */
-    name: string;
-    /** Bitrix ID */
-    bitrixId: string;
-    /** Bitrix Camel ID */
-    bitrixCamelId: string;
-    /** Category code */
-    code: string;
-    /** Is active */
-    isActive: boolean;
-    /** Category stages */
-    stages?: BtxStageResponseDto[];
-    /** Created at */
-    created_at?: BtxCategoryResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BtxCategoryResponseDtoUpdatedAt;
+  /** Category ID */
+  id: number;
+  /** Entity type */
+  entity_type: BtxCategoryResponseDtoEntityType;
+  /** Entity ID */
+  entity_id: number;
+  /** Parent type */
+  parent_type: string;
+  /** Category type */
+  type: string;
+  /** Category group */
+  group: string;
+  /** Category title */
+  title: string;
+  /** Category name */
+  name: string;
+  /** Bitrix ID */
+  bitrixId: string;
+  /** Bitrix Camel ID */
+  bitrixCamelId: string;
+  /** Category code */
+  code: string;
+  /** Is active */
+  isActive: boolean;
+  /** Category stages */
+  stages?: BtxStageResponseDto[];
+  /** Created at */
+  created_at?: BtxCategoryResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BtxCategoryResponseDtoUpdatedAt;
 }

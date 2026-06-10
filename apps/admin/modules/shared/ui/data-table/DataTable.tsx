@@ -10,6 +10,8 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { cn } from '@workspace/ui/lib/utils';
+import { Checkbox } from '@workspace/ui/components/checkbox';
+
 
 export interface Column<T> {
     id: string;
@@ -26,6 +28,9 @@ interface DataTableProps<T> {
     emptyMessage?: string;
     onRowClick?: (row: T) => void;
     className?: string;
+    withChcekbox?: boolean;
+    onCheckboxChange?: (id: string, checked: boolean) => void;
+
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -35,6 +40,8 @@ export function DataTable<T extends Record<string, any>>({
     emptyMessage = 'Нет данных',
     onRowClick,
     className,
+    withChcekbox = false,
+    onCheckboxChange,
 }: DataTableProps<T>) {
     if (isLoading) {
         return (
@@ -53,46 +60,61 @@ export function DataTable<T extends Record<string, any>>({
     }
 
     return (
-        <div className={cn('rounded-md border', className)}>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        {columns.map((column) => (
-                            <TableHead
-                                key={column.id}
-                                className={column.className}
-                            >
-                                {column.header}
-                            </TableHead>
-                        ))}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {data.map((row, rowIndex) => (
-                        <TableRow
-                            key={rowIndex}
-                            onClick={() => onRowClick?.(row)}
-                            className={cn(
-                                onRowClick && 'cursor-pointer hover:bg-accent',
+
+            <div className={cn('rounded-md border overflow-x-auto h-full min-h-full', className)}>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            {withChcekbox && (
+                                <TableHead className="w-3">
+                                </TableHead>
                             )}
-                        >
                             {columns.map((column) => (
-                                <TableCell
+                                <TableHead
                                     key={column.id}
                                     className={column.className}
                                 >
-                                    {column.cell
-                                        ? column.cell(row)
-                                        : column.accessorKey
-                                          ? String(row[column.accessorKey] ?? '')
-                                          : ''}
-                                </TableCell>
+                                    {column.header}
+                                </TableHead>
                             ))}
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
+                    </TableHeader>
+                    <TableBody>
+                        {data.map((row, rowIndex) => (
+                            <TableRow
+                                key={rowIndex}
+
+                                className={cn(
+                                    onRowClick && 'cursor-pointer hover:bg-accent',
+                                )}
+                            >
+                                {withChcekbox && (
+                                    <TableCell className="w-3">
+                                        <Checkbox checked={row.isChecked} onCheckedChange={() => onCheckboxChange?.(row.id, row.isChecked)} />
+                                    </TableCell>
+                                )}
+                                {columns.map((column) => (
+                                    <TableCell
+                                        key={column.id}
+                                        className={column.className}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onRowClick?.(row);
+                                        }}
+                                    >
+                                        {column.cell
+                                            ? column.cell(row)
+                                            : column.accessorKey
+                                                ? String(row[column.accessorKey] ?? '')
+                                                : ''}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+
     );
 }
 

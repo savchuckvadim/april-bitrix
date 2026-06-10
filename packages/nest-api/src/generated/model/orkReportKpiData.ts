@@ -9,8 +9,8 @@ import type { BitrixUser } from './bitrixUser';
 import type { KPIOrk } from './kPIOrk';
 
 export interface OrkReportKpiData {
-    user: BitrixUser;
-    userName: string;
-    /** KPI data */
-    kpi: KPIOrk[];
+  user: BitrixUser;
+  userName: string;
+  /** KPI data */
+  kpi: KPIOrk[];
 }

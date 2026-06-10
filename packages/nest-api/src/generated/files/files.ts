@@ -7,12 +7,16 @@
  */
 import { customAxios } from '../../lib/back-api';
 
-export const getFiles = () => {
-    const filesDownload = (token: string) => {
-        return customAxios<void>({ url: `/api/files/${token}`, method: 'GET' });
-    };
-    return { filesDownload };
-};
-export type FilesDownloadResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getFiles>['filesDownload']>>
->;
+
+
+  export const getFiles = () => {
+const filesDownload = (
+    token: string,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/files/${token}`, method: 'GET'
+    },
+      );
+    }
+  return {filesDownload}};
+export type FilesDownloadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFiles>['filesDownload']>>>

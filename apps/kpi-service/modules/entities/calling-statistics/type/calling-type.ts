@@ -1,6 +1,9 @@
+import { IBXUser } from "@workspace/bitrix/src/domain/interfaces/bitrix.interface";
+
 export interface ReportCallingData {
-    userId: number;
+    userId?: number;
     userName?: string;
+    user?: IBXUser | undefined;
     callings: Array<KPICall>;
 }
 

@@ -7,12 +7,16 @@
  */
 import { customAxios } from '../../lib/back-api';
 
-export const getApp = () => {
-    const appGetHello = () => {
-        return customAxios<void>({ url: `/api`, method: 'GET' });
-    };
-    return { appGetHello };
-};
-export type AppGetHelloResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getApp>['appGetHello']>>
->;
+
+
+  export const getApp = () => {
+const appGetHello = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api`, method: 'GET'
+    },
+      );
+    }
+  return {appGetHello}};
+export type AppGetHelloResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getApp>['appGetHello']>>>

@@ -9,11 +9,11 @@
 /**
  * Code
  */
-export type CreateBitrixTokenDtoCode =
-    (typeof CreateBitrixTokenDtoCode)[keyof typeof CreateBitrixTokenDtoCode];
+export type CreateBitrixTokenDtoCode = typeof CreateBitrixTokenDtoCode[keyof typeof CreateBitrixTokenDtoCode];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateBitrixTokenDtoCode = {
-    sales_full: 'sales_full',
-    service_full: 'service_full',
+  sales_full: 'sales_full',
+  service_full: 'service_full',
 } as const;

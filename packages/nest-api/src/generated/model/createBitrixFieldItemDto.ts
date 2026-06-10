@@ -7,12 +7,12 @@
  */
 
 export interface CreateBitrixFieldItemDto {
-    /** Item name */
-    name: string;
-    /** Item title */
-    title: string;
-    /** Item code */
-    code: string;
-    /** Bitrix ID */
-    bitrixId: number;
+  /** Item name */
+  name: string;
+  /** Item title */
+  title: string;
+  /** Item code */
+  code: string;
+  /** Bitrix ID */
+  bitrixId: number;
 }

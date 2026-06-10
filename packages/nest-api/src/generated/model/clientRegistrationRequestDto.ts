@@ -7,19 +7,19 @@
  */
 
 export interface ClientRegistrationRequestDto {
-    /** Client name */
-    name: string;
-    /** User name */
-    userName: string;
-    /** User surname */
-    userSurname: string;
-    /** User email */
-    email: string;
-    /**
-     * User password
-     * @minLength 6
-     */
-    password: string;
-    /** Domain */
-    domain: string;
+  /** Client name */
+  name: string;
+  /** User name */
+  userName: string;
+  /** User surname */
+  userSurname: string;
+  /** User email */
+  email: string;
+  /**
+   * User password
+   * @minLength 6
+   */
+  password: string;
+  /** Domain */
+  domain: string;
 }

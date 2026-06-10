@@ -1,83 +1,38 @@
-// packages/nest-api/src/lib/back-api.ts
-import axios, { AxiosRequestConfig, Method } from 'axios';
-
-
-// const prod = `https://back.april-app.ru/`;
-// // const prod = `http://localhost:3000/`;
-// const url = prod;
-
-// console.log('url back-api nest-api-packages', url);
+import axios, { AxiosRequestConfig } from 'axios';
 
 export interface IBackResponse<T> {
-    resultCode: EResultCode; // 0 - успех, 1 - ошибка
-    data?: T; // данные ответа (при успехе)
-    message?: string; // сообщение ошибки (при ошибке)
-    errors?: string[]; // ошибки (при ошибке)
+    resultCode: EResultCode;
+    data?: T;
+    message?: string;
+    errors?: string[];
 }
+
 export enum EResultCode {
     SUCCESS = 0,
     ERROR = 1,
 }
 
-const $apiHeaders = {
-    'content-type': 'application/json',
-    'X-BACK-API-KEY': '',
-};
+// let _baseURL = 'http://localhost:3000/';
+// let _baseURL = 'https://back.april-dev.ru/';
+let _baseURL = 'https://back.april-app.ru/';
+export function configureBaseURL(url: string) {
+    _baseURL = url;
+    $api.defaults.baseURL = url;
+}
 
-const $api = axios.create({
-    baseURL: `https://back.april-app.ru/`,
+export const $api = axios.create({
+    baseURL: _baseURL,
     withCredentials: true,
-    headers: $apiHeaders,
+    headers: { 'Content-Type': 'application/json' },
 });
-// // 🔐 автоматически добавляем JWT
-// evs.interceptors.request.use((config) => {
-//     const token = localStorage.getItem(AUTH_TOKEN_NAME);
-//     if (token) {
-//         config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-// });
 
-
-// export const customAxios = async <T>({
-//     url,
-//     method,
-//     data,
-//     params,
-//     headers,
-// }: {
-//     url: string;
-//     method: Method;
-//     data?: any;
-//     params?: any;
-//     headers?: any;
-// }): Promise<T> => {
-//     // // Orval всегда ждёт, что mutator возвращает **данные**, а не { resultCode, data }
-//     // const res = await backAPI.service<T>(url as EBACK_ENDPOINT, method.toLowerCase() as API_METHOD, data, params);
-//     // return res.data as T; // важно вернуть именно T
-
-//     // const instance = axios.create({
-//     //     baseURL: 'http://localhost:3000', // или prod
-//     //     headers: { 'Content-Type': 'application/json', ...headers },
-//     // });
-
-//     const res = await evs.request<IBackResponse<T>>({
-//         url,
-//         method: method as Method,
-//         data,
-//         params, // 🔹 вот здесь axios сам превращает объект в query string
-//         headers,
-//     });
-//     if (res.data.resultCode !== EResultCode.SUCCESS) {
-//         throw new Error(res.data.message || `Backend error ${url}`);
-//     }
-// debugger
-//     return res.data.data as T;
-// };
+/**
+ * Orval mutator — all generated API calls go through this function.
+ * Unwraps the Nest `{ resultCode, data, message }` envelope.
+ */
 export const customAxios = async <T>(
-    config: AxiosRequestConfig
+    config: AxiosRequestConfig,
 ): Promise<T> => {
-    // blob / arraybuffer — сразу возвращаем
     if (config.responseType && config.responseType !== 'json') {
         const res = await $api.request<T>(config);
         return res.data;

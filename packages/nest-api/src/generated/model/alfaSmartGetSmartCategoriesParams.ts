@@ -7,5 +7,5 @@
  */
 
 export type AlfaSmartGetSmartCategoriesParams = {
-    domain: string;
+domain: string;
 };

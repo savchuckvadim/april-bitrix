@@ -8,8 +8,8 @@
 import type { BxRqBankItemDto } from './bxRqBankItemDto';
 
 export interface BxRqBankDto {
-    /** Current of the RQ */
-    current: BxRqBankItemDto;
-    /** Items of the RQ */
-    items: string[];
+  /** Current of the RQ */
+  current: BxRqBankItemDto;
+  /** Items of the RQ */
+  items: string[];
 }

@@ -1,10 +1,7 @@
 'use client';
 import { useAuth } from '@/modules/processes/auth/lib/hooks';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { usePortal } from '@/modules/entities/portal/lib/hooks';
-import { Portal } from '@/modules/processes/auth';
-import { PortalAdd } from '@/modules/entities/portal/ui/PortalAdd/PortalAdd';
-import { CabinetWidget } from '@/modules/widgetes/cabinet/ui/CabinetWidget';
 import Link from 'next/link';
 import { Button } from '@workspace/ui/components/button';
 
@@ -36,8 +33,9 @@ export const Header = () => {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-sm text-gray-600">
-                            Добро пожаловать, {currentUser?.name}
+                            Добро пожаловать, {currentUser?.name} {currentUser?.surname}
                         </div>
+                      
                         <Button variant="outline" size="sm" onClick={handleLogout}>
                             Выйти
                         </Button>

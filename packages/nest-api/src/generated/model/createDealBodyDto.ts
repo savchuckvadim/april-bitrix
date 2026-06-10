@@ -8,5 +8,5 @@
 import type { AuthDto } from './authDto';
 
 export interface CreateDealBodyDto {
-    auth: AuthDto;
+  auth: AuthDto;
 }

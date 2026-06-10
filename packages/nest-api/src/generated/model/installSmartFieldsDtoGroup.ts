@@ -9,11 +9,11 @@
 /**
  * Группа полей
  */
-export type InstallSmartFieldsDtoGroup =
-    (typeof InstallSmartFieldsDtoGroup)[keyof typeof InstallSmartFieldsDtoGroup];
+export type InstallSmartFieldsDtoGroup = typeof InstallSmartFieldsDtoGroup[keyof typeof InstallSmartFieldsDtoGroup];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const InstallSmartFieldsDtoGroup = {
-    sales: 'sales',
-    service: 'service',
+  sales: 'sales',
+  service: 'service',
 } as const;

@@ -7,14 +7,14 @@
  */
 
 export interface BitrixTokenDto {
-    /** Access token */
-    access_token: string;
-    /** Refresh token */
-    refresh_token: string;
-    /** Expires at */
-    expires_at: string;
-    /** Application token */
-    application_token: string;
-    /** Member id */
-    member_id: string;
+  /** Access token */
+  access_token: string;
+  /** Refresh token */
+  refresh_token: string;
+  /** Expires at */
+  expires_at: string;
+  /** Application token */
+  application_token: string;
+  /** Member id */
+  member_id: string;
 }

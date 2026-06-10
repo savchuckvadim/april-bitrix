@@ -6,55 +6,54 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    SendEmailOfferRequestDto,
-    SendEmailRequestDto,
-    SuccessResponseDto,
+  SendEmailOfferRequestDto,
+  SendEmailRequestDto,
+  SuccessResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getMail = () => {
-    /**
-     * @summary Send email
-     */
-    const mailSendMail = (sendEmailRequestDto: SendEmailRequestDto) => {
-        return customAxios<SuccessResponseDto>({
-            url: `/api/mail/send`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: sendEmailRequestDto,
-        });
-    };
-    /**
-     * @summary Send Offer email
-     */
-    const mailSendMailOffer = (
-        sendEmailOfferRequestDto: SendEmailOfferRequestDto,
-    ) => {
-        return customAxios<SuccessResponseDto>({
-            url: `/api/mail/send-offer`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: sendEmailOfferRequestDto,
-        });
-    };
-    /**
-     * @summary Get logo file
-     */
-    const mailGetLogo = () => {
-        return customAxios<void>({
-            url: `/api/mail/assets/logo`,
-            method: 'GET',
-        });
-    };
-    return { mailSendMail, mailSendMailOffer, mailGetLogo };
-};
-export type MailSendMailResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getMail>['mailSendMail']>>
->;
-export type MailSendMailOfferResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getMail>['mailSendMailOffer']>>
->;
-export type MailGetLogoResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getMail>['mailGetLogo']>>
->;
+
+
+  export const getMail = () => {
+/**
+ * @summary Send email
+ */
+const mailSendMail = (
+    sendEmailRequestDto: SendEmailRequestDto,
+ ) => {
+      return customAxios<SuccessResponseDto>(
+      {url: `/api/mail/send`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: sendEmailRequestDto
+    },
+      );
+    }
+  /**
+ * @summary Send Offer email
+ */
+const mailSendMailOffer = (
+    sendEmailOfferRequestDto: SendEmailOfferRequestDto,
+ ) => {
+      return customAxios<SuccessResponseDto>(
+      {url: `/api/mail/send-offer`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: sendEmailOfferRequestDto
+    },
+      );
+    }
+  /**
+ * @summary Get logo file
+ */
+const mailGetLogo = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api/mail/assets/logo`, method: 'GET'
+    },
+      );
+    }
+  return {mailSendMail,mailSendMailOffer,mailGetLogo}};
+export type MailSendMailResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMail>['mailSendMail']>>>
+export type MailSendMailOfferResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMail>['mailSendMailOffer']>>>
+export type MailGetLogoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMail>['mailGetLogo']>>>

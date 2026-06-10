@@ -8,6 +8,6 @@
 import type { GetCallingStatisticFiltersDto } from './getCallingStatisticFiltersDto';
 
 export interface GetCallingStatisticDto {
-    domain: string;
-    filters: GetCallingStatisticFiltersDto;
+  domain: string;
+  filters: GetCallingStatisticFiltersDto;
 }

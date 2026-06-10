@@ -40,7 +40,7 @@ export default function DashboardPage() {
             : 0;
         const totalApps = Array.isArray(apps) ? apps.length : 0;
         const installedApps = Array.isArray(apps)
-            ? apps.filter((app: any) => app?.status === 'installed').length
+            ? apps.filter((app) => app?.status === 'installed').length
             : 0;
 
         return {

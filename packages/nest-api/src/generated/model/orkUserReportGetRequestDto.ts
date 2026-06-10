@@ -7,14 +7,14 @@
  */
 
 export interface OrkUserReportGetRequestDto {
-    /** Домен */
-    domain: string;
-    /** ID сокета */
-    socketId: string;
-    /** ID пользователя */
-    userId: number;
-    /** Дата начала периода */
-    dateFrom: string;
-    /** Дата окончания периода */
-    dateTo: string;
+  /** Домен */
+  domain: string;
+  /** ID сокета */
+  socketId: string;
+  /** ID пользователя */
+  userId: number;
+  /** Дата начала периода */
+  dateFrom: string;
+  /** Дата окончания периода */
+  dateTo: string;
 }

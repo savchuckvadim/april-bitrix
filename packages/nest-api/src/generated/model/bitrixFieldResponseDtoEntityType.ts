@@ -9,17 +9,18 @@
 /**
  * Entity type
  */
-export type BitrixFieldResponseDtoEntityType =
-    (typeof BitrixFieldResponseDtoEntityType)[keyof typeof BitrixFieldResponseDtoEntityType];
+export type BitrixFieldResponseDtoEntityType = typeof BitrixFieldResponseDtoEntityType[keyof typeof BitrixFieldResponseDtoEntityType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BitrixFieldResponseDtoEntityType = {
-    'App\Models\Smart': 'App\Models\Smart',
-    'App\Models\BtxCompany': 'App\Models\BtxCompany',
-    'App\Models\BtxContact': 'App\Models\BtxContact',
-    'App\Models\Lead': 'App\Models\Lead',
-    'App\Models\Deal': 'App\Models\Deal',
-    'App\Models\BtxRpa': 'App\Models\BtxRpa',
-    'App\Models\BxRq': 'App\Models\BxRq',
-    'App\Models\BitrixList': 'App\Models\BitrixList',
+  smart: 'smart',
+  company: 'company',
+  contact: 'contact',
+  lead: 'lead',
+  deal: 'deal',
+  rpa: 'rpa',
+  rq: 'rq',
+  list: 'list',
+  user: 'user',
 } as const;

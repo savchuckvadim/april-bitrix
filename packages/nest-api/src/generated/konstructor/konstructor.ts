@@ -6,135 +6,151 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    ContractGenerateDto,
-    GetInitDataDto,
-    InitDealDto,
-    InitSupplyDto,
-    KonstructorInitDataDto,
-    OfferDto,
-    OfferWordByTemplateGenerateDto,
-    ZakupkiOfferCreateDto,
+  ContractGenerateDto,
+  GetInitDataDto,
+  InitDealDto,
+  InitSupplyDto,
+  KonstructorInitDataDto,
+  OfferDto,
+  OfferWordByTemplateGenerateDto,
+  OfferWordByTemplateGenerateResponseDto,
+  OfferWordEphemeralPdfPollResponseDto,
+  OfferWordEphemeralPdfStartResponseDto,
+  OfferWordEphemeralPdfStopResponseDto,
+  ZakupkiOfferCreateDto
 } from '.././model';
 
 import { customAxios } from '../../lib/back-api';
 
-export const getKonstructor = () => {
-    const zakupkiOfferCreateZakupkiOffer = (
-        zakupkiOfferCreateDto: ZakupkiOfferCreateDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/zakupki-offer/create`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: zakupkiOfferCreateDto,
-        });
-    };
-    const contractGenerateGenerateContract = (
-        contractGenerateDto: ContractGenerateDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/contract/generate`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: contractGenerateDto,
-        });
-    };
-    const offerCreateOffer = (offerDto: OfferDto) => {
-        return customAxios<void>({
-            url: `/api/offer/create`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: offerDto,
-        });
-    };
-    /**
-     * @summary Инициализационные данные для констркутора
-     */
-    const konstructorInitInit = (getInitDataDto: GetInitDataDto) => {
-        return customAxios<KonstructorInitDataDto>({
-            url: `/api/konstructor/init/data`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: getInitDataDto,
-        });
-    };
-    const initSupplyInitSupply = (initSupplyDto: InitSupplyDto) => {
-        return customAxios<void>({
-            url: `/api/konstructor/init-supply`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: initSupplyDto,
-        });
-    };
-    /**
-     * @summary Init deal
-     */
-    const initDealInitDeal = (initDealDto: InitDealDto) => {
-        return customAxios<void>({
-            url: `/api/supply/init-deal`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: initDealDto,
-        });
-    };
-    const offerWordGenerateGenerateOfferWord = (
-        offerWordByTemplateGenerateDto: OfferWordByTemplateGenerateDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/offer-word-document/generate`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: offerWordByTemplateGenerateDto,
-        });
-    };
-    return {
-        zakupkiOfferCreateZakupkiOffer,
-        contractGenerateGenerateContract,
-        offerCreateOffer,
-        konstructorInitInit,
-        initSupplyInitSupply,
-        initDealInitDeal,
-        offerWordGenerateGenerateOfferWord,
-    };
-};
-export type ZakupkiOfferCreateZakupkiOfferResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getKonstructor>['zakupkiOfferCreateZakupkiOffer']
-        >
-    >
->;
-export type ContractGenerateGenerateContractResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getKonstructor
-            >['contractGenerateGenerateContract']
-        >
-    >
->;
-export type OfferCreateOfferResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerCreateOffer']>>
->;
-export type KonstructorInitInitResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getKonstructor>['konstructorInitInit']>
-    >
->;
-export type InitSupplyInitSupplyResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getKonstructor>['initSupplyInitSupply']>
-    >
->;
-export type InitDealInitDealResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getKonstructor>['initDealInitDeal']>>
->;
-export type OfferWordGenerateGenerateOfferWordResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getKonstructor
-            >['offerWordGenerateGenerateOfferWord']
-        >
-    >
->;
+
+
+  export const getKonstructor = () => {
+const zakupkiOfferCreateZakupkiOffer = (
+    zakupkiOfferCreateDto: ZakupkiOfferCreateDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/zakupki-offer/create`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: zakupkiOfferCreateDto
+    },
+      );
+    }
+  const contractGenerateGenerateContract = (
+    contractGenerateDto: ContractGenerateDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/contract/generate`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: contractGenerateDto
+    },
+      );
+    }
+  const offerCreateOffer = (
+    offerDto: OfferDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/offer/create`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: offerDto
+    },
+      );
+    }
+  /**
+ * @summary Инициализационные данные для констркутора
+ */
+const konstructorInitInit = (
+    getInitDataDto: GetInitDataDto,
+ ) => {
+      return customAxios<KonstructorInitDataDto>(
+      {url: `/api/konstructor/init/data`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: getInitDataDto
+    },
+      );
+    }
+  const initSupplyInitSupply = (
+    initSupplyDto: InitSupplyDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/konstructor/init-supply`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: initSupplyDto
+    },
+      );
+    }
+  /**
+ * @summary Init deal
+ */
+const initDealInitDeal = (
+    initDealDto: InitDealDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/supply/init-deal`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: initDealDto
+    },
+      );
+    }
+  /**
+ * Generate offer word by template
+ * @summary Generate offer word by template
+ */
+const offerWordGenerateGenerateOfferWord = (
+    offerWordByTemplateGenerateDto: OfferWordByTemplateGenerateDto,
+ ) => {
+      return customAxios<OfferWordByTemplateGenerateResponseDto>(
+      {url: `/api/offer-word-document/generate`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: offerWordByTemplateGenerateDto
+    },
+      );
+    }
+  /**
+ * Всегда PDF (isWord в теле игнорируется). Возвращает operationId для polling и отмены.
+ * @summary Превью: запуск генерации PDF в очередь
+ */
+const offerWordPdfPreviewStartPreview = (
+    offerWordByTemplateGenerateDto: OfferWordByTemplateGenerateDto,
+ ) => {
+      return customAxios<OfferWordEphemeralPdfStartResponseDto>(
+      {url: `/api/offer-word-pdf-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: offerWordByTemplateGenerateDto
+    },
+      );
+    }
+  /**
+ * pending — в очереди или в работе; ready — pdfBase64 (до TTL в Redis); failed — ошибка или истёк TTL
+ * @summary Превью: статус операции
+ */
+const offerWordPdfPreviewGetPreviewStatus = (
+    operationId: string,
+ ) => {
+      return customAxios<OfferWordEphemeralPdfPollResponseDto>(
+      {url: `/api/offer-word-pdf-preview/${operationId}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Ставит флаг отмены в Redis, удаляет готовый результат (если был), снимает задачу с очереди или помечает активную как failed.
+ * @summary Превью: отменить операцию по operationId
+ */
+const offerWordPdfPreviewStopPreview = (
+    operationId: string,
+ ) => {
+      return customAxios<OfferWordEphemeralPdfStopResponseDto>(
+      {url: `/api/offer-word-pdf-preview/${operationId}`, method: 'DELETE'
+    },
+      );
+    }
+  return {zakupkiOfferCreateZakupkiOffer,contractGenerateGenerateContract,offerCreateOffer,konstructorInitInit,initSupplyInitSupply,initDealInitDeal,offerWordGenerateGenerateOfferWord,offerWordPdfPreviewStartPreview,offerWordPdfPreviewGetPreviewStatus,offerWordPdfPreviewStopPreview}};
+export type ZakupkiOfferCreateZakupkiOfferResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['zakupkiOfferCreateZakupkiOffer']>>>
+export type ContractGenerateGenerateContractResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['contractGenerateGenerateContract']>>>
+export type OfferCreateOfferResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerCreateOffer']>>>
+export type KonstructorInitInitResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['konstructorInitInit']>>>
+export type InitSupplyInitSupplyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['initSupplyInitSupply']>>>
+export type InitDealInitDealResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['initDealInitDeal']>>>
+export type OfferWordGenerateGenerateOfferWordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordGenerateGenerateOfferWord']>>>
+export type OfferWordPdfPreviewStartPreviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordPdfPreviewStartPreview']>>>
+export type OfferWordPdfPreviewGetPreviewStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordPdfPreviewGetPreviewStatus']>>>
+export type OfferWordPdfPreviewStopPreviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordPdfPreviewStopPreview']>>>

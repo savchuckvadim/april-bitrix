@@ -6,14 +6,14 @@
  * OpenAPI spec version: 1.0
  */
 
-export type OfferTemplateImageUploadImageBodyParent =
-    (typeof OfferTemplateImageUploadImageBodyParent)[keyof typeof OfferTemplateImageUploadImageBodyParent];
+export type OfferTemplateImageUploadImageBodyParent = typeof OfferTemplateImageUploadImageBodyParent[keyof typeof OfferTemplateImageUploadImageBodyParent];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OfferTemplateImageUploadImageBodyParent = {
-    template: 'template',
-    page: 'page',
-    block: 'block',
-    sticker: 'sticker',
-    other: 'other',
+  template: 'template',
+  page: 'page',
+  block: 'block',
+  sticker: 'sticker',
+  other: 'other',
 } as const;

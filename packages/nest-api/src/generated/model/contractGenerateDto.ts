@@ -20,58 +20,58 @@ import type { BxRqDto } from './bxRqDto';
 import type { ContractSpecificationDto } from './contractSpecificationDto';
 
 export interface ContractGenerateDto {
-    /** Domain of the company */
-    domain: string;
-    /** ID of the company */
-    companyId: string;
-    /** Placement of the contract */
-    placement: PlacementDto;
-    /** Is the contract a product */
-    isProd: boolean;
-    /** ID of the deal */
-    dealId: string;
-    /** ID of the provider */
-    providerId: number;
-    /** ID of the user */
-    userId: number;
-    /** Type of the contract */
-    contractType: ContractGenerateDtoContractType;
-    /** Complect of the contract */
-    complect: ComplectDto[];
-    /** Supply of the contract */
-    supply: ProductRowSupplyDto;
-    /** Price of the contract */
-    price: PriceDto;
-    /** Contract of the contract */
-    contract: ContractDto;
-    /** Regions of the contract */
-    regions: RegionsDto;
-    /** Region of the contract */
-    region: RegionDto;
-    /** Rows of the contract */
-    rows: ProductRowDto[];
-    /** Total of the contract */
-    total: ProductRowDto;
-    /** Product set of the contract */
-    productSet: ProductRowSetDto;
-    /** Contract start of the contract */
-    contractStart: string;
-    /** Contract end of the contract */
-    contractEnd: string;
-    /** Contract number of the contract */
-    contractNumber: string;
-    /** Contract create date of the contract */
-    contractCreateDate: string;
-    /** Garant client assigned name of the contract */
-    garantClientAssignedName: string;
-    /** Garant client assigned email of the contract */
-    garantClientEmail: string;
-    /** First pay date of the contract */
-    firstPayDate: string;
-    /** Client type of the contract */
-    clientType: ContractGenerateDtoClientType;
-    /** BxRQ of the contract */
-    bxrq: BxRqDto;
-    /** Contract specification state of the contract */
-    contractSpecificationState: ContractSpecificationDto;
+  /** Domain of the company */
+  domain: string;
+  /** ID of the company */
+  companyId: string;
+  /** Placement of the contract */
+  placement: PlacementDto;
+  /** Is the contract a product */
+  isProd: boolean;
+  /** ID of the deal */
+  dealId: string;
+  /** ID of the provider */
+  providerId: number;
+  /** ID of the user */
+  userId: number;
+  /** Type of the contract */
+  contractType: ContractGenerateDtoContractType;
+  /** Complect of the contract */
+  complect: ComplectDto[];
+  /** Supply of the contract */
+  supply: ProductRowSupplyDto;
+  /** Price of the contract */
+  price: PriceDto;
+  /** Contract of the contract */
+  contract: ContractDto;
+  /** Regions of the contract */
+  regions: RegionsDto;
+  /** Region of the contract */
+  region: RegionDto;
+  /** Rows of the contract */
+  rows: ProductRowDto[];
+  /** Total of the contract */
+  total: ProductRowDto;
+  /** Product set of the contract */
+  productSet: ProductRowSetDto;
+  /** Contract start of the contract */
+  contractStart: string;
+  /** Contract end of the contract */
+  contractEnd: string;
+  /** Contract number of the contract */
+  contractNumber: string;
+  /** Contract create date of the contract */
+  contractCreateDate: string;
+  /** Garant client assigned name of the contract */
+  garantClientAssignedName: string;
+  /** Garant client assigned email of the contract */
+  garantClientEmail: string;
+  /** First pay date of the contract */
+  firstPayDate: string;
+  /** Client type of the contract */
+  clientType: ContractGenerateDtoClientType;
+  /** BxRQ of the contract */
+  bxrq: BxRqDto;
+  /** Contract specification state of the contract */
+  contractSpecificationState: ContractSpecificationDto;
 }

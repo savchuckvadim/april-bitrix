@@ -7,30 +7,30 @@
  */
 
 export interface TranscriptionRequestDto {
-    /** URL of the audio file to transcribe */
-    fileUrl: string;
-    /** Name of the audio file */
-    fileName: string;
-    /** User ID */
-    userId: string;
-    /** User name */
-    userName: string;
-    /** Application name */
-    appName: string;
-    /** Activity ID */
-    activityId: string;
-    /** File ID */
-    fileId: string;
-    /** Duration of the audio file */
-    duration: string;
-    /** Department */
-    department: string;
-    /** Entity type */
-    entityType: string;
-    /** Entity ID */
-    entityId: string;
-    /** Entity ID */
-    entityName: string;
-    /** Domain of the portal */
-    domain: string;
+  /** URL of the audio file to transcribe */
+  fileUrl: string;
+  /** Name of the audio file */
+  fileName: string;
+  /** User ID */
+  userId: string;
+  /** User name */
+  userName: string;
+  /** Application name */
+  appName: string;
+  /** Activity ID */
+  activityId: string;
+  /** File ID */
+  fileId: string;
+  /** Duration of the audio file */
+  duration: string;
+  /** Department */
+  department: string;
+  /** Entity type */
+  entityType: string;
+  /** Entity ID */
+  entityId: string;
+  /** Entity ID */
+  entityName: string;
+  /** Domain of the portal */
+  domain: string;
 }

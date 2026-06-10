@@ -7,110 +7,71 @@
  */
 import { customAxios } from '../../lib/back-api';
 
-export const getPbxSmart = () => {
-    /**
-     * @summary Get smarts by domain
-     */
-    const pbxSmartGetSmartsByDomain = (domain: string) => {
-        return customAxios<void>({
-            url: `/api/pbx-smart/domain/${domain}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Get smart by portal and name
-     */
-    const pbxSmartGetSmartByPortalAndName = (
-        domain: string,
-        smartName:
-            | 'service_offer'
-            | 'service_order'
-            | 'service_call'
-            | 'service_call_result'
-            | 'service_call_result_result',
-    ) => {
-        return customAxios<void>({
-            url: `/api/pbx-smart/domain/${domain}/smart/${smartName}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Parse smart
-     */
-    const pbxSmartParseSmart = (
-        smartName:
-            | 'service_offer'
-            | 'service_order'
-            | 'service_call'
-            | 'service_call_result'
-            | 'service_call_result_result',
-    ) => {
-        return customAxios<void>({
-            url: `/api/pbx-smart/parse/${smartName}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Install smart
-     */
-    const pbxSmartInstallSmart = (
-        domain: string,
-        smartName:
-            | 'service_offer'
-            | 'service_order'
-            | 'service_call'
-            | 'service_call_result'
-            | 'service_call_result_result',
-    ) => {
-        return customAxios<void>({
-            url: `/api/pbx-smart/install/domain/${domain}/smart/${smartName}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Delete Installed smart
-     */
-    const pbxSmartDeleteSmart = (
-        domain: string,
-        smartName:
-            | 'service_offer'
-            | 'service_order'
-            | 'service_call'
-            | 'service_call_result'
-            | 'service_call_result_result',
-        smartGroup: 'service' | 'sales',
-    ) => {
-        return customAxios<void>({
-            url: `/api/pbx-smart/install/domain/${domain}/smart/${smartName}/${smartGroup}`,
-            method: 'DELETE',
-        });
-    };
-    return {
-        pbxSmartGetSmartsByDomain,
-        pbxSmartGetSmartByPortalAndName,
-        pbxSmartParseSmart,
-        pbxSmartInstallSmart,
-        pbxSmartDeleteSmart,
-    };
-};
-export type PbxSmartGetSmartsByDomainResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getPbxSmart>['pbxSmartGetSmartsByDomain']>
-    >
->;
-export type PbxSmartGetSmartByPortalAndNameResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getPbxSmart>['pbxSmartGetSmartByPortalAndName']
-        >
-    >
->;
-export type PbxSmartParseSmartResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getPbxSmart>['pbxSmartParseSmart']>>
->;
-export type PbxSmartInstallSmartResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getPbxSmart>['pbxSmartInstallSmart']>>
->;
-export type PbxSmartDeleteSmartResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getPbxSmart>['pbxSmartDeleteSmart']>>
->;
+
+
+  export const getPbxSmart = () => {
+/**
+ * @summary Get smarts by domain
+ */
+const pbxSmartGetSmartsByDomain = (
+    domain: string,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/pbx-smart/domain/${domain}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Get smart by portal and name
+ */
+const pbxSmartGetSmartByPortalAndName = (
+    domain: string,
+    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result',
+ ) => {
+      return customAxios<void>(
+      {url: `/api/pbx-smart/domain/${domain}/smart/${smartName}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Parse smart
+ */
+const pbxSmartParseSmart = (
+    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result',
+ ) => {
+      return customAxios<void>(
+      {url: `/api/pbx-smart/parse/${smartName}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Install smart
+ */
+const pbxSmartInstallSmart = (
+    domain: string,
+    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result',
+ ) => {
+      return customAxios<void>(
+      {url: `/api/pbx-smart/install/domain/${domain}/smart/${smartName}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Delete Installed smart
+ */
+const pbxSmartDeleteSmart = (
+    domain: string,
+    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result',
+    smartGroup: 'service' | 'sales',
+ ) => {
+      return customAxios<void>(
+      {url: `/api/pbx-smart/install/domain/${domain}/smart/${smartName}/${smartGroup}`, method: 'DELETE'
+    },
+      );
+    }
+  return {pbxSmartGetSmartsByDomain,pbxSmartGetSmartByPortalAndName,pbxSmartParseSmart,pbxSmartInstallSmart,pbxSmartDeleteSmart}};
+export type PbxSmartGetSmartsByDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmart>['pbxSmartGetSmartsByDomain']>>>
+export type PbxSmartGetSmartByPortalAndNameResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmart>['pbxSmartGetSmartByPortalAndName']>>>
+export type PbxSmartParseSmartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmart>['pbxSmartParseSmart']>>>
+export type PbxSmartInstallSmartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmart>['pbxSmartInstallSmart']>>>
+export type PbxSmartDeleteSmartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmart>['pbxSmartDeleteSmart']>>>

@@ -7,6 +7,6 @@
  */
 
 export type BitrixSettingGetBySettingableParams = {
-    settingable_id: string;
-    settingable_type: string;
+settingable_id: string;
+settingable_type: string;
 };

@@ -63,12 +63,13 @@ jobs:
         with:
           context: .
           file: Dockerfile.prod
+          # значения ищем и в Variables, и в Secrets — куда бы их ни положили
           build-args: |
             APP=bitrix
-            NEXT_PUBLIC_APP_URL=${{ vars.BITRIX_NEXT_PUBLIC_APP_URL }}
-            NEXT_PUBLIC_WS_HOST=${{ vars.BITRIX_NEXT_PUBLIC_WS_HOST }}
+            NEXT_PUBLIC_APP_URL=${{ vars.BITRIX_NEXT_PUBLIC_APP_URL || secrets.BITRIX_NEXT_PUBLIC_APP_URL }}
+            NEXT_PUBLIC_WS_HOST=${{ vars.BITRIX_NEXT_PUBLIC_WS_HOST || secrets.BITRIX_NEXT_PUBLIC_WS_HOST }}
             NEXT_PUBLIC_IN_BITRIX=true
-            YANDEX_ID=${{ vars.BITRIX_YANDEX_ID }}
+            YANDEX_ID=${{ vars.BITRIX_YANDEX_ID || secrets.BITRIX_YANDEX_ID }}
           push: true
           tags: |
             ghcr.io/${{ steps.owner.outputs.owner }}/april-front-bitrix:${{ github.sha }}

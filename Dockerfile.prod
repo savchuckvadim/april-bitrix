@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7-labs
 # Prod-образ фронтов: собирается в CI (GitHub Actions) и пушится в GHCR,
 # сервер только пуллит готовый образ (см. docker-compose.prod.yml).
 #
@@ -5,9 +6,13 @@
 #  - apps/<APP>/.env НЕ зашивается в образ: в CI-чекауте его нет.
 #    Runtime-переменные приходят из env_file в docker-compose.prod.yml,
 #    build-time (NEXT_PUBLIC_*, YANDEX_ID) — через build-args из workflow.
-#  - зависимости ставятся lockfile-first (pnpm fetch): пока pnpm-lock.yaml
-#    не меняется, слой со стором пакетов берётся из registry-кэша,
-#    и пересборка после изменения кода идёт быстро.
+#  - зависимости ставятся manifest-first: сначала копируются только
+#    package.json'ы + lockfile и делается полный pnpm install — этот слой
+#    берётся из registry-кэша, пока зависимости не меняются, и пересборка
+#    после изменения кода идёт быстро.
+#    (pnpm fetch + install --offline не используем: в воркспейсе install
+#    после fetch считает всё "Already up to date" и не долинковывает
+#    node_modules проектов — ломался @tailwindcss/postcss.)
 
 FROM node:20 AS base
 
@@ -17,15 +22,19 @@ WORKDIR /app
 
 RUN npm install -g npm@11.3.0 && npm install -g pnpm
 
-# Слой зависимостей: только lockfile -> pnpm fetch (код сюда не попадает,
-# поэтому слой инвалидируется только при изменении зависимостей).
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+# Слой зависимостей: только манифесты (код сюда не попадает, поэтому слой
+# инвалидируется только при изменении зависимостей). COPY --parents
+# сохраняет структуру каталогов (нужен syntax=docker/dockerfile:1.7-labs).
+COPY pnpm-lock.yaml pnpm-workspace.yaml .npmrc package.json ./
+COPY --parents apps/*/package.json packages/*/package.json ./
+
 RUN pnpm config set fetch-retries 5 && \
     pnpm config set fetch-timeout 60000 && \
-    pnpm fetch
+    pnpm install --no-frozen-lockfile
 
 COPY . .
 
+# долинковать, если COPY . . принёс изменения манифестов; стор уже на месте
 RUN pnpm install --prefer-offline --no-frozen-lockfile
 RUN pnpm approve-builds
 

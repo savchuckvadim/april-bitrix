@@ -73,7 +73,7 @@ const EVCard: FC<EVCardProps> = ({
 
                 <div className="flex items-center gap-1">
                     {!isDisactive && actionComponent}
-                    {withClose && (
+                    {withClose && closeAction && (
                         <AIcon type={isClose ? 'add' : 'cancel'} action={closeAction} />
                     )}
                 </div>

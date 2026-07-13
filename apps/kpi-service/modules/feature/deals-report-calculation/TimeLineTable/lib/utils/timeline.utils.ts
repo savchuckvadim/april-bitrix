@@ -96,6 +96,8 @@ export function calculateMonthlyPayments(deal: OrkReportDealItemDto): MonthlyPay
         if (paymentDate <= to) {
             payments.push({
                 month: i, // Используем индекс i, а не месяц даты
+                year: paymentDate.getFullYear(),
+                monthIndex: paymentDate.getMonth(),
                 amount: monthlyAmount,
                 deal
             });
@@ -140,22 +142,15 @@ export function calculateCompanyStats(companyData: OrkReportDealsByCompaniesDto,
     // Группируем платежи по месяцам и суммируем (для учета пересекающихся сделок)
     const monthlyTotals = new Map<number, number>();
     monthlyPayments.forEach(payment => {
-        const dealFrom = new Date(payment.deal.from);
-        const paymentDate = new Date(dealFrom);
-        paymentDate.setMonth(dealFrom.getMonth() + payment.month);
-        const month = paymentDate.getMonth();
-        monthlyTotals.set(month, (monthlyTotals.get(month) || 0) + payment.amount);
+        monthlyTotals.set(payment.monthIndex, (monthlyTotals.get(payment.monthIndex) || 0) + payment.amount);
     });
 
     // Рассчитываем сумму ежемесячных платежей в текущем году
     const currentYear = new Date().getFullYear();
-    const currentYearPayments = monthlyPayments.filter(payment => {
-        const dealFrom = new Date(payment.deal.from);
-        const paymentDate = new Date(dealFrom);
-        paymentDate.setMonth(dealFrom.getMonth() + payment.month);
-        return paymentDate.getFullYear() === currentYear;
-    });
-    const currentTotal = currentYearPayments.reduce((sum, payment) => sum + payment.amount, 0);
+    const currentTotal = monthlyPayments.reduce(
+        (sum, payment) => payment.year === currentYear ? sum + payment.amount : sum,
+        0
+    );
 
     // Рассчитываем среднюю сумму в месяц только по месяцам с платежами
     const totalPaymentsAmount = Array.from(monthlyTotals.values()).reduce((sum, amount) => sum + amount, 0);
@@ -196,40 +191,25 @@ export function calculateYearlyMatrix(companyData: OrkReportDealsByCompaniesDto,
         return dealFrom <= endDate && dealTo >= startDate;
     });
 
-    return years.map(year => {
-        const yearStart = new Date(year, 0, 1);
-        const yearEnd = new Date(year, 11, 31);
+    // Считаем платежи один раз и раскладываем по матрице год×месяц одним проходом
+    // (вместо повторной фильтрации всех платежей на каждый год и месяц)
+    const totalsByYear = new Map<number, number[]>(
+        years.map(year => [year, Array.from({ length: 12 }, () => 0)])
+    );
 
-        // Фильтруем сделки, которые пересекаются с конкретным годом
-        const yearDeals = periodDeals.filter(deal => {
-            const dealFrom = new Date(deal.from);
-            const dealTo = new Date(deal.to);
-            return dealFrom <= yearEnd && dealTo >= yearStart;
+    periodDeals.forEach(deal => {
+        calculateMonthlyPayments(deal).forEach(payment => {
+            const yearTotals = totalsByYear.get(payment.year);
+            if (yearTotals) {
+                yearTotals[payment.monthIndex] = (yearTotals[payment.monthIndex] || 0) + payment.amount;
+            }
         });
-
-        // Рассчитываем ежемесячные платежи для всех сделок года
-        const monthlyPayments = yearDeals.flatMap(deal => calculateMonthlyPayments(deal));
-
-        // Группируем платежи по месяцам и суммируем (для учета пересекающихся сделок)
-        const monthlyTotals = Array.from({ length: 12 }).map((_, month) => {
-            const monthPayments = monthlyPayments.filter(payment => {
-                const dealFrom = new Date(payment.deal.from);
-                const paymentDate = new Date(dealFrom);
-                paymentDate.setMonth(dealFrom.getMonth() + payment.month);
-
-
-                return paymentDate.getFullYear() === year && paymentDate.getMonth() === month;
-            });
-
-            // Суммируем все платежи за месяц (включая пересекающиеся сделки)
-            return monthPayments.reduce((sum, payment) => sum + payment.amount, 0);
-        });
-
-        return {
-            year,
-            monthlyTotals
-        };
     });
+
+    return years.map(year => ({
+        year,
+        monthlyTotals: totalsByYear.get(year) || Array.from({ length: 12 }, () => 0)
+    }));
 }
 
 /**

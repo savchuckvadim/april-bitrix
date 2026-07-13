@@ -1,0 +1,2042 @@
+{
+    "portalRpas": {
+        "domain": "gsr.bitrix24.ru",
+        "portalId": 5,
+        "rpas": [
+            {
+                "id": 2,
+                "portalId": 5,
+                "name": "Заявка на презентацию",
+                "title": "Заявка на презентацию",
+                "code": "presentation",
+                "type": "sales",
+                "typeId": "7",
+                "bitrixId": 7,
+                "entityTypeId": 7,
+                "image": "tick",
+                "description": "7",
+                "category": {
+                    "id": 13,
+                    "entityTypeId": 2,
+                    "entityType": "App\\Models\\BtxRpa",
+                    "parentType": "rpa",
+                    "type": "presentation",
+                    "group": "rpa_pres",
+                    "title": "rpa_pres",
+                    "name": "rpa_pres",
+                    "bitrixId": "0",
+                    "bitrixCamelId": "0",
+                    "code": "rpa_pres",
+                    "isActive": true,
+                    "stages": [
+                        {
+                            "id": 71,
+                            "btxCategoryId": 13,
+                            "name": "Запуск",
+                            "title": "Запуск",
+                            "code": "rpa_pres_new",
+                            "bitrixId": "NEW",
+                            "color": "#eef0e6",
+                            "isActive": true,
+                            "createdAt": "2024-07-24T12:22:38.000Z",
+                            "updatedAt": "2024-07-24T12:22:38.000Z"
+                        },
+                        {
+                            "id": 72,
+                            "btxCategoryId": 13,
+                            "name": "Утверждение руководителем",
+                            "title": "Утверждение руководителем",
+                            "code": "rpa_pres_owner",
+                            "bitrixId": "OWNER",
+                            "color": "#3bc8f5",
+                            "isActive": true,
+                            "createdAt": "2024-07-24T12:22:38.000Z",
+                            "updatedAt": "2024-07-24T12:22:38.000Z"
+                        },
+                        {
+                            "id": 73,
+                            "btxCategoryId": 13,
+                            "name": "Утверждение Менеджером",
+                            "title": "Утверждение Менеджером",
+                            "code": "rpa_pres_manager",
+                            "bitrixId": "MANAGER",
+                            "color": "#ffcc00",
+                            "isActive": true,
+                            "createdAt": "2024-07-24T12:22:39.000Z",
+                            "updatedAt": "2024-07-24T12:22:39.000Z"
+                        },
+                        {
+                            "id": 74,
+                            "btxCategoryId": 13,
+                            "name": "Утверждение Обучение",
+                            "title": "Утверждение Обучение",
+                            "code": "rpa_pres_edu",
+                            "bitrixId": "EDU",
+                            "color": "#7cfc00",
+                            "isActive": true,
+                            "createdAt": "2024-07-24T12:22:39.000Z",
+                            "updatedAt": "2024-07-24T12:22:39.000Z"
+                        },
+                        {
+                            "id": 75,
+                            "btxCategoryId": 13,
+                            "name": "Презентация Тех. поддержка",
+                            "title": "Презентация Тех. поддержка",
+                            "code": "rpa_pres_technic",
+                            "bitrixId": "TECHNIC",
+                            "color": "#ffd700",
+                            "isActive": true,
+                            "createdAt": "2024-07-24T12:22:40.000Z",
+                            "updatedAt": "2024-07-24T12:22:40.000Z"
+                        },
+                        {
+                            "id": 76,
+                            "btxCategoryId": 13,
+                            "name": "Утверждено",
+                            "title": "Утверждено",
+                            "code": "rpa_pres_success",
+                            "bitrixId": "SUCCESS",
+                            "color": "#bbed21",
+                            "isActive": true,
+                            "createdAt": "2024-07-24T12:22:40.000Z",
+                            "updatedAt": "2024-07-24T12:22:40.000Z"
+                        },
+                        {
+                            "id": 77,
+                            "btxCategoryId": 13,
+                            "name": "Отклонено",
+                            "title": "Отклонено",
+                            "code": "rpa_pres_fail",
+                            "bitrixId": "FAIL",
+                            "color": "#e7354a",
+                            "isActive": true,
+                            "createdAt": "2024-07-24T12:22:41.000Z",
+                            "updatedAt": "2024-07-24T12:22:41.000Z"
+                        }
+                    ],
+                    "createdAt": "2024-07-24T12:22:37.000Z",
+                    "updatedAt": "2024-07-24T12:22:37.000Z"
+                },
+                "fields": [
+                    {
+                        "id": "613",
+                        "name": "Название",
+                        "title": "Название",
+                        "code": "name",
+                        "type": "string",
+                        "bitrixId": "UF_RPA_7_NAME",
+                        "bitrixCamelId": "ufRpa7_NAME",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "614",
+                        "name": "ОП Дата назначенной презентации",
+                        "title": "ОП Дата назначенной презентации",
+                        "code": "next_pres_plan_date",
+                        "type": "datetime",
+                        "bitrixId": "UF_RPA_7_NEXT_PRES_PLAN_DATE",
+                        "bitrixCamelId": "ufRpa7_NEXT_PRES_PLAN_DATE",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "615",
+                        "name": "ОП Дата последней назначенной презентации",
+                        "title": "ОП Дата последней назначенной презентации",
+                        "code": "last_pres_plan_date",
+                        "type": "datetime",
+                        "bitrixId": "UF_RPA_7_LAST_PRES_PLAN_DATE",
+                        "bitrixCamelId": "ufRpa7_LAST_PRES_PLAN_DATE",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "616",
+                        "name": "ОП Дата последней проведенной презентации",
+                        "title": "ОП Дата последней проведенной презентации",
+                        "code": "last_pres_done_date",
+                        "type": "datetime",
+                        "bitrixId": "UF_RPA_7_LAST_PRES_DONE_DATE",
+                        "bitrixCamelId": "ufRpa7_LAST_PRES_DONE_DATE",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "617",
+                        "name": "ОП Кто назначил последнюю заявку на презентацию",
+                        "title": "ОП Кто назначил последнюю заявку на презентацию",
+                        "code": "last_pres_plan_responsible",
+                        "type": "employee",
+                        "bitrixId": "UF_RPA_7_LAST_PRES_PLAN_RESPONSIBLE",
+                        "bitrixCamelId": "ufRpa7_LAST_PRES_PLAN_RESPONSIBLE",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "618",
+                        "name": "ОП Кто назначен ответственным",
+                        "title": "ОП Кто назначен ответственным",
+                        "code": "last_pres_done_responsible",
+                        "type": "employee",
+                        "bitrixId": "UF_RPA_7_LAST_PRES_DONE_RESPONSIBLE",
+                        "bitrixCamelId": "ufRpa7_LAST_PRES_DONE_RESPONSIBLE",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "619",
+                        "name": "ОП Проведено презентаций",
+                        "title": "ОП Проведено презентаций",
+                        "code": "pres_count",
+                        "type": "integer",
+                        "bitrixId": "UF_RPA_7_PRES_COUNT",
+                        "bitrixCamelId": "ufRpa7_PRES_COUNT",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "620",
+                        "name": "ОП Комментарии после презентаций",
+                        "title": "ОП Комментарии после презентаций",
+                        "code": "pres_comments",
+                        "type": "multiple",
+                        "bitrixId": "UF_RPA_7_PRES_COMMENTS",
+                        "bitrixCamelId": "ufRpa7_PRES_COMMENTS",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "621",
+                        "name": "Руководитель",
+                        "title": "Руководитель",
+                        "code": "owner_op",
+                        "type": "employee",
+                        "bitrixId": "UF_RPA_7_OWNER_OP",
+                        "bitrixCamelId": "ufRpa7_OWNER_OP",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "622",
+                        "name": "Менеджер по продажам Гарант",
+                        "title": "Менеджер по продажам Гарант",
+                        "code": "manager_op",
+                        "type": "employee",
+                        "bitrixId": "UF_RPA_7_MANAGER_OP",
+                        "bitrixCamelId": "ufRpa7_MANAGER_OP",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "623",
+                        "name": "Менеджер ТМЦ",
+                        "title": "Менеджер ТМЦ",
+                        "code": "manager_tmc",
+                        "type": "employee",
+                        "bitrixId": "UF_RPA_7_MANAGER_TMC",
+                        "bitrixCamelId": "ufRpa7_MANAGER_TMC",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "624",
+                        "name": "Менеджер Отдела Обучения",
+                        "title": "Менеджер Отдела Обучения",
+                        "code": "manager_edu",
+                        "type": "employee",
+                        "bitrixId": "UF_RPA_7_MANAGER_EDU",
+                        "bitrixCamelId": "ufRpa7_MANAGER_EDU",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "625",
+                        "name": "ОП История (Комментарии)",
+                        "title": "ОП История (Комментарии)",
+                        "code": "op_mhistory",
+                        "type": "multiple",
+                        "bitrixId": "UF_RPA_7_OP_MHISTORY",
+                        "bitrixCamelId": "ufRpa7_OP_MHISTORY",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "626",
+                        "name": "Компания",
+                        "title": "Компания",
+                        "code": "rpa_crm_company",
+                        "type": "crm",
+                        "bitrixId": "UF_RPA_7_RPA_CRM_COMPANY",
+                        "bitrixCamelId": "ufRpa7_RPA_CRM_COMPANY",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "627",
+                        "name": "Контакт",
+                        "title": "Контакт",
+                        "code": "rpa_crm_contact",
+                        "type": "crm",
+                        "bitrixId": "UF_RPA_7_RPA_CRM_CONTACT",
+                        "bitrixCamelId": "ufRpa7_RPA_CRM_CONTACT",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "628",
+                        "name": "Презентация Сделка",
+                        "title": "Презентация Сделка",
+                        "code": "rpa_crm_deal",
+                        "type": "crm",
+                        "bitrixId": "UF_RPA_7_RPA_CRM_DEAL",
+                        "bitrixCamelId": "ufRpa7_RPA_CRM_DEAL",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "629",
+                        "name": "ТМЦ Сделка",
+                        "title": "ТМЦ Сделка",
+                        "code": "rpa_crm_tmc_deal",
+                        "type": "crm",
+                        "bitrixId": "UF_RPA_7_RPA_CRM_TMC_DEAL",
+                        "bitrixCamelId": "ufRpa7_RPA_CRM_TMC_DEAL",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "630",
+                        "name": "Основная Сделка",
+                        "title": "Основная Сделка",
+                        "code": "rpa_crm_base_deal",
+                        "type": "crm",
+                        "bitrixId": "UF_RPA_7_RPA_CRM_BASE_DEAL",
+                        "bitrixCamelId": "ufRpa7_RPA_CRM_BASE_DEAL",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "631",
+                        "name": "Комментарий к заявке Руководитель",
+                        "title": "Комментарий к заявке Руководитель",
+                        "code": "rpa_owner_comment",
+                        "type": "multiple",
+                        "bitrixId": "UF_RPA_7_RPA_OWNER_COMMENT",
+                        "bitrixCamelId": "ufRpa7_RPA_OWNER_COMMENT",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "632",
+                        "name": "Комментарий к заявке ТМЦ",
+                        "title": "Комментарий к заявке ТМЦ",
+                        "code": "rpa_tmc_comment",
+                        "type": "multiple",
+                        "bitrixId": "UF_RPA_7_RPA_TMC_COMMENT",
+                        "bitrixCamelId": "ufRpa7_RPA_TMC_COMMENT",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "633",
+                        "name": "Комментарий к заявке Менеджер",
+                        "title": "Комментарий к заявке Менеджер",
+                        "code": "rpa_manager_comment",
+                        "type": "multiple",
+                        "bitrixId": "UF_RPA_7_RPA_MANAGER_COMMENT",
+                        "bitrixCamelId": "ufRpa7_RPA_MANAGER_COMMENT",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "634",
+                        "name": "Комментарий к заявке Обучение",
+                        "title": "Комментарий к заявке Обучение",
+                        "code": "rpa_edu_comment",
+                        "type": "multiple",
+                        "bitrixId": "UF_RPA_7_RPA_EDU_COMMENT",
+                        "bitrixCamelId": "ufRpa7_RPA_EDU_COMMENT",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "635",
+                        "name": "Требуется обучение",
+                        "title": "Требуется обучение",
+                        "code": "rpa_is_need_edu",
+                        "type": "boolean",
+                        "bitrixId": "UF_RPA_7_RPA_IS_NEED_EDU",
+                        "bitrixCamelId": "ufRpa7_RPA_IS_NEED_EDU",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "636",
+                        "name": "Дата обучения",
+                        "title": "Дата обучения",
+                        "code": "rpa_need_edu_date",
+                        "type": "datetime",
+                        "bitrixId": "UF_RPA_7_RPA_NEED_EDU_DATE",
+                        "bitrixCamelId": "ufRpa7_RPA_NEED_EDU_DATE",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "637",
+                        "name": "Требуется тех поддержка",
+                        "title": "Требуется тех поддержка",
+                        "code": "rpa_is_need_technic",
+                        "type": "boolean",
+                        "bitrixId": "UF_RPA_7_RPA_IS_NEED_TECHNIC",
+                        "bitrixCamelId": "ufRpa7_RPA_IS_NEED_TECHNIC",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "638",
+                        "name": "Описание требования по тех. поддержке",
+                        "title": "Описание требования по тех. поддержке",
+                        "code": "rpa_need_technic_comment",
+                        "type": "multiple",
+                        "bitrixId": "UF_RPA_7_RPA_NEED_TECHNIC_COMMENT",
+                        "bitrixCamelId": "ufRpa7_RPA_NEED_TECHNIC_COMMENT",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    },
+                    {
+                        "id": "639",
+                        "name": "Дата по тех. поддержке",
+                        "title": "Дата по тех. поддержке",
+                        "code": "rpa_need_technic_date",
+                        "type": "datetime",
+                        "bitrixId": "UF_RPA_7_RPA_NEED_TECHNIC_DATE",
+                        "bitrixCamelId": "ufRpa7_RPA_NEED_TECHNIC_DATE",
+                        "entity_id": 2,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_pres",
+                        "items": []
+                    }
+                ]
+            },
+            {
+                "id": 6,
+                "portalId": 5,
+                "name": "Заявка на сервис",
+                "title": "Заявка на сервис",
+                "code": "supply",
+                "type": "service",
+                "typeId": "9",
+                "bitrixId": 9,
+                "entityTypeId": 9,
+                "image": "tick",
+                "description": "9",
+                "category": {
+                    "id": 40,
+                    "entityTypeId": 6,
+                    "entityType": "App\\Models\\BtxRpa",
+                    "parentType": "rpa",
+                    "type": "supply",
+                    "group": "service",
+                    "title": "rpa_supply",
+                    "name": "rpa_supply",
+                    "bitrixId": "0",
+                    "bitrixCamelId": "0",
+                    "code": "rpa_supply",
+                    "isActive": true,
+                    "stages": [
+                        {
+                            "id": 287,
+                            "btxCategoryId": 40,
+                            "name": "Запуск",
+                            "title": "Запуск",
+                            "code": "rpa_supply_new",
+                            "bitrixId": "NEW",
+                            "color": "#eef0e6",
+                            "isActive": true,
+                            "createdAt": "2024-12-05T16:56:14.000Z",
+                            "updatedAt": "2024-12-05T16:56:14.000Z"
+                        },
+                        {
+                            "id": 288,
+                            "btxCategoryId": 40,
+                            "name": "Менеджер ОП",
+                            "title": "Менеджер ОП",
+                            "code": "rpa_supply_manager_op",
+                            "bitrixId": "MANAGER_OP",
+                            "color": "#dbd4d3",
+                            "isActive": true,
+                            "createdAt": "2024-12-05T16:56:14.000Z",
+                            "updatedAt": "2024-12-05T16:56:14.000Z"
+                        },
+                        {
+                            "id": 289,
+                            "btxCategoryId": 40,
+                            "name": "Руководитель ОП",
+                            "title": "Руководитель ОП",
+                            "code": "rpa_supply_owner_op",
+                            "bitrixId": "OWNER_OP",
+                            "color": "#3bc8f5",
+                            "isActive": true,
+                            "createdAt": "2024-12-05T16:56:14.000Z",
+                            "updatedAt": "2024-12-05T16:56:14.000Z"
+                        },
+                        {
+                            "id": 290,
+                            "btxCategoryId": 40,
+                            "name": "Руководитель ОРК",
+                            "title": "Руководитель ОРК",
+                            "code": "rpa_supply_owner_ork",
+                            "bitrixId": "OWNER_ORK",
+                            "color": "#ffcc00",
+                            "isActive": true,
+                            "createdAt": "2024-12-05T16:56:14.000Z",
+                            "updatedAt": "2024-12-05T16:56:14.000Z"
+                        },
+                        {
+                            "id": 291,
+                            "btxCategoryId": 40,
+                            "name": "Менеджер ОРК",
+                            "title": "Менеджер ОРК",
+                            "code": "rpa_supply_manager_ork",
+                            "bitrixId": "MANAGER_ORK",
+                            "color": "#7cfc00",
+                            "isActive": true,
+                            "createdAt": "2024-12-05T16:56:14.000Z",
+                            "updatedAt": "2024-12-05T16:56:14.000Z"
+                        },
+                        {
+                            "id": 292,
+                            "btxCategoryId": 40,
+                            "name": "Менеджер Обучение",
+                            "title": "Менеджер Обучение",
+                            "code": "rpa_supply_manager_edu",
+                            "bitrixId": "MANAGER_EDU",
+                            "color": "#ffd700",
+                            "isActive": true,
+                            "createdAt": "2024-12-05T16:56:14.000Z",
+                            "updatedAt": "2024-12-05T16:56:14.000Z"
+                        },
+                        {
+                            "id": 293,
+                            "btxCategoryId": 40,
+                            "name": "Утверждено",
+                            "title": "Утверждено",
+                            "code": "rpa_supply_success",
+                            "bitrixId": "SUCCESS",
+                            "color": "#bbed21",
+                            "isActive": true,
+                            "createdAt": "2024-12-05T16:56:14.000Z",
+                            "updatedAt": "2024-12-05T16:56:14.000Z"
+                        },
+                        {
+                            "id": 294,
+                            "btxCategoryId": 40,
+                            "name": "Отклонено",
+                            "title": "Отклонено",
+                            "code": "rpa_supply_fail",
+                            "bitrixId": "FAIL",
+                            "color": "#e7354a",
+                            "isActive": true,
+                            "createdAt": "2024-12-05T16:56:14.000Z",
+                            "updatedAt": "2024-12-05T16:56:14.000Z"
+                        }
+                    ],
+                    "createdAt": "2024-12-05T16:56:13.000Z",
+                    "updatedAt": "2024-12-05T16:56:13.000Z"
+                },
+                "fields": [
+                    {
+                        "id": "1863",
+                        "name": "Название",
+                        "title": "Название",
+                        "code": "name",
+                        "type": "string",
+                        "bitrixId": "NAME",
+                        "bitrixCamelId": "ufCrmNAME",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1864",
+                        "name": "Менеджер по продажам Гарант",
+                        "title": "Менеджер по продажам Гарант",
+                        "code": "manager_op",
+                        "type": "employee",
+                        "bitrixId": "MANAGER_OP",
+                        "bitrixCamelId": "ufCrmMANAGER_OP",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1865",
+                        "name": "Менеджер ТМЦ",
+                        "title": "Менеджер ТМЦ",
+                        "code": "manager_tmc",
+                        "type": "employee",
+                        "bitrixId": "MANAGER_TMC",
+                        "bitrixCamelId": "ufCrmMANAGER_TMC",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1866",
+                        "name": "Менеджер Отдела Обучения",
+                        "title": "Менеджер Отдела Обучения",
+                        "code": "manager_edu",
+                        "type": "employee",
+                        "bitrixId": "MANAGER_EDU",
+                        "bitrixCamelId": "ufCrmMANAGER_EDU",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1867",
+                        "name": "Компания",
+                        "title": "Компания",
+                        "code": "rpa_crm_company",
+                        "type": "crm",
+                        "bitrixId": "RPA_CRM_COMPANY",
+                        "bitrixCamelId": "ufCrmRPA_CRM_COMPANY",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1868",
+                        "name": "Презентация Сделка",
+                        "title": "Презентация Сделка",
+                        "code": "rpa_crm_deal",
+                        "type": "crm",
+                        "bitrixId": "RPA_CRM_DEAL",
+                        "bitrixCamelId": "ufCrmRPA_CRM_DEAL",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1869",
+                        "name": "ТМЦ Сделка",
+                        "title": "ТМЦ Сделка",
+                        "code": "rpa_crm_tmc_deal",
+                        "type": "crm",
+                        "bitrixId": "RPA_CRM_TMC_DEAL",
+                        "bitrixCamelId": "ufCrmRPA_CRM_TMC_DEAL",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1870",
+                        "name": "Основная Сделка",
+                        "title": "Основная Сделка",
+                        "code": "rpa_crm_base_deal",
+                        "type": "crm",
+                        "bitrixId": "RPA_CRM_BASE_DEAL",
+                        "bitrixCamelId": "ufCrmRPA_CRM_BASE_DEAL",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1871",
+                        "name": "Комментарий к заявке Руководитель",
+                        "title": "Комментарий к заявке Руководитель",
+                        "code": "rpa_owner_comment",
+                        "type": "multiple",
+                        "bitrixId": "RPA_OWNER_COMMENT",
+                        "bitrixCamelId": "ufCrmRPA_OWNER_COMMENT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1872",
+                        "name": "Комментарий к заявке РОП",
+                        "title": "Комментарий к заявке РОП",
+                        "code": "rpa_tmc_comment",
+                        "type": "multiple",
+                        "bitrixId": "RPA_TMC_COMMENT",
+                        "bitrixCamelId": "ufCrmRPA_TMC_COMMENT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1873",
+                        "name": "Комментарий к заявке Менеджер ОС",
+                        "title": "Комментарий к заявке Менеджер ОС",
+                        "code": "rpa_manager_comment",
+                        "type": "multiple",
+                        "bitrixId": "RPA_MANAGER_COMMENT",
+                        "bitrixCamelId": "ufCrmRPA_MANAGER_COMMENT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1874",
+                        "name": "Комментарий к заявке Менеджер Обучение",
+                        "title": "Комментарий к заявке Менеджер Обучение",
+                        "code": "rpa_edu_comment",
+                        "type": "multiple",
+                        "bitrixId": "RPA_EDU_COMMENT",
+                        "bitrixCamelId": "ufCrmRPA_EDU_COMMENT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1875",
+                        "name": "Описание ситуации, примечания и дополнительные сведения",
+                        "title": "Описание ситуации, примечания и дополнительные сведения",
+                        "code": "rpa_comments",
+                        "type": "string",
+                        "bitrixId": "RPA_COMMENTS",
+                        "bitrixCamelId": "ufCrmRPA_COMMENTS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1876",
+                        "name": "Требуется обучение",
+                        "title": "Требуется обучение",
+                        "code": "rpa_is_need_edu",
+                        "type": "boolean",
+                        "bitrixId": "RPA_IS_NEED_EDU",
+                        "bitrixCamelId": "ufCrmRPA_IS_NEED_EDU",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1877",
+                        "name": "Дата первичного обучения",
+                        "title": "Дата первичного обучения",
+                        "code": "rpa_need_edu_date",
+                        "type": "datetime",
+                        "bitrixId": "RPA_NEED_EDU_DATE",
+                        "bitrixCamelId": "ufCrmRPA_NEED_EDU_DATE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1878",
+                        "name": "Требуется тех поддержка",
+                        "title": "Требуется тех поддержка",
+                        "code": "rpa_is_need_technic",
+                        "type": "boolean",
+                        "bitrixId": "RPA_IS_NEED_TECHNIC",
+                        "bitrixCamelId": "ufCrmRPA_IS_NEED_TECHNIC",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1879",
+                        "name": "Описание требования по тех. поддержке",
+                        "title": "Описание требования по тех. поддержке",
+                        "code": "rpa_need_technic_comment",
+                        "type": "multiple",
+                        "bitrixId": "RPA_NEED_TECHNIC_COMMENT",
+                        "bitrixCamelId": "ufCrmRPA_NEED_TECHNIC_COMMENT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1880",
+                        "name": "Дата по тех. поддержке",
+                        "title": "Дата по тех. поддержке",
+                        "code": "rpa_need_technic_date",
+                        "type": "datetime",
+                        "bitrixId": "RPA_NEED_TECHNIC_DATE",
+                        "bitrixCamelId": "ufCrmRPA_NEED_TECHNIC_DATE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1881",
+                        "name": "Описание ситуации, примечания и дополнительные сведения",
+                        "title": "Описание ситуации, примечания и дополнительные сведения",
+                        "code": "situation_comments",
+                        "type": "string",
+                        "bitrixId": "SITUATION_COMMENTS",
+                        "bitrixCamelId": "ufCrmSITUATION_COMMENTS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1882",
+                        "name": "Действие договора с",
+                        "title": "Действие договора с",
+                        "code": "contract_start",
+                        "type": "date",
+                        "bitrixId": "CONTRACT_START",
+                        "bitrixCamelId": "ufCrmCONTRACT_START",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1883",
+                        "name": "Действие договора до",
+                        "title": "Действие договора до",
+                        "code": "contract_end",
+                        "type": "date",
+                        "bitrixId": "CONTRACT_END",
+                        "bitrixCamelId": "ufCrmCONTRACT_END",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1884",
+                        "name": "Дата окончания договора",
+                        "title": "Дата окончания договора",
+                        "code": "ork_current_contract_fin_date",
+                        "type": "datetime",
+                        "bitrixId": "ORK_CURRENT_CONTRACT_FIN_DATE",
+                        "bitrixCamelId": "ufCrmORK_CURRENT_CONTRACT_FIN_DATE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1885",
+                        "name": "Email для интернет версии",
+                        "title": "Email для интернет версии",
+                        "code": "service_email_complect",
+                        "type": "string",
+                        "bitrixId": "SERVICE_EMAIL_COMPLECT",
+                        "bitrixCamelId": "ufCrmSERVICE_EMAIL_COMPLECT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1886",
+                        "name": "ИНН",
+                        "title": "ИНН",
+                        "code": "company_rq_inn",
+                        "type": "string",
+                        "bitrixId": "COMPANY_RQ_INN",
+                        "bitrixCamelId": "ufCrmCOMPANY_RQ_INN",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1887",
+                        "name": "Адрес",
+                        "title": "Адрес",
+                        "code": "service_address",
+                        "type": "string",
+                        "bitrixId": "SERVICE_ADDRESS",
+                        "bitrixCamelId": "ufCrmSERVICE_ADDRESS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1888",
+                        "name": "ОРК Дата записи комплекта",
+                        "title": "ОРК Дата записи комплекта",
+                        "code": "ork_arm_date",
+                        "type": "datetime",
+                        "bitrixId": "ORK_ARM_DATE",
+                        "bitrixCamelId": "ufCrmORK_ARM_DATE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1889",
+                        "name": "Дата продажи",
+                        "title": "Дата продажи",
+                        "code": "sale_date",
+                        "type": "datetime",
+                        "bitrixId": "SALE_DATE",
+                        "bitrixCamelId": "ufCrmSALE_DATE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1890",
+                        "name": "Передана в ОРК",
+                        "title": "Передана в ОРК",
+                        "code": "in_ork",
+                        "type": "enumeration",
+                        "bitrixId": "IN_ORK",
+                        "bitrixCamelId": "ufCrmIN_ORK",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3959",
+                                "name": "Да",
+                                "title": "Да",
+                                "code": "yes",
+                                "bitrixfield_id": 1890,
+                                "bitrixId": 3131
+                            },
+                            {
+                                "id": "3960",
+                                "name": "Нет",
+                                "title": "Нет",
+                                "code": "no",
+                                "bitrixfield_id": 1890,
+                                "bitrixId": 3133
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1891",
+                        "name": "Занесена в АРМ",
+                        "title": "Занесена в АРМ",
+                        "code": "in_arm",
+                        "type": "enumeration",
+                        "bitrixId": "IN_ARM",
+                        "bitrixCamelId": "ufCrmIN_ARM",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3961",
+                                "name": "Да",
+                                "title": "Да",
+                                "code": "yes",
+                                "bitrixfield_id": 1891,
+                                "bitrixId": 3135
+                            },
+                            {
+                                "id": "3962",
+                                "name": "Нет",
+                                "title": "Нет",
+                                "code": "no",
+                                "bitrixfield_id": 1891,
+                                "bitrixId": 3137
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1892",
+                        "name": "Что известно о конкурентах",
+                        "title": "Что известно о конкурентах",
+                        "code": "supply_information",
+                        "type": "enumeration",
+                        "bitrixId": "SUPPLY_INFORMATION",
+                        "bitrixCamelId": "ufCrmSUPPLY_INFORMATION",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3963",
+                                "name": "Отказались",
+                                "title": "Отказались",
+                                "code": "fail",
+                                "bitrixfield_id": 1892,
+                                "bitrixId": 4249
+                            },
+                            {
+                                "id": "3964",
+                                "name": "Обслуживаются",
+                                "title": "Обслуживаются",
+                                "code": "success",
+                                "bitrixfield_id": 1892,
+                                "bitrixId": 4251
+                            },
+                            {
+                                "id": "3965",
+                                "name": "Неизвестно",
+                                "title": "Неизвестно",
+                                "code": "xz",
+                                "bitrixfield_id": 1892,
+                                "bitrixId": 4253
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1893",
+                        "name": "Особенности оплаты клиентом счетов",
+                        "title": "Особенности оплаты клиентом счетов",
+                        "code": "invoice_pay_type",
+                        "type": "enumeration",
+                        "bitrixId": "INVOICE_PAY_TYPE",
+                        "bitrixCamelId": "ufCrmINVOICE_PAY_TYPE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3966",
+                                "name": "Бюджетники",
+                                "title": "Бюджетники",
+                                "code": "budget",
+                                "bitrixfield_id": 1893,
+                                "bitrixId": 3145
+                            },
+                            {
+                                "id": "3967",
+                                "name": "Коммерческие",
+                                "title": "Коммерческие",
+                                "code": "commers",
+                                "bitrixfield_id": 1893,
+                                "bitrixId": 3147
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1894",
+                        "name": "Создавался ли Договор",
+                        "title": "Создавался ли Договор",
+                        "code": "is_contract_done",
+                        "type": "enumeration",
+                        "bitrixId": "IS_CONTRACT_DONE",
+                        "bitrixCamelId": "ufCrmIS_CONTRACT_DONE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3968",
+                                "name": "Да",
+                                "title": "Да",
+                                "code": "yes",
+                                "bitrixfield_id": 1894,
+                                "bitrixId": 3149
+                            },
+                            {
+                                "id": "3969",
+                                "name": "Нет",
+                                "title": "Нет",
+                                "code": "no",
+                                "bitrixfield_id": 1894,
+                                "bitrixId": 3151
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1895",
+                        "name": "Дата и номер Договора",
+                        "title": "Дата и номер Договора",
+                        "code": "contract_number",
+                        "type": "string",
+                        "bitrixId": "CONTRACT_NUMBER",
+                        "bitrixCamelId": "ufCrmCONTRACT_NUMBER",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1896",
+                        "name": "Судьба договора",
+                        "title": "Судьба договора",
+                        "code": "contract_result",
+                        "type": "enumeration",
+                        "bitrixId": "CONTRACT_RESULT",
+                        "bitrixCamelId": "ufCrmCONTRACT_RESULT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3970",
+                                "name": "На подписи у клиента",
+                                "title": "На подписи у клиента",
+                                "code": "in_progress",
+                                "bitrixfield_id": 1896,
+                                "bitrixId": 3153
+                            },
+                            {
+                                "id": "3971",
+                                "name": "Подписан",
+                                "title": "Подписан",
+                                "code": "done",
+                                "bitrixfield_id": 1896,
+                                "bitrixId": 3155
+                            },
+                            {
+                                "id": "3972",
+                                "name": "ЭДОм",
+                                "title": "ЭДОм",
+                                "code": "edo",
+                                "bitrixfield_id": 1896,
+                                "bitrixId": 3157
+                            },
+                            {
+                                "id": "3973",
+                                "name": "Скан",
+                                "title": "Скан",
+                                "code": "scan",
+                                "bitrixfield_id": 1896,
+                                "bitrixId": 3159
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1897",
+                        "name": "Создавался ли Счет",
+                        "title": "Создавался ли Счет",
+                        "code": "is_invoice_done",
+                        "type": "enumeration",
+                        "bitrixId": "IS_INVOICE_DONE",
+                        "bitrixCamelId": "ufCrmIS_INVOICE_DONE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3974",
+                                "name": "Да",
+                                "title": "Да",
+                                "code": "yes",
+                                "bitrixfield_id": 1897,
+                                "bitrixId": 3161
+                            },
+                            {
+                                "id": "3975",
+                                "name": "Нет",
+                                "title": "Нет",
+                                "code": "no",
+                                "bitrixfield_id": 1897,
+                                "bitrixId": 3163
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1898",
+                        "name": "Дата и номер Счета",
+                        "title": "Дата и номер Счета",
+                        "code": "invoice_number",
+                        "type": "string",
+                        "bitrixId": "INVOICE_NUMBER",
+                        "bitrixCamelId": "ufCrmINVOICE_NUMBER",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1899",
+                        "name": "Судьба Счета",
+                        "title": "Судьба Счета",
+                        "code": "invoice_result",
+                        "type": "enumeration",
+                        "bitrixId": "INVOICE_RESULT",
+                        "bitrixCamelId": "ufCrmINVOICE_RESULT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3976",
+                                "name": "Оплачен",
+                                "title": "Оплачен",
+                                "code": "done",
+                                "bitrixfield_id": 1899,
+                                "bitrixId": 3165
+                            },
+                            {
+                                "id": "3977",
+                                "name": "На оплате",
+                                "title": "На оплате",
+                                "code": "in_work",
+                                "bitrixfield_id": 1899,
+                                "bitrixId": 3167
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1900",
+                        "name": "Контакты",
+                        "title": "Контакты",
+                        "code": "rpa_crm_contacts",
+                        "type": "crm",
+                        "bitrixId": "RPA_CRM_CONTACTS",
+                        "bitrixCamelId": "ufCrmRPA_CRM_CONTACTS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1901",
+                        "name": "Клиент ждет звонка от менеджера ОРК",
+                        "title": "Клиент ждет звонка от менеджера ОРК",
+                        "code": "client_call_date",
+                        "type": "datetime",
+                        "bitrixId": "CLIENT_CALL_DATE",
+                        "bitrixCamelId": "ufCrmCLIENT_CALL_DATE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1902",
+                        "name": "Описание требования по обучению",
+                        "title": "Описание требования по обучению",
+                        "code": "rpa_need_edu_comment",
+                        "type": "multiple",
+                        "bitrixId": "RPA_NEED_EDU_COMMENT",
+                        "bitrixCamelId": "ufCrmRPA_NEED_EDU_COMMENT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1903",
+                        "name": "Что было решающим при выборе гаранта",
+                        "title": "Что было решающим при выборе гаранта",
+                        "code": "rpa_famous_reason",
+                        "type": "enumeration",
+                        "bitrixId": "RPA_FAMOUS_REASON",
+                        "bitrixCamelId": "ufCrmRPA_FAMOUS_REASON",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3978",
+                                "name": "Цена (указать разницу)",
+                                "title": "Цена (указать разницу)",
+                                "code": "price",
+                                "bitrixfield_id": 1903,
+                                "bitrixId": 3169
+                            },
+                            {
+                                "id": "3979",
+                                "name": "Престиж (Что конкретно повлияло)",
+                                "title": "Престиж (Что конкретно повлияло)",
+                                "code": "cool",
+                                "bitrixfield_id": 1903,
+                                "bitrixId": 3171
+                            },
+                            {
+                                "id": "3980",
+                                "name": "Безопсаность (какие проблемы клиент решает)",
+                                "title": "Безопсаность (какие проблемы клиент решает)",
+                                "code": "safety",
+                                "bitrixfield_id": 1903,
+                                "bitrixId": 3173
+                            },
+                            {
+                                "id": "3981",
+                                "name": "Повышение квалификации (кого и что заинтересовало)",
+                                "title": "Повышение квалификации (кого и что заинтересовало)",
+                                "code": "ppk",
+                                "bitrixfield_id": 1903,
+                                "bitrixId": 3175
+                            },
+                            {
+                                "id": "3982",
+                                "name": "Количество ОД (сколько не хватало)",
+                                "title": "Количество ОД (сколько не хватало)",
+                                "code": "od",
+                                "bitrixfield_id": 1903,
+                                "bitrixId": 3177
+                            },
+                            {
+                                "id": "3983",
+                                "name": "Наполнение (чего не хватало)",
+                                "title": "Наполнение (чего не хватало)",
+                                "code": "iblocks",
+                                "bitrixfield_id": 1903,
+                                "bitrixId": 3179
+                            },
+                            {
+                                "id": "3984",
+                                "name": "Сервисы (какие именно)",
+                                "title": "Сервисы (какие именно)",
+                                "code": "services",
+                                "bitrixfield_id": 1903,
+                                "bitrixId": 3181
+                            },
+                            {
+                                "id": "3985",
+                                "name": "Функционал",
+                                "title": "Функционал",
+                                "code": "fetures",
+                                "bitrixfield_id": 1903,
+                                "bitrixId": 3183
+                            },
+                            {
+                                "id": "3986",
+                                "name": "Иное",
+                                "title": "Иное",
+                                "code": "other",
+                                "bitrixfield_id": 1903,
+                                "bitrixId": 3185
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1904",
+                        "name": "Что было решающим",
+                        "title": "Что было решающим",
+                        "code": "rpa_famous_reason_with_comments",
+                        "type": "multiple",
+                        "bitrixId": "RPA_FAMOUS_REASON_WITH_COMMENTS",
+                        "bitrixCamelId": "ufCrmRPA_FAMOUS_REASON_WITH_COMMENTS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1905",
+                        "name": "ID клиента АРМ",
+                        "title": "ID клиента АРМ",
+                        "code": "rpa_arm_client_id",
+                        "type": "string",
+                        "bitrixId": "RPA_ARM_CLIENT_ID",
+                        "bitrixCamelId": "ufCrmRPA_ARM_CLIENT_ID",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1906",
+                        "name": "ID комплекта АРМ",
+                        "title": "ID комплекта АРМ",
+                        "code": "rpa_arm_complect_id",
+                        "type": "multiple",
+                        "bitrixId": "RPA_ARM_COMPLECT_ID",
+                        "bitrixCamelId": "ufCrmRPA_ARM_COMPLECT_ID",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1907",
+                        "name": "Лиды",
+                        "title": "Лиды",
+                        "code": "rpa_supply_lids",
+                        "type": "crm",
+                        "bitrixId": "RPA_SUPPLY_LIDS",
+                        "bitrixCamelId": "ufCrmRPA_SUPPLY_LIDS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1908",
+                        "name": "ОП Перспективность Клиента",
+                        "title": "ОП Перспективность Клиента",
+                        "code": "op_prospects_type",
+                        "type": "enumeration",
+                        "bitrixId": "OP_PROSPECTS_TYPE",
+                        "bitrixCamelId": "ufCrmOP_PROSPECTS_TYPE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1909",
+                        "name": "ОП Причина Отказа",
+                        "title": "ОП Причина Отказа",
+                        "code": "op_efield_fail_reason",
+                        "type": "enumeration",
+                        "bitrixId": "OP_EFIELD_FAIL_REASON",
+                        "bitrixCamelId": "ufCrmOP_EFIELD_FAIL_REASON",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1910",
+                        "name": "ОП Комментарии после отказов",
+                        "title": "ОП Комментарии после отказов",
+                        "code": "op_fail_comments",
+                        "type": "multiple",
+                        "bitrixId": "OP_FAIL_COMMENTS",
+                        "bitrixCamelId": "ufCrmOP_FAIL_COMMENTS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1911",
+                        "name": "ОП Причины нерезультативности",
+                        "title": "ОП Причины нерезультативности",
+                        "code": "op_noresult_reason",
+                        "type": "enumeration",
+                        "bitrixId": "OP_NORESULT_REASON",
+                        "bitrixCamelId": "ufCrmOP_NORESULT_REASON",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1912",
+                        "name": "ОП Статус Клиента",
+                        "title": "ОП Статус Клиента",
+                        "code": "op_client_status",
+                        "type": "enumeration",
+                        "bitrixId": "OP_CLIENT_STATUS",
+                        "bitrixCamelId": "ufCrmOP_CLIENT_STATUS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3987",
+                                "name": "Cвободен",
+                                "title": "Cвободен",
+                                "code": "free",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3187
+                            },
+                            {
+                                "id": "3988",
+                                "name": "ЧОК",
+                                "title": "ЧОК",
+                                "code": "chok",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3189
+                            },
+                            {
+                                "id": "3989",
+                                "name": "НОК",
+                                "title": "НОК",
+                                "code": "nok",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3191
+                            },
+                            {
+                                "id": "3990",
+                                "name": "ОК",
+                                "title": "ОК",
+                                "code": "ok",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3193
+                            },
+                            {
+                                "id": "3991",
+                                "name": "Чужой КУП",
+                                "title": "Чужой КУП",
+                                "code": "stranger_kup",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3195
+                            },
+                            {
+                                "id": "3992",
+                                "name": "Чужой КУП КК",
+                                "title": "Чужой КУП КК",
+                                "code": "stranger_kupkk",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3197
+                            },
+                            {
+                                "id": "3993",
+                                "name": "Чужой КГУ РП",
+                                "title": "Чужой КГУ РП",
+                                "code": "stranger_kgurp",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3199
+                            },
+                            {
+                                "id": "3994",
+                                "name": "Свой КУП",
+                                "title": "Свой КУП",
+                                "code": "own_kup",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3201
+                            },
+                            {
+                                "id": "3995",
+                                "name": "Свой КУП КК",
+                                "title": "Свой КУП КК",
+                                "code": "own_kupkk",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3203
+                            },
+                            {
+                                "id": "3996",
+                                "name": "Свой КГУ РП",
+                                "title": "Свой КГУ РП",
+                                "code": "own_kgurp",
+                                "bitrixfield_id": 1912,
+                                "bitrixId": 3205
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1913",
+                        "name": "ОП Настроение клиента",
+                        "title": "ОП Настроение клиента",
+                        "code": "op_prospects",
+                        "type": "enumeration",
+                        "bitrixId": "OP_PROSPECTS",
+                        "bitrixCamelId": "ufCrmOP_PROSPECTS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "3997",
+                                "name": "Красный",
+                                "title": "Красный",
+                                "code": "red",
+                                "bitrixfield_id": 1913,
+                                "bitrixId": 3207
+                            },
+                            {
+                                "id": "3998",
+                                "name": "Желтый",
+                                "title": "Желтый",
+                                "code": "yellow",
+                                "bitrixfield_id": 1913,
+                                "bitrixId": 3209
+                            },
+                            {
+                                "id": "3999",
+                                "name": "Зеленый",
+                                "title": "Зеленый",
+                                "code": "green",
+                                "bitrixfield_id": 1913,
+                                "bitrixId": 3211
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1914",
+                        "name": "Тип Клиента",
+                        "title": "Тип Клиента",
+                        "code": "op_client_type",
+                        "type": "enumeration",
+                        "bitrixId": "OP_CLIENT_TYPE",
+                        "bitrixCamelId": "ufCrmOP_CLIENT_TYPE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "4000",
+                                "name": "Бюджетники",
+                                "title": "Бюджетники",
+                                "code": "state",
+                                "bitrixfield_id": 1914,
+                                "bitrixId": 3213
+                            },
+                            {
+                                "id": "4001",
+                                "name": "Коммерческие",
+                                "title": "Коммерческие",
+                                "code": "commerc",
+                                "bitrixfield_id": 1914,
+                                "bitrixId": 3215
+                            },
+                            {
+                                "id": "4002",
+                                "name": "ИП",
+                                "title": "ИП",
+                                "code": "ip",
+                                "bitrixfield_id": 1914,
+                                "bitrixId": 3217
+                            },
+                            {
+                                "id": "4003",
+                                "name": "Физ лицо",
+                                "title": "Физ лицо",
+                                "code": "fiz",
+                                "bitrixfield_id": 1914,
+                                "bitrixId": 3219
+                            },
+                            {
+                                "id": "4004",
+                                "name": "Адвокаты",
+                                "title": "Адвокаты",
+                                "code": "layer",
+                                "bitrixfield_id": 1914,
+                                "bitrixId": 3221
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1915",
+                        "name": "Конкуренты",
+                        "title": "Конкуренты",
+                        "code": "op_concurents",
+                        "type": "enumeration",
+                        "bitrixId": "OP_CONCURENTS",
+                        "bitrixCamelId": "ufCrmOP_CONCURENTS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "4005",
+                                "name": "Консультант+",
+                                "title": "Консультант+",
+                                "code": "k",
+                                "bitrixfield_id": 1915,
+                                "bitrixId": 3223
+                            },
+                            {
+                                "id": "4006",
+                                "name": "Актион",
+                                "title": "Актион",
+                                "code": "action",
+                                "bitrixfield_id": 1915,
+                                "bitrixId": 3225
+                            },
+                            {
+                                "id": "4007",
+                                "name": "Кодекс",
+                                "title": "Кодекс",
+                                "code": "kodex",
+                                "bitrixfield_id": 1915,
+                                "bitrixId": 3227
+                            },
+                            {
+                                "id": "4008",
+                                "name": "1С",
+                                "title": "1С",
+                                "code": "bitrix",
+                                "bitrixfield_id": 1915,
+                                "bitrixId": 3229
+                            },
+                            {
+                                "id": "4009",
+                                "name": "Контур",
+                                "title": "Контур",
+                                "code": "kontur",
+                                "bitrixfield_id": 1915,
+                                "bitrixId": 3231
+                            },
+                            {
+                                "id": "4010",
+                                "name": "Интернет",
+                                "title": "Интернет",
+                                "code": "internet",
+                                "bitrixfield_id": 1915,
+                                "bitrixId": 3233
+                            },
+                            {
+                                "id": "4011",
+                                "name": "Журналы",
+                                "title": "Журналы",
+                                "code": "magazine",
+                                "bitrixfield_id": 1915,
+                                "bitrixId": 3235
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1916",
+                        "name": "Категории",
+                        "title": "Категории",
+                        "code": "op_category",
+                        "type": "enumeration",
+                        "bitrixId": "OP_CATEGORY",
+                        "bitrixCamelId": "ufCrmOP_CATEGORY",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "4012",
+                                "name": "ККК",
+                                "title": "ККК",
+                                "code": "kkk",
+                                "bitrixfield_id": 1916,
+                                "bitrixId": 3237
+                            },
+                            {
+                                "id": "4013",
+                                "name": "КК",
+                                "title": "КК",
+                                "code": "kk",
+                                "bitrixfield_id": 1916,
+                                "bitrixId": 3239
+                            },
+                            {
+                                "id": "4014",
+                                "name": "VIP",
+                                "title": "VIP",
+                                "code": "vip",
+                                "bitrixfield_id": 1916,
+                                "bitrixId": 3241
+                            },
+                            {
+                                "id": "4015",
+                                "name": "К",
+                                "title": "К",
+                                "code": "k",
+                                "bitrixfield_id": 1916,
+                                "bitrixId": 3243
+                            },
+                            {
+                                "id": "4016",
+                                "name": "С",
+                                "title": "С",
+                                "code": "c",
+                                "bitrixfield_id": 1916,
+                                "bitrixId": 3245
+                            },
+                            {
+                                "id": "4017",
+                                "name": "М",
+                                "title": "М",
+                                "code": "m",
+                                "bitrixfield_id": 1916,
+                                "bitrixId": 3247
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1917",
+                        "name": "Тип договора",
+                        "title": "Тип договора",
+                        "code": "contract_type",
+                        "type": "string",
+                        "bitrixId": "CONTRACT_TYPE",
+                        "bitrixCamelId": "ufCrmCONTRACT_TYPE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1918",
+                        "name": "Текущий договор",
+                        "title": "Текущий договор",
+                        "code": "current_contract",
+                        "type": "file",
+                        "bitrixId": "CURRENT_CONTRACT",
+                        "bitrixCamelId": "ufCrmCURRENT_CONTRACT",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1919",
+                        "name": "Текущий счет",
+                        "title": "Текущий счет",
+                        "code": "current_invoice",
+                        "type": "file",
+                        "bitrixId": "CURRENT_INVOICE",
+                        "bitrixCamelId": "ufCrmCURRENT_INVOICE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1920",
+                        "name": "Текущий Отчет о поставке",
+                        "title": "Текущий Отчет о поставке",
+                        "code": "current_supply",
+                        "type": "file",
+                        "bitrixId": "CURRENT_SUPPLY",
+                        "bitrixCamelId": "ufCrmCURRENT_SUPPLY",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1921",
+                        "name": "Тип заключения договора",
+                        "title": "Тип заключения договора",
+                        "code": "contract_relation_type",
+                        "type": "enumeration",
+                        "bitrixId": "CONTRACT_RELATION_TYPE",
+                        "bitrixCamelId": "ufCrmCONTRACT_RELATION_TYPE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": [
+                            {
+                                "id": "4018",
+                                "name": "44-фз",
+                                "title": "44-фз",
+                                "code": "fz_zakupki",
+                                "bitrixfield_id": 1921,
+                                "bitrixId": 3249
+                            },
+                            {
+                                "id": "4019",
+                                "name": "МЗ",
+                                "title": "МЗ",
+                                "code": "small_zakupki",
+                                "bitrixfield_id": 1921,
+                                "bitrixId": 3251
+                            },
+                            {
+                                "id": "4020",
+                                "name": "Прямой договор",
+                                "title": "Прямой договор",
+                                "code": "contract_business",
+                                "bitrixfield_id": 1921,
+                                "bitrixId": 3253
+                            }
+                        ]
+                    },
+                    {
+                        "id": "1977",
+                        "name": "Дата первой оплаты",
+                        "title": "Дата первой оплаты",
+                        "code": "first_pay_day",
+                        "type": "date",
+                        "bitrixId": "FIRST_PAY_DAY",
+                        "bitrixCamelId": "ufCrmFIRST_PAY_DAY",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1980",
+                        "name": "Дата поставки",
+                        "title": "Дата поставки",
+                        "code": "supply_date",
+                        "type": "datetime",
+                        "bitrixId": "SUPPLY_DATE",
+                        "bitrixCamelId": "ufCrmSUPPLY_DATE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "1981",
+                        "name": "Дата первой оплаты",
+                        "title": "Дата первой оплаты",
+                        "code": "first_pay_date",
+                        "type": "date",
+                        "bitrixId": "FIRST_PAY_DATE",
+                        "bitrixCamelId": "ufCrmFIRST_PAY_DATE",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "4178",
+                        "name": "Предложение на будущий период",
+                        "title": "Предложение на будущий период",
+                        "code": "service_offer_smart",
+                        "type": "crm",
+                        "bitrixId": "SERVICE_OFFER_SMART",
+                        "bitrixCamelId": "ufCrmSERVICE_OFFER_SMART",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "4179",
+                        "name": "Перезаключение?",
+                        "title": "Перезаключение?",
+                        "code": "is_extension",
+                        "type": "boolean",
+                        "bitrixId": "IS_EXTENSION",
+                        "bitrixCamelId": "ufCrmIS_EXTENSION",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    },
+                    {
+                        "id": "4180",
+                        "name": "Менеджер Отдела Сопровождения",
+                        "title": "Менеджер Отдела Сопровождения",
+                        "code": "manager_os",
+                        "type": "employee",
+                        "bitrixId": "MANAGER_OS",
+                        "bitrixCamelId": "ufCrmMANAGER_OS",
+                        "entity_id": 6,
+                        "entity_type": "App\\Models\\BtxRpa",
+                        "parent_type": "rpa_supply",
+                        "items": []
+                    }
+                ]
+            }
+        ]
+    },
+    "bxRpas": [
+        {
+            "id": 3,
+            "title": "Новый процесс",
+            "image": "list",
+            "createdBy": 59,
+            "settings": {
+                "scenarios": [
+                    "moveItemOnCreate"
+                ]
+            },
+            "permissions": [
+                {
+                    "id": "7",
+                    "entity": "TYPE",
+                    "entityId": "3",
+                    "accessCode": "UA",
+                    "action": "ITEMS_CREATE",
+                    "permission": "X"
+                },
+                {
+                    "id": "9",
+                    "entity": "TYPE",
+                    "entityId": "3",
+                    "accessCode": "UA",
+                    "action": "MODIFY",
+                    "permission": "X"
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "title": "Заявка на презентацию",
+            "image": "tick",
+            "createdBy": 187,
+            "settings": [],
+            "permissions": [
+                {
+                    "id": "11",
+                    "entity": "TYPE",
+                    "entityId": "7",
+                    "accessCode": "UA",
+                    "action": "ITEMS_CREATE",
+                    "permission": "X"
+                },
+                {
+                    "id": "13",
+                    "entity": "TYPE",
+                    "entityId": "7",
+                    "accessCode": "UA",
+                    "action": "MODIFY",
+                    "permission": "X"
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "title": "Заявка на поставку",
+            "image": "plane",
+            "createdBy": 187,
+            "settings": [],
+            "permissions": [
+                {
+                    "id": "15",
+                    "entity": "TYPE",
+                    "entityId": "9",
+                    "accessCode": "UA",
+                    "action": "MODIFY",
+                    "permission": "X"
+                },
+                {
+                    "id": "17",
+                    "entity": "TYPE",
+                    "entityId": "9",
+                    "accessCode": "UA",
+                    "action": "ITEMS_CREATE",
+                    "permission": "X"
+                }
+            ]
+        }
+    ]
+}

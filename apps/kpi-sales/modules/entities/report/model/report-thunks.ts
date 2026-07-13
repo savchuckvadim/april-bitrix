@@ -14,7 +14,7 @@ import { BXUser, BXDepartment } from '@workspace/bx';
 
 import { API_METHOD, backAPI } from '@workspace/api/';
 import { EBACK_ENDPOINT, EResultCode } from '@workspace/api';
-import { getIsUserHead } from './report-util';
+import { getIsUserHead, normalizeDepartmentResponse } from './report-util';
 import { getReportDataAPI } from '../lib/helpers';
 import { getCallingStatistics } from '../../calling-statistics';
 import { reportDateRequestFlow } from '../lib/date-util';
@@ -63,12 +63,15 @@ export const getReportData =
                     return;
                 }
 
-                const departamentResponse = response.data?.department;
+                const departamentResponse = normalizeDepartmentResponse(
+                    response.data?.department,
+                );
 
+                
                 isHeadManager = getIsUserHead(
                     departamentResponse,
                     currentUserId,
-                ) || currentUser?.LAST_LOGIN?.toString().includes('Савчук');
+                ) || currentUser?.LAST_NAME?.toString().includes('Савчук');
 
                 if (isHeadManager) {
                     if (departamentResponse.allUsers) {

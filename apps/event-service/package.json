@@ -23,10 +23,14 @@
     "@workspace/bx": "workspace:*",
     "@workspace/bitrix": "workspace:*",
     "@workspace/pbx": "workspace:*",
+    "@workspace/april-ui": "workspace:*",
+    "@workspace/april-theme": "workspace:*",
     "@workspace/theme": "workspace:*",
     "@workspace/ui": "workspace:*",
     "@workspace/ws": "workspace:*",
     "@workspace/nest-api": "workspace:*",
+    "@tanstack/react-query": "^5.76.0",
+    "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.6.4",
     "install": "^0.13.0",
@@ -45,6 +49,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

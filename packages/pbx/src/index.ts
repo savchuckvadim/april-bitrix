@@ -1,4 +1,9 @@
 export { portalAPI, portalReducer, portalActions } from './entities/portal';
+export {
+    getSalesTaskGroupId,
+    getServiceTaskGroupId,
+    getServiceSignalTaskGroupId,
+} from './entities/portal/lib/portal-util';
 export type {
     Portal,
     PBX_GROUP,

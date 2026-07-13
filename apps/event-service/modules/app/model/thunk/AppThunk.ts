@@ -3,163 +3,72 @@ import {
     TESTING_DOMAIN,
     TESTING_PLACEMENT,
     TESTING_USER,
-} from "../../consts/app-global";
-
-
-import { appActions } from "../slice/AppSlice";
-
-// import { getDepartment } from "@/features/Departament";
-
-import {
-    EntitiesFromPlacement,
-    getEntitiesFromPlacement,
-} from "../../lib/utills/placement-util";
-
-// import { getCompanyContacts } from "@/entities/EventContact/model/EventContactThunk";
-
-// import { setDepartmentMode } from "@/features/Departament/model/DepartmentThunk";
-import { initAppEntities, initAppTask } from "../../lib/utills/app-setup-util";
-// import { preloaderActions } from "@/shared/Preloader";
-// import { eventActions } from "@/processes/event";
-// import { ROUTE_EVENT } from "@/processes/routes/types/router-type";
-import { portalAPI } from "@workspace/pbx";
-import { AppDispatch, AppGetState } from "../store";
-// import { startListeners } from "./listeners";
-// import { getLeadAudioRecords } from "@/entities/EventCallingRecord/model/EventCallingRecordThunk";
-
+} from '../../consts/app-global';
+import { appActions } from '../slice/AppSlice';
+import { getDisplayMode, getEntitiesFromPlacement } from '../../lib/utills/placement-util';
+import { initAppEntities, initAppTask } from '../../lib/utills/app-setup-util';
+import { portalAPI } from '@workspace/pbx';
+import { AppDispatch, AppGetState } from '../store';
 import { Bitrix } from '@workspace/bitrix';
-
-import { Placement } from "@workspace/bx";
-import { IBXTask } from "@workspace/bitrix/src/domain/interfaces/bitrix.interface";
+import { BXTask, BXUser, Placement } from '@workspace/bx';
+import { setDepartmentMode, getDepartment } from '@/modules/features/Departament/model/DepartmentThunk';
 
 export const initial = () => async (dispatch: AppDispatch, getState: AppGetState) => {
-    // startListeners()
-    // __IN_BITRIX__ && (await bitrixAPI.getFit());
-
-
-
     const state = getState();
-    const isLoading = state.app.isLoading;
-    console.log('app init thunk')
+    if (state.app.isLoading || state.app.initialized) return;
 
-    if (!isLoading) {
-        console.log('app initial')
+    dispatch(appActions.isLoading({ status: true }));
+
+    try {
+        // Boot the Bitrix SDK (domain/user/placement) — non-frame envs fall back to testing data.
         const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
         await bitrix.api.getFit();
-        const bitrixAuthData = bitrix.api.getInitializedData()
-        const inBitrix = bitrixAuthData.inFrame
-        const domain = bitrixAuthData.domain
-        const user = bitrixAuthData.user
-        const placementData = bitrix.api.getPlacement() || TESTING_PLACEMENT as Placement
 
+        const auth = bitrix.api.getInitializedData();
+        const domain = auth.domain || TESTING_DOMAIN;
+        const user = (auth.user ?? TESTING_USER) as unknown as BXUser;
+        const placement = (bitrix.api.getPlacement() ?? TESTING_PLACEMENT) as Placement;
 
+        // Determine the department mode (sales / service / tmc) from the user.
+        dispatch(setDepartmentMode(user));
 
-        dispatch(appActions.isLoading({ status: true }))
+        // Resolve the CRM entities for the current placement via @workspace/bitrix services.
+        const entities = await getEntitiesFromPlacement(placement, domain);
+        const display = getDisplayMode(placement);
 
+        if (entities.currentCompany || entities.currentLead) {
+            initAppEntities(dispatch, entities, domain, user, placement, display);
 
-        // const fetchedDdomain = __IN_BITRIX__ ? await bitrixAPI.getDomain() : null;
-        // let domain = fetchedDdomain ? fetchedDdomain : TESTING_DOMAIN;
+            const dep = getState().app.department;
+            const userId = Number((user as any)?.ID || DEV_CURRENT_USER_ID);
+            const companyId = Number(
+                entities.currentCompany?.ID || entities.companyPlacement.options.ID || 0,
+            );
 
+            initAppTask(
+                dispatch,
+                entities.currentTask as unknown as BXTask | null,
+                domain,
+                userId,
+                companyId,
+                dep,
+            );
 
-        // const placementData = await getAppPlacement();
-        let placement = placementData.placement;
-
-        // let companyPlacement = placementData.companyPlacement as Placement;
-
-        // const user = __IN_BITRIX__ ? ((await bitrixAPI.getCurrentUser()) as BXUser) : TESTING_USER;
-
-        // dispatch(setDepartmentMode(user, domain));
-        //TODO: setDepartmentMode
-
-
-        // if (placement?.options?.placement) {
-
-        //     placement = placement.options as Placement;
-        // }
-
-        // const entitiesFromPlacement = (await getEntitiesFromPlacement(
-        //     placement,
-        //     domain
-        // )) as EntitiesFromPlacement;
-
-
-
-
-        // if (entitiesFromPlacement) {
-        // if (entitiesFromPlacement.currentCompany) {
-        //     // dispatch(getCompanyContacts(entitiesFromPlacement.currentCompany.ID));
-        //     //TODO: getCompanyContacts app listener
-        //     const currentTask = entitiesFromPlacement.currentTask as IBXTask;
-        //     const userId = user["ID"] || DEV_CURRENT_USER_ID;
-
-        //     // companyPlacement = entitiesFromPlacement.companyPlacement;
-
-        //     initAppEntities(
-        //         dispatch,
-        //         //TODO: entitiesFromPlacement
-        //         //  entitiesFromPlacement,
-        //         domain, user,
-        //         // companyPlacement
-        //     );
-        //     initAppTask(dispatch, currentTask, domain, Number(userId),
-        //         // companyPlacement
-        //     );
-
-
-
-        //     // dispatch(getDepartment(domain, user));
-        //     dispatch(appActions.setInitializedSuccess({}));
-        //     dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
-        // } else if (entitiesFromPlacement.currentLead) { //lead context
-        //     const userId = user["ID"] || DEV_CURRENT_USER_ID;
-
-        //     // dispatch(getLeadAudioRecords(entitiesFromPlacement.currentLead.ID, domain))
-        //     //TODO: getLeadAudioRecords app listener
-
-        //     initAppEntities(
-        //         dispatch,
-        //         //TODO: entitiesFromPlacement
-        //         //  entitiesFromPlacement,
-        //         domain, user,
-        //         // placement as Placement
-        //     );
-        //     initAppTask(dispatch, null, domain, Number(userId),
-        //         // placement as Placement
-        //     );
-        //     // dispatch(getDepartment(domain, user));
-        //     dispatch(appActions.setInitializedSuccess({}));
-        //     dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
-        // }
-        dispatch(appActions.setInitializedSuccess({}));
-        // } else {
-        //     dispatch(appActions.setInitializedError({ errorMessage: "Компания не найдена" }));
-        // }
-        dispatch(appActions.isLoading({ status: false }))
+            dispatch(getDepartment(domain, user));
+            dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
+            dispatch(appActions.setInitializedSuccess({}));
+        } else {
+            dispatch(appActions.setInitializedError({ errorMessage: 'Компания не найдена' }));
+        }
+    } catch (error) {
+        console.error('app init error', error);
+        dispatch(appActions.setInitializedError({ errorMessage: 'Ошибка инициализации приложения' }));
+    } finally {
+        dispatch(appActions.isLoading({ status: false }));
     }
 };
 
-
-export const reloadApp = () => async (dispatch: AppDispatch, getState: AppGetState) => {
-
-    // dispatch(
-    //     preloaderActions
-    //         .setPreloader({ status: true })
-    // )
-
-    // setTimeout(() => {
-
-    //     dispatch(eventActions.setCurrentPage(
-    //         { page: ROUTE_EVENT.LIST }
-    //     ))
-    //     dispatch(
-    //         // initialEventApp()
-    //         appActions.reload()
-    //     )
-    //     dispatch(
-    //         preloaderActions
-    //             .setPreloader({ status: false })
-    //     )
-
-    // }, 3200)
-
-}
+export const reloadApp = () => async (dispatch: AppDispatch) => {
+    // Reset the app shell; `useApp` re-runs `initial()` once `initialized` is false.
+    dispatch(appActions.reload());
+};

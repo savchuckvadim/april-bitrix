@@ -17,10 +17,13 @@ export const useDeepRouting = () => {
 
     const isPortalGarant = isPortal && currentRoute.split('/')[3] === 'garant';
     const isPortalBitrix = isPortal && currentRoute.split('/')[3] === 'bitrix';
+    const isPortalPbx = isPortal && currentRoute.split('/')[3] === 'pbx';
+    const isPortalKeys = isPortal && currentRoute.split('/')[3] === 'keys';
+    const isPortalProvider = isPortal && currentRoute.split('/')[3] === 'provider';
     const isPortalStatistics = isPortal && currentRoute.split('/')[3] === 'statistics';
-    const isPortalDetail = isPortal && portalId && !isPortalGarant && !isPortalBitrix;
-    const isPortalEvent = isPortal && currentRoute.split('/')[3] === 'event';
     const isPortalKonstructor = isPortal && currentRoute.split('/')[3] === 'konstructor';
+    const isPortalDetail = isPortal && portalId && !isPortalGarant && !isPortalBitrix && !isPortalPbx && !isPortalKeys && !isPortalProvider && !isPortalKonstructor;
+    const isPortalEvent = isPortal && currentRoute.split('/')[3] === 'event';
 
 
 
@@ -37,6 +40,9 @@ export const useDeepRouting = () => {
         isPortalList,
         isPortalGarant,
         isPortalBitrix,
+        isPortalPbx,
+        isPortalKeys,
+        isPortalProvider,
         portalId,
         isPortalDetail,
         isDashboard,

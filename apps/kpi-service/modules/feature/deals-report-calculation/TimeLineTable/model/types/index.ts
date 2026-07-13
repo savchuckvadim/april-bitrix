@@ -1,4 +1,4 @@
-import { OrkReportDealsByCompaniesDto, OrkReportDealItemDto } from "@workspace/nest-api";
+import { OrkReportDealItemDto } from "@workspace/nest-api";
 
 // Основные типы для таймлайна
 export type MonthRange = { year: number; months: string[] };
@@ -7,7 +7,9 @@ export type TimelineMode = 'detailed' | 'average' | 'total';
 
 // Интерфейсы для ежемесячных платежей
 export interface MonthlyPayment {
-    month: number;
+    month: number; // смещение платежа от начала сделки (0, 1, 2...)
+    year: number; // календарный год платежа
+    monthIndex: number; // календарный месяц платежа (0-11)
     amount: number;
     deal: OrkReportDealItemDto;
 }

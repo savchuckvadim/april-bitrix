@@ -227,11 +227,7 @@ export const ImplementationAnalytics: React.FC<ImplementationAnalyticsProps> = (
 
             // Группируем по месяцам
             monthlyPayments.forEach(payment => {
-                const dealFrom = new Date(payment.deal.from);
-                const paymentDate = new Date(dealFrom);
-                paymentDate.setMonth(dealFrom.getMonth() + payment.month);
-
-                const monthKey = `${paymentDate.getFullYear()}-${String(paymentDate.getMonth() + 1).padStart(2, '0')}`;
+                const monthKey = `${payment.year}-${String(payment.monthIndex + 1).padStart(2, '0')}`;
                 const monthData = monthlyData.get(monthKey);
 
                 if (monthData) {

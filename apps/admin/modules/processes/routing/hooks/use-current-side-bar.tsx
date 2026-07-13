@@ -1,4 +1,4 @@
-import { ALL_ENTITIES, clientEntities, garantEntities, konstructorEntities, portalBitrixEntities, portalEntities, portalGarantEntities } from "../consts/routes.consts";
+import { ALL_ENTITIES, clientEntities, garantEntities, konstructorEntities, portalBitrixEntities, portalEntities, portalGarantEntities, portalKeysEntities, portalKonstructorEntities, portalPbxEntities, portalProviderEntities } from "../consts/routes.consts";
 import { useDeepRouting } from "./use-routing.hook";
 
 
@@ -10,6 +10,9 @@ export const useCurrentSideBar = (): { currentNavItems: ALL_ENTITIES, baseUrl: s
         isPortalList,
         isPortalGarant,
         isPortalBitrix,
+        isPortalPbx,
+        isPortalKeys,
+        isPortalProvider,
         isPortalDetail,
         portalId,
         isKonstructor,
@@ -32,6 +35,18 @@ export const useCurrentSideBar = (): { currentNavItems: ALL_ENTITIES, baseUrl: s
         } else if (isPortalBitrix) {
             currentNavItems = portalBitrixEntities;
             baseUrl = `/portal/${portalId}/bitrix`;
+        } else if (isPortalPbx) {
+            currentNavItems = portalPbxEntities;
+            baseUrl = `/portal/${portalId}/pbx`;
+        } else if (isPortalKeys) {
+            currentNavItems = portalKeysEntities;
+            baseUrl = `/portal/${portalId}`;
+        } else if (isPortalProvider) {
+            currentNavItems = portalProviderEntities;
+            baseUrl = `/portal/${portalId}`;
+        } else if (isPortalKonstructor) {
+            currentNavItems = portalKonstructorEntities;
+            baseUrl = `/portal/${portalId}/konstructor`;
         } else if (isPortalDetail) {
             currentNavItems = portalEntities;
             baseUrl = `/portal/${portalId}`;

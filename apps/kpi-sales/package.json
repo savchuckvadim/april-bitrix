@@ -14,6 +14,7 @@
   "dependencies": {
     "@workspace/api": "workspace:*",
     "@workspace/nest-api": "workspace:*",
+    "@workspace/nest-pbx-api": "workspace:*",
     "@workspace/bx": "workspace:*",
     "@workspace/bitrix": "workspace:*",
     "@workspace/pbx": "workspace:*",

@@ -19,6 +19,7 @@ import { useApp } from '@/modules/app';
 import { cn } from '@workspace/ui/lib/utils';
 
 interface TimelineTableProps {
+    /** Компании, уже отфильтрованные родителем (DealsReportTimelineCompact) */
     companies: OrkReportDealsByCompaniesDto[];
     periodFilter: PeriodFilter;
     timelineMode: TimelineMode;
@@ -38,30 +39,21 @@ export const TimelineTable: React.FC<TimelineTableProps> = ({
     const years = getYearsInPeriod(new Date(periodFilter.startDate), new Date(periodFilter.endDate));
     const hasMultipleYears = years.length > 1;
 
-    // Фильтрация компаний
-    const filteredCompanies = useMemo(() => {
-        return companies.filter(companyData => {
-            const { company } = companyData;
+    // Тяжелые расчеты по компаниям выполняем один раз при смене данных/фильтра,
+    // а не в render каждой строки при каждом ре-рендере
+    const companyRows = useMemo(() => {
+        const startDate = new Date(periodFilter.startDate);
+        const endDate = new Date(periodFilter.endDate);
+        const multipleYears = getYearsInPeriod(startDate, endDate).length > 1;
 
-            // Фильтр по пользователям - скрываем компании без сделок выбранных пользователей
-            if (periodFilter.assignedUsers.length > 0) {
-                const hasDealWithSelectedUser = companyData.deals.some(deal =>
-                    deal.assignedById && periodFilter.assignedUsers.includes(deal.assignedById)
-                );
-                if (!hasDealWithSelectedUser) return false;
-            }
-
-            // Фильтр по статусу клиента
-            if (periodFilter.clientStatus === 'active' && !company.isActiveClient) return false;
-            if (periodFilter.clientStatus === 'inactive' && company.isActiveClient) return false;
-
-            // Фильтр по индексации
-            const stats = calculateCompanyStats(companyData, new Date(periodFilter.startDate), new Date(periodFilter.endDate), periodFilter.assignedUsers);
-            if (periodFilter.indexStatus === 'growing' && stats.indexGrowth <= 0) return false;
-            if (periodFilter.indexStatus === 'declining' && stats.indexGrowth >= 0) return false;
-            if (periodFilter.indexStatus === 'stable' && Math.abs(stats.indexGrowth) > 5) return false;
-
-            return true;
+        return companies.map(companyData => {
+            const yearlyMatrix = calculateYearlyMatrix(companyData, startDate, endDate, periodFilter.assignedUsers);
+            return {
+                companyData,
+                stats: calculateCompanyStats(companyData, startDate, endDate, periodFilter.assignedUsers),
+                yearlyMatrix,
+                crossYearIndexes: multipleYears ? calculateCrossYearIndexGrowth(yearlyMatrix) : []
+            };
         });
     }, [companies, periodFilter]);
 
@@ -90,11 +82,8 @@ export const TimelineTable: React.FC<TimelineTableProps> = ({
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredCompanies.map((companyData, index) => {
+                        {companyRows.map(({ companyData, stats, yearlyMatrix, crossYearIndexes }) => {
                             const { company } = companyData;
-                            const stats = calculateCompanyStats(companyData, new Date(periodFilter.startDate), new Date(periodFilter.endDate), periodFilter.assignedUsers);
-                            const yearlyMatrix = calculateYearlyMatrix(companyData, new Date(periodFilter.startDate), new Date(periodFilter.endDate), periodFilter.assignedUsers);
-                            const crossYearIndexes = hasMultipleYears ? calculateCrossYearIndexGrowth(yearlyMatrix) : [];
                             const isExpanded = expandedCompanies.has(company.id);
 
                             return (

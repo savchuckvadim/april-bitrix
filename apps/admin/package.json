@@ -21,6 +21,7 @@
     "@workspace/bitrix": "workspace:*",
     "@workspace/bx": "workspace:*",
     "@workspace/nest-api": "workspace:*",
+    "@workspace/nest-pbx-install-api": "workspace:*",
     "@workspace/pbx": "workspace:*",
     "@workspace/theme": "workspace:*",
     "@workspace/ui": "workspace:*",
@@ -36,6 +37,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.3",
+    "sonner": "^2.0.7",
     "date-fns": "^3.0.0"
   },
   "devDependencies": {

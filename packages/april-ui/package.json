@@ -11,6 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "@workspace/ui": "workspace:*",
+    "@reduxjs/toolkit": "^2.6.1",
+    "react-redux": "^9.2.0",
+    "libphonenumber-js": "^1.11.4",
     "chart.js": "^4.4.9",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.6.4",

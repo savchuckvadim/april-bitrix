@@ -1,7 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { Bitrix } from '@workspace/bitrix';
 import { useAppDispatch, useAppSelector } from './redux';
 import { initial, reloadApp } from '../../model/thunk/AppThunk';
+
+// Resize the Bitrix placement iframe to fit content (no-op outside a Bitrix frame).
+const fitApp = async () => {
+    try {
+        await Bitrix.getService()?.api.getFit();
+    } catch {
+        /* not in a Bitrix frame */
+    }
+};
 
 export const useApp = () => {
     const dispatch = useAppDispatch();
@@ -32,6 +42,7 @@ export const useApp = () => {
     return {
         isClient,
         ready,
+        fitApp,
         // hasCompany,
         app,
         initialized: app.initialized,

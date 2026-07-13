@@ -87,8 +87,11 @@ export const DealsReportTimelineCompact: React.FC<DealsReportTimelineCompactProp
         });
     };
 
-    // Фильтрация компаний (используем ту же логику, что и в TimelineTable)
+    // Фильтрация компаний — единственное место фильтрации, результат уходит в таблицу/итоги/экспорт
     const filteredCompanies = useMemo(() => {
+        const startDate = new Date(periodFilter.startDate);
+        const endDate = new Date(periodFilter.endDate);
+
         return companies.filter(companyData => {
             const { company } = companyData;
 
@@ -104,11 +107,13 @@ export const DealsReportTimelineCompact: React.FC<DealsReportTimelineCompactProp
             if (periodFilter.clientStatus === 'active' && !company.isActiveClient) return false;
             if (periodFilter.clientStatus === 'inactive' && company.isActiveClient) return false;
 
-            // Фильтр по индексации
-            const stats = calculateCompanyStats(companyData, new Date(periodFilter.startDate), new Date(periodFilter.endDate), periodFilter.assignedUsers);
-            if (periodFilter.indexStatus === 'growing' && stats.indexGrowth <= 0) return false;
-            if (periodFilter.indexStatus === 'declining' && stats.indexGrowth >= 0) return false;
-            if (periodFilter.indexStatus === 'stable' && Math.abs(stats.indexGrowth) > 5) return false;
+            // Фильтр по индексации (статистику считаем только когда фильтр активен — расчет тяжелый)
+            if (periodFilter.indexStatus !== 'all') {
+                const stats = calculateCompanyStats(companyData, startDate, endDate, periodFilter.assignedUsers);
+                if (periodFilter.indexStatus === 'growing' && stats.indexGrowth <= 0) return false;
+                if (periodFilter.indexStatus === 'declining' && stats.indexGrowth >= 0) return false;
+                if (periodFilter.indexStatus === 'stable' && Math.abs(stats.indexGrowth) > 5) return false;
+            }
 
             return true;
         });
@@ -199,7 +204,7 @@ export const DealsReportTimelineCompact: React.FC<DealsReportTimelineCompactProp
 
             {/* Таблица таймлайна */}
             {!showTotal && !showAnalytics && (<TimelineTable
-                companies={companies}
+                companies={filteredCompanies}
                 periodFilter={periodFilter}
                 timelineMode={timelineMode}
                 expandedCompanies={expandedCompanies}

@@ -24,7 +24,6 @@ export const initial =
             const app = state.app;
             const isLoading = app.isLoading;
             const __IN_BITRIX__ = inBitrix;
-debugger
             // const { domain, user:initUser, bitrix } = bxData;
             // const userFromBx = await (bitrix as BitrixService).api.call(
             //     'user.get',

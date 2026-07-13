@@ -5,9 +5,10 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { Provider } from 'react-redux';
 import { store } from '@/modules/app/model/store';
 import { ApiProvider } from './api-provider';
-import { AprilThemeProvider } from '@workspace/theme';
+import { AprilThemeProvider } from '@/modules/app/providers/AprilThemeProvider';
 import App from '@/modules/app/ui/App';
 import { ErrorBoundary } from '@/modules/app/providers/ErrorBoundary';
+import { EventRouter } from '@/modules/processes/event';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -22,6 +23,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 <AprilThemeProvider>
                     <ApiProvider>
                         <ErrorBoundary>
+                            {/* FSD process router: drives the current page via Next.js */}
+                            <EventRouter />
                             <App>
                                 {children}
                             </App>

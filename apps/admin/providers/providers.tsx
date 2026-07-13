@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 import { AppProvider } from '@/modules/app';
 import { AprilThemeProvider } from '@workspace/theme';
 import { ReactQueryProvider } from './tanstack-query.provider';
@@ -16,6 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             enableColorScheme
         >      <AprilThemeProvider>
                 <ReactQueryProvider>
+                    <Toaster richColors position="top-right" />
                     <AppProvider>{children}</AppProvider>
                 </ReactQueryProvider>
             </AprilThemeProvider>

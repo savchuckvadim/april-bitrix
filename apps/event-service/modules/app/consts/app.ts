@@ -1,2 +1,2 @@
-export const APP_NAME = 'konstructor';
-export const APP_TITLE = 'Конструктор';
+export const APP_NAME = 'event-service';
+export const APP_TITLE = 'Событийный сервис';

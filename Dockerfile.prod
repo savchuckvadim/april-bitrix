@@ -1,0 +1,68 @@
+# Prod-образ фронтов: собирается в CI (GitHub Actions) и пушится в GHCR,
+# сервер только пуллит готовый образ (см. docker-compose.prod.yml).
+#
+# Отличия от корневого Dockerfile (тот остаётся для сборки на сервере):
+#  - apps/<APP>/.env НЕ зашивается в образ: в CI-чекауте его нет.
+#    Runtime-переменные приходят из env_file в docker-compose.prod.yml,
+#    build-time (NEXT_PUBLIC_*, YANDEX_ID) — через build-args из workflow.
+#  - зависимости ставятся lockfile-first (pnpm fetch): пока pnpm-lock.yaml
+#    не меняется, слой со стором пакетов берётся из registry-кэша,
+#    и пересборка после изменения кода идёт быстро.
+
+FROM node:20 AS base
+
+ARG APP
+
+WORKDIR /app
+
+RUN npm install -g npm@11.3.0 && npm install -g pnpm
+
+# Слой зависимостей: только lockfile -> pnpm fetch (код сюда не попадает,
+# поэтому слой инвалидируется только при изменении зависимостей).
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm config set fetch-retries 5 && \
+    pnpm config set fetch-timeout 60000 && \
+    pnpm fetch
+
+COPY . .
+
+RUN pnpm install --prefer-offline --no-frozen-lockfile
+RUN pnpm approve-builds
+
+# NEXT_PUBLIC_* инлайнятся в клиентский бандл на этапе next build —
+# значения передаёт workflow. NEXT_PUBLIC_APP_URL обязателен
+# (apps/bitrix/next.config.ts падает без него).
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_WS_HOST
+ARG NEXT_PUBLIC_IN_BITRIX=true
+ARG YANDEX_ID
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
+    NEXT_PUBLIC_WS_HOST=${NEXT_PUBLIC_WS_HOST} \
+    NEXT_PUBLIC_IN_BITRIX=${NEXT_PUBLIC_IN_BITRIX} \
+    YANDEX_ID=${YANDEX_ID}
+
+RUN pnpm --filter ${APP} run build
+
+
+# ==== PRODUCTION ====
+FROM node:20-slim AS prod
+
+ARG APP
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+COPY --from=base /app/apps/${APP}/.next ./.next
+COPY --from=base /app/apps/${APP}/package.json ./package.json
+COPY --from=base /app/package.json ./root-package.json
+COPY --from=base /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=base /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=base /app/packages ./packages
+COPY --from=base /app/apps/${APP}/public ./public
+COPY --from=base /app/apps/${APP}/next.config.ts ./next.config.ts
+
+RUN pnpm install --prod --no-frozen-lockfile && \
+    pnpm --filter ${APP} install --prod --no-frozen-lockfile
+
+CMD ["pnpm", "start"]

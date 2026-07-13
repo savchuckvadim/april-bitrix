@@ -1,55 +1,43 @@
-import { useEffect, useState } from "react";
-import { bxInstallHelper, getInstallStatus, getPlacementList } from "../api/bx-install.helper";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from 'react';
+import { bxInstallHelper } from '../api/bx-install.helper';
+import { useQuery } from '@tanstack/react-query';
 
-export const useBxInstall = () => {
-    console.log('useBxInstall');
-    const bxReady = useBxReady();
-    console.log('bxReady');
-    console.log(bxReady);
-    const query= useQuery<any, Error>({
+/**
+ * Завершение установки: вызывает BX24.installFinish() (через bxInstallHelper).
+ *
+ * @param enabled false — НЕ вызывать installFinish (например, когда бэк
+ * вернул ?install=fail: провальную установку нельзя финализировать).
+ */
+export const useBxInstall = (enabled: boolean = true) => {
+    const mounted = useClientMounted();
+    const query = useQuery<unknown, Error>({
         queryKey: ['install'],
         queryFn: bxInstallHelper,
-        enabled: bxReady, // ❗ КРИТИЧНО
-        retry: false,          // ❗ важно для install
+        // installFinish строго один раз и только на клиенте внутри iframe
+        enabled: enabled && mounted,
+        retry: false,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
         refetchOnReconnect: false,
         refetchInterval: false,
         refetchIntervalInBackground: false,
-
     });
     return {
         isInstalled: query.isSuccess,
-        isLoading: query.isLoading,
+        isLoading: enabled && query.isLoading,
         error: query.error,
     };
 };
 
-
-export const useBxReady = () => {
-    const [ready, setReady] = useState(false);
-
+/**
+ * true после маунта на клиенте. Инициализацию B24-фрейма выполняет сам
+ * bxInstallHelper (initializeB24Frame внутри bxAPI.install) — отдельного
+ * ожидания BX24 здесь не требуется.
+ */
+const useClientMounted = () => {
+    const [mounted, setMounted] = useState(false);
     useEffect(() => {
-        console.log('useBxReady in effect');
-        if (typeof window === 'undefined') return;
-        console.log('useBxReady in effect window');
-        if ((window as any) !== undefined) {
-            console.log('useBxReady in effect BX24');
-            setReady(true);
-            return;
-        }
-        console.log('useBxReady in effect not BX24');
-        const interval = setInterval(() => {
-            if ((window as any) !== undefined) {
-                setReady(true);
-                clearInterval(interval);
-            }
-        }, 150);
-
-        return () => clearInterval(interval);
+        setMounted(true);
     }, []);
-    console.log('useBxReady return');
-    console.log(ready);
-    return ready;
+    return mounted;
 };

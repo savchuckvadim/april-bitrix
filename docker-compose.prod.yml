@@ -46,15 +46,16 @@ services:
       - ./apps/bitrix/.env
     environment: *front-env
 
-  front-admin:
-    <<: *front-common
-    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-admin:${IMAGE_TAG:-latest}
-    container_name: front-admin-${SUFFIX}
-    ports:
-      - "${PORT_ADMIN}:3000"
-    env_file:
-      - ./apps/admin/.env
-    environment: *front-env
+  # admin пока исключён из деплоя (см. deploy-front-prod.yml)
+  # front-admin:
+  #   <<: *front-common
+  #   image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-admin:${IMAGE_TAG:-latest}
+  #   container_name: front-admin-${SUFFIX}
+  #   ports:
+  #     - "${PORT_ADMIN}:3000"
+  #   env_file:
+  #     - ./apps/admin/.env
+  #   environment: *front-env
 
   front-kpi-sales:
     <<: *front-common
@@ -106,15 +107,16 @@ services:
       - ./apps/event-service/.env
     environment: *front-env
 
-  front-web:
-    <<: *front-common
-    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-web:${IMAGE_TAG:-latest}
-    container_name: front-web-${SUFFIX}
-    ports:
-      - "${PORT_WEB}:3000"
-    env_file:
-      - ./apps/web/.env
-    environment: *front-env
+  # web пока исключён из деплоя (см. deploy-front-prod.yml)
+  # front-web:
+  #   <<: *front-common
+  #   image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-web:${IMAGE_TAG:-latest}
+  #   container_name: front-web-${SUFFIX}
+  #   ports:
+  #     - "${PORT_WEB}:3000"
+  #   env_file:
+  #     - ./apps/web/.env
+  #   environment: *front-env
 
 networks:
   monitoring:

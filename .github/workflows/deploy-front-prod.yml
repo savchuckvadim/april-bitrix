@@ -47,16 +47,16 @@ concurrency:
 env:
   # Build-time конфиг приложений (несекретный: NEXT_PUBLIC_* и так попадают
   # в клиентский бандл). Значения должны совпадать с серверными apps/<app>/.env.
+  # admin и web пока исключены из деплоя — при включении вернуть их сюда,
+  # в фильтры detect, в ALL и раскомментировать сервисы в docker-compose.prod.yml.
   APP_CFG: |
     {
       "bitrix":        { "app_url": "https://bitrix.april-app.ru", "in_bitrix": "true",  "chromium": "false" },
-      "admin":         { "app_url": "https://admin.april-app.ru",  "in_bitrix": "true",  "chromium": "false" },
       "kpi-sales":     { "app_url": "",                            "in_bitrix": "false", "chromium": "false" },
       "kpi-service":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "false" },
       "konstructor":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  },
       "event-sales":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  },
-      "event-service": { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  },
-      "web":           { "app_url": "",                            "in_bitrix": "true",  "chromium": "false" }
+      "event-service": { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  }
     }
   WS_HOST: https://back.april-app.ru
   YANDEX_ID: "105777667"
@@ -86,20 +86,18 @@ jobs:
               - 'docker-compose.prod.yml'
               - '.github/workflows/deploy-front-prod.yml'
             bitrix: ['apps/bitrix/**']
-            admin: ['apps/admin/**']
             kpi-sales: ['apps/kpi-sales/**']
             kpi-service: ['apps/kpi-service/**']
             konstructor: ['apps/konstructor/**']
             event-sales: ['apps/event-sales/**']
             event-service: ['apps/event-service/**']
-            web: ['apps/web/**']
 
       - name: Вычислить список приложений для сборки
         id: set
         env:
           MANUAL_APPS: ${{ github.event.inputs.apps }}
         run: |
-          ALL='["bitrix","admin","kpi-sales","kpi-service","konstructor","event-sales","event-service","web"]'
+          ALL='["bitrix","kpi-sales","kpi-service","konstructor","event-sales","event-service"]'
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             if [ -z "$MANUAL_APPS" ] || [ "$MANUAL_APPS" = "all" ]; then
               echo "Ручной запуск -> все приложения"
@@ -203,7 +201,7 @@ jobs:
 
             # compose читает env_file ВСЕХ сервисов при загрузке модели —
             # отсутствующий файл ломает деплой любого приложения. Создаём заглушки.
-            for d in bitrix admin kpi-sales kpi-service konstructor event-sales event-service web; do
+            for d in bitrix kpi-sales kpi-service konstructor event-sales event-service; do
               [ -f "apps/$d/.env" ] || { echo "⚠️ apps/$d/.env отсутствует — создаю пустой (заполни перед деплоем этого app!)"; touch "apps/$d/.env"; }
             done
 

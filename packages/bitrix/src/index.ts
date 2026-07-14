@@ -11,3 +11,5 @@ export {
 
 export { EBxMethod, EBxNamespace } from './core/domain/consts/bitrix-api.enum';
 export { EBXEntity } from './core/domain/consts/bitrix-entities.enum';
+
+export * from './install';

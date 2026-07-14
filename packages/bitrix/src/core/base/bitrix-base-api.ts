@@ -59,10 +59,14 @@ export class BitrixBaseApi {
     async init(domain: string, user: IBXUser) {
         try {
             this.bx = await initializeB24Frame();
-            this.bx.getHttpClient().setRestrictionManagerParams({
-                sleep: 600,
-                speed: 0.01,
-                amount: 30 * 5,
+            // v2: щадящий режим задаётся rateLimit (Leaky Bucket) вместо
+            // легаси sleep/speed/amount; значения стандартного тарифа
+            await this.bx.setRestrictionManagerParams({
+                rateLimit: {
+                    burstLimit: 50,
+                    drainRate: 2,
+                    adaptiveEnabled: true,
+                },
             });
             this.inFrame = true;
 

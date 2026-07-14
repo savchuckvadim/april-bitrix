@@ -1,0 +1,266 @@
+name: Deploy front (prod, per-app)
+
+# Схема как в back/deploy-monorepo.yml:
+#  - detect: определяет изменённые приложения (dorny/paths-filter);
+#  - build:  matrix собирает/пушит в GHCR ТОЛЬКО изменённые apps
+#            (+ registry-кэш слоёв — при неизменном lockfile быстро);
+#  - deploy: на сервере pull + up -d ТОЛЬКО изменённых apps, с ожиданием
+#            healthcheck (без сборки на сервере и без слепых sleep).
+# Изменение в packages/**, lockfile и т.п. (фильтр shared) осознанно
+# пересобирает ВСЕ apps — общий код шарится между ними.
+#
+# Настройки репо (Settings → Secrets and variables → Actions):
+#  - secrets: ONLINE_API_KEY (инлайнится в бандлы при сборке),
+#             GHCR_PAT (read:packages — pull приватных образов на сервере),
+#             SERVER_IP / SERVER_USER / SERVER_SSH_KEY.
+# Несекретные build-time значения (урлы и т.п.) заданы в APP_CFG ниже.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".npmrc"
+      - "Dockerfile.prod"
+      - "docker-compose.prod.yml"
+      - ".github/workflows/deploy-front-prod.yml"
+  workflow_dispatch:
+    inputs:
+      apps:
+        description: 'Что собрать вручную: "all" или список через пробел/запятую (напр. "bitrix admin"). Пусто = all.'
+        required: false
+        default: 'all'
+
+permissions:
+  contents: read
+  packages: write # push образов в ghcr.io встроенным токеном
+
+concurrency:
+  group: deploy-front-prod
+  cancel-in-progress: false
+
+env:
+  # Build-time конфиг приложений (несекретный: NEXT_PUBLIC_* и так попадают
+  # в клиентский бандл). Значения должны совпадать с серверными apps/<app>/.env.
+  APP_CFG: |
+    {
+      "bitrix":        { "app_url": "https://bitrix.april-app.ru", "in_bitrix": "true",  "chromium": "false" },
+      "admin":         { "app_url": "https://admin.april-app.ru",  "in_bitrix": "true",  "chromium": "false" },
+      "kpi-sales":     { "app_url": "",                            "in_bitrix": "false", "chromium": "false" },
+      "kpi-service":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "false" },
+      "konstructor":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  },
+      "event-sales":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  },
+      "event-service": { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  },
+      "web":           { "app_url": "",                            "in_bitrix": "true",  "chromium": "false" }
+    }
+  WS_HOST: https://back.april-app.ru
+  YANDEX_ID: "105777667"
+
+jobs:
+  # ---------------------------------------------------------------
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.set.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared:
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.npmrc'
+              - 'Dockerfile.prod'
+              - 'docker-compose.prod.yml'
+              - '.github/workflows/deploy-front-prod.yml'
+            bitrix: ['apps/bitrix/**']
+            admin: ['apps/admin/**']
+            kpi-sales: ['apps/kpi-sales/**']
+            kpi-service: ['apps/kpi-service/**']
+            konstructor: ['apps/konstructor/**']
+            event-sales: ['apps/event-sales/**']
+            event-service: ['apps/event-service/**']
+            web: ['apps/web/**']
+
+      - name: Вычислить список приложений для сборки
+        id: set
+        env:
+          MANUAL_APPS: ${{ github.event.inputs.apps }}
+        run: |
+          ALL='["bitrix","admin","kpi-sales","kpi-service","konstructor","event-sales","event-service","web"]'
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -z "$MANUAL_APPS" ] || [ "$MANUAL_APPS" = "all" ]; then
+              echo "Ручной запуск -> все приложения"
+              echo "apps=$ALL" >> "$GITHUB_OUTPUT"
+            else
+              ARR=$(echo "$MANUAL_APPS" | tr ', ' '\n' | sed '/^$/d' | sed 's/.*/"&"/' | paste -sd, -)
+              echo "Ручной запуск -> [$ARR]"
+              echo "apps=[$ARR]" >> "$GITHUB_OUTPUT"
+            fi
+          elif [ "${{ steps.filter.outputs.shared }}" = "true" ]; then
+            echo "Изменён общий код (shared) -> собираем все приложения"
+            echo "apps=$ALL" >> "$GITHUB_OUTPUT"
+          else
+            echo "apps=${{ steps.filter.outputs.changes }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Показать решение detect
+        run: echo "apps=${{ steps.set.outputs.apps }}"
+
+  # ---------------------------------------------------------------
+  build:
+    needs: detect
+    if: needs.detect.outputs.apps != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.detect.outputs.apps) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Логин в GHCR (встроенный токен, без PAT)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Owner в нижнем регистре (требование GHCR)
+        id: owner
+        run: echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Build & push ${{ matrix.app }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.prod
+          build-args: |
+            APP=${{ matrix.app }}
+            NEXT_PUBLIC_APP_URL=${{ fromJSON(env.APP_CFG)[matrix.app].app_url }}
+            NEXT_PUBLIC_WS_HOST=${{ env.WS_HOST }}
+            NEXT_PUBLIC_IN_BITRIX=${{ fromJSON(env.APP_CFG)[matrix.app].in_bitrix }}
+            IN_BITRIX=${{ fromJSON(env.APP_CFG)[matrix.app].in_bitrix }}
+            YANDEX_ID=${{ env.YANDEX_ID }}
+            ONLINE_API_KEY=${{ secrets.ONLINE_API_KEY }}
+            WITH_CHROMIUM=${{ fromJSON(env.APP_CFG)[matrix.app].chromium }}
+          push: true
+          tags: |
+            ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:${{ github.sha }}
+            ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:latest
+          cache-from: type=registry,ref=ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:buildcache,mode=max
+
+  # ---------------------------------------------------------------
+  deploy:
+    needs: [detect, build]
+    if: needs.detect.outputs.apps != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy изменённых приложений по SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          APPS_JSON: ${{ needs.detect.outputs.apps }}
+          IMAGE_TAG: ${{ github.sha }}
+          GHCR_OWNER: ${{ github.repository_owner }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          timeout: 60s
+          command_timeout: 30m
+          envs: APPS_JSON,IMAGE_TAG,GHCR_OWNER,GHCR_USER,GHCR_PAT
+          script: |
+            set -e
+            cd /var/www/html/next/monorepo
+
+            # GHCR требует owner в нижнем регистре; compose читает его из env
+            GHCR_OWNER=$(echo "$GHCR_OWNER" | tr '[:upper:]' '[:lower:]')
+            export GHCR_OWNER IMAGE_TAG
+            COMPOSE="docker compose --env-file .env -f docker-compose.prod.yml"
+
+            echo "🧩 Обновляю checkout (нужен свежий docker-compose.prod.yml и apps/*/.env)"
+            # Deploy-клон выравниваем жёстко под ветку (без merge/divergence).
+            # .env-файлы в .gitignore — reset их не трогает.
+            git fetch origin main
+            git reset --hard origin/main
+
+            # compose читает env_file ВСЕХ сервисов при загрузке модели —
+            # отсутствующий файл ломает деплой любого приложения. Создаём заглушки.
+            for d in bitrix admin kpi-sales kpi-service konstructor event-sales event-service web; do
+              [ -f "apps/$d/.env" ] || { echo "⚠️ apps/$d/.env отсутствует — создаю пустой (заполни перед деплоем этого app!)"; touch "apps/$d/.env"; }
+            done
+
+            if [ -n "$GHCR_PAT" ]; then
+              echo "🔐 Логин в GHCR"
+              echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            else
+              echo "ℹ️ GHCR_PAT пуст — пропускаю docker login (образы должны быть публичными)"
+            fi
+
+            wait_healthy () {
+              local svc="$1" cid timeout=300 elapsed=0
+              cid=$($COMPOSE ps -q "$svc")
+              while true; do
+                local status health
+                status=$(docker inspect -f '{{.State.Status}}' "$cid" 2>/dev/null || echo missing)
+                health=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$cid" 2>/dev/null || echo unknown)
+                if [ "$status" = "running" ] && { [ "$health" = "healthy" ] || [ "$health" = "none" ]; }; then
+                  echo "✅ $svc: $status/$health"
+                  return 0
+                fi
+                if [ "$elapsed" -ge "$timeout" ]; then
+                  echo "❌ Таймаут $svc (status=$status health=$health)"
+                  docker logs "$cid" --tail 200 || true
+                  return 1
+                fi
+                echo "⌛ $svc status=$status health=$health (${elapsed}s)"
+                sleep 5; elapsed=$((elapsed + 5))
+              done
+            }
+
+            # JSON-массив -> список через пробел
+            APPS=$(echo "$APPS_JSON" | tr -d '[]"' | tr ',' ' ')
+            echo "🚀 Деплой приложений: $APPS (tag=$IMAGE_TAG)"
+
+            FAILED=""; SKIPPED=""
+            for app in $APPS; do
+              svc="front-$app"
+              # пустой .env = приложение на этом сервере ещё не настроено —
+              # пропускаем без ошибки (заполни apps/$app/.env, чтобы деплоить)
+              if [ ! -s "apps/$app/.env" ]; then
+                echo "⚠️ apps/$app/.env пуст — пропускаю $svc"
+                SKIPPED="$SKIPPED $svc"
+                continue
+              fi
+              echo "📦 pull + up: $svc"
+              $COMPOSE pull "$svc"
+              $COMPOSE up -d "$svc"
+              wait_healthy "$svc" || FAILED="$FAILED $svc"
+            done
+
+            docker image prune -f || true
+            $COMPOSE ps
+
+            [ -n "$SKIPPED" ] && echo "⚠️ Пропущены (пустой .env):$SKIPPED"
+            if [ -n "$FAILED" ]; then
+              echo "❌ Не поднялись:$FAILED"
+              exit 1
+            fi
+            echo "✅ Деплой завершён"

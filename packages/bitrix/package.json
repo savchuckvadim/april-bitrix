@@ -15,7 +15,7 @@
         "typescript": "^5.7.3"
     },
     "dependencies": {
-        "@bitrix24/b24jssdk": "^0.1.7",
+        "@bitrix24/b24jssdk": "^2.0.0",
         "@workspace/api": "workspace:*",
         "axios": "^1.10.0"
     },

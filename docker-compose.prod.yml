@@ -1,5 +1,5 @@
 # Прод-compose: образы НЕ собираются на сервере, а пуллятся из GHCR
-# (их собирает и пушит workflow .github/workflows/deploy-*-prod.yml).
+# (их собирает и пушит workflow .github/workflows/deploy-front-prod.yml).
 #
 # Использование на сервере (из /var/www/html/next/monorepo):
 #   docker compose --env-file .env -f docker-compose.prod.yml pull front-bitrix
@@ -7,34 +7,114 @@
 #
 # GHCR_OWNER и IMAGE_TAG экспортирует деплой-скрипт; без них берётся
 # savchuckvadim/latest. SUFFIX, PORT_* и ONLINE_API_KEY — из серверного .env,
-# как и раньше. Runtime-переменные приложения — из apps/<app>/.env (env_file),
+# как и раньше. Runtime-переменные приложений — из apps/<app>/.env (env_file),
 # т.к. в GHCR-образ .env больше не зашивается.
+#
+# Имена контейнеров сохранены как в старом docker-compose.yml
+# (april-kpi-sales-*, front-bitrix-* и т.д.), чтобы пересоздание прошло
+# бесшовно и ничего внешнего не сломалось.
+
+x-front-common: &front-common
+  restart: unless-stopped
+  networks:
+    - monitoring
+  volumes:
+    - ./logs:/app/logs
+  healthcheck:
+    # node:20-slim без curl/wget — проверяем через глобальный fetch.
+    # Любой HTTP-ответ = сервер поднялся.
+    test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(()=>process.exit(0),()=>process.exit(1))"]
+    interval: 10s
+    timeout: 5s
+    retries: 6
+    start_period: 20s
+
+# как в старом compose: эти три перекрывают значения из env_file
+x-front-env: &front-env
+  IN_BITRIX: "true"
+  LOG_FILE_PATH: /app/logs/server.log
+  ONLINE_API_KEY: ${ONLINE_API_KEY}
 
 services:
   front-bitrix:
+    <<: *front-common
     image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-bitrix:${IMAGE_TAG:-latest}
     container_name: front-bitrix-${SUFFIX}
     ports:
       - "${PORT_BITRIX}:3000"
     env_file:
       - ./apps/bitrix/.env
-    environment:
-      - IN_BITRIX=true
-      - LOG_FILE_PATH=/app/logs/server.log
-      - ONLINE_API_KEY=${ONLINE_API_KEY}
-    volumes:
-      - ./logs:/app/logs
-    restart: unless-stopped
-    healthcheck:
-      # node:20-slim без curl/wget — проверяем через глобальный fetch.
-      # Любой HTTP-ответ = сервер поднялся.
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(()=>process.exit(0),()=>process.exit(1))"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-      start_period: 20s
-    networks:
-      - monitoring
+    environment: *front-env
+
+  front-admin:
+    <<: *front-common
+    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-admin:${IMAGE_TAG:-latest}
+    container_name: front-admin-${SUFFIX}
+    ports:
+      - "${PORT_ADMIN}:3000"
+    env_file:
+      - ./apps/admin/.env
+    environment: *front-env
+
+  front-kpi-sales:
+    <<: *front-common
+    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-kpi-sales:${IMAGE_TAG:-latest}
+    container_name: april-kpi-sales-${SUFFIX}
+    ports:
+      - "${PORT_KPI_SALES}:3000"
+    env_file:
+      - ./apps/kpi-sales/.env
+    environment: *front-env
+
+  front-kpi-service:
+    <<: *front-common
+    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-kpi-service:${IMAGE_TAG:-latest}
+    container_name: april-kpi-service-${SUFFIX}
+    ports:
+      - "${PORT_KPI_SERVICE}:3000"
+    env_file:
+      - ./apps/kpi-service/.env
+    environment: *front-env
+
+  front-konstructor:
+    <<: *front-common
+    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-konstructor:${IMAGE_TAG:-latest}
+    container_name: front-konstructor-${SUFFIX}
+    ports:
+      - "${PORT_KONSTRUCTOR}:3000"
+    env_file:
+      - ./apps/konstructor/.env
+    environment: *front-env
+
+  front-event-sales:
+    <<: *front-common
+    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-event-sales:${IMAGE_TAG:-latest}
+    container_name: front-event-sales-${SUFFIX}
+    ports:
+      - "${PORT_EVENT_SALES}:3000"
+    env_file:
+      - ./apps/event-sales/.env
+    environment: *front-env
+
+  front-event-service:
+    <<: *front-common
+    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-event-service:${IMAGE_TAG:-latest}
+    container_name: front-event-service-${SUFFIX}
+    ports:
+      - "${PORT_EVENT_SERVICE}:3000"
+    env_file:
+      - ./apps/event-service/.env
+    environment: *front-env
+
+  front-web:
+    <<: *front-common
+    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-web:${IMAGE_TAG:-latest}
+    container_name: front-web-${SUFFIX}
+    ports:
+      - "${PORT_WEB}:3000"
+    env_file:
+      - ./apps/web/.env
+    environment: *front-env
 
 networks:
   monitoring:

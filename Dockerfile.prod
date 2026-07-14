@@ -38,17 +38,29 @@ COPY . .
 RUN pnpm install --prefer-offline --no-frozen-lockfile
 RUN pnpm approve-builds
 
-# NEXT_PUBLIC_* инлайнятся в клиентский бандл на этапе next build —
-# значения передаёт workflow. NEXT_PUBLIC_APP_URL обязателен
-# (apps/bitrix/next.config.ts падает без него).
+# Build-time переменные — значения передаёт workflow. next.config.ts приложений
+# требует их при сборке, а через `env:` инлайнит в бандлы (поэтому runtime-значения
+# из env_file для заинлайненных переменных уже ничего не меняют — значения здесь
+# должны быть прод-овыми). PDF_PREVIEW_URL и PORT нужны konstructor/event-* только
+# чтобы пройти проверку требуемых переменных; в next.config env они не инлайнятся.
 ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_WS_HOST
 ARG NEXT_PUBLIC_IN_BITRIX=true
 ARG YANDEX_ID
+ARG ONLINE_API_KEY
+ARG IN_BITRIX=true
+ARG LOG_FILE_PATH=/app/logs/server.log
+ARG PDF_PREVIEW_URL="http://localhost:5000/offer/preview?readonly=true"
+ARG PORT=3000
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
     NEXT_PUBLIC_WS_HOST=${NEXT_PUBLIC_WS_HOST} \
     NEXT_PUBLIC_IN_BITRIX=${NEXT_PUBLIC_IN_BITRIX} \
-    YANDEX_ID=${YANDEX_ID}
+    YANDEX_ID=${YANDEX_ID} \
+    ONLINE_API_KEY=${ONLINE_API_KEY} \
+    IN_BITRIX=${IN_BITRIX} \
+    LOG_FILE_PATH=${LOG_FILE_PATH} \
+    PDF_PREVIEW_URL=${PDF_PREVIEW_URL} \
+    PORT=${PORT}
 
 RUN pnpm --filter ${APP} run build
 
@@ -59,6 +71,42 @@ FROM node:20-slim AS prod
 ARG APP
 
 WORKDIR /app
+
+# Chromium для puppeteer (нужен konstructor / event-sales / event-service —
+# см. Konstructor.Dockerfile, откуда взят список пакетов). Для остальных
+# приложений WITH_CHROMIUM=false и слой пропускается.
+ARG WITH_CHROMIUM=false
+RUN if [ "$WITH_CHROMIUM" = "true" ]; then \
+        apt-get update && apt-get install -y \
+        chromium \
+        fonts-ipafont-gothic \
+        fonts-wqy-zenhei \
+        fonts-thai-tlwg \
+        fonts-kacst \
+        fonts-freefont-ttf \
+        libx11-xcb1 \
+        libxcomposite1 \
+        libasound2 \
+        libatk1.0-0 \
+        libatk-bridge2.0-0 \
+        libcairo2 \
+        libcups2 \
+        libdbus-1-3 \
+        libexpat1 \
+        libfontconfig1 \
+        libgbm1 \
+        libgcc1 \
+        libnss3 \
+        libxrandr2 \
+        libxdamage1 \
+        libpango-1.0-0 \
+        libcairo-gobject2 \
+        libxshmfence1 \
+        --no-install-recommends \
+        && rm -rf /var/lib/apt/lists/*; \
+    fi
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 RUN npm install -g pnpm
 

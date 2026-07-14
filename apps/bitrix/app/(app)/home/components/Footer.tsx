@@ -20,8 +20,9 @@ const footerLinks = {
         { name: 'Контакты', href: '#contact' },
     ],
     legal: [
-        { name: 'Политика конфиденциальности', href: '/privacy' },
-        { name: 'Пользовательское соглашение', href: '/terms' },
+        { name: 'Политика обработки персональных данных', href: '/legal/privacy' },
+        { name: 'Лицензионное соглашение', href: '/legal/license' },
+        { name: 'Поддержка', href: '/support' },
     ],
 };
 
@@ -126,8 +127,8 @@ export const Footer: React.FC = () => {
                     <p className="text-sm text-muted-foreground">
                         © {new Date().getFullYear()} April CRM. Все права защищены.
                     </p>
-                    <div className="flex gap-6">
-                        {/* {footerLinks.legal.map((link) => (
+                    <div className="flex flex-wrap gap-6">
+                        {footerLinks.legal.map((link) => (
                             <Link
                                 key={link.name}
                                 href={link.href}
@@ -135,7 +136,7 @@ export const Footer: React.FC = () => {
                             >
                                 {link.name}
                             </Link>
-                        ))} */}
+                        ))}
                     </div>
                 </div>
             </div>

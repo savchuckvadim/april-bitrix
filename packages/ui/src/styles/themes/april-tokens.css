@@ -1,0 +1,87 @@
+/*
+ * April design tokens (общие на монорепу).
+ *
+ * 1. Семантика статусов: --success / --warning (дополняют shadcn --destructive).
+ * 2. Цвета типов событий (event-sales / event-service): --event-*.
+ * 3. Реактивный «текущий тип события»: контейнер получает
+ *    data-event-type="<eventType>" (xo | warm | presentation | in_progress |
+ *    money_await | supply | ss | event) — всё, что использует
+ *    var(--event-current), перекрашивается автоматически при смене типа.
+ *
+ * Tailwind-утилиты (bg-event-cold, text-success, …) маппятся в globals.css
+ * через @theme inline. Тот же паттерн позже для комплектов конструктора
+ * (--complect-* + data-complect).
+ */
+
+:root {
+    --success: oklch(0.627 0.17 149.2);
+    --success-foreground: oklch(0.985 0 0);
+    --warning: oklch(0.769 0.16 70.7);
+    --warning-foreground: oklch(0.216 0.006 56.04);
+
+    /* Типы событий */
+    --event-cold: oklch(0.588 0.158 241.966);        /* холодный (xo) — синий */
+    --event-cold-foreground: oklch(0.985 0 0);
+    --event-warm: oklch(0.769 0.16 70.7);             /* звонок (warm) — янтарный */
+    --event-warm-foreground: oklch(0.216 0.006 56.04);
+    --event-pres: oklch(0.606 0.219 292.717);         /* презентация — фиолетовый */
+    --event-pres-foreground: oklch(0.985 0 0);
+    --event-hot: oklch(0.637 0.207 25.331);           /* решение (hot) — красный */
+    --event-hot-foreground: oklch(0.985 0 0);
+    --event-money: oklch(0.627 0.17 149.2);           /* оплата — зелёный */
+    --event-money-foreground: oklch(0.985 0 0);
+    --event-ss: oklch(0.715 0.13 215.2);              /* сервисный сигнал — циан */
+    --event-ss-foreground: oklch(0.216 0.006 56.04);
+    --event-supply: oklch(0.704 0.12 182.5);          /* поставка — бирюзовый */
+    --event-supply-foreground: oklch(0.216 0.006 56.04);
+
+    /* Текущий тип события (переопределяется data-event-type ниже) */
+    --event-current: var(--event-warm);
+    --event-current-foreground: var(--event-warm-foreground);
+}
+
+/* Тёмные темы (классы вида default-dark, blue-dark, …) — приглушаем */
+:root[class*='-dark'] {
+    --success: oklch(0.696 0.14 149.2);
+    --warning: oklch(0.795 0.14 75.5);
+    --warning-foreground: oklch(0.216 0.006 56.04);
+
+    --event-cold: oklch(0.65 0.14 241.966);
+    --event-warm: oklch(0.795 0.14 75.5);
+    --event-pres: oklch(0.673 0.18 292.717);
+    --event-hot: oklch(0.704 0.17 25.331);
+    --event-money: oklch(0.696 0.14 149.2);
+    --event-ss: oklch(0.75 0.11 215.2);
+    --event-supply: oklch(0.74 0.1 182.5);
+}
+
+/* Реактивный текущий тип события (значения = EventTaskEventType) */
+[data-event-type='xo'] {
+    --event-current: var(--event-cold);
+    --event-current-foreground: var(--event-cold-foreground);
+}
+[data-event-type='warm'],
+[data-event-type='event'] {
+    --event-current: var(--event-warm);
+    --event-current-foreground: var(--event-warm-foreground);
+}
+[data-event-type='presentation'] {
+    --event-current: var(--event-pres);
+    --event-current-foreground: var(--event-pres-foreground);
+}
+[data-event-type='in_progress'] {
+    --event-current: var(--event-hot);
+    --event-current-foreground: var(--event-hot-foreground);
+}
+[data-event-type='money_await'] {
+    --event-current: var(--event-money);
+    --event-current-foreground: var(--event-money-foreground);
+}
+[data-event-type='ss'] {
+    --event-current: var(--event-ss);
+    --event-current-foreground: var(--event-ss-foreground);
+}
+[data-event-type='supply'] {
+    --event-current: var(--event-supply);
+    --event-current-foreground: var(--event-supply-foreground);
+}

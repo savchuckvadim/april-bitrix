@@ -1,0 +1,25 @@
+{
+    "name": "@workspace/nest-event-sales-api",
+    "version": "1.0.0",
+    "main": "index.ts",
+    "scripts": {
+        "lint": "eslint . --max-warnings 0",
+        "generate": "orval"
+    },
+    "devDependencies": {
+        "@turbo/gen": "^2.4.2",
+        "@types/node": "^20",
+        "@workspace/eslint-config": "workspace:*",
+        "@workspace/typescript-config": "workspace:*",
+        "orval": "^7.13.0",
+        "typescript": "^5.7.3"
+    },
+    "dependencies": {
+        "axios": "^1.8.4"
+    },
+    "author": "",
+    "license": "ISC",
+    "keywords": [],
+    "description": "Orval-generated client for the event-sales NestJS backend (back/apps/event-sales)",
+    "packageManager": "pnpm@10.4.1"
+}

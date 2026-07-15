@@ -8,6 +8,7 @@ import { ApiProvider } from './api-provider';
 import { AprilThemeProvider } from '@workspace/theme';
 import App from '@/modules/app/ui/App';
 import { ErrorBoundary } from '@/modules/app/providers/ErrorBoundary';
+import { EventProcessInit } from '@/modules/processes/event';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -22,6 +23,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 <AprilThemeProvider>
                     <ApiProvider>
                         <ErrorBoundary>
+                            <EventProcessInit />
                             <App>
                                 {children}
                             </App>

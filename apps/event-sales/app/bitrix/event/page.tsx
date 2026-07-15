@@ -1,4 +1,4 @@
-import { EventItemPage } from "@/modules/pages";
+import { EventItemPage } from "@/modules/pages/EventItem/EventItemPage";
 
 export default function EventPage() {
     return (

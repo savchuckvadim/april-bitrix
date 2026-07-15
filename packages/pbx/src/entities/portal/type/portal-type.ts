@@ -4,7 +4,9 @@ export type Portal = {
     bitrixLists: Array<PBXList>;
     company: PBXCompany;
     lead: PBXLead;
+    contact: PBXContact;
     departament: PBXDepartament;
+    smarts: Array<PBXSmart>;
 };
 
 export enum PBX_GROUP {
@@ -46,6 +48,13 @@ export type PBXList = {
 export type PBXCompany = {
     bitrixfields: Array<PBXField>;
     code: 'company';
+    id: number;
+    name: string;
+    title: string;
+};
+export type PBXContact = {
+    bitrixfields: Array<PBXField>;
+    code: 'contact';
     id: number;
     name: string;
     title: string;
@@ -115,4 +124,13 @@ export type PBXStage = {
     isActive: boolean;
     name: string;
     title: string;
+};
+
+export type PBXSmart = {
+    bitrixfields: Array<PBXField>;
+    code: string;
+    id: number;
+    name: string;
+    title: string;
+    crm: number;
 };

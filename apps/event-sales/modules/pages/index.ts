@@ -1,4 +1,5 @@
 export { ErrorPage } from './Error/ErrorPage';
-export { EventItemsPage } from './EventItems/EventItemsPage';
-export { EventItemPage } from './EventItem/EventItemPage';
-export { default as TimePickerDemoPage } from './TimePickerDemo/TimePickerDemoPage';
+export * from './event';
+
+// Legacy scaffold pages (будут удалены в Фазе 8; импортируются напрямую):
+// ./EventItems/EventItemsPage, ./EventItem/EventItemPage, ./TimePickerDemo

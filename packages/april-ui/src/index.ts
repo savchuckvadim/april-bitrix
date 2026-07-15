@@ -25,3 +25,8 @@ export { PreloaderMicro } from './shared/Preloader';
 
 export type { ComponentPropsColors } from './shared/ui/Button/AAButton';
 export { default as AIcon } from './shared/FuncIcon/FuncIcon';
+
+// Бэйджи событий (event-sales / event-service, токены april-tokens.css)
+export { EventTypeBadge } from './shared/ui/EventBadge/EventTypeBadge';
+export { EventStatusBadge } from './shared/ui/EventBadge/EventStatusBadge';
+export * from './shared/ui/EventBadge/event-badge-maps';

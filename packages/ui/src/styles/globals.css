@@ -116,6 +116,28 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+
+    /* April tokens (см. themes/april-tokens.css) */
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-event-cold: var(--event-cold);
+    --color-event-cold-foreground: var(--event-cold-foreground);
+    --color-event-warm: var(--event-warm);
+    --color-event-warm-foreground: var(--event-warm-foreground);
+    --color-event-pres: var(--event-pres);
+    --color-event-pres-foreground: var(--event-pres-foreground);
+    --color-event-hot: var(--event-hot);
+    --color-event-hot-foreground: var(--event-hot-foreground);
+    --color-event-money: var(--event-money);
+    --color-event-money-foreground: var(--event-money-foreground);
+    --color-event-ss: var(--event-ss);
+    --color-event-ss-foreground: var(--event-ss-foreground);
+    --color-event-supply: var(--event-supply);
+    --color-event-supply-foreground: var(--event-supply-foreground);
+    --color-event-current: var(--event-current);
+    --color-event-current-foreground: var(--event-current-foreground);
 }
 
 @layer base {

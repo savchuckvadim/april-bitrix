@@ -112,7 +112,7 @@ jobs:
             echo "Изменён общий код (shared) -> собираем все приложения"
             echo "apps=$ALL" >> "$GITHUB_OUTPUT"
           else
-            # JSON из paths-filter передаём через env: при инлайне ${{ }} прямо
+            # JSON из paths-filter передаём через env: при инлайне expression прямо
             # в echo shell съедает кавычки и матрица получает битый JSON.
             echo "apps=$CHANGED_APPS" >> "$GITHUB_OUTPUT"
           fi

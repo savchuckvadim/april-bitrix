@@ -24,7 +24,7 @@ const BxInstallInner = () => {
 
     useEffect(() => {
         if (isInstalled) {
-            router.replace('/bitrix/cabinet');
+            router.replace('/cabinet');
         }
     }, [isInstalled, router]);
 

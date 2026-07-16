@@ -2,7 +2,7 @@
 // export const TESTING_DOMAIN = 'alfacentr.bitrix24.ru'
 
 import { BXUser, Placement } from '@workspace/bx';
-export const TESTING_DOMAIN = 'gsirk.bitrix24.ru';
+export const TESTING_DOMAIN = '';
 // export const TESTING_DOMAIN = 'gsr.bitrix24.ru'
 // export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
 export const IS_PROD = true;
@@ -48,12 +48,12 @@ export const DEV_CURRENT_USER_ID = 1;
 // 10550 1abon
 // 11726 lic q-2
 //DEAL
-export const TESTING_PLACEMENT = {
-    placement: 'CRM_COMPANY_DETAIL_TAB',
-    options: {
-        ID: TESTING_COMPANY_ID,
-    },
-} as Placement;
+// export const TESTING_PLACEMENT = {
+//     placement: 'CRM_COMPANY_DETAIL_TAB',
+//     options: {
+//         ID: TESTING_COMPANY_ID,
+//     },
+// } as Placement;
 
 // export const TESTING_PLACEMENT = {
 //     placement: 'CRM_DEAL_DETAIL_TAB',

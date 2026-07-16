@@ -31,16 +31,15 @@ import { JsonView } from '../../../lib/ui';
 import { PBX_GROUPS, type PbxGroup } from '../../../lib/model/common';
 import {
     useBitrixDepartments,
-    useDeleteDepartament,
     useDepartamentMonitoring,
     useInstallDepartament,
-    useUpdateDepartament,
 } from '../../lib/hooks';
 import {
     DEPARTAMENT_SLOTS,
     toBitrixDepartmentRows,
     toCurrentDepartaments,
 } from '../../lib/utils/departament-monitoring';
+import { DepartamentDbTable } from '../DepartamentDbTable';
 
 export function DepartamentPanel({ portalId }: { portalId: number }) {
     const portal = usePortal(portalId);
@@ -49,8 +48,6 @@ export function DepartamentPanel({ portalId }: { portalId: number }) {
     const monitoring = useDepartamentMonitoring(domain);
     const bitrixDepartments = useBitrixDepartments(domain);
     const installDepartament = useInstallDepartament();
-    const updateDepartament = useUpdateDepartament();
-    const deleteDepartament = useDeleteDepartament();
 
     const [group, setGroup] = React.useState<PbxGroup>('sales');
     const [installBitrixId, setInstallBitrixId] = React.useState('');
@@ -103,12 +100,6 @@ export function DepartamentPanel({ portalId }: { portalId: number }) {
         );
     };
 
-    const [editId, setEditId] = React.useState('');
-    const [editName, setEditName] = React.useState('');
-    const [editTitle, setEditTitle] = React.useState('');
-    const [editBitrixId, setEditBitrixId] = React.useState('');
-    const [deleteId, setDeleteId] = React.useState('');
-
     if (!portal.isLoading && !domain) {
         return (
             <p className="text-sm text-destructive">
@@ -123,18 +114,6 @@ export function DepartamentPanel({ portalId }: { portalId: number }) {
             domain,
             group,
             bitrixId: Number(installBitrixId),
-        });
-    };
-
-    const onUpdate = () => {
-        if (!editId) return;
-        updateDepartament.mutate({
-            id: Number(editId),
-            dto: {
-                name: editName || undefined,
-                title: editTitle || undefined,
-                bitrixId: editBitrixId ? Number(editBitrixId) : undefined,
-            },
         });
     };
 
@@ -326,73 +305,7 @@ export function DepartamentPanel({ portalId }: { portalId: number }) {
                 </CardContent>
             </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Управление отделом (PortalDB) по id</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    <div className="flex flex-wrap items-end gap-3">
-                        <div className="space-y-1">
-                            <Label>ID</Label>
-                            <Input
-                                type="number"
-                                value={editId}
-                                onChange={(e) => setEditId(e.target.value)}
-                                className="w-28"
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <Label>Name</Label>
-                            <Input
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <Label>Title</Label>
-                            <Input
-                                value={editTitle}
-                                onChange={(e) => setEditTitle(e.target.value)}
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <Label>Bitrix ID</Label>
-                            <Input
-                                type="number"
-                                value={editBitrixId}
-                                onChange={(e) => setEditBitrixId(e.target.value)}
-                                className="w-32"
-                            />
-                        </div>
-                        <Button
-                            onClick={onUpdate}
-                            disabled={updateDepartament.isPending || !editId}
-                        >
-                            {updateDepartament.isPending ? 'Сохранение…' : 'Обновить'}
-                        </Button>
-                    </div>
-                    <div className="flex items-end gap-3">
-                        <div className="space-y-1">
-                            <Label>Удалить по ID</Label>
-                            <Input
-                                type="number"
-                                value={deleteId}
-                                onChange={(e) => setDeleteId(e.target.value)}
-                                className="w-28"
-                            />
-                        </div>
-                        <Button
-                            variant="destructive"
-                            onClick={() =>
-                                deleteId && deleteDepartament.mutate(Number(deleteId))
-                            }
-                            disabled={deleteDepartament.isPending || !deleteId}
-                        >
-                            Удалить
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+            <DepartamentDbTable portalId={portalId} />
 
             <Card>
                 <CardHeader>

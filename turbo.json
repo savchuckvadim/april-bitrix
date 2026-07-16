@@ -17,6 +17,7 @@
             "outputs": [
                 ".next/**",
                 "!.next/cache/**",
+                "dist/**",
                 "src/generated/**"
             ],
             "env": [

@@ -11,7 +11,6 @@ for (const envVar of requiredEnvVars) {
 
 const nextConfig: NextConfig = {
     allowedDevOrigins: [
-
         'https://*.bitrix24.ru',
     ],
     env: {
@@ -27,7 +26,15 @@ const nextConfig: NextConfig = {
         ignoreBuildErrors: false,
     },
     // Настройки для монорепозитория
-    transpilePackages: ['@workspace/api', '@workspace/ui', '@workspace/nest-api'],
+    transpilePackages: [
+        '@workspace/api',
+        '@workspace/ui',
+        '@workspace/nest-api',
+        '@workspace/nest-event-sales-api',
+        '@workspace/nest-pbx-api',
+        '@workspace/nest-pbx-install-api',
+        '@workspace/bitrix',
+    ],
 };
 
 export default nextConfig;

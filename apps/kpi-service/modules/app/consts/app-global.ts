@@ -5,7 +5,7 @@ import { IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interfac
 import { BXUser, Placement } from '@workspace/bx';
 // export const TESTING_DOMAIN = 'gsirk.bitrix24.ru';
 export const TESTING_DOMAIN = 'gsr.bitrix24.ru'
-export const IS_PROD = false;
+export const IS_PROD = true;
 // export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
 export const TESTING_USER = {
     ID: 187,

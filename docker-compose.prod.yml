@@ -46,16 +46,15 @@ services:
       - ./apps/bitrix/.env
     environment: *front-env
 
-  # admin пока исключён из деплоя (см. deploy-front-prod.yml)
-  # front-admin:
-  #   <<: *front-common
-  #   image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-admin:${IMAGE_TAG:-latest}
-  #   container_name: front-admin-${SUFFIX}
-  #   ports:
-  #     - "${PORT_ADMIN}:3000"
-  #   env_file:
-  #     - ./apps/admin/.env
-  #   environment: *front-env
+  front-admin:
+    <<: *front-common
+    image: ghcr.io/${GHCR_OWNER:-savchuckvadim}/april-front-admin:${IMAGE_TAG:-latest}
+    container_name: front-admin-${SUFFIX}
+    ports:
+      - "${PORT_ADMIN}:3000"
+    env_file:
+      - ./apps/admin/.env
+    environment: *front-env
 
   front-kpi-sales:
     <<: *front-common

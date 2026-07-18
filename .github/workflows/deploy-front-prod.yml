@@ -47,10 +47,16 @@ concurrency:
 env:
   # Build-time конфиг приложений (несекретный: NEXT_PUBLIC_* и так попадают
   # в клиентский бандл). Значения должны совпадать с серверными apps/<app>/.env.
-  # admin и web пока исключены из деплоя — при включении вернуть их сюда,
-  # в фильтры detect, в ALL и раскомментировать сервисы в docker-compose.prod.yml.
+  # web пока исключён из деплоя — при включении вернуть его сюда,
+  # в фильтры detect, в ALL и раскомментировать сервис в docker-compose.prod.yml.
+  #
+  # admin дополнительно требует NEXT_PUBLIC_*_API_URL (домены его бэков) —
+  # они NEXT_PUBLIC и инлайнятся в клиентский бандл на сборке, поэтому
+  # задаются здесь (не в runtime .env). Для остальных apps поля отсутствуют
+  # → в build-args попадут пустыми и игнорируются.
   APP_CFG: |
     {
+      "admin":         { "app_url": "https://back.april-app.ru",  "in_bitrix": "true",  "chromium": "false", "admin_api_url": "https://api.admin.april-app.ru/", "pbx_install_api_url": "https://api.install.april-app.ru/", "konstructor_api_url": "" },
       "bitrix":        { "app_url": "https://bitrix.april-app.ru", "in_bitrix": "true",  "chromium": "false" },
       "kpi-sales":     { "app_url": "",                            "in_bitrix": "false", "chromium": "false" },
       "kpi-service":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "false" },
@@ -85,6 +91,7 @@ jobs:
               - 'Dockerfile.prod'
               - 'docker-compose.prod.yml'
               - '.github/workflows/deploy-front-prod.yml'
+            admin: ['apps/admin/**']
             bitrix: ['apps/bitrix/**']
             kpi-sales: ['apps/kpi-sales/**']
             kpi-service: ['apps/kpi-service/**']
@@ -98,7 +105,7 @@ jobs:
           MANUAL_APPS: ${{ github.event.inputs.apps }}
           CHANGED_APPS: ${{ steps.filter.outputs.changes }}
         run: |
-          ALL='["bitrix","kpi-sales","kpi-service","konstructor","event-sales","event-service"]'
+          ALL='["admin","bitrix","kpi-sales","kpi-service","konstructor","event-sales","event-service"]'
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             if [ -z "$MANUAL_APPS" ] || [ "$MANUAL_APPS" = "all" ]; then
               echo "Ручной запуск -> все приложения"
@@ -159,6 +166,9 @@ jobs:
             YANDEX_ID=${{ env.YANDEX_ID }}
             ONLINE_API_KEY=${{ secrets.ONLINE_API_KEY }}
             WITH_CHROMIUM=${{ fromJSON(env.APP_CFG)[matrix.app].chromium }}
+            NEXT_PUBLIC_ADMIN_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].admin_api_url }}
+            NEXT_PUBLIC_PBX_INSTALL_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].pbx_install_api_url }}
+            NEXT_PUBLIC_KONSTRUCTOR_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].konstructor_api_url }}
           push: true
           tags: |
             ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:${{ github.sha }}
@@ -204,7 +214,7 @@ jobs:
 
             # compose читает env_file ВСЕХ сервисов при загрузке модели —
             # отсутствующий файл ломает деплой любого приложения. Создаём заглушки.
-            for d in bitrix kpi-sales kpi-service konstructor event-sales event-service; do
+            for d in admin bitrix kpi-sales kpi-service konstructor event-sales event-service; do
               [ -f "apps/$d/.env" ] || { echo "⚠️ apps/$d/.env отсутствует — создаю пустой (заполни перед деплоем этого app!)"; touch "apps/$d/.env"; }
             done
 

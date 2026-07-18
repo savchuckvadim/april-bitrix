@@ -27,12 +27,49 @@ export interface SessionSnapshot {
 
 type Listener = () => void;
 
-let snapshot: SessionSnapshot = {
-    status: 'idle',
-    session: null,
-    fallbackState: null,
-};
-const listeners = new Set<Listener>();
+/**
+ * Внутреннее состояние стора вынесено на globalThis-синглтон.
+ *
+ * Почему: при transpilePackages + смешанных импортах (`@workspace/bitrix`
+ * баррель И `@workspace/bitrix/src/...` глубокие) webpack может собрать
+ * ДВЕ копии этого модуля. Тогда `exchange` кладёт токен в один инстанс,
+ * а `pbxRequest`/summary читает другой — токена нет, летит 401 и ложное
+ * «Сессия истекла» (живой тест 2026-07-18). Общий контейнер на globalThis
+ * гарантирует ОДНО состояние, даже если модуль задублирован (плюс
+ * переживает SSR-хидрацию и StrictMode-двойной маунт).
+ */
+interface SessionStoreCore {
+    snapshot: SessionSnapshot;
+    listeners: Set<Listener>;
+    bootstrapper: (() => Promise<unknown>) | null;
+    instanceId: string;
+}
+
+const GLOBAL_KEY = '__pbxPortalSessionStore__';
+
+function getCore(): SessionStoreCore {
+    const globalObject = globalThis as typeof globalThis & {
+        [GLOBAL_KEY]?: SessionStoreCore;
+    };
+    if (!globalObject[GLOBAL_KEY]) {
+        globalObject[GLOBAL_KEY] = {
+            snapshot: {
+                status: 'idle',
+                session: null,
+                fallbackState: null,
+            },
+            listeners: new Set<Listener>(),
+            bootstrapper: null,
+            instanceId: Math.random().toString(36).slice(2, 8),
+        };
+    }
+    return globalObject[GLOBAL_KEY];
+}
+
+const core = getCore();
+
+/** Диагностическая метка контейнера состояния (общая для всех копий модуля). */
+export const SESSION_STORE_INSTANCE_ID = core.instanceId;
 
 /**
  * Идемпотентный запускатель bootstrap-а (регистрирует session.bootstrap
@@ -40,30 +77,28 @@ const listeners = new Set<Listener>();
  * инициализировал (idle) — стор запускает bootstrap сам, вместо того
  * чтобы бессмысленно ждать таймаут.
  */
-let bootstrapper: (() => Promise<unknown>) | null = null;
-
 export function registerSessionBootstrapper(
     fn: () => Promise<unknown>,
 ): void {
-    bootstrapper = fn;
+    core.bootstrapper = fn;
 }
 
 function emit(next: Partial<SessionSnapshot>): void {
-    snapshot = { ...snapshot, ...next };
-    listeners.forEach((listener) => listener());
+    core.snapshot = { ...core.snapshot, ...next };
+    core.listeners.forEach((listener) => listener());
 }
 
 export const portalSessionStore = {
     getSnapshot(): SessionSnapshot {
-        return snapshot;
+        return core.snapshot;
     },
     subscribe(listener: Listener): () => void {
-        listeners.add(listener);
-        return () => listeners.delete(listener);
+        core.listeners.add(listener);
+        return () => core.listeners.delete(listener);
     },
     /** Текущий токен для Bearer (null — сессии нет) */
     getToken(): string | null {
-        return snapshot.session?.token ?? null;
+        return core.snapshot.session?.token ?? null;
     },
     /**
      * Дождаться ИСХОДА bootstrap-а сессии (ready/absent/expired) и вернуть
@@ -73,17 +108,17 @@ export const portalSessionStore = {
      */
     waitForToken(timeoutMs: number): Promise<string | null> {
         const settled = () =>
-            snapshot.status === 'ready' ||
-            snapshot.status === 'absent' ||
-            snapshot.status === 'expired';
+            core.snapshot.status === 'ready' ||
+            core.snapshot.status === 'absent' ||
+            core.snapshot.status === 'expired';
         if (settled()) {
             return Promise.resolve(this.getToken());
         }
         // bootstrap ещё не запускали (страница без initPortalSession) —
         // запускаем сами: он идемпотентен и быстро даст исход
         // (нет кода в query → absent мгновенно).
-        if (snapshot.status === 'idle' && bootstrapper) {
-            void bootstrapper();
+        if (core.snapshot.status === 'idle' && core.bootstrapper) {
+            void core.bootstrapper();
         }
         return new Promise((resolve) => {
             const timer = setTimeout(() => {
@@ -103,19 +138,28 @@ export const portalSessionStore = {
         emit({ status: 'loading' });
     },
     setSession(session: PortalSession): void {
+        console.info(
+            `[pbx-session:${core.instanceId}] ready state=${session.state}`,
+        );
         emit({ status: 'ready', session, fallbackState: null });
     },
     setAbsent(fallbackState: PortalSessionState | null): void {
+        console.info(
+            `[pbx-session:${core.instanceId}] absent fallback=${fallbackState ?? '-'}`,
+        );
         emit({ status: 'absent', session: null, fallbackState });
     },
     /** Вызывается клиентом API при 401 — сессия протухла */
     markExpired(): void {
+        console.warn(
+            `[pbx-session:${core.instanceId}] markExpired (пришёл 401)`,
+        );
         emit({ status: 'expired', session: null });
     },
     /** Обновить состояние допуска после действий (например, подачи заявки) */
     patchState(state: PortalSessionState): void {
-        if (snapshot.session) {
-            emit({ session: { ...snapshot.session, state } });
+        if (core.snapshot.session) {
+            emit({ session: { ...core.snapshot.session, state } });
         } else {
             emit({ fallbackState: state });
         }

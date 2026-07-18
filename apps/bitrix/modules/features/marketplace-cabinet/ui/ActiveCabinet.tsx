@@ -108,6 +108,8 @@ export const ActiveCabinet = ({
 
     useEffect(() => {
         let cancelled = false;
+        // диагностика разбора «Сессия истекла» 2026-07-18
+        console.info('[cabinet] ActiveCabinet mounted → запрашиваю summary');
         getCabinetSummary()
             .then((data) => {
                 if (!cancelled) setSummary(data);

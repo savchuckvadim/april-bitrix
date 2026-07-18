@@ -94,8 +94,9 @@ async function performFetch(options: RequestOptions): Promise<Response> {
                 headers.Authorization = `Bearer ${token}`;
             } else {
                 // токена так и нет — сессии не будет, 401 неизбежен
+                const { status } = portalSessionStore.getSnapshot();
                 console.warn(
-                    `[pbx-api] авторизованный запрос без сессии: ${options.path}`,
+                    `[pbx-api] авторизованный запрос без сессии: ${options.path} (store status=${status})`,
                 );
             }
         }

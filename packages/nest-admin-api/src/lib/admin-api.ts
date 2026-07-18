@@ -13,7 +13,7 @@ export enum EResultCode {
 }
 
 // prod URL — TBD (домен для back/apps/admin ещё не заведён)
-let _baseURL = 'http://localhost:3004/';
+let _baseURL = 'http://localhost:3000/';
 // let _baseURL = 'https://api.admin.april-app.ru/';
 export function configureBaseURL(url: string) {
     _baseURL = url;

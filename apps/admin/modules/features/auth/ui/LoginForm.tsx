@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { getAuth, type LoginDto } from '@workspace/nest-admin-api';
+import { type LoginDto } from '@workspace/nest-admin-api';
 import {
     Card,
     CardContent,
@@ -16,7 +16,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
-import { setAccessToken } from '@/modules/shared/lib/api/nest-client';
+import { useAuth } from '../lib/use-auth.hook';
 
 /**
  * Вход администратора (SuperUser, back/apps/admin POST /api/auth/login).
@@ -29,6 +29,7 @@ import { setAccessToken } from '@/modules/shared/lib/api/nest-client';
 export const LoginForm = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { login } = useAuth();
     const [submitting, setSubmitting] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const {
@@ -40,8 +41,7 @@ export const LoginForm = () => {
     const onSubmit = async (dto: LoginDto) => {
         setSubmitting(true);
         try {
-            const response = await getAuth().authLogin(dto);
-            setAccessToken(response.accessToken);
+            await login(dto);
             toast.success('Вход выполнен');
             router.replace(searchParams.get('returnTo') || '/dashboard');
         } catch (error) {

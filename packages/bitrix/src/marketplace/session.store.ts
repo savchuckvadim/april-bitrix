@@ -34,6 +34,20 @@ let snapshot: SessionSnapshot = {
 };
 const listeners = new Set<Listener>();
 
+/**
+ * Идемпотентный запускатель bootstrap-а (регистрирует session.bootstrap
+ * при загрузке модуля). Нужен waitForToken: если сессию ещё никто не
+ * инициализировал (idle) — стор запускает bootstrap сам, вместо того
+ * чтобы бессмысленно ждать таймаут.
+ */
+let bootstrapper: (() => Promise<unknown>) | null = null;
+
+export function registerSessionBootstrapper(
+    fn: () => Promise<unknown>,
+): void {
+    bootstrapper = fn;
+}
+
 function emit(next: Partial<SessionSnapshot>): void {
     snapshot = { ...snapshot, ...next };
     listeners.forEach((listener) => listener());
@@ -64,6 +78,12 @@ export const portalSessionStore = {
             snapshot.status === 'expired';
         if (settled()) {
             return Promise.resolve(this.getToken());
+        }
+        // bootstrap ещё не запускали (страница без initPortalSession) —
+        // запускаем сами: он идемпотентен и быстро даст исход
+        // (нет кода в query → absent мгновенно).
+        if (snapshot.status === 'idle' && bootstrapper) {
+            void bootstrapper();
         }
         return new Promise((resolve) => {
             const timer = setTimeout(() => {

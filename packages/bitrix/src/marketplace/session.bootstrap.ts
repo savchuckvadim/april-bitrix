@@ -1,5 +1,9 @@
 import { pbxRequest } from './pbx-api.client';
-import { portalSessionStore, SessionSnapshot } from './session.store';
+import {
+    portalSessionStore,
+    registerSessionBootstrapper,
+    SessionSnapshot,
+} from './session.store';
 import type { PortalSession, PortalSessionState } from './session.types';
 
 /**
@@ -74,3 +78,7 @@ async function run(): Promise<SessionSnapshot> {
 export function resetPortalSessionBootstrap(): void {
     bootstrapPromise = null;
 }
+
+// Самозапуск из waitForToken (см. session.store): авторизованный запрос
+// на странице без явного initPortalSession не будет ждать таймаут впустую.
+registerSessionBootstrapper(initPortalSession);

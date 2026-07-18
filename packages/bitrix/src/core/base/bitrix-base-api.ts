@@ -57,8 +57,15 @@ export class BitrixBaseApi {
     ) {}
 
     async init(domain: string, user: IBXUser) {
+        console.log('[bitrix-init] init() start', { domain, userId: user?.ID });
+        // Шаг 1: поднимаем фрейм. Только реальная ошибка инициализации
+        // фрейма означает, что мы НЕ в Битриксе (standalone / нет B24).
         try {
+            console.log('[bitrix-init] step1: initializeB24Frame()...');
             this.bx = await initializeB24Frame();
+            console.log('[bitrix-init] step1: frame OK', {
+                placement: this.bx?.placement?.title,
+            });
             // v2: щадящий режим задаётся rateLimit (Leaky Bucket) вместо
             // легаси sleep/speed/amount; значения стандартного тарифа
             await this.bx.setRestrictionManagerParams({
@@ -68,14 +75,38 @@ export class BitrixBaseApi {
                     adaptiveEnabled: true,
                 },
             });
+            console.log('[bitrix-init] step1: setRestrictionManagerParams OK');
             this.inFrame = true;
-
-            await this.getInitialized();
         } catch (error) {
             this.inFrame = false;
             this.domain = domain;
             this.user = user;
+            console.error('[bitrix-init] step1 FAILED (не во фрейме):', error);
             this.logger.error(`Error initializing B24 frame: ${error}`);
+            return;
+        }
+
+        // Шаг 2: тянем данные пользователя. Падение REST (например,
+        // портал отдаёт 500 на user.current) НЕ должно сбрасывать inFrame —
+        // иначе приложение решает, что оно вне фрейма, и улетает в
+        // бесконечный редирект на /none-auth.
+        try {
+            console.log('[bitrix-init] step2: getInitialized()...');
+            await this.getInitialized();
+            console.log('[bitrix-init] step2 OK', {
+                inFrame: this.inFrame,
+                initialized: this.initialized,
+                domain: this.domain,
+                userId: this.user?.ID,
+            });
+        } catch (error) {
+            console.error(
+                '[bitrix-init] step2 FAILED (user.current/getInitialized упал, фрейм остаётся):',
+                error,
+            );
+            this.logger.error(`Error fetching current user: ${error}`);
+            if (!this.user) this.user = user;
+            if (!this.domain) this.domain = domain;
         }
     }
 
@@ -112,10 +143,12 @@ export class BitrixBaseApi {
     private async getInitialized() {
         if (this.inFrame) {
             const authData = this.bx.auth.getAuthData() as false | AuthData;
+            console.log('[bitrix-init] getInitialized: authData', authData);
             if (!authData) return this.domain;
             const domain = authData.domain;
             const hostname = new URL(domain).hostname;
             this.domain = hostname;
+            console.log('[bitrix-init] getInitialized: domain', hostname);
             this.user = (await this.getCurrentUser()) as IBXUser;
             this.initialized = true;
         }
@@ -123,9 +156,16 @@ export class BitrixBaseApi {
     }
     private async getCurrentUser() {
         let currentUser = null as null | IBXUser;
+        console.log('[bitrix-init] getCurrentUser: callMethod("user.current")...');
         const currentUserData = (await this.bx.callMethod(
             'user.current',
         )) as Result;
+        console.log('[bitrix-init] getCurrentUser: raw result', {
+            isSuccess: currentUserData?.isSuccess,
+            data: currentUserData?.isSuccess
+                ? currentUserData.getData()
+                : undefined,
+        });
         if (currentUserData) {
             if (currentUserData.isSuccess) {
                 currentUser = currentUserData.getData()

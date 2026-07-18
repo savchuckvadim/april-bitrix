@@ -71,6 +71,35 @@ async function parseErrorMessage(response: Response): Promise<string> {
     return `Ошибка запроса (${response.status})`;
 }
 
+/**
+ * Распаковка конверта ответа pbx.
+ *
+ * Бэк ГЛОБАЛЬНО оборачивает все ответы в `{resultCode, data, message}`
+ * (libs/core ResponseInterceptor) — один раз, не дважды. Раз бэк
+ * заворачивает, клиент обязан разворачивать: это тот же контракт, что
+ * уже реализован в orval-мутаторе customAxios (@workspace/nest-*-api —
+ * admin/pbx-install/konstructor), который возвращает `res.data.data`.
+ * pbxRequest — рукописный fetch-клиент кабинета (нужен свой
+ * Bearer-in-memory + ретрай), и распаковку ему тоже нужно делать явно.
+ * Нет поля resultCode (нестандартный ответ) — тело используется как есть.
+ */
+interface PbxEnvelope<T> {
+    resultCode?: number;
+    data?: T;
+    message?: string;
+}
+
+function unwrapEnvelope<T>(body: unknown): T {
+    if (
+        body !== null &&
+        typeof body === 'object' &&
+        'resultCode' in body
+    ) {
+        return (body as PbxEnvelope<T>).data as T;
+    }
+    return body as T;
+}
+
 /** Сколько ждать окончания bootstrap-а сессии перед авторизованным запросом */
 const SESSION_WAIT_TIMEOUT_MS = 5_000;
 
@@ -145,7 +174,8 @@ export async function pbxRequest<TResponse>(
                     response.status,
                 );
             }
-            return (await response.json()) as TResponse;
+            // pbx оборачивает ответ в {resultCode, data} — распаковываем
+            return unwrapEnvelope<TResponse>(await response.json());
         } catch (error) {
             if (
                 error instanceof SessionExpiredError ||

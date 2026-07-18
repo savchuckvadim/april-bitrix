@@ -19,6 +19,7 @@ import {
     AuthData,
     B24Frame,
     initializeB24Frame,
+    LoggerFactory,
     Result,
 } from '@bitrix24/b24jssdk';
 import { AxiosError } from 'axios';
@@ -76,6 +77,17 @@ export class BitrixBaseApi {
                 },
             });
             console.log('[bitrix-init] step1: setRestrictionManagerParams OK');
+            // Включаем подробный логгер SDK, чтобы увидеть реальный REST-запрос
+            // (post/send: URL) и настоящую ошибку (post/catchError: status/тело),
+            // которые иначе маскируются под «500 All attempts exhausted».
+            try {
+                this.bx.setLogger(
+                    LoggerFactory.createForBrowser('bitrix-init', true),
+                );
+                console.log('[bitrix-init] step1: verbose SDK logger enabled');
+            } catch (e) {
+                console.warn('[bitrix-init] step1: setLogger failed', e);
+            }
             this.inFrame = true;
         } catch (error) {
             this.inFrame = false;
@@ -156,21 +168,49 @@ export class BitrixBaseApi {
     }
     private async getCurrentUser() {
         let currentUser = null as null | IBXUser;
-        console.log('[bitrix-init] getCurrentUser: callMethod("user.current")...');
-        const currentUserData = (await this.bx.callMethod(
-            'user.current',
-        )) as Result;
-        console.log('[bitrix-init] getCurrentUser: raw result', {
-            isSuccess: currentUserData?.isSuccess,
-            data: currentUserData?.isSuccess
-                ? currentUserData.getData()
-                : undefined,
-        });
-        if (currentUserData) {
-            if (currentUserData.isSuccess) {
+        // Куда SDK реально шлёт REST (per-version endpoints от родителя).
+        try {
+            console.log(
+                '[bitrix-init] getCurrentUser: REST endpoints =',
+                JSON.stringify(
+                    Array.from(this.bx.getTargetOriginWithPath().entries()),
+                ),
+            );
+        } catch (e) {
+            console.warn('[bitrix-init] getTargetOriginWithPath failed', e);
+        }
+        try {
+            console.log(
+                '[bitrix-init] getCurrentUser: actions.v2.call.make("user.current")...',
+            );
+            const currentUserData = await this.bx.actions.v2.call.make<IBXUser>(
+                { method: 'user.current' },
+            );
+            console.log('[bitrix-init] getCurrentUser: raw result', {
+                isSuccess: currentUserData?.isSuccess,
+                data: currentUserData?.isSuccess
+                    ? currentUserData.getData()
+                    : undefined,
+            });
+            if (currentUserData && currentUserData.isSuccess) {
                 currentUser = currentUserData.getData()
                     .result as unknown as IBXUser;
             }
+        } catch (error: any) {
+            // «500 All attempts exhausted» — это заглушка (status = lastError||500).
+            // Разворачиваем настоящую причину: status 0 + code NETWORK_ERROR =
+            // запрос не дошёл (CORS/сеть); иначе тут будет реальный HTTP-код и
+            // код ошибки портала (expired_token/INVALID_REQUEST/…).
+            console.error('[bitrix-init] getCurrentUser: REAL error', {
+                status: error?.status,
+                code: error?.code,
+                message: error?.message,
+                origCode: error?.originalError?.code,
+                origMessage: error?.originalError?.message,
+                origResponseStatus: error?.originalError?.response?.status,
+                origResponseData: error?.originalError?.response?.data,
+            });
+            throw error;
         }
         return currentUser;
     }

@@ -1,0 +1,28 @@
+/*
+ * Ось масштаба UI (design-system.tasks.md, Часть 2).
+ *
+ * Все tailwind-утилиты считаются в rem, поэтому один корневой font-size
+ * масштабирует текст, отступы и высоты согласованно во всех приложениях.
+ * Пресет ставится data-атрибутом на <html> рядом с классом темы:
+ * <html class="bx-light" data-scale="compact">.
+ *
+ * px оставляем только бордерам/теням — они масштабироваться не должны.
+ */
+
+:root {
+    --app-scale: 1; /* 1 = 16px базовых */
+    font-size: calc(16px * var(--app-scale));
+}
+
+:root[data-scale='compact'] {
+    --app-scale: 0.875; /* 14px — плотный интерфейс в духе Bitrix24 */
+}
+:root[data-scale='comfortable'] {
+    --app-scale: 1; /* 16px — как сейчас */
+}
+:root[data-scale='large'] {
+    --app-scale: 1.125; /* 18px */
+}
+:root[data-scale='xl'] {
+    --app-scale: 1.25; /* 20px */
+}

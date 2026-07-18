@@ -1,0 +1,32 @@
+/*
+ * Токены эффектов per-theme (design-system.tasks.md, Часть 4).
+ *
+ * Дефолты выключены/нейтральны; «эффектные» темы (air, …) переопределяют
+ * их в своём файле темы. Стекло работает в ЛЮБОЙ теме: --fx-glass-bg
+ * по умолчанию выводится из --card через color-mix, поэтому утилита
+ * .glass (globals.css) везде даёт корректный полупрозрачный слой.
+ * --fx-glass: 0|1 — флаг для JS-обёрток (useFxToken) и CSS-гейтинга.
+ */
+
+:root {
+    --fx-glass: 0;
+    --fx-glass-blur: 12px;
+    --fx-glass-bg: color-mix(in oklab, var(--card) 62%, transparent);
+    --fx-glass-border: color-mix(in oklab, var(--border) 55%, transparent);
+    --fx-glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 8%);
+
+    --fx-spotlight: 0;
+    --fx-spotlight-color: var(--primary);
+}
+
+:root[class*='-dark'] {
+    --fx-glass-border: oklch(1 0 0 / 12%);
+    --fx-glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 35%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fx-border-beam,
+    .fx-shine {
+        animation: none;
+    }
+}

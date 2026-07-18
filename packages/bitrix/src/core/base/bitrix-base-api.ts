@@ -194,7 +194,7 @@ export class BitrixBaseApi {
             });
             if (currentUserData && currentUserData.isSuccess) {
                 currentUser = currentUserData.getData()
-                    .result as unknown as IBXUser;
+                    ?.result as unknown as IBXUser;
             }
         } catch (error: any) {
             // «500 All attempts exhausted» — это заглушка (status = lastError||500).

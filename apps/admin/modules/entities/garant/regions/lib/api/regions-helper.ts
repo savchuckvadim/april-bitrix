@@ -1,4 +1,4 @@
-import { CreateRegionDto, getAdminGarantRegion } from "@workspace/nest-api";
+import { CreateRegionDto, getAdminGarantRegion } from "@workspace/nest-admin-api";
 
 export class RegionsHelper {
     private api: ReturnType<typeof getAdminGarantRegion>;

@@ -1,10 +1,10 @@
 import type {
     PackageCreateDto,
     PackageUpdateDto,
-    CreatePackageDtoType,
-    CreatePackageDtoProductType,
+    PackageTypeEnum,
+    PackageProductTypeEnum,
     PackageEntityDto,
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 
 
 export interface IGarantPackage extends PackageEntityDto {};
@@ -14,7 +14,7 @@ export interface IGarantPackageCreate extends PackageCreateDto { };
 export interface IGarantPackageUpdate extends PackageUpdateDto { };
 
 
-export type GarantPackageTypeEnum = CreatePackageDtoType;
+export type GarantPackageTypeEnum = PackageTypeEnum;
 
-export type GarantPackageProductTypeEnum = CreatePackageDtoProductType;
+export type GarantPackageProductTypeEnum = PackageProductTypeEnum;
 

@@ -3,7 +3,7 @@
 import { useMutation,  useQueryClient } from '@tanstack/react-query';
 import {
 
-    PortalResponseDto,
+    AdminPortalResponseDto,
     UpdatePortalDto
 } from '../model';
 import { PortalHelper } from '../api/portal-helper';
@@ -14,7 +14,7 @@ export const useUpdatePortal = () => {
     const queryClient = useQueryClient();
 
     return useMutation<
-        PortalResponseDto,
+        AdminPortalResponseDto,
         Error,
         { id: number; dto: UpdatePortalDto }
     >({

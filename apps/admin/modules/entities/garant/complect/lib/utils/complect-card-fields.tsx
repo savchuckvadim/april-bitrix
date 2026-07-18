@@ -1,5 +1,5 @@
 import { EntityFieldConfig } from "@/modules/shared";
-import { GetComplectResponseDto } from "@workspace/nest-api";
+import { GetComplectResponseDto } from "@workspace/nest-admin-api";
 
 export const complectCardFields: EntityFieldConfig<GetComplectResponseDto>[] = [
     {

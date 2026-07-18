@@ -11,7 +11,6 @@ import {
 import { WSClient } from '@workspace/ws';
 import { appReducer } from './slice/AppSlice';
 import { errorHandler } from '../lib/error-handler';
-import { pbxTemplateDataReducer } from '@/modules/entities/';
 import { startStoreListeners } from './listeners/start-store-listeners';
 import { portalReducer } from '@/modules/entities/portal';
 
@@ -54,7 +53,6 @@ const rootReducer = combineReducers({
     app: appReducer,
 
     //entities
-    pbxTemplateData: pbxTemplateDataReducer,
     portal: portalReducer,
 });
 

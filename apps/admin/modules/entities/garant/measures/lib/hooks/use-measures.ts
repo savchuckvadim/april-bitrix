@@ -5,7 +5,7 @@ import {
     MeasureResponseDto,
     CreateMeasureDto,
     UpdateMeasureDto
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 import { MeasureHelper } from '../api/measures-helper';
 
 const measureHelper = new MeasureHelper();

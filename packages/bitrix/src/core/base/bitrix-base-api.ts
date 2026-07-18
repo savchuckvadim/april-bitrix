@@ -281,6 +281,10 @@ export class BitrixBaseApi {
         }
     }
 
+    /**
+     * Возвращает уже развёрнутый `result` ответа Bitrix (без обёртки
+     * `{ result, time }`) — одинаково во фрейме и в dev-режиме через back.
+     */
     public async call<T>(method: string, data: any): Promise<any> {
         let result = null as null | any;
         let response = null;
@@ -291,7 +295,8 @@ export class BitrixBaseApi {
                 data as object,
                 -1,
             )) as Result;
-            response = bxRresponse.getData() as T;
+            const bxData = bxRresponse.getData() as any;
+            response = (bxData?.result ?? bxData) as T;
             console.log('BITRIX RESPONSE CALL METHOD');
             console.log(response);
             return response;
@@ -307,7 +312,8 @@ export class BitrixBaseApi {
                 API_METHOD.POST,
                 bxReqHookData,
             );
-            result = backReponse?.data || null;
+            const backData = backReponse?.data as any;
+            result = backData?.result ?? backData ?? null;
             console.log('BACK RESPONSE CALL METHOD');
             console.log(result);
             return result as T;

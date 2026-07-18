@@ -11,14 +11,16 @@ const schemeList = [
     { value: 'default', color: '#1E293B' },
     { value: 'blue', color: '#3B82F6' },
     { value: 'violet', color: '#8B5CF6' },
-    { value: 'pink', color: '#EC4899' },
+    { value: 'pink', color: '#d6409f' },
     { value: 'red', color: '#EF4444' },
-    { value: 'orange', color: '#F97316' },
-    { value: 'yellow', color: '#FACC15' },
-    { value: 'green', color: '#22C55E' },
+    { value: 'orange', color: '#f76b15' },
+    { value: 'yellow', color: '#ffc53d' },
+    { value: 'green', color: '#46a758' },
     { value: 'bx', color: '#30c3ef' },
     { value: 'beige', color: '#F5F3F0' },
     { value: 'explosive-pink', color: '#bb52d4' },
+    { value: 'air', color: '#3773e0' },
+    { value: 'claude', color: '#D97757' },
 ];
 
 export const ColorSchemePicker = () => {

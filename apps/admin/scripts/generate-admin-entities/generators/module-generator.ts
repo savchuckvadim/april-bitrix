@@ -164,8 +164,8 @@ function generateApiHelper(entity: AdminEntity): string {
     }
 
     const importStatement = imports.length > 0
-        ? `import { ${imports.join(', ')}, ${apiFunctionName} } from "@workspace/nest-api";`
-        : `import { ${apiFunctionName} } from "@workspace/nest-api";`;
+        ? `import { ${imports.join(', ')}, ${apiFunctionName} } from "@workspace/nest-admin-api";`
+        : `import { ${apiFunctionName} } from "@workspace/nest-admin-api";`;
 
     // Генерируем методы
     if (listMethod) {
@@ -353,7 +353,7 @@ function generateHooks(entity: AdminEntity): string {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     ${imports.join(',\n    ')}
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 import { ${baseEntityName}Helper } from '../api/${entityCamel}-helper';
 
 const ${baseEntityCamel}Helper = new ${baseEntityName}Helper();
@@ -470,10 +470,10 @@ export async function generateEntityModule(
         exports.push(paramsTypeName);
     }
     
-    const modelIndexContent = `// Экспортируем DTO типы напрямую из @workspace/nest-api
+    const modelIndexContent = `// Экспортируем DTO типы напрямую из @workspace/nest-admin-api
 export type {
     ${exports.join(',\n    ')}
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 `;
     if (writeFileIfNotExists(modelIndexPath, modelIndexContent, force, update)) {
         console.log(`  ✅ Создан: model/index.ts`);
@@ -589,7 +589,7 @@ function generateTableComponent(
     return `'use client';
 
 import * as React from 'react';
-import { ${responseDtoName} } from '@workspace/nest-api';
+import { ${responseDtoName} } from '@workspace/nest-admin-api';
 import { DataTable, Column } from '@/modules/shared/ui/data-table';
 import { Button } from '@workspace/ui/components/button';
 
@@ -675,7 +675,7 @@ function generateCardComponent(
     return `'use client';
 
 import * as React from 'react';
-import { ${responseDtoName} } from '@workspace/nest-api';
+import { ${responseDtoName} } from '@workspace/nest-admin-api';
 import {
     Card,
     CardContent,
@@ -765,7 +765,7 @@ function generateFormComponent(
 
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
-import { ${createDtoName || 'any'}, ${updateDtoName || 'any'} } from '@workspace/nest-api';
+import { ${createDtoName || 'any'}, ${updateDtoName || 'any'} } from '@workspace/nest-admin-api';
 import {
     Card,
     CardContent,
@@ -894,7 +894,7 @@ export default function ${baseEntityName}sPage() {
 import { useRouter } from 'next/navigation';
 import { ${baseEntityName}Form } from '@/modules/entities/${entityCamel}/ui/${entityCamel}-form';
 import { useCreate${baseEntityName} } from '@/modules/entities/${entityCamel}/lib/hooks';
-import { ${createDtoName} } from '@workspace/nest-api';
+import { ${createDtoName} } from '@workspace/nest-admin-api';
 
 export default function New${baseEntityName}Page() {
     const router = useRouter();
@@ -1012,7 +1012,7 @@ import { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { use${baseEntityName}, useUpdate${baseEntityName} } from '@/modules/entities/${entityCamel}/lib/hooks';
 import { ${baseEntityName}Form } from '@/modules/entities/${entityCamel}/ui/${entityCamel}-form';
-import { ${updateDtoName} } from '@workspace/nest-api';
+import { ${updateDtoName} } from '@workspace/nest-admin-api';
 import { Button } from '@workspace/ui/components/button';
 
 export default function Edit${baseEntityName}Page({

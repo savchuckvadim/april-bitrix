@@ -6,7 +6,7 @@ import {
     PortalMeasureResponseDto,
     CreatePortalMeasureDto,
     UpdatePortalMeasureDto
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 import { PortalMeasureHelper } from '../api/portalMeasures-helper';
 
 const portalMeasureHelper = new PortalMeasureHelper();

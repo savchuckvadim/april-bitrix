@@ -1,4 +1,4 @@
-import { getAdminGarantPackage } from "@workspace/nest-api";
+import { getAdminGarantPackage } from "@workspace/nest-admin-api";
 import { IGarantPackageCreate, IGarantPackageUpdate } from '../../model';
 
 export class PackageHelper {

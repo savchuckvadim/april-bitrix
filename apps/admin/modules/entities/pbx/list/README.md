@@ -12,9 +12,21 @@
   (`getPbxListInstall`, `getPbxListInstallMonitoring`, `getPbxListFieldInstall`).
 - `lib/hooks/use-list.ts` — react-query (KEY `['pbx-list']`, мутации
   инвалидируют весь KEY).
-- `ui/ListPanel` — экран: Tabs «Списки | Поля», статусы inBitrix/inDb/inSync,
-  предпросмотр эталона перед установкой, подтверждение удаления
-  (для списка — чекбокс «удалить и в Bitrix»).
+- `lib/items-matrix.ts` — чистый merge значений enum-поля по code:
+  эталон × Bitrix (по `bitrixId` зеркала, fallback по value) × PortalDB.
+- `ui/ListPanel` — экран: Tabs «Списки | Поля | Эталон | PortalDB», статусы
+  inBitrix/inDb/inSync, предпросмотр эталона перед установкой, подтверждение
+  удаления (для списка — чекбокс «удалить и в Bitrix»), диалоги точечного
+  переименования/удаления значений enum-полей.
+- `ui/FieldDetails` — развёртка поля: три источника + `ItemsMatrix`
+  (переименовать/удалить значение — только при наличии зеркала в PortalDB).
+- `ui/ListDetails` — развёртка списка: эталон × Bitrix (фактический
+  IBLOCK_CODE/NAME/ACTIVE из `lists.get`) × БД (`bitrixlists`); в таблице
+  списков колонка «Код» подсвечивает расхождения bitrixCode/dbCode с шаблоном.
+- `ui/TemplatePanel` — эталон из Excel: IBLOCK_CODE, полный CODE
+  (`группа_тип_код`), btx-коды, items (VALUE/CODE/SORT).
+- `ui/DbListsPanel` — сырое зеркало PortalDB: `bitrixlists` + `bitrixfields`
+  со всеми идентификаторами и `bitrixfield_items`.
 
 ## Backend
 
@@ -28,9 +40,22 @@
 - `GET pbx-list-install/install/domain/:domain` — установить весь эталон.
 - `GET pbx-list-install/install/domain/:domain/listName/:listName/group/:group` —
   установить один шаблон.
+- `GET pbx-list-install/domain/:domain` — списки портала из PortalDB
+  (`PortalListsResponseDto`, вкладка PortalDB).
 - `POST pbx-list-field-install/install-fields|delete-fields` — точечные
   операции над полями (адресация списка type + group).
+- `POST pbx-list-field-install/edit-field-item|delete-field-item` — точечные
+  операции над значением enum-поля (адресация fieldCode + itemCode + type +
+  group; резолв через PortalDB, поэтому нужно зеркало; `domain: "all"`
+  поддерживается бэком, из UI шлём конкретный домен).
 - `DELETE pbx-list-install/install/domain/:domain/list/:type/group/:group?withBitrix=`.
+
+Не подключено сознательно: `GET pbx-list-install/domain/:domain/list/:type/group/:group`
+(одиночная выборка — покрыта общей), `GET pbx-list-field-install/install/...`
+(GET-вариант установки полей — используем body-вариант),
+`pbx-list-field-install-monitoring/*` (all/search — обзор по всем порталам,
+не про страницу одного портала), `pbx-list-parse-template/parse/:listName/:group`
+(одиночный parse — покрыт общим `monitoring/parse`).
 
 ## Важно
 

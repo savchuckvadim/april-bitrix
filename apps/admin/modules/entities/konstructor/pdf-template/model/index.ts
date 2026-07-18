@@ -1,4 +1,4 @@
-import { CreateOfferTemplateRequestDto, CreateOfferTemplateResponseDto, OfferTemplateSummaryDto, OfferTemplateDto, OfferTemplateFindAllOfferTemplateParams, OfferTemplatePageDto } from '@workspace/nest-api';
+import { CreateOfferTemplateRequestDto, CreateOfferTemplateResponseDto, OfferTemplateSummaryDto, OfferTemplateDto, OfferTemplateFindAllOfferTemplateParams, OfferTemplatePageDto } from '@workspace/nest-konstructor-api';
 // OfferTemplatePortalIdParamsDto, OfferTemplateUserPortalParamsDto, OfferTemplateIdParamsDto,
 export type CreatePdfTemplateRequestDto = CreateOfferTemplateRequestDto;
 export type CreatePdfTemplateResponseDto = CreateOfferTemplateResponseDto;

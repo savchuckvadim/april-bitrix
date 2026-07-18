@@ -36,6 +36,7 @@ export const EventList: FC = () => {
         await dispatch(getResultMenu(status, task));
         nav.toItem();
     };
+    
 
     return (
         <div className="p-2 pt-0">

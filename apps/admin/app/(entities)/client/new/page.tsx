@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { ClientForm } from '@/modules/entities/client/';
 import { useCreateClient } from '@/modules/entities/client/';
-import { CreateClientDto, UpdateClientDto } from '@workspace/nest-api';
+import { CreateClientDto, UpdateClientDto } from '@workspace/nest-admin-api';
 import { Button } from '@workspace/ui';
 
 export default function NewClientPage() {

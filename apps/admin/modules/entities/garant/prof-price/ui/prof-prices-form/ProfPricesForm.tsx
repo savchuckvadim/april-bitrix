@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { CreatePriceDto, CreatePriceDtoComplectCode, SupplyType, SupplyTypeCode } from '@workspace/nest-api';
+import { CreatePriceDto, CreatePriceDtoComplectCode, SupplyType, SupplyTypeCode } from '@workspace/nest-admin-api';
 import {
     Card,
     CardContent,

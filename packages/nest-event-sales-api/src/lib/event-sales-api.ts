@@ -14,6 +14,7 @@ export enum EResultCode {
 
 // prod URL — TBD (домен для back/apps/event-sales ещё не заведён)
 let _baseURL = 'http://localhost:3005/';
+// let _baseURL = 'https://api.event-sales.april-app.ru/';
 export function configureBaseURL(url: string) {
     _baseURL = url;
     $api.defaults.baseURL = url;
@@ -32,6 +33,7 @@ export const $api = axios.create({
 export const customAxios = async <T>(
     config: AxiosRequestConfig,
 ): Promise<T> => {
+
     if (config.responseType && config.responseType !== 'json') {
         const res = await $api.request<T>(config);
         return res.data;

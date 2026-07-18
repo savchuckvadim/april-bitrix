@@ -5,7 +5,7 @@ import {
     getStorageKey,
     saveToLocalStorage,
 } from '@workspace/api/';
-import { API_METHOD, onlineHeaders } from '@workspace/api';
+import { API_METHOD, getConfig, onlineHeaders } from '@workspace/api';
 import { onlineURL } from '@workspace/api';
 import { removeOldPortalCache } from '../lib/portal-util';
 import { Portal } from '../type/portal-type';
@@ -18,7 +18,10 @@ export const portalAPI = createApi({
             headers.set('X-Requested-With', onlineHeaders['X-Requested-With']);
             headers.set('accept', onlineHeaders['accept']);
             headers.set('content-type', onlineHeaders['content-type']);
-            // headers.set('X-API-KEY', onlineHeaders['X-API-KEY']);
+            const apiKey = getConfig().apiKey;
+            if (apiKey) {
+                headers.set('X-API-KEY', apiKey);
+            }
             return headers;
         },
     }),

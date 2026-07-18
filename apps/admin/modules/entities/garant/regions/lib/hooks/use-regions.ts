@@ -7,7 +7,7 @@ import {
     UpdateMeasureDto,
     GetRegionResponseDto,
     CreateRegionDto
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 import { RegionsHelper } from '../api/regions-helper';
 
 const helper = new RegionsHelper();

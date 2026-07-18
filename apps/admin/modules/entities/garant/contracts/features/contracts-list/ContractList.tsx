@@ -6,7 +6,7 @@ import { useContracts, useDeleteContract } from '../../lib/hooks/use-contracts';
 import { ContractTable } from '../../ui/contracts-table';
 import { Button } from '@workspace/ui/components/button';
 import { ConfirmDialog } from '@/modules/shared/ui/confirm-dialog';
-import { ContractResponseDto } from '@workspace/nest-api';
+import { ContractResponseDto } from '@workspace/nest-admin-api';
 
 export function ContractList() {
     const router = useRouter();

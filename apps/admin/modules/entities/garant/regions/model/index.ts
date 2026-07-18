@@ -1,4 +1,4 @@
-import { CreateRegionDto, GetRegionResponseDto } from '@workspace/nest-api';
+import { CreateRegionDto, GetRegionResponseDto } from '@workspace/nest-admin-api';
 
 export type {
     CreateRegionDto,

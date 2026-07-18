@@ -1,5 +1,5 @@
 import { ProfPriceUploadExcelDto, CreatePriceDto } from "../../model";
-import { getAdminGarantProfPrice } from "@workspace/nest-api";
+import { getAdminGarantProfPrice } from "@workspace/nest-admin-api";
 
 export class ProfPricesHelper {
     private api: ReturnType<typeof getAdminGarantProfPrice>;

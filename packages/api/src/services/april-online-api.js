@@ -1,6 +1,5 @@
-// import { ONLINE_API_KEY } from "@/app/secret/online-secret";
-// import { getConfig } from "@/lib/config";
 import axios from 'axios';
+import { getConfig } from '../lib/config';
 
 const isHook = false; // __SERVER__ == 'hook'
 export const url = isHook
@@ -15,8 +14,16 @@ const online = axios.create({
         'content-type': 'application/json',
         accept: 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
-        // 'X-API-KEY': getConfig().apiKey || ''
     },
+});
+
+// Ключ читаем в момент запроса: на этапе создания инстанса setConfig ещё не вызван
+online.interceptors.request.use(config => {
+    const apiKey = getConfig().apiKey;
+    if (apiKey) {
+        config.headers['X-API-KEY'] = apiKey;
+    }
+    return config;
 });
 
 // online.defaults.redirect = "follow";

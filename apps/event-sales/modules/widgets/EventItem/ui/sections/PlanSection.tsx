@@ -46,10 +46,14 @@ export const PlanSection: FC = () => {
         }
     };
 
+    // data-event-type планируемого типа несёт обёртка (PlanZone) —
+    // кромка и заголовок красятся в цвет плана через var(--event-current).
     return (
-        <Card data-event-type={type.current?.code === 'presentation' ? 'presentation' : undefined}>
+        <Card className="border-l-4 border-l-[var(--event-current)]">
             <CardHeader className="flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-base">Планируем</CardTitle>
+                <CardTitle className="text-base text-event-current">
+                    Планируем
+                </CardTitle>
                 {withNoPlan && (
                     <div className="flex items-center gap-2">
                         <Label htmlFor="plan-active" className="text-xs text-muted-foreground">

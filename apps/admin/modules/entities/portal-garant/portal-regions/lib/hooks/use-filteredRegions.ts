@@ -1,5 +1,5 @@
 import React from 'react';
-import { GetPortalRegionResponseDto } from '@workspace/nest-api';
+import { GetPortalRegionResponseDto } from '@workspace/nest-admin-api';
 
 export type RegionOwnershipFilter = 'all' | 'own' | 'notOwn';
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { Sidebar } from "@/modules/shared/";
 import { Header } from "../header/Header";
 
@@ -8,12 +9,13 @@ interface CrmShellProps {
 }
 
 export function CrmShell({ children }: CrmShellProps) {
-    // const t = useTranslations("crm.shell");
-    // const localizedLink = useLocalizedLink();
-    // const pathname = usePathname();
-    // const { isOpen: isSidebarOpen, toggle: toggleSidebar } = useSidebar();
+    const pathname = usePathname();
 
-    // const { currentUser } = useAuth();
+    // Страницы аутентификации — без шапки/сайдбара (голая форма)
+    if (pathname.startsWith("/auth")) {
+        return <>{children}</>;
+    }
+
     return (
         <div className="flex h-full min-h-0 w-full flex-row overflow-hidden">
             <Sidebar />

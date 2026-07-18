@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { GetRegionResponseDto } from '@workspace/nest-api';
+import { GetRegionResponseDto } from '@workspace/nest-admin-api';
 import {
     Card,
     CardContent,

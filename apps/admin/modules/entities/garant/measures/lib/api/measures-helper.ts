@@ -1,4 +1,4 @@
-import { CreateMeasureDto, UpdateMeasureDto, getAdminMeasuresManagement } from "@workspace/nest-api";
+import { CreateMeasureDto, UpdateMeasureDto, getAdminMeasuresManagement } from "@workspace/nest-admin-api";
 
 export class MeasureHelper {
     private api: ReturnType<typeof getAdminMeasuresManagement>;

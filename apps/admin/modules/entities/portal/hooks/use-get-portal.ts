@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import {
     AdminPortalGetAllPortalsParams,
-    PortalResponseDto,
+    AdminPortalResponseDto,
 
 } from '../model';
 import { PortalHelper } from '../api/portal-helper';
@@ -11,7 +11,7 @@ import { PortalHelper } from '../api/portal-helper';
 const portalHelper = new PortalHelper();
 
 export const usePortals = (params?: AdminPortalGetAllPortalsParams) => {
-    return useQuery<PortalResponseDto[], Error>({
+    return useQuery<AdminPortalResponseDto[], Error>({
         queryKey: ['portals', params],
         queryFn: async () => {
             ;
@@ -26,7 +26,7 @@ export const usePortals = (params?: AdminPortalGetAllPortalsParams) => {
 };
 
 export const usePortal = (id: number) => {
-    return useQuery<PortalResponseDto, Error>({
+    return useQuery<AdminPortalResponseDto, Error>({
         queryKey: ['portal', id],
         queryFn: async () => {
             const response = await portalHelper.getPortalById(id);

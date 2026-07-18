@@ -18,6 +18,30 @@
     --success-foreground: oklch(0.985 0 0);
     --warning: oklch(0.769 0.16 70.7);
     --warning-foreground: oklch(0.216 0.006 56.04);
+    --info: oklch(0.62 0.14 235);
+    --info-foreground: oklch(0.985 0 0);
+
+    /*
+     * Bitrix24 Air palette (официальные значения из bitrix24/b24style +
+     * токен-имена из b24ui: air-primary, air-secondary, air-primary-success,
+     * air-primary-alert, air-primary-copilot, air-secondary-no-accent).
+     * Общие на все темы — любой UI может красить «под Битрикс»
+     * (bg-air-primary и т.п.), не переключая тему целиком.
+     */
+    --air-primary: #2fc6f6;
+    --air-primary-foreground: #ffffff;
+    --air-primary-success: #9dcf00;
+    --air-primary-success-foreground: #ffffff;
+    --air-primary-alert: #ff5752;
+    --air-primary-alert-foreground: #ffffff;
+    --air-primary-warning: #ffa900;
+    --air-primary-warning-foreground: #ffffff;
+    --air-primary-copilot: #8e52ec;
+    --air-primary-copilot-foreground: #ffffff;
+    --air-secondary: #a8adb4;
+    --air-secondary-foreground: #ffffff;
+    --air-secondary-no-accent: #828b95;
+    --air-link: #2066b0;
 
     /* Типы событий */
     --event-cold: oklch(0.588 0.158 241.966);        /* холодный (xo) — синий */
@@ -38,6 +62,16 @@
     /* Текущий тип события (переопределяется data-event-type ниже) */
     --event-current: var(--event-warm);
     --event-current-foreground: var(--event-warm-foreground);
+
+    /*
+     * «Второй primary» для главных CTA (Отправить и т.п.) — паттерн Bitrix24
+     * (синий интерфейс + зелёная кнопка действия). По умолчанию совпадает
+     * с --primary (гармонично в любой теме); тема может переопределить
+     * фиксированным (air → зелёный #9dcf00) или реактивным
+     * var(--event-current) — в цвет текущего типа события.
+     */
+    --action: var(--primary);
+    --action-foreground: var(--primary-foreground);
 }
 
 /* Тёмные темы (классы вида default-dark, blue-dark, …) — приглушаем */
@@ -45,6 +79,8 @@
     --success: oklch(0.696 0.14 149.2);
     --warning: oklch(0.795 0.14 75.5);
     --warning-foreground: oklch(0.216 0.006 56.04);
+    --info: oklch(0.7 0.12 235);
+    --air-link: #6db3ec; /* читаемая ссылка на тёмном */
 
     --event-cold: oklch(0.65 0.14 241.966);
     --event-warm: oklch(0.795 0.14 75.5);

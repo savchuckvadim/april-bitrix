@@ -1,28 +1,49 @@
+/* Палитра Radix Colors: pink (акцент) + mauve (нейтрали). */
 :root.pink-light {
-    --radius: 0.5rem;
-    --background: oklch(0.87 0.0459 0); /* белый */
-    --foreground: oklch(0.145 0 0); /* почти чёрный */
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.628 0.26 12); /* ярко-розовый */
-    --primary-foreground: oklch(0.985 0.02 350); /* светлый */
-    --secondary: oklch(0.95 0.01 320);
-    --secondary-foreground: oklch(0.2 0 0);
-    --muted: oklch(0.95 0.01 320);
-    --muted-foreground: oklch(0.6 0.02 330);
-    --accent: oklch(0.95 0.01 320);
-    --accent-foreground: oklch(0.2 0 0);
-    --destructive: oklch(0.55 0.25 30);
-    --destructive-foreground: oklch(0.98 0 0);
-    --border: oklch(0.93 0.01 320);
-    --input: oklch(0.93 0.01 320);
-    --ring: oklch(0.628 0.26 12);
-    --radius: 0.5rem;
-    --chart-1: oklch(0.75 0.25 25); /* ярко-коралловый */
-    --chart-2: oklch(0.6 0.2 180); /* зелёно-голубой */
-    --chart-3: oklch(0.45 0.15 260); /* тёмно-синий */
-    --chart-4: oklch(0.8 0.22 85); /* жёлто-оранжевый */
-    --chart-5: oklch(0.8 0.26 40); /* оранжевый */
+    --radius: 0.625rem;
+
+    --background: #fef7fb; /* pink2 */
+    --foreground: #211f26; /* mauve12 */
+
+    --card: #ffffff;
+    --card-foreground: #211f26;
+
+    --popover: #ffffff;
+    --popover-foreground: #211f26;
+
+    --primary: #d6409f; /* pink9 */
+    --primary-foreground: #ffffff;
+
+    --secondary: #fee9f5; /* pink3 */
+    --secondary-foreground: #c2298a; /* pink11 */
+
+    --muted: #f2eff3; /* mauve3 */
+    --muted-foreground: #65636d; /* mauve11 */
+
+    --accent: #fbdcef; /* pink4 */
+    --accent-foreground: #c2298a;
+
+    --destructive: #e5484d; /* red9 */
+    --destructive-foreground: #ffffff;
+
+    --border: #efbfdd; /* pink6 */
+    --input: #efbfdd;
+    --ring: #dd93c2; /* pink8 */
+
+    /* charts */
+    --chart-1: #d6409f; /* pink9 */
+    --chart-2: #e93d82; /* crimson9 */
+    --chart-3: #8e4ec6; /* purple9 */
+    --chart-4: #f76b15; /* orange9 */
+    --chart-5: #12a594; /* teal9 */
+
+    /* sidebar */
+    --sidebar: #fffcfe; /* pink1 */
+    --sidebar-foreground: #211f26;
+    --sidebar-primary: #d6409f;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #fee9f5;
+    --sidebar-accent-foreground: #c2298a;
+    --sidebar-border: #efbfdd;
+    --sidebar-ring: #dd93c2;
 }

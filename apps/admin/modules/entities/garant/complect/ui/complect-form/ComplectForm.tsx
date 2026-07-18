@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
-import { CreateComplectDto } from '@workspace/nest-api';
+import { CreateComplectDto } from '@workspace/nest-admin-api';
 
 import { ACard } from '@workspace/ui/shared';
 import { complectFormFields } from '../../lib/utils/complect-form-fields';

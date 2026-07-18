@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@workspace/ui/components/button';
 import { ConfirmDialog, ExcelManager } from '@/modules/shared/ui';
-import { GetSupplyResponseDto } from '@workspace/nest-api';
+import { GetSupplyResponseDto } from '@workspace/nest-admin-api';
 import { useSupplies, useDownloadExcelExample, useUploadExcel, useUpdateByExcel } from '../../lib/hooks';
 import { SuppliesTable } from '../supplies-table/SuppliesTable';
 const path = '/garant/supplies';

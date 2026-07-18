@@ -2,6 +2,7 @@
 import { Inter } from 'next/font/google';
 import '@workspace/ui/globals.css';
 // import "@workspace/theme/themes.css"
+import { ThemeInitScript } from '@workspace/theme';
 import { Providers } from '@/components/providers';
 import { LoadingScreen } from '@/modules/general';
 import App from '@/modules/app/ui/App';
@@ -17,6 +18,7 @@ export default function RootLayout({
     return (
         <html lang="ru" suppressHydrationWarning>
             <body className={inter.className}>
+                <ThemeInitScript />
                 <LoadingScreen />
                 <Providers>
                     <main className="min-h-screen bg-background">

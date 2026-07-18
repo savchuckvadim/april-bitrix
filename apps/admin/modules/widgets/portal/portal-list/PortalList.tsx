@@ -6,7 +6,7 @@ import { usePortals, useDeletePortal } from '../../../entities/portal/';
 import { PortalTable } from '../portal-table';
 import { Button } from '@workspace/ui/components/button';
 import { ConfirmDialog } from '@/modules/shared/ui/confirm-dialog';
-import { PortalResponseDto } from '@workspace/nest-api';
+import { AdminPortalResponseDto } from '@workspace/nest-admin-api';
 
 export function PortalList() {
     const router = useRouter();
@@ -15,15 +15,15 @@ export function PortalList() {
     const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
     const [portalToDelete, setPortalToDelete] = React.useState<number | null>(null);
 
-    const handleRowClick = (portal: PortalResponseDto) => {
+    const handleRowClick = (portal: AdminPortalResponseDto) => {
         router.push(`/portal/${portal.id}`);
     };
 
-    const handleEdit = (portal: PortalResponseDto) => {
+    const handleEdit = (portal: AdminPortalResponseDto) => {
         router.push(`/portal/${portal.id}/edit`);
     };
 
-    const handleDelete = (portal: PortalResponseDto) => {
+    const handleDelete = (portal: AdminPortalResponseDto) => {
         setPortalToDelete(portal.id);
         setDeleteDialogOpen(true);
     };

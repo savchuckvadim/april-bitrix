@@ -1,7 +1,7 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useCreatePortalRegion, useDeletePortalRegion, usePortalRegions } from "./use-portalRegions";
-import { GetPortalRegionResponseDto } from "@workspace/nest-api";
+import { GetPortalRegionResponseDto } from "@workspace/nest-admin-api";
 import { useFilteredRegions, RegionOwnershipFilter, filterRegions } from "./use-filteredRegions";
 
 export const usePortalRegionsList = (portalId: number) => {

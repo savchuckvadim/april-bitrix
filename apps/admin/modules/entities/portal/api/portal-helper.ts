@@ -1,4 +1,4 @@
-import { AdminPortalGetAllPortalsParams, CreatePortalDto, getAdminPortalManagement, UpdatePortalDto, } from "@workspace/nest-api";
+import { AdminPortalGetAllPortalsParams, CreatePortalDto, getAdminPortalManagement, UpdatePortalDto, } from "@workspace/nest-admin-api";
 
 export class PortalHelper {
     private api: ReturnType<typeof getAdminPortalManagement>;

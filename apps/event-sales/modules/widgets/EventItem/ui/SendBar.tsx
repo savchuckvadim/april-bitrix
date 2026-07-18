@@ -35,7 +35,11 @@ export const SendBar: FC = () => {
                 <Button variant="outline" onClick={cancel} disabled={inProgress}>
                     Отмена
                 </Button>
-                <Button onClick={() => dispatch(send())} disabled={inProgress}>
+                <Button
+                    className="bg-action text-action-foreground hover:bg-action/90"
+                    onClick={() => dispatch(send())}
+                    disabled={inProgress}
+                >
                     {inProgress ? 'Отправка…' : 'Отправить'}
                 </Button>
             </div>

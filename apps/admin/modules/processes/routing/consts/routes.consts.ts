@@ -1,4 +1,4 @@
-import { API_METHOD } from "@workspace/api"
+﻿import { API_METHOD } from "@workspace/api"
 
 export type ALL_ENTITIES = Entity[]
 enum ENTITY_QUANTITY {
@@ -50,21 +50,73 @@ export const clientEntities: Entity[] = [
         },
 
     },
+];
 
 
+// Раздел «Маркетплейс» (приложение «Менеджер Гарант»): url — ПОЛНЫЕ пути
+// (baseUrl в use-current-side-bar для маркетплейса пустой, т.к. «Клиенты»
+// живут на /client вне префикса /marketplace).
+export const marketplaceEntities: Entity[] = [
     {
-        id: 14,
+        id: 30,
         item: {
-            name: 'bitrix-app',
-            title: 'Bitrix App',
+            name: 'marketplace-applications',
+            title: 'Заявки',
             type: ENTITY_QUANTITY.ENTITY,
             get: {
-                url: '/bitrix-app',
+                url: '/marketplace/applications',
                 method: API_METHOD.GET
             }
         },
-
-    }
+    },
+    {
+        id: 31,
+        item: {
+            name: 'marketplace-installs',
+            title: 'Установки',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/marketplace/installs',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        id: 32,
+        item: {
+            name: 'client',
+            title: 'Клиенты',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/client',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        id: 33,
+        item: {
+            name: 'marketplace-secrets',
+            title: 'Секреты приложений',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/marketplace/secrets',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        id: 34,
+        item: {
+            name: 'marketplace-events',
+            title: 'Журнал событий',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/marketplace/events',
+                method: API_METHOD.GET
+            }
+        },
+    },
 ];
 
 
@@ -99,173 +151,8 @@ export const portalEntities: Entity[] = [
         },
 
     },
-
-
-
-    {
-        id: 14,
-        item: {
-            name: 'bitrix-app',
-            title: 'Bitrix App',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/bitrix-app',
-                method: API_METHOD.GET
-            }
-        },
-
-    }
 ];
 
-export const portalBitrixEntities: Entity[] = [
-    {
-        id: 0,
-        item: {
-            name: 'timezones',
-            title: 'Timezones',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/timezones',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-    {
-        id: 1,
-        item: {
-            name: 'smarts',
-            title: 'Smarts',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/smarts',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-
-
-
-
-
-
-    {
-        id: 6,
-        item: {
-            name: 'bx-rqs',
-            title: 'Bx Rqs',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/bx-rqs',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-    {
-        id: 7,
-        item: {
-            name: 'btx-rpas',
-            title: 'Btx Rpas',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/btx-rpas',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-    {
-        id: 8,
-        item: {
-            name: 'btx-leads',
-            title: 'Btx Leads',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/btx-leads',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-    {
-        id: 9,
-        item: {
-            name: 'btx-deals',
-            title: 'Btx Deals',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/btx-deals',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-    {
-        id: 10,
-        item: {
-            name: 'btx-contacts',
-            title: 'Btx Contacts',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/btx-contacts',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-    {
-        id: 11,
-        item: {
-            name: 'btx-companies',
-            title: 'Btx Companies',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/btx-companies',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-    {
-        id: 12,
-        item: {
-            name: 'btx-categories',
-            title: 'Btx Categories',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/btx-categories',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-    {
-        id: 13,
-        item: {
-            name: 'bitrix-fields',
-            title: 'Bitrix Fields',
-            type: ENTITY_QUANTITY.ENTITY,
-            get: {
-                url: '/bitrix-fields',
-                method: API_METHOD.GET
-            }
-        },
-
-    },
-
-
-];
 
 
 export const portalPbxEntities: Entity[] = [

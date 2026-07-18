@@ -27,7 +27,12 @@ const nextConfig: NextConfig = {
         ignoreBuildErrors: false,
     },
     // Настройки для монорепозитория
-    transpilePackages: ['@workspace/api', '@workspace/ui', '@workspace/nest-api'],
+    transpilePackages: [
+        '@workspace/api',
+        '@workspace/ui',
+        '@workspace/nest-admin-api',
+        '@workspace/nest-konstructor-api',
+    ],
 };
 
 export default nextConfig;

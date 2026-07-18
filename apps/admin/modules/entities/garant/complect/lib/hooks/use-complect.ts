@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
     GetComplectResponseDto,
 
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 import { ComplectHelper } from '../api/complect-helper';
 
 const helper = new ComplectHelper();

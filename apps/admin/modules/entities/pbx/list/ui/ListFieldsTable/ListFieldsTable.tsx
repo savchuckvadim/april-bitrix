@@ -16,215 +16,40 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@workspace/ui/components/tooltip';
-import { PresenceBadge } from '../../../lib/ui';
+import { HeadWithHint, PresenceBadge } from '../../../lib/ui';
+import type { ItemMatrixRow } from '../../lib/items-matrix';
 import type { ListFieldRow } from '../../model';
-
-/** Заголовок столбца с тултипом-пояснением статуса. */
-function HeadWithHint({
-    label,
-    hint,
-    className,
-}: {
-    label: string;
-    hint: string;
-    className?: string;
-}) {
-    return (
-        <TableHead className={className}>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <span className="cursor-help underline decoration-dotted">
-                        {label}
-                    </span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">{hint}</TooltipContent>
-            </Tooltip>
-        </TableHead>
-    );
-}
-
-/**
- * CODE свойства: эталонный (fullCode) против фактического в Bitrix.
- * Расхождение подсвечивается — «Синхронизировать» мигрирует CODE на эталонный.
- */
-function CodeCell({ row }: { row: ListFieldRow }) {
-    const matchesTemplate =
-        row.bitrixCode !== null &&
-        row.bitrixCode?.toLowerCase() === row.fullCode?.toLowerCase();
-    return (
-        <div className="font-mono text-xs">
-            <div>{row.fullCode}</div>
-            {row.inBitrix && !matchesTemplate && (
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <div className="cursor-help text-amber-600">
-                            в Bitrix: {row.bitrixCode || '—'}
-                        </div>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                        Фактический CODE свойства отличается от эталонного.
-                        «Синхронизировать» обновит CODE на эталонный.
-                    </TooltipContent>
-                </Tooltip>
-            )}
-        </div>
-    );
-}
-
-/** Пара «метка: значение» в панели деталей. */
-function DetailLine({
-    label,
-    value,
-}: {
-    label: string;
-    value: React.ReactNode;
-}) {
-    return (
-        <div className="flex gap-1">
-            <span className="text-muted-foreground">{label}:</span>
-            <span className="font-mono">{value ?? '—'}</span>
-        </div>
-    );
-}
-
-/**
- * Детали поля с трёх сторон: эталон (шаблон) × Bitrix (свойство) × PortalDB
- * (зеркало). Показывает и items enum-полей со значениями и id.
- */
-function FieldDetails({ row }: { row: ListFieldRow }) {
-    return (
-        <div className="grid grid-cols-1 gap-4 p-3 text-xs md:grid-cols-3">
-            <div className="space-y-1 rounded-md border p-3">
-                <p className="font-semibold">Эталон (шаблон)</p>
-                <DetailLine label="name" value={row.name} />
-                <DetailLine label="code" value={row.fullCode} />
-                <DetailLine label="type" value={row.type} />
-                {row.templateItems.length > 0 && (
-                    <div>
-                        <p className="mt-2 text-muted-foreground">
-                            items ({row.templateItems.length}):
-                        </p>
-                        <ul className="ml-4 list-disc">
-                            {row.templateItems.map((item) => (
-                                <li key={item.code}>
-                                    {item.value}{' '}
-                                    <span className="font-mono text-muted-foreground">
-                                        ({item.code}, sort {item.sort})
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-            </div>
-
-            <div className="space-y-1 rounded-md border p-3">
-                <p className="font-semibold">Bitrix</p>
-                {row.bitrix ? (
-                    <>
-                        <DetailLine label="FIELD_ID" value={row.bitrix.fieldId} />
-                        <DetailLine label="CODE" value={row.bitrix.code} />
-                        <DetailLine label="name" value={row.bitrix.name} />
-                        <DetailLine label="type" value={row.bitrix.type} />
-                        <DetailLine
-                            label="multiple"
-                            value={row.bitrix.multiple ? 'Да' : 'Нет'}
-                        />
-                        <DetailLine
-                            label="required"
-                            value={row.bitrix.isRequired ? 'Да' : 'Нет'}
-                        />
-                        <DetailLine label="sort" value={row.bitrix.sort} />
-                        {row.bitrix.items.length > 0 && (
-                            <div>
-                                <p className="mt-2 text-muted-foreground">
-                                    items ({row.bitrix.items.length}):
-                                </p>
-                                <ul className="ml-4 list-disc">
-                                    {row.bitrix.items.map((item) => (
-                                        <li key={item.id}>
-                                            {item.value}{' '}
-                                            <span className="font-mono text-muted-foreground">
-                                                (id {item.id})
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <p className="text-muted-foreground">
-                        Свойство не найдено в инфоблоке.
-                    </p>
-                )}
-            </div>
-
-            <div className="space-y-1 rounded-md border p-3">
-                <p className="font-semibold">PortalDB</p>
-                {row.db ? (
-                    <>
-                        <DetailLine label="id" value={row.db.id} />
-                        <DetailLine label="code" value={row.db.code} />
-                        <DetailLine label="bitrixId" value={row.db.bitrixId} />
-                        <DetailLine
-                            label="bitrixCamelId"
-                            value={row.db.bitrixCamelId}
-                        />
-                        <DetailLine label="type" value={row.db.type} />
-                        <DetailLine
-                            label="isPlural"
-                            value={row.db.isPlural ? 'Да' : 'Нет'}
-                        />
-                        {row.db.items.length > 0 && (
-                            <div>
-                                <p className="mt-2 text-muted-foreground">
-                                    items ({row.db.items.length}):
-                                </p>
-                                <ul className="ml-4 list-disc">
-                                    {row.db.items.map((item) => (
-                                        <li key={`${item.code}_${item.bitrixId}`}>
-                                            {item.name}{' '}
-                                            <span className="font-mono text-muted-foreground">
-                                                ({item.code}, bitrixId{' '}
-                                                {item.bitrixId})
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <p className="text-muted-foreground">
-                        Зеркала в `bitrixfields` нет — интеграции это поле не
-                        увидят.
-                    </p>
-                )}
-            </div>
-        </div>
-    );
-}
+import { FieldDetails } from '../FieldDetails';
+import { CodeCell } from './components/CodeCell';
 
 /**
  * Таблица полей одного списка: эталон × Bitrix (свойства инфоблока,
  * `lists.field.*`) × PortalDB (`bitrixfields`, entity_type=BITRIX_LIST).
- * Строка разворачивается в детали с items трёх источников.
+ * Строка разворачивается в детали с матрицей items трёх источников.
  */
 export function ListFieldsTable({
     rows,
     onSync,
     onDelete,
+    onEditItem,
+    onDeleteItem,
     syncing,
     deleting,
+    itemsBusy,
     canSync,
 }: {
     rows: ListFieldRow[];
     /** Выровнять поле по эталону (создать/обновить в Bitrix + зеркало в БД). */
     onSync: (row: ListFieldRow) => void;
     onDelete: (row: ListFieldRow) => void;
+    /** Переименовать значение enum-поля (PortalDB + Bitrix). */
+    onEditItem: (row: ListFieldRow, item: ItemMatrixRow) => void;
+    /** Удалить значение enum-поля (PortalDB + Bitrix). */
+    onDeleteItem: (row: ListFieldRow, item: ItemMatrixRow) => void;
     syncing?: boolean;
     deleting?: boolean;
+    /** Идёт операция над значением enum-поля. */
+    itemsBusy?: boolean;
     /** Есть ли эталонный шаблон для строки (parse загружен). */
     canSync: (row: ListFieldRow) => boolean;
 }) {
@@ -245,7 +70,7 @@ export function ListFieldsTable({
                         <TableHead>Название</TableHead>
                         <HeadWithHint
                             label="CODE"
-                            hint="Эталонный CODE свойства (`группа_тип_код`, легаси-конвенция). Если фактический CODE в Bitrix отличается — показан ниже и подсвечен."
+                            hint="Эталонный CODE свойства (`группа_тип_код`, легаси-конвенция). Если фактический CODE в Bitrix или в БД отличается — показан ниже и подсвечен."
                             className="w-56"
                         />
                         <HeadWithHint
@@ -400,7 +225,16 @@ export function ListFieldsTable({
                                         colSpan={9}
                                         className="bg-muted/30 p-0"
                                     >
-                                        <FieldDetails row={row} />
+                                        <FieldDetails
+                                            row={row}
+                                            itemsBusy={itemsBusy}
+                                            onEditItem={(item) =>
+                                                onEditItem(row, item)
+                                            }
+                                            onDeleteItem={(item) =>
+                                                onDeleteItem(row, item)
+                                            }
+                                        />
                                     </TableCell>
                                 </TableRow>
                             )}

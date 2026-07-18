@@ -25,6 +25,7 @@ export * from './pbx-task-install-monitoring/pbx-task-install-monitoring';
 // Departament
 export * from './pbx-departament-install/pbx-departament-install';
 export * from './pbx-departament-install-monitoring/pbx-departament-install-monitoring';
+export * from './pbx-portal-departament-db/pbx-portal-departament-db';
 
 // Calling group
 export * from './pbx-group-install/pbx-group-install';

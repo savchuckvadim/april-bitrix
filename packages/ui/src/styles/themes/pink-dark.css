@@ -1,35 +1,49 @@
+/* Палитра Radix Colors (dark): pink (акцент) + mauve (нейтрали). */
 :root.pink-dark {
-    --radius: 0.9rem;
-    --background: oklch(0.14 0.01 20);
-    --foreground: oklch(0.95 0 0);
-    --card: oklch(0.18 0.01 30);
-    --card-foreground: oklch(0.95 0 0);
-    --popover: oklch(0.18 0.01 30);
-    --popover-foreground: oklch(0.95 0 0);
-    --primary: oklch(0.63 0.26 10); /* яркий розовый */
-    --primary-foreground: oklch(0.98 0.02 355);
-    --secondary: oklch(0.18 0.01 320);
-    --secondary-foreground: oklch(0.98 0 0);
-    --muted: oklch(0.15 0.01 0);
-    --muted-foreground: oklch(0.7 0.02 320);
-    --accent: oklch(0.16 0.015 15);
-    --accent-foreground: oklch(0.98 0 0);
-    --destructive: oklch(0.45 0.25 30);
-    --destructive-foreground: oklch(0.98 0.02 355);
-    --sidebar: oklch(0.18 0.01 30);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
-    --border: oklch(0.18 0.01 320);
-    --input: oklch(0.18 0.01 320);
-    --ring: oklch(0.63 0.26 10);
-    --chart-1: oklch(0.75 0.25 25);
-    --chart-2: oklch(0.6 0.2 180);
-    --chart-3: oklch(0.45 0.15 260);
-    --chart-4: oklch(0.8 0.22 85);
-    --chart-5: oklch(0.8 0.26 40);
+    --radius: 0.625rem;
+
+    --background: #191117; /* pink1 */
+    --foreground: #eeeef0; /* mauve12 */
+
+    --card: #21121d; /* pink2 */
+    --card-foreground: #eeeef0;
+
+    --popover: #21121d;
+    --popover-foreground: #eeeef0;
+
+    --primary: #de51a8; /* pink10 */
+    --primary-foreground: #ffffff;
+
+    --secondary: #37172f; /* pink3 */
+    --secondary-foreground: #ff8dcc; /* pink11 */
+
+    --muted: #232225; /* mauve3 */
+    --muted-foreground: #b5b2bc; /* mauve11 */
+
+    --accent: #4b143d; /* pink4 */
+    --accent-foreground: #ff8dcc;
+
+    --destructive: #e5484d; /* red9 */
+    --destructive-foreground: #ffffff;
+
+    --border: #692955; /* pink6 */
+    --input: #692955;
+    --ring: #a84885; /* pink8 */
+
+    /* charts */
+    --chart-1: #de51a8;
+    --chart-2: #ee518a; /* crimson10 */
+    --chart-3: #9a5cd0; /* purple10 */
+    --chart-4: #ff801f; /* orange10 */
+    --chart-5: #0eb39e; /* teal10 */
+
+    /* sidebar */
+    --sidebar: #21121d;
+    --sidebar-foreground: #eeeef0;
+    --sidebar-primary: #de51a8;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #37172f;
+    --sidebar-accent-foreground: #ff8dcc;
+    --sidebar-border: #692955;
+    --sidebar-ring: #a84885;
 }

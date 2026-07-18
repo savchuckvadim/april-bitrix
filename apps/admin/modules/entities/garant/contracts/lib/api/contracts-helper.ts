@@ -1,4 +1,4 @@
-import { CreateContractDto, UpdateContractDto, getAdminContractsManagement } from "@workspace/nest-api";
+import { CreateContractDto, UpdateContractDto, getAdminContractsManagement } from "@workspace/nest-admin-api";
 
 export class ContractHelper {
     private api: ReturnType<typeof getAdminContractsManagement>;

@@ -15,6 +15,8 @@ export interface PortalSessionUser {
     name?: string;
     lastName?: string;
     isAdmin: boolean;
+    /** Email из Bitrix user.current (только state=onboarding) — префилл формы */
+    email?: string;
 }
 
 /** Ответ POST /bitrix-marketplace/session/exchange */
@@ -39,4 +41,40 @@ export interface OnboardingState {
 export interface OnboardingApplication {
     organizationName: string;
     contactEmail: string;
+}
+
+/** Продукт портала (portal_products; отсутствие записи = не подключён) */
+export interface CabinetProduct {
+    code: string;
+    status: 'active' | 'inactive' | 'suspended' | string;
+    activatedAt?: string;
+}
+
+/** Компонент установки (marketplace_install_components) */
+export interface CabinetComponent {
+    productCode: string;
+    componentType: 'placement' | 'smart_scenario' | 'pbx_entities' | string;
+    /** Пустая строка — агрегат всей оси pbx_entities продукта */
+    componentCode: string;
+    status:
+        | 'pending'
+        | 'installing'
+        | 'installed'
+        | 'error'
+        | 'unavailable'
+        | 'skipped'
+        | string;
+    reasonCode?: string;
+}
+
+/** Ответ GET /bitrix-marketplace/cabinet/summary */
+export interface CabinetSummary {
+    state: PortalSessionState;
+    organization?: {
+        name?: string;
+        email?: string;
+    };
+    products: CabinetProduct[];
+    components: CabinetComponent[];
+    installStatus?: string;
 }

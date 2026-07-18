@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { DataTable, Column } from '@/modules/shared/ui/data-table';
 import { Button } from '@workspace/ui/components/button';
-import { GetComplectResponseDto, GetSupplyResponseDto } from '@workspace/nest-api';
+import { GetComplectResponseDto, GetSupplyResponseDto } from '@workspace/nest-admin-api';
 import { PriceEntity } from '../../model';
 
 interface ProfPricesTableProps {

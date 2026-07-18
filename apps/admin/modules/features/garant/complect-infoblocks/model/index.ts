@@ -3,5 +3,5 @@ export type {
     AddInfoblocksDto,
     RemoveInfoblocksDto,
     SetInfoblocksDto,
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 

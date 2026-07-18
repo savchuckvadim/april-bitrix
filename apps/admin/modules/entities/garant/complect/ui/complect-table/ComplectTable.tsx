@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { DataTable, Column } from '@/modules/shared/ui/data-table';
 import { Button } from '@workspace/ui/components/button';
-import { GetComplectResponseDto } from '@workspace/nest-api';
+import { GetComplectResponseDto } from '@workspace/nest-admin-api';
 
 interface ComplectTableProps {
     data: GetComplectResponseDto[];

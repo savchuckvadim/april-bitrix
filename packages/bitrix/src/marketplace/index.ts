@@ -4,6 +4,9 @@ export type {
     PortalSessionUser,
     OnboardingState,
     OnboardingApplication,
+    CabinetSummary,
+    CabinetProduct,
+    CabinetComponent,
 } from './session.types';
 export {
     portalSessionStore,
@@ -23,3 +26,4 @@ export {
     getOnboardingState,
     submitOnboardingApplication,
 } from './onboarding.api';
+export { getCabinetSummary } from './cabinet.api';

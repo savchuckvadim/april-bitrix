@@ -2,7 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ListHelper } from '../api/list-helper';
-import type { ListFieldTemplate, ListRow } from '../../model';
+import type {
+    ListFieldItemDeleteDto,
+    ListFieldItemEditDto,
+    ListFieldTemplate,
+    ListRow,
+} from '../../model';
 
 const helper = new ListHelper();
 const KEY = ['pbx-list'] as const;
@@ -22,6 +27,14 @@ export const useListParse = () =>
     useQuery({
         queryKey: [...KEY, 'parse'],
         queryFn: () => helper.getParse(),
+    });
+
+/** Списки портала как они лежат в PortalDB (`bitrixlists` + поля). */
+export const usePortalLists = (domain?: string) =>
+    useQuery({
+        queryKey: [...KEY, 'portal-db', domain],
+        queryFn: () => helper.getPortalLists(domain as string),
+        enabled: !!domain,
     });
 
 /** Установить весь эталон (все шаблоны списков). */
@@ -65,6 +78,25 @@ export const useDeleteListFields = () => {
             list: ListKeyVars;
             codes: string[];
         }) => helper.deleteFields(vars.domain, vars.list, vars.codes),
+        onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+    });
+};
+
+/** Переименовать одно значение enum-поля (PortalDB + Bitrix). */
+export const useEditListFieldItem = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (dto: ListFieldItemEditDto) => helper.editFieldItem(dto),
+        onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+    });
+};
+
+/** Удалить одно значение enum-поля (PortalDB + Bitrix). */
+export const useDeleteListFieldItem = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (dto: ListFieldItemDeleteDto) =>
+            helper.deleteFieldItem(dto),
         onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
     });
 };

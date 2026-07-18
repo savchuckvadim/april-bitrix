@@ -1,6 +1,6 @@
-// import { CreateWordTemplateRequestDto, getKonstructorWordTemplate, UpdateWordTemplateDto, WordTemplateFindAllWordTemplatesParams } from "@workspace/nest-api";
+// import { CreateWordTemplateRequestDto, getKonstructorWordTemplate, UpdateWordTemplateDto, WordTemplateFindAllWordTemplatesParams } from "@workspace/nest-konstructor-api";
 import { ICreateWordTemplateDto, INewWordTemplate, IUpdateWordTemplateDto, IWordTemplate, IWordTemplateFindAllParams, IWordTemplateSummury } from "../../model";
-import { customAxios, getKonstructorWordTemplate, getKonstructorWordTemplateTags } from "@workspace/nest-api";
+import { customAxios, getKonstructorWordTemplate, getKonstructorWordTemplateTags } from "@workspace/nest-konstructor-api";
 
 export class WordTemplateHelper {
     private api: ReturnType<typeof getKonstructorWordTemplate>;

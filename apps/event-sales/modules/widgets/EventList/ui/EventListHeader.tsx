@@ -3,6 +3,7 @@
 import { FC } from 'react';
 import { RefreshCcw } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
+import { ThemeTogglePanel } from '@workspace/theme';
 import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
 import { useReload } from '@/modules/app/lib/hooks/app';
 import { getResultMenu, EventItemResultType } from '@/modules/widgets/EventItem';
@@ -33,6 +34,7 @@ export const EventListHeader: FC = () => {
                     <RefreshCcw size={16} />
                 </button>
                 <ResultStatistics />
+                <ThemeTogglePanel />
             </div>
 
             <div className="flex items-center gap-3">

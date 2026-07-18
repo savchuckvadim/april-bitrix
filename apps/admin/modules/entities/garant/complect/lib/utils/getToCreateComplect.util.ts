@@ -1,4 +1,4 @@
-import { CreateComplectDto, CreateComplectDtoProductType, CreateComplectDtoType, GetComplectResponseDto } from "@workspace/nest-api";
+import { CreateComplectDto, CreateComplectDtoProductType, CreateComplectDtoType, GetComplectResponseDto } from "@workspace/nest-admin-api";
 
 export const getToCreateComplect = (
     complect: GetComplectResponseDto,

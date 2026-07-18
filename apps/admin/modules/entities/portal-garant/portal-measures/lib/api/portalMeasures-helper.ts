@@ -1,4 +1,4 @@
-import { PortalMeasureGetAllPortalMeasuresParams, CreatePortalMeasureDto, UpdatePortalMeasureDto, getAdminPortalMeasuresManagement } from "@workspace/nest-api";
+import { PortalMeasureGetAllPortalMeasuresParams, CreatePortalMeasureDto, UpdatePortalMeasureDto, getAdminPortalMeasuresManagement } from "@workspace/nest-admin-api";
 
 export class PortalMeasureHelper {
     private api: ReturnType<typeof getAdminPortalMeasuresManagement>;

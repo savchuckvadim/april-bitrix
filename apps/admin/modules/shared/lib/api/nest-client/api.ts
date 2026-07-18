@@ -1,18 +1,35 @@
 import {
-    configureBaseURL,
-    installAuthInterceptor,
+    configureBaseURL as configureAdminBaseURL,
+    configureAuthTokenGetter as configureAdminAuthToken,
+    installAuthInterceptor as installAdminAuthInterceptor,
+} from '@workspace/nest-admin-api';
+import {
+    configureBaseURL as configureKonstructorBaseURL,
+    configureAuthTokenGetter as configureKonstructorAuthToken,
+} from '@workspace/nest-konstructor-api';
+import { configureAuthTokenGetter as configurePbxInstallAuthToken } from '@workspace/nest-pbx-install-api';
+import { getAccessToken } from './auth-token-storage';
 
-} from '@workspace/nest-api';
+// prod URL — TBD (домены admin/konstructor-бэков ещё не заведены)
+const ADMIN_API_BASE_URL =
+    process.env.NEXT_PUBLIC_ADMIN_API_URL || 'http://localhost:3004/';
+const KONSTRUCTOR_API_BASE_URL =
+    process.env.NEXT_PUBLIC_KONSTRUCTOR_API_URL || 'http://localhost:3007/';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/';
+configureAdminBaseURL(ADMIN_API_BASE_URL);
+configureKonstructorBaseURL(KONSTRUCTOR_API_BASE_URL);
 
-configureBaseURL(API_BASE_URL);
+// «Bearer везде»: один источник токена (cookie фронт-домена) для всех
+// api-пакетов — admin, konstructor и pbx-install (общий JWT → SSO).
+configureAdminAuthToken(getAccessToken);
+configureKonstructorAuthToken(getAccessToken);
+configurePbxInstallAuthToken(getAccessToken);
 
 export function setupAuthInterceptor(opts?: {
     onAuthFailed?: () => void;
     onApiError?: (message: string, status: number) => void;
 }) {
-    installAuthInterceptor({
+    installAdminAuthInterceptor({
         onAuthFailed: opts?.onAuthFailed ?? (() => {
             if (typeof window !== 'undefined') {
                 window.location.href = '/auth/login';
@@ -21,7 +38,3 @@ export function setupAuthInterceptor(opts?: {
         onApiError: opts?.onApiError,
     });
 }
-
-
-
-

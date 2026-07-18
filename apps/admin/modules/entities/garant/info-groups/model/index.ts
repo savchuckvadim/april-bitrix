@@ -4,7 +4,7 @@ import {
     CreateInfogroupDto,
     CreateInfogroupDtoType,
     CreateInfogroupDtoProductType,
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 
 /**
  * Маппинг типов групп инфоблоков для удобства использования
@@ -18,7 +18,7 @@ export type {
 export {
     CreateInfogroupDtoType,
     CreateInfogroupDtoProductType,
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 
 /**
  * Тип для списка групп инфоблоков (легкая версия)

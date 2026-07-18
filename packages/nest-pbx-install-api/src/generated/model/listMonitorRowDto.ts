@@ -7,6 +7,8 @@
  */
 import type { ListMonitorRowDtoSourceListName } from './listMonitorRowDtoSourceListName';
 import type { ListMonitorRowDtoSourceGroup } from './listMonitorRowDtoSourceGroup';
+import type { ListMonitorRowDtoBitrix } from './listMonitorRowDtoBitrix';
+import type { ListMonitorRowDtoDb } from './listMonitorRowDtoDb';
 import type { ListFieldMonitorRowDto } from './listFieldMonitorRowDto';
 
 export interface ListMonitorRowDto {
@@ -29,6 +31,16 @@ export interface ListMonitorRowDto {
    * @nullable
    */
   bitrixId: number | null;
+  /**
+   * Фактический код сматченного инфоблока в Bitrix (CODE ?? IBLOCK_CODE из `lists.get`)
+   * @nullable
+   */
+  bitrixCode: string | null;
+  /**
+   * Фактическое название инфоблока в Bitrix (NAME)
+   * @nullable
+   */
+  bitrixName: string | null;
   /** Есть в БД `bitrixlists` */
   inDb: boolean;
   /**
@@ -36,8 +48,23 @@ export interface ListMonitorRowDto {
    * @nullable
    */
   dbBitrixId: number | null;
+  /**
+   * Код списка, сохранённый в БД (`bitrixlists.code`)
+   * @nullable
+   */
+  dbCode: string | null;
   /** Bitrix и БД совпадают */
   inSync: boolean;
+  /**
+   * Полное описание сматченного инфоблока в Bitrix
+   * @nullable
+   */
+  bitrix: ListMonitorRowDtoBitrix;
+  /**
+   * Зеркало списка в PortalDB (`bitrixlists`), без полей
+   * @nullable
+   */
+  db: ListMonitorRowDtoDb;
   /** Статусы полей списка */
   fields: ListFieldMonitorRowDto[];
 }

@@ -1,5 +1,5 @@
 import { InfoblockDetail, InfoblockListItem } from '@/modules/entities/garant/infoblock';
-import { InfogroupResponseDto } from '@workspace/nest-api';
+import { InfogroupResponseDto } from '@workspace/nest-admin-api';
 
 export interface PackageColor {
     borderColor: string;

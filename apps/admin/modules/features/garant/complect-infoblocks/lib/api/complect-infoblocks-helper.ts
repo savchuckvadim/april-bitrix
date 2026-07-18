@@ -1,4 +1,4 @@
-import { getAdminGarantComplect } from "@workspace/nest-api";
+import { getAdminGarantComplect } from "@workspace/nest-admin-api";
 import {
 
     AddInfoblocksDto,

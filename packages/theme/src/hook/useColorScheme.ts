@@ -1,3 +1,5 @@
+'use client';
+
 import { ColorContext } from '../provider/Theme';
 import { useContext } from 'react';
 

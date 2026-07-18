@@ -1,3 +1,3 @@
-import { TranscriptionStoreDto } from "@workspace/nest-api";
+import { TranscriptionStoreDto } from "@workspace/nest-admin-api";
 
 export type TranscriptionEntity = TranscriptionStoreDto;

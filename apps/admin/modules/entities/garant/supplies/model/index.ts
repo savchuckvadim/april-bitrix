@@ -5,4 +5,4 @@ export type {
     SupplyDto,
     SupplyDtoContractPropSuppliesQuantity,
     AdminGarantSupplyUploadExcelBody
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';

@@ -4,7 +4,7 @@ import { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useContract, useUpdateContract } from '@/modules/entities/garant/contracts/lib/hooks';
 import { ContractForm } from '@/modules/entities/garant/contracts/ui/contracts-form';
-import { UpdateContractDto } from '@workspace/nest-api';
+import { UpdateContractDto } from '@workspace/nest-admin-api';
 import { Button } from '@workspace/ui/components/button';
 
 export default function EditContractPage({

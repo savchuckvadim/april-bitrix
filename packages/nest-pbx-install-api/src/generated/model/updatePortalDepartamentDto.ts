@@ -13,4 +13,11 @@ export interface UpdatePortalDepartamentDto {
   title?: string;
   /** ID существующего отдела в Bitrix (department ID) */
   bitrixId?: number;
+  /** Собирать ли ЦУП из разрозненных по всей структуре отделов. Если true — отделы ищутся по тэгу `multipleTag`. */
+  isMultiple?: boolean;
+  /**
+   * По какому тэгу искать разрозненные отделы: известные значения — ОП / ОС, допускается произвольный custom-тэг. Передайте null, чтобы сбросить тэг.
+   * @nullable
+   */
+  multipleTag?: string | null;
 }

@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-    PortalResponseDto,
+    AdminPortalResponseDto,
     CreatePortalDto,
 } from '../model';
 
@@ -14,7 +14,7 @@ const portalHelper = new PortalHelper();
 export const useCreatePortal = () => {
     const queryClient = useQueryClient();
 
-    return useMutation<PortalResponseDto, Error, CreatePortalDto>({
+    return useMutation<AdminPortalResponseDto, Error, CreatePortalDto>({
         mutationFn: async (dto: CreatePortalDto) => {
             const response = await portalHelper.createPortal(dto);
             return response;

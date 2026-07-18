@@ -1,4 +1,4 @@
-import { getAdminAi } from "@workspace/nest-api";
+import { getAdminAi } from "@workspace/nest-admin-api";
 
 export class AiHelper {
     private api: ReturnType<typeof getAdminAi>;

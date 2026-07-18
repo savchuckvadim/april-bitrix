@@ -7,7 +7,7 @@ import {
     ClientWithRelationsResponseDto,
     CreateClientDto,
     UpdateClientDto
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 import { ClientHelper } from '../api/client-helper';
 
 const clientHelper = new ClientHelper();

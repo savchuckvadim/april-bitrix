@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Badge } from '@workspace/ui/components/badge';
 import {
     Card,
@@ -15,14 +16,86 @@ import {
     LifeBuoy,
     CheckCircle2,
     CircleDashed,
+    Loader2,
+    XCircle,
+    MinusCircle,
 } from 'lucide-react';
-import type { PortalSessionUser } from '@workspace/bitrix';
+import {
+    getCabinetSummary,
+    SessionExpiredError,
+    type CabinetComponent,
+    type CabinetSummary,
+    type PortalSessionUser,
+} from '@workspace/bitrix';
 
 /**
- * Полноценный кабинет (state=active). Разделы пока статические —
- * наполнение данными (продукты из portal_products, компоненты из
- * marketplace_install_components) — следующий этап.
+ * Полноценный кабинет (state=active). Продукты и статусы компонентов —
+ * живые данные GET /cabinet/summary (portal_products +
+ * marketplace_install_components).
  */
+
+/** Каталог продуктов приложения (описания — фронтовая константа) */
+const PRODUCT_CATALOG = [
+    {
+        code: 'sales',
+        title: 'Продукт Sales',
+        description:
+            'Звонки, конструктор КП, отчёты. Плейсменты и сущности CRM.',
+    },
+    {
+        code: 'service',
+        title: 'Продукт Service',
+        description: 'Сервисное направление. Доступен только вместе с Sales.',
+    },
+] as const;
+
+/** Человекочитаемые названия осей компонентов */
+const COMPONENT_TYPE_TITLES: Record<string, string> = {
+    placement: 'Виджеты (встройки)',
+    smart_scenario: 'Умные сценарии',
+    pbx_entities: 'Поля и процессы CRM',
+};
+
+const componentStatusView = (component: CabinetComponent) => {
+    switch (component.status) {
+        case 'installed':
+            return {
+                icon: <CheckCircle2 className="h-4 w-4 text-green-600" />,
+                label: 'установлено',
+            };
+        case 'installing':
+            return {
+                icon: (
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                ),
+                label: 'устанавливается…',
+            };
+        case 'error':
+            return {
+                icon: <XCircle className="h-4 w-4 text-red-600" />,
+                label: 'ошибка установки',
+            };
+        case 'skipped':
+            return {
+                icon: <MinusCircle className="h-4 w-4 text-gray-400" />,
+                label:
+                    component.reasonCode === 'tariff_restricted'
+                        ? 'недоступно на тарифе'
+                        : component.reasonCode === 'bitrix_archive'
+                          ? 'устанавливается Битриксом'
+                          : 'пропущено',
+            };
+        default:
+            return {
+                icon: <CircleDashed className="h-4 w-4 text-gray-400" />,
+                label:
+                    component.reasonCode === 'awaiting_approval'
+                        ? 'после одобрения'
+                        : 'ожидает',
+            };
+    }
+};
+
 export const ActiveCabinet = ({
     domain,
     user,
@@ -30,22 +103,45 @@ export const ActiveCabinet = ({
     domain?: string;
     user?: PortalSessionUser;
 }) => {
-    const products = [
-        {
-            code: 'sales',
-            title: 'Продукт Sales',
-            description:
-                'Звонки, конструктор КП, отчёты. Плейсменты и сущности CRM.',
-            active: false,
-        },
-        {
-            code: 'service',
-            title: 'Продукт Service',
-            description:
-                'Сервисное направление. Доступен только вместе с Sales.',
-            active: false,
-        },
-    ];
+    const [summary, setSummary] = useState<CabinetSummary | null>(null);
+    const [summaryError, setSummaryError] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+        getCabinetSummary()
+            .then((data) => {
+                if (!cancelled) setSummary(data);
+            })
+            .catch((error) => {
+                // Сессию обрабатывает стор (экран сменится сам); прочие
+                // ошибки — показываем каркас без живых данных.
+                if (!cancelled && !(error instanceof SessionExpiredError)) {
+                    setSummaryError(true);
+                }
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const products = PRODUCT_CATALOG.map((item) => {
+        const portalProduct = summary?.products.find(
+            (product) => product.code === item.code,
+        );
+        return {
+            ...item,
+            active: portalProduct?.status === 'active',
+        };
+    });
+
+    // Компоненты группируем по оси; агрегат pbx_entities (пустой код)
+    // показываем как общий статус оси, шаги — списком под ним.
+    const componentsByType = (summary?.components ?? []).reduce<
+        Record<string, CabinetComponent[]>
+    >((groups, component) => {
+        (groups[component.componentType] ??= []).push(component);
+        return groups;
+    }, {});
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -56,9 +152,7 @@ export const ActiveCabinet = ({
                             Менеджер Гарант
                         </h1>
                         <p className="mt-1 text-gray-600">
-                            {user?.name
-                                ? `Здравствуйте, ${user.name}! `
-                                : ''}
+                            {user?.name ? `Здравствуйте, ${user.name}! ` : ''}
                             Кабинет приложения: продукты, подписки, оплаты и
                             статус установки
                         </p>
@@ -76,6 +170,11 @@ export const ActiveCabinet = ({
                         >
                             Подключение активно
                         </Badge>
+                        {summary?.organization?.name && (
+                            <Badge variant="outline" className="text-gray-600">
+                                {summary.organization.name}
+                            </Badge>
+                        )}
                     </div>
                 </div>
 
@@ -151,18 +250,59 @@ export const ActiveCabinet = ({
                                     Компоненты, установленные на вашем портале
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-2">
+                            <CardContent className="space-y-3">
                                 <div className="flex items-center gap-2 text-sm">
                                     <CheckCircle2 className="h-4 w-4 text-green-600" />
                                     <span>Приложение установлено</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-gray-500">
-                                    <CircleDashed className="h-4 w-4" />
-                                    <span>
-                                        Детальные статусы компонентов — в
-                                        разработке
-                                    </span>
-                                </div>
+                                {!summary && !summaryError && (
+                                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <span>Загружаем статусы…</span>
+                                    </div>
+                                )}
+                                {summaryError && (
+                                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                                        <CircleDashed className="h-4 w-4" />
+                                        <span>
+                                            Статусы компонентов временно
+                                            недоступны
+                                        </span>
+                                    </div>
+                                )}
+                                {Object.entries(componentsByType).map(
+                                    ([type, components]) => (
+                                        <div key={type} className="space-y-1">
+                                            <p className="text-sm font-medium text-gray-700">
+                                                {COMPONENT_TYPE_TITLES[type] ??
+                                                    type}
+                                            </p>
+                                            {components.map((component) => {
+                                                const view =
+                                                    componentStatusView(
+                                                        component,
+                                                    );
+                                                return (
+                                                    <div
+                                                        key={`${component.productCode}:${component.componentType}:${component.componentCode}`}
+                                                        className="flex items-center gap-2 pl-2 text-sm text-gray-600"
+                                                    >
+                                                        {view.icon}
+                                                        <span>
+                                                            {component.componentCode ===
+                                                            ''
+                                                                ? `Все компоненты (${component.productCode})`
+                                                                : component.componentCode}
+                                                        </span>
+                                                        <span className="text-gray-400">
+                                                            — {view.label}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ),
+                                )}
                             </CardContent>
                         </Card>
 

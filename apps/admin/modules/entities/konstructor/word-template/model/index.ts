@@ -1,5 +1,5 @@
 import {
-    CreateWordTemplateRequestDto,
+    CreateWordTemplateMultipartDto,
     CreateWordTemplateResponseDto,
     UpdateWordTemplateDto,
     WordTemplateDto,
@@ -7,14 +7,14 @@ import {
     WordTemplateFindAllWordTemplatesParams,
     WordTemplateSummaryDto,
     // WordTemplateSummaryDtoVisibility
-} from "@workspace/nest-api";
+} from "@workspace/nest-konstructor-api";
 
 
 export interface IWordTemplateSummury extends WordTemplateSummaryDto {}
 export interface IWordTemplate extends WordTemplateDto {}
 
 
-export interface ICreateWordTemplateDto extends CreateWordTemplateRequestDto {}
+export interface ICreateWordTemplateDto extends CreateWordTemplateMultipartDto {}
 
 export interface INewWordTemplate extends CreateWordTemplateResponseDto{}
 

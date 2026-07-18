@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { PackageEntityDto } from '@workspace/nest-api';
+import { PackageEntityDto } from '@workspace/nest-admin-api';
 import { IGarantPackageUpdate } from '../../model';
 import { PackageHelper } from '../api/package-helper';
 

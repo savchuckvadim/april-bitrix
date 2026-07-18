@@ -1,4 +1,4 @@
-import { CreateComplectDto, CreateComplectDtoType, CreateComplectDtoProductType } from '@workspace/nest-api';
+import { CreateComplectDto, CreateComplectDtoType, CreateComplectDtoProductType } from '@workspace/nest-admin-api';
 
 /**
  * Конфигурация полей формы на основе CreateComplectDto
@@ -16,7 +16,7 @@ export interface FormFieldConfig {
 
 /**
  * Схема полей формы для CreateComplectDto
- * Основана на интерфейсе CreateComplectDto из @workspace/nest-api
+ * Основана на интерфейсе CreateComplectDto из @workspace/nest-admin-api
  */
 export const complectFormFields: FormFieldConfig[] = [
     {

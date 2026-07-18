@@ -5,7 +5,7 @@ import { InfoblockListItem, InfoblockDetail, INFOBLOCK_PATH } from '@/modules/en
 import { GroupedInfoblocks } from '../../../lib/utils/grouping.utils';
 import { PackageColor } from '../../../lib/utils/package-colors.utils';
 import { InfoblockItem } from './InfoblockItem';
-import { InfogroupResponseDto } from '@workspace/nest-api';
+import { InfogroupResponseDto } from '@workspace/nest-admin-api';
 
 interface InfoblockGroupProps {
     group: GroupedInfoblocks;

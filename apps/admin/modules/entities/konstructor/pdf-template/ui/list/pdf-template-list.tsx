@@ -4,7 +4,7 @@
 // import { useRouter } from 'next/navigation';
 // import { Button, } from '@workspace/ui/index';
 // import { ConfirmDialog } from '@/modules/shared/ui/';
-// import { GetComplectResponseDto } from '@workspace/nest-api';
+// import { GetComplectResponseDto } from '@workspace/nest-admin-api';
 // import { PdfTemplateTable } from '../table/pdf-template-table';
 
 // const path = COMPLECT_PATH;

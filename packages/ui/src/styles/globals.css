@@ -78,6 +78,8 @@
     --sidebar-ring: oklch(0.439 0 0);
 }
 
+@import './tokens/density.css';
+@import './tokens/effects.css';
 @import './themes/themes.css';
 @theme inline {
     --color-background: var(--background);
@@ -138,6 +140,28 @@
     --color-event-supply-foreground: var(--event-supply-foreground);
     --color-event-current: var(--event-current);
     --color-event-current-foreground: var(--event-current-foreground);
+
+    /* Второй primary для CTA (см. themes/april-tokens.css) */
+    --color-action: var(--action);
+    --color-action-foreground: var(--action-foreground);
+
+    /* Info + Bitrix24 Air palette (см. themes/april-tokens.css) */
+    --color-info: var(--info);
+    --color-info-foreground: var(--info-foreground);
+    --color-air-primary: var(--air-primary);
+    --color-air-primary-foreground: var(--air-primary-foreground);
+    --color-air-primary-success: var(--air-primary-success);
+    --color-air-primary-success-foreground: var(--air-primary-success-foreground);
+    --color-air-primary-alert: var(--air-primary-alert);
+    --color-air-primary-alert-foreground: var(--air-primary-alert-foreground);
+    --color-air-primary-warning: var(--air-primary-warning);
+    --color-air-primary-warning-foreground: var(--air-primary-warning-foreground);
+    --color-air-primary-copilot: var(--air-primary-copilot);
+    --color-air-primary-copilot-foreground: var(--air-primary-copilot-foreground);
+    --color-air-secondary: var(--air-secondary);
+    --color-air-secondary-foreground: var(--air-secondary-foreground);
+    --color-air-secondary-no-accent: var(--air-secondary-no-accent);
+    --color-air-link: var(--air-link);
 }
 
 @layer base {
@@ -147,6 +171,19 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+/*
+ * Стеклянная поверхность — работает в любой теме (см. tokens/effects.css):
+ * фон/бордер выводятся из --card/--border активной темы, «эффектные» темы
+ * (air-*) задают свои значения.
+ */
+.glass {
+    background: var(--fx-glass-bg);
+    border: 1px solid var(--fx-glass-border);
+    box-shadow: var(--fx-glass-shadow);
+    backdrop-filter: blur(var(--fx-glass-blur));
+    -webkit-backdrop-filter: blur(var(--fx-glass-blur));
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

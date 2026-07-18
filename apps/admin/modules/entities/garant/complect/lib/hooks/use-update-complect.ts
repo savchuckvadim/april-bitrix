@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     GetComplectResponseDto,
     CreateComplectDto,
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 import { ComplectHelper } from '../api/complect-helper';
 
 const helper = new ComplectHelper();

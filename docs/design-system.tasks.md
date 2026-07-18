@@ -118,8 +118,8 @@ Tailwind-утилиты (`p-4`, `text-sm`, `gap-2`, `h-9`…) считаются
 
 ### 2.3 Управление из UI
 
-- [ ] Хук `useUIScale()` в `@workspace/ui/theme`: state + `document.documentElement.dataset.scale = value` + persist в `localStorage['ui-scale']` (по аналогии с `color-scheme`).
-- [ ] Компонент `ScaleToggler` (A−/A/A+) рядом с `ThemeToggler`.
+- [x] Хук `useUIScale()` — реализован в `@workspace/theme` (ось scale добавлена в `AprilThemeProvider`, persist в `localStorage['ui-scale']`); токены — `packages/ui/src/styles/tokens/density.css`.
+- [x] Компонент `ScaleToggler` (A−/A+) рядом с `ThemeToggler`; собраны в `ThemeTogglePanel` (`@workspace/theme`).
 - [ ] Инлайн-скрипт в layout (как у next-themes) для чтения localStorage до гидрации — чтобы не мигал масштаб.
 
 ### 2.4 Предостережения
@@ -249,7 +249,7 @@ export function FxCard({ children, ...props }: CardProps) {
 
 ### 4.4 Чек-лист Фазы 5
 
-- [ ] 5.1 `styles/tokens/effects.css` + `--fx-*` дефолты; маппинг нужных в `@theme inline`.
+- [x] 5.1 `styles/tokens/effects.css` + `--fx-*` дефолты (glass работает в любой теме через color-mix от --card; утилита `.glass` в globals.css); JS-маппинг `useFxToken` — ещё нет. Темы `air-*` (Bitrix Air, стекло включено) и `claude-*` добавлены; введён «второй primary» `--action` (реактивный от --event-current, air переопределяет зелёным #9dcf00) и общая палитра `--air-*` в april-tokens.css.
 - [ ] 5.2 Хук `useFxToken` + подписка на смену темы в `@workspace/ui/theme`.
 - [ ] 5.3 Установить через registry: `@magicui/magic-card`, `@magicui/shine-border`, `@magicui/border-beam`; React Bits `SpotlightCard-TS-TW`; (опц.) Aceternity `glare-card` → всё в `components/effects/`, цвета на токены.
 - [ ] 5.4 Обёртки `FxCard` (+ при желании `FxButton` на ShimmerButton) с dynamic import.

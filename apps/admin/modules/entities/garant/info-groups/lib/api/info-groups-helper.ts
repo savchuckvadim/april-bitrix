@@ -1,5 +1,5 @@
 import { InfogroupCreateDto, InfogroupResponseDto } from "../../model";
-import { getAdminGarantInfoGroup } from "@workspace/nest-api";
+import { getAdminGarantInfoGroup } from "@workspace/nest-admin-api";
 
 export class InfoGroupsHelper {
     private api: ReturnType<typeof getAdminGarantInfoGroup>;

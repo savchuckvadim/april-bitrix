@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { useReport } from '../../model';
 import { Button } from '@workspace/ui/components/button';
 import { DownLoad } from '@/modules/feature';
-import { ThemeTogglePanel } from './components/ThemeTogglerPanel/ThemeTogglePanel';
+import { ThemeTogglePanel } from '@workspace/theme';
 import SaveFilter from './components/SaveFilter/SaveFilter';
 import { format, parse, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';

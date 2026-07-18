@@ -6,7 +6,7 @@ import { usePortalContracts, useDeletePortalContract } from '../../lib/hooks';
 import { PortalContractTable } from '../../ui/portalContracts-table';
 import { Button } from '@workspace/ui/components/button';
 import { ConfirmDialog } from '@/modules/shared/ui/confirm-dialog';
-import { PortalContractResponseDto } from '@workspace/nest-api';
+import { PortalContractResponseDto } from '@workspace/nest-admin-api';
 
 export function PortalContractList({ portalId }: { portalId: number }) {
     const router = useRouter();

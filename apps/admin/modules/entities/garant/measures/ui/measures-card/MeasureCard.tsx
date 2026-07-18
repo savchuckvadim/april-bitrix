@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { MeasureResponseDto } from '@workspace/nest-api';
+import { MeasureResponseDto } from '@workspace/nest-admin-api';
 import {
     Card,
     CardContent,

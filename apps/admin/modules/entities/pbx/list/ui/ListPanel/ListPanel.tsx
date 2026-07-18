@@ -25,6 +25,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@workspace/ui/components/dialog';
+import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import {
     Tabs,
@@ -35,25 +36,67 @@ import {
 import { JsonView } from '../../../lib/ui';
 import { ListsTable } from '../ListsTable';
 import { ListFieldsTable } from '../ListFieldsTable';
+import { TemplatePanel } from '../TemplatePanel';
+import { DbListsPanel } from '../DbListsPanel';
+import type { ItemMatrixRow } from '../../lib/items-matrix';
 import {
     useDeleteList,
+    useDeleteListFieldItem,
     useDeleteListFields,
+    useEditListFieldItem,
     useInstallAllLists,
     useInstallList,
     useInstallListFields,
     useListMonitoring,
     useListParse,
+    usePortalLists,
 } from '../../lib/hooks';
-import type { ListFieldRow, ListRow } from '../../model';
+import type {
+    ListFieldItemResult,
+    ListFieldRow,
+    ListRow,
+} from '../../model';
 
 type PendingDelete =
     | { kind: 'list'; row: ListRow }
     | { kind: 'field'; list: ListRow; row: ListFieldRow }
     | null;
 
+type PendingItem =
+    | {
+          kind: 'edit';
+          list: ListRow;
+          field: ListFieldRow;
+          item: ItemMatrixRow;
+          value: string;
+      }
+    | { kind: 'delete'; list: ListRow; field: ListFieldRow; item: ItemMatrixRow }
+    | null;
+
 /** Группа списка в типе, который принимают list-эндпоинты. */
 const listGroupOf = (row: ListRow) =>
     row.group as 'sales' | 'service' | 'general';
+
+/** Текущее отображаемое значение item-а (БД в приоритете). */
+const itemValueOf = (item: ItemMatrixRow) =>
+    item.db?.name ?? item.bitrix?.value ?? item.template?.value ?? '';
+
+/** Сводка пер-портального результата item-операции для notice. */
+const itemResultNotice = (results: ListFieldItemResult[]) => {
+    const failed = results.filter((r) => !r.bx.ok || !r.db.ok);
+    if (failed.length === 0) return null;
+    return failed
+        .map(
+            (r) =>
+                `${r.domain}: ${[
+                    !r.bx.ok && `Bitrix — ${r.bx.error ?? 'ошибка'}`,
+                    !r.db.ok && `БД — ${r.db.error ?? 'ошибка'}`,
+                ]
+                    .filter(Boolean)
+                    .join('; ')}`,
+        )
+        .join(' · ');
+};
 
 export function ListPanel({ portalId }: { portalId: number }) {
     const portal = usePortal(portalId);
@@ -61,18 +104,23 @@ export function ListPanel({ portalId }: { portalId: number }) {
 
     const monitoring = useListMonitoring(domain);
     const parse = useListParse();
+    const portalDb = usePortalLists(domain);
     const installAll = useInstallAllLists();
     const installList = useInstallList();
     const installFields = useInstallListFields();
     const deleteList = useDeleteList();
     const deleteFields = useDeleteListFields();
+    const editItem = useEditListFieldItem();
+    const deleteItem = useDeleteListFieldItem();
 
     const [notice, setNotice] = React.useState<string | null>(null);
     const [previewOpen, setPreviewOpen] = React.useState(false);
     const [pending, setPending] = React.useState<PendingDelete>(null);
+    const [pendingItem, setPendingItem] = React.useState<PendingItem>(null);
     const [withBitrix, setWithBitrix] = React.useState(false);
 
     const lists = monitoring.data?.lists ?? [];
+    const itemsBusy = editItem.isPending || deleteItem.isPending;
 
     const runInstall = () => {
         if (!domain) return;
@@ -185,6 +233,55 @@ export function ListPanel({ portalId }: { portalId: number }) {
         }
     };
 
+    /** Подтвердить точечную операцию над значением enum-поля. */
+    const confirmItem = () => {
+        if (!domain || !pendingItem) return;
+        const { list, field, item } = pendingItem;
+        if (!item.code) return;
+        const base = {
+            domain,
+            fieldCode: field.code,
+            itemCode: item.code,
+            type: list.type,
+            group: listGroupOf(list),
+        };
+        setNotice(null);
+        if (pendingItem.kind === 'edit') {
+            editItem.mutate(
+                { ...base, newValue: pendingItem.value.trim() },
+                {
+                    onSuccess: (res) =>
+                        setNotice(
+                            itemResultNotice(res) ??
+                                `Значение «${item.code}» переименовано.`,
+                        ),
+                    onError: (e) =>
+                        setNotice(
+                            `Не удалось переименовать значение: ${
+                                e instanceof Error ? e.message : 'ошибка'
+                            }`,
+                        ),
+                    onSettled: () => setPendingItem(null),
+                },
+            );
+        } else {
+            deleteItem.mutate(base, {
+                onSuccess: (res) =>
+                    setNotice(
+                        itemResultNotice(res) ??
+                            `Значение «${item.code}» удалено.`,
+                    ),
+                onError: (e) =>
+                    setNotice(
+                        `Не удалось удалить значение: ${
+                            e instanceof Error ? e.message : 'ошибка'
+                        }`,
+                    ),
+                onSettled: () => setPendingItem(null),
+            });
+        }
+    };
+
     /** Сколько списков/полей рассинхронизировано с эталоном. */
     const listsOutOfSync = lists.filter((l) => !l.inSync).length;
     const fieldsOutOfSync = lists.reduce(
@@ -271,6 +368,12 @@ export function ListPanel({ portalId }: { portalId: number }) {
                                         </span>
                                     )}
                                 </TabsTrigger>
+                                <TabsTrigger value="template">
+                                    Эталон ({parse.data?.lists.length ?? '…'})
+                                </TabsTrigger>
+                                <TabsTrigger value="db">
+                                    PortalDB ({portalDb.data?.lists.length ?? '…'})
+                                </TabsTrigger>
                             </TabsList>
                             <TabsContent value="lists">
                                 <ListsTable
@@ -300,6 +403,7 @@ export function ListPanel({ portalId }: { portalId: number }) {
                                             rows={list.fields}
                                             syncing={installFields.isPending}
                                             deleting={deleteFields.isPending}
+                                            itemsBusy={itemsBusy}
                                             canSync={(row) =>
                                                 !!listTemplateFor(list)?.fields.some(
                                                     (f) => f.code === row.code,
@@ -313,9 +417,38 @@ export function ListPanel({ portalId }: { portalId: number }) {
                                                     row,
                                                 })
                                             }
+                                            onEditItem={(row, item) =>
+                                                setPendingItem({
+                                                    kind: 'edit',
+                                                    list,
+                                                    field: row,
+                                                    item,
+                                                    value: itemValueOf(item),
+                                                })
+                                            }
+                                            onDeleteItem={(row, item) =>
+                                                setPendingItem({
+                                                    kind: 'delete',
+                                                    list,
+                                                    field: row,
+                                                    item,
+                                                })
+                                            }
                                         />
                                     </div>
                                 ))}
+                            </TabsContent>
+                            <TabsContent value="template">
+                                <TemplatePanel
+                                    data={parse.data}
+                                    loading={parse.isLoading}
+                                />
+                            </TabsContent>
+                            <TabsContent value="db">
+                                <DbListsPanel
+                                    data={portalDb.data}
+                                    loading={portalDb.isLoading}
+                                />
                             </TabsContent>
                         </Tabs>
                     )}
@@ -392,7 +525,7 @@ export function ListPanel({ portalId }: { portalId: number }) {
                 </DialogContent>
             </Dialog>
 
-            {/* Подтверждение удаления */}
+            {/* Подтверждение удаления списка/поля */}
             <Dialog
                 open={pending !== null}
                 onOpenChange={(open) => !open && setPending(null)}
@@ -439,6 +572,77 @@ export function ListPanel({ portalId }: { portalId: number }) {
                             }
                         >
                             Удалить
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Точечная операция над значением enum-поля */}
+            <Dialog
+                open={pendingItem !== null}
+                onOpenChange={(open) => !open && setPendingItem(null)}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {pendingItem?.kind === 'edit'
+                                ? 'Переименовать значение'
+                                : 'Удалить значение?'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {pendingItem
+                                ? pendingItem.kind === 'edit'
+                                    ? `Поле «${pendingItem.field.name}», значение «${
+                                          pendingItem.item.code ?? ''
+                                      }». Новое название запишется в Bitrix (VALUE) и в PortalDB; code останется прежним.`
+                                    : `Значение «${itemValueOf(pendingItem.item)}» (${
+                                          pendingItem.item.code ?? ''
+                                      }) поля «${pendingItem.field.name}» будет удалено в Bitrix и в PortalDB.`
+                                : ''}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {pendingItem?.kind === 'edit' && (
+                        <div className="space-y-2">
+                            <Label htmlFor="item-value" className="text-sm">
+                                Новое значение
+                            </Label>
+                            <Input
+                                id="item-value"
+                                value={pendingItem.value}
+                                onChange={(e) =>
+                                    setPendingItem({
+                                        ...pendingItem,
+                                        value: e.target.value,
+                                    })
+                                }
+                            />
+                        </div>
+                    )}
+
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setPendingItem(null)}
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            variant={
+                                pendingItem?.kind === 'delete'
+                                    ? 'destructive'
+                                    : 'default'
+                            }
+                            onClick={confirmItem}
+                            disabled={
+                                itemsBusy ||
+                                (pendingItem?.kind === 'edit' &&
+                                    !pendingItem.value.trim())
+                            }
+                        >
+                            {pendingItem?.kind === 'edit'
+                                ? 'Переименовать'
+                                : 'Удалить'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

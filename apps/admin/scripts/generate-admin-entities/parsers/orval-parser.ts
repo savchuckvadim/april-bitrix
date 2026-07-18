@@ -37,15 +37,15 @@ export interface AdminEntity {
 /**
  * Обнаруживает все admin сущности в generated папке
  * Паттерн: admin-*-management
- * Путь: из apps/admin/scripts/... -> front/packages/nest-api/src/generated
+ * Путь: из apps/admin/scripts/... -> front/packages/nest-admin-api/src/generated
  */
 export async function discoverAdminEntities(): Promise<AdminEntity[]> {
     // Из apps/admin/scripts/generate-admin-entities/parsers/
-    // Поднимаемся до front/ и идем в packages/nest-api/src/generated
-    // Путь: apps/admin/scripts/.../parsers/ -> ../../../../ -> front/ -> packages/nest-api/...
+    // Поднимаемся до front/ и идем в packages/nest-admin-api/src/generated
+    // Путь: apps/admin/scripts/.../parsers/ -> ../../../../ -> front/ -> packages/nest-admin-api/...
     const generatedPath = join(
         __dirname,
-        '../../../../../packages/nest-api/src/generated',
+        '../../../../../packages/nest-admin-api/src/generated',
     );
 
     // Ищем все папки с паттерном admin-*-management

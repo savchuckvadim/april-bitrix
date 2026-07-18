@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { MeasureForm } from '@/modules/entities/garant/measures/ui/measures-form';
 import { useCreateMeasure } from '@/modules/entities/garant/measures/lib/hooks';
-import { CreateMeasureDto, UpdateMeasureDto } from '@workspace/nest-api';
+import { CreateMeasureDto, UpdateMeasureDto } from '@workspace/nest-admin-api';
 
 export default function NewMeasurePage() {
     const router = useRouter();

@@ -4,7 +4,7 @@ import { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useClient, useUpdateClient } from '@/modules/entities/client/lib/hooks';
 import { ClientForm } from '@/modules/entities/client/ui/client-form';
-import { UpdateClientDto } from '@workspace/nest-api';
+import { UpdateClientDto } from '@workspace/nest-admin-api';
 import { Button } from '@workspace/ui/components/button';
 
 export default function EditClientPage({

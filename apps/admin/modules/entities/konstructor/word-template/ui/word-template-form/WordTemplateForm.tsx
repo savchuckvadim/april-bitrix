@@ -21,7 +21,7 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { Checkbox } from '@workspace/ui/components/checkbox';
-import { OfferTemplateVisibility } from '@workspace/nest-api';
+import { OfferTemplateVisibility } from '@workspace/nest-konstructor-api';
 import { ICreateWordTemplateDto, IUpdateWordTemplateDto } from '../../model';
 
 type WordTemplateFormCreateProps = {

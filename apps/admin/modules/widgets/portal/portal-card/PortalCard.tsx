@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { PortalResponseDto } from '@workspace/nest-api';
+import { AdminPortalResponseDto } from '@workspace/nest-admin-api';
 import {
     Card,
     CardContent,
@@ -13,7 +13,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 
 interface PortalCardProps {
-    item: PortalResponseDto;
+    item: AdminPortalResponseDto;
     onEdit?: () => void;
     onDelete?: () => void;
     onViewDetails?: () => void;
@@ -53,7 +53,7 @@ export function PortalCard({
                         <span className="text-muted-foreground">ID:</span>
                         <span className="font-medium">{item.id}</span>
                     </div>
-                    {/* TODO: Добавьте поля из PortalResponseDto */}
+                    {/* TODO: Добавьте поля из AdminPortalResponseDto */}
                 </div>
             </CardContent>
             <CardFooter className="flex gap-2">

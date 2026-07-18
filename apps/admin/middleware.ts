@@ -1,4 +1,4 @@
-import { AUTH_ACCESS_TOKEN_NAME_PUBLIC } from '@workspace/nest-api';
+import { AUTH_ACCESS_TOKEN_NAME_PUBLIC } from '@workspace/nest-admin-api';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 

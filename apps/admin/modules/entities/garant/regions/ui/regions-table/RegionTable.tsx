@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { DataTable, Column } from '@/modules/shared/';
 import { Button } from '@workspace/ui/components/button';
-import { GetRegionResponseDto } from '@workspace/nest-api';
+import { GetRegionResponseDto } from '@workspace/nest-admin-api';
 
 interface RegionTableProps {
     data: GetRegionResponseDto[];

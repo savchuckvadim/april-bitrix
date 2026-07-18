@@ -1,4 +1,4 @@
-import { ALL_ENTITIES, clientEntities, garantEntities, konstructorEntities, portalBitrixEntities, portalEntities, portalGarantEntities, portalKeysEntities, portalKonstructorEntities, portalPbxEntities, portalProviderEntities } from "../consts/routes.consts";
+import { ALL_ENTITIES, clientEntities, garantEntities, konstructorEntities, marketplaceEntities, portalEntities, portalGarantEntities, portalKeysEntities, portalKonstructorEntities, portalPbxEntities, portalProviderEntities } from "../consts/routes.consts";
 import { useDeepRouting } from "./use-routing.hook";
 
 
@@ -7,9 +7,9 @@ export const useCurrentSideBar = (): { currentNavItems: ALL_ENTITIES, baseUrl: s
         isGarant,
         isPortal,
         isClient,
+        isMarketplace,
         isPortalList,
         isPortalGarant,
-        isPortalBitrix,
         isPortalPbx,
         isPortalKeys,
         isPortalProvider,
@@ -32,9 +32,6 @@ export const useCurrentSideBar = (): { currentNavItems: ALL_ENTITIES, baseUrl: s
         } else if (isPortalGarant) {
             currentNavItems = portalGarantEntities;
             baseUrl = `/portal/${portalId}/garant`;
-        } else if (isPortalBitrix) {
-            currentNavItems = portalBitrixEntities;
-            baseUrl = `/portal/${portalId}/bitrix`;
         } else if (isPortalPbx) {
             currentNavItems = portalPbxEntities;
             baseUrl = `/portal/${portalId}/pbx`;
@@ -55,6 +52,10 @@ export const useCurrentSideBar = (): { currentNavItems: ALL_ENTITIES, baseUrl: s
     } else if (isClient) {
         currentNavItems = clientEntities;
         baseUrl = '/client';
+    } else if (isMarketplace) {
+        // Маркетплейс: url элементов — полные пути (в разделе есть /client)
+        currentNavItems = marketplaceEntities;
+        baseUrl = '';
     }
     else if (isKonstructor || isPortalKonstructor) {
         currentNavItems = konstructorEntities;

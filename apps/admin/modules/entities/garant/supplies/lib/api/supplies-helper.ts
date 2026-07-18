@@ -1,4 +1,4 @@
-import { getAdminGarantSupply } from "@workspace/nest-api";
+import { getAdminGarantSupply } from "@workspace/nest-admin-api";
 import { CreateSupplyDto, AdminGarantSupplyUploadExcelBody } from "../../model";
 
 export class SuppliesHelper {

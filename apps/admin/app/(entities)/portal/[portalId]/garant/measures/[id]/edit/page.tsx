@@ -4,7 +4,7 @@ import { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePortalMeasure, useUpdatePortalMeasure } from '@/modules/entities/portal-garant/portal-measures/lib/hooks';
 import { PortalMeasureForm } from '@/modules/entities/portal-garant/portal-measures/ui/portalMeasures-form';
-import { UpdatePortalMeasureDto } from '@workspace/nest-api';
+import { UpdatePortalMeasureDto } from '@workspace/nest-admin-api';
 import { Button } from '@workspace/ui/components/button';
 
 export default function EditPortalMeasurePage({

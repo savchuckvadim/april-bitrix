@@ -1,11 +1,11 @@
-import { startPbxTemplateDataAppListener } from '@/modules/entities';
-import { startPortalBitrixClientListener } from '@/modules/entities/portal';
 import { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import { AppDispatch, RootState, ThunkExtraArgument } from '../store';
 
+// Единственный листенер (инвалидация bitrix-client при смене портала) удалён
+// вместе с легаси entities/bitrix — функция осталась точкой подключения
+// будущих store-листенеров.
 export function startStoreListeners(
-    listenerMiddleware: ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>,
+    _listenerMiddleware: ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>,
 ) {
-    startPbxTemplateDataAppListener(listenerMiddleware);
-    startPortalBitrixClientListener(listenerMiddleware);
+    // листенеров пока нет
 }

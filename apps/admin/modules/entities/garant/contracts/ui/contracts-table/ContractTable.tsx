@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ContractResponseDto } from '@workspace/nest-api';
+import { ContractResponseDto } from '@workspace/nest-admin-api';
 import { DataTable, Column } from '@/modules/shared/ui/data-table';
 import { Button } from '@workspace/ui/components/button';
 

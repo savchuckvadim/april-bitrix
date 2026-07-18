@@ -1,35 +1,49 @@
+/* Палитра Radix Colors: amber (акцент; мягче чистого yellow) + sand (нейтрали). */
 :root.yellow-light {
-    --radius: 0.5rem;
-    --background: oklch(0.91 0.1433 107.58);
-    --foreground: oklch(0.26 0.04 95);
-    --card: oklch(0.98 0.005 95);
-    --card-foreground: oklch(0.26 0.04 95);
-    --popover: oklch(0.98 0.005 95);
-    --popover-foreground: oklch(0.26 0.04 95);
-    --primary: oklch(0.78 0.21 95); /* насыщенный жёлтый */
-    --primary-foreground: oklch(0.32 0.1 85);
-    --secondary: oklch(0.95 0.01 95);
-    --secondary-foreground: oklch(0.22 0.02 85);
-    --muted: oklch(0.95 0.01 95);
-    --muted-foreground: oklch(0.45 0.03 85);
-    --accent: oklch(0.95 0.01 95);
-    --accent-foreground: oklch(0.22 0.02 85);
-    --destructive: oklch(0.6 0.2 25);
-    --destructive-foreground: oklch(0.98 0.01 95);
-    --border: oklch(0.93 0.01 85);
-    --input: oklch(0.93 0.01 85);
-    --ring: oklch(0.78 0.21 95);
+    --radius: 0.625rem;
 
-    --sidebar: oklch(0.98 0.005 95);
-    --sidebar-foreground: oklch(0.26 0.04 95);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.26 0.04 95);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.26 0.04 95);
-    --sidebar-border: oklch(0.269 0 0);
-    --chart-1: oklch(0.74 0.18 80);
-    --chart-2: oklch(0.6 0.16 140);
-    --chart-3: oklch(0.55 0.12 200);
-    --chart-4: oklch(0.8 0.16 90);
-    --chart-5: oklch(0.76 0.14 70);
+    --background: #fefbe9; /* amber2 */
+    --foreground: #21201c; /* sand12 */
+
+    --card: #ffffff;
+    --card-foreground: #21201c;
+
+    --popover: #ffffff;
+    --popover-foreground: #21201c;
+
+    --primary: #ffc53d; /* amber9 */
+    --primary-foreground: #4f3422; /* amber12 */
+
+    --secondary: #fff7c2; /* amber3 */
+    --secondary-foreground: #ab6400; /* amber11 */
+
+    --muted: #f1f0ef; /* sand3 */
+    --muted-foreground: #63635e; /* sand11 */
+
+    --accent: #ffee9c; /* amber4 */
+    --accent-foreground: #ab6400;
+
+    --destructive: #e5484d; /* red9 */
+    --destructive-foreground: #ffffff;
+
+    --border: #f3d673; /* amber6 */
+    --input: #f3d673;
+    --ring: #e2a336; /* amber8 */
+
+    /* charts */
+    --chart-1: #ffc53d; /* amber9 */
+    --chart-2: #f76b15; /* orange9 */
+    --chart-3: #ad7f58; /* bronze9 */
+    --chart-4: #46a758; /* grass9 */
+    --chart-5: #0090ff; /* blue9 */
+
+    /* sidebar */
+    --sidebar: #fefdfb; /* amber1 */
+    --sidebar-foreground: #21201c;
+    --sidebar-primary: #ffc53d;
+    --sidebar-primary-foreground: #4f3422;
+    --sidebar-accent: #fff7c2;
+    --sidebar-accent-foreground: #ab6400;
+    --sidebar-border: #f3d673;
+    --sidebar-ring: #e2a336;
 }

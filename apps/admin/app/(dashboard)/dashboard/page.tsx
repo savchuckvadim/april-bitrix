@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { useClients } from '@/modules/entities/client/lib/hooks';
-import { useBitrixApps } from '@/modules/entities/bitrix-app/lib/hooks';
 import {
     Card,
     CardContent,
@@ -15,22 +14,17 @@ import { Button } from '@workspace/ui/components/button';
 import Link from 'next/link';
 import {
     Users,
-    Settings,
-    TrendingUp,
+    Store,
     Activity,
     ArrowRight,
     Plus,
+    KeyRound,
 } from 'lucide-react';
-import { AdminBitrixAppGetAppCode } from '@workspace/nest-api';
 
 export default function DashboardPage() {
     const { data: clients, isLoading: clientsLoading } = useClients({
         is_active: 'true',
         status: 'active',
-    });
-    const { data: apps, isLoading: appsLoading } = useBitrixApps({
-        code: AdminBitrixAppGetAppCode.sales_full,
-        domain: '.bitrix24.ru',
     });
 
     const stats = React.useMemo(() => {
@@ -38,20 +32,13 @@ export default function DashboardPage() {
         const activeClients = Array.isArray(clients)
             ? clients.filter((c) => c.is_active).length
             : 0;
-        const totalApps = Array.isArray(apps) ? apps.length : 0;
-        const installedApps = Array.isArray(apps)
-            ? apps.filter((app) => app?.status === 'installed').length
-            : 0;
 
         return {
             totalClients,
             activeClients,
             inactiveClients: totalClients - activeClients,
-            totalApps,
-            installedApps,
-            notInstalledApps: totalApps - installedApps,
         };
-    }, [clients, apps]);
+    }, [clients]);
 
     const recentClients = React.useMemo(() => {
         if (!Array.isArray(clients)) return [];
@@ -121,34 +108,34 @@ export default function DashboardPage() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            Всего приложений
+                            Маркетплейс
                         </CardTitle>
-                        <Settings className="h-4 w-4 text-muted-foreground" />
+                        <Store className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
-                            {appsLoading ? '...' : stats.totalApps}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            {stats.installedApps} установлено
-                        </p>
+                        <Button asChild variant="outline" size="sm">
+                            <Link href="/marketplace/applications">
+                                Заявки на подключение
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            Установленные
+                            Секреты приложений
                         </CardTitle>
-                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        <KeyRound className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
-                            {appsLoading ? '...' : stats.installedApps}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            {stats.notInstalledApps} не установлено
-                        </p>
+                        <Button asChild variant="outline" size="sm">
+                            <Link href="/marketplace/secrets">
+                                OAuth-креды
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
@@ -184,13 +171,13 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex gap-2">
                             <Button asChild className="flex-1">
-                                <Link href="/clients">
+                                <Link href="/client">
                                     <Users className="mr-2 h-4 w-4" />
                                     Все клиенты
                                 </Link>
                             </Button>
                             <Button asChild variant="outline" className="flex-1">
-                                <Link href="/clients/new">
+                                <Link href="/client/new">
                                     <Plus className="mr-2 h-4 w-4" />
                                     Добавить
                                 </Link>
@@ -201,42 +188,23 @@ export default function DashboardPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Bitrix Apps</CardTitle>
+                        <CardTitle>Маркетплейс «Менеджер Гарант»</CardTitle>
                         <CardDescription>
-                            Управление приложениями Bitrix
+                            Заявки на подключение, установки и статусы порталов
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-2xl font-bold">
-                                    {stats.totalApps}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    Всего приложений
-                                </p>
-                            </div>
-                            <Badge
-                                variant={
-                                    stats.installedApps > 0
-                                        ? 'default'
-                                        : 'secondary'
-                                }
-                            >
-                                {stats.installedApps} установлено
-                            </Badge>
-                        </div>
                         <div className="flex gap-2">
                             <Button asChild className="flex-1">
-                                <Link href="/bitrix-apps">
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    Все приложения
+                                <Link href="/marketplace/applications">
+                                    <Store className="mr-2 h-4 w-4" />
+                                    Заявки
                                 </Link>
                             </Button>
                             <Button asChild variant="outline" className="flex-1">
-                                <Link href="/bitrix-apps/new">
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Добавить
+                                <Link href="/marketplace/installs">
+                                    <Activity className="mr-2 h-4 w-4" />
+                                    Установки
                                 </Link>
                             </Button>
                         </div>
@@ -256,7 +224,7 @@ export default function DashboardPage() {
                                 </CardDescription>
                             </div>
                             <Button asChild variant="ghost" size="sm">
-                                <Link href="/clients">
+                                <Link href="/client">
                                     Посмотреть все
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                 </Link>
@@ -300,7 +268,7 @@ export default function DashboardPage() {
                                             variant="ghost"
                                             size="sm"
                                         >
-                                            <Link href={`/clients/${client.id}`}>
+                                            <Link href={`/client/${client.id}`}>
                                                 <ArrowRight className="h-4 w-4" />
                                             </Link>
                                         </Button>

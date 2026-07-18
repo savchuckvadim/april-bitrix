@@ -1,4 +1,4 @@
-import { PortalContractGetListPortalContractsParams, CreatePortalContractDto, UpdatePortalContractDto, getAdminPortalContractsManagement } from "@workspace/nest-api";
+import { PortalContractGetListPortalContractsParams, CreatePortalContractDto, UpdatePortalContractDto, getAdminPortalContractsManagement } from "@workspace/nest-admin-api";
 
 export class PortalContractHelper {
     private api: ReturnType<typeof getAdminPortalContractsManagement>;

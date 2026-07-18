@@ -1,4 +1,4 @@
-import {  getAdminPortalGarantRegion } from "@workspace/nest-api";
+import {  getAdminPortalGarantRegion } from "@workspace/nest-admin-api";
 import {
     AdminPortalGarantRegionListParams,
     CreatePortalRegionDtoAdminRequest,

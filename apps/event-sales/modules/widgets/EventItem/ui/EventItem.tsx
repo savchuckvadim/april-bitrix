@@ -3,7 +3,9 @@
 import { FC } from 'react';
 import dynamic from 'next/dynamic';
 import { EventTypeBadge } from '@workspace/april-ui';
+import { ThemeTogglePanel } from '@workspace/theme';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { useLayoutMode } from '@/modules/app/lib/hooks/use-layout-mode';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport';
 import { WorkStatusCode } from '@/modules/entities/EventReport/type/event-report-type';
 import {
@@ -23,22 +25,24 @@ const RecordsList = dynamic(
     { ssr: false },
 );
 import { ReportSection } from './sections/ReportSection';
-import { NoresultSection } from './sections/NoresultSection';
 import { CommentSection } from './sections/CommentSection';
-import { PlanSection } from './sections/PlanSection';
-import { SaleSection } from './sections/SaleSection';
-import { PresentationSection } from './sections/PresentationSection';
-import { PostFailSection } from './sections/PostFailSection';
-import { ContactSection } from './sections/ContactSection';
-import { CompanySection } from './sections/CompanySection';
+import { FullLayout } from './layouts/FullLayout';
+import { GridLayout } from './layouts/GridLayout';
+import { FocusLayout } from './layouts/FocusLayout';
+import { CompactLayout } from './layouts/CompactLayout';
+import { LayoutVariantSwitcher } from './components/LayoutVariantSwitcher';
+import { useItemLayoutVariant } from '../lib/hooks/use-item-layout-variant';
 import { SendBar } from './SendBar';
 
 /**
- * Форма отчёта по событию (редизайн legacy SalesMenu):
+ * Форма отчёта по событию:
  * - видимость секций — ОДНА чистая функция getItemVisibility;
- * - responsive grid вместо дублированных small/large-веток;
+ * - режим вёрстки из placement (useLayoutMode):
+ *   compact (карточка сущности/звонка) — плотная сетка + раскрывашка,
+ *   full (timeline) — отчёт слева с большим комментарием, План-саммари справа;
  * - контейнер несёт data-event-type — всё на var(--event-current)
- *   перекрашивается при смене типа текущего/планируемого события.
+ *   перекрашивается при смене типа; зона Плана несёт СВОЙ data-event-type
+ *   планируемого типа и живёт в его цвете.
  */
 export const EventItem: FC = () => {
     const menuType = useAppSelector(s => s.eventItemMenu.type);
@@ -52,6 +56,8 @@ export const EventItem: FC = () => {
         s => s.department[DEPARTAMENT_STATE_PROP.MODE].current,
     );
     const isLeadContext = useAppSelector(getIsLeadContext);
+    const layoutMode = useLayoutMode();
+    const [layoutVariant, setLayoutVariant] = useItemLayoutVariant();
 
     const visibility = getItemVisibility({
         menuType,
@@ -65,14 +71,33 @@ export const EventItem: FC = () => {
     const eventTypeAttr = currentTask
         ? getEventTypeAttr(currentTask.eventType)
         : planCodeToEventType(planType?.code);
+    const planTypeAttr = planCodeToEventType(planType?.code);
+
+    const records = config.withRecords ? <RecordsList /> : undefined;
+    const isCompact = layoutMode === 'compact';
 
     return (
-        <div data-event-type={eventTypeAttr} className="space-y-4 p-2">
+        <div
+            data-event-type={eventTypeAttr}
+            data-layout={layoutMode}
+            className={isCompact ? 'space-y-3 p-1' : 'space-y-4 p-2'}
+        >
             <header className="flex items-center gap-2 border-l-4 border-[var(--event-current)] pl-3">
-                <h1 className="text-lg font-semibold text-foreground">
+                <h1
+                    className={`font-semibold text-foreground ${isCompact ? 'text-base' : 'text-lg'}`}
+                >
                     {currentTask?.name || 'Новое событие'}
                 </h1>
                 {currentTask && <EventTypeBadge type={currentTask.type} />}
+                <div className="ml-auto flex items-center gap-2">
+                    {!isCompact && !isLeadContext && (
+                        <LayoutVariantSwitcher
+                            value={layoutVariant}
+                            onChange={setLayoutVariant}
+                        />
+                    )}
+                    <ThemeTogglePanel />
+                </div>
             </header>
 
             {isLeadContext ? (
@@ -83,23 +108,30 @@ export const EventItem: FC = () => {
                     </div>
                     <GarantLeadFrame />
                 </div>
+            ) : isCompact ? (
+                <CompactLayout
+                    visibility={visibility}
+                    planTypeAttr={planTypeAttr}
+                    records={records}
+                />
+            ) : layoutVariant === 'grid' ? (
+                <GridLayout
+                    visibility={visibility}
+                    planTypeAttr={planTypeAttr}
+                    records={records}
+                />
+            ) : layoutVariant === 'focus' ? (
+                <FocusLayout
+                    visibility={visibility}
+                    planTypeAttr={planTypeAttr}
+                    records={records}
+                />
             ) : (
-                <div className="grid gap-4 lg:grid-cols-2">
-                    <div className="space-y-4">
-                        <ReportSection />
-                        <CommentSection />
-                    </div>
-                    <div className="space-y-4">
-                        {visibility.presentation && <PresentationSection />}
-                        {visibility.noresult && <NoresultSection />}
-                        {visibility.plan && <PlanSection />}
-                        {visibility.sale && <SaleSection />}
-                        {visibility.postFail && <PostFailSection />}
-                        <ContactSection />
-                        <CompanySection />
-                        {config.withRecords && <RecordsList />}
-                    </div>
-                </div>
+                <FullLayout
+                    visibility={visibility}
+                    planTypeAttr={planTypeAttr}
+                    records={records}
+                />
             )}
 
             <SendBar />

@@ -2,12 +2,11 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-    PortalContractGetAllPortalContractsParams,
+    PortalContractGetListPortalContractsParams,
     PortalContractResponseDto,
     CreatePortalContractDto,
-    UpdatePortalContractDto,
-    PortalContractGetListPortalContractsParams
-} from '@workspace/nest-api';
+    UpdatePortalContractDto
+} from '@workspace/nest-admin-api';
 import { PortalContractHelper } from '../api/portalContracts-helper';
 
 const portalContractHelper = new PortalContractHelper();

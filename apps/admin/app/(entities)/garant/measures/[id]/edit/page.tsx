@@ -4,7 +4,7 @@ import { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMeasure, useUpdateMeasure } from '@/modules/entities/garant/measures/lib/hooks';
 import { MeasureForm } from '@/modules/entities/garant/measures/ui/measures-form';
-import { UpdateMeasureDto } from '@workspace/nest-api';
+import { UpdateMeasureDto } from '@workspace/nest-admin-api';
 import { Button } from '@workspace/ui/components/button';
 
 export default function EditMeasurePage({

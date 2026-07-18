@@ -1,7 +1,7 @@
 //
 
 //config
-export { setConfig } from './lib/config';
+export { setConfig, getConfig } from './lib/config';
 
 // api
 export { backAPI, EBACK_ENDPOINT, EResultCode } from './services/back-api';

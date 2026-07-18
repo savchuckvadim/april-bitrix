@@ -1,7 +1,8 @@
 import { setConfig } from '@workspace/api';
 import { configureBaseURL } from '@workspace/nest-event-sales-api';
 
-// Это серверный компонент, поэтому имеет доступ к process.env
+// Модуль импортируется из клиентского providers.tsx, поэтому setConfig
+// выполняется и на клиенте; ONLINE_API_KEY инлайнится в бандл через next.config `env`.
 setConfig({
     apiKey: process.env.ONLINE_API_KEY || '',
 });

@@ -1,4 +1,4 @@
-import { getAdminGarantInfoblock } from "@workspace/nest-api";
+import { getAdminGarantInfoblock } from "@workspace/nest-admin-api";
 import { InfoblockExcludedSetDto, InfoblockGroupSetDto } from "../../model";
 
 export class InfoblockRelationsHelper {

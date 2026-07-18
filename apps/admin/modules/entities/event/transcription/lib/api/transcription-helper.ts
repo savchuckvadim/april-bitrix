@@ -1,4 +1,4 @@
-import { getAdminTranscriptionStore } from "@workspace/nest-api";
+import { getAdminTranscriptionStore } from "@workspace/nest-admin-api";
 
 export class TranscriptionHelper {
 

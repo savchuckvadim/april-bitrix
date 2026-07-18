@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { GetComplectResponseDto } from '@workspace/nest-api';
+import { GetComplectResponseDto } from '@workspace/nest-admin-api';
 import { EntityCard } from '@/modules/shared';
 import { complectCardFields } from '../../lib/utils';
 import { Button } from '@workspace/ui/components';

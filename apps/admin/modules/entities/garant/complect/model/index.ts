@@ -5,10 +5,10 @@ export type {
     RemoveInfoblocksDto,
     SetInfoblocksDto,
 
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 
 export  {
 
     CreateComplectDtoProductType,
     CreateComplectDtoType,
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { PortalForm } from '@/modules/widgets/portal/portal-form';
 import { useCreatePortal } from '@/modules/entities/portal';
-import { CreatePortalDto, UpdatePortalDto } from '@workspace/nest-api';
+import { CreatePortalDto, UpdatePortalDto } from '@workspace/nest-admin-api';
 
 export default function NewPortalPage() {
     const router = useRouter();

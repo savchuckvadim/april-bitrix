@@ -5,7 +5,7 @@ import {
     ContractResponseDto,
     CreateContractDto,
     UpdateContractDto
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 import { ContractHelper } from '../api/contracts-helper';
 
 const contractHelper = new ContractHelper();

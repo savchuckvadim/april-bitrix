@@ -1,4 +1,4 @@
-import { AdminClientGetAllClientsParams, ClientResponseDto, ClientWithRelationsResponseDto, CreateClientDto, SuccessResponseDto, UpdateClientDto, getAdminClientManagement } from "@workspace/nest-api";
+import { AdminClientGetAllClientsParams, ClientResponseDto, ClientWithRelationsResponseDto, CreateClientDto, UpdateClientDto, getAdminClientManagement } from "@workspace/nest-admin-api";
 
 export class ClientHelper {
     private api: ReturnType<typeof getAdminClientManagement>;

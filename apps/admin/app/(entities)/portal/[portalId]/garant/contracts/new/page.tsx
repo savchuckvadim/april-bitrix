@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { PortalContractForm } from '@/modules/entities/portal-garant/portal-contracts/ui/portalContracts-form';
 import { useCreatePortalContract } from '@/modules/entities/portal-garant/portal-contracts/lib/hooks';
-import { CreatePortalContractDto, UpdatePortalContractDto } from '@workspace/nest-api';
+import { CreatePortalContractDto, UpdatePortalContractDto } from '@workspace/nest-admin-api';
 
 export default function NewPortalContractPage() {
     const router = useRouter();

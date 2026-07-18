@@ -6,7 +6,7 @@ import { useClients, useDeleteClient } from '../../lib/hooks';
 import { ClientTable } from '../../ui/client-table';
 import { Button } from '@workspace/ui/components/button';
 import { ConfirmDialog } from '@/modules/shared/ui/confirm-dialog';
-import { ClientResponseDto } from '@workspace/nest-api';
+import { ClientResponseDto } from '@workspace/nest-admin-api';
 
 export function ClientList() {
 

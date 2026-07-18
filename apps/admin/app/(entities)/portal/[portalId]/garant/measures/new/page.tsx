@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { PortalMeasureForm } from '@/modules/entities/portal-garant/portal-measures/ui/portalMeasures-form';
 import { useCreatePortalMeasure } from '@/modules/entities/portal-garant/portal-measures/lib/hooks';
-import { CreatePortalMeasureDto, UpdatePortalMeasureDto } from '@workspace/nest-api';
+import { CreatePortalMeasureDto, UpdatePortalMeasureDto } from '@workspace/nest-admin-api';
 
 export default function NewPortalMeasurePage() {
     const router = useRouter();

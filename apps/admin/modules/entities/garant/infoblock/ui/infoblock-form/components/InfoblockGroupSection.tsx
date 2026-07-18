@@ -5,7 +5,7 @@ import { ACard, Field } from '@workspace/ui/shared';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Button } from '@workspace/ui/components/button';
 import { Loader2 } from 'lucide-react';
-import { InfogroupResponseDto } from '@workspace/nest-api';
+import { InfogroupResponseDto } from '@workspace/nest-admin-api';
 
 interface InfoblockGroupSectionProps {
     selectedGroupId: string;

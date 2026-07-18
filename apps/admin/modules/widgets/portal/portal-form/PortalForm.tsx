@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
-import { CreatePortalDto, UpdatePortalDto } from '@workspace/nest-api';
+import { CreatePortalDto, UpdatePortalDto } from '@workspace/nest-admin-api';
 import {
     Card,
     CardContent,

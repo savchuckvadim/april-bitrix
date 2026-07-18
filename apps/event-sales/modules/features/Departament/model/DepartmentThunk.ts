@@ -22,7 +22,9 @@ export const getDepartment =
     (domain: string, currentUser: BXUser | null) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         try {
+            debugger
             const response = await departmentHelper.getSalesDepartment(domain);
+            debugger
             const users = (response?.department?.allUsers ??
                 null) as unknown as BXUser[] | null;
             const { bossId } = getState().app.config;
@@ -35,6 +37,7 @@ export const getDepartment =
                 }),
             );
         } catch (error) {
+            debugger
             console.error('getDepartment error', error);
         }
     };

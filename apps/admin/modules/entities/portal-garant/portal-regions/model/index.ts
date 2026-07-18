@@ -4,4 +4,4 @@ export type {
     GetPortalRegionResponseDto,
     UpdatePortalRegionDtoAdmin as UpdatePortalRegionDto,
     DeletePortalRegionDto,
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';

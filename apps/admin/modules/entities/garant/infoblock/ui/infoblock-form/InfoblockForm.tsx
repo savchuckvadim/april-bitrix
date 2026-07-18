@@ -4,7 +4,7 @@ import { InfoblockCreateDto } from '@/modules/entities/garant/infoblock/model';
 import { infoblockFormFields } from '@/modules/entities/garant/infoblock/lib/utils/infoblock-form-fields';
 import { EntityForm } from '@/modules/shared/ui';
 import { ServerError } from '@/modules/shared/lib/error-handler/types/server-error.types';
-import { InfogroupResponseDto } from '@workspace/nest-api';
+import { InfogroupResponseDto } from '@workspace/nest-admin-api';
 
 interface InfoblockFormProps {
     initialData?: InfoblockCreateDto;

@@ -1,4 +1,4 @@
-import { getAdminGarantInfoblockPackage, } from "@workspace/nest-api";
+import { getAdminGarantInfoblockPackage, } from "@workspace/nest-admin-api";
 import { InfoblockPackagesAddDto, InfoblockPackagesInPackagesSetDto, InfoblockPackagesRemoveFromPackagesDto, InfoblockPackagesSetDto } from "../../model";
 import { InfoblockPackagesAddToPackagesDto } from "../../model";
 import { InfoblockPackagesRemoveDto } from "../../model";

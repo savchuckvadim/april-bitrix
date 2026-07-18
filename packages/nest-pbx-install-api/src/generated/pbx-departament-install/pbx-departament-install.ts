@@ -6,7 +6,10 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  DeleteDepartamentResponseDto,
   InstallDepartamentDto,
+  InstallDepartamentResponseDto,
+  PortalDepartamentResponseDto,
   UpdatePortalDepartamentDto
 } from '.././model';
 
@@ -24,7 +27,7 @@ const pbxDepartamentInstallInstallDepartament = (
     group: 'sales' | 'service',
     installDepartamentDto: InstallDepartamentDto,
  ) => {
-      return customAxios<void>(
+      return customAxios<InstallDepartamentResponseDto>(
       {url: `/api/pbx-departament-install/install/domain/${domain}/group/${group}`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: installDepartamentDto
@@ -32,14 +35,14 @@ const pbxDepartamentInstallInstallDepartament = (
       );
     }
   /**
- * Точечно обновляет отдел в PortalDB (`departaments`) по id строки: name / title / bitrixId. type / group / портал менять нельзя.
+ * Точечно обновляет отдел в PortalDB (`departaments`) по id строки: name / title / bitrixId / isMultiple / multipleTag (null сбрасывает тэг). type / group / портал менять нельзя. Полный CRUD по БД — см. `PBX Portal Departament (DB)` (`pbx/portal-departament`).
  * @summary Update departament by id
  */
 const pbxDepartamentInstallUpdate = (
     id: number,
     updatePortalDepartamentDto: UpdatePortalDepartamentDto,
  ) => {
-      return customAxios<void>(
+      return customAxios<PortalDepartamentResponseDto>(
       {url: `/api/pbx-departament-install/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: updatePortalDepartamentDto
@@ -53,7 +56,7 @@ const pbxDepartamentInstallUpdate = (
 const pbxDepartamentInstallDelete = (
     id: number,
  ) => {
-      return customAxios<void>(
+      return customAxios<DeleteDepartamentResponseDto>(
       {url: `/api/pbx-departament-install/${id}`, method: 'DELETE'
     },
       );

@@ -6,7 +6,7 @@ import { useMeasures, useDeleteMeasure } from '../../lib/hooks';
 import { MeasureTable } from '../../ui/measures-table';
 import { Button } from '@workspace/ui/components/button';
 import { ConfirmDialog } from '@/modules/shared/ui/confirm-dialog';
-import { MeasureResponseDto } from '@workspace/nest-api';
+import { MeasureResponseDto } from '@workspace/nest-admin-api';
 
 export function MeasureList() {
     const router = useRouter();

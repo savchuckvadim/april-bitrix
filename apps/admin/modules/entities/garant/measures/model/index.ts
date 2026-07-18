@@ -1,6 +1,6 @@
-// Экспортируем DTO типы напрямую из @workspace/nest-api
+// Экспортируем DTO типы напрямую из @workspace/nest-admin-api
 export type {
     MeasureResponseDto,
     CreateMeasureDto,
     UpdateMeasureDto
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';

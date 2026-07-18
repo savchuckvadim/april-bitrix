@@ -16,4 +16,5 @@ export type AuthUserDtoRole = typeof AuthUserDtoRole[keyof typeof AuthUserDtoRol
 export const AuthUserDtoRole = {
   super_user: 'super_user',
   client: 'client',
+  service: 'service',
 } as const;

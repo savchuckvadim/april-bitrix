@@ -6,8 +6,12 @@ import { Textarea } from '@workspace/ui/components/textarea';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { EV_REPORT_PROP, setAndSaveComment } from '@/modules/entities/EventReport';
 
-/** Комментарий отчёта (обязателен при отправке; черновик — в localStorage). */
-export const CommentSection: FC = () => {
+/**
+ * Комментарий отчёта (обязателен при отправке; черновик — в localStorage).
+ * rows — высота поля: в timeline-режиме комментарий большой (основной
+ * рабочий инструмент), в компактной карточке — маленький.
+ */
+export const CommentSection: FC<{ rows?: number }> = ({ rows = 4 }) => {
     const dispatch = useAppDispatch();
     const comment = useAppSelector(
         s => s.eventReport.report[EV_REPORT_PROP.COMMENT],
@@ -22,7 +26,7 @@ export const CommentSection: FC = () => {
             <CardContent className="space-y-1.5">
                 <Textarea
                     value={comment}
-                    rows={4}
+                    rows={rows}
                     placeholder="Как прошёл разговор?"
                     aria-invalid={!!error}
                     onChange={e => dispatch(setAndSaveComment(e.target.value))}

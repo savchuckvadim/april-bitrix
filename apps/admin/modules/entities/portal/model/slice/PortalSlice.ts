@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AdminPortalResponseDto } from "@workspace/nest-api";
+import { AdminPortalResponseDto } from "@workspace/nest-admin-api";
 import { fetchCurrentPortal } from "../thunk/curent-portal.thunk";
 
 export interface IPortal extends AdminPortalResponseDto {}

@@ -1,17 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { PortalResponseDto } from '@workspace/nest-api';
+import { AdminPortalResponseDto } from '@workspace/nest-admin-api';
 import { DataTable, Column } from '@/modules/shared/ui/data-table';
 import { Button } from '@workspace/ui/components/button';
 import { useRouter } from 'next/navigation';
 
 interface PortalTableProps {
-    data: PortalResponseDto[];
+    data: AdminPortalResponseDto[];
     isLoading?: boolean;
-    onRowClick?: (item: PortalResponseDto) => void;
-    onEdit?: (item: PortalResponseDto) => void;
-    onDelete?: (item: PortalResponseDto) => void;
+    onRowClick?: (item: AdminPortalResponseDto) => void;
+    onEdit?: (item: AdminPortalResponseDto) => void;
+    onDelete?: (item: AdminPortalResponseDto) => void;
 }
 
 export function PortalTable({
@@ -21,7 +21,7 @@ export function PortalTable({
     onEdit,
     onDelete,
 }: PortalTableProps) {
-    const columns: Column<PortalResponseDto>[] = [
+    const columns: Column<AdminPortalResponseDto>[] = [
         {
             id: 'id',
             header: 'ID',
@@ -46,7 +46,7 @@ export function PortalTable({
             accessorKey: 'updated_at',
             className: 'w-20',
         },
-        // TODO: Добавьте колонки на основе полей PortalResponseDto
+        // TODO: Добавьте колонки на основе полей AdminPortalResponseDto
         {
             id: 'actions',
             header: 'Действия',
@@ -83,7 +83,7 @@ export function PortalTable({
     ];
     const router = useRouter();
     
-    const handleRowClick = (item: PortalResponseDto) => {
+    const handleRowClick = (item: AdminPortalResponseDto) => {
         router.push(`/portal/${item.id}`);
         onRowClick?.(item);
     }

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, } from '@workspace/ui/index';
 import { ConfirmDialog } from '@/modules/shared/ui/';
-import { GetComplectResponseDto } from '@workspace/nest-api';
+import { GetComplectResponseDto } from '@workspace/nest-admin-api';
 import { useComplects } from '../../lib/hooks';
 import { ComplectTable } from '../complect-table/ComplectTable';
 import { COMPLECT_PATH } from '../../consts/complect.consts';

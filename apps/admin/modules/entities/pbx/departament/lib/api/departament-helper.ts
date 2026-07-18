@@ -1,31 +1,29 @@
 import {
-    customAxios,
     getPbxDepartamentInstall,
     getPbxDepartamentInstallMonitoring,
+    getPbxPortalDepartamentDb,
     type UpdatePortalDepartamentDto,
 } from '@workspace/nest-pbx-install-api';
 import '@/modules/entities/pbx/lib/pbx-install-client';
 import type { PbxGroup } from '../../../lib/model/common';
 import type {
     CreatePortalDepartamentInput,
+    DeleteDepartamentResult,
+    InstallDepartamentResult,
     PortalDepartament,
     UpdatePortalDepartamentInput,
 } from '../model/departament';
 
-/** Base path of the full-CRUD `PBX Portal Departament (DB)` controller. */
-const DB_URL = '/pbx/portal-departament';
-
 /**
- * `PBX Departament Install` + monitoring. Departament is PortalDB-centric: the
- * Bitrix department already exists (its id is passed in), so install upserts the
+ * `PBX Departament Install` + monitoring + full DB CRUD
+ * (`pbx/portal-departament`). Departament is PortalDB-centric: the Bitrix
+ * department already exists (its id is passed in), so install upserts the
  * PortalDB row and monitoring returns merged read-only state.
- *
- * DB CRUD (`pbx/portal-departament`) is called through `customAxios` directly —
- * the orval client has not been regenerated against the updated backend yet.
  */
 export class DepartamentHelper {
     private install = getPbxDepartamentInstall();
     private monitoring = getPbxDepartamentInstallMonitoring();
+    private db = getPbxPortalDepartamentDb();
 
     getMonitoring(domain: string): Promise<unknown> {
         return this.monitoring.pbxDepartamentInstallMonitoringGetDepartamentData(
@@ -44,7 +42,7 @@ export class DepartamentHelper {
         domain: string,
         group: PbxGroup,
         bitrixId: number,
-    ): Promise<void> {
+    ): Promise<InstallDepartamentResult> {
         return this.install.pbxDepartamentInstallInstallDepartament(
             domain,
             group,
@@ -52,57 +50,43 @@ export class DepartamentHelper {
         );
     }
 
-    update(id: number, dto: UpdatePortalDepartamentDto): Promise<void> {
+    update(
+        id: number,
+        dto: UpdatePortalDepartamentDto,
+    ): Promise<PortalDepartament> {
         return this.install.pbxDepartamentInstallUpdate(id, dto);
     }
 
-    remove(id: number): Promise<void> {
+    remove(id: number): Promise<DeleteDepartamentResult> {
         return this.install.pbxDepartamentInstallDelete(id);
     }
 
     /* --- Full DB CRUD (`pbx/portal-departament`) --- */
 
     listDb(): Promise<PortalDepartament[]> {
-        return customAxios<PortalDepartament[]>({ method: 'GET', url: DB_URL });
+        return this.db.portalDepartamentList();
     }
 
     listDbByPortal(portalId: number): Promise<PortalDepartament[]> {
-        return customAxios<PortalDepartament[]>({
-            method: 'GET',
-            url: `${DB_URL}/by-portal/${portalId}`,
-        });
+        return this.db.portalDepartamentListByPortal(portalId);
     }
 
     getDbById(id: number): Promise<PortalDepartament> {
-        return customAxios<PortalDepartament>({
-            method: 'GET',
-            url: `${DB_URL}/${id}`,
-        });
+        return this.db.portalDepartamentGetById(id);
     }
 
     createDb(dto: CreatePortalDepartamentInput): Promise<PortalDepartament> {
-        return customAxios<PortalDepartament>({
-            method: 'POST',
-            url: DB_URL,
-            data: dto,
-        });
+        return this.db.portalDepartamentCreate(dto);
     }
 
     updateDb(
         id: number,
         dto: UpdatePortalDepartamentInput,
     ): Promise<PortalDepartament> {
-        return customAxios<PortalDepartament>({
-            method: 'PATCH',
-            url: `${DB_URL}/${id}`,
-            data: dto,
-        });
+        return this.db.portalDepartamentUpdate(id, dto);
     }
 
     removeDb(id: number): Promise<void> {
-        return customAxios<void>({
-            method: 'DELETE',
-            url: `${DB_URL}/${id}`,
-        });
+        return this.db.portalDepartamentDelete(id);
     }
 }

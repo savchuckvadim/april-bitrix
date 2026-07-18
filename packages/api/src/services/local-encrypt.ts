@@ -129,7 +129,10 @@ export async function getFromLocalStorage(key: string, secret: string) {
 
             return JSON.parse(decryptedData); // Возвращаем расшифрованные данные
         } catch (e) {
-            console.error('Error parsing or decrypting data:', e);
+            // Кеш зашифрован другим секретом или повреждён — удаляем,
+            // чтобы не спотыкаться об него на каждом запуске
+            console.warn(`Removing undecryptable cache key "${key}"`, e);
+            localStorage.removeItem(key);
             return null;
         }
     }

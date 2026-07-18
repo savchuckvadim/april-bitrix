@@ -6,7 +6,7 @@ import { usePortalMeasures, useDeletePortalMeasure } from '../../lib/hooks';
 import { PortalMeasureTable } from '../../ui/portalMeasures-table';
 import { Button } from '@workspace/ui/components/button';
 import { ConfirmDialog } from '@/modules/shared/ui/confirm-dialog';
-import { PortalMeasureResponseDto } from '@workspace/nest-api';
+import { PortalMeasureResponseDto } from '@workspace/nest-admin-api';
 
 export function PortalMeasureList({ portalId }: { portalId: number }) {
     const router = useRouter();

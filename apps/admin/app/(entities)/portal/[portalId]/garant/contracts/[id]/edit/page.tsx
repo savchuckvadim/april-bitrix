@@ -4,7 +4,7 @@ import { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePortalContract, useUpdatePortalContract } from '@/modules/entities/portal-garant/portal-contracts/lib/hooks';
 import { PortalContractForm } from '@/modules/entities/portal-garant/portal-contracts/ui/portalContracts-form';
-import { UpdatePortalContractDto } from '@workspace/nest-api';
+import { UpdatePortalContractDto } from '@workspace/nest-admin-api';
 import { Button } from '@workspace/ui/components/button';
 
 export default function EditPortalContractPage({

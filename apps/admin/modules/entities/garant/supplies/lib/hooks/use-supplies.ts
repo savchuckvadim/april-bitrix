@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     GetSupplyResponseDto,
     CreateSupplyDto,
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 import { SuppliesHelper } from '../api/supplies-helper';
 
 const helper = new SuppliesHelper();

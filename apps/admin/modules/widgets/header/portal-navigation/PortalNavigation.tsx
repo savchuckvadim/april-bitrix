@@ -11,7 +11,6 @@ export const PortalNavigation = () => {
         isPortalList,
         isPortalDetail,
         isPortalGarant,
-        isPortalBitrix,
         isPortalPbx,
         isPortalKeys,
         isPortalProvider,
@@ -31,8 +30,6 @@ export const PortalNavigation = () => {
             <div className="flex flex-row gap-2 py-0 text-sm">
                 <Link href={`/portal/list`} className={(isPortalList || isPortalDetail) && !isPortalStatistics ? 'text-primary' : 'text-gray-500'}>{'List'}</Link>
                 {portalId && <Link href={`/portal/${portalId}/garant`} className={isPortalGarant ? 'text-primary' : 'text-gray-500'}>{'Garant'}</Link>}
-                {portalId && <Link href={`/portal/${portalId}/bitrix`} className={isPortalBitrix ? 'text-primary' : 'text-gray-500'}>{'Bitrix'}</Link>}
-
                 {portalId && <Link href={`/portal/${portalId}/pbx`} className={isPortalPbx ? 'text-primary' : 'text-gray-500'}>{'PBX'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/keys`} className={isPortalKeys ? 'text-primary' : 'text-gray-500'}>{'Keys'}</Link>}

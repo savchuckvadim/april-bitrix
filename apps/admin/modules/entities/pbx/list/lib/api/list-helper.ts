@@ -8,11 +8,15 @@ import type {
     DeleteListResult,
     InstallListsResult,
     ListFieldDeleteResult,
+    ListFieldItemDeleteDto,
+    ListFieldItemEditDto,
+    ListFieldItemResult,
     ListFieldTemplate,
     ListFieldsInstallResult,
     ListMonitoring,
     ListParse,
     ListRow,
+    PortalLists,
 } from '../../model';
 
 /**
@@ -33,6 +37,11 @@ export class ListHelper {
     /** Эталон (все списки всех шаблонов) — для предпросмотра. */
     getParse(): Promise<ListParse> {
         return this.monitoring.pbxListInstallMonitoringParse();
+    }
+
+    /** Списки портала как они лежат в PortalDB (`bitrixlists` + поля). */
+    getPortalLists(domain: string): Promise<PortalLists> {
+        return this.install.pbxListInstallGetListsByDomain(domain);
     }
 
     /** Установить весь эталон (все шаблоны, идемпотентно). */
@@ -75,6 +84,18 @@ export class ListHelper {
             group: list.group,
             codes,
         });
+    }
+
+    /** Переименовать одно значение enum-поля (PortalDB + Bitrix). */
+    editFieldItem(dto: ListFieldItemEditDto): Promise<ListFieldItemResult[]> {
+        return this.fields.pbxListFieldInstallEditFieldItem(dto);
+    }
+
+    /** Удалить одно значение enum-поля (PortalDB + Bitrix). */
+    deleteFieldItem(
+        dto: ListFieldItemDeleteDto,
+    ): Promise<ListFieldItemResult[]> {
+        return this.fields.pbxListFieldInstallDeleteFieldItem(dto);
     }
 
     /** Удалить список: каскад в PortalDB, опционально инфоблок в Bitrix. */

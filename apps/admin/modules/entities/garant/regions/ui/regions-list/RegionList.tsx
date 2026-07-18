@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@workspace/ui/index';
 import { ConfirmDialog } from '@/modules/shared';
-import { GetRegionResponseDto } from '@workspace/nest-api';
+import { GetRegionResponseDto } from '@workspace/nest-admin-api';
 import { useDeleteRegion, useRegions } from '../../lib/hooks/use-regions';
 import { RegionTable } from '../regions-table';
 

@@ -5,10 +5,10 @@ import {
     AddInfoblockPackagesDto,
     AddInfoblockToPackagesDto,
     InfoblockEntityDto,
-} from '@workspace/nest-api';
+} from '@workspace/nest-admin-api';
 
-import {  SetInfoblockExcludedDto, SetInfoblockGroupDto } from "@workspace/nest-api";
-import {  RemoveInfoblockFromPackagesDto, RemoveInfoblockPackagesDto, SetInfoblockInPackagesDto, SetInfoblockPackagesDto } from "@workspace/nest-api";
+import {  SetInfoblockExcludedDto, SetInfoblockGroupDto } from "@workspace/nest-admin-api";
+import {  RemoveInfoblockFromPackagesDto, RemoveInfoblockPackagesDto, SetInfoblockInPackagesDto } from "@workspace/nest-admin-api";
 
 /**
  * Маппинг типов инфоблоков для удобства использования
@@ -47,5 +47,5 @@ export type InfoblockPackagesAddDto = AddInfoblockPackagesDto;
 export type InfoblockPackagesAddToPackagesDto = AddInfoblockToPackagesDto;
 export type InfoblockPackagesRemoveDto = RemoveInfoblockPackagesDto;
 export type InfoblockPackagesRemoveFromPackagesDto = RemoveInfoblockFromPackagesDto;
-export type InfoblockPackagesSetDto = SetInfoblockPackagesDto;
+export type InfoblockPackagesSetDto = SetInfoblockInPackagesDto;
 export type InfoblockPackagesInPackagesSetDto = SetInfoblockInPackagesDto;

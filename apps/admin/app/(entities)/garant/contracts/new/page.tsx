@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { ContractForm } from '@/modules/entities/garant/contracts/ui/contracts-form';
 import { useCreateContract } from '@/modules/entities/garant/contracts/lib/hooks';
-import { CreateContractDto, UpdateContractDto } from '@workspace/nest-api';
+import { CreateContractDto, UpdateContractDto } from '@workspace/nest-admin-api';
 
 export default function NewContractPage() {
     const router = useRouter();

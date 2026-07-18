@@ -31,7 +31,8 @@ export const OnboardingForm = ({
     user?: PortalSessionUser;
 }) => {
     const [organizationName, setOrganizationName] = useState('');
-    const [contactEmail, setContactEmail] = useState('');
+    // Email предзаполняется из Bitrix-профиля (user.current), если он там есть
+    const [contactEmail, setContactEmail] = useState(user?.email ?? '');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

@@ -51,6 +51,34 @@ export const portalSessionStore = {
     getToken(): string | null {
         return snapshot.session?.token ?? null;
     },
+    /**
+     * Дождаться ИСХОДА bootstrap-а сессии (ready/absent/expired) и вернуть
+     * токен (null — сессии нет). Закрывает гонку «авторизованный запрос
+     * стартовал раньше, чем обмен кода положил токен» (живой тест
+     * 2026-07-18: summary ушёл без Bearer → ложное «Сессия истекла»).
+     */
+    waitForToken(timeoutMs: number): Promise<string | null> {
+        const settled = () =>
+            snapshot.status === 'ready' ||
+            snapshot.status === 'absent' ||
+            snapshot.status === 'expired';
+        if (settled()) {
+            return Promise.resolve(this.getToken());
+        }
+        return new Promise((resolve) => {
+            const timer = setTimeout(() => {
+                unsubscribe();
+                resolve(this.getToken());
+            }, timeoutMs);
+            const unsubscribe = portalSessionStore.subscribe(() => {
+                if (settled()) {
+                    clearTimeout(timer);
+                    unsubscribe();
+                    resolve(this.getToken());
+                }
+            });
+        });
+    },
     setLoading(): void {
         emit({ status: 'loading' });
     },

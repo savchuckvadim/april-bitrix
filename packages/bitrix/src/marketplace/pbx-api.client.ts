@@ -71,6 +71,9 @@ async function parseErrorMessage(response: Response): Promise<string> {
     return `Ошибка запроса (${response.status})`;
 }
 
+/** Сколько ждать окончания bootstrap-а сессии перед авторизованным запросом */
+const SESSION_WAIT_TIMEOUT_MS = 5_000;
+
 async function performFetch(options: RequestOptions): Promise<Response> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -79,8 +82,22 @@ async function performFetch(options: RequestOptions): Promise<Response> {
             'Content-Type': 'application/json',
         };
         if (!options.anonymous) {
-            const token = portalSessionStore.getToken();
-            if (token) headers.Authorization = `Bearer ${token}`;
+            // НЕ гоняемся с bootstrap-ом: ждём исхода обмена кода. Запрос
+            // без Bearer на защищённую ручку = гарантированный 401 и ложное
+            // «Сессия истекла» (живой тест 2026-07-18).
+            const token =
+                portalSessionStore.getToken() ??
+                (await portalSessionStore.waitForToken(
+                    SESSION_WAIT_TIMEOUT_MS,
+                ));
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            } else {
+                // токена так и нет — сессии не будет, 401 неизбежен
+                console.warn(
+                    `[pbx-api] авторизованный запрос без сессии: ${options.path}`,
+                );
+            }
         }
         return await fetch(`${getBaseUrl()}${options.path}`, {
             method: options.method,

@@ -68,9 +68,6 @@ function getCore(): SessionStoreCore {
 
 const core = getCore();
 
-/** Диагностическая метка контейнера состояния (общая для всех копий модуля). */
-export const SESSION_STORE_INSTANCE_ID = core.instanceId;
-
 /**
  * Идемпотентный запускатель bootstrap-а (регистрирует session.bootstrap
  * при загрузке модуля). Нужен waitForToken: если сессию ещё никто не
@@ -138,22 +135,13 @@ export const portalSessionStore = {
         emit({ status: 'loading' });
     },
     setSession(session: PortalSession): void {
-        console.info(
-            `[pbx-session:${core.instanceId}] ready state=${session.state}`,
-        );
         emit({ status: 'ready', session, fallbackState: null });
     },
     setAbsent(fallbackState: PortalSessionState | null): void {
-        console.info(
-            `[pbx-session:${core.instanceId}] absent fallback=${fallbackState ?? '-'}`,
-        );
         emit({ status: 'absent', session: null, fallbackState });
     },
     /** Вызывается клиентом API при 401 — сессия протухла */
     markExpired(): void {
-        console.warn(
-            `[pbx-session:${core.instanceId}] markExpired (пришёл 401)`,
-        );
         emit({ status: 'expired', session: null });
     },
     /** Обновить состояние допуска после действий (например, подачи заявки) */

@@ -120,6 +120,95 @@ export class BitrixBaseApi {
             if (!this.user) this.user = user;
             if (!this.domain) this.domain = domain;
         }
+
+        // ДИАГНОСТИКА: дёргаем несколько разных методов, чтобы понять —
+        // падает ВЕСЬ фрейм-REST (транспорт/CORS) или только user.current.
+        await this._diagnoseRest();
+    }
+
+    /**
+     * Временная диагностика: пробуем набор read-методов через тот же
+     * actions.v2.call.make и логируем исход каждого. Если падают ВСЕ —
+     * проблема в транспорте (cross-origin/CORS/preflight). Если часть
+     * проходит — дело в конкретном методе/правах, а не в SDK.
+     */
+    private async _diagnoseRest() {
+        // A) Через SDK actions.v2 — падает весь фрейм-REST или только user.current?
+        const methods: Array<{ method: string; params?: object }> = [
+            // server.time — минимальные права; scope — какие REST-права выданы;
+            // остальное — реальные методы данных.
+            { method: 'server.time' },
+            { method: 'scope' },
+            { method: 'method.get', params: { name: 'user.current' } },
+            { method: 'profile' },
+            { method: 'user.current' },
+            { method: 'user.get', params: { ID: 1 } },
+            { method: 'department.get' },
+            { method: 'app.info' },
+            { method: 'crm.deal.list', params: { start: 0 } },
+        ];
+        for (const { method, params } of methods) {
+            try {
+                const res = await this.bx.actions.v2.call.make({
+                    method,
+                    params: params ?? {},
+                });
+                console.log(`[bitrix-diag] SDK ${method}: OK`, {
+                    isSuccess: res?.isSuccess,
+                    data: res?.isSuccess ? res.getData() : undefined,
+                });
+            } catch (error: any) {
+                console.error(`[bitrix-diag] SDK ${method}: FAIL`, {
+                    status: error?.status,
+                    code: error?.code,
+                    message: error?.message,
+                    origCode: error?.originalError?.code,
+                    origStatus: error?.originalError?.response?.status,
+                });
+            }
+        }
+
+        // B) Сырые fetch мимо SDK — изолируем транспорт/CORS/форму URL.
+        // Если оба падают с TypeError/'Failed to fetch' → cross-origin режется
+        // порталом (CORS). Если .json проходит, а голый метод — нет → дело в
+        // форме URL (v0.1.7 бил на .json). Если оба дают HTTP-статус (401/403)
+        // → REST доступен, но токен/права.
+        try {
+            const authData = this.bx.auth.getAuthData() as false | AuthData;
+            if (authData) {
+                const base = new URL(authData.domain).origin;
+                const token = (authData as any).access_token as string;
+                const probes: Array<{ tag: string; url: string; init: RequestInit }> = [
+                    {
+                        tag: 'GET user.current.json (v0.1.7-style)',
+                        url: `${base}/rest/user.current.json?auth=${token}`,
+                        init: { method: 'GET' },
+                    },
+                    {
+                        tag: 'POST user.current?auth (v2-style, json body)',
+                        url: `${base}/rest/user.current?auth=${token}`,
+                        init: {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({}),
+                        },
+                    },
+                ];
+                for (const p of probes) {
+                    try {
+                        const r = await fetch(p.url, p.init);
+                        console.log(`[bitrix-diag] RAW ${p.tag}: HTTP ${r.status}`);
+                    } catch (e: any) {
+                        console.error(
+                            `[bitrix-diag] RAW ${p.tag}: NETWORK/CORS FAIL`,
+                            { name: e?.name, message: e?.message },
+                        );
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('[bitrix-diag] raw probes setup failed', e);
+        }
     }
 
     public getDomain() {

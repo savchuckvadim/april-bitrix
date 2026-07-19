@@ -67,16 +67,11 @@ export class BitrixBaseApi {
             console.log('[bitrix-init] step1: frame OK', {
                 placement: this.bx?.placement?.title,
             });
-            // v2: щадящий режим задаётся rateLimit (Leaky Bucket) вместо
-            // легаси sleep/speed/amount; значения стандартного тарифа
-            await this.bx.setRestrictionManagerParams({
-                rateLimit: {
-                    burstLimit: 50,
-                    drainRate: 2,
-                    adaptiveEnabled: true,
-                },
-            });
-            console.log('[bitrix-init] step1: setRestrictionManagerParams OK');
+            // ВНИМАНИЕ: setRestrictionManagerParams({ rateLimit }) убран.
+            // Канонический init фрейма (b24jssdk-core, kpi-sales) — просто
+            // initializeB24Frame() без кастомного rate-limit. Наш конфиг
+            // подозревается в том, что гнал ВСЕ вызовы в backoff-ретрай до
+            // «All attempts exhausted» ещё до реального HTTP-запроса.
             // Включаем подробный логгер SDK, чтобы увидеть реальный REST-запрос
             // (post/send: URL) и настоящую ошибку (post/catchError: status/тело),
             // которые иначе маскируются под «500 All attempts exhausted».

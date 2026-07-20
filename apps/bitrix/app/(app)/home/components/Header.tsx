@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@workspace/ui/components/button';
 import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
@@ -23,10 +24,17 @@ const navigation = [
     { name: 'Контакты', href: '#contact' },
 ];
 
+const HOME_PATH = '/home';
+
 export const Header: React.FC = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState<string>('');
+    const pathname = usePathname();
+    const router = useRouter();
+    // Хедер используется не только на лендинге (/home), но и на /legal/** —
+    // там секций нет, навигация должна вести на главную с якорем
+    const isHome = pathname === HOME_PATH;
 
     // Отслеживание скролла для изменения стиля header
     useEffect(() => {
@@ -113,6 +121,11 @@ export const Header: React.FC = () => {
     }, []);
 
     const scrollToSection = (href: string) => {
+        if (!isHome) {
+            setIsMobileMenuOpen(false);
+            router.push(href === '#hero' ? HOME_PATH : `${HOME_PATH}${href}`);
+            return;
+        }
         const element = document.querySelector(href);
         if (element) {
             // Если это переход на форму контактов, сохраняем источник
@@ -132,9 +145,11 @@ export const Header: React.FC = () => {
             setIsMobileMenuOpen(false);
         }
     };
-    if (!isScrolled) {
+    // На лендинге хедер появляется после скролла; на остальных страницах виден всегда
+    if (!isScrolled && isHome) {
         return null;
     }
+    const solid = isScrolled || !isHome;
 
     return (
         <header
@@ -145,7 +160,7 @@ export const Header: React.FC = () => {
 
 
 
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${solid
                 ? 'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm'
                 : 'bg-background/1 backdrop-blur text-primary supports-[backdrop-filter]:bg-background/10 shadow-sm'
                 }`}
@@ -190,10 +205,10 @@ export const Header: React.FC = () => {
                                         cursor: 'pointer',
                                     }}
                                     className={`text-sm font-medium transition-colors relative ${isActive
-                                        ? isScrolled
+                                        ? solid
                                             ? 'text-primary font-semibold'
                                             : 'text-white font-semibold'
-                                        : isScrolled
+                                        : solid
                                             ? 'text-foreground hover:text-primary'
                                             : 'text-primary hover:text-white'
                                         }`}

@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
 import { Mail, Phone, MapPin } from 'lucide-react';
 
 const footerLinks = {
@@ -21,18 +22,28 @@ const footerLinks = {
     ],
     legal: [
         { name: 'Политика обработки персональных данных', href: '/legal/privacy' },
+        { name: 'Политика конфиденциальности сайта', href: '/legal/site-privacy' },
         { name: 'Лицензионное соглашение', href: '/legal/license' },
         { name: 'Поддержка', href: '/support' },
     ],
 };
 
+const HOME_PATH = '/home';
+
 export const Footer: React.FC = () => {
+    const pathname = usePathname();
+    const router = useRouter();
+
     const scrollToSection = (href: string) => {
-        if (href.startsWith('#')) {
-            const element = document.querySelector(href);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-            }
+        if (!href.startsWith('#')) return;
+        // Вне лендинга секций нет — ведём на главную с якорем
+        if (pathname !== HOME_PATH) {
+            router.push(`${HOME_PATH}${href}`);
+            return;
+        }
+        const element = document.querySelector(href);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
         }
     };
 

@@ -47,6 +47,9 @@ export const LICENSE_URL = `${APP_BASE_URL}/legal/license`;
 /** Постоянный адрес политики обработки персональных данных */
 export const PRIVACY_URL = `${APP_BASE_URL}/legal/privacy`;
 
+/** Постоянный адрес политики конфиденциальности сайта (форма заявки) */
+export const SITE_PRIVACY_URL = `${APP_BASE_URL}/legal/site-privacy`;
+
 /** Постоянный адрес страницы поддержки */
 export const SUPPORT_URL = `${APP_BASE_URL}/support`;
 

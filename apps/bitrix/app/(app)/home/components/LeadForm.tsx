@@ -332,7 +332,7 @@ export const LeadForm: React.FC = () => {
                                     Я согласен на обработку персональных данных{' '}
                                     <span className="text-destructive">*</span>
                                     <a
-                                        href="/privacy"
+                                        href="/legal/site-privacy"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-primary hover:underline ml-1"

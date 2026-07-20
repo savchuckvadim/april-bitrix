@@ -106,7 +106,7 @@ export const Footer: React.FC = () => {
                             <li className="flex items-start gap-3">
                                 <Mail className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                                 <a
-                                    href="mailto:info@april-crm.ru"
+                                    href="mailto:april-app@mail.ru"
                                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
                                 >
                                     april-app@mail.ru

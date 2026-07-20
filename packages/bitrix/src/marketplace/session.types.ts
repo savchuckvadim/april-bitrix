@@ -43,6 +43,24 @@ export interface OnboardingApplication {
     contactEmail: string;
 }
 
+/** Ответ POST /bitrix-marketplace/onboarding/redeem (погашение кода) */
+export interface RedeemInviteResult {
+    state: PortalSessionState;
+    productCode: string;
+    /**
+     * Запущена ли установка сущностей. false — установку запускает сам
+     * клиент кнопкой (сценарий с мастером настройки).
+     */
+    provisionStarted: boolean;
+    organizationName?: string;
+}
+
+/** Ответ POST /bitrix-marketplace/cabinet/install-product */
+export interface InstallProductResult {
+    productCode: string;
+    provisionStarted: boolean;
+}
+
 /** Продукт портала (portal_products; отсутствие записи = не подключён) */
 export interface CabinetProduct {
     code: string;

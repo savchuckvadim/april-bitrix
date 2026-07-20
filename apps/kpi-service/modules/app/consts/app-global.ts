@@ -8,7 +8,7 @@ export const TESTING_DOMAIN = 'gsr.bitrix24.ru'
 export const IS_PROD = true;
 // export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
 export const TESTING_USER = {
-    ID: 1,
+    ID: 187,
     ACTIVE: true,
     DATE_REGISTER: '29/08/1988',
     EMAIL: 'string',

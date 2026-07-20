@@ -13,11 +13,16 @@ import type {
     ApprovalActionDto,
     ApprovalResultDto,
     InstallComponentDto,
+    InviteDto,
+    IssueInviteDto,
+    IssuedInviteDto,
     MarketplaceModerationGetApplicationsParams,
     MarketplaceModerationGetEventsParams,
     MarketplaceModerationGetInstallsParams,
+    MarketplaceModerationGetInvitesParams,
     PbxActionResultDto,
     PortalProductDto,
+    ReissueInviteDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
@@ -127,6 +132,58 @@ export const getAdminMarketplaceModeration = () => {
             method: 'POST',
         });
     };
+    /**
+     * Выпущенные коды подключения портала к сервису April (новые сверху). Сам код и его хэш наружу НЕ отдаются — только видимая часть (codePrefix), получатель, статус, сроки и портал, погасивший код.
+     * @summary Список кодов подключения
+     */
+    const marketplaceModerationGetInvites = (
+        params?: MarketplaceModerationGetInvitesParams,
+    ) => {
+        return customAxios<InviteDto[]>({
+            url: `/api/admin/marketplace/invites`,
+            method: 'GET',
+            params,
+        });
+    };
+    /**
+     * Создаёт (или находит по email) клиента, выпускает код подключения и отправляет письмо. ВНИМАНИЕ: открытый код возвращается ЕДИНСТВЕННЫЙ РАЗ — в БД хранится только его хэш. Если письмо не ушло (emailSent=false), код остаётся в статусе issued и передаётся клиенту вручную.
+     * @summary Выпустить код подключения и отправить его на email
+     */
+    const marketplaceModerationIssueInvite = (
+        issueInviteDto: IssueInviteDto,
+    ) => {
+        return customAxios<IssuedInviteDto>({
+            url: `/api/admin/marketplace/invites`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: issueInviteDto,
+        });
+    };
+    /**
+     * Переводит код в статус revoked — погасить его больше нельзя. Уже погашенный (redeemed) код отозвать нельзя: чтобы отключить портал, используйте блокировку портала (block) в разделе заявок.
+     * @summary Отозвать код подключения
+     */
+    const marketplaceModerationRevokeInvite = (id: string) => {
+        return customAxios<InviteDto>({
+            url: `/api/admin/marketplace/invites/${id}/revoke`,
+            method: 'POST',
+        });
+    };
+    /**
+     * Отзывает старый код и выпускает новый на тот же (или переданный) email, после чего отправляет письмо. Нужен потому, что повторно отправить прежний код невозможно — в БД хранится только его хэш. Новый код возвращается открытым текстом.
+     * @summary Перевыпустить код подключения
+     */
+    const marketplaceModerationReissueInvite = (
+        id: string,
+        reissueInviteDto: ReissueInviteDto,
+    ) => {
+        return customAxios<IssuedInviteDto>({
+            url: `/api/admin/marketplace/invites/${id}/reissue`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: reissueInviteDto,
+        });
+    };
     return {
         marketplaceModerationGetApplications,
         marketplaceModerationDecide,
@@ -137,6 +194,10 @@ export const getAdminMarketplaceModeration = () => {
         marketplaceModerationGetPortalProducts,
         marketplaceModerationProvisionRefresh,
         marketplaceModerationPlacementsRefresh,
+        marketplaceModerationGetInvites,
+        marketplaceModerationIssueInvite,
+        marketplaceModerationRevokeInvite,
+        marketplaceModerationReissueInvite,
     };
 };
 export type MarketplaceModerationGetApplicationsResult = NonNullable<
@@ -217,6 +278,42 @@ export type MarketplaceModerationPlacementsRefreshResult = NonNullable<
             ReturnType<
                 typeof getAdminMarketplaceModeration
             >['marketplaceModerationPlacementsRefresh']
+        >
+    >
+>;
+export type MarketplaceModerationGetInvitesResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getAdminMarketplaceModeration
+            >['marketplaceModerationGetInvites']
+        >
+    >
+>;
+export type MarketplaceModerationIssueInviteResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getAdminMarketplaceModeration
+            >['marketplaceModerationIssueInvite']
+        >
+    >
+>;
+export type MarketplaceModerationRevokeInviteResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getAdminMarketplaceModeration
+            >['marketplaceModerationRevokeInvite']
+        >
+    >
+>;
+export type MarketplaceModerationReissueInviteResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getAdminMarketplaceModeration
+            >['marketplaceModerationReissueInvite']
         >
     >
 >;

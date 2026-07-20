@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "gen:legal-pdf": "node scripts/generate-legal-pdf.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.8",
@@ -43,6 +44,7 @@
     "@types/react-dom": "^19",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
+    "puppeteer": "^24.10.0",
     "typescript": "^5.7.3"
   },
   "main": "eslint.config.js",

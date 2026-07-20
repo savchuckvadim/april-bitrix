@@ -70,6 +70,18 @@ export const marketplaceEntities: Entity[] = [
         },
     },
     {
+        id: 35,
+        item: {
+            name: 'marketplace-invites',
+            title: 'Коды подключения',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/marketplace/invites',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
         id: 31,
         item: {
             name: 'marketplace-installs',

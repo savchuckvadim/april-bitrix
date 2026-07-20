@@ -7,6 +7,8 @@ export type {
     CabinetSummary,
     CabinetProduct,
     CabinetComponent,
+    RedeemInviteResult,
+    InstallProductResult,
 } from './session.types';
 export {
     portalSessionStore,
@@ -27,3 +29,4 @@ export {
     submitOnboardingApplication,
 } from './onboarding.api';
 export { getCabinetSummary } from './cabinet.api';
+export { redeemInviteCode, installProduct } from './invite.api';

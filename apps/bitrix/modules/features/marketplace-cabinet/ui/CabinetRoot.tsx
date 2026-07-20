@@ -7,12 +7,11 @@ import {
     type OnboardingState,
 } from '@workspace/bitrix';
 import { usePortalSession } from '../lib/use-portal-session.hook';
-import { OnboardingForm } from './OnboardingForm';
+import { ConnectScreen } from './ConnectScreen';
 import { ActiveCabinet } from './ActiveCabinet';
 import {
     BlockedScreen,
     LoadingScreen,
-    PendingScreen,
     SessionExpiredScreen,
     UnauthorizedScreen,
 } from './StatusScreens';
@@ -63,14 +62,16 @@ export const CabinetRoot = () => {
 
     switch (session.state) {
         case 'onboarding':
-            return (
-                <OnboardingForm domain={session.domain} user={session.user} />
-            );
         case 'pending':
+            // Оба состояния ведут на один экран: ввод кода доступен всегда,
+            // различается лишь блок под ним (запросить код / код запрошен).
             return (
-                <PendingScreen
+                <ConnectScreen
+                    state={session.state}
                     domain={session.domain}
+                    user={session.user}
                     organizationName={pendingDetails?.organization?.name}
+                    contactEmail={pendingDetails?.organization?.email}
                 />
             );
         case 'blocked':

@@ -1,0 +1,1 @@
+export { InvitesTable } from './InvitesTable';

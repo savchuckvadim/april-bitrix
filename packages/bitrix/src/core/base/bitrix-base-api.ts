@@ -19,7 +19,6 @@ import {
     AuthData,
     B24Frame,
     initializeB24Frame,
-    LoggerFactory,
     Result,
 } from '@bitrix24/b24jssdk';
 import { AxiosError } from 'axios';
@@ -58,151 +57,33 @@ export class BitrixBaseApi {
     ) {}
 
     async init(domain: string, user: IBXUser) {
-        console.log('[bitrix-init] init() start', { domain, userId: user?.ID });
         // Шаг 1: поднимаем фрейм. Только реальная ошибка инициализации
         // фрейма означает, что мы НЕ в Битриксе (standalone / нет B24).
+        //
+        // ВАЖНО: здесь НЕТ setRestrictionManagerParams(). Канонический init
+        // фрейма — просто initializeB24Frame(). Кастомный rate-limit загонял
+        // КАЖДЫЙ вызов в backoff-ретраи до «All attempts exhausted», так и не
+        // дойдя до HTTP. Подробности: packages/bitrix/BITRIX_V2_SDK_GUIDE.md
         try {
-            console.log('[bitrix-init] step1: initializeB24Frame()...');
             this.bx = await initializeB24Frame();
-            console.log('[bitrix-init] step1: frame OK', {
-                placement: this.bx?.placement?.title,
-            });
-            // ВНИМАНИЕ: setRestrictionManagerParams({ rateLimit }) убран.
-            // Канонический init фрейма (b24jssdk-core, kpi-sales) — просто
-            // initializeB24Frame() без кастомного rate-limit. Наш конфиг
-            // подозревается в том, что гнал ВСЕ вызовы в backoff-ретрай до
-            // «All attempts exhausted» ещё до реального HTTP-запроса.
-            // Включаем подробный логгер SDK, чтобы увидеть реальный REST-запрос
-            // (post/send: URL) и настоящую ошибку (post/catchError: status/тело),
-            // которые иначе маскируются под «500 All attempts exhausted».
-            try {
-                this.bx.setLogger(
-                    LoggerFactory.createForBrowser('bitrix-init', true),
-                );
-                console.log('[bitrix-init] step1: verbose SDK logger enabled');
-            } catch (e) {
-                console.warn('[bitrix-init] step1: setLogger failed', e);
-            }
             this.inFrame = true;
         } catch (error) {
             this.inFrame = false;
             this.domain = domain;
             this.user = user;
-            console.error('[bitrix-init] step1 FAILED (не во фрейме):', error);
             this.logger.error(`Error initializing B24 frame: ${error}`);
             return;
         }
 
-        // Шаг 2: тянем данные пользователя. Падение REST (например,
-        // портал отдаёт 500 на user.current) НЕ должно сбрасывать inFrame —
-        // иначе приложение решает, что оно вне фрейма, и улетает в
+        // Шаг 2: тянем данные пользователя. Падение REST НЕ должно сбрасывать
+        // inFrame — иначе приложение решает, что оно вне фрейма, и улетает в
         // бесконечный редирект на /none-auth.
         try {
-            console.log('[bitrix-init] step2: getInitialized()...');
             await this.getInitialized();
-            console.log('[bitrix-init] step2 OK', {
-                inFrame: this.inFrame,
-                initialized: this.initialized,
-                domain: this.domain,
-                userId: this.user?.ID,
-            });
         } catch (error) {
-            console.error(
-                '[bitrix-init] step2 FAILED (user.current/getInitialized упал, фрейм остаётся):',
-                error,
-            );
             this.logger.error(`Error fetching current user: ${error}`);
             if (!this.user) this.user = user;
             if (!this.domain) this.domain = domain;
-        }
-
-        // ДИАГНОСТИКА: дёргаем несколько разных методов, чтобы понять —
-        // падает ВЕСЬ фрейм-REST (транспорт/CORS) или только user.current.
-        await this._diagnoseRest();
-    }
-
-    /**
-     * Временная диагностика: пробуем набор read-методов через тот же
-     * actions.v2.call.make и логируем исход каждого. Если падают ВСЕ —
-     * проблема в транспорте (cross-origin/CORS/preflight). Если часть
-     * проходит — дело в конкретном методе/правах, а не в SDK.
-     */
-    private async _diagnoseRest() {
-        // A) Через SDK actions.v2 — падает весь фрейм-REST или только user.current?
-        const methods: Array<{ method: string; params?: object }> = [
-            // server.time — минимальные права; scope — какие REST-права выданы;
-            // остальное — реальные методы данных.
-            { method: 'server.time' },
-            { method: 'scope' },
-            { method: 'method.get', params: { name: 'user.current' } },
-            { method: 'profile' },
-            { method: 'user.current' },
-            { method: 'user.get', params: { ID: 1 } },
-            { method: 'department.get' },
-            { method: 'app.info' },
-            { method: 'crm.deal.list', params: { start: 0 } },
-        ];
-        for (const { method, params } of methods) {
-            try {
-                const res = await this.bx.actions.v2.call.make({
-                    method,
-                    params: params ?? {},
-                });
-                console.log(`[bitrix-diag] SDK ${method}: OK`, {
-                    isSuccess: res?.isSuccess,
-                    data: res?.isSuccess ? res.getData() : undefined,
-                });
-            } catch (error: any) {
-                console.error(`[bitrix-diag] SDK ${method}: FAIL`, {
-                    status: error?.status,
-                    code: error?.code,
-                    message: error?.message,
-                    origCode: error?.originalError?.code,
-                    origStatus: error?.originalError?.response?.status,
-                });
-            }
-        }
-
-        // B) Сырые fetch мимо SDK — изолируем транспорт/CORS/форму URL.
-        // Если оба падают с TypeError/'Failed to fetch' → cross-origin режется
-        // порталом (CORS). Если .json проходит, а голый метод — нет → дело в
-        // форме URL (v0.1.7 бил на .json). Если оба дают HTTP-статус (401/403)
-        // → REST доступен, но токен/права.
-        try {
-            const authData = this.bx.auth.getAuthData() as false | AuthData;
-            if (authData) {
-                const base = new URL(authData.domain).origin;
-                const token = (authData as any).access_token as string;
-                const probes: Array<{ tag: string; url: string; init: RequestInit }> = [
-                    {
-                        tag: 'GET user.current.json (v0.1.7-style)',
-                        url: `${base}/rest/user.current.json?auth=${token}`,
-                        init: { method: 'GET' },
-                    },
-                    {
-                        tag: 'POST user.current?auth (v2-style, json body)',
-                        url: `${base}/rest/user.current?auth=${token}`,
-                        init: {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({}),
-                        },
-                    },
-                ];
-                for (const p of probes) {
-                    try {
-                        const r = await fetch(p.url, p.init);
-                        console.log(`[bitrix-diag] RAW ${p.tag}: HTTP ${r.status}`);
-                    } catch (e: any) {
-                        console.error(
-                            `[bitrix-diag] RAW ${p.tag}: NETWORK/CORS FAIL`,
-                            { name: e?.name, message: e?.message },
-                        );
-                    }
-                }
-            }
-        } catch (e) {
-            console.warn('[bitrix-diag] raw probes setup failed', e);
         }
     }
 
@@ -239,62 +120,26 @@ export class BitrixBaseApi {
     private async getInitialized() {
         if (this.inFrame) {
             const authData = this.bx.auth.getAuthData() as false | AuthData;
-            console.log('[bitrix-init] getInitialized: authData', authData);
             if (!authData) return this.domain;
-            const domain = authData.domain;
-            const hostname = new URL(domain).hostname;
+            const hostname = new URL(authData.domain).hostname;
             this.domain = hostname;
-            console.log('[bitrix-init] getInitialized: domain', hostname);
             this.user = (await this.getCurrentUser()) as IBXUser;
             this.initialized = true;
         }
         return this.initialized;
     }
+    /**
+     * Текущий пользователь фрейма. Только iframe знает, кто открыл приложение
+     * (бэкенд по вебхуку вернёт владельца интеграции, а не этого человека).
+     */
     private async getCurrentUser() {
         let currentUser = null as null | IBXUser;
-        // Куда SDK реально шлёт REST (per-version endpoints от родителя).
-        try {
-            console.log(
-                '[bitrix-init] getCurrentUser: REST endpoints =',
-                JSON.stringify(
-                    Array.from(this.bx.getTargetOriginWithPath().entries()),
-                ),
-            );
-        } catch (e) {
-            console.warn('[bitrix-init] getTargetOriginWithPath failed', e);
-        }
-        try {
-            console.log(
-                '[bitrix-init] getCurrentUser: actions.v2.call.make("user.current")...',
-            );
-            const currentUserData = await this.bx.actions.v2.call.make<IBXUser>(
-                { method: 'user.current' },
-            );
-            console.log('[bitrix-init] getCurrentUser: raw result', {
-                isSuccess: currentUserData?.isSuccess,
-                data: currentUserData?.isSuccess
-                    ? currentUserData.getData()
-                    : undefined,
-            });
-            if (currentUserData && currentUserData.isSuccess) {
-                currentUser = currentUserData.getData()
-                    ?.result as unknown as IBXUser;
-            }
-        } catch (error: any) {
-            // «500 All attempts exhausted» — это заглушка (status = lastError||500).
-            // Разворачиваем настоящую причину: status 0 + code NETWORK_ERROR =
-            // запрос не дошёл (CORS/сеть); иначе тут будет реальный HTTP-код и
-            // код ошибки портала (expired_token/INVALID_REQUEST/…).
-            console.error('[bitrix-init] getCurrentUser: REAL error', {
-                status: error?.status,
-                code: error?.code,
-                message: error?.message,
-                origCode: error?.originalError?.code,
-                origMessage: error?.originalError?.message,
-                origResponseStatus: error?.originalError?.response?.status,
-                origResponseData: error?.originalError?.response?.data,
-            });
-            throw error;
+        const currentUserData = await this.bx.actions.v2.call.make<IBXUser>({
+            method: 'user.current',
+        });
+        if (currentUserData && currentUserData.isSuccess) {
+            currentUser = currentUserData.getData()
+                ?.result as unknown as IBXUser;
         }
         return currentUser;
     }

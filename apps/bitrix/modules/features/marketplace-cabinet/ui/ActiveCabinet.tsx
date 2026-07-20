@@ -20,8 +20,10 @@ import {
     XCircle,
     MinusCircle,
 } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 import {
     getCabinetSummary,
+    installProduct,
     SessionExpiredError,
     type CabinetComponent,
     type CabinetSummary,
@@ -33,6 +35,17 @@ import {
  * живые данные GET /cabinet/summary (portal_products +
  * marketplace_install_components).
  */
+
+/**
+ * Секция «Подписка и оплаты» СКРЫТА до модерации Маркета.
+ *
+ * Причина: расчёты идут по прямому договору на услуги внешнего сервиса
+ * April, а любые упоминания оплат/подписок ВНУТРИ приложения модерация
+ * читает как встроенную монетизацию мимо биллинга Битрикса.
+ * TODO(этап 7): вернуть вместе с LicenseService (app.info/ONAPPPAYMENT),
+ * переформулировав как «статус договора на внешний сервис».
+ */
+const SHOW_SUBSCRIPTION_SECTION = false;
 
 /** Каталог продуктов приложения (описания — фронтовая константа) */
 const PRODUCT_CATALOG = [
@@ -105,6 +118,8 @@ export const ActiveCabinet = ({
 }) => {
     const [summary, setSummary] = useState<CabinetSummary | null>(null);
     const [summaryError, setSummaryError] = useState(false);
+    const [installing, setInstalling] = useState(false);
+    const [installError, setInstallError] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -124,6 +139,33 @@ export const ActiveCabinet = ({
         };
     }, []);
 
+    /**
+     * Кнопка «Установить продукт» — путь, когда код подключения выпущен без
+     * автоматической установки (auto_provision=false): продукт у портала
+     * есть, но сущности не ставились. Она же будущая точка входа мастера
+     * настройки (back/ai/tasks/bitrix-marketplace-setup-wizard.md).
+     */
+    const onInstall = async () => {
+        setInstalling(true);
+        setInstallError(null);
+        try {
+            await installProduct();
+            // Статусы компонентов поедут в очереди — перечитываем сводку
+            setSummary(await getCabinetSummary());
+        } catch (error) {
+            if (error instanceof SessionExpiredError) {
+                return; // стор уже expired → CabinetRoot покажет экран
+            }
+            setInstallError(
+                error instanceof Error
+                    ? error.message
+                    : 'Не удалось запустить установку — попробуйте ещё раз',
+            );
+        } finally {
+            setInstalling(false);
+        }
+    };
+
     const products = PRODUCT_CATALOG.map((item) => {
         const portalProduct = summary?.products.find(
             (product) => product.code === item.code,
@@ -131,6 +173,12 @@ export const ActiveCabinet = ({
         return {
             ...item,
             active: portalProduct?.status === 'active',
+            // установку запускаем только для sales: ручка бэка ставит его
+            // (service идёт прицепом), и только если продукт уже заведён
+            installable:
+                item.code === 'sales' &&
+                portalProduct !== undefined &&
+                portalProduct.status !== 'active',
         };
     });
 
@@ -216,29 +264,52 @@ export const ActiveCabinet = ({
                                     <p className="mt-1 text-sm text-gray-600">
                                         {product.description}
                                     </p>
+                                    {product.installable && (
+                                        <div className="mt-3">
+                                            <Button
+                                                size="sm"
+                                                disabled={installing}
+                                                onClick={() =>
+                                                    void onInstall()
+                                                }
+                                            >
+                                                {installing
+                                                    ? 'Запускаем установку…'
+                                                    : 'Установить продукт'}
+                                            </Button>
+                                            {installError && (
+                                                <p className="mt-2 text-sm text-red-600">
+                                                    {installError}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </CardContent>
                     </Card>
 
                     <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <CreditCard className="h-5 w-5" />
-                                    Подписка и оплаты
-                                </CardTitle>
-                                <CardDescription>
-                                    Расчёты — по прямому договору с вендором
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-gray-500">
-                                    Раздел в разработке. Здесь появятся статус
-                                    договора, срок действия и история оплат.
-                                </p>
-                            </CardContent>
-                        </Card>
+                        {SHOW_SUBSCRIPTION_SECTION && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <CreditCard className="h-5 w-5" />
+                                        Подписка и оплаты
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Расчёты — по прямому договору с вендором
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm text-gray-500">
+                                        Раздел в разработке. Здесь появятся
+                                        статус договора, срок действия и
+                                        история оплат.
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         <Card>
                             <CardHeader>

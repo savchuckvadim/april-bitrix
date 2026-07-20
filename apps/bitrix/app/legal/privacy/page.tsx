@@ -1,5 +1,6 @@
 import React from 'react';
 import { LegalDocument } from '../components/LegalDocument';
+import { PRIVACY_PDF_PATH } from '../constants/vendor';
 import { PRIVACY_DOCUMENT } from './constants/privacy-document';
 
 export const metadata = {
@@ -9,5 +10,13 @@ export const metadata = {
 };
 
 export default function PrivacyPage() {
-    return <LegalDocument document={PRIVACY_DOCUMENT} />;
+    return (
+        <LegalDocument
+            document={PRIVACY_DOCUMENT}
+            pdf={{
+                href: PRIVACY_PDF_PATH,
+                fileName: 'Менеджер Гарант — политика обработки ПДн.pdf',
+            }}
+        />
+    );
 }

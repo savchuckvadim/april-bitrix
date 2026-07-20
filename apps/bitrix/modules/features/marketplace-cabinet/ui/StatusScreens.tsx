@@ -8,8 +8,11 @@ import {
     CardTitle,
 } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
-import { Clock, ShieldAlert, RefreshCw, Ban } from 'lucide-react';
+import { ShieldAlert, RefreshCw, Ban } from 'lucide-react';
 import type { ReactNode } from 'react';
+
+/** Единая почта поддержки (совпадает с карточкой Маркета и юр-страницами) */
+const SUPPORT_EMAIL = 'april-app@mail.ru';
 
 /** Общая обёртка статус-экранов кабинета */
 const Screen = ({
@@ -47,40 +50,30 @@ const Screen = ({
     </div>
 );
 
-/** Заявка подана — ждём одобрения вендора */
-export const PendingScreen = ({
-    domain,
-    organizationName,
-}: {
-    domain?: string;
-    organizationName?: string;
-}) => (
-    <Screen
-        icon={<Clock className="h-5 w-5 text-amber-500" />}
-        title="Заявка на рассмотрении"
-        description="Мы получили вашу заявку на подключение «Менеджер Гарант»"
-        domain={domain}
-    >
-        <p className="text-sm text-gray-600">
-            {organizationName
-                ? `Организация «${organizationName}» ожидает подтверждения. `
-                : ''}
-            Мы свяжемся с вами по указанному email после проверки — обычно
-            это занимает один рабочий день.
-        </p>
-    </Screen>
-);
+/*
+ * Экран состояния pending живёт не здесь: ожидание кода показывается
+ * блоком внутри ConnectScreen, чтобы поле ввода кода оставалось на виду.
+ *
+ * ФОРМУЛИРОВКИ (общее правило для всех экранов ниже): приложение подаётся
+ * в Маркет как клиентский интерфейс внешнего сервиса. Тексты описывают
+ * ОТСУТСТВИЕ подключения к внешней инфраструктуре, а не «выключенный
+ * функционал» — правило Маркета «функционал не должен включаться/
+ * выключаться по условиям» (docs: ai/marketplace/publication/00-README.md,
+ * раздел «Позиционирование»).
+ */
 
-/** Доступ отключён вендором */
+/** Подключение к внешнему сервису приостановлено (договор не действует) */
 export const BlockedScreen = ({ domain }: { domain?: string }) => (
     <Screen
         icon={<Ban className="h-5 w-5 text-red-500" />}
-        title="Доступ отключён"
-        description="Работа приложения для вашего портала приостановлена"
+        title="Портал отключён от сервиса"
+        description="Обмен данными с внешним сервисом April приостановлен"
         domain={domain}
     >
         <p className="text-sm text-gray-600">
-            Свяжитесь с поддержкой вендора, чтобы восстановить доступ.
+            Подключение портала к серверной инфраструктуре April не
+            действует. Чтобы возобновить обмен данными, свяжитесь с нами:{' '}
+            {SUPPORT_EMAIL}.
         </p>
     </Screen>
 );

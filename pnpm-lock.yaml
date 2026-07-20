@@ -233,6 +233,9 @@ importers:
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      puppeteer:
+        specifier: ^24.10.0
+        version: 24.10.0(typescript@5.7.3)
       typescript:
         specifier: ^5.7.3
         version: 5.7.3

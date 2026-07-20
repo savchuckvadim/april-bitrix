@@ -22,17 +22,8 @@ export const initial =
             const state = getState();
             const app = state.app;
             const isLoading = app.isLoading;
-            console.log('[kpi-init] initial thunk: start', { isLoading });
             const bxInitializedData = await getBXService();
-            console.log('[kpi-init] initial thunk: bxInitializedData', {
-                got: !!bxInitializedData,
-                inFrame: bxInitializedData?.inFrame,
-                initialized: bxInitializedData?.initialized,
-                domain: bxInitializedData?.domain,
-                userId: bxInitializedData?.user?.ID,
-            });
             if (!bxInitializedData) {
-                console.warn('[kpi-init] initial thunk: нет данных — выходим (редирект/не во фрейме)');
                 return;
             }
             const { domain, user } = bxInitializedData;

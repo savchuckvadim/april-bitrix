@@ -1,5 +1,6 @@
 import React from 'react';
 import { LegalDocument } from '../components/LegalDocument';
+import { LICENSE_PDF_PATH } from '../constants/vendor';
 import { LICENSE_DOCUMENT } from './constants/license-document';
 
 export const metadata = {
@@ -9,5 +10,13 @@ export const metadata = {
 };
 
 export default function LicensePage() {
-    return <LegalDocument document={LICENSE_DOCUMENT} />;
+    return (
+        <LegalDocument
+            document={LICENSE_DOCUMENT}
+            pdf={{
+                href: LICENSE_PDF_PATH,
+                fileName: 'Менеджер Гарант — лицензионное соглашение.pdf',
+            }}
+        />
+    );
 }

@@ -71,7 +71,9 @@ export const CabinetRoot = () => {
                     domain={session.domain}
                     user={session.user}
                     organizationName={pendingDetails?.organization?.name}
-                    contactEmail={pendingDetails?.organization?.email}
+                    contactEmailMasked={
+                        pendingDetails?.organization?.emailMasked
+                    }
                 />
             );
         case 'blocked':

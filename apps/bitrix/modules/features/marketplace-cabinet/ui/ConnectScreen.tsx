@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
-import { Clock, Mail } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import type { PortalSessionUser } from '@workspace/bitrix';
 import { InviteCodeForm } from './InviteCodeForm';
 import { OnboardingForm } from './OnboardingForm';
+import { ResendCodeBlock } from './ResendCodeBlock';
 
 /** Единая почта поддержки (совпадает с карточкой Маркета и юр-страницами) */
 const SUPPORT_EMAIL = 'april-app@mail.ru';
@@ -30,18 +31,18 @@ export const ConnectScreen = ({
     user,
     state,
     organizationName,
-    contactEmail,
+    contactEmailMasked,
 }: {
     domain?: string;
     user?: PortalSessionUser;
     state: 'onboarding' | 'pending';
     organizationName?: string;
-    /** Email из поданной заявки — на него уходит код */
-    contactEmail?: string;
+    /** Маскированный контактный email организации — на него уходит код */
+    contactEmailMasked?: string;
 }) => {
-    // На pending форму запроса прячем: код уже запрошен. Раскрывается,
-    // когда клиент хочет получить код на другой адрес.
-    const [requestOpen, setRequestOpen] = useState(false);
+    // На pending форму данных прячем: заявка уже подана. Раскрывается, если
+    // клиент хочет поправить организацию или контактное лицо.
+    const [editOpen, setEditOpen] = useState(false);
 
     return (
         <div className="flex min-h-screen justify-center bg-gray-50 p-6">
@@ -80,9 +81,9 @@ export const ConnectScreen = ({
                                 ? `Организация «${organizationName}»: заявка принята. `
                                 : 'Заявка принята. '}
                             Код подключения придёт на{' '}
-                            {contactEmail ? (
+                            {contactEmailMasked ? (
                                 <span className="font-medium text-gray-900">
-                                    {contactEmail}
+                                    {contactEmailMasked}
                                 </span>
                             ) : (
                                 'указанный вами email'
@@ -90,23 +91,26 @@ export const ConnectScreen = ({
                             — обычно в течение одного рабочего дня. Вопросы:{' '}
                             {SUPPORT_EMAIL}.
                         </p>
-                        {requestOpen ? (
+                        <ResendCodeBlock
+                            emailMasked={contactEmailMasked}
+                            canUseAnotherAddress={user?.isAdmin === true}
+                        />
+                        {editOpen ? (
                             <div className="mt-4">
                                 <OnboardingForm
                                     user={user}
-                                    title="Отправить код на другой email"
-                                    description="Укажите организацию и адрес, на который отправить код подключения."
+                                    title="Изменить данные организации"
+                                    description="Название, контактное лицо и контактный email организации."
                                 />
                             </div>
                         ) : (
                             <Button
-                                variant="outline"
+                                variant="ghost"
                                 size="sm"
-                                className="mt-3"
-                                onClick={() => setRequestOpen(true)}
+                                className="mt-2"
+                                onClick={() => setEditOpen(true)}
                             >
-                                <Mail className="mr-2 h-4 w-4" />
-                                Отправить код на другой email
+                                Изменить данные организации
                             </Button>
                         )}
                     </div>

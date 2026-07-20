@@ -34,13 +34,27 @@ export interface OnboardingState {
     state: PortalSessionState;
     organization?: {
         name?: string;
-        email?: string;
+        /**
+         * Контактный email организации в маскированном виде («d***r@dom.ru»).
+         * Полный адрес бэк наружу не отдаёт: кабинет открывает любой сотрудник
+         * портала.
+         */
+        emailMasked?: string;
     };
 }
 
 export interface OnboardingApplication {
     organizationName: string;
+    lastName: string;
+    firstName: string;
     contactEmail: string;
+}
+
+/** Ответ POST /bitrix-marketplace/onboarding/request-code */
+export interface RequestInviteCodeResult {
+    accepted: boolean;
+    /** Маскированный адрес, на который вендор отправит код */
+    deliveryEmailMasked: string;
 }
 
 /** Ответ POST /bitrix-marketplace/onboarding/redeem (погашение кода) */

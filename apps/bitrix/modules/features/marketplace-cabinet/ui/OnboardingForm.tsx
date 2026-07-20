@@ -36,7 +36,10 @@ export const OnboardingForm = ({
     description?: string;
 }) => {
     const [organizationName, setOrganizationName] = useState('');
-    // Email предзаполняется из Bitrix-профиля (user.current), если он там есть
+    // ФИО и email предзаполняются из Bitrix-профиля (user.current): форма —
+    // подтверждение уже известных данных, а не ручной ввод.
+    const [lastName, setLastName] = useState(user?.lastName ?? '');
+    const [firstName, setFirstName] = useState(user?.name ?? '');
     const [contactEmail, setContactEmail] = useState(user?.email ?? '');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -48,6 +51,8 @@ export const OnboardingForm = ({
         try {
             await submitOnboardingApplication({
                 organizationName: organizationName.trim(),
+                lastName: lastName.trim(),
+                firstName: firstName.trim(),
                 contactEmail: contactEmail.trim(),
             });
             // state=pending применит стор → экран сменится сам
@@ -99,6 +104,48 @@ export const OnboardingForm = ({
                             placeholder="ООО «Ромашка»"
                             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                         />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                htmlFor="lastName"
+                                className="mb-1 block text-sm font-medium text-gray-700"
+                            >
+                                Фамилия
+                            </label>
+                            <input
+                                id="lastName"
+                                type="text"
+                                required
+                                maxLength={255}
+                                value={lastName}
+                                onChange={(event) =>
+                                    setLastName(event.target.value)
+                                }
+                                placeholder="Иванов"
+                                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="firstName"
+                                className="mb-1 block text-sm font-medium text-gray-700"
+                            >
+                                Имя
+                            </label>
+                            <input
+                                id="firstName"
+                                type="text"
+                                required
+                                maxLength={255}
+                                value={firstName}
+                                onChange={(event) =>
+                                    setFirstName(event.target.value)
+                                }
+                                placeholder="Пётр"
+                                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                            />
+                        </div>
                     </div>
                     <div>
                         <label

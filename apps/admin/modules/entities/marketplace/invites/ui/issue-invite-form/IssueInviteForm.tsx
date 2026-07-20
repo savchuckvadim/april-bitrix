@@ -59,6 +59,8 @@ export function IssueInviteForm({
             organization: values.organization || undefined,
             note: values.note || undefined,
             ttlDays: Number(values.ttlDays),
+            // пустое поле — не «портал №0», а «портал не указан»
+            portalId: values.portalId ? Number(values.portalId) : undefined,
             autoProvision,
         });
     };
@@ -156,6 +158,26 @@ export function IssueInviteForm({
                                 кнопкой в кабинете.
                             </p>
                         </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <Label htmlFor="portalId">
+                            ID портала (если код выпускается по заявке)
+                        </Label>
+                        <Input
+                            id="portalId"
+                            type="number"
+                            min={1}
+                            placeholder="например 7"
+                            {...register('portalId')}
+                        />
+                        <p className="text-sm text-muted-foreground">
+                            Код привяжется к организации этого портала, а email
+                            будет только адресом доставки. Без ID организация
+                            ищется по email — и при другом адресе доставки
+                            завелась бы вторая организация, из-за чего погашение
+                            кода упёрлось бы в ошибку.
+                        </p>
                     </div>
 
                     <div className="space-y-1">

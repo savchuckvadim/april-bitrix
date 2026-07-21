@@ -16,4 +16,5 @@ export type ApprovalResultDtoAction =
 export const ApprovalResultDtoAction = {
     approve: 'approve',
     block: 'block',
+    detach: 'detach',
 } as const;

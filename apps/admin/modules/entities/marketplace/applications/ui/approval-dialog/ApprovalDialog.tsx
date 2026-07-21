@@ -14,14 +14,48 @@ import { Label } from '@workspace/ui/components/label';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Loader2 } from 'lucide-react';
 
+export type ModeratorAction = 'approve' | 'block' | 'detach';
+
 interface ApprovalDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    action: 'approve' | 'block';
+    action: ModeratorAction;
     domain?: string;
     onConfirm: (comment?: string) => void;
     isLoading?: boolean;
 }
+
+/** Заголовок/описание/кнопка для каждого действия модератора */
+const ACTION_VIEW: Record<
+    ModeratorAction,
+    {
+        title: string;
+        description: (domain: string) => string;
+        confirmLabel: string;
+        destructive: boolean;
+    }
+> = {
+    approve: {
+        title: 'Одобрить портал',
+        description: (domain) =>
+            `Портал ${domain} будет одобрен: активируется продукт sales и запустится установка сущностей.`,
+        confirmLabel: 'Одобрить',
+        destructive: false,
+    },
+    block: {
+        title: 'Заблокировать портал',
+        description: (domain) => `Портал ${domain} будет заблокирован.`,
+        confirmLabel: 'Заблокировать',
+        destructive: true,
+    },
+    detach: {
+        title: 'Отвязать портал',
+        description: (domain) =>
+            `Портал ${domain} будет отвязан от организации: допуск вернётся в pending, продукты станут неактивными, приложение снова покажет экран ввода кода подключения. Подключение переживает переустановку приложения — отвязка единственный способ его снять без блокировки (смена владельца портала, отзыв доступа).`,
+        confirmLabel: 'Отвязать',
+        destructive: true,
+    },
+};
 
 /** Диалог подтверждения решения модератора с необязательным комментарием. */
 export function ApprovalDialog({
@@ -40,7 +74,7 @@ export function ApprovalDialog({
 
     if (!open) return null;
 
-    const isApprove = action === 'approve';
+    const view = ACTION_VIEW[action];
 
     const handleConfirm = () => {
         onConfirm(comment.trim() || undefined);
@@ -50,13 +84,9 @@ export function ApprovalDialog({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle>
-                        {isApprove ? 'Одобрить портал' : 'Заблокировать портал'}
-                    </CardTitle>
+                    <CardTitle>{view.title}</CardTitle>
                     <CardDescription>
-                        {isApprove
-                            ? `Портал ${domain ?? ''} будет одобрен: активируется продукт sales и запустится установка сущностей.`
-                            : `Портал ${domain ?? ''} будет заблокирован.`}
+                        {view.description(domain ?? '')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -80,16 +110,14 @@ export function ApprovalDialog({
                         Отмена
                     </Button>
                     <Button
-                        variant={isApprove ? 'default' : 'destructive'}
+                        variant={view.destructive ? 'destructive' : 'default'}
                         onClick={handleConfirm}
                         disabled={isLoading}
                     >
                         {isLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : isApprove ? (
-                            'Одобрить'
                         ) : (
-                            'Заблокировать'
+                            view.confirmLabel
                         )}
                     </Button>
                 </CardFooter>

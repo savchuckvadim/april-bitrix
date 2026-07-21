@@ -132,6 +132,23 @@ export const marketplaceEntities: Entity[] = [
 ];
 
 
+// Раздел «База знаний AI (RAG)»: url — полный путь (baseUrl пустой).
+export const aiKnowledgeEntities: Entity[] = [
+    {
+        id: 40,
+        item: {
+            name: 'ai-knowledge',
+            title: 'Документы',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/ai-knowledge',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
+
 export const portalEntities: Entity[] = [
 
     {

@@ -8,7 +8,7 @@
 import type { ApprovalActionDtoAction } from './approvalActionDtoAction';
 
 export interface ApprovalActionDto {
-    /** Действие: approve — одобрить (активирует продукт sales и запускает установку сущностей), block — заблокировать */
+    /** Действие: approve — одобрить (активирует продукт sales и запускает установку сущностей), block — заблокировать, detach — отвязать портал (допуск → pending, организация отвязывается, портал возвращается на экран ввода кода подключения) */
     action: ApprovalActionDtoAction;
     /** Комментарий модератора (пишется в журнал событий) */
     comment?: string;

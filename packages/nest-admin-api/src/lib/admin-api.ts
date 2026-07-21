@@ -24,6 +24,11 @@ export const $api = axios.create({
     baseURL: _baseURL,
     withCredentials: true,
     headers: { 'Content-Type': 'application/json' },
+    // Зависший бэкенд (например, SMTP без таймаута при выпуске кода) не
+    // должен выглядеть как вечный pending: по таймауту axios бросает
+    // ошибку, UI показывает её и разблокирует кнопку. Ретраев здесь НЕТ
+    // намеренно — POST-ы не идемпотентны (повтор выпуска кода = дубль).
+    timeout: 30_000,
 });
 
 /**

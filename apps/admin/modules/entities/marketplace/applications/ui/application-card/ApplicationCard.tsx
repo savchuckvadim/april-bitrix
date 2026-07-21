@@ -10,7 +10,14 @@ import {
 } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { DataTable, Column } from '@/modules/shared';
-import { CheckCircle2, Ban, RefreshCw, LayoutGrid, Loader2 } from 'lucide-react';
+import {
+    CheckCircle2,
+    Ban,
+    RefreshCw,
+    LayoutGrid,
+    Loader2,
+    Unlink,
+} from 'lucide-react';
 import {
     ApprovalStatusBadge,
     InstallStatusBadge,
@@ -27,7 +34,10 @@ import {
     useProvisionRefresh,
     usePlacementsRefresh,
 } from '../../lib/hooks/use-applications';
-import { ApprovalDialog } from '../approval-dialog/ApprovalDialog';
+import {
+    ApprovalDialog,
+    type ModeratorAction,
+} from '../approval-dialog/ApprovalDialog';
 
 interface ApplicationCardProps {
     portalId: string;
@@ -73,9 +83,8 @@ export function ApplicationCard({ portalId }: ApplicationCardProps) {
     const provisionRefresh = useProvisionRefresh();
     const placementsRefresh = usePlacementsRefresh();
 
-    const [dialogAction, setDialogAction] = React.useState<'approve' | 'block' | null>(
-        null,
-    );
+    const [dialogAction, setDialogAction] =
+        React.useState<ModeratorAction | null>(null);
 
     if (isLoading) {
         return (
@@ -169,6 +178,16 @@ export function ApplicationCard({ portalId }: ApplicationCardProps) {
                     >
                         <Ban className="w-4 h-4" />
                         Заблокировать
+                    </Button>
+                    {/* Отвязка ≠ блокировка: допуск → pending, портал снова
+                        просит код подключения (переустановка допуск сохраняет) */}
+                    <Button
+                        variant="outline"
+                        onClick={() => setDialogAction('detach')}
+                        disabled={decide.isPending}
+                    >
+                        <Unlink className="w-4 h-4" />
+                        Отвязать
                     </Button>
                     <Button
                         variant="outline"

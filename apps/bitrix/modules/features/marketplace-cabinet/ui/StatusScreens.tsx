@@ -13,6 +13,12 @@ import type { ReactNode } from 'react';
 
 /** Единая почта поддержки (совпадает с карточкой Маркета и юр-страницами) */
 const SUPPORT_EMAIL = 'april-app@mail.ru';
+/**
+ * Абсолютные URL сайта приложения: кабинет живёт в iframe Битрикса, ссылки
+ * должны открываться новой вкладкой браузера (target=_blank), а не в раме.
+ */
+const SUPPORT_PAGE_URL = 'https://bitrix.april-app.ru/support';
+const PRIVACY_PAGE_URL = 'https://bitrix.april-app.ru/legal/privacy';
 
 /** Общая обёртка статус-экранов кабинета */
 const Screen = ({
@@ -62,19 +68,45 @@ const Screen = ({
  * раздел «Позиционирование»).
  */
 
-/** Подключение к внешнему сервису приостановлено (договор не действует) */
+/**
+ * Доступ к внешнему сервису не предоставлен: договор не действует ЛИБО
+ * право на подключение не подтверждено (заявитель не является партнёром).
+ * По решению владельца (2026-07-21) с этого экрана нельзя ни ввести код,
+ * ни подать заявку (бэк тоже отвечает 403) — только контакты и политика
+ * конфиденциальности (п. 5.6/6.6: возможность подачи заявки может быть
+ * ограничена Оператором).
+ */
 export const BlockedScreen = ({ domain }: { domain?: string }) => (
     <Screen
         icon={<Ban className="h-5 w-5 text-red-500" />}
-        title="Портал отключён от сервиса"
-        description="Обмен данными с внешним сервисом April приостановлен"
+        title="Доступ к сервису не предоставлен"
+        description="Подключение портала к внешнему сервису April не действует"
         domain={domain}
     >
         <p className="text-sm text-gray-600">
-            Подключение портала к серверной инфраструктуре April не
-            действует. Чтобы возобновить обмен данными, свяжитесь с нами:{' '}
-            {SUPPORT_EMAIL}.
+            Подключение к сервису April предоставляется организациям,
+            сотрудничающим с нами по договору на настройку и сопровождение.
+            Если вы считаете, что доступ ограничен по ошибке, или хотите
+            обсудить подключение — свяжитесь с нами: {SUPPORT_EMAIL}.
         </p>
+        <div className="flex flex-wrap gap-3 pt-1">
+            <a
+                href={SUPPORT_PAGE_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm font-medium text-blue-600 hover:underline"
+            >
+                Контакты и поддержка ↗
+            </a>
+            <a
+                href={PRIVACY_PAGE_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm font-medium text-blue-600 hover:underline"
+            >
+                Политика конфиденциальности ↗
+            </a>
+        </div>
     </Screen>
 );
 

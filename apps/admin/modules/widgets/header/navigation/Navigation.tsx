@@ -3,7 +3,7 @@ import { useDeepRouting } from "@/modules/processes";
 import { NavigationItem } from "./NavigationItem";
 
 export const Navigation = () => {
-    const { isGarant, isPortal, isClient, isMarketplace, isDashboard, isStatistics, isKonstructor, isEvent } = useDeepRouting();
+    const { isGarant, isPortal, isClient, isMarketplace, isDashboard, isStatistics, isKonstructor, isEvent, isAiKnowledge } = useDeepRouting();
 
 
     return (
@@ -16,6 +16,7 @@ export const Navigation = () => {
             <NavigationItem isActive={isGarant} href="/garant" title="Garant" />
             <NavigationItem isActive={isKonstructor} href="/konstructor" title="Konstructor" />
             <NavigationItem isActive={isEvent} href="/event" title="Event" />
+            <NavigationItem isActive={isAiKnowledge} href="/ai-knowledge" title="База знаний AI" />
 
         </div>
     );

@@ -7,7 +7,7 @@
  */
 
 /**
- * Действие: approve — одобрить (активирует продукт sales и запускает установку сущностей), block — заблокировать
+ * Действие: approve — одобрить (активирует продукт sales и запускает установку сущностей), block — заблокировать, detach — отвязать портал (допуск → pending, организация отвязывается, портал возвращается на экран ввода кода подключения)
  */
 export type ApprovalActionDtoAction =
     (typeof ApprovalActionDtoAction)[keyof typeof ApprovalActionDtoAction];
@@ -16,4 +16,5 @@ export type ApprovalActionDtoAction =
 export const ApprovalActionDtoAction = {
     approve: 'approve',
     block: 'block',
+    detach: 'detach',
 } as const;

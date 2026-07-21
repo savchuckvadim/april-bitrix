@@ -1,4 +1,4 @@
-import { ALL_ENTITIES, clientEntities, garantEntities, konstructorEntities, marketplaceEntities, portalEntities, portalGarantEntities, portalKeysEntities, portalKonstructorEntities, portalPbxEntities, portalProviderEntities } from "../consts/routes.consts";
+import { ALL_ENTITIES, aiKnowledgeEntities, clientEntities, garantEntities, konstructorEntities, marketplaceEntities, portalEntities, portalGarantEntities, portalKeysEntities, portalKonstructorEntities, portalPbxEntities, portalProviderEntities } from "../consts/routes.consts";
 import { useDeepRouting } from "./use-routing.hook";
 
 
@@ -16,7 +16,8 @@ export const useCurrentSideBar = (): { currentNavItems: ALL_ENTITIES, baseUrl: s
         isPortalDetail,
         portalId,
         isKonstructor,
-        isPortalKonstructor
+        isPortalKonstructor,
+        isAiKnowledge
 
     } = useDeepRouting();
     let currentNavItems: ALL_ENTITIES = garantEntities;
@@ -55,6 +56,11 @@ export const useCurrentSideBar = (): { currentNavItems: ALL_ENTITIES, baseUrl: s
     } else if (isMarketplace) {
         // Маркетплейс: url элементов — полные пути (в разделе есть /client)
         currentNavItems = marketplaceEntities;
+        baseUrl = '';
+    }
+    else if (isAiKnowledge) {
+        // База знаний AI: url элементов — полные пути
+        currentNavItems = aiKnowledgeEntities;
         baseUrl = '';
     }
     else if (isKonstructor || isPortalKonstructor) {

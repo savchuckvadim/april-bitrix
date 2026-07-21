@@ -13,6 +13,7 @@ export const useDeepRouting = () => {
     const isStatistics = currentRoute.split('/')[1] === 'statistics';
     const isEvent = currentRoute.split('/')[1] === 'event';
     const isKonstructor = currentRoute.split('/')[1] === 'konstructor';
+    const isAiKnowledge = currentRoute.split('/')[1] === 'ai-knowledge';
     const isPortalList = isPortal && currentRoute.split('/')[2] === 'list';
 
 
@@ -50,6 +51,7 @@ export const useDeepRouting = () => {
         isPortalStatistics,
         isEvent,
         isKonstructor,
+        isAiKnowledge,
         isPortalEvent,
         isPortalKonstructor,
         isStatisticsTranscription,

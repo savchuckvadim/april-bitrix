@@ -4,7 +4,7 @@ import * as React from 'react';
 import { InviteDto } from '@workspace/nest-admin-api';
 import { Button } from '@workspace/ui/components/button';
 import { DataTable, Column } from '@/modules/shared';
-import { Ban, RefreshCw } from 'lucide-react';
+import { Ban, RefreshCw, Trash2 } from 'lucide-react';
 import { StatusBadge, StatusColor, formatDateTime } from '../../../shared';
 
 interface InvitesTableProps {
@@ -12,6 +12,7 @@ interface InvitesTableProps {
     isLoading?: boolean;
     onRevoke?: (item: InviteDto) => void;
     onReissue?: (item: InviteDto) => void;
+    onDelete?: (item: InviteDto) => void;
 }
 
 /** Статус кода → цвет и русская подпись. */
@@ -41,6 +42,7 @@ export function InvitesTable({
     isLoading,
     onRevoke,
     onReissue,
+    onDelete,
 }: InvitesTableProps) {
     const columns: Column<InviteDto>[] = [
         {
@@ -134,28 +136,43 @@ export function InvitesTable({
         {
             id: 'actions',
             header: '',
-            cell: (row) =>
-                isActionable(row) ? (
-                    <div className="flex gap-1">
+            cell: (row) => (
+                <div className="flex gap-1">
+                    {isActionable(row) && (
+                        <>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                title="Отправить новый код (старый перестанет действовать)"
+                                onClick={() => onReissue?.(row)}
+                            >
+                                <RefreshCw className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                title="Отозвать код"
+                                onClick={() => onRevoke?.(row)}
+                            >
+                                <Ban className="h-4 w-4 text-red-600" />
+                            </Button>
+                        </>
+                    )}
+                    {/* удалять можно любой непогашенный: погашенный — аудит
+                        подключения портала, бэк его тоже не удалит */}
+                    {row.status !== 'redeemed' && (
                         <Button
                             size="sm"
                             variant="ghost"
-                            title="Отправить новый код (старый перестанет действовать)"
-                            onClick={() => onReissue?.(row)}
+                            title="Удалить запись кода"
+                            onClick={() => onDelete?.(row)}
                         >
-                            <RefreshCw className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4 text-red-600" />
                         </Button>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            title="Отозвать код"
-                            onClick={() => onRevoke?.(row)}
-                        >
-                            <Ban className="h-4 w-4 text-red-600" />
-                        </Button>
-                    </div>
-                ) : null,
-            className: 'w-24',
+                    )}
+                </div>
+            ),
+            className: 'w-32',
         },
     ];
 

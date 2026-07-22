@@ -145,25 +145,15 @@ export const Header: React.FC = () => {
             setIsMobileMenuOpen(false);
         }
     };
-    // На лендинге хедер появляется после скролла; на остальных страницах виден всегда
-    if (!isScrolled && isHome) {
+    // Хедер fixed и не резервирует место в потоке, поэтому на любой странице
+    // он скрыт наверху и появляется только после скролла — иначе перекрывает контент
+    if (!isScrolled) {
         return null;
     }
-    const solid = isScrolled || !isHome;
 
     return (
         <header
-            // className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-            //     ? 'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm'
-            //     : 'bg-background'
-            //     }`}
-
-
-
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${solid
-                ? 'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm'
-                : 'bg-background/1 backdrop-blur text-primary supports-[backdrop-filter]:bg-background/10 shadow-sm'
-                }`}
+            className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm"
         >
             <nav className="container mx-auto px-2 sm:px-4 lg:px-1">
                 <div className="flex items-center justify-between h-16 lg:h-20">
@@ -205,12 +195,8 @@ export const Header: React.FC = () => {
                                         cursor: 'pointer',
                                     }}
                                     className={`text-sm font-medium transition-colors relative ${isActive
-                                        ? solid
-                                            ? 'text-primary font-semibold'
-                                            : 'text-white font-semibold'
-                                        : solid
-                                            ? 'text-foreground hover:text-primary'
-                                            : 'text-primary hover:text-white'
+                                        ? 'text-primary font-semibold'
+                                        : 'text-foreground hover:text-primary'
                                         }`}
                                 >
                                     {item.name}

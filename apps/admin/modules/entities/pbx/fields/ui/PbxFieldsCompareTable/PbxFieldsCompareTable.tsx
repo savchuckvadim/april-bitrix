@@ -12,7 +12,35 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { PresenceBadge, FieldSyncStatus } from '../../../lib/ui';
-import type { PbxFieldCompareRow } from '../../../lib/model/common';
+import type {
+    PbxFieldCompareRow,
+    PbxNormalizedItem,
+} from '../../../lib/model/common';
+
+/**
+ * Сводка значений enum-поля: «синхронизировано/всего» по объединению
+ * шаблон ∪ Bitrix ∪ БД. Янтарный цвет — есть рассинхрон (детали и точечные
+ * операции — в диалоге «Подробнее»).
+ */
+function ItemsSummary({ items }: { items: PbxNormalizedItem[] }) {
+    if (items.length === 0) return <span className="text-muted-foreground">—</span>;
+    const synced = items.filter(
+        (item) => item.inTemplate && item.inBitrix && item.inDb,
+    ).length;
+    const ok = synced === items.length;
+    return (
+        <span
+            className={ok ? 'text-emerald-600' : 'text-amber-600'}
+            title={
+                ok
+                    ? `Все ${items.length} значений синхронизированы`
+                    : `${synced} из ${items.length} значений есть во всех трёх источниках — подробности в «Подробнее»`
+            }
+        >
+            {synced}/{items.length}
+        </span>
+    );
+}
 
 interface PbxFieldsCompareTableProps {
     rows: PbxFieldCompareRow[];
@@ -82,6 +110,13 @@ export function PbxFieldsCompareTable({
                         <TableHead className="w-40">Code</TableHead>
                         <TableHead className="w-56">Название</TableHead>
                         <TableHead className="w-24">Тип</TableHead>
+                        <TableHead className="w-48">UF-имя (Bitrix)</TableHead>
+                        <TableHead
+                            className="w-24"
+                            title="Значения enum-поля: синхронизировано / всего (шаблон ∪ Bitrix ∪ БД)"
+                        >
+                            Значения
+                        </TableHead>
                         <TableHead className="w-40">Статус</TableHead>
                         <TableHead className="w-16 text-center">Шаблон</TableHead>
                         <TableHead className="w-16 text-center">Bitrix</TableHead>
@@ -130,6 +165,20 @@ export function PbxFieldsCompareTable({
                                 <div className="truncate" title={row.type ?? ''}>
                                     {row.type ?? '—'}
                                 </div>
+                            </TableCell>
+                            <TableCell className="max-w-[12rem] font-mono text-xs">
+                                <div
+                                    className="truncate"
+                                    title={row.installed?.bitrixName ?? ''}
+                                >
+                                    {row.installed?.bitrixName ?? '—'}
+                                </div>
+                            </TableCell>
+                            <TableCell
+                                className="cursor-pointer text-xs"
+                                onClick={() => onOpenDetail(row)}
+                            >
+                                <ItemsSummary items={row.items} />
                             </TableCell>
                             <TableCell>
                                 <FieldSyncStatus

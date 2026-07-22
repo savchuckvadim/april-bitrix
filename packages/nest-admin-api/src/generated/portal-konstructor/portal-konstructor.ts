@@ -51,6 +51,24 @@ export const getPortalKonstructor = () => {
             data: updateWebhookDto,
         });
     };
+    const templateBaseGetOfferTemplateByDomain = (domain: string) => {
+        return customAxios<void>({
+            url: `/api/template-base/offer/${domain}`,
+            method: 'GET',
+        });
+    };
+    const templateBaseGetTemplatesByDomain = (domain: string) => {
+        return customAxios<void>({
+            url: `/api/template-base/templates/${domain}`,
+            method: 'GET',
+        });
+    };
+    const templateBaseGetTemplates = () => {
+        return customAxios<void>({
+            url: `/api/template-base/templates`,
+            method: 'GET',
+        });
+    };
     /**
      * Возвращает реквизиты (rqs) поставщика (agents) по его id. Если поставщик не найден — возвращает null.
      * @summary Реквизиты поставщика по id
@@ -107,37 +125,19 @@ export const getPortalKonstructor = () => {
             data: updateRqDto,
         });
     };
-    const templateBaseGetOfferTemplateByDomain = (domain: string) => {
-        return customAxios<void>({
-            url: `/api/template-base/offer/${domain}`,
-            method: 'GET',
-        });
-    };
-    const templateBaseGetTemplatesByDomain = (domain: string) => {
-        return customAxios<void>({
-            url: `/api/template-base/templates/${domain}`,
-            method: 'GET',
-        });
-    };
-    const templateBaseGetTemplates = () => {
-        return customAxios<void>({
-            url: `/api/template-base/templates`,
-            method: 'GET',
-        });
-    };
     return {
         portalGetPortal,
         portalGetPortalByDomain,
         portalGetPortals,
         portalUpdateWebhook,
+        templateBaseGetOfferTemplateByDomain,
+        templateBaseGetTemplatesByDomain,
+        templateBaseGetTemplates,
         providerGetProvider,
         providerDeleteProvider,
         providerGetProviderByDomain,
         providerCreateProvider,
         providerUpdateRq,
-        templateBaseGetOfferTemplateByDomain,
-        templateBaseGetTemplatesByDomain,
-        templateBaseGetTemplates,
     };
 };
 export type PortalGetPortalResult = NonNullable<
@@ -161,6 +161,31 @@ export type PortalUpdateWebhookResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<typeof getPortalKonstructor>['portalUpdateWebhook']
+        >
+    >
+>;
+export type TemplateBaseGetOfferTemplateByDomainResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getPortalKonstructor
+            >['templateBaseGetOfferTemplateByDomain']
+        >
+    >
+>;
+export type TemplateBaseGetTemplatesByDomainResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getPortalKonstructor
+            >['templateBaseGetTemplatesByDomain']
+        >
+    >
+>;
+export type TemplateBaseGetTemplatesResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getPortalKonstructor>['templateBaseGetTemplates']
         >
     >
 >;
@@ -197,30 +222,5 @@ export type ProviderCreateProviderResult = NonNullable<
 export type ProviderUpdateRqResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getPortalKonstructor>['providerUpdateRq']>
-    >
->;
-export type TemplateBaseGetOfferTemplateByDomainResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getPortalKonstructor
-            >['templateBaseGetOfferTemplateByDomain']
-        >
-    >
->;
-export type TemplateBaseGetTemplatesByDomainResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getPortalKonstructor
-            >['templateBaseGetTemplatesByDomain']
-        >
-    >
->;
-export type TemplateBaseGetTemplatesResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getPortalKonstructor>['templateBaseGetTemplates']
-        >
     >
 >;

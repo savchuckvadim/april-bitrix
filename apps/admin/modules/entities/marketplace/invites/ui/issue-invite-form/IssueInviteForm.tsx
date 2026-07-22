@@ -102,8 +102,19 @@ export function IssueInviteForm({
                         <Input
                             id="organization"
                             placeholder="ООО «Ромашка»"
-                            {...register('organization')}
+                            {...register('organization', {
+                                // без организации запись в списке безликая, а
+                                // письмо клиенту — без обращения; при выпуске
+                                // по порталу бэк подставит организацию портала,
+                                // но заполнить всё равно полезно
+                                required: 'Укажите организацию получателя',
+                            })}
                         />
+                        {errors.organization && (
+                            <p className="text-sm text-red-600">
+                                {errors.organization.message}
+                            </p>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

@@ -33,4 +33,8 @@ export class InvitesHelper {
     async reissue(id: string, dto: ReissueInviteDto) {
         return this.api.marketplaceModerationReissueInvite(id, dto);
     }
+
+    async delete(id: string) {
+        return this.api.marketplaceModerationDeleteInvite(id);
+    }
 }

@@ -170,6 +170,16 @@ export const getAdminMarketplaceModeration = () => {
         });
     };
     /**
+     * Физически удаляет запись кода — чистка мусорных/ошибочных выпусков. Погашенный (redeemed) код удалить нельзя: запись хранит связь портала с организацией. Непогашенный код после удаления погасить невозможно (хэш удалён).
+     * @summary Удалить запись кода подключения
+     */
+    const marketplaceModerationDeleteInvite = (id: string) => {
+        return customAxios<InviteDto>({
+            url: `/api/admin/marketplace/invites/${id}`,
+            method: 'DELETE',
+        });
+    };
+    /**
      * Отзывает старый код и выпускает новый на тот же (или переданный) email, после чего отправляет письмо. Нужен потому, что повторно отправить прежний код невозможно — в БД хранится только его хэш. Новый код возвращается открытым текстом.
      * @summary Перевыпустить код подключения
      */
@@ -197,6 +207,7 @@ export const getAdminMarketplaceModeration = () => {
         marketplaceModerationGetInvites,
         marketplaceModerationIssueInvite,
         marketplaceModerationRevokeInvite,
+        marketplaceModerationDeleteInvite,
         marketplaceModerationReissueInvite,
     };
 };
@@ -305,6 +316,15 @@ export type MarketplaceModerationRevokeInviteResult = NonNullable<
             ReturnType<
                 typeof getAdminMarketplaceModeration
             >['marketplaceModerationRevokeInvite']
+        >
+    >
+>;
+export type MarketplaceModerationDeleteInviteResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getAdminMarketplaceModeration
+            >['marketplaceModerationDeleteInvite']
         >
     >
 >;

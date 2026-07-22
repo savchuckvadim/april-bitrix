@@ -33,7 +33,17 @@ export function findProcessRecord(
         const obj = cur as Record<string, unknown>;
         for (const k of matchKeys) {
             const v = obj[k];
-            if (typeof v === 'string' && v.trim().toLowerCase() === target) {
+            if (typeof v !== 'string') continue;
+            const value = v.trim().toLowerCase();
+            if (value === target) return obj;
+            // Код в Bitrix — полный, с суффиксом группы (`${type}_${group}`:
+            // service_offer_service, aicall_sales), поэтому для code-ключей
+            // матчим и по префиксу `${type}_` — иначе установленный в Bitrix
+            // смарт показывается как «нет в Bitrix».
+            if (
+                (k === 'code' || k === 'CODE') &&
+                value.startsWith(`${target}_`)
+            ) {
                 return obj;
             }
         }

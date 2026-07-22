@@ -47,23 +47,14 @@ export const DEAL_CATEGORY_NAMES: { value: DealCategoryName; label: string }[] =
 ];
 
 /* --- Smart processes --- */
-export type SmartName =
-    | 'service_offer'
-    | 'service_order'
-    | 'service_call'
-    | 'service_call_result'
-    | 'service_call_result_result'
-    | 'presentation'
-    | 'cold';
+// service_order / service_call / service_call_result / service_call_result_result
+// были заглушками без реальных Excel-шаблонов — удалены из осей 2026-07-22.
+export type SmartName = 'service_offer' | 'presentation' | 'cold';
 /** Smart/RPA group axis includes `general` (unlike the base sales/service). */
 export type TypedGroup = 'sales' | 'service' | 'general';
 
 export const SMART_NAMES: { value: SmartName; label: string }[] = [
     { value: 'service_offer', label: 'service_offer' },
-    { value: 'service_order', label: 'service_order' },
-    { value: 'service_call', label: 'service_call' },
-    { value: 'service_call_result', label: 'service_call_result' },
-    { value: 'service_call_result_result', label: 'service_call_result_result' },
     { value: 'presentation', label: 'presentation' },
     { value: 'cold', label: 'cold' },
 ];

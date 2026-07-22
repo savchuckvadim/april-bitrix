@@ -7,7 +7,12 @@
  */
 import type {
     CreateSmartDto,
+    InstallAicallDto,
+    InstallAicallResponseDto,
+    InstallConstSmartDto,
+    SmartDetailsResponseDto,
     SmartGetAllSmartsParams,
+    SmartRegistryResponseDto,
     SmartResponseDto,
     UpdateSmartDto,
 } from '.././model';
@@ -15,6 +20,50 @@ import type {
 import { customAxios } from '../../lib/admin-api';
 
 export const getAdminSmartsManagement = () => {
+    /**
+     * Каталог смартов, устанавливаемых из констант (без Excel) — источник карточек «доступен к установке» в галерее смартов.
+     * @summary Реестр const-смартов
+     */
+    const smartGetRegistry = () => {
+        return customAxios<SmartRegistryResponseDto>({
+            url: `/api/admin/pbx/smarts/registry`,
+            method: 'GET',
+        });
+    };
+    /**
+     * Идемпотентная установка const-смарта по kind из реестра (резолв kind → use-case; общий контракт результата).
+     * @summary Установить const-смарт (generic)
+     */
+    const smartInstallConst = (installConstSmartDto: InstallConstSmartDto) => {
+        return customAxios<InstallAicallResponseDto>({
+            url: `/api/admin/pbx/smarts/install-const`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: installConstSmartDto,
+        });
+    };
+    /**
+     * Идемпотентная установка AI-смарта на портал (общий use-case из @lib/call-lib, тот же что у event-sales): создаёт тип при отсутствии и доливает недостающие поля из const-конфига.
+     * @summary Установить смарт «AI-анализ звонков»
+     */
+    const smartInstallAicall = (installAicallDto: InstallAicallDto) => {
+        return customAxios<InstallAicallResponseDto>({
+            url: `/api/admin/pbx/smarts/install-aicall`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: installAicallDto,
+        });
+    };
+    /**
+     * Строка smarts + живое состояние в Bitrix: тип, воронки со стадиями, UF-поля с enum-значениями. Bitrix-часть fail-open (bitrix=null + error).
+     * @summary Детали смарта
+     */
+    const smartGetSmartDetails = (id: number) => {
+        return customAxios<SmartDetailsResponseDto>({
+            url: `/api/admin/pbx/smarts/${id}/details`,
+            method: 'GET',
+        });
+    };
     /**
      * @summary Create a new smart
      */
@@ -66,6 +115,10 @@ export const getAdminSmartsManagement = () => {
         });
     };
     return {
+        smartGetRegistry,
+        smartInstallConst,
+        smartInstallAicall,
+        smartGetSmartDetails,
         smartCreateSmart,
         smartGetAllSmarts,
         smartGetSmartById,
@@ -73,6 +126,34 @@ export const getAdminSmartsManagement = () => {
         smartDeleteSmart,
     };
 };
+export type SmartGetRegistryResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getAdminSmartsManagement>['smartGetRegistry']
+        >
+    >
+>;
+export type SmartInstallConstResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getAdminSmartsManagement>['smartInstallConst']
+        >
+    >
+>;
+export type SmartInstallAicallResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getAdminSmartsManagement>['smartInstallAicall']
+        >
+    >
+>;
+export type SmartGetSmartDetailsResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getAdminSmartsManagement>['smartGetSmartDetails']
+        >
+    >
+>;
 export type SmartCreateSmartResult = NonNullable<
     Awaited<
         ReturnType<

@@ -48,6 +48,20 @@ export const useRevokeInvite = () => {
     });
 };
 
+/**
+ * Удаление записи кода — чистка мусорных/ошибочных выпусков.
+ * Погашенные коды бэк удалять не даёт (аудит подключения).
+ */
+export const useDeleteInvite = () => {
+    const queryClient = useQueryClient();
+    return useMutation<InviteDto, Error, string>({
+        mutationFn: (id) => helper.delete(id),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: [INVITES_KEY] });
+        },
+    });
+};
+
 /** Перевыпуск: старый код отзывается, новый уходит письмом. */
 export const useReissueInvite = () => {
     const queryClient = useQueryClient();

@@ -7,6 +7,7 @@ import { Input } from '@workspace/ui/components/input';
 import { ConfirmDialog } from '@/modules/shared';
 import { Plus } from 'lucide-react';
 import {
+    useDeleteInvite,
     useInvites,
     useIssueInvite,
     useReissueInvite,
@@ -28,6 +29,7 @@ export function InvitesList() {
     const [issued, setIssued] = React.useState<IssuedInviteDto | null>(null);
     const [toRevoke, setToRevoke] = React.useState<InviteDto | null>(null);
     const [toReissue, setToReissue] = React.useState<InviteDto | null>(null);
+    const [toDelete, setToDelete] = React.useState<InviteDto | null>(null);
 
     const { data, isLoading } = useInvites(
         emailFilter ? { email: emailFilter } : undefined,
@@ -35,6 +37,7 @@ export function InvitesList() {
     const issueInvite = useIssueInvite();
     const revokeInvite = useRevokeInvite();
     const reissueInvite = useReissueInvite();
+    const deleteInvite = useDeleteInvite();
 
     const handleIssue = (values: IssueInviteDto) => {
         issueInvite.mutate(values, {
@@ -49,6 +52,13 @@ export function InvitesList() {
         if (!toRevoke) return;
         revokeInvite.mutate(toRevoke.id, {
             onSuccess: () => setToRevoke(null),
+        });
+    };
+
+    const confirmDelete = () => {
+        if (!toDelete) return;
+        deleteInvite.mutate(toDelete.id, {
+            onSuccess: () => setToDelete(null),
         });
     };
 
@@ -67,7 +77,7 @@ export function InvitesList() {
 
     return (
         <>
-            <div className="mb-4 flex items-center justify-between gap-4">
+            <div className="mb-1 flex items-center justify-between gap-4">
                 <h1 className="text-3xl font-bold">Коды подключения</h1>
                 {!formOpen && (
                     <Button onClick={() => setFormOpen(true)}>
@@ -76,6 +86,14 @@ export function InvitesList() {
                     </Button>
                 )}
             </div>
+            {/* Частый вопрос: «как отключить клиента?» — не здесь. Коды
+                управляют только НЕпогашенными ключами. */}
+            <p className="mb-4 text-sm text-muted-foreground">
+                Отозвать можно только действующий (не введённый) код — клиенту
+                придётся запросить новый. Уже подключённый портал отключают в
+                разделе «Заявки»: «Отвязать» вернёт его на экран ввода кода,
+                «Заблокировать» закроет даже запрос кода.
+            </p>
 
             {formOpen ? (
                 <div className="mb-6">
@@ -103,6 +121,7 @@ export function InvitesList() {
                 isLoading={isLoading}
                 onRevoke={setToRevoke}
                 onReissue={setToReissue}
+                onDelete={setToDelete}
             />
 
             <IssuedCodeDialog
@@ -121,6 +140,19 @@ export function InvitesList() {
                 confirmLabel="Отозвать"
                 variant="destructive"
                 isLoading={revokeInvite.isPending}
+            />
+
+            <ConfirmDialog
+                open={toDelete !== null}
+                onOpenChange={(open) => {
+                    if (!open) setToDelete(null);
+                }}
+                title="Удалить запись кода?"
+                description={`Код ${toDelete?.codePrefix ?? ''}… для ${toDelete?.email ?? ''} будет удалён из списка безвозвратно. Если он ещё не был погашен — погасить его станет невозможно.`}
+                onConfirm={confirmDelete}
+                confirmLabel="Удалить"
+                variant="destructive"
+                isLoading={deleteInvite.isPending}
             />
 
             <ConfirmDialog

@@ -56,7 +56,7 @@ export function PbxProcessDetail({
 }: PbxProcessDetailProps) {
     const portal = usePortal(portalId);
     const domain = portal.data?.domain;
-    const { monitoring } = usePbxProcess(processAdapter, domain);
+    const { monitoring, install } = usePbxProcess(processAdapter, domain);
 
     const desc = React.useMemo(() => {
         const describe = processAdapter.describe ?? describeProcessRecord;
@@ -102,6 +102,29 @@ export function PbxProcessDetail({
                         </TooltipTrigger>
                         <TooltipContent>
                             Идентификатор типа сущности в Bitrix.
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+                {!desc.inDb && (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                size="sm"
+                                disabled={!domain || install.isPending}
+                                onClick={() =>
+                                    install.mutate({ code: variant, group })
+                                }
+                            >
+                                {install.isPending
+                                    ? 'Установка…'
+                                    : 'Установить смарт'}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                            Полная установка по эталону: тип + поля (+
+                            воронки/стадии, если есть в шаблоне) с зеркалом в
+                            PortalDB. Без установленного типа установка
+                            отдельных полей невозможна.
                         </TooltipContent>
                     </Tooltip>
                 )}

@@ -26,6 +26,8 @@ import { MergedSingleActionChart } from '@/modules/feature/merged-kpi-calling-re
 import { ReportType } from '@/modules/feature';
 import { useReportType } from '@/modules/feature/report-widget-type';
 import { EReportType } from '@/modules/feature/report-widget-type/consts/report-type.consts';
+import { ReportGroupTabs } from '@/modules/feature/report-tabs';
+import { ReportData } from '../model/types/report/report-type';
 
 
 const Report = () => {
@@ -52,6 +54,27 @@ const Report = () => {
     if (!mounted) {
         return null;
     }
+
+    // Сводный KPI-блок (как раньше) и компактная секция для отдела/группы.
+    const renderKpiSummary = () => (
+        <>
+            <KPIReportTable report={report} />
+            <div className="mt-3">
+                <Graphics report={report} />
+            </div>
+            <KPIReportTotalTable report={report} />
+            <KPIReportTotalChart report={report} />
+            <div className="mt-3">
+                <KPISingleActionChart report={report} />
+            </div>
+        </>
+    );
+    const renderKpiSection = (sectionReport: ReportData[]) => (
+        <>
+            <KPIReportTable report={sectionReport} />
+            <KPIReportTotalTable report={sectionReport} />
+        </>
+    );
 
     return (
         // <div className=" p-7">
@@ -105,15 +128,11 @@ const Report = () => {
                         exportTableToCSV(tableData, 'kpi-report-managers.csv');
                     }}
                 >
-                    <KPIReportTable report={report} />
-                    <div className="mt-3">
-                        <Graphics report={report} />
-                    </div>
-                    <KPIReportTotalTable report={report} />
-                    <KPIReportTotalChart report={report} />
-                    <div className="mt-3">
-                        <KPISingleActionChart report={report} />
-                    </div>
+                    <ReportGroupTabs
+                        report={report}
+                        renderSummary={renderKpiSummary}
+                        renderSection={renderKpiSection}
+                    />
                 </ReportBlockWrapper>
 
 
@@ -157,15 +176,11 @@ const Report = () => {
             </>
             }
             {(currentReportType === EReportType.EVENTS) && <div>
-                <KPIReportTable report={report} />
-                <div className="mt-3">
-                    <Graphics report={report} />
-                </div>
-                <KPIReportTotalTable report={report} />
-                <KPIReportTotalChart report={report} />
-                <div className="mt-3">
-                    <KPISingleActionChart report={report} />
-                </div>
+                <ReportGroupTabs
+                    report={report}
+                    renderSummary={renderKpiSummary}
+                    renderSection={renderKpiSection}
+                />
             </div>
             }
 

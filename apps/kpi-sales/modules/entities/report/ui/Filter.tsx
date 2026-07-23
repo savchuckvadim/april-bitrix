@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import EmployeesFilter from './EmployeesFilter/EmployeesFilter';
+import React from 'react';
+import dynamic from 'next/dynamic';
 import DatesFilter from './DatesFilter';
-import ManagersFilter from './ManagersFilter';
 import ActionsFilter from './ActionsFilter';
 import {
     Card,
@@ -9,21 +8,28 @@ import {
     CardHeader,
     CardTitle,
 } from '@workspace/ui/components/card';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+
+const DepartmentTreeFilter = dynamic(
+    () =>
+        import('@/modules/feature/report-filter').then(
+            m => m.DepartmentTreeFilter,
+        ),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="h-40 animate-pulse rounded-md bg-muted" />
+        ),
+    },
+);
 
 interface FilterProps {
     isOpen: boolean;
 }
 
 export const Filter: React.FC<FilterProps> = ({ isOpen }) => {
-    // const currentDepartment = useAppSelector(state => state.department.current);
-    let isUserReport = false;
     const pathname = usePathname();
-    if (pathname === '/report/user') isUserReport = true;
-
-
-
-
+    const isUserReport = pathname === '/report/user';
 
     if (!isOpen) return null;
 
@@ -36,18 +42,19 @@ export const Filter: React.FC<FilterProps> = ({ isOpen }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-4">
                         <DatesFilter />
-                        {!isUserReport && <ManagersFilter />}
                     </div>
 
                     <div className="space-y-4">
-                        {!isUserReport && <EmployeesFilter />}
+                        {!isUserReport && <DepartmentTreeFilter />}
                     </div>
                 </div>
             </CardContent>
 
-            {!isUserReport && <CardContent>
-                <ActionsFilter />
-            </CardContent>}
+            {!isUserReport && (
+                <CardContent>
+                    <ActionsFilter />
+                </CardContent>
+            )}
         </Card>
     );
 };

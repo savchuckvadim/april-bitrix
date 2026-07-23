@@ -39,11 +39,7 @@ const toBXDepartment = (dto: DepartmentUnitDto): BXDepartment =>
     ({
         ...dto,
         ID: Number(dto.ID),
-        // Каст до регенерации: в Swagger USERS был описан как string[]
-        // (пофикшено на бэке — после generate каст можно убрать).
-        USERS: ((dto.USERS ?? []) as unknown as DepartmentUserDto[]).map(
-            toBXUser,
-        ),
+        USERS: (dto.USERS ?? []).map(toBXUser),
     }) as unknown as BXDepartment;
 
 /**

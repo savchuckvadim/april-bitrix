@@ -15,7 +15,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import BitrixCallingsChart from '@/modules/entities/report/ui/chartjs/BitrixCallingsChart';
+import BitrixCallingsChart from './BitrixCallingsChart';
 ChartJS.register(
     CategoryScale,
     LinearScale,

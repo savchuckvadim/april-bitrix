@@ -9,8 +9,7 @@ export async function POST(req: NextRequest) {
     return withMetrics(req, async () => {
         try {
             const body = (await req.json()) as ReportRequest;
-            const apiKey = process.env.ONLINE_API_KEY || ''; // <-- используешь напрямую здесь
-            console.log(apiKey);
+            const apiKey = process.env.ONLINE_API_KEY || '';
             if (!apiKey) {
                 return new Response('Missing API key', { status: 500 });
             }

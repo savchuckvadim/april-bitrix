@@ -12,8 +12,7 @@ export interface IHookData {
 export async function POST(req: NextRequest) {
     try {
         const data = (await req.json()) as IHookData;
-        const apiKey = process.env.ONLINE_API_KEY || ''; // <-- используешь напрямую здесь
-        console.log(apiKey);
+        const apiKey = process.env.ONLINE_API_KEY || '';
         if (!apiKey) {
             return new Response('Missing API key', { status: 500 });
         }

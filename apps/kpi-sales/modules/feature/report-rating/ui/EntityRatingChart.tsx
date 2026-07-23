@@ -25,7 +25,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
-import { getColors } from '@/modules/entities/report/lib/colors';
+import { getColors } from '@/modules/entities/report';
 import type { StructureSection } from '@/modules/feature/report-tabs';
 import { usePersistedSelection } from '@/modules/shared';
 import {

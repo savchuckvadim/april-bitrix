@@ -16,8 +16,8 @@ import {
     Filter,
     FilterInnerCode,
     ReportDateType,
-} from '@/modules/entities/report/model/types/report/report-type';
-import { modifyDateToReportRequest } from '@/modules/entities/report/lib/date-util';
+} from '@/modules/entities/report';
+import { modifyDateToReportRequest } from '@/modules/entities/report';
 import { ReportHelper } from '@/modules/entities/report/lib/api/report-helper';
 import { ReportFilterHelper } from '@/modules/entities/report/lib/api/filter-helper';
 

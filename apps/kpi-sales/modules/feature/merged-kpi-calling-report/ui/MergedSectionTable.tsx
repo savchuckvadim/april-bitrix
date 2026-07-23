@@ -2,9 +2,9 @@
 
 import { useMemo } from 'react';
 import { ReportCallingData } from '@/modules/entities/calling-statistics';
-import { getCallingStatisticsTableData } from '@/modules/entities/calling-statistics/lib/ui-util';
-import { getReportTableData } from '@/modules/entities/report/lib/ui-util';
-import { ReportData } from '@/modules/entities/report/model/types/report/report-type';
+import { getCallingStatisticsTableData } from '@/modules/entities/calling-statistics';
+import { getReportTableData } from '@/modules/entities/report';
+import { ReportData } from '@/modules/entities/report';
 import { RTable } from '@/modules/shared';
 import { getMergedReportsData } from '../lib/merge-reports.util';
 import { MergedReportTotalTable } from './MergedReportTotalTable';

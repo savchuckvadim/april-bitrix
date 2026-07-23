@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { useReport } from '@/modules/entities/report/model';
+import { useReport } from '@/modules/entities/report';
 
 import Filter from './Filter';
 
@@ -8,7 +8,7 @@ import Filter from './Filter';
 import { Processing } from '@/modules/shared';
 import ReportHeader from './ReportHeader/ReportHeader';
 
-import NoreportData from '@/modules/entities/report/ui/components/NoreportData';
+import { NoreportData } from '@/modules/entities/report';
 
 
 

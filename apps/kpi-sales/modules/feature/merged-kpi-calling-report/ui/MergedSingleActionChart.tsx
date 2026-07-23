@@ -12,10 +12,10 @@ import {
 } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Label } from '@workspace/ui/components/label';
-import { ReportData } from '@/modules/entities/report/model/types/report/report-type';
+import { ReportData } from '@/modules/entities/report';
 import { ReportCallingData } from '@/modules/entities/calling-statistics';
-import { getCallingStatisticsTableData } from '@/modules/entities/calling-statistics/lib/ui-util';
-import { getReportTableData } from '@/modules/entities/report/lib/ui-util';
+import { getCallingStatisticsTableData } from '@/modules/entities/calling-statistics';
+import { getReportTableData } from '@/modules/entities/report';
 import { getMergedReportsData } from '../lib/merge-reports.util';
 import { useMergedReport } from '../hooks/merged-report.hook';
 import { usePersistedSelection } from '@/modules/shared';

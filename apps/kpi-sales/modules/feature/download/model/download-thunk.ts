@@ -2,7 +2,7 @@ import { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import {
     ReportData,
     ReportDateType,
-} from '@/modules/entities/report/model/types/report/report-type';
+} from '@/modules/entities/report';
 import { setDownloadStatus } from './download-slice';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 import { sendDownloadingReport } from '@/modules/app/model/AppThunk';

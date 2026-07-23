@@ -2,9 +2,9 @@ import type { ReportCallingData } from '@/modules/entities/calling-statistics';
 import type {
     Filter,
     ReportData,
-} from '@/modules/entities/report/model/types/report/report-type';
-import type { StructureSection } from '@/modules/feature/report-tabs';
-import { getIsFiltredKpiReportForMergedReport } from '@/modules/feature/merged-kpi-calling-report/lib/merge-reports.util';
+} from '@/modules/entities/report';
+import type { StructureSection } from '@/modules/entities/department';
+import { getIsFiltredKpiReportForMergedReport } from '@/modules/shared';
 
 export interface RatingAction {
     code: string;

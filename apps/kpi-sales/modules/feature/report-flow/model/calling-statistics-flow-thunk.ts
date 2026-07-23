@@ -1,7 +1,7 @@
 import { GetCallingStatisticDto } from '@workspace/nest-kpi-report-sales-api';
 import { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { modifyDateToReportRequest } from '@/modules/entities/report/lib/date-util';
-import { ReportDateType } from '@/modules/entities/report/model/types/report/report-type';
+import { modifyDateToReportRequest } from '@/modules/entities/report';
+import { ReportDateType } from '@/modules/entities/report';
 import { ReportCallingData } from '@/modules/entities/calling-statistics';
 import { callingStatisticsActions } from '@/modules/entities/calling-statistics';
 import { CallingStatisticsHelper } from '@/modules/entities/calling-statistics';

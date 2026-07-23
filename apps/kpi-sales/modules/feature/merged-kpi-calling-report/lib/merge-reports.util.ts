@@ -1,4 +1,5 @@
 import { ReportCallingData } from "@/modules/entities/calling-statistics";
+import { getIsFiltredKpiReportForMergedReport } from "@/modules/shared/lib/merged-actions.util";
 
 import { ReportData } from "@/modules/entities/report/model/types/report/report-type";
 import { RTableProps } from "@/modules/shared";
@@ -145,9 +146,3 @@ const getDownloadReportFromCallingReport = (callingReport: ReportCallingData): D
 }
 
 
-/** Действия KPI, входящие в объединённый отчёт (без План/Результативные/звонков). */
-export const getIsFiltredKpiReportForMergedReport = (actionName: string): boolean => {
-    return actionName !== 'План' &&
-        actionName !== 'Результативные' &&
-        !actionName.toLowerCase().includes('звонок');
-}

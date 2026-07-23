@@ -9,3 +9,4 @@ export * from './lib/selection.util';
 export * from './lib/super-user';
 export * from './lib/department-util';
 export { default as departmentReducer } from './model/department-slice';
+export * from './lib/structure-sections.util';

@@ -1,26 +1,26 @@
 'use client'
 import React from 'react';
-import { useReport } from '@/modules/entities/report/model';
+import { useReport } from '@/modules/entities/report';
 
 import Filter from './Filter';
 
-import KPIReportTable from '@/modules/entities/report/ui/Tables/KPIReportTable';
-import { KPIReportTotalTable } from '@/modules/entities/report/ui/Tables/KPIReportTotalTable';
-import Graphics from '@/modules/entities/report/ui/Graphics';
-import { KPIReportTotalChart } from '@/modules/entities/report/ui/charts/KPIReportTotalChart';
-import { KPISingleActionChart } from '@/modules/entities/report/ui/charts/KPISingleActionChart';
-import { ReportBlockWrapper } from '@/modules/entities/report/ui/components/ReportBlockWrapper';
+import { KPIReportTable } from '@/modules/entities/report';
+import { KPIReportTotalTable } from '@/modules/entities/report';
+import { Graphics } from '@/modules/entities/report';
+import { KPIReportTotalChart } from '@/modules/entities/report';
+import { KPISingleActionChart } from '@/modules/entities/report';
+import { ReportBlockWrapper } from '@/modules/entities/report';
 
-import { exportTableToCSV } from '@/modules/entities/report/lib/export-util';
-import { getReportTableData } from '@/modules/entities/report/lib/ui-util';
+import { exportTableToCSV } from '@/modules/entities/report';
+import { getReportTableData } from '@/modules/entities/report';
 import { getMergedReportsData } from '@/modules/feature/merged-kpi-calling-report/lib/merge-reports.util';
-import { getCallingStatisticsTableData } from '@/modules/entities/calling-statistics/lib/ui-util';
+import { getCallingStatisticsTableData } from '@/modules/entities/calling-statistics';
 
 import { Processing } from '@/modules/shared';
 import ReportHeader from './ReportHeader/ReportHeader';
 import { CallingStatistics, ReportCallingData } from '@/modules/entities/calling-statistics';
-import NoreportData from '@/modules/entities/report/ui/components/NoreportData';
-import { useCallingStatistics } from '@/modules/entities/calling-statistics/lib/hooks/useCallingStatistics';
+import { NoreportData } from '@/modules/entities/report';
+import { useCallingStatistics } from '@/modules/entities/calling-statistics';
 import { MergedReportTable } from '@/modules/feature/merged-kpi-calling-report';
 import { MergedSingleActionChart } from '@/modules/feature/merged-kpi-calling-report/ui/MergedSingleActionChart';
 import { ReportType } from '@/modules/feature';
@@ -37,9 +37,9 @@ import {
     RatingDataset,
 } from '@/modules/feature/report-rating';
 import { MergedSectionTable } from '@/modules/feature/merged-kpi-calling-report';
-import CallingTable from '@/modules/entities/calling-statistics/ui/components/CallingTable';
+import { CallingTable } from '@/modules/entities/calling-statistics';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { ReportData } from '@/modules/entities/report/model/types/report/report-type';
+import { ReportData } from '@/modules/entities/report';
 
 
 const Report = () => {

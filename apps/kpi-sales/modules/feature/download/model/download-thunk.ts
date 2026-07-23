@@ -10,6 +10,7 @@ import { getKpidReportsExcelData, getMergedReportsExcelData } from '../../merged
 import { DownLoadKpiReportDto } from '@workspace/nest-kpi-report-sales-api';
 import { EReportType } from '../../report-widget-type/consts/report-type.consts';
 import { DownloadHelper } from '../lib/api/download-helper';
+import { buildReportStructure } from '../lib/build-report-structure.util';
 
 const downloadHelper = new DownloadHelper();
 
@@ -80,12 +81,20 @@ export const getDownload =
                 const widgetStyle = state.reportType.current;
                 const isMerged = widgetStyle === EReportType.MERGED;
 
+                const reportRows = (isMerged ? mergedReport : kpiReport) ?? [];
+                // Разбивка по отделам/группам для листов excel (моно/мульти).
+                const structure = buildReportStructure(
+                    state.department.departments,
+                    state.department.isMulti,
+                    new Set(reportRows.map(row => Number(row.id))),
+                );
 
                 const date = state.report.date;
                 const data = {
-                    report: isMerged ? mergedReport : kpiReport,
+                    report: reportRows,
                     type,
                     date,
+                    structure,
                 } as DownLoadKpiReportDto;
 
 

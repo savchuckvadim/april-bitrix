@@ -288,11 +288,13 @@ interface SavedSelectionV2 {
 
 ## 5. Задания на бэкенд
 
-### №1. Department structure: явные флаги режима (мелкое, желательно до этапа 1)
+### №1. Department structure: явные флаги режима — ✅ СДЕЛАНО (2026-07-23)
 
-В `BxDepartmentStructureResponseDto` добавить `isMultiple: boolean` (и опционально `multipleTag: string | null`), и гарантировать, что в **моно-режиме `salesDepartments` содержит один элемент** (единый контракт для фронта). Сейчас фронту пришлось бы угадывать режим по `department.department === 0`.
+В `BxDepartmentStructureResponseDto` добавлены `isMultiple: boolean` и `multipleTag: string | null` (`back/libs/bx-department/dto/bx-department-structure.dto.ts`, сервис возвращает их из БД). Проверено: `buildSingle` уже заполняет `salesDepartments` одним элементом — контракт единый в обоих режимах (открытый вопрос №1 снят). Тесты `libs/bx-department` — 19/19 зелёные.
 
-### №2. Хранение фильтров отчёта v2 (к этапу 5)
+### №2. Хранение фильтров отчёта v2 — ✅ СДЕЛАНО (2026-07-23)
+
+Реализовано в `back/apps/kpi-report-sales/src/report-settings/` (controller + service + dto, модуль подключён в root). Endpoints: `POST /api/kpi-report/filter/get`, `POST /api/kpi-report/filter/save`. Работает поверх той же таблицы `report_settings` (ключ `portalId+bxUserId`), что и Laravel: v2 хранится в свободной колонке `filters`; при save legacy-колонки (`filter`=actions, `department`=userIds строками, `dates`) **зеркалируются** — старый флоу через online API продолжает работать (путь отката). При get legacy-запись конвертируется на лету (`version:1`, `selection:null`, выбор в `legacyUserIds`). Исходное ТЗ ниже (для истории).
 
 Сейчас фильтры живут в старом online/hook API (`/report/settings/get/filter`, `/report/settings/filter`) в формате JSON-строк `{actions, dates, department: number[]}` — вне orval-контура, с ключом в env фронта.
 

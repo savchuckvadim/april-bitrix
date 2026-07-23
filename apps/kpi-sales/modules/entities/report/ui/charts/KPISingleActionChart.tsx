@@ -21,6 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import { usePersistedSelection } from '@/modules/shared';
 
 ChartJS.register(
     CategoryScale,
@@ -59,18 +60,11 @@ export const KPISingleActionChart: React.FC<KPISingleActionChartProps> = ({
         return presentationAction || availableActions[0] || null;
     }, [availableActions]);
 
-    const [selectedActionCode, setSelectedActionCode] = useState<string>(
-        () => defaultAction?.innerCode || ''
-    );
+    // Память выбранного показателя (localStorage, next-safe)
+    const [selectedActionCode, setSelectedActionCode] =
+        usePersistedSelection('kpi-action-events');
 
-    // Обновляем выбранное действие при изменении availableActions
-    React.useEffect(() => {
-        if (!selectedActionCode && defaultAction) {
-            setSelectedActionCode(defaultAction.innerCode);
-        }
-    }, [defaultAction, selectedActionCode]);
-
-    // Находим выбранное действие
+    // Выбранное действие: сохранённое, если оно ещё в фильтре, иначе дефолт
     const selectedAction = availableActions.find(a => a.innerCode === selectedActionCode) || defaultAction;
 
     // Подготавливаем данные для графика
@@ -141,7 +135,7 @@ export const KPISingleActionChart: React.FC<KPISingleActionChartProps> = ({
                             Действие:
                         </Label>
                         <Select
-                            value={selectedActionCode}
+                            value={selectedAction?.innerCode ?? ''}
                             onValueChange={setSelectedActionCode}
                         >
                             <SelectTrigger id="action-select" className="w-[250px]">

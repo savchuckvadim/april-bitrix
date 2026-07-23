@@ -358,6 +358,61 @@ DownLoadKpiReportDto {
 
 ---
 
+## Этап 9. Структурная чистка до эталонного FSD (глобальный план, 2026-07-23)
+
+Цель: идеальная структура один-к-одному, импорты только через `index.ts`, слои
+`shared → entities → features → widgets → app`, весь UI через дизайн-систему
+(@workspace/ui + @workspace/april-ui).
+
+### 9.1 Верхний уровень приложения
+
+| Что | Решение |
+|---|---|
+| `components/` (Providers, ApiProvider) | Перенести в `modules/app/providers/` (все провайдеры в одном месте, рядом с ErrorBoundary), папку удалить |
+| `hooks/`, `lib/` | ✅ Удалены. `lib/env.ts` был мёртвым кодом (getEnvVar/checkEnvVars никто не звал). Менее костыльная альтернатива уже используется: валидация env в `next.config.mjs`, `NEXT_PUBLIC_*` инлайнится, серверные env читаются напрямую. Если захочется типизированный env — один файл `modules/app/consts/env.ts` с явными константами |
+| `type/` + `types/` | Объединить в один `types/` (`type/type.d.ts` — глобалка Window.Pace, `types/pace-js.d.ts` — тоже pace): один `pace.d.ts` |
+| `app/` (Next) | Почистить: `app/lib/{log,metrics,bitrix}` → `modules/app/lib/`; `head.tsx` проверить; `/dev` удалить после стабилизации; в `app/api/` остаются только настоящие серверные роуты (bitrix install, admin/logs, metrics) |
+| `modules/widgetes/` (опечатка) | `chart/ui/Chart.tsx` используется только KPITotalBoard → перенести в `entities/report/ui/charts/`, папку удалить |
+| `modules/general/` | Расформировать: LoadingScreen/BootPreloader → `modules/app/ui/` (это app-уровень) |
+| `modules/bitrix/` | → `features/bitrix-install` (или удалить целиком после переключения install-URL на бэк) |
+
+### 9.2 modules/app (целевой состав)
+
+`providers/` (Providers, ApiProvider, ErrorBoundary) · `model/` (store, AppSlice,
+тонкий AppThunk, listeners/) · `lib/` (initialize/, hooks/, helper/logClient) ·
+`consts/` (app-global, domain-config) · `ui/` (App, NonAuthScreen, LoadingScreen,
+BootPreloader) · `types/`. Убрать дубли: `model/Provider.tsx`, `model/types.ts`.
+
+### 9.3 Слои и правила импортов (зафиксировать)
+
+Правила: **фичу нельзя импортировать в entity**; фича работает над одной или
+несколькими entity; фича без entity — вероятно сама entity; **widget объединяет
+фичи и entity** и желательно переиспользуем; импорты — только через публичный
+`index.ts` слайса (никаких deep-imports в чужие внутренности).
+
+Найденные нарушения → что делать:
+1. **`entities/report/ui/Report.tsx` — на самом деле виджет** (импортирует features: report-tabs, report-rating, merged, report-widget-type). Перенести `Report`, `ReportProvider`, `ReportHeader` в `modules/widgets/report/`. В entities/report остаются model/lib и «свои» таблицы/чарты.
+2. **feature → feature**: `report-rating` импортирует `getIsFiltredKpiReportForMergedReport` из `merged-kpi-calling-report`. Вынести компоновку merged-действий в `shared/lib/merged-actions.util.ts` (чистая функция).
+3. **entity → entity**: `entities/report` (thunks) использует `entities/department` (selection, current). Оркестрацию «фильтр+отчёт» при переносе виджета вынести в `features/report-flow` (thunks + listeners) — тогда обе entity чистые.
+4. **Deep-imports** (Report → CallingTable, colors, ui-util чужих слайсов; charts → report internals) → добить барели: каждый слайс экспортирует только публичный контракт.
+5. `shared/table/RTable` vs `@workspace/april-ui` RTable — оставить один (апрель-ui), локальный удалить.
+
+### 9.4 UI / дизайн-система
+
+- Примитивы — только `@workspace/ui`; доменное переиспользуемое (GlassCard, PreloaderScreen, RTable, бейджи) — `@workspace/april-ui`.
+- Старый `ui/chartjs/*.jsx` стек удалить/мигрировать в `ui/charts/*.tsx`; хардкод-цвета → токены (вместе с design-system refactor).
+- Каждому util — однострочный комментарий «что делает и на каком шаге flow вызывается» (новые файлы уже так; пройтись по старым: date-util, ui-util, export-util, report lib, merge-reports).
+
+### 9.5 Порядок (по коммиту на шаг, каждый — компилируется)
+
+1. `widgets/report`: перенос Report/ReportProvider/ReportHeader + фикс импортов.
+2. `features/report-flow`: оркестрация (loadSavedFilter/getReportData chain + listeners) из entities/report.
+3. Барели: публичные index.ts у всех слайсов, устранение deep-imports; shared/lib/merged-actions.
+4. Providers → modules/app/providers, удаление `components/`; types-объединение; app/lib перенос.
+5. widgetes → charts; general → app/ui; bitrix → features/bitrix-install.
+6. chartjs-стек и цвета (совместно с design-system.tasks.md).
+7. Закрепление: eslint-plugin-boundaries (слои + запрет deep-imports), чтобы структура не разъезжалась.
+
 ## 6. Открытые вопросы / риски
 
 1. **Формат моно-ответа structure**: заполняет ли `buildSingle` массив `salesDepartments`? Если нет — закрывается заданием №1 либо нормализацией на фронте (заложена в этап 1 п.3).

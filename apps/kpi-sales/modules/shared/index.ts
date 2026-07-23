@@ -5,3 +5,4 @@ export type { RTableProps } from './table/ui/RTable';
 
 export * from './telegram/type/telegram.type';
 export * from './telegram/lib/tlegram-bot';
+export * from './lib/hooks/use-persisted-selection';

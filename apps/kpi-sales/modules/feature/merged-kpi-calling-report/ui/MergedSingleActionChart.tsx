@@ -17,6 +17,8 @@ import { ReportCallingData } from '@/modules/entities/calling-statistics';
 import { getCallingStatisticsTableData } from '@/modules/entities/calling-statistics/lib/ui-util';
 import { getReportTableData } from '@/modules/entities/report/lib/ui-util';
 import { getMergedReportsData } from '../lib/merge-reports.util';
+import { useMergedReport } from '../hooks/merged-report.hook';
+import { usePersistedSelection } from '@/modules/shared';
 
 import {
     Select,
@@ -44,17 +46,29 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
     report,
     callingsReport,
 }) => {
-    // Объединяем данные
+    // Локальный фильтр объединённого отчёта — применяем и к этому виджету.
+    const { selectedUsers, selectedActions } = useMergedReport();
+
+    // Объединяем данные (с учётом выбранных сотрудников)
     const mergedData = useMemo(() => {
         if (!report || !report.length || !callingsReport || !callingsReport.length) {
             return null;
         }
         const tableKpiData = getReportTableData(report);
         const tableCallingsData = getCallingStatisticsTableData(callingsReport);
-        return getMergedReportsData(tableKpiData, tableCallingsData);
-    }, [report, callingsReport]);
+        const merged = getMergedReportsData(tableKpiData, tableCallingsData);
+        if (!selectedUsers.length) return merged;
+        return {
+            ...merged,
+            data: merged.data.filter(
+                user =>
+                    user.id !== undefined &&
+                    selectedUsers.includes(Number(user.id)),
+            ),
+        };
+    }, [report, callingsReport, selectedUsers]);
 
-    // Получаем все доступные действия из объединенных данных
+    // Доступные действия: из данных, обрезанные локальным фильтром действий
     const availableActions = useMemo(() => {
         if (!mergedData || !mergedData.data || mergedData.data.length === 0) {
             return [];
@@ -63,11 +77,17 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
         if (!firstUser || !firstUser.actions || firstUser.actions.length === 0) {
             return [];
         }
-        return firstUser.actions.map(action => ({
-            name: action.name,
-            value: action.value,
-        }));
-    }, [mergedData]);
+        return firstUser.actions
+            .filter(
+                action =>
+                    !selectedActions.length ||
+                    selectedActions.includes(action.name),
+            )
+            .map(action => ({
+                name: action.name,
+                value: action.value,
+            }));
+    }, [mergedData, selectedActions]);
 
     // Выбираем первое действие по умолчанию (или "Презентация проведена" если есть, или звонки > минуты)
     const defaultAction = useMemo(() => {
@@ -86,18 +106,11 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
         return availableActions[0] || null;
     }, [availableActions]);
 
-    const [selectedActionName, setSelectedActionName] = useState<string>(
-        () => defaultAction?.name || ''
-    );
+    // Память выбранного показателя (localStorage, next-safe)
+    const [selectedActionName, setSelectedActionName] =
+        usePersistedSelection('kpi-action-merged');
 
-    // Обновляем выбранное действие при изменении availableActions
-    useEffect(() => {
-        if (!selectedActionName && defaultAction) {
-            setSelectedActionName(defaultAction.name);
-        }
-    }, [defaultAction, selectedActionName]);
-
-    // Находим выбранное действие
+    // Выбранное действие: сохранённое, если оно ещё в списке, иначе дефолт
     const selectedAction = availableActions.find(a => a.name === selectedActionName) || defaultAction;
 
     // Подготавливаем данные для графика
@@ -185,7 +198,7 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
                             Действие:
                         </Label>
                         <Select
-                            value={selectedActionName}
+                            value={selectedAction?.name ?? ''}
                             onValueChange={setSelectedActionName}
                         >
                             <SelectTrigger id="merged-action-select" className="w-[250px]">

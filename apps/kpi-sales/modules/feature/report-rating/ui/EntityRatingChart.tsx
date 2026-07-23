@@ -27,6 +27,7 @@ import {
 } from '@workspace/ui/components/select';
 import { getColors } from '@/modules/entities/report/lib/colors';
 import type { StructureSection } from '@/modules/feature/report-tabs';
+import { usePersistedSelection } from '@/modules/shared';
 import {
     buildSectionRating,
     buildUserRating,
@@ -60,7 +61,10 @@ export const EntityRatingChart: React.FC<EntityRatingChartProps> = ({
     dataset,
     sections,
 }) => {
-    const [selectedActionCode, setSelectedActionCode] = useState<string>('');
+    // Память выбранного показателя per-виджет (localStorage, next-safe)
+    const [selectedActionCode, setSelectedActionCode] = usePersistedSelection(
+        `kpi-rating-action-${title}`,
+    );
     const selectedAction =
         dataset.actions.find(a => a.code === selectedActionCode) ||
         dataset.actions[0] ||

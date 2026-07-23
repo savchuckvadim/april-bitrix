@@ -7,7 +7,6 @@ import {
     sendExpiredStart,
 } from '../../model/AppThunk';
 import { useAppDispatch, useAppSelector } from './redux';
-import { IS_PROD } from '../../consts/app-global';
 
 export const useApp = () => {
     const dispatch = useAppDispatch();
@@ -19,7 +18,7 @@ export const useApp = () => {
     }, []);
     useEffect(() => {
         if (isMounted && !app.initialized && !app.isLoading) {
-            dispatch(initial(IS_PROD));
+            dispatch(initial());
         }
     }, [isMounted, app.initialized, app.isLoading, dispatch]);
     const domain = app.domain;

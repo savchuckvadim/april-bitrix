@@ -1,7 +1,7 @@
 'use client'
 
 import { useUserReport } from "../../hooks/user-report.hook";
-import { useDepartment } from "@/modules/entities/departament";
+import { useDepartment } from "@/modules/entities/department";
 import { IUserReportItem } from "../../type/user-report.type";
 
 import React, { useEffect, useState, useMemo } from "react";

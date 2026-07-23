@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { Label } from '@workspace/ui/components/label';
 import { Badge } from '@workspace/ui/components/badge';
-import { useDepartment } from '@/modules/entities/departament/model/use-departament';
+import { useDepartment } from '@/modules/entities/department/model/use-department';
 
 const ManagersFilter: React.FC = () => {
     const { handleSetCurrentGroup } = useDepartment();

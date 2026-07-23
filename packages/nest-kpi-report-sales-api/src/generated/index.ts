@@ -11,6 +11,8 @@ export * from './kpi-sales-report-download/kpi-sales-report-download';
 export * from './bitrix-domain-department/bitrix-domain-department';
 // Команды Bitrix (POST /api/bx/team)
 export * from './bitrix-domain-team/bitrix-domain-team';
+// Сохранённые фильтры отчёта (POST /api/kpi-report/filter/get, /api/kpi-report/filter/save)
+export * from './sales-report-filter/sales-report-filter';
 
 // Доступны после generate, подключать по мере необходимости:
 // export * from './front-portal/front-portal';

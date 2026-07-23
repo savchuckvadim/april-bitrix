@@ -3,7 +3,7 @@ import { Label } from '@workspace/ui/components/label';
 import { Badge } from '@workspace/ui/components/badge';
 
 import { BXUser } from '@workspace/bx';
-import { useDepartment } from '@/modules/entities/departament';
+import { useDepartment } from '@/modules/entities/department';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 
 interface EmployeesFilterItemProps {

@@ -2,7 +2,7 @@ import { ReportCallingData } from "@/modules/entities/calling-statistics";
 
 import { ReportData } from "@/modules/entities/report/model/types/report/report-type";
 import { RTableProps } from "@/modules/shared";
-import { DownloadKpiReportItemDto, DownloadReportKpiItemDto } from "@workspace/nest-api";
+import { DownloadKpiReportItemDto, DownloadReportKpiItemDto } from "@workspace/nest-kpi-report-sales-api";
 
 export const getMergedReportsData = (report: RTableProps, callingsReport: RTableProps): RTableProps => {
     const data: RTableProps['data'] = [];

@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "@/modules/app";
 import { getUserReportThunk, stopLoadingUserReportThunk } from "../model/thunk/UserReportThunk";
 import { getWSClient } from "@/modules/app/model/store";
 import { useEffect } from "react";
-import {  SalesUserReportFiltersDto } from "@workspace/nest-api";
+import { SalesUserReportFiltersDto } from "@workspace/nest-kpi-report-sales-api";
 
 export const useUserReport = () => {
     const dispatch = useAppDispatch();

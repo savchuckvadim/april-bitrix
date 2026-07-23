@@ -1,229 +1,172 @@
+import {
+    ReportGetRequestDto,
+    ReportFilterSaveRequestDto,
+    SavedReportFilterDto,
+} from '@workspace/nest-kpi-report-sales-api';
 import { AppDispatch, RootState } from '@/modules/app/model/store';
+import { logClient } from '@/modules/app/lib/helper/logClient';
+import {
+    departmentActions,
+    buildSelectionV2,
+    resolveSavedSelection,
+} from '../../department';
 import { reportActions } from './report-slice';
 import {
-    ReportDateType,
+    EReportDateMode,
     Filter,
     FilterInnerCode,
-    IFilterResponse,
-    IDepartmentResponse,
-    EReportDateMode,
+    ReportDateType,
 } from './types/report/report-type';
-import { ReportRequest } from './report-service';
-import { departmentActions } from '../../departament';
-import { BXUser, BXDepartment } from '@workspace/bx';
+import { modifyDateToReportRequest } from '../lib/date-util';
+import { ReportHelper } from '../lib/api/report-helper';
+import { ReportFilterHelper } from '../lib/api/filter-helper';
 
-import { API_METHOD, backAPI } from '@workspace/api/';
-import { EBACK_ENDPOINT, EResultCode } from '@workspace/api';
-import { getIsUserHead, normalizeDepartmentResponse } from './report-util';
-import { getReportDataAPI } from '../lib/helpers';
-import { getCallingStatistics } from '../../calling-statistics';
-import { reportDateRequestFlow } from '../lib/date-util';
-import { logClient } from '@/modules/app/lib/helper/logClient';
+const reportHelper = new ReportHelper();
+const filterHelper = new ReportFilterHelper();
 
-export const getReportData =
+/** v2-режим дат ↔ фронтовый EReportDateMode (custom ↔ range). */
+const toReportDateMode = (mode: string): EReportDateMode =>
+    mode === 'custom' ? EReportDateMode.RANGE : (mode as EReportDateMode);
+
+const toSavedDates = (state: RootState): SavedReportFilterDto['dates'] => {
+    const date = state.report.date;
+    if (date.mode === EReportDateMode.RANGE) {
+        return {
+            mode: 'custom',
+            from: date[ReportDateType.FROM],
+            to: date[ReportDateType.TO],
+        };
+    }
+    return { mode: date.mode as SavedReportFilterDto['dates']['mode'] };
+};
+
+/**
+ * Применение сохранённого фильтра (даты + выбор сотрудников).
+ * Вызывается listener'ом после загрузки структуры отделов; завершается
+ * action'ом setSavedFilter — триггером загрузки отчёта и статистики.
+ */
+export const loadSavedFilter =
     () => async (dispatch: AppDispatch, getState: () => RootState) => {
-        dispatch(reportActions.setLoadingReportStatus(true));
         const state = getState();
-        const domain = state.app.domain;
-        const currentUser = state.app.bitrix.user;
-        const currentUserId = currentUser?.ID;
-        console.log('currentUserId', currentUserId);
-        console.log('domain', domain);
-        if (currentUserId) {
-            const stDepartament = state.department;
-            const stateDepartament = stDepartament.current;
-            let departament: BXUser[] | null = null;
-            const report = state.report;
-            const savedFilterData = (await getFilter(
-                domain,
-                currentUserId,
-            )) as null | IFilterResponse;
-            const savedFilter = savedFilterData?.filter;
-            let isHeadManager = true;
+        const { app, department } = state;
+        const user = app.bitrix.user;
+        if (!user) return;
 
-            if (stateDepartament.length) {
-                departament = stateDepartament;
-            } else {
-                const filtredDepartmentIds = savedFilterData?.department as
-                    | string[]
-                    | null;
-                const departamentData = { domain };
-                // const departamentResponse = await hookAPI.service('full/department', API_METHOD.POST, 'department', departamentData);
+        let saved: SavedReportFilterDto | null = null;
+        try {
+            saved = await filterHelper.getSaved(app.domain, Number(user.ID));
+        } catch (error) {
+            logClient(
+                {
+                    title: 'saved filter',
+                    level: 'error',
+                    context: 'loadSavedFilter',
+                    message: 'Не удалось загрузить сохранённый фильтр',
+                    domain: app.domain,
+                    userId: user.ID,
+                },
+                { error: error instanceof Error ? error.message : error },
+            );
+        }
 
-                const response = await backAPI.service<{
-                    department: IDepartmentResponse;
-                }>(EBACK_ENDPOINT.DEPARTMENT, API_METHOD.POST, departamentData);
-
-                if (
-                    response.resultCode === EResultCode.ERROR ||
-                    !response.data
-                ) {
-                    // const data = response.data; // автоматически типизировано как ReportData[]
-                    // console.log(data);
-                    return;
-                }
-
-                const departamentResponse = normalizeDepartmentResponse(
-                    response.data?.department,
-                );
-
-                
-                isHeadManager = getIsUserHead(
-                    departamentResponse,
-                    currentUserId,
-                ) || currentUser?.LAST_NAME?.toString().includes('Савчук');
-
-                if (isHeadManager) {
-                    if (departamentResponse.allUsers) {
-                        departament = departamentResponse.allUsers.filter(
-                            (u: BXUser, index: number, self: BXUser[]) =>
-                                index ===
-                                self.findIndex((t: BXUser) => t.ID === u.ID),
-                        );
-                    }
-                } else {
-                    departament = [currentUser];
-                }
-
-                const groups = departamentResponse.childrenDepartments.filter(
-                    (group: BXDepartment) => group.NAME.includes('Группа'),
-                );
-                const currentGroup = groups.find(
-                    (group: BXDepartment) =>
-                        group.NAME.includes('Группа') &&
-                        group.USERS?.find(
-                            (user: BXUser) => user.ID == currentUserId,
-                        ),
-                );
-                const currentGroups: BXDepartment[] = currentGroup
-                    ? [currentGroup]
-                    : !isHeadManager
-                        ? []
-                        : groups;
-                const users: BXUser[] = [];
-
-                if (
-                    !filtredDepartmentIds ||
-                    filtredDepartmentIds.length === 0
-                ) {
-                    if (isHeadManager) {
-                        currentGroups.map((group: BXDepartment) =>
-                            group.USERS?.map((usr: BXUser) => {
-                                if (
-                                    !users.find(
-                                        (user: BXUser) => user.ID == usr.ID,
-                                    )
-                                ) {
-                                    users.push(usr);
-                                }
-                            }),
-                        );
-                    } else {
-                        users.push(currentUser);
-                    }
-                } else {
-                    departament?.forEach((user: BXUser) => {
-                        filtredDepartmentIds.forEach((stringId: string) => {
-                            const id = Number(stringId);
-                            if (Number(user.ID) == id) {
-                                users.push(user);
-                            }
-                        });
-                    });
-                }
-
-                if (departament) {
+        if (saved) {
+            const mode = toReportDateMode(saved.dates.mode);
+            if (mode === EReportDateMode.RANGE) {
+                if (saved.dates.from) {
                     dispatch(
-                        departmentActions.setFetchedDepartment({
-                            departament,
-                            currentUsers: users,
-                            groups,
-                            currentGroups,
-                            isHeadManager,
+                        reportActions.setChangedDate({
+                            typeOfDate: ReportDateType.FROM,
+                            value: saved.dates.from,
                         }),
                     );
                 }
+                if (saved.dates.to) {
+                    dispatch(
+                        reportActions.setChangedDate({
+                            typeOfDate: ReportDateType.TO,
+                            value: saved.dates.to,
+                        }),
+                    );
+                }
+            } else {
+                dispatch(reportActions.setChangedDateMode({ mode }));
+            }
 
-                if (
-                    !filtredDepartmentIds ||
-                    filtredDepartmentIds.length === 0
-                ) {
-                    if (isHeadManager) {
-                        if (currentGroup && currentGroup.USERS) {
-                            departament = currentGroup.USERS;
-                        }
-                    }
-                } else {
-                    departament = users.map((user: BXUser) => user);
+            const savedIds = new Set(
+                resolveSavedSelection(department.departments, saved),
+            );
+            if (savedIds.size) {
+                // Пересечение с видимым периметром: сохранённый выбор не
+                // может расширить права (роль могла измениться).
+                const users = department.items.filter(u =>
+                    savedIds.has(Number(u.ID)),
+                );
+                if (users.length) {
+                    dispatch(departmentActions.setDepartmentCurrent(users));
                 }
             }
+        }
 
-            const departamentIds: number[] = [];
-            if (departament) {
-                departament.map((user: BXUser) => departamentIds.push(user.ID));
-            }
+        dispatch(
+            reportActions.setSavedFilter(
+                (saved?.actions as FilterInnerCode[] | undefined) ?? null,
+            ),
+        );
+    };
 
-            let userFieldId = '';
-            let actionFieldId = '';
-            let currentActions = {};
-            let dateFieldId = '';
+/** Загрузка KPI-отчёта по текущему выбору сотрудников и датам. */
+export const getReportData =
+    () => async (dispatch: AppDispatch, getState: () => RootState) => {
+        const state = getState();
+        const { app, department, report } = state;
+        const user = app.bitrix.user;
 
-            const isFirstLoad = !report.isFetched;
-            const date = report.date;
+        if (!user || report.isLoading || department.status !== 'ready') {
+            return;
+        }
+        dispatch(reportActions.setLoadingReportStatus(true));
 
-            const { from, to } = reportDateRequestFlow(
-                dispatch,
-                isFirstLoad,
-                savedFilterData,
-                date,
-            );
+        const users = department.current.length
+            ? department.current
+            : department.items;
+        const { from, to } = modifyDateToReportRequest(
+            report.date[ReportDateType.FROM],
+            report.date[ReportDateType.TO],
+        );
 
-            const reportData = {
-                domain,
-                filters: {
-                    dateFrom: from,
-                    dateTo: to,
-                    userIds: departamentIds,
-                    departament,
-                    userFieldId,
-                    dateFieldId,
-                    actionFieldId,
-                    currentActions,
-                },
-            } as ReportRequest;
+        const reportRequest = {
+            domain: app.domain,
+            filters: {
+                dateFrom: from,
+                dateTo: to,
+                userIds: users.map(u => String(u.ID)),
+                departament: users,
+                userFieldId: '',
+                dateFieldId: '',
+                actionFieldId: '',
+                currentActions: {},
+            },
+        } as unknown as ReportGetRequestDto;
 
-            const reportResponse = await getReportDataAPI(reportData);
+        try {
+            const reportResponse = await reportHelper.getReport(reportRequest);
 
-            // kpiReportListenerHelper(dispatch, reportData, report, savedFilter)
-            const statisticsData = { ...reportData };
-            // dispatch(callingStatisticsApi.endpoints.getCallingStatistics.initiate(statisticsData,
-            //     {
-            //         forceRefetch: true,
-            //     }
-            // ));
-            dispatch(getCallingStatistics(statisticsData));
             if (reportResponse) {
                 dispatch(
                     reportActions.setFetchedReport({
                         report: reportResponse,
-                        // dateFrom: date.from,
-                        // dateTo: date.to,
-                        dateFieldId,
-                        actionFieldId,
-                        // userFieldId,
+                        dateFieldId: '',
+                        actionFieldId: '',
                     }),
                 );
 
                 if (reportResponse.length) {
-                    const stateFilter =
-                        report.filter && report.filter.length > 0
-                            ? report.filter
-                            : null;
-                    const rememberFilter =
-                        savedFilter && savedFilter.length > 0
-                            ? savedFilter
-                            : null;
-
+                    const stateFilter = report.filter?.length
+                        ? report.filter
+                        : null;
+                    const rememberFilter = report.savedFilter?.length
+                        ? report.savedFilter
+                        : null;
                     const filter = reportResponse[0]?.kpi.map(
                         kpiItem => kpiItem.action,
                     ) as Array<Filter>;
@@ -235,7 +178,6 @@ export const getReportData =
                             currentFilter,
                         }),
                     );
-
                     dispatch(
                         reportActions.setFetchedFilter({
                             filter,
@@ -250,125 +192,106 @@ export const getReportData =
                         level: 'error',
                         context: 'getReportData',
                         message: 'fail report data',
-                        domain: state.app.domain,
-                        userId: state.app.bitrix.user?.ID,
+                        domain: app.domain,
+                        userId: user.ID,
                     },
-
-                    {
-                        reportData,
-                        reportResponse,
-                    },
+                    { reportRequest },
                 );
-                // stack: errorInfo.componentStack,
             }
+        } catch (error) {
+            logClient(
+                {
+                    title: 'get report data',
+                    level: 'error',
+                    context: 'getReportData',
+                    message: 'Ошибка загрузки отчёта',
+                    domain: app.domain,
+                    userId: user.ID,
+                },
+                { error: error instanceof Error ? error.message : error },
+            );
+        } finally {
+            dispatch(reportActions.setLoadingReportStatus(false));
         }
-        dispatch(reportActions.setLoadingReportStatus(false));
     };
 
 export const changeDate =
     (typeOfDate: ReportDateType, date: string) =>
-        async (dispatch: AppDispatch) => {
-            dispatch(reportActions.setChangedDate({ typeOfDate, value: date }));
-        };
+    async (dispatch: AppDispatch) => {
+        dispatch(reportActions.setChangedDate({ typeOfDate, value: date }));
+    };
 
 export const setCurrentActions =
     (actionCode: FilterInnerCode) =>
-        async (dispatch: AppDispatch, getState: () => RootState) => {
-            const report = getState().report;
-            const actions = report.actions;
-            const items = actions.items;
-            const current = actions.current;
+    async (dispatch: AppDispatch, getState: () => RootState) => {
+        const actions = getState().report.actions;
+        const searchingActionInCurrent = actions.current.find(
+            (action: Filter) => action.innerCode === actionCode,
+        );
+        let updtCurrent = [...actions.current];
 
-            const searchingActionInCurrent = current.find(
+        if (searchingActionInCurrent) {
+            updtCurrent = updtCurrent.filter(
+                (action: Filter) => action.innerCode !== actionCode,
+            );
+        } else {
+            const addingAction = actions.items.find(
                 (action: Filter) => action.innerCode === actionCode,
             );
-            let updtCurrent = [...actions.current];
-
-            if (searchingActionInCurrent) {
-                updtCurrent = updtCurrent.filter(
-                    (action: Filter) => action.innerCode !== actionCode,
-                );
-            } else {
-                const addingUser = items.find(
-                    (action: Filter) => action.innerCode === actionCode,
-                );
-                if (addingUser) {
-                    updtCurrent.push(addingUser);
-                }
+            if (addingAction) {
+                updtCurrent.push(addingAction);
             }
+        }
 
-            dispatch(reportActions.setCurrentFilter(actionCode));
-            dispatch(reportActions.setCurrentActions(updtCurrent));
-        };
+        dispatch(reportActions.setCurrentFilter(actionCode));
+        dispatch(reportActions.setCurrentActions(updtCurrent));
+    };
 
+/**
+ * Сохранение фильтра в формате v2 (structural selection) на новый бэк.
+ * legacyUserIds заполняется всегда — бэк зеркалирует старые колонки,
+ * поэтому legacy online-флоу остаётся рабочим (путь отката).
+ */
 export const saveFilter =
     () => async (dispatch: AppDispatch, getState: () => RootState) => {
         const state = getState();
-        const isLoading = state.report.isFilterLoading;
-        if (!isLoading) {
-            dispatch(reportActions.setFilterLoadingStatus(true));
-            const report = state.report;
-            const domain = state.app.domain;
-            const userId = state.app.bitrix.user?.ID;
-            const filter = report.filter;
-            const targetModes = [
-                EReportDateMode.TODAY,
-                EReportDateMode.WEEK,
-                EReportDateMode.MONTH,
-            ];
-            const isMode =
-                targetModes.includes(report.date.mode as EReportDateMode) ||
-                targetModes.includes(report.date.mode as EReportDateMode);
+        const { app, department, report } = state;
+        const user = app.bitrix.user;
+        if (!user || report.isFilterLoading) return;
 
-            const dates = {
-                [ReportDateType.FROM]: isMode
-                    ? report.date.mode
-                    : report.date[ReportDateType.FROM],
-                [ReportDateType.TO]: isMode
-                    ? report.date.mode
-                    : report.date[ReportDateType.TO],
-            };
-            const department = state.department.current.map(
-                (user: BXUser) => user.ID,
+        dispatch(reportActions.setFilterLoadingStatus(true));
+        try {
+            const selectedIds = new Set(
+                department.current.map(u => Number(u.ID)),
             );
-
-            const jsonFilter = JSON.stringify(filter, null, '  ');
-            const jsonDates = JSON.stringify(dates, null, '  ');
-            const jsonDepartment = JSON.stringify(department, null, '  ');
-
-            await fetch('/api/proxy/save-filter', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', // 💥 обязательно
+            const dto: ReportFilterSaveRequestDto = {
+                domain: app.domain,
+                userId: Number(user.ID),
+                filter: {
+                    version: 2,
+                    actions: report.filter,
+                    dates: toSavedDates(state),
+                    selection: buildSelectionV2(
+                        department.departments,
+                        selectedIds,
+                    ),
+                    legacyUserIds: [...selectedIds],
                 },
-                body: JSON.stringify({
-                    domain,
-                    userId,
-                    filter: {
-                        actions: jsonFilter,
-                        dates: jsonDates,
-                        department: jsonDepartment,
-                    },
-                }),
-            });
-
-            // const result = await response.json() as { result: IFilterResponse } | null;
-            // console.log('save result')
+            };
+            await filterHelper.save(dto);
+        } catch (error) {
+            logClient(
+                {
+                    title: 'save filter',
+                    level: 'error',
+                    context: 'saveFilter',
+                    message: 'Не удалось сохранить фильтр',
+                    domain: app.domain,
+                    userId: user.ID,
+                },
+                { error: error instanceof Error ? error.message : error },
+            );
+        } finally {
             dispatch(reportActions.setFilterLoadingStatus(false));
         }
     };
-
-export const getFilter = async (domain: string, userId: number) => {
-    const response = await fetch('/api/proxy/filter', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json', // 💥 обязательно
-        },
-        body: JSON.stringify({ domain, userId }),
-    });
-
-    const filter = (await response.json()) as {
-        result: IFilterResponse;
-    } | null;
-    return filter?.result || null;
-};

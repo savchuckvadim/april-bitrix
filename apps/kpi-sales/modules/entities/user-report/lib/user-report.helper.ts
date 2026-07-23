@@ -1,4 +1,4 @@
-import { getSalesReport, SalesUserReportGetRequestDto } from "@workspace/nest-api"
+import { getSalesReport, SalesUserReportGetRequestDto } from "@workspace/nest-kpi-report-sales-api"
 
 
 export const getUserReport = async (salesUserReportGetRequestDto: SalesUserReportGetRequestDto) => {

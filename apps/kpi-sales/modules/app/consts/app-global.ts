@@ -1,12 +1,15 @@
-//
-// export const TESTING_DOMAIN = 'alfacentr.bitrix24.ru'
-
 import { BXUser, Placement } from '@workspace/bx';
-export const TESTING_DOMAIN = '';
-// export const TESTING_DOMAIN = 'gsr.bitrix24.ru'
-// export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
-export const IS_PROD = true;
+
+/**
+ * PROD (NEXT_PUBLIC_IN_BITRIX=true): приложение обязано жить во фрейме
+ * Bitrix — вне фрейма показываем nonauth. DEV: вне фрейма работаем
+ * с TESTING_* данными (fallback внутри @workspace/bitrix).
+ */
+export const IS_PROD = process.env.NEXT_PUBLIC_IN_BITRIX === 'true';
+
+export const TESTING_DOMAIN = 'gsr.bitrix24.ru';
 // export const TESTING_DOMAIN = 'alfacentr.bitrix24.ru'
+// export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
 export const TESTING_USER = {
     ID: 2153,
     ACTIVE: true,

@@ -2,10 +2,23 @@
 
 import { LoadingScreen } from '@/modules/general';
 import { useApp } from '../lib/hooks/useApp';
+import { useAppSelector } from '../lib/hooks/redux';
+import { NON_AUTH_ERROR } from '../lib/initialize/app-init.util';
+import { NonAuthScreen } from './NonAuthScreen';
 
 export const App = ({ children }: { children: React.ReactNode }) => {
-    const { initialized, isMounted, isExpired, isLoading } = useApp();
+    const { initialized, isMounted, isLoading } = useApp();
+    const error = useAppSelector(state => state.app.error);
 
+    if (isMounted && error.status) {
+        return error.message === NON_AUTH_ERROR ? (
+            <NonAuthScreen />
+        ) : (
+            <div className="flex min-h-screen items-center justify-center p-4 text-muted-foreground">
+                {error.message || 'Ошибка инициализации приложения'}
+            </div>
+        );
+    }
 
     return (
         <div className="h-calc(100vh - 300px) p-4">
@@ -19,76 +32,3 @@ export const App = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default App;
-
-// const App = ({
-//     inBitrix,
-//     envBitrix,
-// }: {
-//     inBitrix: boolean;
-//     envBitrix: boolean | string | undefined;
-// }) => {
-//     console.log('KPI SALES APP');
-//     console.log('envBitrix', envBitrix);
-
-//     return <AppRoot inBitrix={inBitrix} />;
-// };
-
-// const AppRoot = ({ inBitrix }: { inBitrix: boolean }) => {
-//     const dispatch = useAppDispatch();
-//     const app = useAppSelector(state => state.app);
-//     const [isClient, setIsClient] = useState(false);
-
-//     useEffect(() => {
-//         setIsClient(true);
-//     }, []);
-
-//     useEffect(() => {
-//         if (isClient && !app.initialized && !app.isLoading) {
-//             dispatch(initial(inBitrix));
-//         }
-//     }, [isClient, app.initialized, app.isLoading, dispatch, inBitrix]);
-
-//     if (!isClient) {
-//         return <LoadingScreen />;
-//     }
-
-//     logClient(
-//         {
-//             title: 'AppRoot',
-//             level: 'info',
-//             context: 'AppRoot KPI REPORT SALES',
-//             message: 'AppRoot is mounted',
-//             domain: app.domain,
-//             userId: app.bitrix.user?.ID,
-//         },
-//         {},
-//     );
-//     return (
-//         <ErrorBoundary>
-//             <div className="min-h-screen bg-background">
-//                 {app.initialized ? <AppContent /> : <LoadingScreen />}
-//             </div>
-//         </ErrorBoundary>
-//     );
-// };
-
-// const AppContent = () => {
-//     const { isExpired } = useAppSelector(state => state.app.client);
-//     const dispatch = useAppDispatch();
-//     const expiredClientReady = () => {
-//         dispatch(appActions.setExpiredClient({ isExpired: false }));
-//     };
-//     if (isExpired) {
-//         return (
-//             <ExpiredClientPage
-//                 onComplete={expiredClientReady}
-//                 onDispatch={() => {
-//                     console.log('onDispatch');
-//                 }}
-//             />
-//         );
-//     }
-//     return <Report />;
-// };
-
-// export default App;

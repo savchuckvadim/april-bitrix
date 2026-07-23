@@ -1,40 +1,52 @@
-import { API_METHOD } from '@workspace/api';
-import { ReportData } from '../../report/model/types/report/report-type';
+import { GetCallingStatisticDto } from '@workspace/nest-kpi-report-sales-api';
+import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import { modifyDateToReportRequest } from '../../report/lib/date-util';
+import { ReportDateType } from '../../report/model/types/report/report-type';
 import { ReportCallingData } from '../type/calling-type';
 import { callingStatisticsActions } from './callingStatisticsSlice';
-import { IHookData } from '@/app/api/proxy/hook/route';
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { ReportRequest } from '../../report/model/report-service';
-import { fetchCallingStatistics } from '../lib/helper';
+import { CallingStatisticsHelper } from '../lib/api/calling-statistics-helper';
 
+const callingStatisticsHelper = new CallingStatisticsHelper();
+
+/** Статистика звонков по текущему выбору сотрудников и датам отчёта. */
 export const getCallingStatistics =
-    (reportData: ReportRequest) =>
-    async (dispatch: AppDispatch, getState: AppGetState) => {
-        const isLoading = getState().callingStatistics.isLoading;
-        if (!isLoading) {
-            dispatch(callingStatisticsActions.setLoading(true));
+    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+        const state = getState();
+        const { app, department, report, callingStatistics } = state;
+
+        if (
+            !app.bitrix.user ||
+            callingStatistics.isLoading ||
+            department.status !== 'ready'
+        ) {
+            return;
+        }
+        dispatch(callingStatisticsActions.setLoading(true));
+
+        try {
+            const users = department.current.length
+                ? department.current
+                : department.items;
+            const { from, to } = modifyDateToReportRequest(
+                report.date[ReportDateType.FROM],
+                report.date[ReportDateType.TO],
+            );
 
             const reportResponse: ReportCallingData[] | null =
-                await fetchCallingStatistics(reportData);
-            // try {
-            //     const data = {
-            //         url: 'full/report/callings',
-            //         method: API_METHOD.POST,
-            //         model: 'report',
-            //         data: reportData
-            //     } as IHookData
-            //     const response = await fetch('/api/proxy/hook', {
-            //         method: API_METHOD.POST,
-            //         headers: {
-            //             'Content-Type': 'application/json', // 💥 обязательно
-            //         },
-            //         body: JSON.stringify(data),
-            //     });
-            //     reportResponse = await response.json() as Array<ReportCallingData> | null
-            // } catch (error) {
-            //     console.error('❌ Proxy error:', error);
-            // }
+                await callingStatisticsHelper.getStatistics({
+                    domain: app.domain,
+                    filters: {
+                        dateFrom: from,
+                        dateTo: to,
+                        departament: users,
+                    },
+                } as unknown as GetCallingStatisticDto);
+
             dispatch(callingStatisticsActions.setFetched(reportResponse));
+        } catch (error) {
+            console.error('calling statistics error:', error);
+            dispatch(callingStatisticsActions.setFetched(null));
+        } finally {
             dispatch(callingStatisticsActions.setLoading(false));
         }
     };

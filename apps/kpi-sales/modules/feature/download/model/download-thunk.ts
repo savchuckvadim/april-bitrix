@@ -3,13 +3,15 @@ import {
     ReportData,
     ReportDateType,
 } from '@/modules/entities/report/model/types/report/report-type';
-import { API_METHOD, backAPI, EBACK_ENDPOINT } from '@workspace/api';
 import { setDownloadStatus } from './download-slice';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 import { sendDownloadingReport } from '@/modules/app/model/AppThunk';
 import { getKpidReportsExcelData, getMergedReportsExcelData } from '../../merged-kpi-calling-report/lib/merge-reports.util';
-import { DownLoadKpiReportDto, DownLoadKpiReportDtoType, DownloadKpiReportItemDto, getKpiSalesReportDownload, OrkKpiFilterCode } from '@workspace/nest-api';
+import { DownLoadKpiReportDto } from '@workspace/nest-kpi-report-sales-api';
 import { EReportType } from '../../report-widget-type/consts/report-type.consts';
+import { DownloadHelper } from '../lib/api/download-helper';
+
+const downloadHelper = new DownloadHelper();
 
 export enum EDownloadType {
     EXCEL = 'excel',
@@ -91,15 +93,7 @@ export const getDownload =
 
 
 
-                // const blob = await api.kpiReportDownloadExcel(data) as unknown as Blob;
-
-
-
-                const blob = await backAPI.download<Blob>(
-                    EBACK_ENDPOINT.DOWNLOAD_REPORT,
-                    API_METHOD.POST,
-                    data,
-                );
+                const blob = await downloadHelper.downloadExcel(data);
 
                 if (blob instanceof Blob) {
                     const url = window.URL.createObjectURL(blob);

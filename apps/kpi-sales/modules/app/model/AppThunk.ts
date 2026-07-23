@@ -1,111 +1,64 @@
-import type { BXUser } from '@workspace/bx';
-import { bxAPI as bx } from '@workspace/api';
-import { TESTING_DOMAIN, TESTING_USER } from '../consts/app-global';
 import { appActions } from './AppSlice';
-import { AppDispatch, AppGetState, AppThunk, initWSClient } from './store';
-import { WSClient } from '@workspace/ws';
-import { socketThunk } from './queue-ws-ping-test/QueueWsPingListener';
+import { AppDispatch, AppGetState, AppThunk } from './store';
+import { appInit } from '../lib/initialize/app-init.util';
 import { telegramSendMessage } from '@/modules/shared';
-import { startWsEventsListener } from '@/modules/entities';
-// import { getBXService } from '../lib/bitrix/get-bx-service';
-// import { BitrixService } from '@workspace/bitrix';
 
-export let socket: undefined | WSClient;
-
+/**
+ * Тонкий init-thunk (Alfacentr-паттерн): guard + флаги загрузки.
+ * Весь boot — в lib/initialize/app-init.util.ts; последующие загрузки —
+ * в listeners (model/listeners/start-store-listeners.ts).
+ */
 export const initial =
-    (inBitrix: boolean = false): AppThunk =>
-        async (dispatch: AppDispatch, getState: AppGetState, { getWSClient }) => {
+    (): AppThunk =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
+        const app = getState().app;
+        if (app.isLoading || app.initialized) return;
 
-            //listeners
-            // startUserReportAppListener(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>);
-            // startReportTypeAppListener(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>)
-
-            const state = getState();
-            const app = state.app;
-            const isLoading = app.isLoading;
-            const __IN_BITRIX__ = inBitrix;
-            // const { domain, user:initUser, bitrix } = bxData;
-            // const userFromBx = await (bitrix as BitrixService).api.call(
-            //     'user.get',
-            //     {
-            //         ID: initUser.ID,
-            //     }
-            // )
-            //
-
-            //
-            if (!isLoading) {
-                dispatch(appActions.loading({ status: true }));
-
-                const domain: string = __IN_BITRIX__
-                    ? (await bx.getDomain()) || TESTING_DOMAIN
-                    : TESTING_DOMAIN;
-
-                const user = __IN_BITRIX__
-                    ? ((await bx.getCurrentUser()) as BXUser)
-                    : TESTING_USER as BXUser;
-                console.log('user');
-
-                console.log(user);
-
-                initWSClient(user.ID, domain); // <- здесь создаёшь сокет
-                // const socket = getWSClient()
-                dispatch(socketThunk(user.ID, domain));
-
-                dispatch(
-                    appActions.setAppData({
-                        domain,
-                        user,
-                    }),
-                );
-
-
-                //for user-report
-                const wsClient = getWSClient();
-                await startWsEventsListener(dispatch, wsClient);
-                dispatch(appActions.loading({ status: false }));
-                // dispatch(departmentAPI.endpoints.getDepartment.initiate({ domain }));
-            }
-        };
+        dispatch(appActions.loading({ status: true }));
+        try {
+            await appInit(dispatch, getState);
+        } catch (error) {
+            console.error('app-init error:', error);
+            dispatch(
+                appActions.setInitializedError({
+                    errorMessage: 'Ошибка инициализации приложения',
+                }),
+            );
+        } finally {
+            dispatch(appActions.loading({ status: false }));
+        }
+    };
 
 export const reloadApp =
-    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+    () => async (dispatch: AppDispatch, _getState: AppGetState) => {
         setTimeout(() => {
-            dispatch(
-                // initialEventApp()
-                appActions.reload(),
-            );
+            dispatch(appActions.reload());
         }, 1000);
     };
 
 export const sendExpiredStart =
-    () => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const text = 'Началась задержка загрузки';
-        dispatch(sendToTg(text));
+    () => async (dispatch: AppDispatch, _getState: AppGetState) => {
+        dispatch(sendToTg('Началась задержка загрузки'));
     };
+
 export const sendExpiredEnd =
-    () => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const text = 'Задержка загрузки закончилась';
-        dispatch(sendToTg(text));
+    () => async (dispatch: AppDispatch, _getState: AppGetState) => {
+        dispatch(sendToTg('Задержка загрузки закончилась'));
     };
 
 export const sendDownloadingReport =
-    () => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const text = 'Скачивание отчета excel';
-        dispatch(sendToTg(text));
+    () => async (dispatch: AppDispatch, _getState: AppGetState) => {
+        dispatch(sendToTg('Скачивание отчета excel'));
     };
 
 export const sendToTg =
-    (text: string) => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const state = getState();
-        const app = state.app;
+    (text: string) => async (_dispatch: AppDispatch, getState: AppGetState) => {
+        const app = getState().app;
         const user = app.bitrix.user;
         const domain = app.domain;
         const userId = user?.ID?.toString() || '';
-        let userName = '';
         if (user?.NAME || user?.LAST_NAME) {
-            userName = `${user?.NAME || 'name'} ${user?.LAST_NAME || 'last name'}`;
-            text += `\n${userName}`;
+            text += `\n${user?.NAME || 'name'} ${user?.LAST_NAME || 'last name'}`;
         }
 
         await telegramSendMessage({ text, domain, userId });

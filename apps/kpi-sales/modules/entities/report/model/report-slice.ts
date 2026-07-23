@@ -29,6 +29,8 @@ const getInitialDate = () => {
 const initialState = {
     data: null,
     filter: [] as Array<FilterInnerCode>,
+    /** Действия из сохранённого фильтра (null — фильтр не сохранялся). */
+    savedFilter: null as Array<FilterInnerCode> | null,
     isFilterLoading: false as boolean,
     actions: {
         items: [] as Array<Filter>,
@@ -110,6 +112,16 @@ const reportSlice = createSlice({
             action: PayloadAction<boolean>,
         ) => {
             state.isFilterLoading = action.payload;
+        },
+        /**
+         * Сохранённый фильтр применён (даже если null) — триггер для
+         * listener-цепочки «фильтр применён → загрузка отчёта».
+         */
+        setSavedFilter: (
+            state: ReportState,
+            action: PayloadAction<Array<FilterInnerCode> | null>,
+        ) => {
+            state.savedFilter = action.payload;
         },
         setCurrentFilter: (
             state: ReportState,

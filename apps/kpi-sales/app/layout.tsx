@@ -4,7 +4,7 @@ import '@workspace/ui/globals.css';
 // import "@workspace/theme/themes.css"
 import { ThemeInitScript } from '@workspace/theme';
 import { Providers } from '@/modules/app/providers/Providers';
-import { BootPreloader } from '@/modules/general/shared/LoadingScreen/ui/BootPreloader';
+import { BootPreloader } from '@/modules/app/ui/LoadingScreen/BootPreloader';
 import App from '@/modules/app/ui/App';
 import { ReportProvider } from '@/modules/widgets/report';
 

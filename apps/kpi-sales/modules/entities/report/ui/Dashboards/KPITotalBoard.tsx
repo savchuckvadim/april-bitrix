@@ -1,8 +1,8 @@
 import { FC, useState } from 'react';
 import { useReport } from '../../model';
-import { ChartTotal } from '@/modules/widgetes';
+import { ChartTotal } from '../charts/ChartTotal';
 import { formatPeriod, getColors } from '@/modules/entities/report/lib/colors';
-import { ChartTotalData } from '@/modules/widgetes/chart/ui/Chart';
+import type { ChartTotalData } from '../charts/ChartTotal';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { ReportDateType } from '../../model/types/report/report-type';
 

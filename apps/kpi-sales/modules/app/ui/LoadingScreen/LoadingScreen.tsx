@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { PreloaderScreen } from '@workspace/april-ui';
-import { usePace } from '../hooks/usePace';
+import { usePace } from './usePace';
 
 /**
  * App-обёртка над единым прелоадером монорепы (@workspace/april-ui):

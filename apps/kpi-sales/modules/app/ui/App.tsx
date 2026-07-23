@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { LoadingScreen } from '@/modules/general';
+import LoadingScreen from './LoadingScreen/LoadingScreen';
 import { useApp } from '../lib/hooks/useApp';
 import { useAppSelector } from '../lib/hooks/redux';
 import { NON_AUTH_ERROR } from '../lib/initialize/app-init.util';
-import { BOOT_PRELOADER_ID } from '@/modules/general/shared/LoadingScreen/ui/BootPreloader';
+import { BOOT_PRELOADER_ID } from './LoadingScreen/BootPreloader';
 import { NonAuthScreen } from './NonAuthScreen';
 
 export const App = ({ children }: { children: React.ReactNode }) => {

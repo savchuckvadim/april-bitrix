@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
-import { IUserReportCompanyDeals } from "../../../type/user-report.type";
+import { IUserReportCompanyDeals } from "@/modules/entities/user-report/type/user-report.type";
 
 Chart.register(...registerables);
 

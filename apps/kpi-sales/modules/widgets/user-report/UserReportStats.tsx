@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Card } from "@workspace/ui/components/card";
-import { IUserReportItem } from "../../type/user-report.type";
+import { IUserReportItem } from "@/modules/entities/user-report/type/user-report.type";
 import {
     Activity,
     Calendar,

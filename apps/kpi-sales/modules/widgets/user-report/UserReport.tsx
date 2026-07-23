@@ -1,8 +1,8 @@
 'use client'
 
-import { useUserReport } from "../../hooks/user-report.hook";
+import { useUserReport } from "@/modules/entities/user-report/hooks/user-report.hook";
 import { useDepartment } from "@/modules/entities/department";
-import { IUserReportItem } from "../../type/user-report.type";
+import { IUserReportItem } from "@/modules/entities/user-report/type/user-report.type";
 
 import React, { useEffect, useState, useMemo } from "react";
 import { parse } from 'date-fns';

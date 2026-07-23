@@ -5,9 +5,9 @@ import {
     ThunkExtraArgument,
 } from '@/modules/app/model/store';
 import { departmentActions } from '@/modules/entities/department/model/department-slice';
-import { getCallingStatistics } from '@/modules/entities/calling-statistics';
-import { reportActions } from '../report-slice';
-import { getReportData, loadSavedFilter } from '../report-thunks';
+import { getCallingStatistics } from '../calling-statistics-flow-thunk';
+import { reportActions } from '@/modules/entities/report/model/report-slice';
+import { getReportData, loadSavedFilter } from '../report-flow-thunks';
 
 /**
  * Цепочка загрузки отчёта:

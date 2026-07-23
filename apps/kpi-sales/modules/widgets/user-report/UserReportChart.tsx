@@ -6,7 +6,7 @@ import { Chart, registerables } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { Button } from "@workspace/ui/components/button";
 import { Badge } from "@workspace/ui/components/badge";
-import { IUserReportItem } from "../../type/user-report.type";
+import { IUserReportItem } from "@/modules/entities/user-report/type/user-report.type";
 import { BarChart3, Table } from 'lucide-react';
 
 Chart.register(...registerables);

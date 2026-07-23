@@ -5,7 +5,7 @@ import {
     RootState,
     ThunkExtraArgument,
 } from '@/modules/app/model/store';
-import { getDepartmentStructure } from '../department-thunk';
+import { getDepartmentStructure } from '@/modules/entities/department';
 
 /** Приложение инициализировано (setAppData) → грузим структуру отделов. */
 export const startDepartmentAppListener = (

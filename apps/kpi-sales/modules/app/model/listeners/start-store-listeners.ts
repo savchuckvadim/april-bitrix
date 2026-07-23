@@ -1,6 +1,6 @@
 import { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
-import { startDepartmentAppListener } from '@/modules/entities/department/model/listeners/department-app.listener';
-import { startReportChainListeners } from '@/modules/entities/report/model/listeners/report-chain.listener';
+
+import { startReportFlowListeners } from '@/modules/feature/report-flow';
 import { startUserReportAppListener } from '@/modules/entities/user-report/model/listeners/app.listener';
 import { startMergedFilterListeners } from '@/modules/feature/merged-kpi-calling-report/model/listeners/merged-filter.listener';
 import { startReportTypeAppListener } from '@/modules/feature/report-widget-type/model/ReportTypeAppListener';
@@ -20,7 +20,7 @@ type AppListenerMiddleware = ListenerMiddlewareInstance<
 export function startStoreListeners(listenerMiddleware: AppListenerMiddleware) {
     startReportTypeAppListener(listenerMiddleware);
     startUserReportAppListener(listenerMiddleware);
-    startDepartmentAppListener(listenerMiddleware);
-    startReportChainListeners(listenerMiddleware);
+
+    startReportFlowListeners(listenerMiddleware);
     startMergedFilterListeners(listenerMiddleware);
 }

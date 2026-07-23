@@ -2,7 +2,6 @@ export * from './model';
 export * from './model/department-slice';
 export * from './model/department-thunk';
 export * from './model/use-department';
-export * from './model/listeners/department-app.listener';
 export * from './lib/api/department-helper';
 export * from './lib/normalize';
 export * from './lib/scope.util';

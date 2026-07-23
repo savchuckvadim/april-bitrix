@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef, useEffect } from "react";
-import { IUserReportItem } from "../../type/user-report.type";
+import { IUserReportItem } from "@/modules/entities/user-report/type/user-report.type";
 import { Card } from "@workspace/ui/components/card";
 import { Loader2 } from "lucide-react";
 import { UserReportEventRow } from "./UserReportEventRow";

@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const DynamicUserReport = dynamic(() =>
-    import('@/modules/entities/user-report/ui/UserReport/UserReport')
+    import('@/modules/widgets/user-report/UserReport')
         .then(mod => mod.UserReport));
 
 

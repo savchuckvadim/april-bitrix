@@ -1,6 +1,7 @@
 'use client'
 import React, { useMemo } from 'react';
 import { useReport } from '@/modules/entities/report/model';
+import { useReportFlow } from '@/modules/feature/report-flow';
 import { Button } from '@workspace/ui/components/button';
 import { DownLoad } from '@/modules/feature';
 import { ThemeTogglePanel } from '@workspace/theme';
@@ -24,7 +25,8 @@ export default function ReportHeader({
     isFilterOpen: boolean;
     setIsFilterOpen: (isFilterOpen: boolean) => void;
 }) {
-    const { date, handleUpdateReport } = useReport();
+    const { date } = useReport();
+    const { refreshReport: handleUpdateReport } = useReportFlow();
     const formattedDate = 'с ' + getFormattedDate(date.from || '') + ' по ' + getFormattedDate(date.to || '');
     let isUserReport = false;
     const pathname = usePathname();

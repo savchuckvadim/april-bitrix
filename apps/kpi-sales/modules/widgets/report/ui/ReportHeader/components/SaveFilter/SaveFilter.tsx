@@ -8,12 +8,12 @@ import {
 import { useState } from 'react';
 import { cn } from '@workspace/ui/lib/utils'; // если у тебя есть класс name helper
 import { Preloader } from '@/modules/shared';
-import { useReport } from '@/modules/entities/report/model';
+import { useReportFlow } from '@/modules/feature/report-flow';
 import { CheckIcon, SaveIcon } from 'lucide-react';
 import { div } from 'framer-motion/client';
 
 const SaveFilter = () => {
-    const { isFilterLoading, handleSaveFilter } = useReport();
+    const { isFilterLoading, saveFilter: handleSaveFilter } = useReportFlow();
     const [saved, setSaved] = useState(false);
 
     const onSave = async () => {

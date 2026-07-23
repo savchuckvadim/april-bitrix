@@ -1,6 +1,6 @@
 'use client'
 
-import { IUserReportItem } from "../../type/user-report.type";
+import { IUserReportItem } from "@/modules/entities/user-report/type/user-report.type";
 import { Card } from "@workspace/ui/components/card";
 
 

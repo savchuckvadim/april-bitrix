@@ -1,12 +1,12 @@
 'use client'
 
 import React from 'react';
-import { IUserReportItem } from "../../type/user-report.type";
-import { useUserReportItem } from '../../hooks/user-report-item.hook';
+import { IUserReportItem } from "@/modules/entities/user-report/type/user-report.type";
+import { useUserReportItem } from '@/modules/entities/user-report/hooks/user-report-item.hook';
 import Link from 'next/link';
 import { Tooltip } from '@workspace/april-ui';
 import { cn } from '@workspace/ui/lib/utils';
-import { getColorCompany } from '../../lib/color-company.ui-util';
+import { getColorCompany } from '@/modules/entities/user-report/lib/color-company.ui-util';
 import { Badge } from '@workspace/ui/components/badge';
 import { BadgeCent, Dot } from 'lucide-react';
 

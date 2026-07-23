@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
-import { getReportData, changeDate, saveFilter } from './report-thunks';
+import { useMemo } from 'react';
+import { changeDate } from './report-thunks';
 import {
     ReportDateType,
     Filter,
@@ -17,13 +17,8 @@ export const useReport = () => {
     const department = useAppSelector(state => state.department.current);
 
 
-    // const [filtredReport, setFiltredReport] = useState<ReportData[]>([]);
-    useEffect(() => {
-        if (!reportState.isFetched && !reportState.isLoading) {
-            dispatch(getReportData());
-        }
-    }, [dispatch, reportState.isFetched]);
-
+    // Загрузка/сохранение отчёта — в feature/report-flow (useReportFlow);
+    // здесь только состояние сущности и её чистые операции.
     const handleDateChange = (type: ReportDateType, date: string) => {
         dispatch(changeDate(type, date));
     };
@@ -31,16 +26,8 @@ export const useReport = () => {
         dispatch(reportActions.setChangedDateMode({ mode }));
     };
 
-    const handleSaveFilter = () => {
-        dispatch(saveFilter());
-    };
-
     const handleSetCurrentReportItem = (userId: number) => {
         dispatch(reportActions.setCurrentReportItem(userId));
-    };
-
-    const handleUpdateReport = () => {
-        dispatch(getReportData());
     };
 
     const isNoReportData = useMemo(() => {
@@ -76,8 +63,6 @@ export const useReport = () => {
         isFilterLoading: reportState.isFilterLoading,
         handleDateChange,
         handleDateModeChange,
-        handleUpdateReport,
-        handleSaveFilter,
         handleSetCurrentReportItem,
     };
 };

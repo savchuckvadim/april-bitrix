@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useMemo } from 'react';
-import { IUserReportItem } from "../../type/user-report.type";
+import { IUserReportItem } from "@/modules/entities/user-report/type/user-report.type";
 import { Badge } from "@workspace/ui/components/badge";
 import { Card } from "@workspace/ui/components/card";
 import { Button } from "@workspace/ui/components/button";
 import { X, Building2, Palette } from 'lucide-react';
-import { getColorCompany } from '../../lib/color-company.ui-util';
+import { getColorCompany } from '@/modules/entities/user-report/lib/color-company.ui-util';
 import { cn } from '@workspace/ui/lib/utils';
 
 interface UserReportFiltersProps {

@@ -27,6 +27,19 @@ export const getChartColorsArray = (colors: string) => {
         : [];
 };
 
+/**
+ * Резолв цвета показателя из темы: токен --kpi-action-<code> (см.
+ * packages/ui/.../april-tokens.css), фолбэк — значение из словаря ниже.
+ * Canvas-чарты требуют готовую строку цвета, поэтому getComputedStyle.
+ */
+const resolveActionColor = (code: FilterInnerCode, fallback: string): string => {
+    if (typeof window === 'undefined') return fallback;
+    const token = getComputedStyle(document.documentElement)
+        .getPropertyValue(`--kpi-action-${code.replace(/_/g, '-')}`)
+        .trim();
+    return token || fallback;
+};
+
 export const getColors = (report: any[] | undefined) => {
     const reportColors: Record<FilterInnerCode, string> = {
         result_communication_plan: 'rgba(160, 200, 220, 0.81)',
@@ -62,7 +75,12 @@ export const getColors = (report: any[] | undefined) => {
         for (const code in reportColors) {
             report.forEach(repor => {
                 if (repor && repor.action && repor.action.innerCode === code) {
-                    resultColors.push(reportColors[code as FilterInnerCode]);
+                    resultColors.push(
+                        resolveActionColor(
+                            code as FilterInnerCode,
+                            reportColors[code as FilterInnerCode],
+                        ),
+                    );
                 }
             });
         }
@@ -70,7 +88,9 @@ export const getColors = (report: any[] | undefined) => {
         return resultColors;
     }
 
-    return Object.values(reportColors);
+    return (Object.keys(reportColors) as FilterInnerCode[]).map(code =>
+        resolveActionColor(code, reportColors[code]),
+    );
 };
 
 export const formatPeriod = (from: string, to: string) => {

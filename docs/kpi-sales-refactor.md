@@ -4,12 +4,11 @@
 
 Выполнено сверх плана: единый `PreloaderScreen` в `@workspace/april-ui` (варианты minimal/orb/aurora/liquid на ReactBits), фикс Swagger `USERS`, группы = только «Группа…» (бэк, кеш v2).
 
-**Остатки (следующие итерации):**
-- Полная миграция хардкод-цветов chart-стека на токены (`report/lib/colors.ts` и др.) — делать вместе с design-system refactor (`docs/design-system.tasks.md`).
-- Полный уход с online API: остались install-flow (`app/api/bitrix/install` → setupBitrixApp) и `queue/ping`+WS-хост на старом бэке. Перенос install на nest (`front-portal`/`bitrix-auth`) — отдельный трек.
-- **Ротация `ONLINE_API_KEY`** (светился в логах до этапа 0) — после переноса install.
-- Перевод остальных приложений монорепы на `PreloaderScreen` (сейчас переведён kpi-sales; в apps/bitrix есть даже `LoadingScreen copy.tsx`).
-- Excel: после проверки добавить в Swagger binary-схему ответа download (сейчас фронт качает blob через customAxios напрямую).
+**Остатки — закрыты 2026-07-23:**
+- ✅ Цвета показателей: токены `--kpi-action-*` в `april-tokens.css`, `colors.ts` резолвит их на рантайме с прежними rgba-фолбэками (без визуальной регрессии, темы могут переопределять). Остались локальные палитры внутри chart-компонентов (CallingDashboard, user-report linechart, Processing-svg) — добить с design-system refactor.
+- ✅ Online API удалён полностью: install-роут — тонкий форвардер на бэк (`/api/bitrix-setup-install/install`), страница установки — `finishInstall()` из `@workspace/bitrix`, `@workspace/api` выпилен из зависимостей. **`ONLINE_API_KEY` больше не нужен — ротировать/отозвать ключ** (светился в логах до этапа 0). Ops: убедиться, что env `APP_KEY` задан у бэка kpi-report-sales.
+- ✅ `PreloaderScreen` раскатан: kpi-sales, event-sales, event-service, kpi-service (обёртки с pace/таймером, variant="brand"); в bitrix удалён `LoadingScreen copy.tsx`. Осталось: admin / bitrix / konstructor — нужно сначала добавить им dep `@workspace/april-ui` (+transpile).
+- Excel binary-схема в Swagger — по-прежнему TODO (blob качается через customAxios напрямую).
 
 ## TL;DR
 

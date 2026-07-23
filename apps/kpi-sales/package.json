@@ -12,7 +12,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@workspace/api": "workspace:*",
     "@workspace/april-ui": "workspace:*",
     "@workspace/bitrix": "workspace:*",
     "@workspace/bx": "workspace:*",

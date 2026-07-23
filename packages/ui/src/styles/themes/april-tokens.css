@@ -121,3 +121,37 @@
     --event-current: var(--event-supply);
     --event-current-foreground: var(--event-supply-foreground);
 }
+
+/* ==========================================================================
+   KPI-sales: цвета показателей отчёта (--kpi-action-<innerCode, _ → ->).
+   Резолвятся на рантайме (canvas-чарты) через getComputedStyle с этими же
+   значениями как фолбэком — темы могут переопределять точечно.
+   ========================================================================== */
+:root {
+    --kpi-action-result-communication-plan: rgba(160, 200, 220, 0.81);
+    --kpi-action-result-communication-done: rgba(120, 180, 220, 0.76);
+    --kpi-action-call-plan: rgba(135, 206, 250, 1);
+    --kpi-action-call-done: rgba(30, 144, 255, 1);
+    --kpi-action-call-expired: rgba(200, 200, 200, 1);
+    --kpi-action-call-pound: rgba(180, 180, 180, 1);
+    --kpi-action-call-act-noresult-fail: rgba(160, 160, 160, 1);
+    --kpi-action-presentation-plan: rgba(255, 215, 0, 1);
+    --kpi-action-presentation-done: rgba(255, 140, 0, 1);
+    --kpi-action-presentation-expired: rgba(255, 200, 0, 1);
+    --kpi-action-presentation-pound: rgba(255, 180, 0, 1);
+    --kpi-action-presentation-act-noresult-fail: rgba(255, 160, 0, 1);
+    --kpi-action-presentation-uniq-plan: rgba(202, 176, 255, 1);
+    --kpi-action-presentation-contact-uniq-plan: rgb(255, 66, 163);
+    --kpi-action-presentation-contact-uniq-done: rgb(255, 0, 140);
+    --kpi-action-presentation-uniq-done: rgba(166, 110, 200, 1);
+    --kpi-action-presentation-uniq-expired: rgba(180, 140, 220, 1);
+    --kpi-action-presentation-uniq-pound: rgba(160, 120, 200, 1);
+    --kpi-action-presentation-uniq-act-noresult-fail: rgba(140, 100, 180, 1);
+    --kpi-action-ev-offer-act-send: rgba(106, 180, 242, 1);
+    --kpi-action-ev-offer-pres-act-send: rgba(48, 224, 226, 1);
+    --kpi-action-ev-invoice-act-send: rgba(30, 178, 178, 1);
+    --kpi-action-ev-invoice-pres-act-send: rgba(68, 213, 144, 1);
+    --kpi-action-ev-contract-act-send: rgba(35, 186, 35, 1);
+    --kpi-action-ev-success-done: rgba(35, 186, 35, 1);
+    --kpi-action-ev-fail-done: rgba(255, 96, 85, 1);
+}

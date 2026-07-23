@@ -1,9 +1,5 @@
-import { setConfig } from '@workspace/api';
 import { configureBaseURL } from '@workspace/nest-kpi-report-sales-api';
 
-setConfig({
-    apiKey: process.env.ONLINE_API_KEY || '',
-});
 
 // NEXT_PUBLIC_* инлайнится в бандл на билде, поэтому работает и на клиенте.
 // Без переменной остаётся dev-дефолт пакета (http://localhost:3000/).

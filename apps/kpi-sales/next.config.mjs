@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 
-// ONLINE_API_KEY нужен proxy-роутам (/api/proxy/*) до полного ухода с online API (этап 5 рефакторинга).
-// Не роняем сборку — предупреждаем: dev без ключа должен подниматься.
-for (const envVar of ['ONLINE_API_KEY', 'LOG_FILE_PATH']) {
+// Не роняем сборку — предупреждаем: dev без переменных должен подниматься.
+for (const envVar of ['LOG_FILE_PATH']) {
     if (!process.env[envVar]) {
         console.warn(`[kpi-sales] Missing environment variable: ${envVar}`);
     }
@@ -10,7 +9,6 @@ for (const envVar of ['ONLINE_API_KEY', 'LOG_FILE_PATH']) {
 
 const nextConfig = {
     transpilePackages: [
-        '@workspace/api',
         '@workspace/ui',
         '@workspace/april-ui',
         '@workspace/theme',

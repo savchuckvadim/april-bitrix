@@ -623,6 +623,9 @@ importers:
       '@workspace/nest-api':
         specifier: workspace:*
         version: link:../../packages/nest-api
+      '@workspace/nest-kpi-report-sales-api':
+        specifier: workspace:*
+        version: link:../../packages/nest-kpi-report-sales-api
       '@workspace/nest-pbx-api':
         specifier: workspace:*
         version: link:../../packages/nest-pbx-api
@@ -1359,6 +1362,31 @@ importers:
         version: 5.9.3
 
   packages/nest-konstructor-api:
+    dependencies:
+      axios:
+        specifier: ^1.8.4
+        version: 1.18.1
+    devDependencies:
+      '@turbo/gen':
+        specifier: ^2.4.2
+        version: 2.5.3(@types/node@20.17.46)(typescript@5.9.3)
+      '@types/node':
+        specifier: ^20
+        version: 20.17.46
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@workspace/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      orval:
+        specifier: ^7.13.0
+        version: 7.13.0(openapi-types@12.1.3)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  packages/nest-kpi-report-sales-api:
     dependencies:
       axios:
         specifier: ^1.8.4

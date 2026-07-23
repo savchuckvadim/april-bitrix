@@ -6,6 +6,5 @@ export * from './model/listeners/report-chain.listener';
 export { ReportHelper } from './lib/api/report-helper';
 export { ReportFilterHelper } from './lib/api/filter-helper';
 
-export { default as Report } from './ui/Report';
 
 export { getFiltredrReport } from './lib/report';

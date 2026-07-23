@@ -6,7 +6,7 @@ import { ThemeInitScript } from '@workspace/theme';
 import { Providers } from '@/components/providers';
 import { BootPreloader } from '@/modules/general/shared/LoadingScreen/ui/BootPreloader';
 import App from '@/modules/app/ui/App';
-import { ReportProvider } from '@/modules/entities/report/ui/ReportProvider';
+import { ReportProvider } from '@/modules/widgets/report';
 
 const inter = Inter({ subsets: ['latin'] });
 

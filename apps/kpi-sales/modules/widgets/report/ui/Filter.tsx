@@ -1,7 +1,7 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
-import DatesFilter from './DatesFilter';
-import ActionsFilter from './ActionsFilter';
+import DatesFilter from '@/modules/entities/report/ui/DatesFilter';
+import ActionsFilter from '@/modules/entities/report/ui/ActionsFilter';
 import {
     Card,
     CardContent,

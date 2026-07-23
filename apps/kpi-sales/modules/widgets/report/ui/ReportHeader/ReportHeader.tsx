@@ -1,6 +1,6 @@
 'use client'
 import React, { useMemo } from 'react';
-import { useReport } from '../../model';
+import { useReport } from '@/modules/entities/report/model';
 import { Button } from '@workspace/ui/components/button';
 import { DownLoad } from '@/modules/feature';
 import { ThemeTogglePanel } from '@workspace/theme';

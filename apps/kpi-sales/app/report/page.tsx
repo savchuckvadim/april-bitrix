@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { Processing } from '@/modules/shared';
 
 // Тяжёлый отчёт (таблицы + chart-стек) грузим лениво, страница — лёгкий каркас.
-const Report = dynamic(() => import('@/modules/entities/report/ui/Report'), {
+const Report = dynamic(() => import('@/modules/widgets/report/ui/Report'), {
     ssr: false,
     loading: () => <Processing />,
 });

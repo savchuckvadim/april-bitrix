@@ -1,6 +1,15 @@
 # Рефакторинг `apps/kpi-sales` — аналитика и пошаговый план
 
-Дата: 2026-07-23. Статус: план согласовывается.
+Дата: 2026-07-23. Статус: **этапы 0–8 выполнены** (ветка `refactor/kpi-sales`; бэк — в `monorepo`).
+
+Выполнено сверх плана: единый `PreloaderScreen` в `@workspace/april-ui` (варианты minimal/orb/aurora/liquid на ReactBits), фикс Swagger `USERS`, группы = только «Группа…» (бэк, кеш v2).
+
+**Остатки (следующие итерации):**
+- Полная миграция хардкод-цветов chart-стека на токены (`report/lib/colors.ts` и др.) — делать вместе с design-system refactor (`docs/design-system.tasks.md`).
+- Полный уход с online API: остались install-flow (`app/api/bitrix/install` → setupBitrixApp) и `queue/ping`+WS-хост на старом бэке. Перенос install на nest (`front-portal`/`bitrix-auth`) — отдельный трек.
+- **Ротация `ONLINE_API_KEY`** (светился в логах до этапа 0) — после переноса install.
+- Перевод остальных приложений монорепы на `PreloaderScreen` (сейчас переведён kpi-sales; в apps/bitrix есть даже `LoadingScreen copy.tsx`).
+- Excel: после проверки добавить в Swagger binary-схему ответа download (сейчас фронт качает blob через customAxios напрямую).
 
 ## TL;DR
 

@@ -1,12 +1,6 @@
-import { Button } from '@workspace/ui/components/button';
+import { redirect } from 'next/navigation';
 
+/** Реальная точка входа приложения — отчёт. */
 export default function Page() {
-    return (
-        <div className="flex items-center justify-center min-h-svh">
-            <div className="flex flex-col items-center justify-center gap-4">
-                <h1 className="text-2xl font-bold">Hello Bitrix APP</h1>
-                <Button size="sm">Button</Button>
-            </div>
-        </div>
-    );
+    redirect('/report');
 }

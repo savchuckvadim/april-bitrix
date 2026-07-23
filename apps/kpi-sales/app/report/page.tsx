@@ -1,21 +1,14 @@
-// 'use client';
+'use client';
 
-// import App from '@/modules/app/ui/App';
-
-// export default function ReportPage() {
-//     const inBitrix = process.env.IN_BITRIX as string | boolean | undefined;
-
-//     return <App inBitrix={true} envBitrix={inBitrix} />;
-// }
-
-import { Report } from '@/modules/entities/report';
 import dynamic from 'next/dynamic';
+import { Processing } from '@/modules/shared';
 
-
-// const DynamicReport = dynamic(() => import('@/modules/entities/report/ui/Report'), { ssr: false });
-
+// Тяжёлый отчёт (таблицы + chart-стек) грузим лениво, страница — лёгкий каркас.
+const Report = dynamic(() => import('@/modules/entities/report/ui/Report'), {
+    ssr: false,
+    loading: () => <Processing />,
+});
 
 export default function ReportPage() {
-
     return <Report />;
 }

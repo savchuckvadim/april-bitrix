@@ -1,12 +1,14 @@
-// import dynamic from 'next/dynamic';
 'use client';
-import { Report } from "@/modules/entities/report";
 
+import dynamic from 'next/dynamic';
+import { Processing } from '@/modules/shared';
 
-// const DynamicReport = dynamic(() => import('@/modules/entities/report/ui/Report'), { ssr: false });
+// Dev-дубль страницы отчёта (для локальных проверок вне /report).
+const Report = dynamic(() => import('@/modules/entities/report/ui/Report'), {
+    ssr: false,
+    loading: () => <Processing />,
+});
 
-
-export default function ReportPage() {
-
+export default function DevReportPage() {
     return <Report />;
 }

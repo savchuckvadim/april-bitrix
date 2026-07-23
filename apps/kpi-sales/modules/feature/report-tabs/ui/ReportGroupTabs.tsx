@@ -12,6 +12,7 @@ import {
     buildDepartmentSections,
     buildGroupSections,
     filterSectionsByPresent,
+    StructureSection,
 } from '../lib/group-report.util';
 import { SectionList } from './components/SectionList';
 
@@ -22,6 +23,10 @@ interface ReportGroupTabsProps {
     renderSummary: () => ReactNode;
     /** Блок секции: получает набор сотрудников отдела/группы. */
     renderSection: (userIds: Set<number>) => ReactNode;
+    /** Хвост вкладки «По отделам» (рейтинги-победители и т.п.). */
+    renderDepartmentsFooter?: (sections: StructureSection[]) => ReactNode;
+    /** Хвост вкладки «По группам». */
+    renderGroupsFooter?: (sections: StructureSection[]) => ReactNode;
 }
 
 /**
@@ -34,6 +39,8 @@ export const ReportGroupTabs = ({
     presentUserIds,
     renderSummary,
     renderSection,
+    renderDepartmentsFooter,
+    renderGroupsFooter,
 }: ReportGroupTabsProps) => {
     const departments = useAppSelector(
         state => state.department.departments,
@@ -87,6 +94,7 @@ export const ReportGroupTabs = ({
                         sections={byDepartments}
                         renderSection={renderSection}
                     />
+                    {renderDepartmentsFooter?.(byDepartments)}
                 </TabsContent>
             )}
             {showGroups && (
@@ -95,6 +103,7 @@ export const ReportGroupTabs = ({
                         sections={byGroups}
                         renderSection={renderSection}
                     />
+                    {renderGroupsFooter?.(byGroups)}
                 </TabsContent>
             )}
         </Tabs>

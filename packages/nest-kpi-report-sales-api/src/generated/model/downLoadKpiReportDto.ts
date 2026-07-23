@@ -8,6 +8,7 @@
 import type { DownLoadKpiReportDtoType } from './downLoadKpiReportDtoType';
 import type { DownloadKpiReportItemDto } from './downloadKpiReportItemDto';
 import type { DateRangeDto } from './dateRangeDto';
+import type { ReportStructureDto } from './reportStructureDto';
 
 export interface DownLoadKpiReportDto {
     /** Download type */
@@ -16,4 +17,6 @@ export interface DownLoadKpiReportDto {
     report: DownloadKpiReportItemDto[];
     /** Date range */
     date: DateRangeDto;
+    /** Структура отделов/групп для разбивки: мульти — лист на отдел с секциями групп, моно с группами — лист «По группам». Не передана — прежний одиночный лист. */
+    structure?: ReportStructureDto;
 }

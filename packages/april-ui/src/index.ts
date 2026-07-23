@@ -24,6 +24,7 @@ export { PreloaderCard } from './shared/Preloader';
 export { PreloaderMicro } from './shared/Preloader';
 export { PreloaderScreen } from './shared/Preloader';
 export type { PreloaderVariant } from './shared/Preloader';
+export { GlassCard } from './shared/ui/Glass/GlassCard';
 
 export type { ComponentPropsColors } from './shared/ui/Button/AAButton';
 export { default as AIcon } from './shared/FuncIcon/FuncIcon';

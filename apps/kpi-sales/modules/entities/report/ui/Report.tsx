@@ -26,7 +26,8 @@ import { MergedSingleActionChart } from '@/modules/feature/merged-kpi-calling-re
 import { ReportType } from '@/modules/feature';
 import { useReportType } from '@/modules/feature/report-widget-type';
 import { EReportType } from '@/modules/feature/report-widget-type/consts/report-type.consts';
-import { ReportGroupTabs } from '@/modules/feature/report-tabs';
+import { ReportGroupTabs, StructureSection } from '@/modules/feature/report-tabs';
+import { EntityRatingChart } from '@/modules/feature/report-rating';
 import { ReportData } from '../model/types/report/report-type';
 
 
@@ -116,6 +117,28 @@ const Report = () => {
             </div>
         </>
     );
+    // Рейтинги-победители в конце вкладок разбивки: сущности + сотрудники рядом.
+    const renderDepartmentsRating = (sections: StructureSection[]) => (
+        <div className="mt-6 space-y-4">
+            <EntityRatingChart
+                title="Победители — отделы"
+                report={report}
+                sections={sections}
+            />
+            <KPISingleActionChart report={report} />
+        </div>
+    );
+    const renderGroupsRating = (sections: StructureSection[]) => (
+        <div className="mt-6 space-y-4">
+            <EntityRatingChart
+                title="Победители — группы"
+                report={report}
+                sections={sections}
+            />
+            <KPISingleActionChart report={report} />
+        </div>
+    );
+
     const renderMergedSection = (userIds: Set<number>) => (
         <MergedReportTable
             report={report.filter(row =>
@@ -183,6 +206,8 @@ const Report = () => {
                         presentUserIds={reportUserIds}
                         renderSummary={renderKpiSummary}
                         renderSection={renderKpiSection}
+                        renderDepartmentsFooter={renderDepartmentsRating}
+                        renderGroupsFooter={renderGroupsRating}
                     />
                 </ReportBlockWrapper>
 
@@ -230,6 +255,8 @@ const Report = () => {
                     presentUserIds={reportUserIds}
                     renderSummary={renderKpiSummary}
                     renderSection={renderKpiSection}
+                    renderDepartmentsFooter={renderDepartmentsRating}
+                    renderGroupsFooter={renderGroupsRating}
                 />
             </div>
             }

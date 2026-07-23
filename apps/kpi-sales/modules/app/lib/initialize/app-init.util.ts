@@ -9,7 +9,6 @@ import {
 } from '../../consts/app-global';
 import { appActions } from '../../model/AppSlice';
 import { AppDispatch, AppGetState, initWSClient } from '../../model/store';
-import { socketThunk } from '../../model/queue-ws-ping-test/QueueWsPingListener';
 
 /** Код ошибки инициализации «не во фрейме Bitrix в PROD». */
 export const NON_AUTH_ERROR = 'nonauth';
@@ -49,8 +48,8 @@ export const appInit = async (
         console.info(`app-init: вне фрейма Bitrix — dev-режим (${domain})`);
     }
 
+    // WS-коннект к kpi-report-sales (события user-report ловит listener).
     initWSClient(Number(user.ID), domain);
-    dispatch(socketThunk(Number(user.ID), domain));
 
     // Триггер для listeners (department → filter → report, user-report WS).
     dispatch(appActions.setAppData({ domain, user }));

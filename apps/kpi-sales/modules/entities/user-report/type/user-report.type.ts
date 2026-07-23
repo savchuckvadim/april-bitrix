@@ -2,7 +2,29 @@ import {
     PbxSalesKpiCompanyDto, PbxSalesKpiContactDto,
     PbxSalesKpiFieldItemValueDto, PbxSalesKpiFieldValueDto,
     PbxSalesKpiListItemDto
-} from "@workspace/nest-api";
+} from "@workspace/nest-kpi-report-sales-api";
+
+/**
+ * Локальные копии Ork-типов легаси @workspace/nest-api (график сделок по
+ * компаниям): данные приходят по WS, эндпоинт живёт вне нового пакета.
+ */
+export interface IUserReportDealItem {
+    id: number;
+    title: string;
+    sum: string;
+    from: string;
+    to: string;
+    isClosed: boolean;
+    isWon: boolean;
+    isLost: boolean;
+    isInProgress: boolean;
+    [key: string]: unknown;
+}
+
+export interface IUserReportCompanyDeals {
+    deals: IUserReportDealItem[];
+    company: Record<string, unknown>;
+}
 
 export interface IUserReportItem extends PbxSalesKpiListItemDto {
     id: number;

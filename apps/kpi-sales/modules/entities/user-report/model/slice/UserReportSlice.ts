@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IUserReportItem } from "../../type/user-report.type";
 import { getUserReportThunk, stopLoadingUserReportThunk } from "../thunk/UserReportThunk";
-import { OrkUserReportStartResponseDto, SalesUserReportStartResponseDto } from "@workspace/nest-api";
+import { SalesUserReportStartResponseDto } from "@workspace/nest-kpi-report-sales-api";
 
 export interface IUserReportState {
     current: IUserReportItem[];
@@ -74,7 +74,7 @@ const userReportSlice = createSlice({
             state.isLoading = true;
             state.error = null;
         })
-        builder.addCase(stopLoadingUserReportThunk.fulfilled, (state: IUserReportState, action: PayloadAction<OrkUserReportStartResponseDto>) => {
+        builder.addCase(stopLoadingUserReportThunk.fulfilled, (state: IUserReportState, action: PayloadAction<SalesUserReportStartResponseDto>) => {
             state.operationId = null;
             state.isLoading = false;
             state.isFetched = false;

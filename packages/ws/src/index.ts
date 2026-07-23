@@ -3,14 +3,14 @@ import { io, Socket } from 'socket.io-client';
 export type { Socket };
 // const NEXT_PUBLIC_WS_HOST = 'ws://localhost:8334'
 
-const NEXT_PUBLIC_WS_HOST = 'https://back.april-app.ru/';
-// const NEXT_PUBLIC_WS_HOST = 'https://back.april-dev.ru/';
-// const NEXT_PUBLIC_WS_HOST = 'http://localhost:3000/';
+/** Дефолт для существующих консюмеров; новые приложения передают host явно. */
+const DEFAULT_WS_HOST = 'https://back.april-app.ru/';
+// 'https://back.april-dev.ru/' | 'http://localhost:3000/'
 export class WSClient {
     public readonly socket: Socket;
 
-    constructor(userId: number, domain: string) {
-        this.socket = io(NEXT_PUBLIC_WS_HOST, {
+    constructor(userId: number, domain: string, host: string = DEFAULT_WS_HOST) {
+        this.socket = io(host, {
             transports: ['websocket'],
             autoConnect: true,
             // auth: {

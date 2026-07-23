@@ -23,7 +23,7 @@ const LoadingScreen = () => {
 
     if (!isVisible) return null;
 
-    return <PreloaderScreen variant="orb" />;
+    return <PreloaderScreen variant="brand" logoSrc="/logo/april-x.svg" />;
 };
 
 export default LoadingScreen;

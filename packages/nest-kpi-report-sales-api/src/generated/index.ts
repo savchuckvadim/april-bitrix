@@ -13,9 +13,10 @@ export * from './bitrix-domain-department/bitrix-domain-department';
 export * from './bitrix-domain-team/bitrix-domain-team';
 // Сохранённые фильтры отчёта (POST /api/kpi-report/filter/get, /api/kpi-report/filter/save)
 export * from './sales-report-filter/sales-report-filter';
+// Уведомления в Telegram (POST /api/telegram)
+export * from './telegram/telegram';
 
 // Доступны после generate, подключать по мере необходимости:
 // export * from './front-portal/front-portal';
 // export * from './health/health';
 // export * from './metrics/metrics';
-// export * from './telegram/telegram';

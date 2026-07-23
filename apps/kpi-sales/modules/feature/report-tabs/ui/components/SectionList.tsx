@@ -1,12 +1,11 @@
 'use client';
 
 import { ReactNode } from 'react';
-import type { ReportData } from '@/modules/entities/report/model/types/report/report-type';
-import type { ReportSection } from '../../lib/group-report.util';
+import type { StructureSection } from '../../lib/group-report.util';
 
 interface SectionListProps {
-    sections: ReportSection[];
-    renderSection: (sectionReport: ReportData[]) => ReactNode;
+    sections: StructureSection[];
+    renderSection: (userIds: Set<number>) => ReactNode;
 }
 
 export const SectionList = ({ sections, renderSection }: SectionListProps) => (
@@ -16,10 +15,10 @@ export const SectionList = ({ sections, renderSection }: SectionListProps) => (
                 <h3 className="mb-2 border-b border-border pb-1 text-base font-semibold text-foreground">
                     {section.name}
                     <span className="ml-2 text-xs font-normal text-muted-foreground">
-                        {section.report.length} сотр.
+                        {section.userIds.length} сотр.
                     </span>
                 </h3>
-                {renderSection(section.report)}
+                {renderSection(new Set(section.userIds))}
             </section>
         ))}
     </div>

@@ -21,8 +21,15 @@ export const listenerMiddleware = createListenerMiddleware();
 
 let wsClient: WSClient;
 
+/**
+ * WS живёт на том же сервере, что и API kpi-report-sales (socket.io
+ * gateway внутри приложения) — хост совпадает с базой api-пакета.
+ */
+const resolveWsHost = () =>
+    process.env.NEXT_PUBLIC_KPI_SALES_API_URL || 'http://localhost:3000/';
+
 export const initWSClient = (userId: number, domain: string) => {
-    wsClient = new WSClient(userId, domain);
+    wsClient = new WSClient(userId, domain, resolveWsHost());
     return wsClient;
 };
 

@@ -6,16 +6,25 @@ import { PreloaderMinimal } from './variants/PreloaderMinimal';
 import { PreloaderOrbBg } from './variants/PreloaderOrbBg';
 import { PreloaderAuroraBg } from './variants/PreloaderAuroraBg';
 import { PreloaderLiquidBg } from './variants/PreloaderLiquidBg';
+import { PreloaderBrandContent } from './variants/PreloaderBrandContent';
 
 const GradientText = dynamic(
     () => import('@workspace/ui/components/GradientText'),
     { ssr: false },
 );
 
-export type PreloaderVariant = 'minimal' | 'orb' | 'aurora' | 'liquid';
+export type PreloaderVariant =
+    | 'minimal'
+    | 'brand'
+    | 'orb'
+    | 'aurora'
+    | 'liquid';
 
 interface PreloaderScreenProps {
-    /** minimal — быстрый CSS-only; orb/aurora/liquid — ReactBits WebGL. */
+    /**
+     * minimal/brand — быстрые CSS-only (brand — крупный логотип в кольцах
+     * с прогрессом); orb/aurora/liquid — ReactBits WebGL.
+     */
     variant?: PreloaderVariant;
     title?: string;
     /** null — без лого. */
@@ -26,6 +35,7 @@ interface PreloaderScreenProps {
 
 const BACKGROUNDS: Record<PreloaderVariant, () => React.ReactNode> = {
     minimal: () => <PreloaderMinimal />,
+    brand: () => <PreloaderMinimal />,
     orb: () => <PreloaderOrbBg />,
     aurora: () => <PreloaderAuroraBg />,
     liquid: () => <PreloaderLiquidBg />,
@@ -49,6 +59,15 @@ export const PreloaderScreen = ({
             {title}
         </p>
     );
+
+    if (variant === 'brand') {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-background">
+                {BACKGROUNDS[variant]()}
+                <PreloaderBrandContent title={title} logoSrc={logoSrc} />
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-background">

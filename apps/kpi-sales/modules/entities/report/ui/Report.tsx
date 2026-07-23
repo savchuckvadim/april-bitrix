@@ -55,7 +55,13 @@ const Report = () => {
         return null;
     }
 
-    // Сводный KPI-блок (как раньше) и компактная секция для отдела/группы.
+    // ID сотрудников в данных — для скрытия пустых секций разбивки.
+    const reportUserIds = report.map(row => Number(row.user?.ID ?? row.id));
+    const callingUserIds = (callingsReport ?? []).map(row =>
+        Number(row.userId),
+    );
+
+    // Сводные блоки (как без разбивки) и компактные секции отдела/группы.
     const renderKpiSummary = () => (
         <>
             <KPIReportTable report={report} />
@@ -69,11 +75,56 @@ const Report = () => {
             </div>
         </>
     );
-    const renderKpiSection = (sectionReport: ReportData[]) => (
+    const renderKpiSection = (userIds: Set<number>) => {
+        const sectionReport = report.filter(row =>
+            userIds.has(Number(row.user?.ID ?? row.id)),
+        );
+        return (
+            <>
+                <KPIReportTable report={sectionReport} />
+                <KPIReportTotalTable report={sectionReport} />
+            </>
+        );
+    };
+
+    const renderCallingsSummary = () => (
+        <CallingStatistics
+            callingsReport={callingsReport}
+            isLoading={isCallingLoading}
+        />
+    );
+    const renderCallingsSection = (userIds: Set<number>) => (
+        <CallingStatistics
+            callingsReport={(callingsReport ?? []).filter(row =>
+                userIds.has(Number(row.userId)),
+            )}
+            isLoading={isCallingLoading}
+        />
+    );
+
+    const renderMergedSummary = () => (
         <>
-            <KPIReportTable report={sectionReport} />
-            <KPIReportTotalTable report={sectionReport} />
+            <MergedReportTable
+                report={report}
+                callingsReport={callingsReport as ReportCallingData[]}
+            />
+            <div className="mt-3">
+                <MergedSingleActionChart
+                    report={report}
+                    callingsReport={callingsReport as ReportCallingData[]}
+                />
+            </div>
         </>
+    );
+    const renderMergedSection = (userIds: Set<number>) => (
+        <MergedReportTable
+            report={report.filter(row =>
+                userIds.has(Number(row.user?.ID ?? row.id)),
+            )}
+            callingsReport={(callingsReport ?? []).filter(row =>
+                userIds.has(Number(row.userId)),
+            )}
+        />
     );
 
     return (
@@ -129,7 +180,7 @@ const Report = () => {
                     }}
                 >
                     <ReportGroupTabs
-                        report={report}
+                        presentUserIds={reportUserIds}
                         renderSummary={renderKpiSummary}
                         renderSection={renderKpiSection}
                     />
@@ -146,9 +197,10 @@ const Report = () => {
                         }
                     }}
                 >
-                    <CallingStatistics
-                        callingsReport={callingsReport}
-                        isLoading={isCallingLoading}
+                    <ReportGroupTabs
+                        presentUserIds={callingUserIds}
+                        renderSummary={renderCallingsSummary}
+                        renderSection={renderCallingsSection}
                     />
                 </ReportBlockWrapper>
 
@@ -165,19 +217,17 @@ const Report = () => {
                         }
                     }}
                 >
-                    <MergedReportTable report={report} callingsReport={callingsReport as ReportCallingData[]} />
-                    <div className="mt-3">
-                        <MergedSingleActionChart
-                            report={report}
-                            callingsReport={callingsReport as ReportCallingData[]}
-                        />
-                    </div>
+                    <ReportGroupTabs
+                        presentUserIds={reportUserIds}
+                        renderSummary={renderMergedSummary}
+                        renderSection={renderMergedSection}
+                    />
                 </ReportBlockWrapper>
             </>
             }
             {(currentReportType === EReportType.EVENTS) && <div>
                 <ReportGroupTabs
-                    report={report}
+                    presentUserIds={reportUserIds}
                     renderSummary={renderKpiSummary}
                     renderSection={renderKpiSection}
                 />
@@ -188,22 +238,21 @@ const Report = () => {
 
             {/*calling statistics*/}
             {currentReportType === EReportType.CALLINGS && <div >
-                <CallingStatistics
-                    callingsReport={callingsReport}
-                    isLoading={isCallingLoading}
+                <ReportGroupTabs
+                    presentUserIds={callingUserIds}
+                    renderSummary={renderCallingsSummary}
+                    renderSection={renderCallingsSection}
                 />
             </div>
             }
 
             {/*merged report*/}
             {currentReportType === EReportType.MERGED && report && callingsReport && <div >
-                <MergedReportTable report={report} callingsReport={callingsReport as ReportCallingData[]} />
-                <div className="mt-3">
-                    <MergedSingleActionChart
-                        report={report}
-                        callingsReport={callingsReport as ReportCallingData[]}
-                    />
-                </div>
+                <ReportGroupTabs
+                    presentUserIds={reportUserIds}
+                    renderSummary={renderMergedSummary}
+                    renderSection={renderMergedSection}
+                />
             </div>
             }
         </div>

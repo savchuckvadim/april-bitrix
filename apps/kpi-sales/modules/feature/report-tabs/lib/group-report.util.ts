@@ -1,81 +1,58 @@
-import type { ReportData } from '@/modules/entities/report/model/types/report/report-type';
 import type { SalesDepartment } from '@/modules/entities/department';
 
-export interface ReportSection {
+/** Секция разбивки: набор сотрудников отдела или группы. */
+export interface StructureSection {
     id: string;
     name: string;
-    report: ReportData[];
+    userIds: number[];
 }
 
-const rowUserId = (row: ReportData): number =>
-    Number(row.user?.ID ?? row.id);
-
-const rowsForUserIds = (
-    report: ReportData[],
-    ids: Set<number>,
-): ReportData[] => report.filter(row => ids.has(rowUserId(row)));
-
-/** Строки отчёта, разложенные по отделам продаж (пустые отделы опущены). */
-export const groupReportByDepartments = (
-    report: ReportData[],
+/** Секции по отделам продаж. */
+export const buildDepartmentSections = (
     departments: SalesDepartment[],
-): ReportSection[] =>
-    departments
-        .map(dep => ({
-            id: `dep-${dep.department.ID}`,
-            name: dep.department.NAME,
-            report: rowsForUserIds(
-                report,
-                new Set(dep.allUsers.map(u => Number(u.ID))),
-            ),
-        }))
-        .filter(section => section.report.length > 0);
+): StructureSection[] =>
+    departments.map(dep => ({
+        id: `dep-${dep.department.ID}`,
+        name: dep.department.NAME,
+        userIds: dep.allUsers.map(u => Number(u.ID)),
+    }));
 
 /**
- * Строки отчёта по группам. В мультирежиме имя секции с префиксом отдела.
- * Сотрудники отдела вне групп попадают в секцию «Без группы».
+ * Секции по группам (мультирежим — с префиксом отдела).
+ * Сотрудники отдела вне групп — секция «Без группы».
  */
-export const groupReportByGroups = (
-    report: ReportData[],
+export const buildGroupSections = (
     departments: SalesDepartment[],
     withDepartmentPrefix: boolean,
-): ReportSection[] => {
-    const sections: ReportSection[] = [];
+): StructureSection[] => {
+    const sections: StructureSection[] = [];
 
     for (const dep of departments) {
         const grouped = new Set<number>();
 
         for (const group of dep.groups) {
-            const ids = new Set(
-                (group.USERS ?? []).map(u => Number(u.ID)),
-            );
-            ids.forEach(id => grouped.add(id));
-            const rows = rowsForUserIds(report, ids);
-            if (rows.length) {
-                sections.push({
-                    id: `group-${group.ID}`,
-                    name: withDepartmentPrefix
-                        ? `${dep.department.NAME} — ${group.NAME}`
-                        : group.NAME,
-                    report: rows,
-                });
-            }
+            const userIds = (group.USERS ?? []).map(u => Number(u.ID));
+            userIds.forEach(id => grouped.add(id));
+            sections.push({
+                id: `group-${group.ID}`,
+                name: withDepartmentPrefix
+                    ? `${dep.department.NAME} — ${group.NAME}`
+                    : group.NAME,
+                userIds,
+            });
         }
 
         if (dep.groups.length > 0) {
-            const directIds = new Set(
-                dep.allUsers
-                    .map(u => Number(u.ID))
-                    .filter(id => !grouped.has(id)),
-            );
-            const rows = rowsForUserIds(report, directIds);
-            if (rows.length) {
+            const directIds = dep.allUsers
+                .map(u => Number(u.ID))
+                .filter(id => !grouped.has(id));
+            if (directIds.length) {
                 sections.push({
                     id: `nogroup-${dep.department.ID}`,
                     name: withDepartmentPrefix
                         ? `${dep.department.NAME} — Без группы`
                         : 'Без группы',
-                    report: rows,
+                    userIds: directIds,
                 });
             }
         }
@@ -83,3 +60,15 @@ export const groupReportByGroups = (
 
     return sections;
 };
+
+/** Секции, в которых есть хоть один сотрудник из данных отчёта. */
+export const filterSectionsByPresent = (
+    sections: StructureSection[],
+    presentUserIds: Set<number>,
+): StructureSection[] =>
+    sections
+        .map(section => ({
+            ...section,
+            userIds: section.userIds.filter(id => presentUserIds.has(id)),
+        }))
+        .filter(section => section.userIds.length > 0);

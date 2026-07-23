@@ -18,8 +18,6 @@ const nextConfig = {
         '@workspace/bx',
         '@workspace/pbx',
         '@workspace/ws',
-        '@workspace/nest-api',
-        '@workspace/nest-pbx-api',
         '@workspace/nest-kpi-report-sales-api',
     ],
 };

@@ -8,27 +8,30 @@ import {
     TabsTrigger,
 } from '@workspace/ui/components/tabs';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import type { ReportData } from '@/modules/entities/report/model/types/report/report-type';
 import {
-    groupReportByDepartments,
-    groupReportByGroups,
+    buildDepartmentSections,
+    buildGroupSections,
+    filterSectionsByPresent,
 } from '../lib/group-report.util';
 import { SectionList } from './components/SectionList';
 
 interface ReportGroupTabsProps {
-    report: ReportData[];
-    /** Полный сводный блок (таблица + графики) — как раньше. */
+    /** ID сотрудников, реально присутствующих в данных (пустые секции скрываются). */
+    presentUserIds: number[];
+    /** Полный сводный блок — как без разбивки. */
     renderSummary: () => ReactNode;
-    /** Компактный блок секции (таблица + итоги) для отдела/группы. */
-    renderSection: (sectionReport: ReportData[]) => ReactNode;
+    /** Блок секции: получает набор сотрудников отдела/группы. */
+    renderSection: (userIds: Set<number>) => ReactNode;
 }
 
 /**
- * Вкладки разбивки отчёта: Сводный / По отделам (мультипортал) /
- * По группам (если группы есть). Без отделов и групп — просто сводный.
+ * Вкладки разбивки: Сводный / По отделам (когда отделов больше одного) /
+ * По группам (когда группы есть). Данные не знает — работает по структуре
+ * department-слайса и колбэкам рендера, поэтому одинаково подходит для
+ * KPI-отчёта, статистики звонков и объединённого отчёта.
  */
 export const ReportGroupTabs = ({
-    report,
+    presentUserIds,
     renderSummary,
     renderSection,
 }: ReportGroupTabsProps) => {
@@ -37,13 +40,25 @@ export const ReportGroupTabs = ({
     );
     const isMulti = useAppSelector(state => state.department.isMulti);
 
+    const present = useMemo(
+        () => new Set(presentUserIds),
+        [presentUserIds],
+    );
     const byDepartments = useMemo(
-        () => groupReportByDepartments(report, departments),
-        [report, departments],
+        () =>
+            filterSectionsByPresent(
+                buildDepartmentSections(departments),
+                present,
+            ),
+        [departments, present],
     );
     const byGroups = useMemo(
-        () => groupReportByGroups(report, departments, isMulti),
-        [report, departments, isMulti],
+        () =>
+            filterSectionsByPresent(
+                buildGroupSections(departments, isMulti),
+                present,
+            ),
+        [departments, isMulti, present],
     );
 
     const showDepartments = byDepartments.length > 1;

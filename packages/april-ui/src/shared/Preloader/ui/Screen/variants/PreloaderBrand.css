@@ -1,0 +1,70 @@
+/* Анимации brand-прелоадера (цвета — только токены темы). */
+
+@keyframes april-preloader-ring-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes april-preloader-breathe {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.04);
+        opacity: 0.92;
+    }
+}
+
+@keyframes april-preloader-bar-slide {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(250%);
+    }
+}
+
+.april-preloader-ring {
+    position: absolute;
+    inset: -14px;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    border-top-color: var(--primary);
+    border-right-color: color-mix(in oklab, var(--primary) 35%, transparent);
+    animation: april-preloader-ring-spin 2.4s linear infinite;
+}
+
+.april-preloader-ring--outer {
+    inset: -26px;
+    border-top-color: color-mix(in oklab, var(--primary) 45%, transparent);
+    border-right-color: transparent;
+    animation-duration: 5s;
+    animation-direction: reverse;
+}
+
+.april-preloader-logo {
+    animation: april-preloader-breathe 2.8s ease-in-out infinite;
+}
+
+.april-preloader-bar {
+    position: relative;
+    overflow: hidden;
+    height: 2px;
+    width: 10rem;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--border) 60%, transparent);
+}
+
+.april-preloader-bar::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 40%;
+    border-radius: 9999px;
+    background: var(--primary);
+    animation: april-preloader-bar-slide 1.4s ease-in-out infinite;
+}

@@ -8,11 +8,19 @@ import { useDepartmentTree } from '../lib/hooks/use-department-tree';
 import { filterTreeBySearch } from '../lib/build-tree.util';
 import { DepartmentNode } from './components/DepartmentNode';
 
+interface DepartmentTreeFilterProps {
+    /** Ограничение высоты списка (в модалке — выше). */
+    listHeightClass?: string;
+}
+
 /**
- * Фильтр сотрудников: дерево «отдел → группа → сотрудник» с tri-state
- * чекбоксами. Мультипортал — уровень отделов; моно — группы/сотрудники.
+ * Дерево «отдел → группа → сотрудник» с tri-state чекбоксами.
+ * Мультипортал — уровень отделов; моно — группы/сотрудники.
+ * Используется внутри полноэкранной модалки настройки фильтра.
  */
-export const DepartmentTreeFilter = () => {
+export const DepartmentTreeFilter = ({
+    listHeightClass = 'max-h-80',
+}: DepartmentTreeFilterProps) => {
     const {
         tree,
         showDepartmentLevel,
@@ -68,7 +76,7 @@ export const DepartmentTreeFilter = () => {
                 placeholder="Поиск сотрудника…"
             />
 
-            <div className="max-h-80 space-y-2 overflow-y-auto pr-1">
+            <div className={`${listHeightClass} space-y-2 overflow-y-auto pr-1`}>
                 {visibleTree.map(department => (
                     <DepartmentNode
                         key={department.id}

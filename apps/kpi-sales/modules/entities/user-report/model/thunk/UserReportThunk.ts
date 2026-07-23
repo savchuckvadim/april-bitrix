@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { getUserReport, stopGenerateUserReport } from "../../lib/user-report.helper";
-import { SalesUserReportGetRequestDto, OrkUserReportStartResponseDto, SalesUserReportStartResponseDto } from "@workspace/nest-api";
+import { SalesUserReportGetRequestDto, SalesUserReportStartResponseDto } from "@workspace/nest-kpi-report-sales-api";
 import { RootState } from "@/modules/app/model/store";
 import { getUserReportDate } from "../../lib/date.util";
 
@@ -31,7 +31,7 @@ export const getUserReportThunk =
 
 export const stopLoadingUserReportThunk =
     createAsyncThunk<
-        OrkUserReportStartResponseDto,
+        SalesUserReportStartResponseDto,
         void,
         { rejectValue: string }
     >('userReport/stopLoadingUserReport',
@@ -42,7 +42,7 @@ export const stopLoadingUserReportThunk =
                     return rejectWithValue('Ошибка загрузки данных');
                 }
 
-                const response = await stopGenerateUserReport(operationId) as OrkUserReportStartResponseDto;
+                const response = await stopGenerateUserReport(operationId) as SalesUserReportStartResponseDto;
                 if (!response) {
                     return rejectWithValue('Ошибка загрузки данных');
                 }

@@ -1,23 +1,19 @@
-import {
-    EnumTelegramApp,
-    ITelegramBotDto,
-    TelegramSendMessageDto,
-} from '../type/telegram.type';
+import type { TelegramSendMessageDto } from '@workspace/nest-kpi-report-sales-api';
+import { EnumTelegramApp, ITelegramBotDto } from '../type/telegram.type';
+import { TelegramHelper } from './api/telegram-helper';
 
+const telegramHelper = new TelegramHelper();
+
+/** Уведомления в Telegram — напрямую через бэк kpi-report-sales. */
 export const telegramSendMessage = async (dto: ITelegramBotDto) => {
     try {
-        const sendDto: TelegramSendMessageDto = {
+        await telegramHelper.send({
             app: EnumTelegramApp.KPI_SALES,
             text: dto.text,
             domain: dto.domain,
             userId: dto.userId,
-        };
-        const response = await fetch(`/api/telegram`, {
-            method: 'POST',
-            body: JSON.stringify(sendDto),
-        });
-        return response.json();
+        } as unknown as TelegramSendMessageDto);
     } catch (error) {
-        console.error(error);
+        console.error('telegram send error:', error);
     }
 };

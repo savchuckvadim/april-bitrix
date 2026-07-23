@@ -10,10 +10,10 @@ import {
 } from '@workspace/ui/components/card';
 import { usePathname } from 'next/navigation';
 
-const DepartmentTreeFilter = dynamic(
+const CompactDepartmentFilter = dynamic(
     () =>
         import('@/modules/feature/report-filter').then(
-            m => m.DepartmentTreeFilter,
+            m => m.CompactDepartmentFilter,
         ),
     {
         ssr: false,
@@ -45,7 +45,7 @@ export const Filter: React.FC<FilterProps> = ({ isOpen }) => {
                     </div>
 
                     <div className="space-y-4">
-                        {!isUserReport && <DepartmentTreeFilter />}
+                        {!isUserReport && <CompactDepartmentFilter />}
                     </div>
                 </div>
             </CardContent>

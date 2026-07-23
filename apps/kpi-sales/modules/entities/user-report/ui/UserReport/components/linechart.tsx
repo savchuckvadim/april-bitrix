@@ -2,12 +2,12 @@ import React, { useMemo } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
-import { OrkReportDealsByCompaniesDto } from "@workspace/nest-api";
+import { IUserReportCompanyDeals } from "../../../type/user-report.type";
 
 Chart.register(...registerables);
 
 interface LineChartProps {
-    companies: OrkReportDealsByCompaniesDto[];
+    companies: IUserReportCompanyDeals[];
     chartType?: 'avgSum' | 'index' | 'realization' | 'combined';
 }
 

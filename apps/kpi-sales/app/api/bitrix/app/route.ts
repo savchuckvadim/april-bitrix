@@ -1,4 +1,4 @@
-import { logServer } from '@/app/lib/log/logServer';
+import { logServer } from '@/modules/app/lib/server/log/logServer';
 import { NextRequest, NextResponse } from 'next/server';
 
 //редирект next из post запроса в апп

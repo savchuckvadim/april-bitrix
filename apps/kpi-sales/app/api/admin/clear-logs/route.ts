@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import fs from 'fs';
-import { LOG_FILE_PATH } from '@/app/lib/log/logServer';
+import { LOG_FILE_PATH } from '@/modules/app/lib/server/log/logServer';
 
 export const runtime = 'nodejs';
 

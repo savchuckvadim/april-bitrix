@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import '@workspace/ui/globals.css';
 // import "@workspace/theme/themes.css"
 import { ThemeInitScript } from '@workspace/theme';
-import { Providers } from '@/components/providers';
+import { Providers } from '@/modules/app/providers/Providers';
 import { BootPreloader } from '@/modules/general/shared/LoadingScreen/ui/BootPreloader';
 import App from '@/modules/app/ui/App';
 import { ReportProvider } from '@/modules/widgets/report';

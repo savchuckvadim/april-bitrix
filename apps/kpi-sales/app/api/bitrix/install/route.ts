@@ -1,5 +1,5 @@
-import { setupBitrixApp } from '@/app/lib/bitrix/setup';
-import { logServer } from '@/app/lib/log/logServer';
+import { setupBitrixApp } from '@/modules/app/lib/server/bitrix/setup';
+import { logServer } from '@/modules/app/lib/server/log/logServer';
 import { BitrixAppPayload } from '@workspace/api';
 import { NextRequest, NextResponse } from 'next/server';
 

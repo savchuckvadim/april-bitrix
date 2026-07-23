@@ -1,5 +1,5 @@
 import { ILogServerBody } from '@/app/api/admin/logs/route';
-import { LogLevel } from '@/app/lib/log/logServer';
+import { LogLevel } from '@/modules/app/lib/server/log/logServer';
 
 export interface ILogClientPayload {
     title: string;

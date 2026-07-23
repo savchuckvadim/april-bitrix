@@ -2,6 +2,7 @@ import { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import { startDepartmentAppListener } from '@/modules/entities/department/model/listeners/department-app.listener';
 import { startReportChainListeners } from '@/modules/entities/report/model/listeners/report-chain.listener';
 import { startUserReportAppListener } from '@/modules/entities/user-report/model/listeners/app.listener';
+import { startMergedFilterListeners } from '@/modules/feature/merged-kpi-calling-report/model/listeners/merged-filter.listener';
 import { startReportTypeAppListener } from '@/modules/feature/report-widget-type/model/ReportTypeAppListener';
 import type { AppDispatch, RootState, ThunkExtraArgument } from '../store';
 
@@ -21,4 +22,5 @@ export function startStoreListeners(listenerMiddleware: AppListenerMiddleware) {
     startUserReportAppListener(listenerMiddleware);
     startDepartmentAppListener(listenerMiddleware);
     startReportChainListeners(listenerMiddleware);
+    startMergedFilterListeners(listenerMiddleware);
 }

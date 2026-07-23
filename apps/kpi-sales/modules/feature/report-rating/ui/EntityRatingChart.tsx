@@ -26,9 +26,12 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { getColors } from '@/modules/entities/report/lib/colors';
-import type { ReportData } from '@/modules/entities/report/model/types/report/report-type';
 import type { StructureSection } from '@/modules/feature/report-tabs';
-import { buildSectionRating, getRatingActions } from '../lib/rating.util';
+import {
+    buildSectionRating,
+    buildUserRating,
+    RatingDataset,
+} from '../lib/rating.util';
 
 ChartJS.register(
     CategoryScale,
@@ -40,50 +43,44 @@ ChartJS.register(
 );
 
 interface EntityRatingChartProps {
-    /** «Победители — отделы» / «Победители — группы». */
+    /** «Победители — отделы» / «— группы» / «— сотрудники». */
     title: string;
-    report: ReportData[];
-    sections: StructureSection[];
+    dataset: RatingDataset;
+    /** Секции отделов/групп; без них — рейтинг сотрудников. */
+    sections?: StructureSection[];
 }
 
 /**
- * Рейтинг отделов/групп по выбранному показателю — тот же вид, что виджет
- * показателей по менеджерам (KPISingleActionChart), победители слева.
+ * Рейтинг-победители по выбранному показателю — тот же вид, что виджет
+ * показателей по менеджерам. Работает поверх RatingDataset, поэтому
+ * одинаково подходит событиям, звонкам и объединённому отчёту.
  */
 export const EntityRatingChart: React.FC<EntityRatingChartProps> = ({
     title,
-    report,
+    dataset,
     sections,
 }) => {
-    const availableActions = useMemo(
-        () => getRatingActions(report),
-        [report],
-    );
-
     const [selectedActionCode, setSelectedActionCode] = useState<string>('');
     const selectedAction =
-        availableActions.find(a => a.innerCode === selectedActionCode) ||
-        availableActions[0] ||
+        dataset.actions.find(a => a.code === selectedActionCode) ||
+        dataset.actions[0] ||
         null;
 
-    const rating = useMemo(
-        () =>
-            selectedAction
-                ? buildSectionRating(
-                      report,
-                      sections,
-                      selectedAction.innerCode,
-                  )
-                : [],
-        [report, sections, selectedAction],
-    );
+    const rating = useMemo(() => {
+        if (!selectedAction) return [];
+        return sections
+            ? buildSectionRating(dataset, sections, selectedAction.code)
+            : buildUserRating(dataset, selectedAction.code);
+    }, [dataset, sections, selectedAction]);
 
     const chartData = useMemo(() => {
         if (!selectedAction || !rating.length) {
             return { labels: [], datasets: [] };
         }
-        const colors = getColors([{ action: selectedAction.action }]);
-        const backgroundColor = colors[0] || 'rgba(30, 144, 255, 0.8)';
+        const backgroundColor = selectedAction.filterAction
+            ? getColors([{ action: selectedAction.filterAction }])[0] ||
+              'rgba(30, 144, 255, 0.8)'
+            : 'rgba(30, 144, 255, 0.8)';
 
         return {
             labels: rating.map(row => row.name),
@@ -98,7 +95,8 @@ export const EntityRatingChart: React.FC<EntityRatingChartProps> = ({
         };
     }, [rating, selectedAction]);
 
-    if (!availableActions.length || sections.length < 2) {
+    const entityCount = sections ? sections.length : dataset.rows.length;
+    if (!dataset.actions.length || entityCount < 2) {
         return null;
     }
 
@@ -125,17 +123,17 @@ export const EntityRatingChart: React.FC<EntityRatingChartProps> = ({
                     <div className="flex items-center gap-2">
                         <Label className="text-sm">Действие:</Label>
                         <Select
-                            value={selectedAction?.innerCode ?? ''}
+                            value={selectedAction?.code ?? ''}
                             onValueChange={setSelectedActionCode}
                         >
                             <SelectTrigger className="w-[250px]">
                                 <SelectValue placeholder="Выберите действие" />
                             </SelectTrigger>
                             <SelectContent>
-                                {availableActions.map(action => (
+                                {dataset.actions.map(action => (
                                     <SelectItem
-                                        key={action.innerCode}
-                                        value={action.innerCode}
+                                        key={action.code}
+                                        value={action.code}
                                     >
                                         {action.name}
                                     </SelectItem>

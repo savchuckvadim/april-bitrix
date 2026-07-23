@@ -28,6 +28,17 @@ import { useReportType } from '@/modules/feature/report-widget-type';
 import { EReportType } from '@/modules/feature/report-widget-type/consts/report-type.consts';
 import { ReportGroupTabs, StructureSection } from '@/modules/feature/report-tabs';
 import { EntityRatingChart } from '@/modules/feature/report-rating';
+import {
+    applyMergedSelection,
+    buildCallingRatingDataset,
+    buildKpiRatingDataset,
+    buildMergedRatingDataset,
+    callingRowUserId,
+    RatingDataset,
+} from '@/modules/feature/report-rating';
+import { MergedSectionTable } from '@/modules/feature/merged-kpi-calling-report';
+import CallingTable from '../../calling-statistics/ui/components/CallingTable';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { ReportData } from '../model/types/report/report-type';
 
 
@@ -43,6 +54,7 @@ const Report = () => {
         useCallingStatistics();
 
     const { current: currentReportType } = useReportType();
+    const mergedSelection = useAppSelector(state => state.mergedReport);
 
 
     const [isFilterOpen, setIsFilterOpen] = React.useState(false);
@@ -57,10 +69,43 @@ const Report = () => {
     }
 
     // ID сотрудников в данных — для скрытия пустых секций разбивки.
+    // У звонков id лежит в user.ID (callingRowUserId), не в userId!
     const reportUserIds = report.map(row => Number(row.user?.ID ?? row.id));
-    const callingUserIds = (callingsReport ?? []).map(row =>
-        Number(row.userId),
+    const callingUserIds = (callingsReport ?? []).map(callingRowUserId);
+
+    // Датасеты рейтингов-победителей: события / звонки / объединённый
+    // (merged дополнительно режется локальным фильтром таблицы).
+    const kpiRatingDataset = buildKpiRatingDataset(report);
+    const callingRatingDataset = buildCallingRatingDataset(
+        callingsReport ?? [],
     );
+    const mergedRatingDataset = applyMergedSelection(
+        buildMergedRatingDataset(report, callingsReport ?? []),
+        mergedSelection,
+    );
+
+    // Футер вкладки разбивки: рейтинг сущностей + рейтинг/виджет сотрудников.
+    const ratingFooter =
+        (
+            dataset: RatingDataset,
+            entityLabel: string,
+            managersWidget?: React.ReactNode,
+        ) =>
+        (sections: StructureSection[]) => (
+            <div className="mt-6 space-y-4">
+                <EntityRatingChart
+                    title={`Победители — ${entityLabel}`}
+                    dataset={dataset}
+                    sections={sections}
+                />
+                {managersWidget ?? (
+                    <EntityRatingChart
+                        title="Победители — сотрудники"
+                        dataset={dataset}
+                    />
+                )}
+            </div>
+        );
 
     // Сводные блоки (как без разбивки) и компактные секции отдела/группы.
     const renderKpiSummary = () => (
@@ -94,14 +139,20 @@ const Report = () => {
             isLoading={isCallingLoading}
         />
     );
-    const renderCallingsSection = (userIds: Set<number>) => (
-        <CallingStatistics
-            callingsReport={(callingsReport ?? []).filter(row =>
-                userIds.has(Number(row.userId)),
-            )}
-            isLoading={isCallingLoading}
-        />
-    );
+    // Секция звонков — только таблица (дашборд остаётся в «Сводном»).
+    const renderCallingsSection = (userIds: Set<number>) => {
+        const sectionCallings = (callingsReport ?? []).filter(row =>
+            userIds.has(callingRowUserId(row)),
+        );
+        if (!sectionCallings.length) {
+            return (
+                <div className="py-2 text-sm text-muted-foreground">
+                    Нет данных за период
+                </div>
+            );
+        }
+        return <CallingTable data={sectionCallings} />;
+    };
 
     const renderMergedSummary = () => (
         <>
@@ -117,35 +168,43 @@ const Report = () => {
             </div>
         </>
     );
-    // Рейтинги-победители в конце вкладок разбивки: сущности + сотрудники рядом.
-    const renderDepartmentsRating = (sections: StructureSection[]) => (
-        <div className="mt-6 space-y-4">
-            <EntityRatingChart
-                title="Победители — отделы"
-                report={report}
-                sections={sections}
-            />
-            <KPISingleActionChart report={report} />
-        </div>
+    // Рейтинги-победители в конце вкладок разбивки (по типам отчёта).
+    const renderDepartmentsRating = ratingFooter(
+        kpiRatingDataset,
+        'отделы',
+        <KPISingleActionChart report={report} />,
     );
-    const renderGroupsRating = (sections: StructureSection[]) => (
-        <div className="mt-6 space-y-4">
-            <EntityRatingChart
-                title="Победители — группы"
-                report={report}
-                sections={sections}
-            />
-            <KPISingleActionChart report={report} />
-        </div>
+    const renderGroupsRating = ratingFooter(
+        kpiRatingDataset,
+        'группы',
+        <KPISingleActionChart report={report} />,
+    );
+    const renderCallingDepartmentsRating = ratingFooter(
+        callingRatingDataset,
+        'отделы (звонки)',
+    );
+    const renderCallingGroupsRating = ratingFooter(
+        callingRatingDataset,
+        'группы (звонки)',
+    );
+    const renderMergedDepartmentsRating = ratingFooter(
+        mergedRatingDataset,
+        'отделы (объединённый)',
+    );
+    const renderMergedGroupsRating = ratingFooter(
+        mergedRatingDataset,
+        'группы (объединённый)',
     );
 
+    // Секция merged — лёгкая таблица без своих фильтров (учитывает
+    // локальный фильтр объединённого отчёта из mergedReport-слайса).
     const renderMergedSection = (userIds: Set<number>) => (
-        <MergedReportTable
+        <MergedSectionTable
             report={report.filter(row =>
                 userIds.has(Number(row.user?.ID ?? row.id)),
             )}
             callingsReport={(callingsReport ?? []).filter(row =>
-                userIds.has(Number(row.userId)),
+                userIds.has(callingRowUserId(row)),
             )}
         />
     );
@@ -226,6 +285,8 @@ const Report = () => {
                         presentUserIds={callingUserIds}
                         renderSummary={renderCallingsSummary}
                         renderSection={renderCallingsSection}
+                        renderDepartmentsFooter={renderCallingDepartmentsRating}
+                        renderGroupsFooter={renderCallingGroupsRating}
                     />
                 </ReportBlockWrapper>
 
@@ -246,6 +307,8 @@ const Report = () => {
                         presentUserIds={reportUserIds}
                         renderSummary={renderMergedSummary}
                         renderSection={renderMergedSection}
+                        renderDepartmentsFooter={renderMergedDepartmentsRating}
+                        renderGroupsFooter={renderMergedGroupsRating}
                     />
                 </ReportBlockWrapper>
             </>
@@ -269,6 +332,8 @@ const Report = () => {
                     presentUserIds={callingUserIds}
                     renderSummary={renderCallingsSummary}
                     renderSection={renderCallingsSection}
+                    renderDepartmentsFooter={renderCallingDepartmentsRating}
+                    renderGroupsFooter={renderCallingGroupsRating}
                 />
             </div>
             }
@@ -279,6 +344,8 @@ const Report = () => {
                     presentUserIds={reportUserIds}
                     renderSummary={renderMergedSummary}
                     renderSection={renderMergedSection}
+                    renderDepartmentsFooter={renderMergedDepartmentsRating}
+                    renderGroupsFooter={renderMergedGroupsRating}
                 />
             </div>
             }

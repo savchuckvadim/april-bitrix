@@ -145,7 +145,8 @@ const getDownloadReportFromCallingReport = (callingReport: ReportCallingData): D
 }
 
 
-const getIsFiltredKpiReportForMergedReport = (actionName: string): boolean => {
+/** Действия KPI, входящие в объединённый отчёт (без План/Результативные/звонков). */
+export const getIsFiltredKpiReportForMergedReport = (actionName: string): boolean => {
     return actionName !== 'План' &&
         actionName !== 'Результативные' &&
         !actionName.toLowerCase().includes('звонок');

@@ -9,14 +9,14 @@ import type { WordTemplate } from './wordTemplate';
 import type { OfferWordByTemplateGenerateResponseDtoProvider } from './offerWordByTemplateGenerateResponseDtoProvider';
 
 export interface OfferWordByTemplateGenerateResponseDto {
-  /** Публичная ссылка: на DOCX, если isPdf не true; на PDF, если isPdf=true */
-  link: string;
-  /** InfoblockGroups */
-  infoblocks: string[];
-  /** Regions */
-  regions: string[];
-  /** Template */
-  template: WordTemplate;
-  /** Provider */
-  provider: OfferWordByTemplateGenerateResponseDtoProvider;
+    /** Публичная ссылка: на DOCX, если isPdf не true; на PDF, если isPdf=true */
+    link: string;
+    /** InfoblockGroups */
+    infoblocks: string[];
+    /** Regions */
+    regions: string[];
+    /** Template */
+    template: WordTemplate;
+    /** Provider */
+    provider: OfferWordByTemplateGenerateResponseDtoProvider;
 }

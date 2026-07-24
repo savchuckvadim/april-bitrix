@@ -9,36 +9,36 @@ import type { CreatePackageDtoType } from './createPackageDtoType';
 import type { CreatePackageDtoProductType } from './createPackageDtoProductType';
 
 export interface CreatePackageDto {
-  /** Название пакета */
-  name: string;
-  /** Полное название пакета */
-  fullName: string;
-  /** Короткое название пакета */
-  shortName: string;
-  /** Описание пакета */
-  description?: string;
-  /** Код пакета */
-  code: string;
-  /** Тип пакета */
-  type: CreatePackageDtoType;
-  /** Цвет пакета */
-  color?: string;
-  /** Вес пакета */
-  weight?: number;
-  /** ABS пакета */
-  abs?: number;
-  /** Номер пакета */
-  number: number;
-  /** Тип продукта */
-  productType?: CreatePackageDtoProductType;
-  /** Наличие ABS */
-  withABS: boolean;
-  /** Изменяемый пакет */
-  isChanging: boolean;
-  /** Есть ли наполнение по умолчанию */
-  withDefault: boolean;
-  /** ID инфоблока */
-  infoblock_id?: string;
-  /** ID группы инфоблоков */
-  info_group_id?: string;
+    /** Название пакета */
+    name: string;
+    /** Полное название пакета */
+    fullName: string;
+    /** Короткое название пакета */
+    shortName: string;
+    /** Описание пакета */
+    description?: string;
+    /** Код пакета */
+    code: string;
+    /** Тип пакета */
+    type: CreatePackageDtoType;
+    /** Цвет пакета */
+    color?: string;
+    /** Вес пакета */
+    weight?: number;
+    /** ABS пакета */
+    abs?: number;
+    /** Номер пакета */
+    number: number;
+    /** Тип продукта */
+    productType?: CreatePackageDtoProductType;
+    /** Наличие ABS */
+    withABS: boolean;
+    /** Изменяемый пакет */
+    isChanging: boolean;
+    /** Есть ли наполнение по умолчанию */
+    withDefault: boolean;
+    /** ID инфоблока */
+    infoblock_id?: string;
+    /** ID группы инфоблоков */
+    info_group_id?: string;
 }

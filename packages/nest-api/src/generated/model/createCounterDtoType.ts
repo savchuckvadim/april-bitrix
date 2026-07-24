@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type CreateCounterDtoType = typeof CreateCounterDtoType[keyof typeof CreateCounterDtoType];
-
+export type CreateCounterDtoType =
+    (typeof CreateCounterDtoType)[keyof typeof CreateCounterDtoType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateCounterDtoType = {
-  invoice: 'invoice',
-  offer: 'offer',
-  contract: 'contract',
+    invoice: 'invoice',
+    offer: 'offer',
+    contract: 'contract',
 } as const;

@@ -7,8 +7,8 @@
  */
 
 export interface PbxUserCreateDto {
-  /** User code */
-  code: string;
-  /** Portal ID */
-  portalId: number;
+    /** User code */
+    code: string;
+    /** Portal ID */
+    portalId: number;
 }

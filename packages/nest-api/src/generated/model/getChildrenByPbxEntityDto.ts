@@ -8,8 +8,8 @@
 import type { GetChildrenByPbxEntityDtoEntityType } from './getChildrenByPbxEntityDtoEntityType';
 
 export interface GetChildrenByPbxEntityDto {
-  /** Entity type */
-  entityType: GetChildrenByPbxEntityDtoEntityType;
-  /** Entity ID */
-  entityId: number;
+    /** Entity type */
+    entityType: GetChildrenByPbxEntityDtoEntityType;
+    /** Entity ID */
+    entityId: number;
 }

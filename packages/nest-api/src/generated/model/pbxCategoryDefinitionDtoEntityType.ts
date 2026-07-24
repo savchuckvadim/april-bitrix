@@ -9,18 +9,18 @@
 /**
  * Category entity type
  */
-export type PbxCategoryDefinitionDtoEntityType = typeof PbxCategoryDefinitionDtoEntityType[keyof typeof PbxCategoryDefinitionDtoEntityType];
-
+export type PbxCategoryDefinitionDtoEntityType =
+    (typeof PbxCategoryDefinitionDtoEntityType)[keyof typeof PbxCategoryDefinitionDtoEntityType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PbxCategoryDefinitionDtoEntityType = {
-  smart: 'smart',
-  company: 'company',
-  contact: 'contact',
-  lead: 'lead',
-  deal: 'deal',
-  rpa: 'rpa',
-  rq: 'rq',
-  list: 'list',
-  user: 'user',
+    smart: 'smart',
+    company: 'company',
+    contact: 'contact',
+    lead: 'lead',
+    deal: 'deal',
+    rpa: 'rpa',
+    rq: 'rq',
+    list: 'list',
+    user: 'user',
 } as const;

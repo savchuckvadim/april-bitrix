@@ -9,4 +9,6 @@
 /**
  * Consalting data
  */
-export type DocumentSupplyReportGenerateDtoConsalting = { [key: string]: unknown };
+export type DocumentSupplyReportGenerateDtoConsalting = {
+    [key: string]: unknown;
+};

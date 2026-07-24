@@ -9,12 +9,12 @@ import type { PbxStageDefinitionDto } from './pbxStageDefinitionDto';
 import type { PbxFieldDefinitionDto } from './pbxFieldDefinitionDto';
 
 export interface PbxRpaDefinitionDto {
-  /** RPA code */
-  code: string;
-  /** RPA title */
-  title: string;
-  /** RPA stages */
-  stages: PbxStageDefinitionDto[];
-  /** RPA fields */
-  fields: PbxFieldDefinitionDto[];
+    /** RPA code */
+    code: string;
+    /** RPA title */
+    title: string;
+    /** RPA stages */
+    stages: PbxStageDefinitionDto[];
+    /** RPA fields */
+    fields: PbxFieldDefinitionDto[];
 }

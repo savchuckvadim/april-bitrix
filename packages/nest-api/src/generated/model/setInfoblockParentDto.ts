@@ -7,6 +7,6 @@
  */
 
 export interface SetInfoblockParentDto {
-  /** Parent ID */
-  parent_id: string;
+    /** Parent ID */
+    parent_id: string;
 }

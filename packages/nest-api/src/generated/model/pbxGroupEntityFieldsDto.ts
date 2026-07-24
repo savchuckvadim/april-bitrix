@@ -8,6 +8,6 @@
 import type { PbxFieldDefinitionDto } from './pbxFieldDefinitionDto';
 
 export interface PbxGroupEntityFieldsDto {
-  /** Entity fields */
-  fields: PbxFieldDefinitionDto[];
+    /** Entity fields */
+    fields: PbxFieldDefinitionDto[];
 }

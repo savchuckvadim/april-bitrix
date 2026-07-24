@@ -10,46 +10,46 @@ import type { GetComplectResponseDtoProductType } from './getComplectResponseDto
 import type { InfoblockResponseDto } from './infoblockResponseDto';
 
 export interface GetComplectResponseDto {
-  /** Complect ID */
-  id: string;
-  /** Complect name */
-  name: string;
-  /** Complect full name */
-  fullName: string;
-  /** Complect short name */
-  shortName: string;
-  /** Complect description */
-  description?: string;
-  /** Complect code */
-  code: string;
-  /** Complect type */
-  type: GetComplectResponseDtoType;
-  /** Complect color */
-  color?: string;
-  /** Complect weight */
-  weight: number;
-  /** Complect abs */
-  abs?: string;
-  /** Complect number */
-  number: number;
-  /** Product type */
-  productType: GetComplectResponseDtoProductType;
-  /** With ABS */
-  withABS: boolean;
-  /** With consalting */
-  withConsalting: boolean;
-  /** With services */
-  withServices: boolean;
-  /** With LT */
-  withLt: boolean;
-  /** Is changing */
-  isChanging: boolean;
-  /** With default */
-  withDefault: boolean;
-  /** Created at */
-  created_at?: string;
-  /** Updated at */
-  updated_at?: string;
-  /** Infoblocks */
-  infoblocks?: InfoblockResponseDto[];
+    /** Complect ID */
+    id: string;
+    /** Complect name */
+    name: string;
+    /** Complect full name */
+    fullName: string;
+    /** Complect short name */
+    shortName: string;
+    /** Complect description */
+    description?: string;
+    /** Complect code */
+    code: string;
+    /** Complect type */
+    type: GetComplectResponseDtoType;
+    /** Complect color */
+    color?: string;
+    /** Complect weight */
+    weight: number;
+    /** Complect abs */
+    abs?: string;
+    /** Complect number */
+    number: number;
+    /** Product type */
+    productType: GetComplectResponseDtoProductType;
+    /** With ABS */
+    withABS: boolean;
+    /** With consalting */
+    withConsalting: boolean;
+    /** With services */
+    withServices: boolean;
+    /** With LT */
+    withLt: boolean;
+    /** Is changing */
+    isChanging: boolean;
+    /** With default */
+    withDefault: boolean;
+    /** Created at */
+    created_at?: string;
+    /** Updated at */
+    updated_at?: string;
+    /** Infoblocks */
+    infoblocks?: InfoblockResponseDto[];
 }

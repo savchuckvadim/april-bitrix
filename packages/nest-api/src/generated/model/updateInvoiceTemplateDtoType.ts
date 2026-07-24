@@ -6,14 +6,14 @@
  * OpenAPI spec version: 1.0
  */
 
-export type UpdateInvoiceTemplateDtoType = typeof UpdateInvoiceTemplateDtoType[keyof typeof UpdateInvoiceTemplateDtoType];
-
+export type UpdateInvoiceTemplateDtoType =
+    (typeof UpdateInvoiceTemplateDtoType)[keyof typeof UpdateInvoiceTemplateDtoType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const UpdateInvoiceTemplateDtoType = {
-  word: 'word',
-  excel: 'excel',
-  pdf: 'pdf',
-  html: 'html',
-  other: 'other',
+    word: 'word',
+    excel: 'excel',
+    pdf: 'pdf',
+    html: 'html',
+    other: 'other',
 } as const;

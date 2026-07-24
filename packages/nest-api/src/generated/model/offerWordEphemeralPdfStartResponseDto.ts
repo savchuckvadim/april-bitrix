@@ -7,6 +7,6 @@
  */
 
 export interface OfferWordEphemeralPdfStartResponseDto {
-  /** Идентификатор операции: GET /offer-word-pdf-preview/:operationId и DELETE для отмены */
-  operationId: string;
+    /** Идентификатор операции: GET /offer-word-pdf-preview/:operationId и DELETE для отмены */
+    operationId: string;
 }

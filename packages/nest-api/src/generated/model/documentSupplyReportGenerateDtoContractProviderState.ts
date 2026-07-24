@@ -9,4 +9,6 @@
 /**
  * Contract provider state
  */
-export type DocumentSupplyReportGenerateDtoContractProviderState = { [key: string]: unknown };
+export type DocumentSupplyReportGenerateDtoContractProviderState = {
+    [key: string]: unknown;
+};

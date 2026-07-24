@@ -7,12 +7,12 @@
  */
 
 export interface UpdatePortalCompanyDto {
-  /** ID портала */
-  portalId?: number;
-  /** Системное имя */
-  name?: string;
-  /** Заголовок */
-  title?: string;
-  /** Код */
-  code?: string;
+    /** ID портала */
+    portalId?: number;
+    /** Системное имя */
+    name?: string;
+    /** Заголовок */
+    title?: string;
+    /** Код */
+    code?: string;
 }

@@ -8,6 +8,6 @@
 import type { CreateBtxCategoryDto } from './createBtxCategoryDto';
 
 export interface CreateManyBtxCategoriesDto {
-  /** Categories to create (each may include optional stages) */
-  categories: CreateBtxCategoryDto[];
+    /** Categories to create (each may include optional stages) */
+    categories: CreateBtxCategoryDto[];
 }

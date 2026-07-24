@@ -8,8 +8,8 @@
 import type { GetFieldsByEntityRequestDtoEntityType } from './getFieldsByEntityRequestDtoEntityType';
 
 export interface GetFieldsByEntityRequestDto {
-  /** Entity type */
-  entityType: GetFieldsByEntityRequestDtoEntityType;
-  /** Entity ID */
-  entityId: number;
+    /** Entity type */
+    entityType: GetFieldsByEntityRequestDtoEntityType;
+    /** Entity ID */
+    entityId: number;
 }

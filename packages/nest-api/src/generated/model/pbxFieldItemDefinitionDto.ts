@@ -7,14 +7,14 @@
  */
 
 export interface PbxFieldItemDefinitionDto {
-  /** Item code */
-  code: string;
-  /** Item value */
-  value: string;
-  /** Item sort */
-  sort: number;
-  /** Item XML ID */
-  xmlId: string;
-  /** Item delete flag */
-  del: string;
+    /** Item code */
+    code: string;
+    /** Item value */
+    value: string;
+    /** Item sort */
+    sort: number;
+    /** Item XML ID */
+    xmlId: string;
+    /** Item delete flag */
+    del: string;
 }

@@ -7,6 +7,6 @@
  */
 
 export interface PbxUserUpdateDto {
-  /** User code */
-  code: string;
+    /** User code */
+    code: string;
 }

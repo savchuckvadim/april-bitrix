@@ -9,16 +9,16 @@ import type { PbxCategoryDefinitionDtoEntityType } from './pbxCategoryDefinition
 import type { PbxStageDefinitionDto } from './pbxStageDefinitionDto';
 
 export interface PbxCategoryDefinitionDto {
-  /** Category code */
-  code: string;
-  /** Category name */
-  name: string;
-  /** Category sort order */
-  sort: number;
-  /** Category entity type */
-  entityType: PbxCategoryDefinitionDtoEntityType;
-  /** Default category flag */
-  isDefault: boolean;
-  /** Category stages */
-  stages: PbxStageDefinitionDto[];
+    /** Category code */
+    code: string;
+    /** Category name */
+    name: string;
+    /** Category sort order */
+    sort: number;
+    /** Category entity type */
+    entityType: PbxCategoryDefinitionDtoEntityType;
+    /** Default category flag */
+    isDefault: boolean;
+    /** Category stages */
+    stages: PbxStageDefinitionDto[];
 }

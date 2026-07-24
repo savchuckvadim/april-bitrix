@@ -13,28 +13,28 @@ import type { PbxRpaDefinitionDto } from './pbxRpaDefinitionDto';
 import type { PbxListDefinitionDto } from './pbxListDefinitionDto';
 
 export interface PbxGroupDefinitionDto {
-  /** Group code */
-  group: string;
-  /** Group app type */
-  appType: string;
-  /** Group fields */
-  fields: PbxFieldDefinitionDto[];
-  /** User section */
-  user: PbxGroupEntityFieldsDto;
-  /** Contact section */
-  contact: PbxGroupEntityFieldsDto;
-  /** Company section */
-  company: PbxGroupEntityFieldsDto;
-  /** Deal section */
-  deal: PbxGroupEntityWithCategoriesDto;
-  /** Task section */
-  task: PbxGroupEntityFieldsDto;
-  /** Lead section */
-  lead: PbxGroupEntityWithCategoriesDto;
-  /** Group smarts */
-  smarts: PbxSmartDefinitionDto[];
-  /** Group rpas */
-  rpas: PbxRpaDefinitionDto[];
-  /** Group lists */
-  lists: PbxListDefinitionDto[];
+    /** Group code */
+    group: string;
+    /** Group app type */
+    appType: string;
+    /** Group fields */
+    fields: PbxFieldDefinitionDto[];
+    /** User section */
+    user: PbxGroupEntityFieldsDto;
+    /** Contact section */
+    contact: PbxGroupEntityFieldsDto;
+    /** Company section */
+    company: PbxGroupEntityFieldsDto;
+    /** Deal section */
+    deal: PbxGroupEntityWithCategoriesDto;
+    /** Task section */
+    task: PbxGroupEntityFieldsDto;
+    /** Lead section */
+    lead: PbxGroupEntityWithCategoriesDto;
+    /** Group smarts */
+    smarts: PbxSmartDefinitionDto[];
+    /** Group rpas */
+    rpas: PbxRpaDefinitionDto[];
+    /** Group lists */
+    lists: PbxListDefinitionDto[];
 }

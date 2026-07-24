@@ -8,9 +8,9 @@
 import type { SetInvoiceTemplatePortalDtoPortalId } from './setInvoiceTemplatePortalDtoPortalId';
 
 export interface SetInvoiceTemplatePortalDto {
-  /**
-   * ID портала; null — отвязать (часто перевести в public)
-   * @nullable
-   */
-  portal_id?: SetInvoiceTemplatePortalDtoPortalId;
+    /**
+     * ID портала; null — отвязать (часто перевести в public)
+     * @nullable
+     */
+    portal_id?: SetInvoiceTemplatePortalDtoPortalId;
 }

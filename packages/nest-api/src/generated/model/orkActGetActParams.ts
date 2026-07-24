@@ -7,40 +7,40 @@
  */
 
 export type OrkActGetActParams = {
-/**
- * Responsible ID
- */
-responsibleId: string;
-/**
- * Smart ID
- */
-smartId: number;
-/**
- * Deal ID
- */
-dealId: number;
-/**
- * Quantity of products or months
- */
-quantity: number;
-/**
- * Smart Type ID
- */
-smartTypeId: number;
-/**
- * Smart Category ID
- */
-smartCategoryId: number;
-/**
- * Smart CRM ID
- */
-smartCrmId: string;
-/**
- * deadline
- */
-deadline: string;
-/**
- * Comment
- */
-comment: string;
+    /**
+     * Responsible ID
+     */
+    responsibleId: string;
+    /**
+     * Smart ID
+     */
+    smartId: number;
+    /**
+     * Deal ID
+     */
+    dealId: number;
+    /**
+     * Quantity of products or months
+     */
+    quantity: number;
+    /**
+     * Smart Type ID
+     */
+    smartTypeId: number;
+    /**
+     * Smart Category ID
+     */
+    smartCategoryId: number;
+    /**
+     * Smart CRM ID
+     */
+    smartCrmId: string;
+    /**
+     * deadline
+     */
+    deadline: string;
+    /**
+     * Comment
+     */
+    comment: string;
 };

@@ -9,11 +9,11 @@
 /**
  * Тип пакета по сути значит как будет высчитываться цена
  */
-export type PackageTypeEnum = typeof PackageTypeEnum[keyof typeof PackageTypeEnum];
-
+export type PackageTypeEnum =
+    (typeof PackageTypeEnum)[keyof typeof PackageTypeEnum];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PackageTypeEnum = {
-  prof: 'prof',
-  universal: 'universal',
+    prof: 'prof',
+    universal: 'universal',
 } as const;

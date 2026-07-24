@@ -7,6 +7,6 @@
  */
 
 export interface SetInfogroupInfoblocksDto {
-  /** Список ID инфоблоков для установки (заменит все существующие) */
-  infoblockIds: string[];
+    /** Список ID инфоблоков для установки (заменит все существующие) */
+    infoblockIds: string[];
 }

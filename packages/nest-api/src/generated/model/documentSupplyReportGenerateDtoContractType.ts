@@ -9,13 +9,13 @@
 /**
  * Type of the contract
  */
-export type DocumentSupplyReportGenerateDtoContractType = typeof DocumentSupplyReportGenerateDtoContractType[keyof typeof DocumentSupplyReportGenerateDtoContractType];
-
+export type DocumentSupplyReportGenerateDtoContractType =
+    (typeof DocumentSupplyReportGenerateDtoContractType)[keyof typeof DocumentSupplyReportGenerateDtoContractType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DocumentSupplyReportGenerateDtoContractType = {
-  service: 'service',
-  abon: 'abon',
-  lic: 'lic',
-  key: 'key',
+    service: 'service',
+    abon: 'abon',
+    lic: 'lic',
+    key: 'key',
 } as const;

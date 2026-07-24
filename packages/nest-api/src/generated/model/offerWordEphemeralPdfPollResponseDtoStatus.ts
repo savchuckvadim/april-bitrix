@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type OfferWordEphemeralPdfPollResponseDtoStatus = typeof OfferWordEphemeralPdfPollResponseDtoStatus[keyof typeof OfferWordEphemeralPdfPollResponseDtoStatus];
-
+export type OfferWordEphemeralPdfPollResponseDtoStatus =
+    (typeof OfferWordEphemeralPdfPollResponseDtoStatus)[keyof typeof OfferWordEphemeralPdfPollResponseDtoStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OfferWordEphemeralPdfPollResponseDtoStatus = {
-  pending: 'pending',
-  ready: 'ready',
-  failed: 'failed',
+    pending: 'pending',
+    ready: 'ready',
+    failed: 'failed',
 } as const;

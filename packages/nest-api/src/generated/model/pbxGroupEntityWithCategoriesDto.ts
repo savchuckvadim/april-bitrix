@@ -9,8 +9,8 @@ import type { PbxFieldDefinitionDto } from './pbxFieldDefinitionDto';
 import type { PbxCategoryDefinitionDto } from './pbxCategoryDefinitionDto';
 
 export interface PbxGroupEntityWithCategoriesDto {
-  /** Entity fields */
-  fields: PbxFieldDefinitionDto[];
-  /** Entity categories */
-  categories: PbxCategoryDefinitionDto[];
+    /** Entity fields */
+    fields: PbxFieldDefinitionDto[];
+    /** Entity categories */
+    categories: PbxCategoryDefinitionDto[];
 }

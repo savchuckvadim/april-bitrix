@@ -9,16 +9,16 @@ import type { CreateInvoiceTemplateMultipartDtoVisibility } from './createInvoic
 import type { CreateInvoiceTemplateMultipartDtoType } from './createInvoiceTemplateMultipartDtoType';
 
 export interface CreateInvoiceTemplateMultipartDto {
-  name: string;
-  visibility?: CreateInvoiceTemplateMultipartDtoVisibility;
-  /** Обязательно для visibility=portal|provider */
-  portal_id?: string;
-  /** ID агента (поставщика); для visibility=provider обязателен */
-  agent_id?: string;
-  description?: string;
-  type?: CreateInvoiceTemplateMultipartDtoType;
-  is_default?: boolean;
-  is_active?: boolean;
-  creator_bitrix_user_id?: string;
-  file: Blob;
+    name: string;
+    visibility?: CreateInvoiceTemplateMultipartDtoVisibility;
+    /** Обязательно для visibility=portal|provider */
+    portal_id?: string;
+    /** ID агента (поставщика); для visibility=provider обязателен */
+    agent_id?: string;
+    description?: string;
+    type?: CreateInvoiceTemplateMultipartDtoType;
+    is_default?: boolean;
+    is_active?: boolean;
+    creator_bitrix_user_id?: string;
+    file: Blob;
 }

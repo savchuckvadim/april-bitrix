@@ -8,12 +8,12 @@
 import type { CounterRqDto } from './counterRqDto';
 
 export interface CounterResponseDto {
-  id: string;
-  name: string;
-  title: string;
-  /** @nullable */
-  created_at?: string | null;
-  /** @nullable */
-  updated_at?: string | null;
-  rqs?: CounterRqDto[];
+    id: string;
+    name: string;
+    title: string;
+    /** @nullable */
+    created_at?: string | null;
+    /** @nullable */
+    updated_at?: string | null;
+    rqs?: CounterRqDto[];
 }

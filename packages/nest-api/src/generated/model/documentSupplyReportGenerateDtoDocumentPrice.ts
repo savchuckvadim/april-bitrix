@@ -9,4 +9,6 @@
 /**
  * Document price
  */
-export type DocumentSupplyReportGenerateDtoDocumentPrice = { [key: string]: unknown };
+export type DocumentSupplyReportGenerateDtoDocumentPrice = {
+    [key: string]: unknown;
+};

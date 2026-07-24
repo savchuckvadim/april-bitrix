@@ -9,21 +9,21 @@
 /**
  * Код комплекта (будет найден Complect по code)
  */
-export type CreatePriceDtoComplectCode = typeof CreatePriceDtoComplectCode[keyof typeof CreatePriceDtoComplectCode];
-
+export type CreatePriceDtoComplectCode =
+    (typeof CreatePriceDtoComplectCode)[keyof typeof CreatePriceDtoComplectCode];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreatePriceDtoComplectCode = {
-  buh: 'buh',
-  buhgos: 'buhgos',
-  ur: 'ur',
-  expert: 'expert',
-  office: 'office',
-  exzak: 'exzak',
-  glavbuh: 'glavbuh',
-  glavbuhgos: 'glavbuhgos',
-  company: 'company',
-  companyPro: 'companyPro',
-  exbuild: 'exbuild',
-  exjobsec: 'exjobsec',
+    buh: 'buh',
+    buhgos: 'buhgos',
+    ur: 'ur',
+    expert: 'expert',
+    office: 'office',
+    exzak: 'exzak',
+    glavbuh: 'glavbuh',
+    glavbuhgos: 'glavbuhgos',
+    company: 'company',
+    companyPro: 'companyPro',
+    exbuild: 'exbuild',
+    exjobsec: 'exjobsec',
 } as const;

@@ -9,31 +9,31 @@ import type { CreateInfogroupDtoType } from './createInfogroupDtoType';
 import type { CreateInfogroupDtoProductType } from './createInfogroupDtoProductType';
 
 export interface CreateInfogroupDto {
-  /** Infogroup number */
-  number: number;
-  /** Infogroup code */
-  code: string;
-  /** Infogroup name */
-  name: string;
-  /** Infogroup title */
-  title: string;
-  /**
-   * Infogroup description
-   * @nullable
-   */
-  description?: string | null;
-  /**
-   * Infogroup description for sale
-   * @nullable
-   */
-  descriptionForSale?: string | null;
-  /**
-   * Infogroup short description
-   * @nullable
-   */
-  shortDescription?: string | null;
-  /** Infogroup type */
-  type: CreateInfogroupDtoType;
-  /** Infogroup product type */
-  productType: CreateInfogroupDtoProductType;
+    /** Infogroup number */
+    number: number;
+    /** Infogroup code */
+    code: string;
+    /** Infogroup name */
+    name: string;
+    /** Infogroup title */
+    title: string;
+    /**
+     * Infogroup description
+     * @nullable
+     */
+    description?: string | null;
+    /**
+     * Infogroup description for sale
+     * @nullable
+     */
+    descriptionForSale?: string | null;
+    /**
+     * Infogroup short description
+     * @nullable
+     */
+    shortDescription?: string | null;
+    /** Infogroup type */
+    type: CreateInfogroupDtoType;
+    /** Infogroup product type */
+    productType: CreateInfogroupDtoProductType;
 }

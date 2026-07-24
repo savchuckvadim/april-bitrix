@@ -6,4 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface QueuePingDto { [key: string]: unknown }
+export interface QueuePingDto {
+    [key: string]: unknown;
+}

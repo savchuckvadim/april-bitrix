@@ -7,5 +7,5 @@
  */
 
 export interface DeleteCounterResponseDto {
-  message: string;
+    message: string;
 }

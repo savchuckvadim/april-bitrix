@@ -9,4 +9,6 @@
 /**
  * Linked user fields map
  */
-export type PbxSmartInstallSettingsDtoLinkedUserFields = { [key: string]: unknown };
+export type PbxSmartInstallSettingsDtoLinkedUserFields = {
+    [key: string]: unknown;
+};

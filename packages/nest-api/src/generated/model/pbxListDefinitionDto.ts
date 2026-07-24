@@ -8,20 +8,20 @@
 import type { PbxFieldDefinitionDto } from './pbxFieldDefinitionDto';
 
 export interface PbxListDefinitionDto {
-  /** List code */
-  code: string;
-  /** List title */
-  title: string;
-  /** List type */
-  type: string;
-  /** List group */
-  group: string;
-  /** List is active */
-  isActive: boolean;
-  /** List sort order */
-  order: number;
-  /** List needs update */
-  isNeedUpdate: boolean;
-  /** List fields */
-  fields: PbxFieldDefinitionDto[];
+    /** List code */
+    code: string;
+    /** List title */
+    title: string;
+    /** List type */
+    type: string;
+    /** List group */
+    group: string;
+    /** List is active */
+    isActive: boolean;
+    /** List sort order */
+    order: number;
+    /** List needs update */
+    isNeedUpdate: boolean;
+    /** List fields */
+    fields: PbxFieldDefinitionDto[];
 }

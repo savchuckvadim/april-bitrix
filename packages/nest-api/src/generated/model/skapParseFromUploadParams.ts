@@ -7,5 +7,5 @@
  */
 
 export type SkapParseFromUploadParams = {
-date: string;
+    date: string;
 };

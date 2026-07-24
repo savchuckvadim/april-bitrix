@@ -13,6 +13,8 @@ import type {
     KnowledgeDeleteResponseDto,
     KnowledgeDocumentContentDto,
     KnowledgeDocumentDto,
+    KnowledgeKindInfoDto,
+    KnowledgeTextUpsertDto,
     KnowledgeUploadResponseDto,
 } from '.././model';
 
@@ -20,13 +22,28 @@ import { customAxios } from '../../lib/admin-api';
 
 export const getAdminAiRagKnowledge = () => {
     /**
-     * Возвращает имена kind-папок общей базы знаний (типы звонков и материалов).
-     * @summary Список kind-папок
+     * Известные kind (реестр с названиями/описаниями/потребителями) + фактические папки общей базы. Нестандартные папки помечаются known=false. Основа экрана «Материалы» в админке.
+     * @summary Реестр kind-разделов базы знаний
      */
     const aiRagKnowledgeAdminListKinds = () => {
-        return customAxios<string[]>({
+        return customAxios<KnowledgeKindInfoDto[]>({
             url: `/api/admin/ai-rag/knowledge/kinds`,
             method: 'GET',
+        });
+    };
+    /**
+     * Сохраняет/перезаписывает документ из текста без multipart — для редактора инструкций в админке. С domain — в клиентскую базу (перекрывает общую), без — в общую.
+     * @summary Сохранить текстовый документ (редактор)
+     */
+    const aiRagKnowledgeAdminUpsertText = (
+        kind: string,
+        knowledgeTextUpsertDto: KnowledgeTextUpsertDto,
+    ) => {
+        return customAxios<KnowledgeUploadResponseDto>({
+            url: `/api/admin/ai-rag/knowledge/${kind}/text`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: knowledgeTextUpsertDto,
         });
     };
     /**
@@ -101,6 +118,7 @@ export const getAdminAiRagKnowledge = () => {
     };
     return {
         aiRagKnowledgeAdminListKinds,
+        aiRagKnowledgeAdminUpsertText,
         aiRagKnowledgeAdminListDomains,
         aiRagKnowledgeAdminListDocuments,
         aiRagKnowledgeAdminDeleteDocument,
@@ -114,6 +132,15 @@ export type AiRagKnowledgeAdminListKindsResult = NonNullable<
             ReturnType<
                 typeof getAdminAiRagKnowledge
             >['aiRagKnowledgeAdminListKinds']
+        >
+    >
+>;
+export type AiRagKnowledgeAdminUpsertTextResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getAdminAiRagKnowledge
+            >['aiRagKnowledgeAdminUpsertText']
         >
     >
 >;

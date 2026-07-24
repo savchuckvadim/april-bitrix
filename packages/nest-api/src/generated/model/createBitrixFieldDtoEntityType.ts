@@ -9,18 +9,18 @@
 /**
  * Entity type (polymorphic relation)
  */
-export type CreateBitrixFieldDtoEntityType = typeof CreateBitrixFieldDtoEntityType[keyof typeof CreateBitrixFieldDtoEntityType];
-
+export type CreateBitrixFieldDtoEntityType =
+    (typeof CreateBitrixFieldDtoEntityType)[keyof typeof CreateBitrixFieldDtoEntityType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateBitrixFieldDtoEntityType = {
-  smart: 'smart',
-  company: 'company',
-  contact: 'contact',
-  lead: 'lead',
-  deal: 'deal',
-  rpa: 'rpa',
-  rq: 'rq',
-  list: 'list',
-  user: 'user',
+    smart: 'smart',
+    company: 'company',
+    contact: 'contact',
+    lead: 'lead',
+    deal: 'deal',
+    rpa: 'rpa',
+    rq: 'rq',
+    list: 'list',
+    user: 'user',
 } as const;

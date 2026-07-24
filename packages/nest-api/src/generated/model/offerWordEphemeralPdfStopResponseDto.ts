@@ -7,8 +7,8 @@
  */
 
 export interface OfferWordEphemeralPdfStopResponseDto {
-  operationId: string;
-  /** true — отмена учтена (очередь/Redis); активная задача может ещё коротко поработать до проверки флага */
-  cancelled: boolean;
-  message?: string;
+    operationId: string;
+    /** true — отмена учтена (очередь/Redis); активная задача может ещё коротко поработать до проверки флага */
+    cancelled: boolean;
+    message?: string;
 }

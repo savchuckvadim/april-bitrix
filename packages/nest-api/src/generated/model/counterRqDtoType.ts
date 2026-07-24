@@ -9,12 +9,13 @@
 /**
  * @nullable
  */
-export type CounterRqDtoType = typeof CounterRqDtoType[keyof typeof CounterRqDtoType] | null;
-
+export type CounterRqDtoType =
+    | (typeof CounterRqDtoType)[keyof typeof CounterRqDtoType]
+    | null;
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CounterRqDtoType = {
-  invoice: 'invoice',
-  offer: 'offer',
-  contract: 'contract',
+    invoice: 'invoice',
+    offer: 'offer',
+    contract: 'contract',
 } as const;

@@ -7,6 +7,6 @@
  */
 
 export interface RemoveInfoblocksDto {
-  /** Список ID инфоблоков для удаления */
-  infoblockIds: string[];
+    /** Список ID инфоблоков для удаления */
+    infoblockIds: string[];
 }

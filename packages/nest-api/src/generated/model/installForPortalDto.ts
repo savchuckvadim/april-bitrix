@@ -7,10 +7,10 @@
  */
 
 export interface InstallForPortalDto {
-  /** Portal ID */
-  portalId: number;
-  /** Group filter (e.g., "sales") */
-  group?: string;
-  /** Whether to sync with Bitrix API or DB-only */
-  withBitrixSync: boolean;
+    /** Portal ID */
+    portalId: number;
+    /** Group filter (e.g., "sales") */
+    group?: string;
+    /** Whether to sync with Bitrix API or DB-only */
+    withBitrixSync: boolean;
 }

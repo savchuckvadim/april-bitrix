@@ -7,12 +7,12 @@
  */
 
 export interface CreatePortalCompanyDto {
-  /** ID портала в нашей БД */
-  portalId: number;
-  /** Системное имя компании */
-  name: string;
-  /** Заголовок */
-  title: string;
-  /** Код */
-  code: string;
+    /** ID портала в нашей БД */
+    portalId: number;
+    /** Системное имя компании */
+    name: string;
+    /** Заголовок */
+    title: string;
+    /** Код */
+    code: string;
 }

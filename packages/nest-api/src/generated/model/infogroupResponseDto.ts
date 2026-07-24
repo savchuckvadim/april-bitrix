@@ -10,45 +10,45 @@ import type { InfogroupResponseDtoProductType } from './infogroupResponseDtoProd
 import type { GetInfoblockLightResponseDto } from './getInfoblockLightResponseDto';
 
 export interface InfogroupResponseDto {
-  /** Infogroup ID */
-  id: string;
-  /** Infogroup number */
-  number: number;
-  /** Infogroup code */
-  code: string;
-  /** Infogroup name */
-  name: string;
-  /** Infogroup title */
-  title: string;
-  /**
-   * Infogroup description
-   * @nullable
-   */
-  description?: string | null;
-  /**
-   * Infogroup description for sale
-   * @nullable
-   */
-  descriptionForSale?: string | null;
-  /**
-   * Infogroup short description
-   * @nullable
-   */
-  shortDescription?: string | null;
-  /** Infogroup type */
-  type: InfogroupResponseDtoType;
-  /** Infogroup product type */
-  productType: InfogroupResponseDtoProductType;
-  /**
-   * Created at
-   * @nullable
-   */
-  created_at?: string | null;
-  /**
-   * Updated at
-   * @nullable
-   */
-  updated_at?: string | null;
-  /** Infoblocks in group */
-  infoblocks?: GetInfoblockLightResponseDto[];
+    /** Infogroup ID */
+    id: string;
+    /** Infogroup number */
+    number: number;
+    /** Infogroup code */
+    code: string;
+    /** Infogroup name */
+    name: string;
+    /** Infogroup title */
+    title: string;
+    /**
+     * Infogroup description
+     * @nullable
+     */
+    description?: string | null;
+    /**
+     * Infogroup description for sale
+     * @nullable
+     */
+    descriptionForSale?: string | null;
+    /**
+     * Infogroup short description
+     * @nullable
+     */
+    shortDescription?: string | null;
+    /** Infogroup type */
+    type: InfogroupResponseDtoType;
+    /** Infogroup product type */
+    productType: InfogroupResponseDtoProductType;
+    /**
+     * Created at
+     * @nullable
+     */
+    created_at?: string | null;
+    /**
+     * Updated at
+     * @nullable
+     */
+    updated_at?: string | null;
+    /** Infoblocks in group */
+    infoblocks?: GetInfoblockLightResponseDto[];
 }

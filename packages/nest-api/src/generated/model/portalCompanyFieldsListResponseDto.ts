@@ -8,5 +8,5 @@
 import type { PbxFieldEntityDto } from './pbxFieldEntityDto';
 
 export interface PortalCompanyFieldsListResponseDto {
-  fields: PbxFieldEntityDto[];
+    fields: PbxFieldEntityDto[];
 }

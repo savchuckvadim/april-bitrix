@@ -11,16 +11,16 @@ import type { CounterPivotDtoPrefix } from './counterPivotDtoPrefix';
 import type { CounterPivotDtoPostfix } from './counterPivotDtoPostfix';
 
 export interface CounterPivotDto {
-  value: CounterPivotDtoValue;
-  /** @nullable */
-  type: CounterPivotDtoType;
-  /** @nullable */
-  prefix: CounterPivotDtoPrefix;
-  /** @nullable */
-  postfix: CounterPivotDtoPostfix;
-  day: boolean;
-  year: boolean;
-  month: boolean;
-  count: number;
-  size: number;
+    value: CounterPivotDtoValue;
+    /** @nullable */
+    type: CounterPivotDtoType;
+    /** @nullable */
+    prefix: CounterPivotDtoPrefix;
+    /** @nullable */
+    postfix: CounterPivotDtoPostfix;
+    day: boolean;
+    year: boolean;
+    month: boolean;
+    count: number;
+    size: number;
 }

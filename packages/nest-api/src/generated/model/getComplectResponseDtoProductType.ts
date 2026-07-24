@@ -9,13 +9,13 @@
 /**
  * Product type
  */
-export type GetComplectResponseDtoProductType = typeof GetComplectResponseDtoProductType[keyof typeof GetComplectResponseDtoProductType];
-
+export type GetComplectResponseDtoProductType =
+    (typeof GetComplectResponseDtoProductType)[keyof typeof GetComplectResponseDtoProductType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const GetComplectResponseDtoProductType = {
-  garant: 'garant',
-  lt: 'lt',
-  star: 'star',
-  consalting: 'consalting',
+    garant: 'garant',
+    lt: 'lt',
+    star: 'star',
+    consalting: 'consalting',
 } as const;

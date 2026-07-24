@@ -8,16 +8,16 @@
 import type { CreateCounterDtoType } from './createCounterDtoType';
 
 export interface CreateCounterDto {
-  rq_id: number;
-  name: string;
-  title: string;
-  value?: number;
-  type?: CreateCounterDtoType;
-  prefix?: string;
-  postfix?: string;
-  day?: boolean;
-  month?: boolean;
-  year?: boolean;
-  count?: number;
-  size?: number;
+    rq_id: number;
+    name: string;
+    title: string;
+    value?: number;
+    type?: CreateCounterDtoType;
+    prefix?: string;
+    postfix?: string;
+    day?: boolean;
+    month?: boolean;
+    year?: boolean;
+    count?: number;
+    size?: number;
 }

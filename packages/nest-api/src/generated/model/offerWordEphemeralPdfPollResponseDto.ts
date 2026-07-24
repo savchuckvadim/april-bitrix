@@ -8,10 +8,10 @@
 import type { OfferWordEphemeralPdfPollResponseDtoStatus } from './offerWordEphemeralPdfPollResponseDtoStatus';
 
 export interface OfferWordEphemeralPdfPollResponseDto {
-  status: OfferWordEphemeralPdfPollResponseDtoStatus;
-  /** При status=ready; тот же PDF можно запрашивать повторно, пока не истёк TTL ключа в Redis */
-  pdfBase64?: string;
-  fileName?: string;
-  mimeType?: string;
-  error?: string;
+    status: OfferWordEphemeralPdfPollResponseDtoStatus;
+    /** При status=ready; тот же PDF можно запрашивать повторно, пока не истёк TTL ключа в Redis */
+    pdfBase64?: string;
+    fileName?: string;
+    mimeType?: string;
+    error?: string;
 }

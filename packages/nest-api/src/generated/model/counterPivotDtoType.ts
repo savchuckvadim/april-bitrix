@@ -9,12 +9,13 @@
 /**
  * @nullable
  */
-export type CounterPivotDtoType = typeof CounterPivotDtoType[keyof typeof CounterPivotDtoType] | null;
-
+export type CounterPivotDtoType =
+    | (typeof CounterPivotDtoType)[keyof typeof CounterPivotDtoType]
+    | null;
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CounterPivotDtoType = {
-  invoice: 'invoice',
-  offer: 'offer',
-  contract: 'contract',
+    invoice: 'invoice',
+    offer: 'offer',
+    contract: 'contract',
 } as const;

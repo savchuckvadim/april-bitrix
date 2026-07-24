@@ -7,6 +7,6 @@
  */
 
 export interface SetInfoblockRelatedDto {
-  /** Related ID */
-  related_id?: string;
+    /** Related ID */
+    related_id?: string;
 }

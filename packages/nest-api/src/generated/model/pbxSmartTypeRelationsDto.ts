@@ -8,8 +8,8 @@
 import type { PbxSmartTypeRelationDto } from './pbxSmartTypeRelationDto';
 
 export interface PbxSmartTypeRelationsDto {
-  /** Parent relations */
-  parent: PbxSmartTypeRelationDto[];
-  /** Child relations */
-  child: PbxSmartTypeRelationDto[];
+    /** Parent relations */
+    parent: PbxSmartTypeRelationDto[];
+    /** Child relations */
+    child: PbxSmartTypeRelationDto[];
 }

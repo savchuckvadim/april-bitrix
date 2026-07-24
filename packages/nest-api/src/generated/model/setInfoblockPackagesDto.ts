@@ -7,6 +7,6 @@
  */
 
 export interface SetInfoblockPackagesDto {
-  /** Список ID инфоблоков-пакетов для установки (заменит все существующие) */
-  packageIds: string[];
+    /** Список ID инфоблоков-пакетов для установки (заменит все существующие) */
+    packageIds: string[];
 }

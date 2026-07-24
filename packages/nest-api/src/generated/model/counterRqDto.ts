@@ -12,19 +12,19 @@ import type { CounterRqDtoPrefix } from './counterRqDtoPrefix';
 import type { CounterRqDtoPostfix } from './counterRqDtoPostfix';
 
 export interface CounterRqDto {
-  rq_id: string;
-  /** @nullable */
-  rq_name: CounterRqDtoRqName;
-  value: CounterRqDtoValue;
-  /** @nullable */
-  type: CounterRqDtoType;
-  /** @nullable */
-  prefix: CounterRqDtoPrefix;
-  /** @nullable */
-  postfix: CounterRqDtoPostfix;
-  day: boolean;
-  year: boolean;
-  month: boolean;
-  count: number;
-  size: number;
+    rq_id: string;
+    /** @nullable */
+    rq_name: CounterRqDtoRqName;
+    value: CounterRqDtoValue;
+    /** @nullable */
+    type: CounterRqDtoType;
+    /** @nullable */
+    prefix: CounterRqDtoPrefix;
+    /** @nullable */
+    postfix: CounterRqDtoPostfix;
+    day: boolean;
+    year: boolean;
+    month: boolean;
+    count: number;
+    size: number;
 }

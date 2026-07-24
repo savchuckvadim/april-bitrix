@@ -7,14 +7,14 @@
  */
 
 export interface PbxFieldItemEntityDto {
-  /** Field name */
-  name: string;
-  /** Field title */
-  title: string;
-  /** Field code */
-  code: string;
-  /** Bitrix field ID */
-  bitrixfield_id: string;
-  /** Bitrix ID */
-  bitrixId: string;
+    /** Field name */
+    name: string;
+    /** Field title */
+    title: string;
+    /** Field code */
+    code: string;
+    /** Bitrix field ID */
+    bitrixfield_id: string;
+    /** Bitrix ID */
+    bitrixId: string;
 }

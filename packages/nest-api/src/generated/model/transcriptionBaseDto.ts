@@ -7,40 +7,40 @@
  */
 
 export interface TranscriptionBaseDto {
-  /** Provider of the transcription */
-  provider: string;
-  /** Activity ID */
-  activityId: string;
-  /** File ID */
-  fileId: string;
-  /** In comment */
-  inComment: boolean;
-  /** Status of the transcription */
-  status: string;
-  /** Text of the transcription */
-  text: string;
-  /** Symbols count of the transcription */
-  symbolsCount: string;
-  /** Price of the transcription */
-  price: string;
-  /** Duration of the transcription */
-  duration: string;
-  /** Domain of the transcription */
-  domain: string;
-  /** User result of the transcription */
-  userResult: string;
-  /** User ID */
-  userId: string;
-  /** User name */
-  userName: string;
-  /** Application name */
-  app: string;
-  /** Entity type */
-  entityType: string;
-  /** Entity ID */
-  entityId: string;
-  /** Entity name */
-  entityName: string;
-  /** Department */
-  department: string;
+    /** Provider of the transcription */
+    provider: string;
+    /** Activity ID */
+    activityId: string;
+    /** File ID */
+    fileId: string;
+    /** In comment */
+    inComment: boolean;
+    /** Status of the transcription */
+    status: string;
+    /** Text of the transcription */
+    text: string;
+    /** Symbols count of the transcription */
+    symbolsCount: string;
+    /** Price of the transcription */
+    price: string;
+    /** Duration of the transcription */
+    duration: string;
+    /** Domain of the transcription */
+    domain: string;
+    /** User result of the transcription */
+    userResult: string;
+    /** User ID */
+    userId: string;
+    /** User name */
+    userName: string;
+    /** Application name */
+    app: string;
+    /** Entity type */
+    entityType: string;
+    /** Entity ID */
+    entityId: string;
+    /** Entity name */
+    entityName: string;
+    /** Department */
+    department: string;
 }

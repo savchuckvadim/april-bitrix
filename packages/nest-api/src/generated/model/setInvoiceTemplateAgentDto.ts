@@ -8,9 +8,9 @@
 import type { SetInvoiceTemplateAgentDtoAgentId } from './setInvoiceTemplateAgentDtoAgentId';
 
 export interface SetInvoiceTemplateAgentDto {
-  /**
-   * ID агента (agents.id); null — отвязать
-   * @nullable
-   */
-  agent_id?: SetInvoiceTemplateAgentDtoAgentId;
+    /**
+     * ID агента (agents.id); null — отвязать
+     * @nullable
+     */
+    agent_id?: SetInvoiceTemplateAgentDtoAgentId;
 }

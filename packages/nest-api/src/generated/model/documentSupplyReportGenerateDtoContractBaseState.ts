@@ -9,4 +9,6 @@
 /**
  * Contract base state
  */
-export type DocumentSupplyReportGenerateDtoContractBaseState = { [key: string]: unknown };
+export type DocumentSupplyReportGenerateDtoContractBaseState = {
+    [key: string]: unknown;
+};

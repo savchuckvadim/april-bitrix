@@ -8,8 +8,8 @@
 import type { CounterPivotDto } from './counterPivotDto';
 
 export interface CounterByRqItemDto {
-  id: string;
-  name: string;
-  title: string;
-  pivot: CounterPivotDto;
+    id: string;
+    name: string;
+    title: string;
+    pivot: CounterPivotDto;
 }

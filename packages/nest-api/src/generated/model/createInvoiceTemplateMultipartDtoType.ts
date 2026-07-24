@@ -6,14 +6,14 @@
  * OpenAPI spec version: 1.0
  */
 
-export type CreateInvoiceTemplateMultipartDtoType = typeof CreateInvoiceTemplateMultipartDtoType[keyof typeof CreateInvoiceTemplateMultipartDtoType];
-
+export type CreateInvoiceTemplateMultipartDtoType =
+    (typeof CreateInvoiceTemplateMultipartDtoType)[keyof typeof CreateInvoiceTemplateMultipartDtoType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateInvoiceTemplateMultipartDtoType = {
-  word: 'word',
-  excel: 'excel',
-  pdf: 'pdf',
-  html: 'html',
-  other: 'other',
+    word: 'word',
+    excel: 'excel',
+    pdf: 'pdf',
+    html: 'html',
+    other: 'other',
 } as const;

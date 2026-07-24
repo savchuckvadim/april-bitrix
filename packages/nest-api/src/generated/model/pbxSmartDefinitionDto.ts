@@ -10,14 +10,14 @@ import type { PbxFieldDefinitionDto } from './pbxFieldDefinitionDto';
 import type { PbxSmartInstallSettingsDto } from './pbxSmartInstallSettingsDto';
 
 export interface PbxSmartDefinitionDto {
-  /** Smart code */
-  code: string;
-  /** Smart title */
-  title: string;
-  /** Smart categories */
-  categories: PbxCategoryDefinitionDto[];
-  /** Smart fields */
-  fields: PbxFieldDefinitionDto[];
-  /** Smart install settings */
-  installSettings: PbxSmartInstallSettingsDto;
+    /** Smart code */
+    code: string;
+    /** Smart title */
+    title: string;
+    /** Smart categories */
+    categories: PbxCategoryDefinitionDto[];
+    /** Smart fields */
+    fields: PbxFieldDefinitionDto[];
+    /** Smart install settings */
+    installSettings: PbxSmartInstallSettingsDto;
 }

@@ -7,8 +7,8 @@
  */
 
 export interface PbxSmartTypeRelationDto {
-  /** Related entity type id */
-  entityTypeId: number;
-  /** Show relation in card */
-  isChildrenListEnabled: string;
+    /** Related entity type id */
+    entityTypeId: number;
+    /** Show relation in card */
+    isChildrenListEnabled: string;
 }

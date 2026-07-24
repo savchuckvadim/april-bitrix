@@ -9,4 +9,6 @@
 /**
  * Infogroup short description
  */
-export type GetInfogroupResponseDtoShortDescription = { [key: string]: unknown };
+export type GetInfogroupResponseDtoShortDescription = {
+    [key: string]: unknown;
+};

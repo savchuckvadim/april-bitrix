@@ -9,6 +9,6 @@ import type { PortalCompanyResponseDto } from './portalCompanyResponseDto';
 import type { PbxFieldEntityDto } from './pbxFieldEntityDto';
 
 export interface PortalCompanyWithFieldsResponseDto {
-  company: PortalCompanyResponseDto;
-  fields: PbxFieldEntityDto[];
+    company: PortalCompanyResponseDto;
+    fields: PbxFieldEntityDto[];
 }

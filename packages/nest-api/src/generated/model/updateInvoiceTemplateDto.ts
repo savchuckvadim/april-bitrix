@@ -9,12 +9,12 @@ import type { UpdateInvoiceTemplateDtoVisibility } from './updateInvoiceTemplate
 import type { UpdateInvoiceTemplateDtoType } from './updateInvoiceTemplateDtoType';
 
 export interface UpdateInvoiceTemplateDto {
-  name?: string;
-  visibility?: UpdateInvoiceTemplateDtoVisibility;
-  portal_id?: string;
-  agent_id?: string;
-  description?: string;
-  type?: UpdateInvoiceTemplateDtoType;
-  is_default?: boolean;
-  is_active?: boolean;
+    name?: string;
+    visibility?: UpdateInvoiceTemplateDtoVisibility;
+    portal_id?: string;
+    agent_id?: string;
+    description?: string;
+    type?: UpdateInvoiceTemplateDtoType;
+    is_default?: boolean;
+    is_active?: boolean;
 }

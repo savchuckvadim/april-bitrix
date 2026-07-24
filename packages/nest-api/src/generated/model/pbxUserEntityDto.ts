@@ -8,14 +8,14 @@
 import type { PbxFieldEntityDto } from './pbxFieldEntityDto';
 
 export interface PbxUserEntityDto {
-  /** User ID */
-  id: string;
-  /** User code */
-  code: string;
-  /** User created at */
-  createdAt: string;
-  /** User updated at */
-  updatedAt: string;
-  /** User fields */
-  fields: PbxFieldEntityDto[];
+    /** User ID */
+    id: string;
+    /** User code */
+    code: string;
+    /** User created at */
+    createdAt: string;
+    /** User updated at */
+    updatedAt: string;
+    /** User fields */
+    fields: PbxFieldEntityDto[];
 }

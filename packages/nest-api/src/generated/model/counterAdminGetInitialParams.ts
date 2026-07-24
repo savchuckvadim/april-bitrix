@@ -7,5 +7,5 @@
  */
 
 export type CounterAdminGetInitialParams = {
-rqId?: number;
+    rqId?: number;
 };

@@ -116,3 +116,5 @@ export * from './konstructor-word-template-tags/konstructor-word-template-tags'
 export * from './portal-konstructor/portal-konstructor'
 
 export * from './admin-bitrix-fields-init-data-management/admin-bitrix-fields-init-data-management';
+// AI Settings (кабинет клиента в приложении Bitrix)
+export * from './ai-settings-client/ai-settings-client';

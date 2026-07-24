@@ -11,24 +11,24 @@ import type { GetPriceResponseDtoCreatedAt } from './getPriceResponseDtoCreatedA
 import type { GetPriceResponseDtoUpdatedAt } from './getPriceResponseDtoUpdatedAt';
 
 export interface GetPriceResponseDto {
-  /** Price ID */
-  id: string;
-  /** Complect ID */
-  complect_id?: string;
-  /** Garant Package ID */
-  garant_package_id?: string;
-  /** Supply ID */
-  supply_id?: string;
-  /** Region type */
-  region_type: string;
-  /** Supply type */
-  supply_type?: GetPriceResponseDtoSupplyType;
-  /** Price value */
-  value: number;
-  /** Discount */
-  discount?: GetPriceResponseDtoDiscount;
-  /** Created at */
-  created_at?: GetPriceResponseDtoCreatedAt;
-  /** Updated at */
-  updated_at?: GetPriceResponseDtoUpdatedAt;
+    /** Price ID */
+    id: string;
+    /** Complect ID */
+    complect_id?: string;
+    /** Garant Package ID */
+    garant_package_id?: string;
+    /** Supply ID */
+    supply_id?: string;
+    /** Region type */
+    region_type: string;
+    /** Supply type */
+    supply_type?: GetPriceResponseDtoSupplyType;
+    /** Price value */
+    value: number;
+    /** Discount */
+    discount?: GetPriceResponseDtoDiscount;
+    /** Created at */
+    created_at?: GetPriceResponseDtoCreatedAt;
+    /** Updated at */
+    updated_at?: GetPriceResponseDtoUpdatedAt;
 }

@@ -21,48 +21,48 @@ import type { GetSupplyResponseDtoCreatedAt } from './getSupplyResponseDtoCreate
 import type { GetSupplyResponseDtoUpdatedAt } from './getSupplyResponseDtoUpdatedAt';
 
 export interface GetSupplyResponseDto {
-  /** Supply ID */
-  id: string;
-  /** Supply name */
-  name: string;
-  /** Supply full name */
-  fullName: string;
-  /** Supply short name */
-  shortName: string;
-  /** Sale name 1 */
-  saleName_1?: GetSupplyResponseDtoSaleName1;
-  /** Sale name 2 */
-  saleName_2?: GetSupplyResponseDtoSaleName2;
-  /** Sale name 3 */
-  saleName_3?: GetSupplyResponseDtoSaleName3;
-  /** Users quantity */
-  usersQuantity: number;
-  /** Supply description */
-  description?: GetSupplyResponseDtoDescription;
-  /** Supply code */
-  code: string;
-  /** Supply type */
-  type: string;
-  /** Supply color */
-  color?: GetSupplyResponseDtoColor;
-  /** Coefficient */
-  coefficient: number;
-  /** Contract name */
-  contractName?: GetSupplyResponseDtoContractName;
-  /** Contract prop comment */
-  contractPropComment?: GetSupplyResponseDtoContractPropComment;
-  /** Contract prop email */
-  contractPropEmail?: GetSupplyResponseDtoContractPropEmail;
-  /** Contract prop logins quantity */
-  contractPropLoginsQuantity?: GetSupplyResponseDtoContractPropLoginsQuantity;
-  /** L contract name */
-  lcontractName?: GetSupplyResponseDtoLcontractName;
-  /** L contract prop comment */
-  lcontractPropComment?: GetSupplyResponseDtoLcontractPropComment;
-  /** L contract prop email */
-  lcontractPropEmail?: GetSupplyResponseDtoLcontractPropEmail;
-  /** Created at */
-  created_at?: GetSupplyResponseDtoCreatedAt;
-  /** Updated at */
-  updated_at?: GetSupplyResponseDtoUpdatedAt;
+    /** Supply ID */
+    id: string;
+    /** Supply name */
+    name: string;
+    /** Supply full name */
+    fullName: string;
+    /** Supply short name */
+    shortName: string;
+    /** Sale name 1 */
+    saleName_1?: GetSupplyResponseDtoSaleName1;
+    /** Sale name 2 */
+    saleName_2?: GetSupplyResponseDtoSaleName2;
+    /** Sale name 3 */
+    saleName_3?: GetSupplyResponseDtoSaleName3;
+    /** Users quantity */
+    usersQuantity: number;
+    /** Supply description */
+    description?: GetSupplyResponseDtoDescription;
+    /** Supply code */
+    code: string;
+    /** Supply type */
+    type: string;
+    /** Supply color */
+    color?: GetSupplyResponseDtoColor;
+    /** Coefficient */
+    coefficient: number;
+    /** Contract name */
+    contractName?: GetSupplyResponseDtoContractName;
+    /** Contract prop comment */
+    contractPropComment?: GetSupplyResponseDtoContractPropComment;
+    /** Contract prop email */
+    contractPropEmail?: GetSupplyResponseDtoContractPropEmail;
+    /** Contract prop logins quantity */
+    contractPropLoginsQuantity?: GetSupplyResponseDtoContractPropLoginsQuantity;
+    /** L contract name */
+    lcontractName?: GetSupplyResponseDtoLcontractName;
+    /** L contract prop comment */
+    lcontractPropComment?: GetSupplyResponseDtoLcontractPropComment;
+    /** L contract prop email */
+    lcontractPropEmail?: GetSupplyResponseDtoLcontractPropEmail;
+    /** Created at */
+    created_at?: GetSupplyResponseDtoCreatedAt;
+    /** Updated at */
+    updated_at?: GetSupplyResponseDtoUpdatedAt;
 }

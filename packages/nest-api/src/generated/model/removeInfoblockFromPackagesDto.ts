@@ -7,6 +7,6 @@
  */
 
 export interface RemoveInfoblockFromPackagesDto {
-  /** Список ID инфоблоков, которые нужно удалить из пакета */
-  infoblockIds: string[];
+    /** Список ID инфоблоков, которые нужно удалить из пакета */
+    infoblockIds: string[];
 }

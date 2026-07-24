@@ -11,24 +11,24 @@ import type { SupplyTypeCode } from './supplyTypeCode';
 import type { SupplyType } from './supplyType';
 
 export interface CreatePriceDto {
-  /** Код цены */
-  code: string;
-  /** Тип региона: 0 - регионы, 1 - Москва */
-  region_type: RegionType;
-  /** Значение цены */
-  value: number;
-  /** Специальная цена */
-  isSpecial: boolean;
-  /** Скидка */
-  discount?: number;
-  /** Код комплекта (будет найден Complect по code) */
-  complectCode?: CreatePriceDtoComplectCode;
-  /** Код типа поставки: 0 - internet, 1 - proxima */
-  supplyTypeCode?: SupplyTypeCode;
-  /** Код поставки (1-18, будет найден Supply по code) */
-  supplyCode?: string;
-  /** Тип поставки: internet | proxima */
-  supplyType?: SupplyType;
-  /** Код пакета Гарант (будет найден Package по code) */
-  garantPackageCode?: string;
+    /** Код цены */
+    code: string;
+    /** Тип региона: 0 - регионы, 1 - Москва */
+    region_type: RegionType;
+    /** Значение цены */
+    value: number;
+    /** Специальная цена */
+    isSpecial: boolean;
+    /** Скидка */
+    discount?: number;
+    /** Код комплекта (будет найден Complect по code) */
+    complectCode?: CreatePriceDtoComplectCode;
+    /** Код типа поставки: 0 - internet, 1 - proxima */
+    supplyTypeCode?: SupplyTypeCode;
+    /** Код поставки (1-18, будет найден Supply по code) */
+    supplyCode?: string;
+    /** Тип поставки: internet | proxima */
+    supplyType?: SupplyType;
+    /** Код пакета Гарант (будет найден Package по code) */
+    garantPackageCode?: string;
 }

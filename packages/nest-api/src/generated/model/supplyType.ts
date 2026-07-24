@@ -9,11 +9,10 @@
 /**
  * Тип поставки: internet | proxima
  */
-export type SupplyType = typeof SupplyType[keyof typeof SupplyType];
-
+export type SupplyType = (typeof SupplyType)[keyof typeof SupplyType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const SupplyType = {
-  internet: 'internet',
-  proxima: 'proxima',
+    internet: 'internet',
+    proxima: 'proxima',
 } as const;

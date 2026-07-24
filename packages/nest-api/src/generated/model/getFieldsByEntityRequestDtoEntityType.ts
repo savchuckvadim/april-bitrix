@@ -9,18 +9,18 @@
 /**
  * Entity type
  */
-export type GetFieldsByEntityRequestDtoEntityType = typeof GetFieldsByEntityRequestDtoEntityType[keyof typeof GetFieldsByEntityRequestDtoEntityType];
-
+export type GetFieldsByEntityRequestDtoEntityType =
+    (typeof GetFieldsByEntityRequestDtoEntityType)[keyof typeof GetFieldsByEntityRequestDtoEntityType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const GetFieldsByEntityRequestDtoEntityType = {
-  smart: 'smart',
-  company: 'company',
-  contact: 'contact',
-  lead: 'lead',
-  deal: 'deal',
-  rpa: 'rpa',
-  rq: 'rq',
-  list: 'list',
-  user: 'user',
+    smart: 'smart',
+    company: 'company',
+    contact: 'contact',
+    lead: 'lead',
+    deal: 'deal',
+    rpa: 'rpa',
+    rq: 'rq',
+    list: 'list',
+    user: 'user',
 } as const;

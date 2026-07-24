@@ -9,11 +9,11 @@
 /**
  * Тип пакета
  */
-export type CreatePackageDtoType = typeof CreatePackageDtoType[keyof typeof CreatePackageDtoType];
-
+export type CreatePackageDtoType =
+    (typeof CreatePackageDtoType)[keyof typeof CreatePackageDtoType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreatePackageDtoType = {
-  prof: 'prof',
-  universal: 'universal',
+    prof: 'prof',
+    universal: 'universal',
 } as const;

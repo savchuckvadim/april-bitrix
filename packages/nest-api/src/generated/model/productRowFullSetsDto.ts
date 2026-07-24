@@ -7,8 +7,8 @@
  */
 
 export interface ProductRowFullSetsDto {
-  /** General set of the product rows */
-  general: string[];
-  /** Alternative set of the product rows */
-  alternative: string[];
+    /** General set of the product rows */
+    general: string[];
+    /** Alternative set of the product rows */
+    alternative: string[];
 }

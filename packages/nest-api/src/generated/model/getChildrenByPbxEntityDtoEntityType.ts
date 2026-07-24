@@ -9,18 +9,18 @@
 /**
  * Entity type
  */
-export type GetChildrenByPbxEntityDtoEntityType = typeof GetChildrenByPbxEntityDtoEntityType[keyof typeof GetChildrenByPbxEntityDtoEntityType];
-
+export type GetChildrenByPbxEntityDtoEntityType =
+    (typeof GetChildrenByPbxEntityDtoEntityType)[keyof typeof GetChildrenByPbxEntityDtoEntityType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const GetChildrenByPbxEntityDtoEntityType = {
-  smart: 'smart',
-  company: 'company',
-  contact: 'contact',
-  lead: 'lead',
-  deal: 'deal',
-  rpa: 'rpa',
-  rq: 'rq',
-  list: 'list',
-  user: 'user',
+    smart: 'smart',
+    company: 'company',
+    contact: 'contact',
+    lead: 'lead',
+    deal: 'deal',
+    rpa: 'rpa',
+    rq: 'rq',
+    list: 'list',
+    user: 'user',
 } as const;

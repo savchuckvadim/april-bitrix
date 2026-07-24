@@ -7,8 +7,8 @@
  */
 
 export interface MassInstallDto {
-  /** Group filter (e.g., "sales") */
-  group?: string;
-  /** Whether to sync with Bitrix API or DB-only */
-  withBitrixSync: boolean;
+    /** Group filter (e.g., "sales") */
+    group?: string;
+    /** Whether to sync with Bitrix API or DB-only */
+    withBitrixSync: boolean;
 }

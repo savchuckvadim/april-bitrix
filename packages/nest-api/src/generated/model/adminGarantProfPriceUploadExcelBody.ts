@@ -7,5 +7,5 @@
  */
 
 export type AdminGarantProfPriceUploadExcelBody = {
-  file?: Blob;
+    file?: Blob;
 };

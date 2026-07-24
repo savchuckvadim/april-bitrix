@@ -9,4 +9,6 @@
 /**
  * Infogroup description for sale
  */
-export type GetInfogroupResponseDtoDescriptionForSale = { [key: string]: unknown };
+export type GetInfogroupResponseDtoDescriptionForSale = {
+    [key: string]: unknown;
+};

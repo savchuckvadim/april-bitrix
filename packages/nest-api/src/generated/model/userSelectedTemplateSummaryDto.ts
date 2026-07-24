@@ -7,11 +7,11 @@
  */
 
 export interface UserSelectedTemplateSummaryDto {
-  id: number;
-  bitrix_user_id: number;
-  portal_id: number;
-  template_id: number;
-  is_current: boolean;
-  is_favorite: boolean;
-  is_active: boolean;
+    id: number;
+    bitrix_user_id: number;
+    portal_id: number;
+    template_id: number;
+    is_current: boolean;
+    is_favorite: boolean;
+    is_active: boolean;
 }

@@ -7,5 +7,5 @@
  */
 
 export type SkapParsePlainFileBody = {
-  file: Blob;
+    file: Blob;
 };

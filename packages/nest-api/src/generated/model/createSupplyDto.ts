@@ -19,42 +19,42 @@ import type { CreateSupplyDtoLcontractPropComment } from './createSupplyDtoLcont
 import type { CreateSupplyDtoLcontractPropEmail } from './createSupplyDtoLcontractPropEmail';
 
 export interface CreateSupplyDto {
-  /** Название поставки */
-  name: string;
-  /** Полное название поставки */
-  fullName: string;
-  /** Короткое название поставки */
-  shortName: string;
-  /** Название продажи 1 */
-  saleName_1?: CreateSupplyDtoSaleName1;
-  /** Название продажи 2 */
-  saleName_2?: CreateSupplyDtoSaleName2;
-  /** Название продажи 3 */
-  saleName_3?: CreateSupplyDtoSaleName3;
-  /** Количество пользователей */
-  usersQuantity: number;
-  /** Описание поставки */
-  description?: CreateSupplyDtoDescription;
-  /** Код поставки */
-  code: string;
-  /** Тип поставки */
-  type: string;
-  /** Цвет поставки */
-  color?: CreateSupplyDtoColor;
-  /** Коэффициент */
-  coefficient: number;
-  /** Название контракта */
-  contractName?: CreateSupplyDtoContractName;
-  /** Комментарий к контракту */
-  contractPropComment?: CreateSupplyDtoContractPropComment;
-  /** Email контракта */
-  contractPropEmail?: CreateSupplyDtoContractPropEmail;
-  /** Количество логинов контракта */
-  contractPropLoginsQuantity?: CreateSupplyDtoContractPropLoginsQuantity;
-  /** Название L-контракта */
-  lcontractName?: CreateSupplyDtoLcontractName;
-  /** Комментарий L-контракта */
-  lcontractPropComment?: CreateSupplyDtoLcontractPropComment;
-  /** Email L-контракта */
-  lcontractPropEmail?: CreateSupplyDtoLcontractPropEmail;
+    /** Название поставки */
+    name: string;
+    /** Полное название поставки */
+    fullName: string;
+    /** Короткое название поставки */
+    shortName: string;
+    /** Название продажи 1 */
+    saleName_1?: CreateSupplyDtoSaleName1;
+    /** Название продажи 2 */
+    saleName_2?: CreateSupplyDtoSaleName2;
+    /** Название продажи 3 */
+    saleName_3?: CreateSupplyDtoSaleName3;
+    /** Количество пользователей */
+    usersQuantity: number;
+    /** Описание поставки */
+    description?: CreateSupplyDtoDescription;
+    /** Код поставки */
+    code: string;
+    /** Тип поставки */
+    type: string;
+    /** Цвет поставки */
+    color?: CreateSupplyDtoColor;
+    /** Коэффициент */
+    coefficient: number;
+    /** Название контракта */
+    contractName?: CreateSupplyDtoContractName;
+    /** Комментарий к контракту */
+    contractPropComment?: CreateSupplyDtoContractPropComment;
+    /** Email контракта */
+    contractPropEmail?: CreateSupplyDtoContractPropEmail;
+    /** Количество логинов контракта */
+    contractPropLoginsQuantity?: CreateSupplyDtoContractPropLoginsQuantity;
+    /** Название L-контракта */
+    lcontractName?: CreateSupplyDtoLcontractName;
+    /** Комментарий L-контракта */
+    lcontractPropComment?: CreateSupplyDtoLcontractPropComment;
+    /** Email L-контракта */
+    lcontractPropEmail?: CreateSupplyDtoLcontractPropEmail;
 }

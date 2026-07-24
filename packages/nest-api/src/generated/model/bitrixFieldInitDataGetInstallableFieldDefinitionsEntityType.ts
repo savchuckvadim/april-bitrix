@@ -6,18 +6,18 @@
  * OpenAPI spec version: 1.0
  */
 
-export type BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType = typeof BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType[keyof typeof BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType];
-
+export type BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType =
+    (typeof BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType)[keyof typeof BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType = {
-  smart: 'smart',
-  company: 'company',
-  contact: 'contact',
-  lead: 'lead',
-  deal: 'deal',
-  rpa: 'rpa',
-  rq: 'rq',
-  list: 'list',
-  user: 'user',
+    smart: 'smart',
+    company: 'company',
+    contact: 'contact',
+    lead: 'lead',
+    deal: 'deal',
+    rpa: 'rpa',
+    rq: 'rq',
+    list: 'list',
+    user: 'user',
 } as const;

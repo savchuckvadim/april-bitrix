@@ -7,5 +7,5 @@
  */
 
 export type DealActGsrSendMessageWebhookParams = {
-dealId: number;
+    dealId: number;
 };

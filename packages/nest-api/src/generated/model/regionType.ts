@@ -9,11 +9,10 @@
 /**
  * Тип региона: 0 - регионы, 1 - Москва
  */
-export type RegionType = typeof RegionType[keyof typeof RegionType];
-
+export type RegionType = (typeof RegionType)[keyof typeof RegionType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const RegionType = {
-  NUMBER_0: '0',
-  NUMBER_1: '1',
+    NUMBER_0: '0',
+    NUMBER_1: '1',
 } as const;

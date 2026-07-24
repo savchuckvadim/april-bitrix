@@ -6,4 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-export type InvoiceTemplateResponseDtoCreatorBitrixUserId = { [key: string]: unknown };
+export type InvoiceTemplateResponseDtoCreatorBitrixUserId = {
+    [key: string]: unknown;
+};

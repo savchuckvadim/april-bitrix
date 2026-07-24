@@ -7,6 +7,6 @@
  */
 
 export interface PortalStatusDto {
-  /** Portal domain (e.g., "gsr.bitrix24.ru") */
-  domain: string;
+    /** Portal domain (e.g., "gsr.bitrix24.ru") */
+    domain: string;
 }

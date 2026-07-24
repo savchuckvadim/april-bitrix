@@ -10,44 +10,44 @@ import type { PbxSmartInstallSettingsDtoLinkedUserFields } from './pbxSmartInsta
 import type { PbxSmartInstallSettingsDtoCustomSectionsItem } from './pbxSmartInstallSettingsDtoCustomSectionsItem';
 
 export interface PbxSmartInstallSettingsDto {
-  /** Smart entityTypeId (if known) */
-  entityTypeId: number;
-  /** Smart relations settings */
-  relations: PbxSmartTypeRelationsDto;
-  /** Linked user fields map */
-  linkedUserFields: PbxSmartInstallSettingsDtoLinkedUserFields;
-  /** Use in userfield flag */
-  isUseInUserfieldEnabled: string;
-  /** Automation flag */
-  isAutomationEnabled: string;
-  /** Begin/close dates flag */
-  isBeginCloseDatesEnabled: string;
-  /** Bizproc flag */
-  isBizProcEnabled: string;
-  /** Categories enabled flag */
-  isCategoriesEnabled: string;
-  /** Client field enabled flag */
-  isClientEnabled: string;
-  /** Documents enabled flag */
-  isDocumentsEnabled: string;
-  /** Link with products flag */
-  isLinkWithProductsEnabled: string;
-  /** My company enabled flag */
-  isMycompanyEnabled: string;
-  /** Observers enabled flag */
-  isObserversEnabled: string;
-  /** Recyclebin enabled flag */
-  isRecyclebinEnabled: string;
-  /** Set open permissions flag */
-  isSetOpenPermissions: string;
-  /** Source enabled flag */
-  isSourceEnabled: string;
-  /** Stages enabled flag */
-  isStagesEnabled: string;
-  /** External smart flag */
-  isExternal: string;
-  /** Custom section id */
-  customSectionId: number;
-  /** Custom sections payload */
-  customSections: PbxSmartInstallSettingsDtoCustomSectionsItem[];
+    /** Smart entityTypeId (if known) */
+    entityTypeId: number;
+    /** Smart relations settings */
+    relations: PbxSmartTypeRelationsDto;
+    /** Linked user fields map */
+    linkedUserFields: PbxSmartInstallSettingsDtoLinkedUserFields;
+    /** Use in userfield flag */
+    isUseInUserfieldEnabled: string;
+    /** Automation flag */
+    isAutomationEnabled: string;
+    /** Begin/close dates flag */
+    isBeginCloseDatesEnabled: string;
+    /** Bizproc flag */
+    isBizProcEnabled: string;
+    /** Categories enabled flag */
+    isCategoriesEnabled: string;
+    /** Client field enabled flag */
+    isClientEnabled: string;
+    /** Documents enabled flag */
+    isDocumentsEnabled: string;
+    /** Link with products flag */
+    isLinkWithProductsEnabled: string;
+    /** My company enabled flag */
+    isMycompanyEnabled: string;
+    /** Observers enabled flag */
+    isObserversEnabled: string;
+    /** Recyclebin enabled flag */
+    isRecyclebinEnabled: string;
+    /** Set open permissions flag */
+    isSetOpenPermissions: string;
+    /** Source enabled flag */
+    isSourceEnabled: string;
+    /** Stages enabled flag */
+    isStagesEnabled: string;
+    /** External smart flag */
+    isExternal: string;
+    /** Custom section id */
+    customSectionId: number;
+    /** Custom sections payload */
+    customSections: PbxSmartInstallSettingsDtoCustomSectionsItem[];
 }

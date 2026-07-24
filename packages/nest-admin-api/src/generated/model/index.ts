@@ -391,6 +391,8 @@ export * from './issuedInviteDtoStatus';
 export * from './knowledgeDeleteResponseDto';
 export * from './knowledgeDocumentContentDto';
 export * from './knowledgeDocumentDto';
+export * from './knowledgeKindInfoDto';
+export * from './knowledgeTextUpsertDto';
 export * from './knowledgeUploadResponseDto';
 export * from './leadColdCallResponseDto';
 export * from './leadDto';

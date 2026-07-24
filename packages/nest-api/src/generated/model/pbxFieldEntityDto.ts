@@ -10,26 +10,26 @@ import type { PbxEntityTypePrisma } from './pbxEntityTypePrisma';
 import type { PbxFieldItemEntityDto } from './pbxFieldItemEntityDto';
 
 export interface PbxFieldEntityDto {
-  /** Field name */
-  name: string;
-  /** Field title */
-  title: string;
-  /** Field code */
-  code: string;
-  /** Field type */
-  type: EUserFieldType;
-  /** Field is plural */
-  isPlural: boolean;
-  /** Bitrix ID */
-  bitrixId: string;
-  /** Bitrix Camel ID */
-  bitrixCamelId: string;
-  /** Entity ID */
-  entity_id: string;
-  /** Entity type */
-  entity_type: PbxEntityTypePrisma;
-  /** Parent type */
-  parent_type: string;
-  /** Field items */
-  items: PbxFieldItemEntityDto[];
+    /** Field name */
+    name: string;
+    /** Field title */
+    title: string;
+    /** Field code */
+    code: string;
+    /** Field type */
+    type: EUserFieldType;
+    /** Field is plural */
+    isPlural: boolean;
+    /** Bitrix ID */
+    bitrixId: string;
+    /** Bitrix Camel ID */
+    bitrixCamelId: string;
+    /** Entity ID */
+    entity_id: string;
+    /** Entity type */
+    entity_type: PbxEntityTypePrisma;
+    /** Parent type */
+    parent_type: string;
+    /** Field items */
+    items: PbxFieldItemEntityDto[];
 }

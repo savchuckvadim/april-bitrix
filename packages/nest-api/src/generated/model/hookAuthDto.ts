@@ -7,6 +7,6 @@
  */
 
 export interface HookAuthDto {
-  /** Domain of the Bitrix24 portal */
-  domain: string;
+    /** Domain of the Bitrix24 portal */
+    domain: string;
 }

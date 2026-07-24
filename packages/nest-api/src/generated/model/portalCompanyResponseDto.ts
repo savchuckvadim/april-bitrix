@@ -7,13 +7,13 @@
  */
 
 export interface PortalCompanyResponseDto {
-  id: number;
-  portalId: number;
-  name: string;
-  title: string;
-  code: string;
-  /** @nullable */
-  createdAt?: string | null;
-  /** @nullable */
-  updatedAt?: string | null;
+    id: number;
+    portalId: number;
+    name: string;
+    title: string;
+    code: string;
+    /** @nullable */
+    createdAt?: string | null;
+    /** @nullable */
+    updatedAt?: string | null;
 }

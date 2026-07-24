@@ -7,12 +7,12 @@
  */
 
 export interface TestFieldReadDto {
-  /** Portal domain */
-  domain: string;
-  /** Entity type: deal, lead, company, contact, smart, rpa */
-  entityType: string;
-  /** Smart/RPA code (required for smart/rpa entityType) */
-  entityCode?: string;
-  /** Bitrix entity ID to read values from */
-  entityId?: number;
+    /** Portal domain */
+    domain: string;
+    /** Entity type: deal, lead, company, contact, smart, rpa */
+    entityType: string;
+    /** Smart/RPA code (required for smart/rpa entityType) */
+    entityCode?: string;
+    /** Bitrix entity ID to read values from */
+    entityId?: number;
 }

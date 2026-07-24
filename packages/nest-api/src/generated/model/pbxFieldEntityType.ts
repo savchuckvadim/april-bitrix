@@ -9,15 +9,15 @@
 /**
  * Entity type
  */
-export type PbxFieldEntityType = typeof PbxFieldEntityType[keyof typeof PbxFieldEntityType];
-
+export type PbxFieldEntityType =
+    (typeof PbxFieldEntityType)[keyof typeof PbxFieldEntityType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PbxFieldEntityType = {
-  'App\Models\Smart': 'App\Models\Smart',
-  'App\Models\BtxCompany': 'App\Models\BtxCompany',
-  'App\Models\BtxContact': 'App\Models\BtxContact',
-  'App\Models\Lead': 'App\Models\Lead',
-  'App\Models\Deal': 'App\Models\Deal',
-  'App\Models\BtxUser': 'App\Models\BtxUser',
+    'App\Models\Smart': 'App\Models\Smart',
+    'App\Models\BtxCompany': 'App\Models\BtxCompany',
+    'App\Models\BtxContact': 'App\Models\BtxContact',
+    'App\Models\Lead': 'App\Models\Lead',
+    'App\Models\Deal': 'App\Models\Deal',
+    'App\Models\BtxUser': 'App\Models\BtxUser',
 } as const;

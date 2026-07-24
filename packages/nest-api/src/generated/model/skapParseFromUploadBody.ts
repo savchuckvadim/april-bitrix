@@ -7,6 +7,6 @@
  */
 
 export type SkapParseFromUploadBody = {
-  file: Blob;
-  date?: string;
+    file: Blob;
+    date?: string;
 };

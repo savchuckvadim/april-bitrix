@@ -9,24 +9,24 @@ import type { GetRegionResponseDtoCreatedAt } from './getRegionResponseDtoCreate
 import type { GetRegionResponseDtoUpdatedAt } from './getRegionResponseDtoUpdatedAt';
 
 export interface GetRegionResponseDto {
-  /** Region ID */
-  id: string;
-  /** Region name */
-  number: number;
-  /** Region title */
-  title: string;
-  /** Region code */
-  code: string;
-  /** Region infoblock */
-  infoblock: string;
-  /** Region abs */
-  abs: number;
-  /** Region tax */
-  tax: number;
-  /** Region tax abs */
-  tax_abs: number;
-  /** Region created at */
-  created_at: GetRegionResponseDtoCreatedAt;
-  /** Region updated at */
-  updated_at: GetRegionResponseDtoUpdatedAt;
+    /** Region ID */
+    id: string;
+    /** Region name */
+    number: number;
+    /** Region title */
+    title: string;
+    /** Region code */
+    code: string;
+    /** Region infoblock */
+    infoblock: string;
+    /** Region abs */
+    abs: number;
+    /** Region tax */
+    tax: number;
+    /** Region tax abs */
+    tax_abs: number;
+    /** Region created at */
+    created_at: GetRegionResponseDtoCreatedAt;
+    /** Region updated at */
+    updated_at: GetRegionResponseDtoUpdatedAt;
 }

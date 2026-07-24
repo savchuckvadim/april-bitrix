@@ -7,16 +7,16 @@
  */
 
 export interface PbxStageDefinitionDto {
-  /** Stage code */
-  code: string;
-  /** Stage name */
-  name: string;
-  /** Stage color */
-  color: string;
-  /** Stage sort order */
-  sort: number;
-  /** Default stage flag */
-  isDefault: boolean;
-  /** Stage semantics */
-  semantics: string;
+    /** Stage code */
+    code: string;
+    /** Stage name */
+    name: string;
+    /** Stage color */
+    color: string;
+    /** Stage sort order */
+    sort: number;
+    /** Default stage flag */
+    isDefault: boolean;
+    /** Stage semantics */
+    semantics: string;
 }

@@ -29,78 +29,78 @@ import type { DocumentSupplyReportGenerateDtoConsalting } from './documentSupply
 import type { DocumentSupplyReportGenerateDtoDocumentPrice } from './documentSupplyReportGenerateDtoDocumentPrice';
 
 export interface DocumentSupplyReportGenerateDto {
-  /** Domain of the company */
-  domain: string;
-  /** ID of the company */
-  companyId: string;
-  /** Placement of the contract */
-  placement: PlacementDto;
-  /** Is the contract a product */
-  isProd: boolean;
-  /** ID of the deal */
-  dealId: string;
-  /** ID of the provider */
-  providerId: number;
-  /** ID of the user */
-  userId: number;
-  /** Type of the contract */
-  contractType: DocumentSupplyReportGenerateDtoContractType;
-  /** Complect of the contract */
-  complect: ComplectDto[];
-  /** Supply of the contract */
-  supply: ProductRowSupplyDto;
-  /** Price of the contract */
-  price: PriceDto;
-  /** Contract of the contract */
-  contract: ContractDto;
-  /** Regions of the contract */
-  regions: RegionsDto;
-  /** Region of the contract */
-  region: RegionDto;
-  /** Rows of the contract */
-  rows: ProductRowDto[];
-  /** Total of the contract */
-  total: ProductRowDto;
-  /** Product set of the contract */
-  productSet: ProductRowSetDto;
-  /** Contract start of the contract */
-  contractStart: string;
-  /** Contract end of the contract */
-  contractEnd: string;
-  /** Contract number of the contract */
-  contractNumber: string;
-  /** Contract create date of the contract */
-  contractCreateDate: string;
-  /** Garant client assigned name of the contract */
-  garantClientAssignedName: string;
-  /** Garant client assigned email of the contract */
-  garantClientEmail: string;
-  /** First pay date of the contract */
-  firstPayDate: string;
-  /** Client type of the contract */
-  clientType: DocumentSupplyReportGenerateDtoClientType;
-  /** BxRQ of the contract */
-  bxrq: BxRqDto;
-  /** Contract specification state of the contract */
-  contractSpecificationState: ContractSpecificationDto;
-  /** Product rows (arows) */
-  arows: ProductRowDto[];
-  /** Bitrix company items */
-  bxCompanyItems: DocumentSupplyReportGenerateDtoBxCompanyItemsItem[];
-  /** Bitrix contacts */
-  bxContacts: DocumentSupplyReportGenerateDtoBxContactsItem[];
-  /** Bitrix deal items */
-  bxDealItems: DocumentSupplyReportGenerateDtoBxDealItemsItem[];
-  /** Supply report data */
-  supplyReport: DocumentSupplyReportGenerateDtoSupplyReportItem[];
-  /** Contract provider state */
-  contractProviderState: DocumentSupplyReportGenerateDtoContractProviderState;
-  /** Contract base state */
-  contractBaseState: DocumentSupplyReportGenerateDtoContractBaseState;
-  /** Contract client state */
-  contractClientState: DocumentSupplyReportGenerateDtoContractClientState;
-  /** Consalting data */
-  consalting?: DocumentSupplyReportGenerateDtoConsalting;
-  /** Document price */
-  documentPrice?: DocumentSupplyReportGenerateDtoDocumentPrice;
+    /** Domain of the company */
+    domain: string;
+    /** ID of the company */
+    companyId: string;
+    /** Placement of the contract */
+    placement: PlacementDto;
+    /** Is the contract a product */
+    isProd: boolean;
+    /** ID of the deal */
+    dealId: string;
+    /** ID of the provider */
+    providerId: number;
+    /** ID of the user */
+    userId: number;
+    /** Type of the contract */
+    contractType: DocumentSupplyReportGenerateDtoContractType;
+    /** Complect of the contract */
+    complect: ComplectDto[];
+    /** Supply of the contract */
+    supply: ProductRowSupplyDto;
+    /** Price of the contract */
+    price: PriceDto;
+    /** Contract of the contract */
+    contract: ContractDto;
+    /** Regions of the contract */
+    regions: RegionsDto;
+    /** Region of the contract */
+    region: RegionDto;
+    /** Rows of the contract */
+    rows: ProductRowDto[];
+    /** Total of the contract */
+    total: ProductRowDto;
+    /** Product set of the contract */
+    productSet: ProductRowSetDto;
+    /** Contract start of the contract */
+    contractStart: string;
+    /** Contract end of the contract */
+    contractEnd: string;
+    /** Contract number of the contract */
+    contractNumber: string;
+    /** Contract create date of the contract */
+    contractCreateDate: string;
+    /** Garant client assigned name of the contract */
+    garantClientAssignedName: string;
+    /** Garant client assigned email of the contract */
+    garantClientEmail: string;
+    /** First pay date of the contract */
+    firstPayDate: string;
+    /** Client type of the contract */
+    clientType: DocumentSupplyReportGenerateDtoClientType;
+    /** BxRQ of the contract */
+    bxrq: BxRqDto;
+    /** Contract specification state of the contract */
+    contractSpecificationState: ContractSpecificationDto;
+    /** Product rows (arows) */
+    arows: ProductRowDto[];
+    /** Bitrix company items */
+    bxCompanyItems: DocumentSupplyReportGenerateDtoBxCompanyItemsItem[];
+    /** Bitrix contacts */
+    bxContacts: DocumentSupplyReportGenerateDtoBxContactsItem[];
+    /** Bitrix deal items */
+    bxDealItems: DocumentSupplyReportGenerateDtoBxDealItemsItem[];
+    /** Supply report data */
+    supplyReport: DocumentSupplyReportGenerateDtoSupplyReportItem[];
+    /** Contract provider state */
+    contractProviderState: DocumentSupplyReportGenerateDtoContractProviderState;
+    /** Contract base state */
+    contractBaseState: DocumentSupplyReportGenerateDtoContractBaseState;
+    /** Contract client state */
+    contractClientState: DocumentSupplyReportGenerateDtoContractClientState;
+    /** Consalting data */
+    consalting?: DocumentSupplyReportGenerateDtoConsalting;
+    /** Document price */
+    documentPrice?: DocumentSupplyReportGenerateDtoDocumentPrice;
 }

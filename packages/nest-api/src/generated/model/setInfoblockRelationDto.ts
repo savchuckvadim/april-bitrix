@@ -7,6 +7,6 @@
  */
 
 export interface SetInfoblockRelationDto {
-  /** Relation ID */
-  relation_id?: string;
+    /** Relation ID */
+    relation_id?: string;
 }

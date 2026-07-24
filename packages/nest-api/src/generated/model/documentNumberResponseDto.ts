@@ -7,5 +7,5 @@
  */
 
 export interface DocumentNumberResponseDto {
-  number: string;
+    number: string;
 }

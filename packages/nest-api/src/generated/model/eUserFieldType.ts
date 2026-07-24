@@ -9,25 +9,25 @@
 /**
  * Field type
  */
-export type EUserFieldType = typeof EUserFieldType[keyof typeof EUserFieldType];
-
+export type EUserFieldType =
+    (typeof EUserFieldType)[keyof typeof EUserFieldType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const EUserFieldType = {
-  crm: 'crm',
-  crm_status: 'crm_status',
-  employee: 'employee',
-  money: 'money',
-  string: 'string',
-  integer: 'integer',
-  double: 'double',
-  datetime: 'datetime',
-  date: 'date',
-  boolean: 'boolean',
-  address: 'address',
-  url: 'url',
-  file: 'file',
-  enumeration: 'enumeration',
-  iblock_section: 'iblock_section',
-  iblock_element: 'iblock_element',
+    crm: 'crm',
+    crm_status: 'crm_status',
+    employee: 'employee',
+    money: 'money',
+    string: 'string',
+    integer: 'integer',
+    double: 'double',
+    datetime: 'datetime',
+    date: 'date',
+    boolean: 'boolean',
+    address: 'address',
+    url: 'url',
+    file: 'file',
+    enumeration: 'enumeration',
+    iblock_section: 'iblock_section',
+    iblock_element: 'iblock_element',
 } as const;

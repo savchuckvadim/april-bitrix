@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type CreateInvoiceTemplateMultipartDtoVisibility = typeof CreateInvoiceTemplateMultipartDtoVisibility[keyof typeof CreateInvoiceTemplateMultipartDtoVisibility];
-
+export type CreateInvoiceTemplateMultipartDtoVisibility =
+    (typeof CreateInvoiceTemplateMultipartDtoVisibility)[keyof typeof CreateInvoiceTemplateMultipartDtoVisibility];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateInvoiceTemplateMultipartDtoVisibility = {
-  public: 'public',
-  portal: 'portal',
-  provider: 'provider',
+    public: 'public',
+    portal: 'portal',
+    provider: 'provider',
 } as const;

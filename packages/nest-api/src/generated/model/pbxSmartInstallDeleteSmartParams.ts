@@ -7,8 +7,8 @@
  */
 
 export type PbxSmartInstallDeleteSmartParams = {
-/**
- * If true, delete in bitrix
- */
-withBitrix?: boolean;
+    /**
+     * If true, delete in bitrix
+     */
+    withBitrix?: boolean;
 };

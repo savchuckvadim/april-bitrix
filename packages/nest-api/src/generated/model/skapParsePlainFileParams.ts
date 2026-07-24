@@ -7,8 +7,8 @@
  */
 
 export type SkapParsePlainFileParams = {
-/**
- * Необязательно: если указать DD.MM.YYYY, попадёт в ответ (date / dateFragment)
- */
-date?: string;
+    /**
+     * Необязательно: если указать DD.MM.YYYY, попадёт в ответ (date / dateFragment)
+     */
+    date?: string;
 };

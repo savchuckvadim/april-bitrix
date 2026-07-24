@@ -7,10 +7,10 @@
  */
 
 export interface BxRecordsByCompanyRequestDto {
-  /** Domain of the Bitrix24 portal */
-  domain: string;
-  /** ID of the lead in Bitrix24 */
-  companyId: number;
-  /** ids of relations contacts */
-  contactIds: string[];
+    /** Domain of the Bitrix24 portal */
+    domain: string;
+    /** ID of the lead in Bitrix24 */
+    companyId: number;
+    /** ids of relations contacts */
+    contactIds: string[];
 }

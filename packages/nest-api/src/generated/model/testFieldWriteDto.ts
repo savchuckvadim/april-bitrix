@@ -8,12 +8,12 @@
 import type { TestFieldWriteDtoValues } from './testFieldWriteDtoValues';
 
 export interface TestFieldWriteDto {
-  /** Portal domain */
-  domain: string;
-  /** Entity type: deal, lead, company, contact */
-  entityType: string;
-  /** Bitrix entity ID to write to */
-  entityId: number;
-  /** Map of field codes to values, e.g. {"xo_name": "Test"} */
-  values: TestFieldWriteDtoValues;
+    /** Portal domain */
+    domain: string;
+    /** Entity type: deal, lead, company, contact */
+    entityType: string;
+    /** Bitrix entity ID to write to */
+    entityId: number;
+    /** Map of field codes to values, e.g. {"xo_name": "Test"} */
+    values: TestFieldWriteDtoValues;
 }

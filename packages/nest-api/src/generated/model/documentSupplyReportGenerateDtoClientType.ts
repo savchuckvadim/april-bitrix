@@ -9,13 +9,13 @@
 /**
  * Client type of the contract
  */
-export type DocumentSupplyReportGenerateDtoClientType = typeof DocumentSupplyReportGenerateDtoClientType[keyof typeof DocumentSupplyReportGenerateDtoClientType];
-
+export type DocumentSupplyReportGenerateDtoClientType =
+    (typeof DocumentSupplyReportGenerateDtoClientType)[keyof typeof DocumentSupplyReportGenerateDtoClientType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DocumentSupplyReportGenerateDtoClientType = {
-  org_state: 'org_state',
-  org: 'org',
-  ip: 'ip',
-  fiz: 'fiz',
+    org_state: 'org_state',
+    org: 'org',
+    ip: 'ip',
+    fiz: 'fiz',
 } as const;

@@ -6,4 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-export type DocumentSupplyReportGenerateDtoBxDealItemsItem = { [key: string]: unknown };
+export type DocumentSupplyReportGenerateDtoBxDealItemsItem = {
+    [key: string]: unknown;
+};

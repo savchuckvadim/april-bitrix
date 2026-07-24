@@ -6,4 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-export type PbxSmartInstallSettingsDtoCustomSectionsItem = { [key: string]: unknown };
+export type PbxSmartInstallSettingsDtoCustomSectionsItem = {
+    [key: string]: unknown;
+};

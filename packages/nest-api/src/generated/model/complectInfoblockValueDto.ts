@@ -9,24 +9,24 @@ import type { ComplectInfoblockValueDtoDescription } from './complectInfoblockVa
 import type { ComplectInfoblockValueDtoSubtitle } from './complectInfoblockValueDtoSubtitle';
 
 export interface ComplectInfoblockValueDto {
-  /** Name of the complect value */
-  name: string;
-  /** Title of the complect value */
-  title: string;
-  /** Number of the complect value */
-  number: number;
-  /** Code of the complect value */
-  code: string;
-  /** Checked of the complect value */
-  checked: boolean;
-  /** Weight of the complect value */
-  weight: number;
-  /** Description of the complect value */
-  description: ComplectInfoblockValueDtoDescription;
-  /** Is LA of the complect value */
-  isLa: boolean;
-  /** Region of the complect value */
-  isRegion: boolean;
-  /** Description of the complect value */
-  subtitle: ComplectInfoblockValueDtoSubtitle;
+    /** Name of the complect value */
+    name: string;
+    /** Title of the complect value */
+    title: string;
+    /** Number of the complect value */
+    number: number;
+    /** Code of the complect value */
+    code: string;
+    /** Checked of the complect value */
+    checked: boolean;
+    /** Weight of the complect value */
+    weight: number;
+    /** Description of the complect value */
+    description: ComplectInfoblockValueDtoDescription;
+    /** Is LA of the complect value */
+    isLa: boolean;
+    /** Region of the complect value */
+    isRegion: boolean;
+    /** Description of the complect value */
+    subtitle: ComplectInfoblockValueDtoSubtitle;
 }

@@ -10,4 +10,6 @@
  * ID агента (agents.id); null — отвязать
  * @nullable
  */
-export type SetInvoiceTemplateAgentDtoAgentId = { [key: string]: unknown } | null;
+export type SetInvoiceTemplateAgentDtoAgentId = {
+    [key: string]: unknown;
+} | null;

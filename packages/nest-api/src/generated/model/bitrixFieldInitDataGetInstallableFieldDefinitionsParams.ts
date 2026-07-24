@@ -8,12 +8,12 @@
 import type { BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType } from './bitrixFieldInitDataGetInstallableFieldDefinitionsEntityType';
 
 export type BitrixFieldInitDataGetInstallableFieldDefinitionsParams = {
-/**
- * Тип сущности (deal, smart, lead, …). Берутся только поля с непустым suffixes[entityType].
- */
-entityType: BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType;
-/**
- * Опционально: только группа реестра (например sales-event). Без параметра — все группы.
- */
-group?: string;
+    /**
+     * Тип сущности (deal, smart, lead, …). Берутся только поля с непустым suffixes[entityType].
+     */
+    entityType: BitrixFieldInitDataGetInstallableFieldDefinitionsEntityType;
+    /**
+     * Опционально: только группа реестра (например sales-event). Без параметра — все группы.
+     */
+    group?: string;
 };

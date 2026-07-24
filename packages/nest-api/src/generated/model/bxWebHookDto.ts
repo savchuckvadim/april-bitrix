@@ -8,6 +8,6 @@
 import type { HookAuthDto } from './hookAuthDto';
 
 export interface BxWebHookDto {
-  /** Authentication information */
-  auth: HookAuthDto;
+    /** Authentication information */
+    auth: HookAuthDto;
 }

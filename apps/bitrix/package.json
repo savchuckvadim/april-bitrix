@@ -17,6 +17,7 @@
     "@tanstack/react-query-devtools": "^5.90.2",
     "@workspace/ai-api": "workspace:*",
     "@workspace/api": "workspace:*",
+    "@workspace/april-ui": "workspace:*",
     "@workspace/bitrix": "workspace:*",
     "@workspace/bx": "workspace:*",
     "@workspace/nest-api": "workspace:*",

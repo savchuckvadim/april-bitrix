@@ -3,10 +3,11 @@
 import * as React from 'react';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { DataTable, Column } from '@/modules/shared';
 import {
     KNOWLEDGE_SHARED_SOURCE,
+    KNOWLEDGE_TEXT_FILE_PATTERN,
     KnowledgeDocument,
 } from '../../lib/types/knowledge.types';
 
@@ -14,6 +15,8 @@ interface KnowledgeTableProps {
     data: KnowledgeDocument[];
     isLoading?: boolean;
     onView?: (document: KnowledgeDocument) => void;
+    /** Правка текста; кнопка видна только для .md/.txt/.json. */
+    onEdit?: (document: KnowledgeDocument) => void;
     onDelete?: (document: KnowledgeDocument) => void;
 }
 
@@ -22,6 +25,7 @@ export function KnowledgeTable({
     data,
     isLoading,
     onView,
+    onEdit,
     onDelete,
 }: KnowledgeTableProps) {
     const columns: Column<KnowledgeDocument>[] = [
@@ -62,6 +66,16 @@ export function KnowledgeTable({
                     >
                         <Eye className="h-4 w-4" />
                     </Button>
+                    {KNOWLEDGE_TEXT_FILE_PATTERN.test(row.fileName) && (
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            title="Редактировать текст"
+                            onClick={() => onEdit?.(row)}
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </Button>
+                    )}
                     <Button
                         size="sm"
                         variant="ghost"
@@ -72,7 +86,7 @@ export function KnowledgeTable({
                     </Button>
                 </div>
             ),
-            className: 'w-24',
+            className: 'w-32',
         },
     ];
 

@@ -27,6 +27,30 @@ export interface KnowledgeUploadResponse {
     source: string;
 }
 
+/**
+ * Описание kind-раздела из реестра бэкенда (KNOWN_KNOWLEDGE_KINDS):
+ * человеческое название, что внутри и кто это читает.
+ */
+export interface KnowledgeKindInfo {
+    kind: string;
+    title: string;
+    description: string;
+    consumer: string;
+    /** false — нестандартная папка, созданная загрузкой документа. */
+    known: boolean;
+    /** Есть ли уже документы в общей базе этого kind. */
+    hasSharedDocuments: boolean;
+}
+
+/** Сохранение текстового документа (редактор, без multipart). */
+export interface KnowledgeTextUpsertPayload {
+    kind: string;
+    fileName: string;
+    content: string;
+    /** Домен портала; без него — общая база. */
+    domain?: string;
+}
+
 /** Результат удаления документа. */
 export interface KnowledgeDeleteResponse {
     success: boolean;
@@ -61,3 +85,6 @@ export const KNOWLEDGE_DOMAIN_PATTERN = /^[a-z0-9][a-z0-9._-]*$/i;
 
 /** Расширения, которые умеет разбирать бэкенд (FileLoaderService). */
 export const KNOWLEDGE_ACCEPTED_EXTENSIONS = '.pdf,.docx,.xlsx,.txt,.md';
+
+/** Расширения, редактируемые текстом (endpoint :kind/text). */
+export const KNOWLEDGE_TEXT_FILE_PATTERN = /^[\w.-]+\.(md|txt|json)$/i;

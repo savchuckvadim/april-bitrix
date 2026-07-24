@@ -4,7 +4,9 @@ import {
     KnowledgeDocument,
     KnowledgeDocumentContent,
     KnowledgeDocumentTarget,
+    KnowledgeKindInfo,
     KnowledgeListParams,
+    KnowledgeTextUpsertPayload,
     KnowledgeUploadResponse,
 } from '../types/knowledge.types';
 
@@ -15,11 +17,27 @@ const KNOWLEDGE_URL = '/api/admin/ai-rag/knowledge';
  * admin-бэкенда (тот же base URL и Bearer-токен, что у остальных разделов).
  */
 export class KnowledgeHelper {
-    /** Список kind-папок общей базы знаний. */
+    /**
+     * Реестр kind-разделов: известные (с названиями/описаниями) +
+     * фактические папки общей базы (нестандартные — known=false).
+     */
     async listKinds() {
-        return customAxios<string[]>({
+        return customAxios<KnowledgeKindInfo[]>({
             url: `${KNOWLEDGE_URL}/kinds`,
             method: 'GET',
+        });
+    }
+
+    /**
+     * Сохранение/перезапись текстового документа (.md/.txt/.json) без
+     * multipart — редактор инструкций. С domain — в клиентскую базу.
+     */
+    async upsertText(payload: KnowledgeTextUpsertPayload) {
+        const { kind, ...body } = payload;
+        return customAxios<KnowledgeUploadResponse>({
+            url: `${KNOWLEDGE_URL}/${kind}/text`,
+            method: 'POST',
+            data: body,
         });
     }
 

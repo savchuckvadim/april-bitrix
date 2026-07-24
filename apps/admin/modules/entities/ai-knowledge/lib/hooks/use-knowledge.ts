@@ -8,7 +8,9 @@ import {
     KnowledgeDocument,
     KnowledgeDocumentContent,
     KnowledgeDocumentTarget,
+    KnowledgeKindInfo,
     KnowledgeListParams,
+    KnowledgeTextUpsertPayload,
     KnowledgeUploadResponse,
 } from '../types/knowledge.types';
 
@@ -22,9 +24,9 @@ function getErrorMessage(error: unknown): string {
     return 'Неизвестная ошибка';
 }
 
-/** Kind-папки общей базы знаний (типы материалов). */
+/** Реестр kind-разделов (названия/описания/потребители + факт. папки). */
 export const useKnowledgeKinds = () => {
-    return useQuery<string[], Error>({
+    return useQuery<KnowledgeKindInfo[], Error>({
         queryKey: [KNOWLEDGE_KEY, 'kinds'],
         queryFn: () => helper.listKinds(),
     });
@@ -88,6 +90,27 @@ export const useUploadKnowledgeDocument = () => {
         },
         onError: (error, { file }) => {
             toast.error(`Не удалось загрузить «${file.name}»`, {
+                description: getErrorMessage(error),
+            });
+        },
+    });
+};
+
+/** Сохранение текстового документа (редактор инструкций). */
+export const useUpsertKnowledgeText = () => {
+    const queryClient = useQueryClient();
+    return useMutation<
+        KnowledgeUploadResponse,
+        Error,
+        KnowledgeTextUpsertPayload
+    >({
+        mutationFn: (payload) => helper.upsertText(payload),
+        onSuccess: (result) => {
+            void queryClient.invalidateQueries({ queryKey: [KNOWLEDGE_KEY] });
+            toast.success(`Документ «${result.fileName}» сохранён`);
+        },
+        onError: (error, payload) => {
+            toast.error(`Не удалось сохранить «${payload.fileName}»`, {
                 description: getErrorMessage(error),
             });
         },

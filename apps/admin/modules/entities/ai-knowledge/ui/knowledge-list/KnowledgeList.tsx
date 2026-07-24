@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Button } from '@workspace/ui/components/button';
-import { Loader2, Upload } from 'lucide-react';
+import { FilePlus2, Loader2, Upload } from 'lucide-react';
 import { ConfirmDialog } from '@/modules/shared';
 import {
     useDeleteKnowledgeDocument,
@@ -23,6 +23,10 @@ import {
 import { NEW_OPTION, SelectWithNew } from '../select-with-new';
 import { KnowledgeTable } from '../knowledge-table';
 import { DocumentContentDialog } from '../document-content-dialog';
+import {
+    DocumentEditorDialog,
+    DocumentEditorState,
+} from '../document-editor-dialog';
 
 /** Сентинел общей базы в селекте базы знаний. */
 const SHARED_BASE = '__shared__';
@@ -54,6 +58,8 @@ export function KnowledgeList() {
     const [toView, setToView] = React.useState<KnowledgeDocumentTarget | null>(
         null,
     );
+    const [editorState, setEditorState] =
+        React.useState<DocumentEditorState | null>(null);
     const [toDelete, setToDelete] = React.useState<KnowledgeDocument | null>(
         null,
     );
@@ -104,9 +110,23 @@ export function KnowledgeList() {
         })),
     ];
 
-    const kindOptions = Array.from(
-        new Set([KNOWLEDGE_GENERAL_KIND, ...(Array.isArray(kinds) ? kinds : [])]),
-    ).map((item) => ({ value: item, label: item }));
+    // Реестр kind'ов с бэка: известные — с человеческими названиями.
+    const kindInfos = Array.isArray(kinds) ? kinds : [];
+    const kindOptions = [
+        ...(kindInfos.some((item) => item.kind === KNOWLEDGE_GENERAL_KIND)
+            ? []
+            : [
+                  {
+                      value: KNOWLEDGE_GENERAL_KIND,
+                      label: KNOWLEDGE_GENERAL_KIND,
+                  },
+              ]),
+        ...kindInfos.map((item) => ({
+            value: item.kind,
+            label: item.known ? `${item.title} — ${item.kind}` : item.kind,
+        })),
+    ];
+    const selectedKindInfo = kindInfos.find((item) => item.kind === kind);
 
     /** Файлы грузим по одному: ошибка одного не прерывает остальные. */
     const handleFilesSelected = async (files: FileList | null) => {
@@ -134,17 +154,29 @@ export function KnowledgeList() {
         <>
             <div className="mb-4 flex items-center justify-between gap-4">
                 <h1 className="text-3xl font-bold">База знаний AI</h1>
-                <Button
-                    disabled={!canUpload}
-                    onClick={() => fileInputRef.current?.click()}
-                >
-                    {uploadDocument.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                        <Upload className="h-4 w-4" />
-                    )}
-                    Загрузить файлы
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        disabled={!canUpload}
+                        onClick={() =>
+                            setEditorState({ mode: 'create', kind, domain })
+                        }
+                    >
+                        <FilePlus2 className="h-4 w-4" />
+                        Создать текст
+                    </Button>
+                    <Button
+                        disabled={!canUpload}
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        {uploadDocument.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <Upload className="h-4 w-4" />
+                        )}
+                        Загрузить файлы
+                    </Button>
+                </div>
                 <input
                     ref={fileInputRef}
                     type="file"
@@ -184,6 +216,16 @@ export function KnowledgeList() {
                 />
             </div>
 
+            {selectedKindInfo && selectedKindInfo.known && (
+                <p className="mb-2 text-sm">
+                    <b>{selectedKindInfo.title}.</b>{' '}
+                    {selectedKindInfo.description}{' '}
+                    <span className="text-muted-foreground">
+                        Читает: {selectedKindInfo.consumer}
+                    </span>
+                </p>
+            )}
+
             <p className="mb-4 text-sm text-muted-foreground">
                 Показаны документы, которые попадут в RAG для выбранной пары:
                 общие материалы (general) плюс материалы типа «{kind}»
@@ -194,12 +236,20 @@ export function KnowledgeList() {
                 data={Array.isArray(documents) ? documents : []}
                 isLoading={isLoading}
                 onView={(document) => setToView(toTarget(document))}
+                onEdit={(document) =>
+                    setEditorState({ mode: 'edit', target: toTarget(document) })
+                }
                 onDelete={setToDelete}
             />
 
             <DocumentContentDialog
                 target={toView}
                 onClose={() => setToView(null)}
+            />
+
+            <DocumentEditorDialog
+                state={editorState}
+                onClose={() => setEditorState(null)}
             />
 
             <ConfirmDialog

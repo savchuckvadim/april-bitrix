@@ -45,6 +45,9 @@ importers:
       '@workspace/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@workspace/april-ui':
+        specifier: workspace:*
+        version: link:../../packages/april-ui
       '@workspace/bitrix':
         specifier: workspace:*
         version: link:../../packages/bitrix
@@ -157,6 +160,9 @@ importers:
       '@workspace/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@workspace/april-ui':
+        specifier: workspace:*
+        version: link:../../packages/april-ui
       '@workspace/bitrix':
         specifier: workspace:*
         version: link:../../packages/bitrix
@@ -608,9 +614,6 @@ importers:
 
   apps/kpi-sales:
     dependencies:
-      '@workspace/api':
-        specifier: workspace:*
-        version: link:../../packages/api
       '@workspace/april-ui':
         specifier: workspace:*
         version: link:../../packages/april-ui

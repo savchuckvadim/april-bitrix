@@ -22,12 +22,14 @@ import {
 import { Check, Link2, Loader2 } from 'lucide-react';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { ReportDateType } from '@/modules/entities/report';
+import { copyTextToClipboard } from '@/modules/shared';
 import { useReportLinks } from '../model/useReportLinks';
 import {
     SHARE_LINK_MAX_ACTIVE,
     SHARE_LINK_MAX_REFRESHABLE_RANGE_DAYS,
     buildShareUrl,
 } from '../model/report-links-thunks';
+import { generateShareToken } from '../lib/share-token.util';
 import { formatShortDate } from './ShareLinkBadges';
 
 const EXPIRES_OPTIONS = [
@@ -82,10 +84,16 @@ export const CreateShareLinkDialog = () => {
     };
 
     const handleCreate = () => {
+        // Токен генерим на клиенте и кладём URL в буфер СИНХРОННО, пока
+        // жив жест клика (во фрейме Bitrix clipboard иначе не работает);
+        // бэк создаст ссылку с этим же токеном.
+        const token = generateShareToken();
+        void copyTextToClipboard(buildShareUrl(token));
         create({
             title: title.trim() || undefined,
             expiresInDays,
             isRefreshable: isRefreshable && refreshableAllowed,
+            token,
         });
     };
 

@@ -19,7 +19,11 @@ export class ShareLinkHelper {
         this.api = getShareLink();
     }
 
-    async create(dto: CreateShareLinkDto): Promise<ShareLinkDto> {
+    // token — форвард-декларация клиентского токена (бэк уже принимает;
+    // после `pnpm generate` пересечение убрать — поле войдёт в generated DTO)
+    async create(
+        dto: CreateShareLinkDto & { token?: string },
+    ): Promise<ShareLinkDto> {
         return (await this.api.shareLinkCreate(dto)) as ShareLinkDto;
     }
 

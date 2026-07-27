@@ -22,3 +22,4 @@ export * from './telegram/type/telegram.type';
 export * from './telegram/lib/tlegram-bot';
 export * from './lib/hooks/use-persisted-selection';
 export * from './lib/merged-actions.util';
+export * from './lib/copy-to-clipboard';

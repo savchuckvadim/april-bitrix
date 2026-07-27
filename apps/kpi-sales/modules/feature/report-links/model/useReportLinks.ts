@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import type { ShareLinkDto } from '@workspace/nest-kpi-report-sales-api';
+import { copyTextToClipboard } from '@/modules/shared';
 import { reportLinksActions } from './report-links-slice';
 import {
     buildShareUrl,
@@ -19,14 +20,11 @@ export const useReportLinks = () => {
     const dispatch = useAppDispatch();
     const state = useAppSelector(s => s.reportLinks);
 
-    const copyUrl = useCallback(async (token: string) => {
-        try {
-            await navigator.clipboard.writeText(buildShareUrl(token));
-            return true;
-        } catch {
-            return false;
-        }
-    }, []);
+    // execCommand-фолбэк внутри — работает и во фрейме Bitrix (в жесте клика)
+    const copyUrl = useCallback(
+        (token: string) => copyTextToClipboard(buildShareUrl(token)),
+        [],
+    );
 
     return {
         ...state,

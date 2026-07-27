@@ -5,14 +5,19 @@ import { ReportCallingData } from '@/modules/entities/calling-statistics';
 import { getCallingStatisticsTableData } from '@/modules/entities/calling-statistics';
 import { getReportTableData } from '@/modules/entities/report';
 import { ReportData } from '@/modules/entities/report';
-import { RTable } from '@/modules/shared';
+import { RTable, RTableAnnotation } from '@/modules/shared';
 import { getMergedReportsData } from '../lib/merge-reports.util';
 import { MergedReportTotalTable } from './MergedReportTotalTable';
 import { useMergedReport } from '../hooks/merged-report.hook';
+import { useAppSelector, selectIsPublic } from '@/modules/app';
 
 interface MergedSectionTableProps {
     report: ReportData[];
     callingsReport: ReportCallingData[];
+    /** Аннотации ячеек таблицы (% конверсий). */
+    annotations?: Map<string, RTableAnnotation>;
+    /** План-аннотации («⌖ план · %») — отдельная подстрока. */
+    planAnnotations?: Map<string, RTableAnnotation>;
 }
 
 /**
@@ -23,8 +28,11 @@ interface MergedSectionTableProps {
 export const MergedSectionTable = ({
     report,
     callingsReport,
+    annotations,
+    planAnnotations,
 }: MergedSectionTableProps) => {
     const { selectedUsers, selectedActions } = useMergedReport();
+    const isPublic = useAppSelector(selectIsPublic);
 
     const merged = useMemo(() => {
         if (!report.length || !report[0]?.kpi || !callingsReport.length) {
@@ -72,7 +80,9 @@ export const MergedSectionTable = ({
                 code={merged.code}
                 firstCellName={merged.firstCellName}
                 data={filteredData}
-                withLink={true}
+                withLink={!isPublic}
+                annotations={annotations}
+                planAnnotations={planAnnotations}
             />
             <MergedReportTotalTable
                 data={filteredData}

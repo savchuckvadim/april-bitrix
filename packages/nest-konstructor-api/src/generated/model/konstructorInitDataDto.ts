@@ -7,8 +7,11 @@
  */
 import type { ComplectsDto } from './complectsDto';
 import type { InfoGroupsDto } from './infoGroupsDto';
-import type { RegionEntity } from './regionEntity';
+import type { RegionInitDto } from './regionInitDto';
 import type { ContractsDto } from './contractsDto';
+import type { SupplyInitDto } from './supplyInitDto';
+import type { PriceInitDto } from './priceInitDto';
+import type { ServicesInitDto } from './servicesInitDto';
 
 export interface KonstructorInitDataDto {
     /** Complects */
@@ -16,7 +19,13 @@ export interface KonstructorInitDataDto {
     /** Infoblocks */
     infoblocks: InfoGroupsDto[];
     /** Regions */
-    regions: RegionEntity[];
+    regions: RegionInitDto[];
     /** Contracts */
     contracts: ContractsDto;
+    /** Виды поставки (ОД) */
+    supplies: SupplyInitDto[];
+    /** Прайс-таблица (code-джойны) */
+    prices: PriceInitDto[];
+    /** Дополнительные сервисы (LT/консалтинг/СТАР) */
+    services: ServicesInitDto;
 }

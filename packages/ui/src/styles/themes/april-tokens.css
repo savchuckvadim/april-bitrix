@@ -22,6 +22,16 @@
     --info-foreground: oklch(0.985 0 0);
 
     /*
+     * Доля --card в подложке GlassCard (см. april-ui/Glass/GlassCard.css).
+     * Значения ЕДИНЫЕ для всех тем — стеклянный вид везде, не только в air
+     * (решение пользователя). В air --card сам с альфой — там ещё воздушнее.
+     * Держим низкими: читаемость добирается blur'ом; в диалогах стеклу
+     * помогает осветлённый blur-оверлей (overlayClassName) и GlassAmbient.
+     */
+    --glass-card-mix: 42%;
+    --glass-card-mix-strong: 30%;
+
+    /*
      * Bitrix24 Air palette (официальные значения из bitrix24/b24style +
      * токен-имена из b24ui: air-primary, air-secondary, air-primary-success,
      * air-primary-alert, air-primary-copilot, air-secondary-no-accent).
@@ -64,6 +74,40 @@
     --event-current-foreground: var(--event-warm-foreground);
 
     /*
+     * Финансовый отчёт: собственная денежная палитра (отличается от
+     * остальных отчётов). advance — деньги уже в кассе (зелёный),
+     * monthly — регулярная выручка (синий), potential — ожидаемое за
+     * договор (фиолетовый), hot — горячие клиенты (янтарный).
+     */
+    --finance-advance: oklch(0.627 0.17 149.2);
+    --finance-advance-foreground: oklch(0.985 0 0);
+    --finance-monthly: oklch(0.588 0.158 241.966);
+    --finance-monthly-foreground: oklch(0.985 0 0);
+    --finance-potential: oklch(0.606 0.219 292.717);
+    --finance-potential-foreground: oklch(0.985 0 0);
+    --finance-hot: oklch(0.769 0.16 70.7);
+    --finance-hot-foreground: oklch(0.216 0.006 56.04);
+
+    /*
+     * Стадии сделки (финансовый отчёт и любые подсветки стадий/фильтров):
+     * pres — «Презентация» (жёлтый), docs — «КП/Документы» (фиолетовый),
+     * decision — «В решении» (огненный красно-оранжевый),
+     * payment — «В оплате» (красно-фиолетовый). Единые токены для бэйджей
+     * стадий и threshold-кнопок — согласованная подсветка везде.
+     */
+    --deal-stage-pres: oklch(0.82 0.16 90);
+    --deal-stage-pres-foreground: oklch(0.216 0.006 56.04);
+    --deal-stage-docs: oklch(0.606 0.219 292.717);
+    --deal-stage-docs-foreground: oklch(0.985 0 0);
+    --deal-stage-decision: oklch(0.62 0.24 30);
+    --deal-stage-decision-foreground: oklch(0.985 0 0);
+    --deal-stage-payment: oklch(0.55 0.24 345);
+    --deal-stage-payment-foreground: oklch(0.985 0 0);
+    /* supply — «Поставка» (уверенный тёмно-синий, финал воронки). */
+    --deal-stage-supply: oklch(0.45 0.15 255);
+    --deal-stage-supply-foreground: oklch(0.985 0 0);
+
+    /*
      * «Второй primary» для главных CTA (Отправить и т.п.) — паттерн Bitrix24
      * (синий интерфейс + зелёная кнопка действия). По умолчанию совпадает
      * с --primary (гармонично в любой теме); тема может переопределить
@@ -89,6 +133,18 @@
     --event-money: oklch(0.696 0.14 149.2);
     --event-ss: oklch(0.75 0.11 215.2);
     --event-supply: oklch(0.74 0.1 182.5);
+
+    --finance-advance: oklch(0.696 0.14 149.2);
+    --finance-monthly: oklch(0.65 0.14 241.966);
+    --finance-potential: oklch(0.673 0.18 292.717);
+    --finance-hot: oklch(0.795 0.14 75.5);
+
+    --deal-stage-pres: oklch(0.85 0.14 92);
+    --deal-stage-pres-foreground: oklch(0.216 0.006 56.04);
+    --deal-stage-docs: oklch(0.673 0.18 292.717);
+    --deal-stage-decision: oklch(0.68 0.2 32);
+    --deal-stage-payment: oklch(0.62 0.2 345);
+    --deal-stage-supply: oklch(0.6 0.16 255);
 }
 
 /* Реактивный текущий тип события (значения = EventTaskEventType) */
@@ -120,6 +176,82 @@
 [data-event-type='supply'] {
     --event-current: var(--event-supply);
     --event-current-foreground: var(--event-supply-foreground);
+}
+
+/* ==========================================================================
+   Конструктор: цвета комплектов Гарант (--complect-* + data-complect) —
+   тот же паттерн, что --event-current/[data-event-type].
+   Палитра по семействам: бухгалтерские / юристы / эксперты /
+   офис-предприятие / универсальная линейка.
+   data-complect ставится на контейнер (значение = code комплекта);
+   цвет комплекта из админки (complect.color) может переопределить
+   --complect-current инлайн-переменной — он побеждает токен.
+   ========================================================================== */
+:root {
+    --complect-buh: oklch(0.704 0.12 182.5); /* бухгалтерские — бирюзовый */
+    --complect-buh-foreground: oklch(0.216 0.006 56.04);
+    --complect-ur: oklch(0.585 0.204 277.1); /* юристы — индиго */
+    --complect-ur-foreground: oklch(0.985 0 0);
+    --complect-expert: oklch(0.769 0.16 70.7); /* эксперты — янтарный */
+    --complect-expert-foreground: oklch(0.216 0.006 56.04);
+    --complect-office: oklch(0.606 0.219 292.717); /* офис/предприятие — фиолетовый */
+    --complect-office-foreground: oklch(0.985 0 0);
+    --complect-universal: oklch(0.588 0.158 241.966); /* универсальная линейка — синий */
+    --complect-universal-foreground: oklch(0.985 0 0);
+
+    /* Текущий комплект (переопределяется data-complect ниже) */
+    --complect-current: var(--complect-universal);
+    --complect-current-foreground: var(--complect-universal-foreground);
+}
+
+:root[class*='-dark'] {
+    --complect-buh: oklch(0.74 0.1 182.5);
+    --complect-ur: oklch(0.66 0.17 277.1);
+    --complect-expert: oklch(0.795 0.14 75.5);
+    --complect-office: oklch(0.673 0.18 292.717);
+    --complect-universal: oklch(0.65 0.14 241.966);
+}
+
+/* Бухгалтерские */
+[data-complect='buh'],
+[data-complect='buhgos'],
+[data-complect='glavbuh'],
+[data-complect='glavbuhgos'] {
+    --complect-current: var(--complect-buh);
+    --complect-current-foreground: var(--complect-buh-foreground);
+}
+/* Юристы */
+[data-complect='ur'] {
+    --complect-current: var(--complect-ur);
+    --complect-current-foreground: var(--complect-ur-foreground);
+}
+/* Эксперты */
+[data-complect='expert'],
+[data-complect='exzak'],
+[data-complect='exbuild'],
+[data-complect='exjobsec'] {
+    --complect-current: var(--complect-expert);
+    --complect-current-foreground: var(--complect-expert-foreground);
+}
+/* Офис и предприятие */
+[data-complect='office'],
+[data-complect='company'],
+[data-complect='companyPro'] {
+    --complect-current: var(--complect-office);
+    --complect-current-foreground: var(--complect-office-foreground);
+}
+/* Универсальная линейка */
+[data-complect='classic'],
+[data-complect='classicPlus'],
+[data-complect='universal'],
+[data-complect='universalPlus'],
+[data-complect='professional'],
+[data-complect='master'],
+[data-complect='analyst'],
+[data-complect='analystPlus'],
+[data-complect='maximum'] {
+    --complect-current: var(--complect-universal);
+    --complect-current-foreground: var(--complect-universal-foreground);
 }
 
 /* ==========================================================================

@@ -49,7 +49,9 @@ export const loadSavedFilter =
     () => async (dispatch: AppDispatch, getState: () => RootState) => {
         const state = getState();
         const { app, department } = state;
-        const user = app.bitrix.user;
+        // viewAs: читаем сохранённый фильтр просматриваемого пользователя
+        // («как видит он»); запись фильтра в этом режиме заблокирована.
+        const user = app.viewAs.user ?? app.bitrix.user;
         if (!user) return;
 
         let saved: SavedReportFilterDto | null = null;
@@ -219,13 +221,18 @@ export const getReportData =
  * Сохранение фильтра в формате v2 (structural selection) на новый бэк.
  * legacyUserIds заполняется всегда — бэк зеркалирует старые колонки,
  * поэтому legacy online-флоу остаётся рабочим (путь отката).
+ * Возвращает true при успешном сохранении — UI показывает «Сохранено»
+ * только по факту, а не по клику.
  */
 export const saveFilter =
     () => async (dispatch: AppDispatch, getState: () => RootState) => {
         const state = getState();
         const { app, department, report } = state;
         const user = app.bitrix.user;
-        if (!user || report.isFilterLoading) return;
+        // В режиме «Смотреть как…» сохранение запрещено — иначе суперюзер
+        // перезатёр бы фильтр просматриваемого (кнопка скрыта, гард —
+        // вторая линия обороны).
+        if (!user || app.viewAs.user || report.isFilterLoading) return false;
 
         dispatch(reportActions.setFilterLoadingStatus(true));
         try {
@@ -247,6 +254,7 @@ export const saveFilter =
                 },
             };
             await filterHelper.save(dto);
+            return true;
         } catch (error) {
             logClient(
                 {
@@ -259,6 +267,7 @@ export const saveFilter =
                 },
                 { error: error instanceof Error ? error.message : error },
             );
+            return false;
         } finally {
             dispatch(reportActions.setFilterLoadingStatus(false));
         }

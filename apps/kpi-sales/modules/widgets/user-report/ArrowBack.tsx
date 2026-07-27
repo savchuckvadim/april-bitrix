@@ -1,20 +1,24 @@
 'use client';
 
-import { Button } from "@workspace/ui/components/button";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Button } from '@workspace/ui/components/button';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
+/**
+ * Компактная кнопка «назад»: только иконка (текст — в title), встаёт
+ * inline в ряд с именем пользователя, не занимая отдельный ряд страницы.
+ */
 export const ArrowBack = () => {
     const router = useRouter();
     return (
-
         <Button
             variant="ghost"
+            size="icon"
             onClick={() => router.back()}
-            className="h-7 flex items-center justify-between gap-2 cursor-pointer text-primary hover:text-primary/80">
-            <ArrowLeft className='size-4 ' />
-            <p className="text-sm font-medium">Назад</p>
+            title="Назад"
+            className="h-8 w-8 shrink-0 cursor-pointer text-primary hover:text-primary/80"
+        >
+            <ArrowLeft className="size-4" />
         </Button>
-
-    )
-}
+    );
+};

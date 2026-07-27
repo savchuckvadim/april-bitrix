@@ -2,6 +2,8 @@ import { appActions } from './AppSlice';
 import { AppDispatch, AppGetState, AppThunk } from './store';
 import { appInit } from '../lib/initialize/app-init.util';
 import { telegramSendMessage } from '@/modules/shared';
+import { configureBaseURL } from '@workspace/nest-kpi-report-sales-api';
+import { KPI_REPORT_BASE_URL } from '../consts/app-global';
 
 /**
  * Тонкий init-thunk (Alfacentr-паттерн): guard + флаги загрузки.
@@ -11,12 +13,13 @@ import { telegramSendMessage } from '@/modules/shared';
 export const initial =
     (): AppThunk =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
+        configureBaseURL(KPI_REPORT_BASE_URL);
         const app = getState().app;
         if (app.isLoading || app.initialized) return;
 
         dispatch(appActions.loading({ status: true }));
         try {
-            await appInit(dispatch, getState);
+            await appInit(dispatch);
         } catch (error) {
             console.error('app-init error:', error);
             dispatch(

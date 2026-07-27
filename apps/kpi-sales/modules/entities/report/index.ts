@@ -16,6 +16,7 @@ export { ReportFilterHelper } from './lib/api/filter-helper';
 // lib
 export { getFiltredrReport, getTotalData, getMediumData } from './lib/report';
 export { getReportTableData } from './lib/ui-util';
+export { getBlockState, setBlockState } from './lib/localStorage-util';
 export { getColors, getChartColorsArray } from './lib/colors';
 export * from './lib/export-util';
 export * from './lib/date-util';

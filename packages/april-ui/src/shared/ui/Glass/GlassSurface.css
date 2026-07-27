@@ -1,0 +1,58 @@
+/*
+ * Вендоренный reactbits GlassSurface (список отличий — в GlassSurface.tsx).
+ * Цвета — только токены темы: работает во всех классовых темах монорепы.
+ */
+.glass-surface {
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.26s ease-out;
+}
+
+.glass-surface__filter {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: -1;
+}
+
+/* Chromium: настоящая рефракция фона через SVG-фильтр. */
+.glass-surface--svg {
+    background: color-mix(in oklab, var(--card) var(--glass-frost, 0%), transparent);
+    backdrop-filter: var(--filter-id) saturate(var(--glass-saturation, 1));
+    box-shadow:
+        inset 0 0 2px 1px color-mix(in oklab, var(--foreground) 18%, transparent),
+        inset 0 0 10px 4px color-mix(in oklab, var(--foreground) 8%, transparent),
+        inset 0 1px 0 color-mix(in oklab, white 30%, transparent),
+        0 8px 24px oklch(0 0 0 / 12%),
+        0 16px 56px oklch(0 0 0 / 8%);
+}
+
+/* Safari/Firefox: откат на рецепт april-glass-card (читаемое стекло без рефракции). */
+.glass-surface--fallback {
+    border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+    background: color-mix(
+        in oklab,
+        var(--card) var(--glass-card-mix, 42%),
+        transparent
+    );
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    box-shadow:
+        0 8px 32px oklch(0 0 0 / 18%),
+        inset 0 1px 0 color-mix(in oklab, white 30%, transparent);
+}
+
+/* Совсем без backdrop-filter — почти непрозрачная подложка ради читаемости. */
+@supports not (backdrop-filter: blur(10px)) {
+    .glass-surface--fallback {
+        background: color-mix(in oklab, var(--card) 92%, transparent);
+    }
+}
+
+.glass-surface:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}

@@ -9,6 +9,9 @@ import type { DownLoadKpiReportDtoType } from './downLoadKpiReportDtoType';
 import type { DownloadKpiReportItemDto } from './downloadKpiReportItemDto';
 import type { DateRangeDto } from './dateRangeDto';
 import type { ReportStructureDto } from './reportStructureDto';
+import type { ConversionsExcelDto } from './conversionsExcelDto';
+import type { PlansExcelDto } from './plansExcelDto';
+import type { FinanceExcelDto } from './financeExcelDto';
 
 export interface DownLoadKpiReportDto {
     /** Download type */
@@ -19,4 +22,10 @@ export interface DownLoadKpiReportDto {
     date: DateRangeDto;
     /** Структура отделов/групп для разбивки: мульти — лист на отдел с секциями групп, моно с группами — лист «По группам». Не передана — прежний одиночный лист. */
     structure?: ReportStructureDto;
+    /** Конверсии между показателями (лист «Конверсии»); считает фронт, не передана — листа нет. */
+    conversions?: ConversionsExcelDto;
+    /** Планы руководителя (лист «Планы» + подстроки главной таблицы); считает фронт, не передана — листа нет. */
+    plans?: PlansExcelDto;
+    /** Финансовая вкладка (листы «Финансы — Продажи» / «Финансы — Горячие»); передаётся ТОЛЬКО когда вкладка «Финансы» видима в отчёте — Excel зеркалит UI. */
+    finance?: FinanceExcelDto;
 }

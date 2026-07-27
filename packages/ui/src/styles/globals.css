@@ -141,6 +141,42 @@
     --color-event-current: var(--event-current);
     --color-event-current-foreground: var(--event-current-foreground);
 
+    /* Комплекты конструктора (см. themes/april-tokens.css) */
+    --color-complect-buh: var(--complect-buh);
+    --color-complect-buh-foreground: var(--complect-buh-foreground);
+    --color-complect-ur: var(--complect-ur);
+    --color-complect-ur-foreground: var(--complect-ur-foreground);
+    --color-complect-expert: var(--complect-expert);
+    --color-complect-expert-foreground: var(--complect-expert-foreground);
+    --color-complect-office: var(--complect-office);
+    --color-complect-office-foreground: var(--complect-office-foreground);
+    --color-complect-universal: var(--complect-universal);
+    --color-complect-universal-foreground: var(--complect-universal-foreground);
+    --color-complect-current: var(--complect-current);
+    --color-complect-current-foreground: var(--complect-current-foreground);
+
+    /* Финансовый отчёт (см. themes/april-tokens.css) */
+    --color-finance-advance: var(--finance-advance);
+    --color-finance-advance-foreground: var(--finance-advance-foreground);
+    --color-finance-monthly: var(--finance-monthly);
+    --color-finance-monthly-foreground: var(--finance-monthly-foreground);
+    --color-finance-potential: var(--finance-potential);
+    --color-finance-potential-foreground: var(--finance-potential-foreground);
+    --color-finance-hot: var(--finance-hot);
+    --color-finance-hot-foreground: var(--finance-hot-foreground);
+
+    /* Стадии сделки (см. themes/april-tokens.css) */
+    --color-deal-stage-pres: var(--deal-stage-pres);
+    --color-deal-stage-pres-foreground: var(--deal-stage-pres-foreground);
+    --color-deal-stage-docs: var(--deal-stage-docs);
+    --color-deal-stage-docs-foreground: var(--deal-stage-docs-foreground);
+    --color-deal-stage-decision: var(--deal-stage-decision);
+    --color-deal-stage-decision-foreground: var(--deal-stage-decision-foreground);
+    --color-deal-stage-payment: var(--deal-stage-payment);
+    --color-deal-stage-payment-foreground: var(--deal-stage-payment-foreground);
+    --color-deal-stage-supply: var(--deal-stage-supply);
+    --color-deal-stage-supply-foreground: var(--deal-stage-supply-foreground);
+
     /* Второй primary для CTA (см. themes/april-tokens.css) */
     --color-action: var(--action);
     --color-action-foreground: var(--action-foreground);

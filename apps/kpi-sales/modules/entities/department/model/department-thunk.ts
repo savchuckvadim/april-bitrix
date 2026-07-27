@@ -2,9 +2,9 @@ import { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { APP_DEP } from '@/modules/app/model/AppSlice';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 import { DepartmentHelper } from '../lib/api/department-helper';
-import { normalizeSalesDepartments } from '../lib/normalize';
-import { computeDepartmentScope } from '../lib/scope.util';
-import { isSuperUser } from '../lib/super-user';
+import { normalizeSalesDepartments } from '../lib/utils/normalize';
+import { computeDepartmentScope } from '../lib/utils/scope.util';
+import { isSuperUser } from '../lib/utils/super-user';
 import { departmentActions } from './department-slice';
 import type { DepartmentStructureRequest } from './index';
 
@@ -19,7 +19,11 @@ export const getDepartmentStructure =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
         const { app, department } = state;
-        const user = app.bitrix.user;
+        // Режим «Смотреть как…»: структура и периметр запрашиваются от
+        // имени просматриваемого пользователя; суперюзерский бонус при
+        // этом гасится, иначе периметр не сузится до его роли.
+        const isViewAs = app.viewAs.user !== null;
+        const user = app.viewAs.user ?? app.bitrix.user;
         const domain = app.domain;
 
         if (!user || !domain || department.status === 'loading') {
@@ -38,7 +42,7 @@ export const getDepartmentStructure =
             const scope = computeDepartmentScope(
                 departments,
                 structure.currentUser,
-                isSuperUser(user),
+                !isViewAs && isSuperUser(user),
                 user,
             );
 

@@ -12,9 +12,10 @@ export enum EResultCode {
     ERROR = 1,
 }
 
-// prod URL — TBD (домен для back/apps/konstructor ещё не заведён)
+// Дев-дефолт — локальный back/apps/konstructor. Прод:
+// https://api.konstructor.april-app.ru/ — задаётся консюмером через
+// configureBaseURL(NEXT_PUBLIC_KONSTRUCTOR_API_URL) в ApiProvider.
 let _baseURL = 'http://localhost:3007/';
-// let _baseURL = 'https://api.konstructor.april-app.ru/';
 export function configureBaseURL(url: string) {
     _baseURL = url;
     $api.defaults.baseURL = url;

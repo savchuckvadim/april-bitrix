@@ -4,3 +4,4 @@ export * from './model/report-flow-thunks';
 export * from './model/calling-statistics-flow-thunk';
 export * from './model/listeners';
 export * from './hooks/use-report-flow';
+export * from './hooks/use-save-filter';

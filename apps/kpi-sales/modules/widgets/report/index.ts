@@ -1,6 +1,8 @@
-// Виджет отчёта: объединяет entities (report, calling-statistics, department)
-// и features (tabs, rating, merged, filter, download, widget-type).
-export { default as Report } from './ui/Report';
-export { ReportProvider } from './ui/ReportProvider';
-export { default as Filter } from './ui/Filter';
-export { default as ReportHeader } from './ui/ReportHeader/ReportHeader';
+// Виджет отчёта, разбит на под-виджеты (у каждого свои ui/hooks/lib):
+//   report-provider — каркас: sticky-хедер, фильтры, состояния загрузки
+//   report-header   — хедер: период, Поделиться/Скачать/фильтры
+//   report-filter   — карточка фильтров (даты/отделы/события)
+//   report-view     — тело отчёта: блоки по типу отчёта
+// Общее для под-виджетов — в lib/.
+export { Report } from './report-view';
+export { ReportProvider } from './report-provider';

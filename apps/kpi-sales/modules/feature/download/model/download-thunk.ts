@@ -1,5 +1,6 @@
 import { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import {
+    getBlockState,
     ReportData,
     ReportDateType,
 } from '@/modules/entities/report';
@@ -8,9 +9,32 @@ import { logClient } from '@/modules/app/lib/helper/logClient';
 import { sendDownloadingReport } from '@/modules/app/model/AppThunk';
 import { getKpidReportsExcelData, getMergedReportsExcelData } from '../../merged-kpi-calling-report/lib/merge-reports.util';
 import { DownLoadKpiReportDto } from '@workspace/nest-kpi-report-sales-api';
-import { EReportType } from '../../report-widget-type/consts/report-type.consts';
+import {
+    EReportType,
+    REPORT_TYPE_LABELS,
+} from '../../report-widget-type/consts/report-type.consts';
+import { checkAccess, EAccessFeature } from '@/modules/shared/access';
+import { selectAccessContext } from '@/modules/app/lib/access/use-access';
+import { financeEmployeeName } from '@/modules/entities/finance';
+import {
+    buildPlansExcelPayload,
+    buildUserAchievementCells,
+    enabledIndicators,
+    PLANS_BLOCK_ID,
+    rowsWithAnyPlan,
+    type PlanFactSources,
+} from '../../plans';
 import { DownloadHelper } from '../lib/api/download-helper';
 import { buildReportStructure } from '../lib/build-report-structure.util';
+import { buildFinanceExcelPayload } from '../lib/finance-excel.util';
+import { buildConversionResult } from '../../report-conversions/lib/conversion-calc.util';
+import { getDatasetForScope } from '../../report-conversions/lib/conversion-dataset.util';
+import {
+    buildConversionsExcelDto,
+    buildConversionsExcelSections,
+    buildConversionSectionSources,
+} from '../../report-conversions/lib/conversion-excel.util';
+import { scopeForReportType } from '../../report-conversions/lib/conversion-catalog';
 
 const downloadHelper = new DownloadHelper();
 
@@ -81,6 +105,31 @@ export const getDownload =
                 const widgetStyle = state.reportType.current;
                 const isMerged = widgetStyle === EReportType.MERGED;
 
+                // ЗЕРКАЛО UI: вкладка «Финансы» показывает только финансовые
+                // блоки — Excel состоит из их листов (без kpi/конверсий/планов).
+                if (widgetStyle === EReportType.FINANCE) {
+                    const financeData = {
+                        report: [],
+                        type,
+                        date: state.report.date,
+                        finance: buildFinanceExcelPayload(state),
+                    } as DownLoadKpiReportDto;
+                    const financeBlob =
+                        await downloadHelper.downloadExcel(financeData);
+                    if (financeBlob instanceof Blob) {
+                        const url = window.URL.createObjectURL(financeBlob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', 'report.xlsx');
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                    }
+                    dispatch(setDownloadStatus({ status: false, type }));
+                    dispatch(sendDownloadingReport());
+                    return;
+                }
+
                 const reportRows = (isMerged ? mergedReport : kpiReport) ?? [];
                 // Разбивка по отделам/группам для листов excel (моно/мульти).
                 const structure = buildReportStructure(
@@ -90,11 +139,119 @@ export const getDownload =
                 );
 
                 const date = state.report.date;
+
+                // Лист «Конверсии»: и конфиг, и ДАТАСЕТ по одному scope
+                // (видимого блока вкладки) — раньше датасет строился
+                // isMerged?'merged':'kpi', рассинхронясь с конфигом на «Звонках».
+                //
+                // ЗЕРКАЛО UI: на вкладке «Все» блок конверсий не рендерится —
+                // листа нет; скрыт тумблером блока — листа тоже нет.
+                const conversionScope = scopeForReportType(widgetStyle);
+                const conversionsBlockVisible =
+                    widgetStyle !== EReportType.All &&
+                    getBlockState(`conversions-widget-${conversionScope}`)
+                        .isVisible;
+                const tabConfig = state.conversions.widget[conversionScope];
+                const conversionsDataset = getDatasetForScope(
+                    conversionScope,
+                    report,
+                    callingsReport ?? [],
+                    conversionScope === 'merged'
+                        ? { selectedUsers, selectedActions }
+                        : undefined,
+                );
+                const conversionsResult = buildConversionResult(
+                    conversionsDataset,
+                    tabConfig.codes,
+                    tabConfig.method,
+                );
+                // Разбивка листа по отделам/группам — как на KPI-листах
+                const conversionSections = buildConversionsExcelSections(
+                    conversionsDataset,
+                    tabConfig.codes,
+                    tabConfig.method,
+                    buildConversionSectionSources(
+                        state.department.departments,
+                        state.department.isMulti,
+                    ),
+                );
+                const conversions =
+                    conversionsBlockVisible && conversionsResult.stepDefs.length
+                        ? buildConversionsExcelDto(
+                              conversionsResult,
+                              tabConfig.method,
+                              conversionSections,
+                              REPORT_TYPE_LABELS[widgetStyle],
+                          )
+                        : undefined;
+
+                // ПЛАНЫ (зеркало UI): только при доступе PLANS_VIEW, настроенных
+                // показателях и видимом блоке «Планы» (его тумблер = настройка
+                // «показать/скрыть» рядового); рядовой — только своя строка.
+                const accessCtx = selectAccessContext(state);
+                const plansVisible =
+                    checkAccess(EAccessFeature.PLANS_VIEW, accessCtx) &&
+                    getBlockState(PLANS_BLOCK_ID).isVisible;
+                const planIndicators = enabledIndicators(
+                    state.plans.catalog,
+                    state.plans.indicators,
+                );
+                let plans: DownLoadKpiReportDto['plans'];
+                if (plansVisible && planIndicators.length) {
+                    const canViewAll = checkAccess(
+                        EAccessFeature.PLANS_VIEW_ALL,
+                        accessCtx,
+                    );
+                    const currentUserId = Number(
+                        state.department.currentUser?.userId ?? 0,
+                    );
+                    const visibleIds = reportRows.map(row => Number(row.id));
+                    const scopedIds = canViewAll
+                        ? visibleIds
+                        : visibleIds.filter(id => id === currentUserId);
+                    const factSources: PlanFactSources = {
+                        report,
+                        callings: callingsReport ?? [],
+                        airtime: state.airtime.team.data,
+                        financeEmployees:
+                            state.finance.closed.report?.employees ?? [],
+                    };
+                    // Сотрудники без единого плана в лист «Планы» не попадают.
+                    const planRows = rowsWithAnyPlan(
+                        scopedIds.map(userId => ({
+                            userId,
+                            userName: financeEmployeeName(
+                                state.department.items,
+                                userId,
+                            ),
+                            cells: buildUserAchievementCells(
+                                planIndicators,
+                                state.plans.targetsByUser[userId],
+                                factSources,
+                                userId,
+                                date.from,
+                                date.to,
+                            ),
+                        })),
+                    );
+                    plans = (buildPlansExcelPayload(
+                        planIndicators,
+                        planRows,
+                        buildConversionSectionSources(
+                            state.department.departments,
+                            state.department.isMulti,
+                        ),
+                        true,
+                    ) ?? undefined) as DownLoadKpiReportDto['plans'];
+                }
+
                 const data = {
                     report: reportRows,
                     type,
                     date,
                     structure,
+                    conversions,
+                    plans,
                 } as DownLoadKpiReportDto;
 
 

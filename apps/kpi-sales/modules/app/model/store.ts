@@ -15,6 +15,14 @@ import { callingStatisticsReducer } from '@/modules/entities/calling-statistics'
 import { userReportReducer } from '@/modules/entities';
 import { reportTypeReducer } from '@/modules/feature/';
 import { mergedReportReducer } from '@/modules/feature/merged-kpi-calling-report';
+import { conversionsReducer } from '@/modules/feature/report-conversions/model/conversions-slice';
+import { uiSettingsReducer } from '@/modules/feature/ui-settings/model/ui-settings-slice';
+import { reportLinksReducer } from '@/modules/feature/report-links/model/report-links-slice';
+import { airtimeReducer } from '@/modules/entities/airtime/model/airtime-slice';
+import { financeReducer } from '@/modules/entities/finance/model/finance-slice';
+import { reportAwardsReducer } from '@/modules/feature/report-awards';
+import { pbxFieldsReducer } from '@/modules/feature/pbx-fields';
+import { plansReducer } from '@/modules/feature/plans';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
 export const listenerMiddleware = createListenerMiddleware();
@@ -47,6 +55,14 @@ const rootReducer = combineReducers({
     download,
     mergedReport: mergedReportReducer,
     userReport: userReportReducer,
+    conversions: conversionsReducer,
+    uiSettings: uiSettingsReducer,
+    airtime: airtimeReducer,
+    finance: financeReducer,
+    reportLinks: reportLinksReducer,
+    reportAwards: reportAwardsReducer,
+    pbxFields: pbxFieldsReducer,
+    plans: plansReducer,
 });
 
 export const setupStore = () =>

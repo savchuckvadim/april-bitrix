@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
-import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Label } from '@workspace/ui/components/label';
 import { ChevronDown, ChevronUp, Download, FileSpreadsheet } from 'lucide-react';
 import { getBlockState, setBlockState, BlockState } from '../../lib/localStorage-util';
 import { cn } from '@workspace/ui/lib/utils';

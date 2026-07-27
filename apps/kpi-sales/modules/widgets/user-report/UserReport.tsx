@@ -12,13 +12,18 @@ import { Button } from "@workspace/ui/components/button";
 import { useApp } from "@/modules/app";
 import { UserReportHeader } from "./UserReportHeader";
 import { UserReportStats } from "./UserReportStats";
+import { UserConversionsSummary } from "./UserConversionsSummary";
+import { UserFinanceSummary } from "./UserFinanceSummary";
+import { UserFinanceTab } from "./UserFinanceTab";
+import { useHasUserPlans, UserPlansProgress } from "@/modules/feature/plans";
+import { useUserConversions } from "./hooks/use-user-conversions";
+import { AirtimeUserCard } from "@/modules/entities/airtime";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
 import { UserReportEventTable } from "./UserReportEventTable";
 import { UserReportFilters } from "./UserReportFilters";
 import { UserReportChart } from "./UserReportChart";
-import { ReportHeader } from "@/modules/widgets/report";
-import { Filter } from "@/modules/widgets/report";
-import { useReport } from "@/modules/entities/report";
 import { ArrowBack } from "./ArrowBack";
+import { UserReportSection } from "./components/UserReportSection";
 import { Preloader } from "@/modules/shared";
 
 
@@ -26,13 +31,14 @@ import { Preloader } from "@/modules/shared";
 const BATCH_DISPLAY_SIZE = 300; // сколько показывать за раз
 
 export const UserReport = ({ userId }: { userId: number }) => {
-    const { initialized } = useApp()
+    const { initialized, domain } = useApp()
     const { getUserReport, report, isFetched } = useUserReport();
     const { department } = useDepartment();
+    // Гейты секций: пустые заголовки «Планы»/«Конверсии» не показываем.
+    const hasPlans = useHasUserPlans(userId);
+    const hasConversions = useUserConversions(userId) !== null;
 
 
-
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const [visibleCount, setVisibleCount] = useState(BATCH_DISPLAY_SIZE);
     const [selectedFilters, setSelectedFilters] = useState<{
@@ -232,36 +238,53 @@ export const UserReport = ({ userId }: { userId: number }) => {
 
 
     return (
-        <div className="mx-auto p-6 space-y-6 p-10">
-            <div className="bg-background/50 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 min-w-full">
-
-                <div className="flex justify-between items-center h-15 p-5 w-full">
-                    <ArrowBack />
-                    <ReportHeader
-                        isFilterOpen={isFilterOpen}
-                        setIsFilterOpen={setIsFilterOpen}
-                    />
-                </div>
-                <div className="px-15">
-                    <Filter isOpen={isFilterOpen} />
-                    {
-                        isFilterOpen && <div className="h-screen w-screen "></div>
-                    }
-                </div>
-
+        <div className="mx-auto space-y-6 p-6">
+            {/* «Назад» — компактная иконка inline с именем (не отдельный ряд). */}
+            <div className="flex items-center gap-2">
+                <ArrowBack />
+                <UserReportHeader
+                    userName={getUser?.NAME || `Пользователь #${userId}`}
+                    userId={userId}
+                    domain={domain}
+                />
             </div>
-            <div>
 
-            </div>
-            <UserReportHeader
-                userName={getUser?.NAME || `Пользователь #${userId}`}
-                userId={userId}
-                totalEvents={report.length}
-                avatar={getUser?.PERSONAL_PHOTO || ''}
-            />
+            {/* Секции саммари: подпись + «глазик» показать/скрыть
+                (видимость запоминается в BlockState-кэше). */}
+            <UserReportSection id="stats" title="Статистика">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+                    <div className="lg:col-span-4">
+                        <UserReportStats
+                            report={filteredReport}
+                            userId={userId}
+                        />
+                    </div>
+                    {/* <AirtimeUserCard userId={userId} /> */}
+                </div>
+            </UserReportSection>
 
-            <UserReportStats report={filteredReport} />
+            {hasPlans && (
+                <UserReportSection id="plans" title="Планы">
+                    <UserPlansProgress userId={userId} />
+                </UserReportSection>
+            )}
 
+            <UserReportSection id="finance" title="Продажи">
+                <UserFinanceSummary userId={userId} />
+            </UserReportSection>
+
+            {hasConversions && (
+                <UserReportSection id="conversions" title="Конверсии">
+                    <UserConversionsSummary userId={userId} />
+                </UserReportSection>
+            )}
+
+            <Tabs defaultValue="events">
+                <TabsList>
+                    <TabsTrigger value="events">События</TabsTrigger>
+                    <TabsTrigger value="finance">Финансы</TabsTrigger>
+                </TabsList>
+                <TabsContent value="events">
             <UserReportFilters
                 report={report}
                 selectedFilters={selectedFilters}
@@ -271,7 +294,7 @@ export const UserReport = ({ userId }: { userId: number }) => {
             />
 
             <div id="user-report">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mx-4">
                     <h2 className="text-xl font-semibold text-primary">
                         История событий
                         {filteredReport.length !== report.length && (
@@ -339,6 +362,11 @@ export const UserReport = ({ userId }: { userId: number }) => {
                     />
                 )}
             </div>
+                </TabsContent>
+                <TabsContent value="finance">
+                    <UserFinanceTab userId={userId} />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 };

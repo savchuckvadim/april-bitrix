@@ -14,6 +14,7 @@ export const getCallingStatisticsTableData = (
             actions: item.callings.map(calling => ({
                 name: calling.action || '%',
                 value: calling.count,
+                code: String(calling.id),
             })),
         })),
     };

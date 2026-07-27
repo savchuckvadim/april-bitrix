@@ -4,25 +4,31 @@ import { ReportCallingData } from "@/modules/entities/calling-statistics";
 import { getCallingStatisticsTableData } from "@/modules/entities/calling-statistics/lib/ui-util";
 import { getReportTableData } from "@/modules/entities/report/lib/ui-util";
 import { ReportData } from "@/modules/entities/report/model/types/report/report-type";
-import { RTable } from "@/modules/shared";
+import { RTable, RTableAnnotation } from "@/modules/shared";
 import { getMergedReportsData } from "../lib/merge-reports.util";
 import { MergedReportFilters } from "./MergedReportFilters";
 import { MergedReportChart } from "./MergedReportChart";
 import { MergedReportTotalTable } from "./MergedReportTotalTable";
 import { MergedReportTotalChart } from "./MergedReportTotalChart";
 import { useMergedReport } from '../hooks/merged-report.hook';
+import { useAppSelector, selectIsPublic } from '@/modules/app';
 
 
 interface MergedReportTableProps {
     report: ReportData[];
     callingsReport: ReportCallingData[];
+    /** Аннотации ячеек таблицы (% конверсий). */
+    annotations?: Map<string, RTableAnnotation>;
+    /** План-аннотации («⌖ план · %») — отдельная подстрока. */
+    planAnnotations?: Map<string, RTableAnnotation>;
 }
 
 
-export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, callingsReport }) => {
+export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, callingsReport, annotations, planAnnotations }) => {
     // const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
     // const [selectedActions, setSelectedActions] = useState<string[]>([]);
     const { selectedUsers, selectedActions, setSelectedUsers, setSelectedActions } = useMergedReport();
+    const isPublic = useAppSelector(selectIsPublic);
     // Вычисляем данные (всегда, даже если нет данных)
     const tableKpiData = useMemo(() => {
         
@@ -140,7 +146,9 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
                     code={tableKpiData.code}
                     firstCellName={tableKpiData.firstCellName}
                     data={filteredData}
-                    withLink={true}
+                    withLink={!isPublic}
+                    annotations={annotations}
+                    planAnnotations={planAnnotations}
                 />
             )}
             <MergedReportChart

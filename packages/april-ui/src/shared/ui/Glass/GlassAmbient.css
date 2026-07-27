@@ -1,0 +1,83 @@
+/*
+ * Фон под стекло: статичные цветовые пятна (база) + два дрейфующих блоба
+ * (::before/::after). Цвета — только токены темы, интенсивность низкая,
+ * чтобы не спорить с контентом отчётов. Анимируется только transform —
+ * дёшево; сами блобы «мягкие» за счёт radial-gradient, без filter: blur.
+ */
+.april-glass-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            42rem 30rem at 12% -6%,
+            color-mix(in oklab, var(--primary) 14%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            40rem 32rem at 55% 108%,
+            color-mix(in oklab, var(--info, var(--primary)) 10%, transparent),
+            transparent 70%
+        );
+}
+
+.april-glass-ambient::before,
+.april-glass-ambient::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    will-change: transform;
+}
+
+.april-glass-ambient::before {
+    width: 46rem;
+    height: 46rem;
+    top: -14rem;
+    right: -10rem;
+    background: radial-gradient(
+        closest-side,
+        color-mix(in oklab, var(--event-pres, var(--primary)) 12%, transparent),
+        transparent
+    );
+    animation: april-glass-ambient-drift-a 26s ease-in-out infinite alternate;
+}
+
+.april-glass-ambient::after {
+    width: 38rem;
+    height: 38rem;
+    bottom: -12rem;
+    left: -8rem;
+    background: radial-gradient(
+        closest-side,
+        color-mix(in oklab, var(--primary) 10%, transparent),
+        transparent
+    );
+    animation: april-glass-ambient-drift-b 32s ease-in-out infinite alternate;
+}
+
+@keyframes april-glass-ambient-drift-a {
+    from {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+        transform: translate3d(-8rem, 6rem, 0) scale(1.15);
+    }
+}
+
+@keyframes april-glass-ambient-drift-b {
+    from {
+        transform: translate3d(0, 0, 0) scale(1.1);
+    }
+    to {
+        transform: translate3d(9rem, -5rem, 0) scale(0.95);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .april-glass-ambient::before,
+    .april-glass-ambient::after {
+        animation: none;
+    }
+}

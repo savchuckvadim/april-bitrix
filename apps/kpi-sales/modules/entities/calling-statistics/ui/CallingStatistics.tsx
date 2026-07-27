@@ -3,14 +3,21 @@ import { useCallingStatistics } from '../lib/hooks/useCallingStatistics';
 import { Preloader } from '@/modules/shared';
 import CallingDashboard from './components/CallingDashboard';
 import { ReportCallingData } from '../type/calling-type';
+import type { RTableAnnotation } from '@workspace/april-ui';
 
 interface CallingStatisticsProps {
     callingsReport: ReportCallingData[] | null | undefined;
     isLoading: boolean;
+    /** Аннотации ячеек таблицы (% конверсий). */
+    annotations?: Map<string, RTableAnnotation>;
+    /** План-аннотации («⌖ план · %») — отдельная подстрока. */
+    planAnnotations?: Map<string, RTableAnnotation>;
 }
 const CallingStatistics: React.FC<CallingStatisticsProps> = ({
     callingsReport,
     isLoading,
+    annotations,
+    planAnnotations,
 }) => {
     if (isLoading)
         return (
@@ -27,7 +34,11 @@ const CallingStatistics: React.FC<CallingStatisticsProps> = ({
                     Статистика по звонкам
                 </h2>
             </div>
-            <CallingTable data={callingsReport} />
+            <CallingTable
+                data={callingsReport}
+                annotations={annotations}
+                planAnnotations={planAnnotations}
+            />
             <CallingDashboard report={callingsReport} />
         </div>
     );

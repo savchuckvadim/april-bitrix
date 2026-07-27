@@ -1,13 +1,20 @@
 import { Button } from "@workspace/ui/components/button"
 import { useReportType } from "../hooks/report-type.hook";
-import { EReportType, REPORT_TYPE_LABELS } from "../consts/report-type.consts";
+import { useEnsureAvailableReportType } from "../hooks/use-available-report-types";
+import { REPORT_TYPE_LABELS } from "../consts/report-type.consts";
 
+/**
+ * Переключатель вкладок отчёта. Список — только доступные текущему
+ * пользователю (централизованные права: shared/access + useAccess);
+ * недоступная сохранённая вкладка автоматически уводится на «Все».
+ */
 export const ReportType = () => {
     const { current, setCurrentReportType } = useReportType();
+    const available = useEnsureAvailableReportType();
     return (
         <div className="flex items-center gap-2 p-0 m-0">
             {
-                Object.values(EReportType).map((type) => (
+                available.map((type) => (
                     <Button
                         key={type}
                         variant={current === type ? "default" : "outline"}

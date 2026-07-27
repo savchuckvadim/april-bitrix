@@ -1,3 +1,5 @@
+import { emitUiSettingsTouch } from '@/modules/shared/lib/ui-settings-touch';
+
 const STORAGE_PREFIX = 'kpi-report-blocks-';
 
 export interface BlockState {
@@ -32,6 +34,8 @@ export const setBlockState = (blockId: string, state: BlockState): void => {
     } catch (error) {
         console.error('Error saving block state to localStorage:', error);
     }
+    // Сигнал ui-settings-синку (кросс-браузерный персист блоков).
+    emitUiSettingsTouch();
 };
 
 export const getAllBlockStates = (): Record<string, BlockState> => {

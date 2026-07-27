@@ -14,7 +14,12 @@ export const reportTypeSlice = createSlice({
     initialState,
     reducers: {
         setCurrentReportType: (state: ReportTypeState, action: PayloadAction<EReportType>) => {
-            state.current = action.payload;
+            // Гард от протухших сохранённых значений (ui-settings/share-снимки
+            // могут содержать удалённую вкладку, напр. 'conversions') — иначе
+            // отчёт рендерится пустым.
+            state.current = Object.values(EReportType).includes(action.payload)
+                ? action.payload
+                : EReportType.All;
         },
     },
 });

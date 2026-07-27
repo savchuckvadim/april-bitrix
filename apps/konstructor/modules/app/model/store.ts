@@ -11,9 +11,9 @@ import {
 import { appReducer } from './AppSlice';
 import { WSClient } from '@/modules/shared';
 import { WSClient as WSClientWorkspace } from '@workspace/ws';
-import { infoblockReducer } from '@/modules/entities/infoblock';
+import { catalogReducer } from '@/modules/entities/catalog';
+import { rowSetReducer } from '@/modules/entities/row-set';
 import { offerTemplateBlockReducer } from '@/modules/entities/offer-template-block';
-import { complectReducer } from '@/modules/entities/complect';
 import { baseTemplateReducer } from '@/modules/entities/base-template';
 import { offerTemplateReducer } from '@/modules/entities/offer-template';
 import { offerTemplateKonstructorReducer } from '@/modules/entities/offer-template-konstructor';
@@ -48,8 +48,9 @@ const rootReducer = combineReducers({
     bxrq: bxrqReducer,
 
     deal: dealReducer,
-    complect: complectReducer,
-    infoblock: infoblockReducer,
+    // ядро конструктора (code-джойны)
+    catalog: catalogReducer,
+    rowSet: rowSetReducer,
     portal: portalReducer,
 
     documentProvider: documentProviderReducer,

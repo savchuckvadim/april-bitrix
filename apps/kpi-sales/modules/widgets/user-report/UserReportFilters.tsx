@@ -6,8 +6,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Card } from "@workspace/ui/components/card";
 import { Button } from "@workspace/ui/components/button";
 import { X, Building2, Palette } from 'lucide-react';
-import { getColorCompany } from '@/modules/entities/user-report/lib/color-company.ui-util';
-import { cn } from '@workspace/ui/lib/utils';
+import { CompanyColorBadge } from '@/modules/shared';
 
 interface UserReportFiltersProps {
     report: IUserReportItem[];
@@ -222,12 +221,10 @@ export const UserReportFilters: React.FC<UserReportFiltersProps> = ({
                                 <Badge
                                     key={option.code}
                                     variant={selectedFilters.color === option.code ? "default" : "secondary"}
-                                    className={cn(
-                                        "cursor-pointer hover:opacity-80 transition-all",
-                                        selectedFilters.color === option.code && getColorCompany(option.code)
-                                    )}
+                                    className="cursor-pointer gap-1.5 hover:opacity-80 transition-all"
                                     onClick={() => handleFilterToggle('color', option.code)}
                                 >
+                                    <CompanyColorBadge color={option.code} />
                                     {option.name} ({option.count})
                                 </Badge>
                             ))}

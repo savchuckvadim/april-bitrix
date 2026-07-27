@@ -43,10 +43,17 @@ export const callingRowUserId = (row: ReportCallingData): number =>
         (row.user as { ID?: number | string } | undefined)?.ID ?? row.userId,
     );
 
+/** Полное «Имя Фамилия» строки звонков (как в остальных таблицах). */
 const callingRowName = (row: ReportCallingData): string =>
-    row.userName ||
     [row.user?.NAME, row.user?.LAST_NAME].filter(Boolean).join(' ') ||
+    row.userName ||
     String(callingRowUserId(row));
+
+/** Полное «Имя Фамилия» строки KPI-отчёта (как в остальных таблицах). */
+const reportRowName = (row: ReportData): string =>
+    [row.user?.NAME, row.user?.LAST_NAME].filter(Boolean).join(' ') ||
+    row.userName ||
+    String(reportRowUserId(row));
 
 /** События (KPI-отчёт). */
 export const buildKpiRatingDataset = (report: ReportData[]): RatingDataset => {
@@ -59,7 +66,7 @@ export const buildKpiRatingDataset = (report: ReportData[]): RatingDataset => {
         })),
         rows: report.map(row => ({
             userId: reportRowUserId(row),
-            name: row.userName || String(reportRowUserId(row)),
+            name: reportRowName(row),
             values: Object.fromEntries(
                 row.kpi.map(kpi => [kpi.action.innerCode, kpi.count || 0]),
             ),

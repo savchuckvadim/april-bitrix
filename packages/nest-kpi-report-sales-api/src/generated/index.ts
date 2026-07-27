@@ -1,22 +1,21 @@
-// Hand-maintained barrel of generated tag clients (orval `tags-split` does not
-// emit a root index). Add new tag re-exports here as endpoints are wired up on
-// the frontend. Schemas are re-exported separately via ./model.
+// АВТОГЕНЕРАЦИЯ (scripts/build-generated-index.mjs). Не редактировать руками —
+// перезаписывается на каждом `pnpm generate`. Barrel тег-клиентов + схемы.
 
-// KPI-отчёт отдела продаж + персональный отчёт менеджера
-// (POST /api/kpi-report/get, /api/kpi-report/calling-statistic, /api/sales-user-report*)
-export * from './sales-report/sales-report';
-// Скачивание Excel-отчёта (POST /api/kpi-report/download)
-export * from './kpi-sales-report-download/kpi-sales-report-download';
-// Отделы Bitrix (POST /api/bx/department, /api/bitrix/department/sales, /api/bx/department/structure)
+export * from './model';
+export * from './app-cache/app-cache';
 export * from './bitrix-domain-department/bitrix-domain-department';
-// Команды Bitrix (POST /api/bx/team)
 export * from './bitrix-domain-team/bitrix-domain-team';
-// Сохранённые фильтры отчёта (POST /api/kpi-report/filter/get, /api/kpi-report/filter/save)
+export * from './front-portal/front-portal';
+export * from './health/health';
+export * from './kpi-sales-report-download/kpi-sales-report-download';
+export * from './metrics/metrics';
+export * from './pbx-fields/pbx-fields';
+export * from './sales-airtime/sales-airtime';
+export * from './sales-finance/sales-finance';
+export * from './sales-plans/sales-plans';
+export * from './sales-report/sales-report';
 export * from './sales-report-filter/sales-report-filter';
-// Уведомления в Telegram (POST /api/telegram)
+export * from './sales-report-ui-settings/sales-report-ui-settings';
+export * from './share-link/share-link';
+export * from './share-link-public/share-link-public';
 export * from './telegram/telegram';
-
-// Доступны после generate, подключать по мере необходимости:
-// export * from './front-portal/front-portal';
-// export * from './health/health';
-// export * from './metrics/metrics';

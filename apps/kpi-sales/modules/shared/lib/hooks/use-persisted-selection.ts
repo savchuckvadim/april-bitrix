@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { emitUiSettingsTouch } from '../ui-settings-touch';
 
 /**
  * Память UI-выбора (select показателя и т.п.) в localStorage.
  * Next-safe: на сервере и первом рендере значение пустое (гидрация
  * совпадает), чтение — только на клиенте в эффекте.
+ * Изменение сигналит ui-settings-синку (кросс-браузерный персист).
  */
 export const usePersistedSelection = (storageKey: string) => {
     const [value, setValue] = useState('');
@@ -26,6 +28,7 @@ export const usePersistedSelection = (storageKey: string) => {
         } catch {
             // noop
         }
+        emitUiSettingsTouch();
     };
 
     return [value, set] as const;

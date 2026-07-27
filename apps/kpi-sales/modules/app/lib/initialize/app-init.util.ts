@@ -8,7 +8,7 @@ import {
     TESTING_USER,
 } from '../../consts/app-global';
 import { appActions } from '../../model/AppSlice';
-import { AppDispatch, AppGetState, initWSClient } from '../../model/store';
+import { AppDispatch, initWSClient } from '../../model/store';
 
 /** Код ошибки инициализации «не во фрейме Bitrix в PROD». */
 export const NON_AUTH_ERROR = 'nonauth';
@@ -22,7 +22,7 @@ export const NON_AUTH_ERROR = 'nonauth';
  */
 export const appInit = async (
     dispatch: AppDispatch,
-    _getState: AppGetState,
+    // _getState: AppGetState,
 ) => {
     const bitrix = await Bitrix.start(
         TESTING_DOMAIN,

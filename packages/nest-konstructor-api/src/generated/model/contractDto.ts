@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { ContracPortaltDto } from './contracPortaltDto';
-import type { ContractDtoCode } from './contractDtoCode';
+import type { ContractCode } from './contractCode';
 import type { ContractMeasureDto } from './contractMeasureDto';
 
 export interface ContractDto {
@@ -15,7 +15,7 @@ export interface ContractDto {
     /** Contract of the contract */
     contract: ContracPortaltDto;
     /** Code of the contract */
-    code: ContractDtoCode;
+    code: ContractCode;
     /** Short name of the contract */
     shortName: string;
     /** Number of the contract */

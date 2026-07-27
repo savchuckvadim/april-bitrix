@@ -1,15 +1,25 @@
 /*
  * Читаемое стекло (рецепт glasscn-ui): полупрозрачная подложка от --card
  * (адаптируется к любой теме — светлой и тёмной), сильный blur + saturate,
- * световая грань сверху. Не гейтится на glass-темы — работает везде.
+ * световая грань сверху и диагональный блик. Не гейтится на glass-темы.
+ * Вариант liquid (рефракция) — см. GlassSurface.tsx.
  */
 .april-glass-card {
     position: relative;
     border-radius: var(--radius, 0.75rem);
     border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
-    background: color-mix(in oklab, var(--card) 78%, transparent);
-    -webkit-backdrop-filter: blur(24px) saturate(150%);
-    backdrop-filter: blur(24px) saturate(150%);
+    /* Доля --card — токен темы (april-tokens.css). Держим низкой: стекло
+       читается только когда сквозь него реально что-то видно; читаемость
+       добирается blur'ом, а не непрозрачностью. */
+    background:
+        linear-gradient(
+            160deg,
+            color-mix(in oklab, white 12%, transparent),
+            transparent 38%
+        ),
+        color-mix(in oklab, var(--card) var(--glass-card-mix, 42%), transparent);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
     box-shadow:
         0 8px 32px oklch(0 0 0 / 18%),
         inset 0 1px 0 color-mix(in oklab, white 30%, transparent);
@@ -17,5 +27,15 @@
 
 /* Более прозрачный вариант — для декоративных поверхностей без текста. */
 .april-glass-card--strong {
-    background: color-mix(in oklab, var(--card) 55%, transparent);
+    background:
+        linear-gradient(
+            160deg,
+            color-mix(in oklab, white 10%, transparent),
+            transparent 38%
+        ),
+        color-mix(
+            in oklab,
+            var(--card) var(--glass-card-mix-strong, 30%),
+            transparent
+        );
 }

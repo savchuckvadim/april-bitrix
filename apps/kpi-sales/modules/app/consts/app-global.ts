@@ -1,26 +1,31 @@
-import { BXUser, Placement } from '@workspace/bx';
+import { BXUser } from '@workspace/bx';
 
 /**
  * PROD (NEXT_PUBLIC_IN_BITRIX=true): приложение обязано жить во фрейме
  * Bitrix — вне фрейма показываем nonauth. DEV: вне фрейма работаем
  * с TESTING_* данными (fallback внутри @workspace/bitrix).
  */
-export const IS_PROD = process.env.NEXT_PUBLIC_IN_BITRIX === 'true';
-
-export const TESTING_DOMAIN = 'gsr.bitrix24.ru';
+export const IS_PROD = process.env.NEXT_PUBLIC_IN_BITRIX === 'true'
+export const KPI_REPORT_BASE_URL = process.env.NEXT_PUBLIC_KPI_SALES_API_URL  || 'https://api.kpi-report-sales.ru/'
+// export const TESTING_DOMAIN = 'gsr.bitrix24.ru';
+// export const TESTING_DOMAIN = 'gsirk.bitrix24.ru';
 // export const TESTING_DOMAIN = 'alfacentr.bitrix24.ru'
-// export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
+export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
+// export const TESTING_DOMAIN = 'garantservisvoronezh.bitrix24.ru'
+const TESTING_USER_ID = 1 // 2153 // 447 //2153
+const LAST_NAME = "Савчук" //Савчук
+const EMAIL = "" //savchuk
 export const TESTING_USER = {
-    ID: 2153,
+    ID: TESTING_USER_ID,
     ACTIVE: true,
     DATE_REGISTER: '29/08/1988',
-    EMAIL: 'string',
+    EMAIL: EMAIL,
 
     IS_ONLINE: 'string',
     LAST_ACTIVITY_DATE: ['string'],
     LAST_LOGIN: 'string',
-    LAST_NAME: 'Савчук',
-    NAME: 'екуе',
+    LAST_NAME: LAST_NAME,
+    NAME: 'reywhhsdfhs3554ufahfhd',
     PERSONAL_BIRTHDAY: 'string',
     PERSONAL_CITY: 'string',
     PERSONAL_GENDER: 'string',
@@ -38,70 +43,3 @@ export const TESTING_USER = {
     WORK_PHONE: 'string',
     WORK_POSITION: 'Оператор ТМЦ',
 } as BXUser;
-
-export const IS_REMEMBER_DEV = true;
-export const TESTING_DEAL_ID = 0; //11311
-export const TESTING_COMPANY_ID = 158587 as number; // 158479
-export const DEV_CURRENT_USER_ID = 1;
-// 11822
-// 11822
-// export const TESTING_DEAL_ID = 11388
-// 10500 month
-// 10536 abon + month
-// 10550 1abon
-// 11726 lic q-2
-//DEAL
-// export const TESTING_PLACEMENT = {
-//     placement: 'CRM_COMPANY_DETAIL_TAB',
-//     options: {
-//         ID: TESTING_COMPANY_ID,
-//     },
-// } as Placement;
-
-// export const TESTING_PLACEMENT = {
-//     placement: 'CRM_DEAL_DETAIL_TAB',
-//     options: {
-//         ID: TESTING_DEAL_ID
-//     }
-// } as Placement
-
-// export const TESTING_PLACEMENT = {
-//     placement: 'TASK_VIEW_TOP_PANEL', //TASK_VIEW_SIDEBAR',
-//     options: {
-//         taskId: 5605
-//     }
-// } as Placement
-
-// export const TESTING_PLACEMENT = {
-//         placement: 'CALL_CARD',
-//         options: {
-//             CRM_ENTITY_TYPE: 'COMPANY',
-//             CRM_ENTITY_ID: TESTING_COMPANY_ID,
-//             CALL_DIRECTION:"outgoing",
-//             CALL_ID:"C24F78184C4BF39C.1716028715.2918176",
-//             CALL_LIST_MODE:"false",
-//             CALL_STATE: "connecting",
-//             CRM_ACTIVITY_ID: "",
-//             CRM_BINDINGS: [
-//                 {
-//                     ENTITY_ID: TESTING_COMPANY_ID,
-//                     ENTITY_TYPE: 'COMPANY'
-//                 }
-//             ]
-//         }
-//     } as PlacementCallCard
-// 'april-garant.bitrix24.ru' deal for testing 331
-// 'alfacentr.bitrix24.ru' deal for testing 1384
-
-// export const IS_DEAL_API_TESTING = false
-
-// ///DOCUMENTS
-// export const IS_DOCUMENT_TESTING = false
-// export const WITH_DOCUMENT = true
-
-// export const IS_DEV_SERVER = false
-// export const TESTING_TEMPLATE_ID = 13
-
-// //REPORT
-// export const IS_REPORT = false
-// //

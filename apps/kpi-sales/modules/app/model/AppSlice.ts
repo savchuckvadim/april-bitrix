@@ -2,6 +2,8 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { APP_TYPE } from '../types/app/app-type';
 import { Portal } from '../types/portal/portal-type';
 import type { BXUser } from '@workspace/bx';
+import type { AppFeatureFlags } from '@/modules/shared/access';
+import { APP_FEATURES } from '../consts/features';
 
 export type AppState = typeof initialState;
 export enum APP_DEP {
@@ -25,9 +27,26 @@ const initialState = {
     portal: null as Portal | null,
     initialized: false,
     isLoading: false,
+    /**
+     * Публичный режим read-only снимка (страница /share). Влияет на UI:
+     * имена пользователей НЕ ведут ссылками на user-report (у публики нет
+     * доступа к отчёту сотрудника), локальные автосейвы не срабатывают.
+     */
+    isPublic: false,
     error: {
         status: false as boolean,
         message: '' as string,
+    },
+    /** Флаги фич (дефолты из consts/features.ts; позже — с бэка per-portal). */
+    features: APP_FEATURES as AppFeatureFlags,
+    /**
+     * Режим «Смотреть как…» суперюзера. bitrix.user ВСЕГДА остаётся
+     * реальным пользователем; данные грузятся от имени viewAs.user
+     * (selectEffectiveUser), а все user-keyed записи (ui-settings,
+     * сохранение фильтра, ссылки) при активном режиме заблокированы.
+     */
+    viewAs: {
+        user: null as BXUser | null,
     },
 };
 export interface InitReport {
@@ -100,6 +119,27 @@ const appSlice = createSlice({
             action: PayloadAction<{ isExpired: boolean }>,
         ) => {
             state.client.isExpired = action.payload.isExpired;
+        },
+        /** Отметить сессию как публичный read-only снимок (/share). */
+        setPublicMode: (state: AppState, action: PayloadAction<boolean>) => {
+            state.isPublic = action.payload;
+        },
+        /** Частичное обновление флагов (задел: per-portal настройки с бэка). */
+        setFeatures: (
+            state: AppState,
+            action: PayloadAction<Partial<AppFeatureFlags>>,
+        ) => {
+            state.features = { ...state.features, ...action.payload };
+        },
+        /**
+         * Вкл/выкл режима «Смотреть как…». Только смена identity —
+         * перезагрузку цепочки данных делает thunk feature/view-as.
+         */
+        setViewAsUser: (
+            state: AppState,
+            action: PayloadAction<BXUser | null>,
+        ) => {
+            state.viewAs.user = action.payload;
         },
     },
 });

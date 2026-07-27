@@ -5,11 +5,11 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
-import type { ComplectDto } from './complectDto';
+import type { InitComplectDto } from './initComplectDto';
 
 export interface ComplectsDto {
     /** Prof */
-    prof: ComplectDto[];
+    prof: InitComplectDto[];
     /** Universal */
-    universal: ComplectDto[];
+    universal: InitComplectDto[];
 }

@@ -5,9 +5,7 @@ import { IUserReportItem } from "@/modules/entities/user-report/type/user-report
 import { useUserReportItem } from '@/modules/entities/user-report/hooks/user-report-item.hook';
 import Link from 'next/link';
 import { Tooltip } from '@workspace/april-ui';
-import { cn } from '@workspace/ui/lib/utils';
-import { getColorCompany } from '@/modules/entities/user-report/lib/color-company.ui-util';
-import { Badge } from '@workspace/ui/components/badge';
+import { CompanyColorBadge } from '@/modules/shared';
 import { BadgeCent, Dot } from 'lucide-react';
 
 
@@ -28,7 +26,6 @@ export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, id
         title,
         domain,
         companyId,
-        companyColorName,
         type,
         comment,
         crm,
@@ -64,9 +61,7 @@ export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, id
                             <Tooltip content={'открыть в crm'}
                                 children={
                                     companyBxLink ? <Link href={companyBxLink} target="_blank">
-                                        {company?.TITLE || companyId}          <Badge variant="outline" className={cn(
-                                            getColorCompany(company?.color || '')
-                                        )}><p className='text-xs'>{companyColorName}</p></Badge>
+                                        {company?.TITLE || companyId}          <CompanyColorBadge color={company?.color} withLabel />
                                     </Link> : <p>{company?.TITLE || companyId} </p>} />
 
 
@@ -91,9 +86,7 @@ export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, id
                                     className='text-foreground hover:text-primary'
                                     href={companyBxLink}
                                     target="_blank">
-                                    {company?.TITLE || companyId}  <Badge variant="outline" className={cn(
-                                            getColorCompany(company?.color || '')
-                                        )}><p className='text-xs'>{companyColorName}</p></Badge>
+                                    {company?.TITLE || companyId}  <CompanyColorBadge color={company?.color} withLabel />
                                 </Link>
                             } />
                             : <p>{companyId}</p>

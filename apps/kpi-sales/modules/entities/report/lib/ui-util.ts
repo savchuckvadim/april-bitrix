@@ -11,6 +11,7 @@ export const getReportTableData = (report: ReportData[]): RTableProps => {
             actions: report.kpi.map(kpi => ({
                 name: kpi.action.name || 'Unknown',
                 value: kpi.count,
+                code: kpi.action.innerCode,
             })),
         })),
     };

@@ -15,4 +15,6 @@ export interface BxDepartmentStructureRequestDto {
     department?: BxDepartmentStructureRequestDtoDepartment;
     /** Идентификатор текущего пользователя Битрикс24. */
     userId: number;
+    /** Сбросить кэш Redis перед запросом: структура будет заново получена из Битрикс и закэширована. */
+    resetCache?: boolean;
 }

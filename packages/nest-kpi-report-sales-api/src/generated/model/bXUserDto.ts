@@ -7,7 +7,10 @@
  */
 
 export interface BXUserDto {
+    /** ID пользователя Bitrix */
     ID: string;
+    /** Имя сотрудника */
     NAME: string;
+    /** Фамилия сотрудника */
     LAST_NAME: string;
 }

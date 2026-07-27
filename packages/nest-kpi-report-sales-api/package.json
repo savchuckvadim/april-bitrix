@@ -4,7 +4,7 @@
     "main": "index.ts",
     "scripts": {
         "lint": "eslint . --max-warnings 0",
-        "generate": "orval"
+        "generate": "orval && node scripts/build-generated-index.mjs"
     },
     "devDependencies": {
         "@turbo/gen": "^2.4.2",

@@ -25,6 +25,14 @@ export { PreloaderMicro } from './shared/Preloader';
 export { PreloaderScreen } from './shared/Preloader';
 export type { PreloaderVariant } from './shared/Preloader';
 export { GlassCard } from './shared/ui/Glass/GlassCard';
+export { GlassSurface } from './shared/ui/Glass/GlassSurface';
+export type { GlassSurfaceProps } from './shared/ui/Glass/GlassSurface';
+export { GlassAmbient } from './shared/ui/Glass/GlassAmbient';
+export { LiquidProgress } from './shared/ui/Progress/LiquidProgress';
+export type {
+    LiquidProgressProps,
+    LiquidProgressTone,
+} from './shared/ui/Progress/LiquidProgress';
 
 export type { ComponentPropsColors } from './shared/ui/Button/AAButton';
 export { default as AIcon } from './shared/FuncIcon/FuncIcon';

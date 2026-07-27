@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BXDepartment, BXUser } from '@workspace/bx';
-import { updateCurrentGroupsByUsers } from '../lib/department-util';
+import { updateCurrentGroupsByUsers } from '../lib/utils/department-util';
 import type { CurrentUserInfo, SalesDepartment } from './index';
 
 export type DepartmentStatus = 'idle' | 'loading' | 'ready' | 'error';

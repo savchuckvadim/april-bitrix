@@ -1,0 +1,11 @@
+{
+    "__note": "ЗАГЛУШКА: настоящий дамп старого init сюда не закоммичен. Билд и dev-витрина работают на пустом каталоге; тесты паритета цен требуют реальный дамп — замени файл настоящим docs/oldinit.json и закоммить.",
+    "complects": [],
+    "supplies": [],
+    "contracts": { "current": [], "items": [] },
+    "regions": [],
+    "prices": { "prof": [], "universal": [] },
+    "legalTech": { "lt": [], "packages": [] },
+    "consalting": [],
+    "star": []
+}

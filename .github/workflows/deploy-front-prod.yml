@@ -58,7 +58,7 @@ env:
     {
       "admin":         { "app_url": "https://back.april-app.ru",  "in_bitrix": "true",  "chromium": "false", "admin_api_url": "https://api.admin.april-app.ru/", "pbx_install_api_url": "https://api.install.april-app.ru/", "konstructor_api_url": "" },
       "bitrix":        { "app_url": "https://bitrix.april-app.ru", "in_bitrix": "true",  "chromium": "false" },
-      "kpi-sales":     { "app_url": "",                            "in_bitrix": "false", "chromium": "false" },
+      "kpi-sales":     { "app_url": "",                            "in_bitrix": "false", "chromium": "false", "kpi_sales_api_url": "https://api.kpi-sales.april-app.ru/" },
       "kpi-service":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "false" },
       "konstructor":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  },
       "event-sales":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  },
@@ -169,6 +169,7 @@ jobs:
             NEXT_PUBLIC_ADMIN_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].admin_api_url }}
             NEXT_PUBLIC_PBX_INSTALL_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].pbx_install_api_url }}
             NEXT_PUBLIC_KONSTRUCTOR_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].konstructor_api_url }}
+            NEXT_PUBLIC_KPI_SALES_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].kpi_sales_api_url }}
           push: true
           tags: |
             ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:${{ github.sha }}

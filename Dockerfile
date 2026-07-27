@@ -102,7 +102,8 @@ COPY --from=base /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=base /app/packages ./packages
 COPY --from=base /app/apps/${APP}/public ./public
 
-COPY --from=base /app/apps/${APP}/next.config.ts ./next.config.ts
+# next.config.ts ИЛИ next.config.mjs (kpi-sales) — wildcard берёт что есть
+COPY --from=base /app/apps/${APP}/next.config.* ./
 
 #not for dokploy
 # COPY --from=base /app/apps/${APP}/.env ./.env

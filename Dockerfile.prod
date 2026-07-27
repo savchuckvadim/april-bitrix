@@ -57,6 +57,8 @@ ARG PORT=3000
 ARG NEXT_PUBLIC_ADMIN_API_URL
 ARG NEXT_PUBLIC_PBX_INSTALL_API_URL
 ARG NEXT_PUBLIC_KONSTRUCTOR_API_URL
+# kpi-sales: база бэка kpi-report-sales (API + WS + share-прокси), инлайнится
+ARG NEXT_PUBLIC_KPI_SALES_API_URL
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
     NEXT_PUBLIC_WS_HOST=${NEXT_PUBLIC_WS_HOST} \
     NEXT_PUBLIC_IN_BITRIX=${NEXT_PUBLIC_IN_BITRIX} \
@@ -68,7 +70,8 @@ ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
     PORT=${PORT} \
     NEXT_PUBLIC_ADMIN_API_URL=${NEXT_PUBLIC_ADMIN_API_URL} \
     NEXT_PUBLIC_PBX_INSTALL_API_URL=${NEXT_PUBLIC_PBX_INSTALL_API_URL} \
-    NEXT_PUBLIC_KONSTRUCTOR_API_URL=${NEXT_PUBLIC_KONSTRUCTOR_API_URL}
+    NEXT_PUBLIC_KONSTRUCTOR_API_URL=${NEXT_PUBLIC_KONSTRUCTOR_API_URL} \
+    NEXT_PUBLIC_KPI_SALES_API_URL=${NEXT_PUBLIC_KPI_SALES_API_URL}
 
 RUN pnpm --filter ${APP} run build
 
@@ -129,7 +132,8 @@ COPY --from=base /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=base /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=base /app/packages ./packages
 COPY --from=base /app/apps/${APP}/public ./public
-COPY --from=base /app/apps/${APP}/next.config.ts ./next.config.ts
+# next.config.ts ИЛИ next.config.mjs (kpi-sales) — wildcard берёт что есть
+COPY --from=base /app/apps/${APP}/next.config.* ./
 
 RUN pnpm install --prod --no-frozen-lockfile && \
     pnpm --filter ${APP} install --prod --no-frozen-lockfile

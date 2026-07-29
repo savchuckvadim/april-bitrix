@@ -4,9 +4,15 @@
 import { IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 import { Placement } from '@workspace/bx';
 // export const TESTING_DOMAIN = 'gsr.bitrix24.ru'
-export const TESTING_DOMAIN = 'april-garant.bitrix24.ru' as string;
+export const TESTING_DOMAIN = 'garantservisvoronezh.bitrix24.ru' as string;
+const TESTING_PLACEMENT_LEAD_ID = 318051
+const TESTING_PLACEMENT_COMPANY_ID = 158479
+const TESTING_PLACEMENT_DEAL_ID = 158479
+const TESTING_USER_ID = 447 // 447
+const TESTING_USER_NAME = 'Татьяна' //Савчук
+const TESTING_USER_LAST_NAME = 'Попова' //Савчук
 export const TESTING_USER = {
-    ID: 1,
+    ID: TESTING_USER_ID,
     ACTIVE: true,
     DATE_REGISTER: '29/08/1988',
     EMAIL: 'string',
@@ -34,69 +40,12 @@ export const TESTING_USER = {
     WORK_POSITION: 'Оператор ТМЦ',
 } as IBXUser;
 
-export const IS_REMEMBER_DEV = true;
-export const TESTING_DEAL_ID = 0; //11311
-export const TESTING_COMPANY_ID = 36978 as number; // 158479
-export const DEV_CURRENT_USER_ID = 1;
-// 11822
-// 11822
-// export const TESTING_DEAL_ID = 11388
-// 10500 month
-// 10536 abon + month
-// 10550 1abon
-// 11726 lic q-2
-//DEAL
+// export const TESTING_PLACEMENT_TYPE = 'CRM_COMPANY_DETAIL_TAB' as const;
+export const TESTING_PLACEMENT_TYPE = 'CRM_LEAD_DETAIL_TAB' as const;
+
 export const TESTING_PLACEMENT = {
-    placement: 'CRM_COMPANY_DETAIL_TAB',
+    placement: TESTING_PLACEMENT_TYPE,
     options: {
-        ID: TESTING_COMPANY_ID,
+        ID: TESTING_PLACEMENT_LEAD_ID,
     },
 } as Placement;
-
-// export const TESTING_PLACEMENT = {
-//     placement: 'CRM_DEAL_DETAIL_TAB',
-//     options: {
-//         ID: TESTING_DEAL_ID
-//     }
-// } as Placement
-
-// export const TESTING_PLACEMENT = {
-//     placement: 'TASK_VIEW_TOP_PANEL', //TASK_VIEW_SIDEBAR',
-//     options: {
-//         taskId: 5605
-//     }
-// } as Placement
-
-// export const TESTING_PLACEMENT = {
-//         placement: 'CALL_CARD',
-//         options: {
-//             CRM_ENTITY_TYPE: 'COMPANY',
-//             CRM_ENTITY_ID: TESTING_COMPANY_ID,
-//             CALL_DIRECTION:"outgoing",
-//             CALL_ID:"C24F78184C4BF39C.1716028715.2918176",
-//             CALL_LIST_MODE:"false",
-//             CALL_STATE: "connecting",
-//             CRM_ACTIVITY_ID: "",
-//             CRM_BINDINGS: [
-//                 {
-//                     ENTITY_ID: TESTING_COMPANY_ID,
-//                     ENTITY_TYPE: 'COMPANY'
-//                 }
-//             ]
-//         }
-//     } as PlacementCallCard
-// 'april-garant.bitrix24.ru' deal for testing 331
-// 'alfacentr.bitrix24.ru' deal for testing 1384
-
-// export const IS_DEAL_API_TESTING = false
-
-// ///DOCUMENTS
-// export const IS_DOCUMENT_TESTING = false
-// export const WITH_DOCUMENT = true
-
-// export const IS_DEV_SERVER = false
-// export const TESTING_TEMPLATE_ID = 13
-
-// //REPORT
-// export const IS_REPORT = false
-// //

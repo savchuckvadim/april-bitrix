@@ -2,7 +2,6 @@ import { Bitrix } from '@workspace/bitrix';
 import { BXTask, BXUser, Placement } from '@workspace/bx';
 import { portalAPI } from '@workspace/pbx';
 import {
-    DEV_CURRENT_USER_ID,
     TESTING_DOMAIN,
     TESTING_PLACEMENT,
     TESTING_USER,
@@ -52,7 +51,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
 
     initAppEntities(dispatch, entities, domain, user, placement, display);
 
-    const userId = Number(user?.ID || DEV_CURRENT_USER_ID);
+    const userId = Number(user?.ID || TESTING_USER.ID);
     const companyId = Number(
         entities.currentCompany?.ID || entities.companyPlacement.options.ID || 0,
     );

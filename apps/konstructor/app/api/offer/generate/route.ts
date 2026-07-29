@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import puppeteer from 'puppeteer';
 import { IOffer } from '@/modules/entities/offer/type/offer.type';
-import { redis } from '@/app/lib/redis/redis';
+import { redis } from '@/modules/app/lib/server/redis/redis';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {

@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 import { IOfferBlockHero } from '@/modules/entities/offer-template-block/type/offer-template-block.type';
 import { useOfferTemplateBlock } from '@/modules/entities/offer-template-block';
-import BlockPositionSelect from '@/modules/feature/position/BlockPositionSelect';
+import BlockPositionSelect from '@/modules/features/position/BlockPositionSelect';
 // import { useOfferTemplateKonstructor } from '@/modules/entities/offer-template-konstructor/hook/useOfferTemplateKonstructor';
 import { BlockPostion } from '@/modules/entities/offer-template-konstructor';
 import { ImageUploader } from '../components/ImageUploader';

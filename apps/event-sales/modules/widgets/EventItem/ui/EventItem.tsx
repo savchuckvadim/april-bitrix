@@ -75,7 +75,7 @@ export const EventItem: FC = () => {
 
     const records = config.withRecords ? <RecordsList /> : undefined;
     const isCompact = layoutMode === 'compact';
-
+debugger
     return (
         <div
             data-event-type={eventTypeAttr}

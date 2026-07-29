@@ -20,7 +20,7 @@ import {
 } from '@workspace/bx-rq';
 import { Edit2, Copy, CheckCircle } from 'lucide-react';
 import { useApp } from '@/modules/app/lib/hooks/app';
-import { useClientType } from '@/modules/feature/client-type/hook/useClientType';
+import { useClientType } from '@/modules/features/client-type/hook/useClientType';
 
 interface BxRqAddressEditProps {
     // addresses: AddressRqItem[]

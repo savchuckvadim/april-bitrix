@@ -74,6 +74,11 @@ export interface KRow {
     price: RowPrice;
     /** Бесплатная строка (star при withStar) */
     isFree?: boolean;
+    /**
+     * Строка не участвует в едином количестве сета (легаси-исключение:
+     * академия без monthQuantity живёт со своим количеством)
+     */
+    quantityLocked?: boolean;
 }
 
 export interface RowSet {
@@ -82,6 +87,12 @@ export interface RowSet {
     rows: KRow[];
     /** Свёрнутое отображение (легаси show: 'set') */
     collapsed: boolean;
+    /**
+     * Ручная правка коммерции total-строки в свёрнутом режиме.
+     * Побеждает производный buildTotalRow; сбрасывается при пересборке
+     * сета, развороте и смене количества (легаси getTotalFromRows-паритет).
+     */
+    totalPrice?: RowPrice | null;
 }
 
 export const MAX_COMPARISON_SETS = 7;

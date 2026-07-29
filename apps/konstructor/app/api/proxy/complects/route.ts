@@ -1,6 +1,6 @@
 // app/api/proxy/route.ts
 
-import { withMetrics } from '@/app/lib/metrics/withMetrics';
+import { withMetrics } from '@/modules/app/lib/server/metrics/withMetrics';
 import { IComplect } from '@/modules/entities/complect';
 import {
     API_METHOD,

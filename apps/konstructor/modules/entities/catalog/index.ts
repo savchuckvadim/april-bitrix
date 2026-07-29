@@ -3,6 +3,7 @@ export * from './model/dto';
 export * from './model/CatalogSlice';
 export * from './model/selectors';
 export * from './lib/compatibility-matrix';
+export * from './lib/custom-od.util';
 export * from './lib/complect-theme';
 export * from './lib/legacy-codes';
 export * from './lib/academy-data';

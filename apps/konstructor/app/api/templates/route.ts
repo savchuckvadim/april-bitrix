@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { STYLE_PRESETS } from '@/app/lib/offer-style/styles';
+import { STYLE_PRESETS } from '@/modules/app/lib/server/offer-style/styles';
 
 export async function GET() {
     // Здесь можно получить шаблоны из базы данных

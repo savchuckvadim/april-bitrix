@@ -11,6 +11,8 @@ export enum APP_DEP {
 }
 const initialState = {
     domain: '',
+    /** ID сделки из placement — вместе с domain ключ слепка bx_document_deals. */
+    dealId: null as number | null,
     bitrix: {
         user: null as IBXUser | null,
         deal: null as IBXDeal | null,
@@ -30,7 +32,8 @@ export interface InitApp {
     domain: string;
     user: IBXUser;
     deal: IBXDeal | null;
-    company: IBXCompany;
+    company: IBXCompany | null;
+    dealId: number | null;
 }
 const appSlice = createSlice({
     name: 'app',
@@ -43,6 +46,7 @@ const appSlice = createSlice({
         ) => {
             const payload = action.payload;
             state.domain = payload.domain;
+            state.dealId = payload.dealId;
             state.bitrix.user = payload.user;
             state.bitrix.deal = payload.deal;
             state.bitrix.company = payload.company;

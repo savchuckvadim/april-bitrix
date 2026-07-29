@@ -30,7 +30,7 @@
 | B1 | **Расширить init** | Вернуть в `KonstructorInitDataDto`: `supplies` (SupplyService уже инжектирован, вызов закомментирован), `prices` (prof-таблица + правило расчёта universal), `services` (LT-продукты, LT-пакеты, консалтинг, star из `complects`/`garant_packages` по `productType`), `abs` комплектов (пропал из ComplectDto). Всё на code-джойнах |
 | B2 | **Договорные тексты поставок** | В старом init у supply были `acontract*`, `contractProp1/2`, `quantityForKp` — в новой БД этих полей нет. Решить: добавить поля в `supplies` (+admin-форма) или перенести тексты в шаблоны договоров на бэке (предпочтительно — фронту они не нужны, если договоры генерит бэк) |
 | B3 | **HTTP для inner-deal (слепки)** | `GET /api/konstructor/deal?domain&dealId[&serviceSmartId]`, `POST /api/konstructor/deal` (upsert), список по сделке. Поддержка: несколько слепков на dealId (serviceSmartId), `templateId`, `isFavorite`/favorites. Проверить, что Laravel `garant-app.ru` пишет в ту же `bx_document_deals` — тогда старые слепки читаются сразу; иначе — миграция данных |
-| B4 | **Карта UF-полей Bitrix** | Старый init отдавал `bitrix{add,update,product,productRows,rq,forContract,forCalculation}`. Теперь это PortalModel (`bitrixfields`) — нужен эндпоинт/включение в init того подмножества, которое нужно фронту (или полностью увести запись UF-полей на бэк — предпочтительно) |
+| B4 | **Карта UF-полей Bitrix** | **РЕШЕНО (владелец, 2026-07-29): fields/stages — ТОЛЬКО из pbx-сущностей** (`portal.*.bitrixfields`, поиск по `code`; паттерн — event-sales `EventCompanyThunk`). Старую `bitrix{...}`-карту из init не переносим; `initPortal` уже диспатчится на setAppData |
 | B5 | **Отправка сделки** | Аналог Laravel `konstructor/bitrix/deal/update`: принять состояние → deal fields + UF + productrows одним вызовом. Дефекты легаси не воспроизводить (measureCode=id, supplyName=undefined) |
 | B6 | Мелочи | `RegionInitDto.name` содержит code (семантика изменилась — задокументировать или починить), `weight` не заполняется; `@ApiResponse` типы для `contract/generate`, `offer/create`, `zakupki-offer/create`, `init-supply` (сейчас orval даёт `void`); enum `CONTRACT_CODE` объявлен дважды; порт в `orval.config.ts` пакета (3000 → 3007) |
 
@@ -189,7 +189,9 @@ modules/
 
 ## 5. Открытые вопросы (решить до/в ходе фазы 0)
 
-1. Пишет ли Laravel `garant-app.ru` слепки в ту же `bx_document_deals`? (Если нет — миграция данных из Laravel-БД и/или Firebase.)
+> Статус выполнения фаз 1/3/4/6 и B3 — см. [port-status-2026-07-29.md](./port-status-2026-07-29.md).
+
+1. ~~Пишет ли Laravel `garant-app.ru` слепки в ту же `bx_document_deals`?~~ **ДА, подтверждено 2026-07-29** (`C:\Projects\April\online\app\Models\BxDocumentDeal.php`, ключ dealId+domain) — старые слепки доступны новому бэку без миграции.
 2. Где живут договорные тексты supplies (B2): БД+админка или шаблоны на бэке?
 3. Universal-цены: оставить расчёт `abs × region.abs × coefficient` (тогда в init нужны только regions.abs и abs комплектов) или отдавать готовую таблицу как в старом init? Прайс-слайс админки (`prof-price`) намекает на таблицу и для universal (`garant_package_code`).
 4. Академия: хардкод `academy-data.ts` — заводить в админку (`productType`-расширение) или переносить хардкодом в `kservice/lib`?

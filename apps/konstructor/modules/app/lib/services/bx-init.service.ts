@@ -1,6 +1,6 @@
 import { Bitrix } from '@bitrix/bitrix';
 import { BitrixService } from '@bitrix/bitrix.service';
-import { IS_PROD, TESTING_PLACEMENT } from '../../consts/app-global';
+import { TESTING_PLACEMENT } from '../../consts/app-global';
 import { Placement } from '@workspace/bx';
 import { IBXCompany, IBXDeal, IBXItem } from '@bitrix/index';
 
@@ -28,14 +28,6 @@ export class BxInitService {
     constructor() {
         this.bitrix = Bitrix.getService();
         this.dealCompanyService = new BxDealCompanyService();
-
-
-        const { inFrame } = this.bitrix.api.getInitializedData();
-
-        if (!inFrame && IS_PROD) {
-            window.location.href = '/none-auth';
-            return;
-        }
     }
 
     public async init(): Promise<IBitrixinitResult | null> {

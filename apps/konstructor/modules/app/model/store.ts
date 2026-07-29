@@ -24,6 +24,8 @@ import { portalReducer } from '@/modules/entities/portal';
 import { documentProviderReducer } from '@/modules/entities/provider';
 import { dealReducer } from '@/modules/entities/deal';
 import { bxrqReducer } from '@workspace/bx-rq';
+import { snapshotReducer } from '@/modules/entities/snapshot';
+import { startStoreListeners } from './listeners/start-store-listeners';
 
 export const listenerMiddleware = createListenerMiddleware();
 let wsClient: WSClient;
@@ -51,6 +53,7 @@ const rootReducer = combineReducers({
     // ядро конструктора (code-джойны)
     catalog: catalogReducer,
     rowSet: rowSetReducer,
+    snapshot: snapshotReducer,
     portal: portalReducer,
 
     documentProvider: documentProviderReducer,
@@ -116,5 +119,6 @@ export type AppGetState = AppStore['getState'];
 
 export const store = setupStore();
 
-//@ts-ignore
-// window.eventStore = store;
+// Регистрация сразу после setupStore (kpi-sales-паттерн): слушатели живут
+// на уровне стора, thunks о них не знают.
+startStoreListeners(listenerMiddleware);

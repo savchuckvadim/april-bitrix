@@ -1,7 +1,7 @@
 // apps/kpi-sales/app/api/admin/logs/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { logServer } from '@/app/lib/logs/logServer';
+import { logServer } from '@/modules/app/lib/server/log/logServer';
 
 export const runtime = 'nodejs'; // <-- Добавить обязательно!
 

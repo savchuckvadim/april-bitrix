@@ -1,12 +1,26 @@
-// export const TESTING_DOMAIN = 'gsirk.bitrix24.ru'
-// export const TESTING_DOMAIN = 'alfacentr.bitrix24.ru'
-
 import { IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 import { Placement } from '@workspace/bx';
 
-export const IS_PROD = false;
+/**
+ * true = сборка для фрейма Bitrix (NEXT_PUBLIC_IN_BITRIX инлайнится на билде).
+ * В dev держим false в .env — иначе вне фрейма показывается NonAuthScreen.
+ */
+export const IS_PROD = process.env.NEXT_PUBLIC_IN_BITRIX === 'true';
 
-export const TESTING_DOMAIN = 'april-garant.bitrix24.ru' as string;
+/**
+ * Тестовая сделка с реальным слепком v1 в bx_document_deals
+ * (та же запись, что фикстура entities/snapshot/lib/__fixtures__/legacy-deal.v1.json).
+ */
+export const TESTING_DOMAIN = 'gsr.bitrix24.ru' as string;
+// export const TESTING_DOMAIN = 'april-garant.bitrix24.ru' // deal 32990, company 32442
+
+export const TESTING_DEAL_ID = 129487;
+export const TESTING_COMPANY_ID = 105453 as number;
+export const DEV_CURRENT_USER_ID = 1;
+
+/** Dev-режим вспоминания: на старте тянуть слепок TESTING_DEAL_ID (см. snapshot-listener). */
+export const IS_REMEMBER_DEV = true;
+
 export const TESTING_USER = {
     ID: 1,
     ACTIVE: true,
@@ -30,70 +44,20 @@ export const TESTING_USER = {
     UF_DEPARTMENT: [1],
     UF_EMPLOYMENT_DATE: 'string',
     UF_PHONE_INNER: 'string',
-    // UF_USR_1570437798556: boolean
     USER_TYPE: 'string',
     WORK_PHONE: 'string',
     WORK_POSITION: 'Оператор ТМЦ',
 } as IBXUser;
 
-
-export const IS_REMEMBER_DEV = true;
-export const TESTING_DEAL_ID = 32990; //11311
-export const TESTING_COMPANY_ID = 32442 as number; // 158479
-export const DEV_CURRENT_USER_ID = 1;
-
-//DEAL
-// export const TESTING_PLACEMENT = {
-//     placement: 'CRM_COMPANY_DETAIL_TAB',
-//     options: {
-//         ID: TESTING_COMPANY_ID,
-//     },
-// } as Placement;
-
 export const TESTING_PLACEMENT = {
     placement: 'CRM_DEAL_DETAIL_TAB',
     options: {
-        ID: TESTING_DEAL_ID
-    }
-} as Placement
+        ID: TESTING_DEAL_ID,
+    },
+} as Placement;
 
+// COMPANY-вариант (восстановление сделки по компании отложено — см. docs):
 // export const TESTING_PLACEMENT = {
-//     placement: 'TASK_VIEW_TOP_PANEL', //TASK_VIEW_SIDEBAR',
-//     options: {
-//         taskId: 5605
-//     }
-// } as Placement
-
-// export const TESTING_PLACEMENT = {
-//         placement: 'CALL_CARD',
-//         options: {
-//             CRM_ENTITY_TYPE: 'COMPANY',
-//             CRM_ENTITY_ID: TESTING_COMPANY_ID,
-//             CALL_DIRECTION:"outgoing",
-//             CALL_ID:"C24F78184C4BF39C.1716028715.2918176",
-//             CALL_LIST_MODE:"false",
-//             CALL_STATE: "connecting",
-//             CRM_ACTIVITY_ID: "",
-//             CRM_BINDINGS: [
-//                 {
-//                     ENTITY_ID: TESTING_COMPANY_ID,
-//                     ENTITY_TYPE: 'COMPANY'
-//                 }
-//             ]
-//         }
-//     } as PlacementCallCard
-// 'april-garant.bitrix24.ru' deal for testing 331
-// 'alfacentr.bitrix24.ru' deal for testing 1384
-
-// export const IS_DEAL_API_TESTING = false
-
-// ///DOCUMENTS
-// export const IS_DOCUMENT_TESTING = false
-// export const WITH_DOCUMENT = true
-
-// export const IS_DEV_SERVER = false
-// export const TESTING_TEMPLATE_ID = 13
-
-// //REPORT
-// export const IS_REPORT = false
-// //
+//     placement: 'CRM_COMPANY_DETAIL_TAB',
+//     options: { ID: TESTING_COMPANY_ID },
+// } as Placement;

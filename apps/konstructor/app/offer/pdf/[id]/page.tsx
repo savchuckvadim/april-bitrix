@@ -1,6 +1,6 @@
 import OfferPdfPage from '@/modules/pages/offer-preview/ui/OfferPdfPage';
 import { IOffer } from '@/modules/entities/offer';
-import { redis } from '@/app/lib/redis/redis';
+import { redis } from '@/modules/app/lib/server/redis/redis';
 import { notFound } from 'next/navigation';
 
 export default async function Page({

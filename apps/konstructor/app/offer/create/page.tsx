@@ -1,10 +1,10 @@
 // import { BackButton } from "@/components/BackButton";
 // import { ResetButton } from "@/components/ResetButton";
-import { DocumentSettingsForm } from '@/modules/widgetes/offer/create/ui/components/DocumentSettingsForm';
-import { LegalInformation } from '@/modules/widgetes/offer/create/ui/components/LegalInformation';
-import { PriceSettings } from '@/modules/widgetes/offer/create/ui/components/PriceSettings';
-import { DocumentTable } from '@/modules/widgetes/offer/create/ui/components/DocumentTable';
-import { LegalActs } from '@/modules/widgetes/offer/create/ui/components/LegalActs';
+import { DocumentSettingsForm } from '@/modules/widgets/offer/create/ui/components/DocumentSettingsForm';
+import { LegalInformation } from '@/modules/widgets/offer/create/ui/components/LegalInformation';
+import { PriceSettings } from '@/modules/widgets/offer/create/ui/components/PriceSettings';
+import { DocumentTable } from '@/modules/widgets/offer/create/ui/components/DocumentTable';
+import { LegalActs } from '@/modules/widgets/offer/create/ui/components/LegalActs';
 
 export default function Home() {
     return (

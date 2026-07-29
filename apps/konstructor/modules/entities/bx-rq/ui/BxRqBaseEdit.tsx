@@ -20,7 +20,7 @@ import { Edit2,  } from 'lucide-react';
 // import { useClientType } from '@/modules/features/client-type/hook/useClientType';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { useApp } from '@/modules/app/lib/hooks/app';
-import { useClientType } from '@/modules/feature/client-type/hook/useClientType';
+import { useClientType } from '@/modules/features/client-type/hook/useClientType';
 
 interface BxRqBaseEditProps {
     rq: EvsRqItem;

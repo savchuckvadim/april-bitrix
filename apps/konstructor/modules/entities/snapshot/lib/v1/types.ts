@@ -62,6 +62,8 @@ export interface V1Row {
     complect?: { type?: string; number: number };
     supply?: { number: number; name?: string; type?: string };
     contract?: { number: number; name?: string; code?: string };
+    /** Полная копия справочного продукта; используем только monthQuantity академии */
+    product?: { monthQuantity?: number | null } | null;
     price?: {
         default: number;
         current: number;

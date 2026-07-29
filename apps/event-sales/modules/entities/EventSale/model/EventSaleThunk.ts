@@ -1,9 +1,6 @@
 import { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { BXDeal } from '@workspace/bx';
-import {
-    DEV_CURRENT_USER_ID,
-    TESTING_DOMAIN,
-} from '@/modules/app/consts/app-global';
+import { TESTING_DOMAIN, TESTING_USER } from '@/modules/app/consts/app-global';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { eventSaleActions } from './EventSaleSlice';
 import { EventSaleHelper } from '../lib/api/event-sale-helper';
@@ -28,7 +25,7 @@ export const getInitSale =
         try {
             const domain = app.domain || TESTING_DOMAIN;
             const currentCompany = app.bitrix.company;
-            const userId = Number(app.bitrix.user?.ID || DEV_CURRENT_USER_ID);
+            const userId = Number(app.bitrix.user?.ID || TESTING_USER.ID);
             let saleTaskDeals: BXDeal[] = [];
 
             if (tasks?.length) {

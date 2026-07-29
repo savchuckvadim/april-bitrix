@@ -282,6 +282,11 @@ const mapV1Row = (
             alternativeName: row.alternativeName || null,
         },
         price: mapV1Price(row.price),
+        // Академия «в часах» (без monthQuantity) не участвует в едином количестве сета
+        quantityLocked:
+            row.productType === 'academy'
+                ? !row.product?.monthQuantity
+                : undefined,
     };
 };
 

@@ -4,6 +4,7 @@ import type {
     KContract,
     KSupply,
 } from '../model/types';
+import { isCustomSupplyCode, resolveSupply } from './custom-od.util';
 
 /**
  * Единая матрица совместимости комплект × поставка × договор.
@@ -53,7 +54,8 @@ export const filterContractsForSupply = (
     complectType: ComplectType,
     supplyCode: string,
 ): KContract[] => {
-    const supply = catalog.supplies.byCode[supplyCode];
+    // resolveSupply: справочник ИЛИ синтетическая X-ОД
+    const supply = resolveSupply(catalog, supplyCode);
     if (!supply) return [];
     const allowed = allowedContractCodes(complectType, supply);
     return catalog.contracts.items.filter(contract =>
@@ -67,7 +69,59 @@ export const isCompatible = (
     supplyCode: string,
     contractCode: string,
 ): boolean => {
-    const supply = catalog.supplies.byCode[supplyCode];
+    const supply = resolveSupply(catalog, supplyCode);
     if (!supply) return false;
     return allowedContractCodes(complectType, supply).includes(contractCode);
+};
+
+/**
+ * Цепочка сброса при смене комплекта (легаси selectCreatingRowsProp):
+ * несовместимая поставка → первая допустимая, затем договор → первый
+ * допустимый. Совместимые прежние значения сохраняются.
+ */
+export const resolveRefsForComplectChange = (
+    catalog: Catalog,
+    complectCode: string,
+    prev: { supplyCode: string; contractCode: string },
+): { supplyCode: string; contractCode: string } | null => {
+    const complect = catalog.complects.byCode[complectCode];
+    if (!complect) return null;
+    const supplies = filterSuppliesForComplect(
+        catalog.supplies.items,
+        complect.type,
+    );
+    // X-ОД (quantity > 0) допустим для обеих линеек — сохраняем при смене комплекта
+    const keepPrev =
+        supplies.some(supply => supply.code === prev.supplyCode) ||
+        isCustomSupplyCode(prev.supplyCode);
+    const supplyCode = keepPrev
+        ? prev.supplyCode
+        : (supplies[0]?.code ?? null);
+    if (!supplyCode) return null;
+    const contractCode = resolveContractForSupplyChange(
+        catalog,
+        complect.type,
+        supplyCode,
+        prev.contractCode,
+    );
+    if (!contractCode) return null;
+    return { supplyCode, contractCode };
+};
+
+/** Смена поставки: несовместимый договор сбрасывается на первый допустимый */
+export const resolveContractForSupplyChange = (
+    catalog: Catalog,
+    complectType: ComplectType,
+    supplyCode: string,
+    prevContractCode: string,
+): string | null => {
+    const contracts = filterContractsForSupply(
+        catalog,
+        complectType,
+        supplyCode,
+    );
+    if (contracts.some(contract => contract.code === prevContractCode)) {
+        return prevContractCode;
+    }
+    return contracts[0]?.code ?? null;
 };

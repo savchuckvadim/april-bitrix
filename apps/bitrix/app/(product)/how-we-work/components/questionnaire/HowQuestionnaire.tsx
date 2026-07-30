@@ -4,12 +4,17 @@ import React from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Download, Copy, RotateCcw } from 'lucide-react';
-import { HowQuestionnaire as QuestionnaireData } from '../../constants/types';
+import {
+    HowProtocolAttachment,
+    HowQuestionnaire as QuestionnaireData,
+} from '../../constants/types';
 import { useHowQuestionnaire } from './useHowQuestionnaire';
 import { HowQuestionnaireQuestion } from './HowQuestionnaireQuestion';
 
 interface HowQuestionnaireProps {
     questionnaire: QuestionnaireData;
+    /** Сборщик приложений (PNG-схем), скачиваемых вместе с протоколом */
+    getAttachments?: () => Promise<HowProtocolAttachment[]>;
 }
 
 /**
@@ -18,6 +23,7 @@ interface HowQuestionnaireProps {
  */
 export const HowQuestionnaire: React.FC<HowQuestionnaireProps> = ({
     questionnaire,
+    getAttachments,
 }) => {
     const {
         state,
@@ -30,7 +36,7 @@ export const HowQuestionnaire: React.FC<HowQuestionnaireProps> = ({
         download,
         copy,
         reset,
-    } = useHowQuestionnaire(questionnaire);
+    } = useHowQuestionnaire(questionnaire, getAttachments);
 
     return (
         <section className="space-y-4">

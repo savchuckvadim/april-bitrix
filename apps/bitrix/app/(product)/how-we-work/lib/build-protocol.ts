@@ -1,4 +1,5 @@
 import {
+    HowProtocolAttachment,
     HowQuestionnaire,
     HowQuestionnaireState,
 } from '../constants/types';
@@ -7,6 +8,7 @@ import {
 export const buildProtocol = (
     questionnaire: HowQuestionnaire,
     state: HowQuestionnaireState,
+    attachments: HowProtocolAttachment[] = [],
 ): string => {
     const lines: string[] = [];
     lines.push(questionnaire.protocolTitle);
@@ -25,6 +27,16 @@ export const buildProtocol = (
         }
     });
 
+    if (attachments.length) {
+        lines.push('');
+        lines.push('Приложения — схемы клиента (PNG скачаны вместе с протоколом):');
+        attachments.forEach((attachment, index) => {
+            lines.push(
+                `${index + 1}) ${attachment.fileName} — ${attachment.caption}`,
+            );
+        });
+    }
+
     lines.push('');
     lines.push('Сформировано на странице «Как мы работаем → Внедрение».');
     return lines.join('\n');
@@ -41,4 +53,14 @@ export const downloadText = (fileName: string, text: string): void => {
     anchor.click();
     document.body.removeChild(anchor);
     setTimeout(() => URL.revokeObjectURL(url), 5000);
+};
+
+/** Скачивает dataURL (например, PNG-схему) как файл (client-only). */
+export const downloadDataUrl = (fileName: string, dataUrl: string): void => {
+    const anchor = document.createElement('a');
+    anchor.href = dataUrl;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
 };

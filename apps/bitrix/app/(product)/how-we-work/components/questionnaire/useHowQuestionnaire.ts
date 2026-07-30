@@ -3,10 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     HowAnswer,
+    HowProtocolAttachment,
     HowQuestionnaire,
     HowQuestionnaireState,
 } from '../../constants/types';
-import { buildProtocol, downloadText } from '../../lib/build-protocol';
+import {
+    buildProtocol,
+    downloadDataUrl,
+    downloadText,
+} from '../../lib/build-protocol';
 
 const EMPTY_STATE: HowQuestionnaireState = {
     respondent: '',
@@ -18,9 +23,14 @@ const storageKey = (id: string) => `how-questionnaire-${id}`;
 
 /**
  * Состояние заполнения анкеты: ответы, автосохранение в localStorage,
- * прогресс и выгрузка протокола.
+ * прогресс и выгрузка протокола. `getAttachments` — необязательный сборщик
+ * приложений (PNG-схем): они скачиваются вместе с протоколом и
+ * перечисляются в его тексте.
  */
-export const useHowQuestionnaire = (questionnaire: HowQuestionnaire) => {
+export const useHowQuestionnaire = (
+    questionnaire: HowQuestionnaire,
+    getAttachments?: () => Promise<HowProtocolAttachment[]>,
+) => {
     const [state, setState] = useState<HowQuestionnaireState>(EMPTY_STATE);
     const [status, setStatus] = useState('');
     const statusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -106,13 +116,26 @@ export const useHowQuestionnaire = (questionnaire: HowQuestionnaire) => {
         statusTimerRef.current = setTimeout(() => setStatus(''), 4000);
     }, []);
 
-    const download = useCallback(() => {
+    const download = useCallback(async () => {
+        let attachments: HowProtocolAttachment[] = [];
+        try {
+            attachments = (await getAttachments?.()) ?? [];
+        } catch {
+            // схемы не собрались — протокол важнее
+        }
         downloadText(
             `${questionnaire.id}-protocol.txt`,
-            buildProtocol(questionnaire, state),
+            buildProtocol(questionnaire, state, attachments),
         );
-        flash('Файл сохранён — пришлите его нам.');
-    }, [flash, questionnaire, state]);
+        attachments.forEach((attachment) =>
+            downloadDataUrl(attachment.fileName, attachment.dataUrl),
+        );
+        flash(
+            attachments.length
+                ? `Протокол и схемы (${attachments.length}) сохранены — пришлите их нам.`
+                : 'Файл сохранён — пришлите его нам.',
+        );
+    }, [flash, getAttachments, questionnaire, state]);
 
     const copy = useCallback(async () => {
         try {

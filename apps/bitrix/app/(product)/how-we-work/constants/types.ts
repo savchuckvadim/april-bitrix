@@ -73,6 +73,13 @@ export interface HowAnswer {
     comment?: string;
 }
 
+/** Приложение к протоколу анкеты (например, PNG-схема клиента). */
+export interface HowProtocolAttachment {
+    fileName: string;
+    caption: string;
+    dataUrl: string;
+}
+
 /** Состояние заполнения анкеты. */
 export interface HowQuestionnaireState {
     respondent: string;

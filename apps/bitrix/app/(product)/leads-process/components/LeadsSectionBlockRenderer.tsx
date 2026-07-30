@@ -3,9 +3,10 @@ import { HowContentBlock } from '../../how-we-work/constants/types';
 import { HowBlockRenderer } from '../../how-we-work/components/blocks/HowBlockRenderer';
 import { LeadsSectionBlock } from '../constants/types';
 import { LEADS_FLOWS } from '../constants/flows';
-import { ProcessFlowLazy } from './flow/lazy';
+import { FlowBlock } from './flow/FlowBlock';
 import { LeadsKanban } from './LeadsKanban';
 import { LeadsLegend } from './LeadsLegend';
+import { LeadsQuestionnaire } from './LeadsQuestionnaire';
 
 interface LeadsSectionBlockRendererProps {
     block: LeadsSectionBlock;
@@ -18,12 +19,16 @@ export const LeadsSectionBlockRenderer: React.FC<
     switch (block.type) {
         case 'flow': {
             const flow = LEADS_FLOWS[block.flowId];
-            return flow ? <ProcessFlowLazy flow={flow} /> : null;
+            return flow ? <FlowBlock flow={flow} /> : null;
         }
         case 'kanban':
             return <LeadsKanban columns={block.columns} />;
         case 'legend':
             return <LeadsLegend />;
+        case 'questionnaire':
+            return (
+                <LeadsQuestionnaire questionnaireId={block.questionnaireId} />
+            );
         default:
             return <HowBlockRenderer block={block as HowContentBlock} />;
     }

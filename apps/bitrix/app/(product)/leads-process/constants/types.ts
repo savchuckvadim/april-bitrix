@@ -38,11 +38,23 @@ export interface LeadsFlowEdgeDef {
 /** Схема целиком. */
 export interface LeadsFlowDef {
     id: string;
+    /** Короткое название — заголовок fullscreen и имена файлов */
+    title: string;
     /** Высота канваса, px */
     height: number;
     nodes: LeadsFlowNodeDef[];
     edges: LeadsFlowEdgeDef[];
     caption?: string;
+}
+
+/** Пользовательский вариант схемы: правки клиента поверх оригинала. */
+export interface LeadsFlowVariant {
+    flowId: string;
+    /** Подпись клиента — уходит в протокол решений и имя PNG */
+    caption: string;
+    nodes: LeadsFlowNodeDef[];
+    edges: LeadsFlowEdgeDef[];
+    updatedAt: number;
 }
 
 /** Колонка канбана фаз (в стиле стадий Битрикс24). */

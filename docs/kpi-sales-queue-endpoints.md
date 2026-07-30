@@ -52,7 +52,7 @@
 | --- | --- | --- |
 | `POST /kpi-airtime/get` | sync-пагинация voximplant | очередь + WS/поллинг (кэш месяцев уже есть — воркер его прогревает). **Детальный пошаговый план: `docs/kpi-sales-airtime-queue.tasks.md`** (месячные партиции без привязки к составу юзеров, прогресс «готово N из M месяцев») |
 | `POST /kpi-report/get` | проверить | если sync — очередь + WS/поллинг |
-| `POST /kpi-report/calling-statistic` | проверить | если sync — очередь + WS/поллинг |
+| `POST /kpi-report/calling-statistic` | sync-батч 6 команд × N юзеров (`callBatchWithConcurrency(2)`, result_total) | очередь + WS/поллинг. **Инцидент 28.07 (gsirk):** «наборы» скачут (1000+ → 72 → 9 при истинных 88) — дропы лимитера = тихо неполные счётчики батча; плюс разнобой дат с airtime: фронт шлёт сюда `dd.MM.yyyy` + to+1 день (`modifyDateToReportRequest`), в airtime — `yyyy-MM-dd` как есть; привести к каноничным ISO-границам как в airtime и сделать дроп команды громкой ошибкой |
 | `POST /sales-user-report` | WS уже есть (`/without-ws` — фолбэк) | выровнять под общий паттерн (status queued + кэш-поллинг), убедиться в дедупликации job |
 | `POST /kpi-report/download` | sync-рендер xlsx | быстрый (данные готовит фронт) — можно оставить sync, но замерить на больших DTO |
 | `sales-finance/*` | очередь + WS + поллинг | эталон, не трогать |

@@ -1,5 +1,4 @@
-import { getAdminPortalKeys } from '@workspace/nest-pbx-install-api';
-import '@/modules/entities/pbx/lib/pbx-install-client';
+import { getAdminPortalKeys } from '@workspace/nest-admin-api';
 import type { PortalKey, PortalKeyName, PortalKeys } from '../../model';
 
 /**

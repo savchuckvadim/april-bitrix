@@ -3,7 +3,7 @@ import {
     type PortalKeyResponseDto,
     type PortalKeysResponseDto,
     type SetPortalKeyDto,
-} from '@workspace/nest-pbx-install-api';
+} from '@workspace/nest-admin-api';
 
 /** Имя ключа интеграции портала. */
 export type PortalKeyName = PortalKeyResponseDtoKeyName;

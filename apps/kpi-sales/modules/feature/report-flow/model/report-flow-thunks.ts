@@ -17,6 +17,7 @@ import {
     FilterInnerCode,
     ReportDateType,
 } from '@/modules/entities/report';
+import { modifyDateToReportRequest } from '@/modules/entities/report';
 import { ReportData } from '@/modules/entities/report/model/types/report/report-type';
 import { ReportHelper } from '@/modules/entities/report/lib/api/report-helper';
 import { ReportFilterHelper } from '@/modules/entities/report/lib/api/filter-helper';
@@ -195,12 +196,11 @@ export const getReportData =
         const users = department.current.length
             ? department.current
             : department.items;
-        // Каноничный ISO как есть (yyyy-MM-dd, обе границы включительно) —
-        // легаси-конверсию dd.MM.yyyy(+1 день) для этой ручки больше не делаем.
         const from = report.date[ReportDateType.FROM];
         const to = report.date[ReportDateType.TO];
         if (!from || !to || !users.length) return;
 
+        // Ключ — ISO из стейта (совпадает с нормализованным эхом бэка).
         const requestKey = buildReportFlowRequestKey(from, to, users);
         // Тот же ключ уже в работе/загружен — не дублируем (poll и
         // forceRefresh проходят всегда).
@@ -217,11 +217,17 @@ export const getReportData =
             dispatch(reportActions.setLoadingReportStatus(true));
         }
 
+        // В Битрикс — исторически проверенный формат dd.MM.yyyy c
+        // эксклюзивной верхней границей (+1 день): lists.element.get не
+        // понимает ISO (инцидент 2026-07-30). Бэк нормализует его в те же
+        // ISO-ключи, что и requestKey выше.
+        const bitrixDates = modifyDateToReportRequest(from, to);
+
         const reportRequest = {
             domain: app.domain,
             filters: {
-                dateFrom: from,
-                dateTo: to,
+                dateFrom: bitrixDates.from,
+                dateTo: bitrixDates.to,
                 userIds: users.map(u => String(u.ID)),
                 departament: users,
                 userFieldId: '',

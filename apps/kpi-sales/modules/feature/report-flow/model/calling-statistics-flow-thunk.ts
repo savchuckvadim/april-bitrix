@@ -1,6 +1,9 @@
 import { GetCallingStatisticDto } from '@workspace/nest-kpi-report-sales-api';
 import { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { ReportDateType } from '@/modules/entities/report';
+import {
+    modifyDateToReportRequest,
+    ReportDateType,
+} from '@/modules/entities/report';
 import { ReportCallingData } from '@/modules/entities/calling-statistics';
 import { callingStatisticsActions } from '@/modules/entities/calling-statistics';
 import { CallingStatisticsHelper } from '@/modules/entities/calling-statistics';
@@ -45,12 +48,11 @@ export const getCallingStatistics =
         const users = department.current.length
             ? department.current
             : department.items;
-        // Каноничный ISO как есть (границы включительно) — легаси
-        // dd.MM.yyyy(+1 день) для этой ручки больше не шлём.
         const from = report.date[ReportDateType.FROM];
         const to = report.date[ReportDateType.TO];
         if (!from || !to || !users.length) return;
 
+        // Ключ — ISO из стейта (совпадает с нормализованным эхом бэка).
         const requestKey = buildReportFlowRequestKey(from, to, users);
         if (
             !options.poll &&
@@ -65,12 +67,16 @@ export const getCallingStatistics =
             dispatch(callingStatisticsActions.setLoading(true));
         }
 
+        // В Битрикс — исторический dd.MM.yyyy с +1 днём (инцидент
+        // 2026-07-30: ISO ломал списковые фильтры дат).
+        const bitrixDates = modifyDateToReportRequest(from, to);
+
         try {
             const envelope = await callingStatisticsHelper.getStatistics({
                 domain: app.domain,
                 filters: {
-                    dateFrom: from,
-                    dateTo: to,
+                    dateFrom: bitrixDates.from,
+                    dateTo: bitrixDates.to,
                     departament: users,
                 },
                 mode: 'queue',

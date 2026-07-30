@@ -6,8 +6,17 @@
  * OpenAPI spec version: 1.0
  */
 import type { GetCallingStatisticFiltersDto } from './getCallingStatisticFiltersDto';
+import type { GetCallingStatisticDtoMode } from './getCallingStatisticDtoMode';
 
 export interface GetCallingStatisticDto {
+    /** Домен портала Битрикс24, по которому PBXService выдаёт инстанс API. */
     domain: string;
+    /** Фильтры выборки: отдел и период. */
     filters: GetCallingStatisticFiltersDto;
+    /** Режим запроса. queue — очередь: мгновенный ответ {status: ready|queued|error}, готовый результат по WS kpi-report:calling-statistic:done либо поллингом (повторный POST). sync (или поле не передано) — легаси-расчёт в HTTP-запросе, сырой массив в ответе (для старого фронта). */
+    mode?: GetCallingStatisticDtoMode;
+    /** ID WebSocket-соединения (режим queue) — на него адресно придут события done/error. Без socketId очередь работает через поллинг. */
+    socketId?: string;
+    /** Пересчитать, игнорируя кэш; свежий результат перезапишет кэш. Также это рычаг повтора после status error. */
+    forceRefresh?: boolean;
 }

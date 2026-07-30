@@ -6,12 +6,22 @@
  * OpenAPI spec version: 1.0
  */
 import type { AirtimeUserResultDto } from './airtimeUserResultDto';
+import type { AirtimeStatisticResponseDtoStatus } from './airtimeStatisticResponseDtoStatus';
+import type { AirtimeProgressDto } from './airtimeProgressDto';
 
 export interface AirtimeStatisticResponseDto {
-    /** Результаты по каждому сотруднику переданного отдела. */
+    /** Результаты по каждому сотруднику переданного отдела. При status queued/error — ЧАСТИЧНЫЕ данные уже собранных месяцев (или пустой массив): UI показывает их «под стеклом» с прогрессом, полные цифры — по status ready. */
     users: AirtimeUserResultDto[];
     /** Сколько строк статистики выгружено из voximplant.statistic.get. */
     rowsFetched: number;
     /** true — выгрузка остановлена по лимиту maxRows: эфирное время посчитано не по всем звонкам периода, сузьте период. */
     truncated: boolean;
+    /** Статус ответа в режиме queue: ready — отчёт собран (users заполнен); queued — сбор партиций идёт, users пуст, прогресс в progress; error — сбор упал (текст в message). В легаси-режиме sync поле отсутствует. */
+    status?: AirtimeStatisticResponseDtoStatus;
+    /** Прогресс сборки периода по месяцам (режим queue, status queued/error). */
+    progress?: AirtimeProgressDto;
+    /** Эхо ключа запроса `${from}|${to}|${sortedUserIds}` — фронт матчит по нему WS-события и отбрасывает устаревшие ответы. */
+    requestKey?: string;
+    /** Текст ошибки сбора (status error). */
+    message?: string;
 }

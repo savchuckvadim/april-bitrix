@@ -6,4 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
+/**
+ * Игнорируется бэкендом (матрица действий строится из настроек портала). Оставлено для обратной совместимости.
+ */
 export type ReportGetFiltersDtoCurrentActions = { [key: string]: unknown };

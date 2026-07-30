@@ -6,8 +6,17 @@
  * OpenAPI spec version: 1.0
  */
 import type { ReportGetFiltersDto } from './reportGetFiltersDto';
+import type { ReportGetRequestDtoMode } from './reportGetRequestDtoMode';
 
 export interface ReportGetRequestDto {
+    /** Домен портала Битрикс24, по которому PBXService выдаёт инстанс API. */
     domain: string;
+    /** Фильтры выборки: отдел и период. */
     filters: ReportGetFiltersDto;
+    /** Режим запроса. queue — очередь: мгновенный ответ {status: ready|queued|error}, готовый отчёт по WS kpi-report:done либо поллингом (повторный POST). sync (или поле не передано) — легаси-расчёт в HTTP-запросе, сырой массив ReportData[] в ответе (для старого фронта). */
+    mode?: ReportGetRequestDtoMode;
+    /** ID WebSocket-соединения (режим queue) — на него адресно придут события done/error. Без socketId очередь работает через поллинг. */
+    socketId?: string;
+    /** Пересчитать, игнорируя кэш; свежий результат перезапишет кэш. Также это рычаг повтора после status error. */
+    forceRefresh?: boolean;
 }

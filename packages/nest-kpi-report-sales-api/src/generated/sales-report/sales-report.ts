@@ -6,7 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+    CallingStatisticResponseDto,
     GetCallingStatisticDto,
+    KpiReportGetResponseDto,
     PbxSalesKpiListItemDto,
     ReportGetRequestDto,
     SalesUserReportGetRequestDto,
@@ -16,18 +18,26 @@ import type {
 import { customAxios } from '../../lib/kpi-report-sales-api';
 
 export const getSalesReport = () => {
+    /**
+     * Показатели KPI по сотрудникам за период (счётчики действий из списка sales_kpi портала). Режим queue: мгновенный ответ {status: ready|queued|error}; готовый отчёт приходит WS-событием kpi-report:done на socketId либо поллингом (повторный POST до status ready). Даты: YYYY-MM-DD (обе границы включительно) или легаси DD.MM.YYYY (dateTo эксклюзивна). Без mode — легаси-синхронный расчёт, ответ сырым массивом ReportData[].
+     * @summary KPI-отчёт отдела продаж
+     */
     const kpiReportGetReport = (reportGetRequestDto: ReportGetRequestDto) => {
-        return customAxios<void>({
+        return customAxios<KpiReportGetResponseDto>({
             url: `/api/kpi-report/get`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: reportGetRequestDto,
         });
     };
+    /**
+     * Счётчики звонков по 6 бакетам длительности на сотрудника (result_total voximplant.statistic.get, строки не выгружаются). Режим queue: мгновенный ответ {status: ready|queued|error}; готовый результат — WS kpi-report:calling-statistic:done либо поллинг. Даты: YYYY-MM-DD (включительно) или легаси DD.MM.YYYY (dateTo эксклюзивна). Дроп команд лимитером — громкая ошибка расчёта, а не тихо неполные счётчики (инцидент 2026-07-28). Без mode — легаси-синхронный расчёт, ответ сырым массивом.
+     * @summary Счётная статистика звонков
+     */
     const kpiReportGetCallingStatistic = (
         getCallingStatisticDto: GetCallingStatisticDto,
     ) => {
-        return customAxios<void>({
+        return customAxios<CallingStatisticResponseDto>({
             url: `/api/kpi-report/calling-statistic`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

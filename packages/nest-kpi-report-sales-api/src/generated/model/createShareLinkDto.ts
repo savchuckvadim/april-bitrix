@@ -20,5 +20,7 @@ export interface CreateShareLinkDto {
     expiresInDays: number;
     /** Обновляемая: пересчёт каждые 15 мин; период фильтра ≤ 1 месяца */
     isRefreshable: boolean;
+    /** Клиентский токен ссылки (base64url, 20–64 символа): фронт генерит его в момент клика и кладёт URL в буфер синхронно (clipboard во фрейме Bitrix работает только в жесте юзера). Не передан — сгенерит бэк; занят — 409. */
+    token?: string;
     snapshot: ShareLinkFilterSnapshotDto;
 }

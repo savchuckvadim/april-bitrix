@@ -6,10 +6,17 @@
  * OpenAPI spec version: 1.0
  */
 import type { AirtimeStatisticFiltersDto } from './airtimeStatisticFiltersDto';
+import type { GetAirtimeStatisticDtoMode } from './getAirtimeStatisticDtoMode';
 
 export interface GetAirtimeStatisticDto {
     /** Домен портала Битрикс24, по которому PBXService выдаёт инстанс API. */
     domain: string;
     /** Фильтры выборки: отдел, период, лимит строк. */
     filters: AirtimeStatisticFiltersDto;
+    /** Режим запроса. queue — очередь месячных партиций: ответ приходит мгновенно (status ready из кэша или queued с прогрессом), готовый отчёт доезжает WS-событием airtime:done либо повторным POST (поллинг). sync (или поле не передано) — легаси-режим: расчёт прямо в HTTP-запросе, как раньше (для старого фронта; будет удалён). */
+    mode?: GetAirtimeStatisticDtoMode;
+    /** ID WebSocket-соединения клиента (режим queue): на него адресно приходят события airtime:progress / airtime:done / airtime:error. Без socketId очередь тоже работает — результат забирается поллингом (повторный POST до status ready). */
+    socketId?: string;
+    /** Пересчитать живой хвост периода (текущий месяц / сегодня), игнорируя кэш; готовые ПРОШЛЫЕ месяцы не пересчитываются (их сброс — POST /kpi-airtime/cache/reset). Также повторяет сбор месяцев, упавших с ошибкой. */
+    forceRefresh?: boolean;
 }

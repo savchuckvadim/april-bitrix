@@ -8,6 +8,7 @@
 import type {
     ReportFilterGetRequestDto,
     ReportFilterGetResponseDto,
+    ReportFilterResetResponseDto,
     ReportFilterSaveRequestDto,
     ReportFilterSaveResponseDto,
 } from '.././model';
@@ -43,7 +44,25 @@ export const getSalesReportFilter = () => {
             data: reportFilterSaveRequestDto,
         });
     };
-    return { reportSettingsGetFilter, reportSettingsSaveFilter };
+    /**
+     * Обнуляет сохранённый фильтр (v2 + legacy-зеркало) — отчёт вернётся к дефолтному периоду. Кейс: сохранён неподъёмный период и отчёт не может догрузиться. UI-настройки (колонка other) не затрагиваются.
+     * @summary Аварийный сброс сохранённого фильтра пользователя
+     */
+    const reportSettingsResetFilter = (
+        reportFilterGetRequestDto: ReportFilterGetRequestDto,
+    ) => {
+        return customAxios<ReportFilterResetResponseDto>({
+            url: `/api/kpi-report/filter/reset`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: reportFilterGetRequestDto,
+        });
+    };
+    return {
+        reportSettingsGetFilter,
+        reportSettingsSaveFilter,
+        reportSettingsResetFilter,
+    };
 };
 export type ReportSettingsGetFilterResult = NonNullable<
     Awaited<
@@ -56,6 +75,13 @@ export type ReportSettingsSaveFilterResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<typeof getSalesReportFilter>['reportSettingsSaveFilter']
+        >
+    >
+>;
+export type ReportSettingsResetFilterResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesReportFilter>['reportSettingsResetFilter']
         >
     >
 >;

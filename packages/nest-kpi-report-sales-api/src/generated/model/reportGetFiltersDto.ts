@@ -9,12 +9,20 @@ import type { BXUserDto } from './bXUserDto';
 import type { ReportGetFiltersDtoCurrentActions } from './reportGetFiltersDtoCurrentActions';
 
 export interface ReportGetFiltersDto {
+    /** Начало периода. Канонично YYYY-MM-DD (граница включительно); поддерживается легаси DD.MM.YYYY (старый фронт). */
     dateFrom: string;
+    /** Конец периода. Канонично YYYY-MM-DD — ВКЛЮЧИТЕЛЬНО (+1 день строит бэкенд); легаси DD.MM.YYYY — ЭКСКЛЮЗИВНО (старый фронт прибавляет день сам). Семантика определяется форматом. */
     dateTo: string;
+    /** ID сотрудников (исторически дублирует departament; бэкенд использует departament). */
     userIds: string[];
+    /** Сотрудники отдела, по которым считается KPI-отчёт. */
     departament: BXUserDto[];
+    /** Игнорируется бэкендом (ID полей берутся из настроек портала). Оставлено для обратной совместимости со старым фронтом. */
     userFieldId: string;
+    /** Игнорируется бэкендом (ID полей берутся из настроек портала). */
     dateFieldId: string;
+    /** Игнорируется бэкендом (ID полей берутся из настроек портала). */
     actionFieldId: string;
+    /** Игнорируется бэкендом (матрица действий строится из настроек портала). Оставлено для обратной совместимости. */
     currentActions: ReportGetFiltersDtoCurrentActions;
 }

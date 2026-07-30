@@ -8,7 +8,10 @@
 import type { BXUserDto } from './bXUserDto';
 
 export interface GetCallingStatisticFiltersDto {
+    /** Сотрудники, по которым считаются счётчики звонков (ID → PORTAL_USER_ID в фильтре voximplant.statistic.get). */
     departament: BXUserDto[];
+    /** Начало периода. Канонично YYYY-MM-DD (граница включительно); поддерживается легаси DD.MM.YYYY (старый фронт). */
     dateFrom: string;
+    /** Конец периода. Канонично YYYY-MM-DD — ВКЛЮЧИТЕЛЬНО (+1 день строит бэкенд); легаси DD.MM.YYYY — ЭКСКЛЮЗИВНО (старый фронт прибавляет день сам). Семантика определяется форматом. */
     dateTo: string;
 }

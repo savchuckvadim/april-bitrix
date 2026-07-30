@@ -1,7 +1,6 @@
 import type { ShareLinkDto } from '@workspace/nest-kpi-report-sales-api';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { logClient } from '@/modules/app/lib/helper/logClient';
-import { copyTextToClipboard } from '@/modules/shared';
 import { ShareLinkHelper } from '../lib/api/share-link-helper';
 import { buildShareFilterSnapshot } from '../lib/build-snapshot.util';
 import { reportLinksActions } from './report-links-slice';
@@ -63,9 +62,9 @@ export interface CreateShareLinkOptions {
     expiresInDays: number;
     isRefreshable: boolean;
     /**
-     * Клиентский токен: диалог генерит его в жесте клика и СИНХРОННО
-     * кладёт URL в буфер (во фрейме Bitrix clipboard работает только в
-     * жесте) — бэк создаёт ссылку с этим же токеном.
+     * Клиентский токен: диалог генерит его в жесте клика — URL известен
+     * и показывается пользователю сразу, не дожидаясь ответа бэка
+     * (бэк создаёт ссылку с этим же токеном).
      */
     token?: string;
 }
@@ -73,7 +72,7 @@ export interface CreateShareLinkOptions {
 /**
  * Создание публичной ссылки: снимок текущего фильтра + выбранные опции.
  * Снимок данных бэк строит асинхронно (PENDING → ACTIVE). Успех кладёт
- * createdToken (UI показывает «ссылка скопирована»).
+ * createdToken (UI показывает поле с готовым URL).
  */
 export const createShareLink =
     (options: CreateShareLinkOptions) =>
@@ -98,12 +97,6 @@ export const createShareLink =
                 snapshot: buildShareFilterSnapshot(state),
             });
             dispatch(reportLinksActions.linkCreated(link));
-
-            // URL уже в буфере (диалог скопировал в жесте клика);
-            // здесь — страховка для вызовов без клиентского токена.
-            if (!options.token) {
-                await copyTextToClipboard(buildShareUrl(link.token));
-            }
         } catch (error) {
             dispatch(reportLinksActions.setError(errorMessage(error)));
             logClient(

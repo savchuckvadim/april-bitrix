@@ -10,8 +10,7 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import {
-    Check,
-    Copy,
+    ExternalLink,
     Eye,
     Link2Off,
     Loader2,
@@ -20,6 +19,7 @@ import {
 } from 'lucide-react';
 import type { ShareLinkDto } from '@workspace/nest-kpi-report-sales-api';
 import { useReportLinks } from '../model/useReportLinks';
+import { buildShareUrl } from '../model/report-links-thunks';
 import {
     ShareLinkModeBadge,
     formatAgo,
@@ -29,8 +29,10 @@ import {
 
 /**
  * Стеклянная карточка со всеми ссылками: строка = название «от {автор}»
- * + период + статус обновления + просмотры; действия — копировать,
- * обновить сейчас, переключить обновляемость, отозвать (с подтверждением).
+ * + период + статус обновления + просмотры; действия — открыть в новой
+ * вкладке (буфер обмена во фрейме Битрикса недоступен — «копировать»
+ * нет), обновить сейчас, переключить обновляемость, отозвать
+ * (с подтверждением).
  */
 export const ShareLinksDialog = () => {
     const {
@@ -39,13 +41,11 @@ export const ShareLinksDialog = () => {
         mutatingToken,
         error,
         setManageOpen,
-        copyUrl,
         revoke,
         refresh,
         toggleRefreshable,
         refetch,
     } = useReportLinks();
-    const [copiedToken, setCopiedToken] = useState<string | null>(null);
     const [confirmToken, setConfirmToken] = useState<string | null>(null);
 
     // Пока диалог открыт — обновляем счётчики (онлайн/просмотры) раз в 15с.
@@ -57,13 +57,6 @@ export const ShareLinksDialog = () => {
         return () => clearInterval(id);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isManageOpen]);
-
-    const handleCopy = async (token: string) => {
-        if (await copyUrl(token)) {
-            setCopiedToken(token);
-            setTimeout(() => setCopiedToken(null), 1500);
-        }
-    };
 
     const handleRevoke = (link: ShareLinkDto) => {
         if (confirmToken !== link.token) {
@@ -152,17 +145,19 @@ export const ShareLinksDialog = () => {
 
                                     <div className="flex shrink-0 items-center gap-1">
                                         <Button
+                                            asChild
                                             variant="ghost"
                                             size="sm"
                                             className="h-7 w-7 cursor-pointer p-0"
-                                            title="Копировать ссылку"
-                                            onClick={() => handleCopy(link.token)}
+                                            title="Открыть в новой вкладке"
                                         >
-                                            {copiedToken === link.token ? (
-                                                <Check className="h-3.5 w-3.5 text-emerald-500" />
-                                            ) : (
-                                                <Copy className="h-3.5 w-3.5" />
-                                            )}
+                                            <a
+                                                href={buildShareUrl(link.token)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <ExternalLink className="h-3.5 w-3.5" />
+                                            </a>
                                         </Button>
 
                                         {link.isRefreshable && (

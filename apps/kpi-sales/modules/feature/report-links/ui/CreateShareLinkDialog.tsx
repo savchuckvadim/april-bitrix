@@ -22,7 +22,6 @@ import {
 import { Check, Link2, Loader2 } from 'lucide-react';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { ReportDateType } from '@/modules/entities/report';
-import { copyTextToClipboard } from '@/modules/shared';
 import { useReportLinks } from '../model/useReportLinks';
 import {
     SHARE_LINK_MAX_ACTIVE,
@@ -31,6 +30,7 @@ import {
 } from '../model/report-links-thunks';
 import { generateShareToken } from '../lib/share-token.util';
 import { formatShortDate } from './ShareLinkBadges';
+import { ShareLinkUrlField } from './ShareLinkUrlField';
 
 const EXPIRES_OPTIONS = [
     { value: 1, label: '1 день' },
@@ -45,7 +45,8 @@ const DAY_MS = 24 * 3600 * 1000;
  * Создание публичной ссылки на текущий фильтр отчёта: название, срок
  * (≤14 дней), переключатель «обновляемая» (пересчёт каждые 15 минут;
  * доступен только при периоде фильтра ≤ 1 месяца). После создания URL
- * копируется в буфер.
+ * показывается в поле с автовыделением (буфер обмена во фрейме Битрикса
+ * недоступен) + кнопка «открыть в новой вкладке».
  */
 export const CreateShareLinkDialog = () => {
     const {
@@ -84,11 +85,10 @@ export const CreateShareLinkDialog = () => {
     };
 
     const handleCreate = () => {
-        // Токен генерим на клиенте и кладём URL в буфер СИНХРОННО, пока
-        // жив жест клика (во фрейме Bitrix clipboard иначе не работает);
-        // бэк создаст ссылку с этим же токеном.
+        // Токен генерим на клиенте — URL известен и показывается сразу,
+        // пока бэк асинхронно строит снимок; копирует пользователь сам из
+        // поля (во фрейме Bitrix запись в буфер заблокирована).
         const token = generateShareToken();
-        void copyTextToClipboard(buildShareUrl(token));
         create({
             title: title.trim() || undefined,
             expiresInDays,
@@ -192,11 +192,19 @@ export const CreateShareLinkDialog = () => {
 
                     {createdToken ? (
                         <>
-                            <div className="flex items-center gap-2 rounded-md bg-emerald-500/10 px-3 py-2 text-xs text-emerald-600 dark:text-emerald-400">
-                                <Check className="h-4 w-4 shrink-0" />
-                                <span className="min-w-0 truncate">
-                                    Ссылка скопирована: {buildShareUrl(createdToken)}
-                                </span>
+                            <div className="space-y-2 rounded-md bg-emerald-500/10 px-3 py-2.5">
+                                <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+                                    <Check className="h-4 w-4 shrink-0" />
+                                    Ссылка создана
+                                </div>
+                                <ShareLinkUrlField
+                                    url={buildShareUrl(createdToken)}
+                                />
+                                <div className="text-[11px] text-muted-foreground">
+                                    Кликните по полю — ссылка выделится
+                                    целиком, скопируйте её (Ctrl+C) или
+                                    откройте по стрелке в новой вкладке.
+                                </div>
                             </div>
                             <div className="flex gap-2">
                                 <Button

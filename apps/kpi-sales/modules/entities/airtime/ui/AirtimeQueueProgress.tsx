@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Loader2 } from 'lucide-react';
 import type { AirtimeProgressDto } from '@workspace/nest-kpi-report-sales-api';
 import { Preloader } from '@/modules/shared';
 import { formatEta } from '../lib/queue-flow.util';
@@ -11,8 +12,8 @@ interface AirtimeQueueProgressProps {
 }
 
 /**
- * Индикатор сборки партиций: «готово N из M месяцев», полоса прогресса и
- * оценка остатка от бэка. Чистая вёрстка — данные приходят из слайса.
+ * Центрированный индикатор сборки — для состояния, когда данных ещё нет
+ * совсем (ни одного готового месяца). Чистая вёрстка — данные из слайса.
  */
 export const AirtimeQueueProgress: React.FC<AirtimeQueueProgressProps> = ({
     progress,
@@ -47,24 +48,28 @@ export const AirtimeQueueProgress: React.FC<AirtimeQueueProgressProps> = ({
     );
 };
 
-interface AirtimeQueueOverlayProps {
+interface AirtimeQueueBadgeProps {
     progress: AirtimeProgressDto | null;
 }
 
 /**
- * «Стекло» поверх частичной таблицы: данные готовых месяцев видны, но
- * явно помечены как неполные, сверху — прогресс сборки. Родитель должен
- * иметь position: relative.
+ * Компактный индикатор идущей сборки (уголок над таблицей): яркий, но не
+ * мешает работать — данные добавляются в живую таблицу по мере поступления
+ * (паттерн стриминга user-report), никакого блокирующего оверлея.
  */
-export const AirtimeQueueOverlay: React.FC<AirtimeQueueOverlayProps> = ({
+export const AirtimeQueueBadge: React.FC<AirtimeQueueBadgeProps> = ({
     progress,
-}) => (
-    <div className="absolute inset-0 z-10 flex items-start justify-center rounded-md bg-background/60 backdrop-blur-[1.5px]">
-        <div className="mt-10 rounded-lg border bg-popover px-5 py-4 shadow-sm">
-            <AirtimeQueueProgress progress={progress} />
-            <p className="mt-2 text-center text-xs text-muted-foreground">
-                Ниже — частичные данные уже собранных месяцев
-            </p>
-        </div>
-    </div>
-);
+}) => {
+    const total = progress?.totalMonths ?? 0;
+    const ready = progress?.readyMonths ?? 0;
+    const eta = formatEta(progress?.etaSeconds);
+
+    return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/60 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Собираем
+            {total > 0 && ` ${ready}/${total} мес`}
+            {eta && ` · ${eta}`}
+        </span>
+    );
+};

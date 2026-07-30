@@ -14,7 +14,7 @@ export { formatEta, safeSocketId } from './lib/queue-flow.util';
 export { AirtimeTable } from './ui/AirtimeTable';
 export { AirtimeTruncatedWarning } from './ui/AirtimeTruncatedWarning';
 export {
-    AirtimeQueueOverlay,
+    AirtimeQueueBadge,
     AirtimeQueueProgress,
 } from './ui/AirtimeQueueProgress';
 export { AirtimeUserCard } from './ui/AirtimeUserCard';

@@ -8,7 +8,7 @@ import { useAccess, selectEffectiveUser } from '@/modules/app';
 import { EAccessFeature } from '@/modules/shared/access';
 import { Preloader } from '@/modules/shared';
 import {
-    AirtimeQueueOverlay,
+    AirtimeQueueBadge,
     AirtimeQueueProgress,
     AirtimeTable,
     AirtimeTruncatedWarning,
@@ -113,7 +113,12 @@ export const AirtimeWidget: React.FC = () => {
 
     return (
         <>
-            <div className="mb-2 flex justify-end">
+            <div className="mb-2 flex items-center justify-end gap-2">
+                {/* Сбор идёт: компактный индикатор — таблица живая, данные
+                    добавляются по мере поступления (стрим-паттерн user-report) */}
+                {status === 'queued' && (
+                    <AirtimeQueueBadge progress={progress} />
+                )}
                 <Button
                     variant="outline"
                     size="sm"
@@ -128,16 +133,11 @@ export const AirtimeWidget: React.FC = () => {
                 </Button>
             </div>
             {data?.truncated && <AirtimeTruncatedWarning />}
-            <div className="relative">
-                {status === 'queued' && (
-                    <AirtimeQueueOverlay progress={progress} />
-                )}
-                <AirtimeTable rows={rows} />
-                <EntityRatingChart
-                    title="Победители — эфирное время"
-                    dataset={buildAirtimeRatingDataset(rows)}
-                />
-            </div>
+            <AirtimeTable rows={rows} />
+            <EntityRatingChart
+                title="Победители — эфирное время"
+                dataset={buildAirtimeRatingDataset(rows)}
+            />
         </>
     );
 };

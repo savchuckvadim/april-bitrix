@@ -25,6 +25,7 @@
     "@workspace/theme": "workspace:*",
     "@workspace/ui": "workspace:*",
     "@workspace/ws": "workspace:*",
+    "@xyflow/react": "^12.11.2",
     "axios": "^1.10.0",
     "framer-motion": "^12.6.4",
     "lucide-react": "^0.475.0",

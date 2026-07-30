@@ -148,6 +148,8 @@ const DatesFilter: React.FC = () => {
                                 locale={ru}
                                 mode="single"
                                 selected={dateFrom}
+                                // Открываться на месяце выбранной даты, а не на сегодняшнем
+                                defaultMonth={dateFrom}
                                 onSelect={date =>
                                     handleLocalDateChange(
                                         ReportDateType.FROM,
@@ -179,6 +181,8 @@ const DatesFilter: React.FC = () => {
                                 locale={ru}
                                 mode="single"
                                 selected={dateTo}
+                                // Открываться на месяце выбранной даты, а не на сегодняшнем
+                                defaultMonth={dateTo}
                                 onSelect={date =>
                                     handleLocalDateChange(
                                         ReportDateType.TO,

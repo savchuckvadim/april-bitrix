@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getReportData } from '../model/report-flow-thunks';
+import { getCallingStatistics } from '../model/calling-statistics-flow-thunk';
 
 /**
  * Flow-операции отчёта для виджетов: обновление отчёта (сохранение
@@ -22,6 +23,15 @@ export const useReportFlow = () => {
     }, [dispatch, isFetched, isLoading]);
 
     return {
-        refreshReport: () => dispatch(getReportData()),
+        /**
+         * Кнопка «Применить»: перезапрашивает ОБА отчёта. Исторический баг:
+         * здесь дёргался только KPI — статистика звонков обновлялась лишь
+         * маунт-цепочкой сохранённого фильтра, поэтому смена периода
+         * «применялась» к звонкам только после сохранения+перезагрузки.
+         */
+        refreshReport: () => {
+            void dispatch(getReportData());
+            void dispatch(getCallingStatistics());
+        },
     };
 };

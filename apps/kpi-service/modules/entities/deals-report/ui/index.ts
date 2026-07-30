@@ -1,7 +1,6 @@
 export { DealsAnalytics } from './DealsAnalytics';
 export { ImplementationAnalytics } from './ImplementationAnalytics';
 export { DealsReportCompact } from './DealsReportCompact';
-export { DealsReportTimelineCompact } from './DealsReportTimelineCompact';
 export { ImplementationLineCharts } from './charts/ImplementationLineCharts';
 
 // Новый рефакторенный компонент таймлайна

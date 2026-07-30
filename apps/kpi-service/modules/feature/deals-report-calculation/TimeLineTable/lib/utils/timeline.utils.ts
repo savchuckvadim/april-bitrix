@@ -74,9 +74,28 @@ export function getMinDateFromDeals(companies: OrkReportDealsByCompaniesDto[]): 
 }
 
 /**
- * Рассчитать ежемесячные платежи
+ * Кап длительности сделки: защита от аномальных дат («до 2099») —
+ * такая сделка генерила тысячи объектов платежей на каждый расчёт.
+ * 120 месяцев (10 лет) заведомо покрывает реальные договоры.
  */
-export function calculateMonthlyPayments(deal: OrkReportDealItemDto): MonthlyPayment[] {
+export const DEAL_DURATION_CAP_MONTHS = 120;
+
+/** Аномальные сделки логируем один раз, а не на каждый пересчёт. */
+const warnedAnomalousDeals = new Set<number | string>();
+
+/**
+ * Рассчитать ежемесячные платежи.
+ *
+ * rangeStart/rangeEnd (опционально) — не генерировать платежи за пределами
+ * диапазона: горячий путь таблицы отбрасывал их после создания. Без
+ * аргументов поведение прежнее (полный срок сделки) — его ждут статистика
+ * (currentTotal по календарному году) и детализация сделки.
+ */
+export function calculateMonthlyPayments(
+    deal: OrkReportDealItemDto,
+    rangeStart?: Date,
+    rangeEnd?: Date,
+): MonthlyPayment[] {
     const from = new Date(deal.from);
     const to = new Date(deal.to);
     const totalSum = +deal.sum;
@@ -86,11 +105,27 @@ export function calculateMonthlyPayments(deal: OrkReportDealItemDto): MonthlyPay
     const payments: MonthlyPayment[] = [];
 
     // Используем duration из данных сделки, а не рассчитываем заново
-    const actualDurationMonths = Math.max(1, duration);
+    let actualDurationMonths = Math.max(1, duration);
+    if (actualDurationMonths > DEAL_DURATION_CAP_MONTHS) {
+        if (!warnedAnomalousDeals.has(deal.id)) {
+            warnedAnomalousDeals.add(deal.id);
+            console.warn(
+                `[timeline] Сделка #${deal.id} «${deal.title ?? ''}»: ` +
+                    `аномальная длительность ${actualDurationMonths} мес ` +
+                    `(${deal.from} – ${deal.to}), обрезано до ` +
+                    `${DEAL_DURATION_CAP_MONTHS} — проверьте даты сделки в CRM.`,
+            );
+        }
+        actualDurationMonths = DEAL_DURATION_CAP_MONTHS;
+    }
 
     for (let i = 0; i < actualDurationMonths; i++) {
         const paymentDate = new Date(from);
         paymentDate.setMonth(paymentDate.getMonth() + i);
+
+        // Даты платежей монотонно растут — за правой границей можно выходить.
+        if (rangeEnd && paymentDate > rangeEnd) break;
+        if (rangeStart && paymentDate < rangeStart) continue;
 
         // Проверяем, что платеж не выходит за рамки сделки
         if (paymentDate <= to) {
@@ -115,29 +150,31 @@ export function filterDealsByUsers(deals: OrkReportDealItemDto[], assignedUsers:
     return deals.filter(deal => assignedUsers.includes(deal.assignedById));
 }
 
-/**
- * Рассчитать статистику компании
- */
-export function calculateCompanyStats(companyData: OrkReportDealsByCompaniesDto, startDate: Date, endDate: Date, assignedUsers: string[] = []): CompanyStats {
-    const { deals } = companyData;
-
-    // Фильтруем сделки по пользователям
+/** Сделки, пересекающиеся с периодом (после фильтра по пользователям). */
+function getPeriodDeals(
+    deals: OrkReportDealItemDto[],
+    startDate: Date,
+    endDate: Date,
+    assignedUsers: string[],
+): OrkReportDealItemDto[] {
     const userFilteredDeals = filterDealsByUsers(deals, assignedUsers);
-
-    // Фильтруем сделки, которые пересекаются с выбранным периодом
-    const periodDeals = userFilteredDeals.filter(deal => {
+    // Сделка пересекается с периодом, если начинается до его конца и
+    // заканчивается после его начала
+    return userFilteredDeals.filter(deal => {
         const dealFrom = new Date(deal.from);
         const dealTo = new Date(deal.to);
-        // Сделка пересекается с периодом, если она начинается до конца периода и заканчивается после начала периода
         return dealFrom <= endDate && dealTo >= startDate;
     });
+}
 
-    // Рассчитываем общую сумму всех сделок (включая пересекающиеся)
+/** Статистика из УЖЕ рассчитанных платежей (единый расчёт на компанию). */
+function buildStatsFromPayments(
+    periodDeals: OrkReportDealItemDto[],
+    monthlyPayments: MonthlyPayment[],
+): CompanyStats {
+    // Общая сумма всех сделок (включая пересекающиеся)
     const totalSum = periodDeals.reduce((sum, deal) => sum + +deal.sum, 0);
     const successfulDeals = periodDeals.filter(deal => deal.isWon || deal.isInProgress).length;
-
-    // Рассчитываем ежемесячные платежи с учетом пересекающихся сделок
-    const monthlyPayments = periodDeals.flatMap(deal => calculateMonthlyPayments(deal));
 
     // Группируем платежи по месяцам и суммируем (для учета пересекающихся сделок)
     const monthlyTotals = new Map<number, number>();
@@ -145,20 +182,19 @@ export function calculateCompanyStats(companyData: OrkReportDealsByCompaniesDto,
         monthlyTotals.set(payment.monthIndex, (monthlyTotals.get(payment.monthIndex) || 0) + payment.amount);
     });
 
-    // Рассчитываем сумму ежемесячных платежей в текущем году
+    // Сумма ежемесячных платежей в текущем календарном году
     const currentYear = new Date().getFullYear();
     const currentTotal = monthlyPayments.reduce(
         (sum, payment) => payment.year === currentYear ? sum + payment.amount : sum,
         0
     );
 
-    // Рассчитываем среднюю сумму в месяц только по месяцам с платежами
+    // Средняя сумма в месяц только по месяцам с платежами
     const totalPaymentsAmount = Array.from(monthlyTotals.values()).reduce((sum, amount) => sum + amount, 0);
     const monthsWithPayments = monthlyTotals.size;
     const averageMonthly = monthsWithPayments > 0 ? totalPaymentsAmount / monthsWithPayments : 0;
 
-    // Рассчитываем индексацию на основе ежемесячных платежей
-    // Используем тренд для более устойчивого расчета при скачках
+    // Индексация по тренду — устойчива к скачкам
     const indexGrowth = calculateTrendIndexGrowth(periodDeals);
 
     return {
@@ -171,45 +207,92 @@ export function calculateCompanyStats(companyData: OrkReportDealsByCompaniesDto,
     };
 }
 
-/**
- * Рассчитать матрицу по годам
- */
-export function calculateYearlyMatrix(companyData: OrkReportDealsByCompaniesDto, startDate: Date, endDate: Date, assignedUsers: string[] = []): YearlyData[] {
-    let { deals } = companyData;
-
-    // Фильтруем сделки по пользователям, если указаны
-    if (assignedUsers.length > 0) {
-        deals = filterDealsByUsers(deals, assignedUsers);
-    }
-
-    const years = getYearsInPeriod(startDate, endDate);
-
-    // Сначала получаем все сделки, которые пересекаются с общим периодом
-    const periodDeals = deals.filter(deal => {
-        const dealFrom = new Date(deal.from);
-        const dealTo = new Date(deal.to);
-        return dealFrom <= endDate && dealTo >= startDate;
-    });
-
-    // Считаем платежи один раз и раскладываем по матрице год×месяц одним проходом
-    // (вместо повторной фильтрации всех платежей на каждый год и месяц)
+/** Матрица год×месяц из УЖЕ рассчитанных платежей. */
+function buildYearlyMatrixFromPayments(
+    years: number[],
+    monthlyPayments: MonthlyPayment[],
+): YearlyData[] {
     const totalsByYear = new Map<number, number[]>(
         years.map(year => [year, Array.from({ length: 12 }, () => 0)])
     );
 
-    periodDeals.forEach(deal => {
-        calculateMonthlyPayments(deal).forEach(payment => {
-            const yearTotals = totalsByYear.get(payment.year);
-            if (yearTotals) {
-                yearTotals[payment.monthIndex] = (yearTotals[payment.monthIndex] || 0) + payment.amount;
-            }
-        });
+    monthlyPayments.forEach(payment => {
+        const yearTotals = totalsByYear.get(payment.year);
+        if (yearTotals) {
+            yearTotals[payment.monthIndex] = (yearTotals[payment.monthIndex] || 0) + payment.amount;
+        }
     });
 
     return years.map(year => ({
         year,
         monthlyTotals: totalsByYear.get(year) || Array.from({ length: 12 }, () => 0)
     }));
+}
+
+/** Полный расчёт строки таймлайна одной компании. */
+export interface CompanyTimeline {
+    stats: CompanyStats;
+    yearlyMatrix: YearlyData[];
+}
+
+/** Готовая строка таблицы: компания + предрассчитанные метрики. */
+export interface TimelineCompanyRow extends CompanyTimeline {
+    companyData: OrkReportDealsByCompaniesDto;
+    crossYearIndexes: YearToYearIndex[];
+}
+
+/**
+ * ЕДИНЫЙ расчёт компании: платежи каждой сделки считаются ОДИН раз и
+ * питают и статистику, и матрицу год×месяц. Раньше горячий путь считал
+ * calculateMonthlyPayments до трёх раз на сделку (stats в фильтре
+ * индексации + stats в таблице + матрица).
+ */
+export function buildCompanyTimeline(
+    companyData: OrkReportDealsByCompaniesDto,
+    startDate: Date,
+    endDate: Date,
+    assignedUsers: string[] = [],
+): CompanyTimeline {
+    const periodDeals = getPeriodDeals(companyData.deals, startDate, endDate, assignedUsers);
+    // Полный срок сделки (без клиппинга): currentTotal/averageMonthly
+    // исторически считаются по всем платежам сделки, матрица сама
+    // отбрасывает чужие годы.
+    const monthlyPayments = periodDeals.flatMap(deal => calculateMonthlyPayments(deal));
+    const years = getYearsInPeriod(startDate, endDate);
+
+    return {
+        stats: buildStatsFromPayments(periodDeals, monthlyPayments),
+        yearlyMatrix: buildYearlyMatrixFromPayments(years, monthlyPayments),
+    };
+}
+
+/**
+ * Рассчитать статистику компании
+ */
+export function calculateCompanyStats(companyData: OrkReportDealsByCompaniesDto, startDate: Date, endDate: Date, assignedUsers: string[] = []): CompanyStats {
+    const periodDeals = getPeriodDeals(companyData.deals, startDate, endDate, assignedUsers);
+    const monthlyPayments = periodDeals.flatMap(deal => calculateMonthlyPayments(deal));
+    return buildStatsFromPayments(periodDeals, monthlyPayments);
+}
+
+/**
+ * Рассчитать матрицу по годам
+ */
+export function calculateYearlyMatrix(companyData: OrkReportDealsByCompaniesDto, startDate: Date, endDate: Date, assignedUsers: string[] = []): YearlyData[] {
+    const periodDeals = getPeriodDeals(companyData.deals, startDate, endDate, assignedUsers);
+    const years = getYearsInPeriod(startDate, endDate);
+    const firstYear = years[0];
+    const lastYear = years[years.length - 1];
+    if (firstYear === undefined || lastYear === undefined) return [];
+    // Клиппинг ГОДОВОЙ гранулярности (эквивалентен прежнему отбрасыванию
+    // «чужих» годов картой totalsByYear) — платежи вне диапазона просто
+    // не создаются вместо создать-и-выбросить.
+    const clipStart = new Date(firstYear, 0, 1);
+    const clipEnd = new Date(lastYear + 1, 0, 1);
+    const monthlyPayments = periodDeals.flatMap(deal =>
+        calculateMonthlyPayments(deal, clipStart, clipEnd),
+    );
+    return buildYearlyMatrixFromPayments(years, monthlyPayments);
 }
 
 /**

@@ -1,8 +1,8 @@
 import {
     getSalesReport,
+    KpiReportGetResponseDto,
     ReportGetRequestDto,
 } from '@workspace/nest-kpi-report-sales-api';
-import { ReportData } from '../../model/types/report/report-type';
 
 /** Единственное место импорта клиента kpi-report из api-пакета. */
 export class ReportHelper {
@@ -12,9 +12,14 @@ export class ReportHelper {
         this.api = getSalesReport();
     }
 
-    async getReport(dto: ReportGetRequestDto): Promise<ReportData[] | null> {
-        return (await this.api.kpiReportGetReport(
-            dto,
-        )) as unknown as ReportData[] | null;
+    /**
+     * Конверт очереди {status, data?, requestKey, message?}: ready — данные
+     * готовы; queued — расчёт идёт (поллинг/WS kpi-report:done); error —
+     * расчёт упал.
+     */
+    async getReport(
+        dto: ReportGetRequestDto,
+    ): Promise<KpiReportGetResponseDto> {
+        return await this.api.kpiReportGetReport(dto);
     }
 }

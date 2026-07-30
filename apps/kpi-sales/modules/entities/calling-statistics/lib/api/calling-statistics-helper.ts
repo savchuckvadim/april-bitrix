@@ -1,8 +1,8 @@
 import {
+    CallingStatisticResponseDto,
     getSalesReport,
     GetCallingStatisticDto,
 } from '@workspace/nest-kpi-report-sales-api';
-import { ReportCallingData } from '../../type/calling-type';
 
 /** Единственное место импорта клиента calling-statistic из api-пакета. */
 export class CallingStatisticsHelper {
@@ -12,11 +12,14 @@ export class CallingStatisticsHelper {
         this.api = getSalesReport();
     }
 
+    /**
+     * Конверт очереди {status, data?, requestKey, message?}: ready — данные
+     * готовы; queued — расчёт идёт (поллинг/WS
+     * kpi-report:calling-statistic:done); error — расчёт упал.
+     */
     async getStatistics(
         dto: GetCallingStatisticDto,
-    ): Promise<ReportCallingData[] | null> {
-        return (await this.api.kpiReportGetCallingStatistic(
-            dto,
-        )) as unknown as ReportCallingData[] | null;
+    ): Promise<CallingStatisticResponseDto> {
+        return await this.api.kpiReportGetCallingStatistic(dto);
     }
 }

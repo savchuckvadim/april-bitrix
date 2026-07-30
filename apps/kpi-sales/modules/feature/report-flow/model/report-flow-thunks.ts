@@ -17,12 +17,26 @@ import {
     FilterInnerCode,
     ReportDateType,
 } from '@/modules/entities/report';
-import { modifyDateToReportRequest } from '@/modules/entities/report';
+import { ReportData } from '@/modules/entities/report/model/types/report/report-type';
 import { ReportHelper } from '@/modules/entities/report/lib/api/report-helper';
 import { ReportFilterHelper } from '@/modules/entities/report/lib/api/filter-helper';
+import { safeSocketId } from '@/modules/entities/airtime';
+import {
+    buildReportFlowRequestKey,
+    isCurrentKey,
+    schedulePoll,
+    setCurrentKey,
+} from './report-queue.util';
 
 const reportHelper = new ReportHelper();
 const filterHelper = new ReportFilterHelper();
+
+interface ReportFetchOptions {
+    /** Повторный POST поллинга/WS: без прелоадера и дедуп-гейта. */
+    poll?: boolean;
+    /** Пересчитать, игнорируя кэш бэка. */
+    forceRefresh?: boolean;
+}
 
 /** v2-режим дат ↔ фронтовый EReportDateMode (custom ↔ range). */
 const toReportDateMode = (mode: string): EReportDateMode =>
@@ -116,25 +130,92 @@ export const loadSavedFilter =
         );
     };
 
-/** Загрузка KPI-отчёта по текущему выбору сотрудников и датам. */
+/**
+ * Применение готовых данных KPI-отчёта к слайсам (общая точка для ответа
+ * поллинга и WS-события kpi-report:done).
+ */
+export const applyReportData =
+    (data: ReportData[]) =>
+    (dispatch: AppDispatch, getState: () => RootState) => {
+        const report = getState().report;
+        dispatch(
+            reportActions.setFetchedReport({
+                report: data,
+                dateFieldId: '',
+                actionFieldId: '',
+            }),
+        );
+
+        if (data.length) {
+            const stateFilter = report.filter?.length ? report.filter : null;
+            const rememberFilter = report.savedFilter?.length
+                ? report.savedFilter
+                : null;
+            const filter = data[0]?.kpi.map(
+                kpiItem => kpiItem.action,
+            ) as Array<Filter>;
+            const currentFilter = stateFilter || rememberFilter;
+
+            dispatch(
+                reportActions.setFetchedActions({
+                    actions: filter,
+                    currentFilter,
+                }),
+            );
+            dispatch(
+                reportActions.setFetchedFilter({
+                    filter,
+                    currentFilter,
+                }),
+            );
+        }
+        dispatch(reportActions.setLoadingReportStatus(false));
+    };
+
+/**
+ * Загрузка KPI-отчёта по текущему выбору сотрудников и датам.
+ *
+ * Режим очереди (mode=queue): мгновенный конверт {status,...}; queued →
+ * поллинг раз в 7с + WS kpi-report:done. Смена фильтра БОЛЬШЕ НЕ
+ * блокируется активной загрузкой (раньше guard по isLoading молча
+ * проглатывал перезапрос, пока висел долгий sync-запрос): новый ключ
+ * просто устаревает предыдущий, его ответы отбрасываются.
+ */
 export const getReportData =
-    () => async (dispatch: AppDispatch, getState: () => RootState) => {
+    (options: ReportFetchOptions = {}) =>
+    async (dispatch: AppDispatch, getState: () => RootState) => {
         const state = getState();
         const { app, department, report } = state;
         const user = app.bitrix.user;
 
-        if (!user || report.isLoading || department.status !== 'ready') {
+        if (!user || department.status !== 'ready') {
             return;
         }
-        dispatch(reportActions.setLoadingReportStatus(true));
 
         const users = department.current.length
             ? department.current
             : department.items;
-        const { from, to } = modifyDateToReportRequest(
-            report.date[ReportDateType.FROM],
-            report.date[ReportDateType.TO],
-        );
+        // Каноничный ISO как есть (yyyy-MM-dd, обе границы включительно) —
+        // легаси-конверсию dd.MM.yyyy(+1 день) для этой ручки больше не делаем.
+        const from = report.date[ReportDateType.FROM];
+        const to = report.date[ReportDateType.TO];
+        if (!from || !to || !users.length) return;
+
+        const requestKey = buildReportFlowRequestKey(from, to, users);
+        // Тот же ключ уже в работе/загружен — не дублируем (poll и
+        // forceRefresh проходят всегда).
+        if (
+            !options.poll &&
+            !options.forceRefresh &&
+            isCurrentKey('report', requestKey) &&
+            report.isLoading
+        ) {
+            return;
+        }
+        setCurrentKey('report', requestKey);
+        if (!options.poll) {
+            dispatch(reportActions.setLoadingReportStatus(true));
+        }
 
         const reportRequest = {
             domain: app.domain,
@@ -148,59 +229,47 @@ export const getReportData =
                 actionFieldId: '',
                 currentActions: {},
             },
+            mode: 'queue',
+            socketId: safeSocketId(),
+            forceRefresh: options.poll ? undefined : options.forceRefresh,
         } as unknown as ReportGetRequestDto;
 
         try {
-            const reportResponse = await reportHelper.getReport(reportRequest);
+            const envelope = await reportHelper.getReport(reportRequest);
+            // Фильтр сменился, пока летел ответ — он устарел.
+            if (!isCurrentKey('report', requestKey)) return;
 
-            if (reportResponse) {
-                dispatch(
-                    reportActions.setFetchedReport({
-                        report: reportResponse,
-                        dateFieldId: '',
-                        actionFieldId: '',
-                    }),
+            if (envelope.status === 'queued') {
+                schedulePoll('report', requestKey, () =>
+                    void dispatch(getReportData({ poll: true })),
                 );
-
-                if (reportResponse.length) {
-                    const stateFilter = report.filter?.length
-                        ? report.filter
-                        : null;
-                    const rememberFilter = report.savedFilter?.length
-                        ? report.savedFilter
-                        : null;
-                    const filter = reportResponse[0]?.kpi.map(
-                        kpiItem => kpiItem.action,
-                    ) as Array<Filter>;
-                    const currentFilter = stateFilter || rememberFilter;
-
-                    dispatch(
-                        reportActions.setFetchedActions({
-                            actions: filter,
-                            currentFilter,
-                        }),
-                    );
-                    dispatch(
-                        reportActions.setFetchedFilter({
-                            filter,
-                            currentFilter,
-                        }),
-                    );
-                }
-            } else {
+                return;
+            }
+            if (envelope.status === 'error') {
+                dispatch(reportActions.setLoadingReportStatus(false));
                 logClient(
                     {
-                        title: 'get report data: Report не получен по апи',
+                        title: 'get report data: расчёт упал',
                         level: 'error',
                         context: 'getReportData',
-                        message: 'fail report data',
+                        message: envelope.message ?? 'Ошибка расчёта отчёта',
                         domain: app.domain,
                         userId: user.ID,
                     },
-                    { reportRequest },
+                    { requestKey },
                 );
+                return;
             }
+
+            dispatch(
+                applyReportData(
+                    (envelope.data ?? []) as unknown as ReportData[],
+                ),
+            );
         } catch (error) {
+            if (isCurrentKey('report', requestKey)) {
+                dispatch(reportActions.setLoadingReportStatus(false));
+            }
             logClient(
                 {
                     title: 'get report data',
@@ -212,8 +281,6 @@ export const getReportData =
                 },
                 { error: error instanceof Error ? error.message : error },
             );
-        } finally {
-            dispatch(reportActions.setLoadingReportStatus(false));
         }
     };
 

@@ -12,6 +12,10 @@ interface PeriodFilterProps {
     availableUsers: Array<{ id: string; name: string }>;
     filteredCount: number;
     totalCount: number;
+    /** Нижняя граница пикера — минимальный год из данных сделок. */
+    minYear?: number;
+    /** Верхняя граница пикера — обычно текущий год + 1. */
+    maxYear?: number;
 }
 
 export const PeriodFilterComponent: React.FC<PeriodFilterProps> = ({
@@ -19,7 +23,9 @@ export const PeriodFilterComponent: React.FC<PeriodFilterProps> = ({
     onFilterChange,
     availableUsers,
     filteredCount,
-    totalCount
+    totalCount,
+    minYear,
+    maxYear
 }) => {
     const handleYearRangeChange = (startYear: number, endYear: number) => {
         onFilterChange({
@@ -90,6 +96,8 @@ export const PeriodFilterComponent: React.FC<PeriodFilterProps> = ({
                         startYear={new Date(filter.startDate).getFullYear()}
                         endYear={new Date(filter.endDate).getFullYear()}
                         onChange={handleYearRangeChange}
+                        minYear={minYear}
+                        maxYear={maxYear}
                         className="w-full"
                     />
                 </div>

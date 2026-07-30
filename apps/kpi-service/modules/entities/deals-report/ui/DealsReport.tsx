@@ -22,7 +22,6 @@ import { DealsReportTable } from "./DealsReportTable";
 import { DealsReportCompact } from "./DealsReportCompact";
 import { DealsAnalytics } from "./DealsAnalytics";
 import { ImplementationAnalytics } from "./ImplementationAnalytics";
-import { DealsReportTimelineCompact } from "./DealsReportTimelineCompact";
 import { DealsReportTimelineCompactRefactored } from ".";
 
 // Компонент для отображения одной сделки в компактном виде
@@ -155,7 +154,6 @@ export const DealsReport = () => {
                 <h1 className="text-2xl font-bold">Отчет по сделкам компаний</h1>
                 <Badge variant="outline">{companies.length} компаний</Badge>
             </div>
-            {/* <DealsReportTimelineCompact /> */}
             <ImplementationAnalytics companies={companies} />
             {/* <DealsReportCompact /> */}
 

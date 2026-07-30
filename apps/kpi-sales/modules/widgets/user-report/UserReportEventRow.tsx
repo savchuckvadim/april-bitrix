@@ -21,7 +21,12 @@ interface UserReportEventRowProps {
     prevCompany?: string;
 }
 
-export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, idx, groupByCompany, prevCompany }) => {
+/**
+ * React.memo: таблица догружается батчами по 300 (IntersectionObserver) —
+ * без memo каждый догруз ре-рендерил ВСЕ уже показанные строки вместе с
+ * их тултипами. Пропсы стабильны (item из мемоизированного среза).
+ */
+export const UserReportEventRow: React.FC<UserReportEventRowProps> = React.memo(({ item, idx, groupByCompany, prevCompany }) => {
     const { action,
         title,
         domain,
@@ -156,4 +161,6 @@ export const UserReportEventRow: React.FC<UserReportEventRowProps> = ({ item, id
             </tr>
         </>
     );
-};
+});
+
+UserReportEventRow.displayName = 'UserReportEventRow';

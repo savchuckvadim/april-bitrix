@@ -1,8 +1,38 @@
 # Отчёт «Финансы» (kpi-service): устранение зависания при смене года + виртуализация списков
 
-Статус: **не начато**
+Статус: **этапы 1–3 реализованы 2026-07-30** (ветка `feat/financial-report-performance`);
+осталось: замеры «до/после» на реальных данных (этап 0/финал), этап 4 — по результатам замеров.
 Приложение: `apps/kpi-service` (вкладка Отчёт → Финансы)
 Потенциальный второй потребитель: `apps/kpi-sales` (длинные списки в отчётах)
+
+## Реализация 2026-07-30 (кратко)
+
+- Этап 1: Intl-синглтоны (`TimeLineTable/lib/utils/format.utils.ts`), один
+  `TooltipProvider` на приложение (`components/providers.tsx`) + убраны
+  4 явных провайдера из строки, `React.memo` (TimelineCell / CompanyStats /
+  CompanyRow / CrossYearIndexColumn / CompanyDealsDetails),
+  `startTransition` + `isPending`-приглушение на смену фильтра, границы
+  `YearRangePicker` (minYear из данных, maxYear = текущий+1), дефолтный
+  период = текущий год, мёртвый код удалён (entities-дубль 758 строк,
+  `copy.tsx`, закомментированный `widgetes/.../PeriodFilter.tsx`).
+- Этап 2: общий `VirtualList` в `packages/ui/src/components/virtual-list.tsx`
+  (`@tanstack/react-virtual`, динамическая высота через measureElement,
+  sticky-шапка) — `TimelineTable` переведён на grid-разметку с
+  виртуализацией по строкам-компаниям; Excel-экспорт по-прежнему берёт весь
+  `filteredCompanies`. kpi-sales: `UserReportEventRow` обёрнут в
+  `React.memo` (догруз батчей больше не ре-рендерит все строки);
+  ПОЛНЫЙ перевод user-report на VirtualList — отдельным шагом: строка
+  сейчас `<tr>` с colspan-разделителями, нужна смена разметки на grid с
+  визуальной проверкой. Таблицы по менеджерам (KPIReportTable, Merged,
+  Callings, Airtime) и finance-таблицы — «не требуется»: ограничены штатом
+  либо уже батчированы+memo.
+- Этап 3: `calculateMonthlyPayments(deal, rangeStart?, rangeEnd?)` — клиппинг
+  диапазона + кап длительности 120 мес с console.warn по аномальной сделке;
+  единый расчёт `buildCompanyTimeline` (платежи 1× на сделку питают stats и
+  матрицу; фильтр индексации переиспользует те же stats — тройной пересчёт
+  устранён); vitest в kpi-service + 13 юнит-тестов
+  (`timeline.utils.test.ts`), эквивалентность нового расчёта старому
+  зафиксирована тестом.
 
 ---
 

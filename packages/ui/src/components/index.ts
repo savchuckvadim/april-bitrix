@@ -21,3 +21,4 @@ export * from "./badge"
 
 export * from "./collapsible"
 export * from "./year-range-picker"
+export * from "./virtual-list"

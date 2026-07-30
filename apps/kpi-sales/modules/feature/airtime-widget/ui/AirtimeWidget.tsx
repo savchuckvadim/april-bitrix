@@ -1,11 +1,15 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
+import { Button } from '@workspace/ui/components/button';
+import { RefreshCw } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { useAccess, selectEffectiveUser } from '@/modules/app';
 import { EAccessFeature } from '@/modules/shared/access';
 import { Preloader } from '@/modules/shared';
 import {
+    AirtimeQueueOverlay,
+    AirtimeQueueProgress,
     AirtimeTable,
     AirtimeTruncatedWarning,
     AirtimeUserCard,
@@ -19,14 +23,15 @@ import { buildAirtimeRatingDataset } from '../lib/airtime-rating.util';
  * свёрнутый блок размонтирует детей → запрос уходит только при раскрытии
  * (и при смене фильтров, пока блок раскрыт).
  *
- * Бэк кэширует прошлые полные месяцы ячейками «сотрудник × месяц»
- * (см. back/apps/kpi-report-sales/src/airtime/README.md): повторные
- * запросы за прошлые периоды почти мгновенны, считается живьём только
- * текущий месяц. Долгим может быть лишь ПЕРВЫЙ запрос за период.
+ * Бэк собирает месячные партиции в очереди (mode=queue): ответ мгновенный —
+ * готовый отчёт из кэша либо queued с прогрессом, частичными данными
+ * готовых месяцев и оценкой остатка. Виджет никогда не блокирует страницу:
+ * queued с частичными данными — таблица «под стеклом», смена фильтра
+ * доступна всегда (устаревшие ответы отсеиваются по requestKey).
  */
 export const AirtimeWidget: React.FC = () => {
     const dispatch = useAppDispatch();
-    const { status, data, error } = useAppSelector(
+    const { status, data, error, progress } = useAppSelector(
         state => state.airtime.team,
     );
     const from = useAppSelector(state => state.report.date.from);
@@ -61,23 +66,44 @@ export const AirtimeWidget: React.FC = () => {
         return (
             <div className="flex items-center justify-center gap-3 py-10 text-muted-foreground">
                 <Preloader />
-                <span>
-                    Считаем эфирное время по звонкам…
-                </span>
+                <span>Считаем эфирное время по звонкам…</span>
             </div>
         );
     }
 
     if (status === 'error') {
         return (
-            <p className="py-6 text-sm text-destructive">
-                {error || 'Не удалось получить эфирное время'}
-            </p>
+            <div className="flex flex-col items-start gap-3 py-6">
+                <p className="text-sm text-destructive">
+                    {error || 'Не удалось получить эфирное время'}
+                </p>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1 text-xs"
+                    onClick={() =>
+                        dispatch(getTeamAirtime({ forceRefresh: true }))
+                    }
+                >
+                    <RefreshCw className="h-3 w-3" />
+                    Пересчитать
+                </Button>
+            </div>
         );
     }
 
     const rows = data?.users ?? [];
-    if (!rows.length) {
+
+    // Очередь работает, готовых месяцев ещё нет — прогресс без таблицы.
+    if (status === 'queued' && !rows.length) {
+        return (
+            <div className="py-10">
+                <AirtimeQueueProgress progress={progress} />
+            </div>
+        );
+    }
+
+    if (status === 'ready' && !rows.length) {
         return (
             <p className="py-6 text-sm text-muted-foreground">
                 Звонков за период не найдено
@@ -87,12 +113,31 @@ export const AirtimeWidget: React.FC = () => {
 
     return (
         <>
+            <div className="mb-2 flex justify-end">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1 text-xs"
+                    disabled={status === 'queued'}
+                    onClick={() =>
+                        dispatch(getTeamAirtime({ forceRefresh: true }))
+                    }
+                >
+                    <RefreshCw className="h-3 w-3" />
+                    Пересчитать
+                </Button>
+            </div>
             {data?.truncated && <AirtimeTruncatedWarning />}
-            <AirtimeTable rows={rows} />
-            <EntityRatingChart
-                title="Победители — эфирное время"
-                dataset={buildAirtimeRatingDataset(rows)}
-            />
+            <div className="relative">
+                {status === 'queued' && (
+                    <AirtimeQueueOverlay progress={progress} />
+                )}
+                <AirtimeTable rows={rows} />
+                <EntityRatingChart
+                    title="Победители — эфирное время"
+                    dataset={buildAirtimeRatingDataset(rows)}
+                />
+            </div>
         </>
     );
 };

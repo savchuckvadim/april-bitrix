@@ -17,7 +17,7 @@ interface AirtimeUserCardProps {
 export const AirtimeUserCard: React.FC<AirtimeUserCardProps> = ({
     userId,
 }) => {
-    const { status, row } = useUserAirtime(userId);
+    const { status, row, progress } = useUserAirtime(userId);
 
     return (
         <Card className="bg-popover">
@@ -29,6 +29,14 @@ export const AirtimeUserCard: React.FC<AirtimeUserCardProps> = ({
                 {(status === 'loading' || status === 'idle') && (
                     <p className="mt-2 text-sm text-muted-foreground">
                         Считаем…
+                    </p>
+                )}
+                {status === 'queued' && (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                        Собираем
+                        {progress?.totalMonths
+                            ? ` · ${progress.readyMonths} из ${progress.totalMonths} мес`
+                            : '…'}
                     </p>
                 )}
                 {status === 'error' && (

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import type { AirtimeProgressDto } from '@workspace/nest-kpi-report-sales-api';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getUserAirtime } from '../../model/airtime-thunks';
 import type { AirtimeUserRow } from '../../model';
@@ -8,6 +9,8 @@ import type { AirtimeUserRow } from '../../model';
 export interface UserAirtimeData {
     status: string;
     row: AirtimeUserRow | undefined;
+    /** Прогресс сборки партиций (status queued). */
+    progress: AirtimeProgressDto | null;
 }
 
 /**
@@ -19,7 +22,9 @@ export const useUserAirtime = (userId: number): UserAirtimeData => {
     const initialized = useAppSelector(state => state.app.initialized);
     const from = useAppSelector(state => state.report.date.from);
     const to = useAppSelector(state => state.report.date.to);
-    const { status, data } = useAppSelector(state => state.airtime.user);
+    const { status, data, progress } = useAppSelector(
+        state => state.airtime.user,
+    );
 
     useEffect(() => {
         if (initialized && from && to) {
@@ -30,5 +35,6 @@ export const useUserAirtime = (userId: number): UserAirtimeData => {
     return {
         status,
         row: data?.users.find(item => Number(item.user.ID) === userId),
+        progress,
     };
 };

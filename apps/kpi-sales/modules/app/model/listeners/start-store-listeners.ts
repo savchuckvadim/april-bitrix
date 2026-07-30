@@ -6,6 +6,7 @@ import { startMergedFilterListeners } from '@/modules/feature/merged-kpi-calling
 import { startUiSettingsSyncListeners } from '@/modules/feature/ui-settings/model/listeners/ui-settings-sync.listener';
 import { startFinanceWsListener } from '@/modules/entities/finance/model/listeners/finance-ws.listener';
 import { startFinanceRefetchListener } from '@/modules/entities/finance/model/listeners/finance-refetch.listener';
+import { startAirtimeWsListener } from '@/modules/entities/airtime/model/listeners/airtime-ws.listener';
 import { startReportTypeAppListener } from '@/modules/feature/report-widget-type/model/ReportTypeAppListener';
 import { startReportLinksListener } from '@/modules/feature/report-links/model/listeners/report-links.listener';
 import { startSharePresenceListener } from '@/modules/feature/report-links/model/listeners/share-presence.listener';
@@ -34,6 +35,7 @@ export function startStoreListeners(listenerMiddleware: AppListenerMiddleware) {
     startSharePresenceListener(listenerMiddleware);
     startFinanceWsListener(listenerMiddleware);
     startFinanceRefetchListener(listenerMiddleware);
+    startAirtimeWsListener(listenerMiddleware);
     // Синк UI-настроек регистрируется последним: его гидратация должна
     // перекрывать доменные дефолты (например, тип отчёта).
     startUiSettingsSyncListeners(listenerMiddleware);

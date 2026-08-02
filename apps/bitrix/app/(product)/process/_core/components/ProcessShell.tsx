@@ -4,6 +4,7 @@ import type { FC, ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Menu } from 'lucide-react';
 import { GlassAmbient } from '@workspace/april-ui';
+import { Footer } from '@/app/(site)/home/components/Footer';
 import { ThemeToggler } from '@workspace/theme';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
@@ -50,9 +51,6 @@ export const ProcessShell: FC<ProcessShellProps> = ({
             {isOpen && (
                 <aside className="hidden h-full w-60 shrink-0 flex-col lg:flex">
                     <div className="flex h-14 shrink-0 items-center justify-between px-4">
-                        <Link href="/" className="font-bold">
-                            April <span className="text-primary">Crm</span>
-                        </Link>
                         <Button
                             variant="ghost"
                             size="icon"
@@ -62,6 +60,9 @@ export const ProcessShell: FC<ProcessShellProps> = ({
                         >
                             <Menu className="h-5 w-5" />
                         </Button>
+                        <Link href="/" className="font-bold">
+                            April <span className="text-primary">CRM</span>
+                        </Link>
                     </div>
 
                     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 pb-4">
@@ -99,7 +100,7 @@ export const ProcessShell: FC<ProcessShellProps> = ({
                     )}
 
                     <Link href="/" className="shrink-0 font-bold lg:hidden">
-                        April <span className="text-primary">Crm</span>
+                        April <span className="text-primary">CRM</span>
                     </Link>
 
                     <p className="text-muted-foreground hidden truncate text-sm font-semibold lg:block">
@@ -143,6 +144,17 @@ export const ProcessShell: FC<ProcessShellProps> = ({
                         )}
                     >
                         {children}
+
+                        {/*
+                         * Футер сайта, а не своя копия: телефон, почта и
+                         * юридические ссылки должны быть теми же самыми.
+                         * Отдельная копия рано или поздно разойдётся с
+                         * оригиналом, и разойдётся молча.
+                         *
+                         * В нескроллящемся режиме его нет — там до низа
+                         * страницы просто не доехать.
+                         */}
+                        {scroll === 'island' && <Footer />}
                     </main>
                 </div>
             </div>

@@ -92,7 +92,7 @@ export const StageBreakdownRow: FC<StageBreakdownRowProps> = ({
                     {view.writesKpi && (
                         <BarChart3
                             className="text-success size-3.5 shrink-0"
-                            aria-label="пишется событие KPI"
+                            aria-label="работа с этой стадии попадает в отчётность"
                         />
                     )}
                     {view.isBlockedForLead && (
@@ -148,7 +148,7 @@ export const StageBreakdownRow: FC<StageBreakdownRowProps> = ({
                     {satellites.length > 0 && (
                         <section className="lg:col-span-2">
                             <h4 className="text-muted-foreground text-[11px] font-bold tracking-widest uppercase">
-                                Здесь включается параллельная воронка
+                                Здесь система сама включает параллельную воронку
                             </h4>
                             <div className="mt-1.5 space-y-1.5">
                                 {satellites.map(satellite => (

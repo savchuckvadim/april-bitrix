@@ -17,6 +17,7 @@ import {
     SIM_NORESULT_REASONS,
 } from '../../constants/sim-events';
 import { SimContactPicker } from './SimContactPicker';
+import { SimPresentationFork } from './SimPresentationFork';
 
 interface SimReportZoneProps {
     result: 'result' | 'noresult';
@@ -35,8 +36,12 @@ interface SimReportZoneProps {
     failReason: string;
     onFailReasonChange: (code: string) => void;
     isResult: boolean;
-    presentationDone: boolean;
-    onPresentationDoneChange: (value: boolean) => void;
+    /** Отчитываемся по презентации — тогда развилка своя. */
+    isPresentationReport: boolean;
+    presentationHeld: boolean;
+    onPresentationHeldChange: (value: boolean) => void;
+    unplannedPresentation: boolean;
+    onUnplannedPresentationChange: (value: boolean) => void;
     comment: string;
     onCommentChange: (value: string) => void;
     contactId: string | null;
@@ -80,8 +85,11 @@ export const SimReportZone: FC<SimReportZoneProps> = ({
     failReason,
     onFailReasonChange,
     isResult,
-    presentationDone,
-    onPresentationDoneChange,
+    isPresentationReport,
+    presentationHeld,
+    onPresentationHeldChange,
+    unplannedPresentation,
+    onUnplannedPresentationChange,
     comment,
     onCommentChange,
     contactId,
@@ -285,20 +293,28 @@ export const SimReportZone: FC<SimReportZoneProps> = ({
             </div>
         )}
 
-        {isResult && (
-            <label className="flex cursor-pointer items-center gap-2">
-                <input
-                    type="checkbox"
-                    checked={presentationDone}
-                    onChange={event =>
-                        onPresentationDoneChange(event.target.checked)
-                    }
-                    className="accent-primary size-4 cursor-pointer"
-                />
-                <span className="text-xs">
-                    Провёл презентацию, даже если планировал другое
-                </span>
-            </label>
+        {isPresentationReport ? (
+            <SimPresentationFork
+                isResult={isResult}
+                held={presentationHeld}
+                onHeldChange={onPresentationHeldChange}
+            />
+        ) : (
+            isResult && (
+                <label className="flex cursor-pointer items-center gap-2">
+                    <input
+                        type="checkbox"
+                        checked={unplannedPresentation}
+                        onChange={event =>
+                            onUnplannedPresentationChange(event.target.checked)
+                        }
+                        className="accent-primary size-4 cursor-pointer"
+                    />
+                    <span className="text-xs">
+                        Провёл презентацию, хотя планировал другое
+                    </span>
+                </label>
+            )
         )}
 
         <Field title="Комментарий">

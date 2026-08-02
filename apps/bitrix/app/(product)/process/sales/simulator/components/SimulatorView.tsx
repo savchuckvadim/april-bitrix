@@ -4,6 +4,7 @@ import type { FC } from 'react';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { ProcessShell } from '../../../_core/components/ProcessShell';
+import { SectionNav } from '../../../_core/components/SectionNav';
 import { ACTOR_LABEL } from '../../../_core/lib/actor.util';
 import { findEventType } from '../../../_core/constants/sim-events';
 import { SimAdminGate } from '../../../_core/components/sim/SimAdminGate';
@@ -209,6 +210,13 @@ export const SimulatorView: FC = () => {
                         )}
                     </>
                 )}
+
+                <div className="border-t pt-6">
+                    <p className="text-muted-foreground mb-3 text-xs font-bold tracking-widest uppercase">
+                        Куда дальше
+                    </p>
+                    <SectionNav currentSlug="simulator" />
+                </div>
             </div>
         </ProcessShell>
     );

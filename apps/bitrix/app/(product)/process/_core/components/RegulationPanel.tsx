@@ -87,7 +87,23 @@ export const RegulationPanel: FC<RegulationPanelProps> = ({
                     </span>
                 </div>
 
-                <pre className="text-foreground/90 mt-3 max-h-[28rem] overflow-auto rounded-lg border p-4 font-mono text-[11px] leading-relaxed whitespace-pre print:mt-0 print:max-h-none print:overflow-visible print:border-none print:p-0 print:text-[10px]">
+                {/*
+                 * На телефоне предпросмотр прячем осознанно: регламент — это
+                 * моноширинный документ с таблицами на 64 знака, и в 390
+                 * пикселей он превращается в кашу из переносов. Скачать и
+                 * скопировать при этом можно — кнопки выше остаются.
+                 */}
+                <p className="border-primary/40 text-muted-foreground mt-3 rounded-lg border border-dashed p-4 text-xs leading-relaxed lg:hidden">
+                    <span className="text-foreground font-semibold">
+                        Откройте на большом экране,{' '}
+                    </span>
+                    чтобы прочитать регламент целиком: внутри таблицы по
+                    стадиям, и на узком экране они рассыпаются. Скачать или
+                    скопировать его можно прямо отсюда — файл откроется где
+                    угодно.
+                </p>
+
+                <pre className="text-foreground/90 mt-3 hidden max-h-[28rem] overflow-auto rounded-lg border p-4 font-mono text-[11px] leading-relaxed whitespace-pre lg:block print:mt-0 print:block print:max-h-none print:overflow-visible print:border-none print:p-0 print:text-[10px]">
                     {preview}
                 </pre>
             </GlassCard>

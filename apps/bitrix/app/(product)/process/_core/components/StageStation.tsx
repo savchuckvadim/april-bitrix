@@ -88,7 +88,7 @@ export const StageStation: FC<StageStationProps> = ({
                         {view.writesKpi && (
                             <BarChart3
                                 className="text-success mt-0.5 h-3 w-3 shrink-0"
-                                aria-label="пишется событие KPI"
+                                aria-label="работа с этой стадии попадает в отчётность"
                             />
                         )}
                         {view.isBlockedForLead && (

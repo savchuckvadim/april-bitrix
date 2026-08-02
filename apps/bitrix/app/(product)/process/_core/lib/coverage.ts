@@ -33,6 +33,7 @@ import {
     resolveHiddenExitIds,
     resolveHiddenSatelliteIds,
     resolveKpiFromIndex,
+    resolveKpiSource,
     resolveLeadCap,
     resolveSyncLeadStatuses,
 } from './question-effects.util';
@@ -194,6 +195,7 @@ export const deriveProcessModel = (
             satellite => !hiddenSatelliteIds.has(satellite.id),
         ),
         stepActors: resolveStepActors(effects),
+        kpiSource: resolveKpiSource(effects),
         leadCapStageId: leadCap?.stageId ?? null,
         syncLeadStatuses: resolveSyncLeadStatuses(effects),
         stages: stageViews,

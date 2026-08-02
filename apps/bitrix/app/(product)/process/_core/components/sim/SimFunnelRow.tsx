@@ -28,6 +28,10 @@ interface SimFunnelRowProps {
  * сколько шагов всего и где он относительно них. Цвета делений — настоящие,
  * из портала, поэтому картинка совпадает с тем, что человек видит в своём
  * Битриксе. Подписи стадий — в подсказке при наведении.
+ *
+ * На узком экране строка ломается на две: сверху название и состояние, снизу
+ * сама полоса во всю ширину. Иначе на подпись уходит половина экрана, а стадии
+ * сжимаются в неразличимые полоски.
  */
 export const SimFunnelRow: FC<SimFunnelRowProps> = ({
     label,
@@ -38,10 +42,20 @@ export const SimFunnelRow: FC<SimFunnelRowProps> = ({
 }) => (
     <li
         title={hint}
-        className="bg-card flex items-center gap-3 rounded-lg border px-3 py-2"
+        className="bg-card flex flex-col gap-1.5 rounded-lg border px-3 py-2 sm:flex-row sm:items-center sm:gap-3"
     >
-        <span className="text-foreground w-40 shrink-0 truncate text-xs font-semibold">
-            {label}
+        <span className="flex items-baseline gap-2 sm:contents">
+            <span className="text-foreground truncate text-xs font-semibold sm:w-40 sm:shrink-0">
+                {label}
+            </span>
+            <span
+                className={cn(
+                    'ml-auto text-[10px] font-bold tracking-wide uppercase sm:hidden',
+                    isClosed ? 'text-muted-foreground/60' : 'text-success',
+                )}
+            >
+                {isClosed ? 'закрыта' : 'открыта'}
+            </span>
         </span>
 
         <span
@@ -74,13 +88,13 @@ export const SimFunnelRow: FC<SimFunnelRowProps> = ({
             })}
         </span>
 
-        <span className="text-muted-foreground w-36 shrink-0 truncate text-right text-xs">
+        <span className="text-muted-foreground truncate text-xs sm:w-36 sm:shrink-0 sm:text-right">
             {stages[currentIndex]?.label ?? '—'}
         </span>
 
         <span
             className={cn(
-                'w-16 shrink-0 text-right text-[10px] font-bold tracking-wide uppercase',
+                'hidden w-16 shrink-0 text-right text-[10px] font-bold tracking-wide uppercase sm:block',
                 isClosed ? 'text-muted-foreground/60' : 'text-success',
             )}
         >

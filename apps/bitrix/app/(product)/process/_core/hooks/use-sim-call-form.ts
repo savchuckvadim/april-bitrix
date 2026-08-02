@@ -29,7 +29,16 @@ export const useSimCallForm = (reportedEventCode: string | null) => {
     const [workStatus, setWorkStatus] = useState('inJob');
     const [failType, setFailType] = useState('failure');
     const [failReason, setFailReason] = useState('noneed');
-    const [presentationDone, setPresentationDone] = useState(false);
+    /**
+     * Состоялась ли презентация.
+     *
+     * Когда отчитываются ПО презентации, результативный отчёт и означает, что
+     * встреча прошла, — поэтому по умолчанию включено. Отжать можно: бывает,
+     * что поговорили результативно, а встреча не состоялась.
+     */
+    const [presentationHeld, setPresentationHeld] = useState(true);
+    /** Внеплановая презентация: отчитывались о другом, а встречу провели. */
+    const [unplannedPresentation, setUnplannedPresentation] = useState(false);
     const [comment, setComment] = useState('');
     const [reportContact, setReportContact] = useState<string | null>('c1');
 
@@ -52,6 +61,15 @@ export const useSimCallForm = (reportedEventCode: string | null) => {
         workStatus === 'inJob' && isSetAsideDeadline(planDeadline);
     const effectiveWorkStatus = isSetAside ? 'setAside' : workStatus;
     const isFinishing = isSale || isFail;
+    /** Отчитываемся именно по презентации — тогда развилка своя. */
+    const isPresentationReport = reported?.code === 'presentation';
+    /**
+     * Нерезультативный отчёт по презентации означает одно: встречи не было.
+     * Отдельного переключателя тут нет — его нечего выбирать.
+     */
+    const presentationDone = isPresentationReport
+        ? isResult && presentationHeld
+        : isResult && unplannedPresentation;
     const planned = findEventType(nextEventCode);
     /** Планировать после продажи и отказа нечего: сделка закрывается. */
     const planningActive = isPlanning && !isFinishing;
@@ -87,7 +105,7 @@ export const useSimCallForm = (reportedEventCode: string | null) => {
         workStatus: effectiveWorkStatus,
         failType: isFail ? failType : undefined,
         failReason: isFail ? failReason : undefined,
-        presentationDone: isResult && presentationDone,
+        presentationDone,
         reportContactId: reportContact,
         nextEventCode: planningActive ? nextEventCode : null,
         planTitle: planningActive ? planTitle.trim() : undefined,
@@ -118,8 +136,12 @@ export const useSimCallForm = (reportedEventCode: string | null) => {
         setFailType,
         failReason,
         setFailReason,
+        presentationHeld,
+        setPresentationHeld,
+        unplannedPresentation,
+        setUnplannedPresentation,
+        isPresentationReport,
         presentationDone,
-        setPresentationDone,
         comment,
         setComment,
         reportContact,

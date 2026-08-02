@@ -4,7 +4,7 @@ import type { FC } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, GitFork } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
-import { SALES_BASE_PATH } from '../../constants/views';
+import { SALES_SCHEMA_PATH } from '../../constants/views';
 import { discourseAnchor } from '../../lib/anchors.util';
 import { getProcessConfig, saveProcessConfig } from '../../lib/config-storage';
 import type { DiscoursePosition } from '../../theory-types';
@@ -50,7 +50,7 @@ export const TheoryDiscourse: FC<TheoryDiscourseProps> = ({
         });
         // Ведём не «на схему», а ровно в то место, о котором спорили: иначе
         // читатель приезжает в середину длинной страницы и ищет глазами.
-        router.push(`${SALES_BASE_PATH}#${discourseAnchor(preview.answers)}`);
+        router.push(`${SALES_SCHEMA_PATH}#${discourseAnchor(preview.answers)}`);
     };
 
     return (

@@ -8,13 +8,13 @@ import { ProcessDialog } from '../../_core/components/ProcessDialog';
 import { ProcessEdges } from '../../_core/components/ProcessEdges';
 import { ProcessFlow } from '../../_core/components/ProcessFlow';
 import { ProcessShell } from '../../_core/components/ProcessShell';
+import { SectionNav } from '../../_core/components/SectionNav';
 import { QuestionPanel } from '../../_core/components/QuestionPanel';
 import { RegulationPanel } from '../../_core/components/RegulationPanel';
 import { SatelliteDetail } from '../../_core/components/SatelliteDetail';
 import { SatelliteRail } from '../../_core/components/SatelliteRail';
 import { SpineCanvas } from '../../_core/components/SpineCanvas';
 import { StageDetail } from '../../_core/components/StageDetail';
-import { TheoryLinks } from '../../_core/components/theory/TheoryLinks';
 import { SALES_PRESETS } from '../../_core/constants/presets';
 import { SALES_QUESTIONS } from '../../_core/constants/questions';
 import '../../_core/process-print.css';
@@ -75,11 +75,7 @@ export const SpineView: FC = () => {
                     </p>
                 </header>
 
-                {/* 1. Почему процесс устроен так — прежде чем его настраивать. */}
-
-                <TheoryLinks />
-
-                {/* 2. Один быстрый путь для тех, кто не хочет разбираться. */}
+                {/* 1. Один быстрый путь для тех, кто не хочет разбираться. */}
 
                 <FillRecommended
                     presetLabel={recommendedPreset.label}
@@ -88,7 +84,7 @@ export const SpineView: FC = () => {
                     onReset={reset}
                 />
 
-                {/* 3. Решения: они задают всё остальное. */}
+                {/* 2. Решения: они задают всё остальное. */}
 
                 <QuestionPanel
                     questions={SALES_QUESTIONS}
@@ -96,7 +92,7 @@ export const SpineView: FC = () => {
                     onAnswer={setAnswer}
                 />
 
-                {/* 4. Соотношение лид/сделка и хребет процесса. */}
+                {/* 3. Соотношение лид/сделка и хребет процесса. */}
 
                 <ControlPanel
                     leadPct={config.leadPct}
@@ -113,7 +109,7 @@ export const SpineView: FC = () => {
 
                 <CallsPlacement placement={model.callsApp} />
 
-                {/* 5. Процесс по стадиям и параллельные воронки. */}
+                {/* 4. Процесс по стадиям и параллельные воронки. */}
 
                 <ProcessFlow model={model} />
 
@@ -127,7 +123,7 @@ export const SpineView: FC = () => {
                     exits={model.exits}
                 />
 
-                {/* 6. Итог, который заказчик уносит с собой. */}
+                {/* 5. Итог, который заказчик уносит с собой. */}
 
                 <RegulationPanel
                     definition={definition}
@@ -135,6 +131,14 @@ export const SpineView: FC = () => {
                     config={config}
                     preset={activePreset}
                 />
+
+                {/* Страница длинная: в конце человек не должен упираться в тупик. */}
+                <div className="border-t pt-6">
+                    <p className="text-muted-foreground mb-3 text-xs font-bold tracking-widest uppercase">
+                        Куда дальше
+                    </p>
+                    <SectionNav currentSlug="schema" />
+                </div>
             </div>
 
             <ProcessDialog
@@ -147,6 +151,7 @@ export const SpineView: FC = () => {
                     <StageDetail
                         satellites={model.satellites}
                         view={openedStage}
+                        kpiSource={model.kpiSource}
                     />
                 )}
             </ProcessDialog>

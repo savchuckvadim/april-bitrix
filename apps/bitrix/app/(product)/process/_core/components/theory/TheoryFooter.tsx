@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import {
-    SALES_BASE_PATH,
+    SALES_SCHEMA_PATH,
     THEORY_TABS,
     salesTabPath,
 } from '../../constants/views';
@@ -18,7 +18,7 @@ export const TheoryFooter: FC<{ slug: string }> = ({ slug }) => {
     return (
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
             <Link
-                href={SALES_BASE_PATH}
+                href={SALES_SCHEMA_PATH}
                 className="text-muted-foreground hover:text-foreground focus-visible:outline-primary flex items-center gap-2 rounded-md text-sm focus-visible:outline-2"
             >
                 <ArrowLeft className="size-4" aria-hidden />

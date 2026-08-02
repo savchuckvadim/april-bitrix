@@ -79,8 +79,13 @@ export const SimCallForm: FC<SimCallFormProps> = ({
                     failReason={form.failReason}
                     onFailReasonChange={form.setFailReason}
                     isResult={form.isResult}
-                    presentationDone={form.presentationDone}
-                    onPresentationDoneChange={form.setPresentationDone}
+                    isPresentationReport={form.isPresentationReport}
+                    presentationHeld={form.presentationHeld}
+                    onPresentationHeldChange={form.setPresentationHeld}
+                    unplannedPresentation={form.unplannedPresentation}
+                    onUnplannedPresentationChange={
+                        form.setUnplannedPresentation
+                    }
                     comment={form.comment}
                     onCommentChange={form.setComment}
                     contactId={form.reportContact}

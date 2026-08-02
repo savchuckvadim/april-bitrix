@@ -3,6 +3,7 @@
 import type { FC } from 'react';
 import { renderInline } from '../../lib/render-inline';
 import type { TheoryBlock } from '../../theory-types';
+import { TheoryBenefit } from './TheoryBenefit';
 import { TheoryDanger } from './TheoryDanger';
 import { TheoryDiscourse } from './TheoryDiscourse';
 import { TheoryObvious } from './TheoryObvious';
@@ -50,6 +51,15 @@ export const TheoryBlockRenderer: FC<{ block: TheoryBlock }> = ({ block }) => {
                     price={block.price}
                     recommendation={block.recommendation}
                     preview={block.preview}
+                />
+            );
+
+        case 'benefit':
+            return (
+                <TheoryBenefit
+                    feature={block.feature}
+                    meaning={block.meaning}
+                    gain={block.gain}
                 />
             );
 

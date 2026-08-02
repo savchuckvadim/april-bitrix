@@ -36,48 +36,64 @@ export const SpineCanvas: FC<SpineCanvasProps> = ({
             aria-label="Хребет процесса продажи"
             className={cn('flex w-full flex-col gap-3', className)}
         >
-            <CoverageBand
-                label="Лид"
-                from={0}
-                count={leadCount}
-                total={total}
-                direction="forward"
-                color="var(--event-lead)"
-            />
+            {/*
+             * На узком экране десять станций в строку превращаются в «Но»,
+             * «Хо», «Пе» — подписи схлопываются до двух букв. Поэтому хребет
+             * получает минимальную ширину и листается вбок целиком: полосы
+             * покрытия обязаны ехать вместе со станциями, иначе они разъедутся
+             * и схема начнёт врать.
+             */}
+            <div className="-mx-1 overflow-x-auto px-1 pb-1">
+                <div className="flex min-w-[46rem] flex-col gap-3">
+                    <CoverageBand
+                        label="Лид"
+                        from={0}
+                        count={leadCount}
+                        total={total}
+                        direction="forward"
+                        color="var(--event-lead)"
+                    />
 
-            <div className="relative">
-                {/* Рельс — проходит через центр станций. */}
-                <span
-                    aria-hidden
-                    className="bg-border absolute top-[13px] right-0 left-0 h-0.5"
-                />
+                    <div className="relative">
+                        {/* Рельс — проходит через центр станций. */}
+                        <span
+                            aria-hidden
+                            className="bg-border absolute top-[13px] right-0 left-0 h-0.5"
+                        />
 
-                <ol
-                    className="grid gap-1.5"
-                    style={{
-                        gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))`,
-                    }}
-                >
-                    {model.stages.map((view, index) => (
-                        <li key={view.stage.id} className="min-w-0">
-                            <StageStation
-                                view={view}
-                                order={index}
-                                onSelect={onSelectStage}
-                            />
-                        </li>
-                    ))}
-                </ol>
+                        <ol
+                            className="grid gap-1.5"
+                            style={{
+                                gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))`,
+                            }}
+                        >
+                            {model.stages.map((view, index) => (
+                                <li key={view.stage.id} className="min-w-0">
+                                    <StageStation
+                                        view={view}
+                                        order={index}
+                                        onSelect={onSelectStage}
+                                    />
+                                </li>
+                            ))}
+                        </ol>
+                    </div>
+
+                    <CoverageBand
+                        label="Сделка"
+                        from={model.dealStart}
+                        count={dealCount}
+                        total={total}
+                        direction="backward"
+                        color="var(--primary)"
+                    />
+                </div>
             </div>
 
-            <CoverageBand
-                label="Сделка"
-                from={model.dealStart}
-                count={dealCount}
-                total={total}
-                direction="backward"
-                color="var(--primary)"
-            />
+            <p className="text-muted-foreground text-xs lg:hidden">
+                Схему можно листать вбок — станций больше, чем помещается в
+                экран.
+            </p>
 
             <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
                 {ACTOR_LEGEND.map(item => (

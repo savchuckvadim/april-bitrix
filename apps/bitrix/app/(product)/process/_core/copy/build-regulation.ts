@@ -12,6 +12,7 @@ import { SALES_QUESTIONS } from '../constants/questions';
 import { ACTOR_LABEL } from '../lib/actor.util';
 import { callsPlacementName } from '../lib/calls-placement.util';
 import { resolveFlowStepContext } from '../lib/flow-context.util';
+import { KPI_BADGE_LABEL, KPI_SOURCE_HINT } from '../lib/kpi-source.util';
 import { openDecisions } from '../lib/open-decisions.util';
 import { plural } from '../lib/plural.util';
 import type {
@@ -73,7 +74,7 @@ const coverageLines = (model: ProcessModel): string[] => {
                 owner[view.owner],
                 ACTOR_LABEL[view.actor],
                 [
-                    view.writesKpi ? 'пишется KPI' : '',
+                    view.writesKpi ? KPI_BADGE_LABEL[model.kpiSource] : '',
                     view.isBlockedForLead
                         ? 'лид не допускается регламентом'
                         : '',
@@ -191,6 +192,9 @@ export const buildRegulation = ({
     }
 
     lines.push(
+        `Источник цифр отчётности: ${KPI_BADGE_LABEL[model.kpiSource]}.`,
+        `   ${KPI_SOURCE_HINT[model.kpiSource]}`,
+
         ...section('2. Стадии и ответственные'),
         ...coverageLines(model),
     );

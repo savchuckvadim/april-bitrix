@@ -87,15 +87,26 @@ const presentationState = (
     const done = kpi.filter(
         record => record.label === 'Презентация проведена',
     ).length;
+    /**
+     * Встречи, которые не состоялись: отчитались по презентации результативно,
+     * но отметку «проведена» сняли. Такая сделка закрывается на «Не
+     * состоялась» — открытой ей висеть незачем, новую встречу заводят новой
+     * сделкой.
+     */
+    const missed = state.log.filter(entry =>
+        entry.systemActions.some(action =>
+            action.includes('закрыта на стадии «Не состоялась»'),
+        ),
+    ).length;
 
-    if (planned + done === 0) return null;
+    if (planned + done + missed === 0) return null;
 
     /**
      * Незакрытые встречи — это разница между назначенными и проведёнными.
      * По списку дел считать нельзя: продажа и отказ его очищают, и тогда любая
      * сорванная презентация выглядела бы состоявшейся.
      */
-    const openNow = Math.max(0, planned - done);
+    const openNow = Math.max(0, planned - done - missed);
     const terminal = terminalStage('spres', state.status);
 
     if (terminal) {
@@ -103,7 +114,7 @@ const presentationState = (
             satellite,
             stageId: terminal,
             isClosed: true,
-            count: planned + done,
+            count: planned + done + missed,
             reason:
                 openNow === 0
                     ? 'все встречи прошли — эти сделки закрылись своим условием, ещё до исхода'
@@ -118,17 +129,20 @@ const presentationState = (
             satellite,
             stageId: 'spres_plan',
             isClosed: false,
-            count: planned + done,
+            count: planned + done + missed,
             reason: 'встреча назначена и ещё не прошла',
         };
     }
 
     return {
         satellite,
-        stageId: 'spres_success',
+        stageId: missed > 0 && done === 0 ? 'spres_noresult' : 'spres_success',
         isClosed: true,
-        count: planned + done,
-        reason: 'все встречи прошли — эти сделки закрылись своим условием',
+        count: planned + done + missed,
+        reason:
+            missed > 0
+                ? `не состоявшихся встреч: ${missed} — они закрыты на «Не состоялась», своим условием`
+                : 'все встречи прошли — эти сделки закрылись своим условием',
     };
 };
 

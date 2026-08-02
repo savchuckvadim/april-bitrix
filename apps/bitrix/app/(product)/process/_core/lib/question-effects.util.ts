@@ -7,6 +7,7 @@
  */
 
 import {
+    KpiSource,
     ProcessActor,
     ProcessDefinition,
     ProcessQuestion,
@@ -108,6 +109,16 @@ export const resolveKpiFromIndex = (
         .map(stageId => stageIndex(definition, stageId))
         .filter(index => index >= 0)
         .reduce((strictest, index) => Math.max(strictest, index), 0);
+
+/**
+ * Источник цифр отчётности. По умолчанию — события приложения: так работает
+ * портал, пока про телефонию отдельно не договорились.
+ */
+export const resolveKpiSource = (effects: QuestionEffect[]): KpiSource =>
+    effects.reduce<KpiSource>(
+        (carry, effect) => effect.kpiSource ?? carry,
+        'events',
+    );
 
 /** Съезды, которые ответы убрали со схемы. */
 export const resolveHiddenExitIds = (effects: QuestionEffect[]): Set<string> =>

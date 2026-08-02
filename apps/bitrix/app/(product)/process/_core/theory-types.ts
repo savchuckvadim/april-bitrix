@@ -15,7 +15,22 @@ export interface DiscoursePosition {
     text: string;
 }
 
+/**
+ * Связка «свойство → что это значит → что даёт».
+ *
+ * Нужна только на обзорной странице: там читатель ещё не знает, зачем ему
+ * читать дальше, и голое перечисление возможностей ему ничего не говорит.
+ * Внутри теории такие блоки не используются — там объясняют, а не продают.
+ */
+export interface BenefitBlock {
+    kind: 'benefit';
+    feature: string;
+    meaning: string;
+    gain: string;
+}
+
 export type TheoryBlock =
+    | BenefitBlock
     | { kind: 'lead'; text: string }
     | { kind: 'heading'; text: string }
     | { kind: 'paragraph'; text: string }

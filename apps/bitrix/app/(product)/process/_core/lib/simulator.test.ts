@@ -544,3 +544,78 @@ describe('исход закрывает все воронки, каждую по
         expect(item?.reason).toContain('своим условием');
     });
 });
+
+describe('презентация: проведена или только разговор', () => {
+    const kpiOf = (state: SimState) =>
+        state.log.at(-1)!.kpi.map(record => record.label);
+
+    it('результативный отчёт по презентации засчитывает встречу', () => {
+        const next = run(at('sales_pres', 'presentation'), {
+            presentationDone: true,
+            nextEventCode: 'hot',
+        });
+
+        expect(kpiOf(next)).toContain('Презентация проведена');
+    });
+
+    it('отжатая «проведена» превращает отчёт в результативный звонок', () => {
+        const next = run(at('sales_pres', 'presentation'), {
+            presentationDone: false,
+            nextEventCode: 'hot',
+        });
+        const labels = kpiOf(next);
+
+        expect(labels).toContain('Звонок');
+        expect(labels).not.toContain('Презентация проведена');
+        expect(labels).not.toContain('Презентация');
+    });
+
+    it('несостоявшаяся встреча закрывает спутника на «Не состоялась»', () => {
+        const next = run(at('sales_pres', 'presentation'), {
+            presentationDone: false,
+            nextEventCode: 'hot',
+        });
+        const item = satelliteStates(model.satellites, next).find(
+            entry => entry.satellite.id === 'presentation',
+        );
+
+        expect(item?.isClosed).toBe(true);
+        expect(item?.stageId).toBe('spres_noresult');
+        expect(item?.reason).toContain('не состоявшихся');
+    });
+
+    it('нерезультативный отчёт по презентации встречу не засчитывает', () => {
+        const next = run(at('sales_pres', 'presentation'), {
+            result: 'noresult',
+            presentationDone: false,
+            nextEventCode: 'presentation',
+        });
+
+        expect(kpiOf(next)).not.toContain('Презентация проведена');
+    });
+
+    it('презентацию можно провести и сразу получить отказ', () => {
+        const next = run(at('sales_pres', 'presentation'), {
+            presentationDone: true,
+            workStatus: 'fail',
+            failType: 'failure',
+            failReason: 'noneed',
+            nextEventCode: null,
+        });
+
+        expect(next.status).toBe('fail');
+        expect(kpiOf(next)).toContain('Презентация проведена');
+    });
+
+    it('презентация и продажа засчитываются вместе', () => {
+        const next = run(at('sales_pres', 'presentation'), {
+            presentationDone: true,
+            workStatus: 'success',
+            nextEventCode: null,
+        });
+
+        expect(next.status).toBe('sale');
+        expect(kpiOf(next)).toContain('Презентация проведена');
+    });
+});
+

@@ -47,6 +47,11 @@
                 "^check-types"
             ]
         },
+        "typecheck": {
+            "dependsOn": [
+                "^typecheck"
+            ]
+        },
         "test": {
             "dependsOn": [
                 "^build"

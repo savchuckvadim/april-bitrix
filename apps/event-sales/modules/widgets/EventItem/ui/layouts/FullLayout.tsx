@@ -39,10 +39,11 @@ export const FullLayout: FC<FullLayoutProps> = ({
             {visibility.noresult && <NoresultSection />}
             {visibility.sale && <SaleSection />}
             {visibility.postFail && <PostFailSection />}
+            {records}
             <CommentSection rows={8} />
             <ContactSection />
             <CompanySection />
-            {records}
+
         </section>
 
         <PlanZone

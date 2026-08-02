@@ -33,7 +33,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     const domain = authDomain || TESTING_DOMAIN;
     const user = (authUser ?? TESTING_USER) as unknown as BXUser;
     const placement = (bitrix.api.getPlacement() ?? TESTING_PLACEMENT) as Placement;
-
+    debugger
     if (!inFrame) {
         console.info(`app-init: вне фрейма Bitrix — dev-режим (${domain})`);
     }
@@ -43,7 +43,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     // Resolve the CRM entities for the current placement via @workspace/bitrix services.
     const entities = await getEntitiesFromPlacement(placement, domain);
     const display = getDisplayMode(placement);
-
+debugger
     if (!entities.currentCompany && !entities.currentLead) {
         dispatch(appActions.setInitializedError({ errorMessage: 'Компания не найдена' }));
         return;
@@ -55,6 +55,10 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     const companyId = Number(
         entities.currentCompany?.ID || entities.companyPlacement.options.ID || 0,
     );
+    const leadId = Number(
+        entities.currentLead?.ID || 0,
+    );
+    const from = entities.from;
 
     initAppTask(
         dispatch,
@@ -62,6 +66,8 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
         domain,
         userId,
         companyId,
+        leadId,
+        from
     );
 
     dispatch(getDepartment(domain, user));

@@ -9,7 +9,7 @@ export default function NoreportData() {
                 <p className="text-gray-500">Попробуйте изменить фильтры</p>
             </div>
             <div className="flex justify-center items-center mt-15">
-                <Preloader size={'large'} />
+                <Preloader size="lg" />
             </div>
         </div>
     );

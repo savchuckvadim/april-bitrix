@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ProcessingHero } from '../components/ProcessingHero';
-import { GradientCountdown } from '../components/GradientCountdown';
+import { ProcessingHero, GradientCountdown } from '@workspace/april-ui/feedback';
 import {
     PROCESSING_DURATION_SEC,
     PROCESSING_TIMER_KEY,

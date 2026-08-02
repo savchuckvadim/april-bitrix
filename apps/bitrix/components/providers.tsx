@@ -12,7 +12,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <NextThemesProvider
             attribute="class"
-            defaultTheme="bx-light"
+            defaultTheme="air-dark"
             enableSystem
             disableTransitionOnChange
             enableColorScheme

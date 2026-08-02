@@ -1,3 +1,8 @@
+'use client';
+
+// framer-motion — клиентская библиотека с `export *` внутри: без директивы
+// выше серверный импорт из бареля april-ui ломает сборку.
+
 import { FC, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -8,6 +13,11 @@ import {
 import { cn } from '@workspace/ui/lib/utils';
 import AIcon from '../../FuncIcon/FuncIcon';
 
+/**
+ * @deprecated Используйте `SectionCard` из `@workspace/april-ui`.
+ * Легаси-API портированного event-UI (`width: 0..12`, size-имена).
+ * Держится ради event-service — не удалять до его миграции.
+ */
 interface EVCardProps {
     title: string;
     tooltipTitle?: ReactNode;

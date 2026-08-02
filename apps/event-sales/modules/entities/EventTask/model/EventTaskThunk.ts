@@ -6,6 +6,7 @@ import { EventTask } from '../types/event-task-type';
 import { eventTaskActions } from './EventTaskSlice';
 import { getEvTasksFromBxTasks } from '../lib/task-util';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';
+import { APP_FROM_ENUM } from '@/modules/app';
 
 const TASK_SELECT = [
     'ID', 'UF_CRM_TASK', 'TITLE', 'DATE_START', 'CREATED_DATE', 'CHANGED_DATE',
@@ -33,33 +34,35 @@ export const initialTasksFromCurrentTask =
  * (tasks.task.list, группа задач — из domain-config).
  */
 export const initialEventTasks =
-    (tasks: Array<BXTask>, userId: number, companyId: number, domain: string) =>
-    async (dispatch: AppDispatch, getState: AppGetState) => {
-        const { taskGroupId } = getDomainConfig(domain, getState().app.bitrix.user);
+    (tasks: Array<BXTask>, userId: number, companyId: number | null, domain: string, leadId: number | null, from: APP_FROM_ENUM) =>
+        async (dispatch: AppDispatch, getState: AppGetState) => {
+            const { taskGroupId } = getDomainConfig(domain, getState().app.bitrix.user);
+            debugger
+            const fromLead = from === APP_FROM_ENUM.LEAD && leadId
+            if (!tasks || !tasks.length) {
+                const ufCrmTasks = fromLead ? `L_${leadId}` : `CO_${companyId}`
+                const response = (await Bitrix.getService().api.call('tasks.task.list', {
+                    filter: {
+                        GROUP_ID: taskGroupId,
+                        UF_CRM_TASK: [ufCrmTasks],
+                        RESPONSIBLE_ID: userId,
+                        '!=STATUS': 5,
+                    },
+                    select: TASK_SELECT,
+                })) as { tasks: BXTask[] } | null;
 
-        if (!tasks || !tasks.length) {
-            const response = (await Bitrix.getService().api.call('tasks.task.list', {
-                filter: {
-                    GROUP_ID: taskGroupId,
-                    UF_CRM_TASK: [`CO_${companyId}`],
-                    RESPONSIBLE_ID: userId,
-                    '!=STATUS': 5,
-                },
-                select: TASK_SELECT,
-            })) as { tasks: BXTask[] } | null;
-
-            if (response?.tasks) {
-                tasks = response.tasks;
+                if (response?.tasks) {
+                    tasks = response.tasks;
+                }
             }
-        }
 
-        if (tasks && tasks.length) {
-            const evntTasks = getEvTasksFromBxTasks(tasks);
-            dispatch(eventTaskActions.setFetchedTasks({ tasks: evntTasks }));
-            // getInitSale(evntTasks) — реакция listener'а на setFetchedTasks (Фаза 4)
-        } else {
-            dispatch(eventTaskActions.setFetchedTasks({ tasks: null }));
-            // TODO(Фаза 4): нет задач → открыть меню нового события
-            // (getResultMenu(EventItemResultType.NEW, null))
-        }
-    };
+            if (tasks && tasks.length) {
+                const evntTasks = getEvTasksFromBxTasks(tasks);
+                dispatch(eventTaskActions.setFetchedTasks({ tasks: evntTasks }));
+                // getInitSale(evntTasks) — реакция listener'а на setFetchedTasks (Фаза 4)
+            } else {
+                dispatch(eventTaskActions.setFetchedTasks({ tasks: null }));
+                // TODO(Фаза 4): нет задач → открыть меню нового события
+                // (getResultMenu(EventItemResultType.NEW, null))
+            }
+        };

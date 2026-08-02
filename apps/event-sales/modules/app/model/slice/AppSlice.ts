@@ -10,7 +10,13 @@ export enum APP_DEP {
     SALES = 'sales',
     SERVICE = 'service',
 }
-
+export enum APP_FROM_ENUM {
+    COMPANY = 'company',
+    LEAD = 'lead',
+    DEAL = 'deal',
+    TASK = 'task',
+    CALL_CARD = 'call_card',
+}
 const initialState = {
     domain: '',
     app: APP_TYPE.EVENT as APP_TYPE,
@@ -21,6 +27,7 @@ const initialState = {
         lead: null as BXLead | null,
         placement: null as null | Placement,
         task: null as BXTask | null,
+        from: null as APP_FROM_ENUM | null,
     },
 
     display: {
@@ -56,6 +63,7 @@ const appSlice = createSlice({
                 lead: BXLead | null;
                 display: APP_DISPLAY_MODE;
                 task: BXTask | null;
+                from: APP_FROM_ENUM;
             }>,
         ) => {
             const payload = action.payload;

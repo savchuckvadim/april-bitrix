@@ -5,7 +5,7 @@ import LoadingScreen from './LoadingScreen/LoadingScreen';
 import { useApp } from '../lib/hooks/useApp';
 import { useAppSelector } from '../lib/hooks/redux';
 import { NON_AUTH_ERROR } from '../lib/initialize/app-init.util';
-import { BOOT_PRELOADER_ID } from './LoadingScreen/BootPreloader';
+import { BOOT_PRELOADER_ID, BOOT_PRELOADER_HIDE_CLASS } from '@workspace/april-ui/feedback';
 import { NonAuthScreen } from './NonAuthScreen';
 
 export const App = ({ children }: { children: React.ReactNode }) => {
@@ -17,7 +17,7 @@ export const App = ({ children }: { children: React.ReactNode }) => {
         if (!isMounted) return;
         const boot = document.getElementById(BOOT_PRELOADER_ID);
         if (!boot) return;
-        boot.classList.add('boot-preloader--hide');
+        boot.classList.add(BOOT_PRELOADER_HIDE_CLASS);
         const timer = setTimeout(() => boot.remove(), 400);
         return () => clearTimeout(timer);
     }, [isMounted]);

@@ -33,9 +33,10 @@ export const FocusLayout: FC<FocusLayoutProps> = ({
 }) => (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)]">
         <section className="space-y-4">
-            <ZoneTitle>Отчёт</ZoneTitle>
-            <CommentSection rows={14} />
+            {/* <ZoneTitle>Отчёт</ZoneTitle> */}
             {records}
+            <CommentSection rows={14} />
+
         </section>
 
         <aside className="space-y-3 self-start">

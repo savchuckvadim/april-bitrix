@@ -3,6 +3,11 @@
  * (адаптируется к любой теме — светлой и тёмной), сильный blur + saturate,
  * световая грань сверху и диагональный блик. Не гейтится на glass-темы.
  * Вариант liquid (рефракция) — см. GlassSurface.tsx.
+ *
+ * Числа рецепта вынесены в токены --fx-glass-card-* / --fx-glass-sheen*
+ * (packages/ui/src/styles/tokens/effects.css). Дефолты совпадают с прежними
+ * хардкодами — вид не изменился, но общий выключатель data-glass теперь
+ * гасит карточку без правки этого файла.
  */
 .april-glass-card {
     position: relative;
@@ -14,15 +19,22 @@
     background:
         linear-gradient(
             160deg,
-            color-mix(in oklab, white 12%, transparent),
+            color-mix(in oklab, white var(--fx-glass-sheen, 12%), transparent),
             transparent 38%
         ),
         color-mix(in oklab, var(--card) var(--glass-card-mix, 42%), transparent);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--fx-glass-card-blur, 24px))
+        saturate(var(--fx-glass-card-saturate, 180%));
+    backdrop-filter: blur(var(--fx-glass-card-blur, 24px))
+        saturate(var(--fx-glass-card-saturate, 180%));
     box-shadow:
-        0 8px 32px oklch(0 0 0 / 18%),
-        inset 0 1px 0 color-mix(in oklab, white 30%, transparent);
+        var(--fx-glass-card-shadow, 0 8px 32px oklch(0 0 0 / 18%)),
+        inset 0 1px 0
+            color-mix(
+                in oklab,
+                white var(--fx-glass-sheen-edge, 30%),
+                transparent
+            );
 }
 
 /* Более прозрачный вариант — для декоративных поверхностей без текста. */
@@ -30,7 +42,11 @@
     background:
         linear-gradient(
             160deg,
-            color-mix(in oklab, white 10%, transparent),
+            color-mix(
+                in oklab,
+                white var(--fx-glass-sheen-strong, 10%),
+                transparent
+            ),
             transparent 38%
         ),
         color-mix(

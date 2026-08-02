@@ -2,8 +2,7 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { ProcessingHero } from '../components/ProcessingHero';
-import { GradientCountdown } from '../components/GradientCountdown';
+import { ProcessingHero, GradientCountdown } from '@workspace/april-ui/feedback';
 import {
     AURORA_COLOR_STOPS,
     PROCESSING_DURATION_SEC,

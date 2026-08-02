@@ -7,13 +7,28 @@ import { Metadata } from 'next';
 import { YANDEX_ID, YandexMetrika } from '@/components/metrika';
 
 
+/**
+ * Кириллица.
+ *
+ * Geist давно отдаёт cyrillic и cyrillic-ext, но каталог шрифтов, вшитый в
+ * next 15.3.6 (compiled/@next/font/dist/google/font-data.json), знает только
+ * latin и latin-ext — поэтому `subsets: ['cyrillic']` роняет сборку.
+ *
+ * Обходим это, не указывая subsets вовсе: тогда next/font запрашивает CSS без
+ * параметра subset, Google отдаёт @font-face на ВСЕ подмножества с unicode-range,
+ * и next самостоятельно хостит их все. Браузер скачивает только нужный кусок.
+ * Платим за это отключённым preload — иначе next требует явного списка subsets.
+ *
+ * Когда каталог в next обновится, здесь можно будет вернуть
+ * `subsets: ['latin', 'cyrillic']` и `preload: true`.
+ */
 const fontSans = Geist({
-    subsets: ['latin'],
+    preload: false,
     variable: '--font-sans',
 });
 
 const fontMono = Geist_Mono({
-    subsets: ['latin'],
+    preload: false,
     variable: '--font-mono',
 });
 const description = `Комплексная настройка Bitrix24 под ключ для партнеров НПП Гарант Сервис. Специально для

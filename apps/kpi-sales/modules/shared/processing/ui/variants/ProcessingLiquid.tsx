@@ -2,8 +2,7 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { ProcessingHero } from '../components/ProcessingHero';
-import { GradientCountdown } from '../components/GradientCountdown';
+import { ProcessingHero, GradientCountdown } from '@workspace/april-ui/feedback';
 import {
     LIQUID_COLORS,
     PROCESSING_DURATION_SEC,

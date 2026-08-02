@@ -5,7 +5,7 @@ import '@workspace/ui/globals.css';
 import { usePathname } from 'next/navigation';
 import { ThemeInitScript } from '@workspace/theme';
 import { Providers } from '@/modules/app/providers/Providers';
-import { BootPreloader } from '@/modules/app/ui/LoadingScreen/BootPreloader';
+import { BootPreloader } from '@workspace/april-ui/feedback';
 import App from '@/modules/app/ui/App';
 import { ReportProvider } from '@/modules/widgets/report';
 

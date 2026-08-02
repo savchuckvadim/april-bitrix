@@ -1,6 +1,6 @@
 import { BXTask, BXUser, Placement } from '@workspace/bx';
 import { AppDispatch } from '../../model/store';
-import { appActions } from '../../model/slice/AppSlice';
+import { APP_FROM_ENUM, appActions } from '../../model/slice/AppSlice';
 import { APP_DISPLAY_MODE } from '../../types/app/app-type';
 import { EntitiesFromPlacement } from './placement-util';
 import {
@@ -29,6 +29,7 @@ export const initAppEntities = (
             deal: entities.currentDeal,
             lead: entities.currentLead,
             task: entities.currentTask as unknown as BXTask | null,
+            from: entities.from,
             display,
         }),
     );
@@ -40,10 +41,12 @@ export const initAppTask = (
     currentTask: BXTask | null,
     domain: string,
     userId: number,
-    companyId: number,
+    companyId: number | null,
+    leadId: number | null,
+    from: APP_FROM_ENUM
 ): void => {
     if (!currentTask) {
-        dispatch(initialEventTasks([], userId, companyId, domain));
+        dispatch(initialEventTasks([], userId, companyId, domain, leadId, from));
     } else {
         dispatch(initialTasksFromCurrentTask(getEvTasksFromBxTasks([currentTask])));
     }

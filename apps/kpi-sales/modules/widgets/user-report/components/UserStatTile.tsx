@@ -1,7 +1,7 @@
 import React from 'react';
 import { CardContent } from '@workspace/ui/components/card';
 import { cn } from '@workspace/ui/lib/utils';
-import { GlassCard } from '@workspace/april-ui/src';
+import { GlassCard } from '@workspace/april-ui';
 
 interface UserStatTileProps {
     label: string;

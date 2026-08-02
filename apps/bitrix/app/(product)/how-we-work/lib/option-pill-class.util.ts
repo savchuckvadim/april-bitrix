@@ -4,7 +4,7 @@ export const optionPillClass = (
     recommended: boolean,
 ): string => {
     const base =
-        'rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-primary';
+        'cursor-pointer rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-primary';
     if (selected) {
         return `${base} border-primary bg-primary/10 font-semibold text-primary`;
     }

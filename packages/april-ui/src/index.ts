@@ -1,7 +1,10 @@
 export * from './Tooltip';
 export * from './Tables/RTable';
 
-// Design-system intent layer (theme-token driven, no hardcoded colors)
+// Единый реестр тонов дизайн-системы (только токены тем)
+export * from './lib/tones';
+
+// Легаси-слой имён цветов поверх тонов (@deprecated, см. lib/intents.ts)
 export * from './lib/intents';
 
 // Ported event component library (legacy @packages/ui)
@@ -20,11 +23,31 @@ export { default as ALink } from './shared/ui/Link/Link';
 export { default as ATogglerColor } from './shared/ui/Toggler/Color/ATogglerColor';
 export { default as APhoneInput } from './shared/ui/Inputs/Input/APhoneInput';
 export { default as ALabel } from './shared/ui/Inputs/Label/ALabel';
+// Поверхности: единственная карточка для приложений
+export * from './surfaces';
+
+// Бэйджи на реестре тонов
+export * from './badges';
+
+// Состояния загрузки: спиннер, boot-прелоадер, экран сборки отчёта
+export * from './feedback';
+
 export { PreloaderCard } from './shared/Preloader';
 export { PreloaderMicro } from './shared/Preloader';
 export { PreloaderScreen } from './shared/Preloader';
 export type { PreloaderVariant } from './shared/Preloader';
+// Стекло: выключатель на всю монорепу (data-glass / --fx-glass)
+export { useGlass } from './lib/glass/use-glass';
+export type { UseGlassResult } from './lib/glass/use-glass';
+export { GlassToggle } from './lib/glass/GlassToggle';
+export {
+    getGlassPreference,
+    setGlassPreference,
+} from './lib/glass/glass-preference';
+export type { GlassPreference } from './lib/glass/glass-preference';
+
 export { GlassCard } from './shared/ui/Glass/GlassCard';
+export type { GlassCardProps } from './shared/ui/Glass/GlassCard';
 export { GlassSurface } from './shared/ui/Glass/GlassSurface';
 export type { GlassSurfaceProps } from './shared/ui/Glass/GlassSurface';
 export { GlassAmbient } from './shared/ui/Glass/GlassAmbient';

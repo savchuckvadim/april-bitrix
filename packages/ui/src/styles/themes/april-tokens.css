@@ -54,20 +54,32 @@
     --air-link: #2066b0;
 
     /* Типы событий */
-    --event-cold: oklch(0.588 0.158 241.966);        /* холодный (xo) — синий */
-    --event-cold-foreground: oklch(0.985 0 0);
-    --event-warm: oklch(0.769 0.16 70.7);             /* звонок (warm) — янтарный */
-    --event-warm-foreground: oklch(0.216 0.006 56.04);
-    --event-pres: oklch(0.606 0.219 292.717);         /* презентация — фиолетовый */
-    --event-pres-foreground: oklch(0.985 0 0);
-    --event-hot: oklch(0.637 0.207 25.331);           /* решение (hot) — красный */
+    /*
+     * Порядок цветов — по воронке, а не по «температуре»: голубой → зелёный →
+     * жёлтый → оранжево-красный → фиолетовый. Foreground у каждого подобран
+     * под светлоту: на светлых (голубой, жёлтый) тёмный текст, на остальных белый.
+     */
+    --event-cold: oklch(0.72 0.13 232);               /* холодный (xo) — голубой */
+    --event-cold-foreground: oklch(0.216 0.006 56.04);
+    --event-warm: oklch(0.627 0.17 149.2);            /* звонок (warm) — зелёный */
+    --event-warm-foreground: oklch(0.985 0 0);
+    --event-pres: oklch(0.85 0.16 96);                /* презентация — жёлтый */
+    --event-pres-foreground: oklch(0.216 0.006 56.04);
+    --event-hot: oklch(0.65 0.2 38);                  /* решение (hot) — оранжево-красный */
     --event-hot-foreground: oklch(0.985 0 0);
-    --event-money: oklch(0.627 0.17 149.2);           /* оплата — зелёный */
+    --event-money: oklch(0.606 0.219 292.717);        /* оплата — фиолетовый */
     --event-money-foreground: oklch(0.985 0 0);
+    /*
+     * Холодный, но с заявкой — «особый» тип. Цвет ПРЕДВАРИТЕЛЬНЫЙ: намеренно
+     * взят маджента, которой нет больше нигде в палитре, чтобы тип читался
+     * как выделенный. Заменить, когда определитесь.
+     */
+    --event-lead: oklch(0.62 0.24 350);
+    --event-lead-foreground: oklch(0.985 0 0);
     --event-ss: oklch(0.715 0.13 215.2);              /* сервисный сигнал — циан */
     --event-ss-foreground: oklch(0.216 0.006 56.04);
-    --event-supply: oklch(0.704 0.12 182.5);          /* поставка — бирюзовый */
-    --event-supply-foreground: oklch(0.216 0.006 56.04);
+    --event-supply: oklch(0.48 0.16 258);             /* поставка — тёмно-синий */
+    --event-supply-foreground: oklch(0.985 0 0);
 
     /* Текущий тип события (переопределяется data-event-type ниже) */
     --event-current: var(--event-warm);
@@ -126,13 +138,19 @@
     --info: oklch(0.7 0.12 235);
     --air-link: #6db3ec; /* читаемая ссылка на тёмном */
 
-    --event-cold: oklch(0.65 0.14 241.966);
-    --event-warm: oklch(0.795 0.14 75.5);
-    --event-pres: oklch(0.673 0.18 292.717);
-    --event-hot: oklch(0.704 0.17 25.331);
-    --event-money: oklch(0.696 0.14 149.2);
+    /* Тот же порядок цветов, приподнятая светлота — foreground'ы наследуются
+       из :root и остаются контрастными. */
+    --event-cold: oklch(0.76 0.11 232);
+    --event-warm: oklch(0.696 0.14 149.2);
+    --event-pres: oklch(0.87 0.14 96);
+    --event-hot: oklch(0.72 0.17 38);
+    --event-money: oklch(0.673 0.18 292.717);
+    --event-lead: oklch(0.7 0.2 350);
     --event-ss: oklch(0.75 0.11 215.2);
-    --event-supply: oklch(0.74 0.1 182.5);
+    /* Поставка остаётся тёмно-синей и в тёмной теме — приподнимаем ровно
+       настолько, чтобы читалась на тёмном фоне, но не уходила в голубой
+       (иначе сольётся с «холодным»). Текст на ней белый. */
+    --event-supply: oklch(0.58 0.16 258);
 
     --finance-advance: oklch(0.696 0.14 149.2);
     --finance-monthly: oklch(0.65 0.14 241.966);
@@ -168,6 +186,11 @@
 [data-event-type='money_await'] {
     --event-current: var(--event-money);
     --event-current-foreground: var(--event-money-foreground);
+}
+/* Холодный с заявкой — «особый» тип, цвет предварительный. */
+[data-event-type='lead'] {
+    --event-current: var(--event-lead);
+    --event-current-foreground: var(--event-lead-foreground);
 }
 [data-event-type='ss'] {
     --event-current: var(--event-ss);

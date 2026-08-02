@@ -27,7 +27,7 @@ export const App = ({ children }: { children: React.ReactNode }) => {
         if (isClient) {
             if (isMounted) {
                 if (typeof window !== 'undefined') {
-               
+
                     (window as any).store = store;
                 }
             }

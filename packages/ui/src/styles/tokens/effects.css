@@ -1,19 +1,38 @@
 /*
  * Токены эффектов per-theme (design-system.tasks.md, Часть 4).
  *
- * Дефолты выключены/нейтральны; «эффектные» темы (air, …) переопределяют
- * их в своём файле темы. Стекло работает в ЛЮБОЙ теме: --fx-glass-bg
- * по умолчанию выводится из --card через color-mix, поэтому утилита
- * .glass (globals.css) везде даёт корректный полупрозрачный слой.
- * --fx-glass: 0|1 — флаг для JS-обёрток (useFxToken) и CSS-гейтинга.
+ * Дефолты нейтральны; «эффектные» темы (air, …) переопределяют их в своём файле.
+ * Стекло работает в ЛЮБОЙ теме: --fx-glass-bg выводится из --card через
+ * color-mix, поэтому утилита .glass (globals.css) везде даёт корректный
+ * полупрозрачный слой.
+ *
+ * ВЫКЛЮЧАТЕЛЬ СТЕКЛА — атрибут data-glass на <html>:
+ *   (нет атрибута) → стекло включено (так монорепа выглядит сегодня);
+ *   data-glass="off" → все стеклянные поверхности становятся обычными;
+ *   data-glass="on"  → принудительно включить, перебивая системную настройку.
+ *
+ * ВЕСЬ переключатель живёт в этом файле: и утилита .glass, и april-glass-card
+ * читают отсюда токены, поэтому «выключить стекло везде» — правка одного места,
+ * а не обход компонент. --fx-glass: 0|1 — тот же флаг для JS (useGlass),
+ * он обязан совпадать с тем, что реально видно: по нему решают, рендерить ли
+ * тяжёлый GlassSurface (SVG-рефракция).
  */
 
 :root {
-    --fx-glass: 0;
+    --fx-glass: 1;
     --fx-glass-blur: 12px;
     --fx-glass-bg: color-mix(in oklab, var(--card) 62%, transparent);
     --fx-glass-border: color-mix(in oklab, var(--border) 55%, transparent);
     --fx-glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 8%);
+
+    /* Рецепт april-glass-card (april-ui): более сильное размытие + блик. */
+    --fx-glass-card-blur: 24px;
+    --fx-glass-card-saturate: 180%;
+    --fx-glass-card-shadow: 0 8px 32px oklch(0 0 0 / 18%);
+    /* Доля белого в диагональном блике и в световой грани сверху. */
+    --fx-glass-sheen: 12%;
+    --fx-glass-sheen-strong: 10%;
+    --fx-glass-sheen-edge: 30%;
 
     --fx-spotlight: 0;
     --fx-spotlight-color: var(--primary);
@@ -22,6 +41,74 @@
 :root[class*='-dark'] {
     --fx-glass-border: oklch(1 0 0 / 12%);
     --fx-glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 35%);
+}
+
+/*
+ * ── Выключенное стекло ────────────────────────────────────────────────────
+ * Гасим сами токены, а не каждую поверхность отдельно: и .glass, и
+ * april-glass-card, и всё будущее схлопываются в непрозрачную карточку.
+ * --glass-card-mix: 100% превращает color-mix(--card 100%, transparent)
+ * в сплошной --card.
+ *
+ * Блок повторён дважды (атрибут + системная настройка) — это единственный
+ * способ без style-queries; значения обязаны совпадать.
+ */
+:root[data-glass='off'] {
+    --fx-glass: 0;
+    --fx-glass-blur: 0px;
+    --fx-glass-bg: var(--card);
+    --fx-glass-border: var(--border);
+    --fx-glass-shadow: 0 1px 2px 0 oklch(0 0 0 / 5%);
+
+    --glass-card-mix: 100%;
+    --glass-card-mix-strong: 100%;
+    --fx-glass-card-blur: 0px;
+    --fx-glass-card-saturate: 100%;
+    --fx-glass-card-shadow: 0 1px 2px 0 oklch(0 0 0 / 5%);
+    --fx-glass-sheen: 0%;
+    --fx-glass-sheen-strong: 0%;
+    --fx-glass-sheen-edge: 0%;
+}
+
+/*
+ * Системная настройка «меньше прозрачности» (macOS/iOS/Windows) — уважаем её
+ * по умолчанию, но data-glass="on" остаётся сильнее: явный выбор пользователя
+ * в приложении важнее системного дефолта.
+ */
+@media (prefers-reduced-transparency: reduce) {
+    :root:not([data-glass='on']) {
+        --fx-glass: 0;
+        --fx-glass-blur: 0px;
+        --fx-glass-bg: var(--card);
+        --fx-glass-border: var(--border);
+        --fx-glass-shadow: 0 1px 2px 0 oklch(0 0 0 / 5%);
+
+        --glass-card-mix: 100%;
+        --glass-card-mix-strong: 100%;
+        --fx-glass-card-blur: 0px;
+        --fx-glass-card-saturate: 100%;
+        --fx-glass-card-shadow: 0 1px 2px 0 oklch(0 0 0 / 5%);
+        --fx-glass-sheen: 0%;
+        --fx-glass-sheen-edge: 0%;
+    }
+}
+
+/*
+ * blur(0px) всё равно поднимает композиторский слой — при выключенном стекле
+ * убираем backdrop-filter совсем.
+ */
+:root[data-glass='off'] .glass,
+:root[data-glass='off'] .april-glass-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    :root:not([data-glass='on']) .glass,
+    :root:not([data-glass='on']) .april-glass-card {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

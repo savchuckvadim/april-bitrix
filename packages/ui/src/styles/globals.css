@@ -2,6 +2,13 @@
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
+/*
+ * Классы, объявленные ВНУТРИ пакетов дизайн-системы, тоже должны попадать
+ * в сборку. Без этой строки классы, которые встречаются только в april-ui
+ * (например, карта бэйджей EVENT_TYPE_BADGE_CLASS), молча выпадают из CSS,
+ * и бэйдж рендерится без фона.
+ */
+@source "../../../april-ui/src/**/*.{ts,tsx}";
 
 @import 'tw-animate-css';
 
@@ -134,6 +141,8 @@
     --color-event-hot-foreground: var(--event-hot-foreground);
     --color-event-money: var(--event-money);
     --color-event-money-foreground: var(--event-money-foreground);
+    --color-event-lead: var(--event-lead);
+    --color-event-lead-foreground: var(--event-lead-foreground);
     --color-event-ss: var(--event-ss);
     --color-event-ss-foreground: var(--event-ss-foreground);
     --color-event-supply: var(--event-supply);

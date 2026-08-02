@@ -4,6 +4,13 @@ import { Card, CardTitle } from '@workspace/ui/components/card';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 
+/**
+ * @deprecated Используйте `SectionCard` из `@workspace/april-ui`.
+ *
+ * Здесь нет `className`, раскрывашка сделана `onClick` на `div`
+ * (не открывается с клавиатуры, нет aria-expanded), а цвета захардкожены
+ * мимо токенов (`text-gray-700`, `color="gray"`).
+ */
 export interface SimpleCardProps {
     title?: string;
     description?: string;

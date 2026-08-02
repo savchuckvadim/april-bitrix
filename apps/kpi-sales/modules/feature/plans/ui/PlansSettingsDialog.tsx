@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@workspace/ui/components/dialog';
+import { DialogTitle } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
-import { GlassCard } from '@workspace/april-ui';
+import { GlassDialog } from '@workspace/april-ui';
 import { Settings2, Target } from 'lucide-react';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { GlassActionStatus } from '@/modules/shared';
@@ -37,74 +37,67 @@ export const PlansSettingsDialog: React.FC<PlansSettingsDialogProps> = ({
         });
 
     return (
-        <Dialog open={isOpen} onOpenChange={setOpen}>
-            <DialogContent
-                className="w-[min(96vw,64rem)] max-w-none border-none bg-transparent p-0 shadow-none sm:max-w-none"
-                overlayClassName="bg-black/20 backdrop-blur-md"
-            >
-                <GlassCard
-                    intensity="liquid"
-                    className="flex max-h-[85vh] flex-col gap-4 overflow-hidden p-6"
-                >
-                    <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
-                        <Target className="h-5 w-5" />
-                        Плановые показатели
-                    </DialogTitle>
+        <GlassDialog
+            open={isOpen}
+            onOpenChange={setOpen}
+            size="xl"
+            cardClassName="max-h-[85vh] gap-4 overflow-hidden"
+        >
+            <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
+                <Target className="h-5 w-5" />
+                Плановые показатели
+            </DialogTitle>
 
-                    {/* Статус-панель долгого сохранения (паттерн создания
+            {/* Статус-панель долгого сохранения (паттерн создания
                         публичной ссылки): прогресс → успех/ошибка. */}
-                    {settings.saveStatus === 'saving' && (
-                        <GlassActionStatus
-                            status="progress"
-                            title="Сохраняем планы…"
-                            description={
-                                'Записываем цели в Bitrix. При первом сохранении ' +
-                                'дополнительно устанавливаются плановые поля ' +
-                                'сотрудников — это может занять до минуты.'
-                            }
-                        />
-                    )}
-                    {settings.saveStatus === 'saved' && (
-                        <GlassActionStatus
-                            status="success"
-                            title="Планы сохранены"
-                            description="Показатели и цели записаны в Bitrix — отчёт уже считает достижение."
-                            actions={
-                                <Button
-                                    size="sm"
-                                    onClick={() => setOpen(false)}
-                                >
-                                    Готово
-                                </Button>
-                            }
-                        />
-                    )}
-                    {settings.saveStatus === 'error' && (
-                        <GlassActionStatus
-                            status="error"
-                            title="Не удалось сохранить"
-                            error={settings.saveError}
-                            actions={
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={settings.resetStatus}
-                                >
-                                    Вернуться к настройкам
-                                </Button>
-                            }
-                        />
-                    )}
+            {settings.saveStatus === 'saving' && (
+                <GlassActionStatus
+                    status="progress"
+                    title="Сохраняем планы…"
+                    description={
+                        'Записываем цели в Bitrix. При первом сохранении ' +
+                        'дополнительно устанавливаются плановые поля ' +
+                        'сотрудников — это может занять до минуты.'
+                    }
+                />
+            )}
+            {settings.saveStatus === 'saved' && (
+                <GlassActionStatus
+                    status="success"
+                    title="Планы сохранены"
+                    description="Показатели и цели записаны в Bitrix — отчёт уже считает достижение."
+                    actions={
+                        <Button size="sm" onClick={() => setOpen(false)}>
+                            Готово
+                        </Button>
+                    }
+                />
+            )}
+            {settings.saveStatus === 'error' && (
+                <GlassActionStatus
+                    status="error"
+                    title="Не удалось сохранить"
+                    error={settings.saveError}
+                    actions={
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={settings.resetStatus}
+                        >
+                            Вернуться к настройкам
+                        </Button>
+                    }
+                />
+            )}
 
-                    {(settings.saveStatus === 'idle') && (
-                    <>
+            {settings.saveStatus === 'idle' && (
+                <>
                     <div className="space-y-2 overflow-auto">
                         <div className="flex items-start justify-between gap-2">
                             <p className="text-xs text-muted-foreground">
-                                Включите показатели, при желании переименуйте
-                                и выберите период, на который задаёте план.
-                                Отчёт пересчитает план под выбранный период
-                                просмотра.
+                                Включите показатели, при желании переименуйте и
+                                выберите период, на который задаёте план. Отчёт
+                                пересчитает план под выбранный период просмотра.
                             </p>
                             {/* По умолчанию — только настроенные; шестерёнка
                                 раскрывает весь каталог показателей. */}
@@ -167,10 +160,8 @@ export const PlansSettingsDialog: React.FC<PlansSettingsDialogProps> = ({
                             Сохранить
                         </Button>
                     </div>
-                    </>
-                    )}
-                </GlassCard>
-            </DialogContent>
-        </Dialog>
+                </>
+            )}
+        </GlassDialog>
     );
 };

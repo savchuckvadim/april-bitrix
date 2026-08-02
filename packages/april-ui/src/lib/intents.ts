@@ -1,24 +1,33 @@
 /**
- * Design-system intents — pure className helpers over the ALREADY-CONFIGURED theme
- * tokens (@workspace/april-theme): primary / secondary / accent / muted / destructive
- * and the chart palette (chart-1..5). No new CSS, no parallel theme — a sibling app
- * restyles by swapping the configured theme only.
+ * @deprecated Легаси-слой имён из старого event-UI. Новый код берёт тона
+ * напрямую из `./tones` (`Tone`, `TONE_SOLID`, `TONE_SOFT`, `TONE_BG`).
+ * Живёт ради `AAButton`, `ABadge`, `ATogglerColor`, принимающих брендовые
+ * названия цветов (`april`, `fiolet`, `danger`, …).
  *
- * The legacy event UI used brand-ish color names (april, blue, fiolet, orange,
- * danger, success...). Every name maps onto a semantic intent backed by a theme token.
+ * Здесь была своя таблица классов, где success/warning/info были завязаны на
+ * палитру графиков (`bg-chart-2`, `bg-chart-4`, `bg-chart-1`) — она появилась
+ * до того, как в april-tokens.css завели настоящие --success/--warning/--info.
+ * Из-за этого статусы в легаси-компонентах красились не тем же цветом, что во
+ * всей остальной монорепе. Теперь это тонкая обёртка над единым реестром,
+ * и расхождение невозможно.
  */
 
-export type Intent =
+import { TONE_BG, TONE_SOFT, TONE_SOLID, type Tone } from './tones';
+
+export type Intent = Extract<
+    Tone,
     | 'primary'
     | 'secondary'
     | 'accent'
+    | 'neutral'
     | 'muted'
     | 'success'
     | 'warning'
     | 'info'
-    | 'destructive';
+    | 'destructive'
+>;
 
-/** Legacy color name -> semantic intent. */
+/** Легаси-название цвета → семантический тон. */
 export const LEGACY_COLOR_INTENT = {
     april: 'primary',
     blue: 'info',
@@ -38,44 +47,16 @@ export const LEGACY_COLOR_INTENT = {
 
 export type LegacyColor = keyof typeof LEGACY_COLOR_INTENT;
 
-// Status intents (success/warning/info) reuse the configured chart palette so they
-// follow the active theme. danger -> destructive (semantic).
-export const INTENT_SOLID: Record<Intent, string> = {
-    primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
-    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-    accent: 'bg-accent text-accent-foreground hover:bg-accent/80',
-    muted: 'bg-muted text-muted-foreground hover:bg-muted/80',
-    success: 'bg-chart-2 text-background hover:bg-chart-2/90',
-    warning: 'bg-chart-4 text-background hover:bg-chart-4/90',
-    info: 'bg-chart-1 text-background hover:bg-chart-1/90',
-    destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-};
-
-export const INTENT_SOFT: Record<Intent, string> = {
-    primary: 'bg-primary/10 text-primary',
-    secondary: 'bg-secondary text-secondary-foreground',
-    accent: 'bg-accent/60 text-accent-foreground',
-    muted: 'bg-muted text-muted-foreground',
-    success: 'bg-chart-2/15 text-chart-2',
-    warning: 'bg-chart-4/15 text-chart-4',
-    info: 'bg-chart-1/15 text-chart-1',
-    destructive: 'bg-destructive/10 text-destructive',
-};
-
-export const INTENT_BG: Record<Intent, string> = {
-    primary: 'bg-primary',
-    secondary: 'bg-secondary',
-    accent: 'bg-accent',
-    muted: 'bg-muted-foreground',
-    success: 'bg-chart-2',
-    warning: 'bg-chart-4',
-    info: 'bg-chart-1',
-    destructive: 'bg-destructive',
-};
-
 export const intentOf = (color: string): Intent =>
     (LEGACY_COLOR_INTENT as Record<string, Intent>)[color] ?? 'primary';
 
-export const solid = (color: string) => INTENT_SOLID[intentOf(color)];
-export const soft = (color: string) => INTENT_SOFT[intentOf(color)];
-export const bg = (color: string) => INTENT_BG[intentOf(color)];
+export const solid = (color: string) => TONE_SOLID[intentOf(color)];
+export const soft = (color: string) => TONE_SOFT[intentOf(color)];
+export const bg = (color: string) => TONE_BG[intentOf(color)];
+
+/** @deprecated Используйте `TONE_SOLID` из `./tones`. */
+export const INTENT_SOLID = TONE_SOLID;
+/** @deprecated Используйте `TONE_SOFT` из `./tones`. */
+export const INTENT_SOFT = TONE_SOFT;
+/** @deprecated Используйте `TONE_BG` из `./tones`. */
+export const INTENT_BG = TONE_BG;

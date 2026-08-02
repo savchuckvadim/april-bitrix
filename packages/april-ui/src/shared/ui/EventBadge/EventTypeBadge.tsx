@@ -1,28 +1,29 @@
 'use client';
 
 import { FC } from 'react';
-import { Badge } from '@workspace/ui/components/badge';
-import { cn } from '@workspace/ui/lib/utils';
-import {
-    DEFAULT_EVENT_TYPE_BADGE_CLASS,
-    EVENT_TYPE_BADGE_CLASS,
-} from './event-badge-maps';
+import { ToneBadge, type ToneBadgeSurface } from '../../../badges/ToneBadge';
+import { DEFAULT_EVENT_TYPE_TONE, EVENT_TYPE_TONE } from './event-badge-maps';
 
 interface EventTypeBadgeProps {
     /** Русское название типа события (EV_TYPE): Холодный, Звонок, Презентация, … */
     type: string;
+    /** Поверхность: в списках держите flat/glass, liquid — точечно. */
+    surface?: ToneBadgeSurface;
     className?: string;
 }
 
 /** Бэйдж типа события в цвете токена типа. */
-export const EventTypeBadge: FC<EventTypeBadgeProps> = ({ type, className }) => (
-    <Badge
-        className={cn(
-            'uppercase',
-            EVENT_TYPE_BADGE_CLASS[type] ?? DEFAULT_EVENT_TYPE_BADGE_CLASS,
-            className,
-        )}
+export const EventTypeBadge: FC<EventTypeBadgeProps> = ({
+    type,
+    surface,
+    className,
+}) => (
+    <ToneBadge
+        tone={EVENT_TYPE_TONE[type] ?? DEFAULT_EVENT_TYPE_TONE}
+        surface={surface}
+        uppercase
+        className={className}
     >
         {type}
-    </Badge>
+    </ToneBadge>
 );

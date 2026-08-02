@@ -2,6 +2,7 @@ import { BXCompany, BXDeal, BXLead, Placement, PlacementCallCard } from '@worksp
 import { APP_DISPLAY_MODE } from '../../types/app/app-type';
 import { IBXTask } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 import { Bitrix } from '@workspace/bitrix';
+import { APP_FROM_ENUM } from '../../model/slice/AppSlice';
 
 export const getDisplayMode = (placement: Placement | PlacementCallCard): APP_DISPLAY_MODE => {
     let result = APP_DISPLAY_MODE.PUBLIC;
@@ -21,6 +22,7 @@ export type EntitiesFromPlacement = {
     currentDeal: BXDeal | null;
     currentTask: IBXTask | null;
     currentLead: BXLead | null;
+    from: APP_FROM_ENUM;
 };
 
 const TASK_SELECT = [
@@ -59,11 +61,14 @@ export const getEntitiesFromPlacement = async (
         currentDeal: null,
         currentTask: null,
         currentLead: null,
+        from: APP_FROM_ENUM.COMPANY
     };
+    let from = APP_FROM_ENUM.COMPANY
 
     try {
         const bitrix = Bitrix.getService();
         const type = placement?.placement;
+        debugger
         const options = (placement as Placement)?.options as any;
         if (!bitrix || !type || !options) return result;
 
@@ -74,9 +79,11 @@ export const getEntitiesFromPlacement = async (
             if (companyId) {
                 result.currentCompany = (await bitrix.company.get(Number(companyId))) as unknown as BXCompany;
             }
+            from = APP_FROM_ENUM.DEAL
         } else if (type.includes('COMPANY')) {
             companyPlacement.placement = type as typeof companyPlacement.placement;
             result.currentCompany = (await bitrix.company.get(Number(options.ID))) as unknown as BXCompany;
+            from = APP_FROM_ENUM.COMPANY
         } else if (type.includes('TASK')) {
             const taskId = options.taskId ?? options.TASK_ID;
             const taskData: any = await bitrix.api.call('tasks.task.get', {
@@ -89,6 +96,7 @@ export const getEntitiesFromPlacement = async (
             if (companyId) {
                 result.currentCompany = (await bitrix.company.get(companyId)) as unknown as BXCompany;
             }
+            from = APP_FROM_ENUM.TASK
         } else if (type.includes('CALL_CARD')) {
             const callOptions = options;
             let companyId: number | undefined;
@@ -103,12 +111,17 @@ export const getEntitiesFromPlacement = async (
                 result.currentCompany = (await bitrix.company.get(companyId)) as unknown as BXCompany;
             }
         } else if (type.includes('LEAD')) {
+            debugger
             result.currentLead = (await bitrix.api.call('crm.lead.get', { id: options.ID })) as unknown as BXLead;
+            from = APP_FROM_ENUM.LEAD
+            debugger
         }
+        result.from = from;
 
         if (result.currentCompany) {
             companyPlacement.options.ID = result.currentCompany.ID;
         }
+        debugger
         return result;
     } catch (error) {
         console.error('getEntitiesFromPlacement error', error);

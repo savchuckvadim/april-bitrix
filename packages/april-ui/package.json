@@ -3,8 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./surfaces": "./src/surfaces/index.ts",
+    "./badges": "./src/badges/index.ts",
+    "./feedback": "./src/feedback/index.ts",
+    "./tones": "./src/lib/tones.ts",
+    "./glass": "./src/lib/glass/index.ts"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

@@ -22,7 +22,7 @@ const CallingStatistics: React.FC<CallingStatisticsProps> = ({
     if (isLoading)
         return (
             <div className="min-w-full h-[500px] flex justify-center items-center">
-                <Preloader size="large" />
+                <Preloader size="lg" />
             </div>
         );
     if (!callingsReport) return null;

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import '@workspace/ui/globals.css';
 
 import { ThemeInitScript } from '@workspace/theme';
+import { BootPreloader, BootPreloaderGate } from '@workspace/april-ui/feedback';
 import { Providers } from '@/app/components/providers';
 
 const fontSans = Geist({
@@ -26,6 +27,9 @@ export default function RootLayout({
                 className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
             >
                 <ThemeInitScript />
+                {/* SSR-прелоадер: виден до загрузки JS, гасится после гидратации */}
+                <BootPreloader />
+                <BootPreloaderGate />
                 <Providers>{children}</Providers>
             </body>
         </html>

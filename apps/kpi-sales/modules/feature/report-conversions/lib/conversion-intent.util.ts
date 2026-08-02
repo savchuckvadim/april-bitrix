@@ -1,4 +1,4 @@
-import type { Intent } from '@workspace/april-ui';
+import { TONE_TEXT, type Intent } from '@workspace/april-ui';
 import type { ConversionStep } from './conversion-calc.util';
 
 /**
@@ -31,17 +31,9 @@ export const getConversionIntent = (
     return 'warning';
 };
 
-/** Токен-классы текста по intent (без hex и bg — для строк в ячейках). */
-export const CONVERSION_TEXT_CLASS: Record<Intent, string> = {
-    primary: 'text-primary',
-    secondary: 'text-secondary-foreground',
-    accent: 'text-accent-foreground',
-    muted: 'text-muted-foreground',
-    success: 'text-success',
-    warning: 'text-warning',
-    info: 'text-info',
-    destructive: 'text-destructive',
-};
-
+/**
+ * Токен-классы текста по intent. Таблица не своя — единый реестр тонов
+ * дизайн-системы, иначе цвета статусов разъезжаются между приложениями.
+ */
 export const conversionTextClass = (intent: Intent | null): string =>
-    intent ? CONVERSION_TEXT_CLASS[intent] : 'text-muted-foreground';
+    TONE_TEXT[intent ?? 'muted'];

@@ -1,0 +1,63 @@
+/*
+ * Печать страницы «Процесс продажи».
+ *
+ * На бумагу уходит ТОЛЬКО регламент: схема, пульт и меню на печати бесполезны,
+ * а стекло и вовсе печатается серым пятном. Прячем всё остальное, а блок
+ * регламента поднимаем в поток документа.
+ */
+
+@media print {
+    /* Схлопываем CRM-раму: она построена на h-dvh + overflow-hidden. */
+    html,
+    body {
+        height: auto !important;
+        overflow: visible !important;
+        background: #fff !important;
+    }
+
+    /* Прячем всё, что не ведёт к регламенту. */
+    body
+        :not(:has(.process-regulation)):not(.process-regulation):not(
+            .process-regulation *
+        ) {
+        display: none !important;
+    }
+
+    /* Цепочка родителей регламента должна остаться, но без рамок и прокрутки. */
+    body :has(.process-regulation) {
+        display: block !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        position: static !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .process-regulation {
+        display: block !important;
+    }
+
+    /* Стекло на бумаге не нужно. */
+    .process-regulation .april-glass-card,
+    .process-regulation .glass {
+        backdrop-filter: none !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .process-regulation pre {
+        color: #000 !important;
+        white-space: pre-wrap !important;
+        word-break: break-word;
+    }
+
+    @page {
+        margin: 14mm;
+    }
+}

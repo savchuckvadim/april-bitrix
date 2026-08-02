@@ -6,13 +6,13 @@ import { BXUser } from '@workspace/bx';
  * с TESTING_* данными (fallback внутри @workspace/bitrix).
  */
 export const IS_PROD = process.env.NEXT_PUBLIC_IN_BITRIX === 'true'
-export const KPI_REPORT_BASE_URL = process.env.NEXT_PUBLIC_KPI_SALES_API_URL  || 'https://api.kpi-report-sales.ru/'
+export const KPI_REPORT_BASE_URL = process.env.NEXT_PUBLIC_KPI_SALES_API_URL || 'https://api.kpi-report-sales.ru/'
 // export const TESTING_DOMAIN = 'gsr.bitrix24.ru';
-// export const TESTING_DOMAIN = 'gsirk.bitrix24.ru';
+export const TESTING_DOMAIN = 'gsirk.bitrix24.ru';
 // export const TESTING_DOMAIN = 'alfacentr.bitrix24.ru'
-export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
+// export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
 // export const TESTING_DOMAIN = 'garantservisvoronezh.bitrix24.ru'
-const TESTING_USER_ID = 1 // 2153 // 447 //2153
+const TESTING_USER_ID = 2153 // 447 //2153
 const LAST_NAME = "Савчук" //Савчук
 const EMAIL = "" //savchuk
 export const TESTING_USER = {

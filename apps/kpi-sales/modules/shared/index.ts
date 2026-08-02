@@ -1,10 +1,13 @@
-export { default as Preloader } from './preloader/ui/Preloader';
+// Спиннер консолидирован в @workspace/april-ui (локальная копия удалена;
+// в ней размер large задавался несуществующим классом h-18) — реэкспорт
+// под прежним именем для существующих импортов.
+export { Spinner as Preloader } from '@workspace/april-ui/feedback';
 export { Processing } from './processing/ui/Processing';
 export { ProcessingModern } from './processing/ui/variants/ProcessingModern';
 export { ProcessingAurora } from './processing/ui/variants/ProcessingAurora';
 export { ProcessingLiquid } from './processing/ui/variants/ProcessingLiquid';
 export { ProcessingBends } from './processing/ui/variants/ProcessingBends';
-export { GradientCountdown } from './processing/ui/components/GradientCountdown';
+export { GradientCountdown } from '@workspace/april-ui/feedback';
 export * from './lib/ui-settings-touch';
 // RTable консолидирован в @workspace/april-ui (единственная реализация;
 // прежняя локальная копия удалена) — реэкспорт для существующих импортов.

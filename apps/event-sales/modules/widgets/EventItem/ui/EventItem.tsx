@@ -90,7 +90,7 @@ debugger
                 </h1>
                 {currentTask && <EventTypeBadge type={currentTask.type} />}
                 <div className="ml-auto flex items-center gap-2">
-                    {!isCompact && !isLeadContext && (
+                    {!isCompact && (
                         <LayoutVariantSwitcher
                             value={layoutVariant}
                             onChange={setLayoutVariant}
@@ -100,7 +100,7 @@ debugger
                 </div>
             </header>
 
-            {isLeadContext ? (
+            {/* {isLeadContext ? (
                 <div className="grid gap-4 lg:grid-cols-2">
                     <div className="space-y-4">
                         <ReportSection />
@@ -108,7 +108,8 @@ debugger
                     </div>
                     <GarantLeadFrame />
                 </div>
-            ) : isCompact ? (
+            ) :} */}
+            {isCompact ? (
                 <CompactLayout
                     visibility={visibility}
                     planTypeAttr={planTypeAttr}

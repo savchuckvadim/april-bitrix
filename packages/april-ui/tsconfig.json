@@ -2,9 +2,10 @@
     "extends": "@workspace/typescript-config/react-library.json",
     "compilerOptions": {
         "baseUrl": ".",
-        // "paths": {
-        //     "@workspace/ui/*": ["./src/*"]
-        // }
+        // Как в packages/ui: пакет потребляется как исходники через transpilePackages,
+        // резолв — бандлерный. Без этого импорты в ../ui требуют расширений (TS2835).
+        "module": "ESNext",
+        "moduleResolution": "Bundler"
     },
     "include": ["."],
     "exclude": ["node_modules", "dist"]

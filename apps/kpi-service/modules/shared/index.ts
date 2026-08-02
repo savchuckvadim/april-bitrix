@@ -1,4 +1,6 @@
-export { default as Preloader } from './preloader/ui/Preloader';
+// Спиннер консолидирован в @workspace/april-ui (локальная копия удалена;
+// в ней размер large задавался несуществующим классом h-18).
+export { Spinner as Preloader } from '@workspace/april-ui/feedback';
 export { default as Processing } from './processing/ui/Processing';
 export { default as RTable } from './table/ui/RTable';
 export type { RTableProps } from './table/ui/RTable';

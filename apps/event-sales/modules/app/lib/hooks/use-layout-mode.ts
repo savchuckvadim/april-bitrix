@@ -9,12 +9,14 @@ import { AppLayoutMode, getLayoutMode } from '../utills/layout-util';
  */
 export const useLayoutMode = (): AppLayoutMode => {
     const display = useAppSelector(s => s.app.display.mode);
-
+    debugger
     const override = useMemo<AppLayoutMode | null>(() => {
         if (typeof window === 'undefined') return null;
         const value = new URLSearchParams(window.location.search).get('layout');
         return value === 'compact' || value === 'full' ? value : null;
     }, []);
 
-    return override ?? getLayoutMode(display);
+    const result = override ?? getLayoutMode(display);
+    debugger
+    return 'full'
 };

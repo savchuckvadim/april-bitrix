@@ -1,3 +1,9 @@
+'use client';
+
+// framer-motion — клиентская библиотека и внутри использует `export *`.
+// Без директивы выше любой серверный импорт из бареля april-ui падает на
+// «It's currently unsupported to use "export *" in a client boundary».
+
 import { FC, ReactElement, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@workspace/ui/components/button';

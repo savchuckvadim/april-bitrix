@@ -7,14 +7,14 @@
  */
 
 export type PortalContractGetListPortalContractsParams = {
-    /**
-     * Portal ID
-     * @nullable
-     */
-    portalId?: number | null;
-    /**
-     * Contract ID
-     * @nullable
-     */
-    contractId?: number | null;
+/**
+ * Portal ID
+ * @nullable
+ */
+portalId?: number | null;
+/**
+ * Contract ID
+ * @nullable
+ */
+contractId?: number | null;
 };

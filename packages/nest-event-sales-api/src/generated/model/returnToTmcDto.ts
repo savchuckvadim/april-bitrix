@@ -5,10 +5,14 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
+import type { ReturnToTmcDtoData } from './returnToTmcDtoData';
 
 export interface ReturnToTmcDto {
-    /** Флаг запроса на возврат сущности в ТМЦ. */
-    data: boolean;
+    /**
+     * Найденная TMC-сделка для возврата (legacy `TmcDealsForReturn`). Legacy-фронт может прислать вместо объекта falsy-значение (false/0/null), поэтому строгая валидация поля не выполняется.
+     * @nullable
+     */
+    data?: ReturnToTmcDtoData;
     /** Признак активности ветки возврата в ТМЦ. */
-    isActive: boolean;
+    isActive?: boolean;
 }

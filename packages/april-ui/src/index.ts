@@ -29,6 +29,9 @@ export * from './surfaces';
 // Бэйджи на реестре тонов
 export * from './badges';
 
+// Поля формы
+export * from './fields';
+
 // Состояния загрузки: спиннер, boot-прелоадер, экран сборки отчёта
 export * from './feedback';
 

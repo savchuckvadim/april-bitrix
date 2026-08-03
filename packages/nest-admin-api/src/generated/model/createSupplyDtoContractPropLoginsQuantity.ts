@@ -9,6 +9,4 @@
 /**
  * Количество логинов контракта
  */
-export type CreateSupplyDtoContractPropLoginsQuantity = {
-    [key: string]: unknown;
-};
+export type CreateSupplyDtoContractPropLoginsQuantity = { [key: string]: unknown };

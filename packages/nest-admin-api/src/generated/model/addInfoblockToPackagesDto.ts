@@ -7,6 +7,6 @@
  */
 
 export interface AddInfoblockToPackagesDto {
-    /** Действие проиходит из одного пакета  с несколькими инфоблоками  */
-    infoblockIds: string[];
+  /** Действие проиходит из одного пакета  с несколькими инфоблоками  */
+  infoblockIds: string[];
 }

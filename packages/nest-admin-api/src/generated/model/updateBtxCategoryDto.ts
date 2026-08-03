@@ -7,22 +7,22 @@
  */
 
 export interface UpdateBtxCategoryDto {
-    /** Parent type for grouping categories */
-    parent_type?: string;
-    /** Category type */
-    type?: string;
-    /** Category group */
-    group?: string;
-    /** Category title */
-    title?: string;
-    /** Category name */
-    name?: string;
-    /** Bitrix ID */
-    bitrixId?: string;
-    /** Bitrix Camel ID */
-    bitrixCamelId?: string;
-    /** Category code */
-    code?: string;
-    /** Is active */
-    isActive?: boolean;
+  /** Parent type for grouping categories */
+  parent_type?: string;
+  /** Category type */
+  type?: string;
+  /** Category group */
+  group?: string;
+  /** Category title */
+  title?: string;
+  /** Category name */
+  name?: string;
+  /** Bitrix ID */
+  bitrixId?: string;
+  /** Bitrix Camel ID */
+  bitrixCamelId?: string;
+  /** Category code */
+  code?: string;
+  /** Is active */
+  isActive?: boolean;
 }

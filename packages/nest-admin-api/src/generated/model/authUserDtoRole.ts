@@ -9,12 +9,12 @@
 /**
  * Роль субъекта, определяющая доступ к защищённым эндпоинтам.
  */
-export type AuthUserDtoRole =
-    (typeof AuthUserDtoRole)[keyof typeof AuthUserDtoRole];
+export type AuthUserDtoRole = typeof AuthUserDtoRole[keyof typeof AuthUserDtoRole];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AuthUserDtoRole = {
-    super_user: 'super_user',
-    client: 'client',
-    service: 'service',
+  super_user: 'super_user',
+  client: 'client',
+  service: 'service',
 } as const;

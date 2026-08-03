@@ -7,6 +7,6 @@
  */
 
 export interface AddInfoblockPackagesDto {
-    /** добавить infoblockpackages в инфоблок. */
-    packageIds: string[];
+  /** добавить infoblockpackages в инфоблок. */
+  packageIds: string[];
 }

@@ -8,16 +8,16 @@
 import type { FieldDto } from './fieldDto';
 
 export interface CompanyDto {
-    /** ID сущности в нашей БД */
-    id: number;
-    /** ID портала в нашей БД */
-    portal_id: number;
-    /** Код сущности для ассоциаций */
-    code: string;
-    /** Системное имя сущности */
-    name: string;
-    /** Отображаемое название сущности */
-    title: string;
-    /** Пользовательские поля сущности */
-    bitrixfields: FieldDto[];
+  /** ID сущности в нашей БД */
+  id: number;
+  /** ID портала в нашей БД */
+  portal_id: number;
+  /** Код сущности для ассоциаций */
+  code: string;
+  /** Системное имя сущности */
+  name: string;
+  /** Отображаемое название сущности */
+  title: string;
+  /** Пользовательские поля сущности */
+  bitrixfields: FieldDto[];
 }

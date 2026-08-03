@@ -7,18 +7,18 @@
  */
 
 export interface AppSecretDto {
-    /** ID записи */
-    id: string;
-    /** Код приложения (ключ поиска, напр. garant_manager) */
-    code: string;
-    /** client_id приложения (не секрет — показывается целиком) */
-    clientId: string;
-    /** client_secret МАСКИРОВАННЫЙ (первые и последние 4 символа) */
-    clientSecretMasked: string;
-    /** Группа приложения */
-    group?: string;
-    /** Тип приложения */
-    type?: string;
-    /** Когда запись обновлялась */
-    updatedAt?: string;
+  /** ID записи */
+  id: string;
+  /** Код приложения (ключ поиска, напр. garant_manager) */
+  code: string;
+  /** client_id приложения (не секрет — показывается целиком) */
+  clientId: string;
+  /** client_secret МАСКИРОВАННЫЙ (первые и последние 4 символа) */
+  clientSecretMasked: string;
+  /** Группа приложения */
+  group?: string;
+  /** Тип приложения */
+  type?: string;
+  /** Когда запись обновлялась */
+  updatedAt?: string;
 }

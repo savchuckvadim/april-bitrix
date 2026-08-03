@@ -7,8 +7,8 @@
  */
 
 export interface LoginDto {
-    /** Логин администратора (должен совпадать с SUPERUSER_LOGIN в .env). */
-    login: string;
-    /** Пароль администратора в открытом виде; сверяется с bcrypt-хэшем из .env. */
-    password: string;
+  /** Логин администратора (должен совпадать с SUPERUSER_LOGIN в .env). */
+  login: string;
+  /** Пароль администратора в открытом виде; сверяется с bcrypt-хэшем из .env. */
+  password: string;
 }

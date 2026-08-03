@@ -10,9 +10,9 @@ export interface EventTaskUserDto {
     /** Идентификатор пользователя задачи. */
     id: number;
     /** Имя пользователя (ФИО). */
-    name: string;
+    name?: string;
     /** Ссылка на иконку/аватар пользователя. */
-    icon: string;
+    icon?: string;
     /** Должность пользователя. */
-    workPosition: string;
+    workPosition?: string;
 }

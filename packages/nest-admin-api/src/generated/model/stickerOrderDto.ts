@@ -7,8 +7,8 @@
  */
 
 export interface StickerOrderDto {
-    /** The sticker id */
-    id: number;
-    /** The sticker order */
-    order: number;
+  /** The sticker id */
+  id: number;
+  /** The sticker order */
+  order: number;
 }

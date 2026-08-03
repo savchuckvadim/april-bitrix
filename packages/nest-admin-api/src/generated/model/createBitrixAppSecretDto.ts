@@ -7,8 +7,8 @@
  */
 
 export interface CreateBitrixAppSecretDto {
-    /** Client id */
-    client_id: string;
-    /** Client secret */
-    client_secret: string;
+  /** Client id */
+  client_id: string;
+  /** Client secret */
+  client_secret: string;
 }

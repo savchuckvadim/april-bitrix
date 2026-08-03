@@ -9,13 +9,13 @@
 /**
  * Client type of the contract
  */
-export type OfferWordByTemplateGenerateDtoClientType =
-    (typeof OfferWordByTemplateGenerateDtoClientType)[keyof typeof OfferWordByTemplateGenerateDtoClientType];
+export type OfferWordByTemplateGenerateDtoClientType = typeof OfferWordByTemplateGenerateDtoClientType[keyof typeof OfferWordByTemplateGenerateDtoClientType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OfferWordByTemplateGenerateDtoClientType = {
-    org_state: 'org_state',
-    org: 'org',
-    ip: 'ip',
-    fiz: 'fiz',
+  org_state: 'org_state',
+  org: 'org',
+  ip: 'ip',
+  fiz: 'fiz',
 } as const;

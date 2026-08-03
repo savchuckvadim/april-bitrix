@@ -6,14 +6,14 @@
  * OpenAPI spec version: 1.0
  */
 
-export type MarketplaceModerationGetInvitesStatus =
-    (typeof MarketplaceModerationGetInvitesStatus)[keyof typeof MarketplaceModerationGetInvitesStatus];
+export type MarketplaceModerationGetInvitesStatus = typeof MarketplaceModerationGetInvitesStatus[keyof typeof MarketplaceModerationGetInvitesStatus];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const MarketplaceModerationGetInvitesStatus = {
-    issued: 'issued',
-    sent: 'sent',
-    redeemed: 'redeemed',
-    revoked: 'revoked',
-    expired: 'expired',
+  issued: 'issued',
+  sent: 'sent',
+  redeemed: 'redeemed',
+  revoked: 'revoked',
+  expired: 'expired',
 } as const;

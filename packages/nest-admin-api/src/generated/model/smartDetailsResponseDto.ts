@@ -9,12 +9,12 @@ import type { SmartResponseDto } from './smartResponseDto';
 import type { SmartBitrixStateDto } from './smartBitrixStateDto';
 
 export interface SmartDetailsResponseDto {
-    /** Строка смарта из таблицы smarts. */
-    smart: SmartResponseDto;
-    /** Домен портала, на котором живёт смарт. */
-    domain: string;
-    /** Живое состояние в Bitrix (null — если портал/смарт недоступен; причина в error). */
-    bitrix?: SmartBitrixStateDto;
-    /** Ошибка получения живого состояния (если bitrix=null). */
-    error?: string;
+  /** Строка смарта из таблицы smarts. */
+  smart: SmartResponseDto;
+  /** Домен портала, на котором живёт смарт. */
+  domain: string;
+  /** Живое состояние в Bitrix (null — если портал/смарт недоступен; причина в error). */
+  bitrix?: SmartBitrixStateDto;
+  /** Ошибка получения живого состояния (если bitrix=null). */
+  error?: string;
 }

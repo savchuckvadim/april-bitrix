@@ -7,18 +7,18 @@
  */
 
 export interface CreateRegionDto {
-    /** Номер региона */
-    number: number;
-    /** Название региона */
-    title: string;
-    /** Код региона */
-    code: string;
-    /** Инфоблок региона */
-    infoblock: string;
-    /** ABS региона */
-    abs: number;
-    /** Налог региона */
-    tax: number;
-    /** Налог ABS региона */
-    tax_abs: number;
+  /** Номер региона */
+  number: number;
+  /** Название региона */
+  title: string;
+  /** Код региона */
+  code: string;
+  /** Инфоблок региона */
+  infoblock: string;
+  /** ABS региона */
+  abs: number;
+  /** Налог региона */
+  tax: number;
+  /** Налог ABS региона */
+  tax_abs: number;
 }

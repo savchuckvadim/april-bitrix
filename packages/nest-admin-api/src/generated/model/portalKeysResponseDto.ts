@@ -7,44 +7,59 @@
  */
 
 export interface PortalKeysResponseDto {
-    /**
-     * Ключ основного nest-приложения (back).
-     * @nullable
-     */
-    nestKey: string | null;
-    /**
-     * Ключ приложения-конструктора.
-     * @nullable
-     */
-    nestKonstructorKey: string | null;
-    /**
-     * Ключ приложения отчётов.
-     * @nullable
-     */
-    nestReportKey: string | null;
-    /**
-     * Ключ приложения event-sales.
-     * @nullable
-     */
-    nestEventsKey: string | null;
-    /**
-     * Ключ сервисного приложения.
-     * @nullable
-     */
-    nestServiceKey: string | null;
-    /**
-     * Ключ приложения вебхуков.
-     * @nullable
-     */
-    nestWebhooksKey: string | null;
-    /**
-     * Ключ приложения планировщика.
-     * @nullable
-     */
-    nestScheduleKey: string | null;
-    /**
-     * Ключ интеграции Vibe.
-     * @nullable
-     */
-    vibeKey: string | null;
+  /**
+   * Ключ основного nest-приложения (back).
+   * @nullable
+   */
+  nestKey: string | null;
+  /**
+   * Ключ приложения-конструктора.
+   * @nullable
+   */
+  nestKonstructorKey: string | null;
+  /**
+   * Ключ приложения отчётов.
+   * @nullable
+   */
+  nestReportKey: string | null;
+  /**
+   * Ключ приложения event-sales.
+   * @nullable
+   */
+  nestEventsKey: string | null;
+  /**
+   * Ключ сервисного приложения.
+   * @nullable
+   */
+  nestServiceKey: string | null;
+  /**
+   * Ключ приложения вебхуков.
+   * @nullable
+   */
+  nestWebhooksKey: string | null;
+  /**
+   * Ключ приложения планировщика.
+   * @nullable
+   */
+  nestScheduleKey: string | null;
+  /**
+   * Ключ интеграции Vibe.
+   * @nullable
+   */
+  vibeKey: string | null;
+  /**
+   * Собственный ключ LLM клиента (Cloud.ru, GigaChat и т.п.). Не задан — AI-анализ работает на общем ключе приложения.
+   * @nullable
+   */
+  llmKey: string | null;
+  /**
+   * Endpoint OpenAI-совместимого API клиента для его ключа LLM. Не задан — используется endpoint провайдера по умолчанию.
+   * @nullable
+   */
+  llmBaseUrl: string | null;
+  /**
+   * Id модели в каталоге провайдера клиента. Не задан — берётся модель по умолчанию для выбранного провайдера.
+   * @nullable
+   */
+  llmModelName: string | null;
 }

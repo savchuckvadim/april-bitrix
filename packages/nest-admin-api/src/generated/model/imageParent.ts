@@ -6,13 +6,14 @@
  * OpenAPI spec version: 1.0
  */
 
-export type ImageParent = (typeof ImageParent)[keyof typeof ImageParent];
+export type ImageParent = typeof ImageParent[keyof typeof ImageParent];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ImageParent = {
-    template: 'template',
-    page: 'page',
-    block: 'block',
-    sticker: 'sticker',
-    other: 'other',
+  template: 'template',
+  page: 'page',
+  block: 'block',
+  sticker: 'sticker',
+  other: 'other',
 } as const;

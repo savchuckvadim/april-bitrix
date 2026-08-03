@@ -5,16 +5,20 @@ import {
     getPlanInitState,
     isDifferenceMoreThanFourMonths,
     PLAN_CALL_TYPES,
-} from '../lib/plan-util';
+} from '../lib/plan.util';
+import { init } from 'next/dist/compiled/webpack/webpack';
 
 export type EventPlanState = typeof initialState;
 
-export const initialState = getPlanInitState(false);
+export const initialState = getPlanInitState(false, true);
 
 const eventPlanSlice = createSlice({
     name: 'eventPlan',
     initialState,
     reducers: {
+        init(state: EventPlanState, payload: PayloadAction<{ isTmc: boolean; hasCompany: boolean }>) {
+            Object.assign(state, getPlanInitState(payload.payload.isTmc, payload.payload.hasCompany));
+        },
         setPlanProp: (
             state: EventPlanState,
             action: PayloadAction<{ name: EV_PLAN_PROP; value: string }>,
@@ -53,6 +57,12 @@ const eventPlanSlice = createSlice({
         setIsActive: (state: EventPlanState) => {
             state[EV_PLAN_PROP.IS_ACTIVE] = !state[EV_PLAN_PROP.IS_ACTIVE];
         },
+        setIsImportant: (
+            state: EventPlanState,
+            action: PayloadAction<{ status: boolean }>,
+        ) => {
+            state[EV_PLAN_PROP.IS_IMPORTANT] = action.payload.status;
+        },
         setActiveStatus: (
             state: EventPlanState,
             action: PayloadAction<{ status: boolean }>,
@@ -63,7 +73,7 @@ const eventPlanSlice = createSlice({
             state: EventPlanState,
             action: PayloadAction<{ isTmc: boolean }>,
         ) => {
-            Object.assign(state, getPlanInitState(action.payload.isTmc));
+            Object.assign(state, getPlanInitState(action.payload.isTmc, true));
         },
     },
 });

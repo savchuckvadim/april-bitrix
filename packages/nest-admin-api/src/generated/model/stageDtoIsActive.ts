@@ -9,11 +9,11 @@
 /**
  * Активна ли стадия (0/1, как в Laravel)
  */
-export type StageDtoIsActive =
-    (typeof StageDtoIsActive)[keyof typeof StageDtoIsActive];
+export type StageDtoIsActive = typeof StageDtoIsActive[keyof typeof StageDtoIsActive];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const StageDtoIsActive = {
-    NUMBER_0: 0,
-    NUMBER_1: 1,
+  NUMBER_0: 0,
+  NUMBER_1: 1,
 } as const;

@@ -7,12 +7,12 @@
  */
 
 export interface UpdateBtxContactDto {
-    /** Contact name */
-    name?: string;
-    /** Contact title */
-    title?: string;
-    /** Contact code */
-    code?: string;
-    /** Portal ID */
-    portal_id?: number;
+  /** Contact name */
+  name?: string;
+  /** Contact title */
+  title?: string;
+  /** Contact code */
+  code?: string;
+  /** Portal ID */
+  portal_id?: number;
 }

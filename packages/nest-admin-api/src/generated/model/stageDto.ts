@@ -8,30 +8,30 @@
 import type { StageDtoIsActive } from './stageDtoIsActive';
 
 export interface StageDto {
-    /** ID стадии в нашей БД */
-    id: number;
-    /**
-     * Дата создания записи (ISO)
-     * @nullable
-     */
-    created_at?: string | null;
-    /**
-     * Дата обновления записи (ISO)
-     * @nullable
-     */
-    updated_at?: string | null;
-    /** ID родительской категории (btx_categories) */
-    btx_category_id: number;
-    /** Системное имя стадии */
-    name: string;
-    /** Отображаемое название стадии */
-    title: string;
-    /** Код стадии для ассоциаций */
-    code: string;
-    /** ID стадии в Битрикс */
-    bitrixId: string;
-    /** Цвет стадии в Битрикс */
-    color: string;
-    /** Активна ли стадия (0/1, как в Laravel) */
-    isActive: StageDtoIsActive;
+  /** ID стадии в нашей БД */
+  id: number;
+  /**
+   * Дата создания записи (ISO)
+   * @nullable
+   */
+  created_at?: string | null;
+  /**
+   * Дата обновления записи (ISO)
+   * @nullable
+   */
+  updated_at?: string | null;
+  /** ID родительской категории (btx_categories) */
+  btx_category_id: number;
+  /** Системное имя стадии */
+  name: string;
+  /** Отображаемое название стадии */
+  title: string;
+  /** Код стадии для ассоциаций */
+  code: string;
+  /** ID стадии в Битрикс */
+  bitrixId: string;
+  /** Цвет стадии в Битрикс */
+  color: string;
+  /** Активна ли стадия (0/1, как в Laravel) */
+  isActive: StageDtoIsActive;
 }

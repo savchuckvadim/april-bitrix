@@ -7,12 +7,16 @@
  */
 import { customAxios } from '../../lib/admin-api';
 
-export const getAdmin = () => {
-    const adminGetHello = () => {
-        return customAxios<void>({ url: `/api`, method: 'GET' });
-    };
-    return { adminGetHello };
-};
-export type AdminGetHelloResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getAdmin>['adminGetHello']>>
->;
+
+
+  export const getAdmin = () => {
+const adminGetHello = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api`, method: 'GET'
+    },
+      );
+    }
+  return {adminGetHello}};
+export type AdminGetHelloResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['adminGetHello']>>>

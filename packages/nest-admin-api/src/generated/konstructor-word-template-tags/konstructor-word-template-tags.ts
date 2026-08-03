@@ -5,62 +5,44 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
-import type { WordTemplateTagsUploadDocumentTagsFileBody } from '.././model';
+import type {
+  WordTemplateTagsUploadDocumentTagsFileBody
+} from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
 
-export const getKonstructorWordTemplateTags = () => {
-    /**
-     * Upload and overwrite fixed file in storage/app/konstructor/tags/offer-word/document-tags.docx
-     * @summary Upload document tags file
-     */
-    const wordTemplateTagsUploadDocumentTagsFile = (
-        wordTemplateTagsUploadDocumentTagsFileBody: WordTemplateTagsUploadDocumentTagsFileBody,
-    ) => {
-        const formData = new FormData();
-        formData.append(
-            `file`,
-            wordTemplateTagsUploadDocumentTagsFileBody.file,
-        );
 
-        return customAxios<void>({
-            url: `/api/word-templates-tags/upload`,
-            method: 'POST',
-            headers: { 'Content-Type': 'multipart/form-data' },
-            data: formData,
-        });
-    };
-    /**
-     * Download fixed file from storage/app/konstructor/tags/offer-word/document-tags.docx
-     * @summary Download document tags file
-     */
-    const wordTemplateTagsDownloadDocumentTagsFile = () => {
-        return customAxios<Blob>({
-            url: `/api/word-templates-tags/download`,
-            method: 'GET',
-            responseType: 'blob',
-        });
-    };
-    return {
-        wordTemplateTagsUploadDocumentTagsFile,
-        wordTemplateTagsDownloadDocumentTagsFile,
-    };
-};
-export type WordTemplateTagsUploadDocumentTagsFileResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getKonstructorWordTemplateTags
-            >['wordTemplateTagsUploadDocumentTagsFile']
-        >
-    >
->;
-export type WordTemplateTagsDownloadDocumentTagsFileResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getKonstructorWordTemplateTags
-            >['wordTemplateTagsDownloadDocumentTagsFile']
-        >
-    >
->;
+
+  export const getKonstructorWordTemplateTags = () => {
+/**
+ * Upload and overwrite fixed file in storage/app/konstructor/tags/offer-word/document-tags.docx
+ * @summary Upload document tags file
+ */
+const wordTemplateTagsUploadDocumentTagsFile = (
+    wordTemplateTagsUploadDocumentTagsFileBody: WordTemplateTagsUploadDocumentTagsFileBody,
+ ) => {const formData = new FormData();
+formData.append(`file`, wordTemplateTagsUploadDocumentTagsFileBody.file)
+
+      return customAxios<void>(
+      {url: `/api/word-templates-tags/upload`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData
+    },
+      );
+    }
+  /**
+ * Download fixed file from storage/app/konstructor/tags/offer-word/document-tags.docx
+ * @summary Download document tags file
+ */
+const wordTemplateTagsDownloadDocumentTagsFile = (
+    
+ ) => {
+      return customAxios<Blob>(
+      {url: `/api/word-templates-tags/download`, method: 'GET',
+        responseType: 'blob'
+    },
+      );
+    }
+  return {wordTemplateTagsUploadDocumentTagsFile,wordTemplateTagsDownloadDocumentTagsFile}};
+export type WordTemplateTagsUploadDocumentTagsFileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplateTags>['wordTemplateTagsUploadDocumentTagsFile']>>>
+export type WordTemplateTagsDownloadDocumentTagsFileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplateTags>['wordTemplateTagsDownloadDocumentTagsFile']>>>

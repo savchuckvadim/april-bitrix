@@ -9,6 +9,4 @@
 /**
  * Contract prop comment
  */
-export type GetSupplyResponseDtoContractPropComment = {
-    [key: string]: unknown;
-};
+export type GetSupplyResponseDtoContractPropComment = { [key: string]: unknown };

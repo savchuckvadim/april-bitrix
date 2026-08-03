@@ -7,18 +7,18 @@
  */
 
 export interface OfferTemplateFontDto {
-    /** The offer template id */
-    offer_template_id: number;
-    /** The name of the offer template font */
-    name: string;
-    /** The code of the offer template font */
-    code: string;
-    /** The data of the offer template font. JSON string. Long text. */
-    data: string;
-    /** The items of the offer template font */
-    items: string;
-    /** The current of the offer template font */
-    current: string;
-    /** The settings of the offer template font. JSON string. Long text. */
-    settings: string;
+  /** The offer template id */
+  offer_template_id: number;
+  /** The name of the offer template font */
+  name: string;
+  /** The code of the offer template font */
+  code: string;
+  /** The data of the offer template font. JSON string. Long text. */
+  data: string;
+  /** The items of the offer template font */
+  items: string;
+  /** The current of the offer template font */
+  current: string;
+  /** The settings of the offer template font. JSON string. Long text. */
+  settings: string;
 }

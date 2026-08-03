@@ -13,4 +13,6 @@ export interface BxDepartmentRequestDto {
     domain: BxDepartmentRequestDtoDomain;
     /** Department group to filter by */
     department?: BxDepartmentRequestDtoDepartment;
+    /** Сбросить кэш Redis перед запросом: данные будут заново получены из Битрикс и закэшированы. */
+    resetCache?: boolean;
 }

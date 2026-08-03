@@ -16,36 +16,36 @@ import type { BtxRpaResponseDtoCreatedAt } from './btxRpaResponseDtoCreatedAt';
 import type { BtxRpaResponseDtoUpdatedAt } from './btxRpaResponseDtoUpdatedAt';
 
 export interface BtxRpaResponseDto {
-    /** RPA ID */
-    id: number;
-    /** RPA name */
-    name: string;
-    /** RPA title */
-    title: string;
-    /** RPA code */
-    code: string;
-    /** RPA type */
-    type: string;
-    /** Type ID */
-    typeId: string;
-    /** Portal ID */
-    portal_id: number;
-    /** Image */
-    image?: BtxRpaResponseDtoImage;
-    /** Bitrix ID */
-    bitrixId?: BtxRpaResponseDtoBitrixId;
-    /** Description */
-    description?: BtxRpaResponseDtoDescription;
-    /** Entity Type ID */
-    entityTypeId?: BtxRpaResponseDtoEntityTypeId;
-    /** For Stage ID */
-    forStageId?: BtxRpaResponseDtoForStageId;
-    /** For Filter ID */
-    forFilterId?: BtxRpaResponseDtoForFilterId;
-    /** CRM ID */
-    crmId?: BtxRpaResponseDtoCrmId;
-    /** Created at */
-    created_at?: BtxRpaResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BtxRpaResponseDtoUpdatedAt;
+  /** RPA ID */
+  id: number;
+  /** RPA name */
+  name: string;
+  /** RPA title */
+  title: string;
+  /** RPA code */
+  code: string;
+  /** RPA type */
+  type: string;
+  /** Type ID */
+  typeId: string;
+  /** Portal ID */
+  portal_id: number;
+  /** Image */
+  image?: BtxRpaResponseDtoImage;
+  /** Bitrix ID */
+  bitrixId?: BtxRpaResponseDtoBitrixId;
+  /** Description */
+  description?: BtxRpaResponseDtoDescription;
+  /** Entity Type ID */
+  entityTypeId?: BtxRpaResponseDtoEntityTypeId;
+  /** For Stage ID */
+  forStageId?: BtxRpaResponseDtoForStageId;
+  /** For Filter ID */
+  forFilterId?: BtxRpaResponseDtoForFilterId;
+  /** CRM ID */
+  crmId?: BtxRpaResponseDtoCrmId;
+  /** Created at */
+  created_at?: BtxRpaResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BtxRpaResponseDtoUpdatedAt;
 }

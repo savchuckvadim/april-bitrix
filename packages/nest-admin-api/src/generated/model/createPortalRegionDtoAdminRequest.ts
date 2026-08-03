@@ -7,8 +7,8 @@
  */
 
 export interface CreatePortalRegionDtoAdminRequest {
-    /** ID of the Bitrix24 portal */
-    portalId: number;
-    /** ID of the region */
-    regionId: number;
+  /** ID of the Bitrix24 portal */
+  portalId: number;
+  /** ID of the region */
+  regionId: number;
 }

@@ -7,8 +7,8 @@
  */
 
 export interface KnowledgeDeleteResponseDto {
-    /** Признак успешного удаления документа. */
-    success: boolean;
-    /** Имя удалённого файла. */
-    fileName: string;
+  /** Признак успешного удаления документа. */
+  success: boolean;
+  /** Имя удалённого файла. */
+  fileName: string;
 }

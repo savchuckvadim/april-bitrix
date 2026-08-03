@@ -8,6 +8,6 @@
 import type { ConstSmartRegistryItemDto } from './constSmartRegistryItemDto';
 
 export interface SmartRegistryResponseDto {
-    /** Const-смарты, доступные к установке из констант. */
-    items: ConstSmartRegistryItemDto[];
+  /** Const-смарты, доступные к установке из констант. */
+  items: ConstSmartRegistryItemDto[];
 }

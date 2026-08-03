@@ -9,14 +9,14 @@ import type { SmartCategoryDto } from './smartCategoryDto';
 import type { SmartFieldDto } from './smartFieldDto';
 
 export interface SmartBitrixStateDto {
-    /** entityTypeId смарта в CRM. */
-    entityTypeId: number;
-    /** Символьный код типа. */
-    code: string;
-    /** Название смарта в Bitrix. */
-    title: string;
-    /** Воронки со стадиями. */
-    categories: SmartCategoryDto[];
-    /** UF-поля смарта. */
-    fields: SmartFieldDto[];
+  /** entityTypeId смарта в CRM. */
+  entityTypeId: number;
+  /** Символьный код типа. */
+  code: string;
+  /** Название смарта в Bitrix. */
+  title: string;
+  /** Воронки со стадиями. */
+  categories: SmartCategoryDto[];
+  /** UF-поля смарта. */
+  fields: SmartFieldDto[];
 }

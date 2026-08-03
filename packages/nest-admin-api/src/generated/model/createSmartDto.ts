@@ -7,30 +7,30 @@
  */
 
 export interface CreateSmartDto {
-    /** Smart type */
-    type: string;
-    /** Smart group */
-    group: string;
-    /** Smart name */
-    name: string;
-    /** Smart title */
-    title: string;
-    /** Entity Type ID */
-    entityTypeId: number;
-    /** Portal ID */
-    portal_id: number;
-    /** Bitrix ID */
-    bitrixId?: number;
-    /** For Stage ID */
-    forStageId?: number;
-    /** For Filter ID */
-    forFilterId?: number;
-    /** CRM ID */
-    crmId?: number;
-    /** For Stage */
-    forStage?: string;
-    /** For Filter */
-    forFilter?: string;
-    /** CRM */
-    crm?: string;
+  /** Smart type */
+  type: string;
+  /** Smart group */
+  group: string;
+  /** Smart name */
+  name: string;
+  /** Smart title */
+  title: string;
+  /** Entity Type ID */
+  entityTypeId: number;
+  /** Portal ID */
+  portal_id: number;
+  /** Bitrix ID */
+  bitrixId?: number;
+  /** For Stage ID */
+  forStageId?: number;
+  /** For Filter ID */
+  forFilterId?: number;
+  /** CRM ID */
+  crmId?: number;
+  /** For Stage */
+  forStage?: string;
+  /** For Filter */
+  forFilter?: string;
+  /** CRM */
+  crm?: string;
 }

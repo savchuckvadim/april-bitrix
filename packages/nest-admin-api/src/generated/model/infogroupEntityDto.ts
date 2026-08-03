@@ -10,45 +10,45 @@ import type { InfogroupEntityDtoProductType } from './infogroupEntityDtoProductT
 import type { InfoblockEntityLightDto } from './infoblockEntityLightDto';
 
 export interface InfogroupEntityDto {
-    /** Infogroup ID */
-    id: string;
-    /** Infogroup number */
-    number: number;
-    /** Infogroup code */
-    code: string;
-    /** Infogroup name */
-    name: string;
-    /** Infogroup title */
-    title: string;
-    /**
-     * Infogroup description
-     * @nullable
-     */
-    description?: string | null;
-    /**
-     * Infogroup description for sale
-     * @nullable
-     */
-    descriptionForSale?: string | null;
-    /**
-     * Infogroup short description
-     * @nullable
-     */
-    shortDescription?: string | null;
-    /** Infogroup type */
-    type: InfogroupEntityDtoType;
-    /** Infogroup product type */
-    productType: InfogroupEntityDtoProductType;
-    /**
-     * Created at
-     * @nullable
-     */
-    created_at?: string | null;
-    /**
-     * Updated at
-     * @nullable
-     */
-    updated_at?: string | null;
-    /** Infoblocks in group */
-    infoblocks?: InfoblockEntityLightDto[];
+  /** Infogroup ID */
+  id: string;
+  /** Infogroup number */
+  number: number;
+  /** Infogroup code */
+  code: string;
+  /** Infogroup name */
+  name: string;
+  /** Infogroup title */
+  title: string;
+  /**
+   * Infogroup description
+   * @nullable
+   */
+  description?: string | null;
+  /**
+   * Infogroup description for sale
+   * @nullable
+   */
+  descriptionForSale?: string | null;
+  /**
+   * Infogroup short description
+   * @nullable
+   */
+  shortDescription?: string | null;
+  /** Infogroup type */
+  type: InfogroupEntityDtoType;
+  /** Infogroup product type */
+  productType: InfogroupEntityDtoProductType;
+  /**
+   * Created at
+   * @nullable
+   */
+  created_at?: string | null;
+  /**
+   * Updated at
+   * @nullable
+   */
+  updated_at?: string | null;
+  /** Infoblocks in group */
+  infoblocks?: InfoblockEntityLightDto[];
 }

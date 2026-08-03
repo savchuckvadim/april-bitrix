@@ -9,6 +9,6 @@ import type { WordTemplateSummaryDto } from './wordTemplateSummaryDto';
 import type { UserSelectedTemplateSummaryDto } from './userSelectedTemplateSummaryDto';
 
 export interface UserSelectedResponseDto {
-    templates: WordTemplateSummaryDto[];
-    selected: UserSelectedTemplateSummaryDto[];
+  templates: WordTemplateSummaryDto[];
+  selected: UserSelectedTemplateSummaryDto[];
 }

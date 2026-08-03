@@ -7,8 +7,8 @@
  */
 
 export interface PbxActionResultDto {
-    /** Действие принято pbx (задача поставлена/синхронизация выполнена) */
-    ok: boolean;
-    /** Сырые детали ответа pbx (jobId, счётчики bound/unbound и т.п.) */
-    details?: string;
+  /** Действие принято pbx (задача поставлена/синхронизация выполнена) */
+  ok: boolean;
+  /** Сырые детали ответа pbx (jobId, счётчики bound/unbound и т.п.) */
+  details?: string;
 }

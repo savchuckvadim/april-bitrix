@@ -16,20 +16,20 @@ import type { PortalSmartRowResponseDtoCreatedAt } from './portalSmartRowRespons
 import type { PortalSmartRowResponseDtoUpdatedAt } from './portalSmartRowResponseDtoUpdatedAt';
 
 export interface PortalSmartRowResponseDto {
-    id: number;
-    portalId: number;
-    type: string;
-    group: string;
-    name: string;
-    title: string;
-    bitrixId?: PortalSmartRowResponseDtoBitrixId;
-    entityTypeId: number;
-    forStageId?: PortalSmartRowResponseDtoForStageId;
-    forFilterId?: PortalSmartRowResponseDtoForFilterId;
-    crmId?: PortalSmartRowResponseDtoCrmId;
-    forStage?: PortalSmartRowResponseDtoForStage;
-    forFilter?: PortalSmartRowResponseDtoForFilter;
-    crm?: PortalSmartRowResponseDtoCrm;
-    created_at?: PortalSmartRowResponseDtoCreatedAt;
-    updated_at?: PortalSmartRowResponseDtoUpdatedAt;
+  id: number;
+  portalId: number;
+  type: string;
+  group: string;
+  name: string;
+  title: string;
+  bitrixId?: PortalSmartRowResponseDtoBitrixId;
+  entityTypeId: number;
+  forStageId?: PortalSmartRowResponseDtoForStageId;
+  forFilterId?: PortalSmartRowResponseDtoForFilterId;
+  crmId?: PortalSmartRowResponseDtoCrmId;
+  forStage?: PortalSmartRowResponseDtoForStage;
+  forFilter?: PortalSmartRowResponseDtoForFilter;
+  crm?: PortalSmartRowResponseDtoCrm;
+  created_at?: PortalSmartRowResponseDtoCreatedAt;
+  updated_at?: PortalSmartRowResponseDtoUpdatedAt;
 }

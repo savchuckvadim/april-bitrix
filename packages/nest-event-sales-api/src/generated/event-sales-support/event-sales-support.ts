@@ -14,7 +14,7 @@ import type {
     NewTaskInitRequestDto,
     NewTaskInitResponseDto,
     ResultCountRequestDto,
-    TmcDealForReturnDto,
+    TmcDealFoundDto,
     TmcDealsRequestDto,
 } from '.././model';
 
@@ -56,7 +56,7 @@ export const getEventSalesSupport = () => {
     const eventSupportGetTmcDeals = (
         tmcDealsRequestDto: TmcDealsRequestDto,
     ) => {
-        return customAxios<TmcDealForReturnDto[]>({
+        return customAxios<TmcDealFoundDto[]>({
             url: `/api/event-sales/pres/tmc-deals`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

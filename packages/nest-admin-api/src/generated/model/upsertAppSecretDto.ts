@@ -7,12 +7,12 @@
  */
 
 export interface UpsertAppSecretDto {
-    /** client_id приложения из кабинета вендора (поле «Код приложения») */
-    clientId: string;
-    /** client_secret приложения из кабинета вендора (поле «Ключ приложения») */
-    clientSecret: string;
-    /** Группа приложения (справочное поле) */
-    group?: string;
-    /** Тип приложения (справочное поле) */
-    type?: string;
+  /** client_id приложения из кабинета вендора (поле «Код приложения») */
+  clientId: string;
+  /** client_secret приложения из кабинета вендора (поле «Ключ приложения») */
+  clientSecret: string;
+  /** Группа приложения (справочное поле) */
+  group?: string;
+  /** Тип приложения (справочное поле) */
+  type?: string;
 }

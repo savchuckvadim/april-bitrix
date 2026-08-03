@@ -68,7 +68,6 @@ export const getEntitiesFromPlacement = async (
     try {
         const bitrix = Bitrix.getService();
         const type = placement?.placement;
-        debugger
         const options = (placement as Placement)?.options as any;
         if (!bitrix || !type || !options) return result;
 
@@ -110,18 +109,19 @@ export const getEntitiesFromPlacement = async (
             if (companyId) {
                 result.currentCompany = (await bitrix.company.get(companyId)) as unknown as BXCompany;
             }
+            // from = CALL_CARD, а не COMPANY: карточка звонка может быть
+            // привязана к компании, но открыты мы всё равно из звонка —
+            // от этого зависит, какие сигналы искать (см. duplicate-context).
+            from = APP_FROM_ENUM.CALL_CARD
         } else if (type.includes('LEAD')) {
-            debugger
             result.currentLead = (await bitrix.api.call('crm.lead.get', { id: options.ID })) as unknown as BXLead;
             from = APP_FROM_ENUM.LEAD
-            debugger
         }
         result.from = from;
 
         if (result.currentCompany) {
             companyPlacement.options.ID = result.currentCompany.ID;
         }
-        debugger
         return result;
     } catch (error) {
         console.error('getEntitiesFromPlacement error', error);

@@ -9,10 +9,10 @@
 /**
  * Тип группы
  */
-export type CallingGroupDtoType =
-    (typeof CallingGroupDtoType)[keyof typeof CallingGroupDtoType];
+export type CallingGroupDtoType = typeof CallingGroupDtoType[keyof typeof CallingGroupDtoType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CallingGroupDtoType = {
-    calling: 'calling',
+  calling: 'calling',
 } as const;

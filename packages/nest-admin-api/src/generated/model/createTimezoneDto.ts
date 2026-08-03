@@ -7,16 +7,16 @@
  */
 
 export interface CreateTimezoneDto {
-    /** Timezone name */
-    name: string;
-    /** Timezone title */
-    title: string;
-    /** Timezone value */
-    value: string;
-    /** Portal ID */
-    portal_id: number;
-    /** Timezone type */
-    type?: string;
-    /** Timezone offset */
-    offset?: string;
+  /** Timezone name */
+  name: string;
+  /** Timezone title */
+  title: string;
+  /** Timezone value */
+  value: string;
+  /** Portal ID */
+  portal_id: number;
+  /** Timezone type */
+  type?: string;
+  /** Timezone offset */
+  offset?: string;
 }

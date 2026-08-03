@@ -19,54 +19,54 @@ import type { FrontPortalDtoLead } from './frontPortalDtoLead';
 import type { FrontPortalDtoContact } from './frontPortalDtoContact';
 
 export interface FrontPortalDto {
-    /** ID портала в нашей БД */
-    id: number;
-    /**
-     * Отдел продаж (первый с group=sales)
-     * @nullable
-     */
-    departament: FrontPortalDtoDepartament;
-    /** Универсальные списки Битрикс портала */
-    bitrixLists: BitrixListDto[];
-    /**
-     * Группа задач на прозвон (первая с group=sales)
-     * @nullable
-     */
-    bitrixCallingTasksGroup: FrontPortalDtoBitrixCallingTasksGroup;
-    /**
-     * Смарт-процесс продаж (первый с group=sales)
-     * @nullable
-     */
-    bitrixSmart: FrontPortalDtoBitrixSmart;
-    /**
-     * Сделка — обобщающая модель (первая)
-     * @nullable
-     */
-    bitrixDeal: FrontPortalDtoBitrixDeal;
-    /** Все смарт-процессы портала */
-    smarts: SmartDto[];
-    /** Все сделки (обобщающие модели) портала */
-    deals: DealDto[];
-    /** RPA-процессы портала */
-    rpas: RpaDto[];
-    /**
-     * Пользовательская модель BtxUser (первая)
-     * @nullable
-     */
-    user: FrontPortalDtoUser;
-    /**
-     * Компания — обобщающая модель (первая)
-     * @nullable
-     */
-    company: FrontPortalDtoCompany;
-    /**
-     * Лид — обобщающая модель (первый)
-     * @nullable
-     */
-    lead: FrontPortalDtoLead;
-    /**
-     * Контакт — обобщающая модель (первый)
-     * @nullable
-     */
-    contact: FrontPortalDtoContact;
+  /** ID портала в нашей БД */
+  id: number;
+  /**
+   * Отдел продаж (первый с group=sales)
+   * @nullable
+   */
+  departament: FrontPortalDtoDepartament;
+  /** Универсальные списки Битрикс портала */
+  bitrixLists: BitrixListDto[];
+  /**
+   * Группа задач на прозвон (первая с group=sales)
+   * @nullable
+   */
+  bitrixCallingTasksGroup: FrontPortalDtoBitrixCallingTasksGroup;
+  /**
+   * Смарт-процесс продаж (первый с group=sales)
+   * @nullable
+   */
+  bitrixSmart: FrontPortalDtoBitrixSmart;
+  /**
+   * Сделка — обобщающая модель (первая)
+   * @nullable
+   */
+  bitrixDeal: FrontPortalDtoBitrixDeal;
+  /** Все смарт-процессы портала */
+  smarts: SmartDto[];
+  /** Все сделки (обобщающие модели) портала */
+  deals: DealDto[];
+  /** RPA-процессы портала */
+  rpas: RpaDto[];
+  /**
+   * Пользовательская модель BtxUser (первая)
+   * @nullable
+   */
+  user: FrontPortalDtoUser;
+  /**
+   * Компания — обобщающая модель (первая)
+   * @nullable
+   */
+  company: FrontPortalDtoCompany;
+  /**
+   * Лид — обобщающая модель (первый)
+   * @nullable
+   */
+  lead: FrontPortalDtoLead;
+  /**
+   * Контакт — обобщающая модель (первый)
+   * @nullable
+   */
+  contact: FrontPortalDtoContact;
 }

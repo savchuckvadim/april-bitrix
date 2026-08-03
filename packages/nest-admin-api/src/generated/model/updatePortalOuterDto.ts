@@ -7,10 +7,10 @@
  */
 
 export interface UpdatePortalOuterDto {
-    domain: string;
-    number: number;
-    key: string;
-    clientId: string;
-    clientSecret: string;
-    hook: string;
+  domain: string;
+  number: number;
+  key: string;
+  clientId: string;
+  clientSecret: string;
+  hook: string;
 }

@@ -9,12 +9,12 @@
 /**
  * Группа (подразделение)
  */
-export type CallingGroupDtoGroup =
-    (typeof CallingGroupDtoGroup)[keyof typeof CallingGroupDtoGroup];
+export type CallingGroupDtoGroup = typeof CallingGroupDtoGroup[keyof typeof CallingGroupDtoGroup];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CallingGroupDtoGroup = {
-    sales: 'sales',
-    service: 'service',
-    tmc: 'tmc',
+  sales: 'sales',
+  service: 'service',
+  tmc: 'tmc',
 } as const;

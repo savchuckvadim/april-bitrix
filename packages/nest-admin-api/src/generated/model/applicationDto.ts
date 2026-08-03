@@ -7,30 +7,30 @@
  */
 
 export interface ApplicationDto {
-    /** ID портала (portals.id) */
-    portalId: string;
-    /** Домен портала Битрикс24 */
-    domain?: string;
-    /** member_id портала (постоянный идентификатор) */
-    memberId?: string;
-    /** Статус допуска портала (pending | approved | blocked) */
-    approvalStatus?: string;
-    /** Название организации из заявки (clients.name) */
-    organizationName?: string;
-    /** Контактный email из заявки (clients.email) */
-    contactEmail?: string;
-    /** Статус клиента (pending | active | disabled) */
-    clientStatus?: string;
-    /** Статус установки приложения (install_status) */
-    installStatus?: string;
-    /** Приложение удалено с портала (дата ONAPPUNINSTALL) */
-    uninstalledAt?: string;
-    /** Срок жизни access_token установки (диагностика «спящих» порталов) */
-    tokenExpiresAt?: string;
-    /** Есть ли refresh_token (возможен фоновый рефреш) */
-    hasRefreshToken: boolean;
-    /** Когда одобрено (portals.approved_at) */
-    approvedAt?: string;
-    /** Кем одобрено (portals.approved_by) */
-    approvedBy?: string;
+  /** ID портала (portals.id) */
+  portalId: string;
+  /** Домен портала Битрикс24 */
+  domain?: string;
+  /** member_id портала (постоянный идентификатор) */
+  memberId?: string;
+  /** Статус допуска портала (pending | approved | blocked) */
+  approvalStatus?: string;
+  /** Название организации из заявки (clients.name) */
+  organizationName?: string;
+  /** Контактный email из заявки (clients.email) */
+  contactEmail?: string;
+  /** Статус клиента (pending | active | disabled) */
+  clientStatus?: string;
+  /** Статус установки приложения (install_status) */
+  installStatus?: string;
+  /** Приложение удалено с портала (дата ONAPPUNINSTALL) */
+  uninstalledAt?: string;
+  /** Срок жизни access_token установки (диагностика «спящих» порталов) */
+  tokenExpiresAt?: string;
+  /** Есть ли refresh_token (возможен фоновый рефреш) */
+  hasRefreshToken: boolean;
+  /** Когда одобрено (portals.approved_at) */
+  approvedAt?: string;
+  /** Кем одобрено (portals.approved_by) */
+  approvedBy?: string;
 }

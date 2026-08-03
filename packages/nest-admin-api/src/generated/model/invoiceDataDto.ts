@@ -7,14 +7,14 @@
  */
 
 export interface InvoiceDataDto {
-    /** Need general invoice */
-    needGeneralInvoice: boolean;
-    /** Need many invoices */
-    needManyInvoices: boolean;
-    /** Is by presentation invoices */
-    isByPresentationInvoices: boolean;
-    /** Invoice date */
-    invoiceDate: string;
-    /** Invoice number */
-    invoiceNumber: string;
+  /** Need general invoice */
+  needGeneralInvoice: boolean;
+  /** Need many invoices */
+  needManyInvoices: boolean;
+  /** Is by presentation invoices */
+  isByPresentationInvoices: boolean;
+  /** Invoice date */
+  invoiceDate: string;
+  /** Invoice number */
+  invoiceNumber: string;
 }

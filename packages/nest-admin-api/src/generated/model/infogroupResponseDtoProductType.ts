@@ -9,12 +9,12 @@
 /**
  * Infogroup product type
  */
-export type InfogroupResponseDtoProductType =
-    (typeof InfogroupResponseDtoProductType)[keyof typeof InfogroupResponseDtoProductType];
+export type InfogroupResponseDtoProductType = typeof InfogroupResponseDtoProductType[keyof typeof InfogroupResponseDtoProductType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const InfogroupResponseDtoProductType = {
-    garant: 'garant',
-    lt: 'lt',
-    consalting: 'consalting',
+  garant: 'garant',
+  lt: 'lt',
+  consalting: 'consalting',
 } as const;

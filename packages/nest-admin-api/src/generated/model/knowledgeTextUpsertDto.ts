@@ -7,10 +7,10 @@
  */
 
 export interface KnowledgeTextUpsertDto {
-    /** Имя файла с расширением .md, .txt или .json (например instruction.md). Тот же fileName — перезапись документа. */
-    fileName: string;
-    /** Содержимое документа (plain text / markdown / JSON). */
-    content: string;
-    /** Домен портала — сохранить в клиентскую базу (перекрывает общую). Без домена — в общую базу. */
-    domain?: string;
+  /** Имя файла с расширением .md, .txt или .json (например instruction.md). Тот же fileName — перезапись документа. */
+  fileName: string;
+  /** Содержимое документа (plain text / markdown / JSON). */
+  content: string;
+  /** Домен портала — сохранить в клиентскую базу (перекрывает общую). Без домена — в общую базу. */
+  domain?: string;
 }

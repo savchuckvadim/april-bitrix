@@ -7,8 +7,8 @@
  */
 
 export type AiRagKnowledgeAdminUploadBody = {
-    /** PDF / DOCX / XLSX / TXT / MD. */
-    file: Blob;
-    /** Домен портала. Без него документ попадёт в общую базу. */
-    domain?: string;
+  /** PDF / DOCX / XLSX / TXT / MD. */
+  file: Blob;
+  /** Домен портала. Без него документ попадёт в общую базу. */
+  domain?: string;
 };

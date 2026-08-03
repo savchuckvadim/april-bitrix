@@ -5,9 +5,21 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
-import type { DepartamentModeDto } from './departamentModeDto';
+import type { DepartamentDtoGroup } from './departamentDtoGroup';
 
 export interface DepartamentDto {
-    /** Текущий режим/подразделение, в котором выполняется flow. */
-    mode?: DepartamentModeDto;
+    /** ID отдела в нашей БД */
+    id: number;
+    /** Тип отдела */
+    type: string;
+    /** Группа отдела */
+    group: DepartamentDtoGroup;
+    /** Системное имя отдела */
+    name: string;
+    /** Отображаемое название отдела */
+    title: string;
+    /** ID отдела в Битрикс */
+    bitrixId: number;
+    /** ID портала в нашей БД */
+    portal_id: number;
 }

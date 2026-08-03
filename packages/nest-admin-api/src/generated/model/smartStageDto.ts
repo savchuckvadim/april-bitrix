@@ -7,8 +7,8 @@
  */
 
 export interface SmartStageDto {
-    /** STATUS_ID стадии. */
-    statusId: string;
-    /** Название стадии. */
-    name: string;
+  /** STATUS_ID стадии. */
+  statusId: string;
+  /** Название стадии. */
+  name: string;
 }

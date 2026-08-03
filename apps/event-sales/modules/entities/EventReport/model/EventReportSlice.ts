@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {
     EV_REPORT_PROP,
+    EventReportSelectProp,
     EventReportStateReport,
 } from '../type/event-report-type';
 import { buildInitialReport, WORK_STATUS_ITEMS } from '../lib/report-catalog';
@@ -8,10 +9,10 @@ import { applyReportProp } from '../lib/event-report-util';
 
 export type EventReportState = typeof initialState;
 
-export interface SetReportPropProps {
-    propName: EV_REPORT_PROP;
-    value: number | string;
-}
+/** Комментарий принимает текст, справочники — id элемента (число или строка из Select). */
+export type SetReportPropProps =
+    | { propName: EV_REPORT_PROP.COMMENT; value: string }
+    | { propName: EventReportSelectProp; value: number | string };
 
 const initialState = {
     isNewEvent: false,

@@ -9,11 +9,11 @@
 /**
  * Complect type
  */
-export type GetComplectResponseDtoType =
-    (typeof GetComplectResponseDtoType)[keyof typeof GetComplectResponseDtoType];
+export type GetComplectResponseDtoType = typeof GetComplectResponseDtoType[keyof typeof GetComplectResponseDtoType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const GetComplectResponseDtoType = {
-    prof: 'prof',
-    universal: 'universal',
+  prof: 'prof',
+  universal: 'universal',
 } as const;

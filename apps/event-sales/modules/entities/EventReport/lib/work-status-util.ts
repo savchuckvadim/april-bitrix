@@ -2,6 +2,7 @@ import {
     EV_REPORT_PROP,
     EventReportSelectItem,
     EventReportStateReport,
+    WorkStatusCode,
 } from '../type/event-report-type';
 
 /**
@@ -11,9 +12,10 @@ import {
 export const getCurrentWorkStatusItems = (
     report: EventReportStateReport,
     departmentModeCode: 'sales' | 'tmc',
-): Array<EventReportSelectItem> => {
+): Array<EventReportSelectItem<WorkStatusCode>> => {
     const isTmc = departmentModeCode === 'tmc';
-    const currentCode = report[EV_REPORT_PROP.WORK_STATUS].current.code;
+    const currentCode: WorkStatusCode =
+        report[EV_REPORT_PROP.WORK_STATUS].current.code;
 
     let items = report[EV_REPORT_PROP.WORK_STATUS].items;
     if (isTmc) {

@@ -7,12 +7,12 @@
  */
 
 export interface CreateBtxDealDto {
-    /** Deal name */
-    name: string;
-    /** Deal title */
-    title: string;
-    /** Deal code */
-    code: string;
-    /** Portal ID */
-    portal_id: number;
+  /** Deal name */
+  name: string;
+  /** Deal title */
+  title: string;
+  /** Deal code */
+  code: string;
+  /** Portal ID */
+  portal_id: number;
 }

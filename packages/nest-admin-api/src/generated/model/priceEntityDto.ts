@@ -13,36 +13,36 @@ import type { SupplyType } from './supplyType';
 import type { SupplyTypeCode } from './supplyTypeCode';
 
 export interface PriceEntityDto {
-    /** Price ID */
-    id: string;
-    /** Код цены */
-    code: string;
-    /** Complect ID */
-    complect_id?: string;
-    /** Код комплекта */
-    complect_code?: PriceEntityDtoComplectCode;
-    /** Garant Package ID */
-    garant_package_id?: string;
-    /** Код пакета Гарант */
-    garant_package_code?: PriceEntityDtoGarantPackageCode;
-    /** Supply ID */
-    supply_id?: string;
-    /** Код поставки */
-    supply_code?: PriceEntityDtoSupplyCode;
-    /** Тип региона: 0 - регионы, 1 - Москва */
-    region_type: RegionType;
-    /** Тип поставки: internet | proxima */
-    supply_type?: SupplyType;
-    /** Код типа поставки: 0 - internet, 1 - proxima */
-    supply_type_code?: SupplyTypeCode;
-    /** Price value */
-    value: number;
-    /** Специальная цена */
-    isSpecial: boolean;
-    /** Discount */
-    discount?: number;
-    /** Created at */
-    created_at?: string;
-    /** Updated at */
-    updated_at?: string;
+  /** Price ID */
+  id: string;
+  /** Код цены */
+  code: string;
+  /** Complect ID */
+  complect_id?: string;
+  /** Код комплекта */
+  complect_code?: PriceEntityDtoComplectCode;
+  /** Garant Package ID */
+  garant_package_id?: string;
+  /** Код пакета Гарант */
+  garant_package_code?: PriceEntityDtoGarantPackageCode;
+  /** Supply ID */
+  supply_id?: string;
+  /** Код поставки */
+  supply_code?: PriceEntityDtoSupplyCode;
+  /** Тип региона: 0 - регионы, 1 - Москва */
+  region_type: RegionType;
+  /** Тип поставки: internet | proxima */
+  supply_type?: SupplyType;
+  /** Код типа поставки: 0 - internet, 1 - proxima */
+  supply_type_code?: SupplyTypeCode;
+  /** Price value */
+  value: number;
+  /** Специальная цена */
+  isSpecial: boolean;
+  /** Discount */
+  discount?: number;
+  /** Created at */
+  created_at?: string;
+  /** Updated at */
+  updated_at?: string;
 }

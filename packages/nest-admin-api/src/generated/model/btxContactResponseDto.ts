@@ -9,18 +9,18 @@ import type { BtxContactResponseDtoCreatedAt } from './btxContactResponseDtoCrea
 import type { BtxContactResponseDtoUpdatedAt } from './btxContactResponseDtoUpdatedAt';
 
 export interface BtxContactResponseDto {
-    /** Contact ID */
-    id: number;
-    /** Contact name */
-    name: string;
-    /** Contact title */
-    title: string;
-    /** Contact code */
-    code: string;
-    /** Portal ID */
-    portal_id: number;
-    /** Created at */
-    created_at?: BtxContactResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BtxContactResponseDtoUpdatedAt;
+  /** Contact ID */
+  id: number;
+  /** Contact name */
+  name: string;
+  /** Contact title */
+  title: string;
+  /** Contact code */
+  code: string;
+  /** Portal ID */
+  portal_id: number;
+  /** Created at */
+  created_at?: BtxContactResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BtxContactResponseDtoUpdatedAt;
 }

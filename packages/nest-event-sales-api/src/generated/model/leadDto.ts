@@ -5,22 +5,22 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
+import type { FieldDto } from './fieldDto';
+import type { CategoryDto } from './categoryDto';
 
 export interface LeadDto {
-    /** Идентификатор лида Bitrix. */
-    ID: number;
-    /** Название лида. */
-    TITLE: string;
-    /** Ссылка на квест/опрос, из которого пришёл лид. */
-    UF_CRM_LEAD_QUEST_URL?: string;
-    /** Идентификатор источника лида. */
-    UF_CRM_LEAD_SOURCE_ID?: string;
-    /** Описание источника лида. */
-    UF_CRM_LEAD_SOURCE_DESCRIPTION?: string;
-    /** Название источника лида. */
-    UF_CRM_LEAD_SOURCE_NAME?: string;
-    /** Тип источника лида. */
-    UF_CRM_LEAD_SOURCE_TYPE?: string;
-    /** Идентификатор типа источника лида. */
-    UF_CRM_LEAD_SOURCE_TYPE_ID?: string;
+    /** ID сущности в нашей БД */
+    id: number;
+    /** ID портала в нашей БД */
+    portal_id: number;
+    /** Код сущности для ассоциаций */
+    code: string;
+    /** Системное имя сущности */
+    name: string;
+    /** Отображаемое название сущности */
+    title: string;
+    /** Пользовательские поля сущности */
+    bitrixfields: FieldDto[];
+    /** Категории (воронки) лида */
+    categories: CategoryDto[];
 }

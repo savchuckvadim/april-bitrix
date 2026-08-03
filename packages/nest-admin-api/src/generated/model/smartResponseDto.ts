@@ -16,36 +16,36 @@ import type { SmartResponseDtoCreatedAt } from './smartResponseDtoCreatedAt';
 import type { SmartResponseDtoUpdatedAt } from './smartResponseDtoUpdatedAt';
 
 export interface SmartResponseDto {
-    /** Smart ID */
-    id: number;
-    /** Smart type */
-    type: string;
-    /** Smart group */
-    group: string;
-    /** Smart name */
-    name: string;
-    /** Smart title */
-    title: string;
-    /** Entity Type ID */
-    entityTypeId: number;
-    /** Portal ID */
-    portal_id: number;
-    /** Bitrix ID */
-    bitrixId?: SmartResponseDtoBitrixId;
-    /** For Stage ID */
-    forStageId?: SmartResponseDtoForStageId;
-    /** For Filter ID */
-    forFilterId?: SmartResponseDtoForFilterId;
-    /** CRM ID */
-    crmId?: SmartResponseDtoCrmId;
-    /** For Stage */
-    forStage?: SmartResponseDtoForStage;
-    /** For Filter */
-    forFilter?: SmartResponseDtoForFilter;
-    /** CRM */
-    crm?: SmartResponseDtoCrm;
-    /** Created at */
-    created_at?: SmartResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: SmartResponseDtoUpdatedAt;
+  /** Smart ID */
+  id: number;
+  /** Smart type */
+  type: string;
+  /** Smart group */
+  group: string;
+  /** Smart name */
+  name: string;
+  /** Smart title */
+  title: string;
+  /** Entity Type ID */
+  entityTypeId: number;
+  /** Portal ID */
+  portal_id: number;
+  /** Bitrix ID */
+  bitrixId?: SmartResponseDtoBitrixId;
+  /** For Stage ID */
+  forStageId?: SmartResponseDtoForStageId;
+  /** For Filter ID */
+  forFilterId?: SmartResponseDtoForFilterId;
+  /** CRM ID */
+  crmId?: SmartResponseDtoCrmId;
+  /** For Stage */
+  forStage?: SmartResponseDtoForStage;
+  /** For Filter */
+  forFilter?: SmartResponseDtoForFilter;
+  /** CRM */
+  crm?: SmartResponseDtoCrm;
+  /** Created at */
+  created_at?: SmartResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: SmartResponseDtoUpdatedAt;
 }

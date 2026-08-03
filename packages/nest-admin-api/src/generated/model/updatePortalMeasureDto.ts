@@ -7,16 +7,16 @@
  */
 
 export interface UpdatePortalMeasureDto {
-    /** Measure ID */
-    measure_id?: number;
-    /** Portal ID */
-    portal_id?: number;
-    /** Bitrix ID */
-    bitrixId?: string;
-    /** Name */
-    name?: string;
-    /** Short name */
-    shortName?: string;
-    /** Full name */
-    fullName?: string;
+  /** Measure ID */
+  measure_id?: number;
+  /** Portal ID */
+  portal_id?: number;
+  /** Bitrix ID */
+  bitrixId?: string;
+  /** Name */
+  name?: string;
+  /** Short name */
+  shortName?: string;
+  /** Full name */
+  fullName?: string;
 }

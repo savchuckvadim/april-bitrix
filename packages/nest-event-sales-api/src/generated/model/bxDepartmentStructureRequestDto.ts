@@ -13,8 +13,8 @@ export interface BxDepartmentStructureRequestDto {
     domain: BxDepartmentStructureRequestDtoDomain;
     /** Группа отделов: sales — отделы продаж, service — отделы сервиса. */
     department?: BxDepartmentStructureRequestDtoDepartment;
-    /** Мультирежим: искать по всей структуре все отделы группы (названия «ОП …» или «Отдел продаж») и вернуть их слитыми в одну структуру плюс разбивку по отделам. */
-    isMultiple?: boolean;
     /** Идентификатор текущего пользователя Битрикс24. */
     userId: number;
+    /** Сбросить кэш Redis перед запросом: структура будет заново получена из Битрикс и закэширована. */
+    resetCache?: boolean;
 }

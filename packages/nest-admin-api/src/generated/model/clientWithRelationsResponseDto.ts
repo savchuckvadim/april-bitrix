@@ -9,22 +9,22 @@ import type { ClientWithRelationsResponseDtoPortal } from './clientWithRelations
 import type { UserResponseDto } from './userResponseDto';
 
 export interface ClientWithRelationsResponseDto {
-    /** Client ID */
-    id: number;
-    /** Client name */
-    name: string;
-    /** Client email */
-    email?: string;
-    /** Client status */
-    status?: string;
-    /** Client is active */
-    is_active?: boolean;
-    /** Client created at */
-    created_at?: string;
-    /** Client updated at */
-    updated_at?: string;
-    /** Client portal */
-    portal?: ClientWithRelationsResponseDtoPortal;
-    /** Client users */
-    users?: UserResponseDto[];
+  /** Client ID */
+  id: number;
+  /** Client name */
+  name: string;
+  /** Client email */
+  email?: string;
+  /** Client status */
+  status?: string;
+  /** Client is active */
+  is_active?: boolean;
+  /** Client created at */
+  created_at?: string;
+  /** Client updated at */
+  updated_at?: string;
+  /** Client portal */
+  portal?: ClientWithRelationsResponseDtoPortal;
+  /** Client users */
+  users?: UserResponseDto[];
 }

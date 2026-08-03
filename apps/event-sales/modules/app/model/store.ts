@@ -34,6 +34,21 @@ import { portalAPI, portalReducer } from '@workspace/pbx';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
 export const listenerMiddleware = createListenerMiddleware();
+
+/**
+ * Типизированная подписка на экшены: в каждом effect'е `listenerApi.getState()`
+ * это RootState, `dispatch` — AppDispatch (умеет thunk'и), `extra` — ThunkExtraArgument.
+ * Сам listenerMiddleware остаётся нетипизированным намеренно: иначе типы
+ * store → middleware → store замкнутся в цикл.
+ */
+export const startAppListening = listenerMiddleware.startListening.withTypes<
+    RootState,
+    AppDispatch,
+    ThunkExtraArgument
+>();
+
+export type AppStartListening = typeof startAppListening;
+
 let wsClient: WSClient;
 
 // Middleware для обработки ошибок
@@ -109,7 +124,7 @@ export const setupStore = () => {
 
 // Побочные реакции (X случилось → сделать Y) регистрируются здесь,
 // а не диспатчатся из вложенных thunk'ов.
-startStoreListeners(listenerMiddleware);
+startStoreListeners(startAppListening);
 
 // Тип для extraArgument
 export type ThunkExtraArgument = {

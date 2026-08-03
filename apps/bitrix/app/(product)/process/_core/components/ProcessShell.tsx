@@ -111,7 +111,16 @@ export const ProcessShell: FC<ProcessShellProps> = ({
                         scroll === 'fixed' ? 'h-full overflow-hidden' : '',
                     )}
                 >
-                    <div className="bg-card/80 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 px-1 backdrop-blur">
+                    {/*
+                 * Шапка НЕ липкая намеренно.
+                 *
+                 * Токен bg-card полупрозрачный, поэтому липкая шапка не
+                 * закрывала остров, а просвечивала: при прокрутке было видно,
+                 * как скруглённый угол карточки уезжает под неё и обрезается.
+                 * Пусть лучше уезжает вся шапка — карточка остаётся карточкой,
+                 * а меню слева и так липкое и никуда не девается.
+                 */}
+                <div className="flex h-14 shrink-0 items-center gap-2 px-1">
                         {!isOpen && (
                             <Button
                                 variant="ghost"
@@ -125,7 +134,10 @@ export const ProcessShell: FC<ProcessShellProps> = ({
                             </Button>
                         )}
 
-                        <Link href="/" className="shrink-0 font-bold lg:hidden ml-2">
+                        <Link
+                            href="/"
+                            className="shrink-0 font-bold lg:hidden ml-2"
+                        >
                             April <span className="text-primary">CRM</span>
                         </Link>
 

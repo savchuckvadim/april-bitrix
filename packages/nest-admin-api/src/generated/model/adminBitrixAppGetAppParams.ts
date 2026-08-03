@@ -8,12 +8,12 @@
 import type { AdminBitrixAppGetAppCode } from './adminBitrixAppGetAppCode';
 
 export type AdminBitrixAppGetAppParams = {
-    /**
-     * Домен портала Bitrix24
-     */
-    domain: string;
-    /**
-     * Уникальный код приложения
-     */
-    code: AdminBitrixAppGetAppCode;
+/**
+ * Домен портала Bitrix24
+ */
+domain: string;
+/**
+ * Уникальный код приложения
+ */
+code: AdminBitrixAppGetAppCode;
 };

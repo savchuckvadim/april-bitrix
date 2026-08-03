@@ -8,8 +8,8 @@
 import type { WordTemplateFindAllWordTemplatesVisibility } from './wordTemplateFindAllWordTemplatesVisibility';
 
 export type WordTemplateFindAllWordTemplatesParams = {
-    visibility?: WordTemplateFindAllWordTemplatesVisibility;
-    portal_id?: string;
-    is_active?: boolean;
-    search?: string;
+visibility?: WordTemplateFindAllWordTemplatesVisibility;
+portal_id?: string;
+is_active?: boolean;
+search?: string;
 };

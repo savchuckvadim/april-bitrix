@@ -1,17 +1,19 @@
 'use client';
 
 import { FC } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
+import { SectionCard } from '@workspace/april-ui/surfaces';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { EV_REPORT_PROP, setAndSaveComment } from '@/modules/entities/EventReport';
 
 /**
- * Комментарий отчёта (обязателен при отправке; черновик — в localStorage).
- * rows — высота поля: в timeline-режиме комментарий большой (основной
- * рабочий инструмент), в компактной карточке — маленький.
+ * Комментарий отчёта — главный рабочий инструмент менеджера.
+ *
+ * Большое поле сразу, без раскрытия: не «строчка, которую надо тянуть»,
+ * а полноценное окно. Растёт по содержимому, дальше тянется вручную.
+ * Черновик пишется в localStorage, при отправке обязателен.
  */
-export const CommentSection: FC<{ rows?: number }> = ({ rows = 4 }) => {
+export const CommentSection: FC = () => {
     const dispatch = useAppDispatch();
     const comment = useAppSelector(
         s => s.eventReport.report[EV_REPORT_PROP.COMMENT],
@@ -19,20 +21,18 @@ export const CommentSection: FC<{ rows?: number }> = ({ rows = 4 }) => {
     const error = useAppSelector(s => s.event.errors.current.comment);
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-base">Комментарий</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1.5">
-                <Textarea
-                    value={comment}
-                    rows={rows}
-                    placeholder="Как прошёл разговор?"
-                    aria-invalid={!!error}
-                    onChange={e => dispatch(setAndSaveComment(e.target.value))}
-                />
-                {error && <p className="text-sm text-destructive">{error}</p>}
-            </CardContent>
-        </Card>
+        <SectionCard
+            title="Комментарий"
+            state={error ? 'error' : 'default'}
+            message={error}
+        >
+            <Textarea
+                value={comment}
+                placeholder="Как прошёл разговор?"
+                aria-invalid={!!error}
+                onChange={e => dispatch(setAndSaveComment(e.target.value))}
+                className="field-sizing-content min-h-40 resize-y"
+            />
+        </SectionCard>
     );
 };

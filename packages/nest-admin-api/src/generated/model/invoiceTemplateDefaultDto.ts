@@ -7,5 +7,5 @@
  */
 
 export interface InvoiceTemplateDefaultDto {
-    is_default: boolean;
+  is_default: boolean;
 }

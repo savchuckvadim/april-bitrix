@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+    BxDepartmentCacheResetRequestDto,
+    BxDepartmentCacheResetResponseDto,
     BxDepartmentRequestDto,
     BxDepartmentResponseDto,
     BxDepartmentStructureRequestDto,
@@ -43,7 +45,7 @@ export const getBitrixDomainDepartment = () => {
         });
     };
     /**
-     * При isMultiple=true ищет по всей структуре портала все отделы группы (названия «ОП …» или «Отдел продаж»), возвращает их в прежнем формате (смерджены в одну структуру) и рядом — разбивку по каждому ОП с группами. Также определяет, руководитель ли текущий пользователь (cup/op/group) и возвращает его коллег по группе и по отделу.
+     * Мультирежим включается флагом is_multiple отдела в нашей БД (не приходит извне). Когда он включён — ищет по всей структуре портала все отделы группы (названия «ОП …» или «Отдел продаж»), возвращает их в прежнем формате (смерджены в одну структуру) и рядом — разбивку по каждому ОП с группами. Также определяет, руководитель ли текущий пользователь (cup/op/group) и возвращает его коллег по группе и по отделу.
      * @summary Структура отделов продаж (старый API) с мультирежимом, ролью пользователя и коллегами
      */
     const bxDepartmentStructureGetStructure = (
@@ -56,10 +58,25 @@ export const getBitrixDomainDepartment = () => {
             data: bxDepartmentStructureRequestDto,
         });
     };
+    /**
+     * Удаляет закэшированные данные bx-department (структура отделов, полный отдел, команды) по конкретному домену, а без домена — по всем порталам. Redis общий для всех приложений монорепы, поэтому сброс действует на все приложения сразу.
+     * @summary Сбросить кэш отделов и команд в Redis
+     */
+    const bxDepartmentCacheReset = (
+        bxDepartmentCacheResetRequestDto: BxDepartmentCacheResetRequestDto,
+    ) => {
+        return customAxios<BxDepartmentCacheResetResponseDto>({
+            url: `/api/bx/department/cache/reset`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: bxDepartmentCacheResetRequestDto,
+        });
+    };
     return {
         departmentGetFullDepartment,
         departmentEndpointGetFullDepartment,
         bxDepartmentStructureGetStructure,
+        bxDepartmentCacheReset,
     };
 };
 export type DepartmentGetFullDepartmentResult = NonNullable<
@@ -86,6 +103,15 @@ export type BxDepartmentStructureGetStructureResult = NonNullable<
             ReturnType<
                 typeof getBitrixDomainDepartment
             >['bxDepartmentStructureGetStructure']
+        >
+    >
+>;
+export type BxDepartmentCacheResetResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getBitrixDomainDepartment
+            >['bxDepartmentCacheReset']
         >
     >
 >;

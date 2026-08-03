@@ -7,8 +7,8 @@
  */
 
 export type MarketplaceModerationGetApplicationsParams = {
-    /**
-     * Фильтр по статусу допуска портала (pending | approved | blocked)
-     */
-    approvalStatus?: string;
+/**
+ * Фильтр по статусу допуска портала (pending | approved | blocked)
+ */
+approvalStatus?: string;
 };

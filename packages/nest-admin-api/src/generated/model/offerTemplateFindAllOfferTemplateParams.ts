@@ -8,20 +8,20 @@
 import type { OfferTemplateVisibility } from './offerTemplateVisibility';
 
 export type OfferTemplateFindAllOfferTemplateParams = {
-    /**
-     * The visibility of the offer template
-     */
-    visibility?: OfferTemplateVisibility;
-    /**
-     * The portal id of the offer template
-     */
-    portal_id?: string;
-    /**
-     * The is active of the offer template
-     */
-    is_active?: boolean;
-    /**
-     * The search of the offer template
-     */
-    search?: string;
+/**
+ * The visibility of the offer template
+ */
+visibility?: OfferTemplateVisibility;
+/**
+ * The portal id of the offer template
+ */
+portal_id?: string;
+/**
+ * The is active of the offer template
+ */
+is_active?: boolean;
+/**
+ * The search of the offer template
+ */
+search?: string;
 };

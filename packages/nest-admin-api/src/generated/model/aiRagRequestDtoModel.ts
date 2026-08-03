@@ -9,13 +9,14 @@
 /**
  * Идентификатор LLM-провайдера, которым будет обработан запрос.
  */
-export type AiRagRequestDtoModel =
-    (typeof AiRagRequestDtoModel)[keyof typeof AiRagRequestDtoModel];
+export type AiRagRequestDtoModel = typeof AiRagRequestDtoModel[keyof typeof AiRagRequestDtoModel];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AiRagRequestDtoModel = {
-    gigachat: 'gigachat',
-    openai: 'openai',
-    ollama: 'ollama',
-    fake: 'fake',
+  gigachat: 'gigachat',
+  cloudru: 'cloudru',
+  openai: 'openai',
+  ollama: 'ollama',
+  fake: 'fake',
 } as const;

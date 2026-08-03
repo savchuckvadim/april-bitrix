@@ -7,6 +7,6 @@
  */
 
 export interface UpdateWebhookDto {
-    /** The webhook URL */
-    webhook: string;
+  /** The webhook URL */
+  webhook: string;
 }

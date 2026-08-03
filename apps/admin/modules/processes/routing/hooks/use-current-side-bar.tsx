@@ -1,4 +1,4 @@
-import { ALL_ENTITIES, aiKnowledgeEntities, clientEntities, garantEntities, konstructorEntities, marketplaceEntities, portalEntities, portalGarantEntities, portalKeysEntities, portalKonstructorEntities, portalPbxEntities, portalProviderEntities } from "../consts/routes.consts";
+import { ALL_ENTITIES, aiKnowledgeEntities, clientEntities, garantEntities, konstructorEntities, marketplaceEntities, portalAiSettingsEntities, portalEntities, portalGarantEntities, portalKeysEntities, portalKonstructorEntities, portalPbxEntities, portalProviderEntities } from "../consts/routes.consts";
 import { useDeepRouting } from "./use-routing.hook";
 
 
@@ -12,6 +12,7 @@ export const useCurrentSideBar = (): { currentNavItems: ALL_ENTITIES, baseUrl: s
         isPortalGarant,
         isPortalPbx,
         isPortalKeys,
+        isPortalAiSettings,
         isPortalProvider,
         isPortalDetail,
         portalId,
@@ -38,6 +39,9 @@ export const useCurrentSideBar = (): { currentNavItems: ALL_ENTITIES, baseUrl: s
             baseUrl = `/portal/${portalId}/pbx`;
         } else if (isPortalKeys) {
             currentNavItems = portalKeysEntities;
+            baseUrl = `/portal/${portalId}`;
+        } else if (isPortalAiSettings) {
+            currentNavItems = portalAiSettingsEntities;
             baseUrl = `/portal/${portalId}`;
         } else if (isPortalProvider) {
             currentNavItems = portalProviderEntities;

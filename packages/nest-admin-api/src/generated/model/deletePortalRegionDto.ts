@@ -7,8 +7,8 @@
  */
 
 export interface DeletePortalRegionDto {
-    /** ID of the portal */
-    portalId: number;
-    /** ID of the region */
-    regionId: number;
+  /** ID of the portal */
+  portalId: number;
+  /** ID of the region */
+  regionId: number;
 }

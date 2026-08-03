@@ -9,11 +9,11 @@
 /**
  * Код типа поставки: 0 - internet, 1 - proxima
  */
-export type SupplyTypeCode =
-    (typeof SupplyTypeCode)[keyof typeof SupplyTypeCode];
+export type SupplyTypeCode = typeof SupplyTypeCode[keyof typeof SupplyTypeCode];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const SupplyTypeCode = {
-    NUMBER_0: '0',
-    NUMBER_1: '1',
+  NUMBER_0: '0',
+  NUMBER_1: '1',
 } as const;

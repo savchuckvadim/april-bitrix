@@ -7,5 +7,5 @@
  */
 
 export type BtxRpaGetAllRpasParams = {
-    portal_id: string;
+portal_id: string;
 };

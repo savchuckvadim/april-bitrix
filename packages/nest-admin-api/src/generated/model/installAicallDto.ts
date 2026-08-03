@@ -7,6 +7,6 @@
  */
 
 export interface InstallAicallDto {
-    /** Домен портала Bitrix24, на который ставится смарт. */
-    domain: string;
+  /** Домен портала Bitrix24, на который ставится смарт. */
+  domain: string;
 }

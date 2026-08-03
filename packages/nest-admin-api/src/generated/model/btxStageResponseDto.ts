@@ -9,24 +9,24 @@ import type { BtxStageResponseDtoCreatedAt } from './btxStageResponseDtoCreatedA
 import type { BtxStageResponseDtoUpdatedAt } from './btxStageResponseDtoUpdatedAt';
 
 export interface BtxStageResponseDto {
-    /** Stage ID */
-    id: number;
-    /** Category ID */
-    btx_category_id: number;
-    /** Stage name */
-    name: string;
-    /** Stage title */
-    title: string;
-    /** Stage code */
-    code: string;
-    /** Bitrix ID */
-    bitrixId: string;
-    /** Stage color */
-    color: string;
-    /** Is active */
-    isActive: boolean;
-    /** Created at */
-    created_at?: BtxStageResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BtxStageResponseDtoUpdatedAt;
+  /** Stage ID */
+  id: number;
+  /** Category ID */
+  btx_category_id: number;
+  /** Stage name */
+  name: string;
+  /** Stage title */
+  title: string;
+  /** Stage code */
+  code: string;
+  /** Bitrix ID */
+  bitrixId: string;
+  /** Stage color */
+  color: string;
+  /** Is active */
+  isActive: boolean;
+  /** Created at */
+  created_at?: BtxStageResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BtxStageResponseDtoUpdatedAt;
 }

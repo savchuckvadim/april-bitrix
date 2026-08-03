@@ -347,6 +347,21 @@ export const portalKeysEntities: Entity[] = [
     },
 ];
 
+export const portalAiSettingsEntities: Entity[] = [
+    {
+        id: 0,
+        item: {
+            name: 'ai-settings',
+            title: 'Настройки AI',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/ai-settings',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
 
 export const portalProviderEntities: Entity[] = [
     {

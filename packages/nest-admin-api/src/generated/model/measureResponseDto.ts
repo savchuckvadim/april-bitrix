@@ -10,20 +10,20 @@ import type { MeasureResponseDtoCreatedAt } from './measureResponseDtoCreatedAt'
 import type { MeasureResponseDtoUpdatedAt } from './measureResponseDtoUpdatedAt';
 
 export interface MeasureResponseDto {
-    /** Measure ID */
-    id: number;
-    /** Measure name */
-    name: string;
-    /** Measure short name */
-    shortName: string;
-    /** Measure full name */
-    fullName: string;
-    /** Measure code */
-    code: string;
-    /** Measure type */
-    type?: MeasureResponseDtoType;
-    /** Created at */
-    created_at?: MeasureResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: MeasureResponseDtoUpdatedAt;
+  /** Measure ID */
+  id: number;
+  /** Measure name */
+  name: string;
+  /** Measure short name */
+  shortName: string;
+  /** Measure full name */
+  fullName: string;
+  /** Measure code */
+  code: string;
+  /** Measure type */
+  type?: MeasureResponseDtoType;
+  /** Created at */
+  created_at?: MeasureResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: MeasureResponseDtoUpdatedAt;
 }

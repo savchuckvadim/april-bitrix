@@ -12,16 +12,16 @@ import type { CreateBitrixAppDtoStatus } from './createBitrixAppDtoStatus';
 import type { CreateBitrixAppSecretDto } from './createBitrixAppSecretDto';
 
 export interface CreateBitrixAppDto {
-    /** Домен портала Bitrix24 */
-    domain: string;
-    /** Уникальный код приложения */
-    code: CreateBitrixAppDtoCode;
-    /** Группа приложения */
-    group: CreateBitrixAppDtoGroup;
-    /** Тип приложения */
-    type: CreateBitrixAppDtoType;
-    /** Статус приложения */
-    status: CreateBitrixAppDtoStatus;
-    /** Секреты приложения */
-    secret: CreateBitrixAppSecretDto;
+  /** Домен портала Bitrix24 */
+  domain: string;
+  /** Уникальный код приложения */
+  code: CreateBitrixAppDtoCode;
+  /** Группа приложения */
+  group: CreateBitrixAppDtoGroup;
+  /** Тип приложения */
+  type: CreateBitrixAppDtoType;
+  /** Статус приложения */
+  status: CreateBitrixAppDtoStatus;
+  /** Секреты приложения */
+  secret: CreateBitrixAppSecretDto;
 }

@@ -8,10 +8,10 @@
 import type { SmartStageDto } from './smartStageDto';
 
 export interface SmartCategoryDto {
-    /** Id категории в Bitrix. */
-    id: number;
-    /** Название категории. */
-    name: string;
-    /** Стадии категории. */
-    stages: SmartStageDto[];
+  /** Id категории в Bitrix. */
+  id: number;
+  /** Название категории. */
+  name: string;
+  /** Стадии категории. */
+  stages: SmartStageDto[];
 }

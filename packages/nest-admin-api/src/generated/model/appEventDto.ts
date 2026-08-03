@@ -7,20 +7,20 @@
  */
 
 export interface AppEventDto {
-    /** ID записи журнала (uuid) */
-    id: string;
-    /** member_id портала */
-    memberId?: string;
-    /** Домен портала */
-    domain?: string;
-    /** Событие */
-    event: string;
-    /** Статус обработки (received | processed | error) */
-    status: string;
-    /** Payload события (токены замаскированы при записи) */
-    payload?: string;
-    /** Детали ошибки обработки */
-    errorDetail?: string;
-    /** Когда произошло */
-    createdAt?: string;
+  /** ID записи журнала (uuid) */
+  id: string;
+  /** member_id портала */
+  memberId?: string;
+  /** Домен портала */
+  domain?: string;
+  /** Событие */
+  event: string;
+  /** Статус обработки (received | processed | error) */
+  status: string;
+  /** Payload события (токены замаскированы при записи) */
+  payload?: string;
+  /** Детали ошибки обработки */
+  errorDetail?: string;
+  /** Когда произошло */
+  createdAt?: string;
 }

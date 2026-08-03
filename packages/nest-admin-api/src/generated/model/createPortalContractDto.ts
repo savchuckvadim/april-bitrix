@@ -7,22 +7,22 @@
  */
 
 export interface CreatePortalContractDto {
-    /** Portal ID */
-    portal_id: number;
-    /** Contract ID */
-    contract_id: number;
-    /** Portal Measure ID */
-    portal_measure_id: number;
-    /** Bitrix Field Item ID */
-    bitrixfield_item_id: number;
-    /** Title */
-    title: string;
-    /** Template */
-    template?: string;
-    /** Order */
-    order?: number;
-    /** Product name */
-    productName?: string;
-    /** Description */
-    description?: string;
+  /** Portal ID */
+  portal_id: number;
+  /** Contract ID */
+  contract_id: number;
+  /** Portal Measure ID */
+  portal_measure_id: number;
+  /** Bitrix Field Item ID */
+  bitrixfield_item_id: number;
+  /** Title */
+  title: string;
+  /** Template */
+  template?: string;
+  /** Order */
+  order?: number;
+  /** Product name */
+  productName?: string;
+  /** Description */
+  description?: string;
 }

@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type InvoiceTemplateFindAllVisibility =
-    (typeof InvoiceTemplateFindAllVisibility)[keyof typeof InvoiceTemplateFindAllVisibility];
+export type InvoiceTemplateFindAllVisibility = typeof InvoiceTemplateFindAllVisibility[keyof typeof InvoiceTemplateFindAllVisibility];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const InvoiceTemplateFindAllVisibility = {
-    public: 'public',
-    portal: 'portal',
-    provider: 'provider',
+  public: 'public',
+  portal: 'portal',
+  provider: 'provider',
 } as const;

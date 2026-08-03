@@ -7,8 +7,8 @@
  */
 
 export interface InstallConstSmartDto {
-    /** Ключ const-смарта из GET registry (например aicall). */
-    kind: string;
-    /** Домен портала Bitrix24, на который ставится смарт. */
-    domain: string;
+  /** Ключ const-смарта из GET registry (например aicall). */
+  kind: string;
+  /** Домен портала Bitrix24, на который ставится смарт. */
+  domain: string;
 }

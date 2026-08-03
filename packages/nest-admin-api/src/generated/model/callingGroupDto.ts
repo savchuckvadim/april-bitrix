@@ -9,18 +9,18 @@ import type { CallingGroupDtoType } from './callingGroupDtoType';
 import type { CallingGroupDtoGroup } from './callingGroupDtoGroup';
 
 export interface CallingGroupDto {
-    /** ID группы в нашей БД */
-    id: number;
-    /** Тип группы */
-    type: CallingGroupDtoType;
-    /** Группа (подразделение) */
-    group: CallingGroupDtoGroup;
-    /** Системное имя группы */
-    name: string;
-    /** Отображаемое название группы */
-    title: string;
-    /** ID группы задач в Битрикс */
-    bitrixId: number;
-    /** ID портала в нашей БД */
-    portal_id: number;
+  /** ID группы в нашей БД */
+  id: number;
+  /** Тип группы */
+  type: CallingGroupDtoType;
+  /** Группа (подразделение) */
+  group: CallingGroupDtoGroup;
+  /** Системное имя группы */
+  name: string;
+  /** Отображаемое название группы */
+  title: string;
+  /** ID группы задач в Битрикс */
+  bitrixId: number;
+  /** ID портала в нашей БД */
+  portal_id: number;
 }

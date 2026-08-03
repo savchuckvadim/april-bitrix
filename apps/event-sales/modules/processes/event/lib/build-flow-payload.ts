@@ -84,6 +84,9 @@ export const buildFlowPayload = (
         isPlanned,
         contact: contactState.current.plan || undefined,
         isActive: !isNoCall && planState[EV_PLAN_PROP.IS_ACTIVE],
+        // TODO(бэк): принять поле и проставить PRIORITY задачи (1 — высокий).
+        // Пока бэк его игнорирует, признак живёт только на фронте.
+        isImportant: planState[EV_PLAN_PROP.IS_IMPORTANT],
     };
 
     // презентация без отметки «проведена» при результативном событии

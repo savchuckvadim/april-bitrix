@@ -7,10 +7,10 @@
  */
 
 export interface SmartFieldEnumItemDto {
-    /** Bitrix id значения. */
-    id: number;
-    /** Отображаемое значение. */
-    value: string;
-    /** Символьный код значения (xmlId). */
-    xmlId?: string;
+  /** Bitrix id значения. */
+  id: number;
+  /** Отображаемое значение. */
+  value: string;
+  /** Символьный код значения (xmlId). */
+  xmlId?: string;
 }

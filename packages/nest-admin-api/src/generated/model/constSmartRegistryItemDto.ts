@@ -8,22 +8,22 @@
 import type { ConstSmartRegistryItemDtoSource } from './constSmartRegistryItemDtoSource';
 
 export interface ConstSmartRegistryItemDto {
-    /** Ключ установки — передаётся в POST install-const как kind. */
-    kind: string;
-    /** smarts.type (матчинг установленной строки по type+group). */
-    type: string;
-    /** smarts.group. */
-    group: string;
-    /** Код смарта в Bitrix (`${type}_${group}`). */
-    code: string;
-    /** Русское название смарта. */
-    title: string;
-    /** Источник смарта — всегда const для этого реестра. */
-    source: ConstSmartRegistryItemDtoSource;
-    /** Число полей по const-конфигу (эталон, не факт установки). */
-    fieldsCount: number;
-    /** Есть ли у смарта воронки/стадии. */
-    hasCategories: boolean;
-    /** Короткое описание для карточки галереи. */
-    description?: string;
+  /** Ключ установки — передаётся в POST install-const как kind. */
+  kind: string;
+  /** smarts.type (матчинг установленной строки по type+group). */
+  type: string;
+  /** smarts.group. */
+  group: string;
+  /** Код смарта в Bitrix (`${type}_${group}`). */
+  code: string;
+  /** Русское название смарта. */
+  title: string;
+  /** Источник смарта — всегда const для этого реестра. */
+  source: ConstSmartRegistryItemDtoSource;
+  /** Число полей по const-конфигу (эталон, не факт установки). */
+  fieldsCount: number;
+  /** Есть ли у смарта воронки/стадии. */
+  hasCategories: boolean;
+  /** Короткое описание для карточки галереи. */
+  description?: string;
 }

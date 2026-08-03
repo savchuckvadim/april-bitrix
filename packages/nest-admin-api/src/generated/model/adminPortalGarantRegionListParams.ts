@@ -7,8 +7,8 @@
  */
 
 export type AdminPortalGarantRegionListParams = {
-    /**
-     * ID портала
-     */
-    portalId: number;
+/**
+ * ID портала
+ */
+portalId: number;
 };

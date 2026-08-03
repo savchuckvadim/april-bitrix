@@ -7,10 +7,10 @@
  */
 
 export interface KnowledgeDocumentDto {
-    /** Имя файла документа внутри kind-папки. */
-    fileName: string;
-    /** Kind-папка, из которой взят документ. */
-    kind: string;
-    /** Источник документа: shared (общая база) или домен портала. */
-    source: string;
+  /** Имя файла документа внутри kind-папки. */
+  fileName: string;
+  /** Kind-папка, из которой взят документ. */
+  kind: string;
+  /** Источник документа: shared (общая база) или домен портала. */
+  source: string;
 }

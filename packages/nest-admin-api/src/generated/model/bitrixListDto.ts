@@ -8,20 +8,20 @@
 import type { FieldDto } from './fieldDto';
 
 export interface BitrixListDto {
-    /** ID списка в нашей БД */
-    id: number;
-    /** Тип списка (kpi, history, presentation) */
-    type: string;
-    /** Группа списка (sales, service и т.п.) */
-    group: string;
-    /** Системное имя списка */
-    name: string;
-    /** Отображаемое название списка */
-    title: string;
-    /** ID списка (инфоблока) в Битрикс */
-    bitrixId: number;
-    /** ID портала в нашей БД */
-    portal_id: number;
-    /** Поля списка (только parent_type=list, как в Laravel) */
-    bitrixfields: FieldDto[];
+  /** ID списка в нашей БД */
+  id: number;
+  /** Тип списка (kpi, history, presentation) */
+  type: string;
+  /** Группа списка (sales, service и т.п.) */
+  group: string;
+  /** Системное имя списка */
+  name: string;
+  /** Отображаемое название списка */
+  title: string;
+  /** ID списка (инфоблока) в Битрикс */
+  bitrixId: number;
+  /** ID портала в нашей БД */
+  portal_id: number;
+  /** Поля списка (только parent_type=list, как в Laravel) */
+  bitrixfields: FieldDto[];
 }

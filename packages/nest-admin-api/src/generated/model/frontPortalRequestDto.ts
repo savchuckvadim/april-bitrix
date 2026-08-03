@@ -7,6 +7,6 @@
  */
 
 export interface FrontPortalRequestDto {
-    /** Домен портала Битрикс24 */
-    domain: string;
+  /** Домен портала Битрикс24 */
+  domain: string;
 }

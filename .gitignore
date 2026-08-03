@@ -58,3 +58,6 @@ CLAUDE.md
 
 # konstructor runtime logs (app router dir must stay code-only)
 apps/konstructor/app/logs/
+/deploy
+/docs
+

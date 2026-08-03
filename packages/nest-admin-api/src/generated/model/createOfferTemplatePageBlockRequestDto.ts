@@ -8,22 +8,22 @@
 import type { BlockType } from './blockType';
 
 export interface CreateOfferTemplatePageBlockRequestDto {
-    /** The order of the offer template page block */
-    order: number;
-    /** The name of the offer template page block */
-    name: string;
-    /** The code of the offer template page block */
-    code: string;
-    /** The type of the offer template page block */
-    type: BlockType;
-    /** The content of the offer template page block */
-    content: string;
-    /** The settings of the offer template page block */
-    settings: string;
-    /** The stickers of the offer template page block */
-    stickers: string;
-    /** The background of the offer template page block */
-    background: string;
-    /** The colors of the offer template page block */
-    colors: string;
+  /** The order of the offer template page block */
+  order: number;
+  /** The name of the offer template page block */
+  name: string;
+  /** The code of the offer template page block */
+  code: string;
+  /** The type of the offer template page block */
+  type: BlockType;
+  /** The content of the offer template page block */
+  content: string;
+  /** The settings of the offer template page block */
+  settings: string;
+  /** The stickers of the offer template page block */
+  stickers: string;
+  /** The background of the offer template page block */
+  background: string;
+  /** The colors of the offer template page block */
+  colors: string;
 }

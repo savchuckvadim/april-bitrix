@@ -7,8 +7,8 @@
  */
 
 export interface PageOrderDto {
-    /** The page id */
-    id: number;
-    /** The page order */
-    order: number;
+  /** The page id */
+  id: number;
+  /** The page order */
+  order: number;
 }

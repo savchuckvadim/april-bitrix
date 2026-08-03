@@ -7,28 +7,28 @@
  */
 
 export interface UserResponseDto {
-    /** User ID */
-    id: number;
-    /** User name */
-    name: string;
-    /** User surname */
-    surname: string;
-    /** User email */
-    email: string;
-    /** User password */
-    password?: string;
-    /** User photo URL */
-    photo?: string;
-    /** Role ID */
-    role_id: number;
-    /** Email verified at */
-    email_verified_at?: string;
-    /** Bitrix user ID */
-    bitrix_id?: string;
-    /** Client ID */
-    client_id: number;
-    /** Created at */
-    created_at: string;
-    /** Updated at */
-    updated_at: string;
+  /** User ID */
+  id: number;
+  /** User name */
+  name: string;
+  /** User surname */
+  surname: string;
+  /** User email */
+  email: string;
+  /** User password */
+  password?: string;
+  /** User photo URL */
+  photo?: string;
+  /** Role ID */
+  role_id: number;
+  /** Email verified at */
+  email_verified_at?: string;
+  /** Bitrix user ID */
+  bitrix_id?: string;
+  /** Client ID */
+  client_id: number;
+  /** Created at */
+  created_at: string;
+  /** Updated at */
+  updated_at: string;
 }

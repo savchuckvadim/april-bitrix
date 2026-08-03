@@ -6,11 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type StorageType = (typeof StorageType)[keyof typeof StorageType];
+export type StorageType = typeof StorageType[keyof typeof StorageType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const StorageType = {
-    app: 'app',
-    public: 'public',
-    private: 'private',
+  app: 'app',
+  public: 'public',
+  private: 'private',
 } as const;

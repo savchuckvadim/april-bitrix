@@ -7,6 +7,6 @@
  */
 
 export interface SetInfoblockExcludedDto {
-    /** Excluded ID */
-    excluded_id?: string;
+  /** Excluded ID */
+  excluded_id?: string;
 }

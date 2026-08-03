@@ -8,8 +8,8 @@
 import type { AppEventDto } from './appEventDto';
 
 export interface AppEventsPageDto {
-    /** Записи журнала (новые сверху) */
-    items: AppEventDto[];
-    /** Всего записей под фильтром (для пагинации) */
-    total: number;
+  /** Записи журнала (новые сверху) */
+  items: AppEventDto[];
+  /** Всего записей под фильтром (для пагинации) */
+  total: number;
 }

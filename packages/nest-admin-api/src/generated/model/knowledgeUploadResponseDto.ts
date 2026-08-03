@@ -7,10 +7,10 @@
  */
 
 export interface KnowledgeUploadResponseDto {
-    /** Имя сохранённого файла. */
-    fileName: string;
-    /** Kind-папка, в которую сохранён документ. */
-    kind: string;
-    /** Куда сохранён документ: shared или домен портала. */
-    source: string;
+  /** Имя сохранённого файла. */
+  fileName: string;
+  /** Kind-папка, в которую сохранён документ. */
+  kind: string;
+  /** Куда сохранён документ: shared или домен портала. */
+  source: string;
 }

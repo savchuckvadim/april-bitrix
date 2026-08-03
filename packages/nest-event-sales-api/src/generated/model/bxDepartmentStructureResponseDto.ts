@@ -10,6 +10,13 @@ import type { BxSalesDepartmentDto } from './bxSalesDepartmentDto';
 import type { BxCurrentUserDto } from './bxCurrentUserDto';
 
 export interface BxDepartmentStructureResponseDto {
+    /** Мультирежим портала: отделы продаж собраны по тэгу со всей структуры (departaments.is_multiple в БД). false — один базовый отдел. */
+    isMultiple: boolean;
+    /**
+     * Тэг поиска отделов в мультирежиме (departaments.multiple_tag), null — тэг не задан.
+     * @nullable
+     */
+    multipleTag: string | null;
     /** Структура в прежнем формате. В мультирежиме отделы продаж смерджены: generalDepartment — все найденные ОП, childrenDepartments — все их группы, allUsers — все сотрудники; поле department = 0 (единого корневого id нет). */
     department: BxDepartmentDataDto;
     /** Новая структура: разбивка по отделам продаж. */

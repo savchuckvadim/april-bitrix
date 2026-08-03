@@ -7,16 +7,16 @@
  */
 
 export interface KnowledgeKindInfoDto {
-    /** Слаг kind (имя папки). */
-    kind: string;
-    /** Человеческое название для интерфейса. */
-    title: string;
-    /** Что лежит внутри и на что влияет. */
-    description: string;
-    /** Кто читает материалы этого kind. */
-    consumer: string;
-    /** true — kind из реестра известных; false — нестандартная папка, созданная загрузкой документа. */
-    known: boolean;
-    /** Есть ли уже документы в общей базе этого kind. */
-    hasSharedDocuments: boolean;
+  /** Слаг kind (имя папки). */
+  kind: string;
+  /** Человеческое название для интерфейса. */
+  title: string;
+  /** Что лежит внутри и на что влияет. */
+  description: string;
+  /** Кто читает материалы этого kind. */
+  consumer: string;
+  /** true — kind из реестра известных; false — нестандартная папка, созданная загрузкой документа. */
+  known: boolean;
+  /** Есть ли уже документы в общей базе этого kind. */
+  hasSharedDocuments: boolean;
 }

@@ -8,16 +8,16 @@
 import type { SmartFieldEnumItemDto } from './smartFieldEnumItemDto';
 
 export interface SmartFieldDto {
-    /** Полное UF-имя поля. */
-    fieldName: string;
-    /** Название поля (русская подпись формы). */
-    title: string;
-    /** Тип поля Bitrix (string/enumeration/boolean/...). */
-    type: string;
-    /** Множественное ли поле. */
-    multiple: boolean;
-    /** Символьный код (xmlId) поля. */
-    xmlId?: string;
-    /** Значения enum-поля (только для enumeration). */
-    items?: SmartFieldEnumItemDto[];
+  /** Полное UF-имя поля. */
+  fieldName: string;
+  /** Название поля (русская подпись формы). */
+  title: string;
+  /** Тип поля Bitrix (string/enumeration/boolean/...). */
+  type: string;
+  /** Множественное ли поле. */
+  multiple: boolean;
+  /** Символьный код (xmlId) поля. */
+  xmlId?: string;
+  /** Значения enum-поля (только для enumeration). */
+  items?: SmartFieldEnumItemDto[];
 }

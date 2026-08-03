@@ -9,18 +9,18 @@ import type { BtxCompanyResponseDtoCreatedAt } from './btxCompanyResponseDtoCrea
 import type { BtxCompanyResponseDtoUpdatedAt } from './btxCompanyResponseDtoUpdatedAt';
 
 export interface BtxCompanyResponseDto {
-    /** Company ID */
-    id: number;
-    /** Company name */
-    name: string;
-    /** Company title */
-    title: string;
-    /** Company code */
-    code: string;
-    /** Portal ID */
-    portal_id: number;
-    /** Created at */
-    created_at?: BtxCompanyResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BtxCompanyResponseDtoUpdatedAt;
+  /** Company ID */
+  id: number;
+  /** Company name */
+  name: string;
+  /** Company title */
+  title: string;
+  /** Company code */
+  code: string;
+  /** Portal ID */
+  portal_id: number;
+  /** Created at */
+  created_at?: BtxCompanyResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BtxCompanyResponseDtoUpdatedAt;
 }

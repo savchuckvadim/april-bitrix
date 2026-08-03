@@ -8,38 +8,38 @@
 import type { InviteDtoStatus } from './inviteDtoStatus';
 
 export interface InviteDto {
-    /** ID кода подключения (uuid) */
-    id: string;
-    /** Видимая часть кода для опознания в списке (сам код не хранится) */
-    codePrefix: string;
-    /** Email получателя */
-    email: string;
-    /** Организация клиента */
-    organization?: string;
-    /** Код продукта */
-    productCode: string;
-    /** Ставить продукт сразу при погашении (иначе — мастер вопросов) */
-    autoProvision: boolean;
-    /** Статус кода */
-    status: InviteDtoStatus;
-    /** Когда выпущен */
-    createdAt?: string;
-    /** Действителен до */
-    expiresAt?: string;
-    /** Когда письмо с кодом ушло получателю */
-    sentAt?: string;
-    /** Когда код погашен на портале */
-    redeemedAt?: string;
-    /** Когда код отозван */
-    revokedAt?: string;
-    /** Логин супер-пользователя, выпустившего код */
-    issuedBy?: string;
-    /** Логин супер-пользователя, отозвавшего код */
-    revokedBy?: string;
-    /** ID портала, погасившего код */
-    redeemedPortalId?: string;
-    /** Домен портала, погасившего код */
-    redeemedPortalDomain?: string;
-    /** Служебная заметка модератора */
-    note?: string;
+  /** ID кода подключения (uuid) */
+  id: string;
+  /** Видимая часть кода для опознания в списке (сам код не хранится) */
+  codePrefix: string;
+  /** Email получателя */
+  email: string;
+  /** Организация клиента */
+  organization?: string;
+  /** Код продукта */
+  productCode: string;
+  /** Ставить продукт сразу при погашении (иначе — мастер вопросов) */
+  autoProvision: boolean;
+  /** Статус кода */
+  status: InviteDtoStatus;
+  /** Когда выпущен */
+  createdAt?: string;
+  /** Действителен до */
+  expiresAt?: string;
+  /** Когда письмо с кодом ушло получателю */
+  sentAt?: string;
+  /** Когда код погашен на портале */
+  redeemedAt?: string;
+  /** Когда код отозван */
+  revokedAt?: string;
+  /** Логин супер-пользователя, выпустившего код */
+  issuedBy?: string;
+  /** Логин супер-пользователя, отозвавшего код */
+  revokedBy?: string;
+  /** ID портала, погасившего код */
+  redeemedPortalId?: string;
+  /** Домен портала, погасившего код */
+  redeemedPortalDomain?: string;
+  /** Служебная заметка модератора */
+  note?: string;
 }

@@ -6,186 +6,142 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    CreateSmartDto,
-    InstallAicallDto,
-    InstallAicallResponseDto,
-    InstallConstSmartDto,
-    SmartDetailsResponseDto,
-    SmartGetAllSmartsParams,
-    SmartRegistryResponseDto,
-    SmartResponseDto,
-    UpdateSmartDto,
+  CreateSmartDto,
+  InstallAicallDto,
+  InstallAicallResponseDto,
+  InstallConstSmartDto,
+  SmartDetailsResponseDto,
+  SmartGetAllSmartsParams,
+  SmartRegistryResponseDto,
+  SmartResponseDto,
+  UpdateSmartDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
 
-export const getAdminSmartsManagement = () => {
-    /**
-     * Каталог смартов, устанавливаемых из констант (без Excel) — источник карточек «доступен к установке» в галерее смартов.
-     * @summary Реестр const-смартов
-     */
-    const smartGetRegistry = () => {
-        return customAxios<SmartRegistryResponseDto>({
-            url: `/api/admin/pbx/smarts/registry`,
-            method: 'GET',
-        });
-    };
-    /**
-     * Идемпотентная установка const-смарта по kind из реестра (резолв kind → use-case; общий контракт результата).
-     * @summary Установить const-смарт (generic)
-     */
-    const smartInstallConst = (installConstSmartDto: InstallConstSmartDto) => {
-        return customAxios<InstallAicallResponseDto>({
-            url: `/api/admin/pbx/smarts/install-const`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: installConstSmartDto,
-        });
-    };
-    /**
-     * Идемпотентная установка AI-смарта на портал (общий use-case из @lib/call-lib, тот же что у event-sales): создаёт тип при отсутствии и доливает недостающие поля из const-конфига.
-     * @summary Установить смарт «AI-анализ звонков»
-     */
-    const smartInstallAicall = (installAicallDto: InstallAicallDto) => {
-        return customAxios<InstallAicallResponseDto>({
-            url: `/api/admin/pbx/smarts/install-aicall`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: installAicallDto,
-        });
-    };
-    /**
-     * Строка smarts + живое состояние в Bitrix: тип, воронки со стадиями, UF-поля с enum-значениями. Bitrix-часть fail-open (bitrix=null + error).
-     * @summary Детали смарта
-     */
-    const smartGetSmartDetails = (id: number) => {
-        return customAxios<SmartDetailsResponseDto>({
-            url: `/api/admin/pbx/smarts/${id}/details`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Create a new smart
-     */
-    const smartCreateSmart = (createSmartDto: CreateSmartDto) => {
-        return customAxios<SmartResponseDto>({
-            url: `/api/admin/pbx/smarts`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: createSmartDto,
-        });
-    };
-    /**
-     * @summary Get all smarts
-     */
-    const smartGetAllSmarts = (params: SmartGetAllSmartsParams) => {
-        return customAxios<SmartResponseDto[]>({
-            url: `/api/admin/pbx/smarts`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * @summary Get smart by ID
-     */
-    const smartGetSmartById = (id: number) => {
-        return customAxios<SmartResponseDto>({
-            url: `/api/admin/pbx/smarts/${id}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Update smart
-     */
-    const smartUpdateSmart = (id: number, updateSmartDto: UpdateSmartDto) => {
-        return customAxios<SmartResponseDto>({
-            url: `/api/admin/pbx/smarts/${id}`,
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            data: updateSmartDto,
-        });
-    };
-    /**
-     * @summary Delete smart
-     */
-    const smartDeleteSmart = (id: number) => {
-        return customAxios<void>({
-            url: `/api/admin/pbx/smarts/${id}`,
-            method: 'DELETE',
-        });
-    };
-    return {
-        smartGetRegistry,
-        smartInstallConst,
-        smartInstallAicall,
-        smartGetSmartDetails,
-        smartCreateSmart,
-        smartGetAllSmarts,
-        smartGetSmartById,
-        smartUpdateSmart,
-        smartDeleteSmart,
-    };
-};
-export type SmartGetRegistryResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAdminSmartsManagement>['smartGetRegistry']
-        >
-    >
->;
-export type SmartInstallConstResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAdminSmartsManagement>['smartInstallConst']
-        >
-    >
->;
-export type SmartInstallAicallResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAdminSmartsManagement>['smartInstallAicall']
-        >
-    >
->;
-export type SmartGetSmartDetailsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAdminSmartsManagement>['smartGetSmartDetails']
-        >
-    >
->;
-export type SmartCreateSmartResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAdminSmartsManagement>['smartCreateSmart']
-        >
-    >
->;
-export type SmartGetAllSmartsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAdminSmartsManagement>['smartGetAllSmarts']
-        >
-    >
->;
-export type SmartGetSmartByIdResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAdminSmartsManagement>['smartGetSmartById']
-        >
-    >
->;
-export type SmartUpdateSmartResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAdminSmartsManagement>['smartUpdateSmart']
-        >
-    >
->;
-export type SmartDeleteSmartResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getAdminSmartsManagement>['smartDeleteSmart']
-        >
-    >
->;
+
+
+  export const getAdminSmartsManagement = () => {
+/**
+ * Каталог смартов, устанавливаемых из констант (без Excel) — источник карточек «доступен к установке» в галерее смартов.
+ * @summary Реестр const-смартов
+ */
+const smartGetRegistry = (
+    
+ ) => {
+      return customAxios<SmartRegistryResponseDto>(
+      {url: `/api/admin/pbx/smarts/registry`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Идемпотентная установка const-смарта по kind из реестра (резолв kind → use-case; общий контракт результата).
+ * @summary Установить const-смарт (generic)
+ */
+const smartInstallConst = (
+    installConstSmartDto: InstallConstSmartDto,
+ ) => {
+      return customAxios<InstallAicallResponseDto>(
+      {url: `/api/admin/pbx/smarts/install-const`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: installConstSmartDto
+    },
+      );
+    }
+  /**
+ * Идемпотентная установка AI-смарта на портал (общий use-case из @lib/call-lib, тот же что у event-sales): создаёт тип при отсутствии и доливает недостающие поля из const-конфига.
+ * @summary Установить смарт «AI-анализ звонков»
+ */
+const smartInstallAicall = (
+    installAicallDto: InstallAicallDto,
+ ) => {
+      return customAxios<InstallAicallResponseDto>(
+      {url: `/api/admin/pbx/smarts/install-aicall`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: installAicallDto
+    },
+      );
+    }
+  /**
+ * Строка smarts + живое состояние в Bitrix: тип, воронки со стадиями, UF-поля с enum-значениями. Bitrix-часть fail-open (bitrix=null + error).
+ * @summary Детали смарта
+ */
+const smartGetSmartDetails = (
+    id: number,
+ ) => {
+      return customAxios<SmartDetailsResponseDto>(
+      {url: `/api/admin/pbx/smarts/${id}/details`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Create a new smart
+ */
+const smartCreateSmart = (
+    createSmartDto: CreateSmartDto,
+ ) => {
+      return customAxios<SmartResponseDto>(
+      {url: `/api/admin/pbx/smarts`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createSmartDto
+    },
+      );
+    }
+  /**
+ * @summary Get all smarts
+ */
+const smartGetAllSmarts = (
+    params: SmartGetAllSmartsParams,
+ ) => {
+      return customAxios<SmartResponseDto[]>(
+      {url: `/api/admin/pbx/smarts`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Get smart by ID
+ */
+const smartGetSmartById = (
+    id: number,
+ ) => {
+      return customAxios<SmartResponseDto>(
+      {url: `/api/admin/pbx/smarts/${id}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Update smart
+ */
+const smartUpdateSmart = (
+    id: number,
+    updateSmartDto: UpdateSmartDto,
+ ) => {
+      return customAxios<SmartResponseDto>(
+      {url: `/api/admin/pbx/smarts/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateSmartDto
+    },
+      );
+    }
+  /**
+ * @summary Delete smart
+ */
+const smartDeleteSmart = (
+    id: number,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/admin/pbx/smarts/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  return {smartGetRegistry,smartInstallConst,smartInstallAicall,smartGetSmartDetails,smartCreateSmart,smartGetAllSmarts,smartGetSmartById,smartUpdateSmart,smartDeleteSmart}};
+export type SmartGetRegistryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartGetRegistry']>>>
+export type SmartInstallConstResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartInstallConst']>>>
+export type SmartInstallAicallResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartInstallAicall']>>>
+export type SmartGetSmartDetailsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartGetSmartDetails']>>>
+export type SmartCreateSmartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartCreateSmart']>>>
+export type SmartGetAllSmartsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartGetAllSmarts']>>>
+export type SmartGetSmartByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartGetSmartById']>>>
+export type SmartUpdateSmartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartUpdateSmart']>>>
+export type SmartDeleteSmartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartDeleteSmart']>>>

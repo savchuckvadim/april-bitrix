@@ -9,12 +9,12 @@
 /**
  * Уникальный код приложения
  */
-export type UpdateBitrixAppDtoCode =
-    (typeof UpdateBitrixAppDtoCode)[keyof typeof UpdateBitrixAppDtoCode];
+export type UpdateBitrixAppDtoCode = typeof UpdateBitrixAppDtoCode[keyof typeof UpdateBitrixAppDtoCode];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const UpdateBitrixAppDtoCode = {
-    sales_full: 'sales_full',
-    service_full: 'service_full',
-    garant_manager: 'garant_manager',
+  sales_full: 'sales_full',
+  service_full: 'service_full',
+  garant_manager: 'garant_manager',
 } as const;

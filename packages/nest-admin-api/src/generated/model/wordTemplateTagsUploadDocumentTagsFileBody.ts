@@ -7,6 +7,6 @@
  */
 
 export type WordTemplateTagsUploadDocumentTagsFileBody = {
-    /** DOCX file */
-    file: Blob;
+  /** DOCX file */
+  file: Blob;
 };

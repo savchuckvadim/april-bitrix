@@ -7,5 +7,5 @@
  */
 
 export type AdminGarantSupplyUploadExcelBody = {
-    file?: Blob;
+  file?: Blob;
 };

@@ -8,22 +8,22 @@
 import type { FieldDto } from './fieldDto';
 
 export interface UserDto {
-    /** ID записи в нашей БД */
-    id: number;
-    /** ID портала в нашей БД */
-    portal_id: number;
-    /** Код сущности для ассоциаций */
-    code: string;
-    /**
-     * Системное имя (в БД отсутствует — всегда null)
-     * @nullable
-     */
-    name: string | null;
-    /**
-     * Отображаемое название (в БД отсутствует — всегда null)
-     * @nullable
-     */
-    title: string | null;
-    /** Пользовательские поля */
-    bitrixfields: FieldDto[];
+  /** ID записи в нашей БД */
+  id: number;
+  /** ID портала в нашей БД */
+  portal_id: number;
+  /** Код сущности для ассоциаций */
+  code: string;
+  /**
+   * Системное имя (в БД отсутствует — всегда null)
+   * @nullable
+   */
+  name: string | null;
+  /**
+   * Отображаемое название (в БД отсутствует — всегда null)
+   * @nullable
+   */
+  title: string | null;
+  /** Пользовательские поля */
+  bitrixfields: FieldDto[];
 }

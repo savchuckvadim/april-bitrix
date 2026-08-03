@@ -8,26 +8,26 @@
 import type { FieldItemDto } from './fieldItemDto';
 
 export interface FieldDto {
-    /** ID поля в нашей БД */
-    id: number;
-    /** Тип поля Битрикс */
-    type: string;
-    /** Код поля для ассоциаций (совпадает с CODE в Битрикс) */
-    code: string;
-    /** Системное имя поля */
-    name: string;
-    /** Отображаемое название поля */
-    title: string;
-    /** ID поля в Битрикс (UF_CRM_...) */
-    bitrixId: string;
-    /** ID поля в Битрикс в camelCase (ufCrm...) */
-    bitrixCamelId: string;
-    /** ID сущности-владельца поля */
-    entity_id: number;
-    /** Принадлежность поля к родительской модели (list, xo, calling и т.п.) */
-    parent_type: string;
-    /** Элементы списочного поля (дубль items — так отдавал Laravel) */
-    bitrixfielditems: FieldItemDto[];
-    /** Элементы списочного поля */
-    items: FieldItemDto[];
+  /** ID поля в нашей БД */
+  id: number;
+  /** Тип поля Битрикс */
+  type: string;
+  /** Код поля для ассоциаций (совпадает с CODE в Битрикс) */
+  code: string;
+  /** Системное имя поля */
+  name: string;
+  /** Отображаемое название поля */
+  title: string;
+  /** ID поля в Битрикс (UF_CRM_...) */
+  bitrixId: string;
+  /** ID поля в Битрикс в camelCase (ufCrm...) */
+  bitrixCamelId: string;
+  /** ID сущности-владельца поля */
+  entity_id: number;
+  /** Принадлежность поля к родительской модели (list, xo, calling и т.п.) */
+  parent_type: string;
+  /** Элементы списочного поля (дубль items — так отдавал Laravel) */
+  bitrixfielditems: FieldItemDto[];
+  /** Элементы списочного поля */
+  items: FieldItemDto[];
 }

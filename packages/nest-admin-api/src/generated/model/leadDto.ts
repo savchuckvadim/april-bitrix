@@ -9,18 +9,18 @@ import type { FieldDto } from './fieldDto';
 import type { CategoryDto } from './categoryDto';
 
 export interface LeadDto {
-    /** ID сущности в нашей БД */
-    id: number;
-    /** ID портала в нашей БД */
-    portal_id: number;
-    /** Код сущности для ассоциаций */
-    code: string;
-    /** Системное имя сущности */
-    name: string;
-    /** Отображаемое название сущности */
-    title: string;
-    /** Пользовательские поля сущности */
-    bitrixfields: FieldDto[];
-    /** Категории (воронки) лида */
-    categories: CategoryDto[];
+  /** ID сущности в нашей БД */
+  id: number;
+  /** ID портала в нашей БД */
+  portal_id: number;
+  /** Код сущности для ассоциаций */
+  code: string;
+  /** Системное имя сущности */
+  name: string;
+  /** Отображаемое название сущности */
+  title: string;
+  /** Пользовательские поля сущности */
+  bitrixfields: FieldDto[];
+  /** Категории (воронки) лида */
+  categories: CategoryDto[];
 }

@@ -8,10 +8,10 @@
 import type { InvoiceTemplateFindAllVisibility } from './invoiceTemplateFindAllVisibility';
 
 export type InvoiceTemplateFindAllParams = {
-    visibility?: InvoiceTemplateFindAllVisibility;
-    portal_id?: string;
-    agent_id?: string;
-    is_active?: boolean;
-    is_archived?: boolean;
-    search?: string;
+visibility?: InvoiceTemplateFindAllVisibility;
+portal_id?: string;
+agent_id?: string;
+is_active?: boolean;
+is_archived?: boolean;
+search?: string;
 };

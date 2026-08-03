@@ -8,11 +8,11 @@
 import type { PortalKeyResponseDtoKeyName } from './portalKeyResponseDtoKeyName';
 
 export interface PortalKeyResponseDto {
-    /** Имя ключа интеграции портала. */
-    keyName: PortalKeyResponseDtoKeyName;
-    /**
-     * Расшифрованное значение ключа. `null`, если ключ не задан или его не удалось расшифровать текущим секретом.
-     * @nullable
-     */
-    value: string | null;
+  /** Имя ключа интеграции портала. */
+  keyName: PortalKeyResponseDtoKeyName;
+  /**
+   * Расшифрованное значение ключа. `null`, если ключ не задан или его не удалось расшифровать текущим секретом.
+   * @nullable
+   */
+  value: string | null;
 }

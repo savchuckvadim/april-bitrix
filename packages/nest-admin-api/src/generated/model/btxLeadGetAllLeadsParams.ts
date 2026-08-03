@@ -7,5 +7,5 @@
  */
 
 export type BtxLeadGetAllLeadsParams = {
-    portal_id: string;
+portal_id: string;
 };

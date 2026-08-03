@@ -9,14 +9,14 @@
 /**
  * Машинное значение типа — именно его нужно отправлять в поле `type` при создании/обновлении поставщика и реквизитов.
  */
-export type ProviderSelectOptionDtoValue =
-    (typeof ProviderSelectOptionDtoValue)[keyof typeof ProviderSelectOptionDtoValue];
+export type ProviderSelectOptionDtoValue = typeof ProviderSelectOptionDtoValue[keyof typeof ProviderSelectOptionDtoValue];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ProviderSelectOptionDtoValue = {
-    org: 'org',
-    org_state: 'org_state',
-    ip: 'ip',
-    fiz: 'fiz',
-    advokat: 'advokat',
+  org: 'org',
+  org_state: 'org_state',
+  ip: 'ip',
+  fiz: 'fiz',
+  advokat: 'advokat',
 } as const;

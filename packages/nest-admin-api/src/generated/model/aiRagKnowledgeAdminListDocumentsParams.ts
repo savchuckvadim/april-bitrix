@@ -7,12 +7,12 @@
  */
 
 export type AiRagKnowledgeAdminListDocumentsParams = {
-    /**
-     * Тип эндпоинта (general / resume / recomendation / ...). По умолчанию general.
-     */
-    kind?: string;
-    /**
-     * Домен портала. Если папка такого домена существует — будет показана клиентская база; иначе вернётся общая.
-     */
-    domain?: string;
+/**
+ * Тип эндпоинта (general / resume / recomendation / ...). По умолчанию general.
+ */
+kind?: string;
+/**
+ * Домен портала. Если папка такого домена существует — будет показана клиентская база; иначе вернётся общая.
+ */
+domain?: string;
 };

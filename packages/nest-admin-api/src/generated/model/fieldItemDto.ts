@@ -7,26 +7,26 @@
  */
 
 export interface FieldItemDto {
-    /** ID элемента в нашей БД */
-    id: number;
-    /**
-     * Дата создания записи
-     * @nullable
-     */
-    created_at?: string | null;
-    /**
-     * Дата обновления записи
-     * @nullable
-     */
-    updated_at?: string | null;
-    /** ID родительского поля bitrixfields */
-    bitrixfield_id: number;
-    /** Системное имя элемента */
-    name: string;
-    /** Отображаемое название элемента */
-    title: string;
-    /** Код элемента для ассоциаций */
-    code: string;
-    /** ID элемента списка в Битрикс */
-    bitrixId: number;
+  /** ID элемента в нашей БД */
+  id: number;
+  /**
+   * Дата создания записи
+   * @nullable
+   */
+  created_at?: string | null;
+  /**
+   * Дата обновления записи
+   * @nullable
+   */
+  updated_at?: string | null;
+  /** ID родительского поля bitrixfields */
+  bitrixfield_id: number;
+  /** Системное имя элемента */
+  name: string;
+  /** Отображаемое название элемента */
+  title: string;
+  /** Код элемента для ассоциаций */
+  code: string;
+  /** ID элемента списка в Битрикс */
+  bitrixId: number;
 }

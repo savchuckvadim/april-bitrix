@@ -9,40 +9,40 @@ import type { CreateComplectDtoType } from './createComplectDtoType';
 import type { CreateComplectDtoProductType } from './createComplectDtoProductType';
 
 export interface CreateComplectDto {
-    /** Название комплекта */
-    name: string;
-    /** Полное название комплекта */
-    fullName: string;
-    /** Короткое название комплекта */
-    shortName: string;
-    /** Описание комплекта */
-    description?: string;
-    /** Код комплекта */
-    code: string;
-    /** Тип комплекта */
-    type: CreateComplectDtoType;
-    /** Цвет комплекта */
-    color?: string;
-    /** Вес комплекта */
-    weight: number;
-    /** ABS комплекта */
-    abs?: string;
-    /** Номер комплекта */
-    number: number;
-    /** Тип продукта */
-    productType: CreateComplectDtoProductType;
-    /** Наличие ABS */
-    withABS: boolean;
-    /** Наличие консалтинга */
-    withConsalting: boolean;
-    /** Наличие сервисов */
-    withServices: boolean;
-    /** Наличие LT */
-    withLt: boolean;
-    /** Изменяемый комплект */
-    isChanging: boolean;
-    /** Есть ли наполнение по умолчанию */
-    withDefault: boolean;
-    /** Список ID инфоблоков, входящих в комплект */
-    infoblockIds: string[];
+  /** Название комплекта */
+  name: string;
+  /** Полное название комплекта */
+  fullName: string;
+  /** Короткое название комплекта */
+  shortName: string;
+  /** Описание комплекта */
+  description?: string;
+  /** Код комплекта */
+  code: string;
+  /** Тип комплекта */
+  type: CreateComplectDtoType;
+  /** Цвет комплекта */
+  color?: string;
+  /** Вес комплекта */
+  weight: number;
+  /** ABS комплекта */
+  abs?: string;
+  /** Номер комплекта */
+  number: number;
+  /** Тип продукта */
+  productType: CreateComplectDtoProductType;
+  /** Наличие ABS */
+  withABS: boolean;
+  /** Наличие консалтинга */
+  withConsalting: boolean;
+  /** Наличие сервисов */
+  withServices: boolean;
+  /** Наличие LT */
+  withLt: boolean;
+  /** Изменяемый комплект */
+  isChanging: boolean;
+  /** Есть ли наполнение по умолчанию */
+  withDefault: boolean;
+  /** Список ID инфоблоков, входящих в комплект */
+  infoblockIds: string[];
 }

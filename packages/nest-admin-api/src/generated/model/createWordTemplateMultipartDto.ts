@@ -8,20 +8,20 @@
 import type { OfferTemplateVisibility } from './offerTemplateVisibility';
 
 export interface CreateWordTemplateMultipartDto {
-    /** The name of the word template */
-    name: string;
-    /** The visibility of the word template */
-    visibility: OfferTemplateVisibility;
-    /** Whether the word template is default */
-    is_default: boolean;
-    /** The tags of the word template */
-    tags: string;
-    /** Whether the word template is active */
-    is_active: boolean;
-    /** id of the portal */
-    portal_id: number;
-    /** id of the user */
-    user_id: number;
-    /** DOCX template file */
-    file: Blob;
+  /** The name of the word template */
+  name: string;
+  /** The visibility of the word template */
+  visibility: OfferTemplateVisibility;
+  /** Whether the word template is default */
+  is_default: boolean;
+  /** The tags of the word template */
+  tags: string;
+  /** Whether the word template is active */
+  is_active: boolean;
+  /** id of the portal */
+  portal_id: number;
+  /** id of the user */
+  user_id: number;
+  /** DOCX template file */
+  file: Blob;
 }

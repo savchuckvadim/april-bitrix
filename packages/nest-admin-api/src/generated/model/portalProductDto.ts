@@ -7,12 +7,12 @@
  */
 
 export interface PortalProductDto {
-    /** Код продукта (sales | service) */
-    code: string;
-    /** Статус продукта (active | inactive | suspended) */
-    status: string;
-    /** Когда активирован */
-    activatedAt?: string;
-    /** Оплачен до (задел под этап оплат) */
-    paidUntil?: string;
+  /** Код продукта (sales | service) */
+  code: string;
+  /** Статус продукта (active | inactive | suspended) */
+  status: string;
+  /** Когда активирован */
+  activatedAt?: string;
+  /** Оплачен до (задел под этап оплат) */
+  paidUntil?: string;
 }

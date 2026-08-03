@@ -7,7 +7,7 @@
  */
 
 /**
- * Связанная презентационная сделка (`IBXDeal`), если есть.
+ * Связанная сделка-презентация (`IBXDeal`), если есть.
  * @nullable
  */
 export type TmcDealForReturnDtoPresDeal = { [key: string]: unknown } | null;

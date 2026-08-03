@@ -13,4 +13,6 @@ export interface BxTeamRequestDto {
     domain: BxTeamRequestDtoDomain;
     /** Группа команды: sales — команда ЦУП (отделы продаж), service — команда Отдел сервиса. */
     group?: BxTeamRequestDtoGroup;
+    /** Сбросить кэш Redis перед запросом: данные будут заново получены из Битрикс и закэшированы. */
+    resetCache?: boolean;
 }

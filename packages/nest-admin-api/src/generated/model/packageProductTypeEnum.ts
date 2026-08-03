@@ -9,13 +9,13 @@
 /**
  * Тип продукта
  */
-export type PackageProductTypeEnum =
-    (typeof PackageProductTypeEnum)[keyof typeof PackageProductTypeEnum];
+export type PackageProductTypeEnum = typeof PackageProductTypeEnum[keyof typeof PackageProductTypeEnum];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PackageProductTypeEnum = {
-    garant: 'garant',
-    lt: 'lt',
-    star: 'star',
-    consalting: 'consalting',
+  garant: 'garant',
+  lt: 'lt',
+  star: 'star',
+  consalting: 'consalting',
 } as const;

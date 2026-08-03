@@ -8,8 +8,8 @@
 import type { AuthUserDto } from './authUserDto';
 
 export interface AuthResponseDto {
-    /** Access-токен (JWT). Передаётся в заголовке Authorization: Bearer <token>. */
-    accessToken: string;
-    /** Данные аутентифицированного субъекта. */
-    user: AuthUserDto;
+  /** Access-токен (JWT). Передаётся в заголовке Authorization: Bearer <token>. */
+  accessToken: string;
+  /** Данные аутентифицированного субъекта. */
+  user: AuthUserDto;
 }

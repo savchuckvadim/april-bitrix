@@ -7,6 +7,6 @@
  */
 
 export type AdminClientGetAllClientsParams = {
-    status: string;
-    is_active: string;
+status: string;
+is_active: string;
 };

@@ -7,30 +7,30 @@
  */
 
 export interface UpdateBtxRpaDto {
-    /** RPA name */
-    name?: string;
-    /** RPA title */
-    title?: string;
-    /** RPA code */
-    code?: string;
-    /** RPA type */
-    type?: string;
-    /** Type ID */
-    typeId?: string;
-    /** Portal ID */
-    portal_id?: number;
-    /** Image */
-    image?: string;
-    /** Bitrix ID */
-    bitrixId?: number;
-    /** Description */
-    description?: string;
-    /** Entity Type ID */
-    entityTypeId?: number;
-    /** For Stage ID */
-    forStageId?: number;
-    /** For Filter ID */
-    forFilterId?: number;
-    /** CRM ID */
-    crmId?: number;
+  /** RPA name */
+  name?: string;
+  /** RPA title */
+  title?: string;
+  /** RPA code */
+  code?: string;
+  /** RPA type */
+  type?: string;
+  /** Type ID */
+  typeId?: string;
+  /** Portal ID */
+  portal_id?: number;
+  /** Image */
+  image?: string;
+  /** Bitrix ID */
+  bitrixId?: number;
+  /** Description */
+  description?: string;
+  /** Entity Type ID */
+  entityTypeId?: number;
+  /** For Stage ID */
+  forStageId?: number;
+  /** For Filter ID */
+  forFilterId?: number;
+  /** CRM ID */
+  crmId?: number;
 }

@@ -7,5 +7,5 @@
  */
 
 export type UserSelectedTemplateSetFavoriteParams = {
-    is_favorite: string;
+is_favorite: string;
 };

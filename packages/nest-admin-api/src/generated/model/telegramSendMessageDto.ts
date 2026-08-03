@@ -7,11 +7,11 @@
  */
 
 export interface TelegramSendMessageDto {
-    app: string;
-    /** Text message */
-    text: string;
-    /** Domain */
-    domain: string;
-    /** User ID */
-    userId: string;
+  app: string;
+  /** Text message */
+  text: string;
+  /** Domain */
+  domain: string;
+  /** User ID */
+  userId: string;
 }

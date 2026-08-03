@@ -7,12 +7,12 @@
  */
 
 export interface CreateClientDto {
-    /** Client name */
-    name: string;
-    /** Client email */
-    email?: string;
-    /** Client status */
-    status?: string;
-    /** Client is active */
-    is_active?: boolean;
+  /** Client name */
+  name: string;
+  /** Client email */
+  email?: string;
+  /** Client status */
+  status?: string;
+  /** Client is active */
+  is_active?: boolean;
 }

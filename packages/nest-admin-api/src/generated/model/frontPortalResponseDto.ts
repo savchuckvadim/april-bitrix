@@ -8,6 +8,6 @@
 import type { FrontPortalDto } from './frontPortalDto';
 
 export interface FrontPortalResponseDto {
-    /** Модель портала для фронта */
-    portal: FrontPortalDto;
+  /** Модель портала для фронта */
+  portal: FrontPortalDto;
 }

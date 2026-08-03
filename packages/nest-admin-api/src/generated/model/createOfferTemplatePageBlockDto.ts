@@ -10,26 +10,26 @@ import type { CreateOfferTemplatePageBlockDtoOfferTemplatePageId } from './creat
 import type { CreateOfferTemplatePageBlockDtoImageId } from './createOfferTemplatePageBlockDtoImageId';
 
 export interface CreateOfferTemplatePageBlockDto {
-    /** The order of the offer template page block */
-    order: number;
-    /** The name of the offer template page block */
-    name: string;
-    /** The code of the offer template page block */
-    code: string;
-    /** The type of the offer template page block */
-    type: BlockType;
-    /** The content of the offer template page block */
-    content: string;
-    /** The settings of the offer template page block */
-    settings: string;
-    /** The stickers of the offer template page block */
-    stickers: string;
-    /** The background of the offer template page block */
-    background: string;
-    /** The colors of the offer template page block */
-    colors: string;
-    /** The offer template page id */
-    offer_template_page_id: CreateOfferTemplatePageBlockDtoOfferTemplatePageId;
-    /** The image id of the offer template page block */
-    image_id: CreateOfferTemplatePageBlockDtoImageId;
+  /** The order of the offer template page block */
+  order: number;
+  /** The name of the offer template page block */
+  name: string;
+  /** The code of the offer template page block */
+  code: string;
+  /** The type of the offer template page block */
+  type: BlockType;
+  /** The content of the offer template page block */
+  content: string;
+  /** The settings of the offer template page block */
+  settings: string;
+  /** The stickers of the offer template page block */
+  stickers: string;
+  /** The background of the offer template page block */
+  background: string;
+  /** The colors of the offer template page block */
+  colors: string;
+  /** The offer template page id */
+  offer_template_page_id: CreateOfferTemplatePageBlockDtoOfferTemplatePageId;
+  /** The image id of the offer template page block */
+  image_id: CreateOfferTemplatePageBlockDtoImageId;
 }

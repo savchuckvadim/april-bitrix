@@ -9,17 +9,20 @@
 /**
  * Имя ключа интеграции портала.
  */
-export type PortalKeyResponseDtoKeyName =
-    (typeof PortalKeyResponseDtoKeyName)[keyof typeof PortalKeyResponseDtoKeyName];
+export type PortalKeyResponseDtoKeyName = typeof PortalKeyResponseDtoKeyName[keyof typeof PortalKeyResponseDtoKeyName];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PortalKeyResponseDtoKeyName = {
-    nestKey: 'nestKey',
-    nestKonstructorKey: 'nestKonstructorKey',
-    nestReportKey: 'nestReportKey',
-    nestEventsKey: 'nestEventsKey',
-    nestServiceKey: 'nestServiceKey',
-    nestWebhooksKey: 'nestWebhooksKey',
-    nestScheduleKey: 'nestScheduleKey',
-    vibeKey: 'vibeKey',
+  nestKey: 'nestKey',
+  nestKonstructorKey: 'nestKonstructorKey',
+  nestReportKey: 'nestReportKey',
+  nestEventsKey: 'nestEventsKey',
+  nestServiceKey: 'nestServiceKey',
+  nestWebhooksKey: 'nestWebhooksKey',
+  nestScheduleKey: 'nestScheduleKey',
+  vibeKey: 'vibeKey',
+  llmKey: 'llmKey',
+  llmBaseUrl: 'llmBaseUrl',
+  llmModelName: 'llmModelName',
 } as const;

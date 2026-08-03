@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type AdminBitrixAppGetAppCode =
-    (typeof AdminBitrixAppGetAppCode)[keyof typeof AdminBitrixAppGetAppCode];
+export type AdminBitrixAppGetAppCode = typeof AdminBitrixAppGetAppCode[keyof typeof AdminBitrixAppGetAppCode];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AdminBitrixAppGetAppCode = {
-    sales_full: 'sales_full',
-    service_full: 'service_full',
-    garant_manager: 'garant_manager',
+  sales_full: 'sales_full',
+  service_full: 'service_full',
+  garant_manager: 'garant_manager',
 } as const;

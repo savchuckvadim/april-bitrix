@@ -10,6 +10,4 @@
  * ID портала; null — отвязать (часто перевести в public)
  * @nullable
  */
-export type SetInvoiceTemplatePortalDtoPortalId = {
-    [key: string]: unknown;
-} | null;
+export type SetInvoiceTemplatePortalDtoPortalId = { [key: string]: unknown } | null;

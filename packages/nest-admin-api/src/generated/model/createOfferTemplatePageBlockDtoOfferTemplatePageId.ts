@@ -9,6 +9,4 @@
 /**
  * The offer template page id
  */
-export type CreateOfferTemplatePageBlockDtoOfferTemplatePageId = {
-    [key: string]: unknown;
-};
+export type CreateOfferTemplatePageBlockDtoOfferTemplatePageId = { [key: string]: unknown };

@@ -8,6 +8,6 @@
 import type { ProviderSelectOptionDto } from './providerSelectOptionDto';
 
 export interface ProviderEnumsResponseDto {
-    /** Опции для select`а типа поставщика/реквизитов (поле `type`). */
-    types: ProviderSelectOptionDto[];
+  /** Опции для select`а типа поставщика/реквизитов (поле `type`). */
+  types: ProviderSelectOptionDto[];
 }

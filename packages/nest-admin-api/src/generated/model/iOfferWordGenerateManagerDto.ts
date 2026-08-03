@@ -7,12 +7,12 @@
  */
 
 export interface IOfferWordGenerateManagerDto {
-    /** Name of the manager */
-    name: string;
-    /** Email of the manager */
-    email: string;
-    /** Phone of the manager */
-    phone: string;
-    /** Position of the manager */
-    position: string;
+  /** Name of the manager */
+  name: string;
+  /** Email of the manager */
+  email: string;
+  /** Phone of the manager */
+  phone: string;
+  /** Position of the manager */
+  position: string;
 }

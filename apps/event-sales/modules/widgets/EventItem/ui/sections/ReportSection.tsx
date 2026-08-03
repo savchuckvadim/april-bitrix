@@ -1,7 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
+import { SectionCard } from '@workspace/april-ui/surfaces';
 import { Label } from '@workspace/ui/components/label';
 import {
     Select,
@@ -13,13 +13,21 @@ import {
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
     EV_REPORT_PROP,
+    EventReportSelectProp,
     eventReportActions,
     getCurrentWorkStatusItems,
 } from '@/modules/entities/EventReport';
 import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
+import { CompanyFields } from '../report/CompanyFields';
 
 /**
- * Отчёт: статус работы; при «Отказе» — тип отказа; при типе «Отказ» — причина.
+ * Итог разговора: статус работы, при «Отказе» — тип и причина, и здесь же
+ * поля компании (прогноз, статус клиента).
+ *
+ * Компания раньше была отдельной карточкой внизу формы. По смыслу это часть
+ * итога — «в какой работе клиент», — поэтому стоит рядом со статусом работы,
+ * а не через полэкрана от него.
+ *
  * Каскады активности полей — в applyReportProp (entity), тут только рендер.
  */
 export const ReportSection: FC = () => {
@@ -37,15 +45,12 @@ export const ReportSection: FC = () => {
     const failType = report[EV_REPORT_PROP.FAIL_TYPE];
     const failReason = report[EV_REPORT_PROP.FAIL_REASON];
 
-    const setProp = (propName: EV_REPORT_PROP) => (value: string) =>
+    const setProp = (propName: EventReportSelectProp) => (value: string) =>
         dispatch(eventReportActions.setReportProp({ propName, value }));
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-base">Отчёт</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+        <SectionCard title="Итог">
+            <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <Label>Статус работы</Label>
                     <Select
@@ -77,7 +82,10 @@ export const ReportSection: FC = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 {failType.items.map(item => (
-                                    <SelectItem key={item.id} value={String(item.id)}>
+                                    <SelectItem
+                                        key={item.id}
+                                        value={String(item.id)}
+                                    >
                                         {item.name}
                                     </SelectItem>
                                 ))}
@@ -98,7 +106,10 @@ export const ReportSection: FC = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 {failReason.items.map(item => (
-                                    <SelectItem key={item.id} value={String(item.id)}>
+                                    <SelectItem
+                                        key={item.id}
+                                        value={String(item.id)}
+                                    >
                                         {item.name}
                                     </SelectItem>
                                 ))}
@@ -106,7 +117,9 @@ export const ReportSection: FC = () => {
                         </Select>
                     </div>
                 )}
-            </CardContent>
-        </Card>
+
+                <CompanyFields />
+            </div>
+        </SectionCard>
     );
 };

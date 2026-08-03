@@ -9,14 +9,14 @@
 /**
  * Infogroup type
  */
-export type InfogroupResponseDtoType =
-    (typeof InfogroupResponseDtoType)[keyof typeof InfogroupResponseDtoType];
+export type InfogroupResponseDtoType = typeof InfogroupResponseDtoType[keyof typeof InfogroupResponseDtoType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const InfogroupResponseDtoType = {
-    infoblocks: 'infoblocks',
-    free: 'free',
-    lt: 'lt',
-    er: 'er',
-    consalting: 'consalting',
+  infoblocks: 'infoblocks',
+  free: 'free',
+  lt: 'lt',
+  er: 'er',
+  consalting: 'consalting',
 } as const;

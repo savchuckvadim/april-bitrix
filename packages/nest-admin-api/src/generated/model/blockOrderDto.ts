@@ -7,8 +7,8 @@
  */
 
 export interface BlockOrderDto {
-    /** The block id */
-    id: number;
-    /** The block order */
-    order: number;
+  /** The block id */
+  id: number;
+  /** The block order */
+  order: number;
 }

@@ -9,16 +9,16 @@
 /**
  * Группа приложения
  */
-export type BitrixAppDtoGroup =
-    (typeof BitrixAppDtoGroup)[keyof typeof BitrixAppDtoGroup];
+export type BitrixAppDtoGroup = typeof BitrixAppDtoGroup[keyof typeof BitrixAppDtoGroup];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BitrixAppDtoGroup = {
-    sales: 'sales',
-    service: 'service',
-    general: 'general',
-    npp: 'npp',
-    managment: 'managment',
-    ai: 'ai',
-    other: 'other',
+  sales: 'sales',
+  service: 'service',
+  general: 'general',
+  npp: 'npp',
+  managment: 'managment',
+  ai: 'ai',
+  other: 'other',
 } as const;

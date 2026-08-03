@@ -7,6 +7,6 @@
  */
 
 export interface AddInfogroupInfoblocksDto {
-    /** Список ID инфоблоков для добавления */
-    infoblockIds: string[];
+  /** Список ID инфоблоков для добавления */
+  infoblockIds: string[];
 }

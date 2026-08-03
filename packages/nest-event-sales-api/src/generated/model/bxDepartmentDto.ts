@@ -5,6 +5,7 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
+import type { BXUserDto } from './bXUserDto';
 import type { BxDepartmentDtoUFHEAD } from './bxDepartmentDtoUFHEAD';
 
 export interface BxDepartmentDto {
@@ -17,7 +18,7 @@ export interface BxDepartmentDto {
     /** Department sort */
     SORT: number;
     /** Department users */
-    USERS: string[];
+    USERS: BXUserDto[];
     /** Department head */
     UF_HEAD: BxDepartmentDtoUFHEAD;
 }

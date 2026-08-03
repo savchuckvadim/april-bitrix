@@ -8,12 +8,12 @@
 import type { MarketplaceModerationGetInvitesStatus } from './marketplaceModerationGetInvitesStatus';
 
 export type MarketplaceModerationGetInvitesParams = {
-    /**
-     * Фильтр по статусу кода
-     */
-    status?: MarketplaceModerationGetInvitesStatus;
-    /**
-     * Фильтр по email получателя (частичное совпадение)
-     */
-    email?: string;
+/**
+ * Фильтр по статусу кода
+ */
+status?: MarketplaceModerationGetInvitesStatus;
+/**
+ * Фильтр по email получателя (частичное совпадение)
+ */
+email?: string;
 };

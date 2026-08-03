@@ -8,8 +8,8 @@
 import type { ComplectInfoblockValueDto } from './complectInfoblockValueDto';
 
 export interface ComplectDto {
-    /** Name of the complect */
-    groupsName: string;
-    /** Value of the complect */
-    type: ComplectInfoblockValueDto[];
+  /** Name of the complect */
+  groupsName: string;
+  /** Value of the complect */
+  type: ComplectInfoblockValueDto[];
 }

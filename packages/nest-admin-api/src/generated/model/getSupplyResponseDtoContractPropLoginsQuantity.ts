@@ -9,6 +9,4 @@
 /**
  * Contract prop logins quantity
  */
-export type GetSupplyResponseDtoContractPropLoginsQuantity = {
-    [key: string]: unknown;
-};
+export type GetSupplyResponseDtoContractPropLoginsQuantity = { [key: string]: unknown };

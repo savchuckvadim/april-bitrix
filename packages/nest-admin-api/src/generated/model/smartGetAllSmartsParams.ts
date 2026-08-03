@@ -7,5 +7,5 @@
  */
 
 export type SmartGetAllSmartsParams = {
-    portal_id: string;
+portal_id: string;
 };

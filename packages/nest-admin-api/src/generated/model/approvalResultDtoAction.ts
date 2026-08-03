@@ -9,12 +9,12 @@
 /**
  * Выполненное действие
  */
-export type ApprovalResultDtoAction =
-    (typeof ApprovalResultDtoAction)[keyof typeof ApprovalResultDtoAction];
+export type ApprovalResultDtoAction = typeof ApprovalResultDtoAction[keyof typeof ApprovalResultDtoAction];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ApprovalResultDtoAction = {
-    approve: 'approve',
-    block: 'block',
-    detach: 'detach',
+  approve: 'approve',
+  block: 'block',
+  detach: 'detach',
 } as const;

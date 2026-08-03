@@ -1,22 +1,36 @@
 import {
     EV_REPORT_PROP,
+    EventReportCode,
     EventReportSelect,
     EventReportSelectItem,
     EventReportStateReport,
+    FailReasonCode,
+    FailTypeCode,
+    NoresultReasonCode,
+    WorkStatusCode,
 } from '../type/event-report-type';
 
 /**
  * Справочники отчёта (единственный источник; legacy дублировал их
  * в initialState и getInitReportState).
  */
-export const WORK_STATUS_ITEMS: EventReportSelectItem[] = [
-    { id: 0, code: 'inJob', name: 'В работе', isActive: true },
-    { id: 1, code: 'setAside', name: 'Отложено', isActive: true },
-    { id: 2, code: 'success', name: 'Продажа', isActive: true },
-    { id: 3, code: 'fail', name: 'Отказ', isActive: true },
+
+/** id статусов работы — чтобы thunk'и ставили статус по коду, а не по числу. */
+export const WORK_STATUS_ID = {
+    inJob: 0,
+    setAside: 1,
+    success: 2,
+    fail: 3,
+} as const satisfies Record<WorkStatusCode, number>;
+
+export const WORK_STATUS_ITEMS: EventReportSelectItem<WorkStatusCode>[] = [
+    { id: WORK_STATUS_ID.inJob, code: 'inJob', name: 'В работе', isActive: true },
+    { id: WORK_STATUS_ID.setAside, code: 'setAside', name: 'Отложено', isActive: true },
+    { id: WORK_STATUS_ID.success, code: 'success', name: 'Продажа', isActive: true },
+    { id: WORK_STATUS_ID.fail, code: 'fail', name: 'Отказ', isActive: true },
 ];
 
-export const NORESULT_REASON_ITEMS: EventReportSelectItem[] = [
+export const NORESULT_REASON_ITEMS: EventReportSelectItem<NoresultReasonCode>[] = [
     { id: 0, code: 'secretar', name: 'Секретарь', isActive: true },
     { id: 1, code: 'nopickup', name: 'Недозвон - трубку не берут', isActive: true },
     { id: 2, code: 'nonumber', name: 'Недозвон - номер не существует', isActive: true },
@@ -29,7 +43,7 @@ export const NORESULT_REASON_ITEMS: EventReportSelectItem[] = [
     { id: 9, code: 'auto', name: 'Автоответчик', isActive: true },
 ];
 
-export const FAIL_TYPE_ITEMS: EventReportSelectItem[] = [
+export const FAIL_TYPE_ITEMS: EventReportSelectItem<FailTypeCode>[] = [
     { id: 2, code: 'garant', name: 'Гарант/Запрет', isActive: true },
     { id: 3, code: 'go', name: 'Покупает ГО', isActive: true },
     { id: 4, code: 'territory', name: 'Чужая территория', isActive: true },
@@ -41,7 +55,7 @@ export const FAIL_TYPE_ITEMS: EventReportSelectItem[] = [
     { id: 10, code: 'failure', name: 'Отказ', isActive: true },
 ];
 
-export const FAIL_REASON_ITEMS: EventReportSelectItem[] = [
+export const FAIL_REASON_ITEMS: EventReportSelectItem<FailReasonCode>[] = [
     { id: 0, code: 'fail_notime', name: 'Не было времени', isActive: true },
     { id: 1, code: 'c_habit', name: 'Конкуренты - привыкли', isActive: true },
     { id: 2, code: 'c_prepay', name: 'Конкуренты - оплачено', isActive: true },
@@ -55,11 +69,11 @@ export const FAIL_REASON_ITEMS: EventReportSelectItem[] = [
     { id: 10, code: 'fail_off', name: 'Не хотят общаться', isActive: true },
 ];
 
-const buildSelect = (
-    items: EventReportSelectItem[],
+const buildSelect = <TCode extends EventReportCode>(
+    items: EventReportSelectItem<TCode>[],
     defaultIndex: number,
     isActive: boolean,
-): EventReportSelect => ({
+): EventReportSelect<TCode> => ({
     items,
     current: items[defaultIndex]!,
     default: items[defaultIndex]!,

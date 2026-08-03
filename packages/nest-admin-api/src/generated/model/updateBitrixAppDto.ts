@@ -11,14 +11,14 @@ import type { UpdateBitrixAppDtoCode } from './updateBitrixAppDtoCode';
 import type { UpdateBitrixAppDtoStatus } from './updateBitrixAppDtoStatus';
 
 export interface UpdateBitrixAppDto {
-    /** Домен портала Bitrix24 */
-    domain: string;
-    /** Группа приложения */
-    group?: UpdateBitrixAppDtoGroup;
-    /** Тип приложения */
-    type?: UpdateBitrixAppDtoType;
-    /** Уникальный код приложения */
-    code: UpdateBitrixAppDtoCode;
-    /** Статус приложения */
-    status?: UpdateBitrixAppDtoStatus;
+  /** Домен портала Bitrix24 */
+  domain: string;
+  /** Группа приложения */
+  group?: UpdateBitrixAppDtoGroup;
+  /** Тип приложения */
+  type?: UpdateBitrixAppDtoType;
+  /** Уникальный код приложения */
+  code: UpdateBitrixAppDtoCode;
+  /** Статус приложения */
+  status?: UpdateBitrixAppDtoStatus;
 }

@@ -9,12 +9,12 @@
 /**
  * Группа отдела
  */
-export type DepartamentDtoGroup =
-    (typeof DepartamentDtoGroup)[keyof typeof DepartamentDtoGroup];
+export type DepartamentDtoGroup = typeof DepartamentDtoGroup[keyof typeof DepartamentDtoGroup];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DepartamentDtoGroup = {
-    sales: 'sales',
-    service: 'service',
-    tmc: 'tmc',
+  sales: 'sales',
+  service: 'service',
+  tmc: 'tmc',
 } as const;

@@ -7,12 +7,16 @@
  */
 import { customAxios } from '../../lib/admin-api';
 
-export const getMetrics = () => {
-    const metricsIndex = () => {
-        return customAxios<void>({ url: `/api/metrics`, method: 'GET' });
-    };
-    return { metricsIndex };
-};
-export type MetricsIndexResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getMetrics>['metricsIndex']>>
->;
+
+
+  export const getMetrics = () => {
+const metricsIndex = (
+    
+ ) => {
+      return customAxios<void>(
+      {url: `/api/metrics`, method: 'GET'
+    },
+      );
+    }
+  return {metricsIndex}};
+export type MetricsIndexResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMetrics>['metricsIndex']>>>

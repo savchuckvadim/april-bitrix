@@ -7,20 +7,20 @@
  */
 
 export interface CreatePortalSmartDto {
-    /** Portal ID (our DB) */
-    portalId: number;
-    type: string;
-    group: string;
-    name: string;
-    title: string;
-    /** Bitrix smart-process numeric id */
-    bitrixId: number;
-    /** Bitrix entityTypeId */
-    entityTypeId: number;
-    forStageId?: number;
-    forFilterId?: number;
-    crmId?: number;
-    forStage?: string;
-    forFilter?: string;
-    crm?: string;
+  /** Portal ID (our DB) */
+  portalId: number;
+  type: string;
+  group: string;
+  name: string;
+  title: string;
+  /** Bitrix smart-process numeric id */
+  bitrixId: number;
+  /** Bitrix entityTypeId */
+  entityTypeId: number;
+  forStageId?: number;
+  forFilterId?: number;
+  crmId?: number;
+  forStage?: string;
+  forFilter?: string;
+  crm?: string;
 }

@@ -7,6 +7,6 @@
  */
 
 /**
- * ТМЦ-сделка (`IBXDeal`). Структура соответствует сделке Bitrix.
+ * TMC-сделка Bitrix (`IBXDeal`). Структура соответствует сделке Bitrix.
  */
 export type TmcDealForReturnDtoTmcDeal = { [key: string]: unknown };

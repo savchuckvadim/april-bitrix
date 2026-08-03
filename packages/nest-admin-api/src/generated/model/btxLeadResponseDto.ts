@@ -9,18 +9,18 @@ import type { BtxLeadResponseDtoCreatedAt } from './btxLeadResponseDtoCreatedAt'
 import type { BtxLeadResponseDtoUpdatedAt } from './btxLeadResponseDtoUpdatedAt';
 
 export interface BtxLeadResponseDto {
-    /** Lead ID */
-    id: number;
-    /** Lead name */
-    name: string;
-    /** Lead title */
-    title: string;
-    /** Lead code */
-    code: string;
-    /** Portal ID */
-    portal_id: number;
-    /** Created at */
-    created_at?: BtxLeadResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: BtxLeadResponseDtoUpdatedAt;
+  /** Lead ID */
+  id: number;
+  /** Lead name */
+  name: string;
+  /** Lead title */
+  title: string;
+  /** Lead code */
+  code: string;
+  /** Portal ID */
+  portal_id: number;
+  /** Created at */
+  created_at?: BtxLeadResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: BtxLeadResponseDtoUpdatedAt;
 }

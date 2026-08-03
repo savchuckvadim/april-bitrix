@@ -7,14 +7,14 @@
  */
 
 export interface InstallAicallResponseDto {
-    /** entityTypeId смарта на портале. */
-    entityTypeId: number;
-    /** true — тип создан этим вызовом, false — уже существовал. */
-    created: boolean;
-    /** UF-имена добавленных полей. */
-    fieldsAdded: string[];
-    /** UF-имена уже существовавших полей. */
-    fieldsExisting: string[];
-    /** UF-имена полей, которые не удалось создать. */
-    fieldsFailed: string[];
+  /** entityTypeId смарта на портале. */
+  entityTypeId: number;
+  /** true — тип создан этим вызовом, false — уже существовал. */
+  created: boolean;
+  /** UF-имена добавленных полей. */
+  fieldsAdded: string[];
+  /** UF-имена уже существовавших полей. */
+  fieldsExisting: string[];
+  /** UF-имена полей, которые не удалось создать. */
+  fieldsFailed: string[];
 }

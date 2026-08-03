@@ -9,6 +9,4 @@
 /**
  * Provider
  */
-export type OfferWordByTemplateGenerateResponseDtoProvider = {
-    [key: string]: unknown;
-};
+export type OfferWordByTemplateGenerateResponseDtoProvider = { [key: string]: unknown };

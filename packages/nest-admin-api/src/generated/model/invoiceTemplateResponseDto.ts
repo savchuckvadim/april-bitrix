@@ -16,22 +16,22 @@ import type { InvoiceTemplateResponseDtoCreatedAt } from './invoiceTemplateRespo
 import type { InvoiceTemplateResponseDtoUpdatedAt } from './invoiceTemplateResponseDtoUpdatedAt';
 
 export interface InvoiceTemplateResponseDto {
-    id: string;
-    name: string;
-    visibility: InvoiceTemplateResponseDtoVisibility;
-    type: InvoiceTemplateResponseDtoType;
-    code: string;
-    description?: InvoiceTemplateResponseDtoDescription;
-    counter: number;
-    is_default: boolean;
-    is_active: boolean;
-    is_archived: boolean;
-    archived_at?: InvoiceTemplateResponseDtoArchivedAt;
-    portal_id?: InvoiceTemplateResponseDtoPortalId;
-    agent_id?: InvoiceTemplateResponseDtoAgentId;
-    creator_bitrix_user_id?: InvoiceTemplateResponseDtoCreatorBitrixUserId;
-    created_at?: InvoiceTemplateResponseDtoCreatedAt;
-    updated_at?: InvoiceTemplateResponseDtoUpdatedAt;
-    /** URL скачивания файла шаблона */
-    template_url?: string;
+  id: string;
+  name: string;
+  visibility: InvoiceTemplateResponseDtoVisibility;
+  type: InvoiceTemplateResponseDtoType;
+  code: string;
+  description?: InvoiceTemplateResponseDtoDescription;
+  counter: number;
+  is_default: boolean;
+  is_active: boolean;
+  is_archived: boolean;
+  archived_at?: InvoiceTemplateResponseDtoArchivedAt;
+  portal_id?: InvoiceTemplateResponseDtoPortalId;
+  agent_id?: InvoiceTemplateResponseDtoAgentId;
+  creator_bitrix_user_id?: InvoiceTemplateResponseDtoCreatorBitrixUserId;
+  created_at?: InvoiceTemplateResponseDtoCreatedAt;
+  updated_at?: InvoiceTemplateResponseDtoUpdatedAt;
+  /** URL скачивания файла шаблона */
+  template_url?: string;
 }

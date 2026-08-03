@@ -21,6 +21,8 @@ export enum EV_PLAN_PROP {
     STATUS = 'status',
     IS_EXPIRED = 'isExpired',
     IS_ACTIVE = 'isActive',
+    /** Важность планируемого события → PRIORITY задачи в Битриксе. */
+    IS_IMPORTANT = 'isImportant',
 }
 
 export type EvPlanStateItem = {

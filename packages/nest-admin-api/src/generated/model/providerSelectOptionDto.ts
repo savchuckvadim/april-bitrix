@@ -8,8 +8,8 @@
 import type { ProviderSelectOptionDtoValue } from './providerSelectOptionDtoValue';
 
 export interface ProviderSelectOptionDto {
-    /** Машинное значение типа — именно его нужно отправлять в поле `type` при создании/обновлении поставщика и реквизитов. */
-    value: ProviderSelectOptionDtoValue;
-    /** Человекочитаемая подпись пункта для отрисовки в select. */
-    label: string;
+  /** Машинное значение типа — именно его нужно отправлять в поле `type` при создании/обновлении поставщика и реквизитов. */
+  value: ProviderSelectOptionDtoValue;
+  /** Человекочитаемая подпись пункта для отрисовки в select. */
+  label: string;
 }

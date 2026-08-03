@@ -9,11 +9,11 @@
 /**
  * Тип комплекта
  */
-export type CreateComplectDtoType =
-    (typeof CreateComplectDtoType)[keyof typeof CreateComplectDtoType];
+export type CreateComplectDtoType = typeof CreateComplectDtoType[keyof typeof CreateComplectDtoType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateComplectDtoType = {
-    prof: 'prof',
-    universal: 'universal',
+  prof: 'prof',
+  universal: 'universal',
 } as const;

@@ -7,5 +7,5 @@
  */
 
 export interface InvoiceTemplateActiveDto {
-    is_active: boolean;
+  is_active: boolean;
 }

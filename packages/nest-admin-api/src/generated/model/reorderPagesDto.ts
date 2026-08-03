@@ -8,8 +8,8 @@
 import type { PageOrderDto } from './pageOrderDto';
 
 export interface ReorderPagesDto {
-    /** The template id */
-    template_id: number;
-    /** The page orders */
-    page_orders: PageOrderDto[];
+  /** The template id */
+  template_id: number;
+  /** The page orders */
+  page_orders: PageOrderDto[];
 }

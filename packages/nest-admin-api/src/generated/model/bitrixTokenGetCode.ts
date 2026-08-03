@@ -6,12 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export type BitrixTokenGetCode =
-    (typeof BitrixTokenGetCode)[keyof typeof BitrixTokenGetCode];
+export type BitrixTokenGetCode = typeof BitrixTokenGetCode[keyof typeof BitrixTokenGetCode];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const BitrixTokenGetCode = {
-    sales_full: 'sales_full',
-    service_full: 'service_full',
-    garant_manager: 'garant_manager',
+  sales_full: 'sales_full',
+  service_full: 'service_full',
+  garant_manager: 'garant_manager',
 } as const;

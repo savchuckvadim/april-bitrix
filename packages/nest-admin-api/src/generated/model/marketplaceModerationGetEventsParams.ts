@@ -7,28 +7,28 @@
  */
 
 export type MarketplaceModerationGetEventsParams = {
-    /**
-     * Фильтр по member_id портала
-     */
-    memberId?: string;
-    /**
-     * Фильтр по домену портала (частичное совпадение)
-     */
-    domain?: string;
-    /**
-     * Фильтр по событию (INSTALL_CALLBACK, ONAPPUNINSTALL, ONBOARDING_APPLICATION, MODERATION_APPROVE, TOKEN_REFRESH …)
-     */
-    event?: string;
-    /**
-     * Фильтр по статусу обработки (received | processed | error)
-     */
-    status?: string;
-    /**
-     * Сколько записей вернуть (1–100, по умолчанию 50)
-     */
-    take?: number;
-    /**
-     * Сколько записей пропустить (пагинация)
-     */
-    skip?: number;
+/**
+ * Фильтр по member_id портала
+ */
+memberId?: string;
+/**
+ * Фильтр по домену портала (частичное совпадение)
+ */
+domain?: string;
+/**
+ * Фильтр по событию (INSTALL_CALLBACK, ONAPPUNINSTALL, ONBOARDING_APPLICATION, MODERATION_APPROVE, TOKEN_REFRESH …)
+ */
+event?: string;
+/**
+ * Фильтр по статусу обработки (received | processed | error)
+ */
+status?: string;
+/**
+ * Сколько записей вернуть (1–100, по умолчанию 50)
+ */
+take?: number;
+/**
+ * Сколько записей пропустить (пагинация)
+ */
+skip?: number;
 };

@@ -5,27 +5,19 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
-import type { ContactMultifieldDto } from './contactMultifieldDto';
+import type { FieldDto } from './fieldDto';
 
 export interface ContactDto {
-    /** Идентификатор контакта Bitrix. */
-    ID: number;
-    /** Имя контакта. */
-    NAME: string;
-    /** Фамилия контакта. */
-    LAST_NAME?: string;
-    /** Отчество контакта. */
-    SECOND_NAME?: string;
-    /** Телефоны контакта — массив множественных полей Bitrix. */
-    PHONE?: ContactMultifieldDto[];
-    /** Email контакта — массив множественных полей Bitrix. */
-    EMAIL?: ContactMultifieldDto[];
-    /** Должность контакта. */
-    POST?: string;
-    /** Комментарий по контакту. */
-    COMMENTS?: string;
-    /** Идентификатор компании, к которой привязан контакт. */
-    COMPANY_ID?: string;
-    /** Идентификатор ответственного за контакт сотрудника. */
-    ASSIGNED_BY_ID?: string;
+    /** ID сущности в нашей БД */
+    id: number;
+    /** ID портала в нашей БД */
+    portal_id: number;
+    /** Код сущности для ассоциаций */
+    code: string;
+    /** Системное имя сущности */
+    name: string;
+    /** Отображаемое название сущности */
+    title: string;
+    /** Пользовательские поля сущности */
+    bitrixfields: FieldDto[];
 }

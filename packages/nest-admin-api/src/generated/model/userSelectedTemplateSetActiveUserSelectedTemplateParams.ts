@@ -7,5 +7,5 @@
  */
 
 export type UserSelectedTemplateSetActiveUserSelectedTemplateParams = {
-    is_active: string;
+is_active: string;
 };

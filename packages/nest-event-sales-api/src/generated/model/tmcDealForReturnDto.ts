@@ -9,12 +9,12 @@ import type { TmcDealForReturnDtoTmcDeal } from './tmcDealForReturnDtoTmcDeal';
 import type { TmcDealForReturnDtoPresDeal } from './tmcDealForReturnDtoPresDeal';
 
 export interface TmcDealForReturnDto {
-    /** Идентификатор задачи, к которой относится ТМЦ-сделка. */
-    taskId: number;
-    /** ТМЦ-сделка (`IBXDeal`). Структура соответствует сделке Bitrix. */
-    tmcDeal: TmcDealForReturnDtoTmcDeal;
+    /** Идентификатор задачи Bitrix, к которой привязана сделка. */
+    taskId?: number;
+    /** TMC-сделка Bitrix (`IBXDeal`). Структура соответствует сделке Bitrix. */
+    tmcDeal?: TmcDealForReturnDtoTmcDeal;
     /**
-     * Связанная презентационная сделка (`IBXDeal`), если есть.
+     * Связанная сделка-презентация (`IBXDeal`), если есть.
      * @nullable
      */
     presDeal?: TmcDealForReturnDtoPresDeal;

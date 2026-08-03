@@ -7,6 +7,6 @@
  */
 
 export interface SetInfoblockGroupDto {
-    /** Group ID */
-    group_id?: string;
+  /** Group ID */
+  group_id?: string;
 }

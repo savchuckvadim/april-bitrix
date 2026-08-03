@@ -8,16 +8,16 @@
 import type { ApprovalResultDtoAction } from './approvalResultDtoAction';
 
 export interface ApprovalResultDto {
-    /** ID портала */
-    portalId: string;
-    /** Выполненное действие */
-    action: ApprovalResultDtoAction;
-    /** Статус допуска портала после операции */
-    approvalStatus: string;
-    /** Статус клиента после операции */
-    clientStatus?: string;
-    /** Запущен ли provisioning pbx-сущностей (через pbx-ручку активации) */
-    provisionDispatched: boolean;
-    /** Детали ответа pbx (jobId задачи provisioning и т.п.) */
-    provisionJobId?: string;
+  /** ID портала */
+  portalId: string;
+  /** Выполненное действие */
+  action: ApprovalResultDtoAction;
+  /** Статус допуска портала после операции */
+  approvalStatus: string;
+  /** Статус клиента после операции */
+  clientStatus?: string;
+  /** Запущен ли provisioning pbx-сущностей (через pbx-ручку активации) */
+  provisionDispatched: boolean;
+  /** Детали ответа pbx (jobId задачи provisioning и т.п.) */
+  provisionJobId?: string;
 }

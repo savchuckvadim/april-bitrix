@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { FilePlus2, Loader2, Upload } from 'lucide-react';
 import { ConfirmDialog } from '@/modules/shared';
+import { usePortals } from '@/modules/entities/portal/hooks';
 import {
     useDeleteKnowledgeDocument,
     useKnowledgeDocuments,
@@ -67,6 +68,7 @@ export function KnowledgeList() {
 
     const { data: kinds } = useKnowledgeKinds();
     const { data: domains } = useKnowledgeDomains();
+    const { data: portals } = usePortals();
     const uploadDocument = useUploadKnowledgeDocument();
     const deleteDocument = useDeleteKnowledgeDocument();
 
@@ -102,11 +104,21 @@ export function KnowledgeList() {
         (kindValue !== NEW_OPTION || isKindDraftValid) &&
         !uploadDocument.isPending;
 
+    // Все порталы админки, а не только домены с уже созданной папкой
+    // материалов: базу знаний клиента заводят именно отсюда, поэтому
+    // портал без документов должен быть выбираем сразу.
+    const domainsWithDocs = new Set(Array.isArray(domains) ? domains : []);
+    const portalDomains = (Array.isArray(portals) ? portals : [])
+        .map((portal) => portal.domain)
+        .filter((domain): domain is string => Boolean(domain));
+    const allDomains = [
+        ...new Set([...domainsWithDocs, ...portalDomains]),
+    ].sort();
     const baseOptions = [
         { value: SHARED_BASE, label: 'Общая база' },
-        ...(Array.isArray(domains) ? domains : []).map((item) => ({
+        ...allDomains.map((item) => ({
             value: item,
-            label: item,
+            label: domainsWithDocs.has(item) ? item : `${item} — без материалов`,
         })),
     ];
 

@@ -7,16 +7,16 @@
  */
 
 export type MarketplaceModerationGetInstallsParams = {
-    /**
-     * Фильтр по домену портала (частичное совпадение)
-     */
-    domain?: string;
-    /**
-     * Фильтр по member_id портала (точное совпадение)
-     */
-    memberId?: string;
-    /**
-     * Фильтр по статусу установки (pending | tokens_stored | events_bound | placements_bound | provisioning | installed | error)
-     */
-    installStatus?: string;
+/**
+ * Фильтр по домену портала (частичное совпадение)
+ */
+domain?: string;
+/**
+ * Фильтр по member_id портала (точное совпадение)
+ */
+memberId?: string;
+/**
+ * Фильтр по статусу установки (pending | tokens_stored | events_bound | placements_bound | provisioning | installed | error)
+ */
+installStatus?: string;
 };

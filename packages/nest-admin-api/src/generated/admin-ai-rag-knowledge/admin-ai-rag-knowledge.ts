@@ -6,186 +6,126 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    AiRagKnowledgeAdminDeleteDocumentParams,
-    AiRagKnowledgeAdminListDocumentsParams,
-    AiRagKnowledgeAdminReadDocumentParams,
-    AiRagKnowledgeAdminUploadBody,
-    KnowledgeDeleteResponseDto,
-    KnowledgeDocumentContentDto,
-    KnowledgeDocumentDto,
-    KnowledgeKindInfoDto,
-    KnowledgeTextUpsertDto,
-    KnowledgeUploadResponseDto,
+  AiRagKnowledgeAdminDeleteDocumentParams,
+  AiRagKnowledgeAdminListDocumentsParams,
+  AiRagKnowledgeAdminReadDocumentParams,
+  AiRagKnowledgeAdminUploadBody,
+  KnowledgeDeleteResponseDto,
+  KnowledgeDocumentContentDto,
+  KnowledgeDocumentDto,
+  KnowledgeKindInfoDto,
+  KnowledgeTextUpsertDto,
+  KnowledgeUploadResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
 
-export const getAdminAiRagKnowledge = () => {
-    /**
-     * Известные kind (реестр с названиями/описаниями/потребителями) + фактические папки общей базы. Нестандартные папки помечаются known=false. Основа экрана «Материалы» в админке.
-     * @summary Реестр kind-разделов базы знаний
-     */
-    const aiRagKnowledgeAdminListKinds = () => {
-        return customAxios<KnowledgeKindInfoDto[]>({
-            url: `/api/admin/ai-rag/knowledge/kinds`,
-            method: 'GET',
-        });
-    };
-    /**
-     * Сохраняет/перезаписывает документ из текста без multipart — для редактора инструкций в админке. С domain — в клиентскую базу (перекрывает общую), без — в общую.
-     * @summary Сохранить текстовый документ (редактор)
-     */
-    const aiRagKnowledgeAdminUpsertText = (
-        kind: string,
-        knowledgeTextUpsertDto: KnowledgeTextUpsertDto,
-    ) => {
-        return customAxios<KnowledgeUploadResponseDto>({
-            url: `/api/admin/ai-rag/knowledge/${kind}/text`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: knowledgeTextUpsertDto,
-        });
-    };
-    /**
-     * Домены порталов, у которых есть собственная папка базы знаний.
-     * @summary Список доменов с клиентской базой
-     */
-    const aiRagKnowledgeAdminListDomains = () => {
-        return customAxios<string[]>({
-            url: `/api/admin/ai-rag/knowledge/domains`,
-            method: 'GET',
-        });
-    };
-    /**
-     * Документы, которые попадут в RAG для пары (domain?, kind): сначала general, затем kind.
-     * @summary Список документов
-     */
-    const aiRagKnowledgeAdminListDocuments = (
-        params?: AiRagKnowledgeAdminListDocumentsParams,
-    ) => {
-        return customAxios<KnowledgeDocumentDto[]>({
-            url: `/api/admin/ai-rag/knowledge`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * Удаляет документ строго из указанной базы (клиентской при заданном domain, иначе общей).
-     * @summary Удалить документ
-     */
-    const aiRagKnowledgeAdminDeleteDocument = (
-        params: AiRagKnowledgeAdminDeleteDocumentParams,
-    ) => {
-        return customAxios<KnowledgeDeleteResponseDto>({
-            url: `/api/admin/ai-rag/knowledge`,
-            method: 'DELETE',
-            params,
-        });
-    };
-    /**
-     * Возвращает извлечённый текст конкретного документа базы знаний.
-     * @summary Текст документа
-     */
-    const aiRagKnowledgeAdminReadDocument = (
-        params: AiRagKnowledgeAdminReadDocumentParams,
-    ) => {
-        return customAxios<KnowledgeDocumentContentDto>({
-            url: `/api/admin/ai-rag/knowledge/content`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * Загружает документ в kind-папку: с domain — в клиентскую базу портала, без — в общую.
-     * @summary Загрузить документ
-     */
-    const aiRagKnowledgeAdminUpload = (
-        kind: string,
-        aiRagKnowledgeAdminUploadBody: AiRagKnowledgeAdminUploadBody,
-    ) => {
-        const formData = new FormData();
-        formData.append(`file`, aiRagKnowledgeAdminUploadBody.file);
-        if (aiRagKnowledgeAdminUploadBody.domain !== undefined) {
-            formData.append(`domain`, aiRagKnowledgeAdminUploadBody.domain);
-        }
 
-        return customAxios<KnowledgeUploadResponseDto>({
-            url: `/api/admin/ai-rag/knowledge/${kind}`,
-            method: 'POST',
-            headers: { 'Content-Type': 'multipart/form-data' },
-            data: formData,
-        });
-    };
-    return {
-        aiRagKnowledgeAdminListKinds,
-        aiRagKnowledgeAdminUpsertText,
-        aiRagKnowledgeAdminListDomains,
-        aiRagKnowledgeAdminListDocuments,
-        aiRagKnowledgeAdminDeleteDocument,
-        aiRagKnowledgeAdminReadDocument,
-        aiRagKnowledgeAdminUpload,
-    };
-};
-export type AiRagKnowledgeAdminListKindsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminAiRagKnowledge
-            >['aiRagKnowledgeAdminListKinds']
-        >
-    >
->;
-export type AiRagKnowledgeAdminUpsertTextResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminAiRagKnowledge
-            >['aiRagKnowledgeAdminUpsertText']
-        >
-    >
->;
-export type AiRagKnowledgeAdminListDomainsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminAiRagKnowledge
-            >['aiRagKnowledgeAdminListDomains']
-        >
-    >
->;
-export type AiRagKnowledgeAdminListDocumentsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminAiRagKnowledge
-            >['aiRagKnowledgeAdminListDocuments']
-        >
-    >
->;
-export type AiRagKnowledgeAdminDeleteDocumentResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminAiRagKnowledge
-            >['aiRagKnowledgeAdminDeleteDocument']
-        >
-    >
->;
-export type AiRagKnowledgeAdminReadDocumentResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminAiRagKnowledge
-            >['aiRagKnowledgeAdminReadDocument']
-        >
-    >
->;
-export type AiRagKnowledgeAdminUploadResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminAiRagKnowledge
-            >['aiRagKnowledgeAdminUpload']
-        >
-    >
->;
+
+  export const getAdminAiRagKnowledge = () => {
+/**
+ * Известные kind (реестр с названиями/описаниями/потребителями) + фактические папки общей базы. Нестандартные папки помечаются known=false. Основа экрана «Материалы» в админке.
+ * @summary Реестр kind-разделов базы знаний
+ */
+const aiRagKnowledgeAdminListKinds = (
+    
+ ) => {
+      return customAxios<KnowledgeKindInfoDto[]>(
+      {url: `/api/admin/ai-rag/knowledge/kinds`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Сохраняет/перезаписывает документ из текста без multipart — для редактора инструкций в админке. С domain — в клиентскую базу (перекрывает общую), без — в общую.
+ * @summary Сохранить текстовый документ (редактор)
+ */
+const aiRagKnowledgeAdminUpsertText = (
+    kind: string,
+    knowledgeTextUpsertDto: KnowledgeTextUpsertDto,
+ ) => {
+      return customAxios<KnowledgeUploadResponseDto>(
+      {url: `/api/admin/ai-rag/knowledge/${kind}/text`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: knowledgeTextUpsertDto
+    },
+      );
+    }
+  /**
+ * Домены порталов, у которых есть собственная папка базы знаний.
+ * @summary Список доменов с клиентской базой
+ */
+const aiRagKnowledgeAdminListDomains = (
+    
+ ) => {
+      return customAxios<string[]>(
+      {url: `/api/admin/ai-rag/knowledge/domains`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Документы, которые попадут в RAG для пары (domain?, kind): сначала general, затем kind.
+ * @summary Список документов
+ */
+const aiRagKnowledgeAdminListDocuments = (
+    params?: AiRagKnowledgeAdminListDocumentsParams,
+ ) => {
+      return customAxios<KnowledgeDocumentDto[]>(
+      {url: `/api/admin/ai-rag/knowledge`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Удаляет документ строго из указанной базы (клиентской при заданном domain, иначе общей).
+ * @summary Удалить документ
+ */
+const aiRagKnowledgeAdminDeleteDocument = (
+    params: AiRagKnowledgeAdminDeleteDocumentParams,
+ ) => {
+      return customAxios<KnowledgeDeleteResponseDto>(
+      {url: `/api/admin/ai-rag/knowledge`, method: 'DELETE',
+        params
+    },
+      );
+    }
+  /**
+ * Возвращает извлечённый текст конкретного документа базы знаний.
+ * @summary Текст документа
+ */
+const aiRagKnowledgeAdminReadDocument = (
+    params: AiRagKnowledgeAdminReadDocumentParams,
+ ) => {
+      return customAxios<KnowledgeDocumentContentDto>(
+      {url: `/api/admin/ai-rag/knowledge/content`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Загружает документ в kind-папку: с domain — в клиентскую базу портала, без — в общую.
+ * @summary Загрузить документ
+ */
+const aiRagKnowledgeAdminUpload = (
+    kind: string,
+    aiRagKnowledgeAdminUploadBody: AiRagKnowledgeAdminUploadBody,
+ ) => {const formData = new FormData();
+formData.append(`file`, aiRagKnowledgeAdminUploadBody.file)
+if(aiRagKnowledgeAdminUploadBody.domain !== undefined) {
+ formData.append(`domain`, aiRagKnowledgeAdminUploadBody.domain)
+ }
+
+      return customAxios<KnowledgeUploadResponseDto>(
+      {url: `/api/admin/ai-rag/knowledge/${kind}`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData
+    },
+      );
+    }
+  return {aiRagKnowledgeAdminListKinds,aiRagKnowledgeAdminUpsertText,aiRagKnowledgeAdminListDomains,aiRagKnowledgeAdminListDocuments,aiRagKnowledgeAdminDeleteDocument,aiRagKnowledgeAdminReadDocument,aiRagKnowledgeAdminUpload}};
+export type AiRagKnowledgeAdminListKindsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAiRagKnowledge>['aiRagKnowledgeAdminListKinds']>>>
+export type AiRagKnowledgeAdminUpsertTextResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAiRagKnowledge>['aiRagKnowledgeAdminUpsertText']>>>
+export type AiRagKnowledgeAdminListDomainsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAiRagKnowledge>['aiRagKnowledgeAdminListDomains']>>>
+export type AiRagKnowledgeAdminListDocumentsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAiRagKnowledge>['aiRagKnowledgeAdminListDocuments']>>>
+export type AiRagKnowledgeAdminDeleteDocumentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAiRagKnowledge>['aiRagKnowledgeAdminDeleteDocument']>>>
+export type AiRagKnowledgeAdminReadDocumentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAiRagKnowledge>['aiRagKnowledgeAdminReadDocument']>>>
+export type AiRagKnowledgeAdminUploadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAiRagKnowledge>['aiRagKnowledgeAdminUpload']>>>

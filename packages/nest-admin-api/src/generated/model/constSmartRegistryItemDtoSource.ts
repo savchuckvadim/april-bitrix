@@ -9,10 +9,10 @@
 /**
  * Источник смарта — всегда const для этого реестра.
  */
-export type ConstSmartRegistryItemDtoSource =
-    (typeof ConstSmartRegistryItemDtoSource)[keyof typeof ConstSmartRegistryItemDtoSource];
+export type ConstSmartRegistryItemDtoSource = typeof ConstSmartRegistryItemDtoSource[keyof typeof ConstSmartRegistryItemDtoSource];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ConstSmartRegistryItemDtoSource = {
-    const: 'const',
+  const: 'const',
 } as const;

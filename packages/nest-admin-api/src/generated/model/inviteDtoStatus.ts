@@ -9,14 +9,14 @@
 /**
  * Статус кода
  */
-export type InviteDtoStatus =
-    (typeof InviteDtoStatus)[keyof typeof InviteDtoStatus];
+export type InviteDtoStatus = typeof InviteDtoStatus[keyof typeof InviteDtoStatus];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const InviteDtoStatus = {
-    issued: 'issued',
-    sent: 'sent',
-    redeemed: 'redeemed',
-    revoked: 'revoked',
-    expired: 'expired',
+  issued: 'issued',
+  sent: 'sent',
+  redeemed: 'redeemed',
+  revoked: 'revoked',
+  expired: 'expired',
 } as const;

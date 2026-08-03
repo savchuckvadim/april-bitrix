@@ -7,14 +7,14 @@
  */
 
 export interface UpdateMeasureDto {
-    /** Measure name */
-    name?: string;
-    /** Measure short name */
-    shortName?: string;
-    /** Measure full name */
-    fullName?: string;
-    /** Measure code */
-    code?: string;
-    /** Measure type */
-    type?: string;
+  /** Measure name */
+  name?: string;
+  /** Measure short name */
+  shortName?: string;
+  /** Measure full name */
+  fullName?: string;
+  /** Measure code */
+  code?: string;
+  /** Measure type */
+  type?: string;
 }

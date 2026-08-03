@@ -7,12 +7,12 @@
  */
 
 export interface UpdateBtxCompanyDto {
-    /** Company name */
-    name?: string;
-    /** Company title */
-    title?: string;
-    /** Company code */
-    code?: string;
-    /** Portal ID */
-    portal_id?: number;
+  /** Company name */
+  name?: string;
+  /** Company title */
+  title?: string;
+  /** Company code */
+  code?: string;
+  /** Portal ID */
+  portal_id?: number;
 }

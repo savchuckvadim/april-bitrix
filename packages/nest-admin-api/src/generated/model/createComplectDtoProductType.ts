@@ -9,13 +9,13 @@
 /**
  * Тип продукта
  */
-export type CreateComplectDtoProductType =
-    (typeof CreateComplectDtoProductType)[keyof typeof CreateComplectDtoProductType];
+export type CreateComplectDtoProductType = typeof CreateComplectDtoProductType[keyof typeof CreateComplectDtoProductType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CreateComplectDtoProductType = {
-    garant: 'garant',
-    lt: 'lt',
-    star: 'star',
-    consalting: 'consalting',
+  garant: 'garant',
+  lt: 'lt',
+  star: 'star',
+  consalting: 'consalting',
 } as const;

@@ -1,6 +1,9 @@
 import { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
-import { eventReportActions } from '@/modules/entities/EventReport';
+import {
+    eventReportActions,
+    WORK_STATUS_ID,
+} from '@/modules/entities/EventReport';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import { eventTaskActions } from '@/modules/entities/EventTask';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';
@@ -68,11 +71,11 @@ export const getReturnToTMCMenu =
         dispatch(setCurrentReportContact(currentTask));
 
         if (status) {
-            // статус работы «Отказ» (id=3 в WORK_STATUS_ITEMS)
+            // возврат в ТМЦ отчитывается статусом работы «Отказ»
             dispatch(
                 eventReportActions.setReportProp({
                     propName: EV_REPORT_PROP.WORK_STATUS,
-                    value: 3,
+                    value: WORK_STATUS_ID.fail,
                 }),
             );
         }

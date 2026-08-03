@@ -6,334 +6,222 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-    AdminMarketplaceInstallDetailsDto,
-    AdminMarketplaceInstallDto,
-    AppEventsPageDto,
-    ApplicationDto,
-    ApprovalActionDto,
-    ApprovalResultDto,
-    InstallComponentDto,
-    InviteDto,
-    IssueInviteDto,
-    IssuedInviteDto,
-    MarketplaceModerationGetApplicationsParams,
-    MarketplaceModerationGetEventsParams,
-    MarketplaceModerationGetInstallsParams,
-    MarketplaceModerationGetInvitesParams,
-    PbxActionResultDto,
-    PortalProductDto,
-    ReissueInviteDto,
+  AdminMarketplaceInstallDetailsDto,
+  AdminMarketplaceInstallDto,
+  AppEventsPageDto,
+  ApplicationDto,
+  ApprovalActionDto,
+  ApprovalResultDto,
+  InstallComponentDto,
+  InviteDto,
+  IssueInviteDto,
+  IssuedInviteDto,
+  MarketplaceModerationGetApplicationsParams,
+  MarketplaceModerationGetEventsParams,
+  MarketplaceModerationGetInstallsParams,
+  MarketplaceModerationGetInvitesParams,
+  PbxActionResultDto,
+  PortalProductDto,
+  ReissueInviteDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
 
-export const getAdminMarketplaceModeration = () => {
-    /**
-     * Возвращает маркетплейс-порталы с организацией из заявки, статусом допуска и диагностикой токенов установки.
-     * @summary Заявки на подключение маркетплейс-приложения
-     */
-    const marketplaceModerationGetApplications = (
-        params?: MarketplaceModerationGetApplicationsParams,
-    ) => {
-        return customAxios<ApplicationDto[]>({
-            url: `/api/admin/marketplace/applications`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * Применяет решение модератора: approve одобряет портал, активирует продукт sales и запускает установку сущностей; block блокирует портал.
-     * @summary Решение по заявке портала
-     */
-    const marketplaceModerationDecide = (
-        id: number,
-        approvalActionDto: ApprovalActionDto,
-    ) => {
-        return customAxios<ApprovalResultDto>({
-            url: `/api/admin/marketplace/portals/${id}/approval`,
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            data: approvalActionDto,
-        });
-    };
-    /**
-     * Возвращает прогресс provisioning по компонентам портала: placements, смарт-сценарии и pbx-сущности.
-     * @summary Статусы компонентов установки портала
-     */
-    const marketplaceModerationGetComponents = (id: number) => {
-        return customAxios<InstallComponentDto[]>({
-            url: `/api/admin/marketplace/portals/${id}/components`,
-            method: 'GET',
-        });
-    };
-    /**
-     * Обзор marketplace_installs по всем порталам: статусы установки, ошибки шагов, диагностика токенов. Фильтры по домену, member_id и статусу.
-     * @summary Все установки маркетплейс-приложения
-     */
-    const marketplaceModerationGetInstalls = (
-        params?: MarketplaceModerationGetInstallsParams,
-    ) => {
-        return customAxios<AdminMarketplaceInstallDto[]>({
-            url: `/api/admin/marketplace/installs`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * Одна установка (marketplace_installs.id) с порталом и полным списком компонент-статусов.
-     * @summary Деталь установки с компонентами
-     */
-    const marketplaceModerationGetInstall = (installId: string) => {
-        return customAxios<AdminMarketplaceInstallDetailsDto>({
-            url: `/api/admin/marketplace/installs/${installId}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * bitrix_app_events: установки, открытия, онбординг, модерация, рефреш токенов. Фильтры + пагинация (take ≤ 100), новые сверху.
-     * @summary Журнал событий приложения
-     */
-    const marketplaceModerationGetEvents = (
-        params?: MarketplaceModerationGetEventsParams,
-    ) => {
-        return customAxios<AppEventsPageDto>({
-            url: `/api/admin/marketplace/events`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * portal_products портала: код, статус (active/inactive/suspended), даты активации и оплаты.
-     * @summary Продукты портала
-     */
-    const marketplaceModerationGetPortalProducts = (id: number) => {
-        return customAxios<PortalProductDto[]>({
-            url: `/api/admin/marketplace/portals/${id}/products`,
-            method: 'GET',
-        });
-    };
-    /**
-     * Прокси в pbx (X-Admin-Key остаётся server-side): повторная постановка фоновой задачи установки сущностей активированного продукта.
-     * @summary Повторно запустить provisioning pbx-сущностей портала
-     */
-    const marketplaceModerationProvisionRefresh = (id: number) => {
-        return customAxios<PbxActionResultDto>({
-            url: `/api/admin/marketplace/portals/${id}/provision-refresh`,
-            method: 'POST',
-        });
-    };
-    /**
-     * Прокси в pbx: diff-синхронизация placement.bind портала с эталоном-манифестом (после изменения состава виджетов/мест).
-     * @summary Синхронизировать привязки виджетов портала
-     */
-    const marketplaceModerationPlacementsRefresh = (id: number) => {
-        return customAxios<PbxActionResultDto>({
-            url: `/api/admin/marketplace/portals/${id}/placements-refresh`,
-            method: 'POST',
-        });
-    };
-    /**
-     * Выпущенные коды подключения портала к сервису April (новые сверху). Сам код и его хэш наружу НЕ отдаются — только видимая часть (codePrefix), получатель, статус, сроки и портал, погасивший код.
-     * @summary Список кодов подключения
-     */
-    const marketplaceModerationGetInvites = (
-        params?: MarketplaceModerationGetInvitesParams,
-    ) => {
-        return customAxios<InviteDto[]>({
-            url: `/api/admin/marketplace/invites`,
-            method: 'GET',
-            params,
-        });
-    };
-    /**
-     * Создаёт (или находит по email) клиента, выпускает код подключения и отправляет письмо. ВНИМАНИЕ: открытый код возвращается ЕДИНСТВЕННЫЙ РАЗ — в БД хранится только его хэш. Если письмо не ушло (emailSent=false), код остаётся в статусе issued и передаётся клиенту вручную.
-     * @summary Выпустить код подключения и отправить его на email
-     */
-    const marketplaceModerationIssueInvite = (
-        issueInviteDto: IssueInviteDto,
-    ) => {
-        return customAxios<IssuedInviteDto>({
-            url: `/api/admin/marketplace/invites`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: issueInviteDto,
-        });
-    };
-    /**
-     * Переводит код в статус revoked — погасить его больше нельзя. Уже погашенный (redeemed) код отозвать нельзя: чтобы отключить портал, используйте блокировку портала (block) в разделе заявок.
-     * @summary Отозвать код подключения
-     */
-    const marketplaceModerationRevokeInvite = (id: string) => {
-        return customAxios<InviteDto>({
-            url: `/api/admin/marketplace/invites/${id}/revoke`,
-            method: 'POST',
-        });
-    };
-    /**
-     * Физически удаляет запись кода — чистка мусорных/ошибочных выпусков. Погашенный (redeemed) код удалить нельзя: запись хранит связь портала с организацией. Непогашенный код после удаления погасить невозможно (хэш удалён).
-     * @summary Удалить запись кода подключения
-     */
-    const marketplaceModerationDeleteInvite = (id: string) => {
-        return customAxios<InviteDto>({
-            url: `/api/admin/marketplace/invites/${id}`,
-            method: 'DELETE',
-        });
-    };
-    /**
-     * Отзывает старый код и выпускает новый на тот же (или переданный) email, после чего отправляет письмо. Нужен потому, что повторно отправить прежний код невозможно — в БД хранится только его хэш. Новый код возвращается открытым текстом.
-     * @summary Перевыпустить код подключения
-     */
-    const marketplaceModerationReissueInvite = (
-        id: string,
-        reissueInviteDto: ReissueInviteDto,
-    ) => {
-        return customAxios<IssuedInviteDto>({
-            url: `/api/admin/marketplace/invites/${id}/reissue`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: reissueInviteDto,
-        });
-    };
-    return {
-        marketplaceModerationGetApplications,
-        marketplaceModerationDecide,
-        marketplaceModerationGetComponents,
-        marketplaceModerationGetInstalls,
-        marketplaceModerationGetInstall,
-        marketplaceModerationGetEvents,
-        marketplaceModerationGetPortalProducts,
-        marketplaceModerationProvisionRefresh,
-        marketplaceModerationPlacementsRefresh,
-        marketplaceModerationGetInvites,
-        marketplaceModerationIssueInvite,
-        marketplaceModerationRevokeInvite,
-        marketplaceModerationDeleteInvite,
-        marketplaceModerationReissueInvite,
-    };
-};
-export type MarketplaceModerationGetApplicationsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationGetApplications']
-        >
-    >
->;
-export type MarketplaceModerationDecideResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationDecide']
-        >
-    >
->;
-export type MarketplaceModerationGetComponentsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationGetComponents']
-        >
-    >
->;
-export type MarketplaceModerationGetInstallsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationGetInstalls']
-        >
-    >
->;
-export type MarketplaceModerationGetInstallResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationGetInstall']
-        >
-    >
->;
-export type MarketplaceModerationGetEventsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationGetEvents']
-        >
-    >
->;
-export type MarketplaceModerationGetPortalProductsResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationGetPortalProducts']
-        >
-    >
->;
-export type MarketplaceModerationProvisionRefreshResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationProvisionRefresh']
-        >
-    >
->;
-export type MarketplaceModerationPlacementsRefreshResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationPlacementsRefresh']
-        >
-    >
->;
-export type MarketplaceModerationGetInvitesResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationGetInvites']
-        >
-    >
->;
-export type MarketplaceModerationIssueInviteResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationIssueInvite']
-        >
-    >
->;
-export type MarketplaceModerationRevokeInviteResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationRevokeInvite']
-        >
-    >
->;
-export type MarketplaceModerationDeleteInviteResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationDeleteInvite']
-        >
-    >
->;
-export type MarketplaceModerationReissueInviteResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getAdminMarketplaceModeration
-            >['marketplaceModerationReissueInvite']
-        >
-    >
->;
+
+
+  export const getAdminMarketplaceModeration = () => {
+/**
+ * Возвращает маркетплейс-порталы с организацией из заявки, статусом допуска и диагностикой токенов установки.
+ * @summary Заявки на подключение маркетплейс-приложения
+ */
+const marketplaceModerationGetApplications = (
+    params?: MarketplaceModerationGetApplicationsParams,
+ ) => {
+      return customAxios<ApplicationDto[]>(
+      {url: `/api/admin/marketplace/applications`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Применяет решение модератора: approve одобряет портал, активирует продукт sales и запускает установку сущностей; block блокирует портал.
+ * @summary Решение по заявке портала
+ */
+const marketplaceModerationDecide = (
+    id: number,
+    approvalActionDto: ApprovalActionDto,
+ ) => {
+      return customAxios<ApprovalResultDto>(
+      {url: `/api/admin/marketplace/portals/${id}/approval`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: approvalActionDto
+    },
+      );
+    }
+  /**
+ * Возвращает прогресс provisioning по компонентам портала: placements, смарт-сценарии и pbx-сущности.
+ * @summary Статусы компонентов установки портала
+ */
+const marketplaceModerationGetComponents = (
+    id: number,
+ ) => {
+      return customAxios<InstallComponentDto[]>(
+      {url: `/api/admin/marketplace/portals/${id}/components`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Обзор marketplace_installs по всем порталам: статусы установки, ошибки шагов, диагностика токенов. Фильтры по домену, member_id и статусу.
+ * @summary Все установки маркетплейс-приложения
+ */
+const marketplaceModerationGetInstalls = (
+    params?: MarketplaceModerationGetInstallsParams,
+ ) => {
+      return customAxios<AdminMarketplaceInstallDto[]>(
+      {url: `/api/admin/marketplace/installs`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Одна установка (marketplace_installs.id) с порталом и полным списком компонент-статусов.
+ * @summary Деталь установки с компонентами
+ */
+const marketplaceModerationGetInstall = (
+    installId: string,
+ ) => {
+      return customAxios<AdminMarketplaceInstallDetailsDto>(
+      {url: `/api/admin/marketplace/installs/${installId}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * bitrix_app_events: установки, открытия, онбординг, модерация, рефреш токенов. Фильтры + пагинация (take ≤ 100), новые сверху.
+ * @summary Журнал событий приложения
+ */
+const marketplaceModerationGetEvents = (
+    params?: MarketplaceModerationGetEventsParams,
+ ) => {
+      return customAxios<AppEventsPageDto>(
+      {url: `/api/admin/marketplace/events`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * portal_products портала: код, статус (active/inactive/suspended), даты активации и оплаты.
+ * @summary Продукты портала
+ */
+const marketplaceModerationGetPortalProducts = (
+    id: number,
+ ) => {
+      return customAxios<PortalProductDto[]>(
+      {url: `/api/admin/marketplace/portals/${id}/products`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Прокси в pbx (X-Admin-Key остаётся server-side): повторная постановка фоновой задачи установки сущностей активированного продукта.
+ * @summary Повторно запустить provisioning pbx-сущностей портала
+ */
+const marketplaceModerationProvisionRefresh = (
+    id: number,
+ ) => {
+      return customAxios<PbxActionResultDto>(
+      {url: `/api/admin/marketplace/portals/${id}/provision-refresh`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * Прокси в pbx: diff-синхронизация placement.bind портала с эталоном-манифестом (после изменения состава виджетов/мест).
+ * @summary Синхронизировать привязки виджетов портала
+ */
+const marketplaceModerationPlacementsRefresh = (
+    id: number,
+ ) => {
+      return customAxios<PbxActionResultDto>(
+      {url: `/api/admin/marketplace/portals/${id}/placements-refresh`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * Выпущенные коды подключения портала к сервису April (новые сверху). Сам код и его хэш наружу НЕ отдаются — только видимая часть (codePrefix), получатель, статус, сроки и портал, погасивший код.
+ * @summary Список кодов подключения
+ */
+const marketplaceModerationGetInvites = (
+    params?: MarketplaceModerationGetInvitesParams,
+ ) => {
+      return customAxios<InviteDto[]>(
+      {url: `/api/admin/marketplace/invites`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Создаёт (или находит по email) клиента, выпускает код подключения и отправляет письмо. ВНИМАНИЕ: открытый код возвращается ЕДИНСТВЕННЫЙ РАЗ — в БД хранится только его хэш. Если письмо не ушло (emailSent=false), код остаётся в статусе issued и передаётся клиенту вручную.
+ * @summary Выпустить код подключения и отправить его на email
+ */
+const marketplaceModerationIssueInvite = (
+    issueInviteDto: IssueInviteDto,
+ ) => {
+      return customAxios<IssuedInviteDto>(
+      {url: `/api/admin/marketplace/invites`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: issueInviteDto
+    },
+      );
+    }
+  /**
+ * Переводит код в статус revoked — погасить его больше нельзя. Уже погашенный (redeemed) код отозвать нельзя: чтобы отключить портал, используйте блокировку портала (block) в разделе заявок.
+ * @summary Отозвать код подключения
+ */
+const marketplaceModerationRevokeInvite = (
+    id: string,
+ ) => {
+      return customAxios<InviteDto>(
+      {url: `/api/admin/marketplace/invites/${id}/revoke`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * Физически удаляет запись кода — чистка мусорных/ошибочных выпусков. Погашенный (redeemed) код удалить нельзя: запись хранит связь портала с организацией. Непогашенный код после удаления погасить невозможно (хэш удалён).
+ * @summary Удалить запись кода подключения
+ */
+const marketplaceModerationDeleteInvite = (
+    id: string,
+ ) => {
+      return customAxios<InviteDto>(
+      {url: `/api/admin/marketplace/invites/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  /**
+ * Отзывает старый код и выпускает новый на тот же (или переданный) email, после чего отправляет письмо. Нужен потому, что повторно отправить прежний код невозможно — в БД хранится только его хэш. Новый код возвращается открытым текстом.
+ * @summary Перевыпустить код подключения
+ */
+const marketplaceModerationReissueInvite = (
+    id: string,
+    reissueInviteDto: ReissueInviteDto,
+ ) => {
+      return customAxios<IssuedInviteDto>(
+      {url: `/api/admin/marketplace/invites/${id}/reissue`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: reissueInviteDto
+    },
+      );
+    }
+  return {marketplaceModerationGetApplications,marketplaceModerationDecide,marketplaceModerationGetComponents,marketplaceModerationGetInstalls,marketplaceModerationGetInstall,marketplaceModerationGetEvents,marketplaceModerationGetPortalProducts,marketplaceModerationProvisionRefresh,marketplaceModerationPlacementsRefresh,marketplaceModerationGetInvites,marketplaceModerationIssueInvite,marketplaceModerationRevokeInvite,marketplaceModerationDeleteInvite,marketplaceModerationReissueInvite}};
+export type MarketplaceModerationGetApplicationsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetApplications']>>>
+export type MarketplaceModerationDecideResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationDecide']>>>
+export type MarketplaceModerationGetComponentsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetComponents']>>>
+export type MarketplaceModerationGetInstallsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetInstalls']>>>
+export type MarketplaceModerationGetInstallResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetInstall']>>>
+export type MarketplaceModerationGetEventsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetEvents']>>>
+export type MarketplaceModerationGetPortalProductsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetPortalProducts']>>>
+export type MarketplaceModerationProvisionRefreshResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationProvisionRefresh']>>>
+export type MarketplaceModerationPlacementsRefreshResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationPlacementsRefresh']>>>
+export type MarketplaceModerationGetInvitesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetInvites']>>>
+export type MarketplaceModerationIssueInviteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationIssueInvite']>>>
+export type MarketplaceModerationRevokeInviteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationRevokeInvite']>>>
+export type MarketplaceModerationDeleteInviteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationDeleteInvite']>>>
+export type MarketplaceModerationReissueInviteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationReissueInvite']>>>

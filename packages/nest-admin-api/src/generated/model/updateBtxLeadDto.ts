@@ -7,12 +7,12 @@
  */
 
 export interface UpdateBtxLeadDto {
-    /** Lead name */
-    name?: string;
-    /** Lead title */
-    title?: string;
-    /** Lead code */
-    code?: string;
-    /** Portal ID */
-    portal_id?: number;
+  /** Lead name */
+  name?: string;
+  /** Lead title */
+  title?: string;
+  /** Lead code */
+  code?: string;
+  /** Portal ID */
+  portal_id?: number;
 }

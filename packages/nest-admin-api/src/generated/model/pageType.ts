@@ -9,15 +9,16 @@
 /**
  * The type of the offer template page
  */
-export type PageType = (typeof PageType)[keyof typeof PageType];
+export type PageType = typeof PageType[keyof typeof PageType];
+
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PageType = {
-    letter: 'letter',
-    description: 'description',
-    infoblocks: 'infoblocks',
-    price: 'price',
-    lt: 'lt',
-    other: 'other',
-    default: 'default',
+  letter: 'letter',
+  description: 'description',
+  infoblocks: 'infoblocks',
+  price: 'price',
+  lt: 'lt',
+  other: 'other',
+  default: 'default',
 } as const;

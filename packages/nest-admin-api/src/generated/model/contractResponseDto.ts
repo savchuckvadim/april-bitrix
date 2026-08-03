@@ -18,46 +18,46 @@ import type { ContractResponseDtoCreatedAt } from './contractResponseDtoCreatedA
 import type { ContractResponseDtoUpdatedAt } from './contractResponseDtoUpdatedAt';
 
 export interface ContractResponseDto {
-    /** Contract ID */
-    id: number;
-    /** Contract name */
-    name: string;
-    /** Contract number */
-    number: number;
-    /** Contract title */
-    title: string;
-    /** Contract code */
-    code: string;
-    /** Contract type */
-    type: string;
-    /** With prepayment */
-    withPrepayment: boolean;
-    /** Template */
-    template?: ContractResponseDtoTemplate;
-    /** Order */
-    order?: ContractResponseDtoOrder;
-    /** Coefficient */
-    coefficient?: number;
-    /** Prepayment */
-    prepayment?: number;
-    /** Discount */
-    discount?: number;
-    /** Product name */
-    productName?: ContractResponseDtoProductName;
-    /** Product */
-    product?: ContractResponseDtoProduct;
-    /** Service */
-    service?: ContractResponseDtoService;
-    /** Description */
-    description?: ContractResponseDtoDescription;
-    /** Comment */
-    comment?: ContractResponseDtoComment;
-    /** Comment 1 */
-    comment1?: ContractResponseDtoComment1;
-    /** Comment 2 */
-    comment2?: ContractResponseDtoComment2;
-    /** Created at */
-    created_at?: ContractResponseDtoCreatedAt;
-    /** Updated at */
-    updated_at?: ContractResponseDtoUpdatedAt;
+  /** Contract ID */
+  id: number;
+  /** Contract name */
+  name: string;
+  /** Contract number */
+  number: number;
+  /** Contract title */
+  title: string;
+  /** Contract code */
+  code: string;
+  /** Contract type */
+  type: string;
+  /** With prepayment */
+  withPrepayment: boolean;
+  /** Template */
+  template?: ContractResponseDtoTemplate;
+  /** Order */
+  order?: ContractResponseDtoOrder;
+  /** Coefficient */
+  coefficient?: number;
+  /** Prepayment */
+  prepayment?: number;
+  /** Discount */
+  discount?: number;
+  /** Product name */
+  productName?: ContractResponseDtoProductName;
+  /** Product */
+  product?: ContractResponseDtoProduct;
+  /** Service */
+  service?: ContractResponseDtoService;
+  /** Description */
+  description?: ContractResponseDtoDescription;
+  /** Comment */
+  comment?: ContractResponseDtoComment;
+  /** Comment 1 */
+  comment1?: ContractResponseDtoComment1;
+  /** Comment 2 */
+  comment2?: ContractResponseDtoComment2;
+  /** Created at */
+  created_at?: ContractResponseDtoCreatedAt;
+  /** Updated at */
+  updated_at?: ContractResponseDtoUpdatedAt;
 }

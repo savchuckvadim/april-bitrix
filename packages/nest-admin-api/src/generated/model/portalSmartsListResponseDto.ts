@@ -8,7 +8,7 @@
 import type { PortalSmartRowResponseDto } from './portalSmartRowResponseDto';
 
 export interface PortalSmartsListResponseDto {
-    domain: string;
-    portalId: number;
-    smarts: PortalSmartRowResponseDto[];
+  domain: string;
+  portalId: number;
+  smarts: PortalSmartRowResponseDto[];
 }

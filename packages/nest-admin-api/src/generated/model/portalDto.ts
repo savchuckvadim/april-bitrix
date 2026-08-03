@@ -7,18 +7,18 @@
  */
 
 export interface PortalDto {
-    /** ID портала */
-    id: string;
-    /** Домен портала */
-    domain: string;
-    /** Ключ портала */
-    key: string;
-    /** ID клиента */
-    clientId: number;
-    /** Номер портала */
-    number: number;
-    /** ID клиента */
-    cRestClientId: string;
-    /** ID клиента */
-    cRestClientSecret: string;
+  /** ID портала */
+  id: string;
+  /** Домен портала */
+  domain: string;
+  /** Ключ портала */
+  key: string;
+  /** ID клиента */
+  clientId: number;
+  /** Номер портала */
+  number: number;
+  /** ID клиента */
+  cRestClientId: string;
+  /** ID клиента */
+  cRestClientSecret: string;
 }

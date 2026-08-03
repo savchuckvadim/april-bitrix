@@ -23,9 +23,15 @@ const LoadingScreen = () => {
         <div className="bg-orange-500">
 
             {isVisible && (
-                <div
-
-                >
+                /*
+                 * Класс loading-screen описан в loading.css (fixed, inset 0,
+                 * z-index 1000), но раньше не был проставлен ни на одном узле —
+                 * поэтому прелоадер жил в обычном потоке и не перекрывал
+                 * страницу. Пока каркас страницы был рамой во весь экран, это
+                 * не бросалось в глаза; на обычной прокручиваемой странице
+                 * сквозь прелоадер стали видны шапка и подвал.
+                 */
+                <div className="loading-screen">
                     <div className="bg-gray-700 center-spinner flex flex-col justify-center items-center h-full w-full">
 
                         <div className="p-4 rounded-xl bg-white border-2 border-indigo-600">

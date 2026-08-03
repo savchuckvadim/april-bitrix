@@ -64,7 +64,7 @@ export interface UpdatePortalAiSettingsDto {
    */
   llmModel?: string | null;
   /**
-   * Модель глубокого разбора звонка.
+   * Модель VibeCode для глубокого разбора звонка. Пусто — модель по умолчанию (bitrix/bitrixgpt-5.5).
    * @nullable
    */
   deepAnalysisModel?: string | null;
@@ -81,14 +81,14 @@ export interface UpdatePortalAiSettingsDto {
    */
   nightScanIntervalMinutes?: number | null;
   /**
-   * Начало ночного окна, час 0-23 по таймзоне портала.
+   * Начало ночного окна, час 0-23 по московскому времени.
    * @minimum 0
    * @maximum 23
    * @nullable
    */
   nightStartHour?: number | null;
   /**
-   * Конец ночного окна, час 0-23 по таймзоне портала.
+   * Конец ночного окна, час 0-23 по московскому времени.
    * @minimum 0
    * @maximum 23
    * @nullable

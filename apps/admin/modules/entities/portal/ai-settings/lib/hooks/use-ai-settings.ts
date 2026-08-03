@@ -25,8 +25,11 @@ export const useSavePortalAiSettings = () => {
             portalId: number;
             update: PortalAiSettingsUpdate;
         }) => helper.save(vars.portalId, vars.update),
-        onSuccess: (_data, vars) => {
+        onSuccess: (data, vars) => {
             toast.success('Настройки AI портала сохранены');
+            // Ответ PUT — уже актуальное состояние: кладём его в кэш сразу,
+            // чтобы форма не мигала «несохранёнными изменениями» до refetch.
+            qc.setQueryData([...KEY, vars.portalId], data);
             void qc.invalidateQueries({
                 queryKey: [...KEY, vars.portalId],
             });

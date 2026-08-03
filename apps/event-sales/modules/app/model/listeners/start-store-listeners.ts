@@ -8,6 +8,7 @@ import { fetchResults } from '@/modules/features/NoCall/model/NoCallThunk';
 import { initReturnToTMC } from '@/modules/features/ReturnToTMC/model/ReturnToTMCThunk';
 import { initCheckPresentation } from '@/modules/features/AfterPresentation/model/AfterPresentationThunk';
 import { startEventPlanAppListener } from '@/modules/entities/EventPlan/model/EventPlanAppListener';
+import { startDuplicatesAppListener } from '@/modules/features/Duplicates';
 import type { AppStartListening } from '../store';
 
 /**
@@ -57,4 +58,6 @@ export function startStoreListeners(startAppListening: AppStartListening) {
 
     // Подписки, живущие внутри своих слайсов (app/setAppData → инициализация плана).
     startEventPlanAppListener(startAppListening);
+    // app/setAppData → автопроверка дублей клиента (быстрый уровень + кэш).
+    startDuplicatesAppListener(startAppListening);
 }

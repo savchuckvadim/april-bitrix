@@ -11,6 +11,8 @@ import type {
     CallReportScanResponseDto,
     InstallCallReportSmartDto,
     InstallCallReportSmartResponseDto,
+    ReviseCallsDto,
+    ReviseCallsResponseDto,
     ScanCallsDto,
 } from '.././model';
 
@@ -55,7 +57,24 @@ export const getCallReport = () => {
             data: analyzeCallDto,
         });
     };
-    return { callReportInstallSmart, callReportScan, callReportAnalyze };
+    /**
+     * Второй такт анализа (Фаза 3): для каждой сделки/лида с разборами звонков за окно собирает свежие разборы + историю + паспорт CRM, запрашивает LLM-свод (невыполненные обещания, рекомендации по сделке, риски) и записывает его в последний смарт-элемент и таймлайн сущности. Ручной аналог ночного крона CallRevisionScheduler (23:30 МСК) — для смоука на ограниченных данных; выполняется синхронно, на сущность уходит один LLM-запрос.
+     * @summary Ночная ревизия по сущностям (синхронно, ручной запуск)
+     */
+    const callReportRevise = (reviseCallsDto: ReviseCallsDto) => {
+        return customAxios<ReviseCallsResponseDto>({
+            url: `/api/call-report/revise`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: reviseCallsDto,
+        });
+    };
+    return {
+        callReportInstallSmart,
+        callReportScan,
+        callReportAnalyze,
+        callReportRevise,
+    };
 };
 export type CallReportInstallSmartResult = NonNullable<
     Awaited<
@@ -67,4 +86,7 @@ export type CallReportScanResult = NonNullable<
 >;
 export type CallReportAnalyzeResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getCallReport>['callReportAnalyze']>>
+>;
+export type CallReportReviseResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getCallReport>['callReportRevise']>>
 >;

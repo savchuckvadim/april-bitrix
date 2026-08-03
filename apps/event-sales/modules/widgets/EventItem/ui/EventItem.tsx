@@ -31,6 +31,16 @@ const RecordsList = dynamic(
     { ssr: false },
 );
 
+// Лента дублей тянет за собой модалку деталей — грузим лениво, форму отчёта
+// она задерживать не должна.
+const DuplicatesPanel = dynamic(
+    () =>
+        import('@/modules/features/Duplicates/ui/DuplicatesPanel/DuplicatesPanel').then(
+            module => module.DuplicatesPanel,
+        ),
+    { ssr: false },
+);
+
 /**
  * Форма отчёта по событию.
  *
@@ -106,6 +116,9 @@ export const EventItem: FC = () => {
                             <div className="hidden lg:block">
                                 <ItemActions variant="column" />
                             </div>
+                            {/* Ниже действий: сигналы не должны отодвигать
+                                кнопку отправки. */}
+                            <DuplicatesPanel />
                         </div>
                     </div>
 

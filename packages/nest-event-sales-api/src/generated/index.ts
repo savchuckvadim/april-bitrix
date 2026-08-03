@@ -10,6 +10,8 @@ export * from './event-sales-support/event-sales-support';
 export * from './bitrix-domain-department/bitrix-domain-department';
 // Записи звонков по компании (POST /api/event-sales-bx-records/company)
 export * from './event-sales-bx-records/event-sales-bx-records';
+// Поиск дублей клиента (POST /api/duplicates/search, /details, карта ИНН-полей)
+export * from './duplicates/duplicates';
 
 // Доступны после generate, подключать по мере необходимости:
 // export * from './bitrix-domain-team/bitrix-domain-team';

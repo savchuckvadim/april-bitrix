@@ -28,6 +28,7 @@ import { departmentReducer } from '@/modules/features/Departament';
 import { noCallReducer } from '@/modules/features/NoCall';
 import { returnToTmcReducer } from '@/modules/features/ReturnToTMC';
 import { afterPresentationReducer } from '@/modules/features/AfterPresentation';
+import { duplicatesReducer } from '@/modules/features/Duplicates';
 import { eventItemReducer } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { preloaderReducer } from '@/modules/shared/Preloader';
 import { portalAPI, portalReducer } from '@workspace/pbx';
@@ -101,6 +102,7 @@ const rootReducer = combineReducers({
     noCall: noCallReducer,
     returnToTmc: returnToTmcReducer,
     afterPresentation: afterPresentationReducer,
+    duplicates: duplicatesReducer,
 
     // april
     portal: portalReducer,

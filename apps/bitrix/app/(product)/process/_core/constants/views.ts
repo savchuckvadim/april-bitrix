@@ -26,7 +26,7 @@ export const SALES_SCHEMA_PATH = '/process/sales/schema';
 export const THEORY_TABS: ProcessTab[] = [
     {
         slug: 'theory/inbound',
-        label: 'Теория · неопределённые контакты',
+        label: 'Теория · лиды',
         hint: 'Откуда берутся клиенты, почему из-за них ссорятся и как сделать так, чтобы не ссорились',
     },
     {
@@ -44,7 +44,7 @@ export const SALES_TABS: ProcessTab[] = [
     },
     {
         slug: 'theory/inbound',
-        label: 'Теория · контакты',
+        label: 'Теория · лиды',
         hint: 'Откуда берутся клиенты и почему из-за них ссорятся',
     },
     {

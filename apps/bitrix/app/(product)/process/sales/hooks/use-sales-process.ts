@@ -16,6 +16,7 @@ export const useSalesProcess = () => {
     const [openedStage, setOpenedStage] = useState<StageView | null>(null);
     const [openedSatellite, setOpenedSatellite] =
         useState<ProcessSatellite | null>(null);
+    const [isListsOpen, setListsOpen] = useState(false);
 
     const verdict = useMemo(
         () => buildVerdict(SALES_PROCESS, process.model),
@@ -35,5 +36,7 @@ export const useSalesProcess = () => {
         openSatellite: setOpenedSatellite,
         closeStage,
         closeSatellite,
+        isListsOpen,
+        setListsOpen,
     };
 };

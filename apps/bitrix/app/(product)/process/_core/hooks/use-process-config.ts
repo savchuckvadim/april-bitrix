@@ -27,6 +27,7 @@ export interface UseProcessConfigResult {
     setLeadPct: (value: number) => void;
     setDealPct: (value: number) => void;
     setAnswer: (questionId: string, choice: string) => void;
+    setLists: (lists: Record<string, string[]>) => void;
     applyPreset: (preset: ProcessPreset) => void;
     /** Ставит рекомендованный пресет и рекомендованный ответ в каждом вопросе. */
     applyRecommended: () => void;
@@ -110,6 +111,12 @@ export const useProcessConfig = (
         [patch, processId],
     );
 
+    /** Правки списков стадий и статусов — рядом с ответами на вопросы. */
+    const setLists = useCallback(
+        (lists: Record<string, string[]>) => patch({ lists }),
+        [patch],
+    );
+
     const applyPreset = useCallback(
         (preset: ProcessPreset) =>
             patch({ leadPct: preset.leadPct, dealPct: preset.dealPct }),
@@ -153,6 +160,7 @@ export const useProcessConfig = (
         setLeadPct,
         setDealPct,
         setAnswer,
+        setLists,
         applyPreset,
         applyRecommended,
         reset,

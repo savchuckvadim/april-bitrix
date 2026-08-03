@@ -40,10 +40,29 @@ const sanitize = (raw: unknown): ProcessConfig => {
               )
             : {};
 
+    const lists =
+        source.lists && typeof source.lists === 'object'
+            ? Object.fromEntries(
+                  Object.entries(source.lists)
+                      .filter(([, value]) => Array.isArray(value))
+                      .map(([key, value]) => [
+                          key,
+                          (value as unknown[])
+                              .filter(
+                                  (item): item is string =>
+                                      typeof item === 'string',
+                              )
+                              .map(item => item.trim())
+                              .filter(Boolean),
+                      ]),
+              )
+            : undefined;
+
     return {
         leadPct: clampPct(source.leadPct),
         dealPct: clampPct(source.dealPct),
         answers,
+        ...(lists ? { lists } : {}),
     };
 };
 
@@ -69,7 +88,8 @@ export const hydrateProcessConfig = (processId: string): void => {
         if (
             next.leadPct === current.leadPct &&
             next.dealPct === current.dealPct &&
-            JSON.stringify(next.answers) === JSON.stringify(current.answers)
+            JSON.stringify(next.answers) === JSON.stringify(current.answers) &&
+            JSON.stringify(next.lists) === JSON.stringify(current.lists)
         ) {
             return;
         }

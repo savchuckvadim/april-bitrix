@@ -1,8 +1,11 @@
 'use client';
 
 import type { FC } from 'react';
+import { ListTree } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 import { CallsPlacement } from '../../_core/components/CallsPlacement';
 import { ControlPanel } from '../../_core/components/ControlPanel';
+import { EntityListsDialog } from '../../_core/components/EntityListsDialog';
 import { FillRecommended } from '../../_core/components/FillRecommended';
 import { ProcessDialog } from '../../_core/components/ProcessDialog';
 import { ProcessEdges } from '../../_core/components/ProcessEdges';
@@ -48,6 +51,9 @@ export const SpineView: FC = () => {
         openSatellite,
         closeStage,
         closeSatellite,
+        setLists,
+        isListsOpen,
+        setListsOpen,
     } = useSalesProcess();
 
     // Пришли из теории по кнопке «Посмотреть на схеме» — доводим до места.
@@ -123,6 +129,15 @@ export const SpineView: FC = () => {
                     exits={model.exits}
                 />
 
+                <Button
+                    variant="outline"
+                    onClick={() => setListsOpen(true)}
+                    className="w-fit gap-1.5"
+                >
+                    <ListTree className="size-4" />
+                    Стадии и статусы: лид и заявка
+                </Button>
+
                 {/* 5. Итог, который заказчик уносит с собой. */}
 
                 <RegulationPanel
@@ -140,6 +155,13 @@ export const SpineView: FC = () => {
                     <SectionNav currentSlug="schema" />
                 </div>
             </div>
+
+            <EntityListsDialog
+                open={isListsOpen}
+                onOpenChange={setListsOpen}
+                config={config}
+                onChange={setLists}
+            />
 
             <ProcessDialog
                 open={openedStage !== null}

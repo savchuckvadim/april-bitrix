@@ -45,119 +45,150 @@ export const ProcessShell: FC<ProcessShellProps> = ({
     const zoom = useContentZoom();
 
     return (
-        <div className="bg-card flex h-dvh w-full overflow-hidden">
+        /*
+         * Страница, а не приложение с фиксированной рамой. Прокручивается
+         * документ целиком, поэтому футер оказывается ПОД всем — и под
+         * сайдбаром, и под островом, как и положено подвалу.
+         *
+         * Сайдбар и шапка держатся на sticky: остаются на месте, но не режут
+         * страницу на два независимых скролла.
+         */
+        <div
+            className={cn(
+                'bg-card flex w-full flex-col',
+                scroll === 'fixed' ? 'h-dvh overflow-hidden' : 'min-h-dvh',
+            )}
+        >
             <GlassAmbient />
 
-            {isOpen && (
-                <aside className="hidden h-full w-60 shrink-0 flex-col lg:flex">
-                    <div className="flex h-14 shrink-0 items-center justify-between px-4">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={toggle}
-                            aria-label="Свернуть меню"
-                            title="Свернуть меню"
-                        >
-                            <Menu className="h-5 w-5" />
-                        </Button>
-                        <Link href="/" className="font-bold">
-                            April <span className="text-primary">CRM</span>
-                        </Link>
-                    </div>
-
-                    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 pb-4">
-                        <Link
-                            href="/"
-                            className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-2 py-1.5 text-sm"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                            Все разделы
-                        </Link>
-
-                        <div>
-                            <p className="text-muted-foreground px-2 pb-1.5 text-xs font-bold tracking-widest uppercase">
-                                Процесс продажи
-                            </p>
-                            <ProcessTabs />
-                        </div>
-                    </div>
-                </aside>
-            )}
-
-            <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
-                <div className="flex h-14 shrink-0 items-center gap-2 px-4">
-                    {!isOpen && (
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={toggle}
-                            aria-label="Показать меню"
-                            title="Показать меню"
-                            className="hidden lg:inline-flex"
-                        >
-                            <Menu className="h-5 w-5" />
-                        </Button>
-                    )}
-
-                    <Link href="/" className="shrink-0 font-bold lg:hidden">
-                        April <span className="text-primary">CRM</span>
-                    </Link>
-
-                    <p className="text-muted-foreground hidden truncate text-sm font-semibold lg:block">
-                        {eyebrow}
-                    </p>
-
-                    {/*
-                     * Переключателя стекла здесь намеренно нет: страница
-                     * показывает продукт, а не настраивает его вид. Стекло
-                     * включено всегда — система сама погасит его при
-                     * prefers-reduced-transparency.
-                     */}
-                    <div className="text-muted-foreground ml-auto hidden items-center gap-3 text-xs lg:flex">
-                        <ZoomControls
-                            zoom={zoom.zoom}
-                            canZoomIn={zoom.canZoomIn}
-                            canZoomOut={zoom.canZoomOut}
-                            onZoomIn={zoom.zoomIn}
-                            onZoomOut={zoom.zoomOut}
-                            onReset={zoom.reset}
-                        />
-                        <ThemeToggler />
-                    </div>
-                </div>
-
-                <ProcessTabsMobile />
-
-                <div className="min-h-0 flex-1 px-3 pb-3">
-                    <main
-                        aria-label={title}
-                        /*
-                         * Масштабируем только содержимое: шапка и меню должны
-                         * остаться на месте — их и так видно.
-                         */
-                        style={{ zoom: `${zoom.zoom}%` }}
+            <div className="flex min-h-0 w-full flex-1">
+                {isOpen && (
+                    <aside
                         className={cn(
-                            'bg-background h-full min-h-0 rounded-xl',
+                            'hidden w-60 shrink-0 flex-col lg:flex',
                             scroll === 'fixed'
-                                ? 'overflow-hidden'
-                                : 'overflow-y-auto',
+                                ? 'h-full'
+                                : 'sticky top-0 h-dvh self-start',
                         )}
                     >
-                        {children}
+                        <div className="flex h-14 shrink-0 items-center justify-start px-1">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={toggle}
+                                aria-label="Свернуть меню"
+                                title="Свернуть меню"
+                            >
+                                <Menu className="h-7 w-7" />
+                            </Button>
+                            <Link href="/" className="font-bold">
+                                April <span className="text-primary">CRM</span>
+                            </Link>
+                        </div>
+
+                        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 pb-4">
+                            <Link
+                                href="/process/sales"
+                                className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-2 py-1.5 text-sm"
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                                Все разделы
+                            </Link>
+
+                            <div>
+                                <p className="text-muted-foreground px-2 pb-1.5 text-xs font-bold tracking-widest uppercase">
+                                    Процесс продажи
+                                </p>
+                                <ProcessTabs />
+                            </div>
+                        </div>
+                    </aside>
+                )}
+
+                <div
+                    className={cn(
+                        'flex min-w-0 flex-1 flex-col',
+                        scroll === 'fixed' ? 'h-full overflow-hidden' : '',
+                    )}
+                >
+                    <div className="bg-card/80 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 px-1 backdrop-blur">
+                        {!isOpen && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={toggle}
+                                aria-label="Показать меню"
+                                title="Показать меню"
+                                className="hidden lg:inline-flex"
+                            >
+                                <Menu size={16} />
+                            </Button>
+                        )}
+
+                        <Link href="/" className="shrink-0 font-bold lg:hidden ml-2">
+                            April <span className="text-primary">CRM</span>
+                        </Link>
+
+                        <p className="text-muted-foreground hidden truncate text-sm font-semibold lg:block">
+                            {eyebrow}
+                        </p>
 
                         {/*
-                         * Футер сайта, а не своя копия: телефон, почта и
-                         * юридические ссылки должны быть теми же самыми.
-                         * Отдельная копия рано или поздно разойдётся с
-                         * оригиналом, и разойдётся молча.
-                         *
-                         * В нескроллящемся режиме его нет — там до низа
-                         * страницы просто не доехать.
+                         * Переключателя стекла здесь намеренно нет: страница
+                         * показывает продукт, а не настраивает его вид. Стекло
+                         * включено всегда — система сама погасит его при
+                         * prefers-reduced-transparency.
                          */}
-                        {scroll === 'island' && <Footer />}
-                    </main>
+                        <div className="text-muted-foreground ml-auto hidden items-center gap-3 text-xs lg:flex">
+                            <ZoomControls
+                                zoom={zoom.zoom}
+                                canZoomIn={zoom.canZoomIn}
+                                canZoomOut={zoom.canZoomOut}
+                                onZoomIn={zoom.zoomIn}
+                                onZoomOut={zoom.zoomOut}
+                                onReset={zoom.reset}
+                            />
+                            <ThemeToggler />
+                        </div>
+                    </div>
+
+                    <ProcessTabsMobile />
+
+                    <div
+                        className={cn(
+                            'flex min-h-0 flex-1 flex-col px-3 pb-3',
+                            scroll === 'fixed' && 'overflow-hidden',
+                        )}
+                    >
+                        <main
+                            aria-label={title}
+                            /*
+                             * Масштабируем только содержимое: шапка и меню должны
+                             * остаться на месте — их и так видно.
+                             */
+                            style={{ zoom: `${zoom.zoom}%` }}
+                            className={cn(
+                                'bg-background rounded-xl',
+                                scroll === 'fixed'
+                                    ? 'h-full min-h-0 overflow-hidden'
+                                    : 'flex-1',
+                            )}
+                        >
+                            {children}
+                        </main>
+                    </div>
                 </div>
             </div>
+
+            {/*
+             * Футер сайта, а не своя копия: телефон, почта и юридические
+             * ссылки должны быть теми же самыми. Отдельная копия рано или
+             * поздно разойдётся с оригиналом, и разойдётся молча.
+             *
+             * Стоит вне рамы: тянется во всю ширину, под сайдбаром и под
+             * островом. Внутри острова он читался как ещё одна карточка.
+             */}
+            {scroll === 'island' && <Footer />}
         </div>
     );
 };

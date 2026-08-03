@@ -13,6 +13,7 @@ import { ACTOR_LABEL } from '../lib/actor.util';
 import { callsPlacementName } from '../lib/calls-placement.util';
 import { resolveFlowStepContext } from '../lib/flow-context.util';
 import { KPI_BADGE_LABEL, KPI_SOURCE_HINT } from '../lib/kpi-source.util';
+import { ENTITY_LISTS } from '../constants/entity-lists';
 import { openDecisions } from '../lib/open-decisions.util';
 import { plural } from '../lib/plural.util';
 import type {
@@ -266,11 +267,32 @@ export const buildRegulation = ({
         }),
     );
 
+    lines.push(...section('7. Стадии и статусы: лид и заявка'));
+
+    ENTITY_LISTS.forEach(column => {
+        const wip = column.readiness === 'wip' ? '  [в разработке]' : '';
+        lines.push(`${column.label.toUpperCase()}${wip}`, `   ${column.hint}`, '');
+
+        column.groups.forEach(group => {
+            const items = config.lists?.[group.id] ?? group.items;
+            const edited = config.lists?.[group.id] ? '  (изменено)' : '';
+
+            lines.push(`   ${group.label}${edited}:`);
+            lines.push(
+                ...(items.length > 0
+                    ? items.map(item => `      • ${item}`)
+                    : ['      — пусто —']),
+            );
+        });
+
+        lines.push('');
+    });
+
     const open = openDecisions(definition.theory);
 
     if (open.length > 0) {
         lines.push(
-            ...section('7. Открытые развилки — решить на внедрении'),
+            ...section('8. Открытые развилки — решить на внедрении'),
             'Здесь у нас пока нет готового ответа. Это не пробел в документе, а',
             'честно открытый вопрос: решать его лучше сейчас и спокойно, чем',
             'через полгода конфликтом.',

@@ -29,8 +29,39 @@ export interface BenefitBlock {
     gain: string;
 }
 
+/** Готовность куска модели — то же различие, что на схеме. */
+export type TheoryReadiness = 'live' | 'wip' | 'open';
+
+/** Колонка сравнения сущностей: свои стадии, свой статус, чужие статусы. */
+export interface EntityColumn {
+    label: string;
+    hint: string;
+    /** Рабочие стадии — те, на которых сущность ещё в работе. */
+    working: string[];
+    /** Положительные финалы. */
+    positive: string[];
+    /** Отрицательные финалы. */
+    negative: string[];
+    /** Собственный статус работы, если он есть отдельно от стадии. */
+    ownStatus: string;
+    /** Что сущность показывает про связанные с ней сущности. */
+    linked: string[];
+    readiness: TheoryReadiness;
+}
+
 export type TheoryBlock =
     | BenefitBlock
+    | { kind: 'entities'; title: string; intro: string; columns: EntityColumn[] }
+    | {
+          kind: 'checklist';
+          title: string;
+          intro: string;
+          items: {
+              question: string;
+              answer: string;
+              state: TheoryReadiness;
+          }[];
+      }
     | { kind: 'lead'; text: string }
     | { kind: 'heading'; text: string }
     | { kind: 'paragraph'; text: string }

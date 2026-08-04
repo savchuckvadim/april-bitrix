@@ -10,6 +10,7 @@ import { getResultMenu, EventItemResultType } from '@/modules/widgets/EventItem'
 import { useEventNavigation } from '@/modules/processes/event';
 import { ResultStatistics } from '@/modules/features/ResultStatistics';
 import { DepartmentMode } from '@/modules/features/Departament';
+import { ClientBar } from '@/modules/entities/EventCompany';
 
 /** Шапка списка: обновление, статистика результатов, режим отдела, создание события. */
 export const EventListHeader: FC = () => {
@@ -23,7 +24,8 @@ export const EventListHeader: FC = () => {
     };
 
     return (
-        <div className="flex items-center justify-between gap-2 py-2">
+        <div className="space-y-2 py-2">
+            <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-3">
                 <button
                     type="button"
@@ -43,6 +45,11 @@ export const EventListHeader: FC = () => {
                     + создать
                 </Button>
             </div>
+            </div>
+
+            {/* Прогноз и статус клиента — над событиями: их правят и не
+                открывая отчёт. */}
+            <ClientBar />
         </div>
     );
 };

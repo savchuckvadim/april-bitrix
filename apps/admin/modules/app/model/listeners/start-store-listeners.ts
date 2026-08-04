@@ -1,5 +1,5 @@
 import { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
-import { AppDispatch, RootState, ThunkExtraArgument } from '../store';
+import type { AppDispatch, RootState, ThunkExtraArgument } from '../store';
 
 // Единственный листенер (инвалидация bitrix-client при смене портала) удалён
 // вместе с легаси entities/bitrix — функция осталась точкой подключения

@@ -1,6 +1,6 @@
 'use client';
 
-import { useAppSelector } from '@/modules/app';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 
 /**
  * Читает текущий портал из Redux state.portal.current.

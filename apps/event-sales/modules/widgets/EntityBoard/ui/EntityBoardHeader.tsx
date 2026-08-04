@@ -3,6 +3,7 @@
 import { FC } from 'react';
 import { Badge } from '@workspace/ui/components/badge';
 import type { ResponsibleUser } from '@/modules/entities/RelatedCrm';
+import { ClientBar } from '@/modules/entities/EventCompany';
 import type { EntityDescriptor } from '@/modules/entities/RelatedCrm';
 
 interface EntityBoardHeaderProps {
@@ -29,5 +30,9 @@ export const EntityBoardHeader: FC<EntityBoardHeaderProps> = ({
                 {responsible.name}
             </span>
         )}
+
+        {/* Та же полоска, что над списком и в шапке отчёта: прогноз и статус
+            клиента живут одним компонентом на всех трёх экранах. */}
+        <ClientBar className="basis-full" />
     </header>
 );

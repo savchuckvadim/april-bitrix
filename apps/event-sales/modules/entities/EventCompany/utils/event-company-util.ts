@@ -1,5 +1,22 @@
 export type CompanyColorType = 'red' | 'green' | 'yellow';
 
+/**
+ * Шкала прогноза: три ступени от худшей к лучшей.
+ *
+ * Порядок здесь — сам смысл шкалы, поэтому массив, а не карта. Классы тонов
+ * прописаны явно: `red/yellow/green` — коды портального поля, и выводить из
+ * них цвет строкой значило бы завязать вёрстку на данные портала.
+ */
+export const PROSPECT_SCALE: ReadonlyArray<{
+    code: CompanyColorType;
+    name: string;
+    activeClass: string;
+}> = [
+    { code: 'red', name: 'Красный', activeClass: 'bg-destructive' },
+    { code: 'yellow', name: 'Жёлтый', activeClass: 'bg-warning' },
+    { code: 'green', name: 'Зелёный', activeClass: 'bg-success' },
+];
+
 type ColorResult = {
     btnColor: 'success' | 'warning' | 'danger';
     value: number;

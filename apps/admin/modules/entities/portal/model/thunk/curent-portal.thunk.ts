@@ -1,7 +1,7 @@
-import { RootState } from "@/modules/app/model/store";
+import type { RootState } from "@/modules/app/model/store";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { PortalHelper } from "../../api/portal-helper";
-import { IPortal } from "../slice/PortalSlice";
+import type { IPortal } from "../slice/PortalSlice";
 
 export const fetchCurrentPortal = createAsyncThunk<
     {

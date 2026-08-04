@@ -1,5 +1,5 @@
 import { appActions } from "../slice/AppSlice";
-import { AppDispatch, AppGetState } from "../store";
+import type { AppDispatch, AppGetState } from "../store";
 
 
 export const initializeApp = (isInstall: boolean | undefined = false) => async (dispatch: AppDispatch, getState: AppGetState) => {

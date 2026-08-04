@@ -6,6 +6,7 @@ import { EventTypeBadge } from '@workspace/april-ui';
 import { ThemeTogglePanel } from '@workspace/theme';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
+import { ClientBar } from '@/modules/entities/EventCompany';
 import { useItemWarnings } from '../../lib/hooks/use-item-warnings';
 import { ItemWarnings } from './ItemWarnings';
 import { PresentationDoneButton } from './PresentationDoneButton';
@@ -60,6 +61,8 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
                         <ThemeTogglePanel />
                     </div>
                 </div>
+
+                <ClientBar />
 
                 <ItemWarnings warnings={warnings} />
             </div>

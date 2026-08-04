@@ -2,7 +2,6 @@
 
 import { FC } from 'react';
 import { SectionCard } from '@workspace/april-ui/surfaces';
-import { Label } from '@workspace/ui/components/label';
 import {
     Select,
     SelectContent,
@@ -15,110 +14,94 @@ import {
     EV_REPORT_PROP,
     EventReportSelectProp,
     eventReportActions,
-    getCurrentWorkStatusItems,
+    WorkStatusSegments,
 } from '@/modules/entities/EventReport';
-import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
-import { CompanyFields } from '../report/CompanyFields';
 
 /**
- * Итог разговора: статус работы, при «Отказе» — тип и причина, и здесь же
- * поля компании (прогноз, статус клиента).
+ * Итог разговора: статус работы и — только при «Отказе» — его тип и причина.
  *
- * Компания раньше была отдельной карточкой внизу формы. По смыслу это часть
- * итога — «в какой работе клиент», — поэтому стоит рядом со статусом работы,
- * а не через полэкрана от него.
+ * Секция намеренно ужата до одной строки в обычном случае. Раньше здесь жили
+ * ещё прогноз и статус клиента, и карточка выглядела анкетой из трёх крупных
+ * полей. Но прогноз и статус описывают КЛИЕНТА, а не состоявшийся разговор —
+ * они переехали в полоску клиента в шапке (`ClientBar`). Освободившаяся высота
+ * достаётся комментарию: его пишут на каждом отчёте, а статусы выбирают одним
+ * тапом.
  *
- * Каскады активности полей — в applyReportProp (entity), тут только рендер.
+ * Уточнения отказа — вложенным блоком, а не равноправными ячейками грида: так
+ * видно, что это продолжение выбранного «Отказа», и в остальных случаях
+ * карточка не раздувается.
  */
 export const ReportSection: FC = () => {
     const dispatch = useAppDispatch();
     const report = useAppSelector(s => s.eventReport.report);
-    const departmentMode = useAppSelector(
-        s => s.department[DEPARTAMENT_STATE_PROP.MODE].current,
-    );
 
-    const workStatusItems = getCurrentWorkStatusItems(
-        report,
-        departmentMode?.code ?? 'sales',
-    );
-    const workStatus = report[EV_REPORT_PROP.WORK_STATUS];
     const failType = report[EV_REPORT_PROP.FAIL_TYPE];
     const failReason = report[EV_REPORT_PROP.FAIL_REASON];
+    const withFailDetails = failType.isActive || failReason.isActive;
 
     const setProp = (propName: EventReportSelectProp) => (value: string) =>
         dispatch(eventReportActions.setReportProp({ propName, value }));
 
     return (
         <SectionCard title="Итог">
-            <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                    <Label>Статус работы</Label>
-                    <Select
-                        value={String(workStatus.current.id)}
-                        onValueChange={setProp(EV_REPORT_PROP.WORK_STATUS)}
-                    >
-                        <SelectTrigger className="w-full">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {workStatusItems.map(item => (
-                                <SelectItem key={item.id} value={String(item.id)}>
-                                    {item.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+            <div className="space-y-2">
+                <WorkStatusSegments />
 
-                {failType.isActive && (
-                    <div className="space-y-1.5">
-                        <Label>Тип отказа</Label>
-                        <Select
-                            value={String(failType.current.id)}
-                            onValueChange={setProp(EV_REPORT_PROP.FAIL_TYPE)}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {failType.items.map(item => (
-                                    <SelectItem
-                                        key={item.id}
-                                        value={String(item.id)}
-                                    >
-                                        {item.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                {withFailDetails && (
+                    <div className="ml-1 grid gap-2 border-l-2 border-destructive/40 pl-3 sm:grid-cols-2">
+                        {failType.isActive && (
+                            <Select
+                                value={String(failType.current.id)}
+                                onValueChange={setProp(EV_REPORT_PROP.FAIL_TYPE)}
+                            >
+                                <SelectTrigger
+                                    size="sm"
+                                    aria-label="Тип отказа"
+                                    className="w-full"
+                                >
+                                    <SelectValue placeholder="Тип отказа" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {failType.items.map(item => (
+                                        <SelectItem
+                                            key={item.id}
+                                            value={String(item.id)}
+                                        >
+                                            {item.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+
+                        {failReason.isActive && (
+                            <Select
+                                value={String(failReason.current.id)}
+                                onValueChange={setProp(
+                                    EV_REPORT_PROP.FAIL_REASON,
+                                )}
+                            >
+                                <SelectTrigger
+                                    size="sm"
+                                    aria-label="Причина отказа"
+                                    className="w-full"
+                                >
+                                    <SelectValue placeholder="Причина отказа" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {failReason.items.map(item => (
+                                        <SelectItem
+                                            key={item.id}
+                                            value={String(item.id)}
+                                        >
+                                            {item.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
                     </div>
                 )}
-
-                {failReason.isActive && (
-                    <div className="space-y-1.5">
-                        <Label>Причина отказа</Label>
-                        <Select
-                            value={String(failReason.current.id)}
-                            onValueChange={setProp(EV_REPORT_PROP.FAIL_REASON)}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {failReason.items.map(item => (
-                                    <SelectItem
-                                        key={item.id}
-                                        value={String(item.id)}
-                                    >
-                                        {item.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                )}
-
-                <CompanyFields />
             </div>
         </SectionCard>
     );

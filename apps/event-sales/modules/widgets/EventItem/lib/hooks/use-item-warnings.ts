@@ -69,13 +69,12 @@ export const useItemWarnings = (): ItemWarning[] => {
     // Поиск дублей по ИНН доступен, только когда известны И компания, И ИНН;
     // поиск по контактам — независимо от него.
 
-    if (colorRequired && !color.current && !color.isChanged) {
-        warnings.push({
-            id: 'company-color',
-            text: 'Укажите прогноз по компании — без него отчёт не отправится.',
-            blocking: false,
-        });
-    }
+    // Про прогноз предупреждения нет намеренно: шкала теперь стоит тут же, в
+    // шапке, и сама показывает и «не задан», и ошибку после неудачной отправки.
+    // Строка предупреждения рядом с самим контролом была бы вторым голосом об
+    // одном и том же.
+    void colorRequired;
+    void color;
 
     return warnings.sort((a, b) => Number(b.blocking) - Number(a.blocking));
 };

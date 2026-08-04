@@ -6,11 +6,10 @@ import { useEffect } from 'react';
 import App from '../ui/App';
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-    console.log('AppProvider');
     useEffect(() => {
+        // Отладочный доступ к стору из консоли браузера.
         if (typeof window !== 'undefined') {
             (window as any).store = store;
-            console.log('store', (window as any).store);
         }
     }, []);
     return (

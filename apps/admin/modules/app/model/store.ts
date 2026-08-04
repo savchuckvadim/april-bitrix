@@ -12,14 +12,13 @@ import { WSClient } from '@workspace/ws';
 import { appReducer } from './slice/AppSlice';
 import { errorHandler } from '../lib/error-handler';
 import { startStoreListeners } from './listeners/start-store-listeners';
-import { portalReducer } from '@/modules/entities/portal';
-
-
-
+// Прямой путь до слайса, без бареля entities/portal: модуль стора выполняется
+// на старте приложения, и барель затащил бы в его граф ещё и хуки портала,
+// которые сами импортируют стор через '@/modules/app'.
+import { portalReducer } from '@/modules/entities/portal/model/slice/PortalSlice';
 
 const listenerMiddleware = createListenerMiddleware();
 let wsClient: WSClient;
-startStoreListeners(listenerMiddleware as ListenerMiddlewareInstance<RootState, AppDispatch, ThunkExtraArgument>);
 
 // const socketMiddleware: Middleware = (storeAPI: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
 //   // Место для обработки действий или взаимодействия с сокетом
@@ -98,3 +97,13 @@ export type AppDispatch = AppStore['dispatch'];
 export type AppGetState = AppStore['getState'];
 
 export const store = setupStore();
+
+// Регистрация листенеров после setupStore: они типизированы стором, и до его
+// создания подписываться не на что.
+startStoreListeners(
+    listenerMiddleware as ListenerMiddlewareInstance<
+        RootState,
+        AppDispatch,
+        ThunkExtraArgument
+    >,
+);

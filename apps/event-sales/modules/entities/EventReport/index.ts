@@ -5,3 +5,5 @@ export * from './type/event-report-type';
 export * from './lib/report-catalog';
 export * from './lib/event-report-util';
 export * from './lib/work-status-util';
+export * from './lib/work-status-view';
+export { WorkStatusSegments } from './ui/WorkStatusSegments';

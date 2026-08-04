@@ -11,6 +11,8 @@ export interface UseRelatedCrmParams {
     domain: string;
     entityType: RelatedEntityType | null;
     entityId: number | null;
+    /** Не запрашивать вовсе — когда связи на экране не показываются. */
+    enabled?: boolean;
 }
 
 export interface RelatedCrmData {
@@ -33,6 +35,7 @@ export const useRelatedCrm = ({
     domain,
     entityType,
     entityId,
+    enabled = true,
 }: UseRelatedCrmParams): RelatedCrmData => {
     const [details, setDetails] = useState<RelatedCrmDetails | null>(null);
     const [status, setStatus] = useState<SectionStatus>('idle');
@@ -42,7 +45,7 @@ export const useRelatedCrm = ({
     const reload = useCallback(() => setReloadToken(token => token + 1), []);
 
     useEffect(() => {
-        if (!domain || !entityType || !entityId) return;
+        if (!enabled || !domain || !entityType || !entityId) return;
 
         let cancelled = false;
         setStatus('loading');
@@ -66,7 +69,7 @@ export const useRelatedCrm = ({
         return () => {
             cancelled = true;
         };
-    }, [domain, entityType, entityId, includeClosed, reloadToken]);
+    }, [enabled, domain, entityType, entityId, includeClosed, reloadToken]);
 
     return { details, status, includeClosed, setIncludeClosed, reload };
 };

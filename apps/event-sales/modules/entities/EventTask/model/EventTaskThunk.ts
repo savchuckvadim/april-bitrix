@@ -41,18 +41,30 @@ export const initialEventTasks =
             const fromLead = from === APP_FROM_ENUM.LEAD && leadId
             if (!tasks || !tasks.length) {
                 const ufCrmTasks = fromLead ? `L_${leadId}` : `CO_${companyId}`
-                const response = (await Bitrix.getService().api.call('tasks.task.list', {
-                    filter: {
-                        GROUP_ID: taskGroupId,
-                        UF_CRM_TASK: [ufCrmTasks],
-                        RESPONSIBLE_ID: userId,
-                        '!=STATUS': 5,
-                    },
-                    select: TASK_SELECT,
-                })) as { tasks: BXTask[] } | null;
+                try {
+                    const response = (await Bitrix.getService().api.call('tasks.task.list', {
+                        filter: {
+                            GROUP_ID: taskGroupId,
+                            UF_CRM_TASK: [ufCrmTasks],
+                            RESPONSIBLE_ID: userId,
+                            '!=STATUS': 5,
+                        },
+                        select: TASK_SELECT,
+                    })) as { tasks: BXTask[] } | null;
 
-                if (response?.tasks) {
-                    tasks = response.tasks;
+                    if (response?.tasks) {
+                        tasks = response.tasks;
+                    }
+                } catch (error) {
+                    // Без этого падение запроса просто роняло thunk: isFetched
+                    // оставался false, и список крутил скелетон бесконечно.
+                    console.error('initialEventTasks error', error);
+                    dispatch(
+                        eventTaskActions.setTasksError({
+                            message: 'Не удалось загрузить события',
+                        }),
+                    );
+                    return;
                 }
             }
 

@@ -3,7 +3,7 @@
 import { FC } from 'react';
 import { Badge } from '@workspace/ui/components/badge';
 import type { ResponsibleUser } from '@/modules/entities/RelatedCrm';
-import type { EntityDescriptor } from '../lib/entity-descriptor';
+import type { EntityDescriptor } from '@/modules/entities/RelatedCrm';
 
 interface EntityBoardHeaderProps {
     descriptor: EntityDescriptor;

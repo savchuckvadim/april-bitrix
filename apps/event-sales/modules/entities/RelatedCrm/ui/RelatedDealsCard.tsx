@@ -11,6 +11,7 @@ import { Label } from '@workspace/ui/components/label';
 import { Switch } from '@workspace/ui/components/switch';
 import { cn } from '@workspace/ui/lib/utils';
 import type { RelatedDeal } from '../model';
+import { dealAmount } from '../lib/stage-view';
 import { SectionState, type SectionStatus } from '@/modules/shared/SectionState';
 import { StageMini } from './StageMini';
 
@@ -85,11 +86,14 @@ export const RelatedDealsCard: FC<RelatedDealsCardProps> = ({
                                 <span className="min-w-0 truncate text-sm text-foreground">
                                     {deal.title}
                                 </span>
-                                {deal.responsible?.name && (
-                                    <span className="shrink-0 text-xs text-muted-foreground">
-                                        {deal.responsible.name}
-                                    </span>
-                                )}
+                                <span className="flex shrink-0 items-baseline gap-2 text-xs text-muted-foreground">
+                                    {dealAmount(deal.opportunity) && (
+                                        <span className="font-medium text-foreground">
+                                            {dealAmount(deal.opportunity)}
+                                        </span>
+                                    )}
+                                    {deal.responsible?.name}
+                                </span>
                             </div>
                             <StageMini stage={deal.stage} className="mt-1" />
                         </li>

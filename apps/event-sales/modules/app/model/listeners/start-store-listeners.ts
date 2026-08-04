@@ -3,7 +3,6 @@ import { setInitEventCompany } from '@/modules/entities/EventCompany/model/Event
 import { getCompanyContacts } from '@/modules/entities/EventContact/model/EventContactThunk';
 import { eventTaskActions } from '@/modules/entities/EventTask/model/EventTaskSlice';
 import { getInitSale } from '@/modules/entities/EventSale/model/EventSaleThunk';
-import { getEventSalesHistory } from '@/modules/entities/EVHistory/model/EVHistoryThunk';
 import { fetchResults } from '@/modules/features/NoCall/model/NoCallThunk';
 import { initReturnToTMC } from '@/modules/features/ReturnToTMC/model/ReturnToTMCThunk';
 import { initCheckPresentation } from '@/modules/features/AfterPresentation/model/AfterPresentationThunk';
@@ -37,7 +36,8 @@ export function startStoreListeners(startAppListening: AppStartListening) {
 
             dispatch(setInitEventCompany(portal));
             dispatch(getCompanyContacts(portal));
-            dispatch(getEventSalesHistory());
+            // История НЕ грузится здесь: у давнего клиента это сотни записей,
+            // а смотрят её единицы. Её тянет сама секция при появлении.
             dispatch(initCheckPresentation());
         },
     });

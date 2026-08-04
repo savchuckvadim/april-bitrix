@@ -134,6 +134,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      # GHCR ловит secondary rate limit, если 7 сборок одновременно пушат слои
+      # (2 тега + registry-кэш mode=max на каждое приложение) — push падает с
+      # 403 permission_denied «You have exceeded a secondary rate limit».
+      # Ограничиваем одновременные push'и; на shared-изменениях сборка идёт
+      # волнами, но не разваливается.
+      max-parallel: 3
       matrix:
         app: ${{ fromJSON(needs.detect.outputs.apps) }}
     steps:
@@ -148,35 +154,83 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Owner в нижнем регистре (требование GHCR)
-        id: owner
-        run: echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+      - name: Имя образа (owner в нижнем регистре — требование GHCR)
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/april-front-${{ matrix.app }}" >> "$GITHUB_ENV"
+
+      # build-args собираем один раз в $BUILD_ARGS — их читают обе попытки push
+      # (см. ниже), чтобы список не разъезжался между копиями шага.
+      - name: build-args для ${{ matrix.app }}
+        env:
+          APP_URL: ${{ fromJSON(env.APP_CFG)[matrix.app].app_url }}
+          IN_BITRIX: ${{ fromJSON(env.APP_CFG)[matrix.app].in_bitrix }}
+          CHROMIUM: ${{ fromJSON(env.APP_CFG)[matrix.app].chromium }}
+          ADMIN_API_URL: ${{ fromJSON(env.APP_CFG)[matrix.app].admin_api_url }}
+          PBX_INSTALL_API_URL: ${{ fromJSON(env.APP_CFG)[matrix.app].pbx_install_api_url }}
+          KONSTRUCTOR_API_URL: ${{ fromJSON(env.APP_CFG)[matrix.app].konstructor_api_url }}
+          KPI_SALES_API_URL: ${{ fromJSON(env.APP_CFG)[matrix.app].kpi_sales_api_url }}
+          EVENT_SALES_API_URL: ${{ fromJSON(env.APP_CFG)[matrix.app].event_sales_api_url }}
+        run: |
+          {
+            echo 'BUILD_ARGS<<__ARGS_EOF__'
+            echo "APP=${{ matrix.app }}"
+            echo "NEXT_PUBLIC_APP_URL=$APP_URL"
+            echo "NEXT_PUBLIC_WS_HOST=$WS_HOST"
+            echo "NEXT_PUBLIC_IN_BITRIX=$IN_BITRIX"
+            echo "IN_BITRIX=$IN_BITRIX"
+            echo "YANDEX_ID=$YANDEX_ID"
+            echo "WITH_CHROMIUM=$CHROMIUM"
+            echo "NEXT_PUBLIC_ADMIN_API_URL=$ADMIN_API_URL"
+            echo "NEXT_PUBLIC_PBX_INSTALL_API_URL=$PBX_INSTALL_API_URL"
+            echo "NEXT_PUBLIC_KONSTRUCTOR_API_URL=$KONSTRUCTOR_API_URL"
+            echo "NEXT_PUBLIC_KPI_SALES_API_URL=$KPI_SALES_API_URL"
+            echo "NEXT_PUBLIC_EVENT_SALES_API_URL=$EVENT_SALES_API_URL"
+            echo '__ARGS_EOF__'
+          } >> "$GITHUB_ENV"
 
       - name: Build & push ${{ matrix.app }}
+        id: push1
+        continue-on-error: true # падение разбираем ниже: транзиентное — ретраим
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile.prod
           build-args: |
-            APP=${{ matrix.app }}
-            NEXT_PUBLIC_APP_URL=${{ fromJSON(env.APP_CFG)[matrix.app].app_url }}
-            NEXT_PUBLIC_WS_HOST=${{ env.WS_HOST }}
-            NEXT_PUBLIC_IN_BITRIX=${{ fromJSON(env.APP_CFG)[matrix.app].in_bitrix }}
-            IN_BITRIX=${{ fromJSON(env.APP_CFG)[matrix.app].in_bitrix }}
-            YANDEX_ID=${{ env.YANDEX_ID }}
+            ${{ env.BUILD_ARGS }}
             ONLINE_API_KEY=${{ secrets.ONLINE_API_KEY }}
-            WITH_CHROMIUM=${{ fromJSON(env.APP_CFG)[matrix.app].chromium }}
-            NEXT_PUBLIC_ADMIN_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].admin_api_url }}
-            NEXT_PUBLIC_PBX_INSTALL_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].pbx_install_api_url }}
-            NEXT_PUBLIC_KONSTRUCTOR_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].konstructor_api_url }}
-            NEXT_PUBLIC_KPI_SALES_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].kpi_sales_api_url }}
-            NEXT_PUBLIC_EVENT_SALES_API_URL=${{ fromJSON(env.APP_CFG)[matrix.app].event_sales_api_url }}
           push: true
+          # provenance/sbom не нужны, а их attestation-манифесты + manifest list
+          # добавляют лишние push-запросы к GHCR (плюс к rate limit)
+          provenance: false
+          sbom: false
           tags: |
-            ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:${{ github.sha }}
-            ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:latest
-          cache-from: type=registry,ref=ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:buildcache
-          cache-to: type=registry,ref=ghcr.io/${{ steps.owner.outputs.owner }}/april-front-${{ matrix.app }}:buildcache,mode=max
+            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
+
+      # Secondary rate limit GHCR живёт несколько минут. Слои уже в локальном
+      # кэше buildx, поэтому вторая попытка — это фактически только push.
+      - name: Пауза перед повтором push
+        if: steps.push1.outcome == 'failure'
+        run: sleep $((RANDOM % 120 + 180)) # разводим ретраи параллельных сборок
+
+      - name: Build & push ${{ matrix.app }} (повтор)
+        if: steps.push1.outcome == 'failure'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.prod
+          build-args: |
+            ${{ env.BUILD_ARGS }}
+            ONLINE_API_KEY=${{ secrets.ONLINE_API_KEY }}
+          push: true
+          provenance: false
+          sbom: false
+          tags: |
+            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
 
   # ---------------------------------------------------------------
   deploy:
@@ -220,12 +274,33 @@ jobs:
               [ -f "apps/$d/.env" ] || { echo "⚠️ apps/$d/.env отсутствует — создаю пустой (заполни перед деплоем этого app!)"; touch "apps/$d/.env"; }
             done
 
+            # Логин нужен только для приватных пакетов. Если PAT протух или
+            # выдан не на все пакеты, GHCR отвечает "denied: denied" даже на
+            # публичный образ — поэтому логин не делаем фатальным, а при
+            # отказе на pull ниже пробуем анонимно.
             if [ -n "$GHCR_PAT" ]; then
               echo "🔐 Логин в GHCR"
-              echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+              echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USER" --password-stdin \
+                || echo "⚠️ docker login не прошёл — продолжаю анонимно"
             else
               echo "ℹ️ GHCR_PAT пуст — пропускаю docker login (образы должны быть публичными)"
             fi
+
+            # GHCR иногда отвечает "denied: denied" на аутентифицированный
+            # запрос (протухший/узко выданный PAT, вторичный rate limit), хотя
+            # образ публичный. Пробуем: как есть -> пауза -> анонимно.
+            pull_image () {
+              local svc="$1"
+              $COMPOSE pull "$svc" && return 0
+              echo "⚠️ pull $svc не удался — повтор через 30s"
+              sleep 30
+              $COMPOSE pull "$svc" && return 0
+              echo "⚠️ pull $svc снова не удался — пробую без учётки GHCR"
+              docker logout ghcr.io >/dev/null 2>&1 || true
+              $COMPOSE pull "$svc" && return 0
+              echo "❌ pull $svc не удался"
+              return 1
+            }
 
             wait_healthy () {
               local svc="$1" cid timeout=300 elapsed=0
@@ -263,8 +338,18 @@ jobs:
                 continue
               fi
               echo "📦 pull + up: $svc"
-              $COMPOSE pull "$svc"
-              $COMPOSE up -d "$svc"
+              # set -e не должен ронять весь цикл из-за одного приложения:
+              # раньше отказ pull обрывал деплой и остальные apps молча
+              # оставались на старом теге.
+              if ! pull_image "$svc"; then
+                FAILED="$FAILED $svc"
+                continue
+              fi
+              if ! $COMPOSE up -d "$svc"; then
+                echo "❌ up -d $svc не удался"
+                FAILED="$FAILED $svc"
+                continue
+              fi
               wait_healthy "$svc" || FAILED="$FAILED $svc"
             done
 

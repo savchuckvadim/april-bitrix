@@ -1,53 +1,13 @@
 'use client';
 
-import { FC, useEffect } from 'react';
-import { SectionCard } from '@workspace/april-ui/surfaces';
-import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { getEventSalesHistory } from '@/modules/entities/EVHistory';
+import { FC } from 'react';
+import { EntityHistoryCard } from '@/modules/entities/EVHistory/ui/EntityHistoryCard';
 
 /**
- * История общения по компании (список «ОП История» на портале).
+ * История общения по компании во вкладке отчёта.
  *
- * Грузится при первом открытии вкладки, а не вместе с формой: большинство
- * отчётов пишут, не заглядывая в историю, и платить за неё запросом каждый
- * раз незачем.
+ * Вся логика (ленивая загрузка при появлении, постраничность, фолбэк на поля
+ * клиента) живёт в самой сущности — вкладка её только показывает. Так экран
+ * сущности и вкладка не разъезжаются в поведении.
  */
-export const HistoryTab: FC = () => {
-    const dispatch = useAppDispatch();
-    const items = useAppSelector(s => s.eventHistory.items);
-    const isFetched = useAppSelector(s => s.eventHistory.isFetched);
-    const isLoading = useAppSelector(s => s.eventHistory.isLoading);
-
-    useEffect(() => {
-        if (!isFetched && !isLoading) {
-            dispatch(getEventSalesHistory());
-        }
-    }, [isFetched, isLoading]);
-
-    return (
-        <SectionCard title="История общения">
-            {isLoading && (
-                <div className="space-y-2">
-                    <div className="h-10 animate-pulse rounded-md bg-muted" />
-                    <div className="h-10 animate-pulse rounded-md bg-muted" />
-                </div>
-            )}
-
-            {!isLoading && isFetched && !items?.length && (
-                <p className="text-sm text-muted-foreground">
-                    Записей нет
-                </p>
-            )}
-
-            {!isLoading &&
-                items?.map(item => (
-                    <p
-                        key={item.id}
-                        className="rounded-md border border-border px-3 py-2 text-sm whitespace-pre-line"
-                    >
-                        {item.comment}
-                    </p>
-                ))}
-        </SectionCard>
-    );
-};
+export const HistoryTab: FC = () => <EntityHistoryCard />;

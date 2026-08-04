@@ -1,6 +1,6 @@
 import type { BXCompany, BXDeal, BXLead } from '@workspace/bx';
 import { APP_FROM_ENUM } from '@/modules/app/model/slice/AppSlice';
-import { RELATED_ENTITY_TYPE, type RelatedEntityType } from '@/modules/entities/RelatedCrm';
+import { RELATED_ENTITY_TYPE, type RelatedEntityType } from '../model';
 
 /**
  * Кто мы и на чём открыты.

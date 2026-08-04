@@ -3,7 +3,7 @@
 import { FC } from 'react';
 import dynamic from 'next/dynamic';
 import { SectionSkeleton } from '@/modules/shared/SectionState';
-import { usePortalHistory } from '@/modules/entities/EVHistory';
+
 import { NoCallMenu } from '@/modules/features/NoCall';
 import { ReturnToTMCMenu } from '@/modules/features/ReturnToTMC';
 import { FlowStatusBanner } from '@/modules/widgets/EventList/ui/FlowStatusBanner';
@@ -51,7 +51,7 @@ export const EntityBoard: FC = () => {
         setIncludeClosed,
         reload,
     } = useEntityBoard();
-    const history = usePortalHistory();
+
 
     if (!descriptor) {
         return (
@@ -78,7 +78,7 @@ export const EntityBoard: FC = () => {
             <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-2">
                 {/* Дела первыми в DOM: на узком экране это верх страницы. */}
                 <div className="order-1 flex min-h-0 flex-col gap-3 lg:order-2">
-                    <EntityTasksCard />
+                    <EntityTasksCard details={details ?? null} />
                 </div>
 
                 <div className="order-2 flex min-h-0 flex-col gap-3 overflow-y-auto lg:order-1">
@@ -95,7 +95,7 @@ export const EntityBoard: FC = () => {
                         status={status}
                         onRetry={reload}
                     />
-                    <EntityHistoryCard history={history} />
+                    <EntityHistoryCard />
                     <DuplicatesPanel />
                 </div>
             </div>

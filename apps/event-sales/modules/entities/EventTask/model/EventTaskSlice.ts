@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { BXDeal } from '@workspace/bx';
 import { BX_TASK_MARK } from '@workspace/bx/src/type/bitrix-type';
+import type { SectionStatus } from '@/modules/shared/SectionState';
 import { EventTask, PresentationStateCount } from '../types/event-task-type';
 
 export type EventTaskState = typeof initialState;
@@ -9,6 +10,12 @@ const initialState = {
     tasks: null as Array<EventTask> | null,
     current: null as EventTask | null,
     isFetched: false as boolean,
+    /**
+     * Состояние загрузки списка. Раньше был только `isFetched`, и падение
+     * запроса оставляло его `false` навсегда — экран показывал скелетон
+     * бесконечно, ни словом не сообщая, что что-то сломалось.
+     */
+    status: 'loading' as SectionStatus,
     error: '',
 };
 
@@ -22,6 +29,8 @@ const eventTaskSlice = createSlice({
         ) => {
             state.tasks = action.payload.tasks;
             state.isFetched = true;
+            state.status = 'ready';
+            state.error = '';
         },
 
         setPresData: (
@@ -65,10 +74,21 @@ const eventTaskSlice = createSlice({
             }
         },
 
+        setTasksError: (
+            state: EventTaskState,
+            action: PayloadAction<{ message: string }>,
+        ) => {
+            state.status = 'error';
+            state.error = action.payload.message;
+            state.isFetched = true;
+        },
+
         setCleanTasks: (state: EventTaskState) => {
             state.tasks = null;
             state.current = null;
             state.isFetched = false;
+            state.status = 'loading';
+            state.error = '';
         },
     },
 });

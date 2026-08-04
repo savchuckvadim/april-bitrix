@@ -7,20 +7,22 @@ import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { shouldFitWindow } from '@/modules/app/lib/utills/placement-util';
 
 /**
- * Через сколько повторить подгонку после отрисовки. Первый замер делаем в
- * следующем кадре, но данные приезжают асинхронно и высота ещё меняется —
- * поэтому повторяем, когда список/карточка уже наполнились.
+ * Пауза перед подгонкой после изменения высоты. Меньше — дёргаем фрейм на
+ * каждый кадр анимации раскрытия секции, больше — заметна ступенька.
  */
-const REFIT_DELAYS_MS = [300, 1200];
+const FIT_DEBOUNCE_MS = 120;
 
 /**
- * Подгонка высоты фрейма под контент на каждой странице.
+ * Подгонка высоты фрейма под контент.
  *
  * Только для вкладок карточки — см. `shouldFitWindow`. Во встройке таймлайна
  * вызов запрещён: приложение там на весь экран, и подгонка его схлопнет.
  *
- * Зависит от роута и от готовности приложения: пока не отрисован контент,
- * мерить нечего — фрейм подогнался бы под пустую страницу.
+ * Следим за реальной высотой документа, а не зовём по таймеру после перехода.
+ * Причина конкретная: страница элемента доезжает лениво (chunk + данные) и
+ * растёт уже после перехода — фиксированные задержки успевали померить старую
+ * высоту, и карточка вылезала за фрейм. ResizeObserver ловит любой рост:
+ * загрузку чанка, приход данных, раскрытие секции, открытие диалога.
  */
 export const useFitWindow = () => {
     const pathname = usePathname();
@@ -29,6 +31,8 @@ export const useFitWindow = () => {
 
     useEffect(() => {
         if (!initialized || !shouldFitWindow(placement)) return;
+
+        let timer: ReturnType<typeof setTimeout> | undefined;
 
         const fit = () => {
             try {
@@ -39,12 +43,22 @@ export const useFitWindow = () => {
             }
         };
 
-        const frame = requestAnimationFrame(fit);
-        const timers = REFIT_DELAYS_MS.map(delay => setTimeout(fit, delay));
+        const scheduleFit = () => {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(fit, FIT_DEBOUNCE_MS);
+        };
+
+        // Первый замер — в следующем кадре, когда новая страница уже в DOM.
+        const frame = requestAnimationFrame(scheduleFit);
+
+        const observer = new ResizeObserver(scheduleFit);
+        observer.observe(document.documentElement);
+        if (document.body) observer.observe(document.body);
 
         return () => {
             cancelAnimationFrame(frame);
-            timers.forEach(clearTimeout);
+            if (timer) clearTimeout(timer);
+            observer.disconnect();
         };
     }, [pathname, placement, initialized]);
 };

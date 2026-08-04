@@ -1,40 +1,65 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import type { SectionStatus } from '@/modules/shared/SectionState';
+import type { HistoryEntry } from '../lib/history-list';
 
-export interface EVHistoryItem {
-    id: number;
-    comment: string;
-}
+export type EVHistoryItem = HistoryEntry;
 
 export interface EVHistoryState {
-    items: EVHistoryItem[] | null;
-    isFetched: boolean;
-    isLoading: boolean;
+    items: EVHistoryItem[];
+    status: SectionStatus;
+    /** Смещение следующей страницы; `null` — всё загружено. */
+    next: number | null;
+    /** Сколько всего записей, если портал сказал. */
+    total: number | null;
+    /** Списка нет на портале — история недоступна, и это не ошибка. */
+    isListMissing: boolean;
 }
 
 const initialState: EVHistoryState = {
-    items: null,
-    isFetched: false,
-    isLoading: false,
+    items: [],
+    status: 'idle',
+    next: null,
+    total: null,
+    isListMissing: false,
 };
 
 const eventHistorySlice = createSlice({
     name: 'eventHistory',
     initialState,
     reducers: {
-        setFetchedHistory: (
-            state: EVHistoryState,
-            action: PayloadAction<{ history: EVHistoryItem[] }>,
-        ) => {
-            state.items = action.payload.history;
-            state.isFetched = true;
-            state.isLoading = false;
+        setLoading: (state: EVHistoryState) => {
+            state.status = 'loading';
         },
-        setIsLoading: (
+        /**
+         * Страница истории. `reset` отличает первую загрузку от догрузки:
+         * при первой список заменяем, при догрузке — дописываем.
+         */
+        setPage: (
             state: EVHistoryState,
-            action: PayloadAction<{ status: boolean }>,
+            action: PayloadAction<{
+                items: EVHistoryItem[];
+                next: number | null;
+                total: number | null;
+                reset: boolean;
+            }>,
         ) => {
-            state.isLoading = action.payload.status;
+            const { items, next, total, reset } = action.payload;
+            state.items = reset ? items : [...state.items, ...items];
+            state.next = next;
+            state.total = total;
+            state.status = 'ready';
+            state.isListMissing = false;
         },
+        setError: (state: EVHistoryState) => {
+            state.status = 'error';
+        },
+        setListMissing: (state: EVHistoryState) => {
+            state.status = 'ready';
+            state.isListMissing = true;
+            state.items = [];
+            state.next = null;
+        },
+        reset: () => initialState,
     },
 });
 

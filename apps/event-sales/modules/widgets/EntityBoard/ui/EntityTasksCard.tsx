@@ -7,15 +7,26 @@ import {
     CardHeader,
     CardTitle,
 } from '@workspace/ui/components/card';
+import { SectionState } from '@/modules/shared/SectionState';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
+import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
+import {
+    resolveTaskRelation,
+    type RelatedCrmDetails,
+} from '@/modules/entities/RelatedCrm';
 import {
     EventItemResultType,
     getResultMenu,
 } from '@/modules/widgets/EventItem';
 import { useEventNavigation } from '@/modules/processes/event';
 import { EventCard } from '@/modules/widgets/EventList/ui/EventCard';
-import { EventListSkeleton } from '@/modules/widgets/EventList/ui/EventListSkeleton';
+
+interface EntityTasksCardProps {
+    /** Связи клиента — из них карточка дела берёт свою сделку или лид. */
+    details: RelatedCrmDetails | null;
+}
 
 /**
  * Дела по клиенту — единственная секция, где менеджер действует, а не читает.
@@ -24,15 +35,18 @@ import { EventListSkeleton } from '@/modules/widgets/EventList/ui/EventListSkele
  * Скролл — у самой секции, а не у страницы: дел бывает и три, и триста, и в
  * последнем случае шапка со сделками не должна уезжать вверх.
  */
-export const EntityTasksCard: FC = () => {
+export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
     const dispatch = useAppDispatch();
     const nav = useEventNavigation();
 
     const tasks = useAppSelector(s => s.eventTask.tasks);
-    const isFetched = useAppSelector(s => s.eventTask.isFetched);
+    const status = useAppSelector(s => s.eventTask.status);
 
-    const selectEvent = async (status: EventItemResultType, task: EventTask) => {
-        await dispatch(getResultMenu(status, task));
+    const selectEvent = async (
+        resultType: EventItemResultType,
+        task: EventTask,
+    ) => {
+        await dispatch(getResultMenu(resultType, task));
         nav.toItem();
     };
 
@@ -45,23 +59,31 @@ export const EntityTasksCard: FC = () => {
             </CardHeader>
 
             <CardContent className="min-h-0 flex-1 overflow-y-auto">
-                {!isFetched ? (
-                    <EventListSkeleton />
-                ) : tasks?.length ? (
+                <SectionState
+                    status={status}
+                    isEmpty={!tasks?.length}
+                    emptyText="Открытых событий нет."
+                    errorText="Не удалось загрузить события — портал не ответил."
+                    onRetry={() => dispatch(reloadApp())}
+                >
                     <div className="grid gap-3">
-                        {tasks.map((task, index) => (
-                            <EventCard
-                                key={`board-task-${task.id ?? index}`}
-                                task={task}
-                                onSelect={selectEvent}
-                            />
-                        ))}
+                        {tasks?.map((task, index) => {
+                            const links = getTaskLinks(task);
+                            return (
+                                <EventCard
+                                    key={`board-task-${task.id ?? index}`}
+                                    task={task}
+                                    relation={resolveTaskRelation({
+                                        details,
+                                        dealIds: links.dealIds,
+                                        leadIds: links.leadIds,
+                                    })}
+                                    onSelect={selectEvent}
+                                />
+                            );
+                        })}
                     </div>
-                ) : (
-                    <p className="text-sm text-muted-foreground">
-                        Открытых событий нет.
-                    </p>
-                )}
+                </SectionState>
             </CardContent>
         </Card>
     );

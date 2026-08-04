@@ -8,13 +8,20 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table';
+import { SectionState } from '@/modules/shared/SectionState';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
+import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
+import {
+    resolveTaskRelation,
+    useCurrentRelations,
+} from '@/modules/entities/RelatedCrm';
 import {
     EventItemResultType,
     getResultMenu,
 } from '@/modules/widgets/EventItem';
 import { useEventNavigation } from '@/modules/processes/event';
+import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
 import { NoCallMenu } from '@/modules/features/NoCall';
 import { ReturnToTMCMenu } from '@/modules/features/ReturnToTMC';
 import { getEventListView } from '../lib/list-view';
@@ -22,7 +29,6 @@ import { EventCard } from './EventCard';
 import { EventListHeader } from './EventListHeader';
 import { FlowStatusBanner } from './FlowStatusBanner';
 import { EventListRow } from './EventListRow';
-import { EventListSkeleton } from './EventListSkeleton';
 
 /**
  * Список событий (задач обзвона) с действиями по строке.
@@ -33,14 +39,18 @@ export const EventList: FC = () => {
     const nav = useEventNavigation();
 
     const tasks = useAppSelector(state => state.eventTask.tasks);
-    const isFetched = useAppSelector(state => state.eventTask.isFetched);
+    const status = useAppSelector(state => state.eventTask.status);
+
+    const view = getEventListView(tasks?.length ?? 0);
+
+    // Связи нужны только карточкам: в таблице миниатюр нет, и запрос там был бы
+    // потрачен впустую.
+    const { details } = useCurrentRelations(view === 'cards');
 
     const selectEvent = async (status: EventItemResultType, task: EventTask) => {
         await dispatch(getResultMenu(status, task));
         nav.toItem();
     };
-
-    const view = getEventListView(tasks?.length ?? 0);
 
     return (
         <div className="p-2 pt-0">
@@ -49,50 +59,60 @@ export const EventList: FC = () => {
             <EventListHeader />
             <FlowStatusBanner />
 
-            {!isFetched ? (
-                <EventListSkeleton />
-            ) : !tasks?.length ? (
-                <p className="py-8 text-center text-sm text-muted-foreground">
-                    Открытых событий нет
-                </p>
-            ) : view === 'cards' ? (
-                <div className="grid gap-3">
-                    {tasks.map((task, i) => (
-                        <EventCard
-                            key={`event-card-${task.id ?? i}`}
-                            task={task}
-                            onSelect={selectEvent}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>#</TableHead>
-                                <TableHead>Что надо сделать</TableHead>
-                                <TableHead>Тип</TableHead>
-                                <TableHead>Крайний срок</TableHead>
-                                <TableHead className="hidden sm:table-cell">
-                                    Текущий статус
-                                </TableHead>
-                                <TableHead>Действие</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {tasks.map((task, i) => (
-                                <EventListRow
-                                    key={`event-row-${task.id ?? i}`}
+            <SectionState
+                status={status}
+                isEmpty={!tasks?.length}
+                emptyText="Открытых событий нет"
+                errorText="Не удалось загрузить события — портал не ответил."
+                onRetry={() => dispatch(reloadApp())}
+            >
+                {view === 'cards' ? (
+                    <div className="grid gap-3">
+                        {tasks?.map((task, i) => {
+                            const links = getTaskLinks(task);
+                            return (
+                                <EventCard
+                                    key={`event-card-${task.id ?? i}`}
                                     task={task}
-                                    index={i}
+                                    relation={resolveTaskRelation({
+                                        details,
+                                        dealIds: links.dealIds,
+                                        leadIds: links.leadIds,
+                                    })}
                                     onSelect={selectEvent}
                                 />
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
-            )}
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>#</TableHead>
+                                    <TableHead>Что надо сделать</TableHead>
+                                    <TableHead>Тип</TableHead>
+                                    <TableHead>Крайний срок</TableHead>
+                                    <TableHead className="hidden sm:table-cell">
+                                        Текущий статус
+                                    </TableHead>
+                                    <TableHead>Действие</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {tasks?.map((task, i) => (
+                                    <EventListRow
+                                        key={`event-row-${task.id ?? i}`}
+                                        task={task}
+                                        index={i}
+                                        onSelect={selectEvent}
+                                    />
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                )}
+            </SectionState>
         </div>
     );
 };

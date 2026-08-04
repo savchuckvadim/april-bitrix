@@ -9,6 +9,17 @@ import type { RelatedStage } from '../model';
  * наугад хуже, чем не показать.
  */
 
+/**
+ * Сумма сделки для показа рядом со стадией.
+ *
+ * Валюты в ответе нет — портальные сделки ведутся в рублях, поэтому знак
+ * ставим фиксированный. Появится валюта в DTO — правится только здесь.
+ */
+export const dealAmount = (opportunity?: number): string | null => {
+    if (!opportunity) return null;
+    return `${new Intl.NumberFormat('ru-RU').format(opportunity)} ₽`;
+};
+
 /** Доля пройденной воронки: 0…1. */
 export const stageProgress = (stage: RelatedStage): number | null => {
     if (stage.order === undefined || stage.order === null || !stage.total) {

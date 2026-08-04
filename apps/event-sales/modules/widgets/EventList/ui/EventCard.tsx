@@ -12,12 +12,18 @@ import { EventStatusBadge, EventTypeBadge } from '@workspace/april-ui';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { getEventTypeAttr } from '@/modules/entities/EventTask/lib/event-type-token';
 import { getTaskSummary } from '@/modules/entities/EventTask/lib/task-util';
+import { RelationMini, type TaskRelation } from '@/modules/entities/RelatedCrm';
 import { EventItemResultType } from '@/modules/widgets/EventItem';
 import { useIsClamped } from '../lib/use-is-clamped';
 import { EventListActions } from './EventListActions';
 
 interface EventCardProps {
     task: EventTask;
+    /**
+     * На чём висит дело — сделка или лид из связей клиента. Не передана или
+     * пустая — блок связи не рисуется вовсе.
+     */
+    relation?: TaskRelation;
     onSelect: (status: EventItemResultType, task: EventTask) => void;
 }
 
@@ -26,7 +32,7 @@ interface EventCardProps {
  * Акцент карточки реактивен по типу события через data-event-type
  * (--event-current, april-tokens.css).
  */
-export const EventCard: FC<EventCardProps> = ({ task, onSelect }) => {
+export const EventCard: FC<EventCardProps> = ({ task, relation, onSelect }) => {
     const [isSummaryOpen, setIsSummaryOpen] = useState(false);
     const summaryRef = useRef<HTMLParagraphElement>(null);
     const summary = getTaskSummary(task.description);
@@ -46,6 +52,13 @@ export const EventCard: FC<EventCardProps> = ({ task, onSelect }) => {
                     </span>
                 </div>
                 <p className="text-base font-medium leading-snug">{task.name}</p>
+                {relation && (
+                    <RelationMini
+                        deal={relation.deal}
+                        lead={relation.lead}
+                        className="mt-0.5"
+                    />
+                )}
             </CardHeader>
 
             {summary && (

@@ -15,8 +15,10 @@ import {
     ReportDateType,
     ReportDate,
 } from '../model/types/report/report-type';
-import { AppDispatch } from '@/modules/app/model/store';
-import { reportActions } from '../model';
+import type { AppDispatch } from '@/modules/app/model/store';
+// Прямой путь до слайса, а не барель `../model`: барель исполняется как
+// side-effect и в цикле отдаёт неинициализированный неймспейс.
+import { reportActions } from '../model/report-slice';
 
 export const getDatesByMode = (
     mode: EReportDateMode,

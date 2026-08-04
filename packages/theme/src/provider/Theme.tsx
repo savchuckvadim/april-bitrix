@@ -3,35 +3,16 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 
-export type ColorScheme =
-    | 'default'
-    | 'blue'
-    | 'violet'
-    | 'pink'
-    | 'green'
-    | 'yellow'
-    | 'orange'
-    | 'red' | 'bx' | 'beige' | 'explosive-pink'
-    | 'air' | 'claude';
-export const ColorSchemes = [
-    'default',
-    'blue',
-    'violet',
-    'pink',
-    'green',
-    'yellow',
-    'orange',
-    'red',
-    'bx',
-    'beige',
-    'explosive-pink',
-    'air',
-    'claude',
-] as const;
+/*
+ * Сами константы живут в ../model/color-schemes — их читает и серверный
+ * ThemeInitScript, которому нельзя тянуть этот 'use client'-модуль.
+ * Реэкспорт сохраняет прежнюю точку импорта.
+ */
+import { ColorSchemes, UIScales } from '../model/color-schemes';
+import type { ColorScheme, UIScale } from '../model/color-schemes';
 
-/* Пресеты масштаба UI — см. packages/ui/src/styles/tokens/density.css */
-export type UIScale = 'compact' | 'comfortable' | 'large' | 'xl';
-export const UIScales = ['compact', 'comfortable', 'large', 'xl'] as const;
+export { ColorSchemes, UIScales };
+export type { ColorScheme, UIScale };
 
 interface ColorContextValue {
     scheme: ColorScheme;

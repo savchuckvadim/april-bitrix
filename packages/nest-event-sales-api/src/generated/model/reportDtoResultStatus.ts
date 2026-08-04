@@ -7,10 +7,12 @@
  */
 
 /**
- * Итоговый статус результата события (`result` / `noresult` / `expired` / `new` / `cancel`).
+ * Итоговый статус результата события (`result` / `noresult` / `expired` / `new` / `cancel`). `null`, когда отчёт отправлен из списка мимо меню результата — недозвон и возврат в ТМЦ (legacy-контракт: фронт шлёт то, что лежит в eventItemMenu, а там ничего не выбирали).
+ * @nullable
  */
 export type ReportDtoResultStatus =
-    (typeof ReportDtoResultStatus)[keyof typeof ReportDtoResultStatus];
+    | (typeof ReportDtoResultStatus)[keyof typeof ReportDtoResultStatus]
+    | null;
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ReportDtoResultStatus = {

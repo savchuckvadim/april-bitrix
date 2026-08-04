@@ -22,7 +22,7 @@ export interface UseProcessConfigResult {
     config: ProcessConfig;
     /** Разобранная конфигурация — всё, что нужно рендереру. */
     model: ProcessModel;
-    /** Пресет, которому в точности соответствуют крутилки, если такой есть. */
+    /** Пресет, которому в точности соответствуют ползунки, если такой есть. */
     activePreset: ProcessPreset | null;
     setLeadPct: (value: number) => void;
     setDealPct: (value: number) => void;

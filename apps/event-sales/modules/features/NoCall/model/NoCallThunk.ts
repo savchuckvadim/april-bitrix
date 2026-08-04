@@ -68,6 +68,11 @@ export const getNoCallMenu =
 /**
  * Отправка недозвона: payload с isNoCall и неактивным планом →
  * POST /event-sales/flow; отметка задачи и закрытие меню (без перехода на Finish).
+ *
+ * Как и отчёт, отправка асинхронная: POST только принимает операцию. Меню
+ * закрываем сразу — менеджеру незачем ждать, — а исход доезжает наблюдателем
+ * и виден баннером в списке. Список при этом НЕ перезагружаем: задача уже
+ * помечена локально, а полная перезагрузка мешала бы отмечать недозвоны подряд.
  */
 export const sendNoCall =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
@@ -80,13 +85,36 @@ export const sendNoCall =
         const { FlowHelper } = await import(
             '@/modules/processes/event/lib/api/flow-helper'
         );
+        const { createOperationId } = await import(
+            '@/modules/processes/event/lib/operation-id'
+        );
+        const { flowStatusActions } = await import(
+            '@/modules/processes/event/model/FlowStatusSlice'
+        );
+        const { watchFlowOperation } = await import(
+            '@/modules/processes/event/model/FlowWatchThunk'
+        );
+
+        const operationId = createOperationId();
+        const payload = buildFlowPayload(state, { isNoCall: true, operationId });
+
+        dispatch(
+            flowStatusActions.setSending({
+                startedAt: Date.now(),
+                result: '',
+                operationId,
+            }),
+        );
 
         try {
-            await new FlowHelper().sendFlow(
-                buildFlowPayload(state, { isNoCall: true }),
-            );
+            await new FlowHelper().sendFlow(payload);
         } catch (error) {
             console.error('sendNoCall error', error);
+            dispatch(
+                flowStatusActions.setError({
+                    message: 'Недозвон не отправлен — попробуйте ещё раз.',
+                }),
+            );
             return;
         }
 
@@ -95,4 +123,12 @@ export const sendNoCall =
         }
         dispatch(setCurrentReportContact(null));
         dispatch(getNoCallMenu(null, false));
+
+        await dispatch(
+            watchFlowOperation({
+                operationId,
+                domain: payload.domain,
+                tasksStale: false,
+            }),
+        );
     };

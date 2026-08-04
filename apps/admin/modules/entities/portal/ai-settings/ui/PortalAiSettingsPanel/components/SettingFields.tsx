@@ -13,8 +13,8 @@ import {
 
 /**
  * Трёхсостоянное значение nullable-тумблера настроек:
- * null = «как глобально» (переопределение снято), иначе явные вкл/выкл.
- * Radix Select не принимает пустую строку — поэтому сентинелы.
+ * null = «не задано» (действует дефолт кода конвейера), иначе явные
+ * вкл/выкл. Radix Select не принимает пустую строку — поэтому сентинелы.
  */
 export type TriState = 'global' | 'on' | 'off';
 
@@ -65,7 +65,7 @@ export function TriStateField({
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="global">Как глобально</SelectItem>
+                    <SelectItem value="global">По умолчанию</SelectItem>
                     <SelectItem value="on">Включено</SelectItem>
                     <SelectItem value="off">Выключено</SelectItem>
                 </SelectContent>
@@ -102,7 +102,7 @@ export function NumberField({
                 type="text"
                 inputMode="numeric"
                 value={value}
-                placeholder="как глобально"
+                placeholder="по умолчанию"
                 onChange={(e) => onChange(e.target.value)}
                 className="w-44"
             />

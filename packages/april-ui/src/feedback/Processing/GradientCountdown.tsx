@@ -63,9 +63,18 @@ export const GradientCountdown = ({
         return Math.max(0, duration - (Date.now() - start) / 1000);
     }, [duration, persistKey]);
 
-    const [remaining, setRemaining] = useState(getRemaining);
+    /*
+     * Стартовое значение — всегда полная длительность, без Date.now().
+     * Отсчёт зависит от времени и от модульного персиста старта, а на сервере
+     * этот персист живёт между запросами Node: SSR отдавал «почти готово»,
+     * клиент рисовал полное кольцо — и гидратация падала с React #418
+     * (заметно на публичной /share, где Processing рендерится сервером).
+     * Реальный остаток подставляется в эффекте, то есть уже только на клиенте.
+     */
+    const [remaining, setRemaining] = useState(duration);
 
     useEffect(() => {
+        setRemaining(getRemaining());
         const id = setInterval(() => {
             const left = getRemaining();
             setRemaining(left);

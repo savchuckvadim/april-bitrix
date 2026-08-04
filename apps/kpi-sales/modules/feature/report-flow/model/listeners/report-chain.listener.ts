@@ -1,9 +1,5 @@
 import { isAnyOf, ListenerMiddlewareInstance } from '@reduxjs/toolkit';
-import {
-    AppDispatch,
-    RootState,
-    ThunkExtraArgument,
-} from '@/modules/app/model/store';
+import type { AppDispatch, RootState, ThunkExtraArgument } from '@/modules/app/model/store';
 import { departmentActions } from '@/modules/entities/department/model/department-slice';
 import { getCallingStatistics } from '../calling-statistics-flow-thunk';
 import { reportActions } from '@/modules/entities/report/model/report-slice';

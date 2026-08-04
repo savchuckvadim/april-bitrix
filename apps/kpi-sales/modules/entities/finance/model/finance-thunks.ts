@@ -1,8 +1,5 @@
-import {
-    AppDispatch,
-    AppGetState,
-    getWSClient,
-} from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import { getWSClient } from '@/modules/app/model/ws-client';
 import type { SalesFinanceCacheResetRequestDtoScope } from '@workspace/nest-kpi-report-sales-api';
 import { FinanceHelper } from '../lib/api/finance-helper';
 import { shiftPeriod } from '../lib/period-shift.util';

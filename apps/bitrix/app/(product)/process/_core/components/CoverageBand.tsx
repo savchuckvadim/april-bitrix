@@ -4,7 +4,7 @@ import type { FC } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@workspace/ui/lib/utils';
 
-/** Пружина покрытия: полоса должна догонять крутилку, а не ползти за ней. */
+/** Пружина покрытия: полоса должна догонять ползунок, а не ползти за ней. */
 const BAND_SPRING = { type: 'spring', stiffness: 320, damping: 34 } as const;
 
 export interface CoverageBandProps {

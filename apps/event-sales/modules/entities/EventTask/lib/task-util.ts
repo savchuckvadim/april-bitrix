@@ -89,6 +89,21 @@ export const parseTaskTitle = (title: string) => {
     };
 };
 
+/**
+ * Текст описания задачи в пригодном для саммари виде: Bitrix отдаёт его в
+ * BBCode (`descriptionInBbcode: 'Y'`), иногда с html-обрывками. Обрезку по
+ * длине здесь НЕ делаем — за неё отвечает CSS (line-clamp), иначе рвём слова.
+ */
+export const getTaskSummary = (description: string | null | undefined): string => {
+    if (!description) return '';
+    return description
+        .replace(/\[\/?[^\]]+\]/g, ' ') // bbcode-теги
+        .replace(/<[^>]+>/g, ' ') // html-теги
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+};
+
 export const getFormatDate = (date: string) => {
     if (!date) return '';
     return format(parseISO(date), 'd MMMM yyyy HH:mm', { locale: ru });

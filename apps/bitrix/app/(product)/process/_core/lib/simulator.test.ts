@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import { SALES_PROCESS } from '../constants/sales-process';
 import { satelliteStates } from './satellites.util';
+import { setSimWorkplace } from './simulator.util';
 import {
     isSetAsideDeadline,
     SIM_ARRIVING_EVENTS,
@@ -570,18 +571,45 @@ describe('презентация: проведена или только раз�
         expect(labels).not.toContain('Презентация');
     });
 
-    it('несостоявшаяся встреча закрывает спутника на «Не состоялась»', () => {
+    const presentationSatellite = (state: SimState) =>
+        satelliteStates(model.satellites, state).find(
+            entry => entry.satellite.id === 'presentation',
+        );
+
+    it('встреча не состоялась, но шаг назначен — это ПЕРЕНОС, а не срыв', () => {
+        // Так же считает бэкенд: deriveReportAction проверяет isExpired
+        // РАНЬШЕ !isResult, а isExpired — это «нерезультативно и есть план».
         const next = run(at('sales_pres', 'presentation'), {
             presentationDone: false,
             nextEventCode: 'hot',
         });
-        const item = satelliteStates(model.satellites, next).find(
-            entry => entry.satellite.id === 'presentation',
-        );
+        const item = presentationSatellite(next);
+
+        expect(item?.isClosed).toBe(false);
+        expect(item?.stageId).toBe('spres_pending');
+        expect(item?.reason).toContain('перенесли');
+    });
+
+    it('встреча не состоялась и шага нет — «Не состоялась»', () => {
+        const next = run(at('sales_pres', 'presentation'), {
+            presentationDone: false,
+            nextEventCode: null,
+        });
+        const item = presentationSatellite(next);
 
         expect(item?.isClosed).toBe(true);
         expect(item?.stageId).toBe('spres_noresult');
         expect(item?.reason).toContain('не состоявшихся');
+    });
+
+    it('нерезультативный отчёт по презентации с планом тоже перенос', () => {
+        const next = run(at('sales_pres', 'presentation'), {
+            result: 'noresult',
+            presentationDone: false,
+            nextEventCode: 'presentation',
+        });
+
+        expect(presentationSatellite(next)?.stageId).toBe('spres_pending');
     });
 
     it('нерезультативный отчёт по презентации встречу не засчитывает', () => {
@@ -616,6 +644,73 @@ describe('презентация: проведена или только раз�
 
         expect(next.status).toBe('sale');
         expect(kpiOf(next)).toContain('Презентация проведена');
+    });
+});
+
+describe('место работы и режим менеджера', () => {
+    it('по умолчанию работаем из сделки', () => {
+        expect(at('sales_warm', 'warm').workplace).toBe('deal');
+    });
+
+    it('переключение места не трогает ничего, кроме места', () => {
+        const start = at('sales_warm', 'warm');
+        const next = setSimWorkplace(start, 'lead');
+
+        expect(next.workplace).toBe('lead');
+        expect(next.stageIndex).toBe(start.stageIndex);
+        expect(next.tasks).toEqual(start.tasks);
+        expect(next.log).toEqual(start.log);
+    });
+
+    it('режим менеджера выключен, пока его не включили', () => {
+        expect(at('sales_warm', 'warm').isManagerMode).toBe(false);
+    });
+});
+
+describe('внеплановая презентация', () => {
+    const kpiOf = (state: SimState) =>
+        state.log.at(-1)!.kpi.map(record => record.label);
+
+    it('тянет сделку на «Презентацию», хотя отчитывались о звонке', () => {
+        const next = run(at('sales_warm', 'warm'), {
+            presentationDone: true,
+            nextEventCode: 'warm',
+        });
+
+        expect(next.stageIndex).toBe(stageIndex('sales_pres'));
+    });
+
+    it('пишет ДВЕ записи разом: назначена и проведена', () => {
+        const labels = kpiOf(
+            run(at('sales_warm', 'warm'), {
+                presentationDone: true,
+                nextEventCode: 'warm',
+            }),
+        );
+
+        expect(labels).toContain('Презентация запланирована');
+        expect(labels).toContain('Презентация проведена');
+        // Плюс само отчётное событие — звонок.
+        expect(labels).toContain('Звонок');
+    });
+
+    it('запланированная презентация двигает сделку и без результата', () => {
+        // Бэкенд не спрашивает про результативность: план — такой же
+        // кандидат лестницы, как отчёт.
+        const next = run(at('sales_warm', 'warm'), {
+            result: 'noresult',
+            nextEventCode: 'presentation',
+        });
+
+        expect(next.stageIndex).toBe(stageIndex('sales_pres'));
+    });
+
+    it('понизить стадию по-прежнему нельзя', () => {
+        const next = run(at('sales_in_progress', 'hot'), {
+            nextEventCode: 'warm',
+        });
+
+        expect(next.stageIndex).toBe(stageIndex('sales_in_progress'));
     });
 });
 

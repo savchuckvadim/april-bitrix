@@ -1,13 +1,19 @@
-//components
-// export { AppLazyContainer as App } from './ui/AppLazyContainer';
-export { Providers } from './model/Provider';
+// ВАЖНО: этот барель НЕ должен реэкспортировать сам стор (`./model/store`)
+// и провайдеры, которые его импортируют.
+//
+// `store.ts` на верхнем уровне собирает rootReducer и вызывает
+// `startStoreListeners`, а слушатели, в свою очередь, тянут `appActions`.
+// Пока `store` был в бареле, webpack исполнял его как side-effect ДО того,
+// как барель успевал присвоить неймспейс `AppSlice`, — и любой вход в граф
+// через барель (публичная /share, где нет App-инициализации) падал с
+// `Cannot read properties of undefined`. Стор импортируется прямым путём:
+// `@/modules/app/model/store`.
+
 //reducer
 export { appReducer, appActions } from './model/AppSlice';
 
 //thunk
 export { initial } from './model/AppThunk';
-
-export { store } from './model/store';
 
 //hooks
 export { useApp } from './lib/hooks/useApp';

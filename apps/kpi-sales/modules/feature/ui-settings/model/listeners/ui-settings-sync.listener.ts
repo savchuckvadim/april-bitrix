@@ -1,10 +1,6 @@
 import { isAnyOf, ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import { appActions } from '@/modules/app/model/AppSlice';
-import {
-    AppDispatch,
-    RootState,
-    ThunkExtraArgument,
-} from '@/modules/app/model/store';
+import type { AppDispatch, RootState, ThunkExtraArgument } from '@/modules/app/model/store';
 import { UI_SETTINGS_TOUCH_EVENT } from '@/modules/shared/lib/ui-settings-touch';
 import { conversionsActions } from '@/modules/feature/report-conversions';
 import { mergedReportActions } from '@/modules/feature/merged-kpi-calling-report';

@@ -3,7 +3,7 @@ import {
     ReportFilterSaveRequestDto,
     SavedReportFilterDto,
 } from '@workspace/nest-kpi-report-sales-api';
-import { AppDispatch, RootState } from '@/modules/app/model/store';
+import type { AppDispatch, RootState } from '@/modules/app/model/store';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 import {
     departmentActions,

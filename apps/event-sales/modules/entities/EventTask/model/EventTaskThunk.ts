@@ -9,9 +9,10 @@ import { setCurrentReportContact } from '@/modules/entities/EventContact/model/E
 import { APP_FROM_ENUM } from '@/modules/app';
 
 const TASK_SELECT = [
-    'ID', 'UF_CRM_TASK', 'TITLE', 'DATE_START', 'CREATED_DATE', 'CHANGED_DATE',
-    'CLOSED_DATE', 'DEADLINE', 'PRIORITY', 'MARK', 'GROUP_ID', 'CREATED_BY',
-    'STATUS_CHANGED_BY', 'REAL_STATUS', 'STATUS', 'STAGE_ID', 'RESPONSIBLE_ID',
+    'ID', 'UF_CRM_TASK', 'TITLE', 'DESCRIPTION', 'DATE_START', 'CREATED_DATE',
+    'CHANGED_DATE', 'CLOSED_DATE', 'DEADLINE', 'PRIORITY', 'MARK', 'GROUP_ID',
+    'CREATED_BY', 'STATUS_CHANGED_BY', 'REAL_STATUS', 'STATUS', 'STAGE_ID',
+    'RESPONSIBLE_ID',
 ];
 
 /**
@@ -37,7 +38,6 @@ export const initialEventTasks =
     (tasks: Array<BXTask>, userId: number, companyId: number | null, domain: string, leadId: number | null, from: APP_FROM_ENUM) =>
         async (dispatch: AppDispatch, getState: AppGetState) => {
             const { taskGroupId } = getDomainConfig(domain, getState().app.bitrix.user);
-            debugger
             const fromLead = from === APP_FROM_ENUM.LEAD && leadId
             if (!tasks || !tasks.length) {
                 const ufCrmTasks = fromLead ? `L_${leadId}` : `CO_${companyId}`

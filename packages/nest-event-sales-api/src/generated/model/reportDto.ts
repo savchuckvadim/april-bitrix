@@ -13,8 +13,11 @@ import type { FailReasonDto } from './failReasonDto';
 import type { ReportDtoContact } from './reportDtoContact';
 
 export interface ReportDto {
-    /** Итоговый статус результата события (`result` / `noresult` / `expired` / `new` / `cancel`). */
-    resultStatus: ReportDtoResultStatus;
+    /**
+     * Итоговый статус результата события (`result` / `noresult` / `expired` / `new` / `cancel`). `null`, когда отчёт отправлен из списка мимо меню результата — недозвон и возврат в ТМЦ (legacy-контракт: фронт шлёт то, что лежит в eventItemMenu, а там ничего не выбирали).
+     * @nullable
+     */
+    resultStatus?: ReportDtoResultStatus;
     /** Текстовое описание/комментарий отчёта по событию. */
     description: string;
     /** Текущий статус работы по сущности. */

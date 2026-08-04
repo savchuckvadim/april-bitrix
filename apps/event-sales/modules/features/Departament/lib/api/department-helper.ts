@@ -21,7 +21,6 @@ export class DepartmentHelper {
         });
 
         console.log('result', result);
-        debugger
         return result;
     }
 }

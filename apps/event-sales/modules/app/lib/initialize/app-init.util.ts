@@ -27,13 +27,15 @@ import {
  */
 export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
-    await bitrix.api.getFit();
+    // fitWindow здесь НЕ зовём: на старте ещё нечего мерить, а во встройке
+    // таймлайна он вообще запрещён. Подгонкой занимается useFitWindow —
+    // после отрисовки и только для вкладок карточки (см. shouldFitWindow).
 
     const { domain: authDomain, user: authUser, inFrame } = bitrix.api.getInitializedData();
     const domain = authDomain || TESTING_DOMAIN;
     const user = (authUser ?? TESTING_USER) as unknown as BXUser;
     const placement = (bitrix.api.getPlacement() ?? TESTING_PLACEMENT) as Placement;
-    debugger
+
     if (!inFrame) {
         console.info(`app-init: вне фрейма Bitrix — dev-режим (${domain})`);
     }
@@ -43,7 +45,6 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     // Resolve the CRM entities for the current placement via @workspace/bitrix services.
     const entities = await getEntitiesFromPlacement(placement, domain);
     const display = getDisplayMode(placement);
-debugger
     if (!entities.currentCompany && !entities.currentLead) {
         dispatch(appActions.setInitializedError({ errorMessage: 'Компания не найдена' }));
         return;

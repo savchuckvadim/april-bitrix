@@ -13,6 +13,7 @@ import { errorHandler } from '../lib/error-handler';
 
 // processes / entities / shared / april reducers (features добавляются по фазам миграции)
 import { eventReducer } from '@/modules/processes/event/model/EventSlice';
+import { flowStatusReducer } from '@/modules/processes/event/model/FlowStatusSlice';
 import { eventTaskReducer } from '@/modules/entities/EventTask';
 import { eventCompanyReducer } from '@/modules/entities/EventCompany';
 import { eventContactReducer } from '@/modules/entities/EventContact';
@@ -79,6 +80,7 @@ const rootReducer = combineReducers({
 
     // processes (роутинг — нативный Next, слайсов роутера нет)
     event: eventReducer,
+    flowStatus: flowStatusReducer,
 
     // widgets
     eventItemMenu: eventItemReducer,

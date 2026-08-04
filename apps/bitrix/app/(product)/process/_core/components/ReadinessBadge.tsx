@@ -7,9 +7,9 @@ import { ProcessReadiness } from '../types';
 /**
  * Честная пометка готовности.
  *
- * Страница объявляется каноном, поэтому то, чего в коде ещё нет, обязано
- * выглядеть иначе, чем то, что работает. Приём уже принят в /leads-process
- * (бейдж «проверка на дубли — в разработке»).
+ * Пометка относится к ДОКУМЕНТУ, а не к продукту: так помечены куски, которые
+ * здесь ещё дописываются. Страница объявляется каноном, поэтому недописанное
+ * обязано выглядеть иначе, чем доведённое.
  */
 export const ReadinessBadge: FC<{
     value: ProcessReadiness;
@@ -17,7 +17,7 @@ export const ReadinessBadge: FC<{
 }> = ({ value, className }) =>
     value === 'live' ? null : (
         <span
-            title="Описано в проекте, но в коде этого пока нет"
+            title="Этот кусок раздела ещё дописывается"
             className={cn(
                 'border-warning/50 text-warning shrink-0 rounded-full border border-dashed px-1.5 py-0.5 text-[10px] leading-tight whitespace-nowrap',
                 className,

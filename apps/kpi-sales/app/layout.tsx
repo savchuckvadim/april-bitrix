@@ -24,7 +24,7 @@ export default function RootLayout({
     return (
         <html lang="ru" suppressHydrationWarning>
             <body className={inter.className}>
-                <ThemeInitScript />
+                <ThemeInitScript defaultTheme="light" />
                 {isPublicShare ? (
                     <Providers>
                         <main className="min-h-screen bg-background">

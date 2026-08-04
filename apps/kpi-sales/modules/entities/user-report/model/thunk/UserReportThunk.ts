@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { getUserReport, stopGenerateUserReport } from "../../lib/user-report.helper";
 import { SalesUserReportGetRequestDto, SalesUserReportStartResponseDto } from "@workspace/nest-kpi-report-sales-api";
-import { RootState } from "@/modules/app/model/store";
+import type { RootState } from "@/modules/app/model/store";
 import { getUserReportDate } from "../../lib/date.util";
 
 

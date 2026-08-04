@@ -8,7 +8,8 @@ import {
     TESTING_USER,
 } from '../../consts/app-global';
 import { appActions } from '../../model/AppSlice';
-import { AppDispatch, initWSClient } from '../../model/store';
+import type { AppDispatch } from '../../model/store';
+import { initWSClient } from '../../model/ws-client';
 
 /** Код ошибки инициализации «не во фрейме Bitrix в PROD». */
 export const NON_AUTH_ERROR = 'nonauth';

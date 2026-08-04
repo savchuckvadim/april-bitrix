@@ -1,5 +1,4 @@
 import { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { preloaderActions } from '@/modules/shared/Preloader';
 import { clearComment, eventReportActions } from '@/modules/entities/EventReport';
 import { eventTaskActions } from '@/modules/entities/EventTask';
 import { eventPlanActions } from '@/modules/entities/EventPlan';
@@ -17,7 +16,9 @@ import {
 import { returnToTmcActions } from '@/modules/features/ReturnToTMC';
 import { finishResultMenu } from '@/modules/widgets/EventItem/model/EventItemThunk';
 import { eventActions } from './EventSlice';
-import { EV_ERROR_CODE } from '../types/event-types';
+import { flowStatusActions } from './FlowStatusSlice';
+import { watchFlowOperation } from './FlowWatchThunk';
+import { createOperationId } from '../lib/operation-id';
 import { FlowHelper } from '../lib/api/flow-helper';
 import { buildFlowPayload } from '../lib/build-flow-payload';
 import {
@@ -64,48 +65,84 @@ export const send = () => async (dispatch: AppDispatch, getState: AppGetState) =
     await dispatch(sendEvent());
 };
 
-/** Сборка payload + POST /event-sales/flow + очистка + финиш. */
+/**
+ * Сборка payload + POST /event-sales/flow.
+ *
+ * Порядок намеренно такой: сначала уводим на финиш, потом ждём ответ. Запрос
+ * идёт долго (бэкенд выполняет весь batch Битрикса синхронно), и держать
+ * менеджера на форме всё это время незачем — он уже всё заполнил. Экран финиша
+ * сам показывает стадию по `flowStatus`.
+ *
+ * Состояние формы чистим ТОЛЬКО после успеха и уже после ухода со страницы:
+ * если чистить до перехода, сброс видно на самой форме (в лиде это выглядело
+ * как «план оттопырился» — разворачивался полный список типов), а при ошибке
+ * пользователю было бы нечего переотправлять.
+ */
 export const sendEvent =
-    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+    (options: { reuseOperation?: boolean } = {}) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
-        dispatch(preloaderActions.setPreloader({ status: true }));
+        // Повтор идёт с тем же id: если предыдущая отправка на самом деле
+        // дошла, бэкенд вернёт её статус, а не выполнит flow второй раз.
+        const operationId =
+            (options.reuseOperation && state.flowStatus.operationId) ||
+            createOperationId();
+
+        const payload = buildFlowPayload(state, { operationId });
+        const isTmc = getIsTmcMode(state);
+        const hasCompany = !!state.app.bitrix.company;
+        const finishResult = payload.plan?.isPlanned
+            ? isPresentationPlanned(state)
+                ? 'Презентация запланирована'
+                : 'Звонок запланирован'
+            : '';
+
+        dispatch(
+            flowStatusActions.setSending({
+                startedAt: Date.now(),
+                result: finishResult,
+                operationId,
+            }),
+        );
+        dispatch(eventActions.setFinishStatus({ status: true, result: finishResult }));
 
         try {
-            const payload = buildFlowPayload(state);
             await flowHelper.sendFlow(payload);
-
-            const isTmc = getIsTmcMode(state);
-            const finishResult = payload.plan?.isPlanned
-                ? isPresentationPlanned(state)
-                    ? 'Презентация запланирована'
-                    : 'Звонок запланирован'
-                : '';
-
-            dispatch(cleanEvent(isTmc));
-            dispatch(
-                eventActions.setFinishStatus({ status: true, result: finishResult }),
-            );
         } catch (error) {
             console.error('sendEvent error', error);
             dispatch(
-                eventActions.setError({
-                    code: EV_ERROR_CODE.COMMENT,
-                    value: 'Не удалось отправить отчёт — попробуйте ещё раз',
+                flowStatusActions.setError({
+                    message:
+                        'Не удалось отправить отчёт. Данные никуда не делись — можно повторить.',
                 }),
             );
-        } finally {
-            dispatch(preloaderActions.setPreloader({ status: false }));
+            return;
         }
+
+        // POST лишь принял операцию — исход узнаём отдельно.
+        await dispatch(
+            watchFlowOperation({
+                operationId,
+                domain: payload.domain,
+                tasksStale: true,
+                onDone: () => dispatch(cleanEvent(isTmc, hasCompany)),
+            }),
+        );
     };
+
+/** Повтор отправки после ошибки: состояние формы при ошибке не чистилось. */
+export const retrySendEvent = () => async (dispatch: AppDispatch) => {
+    await dispatch(sendEvent({ reuseOperation: true }));
+};
 
 /** Очистка состояния после отправки (порт legacy cleanEvent). */
 export const cleanEvent =
-    (isTmc: boolean) => async (dispatch: AppDispatch) => {
+    (isTmc: boolean, hasCompany: boolean) => async (dispatch: AppDispatch) => {
         dispatch(eventTaskActions.setCurrentTask({ task: null }));
         dispatch(setCurrentReportContact(null));
         dispatch(finishResultMenu());
         dispatch(eventReportActions.clean({ isTmc }));
-        dispatch(eventPlanActions.clean({ isTmc }));
+        dispatch(eventPlanActions.clean({ isTmc, hasCompany }));
         dispatch(eventPresentationActions.clean());
         dispatch(afterPresentationActions.resetForNewEvent());
         dispatch(returnToTmcActions.setActiveStatus({ status: false }));

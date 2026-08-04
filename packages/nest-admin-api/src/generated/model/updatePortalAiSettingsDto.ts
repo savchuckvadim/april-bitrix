@@ -99,4 +99,16 @@ export interface UpdatePortalAiSettingsDto {
    * @nullable
    */
   allowedUserIds?: number[] | null;
+  /**
+   * Порог уверенности гейта нерелевантности, 0..1 (null — дефолт 0.7).
+   * @minimum 0.05
+   * @maximum 1
+   * @nullable
+   */
+  irrelevantConfidence?: number | null;
+  /**
+   * Ночной ревизор: свод по сущностям раз в сутки.
+   * @nullable
+   */
+  revisorEnabled?: boolean | null;
 }

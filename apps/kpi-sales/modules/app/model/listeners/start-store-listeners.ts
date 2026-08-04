@@ -1,6 +1,6 @@
 import { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 
-import { startReportFlowListeners } from '@/modules/feature/report-flow';
+import { startReportFlowListeners } from '@/modules/feature/report-flow/model/listeners';
 import { startUserReportAppListener } from '@/modules/entities/user-report/model/listeners/app.listener';
 import { startMergedFilterListeners } from '@/modules/feature/merged-kpi-calling-report/model/listeners/merged-filter.listener';
 import { startUiSettingsSyncListeners } from '@/modules/feature/ui-settings/model/listeners/ui-settings-sync.listener';
@@ -10,7 +10,7 @@ import { startAirtimeWsListener } from '@/modules/entities/airtime/model/listene
 import { startReportTypeAppListener } from '@/modules/feature/report-widget-type/model/ReportTypeAppListener';
 import { startReportLinksListener } from '@/modules/feature/report-links/model/listeners/report-links.listener';
 import { startSharePresenceListener } from '@/modules/feature/report-links/model/listeners/share-presence.listener';
-import { startReportAwardsListener } from '@/modules/feature/report-awards';
+import { startReportAwardsListener } from '@/modules/feature/report-awards/model/listeners/awards.listener';
 import type { AppDispatch, RootState, ThunkExtraArgument } from '../store';
 
 type AppListenerMiddleware = ListenerMiddlewareInstance<

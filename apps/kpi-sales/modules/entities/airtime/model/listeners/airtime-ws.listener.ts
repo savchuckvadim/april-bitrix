@@ -2,12 +2,12 @@ import { isAnyOf, ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import type { AirtimeProgressDto } from '@workspace/nest-kpi-report-sales-api';
 import { WSClient } from '@workspace/ws';
 import { appActions } from '@/modules/app/model/AppSlice';
-import {
+import type {
     AppDispatch,
-    getWSClient,
     RootState,
     ThunkExtraArgument,
 } from '@/modules/app/model/store';
+import { getWSClient } from '@/modules/app/model/ws-client';
 import { airtimeActions } from '../airtime-slice';
 import { pollTeamAirtimeNow, pollUserAirtimeNow } from '../airtime-thunks';
 

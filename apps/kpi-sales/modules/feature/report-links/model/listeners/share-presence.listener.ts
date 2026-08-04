@@ -1,12 +1,12 @@
 import { isAnyOf, ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import { WSClient } from '@workspace/ws';
-import { appActions } from '@/modules/app';
-import {
+import { appActions } from '@/modules/app/model/AppSlice';
+import type {
     AppDispatch,
-    getWSClient,
     RootState,
     ThunkExtraArgument,
 } from '@/modules/app/model/store';
+import { getWSClient } from '@/modules/app/model/ws-client';
 import { reportLinksActions } from '../report-links-slice';
 
 /** Событие живого онлайна ссылок (зеркало бэка presence-room.util). */

@@ -51,7 +51,14 @@ export const SimFunnels: FC<SimFunnelsProps> = ({
 
     // Состояние спутников считается чистой функцией: их правила закрытия —
     // часть домена, а не оформления, и должны проверяться тестами.
-    const satellites = satelliteStates(model.satellites, state);
+    /**
+     * До передачи в работу существует только лид. Сделку, спутника холодного
+     * обзвона и задачу заводит один и тот же хук — показывать их раньше
+     * значит рисовать сущности, которых ещё нет.
+     */
+    const satellites = state.isHandedOver
+        ? satelliteStates(model.satellites, state)
+        : [];
 
     const presDone = state.log.reduce(
         (sum, entry) =>
@@ -106,19 +113,29 @@ export const SimFunnels: FC<SimFunnelsProps> = ({
                     />
                 )}
 
-                <SimFunnelRow
-                    label="ОП Основная"
-                    stages={definition.stages.map(stage => ({
-                        code: stage.id,
-                        label: stage.label,
-                        color: stage.color,
-                        isTerminal: stage.isClosing,
-                    }))}
-                    currentIndex={state.stageIndex}
-                    isClosed={
-                        state.status === 'sale' || state.status === 'fail'
-                    }
-                />
+                {state.isHandedOver && (
+                    <SimFunnelRow
+                        label="ОП Основная"
+                        stages={definition.stages.map(stage => ({
+                            code: stage.id,
+                            label: stage.label,
+                            color: stage.color,
+                            isTerminal: stage.isClosing,
+                        }))}
+                        currentIndex={state.stageIndex}
+                        isClosed={
+                            state.status === 'sale' || state.status === 'fail'
+                        }
+                    />
+                )}
+
+                {!state.isHandedOver && (
+                    <li className="text-muted-foreground rounded-lg border border-dashed px-3 py-2 text-xs leading-relaxed">
+                        Пока только лид. Сделка, воронка холодного обзвона и
+                        первая задача появятся разом — их создаёт хук в момент
+                        передачи менеджеру.
+                    </li>
+                )}
 
                 {satellites.map(item => (
                     <SimFunnelRow

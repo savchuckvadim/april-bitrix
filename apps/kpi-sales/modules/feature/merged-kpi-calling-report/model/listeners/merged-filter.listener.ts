@@ -1,10 +1,6 @@
 import { isAnyOf, ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import { appActions } from '@/modules/app/model/AppSlice';
-import {
-    AppDispatch,
-    RootState,
-    ThunkExtraArgument,
-} from '@/modules/app/model/store';
+import type { AppDispatch, RootState, ThunkExtraArgument } from '@/modules/app/model/store';
 import { departmentActions } from '@/modules/entities/department/model/department-slice';
 import { reportActions } from '@/modules/entities/report/model/report-slice';
 import { mergedReportActions } from '../MergedReportSlice';

@@ -16,6 +16,22 @@ export const getDisplayMode = (placement: Placement | PlacementCallCard): APP_DI
     return result;
 };
 
+/**
+ * Подгонять ли высоту фрейма под контент (`BX24.fitWindow`).
+ *
+ * Только вкладки карточки (`*_DETAIL_TAB`): там приложение живёт в блоке
+ * фиксированной высоты и без подгонки получает скролл внутри скролла.
+ *
+ * Встройка таймлайна (`*_DETAIL_ACTIVITY`) сюда НЕ попадает — и это главное:
+ * там приложение занимает экран целиком, а fitWindow схлопнул бы его до
+ * высоты контента. Проверяем именно `DETAIL_TAB`, а не «DETAIL и не ACTIVITY»:
+ * так правило читается однозначно и не сломается о новую встройку с DETAIL
+ * в названии.
+ */
+export const shouldFitWindow = (
+    placement: Placement | PlacementCallCard | null | undefined,
+): boolean => Boolean(placement?.placement?.includes('DETAIL_TAB'));
+
 export type EntitiesFromPlacement = {
     companyPlacement: Placement;
     currentCompany: BXCompany | null;

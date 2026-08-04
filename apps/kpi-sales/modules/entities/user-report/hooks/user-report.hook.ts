@@ -1,7 +1,7 @@
 'use client'
 import { useAppDispatch, useAppSelector } from "@/modules/app";
 import { getUserReportThunk, stopLoadingUserReportThunk } from "../model/thunk/UserReportThunk";
-import { getWSClient } from "@/modules/app/model/store";
+import { getWSClient } from "@/modules/app/model/ws-client";
 import { useEffect } from "react";
 import { SalesUserReportFiltersDto } from "@workspace/nest-kpi-report-sales-api";
 

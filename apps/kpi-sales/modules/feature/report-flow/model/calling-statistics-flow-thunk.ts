@@ -1,5 +1,5 @@
 import { GetCallingStatisticDto } from '@workspace/nest-kpi-report-sales-api';
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import {
     modifyDateToReportRequest,
     ReportDateType,

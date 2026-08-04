@@ -95,18 +95,36 @@ const presentationState = (
      */
     const missed = state.log.filter(entry =>
         entry.systemActions.some(action =>
-            action.includes('закрыта на стадии «Не состоялась»'),
+            action.includes('закрыта на «Не состоялась»'),
         ),
     ).length;
 
-    if (planned + done + missed === 0) return null;
+    /**
+     * Перенесённые встречи. Нерезультативный отчёт с назначенным следующим
+     * шагом не закрывает сделку-презентацию, а ставит её в «Перенос»: встреча
+     * жива и ждёт новой даты. Считаем их отдельно от несостоявшихся — иначе
+     * перенос выглядел бы срывом.
+     */
+    const postponed = state.log.filter(entry =>
+        entry.systemActions.some(action =>
+            action.includes('переведена в «Перенос»'),
+        ),
+    ).length;
+
+    /**
+     * Перенесённая встреча тоже считается: записи KPI по ней нет (отчёт был
+     * нерезультативным), но сделка-презентация существует и висит в «Переносе».
+     * Без этого спутник пропадал бы с экрана ровно в тот момент, когда с ним
+     * что-то произошло.
+     */
+    if (planned + done + missed + postponed === 0) return null;
 
     /**
      * Незакрытые встречи — это разница между назначенными и проведёнными.
      * По списку дел считать нельзя: продажа и отказ его очищают, и тогда любая
      * сорванная презентация выглядела бы состоявшейся.
      */
-    const openNow = Math.max(0, planned - done - missed);
+    const openNow = Math.max(0, planned + postponed - done - missed);
     const terminal = terminalStage('spres', state.status);
 
     if (terminal) {
@@ -114,7 +132,7 @@ const presentationState = (
             satellite,
             stageId: terminal,
             isClosed: true,
-            count: planned + done + missed,
+            count: planned + done + missed + postponed,
             reason:
                 openNow === 0
                     ? 'все встречи прошли — эти сделки закрылись своим условием, ещё до исхода'
@@ -127,10 +145,13 @@ const presentationState = (
     if (openNow > 0) {
         return {
             satellite,
-            stageId: 'spres_plan',
+            stageId: postponed > 0 ? 'spres_pending' : 'spres_plan',
             isClosed: false,
-            count: planned + done + missed,
-            reason: 'встреча назначена и ещё не прошла',
+            count: planned + done + missed + postponed,
+            reason:
+                postponed > 0
+                    ? 'встречу перенесли: следующий шаг назначен, сделка-презентация жива и ждёт новой даты'
+                    : 'встреча назначена и ещё не прошла',
         };
     }
 
@@ -138,7 +159,7 @@ const presentationState = (
         satellite,
         stageId: missed > 0 && done === 0 ? 'spres_noresult' : 'spres_success',
         isClosed: true,
-        count: planned + done + missed,
+        count: planned + done + missed + postponed,
         reason:
             missed > 0
                 ? `не состоявшихся встреч: ${missed} — они закрыты на «Не состоялась», своим условием`

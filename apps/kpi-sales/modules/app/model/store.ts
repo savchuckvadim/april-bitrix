@@ -6,45 +6,32 @@ import {
     ListenerMiddlewareInstance,
     ThunkAction,
 } from '@reduxjs/toolkit';
-import { WSClient } from '@workspace/ws';
 import { appReducer } from './AppSlice';
 import departmentReducer from '@/modules/entities/department/model/department-slice';
 import reportReducer from '@/modules/entities/report/model/report-slice';
-import { download } from '@/modules/feature/download';
-import { callingStatisticsReducer } from '@/modules/entities/calling-statistics';
-import { userReportReducer } from '@/modules/entities';
-import { reportTypeReducer } from '@/modules/feature/';
-import { mergedReportReducer } from '@/modules/feature/merged-kpi-calling-report';
+import download from '@/modules/feature/download/model/download-slice';
+import callingStatisticsReducer from '@/modules/entities/calling-statistics/model/callingStatisticsSlice';
+import { userReportReducer } from '@/modules/entities/user-report/model/slice/UserReportSlice';
+import { reportTypeReducer } from '@/modules/feature/report-widget-type/model/ReportTypeSlice';
+import { mergedReportReducer } from '@/modules/feature/merged-kpi-calling-report/model/MergedReportSlice';
 import { conversionsReducer } from '@/modules/feature/report-conversions/model/conversions-slice';
 import { uiSettingsReducer } from '@/modules/feature/ui-settings/model/ui-settings-slice';
 import { reportLinksReducer } from '@/modules/feature/report-links/model/report-links-slice';
 import { airtimeReducer } from '@/modules/entities/airtime/model/airtime-slice';
 import { financeReducer } from '@/modules/entities/finance/model/finance-slice';
-import { reportAwardsReducer } from '@/modules/feature/report-awards';
-import { pbxFieldsReducer } from '@/modules/feature/pbx-fields';
-import { plansReducer } from '@/modules/feature/plans';
+import { reportAwardsReducer } from '@/modules/feature/report-awards/model/report-awards-slice';
+import { pbxFieldsReducer } from '@/modules/feature/pbx-fields/model/pbx-fields-slice';
+import { plansReducer } from '@/modules/feature/plans/model/plans-slice';
+import { getWSClient } from './ws-client';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
-export const listenerMiddleware = createListenerMiddleware();
-
-let wsClient: WSClient;
-
 /**
- * WS живёт на том же сервере, что и API kpi-report-sales (socket.io
- * gateway внутри приложения) — хост совпадает с базой api-пакета.
+ * Реюсеры и стартеры listeners импортируются ТОЛЬКО прямыми путями, без
+ * барелей слайсов: модуль стора выполняется на старте приложения, и барель
+ * затащил бы в его граф весь UI фичи (а вместе с ним — обратные импорты
+ * `@/modules/app`, то есть цикл инициализации).
  */
-const resolveWsHost = () =>
-    process.env.NEXT_PUBLIC_KPI_SALES_API_URL || 'http://localhost:3000/';
-
-export const initWSClient = (userId: number, domain: string) => {
-    wsClient = new WSClient(userId, domain, resolveWsHost());
-    return wsClient;
-};
-
-export const getWSClient = () => {
-    if (!wsClient) throw new Error('WSClient not initialized');
-    return wsClient;
-};
+export const listenerMiddleware = createListenerMiddleware();
 
 const rootReducer = combineReducers({
     app: appReducer,

@@ -1,6 +1,6 @@
 import { isAnyOf, ListenerMiddlewareInstance, PayloadAction } from "@reduxjs/toolkit";
-import { AppDispatch, RootState, ThunkExtraArgument } from "@/modules/app/model/store";
-import { appActions } from "@/modules/app";
+import type { AppDispatch, RootState, ThunkExtraArgument } from "@/modules/app/model/store";
+import { appActions } from '@/modules/app/model/AppSlice';
 import { EReportType } from "../consts/report-type.consts";
 import { reportTypeActions } from "./ReportTypeSlice";
 

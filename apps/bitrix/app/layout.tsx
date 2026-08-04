@@ -2,7 +2,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import '@workspace/ui/globals.css';
 import '@workspace/theme/themes.css';
 import { Providers } from '@/components/providers';
-import LoadingScreen from '@/modules/shared/components/LoadingScreen/ui/LoadingScreen';
+import { ThemeInitScript } from '@workspace/theme';
+import { BootPreloader, BootPreloaderGate } from '@workspace/april-ui/feedback';
 import { Metadata } from 'next';
 import { YANDEX_ID, YandexMetrika } from '@/components/metrika';
 
@@ -86,8 +87,31 @@ export default function RootLayout({
             <body
                 className={`${fontSans.variable} ${fontMono.variable} scrollbar-hide  font-sans antialiased `}
             >
-                <LoadingScreen />
+                {/*
+                 * Тема до гидратации: сервер localStorage не видит и отдаёт
+                 * страницу нейтральной, поэтому без этого скрипта первый кадр
+                 * светлый и через мгновение перекрашивается в air-dark.
+                 * Значение обязано совпадать с defaultTheme в components/providers.
+                 */}
+                <ThemeInitScript defaultTheme="air-dark" />
+                {/*
+                 * SSR boot-прелоадер: приходит в первом HTML-чанке, виден до
+                 * загрузки бандлов. Заменил прежний клиентский LoadingScreen —
+                 * тот держал экран фиксированные 2с и сам тянул framer-motion,
+                 * WebGL-Orb и next/image, то есть появлялся ПОЗЖЕ всего, что
+                 * скрывал, и портил LCP публичным страницам.
+                 */}
+                <BootPreloader />
                 <Providers>{children}</Providers>
+
+                {/*
+                 * Страховочный гейт: гасит прелоадер, только если его не взял
+                 * на себя <App>. Инициализация здесь есть не везде — лишь в
+                 * (auth), (integrations)/install, (product)/bitrix и (protected);
+                 * там прелоадер держится до готовности данных, а публичный сайт
+                 * гасит его сразу после гидратации.
+                 */}
+                <BootPreloaderGate fallback />
 
 
                 {/* noscript — СТРОГО здесь */}

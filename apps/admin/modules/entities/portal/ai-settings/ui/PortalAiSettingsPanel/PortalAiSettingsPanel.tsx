@@ -24,6 +24,7 @@ import {
 import { usePortalAiSettings, useSavePortalAiSettings } from '../../lib/hooks';
 import {
     AI_LLM_MODELS,
+    AI_MASTER_TOGGLE_META,
     AI_MODEL_META,
     AI_SETTINGS_GROUPS,
     PortalAiSettings,
@@ -47,6 +48,8 @@ interface Draft {
 function toDraft(settings: PortalAiSettings | undefined): Draft {
     const numbers: Record<string, string> = {};
     const toggles: Record<string, boolean | null> = {};
+    // Главный выключатель живёт вне групп (своя карточка над формой).
+    toggles[AI_MASTER_TOGGLE_META.field] = settings?.enabled ?? null;
     for (const group of AI_SETTINGS_GROUPS) {
         for (const meta of group.toggles) {
             toggles[meta.field] =
@@ -82,16 +85,20 @@ function toUpdate(draft: Draft): PortalAiSettingsUpdate | string {
                 update[meta.field] = null;
                 continue;
             }
-            const value = Number(raw);
+            const value = Number(raw.replace(',', '.'));
             const min = meta.min ?? 1;
+            const wholeOk = meta.float
+                ? Number.isFinite(value)
+                : Number.isInteger(value);
             if (
-                !Number.isInteger(value) ||
+                !wholeOk ||
                 value < min ||
                 (meta.max != null && value > meta.max)
             ) {
                 const range =
                     meta.max != null ? `${min}–${meta.max}` : `от ${min}`;
-                return `«${meta.label}»: ожидается целое число ${range}, получено «${raw}»`;
+                const kind = meta.float ? 'число' : 'целое число';
+                return `«${meta.label}»: ожидается ${kind} ${range}, получено «${raw}»`;
             }
             update[meta.field] = value;
         }
@@ -158,12 +165,15 @@ function StatusHeader({
             <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 <span>Портал: {domain ?? '…'}</span>
                 {enabled === true && <Badge>конвейер включён</Badge>}
-                {enabled === false && (
+                {enabled !== true && (
                     <Badge variant="destructive">конвейер выключен</Badge>
                 )}
-                {enabled === null && (
-                    <Badge variant="outline">по env-списку приложения</Badge>
-                )}
+                {enabled !== false &&
+                    (settings?.allowedUserIds?.length ?? 0) > 0 && (
+                        <Badge variant="secondary">
+                            ДЕМО: {settings?.allowedUserIds?.join(', ')}
+                        </Badge>
+                    )}
                 {settings?.lastScanAt && (
                     <span>
                         Последний скан:{' '}
@@ -172,13 +182,10 @@ function StatusHeader({
                 )}
             </div>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                Каждый показатель переопределяет глобальную настройку
-                приложения только для этого портала. «Как глобально» / пустое
-                поле — портал работает на общих значениях (env event-sales);
-                любые изменения применяются со следующего тика планировщика,
-                без деплоя. Всё это работает при включённом глобальном кроне
-                приложения (CALL_REPORT_CRON_ENABLED=1) — портальный
-                выключатель его не заменяет.
+                Эта страница — единственное место управления AI-конвейером
+                портала (env-настроек нет). «По умолчанию» / пустое поле —
+                действует дефолт конвейера; любые изменения применяются со
+                следующего тика планировщика (до 30 минут), без деплоя.
             </p>
         </div>
     );
@@ -269,9 +276,54 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
         );
     }
 
+    const masterValue = draft.toggles[AI_MASTER_TOGGLE_META.field] ?? null;
+
     return (
         <div className="space-y-4">
             <StatusHeader domain={portal.data?.domain} settings={settings.data} />
+
+            {/* Главный выключатель — отдельной заметной карточкой, чтобы
+                «где включить AI для портала» находилось с первого взгляда. */}
+            <Card className="border-primary/40">
+                <CardHeader>
+                    <CardTitle className="flex flex-wrap items-center gap-2">
+                        AI-анализ звонков на этом портале
+                        {masterValue === true && <Badge>включён</Badge>}
+                        {masterValue !== true && (
+                            <Badge variant="destructive">выключен</Badge>
+                        )}
+                        {masterValue !== false &&
+                            draft.allowedUserIds.trim() !== '' && (
+                                <Badge variant="secondary">
+                                    ДЕМО: {draft.allowedUserIds}
+                                </Badge>
+                            )}
+                    </CardTitle>
+                    <CardDescription>
+                        Включение и выключение всего конвейера для портала —
+                        одним переключателем, без деплоя.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="max-w-xl">
+                        <TriStateField
+                            label={AI_MASTER_TOGGLE_META.label}
+                            description={AI_MASTER_TOGGLE_META.description}
+                            globalHint={AI_MASTER_TOGGLE_META.globalHint}
+                            value={masterValue}
+                            onChange={(value) =>
+                                setDraft((d) => ({
+                                    ...d,
+                                    toggles: {
+                                        ...d.toggles,
+                                        [AI_MASTER_TOGGLE_META.field]: value,
+                                    },
+                                }))
+                            }
+                        />
+                    </div>
+                </CardContent>
+            </Card>
 
             {AI_SETTINGS_GROUPS.map((group) => (
                 <Card key={group.title}>

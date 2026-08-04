@@ -1,4 +1,4 @@
-import { getWSClient } from '@/modules/app/model/store';
+import { getWSClient } from '@/modules/app/model/ws-client';
 
 /**
  * Утилиты queue-flow эфирного времени (кандидат на общий shared-модуль:

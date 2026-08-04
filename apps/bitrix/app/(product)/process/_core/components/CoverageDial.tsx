@@ -23,7 +23,7 @@ interface CoverageDialProps {
     hint: string;
 }
 
-/** Одна крутилка покрытия — лид или сделка. */
+/** Одна ползунок покрытия — лид или сделка. */
 export const CoverageDial: FC<CoverageDialProps> = ({
     label,
     direction,

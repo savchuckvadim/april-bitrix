@@ -25,7 +25,7 @@ export interface ControlPanelProps {
 }
 
 /**
- * Пульт: две крутилки, готовые схемы и вердикт. Всё, что меняет картинку,
+ * Пульт: два ползунка, готовые схемы и вердикт. Всё, что меняет картинку,
  * собрано в одном месте — заказчик крутит здесь и сразу видит результат ниже.
  */
 export const ControlPanel: FC<ControlPanelProps> = ({
@@ -61,7 +61,7 @@ export const ControlPanel: FC<ControlPanelProps> = ({
             <div className="flex flex-col gap-4">
                 {/*
                  * Кнопок «заполнить» и «сбросить» здесь нет: они действуют на
-                 * всю страницу, а не на эти крутилки, и потому живут наверху.
+                 * всю страницу, а не на эти ползунки, и потому живут наверху.
                  */}
                 <p className="text-primary text-xs font-bold tracking-widest uppercase">
                     Где ведётся работа

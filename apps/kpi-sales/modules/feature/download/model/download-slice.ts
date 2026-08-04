@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { EDownloadType } from './download-thunk';
+import type { EDownloadType } from './download-thunk';
 
 type TDownloadState = typeof initialState;
 

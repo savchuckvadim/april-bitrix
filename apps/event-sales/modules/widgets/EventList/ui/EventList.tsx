@@ -17,7 +17,10 @@ import {
 import { useEventNavigation } from '@/modules/processes/event';
 import { NoCallMenu } from '@/modules/features/NoCall';
 import { ReturnToTMCMenu } from '@/modules/features/ReturnToTMC';
+import { getEventListView } from '../lib/list-view';
+import { EventCard } from './EventCard';
 import { EventListHeader } from './EventListHeader';
+import { FlowStatusBanner } from './FlowStatusBanner';
 import { EventListRow } from './EventListRow';
 import { EventListSkeleton } from './EventListSkeleton';
 
@@ -36,13 +39,15 @@ export const EventList: FC = () => {
         await dispatch(getResultMenu(status, task));
         nav.toItem();
     };
-    
+
+    const view = getEventListView(tasks?.length ?? 0);
 
     return (
         <div className="p-2 pt-0">
             <NoCallMenu />
             <ReturnToTMCMenu />
             <EventListHeader />
+            <FlowStatusBanner />
 
             {!isFetched ? (
                 <EventListSkeleton />
@@ -50,6 +55,16 @@ export const EventList: FC = () => {
                 <p className="py-8 text-center text-sm text-muted-foreground">
                     Открытых событий нет
                 </p>
+            ) : view === 'cards' ? (
+                <div className="grid gap-3">
+                    {tasks.map((task, i) => (
+                        <EventCard
+                            key={`event-card-${task.id ?? i}`}
+                            task={task}
+                            onSelect={selectEvent}
+                        />
+                    ))}
+                </div>
             ) : (
                 <div className="overflow-x-auto">
                     <Table>

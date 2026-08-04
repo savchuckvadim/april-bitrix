@@ -20,6 +20,14 @@ import type { ProcessDefinition, ProcessModel } from '../types';
 export type SimStatus = 'in-work' | 'set-aside' | 'sale' | 'fail';
 
 /**
+ * Откуда менеджер работает в зоне перекрытия.
+ *
+ * Выбор появляется только там, где стадию держат обе сущности сразу. Вне
+ * перекрытия выбирать нечего: работает та, что покрывает стадию.
+ */
+export type SimWorkplace = 'lead' | 'deal';
+
+/**
  * Запись в «ОП KPI». Именно из них собирается итоговый разбор пути.
  * Тип нужен, чтобы график красил столбцы в цвет события.
  */
@@ -82,6 +90,24 @@ export interface SimState {
      * когда менеджеру достаётся сделка без компании.
      */
     companyKnown: boolean | null;
+    /**
+     * Где менеджер работает в зоне перекрытия. Вне перекрытия значение не
+     * используется — место определяется покрытием стадии.
+     */
+    workplace: SimWorkplace;
+    /**
+     * Режим менеджера: работы администратора не видно вовсе, клиент просто
+     * появляется в списке дел — так его и видит настоящий менеджер.
+     */
+    isManagerMode: boolean;
+    /**
+     * Сработал ли хук передачи в работу.
+     *
+     * До него существует только лид: ни сделки, ни спутника, ни задачи. Всё
+     * это создаётся ОДНИМ пакетом в момент передачи менеджеру — и показывать
+     * их раньше значит рисовать сущности, которых ещё нет.
+     */
+    isHandedOver: boolean;
 }
 
 export interface SimReport {
@@ -177,16 +203,28 @@ export const createSimState = (
     company: string,
     stageIndex: number,
     plannedEventCode: string,
+    isHandedOver = true,
 ): SimState => ({
     entryPointId,
     company,
     stageIndex,
-    tasks: [createSimTask(plannedEventCode, 0, 0)],
+    // Пока клиента не передали в работу, дел нет: задачу создаёт тот же хук,
+    // что заводит сделку.
+    tasks: isHandedOver ? [createSimTask(plannedEventCode, 0, 0)] : [],
     activeTaskId: null,
     status: 'in-work',
     log: [],
     companyKnown: null,
+    workplace: 'deal',
+    isManagerMode: false,
+    isHandedOver,
 });
+
+/** Переключить место работы в зоне перекрытия. */
+export const setSimWorkplace = (
+    state: SimState,
+    workplace: SimWorkplace,
+): SimState => ({ ...state, workplace });
 
 /** Чем закончился разбор входа администратором. */
 export type SimGateOutcome = 'identified' | 'unknown' | 'duplicate';
@@ -261,6 +299,12 @@ export const passToManager = ({
         ...state,
         stageIndex: Math.max(state.stageIndex, coldIndex),
         companyKnown: identified,
+        isHandedOver: true,
+        // Задача появляется здесь же: её создаёт тот самый хук.
+        tasks:
+            state.tasks.length > 0
+                ? state.tasks
+                : [createSimTask('cold', state.log.length, 0)],
         log: [
             ...state.log,
             {
@@ -362,6 +406,33 @@ export const applyReport = ({
     // «Нерезультативно, но следующий шаг назначен» — это перенос: система
     // двигает дедлайн существующей задачи и НЕ заводит новую.
     const isExpired = !isResult && Boolean(report.nextEventCode);
+    /**
+     * Презентацию провели, хотя отчитывались о другом событии. Такой отчёт
+     * порождает СРАЗУ ДВЕ записи: встречу сначала «назначают», потом сразу
+     * «проводят» — иначе в отчётности появится проведённая встреча, которую
+     * никто не назначал, и конверсия «назначено → проведено» сломается.
+     */
+    const isUnplannedPresentation =
+        report.presentationDone && reported?.code !== 'presentation';
+
+    /**
+     * Куда уходит сделка-презентация при отчёте ПО презентации.
+     *
+     * Порядок повторяет `deriveReportAction` в бэкенде: продажа и отказ
+     * перебивают всё, дальше решает наличие активного плана. Нерезультативный
+     * отчёт С планом — это ПЕРЕНОС (spres_pending), а не «Не состоялась»:
+     * менеджер перезаписал клиента, встреча жива и ждёт новой даты.
+     * «Не состоялась» (spres_noresult) остаётся для случая, когда следующего
+     * шага нет вовсе.
+     */
+    const presentationOutcome: 'done' | 'pending' | 'missed' | null =
+        reported?.code !== 'presentation'
+            ? null
+            : isResult && report.presentationDone
+              ? 'done'
+              : report.nextEventCode
+                ? 'pending'
+                : 'missed';
 
     let stageIndex = state.stageIndex;
 
@@ -382,13 +453,30 @@ export const applyReport = ({
             ...closingActions(model, 'fail'),
             'Компания уходит в буфер отказников — оттуда она вернётся в холодный обзвон, уже к другому менеджеру.',
         );
-    } else if (isResult) {
-        // Лестница односторонняя: берём максимум и никогда не понижаем.
+    } else {
+        /**
+         * Лестница односторонняя: берём максимум и никогда не понижаем.
+         *
+         * Результативность на подъём НЕ влияет — так же считает и бэкенд
+         * (getSalesBaseTargetStageCode). Достаточно ЗАПЛАНИРОВАТЬ презентацию,
+         * и сделка уже на «Презентации»: стадия отвечает на вопрос «как далеко
+         * зашли переговоры», а не «что уже состоялось».
+         */
         const candidates = [
             state.stageIndex,
             stageIndexForEvent(definition, activeTask?.eventCode ?? null),
             stageIndexForEvent(definition, report.nextEventCode),
         ];
+
+        /**
+         * Внеплановая презентация тянет сделку на «Презентацию» сама, даже
+         * если отчитывались о звонке и планировали звонок. В бэкенде это
+         * `if (isUnplanned) codes.push('presentation')`.
+         */
+        if (isUnplannedPresentation) {
+            candidates.push(stageIndexById(definition, 'sales_pres'));
+        }
+
         const target = Math.max(...candidates);
 
         if (target > state.stageIndex) {
@@ -441,6 +529,16 @@ export const applyReport = ({
                 report.noresultReason,
             ).toLowerCase()}.`,
         );
+
+        if (presentationOutcome === 'pending') {
+            systemActions.push(
+                'Сделка-спутник в «ОП Презентации» переведена в «Перенос» — следующий шаг назначен, встреча ждёт новой даты.',
+            );
+        } else if (presentationOutcome === 'missed') {
+            systemActions.push(
+                'Сделка-спутник в «ОП Презентации» закрыта на «Не состоялась»: следующего шага нет.',
+            );
+        }
         if (reported) {
             kpi.push({
                 eventCode: reported.code,
@@ -457,7 +555,9 @@ export const applyReport = ({
          */
         systemActions.push(
             'Встреча не состоялась — в «ОП KPI» и «ОП История работы» записан результативный звонок, а не презентация.',
-            'Сделка-спутник в «ОП Презентации» закрыта на стадии «Не состоялась»: висеть открытой ей незачем, а новую встречу заводят новой сделкой.',
+            presentationOutcome === 'pending'
+                ? 'Сделка-спутник в «ОП Презентации» переведена в «Перенос»: следующий шаг назначен, встреча ждёт новой даты.'
+                : 'Сделка-спутник в «ОП Презентации» закрыта на «Не состоялась»: следующего шага нет, и висеть открытой ей незачем.',
         );
         kpi.push({ eventCode: 'warm', label: 'Звонок', isResult: true });
     } else if (reported?.writesKpi) {
@@ -492,12 +592,23 @@ export const applyReport = ({
     }
 
     if (report.presentationDone) {
-        const unplanned = reported?.code !== 'presentation';
+        if (isUnplannedPresentation) {
+            systemActions.push(
+                'Презентация проведена вне плана: сделка-спутник в «ОП Презентации» заведена и сразу закрыта.',
+                'В отчёты ушли ДВЕ записи разом — «Презентация запланирована» и «Презентация проведена»: встречу нельзя провести, не назначив.',
+            );
+            kpi.push({
+                eventCode: 'presentation',
+                label: 'Презентация запланирована',
+                isResult: true,
+            });
+        } else {
+            systemActions.push(
+                'Сделка-спутник в «ОП Презентации» переведена в «Проведена», в списке появилась запись «Презентация проведена».',
+            );
+        }
 
         systemActions.push(
-            unplanned
-                ? 'Презентация проведена вне плана: заведена и сразу закрыта сделка-спутник в «ОП Презентации».'
-                : 'Сделка-спутник в «ОП Презентации» переведена в «Проведена», в списке появилась запись «Презентация проведена».',
             'Счётчик проведённых презентаций в карточке увеличен.',
         );
         kpi.push({

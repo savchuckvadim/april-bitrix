@@ -53,7 +53,7 @@ export const Footer: React.FC = () => {
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
                     {/* Logo and description */}
                     <div className="space-y-4">
-                        <Link href="/" className="inline-block">
+                        <Link href="/" className="flex col items-end justify-start gap-2 ">
                             <Image
                                 src="/logo/logo.svg"
                                 alt="April CRM"
@@ -61,6 +61,9 @@ export const Footer: React.FC = () => {
                                 height={40}
                                 className="h-8 w-auto"
                             />
+                            <p>
+                                April
+                            </p>
                         </Link>
                         <p className="text-sm text-muted-foreground">
                             Полная настройка CRM (Битрикс) под ключ для отделов продаж и сервиса

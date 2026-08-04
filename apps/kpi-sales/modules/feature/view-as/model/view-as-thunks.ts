@@ -1,5 +1,5 @@
 import type { BXUser } from '@workspace/bx';
-import { appActions } from '@/modules/app';
+import { appActions } from '@/modules/app/model/AppSlice';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { isSuperUser } from '@/modules/entities/department';
 import { getDepartmentStructure } from '@/modules/entities/department';

@@ -74,7 +74,7 @@ describe('границы крутилок', () => {
         expect(result.leadEnd).toBe(ELIGIBLE - 1);
     });
 
-    it('конверсионный хвост держит сделка даже на нулевой крутилке', () => {
+    it('конверсионный хвост держит сделка даже на нулевой ползунке', () => {
         // Иначе в конце воронки висела бы стадия, которую не ведёт никто.
         const result = model(0, 0);
         const tail = result.stages.filter(view => !view.stage.canBeLead);

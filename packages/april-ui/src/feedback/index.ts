@@ -7,6 +7,7 @@ export {
     BOOT_PRELOADER_HIDE_CLASS,
 } from './BootPreloader';
 export type { BootPreloaderProps } from './BootPreloader';
+export { APRIL_BOOT_LOGO_SVG } from './boot-logo';
 export { BootPreloaderGate } from './BootPreloaderGate';
 export type { BootPreloaderGateProps } from './BootPreloaderGate';
 

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { ErrorBoundary } from '../providers/ErrorBoundary';
 import { logClient } from '../lib/helper/logClient';
-import { LoadingScreen } from '@/modules/shared';
+import { BootPreloaderGate } from '@workspace/april-ui/feedback';
 import { APP_TITLE } from '../consts/app';
 
 import { useApp } from '../lib/hooks/app';
@@ -33,13 +33,19 @@ export const App = ({ children }: { children: React.ReactNode }) => {
             }
         }
     }, [isMounted]);
+
+    const isReady = isClient && initialized && !isLoading;
+
+    /*
+     * Экран загрузки ровно один — SSR boot-прелоадер из корневого layout.
+     * Он же ждёт данные: гасим его не по факту гидратации, а по готовности
+     * приложения. Раньше здесь стоял собственный LoadingScreen с другим
+     * знаком (/logo/logo.svg), и на стыке было видно подмену прелоадера.
+     */
     return (
         <div className="h-calc(100vh - 300px)">
-            {isClient && initialized && !isLoading ? (
-                children
-            ) : (
-                <LoadingScreen />
-            )}
+            <BootPreloaderGate ready={isReady} />
+            {isReady ? children : null}
         </div>
     );
 };

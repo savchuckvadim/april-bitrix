@@ -1,4 +1,4 @@
-import { AppDispatch, RootState } from '@/modules/app/model/store';
+import type { AppDispatch, RootState } from '@/modules/app/model/store';
 import { reportActions } from './report-slice';
 import {
     Filter,

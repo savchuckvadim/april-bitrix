@@ -5,25 +5,48 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
-import type { EventSalesFlowDto, EventSalesFlowResponseDto } from '.././model';
+import type {
+    EventFlowOperationDto,
+    EventSalesFlowDto,
+    EventSalesGetFlowStatusParams,
+} from '.././model';
 
 import { customAxios } from '../../lib/event-sales-api';
 
 export const getEventSales = () => {
     /**
-     * Обработка события фронта event-sales — отчёт и планирование звонка. Принимает flow-DTO, оркестрирует batch-команды Bitrix и отправляет их одним HTTP-вызовом.
-     * @summary Event sales flow
+     * Ставит отправку отчёта в очередь и отвечает сразу. Исход приходит по WS-событию `event-sales-flow:done` / `event-sales-flow:error` на переданный `socketId`, а также доступен поллингом `GET /event-sales/flow/status/{operationId}`. Повторный вызов с тем же `operationId` возвращает статус уже принятой операции и НЕ выполняет flow второй раз.
+     * @summary Event sales flow: принять отчёт в обработку
      */
     const eventSalesGetFlow = (eventSalesFlowDto: EventSalesFlowDto) => {
-        return customAxios<EventSalesFlowResponseDto>({
+        return customAxios<EventFlowOperationDto>({
             url: `/api/event-sales/flow`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: eventSalesFlowDto,
         });
     };
-    return { eventSalesGetFlow };
+    /**
+     * Возвращает состояние операции: `queued`, `running`, `done` или `failed`. Статус живёт час после завершения.
+     * @summary Статус операции отправки отчёта
+     */
+    const eventSalesGetFlowStatus = (
+        operationId: string,
+        params: EventSalesGetFlowStatusParams,
+    ) => {
+        return customAxios<EventFlowOperationDto>({
+            url: `/api/event-sales/flow/status/${operationId}`,
+            method: 'GET',
+            params,
+        });
+    };
+    return { eventSalesGetFlow, eventSalesGetFlowStatus };
 };
 export type EventSalesGetFlowResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getEventSales>['eventSalesGetFlow']>>
+>;
+export type EventSalesGetFlowStatusResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getEventSales>['eventSalesGetFlowStatus']>
+    >
 >;

@@ -51,7 +51,12 @@ export interface EntityColumn {
 
 export type TheoryBlock =
     | BenefitBlock
-    | { kind: 'entities'; title: string; intro: string; columns: EntityColumn[] }
+    | {
+          kind: 'entities';
+          title: string;
+          intro: string;
+          columns: EntityColumn[];
+      }
     | {
           kind: 'checklist';
           title: string;

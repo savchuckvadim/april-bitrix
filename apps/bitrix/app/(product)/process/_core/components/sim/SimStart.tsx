@@ -17,11 +17,10 @@ import {
     SIM_PLANNABLE_EVENTS,
 } from '../../constants/sim-events';
 import { ACTOR_LABEL } from '../../lib/actor.util';
-import type { ProcessDefinition, ProcessModel } from '../../types';
+import type { ProcessModel } from '../../types';
 import { ReadinessBadge } from '../ReadinessBadge';
 
 interface SimStartProps {
-    definition: ProcessDefinition;
     model: ProcessModel;
     /** Первая стадия, где в работу включается человек. */
     startIndex: number;
@@ -30,6 +29,7 @@ interface SimStartProps {
         company: string,
         stageIndex: number,
         eventCode: string,
+        isManagerMode: boolean,
     ) => void;
 }
 
@@ -40,14 +40,10 @@ interface SimStartProps {
  * от другого сотрудника или вернуть из буфера — тогда работа начинается не с
  * холодного звонка.
  */
-export const SimStart: FC<SimStartProps> = ({
-    definition,
-    model,
-    startIndex,
-    onStart,
-}) => {
+export const SimStart: FC<SimStartProps> = ({ model, startIndex, onStart }) => {
+    const [isManagerMode, setManagerMode] = useState(false);
     const [entryPointId, setEntryPointId] = useState(
-        definition.entryPoints[0]?.id ?? 'lead',
+        model.entryPoints[0]?.id ?? 'lead',
     );
     const [company, setCompany] = useState('ООО «Пример»');
     const [stageIndex, setStageIndex] = useState(startIndex);
@@ -68,12 +64,16 @@ export const SimStart: FC<SimStartProps> = ({
                     <legend className="text-primary text-xs font-bold tracking-widest uppercase">
                         Откуда клиент
                     </legend>
+                    <p className="text-muted-foreground mt-1 text-[11px]">
+                        Справочно: на само прохождение вход пока не влияет — он
+                        задаёт контекст, а не поведение.
+                    </p>
                     <RadioGroup
                         value={entryPointId}
                         onValueChange={setEntryPointId}
                         className="mt-2 gap-1.5"
                     >
-                        {definition.entryPoints.map(entry => (
+                        {model.entryPoints.map(entry => (
                             <div
                                 key={entry.id}
                                 className="flex items-center gap-2"
@@ -169,7 +169,43 @@ export const SimStart: FC<SimStartProps> = ({
                 </fieldset>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+            {/*
+             * Режим менеджера — не упрощение, а другая точка зрения. Менеджер
+             * не видит, что делает администратор: до него доходит уже готовая
+             * заявка. Поэтому в этом режиме разбор входа не показывается вовсе.
+             */}
+            <label className="border-border mt-5 flex cursor-pointer items-start gap-3 rounded-xl border p-3">
+                <input
+                    type="checkbox"
+                    checked={isManagerMode}
+                    onChange={event => setManagerMode(event.target.checked)}
+                    className="accent-primary mt-0.5 size-4 cursor-pointer"
+                />
+                <span>
+                    <span className="text-foreground text-sm font-semibold">
+                        Смотреть глазами менеджера
+                    </span>
+                    <span className="text-muted-foreground mt-0.5 block text-xs leading-relaxed">
+                        Работы администратора не видно: клиент просто появляется
+                        в списке дел уже разобранным — так его и видит менеджер.
+                    </span>
+                </span>
+            </label>
+
+            {/*
+             * Честная оговорка. Часть ответов из пульта до симулятора не
+             * доходит: он проходит покрытие и роли, но не глубину отчётности и
+             * не источник цифр. Умолчать — значит дать человеку решить, что он
+             * проверил больше, чем на самом деле.
+             */}
+            <p className="text-muted-foreground mt-4 text-[11px] leading-relaxed">
+                Симулятор отыгрывает покрытие лида и сделки, кто разбирает вход
+                и какие воронки включены. Глубина отчётности и источник цифр KPI
+                на прохождение пока не влияют — они меняют схему и регламент, но
+                не эту форму.
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3">
                 <Input
                     value={company}
                     onChange={event => setCompany(event.target.value)}
@@ -179,7 +215,13 @@ export const SimStart: FC<SimStartProps> = ({
 
                 <Button
                     onClick={() =>
-                        onStart(entryPointId, company, stageIndex, eventCode)
+                        onStart(
+                            entryPointId,
+                            company,
+                            stageIndex,
+                            eventCode,
+                            isManagerMode,
+                        )
                     }
                     className="gap-1.5"
                 >

@@ -130,8 +130,8 @@ export const deriveProcessModel = (
     const leadCap = resolveLeadCap(definition, effects);
 
     /**
-     * Регламент сильнее крутилки: если портал запретил доводить лид дальше
-     * какой-то стадии, крутилка на 100 % его туда всё равно не пустит.
+     * Регламент сильнее ползунка: если портал запретил доводить лид дальше
+     * какой-то стадии, ползунок на 100 % его туда всё равно не пустит.
      */
     const dialLeadCount = leadStageCount(config.leadPct, eligible);
     const leadCount =
@@ -142,7 +142,7 @@ export const deriveProcessModel = (
     /**
      * Конверсионный хвост сделка держит всегда: лид владеть им не может по
      * определению, а закрыться процесс где-то обязан. Без этого правила на
-     * минимальной крутилке сделки в конце воронки появлялся бы бессмысленный
+     * минимальной ползунке сделки в конце воронки появлялся бы бессмысленный
      * «разрыв» — стадия, которую не ведёт вообще никто.
      */
     const tailStart = stages.findIndex(stage => !stage.canBeLead);
@@ -163,7 +163,7 @@ export const deriveProcessModel = (
             isDealCovered,
             actor: actorOverrides.get(stage.id) ?? stage.actor,
             writesKpi: stage.writesKpi && index >= kpiFromIndex,
-            // Лид сюда не дошёл из-за регламента, а не из-за крутилки.
+            // Лид сюда не дошёл из-за регламента, а не из-за ползунка.
             isBlockedForLead:
                 stage.canBeLead && index < dialLeadCount && index >= leadCount,
         };

@@ -19,7 +19,7 @@ export default function RootLayout({
     return (
         <html lang="ru" suppressHydrationWarning className="scrollbar-hide">
             <body className={`${inter.className} `}>
-                <ThemeInitScript />
+                <ThemeInitScript defaultTheme="light" />
                 {/* SSR-прелоадер: виден до загрузки JS, гасится после гидратации */}
                 <BootPreloader />
                 <BootPreloaderGate />

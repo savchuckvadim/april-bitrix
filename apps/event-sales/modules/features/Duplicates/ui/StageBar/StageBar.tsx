@@ -3,7 +3,7 @@
 import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import type { RelatedStage } from '../../model';
-import { stageColor, stageProgress } from '../../lib/candidate-view';
+import { stageColor, stageProgress } from '@/modules/entities/RelatedCrm';
 
 interface StageBarProps {
     stage: RelatedStage;

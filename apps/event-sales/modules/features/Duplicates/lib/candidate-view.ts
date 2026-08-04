@@ -3,7 +3,6 @@ import type {
     DuplicateCandidate,
     DuplicateEntityType,
     DuplicateMatchReason,
-    RelatedStage,
 } from '../model';
 import { DUPLICATE_ENTITY_TYPE } from '../model';
 
@@ -99,18 +98,3 @@ export function candidateTitle(candidate: DuplicateCandidate): string {
     );
 }
 
-/**
- * Доля заполнения полоски стадии. Без `order`/`total` (стадии нет в настройках
- * портала) полоску не рисуем вовсе — врать про прогресс хуже, чем молчать.
- */
-export function stageProgress(stage: RelatedStage): number | null {
-    if (stage.order === undefined || !stage.total) return null;
-    return Math.min(1, (stage.order + 1) / stage.total);
-}
-
-/** Цвет стадии из настроек портала; нет цвета — нейтральная подложка. */
-export function stageColor(stage: RelatedStage): string | undefined {
-    const color = stage.color?.trim();
-    if (!color) return undefined;
-    return color.startsWith('#') ? color : `#${color}`;
-}

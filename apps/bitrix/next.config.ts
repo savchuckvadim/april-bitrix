@@ -29,6 +29,8 @@ const nextConfig: NextConfig = {
     transpilePackages: [
         '@workspace/api',
         '@workspace/ui',
+        '@workspace/april-ui',
+        '@workspace/theme',
         '@workspace/nest-api',
         '@workspace/nest-event-sales-api',
         '@workspace/nest-pbx-api',

@@ -1,5 +1,5 @@
-import { EventListPage } from '@/modules/pages/event';
+import { EventHomePage } from '@/modules/pages/event';
 
 export default function Page() {
-    return <EventListPage />;
+    return <EventHomePage />;
 }

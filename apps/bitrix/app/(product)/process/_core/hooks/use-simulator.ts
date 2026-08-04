@@ -10,12 +10,14 @@ import {
     firstHumanStageIndex,
     openSimTask,
     passToManager,
+    setSimWorkplace,
     simPlace,
 } from '../lib/simulator.util';
 import type {
     SimGateOutcome,
     SimReport,
     SimState,
+    SimWorkplace,
 } from '../lib/simulator.util';
 import { useProcessConfig } from './use-process-config';
 
@@ -38,9 +40,54 @@ export const useSimulator = () => {
             company: string,
             stageIndex: number,
             eventCode: string,
+            isManagerMode = false,
         ) =>
-            setState(
-                createSimState(entryPointId, company, stageIndex, eventCode),
+            setState(() => {
+                /**
+                 * Стартуем ДО передачи в работу, если начинаем со стадии, где
+                 * работает администратор: там ещё нет ни сделки, ни воронки
+                 * холодного обзвона, ни задачи — всё это заводит один хук в
+                 * момент передачи менеджеру.
+                 */
+                const startsBeforeHandover =
+                    !isManagerMode && model.stages[stageIndex]?.actor === 'adm';
+
+                const next = createSimState(
+                    entryPointId,
+                    company,
+                    stageIndex,
+                    eventCode,
+                    !startsBeforeHandover,
+                );
+
+                /**
+                 * В режиме менеджера разбор входа не показывается вовсе:
+                 * клиент просто появляется в списке дел. Поэтому стартуем не
+                 * раньше первой стадии, где работает менеджер, — иначе
+                 * пришлось бы рисовать экран, которого менеджер не видит.
+                 */
+                if (!isManagerMode) return { ...next, isManagerMode };
+
+                const managerIndex = model.stages.findIndex(
+                    view => view.actor === 'mgr',
+                );
+
+                return {
+                    ...next,
+                    isManagerMode,
+                    companyKnown: true,
+                    stageIndex: Math.max(next.stageIndex, managerIndex),
+                };
+            }),
+        [model],
+    );
+
+    const setWorkplace = useCallback(
+        (workplace: SimWorkplace) =>
+            setState(current =>
+                current === null
+                    ? current
+                    : setSimWorkplace(current, workplace),
             ),
         [],
     );
@@ -126,6 +173,7 @@ export const useSimulator = () => {
         backToList,
         addTask,
         passGate,
+        setWorkplace,
         reset,
     };
 };

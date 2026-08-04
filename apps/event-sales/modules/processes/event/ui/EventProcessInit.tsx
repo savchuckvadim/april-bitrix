@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { initialEventApp } from '../model/EventThunk';
 import { useEventNavigation } from '../lib/use-event-navigation';
+import { useFitWindow } from '../lib/hooks/use-fit-window';
 import { EVENT_ROUTE_PATH } from '../lib/event-routes';
 import { ROUTE_EVENT } from '../types/event-types';
 
@@ -20,6 +21,9 @@ export const EventProcessInit = () => {
 
     const initialized = useAppSelector(s => s.app.initialized);
     const isFinish = useAppSelector(s => s.event.isFinish);
+
+    // Подгонка высоты фрейма на каждой странице — только для вкладок карточки.
+    useFitWindow();
 
     const didInit = useRef(false);
     useEffect(() => {

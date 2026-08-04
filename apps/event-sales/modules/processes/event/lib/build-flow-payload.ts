@@ -18,6 +18,8 @@ import { EvFlowDto } from '../model';
 interface BuildFlowOptions {
     /** отправка недозвона: план не активен, отметка isNoCall */
     isNoCall?: boolean;
+    /** id операции: по нему бэкенд отличает повтор от новой отправки */
+    operationId?: string;
 }
 
 /**
@@ -119,6 +121,7 @@ export const buildFlowPayload = (
 
     return {
         domain: app.domain,
+        operationId: options.operationId,
         plan,
         report,
         placement: app.bitrix.placement ?? undefined,

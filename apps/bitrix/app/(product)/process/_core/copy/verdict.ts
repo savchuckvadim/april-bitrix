@@ -13,7 +13,7 @@ export type VerdictTone = 'success' | 'warning' | 'destructive';
 
 export interface ProcessVerdict {
     tone: VerdictTone;
-    /** Главное: что происходит с процессом при этих крутилках. */
+    /** Главное: что происходит с процессом при этих ползунках. */
     headline: string;
     /** Где менеджер работает — отдельной строкой, это самый частый вопрос. */
     workplace: string;

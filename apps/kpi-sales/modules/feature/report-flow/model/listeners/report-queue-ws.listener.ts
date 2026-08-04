@@ -1,12 +1,12 @@
 import { isAnyOf, ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import { WSClient } from '@workspace/ws';
 import { appActions } from '@/modules/app/model/AppSlice';
-import {
+import type {
     AppDispatch,
-    getWSClient,
     RootState,
     ThunkExtraArgument,
 } from '@/modules/app/model/store';
+import { getWSClient } from '@/modules/app/model/ws-client';
 import { callingStatisticsActions } from '@/modules/entities/calling-statistics';
 import type { ReportCallingData } from '@/modules/entities/calling-statistics';
 import { reportActions } from '@/modules/entities/report/model/report-slice';

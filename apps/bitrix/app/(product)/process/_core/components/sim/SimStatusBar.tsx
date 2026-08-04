@@ -99,7 +99,12 @@ export const SimStatusBar: FC<SimStatusBarProps> = ({
                     )}
                 </div>
 
-                {planned && (
+                {/*
+                 * Счётчик дел показываем, только когда дела есть. До передачи
+                 * в работу их нет вовсе — задачу создаёт тот же хук, что
+                 * заводит сделку.
+                 */}
+                {planned && state.tasks.length > 0 && (
                     <div className="ml-auto">
                         <p className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
                             Дел на сегодня: {state.tasks.length}

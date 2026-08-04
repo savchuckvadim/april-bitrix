@@ -1,10 +1,6 @@
 import { isAnyOf, ListenerMiddlewareInstance } from '@reduxjs/toolkit';
-import {
-    AppDispatch,
-    RootState,
-    ThunkExtraArgument,
-} from '@/modules/app/model/store';
-import { appActions } from '@/modules/app';
+import type { AppDispatch, RootState, ThunkExtraArgument } from '@/modules/app/model/store';
+import { appActions } from '@/modules/app/model/AppSlice';
 import { fetchShareLinks } from '../report-links-thunks';
 
 /**

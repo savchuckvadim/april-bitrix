@@ -5,9 +5,12 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
-import type { EventPlanCallDto } from './eventPlanCallDto';
+import type { PlanTypeDtoCurrent } from './planTypeDtoCurrent';
 
 export interface PlanTypeDto {
-    /** Текущий выбранный тип планируемого звонка. */
-    current: EventPlanCallDto;
+    /**
+     * Текущий выбранный тип планируемого звонка. `null`, когда менеджер ничего не планировал: недозвон, возврат в ТМЦ, отчёт без плана. Ветку `plan` фронт присылает всегда (legacy-контракт), поэтому пустой тип — штатная ситуация, а не ошибка.
+     * @nullable
+     */
+    current?: PlanTypeDtoCurrent;
 }

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BXUser, BXDepartment } from '@workspace/bx';
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { departmentActions, DepartmentState } from './department-slice';
 
 export const useDepartment = () => {

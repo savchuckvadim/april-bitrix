@@ -6,7 +6,6 @@ import {
     isDifferenceMoreThanFourMonths,
     PLAN_CALL_TYPES,
 } from '../lib/plan.util';
-import { init } from 'next/dist/compiled/webpack/webpack';
 
 export type EventPlanState = typeof initialState;
 
@@ -69,11 +68,19 @@ const eventPlanSlice = createSlice({
         ) => {
             state[EV_PLAN_PROP.IS_ACTIVE] = action.payload.status;
         },
+        /**
+         * Сброс плана к начальному состоянию. `hasCompany` обязателен: набор
+         * типов события от него зависит (в лиде доступен только звонок), и
+         * если его не передать, после сброса в лиде развернётся полный список.
+         */
         clean: (
             state: EventPlanState,
-            action: PayloadAction<{ isTmc: boolean }>,
+            action: PayloadAction<{ isTmc: boolean; hasCompany: boolean }>,
         ) => {
-            Object.assign(state, getPlanInitState(action.payload.isTmc, true));
+            Object.assign(
+                state,
+                getPlanInitState(action.payload.isTmc, action.payload.hasCompany),
+            );
         },
     },
 });

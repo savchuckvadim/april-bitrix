@@ -1,8 +1,16 @@
 import type {
+    EventFlowOperationDto,
+    EventFlowOperationDtoResult,
     EventSalesFlowDto,
-    EventSalesFlowResponseDto,
 } from '@workspace/nest-event-sales-api';
+import { EventFlowOperationDtoStatus } from '@workspace/nest-event-sales-api';
 
 // Ре-маппинг generated DTO → доменные алиасы (правило CLAUDE.md).
 export type EvFlowDto = EventSalesFlowDto;
-export type EvFlowResponse = EventSalesFlowResponseDto;
+
+/** Операция отправки отчёта: бэкенд отвечает ей сразу, до выполнения flow. */
+export type EvFlowOperation = EventFlowOperationDto;
+export type EvFlowResult = EventFlowOperationDtoResult;
+
+export const EV_FLOW_OPERATION_STATUS = EventFlowOperationDtoStatus;
+export type EvFlowOperationStatus = EventFlowOperationDtoStatus;

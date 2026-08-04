@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import type { BXUserDto } from '@workspace/nest-kpi-report-sales-api';
 import { AirtimeHelper } from '../lib/api/airtime-helper';
 import {

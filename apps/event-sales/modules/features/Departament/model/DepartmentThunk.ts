@@ -22,9 +22,7 @@ export const getDepartment =
     (domain: string, currentUser: BXUser | null) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         try {
-            debugger
             const response = await departmentHelper.getSalesDepartment(domain);
-            debugger
             const users = (response?.department?.allUsers ??
                 null) as unknown as BXUser[] | null;
             const { bossId } = getState().app.config;
@@ -37,7 +35,6 @@ export const getDepartment =
                 }),
             );
         } catch (error) {
-            debugger
             console.error('getDepartment error', error);
         }
     };
@@ -47,7 +44,8 @@ export const getDepartment =
  * или по должности пользователя; иначе всегда ОП (sales).
  */
 export const setDepartmentMode =
-    (user: BXUser | null, domain: string) => async (dispatch: AppDispatch) => {
+    (user: BXUser | null, domain: string) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
         const { withDepartmentModeToggle } = getDomainConfig(domain, user);
 
         let depModeId = 0;
@@ -57,7 +55,12 @@ export const setDepartmentMode =
         }
 
         dispatch(departmentActions.setMode({ depModeId }));
-        dispatch(eventPlanActions.clean({ isTmc: depModeId == 1 }));
+        dispatch(
+            eventPlanActions.clean({
+                isTmc: depModeId == 1,
+                hasCompany: !!getState().app.bitrix.company,
+            }),
+        );
     };
 
 /** Переключение режима ОП/ТМЦ пользователем (тумблер). */
@@ -69,7 +72,12 @@ export const switchDepartmentMode =
         if (mode) saveDepartmentMode(mode);
 
         const isTmc = depModeId == 1;
-        dispatch(eventPlanActions.clean({ isTmc }));
+        dispatch(
+            eventPlanActions.clean({
+                isTmc,
+                hasCompany: !!getState().app.bitrix.company,
+            }),
+        );
         dispatch(eventReportActions.setMode({ depModeId }));
     };
 

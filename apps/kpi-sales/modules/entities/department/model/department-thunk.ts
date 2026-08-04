@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { APP_DEP } from '@/modules/app/model/AppSlice';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 import { DepartmentHelper } from '../lib/api/department-helper';

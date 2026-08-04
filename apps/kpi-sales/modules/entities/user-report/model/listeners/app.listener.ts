@@ -1,10 +1,15 @@
 import { isAnyOf, ListenerMiddlewareInstance } from '@reduxjs/toolkit';
-import { AppDispatch, getWSClient, RootState, ThunkExtraArgument } from '@/modules/app/model/store';
+import type {
+    AppDispatch,
+    RootState,
+    ThunkExtraArgument,
+} from '@/modules/app/model/store';
+import { getWSClient } from '@/modules/app/model/ws-client';
 import { userReportActions } from '../slice/UserReportSlice';
 import { IUserReportItem } from '../../type/user-report.type';
 
 import { WSClient } from '@workspace/ws';
-import { appActions } from '@/modules/app';
+import { appActions } from '@/modules/app/model/AppSlice';
 
 // export const listener = createListenerMiddleware<RootState, AppDispatch, ThunkExtraArgument>();
 export enum USER_REPORT_EVENT {

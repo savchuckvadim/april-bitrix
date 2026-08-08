@@ -61,6 +61,8 @@ export type {
 } from './shared/ui/Progress/LiquidProgress';
 export { StageProgress } from './shared/ui/Progress/StageProgress';
 export type { StageProgressProps } from './shared/ui/Progress/StageProgress';
+export { GradientScale } from './shared/ui/Progress/GradientScale';
+export type { GradientScaleProps } from './shared/ui/Progress/GradientScale';
 
 export type { ComponentPropsColors } from './shared/ui/Button/AAButton';
 export { default as AIcon } from './shared/FuncIcon/FuncIcon';

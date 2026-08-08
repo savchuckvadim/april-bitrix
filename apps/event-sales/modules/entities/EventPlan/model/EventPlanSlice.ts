@@ -10,7 +10,15 @@ export type EventPlanState = typeof initialState;
 
 // До первого init/clean — самый широкий набор: реальный контекст приезжает
 // листенером на setAppData.
-export const initialState = getPlanInitState(false, 'company');
+const basePlanState = getPlanInitState(false, 'company');
+
+export const initialState = {
+    ...basePlanState,
+    /** Клиенту уже продали: типы событий сужены до «Поставки». */
+    isAfterSale: false,
+    /** Менеджер раскрыл полный список типов вопреки сужению. */
+    isAllTypesShown: false,
+};
 
 const eventPlanSlice = createSlice({
     name: 'eventPlan',
@@ -23,7 +31,43 @@ const eventPlanSlice = createSlice({
             Object.assign(
                 state,
                 getPlanInitState(payload.payload.isTmc, payload.payload.context),
+                { isAfterSale: false, isAllTypesShown: false },
             );
+        },
+        /**
+         * Клиенту уже продали (открытых сделок нет, последняя — успешная):
+         * сужаем типы до «Поставки», чтобы звонок после продажи не заводил
+         * вторую сделку в той же воронке.
+         */
+        setAfterSale(
+            state: EventPlanState,
+            action: PayloadAction<{
+                isAfterSale: boolean;
+                isTmc: boolean;
+                context: ClientContext;
+            }>,
+        ) {
+            if (state.isAfterSale === action.payload.isAfterSale) return;
+            state.isAfterSale = action.payload.isAfterSale;
+            state[EV_PLAN_PROP.TYPE] = getPlanInitState(
+                action.payload.isTmc,
+                action.payload.context,
+                action.payload.isAfterSale,
+                state.isAllTypesShown,
+            )[EV_PLAN_PROP.TYPE];
+        },
+        /** «Больше типов звонков» — менеджер сам снимает сужение. */
+        showAllTypes(
+            state: EventPlanState,
+            action: PayloadAction<{ isTmc: boolean; context: ClientContext }>,
+        ) {
+            state.isAllTypesShown = true;
+            state[EV_PLAN_PROP.TYPE] = getPlanInitState(
+                action.payload.isTmc,
+                action.payload.context,
+                state.isAfterSale,
+                true,
+            )[EV_PLAN_PROP.TYPE];
         },
         setPlanProp: (
             state: EventPlanState,

@@ -6,19 +6,22 @@ import {
 } from '../type/event-report-type';
 
 /**
- * Видимые статусы работы: в ТМЦ нет «Продажи»; «В работе» и «Отложено»
+ * Видимые статусы работы: в ТМЦ и без компании нет «Продажи»; «В работе» и «Отложено»
  * взаимоисключаются в зависимости от текущего выбора.
  */
 export const getCurrentWorkStatusItems = (
     report: EventReportStateReport,
     departmentModeCode: 'sales' | 'tmc',
+    isWithoutCompany = false,
 ): Array<EventReportSelectItem<WorkStatusCode>> => {
     const isTmc = departmentModeCode === 'tmc';
     const currentCode: WorkStatusCode =
         report[EV_REPORT_PROP.WORK_STATUS].current.code;
 
     let items = report[EV_REPORT_PROP.WORK_STATUS].items;
-    if (isTmc) {
+    // «Продажа» требует компанию: без неё сделка продажи и её привязки
+    // не создаются, а отчёт молча уходит в никуда. Отказ при этом разрешён.
+    if (isTmc || isWithoutCompany) {
         items = items.filter(item => item.code !== 'success');
     }
 

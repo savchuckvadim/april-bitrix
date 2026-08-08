@@ -2,29 +2,34 @@
 
 import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
-import { StageProgress } from '@workspace/april-ui';
 import type { RelatedStage } from '../model';
-import { stagePositionLabel, stageProgress } from '../lib/stage-view';
+import { stagePositionLabel } from '../lib/stage-view';
+import { DealStageBar } from './DealStageBar';
 
 interface StageMiniProps {
     stage: RelatedStage;
+    /** Название сущности — уходит в тултип полоски. */
+    title?: string;
+    /** Доп. строка тултипа (сумма). */
+    note?: string | null;
     className?: string;
 }
 
 /**
- * Компактная миниатюра стадии: строка «название · позиция» + очень тонкая
- * градиентная полоска пройденной воронки (StageProgress). Закрашенное —
- * пройденные стадии, пробел справа — сколько осталось.
- *
- * Если портал не отдал порядок стадии, полоску не рисуем вовсе: показать
- * позицию наугад хуже, чем не показать.
+ * Компактная миниатюра стадии: строка «название · позиция» + та же полоска
+ * стадий, что в карточках дел (DealStageBar) — одна компонента на всё
+ * приложение, поэтому и палитра везде одна.
  */
-export const StageMini: FC<StageMiniProps> = ({ stage, className }) => {
-    const progress = stageProgress(stage);
+export const StageMini: FC<StageMiniProps> = ({
+    stage,
+    title,
+    note,
+    className,
+}) => {
     const position = stagePositionLabel(stage);
 
     return (
-        <div className={cn('flex min-w-0 flex-col gap-1', className)}>
+        <div className={cn('flex min-w-0 flex-col', className)}>
             <div className="flex min-w-0 items-baseline gap-2">
                 <span className="min-w-0 truncate text-xs text-muted-foreground">
                     {stage.title ?? stage.bitrixId}
@@ -37,13 +42,7 @@ export const StageMini: FC<StageMiniProps> = ({ stage, className }) => {
                 )}
             </div>
 
-            {progress !== null && (
-                <StageProgress
-                    value={progress}
-                    total={stage.total ?? undefined}
-                    shimmer
-                />
-            )}
+            <DealStageBar stage={stage} title={title} note={note} />
         </div>
     );
 };

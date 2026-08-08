@@ -21,7 +21,7 @@ import {
  * Цвета берём из тонов монорепы, а не из названий значений: `red/yellow/green`
  * — это коды портального поля, а не палитра.
  */
-export const ProspectScale: FC = () => {
+export const ProspectScale: FC<{ compact?: boolean }> = ({ compact }) => {
     const dispatch = useAppDispatch();
     const color = useAppSelector(s => s.company.color);
 
@@ -30,7 +30,7 @@ export const ProspectScale: FC = () => {
     const current = color.current?.code as CompanyColorType | undefined;
 
     return (
-        <div className="flex min-w-0 items-center gap-2">
+        <div className={cn('flex min-w-0 items-center', compact ? 'gap-1' : 'gap-2')}>
             <span
                 className="flex shrink-0 items-center gap-0.5"
                 role="radiogroup"
@@ -61,14 +61,20 @@ export const ProspectScale: FC = () => {
                 })}
             </span>
 
-            <span
-                className={cn(
-                    'min-w-0 truncate text-xs',
-                    color.error ? 'text-destructive' : 'text-muted-foreground',
-                )}
-            >
-                {color.error || color.current?.name || 'Прогноз не задан'}
-            </span>
+            {/* В компактной шапке подпись съедала бы ширину — значение
+                видно по наведению на деления (title). */}
+            {!compact && (
+                <span
+                    className={cn(
+                        'min-w-0 truncate text-xs',
+                        color.error
+                            ? 'text-destructive'
+                            : 'text-muted-foreground',
+                    )}
+                >
+                    {color.error || color.current?.name || 'Прогноз не задан'}
+                </span>
+            )}
         </div>
     );
 };

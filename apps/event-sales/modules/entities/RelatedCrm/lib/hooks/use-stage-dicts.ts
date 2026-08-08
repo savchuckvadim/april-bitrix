@@ -7,33 +7,27 @@ import {
     stageEntityIdFromStageId,
     type StageDictItem,
 } from '../bound-deal-view';
-import type { RelatedDeal } from '../../model';
+import type { RelatedStage } from '../../model';
 
 /**
- * Словари стадий для полосок: по STAGE_ID видимых сделок определяет их
- * воронки, догружает недостающие словари (кэш в слайсе taskDeals) и отдаёт
- * карту ENTITY_ID → стадии. Пока словарь едет, тултип показывает только
- * текущую стадию — полоска работает без ожидания.
+ * Словарь стадий воронки для ОДНОЙ стадии: по её STAGE_ID определяет воронку
+ * (префикс `C<id>:`), догружает словарь в слайс, если его ещё нет (кэш и
+ * дедупликация запросов — в ensureStageDicts), и отдаёт стадии в порядке
+ * воронки, без стадий-провалов.
+ *
+ * Пока словарь едет, полоска работает на данных графа (order/total) —
+ * ожидания на экране нет.
  */
-export const useStageDicts = (
-    deals: RelatedDeal[],
-): Record<string, StageDictItem[]> => {
+export const useStageDict = (
+    stage: RelatedStage | null | undefined,
+): StageDictItem[] | undefined => {
     const dispatch = useAppDispatch();
     const dicts = useAppSelector(s => s.taskDeals.stageDicts);
-
-    // Строка-ключ вместо массива: массив пересоздаётся каждый рендер и
-    // зациклил бы эффект.
-    const entityIdsKey = [
-        ...new Set(
-            deals.map(deal => stageEntityIdFromStageId(deal.stage.bitrixId)),
-        ),
-    ].join(',');
+    const entityId = stage ? stageEntityIdFromStageId(stage.bitrixId) : '';
 
     useEffect(() => {
-        if (entityIdsKey) {
-            dispatch(ensureStageDicts(entityIdsKey.split(',')));
-        }
-    }, [dispatch, entityIdsKey]);
+        if (entityId) dispatch(ensureStageDicts([entityId]));
+    }, [dispatch, entityId]);
 
-    return dicts;
+    return entityId ? dicts[entityId] : undefined;
 };

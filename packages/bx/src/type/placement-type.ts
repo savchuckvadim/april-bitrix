@@ -76,4 +76,7 @@ export type PlacementPlace =
     | 'CRM_DEAL_DETAIL_TOOLBAR'
     | 'CRM_COMPANY_DETAIL_TOOLBAR'
     | 'CRM_LEAD_DETAIL_TOOLBAR'
+    | 'TASK_VIEW_TAB'
+    | 'TASK_VIEW_SIDEBAR'
+    | 'TASK_VIEW_TOP_PANEL'
     | 'DEFAULT';

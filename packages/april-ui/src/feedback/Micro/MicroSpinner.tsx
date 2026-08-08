@@ -35,7 +35,9 @@ export const MicroSpinner = ({
             role="status"
             aria-label="Загрузка"
             className={cn(
-                'relative inline-flex shrink-0 items-center justify-center',
+                // opacity-100 перебивает приглушение disabled-кнопки:
+                // индикатор загрузки обязан оставаться контрастным.
+                'relative inline-flex shrink-0 items-center justify-center opacity-100',
                 className,
             )}
             style={{ width: size, height: size }}

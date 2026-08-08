@@ -8,6 +8,8 @@ import { NoCompanyChip } from './NoCompanyChip';
 
 interface ClientBarProps {
     className?: string;
+    /** Тонкая строка шапки: без подписей, значения — в тултипах. */
+    compact?: boolean;
 }
 
 /**
@@ -21,9 +23,9 @@ interface ClientBarProps {
  * Теперь это одна строка, которую видно и над списком событий, и в шапке
  * отчёта: прогноз можно поправить, не открывая отчёт вовсе.
  */
-export const ClientBar: FC<ClientBarProps> = ({ className }) => (
+export const ClientBar: FC<ClientBarProps> = ({ className, compact }) => (
     <div className={cn('flex flex-wrap items-center gap-x-3 gap-y-1', className)}>
-        <ProspectScale />
+        <ProspectScale compact={compact} />
         <ClientStatusChip />
         {/* Без компании оба контрола выше молча гаснут — чип объясняет почему. */}
         <NoCompanyChip />

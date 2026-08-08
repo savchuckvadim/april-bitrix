@@ -53,6 +53,13 @@ export const validateSend = (state: RootState): SendValidationResult => {
         }
     }
 
+    // Продажа требует компанию: без неё сделка продажи и её привязки на
+    // бэке не создаются — отчёт уходил бы в никуда. Отказ разрешён.
+    if (workStatus === 'success' && !state.app.bitrix.company) {
+        result.errors[EV_ERROR_CODE.WORK_STATUS] =
+            'Продажу нельзя оформить без компании — привяжите компанию к сделке';
+    }
+
     if (isFail && state.app.config.withPostFail) {
         if (!state.eventPostFail.postFailDate) {
             result.errors[EV_ERROR_CODE.POST_FAIL_DATE] =

@@ -21,7 +21,7 @@ export const SaleSection: FC = () => {
     const presDeals = useAppSelector(s => s.eventSale.presDeals);
 
     return (
-        <Card data-event-type="money_await">
+        <Card data-event-type="moneyAwait">
             <CardHeader>
                 <CardTitle className="text-base text-event-current">Продажа</CardTitle>
             </CardHeader>

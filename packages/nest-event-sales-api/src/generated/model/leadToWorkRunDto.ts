@@ -40,4 +40,8 @@ export interface LeadToWorkRunDto {
     taskMode?: LeadToWorkRunDtoTaskMode;
     /** Признак ХО (создать ХО-сделку). */
     isXo?: LeadToWorkRunDtoIsXo;
+    /** Дедлайн задачи «Звонок» в локали портала (DD.MM.YYYY HH:mm:ss). */
+    deadline?: string;
+    /** Название события для задачи; без него — название лида. */
+    name?: string;
 }

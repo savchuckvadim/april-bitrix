@@ -101,6 +101,7 @@ export const getEntitiesFromPlacement = async (
             const { primary } = resolveTaskPrimaryContext(links);
             if (primary?.type === ETaskLinkType.COMPANY) {
                 result.currentCompany = (await bitrix.company.get(primary.id)) as unknown as BXCompany;
+                from = APP_FROM_ENUM.COMPANY
             } else if (primary?.type === ETaskLinkType.DEAL) {
                 const deal = await bitrix.deal.get(primary.id);
                 result.currentDeal = deal as unknown as BXDeal;
@@ -108,11 +109,13 @@ export const getEntitiesFromPlacement = async (
                 if (dealCompanyId > 0) {
                     result.currentCompany = (await bitrix.company.get(dealCompanyId)) as unknown as BXCompany;
                 }
+                from = APP_FROM_ENUM.DEAL
             } else if (primary?.type === ETaskLinkType.LEAD) {
                 result.currentLead = (await bitrix.lead.get(primary.id))
                     ?.result as unknown as BXLead;
+                from = APP_FROM_ENUM.LEAD
             }
-            from = APP_FROM_ENUM.TASK
+            // from = APP_FROM_ENUM.TASK
         } else if (type.includes('CALL_CARD')) {
             const callOptions = options;
             let companyId: number | undefined;

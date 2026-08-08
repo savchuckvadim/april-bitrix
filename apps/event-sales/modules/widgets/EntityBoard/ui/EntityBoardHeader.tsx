@@ -13,6 +13,7 @@ import { DepartmentMode } from '@/modules/features/Departament';
 import { Button } from '@workspace/ui/components/button';
 import { useEventNavigation } from '@/modules/processes/event';
 import { useAppDispatch } from '@/modules/app';
+import { useCompactUi } from '@/modules/app/lib/hooks/use-compact-ui';
 import { EventItemResultType, getResultMenu } from '../../EventItem';
 import { ResultStatistics } from '@/modules/features/ResultStatistics';
 import { ThemeTogglePanel } from '@workspace/theme';
@@ -30,6 +31,7 @@ export const EntityBoardHeader: FC<EntityBoardHeaderProps> = ({
     const dispatch = useAppDispatch();
 
     const nav = useEventNavigation();
+    const isCompact = useCompactUi();
 
     const createNewEvent = () => {
         dispatch(getResultMenu(EventItemResultType.NEW, null));
@@ -66,9 +68,9 @@ export const EntityBoardHeader: FC<EntityBoardHeaderProps> = ({
         {/* Та же полоска, что над списком и в шапке отчёта: прогноз, статус
             клиента и ИНН живут одними компонентами на всех трёх экранах. */}
         <div className="flex basis-full flex-wrap items-center gap-x-4 gap-y-1">
-            <ClientBar className="min-w-0" />
-            <InnControl />
-            <SignalsControl />
+            <ClientBar className="min-w-0" compact={isCompact} />
+            <InnControl compact={isCompact} />
+            <SignalsControl compact={isCompact} />
         </div>
     </header >
 

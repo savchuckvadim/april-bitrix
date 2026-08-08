@@ -1,7 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { RefreshCcw } from 'lucide-react';
+import { Plus, RefreshCcw } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { ThemeTogglePanel } from '@workspace/theme';
 import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
@@ -15,7 +15,13 @@ import { EntityLink, useCurrentRelations } from '@/modules/entities/RelatedCrm';
 import { InnControl } from '@/modules/features/Inn';
 import { SignalsControl } from '@/modules/features/ClientSignals';
 
-/** Шапка списка: текущий клиент, обновление, статистика, режим отдела, создание события. */
+/**
+ * Шапка списка дел — ОДНА тонкая строка: кто открыт, прогноз/статус, точки
+ * связи и ИНН, справа действия. Приложение живёт во фрейме-миниатюре
+ * (630×600), и каждая строка шапки — минус одна карточка дела на экране,
+ * поэтому здесь ничего не разворачивается: списки телефонов, email и
+ * вариантов ИНН показываются тултипами по наведению.
+ */
 export const EventListHeader: FC = () => {
     const dispatch = useAppDispatch();
     const { reload } = useReload();
@@ -29,49 +35,39 @@ export const EventListHeader: FC = () => {
     };
 
     return (
-        <div className="space-y-2 py-2">
-            <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-3">
-                <button
-                    type="button"
-                    onClick={reload}
-                    className="cursor-pointer rounded-md p-1 text-muted-foreground transition-transform hover:text-foreground active:scale-90"
-                    aria-label="Обновить"
-                >
-                    <RefreshCcw size={16} />
-                </button>
-                <ResultStatistics />
-                <ThemeTogglePanel />
-            </div>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5">
+            <button
+                type="button"
+                onClick={reload}
+                className="shrink-0 cursor-pointer rounded-md p-0.5 text-muted-foreground transition-transform hover:text-foreground active:scale-90"
+                aria-label="Обновить"
+            >
+                <RefreshCcw size={14} />
+            </button>
 
-            <div className="flex items-center gap-3">
-                <DepartmentMode />
-                <Button size="sm" onClick={createNewEvent}>
-                    + создать
-                </Button>
-            </div>
-            </div>
-
-            {/* Кто открыт — ссылкой на карточку CRM: во фрейме задачи это
-                единственный путь к полноценной карточке клиента. */}
             {descriptor && (
-                <div className="flex min-w-0 items-center gap-2">
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                        {descriptor.kindLabel}
-                    </span>
-                    <EntityLink
-                        descriptor={descriptor}
-                        className="text-sm font-medium"
-                    />
-                </div>
+                <EntityLink
+                    descriptor={descriptor}
+                    className="min-w-0 max-w-56 text-xs font-medium"
+                />
             )}
 
-            {/* Прогноз, статус клиента и ИНН — над событиями: их правят и не
-                открывая отчёт. */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                <ClientBar className="min-w-0" />
-                <InnControl />
-                <SignalsControl />
+            <ClientBar className="min-w-0" compact />
+            <InnControl compact />
+            <SignalsControl compact />
+
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+                <ResultStatistics />
+                <DepartmentMode />
+                <Button
+                    size="sm"
+                    className="h-6 gap-1 px-2 text-xs"
+                    onClick={createNewEvent}
+                >
+                    <Plus aria-hidden className="size-3" />
+                    создать
+                </Button>
+                <ThemeTogglePanel />
             </div>
         </div>
     );

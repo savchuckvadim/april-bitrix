@@ -16,6 +16,8 @@ export enum EV_ERROR_CODE {
     PLAN_NAME = 'name',
     PLAN_TYPE = 'type',
     POST_FAIL_DATE = 'postFailDate',
+    /** Статус работы недоступен в текущем контексте (продажа без компании). */
+    WORK_STATUS = 'workStatus',
     CONTACT_NAME = 'contactName',
     CONTACT_PHONE = 'contactPhone',
     CONTACT_EMAIL = 'contactEmail',

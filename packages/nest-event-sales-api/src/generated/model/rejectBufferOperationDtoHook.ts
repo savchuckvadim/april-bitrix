@@ -18,4 +18,5 @@ export const RejectBufferOperationDtoHook = {
     'merge-duplicates': 'merge-duplicates',
     'transfer-work': 'transfer-work',
     'reject-buffer': 'reject-buffer',
+    'convert-normalizer': 'convert-normalizer',
 } as const;

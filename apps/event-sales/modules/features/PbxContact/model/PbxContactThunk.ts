@@ -15,45 +15,61 @@ import {
 export const updatePbxContactField =
     (contactId: number, fieldCode: string) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
-        const contact = getState().contact.contacts.find(
-            item => item.ID == contactId,
+        const field = findEnumField(getState(), contactId, fieldCode);
+        if (!field) return;
+
+        const currentIndex = field.items.findIndex(item => {
+            const current = field.current;
+            return (
+                current && typeof current === 'object' && item.code === current.code
+            );
+        });
+        await dispatch(
+            setPbxContactField(
+                contactId,
+                fieldCode,
+                (currentIndex + 1) % field.items.length,
+            ),
         );
-        const field = contact?.fields.find(f => f.field.code === fieldCode);
-        if (!contact || !field) return;
+    };
 
-        let nextCurrent: PBXContactFieldData['current'] = field.current;
-        let bitrixValue: string | number = '';
-
-        if (
-            field.field.type === PBX_FIELD_TYPE.ENUM ||
-            field.field.type === PBX_FIELD_TYPE.SELECT
-        ) {
-            const items = field.items;
-            if (!items.length) return;
-            const currentIndex = items.findIndex(item => {
-                const current = field.current;
-                return (
-                    current &&
-                    typeof current === 'object' &&
-                    item.code === current.code
-                );
-            });
-            const nextItem = items[(currentIndex + 1) % items.length]!;
-            nextCurrent = nextItem;
-            bitrixValue = nextItem.bitrixId;
-        } else {
-            return; // строки редактируются через setBaseProp / форму контакта
-        }
+/**
+ * Установка КОНКРЕТНОГО значения по индексу — клик по делению шкалы
+ * характеристики (паттерн кликабельного прогресса из «конструктора»).
+ * Оптимистично + crm.contact.update.
+ */
+export const setPbxContactField =
+    (contactId: number, fieldCode: string, itemIndex: number) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
+        const field = findEnumField(getState(), contactId, fieldCode);
+        const nextItem = field?.items[itemIndex];
+        if (!field || !nextItem) return;
 
         dispatch(
             eventContactActions.setContactFieldCurrent({
                 contactId,
                 fieldCode,
-                current: nextCurrent,
+                current: nextItem as PBXContactFieldData['current'],
             }),
         );
 
         await Bitrix.getService().contact.update(contactId, {
-            [field.bitrixId]: bitrixValue,
+            [field.bitrixId]: nextItem.bitrixId,
         } as never);
     };
+
+/** Поле контакта, пригодное к выбору значения (ENUM/SELECT с items). */
+const findEnumField = (
+    state: ReturnType<AppGetState>,
+    contactId: number,
+    fieldCode: string,
+): PBXContactFieldData | null => {
+    const contact = state.contact.contacts.find(item => item.ID == contactId);
+    const field = contact?.fields.find(f => f.field.code === fieldCode);
+    if (!field || !field.items.length) return null;
+    // Строки редактируются формой контакта, не шкалой.
+    return field.field.type === PBX_FIELD_TYPE.ENUM ||
+        field.field.type === PBX_FIELD_TYPE.SELECT
+        ? field
+        : null;
+};

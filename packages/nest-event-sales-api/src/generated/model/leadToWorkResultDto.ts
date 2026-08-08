@@ -5,12 +5,15 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
+import type { LeadToWorkItemResultDto } from './leadToWorkItemResultDto';
 
 export interface LeadToWorkResultDto {
-    /** Признак готовности доменной логики. false — каркас принял операцию, но преобразование лида ещё не реализовано. */
+    /** Доменная логика выполнена (не заглушка). */
     implemented: boolean;
+    /** Итоги по каждому лиду пачки. */
+    items: LeadToWorkItemResultDto[];
     /** Идентификаторы лидов из пачки (эхо входных данных). */
     leadIds: number[];
-    /** Пояснение для клиента, что произошло с операцией. */
+    /** Краткое пояснение итога операции. */
     message: string;
 }

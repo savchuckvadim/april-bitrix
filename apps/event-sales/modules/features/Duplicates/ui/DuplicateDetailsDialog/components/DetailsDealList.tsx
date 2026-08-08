@@ -32,7 +32,11 @@ export const DetailsDealList: FC<DetailsDealListProps> = ({ deals }) => (
                                 </span>
                             )}
                         </div>
-                        <StageBar stage={deal.stage} className="mt-1" />
+                        <StageBar
+                            stage={deal.stage}
+                            title={deal.title}
+                            className="mt-1"
+                        />
                     </li>
                 ))}
             </ul>

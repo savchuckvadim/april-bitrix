@@ -72,9 +72,9 @@ export const parseTaskTitle = (title: string) => {
         eventType = 'presentation';
     } else if (name.includes('Решение') || name.includes('Звонок по решению')) {
         type = EV_TYPE.HOT;
-        eventType = 'in_progress';
+        eventType = 'hot';
     } else if (name.includes('Оплата') || name.includes('Звонок по оплате')) {
-        eventType = 'money_await';
+        eventType = 'moneyAwait';
         type = EV_TYPE.MONEY;
     } else if (name.includes('Поставка') || name.includes('Звонок по поставке')) {
         eventType = 'supply';

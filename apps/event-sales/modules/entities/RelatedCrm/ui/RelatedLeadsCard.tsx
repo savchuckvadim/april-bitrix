@@ -12,6 +12,9 @@ import { cn } from '@workspace/ui/lib/utils';
 import type { RelatedLead } from '../model';
 import { getLeadStatusView, isLeadOpen } from '../lib/lead-status-view';
 import { SectionState, type SectionStatus } from '@/modules/shared/SectionState';
+import { LeadMarkRow } from '@/modules/features/LeadMarks';
+import { useLeadMarks } from '@/modules/features/LeadMarks/lib/hooks/use-lead-marks';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 
 
 interface RelatedLeadsCardProps {
@@ -31,6 +34,10 @@ export const RelatedLeadsCard: FC<RelatedLeadsCardProps> = ({
     onRetry,
 }) => {
     const [showAll, setShowAll] = useState(false);
+    // Пометки заявок (статус, «не ЦА», атрибуция продажи) живут в UF-полях
+    // лида — их нет в связях клиента, поэтому догружаем отдельно.
+    useLeadMarks(leads.map(lead => lead.id));
+    const markById = useAppSelector(s => s.leadMarks.byId);
 
     const openLeads = useMemo(
         () => leads.filter(lead => isLeadOpen(lead.statusSemanticId)),
@@ -90,14 +97,21 @@ export const RelatedLeadsCard: FC<RelatedLeadsCardProps> = ({
                                             </span>
                                         )}
                                     </div>
-                                    <span
-                                        className={cn(
-                                            'mt-1 inline-block rounded px-1.5 py-0.5 text-xs',
-                                            statusView.className,
-                                        )}
-                                    >
-                                        {statusView.label}
-                                    </span>
+                                    {markById[lead.id] ? (
+                                        <LeadMarkRow
+                                            mark={markById[lead.id]!}
+                                            saleDealId={null}
+                                        />
+                                    ) : (
+                                        <span
+                                            className={cn(
+                                                'mt-1 inline-block rounded px-1.5 py-0.5 text-xs',
+                                                statusView.className,
+                                            )}
+                                        >
+                                            {statusView.label}
+                                        </span>
+                                    )}
                                 </li>
                             );
                         })}

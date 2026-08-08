@@ -45,6 +45,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     // Resolve the CRM entities for the current placement via @workspace/bitrix services.
     const entities = await getEntitiesFromPlacement(placement, domain);
     const display = getDisplayMode(placement);
+    
     // Сделка без компании и чистый лид — легальные контексты. Падаем только
     // когда не нашлось вообще ни одной сущности-владельца.
     if (

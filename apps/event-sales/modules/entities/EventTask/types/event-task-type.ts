@@ -7,8 +7,8 @@ export type EventTaskEventType =
     | 'xo'
     | 'warm'
     | 'presentation'
-    | 'in_progress'
-    | 'money_await'
+    | 'hot'
+    | 'moneyAwait'
     | 'event'
     | 'supply'
     | 'ss';

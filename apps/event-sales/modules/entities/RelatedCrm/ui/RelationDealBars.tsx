@@ -3,10 +3,8 @@
 import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import type { RelationDeal } from '../lib/resolve-task-relation';
-import { stageProgress } from '../lib/stage-view';
-import { stageEntityIdFromStageId } from '../lib/bound-deal-view';
-import { useStageDicts } from '../lib/hooks/use-stage-dicts';
-import { DealBar } from './DealBar';
+import { dealAmount, stageProgress } from '../lib/stage-view';
+import { DealStageBar } from './DealStageBar';
 
 interface RelationDealBarsProps {
     deals: RelationDeal[];
@@ -14,33 +12,27 @@ interface RelationDealBarsProps {
 }
 
 /**
- * Стадии сделок — только полоски, весь текст в посегментных тултипах
- * (см. DealBar). Сделка без порядка стадии в настройках портала полоску
- * не получает (показать позицию наугад хуже, чем не показать) — такие
- * пропускаем целиком.
+ * Стадии сделок карточки дела — только полоски, весь текст в тултипах
+ * (DealStageBar). Сделка без порядка стадии в настройках портала полоску не
+ * получает: показать позицию наугад хуже, чем не показать.
  */
 export const RelationDealBars: FC<RelationDealBarsProps> = ({
     deals,
     className,
 }) => {
-    const dicts = useStageDicts(deals);
-
-    const rows = deals
-        .map(deal => ({ deal, progress: stageProgress(deal.stage) }))
-        .filter((row): row is typeof row & { progress: number } =>
-            row.progress !== null,
-        );
-
+    const rows = deals.filter(deal => stageProgress(deal.stage) !== null);
     if (!rows.length) return null;
 
     return (
         <div className={cn('flex flex-col', className)}>
-            {rows.map(({ deal, progress }) => (
-                <DealBar
+            {rows.map(deal => (
+                <DealStageBar
                     key={deal.id}
-                    deal={deal}
-                    progress={progress}
-                    dict={dicts[stageEntityIdFromStageId(deal.stage.bitrixId)]}
+                    stage={deal.stage}
+                    title={deal.title}
+                    note={dealAmount(deal.opportunity)}
+                    isMismatch={deal.isOutsideClientGraph}
+                    withLabel
                 />
             ))}
         </div>

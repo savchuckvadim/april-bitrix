@@ -12,6 +12,7 @@ const TESTING_PLACEMENT_DEAL_ID = 25111 // 158479
 const TESTING_USER_ID = 447 // 447
 const TESTING_USER_NAME = 'Татьяна' //Савчук
 const TESTING_USER_LAST_NAME = 'Попова' //Савчук
+export const TESTING_TASK_ID = 724547
 export const TESTING_USER = {
     ID: TESTING_USER_ID,
     ACTIVE: true,
@@ -50,3 +51,10 @@ export const TESTING_PLACEMENT = {
         ID: TESTING_PLACEMENT_DEAL_ID,
     },
 } as Placement;
+
+// export const TESTING_PLACEMENT = {
+//     placement: 'TASK_VIEW_TAB' as PlacementPlace,
+//     options: {
+//         taskId: TESTING_TASK_ID,
+//     },
+// } as Placement;

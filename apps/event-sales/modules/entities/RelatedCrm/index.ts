@@ -19,6 +19,7 @@ export type { TaskRelation, RelationDeal } from './lib/resolve-task-relation';
 export { taskDealsReducer, taskDealsActions } from './model/TaskDealsSlice';
 export { fetchTaskBoundDeals } from './model/TaskDealsThunk';
 export { StageMini } from './ui/StageMini';
+export { DealStageBar } from './ui/DealStageBar';
 export { RelationMini } from './ui/RelationMini';
 export { RelationDealBars } from './ui/RelationDealBars';
 export { EntityLink } from './ui/EntityLink';

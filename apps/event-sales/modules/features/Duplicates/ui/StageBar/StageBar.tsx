@@ -2,27 +2,26 @@
 
 import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
-import { StageProgress } from '@workspace/april-ui';
 import type { RelatedStage } from '../../model';
-import { stageColor, stageProgress } from '@/modules/entities/RelatedCrm';
+import { DealStageBar, stageColor } from '@/modules/entities/RelatedCrm';
 
 interface StageBarProps {
     stage: RelatedStage;
+    /** Название сущности — уходит в тултип полоски. */
+    title?: string;
     className?: string;
 }
 
 /**
- * Узкая полоска стадии сделки: точка портального цвета + название + градиентный
- * стадийный прогресс (StageProgress, рампа --deal-stage-* — как везде).
- * Если стадии нет в настройках портала, полоска не рисуется: показать
- * «прогресс» наугад хуже, чем не показать.
+ * Стадия сделки в карточке дубля: точка портального цвета + название +
+ * общая полоска стадий (DealStageBar — та же, что в карточках дел и
+ * связанных сделках).
  */
-export const StageBar: FC<StageBarProps> = ({ stage, className }) => {
-    const progress = stageProgress(stage);
+export const StageBar: FC<StageBarProps> = ({ stage, title, className }) => {
     const color = stageColor(stage);
 
     return (
-        <div className={cn('min-w-0 space-y-1', className)}>
+        <div className={cn('min-w-0 space-y-0.5', className)}>
             <div className="flex items-baseline gap-1.5">
                 <span
                     aria-hidden
@@ -39,17 +38,7 @@ export const StageBar: FC<StageBarProps> = ({ stage, className }) => {
                 )}
             </div>
 
-            {progress !== null && (
-                <div
-                    role="img"
-                    aria-label={`Стадия ${stage.order! + 1} из ${stage.total}`}
-                >
-                    <StageProgress
-                        value={progress}
-                        total={stage.total ?? undefined}
-                    />
-                </div>
-            )}
+            <DealStageBar stage={stage} title={title} />
         </div>
     );
 };

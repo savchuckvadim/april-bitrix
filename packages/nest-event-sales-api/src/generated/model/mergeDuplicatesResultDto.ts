@@ -5,12 +5,24 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
+import type { MergeGroupResultDto } from './mergeGroupResultDto';
+import type { MergeDuplicatesResultDtoRelinkItem } from './mergeDuplicatesResultDtoRelinkItem';
 
 export interface MergeDuplicatesResultDto {
-    /** Признак готовности доменной логики. false — каркас принял операцию, объединение не выполнялось. */
+    /** Доменная логика выполнена (не заглушка). */
     implemented: boolean;
-    /** Ссылки на сущности из запроса (эхо входных данных). */
-    entityRefs: string[];
-    /** Пояснение для клиента, что произошло с операцией. */
+    /** Режим запуска: true — только план, ни одной записи в Битрикс. */
+    dryRun: boolean;
+    /** Подпись плана. Выполнение (dryRun=false) требует передать её в planHash — несовпадение значит, что портал изменился. */
+    planHash: string;
+    /** Группы объединения (план или итоги выполнения). */
+    groups: MergeGroupResultDto[];
+    /** Перепривязки «сделка → компания-survivor» (выяснилась компания). */
+    relink: MergeDuplicatesResultDtoRelinkItem[];
+    /** Отброшенные участники с причинами (чужие воронки и т.п.). */
+    skipped: string[];
+    /** Предупреждения выполнения. */
+    warnings: string[];
+    /** Краткое пояснение итога. */
     message: string;
 }

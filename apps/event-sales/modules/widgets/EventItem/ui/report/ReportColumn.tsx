@@ -27,11 +27,22 @@ export const ReportColumn: FC<ReportColumnProps> = ({ visibility, records }) => 
     <div className="space-y-3">
         {records}
 
-        <CommentSection />
+        <div className='w-full'>
+            <div className='w-4/5'>
+                <CommentSection />
+            </div>
+            <div className='w-1/5'>
+                <div>
+                    {visibility.noresult && <NoresultSection />}
+                    {visibility.sale && <SaleSection />}
+                    {visibility.postFail && <PostFailSection />}
+                </div>
+            </div>
+        </div>
         <ReportSection />
-        {visibility.noresult && <NoresultSection />}
+        {/* {visibility.noresult && <NoresultSection />}
         {visibility.sale && <SaleSection />}
-        {visibility.postFail && <PostFailSection />}
+        {visibility.postFail && <PostFailSection />} */}
 
         <ReportContactCard />
 

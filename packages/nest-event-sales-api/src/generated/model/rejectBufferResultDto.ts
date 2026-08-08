@@ -13,4 +13,6 @@ export interface RejectBufferResultDto {
     entityKeys: string[];
     /** Пояснение для клиента, что произошло с операцией. */
     message: string;
+    /** Предупреждения graceful degradation: чужие воронки, несопоставленные fail-стадии. */
+    warnings: string[];
 }

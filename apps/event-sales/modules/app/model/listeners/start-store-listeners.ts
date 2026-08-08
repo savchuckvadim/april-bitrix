@@ -10,6 +10,8 @@ import { fetchResults } from '@/modules/features/NoCall/model/NoCallThunk';
 import { initReturnToTMC } from '@/modules/features/ReturnToTMC/model/ReturnToTMCThunk';
 import { innActions } from '@/modules/features/Inn/model/InnSlice';
 import { clientSignalsActions } from '@/modules/features/ClientSignals/model/ClientSignalsSlice';
+import { taskDealsActions } from '@/modules/entities/RelatedCrm/model/TaskDealsSlice';
+import { leadMarksActions } from '@/modules/features/LeadMarks/model/LeadMarksSlice';
 import { searchDuplicates } from '@/modules/features/Duplicates/model/DuplicatesThunk';
 import { initCheckPresentation } from '@/modules/features/AfterPresentation/model/AfterPresentationThunk';
 import { startEventPlanAppListener } from '@/modules/entities/EventPlan/model/EventPlanAppListener';
@@ -117,6 +119,21 @@ export function startStoreListeners(startAppListening: AppStartListening) {
                     force: true,
                 }),
             );
+        },
+    });
+
+    // Перезагрузка приложения (кнопка ⟳) → сброс КЭШИРУЮЩИХ слайсов.
+    // appActions.reload гасит только app.initialized, а слайсы новых фич
+    // хранят «уже запрошено» (taskDeals.requestedIds), карты и оверрайды —
+    // без сброса повторный init их не перезапрашивал, и после reload на
+    // экране оставались данные прошлого клиента.
+    startAppListening({
+        actionCreator: appActions.reload,
+        effect: async (_action, listenerApi) => {
+            listenerApi.dispatch(taskDealsActions.reset());
+            listenerApi.dispatch(leadMarksActions.reset());
+            listenerApi.dispatch(innActions.reset());
+            listenerApi.dispatch(clientSignalsActions.reset());
         },
     });
 

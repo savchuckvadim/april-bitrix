@@ -37,6 +37,7 @@ import { afterPresentationReducer } from '@/modules/features/AfterPresentation';
 import { duplicatesReducer } from '@/modules/features/Duplicates';
 import { innReducer } from '@/modules/features/Inn';
 import { clientSignalsReducer } from '@/modules/features/ClientSignals';
+import { leadMarksReducer } from '@/modules/features/LeadMarks';
 import { eventItemReducer } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { preloaderReducer } from '@/modules/shared/Preloader';
 import { portalAPI, portalReducer } from '@workspace/pbx';
@@ -115,6 +116,7 @@ const rootReducer = combineReducers({
     duplicates: duplicatesReducer,
     inn: innReducer,
     clientSignals: clientSignalsReducer,
+    leadMarks: leadMarksReducer,
 
     // april
     portal: portalReducer,

@@ -5,6 +5,7 @@ import { Building2, UserRound } from 'lucide-react';
 import { EventTypeBadge } from '@workspace/april-ui';
 import { ThemeTogglePanel } from '@workspace/theme';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { useCompactUi } from '@/modules/app/lib/hooks/use-compact-ui';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
 import { ClientBar } from '@/modules/entities/EventCompany';
 import { InnControl } from '@/modules/features/Inn';
@@ -32,6 +33,8 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
     const isLeadContext = useAppSelector(getIsLeadContext);
     const warnings = useItemWarnings();
     const warningHandlers = useItemWarningHandlers();
+    // Во вкладке карточки (630×600) шапка идёт одной строкой.
+    const isCompact = useCompactUi();
 
     // В сделке показываем её компанию — менеджеру важно, с кем он работает,
     // а не в какой сущности открыто приложение.
@@ -68,16 +71,14 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
                     </div>
                 </div>
 
-                <ClientBar />
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <ClientBar compact={isCompact} className="min-w-0" />
+                    <InnControl compact={isCompact} />
+                    <SignalsControl compact={isCompact} />
+                </div>
 
                 <ItemWarnings warnings={warnings} handlers={warningHandlers} />
 
-                {/* ИНН сущности: значение/«Записать» + микро-редактор
-                    (открывается и действием «Заполнить» из предупреждений). */}
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <InnControl />
-                    <SignalsControl />
-                </div>
             </div>
         </header>
     );

@@ -7,6 +7,9 @@
  */
 import type {
     BxWebHookDto,
+    ConvertNormalizerOperationDto,
+    ConvertNormalizerRunDto,
+    ConvertNormalizerWebhookParams,
     LeadToWorkOperationDto,
     LeadToWorkRunDto,
     LeadToWorkWebhookParams,
@@ -133,6 +136,36 @@ export const getSalesHooks = () => {
             data: rejectBufferRunDto,
         });
     };
+    /**
+     * Принимает созданную сделку в silence-буфер. Если сделка родилась ручной конвертацией лида — наши поля графа (deal_from_lead_id, deal_joined_leads, to_base_sales лида) дописываются self-healing. Дубли от конвертации попадают в warnings как кандидаты на merge.
+     * @summary Вебхук робота onCrmDealAdd: нормализация графа связей
+     */
+    const convertNormalizerWebhook = (
+        bxWebHookDto: BxWebHookDto,
+        params: ConvertNormalizerWebhookParams,
+    ) => {
+        return customAxios<SalesHookAcceptedDto>({
+            url: `/api/sales-hooks/convert-normalizer/webhook`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: bxWebHookDto,
+            params,
+        });
+    };
+    /**
+     * Нормализует конкретную сделку без silence-задержки. Статус — GET /sales-hooks/operations/{operationId} или WS.
+     * @summary Ручной запуск нормализатора (отладка/догон истории)
+     */
+    const convertNormalizerRun = (
+        convertNormalizerRunDto: ConvertNormalizerRunDto,
+    ) => {
+        return customAxios<ConvertNormalizerOperationDto>({
+            url: `/api/sales-hooks/convert-normalizer/run`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: convertNormalizerRunDto,
+        });
+    };
     return {
         salesHookOperationsGetOperation,
         leadToWorkWebhook,
@@ -142,6 +175,8 @@ export const getSalesHooks = () => {
         transferWorkTake,
         rejectBufferWebhook,
         rejectBufferRun,
+        convertNormalizerWebhook,
+        convertNormalizerRun,
     };
 };
 export type SalesHookOperationsGetOperationResult = NonNullable<
@@ -171,4 +206,14 @@ export type RejectBufferWebhookResult = NonNullable<
 >;
 export type RejectBufferRunResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getSalesHooks>['rejectBufferRun']>>
+>;
+export type ConvertNormalizerWebhookResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getSalesHooks>['convertNormalizerWebhook']>
+    >
+>;
+export type ConvertNormalizerRunResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getSalesHooks>['convertNormalizerRun']>
+    >
 >;

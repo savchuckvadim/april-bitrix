@@ -1,5 +1,6 @@
 'use client';
 
+import { AfterSaleHint } from './AfterSaleHint';
 import { FC } from 'react';
 import { Star } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
@@ -143,6 +144,7 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                             value={type.current ? String(type.current.id) : undefined}
                             onChange={setProp(EV_PLAN_PROP.TYPE)}
                         />
+                        <AfterSaleHint />
 
                         {/*
                           * Контейнерный запрос, а не брейкпоинт экрана: дата

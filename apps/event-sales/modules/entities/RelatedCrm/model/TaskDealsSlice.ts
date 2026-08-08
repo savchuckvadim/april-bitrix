@@ -1,6 +1,7 @@
 import {
     createSlice,
     type ActionCreatorWithPayload,
+    type ActionCreatorWithoutPayload,
     type PayloadAction,
     type Reducer,
 } from '@reduxjs/toolkit';
@@ -46,6 +47,10 @@ const taskDealsSlice = createSlice({
                 state.byId[deal.id] = deal;
             }
         },
+        /** Полный сброс: reloadApp перезапрашивает всё заново. */
+        reset() {
+            return initialState;
+        },
         setStageDict(
             state,
             action: PayloadAction<{ entityId: string; dict: StageDictItem[] }>,
@@ -68,6 +73,7 @@ export const taskDealsActions: {
         { deals: RelatedDeal[] },
         'taskDeals/setDeals'
     >;
+    reset: ActionCreatorWithoutPayload<'taskDeals/reset'>;
     setStageDict: ActionCreatorWithPayload<
         { entityId: string; dict: StageDictItem[] },
         'taskDeals/setStageDict'

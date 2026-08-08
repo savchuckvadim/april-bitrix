@@ -69,7 +69,8 @@ export const StageProgress: React.FC<StageProgressProps> = ({
     return (
         <div
             className={cn(
-                'relative h-[3px] w-full rounded-full bg-foreground/10',
+                // 4px: на 3px градиент стадий читался с трудом.
+                'relative h-1 w-full rounded-full bg-foreground/10',
                 className,
             )}
         >

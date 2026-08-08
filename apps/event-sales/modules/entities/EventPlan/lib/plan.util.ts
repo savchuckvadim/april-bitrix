@@ -36,9 +36,14 @@ export const getInitialDate = () => {
  * пересечение). Всплывашка «добавьте компанию, запишите ИНН» — фича
  * NoCompanyChip/Inn (см. docs/event-sales-no-company-inn.tasks.md).
  */
-export const getPlanInitState = (isTmcMode: boolean, context: ClientContext) => ({
+export const getPlanInitState = (
+    isTmcMode: boolean,
+    context: ClientContext,
+    isAfterSale = false,
+    isAllTypesShown = false,
+) => ({
     [EV_PLAN_PROP.TYPE]: {
-        items: getPlanCallInitTypes(isTmcMode, context),
+        items: getPlanCallInitTypes(isTmcMode, context, isAfterSale, isAllTypesShown),
         current: null,
         isChanged: false,
     } as EvPlanStateItem,
@@ -54,8 +59,15 @@ export const getPlanInitState = (isTmcMode: boolean, context: ClientContext) => 
 const getPlanCallInitTypes = (
     isTmcMode: boolean,
     context: ClientContext,
+    isAfterSale: boolean,
+    isAllTypesShown: boolean,
 ): EventPlanCall[] => {
-    const allowed = getAllowedPlanCodes(context, isTmcMode);
+    const allowed = getAllowedPlanCodes({
+        context,
+        isTmc: isTmcMode,
+        isAfterSale,
+        isAllTypesShown,
+    });
     return PLAN_CALL_TYPES.filter(item => allowed.includes(item.code));
 };
 

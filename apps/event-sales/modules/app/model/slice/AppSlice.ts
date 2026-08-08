@@ -13,12 +13,12 @@ export enum APP_DEP {
 export enum APP_FROM_ENUM {
     COMPANY = 'company',
     LEAD = 'lead',
-    DEAL = 'deal', // имеется в виду только deal_empty - 
+    DEAL = 'deal', // имеется в виду только deal_empty -
     // DEAL_EMPTY = 'deal_empty',
     // DEAL_WITH_COMPANY = 'deal_with_company',
-    TASK = 'task', // не имеет смысла мы на основе информации из task должны выбрать
+    // TASK = 'task', // не имеет смысла мы на основе информации из task должны выбрать
     //предыдущие
-    CALL_CARD = 'call_card',
+    // CALL_CARD = 'call_card',
 }
 const initialState = {
     domain: '',
@@ -78,6 +78,7 @@ const appSlice = createSlice({
             state.bitrix.task = payload.task;
             state.bitrix.lead = payload.lead;
             state.display.mode = payload.display;
+            state.bitrix.from = payload.from;
 
             state.config = getDomainConfig(payload.domain, payload.user);
         },

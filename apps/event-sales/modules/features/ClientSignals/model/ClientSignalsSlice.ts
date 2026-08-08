@@ -33,6 +33,10 @@ const clientSignalsSlice = createSlice({
     name: 'clientSignals',
     initialState,
     reducers: {
+        /** Полный сброс: reloadApp перечитывает точки связи из лида. */
+        reset() {
+            return initialState;
+        },
         setEditor(state, action: PayloadAction<{ kind: SignalKind | null }>) {
             state.editor = action.payload.kind;
             state.error = null;
@@ -66,6 +70,7 @@ const clientSignalsSlice = createSlice({
 
 /* Экспорты аннотированы явно — TS2742 (immer из pnpm-пути), как в InnSlice. */
 export const clientSignalsActions: {
+    reset: ActionCreatorWithoutPayload<'clientSignals/reset'>;
     setEditor: ActionCreatorWithPayload<
         { kind: SignalKind | null },
         'clientSignals/setEditor'

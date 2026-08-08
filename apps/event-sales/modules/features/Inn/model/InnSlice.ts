@@ -31,6 +31,10 @@ const innSlice = createSlice({
     name: 'inn',
     initialState,
     reducers: {
+        /** Полный сброс: reloadApp перечитывает ИНН из сущности. */
+        reset() {
+            return initialState;
+        },
         setEditorOpen(state, action: PayloadAction<{ isOpen: boolean }>) {
             state.isEditorOpen = action.payload.isOpen;
             if (!action.payload.isOpen) state.error = null;
@@ -60,6 +64,7 @@ const innSlice = createSlice({
  * (TS2742) — тот же приём, что в TaskDealsSlice.
  */
 export const innActions: {
+    reset: ActionCreatorWithoutPayload<'inn/reset'>;
     setEditorOpen: ActionCreatorWithPayload<
         { isOpen: boolean },
         'inn/setEditorOpen'

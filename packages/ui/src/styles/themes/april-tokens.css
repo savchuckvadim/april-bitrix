@@ -32,6 +32,15 @@
     --glass-card-mix-strong: 30%;
 
     /*
+     * Доля --foreground в тексте soft-тонов (TONE_SOFT, april-ui/lib/tones).
+     * В светлой теме тон надо ЗАТЕМНИТЬ, иначе жёлтый/голубой не читаются.
+     * В тёмной теме foreground белый: те же 35% РАЗБАВЛЯЛИ цвет добела —
+     * бэйджи и подписи выглядели серыми. Там подмешиваем чуть-чуть.
+     */
+    --tone-soft-mix: 35%;
+    --tone-soft-mix-strong: 45%;
+
+    /*
      * Bitrix24 Air palette (официальные значения из bitrix24/b24style +
      * токен-имена из b24ui: air-primary, air-secondary, air-primary-success,
      * air-primary-alert, air-primary-copilot, air-secondary-no-accent).
@@ -143,6 +152,14 @@
     --info: oklch(0.7 0.12 235);
     --air-link: #6db3ec; /* читаемая ссылка на тёмном */
 
+    /*
+     * На тёмном фоне тона читаются сами, а подмешивание белого --foreground
+     * РАЗБАВЛЯЛО их добела: бэйджи и подписи выглядели серыми. Оставляем
+     * символическую долю — только чтобы сбить кислотность.
+     */
+    --tone-soft-mix: 6%;
+    --tone-soft-mix-strong: 10%;
+
     /* Тот же порядок цветов, приподнятая светлота — foreground'ы наследуются
        из :root и остаются контрастными. */
     --event-cold: oklch(0.76 0.11 232);
@@ -187,11 +204,11 @@
     --event-current: var(--event-pres);
     --event-current-foreground: var(--event-pres-foreground);
 }
-[data-event-type='in_progress'] {
+[data-event-type='hot'] {
     --event-current: var(--event-hot);
     --event-current-foreground: var(--event-hot-foreground);
 }
-[data-event-type='money_await'] {
+[data-event-type='moneyAwait'] {
     --event-current: var(--event-money);
     --event-current-foreground: var(--event-money-foreground);
 }

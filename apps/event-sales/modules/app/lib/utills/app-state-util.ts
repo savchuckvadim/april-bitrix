@@ -70,6 +70,14 @@ export const getClientContext = (state: RootState): ClientContext => {
     return 'unknown';
 };
 
+/**
+ * Компании у клиента нет (сделка без компании, лид, пустой контекст).
+ * ЕДИНЫЙ флаг: от него зависят типы планирования, виджет «нет компании»
+ * и запрет продажи — продать без компании нельзя, отказать можно.
+ */
+export const getIsWithoutCompany = (state: RootState): boolean =>
+    getClientContext(state) !== 'company';
+
 /** Режим отдела — ТМЦ? (единственное место чтения кода режима) */
 export const getIsTmcMode = (state: RootState): boolean =>
     state.department[DEPARTAMENT_STATE_PROP.MODE].current?.code === 'tmc';

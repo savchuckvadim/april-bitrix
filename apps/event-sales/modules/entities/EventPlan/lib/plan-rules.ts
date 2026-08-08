@@ -42,11 +42,46 @@ export const PLAN_ALLOWED_TMC: EV_PLAN_CODE[] = [
     EV_PLAN_CODE.PRESENTATION,
 ];
 
-/** Итоговый набор кодов: пересечение контекстного и ТМЦ-правила. */
-export const getAllowedPlanCodes = (
-    context: ClientContext,
-    isTmc: boolean,
-): EV_PLAN_CODE[] => {
+/**
+ * Клиенту уже продали: открытых сделок нет, есть недавняя успешная.
+ *
+ * По умолчанию оставляем только «Поставку» — тип, придуманный ровно для
+ * звонков ПОСЛЕ продажи: он не создаёт новую сделку и не идёт в KPI как
+ * новый цикл продажи. Иначе звонок «по решению» после успеха заводил бы
+ * вторую сделку в той же воронке и удваивал продажи в отчётности.
+ *
+ * Ограничение мягкое: менеджер может раскрыть полный список кнопкой —
+ * бывает, что клиент действительно начинает новый цикл покупки.
+ */
+export const PLAN_ALLOWED_AFTER_SALE: EV_PLAN_CODE[] = [EV_PLAN_CODE.SUPPLY];
+
+export interface PlanRulesInput {
+    context: ClientContext;
+    isTmc: boolean;
+    /** Все сделки клиента закрыты, последняя — успешная продажа. */
+    isAfterSale?: boolean;
+    /** Менеджер сам раскрыл полный список типов. */
+    isAllTypesShown?: boolean;
+}
+
+/** Итоговый набор кодов: пересечение применимых правил. */
+export const getAllowedPlanCodes = ({
+    context,
+    isTmc,
+    isAfterSale = false,
+    isAllTypesShown = false,
+}: PlanRulesInput): EV_PLAN_CODE[] => {
     const base = PLAN_ALLOWED_BY_CONTEXT[context];
-    return isTmc ? base.filter(code => PLAN_ALLOWED_TMC.includes(code)) : base;
+    const byTmc = isTmc
+        ? base.filter(code => PLAN_ALLOWED_TMC.includes(code))
+        : base;
+
+    if (!isAfterSale || isAllTypesShown) return byTmc;
+
+    const afterSale = byTmc.filter(code =>
+        PLAN_ALLOWED_AFTER_SALE.includes(code),
+    );
+    // «Поставки» может не быть в наборе контекста (лид, ТМЦ) — тогда
+    // ограничивать нечем, оставляем то, что разрешено контекстом.
+    return afterSale.length ? afterSale : byTmc;
 };

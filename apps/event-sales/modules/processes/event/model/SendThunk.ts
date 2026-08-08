@@ -15,6 +15,7 @@ import {
 } from '@/modules/features/AfterPresentation';
 import { returnToTmcActions } from '@/modules/features/ReturnToTMC';
 import { finishResultMenu } from '@/modules/widgets/EventItem/model/EventItemThunk';
+import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
 import { eventActions } from './EventSlice';
 import { flowStatusActions } from './FlowStatusSlice';
 import { watchFlowOperation } from './FlowWatchThunk';
@@ -124,7 +125,14 @@ export const sendEvent =
                 operationId,
                 domain: payload.domain,
                 tasksStale: true,
-                onDone: () => dispatch(cleanEvent(isTmc, context)),
+                onDone: async () => {
+                    await dispatch(cleanEvent(isTmc, context));
+                    // Очередь отработала — в самой сущности уже изменились
+                    // стадии, поля и задачи. Полный init перезапускает все
+                    // листенеры и перечитывает данные: другого честного
+                    // способа увидеть результат flow у фрейма нет.
+                    dispatch(reloadApp());
+                },
             }),
         );
     };

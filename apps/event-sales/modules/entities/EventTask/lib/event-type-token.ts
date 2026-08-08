@@ -18,9 +18,9 @@ export const planCodeToEventType = (
         case 'presentation':
             return 'presentation';
         case 'hot':
-            return 'in_progress';
+            return 'hot';
         case 'moneyAwait':
-            return 'money_await';
+            return 'moneyAwait';
         case 'supply':
             return 'supply';
         case 'warm':

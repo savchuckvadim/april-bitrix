@@ -95,7 +95,12 @@ export const RelatedDealsCard: FC<RelatedDealsCardProps> = ({
                                     {deal.responsible?.name}
                                 </span>
                             </div>
-                            <StageMini stage={deal.stage} className="mt-1" />
+                            <StageMini
+                                stage={deal.stage}
+                                title={deal.title}
+                                note={dealAmount(deal.opportunity)}
+                                className="mt-1"
+                            />
                         </li>
                     ))}
                 </ul>

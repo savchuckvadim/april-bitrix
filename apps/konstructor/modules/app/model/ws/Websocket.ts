@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { AppDispatch, RootState, ThunkExtraArgument } from '../store';
+import type { AppDispatch, RootState, ThunkExtraArgument } from '../store';
 
 
 export function setupWsInitListener(listenerMiddleware: any) {

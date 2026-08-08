@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { clearComment, eventReportActions } from '@/modules/entities/EventReport';
 import { eventTaskActions } from '@/modules/entities/EventTask';
 import { eventPlanActions } from '@/modules/entities/EventPlan';
@@ -22,10 +22,11 @@ import { createOperationId } from '../lib/operation-id';
 import { FlowHelper } from '../lib/api/flow-helper';
 import { buildFlowPayload } from '../lib/build-flow-payload';
 import {
+    getClientContext,
     getIsTmcMode,
-    isPresentationPlanned,
-    validateSend,
-} from '../lib/send-validation';
+    type ClientContext,
+} from '@/modules/app/lib/utills/app-state-util';
+import { getPlannedFinishText, validateSend } from '../lib/send-validation';
 
 const flowHelper = new FlowHelper();
 
@@ -90,11 +91,9 @@ export const sendEvent =
 
         const payload = buildFlowPayload(state, { operationId });
         const isTmc = getIsTmcMode(state);
-        const hasCompany = !!state.app.bitrix.company;
+        const context = getClientContext(state);
         const finishResult = payload.plan?.isPlanned
-            ? isPresentationPlanned(state)
-                ? 'Презентация запланирована'
-                : 'Звонок запланирован'
+            ? getPlannedFinishText(state)
             : '';
 
         dispatch(
@@ -125,7 +124,7 @@ export const sendEvent =
                 operationId,
                 domain: payload.domain,
                 tasksStale: true,
-                onDone: () => dispatch(cleanEvent(isTmc, hasCompany)),
+                onDone: () => dispatch(cleanEvent(isTmc, context)),
             }),
         );
     };
@@ -137,12 +136,12 @@ export const retrySendEvent = () => async (dispatch: AppDispatch) => {
 
 /** Очистка состояния после отправки (порт legacy cleanEvent). */
 export const cleanEvent =
-    (isTmc: boolean, hasCompany: boolean) => async (dispatch: AppDispatch) => {
+    (isTmc: boolean, context: ClientContext) => async (dispatch: AppDispatch) => {
         dispatch(eventTaskActions.setCurrentTask({ task: null }));
         dispatch(setCurrentReportContact(null));
         dispatch(finishResultMenu());
         dispatch(eventReportActions.clean({ isTmc }));
-        dispatch(eventPlanActions.clean({ isTmc, hasCompany }));
+        dispatch(eventPlanActions.clean({ isTmc, context }));
         dispatch(eventPresentationActions.clean());
         dispatch(afterPresentationActions.resetForNewEvent());
         dispatch(returnToTmcActions.setActiveStatus({ status: false }));

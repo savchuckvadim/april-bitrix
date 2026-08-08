@@ -1,8 +1,12 @@
 'use client';
 
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
+import {
+    getClientContext,
+    getIsLeadContext,
+} from '@/modules/app/lib/utills/app-state-util';
 import { EV_COMPANY_PROP } from '@/modules/entities/EventCompany';
+import { getCurrentInn, getInnTarget } from '@/modules/features/Inn';
 
 /**
  * Идентификатор действия при предупреждении. Хук не знает, ЧТО произойдёт —
@@ -34,8 +38,11 @@ export interface ItemWarning {
 export const useItemWarnings = (): ItemWarning[] => {
     const company = useAppSelector(s => s.app.bitrix.company);
     const isLeadContext = useAppSelector(getIsLeadContext);
+    const context = useAppSelector(getClientContext);
     const colorRequired = useAppSelector(s => s.app.config.withColorRequired);
     const color = useAppSelector(s => s.company[EV_COMPANY_PROP.COLOR]);
+    const innTarget = useAppSelector(getInnTarget);
+    const inn = useAppSelector(getCurrentInn);
 
     const warnings: ItemWarning[] = [];
 
@@ -44,6 +51,18 @@ export const useItemWarnings = (): ItemWarning[] => {
             id: 'lead-not-converted',
             text: 'Это лид. Перед презентацией сконвертируйте его в компанию.',
             blocking: true,
+        });
+    }
+
+    // Сделка без компании: раньше тут была полная тишина — единственный
+    // кейс, о котором шапка не говорила вовсе. Не блокирует (звонок,
+    // презентация и решение разрешены), но требует внимания.
+    if (context === 'dealNoCompany') {
+        warnings.push({
+            id: 'no-company',
+            text: 'У сделки не привязана компания.',
+            blocking: false,
+            action: { id: 'check-duplicates-inn', label: 'Найти по ИНН' },
         });
     }
 
@@ -58,16 +77,25 @@ export const useItemWarnings = (): ItemWarning[] => {
         });
     }
 
-    // TODO(бэк): ИНН. В BXCompany сейчас только ID / TITLE / PRES_COUNT —
-    // ИНН с портала не приходит, поэтому проверку включить нечем. Когда поле
-    // появится:
-    //   if (!isLeadContext && company && !company.INN) push({
-    //       id: 'company-inn', blocking: false,   // в моменте не обязателен,
-    //       text: 'У компании не заполнен ИНН.',  // но нужен в долгосроке
-    //       action: { id: 'fill-inn', label: 'Заполнить' },
-    //   });
-    // Поиск дублей по ИНН доступен, только когда известны И компания, И ИНН;
-    // поиск по контактам — независимо от него.
+    // ИНН: значение читается из полной сущности по pbx-полю op_inn
+    // (features/Inn). innTarget null — поля нет на портале, молчим (§5).
+    if (innTarget && !inn) {
+        if (company) {
+            warnings.push({
+                id: 'company-inn',
+                text: 'У компании не заполнен ИНН.',
+                blocking: false,
+                action: { id: 'fill-inn', label: 'Заполнить' },
+            });
+        } else if (context === 'dealNoCompany') {
+            warnings.push({
+                id: 'deal-inn',
+                text: 'Запишите ИНН — поможет найти компанию и дубли.',
+                blocking: false,
+                action: { id: 'fill-inn', label: 'Записать' },
+            });
+        }
+    }
 
     // Про прогноз предупреждения нет намеренно: шкала теперь стоит тут же, в
     // шапке, и сама показывает и «не задан», и ошибку после неудачной отправки.

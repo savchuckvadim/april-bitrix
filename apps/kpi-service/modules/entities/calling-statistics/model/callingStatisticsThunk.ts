@@ -1,6 +1,6 @@
 import { ReportCallingData } from '../type/calling-type';
 import { callingStatisticsActions } from './callingStatisticsSlice';
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { ReportRequest } from '../../report/model/report-service';
 import { fetchCallingStatistics } from '../lib/helper';
 

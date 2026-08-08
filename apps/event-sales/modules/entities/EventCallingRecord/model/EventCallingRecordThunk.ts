@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { eventCallingRecordActions } from './EventCallingRecordSlice';
 import { EVCallingRecord } from './index';
 import { RecordsHelper } from '../lib/api/records-helper';

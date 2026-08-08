@@ -1,10 +1,12 @@
 import { format } from 'date-fns';
+import type { ClientContext } from '@/modules/app/lib/utills/app-state-util';
 import {
     EV_PLAN_CODE,
     EV_PLAN_PROP,
     EventPlanCall,
     EvPlanStateItem,
 } from '../type/event-plan-type';
+import { getAllowedPlanCodes } from './plan-rules';
 
 /** Типы планируемых событий (единственный источник). */
 export const PLAN_CALL_TYPES: EventPlanCall[] = [
@@ -28,10 +30,15 @@ export const getInitialDate = () => {
     };
 };
 
-/** Начальное состояние плана; ТМЦ планирует только звонок/презентацию. */
-export const getPlanInitState = (isTmcMode: boolean, hasCompany: boolean) => ({
+/**
+ * Начальное состояние плана. Набор доступных типов события — от контекста
+ * клиента и режима отдела (правила-данные в plan-rules.ts, итог —
+ * пересечение). Всплывашка «добавьте компанию, запишите ИНН» — фича
+ * NoCompanyChip/Inn (см. docs/event-sales-no-company-inn.tasks.md).
+ */
+export const getPlanInitState = (isTmcMode: boolean, context: ClientContext) => ({
     [EV_PLAN_PROP.TYPE]: {
-        items: getPlanCallInitTypes(isTmcMode, hasCompany),
+        items: getPlanCallInitTypes(isTmcMode, context),
         current: null,
         isChanged: false,
     } as EvPlanStateItem,
@@ -43,12 +50,13 @@ export const getPlanInitState = (isTmcMode: boolean, hasCompany: boolean) => ({
     [EV_PLAN_PROP.IS_IMPORTANT]: false as boolean,
 });
 
-const getPlanCallInitTypes = (isTmcMode: boolean, hasCompany: boolean) => {
-    const items = isTmcMode
-        ? PLAN_CALL_TYPES.slice(0, 2) :
-        !hasCompany ? PLAN_CALL_TYPES.slice(0, 1) : PLAN_CALL_TYPES
-
-    return items;
+/** Фильтр по кодам, не по позициям: порядок PLAN_CALL_TYPES больше не несущий. */
+const getPlanCallInitTypes = (
+    isTmcMode: boolean,
+    context: ClientContext,
+): EventPlanCall[] => {
+    const allowed = getAllowedPlanCodes(context, isTmcMode);
+    return PLAN_CALL_TYPES.filter(item => allowed.includes(item.code));
 };
 
 

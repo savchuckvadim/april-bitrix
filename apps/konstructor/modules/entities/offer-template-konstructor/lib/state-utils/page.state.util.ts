@@ -1,4 +1,4 @@
-import { AppDispatch } from '@/modules/app';
+import type { AppDispatch } from '@/modules/app';
 import {
     addNewPageWithBlock,
     updatePages,

@@ -1,5 +1,5 @@
 import { BXTask, BXUser, Placement } from '@workspace/bx';
-import { AppDispatch } from '../../model/store';
+import type { AppDispatch } from '../../model/store';
 import { appActions, APP_DEP } from '../../model/slice/AppSlice';
 import { APP_DISPLAY_MODE } from '../../types/app/app-type';
 import { EntitiesFromPlacement } from './placement-util';

@@ -38,7 +38,11 @@ import {
 } from '@workspace/ui/components/tooltip';
 import { JsonView, PresenceBadge } from '../../../../lib/ui';
 import { PBX_GROUPS, type PbxGroup } from '../../../../lib/model/common';
-import { useLeadStageMapping, useMapLeadStages } from '../../lib/hooks';
+import {
+    useInstallLeadStages,
+    useLeadStageMapping,
+    useMapLeadStages,
+} from '../../lib/hooks';
 import type { MapLeadStageItem } from '../../model';
 
 /** Sentinel for "не сопоставлено" in the Select (empty value is not allowed). */
@@ -51,6 +55,7 @@ export function LeadStagesPanel({ portalId }: { portalId: number }) {
     const [group, setGroup] = React.useState<PbxGroup>('sales');
     const screen = useLeadStageMapping(domain, group);
     const mapStages = useMapLeadStages();
+    const installStages = useInstallLeadStages();
     const [notice, setNotice] = React.useState<string | null>(null);
 
     const templateStages = screen.data?.templateStages ?? [];
@@ -71,6 +76,34 @@ export function LeadStagesPanel({ portalId }: { portalId: number }) {
         setSelection(next);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen.data]);
+
+    /** Есть ли install-стадии, которых ещё нет среди статусов Bitrix. */
+    const missingInstallStages = templateStages.filter(
+        (stage) =>
+            stage.installMode === 'create' &&
+            stage.bitrixStatusId &&
+            !bitrixStatuses.some((s) => s.STATUS_ID === stage.bitrixStatusId),
+    );
+
+    const runInstall = () => {
+        if (!domain) return;
+        setNotice(null);
+        installStages.mutate(
+            { domain, group },
+            {
+                onSuccess: (result) =>
+                    setNotice(
+                        `Установка выполнена: ${result.items
+                            .map((i) => `${i.code} — ${i.action}`)
+                            .join(', ')}.`,
+                    ),
+                onError: (e) =>
+                    setNotice(
+                        `Ошибка установки: ${e instanceof Error ? e.message : 'не удалось установить'}`,
+                    ),
+            },
+        );
+    };
 
     const save = () => {
         if (!domain) return;
@@ -106,18 +139,20 @@ export function LeadStagesPanel({ portalId }: { portalId: number }) {
         <div className="space-y-4">
             <Card>
                 <CardHeader>
-                    <CardTitle>Сопоставление стадий лида</CardTitle>
+                    <CardTitle>Стадии лида: установка и сопоставление</CardTitle>
                     <CardDescription className="space-y-2">
                         <span className="block">
-                            Стадии лида в Bitrix <b>не создаются</b> — их нельзя задать
-                            через API. Здесь шаблонные стадии вручную сопоставляются с
-                            существующими статусами лида Bitrix (`crm.status.list`,
-                            ENTITY_ID=STATUS).
+                            Стадии с пометкой <b>install</b> создаются в Bitrix кнопкой
+                            «Установить недостающие» (`crm.status.add`, ENTITY_ID=STATUS)
+                            — аддитивно, чужие статусы портала не изменяются и не
+                            удаляются. Остальные (map-only) сопоставляются вручную с
+                            существующими статусами.
                         </span>
                         <span className="block">
                             Результат пишется в PortalDB (`btx_stages`): данные из шаблона
-                            + `bitrixId = STATUS_ID`. Несопоставленные стадии не
-                            сохраняются.
+                            + `bitrixId = STATUS_ID`. Снятое сопоставление map-only стадии
+                            удаляет её строку из БД; кэш портала сбрасывается
+                            автоматически.
                         </span>
                     </CardDescription>
                 </CardHeader>
@@ -161,6 +196,21 @@ export function LeadStagesPanel({ portalId }: { portalId: number }) {
                                             Шаблонная стадия
                                         </TableHead>
                                         <TableHead className="w-40">Код</TableHead>
+                                        <TableHead className="w-28 text-center">
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <span className="cursor-help underline decoration-dotted">
+                                                        Установка
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent className="max-w-xs">
+                                                    install — стадия создаётся в Bitrix
+                                                    кнопкой; map-only — сопоставляется
+                                                    вручную. «Стадия ОП» — зеркало стадии
+                                                    воронки продаж.
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TableHead>
                                         <TableHead className="w-24 text-center">
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
@@ -198,6 +248,31 @@ export function LeadStagesPanel({ portalId }: { portalId: number }) {
                                                 </TableCell>
                                                 <TableCell className="font-mono text-xs text-muted-foreground">
                                                     {stage.code}
+                                                    {stage.dealStageCode && (
+                                                        <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] text-amber-800">
+                                                            ОП: {stage.dealStageCode}
+                                                        </span>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    {stage.installMode ===
+                                                    'create' ? (
+                                                        <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] font-medium text-sky-800">
+                                                            install
+                                                            {stage.bitrixStatusId &&
+                                                            bitrixStatuses.some(
+                                                                (s) =>
+                                                                    s.STATUS_ID ===
+                                                                    stage.bitrixStatusId,
+                                                            )
+                                                                ? ' ✓'
+                                                                : ''}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-[10px] text-muted-foreground">
+                                                            map-only
+                                                        </span>
+                                                    )}
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     <PresenceBadge present={mapped} />
@@ -247,7 +322,30 @@ export function LeadStagesPanel({ portalId }: { portalId: number }) {
                         </div>
                     )}
 
-                    <div className="flex justify-end">
+                    <div className="flex items-center justify-end gap-3">
+                        {missingInstallStages.length > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                                Не установлено в Bitrix:{' '}
+                                {missingInstallStages
+                                    .map((s) => s.title)
+                                    .join(', ')}
+                            </span>
+                        )}
+                        <Button
+                            variant="outline"
+                            onClick={runInstall}
+                            disabled={
+                                !domain ||
+                                installStages.isPending ||
+                                templateStages.every(
+                                    (s) => s.installMode !== 'create',
+                                )
+                            }
+                        >
+                            {installStages.isPending
+                                ? 'Установка…'
+                                : 'Установить недостающие'}
+                        </Button>
                         <Button
                             onClick={save}
                             disabled={

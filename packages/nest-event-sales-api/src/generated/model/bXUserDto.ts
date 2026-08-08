@@ -13,5 +13,11 @@ export interface BXUserDto {
     LAST_NAME: string;
     EMAIL: string;
     WORK_PHONE: string;
+    /** ID отделов, в которых состоит сотрудник (UF_DEPARTMENT). user.get отдаёт всегда — раньше DTO просто врал в меньшую сторону. */
+    UF_DEPARTMENT?: number[];
+    /** Должность сотрудника. */
+    WORK_POSITION?: string;
+    /** ID отдела, которым сотрудник руководит (если руководит). */
+    UF_HEAD_DEPARTMENT?: string;
     PERSONAL_PHOTO: BXUserDtoPERSONALPHOTO;
 }

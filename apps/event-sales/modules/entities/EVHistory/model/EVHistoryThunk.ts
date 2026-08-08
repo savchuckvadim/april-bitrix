@@ -1,33 +1,30 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import { RelatedCrmHelper } from '@/modules/entities/RelatedCrm/lib/api/related-crm-helper';
+import { getEntityDescriptor } from '@/modules/entities/RelatedCrm/lib/entity-descriptor';
+import type { RelatedCrmDetails } from '@/modules/entities/RelatedCrm';
+import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
+import { HistoryListHelper } from '../lib/api/history-list-helper';
+import { getHistoryListRef, HistoryListRef } from '../lib/history-list';
 import {
-    HistoryListHelper,
-    HISTORY_PAGE_SIZE,
-} from '../lib/api/history-list-helper';
-import {
-    getHistoryListRef,
-    toHistoryEntry,
-    type HistoryEntry,
-} from '../lib/history-list';
+    annotateLeadBindings,
+    buildHistoryBindings,
+    collectDiscoveredBindings,
+} from '../lib/bindings';
+import { mapHistoryElement } from '../lib/map-history-item';
+import { HistoryBinding } from './history-record.type';
 import { eventHistoryActions } from './EVHistorySlice';
 
-const helper = new HistoryListHelper();
+const historyHelper = new HistoryListHelper();
+const relatedHelper = new RelatedCrmHelper();
 
 /**
- * Сколько страниц тянем первым запросом.
+ * История по ВСЕМ привязкам контекста из портального списка «ОП История».
  *
- * Одна страница (50) для истории живого клиента маловата — менеджер сразу
- * скроллит дальше. Две дают сотню записей за один заход и в большинстве
- * случаев закрывают вопрос; остальное — по кнопке, чтобы не выгребать порталу
- * всю историю ради пары просмотров.
- */
-const INITIAL_PAGES = 2;
-
-/**
- * История по компании из портального списка «ОП История».
- *
- * Ленивая: вызывается, когда секция истории появилась на экране, а не при
- * старте приложения. У давнего клиента история — сотни записей, и тянуть её
- * всем подряд незачем.
+ * Ленивая: вызывается, когда секция истории появилась на экране. Сначала
+ * собираем множество привязок (сущности контекста + связи из
+ * `/duplicates/details` + CRM-привязки задачи), затем ОДНИМ batch'ем берём
+ * первые 50 записей каждой ленты. Связи могли не загрузиться — тогда честно
+ * работаем с тем, что есть: история по контексту лучше пустого экрана.
  */
 export const loadEventSalesHistory =
     (options: { reset?: boolean } = {}) =>
@@ -35,9 +32,7 @@ export const loadEventSalesHistory =
         const state = getState();
         const history = state.eventHistory;
         if (history.status === 'loading') return;
-
-        const companyId = Number(state.app.bitrix.company?.ID || 0);
-        if (!companyId) return;
+        if (!options.reset && history.status === 'ready') return;
 
         const ref = getHistoryListRef(state.portal.portal);
         if (!ref) {
@@ -45,44 +40,132 @@ export const loadEventSalesHistory =
             return;
         }
 
-        const reset = options.reset ?? history.status === 'idle';
-        const startFrom = reset ? 0 : history.next;
-        // Догружать нечего — вся история уже на экране.
-        if (startFrom === null) return;
+        const { company, deal, lead, from } = state.app.bitrix;
+        const descriptor = getEntityDescriptor({ from, company, deal, lead });
+        if (!descriptor) return;
 
         dispatch(eventHistoryActions.setLoading());
 
+        let related: RelatedCrmDetails | null = null;
         try {
-            const pages = reset ? INITIAL_PAGES : 1;
-            const collected: HistoryEntry[] = [];
-            let start: number | null = startFrom;
-            let total: number | null = null;
+            related = await relatedHelper.getDetails({
+                domain: state.app.domain,
+                entityType: descriptor.entityType,
+                entityId: descriptor.entityId,
+                includeClosed: true,
+            });
+        } catch (error) {
+            console.error('history related-details error', error);
+        }
 
-            for (let page = 0; page < pages && start !== null; page++) {
-                const result = await helper.getPage({ ref, companyId, start });
+        const bindings = annotateLeadBindings(
+            buildHistoryBindings({
+                company,
+                deal,
+                lead,
+                related,
+                taskLinks: getTaskLinks(state.eventTask.current),
+            }),
+            related,
+            state.portal.portal,
+        );
+        if (!bindings.length) {
+            dispatch(eventHistoryActions.setInitial({ groups: [] }));
+            return;
+        }
 
-                collected.push(
-                    ...result.elements.map(element =>
-                        toHistoryEntry(element, ref),
-                    ),
-                );
-                total = result.total ?? total;
-                start = result.next;
+        try {
+            const groups = await loadGroupsPages(ref, bindings);
 
-                // Портал отдал неполную страницу — дальше точно ничего нет.
-                if (result.elements.length < HISTORY_PAGE_SIZE) start = null;
+            // Второй проход: связи, о которых CRM не знает, а история знает —
+            // старые записи несут `L_`/`D_`/`C_` привязки прямо в поле crm
+            // (лид работал по компании без COMPANY_ID на себе и т.п.).
+            const discovered = collectDiscoveredBindings(
+                groups.flatMap(group => group.records),
+                bindings.map(binding => binding.value),
+            );
+            if (discovered.length) {
+                groups.push(...(await loadGroupsPages(ref, discovered)));
             }
 
-            dispatch(
-                eventHistoryActions.setPage({
-                    items: collected,
-                    next: start,
-                    total,
-                    reset,
-                }),
-            );
+            dispatch(eventHistoryActions.setInitial({ groups }));
         } catch (error) {
             console.error('loadEventSalesHistory error', error);
             dispatch(eventHistoryActions.setError());
+        }
+    };
+
+/** Первые страницы указанных привязок одним batch'ем + маппинг записей. */
+const loadGroupsPages = async (
+    ref: HistoryListRef,
+    bindings: HistoryBinding[],
+): Promise<
+    {
+        binding: HistoryBinding;
+        records: ReturnType<typeof mapHistoryElement>[];
+        next: number | null;
+        total: number | null;
+    }[]
+> => {
+    const pages = await historyHelper.getFirstPages(
+        ref,
+        bindings.map(binding => binding.value),
+    );
+    return bindings.map(binding => {
+        const page = pages.get(binding.value);
+        return {
+            binding,
+            records: (page?.elements ?? []).map(element =>
+                mapHistoryElement(element, ref),
+            ),
+            next: page?.next ?? null,
+            total: page?.total ?? null,
+        };
+    });
+};
+
+/** Догрузка одной ленты (скролл дошёл до её конца). */
+export const loadMoreHistoryForBinding =
+    (bindingValue: string) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
+        const state = getState();
+        const group = state.eventHistory.groups.find(
+            item => item.binding.value === bindingValue,
+        );
+        if (!group || group.isLoadingMore || group.next === null) return;
+
+        const ref = getHistoryListRef(state.portal.portal);
+        if (!ref) return;
+
+        dispatch(
+            eventHistoryActions.setGroupLoadingMore({
+                binding: bindingValue,
+                status: true,
+            }),
+        );
+        try {
+            const page = await historyHelper.getPage(
+                ref,
+                bindingValue,
+                group.next,
+            );
+            dispatch(
+                eventHistoryActions.setGroupPage({
+                    binding: bindingValue,
+                    records: page.elements.map(element =>
+                        mapHistoryElement(element, ref),
+                    ),
+                    next: page.next,
+                    total: page.total,
+                }),
+            );
+        } catch (error) {
+            console.error('loadMoreHistoryForBinding error', error);
+            dispatch(
+                eventHistoryActions.setGroupLoadingMore({
+                    binding: bindingValue,
+                    status: false,
+                }),
+            );
         }
     };

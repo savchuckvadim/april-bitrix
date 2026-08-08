@@ -1,10 +1,16 @@
 import { portalActions } from '@workspace/pbx';
+import { appActions } from '../slice/AppSlice';
 import { setInitEventCompany } from '@/modules/entities/EventCompany/model/EventCompanyThunk';
 import { getCompanyContacts } from '@/modules/entities/EventContact/model/EventContactThunk';
 import { eventTaskActions } from '@/modules/entities/EventTask/model/EventTaskSlice';
+import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
+import { fetchTaskBoundDeals } from '@/modules/entities/RelatedCrm/model/TaskDealsThunk';
 import { getInitSale } from '@/modules/entities/EventSale/model/EventSaleThunk';
 import { fetchResults } from '@/modules/features/NoCall/model/NoCallThunk';
 import { initReturnToTMC } from '@/modules/features/ReturnToTMC/model/ReturnToTMCThunk';
+import { innActions } from '@/modules/features/Inn/model/InnSlice';
+import { clientSignalsActions } from '@/modules/features/ClientSignals/model/ClientSignalsSlice';
+import { searchDuplicates } from '@/modules/features/Duplicates/model/DuplicatesThunk';
 import { initCheckPresentation } from '@/modules/features/AfterPresentation/model/AfterPresentationThunk';
 import { startEventPlanAppListener } from '@/modules/entities/EventPlan/model/EventPlanAppListener';
 import { startDuplicatesAppListener } from '@/modules/features/Duplicates';
@@ -22,7 +28,10 @@ import type { AppStartListening } from '../store';
  */
 export function startStoreListeners(startAppListening: AppStartListening) {
     // Портал загружен → поля компании (цвет/статус) + контакты компании.
-    // Ждём (до 5с), пока initial() положит bitrix.company в app state.
+    // Ждём (до 5с) РЕЗОЛВА СУЩНОСТЕЙ (from в state), а не саму компанию:
+    // в контекстах без компании (лид, сделка без компании) она не придёт
+    // никогда, и прежнее ожидание компании стабильно съедало все 5 секунд,
+    // задерживая заодно и initCheckPresentation.
     startAppListening({
         actionCreator: portalActions.setPortal,
         effect: async (action, listenerApi) => {
@@ -30,15 +39,29 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             const { dispatch } = listenerApi;
 
             await listenerApi.condition(
-                (_action, currentState) => !!currentState.app?.bitrix?.company,
+                (_action, currentState) => !!currentState.app?.bitrix?.from,
                 5000,
             );
 
+            // Company-таноки сами no-op'ятся без компании.
             dispatch(setInitEventCompany(portal));
             dispatch(getCompanyContacts(portal));
             // История НЕ грузится здесь: у давнего клиента это сотни записей,
             // а смотрят её единицы. Её тянет сама секция при появлении.
             dispatch(initCheckPresentation());
+        },
+    });
+
+    // Компания появилась ПОСЛЕ инициализации (привязали к сделке из виджета)
+    // → та же инициализация полей и контактов, что и на буте.
+    startAppListening({
+        actionCreator: appActions.setAppBitrixData,
+        effect: async (action, listenerApi) => {
+            if (!action.payload.company) return;
+            const portal = listenerApi.getState().portal.portal;
+            if (!portal) return;
+            listenerApi.dispatch(setInitEventCompany(portal));
+            listenerApi.dispatch(getCompanyContacts(portal));
         },
     });
 
@@ -52,7 +75,48 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             dispatch(fetchResults());
             if (action.payload.tasks?.length) {
                 dispatch(initReturnToTMC(action.payload.tasks));
+                // Привязанные к задачам сделки — напрямую из портала: в графе
+                // связей клиента старых сделок без CRM-связей нет, а полоски
+                // стадий обязаны показывать именно привязанные (по ним отчёт).
+                dispatch(
+                    fetchTaskBoundDeals(
+                        action.payload.tasks.flatMap(
+                            task => getTaskLinks(task).dealIds,
+                        ),
+                    ),
+                );
             }
+        },
+    });
+
+    // ИНН записан → сразу проверить дубли по нему (свежий сигнал — самый
+    // сильный: вес 100). force — кэш двухминутного автопоиска уже неактуален.
+    startAppListening({
+        actionCreator: innActions.setSaved,
+        effect: async (action, listenerApi) => {
+            listenerApi.dispatch(
+                searchDuplicates({
+                    raw: { inns: [action.payload.value] },
+                    force: true,
+                }),
+            );
+        },
+    });
+
+    // Телефон/email добавлен лиду → тот же немедленный поиск дублей по нему.
+    startAppListening({
+        actionCreator: clientSignalsActions.setSaved,
+        effect: async (action, listenerApi) => {
+            const { kind, value } = action.payload;
+            listenerApi.dispatch(
+                searchDuplicates({
+                    raw:
+                        kind === 'phone'
+                            ? { phones: [value] }
+                            : { emails: [value] },
+                    force: true,
+                }),
+            );
         },
     });
 

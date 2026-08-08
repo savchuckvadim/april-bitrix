@@ -1,4 +1,4 @@
-// import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+// import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 // import { BXUser } from "@workspace/bx";
 // import { departmentActions } from "./departament-slice";
 

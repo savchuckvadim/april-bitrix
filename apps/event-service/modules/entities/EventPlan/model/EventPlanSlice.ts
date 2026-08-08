@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { EV_PLAN_CODE, EV_PLAN_PROP, EventPlanCall } from "../type/event-plan-type";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import {
   EV_REPORT_PROP,
   EventReportSelectItem,

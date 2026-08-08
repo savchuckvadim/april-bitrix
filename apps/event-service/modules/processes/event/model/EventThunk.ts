@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import { EventState, SetErrorsPayload, errors, ErrorsCode, eventActions } from "./EventSlice";
 import { eventReportActions, EventReportState } from "@/modules/entities/EventReport/model/EventReportSlice";
 import { EV_REPORT_PROP } from "@/modules/entities/EventReport/type/event-report-type";

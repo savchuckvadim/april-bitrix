@@ -7,11 +7,23 @@ import {
     CardHeader,
     CardTitle,
 } from '@workspace/ui/components/card';
-import { Button } from '@workspace/ui/components/button';
+import {
+    Tabs,
+    TabsList,
+    TabsTrigger,
+} from '@workspace/ui/components/tabs';
 import { SectionState } from '@/modules/shared/SectionState';
-import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
 import { loadEventSalesHistory } from '../model/EVHistoryThunk';
 import { usePortalHistory } from '../lib/hooks/use-portal-history';
+import {
+    EHistoryViewMode,
+    HistoryViewMode,
+    useHistoryView,
+} from '../lib/hooks/use-history-view';
+import { useHistoryResponsible } from '../lib/hooks/use-history-responsible';
+import { HistoryGroupSection } from './HistoryGroupSection';
+import { HistoryRecordRow } from './HistoryRecordRow';
 
 /** История из полей сущности — когда портального списка нет. */
 const FallbackHistory: FC<{ items: string[] }> = ({ items }) => {
@@ -39,96 +51,103 @@ const FallbackHistory: FC<{ items: string[] }> = ({ items }) => {
 };
 
 /**
- * История работы по клиенту из портального списка «ОП История».
+ * История работы по клиенту из портального списка «ОП История» — по ВСЕМ
+ * привязкам контекста (компания, сделки, лиды, контакты), а не только по
+ * компании: присоединённые лиды несут свою богатую историю.
  *
- * Грузится при появлении секции, а не при старте приложения: у давнего клиента
- * это сотни записей. Первым запросом берём сотню, дальше — по кнопке.
+ * Грузится при появлении секции; первые 50 записей каждой ленты — одним
+ * batch'ем, дальше — скролл-догрузка конкретной ленты. Группировка
+ * переключается: «по сущностям» (повторы схлопываются в первую группу)
+ * или «по датам» (единая лента, свежие сверху).
  *
- * Если списка на портале нет, показываем то, что лежит в полях самой сущности
- * (`op_history` / `op_mhistory`). Это заметно беднее, но лучше пустого экрана —
- * и честно подписано, откуда данные.
+ * Если списка на портале нет, показываем поля самой сущности
+ * (`op_history` / `op_mhistory`) — беднее, но лучше пустого экрана.
  */
 export const EntityHistoryCard: FC = () => {
     const dispatch = useAppDispatch();
-
-    const items = useAppSelector(s => s.eventHistory.items);
-    const status = useAppSelector(s => s.eventHistory.status);
-    const next = useAppSelector(s => s.eventHistory.next);
-    const total = useAppSelector(s => s.eventHistory.total);
-    const isListMissing = useAppSelector(s => s.eventHistory.isListMissing);
-
+    const view = useHistoryView();
+    const resolveResponsible = useHistoryResponsible();
     const fallback = usePortalHistory();
 
     useEffect(() => {
         dispatch(loadEventSalesHistory());
     }, [dispatch]);
 
-    const count = total ?? items.length;
-
     return (
         <Card>
             <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
                 <CardTitle className="text-base">
                     История
-                    {status === 'ready' && !isListMissing ? ` (${count})` : ''}
+                    {view.status === 'ready' && !view.isListMissing
+                        ? ` (${view.dateRecords.length})`
+                        : ''}
                 </CardTitle>
-                {isListMissing && fallback.items.length > 0 && (
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                        из полей клиента
-                    </span>
+                {view.isListMissing ? (
+                    fallback.items.length > 0 && (
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                            из полей клиента
+                        </span>
+                    )
+                ) : (
+                    <Tabs
+                        value={view.mode}
+                        onValueChange={value =>
+                            view.setMode(value as HistoryViewMode)
+                        }
+                    >
+                        <TabsList className="h-7">
+                            <TabsTrigger
+                                value={EHistoryViewMode.ENTITY}
+                                className="text-xs"
+                            >
+                                По сущностям
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value={EHistoryViewMode.DATE}
+                                className="text-xs"
+                            >
+                                По датам
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
                 )}
             </CardHeader>
 
             <CardContent>
-                {isListMissing ? (
+                {view.isListMissing ? (
                     <FallbackHistory items={fallback.items} />
                 ) : (
                     <SectionState
-                        status={status}
-                        isEmpty={!items.length}
+                        status={view.status}
+                        isEmpty={view.isEmpty}
                         onRetry={() =>
                             dispatch(loadEventSalesHistory({ reset: true }))
                         }
                         emptyText="Записей по клиенту пока нет."
                     >
-                        <ul className="max-h-72 space-y-2 overflow-y-auto pr-1">
-                            {items.map(item => (
-                                <li
-                                    key={item.id}
-                                    className="border-l-2 border-border pl-2"
-                                >
-                                    <div className="flex items-baseline justify-between gap-2">
-                                        <span className="min-w-0 truncate text-sm text-foreground">
-                                            {item.title}
-                                        </span>
-                                        {item.date && (
-                                            <span className="shrink-0 text-xs text-muted-foreground">
-                                                {item.date}
-                                            </span>
-                                        )}
-                                    </div>
-                                    {item.comment && (
-                                        <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                                            {item.comment}
-                                        </p>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-
-                        {next !== null && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="mt-2 w-full"
-                                onClick={() => dispatch(loadEventSalesHistory())}
-                                disabled={status === 'loading'}
-                            >
-                                {status === 'loading'
-                                    ? 'Загружаем…'
-                                    : 'Показать ещё'}
-                            </Button>
-                        )}
+                        <div className="max-h-96 space-y-4 overflow-y-auto pr-1">
+                            {view.mode === EHistoryViewMode.ENTITY ? (
+                                view.entityGroups.map(item => (
+                                    <HistoryGroupSection
+                                        key={item.group.binding.value}
+                                        item={item}
+                                        resolveResponsible={resolveResponsible}
+                                    />
+                                ))
+                            ) : (
+                                <ul className="space-y-2">
+                                    {view.dateRecords.map(record => (
+                                        <HistoryRecordRow
+                                            key={record.id}
+                                            record={record}
+                                            responsible={resolveResponsible(
+                                                record.responsibleId,
+                                            )}
+                                        />
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
                     </SectionState>
                 )}
             </CardContent>

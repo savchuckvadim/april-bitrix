@@ -25,6 +25,12 @@ export const PROCESSING_TEXTS = {
 /** Градиент цифр и кольца таймера (продажи: фиолет → синий). */
 export const TIMER_GRADIENT = ['#bb52d4', '#7c5cff', '#30c3ef', '#bb52d4'];
 
+/**
+ * Осветлённая версия той же палитры — для микро-спиннеров НА ТЁМНЫХ
+ * поверхностях (primary-кнопки): средние тона там мутнеют.
+ */
+export const TIMER_GRADIENT_BRIGHT = ['#e5b3f2', '#b9adff', '#8fe0fa'];
+
 /** Градиент заголовка на fx-вариантах страницы. */
 export const TITLE_GRADIENT = ['#bb52d4', '#30c3ef', '#bb52d4', '#30c3ef'];
 

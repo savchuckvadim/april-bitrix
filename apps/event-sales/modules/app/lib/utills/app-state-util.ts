@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../../model/store';
+import type { RootState } from '../../model/store';
 import { APP_FROM_ENUM } from '../../model/slice/AppSlice';
+import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
 
 /**
  * Откуда открыто приложение и какие сущности при этом известны.
@@ -49,3 +50,26 @@ export const getDuplicateContext = createSelector(
 /** Открыты из лида — компании ещё нет, работаем с сигналами самого лида. */
 export const getIsLeadContext = (state: RootState): boolean =>
     state.app.bitrix.from === APP_FROM_ENUM.LEAD;
+
+/**
+ * Контекст клиента для правил приложения (типы планирования, виджеты,
+ * гейты валидации). «Сделка без компании» — отдельный первоклассный кейс:
+ * похож на лид, но со своими правами (см. plan-rules).
+ *
+ * ЕДИНСТВЕННЫЙ источник ответа «есть ли компания»: раньше `!!company`
+ * дерривился в четырёх местах независимо и с разными таймингами.
+ */
+export type ClientContext = 'company' | 'dealNoCompany' | 'lead' | 'unknown';
+
+export const getClientContext = (state: RootState): ClientContext => {
+    const { company, deal, lead } = state.app.bitrix;
+    if (company) return 'company';
+    if (deal) return 'dealNoCompany';
+    if (lead) return 'lead';
+    // Сущности ещё не отрезолвлены (бут) или их нет вовсе — самый строгий набор.
+    return 'unknown';
+};
+
+/** Режим отдела — ТМЦ? (единственное место чтения кода режима) */
+export const getIsTmcMode = (state: RootState): boolean =>
+    state.department[DEPARTAMENT_STATE_PROP.MODE].current?.code === 'tmc';

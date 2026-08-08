@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { BXDeal } from '@workspace/bx';
 import { TESTING_DOMAIN, TESTING_USER } from '@/modules/app/consts/app-global';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
@@ -51,7 +51,9 @@ export const getInitSale =
                     userId,
                     domain,
                     company: currentCompany as unknown as Record<string, unknown> | null,
-                    from: 'company',
+                    // Реальный контекст, не хардкод: по сделке без компании
+                    // бэк должен знать, что мы в deal, а не в company.
+                    from: app.bitrix.from ?? 'company',
                     baseDealId: null,
                 });
                 if (response?.deals?.allPresentationDeals) {

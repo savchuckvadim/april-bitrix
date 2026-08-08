@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import { EventTask } from "@/modules/entities/EventTask/types/event-task-type";
 import { Bitrix } from '@workspace/bitrix';
 import { extractSSInstructionText, extractSSReportUrl, getCheckListsFromBX, getCompletedCheckList, isServiceSignalTask, SS_SECTION_TITLE } from "../lib/event-ss-util";

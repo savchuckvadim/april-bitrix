@@ -19,8 +19,10 @@ import {
  *
  * Отмечает презентацию проведённой и сразу открывает опросник, если он
  * применим: раньше это были два разных элемента в разных местах формы.
- * Пока не отмечена — привлекает внимание пульсацией (гейт withPresentationAnimate,
- * как в оригинале); отмеченная становится спокойной кнопкой с галочкой.
+ * Пока не отмечена — зовёт эхо-кольцами цвета презентации (animate-echo-ring,
+ * гейт withPresentationAnimate): волна расходится от кнопки вместо прежнего
+ * мигания прозрачностью. Отмеченная гаснет в спокойный outline с галочкой
+ * и «+1» — видно, что нажатие засчитано.
  *
  * Для задачи-презентации это «провели запланированную», для остальных —
  * «провели спонтанную»: флаг разный, кнопка одна.
@@ -67,10 +69,11 @@ export const PresentationDoneButton: FC = () => {
             className={cn(
                 'gap-1.5',
                 !isDone &&
-                    'bg-event-current text-event-current-foreground hover:bg-event-current/90',
+                    'bg-event-current font-semibold text-event-current-foreground hover:bg-event-current/90',
+                // Два кольца со сдвигом фазы: волны расходятся непрерывно.
                 !isDone &&
                     withAnimate &&
-                    'animate-pulse motion-reduce:animate-none',
+                    'relative before:pointer-events-none before:absolute before:-inset-px before:rounded-[inherit] before:animate-echo-ring after:pointer-events-none after:absolute after:-inset-px after:rounded-[inherit] after:animate-echo-ring after:[animation-delay:1.3s] motion-reduce:before:animate-none motion-reduce:after:animate-none',
             )}
         >
             {isDone ? (
@@ -83,6 +86,11 @@ export const PresentationDoneButton: FC = () => {
                 : isPresTask
                   ? 'Провести презентацию'
                   : 'Провели презентацию'}
+            {isDone && (
+                <span className="rounded-full bg-success/10 px-1.5 py-px text-[0.6875rem] font-semibold text-[color:color-mix(in_oklab,var(--success),var(--foreground)_35%)]">
+                    +1
+                </span>
+            )}
         </Button>
     );
 };

@@ -12,22 +12,26 @@ import { IBitrixResponse } from '../../core/interface/bitrix-api.intterface';
 export class BxTasksRepository {
     constructor(private readonly bitrixService: BitrixBaseApi) {}
 
-    async get(taskId: number) {
+    async get(taskId: number | string, select?: string[]) {
         return this.bitrixService.callType(
             EBxNamespace.TASKS,
             EBXEntity.TASK,
             EBxMethod.GET,
-            { id: taskId },
+            { taskId, select },
         );
     }
 
-    async getBtch(cmdCode: string, taskId: number | string) {
+    async getBtch(
+        cmdCode: string,
+        taskId: number | string,
+        select?: string[],
+    ) {
         return this.bitrixService.addCmdBatchType(
             cmdCode,
             EBxNamespace.TASKS,
             EBXEntity.TASK,
             EBxMethod.GET,
-            { id: taskId },
+            { taskId, select },
         );
     }
 

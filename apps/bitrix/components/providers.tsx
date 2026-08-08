@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { Toaster } from 'sonner';
-import { AppProvider } from '@/modules/app';
+import { AppProvider } from '@/modules/app/providers/AppProvider';
 import { AprilThemeProvider } from '@workspace/theme';
 import { ReactQueryProvider } from './tanstack-query.provider';
 // import { ApiInitializer } from './api-initializer';

@@ -1,6 +1,27 @@
 import { APP_FROM_ENUM } from '@/modules/app/model/slice/AppSlice';
 import type { DuplicateContext } from '@/modules/app/lib/utills/app-state-util';
-import { DUPLICATE_ENTITY_TYPE, type DuplicateEntityType } from '../model';
+import {
+    DUPLICATE_ENTITY_TYPE,
+    type DuplicateCandidate,
+    type DuplicateEntityType,
+} from '../model';
+
+/**
+ * Кандидат — сама текущая сущность контекста: сделка/компания/лид, из которых
+ * сигналы и собраны. Показывать её «дублем» бессмысленно (записал ИНН в
+ * сделку → поиск тут же нашёл эту же сделку) — вычищаем на отображении,
+ * сырой ответ бэка не трогаем.
+ */
+export const isOwnCandidate = (
+    candidate: Pick<DuplicateCandidate, 'entityType' | 'id'>,
+    context: DuplicateContext,
+): boolean =>
+    (candidate.entityType === DUPLICATE_ENTITY_TYPE.DEAL &&
+        candidate.id === context.dealId) ||
+    (candidate.entityType === DUPLICATE_ENTITY_TYPE.COMPANY &&
+        candidate.id === context.companyId) ||
+    (candidate.entityType === DUPLICATE_ENTITY_TYPE.LEAD &&
+        candidate.id === context.leadId);
 
 /**
  * От какой сущности искать дубли в текущем контексте.

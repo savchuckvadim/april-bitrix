@@ -23,4 +23,6 @@ export interface RelatedDealDto {
     closed: boolean;
     /** Дата создания. */
     dateCreate?: string;
+    /** Лид-первоисточник сделки (стандартный LEAD_ID), если проставлен. */
+    leadId?: number;
 }

@@ -20,4 +20,12 @@ export interface RelatedLeadDto {
     responsible?: ResponsibleUserDto;
     /** Дата создания. */
     dateCreate?: string;
+    /** Стандартный источник Битрикса (WEB/WEBFORM/CALL/...). */
+    sourceId?: string;
+    /** Сырое значение UF-поля op_source_select (bitrixId item’а); семантику («Заявка с сайта») фронт резолвит по слепку портала. */
+    opSourceRaw?: string;
+    /** URL опросника «Оценка» (UF_CRM_LEAD_QUEST_URL) — заполнен у заявок с сайта. */
+    questUrl?: string;
+    /** «Код партнёра» (UF_CRM_REG_NUMBER) — заполнен у заявок с сайта; по нему распределение между отделами. */
+    regNumber?: string;
 }

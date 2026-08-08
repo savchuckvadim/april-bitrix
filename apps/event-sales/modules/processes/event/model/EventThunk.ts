@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Placement } from '@workspace/bx';
 import { Bitrix } from '@workspace/bitrix';
 import { getSavedComment } from '@/modules/entities/EventReport';

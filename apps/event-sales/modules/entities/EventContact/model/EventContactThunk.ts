@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
 import { BXContact, BXTask } from '@workspace/bx';
 import { Portal } from '@/modules/app/types/portal/portal-type';
@@ -10,6 +10,7 @@ import {
     getContactsRequestSelect,
     getPbxContactByContact,
 } from '../util/pbx-contact-util';
+import { getCrmLinksFromRaw } from '@/modules/entities/EventTask/lib/task-links';
 import { emptyErrors, eventActions } from '@/modules/processes/event/model/EventSlice';
 import {
     EV_ERROR_CODE,
@@ -17,18 +18,17 @@ import {
 } from '@/modules/processes/event/types/event-types';
 
 /**
- * Контакты компании: crm.company.contact.items.get → crm.contact.list чанками
- * по 50. Вызывается listener'ом на portalActions.setPortal (store-listeners).
+ * Контакты компании: crm.company.contact.items.get → crm.contact.list одним
+ * batch'ем (по чанку id на команду, вместо последовательного цикла).
+ * Вызывается listener'ом на portalActions.setPortal (store-listeners).
  */
 export const getCompanyContacts =
     (portal: Portal) => async (dispatch: AppDispatch, getState: AppGetState) => {
         const company = getState().app.bitrix.company;
         if (!company) return;
 
-        const contactsFrom = (await Bitrix.getService().api.call(
-            'crm.company.contact.items.get',
-            { id: company.ID },
-        )) as Array<{ CONTACT_ID: number }> | null;
+        const bitrix = Bitrix.getService();
+        const contactsFrom = await bitrix.company.contactItemsGet(company.ID);
 
         const contactIds = contactsFrom?.map(contact => contact.CONTACT_ID) ?? [];
         let contacts: BXContact[] = [];
@@ -37,11 +37,15 @@ export const getCompanyContacts =
             const select = getContactsRequestSelect();
             const allContacts: BXContact[] = [];
             for (const chunk of chunkArray<number>(contactIds, 50)) {
-                const result = (await Bitrix.getService().api.call('crm.contact.list', {
-                    filter: { ID: chunk },
+                const response = await bitrix.contact.getList(
+                    { ID: chunk } as never,
                     select,
-                })) as BXContact[] | null;
-                if (result) allContacts.push(...result);
+                );
+                if (Array.isArray(response?.result)) {
+                    allContacts.push(
+                        ...(response.result as unknown as BXContact[]),
+                    );
+                }
             }
             contacts = allContacts;
         }
@@ -55,12 +59,8 @@ export const getCompanyContacts =
 export const setCurrentReportContact =
     (currentTask: BXTask | null) => async (dispatch: AppDispatch) => {
         if (currentTask?.ufCrmTask) {
-            const taskContactCrm = currentTask.ufCrmTask.find(
-                crm => crm.startsWith('C') && !crm.startsWith('CO'),
-            );
-            const contactId = taskContactCrm
-                ? Number(taskContactCrm.split('_')[1])
-                : null;
+            const contactId =
+                getCrmLinksFromRaw(currentTask.ufCrmTask).contactIds[0] ?? null;
             if (contactId) {
                 dispatch(
                     eventContactActions.setInitCurrentContact({
@@ -142,12 +142,12 @@ export const saveCreatedContact =
                 COMPANY_ID: currentCompanyId,
             };
 
-            const contactId = await Bitrix.getService().api.call('crm.contact.add', {
-                fields,
-            });
-            const contact = (await Bitrix.getService().api.call('crm.contact.get', {
-                ID: contactId,
-            })) as BXContact;
+            const bitrix = Bitrix.getService();
+            const contactId = (
+                await bitrix.contact.set(fields as never)
+            )?.result;
+            const contact = (await bitrix.contact.get(Number(contactId)))
+                ?.result as unknown as BXContact;
 
             const pbxContact = getPbxContactByContact(portal, contact);
             if (contactId && pbxContact) {

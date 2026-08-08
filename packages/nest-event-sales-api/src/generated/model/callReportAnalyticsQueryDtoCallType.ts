@@ -20,4 +20,5 @@ export const CallReportAnalyticsQueryDtoCallType = {
     decision: 'decision',
     payment: 'payment',
     other: 'other',
+    irrelevant: 'irrelevant',
 } as const;

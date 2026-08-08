@@ -1,10 +1,11 @@
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import { EV_PLAN_CODE, EV_PLAN_PROP } from '@/modules/entities/EventPlan/type/event-plan-type';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
-import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
 import { emptyErrors } from '../model/EventSlice';
 import { EV_ERROR_CODE, SetErrorsPayload } from '../types/event-types';
+
+export { getIsTmcMode } from '@/modules/app/lib/utills/app-state-util';
 
 export interface SendValidationResult {
     result: SetErrorsPayload;
@@ -62,17 +63,27 @@ export const validateSend = (state: RootState): SendValidationResult => {
     result.isError = Object.values(result.errors).some(Boolean);
 
     let isColorRequiredError = false;
-    if (state.app.config.withColorRequired && !isNoResult) {
+    // Прогноз проверяем только при живой компании: по сделке без компании
+    // контрола прогноза на экране нет, и требование было невыполнимым —
+    // отправка результативного отчёта блокировалась молча.
+    if (
+        state.app.config.withColorRequired &&
+        !isNoResult &&
+        !!state.app.bitrix.company
+    ) {
         isColorRequiredError = !state.company.color.isChanged;
     }
 
     return { result, isColorRequiredError };
 };
 
-/** Планируется ли презентация (для текста финиша). */
-export const isPresentationPlanned = (state: RootState): boolean =>
-    state.eventPlan[EV_PLAN_PROP.TYPE].current?.code === EV_PLAN_CODE.PRESENTATION;
+/** Текст финиша по типу запланированного события. */
+const PLANNED_FINISH_TEXT: Partial<Record<EV_PLAN_CODE, string>> = {
+    [EV_PLAN_CODE.PRESENTATION]: 'Презентация запланирована',
+    [EV_PLAN_CODE.HOT]: 'Решение запланировано',
+};
 
-/** Режим отдела — ТМЦ? */
-export const getIsTmcMode = (state: RootState): boolean =>
-    state.department[DEPARTAMENT_STATE_PROP.MODE].current?.code === 'tmc';
+export const getPlannedFinishText = (state: RootState): string => {
+    const code = state.eventPlan[EV_PLAN_PROP.TYPE].current?.code;
+    return (code && PLANNED_FINISH_TEXT[code]) || 'Звонок запланирован';
+};

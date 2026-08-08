@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
         ignoreBuildErrors: false,
     },
     // Настройки для монорепозитория
-    transpilePackages: ['@workspace/api', '@workspace/ui', '@workspace/april-ui', '@workspace/bitrix', '@workspace/bx', '@workspace/pbx', '@workspace/nest-api', '@workspace/nest-event-sales-api'],
+    transpilePackages: ['@workspace/api', '@workspace/ui', '@workspace/april-ui', '@workspace/bitrix', '@workspace/bx', '@workspace/pbx', '@workspace/pbx-data', '@workspace/nest-api', '@workspace/nest-event-sales-api'],
 };
 
 export default nextConfig;

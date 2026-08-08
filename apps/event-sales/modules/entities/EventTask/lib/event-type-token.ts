@@ -1,8 +1,7 @@
 import { EventTaskEventType } from '../types/event-task-type';
 
-// Классы бэйджей типов событий переехали в @workspace/april-ui
-// (EventTypeBadge / EVENT_TYPE_BADGE_CLASS). Здесь — только маппинг
-// для реактивного data-event-type (var(--event-current)).
+// Бэйджи типов событий живут в @workspace/april-ui (EventTypeBadge).
+// Здесь — только маппинг для реактивного data-event-type (var(--event-current)).
 
 /** Значение для data-event-type контейнера (см. april-tokens.css). */
 export const getEventTypeAttr = (

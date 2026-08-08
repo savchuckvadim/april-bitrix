@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { IBaseTemplate } from '../type/base-template.type';
 import { getBaseTemplate } from '../lib/base-template.helper';
 import { initDefaultLetter } from '../../offer-template-block';

@@ -16,7 +16,7 @@ import { customAxios } from '../../lib/pbx-install-api';
  */
 const pbxSmartCategoryInstallMonitoringGetSmartCategoriesByDomain = (
     domain: string,
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     group: 'service' | 'sales' | 'general',
  ) => {
       return customAxios<void>(
@@ -29,7 +29,7 @@ const pbxSmartCategoryInstallMonitoringGetSmartCategoriesByDomain = (
  * @summary Get smart categories parse data
  */
 const pbxSmartCategoryInstallMonitoringParseSmartCategories = (
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     group: 'service' | 'sales' | 'general',
  ) => {
       return customAxios<void>(
@@ -43,7 +43,7 @@ const pbxSmartCategoryInstallMonitoringParseSmartCategories = (
  */
 const pbxSmartCategoryInstallMonitoringSearchSmartCategory = (
     domain: string,
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     group: 'service' | 'sales' | 'general',
     search: string,
  ) => {

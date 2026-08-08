@@ -1,19 +1,14 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
 import type { BXTask } from '@workspace/bx';
 import { getDomainConfig } from '@/modules/app/consts/domain-config';
 import { EventTask } from '../types/event-task-type';
 import { eventTaskActions } from './EventTaskSlice';
 import { getEvTasksFromBxTasks } from '../lib/task-util';
+import { EVENT_TASK_SELECT } from '../lib/task-select';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';
-import { APP_FROM_ENUM } from '@/modules/app';
+import { APP_FROM_ENUM } from '@/modules/app/model/slice/AppSlice';
 
-const TASK_SELECT = [
-    'ID', 'UF_CRM_TASK', 'TITLE', 'DESCRIPTION', 'DATE_START', 'CREATED_DATE',
-    'CHANGED_DATE', 'CLOSED_DATE', 'DEADLINE', 'PRIORITY', 'MARK', 'GROUP_ID',
-    'CREATED_BY', 'STATUS_CHANGED_BY', 'REAL_STATUS', 'STATUS', 'STAGE_ID',
-    'RESPONSIBLE_ID',
-];
 
 /**
  * Инициализация списка задач из уже известной текущей задачи
@@ -31,29 +26,46 @@ export const initialTasksFromCurrentTask =
     };
 
 /**
- * Загрузка открытых задач обзвона пользователя по компании
+ * Загрузка открытых задач обзвона пользователя по владельцу контекста
  * (tasks.task.list, группа задач — из domain-config).
+ *
+ * Привязка выбирается честно по владельцу: компания > сделка > лид.
+ * Раньше при отсутствии компании фильтр превращался в `CO_null` и просто
+ * ничего не находил — кейс «сделка без компании» был сломан.
  */
 export const initialEventTasks =
-    (tasks: Array<BXTask>, userId: number, companyId: number | null, domain: string, leadId: number | null, from: APP_FROM_ENUM) =>
+    (tasks: Array<BXTask>, userId: number, companyId: number | null, domain: string, leadId: number | null, dealId: number | null, from: APP_FROM_ENUM) =>
         async (dispatch: AppDispatch, getState: AppGetState) => {
             const { taskGroupId } = getDomainConfig(domain, getState().app.bitrix.user);
-            const fromLead = from === APP_FROM_ENUM.LEAD && leadId
+            void from;
+            const ufCrmTasks = companyId
+                ? `CO_${companyId}`
+                : dealId
+                  ? `D_${dealId}`
+                  : leadId
+                    ? `L_${leadId}`
+                    : null;
+            if (!ufCrmTasks) {
+                dispatch(eventTaskActions.setFetchedTasks({ tasks: null }));
+                return;
+            }
             if (!tasks || !tasks.length) {
-                const ufCrmTasks = fromLead ? `L_${leadId}` : `CO_${companyId}`
                 try {
-                    const response = (await Bitrix.getService().api.call('tasks.task.list', {
-                        filter: {
+                    const response = await Bitrix.getService().task.getList(
+                        {
                             GROUP_ID: taskGroupId,
                             UF_CRM_TASK: [ufCrmTasks],
                             RESPONSIBLE_ID: userId,
                             '!=STATUS': 5,
-                        },
-                        select: TASK_SELECT,
-                    })) as { tasks: BXTask[] } | null;
+                        } as never,
+                        EVENT_TASK_SELECT,
+                    );
 
-                    if (response?.tasks) {
-                        tasks = response.tasks;
+                    const fetched = response?.result?.tasks as unknown as
+                        | BXTask[]
+                        | undefined;
+                    if (fetched) {
+                        tasks = fetched;
                     }
                 } catch (error) {
                     // Без этого падение запроса просто роняло thunk: isFetched

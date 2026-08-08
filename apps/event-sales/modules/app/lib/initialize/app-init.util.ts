@@ -7,7 +7,7 @@ import {
     TESTING_USER,
 } from '../../consts/app-global';
 import { appActions } from '../../model/slice/AppSlice';
-import { AppDispatch, AppGetState } from '../../model/store';
+import type { AppDispatch, AppGetState } from '../../model/store';
 import { getDisplayMode, getEntitiesFromPlacement } from '../utills/placement-util';
 import { initAppEntities, initAppTask } from '../utills/app-setup-util';
 import {
@@ -16,7 +16,7 @@ import {
 } from '@/modules/features/Departament/model/DepartmentThunk';
 
 /**
- * Boot-последовательность приложения (Alfacentr-паттерн: тонкий thunk +
+ * Boot-последовательность приложения (паттерн: тонкий thunk +
  * этот util). `Bitrix.start` прозрачно работает в обоих режимах:
  * во фрейме Bitrix берёт реальные domain/user/placement, локально (без
  * клиентского Bitrix в браузере) — падает на переданные TESTING_*.
@@ -45,20 +45,29 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     // Resolve the CRM entities for the current placement via @workspace/bitrix services.
     const entities = await getEntitiesFromPlacement(placement, domain);
     const display = getDisplayMode(placement);
-    if (!entities.currentCompany && !entities.currentLead) {
-        dispatch(appActions.setInitializedError({ errorMessage: 'Компания не найдена' }));
+    // Сделка без компании и чистый лид — легальные контексты. Падаем только
+    // когда не нашлось вообще ни одной сущности-владельца.
+    if (
+        !entities.currentCompany &&
+        !entities.currentLead &&
+        !entities.currentDeal
+    ) {
+        dispatch(
+            appActions.setInitializedError({
+                errorMessage: 'Не найдена сущность контекста (компания/сделка/лид)',
+            }),
+        );
         return;
     }
 
     initAppEntities(dispatch, entities, domain, user, placement, display);
 
     const userId = Number(user?.ID || TESTING_USER.ID);
-    const companyId = Number(
-        entities.currentCompany?.ID || entities.companyPlacement.options.ID || 0,
-    );
+    const companyId = Number(entities.currentCompany?.ID || 0);
     const leadId = Number(
         entities.currentLead?.ID || 0,
     );
+    const dealId = Number(entities.currentDeal?.ID || 0);
     const from = entities.from;
 
     initAppTask(
@@ -68,6 +77,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
         userId,
         companyId,
         leadId,
+        dealId,
         from
     );
 

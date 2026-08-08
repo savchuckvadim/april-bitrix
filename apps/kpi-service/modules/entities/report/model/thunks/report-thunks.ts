@@ -1,4 +1,4 @@
-import { AppDispatch, RootState, ThunkExtraArgument } from '@/modules/app/model/store';
+import type { AppDispatch, RootState, ThunkExtraArgument } from '@/modules/app/model/store';
 
 import {
     ReportDateType,

@@ -116,9 +116,10 @@ export class BxCompanyRepository {
     }
 
     async getFieldList(filter: { [key: string]: any }, select?: string[]) {
+        // Был EBXEntity.DEAL — «список UF-полей компании» возвращал поля сделки.
         return this.bxApi.callType(
             EBxNamespace.CRM,
-            EBXEntity.DEAL,
+            EBXEntity.COMPANY,
             EBxMethod.USER_FIELD_LIST,
             { select, filter },
         );
@@ -179,6 +180,49 @@ export class BxCompanyRepository {
             EBXEntity.COMPANY,
             EBxMethod.USER_FIELD_ADD,
             { fields },
+        );
+    }
+
+    async contactItemsGet(companyId: number | string) {
+        return this.bxApi.callType(
+            EBxNamespace.CRM,
+            EBXEntity.COMPANY,
+            EBxMethod.CONTACT_ITEMS_GET,
+            { id: companyId },
+        );
+    }
+
+    contactItemsGetBtch(cmdCode: string, companyId: number | string) {
+        return this.bxApi.addCmdBatchType(
+            cmdCode,
+            EBxNamespace.CRM,
+            EBXEntity.COMPANY,
+            EBxMethod.CONTACT_ITEMS_GET,
+            { id: companyId },
+        );
+    }
+
+    async contactItemsSet(
+        companyId: number | string,
+        contactIds: number[] | string[],
+    ) {
+        return this.bxApi.callType(
+            EBxNamespace.CRM,
+            EBXEntity.COMPANY,
+            EBxMethod.CONTACT_ITEMS_SET,
+            {
+                id: companyId,
+                items: contactIds.map(id => ({ CONTACT_ID: id })),
+            },
+        );
+    }
+
+    async contactItemsDelete(companyId: number | string) {
+        return this.bxApi.callType(
+            EBxNamespace.CRM,
+            EBXEntity.COMPANY,
+            EBxMethod.CONTACT_ITEMS_DELETE,
+            { id: companyId },
         );
     }
 }

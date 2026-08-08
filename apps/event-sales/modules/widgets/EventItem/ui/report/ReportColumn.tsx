@@ -25,14 +25,15 @@ interface ReportColumnProps {
  */
 export const ReportColumn: FC<ReportColumnProps> = ({ visibility, records }) => (
     <div className="space-y-3">
+        {records}
+
+        <CommentSection />
         <ReportSection />
         {visibility.noresult && <NoresultSection />}
         {visibility.sale && <SaleSection />}
         {visibility.postFail && <PostFailSection />}
 
         <ReportContactCard />
-        {records}
 
-        <CommentSection />
     </div>
 );

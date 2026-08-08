@@ -82,19 +82,21 @@ export const EntityBoard: FC = () => {
                 </div>
 
                 <div className="order-2 flex min-h-0 flex-col gap-3 overflow-y-auto lg:order-1">
-                    <RelatedDealsCard
-                        deals={details?.deals ?? []}
-                        currentDealId={descriptor.currentDealId}
-                        includeClosed={includeClosed}
-                        onIncludeClosedChange={setIncludeClosed}
-                        status={status}
-                        onRetry={reload}
-                    />
-                    <RelatedLeadsCard
-                        leads={details?.leads ?? []}
-                        status={status}
-                        onRetry={reload}
-                    />
+                    {details?.deals && details?.deals.length
+                        ? <RelatedDealsCard
+                            deals={details?.deals ?? []}
+                            currentDealId={descriptor.currentDealId}
+                            includeClosed={includeClosed}
+                            onIncludeClosedChange={setIncludeClosed}
+                            status={status}
+                            onRetry={reload}
+                        /> : ''}
+                    {details?.leads && details?.leads.length
+                        ? <RelatedLeadsCard
+                            leads={details?.leads ?? []}
+                            status={status}
+                            onRetry={reload}
+                        /> : ''}
                     <EntityHistoryCard />
                     <DuplicatesPanel />
                 </div>

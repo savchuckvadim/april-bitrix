@@ -1,5 +1,5 @@
 import { appActions } from '@/modules/app/model/AppSlice';
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { getCurrentRq } from '@/modules/entities/deal';
 
 import { ListenerMiddlewareInstance } from '@reduxjs/toolkit';

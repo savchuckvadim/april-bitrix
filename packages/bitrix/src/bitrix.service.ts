@@ -34,6 +34,12 @@ import { BxActivityBatchService } from './domain/activity/services/bx-activity.b
 import { BxActivityConfigurableService } from './domain/activity-configurable/services/bx-activity-configurable.service';
 import { BxActivityConfigurableBatchService } from './domain/activity-configurable/services/bx-activity-configurable.batch.service';
 import { BxLeadBatchService, BxLeadService } from './domain/crm/lead';
+import {
+    BxListItemBatchService,
+    BxListItemService,
+} from './domain/list-item';
+import { BxTasksService } from './domain/tasks/bx-tasks.service';
+import { BxTasksBatchService } from './domain/tasks/bx-tasks.batch.service';
 
 // @Injectable()
 export class BitrixService {
@@ -53,6 +59,8 @@ export class BitrixService {
     public item!: BxItemService;
     public timeline!: BxTimelineService;
     public list!: BxListService;
+    public listItem!: BxListItemService;
+    public task!: BxTasksService;
     public product!: BxProductService;
     public userFieldConfig!: BxUserFieldConfigService;
     public smartType!: BxSmartTypeService;
@@ -70,6 +78,8 @@ export class BitrixService {
         item: null as unknown as BxItemBatchService,
         timeline: null as unknown as BxTimelineBatchService,
         list: null as unknown as BxListBatchService,
+        listItem: null as unknown as BxListItemBatchService,
+        task: null as unknown as BxTasksBatchService,
         product: null as unknown as BxProductBatchService,
         userFieldConfig: null as unknown as BxUserFieldConfigBatchService,
         rpaItem: null as unknown as BxRpaItemBatchService,
@@ -97,6 +107,8 @@ export class BitrixService {
         this.initItem();
         this.initTimeline();
         this.initList();
+        this.initListItem();
+        this.initTask();
         this.initProduct();
         this.initUserFieldConfig();
         this.initSmartType();
@@ -158,6 +170,17 @@ export class BitrixService {
     private initList() {
         this.list = this.cloner.clone(BxListService, this.api);
         this.batch.list = this.cloner.clone(BxListBatchService, this.api);
+    }
+    private initListItem() {
+        this.listItem = this.cloner.clone(BxListItemService, this.api);
+        this.batch.listItem = this.cloner.clone(
+            BxListItemBatchService,
+            this.api,
+        );
+    }
+    private initTask() {
+        this.task = this.cloner.clone(BxTasksService, this.api);
+        this.batch.task = this.cloner.clone(BxTasksBatchService, this.api);
     }
     private initProduct() {
         this.product = this.cloner.clone(BxProductService, this.api);

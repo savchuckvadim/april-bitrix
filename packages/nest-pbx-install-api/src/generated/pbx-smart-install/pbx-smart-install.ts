@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  InstallAicallSmartResponseDto,
   PbxSmartInstallDeleteSmartParams
 } from '.././model';
 
@@ -32,7 +33,7 @@ const pbxSmartInstallGetSmartsByDomain = (
  */
 const pbxSmartInstallGetSmartByPortalAndName = (
     domain: string,
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     withBitrix: boolean,
  ) => {
       return customAxios<void>(
@@ -45,7 +46,7 @@ const pbxSmartInstallGetSmartByPortalAndName = (
  */
 const pbxSmartInstallInstallSmart = (
     domain: string,
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     group: 'service' | 'sales' | 'general',
  ) => {
       return customAxios<void>(
@@ -58,7 +59,7 @@ const pbxSmartInstallInstallSmart = (
  */
 const pbxSmartInstallDeleteSmart = (
     domain: string,
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     smartGroup: 'service' | 'sales' | 'general',
     params?: PbxSmartInstallDeleteSmartParams,
  ) => {
@@ -68,8 +69,21 @@ const pbxSmartInstallDeleteSmart = (
     },
       );
     }
-  return {pbxSmartInstallGetSmartsByDomain,pbxSmartInstallGetSmartByPortalAndName,pbxSmartInstallInstallSmart,pbxSmartInstallDeleteSmart}};
+  /**
+ * Идемпотентная установка из const-конфига (без Excel): тип при отсутствии, долив недостающих полей, зеркало в smarts/bitrixfields, инвалидация кэша портала.
+ * @summary Установить смарт «AI-анализ звонков»
+ */
+const pbxSmartAicallInstallInstall = (
+    domain: string,
+ ) => {
+      return customAxios<InstallAicallSmartResponseDto>(
+      {url: `/api/pbx-smart-install/install-aicall/domain/${domain}`, method: 'GET'
+    },
+      );
+    }
+  return {pbxSmartInstallGetSmartsByDomain,pbxSmartInstallGetSmartByPortalAndName,pbxSmartInstallInstallSmart,pbxSmartInstallDeleteSmart,pbxSmartAicallInstallInstall}};
 export type PbxSmartInstallGetSmartsByDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmartInstall>['pbxSmartInstallGetSmartsByDomain']>>>
 export type PbxSmartInstallGetSmartByPortalAndNameResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmartInstall>['pbxSmartInstallGetSmartByPortalAndName']>>>
 export type PbxSmartInstallInstallSmartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmartInstall>['pbxSmartInstallInstallSmart']>>>
 export type PbxSmartInstallDeleteSmartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmartInstall>['pbxSmartInstallDeleteSmart']>>>
+export type PbxSmartAicallInstallInstallResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxSmartInstall>['pbxSmartAicallInstallInstall']>>>

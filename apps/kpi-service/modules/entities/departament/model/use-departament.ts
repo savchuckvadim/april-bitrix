@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 // import { useGetDepartmentQuery } from './departament-service';
 import { departmentActions, DepartmentState } from './departament-slice';
 import { BXUser, BXDepartment } from '@workspace/bx';
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { IBXDepartment, IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 
 export const useDepartment = () => {

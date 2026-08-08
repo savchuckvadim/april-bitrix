@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { getDuplicateContext } from '@/modules/app/lib/utills/app-state-util';
 import { DuplicatesHelper } from '../lib/api/duplicates-helper';
 import { resolveDuplicateTarget } from '../lib/duplicate-context';

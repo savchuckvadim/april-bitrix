@@ -28,7 +28,7 @@ const pbxSmartFieldInstallMonitoringGetAllPortals = (
  */
 const pbxSmartFieldInstallMonitoringGetSmartFieldsByDomain = (
     domain: string,
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     group: 'service' | 'sales' | 'general',
  ) => {
       return customAxios<void>(
@@ -41,7 +41,7 @@ const pbxSmartFieldInstallMonitoringGetSmartFieldsByDomain = (
  * @summary Get smart fields parse data
  */
 const pbxSmartFieldInstallMonitoringParseSmartFields = (
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     group: 'service' | 'sales' | 'general',
  ) => {
       return customAxios<void>(
@@ -55,7 +55,7 @@ const pbxSmartFieldInstallMonitoringParseSmartFields = (
  */
 const pbxSmartFieldInstallMonitoringSearchSmartField = (
     domain: string,
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     group: 'service' | 'sales' | 'general',
     search: string,
  ) => {

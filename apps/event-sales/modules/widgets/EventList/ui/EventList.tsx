@@ -40,6 +40,8 @@ export const EventList: FC = () => {
 
     const tasks = useAppSelector(state => state.eventTask.tasks);
     const status = useAppSelector(state => state.eventTask.status);
+    // Привязанные к задачам сделки (наполняет листенер setFetchedTasks).
+    const boundDealsById = useAppSelector(state => state.taskDeals.byId);
 
     const view = getEventListView(tasks?.length ?? 0);
 
@@ -76,6 +78,8 @@ export const EventList: FC = () => {
                                     task={task}
                                     relation={resolveTaskRelation({
                                         details,
+                                        boundDeals:
+                                            Object.values(boundDealsById),
                                         dealIds: links.dealIds,
                                         leadIds: links.leadIds,
                                     })}

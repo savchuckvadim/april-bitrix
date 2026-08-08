@@ -2,6 +2,7 @@
 
 import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
+import { StageProgress } from '@workspace/april-ui';
 import type { RelatedStage } from '../../model';
 import { stageColor, stageProgress } from '@/modules/entities/RelatedCrm';
 
@@ -11,12 +12,10 @@ interface StageBarProps {
 }
 
 /**
- * Узкая цветная полоска стадии сделки.
- *
- * Цвет и позиция берутся из настроек воронки портала (`IStage.color`,
- * `order`/`total`), а не из палитры фронта — менеджер видит ту же расцветку,
- * что и в своей воронке в Битриксе. Если стадии нет в настройках портала,
- * полоска не рисуется: показать «прогресс» наугад хуже, чем не показать.
+ * Узкая полоска стадии сделки: точка портального цвета + название + градиентный
+ * стадийный прогресс (StageProgress, рампа --deal-stage-* — как везде).
+ * Если стадии нет в настройках портала, полоска не рисуется: показать
+ * «прогресс» наугад хуже, чем не показать.
  */
 export const StageBar: FC<StageBarProps> = ({ stage, className }) => {
     const progress = stageProgress(stage);
@@ -42,16 +41,12 @@ export const StageBar: FC<StageBarProps> = ({ stage, className }) => {
 
             {progress !== null && (
                 <div
-                    className="h-1 w-full overflow-hidden rounded-full bg-muted"
                     role="img"
                     aria-label={`Стадия ${stage.order! + 1} из ${stage.total}`}
                 >
-                    <div
-                        className="h-full rounded-full bg-muted-foreground transition-[width]"
-                        style={{
-                            width: `${Math.round(progress * 100)}%`,
-                            ...(color ? { backgroundColor: color } : {}),
-                        }}
+                    <StageProgress
+                        value={progress}
+                        total={stage.total ?? undefined}
                     />
                 </div>
             )}

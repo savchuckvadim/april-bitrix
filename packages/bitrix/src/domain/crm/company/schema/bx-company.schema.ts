@@ -37,4 +37,24 @@ export type CompanySchema = {
         request: { fields: Partial<IBXField> };
         response: IBXField;
     };
+    [EBxMethod.CONTACT_ITEMS_GET]: {
+        request: { id: number | string };
+        response: {
+            CONTACT_ID: number;
+            SORT: number;
+            ROLE_ID: number;
+            IS_PRIMARY: 'Y' | 'N';
+        }[];
+    };
+    [EBxMethod.CONTACT_ITEMS_SET]: {
+        request: {
+            id: number | string;
+            items: { CONTACT_ID: string | number }[];
+        };
+        response: number;
+    };
+    [EBxMethod.CONTACT_ITEMS_DELETE]: {
+        request: { id: number | string };
+        response: number;
+    };
 };

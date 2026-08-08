@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import { EV_SERVICE_PLAN_CODE } from "@/modules/entities/EventPlan/type/event-plan-service-type";
 import { EventTask } from "@/modules/entities/EventTask/types/event-task-type";
 import { COMMUNICATION_INITIATIVE, COMMUNICATION_TYPE, EV_COMMUNICATION_STATE_PARTS } from "../type/communications-type";

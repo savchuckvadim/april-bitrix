@@ -8,6 +8,7 @@
 import type { PlanDto } from './planDto';
 import type { ReportDto } from './reportDto';
 import type { EventTaskDto } from './eventTaskDto';
+import type { EvFlowContextDto } from './evFlowContextDto';
 import type { PlacementDto } from './placementDto';
 import type { EventSalesFlowDtoContact } from './eventSalesFlowDtoContact';
 import type { EventSalesFlowDtoSale } from './eventSalesFlowDtoSale';
@@ -30,7 +31,12 @@ export interface EventSalesFlowDto {
     report?: ReportDto;
     /** Текущая задача, по которой отчитывается менеджер. */
     currentTask?: EventTaskDto;
-    /** Контекст встройки Bitrix (placement), из которой пришло событие. */
+    /** Честный контекст встройки: тип + id сущностей. Приоритетный источник владельца события; `placement` остаётся только как фолбэк для старых клиентов. */
+    context?: EvFlowContextDto;
+    /**
+     * Контекст встройки Bitrix (placement), из которой пришло событие. Deprecated: старые клиенты подделывали здесь CRM_COMPANY_DETAIL_TAB; новые шлют реальный placement и `context`.
+     * @deprecated
+     */
     placement?: PlacementDto;
     /**
      * Контакт события. `null`, если контакт не выбран.

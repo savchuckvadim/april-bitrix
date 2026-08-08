@@ -1,14 +1,20 @@
+import type { Tone } from '@workspace/april-ui';
 import { CallResults } from '@/modules/features/NoCall';
 
-/** Конфигурация бэйджей статистики (данные отдельно от UI). */
+/**
+ * Конфигурация бэйджей статистики (данные отдельно от UI).
+ *
+ * Тоны — из единого реестра april-ui; рисуются soft-вариантом: пять сплошных
+ * заливок в шапке складывались в «светофор», в котором тонул сам список дел.
+ */
 export const RESULT_BADGES: Array<{
     key: keyof CallResults;
     label: string;
-    className: string;
+    tone: Tone;
 }> = [
-    { key: 'resultCount', label: 'результативных', className: 'bg-success text-success-foreground' },
-    { key: 'noresultCount', label: 'недозвонов', className: 'bg-warning text-warning-foreground' },
-    { key: 'presentationCount', label: 'презентаций', className: 'bg-event-pres text-event-pres-foreground' },
-    { key: 'inProgressCount', label: 'в работе', className: 'bg-event-hot text-event-hot-foreground' },
-    { key: 'inMoneyCount', label: 'оплата', className: 'bg-event-money text-event-money-foreground' },
+    { key: 'resultCount', label: 'результативных', tone: 'success' },
+    { key: 'noresultCount', label: 'недозвонов', tone: 'warning' },
+    { key: 'presentationCount', label: 'презентаций', tone: 'event-pres' },
+    { key: 'inProgressCount', label: 'в работе', tone: 'event-hot' },
+    { key: 'inMoneyCount', label: 'оплата', tone: 'event-money' },
 ];

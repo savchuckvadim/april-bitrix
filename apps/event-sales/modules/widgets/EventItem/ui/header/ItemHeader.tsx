@@ -7,9 +7,13 @@ import { ThemeTogglePanel } from '@workspace/theme';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
 import { ClientBar } from '@/modules/entities/EventCompany';
+import { InnControl } from '@/modules/features/Inn';
+import { SignalsControl } from '@/modules/features/ClientSignals';
 import { useItemWarnings } from '../../lib/hooks/use-item-warnings';
+import { useItemWarningHandlers } from '../../lib/hooks/use-item-warning-handlers';
 import { ItemWarnings } from './ItemWarnings';
 import { PresentationDoneButton } from './PresentationDoneButton';
+import { RelatedLinksBadge } from './RelatedLinksBadge';
 
 interface ItemHeaderProps {
     /** Показывать кнопку презентации (visibility.presentation). */
@@ -27,6 +31,7 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
     const lead = useAppSelector(s => s.app.bitrix.lead);
     const isLeadContext = useAppSelector(getIsLeadContext);
     const warnings = useItemWarnings();
+    const warningHandlers = useItemWarningHandlers();
 
     // В сделке показываем её компанию — менеджеру важно, с кем он работает,
     // а не в какой сущности открыто приложение.
@@ -35,7 +40,7 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
         : (company?.TITLE ?? '—');
 
     return (
-        <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm">
+        <header className="sticky top-0 z-10  bg-background/80 backdrop-blur-sm">
             <div className="space-y-2 border-l-4 border-[var(--event-current)] px-3 py-2">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
@@ -53,6 +58,7 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
                         {currentTask?.name || 'Новое событие'}
                     </h1>
                     {currentTask && <EventTypeBadge type={currentTask.type} />}
+                    <RelatedLinksBadge />
 
                     {/* Отправка и отмена переехали под карточку плана — здесь
                         остаётся только контекст и презентация. */}
@@ -64,7 +70,14 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
 
                 <ClientBar />
 
-                <ItemWarnings warnings={warnings} />
+                <ItemWarnings warnings={warnings} handlers={warningHandlers} />
+
+                {/* ИНН сущности: значение/«Записать» + микро-редактор
+                    (открывается и действием «Заполнить» из предупреждений). */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <InnControl />
+                    <SignalsControl />
+                </div>
             </div>
         </header>
     );

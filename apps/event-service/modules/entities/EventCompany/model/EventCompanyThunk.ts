@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import { Portal } from "@/modules/app/types/portal/portal-type";
 import { EV_COMPANY_PROP, eventCompanyActions } from "./EventCompanySlice";
 import { CompanyColorType } from "../utils/event-company-util";

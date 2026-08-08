@@ -21,6 +21,6 @@ export const PbxEntityTypePrisma = {
   'App\Models\BtxDeal': 'App\Models\BtxDeal',
   'App\Models\BtxRpa': 'App\Models\BtxRpa',
   'App\Models\BxRq': 'App\Models\BxRq',
-  'App\Models\BitrixList': 'App\Models\BitrixList',
+  'App\Models\Bitrixlist': 'App\Models\Bitrixlist',
   'App\Models\BtxUser': 'App\Models\BtxUser',
 } as const;

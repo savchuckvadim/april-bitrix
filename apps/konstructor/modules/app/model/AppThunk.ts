@@ -1,5 +1,5 @@
 import { appActions } from './AppSlice';
-import { AppDispatch, AppGetState, AppThunk } from './store';
+import type { AppDispatch, AppGetState, AppThunk } from './store';
 
 import { appInit } from '../lib/initialize/app-init/app-init.util';
 

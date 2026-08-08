@@ -1,22 +1,29 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import type { ClientContext } from '@/modules/app/lib/utills/app-state-util';
 import { EV_PLAN_PROP } from '../type/event-plan-type';
 import {
-    getInitialDate,
     getPlanInitState,
     isDifferenceMoreThanFourMonths,
-    PLAN_CALL_TYPES,
 } from '../lib/plan.util';
 
 export type EventPlanState = typeof initialState;
 
-export const initialState = getPlanInitState(false, true);
+// До первого init/clean — самый широкий набор: реальный контекст приезжает
+// листенером на setAppData.
+export const initialState = getPlanInitState(false, 'company');
 
 const eventPlanSlice = createSlice({
     name: 'eventPlan',
     initialState,
     reducers: {
-        init(state: EventPlanState, payload: PayloadAction<{ isTmc: boolean; hasCompany: boolean }>) {
-            Object.assign(state, getPlanInitState(payload.payload.isTmc, payload.payload.hasCompany));
+        init(
+            state: EventPlanState,
+            payload: PayloadAction<{ isTmc: boolean; context: ClientContext }>,
+        ) {
+            Object.assign(
+                state,
+                getPlanInitState(payload.payload.isTmc, payload.payload.context),
+            );
         },
         setPlanProp: (
             state: EventPlanState,
@@ -44,15 +51,6 @@ const eventPlanSlice = createSlice({
                     break;
             }
         },
-        setFinishStatus: (state: EventPlanState) => {
-            state[EV_PLAN_PROP.TYPE] = {
-                items: PLAN_CALL_TYPES,
-                current: PLAN_CALL_TYPES[0]!,
-                isChanged: false,
-            };
-            state[EV_PLAN_PROP.NAME] = '';
-            state[EV_PLAN_PROP.DATE] = getInitialDate().current;
-        },
         setIsActive: (state: EventPlanState) => {
             state[EV_PLAN_PROP.IS_ACTIVE] = !state[EV_PLAN_PROP.IS_ACTIVE];
         },
@@ -69,17 +67,18 @@ const eventPlanSlice = createSlice({
             state[EV_PLAN_PROP.IS_ACTIVE] = action.payload.status;
         },
         /**
-         * Сброс плана к начальному состоянию. `hasCompany` обязателен: набор
-         * типов события от него зависит (в лиде доступен только звонок), и
-         * если его не передать, после сброса в лиде развернётся полный список.
+         * Сброс плана к начальному состоянию. `context` обязателен: набор
+         * типов события зависит от контекста клиента (в лиде доступен только
+         * звонок), и без него после сброса развернулся бы полный список —
+         * та самая регрессия «план оттопырился».
          */
         clean: (
             state: EventPlanState,
-            action: PayloadAction<{ isTmc: boolean; hasCompany: boolean }>,
+            action: PayloadAction<{ isTmc: boolean; context: ClientContext }>,
         ) => {
             Object.assign(
                 state,
-                getPlanInitState(action.payload.isTmc, action.payload.hasCompany),
+                getPlanInitState(action.payload.isTmc, action.payload.context),
             );
         },
     },

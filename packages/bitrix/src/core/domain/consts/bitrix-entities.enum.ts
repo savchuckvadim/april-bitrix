@@ -12,6 +12,8 @@ export enum EBXEntity {
     USER_FIELD_CONFIG = 'userfieldconfig',
     USER_FIELD_ENUMERATION = 'userfield.enumeration',
     LISTS = 'lists',
+    /** Элемент универсального списка: lists.element.* */
+    ELEMENT = 'element',
     ACTIVITY = 'activity',
     ACTIVITY_CONFIGURABLE = 'activity.configurable',
     FILE = 'file',

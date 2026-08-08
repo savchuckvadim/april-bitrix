@@ -10,7 +10,7 @@ import { LoadingScreen } from '@/modules/shared';
 import { APP_TITLE } from '../consts/app';
 
 import { useApp } from '../lib/hooks/app';
-import { store } from '..';
+import { store } from '../model/store';
 // import { Preloader } from "@workspace/ui";
 //@ts-ignore
 

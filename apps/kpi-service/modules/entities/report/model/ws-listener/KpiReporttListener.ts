@@ -3,7 +3,7 @@
 import { reportActions, ReportState } from '..';
 
 
-import { AppDispatch } from '@/modules/app/model/store';
+import type { AppDispatch } from '@/modules/app/model/store';
 import { ReportRequest } from '../report-service';
 import { getReportDataAPI } from '../../lib/helpers';
 import { callingStatisticsApi } from '@/modules/entities/calling-statistics';

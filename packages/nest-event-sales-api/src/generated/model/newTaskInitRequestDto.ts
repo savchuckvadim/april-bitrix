@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { NewTaskInitRequestDtoCompany } from './newTaskInitRequestDtoCompany';
+import type { NewTaskInitRequestDtoFrom } from './newTaskInitRequestDtoFrom';
 
 export interface NewTaskInitRequestDto {
     /** Идентификатор текущего пользователя Bitrix. */
@@ -18,7 +19,7 @@ export interface NewTaskInitRequestDto {
      */
     company?: NewTaskInitRequestDtoCompany;
     /** Источник инициализации (из какого контекста открыт виджет). */
-    from: string;
+    from: NewTaskInitRequestDtoFrom;
     /**
      * Идентификатор базовой сделки, если инициализация идёт от сделки.
      * @nullable

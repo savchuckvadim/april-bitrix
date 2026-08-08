@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { updateDeal } from '../lib/service/deal-update.service';
 // import { IDealFieldsData } from '../type/deal-field.type';
 // import { BxDealDataKeys } from '@alfa/entities';
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { Bitrix } from '@bitrix/index';
 
 export interface UpdateDealFieldPayload {

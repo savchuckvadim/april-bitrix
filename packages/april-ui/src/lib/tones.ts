@@ -96,34 +96,69 @@ export const TONE_SOLID: Record<Tone, string> = {
         'bg-complect-universal text-complect-universal-foreground',
 };
 
-/** Приглушённая подложка + цветной текст: мягкие бэйджи, подсветки строк. */
+/**
+ * Приглушённая подложка + цветной текст: мягкие бэйджи, подсветки строк.
+ *
+ * Текст — не чистый тон, а тон, подмешанный к --foreground (35%): светлые тона
+ * (жёлтый, голубой, циан) на светлом фоне чистым цветом не читались вовсе.
+ * Одна формула работает в обеих темах: в светлой foreground тёмный — текст
+ * темнеет, в тёмной светлый — текст осветляется. Классы — литералы целиком
+ * (Tailwind сканирует статически), поэтому mix записан в каждом.
+ *
+ * ХИНТ `color:` В АРБИТРАРНИКАХ ОБЯЗАТЕЛЕН: tailwind-merge не распознаёт
+ * color-mix(...) как цвет и без хинта относит text-[...] к группе font-size —
+ * cn() в ToneBadge молча выкидывал text-xs, и бэйджи раздувались до 16px.
+ * Tailwind компилирует оба написания одинаково.
+ */
 export const TONE_SOFT: Record<Tone, string> = {
     neutral: 'bg-muted text-foreground',
     muted: 'bg-muted text-muted-foreground',
     primary: 'bg-primary/10 text-primary',
     secondary: 'bg-secondary text-secondary-foreground',
     accent: 'bg-accent/60 text-accent-foreground',
-    success: 'bg-success/10 text-success',
-    warning: 'bg-warning/10 text-warning',
-    destructive: 'bg-destructive/10 text-destructive',
-    info: 'bg-info/10 text-info',
+    success:
+        'bg-success/10 text-[color:color-mix(in_oklab,var(--success),var(--foreground)_35%)]',
+    warning:
+        'bg-warning/10 text-[color:color-mix(in_oklab,var(--warning),var(--foreground)_35%)]',
+    destructive:
+        'bg-destructive/10 text-[color:color-mix(in_oklab,var(--destructive),var(--foreground)_35%)]',
+    info: 'bg-info/10 text-[color:color-mix(in_oklab,var(--info),var(--foreground)_35%)]',
 
-    event: 'bg-event-current/10 text-event-current',
-    'event-lead': 'bg-event-lead/10 text-event-lead',
-    'event-cold': 'bg-event-cold/10 text-event-cold',
-    'event-warm': 'bg-event-warm/10 text-event-warm',
-    'event-pres': 'bg-event-pres/10 text-event-pres',
-    'event-hot': 'bg-event-hot/10 text-event-hot',
-    'event-money': 'bg-event-money/10 text-event-money',
-    'event-ss': 'bg-event-ss/10 text-event-ss',
-    'event-supply': 'bg-event-supply/10 text-event-supply',
+    event: 'bg-event-current/10 text-[color:color-mix(in_oklab,var(--event-current),var(--foreground)_35%)]',
+    'event-lead':
+        'bg-event-lead/10 text-[color:color-mix(in_oklab,var(--event-lead),var(--foreground)_35%)]',
+    'event-cold':
+        'bg-event-cold/10 text-[color:color-mix(in_oklab,var(--event-cold),var(--foreground)_35%)]',
+    'event-warm':
+        'bg-event-warm/10 text-[color:color-mix(in_oklab,var(--event-warm),var(--foreground)_35%)]',
+    /*
+     * Презентация — особый случай: подложка гуще (кислотный лайм на 10%
+     * почти невидим) и доля foreground выше — лайм слишком светлый, 35%
+     * не дотемняет его до охры.
+     */
+    'event-pres':
+        'bg-event-pres/20 text-[color:color-mix(in_oklab,var(--event-pres),var(--foreground)_45%)]',
+    'event-hot':
+        'bg-event-hot/10 text-[color:color-mix(in_oklab,var(--event-hot),var(--foreground)_35%)]',
+    'event-money':
+        'bg-event-money/10 text-[color:color-mix(in_oklab,var(--event-money),var(--foreground)_35%)]',
+    'event-ss':
+        'bg-event-ss/10 text-[color:color-mix(in_oklab,var(--event-ss),var(--foreground)_35%)]',
+    'event-supply':
+        'bg-event-supply/10 text-[color:color-mix(in_oklab,var(--event-supply),var(--foreground)_35%)]',
 
-    complect: 'bg-complect-current/10 text-complect-current',
-    'complect-buh': 'bg-complect-buh/10 text-complect-buh',
-    'complect-ur': 'bg-complect-ur/10 text-complect-ur',
-    'complect-expert': 'bg-complect-expert/10 text-complect-expert',
-    'complect-office': 'bg-complect-office/10 text-complect-office',
-    'complect-universal': 'bg-complect-universal/10 text-complect-universal',
+    complect:
+        'bg-complect-current/10 text-[color:color-mix(in_oklab,var(--complect-current),var(--foreground)_35%)]',
+    'complect-buh':
+        'bg-complect-buh/10 text-[color:color-mix(in_oklab,var(--complect-buh),var(--foreground)_35%)]',
+    'complect-ur':
+        'bg-complect-ur/10 text-[color:color-mix(in_oklab,var(--complect-ur),var(--foreground)_35%)]',
+    'complect-expert':
+        'bg-complect-expert/10 text-[color:color-mix(in_oklab,var(--complect-expert),var(--foreground)_35%)]',
+    'complect-office':
+        'bg-complect-office/10 text-[color:color-mix(in_oklab,var(--complect-office),var(--foreground)_35%)]',
+    'complect-universal':
+        'bg-complect-universal/10 text-[color:color-mix(in_oklab,var(--complect-universal),var(--foreground)_35%)]',
 };
 
 /** Только текст — заголовки секций, акцентные подписи. */

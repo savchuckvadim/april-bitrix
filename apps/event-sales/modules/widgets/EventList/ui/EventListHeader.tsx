@@ -11,12 +11,17 @@ import { useEventNavigation } from '@/modules/processes/event';
 import { ResultStatistics } from '@/modules/features/ResultStatistics';
 import { DepartmentMode } from '@/modules/features/Departament';
 import { ClientBar } from '@/modules/entities/EventCompany';
+import { EntityLink, useCurrentRelations } from '@/modules/entities/RelatedCrm';
+import { InnControl } from '@/modules/features/Inn';
+import { SignalsControl } from '@/modules/features/ClientSignals';
 
-/** Шапка списка: обновление, статистика результатов, режим отдела, создание события. */
+/** Шапка списка: текущий клиент, обновление, статистика, режим отдела, создание события. */
 export const EventListHeader: FC = () => {
     const dispatch = useAppDispatch();
     const { reload } = useReload();
     const nav = useEventNavigation();
+    // enabled=false: здесь нужен только descriptor, связи шапка не показывает.
+    const { descriptor } = useCurrentRelations(false);
 
     const createNewEvent = async () => {
         await dispatch(getResultMenu(EventItemResultType.NEW, null));
@@ -47,9 +52,27 @@ export const EventListHeader: FC = () => {
             </div>
             </div>
 
-            {/* Прогноз и статус клиента — над событиями: их правят и не
+            {/* Кто открыт — ссылкой на карточку CRM: во фрейме задачи это
+                единственный путь к полноценной карточке клиента. */}
+            {descriptor && (
+                <div className="flex min-w-0 items-center gap-2">
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                        {descriptor.kindLabel}
+                    </span>
+                    <EntityLink
+                        descriptor={descriptor}
+                        className="text-sm font-medium"
+                    />
+                </div>
+            )}
+
+            {/* Прогноз, статус клиента и ИНН — над событиями: их правят и не
                 открывая отчёт. */}
-            <ClientBar />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <ClientBar className="min-w-0" />
+                <InnControl />
+                <SignalsControl />
+            </div>
         </div>
     );
 };

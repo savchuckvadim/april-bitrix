@@ -5,8 +5,8 @@
 /*
  * Классы, объявленные ВНУТРИ пакетов дизайн-системы, тоже должны попадать
  * в сборку. Без этой строки классы, которые встречаются только в april-ui
- * (например, карта бэйджей EVENT_TYPE_BADGE_CLASS), молча выпадают из CSS,
- * и бэйдж рендерится без фона.
+ * (например, реестр тонов TONE_SOLID/TONE_SOFT в lib/tones.ts), молча
+ * выпадают из CSS, и бэйдж рендерится без фона.
  */
 @source "../../../april-ui/src/**/*.{ts,tsx}";
 
@@ -207,6 +207,42 @@
     --color-air-secondary-foreground: var(--air-secondary-foreground);
     --color-air-secondary-no-accent: var(--air-secondary-no-accent);
     --color-air-link: var(--air-link);
+
+    /*
+     * Эхо-кольца «зовущей» кнопки (animate-echo-ring): расходящееся кольцо
+     * цвета текущего типа события. Спокойная замена animate-pulse — элемент
+     * не мигает, волна уходит от него. Вешать на псевдоэлементы
+     * (before:/after: со сдвигом фазы), сам элемент не трогать.
+     */
+    --animate-echo-ring: echo-ring 2.6s ease-out infinite;
+
+    /*
+     * Блик-переливание стадийного прогресса (animate-stage-sheen): светлая
+     * полоса пробегает по заливке StageProgress. Пауза между пробегами —
+     * вторая половина цикла (55%…100% без движения).
+     */
+    --animate-stage-sheen: stage-sheen 3.4s ease-in-out infinite;
+}
+
+@keyframes stage-sheen {
+    0% {
+        background-position: 130% 0;
+    }
+    55%,
+    100% {
+        background-position: -130% 0;
+    }
+}
+
+@keyframes echo-ring {
+    0% {
+        box-shadow: 0 0 0 0
+            color-mix(in oklab, var(--event-current), transparent 25%);
+    }
+    75%,
+    100% {
+        box-shadow: 0 0 0 14px transparent;
+    }
 }
 
 @layer base {

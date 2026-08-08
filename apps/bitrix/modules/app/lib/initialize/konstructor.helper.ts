@@ -1,5 +1,5 @@
 
-import { AppDispatch } from '../../model/store';
+import type { AppDispatch } from '../../model/store';
 
 export const getInitializeData = async (
     dispatch: AppDispatch,

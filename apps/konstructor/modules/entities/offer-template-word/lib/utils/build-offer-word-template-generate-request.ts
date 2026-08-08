@@ -21,7 +21,7 @@
 // import { IS_PROD } from "@/appglobal/global-consts";
 // import { ILtOtherState } from "@/modules/legal-tech-other/model/types/lt-others.type";
 
-import { RootState } from "@/modules/app";
+import type { RootState } from "@/modules/app";
 import type { OfferWordByTemplateGenerateDto } from "@workspace/nest-api";
 
 /**

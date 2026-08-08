@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import { departmentActions } from "./DepartmentSlice";
 import { BXSDepartment, DEPARTAMENT_STATE_PROP, DUSER_ROLE } from "../type/department-type";
 

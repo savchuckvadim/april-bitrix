@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
 import { eventReportActions } from '@/modules/entities/EventReport';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';

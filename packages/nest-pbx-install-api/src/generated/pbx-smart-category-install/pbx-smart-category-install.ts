@@ -23,7 +23,7 @@ import { customAxios } from '../../lib/pbx-install-api';
  */
 const pbxSmartCategoryInstallInstallSmartCategories = (
     domain: string,
-    smartName: 'service_offer' | 'service_order' | 'service_call' | 'service_call_result' | 'service_call_result_result' | 'presentation' | 'cold',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
     group: 'service' | 'sales' | 'general',
  ) => {
       return customAxios<void>(

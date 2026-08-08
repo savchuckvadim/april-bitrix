@@ -43,7 +43,10 @@ export const buildCrmUrl = (
 export function reasonTone(reason: DuplicateMatchReason): Tone {
     if (reason.kind === 'inn') {
         // ИНН, выковырянный из названия, — не то же самое, что ИНН из поля.
-        return reason.via === 'TITLE' || reason.via === 'COMPANY_TITLE'
+        // Бэк шлёт via с процентом ('%TITLE' / '%COMPANY_TITLE' —
+        // SEARCH_VIA в duplicate.type.ts): сравнение без него никогда не
+        // срабатывало, и намёк красился как точное совпадение.
+        return reason.via === '%TITLE' || reason.via === '%COMPANY_TITLE'
             ? 'warning'
             : 'destructive';
     }

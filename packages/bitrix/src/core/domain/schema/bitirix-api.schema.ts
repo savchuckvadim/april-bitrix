@@ -21,6 +21,7 @@ import {
 } from '../../../domain/crm';
 
 import { TasksSchema } from '../../../domain/tasks/bx-tasks.schema';
+import { BxListItemSchema } from '../../../domain/list-item/schema/bx-list-item.schema';
 import { ActivitySchema } from '../../../domain/activity/bx-activity.schema';
 import { FileSchema } from '../../../domain/file/bx-file.schema';
 import { BxSmartTypeSchema } from '../../../domain/crm/smart-type';
@@ -34,6 +35,7 @@ export type BXApiSchema = {
         [EBXEntity.COMPANY]: CompanySchema;
         [EBXEntity.CONTACT]: ContactSchema;
         [EBXEntity.LEAD]: LeadSchema;
+        [EBXEntity.USER_FIELD]: FieldsSchema;
         [EBXEntity.USER_FIELD_ENUMERATION]: FieldsEnumerationSchema;
         [EBXEntity.ACTIVITY]: ActivitySchema;
         [EBXEntity.ACTIVITY_CONFIGURABLE]: ActivityConfigurableSchema;
@@ -91,6 +93,9 @@ export type BXApiSchema = {
     };
     [EBxNamespace.DISK]: {
         [EBXEntity.FILE]: FileSchema;
+    };
+    [EBxNamespace.LISTS]: {
+        [EBXEntity.ELEMENT]: BxListItemSchema;
     };
 
     [EBxNamespace.WITHOUT_NAMESPACE]: {

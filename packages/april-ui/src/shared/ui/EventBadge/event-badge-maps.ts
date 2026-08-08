@@ -6,7 +6,7 @@
  * Ключи типов — русские названия типов событий (EV_TYPE в приложениях
  * event-sales / event-service).
  */
-import { TONE_SOLID, type Tone } from '../../../lib/tones';
+import { type Tone } from '../../../lib/tones';
 
 /**
  * Русское название типа события → тон.
@@ -27,28 +27,14 @@ export const EVENT_TYPE_TONE: Record<string, Tone> = {
 
 export const DEFAULT_EVENT_TYPE_TONE: Tone = 'event-warm';
 
-export const EVENT_TYPE_BADGE_CLASS: Record<string, string> = Object.fromEntries(
-    Object.entries(EVENT_TYPE_TONE).map(([name, tone]) => [name, TONE_SOLID[tone]]),
-);
-
-export const DEFAULT_EVENT_TYPE_BADGE_CLASS = TONE_SOLID[DEFAULT_EVENT_TYPE_TONE];
-
 export type EventDeadlineStatus = 'no' | 'almost' | 'yes';
 
-/** Бэйдж статуса срока: запланирован / скоро / просрочен. */
+/** Статус срока: запланирован / скоро / просрочен (бэйдж и подписи срока). */
 export const EVENT_STATUS_BADGE: Record<
     EventDeadlineStatus,
-    { label: string; tone: Tone; className: string }
+    { label: string; tone: Tone }
 > = {
-    no: {
-        label: 'запланирован',
-        tone: 'success',
-        className: TONE_SOLID.success,
-    },
-    almost: { label: 'скоро', tone: 'warning', className: TONE_SOLID.warning },
-    yes: {
-        label: 'просрочен',
-        tone: 'destructive',
-        className: TONE_SOLID.destructive,
-    },
+    no: { label: 'запланирован', tone: 'success' },
+    almost: { label: 'скоро', tone: 'warning' },
+    yes: { label: 'просрочен', tone: 'destructive' },
 };

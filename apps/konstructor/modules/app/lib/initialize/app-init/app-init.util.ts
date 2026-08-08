@@ -6,7 +6,7 @@ import {
     TESTING_PLACEMENT,
     TESTING_USER,
 } from '../../../consts/app-global';
-import { AppDispatch } from '../../../model/store';
+import type { AppDispatch } from '../../../model/store';
 import { WSClient } from '@/modules/shared';
 import { appActions } from '../../../model/AppSlice';
 import { bitrixInit } from '../bitrix-init/bitrix-init.util';

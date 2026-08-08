@@ -1,6 +1,6 @@
 import { DragEndEvent } from '@dnd-kit/core';
 import { findPageByBlockId } from './block.util';
-import { AppDispatch } from '@/modules/app';
+import type { AppDispatch } from '@/modules/app';
 
 import {
     addNewPage,

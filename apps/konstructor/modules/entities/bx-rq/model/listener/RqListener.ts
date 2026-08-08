@@ -9,7 +9,7 @@ import {
     setCurrentRqItems,
     setFetched,
 } from '@workspace/bx-rq';
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { appActions } from '@/modules/app/model/AppSlice';
 import { getDealClientType } from '@/modules/entities/deal/lib/utils/get-deal-client-type.util';
 import { setCurrentRqThunk } from '../thunk/CurrentRqThunk';

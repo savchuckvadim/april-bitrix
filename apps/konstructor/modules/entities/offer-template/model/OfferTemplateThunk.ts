@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { IOfferTemplate } from '../type/offer-template.type';
-import { RootState } from '@/modules/app';
+import type { RootState } from '@/modules/app';
 import { BlockType, CreateOfferTemplatePageBlockRequestDto, CreateOfferTemplatePageRequestDto, CreateOfferTemplatePageStickerDto, CreateOfferTemplateRequestDto, OfferTemplateSummaryDto, OfferTemplateVisibility } from '@workspace/nest-api';
 import { getKonstructorOfferTemplate } from '@workspace/nest-api/src/generated/konstructor-offer-template/konstructor-offer-template';
 

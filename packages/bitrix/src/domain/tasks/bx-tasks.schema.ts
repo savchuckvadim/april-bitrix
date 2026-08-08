@@ -5,8 +5,11 @@ import { BXTaskRequestFields } from './bx-tasks.interface';
 
 export type TasksSchema = {
     [EBxMethod.GET]: {
-        request: { id: number | string };
-        response: IBXTask;
+        // Реальный контракт tasks.task.get: { taskId, select } → { task }
+        // (back-эталон task.schema.ts; прежняя форма { id } → IBXTask была
+        // неверной и заставляла потребителей писать `taskData?.task ?? taskData`).
+        request: { taskId: number | string; select?: string[] };
+        response: { task: IBXTask };
     };
     [EBxMethod.LIST]: {
         request: CrmListRequestType<BXTaskRequestFields>;

@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import { EV_PLAN_CODE, EV_PLAN_PROP } from '@/modules/entities/EventPlan/type/event-plan-type';
 import { EV_TYPE, EventTask } from '@/modules/entities/EventTask/types/event-task-type';
@@ -119,11 +119,28 @@ export const buildFlowPayload = (
             returnToTmc.tmcDeals.find(item => item.taskId === Number(currentTask.id))) ||
         undefined;
 
+    // Честный контекст владельца: бэк резолвит company > deal > lead из него.
+    // Реальный placement уходит рядом только на переходный период (BC).
+    const toId = (value: unknown): number | undefined => {
+        const id = Number(value);
+        return Number.isFinite(id) && id > 0 ? id : undefined;
+    };
+    const context = app.bitrix.from
+        ? {
+              from: app.bitrix.from,
+              companyId: toId(app.bitrix.company?.ID),
+              dealId: toId(app.bitrix.deal?.ID),
+              leadId: toId(app.bitrix.lead?.ID ?? state.eventLead.lead?.ID),
+              taskId: toId(app.bitrix.task?.id ?? currentTask?.id),
+          }
+        : undefined;
+
     return {
         domain: app.domain,
         operationId: options.operationId,
         plan,
         report,
+        context,
         placement: app.bitrix.placement ?? undefined,
         currentTask: currentTask ?? undefined,
         presentation: {

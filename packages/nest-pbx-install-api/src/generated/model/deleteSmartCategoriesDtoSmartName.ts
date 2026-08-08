@@ -15,10 +15,7 @@ export type DeleteSmartCategoriesDtoSmartName = typeof DeleteSmartCategoriesDtoS
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DeleteSmartCategoriesDtoSmartName = {
   service_offer: 'service_offer',
-  service_order: 'service_order',
-  service_call: 'service_call',
-  service_call_result: 'service_call_result',
-  service_call_result_result: 'service_call_result_result',
   presentation: 'presentation',
   cold: 'cold',
+  aicall: 'aicall',
 } as const;

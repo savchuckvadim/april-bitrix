@@ -1,4 +1,4 @@
-import { RootState } from "@/modules/app/"
+import type { RootState } from "@/modules/app/model/store"
 
 
 export const getIsLeadContext = (state: RootState): boolean => {

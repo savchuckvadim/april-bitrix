@@ -1,21 +1,26 @@
 'use client';
 
-import { FC, useRef, useState } from 'react';
+import { FC } from 'react';
 import {
     Card,
     CardContent,
     CardFooter,
     CardHeader,
 } from '@workspace/ui/components/card';
-import { Button } from '@workspace/ui/components/button';
-import { EventStatusBadge, EventTypeBadge } from '@workspace/april-ui';
+import { cn } from '@workspace/ui/lib/utils';
+import { EventTypeBadge } from '@workspace/april-ui';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { getEventTypeAttr } from '@/modules/entities/EventTask/lib/event-type-token';
 import { getTaskSummary } from '@/modules/entities/EventTask/lib/task-util';
-import { RelationMini, type TaskRelation } from '@/modules/entities/RelatedCrm';
+import {
+    RelationDealBars,
+    RelationMini,
+    type TaskRelation,
+} from '@/modules/entities/RelatedCrm';
 import { EventItemResultType } from '@/modules/widgets/EventItem';
-import { useIsClamped } from '../lib/use-is-clamped';
+import { DEADLINE_VIEW } from '../lib/deadline-view';
 import { EventListActions } from './EventListActions';
+import { FogText } from './FogText';
 
 interface EventCardProps {
     task: EventTask;
@@ -29,62 +34,78 @@ interface EventCardProps {
 
 /**
  * Карточка дела: применяется, когда дел мало (см. lib/list-view.ts).
- * Акцент карточки реактивен по типу события через data-event-type
- * (--event-current, april-tokens.css).
+ *
+ * Тип события окрашивает карточку еле заметной тонировкой фона и рамки от
+ * реактивного --event-current (data-event-type) — вместо прежней толстой
+ * полосы слева. Статус срока — цветом текста срока, без отдельного бэйджа:
+ * во фрейме-миниатюре каждая лишняя заливка складывается в «светофор».
  */
 export const EventCard: FC<EventCardProps> = ({ task, relation, onSelect }) => {
-    const [isSummaryOpen, setIsSummaryOpen] = useState(false);
-    const summaryRef = useRef<HTMLParagraphElement>(null);
+    const comment = task.eventComment;
     const summary = getTaskSummary(task.description);
-    const isClamped = useIsClamped(summaryRef, summary);
+    const deadline = DEADLINE_VIEW[task.isExpired];
+    // Конструктор событий может продублировать комментарий в описание —
+    // одинаковый текст дважды только раздувает карточку. Сравниваем обе
+    // стороны нормализованными: summary уже прошёл getTaskSummary, а сырой
+    // комментарий отличался бы любым переносом строки или двойным пробелом.
+    const showSummary =
+        Boolean(summary) && (!comment || getTaskSummary(comment) !== summary);
+    // Привязанные к задаче сделки — основной полоской под названием;
+    // остальные сделки клиента — миниатюрой сбоку от комментария.
+    const boundDeals = relation?.deals.filter(deal => deal.isTaskBound) ?? [];
+    const extraDeals = relation?.deals.filter(deal => !deal.isTaskBound) ?? [];
 
     return (
         <Card
             data-event-type={getEventTypeAttr(task.eventType)}
-            className="gap-3 overflow-hidden border-l-4 border-l-[var(--event-current)] py-4"
+            // Хинт `color:` обязателен: без него tailwind-merge относит
+            // border-[...] к группе border-width и выкидывает базовый `border`
+            // карточки — рамка исчезала целиком (см. tones.ts).
+            className="gap-3 overflow-hidden border-[color:color-mix(in_oklab,var(--event-current),var(--border)_72%)] bg-[color:color-mix(in_oklab,var(--event-current),var(--card)_95%)] py-4"
         >
             <CardHeader className="gap-2 px-4">
                 <div className="flex flex-wrap items-center gap-2">
                     <EventTypeBadge type={task.type} />
-                    <EventStatusBadge status={task.isExpired} />
-                    <span className="ml-auto whitespace-nowrap text-xs text-muted-foreground">
+                    <span
+                        className={cn(
+                            'ml-auto whitespace-nowrap text-xs',
+                            deadline.className,
+                        )}
+                    >
+                        {deadline.prefix}
                         {task.deadline}
                     </span>
                 </div>
                 <p className="text-base font-medium leading-snug">{task.name}</p>
                 {relation && (
                     <RelationMini
-                        deal={relation.deal}
+                        deals={boundDeals}
                         lead={relation.lead}
                         className="mt-0.5"
                     />
                 )}
             </CardHeader>
 
-            {summary && (
-                <CardContent className="px-4">
-                    <p
-                        ref={summaryRef}
-                        className={`text-sm leading-relaxed text-muted-foreground ${
-                            isSummaryOpen ? '' : 'line-clamp-3'
-                        }`}
-                    >
-                        {summary}
-                    </p>
-                    {(isClamped || isSummaryOpen) && (
-                        <Button
-                            variant="link"
-                            size="sm"
-                            className="h-auto p-0 text-xs"
-                            onClick={() => setIsSummaryOpen(open => !open)}
-                        >
-                            {isSummaryOpen ? 'Свернуть' : 'Показать полностью'}
-                        </Button>
+            {(comment || showSummary || extraDeals.length > 0) && (
+                <CardContent className="flex items-start gap-3 px-4">
+                    {(comment || showSummary) && (
+                        <div className="flex min-w-0 flex-1 flex-col gap-2">
+                            {comment && <FogText text={comment} />}
+                            {showSummary && <FogText text={summary} />}
+                        </div>
+                    )}
+                    {/* Остальные сделки клиента — миниатюрой сбоку от
+                        комментария, под основной полоской. */}
+                    {extraDeals.length > 0 && (
+                        <RelationDealBars
+                            deals={extraDeals}
+                            className="w-28 shrink-0"
+                        />
                     )}
                 </CardContent>
             )}
 
-            <CardFooter className="px-4">
+            <CardFooter className="justify-end px-4">
                 <EventListActions task={task} onSelect={onSelect} />
             </CardFooter>
         </Card>

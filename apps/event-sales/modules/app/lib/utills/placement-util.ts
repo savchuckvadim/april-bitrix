@@ -3,6 +3,12 @@ import { APP_DISPLAY_MODE } from '../../types/app/app-type';
 import { IBXTask } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 import { Bitrix } from '@workspace/bitrix';
 import { APP_FROM_ENUM } from '../../model/slice/AppSlice';
+import {
+    ETaskLinkType,
+    getCrmLinksFromRaw,
+} from '@/modules/entities/EventTask/lib/task-links';
+import { EVENT_TASK_SELECT } from '@/modules/entities/EventTask/lib/task-select';
+import { resolveTaskPrimaryContext } from '@/modules/entities/EventTask/lib/task-primary-context';
 
 export const getDisplayMode = (placement: Placement | PlacementCallCard): APP_DISPLAY_MODE => {
     let result = APP_DISPLAY_MODE.PUBLIC;
@@ -33,7 +39,6 @@ export const shouldFitWindow = (
 ): boolean => Boolean(placement?.placement?.includes('DETAIL_TAB'));
 
 export type EntitiesFromPlacement = {
-    companyPlacement: Placement;
     currentCompany: BXCompany | null;
     currentDeal: BXDeal | null;
     currentTask: IBXTask | null;
@@ -41,38 +46,20 @@ export type EntitiesFromPlacement = {
     from: APP_FROM_ENUM;
 };
 
-const TASK_SELECT = [
-    'ID', 'UF_CRM_TASK', 'TITLE', 'DATE_START', 'CREATED_DATE', 'CHANGED_DATE',
-    'CLOSED_DATE', 'DEADLINE', 'PRIORITY', 'MARK', 'GROUP_ID', 'CREATED_BY',
-    'STATUS_CHANGED_BY', 'REAL_STATUS', 'STATUS', 'STAGE_ID', 'RESPONSIBLE_ID',
-];
-
-const getCompanyIdFromTask = (task: IBXTask | null): number | undefined => {
-    let resultCompanyId: number | undefined;
-    const ufCrmTask = (task as { ufCrmTask?: string[] } | null)?.ufCrmTask;
-    ufCrmTask?.forEach((uf: string) => {
-        if (uf.includes('CO')) {
-            resultCompanyId = Number(uf.split('_')[1]);
-        }
-    });
-    return resultCompanyId;
-};
 
 /**
  * Resolve the CRM entities (company / deal / task / lead) for the current Bitrix
  * placement using the @workspace/bitrix domain services.
+ *
+ * Никаких поддельных placement'ов: наружу уходят честные сущности + `from`,
+ * а бэк получает контекст явным `EvFlowContextDto` (build-flow-payload).
+ * Сделка и задача без компании — легальные контексты, не ошибка.
  */
 export const getEntitiesFromPlacement = async (
     placement: Placement | PlacementCallCard,
     domain: string,
 ): Promise<EntitiesFromPlacement> => {
-    const companyPlacement = {
-        placement: 'CRM_COMPANY_DETAIL_TAB',
-        options: { ID: 0 },
-    } as Placement;
-
     const result: EntitiesFromPlacement = {
-        companyPlacement,
         currentCompany: null,
         currentDeal: null,
         currentTask: null,
@@ -88,28 +75,42 @@ export const getEntitiesFromPlacement = async (
         if (!bitrix || !type || !options) return result;
 
         if (type.includes('DEAL')) {
+            // расширяем этот кейс
+            // раньше в сделке по любому могла быть компания теперь нет
             const deal = await bitrix.deal.get(Number(options.ID));
             result.currentDeal = deal as unknown as BXDeal;
             const companyId = deal?.COMPANY_ID;
-            if (companyId) {
+            if (companyId && Number(companyId) > 0) {
                 result.currentCompany = (await bitrix.company.get(Number(companyId))) as unknown as BXCompany;
             }
             from = APP_FROM_ENUM.DEAL
         } else if (type.includes('COMPANY')) {
-            companyPlacement.placement = type as typeof companyPlacement.placement;
             result.currentCompany = (await bitrix.company.get(Number(options.ID))) as unknown as BXCompany;
             from = APP_FROM_ENUM.COMPANY
         } else if (type.includes('TASK')) {
             const taskId = options.taskId ?? options.TASK_ID;
-            const taskData: any = await bitrix.api.call('tasks.task.get', {
-                taskId,
-                select: TASK_SELECT,
-            });
-            const currentTask = (taskData?.task ?? taskData) as IBXTask;
+            const taskResponse = await bitrix.task.get(taskId, EVENT_TASK_SELECT);
+            const currentTask = taskResponse?.result?.task as unknown as IBXTask;
             result.currentTask = currentTask;
-            const companyId = getCompanyIdFromTask(currentTask);
-            if (companyId) {
-                result.currentCompany = (await bitrix.company.get(companyId)) as unknown as BXCompany;
+
+            // Приоритетная сущность задачи: компания > сделка > лид.
+            // Работаем «как будто в ней», но в рамках текущей задачи.
+            const links = getCrmLinksFromRaw(
+                (currentTask as { ufCrmTask?: string[] } | null)?.ufCrmTask,
+            );
+            const { primary } = resolveTaskPrimaryContext(links);
+            if (primary?.type === ETaskLinkType.COMPANY) {
+                result.currentCompany = (await bitrix.company.get(primary.id)) as unknown as BXCompany;
+            } else if (primary?.type === ETaskLinkType.DEAL) {
+                const deal = await bitrix.deal.get(primary.id);
+                result.currentDeal = deal as unknown as BXDeal;
+                const dealCompanyId = Number(deal?.COMPANY_ID ?? 0);
+                if (dealCompanyId > 0) {
+                    result.currentCompany = (await bitrix.company.get(dealCompanyId)) as unknown as BXCompany;
+                }
+            } else if (primary?.type === ETaskLinkType.LEAD) {
+                result.currentLead = (await bitrix.lead.get(primary.id))
+                    ?.result as unknown as BXLead;
             }
             from = APP_FROM_ENUM.TASK
         } else if (type.includes('CALL_CARD')) {
@@ -130,14 +131,11 @@ export const getEntitiesFromPlacement = async (
             // от этого зависит, какие сигналы искать (см. duplicate-context).
             from = APP_FROM_ENUM.CALL_CARD
         } else if (type.includes('LEAD')) {
-            result.currentLead = (await bitrix.api.call('crm.lead.get', { id: options.ID })) as unknown as BXLead;
+            result.currentLead = (await bitrix.lead.get(Number(options.ID)))
+                ?.result as unknown as BXLead;
             from = APP_FROM_ENUM.LEAD
         }
         result.from = from;
-
-        if (result.currentCompany) {
-            companyPlacement.options.ID = result.currentCompany.ID;
-        }
         return result;
     } catch (error) {
         console.error('getEntitiesFromPlacement error', error);

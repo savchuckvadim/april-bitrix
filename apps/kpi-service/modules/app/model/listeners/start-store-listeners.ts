@@ -1,6 +1,6 @@
 import { startUserReportAppListener } from '@/modules/entities';
 import { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
-import { AppDispatch, RootState, ThunkExtraArgument } from '../store';
+import type { AppDispatch, RootState, ThunkExtraArgument } from '../store';
 
 
 

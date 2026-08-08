@@ -8,7 +8,10 @@ import {
 } from '@reduxjs/toolkit';
 
 import { WSClient } from '@workspace/ws';
-import { appReducer } from '../';
+// Прямой путь до слайса. Через барель '../' здесь был цикл: барель исполнял
+// этот модуль как side-effect, стор читал из него appReducer обратно — и на
+// холодной загрузке падало `Cannot read properties of undefined`.
+import { appReducer } from './slice/AppSlice';
 import { errorHandler } from '../lib/error-handler';
 
 // entities / processes / features / widgets / shared reducers

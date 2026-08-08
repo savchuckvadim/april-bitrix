@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { FlowHelper } from '../lib/api/flow-helper';
 import {
     FLOW_POLL_INTERVAL_MS,

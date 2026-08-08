@@ -51,4 +51,20 @@ export class BxCompanyService {
     async addField(fields: Partial<IBXField>): Promise<IBXField | null> {
         return (await this.repo.setField(fields)).result;
     }
+
+    /** Контакты компании: `[{ CONTACT_ID, IS_PRIMARY, ... }]`. */
+    async contactItemsGet(companyId: number | string) {
+        return (await this.repo.contactItemsGet(companyId))?.result ?? [];
+    }
+
+    async contactItemsSet(
+        companyId: number | string,
+        contactIds: number[] | string[],
+    ): Promise<number | null> {
+        return (await this.repo.contactItemsSet(companyId, contactIds)).result;
+    }
+
+    async contactItemsDelete(companyId: number | string): Promise<number | null> {
+        return (await this.repo.contactItemsDelete(companyId)).result;
+    }
 }

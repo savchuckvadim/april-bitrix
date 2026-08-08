@@ -32,6 +32,19 @@ export type DealSchema = {
         };
         response: number;
     };
+    [EBxMethod.CONTACT_ITEMS_GET]: {
+        request: { id: number | string };
+        response: {
+            CONTACT_ID: number;
+            SORT: number;
+            ROLE_ID: number;
+            IS_PRIMARY: 'Y' | 'N';
+        }[];
+    };
+    [EBxMethod.CONTACT_ITEMS_DELETE]: {
+        request: { id: number | string };
+        response: number;
+    };
     [EBxMethod.USER_FIELD_LIST]: {
         request: { filter: { [key: string]: any }; select?: string[] };
         response: IBXField[];

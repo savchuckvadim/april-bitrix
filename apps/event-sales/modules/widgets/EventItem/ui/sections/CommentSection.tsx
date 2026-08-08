@@ -25,7 +25,9 @@ export const CommentSection: FC = () => {
             title="Комментарий"
             state={error ? 'error' : 'default'}
             message={error}
+            density='comfortable'
         >
+
             <Textarea
                 value={comment}
                 placeholder="Как прошёл разговор?"

@@ -1,8 +1,17 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Portal } from '@/modules/app/types/portal/portal-type';
 import { Bitrix } from '@workspace/bitrix';
+import {
+    findFieldItemByBitrixId,
+    findPortalField,
+    ufKey,
+} from '@workspace/pbx';
 import { EV_COMPANY_PROP, eventCompanyActions } from './EventCompanySlice';
 import { CompanyColorType } from '../utils/event-company-util';
+
+/** Коды pbx-полей компании (реестр event; TODO: константы из pbx-data). */
+const PROSPECTS_CODE = 'op_prospects';
+const CLIENT_STATUS_CODE = 'op_client_status';
 
 /**
  * Инициализация полей компании (прогноз/цвет, статус клиента) из портальной
@@ -15,15 +24,17 @@ export const setInitEventCompany =
         const pFields = portal.company?.bitrixfields;
         if (!company || !pFields) return;
 
-        const colorPField = pFields.find(pf => pf.code == 'op_prospects');
-        const clientStatusPField = pFields.find(pf => pf.code == 'op_client_status');
+        // Резолв по коду — пакетным резолвером (@workspace/pbx), UF_CRM_
+        // руками больше не собираем.
+        const colorPField = findPortalField(pFields, PROSPECTS_CODE);
+        const clientStatusPField = findPortalField(pFields, CLIENT_STATUS_CODE);
 
         if (colorPField) {
-            const colorBtrixId = `UF_CRM_${colorPField.bitrixId}`;
+            const colorBtrixId = ufKey(colorPField);
             const colorCurrentId = (company as unknown as Record<string, unknown>)[colorBtrixId];
-            const colorCurrent = colorPField.items.find(
-                pfi => pfi.bitrixId == colorCurrentId,
-            );
+            const colorCurrent =
+                findFieldItemByBitrixId(colorPField, String(colorCurrentId ?? '')) ??
+                undefined;
             dispatch(
                 eventCompanyActions.setInitCompanyColor({
                     bitrixId: colorBtrixId,
@@ -35,11 +46,13 @@ export const setInitEventCompany =
         }
 
         if (clientStatusPField) {
-            const statusBtrixId = `UF_CRM_${clientStatusPField.bitrixId}`;
+            const statusBtrixId = ufKey(clientStatusPField);
             const statusCurrentId = (company as unknown as Record<string, unknown>)[statusBtrixId];
-            const statusCurrent = clientStatusPField.items.find(
-                pfi => pfi.bitrixId == statusCurrentId,
-            );
+            const statusCurrent =
+                findFieldItemByBitrixId(
+                    clientStatusPField,
+                    String(statusCurrentId ?? ''),
+                ) ?? undefined;
             dispatch(
                 eventCompanyActions.setInitCompanyStatus({
                     bitrixId: statusBtrixId,

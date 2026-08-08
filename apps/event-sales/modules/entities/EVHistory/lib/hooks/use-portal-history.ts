@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { PBXField } from '@workspace/pbx';
+import { readFieldValue } from '@workspace/pbx';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 
 /**
@@ -29,17 +29,6 @@ export interface PortalHistory {
     isAvailable: boolean;
 }
 
-const findFieldValue = (
-    fields: PBXField[] | undefined,
-    entity: Record<string, unknown> | null,
-    code: string,
-): unknown => {
-    if (!fields || !entity) return undefined;
-    const field = fields.find(item => item.code === code);
-    if (!field) return undefined;
-    return entity[`UF_CRM_${field.bitrixId}`];
-};
-
 const toLines = (value: unknown): string[] => {
     if (Array.isArray(value)) {
         return value.map(item => String(item ?? '').trim()).filter(Boolean);
@@ -56,23 +45,28 @@ const toLines = (value: unknown): string[] => {
 export const usePortalHistory = (): PortalHistory => {
     const portal = useAppSelector(s => s.portal.portal);
     const company = useAppSelector(s => s.app.bitrix.company);
+    const deal = useAppSelector(s => s.app.bitrix.deal);
     const lead = useAppSelector(s => s.app.bitrix.lead);
 
     return useMemo(() => {
-        const isCompany = !!company;
-        const entity = (isCompany ? company : lead) as unknown as Record<
+        // Приоритет как у контекста: компания → сделка → лид. Сделка без
+        // компании раньше выпадала вовсе, хотя бэк пишет историю отчётов
+        // именно в поля сделки-владельца.
+        const entity = (company ?? deal ?? lead) as unknown as Record<
             string,
             unknown
         > | null;
-        const fields = isCompany
+        const fields = company
             ? portal?.company?.bitrixfields
-            : portal?.lead?.bitrixfields;
+            : deal
+              ? portal?.bitrixDeal?.bitrixfields
+              : portal?.lead?.bitrixfields;
 
         const current = toLines(
-            findFieldValue(fields, entity, HISTORY_FIELD_CODE),
+            readFieldValue(fields, entity, HISTORY_FIELD_CODE),
         );
         const comments = toLines(
-            findFieldValue(fields, entity, HISTORY_COMMENTS_FIELD_CODE),
+            readFieldValue(fields, entity, HISTORY_COMMENTS_FIELD_CODE),
         );
 
         // Комментарии копятся снизу вверх — переворачиваем, чтобы свежее было

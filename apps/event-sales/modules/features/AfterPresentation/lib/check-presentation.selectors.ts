@@ -1,4 +1,4 @@
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { PresentationProp } from '@/modules/entities/EventPresentation/model/PresSlice';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { buildCheckPresentationComment } from './check-presentation.format';

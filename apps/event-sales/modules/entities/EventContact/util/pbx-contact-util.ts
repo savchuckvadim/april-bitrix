@@ -1,4 +1,5 @@
 import { BXContact } from '@workspace/bx';
+import { ufKey } from '@workspace/pbx';
 import { PBXField, Portal } from '@/modules/app/types/portal/portal-type';
 import {
     EV_BASE_CONTACT_ITEM_PROP,
@@ -19,7 +20,7 @@ export const getPBXContactsSetupData = (
         if (!isContactProp(pfield.code)) continue;
 
         const currentField = pfield as PBXContactField;
-        const fieldBxId = `UF_CRM_${currentField.bitrixId}`;
+        const fieldBxId = ufKey(currentField);
 
         if (contact && Object.prototype.hasOwnProperty.call(contact, fieldBxId)) {
             const currentItemId = (contact as unknown as Record<string, unknown>)[fieldBxId];

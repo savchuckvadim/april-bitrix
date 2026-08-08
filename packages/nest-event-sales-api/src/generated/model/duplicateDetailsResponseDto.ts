@@ -9,6 +9,7 @@ import type { DuplicateDetailsResponseDtoEntityType } from './duplicateDetailsRe
 import type { ResponsibleUserDto } from './responsibleUserDto';
 import type { RelatedDealDto } from './relatedDealDto';
 import type { RelatedLeadDto } from './relatedLeadDto';
+import type { RelatedContactDto } from './relatedContactDto';
 
 export interface DuplicateDetailsResponseDto {
     /** Тип кандидата. */
@@ -21,6 +22,8 @@ export interface DuplicateDetailsResponseDto {
     deals: RelatedDealDto[];
     /** Связанные лиды. */
     leads: RelatedLeadDto[];
+    /** Контакты владельца: у сделки-якоря — её contact items, у компании — её. */
+    contacts: RelatedContactDto[];
     /** Сколько HTTP-запросов ушло на портал. */
     batchRequests: number;
     /** Что не удалось получить. */

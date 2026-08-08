@@ -1,4 +1,4 @@
-import type { Portal, PBXList } from '@workspace/pbx';
+import type { Portal, PBXList, PBXFieldItem } from '@workspace/pbx';
 
 /**
  * Портальный список «ОП История» — источник истории работы по клиенту.
@@ -13,23 +13,32 @@ import type { Portal, PBXList } from '@workspace/pbx';
 /** Пара group_type искомого списка. */
 const HISTORY_LIST_CODE = 'sales_history';
 
-/** Тип инфоблока универсальных списков Битрикса. */
-export const HISTORY_IBLOCK_TYPE_ID = 'lists';
-
-/** Логические коды полей истории, которые показываем. */
+/**
+ * Логические коды полей истории (реестр pbx-sales-kpi-list; поле `crm` —
+ * множественное, бэк пишет туда все привязки события: CO_/D_/L_/C_).
+ */
 export const HISTORY_FIELD_CODES = {
     eventDate: 'event_date',
     eventTitle: 'event_title',
     comment: 'manager_comment',
     responsible: 'responsible',
-    crmCompany: 'crm_company',
     crm: 'crm',
+    eventType: 'event_type',
+    eventAction: 'event_action',
+    resultStatus: 'op_result_status',
 } as const;
+
+export type HistoryFieldKey = keyof typeof HISTORY_FIELD_CODES;
+
+/** Поле элемента: ключ `PROPERTY_*` + items для резолва enum-значений. */
+export interface HistoryFieldRef {
+    key: string;
+    items: PBXFieldItem[];
+}
 
 export interface HistoryListRef {
     iblockId: number;
-    /** Ключи свойств элемента: код поля → `PROPERTY_*`. */
-    properties: Partial<Record<keyof typeof HISTORY_FIELD_CODES, string>>;
+    properties: Partial<Record<HistoryFieldKey, HistoryFieldRef>>;
 }
 
 const findList = (portal: Portal | null): PBXList | undefined =>
@@ -48,58 +57,24 @@ export const getHistoryListRef = (
     if (!list?.bitrixId) return null;
 
     const properties: HistoryListRef['properties'] = {};
-    (
-        Object.keys(HISTORY_FIELD_CODES) as (keyof typeof HISTORY_FIELD_CODES)[]
-    ).forEach(key => {
+    (Object.keys(HISTORY_FIELD_CODES) as HistoryFieldKey[]).forEach(key => {
         const fullCode = `${list.group}_${list.type}_${HISTORY_FIELD_CODES[key]}`;
         const field = list.bitrixfields?.find(item => item.code === fullCode);
-        if (field?.bitrixCamelId) properties[key] = field.bitrixCamelId;
+        if (field?.bitrixCamelId) {
+            properties[key] = {
+                key: field.bitrixCamelId,
+                items: field.items ?? [],
+            };
+        }
     });
 
     return { iblockId: Number(list.bitrixId), properties };
 };
 
-/** Элемент списка как его отдаёт Битрикс: значения свойств — мапы. */
-export type HistoryListElement = Record<string, unknown>;
-
-export interface HistoryEntry {
-    id: number;
-    /** Заголовок события; пусто — покажем NAME элемента. */
-    title: string;
-    comment: string;
-    date: string;
-}
-
-/**
- * Значение свойства списка приходит мапой `{ '123': 'текст' }` — Битрикс так
- * отдаёт множественные свойства, и одиночные тоже. Берём первое значение.
- */
-const readProperty = (
-    element: HistoryListElement,
-    key: string | undefined,
-): string => {
-    if (!key) return '';
-    const raw = element[key];
-    if (raw === null || raw === undefined) return '';
-    if (typeof raw === 'string' || typeof raw === 'number') return String(raw);
-    if (Array.isArray(raw)) return String(raw[0] ?? '');
-    if (typeof raw === 'object') {
-        const first = Object.values(raw as Record<string, unknown>)[0];
-        return first === undefined || first === null ? '' : String(first);
-    }
-    return '';
-};
-
-export const toHistoryEntry = (
-    element: HistoryListElement,
-    ref: HistoryListRef,
-): HistoryEntry => ({
-    id: Number(element.ID ?? 0),
-    title:
-        readProperty(element, ref.properties.eventTitle) ||
-        String(element.NAME ?? ''),
-    comment: readProperty(element, ref.properties.comment),
-    date:
-        readProperty(element, ref.properties.eventDate) ||
-        String(element.DATE_CREATE ?? ''),
-});
+/** SELECT для lists.element.get: системные поля + все известные PROPERTY_*. */
+export const getHistorySelect = (ref: HistoryListRef): string[] => [
+    'ID',
+    'NAME',
+    'DATE_CREATE',
+    ...Object.values(ref.properties).map(property => property.key),
+];

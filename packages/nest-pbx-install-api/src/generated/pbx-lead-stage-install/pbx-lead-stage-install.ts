@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  InstallLeadStagesDto,
+  InstallLeadStagesResponseDto,
   MapLeadStagesDto
 } from '.././model';
 
@@ -28,5 +30,20 @@ const pbxLeadStageInstallMapStages = (
     },
       );
     }
-  return {pbxLeadStageInstallMapStages}};
+  /**
+ * Создаёт/обновляет в Bitrix (crm.status, ENTITY_ID=STATUS) только стадии шаблона с installMode=create — «Взята в работу», «Работа с компанией» и т.п. Чужие статусы портала НЕ удаляются и не изменяются никогда. Результат пишется в btx_stages, кэш портала сбрасывается. map-only стадии по-прежнему сопоставляются вручную через /map/.
+ * @summary Установить стадии лида шаблона в Bitrix (аддитивно)
+ */
+const pbxLeadStageInstallInstallStages = (
+    installLeadStagesDto: InstallLeadStagesDto,
+ ) => {
+      return customAxios<InstallLeadStagesResponseDto>(
+      {url: `/api/pbx-lead-stage-install/install`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: installLeadStagesDto
+    },
+      );
+    }
+  return {pbxLeadStageInstallMapStages,pbxLeadStageInstallInstallStages}};
 export type PbxLeadStageInstallMapStagesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxLeadStageInstall>['pbxLeadStageInstallMapStages']>>>
+export type PbxLeadStageInstallInstallStagesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxLeadStageInstall>['pbxLeadStageInstallInstallStages']>>>

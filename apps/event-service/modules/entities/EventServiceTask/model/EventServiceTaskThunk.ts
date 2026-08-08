@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import { getResultMenu } from "@/modules/widgets/EventItem";
 import { EventItemResultType } from "@/modules/widgets/EventItem/model/EventItemSlice";
 import { setCurrentReportContact } from "@/modules/entities/EventContact/model/EventContactThunk";

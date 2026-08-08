@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import { ProspectScale } from './ProspectScale';
 import { ClientStatusChip } from './ClientStatusChip';
+import { NoCompanyChip } from './NoCompanyChip';
 
 interface ClientBarProps {
     className?: string;
@@ -24,5 +25,7 @@ export const ClientBar: FC<ClientBarProps> = ({ className }) => (
     <div className={cn('flex flex-wrap items-center gap-x-3 gap-y-1', className)}>
         <ProspectScale />
         <ClientStatusChip />
+        {/* Без компании оба контрола выше молча гаснут — чип объясняет почему. */}
+        <NoCompanyChip />
     </div>
 );

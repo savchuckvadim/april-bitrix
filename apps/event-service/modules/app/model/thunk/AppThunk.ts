@@ -8,7 +8,7 @@ import { appActions } from '../slice/AppSlice';
 import { getDisplayMode, getEntitiesFromPlacement } from '../../lib/utills/placement-util';
 import { initAppEntities, initAppTask } from '../../lib/utills/app-setup-util';
 import { portalAPI } from '@workspace/pbx';
-import { AppDispatch, AppGetState } from '../store';
+import type { AppDispatch, AppGetState } from '../store';
 import { Bitrix } from '@workspace/bitrix';
 import { BXTask, BXUser, Placement } from '@workspace/bx';
 import { setDepartmentMode, getDepartment } from '@/modules/features/Departament/model/DepartmentThunk';

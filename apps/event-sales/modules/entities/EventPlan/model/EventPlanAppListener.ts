@@ -1,4 +1,8 @@
 import { appActions } from '@/modules/app/model/slice/AppSlice';
+import {
+    getClientContext,
+    getIsTmcMode,
+} from '@/modules/app/lib/utills/app-state-util';
 import type { AppStartListening } from '@/modules/app/model/store';
 import { eventPlanActions } from './EventPlanSlice';
 
@@ -10,19 +14,21 @@ import { eventPlanActions } from './EventPlanSlice';
  * план: реакция «app загрузился → инициализировать план» живёт listener'ом,
  * а не вложенным dispatch'ем внутри app-thunk'а.
  *
- * startAppListening типизирован в store: `listenerApi.getState()` здесь — RootState,
- * `dispatch` принимает thunk'и. Кастов (`as RootState` / `as AppDispatch`) не нужно.
+ * isTmc читается из состояния отдела, а не хардкодится false: режим ТМЦ
+ * восстанавливается из localStorage ещё ДО setAppData (setDepartmentMode в
+ * app-init), и хардкод здесь затирал его полным списком типов.
  */
 export function startEventPlanAppListener(startAppListening: AppStartListening) {
     startAppListening({
         actionCreator: appActions.setAppData,
         effect: (_action, listenerApi) => {
             const state = listenerApi.getState();
-            const hasCompany = !!state.app.bitrix.company;
-            listenerApi.dispatch(eventPlanActions.init({
-                hasCompany,
-                isTmc: false,
-            }));
+            listenerApi.dispatch(
+                eventPlanActions.init({
+                    isTmc: getIsTmcMode(state),
+                    context: getClientContext(state),
+                }),
+            );
         },
     });
 }

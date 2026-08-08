@@ -1,4 +1,4 @@
-import { AppDispatch } from '@/modules/app/model/store';
+import type { AppDispatch } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
 import { BXLead } from '@workspace/bx';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
@@ -15,9 +15,8 @@ export const fetchLead =
             return;
         }
 
-        const lead = (await Bitrix.getService().api.call('crm.lead.get', {
-            id: leadId,
-        })) as BXLead | null;
+        const lead = (await Bitrix.getService().lead.get(leadId))
+            ?.result as unknown as BXLead | null;
 
         if (lead) {
             dispatch(eventLeadActions.setCurrentLead({ lead }));

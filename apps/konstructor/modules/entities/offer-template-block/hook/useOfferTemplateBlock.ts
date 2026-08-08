@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from '@/modules/app';
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import {
     setEditeble,
     deleteEditeble,

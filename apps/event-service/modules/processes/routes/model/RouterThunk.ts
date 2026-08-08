@@ -1,7 +1,7 @@
 
 import { APP_TYPE } from "@/modules/app/types/app/app-type";
 import { routerActions, routerSlice } from "./RouterSlice";
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import {  ROUTE_DOCUMENT, ROUTE_EVENT, Route, RouteEvent } from "../types/router-type";
 import { eventRouterActions } from "@/modules/processes/event";
 

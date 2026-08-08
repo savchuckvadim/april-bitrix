@@ -19,6 +19,9 @@ export interface EventTask extends BXTask {
     isExpired: 'no' | 'almost' | 'yes';
     eventType: EventTaskEventType;
 
+    /** Комментарий планирования (pbx-поле UF_TASK_EVENT_COMMENT), null — не заполнен. */
+    eventComment: string | null;
+
     presentation: null | PresentationStateCount;
     dealBase: null | BXDeal;
     originalEventType?: 'presentation' | null;

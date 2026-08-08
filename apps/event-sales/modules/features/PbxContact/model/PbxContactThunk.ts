@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
 import { eventContactActions } from '@/modules/entities/EventContact';
 import {
@@ -53,8 +53,7 @@ export const updatePbxContactField =
             }),
         );
 
-        await Bitrix.getService().api.call('crm.contact.update', {
-            ID: contactId,
-            fields: { [field.bitrixId]: bitrixValue },
-        });
+        await Bitrix.getService().contact.update(contactId, {
+            [field.bitrixId]: bitrixValue,
+        } as never);
     };

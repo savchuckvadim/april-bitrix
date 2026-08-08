@@ -1,85 +1,70 @@
-import { Bitrix } from '@workspace/bitrix';
 import {
-    HISTORY_IBLOCK_TYPE_ID,
-    HistoryListElement,
+    BX_LIST_PAGE_SIZE,
+    Bitrix,
+    IBXListItemPage,
+    flattenBatchResults,
+    toListItemPage,
+} from '@workspace/bitrix';
+import {
     HistoryListRef,
+    getHistorySelect,
 } from '../history-list';
 
-/** Сколько элементов отдаёт Битрикс за один вызов `lists.element.get`. */
-export const HISTORY_PAGE_SIZE = 50;
-
-export interface HistoryPageRequest {
-    ref: HistoryListRef;
-    companyId: number;
-    /** Смещение стандартной постраничности Битрикса. */
-    start: number;
-}
-
-export interface HistoryPageResult {
-    elements: HistoryListElement[];
-    /** Смещение следующей страницы; `null` — дальше пусто. */
-    next: number | null;
-    total: number | null;
-}
+export { BX_LIST_PAGE_SIZE as HISTORY_PAGE_SIZE };
 
 /**
- * Чтение истории напрямую из портального списка.
+ * Чтение истории напрямую из портального списка через типизированный домен
+ * `listItem` (`lists.element.get`).
  *
  * Бэкенд тут не нужен: список живёт в самом Битриксе, а его id и id полей уже
- * лежат в Portal. Единственное, что требуется, — знать коды (см. history-list).
- * Эндпоинт `event-support/history` на бэке пока заглушка, и ждать его незачем.
+ * лежат в Portal. Стартовая загрузка — ОДИН batch: по команде на привязку
+ * (первые 50 записей каждой ленты); догрузка — точечный запрос той ленты,
+ * которую скроллят.
  */
 export class HistoryListHelper {
-    async getPage({
-        ref,
-        companyId,
-        start,
-    }: HistoryPageRequest): Promise<HistoryPageResult> {
-        const select = [
-            'ID',
-            'NAME',
-            'DATE_CREATE',
-            ...Object.values(ref.properties),
-        ];
-
-        // Фильтруем по CRM-привязке. У элемента есть отдельное поле компании и
-        // общее поле связей — портал может заполнять любое, поэтому берём то,
-        // которое на нём есть.
-        const filterKey = ref.properties.crmCompany ?? ref.properties.crm;
-        const filter = filterKey ? { [filterKey]: `CO_${companyId}` } : {};
-
-        const response = (await Bitrix.getService().api.call(
-            'lists.element.get',
-            {
-                IBLOCK_TYPE_ID: HISTORY_IBLOCK_TYPE_ID,
-                IBLOCK_ID: ref.iblockId,
-                SELECT: select,
-                FILTER: filter,
-                start,
-            },
-        )) as
-            | HistoryListElement[]
-            | { result?: HistoryListElement[]; next?: number; total?: number }
-            | null;
-
-        // Обёртка ответа зависит от версии SDK: где-то приходит массив, где-то
-        // объект с постраничностью. Разбираем оба, чтобы не гадать.
-        if (Array.isArray(response)) {
-            return {
-                elements: response,
-                next:
-                    response.length === HISTORY_PAGE_SIZE
-                        ? start + HISTORY_PAGE_SIZE
-                        : null,
-                total: null,
-            };
-        }
-
-        const elements = response?.result ?? [];
+    private params(ref: HistoryListRef, binding: string, start: number) {
+        const crmKey = ref.properties.crm?.key;
         return {
-            elements,
-            next: response?.next ?? null,
-            total: response?.total ?? null,
+            IBLOCK_ID: String(ref.iblockId),
+            select: getHistorySelect(ref),
+            // Фильтр по множественному полю: элемент матчится, если ЛЮБОЕ
+            // из его значений равно привязке.
+            filter: crmKey ? { [crmKey]: binding } : {},
+            start,
         };
+    }
+
+    /** Первые страницы всех привязок одним batch-вызовом. */
+    async getFirstPages(
+        ref: HistoryListRef,
+        bindings: string[],
+    ): Promise<Map<string, IBXListItemPage>> {
+        const bitrix = Bitrix.getService();
+        bindings.forEach((binding, index) => {
+            bitrix.batch.listItem.get(
+                `history_${index}`,
+                this.params(ref, binding, 0),
+            );
+        });
+
+        const raw = await bitrix.api.callBatch();
+        const flat = flattenBatchResults(raw);
+
+        const pages = new Map<string, IBXListItemPage>();
+        bindings.forEach((binding, index) => {
+            pages.set(binding, toListItemPage(flat[`history_${index}`], 0));
+        });
+        return pages;
+    }
+
+    /** Догрузка одной ленты со смещения `start`. */
+    async getPage(
+        ref: HistoryListRef,
+        binding: string,
+        start: number,
+    ): Promise<IBXListItemPage> {
+        return Bitrix.getService().listItem.getPage(
+            this.params(ref, binding, start),
+        );
     }
 }

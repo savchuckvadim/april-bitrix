@@ -1,6 +1,7 @@
-import { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { BXUser } from '@workspace/bx';
 import { getDomainConfig } from '@/modules/app/consts/domain-config';
+import { getClientContext } from '@/modules/app/lib/utills/app-state-util';
 import { eventPlanActions } from '@/modules/entities/EventPlan';
 import { eventReportActions } from '@/modules/entities/EventReport';
 import { departmentActions } from './DepartmentSlice';
@@ -10,7 +11,11 @@ import {
     getSavedDepartmentMode,
     saveDepartmentMode,
 } from '../lib/department-mode-util';
-import { DEPARTAMENT_STATE_PROP, DUSER_ROLE } from '../type/department-type';
+import {
+    DEPARTAMENT_STATE_PROP,
+    DUSER_ROLE,
+    DepartmentStructureState,
+} from '../type/department-type';
 
 const departmentHelper = new DepartmentHelper();
 
@@ -23,15 +28,31 @@ export const getDepartment =
     async (dispatch: AppDispatch, getState: AppGetState) => {
         try {
             const response = await departmentHelper.getSalesDepartment(domain);
-            const users = (response?.department?.allUsers ??
-                null) as unknown as BXUser[] | null;
+            const data = response?.department;
+            const users = (data?.allUsers ?? null) as unknown as
+                | BXUser[]
+                | null;
             const { bossId } = getState().app.config;
+
+            // Структура отделов (general/children/parents c UF_HEAD) — сырьё
+            // для ролей: раньше выбрасывалась, и роли считать было не из чего.
+            const structure = data
+                ? {
+                      general: (data.generalDepartment ??
+                          []) as unknown as DepartmentStructureState['general'],
+                      children: (data.childrenDepartments ??
+                          []) as unknown as DepartmentStructureState['children'],
+                      parents: (data.parentDepartments ??
+                          []) as unknown as DepartmentStructureState['parents'],
+                  }
+                : null;
 
             dispatch(
                 departmentActions.setFetchedDepartament({
                     department: users,
                     currentUser,
                     bossId,
+                    structure,
                 }),
             );
         } catch (error) {
@@ -55,10 +76,12 @@ export const setDepartmentMode =
         }
 
         dispatch(departmentActions.setMode({ depModeId }));
+        // На буте сущности ещё не отрезолвлены → context='unknown' (только
+        // звонок); реальный контекст доедет листенером плана на setAppData.
         dispatch(
             eventPlanActions.clean({
                 isTmc: depModeId == 1,
-                hasCompany: !!getState().app.bitrix.company,
+                context: getClientContext(getState()),
             }),
         );
     };
@@ -75,7 +98,7 @@ export const switchDepartmentMode =
         dispatch(
             eventPlanActions.clean({
                 isTmc,
-                hasCompany: !!getState().app.bitrix.company,
+                context: getClientContext(getState()),
             }),
         );
         dispatch(eventReportActions.setMode({ depModeId }));

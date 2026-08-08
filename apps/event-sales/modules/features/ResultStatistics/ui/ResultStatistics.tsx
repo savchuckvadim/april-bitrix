@@ -1,7 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { Badge } from '@workspace/ui/components/badge';
+import { ToneBadge } from '@workspace/april-ui';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { RESULT_BADGES } from '../lib/result-badges';
 
@@ -15,9 +15,14 @@ export const ResultStatistics: FC = () => {
     return (
         <div className="flex flex-wrap items-center gap-1.5">
             {RESULT_BADGES.filter(badge => results[badge.key] > 0).map(badge => (
-                <Badge key={badge.key} className={badge.className}>
+                <ToneBadge
+                    key={badge.key}
+                    tone={badge.tone}
+                    variant="soft"
+                    size="sm"
+                >
                     {results[badge.key]} {badge.label}
-                </Badge>
+                </ToneBadge>
             ))}
         </div>
     );

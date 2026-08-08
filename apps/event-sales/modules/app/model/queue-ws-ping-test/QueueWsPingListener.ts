@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState, AppThunk } from '../store';
+import type { AppDispatch, AppGetState, AppThunk } from '../store';
 import { API_METHOD, backAPI, EBACK_ENDPOINT } from '@workspace/api';
 
 export const socketThunk =

@@ -7,7 +7,8 @@ export { appReducer, appActions } from './model/AppSlice';
 //thunk
 export { initial } from './model/AppThunk';
 
-export { store } from './model/store';
+// Барель не реэкспортирует стор: он тянет rootReducer и половину приложения,
+// замыкая цикл инициализации. Прямой путь: '@/modules/app/model/store'.
 
 //hooks
 export { useApp } from './lib/hooks/useApp';

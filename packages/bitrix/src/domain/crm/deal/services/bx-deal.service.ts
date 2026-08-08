@@ -48,4 +48,13 @@ export class BxDealService {
             | number
             | null;
     }
+    /** Контакты сделки: `[{ CONTACT_ID, IS_PRIMARY, ... }]`. */
+    async contactItemsGet(dealId: number | string) {
+        return (await this.repo.contactItemsGet(dealId))?.result ?? [];
+    }
+    async contactItemsDelete(dealId: number | string) {
+        return (await this.repo.contactItemsDelete(dealId))?.result as
+            | number
+            | null;
+    }
 }

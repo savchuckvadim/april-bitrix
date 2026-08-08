@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import { EV_PLAN_SERVICE_PROP, EV_SERVICE_PLAN_CODE } from "../type/event-plan-service-type";
 import { eventPlanServiceActions } from "./EventPlanServiceSlice";
 import { communicationChangrFromPlanType } from "@/modules/features/Communication/model/EventCommunicationThunk";

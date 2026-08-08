@@ -1,6 +1,12 @@
 export { Spinner } from './Spinner';
 export type { SpinnerProps, SpinnerSize } from './Spinner';
 
+// Микро-прелоадеры одного элемента (pbx-поля, микро-кнопки, бэйджи)
+export { MicroSkeleton } from './Micro/MicroSkeleton';
+export type { MicroSkeletonProps } from './Micro/MicroSkeleton';
+export { MicroSpinner } from './Micro/MicroSpinner';
+export type { MicroSpinnerProps } from './Micro/MicroSpinner';
+
 export {
     BootPreloader,
     BOOT_PRELOADER_ID,

@@ -293,6 +293,11 @@ export class BitrixBaseApi {
     /**
      * Возвращает уже развёрнутый `result` ответа Bitrix (без обёртки
      * `{ result, time }`) — одинаково во фрейме и в dev-режиме через back.
+     *
+     * @deprecated Аварийный люк. В приложениях запрещён ESLint-правилом
+     * (`no-restricted-syntax` в eslint-config/next): используйте типизированные
+     * доменные сервисы (`bitrix.<domain>.<method>`), недостающие методы
+     * добавляются в пакет по образцу back/libs/bitrix.
      */
     public async call<T>(method: string, data: any): Promise<any> {
         let result = null as null | any;

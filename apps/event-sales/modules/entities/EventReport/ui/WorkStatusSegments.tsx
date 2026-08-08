@@ -37,7 +37,7 @@ export const WorkStatusSegments: FC = () => {
         <div
             role="radiogroup"
             aria-label="Статус работы"
-            className="flex w-full flex-wrap gap-1 rounded-md bg-muted p-1"
+            className="flex w-1/2  flex-wrap gap-1 rounded-md bg-muted p-1"
         >
             {items.map(item => {
                 const isCurrent = item.id === currentId;

@@ -2,6 +2,7 @@ import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale/ru';
 import type { BXTask } from '@workspace/bx';
 import { EV_TYPE, EventTask, EventTaskEventType } from '../types/event-task-type';
+import { getTaskEventComment } from './event-comment';
 
 export const getEvTasksFromBxTasks = (tasks: Array<BXTask>): Array<EventTask> => {
     return tasks.map((task: BXTask) => {
@@ -16,6 +17,7 @@ export const getEvTasksFromBxTasks = (tasks: Array<BXTask>): Array<EventTask> =>
             eventType,
             isExpired,
             deadline,
+            eventComment: getTaskEventComment(task),
             presentation: null,
             dealBase: null,
         } as EventTask;
@@ -24,6 +26,9 @@ export const getEvTasksFromBxTasks = (tasks: Array<BXTask>): Array<EventTask> =>
 
 export const checkIfTaskIsOverdue = (task: BXTask): 'no' | 'almost' | 'yes' => {
     let result: 'no' | 'almost' | 'yes' = 'no';
+    // Задача без срока — не «просрочена»: new Date(null) дал бы 1970 год,
+    // и карточка рисовала бы висячий «просрочен · » с пустой датой.
+    if (!task.deadline) return result;
     const now = new Date();
     const deadline = new Date(task.deadline);
     if (deadline < now) {

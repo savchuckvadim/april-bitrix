@@ -1,4 +1,4 @@
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 import { setCurrentRq } from '@/modules/entities/deal';
 import { BitrixService } from '@bitrix/index';
 import { createAsyncThunk } from '@reduxjs/toolkit';

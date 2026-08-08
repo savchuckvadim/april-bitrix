@@ -28,3 +28,16 @@ export const useMapLeadStages = () => {
         onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
     });
 };
+
+/** Установить install-стадии шаблона в Bitrix (аддитивно, чужое не трогается). */
+export const useInstallLeadStages = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (vars: {
+            domain: string;
+            group: PbxGroup;
+            codes?: string[];
+        }) => helper.installStages(vars.domain, vars.group, vars.codes),
+        onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+    });
+};

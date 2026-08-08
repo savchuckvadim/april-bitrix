@@ -43,4 +43,7 @@ export class BxDealBatchService {
     ) {
         return this.repo.contactItemsSetBtch(cmdCode, dealId, contactIds);
     }
+    contactItemsGet(cmdCode: string, dealId: number | string) {
+        return this.repo.contactItemsGetBtch(cmdCode, dealId);
+    }
 }

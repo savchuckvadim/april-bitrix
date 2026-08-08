@@ -35,5 +35,6 @@ export interface SetFullCompleteStatusPayload {
 
 export interface SetFinishStatusPayload {
     status: boolean;
-    result: 'Звонок запланирован' | 'Презентация запланирована' | '';
+    /** Текст финиша; источник — PLANNED_FINISH_TEXT в send-validation. */
+    result: string;
 }

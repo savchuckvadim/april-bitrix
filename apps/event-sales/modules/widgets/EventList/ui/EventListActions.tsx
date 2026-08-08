@@ -23,13 +23,12 @@ export const EventListActions: FC<EventListActionsProps> = ({ task, onSelect }) 
     );
 
     return (
-        <div className="flex flex-wrap items-center gap-2">
-            <Button
-                size="sm"
-                onClick={() => onSelect(EventItemResultType.RESULT, task)}
-            >
-                Результативный
-            </Button>
+        // Тихие действия слева, главное — последним, ближе к правому краю.
+        <div className="flex flex-wrap items-center justify-end gap-2">
+            {!isTmcMode && !isLeadContext && (
+                <NoCallButton taskId={Number(task.id)} />
+            )}
+            {!isLeadContext && <WithTM task={task} />}
             <Button
                 size="sm"
                 variant="outline"
@@ -37,10 +36,12 @@ export const EventListActions: FC<EventListActionsProps> = ({ task, onSelect }) 
             >
                 Не очень
             </Button>
-            {!isTmcMode && !isLeadContext && (
-                <NoCallButton taskId={Number(task.id)} />
-            )}
-            {!isLeadContext && <WithTM task={task} />}
+            <Button
+                size="sm"
+                onClick={() => onSelect(EventItemResultType.RESULT, task)}
+            >
+                Результативный
+            </Button>
         </div>
     );
 };

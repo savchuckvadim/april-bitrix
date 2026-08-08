@@ -8,7 +8,10 @@ import {
 } from '@reduxjs/toolkit';
 
 import { WSClient } from '@workspace/ws';
-import { appReducer } from '../';
+// Прямой путь до слайса. Через барель '../' здесь был цикл: барель исполнял
+// этот модуль как side-effect, стор читал из него appReducer обратно — и на
+// холодной загрузке падало `Cannot read properties of undefined`.
+import { appReducer } from './slice/AppSlice';
 import { errorHandler } from '../lib/error-handler';
 
 // processes / entities / shared / april reducers (features добавляются по фазам миграции)
@@ -25,11 +28,15 @@ import { eventPostFailReducer } from '@/modules/entities/EVPostFail';
 import { eventLeadReducer } from '@/modules/entities/EVLid';
 import { eventHistoryReducer } from '@/modules/entities/EVHistory';
 import { eventCallingRecordReducer } from '@/modules/entities/EventCallingRecord';
+// Прямой путь, как у AppSlice: барель RelatedCrm тянет UI и в store не годится.
+import { taskDealsReducer } from '@/modules/entities/RelatedCrm/model/TaskDealsSlice';
 import { departmentReducer } from '@/modules/features/Departament';
 import { noCallReducer } from '@/modules/features/NoCall';
 import { returnToTmcReducer } from '@/modules/features/ReturnToTMC';
 import { afterPresentationReducer } from '@/modules/features/AfterPresentation';
 import { duplicatesReducer } from '@/modules/features/Duplicates';
+import { innReducer } from '@/modules/features/Inn';
+import { clientSignalsReducer } from '@/modules/features/ClientSignals';
 import { eventItemReducer } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { preloaderReducer } from '@/modules/shared/Preloader';
 import { portalAPI, portalReducer } from '@workspace/pbx';
@@ -98,6 +105,7 @@ const rootReducer = combineReducers({
     eventLead: eventLeadReducer,
     eventHistory: eventHistoryReducer,
     eventCallingRecord: eventCallingRecordReducer,
+    taskDeals: taskDealsReducer,
 
     // features
     department: departmentReducer,
@@ -105,6 +113,8 @@ const rootReducer = combineReducers({
     returnToTmc: returnToTmcReducer,
     afterPresentation: afterPresentationReducer,
     duplicates: duplicatesReducer,
+    inn: innReducer,
+    clientSignals: clientSignalsReducer,
 
     // april
     portal: portalReducer,

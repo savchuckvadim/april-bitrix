@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 import { eventTaskActions } from "@/modules/entities/EventTask";
 import { EventItemResultType, eventItemActions } from "./EventItemSlice";
 import { EventTask } from "@/modules/entities/EventTask/types/event-task-type";

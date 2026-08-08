@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { RootState } from '@/modules/app/model/store';
+import type { RootState } from '@/modules/app/model/store';
 
 import { updateDealField, UpdateDealFieldPayload } from '../model/DealThunk';
 // import { BxDealDataKeys } from '@alfa/entities';

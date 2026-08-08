@@ -1,5 +1,5 @@
 // import { AnyAction, Middleware } from '@reduxjs/toolkit';
-// import { AppDispatch, RootState } from "@/modules/app/model/store";
+// import type { AppDispatch, RootState } from "@/modules/app/model/store";
 // import { getReportData } from './report-thunks';
 // import { departmentActions } from "@/modules/entities/departament/model/departament-slice";
 

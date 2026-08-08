@@ -1,5 +1,5 @@
 import { DEV_CURRENT_USER_ID, TESTING_DOMAIN } from "@/modules/app/consts/app-global";
-import { AppDispatch, AppGetState } from "@/modules/app/model/store";
+import type { AppDispatch, AppGetState } from "@/modules/app/model/store";
 
 import { PresentationStateCount } from "./PresSlice";
 import { eventTaskActions } from "@/modules/entities/EventTask";

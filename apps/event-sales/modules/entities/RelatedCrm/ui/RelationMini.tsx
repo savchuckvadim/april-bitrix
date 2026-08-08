@@ -4,34 +4,41 @@ import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import type { TaskRelation } from '../lib/resolve-task-relation';
 import { getLeadStatusView } from '../lib/lead-status-view';
-import { StageMini } from './StageMini';
+import { stageProgress } from '../lib/stage-view';
+import { RelationDealBars } from './RelationDealBars';
 
 interface RelationMiniProps extends TaskRelation {
     className?: string;
 }
 
 /**
- * На чём висит дело — одной строкой.
+ * Связи клиента в карточке дела.
  *
- * Сделка показывается миниатюрой воронки (сегменты + название стадии), лид —
- * бейджем семантики: у лида воронки в нашем понимании нет, только «в работе /
- * успех / провал», и рисовать ему сегменты значило бы придумать шкалу.
+ * Открытые сделки показываются голыми полосками стадий (1–3 штуки, вся
+ * информация в тултипах — см. RelationDealBars). Лид — бейджем семантики,
+ * и только когда сделок нет: у лида воронки в нашем понимании нет, а стадии
+ * заявки появятся на новых pbx-полях — тогда лид получит свою полоску.
  *
- * Связи нет — не рисуем ничего. Пустая строка-заглушка на карточке дела съела
- * бы место ради сообщения «связи нет», которое никому не нужно.
+ * Связей нет — не рисуем ничего. Пустая строка-заглушка съела бы место ради
+ * сообщения «связи нет», которое никому не нужно.
  */
 export const RelationMini: FC<RelationMiniProps> = ({
-    deal,
+    deals,
     lead,
     className,
 }) => {
-    if (!deal && !lead) return null;
+    // Ветка выбирается по РИСУЕМЫМ полоскам, а не по deals.length: сделка без
+    // порядка стадии в слепке портала полоску не получает, и непустой массив
+    // таких сделок иначе гасил бы и полоски, и лид-чип разом.
+    const hasBars = deals.some(deal => stageProgress(deal.stage) !== null);
 
-    if (deal) {
-        return <StageMini stage={deal.stage} className={className} />;
+    if (hasBars) {
+        return <RelationDealBars deals={deals} className={className} />;
     }
 
-    const status = getLeadStatusView(lead!.statusSemanticId);
+    if (!lead) return null;
+
+    const status = getLeadStatusView(lead.statusSemanticId);
 
     return (
         <div className={cn('flex min-w-0 items-center gap-2', className)}>
@@ -44,7 +51,7 @@ export const RelationMini: FC<RelationMiniProps> = ({
                 {status.label}
             </span>
             <span className="min-w-0 truncate text-xs text-muted-foreground">
-                {lead!.title}
+                {lead.title}
             </span>
         </div>
     );

@@ -1,6 +1,6 @@
 
 import { BXUser, Placement, PlacementCallCard } from "@workspace/bx";
-import { AppDispatch } from "../../model/store";
+import type { AppDispatch } from "../../model/store";
 import { IBXTask, IBXUser } from "@workspace/bitrix/src/domain/interfaces/bitrix.interface";
 // import { getInitSale } from "@/entities/EventSale";
 // import { initialEventTasks } from "@/entities/EventTask";

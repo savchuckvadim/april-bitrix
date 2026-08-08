@@ -1,4 +1,4 @@
-import { AppDispatch, AppGetState, RootState } from '@/modules/app/model/store';
+import type { AppDispatch, AppGetState, RootState } from '@/modules/app/model/store';
 import {
     clearFromLocalStorage,
     getFromLocalStorage,

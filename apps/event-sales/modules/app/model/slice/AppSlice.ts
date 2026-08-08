@@ -13,8 +13,11 @@ export enum APP_DEP {
 export enum APP_FROM_ENUM {
     COMPANY = 'company',
     LEAD = 'lead',
-    DEAL = 'deal',
-    TASK = 'task',
+    DEAL = 'deal', // имеется в виду только deal_empty - 
+    // DEAL_EMPTY = 'deal_empty',
+    // DEAL_WITH_COMPANY = 'deal_with_company',
+    TASK = 'task', // не имеет смысла мы на основе информации из task должны выбрать
+    //предыдущие
     CALL_CARD = 'call_card',
 }
 const initialState = {

@@ -1,4 +1,4 @@
-import { AppDispatch } from '@/modules/app/model/store';
+import type { AppDispatch } from '@/modules/app/model/store';
 import { eventTaskActions } from '@/modules/entities/EventTask';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';

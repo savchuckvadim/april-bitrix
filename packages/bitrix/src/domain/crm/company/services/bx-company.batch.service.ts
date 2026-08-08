@@ -43,4 +43,8 @@ export class BxCompanyBatchService {
     addField(cmdCode: string, fields: Partial<IBXField>) {
         return this.repo.setFieldBtch(cmdCode, fields);
     }
+
+    contactItemsGet(cmdCode: string, companyId: number | string) {
+        return this.repo.contactItemsGetBtch(cmdCode, companyId);
+    }
 }

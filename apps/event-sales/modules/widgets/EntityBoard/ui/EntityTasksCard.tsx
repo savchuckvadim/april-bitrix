@@ -41,6 +41,8 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
 
     const tasks = useAppSelector(s => s.eventTask.tasks);
     const status = useAppSelector(s => s.eventTask.status);
+    // Привязанные к задачам сделки (наполняет листенер setFetchedTasks).
+    const boundDealsById = useAppSelector(s => s.taskDeals.byId);
 
     const selectEvent = async (
         resultType: EventItemResultType,
@@ -75,6 +77,8 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
                                     task={task}
                                     relation={resolveTaskRelation({
                                         details,
+                                        boundDeals:
+                                            Object.values(boundDealsById),
                                         dealIds: links.dealIds,
                                         leadIds: links.leadIds,
                                     })}

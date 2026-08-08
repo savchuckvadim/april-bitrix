@@ -24,7 +24,7 @@ export const DuplicatesPanel: FC = () => {
     return (
         <>
             <SectionCard
-                title="Сигналы"
+                title="Возможные пересечения"
                 description={panel.targetLabel}
                 tone={panel.hasCandidates ? 'warning' : 'neutral'}
                 accent={panel.hasCandidates}

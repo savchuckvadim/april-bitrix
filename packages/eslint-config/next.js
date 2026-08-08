@@ -48,4 +48,21 @@ export const nextJsConfig = [
             'react/prop-types': 'off',
         },
     },
+    {
+        // Запрет сырых Bitrix-вызовов в приложениях: все обращения к REST —
+        // только через типизированные доменные сервисы @workspace/bitrix
+        // (bitrix.listItem.get, bitrix.deal.get, ...). Недостающий метод
+        // добавляется в пакет по образцу back/libs/bitrix, а не сырым вызовом.
+        rules: {
+            'no-restricted-syntax': [
+                'error',
+                {
+                    selector:
+                        "CallExpression[callee.property.name='call'][callee.object.property.name='api']",
+                    message:
+                        'Сырой api.call запрещён: используй типизированный домен @workspace/bitrix (bitrix.<domain>.<method>) или добавь недостающий метод в пакет по образцу back/libs/bitrix.',
+                },
+            ],
+        },
+    },
 ];

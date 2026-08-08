@@ -1,5 +1,5 @@
 // packages/ws/ws-handlers-registry.ts
-import { type AppDispatch } from '@/modules/app/model/store';
+import type { AppDispatch } from '@/modules/app/model/store';
 import { wsClient, WSClient } from './ws-client';
 
 type WSHandler = (data: unknown, dispatch: AppDispatch) => void;

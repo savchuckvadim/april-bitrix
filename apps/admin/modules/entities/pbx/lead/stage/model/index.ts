@@ -24,6 +24,29 @@ export interface LeadStageTemplateItem {
     color: string;
     order: number;
     isActive: boolean;
+    /** Желаемый STATUS_ID в Bitrix (PBX_* у install-стадий; null — подбор руками). */
+    bitrixStatusId?: string | null;
+    /** Семантика статуса: '' — в работе, S — успех, F — провал. */
+    semantics?: '' | 'S' | 'F';
+    /** create — ставится кнопкой «Установить»; map-only — сопоставляется вручную. */
+    installMode?: 'create' | 'map-only';
+    /** Зеркало стадии воронки ОП (sales_base), например 'sales_pres'. */
+    dealStageCode?: string;
+}
+
+/** Итог установки одной стадии шаблона в Bitrix. */
+export interface InstallLeadStageItemResult {
+    code: string;
+    bitrixStatusId: string;
+    action: 'created' | 'updated' | 'skipped';
+    sort: number;
+}
+
+/** Ответ POST /pbx-lead-stage-install/install/. */
+export interface InstallLeadStagesResponse {
+    leadId: number;
+    categoryId: number;
+    items: InstallLeadStageItemResult[];
 }
 
 /** Реальный статус лида в Bitrix (`crm.status.list`, ENTITY_ID=STATUS). */

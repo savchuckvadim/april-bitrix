@@ -1,10 +1,22 @@
-import { BXUser } from '@workspace/bx';
+import { BXDepartment, BXUser } from '@workspace/bx';
+
+/**
+ * Структура отделов из ответа bitrix/department/sales: базовый отдел продаж,
+ * его дочерние группы и родители (климб по PARENT — для «вышестоящего»).
+ * Раньше thunk выбрасывал всё, кроме allUsers, — роли считать было не из чего.
+ */
+export interface DepartmentStructureState {
+    general: BXDepartment[];
+    children: BXDepartment[];
+    parents: BXDepartment[];
+}
 
 export interface SetFetchedDepartamentPayload {
     department: Array<BXUser> | null;
     currentUser: BXUser | null;
     /** ID руководителя-постановщика (из domain-config.bossId) */
     bossId: number;
+    structure: DepartmentStructureState | null;
 }
 
 export interface SetCurrentUserPayload {
@@ -18,6 +30,7 @@ export type DepartmentState = {
     [DEPARTAMENT_STATE_PROP.PLAN]: DUserStateItem;
     [DEPARTAMENT_STATE_PROP.REPORT]: DUserStateItem;
     [DEPARTAMENT_STATE_PROP.MODE]: DepartmentModeState;
+    [DEPARTAMENT_STATE_PROP.STRUCTURE]: DepartmentStructureState;
 };
 
 export type DepartmentStateItem = {
@@ -56,6 +69,7 @@ export enum DEPARTAMENT_STATE_PROP {
     REPORT = 'report',
     PLAN = 'plan',
     MODE = 'mode',
+    STRUCTURE = 'structure',
 }
 
 export enum DUSER_ROLE {

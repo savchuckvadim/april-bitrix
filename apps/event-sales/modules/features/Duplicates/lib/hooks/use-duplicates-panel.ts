@@ -9,7 +9,7 @@ import {
     searchDuplicates,
 } from '../../model/DuplicatesThunk';
 import type { DuplicateCandidate } from '../../model';
-import { resolveDuplicateTarget } from '../duplicate-context';
+import { isOwnCandidate, resolveDuplicateTarget } from '../duplicate-context';
 
 /**
  * Состояние и действия ленты «Сигналы».
@@ -22,12 +22,16 @@ export function useDuplicatesPanel() {
     const status = useAppSelector(s => s.duplicates.status);
     const error = useAppSelector(s => s.duplicates.error);
     const isAuto = useAppSelector(s => s.duplicates.isAuto);
-    const candidates = useAppSelector(s => s.duplicates.candidates);
+    const allCandidates = useAppSelector(s => s.duplicates.candidates);
     const isManualOpen = useAppSelector(s => s.duplicates.isManualOpen);
     const context = useAppSelector(getDuplicateContext);
 
     const target = resolveDuplicateTarget(context);
     const isLoading = status === 'loading';
+    // Сама текущая сущность — не дубль (см. isOwnCandidate).
+    const candidates = allCandidates.filter(
+        candidate => !isOwnCandidate(candidate, context),
+    );
 
     return {
         candidates,

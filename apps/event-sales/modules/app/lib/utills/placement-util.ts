@@ -128,11 +128,12 @@ export const getEntitiesFromPlacement = async (
             }
             if (companyId) {
                 result.currentCompany = (await bitrix.company.get(companyId)) as unknown as BXCompany;
+                from = APP_FROM_ENUM.COMPANY
             }
             // from = CALL_CARD, а не COMPANY: карточка звонка может быть
             // привязана к компании, но открыты мы всё равно из звонка —
             // от этого зависит, какие сигналы искать (см. duplicate-context).
-            from = APP_FROM_ENUM.CALL_CARD
+            // from = APP_FROM_ENUM.CALL_CARD
         } else if (type.includes('LEAD')) {
             result.currentLead = (await bitrix.lead.get(Number(options.ID)))
                 ?.result as unknown as BXLead;

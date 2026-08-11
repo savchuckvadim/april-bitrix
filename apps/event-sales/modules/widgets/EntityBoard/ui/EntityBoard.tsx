@@ -7,6 +7,7 @@ import { SectionSkeleton } from '@/modules/shared/SectionState';
 import { NoCallMenu } from '@/modules/features/NoCall';
 import { ReturnToTMCMenu } from '@/modules/features/ReturnToTMC';
 import { FlowStatusBanner } from '@/modules/widgets/EventList/ui/FlowStatusBanner';
+import { getPanelLeadId } from '@/modules/features/LeadRequestCard/lib/lead-request-view';
 import { useEntityBoard } from '../lib/hooks/use-entity-board';
 import { EntityBoardHeader } from './EntityBoardHeader';
 import { EntityTasksCard } from './EntityTasksCard';
@@ -32,6 +33,10 @@ const DuplicatesPanel = dynamic(
             '@/modules/features/Duplicates/ui/DuplicatesPanel/DuplicatesPanel'
         ).then(module => module.DuplicatesPanel),
     { ssr: false },
+);
+const LeadRequestPanel = dynamic(
+    () => import('@/modules/features/LeadRequestCard/ui/LeadRequestPanel'),
+    { ssr: false, loading: () => <SectionSkeleton title="Заявка" /> },
 );
 
 /**
@@ -97,6 +102,9 @@ export const EntityBoard: FC = () => {
                             status={status}
                             onRetry={reload}
                         /> : ''}
+                    {/* Карточка заявки: первый открытый связанный лид либо
+                        лид контекста встройки (панель сама скрывается). */}
+                    <LeadRequestPanel leadId={getPanelLeadId(details?.leads)} />
                     <EntityHistoryCard />
                     <DuplicatesPanel />
                 </div>

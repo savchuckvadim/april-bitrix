@@ -13,4 +13,5 @@ export type LeadToWorkWebhookStageMode =
 export const LeadToWorkWebhookStageMode = {
     from_lead: 'from_lead',
     cold: 'cold',
+    new: 'new',
 } as const;

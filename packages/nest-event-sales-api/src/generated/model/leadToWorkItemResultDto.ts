@@ -5,6 +5,7 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
+import type { LeadToWorkItemResultDtoAssigneeSource } from './leadToWorkItemResultDtoAssigneeSource';
 
 export interface LeadToWorkItemResultDto {
     /**
@@ -35,6 +36,22 @@ export interface LeadToWorkItemResultDto {
     tasksClosed: number;
     /** Создана ли новая задача «Звонок»/«Холодный обзвон». */
     taskCreated: boolean;
+    /**
+     * Итоговый ответственный (пришёл в хуке или выбран round-robin).
+     * @nullable
+     */
+    responsible?: number | null;
+    /**
+     * Как выбран ответственный: explicit — передан в хук, round-robin — по курсору отдела продаж.
+     * @nullable
+     */
+    assigneeSource?: LeadToWorkItemResultDtoAssigneeSource;
+    /** Лид распознан как заявка (op_lead_site_* или поля лидогена) — названия события/задачи получили «. Заявка.». */
+    isRequest: boolean;
+    /** Записано KPI-событие «Холодный звонок Запланирован» (ХО-ветка). */
+    kpiPlanned: boolean;
+    /** Записано KPI-событие «Не состоялся» прежнему ответственному (передача обзвона). */
+    kpiNotHeld: boolean;
     /** Предупреждения graceful degradation: несопоставленные стадии, неустановленные поля — шаг пропущен, операция не падала. */
     warnings: string[];
 }

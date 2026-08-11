@@ -13,6 +13,11 @@ import {
     openCheckPresentation,
     selectNeedAfterPresentation,
 } from '@/modules/features/AfterPresentation';
+// Прямые пути: барель фичи тянет UI-диалог (правило store).
+import { selectNeedPresentationLeadLink } from '@/modules/features/PresentationLeadLink/lib/presentation-lead-link.selectors';
+import { openPresentationLeadLink } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkThunk';
+import { presentationLeadLinkActions } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
+import { taskLeadLinksActions } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksSlice';
 import { returnToTmcActions } from '@/modules/features/ReturnToTMC';
 import { finishResultMenu } from '@/modules/widgets/EventItem/model/EventItemThunk';
 import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
@@ -60,6 +65,14 @@ export const send = () => async (dispatch: AppDispatch, getState: AppGetState) =
     if (selectNeedAfterPresentation(state)) {
         dispatch(afterPresentationActions.setPendingSend({ status: true }));
         dispatch(openCheckPresentation());
+        return;
+    }
+
+    // Факт презентации + вопрос о связи с заявкой ещё не закрыт → модалка
+    // «презентация связана с заявкой?» (сама продолжит отправку; без
+    // открытых заявок закрывается и продолжает мгновенно).
+    if (selectNeedPresentationLeadLink(state)) {
+        await dispatch(openPresentationLeadLink());
         return;
     }
 
@@ -152,6 +165,8 @@ export const cleanEvent =
         dispatch(eventPlanActions.clean({ isTmc, context }));
         dispatch(eventPresentationActions.clean());
         dispatch(afterPresentationActions.resetForNewEvent());
+        dispatch(presentationLeadLinkActions.resetForNewEvent());
+        dispatch(taskLeadLinksActions.reset());
         dispatch(returnToTmcActions.setActiveStatus({ status: false }));
         dispatch(clearComment());
     };

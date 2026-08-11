@@ -38,6 +38,11 @@ import { duplicatesReducer } from '@/modules/features/Duplicates';
 import { innReducer } from '@/modules/features/Inn';
 import { clientSignalsReducer } from '@/modules/features/ClientSignals';
 import { leadMarksReducer } from '@/modules/features/LeadMarks';
+// Прямой путь: барель LeadRequestCard тянет UI (см. комментарий к AppSlice).
+import { leadRequestReducer } from '@/modules/features/LeadRequestCard/model/LeadRequestSlice';
+// Прямой путь по той же причине: барель фичи тянет UI-диалог.
+import { presentationLeadLinkReducer } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
+import { taskLeadLinksReducer } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksSlice';
 import { eventItemReducer } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { preloaderReducer } from '@/modules/shared/Preloader';
 import { portalAPI, portalReducer } from '@workspace/pbx';
@@ -117,6 +122,9 @@ const rootReducer = combineReducers({
     inn: innReducer,
     clientSignals: clientSignalsReducer,
     leadMarks: leadMarksReducer,
+    leadRequest: leadRequestReducer,
+    presentationLeadLink: presentationLeadLinkReducer,
+    taskLeadLinks: taskLeadLinksReducer,
 
     // april
     portal: portalReducer,

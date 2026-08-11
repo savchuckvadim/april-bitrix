@@ -12,6 +12,12 @@ export * from './bitrix-domain-department/bitrix-domain-department';
 export * from './event-sales-bx-records/event-sales-bx-records';
 // Поиск дублей клиента (POST /api/duplicates/search, /details, карта ИНН-полей)
 export * from './duplicates/duplicates';
+// Карточка заявки/лида (GET /api/lead-request/card/{leadId}, POST /update)
+export * from './event-sales-lead-request/event-sales-lead-request';
+// Sales-хуки (lead-to-work, duplicate-check и др.: /run + операции)
+export * from './sales-hooks/sales-hooks';
+// Настройки приложения на домене (замена хардкода domain-config)
+export * from './event-sales-app-settings/event-sales-app-settings';
 
 // Доступны после generate, подключать по мере необходимости:
 // export * from './bitrix-domain-team/bitrix-domain-team';

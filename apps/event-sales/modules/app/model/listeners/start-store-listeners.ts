@@ -1,5 +1,6 @@
 import { portalActions } from '@workspace/pbx';
 import { appActions } from '../slice/AppSlice';
+import { fetchAppConfig } from '../thunk/AppConfigThunk';
 import { setInitEventCompany } from '@/modules/entities/EventCompany/model/EventCompanyThunk';
 import { getCompanyContacts } from '@/modules/entities/EventContact/model/EventContactThunk';
 import { eventTaskActions } from '@/modules/entities/EventTask/model/EventTaskSlice';
@@ -12,6 +13,9 @@ import { innActions } from '@/modules/features/Inn/model/InnSlice';
 import { clientSignalsActions } from '@/modules/features/ClientSignals/model/ClientSignalsSlice';
 import { taskDealsActions } from '@/modules/entities/RelatedCrm/model/TaskDealsSlice';
 import { leadMarksActions } from '@/modules/features/LeadMarks/model/LeadMarksSlice';
+import { leadRequestActions } from '@/modules/features/LeadRequestCard/model/LeadRequestSlice';
+import { presentationLeadLinkActions } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
+import { taskLeadLinksActions } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksSlice';
 import { searchDuplicates } from '@/modules/features/Duplicates/model/DuplicatesThunk';
 import { initCheckPresentation } from '@/modules/features/AfterPresentation/model/AfterPresentationThunk';
 import { startEventPlanAppListener } from '@/modules/entities/EventPlan/model/EventPlanAppListener';
@@ -122,6 +126,15 @@ export function startStoreListeners(startAppListening: AppStartListening) {
         },
     });
 
+    // Контекст встройки установлен → портальные настройки приложения с бэка
+    // (админка → Settings → event-sales) поверх legacy domain-config.
+    startAppListening({
+        actionCreator: appActions.setAppData,
+        effect: async (action, listenerApi) => {
+            listenerApi.dispatch(fetchAppConfig(action.payload.domain));
+        },
+    });
+
     // Перезагрузка приложения (кнопка ⟳) → сброс КЭШИРУЮЩИХ слайсов.
     // appActions.reload гасит только app.initialized, а слайсы новых фич
     // хранят «уже запрошено» (taskDeals.requestedIds), карты и оверрайды —
@@ -134,6 +147,11 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             listenerApi.dispatch(leadMarksActions.reset());
             listenerApi.dispatch(innActions.reset());
             listenerApi.dispatch(clientSignalsActions.reset());
+            listenerApi.dispatch(leadRequestActions.reset());
+            listenerApi.dispatch(
+                presentationLeadLinkActions.resetForNewEvent(),
+            );
+            listenerApi.dispatch(taskLeadLinksActions.reset());
         },
     });
 

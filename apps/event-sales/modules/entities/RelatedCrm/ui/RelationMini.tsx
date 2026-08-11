@@ -5,7 +5,12 @@ import { cn } from '@workspace/ui/lib/utils';
 import type { TaskRelation } from '../lib/resolve-task-relation';
 import { getLeadStatusView } from '../lib/lead-status-view';
 import { stageProgress } from '../lib/stage-view';
+import {
+    findLeadStageIndex,
+    useLeadStageDict,
+} from '../lib/hooks/use-lead-stage-dict';
 import { RelationDealBars } from './RelationDealBars';
+import { LeadStageBar } from './LeadStageBar';
 
 interface RelationMiniProps extends TaskRelation {
     className?: string;
@@ -15,9 +20,9 @@ interface RelationMiniProps extends TaskRelation {
  * Связи клиента в карточке дела.
  *
  * Открытые сделки показываются голыми полосками стадий (1–3 штуки, вся
- * информация в тултипах — см. RelationDealBars). Лид — бейджем семантики,
- * и только когда сделок нет: у лида воронки в нашем понимании нет, а стадии
- * заявки появятся на новых pbx-полях — тогда лид получит свою полоску.
+ * информация в тултипах — см. RelationDealBars). Лид — своей градиент-
+ * полоской стадий лид-воронки (LeadStageBar), и только когда сделок нет;
+ * лид на финале или без слепка стадий — фолбэк-бейдж семантики.
  *
  * Связей нет — не рисуем ничего. Пустая строка-заглушка съела бы место ради
  * сообщения «связи нет», которое никому не нужно.
@@ -27,6 +32,8 @@ export const RelationMini: FC<RelationMiniProps> = ({
     lead,
     className,
 }) => {
+    const leadDict = useLeadStageDict();
+
     // Ветка выбирается по РИСУЕМЫМ полоскам, а не по deals.length: сделка без
     // порядка стадии в слепке портала полоску не получает, и непустой массив
     // таких сделок иначе гасил бы и полоски, и лид-чип разом.
@@ -37,6 +44,18 @@ export const RelationMini: FC<RelationMiniProps> = ({
     }
 
     if (!lead) return null;
+
+    if (findLeadStageIndex(leadDict, lead.statusId) >= 0) {
+        return (
+            <LeadStageBar
+                statusId={lead.statusId}
+                title={lead.title}
+                note={lead.responsible?.name ?? null}
+                withLabel
+                className={className}
+            />
+        );
+    }
 
     const status = getLeadStatusView(lead.statusSemanticId);
 

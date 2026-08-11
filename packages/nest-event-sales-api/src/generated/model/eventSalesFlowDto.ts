@@ -17,6 +17,7 @@ import type { FailDto } from './failDto';
 import type { ReturnToTmcDto } from './returnToTmcDto';
 import type { LeadDto } from './leadDto';
 import type { PresentationDto } from './presentationDto';
+import type { LeadRequestSyncDto } from './leadRequestSyncDto';
 
 export interface EventSalesFlowDto {
     /** Домен портала Bitrix клиента. По нему `PBXService.init` отдаёт инстанс bitrix и портал с ключами доступа. */
@@ -60,4 +61,6 @@ export interface EventSalesFlowDto {
     lead?: LeadDto;
     /** Данные презентации: счётчики и флаги проведения. */
     presentation: PresentationDto;
+    /** Синхронизация связанной заявки при финале (отказ/продажа): тип «не ЦА», заметка в историю обработки. */
+    leadSync?: LeadRequestSyncDto;
 }

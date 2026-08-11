@@ -10,6 +10,9 @@ import type {
     ConvertNormalizerOperationDto,
     ConvertNormalizerRunDto,
     ConvertNormalizerWebhookParams,
+    DuplicateCheckOperationDto,
+    DuplicateCheckRunDto,
+    DuplicateCheckWebhookParams,
     LeadToWorkOperationDto,
     LeadToWorkRunDto,
     LeadToWorkWebhookParams,
@@ -166,6 +169,34 @@ export const getSalesHooks = () => {
             data: convertNormalizerRunDto,
         });
     };
+    /**
+     * Принимает событие в silence-буфер (окно тишины схлопывает burst по одной сущности). Итог проверки будет записан комментарием в timeline сущности-источника.
+     * @summary Вебхук робота: проверить сущность на дубли
+     */
+    const duplicateCheckWebhook = (
+        bxWebHookDto: BxWebHookDto,
+        params: DuplicateCheckWebhookParams,
+    ) => {
+        return customAxios<SalesHookAcceptedDto>({
+            url: `/api/sales-hooks/duplicate-check/webhook`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: bxWebHookDto,
+            params,
+        });
+    };
+    /**
+     * Ставит операцию в очередь без silence-задержки. Статус — GET /sales-hooks/operations/{operationId} или WS-события sales-hook:done / sales-hook:error. Итог пишется в timeline сущности (отключается writeTimeline=N).
+     * @summary Кнопка фрейма: проверить сущность на дубли
+     */
+    const duplicateCheckRun = (duplicateCheckRunDto: DuplicateCheckRunDto) => {
+        return customAxios<DuplicateCheckOperationDto>({
+            url: `/api/sales-hooks/duplicate-check/run`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: duplicateCheckRunDto,
+        });
+    };
     return {
         salesHookOperationsGetOperation,
         leadToWorkWebhook,
@@ -177,6 +208,8 @@ export const getSalesHooks = () => {
         rejectBufferRun,
         convertNormalizerWebhook,
         convertNormalizerRun,
+        duplicateCheckWebhook,
+        duplicateCheckRun,
     };
 };
 export type SalesHookOperationsGetOperationResult = NonNullable<
@@ -216,4 +249,12 @@ export type ConvertNormalizerRunResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getSalesHooks>['convertNormalizerRun']>
     >
+>;
+export type DuplicateCheckWebhookResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getSalesHooks>['duplicateCheckWebhook']>
+    >
+>;
+export type DuplicateCheckRunResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getSalesHooks>['duplicateCheckRun']>>
 >;

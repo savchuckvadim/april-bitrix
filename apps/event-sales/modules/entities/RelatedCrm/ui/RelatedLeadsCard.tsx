@@ -11,6 +11,7 @@ import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 import type { RelatedLead } from '../model';
 import { getLeadStatusView, isLeadOpen } from '../lib/lead-status-view';
+import { LeadStageBar } from './LeadStageBar';
 import { SectionState, type SectionStatus } from '@/modules/shared/SectionState';
 import { LeadMarkRow } from '@/modules/features/LeadMarks';
 import { useLeadMarks } from '@/modules/features/LeadMarks/lib/hooks/use-lead-marks';
@@ -112,6 +113,13 @@ export const RelatedLeadsCard: FC<RelatedLeadsCardProps> = ({
                                             {statusView.label}
                                         </span>
                                     )}
+                                    {/* Градиент-лестница стадий лид-воронки;
+                                        на финале/без слепка тихо скрыта. */}
+                                    <LeadStageBar
+                                        statusId={lead.statusId}
+                                        title={lead.title}
+                                        className="mt-1"
+                                    />
                                 </li>
                             );
                         })}

@@ -92,6 +92,17 @@ const appSlice = createSlice({
             state.bitrix.company = action.payload.company;
             state.bitrix.deal = action.payload.deal;
         },
+        /**
+         * Портальные настройки с бэка (админка → Settings → event-sales)
+         * ложатся ПОВЕРХ legacy-хардкода domain-config: сервер недоступен —
+         * остаётся прежнее поведение (безопасный переезд с хардкода).
+         */
+        mergeConfig: (
+            state: AppState,
+            action: PayloadAction<Partial<DomainFeatureConfig>>,
+        ) => {
+            state.config = { ...state.config, ...action.payload };
+        },
         setInitializedSuccess: (state: AppState, action: PayloadAction<{}>) => {
             state.initialized = true;
         },

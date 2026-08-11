@@ -41,6 +41,23 @@ const DuplicatesPanel = dynamic(
     { ssr: false },
 );
 
+// Карточка заявки/лида: видна только при лиде в контексте, форму отчёта
+// не задерживает — лениво, как и дубли.
+const LeadRequestPanel = dynamic(
+    () => import('@/modules/features/LeadRequestCard/ui/LeadRequestPanel'),
+    { ssr: false },
+);
+
+// Модалка «презентация связана с заявкой?» — обязательный шаг отправки
+// при факте презентации; открывается редко, поэтому лениво.
+const PresentationLeadLinkDialog = dynamic(
+    () =>
+        import(
+            '@/modules/features/PresentationLeadLink/ui/PresentationLeadLinkDialog'
+        ),
+    { ssr: false },
+);
+
 /**
  * Форма отчёта по событию.
  *
@@ -118,6 +135,7 @@ export const EventItem: FC = () => {
                             </div>
                             {/* Ниже действий: сигналы не должны отодвигать
                                 кнопку отправки. */}
+                            <LeadRequestPanel />
                             <DuplicatesPanel />
                         </div>
                     </div>
@@ -138,6 +156,7 @@ export const EventItem: FC = () => {
             </Tabs>
 
             <CheckPresentation />
+            <PresentationLeadLinkDialog />
         </div>
     );
 };

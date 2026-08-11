@@ -5,6 +5,7 @@ import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { send, useEventNavigation } from '@/modules/processes/event';
+import { useLeadRequestSendBlock } from '@/modules/features/LeadRequestCard/lib/hooks/use-lead-request-send-block';
 import { cancelResultMenu } from '../../model/EventItemThunk';
 
 interface ItemActionsProps {
@@ -28,6 +29,8 @@ export const ItemActions: FC<ItemActionsProps> = ({ variant }) => {
     const dispatch = useAppDispatch();
     const nav = useEventNavigation();
     const inProgress = useAppSelector(s => s.preloader.inProgress);
+    // Непринятая заявка блокирует отправку: сначала «Принять в работу».
+    const acceptBlock = useLeadRequestSendBlock();
 
     const cancel = async () => {
         await dispatch(cancelResultMenu());
@@ -55,9 +58,12 @@ export const ItemActions: FC<ItemActionsProps> = ({ variant }) => {
                 size="sm"
                 className="flex-[2] bg-action text-action-foreground hover:bg-action/90"
                 onClick={() => dispatch(send())}
-                disabled={inProgress}
+                disabled={inProgress || acceptBlock.blocked}
+                title={acceptBlock.reason ?? undefined}
             >
-                {inProgress ? 'Отправка…' : 'Отправить'}
+                {inProgress
+                    ? 'Отправка…'
+                    : (acceptBlock.reason ?? 'Отправить')}
             </Button>
         </div>
     );

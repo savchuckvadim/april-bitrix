@@ -28,10 +28,22 @@ export interface LeadToWorkRunDto {
      */
     leadId: number;
     /**
-     * Идентификатор ответственного менеджера.
+     * Идентификатор ответственного менеджера. Не передан — выбирается round-robin из отдела продаж (намёк — department).
      * @minimum 1
      */
-    responsible: number;
+    responsible?: number;
+    /** Намёк на отдел продаж для round-robin выбора ответственного (id отдела). Игнорируется, если передан responsible. */
+    department?: string;
+    /**
+     * Кого round-robin не должен выбрать (кнопка «Передать другому»: заявка не возвращается прежнему ответственному).
+     * @minimum 1
+     */
+    excludeResponsible?: number;
+    /**
+     * Сотрудник, который САМ передал заявку: подсвеченная запись в истории обработки, отдел для round-robin — его отдел.
+     * @minimum 1
+     */
+    transferredBy?: number;
     /** Создать компанию, если у лида её нет. */
     createCompany?: LeadToWorkRunDtoCreateCompany;
     /** Режим стадии сделки ОП. */

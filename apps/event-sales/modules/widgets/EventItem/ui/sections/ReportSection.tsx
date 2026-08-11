@@ -16,6 +16,7 @@ import {
     eventReportActions,
     WorkStatusSegments,
 } from '@/modules/entities/EventReport';
+import { LeadRequestNotCaSelect } from '@/modules/features/LeadRequestCard/ui/LeadRequestNotCaSelect';
 
 /**
  * Итог разговора: статус работы и — только при «Отказе» — его тип и причина.
@@ -100,6 +101,10 @@ export const ReportSection: FC = () => {
                                 </SelectContent>
                             </Select>
                         )}
+
+                        {/* Заявка при отказе: тип «не ЦА» испрашивается тут
+                            и уезжает в leadSync финального payload'а. */}
+                        <LeadRequestNotCaSelect />
                     </div>
                 )}
             </div>

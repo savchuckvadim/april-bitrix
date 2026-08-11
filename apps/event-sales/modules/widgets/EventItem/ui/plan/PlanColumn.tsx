@@ -18,6 +18,7 @@ import {
 import { fetchPlanDaySchedule } from '@/modules/entities/EventPlan/model/PlanScheduleThunk';
 import type { EventTaskEventType } from '@/modules/entities/EventTask/types/event-task-type';
 import { ContactField, EV_CONTACT_TYPE } from '@/modules/entities/EventContact';
+import { TaskLeadLinksCard } from '@/modules/features/TaskLeadLinks/ui/TaskLeadLinksCard';
 import { PlanTypeRadio } from './PlanTypeRadio';
 
 interface PlanColumnProps {
@@ -171,6 +172,10 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                         </div>
 
                         <ContactField type={EV_CONTACT_TYPE.PLAN} />
+
+                        {/* Новая задача (текущей нет): связать с заявками
+                            клиента — иначе путь заявки потеряет задачу. */}
+                        <TaskLeadLinksCard />
                     </>
                 )}
             </SectionCard>

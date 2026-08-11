@@ -16,4 +16,5 @@ export type LeadToWorkRunDtoStageMode =
 export const LeadToWorkRunDtoStageMode = {
     from_lead: 'from_lead',
     cold: 'cold',
+    new: 'new',
 } as const;

@@ -19,4 +19,6 @@ export const SalesHookOperationDtoHook = {
     'transfer-work': 'transfer-work',
     'reject-buffer': 'reject-buffer',
     'convert-normalizer': 'convert-normalizer',
+    'duplicate-check': 'duplicate-check',
+    'lead-accept': 'lead-accept',
 } as const;

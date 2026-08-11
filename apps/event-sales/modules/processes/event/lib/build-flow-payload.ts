@@ -15,6 +15,32 @@ import {
 } from '@/modules/features/AfterPresentation';
 import { EvFlowDto } from '../model';
 
+/**
+ * Блок leadSync: тип «не ЦА» из формы отказа + выбор модалки «презентация
+ * связана с заявкой» (лид + обязательные статусы). Ничего не выбрано —
+ * блока нет вовсе.
+ */
+const buildLeadSync = (state: RootState): EvFlowDto['leadSync'] => {
+    const link = state.presentationLeadLink;
+    const presentationPart =
+        link.resolved && !link.noLink && link.selectedLeadId
+            ? {
+                  leadId: link.selectedLeadId,
+                  presentationLink: true,
+                  siteStatusCode: link.siteStatusCode ?? undefined,
+                  siteStageCode: link.siteStageCode ?? undefined,
+              }
+            : null;
+    const notCaPart = state.leadRequest.finalSync.notCaTypeCode
+        ? {
+              notCaTypeCode: state.leadRequest.finalSync.notCaTypeCode,
+              note: state.leadRequest.finalSync.note || undefined,
+          }
+        : null;
+    if (!presentationPart && !notCaPart) return undefined;
+    return { ...presentationPart, ...notCaPart };
+};
+
 interface BuildFlowOptions {
     /** отправка недозвона: план не активен, отметка isNoCall */
     isNoCall?: boolean;
@@ -74,10 +100,17 @@ export const buildFlowPayload = (
         Boolean(responsibility && createdBy && planType.current && deadlineRaw) &&
         (workStatusCode === 'inJob' || workStatusCode === 'setAside');
 
+    // Новая задача без текущей: отмеченные менеджером заявки → L_* задачи.
+    const relatedLeadIds =
+        !state.eventTask.current && state.taskLeadLinks.selectedIds.length
+            ? state.taskLeadLinks.selectedIds
+            : undefined;
+
     const plan = {
         responsibility,
         createdBy,
         type: { current: planType.current },
+        relatedLeadIds,
         name: planState[EV_PLAN_PROP.NAME],
         deadline:
             !isNoCall && deadlineRaw
@@ -145,7 +178,16 @@ export const buildFlowPayload = (
         currentTask: currentTask ?? undefined,
         presentation: {
             count: presentation[PresentationProp.COUNT],
-            isPresentationDone: presentation[PresentationProp.IS_PRESENTATION_DONE],
+            /*
+             * Бэк читает ТОЛЬКО isPresentationDone, а «незапланированную»
+             * выводит сам (isPresentationDone && отчёт не по презентации).
+             * Кнопка на не-презентационной задаче ставит лишь
+             * IS_UNPLANNED_PRESENTATION — без этого OR факт «презентация
+             * проведена» терялся целиком: ни pres-сделки, ни KPI.
+             */
+            isPresentationDone:
+                presentation[PresentationProp.IS_PRESENTATION_DONE] ||
+                presentation[PresentationProp.IS_UNPLANNED_PRESENTATION],
             isUnplannedPresentation:
                 presentation[PresentationProp.IS_UNPLANNED_PRESENTATION],
         },
@@ -156,6 +198,10 @@ export const buildFlowPayload = (
             currentUser: app.bitrix.user ?? undefined,
         },
         lead: state.eventLead.lead ?? undefined,
+        // Синк заявки: тип «не ЦА» (форма отказа) + связь презентации
+        // (модалка перед отправкой). Бэк двинет статусы связанных лидов,
+        // залинкует презентацию и допишет историю.
+        leadSync: buildLeadSync(state),
         fail: { postFailDate: state.eventPostFail.postFailDate },
         isPostSale,
         returnToTmc: {

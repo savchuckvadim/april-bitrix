@@ -20,6 +20,12 @@ export { taskDealsReducer, taskDealsActions } from './model/TaskDealsSlice';
 export { fetchTaskBoundDeals } from './model/TaskDealsThunk';
 export { StageMini } from './ui/StageMini';
 export { DealStageBar } from './ui/DealStageBar';
+export { LeadStageBar } from './ui/LeadStageBar';
+export {
+    useLeadStageDict,
+    findLeadStageIndex,
+} from './lib/hooks/use-lead-stage-dict';
+export type { LeadStageDictItem } from './lib/hooks/use-lead-stage-dict';
 export { RelationMini } from './ui/RelationMini';
 export { RelationDealBars } from './ui/RelationDealBars';
 export { EntityLink } from './ui/EntityLink';

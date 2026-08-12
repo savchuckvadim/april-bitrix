@@ -8,6 +8,7 @@
     "./surfaces": "./src/surfaces/index.ts",
     "./badges": "./src/badges/index.ts",
     "./fields": "./src/fields/index.ts",
+    "./actions": "./src/actions/index.ts",
     "./feedback": "./src/feedback/index.ts",
     "./tones": "./src/lib/tones.ts",
     "./glass": "./src/lib/glass/index.ts"

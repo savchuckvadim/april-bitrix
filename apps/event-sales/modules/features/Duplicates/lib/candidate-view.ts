@@ -5,6 +5,7 @@ import type {
     DuplicateMatchReason,
 } from '../model';
 import { DUPLICATE_ENTITY_TYPE } from '../model';
+import { getCrmUrl, type CrmEntityKind } from '@/modules/app/lib/utills/url';
 
 /**
  * Представление кандидата: подписи, тона, пороги.
@@ -22,19 +23,26 @@ export const ENTITY_TYPE_LABEL: Record<DuplicateEntityType, string> = {
 };
 
 /** Путь к сущности в Битриксе — по клику открываем карточку в слайдере. */
-const ENTITY_PATH: Record<DuplicateEntityType, string> = {
+const ENTITY_KIND: Record<DuplicateEntityType, CrmEntityKind> = {
     [DUPLICATE_ENTITY_TYPE.LEAD]: 'lead',
     [DUPLICATE_ENTITY_TYPE.CONTACT]: 'contact',
     [DUPLICATE_ENTITY_TYPE.COMPANY]: 'company',
     [DUPLICATE_ENTITY_TYPE.DEAL]: 'deal',
 };
 
+/**
+ * Ссылка на карточку кандидата в портале.
+ *
+ * Раньше строилась здесь же и БЕЗ проверки домена: при пустом домене
+ * получалось `https:///crm/lead/...`, браузер понимал это как путь на
+ * текущем хосте и уводил в соседнее приложение общего домена. Теперь —
+ * общая утилита, которая в таком случае возвращает null.
+ */
 export const buildCrmUrl = (
     domain: string,
     entityType: DuplicateEntityType,
     id: number,
-): string =>
-    `https://${domain}/crm/${ENTITY_PATH[entityType]}/details/${id}/`;
+): string | null => getCrmUrl(domain, ENTITY_KIND[entityType], id);
 
 /**
  * Тон причины. ИНН — точное совпадение, красим тревожно; телефон и email

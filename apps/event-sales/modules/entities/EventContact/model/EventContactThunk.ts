@@ -3,6 +3,14 @@ import { Bitrix } from '@workspace/bitrix';
 import { BXContact, BXTask } from '@workspace/bx';
 import { Portal } from '@/modules/app/types/portal/portal-type';
 import { eventContactActions } from './EventContactSlice';
+import {
+    addSource,
+    dealContactIds,
+    leadContactId,
+    relatedLeadIds,
+    uniqueIds,
+    type ContactSourceMap,
+} from '../lib/contact-sources';
 import { EV_CONTACT_PROP, EV_CONTACT_TYPE } from '../type/event-contact-type';
 import { PBXContactStateItem } from '../type/pbx-contact-type';
 import { chunkArray, validateInput } from '../util/contact-util';
@@ -18,41 +26,109 @@ import {
 } from '@/modules/processes/event/types/event-types';
 
 /**
- * Контакты компании: crm.company.contact.items.get → crm.contact.list одним
- * batch'ем (по чанку id на команду, вместо последовательного цикла).
- * Вызывается listener'ом на portalActions.setPortal (store-listeners).
+ * Контакты клиента ИЗ ВСЕХ СВЯЗЕЙ: компании, сделки, лида, лида сделки и
+ * привязок задачи.
+ *
+ * Раньше источник был один — контакты компании, и в сделке без компании (а
+ * равно в лиде) список молча оставался пустым: «Контактов пока нет» при
+ * заполненном контакте в самой сделке. Теперь собираем отовсюду, помним
+ * источник каждого и дописываем в общий список — вызов идемпотентен, повторный
+ * запрос спрашивает портал только про новые id.
+ *
+ * Зовётся listener'ами: портал загружен, компания появилась позже, задачи
+ * приехали (у задачи свои CRM-привязки).
  */
-export const getCompanyContacts =
+export const collectRelatedContacts =
     (portal: Portal) => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const company = getState().app.bitrix.company;
-        if (!company) return;
-
+        const state = getState();
+        const { company, deal, lead } = state.app.bitrix;
         const bitrix = Bitrix.getService();
-        const contactsFrom = await bitrix.company.contactItemsGet(company.ID);
+        const sources: ContactSourceMap = {};
 
-        const contactIds = contactsFrom?.map(contact => contact.CONTACT_ID) ?? [];
-        let contacts: BXContact[] = [];
+        if (company) {
+            const items = await bitrix.company.contactItemsGet(company.ID);
+            addSource(
+                sources,
+                'company',
+                uniqueIds((items ?? []).map(item => Number(item.CONTACT_ID))),
+            );
+        }
 
-        if (contactIds.length) {
+        if (deal) {
+            const items = await bitrix.deal.contactItemsGet(deal.ID);
+            addSource(sources, 'deal', [
+                ...uniqueIds((items ?? []).map(item => Number(item.CONTACT_ID))),
+                ...dealContactIds(deal as unknown as Record<string, unknown>),
+            ]);
+        }
+
+        const ownLeadContact = leadContactId(
+            lead as unknown as Record<string, unknown> | null,
+        );
+        if (ownLeadContact) addSource(sources, 'lead', [ownLeadContact]);
+
+        // Лид, из которого выросла сделка, и лиды из привязок задачи: контакт
+        // мог остаться только там — в сделку его никто не переносил.
+        const taskLinks = getCrmLinksFromRaw(state.eventTask.current?.ufCrmTask);
+        const leadIds = relatedLeadIds({
+            deal: deal as unknown as Record<string, unknown> | null,
+            lead: lead as unknown as Record<string, unknown> | null,
+            taskLeadIds: taskLinks.leadIds,
+        });
+        if (leadIds.length) {
+            const response = await bitrix.lead.getList({ ID: leadIds } as never, [
+                'ID',
+                'CONTACT_ID',
+            ]);
+            addSource(
+                sources,
+                'relatedLead',
+                uniqueIds(
+                    (response?.result ?? []).map(item =>
+                        Number(item.CONTACT_ID),
+                    ),
+                ),
+            );
+        }
+
+        addSource(sources, 'task', uniqueIds(taskLinks.contactIds));
+
+        await dispatch(loadContactsByIds(portal, sources));
+    };
+
+/**
+ * Догрузить контакты по id и записать их источники.
+ *
+ * Уже известные повторно не спрашиваем — источник им дописываем всё равно:
+ * один и тот же человек нередко висит и в компании, и в лиде.
+ */
+export const loadContactsByIds =
+    (portal: Portal, sources: ContactSourceMap) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
+        const ids = Object.keys(sources).map(Number);
+        if (!ids.length) return;
+
+        const known = new Set(
+            getState().contact.contacts.map(contact => Number(contact.ID)),
+        );
+        const missing = ids.filter(id => !known.has(id));
+
+        const contacts: BXContact[] = [];
+        if (missing.length) {
+            const bitrix = Bitrix.getService();
             const select = getContactsRequestSelect();
-            const allContacts: BXContact[] = [];
-            for (const chunk of chunkArray<number>(contactIds, 50)) {
+            for (const chunk of chunkArray<number>(missing, 50)) {
                 const response = await bitrix.contact.getList(
                     { ID: chunk } as never,
                     select,
                 );
                 if (Array.isArray(response?.result)) {
-                    allContacts.push(
-                        ...(response.result as unknown as BXContact[]),
-                    );
+                    contacts.push(...(response.result as unknown as BXContact[]));
                 }
             }
-            contacts = allContacts;
         }
 
-        if (contacts.length) {
-            dispatch(setInitPBXContact(portal, contacts));
-        }
+        dispatch(setInitPBXContact(portal, contacts, sources));
     };
 
 /** Контакт отчёта/плана из crm-привязок текущей задачи (C_xxx, но не CO_xxx). */
@@ -83,11 +159,17 @@ export const setCurrentReportContact =
     };
 
 export const setInitPBXContact =
-    (portal: Portal, contacts: BXContact[]) => async (dispatch: AppDispatch) => {
+    (portal: Portal, contacts: BXContact[], sources?: ContactSourceMap) =>
+    async (dispatch: AppDispatch) => {
         const allContacts: PBXContactStateItem[] = contacts.map(contact =>
             getPbxContactByContact(portal, contact),
         );
-        dispatch(eventContactActions.setFetchedContacts({ contacts: allContacts }));
+        dispatch(
+            eventContactActions.setFetchedContacts({
+                contacts: allContacts,
+                sources,
+            }),
+        );
     };
 
 /** Создание нового контакта в Bitrix и подстановка его в план/отчёт. */

@@ -2,6 +2,7 @@
 
 import { FC } from 'react';
 import { Check, Zap } from 'lucide-react';
+import { HintTooltip } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
@@ -9,6 +10,7 @@ import {
     PresentationProp,
     eventPresentationActions,
 } from '@/modules/entities/EventPresentation';
+import { getPresentationHint } from '@/modules/entities/EventPresentation/lib/presentation-hint';
 import {
     openCheckPresentation,
     selectIsCheckPresentationApplicable,
@@ -44,6 +46,8 @@ export const PresentationDoneButton: FC = () => {
         : PresentationProp.IS_UNPLANNED_PRESENTATION;
     const isDone = presentation[prop];
 
+    const hint = getPresentationHint(Boolean(isDone), isPresTask);
+
     const toggle = () => {
         const next = !isDone;
         dispatch(
@@ -59,38 +63,45 @@ export const PresentationDoneButton: FC = () => {
     };
 
     return (
-        <Button
-            type="button"
-            size="sm"
-            variant={isDone ? 'outline' : 'default'}
-            onClick={toggle}
-            aria-pressed={isDone}
-            data-event-type="presentation"
-            className={cn(
-                'gap-1.5',
-                !isDone &&
-                    'bg-event-current font-semibold text-event-current-foreground hover:bg-event-current/90',
-                // Два кольца со сдвигом фазы: волны расходятся непрерывно.
-                !isDone &&
-                    withAnimate &&
-                    'relative before:pointer-events-none before:absolute before:-inset-px before:rounded-[inherit] before:animate-echo-ring after:pointer-events-none after:absolute after:-inset-px after:rounded-[inherit] after:animate-echo-ring after:[animation-delay:1.3s] motion-reduce:before:animate-none motion-reduce:after:animate-none',
-            )}
+        <HintTooltip
+            title={hint.title}
+            lines={hint.lines}
+            side="bottom"
+            align="end"
         >
-            {isDone ? (
-                <Check aria-hidden className="size-4" />
-            ) : (
-                <Zap aria-hidden className="size-4" />
-            )}
-            {isDone
-                ? 'Презентация проведена'
-                : isPresTask
-                  ? 'Провести презентацию'
-                  : 'Провели презентацию'}
-            {isDone && (
-                <span className="rounded-full bg-success/10 px-1.5 py-px text-[0.6875rem] font-semibold text-[color:color-mix(in_oklab,var(--success),var(--foreground)_35%)]">
-                    +1
-                </span>
-            )}
-        </Button>
+            <Button
+                type="button"
+                size="sm"
+                variant={isDone ? 'outline' : 'default'}
+                onClick={toggle}
+                aria-pressed={isDone}
+                data-event-type="presentation"
+                className={cn(
+                    'gap-1.5',
+                    !isDone &&
+                        'bg-event-current font-semibold text-event-current-foreground hover:bg-event-current/90',
+                    // Два кольца со сдвигом фазы: волны расходятся непрерывно.
+                    !isDone &&
+                        withAnimate &&
+                        'relative before:pointer-events-none before:absolute before:-inset-px before:rounded-[inherit] before:animate-echo-ring after:pointer-events-none after:absolute after:-inset-px after:rounded-[inherit] after:animate-echo-ring after:[animation-delay:1.3s] motion-reduce:before:animate-none motion-reduce:after:animate-none',
+                )}
+            >
+                {isDone ? (
+                    <Check aria-hidden className="size-4" />
+                ) : (
+                    <Zap aria-hidden className="size-4" />
+                )}
+                {isDone
+                    ? 'Презентация проведена'
+                    : isPresTask
+                      ? 'Провести презентацию'
+                      : 'Провели презентацию'}
+                {isDone && (
+                    <span className="rounded-full bg-success/10 px-1.5 py-px text-[0.6875rem] font-semibold text-[color:color-mix(in_oklab,var(--success),var(--foreground)_35%)]">
+                        +1
+                    </span>
+                )}
+            </Button>
+        </HintTooltip>
     );
 };

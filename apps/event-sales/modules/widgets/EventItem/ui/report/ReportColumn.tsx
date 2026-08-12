@@ -2,12 +2,11 @@
 
 import { FC, ReactNode } from 'react';
 import type { ItemVisibility } from '../../lib/item-visibility';
-import { ReportSection } from '../sections/ReportSection';
-import { NoresultSection } from '../sections/NoresultSection';
 import { SaleSection } from '../sections/SaleSection';
 import { PostFailSection } from '../sections/PostFailSection';
 import { CommentSection } from '../sections/CommentSection';
-import { ReportContactCard } from './ReportContactCard';
+import { ContactCard } from './contact';
+import { ReportPult } from './ReportPult';
 
 interface ReportColumnProps {
     visibility: ItemVisibility;
@@ -18,33 +17,32 @@ interface ReportColumnProps {
 /**
  * Левая колонка — всё, ПО ЧЕМУ отчитываемся.
  *
- * Порядок намеренный: сначала итог разговора (статусы), затем звонки —
- * их слушают, чтобы вспомнить детали, — и только потом большой комментарий,
- * который пишут по итогу. Комментарий последний и самый крупный: это главный
- * рабочий инструмент, он не должен делить высоту ни с чем.
+ * Сверху пульт: одна строка микро-контролов, где отмечается ВЕСЬ итог
+ * разговора (статус, презентация, причины недозвона и отказа, заявка).
+ * Раньше эти отметки жили тремя карточками разного кегля и всплывали в
+ * разных местах экрана — рядом с плотной колонкой плана это читалось
+ * россыпью, а в самом частом случае («в работе») целая карточка занимала
+ * высоту ради одной кнопки.
+ *
+ * Ниже — комментарий: главный рабочий инструмент, ему достаётся вся
+ * освободившаяся вертикаль. Секции продажи и пост-отказа пока отдельными
+ * карточками: у них своя сложная логика, они втянутся в пульт следующим
+ * шагом (см. docs/event-sales-report-pult.tasks.md).
  */
-export const ReportColumn: FC<ReportColumnProps> = ({ visibility, records }) => (
-    <div className="space-y-3">
+export const ReportColumn: FC<ReportColumnProps> = ({
+    visibility,
+    records,
+}) => (
+    <div className="space-y-2">
+        <ReportPult withNoresult={visibility.noresult} />
+
         {records}
 
-        <div className='w-full'>
-            <div className='w-4/5'>
-                <CommentSection />
-            </div>
-            <div className='w-1/5'>
-                <div>
-                    {visibility.noresult && <NoresultSection />}
-                    {visibility.sale && <SaleSection />}
-                    {visibility.postFail && <PostFailSection />}
-                </div>
-            </div>
-        </div>
-        <ReportSection />
-        {/* {visibility.noresult && <NoresultSection />}
+        <CommentSection />
+
         {visibility.sale && <SaleSection />}
-        {visibility.postFail && <PostFailSection />} */}
+        {visibility.postFail && <PostFailSection />}
 
-        <ReportContactCard />
-
+        <ContactCard />
     </div>
 );

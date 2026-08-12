@@ -32,6 +32,9 @@ export * from './badges';
 // Поля формы
 export * from './fields';
 
+// Иконки-действия с обязательной подсказкой
+export * from './actions';
+
 // Состояния загрузки: спиннер, boot-прелоадер, экран сборки отчёта
 export * from './feedback';
 

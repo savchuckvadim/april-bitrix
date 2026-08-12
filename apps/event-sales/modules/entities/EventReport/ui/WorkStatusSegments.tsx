@@ -1,7 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { cn } from '@workspace/ui/lib/utils';
+import { MicroSegmented } from '@workspace/april-ui';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getIsWithoutCompany } from '@/modules/app/lib/utills/app-state-util';
 import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
@@ -38,38 +38,24 @@ export const WorkStatusSegments: FC = () => {
     const currentId = report[EV_REPORT_PROP.WORK_STATUS].current.id;
 
     return (
-        <div
-            role="radiogroup"
-            aria-label="Статус работы"
-            className="flex w-1/2  flex-wrap gap-1 rounded-md bg-muted p-1"
-        >
-            {items.map(item => {
-                const isCurrent = item.id === currentId;
-                return (
-                    <button
-                        key={item.id}
-                        type="button"
-                        role="radio"
-                        aria-checked={isCurrent}
-                        onClick={() =>
-                            dispatch(
-                                eventReportActions.setReportProp({
-                                    propName: EV_REPORT_PROP.WORK_STATUS,
-                                    value: String(item.id),
-                                }),
-                            )
-                        }
-                        className={cn(
-                            'min-w-0 flex-1 rounded-sm px-2 py-1.5 text-sm whitespace-nowrap transition-colors',
-                            isCurrent
-                                ? getWorkStatusView(item.code).activeClass
-                                : 'text-muted-foreground hover:text-foreground',
-                        )}
-                    >
-                        {item.name}
-                    </button>
-                );
-            })}
-        </div>
+        <MicroSegmented
+            ariaLabel="Статус работы"
+            value={String(currentId)}
+            options={items.map(item => ({
+                value: String(item.id),
+                label: item.name,
+                // Свой цвет у каждого статуса: «Отказ» не должен выглядеть
+                // так же нейтрально, как «В работе».
+                activeClass: getWorkStatusView(item.code).activeClass,
+            }))}
+            onChange={value =>
+                dispatch(
+                    eventReportActions.setReportProp({
+                        propName: EV_REPORT_PROP.WORK_STATUS,
+                        value,
+                    }),
+                )
+            }
+        />
     );
 };

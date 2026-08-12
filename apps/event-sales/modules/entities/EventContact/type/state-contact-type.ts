@@ -1,8 +1,11 @@
 import { EV_CONTACT_PROP } from './event-contact-type';
+import type { ContactSourceMap } from '../lib/contact-sources';
 import { PBXContactStateItem } from './pbx-contact-type';
 
 export interface SetFetchedEventContact {
     contacts: PBXContactStateItem[];
+    /** id → откуда пришёл контакт (компания, сделка, лид, привязка задачи). */
+    sources?: ContactSourceMap;
 }
 
 export interface SetCurrentEventContact {

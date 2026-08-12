@@ -1,3 +1,4 @@
 export * from './model/PbxContactThunk';
-export { PbxContactFields } from './ui/PbxContactFields';
+export * from './lib/contact-field-view';
 export { PbxContactFieldItem } from './ui/PbxContactFieldItem';
+export { ContactTraitsStrip } from './ui/ContactTraitsStrip';

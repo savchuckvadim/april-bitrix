@@ -26,6 +26,9 @@ import { DetailsResponsible } from './components/DetailsResponsible';
 export const DuplicateDetailsDialog: FC = () => {
     const view = useDuplicateDetails();
     const candidate = view.candidate;
+    const crmUrl = candidate
+        ? buildCrmUrl(view.domain ?? '', candidate.entityType, candidate.id)
+        : null;
 
     if (!candidate) return null;
 
@@ -102,13 +105,11 @@ export const DuplicateDetailsDialog: FC = () => {
                     <Button variant="outline" size="sm" onClick={view.close}>
                         Закрыть
                     </Button>
-                    {view.domain && (
+                    {/* Домен портала неизвестен — ссылку НЕ рисуем: она увела
+                        бы на текущий хост, в соседнее приложение. */}
+                    {crmUrl && (
                         <a
-                            href={buildCrmUrl(
-                                view.domain,
-                                candidate.entityType,
-                                candidate.id,
-                            )}
+                            href={crmUrl}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline underline-offset-2"

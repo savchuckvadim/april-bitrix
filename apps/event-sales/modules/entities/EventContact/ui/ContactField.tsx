@@ -20,8 +20,9 @@ interface ContactFieldProps {
  * а встречу назначают с директором. Общий контакт склеил бы две роли
  * и сделал историю общения бесполезной.
  *
- * Контакты живут в компании, поэтому в лиде (компании ещё нет) список пуст
- * и создавать некуда — тогда поле не показываем совсем.
+ * Список собирается из всех связей клиента (компания, сделка, лид, лид сделки,
+ * привязки задачи) — см. collectRelatedContacts. Без компании выбор остаётся,
+ * пропадает только создание: новый контакт заводится в компании.
  */
 export const ContactField: FC<ContactFieldProps> = ({ type, label }) => {
     const dispatch = useAppDispatch();
@@ -34,8 +35,6 @@ export const ContactField: FC<ContactFieldProps> = ({ type, label }) => {
     );
     // Подпись отчётного контакта зависит от того, дозвонились ли вообще.
     const isNoCallMenu = useAppSelector(s => s.noCall.menu.isActive);
-
-    if (!company) return null;
 
     const fieldLabel =
         label ??
@@ -58,13 +57,18 @@ export const ContactField: FC<ContactFieldProps> = ({ type, label }) => {
                 searchPlaceholder="Имя или должность…"
                 emptyText="Контакт не найден"
                 createLabel="Создать контакт"
-                onCreate={() =>
-                    dispatch(
-                        eventContactActions.setCreatingContact({
-                            isCreating: true,
-                            type,
-                        }),
-                    )
+                // Заводится контакт в компании (COMPANY_ID при создании):
+                // без неё создавать некуда, а выбирать уже найденных — можно.
+                onCreate={
+                    company
+                        ? () =>
+                              dispatch(
+                                  eventContactActions.setCreatingContact({
+                                      isCreating: true,
+                                      type,
+                                  }),
+                              )
+                        : undefined
                 }
                 onChange={value =>
                     dispatch(

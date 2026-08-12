@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import type { ContactSourceMap } from '../lib/contact-sources';
 import { EV_CONTACT_PROP, EV_CONTACT_TYPE } from '../type/event-contact-type';
 import {
     ContactEventType,
@@ -13,6 +14,16 @@ export type EventContactState = typeof initialState;
 
 const initialState = {
     contacts: [] as PBXContactStateItem[],
+    /** Откуда пришёл каждый контакт: компания, сделка, лид, привязка задачи. */
+    sourceById: {} as ContactSourceMap,
+    /**
+     * Контакт задачи, который ещё не нашёлся в списке.
+     *
+     * Привязка задачи приходит раньше самих контактов, а раньше её просто
+     * теряли: `find` по пустому списку давал undefined, и поле «с кем
+     * говорили» оставалось пустым при заполненной привязке.
+     */
+    pendingCurrentId: null as number | null,
     current: {
         contact: null as null | undefined | PBXContactStateItem,
         plan: null as null | undefined | PBXContactStateItem,
@@ -35,16 +46,60 @@ const initialState = {
     isUpdating: false as boolean,
 };
 
+/**
+ * Пересобрать ссылки на текущие контакты после пополнения списка.
+ *
+ * `current.report` обязан быть ТЕМ ЖЕ объектом, что лежит в `contacts`:
+ * правка характеристики меняет элемент списка, и по разным объектам карточка
+ * показывала бы старое значение. Заодно подхватывается отложенный контакт
+ * задачи, который до этого было негде взять.
+ */
+const relinkCurrent = (state: EventContactState) => {
+    const byId = (id: number | string | null | undefined) =>
+        state.contacts.find(contact => Number(contact.ID) === Number(id));
+
+    const reportId = state.current.report?.ID ?? state.pendingCurrentId;
+    const planId = state.current.plan?.ID ?? state.pendingCurrentId;
+
+    state.current.report = byId(reportId) ?? state.current.report;
+    state.current.plan = byId(planId) ?? state.current.plan;
+};
+
 const eventContactSlice = createSlice({
     name: 'eventContactSlice',
     initialState,
     reducers: {
+        /**
+         * Пополнение списка контактов из очередного источника.
+         *
+         * Именно пополнение, а не замена: источников несколько (компания,
+         * сделка, лид, привязки задачи) и приходят они вразнобой. Замена
+         * стирала бы контакты предыдущего источника и рвала ссылку на уже
+         * выбранного человека.
+         */
         setFetchedContacts: (
             state: EventContactState,
             action: PayloadAction<SetFetchedEventContact>,
         ) => {
-            state.contacts = action.payload.contacts;
-            state.current.contact = null;
+            for (const contact of action.payload.contacts) {
+                const isKnown = state.contacts.some(
+                    item => Number(item.ID) === Number(contact.ID),
+                );
+                // Уже известный не перезаписываем: в нём могли быть правки
+                // характеристик, сделанные до прихода второго источника.
+                if (!isKnown) state.contacts.push(contact);
+            }
+
+            for (const [id, sources] of Object.entries(
+                action.payload.sources ?? {},
+            )) {
+                const known = state.sourceById[Number(id)] ?? [];
+                state.sourceById[Number(id)] = [
+                    ...new Set([...known, ...sources]),
+                ];
+            }
+
+            relinkCurrent(state);
             state.isFetched = true;
             state.isLoading = false;
         },
@@ -68,12 +123,16 @@ const eventContactSlice = createSlice({
         ) => {
             const pay = action.payload;
             if (pay.contactId) {
+                // Список может ещё не приехать — id запоминаем, ссылку
+                // проставит relinkCurrent, когда контакт появится.
+                state.pendingCurrentId = Number(pay.contactId);
                 const currentContact = state.contacts.find(
                     contact => contact.ID == pay.contactId,
                 );
-                state.current.report = currentContact;
-                state.current.plan = currentContact;
+                state.current.report = currentContact ?? null;
+                state.current.plan = currentContact ?? null;
             } else {
+                state.pendingCurrentId = null;
                 state.current.report = null;
                 state.current.plan = null;
             }

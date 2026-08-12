@@ -2,7 +2,7 @@ import { portalActions } from '@workspace/pbx';
 import { appActions } from '../slice/AppSlice';
 import { fetchAppConfig } from '../thunk/AppConfigThunk';
 import { setInitEventCompany } from '@/modules/entities/EventCompany/model/EventCompanyThunk';
-import { getCompanyContacts } from '@/modules/entities/EventContact/model/EventContactThunk';
+import { collectRelatedContacts } from '@/modules/entities/EventContact/model/EventContactThunk';
 import { eventTaskActions } from '@/modules/entities/EventTask/model/EventTaskSlice';
 import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
 import { fetchTaskBoundDeals } from '@/modules/entities/RelatedCrm/model/TaskDealsThunk';
@@ -51,7 +51,7 @@ export function startStoreListeners(startAppListening: AppStartListening) {
 
             // Company-таноки сами no-op'ятся без компании.
             dispatch(setInitEventCompany(portal));
-            dispatch(getCompanyContacts(portal));
+            dispatch(collectRelatedContacts(portal));
             // История НЕ грузится здесь: у давнего клиента это сотни записей,
             // а смотрят её единицы. Её тянет сама секция при появлении.
             dispatch(initCheckPresentation());
@@ -67,7 +67,7 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             const portal = listenerApi.getState().portal.portal;
             if (!portal) return;
             listenerApi.dispatch(setInitEventCompany(portal));
-            listenerApi.dispatch(getCompanyContacts(portal));
+            listenerApi.dispatch(collectRelatedContacts(portal));
         },
     });
 
@@ -77,6 +77,10 @@ export function startStoreListeners(startAppListening: AppStartListening) {
         actionCreator: eventTaskActions.setFetchedTasks,
         effect: async (action, listenerApi) => {
             const { dispatch } = listenerApi;
+            // Контакты задачи (C_xxx) и её лидов — источник наравне с
+            // компанией: у задачи бывает свой контакт, которого в компании нет.
+            const portal = listenerApi.getState().portal.portal;
+            if (portal) dispatch(collectRelatedContacts(portal));
             dispatch(getInitSale(action.payload.tasks));
             dispatch(fetchResults());
             if (action.payload.tasks?.length) {

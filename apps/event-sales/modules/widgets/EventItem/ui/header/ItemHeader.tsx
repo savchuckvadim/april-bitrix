@@ -5,6 +5,7 @@ import { Building2, UserRound } from 'lucide-react';
 import { EventTypeBadge } from '@workspace/april-ui';
 import { getEventTypeLabel } from '@/modules/entities/EventTask/lib/event-request-type';
 import { ThemeTogglePanel } from '@workspace/theme';
+import { FrameTopButton } from '@/modules/app/ui/FrameTopButton';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
@@ -84,7 +85,8 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
                         остаётся только контекст и презентация. */}
                     <div className="ml-auto flex items-center gap-2">
                         {withPresentation && <PresentationDoneButton />}
-                        <ThemeTogglePanel />
+                        <FrameTopButton />
+                <ThemeTogglePanel />
                     </div>
                 </div>
 

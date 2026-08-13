@@ -5,6 +5,10 @@ import { usePathname } from 'next/navigation';
 import { Bitrix } from '@workspace/bitrix';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { shouldFitWindow } from '@/modules/app/lib/utills/placement-util';
+import {
+    FRAME_MIN_HEIGHT,
+    FRAME_MIN_WIDTH,
+} from '@/modules/app/lib/hooks/frame-size';
 
 /**
  * Пауза перед подгонкой после изменения высоты. Меньше — дёргаем фрейм на
@@ -36,7 +40,14 @@ export const useFitWindow = () => {
 
         const fit = () => {
             try {
-                Bitrix.getService().api.getFit();
+                // Подгонка под контент, но не ниже пола: на маленьких
+                // мониторах блок вкладки узкий, контент в него ужимается, и
+                // чистая подгонка честно повторяла бы эту щель (см. frame-size).
+                Bitrix.getService().api.resizeToContent(
+                    document.documentElement,
+                    FRAME_MIN_HEIGHT,
+                    FRAME_MIN_WIDTH,
+                );
             } catch (error) {
                 // Вне фрейма сервиса Bitrix нет — в dev это норма.
                 console.debug('fitWindow skipped', error);

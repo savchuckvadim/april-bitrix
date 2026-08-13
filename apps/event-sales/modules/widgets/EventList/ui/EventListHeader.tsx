@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { Plus, RefreshCcw } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { ThemeTogglePanel } from '@workspace/theme';
+import { FrameTopButton } from '@/modules/app/ui/FrameTopButton';
 import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
 import { useReload } from '@/modules/app/lib/hooks/app';
 import {
@@ -81,6 +82,7 @@ export const EventListHeader: FC = () => {
                     <Plus aria-hidden className="size-3" />
                     создать
                 </Button>
+                <FrameTopButton />
                 <ThemeTogglePanel />
             </div>
         </div>

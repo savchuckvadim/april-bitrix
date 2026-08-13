@@ -2,7 +2,6 @@
 
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getDuplicateContext } from '@/modules/app/lib/utills/app-state-util';
-import { duplicatesActions } from '../../model/DuplicatesSlice';
 import {
     deepSearchDuplicates,
     fetchDuplicateDetails,
@@ -23,7 +22,6 @@ export function useDuplicatesPanel() {
     const error = useAppSelector(s => s.duplicates.error);
     const isAuto = useAppSelector(s => s.duplicates.isAuto);
     const allCandidates = useAppSelector(s => s.duplicates.candidates);
-    const isManualOpen = useAppSelector(s => s.duplicates.isManualOpen);
     const context = useAppSelector(getDuplicateContext);
 
     const target = resolveDuplicateTarget(context);
@@ -36,9 +34,14 @@ export function useDuplicatesPanel() {
     return {
         candidates,
         isLoading,
-        isManualOpen,
         /** Подпись «по кому ищем» — из правил контекста, не из вёрстки. */
         targetLabel: target.label,
+        /**
+         * Есть ли от чего искать. Нет цели (пустая сделка, карточка звонка без
+         * привязки) — поиск даже не стартует, и кнопки бессмысленны: вместо них
+         * панель говорит, чего не хватает.
+         */
+        canSearch: !target.manualOnly,
         hasCandidates: candidates.length > 0,
         /**
          * Ошибку автопоиска не показываем: он срабатывает сам при открытии, и
@@ -52,9 +55,5 @@ export function useDuplicatesPanel() {
         searchDeeper: () => dispatch(deepSearchDuplicates()),
         openDetails: (candidate: DuplicateCandidate) =>
             dispatch(fetchDuplicateDetails(candidate)),
-        toggleManual: () =>
-            dispatch(
-                duplicatesActions.manualToggled({ isOpen: !isManualOpen }),
-            ),
     };
 }

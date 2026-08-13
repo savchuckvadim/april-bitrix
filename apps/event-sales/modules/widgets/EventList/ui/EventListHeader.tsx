@@ -6,12 +6,20 @@ import { Button } from '@workspace/ui/components/button';
 import { ThemeTogglePanel } from '@workspace/theme';
 import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
 import { useReload } from '@/modules/app/lib/hooks/app';
-import { getResultMenu, EventItemResultType } from '@/modules/widgets/EventItem';
+import {
+    getResultMenu,
+    EventItemResultType,
+} from '@/modules/widgets/EventItem';
 import { useEventNavigation } from '@/modules/processes/event';
 import { ResultStatistics } from '@/modules/features/ResultStatistics';
 import { DepartmentMode } from '@/modules/features/Departament';
 import { ClientBar } from '@/modules/entities/EventCompany';
-import { EntityLink, useCurrentRelations } from '@/modules/entities/RelatedCrm';
+import {
+    EntityLink,
+    RelationsBar,
+    useCurrentRelations,
+} from '@/modules/entities/RelatedCrm';
+import { PresentationCountBadge } from '@/modules/entities/EVHistory/ui/PresentationCountBadge';
 import { InnControl } from '@/modules/features/Inn';
 import { SignalsControl } from '@/modules/features/ClientSignals';
 
@@ -26,8 +34,8 @@ export const EventListHeader: FC = () => {
     const dispatch = useAppDispatch();
     const { reload } = useReload();
     const nav = useEventNavigation();
-    // enabled=false: здесь нужен только descriptor, связи шапка не показывает.
-    const { descriptor } = useCurrentRelations(false);
+    // Связи нужны самой шапке: под ней идёт строка стадий (RelationsBar).
+    const { descriptor } = useCurrentRelations();
 
     const createNewEvent = async () => {
         await dispatch(getResultMenu(EventItemResultType.NEW, null));
@@ -53,6 +61,12 @@ export const EventListHeader: FC = () => {
             )}
 
             <ClientBar className="min-w-0" compact />
+
+            {/* Куда движется клиент: главная сделка полоской, рядом хвостик
+                миниатюр. В одну строку с остальной шапкой — высота здесь на
+                вес золота. */}
+            <PresentationCountBadge />
+            <RelationsBar compact className="min-w-24 flex-1" />
             <InnControl compact />
             <SignalsControl compact />
 

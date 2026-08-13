@@ -38,16 +38,29 @@ const makeCard = (over: Partial<LeadRequestCard> = {}): LeadRequestCard =>
     }) as LeadRequestCard;
 
 describe('lead-request-view', () => {
-    it('бейдж готовности: warning с числом незаполненного, success при ready', () => {
-        expect(getReadinessBadge(makeCard())).toEqual({
+    it('заявка с компанией отработана; незакрытые отметки — уточнение', () => {
+        expect(getReadinessBadge(makeCard(), { hasCompany: true })).toEqual({
             tone: 'warning',
-            label: 'Не отмечено: 1',
+            label: 'Отработана не до конца: 1',
+            missing: ['Статус заявки'],
+            isCompanyMissing: false,
         });
         expect(
             getReadinessBadge(
                 makeCard({ saleReadiness: { ready: true, missing: [] } }),
+                { hasCompany: true },
             ).tone,
         ).toBe('success');
+    });
+
+    it('ни компании, ни «не ЦА» — заявка не отработана', () => {
+        const badge = getReadinessBadge(
+            makeCard({ saleReadiness: { ready: true, missing: [] } }),
+            { hasCompany: false },
+        );
+        expect(badge.tone).toBe('destructive');
+        expect(badge.isCompanyMissing).toBe(true);
+        expect(badge.missing).toEqual(['Нет компании и не отмечено «не ЦА»']);
     });
 
     it('селект «не ЦА» виден при статусе «Не ЦА» или уже выбранном типе', () => {
@@ -57,8 +70,7 @@ describe('lead-request-view', () => {
                 makeCard({
                     siteStatus: {
                         installed: true,
-                        currentCode:
-                            LEAD_SITE_STATUS_CODE.op_lead_site_status3,
+                        currentCode: LEAD_SITE_STATUS_CODE.op_lead_site_status3,
                         items: [],
                     },
                 }),

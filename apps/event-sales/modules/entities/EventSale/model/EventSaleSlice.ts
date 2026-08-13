@@ -77,8 +77,9 @@ const eventSaleSlice = createSlice({
             }>,
         ) => {
             const deal =
-                state.presDeals.items.find(d => d.ID === action.payload.dealId) ??
-                null;
+                state.presDeals.items.find(
+                    d => d.ID === action.payload.dealId,
+                ) ?? null;
             state.presDeals[action.payload.type] = deal;
         },
         clean: (state: SaleState) => {

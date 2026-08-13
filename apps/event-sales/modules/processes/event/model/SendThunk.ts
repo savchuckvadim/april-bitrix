@@ -1,5 +1,8 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { clearComment, eventReportActions } from '@/modules/entities/EventReport';
+import {
+    clearComment,
+    eventReportActions,
+} from '@/modules/entities/EventReport';
 import { eventTaskActions } from '@/modules/entities/EventTask';
 import { eventPlanActions } from '@/modules/entities/EventPlan';
 import { eventPresentationActions } from '@/modules/entities/EventPresentation';
@@ -41,44 +44,45 @@ const flowHelper = new FlowHelper();
  * Порт legacy send(). Навигация на Finish — декларативно: sendEvent ставит
  * event.isFinish, EventProcessInit переводит на /finish.
  */
-export const send = () => async (dispatch: AppDispatch, getState: AppGetState) => {
-    const state = getState();
-    const { result, isColorRequiredError } = validateSend(state);
+export const send =
+    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+        const state = getState();
+        const { result, isColorRequiredError } = validateSend(state);
 
-    if (result.isError || isColorRequiredError) {
-        if (result.isError) {
-            dispatch(eventActions.setErrors(result));
+        if (result.isError || isColorRequiredError) {
+            if (result.isError) {
+                dispatch(eventActions.setErrors(result));
+            }
+            if (isColorRequiredError) {
+                dispatch(
+                    eventCompanyActions.setError({
+                        type: EV_COMPANY_PROP.COLOR,
+                        error: 'Обновите прогноз',
+                    }),
+                );
+            }
+            return;
         }
-        if (isColorRequiredError) {
-            dispatch(
-                eventCompanyActions.setError({
-                    type: EV_COMPANY_PROP.COLOR,
-                    error: 'Обновите прогноз',
-                }),
-            );
+
+        // хвост опросника обязателен: если применим и не подтверждён —
+        // открываем модалку как шаг перед отправкой, отправка продолжится после неё
+        if (selectNeedAfterPresentation(state)) {
+            dispatch(afterPresentationActions.setPendingSend({ status: true }));
+            dispatch(openCheckPresentation());
+            return;
         }
-        return;
-    }
 
-    // хвост опросника обязателен: если применим и не подтверждён —
-    // открываем модалку как шаг перед отправкой, отправка продолжится после неё
-    if (selectNeedAfterPresentation(state)) {
-        dispatch(afterPresentationActions.setPendingSend({ status: true }));
-        dispatch(openCheckPresentation());
-        return;
-    }
+        // Факт презентации + вопрос о связи с заявкой ещё не закрыт → модалка
+        // «презентация связана с заявкой?» (сама продолжит отправку; без
+        // открытых заявок закрывается и продолжает мгновенно).
+        if (selectNeedPresentationLeadLink(state)) {
+            await dispatch(openPresentationLeadLink());
+            return;
+        }
 
-    // Факт презентации + вопрос о связи с заявкой ещё не закрыт → модалка
-    // «презентация связана с заявкой?» (сама продолжит отправку; без
-    // открытых заявок закрывается и продолжает мгновенно).
-    if (selectNeedPresentationLeadLink(state)) {
-        await dispatch(openPresentationLeadLink());
-        return;
-    }
-
-    dispatch(eventActions.cleanErrors());
-    await dispatch(sendEvent());
-};
+        dispatch(eventActions.cleanErrors());
+        await dispatch(sendEvent());
+    };
 
 /**
  * Сборка payload + POST /event-sales/flow.
@@ -117,7 +121,12 @@ export const sendEvent =
                 operationId,
             }),
         );
-        dispatch(eventActions.setFinishStatus({ status: true, result: finishResult }));
+        dispatch(
+            eventActions.setFinishStatus({
+                status: true,
+                result: finishResult,
+            }),
+        );
 
         try {
             await flowHelper.sendFlow(payload);
@@ -157,7 +166,8 @@ export const retrySendEvent = () => async (dispatch: AppDispatch) => {
 
 /** Очистка состояния после отправки (порт legacy cleanEvent). */
 export const cleanEvent =
-    (isTmc: boolean, context: ClientContext) => async (dispatch: AppDispatch) => {
+    (isTmc: boolean, context: ClientContext) =>
+    async (dispatch: AppDispatch) => {
         dispatch(eventTaskActions.setCurrentTask({ task: null }));
         dispatch(setCurrentReportContact(null));
         dispatch(finishResultMenu());

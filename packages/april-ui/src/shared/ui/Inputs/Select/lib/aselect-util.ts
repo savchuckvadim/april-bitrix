@@ -1,7 +1,12 @@
-import { GroupConfig, HasID, HasId, Selectable } from "../aselect-type";
+import { GroupConfig, HasID, HasId, Selectable } from '../aselect-type';
 
-export const getGroupConfig = <T extends Selectable>(item: any): GroupConfig<T> | null => {
-  return groupConfigs.find((config: GroupConfig<any>) => config.isType(item)) || null;
+export const getGroupConfig = <T extends Selectable>(
+    item: any,
+): GroupConfig<T> | null => {
+    return (
+        groupConfigs.find((config: GroupConfig<any>) => config.isType(item)) ||
+        null
+    );
 };
 
 // Конфигурация для групп

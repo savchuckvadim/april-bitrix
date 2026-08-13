@@ -1,21 +1,70 @@
 import type { LeadRequestCard } from '../model';
 import { LEAD_SITE_STATUS_CODE } from '../model';
 
-/** Тон/подпись бейджа готовности к продаже. */
+/**
+ * Отработана ли заявка — и что осталось.
+ *
+ * «Готова к продаже» звучало как решение о клиенте («созрел») и путало: это не
+ * про клиента, а про то, доведена ли заявка до конца. А доведена она ровно в
+ * двух случаях: у клиента появилась КОМПАНИЯ (пошли в работу) либо заявку
+ * честно закрыли как «не ЦА»/отказ. Всё остальное — заявка ещё в руках.
+ *
+ * Незаполненные отметки (`saleReadiness.missing` с бэка) остаются: без них
+ * продажу не зафиксировать, но это уточнение, а не сам исход.
+ */
 export interface ReadinessBadgeView {
-    tone: 'success' | 'warning';
+    tone: 'success' | 'warning' | 'destructive';
     label: string;
+    /** Чего не хватает — списком под бейджем. */
+    missing: string[];
+    /** Исхода нет: ни компании, ни закрытия. Зовём мягким эхом. */
+    isCompanyMissing: boolean;
 }
+
+export interface ReadinessInput {
+    /** У клиента есть компания: заявка дошла до работы. */
+    hasCompany: boolean;
+}
+
+/** Заявка закрыта как «не ЦА» — это тоже законченная работа, а не провал. */
+const isClosedAsNotCa = (card: LeadRequestCard): boolean =>
+    card.siteStatus.currentCode ===
+        LEAD_SITE_STATUS_CODE.op_lead_site_status3 ||
+    Boolean(card.notCaType.currentCode);
 
 export const getReadinessBadge = (
     card: LeadRequestCard,
-): ReadinessBadgeView =>
-    card.saleReadiness.ready
-        ? { tone: 'success', label: 'Готова к продаже' }
+    { hasCompany }: ReadinessInput = { hasCompany: true },
+): ReadinessBadgeView => {
+    const isWorkedOut = hasCompany || isClosedAsNotCa(card);
+    const missing = [
+        ...(isWorkedOut ? [] : ['Нет компании и не отмечено «не ЦА»']),
+        ...card.saleReadiness.missing,
+    ];
+
+    if (!isWorkedOut) {
+        return {
+            tone: 'destructive',
+            label: 'Не отработана',
+            missing,
+            isCompanyMissing: true,
+        };
+    }
+
+    return card.saleReadiness.ready
+        ? {
+              tone: 'success',
+              label: 'Отработана',
+              missing,
+              isCompanyMissing: false,
+          }
         : {
               tone: 'warning',
-              label: `Не отмечено: ${card.saleReadiness.missing.length}`,
+              label: `Отработана не до конца: ${missing.length}`,
+              missing,
+              isCompanyMissing: false,
           };
+};
 
 /**
  * Селект «Тип не ЦА» виден, когда статус заявки уже «Не ЦА» либо тип

@@ -16,7 +16,10 @@ const portal = {
                 group: 'sales',
                 code: 'lead_sales',
                 stages: [
-                    { bitrixId: 'PBX_TAKEN_IN_WORK', code: 'lead_taken_in_work' },
+                    {
+                        bitrixId: 'PBX_TAKEN_IN_WORK',
+                        code: 'lead_taken_in_work',
+                    },
                     { bitrixId: 'PBX_COMPANY_WORK', code: 'lead_company_work' },
                 ],
             },
@@ -31,7 +34,11 @@ const portal = {
                 code: 'op_source_select',
                 bitrixId: '1700000001',
                 items: [
-                    { bitrixId: 1247, code: 'op_source_1', name: 'Заявка с сайта' },
+                    {
+                        bitrixId: 1247,
+                        code: 'op_source_1',
+                        name: 'Заявка с сайта',
+                    },
                     { bitrixId: 1248, code: 'op_source_2', name: 'Интернет' },
                 ],
             },

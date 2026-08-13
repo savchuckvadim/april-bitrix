@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
-import { duplicatesActions } from '@/modules/features/Duplicates';
+import { searchDuplicates } from '@/modules/features/Duplicates';
 import { innActions } from '@/modules/features/Inn';
 import type { ItemWarningActionId } from './use-item-warnings';
 
@@ -18,10 +18,11 @@ export const useItemWarningHandlers = (): Partial<
 
     return useMemo(
         () => ({
-            // Открывает ручную форму поиска дублей (панель «Сигналы» в правой
-            // колонке отчёта) — там поле ИНН.
+            // Ручной формы поиска больше нет: ИНН заводится в саму сущность,
+            // а действие предупреждения просто перезапускает поиск по тому,
+            // что уже известно о клиенте.
             'check-duplicates-inn': () =>
-                dispatch(duplicatesActions.manualToggled({ isOpen: true })),
+                dispatch(searchDuplicates({ force: true })),
             // Раскрывает микро-редактор ИНН под предупреждениями шапки.
             'fill-inn': () =>
                 dispatch(innActions.setEditorOpen({ isOpen: true })),

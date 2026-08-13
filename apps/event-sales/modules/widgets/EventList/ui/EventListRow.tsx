@@ -3,6 +3,7 @@
 import { FC } from 'react';
 import { TableCell, TableRow } from '@workspace/ui/components/table';
 import { EventStatusBadge, EventTypeBadge } from '@workspace/april-ui';
+import { getEventTypeLabel } from '@/modules/entities/EventTask/lib/event-request-type';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { EventItemResultType } from '@/modules/widgets/EventItem';
 import { EventListActions } from './EventListActions';
@@ -20,12 +21,20 @@ export const EventListRow: FC<EventListRowProps> = ({
 }) => {
     return (
         <TableRow>
-            <TableCell className="text-muted-foreground">{index + 1}.</TableCell>
+            <TableCell className="text-muted-foreground">
+                {index + 1}.
+            </TableCell>
             <TableCell className="max-w-64 whitespace-normal font-medium">
                 {task.name}
             </TableCell>
             <TableCell>
-                <EventTypeBadge type={task.type} />
+                <EventTypeBadge
+                    type={getEventTypeLabel({
+                        eventType: task.eventType,
+                        type: task.type,
+                        ufCrmTask: task.ufCrmTask,
+                    })}
+                />
             </TableCell>
             <TableCell className="whitespace-nowrap text-muted-foreground">
                 {task.deadline}

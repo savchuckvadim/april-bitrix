@@ -30,7 +30,7 @@ export const ShareReportHeader = ({
         <div className="bg-background/50 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 min-w-full">
             <div className="flex h-15 w-full items-center justify-between p-5">
                 <div className="flex min-w-0 flex-row items-center">
-                    <ThemeTogglePanel />
+                    <ThemeTogglePanel align="start" />
                     <h1 className="text-md ml-2 truncate font-bold">
                         {meta.title}
                         <span className="ml-2 text-xs font-normal text-muted-foreground">

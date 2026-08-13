@@ -24,24 +24,75 @@ export const WORK_STATUS_ID = {
 } as const satisfies Record<WorkStatusCode, number>;
 
 export const WORK_STATUS_ITEMS: EventReportSelectItem<WorkStatusCode>[] = [
-    { id: WORK_STATUS_ID.inJob, code: 'inJob', name: 'В работе', isActive: true },
-    { id: WORK_STATUS_ID.setAside, code: 'setAside', name: 'Отложено', isActive: true },
-    { id: WORK_STATUS_ID.success, code: 'success', name: 'Продажа', isActive: true },
+    {
+        id: WORK_STATUS_ID.inJob,
+        code: 'inJob',
+        name: 'В работе',
+        isActive: true,
+    },
+    {
+        id: WORK_STATUS_ID.setAside,
+        code: 'setAside',
+        name: 'Отложено',
+        isActive: true,
+    },
+    {
+        id: WORK_STATUS_ID.success,
+        code: 'success',
+        name: 'Продажа',
+        isActive: true,
+    },
     { id: WORK_STATUS_ID.fail, code: 'fail', name: 'Отказ', isActive: true },
 ];
 
-export const NORESULT_REASON_ITEMS: EventReportSelectItem<NoresultReasonCode>[] = [
-    { id: 0, code: 'secretar', name: 'Секретарь', isActive: true },
-    { id: 1, code: 'nopickup', name: 'Недозвон - трубку не берут', isActive: true },
-    { id: 2, code: 'nonumber', name: 'Недозвон - номер не существует', isActive: true },
-    { id: 3, code: 'busy', name: 'Занято', isActive: true },
-    { id: 4, code: 'noresult_notime', name: 'Перенос - не было времени', isActive: true },
-    { id: 5, code: 'nocontact', name: 'Контактера нет на месте', isActive: true },
-    { id: 6, code: 'giveup', name: 'Просят оставить свой номер', isActive: true },
-    { id: 7, code: 'bay', name: 'Не интересует, до свидания', isActive: true },
-    { id: 8, code: 'wrong', name: 'По телефону отвечает не та организация', isActive: true },
-    { id: 9, code: 'auto', name: 'Автоответчик', isActive: true },
-];
+export const NORESULT_REASON_ITEMS: EventReportSelectItem<NoresultReasonCode>[] =
+    [
+        { id: 0, code: 'secretar', name: 'Секретарь', isActive: true },
+        {
+            id: 1,
+            code: 'nopickup',
+            name: 'Недозвон - трубку не берут',
+            isActive: true,
+        },
+        {
+            id: 2,
+            code: 'nonumber',
+            name: 'Недозвон - номер не существует',
+            isActive: true,
+        },
+        { id: 3, code: 'busy', name: 'Занято', isActive: true },
+        {
+            id: 4,
+            code: 'noresult_notime',
+            name: 'Перенос - не было времени',
+            isActive: true,
+        },
+        {
+            id: 5,
+            code: 'nocontact',
+            name: 'Контактера нет на месте',
+            isActive: true,
+        },
+        {
+            id: 6,
+            code: 'giveup',
+            name: 'Просят оставить свой номер',
+            isActive: true,
+        },
+        {
+            id: 7,
+            code: 'bay',
+            name: 'Не интересует, до свидания',
+            isActive: true,
+        },
+        {
+            id: 8,
+            code: 'wrong',
+            name: 'По телефону отвечает не та организация',
+            isActive: true,
+        },
+        { id: 9, code: 'auto', name: 'Автоответчик', isActive: true },
+    ];
 
 export const FAIL_TYPE_ITEMS: EventReportSelectItem<FailTypeCode>[] = [
     { id: 2, code: 'garant', name: 'Гарант/Запрет', isActive: true },
@@ -49,9 +100,19 @@ export const FAIL_TYPE_ITEMS: EventReportSelectItem<FailTypeCode>[] = [
     { id: 4, code: 'territory', name: 'Чужая территория', isActive: true },
     { id: 5, code: 'accountant', name: 'Бухприх', isActive: true },
     { id: 6, code: 'autsorc', name: 'Аутсорсинг', isActive: true },
-    { id: 7, code: 'depend', name: 'Несамостоятельная организация', isActive: true },
+    {
+        id: 7,
+        code: 'depend',
+        name: 'Несамостоятельная организация',
+        isActive: true,
+    },
     { id: 8, code: 'op_prospects_nophone', name: 'Недозвон', isActive: true },
-    { id: 9, code: 'op_prospects_company', name: 'Компания не существует', isActive: true },
+    {
+        id: 9,
+        code: 'op_prospects_company',
+        name: 'Компания не существует',
+        isActive: true,
+    },
     { id: 10, code: 'failure', name: 'Отказ', isActive: true },
 ];
 
@@ -65,7 +126,12 @@ export const FAIL_REASON_ITEMS: EventReportSelectItem<FailReasonCode>[] = [
     { id: 6, code: 'nomoney', name: 'Нет денег', isActive: true },
     { id: 7, code: 'noneed', name: 'Не видят надобности', isActive: true },
     { id: 8, code: 'lpr', name: 'ЛПР против', isActive: true },
-    { id: 9, code: 'employee', name: 'Ключевой сотрудник против', isActive: true },
+    {
+        id: 9,
+        code: 'employee',
+        name: 'Ключевой сотрудник против',
+        isActive: true,
+    },
     { id: 10, code: 'fail_off', name: 'Не хотят общаться', isActive: true },
 ];
 
@@ -90,7 +156,11 @@ export const buildInitialReport = (isTmc: boolean): EventReportStateReport => ({
         0,
         true,
     ),
-    [EV_REPORT_PROP.NORESULT_REASON]: buildSelect(NORESULT_REASON_ITEMS, 1, false),
+    [EV_REPORT_PROP.NORESULT_REASON]: buildSelect(
+        NORESULT_REASON_ITEMS,
+        1,
+        false,
+    ),
     [EV_REPORT_PROP.FAIL_TYPE]: buildSelect(FAIL_TYPE_ITEMS, 0, false),
     [EV_REPORT_PROP.FAIL_REASON]: buildSelect(FAIL_REASON_ITEMS, 0, false),
     [EV_REPORT_PROP.COMMENT]: '',

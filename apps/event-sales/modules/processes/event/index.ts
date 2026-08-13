@@ -10,5 +10,6 @@ export * from './lib/use-event-navigation';
 export * from './lib/send-validation';
 export * from './lib/flow-progress';
 export * from './lib/hooks/use-flow-progress';
+export * from './lib/hooks/use-finish-error-redirect';
 export { EventProcessInit } from './ui/EventProcessInit';
 export { FlowShowcase } from './ui/FlowShowcase';

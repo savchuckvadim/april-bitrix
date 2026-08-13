@@ -49,7 +49,9 @@ export const useFlowProgress = (): FlowProgress => {
         step: getFlowProgressStep(elapsedMs),
         isSlow: getIsFlowSlow(elapsedMs),
         showcase:
-            stage === FLOW_STAGE.SENDING ? getFlowShowcaseImage(elapsedMs) : null,
+            stage === FLOW_STAGE.SENDING
+                ? getFlowShowcaseImage(elapsedMs)
+                : null,
         result,
         error,
     };

@@ -41,7 +41,9 @@ describe('shortFieldName', () => {
 
 describe('currentItemIndex / currentItemName', () => {
     it('находит позицию и имя текущего значения', () => {
-        expect(currentItemIndex(field({ code: 'maybe', name: 'Возможно' }))).toBe(1);
+        expect(
+            currentItemIndex(field({ code: 'maybe', name: 'Возможно' })),
+        ).toBe(1);
         expect(currentItemName(field({ code: 'yes', name: 'Да' }))).toBe('Да');
     });
 
@@ -53,19 +55,47 @@ describe('currentItemIndex / currentItemName', () => {
 });
 
 describe('traitDirection / traitRamp', () => {
-    it('рост «хорошо» и рост «плохо» красятся по-разному', () => {
-        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_contact_garant)).toBe('up');
-        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_contact_concurent)).toBe(
+    it('поля-близнецы красятся в противоположные стороны', () => {
+        // «Фанат Гаранта → Противник Гаранта» и «Фанат конкурента →
+        // Противник конкурента»: списки зеркальны, значит и шкалы тоже.
+        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_contact_garant)).toBe(
             'down',
+        );
+        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_contact_concurent)).toBe(
+            'up',
         );
         expect(traitRamp(EV_CONTACT_ITEM_PROP.ork_contact_garant)).not.toEqual(
             traitRamp(EV_CONTACT_ITEM_PROP.ork_contact_concurent),
         );
     });
 
-    it('характеристика без оценки — нейтральная рампа', () => {
-        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_call_frequency)).toBe(
+    it('«Да → Нет» считается убыванием', () => {
+        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_is_most_user)).toBe(
+            'down',
+        );
+    });
+
+    it('метка из одного значения не оценивается', () => {
+        expect(traitDirection(EV_CONTACT_ITEM_PROP.contact_client_status)).toBe(
             'neutral',
+        );
+    });
+
+    it('шкалы «Да → Нет» убывают: рост означает ухудшение', () => {
+        // Списки с портала: ork_chk_garant — Да(chk_garant_yes), Нет(chk_garant_no);
+        // ork_is_most_user — Да, Нет. Второе значение хуже первого.
+        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_chk_garant)).toBe('down');
+        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_is_most_user)).toBe(
+            'down',
+        );
+    });
+
+    it('лестницы «хуже → лучше» растут', () => {
+        // ork_needs: Неудовлетворены(10) → Удовлетворены(40);
+        // ork_call_frequency: Не трогать(10) → Неделя(70).
+        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_needs)).toBe('up');
+        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_call_frequency)).toBe(
+            'up',
         );
     });
 
@@ -86,7 +116,11 @@ describe('editableTraits / traitsProgress', () => {
         current: unknown,
         items = [{ code: 'a', name: 'A' }],
     ): PBXContactFieldData =>
-        ({ items, current, field: { type, code: 'x' } }) as unknown as PBXContactFieldData;
+        ({
+            items,
+            current,
+            field: { type, code: 'x' },
+        }) as unknown as PBXContactFieldData;
 
     it('строковые поля и поля без значений шкалой не правятся', () => {
         const fields = [

@@ -1,7 +1,12 @@
 'use client';
 
 import { FC } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@workspace/ui/components/card';
 import { Label } from '@workspace/ui/components/label';
 import {
     Select,
@@ -23,7 +28,9 @@ export const SaleSection: FC = () => {
     return (
         <Card data-event-type="moneyAwait">
             <CardHeader>
-                <CardTitle className="text-base text-event-current">Продажа</CardTitle>
+                <CardTitle className="text-base text-event-current">
+                    Продажа
+                </CardTitle>
             </CardHeader>
             <CardContent className="space-y-1.5">
                 {presDeals.items.length ? (
@@ -31,7 +38,9 @@ export const SaleSection: FC = () => {
                         <Label>Сделка презентации</Label>
                         <Select
                             value={
-                                presDeals.current ? String(presDeals.current.ID) : undefined
+                                presDeals.current
+                                    ? String(presDeals.current.ID)
+                                    : undefined
                             }
                             onValueChange={value =>
                                 dispatch(
@@ -47,7 +56,10 @@ export const SaleSection: FC = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 {presDeals.items.map(deal => (
-                                    <SelectItem key={deal.ID} value={String(deal.ID)}>
+                                    <SelectItem
+                                        key={deal.ID}
+                                        value={String(deal.ID)}
+                                    >
                                         {deal.TITLE}
                                     </SelectItem>
                                 ))}

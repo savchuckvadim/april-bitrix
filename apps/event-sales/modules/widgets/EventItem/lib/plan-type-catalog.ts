@@ -67,5 +67,6 @@ const FALLBACK: PlanTypeMeta = {
     hint: '',
 };
 
-export const getPlanTypeMeta = (code: string | null | undefined): PlanTypeMeta =>
-    PLAN_TYPE_META[code as EV_PLAN_CODE] ?? FALLBACK;
+export const getPlanTypeMeta = (
+    code: string | null | undefined,
+): PlanTypeMeta => PLAN_TYPE_META[code as EV_PLAN_CODE] ?? FALLBACK;

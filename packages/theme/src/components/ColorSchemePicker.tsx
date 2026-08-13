@@ -23,7 +23,16 @@ const schemeList = [
     { value: 'claude', color: '#D97757' },
 ];
 
-export const ColorSchemePicker = () => {
+/**
+ * Сетка маленьких скруглённых квадратиков-свотчей.
+ * `align` — к какому краю кнопки прижат дропдаун: 'start' растёт вправо
+ * (кнопка у левого края экрана), 'end' — влево (кнопка у правого).
+ */
+export const ColorSchemePicker = ({
+    align = 'start',
+}: {
+    align?: 'start' | 'end';
+}) => {
     const { scheme, setScheme } = useColorScheme();
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
@@ -47,21 +56,27 @@ export const ColorSchemePicker = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute z-50 mt-2 p-4 bg-popover rounded-md shadow-lg"
+                        className={`absolute top-full z-50 mt-1 grid grid-cols-4 gap-1.5 rounded-lg border border-border bg-popover p-2 shadow-lg ${
+                            align === 'end' ? 'right-0' : 'left-0'
+                        }`}
                     >
-                        <div className="w-full  flex flex-col gap-2">
-                            {schemeList.map(({ value, color }) => (
-                                <button
-                                    key={value}
-                                    className={`cursor-pointer w-8 h-8 rounded-full border-2 ${scheme === value ? 'ring-2 ring-foreground' : ''}`}
-                                    style={{ backgroundColor: color }}
-                                    onClick={() => {
-                                        setScheme(value as ColorScheme);
-                                        setOpen(false);
-                                    }}
-                                />
-                            ))}
-                        </div>
+                        {schemeList.map(({ value, color }) => (
+                            <button
+                                key={value}
+                                className={`cursor-pointer h-5 w-5 rounded-md border border-border transition hover:scale-110 ${
+                                    scheme === value
+                                        ? 'ring-2 ring-foreground ring-offset-1 ring-offset-popover'
+                                        : ''
+                                }`}
+                                style={{ backgroundColor: color }}
+                                title={value}
+                                aria-label={`Цветовая схема ${value}`}
+                                onClick={() => {
+                                    setScheme(value as ColorScheme);
+                                    setOpen(false);
+                                }}
+                            />
+                        ))}
                     </motion.div>
                 )}
             </AnimatePresence>

@@ -43,4 +43,3 @@ export const stagePositionLabel = (stage: RelatedStage): string | null => {
     }
     return `${stage.order + 1} / ${stage.total}`;
 };
-

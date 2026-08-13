@@ -5,8 +5,22 @@ import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 import { useIsClamped } from '../lib/use-is-clamped';
 
+/**
+ * Сколько текста видно до тумана.
+ *
+ * Обычная карточка живёт в столбце с десятком соседей — там три строки.
+ * Просторная — единственное дело на экране (встройка в задачу), и прятать в
+ * туман то, ради чего экран открыт, незачем.
+ */
+const CLAMP_HEIGHT = {
+    normal: 'max-h-[4.125rem]',
+    spacious: 'max-h-[13rem]',
+} as const;
+
 interface FogTextProps {
     text: string;
+    /** Карточка одна на экране — отдаём тексту больше высоты. */
+    spacious?: boolean;
     className?: string;
 }
 
@@ -16,7 +30,7 @@ interface FogTextProps {
  * 630×600) вертикаль дороже всего — длинный комментарий не должен выталкивать
  * действия карточки за экран.
  */
-export const FogText: FC<FogTextProps> = ({ text, className }) => {
+export const FogText: FC<FogTextProps> = ({ text, spacious, className }) => {
     const [isOpen, setIsOpen] = useState(false);
     const textRef = useRef<HTMLParagraphElement>(null);
     // В раскрытом виде замер заморожен, иначе кнопка «Свернуть» пропадала
@@ -30,7 +44,10 @@ export const FogText: FC<FogTextProps> = ({ text, className }) => {
                 ref={textRef}
                 className={cn(
                     'text-sm leading-relaxed text-muted-foreground',
-                    !isOpen && 'max-h-[4.125rem] overflow-hidden',
+                    !isOpen && [
+                        spacious ? CLAMP_HEIGHT.spacious : CLAMP_HEIGHT.normal,
+                        'overflow-hidden',
+                    ],
                     // Маска — только когда текст реально обрезан: проценты
                     // градиента считаются от фактической высоты элемента, и на
                     // коротком тексте туман съедал бы половину единственной

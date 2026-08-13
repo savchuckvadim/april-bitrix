@@ -2,10 +2,7 @@
 
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { EV_PLAN_PROP } from '@/modules/entities/EventPlan';
-import {
-    isLeadOpen,
-    useCurrentRelations,
-} from '@/modules/entities/RelatedCrm';
+import { isLeadOpen, useCurrentRelations } from '@/modules/entities/RelatedCrm';
 import type { RelatedLead } from '@/modules/entities/RelatedCrm';
 
 export interface TaskLeadLinksData {
@@ -22,9 +19,7 @@ export interface TaskLeadLinksData {
  */
 export const useTaskLeadLinks = (): TaskLeadLinksData => {
     const currentTask = useAppSelector(s => s.eventTask.current);
-    const planActive = useAppSelector(
-        s => s.eventPlan[EV_PLAN_PROP.IS_ACTIVE],
-    );
+    const planActive = useAppSelector(s => s.eventPlan[EV_PLAN_PROP.IS_ACTIVE]);
     const selectedIds = useAppSelector(s => s.taskLeadLinks.selectedIds);
 
     const enabled = !currentTask && planActive;

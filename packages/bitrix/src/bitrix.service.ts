@@ -28,6 +28,7 @@ import { BxSmartTypeService } from './domain/crm/smart-type/services/bx-smart-ty
 import { BxRpaItemService } from './domain/rpa/item/services/bx-rpa-item.service';
 import { BxRpaItemBatchService } from './domain/rpa/item/services/bx-rpa-item.batch.service';
 import { BxFileService } from './domain/file/bx-file.service';
+import { BxUserService } from './domain/user';
 import { IBXUser } from './domain/interfaces/bitrix.interface';
 import { ActivityService } from './domain/activity/services/bx-activity.service';
 import { BxActivityBatchService } from './domain/activity/services/bx-activity.batch.service';
@@ -56,6 +57,7 @@ export class BitrixService {
     public contact!: BxContactService;
     public category!: BxCategoryService;
     public status!: BxStatusService;
+    public user!: BxUserService;
     public item!: BxItemService;
     public timeline!: BxTimelineService;
     public list!: BxListService;
@@ -155,6 +157,7 @@ export class BitrixService {
     }
     private initStatus() {
         this.status = this.cloner.clone(BxStatusService, this.api);
+        this.user = this.cloner.clone(BxUserService, this.api);
     }
     private initItem() {
         this.item = this.cloner.clone(BxItemService, this.api);

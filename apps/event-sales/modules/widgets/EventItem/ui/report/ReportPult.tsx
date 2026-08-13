@@ -1,7 +1,6 @@
 'use client';
 
 import { FC } from 'react';
-import { ChevronDown } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import { MicroField, MicroSelect } from '@workspace/april-ui';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
@@ -14,6 +13,8 @@ import {
 import { LeadRequestNotCaSelect } from '@/modules/features/LeadRequestCard/ui/LeadRequestNotCaSelect';
 import { useReportPult } from '../../lib/hooks/use-report-pult';
 import { PresentationDoneChip } from './PresentationDoneChip';
+import { ReportPultCollapsed } from './ReportPultCollapsed';
+import { ReportToolsRail } from './ReportToolsRail';
 
 /**
  * Пульт отчёта — ЕДИНСТВЕННОЕ место, где менеджер отмечает итог разговора.
@@ -44,42 +45,26 @@ export const ReportPult: FC<{ withNoresult?: boolean }> = ({
 
     if (pult.isCollapsed) {
         return (
-            <button
-                type="button"
-                onClick={pult.expand}
-                className="group flex w-full cursor-pointer items-center gap-2 rounded-lg border border-[color:color-mix(in_oklab,var(--success),var(--border)_60%)] bg-[color:color-mix(in_oklab,var(--success),var(--card)_94%)] px-2.5 py-1.5 text-left"
-            >
-                <span className="relative flex size-2 shrink-0">
-                    {/* Пульсация — «работа идёт», а не «нужно действие». */}
-                    <span className="absolute inset-0 animate-echo-ring rounded-full motion-reduce:animate-none" />
-                    <span className="size-2 rounded-full bg-success" />
-                </span>
-                <span className="text-xs font-semibold text-[color:color-mix(in_oklab,var(--success),var(--foreground)_var(--tone-soft-mix))]">
-                    {pult.workStatusName}
-                </span>
-                {pult.isPresentationDone && (
-                    <span className="rounded-full bg-event-pres/20 px-1.5 py-px text-[0.625rem] font-medium text-event-pres-foreground">
-                        презентация проведена
-                    </span>
-                )}
-                <span className="ml-auto inline-flex items-center gap-0.5 text-[0.65rem] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
-                    развернуть
-                    <ChevronDown aria-hidden className="size-3" />
-                </span>
-            </button>
+            <ReportPultCollapsed
+                workStatusName={pult.workStatusName}
+                withPresentationChip={pult.withPresentationChip}
+                expand={pult.expand}
+            />
         );
     }
 
     return (
         <div
             className={cn(
-                'rounded-lg border border-l-[3px] border-border bg-card p-2.5',
+                'relative rounded-lg border border-l-[3px] border-border bg-card p-2.5',
                 pult.isFail
                     ? 'border-l-destructive'
                     : 'border-l-[var(--event-current)]',
             )}
         >
-            <div className="mb-2 flex items-center gap-2">
+            <ReportToolsRail />
+
+            <div className="mb-2 flex items-center gap-2 pr-8">
                 <span className="text-xs font-semibold">Отчёт</span>
                 {pult.hasRequired && (
                     <span className="text-[0.65rem] font-semibold text-destructive">

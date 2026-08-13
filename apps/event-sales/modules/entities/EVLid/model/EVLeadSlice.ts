@@ -9,12 +9,36 @@ import {
 export type EVLeadState = typeof initialState;
 
 export const LEAD_STATUS_ITEMS: EVLeadWorkStatusItem[] = [
-    { id: 0, code: EV_LEAD_WORK_STATUS_CODE.in_job, name: EV_LEAD_WORK_STATUS_NAME.in_job },
-    { id: 1, code: EV_LEAD_WORK_STATUS_CODE.chok, name: EV_LEAD_WORK_STATUS_NAME.chok },
-    { id: 2, code: EV_LEAD_WORK_STATUS_CODE.ch_region, name: EV_LEAD_WORK_STATUS_NAME.ch_region },
-    { id: 3, code: EV_LEAD_WORK_STATUS_CODE.ok, name: EV_LEAD_WORK_STATUS_NAME.ok },
-    { id: 4, code: EV_LEAD_WORK_STATUS_CODE.not_ca, name: EV_LEAD_WORK_STATUS_NAME.not_ca },
-    { id: 5, code: EV_LEAD_WORK_STATUS_CODE.exist_in_job, name: EV_LEAD_WORK_STATUS_NAME.exist_in_job },
+    {
+        id: 0,
+        code: EV_LEAD_WORK_STATUS_CODE.in_job,
+        name: EV_LEAD_WORK_STATUS_NAME.in_job,
+    },
+    {
+        id: 1,
+        code: EV_LEAD_WORK_STATUS_CODE.chok,
+        name: EV_LEAD_WORK_STATUS_NAME.chok,
+    },
+    {
+        id: 2,
+        code: EV_LEAD_WORK_STATUS_CODE.ch_region,
+        name: EV_LEAD_WORK_STATUS_NAME.ch_region,
+    },
+    {
+        id: 3,
+        code: EV_LEAD_WORK_STATUS_CODE.ok,
+        name: EV_LEAD_WORK_STATUS_NAME.ok,
+    },
+    {
+        id: 4,
+        code: EV_LEAD_WORK_STATUS_CODE.not_ca,
+        name: EV_LEAD_WORK_STATUS_NAME.not_ca,
+    },
+    {
+        id: 5,
+        code: EV_LEAD_WORK_STATUS_CODE.exist_in_job,
+        name: EV_LEAD_WORK_STATUS_NAME.exist_in_job,
+    },
 ];
 
 export const initialState = {

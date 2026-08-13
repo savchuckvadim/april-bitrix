@@ -3,11 +3,14 @@
 import { FC } from 'react';
 import { Building2, UserRound } from 'lucide-react';
 import { EventTypeBadge } from '@workspace/april-ui';
+import { getEventTypeLabel } from '@/modules/entities/EventTask/lib/event-request-type';
 import { ThemeTogglePanel } from '@workspace/theme';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { useCompactUi } from '@/modules/app/lib/hooks/use-compact-ui';
+import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
 import { ClientBar } from '@/modules/entities/EventCompany';
+import { RelationsBar } from '@/modules/entities/RelatedCrm';
+import { PresentationCountBadge } from '@/modules/entities/EVHistory/ui/PresentationCountBadge';
 import { InnControl } from '@/modules/features/Inn';
 import { SignalsControl } from '@/modules/features/ClientSignals';
 import { useItemWarnings } from '../../lib/hooks/use-item-warnings';
@@ -34,7 +37,7 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
     const warnings = useItemWarnings();
     const warningHandlers = useItemWarningHandlers();
     // Во вкладке карточки (630×600) шапка идёт одной строкой.
-    const isCompact = useCompactUi();
+    const { isTight: isCompact } = useUiDensity();
 
     // В сделке показываем её компанию — менеджеру важно, с кем он работает,
     // а не в какой сущности открыто приложение.
@@ -48,9 +51,15 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
                         {isLeadContext ? (
-                            <UserRound aria-hidden className="size-4 shrink-0" />
+                            <UserRound
+                                aria-hidden
+                                className="size-4 shrink-0"
+                            />
                         ) : (
-                            <Building2 aria-hidden className="size-4 shrink-0" />
+                            <Building2
+                                aria-hidden
+                                className="size-4 shrink-0"
+                            />
                         )}
                         {contextTitle}
                     </span>
@@ -60,7 +69,15 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
                     <h1 className="min-w-0 truncate text-base font-semibold text-foreground">
                         {currentTask?.name || 'Новое событие'}
                     </h1>
-                    {currentTask && <EventTypeBadge type={currentTask.type} />}
+                    {currentTask && (
+                        <EventTypeBadge
+                            type={getEventTypeLabel({
+                                eventType: currentTask.eventType,
+                                type: currentTask.type,
+                                ufCrmTask: currentTask.ufCrmTask,
+                            })}
+                        />
+                    )}
                     <RelatedLinksBadge />
 
                     {/* Отправка и отмена переехали под карточку плана — здесь
@@ -73,12 +90,13 @@ export const ItemHeader: FC<ItemHeaderProps> = ({ withPresentation }) => {
 
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                     <ClientBar compact={isCompact} className="min-w-0" />
+                    <PresentationCountBadge />
+                    <RelationsBar compact className="min-w-20 flex-1" />
                     <InnControl compact={isCompact} />
                     <SignalsControl compact={isCompact} />
                 </div>
 
                 <ItemWarnings warnings={warnings} handlers={warningHandlers} />
-
             </div>
         </header>
     );

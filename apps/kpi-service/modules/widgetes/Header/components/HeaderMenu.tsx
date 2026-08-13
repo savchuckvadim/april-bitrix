@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 const ArrowBackDynamic = dynamic(() => import('./ArrowBack').then(mod => mod.ArrowBack), {
     ssr: false,
 });
-const ThemeTogglePanelDynamic = dynamic(() => import('./ThemeTogglePanel').then(mod => mod.ThemeTogglePanel), {
+const ThemeTogglePanelDynamic = dynamic(() => import('@workspace/theme').then(mod => mod.ThemeTogglePanel), {
     ssr: false,
 });
 export const HeaderMenu = () => {

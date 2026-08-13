@@ -27,7 +27,9 @@ const AText: FC<ATextProps> = ({
     const id = `input-${nameForHandler}`;
     return (
         <div className="w-full">
-            {label && <ALabel htmlId={id} label={label} errorMessage={errorMessage} />}
+            {label && (
+                <ALabel htmlId={id} label={label} errorMessage={errorMessage} />
+            )}
             <Textarea
                 id={id}
                 disabled={isDisabled}
@@ -36,7 +38,9 @@ const AText: FC<ATextProps> = ({
                 value={current}
                 onChange={e => handleChange(e.target.value)}
                 onBlur={handleBlur}
-                className={cn(errorMessage && 'border-red-500 focus-visible:ring-red-500')}
+                className={cn(
+                    errorMessage && 'border-red-500 focus-visible:ring-red-500',
+                )}
             />
         </div>
     );

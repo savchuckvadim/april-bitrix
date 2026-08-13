@@ -7,6 +7,63 @@ import {
 } from '../../pbx-field-type.util';
 export const PBX_SALES_EVENT_FIELDS = [
     {
+        /*
+         * Признак «заявка назначена и ждёт подтверждения»: время назначения.
+         * Пустое — заявка принята или в подтверждении не нуждается. На это
+         * поле завязаны и экран подтверждения во фрейме, и SLA-крон на бэке —
+         * поэтому признак ОДИН, а не «стадия плюс история».
+         */
+        name: 'ОП Время назначения заявки',
+        appType: 'lead',
+        type: 'datetime',
+        items: [],
+        code: 'op_lead_assigned_at',
+        lead: 'OP_LEAD_ASSIGNED_AT',
+        company: '',
+        deal: 'OP_LEAD_ASSIGNED_AT',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 703,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
+        name: 'ОП Хвост презентации',
+        appType: 'pres',
+        type: 'string',
+        items: [],
+        code: 'op_presentation_xvost',
+        lead: 'OP_PRESENTATION_XVOST',
+        company: 'OP_PRESENTATION_XVOST',
+        deal: 'OP_PRESENTATION_XVOST',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 220,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
+        name: 'ОП Пять К презентации',
+        appType: 'pres',
+        type: 'string',
+        items: [],
+        code: 'op_presentation_5k',
+        lead: 'OP_PRESENTATION_5K',
+        company: 'OP_PRESENTATION_5K',
+        deal: 'OP_PRESENTATION_5K',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 220,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
         name: 'ОП Название ХО',
         appType: 'xo',
         type: 'string',
@@ -1237,6 +1294,26 @@ export const PBX_SALES_EVENT_FIELDS = [
         lead: 'OP_CONCURENT_CONTRACT_DATE',
         company: 'OP_CONCURENT_CONTRACT_DATE',
         deal: 'OP_CONCURENT_CONTRACT_DATE',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 703,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
+        // Пара к «Конкуренты оплачено до»/«договор до»: когда клиент сам
+        // называет срок, в который планирует покупать. Поле новое — на
+        // порталах его ещё нужно установить (pbx-install).
+        name: 'ОП Возможная дата покупки',
+        appType: 'calling',
+        type: 'date',
+        items: [],
+        code: 'op_possible_buy_date',
+        lead: 'OP_POSSIBLE_BUY_DATE',
+        company: 'OP_POSSIBLE_BUY_DATE',
+        deal: 'OP_POSSIBLE_BUY_DATE',
         smart: '',
         task: '',
         app: 'calling',

@@ -1,4 +1,8 @@
-import type { AppDispatch, AppGetState, RootState } from '@/modules/app/model/store';
+import type {
+    AppDispatch,
+    AppGetState,
+    RootState,
+} from '@/modules/app/model/store';
 import {
     clearFromLocalStorage,
     getFromLocalStorage,
@@ -32,7 +36,8 @@ let saveCommentTimer: ReturnType<typeof setTimeout> | null = null;
  * (не шифруем на каждый keystroke).
  */
 export const setAndSaveComment =
-    (comment: string) => async (dispatch: AppDispatch, getState: AppGetState) => {
+    (comment: string) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
         dispatch(
             eventReportActions.setReportProp({
                 propName: EV_REPORT_PROP.COMMENT,

@@ -24,7 +24,9 @@ interface ClientBarProps {
  * отчёта: прогноз можно поправить, не открывая отчёт вовсе.
  */
 export const ClientBar: FC<ClientBarProps> = ({ className, compact }) => (
-    <div className={cn('flex flex-wrap items-center gap-x-3 gap-y-1', className)}>
+    <div
+        className={cn('flex flex-wrap items-center gap-x-3 gap-y-1', className)}
+    >
         <ProspectScale compact={compact} />
         <ClientStatusChip />
         {/* Без компании оба контрола выше молча гаснут — чип объясняет почему. */}

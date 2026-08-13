@@ -46,10 +46,16 @@ export class LeadRequestHelper {
      * следующего round-robin в отделе передающего, исключив его самого,
      * и подсветит самопередачу в истории заявки.
      */
+    /**
+     * Передача заявки: без адресата бэк выбирает следующего по кругу,
+     * с адресатом () — именно его. Второе нужно, когда менеджер
+     * знает, кто в отделе подхватит: круг может отдать заявку в отпуск.
+     */
     async transfer(
         domain: string,
         leadId: number,
         transferredBy: number,
+        targetUserId?: number | null,
     ): Promise<unknown> {
         return this.hooks.leadToWorkRun({
             domain,
@@ -59,6 +65,7 @@ export class LeadRequestHelper {
             taskMode: 'close',
             transferredBy,
             excludeResponsible: transferredBy,
+            ...(targetUserId ? { responsible: targetUserId } : {}),
         });
     }
 
@@ -83,10 +90,7 @@ export class LeadRequestHelper {
     }
 
     /** Глубокая проверка дублей с итогом в timeline лида (6-й хук). */
-    async deepDuplicateCheck(
-        domain: string,
-        leadId: number,
-    ): Promise<unknown> {
+    async deepDuplicateCheck(domain: string, leadId: number): Promise<unknown> {
         return this.hooks.duplicateCheckRun({
             domain,
             entityType: 'lead',

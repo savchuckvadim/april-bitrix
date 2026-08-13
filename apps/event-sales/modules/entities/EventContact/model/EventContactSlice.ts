@@ -16,6 +16,19 @@ const initialState = {
     contacts: [] as PBXContactStateItem[],
     /** Откуда пришёл каждый контакт: компания, сделка, лид, привязка задачи. */
     sourceById: {} as ContactSourceMap,
+    /** `<contactId>:<fieldCode>` → почему характеристика не сохранилась. */
+    fieldErrors: {} as Record<string, string>,
+    /**
+     * Развёрнутая карточка контакта: режим и сторона.
+     *
+     * Состояние общее, а не локальное в компоненте, потому что открывают её
+     * из двух мест — карточки отчёта и колонки плана, — а окно должно быть
+     * одно: два экземпляра рисовали бы два стекла друг на друге.
+     */
+    dialog: null as null | {
+        mode: 'view' | 'edit';
+        side: EV_CONTACT_TYPE;
+    },
     /**
      * Контакт задачи, который ещё не нашёлся в списке.
      *
@@ -168,7 +181,9 @@ const eventContactSlice = createSlice({
             }>,
         ) => {
             const created = action.payload.contact;
-            const isHave = state.contacts.find(contact => contact.ID == created.ID);
+            const isHave = state.contacts.find(
+                contact => contact.ID == created.ID,
+            );
             if (!isHave) state.contacts.push(created);
             state.current[action.payload.type] = created;
         },
@@ -193,7 +208,60 @@ const eventContactSlice = createSlice({
             action: PayloadAction<{ value: string; propName: string }>,
         ) => {
             if (state.current.contact) {
-                state.current.contact[action.payload.propName] = action.payload.value;
+                state.current.contact[action.payload.propName] =
+                    action.payload.value;
+            }
+        },
+        /**
+         * Снять контакт с отчёта или плана.
+         *
+         * Это отвязка от формы, а не удаление человека из CRM: карточка в
+         * Битриксе остаётся — менеджер лишь говорит «не с ним».
+         */
+        clearCurrentContact: (
+            state: EventContactState,
+            action: PayloadAction<{ type: EV_CONTACT_TYPE }>,
+        ) => {
+            state.current[action.payload.type] = null;
+            if (action.payload.type === EV_CONTACT_TYPE.REPORT) {
+                state.pendingCurrentId = null;
+            }
+        },
+        /** Открыть развёрнутую карточку: просмотр или правка, отчёт или план. */
+        openContactDialog: (
+            state: EventContactState,
+            action: PayloadAction<{
+                mode: 'view' | 'edit';
+                side?: EV_CONTACT_TYPE;
+            }>,
+        ) => {
+            state.dialog = {
+                mode: action.payload.mode,
+                side: action.payload.side ?? EV_CONTACT_TYPE.REPORT,
+            };
+        },
+        closeContactDialog: (state: EventContactState) => {
+            state.dialog = null;
+        },
+        /**
+         * Характеристика не сохранилась в портале.
+         *
+         * Молчать тут нельзя: значение на экране откатывается, и без подписи
+         * это выглядит как «приложение само передумало».
+         */
+        setContactFieldError: (
+            state: EventContactState,
+            action: PayloadAction<{
+                contactId: number;
+                fieldCode: string;
+                message: string | null;
+            }>,
+        ) => {
+            const key = `${action.payload.contactId}:${action.payload.fieldCode}`;
+            if (action.payload.message) {
+                state.fieldErrors[key] = action.payload.message;
+            } else {
+                delete state.fieldErrors[key];
             }
         },
         /** Текущее значение портального поля контакта (PbxContact feature). */

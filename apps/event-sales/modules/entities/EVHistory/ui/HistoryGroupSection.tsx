@@ -8,10 +8,12 @@ import { loadMoreHistoryForBinding } from '../model/EVHistoryThunk';
 import {
     EHistoryBindingType,
     HistoryBindingType,
+    type EVHistoryRecord,
 } from '../model/history-record.type';
 import { HistoryEntityGroup } from '../lib/hooks/use-history-view';
 import { useHistoryScroll } from '../lib/hooks/use-history-scroll';
 import { HistoryResponsible } from '../lib/hooks/use-history-responsible';
+import type { HistoryStatusView } from '../lib/history-status';
 import { HistoryRecordRow } from './HistoryRecordRow';
 
 const GROUP_ICON: Record<HistoryBindingType, typeof Building2> = {
@@ -24,6 +26,7 @@ const GROUP_ICON: Record<HistoryBindingType, typeof Building2> = {
 interface HistoryGroupSectionProps {
     item: HistoryEntityGroup;
     resolveResponsible: (id: number | null) => HistoryResponsible | null;
+    resolveStatus: (record: EVHistoryRecord) => HistoryStatusView;
 }
 
 /**
@@ -33,6 +36,7 @@ interface HistoryGroupSectionProps {
 export const HistoryGroupSection: FC<HistoryGroupSectionProps> = ({
     item,
     resolveResponsible,
+    resolveStatus,
 }) => {
     const dispatch = useAppDispatch();
     const { group, records, hiddenDuplicates } = item;
@@ -79,6 +83,7 @@ export const HistoryGroupSection: FC<HistoryGroupSectionProps> = ({
                         key={record.id}
                         record={record}
                         responsible={resolveResponsible(record.responsibleId)}
+                        status={resolveStatus(record)}
                     />
                 ))}
             </ul>

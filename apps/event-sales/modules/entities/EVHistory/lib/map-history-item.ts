@@ -62,7 +62,11 @@ const readBindings = (
 ): string[] => [
     ...new Set(
         rawValues(element, ref)
-            .map(value => String(value ?? '').trim().toUpperCase())
+            .map(value =>
+                String(value ?? '')
+                    .trim()
+                    .toUpperCase(),
+            )
             .filter(Boolean),
     ),
 ];

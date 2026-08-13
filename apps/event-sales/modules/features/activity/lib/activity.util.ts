@@ -1,5 +1,5 @@
-import { Bitrix, BitrixOwnerTypeId } from "@workspace/bitrix";
-import { BXActivityConfigurableAddRequestDto } from "@workspace/bitrix/src/domain/activity-configurable/dto/bx-activity-configurable.dto";
+import { Bitrix, BitrixOwnerTypeId } from '@workspace/bitrix';
+import { BXActivityConfigurableAddRequestDto } from '@workspace/bitrix/src/domain/activity-configurable/dto/bx-activity-configurable.dto';
 
 export const addEntityActivity = async (companyId: string) => {
     const bitrix = Bitrix.getService();
@@ -21,7 +21,6 @@ export const addEntityActivity = async (companyId: string) => {
             'eventType',
             'deadline',
             'pink',
-
         ),
     } as BXActivityConfigurableAddRequestDto);
 
@@ -31,103 +30,102 @@ export const addEntityActivity = async (companyId: string) => {
 };
 
 const fakeLayout = {
-    "icon": {
-        "code": "call-completed"
+    icon: {
+        code: 'call-completed',
     },
-    "header": {
-        "title": "Incoming Call",
-        "tags": {
-            "status2": {
-                "type": "warning",
-                "title": "not deciphered"
-            }
-        }
-    },
-    "body": {
-        "logo": {
-            "code": "call-incoming",
-            "action": {
-                "type": "redirect",
-                "uri": "/crm/deal/details/123/"
-            }
-        },
-        "blocks": {
-            "client": {
-                "type": "withTitle",
-                "properties": {
-                    "title": "Client",
-                    "inline": true,
-                    "block": {
-                        "type": "text",
-                        "properties": {
-                            "value": "Ltd. Horns and Hooves"
-                        }
-                    }
-                }
+    header: {
+        title: 'Incoming Call',
+        tags: {
+            status2: {
+                type: 'warning',
+                title: 'not deciphered',
             },
-            "responsible": {
-                "type": "lineOfBlocks",
-                "properties": {
-                    "blocks": {
-                        "client": {
-                            "type": "link",
-                            "properties": {
-                                "text": "Sergey Vostrikov",
-                                "bold": true,
-                                "action": {
-                                    "type": "redirect",
-                                    "uri": "/crm/lead/details/789/"
-                                }
-                            }
-                        },
-                        "phone": {
-                            "type": "text",
-                            "properties": {
-                                "value": "+1 999 888 7777"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "footer": {
-        "buttons": {
-            "startCall": {
-                "title": "About the Client",
-                "action": {
-                    "type": "openRestApp",
-                    "actionParams": {
-                        "clientId": 456
-                    }
-                },
-                "type": "primary"
-            }
         },
-        "menu": {
-            "showPostponeItem": "false",
-            "items": {
-                "confirm": {
-                    "title": "Confirm Request",
-                    "action": {
-                        "type": "restEvent",
-                        "id": "confirm",
-                        "animationType": "loader"
-                    }
+    },
+    body: {
+        logo: {
+            code: 'call-incoming',
+            action: {
+                type: 'redirect',
+                uri: '/crm/deal/details/123/',
+            },
+        },
+        blocks: {
+            client: {
+                type: 'withTitle',
+                properties: {
+                    title: 'Client',
+                    inline: true,
+                    block: {
+                        type: 'text',
+                        properties: {
+                            value: 'Ltd. Horns and Hooves',
+                        },
+                    },
                 },
-                "decline": {
-                    "title": "Decline Request",
-                    "action": {
-                        "type": "restEvent",
-                        "id": "decline",
-                        "animationType": "loader"
-                    }
-                }
-            }
-        }
-    }
-}
-
+            },
+            responsible: {
+                type: 'lineOfBlocks',
+                properties: {
+                    blocks: {
+                        client: {
+                            type: 'link',
+                            properties: {
+                                text: 'Sergey Vostrikov',
+                                bold: true,
+                                action: {
+                                    type: 'redirect',
+                                    uri: '/crm/lead/details/789/',
+                                },
+                            },
+                        },
+                        phone: {
+                            type: 'text',
+                            properties: {
+                                value: '+1 999 888 7777',
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+    footer: {
+        buttons: {
+            startCall: {
+                title: 'About the Client',
+                action: {
+                    type: 'openRestApp',
+                    actionParams: {
+                        clientId: 456,
+                    },
+                },
+                type: 'primary',
+            },
+        },
+        menu: {
+            showPostponeItem: 'false',
+            items: {
+                confirm: {
+                    title: 'Confirm Request',
+                    action: {
+                        type: 'restEvent',
+                        id: 'confirm',
+                        animationType: 'loader',
+                    },
+                },
+                decline: {
+                    title: 'Decline Request',
+                    action: {
+                        type: 'restEvent',
+                        id: 'decline',
+                        animationType: 'loader',
+                    },
+                },
+            },
+        },
+    },
+};
 
 export const getLayout = (
     companyId: number,

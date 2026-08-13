@@ -159,7 +159,10 @@ export const FieldCombobox = ({
                                             }}
                                             className="cursor-pointer"
                                         >
-                                            <Plus aria-hidden className="size-4" />
+                                            <Plus
+                                                aria-hidden
+                                                className="size-4"
+                                            />
                                             {createLabel ?? 'Создать'}
                                         </CommandItem>
                                     </CommandGroup>

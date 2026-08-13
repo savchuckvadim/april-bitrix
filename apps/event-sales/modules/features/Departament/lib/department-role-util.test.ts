@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BXDepartment, BXUser } from '@workspace/bx';
-import {
-    EDepartmentRole,
-    resolveDepartmentRole,
-} from './department-role-util';
+import { EDepartmentRole, resolveDepartmentRole } from './department-role-util';
 import { DepartmentStructureState } from '../type/department-type';
 
 /**
@@ -104,9 +101,7 @@ describe('resolveDepartmentRole', () => {
             structure: headless,
             allUsers: [user(300, [3])],
         };
-        expect(
-            resolveDepartmentRole({ ...input, bossId: 42 }).headId,
-        ).toBe(42);
+        expect(resolveDepartmentRole({ ...input, bossId: 42 }).headId).toBe(42);
         expect(resolveDepartmentRole({ ...input, bossId: 0 }).headId).toBe(
             null,
         );

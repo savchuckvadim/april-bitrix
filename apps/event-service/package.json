@@ -29,6 +29,8 @@
     "@workspace/ui": "workspace:*",
     "@workspace/ws": "workspace:*",
     "@workspace/nest-api": "workspace:*",
+    "@workspace/nest-event-service-api": "workspace:*",
+    "@workspace/skap": "workspace:*",
     "@tanstack/react-query": "^5.76.0",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",

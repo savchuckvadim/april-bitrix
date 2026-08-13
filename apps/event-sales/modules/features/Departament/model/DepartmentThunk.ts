@@ -1,6 +1,5 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { BXUser } from '@workspace/bx';
-import { getDomainConfig } from '@/modules/app/consts/domain-config';
 import { getClientContext } from '@/modules/app/lib/utills/app-state-util';
 import { eventPlanActions } from '@/modules/entities/EventPlan';
 import { eventReportActions } from '@/modules/entities/EventReport';
@@ -67,7 +66,9 @@ export const getDepartment =
 export const setDepartmentMode =
     (user: BXUser | null, domain: string) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
-        const { withDepartmentModeToggle } = getDomainConfig(domain, user);
+        // Тот же конфиг, что и у всего приложения: с портальными настройками
+        // поверх доменного хардкода.
+        const { withDepartmentModeToggle } = getState().app.config;
 
         let depModeId = 0;
         if (withDepartmentModeToggle) {
@@ -88,7 +89,8 @@ export const setDepartmentMode =
 
 /** Переключение режима ОП/ТМЦ пользователем (тумблер). */
 export const switchDepartmentMode =
-    (depModeId: number) => async (dispatch: AppDispatch, getState: AppGetState) => {
+    (depModeId: number) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
         dispatch(departmentActions.setMode({ depModeId }));
 
         const mode = getState().department[DEPARTAMENT_STATE_PROP.MODE].current;
@@ -118,6 +120,12 @@ export const setCurrentUser =
             ].items;
         const current = users.find(user => user.ID == userId);
         if (current) {
-            dispatch(departmentActions.setCurrentUser({ from, role, value: current }));
+            dispatch(
+                departmentActions.setCurrentUser({
+                    from,
+                    role,
+                    value: current,
+                }),
+            );
         }
     };

@@ -7,7 +7,9 @@ import { buildCheckPresentationComment } from './check-presentation.format';
  * Применим ли хвост вообще: домен с withCheckPresentation, опросник загружен,
  * презентация проведена (плановая или незапланированная) и событие результативное.
  */
-export const selectIsCheckPresentationApplicable = (state: RootState): boolean => {
+export const selectIsCheckPresentationApplicable = (
+    state: RootState,
+): boolean => {
     const withCheckPresentation = state.app.config.withCheckPresentation;
     const initialized = state.afterPresentation.initialized;
 

@@ -90,7 +90,8 @@ export const resolveTaskRelation = ({
         .filter(deal => !dealIds.includes(deal.id))
         .sort((a, b) => (b.dateCreate ?? '').localeCompare(a.dateCreate ?? ''));
 
-    const lead = details?.leads?.find(item => leadIds.includes(item.id)) ?? null;
+    const lead =
+        details?.leads?.find(item => leadIds.includes(item.id)) ?? null;
 
     return {
         deals: [...attached, ...rest].slice(0, MAX_RELATION_DEALS),

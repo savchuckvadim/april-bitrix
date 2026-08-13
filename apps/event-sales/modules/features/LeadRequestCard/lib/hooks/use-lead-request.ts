@@ -61,8 +61,7 @@ export const useLeadRequest = (explicitLeadId?: number) => {
         [dispatch],
     );
 
-    const sectionStatus: SectionStatus =
-        status === 'idle' ? 'loading' : status;
+    const sectionStatus: SectionStatus = status === 'idle' ? 'loading' : status;
 
     return {
         card,

@@ -4,7 +4,9 @@ import { getAllowedPlanCodes } from './plan-rules';
 
 describe('getAllowedPlanCodes', () => {
     it('компания — все пять типов', () => {
-        expect(getAllowedPlanCodes({ context: 'company', isTmc: false })).toEqual([
+        expect(
+            getAllowedPlanCodes({ context: 'company', isTmc: false }),
+        ).toEqual([
             EV_PLAN_CODE.WARM,
             EV_PLAN_CODE.PRESENTATION,
             EV_PLAN_CODE.HOT,
@@ -13,31 +15,33 @@ describe('getAllowedPlanCodes', () => {
         ]);
     });
 
-    it('сделка без компании — звонок, презентация, решение', () => {
-        expect(getAllowedPlanCodes({ context: 'dealNoCompany', isTmc: false })).toEqual([
-            EV_PLAN_CODE.WARM,
-            EV_PLAN_CODE.PRESENTATION,
-            EV_PLAN_CODE.HOT,
-        ]);
+    it('сделка без компании — звонок и презентация, без решения', () => {
+        // «Решение» ведёт к оформлению, а оформлять без компании нечего:
+        // реквизиты и счёт живут в ней (решение владельца 13.08.2026).
+        expect(
+            getAllowedPlanCodes({ context: 'dealNoCompany', isTmc: false }),
+        ).toEqual([EV_PLAN_CODE.WARM, EV_PLAN_CODE.PRESENTATION]);
     });
 
     it('лид и неизвестный контекст — только звонок', () => {
-        expect(getAllowedPlanCodes({ context: 'lead', isTmc: false })).toEqual([EV_PLAN_CODE.WARM]);
-        expect(getAllowedPlanCodes({ context: 'unknown', isTmc: false })).toEqual([
+        expect(getAllowedPlanCodes({ context: 'lead', isTmc: false })).toEqual([
             EV_PLAN_CODE.WARM,
         ]);
+        expect(
+            getAllowedPlanCodes({ context: 'unknown', isTmc: false }),
+        ).toEqual([EV_PLAN_CODE.WARM]);
     });
 
     it('ТМЦ — пересечение правил, а не победа ветки', () => {
-        expect(getAllowedPlanCodes({ context: 'company', isTmc: true })).toEqual([
+        expect(
+            getAllowedPlanCodes({ context: 'company', isTmc: true }),
+        ).toEqual([EV_PLAN_CODE.WARM, EV_PLAN_CODE.PRESENTATION]);
+        expect(
+            getAllowedPlanCodes({ context: 'dealNoCompany', isTmc: true }),
+        ).toEqual([EV_PLAN_CODE.WARM, EV_PLAN_CODE.PRESENTATION]);
+        expect(getAllowedPlanCodes({ context: 'lead', isTmc: true })).toEqual([
             EV_PLAN_CODE.WARM,
-            EV_PLAN_CODE.PRESENTATION,
         ]);
-        expect(getAllowedPlanCodes({ context: 'dealNoCompany', isTmc: true })).toEqual([
-            EV_PLAN_CODE.WARM,
-            EV_PLAN_CODE.PRESENTATION,
-        ]);
-        expect(getAllowedPlanCodes({ context: 'lead', isTmc: true })).toEqual([EV_PLAN_CODE.WARM]);
     });
 
     it('после продажи остаётся только «Поставка»', () => {

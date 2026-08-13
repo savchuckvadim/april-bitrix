@@ -9,8 +9,23 @@ import { EVENT_COMMENT_UF_FIELD } from './event-comment';
  * такую рассинхронизацию исключает.
  */
 export const EVENT_TASK_SELECT = [
-    'ID', 'UF_CRM_TASK', 'TITLE', 'DESCRIPTION', 'DATE_START', 'CREATED_DATE',
-    'CHANGED_DATE', 'CLOSED_DATE', 'DEADLINE', 'PRIORITY', 'MARK', 'GROUP_ID',
-    'CREATED_BY', 'STATUS_CHANGED_BY', 'REAL_STATUS', 'STATUS', 'STAGE_ID',
-    'RESPONSIBLE_ID', EVENT_COMMENT_UF_FIELD,
+    'ID',
+    'UF_CRM_TASK',
+    'TITLE',
+    'DESCRIPTION',
+    'DATE_START',
+    'CREATED_DATE',
+    'CHANGED_DATE',
+    'CLOSED_DATE',
+    'DEADLINE',
+    'PRIORITY',
+    'MARK',
+    'GROUP_ID',
+    'CREATED_BY',
+    'STATUS_CHANGED_BY',
+    'REAL_STATUS',
+    'STATUS',
+    'STAGE_ID',
+    'RESPONSIBLE_ID',
+    EVENT_COMMENT_UF_FIELD,
 ];

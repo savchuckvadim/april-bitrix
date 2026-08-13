@@ -8,12 +8,16 @@ export const LEAD_REQUEST_TEXT = {
     selectPlaceholder: '— не отмечено —',
     historyShow: 'История обработки',
     historyHide: 'Скрыть историю',
-    readinessMissingPrefix: 'Для продажи не отмечено',
+    readinessMissingPrefix: 'Осталось отметить',
     notAcceptedTitle: 'Заявка не принята в работу',
     notAcceptedHint:
         'Подтвердите принятие или передайте заявку другому сотруднику ' +
         'вашего отдела — до этого отправка отчёта заблокирована.',
-    acceptButton: 'Принять в работу',
+    gateHint:
+        'Заявка назначена вам и ждёт решения. Не подтвердите в течение часа — ' +
+        'она уйдёт другому сотруднику.',
+    gateSkip: 'Пропустить и посмотреть карточку',
+    acceptButton: 'Взять в работу',
     transferButton: 'Передать другому',
     sendBlockedByAccept: 'Сначала примите заявку в работу',
     foreignTitle: 'Заявка назначена другому сотруднику',
@@ -22,6 +26,7 @@ export const LEAD_REQUEST_TEXT = {
         'Работа по ней вам недоступна.',
     sendBlockedByForeign: 'Заявка назначена другому сотруднику',
     openWorkButton: 'Открыть текущую работу',
+    openWorkHereHint: 'Работа по этой заявке — сделка, в которой вы сейчас.',
     convertButton: 'Преобразовать в работу',
     convertHint:
         'Создаст сделку в вашей воронке по стадии лида и перенесёт задачи.',

@@ -41,7 +41,9 @@ export const DetailsDealList: FC<DetailsDealListProps> = ({ deals }) => (
                 ))}
             </ul>
         ) : (
-            <p className="text-xs text-muted-foreground">Открытых сделок нет.</p>
+            <p className="text-xs text-muted-foreground">
+                Открытых сделок нет.
+            </p>
         )}
     </section>
 );

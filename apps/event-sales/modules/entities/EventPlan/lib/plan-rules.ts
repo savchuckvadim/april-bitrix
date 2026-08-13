@@ -4,10 +4,11 @@ import { EV_PLAN_CODE } from '../type/event-plan-type';
 /**
  * Что можно планировать в каком контексте клиента. Данные, не логика.
  *
- * Решение владельца (2026-08-07):
+ * Решение владельца (2026-08-07, уточнено 13.08):
  * - компания — всё;
- * - сделка без компании — Звонок + Презентация + Решение (Оплата и Поставка
- *   требуют компанию: реквизиты, счёт);
+ * - сделка без компании — Звонок + Презентация. «Решение» убрано после живого
+ *   прогона: звонок по решению ведёт к оформлению, а оформлять без компании
+ *   нечего — реквизиты и счёт живут в ней;
  * - лид — только Звонок;
  * - неизвестный контекст (бут, пустая карточка звонка) — как лид, строже некуда.
  *
@@ -27,11 +28,7 @@ export const PLAN_ALLOWED_BY_CONTEXT: Record<ClientContext, EV_PLAN_CODE[]> = {
         EV_PLAN_CODE.PAY,
         EV_PLAN_CODE.SUPPLY,
     ],
-    dealNoCompany: [
-        EV_PLAN_CODE.WARM,
-        EV_PLAN_CODE.PRESENTATION,
-        EV_PLAN_CODE.HOT,
-    ],
+    dealNoCompany: [EV_PLAN_CODE.WARM, EV_PLAN_CODE.PRESENTATION],
     lead: [EV_PLAN_CODE.WARM],
     unknown: [EV_PLAN_CODE.WARM],
 };

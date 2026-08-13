@@ -97,9 +97,7 @@ export const buildHistoryBindings = ({
             [item.name, item.lastName].filter(Boolean).join(' '),
         ),
     );
-    taskLinks?.contactIds.forEach(id =>
-        push(EHistoryBindingType.CONTACT, id),
-    );
+    taskLinks?.contactIds.forEach(id => push(EHistoryBindingType.CONTACT, id));
 
     return [...byValue.values()];
 };

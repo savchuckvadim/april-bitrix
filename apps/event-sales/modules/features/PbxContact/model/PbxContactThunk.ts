@@ -21,7 +21,9 @@ export const updatePbxContactField =
         const currentIndex = field.items.findIndex(item => {
             const current = field.current;
             return (
-                current && typeof current === 'object' && item.code === current.code
+                current &&
+                typeof current === 'object' &&
+                item.code === current.code
             );
         });
         await dispatch(
@@ -36,7 +38,11 @@ export const updatePbxContactField =
 /**
  * Установка КОНКРЕТНОГО значения по индексу — клик по делению шкалы
  * характеристики (паттерн кликабельного прогресса из «конструктора»).
- * Оптимистично + crm.contact.update.
+ *
+ * Оптимистично, но НЕ вслепую: раньше ответ Битрикса не проверялся вовсе, и
+ * отказ (нет прав на поле, поле не установлено, чужой контакт) выглядел как
+ * успех — значение стояло на экране до перезагрузки и «не запоминалось».
+ * Теперь неудача откатывает значение и подписывается в карточке.
  */
 export const setPbxContactField =
     (contactId: number, fieldCode: string, itemIndex: number) =>
@@ -45,6 +51,8 @@ export const setPbxContactField =
         const nextItem = field?.items[itemIndex];
         if (!field || !nextItem) return;
 
+        const previous = field.current;
+
         dispatch(
             eventContactActions.setContactFieldCurrent({
                 contactId,
@@ -52,10 +60,39 @@ export const setPbxContactField =
                 current: nextItem as PBXContactFieldData['current'],
             }),
         );
+        dispatch(
+            eventContactActions.setContactFieldError({
+                contactId,
+                fieldCode,
+                message: null,
+            }),
+        );
 
-        await Bitrix.getService().contact.update(contactId, {
-            [field.bitrixId]: nextItem.bitrixId,
-        } as never);
+        try {
+            const response = await Bitrix.getService().contact.update(
+                contactId,
+                { [field.bitrixId]: nextItem.bitrixId } as never,
+            );
+            if (!response?.result) {
+                throw new Error('crm.contact.update вернул отказ');
+            }
+        } catch (error) {
+            console.error('setPbxContactField error', fieldCode, error);
+            dispatch(
+                eventContactActions.setContactFieldCurrent({
+                    contactId,
+                    fieldCode,
+                    current: previous,
+                }),
+            );
+            dispatch(
+                eventContactActions.setContactFieldError({
+                    contactId,
+                    fieldCode,
+                    message: 'Не сохранилось — проверьте права на поле',
+                }),
+            );
+        }
     };
 
 /** Поле контакта, пригодное к выбору значения (ENUM/SELECT с items). */

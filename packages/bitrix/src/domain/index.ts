@@ -5,3 +5,4 @@ export * from './list';
 export * from './list-item';
 export * from './userfieldconfig';
 export * from './rpa/item';
+export * from './user';

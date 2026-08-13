@@ -13,11 +13,26 @@ import { useOutsideClick } from '../hook/useOutsideClick';
  *
  * Раскрытие — оверлеем под кнопкой, а не инлайном: раскрытые тогглеры в
  * строке шапки распихивали соседей, и вся шапка прыгала.
+ *
+ * `align` выбирают по месту кнопки в шапке: 'end' — панель прижата к правому
+ * краю кнопки (тогглер в правом конце строки), 'start' — к левому, панель
+ * растёт вправо (тогглер у левого края, иначе она уезжает за экран).
+ *
+ * Масштаб по умолчанию виден СРАЗУ, не под язычком: им пользуются постоянно
+ * (интерфейс живёт во фрейме, и «мельче/крупнее» — первое, что крутят), а
+ * тема и цветовая схема выбираются один раз и могут подождать раскрытия.
+ * `scaleInline={false}` убирает проценты обратно под язычок там, где в строке
+ * совсем нет места.
  */
 export const ThemeTogglePanel = ({
     withScale = true,
+    scaleInline = true,
+    align = 'end',
 }: {
     withScale?: boolean;
+    /** Показывать проценты масштаба в строке, а не только в раскрытой панели. */
+    scaleInline?: boolean;
+    align?: 'start' | 'end';
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
@@ -25,7 +40,9 @@ export const ThemeTogglePanel = ({
     useOutsideClick(ref, () => setIsOpen(false));
 
     return (
-        <div ref={ref} className="relative flex flex-row items-center p-4">
+        <div ref={ref} className="relative flex flex-row items-center gap-1 p-4">
+            {withScale && scaleInline && <ScaleToggler />}
+
             <button
                 onClick={() => setIsOpen(prev => !prev)}
                 aria-expanded={isOpen}
@@ -45,10 +62,12 @@ export const ThemeTogglePanel = ({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full z-50 mt-1 flex flex-row items-center gap-1.5 rounded-lg border border-border bg-popover px-2 shadow-md"
+                        className={`absolute top-full z-50 mt-1 flex flex-row items-center gap-1.5 rounded-lg border border-border bg-popover px-2 shadow-md ${
+                            align === 'end' ? 'right-0' : 'left-0'
+                        }`}
                     >
-                        <ThemeToggler />
-                        {withScale && <ScaleToggler />}
+                        <ThemeToggler pickerAlign={align} />
+                        {withScale && !scaleInline && <ScaleToggler />}
                     </motion.div>
                 )}
             </AnimatePresence>

@@ -25,15 +25,22 @@ const ADate = <T extends string | number>({
 
     return (
         <div className="w-full">
-            {label && <ALabel htmlId={id} label={label} errorMessage={errorMessage} />}
+            {label && (
+                <ALabel htmlId={id} label={label} errorMessage={errorMessage} />
+            )}
             <Input
                 id={id}
                 lang="rus"
                 type={isOnlyDate ? 'date' : 'datetime-local'}
                 defaultValue={value}
                 onChange={e => handleChange(nameForHandler, e.target.value)}
-                onFocus={() => handleOnFocus && handleOnFocus(nameForHandler, errorMessage ?? '')}
-                className={cn(errorMessage && 'border-red-500 focus-visible:ring-red-500')}
+                onFocus={() =>
+                    handleOnFocus &&
+                    handleOnFocus(nameForHandler, errorMessage ?? '')
+                }
+                className={cn(
+                    errorMessage && 'border-red-500 focus-visible:ring-red-500',
+                )}
             />
         </div>
     );

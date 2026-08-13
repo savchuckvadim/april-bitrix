@@ -34,7 +34,10 @@ export const getResultMenu =
         );
 
         // презентация с результатом — сразу отмечаем проведённой
-        if (task?.eventType === 'presentation' && type === EventItemResultType.RESULT) {
+        if (
+            task?.eventType === 'presentation' &&
+            type === EventItemResultType.RESULT
+        ) {
             dispatch(
                 eventPresentationActions.setPresentationProp({
                     name: PresentationProp.IS_PRESENTATION_DONE,
@@ -50,7 +53,10 @@ export const getResultMenu =
 export const cancelResultMenu = () => async (dispatch: AppDispatch) => {
     dispatch(eventTaskActions.setCurrentTask({ task: null }));
     dispatch(
-        eventItemActions.setEventItemMenuStatus({ status: false, menuType: null }),
+        eventItemActions.setEventItemMenuStatus({
+            status: false,
+            menuType: null,
+        }),
     );
     dispatch(eventPresentationActions.clean());
     dispatch(eventPostFailActions.clean());
@@ -60,7 +66,10 @@ export const cancelResultMenu = () => async (dispatch: AppDispatch) => {
 export const finishResultMenu = () => async (dispatch: AppDispatch) => {
     dispatch(eventTaskActions.setCurrentTask({ task: null }));
     dispatch(
-        eventItemActions.setEventItemMenuStatus({ status: false, menuType: null }),
+        eventItemActions.setEventItemMenuStatus({
+            status: false,
+            menuType: null,
+        }),
     );
     dispatch(eventPostFailActions.clean());
     dispatch(eventSaleActions.setCurrentPresList({ taskId: null }));

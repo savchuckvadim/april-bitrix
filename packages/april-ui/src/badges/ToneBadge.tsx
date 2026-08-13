@@ -2,7 +2,13 @@
 
 import type { ReactNode } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
-import { TONE_BORDER, TONE_SOFT, TONE_SOLID, TONE_TEXT, type Tone } from '../lib/tones';
+import {
+    TONE_BORDER,
+    TONE_SOFT,
+    TONE_SOLID,
+    TONE_TEXT,
+    type Tone,
+} from '../lib/tones';
 import { GlassSurface } from '../shared/ui/Glass/GlassSurface';
 import { useGlass } from '../lib/glass/use-glass';
 
@@ -74,7 +80,9 @@ export const ToneBadge = ({
         uppercase && 'uppercase',
         // Стеклянные варианты несут свои фон и рамку — заливку тона убираем,
         // от тона остаётся только цвет текста, иначе сквозь бэйдж ничего не видно.
-        surface === 'flat' ? variantClass : cn(TONE_TEXT[tone], 'border-transparent'),
+        surface === 'flat'
+            ? variantClass
+            : cn(TONE_TEXT[tone], 'border-transparent'),
         surface === 'glass' && 'glass',
         className,
     );

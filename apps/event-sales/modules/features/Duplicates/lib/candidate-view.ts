@@ -108,4 +108,3 @@ export function candidateTitle(candidate: DuplicateCandidate): string {
         `${ENTITY_TYPE_LABEL[candidate.entityType]} ${candidate.id}`
     );
 }
-

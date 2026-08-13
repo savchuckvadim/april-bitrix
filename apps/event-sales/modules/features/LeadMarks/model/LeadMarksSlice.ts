@@ -91,5 +91,4 @@ export const leadMarksActions: {
     >;
 } = leadMarksSlice.actions as never;
 
-export const leadMarksReducer: Reducer<LeadMarksState> =
-    leadMarksSlice.reducer;
+export const leadMarksReducer: Reducer<LeadMarksState> = leadMarksSlice.reducer;

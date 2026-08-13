@@ -1,5 +1,4 @@
-
-type options<I> = I[]
+type options<I> = I[];
 
 interface ACheckboxGroupProps<T, I> {
     label?: string;
@@ -8,7 +7,10 @@ interface ACheckboxGroupProps<T, I> {
     nameForHandler: T;
     handleChange: (type: T, id: number) => void;
 }
-const ACheckboxGroup = <T extends string | number, I extends { id: number, title: string; code: string }>({
+const ACheckboxGroup = <
+    T extends string | number,
+    I extends { id: number; title: string; code: string },
+>({
     label,
     options,
     currentValue,
@@ -16,27 +18,24 @@ const ACheckboxGroup = <T extends string | number, I extends { id: number, title
     handleChange,
 }: ACheckboxGroupProps<T, I>) => {
     const toggleValue = (id: number) => {
-
         handleChange(nameForHandler, id);
     };
 
     return (
-        <div
-
-            className="mb-3 p-0 d-flex flex-column justify-content-start align-items-start flex-wrap">
+        <div className="mb-3 p-0 d-flex flex-column justify-content-start align-items-start flex-wrap">
             {label && <label className="form-label d-block">{label}</label>}
             {options.map(opt => (
-                <div key={opt.code}
+                <div
+                    key={opt.code}
                     className="form-check form-check-inline"
                     style={{
-                        'cursor': 'pointer'
+                        cursor: 'pointer',
                     }}
                 >
                     <input
                         style={{
-                            'cursor': 'pointer'
+                            cursor: 'pointer',
                         }}
-
                         className="form-check-input"
                         type="checkbox"
                         id={`check-${opt.code}`}
@@ -46,9 +45,11 @@ const ACheckboxGroup = <T extends string | number, I extends { id: number, title
                     />
                     <label
                         style={{
-                            'cursor': 'pointer'
+                            cursor: 'pointer',
                         }}
-                        className="form-check-label" htmlFor={`check-${opt.code}`}>
+                        className="form-check-label"
+                        htmlFor={`check-${opt.code}`}
+                    >
                         {opt.title}
                     </label>
                 </div>

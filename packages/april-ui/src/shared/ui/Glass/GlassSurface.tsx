@@ -91,7 +91,8 @@ export const GlassSurface = ({
         const rect = containerRef.current?.getBoundingClientRect();
         const actualWidth = rect?.width || 400;
         const actualHeight = rect?.height || 200;
-        const edgeSize = Math.min(actualWidth, actualHeight) * (borderWidth * 0.5);
+        const edgeSize =
+            Math.min(actualWidth, actualHeight) * (borderWidth * 0.5);
 
         const svgContent = `
       <svg viewBox="0 0 ${actualWidth} ${actualHeight}" xmlns="http://www.w3.org/2000/svg">
@@ -136,7 +137,10 @@ export const GlassSurface = ({
             }
         });
 
-        gaussianBlurRef.current?.setAttribute('stdDeviation', displace.toString());
+        gaussianBlurRef.current?.setAttribute(
+            'stdDeviation',
+            displace.toString(),
+        );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         width,
@@ -283,8 +287,18 @@ export const GlassSurface = ({
                             result="blue"
                         />
 
-                        <feBlend in="red" in2="green" mode="screen" result="rg" />
-                        <feBlend in="rg" in2="blue" mode="screen" result="output" />
+                        <feBlend
+                            in="red"
+                            in2="green"
+                            mode="screen"
+                            result="rg"
+                        />
+                        <feBlend
+                            in="rg"
+                            in2="blue"
+                            mode="screen"
+                            result="output"
+                        />
                         <feGaussianBlur
                             ref={gaussianBlurRef}
                             in="output"

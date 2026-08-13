@@ -44,23 +44,40 @@ const ASelect = <T extends Selectable>({
 }: ASelectProps<T>) => {
     const id = `input-${label}-select-${nameForHandler}`;
     const currentConfig = current ? getGroupConfig(current) : null;
-    const value = current && currentConfig ? String(currentConfig.getId(current)) : 'default';
+    const value =
+        current && currentConfig
+            ? String(currentConfig.getId(current))
+            : 'default';
 
     return (
         <div className="w-full">
-            {withLabel && <ALabel htmlId={id} label={label ?? null} errorMessage={errorMessage} />}
+            {withLabel && (
+                <ALabel
+                    htmlId={id}
+                    label={label ?? null}
+                    errorMessage={errorMessage}
+                />
+            )}
             <div className="flex items-center gap-2">
-                <Select value={value} onValueChange={v => handleChange(nameForHandler, v)}>
+                <Select
+                    value={value}
+                    onValueChange={v => handleChange(nameForHandler, v)}
+                >
                     <SelectTrigger id={id} className="w-full">
                         <SelectValue placeholder="Не выбран" />
                     </SelectTrigger>
                     <SelectContent>
-                        {!current && <SelectItem value="default">Не выбран</SelectItem>}
+                        {!current && (
+                            <SelectItem value="default">Не выбран</SelectItem>
+                        )}
                         {items.map(item => {
                             const config = getGroupConfig(item);
                             if (!config) return null;
                             return (
-                                <SelectItem key={config.getId(item)} value={String(config.getId(item))}>
+                                <SelectItem
+                                    key={config.getId(item)}
+                                    value={String(config.getId(item))}
+                                >
                                     {config.getName(item)}
                                 </SelectItem>
                             );
@@ -70,7 +87,11 @@ const ASelect = <T extends Selectable>({
                 {withAction && (
                     <div className="shrink-0">
                         {!ActionComponent ? (
-                            <AIcon action={() => action?.(true)} type={actionType ?? 'add'} actionProps={actionProps} />
+                            <AIcon
+                                action={() => action?.(true)}
+                                type={actionType ?? 'add'}
+                                actionProps={actionProps}
+                            />
                         ) : (
                             <ActionComponent {...actionComponentProps} />
                         )}

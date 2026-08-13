@@ -31,7 +31,11 @@ export const PlanTypeRadio: FC<PlanTypeRadioProps> = ({
 }) => (
     <div className="space-y-1.5">
         <Label className="text-xs font-semibold">Тип события</Label>
-        <RadioGroup value={value} onValueChange={onChange} className="space-y-1">
+        <RadioGroup
+            value={value}
+            onValueChange={onChange}
+            className="space-y-1"
+        >
             {items.map(item => {
                 const meta = getPlanTypeMeta(item.code);
                 const Icon = meta.icon;

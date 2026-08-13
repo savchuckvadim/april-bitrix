@@ -3,3 +3,8 @@
 // (её монтируют через next/dynamic по прямому пути, поэтому здесь только тип).
 export { duplicatesReducer, duplicatesActions } from './model/DuplicatesSlice';
 export { startDuplicatesAppListener } from './model/DuplicatesAppListener';
+// Перезапуск поиска — действие предупреждения в шапке карточки.
+export {
+    searchDuplicates,
+    deepSearchDuplicates,
+} from './model/DuplicatesThunk';

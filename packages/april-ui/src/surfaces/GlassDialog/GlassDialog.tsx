@@ -7,6 +7,7 @@ import { GlassCard } from '../../shared/ui/Glass/GlassCard';
 
 export type GlassDialogSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type GlassDialogOverlay = 'blur' | 'dim';
+export type GlassDialogIntensity = 'soft' | 'strong' | 'liquid';
 
 /** Ширины подобраны по реальным окнам монорепы, а не «на глазок». */
 const SIZE_CLASS: Record<GlassDialogSize, string> = {
@@ -45,6 +46,12 @@ export interface GlassDialogProps {
     className?: string;
     /** Классы стеклянной карточки: `gap-*`, `max-h-*`, `overflow-hidden`. */
     cardClassName?: string;
+    /**
+     * Плотность стекла.  — рефракция по SVG-фильтру: красиво, но это
+     * перерисовка фильтра на КАЖДОЕ движение внутри окна. В окнах, где живут
+     * шкалы и наведение мышью, ставьте  — иначе интерфейс подтормаживает.
+     */
+    intensity?: GlassDialogIntensity;
     showCloseButton?: boolean;
     children: ReactNode;
 }
@@ -69,6 +76,7 @@ export const GlassDialog = ({
     overlay = 'blur',
     className,
     cardClassName,
+    intensity = 'liquid',
     showCloseButton,
     children,
 }: GlassDialogProps) => (
@@ -79,7 +87,7 @@ export const GlassDialog = ({
             showCloseButton={showCloseButton}
         >
             <GlassCard
-                intensity="liquid"
+                intensity={intensity}
                 className={cn(CARD_BASE, cardClassName)}
             >
                 {children}

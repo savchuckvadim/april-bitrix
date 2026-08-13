@@ -31,3 +31,16 @@ export const getLeadStatusView = (
 /** Лид в работе — такие показываем всегда, остальные прячем под кнопку. */
 export const isLeadOpen = (semantic: string | null | undefined): boolean =>
     semantic === 'P' || !semantic;
+
+/**
+ * Как назвать лид в списке.
+ *
+ * У лида с портала название бывает пустым (создан роботом, без TITLE), и
+ * строка списка превращалась в пустую рамку: заголовка нет, ответственного
+ * нет, стадия скрыта — карточка «Лиды (1)» с ничем внутри. Номер здесь —
+ * не украшение, а единственное, за что можно зацепиться глазом.
+ */
+export const leadDisplayTitle = (lead: {
+    id: number;
+    title?: string | null;
+}): string => lead.title?.trim() || `Заявка №${lead.id}`;

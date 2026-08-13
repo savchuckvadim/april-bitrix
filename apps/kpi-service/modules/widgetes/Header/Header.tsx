@@ -8,7 +8,7 @@ const ManageReportFilterDynamic = dynamic(() =>
         .then(mod => mod.ManageReportFilter), {
     ssr: false,
 });
-const ThemeTogglePanelDynamic = dynamic(() => import('./components/ThemeTogglePanel').then(mod => mod.ThemeTogglePanel), {
+const ThemeTogglePanelDynamic = dynamic(() => import('@workspace/theme').then(mod => mod.ThemeTogglePanel), {
     ssr: false,
 });
 

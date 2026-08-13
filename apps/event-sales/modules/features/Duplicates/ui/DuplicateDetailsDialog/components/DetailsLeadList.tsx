@@ -33,7 +33,9 @@ export const DetailsLeadList: FC<DetailsLeadListProps> = ({ leads }) => (
                 ))}
             </ul>
         ) : (
-            <p className="text-xs text-muted-foreground">Связанных лидов нет.</p>
+            <p className="text-xs text-muted-foreground">
+                Связанных лидов нет.
+            </p>
         )}
     </section>
 );

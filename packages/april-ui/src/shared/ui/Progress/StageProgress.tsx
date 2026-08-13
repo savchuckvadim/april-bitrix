@@ -63,7 +63,10 @@ export const StageProgress: React.FC<StageProgressProps> = ({
     const share = Math.max(0, Math.min(value, 1));
     const ticks =
         total && total > 1 && total <= MAX_TICKS
-            ? Array.from({ length: total - 1 }, (_, index) => (index + 1) / total)
+            ? Array.from(
+                  { length: total - 1 },
+                  (_, index) => (index + 1) / total,
+              )
             : [];
 
     return (

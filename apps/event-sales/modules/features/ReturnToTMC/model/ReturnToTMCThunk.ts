@@ -23,13 +23,15 @@ const tmcDealsHelper = new TmcDealsHelper();
  * Вызывается listener'ом на setFetchedTasks (гейт withTM + sales-режим).
  */
 export const initReturnToTMC =
-    (tasks: EventTask[]) => async (dispatch: AppDispatch, getState: AppGetState) => {
+    (tasks: EventTask[]) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
         if (state.returnToTmc.isLoading) return;
 
         const withTmc = state.app.config.withTM;
         const isSalesDepartment =
-            state.department[DEPARTAMENT_STATE_PROP.MODE].current?.code === 'sales';
+            state.department[DEPARTAMENT_STATE_PROP.MODE].current?.code ===
+            'sales';
         if (!withTmc || !isSalesDepartment) return;
 
         dispatch(returnToTmcActions.setLoadingStatus({ status: true }));

@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@workspace/ui/components/button";
 import { LogOut } from "lucide-react";
 import { Navigation } from "./navigation/Navigation";
-import { ThemeTogglePanel } from "@/modules/shared";
+import { ThemeTogglePanel } from "@workspace/theme";
 import { useAuth } from "@/modules/features/auth";
 
 

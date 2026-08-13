@@ -28,9 +28,15 @@ export {
 export type { LeadStageDictItem } from './lib/hooks/use-lead-stage-dict';
 export { RelationMini } from './ui/RelationMini';
 export { RelationDealBars } from './ui/RelationDealBars';
+export { RelationsBar } from './ui/RelationsBar';
+export { buildRelationsBar, MAX_RELATION_BARS } from './lib/relations-bar';
+export type { RelationsBarView } from './lib/relations-bar';
 export { EntityLink } from './ui/EntityLink';
-export { getEntityCardUrl } from './lib/entity-url';
+export { getEntityCardUrl, getEntityCardPath } from './lib/entity-url';
 export { useCurrentRelations } from './lib/hooks/use-current-relations';
 export type { CurrentRelations } from './lib/hooks/use-current-relations';
 export { getEntityDescriptor } from './lib/entity-descriptor';
 export type { EntityDescriptor } from './lib/entity-descriptor';
+export { getFinishTarget } from './lib/finish-target';
+export type { FinishTarget } from './lib/finish-target';
+export { useOpenEntityCard } from './lib/hooks/use-open-entity-card';

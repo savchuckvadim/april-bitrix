@@ -24,7 +24,12 @@ const LoadingScreen = () => {
 
     if (!isVisible) return null;
 
-    return <PreloaderScreen variant="brand" logoSrc={withBasePath('/logo/logo.svg')} />;
+    return (
+        <PreloaderScreen
+            variant="brand"
+            logoSrc={withBasePath('/logo/logo.svg')}
+        />
+    );
 };
 
 export default LoadingScreen;

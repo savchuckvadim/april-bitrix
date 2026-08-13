@@ -8,7 +8,7 @@ export const ReportTitle = () => {
 
     return (
         <div className="flex flex-row items-center">
-            <ThemeTogglePanel />
+            <ThemeTogglePanel align="start" />
             <h1 className="text-md ml-2 font-bold">
                 KPI
                 <span className="text-foreground-muted ml-2 text-xs">

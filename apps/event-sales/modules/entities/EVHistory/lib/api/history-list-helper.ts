@@ -5,10 +5,7 @@ import {
     flattenBatchResults,
     toListItemPage,
 } from '@workspace/bitrix';
-import {
-    HistoryListRef,
-    getHistorySelect,
-} from '../history-list';
+import { HistoryListRef, getHistorySelect } from '../history-list';
 
 export { BX_LIST_PAGE_SIZE as HISTORY_PAGE_SIZE };
 

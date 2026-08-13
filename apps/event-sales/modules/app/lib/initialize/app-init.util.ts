@@ -8,7 +8,10 @@ import {
 } from '../../consts/app-global';
 import { appActions } from '../../model/slice/AppSlice';
 import type { AppDispatch, AppGetState } from '../../model/store';
-import { getDisplayMode, getEntitiesFromPlacement } from '../utills/placement-util';
+import {
+    getDisplayMode,
+    getEntitiesFromPlacement,
+} from '../utills/placement-util';
 import { initAppEntities, initAppTask } from '../utills/app-setup-util';
 import {
     getDepartment,
@@ -31,10 +34,15 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     // таймлайна он вообще запрещён. Подгонкой занимается useFitWindow —
     // после отрисовки и только для вкладок карточки (см. shouldFitWindow).
 
-    const { domain: authDomain, user: authUser, inFrame } = bitrix.api.getInitializedData();
+    const {
+        domain: authDomain,
+        user: authUser,
+        inFrame,
+    } = bitrix.api.getInitializedData();
     const domain = authDomain || TESTING_DOMAIN;
     const user = (authUser ?? TESTING_USER) as unknown as BXUser;
-    const placement = (bitrix.api.getPlacement() ?? TESTING_PLACEMENT) as Placement;
+    const placement = (bitrix.api.getPlacement() ??
+        TESTING_PLACEMENT) as Placement;
 
     if (!inFrame) {
         console.info(`app-init: вне фрейма Bitrix — dev-режим (${domain})`);
@@ -45,7 +53,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     // Resolve the CRM entities for the current placement via @workspace/bitrix services.
     const entities = await getEntitiesFromPlacement(placement, domain);
     const display = getDisplayMode(placement);
-    
+
     // Сделка без компании и чистый лид — легальные контексты. Падаем только
     // когда не нашлось вообще ни одной сущности-владельца.
     if (
@@ -55,7 +63,8 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     ) {
         dispatch(
             appActions.setInitializedError({
-                errorMessage: 'Не найдена сущность контекста (компания/сделка/лид)',
+                errorMessage:
+                    'Не найдена сущность контекста (компания/сделка/лид)',
             }),
         );
         return;
@@ -65,9 +74,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
 
     const userId = Number(user?.ID || TESTING_USER.ID);
     const companyId = Number(entities.currentCompany?.ID || 0);
-    const leadId = Number(
-        entities.currentLead?.ID || 0,
-    );
+    const leadId = Number(entities.currentLead?.ID || 0);
     const dealId = Number(entities.currentDeal?.ID || 0);
     const from = entities.from;
 
@@ -79,7 +86,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
         companyId,
         leadId,
         dealId,
-        from
+        from,
     );
 
     dispatch(getDepartment(domain, user));

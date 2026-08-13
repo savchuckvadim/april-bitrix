@@ -33,7 +33,9 @@ export const AfterSaleHint: FC = () => {
                 <button
                     type="button"
                     onClick={() =>
-                        dispatch(eventPlanActions.showAllTypes({ isTmc, context }))
+                        dispatch(
+                            eventPlanActions.showAllTypes({ isTmc, context }),
+                        )
                     }
                     className="inline-flex w-fit cursor-pointer items-center gap-1 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
                 >
@@ -50,8 +52,8 @@ export const AfterSaleHint: FC = () => {
                 </p>
                 <p className="text-primary-foreground/80">
                     Другие типы запустят цикл продажи заново — в воронке
-                    появится вторая сделка, и продаж по клиенту станет две.
-                    Если клиент действительно покупает снова — нажмите.
+                    появится вторая сделка, и продаж по клиенту станет две. Если
+                    клиент действительно покупает снова — нажмите.
                 </p>
             </TooltipContent>
         </Tooltip>

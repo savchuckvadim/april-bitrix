@@ -25,11 +25,21 @@ const COLOR_CLASSES: Record<ModalProps['color'], string> = {
     black: 'bg-zinc-900 text-white',
 };
 
-const AModal: FC<ModalProps> = ({ color, isActive, size, cancel, children }) => {
+const AModal: FC<ModalProps> = ({
+    color,
+    isActive,
+    size,
+    cancel,
+    children,
+}) => {
     return (
         <Dialog open={!!isActive} onOpenChange={open => !open && cancel()}>
             <DialogContent
-                className={cn('p-4', COLOR_CLASSES[color], SIZE_CLASSES[size || 'md'])}
+                className={cn(
+                    'p-4',
+                    COLOR_CLASSES[color],
+                    SIZE_CLASSES[size || 'md'],
+                )}
             >
                 {children}
             </DialogContent>

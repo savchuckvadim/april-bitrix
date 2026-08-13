@@ -10,7 +10,9 @@ import { switchDepartmentMode } from '../model/DepartmentThunk';
 /** Тумблер режима ОП/ТМЦ (гейт withDepartmentModeToggle). */
 export const DepartmentMode: FC = () => {
     const dispatch = useAppDispatch();
-    const withToggle = useAppSelector(s => s.app.config.withDepartmentModeToggle);
+    const withToggle = useAppSelector(
+        s => s.app.config.withDepartmentModeToggle,
+    );
     const mode = useAppSelector(
         s => s.department[DEPARTAMENT_STATE_PROP.MODE].current,
     );

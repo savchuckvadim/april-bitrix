@@ -1,8 +1,14 @@
 import { format } from 'date-fns';
 import type { RootState } from '@/modules/app/model/store';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
-import { EV_PLAN_CODE, EV_PLAN_PROP } from '@/modules/entities/EventPlan/type/event-plan-type';
-import { EV_TYPE, EventTask } from '@/modules/entities/EventTask/types/event-task-type';
+import {
+    EV_PLAN_CODE,
+    EV_PLAN_PROP,
+} from '@/modules/entities/EventPlan/type/event-plan-type';
+import {
+    EV_TYPE,
+    EventTask,
+} from '@/modules/entities/EventTask/types/event-task-type';
 import { PresentationProp } from '@/modules/entities/EventPresentation/model/PresSlice';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import {
@@ -88,16 +94,20 @@ export const buildFlowPayload = (
     };
 
     const responsibility =
-        departament[DEPARTAMENT_STATE_PROP.PLAN][DUSER_ROLE.RESPONSIBLE].current;
+        departament[DEPARTAMENT_STATE_PROP.PLAN][DUSER_ROLE.RESPONSIBLE]
+            .current;
     const createdBy =
         departament[DEPARTAMENT_STATE_PROP.PLAN][DUSER_ROLE.CREATED_BY].current;
-    const workStatusCode = reportState.report[EV_REPORT_PROP.WORK_STATUS].current.code;
+    const workStatusCode =
+        reportState.report[EV_REPORT_PROP.WORK_STATUS].current.code;
 
     const planType = planState[EV_PLAN_PROP.TYPE];
     const deadlineRaw = planState[EV_PLAN_PROP.DATE];
     const isPlanned =
         !isNoCall &&
-        Boolean(responsibility && createdBy && planType.current && deadlineRaw) &&
+        Boolean(
+            responsibility && createdBy && planType.current && deadlineRaw,
+        ) &&
         (workStatusCode === 'inJob' || workStatusCode === 'setAside');
 
     // Новая задача без текущей: отмеченные менеджером заявки → L_* задачи.
@@ -149,7 +159,9 @@ export const buildFlowPayload = (
     const searchedTmcItem =
         (returnToTmc.menu.isActive &&
             currentTask?.id &&
-            returnToTmc.tmcDeals.find(item => item.taskId === Number(currentTask.id))) ||
+            returnToTmc.tmcDeals.find(
+                item => item.taskId === Number(currentTask.id),
+            )) ||
         undefined;
 
     // Честный контекст владельца: бэк резолвит company > deal > lead из него.

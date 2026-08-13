@@ -4,7 +4,9 @@ import { getTaskEventComment } from './event-comment';
 describe('getTaskEventComment', () => {
     it('возвращает обрезанный текст комментария', () => {
         expect(
-            getTaskEventComment({ ufTaskEventComment: '  показать налоговый блок  ' }),
+            getTaskEventComment({
+                ufTaskEventComment: '  показать налоговый блок  ',
+            }),
         ).toBe('показать налоговый блок');
     });
 

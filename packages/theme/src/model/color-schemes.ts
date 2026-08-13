@@ -38,6 +38,30 @@ export const ColorSchemes = [
     'claude',
 ] as const;
 
-/* Пресеты масштаба UI — см. packages/ui/src/styles/tokens/density.css */
-export type UIScale = 'compact' | 'comfortable' | 'large' | 'xl';
-export const UIScales = ['compact', 'comfortable', 'large', 'xl'] as const;
+/*
+ * Пресеты масштаба UI — см. packages/ui/src/styles/tokens/density.css.
+ *
+ * Порядок — от мелкого к крупному, на него опирается шаг −/+ в ScaleToggler.
+ * `dense` добавлен под встройки-вкладки: там приложению отведён блок около
+ * 630×600, и даже 14px съедают экран быстрее, чем помещается работа.
+ */
+export type UIScale = 'dense' | 'compact' | 'comfortable' | 'large' | 'xl';
+export const UIScales = [
+    'dense',
+    'compact',
+    'comfortable',
+    'large',
+    'xl',
+] as const;
+
+/**
+ * Множители пресетов. Единственный источник — здесь: и CSS-переменная, и
+ * подпись «85%» в тогглере считаются от него, иначе они разъезжаются.
+ */
+export const UI_SCALE_FACTOR: Record<UIScale, number> = {
+    dense: 0.8125, // 13px — как собственный интерфейс Bitrix24
+    compact: 0.875, // 14px
+    comfortable: 1, // 16px
+    large: 1.125, // 18px
+    xl: 1.25, // 20px
+};

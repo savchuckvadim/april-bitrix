@@ -35,22 +35,28 @@ export const getInitSale =
                         eventSaleHelper
                             .getCompanyDeals({
                                 domain,
-                                currentTask:
-                                    currentTask as unknown as Record<string, unknown>,
+                                currentTask: currentTask as unknown as Record<
+                                    string,
+                                    unknown
+                                >,
                             })
                             .catch(() => null),
                     ),
                 );
                 for (const response of responses) {
                     if (response?.allPresentationDeals?.length) {
-                        saleTaskDeals = response.allPresentationDeals as unknown as BXDeal[];
+                        saleTaskDeals =
+                            response.allPresentationDeals as unknown as BXDeal[];
                     }
                 }
             } else {
                 const response = await eventSaleHelper.initNewTask({
                     userId,
                     domain,
-                    company: currentCompany as unknown as Record<string, unknown> | null,
+                    company: currentCompany as unknown as Record<
+                        string,
+                        unknown
+                    > | null,
                     // Реальный контекст, не хардкод: по сделке без компании
                     // бэк должен знать, что мы в deal, а не в company.
                     from: app.bitrix.from ?? 'company',
@@ -62,7 +68,9 @@ export const getInitSale =
                 }
             }
 
-            dispatch(eventSaleActions.setPortalSale({ presDeals: saleTaskDeals }));
+            dispatch(
+                eventSaleActions.setPortalSale({ presDeals: saleTaskDeals }),
+            );
         } catch (error) {
             console.error('getInitSale error', error);
         } finally {

@@ -121,10 +121,7 @@ export const classifyLead = (
     ) {
         signals.push(ELeadSignal.SALES_FIELDS);
     }
-    if (
-        input.responsibleId &&
-        salesUserIds?.has(Number(input.responsibleId))
-    ) {
+    if (input.responsibleId && salesUserIds?.has(Number(input.responsibleId))) {
         signals.push(ELeadSignal.SALES_RESPONSIBLE);
     }
 
@@ -184,10 +181,7 @@ export const classifyBxLead = (
         {
             statusId: raw['STATUS_ID'] ? String(raw['STATUS_ID']) : null,
             sourceId: raw['SOURCE_ID'] ? String(raw['SOURCE_ID']) : null,
-            opSourceRaw: ufValue('op_source_select') as
-                | string
-                | number
-                | null,
+            opSourceRaw: ufValue('op_source_select') as string | number | null,
             questUrl: raw[QUEST_URL_FIELD]
                 ? String(raw[QUEST_URL_FIELD])
                 : null,

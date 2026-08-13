@@ -59,7 +59,10 @@ export const NoCallMenu: FC = () => {
                         </SelectTrigger>
                         <SelectContent>
                             {noresultReason.items.map(item => (
-                                <SelectItem key={item.id} value={String(item.id)}>
+                                <SelectItem
+                                    key={item.id}
+                                    value={String(item.id)}
+                                >
                                     {item.name}
                                 </SelectItem>
                             ))}

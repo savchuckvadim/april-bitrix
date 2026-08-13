@@ -4,10 +4,14 @@ import { FC } from 'react';
 import { Badge } from '@workspace/ui/components/badge';
 import { EVHistoryRecord } from '../model/history-record.type';
 import { HistoryResponsible } from '../lib/hooks/use-history-responsible';
+import type { HistoryStatusView } from '../lib/history-status';
+import { HistoryStatusDot } from './HistoryStatusDot';
 
 interface HistoryRecordRowProps {
     record: EVHistoryRecord;
     responsible: HistoryResponsible | null;
+    /** Исход записи: кружок слева от бэйджей. */
+    status: HistoryStatusView;
 }
 
 /**
@@ -18,11 +22,18 @@ interface HistoryRecordRowProps {
 export const HistoryRecordRow: FC<HistoryRecordRowProps> = ({
     record,
     responsible,
+    status,
 }) => (
     <li className="border-l-2 border-border pl-2">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <HistoryStatusDot status={status} />
             {record.eventType && (
-                <Badge variant="secondary" className="shrink-0">
+                /* Лёгкая обводка цвета события: тип узнаётся до чтения. */
+                <Badge
+                    variant="secondary"
+                    data-event-type={record.eventType.code}
+                    className="shrink-0 border border-[var(--event-current)]/40"
+                >
                     {record.eventType.name}
                 </Badge>
             )}
@@ -32,7 +43,10 @@ export const HistoryRecordRow: FC<HistoryRecordRowProps> = ({
                 </Badge>
             )}
             {record.resultStatus && (
-                <Badge variant="outline" className="shrink-0 text-muted-foreground">
+                <Badge
+                    variant="outline"
+                    className="shrink-0 text-muted-foreground"
+                >
                     {record.resultStatus.name}
                 </Badge>
             )}

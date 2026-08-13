@@ -46,7 +46,9 @@ export const Gradient: FC<GradientProps> = ({
                 <div className="animate-pulse">
                     <Logo />
                 </div>
-                {isActive && <p className="text-sm text-muted-foreground">{phrase}</p>}
+                {isActive && (
+                    <p className="text-sm text-muted-foreground">{phrase}</p>
+                )}
             </div>
         </div>
     );

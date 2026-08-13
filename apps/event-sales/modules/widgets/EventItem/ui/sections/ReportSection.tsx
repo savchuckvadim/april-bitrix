@@ -53,7 +53,9 @@ export const ReportSection: FC = () => {
                         {failType.isActive && (
                             <Select
                                 value={String(failType.current.id)}
-                                onValueChange={setProp(EV_REPORT_PROP.FAIL_TYPE)}
+                                onValueChange={setProp(
+                                    EV_REPORT_PROP.FAIL_TYPE,
+                                )}
                             >
                                 <SelectTrigger
                                     size="sm"

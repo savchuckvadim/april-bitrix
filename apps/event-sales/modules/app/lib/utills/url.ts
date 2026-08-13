@@ -51,6 +51,19 @@ export const getCrmUrl = (
 };
 
 /**
+ * ПУТЬ карточки CRM-сущности внутри портала (без домена) — для слайдера
+ * Битрикса: он открывается поверх текущей страницы и требует именно путь.
+ */
+export const getCrmPath = (
+    kind: CrmEntityKind,
+    id: number | string | null | undefined,
+): string | null => {
+    const entityId = Number(id);
+    if (!Number.isFinite(entityId) || entityId <= 0) return null;
+    return `/crm/${CRM_PATH[kind]}/details/${entityId}/`;
+};
+
+/**
  * Карточка задачи в портале. Группа известна — ссылка в группе (там задача
  * открывается в своём контексте), иначе универсальный путь через
  * ответственного: портал сам разрулит доступ.

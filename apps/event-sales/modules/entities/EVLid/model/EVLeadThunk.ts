@@ -8,7 +8,9 @@ import { getLeadIdByTaskUF } from '../lib/event-lead-util';
 /** Лид из crm-привязок задачи (L_xxx) — лид-контекст виджета. */
 export const fetchLead =
     (task: EventTask | null) => async (dispatch: AppDispatch) => {
-        const leadId = task?.ufCrmTask ? getLeadIdByTaskUF(task.ufCrmTask) : null;
+        const leadId = task?.ufCrmTask
+            ? getLeadIdByTaskUF(task.ufCrmTask)
+            : null;
 
         if (!leadId) {
             dispatch(eventLeadActions.clean());

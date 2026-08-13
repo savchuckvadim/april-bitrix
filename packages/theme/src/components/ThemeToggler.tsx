@@ -25,7 +25,12 @@ const toggledTheme = (theme: string | undefined): string => {
     return theme === 'dark' ? 'light' : 'dark';
 };
 
-export const ThemeToggler = () => {
+export const ThemeToggler = ({
+    pickerAlign = 'start',
+}: {
+    /** Прокидывается в ColorSchemePicker — см. его докблок. */
+    pickerAlign?: 'start' | 'end';
+}) => {
     const { theme, setTheme } = useTheme();
 
     /*
@@ -54,7 +59,7 @@ export const ThemeToggler = () => {
                 {isDark ? <MoonStar size={20} /> : <SunDim size={20} />}
             </button>
 
-            <ColorSchemePicker />
+            <ColorSchemePicker align={pickerAlign} />
         </div>
     );
 };

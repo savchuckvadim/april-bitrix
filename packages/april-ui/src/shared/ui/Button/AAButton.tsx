@@ -55,7 +55,9 @@ const AButton: FC<AButtonProps> = ({
             <Button
                 type="button"
                 disabled={!isActive}
-                onClick={() => clickHendler && clickHendler(clickHendlerData || null)}
+                onClick={() =>
+                    clickHendler && clickHendler(clickHendlerData || null)
+                }
                 className={cn(
                     'inline-flex w-full items-center gap-2 rounded-md font-medium transition-colors',
                     solid(color),

@@ -45,9 +45,9 @@ describe('buildHistoryBindings', () => {
             'C_917',
         ]);
         expect(bindings[0]?.title).toBe('ООО Ромашка');
-        expect(
-            bindings.find(binding => binding.value === 'C_917')?.title,
-        ).toBe('Мария Сидорова');
+        expect(bindings.find(binding => binding.value === 'C_917')?.title).toBe(
+            'Мария Сидорова',
+        );
     });
 
     it('сделка без компании: лид сделки попадает из details.deals[].leadId', () => {
@@ -59,9 +59,9 @@ describe('buildHistoryBindings', () => {
             taskLinks: null,
         });
         expect(bindings.map(binding => binding.value)).toContain('L_318051');
-        expect(
-            bindings.some(binding => binding.value.startsWith('CO_')),
-        ).toBe(false);
+        expect(bindings.some(binding => binding.value.startsWith('CO_'))).toBe(
+            false,
+        );
     });
 
     it('пустой контекст — пустое множество', () => {
@@ -112,9 +112,9 @@ describe('collectDiscoveredBindings', () => {
             1,
             Array.from({ length: 30 }, (_, index) => `L_${index + 1}`),
         );
-        expect(
-            collectDiscoveredBindings([many], []).length,
-        ).toBe(DISCOVERED_BINDINGS_LIMIT);
+        expect(collectDiscoveredBindings([many], []).length).toBe(
+            DISCOVERED_BINDINGS_LIMIT,
+        );
     });
 });
 

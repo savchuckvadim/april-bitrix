@@ -257,8 +257,10 @@ export const TONE_BG: Record<Tone, string> = {
  */
 export type ToneState = 'default' | 'disabled' | 'warning' | 'error';
 
-export const STATE_TONE: Record<Exclude<ToneState, 'default' | 'disabled'>, Tone> =
-    {
-        warning: 'warning',
-        error: 'destructive',
-    };
+export const STATE_TONE: Record<
+    Exclude<ToneState, 'default' | 'disabled'>,
+    Tone
+> = {
+    warning: 'warning',
+    error: 'destructive',
+};

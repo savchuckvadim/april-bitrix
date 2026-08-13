@@ -51,12 +51,17 @@ const departmentSlice = createSlice({
             state: DepartmentState,
             action: PayloadAction<SetFetchedDepartamentPayload>,
         ) => {
-            const { department, currentUser, bossId, structure } = action.payload;
+            const { department, currentUser, bossId, structure } =
+                action.payload;
             const users = department ?? [];
             const boss = { ID: bossId } as BXUser;
 
-            state[DEPARTAMENT_STATE_PROP.DEPARTAMENT][DUSER_ROLE.RESPONSIBLE].items = users;
-            state[DEPARTAMENT_STATE_PROP.DEPARTAMENT][DUSER_ROLE.CREATED_BY].items = users;
+            state[DEPARTAMENT_STATE_PROP.DEPARTAMENT][
+                DUSER_ROLE.RESPONSIBLE
+            ].items = users;
+            state[DEPARTAMENT_STATE_PROP.DEPARTAMENT][
+                DUSER_ROLE.CREATED_BY
+            ].items = users;
             if (structure) {
                 state[DEPARTAMENT_STATE_PROP.STRUCTURE] = structure;
             }

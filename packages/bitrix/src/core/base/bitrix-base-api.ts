@@ -117,6 +117,26 @@ export class BitrixBaseApi {
         return null;
     }
 
+    /**
+     * Открывает путь портала (`/crm/deal/details/12/`) СЛАЙДЕРОМ поверх
+     * Битрикса. Новая вкладка здесь неуместна: приложение живёт во фрейме
+     * карточки, и уводить менеджера с неё нельзя — закрыв слайдер, он
+     * возвращается ровно туда, где был.
+     *
+     * Вне фрейма (dev-запуск) возвращает false — вызывающий сам решает,
+     * открыть обычную ссылку или ничего не делать.
+     */
+    public async openSlider(path: string, width = 950): Promise<boolean> {
+        if (!this.inFrame) return false;
+        try {
+            await this.bx.slider.openPath(this.bx.slider.getUrl(path), width);
+            return true;
+        } catch (error) {
+            this.logger.warn(`openSlider(${path}) не выполнен: ${String(error)}`);
+            return false;
+        }
+    }
+
     private async getInitialized() {
         if (this.inFrame) {
             const authData = this.bx.auth.getAuthData() as false | AuthData;

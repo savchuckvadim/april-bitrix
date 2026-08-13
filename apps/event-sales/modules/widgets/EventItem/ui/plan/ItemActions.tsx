@@ -61,9 +61,7 @@ export const ItemActions: FC<ItemActionsProps> = ({ variant }) => {
                 disabled={inProgress || acceptBlock.blocked}
                 title={acceptBlock.reason ?? undefined}
             >
-                {inProgress
-                    ? 'Отправка…'
-                    : (acceptBlock.reason ?? 'Отправить')}
+                {inProgress ? 'Отправка…' : (acceptBlock.reason ?? 'Отправить')}
             </Button>
         </div>
     );

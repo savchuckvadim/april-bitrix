@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { ToneBadge } from '@workspace/april-ui';
 import { SectionState } from '@/modules/shared/SectionState';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
     LEAD_REQUEST_ENUM_LABEL,
     LEAD_REQUEST_TEXT,
@@ -31,12 +32,22 @@ interface LeadRequestPanelProps {
  * логика — в useLeadRequest / lead-request-view (правило фронта).
  */
 export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
-    const { card, status, saving, error, visible, retry, patchEnum, patchBool } =
-        useLeadRequest(leadId);
+    const {
+        card,
+        status,
+        saving,
+        error,
+        visible,
+        retry,
+        patchEnum,
+        patchBool,
+    } = useLeadRequest(leadId);
+    // Компания — стоп-фактор продажи, а не одно из незаполненного.
+    const hasCompany = useAppSelector(s => Boolean(s.app.bitrix.company));
 
     if (!visible) return null;
 
-    const badge = card ? getReadinessBadge(card) : null;
+    const badge = card ? getReadinessBadge(card, { hasCompany }) : null;
 
     return (
         <SectionCard
@@ -48,7 +59,17 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
             density="compact"
             actions={
                 badge ? (
-                    <ToneBadge tone={badge.tone}>{badge.label}</ToneBadge>
+                    <ToneBadge
+                        tone={badge.tone}
+                        variant="soft"
+                        className={
+                            badge.isCompanyMissing
+                                ? 'relative before:pointer-events-none before:absolute before:-inset-px before:rounded-[inherit] before:animate-echo-ring motion-reduce:before:animate-none'
+                                : undefined
+                        }
+                    >
+                        {badge.label}
+                    </ToneBadge>
                 ) : undefined
             }
         >
@@ -100,7 +121,9 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
                             />
                             {shouldShowNotCaSelect(card) && (
                                 <LeadRequestEnumField
-                                    label={LEAD_REQUEST_ENUM_LABEL.notCaTypeCode}
+                                    label={
+                                        LEAD_REQUEST_ENUM_LABEL.notCaTypeCode
+                                    }
                                     installed={card.notCaType.installed}
                                     currentCode={card.notCaType.currentCode}
                                     items={card.notCaType.items}
@@ -120,10 +143,10 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
 
                         <LeadRequestActionsBar />
 
-                        {!card.saleReadiness.ready && (
-                            <p className="text-xs text-amber-600 dark:text-amber-400">
+                        {badge && badge.missing.length > 0 && (
+                            <p className="text-xs text-warning">
                                 {LEAD_REQUEST_TEXT.readinessMissingPrefix}:{' '}
-                                {card.saleReadiness.missing.join(', ')}
+                                {badge.missing.join(', ')}
                             </p>
                         )}
 

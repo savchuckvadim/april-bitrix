@@ -32,11 +32,7 @@ describe('buildStageDict', () => {
             },
             { STATUS_ID: 'PREP', NAME: 'Презентация', SORT: 20 },
         ]);
-        expect(dict.map(item => item.statusId)).toEqual([
-            'NEW',
-            'PREP',
-            'WON',
-        ]);
+        expect(dict.map(item => item.statusId)).toEqual(['NEW', 'PREP', 'WON']);
     });
 
     it('несёт портальный цвет стадии (COLOR или EXTRA.COLOR, с #)', () => {
@@ -88,10 +84,7 @@ describe('mapBoundDeal', () => {
     });
 
     it('стадии нет в словаре — позиция не выдумывается', () => {
-        const result = mapBoundDeal(
-            { ID: 1, STAGE_ID: 'C5:UNKNOWN' },
-            STAGES,
-        );
+        const result = mapBoundDeal({ ID: 1, STAGE_ID: 'C5:UNKNOWN' }, STAGES);
         expect(result.stage.order).toBeUndefined();
         expect(result.stage.total).toBeUndefined();
         expect(result.stage.bitrixId).toBe('C5:UNKNOWN');

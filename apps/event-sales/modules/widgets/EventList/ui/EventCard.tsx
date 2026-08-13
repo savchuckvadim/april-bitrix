@@ -9,6 +9,7 @@ import {
 } from '@workspace/ui/components/card';
 import { cn } from '@workspace/ui/lib/utils';
 import { EventTypeBadge } from '@workspace/april-ui';
+import { getEventTypeLabel } from '@/modules/entities/EventTask/lib/event-request-type';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { getEventTypeAttr } from '@/modules/entities/EventTask/lib/event-type-token';
 import { getTaskSummary } from '@/modules/entities/EventTask/lib/task-util';
@@ -29,6 +30,11 @@ interface EventCardProps {
      * пустая — блок связи не рисуется вовсе.
      */
     relation?: TaskRelation;
+    /**
+     * Дело одно на экране (встройка в задачу) — комментарию можно отдать
+     * больше высоты, прятать в туман тут нечего.
+     */
+    spacious?: boolean;
     onSelect: (status: EventItemResultType, task: EventTask) => void;
 }
 
@@ -40,7 +46,12 @@ interface EventCardProps {
  * полосы слева. Статус срока — цветом текста срока, без отдельного бэйджа:
  * во фрейме-миниатюре каждая лишняя заливка складывается в «светофор».
  */
-export const EventCard: FC<EventCardProps> = ({ task, relation, onSelect }) => {
+export const EventCard: FC<EventCardProps> = ({
+    task,
+    relation,
+    spacious,
+    onSelect,
+}) => {
     const comment = task.eventComment;
     const summary = getTaskSummary(task.description);
     const deadline = DEADLINE_VIEW[task.isExpired];
@@ -65,7 +76,13 @@ export const EventCard: FC<EventCardProps> = ({ task, relation, onSelect }) => {
         >
             <CardHeader className="gap-2 px-4">
                 <div className="flex flex-wrap items-center gap-2">
-                    <EventTypeBadge type={task.type} />
+                    <EventTypeBadge
+                        type={getEventTypeLabel({
+                            eventType: task.eventType,
+                            type: task.type,
+                            ufCrmTask: task.ufCrmTask,
+                        })}
+                    />
                     <span
                         className={cn(
                             'ml-auto whitespace-nowrap text-xs',
@@ -76,7 +93,9 @@ export const EventCard: FC<EventCardProps> = ({ task, relation, onSelect }) => {
                         {task.deadline}
                     </span>
                 </div>
-                <p className="text-base font-medium leading-snug">{task.name}</p>
+                <p className="text-base font-medium leading-snug">
+                    {task.name}
+                </p>
                 {relation && (
                     <RelationMini
                         deals={boundDeals}
@@ -90,8 +109,10 @@ export const EventCard: FC<EventCardProps> = ({ task, relation, onSelect }) => {
                 <CardContent className="flex items-start gap-3 px-4">
                     {(comment || showSummary) && (
                         <div className="flex min-w-0 flex-1 flex-col gap-2">
-                            {comment && <FogText text={comment} />}
-                            {showSummary && <FogText text={summary} />}
+                            {comment && <FogText text={comment} spacious={spacious} />}
+                            {showSummary && (
+                                <FogText text={summary} spacious={spacious} />
+                            )}
                         </div>
                     )}
                     {/* Остальные сделки клиента — миниатюрой сбоку от

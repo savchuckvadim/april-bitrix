@@ -14,16 +14,18 @@ export const ResultStatistics: FC = () => {
 
     return (
         <div className="flex flex-wrap items-center gap-1.5">
-            {RESULT_BADGES.filter(badge => results[badge.key] > 0).map(badge => (
-                <ToneBadge
-                    key={badge.key}
-                    tone={badge.tone}
-                    variant="soft"
-                    size="sm"
-                >
-                    {results[badge.key]} {badge.label}
-                </ToneBadge>
-            ))}
+            {RESULT_BADGES.filter(badge => results[badge.key] > 0).map(
+                badge => (
+                    <ToneBadge
+                        key={badge.key}
+                        tone={badge.tone}
+                        variant="soft"
+                        size="sm"
+                    >
+                        {results[badge.key]} {badge.label}
+                    </ToneBadge>
+                ),
+            )}
         </div>
     );
 };

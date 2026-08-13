@@ -43,7 +43,7 @@ export const ThemeTogglePanel = () => {
                         transition={{ duration: 0.2 }}
                         className=" flex flex-row items-center h-2 top-0 mx-2 "
                     >
-                        <ThemeToggler />
+                        <ThemeToggler pickerAlign="end" />
                     </motion.div>
                 )}
             </AnimatePresence>

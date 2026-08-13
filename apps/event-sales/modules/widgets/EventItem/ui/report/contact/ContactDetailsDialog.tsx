@@ -1,167 +1,99 @@
 'use client';
 
-import { FC, useState } from 'react';
-import { MicroSegmented } from '@workspace/april-ui';
+import { FC } from 'react';
 import { GlassDialog } from '@workspace/april-ui/surfaces';
 import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
 } from '@workspace/ui/components/dialog';
-import { Button } from '@workspace/ui/components/button';
-import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
-import {
-    ContactField,
-    EV_CONTACT_TYPE,
-    eventContactActions,
-} from '@/modules/entities/EventContact';
+import { ContactField } from '@/modules/entities/EventContact';
 import { PbxContactFieldItem } from '@/modules/features/PbxContact';
-import {
-    useContactCard,
-    useContactDetails,
-    useContactTraits,
-} from '../../../lib/hooks/use-contact-card';
+import { CONTACT_SIDES } from '../../../lib/contact-sides';
+import { useContactDialog } from '../../../lib/hooks/use-contact-dialog';
 import { ContactWho } from './ContactWho';
-
-export type ContactDialogMode = 'view' | 'edit';
-
-interface ContactDetailsDialogProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    /**
-     * Просмотр или правка. Смотрят чаще, чем правят, и в просмотре нет ни
-     * одного поля ввода — можно листать характеристики, ничего не задев.
-     */
-    mode?: ContactDialogMode;
-}
-
-const SIDES: Array<{ type: EV_CONTACT_TYPE; label: string; hint: string }> = [
-    {
-        type: EV_CONTACT_TYPE.REPORT,
-        label: 'С кем говорили',
-        hint: 'Контакт этого разговора — попадёт в отчёт и в историю общения.',
-    },
-    {
-        type: EV_CONTACT_TYPE.PLAN,
-        label: 'Кому следующий шаг',
-        hint: 'Контакт запланированного события — в нём может быть уже другой человек.',
-    },
-];
 
 /**
  * Развёрнутая карточка контакта: слева — кто это, справа — все его
  * характеристики.
  *
- * Контактов в форме два (с кем говорили и кому планируем следующий шаг), и
- * выбираются они из одного и того же списка — поэтому здесь переключатель, а
- * не две независимые формы: человек чаще всего один, а расхождение видно
- * сразу.
+ * Сторону (отчёт или план) задаёт то место, откуда окно открыли, и внутри она
+ * НЕ переключается. Переключатель тут был лишним: открывая контакт из плана,
+ * менеджер работает с планом — предлагать ему тут же подменить контакт отчёта
+ * значит звать к ошибке, которую потом никто не заметит.
  *
  * Характеристики — те же шкалы, что в миниатюре карточки, только с подписями
- * и селектами: править их удобнее в окне, где есть ширина, а мельком смотреть —
- * в миниатюре.
+ * и селектами: править их удобнее в окне, где есть ширина, а мельком
+ * смотреть — в миниатюре.
  */
-export const ContactDetailsDialog: FC<ContactDetailsDialogProps> = ({
-    open,
-    onOpenChange,
-    mode = 'edit',
-}) => {
-    const dispatch = useAppDispatch();
-    const [side, setSide] = useState<EV_CONTACT_TYPE>(EV_CONTACT_TYPE.REPORT);
-    const card = useContactCard();
-
-    const isView = mode === 'view';
-    const contact = side === EV_CONTACT_TYPE.REPORT ? card.report : card.plan;
-    const details = useContactDetails(contact);
-    const traits = useContactTraits(contact);
-    const activeSide = SIDES.find(item => item.type === side);
-
-    /** «Тот же человек» — частый случай, не заставляем искать его повторно. */
-    const copyFromReport = () => {
-        if (!card.report) return;
-        dispatch(
-            eventContactActions.setCurrentContact({
-                type: EV_CONTACT_TYPE.PLAN,
-                contactId: Number(card.report.ID),
-            }),
-        );
-    };
+export const ContactDetailsDialog: FC = () => {
+    const dialog = useContactDialog();
+    const side = CONTACT_SIDES.find(item => item.type === dialog.side);
 
     return (
         <GlassDialog
-            open={open}
-            onOpenChange={onOpenChange}
+            open={dialog.isOpen}
+            onOpenChange={isOpen => {
+                if (!isOpen) dialog.close();
+            }}
             size="lg"
+            // Внутри окна девять шкал с наведением: liquid-стекло
+            // перерисовывало SVG-фильтр на каждое движение мыши.
+            intensity="soft"
             cardClassName="gap-3 max-h-[85vh] overflow-y-auto"
         >
             <DialogHeader>
                 <DialogTitle>
-                    {isView && details.name
-                        ? `Контакт — ${details.name}`
-                        : 'Контакт'}
+                    {dialog.isView && dialog.details.name
+                        ? `Контакт — ${dialog.details.name}`
+                        : (side?.label ?? 'Контакт')}
                 </DialogTitle>
-                <DialogDescription>{activeSide?.hint}</DialogDescription>
+                <DialogDescription>{side?.hint}</DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-4 sm:grid-cols-[15rem_1fr]">
                 <div className="flex min-w-0 flex-col gap-2">
-                    <MicroSegmented
-                        ariaLabel="Контакт отчёта или плана"
-                        size="xs"
-                        stretch
-                        value={side}
-                        options={SIDES.map(item => ({
-                            value: item.type,
-                            label: item.label,
-                        }))}
-                        onChange={value => setSide(value as EV_CONTACT_TYPE)}
-                    />
-
-                    {isView ? (
+                    {dialog.isView ? (
                         <p className="text-xs font-medium">
-                            {details.name || 'не выбран'}
+                            {dialog.details.name || 'не выбран'}
                         </p>
                     ) : (
-                        <ContactField type={side} label={activeSide?.label} />
+                        <ContactField type={dialog.side} label={side?.label} />
                     )}
 
-                    {!isView &&
-                        side === EV_CONTACT_TYPE.PLAN &&
-                        card.planName && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 justify-start px-1 text-xs"
-                                onClick={copyFromReport}
-                            >
-                                Тот же, что в отчёте — {card.name}
-                            </Button>
-                        )}
-
-                    {contact && <ContactWho details={details} />}
+                    {dialog.hasContact && (
+                        <ContactWho
+                            details={dialog.details}
+                            onAttachToDeal={
+                                dialog.canAttachToDeal
+                                    ? dialog.attachToDeal
+                                    : undefined
+                            }
+                        />
+                    )}
                 </div>
 
                 <div className="min-w-0">
-                    {!contact && (
+                    {!dialog.hasContact && (
                         <p className="text-xs text-muted-foreground">
                             Сначала выберите контакт — характеристики
                             заполняются у конкретного человека.
                         </p>
                     )}
-                    {contact && !traits.length && (
+                    {dialog.hasContact && !dialog.traits.length && (
                         <p className="text-xs text-muted-foreground">
                             У контакта нет заполняемых характеристик: на портале
                             не установлены поля ОРК.
                         </p>
                     )}
-                    {contact && traits.length > 0 && (
+                    {dialog.contactId !== null && dialog.traits.length > 0 && (
                         <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
-                            {traits.map(field => (
+                            {dialog.traits.map(field => (
                                 <PbxContactFieldItem
                                     key={field.bitrixId}
-                                    contactId={Number(contact.ID)}
+                                    contactId={dialog.contactId as number}
                                     field={field}
-                                    readOnly={isView}
+                                    readOnly={dialog.isView}
                                 />
                             ))}
                         </div>

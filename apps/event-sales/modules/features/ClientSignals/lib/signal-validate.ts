@@ -50,8 +50,7 @@ export const multifieldValues = (raw: unknown): string[] => {
 };
 
 /** Схлопнутые цифры для сравнения телефонов (последние 10 — как бэк дублей). */
-const phoneKey = (value: string): string =>
-    value.replace(/\D/g, '').slice(-10);
+const phoneKey = (value: string): string => value.replace(/\D/g, '').slice(-10);
 
 /**
  * Массив мультифилда для crm.*.update: существующие строки (с ID —

@@ -1,8 +1,5 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import {
-    getEntityDescriptor,
-    isLeadOpen,
-} from '@/modules/entities/RelatedCrm';
+import { getEntityDescriptor, isLeadOpen } from '@/modules/entities/RelatedCrm';
 import { RelatedCrmHelper } from '@/modules/entities/RelatedCrm/lib/api/related-crm-helper';
 import { LeadRequestHelper } from '@/modules/features/LeadRequestCard/lib/api/lead-request-helper';
 import { presentationLeadLinkActions } from './PresentationLeadLinkSlice';
@@ -102,7 +99,8 @@ export const openPresentationLeadLink =
 
 /** Выбор кандидата: грузим его карточку — варианты статусов для селектов. */
 export const selectPresentationLeadCandidate =
-    (leadId: number) => async (dispatch: AppDispatch, getState: AppGetState) => {
+    (leadId: number) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
         dispatch(presentationLeadLinkActions.candidateSelected(leadId));
         try {
             const card = await leadRequestHelper.getCard(

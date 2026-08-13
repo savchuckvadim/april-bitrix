@@ -58,7 +58,11 @@ describe('appendMultifield', () => {
 
     it('дубль email — без учёта регистра', () => {
         expect(
-            appendMultifield([{ VALUE: 'Name@Domain.ru' }], 'email', 'name@domain.ru'),
+            appendMultifield(
+                [{ VALUE: 'Name@Domain.ru' }],
+                'email',
+                'name@domain.ru',
+            ),
         ).toBeNull();
     });
 });

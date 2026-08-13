@@ -3,6 +3,13 @@ import { BXUser } from '@workspace/bx';
 // TODO(migration): перенести конфиг в portal payload / config service —
 // сейчас поведение 1:1 с legacy AppSlice + EventTaskThunk (хардкод по доменам).
 
+/** Ключи, которые выключены общим гейтом звонков. */
+export const CALL_FEATURE_KEYS = [
+    'withRecords',
+    'withTranscribation',
+    'withAI',
+] as const;
+
 /** Фич-флаги и портальные константы, зависящие от домена Bitrix24. */
 export interface DomainFeatureConfig {
     withNoPlan: boolean;
@@ -25,6 +32,16 @@ export interface DomainFeatureConfig {
     bossId: number;
 }
 
+/**
+ * Звонки (записи, расшифровка, ИИ-разбор) выключены целиком до отдельной
+ * задачи — решение владельца 13.08.2026.
+ *
+ * Гейт один и стоит ПОСЛЕ доменных исключений: иначе портал, где записи были
+ * включены персонально, продолжал бы их грузить. Вернуть — снять этот флаг,
+ * код на месте.
+ */
+export const ARE_CALLS_ENABLED = false;
+
 const DEFAULT_CONFIG: DomainFeatureConfig = {
     withNoPlan: false,
     withNoReschedle: false,
@@ -34,7 +51,10 @@ const DEFAULT_CONFIG: DomainFeatureConfig = {
     withRecords: true,
     withTranscribation: false,
     withAI: false,
-    withPresentationAnimate: false,
+    // Кнопка «Провести презентацию» зовёт эхо-кольцами везде: это главный
+    // призыв к действию на экране, и выключать его по умолчанию незачем.
+    // Флаг остался выключателем для порталов, где презентаций нет.
+    withPresentationAnimate: true,
     withColorRequired: false,
     withCheckPresentation: false,
     withDepartmentModeToggle: false,
@@ -109,6 +129,14 @@ export const getDomainConfig = (
         config.withRecords = true;
         config.withTranscribation = true;
         config.withAI = true;
+    }
+
+    // Последним словом — общий выключатель звонков: он сильнее и доменных
+    // исключений, и персональных.
+    if (!ARE_CALLS_ENABLED) {
+        config.withRecords = false;
+        config.withTranscribation = false;
+        config.withAI = false;
     }
 
     return config;

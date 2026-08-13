@@ -2,7 +2,9 @@ import React from 'react';
 import { useReport } from '../../model';
 import { Button } from '@workspace/ui/components/button';
 import { DownLoad } from '@/modules/feature';
-import { ThemeTogglePanel } from './components/ThemeTogglerPanel/ThemeTogglePanel';
+import { ThemeTogglePanel } from '@workspace/theme';
+import { SkapImportControls } from '@workspace/skap';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import SaveFilter from './components/SaveFilter/SaveFilter';
 
 export default function ReportHeader({
@@ -13,14 +15,18 @@ export default function ReportHeader({
     setIsFilterOpen: (isFilterOpen: boolean) => void;
 }) {
     const { handleUpdateReport } = useReport();
+    const domain = useAppSelector(state => state.app.domain);
 
     return (
         <div className="flex justify-between items-center mb-4">
             <div className="flex flex-row">
-                <ThemeTogglePanel />
+                <ThemeTogglePanel align="start" />
                 <h1 className="text-xl font-bold">KPI</h1>
             </div>
             <div className="flex flex-row items-center ">
+                <div className="mr-2">
+                    <SkapImportControls domain={domain} compact />
+                </div>
                 <div className="mr-2">{isFilterOpen && <SaveFilter />}</div>
                 <div className="mr-2">
                     {isFilterOpen ? (

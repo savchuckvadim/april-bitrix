@@ -27,8 +27,10 @@ export const getCurrentWorkStatusItems = (
 
     return items.filter(item => {
         const isCurrent = item.code == currentCode;
-        if (currentCode === 'setAside' && isCurrent) return item.code !== 'inJob';
-        if (currentCode === 'inJob' && isCurrent) return item.code !== 'setAside';
+        if (currentCode === 'setAside' && isCurrent)
+            return item.code !== 'inJob';
+        if (currentCode === 'inJob' && isCurrent)
+            return item.code !== 'setAside';
         return item.code !== 'setAside';
     });
 };

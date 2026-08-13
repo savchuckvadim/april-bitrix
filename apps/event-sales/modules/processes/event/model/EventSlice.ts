@@ -68,7 +68,9 @@ const eventSlice = createSlice({
             action: PayloadAction<{ code: EV_ERROR_CODE; value: string }>,
         ) {
             state.errors.current[action.payload.code] = action.payload.value;
-            state.errors.isError = Object.values(state.errors.current).some(Boolean);
+            state.errors.isError = Object.values(state.errors.current).some(
+                Boolean,
+            );
         },
         cleanErrors(state: EventState) {
             state.errors.isError = false;

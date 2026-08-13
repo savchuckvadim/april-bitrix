@@ -30,7 +30,12 @@ export const ProspectScale: FC<{ compact?: boolean }> = ({ compact }) => {
     const current = color.current?.code as CompanyColorType | undefined;
 
     return (
-        <div className={cn('flex min-w-0 items-center', compact ? 'gap-1' : 'gap-2')}>
+        <div
+            className={cn(
+                'flex min-w-0 items-center',
+                compact ? 'gap-1' : 'gap-2',
+            )}
+        >
             <span
                 className="flex shrink-0 items-center gap-0.5"
                 role="radiogroup"

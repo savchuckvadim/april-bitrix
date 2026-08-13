@@ -17,7 +17,8 @@ import {
 } from '@/modules/entities/EventPlan';
 import { fetchPlanDaySchedule } from '@/modules/entities/EventPlan/model/PlanScheduleThunk';
 import type { EventTaskEventType } from '@/modules/entities/EventTask/types/event-task-type';
-import { ContactField, EV_CONTACT_TYPE } from '@/modules/entities/EventContact';
+
+import { PlanContactRow } from './PlanContactRow';
 import { TaskLeadLinksCard } from '@/modules/features/TaskLeadLinks/ui/TaskLeadLinksCard';
 import { PlanTypeRadio } from './PlanTypeRadio';
 
@@ -57,7 +58,12 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
     if (!withPlan) {
         return (
             <aside data-event-type={planTypeAttr}>
-                <SectionCard title="Планируем" tone="event" accent density="compact">
+                <SectionCard
+                    title="Планируем"
+                    tone="event"
+                    accent
+                    density="compact"
+                >
                     <p className="text-xs leading-relaxed text-muted-foreground">
                         По финальному статусу следующее событие не планируется.
                     </p>
@@ -96,12 +102,15 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                 ) : (
                     <>
                         {/*
-                          * Название первым: менеджер сначала формулирует,
-                          * о чём договорились, и только потом уточняет тип —
-                          * так порядок совпадает с ходом разговора.
-                          */}
+                         * Название первым: менеджер сначала формулирует,
+                         * о чём договорились, и только потом уточняет тип —
+                         * так порядок совпадает с ходом разговора.
+                         */}
                         <div className="space-y-1.5">
-                            <Label htmlFor="plan-name" className="text-xs font-semibold">
+                            <Label
+                                htmlFor="plan-name"
+                                className="text-xs font-semibold"
+                            >
                                 Название
                             </Label>
                             <Input
@@ -132,7 +141,9 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                                 checked={isImportant}
                                 onCheckedChange={status =>
                                     dispatch(
-                                        eventPlanActions.setIsImportant({ status }),
+                                        eventPlanActions.setIsImportant({
+                                            status,
+                                        }),
                                     )
                                 }
                                 aria-label="Пометить событие важным"
@@ -142,17 +153,21 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
 
                         <PlanTypeRadio
                             items={type.items}
-                            value={type.current ? String(type.current.id) : undefined}
+                            value={
+                                type.current
+                                    ? String(type.current.id)
+                                    : undefined
+                            }
                             onChange={setProp(EV_PLAN_PROP.TYPE)}
                         />
                         <AfterSaleHint />
 
                         {/*
-                          * Контейнерный запрос, а не брейкпоинт экрана: дата
-                          * и время встают в две колонки только если колонка
-                          * плана реально широкая. Иначе при крупном --app-scale
-                          * кнопка даты вылезает за границу карточки.
-                          */}
+                         * Контейнерный запрос, а не брейкпоинт экрана: дата
+                         * и время встают в две колонки только если колонка
+                         * плана реально широкая. Иначе при крупном --app-scale
+                         * кнопка даты вылезает за границу карточки.
+                         */}
                         <div className="@container space-y-1.5">
                             <DateTimePicker
                                 value={plan[EV_PLAN_PROP.DATE] ?? ''}
@@ -165,13 +180,13 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                             />
                             {plan[EV_PLAN_PROP.IS_EXPIRED] && (
                                 <p className="text-xs text-warning">
-                                    Дальше четырёх месяцев — событие уйдёт
-                                    в «Отложено».
+                                    Дальше четырёх месяцев — событие уйдёт в
+                                    «Отложено».
                                 </p>
                             )}
                         </div>
 
-                        <ContactField type={EV_CONTACT_TYPE.PLAN} />
+                        <PlanContactRow />
 
                         {/* Новая задача (текущей нет): связать с заявками
                             клиента — иначе путь заявки потеряет задачу. */}

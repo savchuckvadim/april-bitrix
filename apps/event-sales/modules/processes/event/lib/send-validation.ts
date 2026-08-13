@@ -1,6 +1,9 @@
 import type { RootState } from '@/modules/app/model/store';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
-import { EV_PLAN_CODE, EV_PLAN_PROP } from '@/modules/entities/EventPlan/type/event-plan-type';
+import {
+    EV_PLAN_CODE,
+    EV_PLAN_PROP,
+} from '@/modules/entities/EventPlan/type/event-plan-type';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { emptyErrors } from '../model/EventSlice';
 import { EV_ERROR_CODE, SetErrorsPayload } from '../types/event-types';
@@ -35,7 +38,9 @@ export const validateSend = (state: RootState): SendValidationResult => {
     const isNew = resultStatus === EventItemResultType.NEW;
     const isNoResult = resultStatus === EventItemResultType.NORESULT;
     const isNoWork =
-        workStatus === 'fail' || workStatus === 'setAside' || workStatus === 'success';
+        workStatus === 'fail' ||
+        workStatus === 'setAside' ||
+        workStatus === 'success';
     const isFail = workStatus === 'fail';
     const isPlanActive = plan[EV_PLAN_PROP.IS_ACTIVE];
 

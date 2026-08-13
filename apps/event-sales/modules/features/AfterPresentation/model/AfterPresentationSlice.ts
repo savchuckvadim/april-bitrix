@@ -35,9 +35,13 @@ const afterPresentationSlice = createSlice({
         },
         setAnswer: (
             state: AfterPresentationState,
-            action: PayloadAction<{ id: string; value: CheckPresentationValue }>,
+            action: PayloadAction<{
+                id: string;
+                value: CheckPresentationValue;
+            }>,
         ) => {
-            state.checkPresentation.answers[action.payload.id] = action.payload.value;
+            state.checkPresentation.answers[action.payload.id] =
+                action.payload.value;
         },
         setActiveStatus: (
             state: AfterPresentationState,
@@ -47,11 +51,15 @@ const afterPresentationSlice = createSlice({
         },
         /** зафиксировать текущие ответы как сохранённые (при успешном submit) */
         commitAnswers: (state: AfterPresentationState) => {
-            state.checkPresentation.committed = { ...state.checkPresentation.answers };
+            state.checkPresentation.committed = {
+                ...state.checkPresentation.answers,
+            };
         },
         /** откатить рабочие ответы к последнему сохранённому снимку (при отмене) */
         revertAnswers: (state: AfterPresentationState) => {
-            state.checkPresentation.answers = { ...state.checkPresentation.committed };
+            state.checkPresentation.answers = {
+                ...state.checkPresentation.committed,
+            };
         },
         setConfirmed: (
             state: AfterPresentationState,

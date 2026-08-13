@@ -1,0 +1,25 @@
+{
+    "name": "@workspace/skap",
+    "version": "1.0.0",
+    "main": "index.ts",
+    "scripts": {
+        "lint": "eslint . --max-warnings 0"
+    },
+    "dependencies": {
+        "@workspace/nest-event-service-api": "workspace:*",
+        "@workspace/ui": "workspace:*",
+        "lucide-react": "^0.475.0",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@workspace/eslint-config": "workspace:*",
+        "@workspace/typescript-config": "workspace:*",
+        "typescript": "^5.7.3"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "Переиспользуемые портальные контролы импорта СКАП: кнопка «Обновить из хранилища», индикатор прогона, ссылки на Диск и смарт. Без react-query — работает в любом приложении без провайдеров."
+}

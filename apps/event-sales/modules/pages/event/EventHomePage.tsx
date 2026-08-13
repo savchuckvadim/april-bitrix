@@ -17,7 +17,14 @@ import EventListPage from './EventListPage';
 const EventHomePage: FC = () => {
     const mode = useAppSelector(s => s.app.display.mode);
 
-    return mode === APP_DISPLAY_MODE.TIMELINE ? (
+    // Встройка в задачу показывает тот же экран клиента: сущность у задачи уже
+    // выбрана (task-primary-context), и работать в ней надо с тем же
+    // контекстом — связями, историей, заявкой. Отличие только внутри секции
+    // дел: отчитываемся по текущей задаче, остальные — ссылками.
+    const withBoard =
+        mode === APP_DISPLAY_MODE.TIMELINE || mode === APP_DISPLAY_MODE.TASK;
+
+    return withBoard ? (
         <EntityBoardPage />
     ) : (
         <EventListPage />

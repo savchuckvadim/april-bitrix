@@ -1,8 +1,18 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import { APP_DISPLAY_MODE, APP_TYPE } from '../../types/app/app-type';
-import { BXCompany, BXDeal, BXLead, BXTask, BXUser, Placement } from '@workspace/bx';
-import { DomainFeatureConfig, getDomainConfig } from '../../consts/domain-config';
+import {
+    BXCompany,
+    BXDeal,
+    BXLead,
+    BXTask,
+    BXUser,
+    Placement,
+} from '@workspace/bx';
+import {
+    DomainFeatureConfig,
+    getDomainConfig,
+} from '../../consts/domain-config';
 
 export type AppState = typeof initialState;
 
@@ -52,7 +62,10 @@ const appSlice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        isLoading: (state: AppState, action: PayloadAction<{ status: boolean }>) => {
+        isLoading: (
+            state: AppState,
+            action: PayloadAction<{ status: boolean }>,
+        ) => {
             state.isLoading = action.payload.status;
         },
         setAppData: (

@@ -1,7 +1,12 @@
-import React, { useMemo } from "react";
-import { Line } from "react-chartjs-2";
+import React, { useMemo } from 'react';
+import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@workspace/ui/components/card';
 
 Chart.register(...registerables);
 
@@ -21,33 +26,36 @@ export const LineChart: React.FC<LineChartProps> = ({
     title,
     yAxisLabel = 'Значение',
     color = '#3b82f6',
-    height = 300
+    height = 300,
 }) => {
-    const chartData = useMemo(() => ({
-        labels: data.map(item => item.month),
-        datasets: [
-            {
-                label: yAxisLabel,
-                data: data.map(item => item.value),
-                borderColor: color,
-                backgroundColor: `${color}20`,
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: color,
-                pointBorderColor: color,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-            }
-        ]
-    }), [data, yAxisLabel, color]);
+    const chartData = useMemo(
+        () => ({
+            labels: data.map(item => item.month),
+            datasets: [
+                {
+                    label: yAxisLabel,
+                    data: data.map(item => item.value),
+                    borderColor: color,
+                    backgroundColor: `${color}20`,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: color,
+                    pointBorderColor: color,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                },
+            ],
+        }),
+        [data, yAxisLabel, color],
+    );
 
     const options = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                display: false
+                display: false,
             },
             tooltip: {
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -58,36 +66,36 @@ export const LineChart: React.FC<LineChartProps> = ({
                 callbacks: {
                     label: function (context: any) {
                         return `${yAxisLabel}: ${context.parsed.y.toLocaleString('ru-RU')} ₽`;
-                    }
-                }
-            }
+                    },
+                },
+            },
         },
         scales: {
             x: {
                 grid: {
-                    display: false
+                    display: false,
                 },
                 ticks: {
                     maxRotation: 45,
-                    minRotation: 0
-                }
+                    minRotation: 0,
+                },
             },
             y: {
                 beginAtZero: true,
                 grid: {
-                    color: 'rgba(0, 0, 0, 0.1)'
+                    color: 'rgba(0, 0, 0, 0.1)',
                 },
                 ticks: {
                     callback: function (value: any) {
                         return `${value.toLocaleString('ru-RU')} ₽`;
-                    }
-                }
-            }
+                    },
+                },
+            },
         },
         interaction: {
             intersect: false,
-            mode: 'index' as const
-        }
+            mode: 'index' as const,
+        },
     };
 
     return (

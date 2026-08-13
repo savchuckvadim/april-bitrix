@@ -39,11 +39,23 @@ export const getInnTarget = createSelector(
     ],
     (portal, company, deal, lead): InnTarget | null => {
         const target = company
-            ? { entity: 'company' as const, raw: company, fields: portal?.company?.bitrixfields }
+            ? {
+                  entity: 'company' as const,
+                  raw: company,
+                  fields: portal?.company?.bitrixfields,
+              }
             : deal
-              ? { entity: 'deal' as const, raw: deal, fields: portal?.bitrixDeal?.bitrixfields }
+              ? {
+                    entity: 'deal' as const,
+                    raw: deal,
+                    fields: portal?.bitrixDeal?.bitrixfields,
+                }
               : lead
-                ? { entity: 'lead' as const, raw: lead, fields: portal?.lead?.bitrixfields }
+                ? {
+                      entity: 'lead' as const,
+                      raw: lead,
+                      fields: portal?.lead?.bitrixfields,
+                  }
                 : null;
         if (!target) return null;
 

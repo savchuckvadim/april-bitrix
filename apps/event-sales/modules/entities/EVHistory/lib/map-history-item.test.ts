@@ -17,7 +17,10 @@ const ref: HistoryListRef = {
         crm: { key: 'PROPERTY_104', items: [] },
         eventType: {
             key: 'PROPERTY_105',
-            items: [item(11, 'xo', 'Холодный звонок'), item(12, 'call', 'Звонок')],
+            items: [
+                item(11, 'xo', 'Холодный звонок'),
+                item(12, 'call', 'Звонок'),
+            ],
         },
         eventAction: {
             key: 'PROPERTY_106',
@@ -53,7 +56,10 @@ describe('mapHistoryElement', () => {
         expect(record.comment).toBe('Договорились о счёте');
         expect(record.date).toBe('05.08.2026 14:30:00');
         expect(record.responsibleId).toBe(447);
-        expect(record.eventType).toEqual({ code: 'xo', name: 'Холодный звонок' });
+        expect(record.eventType).toEqual({
+            code: 'xo',
+            name: 'Холодный звонок',
+        });
         expect(record.eventAction).toEqual({ code: 'done', name: 'Состоялся' });
         expect(record.resultStatus).toEqual({
             code: 'op_call_result_yes',

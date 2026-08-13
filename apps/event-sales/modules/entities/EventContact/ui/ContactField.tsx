@@ -6,7 +6,6 @@ import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { eventContactActions } from '../model/EventContactSlice';
 import { EV_CONTACT_TYPE } from '../type/event-contact-type';
 import { useContactOptions } from '../lib/use-contact-options';
-import { ContactCreateDialog } from './ContactCreateDialog';
 
 interface ContactFieldProps {
     type: EV_CONTACT_TYPE;
@@ -21,13 +20,12 @@ interface ContactFieldProps {
  * и сделал историю общения бесполезной.
  *
  * Список собирается из всех связей клиента (компания, сделка, лид, лид сделки,
- * привязки задачи) — см. collectRelatedContacts. Без компании выбор остаётся,
- * пропадает только создание: новый контакт заводится в компании.
+ * привязки задачи) — см. collectRelatedContacts. Компания не обязательна:
+ * созданный контакт привязывается к текущей сущности (bindContactToCurrentEntity).
  */
 export const ContactField: FC<ContactFieldProps> = ({ type, label }) => {
     const dispatch = useAppDispatch();
     const options = useContactOptions();
-    const company = useAppSelector(s => s.app.bitrix.company);
     const current = useAppSelector(s =>
         type === EV_CONTACT_TYPE.REPORT
             ? s.contact.current.report
@@ -45,42 +43,33 @@ export const ContactField: FC<ContactFieldProps> = ({ type, label }) => {
             : 'Контакт');
 
     return (
-        <>
-            <FieldCombobox
-                id={`contact-${type}`}
-                label={fieldLabel}
-                options={options}
-                value={current ? String(current.ID) : undefined}
-                placeholder={
-                    options.length ? 'Выберите контакт' : 'Контактов пока нет'
-                }
-                searchPlaceholder="Имя или должность…"
-                emptyText="Контакт не найден"
-                createLabel="Создать контакт"
-                // Заводится контакт в компании (COMPANY_ID при создании):
-                // без неё создавать некуда, а выбирать уже найденных — можно.
-                onCreate={
-                    company
-                        ? () =>
-                              dispatch(
-                                  eventContactActions.setCreatingContact({
-                                      isCreating: true,
-                                      type,
-                                  }),
-                              )
-                        : undefined
-                }
-                onChange={value =>
-                    dispatch(
-                        eventContactActions.setCurrentContact({
-                            type,
-                            contactId: Number(value),
-                        }),
-                    )
-                }
-            />
-
-            <ContactCreateDialog type={type} />
-        </>
+        <FieldCombobox
+            id={`contact-${type}`}
+            label={fieldLabel}
+            options={options}
+            value={current ? String(current.ID) : undefined}
+            placeholder={
+                options.length ? 'Выберите контакт' : 'Контактов пока нет'
+            }
+            searchPlaceholder="Имя или должность…"
+            emptyText="Контакт не найден"
+            createLabel="Создать контакт"
+            onCreate={() =>
+                dispatch(
+                    eventContactActions.setCreatingContact({
+                        isCreating: true,
+                        type,
+                    }),
+                )
+            }
+            onChange={value =>
+                dispatch(
+                    eventContactActions.setCurrentContact({
+                        type,
+                        contactId: Number(value),
+                    }),
+                )
+            }
+        />
     );
 };

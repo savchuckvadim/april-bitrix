@@ -32,5 +32,7 @@ export const getMissingRequiredIds = (
     answers: Record<string, CheckPresentationValue>,
 ): string[] =>
     items
-        .filter(item => item.required && !isAnswerFilled(item, answers[item.id]))
+        .filter(
+            item => item.required && !isAnswerFilled(item, answers[item.id]),
+        )
         .map(item => item.id);

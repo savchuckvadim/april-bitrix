@@ -37,8 +37,7 @@ export const RelatedLinksBadge: FC = () => {
             className="inline-flex items-center gap-1 text-xs text-muted-foreground/70"
             title={`Ещё связи задачи: ${breakdown}`}
         >
-            <Link2 aria-hidden className="size-3 shrink-0" />
-            +{others.length}
+            <Link2 aria-hidden className="size-3 shrink-0" />+{others.length}
         </span>
     );
 };

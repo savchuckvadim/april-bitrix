@@ -4,7 +4,11 @@ import { FC } from 'react';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { EV_REPORT_PROP, setAndSaveComment } from '@/modules/entities/EventReport';
+import {
+    EV_REPORT_PROP,
+    setAndSaveComment,
+} from '@/modules/entities/EventReport';
+import { COMMENT_ROWS, type ReportDensity } from '../../lib/report-density';
 
 /**
  * Комментарий отчёта — главный рабочий инструмент менеджера.
@@ -12,8 +16,14 @@ import { EV_REPORT_PROP, setAndSaveComment } from '@/modules/entities/EventRepor
  * Большое поле сразу, без раскрытия: не «строчка, которую надо тянуть»,
  * а полноценное окно. Растёт по содержимому, дальше тянется вручную.
  * Черновик пишется в localStorage, при отправке обязателен.
+ *
+ * Стартовая высота зависит от того, сколько карточек стоит рядом: одна —
+ * комментарию достаётся вся вертикаль, пять — он ужимается, но не ниже
+ * читаемого минимума (см. report-density).
  */
-export const CommentSection: FC = () => {
+export const CommentSection: FC<{ density?: ReportDensity }> = ({
+    density = 'normal',
+}) => {
     const dispatch = useAppDispatch();
     const comment = useAppSelector(
         s => s.eventReport.report[EV_REPORT_PROP.COMMENT],
@@ -25,15 +35,15 @@ export const CommentSection: FC = () => {
             title="Комментарий"
             state={error ? 'error' : 'default'}
             message={error}
-            density='comfortable'
+            density="comfortable"
         >
-
             <Textarea
                 value={comment}
                 placeholder="Как прошёл разговор?"
                 aria-invalid={!!error}
                 onChange={e => dispatch(setAndSaveComment(e.target.value))}
-                className="field-sizing-content min-h-40 resize-y"
+                rows={COMMENT_ROWS[density]}
+                className="field-sizing-content resize-y"
             />
         </SectionCard>
     );

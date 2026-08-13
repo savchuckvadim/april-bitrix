@@ -19,7 +19,8 @@ const CLIENT_STATUS_CODE = 'op_client_status';
  * Вызывается listener'ом на portalActions.setPortal (store-listeners).
  */
 export const setInitEventCompany =
-    (portal: Portal) => async (dispatch: AppDispatch, getState: AppGetState) => {
+    (portal: Portal) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
         const company = getState().app.bitrix.company;
         const pFields = portal.company?.bitrixfields;
         if (!company || !pFields) return;
@@ -31,10 +32,14 @@ export const setInitEventCompany =
 
         if (colorPField) {
             const colorBtrixId = ufKey(colorPField);
-            const colorCurrentId = (company as unknown as Record<string, unknown>)[colorBtrixId];
+            const colorCurrentId = (
+                company as unknown as Record<string, unknown>
+            )[colorBtrixId];
             const colorCurrent =
-                findFieldItemByBitrixId(colorPField, String(colorCurrentId ?? '')) ??
-                undefined;
+                findFieldItemByBitrixId(
+                    colorPField,
+                    String(colorCurrentId ?? ''),
+                ) ?? undefined;
             dispatch(
                 eventCompanyActions.setInitCompanyColor({
                     bitrixId: colorBtrixId,
@@ -47,7 +52,9 @@ export const setInitEventCompany =
 
         if (clientStatusPField) {
             const statusBtrixId = ufKey(clientStatusPField);
-            const statusCurrentId = (company as unknown as Record<string, unknown>)[statusBtrixId];
+            const statusCurrentId = (
+                company as unknown as Record<string, unknown>
+            )[statusBtrixId];
             const statusCurrent =
                 findFieldItemByBitrixId(
                     clientStatusPField,
@@ -111,9 +118,12 @@ export const updateCompany =
 
         const current = targetState.items.find(fi => fi.code == code);
         if (current) {
-            const result = await Bitrix.getService().company.update(company.ID, {
-                [targetState.bitrixId]: current.bitrixId,
-            });
+            const result = await Bitrix.getService().company.update(
+                company.ID,
+                {
+                    [targetState.bitrixId]: current.bitrixId,
+                },
+            );
             if (result) {
                 dispatch(eventCompanyActions.setCurrentProp({ code, type }));
             }

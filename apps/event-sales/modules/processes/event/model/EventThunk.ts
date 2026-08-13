@@ -12,10 +12,13 @@ export const initialEventApp =
     (foreignPlacement: Placement | null = null) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
-        let placement = foreignPlacement ?? (state.app.bitrix.placement as Placement | null);
-debugger
+        let placement =
+            foreignPlacement ??
+            (state.app.bitrix.placement as Placement | null);
+        debugger;
         if (!placement && process.env.IN_BITRIX === 'true') {
-            placement = (await Bitrix.getService().api.getPlacement()) as Placement | null;
+            placement =
+                (await Bitrix.getService().api.getPlacement()) as Placement | null;
         }
 
         dispatch(getSavedComment());

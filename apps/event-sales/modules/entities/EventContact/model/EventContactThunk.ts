@@ -19,7 +19,10 @@ import {
     getPbxContactByContact,
 } from '../util/pbx-contact-util';
 import { getCrmLinksFromRaw } from '@/modules/entities/EventTask/lib/task-links';
-import { emptyErrors, eventActions } from '@/modules/processes/event/model/EventSlice';
+import {
+    emptyErrors,
+    eventActions,
+} from '@/modules/processes/event/model/EventSlice';
 import {
     EV_ERROR_CODE,
     SetErrorsPayload,
@@ -39,7 +42,8 @@ import {
  * приехали (у задачи свои CRM-привязки).
  */
 export const collectRelatedContacts =
-    (portal: Portal) => async (dispatch: AppDispatch, getState: AppGetState) => {
+    (portal: Portal) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
         const { company, deal, lead } = state.app.bitrix;
         const bitrix = Bitrix.getService();
@@ -57,7 +61,9 @@ export const collectRelatedContacts =
         if (deal) {
             const items = await bitrix.deal.contactItemsGet(deal.ID);
             addSource(sources, 'deal', [
-                ...uniqueIds((items ?? []).map(item => Number(item.CONTACT_ID))),
+                ...uniqueIds(
+                    (items ?? []).map(item => Number(item.CONTACT_ID)),
+                ),
                 ...dealContactIds(deal as unknown as Record<string, unknown>),
             ]);
         }
@@ -69,17 +75,19 @@ export const collectRelatedContacts =
 
         // Лид, из которого выросла сделка, и лиды из привязок задачи: контакт
         // мог остаться только там — в сделку его никто не переносил.
-        const taskLinks = getCrmLinksFromRaw(state.eventTask.current?.ufCrmTask);
+        const taskLinks = getCrmLinksFromRaw(
+            state.eventTask.current?.ufCrmTask,
+        );
         const leadIds = relatedLeadIds({
             deal: deal as unknown as Record<string, unknown> | null,
             lead: lead as unknown as Record<string, unknown> | null,
             taskLeadIds: taskLinks.leadIds,
         });
         if (leadIds.length) {
-            const response = await bitrix.lead.getList({ ID: leadIds } as never, [
-                'ID',
-                'CONTACT_ID',
-            ]);
+            const response = await bitrix.lead.getList(
+                { ID: leadIds } as never,
+                ['ID', 'CONTACT_ID'],
+            );
             addSource(
                 sources,
                 'relatedLead',
@@ -116,14 +124,16 @@ export const loadContactsByIds =
         const contacts: BXContact[] = [];
         if (missing.length) {
             const bitrix = Bitrix.getService();
-            const select = getContactsRequestSelect();
+            const select = getContactsRequestSelect(portal);
             for (const chunk of chunkArray<number>(missing, 50)) {
                 const response = await bitrix.contact.getList(
                     { ID: chunk } as never,
                     select,
                 );
                 if (Array.isArray(response?.result)) {
-                    contacts.push(...(response.result as unknown as BXContact[]));
+                    contacts.push(
+                        ...(response.result as unknown as BXContact[]),
+                    );
                 }
             }
         }
@@ -172,6 +182,49 @@ export const setInitPBXContact =
         );
     };
 
+/**
+ * Привязать контакт к сущности, в которой мы сейчас работаем.
+ *
+ * Контакт, заведённый «в компанию», в сделке без компании повисал ничей: в
+ * следующий раз его было негде взять. Компания задаётся при создании
+ * (COMPANY_ID), а сделке и лиду связь проставляется отдельно — здесь.
+ *
+ * Сделке связи ЗАМЕНЯЮТСЯ целиком (`crm.deal.contact.items.set`), поэтому
+ * дописываем к уже существующим. Лиду контакт один — чужой не перетираем.
+ */
+export const bindContactToCurrentEntity =
+    (contactId: number) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
+        const { deal, lead } = getState().app.bitrix;
+        const id = Number(contactId);
+        if (!Number.isFinite(id) || id <= 0) return;
+
+        const bitrix = Bitrix.getService();
+
+        try {
+            if (deal) {
+                const items = await bitrix.deal.contactItemsGet(deal.ID);
+                const existing = uniqueIds(
+                    (items ?? []).map(item => Number(item.CONTACT_ID)),
+                );
+                if (!existing.includes(id)) {
+                    await bitrix.deal.contactItemsSet(deal.ID, [
+                        ...existing,
+                        id,
+                    ]);
+                }
+            } else if (lead && !leadContactId(lead as never)) {
+                await bitrix.lead.update(lead.ID, { CONTACT_ID: String(id) });
+            }
+        } catch (error) {
+            console.error('bindContactToCurrentEntity error', id, error);
+        }
+
+        // Источники пересобираем: контакт только что стал «из сделки».
+        const portal = getState().portal.portal;
+        if (portal) await dispatch(collectRelatedContacts(portal as Portal));
+    };
+
 /** Создание нового контакта в Bitrix и подстановка его в план/отчёт. */
 export const saveCreatedContact =
     (type: EV_CONTACT_TYPE) =>
@@ -187,19 +240,22 @@ export const saveCreatedContact =
             errors: { ...emptyErrors },
         };
 
+        // Обязательны только имя и телефон: контакт заводят посреди разговора,
+        // и требовать почту с должностью значит останавливать этот разговор.
+        // Заполненную почту всё равно проверяем — кривая хуже отсутствующей.
         if (!creatingContact.NAME) {
-            resultErrors.errors[EV_ERROR_CODE.CONTACT_NAME] = 'Напишите имя контакта';
+            resultErrors.errors[EV_ERROR_CODE.CONTACT_NAME] =
+                'Напишите имя контакта';
         }
-        if (!creatingContact.EMAIL) {
-            resultErrors.errors[EV_ERROR_CODE.CONTACT_EMAIL] = 'Напишите email контакта';
-        } else {
+        if (creatingContact.EMAIL) {
             resultErrors.errors[EV_ERROR_CODE.CONTACT_EMAIL] = validateInput(
                 creatingContact.EMAIL,
                 EV_CONTACT_PROP.EMAIL,
             );
         }
         if (!creatingContact.PHONE) {
-            resultErrors.errors[EV_ERROR_CODE.CONTACT_PHONE] = 'Напишите телефон контакта';
+            resultErrors.errors[EV_ERROR_CODE.CONTACT_PHONE] =
+                'Напишите телефон контакта';
         } else {
             resultErrors.errors[EV_ERROR_CODE.CONTACT_PHONE] = validateInput(
                 creatingContact.PHONE,
@@ -219,15 +275,18 @@ export const saveCreatedContact =
             const fields = {
                 ...creatingContact,
                 PHONE: [{ VALUE: creatingContact.PHONE }],
-                EMAIL: [{ VALUE: creatingContact.EMAIL }],
+                // Пустую почту не отправляем вовсе: Битрикс запишет пустое
+                // мультиполе, и потом непонятно, есть она или нет.
+                ...(creatingContact.EMAIL
+                    ? { EMAIL: [{ VALUE: creatingContact.EMAIL }] }
+                    : { EMAIL: undefined }),
                 ASSIGNED_BY_ID: currentUserId,
                 COMPANY_ID: currentCompanyId,
             };
 
             const bitrix = Bitrix.getService();
-            const contactId = (
-                await bitrix.contact.set(fields as never)
-            )?.result;
+            const contactId = (await bitrix.contact.set(fields as never))
+                ?.result;
             const contact = (await bitrix.contact.get(Number(contactId)))
                 ?.result as unknown as BXContact;
 
@@ -239,6 +298,9 @@ export const saveCreatedContact =
                         type,
                     }),
                 );
+                // Компания проставилась при создании; сделке и лиду связь
+                // нужно завести отдельно — иначе контакт повиснет ничей.
+                await dispatch(bindContactToCurrentEntity(Number(contactId)));
             }
 
             dispatch(
@@ -258,7 +320,10 @@ export const setUpdatingContactStatus =
         const contactId = getState().contact.current[type]?.ID;
         if (contactId) {
             dispatch(
-                eventContactActions.setUpdatingContactStatus({ contactId, status }),
+                eventContactActions.setUpdatingContactStatus({
+                    contactId,
+                    status,
+                }),
             );
         }
     };

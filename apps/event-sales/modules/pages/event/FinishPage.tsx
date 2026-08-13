@@ -12,6 +12,7 @@ import {
     flowStatusActions,
     retrySendEvent,
     useEventNavigation,
+    useFinishErrorRedirect,
     useFlowProgress,
 } from '@/modules/processes/event';
 
@@ -25,6 +26,7 @@ const FinishPage: FC = () => {
     const nav = useEventNavigation();
     const { reload } = useReload();
     const { stage, step, isSlow, showcase, result, error } = useFlowProgress();
+    const redirect = useFinishErrorRedirect(stage === FLOW_STAGE.ERROR);
 
     const backToList = () => {
         dispatch(eventActions.setFinishStatus({ status: false, result: '' }));
@@ -47,7 +49,9 @@ const FinishPage: FC = () => {
                         <h1 className="text-lg font-semibold text-foreground">
                             {step.title}
                         </h1>
-                        <p className="text-sm text-muted-foreground">{step.hint}</p>
+                        <p className="text-sm text-muted-foreground">
+                            {step.hint}
+                        </p>
                         {isSlow && (
                             <p className="text-sm text-warning">
                                 Это дольше обычного. Можно не ждать — отправка
@@ -67,7 +71,9 @@ const FinishPage: FC = () => {
                             Отчёт отправлен
                         </h1>
                         {result && (
-                            <p className="text-sm text-muted-foreground">{result}</p>
+                            <p className="text-sm text-muted-foreground">
+                                {result}
+                            </p>
                         )}
                         <Button onClick={backToList}>К списку событий</Button>
                     </>
@@ -80,11 +86,33 @@ const FinishPage: FC = () => {
                             Отчёт не отправлен
                         </h1>
                         <p className="text-sm text-muted-foreground">{error}</p>
+
+                        {redirect.secondsLeft !== null && (
+                            <p className="text-sm text-muted-foreground">
+                                Через {redirect.secondsLeft} с откроем карточку
+                                клиента — там видно, что реально применилось.
+                            </p>
+                        )}
+
                         <div className="flex flex-wrap justify-center gap-2">
-                            <Button onClick={() => dispatch(retrySendEvent())}>
+                            <Button
+                                onClick={() => {
+                                    redirect.cancel();
+                                    dispatch(retrySendEvent());
+                                }}
+                            >
                                 Повторить
                             </Button>
-                            <Button variant="outline" onClick={backToList}>
+                            <Button variant="outline" onClick={redirect.goNow}>
+                                Открыть карточку
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                onClick={() => {
+                                    redirect.cancel();
+                                    backToList();
+                                }}
+                            >
                                 К списку событий
                             </Button>
                         </div>
@@ -102,7 +130,8 @@ const FinishPage: FC = () => {
                             Активной отправки нет
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            Отчёт отсюда не отправлялся — вернитесь к списку событий.
+                            Отчёт отсюда не отправлялся — вернитесь к списку
+                            событий.
                         </p>
                         <Button onClick={backToList}>К списку событий</Button>
                     </>

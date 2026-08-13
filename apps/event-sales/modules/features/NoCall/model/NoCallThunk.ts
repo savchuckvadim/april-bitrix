@@ -53,7 +53,8 @@ export const getNoCallMenu =
 
         if (status) {
             const noresultReasonName =
-                state.eventReport.report[EV_REPORT_PROP.NORESULT_REASON].items[1]!.name;
+                state.eventReport.report[EV_REPORT_PROP.NORESULT_REASON]
+                    .items[1]!.name;
             dispatch(
                 eventReportActions.setReportProp({
                     propName: EV_REPORT_PROP.COMMENT,
@@ -96,7 +97,10 @@ export const sendNoCall =
         );
 
         const operationId = createOperationId();
-        const payload = buildFlowPayload(state, { isNoCall: true, operationId });
+        const payload = buildFlowPayload(state, {
+            isNoCall: true,
+            operationId,
+        });
 
         dispatch(
             flowStatusActions.setSending({

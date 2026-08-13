@@ -30,7 +30,9 @@ const APhoneInput = <T extends string | number | 'EMAIL' | 'PHONE'>({
     const validate = (value: string) => {
         if (nameForHandler === 'PHONE') {
             const parsed = parsePhoneNumberFromString(value, 'RU');
-            setLocalError(!parsed || !parsed.isValid() ? 'Некорректный телефон' : null);
+            setLocalError(
+                !parsed || !parsed.isValid() ? 'Некорректный телефон' : null,
+            );
         }
     };
 
@@ -40,7 +42,9 @@ const APhoneInput = <T extends string | number | 'EMAIL' | 'PHONE'>({
 
     return (
         <div className="w-full">
-            {label && <ALabel htmlId={id} label={label} errorMessage={localError} />}
+            {label && (
+                <ALabel htmlId={id} label={label} errorMessage={localError} />
+            )}
             <Input
                 id={id}
                 type={type}
@@ -51,7 +55,9 @@ const APhoneInput = <T extends string | number | 'EMAIL' | 'PHONE'>({
                     handleChange(nameForHandler, e.target.value);
                 }}
                 onBlur={e => validate(e.target.value)}
-                className={cn(localError && 'border-red-500 focus-visible:ring-red-500')}
+                className={cn(
+                    localError && 'border-red-500 focus-visible:ring-red-500',
+                )}
             />
         </div>
     );

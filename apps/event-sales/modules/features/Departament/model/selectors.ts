@@ -38,7 +38,11 @@ export const selectMyDepartmentRole = createSelector(
 
 /** Руководитель текущего пользователя; ищем и среди родительских отделов. */
 export const selectMyHead = createSelector(
-    [selectMyDepartmentRole, selectAllDepartmentUsers, selectDepartmentStructure],
+    [
+        selectMyDepartmentRole,
+        selectAllDepartmentUsers,
+        selectDepartmentStructure,
+    ],
     (roleInfo, allUsers, structure): BXUser | null => {
         if (!roleInfo.headId) return null;
         const fromUsers = allUsers.find(

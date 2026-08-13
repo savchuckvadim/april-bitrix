@@ -10,13 +10,19 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 import type { RelatedLead } from '../model';
-import { getLeadStatusView, isLeadOpen } from '../lib/lead-status-view';
+import {
+    getLeadStatusView,
+    isLeadOpen,
+    leadDisplayTitle,
+} from '../lib/lead-status-view';
 import { LeadStageBar } from './LeadStageBar';
-import { SectionState, type SectionStatus } from '@/modules/shared/SectionState';
+import {
+    SectionState,
+    type SectionStatus,
+} from '@/modules/shared/SectionState';
 import { LeadMarkRow } from '@/modules/features/LeadMarks';
 import { useLeadMarks } from '@/modules/features/LeadMarks/lib/hooks/use-lead-marks';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-
 
 interface RelatedLeadsCardProps {
     leads: RelatedLead[];
@@ -48,7 +54,7 @@ export const RelatedLeadsCard: FC<RelatedLeadsCardProps> = ({
     const hiddenCount = leads.length - openLeads.length;
 
     return (
-        <Card className="flex min-h-0 flex-col">
+        <Card className="flex flex-col">
             <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
                 <CardTitle className="text-base">
                     Лиды{status === 'ready' ? ` (${visible.length})` : ''}
@@ -67,7 +73,7 @@ export const RelatedLeadsCard: FC<RelatedLeadsCardProps> = ({
                 )}
             </CardHeader>
 
-            <CardContent className="min-h-0 flex-1 overflow-y-auto">
+            <CardContent className="max-h-80 min-h-40 overflow-y-auto">
                 <SectionState
                     status={status}
                     isEmpty={!visible.length}
@@ -90,7 +96,7 @@ export const RelatedLeadsCard: FC<RelatedLeadsCardProps> = ({
                                 >
                                     <div className="flex items-baseline justify-between gap-2">
                                         <span className="min-w-0 truncate text-sm text-foreground">
-                                            {lead.title}
+                                            {leadDisplayTitle(lead)}
                                         </span>
                                         {lead.responsible?.name && (
                                             <span className="shrink-0 text-xs text-muted-foreground">
@@ -98,26 +104,28 @@ export const RelatedLeadsCard: FC<RelatedLeadsCardProps> = ({
                                             </span>
                                         )}
                                     </div>
-                                    {markById[lead.id] ? (
+                                    {/* Статус показываем ВСЕГДА: пометки
+                                        заявки могут быть пустыми, и строка
+                                        оставалась без единого слова. */}
+                                    <span
+                                        className={cn(
+                                            'mt-1 inline-block rounded px-1.5 py-0.5 text-xs',
+                                            statusView.className,
+                                        )}
+                                    >
+                                        {statusView.label}
+                                    </span>
+                                    {markById[lead.id] && (
                                         <LeadMarkRow
                                             mark={markById[lead.id]!}
                                             saleDealId={null}
                                         />
-                                    ) : (
-                                        <span
-                                            className={cn(
-                                                'mt-1 inline-block rounded px-1.5 py-0.5 text-xs',
-                                                statusView.className,
-                                            )}
-                                        >
-                                            {statusView.label}
-                                        </span>
                                     )}
                                     {/* Градиент-лестница стадий лид-воронки;
                                         на финале/без слепка тихо скрыта. */}
                                     <LeadStageBar
                                         statusId={lead.statusId}
-                                        title={lead.title}
+                                        title={leadDisplayTitle(lead)}
                                         className="mt-1"
                                     />
                                 </li>

@@ -21,7 +21,11 @@ interface LeadMarkRowProps {
 }
 
 /** Рампа статуса заявки: от «появилась» к «в работе», отказ — красным. */
-const REQUEST_RAMP = ['var(--muted-foreground)', 'var(--warning)', 'var(--success)'];
+const REQUEST_RAMP = [
+    'var(--muted-foreground)',
+    'var(--warning)',
+    'var(--success)',
+];
 
 /**
  * Строка лида/заявки: название, статус заявки шкалой (клик по делению —
@@ -93,7 +97,8 @@ export const LeadMarkRow: FC<LeadMarkRowProps> = ({ mark, saleDealId }) => {
                     onSelect={index =>
                         dispatch(
                             saveLeadMark(mark.id, {
-                                siteStatusCode: statusItems[index]?.code ?? null,
+                                siteStatusCode:
+                                    statusItems[index]?.code ?? null,
                             }),
                         )
                     }

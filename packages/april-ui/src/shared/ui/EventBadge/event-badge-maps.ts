@@ -11,18 +11,20 @@ import { type Tone } from '../../../lib/tones';
 /**
  * Русское название типа события → тон.
  *
- * TODO: появится тип «холодный, но с заявкой» — тон `event-lead` уже заведён
- * (маджента, цвет предварительный). Добавить сюда строку EV_TYPE, когда
- * бэкенд её зафиксирует, и значение `lead` в data-event-type приложения.
+ * «Заявка» — холодное событие, выросшее из лида: клиент нас ЖДЁТ, и путать
+ * его с холодным обзвоном нельзя (признак — в
+ * entities/EventTask/lib/event-request-type). Пока это отображение поверх
+ * типа `xo`; когда бэкенд заведёт xoSite/xoLead, здесь появятся их строки.
  */
 export const EVENT_TYPE_TONE: Record<string, Tone> = {
-    'Холодный': 'event-cold',
-    'Звонок': 'event-warm',
-    'Презентация': 'event-pres',
-    'Решение': 'event-hot',
-    'Оплата': 'event-money',
+    Холодный: 'event-cold',
+    Заявка: 'event-lead',
+    Звонок: 'event-warm',
+    Презентация: 'event-pres',
+    Решение: 'event-hot',
+    Оплата: 'event-money',
     'Сервисный сигнал': 'event-ss',
-    'Поставка': 'event-supply',
+    Поставка: 'event-supply',
 };
 
 export const DEFAULT_EVENT_TYPE_TONE: Tone = 'event-warm';

@@ -2,16 +2,20 @@
 
 import { FC, ReactNode } from 'react';
 import type { ItemVisibility } from '../../lib/item-visibility';
+import { getReportDensity } from '../../lib/report-density';
 import { SaleSection } from '../sections/SaleSection';
 import { PostFailSection } from '../sections/PostFailSection';
 import { CommentSection } from '../sections/CommentSection';
-import { ContactCard } from './contact';
+import { ContactCreateDialog } from '@/modules/entities/EventContact';
+import { ContactCard, ContactDetailsDialog } from './contact';
 import { ReportPult } from './ReportPult';
 
 interface ReportColumnProps {
     visibility: ItemVisibility;
     /** Записи звонков — идут НАД комментарием. */
     records?: ReactNode;
+    /** Карточка заявки/лида — под комментарием, во всю ширину колонки. */
+    request?: ReactNode;
 }
 
 /**
@@ -32,17 +36,34 @@ interface ReportColumnProps {
 export const ReportColumn: FC<ReportColumnProps> = ({
     visibility,
     records,
+    request,
 }) => (
     <div className="space-y-2">
         <ReportPult withNoresult={visibility.noresult} />
 
         {records}
 
-        <CommentSection />
+        <CommentSection
+            density={getReportDensity({
+                withRecords: Boolean(records),
+                withSale: visibility.sale,
+                withPostFail: visibility.postFail,
+                withContact: true,
+                withRequest: Boolean(request),
+                withPult: true,
+            })}
+        />
 
         {visibility.sale && <SaleSection />}
         {visibility.postFail && <PostFailSection />}
 
         <ContactCard />
+
+        {request}
+
+        {/* Окно контакта — одно на экран и живёт отдельно от карточки:
+            его открывают и когда контакта ещё нет (иконка в пульте). */}
+        <ContactDetailsDialog />
+        <ContactCreateDialog />
     </div>
 );

@@ -28,12 +28,14 @@ export const RecordsList: FC = () => {
         <SectionCard
             title="Записи звонков"
             surface="liquid"
-            density='compact'
+            density="compact"
             collapsible
             defaultOpen={false}
             onOpenChange={setIsOpen}
         >
-            {isLoading && <div className="h-12 animate-pulse rounded-md bg-muted" />}
+            {isLoading && (
+                <div className="h-12 animate-pulse rounded-md bg-muted" />
+            )}
             {!isLoading && isFetched && !items.length && (
                 <p className="text-sm text-muted-foreground">Записей нет</p>
             )}

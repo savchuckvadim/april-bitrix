@@ -1,8 +1,13 @@
 'use client';
 import { useState } from 'react';
-import { Button } from "@workspace/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
-import { Badge } from "@workspace/ui/components/badge";
+import { Button } from '@workspace/ui/components/button';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@workspace/ui/components/card';
+import { Badge } from '@workspace/ui/components/badge';
 import {
     Phone,
     Presentation,
@@ -16,11 +21,16 @@ import {
     Pause,
     RotateCcw,
     Check,
-    X
+    X,
 } from 'lucide-react';
 import { TimePicker } from '@workspace/ui/components/time-picker';
 // Типы событий
-type EventType = 'call' | 'presentation' | 'decision_call' | 'payment_call' | 'post_sale_call';
+type EventType =
+    | 'call'
+    | 'presentation'
+    | 'decision_call'
+    | 'payment_call'
+    | 'post_sale_call';
 
 // Статусы событий
 type EventStatus = 'pending' | 'in_progress' | 'completed' | 'postponed';
@@ -45,7 +55,7 @@ const eventTypeConfig = {
         color: 'bg-blue-500',
         textColor: 'text-blue-600',
         bgColor: 'bg-blue-50',
-        borderColor: 'border-blue-200'
+        borderColor: 'border-blue-200',
     },
     presentation: {
         label: 'Презентация',
@@ -53,7 +63,7 @@ const eventTypeConfig = {
         color: 'bg-green-500',
         textColor: 'text-green-600',
         bgColor: 'bg-green-50',
-        borderColor: 'border-green-200'
+        borderColor: 'border-green-200',
     },
     decision_call: {
         label: 'Звонок по решению',
@@ -61,7 +71,7 @@ const eventTypeConfig = {
         color: 'bg-purple-500',
         textColor: 'text-purple-600',
         bgColor: 'bg-purple-50',
-        borderColor: 'border-purple-200'
+        borderColor: 'border-purple-200',
     },
     payment_call: {
         label: 'Звонок по оплате',
@@ -69,7 +79,7 @@ const eventTypeConfig = {
         color: 'bg-orange-500',
         textColor: 'text-orange-600',
         bgColor: 'bg-orange-50',
-        borderColor: 'border-orange-200'
+        borderColor: 'border-orange-200',
     },
     post_sale_call: {
         label: 'Звонок после продажи',
@@ -77,8 +87,8 @@ const eventTypeConfig = {
         color: 'bg-indigo-500',
         textColor: 'text-indigo-600',
         bgColor: 'bg-indigo-50',
-        borderColor: 'border-indigo-200'
-    }
+        borderColor: 'border-indigo-200',
+    },
 };
 
 // Моковые данные
@@ -91,7 +101,7 @@ const mockEvents: EventItem[] = [
         deadline: new Date('2024-01-15T14:00:00'),
         status: 'pending',
         priority: 'high',
-        description: 'Первичный звонок для обсуждения возможностей интеграции'
+        description: 'Первичный звонок для обсуждения возможностей интеграции',
     },
     {
         id: '2',
@@ -101,7 +111,7 @@ const mockEvents: EventItem[] = [
         deadline: new Date('2024-01-16T10:00:00'),
         status: 'pending',
         priority: 'high',
-        description: 'Презентация основных возможностей системы'
+        description: 'Презентация основных возможностей системы',
     },
     {
         id: '3',
@@ -111,7 +121,7 @@ const mockEvents: EventItem[] = [
         deadline: new Date('2024-01-17T16:00:00'),
         status: 'in_progress',
         priority: 'medium',
-        description: 'Звонок для принятия решения о покупке'
+        description: 'Звонок для принятия решения о покупке',
     },
     {
         id: '4',
@@ -121,7 +131,7 @@ const mockEvents: EventItem[] = [
         deadline: new Date('2024-01-18T11:00:00'),
         status: 'pending',
         priority: 'medium',
-        description: 'Уточнение деталей по оплате и срокам'
+        description: 'Уточнение деталей по оплате и срокам',
     },
     {
         id: '5',
@@ -131,12 +141,16 @@ const mockEvents: EventItem[] = [
         deadline: new Date('2024-01-19T15:00:00'),
         status: 'completed',
         priority: 'low',
-        description: 'Проверка работы системы и решение вопросов'
-    }
+        description: 'Проверка работы системы и решение вопросов',
+    },
 ];
 
 // Компонент карточки события
-const EventCard = ({ event, onStartReporting, onPostpone }: {
+const EventCard = ({
+    event,
+    onStartReporting,
+    onPostpone,
+}: {
     event: EventItem;
     onStartReporting: (eventId: string, isSuccessful: boolean) => void;
     onPostpone: (eventId: string) => void;
@@ -144,7 +158,8 @@ const EventCard = ({ event, onStartReporting, onPostpone }: {
     const config = eventTypeConfig[event.type];
     const IconComponent = config.icon;
 
-    const isOverdue = event.deadline < new Date() && event.status !== 'completed';
+    const isOverdue =
+        event.deadline < new Date() && event.status !== 'completed';
     const isUrgent = event.priority === 'high' && event.status !== 'completed';
 
     const formatDeadline = (date: Date) => {
@@ -159,25 +174,54 @@ const EventCard = ({ event, onStartReporting, onPostpone }: {
     };
 
     return (
-        <Card className={`${config.borderColor} ${isOverdue ? 'border-red-300 bg-red-50' : ''} ${isUrgent ? 'ring-2 ring-orange-200' : ''}`}>
+        <Card
+            className={`${config.borderColor} ${isOverdue ? 'border-red-300 bg-red-50' : ''} ${isUrgent ? 'ring-2 ring-orange-200' : ''}`}
+        >
             <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-lg ${config.bgColor}`}>
-                            <IconComponent className={`w-5 h-5 ${config.textColor}`} />
+                            <IconComponent
+                                className={`w-5 h-5 ${config.textColor}`}
+                            />
                         </div>
                         <div>
                             <CardTitle className="text-lg font-semibold text-gray-900">
                                 {event.title}
                             </CardTitle>
                             <div className="flex items-center gap-4 mt-1">
-                                <Badge variant={event.priority === 'high' ? 'destructive' : event.priority === 'medium' ? 'default' : 'secondary'}>
-                                    {event.priority === 'high' ? 'Высокий' : event.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
+                                <Badge
+                                    variant={
+                                        event.priority === 'high'
+                                            ? 'destructive'
+                                            : event.priority === 'medium'
+                                              ? 'default'
+                                              : 'secondary'
+                                    }
+                                >
+                                    {event.priority === 'high'
+                                        ? 'Высокий'
+                                        : event.priority === 'medium'
+                                          ? 'Средний'
+                                          : 'Низкий'}{' '}
+                                    приоритет
                                 </Badge>
-                                <Badge variant={event.status === 'completed' ? 'default' : event.status === 'in_progress' ? 'secondary' : 'outline'}>
-                                    {event.status === 'completed' ? 'Завершено' :
-                                        event.status === 'in_progress' ? 'В работе' :
-                                            event.status === 'postponed' ? 'Перенесено' : 'Ожидает'}
+                                <Badge
+                                    variant={
+                                        event.status === 'completed'
+                                            ? 'default'
+                                            : event.status === 'in_progress'
+                                              ? 'secondary'
+                                              : 'outline'
+                                    }
+                                >
+                                    {event.status === 'completed'
+                                        ? 'Завершено'
+                                        : event.status === 'in_progress'
+                                          ? 'В работе'
+                                          : event.status === 'postponed'
+                                            ? 'Перенесено'
+                                            : 'Ожидает'}
                                 </Badge>
                             </div>
                         </div>
@@ -194,20 +238,24 @@ const EventCard = ({ event, onStartReporting, onPostpone }: {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Calendar className="w-4 h-4" />
-                        <span className="font-medium">{event.deadline.toLocaleDateString('ru-RU')}</span>
+                        <span className="font-medium">
+                            {event.deadline.toLocaleDateString('ru-RU')}
+                        </span>
                         <TimePicker
                             value={event.deadline.toLocaleTimeString('ru-RU')}
-                            onChange={(time) => {
+                            onChange={time => {
                                 console.log(time);
                             }}
                             format="24h"
-                            size='sm'
+                            size="sm"
                         />
                     </div>
                 </div>
 
                 {/* Дедлайн */}
-                <div className={`flex items-center gap-2 text-sm ${isOverdue ? 'text-red-600 font-semibold' : isUrgent ? 'text-orange-600 font-medium' : 'text-gray-600'}`}>
+                <div
+                    className={`flex items-center gap-2 text-sm ${isOverdue ? 'text-red-600 font-semibold' : isUrgent ? 'text-orange-600 font-medium' : 'text-gray-600'}`}
+                >
                     <Clock className="w-4 h-4" />
                     <span>{formatDeadline(event.deadline)}</span>
                 </div>
@@ -256,18 +304,24 @@ const EventCard = ({ event, onStartReporting, onPostpone }: {
 
 export const EventItemsPage = () => {
     const [events, setEvents] = useState<EventItem[]>(mockEvents);
-    const [filter, setFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed' | 'overdue'>('all');
+    const [filter, setFilter] = useState<
+        'all' | 'pending' | 'in_progress' | 'completed' | 'overdue'
+    >('all');
 
     const handleStartReporting = (eventId: string, isSuccessful: boolean) => {
         // Здесь будет логика перехода к странице отчетности
-        console.log(`Начать отчетность для события ${eventId}, результат: ${isSuccessful ? 'успешный' : 'неуспешный'}`);
+        console.log(
+            `Начать отчетность для события ${eventId}, результат: ${isSuccessful ? 'успешный' : 'неуспешный'}`,
+        );
 
         // Обновляем статус события
-        setEvents((prev: EventItem[]) => prev.map((event: EventItem) =>
-            event.id === eventId
-                ? { ...event, status: 'in_progress' as EventStatus }
-                : event
-        ));
+        setEvents((prev: EventItem[]) =>
+            prev.map((event: EventItem) =>
+                event.id === eventId
+                    ? { ...event, status: 'in_progress' as EventStatus }
+                    : event,
+            ),
+        );
     };
 
     const handlePostpone = (eventId: string) => {
@@ -275,25 +329,33 @@ export const EventItemsPage = () => {
         console.log(`Перенести событие ${eventId}`);
 
         // Обновляем статус события
-        setEvents((prev: EventItem[]) => prev.map((event: EventItem) =>
-            event.id === eventId
-                ? { ...event, status: 'postponed' as EventStatus }
-                : event
-        ));
+        setEvents((prev: EventItem[]) =>
+            prev.map((event: EventItem) =>
+                event.id === eventId
+                    ? { ...event, status: 'postponed' as EventStatus }
+                    : event,
+            ),
+        );
     };
 
     const filteredEvents = events.filter((event: EventItem) => {
         if (filter === 'all') return true;
-        if (filter === 'overdue') return event.deadline < new Date() && event.status !== 'completed';
+        if (filter === 'overdue')
+            return event.deadline < new Date() && event.status !== 'completed';
         return event.status === filter;
     });
 
     const stats = {
         total: events.length,
         pending: events.filter((e: EventItem) => e.status === 'pending').length,
-        inProgress: events.filter((e: EventItem) => e.status === 'in_progress').length,
-        completed: events.filter((e: EventItem) => e.status === 'completed').length,
-        overdue: events.filter((e: EventItem) => e.deadline < new Date() && e.status !== 'completed').length
+        inProgress: events.filter((e: EventItem) => e.status === 'in_progress')
+            .length,
+        completed: events.filter((e: EventItem) => e.status === 'completed')
+            .length,
+        overdue: events.filter(
+            (e: EventItem) =>
+                e.deadline < new Date() && e.status !== 'completed',
+        ).length,
     };
 
     return (
@@ -308,24 +370,42 @@ export const EventItemsPage = () => {
                     {/* Статистика */}
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                         <div className="bg-white p-4 rounded-lg shadow-sm border">
-                            <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-                            <div className="text-sm text-gray-600">Всего событий</div>
+                            <div className="text-2xl font-bold text-gray-900">
+                                {stats.total}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                Всего событий
+                            </div>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow-sm border">
-                            <div className="text-2xl font-bold text-blue-600">{stats.pending}</div>
+                            <div className="text-2xl font-bold text-blue-600">
+                                {stats.pending}
+                            </div>
                             <div className="text-sm text-gray-600">Ожидают</div>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow-sm border">
-                            <div className="text-2xl font-bold text-orange-600">{stats.inProgress}</div>
-                            <div className="text-sm text-gray-600">В работе</div>
+                            <div className="text-2xl font-bold text-orange-600">
+                                {stats.inProgress}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                В работе
+                            </div>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow-sm border">
-                            <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
-                            <div className="text-sm text-gray-600">Завершены</div>
+                            <div className="text-2xl font-bold text-green-600">
+                                {stats.completed}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                Завершены
+                            </div>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow-sm border">
-                            <div className="text-2xl font-bold text-red-600">{stats.overdue}</div>
-                            <div className="text-sm text-gray-600">Просрочены</div>
+                            <div className="text-2xl font-bold text-red-600">
+                                {stats.overdue}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                Просрочены
+                            </div>
                         </div>
                     </div>
 
@@ -336,7 +416,7 @@ export const EventItemsPage = () => {
                             { key: 'pending', label: 'Ожидают' },
                             { key: 'in_progress', label: 'В работе' },
                             { key: 'completed', label: 'Завершены' },
-                            { key: 'overdue', label: 'Просрочены' }
+                            { key: 'overdue', label: 'Просрочены' },
                         ].map(({ key, label }) => (
                             <Button
                                 key={key}
@@ -354,7 +434,9 @@ export const EventItemsPage = () => {
                 <div className="space-y-4">
                     {filteredEvents.length === 0 ? (
                         <div className="text-center py-12">
-                            <div className="text-gray-500 text-lg">Нет событий для отображения</div>
+                            <div className="text-gray-500 text-lg">
+                                Нет событий для отображения
+                            </div>
                         </div>
                     ) : (
                         filteredEvents.map((event: EventItem) => (

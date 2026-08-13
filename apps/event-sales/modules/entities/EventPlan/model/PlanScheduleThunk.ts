@@ -3,10 +3,7 @@ import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
 import type { BXTask } from '@workspace/bx';
 import { parseTaskTitle } from '@/modules/entities/EventTask/lib/task-util';
-import {
-    PlanScheduleEvent,
-    planScheduleActions,
-} from './PlanScheduleSlice';
+import { PlanScheduleEvent, planScheduleActions } from './PlanScheduleSlice';
 
 /**
  * Занятость пользователя на выбранную дату плана (задачи с дедлайном в этот
@@ -17,7 +14,8 @@ export const fetchPlanDaySchedule =
     (date: string) => async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
         if (!date) return;
-        if (state.planSchedule.isLoading || state.planSchedule.date === date) return;
+        if (state.planSchedule.isLoading || state.planSchedule.date === date)
+            return;
 
         const userId = Number(state.app.bitrix.user?.ID || 0);
         if (!userId) return;

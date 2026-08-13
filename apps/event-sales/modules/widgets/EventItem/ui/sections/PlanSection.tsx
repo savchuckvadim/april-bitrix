@@ -1,7 +1,12 @@
 'use client';
 
 import { FC } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { Switch } from '@workspace/ui/components/switch';
@@ -56,13 +61,18 @@ export const PlanSection: FC = () => {
                 </CardTitle>
                 {withNoPlan && (
                     <div className="flex items-center gap-2">
-                        <Label htmlFor="plan-active" className="text-xs text-muted-foreground">
+                        <Label
+                            htmlFor="plan-active"
+                            className="text-xs text-muted-foreground"
+                        >
                             планировать
                         </Label>
                         <Switch
                             id="plan-active"
                             checked={isActive}
-                            onCheckedChange={() => dispatch(eventPlanActions.setIsActive())}
+                            onCheckedChange={() =>
+                                dispatch(eventPlanActions.setIsActive())
+                            }
                         />
                     </div>
                 )}
@@ -72,7 +82,11 @@ export const PlanSection: FC = () => {
                     <div className="space-y-1.5">
                         <Label>Тип события</Label>
                         <Select
-                            value={type.current ? String(type.current.id) : undefined}
+                            value={
+                                type.current
+                                    ? String(type.current.id)
+                                    : undefined
+                            }
                             onValueChange={setProp(EV_PLAN_PROP.TYPE)}
                         >
                             <SelectTrigger className="w-full">
@@ -80,7 +94,10 @@ export const PlanSection: FC = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 {type.items.map(item => (
-                                    <SelectItem key={item.id} value={String(item.id)}>
+                                    <SelectItem
+                                        key={item.id}
+                                        value={String(item.id)}
+                                    >
                                         {item.name}
                                     </SelectItem>
                                 ))}
@@ -94,10 +111,14 @@ export const PlanSection: FC = () => {
                             value={plan[EV_PLAN_PROP.NAME]}
                             placeholder="О чём договорились"
                             aria-invalid={!!nameError}
-                            onChange={e => setProp(EV_PLAN_PROP.NAME)(e.target.value)}
+                            onChange={e =>
+                                setProp(EV_PLAN_PROP.NAME)(e.target.value)
+                            }
                         />
                         {nameError && (
-                            <p className="text-sm text-destructive">{nameError}</p>
+                            <p className="text-sm text-destructive">
+                                {nameError}
+                            </p>
                         )}
                     </div>
 
@@ -106,7 +127,9 @@ export const PlanSection: FC = () => {
                             value={plan[EV_PLAN_PROP.DATE] ?? ''}
                             onChange={setProp(EV_PLAN_PROP.DATE)}
                             existingEvents={daySchedule}
-                            onDateCommit={date => dispatch(fetchPlanDaySchedule(date))}
+                            onDateCommit={date =>
+                                dispatch(fetchPlanDaySchedule(date))
+                            }
                         />
                         {plan[EV_PLAN_PROP.IS_EXPIRED] && (
                             <p className="text-sm text-warning">
@@ -119,7 +142,11 @@ export const PlanSection: FC = () => {
                         <div className="space-y-1.5">
                             <Label>Контакт</Label>
                             <Select
-                                value={planContact ? String(planContact.ID) : undefined}
+                                value={
+                                    planContact
+                                        ? String(planContact.ID)
+                                        : undefined
+                                }
                                 onValueChange={value =>
                                     dispatch(
                                         eventContactActions.setCurrentContact({
@@ -134,8 +161,12 @@ export const PlanSection: FC = () => {
                                 </SelectTrigger>
                                 <SelectContent>
                                     {contacts.map(contact => (
-                                        <SelectItem key={contact.ID} value={String(contact.ID)}>
-                                            {contact.NAME} {contact.LAST_NAME ?? ''}
+                                        <SelectItem
+                                            key={contact.ID}
+                                            value={String(contact.ID)}
+                                        >
+                                            {contact.NAME}{' '}
+                                            {contact.LAST_NAME ?? ''}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

@@ -52,7 +52,10 @@ const eventTaskSlice = createSlice({
                 }
                 return task;
             });
-            if (state.current?.id && Number(state.current.id) == payload.taskId) {
+            if (
+                state.current?.id &&
+                Number(state.current.id) == payload.taskId
+            ) {
                 state.current.presentation = payload.presData;
                 state.current.dealBase = payload.dealBase;
             }
@@ -69,7 +72,10 @@ const eventTaskSlice = createSlice({
             state: EventTaskState,
             action: PayloadAction<{ id: number; mark: BX_TASK_MARK | null }>,
         ) => {
-            if (state.current?.id && Number(state.current.id) == action.payload.id) {
+            if (
+                state.current?.id &&
+                Number(state.current.id) == action.payload.id
+            ) {
                 state.current.mark = action.payload.mark as BX_TASK_MARK;
             }
         },

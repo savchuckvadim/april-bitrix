@@ -12,7 +12,10 @@ import { Switch } from '@workspace/ui/components/switch';
 import { cn } from '@workspace/ui/lib/utils';
 import type { RelatedDeal } from '../model';
 import { dealAmount } from '../lib/stage-view';
-import { SectionState, type SectionStatus } from '@/modules/shared/SectionState';
+import {
+    SectionState,
+    type SectionStatus,
+} from '@/modules/shared/SectionState';
 import { StageMini } from './StageMini';
 
 interface RelatedDealsCardProps {
@@ -39,7 +42,7 @@ export const RelatedDealsCard: FC<RelatedDealsCardProps> = ({
     status,
     onRetry,
 }) => (
-    <Card className="flex min-h-0 flex-col">
+    <Card className="flex flex-col">
         <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
             <CardTitle className="text-base">
                 Сделки{status === 'ready' ? ` (${deals.length})` : ''}
@@ -59,7 +62,7 @@ export const RelatedDealsCard: FC<RelatedDealsCardProps> = ({
             </div>
         </CardHeader>
 
-        <CardContent className="min-h-0 flex-1 overflow-y-auto">
+        <CardContent className="max-h-80 min-h-40 overflow-y-auto">
             <SectionState
                 status={status}
                 isEmpty={!deals.length}

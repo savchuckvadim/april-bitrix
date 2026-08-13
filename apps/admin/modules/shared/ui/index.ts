@@ -9,5 +9,4 @@ export * from './form-submit-footer';
 export * from './entity-select';
 export * from './entity-card';
 export * from './entity-form';
-export * from './theme-toggle/ThemeTogglePanel';
 export * from './pbx-relation-tabs';

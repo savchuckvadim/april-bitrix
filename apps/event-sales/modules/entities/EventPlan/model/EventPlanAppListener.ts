@@ -18,7 +18,9 @@ import { eventPlanActions } from './EventPlanSlice';
  * восстанавливается из localStorage ещё ДО setAppData (setDepartmentMode в
  * app-init), и хардкод здесь затирал его полным списком типов.
  */
-export function startEventPlanAppListener(startAppListening: AppStartListening) {
+export function startEventPlanAppListener(
+    startAppListening: AppStartListening,
+) {
     startAppListening({
         actionCreator: appActions.setAppData,
         effect: (_action, listenerApi) => {

@@ -2,6 +2,8 @@ import type { AppThunk } from '@/modules/app/model/store';
 import { appActions } from '../slice/AppSlice';
 import { AppConfigHelper } from '../../lib/api/app-config-helper';
 import {
+    ARE_CALLS_ENABLED,
+    CALL_FEATURE_KEYS,
     DomainFeatureConfig,
     getDomainConfig,
 } from '../../consts/domain-config';
@@ -28,6 +30,14 @@ export const fetchAppConfig =
             const defaults = getState().app.config;
             const patch: Partial<DomainFeatureConfig> = {};
             for (const key of CONFIG_KEYS) {
+                // Общий выключатель звонков сильнее портальных настроек:
+                // иначе включённые на портале записи вернулись бы обратно.
+                if (
+                    !ARE_CALLS_ENABLED &&
+                    (CALL_FEATURE_KEYS as readonly string[]).includes(key)
+                ) {
+                    continue;
+                }
                 const value = settings[key];
                 if (
                     value !== undefined &&
@@ -36,10 +46,15 @@ export const fetchAppConfig =
                     Object.assign(patch, { [key]: value });
                 }
             }
+            // Видно в консоли фрейма, что именно приехало с портала:
+            // без этого «настройки не применились» неотличимо от «настройки
+            // такие же, как в хардкоде».
+            console.info('app-settings', domain, patch);
             if (Object.keys(patch).length) {
                 dispatch(appActions.mergeConfig(patch));
             }
-        } catch {
+        } catch (error) {
             // Настройки недоступны — работаем по legacy domain-config.
+            console.warn('app-settings недоступны, действует хардкод', error);
         }
     };

@@ -82,7 +82,10 @@ export const saveLeadMark =
             bitrixFields[ufKey(fields.siteStatus)] = item?.bitrixId ?? '';
             marksPatch.siteStatusCode = item ? item.code : null;
 
-            if (patch.siteStatusCode !== LEAD_NOT_CA_ITEM_CODE && fields.notCaType) {
+            if (
+                patch.siteStatusCode !== LEAD_NOT_CA_ITEM_CODE &&
+                fields.notCaType
+            ) {
                 bitrixFields[ufKey(fields.notCaType)] = '';
                 marksPatch.notCaTypeCode = null;
             }
@@ -106,8 +109,13 @@ export const saveLeadMark =
 
         dispatch(leadMarksActions.savingStarted({ leadId }));
         try {
-            await Bitrix.getService().lead.update(leadId, bitrixFields as never);
-            dispatch(leadMarksActions.markPatched({ leadId, patch: marksPatch }));
+            await Bitrix.getService().lead.update(
+                leadId,
+                bitrixFields as never,
+            );
+            dispatch(
+                leadMarksActions.markPatched({ leadId, patch: marksPatch }),
+            );
             return true;
         } catch (error) {
             console.error('saveLeadMark error', error);

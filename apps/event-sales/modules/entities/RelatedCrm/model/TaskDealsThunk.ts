@@ -11,7 +11,12 @@ import {
 import { taskDealsActions } from './TaskDealsSlice';
 
 const DEAL_SELECT = [
-    'ID', 'TITLE', 'STAGE_ID', 'CATEGORY_ID', 'OPPORTUNITY', 'CLOSED',
+    'ID',
+    'TITLE',
+    'STAGE_ID',
+    'CATEGORY_ID',
+    'OPPORTUNITY',
+    'CLOSED',
     'DATE_CREATE',
 ];
 
@@ -37,7 +42,9 @@ export const ensureStageDicts =
         const loaded = getState().taskDeals.stageDicts;
         const missing = [...new Set(entityIds)].filter(
             entityId =>
-                entityId && !loaded[entityId] && !stageDictInflight.has(entityId),
+                entityId &&
+                !loaded[entityId] &&
+                !stageDictInflight.has(entityId),
         );
         if (!missing.length) return;
 
@@ -68,6 +75,10 @@ export const ensureStageDicts =
  *
  * Ошибка не фатальна: полоски привязанных просто не появятся, карточки
  * продолжают работать.
+ *
+ * Повторно уже загруженные не спрашиваем (`requestedIds`). После отправки
+ * отчёта стадии двигает бэк — там срабатывает полный reloadApp, который
+ * сбрасывает этот слайс, так что полоска не остаётся на старой стадии.
  */
 export const fetchTaskBoundDeals =
     (dealIds: number[]) =>
@@ -91,7 +102,9 @@ export const fetchTaskBoundDeals =
             const rows = (response?.result ?? []) as BoundDealRow[];
             if (!rows.length) return;
 
-            const entityIds = rows.map(row => dealStageEntityId(row.CATEGORY_ID));
+            const entityIds = rows.map(row =>
+                dealStageEntityId(row.CATEGORY_ID),
+            );
             await dispatch(ensureStageDicts(entityIds));
             const dicts = getState().taskDeals.stageDicts;
 

@@ -80,7 +80,10 @@ const eventCompanySlice = createSlice({
         },
         setIsLoading: (
             state: EventCompanyState,
-            action: PayloadAction<{ isLoading: boolean; type: EV_COMPANY_PROP }>,
+            action: PayloadAction<{
+                isLoading: boolean;
+                type: EV_COMPANY_PROP;
+            }>,
         ) => {
             state[action.payload.type].isLoading = action.payload.isLoading;
         },

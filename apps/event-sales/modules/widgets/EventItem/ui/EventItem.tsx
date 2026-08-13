@@ -17,6 +17,7 @@ import {
 import { EV_PLAN_PROP } from '@/modules/entities/EventPlan';
 import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
+import { ActionPromptCard } from '@/modules/features/ActionPrompts';
 import { CheckPresentation } from '@/modules/features/AfterPresentation';
 import { getItemVisibility } from '../lib/item-visibility';
 import { ItemHeader } from './header/ItemHeader';
@@ -35,14 +36,23 @@ const RecordsList = dynamic(
 // она задерживать не должна.
 const DuplicatesPanel = dynamic(
     () =>
-        import('@/modules/features/Duplicates/ui/DuplicatesPanel/DuplicatesPanel').then(
-            module => module.DuplicatesPanel,
-        ),
+        import(
+            '@/modules/features/Duplicates/ui/DuplicatesPanel/DuplicatesPanel'
+        ).then(module => module.DuplicatesPanel),
     { ssr: false },
 );
 
 // Карточка заявки/лида: видна только при лиде в контексте, форму отчёта
 // не задерживает — лениво, как и дубли.
+// Экран подтверждения заявки: перекрывает всё, поэтому монтируется рядом с
+// остальными модалками карточки.
+const LeadConfirmGate = dynamic(
+    () =>
+        import('@/modules/features/LeadRequestCard/ui/LeadConfirmGate').then(
+            module => module.LeadConfirmGate,
+        ),
+    { ssr: false },
+);
 const LeadRequestPanel = dynamic(
     () => import('@/modules/features/LeadRequestCard/ui/LeadRequestPanel'),
     { ssr: false },
@@ -75,7 +85,9 @@ export const EventItem: FC = () => {
         s => s.eventReport.report[EV_REPORT_PROP.WORK_STATUS].current,
     );
     const currentTask = useAppSelector(s => s.eventTask.current);
-    const planType = useAppSelector(s => s.eventPlan[EV_PLAN_PROP.TYPE].current);
+    const planType = useAppSelector(
+        s => s.eventPlan[EV_PLAN_PROP.TYPE].current,
+    );
     const config = useAppSelector(s => s.app.config);
     const departmentMode = useAppSelector(
         s => s.department[DEPARTAMENT_STATE_PROP.MODE].current,
@@ -103,7 +115,10 @@ export const EventItem: FC = () => {
         >
             <ItemHeader withPresentation={visibility.presentation} />
 
-            <Tabs defaultValue="report" className="flex min-h-0 flex-1 flex-col">
+            <Tabs
+                defaultValue="report"
+                className="flex min-h-0 flex-1 flex-col"
+            >
                 <TabsList className="mx-3 mt-2 self-start">
                     <TabsTrigger value="report">Отчёт</TabsTrigger>
                     <TabsTrigger value="history">История</TabsTrigger>
@@ -114,12 +129,15 @@ export const EventItem: FC = () => {
                     className="min-h-0 flex-1 overflow-y-auto p-3"
                 >
                     {/*
-                      * 26rem, а не 22: в план входят дата и время, и на узкой
-                      * колонке они не вставали в две колонки даже при обычном
-                      * --app-scale (контейнерный запрос @[17rem] в PlanColumn).
-                      */}
+                     * 26rem, а не 22: в план входят дата и время, и на узкой
+                     * колонке они не вставали в две колонки даже при обычном
+                     * --app-scale (контейнерный запрос @[17rem] в PlanColumn).
+                     */}
                     <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_26rem]">
                         <ReportColumn
+                            /* Заявка — про отчёт, а не про план: она про то,
+                               что уже произошло с обращением клиента. */
+                            request={<LeadRequestPanel />}
                             visibility={visibility}
                             records={
                                 config.withRecords ? <RecordsList /> : undefined
@@ -135,7 +153,6 @@ export const EventItem: FC = () => {
                             </div>
                             {/* Ниже действий: сигналы не должны отодвигать
                                 кнопку отправки. */}
-                            <LeadRequestPanel />
                             <DuplicatesPanel />
                         </div>
                     </div>
@@ -155,6 +172,8 @@ export const EventItem: FC = () => {
                 </TabsContent>
             </Tabs>
 
+            <LeadConfirmGate />
+            <ActionPromptCard />
             <CheckPresentation />
             <PresentationLeadLinkDialog />
         </div>

@@ -43,7 +43,12 @@ export const getPlanInitState = (
     isAllTypesShown = false,
 ) => ({
     [EV_PLAN_PROP.TYPE]: {
-        items: getPlanCallInitTypes(isTmcMode, context, isAfterSale, isAllTypesShown),
+        items: getPlanCallInitTypes(
+            isTmcMode,
+            context,
+            isAfterSale,
+            isAllTypesShown,
+        ),
         current: null,
         isChanged: false,
     } as EvPlanStateItem,
@@ -70,7 +75,6 @@ const getPlanCallInitTypes = (
     });
     return PLAN_CALL_TYPES.filter(item => allowed.includes(item.code));
 };
-
 
 /** Дата дальше чем на 4 месяца от текущей — событие «отложено». */
 export function isDifferenceMoreThanFourMonths(inputDate: string): boolean {

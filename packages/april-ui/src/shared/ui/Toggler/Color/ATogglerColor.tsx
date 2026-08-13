@@ -16,8 +16,24 @@ type ToglerColor =
     | 'danger'
     | 'success';
 
-const colorCodes = ['success', 'dblue', 'fiolet', 'warning', 'danger', 'dblue', 'success'] as ToglerColor[];
-const badColorCodes = ['danger', 'orange', 'warning', 'blue', 'dblue', 'fiolet', 'success'] as ToglerColor[];
+const colorCodes = [
+    'success',
+    'dblue',
+    'fiolet',
+    'warning',
+    'danger',
+    'dblue',
+    'success',
+] as ToglerColor[];
+const badColorCodes = [
+    'danger',
+    'orange',
+    'warning',
+    'blue',
+    'dblue',
+    'fiolet',
+    'success',
+] as ToglerColor[];
 
 type ClickData = any;
 
@@ -49,17 +65,30 @@ const ATogglerColor: FC<ColorProps> = ({
     const targetColors = palit ? palit : isBad ? badColorCodes : colorCodes;
     const btnColor = targetColors[order] ?? 'april';
 
-    const barHeight = size === 'small' ? 'h-3' : size === 'medium' ? 'h-3.5' : 'h-[17px]';
+    const barHeight =
+        size === 'small' ? 'h-3' : size === 'medium' ? 'h-3.5' : 'h-[17px]';
 
     return (
         <div
             className="flex w-full cursor-pointer flex-col justify-end p-0 text-[11px] font-bold text-muted-foreground"
             onClick={() => onClick(onClickData)}
         >
-            {value && <p className="m-0 text-[11px] font-bold text-muted-foreground">{value}</p>}
-            <div className={cn('w-full overflow-hidden rounded-full bg-muted', barHeight)}>
+            {value && (
+                <p className="m-0 text-[11px] font-bold text-muted-foreground">
+                    {value}
+                </p>
+            )}
+            <div
+                className={cn(
+                    'w-full overflow-hidden rounded-full bg-muted',
+                    barHeight,
+                )}
+            >
                 <div
-                    className={cn('flex h-full items-center justify-center text-[9px] text-white', bg(btnColor))}
+                    className={cn(
+                        'flex h-full items-center justify-center text-[9px] text-white',
+                        bg(btnColor),
+                    )}
                     style={{ width: `${orderPercent}%` }}
                 >
                     {innerValue}

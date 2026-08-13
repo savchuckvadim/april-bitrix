@@ -1,6 +1,7 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { checkPresentationData } from '../data/check-presentation';
 import { afterPresentationActions } from './AfterPresentationSlice';
+import { persistCheckPresentation } from './CheckPresentationPersistThunk';
 
 /**
  * Загрузка опросника. TODO(бэк): заменить мок-каталог на запрос
@@ -10,16 +11,17 @@ export const initCheckPresentation =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
         if (getState().afterPresentation.initialized) return;
         dispatch(
-            afterPresentationActions.setInitialized({ items: checkPresentationData }),
+            afterPresentationActions.setInitialized({
+                items: checkPresentationData,
+            }),
         );
     };
 
 /** Открыть опросник: инициализируем (если ещё нет) и показываем модалку. */
-export const openCheckPresentation =
-    () => async (dispatch: AppDispatch) => {
-        await dispatch(initCheckPresentation());
-        dispatch(afterPresentationActions.setActiveStatus({ status: true }));
-    };
+export const openCheckPresentation = () => async (dispatch: AppDispatch) => {
+    await dispatch(initCheckPresentation());
+    dispatch(afterPresentationActions.setActiveStatus({ status: true }));
+};
 
 /** Отмена: откат рабочих ответов к сохранённому снимку и закрытие. */
 export const closeCheckPresentation = () => (dispatch: AppDispatch) => {
@@ -40,9 +42,15 @@ export const submitCheckPresentation =
         dispatch(afterPresentationActions.setConfirmed({ status: true }));
         dispatch(afterPresentationActions.setActiveStatus({ status: false }));
 
+        // Ответы уезжают в портальные поля клиента: до этого опросник был
+        // декоративным — данные не покидали стор.
+        await dispatch(persistCheckPresentation());
+
         const wasPendingSend = getState().afterPresentation.pendingSend;
         if (wasPendingSend) {
-            dispatch(afterPresentationActions.setPendingSend({ status: false }));
+            dispatch(
+                afterPresentationActions.setPendingSend({ status: false }),
+            );
             const { send } = await import(
                 '@/modules/processes/event/model/SendThunk'
             );

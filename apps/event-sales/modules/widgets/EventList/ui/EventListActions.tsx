@@ -16,7 +16,10 @@ interface EventListActionsProps {
 }
 
 /** Действия по строке события. */
-export const EventListActions: FC<EventListActionsProps> = ({ task, onSelect }) => {
+export const EventListActions: FC<EventListActionsProps> = ({
+    task,
+    onSelect,
+}) => {
     const isLeadContext = useAppSelector(getIsLeadContext);
     const isTmcMode = useAppSelector(
         s => s.department[DEPARTAMENT_STATE_PROP.MODE].current?.code === 'tmc',

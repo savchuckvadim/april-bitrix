@@ -91,7 +91,8 @@ const presentationLeadLinkSlice = createSlice({
             state.cardStatus = 'ready';
             // Префилл текущими значениями лида — менеджер их подтверждает
             // или меняет; пустые обязан заполнить (валидация confirm).
-            state.siteStatusCode = action.payload.siteStatus.currentCode ?? null;
+            state.siteStatusCode =
+                action.payload.siteStatus.currentCode ?? null;
             state.siteStageCode = action.payload.siteStage.currentCode ?? null;
         },
         cardFailed(state) {

@@ -2,7 +2,11 @@
 
 import type { ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
+import {
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@workspace/ui/components/card';
 import { CollapsibleTrigger } from '@workspace/ui/components/collapsible';
 import { cn } from '@workspace/ui/lib/utils';
 import { TONE_TEXT, type Tone } from '../../lib/tones';
@@ -44,7 +48,9 @@ export const SectionCardHeader = ({
                 </CardTitle>
             )}
             {description && (
-                <CardDescription className="mt-1">{description}</CardDescription>
+                <CardDescription className="mt-1">
+                    {description}
+                </CardDescription>
             )}
         </div>
     );
@@ -69,7 +75,11 @@ export const SectionCardHeader = ({
                 heading
             )}
 
-            {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+            {actions && (
+                <div className="flex shrink-0 items-center gap-2">
+                    {actions}
+                </div>
+            )}
         </CardHeader>
     );
 };

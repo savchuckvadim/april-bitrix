@@ -12,6 +12,7 @@ import { initReturnToTMC } from '@/modules/features/ReturnToTMC/model/ReturnToTM
 import { innActions } from '@/modules/features/Inn/model/InnSlice';
 import { clientSignalsActions } from '@/modules/features/ClientSignals/model/ClientSignalsSlice';
 import { taskDealsActions } from '@/modules/entities/RelatedCrm/model/TaskDealsSlice';
+import { bitrixUserActions } from '@/modules/entities/BitrixUser';
 import { leadMarksActions } from '@/modules/features/LeadMarks/model/LeadMarksSlice';
 import { leadRequestActions } from '@/modules/features/LeadRequestCard/model/LeadRequestSlice';
 import { presentationLeadLinkActions } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
@@ -148,6 +149,7 @@ export function startStoreListeners(startAppListening: AppStartListening) {
         actionCreator: appActions.reload,
         effect: async (_action, listenerApi) => {
             listenerApi.dispatch(taskDealsActions.reset());
+            listenerApi.dispatch(bitrixUserActions.reset());
             listenerApi.dispatch(leadMarksActions.reset());
             listenerApi.dispatch(innActions.reset());
             listenerApi.dispatch(clientSignalsActions.reset());

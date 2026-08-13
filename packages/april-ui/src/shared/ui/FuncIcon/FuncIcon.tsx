@@ -1,5 +1,11 @@
 import { FC } from 'react';
-import { PlusCircle, CheckCircle2, XCircle, Trash2, Pencil } from 'lucide-react';
+import {
+    PlusCircle,
+    CheckCircle2,
+    XCircle,
+    Trash2,
+    Pencil,
+} from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 
 export interface AIconProps {
@@ -21,7 +27,9 @@ const AIcon: FC<AIconProps> = ({ type, action }) => {
     return (
         <Icon
             onClick={action}
-            className={cn('h-5 w-5 cursor-pointer text-muted-foreground transition-colors hover:text-foreground')}
+            className={cn(
+                'h-5 w-5 cursor-pointer text-muted-foreground transition-colors hover:text-foreground',
+            )}
         />
     );
 };

@@ -1,4 +1,10 @@
-import { BXCompany, BXDeal, BXLead, Placement, PlacementCallCard } from '@workspace/bx';
+import {
+    BXCompany,
+    BXDeal,
+    BXLead,
+    Placement,
+    PlacementCallCard,
+} from '@workspace/bx';
 import { APP_DISPLAY_MODE } from '../../types/app/app-type';
 import { IBXTask } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 import { Bitrix } from '@workspace/bitrix';
@@ -10,7 +16,9 @@ import {
 import { EVENT_TASK_SELECT } from '@/modules/entities/EventTask/lib/task-select';
 import { resolveTaskPrimaryContext } from '@/modules/entities/EventTask/lib/task-primary-context';
 
-export const getDisplayMode = (placement: Placement | PlacementCallCard): APP_DISPLAY_MODE => {
+export const getDisplayMode = (
+    placement: Placement | PlacementCallCard,
+): APP_DISPLAY_MODE => {
     let result = APP_DISPLAY_MODE.PUBLIC;
     if (placement.placement) {
         const type = placement.placement;
@@ -46,7 +54,6 @@ export type EntitiesFromPlacement = {
     from: APP_FROM_ENUM;
 };
 
-
 /**
  * Resolve the CRM entities (company / deal / task / lead) for the current Bitrix
  * placement using the @workspace/bitrix domain services.
@@ -64,9 +71,9 @@ export const getEntitiesFromPlacement = async (
         currentDeal: null,
         currentTask: null,
         currentLead: null,
-        from: APP_FROM_ENUM.COMPANY
+        from: APP_FROM_ENUM.COMPANY,
     };
-    let from = APP_FROM_ENUM.COMPANY
+    let from = APP_FROM_ENUM.COMPANY;
 
     try {
         const bitrix = Bitrix.getService();
@@ -81,16 +88,24 @@ export const getEntitiesFromPlacement = async (
             result.currentDeal = deal as unknown as BXDeal;
             const companyId = deal?.COMPANY_ID;
             if (companyId && Number(companyId) > 0) {
-                result.currentCompany = (await bitrix.company.get(Number(companyId))) as unknown as BXCompany;
+                result.currentCompany = (await bitrix.company.get(
+                    Number(companyId),
+                )) as unknown as BXCompany;
             }
-            from = APP_FROM_ENUM.DEAL
+            from = APP_FROM_ENUM.DEAL;
         } else if (type.includes('COMPANY')) {
-            result.currentCompany = (await bitrix.company.get(Number(options.ID))) as unknown as BXCompany;
-            from = APP_FROM_ENUM.COMPANY
+            result.currentCompany = (await bitrix.company.get(
+                Number(options.ID),
+            )) as unknown as BXCompany;
+            from = APP_FROM_ENUM.COMPANY;
         } else if (type.includes('TASK')) {
             const taskId = options.taskId ?? options.TASK_ID;
-            const taskResponse = await bitrix.task.get(taskId, EVENT_TASK_SELECT);
-            const currentTask = taskResponse?.result?.task as unknown as IBXTask;
+            const taskResponse = await bitrix.task.get(
+                taskId,
+                EVENT_TASK_SELECT,
+            );
+            const currentTask = taskResponse?.result
+                ?.task as unknown as IBXTask;
             result.currentTask = currentTask;
 
             // Приоритетная сущность задачи: компания > сделка > лид.
@@ -100,35 +115,46 @@ export const getEntitiesFromPlacement = async (
             );
             const { primary } = resolveTaskPrimaryContext(links);
             if (primary?.type === ETaskLinkType.COMPANY) {
-                result.currentCompany = (await bitrix.company.get(primary.id)) as unknown as BXCompany;
-                from = APP_FROM_ENUM.COMPANY
+                result.currentCompany = (await bitrix.company.get(
+                    primary.id,
+                )) as unknown as BXCompany;
+                from = APP_FROM_ENUM.COMPANY;
             } else if (primary?.type === ETaskLinkType.DEAL) {
                 const deal = await bitrix.deal.get(primary.id);
                 result.currentDeal = deal as unknown as BXDeal;
                 const dealCompanyId = Number(deal?.COMPANY_ID ?? 0);
                 if (dealCompanyId > 0) {
-                    result.currentCompany = (await bitrix.company.get(dealCompanyId)) as unknown as BXCompany;
+                    result.currentCompany = (await bitrix.company.get(
+                        dealCompanyId,
+                    )) as unknown as BXCompany;
                 }
-                from = APP_FROM_ENUM.DEAL
+                from = APP_FROM_ENUM.DEAL;
             } else if (primary?.type === ETaskLinkType.LEAD) {
                 result.currentLead = (await bitrix.lead.get(primary.id))
                     ?.result as unknown as BXLead;
-                from = APP_FROM_ENUM.LEAD
+                from = APP_FROM_ENUM.LEAD;
             }
             // from = APP_FROM_ENUM.TASK
         } else if (type.includes('CALL_CARD')) {
             const callOptions = options;
             let companyId: number | undefined;
-            if (callOptions.CRM_ENTITY_TYPE === 'COMPANY' && callOptions.CRM_ENTITY_ID) {
+            if (
+                callOptions.CRM_ENTITY_TYPE === 'COMPANY' &&
+                callOptions.CRM_ENTITY_ID
+            ) {
                 companyId = Number(callOptions.CRM_ENTITY_ID);
             }
             if (!companyId && Array.isArray(callOptions.CRM_BINDINGS)) {
-                const bind = callOptions.CRM_BINDINGS.find((b: any) => b.ENTITY_TYPE === 'COMPANY');
+                const bind = callOptions.CRM_BINDINGS.find(
+                    (b: any) => b.ENTITY_TYPE === 'COMPANY',
+                );
                 if (bind?.ENTITY_ID) companyId = Number(bind.ENTITY_ID);
             }
             if (companyId) {
-                result.currentCompany = (await bitrix.company.get(companyId)) as unknown as BXCompany;
-                from = APP_FROM_ENUM.COMPANY
+                result.currentCompany = (await bitrix.company.get(
+                    companyId,
+                )) as unknown as BXCompany;
+                from = APP_FROM_ENUM.COMPANY;
             }
             // from = CALL_CARD, а не COMPANY: карточка звонка может быть
             // привязана к компании, но открыты мы всё равно из звонка —
@@ -137,7 +163,7 @@ export const getEntitiesFromPlacement = async (
         } else if (type.includes('LEAD')) {
             result.currentLead = (await bitrix.lead.get(Number(options.ID)))
                 ?.result as unknown as BXLead;
-            from = APP_FROM_ENUM.LEAD
+            from = APP_FROM_ENUM.LEAD;
         }
         result.from = from;
         return result;

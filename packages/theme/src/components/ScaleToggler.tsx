@@ -1,10 +1,16 @@
 'use client';
 
-import { AArrowDown, AArrowUp } from 'lucide-react';
-import { UIScales } from '../provider/Theme';
+import { Minus, Plus } from 'lucide-react';
+import { UIScales, UI_SCALE_FACTOR } from '../model/color-schemes';
 import { useUIScale } from '../hook/useUIScale';
 
-/** Пошаговое управление масштабом UI: A− / текущий пресет / A+. */
+/**
+ * Масштаб UI в духе Bitrix24: − / текущий процент / +.
+ * Клик по проценту сбрасывает к 100% (comfortable).
+ *
+ * Множители берём из общего источника (`UI_SCALE_FACTOR`), а не дублируем
+ * зеркалом CSS: копия неизбежно разъезжается, и подпись начинает врать.
+ */
 export const ScaleToggler = () => {
     const { scale, setScale } = useUIScale();
     const index = UIScales.indexOf(scale);
@@ -15,14 +21,21 @@ export const ScaleToggler = () => {
     };
 
     return (
-        <div className="flex items-center gap-1 text-foreground">
+        <div className="flex items-center text-foreground">
             <button
                 onClick={() => step(-1)}
                 disabled={index <= 0}
                 className="cursor-pointer p-1 rounded-md hover:bg-muted transition disabled:opacity-30 disabled:cursor-default"
                 title="Мельче"
             >
-                <AArrowDown size={20} />
+                <Minus size={14} />
+            </button>
+            <button
+                onClick={() => setScale('comfortable')}
+                className="cursor-pointer min-w-9 px-0.5 py-1 rounded-md text-xs tabular-nums text-center hover:bg-muted transition"
+                title="Сбросить масштаб к 100%"
+            >
+                {Math.round(UI_SCALE_FACTOR[scale] * 100)}%
             </button>
             <button
                 onClick={() => step(1)}
@@ -30,7 +43,7 @@ export const ScaleToggler = () => {
                 className="cursor-pointer p-1 rounded-md hover:bg-muted transition disabled:opacity-30 disabled:cursor-default"
                 title="Крупнее"
             >
-                <AArrowUp size={20} />
+                <Plus size={14} />
             </button>
         </div>
     );

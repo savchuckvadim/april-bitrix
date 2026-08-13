@@ -18,3 +18,5 @@ export type {
     LeadNotCaTypeCode,
 } from './model';
 export { LEAD_NOT_CA_TYPE_CODE } from './model';
+// Экран подтверждения заявки — монтируется на экранах приложения.
+export { LeadConfirmGate } from './ui/LeadConfirmGate';

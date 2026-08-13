@@ -49,7 +49,10 @@ const applyFailType = (
 
     return {
         ...report,
-        [EV_REPORT_PROP.FAIL_TYPE]: { ...report[EV_REPORT_PROP.FAIL_TYPE], current },
+        [EV_REPORT_PROP.FAIL_TYPE]: {
+            ...report[EV_REPORT_PROP.FAIL_TYPE],
+            current,
+        },
         [EV_REPORT_PROP.FAIL_REASON]: {
             ...report[EV_REPORT_PROP.FAIL_REASON],
             isActive: current.code === 'failure',
@@ -66,7 +69,10 @@ const applyFailReason = (
 
     return {
         ...report,
-        [EV_REPORT_PROP.FAIL_REASON]: { ...report[EV_REPORT_PROP.FAIL_REASON], current },
+        [EV_REPORT_PROP.FAIL_REASON]: {
+            ...report[EV_REPORT_PROP.FAIL_REASON],
+            current,
+        },
     };
 };
 

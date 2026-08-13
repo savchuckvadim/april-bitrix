@@ -1,13 +1,25 @@
 'use client';
 
 import { FC } from 'react';
-import { ExternalLink, Mail, Phone } from 'lucide-react';
+import { ExternalLink, Link2, Mail, Phone } from 'lucide-react';
 import { ToneBadge } from '@workspace/april-ui';
+import { Button } from '@workspace/ui/components/button';
 import type { ContactDetailsView } from '../../../lib/hooks/use-contact-card';
 
+interface ContactWhoProps {
+    details: ContactDetailsView;
+    /**
+     * Контакт нашёлся только в лиде, а работаем мы уже в сделке — предлагаем
+     * перенести связь. Иначе в следующий раз его снова придётся искать в лиде,
+     * а в сделке будет пусто.
+     */
+    onAttachToDeal?: () => void;
+}
+
 /** Связь человека с портальными данными: источник, телефон, почта, карточка. */
-export const ContactWho: FC<{ details: ContactDetailsView }> = ({
+export const ContactWho: FC<ContactWhoProps> = ({
     details,
+    onAttachToDeal,
 }) => (
     <div className="flex min-w-0 flex-col items-start gap-1 text-xs">
         {details.source && (
@@ -37,6 +49,17 @@ export const ContactWho: FC<{ details: ContactDetailsView }> = ({
                 />
                 <span className="truncate">{details.email}</span>
             </span>
+        )}
+        {onAttachToDeal && (
+            <Button
+                variant="outline"
+                size="sm"
+                className="h-7 gap-1 px-2 text-xs"
+                onClick={onAttachToDeal}
+            >
+                <Link2 aria-hidden className="size-3" />
+                Привязать к сделке
+            </Button>
         )}
         {details.crmUrl && (
             <a

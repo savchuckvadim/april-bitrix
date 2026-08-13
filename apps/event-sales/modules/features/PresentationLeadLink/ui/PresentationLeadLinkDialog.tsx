@@ -35,7 +35,9 @@ export const PresentationLeadLinkDialog: FC = () => {
     return (
         <Dialog
             open={form.isOpen}
-            onOpenChange={open => !open && dispatch(closePresentationLeadLink())}
+            onOpenChange={open =>
+                !open && dispatch(closePresentationLeadLink())
+            }
         >
             <DialogContent className="max-h-[85svh] overflow-y-auto">
                 <DialogHeader>
@@ -128,7 +130,9 @@ export const PresentationLeadLinkDialog: FC = () => {
                                         label={
                                             LEAD_REQUEST_ENUM_LABEL.siteStatusCode
                                         }
-                                        installed={form.card.siteStatus.installed}
+                                        installed={
+                                            form.card.siteStatus.installed
+                                        }
                                         currentCode={form.siteStatusCode}
                                         items={form.card.siteStatus.items}
                                         disabled={false}
@@ -144,7 +148,9 @@ export const PresentationLeadLinkDialog: FC = () => {
                                         label={
                                             LEAD_REQUEST_ENUM_LABEL.siteStageCode
                                         }
-                                        installed={form.card.siteStage.installed}
+                                        installed={
+                                            form.card.siteStage.installed
+                                        }
                                         currentCode={form.siteStageCode}
                                         items={form.card.siteStage.items}
                                         disabled={false}
@@ -160,7 +166,9 @@ export const PresentationLeadLinkDialog: FC = () => {
                             )}
                             {form.statusesMissing && (
                                 <p className="text-xs text-destructive">
-                                    {PRESENTATION_LEAD_LINK_TEXT.statusesMissing}
+                                    {
+                                        PRESENTATION_LEAD_LINK_TEXT.statusesMissing
+                                    }
                                 </p>
                             )}
                         </div>
@@ -169,7 +177,9 @@ export const PresentationLeadLinkDialog: FC = () => {
                     <div className="flex justify-end gap-2">
                         <Button
                             variant="outline"
-                            onClick={() => dispatch(closePresentationLeadLink())}
+                            onClick={() =>
+                                dispatch(closePresentationLeadLink())
+                            }
                         >
                             {PRESENTATION_LEAD_LINK_TEXT.cancelButton}
                         </Button>

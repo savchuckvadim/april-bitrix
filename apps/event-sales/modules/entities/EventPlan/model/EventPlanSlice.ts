@@ -30,7 +30,10 @@ const eventPlanSlice = createSlice({
         ) {
             Object.assign(
                 state,
-                getPlanInitState(payload.payload.isTmc, payload.payload.context),
+                getPlanInitState(
+                    payload.payload.isTmc,
+                    payload.payload.context,
+                ),
                 { isAfterSale: false, isAllTypesShown: false },
             );
         },
@@ -79,7 +82,8 @@ const eventPlanSlice = createSlice({
                     const currentItem = state[EV_PLAN_PROP.TYPE].items.find(
                         item => item.id == Number(payload.value),
                     );
-                    if (currentItem) state[EV_PLAN_PROP.TYPE].current = currentItem;
+                    if (currentItem)
+                        state[EV_PLAN_PROP.TYPE].current = currentItem;
                     break;
                 }
                 case EV_PLAN_PROP.NAME:
@@ -87,9 +91,8 @@ const eventPlanSlice = createSlice({
                     break;
                 case EV_PLAN_PROP.DATE:
                     state[EV_PLAN_PROP.DATE] = payload.value;
-                    state[EV_PLAN_PROP.IS_EXPIRED] = isDifferenceMoreThanFourMonths(
-                        payload.value,
-                    );
+                    state[EV_PLAN_PROP.IS_EXPIRED] =
+                        isDifferenceMoreThanFourMonths(payload.value);
                     break;
                 default:
                     break;

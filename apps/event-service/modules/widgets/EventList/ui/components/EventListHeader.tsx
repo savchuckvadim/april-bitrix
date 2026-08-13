@@ -1,5 +1,6 @@
-import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
+import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
+import { SkapImportControls } from '@workspace/skap';
 import { getResultMenu } from '@/modules/widgets/EventItem';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { AButton } from '@workspace/april-ui';
@@ -9,6 +10,7 @@ import { reloadApp } from '@/modules/app/model/AppThunk';
 
 const EventListHeader = () => {
     const dispatch = useAppDispatch();
+    const domain = useAppSelector(state => state.app.domain);
 
     const setResultMenuStatus = (status: EventItemResultType, task: EventTask) => {
         dispatch(getResultMenu(status, task));
@@ -18,13 +20,17 @@ const EventListHeader = () => {
 
     return (
         <div className="mt-2 flex w-full items-center justify-between">
-            <motion.div
-                whileTap={{ scale: 0.9 }}
-                onClick={reload}
-                className="cursor-pointer text-muted-foreground hover:text-foreground"
-            >
-                <RefreshCcw className="h-4 w-4" />
-            </motion.div>
+            <div className="flex items-center gap-3">
+                <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    onClick={reload}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
+                >
+                    <RefreshCcw className="h-4 w-4" />
+                </motion.div>
+
+                <SkapImportControls domain={domain} />
+            </div>
 
             <div className="flex items-end justify-end">
                 <div className="ms-2">

@@ -2,7 +2,7 @@
 
 import { FC } from 'react';
 import { GradientScale, MicroSelect } from '@workspace/april-ui';
-import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
+import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { PBXContactFieldData } from '@/modules/entities/EventContact/type/pbx-contact-type';
 import {
     currentItemIndex,
@@ -20,13 +20,14 @@ interface PbxContactFieldItemProps {
 }
 
 /**
- * Одна характеристика контакта в развёрнутом виде: имя, градиентная шкала и
+ * Одна характеристика контакта: подпись со значением, градиентная шкала и
  * микро-селект под ней.
  *
- * Шкала и селект — про одно и то же значение, но нужны оба: по шкале видно
- * положение среди остальных значений и ставится «на глаз» в один клик, а
- * селект называет варианты словами — их у характеристики бывает до семи, и
- * угадывать деление по тултипу неудобно.
+ * Подпись стоит НАД шкалой и всегда называет текущее значение словами («Не
+ * задано», «Не желает», «Клиент»): сама по себе полоска говорит только про
+ * «больше-меньше», а менеджеру нужно точное слово — по нему он решает, что
+ * говорить дальше. Селект ниже — чтобы выбрать словами, а не целиться в
+ * деление: значений у характеристики бывает до семи.
  */
 export const PbxContactFieldItem: FC<PbxContactFieldItemProps> = ({
     contactId,
@@ -37,15 +38,30 @@ export const PbxContactFieldItem: FC<PbxContactFieldItemProps> = ({
     const index = currentItemIndex(field);
     const name = shortFieldName(field.field.name);
     const value = currentItemName(field);
+    const error = useAppSelector(
+        s => s.contact.fieldErrors[`${contactId}:${field.field.code}`],
+    );
 
     const select = (itemIndex: number) =>
         dispatch(setPbxContactField(contactId, field.field.code, itemIndex));
 
     return (
         <div className="flex min-w-0 flex-col gap-0.5">
-            <span className="min-w-0 truncate text-[0.6875rem] text-muted-foreground">
-                {name}
-            </span>
+            <div className="flex min-w-0 items-baseline justify-between gap-2">
+                <span className="min-w-0 truncate text-[0.6875rem] text-muted-foreground">
+                    {name}
+                </span>
+                <span
+                    className={
+                        value
+                            ? 'shrink-0 text-[0.6875rem] font-medium text-foreground'
+                            : 'shrink-0 text-[0.6875rem] text-muted-foreground/70'
+                    }
+                >
+                    {value ?? 'Не задано'}
+                </span>
+            </div>
+
             <GradientScale
                 labels={field.items.map(item => item.name)}
                 currentIndex={index}
@@ -55,28 +71,26 @@ export const PbxContactFieldItem: FC<PbxContactFieldItemProps> = ({
                 currentWord="сейчас"
                 ariaLabel={`${name}: ${value ?? 'не задано'}`}
             />
-            {readOnly ? (
-                <span
-                    className={
-                        value
-                            ? 'truncate text-xs font-medium'
-                            : 'truncate text-xs text-muted-foreground/70'
-                    }
-                >
-                    {value ?? 'не задано'}
-                </span>
-            ) : (
+
+            {!readOnly && (
                 <MicroSelect
                     ariaLabel={name}
                     value={index >= 0 ? String(index) : undefined}
-                    placeholder="не задано"
+                    placeholder="Не задано"
                     options={field.items.map((item, itemIndex) => ({
                         value: String(itemIndex),
                         label: item.name,
                     }))}
                     onChange={next => select(Number(next))}
                     className="max-w-none"
+                    invalid={Boolean(error)}
                 />
+            )}
+
+            {error && (
+                <span className="text-[0.625rem] text-destructive">
+                    {error}
+                </span>
             )}
         </div>
     );

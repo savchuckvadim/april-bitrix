@@ -49,13 +49,23 @@ export const initAppTask = (
     companyId: number | null,
     leadId: number | null,
     dealId: number | null,
-    from: APP_FROM_ENUM
+    from: APP_FROM_ENUM,
 ): void => {
     if (!currentTask) {
         dispatch(
-            initialEventTasks([], userId, companyId, domain, leadId, dealId, from),
+            initialEventTasks(
+                [],
+                userId,
+                companyId,
+                domain,
+                leadId,
+                dealId,
+                from,
+            ),
         );
     } else {
-        dispatch(initialTasksFromCurrentTask(getEvTasksFromBxTasks([currentTask])));
+        dispatch(
+            initialTasksFromCurrentTask(getEvTasksFromBxTasks([currentTask])),
+        );
     }
 };

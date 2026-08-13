@@ -39,7 +39,9 @@ export const fetchLeadRequestCard =
         } catch (error) {
             dispatch(
                 leadRequestActions.setError(
-                    error instanceof Error ? error.message : 'Не удалось загрузить заявку',
+                    error instanceof Error
+                        ? error.message
+                        : 'Не удалось загрузить заявку',
                 ),
             );
         }
@@ -82,14 +84,20 @@ const TRANSFER_REFETCH_DELAY_MS = 2500;
  * операция выполняется воркером очереди.
  */
 export const transferLeadRequest =
-    (): AppThunk => async (dispatch, getState) => {
+    (targetUserId?: number | null): AppThunk =>
+    async (dispatch, getState) => {
         const state = getState();
         const leadId = state.leadRequest.leadId;
         const userId = Number(state.app.bitrix.user?.ID);
         if (!leadId || !userId) return;
         dispatch(leadRequestActions.setSaving(true));
         try {
-            await helper.transfer(state.app.domain, leadId, userId);
+            await helper.transfer(
+                state.app.domain,
+                leadId,
+                userId,
+                targetUserId,
+            );
             await new Promise(resolve =>
                 setTimeout(resolve, TRANSFER_REFETCH_DELAY_MS),
             );
@@ -192,7 +200,9 @@ export const saveLeadRequest =
         } catch (error) {
             dispatch(
                 leadRequestActions.setError(
-                    error instanceof Error ? error.message : 'Не удалось сохранить заявку',
+                    error instanceof Error
+                        ? error.message
+                        : 'Не удалось сохранить заявку',
                 ),
             );
         } finally {

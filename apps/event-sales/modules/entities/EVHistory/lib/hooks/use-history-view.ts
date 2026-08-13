@@ -35,6 +35,11 @@ export interface HistoryView {
     entityGroups: HistoryEntityGroup[];
     /** «По датам»: все уникальные записи, свежие сверху. */
     dateRecords: EVHistoryRecord[];
+    /**
+     * Режим, который РЕАЛЬНО отрисуется. Отличается от выбранного, когда
+     * группировать не по чему: записи есть, а групп нет.
+     */
+    effectiveMode: HistoryViewMode;
 }
 
 /**
@@ -66,7 +71,9 @@ export const useHistoryView = (): HistoryView => {
                 }
                 return { group, records: own, hiddenDuplicates: hidden };
             })
-            .filter(item => item.records.length > 0 || item.group.next !== null);
+            .filter(
+                item => item.records.length > 0 || item.group.next !== null,
+            );
     }, [groups, records]);
 
     const dateRecords = useMemo<EVHistoryRecord[]>(
@@ -77,6 +84,13 @@ export const useHistoryView = (): HistoryView => {
         [records],
     );
 
+    // Записи есть, а групп нет — показываем ленту по датам. Иначе выходило
+    // «История (5)» с пустым телом: счётчик считал записи, а рисовались
+    // группы, которых не было.
+    const hasGroupedRecords = entityGroups.some(
+        item => item.records.length > 0,
+    );
+
     return {
         status,
         isListMissing,
@@ -85,5 +99,9 @@ export const useHistoryView = (): HistoryView => {
         setMode,
         entityGroups,
         dateRecords,
+        effectiveMode:
+            mode === EHistoryViewMode.ENTITY && !hasGroupedRecords
+                ? EHistoryViewMode.DATE
+                : mode,
     };
 };

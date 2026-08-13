@@ -65,9 +65,7 @@ export const searchDuplicates =
         // Искать не от чего и руками ничего не ввели — молчим.
         if (target.manualOnly && !hasRaw) return;
 
-        dispatch(
-            duplicatesActions.searchStarted({ isAuto: !!options.isAuto }),
-        );
+        dispatch(duplicatesActions.searchStarted({ isAuto: !!options.isAuto }));
         try {
             const result = await helper.search({
                 domain,
@@ -92,26 +90,24 @@ export const searchDuplicates =
  * пределах двух минут по тем же сигналам уже искали. Поэтому проверка «а не
  * появился ли новый дубль» при каждом открытии почти ничего не стоит.
  */
-export const autoSearchDuplicates =
-    () => async (dispatch: AppDispatch) => {
-        await dispatch(
-            searchDuplicates({
-                isAuto: true,
-                level: DUPLICATE_SEARCH_LEVEL.NUMBER_1,
-            }),
-        );
-    };
+export const autoSearchDuplicates = () => async (dispatch: AppDispatch) => {
+    await dispatch(
+        searchDuplicates({
+            isAuto: true,
+            level: DUPLICATE_SEARCH_LEVEL.NUMBER_1,
+        }),
+    );
+};
 
 /** Углублённый поиск по кнопке: реквизиты и подстрочный поиск по названию. */
-export const deepSearchDuplicates =
-    () => async (dispatch: AppDispatch) => {
-        await dispatch(
-            searchDuplicates({
-                force: true,
-                level: DUPLICATE_SEARCH_LEVEL.NUMBER_2,
-            }),
-        );
-    };
+export const deepSearchDuplicates = () => async (dispatch: AppDispatch) => {
+    await dispatch(
+        searchDuplicates({
+            force: true,
+            level: DUPLICATE_SEARCH_LEVEL.NUMBER_2,
+        }),
+    );
+};
 
 /** Детали кандидата: ответственный, его связанные сделки и лиды. */
 export const fetchDuplicateDetails =
@@ -133,7 +129,9 @@ export const fetchDuplicateDetails =
             dispatch(duplicatesActions.detailsSucceeded({ details }));
         } catch (error) {
             dispatch(
-                duplicatesActions.detailsFailed({ message: toErrorText(error) }),
+                duplicatesActions.detailsFailed({
+                    message: toErrorText(error),
+                }),
             );
         }
     };

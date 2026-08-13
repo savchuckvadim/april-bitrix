@@ -33,7 +33,6 @@ const initialState = {
     details: null as DuplicateDetails | null,
 
     /** Открыта ли форма ручного поиска. */
-    isManualOpen: false,
 };
 
 export type DuplicatesState = typeof initialState;
@@ -100,13 +99,6 @@ const duplicatesSlice = createSlice({
             state.detailsStatus = 'idle';
             state.detailsError = null;
             state.details = null;
-        },
-
-        manualToggled: (
-            state: DuplicatesState,
-            action: PayloadAction<{ isOpen: boolean }>,
-        ) => {
-            state.isManualOpen = action.payload.isOpen;
         },
     },
 });

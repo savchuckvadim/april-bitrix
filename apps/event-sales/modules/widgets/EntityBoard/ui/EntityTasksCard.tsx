@@ -22,6 +22,8 @@ import {
 } from '@/modules/widgets/EventItem';
 import { useEventNavigation } from '@/modules/processes/event';
 import { EventCard } from '@/modules/widgets/EventList/ui/EventCard';
+import { OtherTaskRow } from '@/modules/widgets/EventList/ui/OtherTaskRow';
+import { APP_DISPLAY_MODE } from '@/modules/app/types/app/app-type';
 
 interface EntityTasksCardProps {
     /** Связи клиента — из них карточка дела берёт свою сделку или лид. */
@@ -43,6 +45,17 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
     const status = useAppSelector(s => s.eventTask.status);
     // Привязанные к задачам сделки (наполняет листенер setFetchedTasks).
     const boundDealsById = useAppSelector(s => s.taskDeals.byId);
+    // Встройка в задачу: работаем по ней одной, соседние дела только показываем.
+    const isTaskMode = useAppSelector(
+        s => s.app.display.mode === APP_DISPLAY_MODE.TASK,
+    );
+    const currentTaskId = useAppSelector(s => s.eventTask.current?.id);
+    const visibleTasks = isTaskMode
+        ? (tasks ?? []).filter(task => task.id === currentTaskId)
+        : (tasks ?? []);
+    const otherTasks = isTaskMode
+        ? (tasks ?? []).filter(task => task.id !== currentTaskId)
+        : [];
 
     const selectEvent = async (
         resultType: EventItemResultType,
@@ -56,7 +69,8 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
         <Card className="flex min-h-0 flex-col">
             <CardHeader>
                 <CardTitle className="text-base">
-                    Дела{tasks?.length ? ` (${tasks.length})` : ''}
+                    {isTaskMode ? 'Текущее дело' : 'Дела'}
+                    {!isTaskMode && tasks?.length ? ` (${tasks.length})` : ''}
                 </CardTitle>
             </CardHeader>
 
@@ -69,7 +83,7 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
                     onRetry={() => dispatch(reloadApp())}
                 >
                     <div className="grid gap-3">
-                        {tasks?.map((task, index) => {
+                        {visibleTasks.map((task, index) => {
                             const links = getTaskLinks(task);
                             return (
                                 <EventCard
@@ -82,11 +96,27 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
                                         dealIds: links.dealIds,
                                         leadIds: links.leadIds,
                                     })}
+                                    spacious={isTaskMode}
                                     onSelect={selectEvent}
                                 />
                             );
                         })}
                     </div>
+
+                    {otherTasks.length > 0 && (
+                        <div className="mt-3 space-y-1.5">
+                            <p className="text-xs text-muted-foreground">
+                                Ещё по клиенту ({otherTasks.length}) — открыть в
+                                Битриксе
+                            </p>
+                            {otherTasks.map(task => (
+                                <OtherTaskRow
+                                    key={`other-task-${task.id}`}
+                                    task={task}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </SectionState>
             </CardContent>
         </Card>

@@ -55,23 +55,29 @@ export type EventReportCode =
     | FailTypeCode
     | FailReasonCode;
 
-export type EventReportSelectItem<TCode extends EventReportCode = EventReportCode> = {
+export type EventReportSelectItem<
+    TCode extends EventReportCode = EventReportCode,
+> = {
     id: number;
     code: TCode;
     name: string;
     isActive: boolean;
 };
 
-export type EventReportSelect<TCode extends EventReportCode = EventReportCode> = {
-    items: Array<EventReportSelectItem<TCode>>;
-    current: EventReportSelectItem<TCode>;
-    default: EventReportSelectItem<TCode>;
-    isActive: boolean;
-    isChanged: boolean;
-};
+export type EventReportSelect<TCode extends EventReportCode = EventReportCode> =
+    {
+        items: Array<EventReportSelectItem<TCode>>;
+        current: EventReportSelectItem<TCode>;
+        default: EventReportSelectItem<TCode>;
+        isActive: boolean;
+        isChanged: boolean;
+    };
 
 /** Поля отчёта, которые являются справочником (всё, кроме комментария). */
-export type EventReportSelectProp = Exclude<EV_REPORT_PROP, EV_REPORT_PROP.COMMENT>;
+export type EventReportSelectProp = Exclude<
+    EV_REPORT_PROP,
+    EV_REPORT_PROP.COMMENT
+>;
 
 export type EventReportStateReport = {
     [EV_REPORT_PROP.WORK_STATUS]: EventReportSelect<WorkStatusCode>;

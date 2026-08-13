@@ -7,3 +7,4 @@ export * from './util/contact-util';
 export * from './util/pbx-contact-util';
 export * from './lib/use-contact-options';
 export { ContactField } from './ui/ContactField';
+export { ContactCreateDialog } from './ui/ContactCreateDialog';

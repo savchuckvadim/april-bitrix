@@ -1,5 +1,9 @@
 import { RELATED_ENTITY_TYPE, type RelatedEntityType } from '../model';
-import { getCrmUrl, type CrmEntityKind } from '@/modules/app/lib/utills/url';
+import {
+    getCrmPath,
+    getCrmUrl,
+    type CrmEntityKind,
+} from '@/modules/app/lib/utills/url';
 
 const ENTITY_KIND: Record<RelatedEntityType, CrmEntityKind> = {
     [RELATED_ENTITY_TYPE.COMPANY]: 'company',
@@ -19,3 +23,9 @@ export const getEntityCardUrl = (
     entityType: RelatedEntityType,
     entityId: number,
 ): string | null => getCrmUrl(domain, ENTITY_KIND[entityType], entityId);
+
+/** Путь карточки внутри портала — для слайдера Битрикса (без домена). */
+export const getEntityCardPath = (
+    entityType: RelatedEntityType,
+    entityId: number,
+): string | null => getCrmPath(ENTITY_KIND[entityType], entityId);

@@ -6,6 +6,7 @@ import {
     BxRpaItemSchema,
 
     UserFieldConfigSchema,
+    BxUserSchema,
 } from '../../../domain';
 import {
     CompanySchema,
@@ -101,6 +102,7 @@ export type BXApiSchema = {
     [EBxNamespace.WITHOUT_NAMESPACE]: {
         [EBXEntity.LISTS]: BxListSchema;
         [EBXEntity.USER_FIELD_CONFIG]: UserFieldConfigSchema;
+        [EBXEntity.USER]: BxUserSchema;
     };
     [EBxNamespace.CATALOG]: {
         [EBXEntity.PRODUCT]: BxCatalogSchema;

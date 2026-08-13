@@ -1,10 +1,9 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-type StateType = typeof initialState
+type StateType = typeof initialState;
 const initialState = {
-    inProgress: false as boolean
-
-}
+    inProgress: false as boolean,
+};
 
 const preloaderSlice = createSlice({
     name: 'preloader',
@@ -12,20 +11,14 @@ const preloaderSlice = createSlice({
     reducers: {
         setPreloader: (
             state: StateType,
-            action: PayloadAction<
-                {
-                    status: boolean,
-
-                }
-            >
+            action: PayloadAction<{
+                status: boolean;
+            }>,
         ) => {
             const payload = action.payload;
             state.inProgress = payload.status;
-
         },
-
     },
-
 });
 
 export const preloaderReducer = preloaderSlice.reducer;

@@ -22,6 +22,8 @@ import {
 } from '@/modules/widgets/EventItem';
 import { useEventNavigation } from '@/modules/processes/event';
 import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
+import { ActionPromptCard } from '@/modules/features/ActionPrompts';
+import { LeadConfirmGate } from '@/modules/features/LeadRequestCard';
 import { NoCallMenu } from '@/modules/features/NoCall';
 import { ReturnToTMCMenu } from '@/modules/features/ReturnToTMC';
 import { getEventListView } from '../lib/list-view';
@@ -49,13 +51,18 @@ export const EventList: FC = () => {
     // потрачен впустую.
     const { details } = useCurrentRelations(view === 'cards');
 
-    const selectEvent = async (status: EventItemResultType, task: EventTask) => {
+    const selectEvent = async (
+        status: EventItemResultType,
+        task: EventTask,
+    ) => {
         await dispatch(getResultMenu(status, task));
         nav.toItem();
     };
 
     return (
         <div className="p-2 pt-0">
+            <LeadConfirmGate />
+            <ActionPromptCard />
             <NoCallMenu />
             <ReturnToTMCMenu />
             <EventListHeader />

@@ -57,13 +57,12 @@ export const EntityBoard: FC = () => {
         reload,
     } = useEntityBoard();
 
-
     if (!descriptor) {
         return (
             <div className="flex min-h-svh items-center justify-center p-4">
                 <p className="text-sm text-muted-foreground">
-                    Не удалось определить клиента: встройка открыта без компании,
-                    лида и сделки.
+                    Не удалось определить клиента: встройка открыта без
+                    компании, лида и сделки.
                 </p>
             </div>
         );
@@ -87,21 +86,29 @@ export const EntityBoard: FC = () => {
                 </div>
 
                 <div className="order-2 flex min-h-0 flex-col gap-3 overflow-y-auto lg:order-1">
-                    {details?.deals && details?.deals.length
-                        ? <RelatedDealsCard
-                            deals={details?.deals ?? []}
-                            currentDealId={descriptor.currentDealId}
-                            includeClosed={includeClosed}
-                            onIncludeClosedChange={setIncludeClosed}
-                            status={status}
-                            onRetry={reload}
-                        /> : ''}
-                    {details?.leads && details?.leads.length
-                        ? <RelatedLeadsCard
-                            leads={details?.leads ?? []}
-                            status={status}
-                            onRetry={reload}
-                        /> : ''}
+                    {/* Секции показываются ВСЕГДА, вместе со своим состоянием.
+                        Раньше они рендерились только при непустом списке: пока
+                        связи грузились или запрос падал, экран молчал — и это
+                        читалось как «связей нет», хотя их просто не принесли. */}
+                    {/* {связанные сделки точно закомменчу потом будем их доделывать сейчас работают криво
+                        показывается в сделке карточка пустая. Лиды это что типа если заявка не лид ?
+                        } */}
+                    {/* <RelatedDealsCard
+                        deals={details?.deals ?? []}
+                        currentDealId={descriptor.currentDealId}
+                        includeClosed={includeClosed}
+                        onIncludeClosedChange={setIncludeClosed}
+                        status={status}
+                        onRetry={reload}
+                    />
+             */}
+
+                 {/* {details?.leads && details.leads.length > 0 && (
+                     <RelatedLeadsCard
+                        leads={details.leads}
+                        status={status}
+                        onRetry={reload}
+                    />)} */}
                     {/* Карточка заявки: первый открытый связанный лид либо
                         лид контекста встройки (панель сама скрывается). */}
                     <LeadRequestPanel leadId={getPanelLeadId(details?.leads)} />

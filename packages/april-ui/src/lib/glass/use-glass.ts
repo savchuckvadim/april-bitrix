@@ -37,7 +37,8 @@ export const useGlass = (): UseGlassResult => {
 
     // Намерение читаем только на клиенте: на сервере localStorage нет,
     // а несовпадение с первым рендером даст ошибку гидратации.
-    const [preference, setPreferenceState] = useState<GlassPreference>('system');
+    const [preference, setPreferenceState] =
+        useState<GlassPreference>('system');
 
     useEffect(() => {
         setPreferenceState(getGlassPreference());

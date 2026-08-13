@@ -19,7 +19,9 @@ export const saveSignal =
     async (dispatch: AppDispatch, getState: AppGetState) => {
         const validationError = signalValidationError(kind, raw);
         if (validationError) {
-            dispatch(clientSignalsActions.setError({ message: validationError }));
+            dispatch(
+                clientSignalsActions.setError({ message: validationError }),
+            );
             return false;
         }
 

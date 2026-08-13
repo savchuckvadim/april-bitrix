@@ -1,12 +1,10 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import {
-    acceptLeadRequest,
-    transferLeadRequest,
-} from '../model/LeadRequestThunk';
+import { acceptLeadRequest } from '../model/LeadRequestThunk';
+import { LeadTransferDialog } from './LeadTransferDialog';
 import { useLeadRequestAcceptState } from '../lib/hooks/use-lead-request-accept-state';
 import { LEAD_REQUEST_TEXT } from '../consts/lead-request.const';
 
@@ -19,6 +17,7 @@ import { LEAD_REQUEST_TEXT } from '../consts/lead-request.const';
  */
 export const LeadRequestAcceptBar: FC = () => {
     const dispatch = useAppDispatch();
+    const [isTransferOpen, setIsTransferOpen] = useState(false);
     const view = useLeadRequestAcceptState();
     const saving = useAppSelector(state => state.leadRequest.saving);
 
@@ -57,11 +56,16 @@ export const LeadRequestAcceptBar: FC = () => {
                     size="sm"
                     variant="outline"
                     disabled={saving}
-                    onClick={() => dispatch(transferLeadRequest())}
+                    onClick={() => setIsTransferOpen(true)}
                 >
                     {LEAD_REQUEST_TEXT.transferButton}
                 </Button>
             </div>
+
+            <LeadTransferDialog
+                open={isTransferOpen}
+                onOpenChange={setIsTransferOpen}
+            />
         </div>
     );
 };

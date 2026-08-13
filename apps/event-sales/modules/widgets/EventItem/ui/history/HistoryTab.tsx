@@ -10,4 +10,4 @@ import { EntityHistoryCard } from '@/modules/entities/EVHistory/ui/EntityHistory
  * клиента) живёт в самой сущности — вкладка её только показывает. Так экран
  * сущности и вкладка не разъезжаются в поведении.
  */
-export const HistoryTab: FC = () => <EntityHistoryCard />;
+export const HistoryTab: FC = () => <EntityHistoryCard fill />;

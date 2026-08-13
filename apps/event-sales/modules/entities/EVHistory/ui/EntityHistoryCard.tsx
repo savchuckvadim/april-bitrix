@@ -7,11 +7,8 @@ import {
     CardHeader,
     CardTitle,
 } from '@workspace/ui/components/card';
-import {
-    Tabs,
-    TabsList,
-    TabsTrigger,
-} from '@workspace/ui/components/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
+import { cn } from '@workspace/ui/lib/utils';
 import { SectionState } from '@/modules/shared/SectionState';
 import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
 import { loadEventSalesHistory } from '../model/EVHistoryThunk';
@@ -21,7 +18,9 @@ import {
     HistoryViewMode,
     useHistoryView,
 } from '../lib/hooks/use-history-view';
+import { useEnsureUsers } from '@/modules/entities/BitrixUser';
 import { useHistoryResponsible } from '../lib/hooks/use-history-responsible';
+import { useHistoryStatus } from '../lib/hooks/use-history-status';
 import { HistoryGroupSection } from './HistoryGroupSection';
 import { HistoryRecordRow } from './HistoryRecordRow';
 
@@ -63,18 +62,35 @@ const FallbackHistory: FC<{ items: string[] }> = ({ items }) => {
  * Если списка на портале нет, показываем поля самой сущности
  * (`op_history` / `op_mhistory`) — беднее, но лучше пустого экрана.
  */
-export const EntityHistoryCard: FC = () => {
+interface EntityHistoryCardProps {
+    /**
+     * Растянуться на всю высоту родителя. Включать ТОЛЬКО там, где родитель
+     * эту высоту задаёт (вкладка «История»). В колонке с прокруткой flex-1
+     * без basis схлопывает карточку в ноль — и получается «История (5)» с
+     * пустым телом.
+     */
+    fill?: boolean;
+}
+
+export const EntityHistoryCard: FC<EntityHistoryCardProps> = ({
+    fill = false,
+}) => {
     const dispatch = useAppDispatch();
     const view = useHistoryView();
     const resolveResponsible = useHistoryResponsible();
+    const resolveStatus = useHistoryStatus();
     const fallback = usePortalHistory();
+
+    // Имена авторов записей: кто вне отдела продаж — доспрашиваем у портала,
+    // иначе история подписывается «Сотрудник 447».
+    useEnsureUsers(view.dateRecords.map(record => record.responsibleId));
 
     useEffect(() => {
         dispatch(loadEventSalesHistory());
     }, [dispatch]);
 
     return (
-        <Card>
+        <Card className={cn('flex flex-col', fill && 'h-full min-h-0 flex-1')}>
             <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
                 <CardTitle className="text-base">
                     История
@@ -113,7 +129,9 @@ export const EntityHistoryCard: FC = () => {
                 )}
             </CardHeader>
 
-            <CardContent>
+            <CardContent
+                className={cn('flex flex-col', fill && 'min-h-0 flex-1')}
+            >
                 {view.isListMissing ? (
                     <FallbackHistory items={fallback.items} />
                 ) : (
@@ -125,13 +143,19 @@ export const EntityHistoryCard: FC = () => {
                         }
                         emptyText="Записей по клиенту пока нет."
                     >
-                        <div className="max-h-96 space-y-4 overflow-y-auto pr-1">
-                            {view.mode === EHistoryViewMode.ENTITY ? (
+                        <div
+                            className={cn(
+                                'space-y-4 overflow-y-auto pr-1',
+                                fill ? 'min-h-0 flex-1' : 'max-h-96 min-h-40',
+                            )}
+                        >
+                            {view.effectiveMode === EHistoryViewMode.ENTITY ? (
                                 view.entityGroups.map(item => (
                                     <HistoryGroupSection
                                         key={item.group.binding.value}
                                         item={item}
                                         resolveResponsible={resolveResponsible}
+                                        resolveStatus={resolveStatus}
                                     />
                                 ))
                             ) : (
@@ -143,6 +167,7 @@ export const EntityHistoryCard: FC = () => {
                                             responsible={resolveResponsible(
                                                 record.responsibleId,
                                             )}
+                                            status={resolveStatus(record)}
                                         />
                                     ))}
                                 </ul>

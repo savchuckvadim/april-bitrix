@@ -1,10 +1,16 @@
 import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale/ru';
 import type { BXTask } from '@workspace/bx';
-import { EV_TYPE, EventTask, EventTaskEventType } from '../types/event-task-type';
+import {
+    EV_TYPE,
+    EventTask,
+    EventTaskEventType,
+} from '../types/event-task-type';
 import { getTaskEventComment } from './event-comment';
 
-export const getEvTasksFromBxTasks = (tasks: Array<BXTask>): Array<EventTask> => {
+export const getEvTasksFromBxTasks = (
+    tasks: Array<BXTask>,
+): Array<EventTask> => {
     return tasks.map((task: BXTask) => {
         const { type, name, eventType } = parseTaskTitle(task.title);
         const isExpired = checkIfTaskIsOverdue(task);
@@ -61,10 +67,23 @@ export const parseTaskTitle = (title: string) => {
     const regex = new RegExp(`(?:${phrases.join('|')})`, 'gi');
     const name = title;
 
-    let eventType: EventTaskEventType = 'event';
+    // Тип по умолчанию — обычный звонок: код 'event' был легаси-синонимом
+    // 'warm' и на бэке всё равно нормализовался в него.
+    let eventType: EventTaskEventType = 'warm';
     if (name.includes('Холодный звонок') || name.includes('Холодный обзвон')) {
-        eventType = 'xo';
-        type = EV_TYPE.XO;
+        // «Холодный звонок. Заявка» и «. Лид» — не холодный обзвон: клиент
+        // обратился сам и нас ЖДЁТ. Слово в заголовке ставит робот воронки
+        // заявок, оно и есть признак (см. docs/event-sales-event-types.md).
+        if (name.includes('Заявка')) {
+            eventType = 'xoRequest';
+            type = EV_TYPE.REQUEST;
+        } else if (name.includes('Лид')) {
+            eventType = 'xoLead';
+            type = EV_TYPE.REQUEST;
+        } else {
+            eventType = 'xo';
+            type = EV_TYPE.XO;
+        }
     } else if (name.includes('Звонок') && !name.includes('Звонок по')) {
         eventType = 'warm';
     } else if (name.includes('Презентация')) {
@@ -76,7 +95,10 @@ export const parseTaskTitle = (title: string) => {
     } else if (name.includes('Оплата') || name.includes('Звонок по оплате')) {
         eventType = 'moneyAwait';
         type = EV_TYPE.MONEY;
-    } else if (name.includes('Поставка') || name.includes('Звонок по поставке')) {
+    } else if (
+        name.includes('Поставка') ||
+        name.includes('Звонок по поставке')
+    ) {
         eventType = 'supply';
         type = EV_TYPE.SUPPLY;
     }
@@ -99,7 +121,9 @@ export const parseTaskTitle = (title: string) => {
  * BBCode (`descriptionInBbcode: 'Y'`), иногда с html-обрывками. Обрезку по
  * длине здесь НЕ делаем — за неё отвечает CSS (line-clamp), иначе рвём слова.
  */
-export const getTaskSummary = (description: string | null | undefined): string => {
+export const getTaskSummary = (
+    description: string | null | undefined,
+): string => {
     if (!description) return '';
     return description
         .replace(/\[\/?[^\]]+\]/g, ' ') // bbcode-теги
@@ -114,6 +138,8 @@ export const getFormatDate = (date: string) => {
     return format(parseISO(date), 'd MMMM yyyy HH:mm', { locale: ru });
 };
 
-export const getPresTasksFromEventTasks = (evTasks: EventTask[]): EventTask[] => {
+export const getPresTasksFromEventTasks = (
+    evTasks: EventTask[],
+): EventTask[] => {
     return evTasks.filter(task => task.eventType === 'presentation');
 };

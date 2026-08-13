@@ -99,6 +99,27 @@ export const checkPresentationData: CheckPresentationItem[] = [
         order: 9,
     },
     {
+        // Пишутся в портальные поля op_presentation_xvost / op_presentation_5k
+        // (реестр PBX_SALES_EVENT_FIELDS): это итог презентации, который потом
+        // читают руководитель и следующий менеджер.
+        id: 'op_presentation_xvost',
+        type: CheckPresentationFieldType.STRING,
+        code: 'op_presentation_xvost',
+        title: 'Хвост',
+        placeholder: 'Что осталось «хвостом» после презентации',
+        required: false,
+        order: 11,
+    },
+    {
+        id: 'op_presentation_5k',
+        type: CheckPresentationFieldType.STRING,
+        code: 'op_presentation_5k',
+        title: 'Пять К',
+        placeholder: 'Пять К по итогам презентации',
+        required: false,
+        order: 12,
+    },
+    {
         id: 'xo_decision_date_agreement',
         type: CheckPresentationFieldType.DATE,
         code: 'xo_decision_date_agreement',

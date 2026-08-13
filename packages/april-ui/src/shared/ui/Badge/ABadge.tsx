@@ -36,7 +36,9 @@ const ABadge: FC<ABadgeProps> = ({
 
     return (
         <div
-            onClick={() => clickHendler && clickHendler(clickHendlerData || null)}
+            onClick={() =>
+                clickHendler && clickHendler(clickHendlerData || null)
+            }
             className={cn(
                 'inline-flex items-center gap-1 rounded-full font-medium transition-colors',
                 soft(color),
@@ -45,7 +47,9 @@ const ABadge: FC<ABadgeProps> = ({
                 clickHendler && 'cursor-pointer',
             )}
         >
-            <span>{size === 'xsmall' ? title.toLowerCase() : title.toUpperCase()}</span>
+            <span>
+                {size === 'xsmall' ? title.toLowerCase() : title.toUpperCase()}
+            </span>
             {isIconeDone && isActive && size !== 'xsmall' && (
                 <IconeDoneSVG width={iconSize} height={iconSize} />
             )}

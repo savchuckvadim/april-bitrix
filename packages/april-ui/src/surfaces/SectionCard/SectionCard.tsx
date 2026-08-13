@@ -51,7 +51,11 @@ export interface SectionCardProps {
      * или иная подложка, иначе размывать нечего.
      */
     surface?: SectionCardSurface;
-    /** `compact` — плотный режим для карточки сущности во фрейме Битрикса. */
+    /**
+     * `compact` — плотный режим для карточек-спутников во фрейме Битрикса.
+     * Плотный, но не тесный: на шаг просторнее, чем было, иначе карточки
+     * читаются как сплошная стена.
+     */
     density?: 'comfortable' | 'compact';
     footer?: ReactNode;
     className?: string;
@@ -108,7 +112,7 @@ export const SectionCard = ({
     const isLiquid = surface === 'liquid';
 
     const shellClassName = cn(
-        compact && 'gap-3 py-3',
+        compact && 'gap-4 py-4',
         // .glass несёт свои фон/рамку/тень — карточные гасим, иначе сквозь
         // непрозрачный bg-card ничего не будет видно.
         surface === 'glass' && 'glass border-transparent bg-transparent',
@@ -121,15 +125,22 @@ export const SectionCard = ({
     const body = (
         <>
             <CardContent
-                className={cn(compact ? 'space-y-2 px-3' : 'space-y-3', contentClassName)}
+                className={cn(
+                    compact ? 'space-y-2 px-4' : 'space-y-3',
+                    contentClassName,
+                )}
             >
                 {children}
                 {message && (
-                    <p className={cn('text-sm', STATE_MESSAGE[state])}>{message}</p>
+                    <p className={cn('text-sm', STATE_MESSAGE[state])}>
+                        {message}
+                    </p>
                 )}
             </CardContent>
             {footer && (
-                <CardFooter className={cn(compact && 'px-3')}>{footer}</CardFooter>
+                <CardFooter className={cn(compact && 'px-4')}>
+                    {footer}
+                </CardFooter>
             )}
         </>
     );
@@ -175,7 +186,7 @@ export const SectionCard = ({
                 aria-disabled={isDisabled || undefined}
                 className={cn(
                     'flex flex-col rounded-xl',
-                    compact ? 'gap-3 py-3' : 'gap-6 py-6',
+                    compact ? 'gap-4 py-4' : 'gap-6 py-6',
                     accent && cn('border-l-4', TONE_BORDER[tone]),
                     STATE_BORDER[state],
                     isDisabled && 'pointer-events-none opacity-60',
@@ -188,7 +199,10 @@ export const SectionCard = ({
     }
 
     return (
-        <Card className={shellClassName} aria-disabled={isDisabled || undefined}>
+        <Card
+            className={shellClassName}
+            aria-disabled={isDisabled || undefined}
+        >
             {inner}
         </Card>
     );

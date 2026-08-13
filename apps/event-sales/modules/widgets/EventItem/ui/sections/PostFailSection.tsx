@@ -1,7 +1,12 @@
 'use client';
 
 import { FC } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
@@ -28,7 +33,9 @@ export const PostFailSection: FC = () => {
                                 date: e.target.value,
                             }),
                         );
-                        dispatch(eventPostFailActions.setIsChanged({ status: true }));
+                        dispatch(
+                            eventPostFailActions.setIsChanged({ status: true }),
+                        );
                     }}
                 />
             </CardContent>

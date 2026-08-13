@@ -10,7 +10,9 @@ interface LeadRequestHistoryProps {
 }
 
 /** Свёртываемая история обработки заявки (append-only записи лида). */
-export const LeadRequestHistory: FC<LeadRequestHistoryProps> = ({ entries }) => {
+export const LeadRequestHistory: FC<LeadRequestHistoryProps> = ({
+    entries,
+}) => {
     const [open, setOpen] = useState(false);
     if (!entries.length) return null;
     return (

@@ -15,7 +15,6 @@ export class DepartmentHelper {
 
     /** Отдел продаж портала со всеми пользователями. */
     async getSalesDepartment(domain: string): Promise<DepartmentResponse> {
-        
         const result = await this.api.departmentEndpointGetFullDepartment({
             domain: domain as DepartmentDomain,
         });

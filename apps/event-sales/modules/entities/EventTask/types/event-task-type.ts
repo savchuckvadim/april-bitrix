@@ -3,13 +3,23 @@ import type { PresentationStateCount } from '@/modules/entities/EventPresentatio
 
 export type { PresentationStateCount };
 
+/**
+ * Коды типов событий — ЕДИНЫЕ с бэком, без легаси-синонимов.
+ *
+ * Раньше рядом жили пары-двойники: 'event' и 'warm', 'in_progress' и 'hot',
+ * 'money_await' и 'moneyAwait'. Каждый такой синоним — это развилка, на
+ * которой рано или поздно теряется запись: один кусок кода сравнивает с
+ * одним написанием, другой с другим. Оставлен один набор; что как называлось
+ * раньше — в docs/event-sales-event-types.md.
+ */
 export type EventTaskEventType =
     | 'xo'
+    | 'xoRequest'
+    | 'xoLead'
     | 'warm'
     | 'presentation'
     | 'hot'
     | 'moneyAwait'
-    | 'event'
     | 'supply'
     | 'ss';
 
@@ -30,6 +40,7 @@ export interface EventTask extends BXTask {
 
 export enum EV_TYPE {
     XO = 'Холодный',
+    REQUEST = 'Заявка',
     WARM = 'Звонок',
     PRES = 'Презентация',
     HOT = 'Решение',

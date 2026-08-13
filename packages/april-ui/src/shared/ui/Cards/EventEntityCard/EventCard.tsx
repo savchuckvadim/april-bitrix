@@ -22,7 +22,15 @@ interface EVCardProps {
     title: string;
     tooltipTitle?: ReactNode;
     width: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-    size?: 'large' | 'big' | 'medium' | 'small' | 'full' | 'smallest' | 'fullest' | 'smallest-ss';
+    size?:
+        | 'large'
+        | 'big'
+        | 'medium'
+        | 'small'
+        | 'full'
+        | 'smallest'
+        | 'fullest'
+        | 'smallest-ss';
     children?: ReactNode;
     actionComponent?: ReactNode;
     withClose?: boolean;
@@ -78,13 +86,18 @@ const EVCard: FC<EVCardProps> = ({
                         </TooltipContent>
                     </Tooltip>
                 ) : (
-                    <h3 className="m-0 p-0 text-sm font-semibold text-foreground">{title}</h3>
+                    <h3 className="m-0 p-0 text-sm font-semibold text-foreground">
+                        {title}
+                    </h3>
                 )}
 
                 <div className="flex items-center gap-1">
                     {!isDisactive && actionComponent}
                     {withClose && closeAction && (
-                        <AIcon type={isClose ? 'add' : 'cancel'} action={closeAction} />
+                        <AIcon
+                            type={isClose ? 'add' : 'cancel'}
+                            action={closeAction}
+                        />
                     )}
                 </div>
             </div>

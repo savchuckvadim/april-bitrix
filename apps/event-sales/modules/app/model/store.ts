@@ -21,7 +21,10 @@ import { eventTaskReducer } from '@/modules/entities/EventTask';
 import { eventCompanyReducer } from '@/modules/entities/EventCompany';
 import { eventContactReducer } from '@/modules/entities/EventContact';
 import { eventReportReducer } from '@/modules/entities/EventReport';
-import { eventPlanReducer, planScheduleReducer } from '@/modules/entities/EventPlan';
+import {
+    eventPlanReducer,
+    planScheduleReducer,
+} from '@/modules/entities/EventPlan';
 import { eventPresentationReducer } from '@/modules/entities/EventPresentation';
 import { eventSaleReducer } from '@/modules/entities/EventSale';
 import { eventPostFailReducer } from '@/modules/entities/EVPostFail';
@@ -29,6 +32,7 @@ import { eventLeadReducer } from '@/modules/entities/EVLid';
 import { eventHistoryReducer } from '@/modules/entities/EVHistory';
 import { eventCallingRecordReducer } from '@/modules/entities/EventCallingRecord';
 // Прямой путь, как у AppSlice: барель RelatedCrm тянет UI и в store не годится.
+import { bitrixUserReducer } from '@/modules/entities/BitrixUser/model/BitrixUserSlice';
 import { taskDealsReducer } from '@/modules/entities/RelatedCrm/model/TaskDealsSlice';
 import { departmentReducer } from '@/modules/features/Departament';
 import { noCallReducer } from '@/modules/features/NoCall';
@@ -112,6 +116,7 @@ const rootReducer = combineReducers({
     eventHistory: eventHistoryReducer,
     eventCallingRecord: eventCallingRecordReducer,
     taskDeals: taskDealsReducer,
+    bitrixUser: bitrixUserReducer,
 
     // features
     department: departmentReducer,

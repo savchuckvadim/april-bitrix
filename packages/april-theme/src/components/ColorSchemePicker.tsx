@@ -25,14 +25,14 @@ export const ColorSchemePicker = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute right-30 z-50 mt-2 w-48 p-4 bg-popover rounded-md shadow-lg grid grid-cols-4 gap-2"
+                        className="absolute right-30 z-50 mt-2 p-2 bg-popover rounded-lg border border-border shadow-lg grid grid-cols-4 gap-1.5"
                     >
                         {COLOR_SCHEME_OPTIONS.map(({ value, color }) => (
                             <button
                                 key={value}
-                                className={`cursor-pointer w-8 h-8 rounded-full border-2 ${
+                                className={`cursor-pointer h-5 w-5 rounded-md border border-border transition hover:scale-110 ${
                                     scheme === value
-                                        ? 'ring-2 ring-foreground'
+                                        ? 'ring-2 ring-foreground ring-offset-1 ring-offset-popover'
                                         : ''
                                 }`}
                                 style={{ backgroundColor: color }}

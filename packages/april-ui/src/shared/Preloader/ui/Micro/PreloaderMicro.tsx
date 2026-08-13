@@ -14,5 +14,9 @@ export const PreloaderMicro: React.FC<PreloaderProps> = ({ phrase }) => {
         return () => clearInterval(interval);
     }, []);
 
-    return <p className="text-sm text-muted-foreground">{phrase ? phrase : dots}</p>;
+    return (
+        <p className="text-sm text-muted-foreground">
+            {phrase ? phrase : dots}
+        </p>
+    );
 };

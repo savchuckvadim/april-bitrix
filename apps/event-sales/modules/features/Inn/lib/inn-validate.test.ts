@@ -39,9 +39,7 @@ describe('innValidationError', () => {
         expect(innValidationError('7707083893')).toBeNull();
         expect(innValidationError('')).toBe('Введите ИНН');
         expect(innValidationError('12345')).toContain('5 цифр');
-        expect(innValidationError('7707083894')).toContain(
-            'контрольная сумма',
-        );
+        expect(innValidationError('7707083894')).toContain('контрольная сумма');
     });
 });
 
@@ -53,9 +51,7 @@ describe('mergeInnPool', () => {
     });
 
     it('невалидные и пустые отбрасываются, скаляр existing поддержан', () => {
-        expect(mergeInnPool('7707083893', null, '123')).toEqual([
-            '7707083893',
-        ]);
+        expect(mergeInnPool('7707083893', null, '123')).toEqual(['7707083893']);
         expect(mergeInnPool(undefined, '500100732259')).toEqual([
             '500100732259',
         ]);

@@ -2,12 +2,14 @@
 
 import { FC } from 'react';
 import dynamic from 'next/dynamic';
+import { cn } from '@workspace/ui/lib/utils';
 import { SectionSkeleton } from '@/modules/shared/SectionState';
 
 import { NoCallMenu } from '@/modules/features/NoCall';
 import { ReturnToTMCMenu } from '@/modules/features/ReturnToTMC';
 import { FlowStatusBanner } from '@/modules/widgets/EventList/ui/FlowStatusBanner';
 import { getPanelLeadId } from '@/modules/features/LeadRequestCard/lib/lead-request-view';
+import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
 import { useEntityBoard } from '../lib/hooks/use-entity-board';
 import { EntityBoardHeader } from './EntityBoardHeader';
 import { EntityTasksCard } from './EntityTasksCard';
@@ -56,6 +58,9 @@ export const EntityBoard: FC = () => {
         setIncludeClosed,
         reload,
     } = useEntityBoard();
+    // Во встройке-вкладке высоту задаём мы подгонкой под контент — значит экран
+    // течёт, а не запирается в h-svh со своими скроллами (см. use-ui-density).
+    const { isSelfSized } = useUiDensity();
 
     if (!descriptor) {
         return (
@@ -69,7 +74,12 @@ export const EntityBoard: FC = () => {
     }
 
     return (
-        <div className="flex h-svh flex-col gap-3 overflow-hidden bg-background p-3">
+        <div
+            className={cn(
+                'flex flex-col gap-3 bg-background p-3',
+                isSelfSized ? 'min-h-0' : 'h-svh overflow-hidden',
+            )}
+        >
             <NoCallMenu />
             <ReturnToTMCMenu />
 
@@ -79,13 +89,28 @@ export const EntityBoard: FC = () => {
             />
             <FlowStatusBanner />
 
-            <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-2">
+            <div
+                className={cn(
+                    'grid gap-3 lg:grid-cols-2',
+                    !isSelfSized && 'min-h-0 flex-1',
+                )}
+            >
                 {/* Дела первыми в DOM: на узком экране это верх страницы. */}
-                <div className="order-1 flex min-h-0 flex-col gap-3 lg:order-2">
+                <div
+                    className={cn(
+                        'order-1 flex flex-col gap-3 lg:order-2',
+                        !isSelfSized && 'min-h-0',
+                    )}
+                >
                     <EntityTasksCard details={details ?? null} />
                 </div>
 
-                <div className="order-2 flex min-h-0 flex-col gap-3 overflow-y-auto lg:order-1">
+                <div
+                    className={cn(
+                        'order-2 flex flex-col gap-3 lg:order-1',
+                        !isSelfSized && 'min-h-0 overflow-y-auto',
+                    )}
+                >
                     {/* Секции показываются ВСЕГДА, вместе со своим состоянием.
                         Раньше они рендерились только при непустом списке: пока
                         связи грузились или запрос падал, экран молчал — и это

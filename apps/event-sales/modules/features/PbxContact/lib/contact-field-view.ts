@@ -123,3 +123,25 @@ export const traitsProgress = (
     filled: fields.filter(field => currentItemIndex(field) >= 0).length,
     total: fields.length,
 });
+
+/**
+ * Характеристика-флаг: значений ровно два («Да»/«Нет»).
+ *
+ * Степеней у неё нет, поэтому шкала врёт: «Да» заполняло полполоски и
+ * читалось как «наполовину сделано». Такие показываем чипом.
+ */
+export const isFlagTrait = (field: PBXContactFieldData): boolean =>
+    field.items.length === 2;
+
+/**
+ * Хорошая ли сторона флага выбрана. У шкал «вниз» лучшее значение первое
+ * («Да»), у остальных — последнее: направление уже описано таблицей, второй
+ * раз решать нечего.
+ */
+export const isGoodFlagValue = (
+    field: PBXContactFieldData,
+    index: number,
+): boolean =>
+    traitDirection(field.field.code) === 'down'
+        ? index === 0
+        : index === field.items.length - 1;

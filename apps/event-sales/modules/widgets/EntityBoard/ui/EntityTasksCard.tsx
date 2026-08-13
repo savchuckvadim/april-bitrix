@@ -24,6 +24,8 @@ import { useEventNavigation } from '@/modules/processes/event';
 import { EventCard } from '@/modules/widgets/EventList/ui/EventCard';
 import { OtherTaskRow } from '@/modules/widgets/EventList/ui/OtherTaskRow';
 import { APP_DISPLAY_MODE } from '@/modules/app/types/app/app-type';
+import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
+import { cn } from '@workspace/ui/lib/utils';
 
 interface EntityTasksCardProps {
     /** Связи клиента — из них карточка дела берёт свою сделку или лид. */
@@ -50,6 +52,8 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
         s => s.app.display.mode === APP_DISPLAY_MODE.TASK,
     );
     const currentTaskId = useAppSelector(s => s.eventTask.current?.id);
+    // Экран течёт по контенту — свой скролл секции тут только мешал бы.
+    const { isSelfSized } = useUiDensity();
     const visibleTasks = isTaskMode
         ? (tasks ?? []).filter(task => task.id === currentTaskId)
         : (tasks ?? []);
@@ -66,7 +70,7 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
     };
 
     return (
-        <Card className="flex min-h-0 flex-col">
+        <Card className={cn('flex flex-col', !isSelfSized && 'min-h-0')}>
             <CardHeader>
                 <CardTitle className="text-base">
                     {isTaskMode ? 'Текущее дело' : 'Дела'}
@@ -74,7 +78,9 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
                 </CardTitle>
             </CardHeader>
 
-            <CardContent className="min-h-0 flex-1 overflow-y-auto">
+            <CardContent
+                className={cn(!isSelfSized && 'min-h-0 flex-1 overflow-y-auto')}
+            >
                 <SectionState
                     status={status}
                     isEmpty={!tasks?.length}

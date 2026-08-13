@@ -29,4 +29,6 @@ export interface PlanDto {
     contact?: PlanDtoContact;
     /** Признак активности плана (учитывать ли его в flow). */
     isActive: boolean;
+    /** Лиды/заявки, с которыми менеджер связал новую задачу (чекбоксы при создании задачи из сделки/компании без текущей задачи) — попадут в UF_CRM_TASK как L_{id}. */
+    relatedLeadIds?: number[];
 }

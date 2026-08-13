@@ -42,9 +42,25 @@ export const getDisplayMode = (
  * так правило читается однозначно и не сломается о новую встройку с DETAIL
  * в названии.
  */
+/**
+ * Встройки, где высоту блока задаём МЫ — подгонкой под контент.
+ *
+ * Вкладка карточки CRM и вкладка задачи устроены одинаково: приложению дан
+ * блок внутри чужой страницы, и его высоту нужно сообщить наружу, иначе
+ * получается скролл внутри скролла.
+ *
+ * `*_DETAIL_ACTIVITY` сюда НЕ входит: там приложение занимает экран целиком,
+ * и подгонка схлопнула бы его до высоты контента.
+ */
+const SELF_SIZED_PLACEMENTS = ['DETAIL_TAB', 'TASK'] as const;
+
 export const shouldFitWindow = (
     placement: Placement | PlacementCallCard | null | undefined,
-): boolean => Boolean(placement?.placement?.includes('DETAIL_TAB'));
+): boolean => {
+    const type = placement?.placement;
+    if (!type) return false;
+    return SELF_SIZED_PLACEMENTS.some(part => type.includes(part));
+};
 
 export type EntitiesFromPlacement = {
     currentCompany: BXCompany | null;

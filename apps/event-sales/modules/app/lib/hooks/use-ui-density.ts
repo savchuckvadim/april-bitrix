@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useUIScale, type UIScale } from '@workspace/theme';
+import { shouldFitWindow } from '../utills/placement-util';
 import { useAppSelector } from './redux';
 
 /**
@@ -34,13 +35,20 @@ export interface UiDensity {
     setScale: (scale: UIScale) => void;
     /** Мало места по горизонтали: одна строка, без подписей. */
     isTight: boolean;
+    /**
+     * Высоту блока задаём мы сами, подгонкой под контент (`shouldFitWindow`).
+     * Значит экран должен ТЕЧЬ по содержимому, а не занимать `h-svh` со своими
+     * скроллами: иначе подгонка меряет ту же высоту, что сама и задала, и
+     * контент оказывается заперт в неизменной рамке.
+     */
+    isSelfSized: boolean;
 }
 
 export const useUiDensity = (): UiDensity => {
     const { scale, setScale } = useUIScale();
-    const isTight = useAppSelector(s =>
-        Boolean(s.app.bitrix.placement?.placement?.includes('DETAIL_TAB')),
-    );
+    const placement = useAppSelector(s => s.app.bitrix.placement);
+    const isTight = Boolean(placement?.placement?.includes('DETAIL_TAB'));
+    const isSelfSized = shouldFitWindow(placement);
 
     useEffect(() => {
         if (!isTight) return;
@@ -50,7 +58,7 @@ export const useUiDensity = (): UiDensity => {
         setScale(TIGHT_DEFAULT_SCALE);
     }, [isTight, setScale]);
 
-    return { scale, setScale, isTight };
+    return { scale, setScale, isTight, isSelfSized };
 };
 
 /**

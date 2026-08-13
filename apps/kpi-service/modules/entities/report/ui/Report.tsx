@@ -8,11 +8,14 @@ import { CallingStatistics } from '../../calling-statistics';
 import NoreportData from './components/NoreportData';
 import { useCallingStatistics } from '../../calling-statistics/lib/hooks/useCallingStatistics';
 import { ExcelExportButton } from '@/modules/feature/excel-export';
+import { SkapImportControls } from '@workspace/skap';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 export const dynamic = 'force-dynamic';
 
 
 const Report = () => {
     const reportData = useReport();
+    const domain = useAppSelector(state => state.app.domain);
     const { isLoading: isCallingLoading, data: callingsReport } =
         useCallingStatistics();
 
@@ -71,7 +74,11 @@ const Report = () => {
                             <NoreportData />
                         ) : (
                             <div>
-                                <div className="flex justify-end mb-3">
+                                <div className="flex items-center justify-end gap-2 mb-3">
+                                    <SkapImportControls
+                                        domain={domain}
+                                        compact
+                                    />
                                     <ExcelExportButton
                                         onBuild={handleExportExcel}
                                         label="Скачать Excel"

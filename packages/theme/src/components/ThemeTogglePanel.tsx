@@ -18,20 +18,15 @@ import { useOutsideClick } from '../hook/useOutsideClick';
  * краю кнопки (тогглер в правом конце строки), 'start' — к левому, панель
  * растёт вправо (тогглер у левого края, иначе она уезжает за экран).
  *
- * Масштаб по умолчанию виден СРАЗУ, не под язычком: им пользуются постоянно
- * (интерфейс живёт во фрейме, и «мельче/крупнее» — первое, что крутят), а
- * тема и цветовая схема выбираются один раз и могут подождать раскрытия.
- * `scaleInline={false}` убирает проценты обратно под язычок там, где в строке
- * совсем нет места.
+ * Весь набор — тема, цвет, масштаб — прячется под язычком вместе: в свёрнутом
+ * виде строка занимает одну иконку (инлайновые проценты пробовали — шапку
+ * распирало, откатили).
  */
 export const ThemeTogglePanel = ({
     withScale = true,
-    scaleInline = true,
     align = 'end',
 }: {
     withScale?: boolean;
-    /** Показывать проценты масштаба в строке, а не только в раскрытой панели. */
-    scaleInline?: boolean;
     align?: 'start' | 'end';
 }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -40,9 +35,7 @@ export const ThemeTogglePanel = ({
     useOutsideClick(ref, () => setIsOpen(false));
 
     return (
-        <div ref={ref} className="relative flex flex-row items-center gap-1 p-4">
-            {withScale && scaleInline && <ScaleToggler />}
-
+        <div ref={ref} className="relative flex flex-row items-center p-4">
             <button
                 onClick={() => setIsOpen(prev => !prev)}
                 aria-expanded={isOpen}
@@ -67,7 +60,7 @@ export const ThemeTogglePanel = ({
                         }`}
                     >
                         <ThemeToggler pickerAlign={align} />
-                        {withScale && !scaleInline && <ScaleToggler />}
+                        {withScale && <ScaleToggler />}
                     </motion.div>
                 )}
             </AnimatePresence>

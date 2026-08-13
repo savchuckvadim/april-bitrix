@@ -42,7 +42,7 @@ export interface LeadToWorkItemResultDto {
      */
     responsible?: number | null;
     /**
-     * Как выбран ответственный: explicit — передан в хук, round-robin — по курсору отдела продаж.
+     * Как выбран ответственный: explicit — передан в хук, lead — оставлен ответственный лида (конвертация ничего не перераспределяет), round-robin — по курсору отдела продаж (ХО).
      * @nullable
      */
     assigneeSource?: LeadToWorkItemResultDtoAssigneeSource;

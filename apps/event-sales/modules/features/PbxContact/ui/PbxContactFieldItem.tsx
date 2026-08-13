@@ -2,9 +2,12 @@
 
 import { FC } from 'react';
 import { GradientScale, MicroSelect } from '@workspace/april-ui';
+import { cn } from '@workspace/ui/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { PBXContactFieldData } from '@/modules/entities/EventContact/type/pbx-contact-type';
 import {
+    isFlagTrait,
+    isGoodFlagValue,
     currentItemIndex,
     currentItemName,
     shortFieldName,
@@ -42,6 +45,8 @@ export const PbxContactFieldItem: FC<PbxContactFieldItemProps> = ({
         s => s.contact.fieldErrors[`${contactId}:${field.field.code}`],
     );
 
+    const isFlag = isFlagTrait(field);
+
     const select = (itemIndex: number) =>
         dispatch(setPbxContactField(contactId, field.field.code, itemIndex));
 
@@ -62,17 +67,36 @@ export const PbxContactFieldItem: FC<PbxContactFieldItemProps> = ({
                 </span>
             </div>
 
-            <GradientScale
-                labels={field.items.map(item => item.name)}
-                currentIndex={index}
-                ramp={traitRamp(field.field.code)}
-                onSelect={readOnly ? undefined : select}
-                title={name}
-                currentWord="сейчас"
-                ariaLabel={`${name}: ${value ?? 'не задано'}`}
-            />
+            {isFlag ? (
+                <button
+                    type="button"
+                    disabled={readOnly}
+                    onClick={() => select(index === 0 ? 1 : 0)}
+                    className={cn(
+                        'w-fit rounded-full px-2 py-0.5 text-[0.6875rem] font-medium',
+                        readOnly ? 'cursor-default' : 'cursor-pointer',
+                        index < 0 && 'bg-muted text-muted-foreground',
+                        index >= 0 &&
+                            (isGoodFlagValue(field, index)
+                                ? 'bg-success/15 text-[color:color-mix(in_oklab,var(--success),var(--foreground)_var(--tone-soft-mix))]'
+                                : 'bg-destructive/15 text-[color:color-mix(in_oklab,var(--destructive),var(--foreground)_var(--tone-soft-mix))]'),
+                    )}
+                >
+                    {value ?? 'Отметить'}
+                </button>
+            ) : (
+                <GradientScale
+                    labels={field.items.map(item => item.name)}
+                    currentIndex={index}
+                    ramp={traitRamp(field.field.code)}
+                    onSelect={readOnly ? undefined : select}
+                    title={name}
+                    currentWord="сейчас"
+                    ariaLabel={`${name}: ${value ?? 'не задано'}`}
+                />
+            )}
 
-            {!readOnly && (
+            {!readOnly && !isFlag && (
                 <MicroSelect
                     ariaLabel={name}
                     value={index >= 0 ? String(index) : undefined}

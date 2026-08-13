@@ -15,8 +15,13 @@ export type EventTaskDtoEventType =
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const EventTaskDtoEventType = {
     xo: 'xo',
+    xoRequest: 'xoRequest',
+    xoLead: 'xoLead',
     warm: 'warm',
     presentation: 'presentation',
+    hot: 'hot',
+    moneyAwait: 'moneyAwait',
+    ss: 'ss',
     in_progress: 'in_progress',
     money_await: 'money_await',
     event: 'event',

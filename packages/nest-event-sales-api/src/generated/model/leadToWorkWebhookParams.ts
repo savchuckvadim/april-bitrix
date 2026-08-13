@@ -9,6 +9,8 @@ import type { LeadToWorkWebhookCreateCompany } from './leadToWorkWebhookCreateCo
 import type { LeadToWorkWebhookStageMode } from './leadToWorkWebhookStageMode';
 import type { LeadToWorkWebhookTaskMode } from './leadToWorkWebhookTaskMode';
 import type { LeadToWorkWebhookIsXo } from './leadToWorkWebhookIsXo';
+import type { LeadToWorkWebhookIsRequest } from './leadToWorkWebhookIsRequest';
+import type { LeadToWorkWebhookWorkKind } from './leadToWorkWebhookWorkKind';
 
 export type LeadToWorkWebhookParams = {
     /**
@@ -40,6 +42,14 @@ export type LeadToWorkWebhookParams = {
      * Признак ХО: при Y дополнительно создаётся ХО-сделка и задача называется «Холодный обзвон», как в классическом ХО-хуке.
      */
     isXo?: LeadToWorkWebhookIsXo;
+    /**
+     * Явный признак «это ЗАЯВКА» от робота: Y — считать заявкой (названия «…Заявка. {Название}», site-метки), N — просто лид. Не передан — автодетект по полям лида. Различить заявку и входящий лид этим флагом нельзя — для этого workKind.
+     */
+    isRequest?: LeadToWorkWebhookIsRequest;
+    /**
+     * Вид холодной работы — решается В БИТРИКСЕ и попадает СЛОВОМ в заголовок задачи, по которому фрейм определяет тип события: request → «Холодный обзвон. Заявка. {N}» (eventType xoRequest), lead → «Холодный обзвон. Лид. {N}» (eventType xoLead), cold → «Холодный обзвон {N}» (eventType xo). Не передан — вид берётся из legacy-флага isRequest (Y → request, N → cold), а без него — автодетект по полям лида.
+     */
+    workKind?: LeadToWorkWebhookWorkKind;
     /**
      * Дедлайн задачи «Звонок» в локали портала (DD.MM.YYYY HH:mm:ss). Без него новая задача создаётся без дедлайна.
      */

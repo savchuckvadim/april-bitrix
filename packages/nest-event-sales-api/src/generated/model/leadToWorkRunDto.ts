@@ -9,6 +9,8 @@ import type { LeadToWorkRunDtoCreateCompany } from './leadToWorkRunDtoCreateComp
 import type { LeadToWorkRunDtoStageMode } from './leadToWorkRunDtoStageMode';
 import type { LeadToWorkRunDtoTaskMode } from './leadToWorkRunDtoTaskMode';
 import type { LeadToWorkRunDtoIsXo } from './leadToWorkRunDtoIsXo';
+import type { LeadToWorkRunDtoIsRequest } from './leadToWorkRunDtoIsRequest';
+import type { LeadToWorkRunDtoWorkKind } from './leadToWorkRunDtoWorkKind';
 
 export interface LeadToWorkRunDto {
     /** Домен портала Bitrix. По нему PBXService отдаёт инстанс Bitrix с ключами доступа портала. */
@@ -52,6 +54,10 @@ export interface LeadToWorkRunDto {
     taskMode?: LeadToWorkRunDtoTaskMode;
     /** Признак ХО (создать ХО-сделку). */
     isXo?: LeadToWorkRunDtoIsXo;
+    /** Явный признак «это ЗАЯВКА» от робота (робот воронки заявок знает это лучше эвристики): Y — считать заявкой, N — считать просто лидом. Не передан — автодетект по полям лида (op_lead_site_* / UF_CRM_REG_NUMBER / UF_CRM_LEAD_QUEST_URL). */
+    isRequest?: LeadToWorkRunDtoIsRequest;
+    /** Вид холодной работы — решается В БИТРИКСЕ и попадает СЛОВОМ в заголовок задачи, по которому фрейм определяет тип события: request → «Холодный обзвон. Заявка. {N}» (eventType xoRequest), lead → «Холодный обзвон. Лид. {N}» (eventType xoLead), cold → «Холодный обзвон {N}» (eventType xo). Не передан — вид берётся из legacy-флага isRequest (Y → request, N → cold), а без него — автодетект по полям лида. */
+    workKind?: LeadToWorkRunDtoWorkKind;
     /** Дедлайн задачи «Звонок» в локали портала (DD.MM.YYYY HH:mm:ss). */
     deadline?: string;
     /** Название события для задачи; без него — название лида. */

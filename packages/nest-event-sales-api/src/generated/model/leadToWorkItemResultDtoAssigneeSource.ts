@@ -7,7 +7,7 @@
  */
 
 /**
- * Как выбран ответственный: explicit — передан в хук, round-robin — по курсору отдела продаж.
+ * Как выбран ответственный: explicit — передан в хук, lead — оставлен ответственный лида (конвертация ничего не перераспределяет), round-robin — по курсору отдела продаж (ХО).
  * @nullable
  */
 export type LeadToWorkItemResultDtoAssigneeSource =
@@ -17,5 +17,6 @@ export type LeadToWorkItemResultDtoAssigneeSource =
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const LeadToWorkItemResultDtoAssigneeSource = {
     explicit: 'explicit',
+    lead: 'lead',
     'round-robin': 'round-robin',
 } as const;

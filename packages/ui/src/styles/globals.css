@@ -147,6 +147,12 @@
     --color-event-ss-foreground: var(--event-ss-foreground);
     --color-event-supply: var(--event-supply);
     --color-event-supply-foreground: var(--event-supply-foreground);
+    --color-event-doc: var(--event-doc);
+    --color-event-doc-foreground: var(--event-doc-foreground);
+    --color-event-renew: var(--event-renew);
+    --color-event-renew-foreground: var(--event-renew-foreground);
+    --color-event-gold: var(--event-gold);
+    --color-event-gold-foreground: var(--event-gold-foreground);
     --color-event-current: var(--event-current);
     --color-event-current-foreground: var(--event-current-foreground);
 

@@ -30,6 +30,7 @@ import { eventCompanyReducer } from '@/modules/entities/EventCompany';
 import { setInitEventCompany } from '@/modules/entities/EventCompany/model/EventCompanyThunk';
 import { eventCommunicationReducer } from '@/modules/features/Communication';
 import { serviceResultsReducer } from '@/modules/entities/ServiceResults';
+import { eventDealReducer } from '@/modules/entities/EventDeal/model/EventDealSlice';
 import { eventServiceTaskReducer } from '@/modules/entities/EventServiceTask/model/EventServiceTaskSlice';
 import { portalActions, portalAPI, portalReducer } from '@workspace/pbx';
 import { portalListener } from '@/modules/entities/April/Portal';
@@ -99,6 +100,7 @@ const rootReducer = combineReducers({
     eventSale: eventSaleReducer,
     eventCommunication: eventCommunicationReducer,
     serviceResults: serviceResultsReducer,
+    eventDeal: eventDealReducer,
     company: eventCompanyReducer,
     contact: eventContactReducer,
 

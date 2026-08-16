@@ -10,6 +10,7 @@ export const PORTAL_APP_TITLE: Record<
     'kpi-sales': 'KPI продаж',
     'event-sales': 'Звонки (event-sales)',
     konstructor: 'Конструктор',
+    skap: 'СКАП (импорт клиентов)',
 };
 
 /** Тексты панели настроек приложений. */

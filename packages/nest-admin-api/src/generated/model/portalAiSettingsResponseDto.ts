@@ -102,4 +102,9 @@ export interface PortalAiSettingsResponseDto {
    * @nullable
    */
   revisorEnabled: boolean | null;
+  /**
+   * Утренняя СВЕРКА ПО ПРЕЗЕНТАЦИЯМ (08:00 МСК): отчёт менеджера («ОП Хвост», «ОП Пять К», комментарии сделки-презентации) сверяется с AI-разбором звонка; итог — в таймлайн смарт-элемента, при расхождении — в таймлайн сделки. Один LLM-запрос на презентацию. Пусто — выключена.
+   * @nullable
+   */
+  presentationAuditEnabled: boolean | null;
 }

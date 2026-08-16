@@ -133,11 +133,8 @@ export const EventItem: FC = () => {
                      * колонке они не вставали в две колонки даже при обычном
                      * --app-scale (контейнерный запрос @[17rem] в PlanColumn).
                      */}
-                    <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_26rem]">
+                    <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_28rem]">
                         <ReportColumn
-                            /* Заявка — про отчёт, а не про план: она про то,
-                               что уже произошло с обращением клиента. */
-                            request={<LeadRequestPanel />}
                             visibility={visibility}
                             records={
                                 config.withRecords ? <RecordsList /> : undefined
@@ -151,8 +148,12 @@ export const EventItem: FC = () => {
                             <div className="hidden lg:block">
                                 <ItemActions variant="column" />
                             </div>
-                            {/* Ниже действий: сигналы не должны отодвигать
-                                кнопку отправки. */}
+                            {/* Смежные карточки — под планом и НИЖЕ действий:
+                                они не должны отодвигать кнопку отправки, а
+                                широкая карточка во всю ширину отчёта занимала
+                                полосу ради нескольких строк. Место общее: сюда
+                                же встанут будущие соседи заявки. */}
+                            <LeadRequestPanel />
                             <DuplicatesPanel />
                         </div>
                     </div>

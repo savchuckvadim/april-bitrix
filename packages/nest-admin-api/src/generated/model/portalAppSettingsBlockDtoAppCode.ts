@@ -19,4 +19,5 @@ export const PortalAppSettingsBlockDtoAppCode = {
   'kpi-sales': 'kpi-sales',
   'event-sales': 'event-sales',
   konstructor: 'konstructor',
+  skap: 'skap',
 } as const;

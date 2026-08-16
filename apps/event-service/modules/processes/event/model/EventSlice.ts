@@ -6,6 +6,7 @@ import { ROUTE_EVENT } from "@/modules/processes/routes/types/router-type";
 import { EV_CONTACT_PROP } from "@/modules/entities/EventContact/type/event-contact-type";
 import { BXCompany, BXSmart, Placement } from "@workspace/bx";
 import { EV_PLAN_SERVICE_PROP } from "@/modules/entities/EventPlan/type/event-plan-service-type";
+import { EV_DEAL_PROP } from "@/modules/entities/EventDeal/type/event-deal-type";
 
 
 export type EventState = typeof initialState
@@ -19,13 +20,15 @@ type EventCurrentErrors = {
     [EV_CONTACT_PROP.PHONE]: string
     [EV_CONTACT_PROP.EMAIL]: string
     [EV_CONTACT_PROP.POST]:  string
+    [EV_DEAL_PROP.CONTRACT_START]: string
+    [EV_DEAL_PROP.CONTRACT_END]: string
 
 }
 export interface SetErrorsPayload {
     isError: boolean
     errors: EventCurrentErrors
 }
-export type ErrorsCode = EV_REPORT_PROP.COMMENT | EV_PLAN_PROP.NAME | EV_PLAN_SERVICE_PROP.NAME
+export type ErrorsCode = EV_REPORT_PROP.COMMENT | EV_PLAN_PROP.NAME | EV_PLAN_SERVICE_PROP.NAME | EV_DEAL_PROP.CONTRACT_START | EV_DEAL_PROP.CONTRACT_END
 // | EV_CONTACT_PROP.NAME | EV_CONTACT_PROP.EMAIL | EV_CONTACT_PROP.PHONE  | EV_CONTACT_PROP.POST
 export const errors = {
     [EV_REPORT_PROP.COMMENT]: '' as string,
@@ -34,6 +37,8 @@ export const errors = {
     [EV_CONTACT_PROP.PHONE]: '' as string,
     [EV_CONTACT_PROP.EMAIL]: '' as string,
     [EV_CONTACT_PROP.POST]: '' as string,
+    [EV_DEAL_PROP.CONTRACT_START]: '' as string,
+    [EV_DEAL_PROP.CONTRACT_END]: '' as string,
 
 } as EventCurrentErrors
 const initialState = {

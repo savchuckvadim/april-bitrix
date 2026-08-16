@@ -2,20 +2,13 @@ import { EV_SERVICE_PLAN_CODE } from "@/modules/entities/EventPlan/type/event-pl
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 
-export type ServiceResultsState = Record<
-  EV_SERVICE_PLAN_CODE.LEARNING |
-  EV_SERVICE_PLAN_CODE.LEARNING_FIRST |
-  EV_SERVICE_PLAN_CODE.PRESENTATION |
-  EV_SERVICE_PLAN_CODE.SS,
-  boolean
->;
+// любой доступный тип события можно отметить как спонтанный результат
+export type ServiceResultsState = Record<EV_SERVICE_PLAN_CODE, boolean>;
 
-const initialState = {
-  [EV_SERVICE_PLAN_CODE.LEARNING]: false,
-  [EV_SERVICE_PLAN_CODE.LEARNING_FIRST]: false,
-  [EV_SERVICE_PLAN_CODE.PRESENTATION]: false,
-  [EV_SERVICE_PLAN_CODE.SS]: false,
-};
+const initialState = Object.values(EV_SERVICE_PLAN_CODE).reduce((acc, code) => {
+  acc[code] = false;
+  return acc;
+}, {} as ServiceResultsState);
 
 const serviceResultsSlice = createSlice({
   name: "serviceResults",
@@ -49,10 +42,9 @@ const serviceResultsSlice = createSlice({
       action: PayloadAction
     ) => {
 
-      state[EV_SERVICE_PLAN_CODE.LEARNING] = false;
-      state[EV_SERVICE_PLAN_CODE.LEARNING_FIRST] = false;
-      state[EV_SERVICE_PLAN_CODE.PRESENTATION] = false;
-      state[EV_SERVICE_PLAN_CODE.SS] = false;
+      Object.keys(state).forEach((key) => {
+        state[key as keyof ServiceResultsState] = false;
+      });
 
     },
   },

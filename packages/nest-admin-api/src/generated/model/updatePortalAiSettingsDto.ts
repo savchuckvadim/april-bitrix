@@ -111,4 +111,9 @@ export interface UpdatePortalAiSettingsDto {
    * @nullable
    */
   revisorEnabled?: boolean | null;
+  /**
+   * Утренняя сверка отчёта менеджера с разбором презентации.
+   * @nullable
+   */
+  presentationAuditEnabled?: boolean | null;
 }

@@ -11,6 +11,7 @@ import { APP_TITLE } from '../consts/app';
 
 import { useApp } from '../lib/hooks/app';
 import { store } from '../model/store';
+import { DealMiniHeader } from '@/modules/entities/EventDeal';
 // import { Preloader } from "@workspace/ui";
 //@ts-ignore
 
@@ -36,7 +37,10 @@ export const App = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className="h-calc(100vh - 300px)">
             {isClient && initialized && !isLoading ? (
-                children
+                <>
+                    <DealMiniHeader />
+                    {children}
+                </>
             ) : (
                 <LoadingScreen />
             )}

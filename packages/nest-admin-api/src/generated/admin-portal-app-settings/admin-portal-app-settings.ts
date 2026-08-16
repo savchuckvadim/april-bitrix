@@ -34,7 +34,7 @@ const portalAppSettingsList = (
  */
 const portalAppSettingsSave = (
     portalId: number,
-    appCode: 'portal' | 'sales' | 'kpi-sales' | 'event-sales' | 'konstructor',
+    appCode: 'portal' | 'sales' | 'kpi-sales' | 'event-sales' | 'konstructor' | 'skap',
     portalAppSettingsSaveDto: PortalAppSettingsSaveDto,
  ) => {
       return customAxios<PortalAppSettingsSave200>(

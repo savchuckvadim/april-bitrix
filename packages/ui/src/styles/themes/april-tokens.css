@@ -94,6 +94,17 @@
     --event-ss-foreground: oklch(0.216 0.006 56.04);
     --event-supply: oklch(0.48 0.16 258);             /* поставка — тёмно-синий */
     --event-supply-foreground: oklch(0.985 0 0);
+    /*
+     * Сервисные типы (event-service): свои три цвета сверх общей палитры —
+     * остальные 8 из 11 сервисных типов переиспользуют цвета выше
+     * (маппинг — в приложении, service-event-catalog).
+     */
+    --event-doc: oklch(0.45 0.02 260);                /* документы — графит */
+    --event-doc-foreground: oklch(0.985 0 0);
+    --event-renew: oklch(0.72 0.19 130);              /* продление — лайм-зелёный */
+    --event-renew-foreground: oklch(0.216 0.006 56.04);
+    --event-gold: oklch(0.8 0.16 85);                 /* обращение — золото */
+    --event-gold-foreground: oklch(0.216 0.006 56.04);
 
     /* Текущий тип события (переопределяется data-event-type ниже) */
     --event-current: var(--event-warm);
@@ -176,6 +187,10 @@
        настолько, чтобы читалась на тёмном фоне, но не уходила в голубой
        (иначе сольётся с «холодным»). Текст на ней белый. */
     --event-supply: oklch(0.58 0.16 258);
+    /* Сервисные: графит светлеет, чтобы не сливаться с фоном. */
+    --event-doc: oklch(0.62 0.02 260);
+    --event-renew: oklch(0.76 0.16 130);
+    --event-gold: oklch(0.82 0.14 85);
 
     --finance-advance: oklch(0.696 0.14 149.2);
     --finance-monthly: oklch(0.65 0.14 241.966);

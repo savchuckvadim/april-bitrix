@@ -1,6 +1,7 @@
 import { AppState } from "@/modules/app/model/AppSlice";
 import { AppDispatch, listenerMiddleware, RootState } from "@/modules/app/model/store";
 import { setInitEventCompany } from "@/modules/entities/EventCompany/model/EventCompanyThunk";
+import { setInitEventDeal } from "@/modules/entities/EventDeal/model/EventDealThunk";
 import { getCompanyContacts } from "@/modules/entities/EventContact/model/EventContactThunk";
 import { portalActions } from "@workspace/pbx";
 
@@ -26,9 +27,14 @@ export const portalListener = () => (
                 )
             )
             dispatch(
+                setInitEventDeal(
+                    portal
+                )
+            )
+            dispatch(
                 getCompanyContacts(
                     portal
-                    
+
                 )
             )
 

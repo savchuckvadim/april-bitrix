@@ -1,18 +1,14 @@
 import { FC } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { PresentationStateCount } from '../../EventPresentation/model/PresSlice';
 import Action from './components/Action';
 import { ServiceResultsState } from '../model/ServiceResultsSlice';
-import { EV_SERVICE_PLAN_CODE, EV_SERVICE_PLAN_NAME } from '@/modules/entities/EventPlan/type/event-plan-service-type';
 import { setCurrentServiceResult } from '../model/ServiceResultsThunk';
-import { EVCard } from '@workspace/april-ui';
+import { SectionCard } from '@workspace/april-ui/surfaces';
 import { useTask } from '@/modules/entities/EventServiceTask';
+import { SERVICE_EVENT_CATALOG } from '../lib/service-event-catalog';
 
 export const ServiceResults: FC = () => {
-    const presentstion = useAppSelector(state => state.serviceResults[EV_SERVICE_PLAN_CODE.PRESENTATION]);
-    const edu = useAppSelector(state => state.serviceResults[EV_SERVICE_PLAN_CODE.LEARNING]);
-    const eduFirst = useAppSelector(state => state.serviceResults[EV_SERVICE_PLAN_CODE.LEARNING_FIRST]);
-    const ss = useAppSelector(state => state.serviceResults[EV_SERVICE_PLAN_CODE.SS]);
+    const results = useAppSelector(state => state.serviceResults);
 
     const dispatch = useAppDispatch();
     const set = (name: keyof ServiceResultsState) => {
@@ -22,35 +18,20 @@ export const ServiceResults: FC = () => {
     const { isSS } = useTask();
 
     return (
-        <EVCard title={'Результаты'} width={12} size={'smallest'}>
-            <div className="w-full p-0" style={{ height: isSS ? '20px' : '100%' }}>
-                <div className="flex flex-wrap items-center gap-2">
-                    <Action
-                        actionName={EV_SERVICE_PLAN_NAME.PRESENTATION}
-                        isDone={presentstion}
-                        setIsDone={() => set(EV_SERVICE_PLAN_CODE.PRESENTATION)}
-                        type={EV_SERVICE_PLAN_CODE.PRESENTATION}
-                    />
-                    <Action
-                        actionName={EV_SERVICE_PLAN_NAME.LEARNING}
-                        isDone={edu}
-                        setIsDone={() => set(EV_SERVICE_PLAN_CODE.LEARNING)}
-                        type={EV_SERVICE_PLAN_CODE.LEARNING}
-                    />
-                    <Action
-                        actionName={EV_SERVICE_PLAN_NAME.LEARNING_FIRST}
-                        isDone={eduFirst}
-                        setIsDone={() => set(EV_SERVICE_PLAN_CODE.LEARNING_FIRST)}
-                        type={EV_SERVICE_PLAN_CODE.LEARNING_FIRST}
-                    />
-                    <Action
-                        actionName={EV_SERVICE_PLAN_NAME.SS}
-                        isDone={ss}
-                        setIsDone={() => set(EV_SERVICE_PLAN_CODE.SS)}
-                        type={EV_SERVICE_PLAN_CODE.SS}
-                    />
+        <SectionCard title={'Результаты'} density="compact">
+            <div className="w-full p-0" style={isSS ? { height: '20px' } : undefined}>
+                <div className="flex max-w-full flex-wrap items-center gap-x-2 gap-y-1">
+                    {SERVICE_EVENT_CATALOG.map(item => (
+                        <Action
+                            key={item.code}
+                            actionName={item.name}
+                            isDone={results[item.code]}
+                            setIsDone={() => set(item.code)}
+                            type={item.code}
+                        />
+                    ))}
                 </div>
             </div>
-        </EVCard>
+        </SectionCard>
     );
 };

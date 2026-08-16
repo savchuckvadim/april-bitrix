@@ -24,7 +24,9 @@ import { Bitrix } from '@workspace/bitrix';
 import { Placement } from "@workspace/bx";
 import { APP_DEP } from "@/modules/app/model/AppSlice";
 import { eventPlanServiceActions, EventPlanServiceState } from "@/modules/entities/EventPlan/model/EventPlanServiceSlice";
-import { serviceResultsActions } from "@/modules/entities/ServiceResults";
+import { serviceResultsActions, getSpontaneousItems } from "@/modules/entities/ServiceResults";
+import { EV_SERVICE_PLAN_CODE } from "@/modules/entities/EventPlan/type/event-plan-service-type";
+import { EV_DEAL_PROP } from "@/modules/entities/EventDeal/type/event-deal-type";
 import { eventServiceAPI, EVS_ENDPOINT } from "@workspace/api/src/services/april-service-event-api";
 import { EV_TARGET } from "../types/ev-process-type";
 import { getSalesTaskGroupId, getServiceTaskGroupId } from "@workspace/pbx";
@@ -320,7 +322,15 @@ export const sendServiceEvent = () => async (dispatch: AppDispatch, getState: Ap
         // failType,
         // failReason,
         contact: reportContact,
-        results: serviceResults,
+        // бэкенд-контракт: results — ровно 4 легаси-флага,
+        // полный список включённых типов уходит в spontaneous
+        results: {
+            edu: serviceResults[EV_SERVICE_PLAN_CODE.LEARNING],
+            edu_first: serviceResults[EV_SERVICE_PLAN_CODE.LEARNING_FIRST],
+            presentation: serviceResults[EV_SERVICE_PLAN_CODE.PRESENTATION],
+            signal: serviceResults[EV_SERVICE_PLAN_CODE.SS],
+        },
+        spontaneous: getSpontaneousItems(serviceResults),
         communication: {
             type: communicationType[EV_TARGET.REPORT],
             initiative: communicationInitiative[EV_TARGET.REPORT]
@@ -533,6 +543,17 @@ export const send = () => async (dispatch: AppDispatch, getState: AppGetState) =
     if (!isNoResult && !isNoWork) {
         if (isPlanActive && !currentPlanName) {
             resultErrors.errors.name = errorText;
+        }
+    }
+
+    // даты «Действие договора с/по» обязательны, только когда найдена сделка
+    // (из плейсмента или через компанию — setInitEventDeal)
+    if (isServiceDepartment && state.eventDeal.isActive) {
+        if (!state.eventDeal[EV_DEAL_PROP.CONTRACT_START].current) {
+            resultErrors.errors[EV_DEAL_PROP.CONTRACT_START] = errorText;
+        }
+        if (!state.eventDeal[EV_DEAL_PROP.CONTRACT_END].current) {
+            resultErrors.errors[EV_DEAL_PROP.CONTRACT_END] = errorText;
         }
     }
 

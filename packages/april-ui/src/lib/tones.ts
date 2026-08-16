@@ -43,7 +43,11 @@ export type EventTone =
     | 'event-hot'
     | 'event-money'
     | 'event-ss'
-    | 'event-supply';
+    | 'event-supply'
+    /* Сервисные (event-service): документы, продление, обращение. */
+    | 'event-doc'
+    | 'event-renew'
+    | 'event-gold';
 
 /**
  * Комплекты конструктора (--complect-* в april-tokens.css). `complect` —
@@ -86,6 +90,9 @@ export const TONE_SOLID: Record<Tone, string> = {
     'event-money': 'bg-event-money text-event-money-foreground',
     'event-ss': 'bg-event-ss text-event-ss-foreground',
     'event-supply': 'bg-event-supply text-event-supply-foreground',
+    'event-doc': 'bg-event-doc text-event-doc-foreground',
+    'event-renew': 'bg-event-renew text-event-renew-foreground',
+    'event-gold': 'bg-event-gold text-event-gold-foreground',
 
     complect: 'bg-complect-current text-complect-current-foreground',
     'complect-buh': 'bg-complect-buh text-complect-buh-foreground',
@@ -146,6 +153,13 @@ export const TONE_SOFT: Record<Tone, string> = {
         'bg-event-ss/10 text-[color:color-mix(in_oklab,var(--event-ss),var(--foreground)_var(--tone-soft-mix))]',
     'event-supply':
         'bg-event-supply/10 text-[color:color-mix(in_oklab,var(--event-supply),var(--foreground)_var(--tone-soft-mix))]',
+    'event-doc':
+        'bg-event-doc/10 text-[color:color-mix(in_oklab,var(--event-doc),var(--foreground)_var(--tone-soft-mix))]',
+    /* Лайм и золото светлые — как у event-pres, гуще подложка и сильнее mix. */
+    'event-renew':
+        'bg-event-renew/20 text-[color:color-mix(in_oklab,var(--event-renew),var(--foreground)_var(--tone-soft-mix-strong))]',
+    'event-gold':
+        'bg-event-gold/20 text-[color:color-mix(in_oklab,var(--event-gold),var(--foreground)_var(--tone-soft-mix-strong))]',
 
     complect:
         'bg-complect-current/10 text-[color:color-mix(in_oklab,var(--complect-current),var(--foreground)_var(--tone-soft-mix))]',
@@ -182,6 +196,9 @@ export const TONE_TEXT: Record<Tone, string> = {
     'event-money': 'text-event-money',
     'event-ss': 'text-event-ss',
     'event-supply': 'text-event-supply',
+    'event-doc': 'text-event-doc',
+    'event-renew': 'text-event-renew',
+    'event-gold': 'text-event-gold',
 
     complect: 'text-complect-current',
     'complect-buh': 'text-complect-buh',
@@ -212,6 +229,9 @@ export const TONE_BORDER: Record<Tone, string> = {
     'event-money': 'border-event-money',
     'event-ss': 'border-event-ss',
     'event-supply': 'border-event-supply',
+    'event-doc': 'border-event-doc',
+    'event-renew': 'border-event-renew',
+    'event-gold': 'border-event-gold',
 
     complect: 'border-complect-current',
     'complect-buh': 'border-complect-buh',
@@ -242,6 +262,9 @@ export const TONE_BG: Record<Tone, string> = {
     'event-money': 'bg-event-money',
     'event-ss': 'bg-event-ss',
     'event-supply': 'bg-event-supply',
+    'event-doc': 'bg-event-doc',
+    'event-renew': 'bg-event-renew',
+    'event-gold': 'bg-event-gold',
 
     complect: 'bg-complect-current',
     'complect-buh': 'bg-complect-buh',

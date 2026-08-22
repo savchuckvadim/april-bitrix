@@ -96,4 +96,28 @@ describe('mapBoundDeal', () => {
         expect(result.closed).toBe(true);
         expect(result.opportunity).toBeUndefined();
     });
+
+    it('categoryCode берётся из карты категорий слепка', () => {
+        const codes = new Map([
+            [1, 'sales_base'],
+            [5, 'sales_present'],
+        ]);
+        const base = mapBoundDeal(
+            { ID: 1, STAGE_ID: 'C1:NEW', CATEGORY_ID: '1' },
+            undefined,
+            codes,
+        );
+        const unknown = mapBoundDeal(
+            { ID: 2, STAGE_ID: 'C9:NEW', CATEGORY_ID: 9 },
+            undefined,
+            codes,
+        );
+        const noMap = mapBoundDeal(
+            { ID: 3, STAGE_ID: 'C1:NEW', CATEGORY_ID: '1' },
+            undefined,
+        );
+        expect(base.stage.categoryCode).toBe('sales_base');
+        expect(unknown.stage.categoryCode).toBeUndefined();
+        expect(noMap.stage.categoryCode).toBeUndefined();
+    });
 });

@@ -8,7 +8,9 @@ import {
     EV_REPORT_PROP,
     setAndSaveComment,
 } from '@/modules/entities/EventReport';
+import { cn } from '@workspace/ui/lib/utils';
 import { COMMENT_ROWS, type ReportDensity } from '../../lib/report-density';
+import { PresentationDoneControl } from '../report/PresentationDoneControl';
 
 /**
  * Комментарий отчёта — главный рабочий инструмент менеджера.
@@ -20,9 +22,26 @@ import { COMMENT_ROWS, type ReportDensity } from '../../lib/report-density';
  * Стартовая высота зависит от того, сколько карточек стоит рядом: одна —
  * комментарию достаётся вся вертикаль, пять — он ужимается, но не ниже
  * читаемого минимума (см. report-density).
+ *
+ * В углу шапки — отметка презентации: раньше она жила в шапке экрана, далеко
+ * от места, где менеджер описывает разговор. Отмечают её ровно тогда, когда
+ * пишут комментарий, — теперь она рядом, вместе с объяснением состояния.
  */
-export const CommentSection: FC<{ density?: ReportDensity }> = ({
+interface CommentSectionProps {
+    density?: ReportDensity;
+    /**
+     * Занять всю высоту колонки — на широком экране карточка дотягивается до
+     * кнопок отправки справа, вместо того чтобы висеть с пустотой под собой.
+     */
+    fill?: boolean;
+    /** Показывать отметку презентации в углу карточки (visibility.presentation). */
+    withPresentation?: boolean;
+}
+
+export const CommentSection: FC<CommentSectionProps> = ({
     density = 'normal',
+    withPresentation = false,
+    fill = false,
 }) => {
     const dispatch = useAppDispatch();
     const comment = useAppSelector(
@@ -36,6 +55,11 @@ export const CommentSection: FC<{ density?: ReportDensity }> = ({
             state={error ? 'error' : 'default'}
             message={error}
             density="comfortable"
+            collapsible
+            defaultOpen
+            actions={withPresentation ? <PresentationDoneControl /> : undefined}
+            className={cn(fill && 'flex min-h-0 flex-1 flex-col')}
+            contentClassName={cn(fill && 'flex min-h-0 flex-1 flex-col')}
         >
             <Textarea
                 value={comment}
@@ -43,7 +67,12 @@ export const CommentSection: FC<{ density?: ReportDensity }> = ({
                 aria-invalid={!!error}
                 onChange={e => dispatch(setAndSaveComment(e.target.value))}
                 rows={COMMENT_ROWS[density]}
-                className="field-sizing-content resize-y"
+                className={cn(
+                    'resize-y',
+                    // В fill-режиме высоту задаёт карточка, а рост по
+                    // содержимому с этим дрался бы.
+                    fill ? 'min-h-40 flex-1' : 'field-sizing-content',
+                )}
             />
         </SectionCard>
     );

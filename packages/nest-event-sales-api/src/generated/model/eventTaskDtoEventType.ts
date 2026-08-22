@@ -20,6 +20,7 @@ export const EventTaskDtoEventType = {
     warm: 'warm',
     presentation: 'presentation',
     hot: 'hot',
+    refine: 'refine',
     moneyAwait: 'moneyAwait',
     ss: 'ss',
     in_progress: 'in_progress',

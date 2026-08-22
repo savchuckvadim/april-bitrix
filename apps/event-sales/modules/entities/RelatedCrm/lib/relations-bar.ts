@@ -1,5 +1,6 @@
 import type { RelatedDeal, RelatedLead } from '../model';
-import { leadDisplayTitle } from './lead-status-view';
+import { isBaseSalesDeal } from './deal-category';
+import { isLeadOpen, leadDisplayTitle } from './lead-status-view';
 
 /**
  * Что показывать полосками в шапке: одна главная сделка крупно, остальные
@@ -28,9 +29,22 @@ export interface RelationBarItem {
     lead?: RelatedLead;
 }
 
+/**
+ * Что пускать в строку связей:
+ * - `all` — основная сделка, остальные сделки и заявки (по умолчанию);
+ * - `baseOnly` — только основная сделка;
+ * - `baseLead` — основная сделка и заявки, без прочих сделок;
+ * - `deals` — только сделки, без заявок.
+ *
+ * Состав адаптируется: если сделок нет вовсе, а заявки режимом разрешены,
+ * крупной полоской показывается заявка — иначе строка была бы пустой ровно
+ * там, где работа только начинается.
+ */
+export type RelationsBarMode = 'all' | 'baseOnly' | 'baseLead' | 'deals';
+
 export interface RelationsBarView {
-    /** Сделка, в которой мы работаем (или самая свежая открытая). */
-    main: RelatedDeal | null;
+    /** Главная полоска: основная сделка, а без сделок — заявка. */
+    main: RelationBarItem | null;
     /** Остальные связи миниатюрами — вместе с главной не больше MAX. */
     minis: RelationBarItem[];
     /** Названия того, что не поместилось: уходит в тултип «+N». */
@@ -43,48 +57,76 @@ export interface RelationsBarInput {
     /** Сделка контекста встройки — она и есть главная. */
     currentDealId?: number | null;
     max?: number;
+    mode?: RelationsBarMode;
 }
 
-const leadTitle = (lead: RelatedLead): string =>
-    (lead as { title?: string }).title || `Заявка #${lead.id}`;
+const dealItem = (deal: RelatedDeal): RelationBarItem => ({
+    kind: 'deal',
+    id: deal.id,
+    title: deal.title,
+    deal,
+});
+
+const leadItem = (lead: RelatedLead): RelationBarItem => ({
+    kind: 'lead',
+    id: lead.id,
+    title: leadDisplayTitle(lead),
+    lead,
+});
 
 /**
- * Главная сделка + миниатюры остальных.
+ * Главная полоска + миниатюры остальных.
  *
- * Главной считаем сделку встройки: менеджер смотрит именно на неё, и её
- * стадия — ответ на вопрос «куда двигаемся». Нет такой — берём самую свежую
- * открытую: пустая шапка при живых связях хуже приблизительной.
+ * Главная — открытая сделка воронки «ОП Основная» (sales_base): её градиент
+ * из карточек дел убран и живёт ТОЛЬКО здесь — покажи шапка другую, основная
+ * воронка не была бы видна нигде. Нет основной — сделка встройки (менеджер
+ * смотрит именно на неё); нет и её — самая свежая открытая: пустая шапка при
+ * живых связях хуже приблизительной. Сделок нет совсем — крупно показываем
+ * заявку (если режим её пускает): у первичного клиента вся работа в ней.
+ *
+ * Заявки фильтруются по открытости: закрытая и сконвертированная в строке
+ * работы не нужны — они уже никуда не двигаются.
  */
 export const buildRelationsBar = ({
     deals = [],
     leads = [],
     currentDealId = null,
     max = MAX_RELATION_BARS,
+    mode = 'all',
 }: RelationsBarInput): RelationsBarView => {
-    const openDeals = deals.filter(deal => !deal.closed);
+    const withLeads = mode === 'all' || mode === 'baseLead';
+    const withOtherDeals = mode === 'all' || mode === 'deals';
 
-    const main =
+    const openDeals = deals.filter(deal => !deal.closed);
+    const openLeads = withLeads
+        ? leads.filter(lead => isLeadOpen(lead.statusSemanticId))
+        : [];
+    const byFreshness = [...openDeals].sort((a, b) =>
+        (b.dateCreate ?? '').localeCompare(a.dateCreate ?? ''),
+    );
+
+    const mainDeal =
+        byFreshness.find(isBaseSalesDeal) ??
         openDeals.find(deal => deal.id === Number(currentDealId)) ??
-        [...openDeals].sort((a, b) =>
-            (b.dateCreate ?? '').localeCompare(a.dateCreate ?? ''),
-        )[0] ??
+        byFreshness[0] ??
         null;
 
+    const main = mainDeal
+        ? dealItem(mainDeal)
+        : (openLeads[0] && leadItem(openLeads[0])) || null;
+
+    // Сравниваем и вид, и id: у сделки с заявкой номера независимые и вполне
+    // могут совпасть — по одному id заявка выпала бы из строки ни за что.
+    const isMain = (kind: RelationBarKind, id: number) =>
+        main?.kind === kind && main.id === id;
+
     const rest: RelationBarItem[] = [
-        ...openDeals
-            .filter(deal => deal.id !== main?.id)
-            .map(deal => ({
-                kind: 'deal' as const,
-                id: deal.id,
-                title: deal.title,
-                deal,
-            })),
-        ...leads.map(lead => ({
-            kind: 'lead' as const,
-            id: lead.id,
-            title: leadDisplayTitle(lead),
-            lead,
-        })),
+        ...(withOtherDeals
+            ? openDeals
+                  .filter(deal => !isMain('deal', deal.id))
+                  .map(dealItem)
+            : []),
+        ...openLeads.filter(lead => !isMain('lead', lead.id)).map(leadItem),
     ];
 
     // Главная занимает одно место из общего лимита.

@@ -5,6 +5,7 @@ import {
     PhoneOutgoing,
     Presentation,
     Truck,
+    Wrench,
     type LucideIcon,
 } from 'lucide-react';
 import { EV_PLAN_CODE } from '@/modules/entities/EventPlan';
@@ -43,6 +44,11 @@ export const PLAN_TYPE_META: Record<EV_PLAN_CODE, PlanTypeMeta> = {
         icon: Presentation,
         tone: 'event-pres',
         hint: 'особое событие: заводится отдельная сделка-спутник',
+    },
+    [EV_PLAN_CODE.REFINE]: {
+        icon: Wrench,
+        tone: 'event-refine',
+        hint: 'доработать до решения: закрыть открытые вопросы и хвосты',
     },
     [EV_PLAN_CODE.HOT]: {
         icon: Flame,

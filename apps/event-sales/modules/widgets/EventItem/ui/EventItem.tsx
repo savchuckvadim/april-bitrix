@@ -18,9 +18,10 @@ import { EV_PLAN_PROP } from '@/modules/entities/EventPlan';
 import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
 import { ActionPromptCard } from '@/modules/features/ActionPrompts';
+import { PurchaseSignalsCard } from '@/modules/features/PurchaseSignals';
+import { SendPreflightDialog } from './plan/SendPreflightDialog';
 import { CheckPresentation } from '@/modules/features/AfterPresentation';
 import { getItemVisibility } from '../lib/item-visibility';
-import { ItemHeader } from './header/ItemHeader';
 import { ReportColumn } from './report/ReportColumn';
 import { PlanColumn } from './plan/PlanColumn';
 import { ItemActions } from './plan/ItemActions';
@@ -42,6 +43,16 @@ const DuplicatesPanel = dynamic(
     { ssr: false },
 );
 
+// «Все контакты» свёрнуты по умолчанию и грузят связи по раскрытию —
+// самой карточке в бандле формы тоже делать нечего.
+const ContactsHubCard = dynamic(
+    () =>
+        import('@/modules/features/ContactsHub/ui/ContactsHubCard').then(
+            module => module.ContactsHubCard,
+        ),
+    { ssr: false },
+);
+
 // Карточка заявки/лида: видна только при лиде в контексте, форму отчёта
 // не задерживает — лениво, как и дубли.
 // Экран подтверждения заявки: перекрывает всё, поэтому монтируется рядом с
@@ -51,10 +62,6 @@ const LeadConfirmGate = dynamic(
         import('@/modules/features/LeadRequestCard/ui/LeadConfirmGate').then(
             module => module.LeadConfirmGate,
         ),
-    { ssr: false },
-);
-const LeadRequestPanel = dynamic(
-    () => import('@/modules/features/LeadRequestCard/ui/LeadRequestPanel'),
     { ssr: false },
 );
 
@@ -71,10 +78,9 @@ const PresentationLeadLinkDialog = dynamic(
 /**
  * Форма отчёта по событию.
  *
- * Один макет на все размеры: sticky-шапка с контекстом, предупреждениями и
- * действиями, под ней две колонки — слева отчёт с большим комментарием,
- * справа узкая колонка плана. Раньше здесь было четыре варианта раскладки
- * с переключателем; нужен один хорошо собранный.
+ * Своей шапки у формы нет: контекст клиента, предупреждения и строка текущего
+ * дела живут в общей шапке приложения над роут-слотом. Здесь — две колонки:
+ * слева отчёт с большим комментарием, справа узкая колонка плана.
  *
  * Цвет: контейнер несёт data-event-type отчётного события, колонка плана —
  * СВОЙ, планируемого. Отчитываемся об одном, назначаем другое — и это видно.
@@ -111,10 +117,8 @@ export const EventItem: FC = () => {
     return (
         <div
             data-event-type={eventTypeAttr}
-            className="flex h-svh flex-col bg-background"
+            className="flex h-full min-h-0 flex-col bg-background"
         >
-            <ItemHeader withPresentation={visibility.presentation} />
-
             <Tabs
                 defaultValue="report"
                 className="flex min-h-0 flex-1 flex-col"
@@ -133,7 +137,7 @@ export const EventItem: FC = () => {
                      * колонке они не вставали в две колонки даже при обычном
                      * --app-scale (контейнерный запрос @[17rem] в PlanColumn).
                      */}
-                    <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_28rem]">
+                    <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_30rem] lg:items-stretch">
                         <ReportColumn
                             visibility={visibility}
                             records={
@@ -148,13 +152,13 @@ export const EventItem: FC = () => {
                             <div className="hidden lg:block">
                                 <ItemActions variant="column" />
                             </div>
-                            {/* Смежные карточки — под планом и НИЖЕ действий:
-                                они не должны отодвигать кнопку отправки, а
-                                широкая карточка во всю ширину отчёта занимала
-                                полосу ради нескольких строк. Место общее: сюда
-                                же встанут будущие соседи заявки. */}
-                            <LeadRequestPanel />
+                            {/* Заявка переехала в панель инструментов пульта:
+                                иконка появляется только когда заявка есть, а
+                                карточка открывается окном — там ей хватает
+                                ширины на поля, историю и кнопки. */}
                             <DuplicatesPanel />
+                            <PurchaseSignalsCard />
+                            <ContactsHubCard />
                         </div>
                     </div>
 
@@ -174,6 +178,7 @@ export const EventItem: FC = () => {
             </Tabs>
 
             <LeadConfirmGate />
+            <SendPreflightDialog />
             <ActionPromptCard />
             <CheckPresentation />
             <PresentationLeadLinkDialog />

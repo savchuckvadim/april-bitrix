@@ -7,7 +7,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@workspace/ui/components/dialog';
-import { ContactField } from '@/modules/entities/EventContact';
+import {
+    ContactBaseForm,
+    ContactField,
+} from '@/modules/entities/EventContact';
 import { PbxContactFieldItem } from '@/modules/features/PbxContact';
 import { CONTACT_SIDES } from '../../../lib/contact-sides';
 import { useContactDialog } from '../../../lib/hooks/use-contact-dialog';
@@ -70,6 +73,13 @@ export const ContactDetailsDialog: FC = () => {
                                     : undefined
                             }
                         />
+                    )}
+
+                    {/* Правка основных данных — там же, где правят
+                        характеристики: раньше поменять телефон или должность
+                        можно было только у только что созданного контакта. */}
+                    {!dialog.isView && dialog.contactId !== null && (
+                        <ContactBaseForm contactId={dialog.contactId} />
                     )}
                 </div>
 

@@ -4,7 +4,11 @@ import { FC, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { MicroSpinner, TIMER_GRADIENT_BRIGHT } from '@workspace/april-ui';
+import {
+    FieldErrorHint,
+    MicroSpinner,
+    TIMER_GRADIENT_BRIGHT,
+} from '@workspace/april-ui';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getCurrentInn, getInnTarget } from '../lib/inn-selectors';
 import { innActions } from '../model/InnSlice';
@@ -35,7 +39,9 @@ export const InnEditor: FC = () => {
               : 'лида';
 
     return (
-        <div className="flex flex-wrap items-center gap-2">
+        // relative — якорь для FieldErrorHint: ошибка пузырём над строкой,
+        // ряд шапки не распирается.
+        <div className="relative flex flex-wrap items-center gap-2">
             <span className="text-xs text-muted-foreground">
                 ИНН {entityLabel}
             </span>
@@ -78,7 +84,7 @@ export const InnEditor: FC = () => {
             >
                 <X aria-hidden className="size-3.5" />
             </Button>
-            {error && <span className="text-xs text-destructive">{error}</span>}
+            <FieldErrorHint error={error} />
         </div>
     );
 };

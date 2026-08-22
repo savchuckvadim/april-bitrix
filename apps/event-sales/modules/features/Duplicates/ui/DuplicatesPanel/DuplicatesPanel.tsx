@@ -32,6 +32,8 @@ export const DuplicatesPanel: FC = () => {
                 tone={panel.hasCandidates ? 'warning' : 'neutral'}
                 accent={panel.hasCandidates}
                 density="compact"
+                collapsible
+                defaultOpen
                 actions={
                     <div className="flex items-center gap-1">
                         <Button

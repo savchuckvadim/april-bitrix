@@ -18,6 +18,7 @@ export const EventPlanCallDtoCode = {
     warm: 'warm',
     presentation: 'presentation',
     hot: 'hot',
+    refine: 'refine',
     moneyAwait: 'moneyAwait',
     supply: 'supply',
 } as const;

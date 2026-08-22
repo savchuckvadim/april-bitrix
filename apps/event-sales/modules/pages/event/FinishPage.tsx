@@ -1,7 +1,8 @@
 'use client';
 
 import { FC } from 'react';
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Spinner } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
 import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
 import { useReload } from '@/modules/app/lib/hooks/app';
@@ -45,7 +46,16 @@ const FinishPage: FC = () => {
                 {stage === FLOW_STAGE.SENDING && (
                     <>
                         <FlowShowcase image={showcase} />
-                        <Loader2 className="mx-auto size-8 animate-spin text-event-current" />
+                        {/* Кольцевой спиннер дизайн-системы: ровная окружность
+                            с целым размером. Дуга lucide на дробном масштабе
+                            (32px при viewBox 24) давала субпиксельный штрих —
+                            вращение читалось «кривым». */}
+                        <Spinner
+                            size="lg"
+                            tone="event"
+                            label="Отправляем отчёт"
+                            className="mx-auto"
+                        />
                         <h1 className="text-lg font-semibold text-foreground">
                             {step.title}
                         </h1>

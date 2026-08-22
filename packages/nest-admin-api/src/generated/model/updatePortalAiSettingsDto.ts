@@ -5,6 +5,7 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { UpdatePortalAiSettingsDtoPresentationStrictness } from './updatePortalAiSettingsDtoPresentationStrictness';
 
 export interface UpdatePortalAiSettingsDto {
   /**
@@ -116,4 +117,9 @@ export interface UpdatePortalAiSettingsDto {
    * @nullable
    */
   presentationAuditEnabled?: boolean | null;
+  /**
+   * Строгость определения презентации: strict (только показ или предметный рассказ под задачи клиента) / normal / soft. null — сбросить на strict.
+   * @nullable
+   */
+  presentationStrictness?: UpdatePortalAiSettingsDtoPresentationStrictness;
 }

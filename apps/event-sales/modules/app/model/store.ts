@@ -33,7 +33,9 @@ import { eventHistoryReducer } from '@/modules/entities/EVHistory';
 import { eventCallingRecordReducer } from '@/modules/entities/EventCallingRecord';
 // Прямой путь, как у AppSlice: барель RelatedCrm тянет UI и в store не годится.
 import { bitrixUserReducer } from '@/modules/entities/BitrixUser/model/BitrixUserSlice';
+import { purchaseSignalsReducer } from '@/modules/features/PurchaseSignals/model/PurchaseSignalsSlice';
 import { taskDealsReducer } from '@/modules/entities/RelatedCrm/model/TaskDealsSlice';
+import { relatedCrmReducer } from '@/modules/entities/RelatedCrm/model/RelatedCrmSlice';
 import { departmentReducer } from '@/modules/features/Departament';
 import { noCallReducer } from '@/modules/features/NoCall';
 import { returnToTmcReducer } from '@/modules/features/ReturnToTMC';
@@ -116,6 +118,7 @@ const rootReducer = combineReducers({
     eventHistory: eventHistoryReducer,
     eventCallingRecord: eventCallingRecordReducer,
     taskDeals: taskDealsReducer,
+    relatedCrm: relatedCrmReducer,
     bitrixUser: bitrixUserReducer,
 
     // features
@@ -130,6 +133,7 @@ const rootReducer = combineReducers({
     leadRequest: leadRequestReducer,
     presentationLeadLink: presentationLeadLinkReducer,
     taskLeadLinks: taskLeadLinksReducer,
+    purchaseSignals: purchaseSignalsReducer,
 
     // april
     portal: portalReducer,

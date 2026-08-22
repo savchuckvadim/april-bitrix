@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport';
-import { PresentationProp } from '@/modules/entities/EventPresentation';
 import { EventItemResultType } from '../../model/EventItemSlice';
+import { usePresentationDone } from './use-presentation-done';
 
 export interface ReportPultView {
     /** Отмечать нечего — карточка схлопнута в пилюлю статуса. */
@@ -27,12 +27,15 @@ export interface ReportPultView {
  * появляется хоть одно поле — карточка раскрывается сама и больше не
  * схлопывается, пока менеджер не вернёт статус.
  */
-export const useReportPult = (withNoresultSection = false): ReportPultView => {
-    const [isExpanded, setIsExpanded] = useState(false);
+export const useReportPult = (
+    withNoresultSection = false,
+    /** Кнопка презентации показана в карточке комментария — чип не нужен. */
+    withPresentationButton = false,
+): ReportPultView => {
+    const [isExpanded, setIsExpanded] = useState(true);
     const report = useAppSelector(s => s.eventReport.report);
     const resultType = useAppSelector(s => s.eventItemMenu.type);
-    const presentation = useAppSelector(s => s.eventPresentation);
-    const currentTask = useAppSelector(s => s.eventTask.current);
+    const { isDone: isPresentationDone, isPresTask } = usePresentationDone();
 
     const workStatus = report[EV_REPORT_PROP.WORK_STATUS].current;
     const isFail = workStatus.code === 'fail';
@@ -43,15 +46,6 @@ export const useReportPult = (withNoresultSection = false): ReportPultView => {
         report[EV_REPORT_PROP.FAIL_TYPE].isActive ||
         report[EV_REPORT_PROP.FAIL_REASON].isActive;
 
-    const isPresTask = currentTask?.eventType === 'presentation';
-    const isPresentationDone = Boolean(
-        presentation[
-            isPresTask
-                ? PresentationProp.IS_PRESENTATION_DONE
-                : PresentationProp.IS_UNPLANNED_PRESENTATION
-        ],
-    );
-
     const hasNothingToFill = isInWork && !withNoresult && !withFail;
 
     return {
@@ -60,9 +54,11 @@ export const useReportPult = (withNoresultSection = false): ReportPultView => {
         workStatusName: workStatus.name,
         isFail,
         isPresentationDone,
-        // Дубль отметки презентации: она и в шапке, но там её ищут глазами,
-        // а здесь она рядом со статусом — там, где отмечают итог.
-        withPresentationChip: isPresTask || isPresentationDone,
+        // Чип — запасной вход к той же отметке: там, где полноценной кнопки
+        // в карточке комментария нет (нерезультативное событие, ТМЦ, лид).
+        // Иначе два одинаковых контрола стояли бы в одной колонке подряд.
+        withPresentationChip:
+            !withPresentationButton && (isPresTask || isPresentationDone),
         withNoresult,
         hasRequired: withFail || withNoresult,
     };

@@ -4,7 +4,11 @@ import { FC, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { MicroSpinner, TIMER_GRADIENT_BRIGHT } from '@workspace/april-ui';
+import {
+    FieldErrorHint,
+    MicroSpinner,
+    TIMER_GRADIENT_BRIGHT,
+} from '@workspace/april-ui';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { clientSignalsActions } from '../model/ClientSignalsSlice';
 import { saveSignal } from '../model/ClientSignalsThunk';
@@ -26,7 +30,8 @@ export const SignalEditor: FC = () => {
     const isPhone = editor === 'phone';
 
     return (
-        <div className="flex flex-wrap items-center gap-2">
+        // relative — якорь FieldErrorHint (ошибка над строкой, вне потока).
+        <div className="relative flex flex-wrap items-center gap-2">
             <span className="text-xs text-muted-foreground">
                 {isPhone ? 'Телефон лида' : 'Email лида'}
             </span>
@@ -67,7 +72,7 @@ export const SignalEditor: FC = () => {
             >
                 <X aria-hidden className="size-3.5" />
             </Button>
-            {error && <span className="text-xs text-destructive">{error}</span>}
+            <FieldErrorHint error={error} />
         </div>
     );
 };

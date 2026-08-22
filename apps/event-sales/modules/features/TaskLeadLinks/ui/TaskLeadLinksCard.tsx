@@ -8,13 +8,15 @@ import { useTaskLeadLinks } from '../lib/hooks/use-task-lead-links';
 import { TASK_LEAD_LINKS_TEXT } from '../consts/task-lead-links.const';
 
 /**
- * Чекбоксы «связать новую задачу с заявками»: видны только когда текущей
- * задачи нет (создаётся новая) и у клиента есть открытые лиды. Отмеченные
- * уезжают в plan.relatedLeadIds → UF_CRM_TASK (L_{id}).
+ * Чекбоксы «связать новую задачу с заявками»: видны, когда новой задаче
+ * лид наследовать неоткуда (текущей задачи нет либо у неё нет заявки) и у
+ * клиента есть открытые лиды. Отмеченные уезжают в plan.relatedLeadIds →
+ * UF_CRM_TASK (L_{id}); открытых заявок бывает несколько — отмечают нужные.
  */
 export const TaskLeadLinksCard: FC = () => {
     const dispatch = useAppDispatch();
-    const { visible, candidates, selectedIds } = useTaskLeadLinks();
+    const { visible, candidates, selectedIds, isCurrentTaskWithoutLead } =
+        useTaskLeadLinks();
 
     if (!visible) return null;
 
@@ -24,7 +26,9 @@ export const TaskLeadLinksCard: FC = () => {
                 {TASK_LEAD_LINKS_TEXT.title}
             </p>
             <p className="text-xs text-muted-foreground">
-                {TASK_LEAD_LINKS_TEXT.hint}
+                {isCurrentTaskWithoutLead
+                    ? TASK_LEAD_LINKS_TEXT.hintNoCurrentLink
+                    : TASK_LEAD_LINKS_TEXT.hint}
             </p>
             <ul className="space-y-1">
                 {candidates.map(lead => (

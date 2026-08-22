@@ -12,6 +12,7 @@ import { getAllowedPlanCodes } from './plan-rules';
 export const PLAN_CALL_TYPES: EventPlanCall[] = [
     { id: 1, code: EV_PLAN_CODE.WARM, name: 'Звонок' },
     { id: 2, code: EV_PLAN_CODE.PRESENTATION, name: 'Презентация' },
+    { id: 6, code: EV_PLAN_CODE.REFINE, name: 'Доработка' },
     { id: 3, code: EV_PLAN_CODE.HOT, name: 'Решение' },
     { id: 4, code: EV_PLAN_CODE.PAY, name: 'Оплата' },
     { id: 5, code: EV_PLAN_CODE.SUPPLY, name: 'Поставка' },

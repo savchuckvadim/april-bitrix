@@ -6,6 +6,8 @@
  * (см. предупреждение о циклах в store.ts).
  */
 export { LeadRequestPanel } from './ui/LeadRequestPanel';
+// Статус заявки нужен снаружи: иконка в панели пульта показывает его подсказкой.
+export { getReadinessBadge } from './lib/lead-request-view';
 export { useLeadRequest } from './lib/hooks/use-lead-request';
 export {
     fetchLeadRequestCard,

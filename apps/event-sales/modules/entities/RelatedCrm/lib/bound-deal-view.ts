@@ -89,16 +89,23 @@ export const stageEntityIdFromStageId = (
 export const mapBoundDeal = (
     row: BoundDealRow,
     stages: StageDictItem[] | undefined,
+    /** CATEGORY_ID → код воронки из слепка портала (buildDealCategoryCodeMap). */
+    categoryCodes?: ReadonlyMap<number, string>,
 ): RelatedDeal => {
     const stageId = row.STAGE_ID ?? '';
     const order = stages?.findIndex(stage => stage.statusId === stageId) ?? -1;
     const dictItem = order >= 0 ? stages?.[order] : undefined;
     const opportunity = Number(row.OPPORTUNITY);
+    // Категория — только по слепку: парсить префикс C<id>: из STAGE_ID нельзя,
+    // у общей воронки его нет. Нет слепка/категории — categoryCode не ставим,
+    // и isBaseSalesDeal честно скажет «не основная» (fail-open).
+    const categoryCode = categoryCodes?.get(Number(row.CATEGORY_ID ?? 0));
 
     // Нет стадии в словаре — полоска не рисуется (order/total не задаём):
     // показать позицию наугад хуже, чем не показать.
     const stage: RelatedStage = {
         bitrixId: stageId,
+        ...(categoryCode ? { categoryCode } : {}),
         ...(dictItem && stages
             ? {
                   title: dictItem.name,

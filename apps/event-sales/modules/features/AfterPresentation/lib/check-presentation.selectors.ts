@@ -1,7 +1,7 @@
 import type { RootState } from '@/modules/app/model/store';
 import { PresentationProp } from '@/modules/entities/EventPresentation/model/PresSlice';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
-import { buildCheckPresentationComment } from './check-presentation.format';
+import { buildCheckPresentationCommentPretty } from './check-presentation.format';
 
 /**
  * Применим ли хвост вообще: домен с withCheckPresentation, опросник загружен,
@@ -34,7 +34,7 @@ export const selectIsCheckPresentationSatisfied = (state: RootState): boolean =>
 
 /** Текст хвоста из подтверждённого снимка — для склейки с комментарием. */
 export const selectCheckPresentationComment = (state: RootState): string =>
-    buildCheckPresentationComment(
+    buildCheckPresentationCommentPretty(
         state.afterPresentation.checkPresentation.items,
         state.afterPresentation.checkPresentation.committed,
     );

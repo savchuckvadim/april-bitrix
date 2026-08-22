@@ -24,11 +24,7 @@ const EventHomePage: FC = () => {
     const withBoard =
         mode === APP_DISPLAY_MODE.TIMELINE || mode === APP_DISPLAY_MODE.TASK;
 
-    return withBoard ? (
-        <EntityBoardPage />
-    ) : (
-        <EventListPage />
-    );
+    return withBoard ? <EntityBoardPage /> : <EventListPage />;
 };
 
 export default EventHomePage;

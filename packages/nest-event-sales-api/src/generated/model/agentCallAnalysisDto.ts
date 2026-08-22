@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { AgentCallAnalysisDtoInterlocutorRole } from './agentCallAnalysisDtoInterlocutorRole';
+import type { AgentCallAnalysisDtoSpecialist } from './agentCallAnalysisDtoSpecialist';
 import type { AgentCallAnalysisDtoSentiment } from './agentCallAnalysisDtoSentiment';
 import type { AgentNextStepDto } from './agentNextStepDto';
 import type { AgentDialogTurnDto } from './agentDialogTurnDto';
@@ -28,6 +29,11 @@ export interface AgentCallAnalysisDto {
     productive?: boolean;
     /** С кем в итоге говорили: ЛПР / пользователь / секретарь / другое. Для холодных звонков «вышел на ЛПР» — мера успеха. */
     interlocutorRole?: AgentCallAnalysisDtoInterlocutorRole;
+    /**
+     * Специальность собеседника по лексике разговора (бухгалтер / юрист / кадровик / руководитель / другой) — под неё подбирается карта демонстрации. null — явных признаков в разговоре нет.
+     * @nullable
+     */
+    specialist?: AgentCallAnalysisDtoSpecialist;
     /** Общий тон клиента в разговоре. */
     sentiment?: AgentCallAnalysisDtoSentiment;
     /** Следующий шаг по итогам звонка — ключевой предиктор сделки. */
@@ -63,6 +69,31 @@ export interface AgentCallAnalysisDto {
     needs?: string[];
     /** Была ли проведена презентация продукта. */
     presentationDone: boolean;
+    /**
+     * Пройден ли «хвост» после демонстрации (вопросы ценности, кто будет работать, цена комплекта, механизм решения, дата звонка по решению). Только для презентаций/решений; null — не применимо.
+     * @nullable
+     */
+    hvostDone?: boolean | null;
+    /**
+     * Разбор прохождения «хвоста» по 4 этапам (отдельная запись в таймлайн элемента). null — не применимо.
+     * @nullable
+     */
+    hvostAnalysis?: string | null;
+    /**
+     * Закрыты ли все 5К после встречи (Клиент/Компания/Коллеги/Конкурент/Критерии выбора). Только для презентаций/решений; null — не применимо.
+     * @nullable
+     */
+    fiveKDone?: boolean | null;
+    /**
+     * Разбор покрытия 5К по каждой «К» (отдельная запись в таймлайн элемента). null — не применимо.
+     * @nullable
+     */
+    fiveKAnalysis?: string | null;
+    /**
+     * Сверка разбора звонка с отчётом менеджера (заполняет крон сверки, Фаза 4) — отдельная запись в таймлайн элемента.
+     * @nullable
+     */
+    reportComparison?: string | null;
     /** Какие продукты предлагались в разговоре. */
     productsOffered?: string[];
     /** Возражения клиента и их отработка (с разбором, как к возражению пришли). */

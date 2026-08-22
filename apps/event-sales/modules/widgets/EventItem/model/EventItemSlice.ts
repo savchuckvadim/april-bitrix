@@ -13,6 +13,12 @@ export enum EventItemResultType {
 const initialState = {
     isActive: false,
     type: null as null | EventItemResultType,
+    /**
+     * Окно «осталось заполнить» перед отправкой. Живёт в сторе, а не в
+     * компоненте: ItemActions смонтирован дважды (колонка и нижняя панель),
+     * и окно должно быть одно на обоих.
+     */
+    isPreflightOpen: false,
 };
 
 const eventItemSlice = createSlice({
@@ -28,6 +34,12 @@ const eventItemSlice = createSlice({
         ) => {
             state.isActive = action.payload.status;
             state.type = action.payload.status ? action.payload.menuType : null;
+        },
+        setPreflightOpen: (
+            state: EventItemStateType,
+            action: PayloadAction<{ isOpen: boolean }>,
+        ) => {
+            state.isPreflightOpen = action.payload.isOpen;
         },
         setMenuType: (
             state: EventItemStateType,

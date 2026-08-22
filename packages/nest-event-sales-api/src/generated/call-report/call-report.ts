@@ -11,6 +11,8 @@ import type {
     CallReportScanResponseDto,
     InstallCallReportSmartDto,
     InstallCallReportSmartResponseDto,
+    PresentationAuditRequestDto,
+    PresentationAuditResponseDto,
     ReviseCallsDto,
     ReviseCallsResponseDto,
     ScanCallsDto,
@@ -69,11 +71,26 @@ export const getCallReport = () => {
             data: reviseCallsDto,
         });
     };
+    /**
+     * Фаза 4: для каждого свежего разбора презентации/решения читает отчёт менеджера из полей сделки («ОП Хвост», «ОП Пять К», «ОП Комментарии после презентаций») и сверяет с разбором одним LLM-вызовом. Итог — «⚖️ Сверка с отчётом менеджера» в таймлайн смарт-элемента; при расхождении — дубль в таймлайн сделки. Идемпотентно (ais type=presentation-audit). Ручной аналог утреннего крона PresentationAuditScheduler (08:00 МСК).
+     * @summary Сверка по презентациям (синхронно, ручной запуск)
+     */
+    const callReportPresentationAuditRun = (
+        presentationAuditRequestDto: PresentationAuditRequestDto,
+    ) => {
+        return customAxios<PresentationAuditResponseDto>({
+            url: `/api/call-report/presentation-audit`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: presentationAuditRequestDto,
+        });
+    };
     return {
         callReportInstallSmart,
         callReportScan,
         callReportAnalyze,
         callReportRevise,
+        callReportPresentationAuditRun,
     };
 };
 export type CallReportInstallSmartResult = NonNullable<
@@ -89,4 +106,11 @@ export type CallReportAnalyzeResult = NonNullable<
 >;
 export type CallReportReviseResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getCallReport>['callReportRevise']>>
+>;
+export type CallReportPresentationAuditRunResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getCallReport>['callReportPresentationAuditRun']
+        >
+    >
 >;

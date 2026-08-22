@@ -81,7 +81,9 @@ export const FieldCombobox = ({
                 </Label>
             )}
 
-            <Popover open={open} onOpenChange={setOpen}>
+            {/* modal: попап внутри окна должен сам держать фокус и прокрутку —
+                иначе react-remove-scroll модалки блокирует колесо над списком. */}
+            <Popover open={open} onOpenChange={setOpen} modal>
                 <PopoverTrigger asChild>
                     <Button
                         id={id}
@@ -108,9 +110,12 @@ export const FieldCombobox = ({
                     </Button>
                 </PopoverTrigger>
 
+                {/* Скобочная форма переменной: `w-[--radix-…]` в Tailwind v4
+                    компилируется в невалидный `width: --radix-…`, и попап
+                    расползался по контенту, накрывая соседние элементы. */}
                 <PopoverContent
                     align="start"
-                    className="w-[--radix-popover-trigger-width] p-0"
+                    className="w-(--radix-popover-trigger-width) p-0"
                 >
                     <Command>
                         <CommandInput placeholder={searchPlaceholder} />
@@ -148,11 +153,17 @@ export const FieldCombobox = ({
                                 ))}
                             </CommandGroup>
 
+                            {/* forceMount: пункт создания нужен именно тогда,
+                                когда поиск ничего не нашёл, — без него cmdk
+                                отфильтровывал его вместе с вариантами, и
+                                «создать» пропадало в самый нужный момент. */}
                             {onCreate && (
                                 <>
-                                    <CommandSeparator />
-                                    <CommandGroup>
+                                    <CommandSeparator alwaysRender />
+                                    <CommandGroup forceMount>
                                         <CommandItem
+                                            forceMount
+                                            value="__create__"
                                             onSelect={() => {
                                                 setOpen(false);
                                                 onCreate();

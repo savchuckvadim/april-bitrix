@@ -1,7 +1,8 @@
 'use client';
 
 import { FC, useEffect } from 'react';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { Spinner } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
@@ -32,7 +33,7 @@ export const FlowStatusBanner: FC = () => {
     if (stage === FLOW_STAGE.SENDING) {
         return (
             <div className="mb-3 flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-                <Loader2 className="size-4 shrink-0 animate-spin" />
+                <Spinner size="sm" tone="muted" label="Отчёт отправляется" />
                 <span>
                     Отчёт ещё отправляется. Список обновится, как только сервер
                     ответит.

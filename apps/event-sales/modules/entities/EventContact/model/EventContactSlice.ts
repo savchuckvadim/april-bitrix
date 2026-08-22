@@ -30,6 +30,12 @@ const initialState = {
         side: EV_CONTACT_TYPE;
     },
     /**
+     * Быстрый выбор/замена контакта: планировали на одного, дозвонились
+     * другому — окно с поиском по существующим и «создать» внизу.
+     * Состояние общее по той же причине, что и dialog: окно одно на экран.
+     */
+    quickPickSide: null as null | EV_CONTACT_TYPE,
+    /**
      * Контакт задачи, который ещё не нашёлся в списке.
      *
      * Привязка задачи приходит раньше самих контактов, а раньше её просто
@@ -43,6 +49,16 @@ const initialState = {
         report: null as null | undefined | PBXContactStateItem,
     },
     creating: {
+        /**
+         * Этап окна создания: форма → сохранение → правка созданного.
+         * Окно ОДНО и живёт через все три: после успеха оно не закрывается,
+         * а превращается в редактируемую карточку нового человека.
+         */
+        stage: 'form' as 'form' | 'saving' | 'created',
+        /** Ошибка сохранения — текстом в окне, значения полей не теряются. */
+        error: null as string | null,
+        /** Кто только что создан — его правит этап 'created'. */
+        createdContactId: null as number | null,
         type: null as null | ContactEventType,
         contact: {
             [EV_CONTACT_PROP.NAME]: '',
@@ -76,6 +92,36 @@ const relinkCurrent = (state: EventContactState) => {
 
     state.current.report = byId(reportId) ?? state.current.report;
     state.current.plan = byId(planId) ?? state.current.plan;
+};
+
+/**
+ * Перенавести `current.*` на свежий объект ПРАВЛЕНОГО контакта.
+ *
+ * Immer отдаёт свой draft на каждый путь доступа: правка через `contacts[i]`
+ * не меняет объект, лежащий в `current.report`/`current.plan`, — карточка и
+ * окно продолжали показывать старое значение и даже не перерисовывались
+ * (ссылка та же). Хуже того, повторные клики уходили в портал, пока экран
+ * стоял на прежнем.
+ *
+ * Строго по id и без `pendingCurrentId` — в отличие от relinkCurrent, который
+ * заодно воскрешает отложенный контакт задачи: здесь это вернуло бы снятый
+ * контакт плана обратно на экран.
+ */
+const relinkContactById = (
+    state: EventContactState,
+    contactId: number | string,
+) => {
+    const fresh = state.contacts.find(
+        contact => Number(contact.ID) === Number(contactId),
+    );
+    if (!fresh) return;
+
+    const isSame = (contact?: PBXContactStateItem | null) =>
+        Number(contact?.ID) === Number(contactId);
+
+    if (isSame(state.current.report)) state.current.report = fresh;
+    if (isSame(state.current.plan)) state.current.plan = fresh;
+    if (isSame(state.current.contact)) state.current.contact = fresh;
 };
 
 const eventContactSlice = createSlice({
@@ -157,6 +203,33 @@ const eventContactSlice = createSlice({
             const isCreating = action.payload.isCreating;
             state.isCreating = isCreating;
             state.creating.type = isCreating ? action.payload.type : null;
+            state.creating.stage = 'form';
+            state.creating.error = null;
+            state.creating.createdContactId = null;
+            if (!isCreating) {
+                // Закрыли окно — форма чистая к следующему открытию.
+                state.creating.contact = {
+                    [EV_CONTACT_PROP.NAME]: '',
+                    [EV_CONTACT_PROP.PHONE]: '',
+                    [EV_CONTACT_PROP.EMAIL]: '',
+                    [EV_CONTACT_PROP.POST]: '',
+                } as { [key in EV_CONTACT_PROP]: string };
+            }
+        },
+        setCreatingStage: (
+            state: EventContactState,
+            action: PayloadAction<{
+                stage: 'form' | 'saving' | 'created';
+                error?: string | null;
+                createdContactId?: number | null;
+            }>,
+        ) => {
+            state.creating.stage = action.payload.stage;
+            state.creating.error = action.payload.error ?? null;
+            if (action.payload.createdContactId !== undefined) {
+                state.creating.createdContactId =
+                    action.payload.createdContactId;
+            }
         },
         setContactProp: (
             state: EventContactState,
@@ -223,9 +296,31 @@ const eventContactSlice = createSlice({
             action: PayloadAction<{ type: EV_CONTACT_TYPE }>,
         ) => {
             state.current[action.payload.type] = null;
-            if (action.payload.type === EV_CONTACT_TYPE.REPORT) {
-                state.pendingCurrentId = null;
+            // Отложенный id гасим для ЛЮБОЙ стороны: иначе ближайшая
+            // перелинковка вернёт снятый контакт обратно на экран.
+            state.pendingCurrentId = null;
+        },
+        /** Базовое поле контакта в общем списке (после удачного update). */
+        setContactBaseField: (
+            state: EventContactState,
+            action: PayloadAction<{
+                contactId: number;
+                prop: EV_CONTACT_PROP;
+                value: string;
+            }>,
+        ) => {
+            const contact = state.contacts.find(
+                item => Number(item.ID) === action.payload.contactId,
+            );
+            if (!contact) return;
+            if (action.payload.prop === EV_CONTACT_PROP.PHONE) {
+                contact.PHONE = [{ VALUE: action.payload.value }] as never;
+            } else if (action.payload.prop === EV_CONTACT_PROP.EMAIL) {
+                contact.EMAIL = [{ VALUE: action.payload.value }] as never;
+            } else {
+                contact[action.payload.prop] = action.payload.value as never;
             }
+            relinkContactById(state, action.payload.contactId);
         },
         /** Открыть развёрнутую карточку: просмотр или правка, отчёт или план. */
         openContactDialog: (
@@ -242,6 +337,16 @@ const eventContactSlice = createSlice({
         },
         closeContactDialog: (state: EventContactState) => {
             state.dialog = null;
+        },
+        /** Открыть быстрый выбор контакта для плана или отчёта. */
+        openQuickPick: (
+            state: EventContactState,
+            action: PayloadAction<{ side: EV_CONTACT_TYPE }>,
+        ) => {
+            state.quickPickSide = action.payload.side;
+        },
+        closeQuickPick: (state: EventContactState) => {
+            state.quickPickSide = null;
         },
         /**
          * Характеристика не сохранилась в портале.
@@ -281,6 +386,7 @@ const eventContactSlice = createSlice({
             );
             if (field) {
                 field.current = action.payload.current;
+                relinkContactById(state, action.payload.contactId);
             }
         },
     },

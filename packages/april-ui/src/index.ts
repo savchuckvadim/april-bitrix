@@ -66,6 +66,16 @@ export { StageProgress } from './shared/ui/Progress/StageProgress';
 export type { StageProgressProps } from './shared/ui/Progress/StageProgress';
 export { GradientScale } from './shared/ui/Progress/GradientScale';
 export type { GradientScaleProps } from './shared/ui/Progress/GradientScale';
+export { LiquidChoiceBar } from './shared/ui/Progress/LiquidChoiceBar';
+export { StepChoiceBar } from './shared/ui/Progress/StepChoiceBar';
+export type {
+    StepChoiceBarProps,
+    StepChoiceStep,
+} from './shared/ui/Progress/StepChoiceBar';
+export type {
+    LiquidChoiceBarProps,
+    LiquidChoiceSegment,
+} from './shared/ui/Progress/LiquidChoiceBar';
 
 export type { ComponentPropsColors } from './shared/ui/Button/AAButton';
 export { default as AIcon } from './shared/FuncIcon/FuncIcon';

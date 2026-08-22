@@ -17,7 +17,11 @@ import { updateCompany } from '../model/EventCompanyThunk';
  *
  * Значений около десяти — сегменты тут не годятся, селект оправдан. Но лейбл
  * с полем во всю ширину для значения, которое меняют раз в полгода, — перебор:
- * в шапке это чип по ширине содержимого.
+ * в шапке это компактный чип.
+ *
+ * Ширина ФИКСИРОВАННАЯ, а не по содержимому: названия статусов разной длины,
+ * и при каждой смене чип менял размер, сдвигая всю правую часть шапки. Длинное
+ * название обрезается — полное видно в раскрытом списке.
  */
 export const ClientStatusChip: FC = () => {
     const dispatch = useAppDispatch();
@@ -41,7 +45,7 @@ export const ClientStatusChip: FC = () => {
             <SelectTrigger
                 size="sm"
                 aria-label="Статус клиента"
-                className="h-7 w-auto gap-1 border-dashed px-2 text-xs"
+                className="h-7 w-36 gap-1 border-dashed px-2 text-xs [&>span]:truncate"
             >
                 <SelectValue placeholder="Статус клиента" />
             </SelectTrigger>

@@ -1,12 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@workspace/ui/components/card';
+import { SectionCard } from '@workspace/april-ui/surfaces';
 import { SectionState } from '@/modules/shared/SectionState';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
@@ -30,6 +25,11 @@ import { cn } from '@workspace/ui/lib/utils';
 interface EntityTasksCardProps {
     /** Связи клиента — из них карточка дела берёт свою сделку или лид. */
     details: RelatedCrmDetails | null;
+    /**
+     * Показывать ли в полосках карточек сделку воронки «ОП Основная».
+     * false — остаются только сделки презентаций и холодные, если есть.
+     */
+    withMainDeal?: boolean;
 }
 
 /**
@@ -39,7 +39,10 @@ interface EntityTasksCardProps {
  * Скролл — у самой секции, а не у страницы: дел бывает и три, и триста, и в
  * последнем случае шапка со сделками не должна уезжать вверх.
  */
-export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
+export const EntityTasksCard: FC<EntityTasksCardProps> = ({
+    details,
+    withMainDeal = false,
+}) => {
     const dispatch = useAppDispatch();
     const nav = useEventNavigation();
 
@@ -70,61 +73,62 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({ details }) => {
     };
 
     return (
-        <Card className={cn('flex flex-col', !isSelfSized && 'min-h-0')}>
-            <CardHeader>
-                <CardTitle className="text-base">
-                    {isTaskMode ? 'Текущее дело' : 'Дела'}
-                    {!isTaskMode && tasks?.length ? ` (${tasks.length})` : ''}
-                </CardTitle>
-            </CardHeader>
-
-            <CardContent
-                className={cn(!isSelfSized && 'min-h-0 flex-1 overflow-y-auto')}
+        // Свёртка выключена, когда карточка растянута колонкой (не self-sized):
+        // схлопывание уронило бы высоту раскладки борда.
+        <SectionCard
+            title={`${isTaskMode ? 'Текущее дело' : 'Дела'}${
+                !isTaskMode && tasks?.length ? ` (${tasks.length})` : ''
+            }`}
+            collapsible={isSelfSized}
+            defaultOpen
+            className={cn('flex flex-col', !isSelfSized && 'min-h-0')}
+            contentClassName={cn(
+                !isSelfSized && 'min-h-0 flex-1 overflow-y-auto',
+            )}
+        >
+            <SectionState
+                status={status}
+                isEmpty={!tasks?.length}
+                emptyText="Открытых событий нет."
+                errorText="Не удалось загрузить события — портал не ответил."
+                onRetry={() => dispatch(reloadApp())}
             >
-                <SectionState
-                    status={status}
-                    isEmpty={!tasks?.length}
-                    emptyText="Открытых событий нет."
-                    errorText="Не удалось загрузить события — портал не ответил."
-                    onRetry={() => dispatch(reloadApp())}
-                >
-                    <div className="grid gap-3">
-                        {visibleTasks.map((task, index) => {
-                            const links = getTaskLinks(task);
-                            return (
-                                <EventCard
-                                    key={`board-task-${task.id ?? index}`}
-                                    task={task}
-                                    relation={resolveTaskRelation({
-                                        details,
-                                        boundDeals:
-                                            Object.values(boundDealsById),
-                                        dealIds: links.dealIds,
-                                        leadIds: links.leadIds,
-                                    })}
-                                    spacious={isTaskMode}
-                                    onSelect={selectEvent}
-                                />
-                            );
-                        })}
-                    </div>
+                <div className="grid gap-3">
+                    {visibleTasks.map((task, index) => {
+                        const links = getTaskLinks(task);
+                        return (
+                            <EventCard
+                                key={`board-task-${task.id ?? index}`}
+                                task={task}
+                                relation={resolveTaskRelation({
+                                    details,
+                                    boundDeals: Object.values(boundDealsById),
+                                    dealIds: links.dealIds,
+                                    leadIds: links.leadIds,
+                                    withMainDeal,
+                                })}
+                                spacious={isTaskMode}
+                                onSelect={selectEvent}
+                            />
+                        );
+                    })}
+                </div>
 
-                    {otherTasks.length > 0 && (
-                        <div className="mt-3 space-y-1.5">
-                            <p className="text-xs text-muted-foreground">
-                                Ещё по клиенту ({otherTasks.length}) — открыть в
-                                Битриксе
-                            </p>
-                            {otherTasks.map(task => (
-                                <OtherTaskRow
-                                    key={`other-task-${task.id}`}
-                                    task={task}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </SectionState>
-            </CardContent>
-        </Card>
+                {otherTasks.length > 0 && (
+                    <div className="mt-3 space-y-1.5">
+                        <p className="text-xs text-muted-foreground">
+                            Ещё по клиенту ({otherTasks.length}) — открыть в
+                            Битриксе
+                        </p>
+                        {otherTasks.map(task => (
+                            <OtherTaskRow
+                                key={`other-task-${task.id}`}
+                                task={task}
+                            />
+                        ))}
+                    </div>
+                )}
+            </SectionState>
+        </SectionCard>
     );
 };

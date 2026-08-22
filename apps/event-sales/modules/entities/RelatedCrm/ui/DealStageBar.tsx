@@ -2,13 +2,14 @@
 
 import { FC } from 'react';
 import { GradientScale } from '@workspace/april-ui';
+import { cn } from '@workspace/ui/lib/utils';
 import type { RelatedStage } from '../model';
 import { stageProgress } from '../lib/stage-view';
 import { useStageDict } from '../lib/hooks/use-stage-dicts';
 
 interface DealStageBarProps {
     stage: RelatedStage;
-    /** Название сущности в тултипе (сделка/лид). */
+    /** Название сущности: в тултипе, а при withLabel — и в строке подписи. */
     title?: string;
     /** Доп. строка тултипа: сумма, ответственный. */
     note?: string | null;
@@ -85,7 +86,7 @@ export const DealStageBar: FC<DealStageBarProps> = ({
                     {note && <p>{note}</p>}
                     {isMismatch && (
                         <p className="text-primary-foreground/70">
-                            {/* Привязана к задаче, но не связана с клиентом */}
+                            Привязана к задаче, но не связана с клиентом
                         </p>
                     )}
                 </>
@@ -101,15 +102,32 @@ export const DealStageBar: FC<DealStageBarProps> = ({
             ariaLabel={`${title ? `${title}: ` : ''}${
                 stage.title ?? dict?.[dictIndex]?.name ?? stage.bitrixId
             }`}
-            className={className}
+            // С подписью className уходит на обёртку: сюда попадает flex-1
+            // консюмера, и внутри flex-col он управлял бы высотой, не шириной.
+            className={withLabel ? undefined : className}
         />
     );
 
     if (!withLabel) return bar;
 
     return (
-        <div className="flex min-w-0 flex-col">
-            <div className="flex min-w-0 items-baseline gap-2 text-[0.6875rem] leading-tight text-muted-foreground">
+        <div className={cn('flex min-w-0 flex-col', className)}>
+            <div className="flex min-w-0 items-baseline gap-1.5 text-[0.6875rem] leading-tight text-muted-foreground">
+                {/* Название сжимается первым (shrink-[2]): стадия — ответ на
+                    «что дальше», ей место дороже. */}
+                {title && (
+                    <>
+                        <span className="min-w-0 shrink-[2] truncate font-medium text-foreground/75">
+                            {title}
+                        </span>
+                        <span
+                            aria-hidden
+                            className="shrink-0 text-muted-foreground/50"
+                        >
+                            ·
+                        </span>
+                    </>
+                )}
                 <span className="min-w-0 truncate">{currentName}</span>
                 {position && (
                     <span className="shrink-0 text-muted-foreground/70">

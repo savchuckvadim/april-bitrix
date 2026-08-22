@@ -1,12 +1,7 @@
 'use client';
 
 import { FC, useEffect } from 'react';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@workspace/ui/components/card';
+import { SectionCard } from '@workspace/april-ui/surfaces';
 import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { cn } from '@workspace/ui/lib/utils';
 import { SectionState } from '@/modules/shared/SectionState';
@@ -90,20 +85,25 @@ export const EntityHistoryCard: FC<EntityHistoryCardProps> = ({
     }, [dispatch]);
 
     return (
-        <Card className={cn('flex flex-col', fill && 'h-full min-h-0 flex-1')}>
-            <CardHeader className="flex-row items-center justify-between gap-2 space-y-0">
-                <CardTitle className="text-base">
-                    История
-                    {view.status === 'ready' && !view.isListMissing
-                        ? ` (${view.dateRecords.length})`
-                        : ''}
-                </CardTitle>
-                {view.isListMissing ? (
-                    fallback.items.length > 0 && (
+        // Свёртка выключена в fill-режиме: там карточка ЗАДАЁТ высоту вкладки,
+        // и схлопывание оставило бы пустой экран.
+        <SectionCard
+            title={`История${
+                view.status === 'ready' && !view.isListMissing
+                    ? ` (${view.dateRecords.length})`
+                    : ''
+            }`}
+            collapsible={!fill}
+            defaultOpen
+            className={cn('flex flex-col', fill && 'h-full min-h-0 flex-1')}
+            contentClassName={cn('flex flex-col', fill && 'min-h-0 flex-1')}
+            actions={
+                view.isListMissing ? (
+                    fallback.items.length > 0 ? (
                         <span className="shrink-0 text-xs text-muted-foreground">
                             из полей клиента
                         </span>
-                    )
+                    ) : undefined
                 ) : (
                     <Tabs
                         value={view.mode}
@@ -126,57 +126,53 @@ export const EntityHistoryCard: FC<EntityHistoryCardProps> = ({
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>
-                )}
-            </CardHeader>
-
-            <CardContent
-                className={cn('flex flex-col', fill && 'min-h-0 flex-1')}
-            >
-                {view.isListMissing ? (
-                    <FallbackHistory items={fallback.items} />
-                ) : (
-                    <SectionState
-                        status={view.status}
-                        isEmpty={view.isEmpty}
-                        onRetry={() =>
-                            dispatch(loadEventSalesHistory({ reset: true }))
-                        }
-                        emptyText="Записей по клиенту пока нет."
+                )
+            }
+        >
+            {view.isListMissing ? (
+                <FallbackHistory items={fallback.items} />
+            ) : (
+                <SectionState
+                    status={view.status}
+                    isEmpty={view.isEmpty}
+                    onRetry={() =>
+                        dispatch(loadEventSalesHistory({ reset: true }))
+                    }
+                    emptyText="Записей по клиенту пока нет."
+                >
+                    <div
+                        className={cn(
+                            'space-y-4 overflow-y-auto pr-1',
+                            fill ? 'min-h-0 flex-1' : 'max-h-96 min-h-40',
+                        )}
                     >
-                        <div
-                            className={cn(
-                                'space-y-4 overflow-y-auto pr-1',
-                                fill ? 'min-h-0 flex-1' : 'max-h-96 min-h-40',
-                            )}
-                        >
-                            {view.effectiveMode === EHistoryViewMode.ENTITY ? (
-                                view.entityGroups.map(item => (
-                                    <HistoryGroupSection
-                                        key={item.group.binding.value}
-                                        item={item}
-                                        resolveResponsible={resolveResponsible}
-                                        resolveStatus={resolveStatus}
+                        {view.effectiveMode === EHistoryViewMode.ENTITY ? (
+                            view.entityGroups.map(item => (
+                                <HistoryGroupSection
+                                    key={item.group.binding.value}
+                                    item={item}
+                                    resolveResponsible={resolveResponsible}
+                                    resolveStatus={resolveStatus}
+                                />
+                            ))
+                        ) : (
+                            <ul className="space-y-2">
+                                {view.dateRecords.map(record => (
+                                    <HistoryRecordRow
+                                        key={record.id}
+                                        record={record}
+                                        responsible={resolveResponsible(
+                                            record.responsibleId,
+                                        )}
+                                        status={resolveStatus(record)}
                                     />
-                                ))
-                            ) : (
-                                <ul className="space-y-2">
-                                    {view.dateRecords.map(record => (
-                                        <HistoryRecordRow
-                                            key={record.id}
-                                            record={record}
-                                            responsible={resolveResponsible(
-                                                record.responsibleId,
-                                            )}
-                                            status={resolveStatus(record)}
-                                        />
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-                    </SectionState>
-                )}
-            </CardContent>
-        </Card>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                </SectionState>
+            )}
+        </SectionCard>
     );
 };
 

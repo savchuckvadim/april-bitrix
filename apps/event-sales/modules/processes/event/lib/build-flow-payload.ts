@@ -19,6 +19,7 @@ import {
     selectCheckPresentationComment,
     selectIsCheckPresentationApplicable,
 } from '@/modules/features/AfterPresentation';
+import { inheritsLeadLink } from '@/modules/features/TaskLeadLinks/lib/task-lead-links';
 import { EvFlowDto } from '../model';
 
 /**
@@ -73,13 +74,18 @@ export const buildFlowPayload = (
     const sale = state.eventSale;
     const resultStatus = state.eventItemMenu.type;
 
-    // итоговый комментарий: хвост опросника (если применим) + комментарий пользователя
+    // Итоговый комментарий: СНАЧАЛА слова менеджера, потом блоки опросника.
+    // Хвост первым прятал комментарий в самый низ («…СПС?: 123» и следом
+    // сиротой «123»), а запись истории начинается с «Звонок совершён: …» —
+    // первой строкой там должен быть живой комментарий, не заголовок блока.
     const tailComment = selectIsCheckPresentationApplicable(state)
         ? selectCheckPresentationComment(state)
         : '';
     const userComment = reportState.report[EV_REPORT_PROP.COMMENT];
     const description = tailComment
-        ? `${tailComment}\n${userComment}`
+        ? userComment
+            ? `${userComment}\n\n${tailComment}`
+            : tailComment
         : userComment;
 
     const report = {
@@ -110,9 +116,12 @@ export const buildFlowPayload = (
         ) &&
         (workStatusCode === 'inJob' || workStatusCode === 'setAside');
 
-    // Новая задача без текущей: отмеченные менеджером заявки → L_* задачи.
+    // Отмеченные менеджером заявки → L_* новой задачи. Шлём ровно тогда,
+    // когда наследовать нечего (см. inheritsLeadLink): текущей задачи нет
+    // ИЛИ у неё самой лид не указан — иначе цепочка теряла бы заявку.
     const relatedLeadIds =
-        !state.eventTask.current && state.taskLeadLinks.selectedIds.length
+        !inheritsLeadLink(state.eventTask.current) &&
+        state.taskLeadLinks.selectedIds.length
             ? state.taskLeadLinks.selectedIds
             : undefined;
 

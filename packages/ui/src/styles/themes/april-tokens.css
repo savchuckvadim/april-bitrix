@@ -81,6 +81,14 @@
     --event-pres-foreground: oklch(0.45 0.09 84);     /* охра */
     --event-hot: oklch(0.65 0.2 38);                  /* решение (hot) — оранжево-красный */
     --event-hot-foreground: oklch(0.985 0 0);
+    /*
+     * Доработка (refine) — янтарь/шафран: честная середина по тону между
+     * кислотным лаймом презентации (hue 104) и оранжевым решения (hue 38).
+     * ⚠ Близок к --event-gold (hue 85, «Обращение» event-service) — принятое
+     * решение владельца: приложения разные, в общих лентах не встречаются.
+     */
+    --event-refine: oklch(0.8 0.16 80);
+    --event-refine-foreground: oklch(0.216 0.006 56.04);
     --event-money: oklch(0.606 0.219 292.717);        /* оплата — фиолетовый */
     --event-money-foreground: oklch(0.985 0 0);
     /*
@@ -136,6 +144,9 @@
     --deal-stage-pres-foreground: oklch(0.216 0.006 56.04);
     --deal-stage-docs: oklch(0.606 0.219 292.717);
     --deal-stage-docs-foreground: oklch(0.985 0 0);
+    /* refine — «Доработка»: тот же янтарь, что у типа события. */
+    --deal-stage-refine: oklch(0.8 0.16 80);
+    --deal-stage-refine-foreground: oklch(0.216 0.006 56.04);
     --deal-stage-decision: oklch(0.62 0.24 30);
     --deal-stage-decision-foreground: oklch(0.985 0 0);
     --deal-stage-payment: oklch(0.55 0.24 345);
@@ -180,6 +191,7 @@
     --event-pres: oklch(0.87 0.17 104);
     --event-pres-foreground: oklch(0.36 0.08 84);
     --event-hot: oklch(0.72 0.17 38);
+    --event-refine: oklch(0.82 0.14 80);
     --event-money: oklch(0.673 0.18 292.717);
     --event-lead: oklch(0.7 0.2 350);
     --event-ss: oklch(0.75 0.11 215.2);
@@ -200,6 +212,7 @@
     --deal-stage-pres: oklch(0.85 0.14 92);
     --deal-stage-pres-foreground: oklch(0.216 0.006 56.04);
     --deal-stage-docs: oklch(0.673 0.18 292.717);
+    --deal-stage-refine: oklch(0.82 0.14 80);
     --deal-stage-decision: oklch(0.68 0.2 32);
     --deal-stage-payment: oklch(0.62 0.2 345);
     --deal-stage-supply: oklch(0.6 0.16 255);
@@ -223,12 +236,20 @@
     --event-current: var(--event-hot);
     --event-current-foreground: var(--event-hot-foreground);
 }
+[data-event-type='refine'] {
+    --event-current: var(--event-refine);
+    --event-current-foreground: var(--event-refine-foreground);
+}
 [data-event-type='moneyAwait'] {
     --event-current: var(--event-money);
     --event-current-foreground: var(--event-money-foreground);
 }
-/* Холодный с заявкой — «особый» тип, цвет предварительный. */
-[data-event-type='lead'] {
+/* Холодный с заявкой — «особый» тип, цвет предварительный.
+   xoRequest/xoLead — те же «заявочные» холодные: без алиасов они молча
+   оставались зелёными warm. */
+[data-event-type='lead'],
+[data-event-type='xoRequest'],
+[data-event-type='xoLead'] {
     --event-current: var(--event-lead);
     --event-current-foreground: var(--event-lead-foreground);
 }

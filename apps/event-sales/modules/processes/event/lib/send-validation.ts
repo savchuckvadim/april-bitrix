@@ -92,10 +92,18 @@ export const validateSend = (state: RootState): SendValidationResult => {
 /** Текст финиша по типу запланированного события. */
 const PLANNED_FINISH_TEXT: Partial<Record<EV_PLAN_CODE, string>> = {
     [EV_PLAN_CODE.PRESENTATION]: 'Презентация запланирована',
+    [EV_PLAN_CODE.REFINE]: 'Доработка запланирована',
     [EV_PLAN_CODE.HOT]: 'Решение запланировано',
 };
 
 export const getPlannedFinishText = (state: RootState): string => {
+    // Перенос — не «запланировано заново»: то же дело уехало на другой срок,
+    // и финиш обязан сказать именно это (см. usePlanReschedule).
+    const isReschedule =
+        state.eventItemMenu.type === EventItemResultType.NORESULT &&
+        Boolean(state.eventTask.current);
+    if (isReschedule) return 'Событие перенесено';
+
     const code = state.eventPlan[EV_PLAN_PROP.TYPE].current?.code;
     return (code && PLANNED_FINISH_TEXT[code]) || 'Звонок запланирован';
 };

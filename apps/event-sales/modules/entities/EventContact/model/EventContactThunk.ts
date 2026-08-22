@@ -13,12 +13,17 @@ import {
 } from '../lib/contact-sources';
 import { EV_CONTACT_PROP, EV_CONTACT_TYPE } from '../type/event-contact-type';
 import { PBXContactStateItem } from '../type/pbx-contact-type';
-import { chunkArray, validateInput } from '../util/contact-util';
+import {
+    chunkArray,
+    normalizePhone,
+    validateInput,
+} from '../util/contact-util';
 import {
     getContactsRequestSelect,
     getPbxContactByContact,
 } from '../util/pbx-contact-util';
 import { getCrmLinksFromRaw } from '@/modules/entities/EventTask/lib/task-links';
+import { reportFrontError } from '@/modules/shared/front-error';
 import {
     emptyErrors,
     eventActions,
@@ -233,7 +238,13 @@ export const saveCreatedContact =
 
         const state = getState();
         const portal = state.portal.portal as Portal;
-        const creatingContact = state.contact.creating.contact;
+        // Края обрезаем ПЕРЕД сохранением, а не на вводе: скопированные из
+        // письма имя и почта приходят с пробелами, но обрезать на каждом
+        // нажатии значит не давать поставить пробел между именем и фамилией.
+        const raw = state.contact.creating.contact;
+        const creatingContact = Object.fromEntries(
+            Object.entries(raw).map(([key, value]) => [key, value.trim()]),
+        ) as typeof raw;
 
         const resultErrors: SetErrorsPayload = {
             isError: false,
@@ -268,30 +279,38 @@ export const saveCreatedContact =
         if (resultErrors.isError) {
             dispatch(eventActions.setErrors(resultErrors));
         } else {
-            const currentCompanyId = state.app.bitrix.company?.ID;
-            // TODO(Фаза 5): ответственный — из department PLAN responsible
-            const currentUserId = state.app.bitrix.user?.ID;
+            dispatch(eventContactActions.setCreatingStage({ stage: 'saving' }));
+            try {
+                const currentCompanyId = state.app.bitrix.company?.ID;
+                // TODO(Фаза 5): ответственный — из department PLAN responsible
+                const currentUserId = state.app.bitrix.user?.ID;
 
-            const fields = {
-                ...creatingContact,
-                PHONE: [{ VALUE: creatingContact.PHONE }],
-                // Пустую почту не отправляем вовсе: Битрикс запишет пустое
-                // мультиполе, и потом непонятно, есть она или нет.
-                ...(creatingContact.EMAIL
-                    ? { EMAIL: [{ VALUE: creatingContact.EMAIL }] }
-                    : { EMAIL: undefined }),
-                ASSIGNED_BY_ID: currentUserId,
-                COMPANY_ID: currentCompanyId,
-            };
+                const fields = {
+                    ...creatingContact,
+                    // В портал уходит нормализованный номер: набранный «как в
+                    // плейсхолдере» он не совпал бы с номером того же человека
+                    // из другого источника, и дубли не нашлись бы.
+                    PHONE: [{ VALUE: normalizePhone(creatingContact.PHONE) }],
+                    // Пустую почту не отправляем вовсе: Битрикс запишет пустое
+                    // мультиполе, и потом непонятно, есть она или нет.
+                    ...(creatingContact.EMAIL
+                        ? { EMAIL: [{ VALUE: creatingContact.EMAIL }] }
+                        : { EMAIL: undefined }),
+                    ASSIGNED_BY_ID: currentUserId,
+                    COMPANY_ID: currentCompanyId,
+                };
 
-            const bitrix = Bitrix.getService();
-            const contactId = (await bitrix.contact.set(fields as never))
-                ?.result;
-            const contact = (await bitrix.contact.get(Number(contactId)))
-                ?.result as unknown as BXContact;
+                const bitrix = Bitrix.getService();
+                const contactId = (await bitrix.contact.set(fields as never))
+                    ?.result;
+                const contact = (await bitrix.contact.get(Number(contactId)))
+                    ?.result as unknown as BXContact;
 
-            const pbxContact = getPbxContactByContact(portal, contact);
-            if (contactId && pbxContact) {
+                if (!contactId || !contact) {
+                    throw new Error('Портал не вернул созданный контакт');
+                }
+
+                const pbxContact = getPbxContactByContact(portal, contact);
                 dispatch(
                     eventContactActions.setCreatedContact({
                         contact: pbxContact,
@@ -301,14 +320,34 @@ export const saveCreatedContact =
                 // Компания проставилась при создании; сделке и лиду связь
                 // нужно завести отдельно — иначе контакт повиснет ничей.
                 await dispatch(bindContactToCurrentEntity(Number(contactId)));
-            }
 
-            dispatch(
-                eventContactActions.setCreatingContact({
-                    isCreating: false,
-                    type: null,
-                }),
-            );
+                // Окно НЕ закрываем: оно превращается в правку созданного —
+                // характеристики и детали дозаполняются тут же.
+                dispatch(
+                    eventContactActions.setCreatingStage({
+                        stage: 'created',
+                        createdContactId: Number(contactId),
+                    }),
+                );
+            } catch (error) {
+                const message =
+                    error instanceof Error ? error.message : String(error);
+                dispatch(
+                    eventContactActions.setCreatingStage({
+                        stage: 'form',
+                        error: 'Не удалось создать контакт — попробуйте ещё раз',
+                    }),
+                );
+                // Тревога: упавшее создание контакта — потерянная работа
+                // менеджера, о ней должен узнать человек, а не только лог.
+                reportFrontError({
+                    place: 'contact.create',
+                    message,
+                    domain: state.app.domain,
+                    userId: state.app.bitrix.user?.ID,
+                    withTg: true,
+                });
+            }
         }
 
         dispatch(eventContactActions.setCreatingFetching({ status: false }));
@@ -325,5 +364,114 @@ export const setUpdatingContactStatus =
                     status,
                 }),
             );
+        }
+    };
+
+/**
+ * Правка базовых полей созданного контакта (ФИО, телефон, почта, должность).
+ *
+ * Пессимистично: сначала портал, потом стейт — здесь правят данные человека,
+ * и показать «сохранено» раньше ответа значило бы врать. Ошибка возвращается
+ * текстом в окно и уходит тревогой: правка контакта — работа менеджера,
+ * терять её молча нельзя.
+ */
+export const updateContactBaseFields =
+    (contactId: number, fields: Partial<Record<EV_CONTACT_PROP, string>>) =>
+    async (
+        dispatch: AppDispatch,
+        getState: AppGetState,
+    ): Promise<string | null> => {
+        const state = getState();
+        const payload: Record<string, unknown> = {};
+        /** Что реально ушло на портал — только это меняем и в сторе. */
+        const sentProps = new Set<EV_CONTACT_PROP>();
+
+        const contact = state.contact.contacts.find(
+            item => Number(item.ID) === contactId,
+        );
+
+        // Мультиполя Битрикса (PHONE/EMAIL): значение БЕЗ ID существующей
+        // записи не заменяет её, а ДОБАВЛЯЕТ ещё одну — в CRM копились
+        // дубли телефонов, пока стор показывал «заменили». Замена/очистка
+        // требует ID записи (VALUE: '' с ID — удаление).
+        const multiFieldUpdate = (
+            raw: unknown,
+            value: string,
+        ): Array<Record<string, string>> | null => {
+            const existing = Array.isArray(raw)
+                ? (raw[0] as { ID?: string; VALUE?: string } | undefined)
+                : undefined;
+            if (existing?.ID) {
+                if ((existing.VALUE ?? '') === value) return null; // не изменилось
+                return [{ ID: String(existing.ID), VALUE: value }];
+            }
+            return value ? [{ VALUE: value }] : null;
+        };
+
+        const name = fields[EV_CONTACT_PROP.NAME]?.trim();
+        if (name !== undefined) {
+            payload.NAME = name;
+            sentProps.add(EV_CONTACT_PROP.NAME);
+        }
+        const post = fields[EV_CONTACT_PROP.POST]?.trim();
+        if (post !== undefined) {
+            payload.POST = post;
+            sentProps.add(EV_CONTACT_PROP.POST);
+        }
+        const phone = fields[EV_CONTACT_PROP.PHONE]?.trim();
+        if (phone !== undefined) {
+            const rows = multiFieldUpdate(contact?.PHONE, phone);
+            if (rows) {
+                payload.PHONE = rows;
+                sentProps.add(EV_CONTACT_PROP.PHONE);
+            }
+        }
+        const email = fields[EV_CONTACT_PROP.EMAIL]?.trim();
+        if (email !== undefined) {
+            const rows = multiFieldUpdate(contact?.EMAIL, email);
+            if (rows) {
+                payload.EMAIL = rows;
+                sentProps.add(EV_CONTACT_PROP.EMAIL);
+            }
+        }
+
+        if (!Object.keys(payload).length) return null;
+
+        try {
+            const response = await Bitrix.getService().contact.update(
+                contactId,
+                payload as never,
+            );
+            if (!response?.result) {
+                throw new Error('crm.contact.update вернул отказ');
+            }
+
+            // Стейт меняем ТОЛЬКО для того, что реально записалось: иначе
+            // стор расходился с CRM (стёртая почта пропадала на экране,
+            // но оставалась на портале).
+            for (const [prop, value] of Object.entries(fields)) {
+                if (value === undefined) continue;
+                if (!sentProps.has(prop as EV_CONTACT_PROP)) continue;
+                dispatch(
+                    eventContactActions.setContactBaseField({
+                        contactId,
+                        prop: prop as EV_CONTACT_PROP,
+                        value: value.trim(),
+                    }),
+                );
+            }
+            return null;
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : String(error);
+            reportFrontError({
+                place: 'contact.update',
+                message,
+                domain: state.app.domain,
+                userId: state.app.bitrix.user?.ID,
+                withTg: true,
+                context: { contactId, fields: Object.keys(fields) },
+            });
+            return 'Не сохранилось — проверьте данные и попробуйте ещё раз';
         }
     };

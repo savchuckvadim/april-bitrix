@@ -1,21 +1,19 @@
 'use client';
 
-import { useAppDispatch, useAppSelector } from '../lib/hooks/redux';
-import { initial } from '../model/thunk/AppThunk';
 import { useEffect, useState } from 'react';
-
-import { ErrorBoundary } from '../providers/ErrorBoundary';
-import { logClient } from '../lib/helper/logClient';
+import { cn } from '@workspace/ui/lib/utils';
 import { BootPreloaderGate } from '@workspace/april-ui/feedback';
-import { APP_TITLE } from '../consts/app';
+import { EntityHeader } from '@/modules/widgets/EntityBar';
 
 import { useApp } from '../lib/hooks/app';
+import { useUiDensity } from '../lib/hooks/use-ui-density';
 import { store } from '../model/store';
-// import { Preloader } from "@workspace/ui";
-//@ts-ignore
 
 export const App = ({ children }: { children: React.ReactNode }) => {
     const { initialized, isLoading, isClient } = useApp();
+    // В самоподгоняемых встройках (DETAIL_TAB/TASK) экран течёт по контенту —
+    // каркас не нужен; в остальных он держит общую шапку над скроллом.
+    const { isSelfSized } = useUiDensity();
 
     const [isMounted, setIsMounted] = useState(false);
 
@@ -40,11 +38,27 @@ export const App = ({ children }: { children: React.ReactNode }) => {
      * Он же ждёт данные: гасим его не по факту гидратации, а по готовности
      * приложения. Раньше здесь стоял собственный LoadingScreen с другим
      * знаком (/logo/logo.svg), и на стыке было видно подмену прелоадера.
+     *
+     * Общая клиентская шапка (EntityHeader) стоит НАД роут-слотом: переходы
+     * список ↔ дело меняют только содержимое ниже, шапка не пересоздаётся.
+     * В не-самоподгоняемых встройках каркас flex h-svh: шапка закреплена,
+     * скроллится только контент под ней (страничного скролла нет).
      */
     return (
-        <div className="h-calc(100vh - 300px)">
+        <div className={cn(!isSelfSized && 'flex h-svh flex-col')}>
             <BootPreloaderGate ready={isReady} />
-            {isReady ? children : null}
+            {isReady ? (
+                <>
+                    <EntityHeader />
+                    <div
+                        className={cn(
+                            !isSelfSized && 'min-h-0 flex-1 overflow-y-auto',
+                        )}
+                    >
+                        {children}
+                    </div>
+                </>
+            ) : null}
         </div>
     );
 };

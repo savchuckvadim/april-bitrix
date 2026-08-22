@@ -21,6 +21,8 @@ export interface MicroSelectProps {
     placeholder?: string;
     ariaLabel: string;
     invalid?: boolean;
+    /** Пока идёт сохранение — выбор заблокирован. */
+    disabled?: boolean;
     className?: string;
 }
 
@@ -38,9 +40,10 @@ export const MicroSelect = ({
     placeholder,
     ariaLabel,
     invalid,
+    disabled,
     className,
 }: MicroSelectProps) => (
-    <Select value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger
             size="sm"
             aria-label={ariaLabel}

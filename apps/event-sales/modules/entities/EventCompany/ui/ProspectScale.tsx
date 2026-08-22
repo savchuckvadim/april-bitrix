@@ -2,6 +2,7 @@
 
 import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
+import { LiquidChoiceBar, StepChoiceBar } from '@workspace/april-ui';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { setCurrentColor } from '../model/EventCompanyThunk';
 import {
@@ -10,24 +11,46 @@ import {
 } from '../utils/event-company-util';
 
 /**
- * Прогноз по компании — шкала из трёх делений.
+ * Прогноз по компании — кликабельная шкала из трёх ступеней.
  *
- * Раньше это была кнопка во всю ширину, циклившая red→yellow→green: значений
- * не видно, а чтобы вернуться на шаг назад, нужно было пройти круг. Теперь
- * деления кликабельны напрямую — один тап до любого значения, и видно, что
- * шкала ровно из трёх ступеней. Непрерывный градиент здесь был бы красивее, но
- * обещал бы плавность, которой у поля нет.
+ * По умолчанию лёгкий вариант (StepChoiceBar): цвет ОДИН — текущего значения,
+ * им закрашены ступени до него. Переливающаяся полоса всего спектра сразу
+ * (LiquidChoiceBar, вариант `liquid`) заметна, но в плотной шапке перетягивала
+ * внимание на себя — работа рядом выглядела тише прогноза.
  *
- * Цвета берём из тонов монорепы, а не из названий значений: `red/yellow/green`
- * — это коды портального поля, а не палитра.
+ * Цвета ступеней — токены темы, а не названия значений: `red/yellow/green` —
+ * коды портального поля, не палитра.
  */
-export const ProspectScale: FC<{ compact?: boolean }> = ({ compact }) => {
+const SEGMENT_COLOR: Record<CompanyColorType, string> = {
+    red: 'var(--destructive)',
+    yellow: 'var(--warning)',
+    green: 'var(--success)',
+};
+
+interface ProspectScaleProps {
+    compact?: boolean;
+    /** `flat` — ступени одним цветом; `liquid` — прежняя градиентная полоса. */
+    variant?: 'flat' | 'liquid';
+}
+
+export const ProspectScale: FC<ProspectScaleProps> = ({
+    compact,
+    variant = 'flat',
+}) => {
     const dispatch = useAppDispatch();
     const color = useAppSelector(s => s.company.color);
 
     if (!color.field) return null;
 
     const current = color.current?.code as CompanyColorType | undefined;
+
+    const steps = PROSPECT_SCALE.map(step => ({
+        code: step.code,
+        label: step.name,
+        color: SEGMENT_COLOR[step.code],
+    }));
+    const select = (code: string) =>
+        dispatch(setCurrentColor(code as CompanyColorType));
 
     return (
         <div
@@ -36,38 +59,30 @@ export const ProspectScale: FC<{ compact?: boolean }> = ({ compact }) => {
                 compact ? 'gap-1' : 'gap-2',
             )}
         >
-            <span
-                className="flex shrink-0 items-center gap-0.5"
-                role="radiogroup"
-                aria-label="Прогноз по компании"
-            >
-                {PROSPECT_SCALE.map(step => {
-                    const isCurrent = step.code === current;
-                    return (
-                        <button
-                            key={step.code}
-                            type="button"
-                            role="radio"
-                            aria-checked={isCurrent}
-                            aria-label={step.name}
-                            title={step.name}
-                            disabled={color.isLoading}
-                            onClick={() => dispatch(setCurrentColor(step.code))}
-                            className={cn(
-                                'h-2.5 w-7 rounded-[2px] transition-[height,opacity]',
-                                'disabled:opacity-50',
-                                isCurrent
-                                    ? step.activeClass
-                                    : 'bg-muted hover:bg-muted-foreground/30',
-                                isCurrent && 'h-3.5',
-                            )}
-                        />
-                    );
-                })}
-            </span>
+            {variant === 'liquid' ? (
+                <LiquidChoiceBar
+                    className={compact ? 'w-24 shrink-0' : 'w-36 shrink-0'}
+                    size="sm"
+                    segments={steps}
+                    value={current ?? null}
+                    disabled={color.isLoading}
+                    onSelect={select}
+                    ariaLabel="Прогноз по компании"
+                />
+            ) : (
+                <StepChoiceBar
+                    className={compact ? 'w-20 shrink-0' : 'w-28 shrink-0'}
+                    size={compact ? 'sm' : 'md'}
+                    steps={steps}
+                    value={current ?? null}
+                    disabled={color.isLoading}
+                    onSelect={select}
+                    ariaLabel="Прогноз по компании"
+                />
+            )}
 
             {/* В компактной шапке подпись съедала бы ширину — значение
-                видно по наведению на деления (title). */}
+                видно по наведению (liquid-бэйдж и title зон). */}
             {!compact && (
                 <span
                     className={cn(

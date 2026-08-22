@@ -13,6 +13,8 @@ import { getEventTypeLabel } from '@/modules/entities/EventTask/lib/event-reques
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { getEventTypeAttr } from '@/modules/entities/EventTask/lib/event-type-token';
 import { getTaskSummary } from '@/modules/entities/EventTask/lib/task-util';
+import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
+import { TaskContactChip } from '@/modules/entities/EventContact';
 import {
     RelationDealBars,
     RelationMini,
@@ -96,6 +98,11 @@ export const EventCard: FC<EventCardProps> = ({
                 <p className="text-base font-medium leading-snug">
                     {task.name}
                 </p>
+                {/* С кем разговор: контакт из привязок задачи, ссылка в CRM. */}
+                <TaskContactChip
+                    contactIds={getTaskLinks(task).contactIds}
+                    className="mt-0.5"
+                />
                 {relation && (
                     <RelationMini
                         deals={boundDeals}
@@ -109,7 +116,9 @@ export const EventCard: FC<EventCardProps> = ({
                 <CardContent className="flex items-start gap-3 px-4">
                     {(comment || showSummary) && (
                         <div className="flex min-w-0 flex-1 flex-col gap-2">
-                            {comment && <FogText text={comment} spacious={spacious} />}
+                            {comment && (
+                                <FogText text={comment} spacious={spacious} />
+                            )}
                             {showSummary && (
                                 <FogText text={summary} spacious={spacious} />
                             )}

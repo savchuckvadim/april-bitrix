@@ -3,10 +3,12 @@
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { cancelResultMenu } from '@/modules/widgets/EventItem';
 import { initialEventApp } from '../model/EventThunk';
 import { useEventNavigation } from '../lib/use-event-navigation';
 import { useFitWindow } from '../lib/hooks/use-fit-window';
 import { EVENT_ROUTE_PATH } from '../lib/event-routes';
+import { shouldResetItemForm } from '../lib/should-reset-item-form';
 import { ROUTE_EVENT } from '../types/event-types';
 
 /**
@@ -21,6 +23,7 @@ export const EventProcessInit = () => {
 
     const initialized = useAppSelector(s => s.app.initialized);
     const isFinish = useAppSelector(s => s.event.isFinish);
+    const isMenuActive = useAppSelector(s => s.eventItemMenu.isActive);
 
     // Подгонка высоты фрейма на каждой странице — только для вкладок карточки.
     useFitWindow();
@@ -38,6 +41,17 @@ export const EventProcessInit = () => {
             nav.toFinish();
         }
     }, [isFinish, pathname]);
+
+    // Форма отчёта сбрасывается после ухода с дела — правило и почему именно
+    // переход, а не «мы на списке», см. shouldResetItemForm.
+    const prevPathname = useRef(pathname);
+    useEffect(() => {
+        const from = prevPathname.current;
+        prevPathname.current = pathname;
+        if (shouldResetItemForm({ from, to: pathname, isMenuActive })) {
+            dispatch(cancelResultMenu());
+        }
+    }, [pathname, isMenuActive]);
 
     return null;
 };

@@ -23,6 +23,10 @@ export const getEvTasksFromBxTasks = (
             eventType,
             isExpired,
             deadline,
+            // Человекочитаемый deadline перетирает сырой ISO, а он нужен
+            // переносу: план встаёт на дату текущей задачи, а разбирать
+            // обратно «20 августа 2026 10:00» — гиблое дело.
+            deadlineRaw: task.deadline ?? null,
             eventComment: getTaskEventComment(task),
             presentation: null,
             dealBase: null,
@@ -57,6 +61,7 @@ export const parseTaskTitle = (title: string) => {
         'Холодный обзвон',
         'Звонок',
         'Презентация',
+        'Доработка',
         'Решение',
         'Звонок по решению',
         'Оплата',
@@ -84,6 +89,12 @@ export const parseTaskTitle = (title: string) => {
             eventType = 'xo';
             type = EV_TYPE.XO;
         }
+    } else if (/^[^\p{L}]*Доработка/u.test(name)) {
+        // ДО ветки «Звонок» и строго ПЕРВЫМ словом (после эмодзи-префикса
+        // «🔧 »): includes ловил бы «Доработка» в свободном тексте плана —
+        // «Звонок  Доработка сметы» уезжал бы в refine вместо warm.
+        type = EV_TYPE.REFINE;
+        eventType = 'refine';
     } else if (name.includes('Звонок') && !name.includes('Звонок по')) {
         eventType = 'warm';
     } else if (name.includes('Презентация')) {

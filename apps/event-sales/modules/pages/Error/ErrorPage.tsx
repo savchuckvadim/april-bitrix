@@ -21,6 +21,11 @@ export const ErrorPage = ({ error, resetError }: ErrorPageProps) => {
      * в next/link, router и next/image. Голый location.href про префикс не
      * знает: раньше кнопка уводила в корень домена, то есть в соседнее
      * приложение — kpi-sales. Префикс приходит из next.config через env.
+     *
+     * location.href вместо router — осознанно: после фатальной ошибки React
+     * доверять живости роутера нельзя, нужен полный перезапуск приложения.
+     * Навигация остаётся ВНУТРИ текущего фрейма — правило «не открывать
+     * приложение вне фрейма» не нарушается.
      */
     const homeHref = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/`;
 

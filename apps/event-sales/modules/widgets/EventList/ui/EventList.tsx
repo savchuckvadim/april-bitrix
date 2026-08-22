@@ -1,5 +1,7 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+
 import { FC } from 'react';
 import {
     Table,
@@ -28,7 +30,6 @@ import { NoCallMenu } from '@/modules/features/NoCall';
 import { ReturnToTMCMenu } from '@/modules/features/ReturnToTMC';
 import { getEventListView } from '../lib/list-view';
 import { EventCard } from './EventCard';
-import { EventListHeader } from './EventListHeader';
 import { FlowStatusBanner } from './FlowStatusBanner';
 import { EventListRow } from './EventListRow';
 
@@ -36,6 +37,16 @@ import { EventListRow } from './EventListRow';
  * Список событий (задач обзвона) с действиями по строке.
  * Паттерн навигации: thunk меняет состояние → UI зовёт nav.toItem().
  */
+// «Все контакты» и в списке: до открытия дела видно, как дозвониться.
+// Свёрнут, связи грузит по раскрытию — списку в бандле не мешает.
+const ContactsHubCard = dynamic(
+    () =>
+        import('@/modules/features/ContactsHub/ui/ContactsHubCard').then(
+            module => module.ContactsHubCard,
+        ),
+    { ssr: false },
+);
+
 export const EventList: FC = () => {
     const dispatch = useAppDispatch();
     const nav = useEventNavigation();
@@ -47,9 +58,9 @@ export const EventList: FC = () => {
 
     const view = getEventListView(tasks?.length ?? 0);
 
-    // Связи нужны только карточкам: в таблице миниатюр нет, и запрос там был бы
-    // потрачен впустую.
-    const { details } = useCurrentRelations(view === 'cards');
+    // Связи уже в сторе (их грузит листенер для шапки-layout) — здесь только
+    // чтение для миниатюр карточек.
+    const { details } = useCurrentRelations();
 
     const selectEvent = async (
         status: EventItemResultType,
@@ -65,7 +76,8 @@ export const EventList: FC = () => {
             <ActionPromptCard />
             <NoCallMenu />
             <ReturnToTMCMenu />
-            <EventListHeader />
+            {/* Действия списка (обновить, создать, статистика, темы) — в
+                правом верхнем углу общей шапки; своей строки у списка нет. */}
             <FlowStatusBanner />
 
             <SectionState
@@ -89,6 +101,10 @@ export const EventList: FC = () => {
                                             Object.values(boundDealsById),
                                         dealIds: links.dealIds,
                                         leadIds: links.leadIds,
+                                        // Градиент основной живёт в общей
+                                        // шапке — в карточках он дублировал бы
+                                        // её и съедал лимит полосок.
+                                        withMainDeal: false,
                                     })}
                                     onSelect={selectEvent}
                                 />
@@ -124,6 +140,8 @@ export const EventList: FC = () => {
                     </div>
                 )}
             </SectionState>
+
+            <ContactsHubCard />
         </div>
     );
 };

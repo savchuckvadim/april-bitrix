@@ -14,6 +14,11 @@ import {
 
 interface ContactTraitsStripProps {
     fields: PBXContactFieldData[];
+    /**
+     * `column` — полоски этажами, по одной в строке. Нужен в узких местах:
+     * в ряд три шкалы по 25px превращаются в нечитаемые чёрточки.
+     */
+    direction?: 'row' | 'column';
     /** Клик по миниатюре — раскрыть карточку контакта целиком. */
     onOpen?: () => void;
     className?: string;
@@ -37,6 +42,7 @@ const DIRECTION_NOTE: Record<string, string | null> = {
  */
 export const ContactTraitsStrip: FC<ContactTraitsStripProps> = ({
     fields,
+    direction = 'row',
     onOpen,
     className,
 }) => {
@@ -44,7 +50,13 @@ export const ContactTraitsStrip: FC<ContactTraitsStripProps> = ({
 
     return (
         <div
-            className={cn('flex min-w-0 items-center gap-1', className)}
+            className={cn(
+                'flex min-w-0 gap-1',
+                direction === 'column'
+                    ? 'flex-col items-stretch gap-0.5'
+                    : 'items-center',
+                className,
+            )}
             onClick={onOpen}
         >
             {fields.map(field => {
@@ -56,7 +68,8 @@ export const ContactTraitsStrip: FC<ContactTraitsStripProps> = ({
                     <GradientScale
                         key={field.bitrixId}
                         className={cn(
-                            'min-w-0 flex-1 py-0.5',
+                            'min-w-0 py-0.5',
+                            direction === 'row' && 'flex-1',
                             onOpen && 'cursor-pointer',
                         )}
                         labels={field.items.map(item => item.name)}

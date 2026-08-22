@@ -1,5 +1,6 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
+import { reportFrontError } from '@/modules/shared/front-error';
 import { eventContactActions } from '@/modules/entities/EventContact';
 import {
     PBX_FIELD_TYPE,
@@ -78,6 +79,14 @@ export const setPbxContactField =
             }
         } catch (error) {
             console.error('setPbxContactField error', fieldCode, error);
+            reportFrontError({
+                place: 'contact.update',
+                message: error instanceof Error ? error.message : String(error),
+                domain: getState().app.domain,
+                userId: getState().app.bitrix.user?.ID,
+                withTg: true,
+                context: { contactId, fieldCode },
+            });
             dispatch(
                 eventContactActions.setContactFieldCurrent({
                     contactId,

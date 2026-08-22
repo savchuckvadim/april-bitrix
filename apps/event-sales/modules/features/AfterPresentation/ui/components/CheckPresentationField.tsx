@@ -12,6 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import { getDisplayTitle } from '../../lib/check-presentation.groups';
 import {
     CheckPresentationFieldType,
     CheckPresentationItem,
@@ -35,7 +36,9 @@ export const CheckPresentationField: FC<CheckPresentationFieldProps> = ({
     return (
         <div className="space-y-1.5">
             <Label className={isMissing ? 'text-destructive' : undefined}>
-                {item.title}
+                {/* У 5К префикс «КЛИЕНТ:» срезан — категорию несёт
+                    полоса-разделитель группы; в данных title полный. */}
+                {getDisplayTitle(item)}
                 {item.required && ' *'}
             </Label>
 

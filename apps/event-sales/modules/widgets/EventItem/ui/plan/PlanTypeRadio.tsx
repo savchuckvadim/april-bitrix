@@ -31,8 +31,11 @@ export const PlanTypeRadio: FC<PlanTypeRadioProps> = ({
 }) => (
     <div className="space-y-1.5">
         <Label className="text-xs font-semibold">Тип события</Label>
+        {/* value НИКОГДА не undefined: с ним Radix начинает жизнь
+            неуправляемым и ругается «changing from uncontrolled to
+            controlled», как только тип проставится (предвыбор, перенос). */}
         <RadioGroup
-            value={value}
+            value={value ?? ''}
             onValueChange={onChange}
             className="space-y-1"
         >

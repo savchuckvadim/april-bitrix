@@ -18,6 +18,7 @@ export type EventTaskEventType =
     | 'xoLead'
     | 'warm'
     | 'presentation'
+    | 'refine'
     | 'hot'
     | 'moneyAwait'
     | 'supply'
@@ -28,6 +29,13 @@ export interface EventTask extends BXTask {
     type: EV_TYPE;
     isExpired: 'no' | 'almost' | 'yes';
     eventType: EventTaskEventType;
+
+    /**
+     * Дедлайн как его отдал портал (ISO). Поле `deadline` человекочитаемое —
+     * его показывают, а считают по этому: план переноса встаёт на дату
+     * текущей задачи.
+     */
+    deadlineRaw: string | null;
 
     /** Комментарий планирования (pbx-поле UF_TASK_EVENT_COMMENT), null — не заполнен. */
     eventComment: string | null;
@@ -43,6 +51,7 @@ export enum EV_TYPE {
     REQUEST = 'Заявка',
     WARM = 'Звонок',
     PRES = 'Презентация',
+    REFINE = 'Доработка',
     HOT = 'Решение',
     MONEY = 'Оплата',
     SS = 'Сервисный сигнал',

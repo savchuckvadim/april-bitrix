@@ -9,15 +9,18 @@ import { Switch } from '@workspace/ui/components/switch';
 import { Label } from '@workspace/ui/components/label';
 import { Input } from '@workspace/ui/components/input';
 import { DateTimePicker } from '@workspace/ui/components/date-time-picker';
+import { Button } from '@workspace/ui/components/button';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
     EV_PLAN_PROP,
     changeWorkStatusFromDeadline,
     eventPlanActions,
 } from '@/modules/entities/EventPlan';
+import { getCanSkipPlan } from '@/modules/entities/EventPlan/lib/plan-skip';
 import { fetchPlanDaySchedule } from '@/modules/entities/EventPlan/model/PlanScheduleThunk';
 import type { EventTaskEventType } from '@/modules/entities/EventTask/types/event-task-type';
 
+import { usePlanReschedule } from '../../lib/hooks/use-plan-reschedule';
 import { PlanContactRow } from './PlanContactRow';
 import { TaskLeadLinksCard } from '@/modules/features/TaskLeadLinks/ui/TaskLeadLinksCard';
 import { PlanTypeRadio } from './PlanTypeRadio';
@@ -30,17 +33,26 @@ interface PlanColumnProps {
 }
 
 /**
- * Правая колонка — «Планируем».
+ * Правая колонка — «Планируем», а при «Не очень» — «Переносим».
  *
  * Живёт в цвете ПЛАНИРУЕМОГО события (свой data-event-type), а не отчётного:
  * менеджер видит, что отчитывается об одном, а назначает другое. Узкая и
  * плотная — планирование двигает сделку наравне с отчётом, поэтому стоит
  * рядом, а не внизу.
+ *
+ * В переносе колонка та же, меняются три вещи: заголовок (подмигивает — режим
+ * сменился), тип не выбирают заново (задача остаётся той же), и под датой
+ * сказано, что именно произойдёт. Поля приезжают заполненными от текущего
+ * дела — правят обычно только срок.
  */
 export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
     const dispatch = useAppDispatch();
     const plan = useAppSelector(s => s.eventPlan);
-    const withNoPlan = useAppSelector(s => s.app.config.withNoPlan);
+    const { isReschedule, typeName } = usePlanReschedule();
+    const canSkipPlan = useAppSelector(getCanSkipPlan);
+    const hasOtherTasks = useAppSelector(
+        s => (s.eventTask.tasks?.length ?? 0) > 1,
+    );
     const nameError = useAppSelector(s => s.event.errors.current.name);
     const daySchedule = useAppSelector(s => s.planSchedule.items);
 
@@ -75,30 +87,62 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
     return (
         <aside data-event-type={planTypeAttr}>
             <SectionCard
-                title="Планируем"
+                title={
+                    isReschedule ? (
+                        <span className="animate-wink motion-reduce:animate-none">
+                            Переносим
+                        </span>
+                    ) : (
+                        'Планируем'
+                    )
+                }
                 tone="event"
                 accent
                 density="compact"
+                collapsible
+                defaultOpen
                 state={nameError ? 'error' : 'default'}
                 message={nameError}
                 actions={
-                    withNoPlan && (
-                        <Switch
-                            checked={isActive}
-                            onCheckedChange={() =>
+                    /* «Без плана» — фича оригинальной версии: при второй
+                       живой задаче клиента следующий шаг уже назначен, и
+                       план можно не заводить. Кнопка вместо тумблера:
+                       действие читается без объяснений. */
+                    canSkipPlan &&
+                    isActive && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs text-muted-foreground"
+                            onClick={() =>
                                 dispatch(eventPlanActions.setIsActive())
                             }
-                            aria-label="Планировать следующее событие"
-                            className="cursor-pointer"
-                        />
+                        >
+                            Без плана
+                        </Button>
                     )
                 }
             >
                 {!isActive ? (
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                        Следующее событие не назначается — клиент останется без
-                        следующего шага.
-                    </p>
+                    <div className="space-y-2">
+                        <p className="text-xs leading-relaxed text-muted-foreground">
+                            {isReschedule
+                                ? 'Дело не переносится: срок задачи останется прежним, недозвон просто зафиксируется в истории.'
+                                : hasOtherTasks
+                                  ? 'У клиента уже есть другие задачи — следующее событие можно не планировать.'
+                                  : 'Следующее событие не назначается — клиент останется без следующего шага.'}
+                        </p>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            onClick={() =>
+                                dispatch(eventPlanActions.setIsActive())
+                            }
+                        >
+                            {isReschedule ? 'Перенести' : 'Планировать'}
+                        </Button>
+                    </div>
                 ) : (
                     <>
                         {/*
@@ -151,16 +195,31 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                             />
                         </label>
 
-                        <PlanTypeRadio
-                            items={type.items}
-                            value={
-                                type.current
-                                    ? String(type.current.id)
-                                    : undefined
-                            }
-                            onChange={setProp(EV_PLAN_PROP.TYPE)}
-                        />
-                        <AfterSaleHint />
+                        {/* При переносе тип не выбирают: задача остаётся той
+                            же, меняется только её срок. Показываем, какой он,
+                            и не даём случайно завести событие другого вида. */}
+                        {isReschedule ? (
+                            <p className="text-xs text-muted-foreground">
+                                Тип события:{' '}
+                                <span className="font-medium text-foreground">
+                                    {typeName ?? 'как у текущего дела'}
+                                </span>{' '}
+                                — при переносе не меняется.
+                            </p>
+                        ) : (
+                            <>
+                                <PlanTypeRadio
+                                    items={type.items}
+                                    value={
+                                        type.current
+                                            ? String(type.current.id)
+                                            : undefined
+                                    }
+                                    onChange={setProp(EV_PLAN_PROP.TYPE)}
+                                />
+                                <AfterSaleHint />
+                            </>
+                        )}
 
                         {/*
                          * Контейнерный запрос, а не брейкпоинт экрана: дата
@@ -182,6 +241,14 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                                 <p className="text-xs text-warning">
                                     Дальше четырёх месяцев — событие уйдёт в
                                     «Отложено».
+                                </p>
+                            )}
+                            {isReschedule && (
+                                <p className="text-xs leading-relaxed text-muted-foreground">
+                                    Дело переедет на этот срок — новая задача не
+                                    создаётся, текущая не закрывается.
+                                    Изменённое название заменит заголовок
+                                    задачи.
                                 </p>
                             )}
                         </div>

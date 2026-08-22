@@ -67,7 +67,7 @@ if(g==='on'||g==='off'){d.dataset.glass=g;}
 }catch(e){}})();`;
 
 export const ThemeInitScript = ({
-    defaultTheme = 'light',
+    defaultTheme = 'air-light',
 }: ThemeInitScriptProps) => (
     <script dangerouslySetInnerHTML={{ __html: buildInitCode(defaultTheme) }} />
 );

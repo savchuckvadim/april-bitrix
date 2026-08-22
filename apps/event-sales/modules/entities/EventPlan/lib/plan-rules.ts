@@ -24,12 +24,17 @@ export const PLAN_ALLOWED_BY_CONTEXT: Record<ClientContext, EV_PLAN_CODE[]> = {
     company: [
         EV_PLAN_CODE.WARM,
         EV_PLAN_CODE.PRESENTATION,
+        EV_PLAN_CODE.REFINE,
         EV_PLAN_CODE.HOT,
         EV_PLAN_CODE.PAY,
         EV_PLAN_CODE.SUPPLY,
     ],
-    dealNoCompany: [EV_PLAN_CODE.WARM, EV_PLAN_CODE.PRESENTATION],
-    lead: [EV_PLAN_CODE.WARM],
+    dealNoCompany: [
+        EV_PLAN_CODE.WARM,
+        EV_PLAN_CODE.PRESENTATION,
+        EV_PLAN_CODE.REFINE,
+    ],
+    lead: [EV_PLAN_CODE.WARM, EV_PLAN_CODE.REFINE],
     unknown: [EV_PLAN_CODE.WARM],
 };
 

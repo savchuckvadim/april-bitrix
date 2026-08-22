@@ -8,6 +8,7 @@ import {
     dealStageEntityId,
     mapBoundDeal,
 } from '../lib/bound-deal-view';
+import { buildDealCategoryCodeMap } from '../lib/deal-category';
 import { taskDealsActions } from './TaskDealsSlice';
 
 const DEAL_SELECT = [
@@ -107,6 +108,12 @@ export const fetchTaskBoundDeals =
             );
             await dispatch(ensureStageDicts(entityIds));
             const dicts = getState().taskDeals.stageDicts;
+            // Карту категорий читаем ЗДЕСЬ, а не при диспатче: листенер ждёт
+            // слепок портала до 5с, и к моменту маппинга он обычно уже есть.
+            // Нет слепка — сделки останутся без categoryCode (fail-open).
+            const categoryCodes = buildDealCategoryCodeMap(
+                getState().portal.portal?.bitrixDeal?.categories,
+            );
 
             dispatch(
                 taskDealsActions.setDeals({
@@ -114,6 +121,7 @@ export const fetchTaskBoundDeals =
                         mapBoundDeal(
                             row,
                             dicts[dealStageEntityId(row.CATEGORY_ID)],
+                            categoryCodes,
                         ),
                     ),
                 }),

@@ -1,7 +1,5 @@
 // Публичная поверхность сущности «связи клиента в CRM».
 export * from './model';
-export { useRelatedCrm } from './lib/hooks/use-related-crm';
-export type { RelatedCrmData } from './lib/hooks/use-related-crm';
 export {
     dealAmount,
     stageColor,
@@ -30,7 +28,10 @@ export { RelationMini } from './ui/RelationMini';
 export { RelationDealBars } from './ui/RelationDealBars';
 export { RelationsBar } from './ui/RelationsBar';
 export { buildRelationsBar, MAX_RELATION_BARS } from './lib/relations-bar';
-export type { RelationsBarView } from './lib/relations-bar';
+export type {
+    RelationsBarView,
+    RelationsBarMode,
+} from './lib/relations-bar';
 export { EntityLink } from './ui/EntityLink';
 export { getEntityCardUrl, getEntityCardPath } from './lib/entity-url';
 export { useCurrentRelations } from './lib/hooks/use-current-relations';

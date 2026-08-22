@@ -54,9 +54,12 @@ export interface FlowShowcaseImage {
 }
 
 export const FLOW_SHOWCASE_IMAGES: FlowShowcaseImage[] = [
-    { src: '/process/megamenu-img.png' },
     { src: '/process/verification-img.png' },
+    { src: '/process/coming-soon.svg' },
+    { src: '/process/megamenu-img.png' },
     { src: '/process/profile-img.png' },
+    { src: '/process/error-img.png' },
+
 ];
 
 /** Не мигаем с первой секунды: короткая отправка должна пройти без картинок. */

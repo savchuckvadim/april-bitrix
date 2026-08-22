@@ -40,6 +40,14 @@ export const PlanContactRow: FC = () => {
                     hasContact={hasContact}
                     onView={() => open('view')}
                     onEdit={() => open('edit')}
+                    onCreate={() =>
+                        dispatch(
+                            eventContactActions.setCreatingContact({
+                                isCreating: true,
+                                type: EV_CONTACT_TYPE.PLAN,
+                            }),
+                        )
+                    }
                 />
             </span>
         </div>

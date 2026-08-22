@@ -4,6 +4,19 @@ import { TESTING_DOMAIN, TESTING_USER } from '@/modules/app/consts/app-global';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { eventSaleActions } from './EventSaleSlice';
 import { EventSaleHelper } from '../lib/api/event-sale-helper';
+import { Bitrix } from '@workspace/bitrix';
+import { getPresentationCategoryId } from '../lib/presentation-deals';
+
+/** Что показываем в селекте презентаций: название, стадия, дата, сумма. */
+const PRES_DEAL_SELECT = [
+    'ID',
+    'TITLE',
+    'STAGE_ID',
+    'CATEGORY_ID',
+    'OPPORTUNITY',
+    'CLOSED',
+    'DATE_CREATE',
+];
 
 const eventSaleHelper = new EventSaleHelper();
 
@@ -75,5 +88,42 @@ export const getInitSale =
             console.error('getInitSale error', error);
         } finally {
             dispatch(eventSaleActions.setIsLoading({ status: false }));
+        }
+    };
+
+/**
+ * Презентационные сделки клиента для связи с продажей — прямо из портала.
+ *
+ * Продажу присоединяют к СОСТОЯВШЕЙСЯ презентации, то есть чаще всего к уже
+ * закрытой сделке: список «только открытые» здесь бесполезен, и менеджер
+ * видел «презентационных сделок нет» при десятке проведённых. Бэковый
+ * эндпоинт event-support/deals — до сих пор заглушка (отдаёт null), поэтому
+ * спрашиваем портал сами: воронка презентаций из слепка, клиент — компания
+ * встройки, закрытые НЕ отсекаем.
+ */
+export const fetchPresentationDeals =
+    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+        const state = getState();
+        if (state.eventSale.presDeals.isItemsFetched) return;
+
+        const companyId = Number(state.app.bitrix.company?.ID);
+        const categoryId = getPresentationCategoryId(
+            state.portal.portal?.bitrixDeal?.categories,
+        );
+        if (!companyId || categoryId === null) return;
+
+        try {
+            const response = await Bitrix.getService().deal.getList(
+                {
+                    COMPANY_ID: String(companyId),
+                    CATEGORY_ID: String(categoryId),
+                } as never,
+                PRES_DEAL_SELECT,
+                { DATE_CREATE: 'DESC' } as never,
+            );
+            const deals = (response?.result ?? []) as unknown as BXDeal[];
+            dispatch(eventSaleActions.setPortalSale({ presDeals: deals }));
+        } catch (error) {
+            console.error('fetchPresentationDeals error', error);
         }
     };

@@ -38,7 +38,9 @@ export interface DateTimePickerProps {
     className?: string;
 }
 
-const parseValue = (value: string): { date: Date | undefined; time: string } => {
+const parseValue = (
+    value: string,
+): { date: Date | undefined; time: string } => {
     if (!value) return { date: undefined, time: '' };
     const parsed = parse(value, 'yyyy-MM-dd HH:mm', new Date());
     if (isNaN(parsed.getTime())) return { date: undefined, time: '' };
@@ -91,7 +93,9 @@ export const DateTimePicker = ({
                                 emit(nextDate, time);
                                 setShowCalendar(false);
                                 if (nextDate) {
-                                    onDateCommit?.(format(nextDate, 'yyyy-MM-dd'));
+                                    onDateCommit?.(
+                                        format(nextDate, 'yyyy-MM-dd'),
+                                    );
                                 }
                             }}
                         />
@@ -102,11 +106,20 @@ export const DateTimePicker = ({
                 <Label>{timeLabel}</Label>
                 <TimePicker
                     value={time}
+                    // Шаг 5 минут: план звонка не назначают на 10:37 —
+                    // сетка из 12 кнопок помещается без прокрутки, а
+                    // точное значение по-прежнему вводится строкой.
+                    step={5}
                     onChange={nextTime => emit(date, nextTime)}
                     allowManualInput
                     showTimeline={!!existingEvents?.length}
                     existingEvents={existingEvents}
                     placeholder="Время"
+                    side="left"
+                    align="start"
+                    // Поднимаем окно над полем: так виден весь список часов,
+                    // а поле не оказывается у нижнего края фрейма.
+                    alignOffset={-120}
                     className="w-full"
                 />
             </div>

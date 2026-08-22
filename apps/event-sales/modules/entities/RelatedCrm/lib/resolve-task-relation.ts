@@ -1,4 +1,5 @@
 import type { RelatedCrmDetails, RelatedDeal, RelatedLead } from '../model';
+import { isBaseSalesDeal } from './deal-category';
 
 /**
  * Связи для карточки дела — из двух уже загруженных источников.
@@ -52,6 +53,12 @@ export interface ResolveTaskRelationParams {
     boundDeals: RelatedDeal[];
     dealIds: number[];
     leadIds: number[];
+    /**
+     * Показывать ли сделку воронки «ОП Основная» (sales_base). false —
+     * в полосках остаются только сделки остальных воронок: презентации,
+     * холодные. Скрытая основная освобождает место под лимитом.
+     */
+    withMainDeal?: boolean;
 }
 
 export const resolveTaskRelation = ({
@@ -59,11 +66,15 @@ export const resolveTaskRelation = ({
     boundDeals,
     dealIds,
     leadIds,
+    withMainDeal = true,
 }: ResolveTaskRelationParams): TaskRelation => {
     // Закрытые отсекаем и здесь: по умолчанию бэк отдаёт открытые, но на
     // экране клиента есть переключатель includeClosed — полоски закрытых
     // сделок только путали бы («куда двигать то, что уже закрыто?»).
-    const graphDeals = details?.deals?.filter(deal => !deal.closed) ?? [];
+    const openDeals = details?.deals?.filter(deal => !deal.closed) ?? [];
+    const graphDeals = withMainDeal
+        ? openDeals
+        : openDeals.filter(deal => !isBaseSalesDeal(deal));
 
     // Привязанные к задаче: версия из графа богаче (categoryTitle, портальный
     // цвет), поэтому предпочитаем её; привязку вне графа берём из портального
@@ -71,13 +82,22 @@ export const resolveTaskRelation = ({
     // загружен, иначе это не «вне графа», а «граф ещё не приехал».
     const attached: RelationDeal[] = [];
     for (const id of new Set(dealIds)) {
-        const fromGraph = graphDeals.find(deal => deal.id === id);
+        // Ищем в НЕфильтрованных открытых: скрытая флагом основная сделка —
+        // всё ещё «в графе», иначе она вернулась бы через boundDeals с ложной
+        // меткой несоответствия.
+        const fromGraph = openDeals.find(deal => deal.id === id);
         if (fromGraph) {
-            attached.push({ ...fromGraph, isTaskBound: true });
+            if (withMainDeal || !isBaseSalesDeal(fromGraph)) {
+                attached.push({ ...fromGraph, isTaskBound: true });
+            }
             continue;
         }
+        // Гейт основной действует и здесь: привязанным categoryCode
+        // проставляет mapBoundDeal по слепку портала — без этого основная
+        // из привязок вспыхивала бы, пока граф не приехал, а вне графа
+        // не скрывалась бы вовсе.
         const bound = boundDeals.find(deal => deal.id === id && !deal.closed);
-        if (bound) {
+        if (bound && (withMainDeal || !isBaseSalesDeal(bound))) {
             attached.push({
                 ...bound,
                 isTaskBound: true,

@@ -5,7 +5,11 @@ import { Clock, ChevronDown } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@workspace/ui/components/popover';
 
 export interface TimePickerProps {
     value?: string;
@@ -20,6 +24,15 @@ export interface TimePickerProps {
     allowManualInput?: boolean;
     showTimeline?: boolean;
     existingEvents?: Array<{ time: string; title: string; type: string }>;
+    /**
+     * С какой стороны раскрывается окно. Во фрейме Битрикса поле обычно стоит
+     * в правой колонке и ниже середины: снизу места нет, а в центре экрана его
+     * полно — поэтому  там честнее, чем обрезанное окно с прокруткой.
+     */
+    side?: 'top' | 'right' | 'bottom' | 'left';
+    align?: 'start' | 'center' | 'end';
+    /** Сдвиг вдоль оси выравнивания: отрицательный поднимает окно выше поля. */
+    alignOffset?: number;
 }
 
 const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
@@ -28,6 +41,9 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
             value = '',
             onChange,
             placeholder = 'Выберите время',
+            side = 'bottom',
+            align = 'start',
+            alignOffset = 0,
             disabled = false,
             className,
             size = 'md',
@@ -39,7 +55,7 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
             existingEvents = [],
             ...props
         },
-        ref
+        ref,
     ) => {
         const [isOpen, setIsOpen] = React.useState(false);
         const [isManualInput, setIsManualInput] = React.useState(false);
@@ -50,16 +66,31 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
             return { hours: h || 0, minutes: m || 0, seconds: s || 0 };
         });
 
+        // Значение принадлежит родителю; кнопки и строка — два способа его
+        // менять. Пришло новое снаружи (init формы, сброс) — оба вида
+        // подтягиваются, иначе строка показывала бы то, что было при монтаже.
+        React.useEffect(() => {
+            if (!value) return;
+            setManualInputValue(value);
+            const [h, m, s = 0] = value.split(':').map(Number);
+            setTime({ hours: h || 0, minutes: m || 0, seconds: s || 0 });
+        }, [value]);
+
         const sizeClasses = {
             sm: 'h-8 px-3 text-sm',
             md: 'h-10 px-4 text-sm',
             lg: 'h-12 px-6 text-base',
         };
 
-        const formatTime = (hours: number, minutes: number, seconds: number) => {
+        const formatTime = (
+            hours: number,
+            minutes: number,
+            seconds: number,
+        ) => {
             if (format === '12h') {
                 const period = hours >= 12 ? 'PM' : 'AM';
-                const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                const displayHours =
+                    hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
                 const timeStr = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
                 return showSeconds
                     ? `${timeStr}:${seconds.toString().padStart(2, '0')} ${period}`
@@ -72,19 +103,33 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                 : timeStr;
         };
 
-        const handleTimeChange = (newTime: { hours: number; minutes: number; seconds: number }) => {
+        const handleTimeChange = (newTime: {
+            hours: number;
+            minutes: number;
+            seconds: number;
+        }) => {
             setTime(newTime);
             const timeString = `${newTime.hours.toString().padStart(2, '0')}:${newTime.minutes.toString().padStart(2, '0')}${showSeconds ? `:${newTime.seconds.toString().padStart(2, '0')}` : ''}`;
+            // Строка ручного ввода — отображение ТОГО ЖЕ значения: без этой
+            // строчки выбор кнопкой не менял текст, и на экране жили два
+            // разных времени.
+            setManualInputValue(timeString);
             onChange?.(timeString);
         };
 
         const handleManualInput = (inputValue: string) => {
             setManualInputValue(inputValue);
             // Простая валидация времени HH:MM или HH:MM:SS
-            const timeRegex = showSeconds ? /^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/ : /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+            const timeRegex = showSeconds
+                ? /^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/
+                : /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
             if (timeRegex.test(inputValue)) {
                 const [h, m, s = 0] = inputValue.split(':').map(Number);
-                const newTime = { hours: h || 0, minutes: m || 0, seconds: s || 0 };
+                const newTime = {
+                    hours: h || 0,
+                    minutes: m || 0,
+                    seconds: s || 0,
+                };
                 setTime(newTime);
                 onChange?.(inputValue);
             }
@@ -105,7 +150,7 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                     const [h, m] = event.time.split(':').map(Number);
                     return {
                         ...event,
-                        minutesFromMidnight: (h || 0) * 60 + (m || 0)
+                        minutesFromMidnight: (h || 0) * 60 + (m || 0),
                     };
                 })
                 .sort((a, b) => a.minutesFromMidnight - b.minutesFromMidnight);
@@ -140,17 +185,27 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
         ];
 
         const generateTimeOptions = (max: number, step: number = 1) => {
-            return Array.from({ length: Math.floor(max / step) + 1 }, (_, i) => i * step);
+            return Array.from(
+                { length: Math.floor(max / step) + 1 },
+                (_, i) => i * step,
+            );
         };
 
-        const hoursOptions = format === '12h'
-            ? generateTimeOptions(23, step).map(h => h === 0 ? 12 : h > 12 ? h - 12 : h)
-            : generateTimeOptions(23, step);
+        // `step` — про зернистость МИНУТ и секунд. Часы всегда полные:
+        // шаг 5 иначе оставил бы в сетке часы 0/5/10/15/20.
+        const hoursOptions =
+            format === '12h'
+                ? generateTimeOptions(23, 1).map(h =>
+                      h === 0 ? 12 : h > 12 ? h - 12 : h,
+                  )
+                : generateTimeOptions(23, 1);
 
         const minutesOptions = generateTimeOptions(59, step);
         const secondsOptions = generateTimeOptions(59, step);
 
-        const displayValue = value ? formatTime(time.hours, time.minutes, time.seconds) : placeholder;
+        const displayValue = value
+            ? formatTime(time.hours, time.minutes, time.seconds)
+            : placeholder;
         const timelineEvents = getTimelineEvents();
 
         return (
@@ -163,7 +218,7 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                             'justify-start text-left font-normal',
                             sizeClasses[size],
                             !value && 'text-muted-foreground',
-                            className
+                            className,
                         )}
                         disabled={disabled}
                         {...props}
@@ -173,9 +228,11 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                             <input
                                 type="text"
                                 value={manualInputValue}
-                                onChange={(e) => handleManualInput(e.target.value)}
+                                onChange={e =>
+                                    handleManualInput(e.target.value)
+                                }
                                 onBlur={handleManualInputBlur}
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                     if (e.key === 'Enter') {
                                         handleManualInputBlur();
                                     }
@@ -200,24 +257,42 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                         <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent
+                    align={align}
+                    alignOffset={alignOffset}
+                    side={side}
+                    sideOffset={6}
+                    collisionPadding={8}
+                    avoidCollisions
+                    className="w-auto p-0"
+                >
                     <div className="p-4">
                         {/* Ручной ввод */}
                         {allowManualInput && (
                             <div className="mb-4">
-                                <div className="text-sm font-medium text-foreground mb-2">Ручной ввод</div>
+                                <div className="text-sm font-medium text-foreground mb-2">
+                                    Ручной ввод
+                                </div>
                                 <div className="flex gap-2">
                                     <Input
                                         type="text"
                                         value={manualInputValue}
-                                        onChange={(e) => setManualInputValue(e.target.value)}
-                                        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                        onChange={e =>
+                                            setManualInputValue(e.target.value)
+                                        }
+                                        onKeyDown={(
+                                            e: React.KeyboardEvent<HTMLInputElement>,
+                                        ) => {
                                             if (e.key === 'Enter') {
-                                                handleManualInput(manualInputValue);
+                                                handleManualInput(
+                                                    manualInputValue,
+                                                );
                                                 setIsOpen(false);
                                             }
                                         }}
-                                        placeholder={showSeconds ? "HH:MM:SS" : "HH:MM"}
+                                        placeholder={
+                                            showSeconds ? 'HH:MM:SS' : 'HH:MM'
+                                        }
                                         className="h-8 text-xs"
                                     />
                                     <Button
@@ -237,15 +312,21 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                         {/* Временная шкала */}
                         {showTimeline && timelineEvents.length > 0 && (
                             <div className="mb-4">
-                                <div className="text-sm font-medium text-foreground mb-2">Запланированные события</div>
+                                <div className="text-sm font-medium text-foreground mb-2">
+                                    Запланированные события
+                                </div>
                                 <div className="space-y-1 max-h-32 overflow-y-auto">
                                     {timelineEvents.map((event, index) => (
                                         <div
                                             key={index}
-                                            className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs"
+                                            className="flex items-center justify-between rounded bg-muted p-2 text-xs"
                                         >
-                                            <span className="font-medium">{event.time}</span>
-                                            <span className="text-gray-600 truncate ml-2">{event.title}</span>
+                                            <span className="font-medium">
+                                                {event.time}
+                                            </span>
+                                            <span className="ml-2 truncate text-muted-foreground">
+                                                {event.title}
+                                            </span>
                                         </div>
                                     ))}
                                 </div>
@@ -254,9 +335,11 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
 
                         {/* Быстрый выбор времени */}
                         <div className="mb-4">
-                            <div className="text-sm font-medium text-foreground mb-2">Популярное время</div>
+                            <div className="text-sm font-medium text-foreground mb-2">
+                                Популярное время
+                            </div>
                             <div className="grid grid-cols-5 gap-1">
-                                {quickTimes.map((quickTime) => (
+                                {quickTimes.map(quickTime => (
                                     <Button
                                         key={quickTime.label}
                                         variant="ghost"
@@ -266,7 +349,7 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                                             handleTimeChange({
                                                 hours: quickTime.hours,
                                                 minutes: quickTime.minutes,
-                                                seconds: 0
+                                                seconds: 0,
                                             });
                                             setIsOpen(false);
                                         }}
@@ -279,21 +362,33 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
 
                         {/* Кастомный выбор времени */}
                         <div className="border-t pt-4">
-                            <div className="text-sm font-medium text-foreground mb-3">Выберите время</div>
+                            <div className="text-sm font-medium text-foreground mb-3">
+                                Выберите время
+                            </div>
                             <div className="flex items-center space-x-6">
                                 {/* Часы */}
                                 <div className="flex flex-col items-center space-y-2">
-                                    <div className="text-xs font-medium text-muted-foreground">Часы</div>
-                                    <div className="grid grid-cols-4 gap-1 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                                        {hoursOptions.map((hour) => (
+                                    <div className="text-xs font-medium text-muted-foreground">
+                                        Часы
+                                    </div>
+                                    <div className="grid max-h-56 grid-cols-4 gap-1 overflow-y-auto scrollbar-thin">
+                                        {hoursOptions.map(hour => (
                                             <Button
                                                 key={hour}
-                                                variant={time.hours === hour ? 'default' : 'ghost'}
+                                                variant={
+                                                    time.hours === hour
+                                                        ? 'default'
+                                                        : 'ghost'
+                                                }
                                                 size="sm"
                                                 className="h-8 w-16 text-xs"
-                                                onClick={() => handleHoursChange(hour)}
+                                                onClick={() =>
+                                                    handleHoursChange(hour)
+                                                }
                                             >
-                                                {hour.toString().padStart(2, '0')}
+                                                {hour
+                                                    .toString()
+                                                    .padStart(2, '0')}
                                             </Button>
                                         ))}
                                     </div>
@@ -301,17 +396,27 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
 
                                 {/* Минуты */}
                                 <div className="flex flex-col items-center space-y-2">
-                                    <div className="text-xs font-medium text-muted-foreground">Минуты</div>
-                                    <div className="grid grid-cols-6 gap-1 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                                        {minutesOptions.map((minute) => (
+                                    <div className="text-xs font-medium text-muted-foreground">
+                                        Минуты
+                                    </div>
+                                    <div className="grid max-h-56 grid-cols-6 gap-1 overflow-y-auto scrollbar-thin">
+                                        {minutesOptions.map(minute => (
                                             <Button
                                                 key={minute}
-                                                variant={time.minutes === minute ? 'default' : 'ghost'}
+                                                variant={
+                                                    time.minutes === minute
+                                                        ? 'default'
+                                                        : 'ghost'
+                                                }
                                                 size="sm"
                                                 className="h-8 w-12 text-xs"
-                                                onClick={() => handleMinutesChange(minute)}
+                                                onClick={() =>
+                                                    handleMinutesChange(minute)
+                                                }
                                             >
-                                                {minute.toString().padStart(2, '0')}
+                                                {minute
+                                                    .toString()
+                                                    .padStart(2, '0')}
                                             </Button>
                                         ))}
                                     </div>
@@ -320,17 +425,29 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                                 {/* Секунды (если включены) */}
                                 {showSeconds && (
                                     <div className="flex flex-col items-center space-y-2">
-                                        <div className="text-xs font-medium text-muted-foreground">Секунды</div>
-                                        <div className="grid grid-cols-6 gap-1 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                                            {secondsOptions.map((second) => (
+                                        <div className="text-xs font-medium text-muted-foreground">
+                                            Секунды
+                                        </div>
+                                        <div className="grid max-h-56 grid-cols-6 gap-1 overflow-y-auto scrollbar-thin">
+                                            {secondsOptions.map(second => (
                                                 <Button
                                                     key={second}
-                                                    variant={time.seconds === second ? 'default' : 'ghost'}
+                                                    variant={
+                                                        time.seconds === second
+                                                            ? 'default'
+                                                            : 'ghost'
+                                                    }
                                                     size="sm"
                                                     className="h-8 w-12 text-xs"
-                                                    onClick={() => handleSecondsChange(second)}
+                                                    onClick={() =>
+                                                        handleSecondsChange(
+                                                            second,
+                                                        )
+                                                    }
                                                 >
-                                                    {second.toString().padStart(2, '0')}
+                                                    {second
+                                                        .toString()
+                                                        .padStart(2, '0')}
                                                 </Button>
                                             ))}
                                         </div>
@@ -348,10 +465,7 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                             >
                                 Отмена
                             </Button>
-                            <Button
-                                size="sm"
-                                onClick={() => setIsOpen(false)}
-                            >
+                            <Button size="sm" onClick={() => setIsOpen(false)}>
                                 Готово
                             </Button>
                         </div>
@@ -359,7 +473,7 @@ const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
                 </PopoverContent>
             </Popover>
         );
-    }
+    },
 );
 
 TimePicker.displayName = 'TimePicker';

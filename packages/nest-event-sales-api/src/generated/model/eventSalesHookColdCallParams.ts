@@ -26,7 +26,7 @@ export type EventSalesHookColdCallParams = {
      */
     created: string;
     /**
-     * Дедлайн звонка в сыром формате DD.MM.YYYY HH:mm:ss БЕЗ таймзоны. Трактуется как локальное время портала (PortalModel.getTimezone). Конвертация в server-time задач (Москва) и CRM-поля выполняется через PortalDeadline на стороне use-case.
+     * Дедлайн звонка в сыром формате DD.MM.YYYY HH:mm:ss БЕЗ таймзоны. Трактуется как локальное время портала (PortalModel.getTimezone). Конвертация в server-time задач (Москва) и CRM-поля выполняется через BitrixDateTime на стороне use-case.
      */
     deadline: string;
     /**

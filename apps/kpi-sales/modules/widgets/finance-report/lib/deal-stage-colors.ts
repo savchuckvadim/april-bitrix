@@ -10,6 +10,8 @@
 export type DealStageToken =
     | 'pres'
     | 'docs'
+    /** «Доработка» — свой янтарный токен: стадия и тип события одного цвета. */
+    | 'refine'
     | 'decision'
     | 'payment'
     | 'supply';
@@ -19,6 +21,7 @@ const STAGE_CODE_TOKEN: Record<string, DealStageToken> = {
     sales_pres: 'pres',
     sales_offer_create: 'docs',
     sales_document_send: 'docs',
+    sales_refine: 'refine',
     sales_in_progress: 'decision',
     sales_money_await: 'payment',
     sales_supply: 'supply',
@@ -34,6 +37,7 @@ export const THRESHOLD_TOKEN: Record<string, DealStageToken> = {
 const BADGE_CLASS: Record<DealStageToken, string> = {
     pres: 'bg-deal-stage-pres/15 text-deal-stage-pres border-deal-stage-pres/40',
     docs: 'bg-deal-stage-docs/15 text-deal-stage-docs border-deal-stage-docs/40',
+    refine: 'bg-deal-stage-refine/15 text-deal-stage-refine border-deal-stage-refine/40',
     decision:
         'bg-deal-stage-decision/15 text-deal-stage-decision border-deal-stage-decision/40',
     payment:
@@ -44,6 +48,7 @@ const BADGE_CLASS: Record<DealStageToken, string> = {
 const BUTTON_ACTIVE_CLASS: Record<DealStageToken, string> = {
     pres: 'bg-deal-stage-pres text-deal-stage-pres-foreground border-deal-stage-pres',
     docs: 'bg-deal-stage-docs text-deal-stage-docs-foreground border-deal-stage-docs',
+    refine: 'bg-deal-stage-refine text-deal-stage-refine-foreground border-deal-stage-refine',
     decision:
         'bg-deal-stage-decision text-deal-stage-decision-foreground border-deal-stage-decision',
     payment:
@@ -54,6 +59,7 @@ const BUTTON_ACTIVE_CLASS: Record<DealStageToken, string> = {
 const BUTTON_IDLE_CLASS: Record<DealStageToken, string> = {
     pres: 'text-deal-stage-pres border-deal-stage-pres/50',
     docs: 'text-deal-stage-docs border-deal-stage-docs/50',
+    refine: 'text-deal-stage-refine border-deal-stage-refine/50',
     decision: 'text-deal-stage-decision border-deal-stage-decision/50',
     payment: 'text-deal-stage-payment border-deal-stage-payment/50',
     supply: 'text-deal-stage-supply border-deal-stage-supply/50',

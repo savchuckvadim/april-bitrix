@@ -87,6 +87,29 @@ export const getTaskUrl = (
 };
 
 /**
+ * Гард для ссылок из СЫРЫХ значений полей Битрикса (UF-поля с URL).
+ *
+ * Относительный путь или мусор в href открылся бы на ТЕКУЩЕМ хосте — то есть
+ * в соседнем приложении общего домена (см. шапку файла), а `javascript:` —
+ * это исполнение чужой строки. Допускаем только абсолютный http/https с
+ * явным хостом; всё остальное — null, и вызывающий не рисует ссылку.
+ */
+export const getSafeExternalUrl = (
+    raw: string | null | undefined,
+): string | null => {
+    const value = String(raw ?? '').trim();
+    if (!value) return null;
+    try {
+        const url = new URL(value);
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+        if (!url.hostname || !url.hostname.includes('.')) return null;
+        return url.href;
+    } catch {
+        return null;
+    }
+};
+
+/**
  * Внутренний путь приложения (страницы, статика) с учётом basePath.
  * Для `next/link` и `router.push` НЕ нужен — они префиксуют сами.
  */

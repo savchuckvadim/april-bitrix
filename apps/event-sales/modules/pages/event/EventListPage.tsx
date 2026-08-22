@@ -16,7 +16,7 @@ const EventList = dynamic(
 /** Список событий (задач обзвона). */
 const EventListPage: FC = () => {
     return (
-        <div className="min-h-svh bg-background">
+        <div className="h-full bg-background">
             <EventList />
         </div>
     );

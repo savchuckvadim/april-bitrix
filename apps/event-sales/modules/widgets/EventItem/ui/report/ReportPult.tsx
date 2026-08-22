@@ -10,8 +10,12 @@ import {
     eventReportActions,
     WorkStatusSegments,
 } from '@/modules/entities/EventReport';
+import { Input } from '@workspace/ui/components/input';
+import { eventSaleActions } from '@/modules/entities/EventSale';
+import { eventPostFailActions } from '@/modules/entities/EVPostFail';
 import { LeadRequestNotCaSelect } from '@/modules/features/LeadRequestCard/ui/LeadRequestNotCaSelect';
 import { useReportPult } from '../../lib/hooks/use-report-pult';
+import { usePresentationDeals } from '../../lib/hooks/use-presentation-deals';
 import { PresentationDoneChip } from './PresentationDoneChip';
 import { ReportPultCollapsed } from './ReportPultCollapsed';
 import { ReportToolsRail } from './ReportToolsRail';
@@ -29,15 +33,32 @@ import { ReportToolsRail } from './ReportToolsRail';
  * её, а когда отмечать нечего — карточка сворачивается в светящуюся пилюлю
  * (см. ReportPultCollapsed) и вертикаль достаётся комментарию.
  */
-export const ReportPult: FC<{ withNoresult?: boolean }> = ({
+interface ReportPultProps {
+    withNoresult?: boolean;
+    /** Статус «Продажа»: связь с презентационной сделкой — строкой пульта. */
+    withSale?: boolean;
+    /** «Отказ» на withPostFail-доменах: дата следующего звонка. */
+    withPostFail?: boolean;
+    /** Кнопка презентации стоит в карточке комментария — чип не дублируем. */
+    withPresentationButton?: boolean;
+}
+
+export const ReportPult: FC<ReportPultProps> = ({
     withNoresult = false,
+    withSale = false,
+    withPostFail = false,
+    withPresentationButton = false,
 }) => {
     const dispatch = useAppDispatch();
-    const pult = useReportPult(withNoresult);
+    const pult = useReportPult(withNoresult, withPresentationButton);
     const report = useAppSelector(s => s.eventReport.report);
 
     const setProp = (propName: EventReportSelectProp) => (value: string) =>
         dispatch(eventReportActions.setReportProp({ propName, value }));
+
+    // Список презентаций подтягивается по факту выбора «Продажи».
+    const presDeals = usePresentationDeals(withSale);
+    const postFailDate = useAppSelector(s => s.eventPostFail.postFailDate);
 
     const noresultReason = report[EV_REPORT_PROP.NORESULT_REASON];
     const failType = report[EV_REPORT_PROP.FAIL_TYPE];
@@ -118,6 +139,64 @@ export const ReportPult: FC<{ withNoresult?: boolean }> = ({
                                 label: item.name,
                             }))}
                             onChange={setProp(EV_REPORT_PROP.FAIL_REASON)}
+                        />
+                    </MicroField>
+                )}
+
+                {/* Продажа: связь с презентационной сделкой. Раньше жила
+                    отдельной карточкой ради одного селекта. */}
+                {withSale &&
+                    (presDeals.items.length ? (
+                        <MicroField label="Сделка презентации">
+                            <MicroSelect
+                                ariaLabel="Сделка презентации"
+                                value={
+                                    presDeals.current
+                                        ? String(presDeals.current.ID)
+                                        : undefined
+                                }
+                                placeholder="Связать со сделкой"
+                                options={presDeals.items.map(deal => ({
+                                    value: String(deal.ID),
+                                    label: deal.TITLE,
+                                }))}
+                                onChange={value =>
+                                    dispatch(
+                                        eventSaleActions.setCurrentPresItem({
+                                            dealId: Number(value),
+                                            type: 'current',
+                                        }),
+                                    )
+                                }
+                            />
+                        </MicroField>
+                    ) : (
+                        <span className="text-[0.6875rem] text-muted-foreground">
+                            {presDeals.isItemsFetched
+                                ? 'презентаций у клиента нет'
+                                : 'ищем презентации…'}
+                        </span>
+                    ))}
+
+                {/* Пост-отказ: дата следующего звонка тем же кеглем. */}
+                {withPostFail && (
+                    <MicroField label="Следующий звонок" required>
+                        <Input
+                            type="date"
+                            value={postFailDate}
+                            onChange={e => {
+                                dispatch(
+                                    eventPostFailActions.setPostFailDate({
+                                        date: e.target.value,
+                                    }),
+                                );
+                                dispatch(
+                                    eventPostFailActions.setIsChanged({
+                                        status: true,
+                                    }),
+                                );
+                            }}
+                            className="h-6 w-34 px-2 py-0 text-[0.6875rem]"
                         />
                     </MicroField>
                 )}

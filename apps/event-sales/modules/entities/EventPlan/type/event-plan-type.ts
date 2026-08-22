@@ -2,6 +2,8 @@ export enum EV_PLAN_CODE {
     COLD = 'cold',
     WARM = 'warm',
     PRESENTATION = 'presentation',
+    /** Доработка — лёгкий шаг перед решением, доступен до компании. */
+    REFINE = 'refine',
     HOT = 'hot',
     PAY = 'moneyAwait',
     SUPPLY = 'supply',

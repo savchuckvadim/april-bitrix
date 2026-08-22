@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+// Сборный пакет — один инстанс слоёв на все overlay-примитивы (см. popover.tsx).
+import { Tooltip as TooltipPrimitive } from 'radix-ui';
 
 import { cn } from '@workspace/ui/lib/utils';
 

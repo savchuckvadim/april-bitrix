@@ -29,13 +29,13 @@ export interface FinishErrorRedirect {
  * который он читает, нельзя — а он может как раз собираться нажать «Повторить».
  * Любое его действие отменяет переход.
  *
- * Связи запрашиваем ТОЛЬКО при ошибке (`enabled`): в успешном сценарии этот
- * запрос никому не нужен, а лишний поход на портал стоит времени.
+ * Связи не запрашиваются отдельно: они уже в сторе (их грузит листенер для
+ * шапки-layout), цель перехода обычно готова мгновенно.
  */
 export const useFinishErrorRedirect = (
     isError: boolean,
 ): FinishErrorRedirect => {
-    const { descriptor, details } = useCurrentRelations(isError);
+    const { descriptor, details } = useCurrentRelations();
     const openEntityCard = useOpenEntityCard();
 
     const [secondsLeft, setSecondsLeft] = useState<number | null>(null);

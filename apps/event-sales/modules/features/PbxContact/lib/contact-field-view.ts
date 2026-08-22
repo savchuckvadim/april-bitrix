@@ -79,6 +79,30 @@ export const CONTACT_SCALE_DIRECTION: Record<
     [EV_CONTACT_ITEM_PROP.ork_chk_garant]: 'down',
 };
 
+/**
+ * Три характеристики, по которым контакт читают мельком.
+ *
+ * Их девять, и в узкой карточке отчёта все девять превращаются в частокол
+ * одинаковых полосок — смотреть на него некогда. Владелец назвал те, что
+ * решают разговор: с кем мы имеем дело (ЛПР или нет) и на чьей он стороне —
+ * отношение к Гаранту и к конкуренту. Остальное живёт в развёрнутой карточке.
+ *
+ * Порядок значимый: сначала «кто он», потом «за нас/против нас».
+ */
+export const KEY_CONTACT_TRAIT_CODES: string[] = [
+    EV_CONTACT_ITEM_PROP.ork_is_lpr,
+    EV_CONTACT_ITEM_PROP.ork_contact_garant,
+    EV_CONTACT_ITEM_PROP.ork_contact_concurent,
+];
+
+/** Ключевые характеристики в порядке KEY_CONTACT_TRAIT_CODES; чего нет — пропускаем. */
+export const keyTraits = (
+    fields: PBXContactFieldData[] | undefined,
+): PBXContactFieldData[] =>
+    KEY_CONTACT_TRAIT_CODES.map(code =>
+        (fields ?? []).find(field => field.field.code === code),
+    ).filter((field): field is PBXContactFieldData => Boolean(field));
+
 /** Рост — хорошо: приглушённый → внимание → успех. */
 const RAMP_UP = ['var(--muted-foreground)', 'var(--warning)', 'var(--success)'];
 /** Рост — плохо: та же шкала, но хвост красный. */

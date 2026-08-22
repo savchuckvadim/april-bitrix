@@ -1,4 +1,6 @@
+import { Bitrix } from '@workspace/bitrix';
 import type { AppThunk, RootState } from '@/modules/app/model/store';
+import { fetchRelatedDetails } from '@/modules/entities/RelatedCrm/model/RelatedCrmThunk';
 import { LeadRequestHelper } from '../lib/api/lead-request-helper';
 import type { LeadRequestUpdate } from './index';
 import { leadRequestActions } from './LeadRequestSlice';
@@ -32,11 +34,25 @@ export const fetchLeadRequestCard =
         const state = getState();
         const leadId = resolveLeadId(state, explicitLeadId);
         if (!leadId) return;
+        // Дедуп: слот уже держит этого лида — не перетираем его же
+        // повторным запросом (иконка и гейт часто просят одно и то же).
+        const held = state.leadRequest;
+        if (
+            held.leadId === leadId &&
+            (held.status === 'loading' || held.status === 'ready')
+        ) {
+            return;
+        }
         dispatch(leadRequestActions.setLoading(leadId));
         try {
             const card = await helper.getCard(state.app.domain, leadId);
+            // Пока ждали, слот запросили под другого лида — опоздавший
+            // ответ выбрасываем, иначе карточка одного показывалась бы
+            // под именем другого.
+            if (getState().leadRequest.leadId !== leadId) return;
             dispatch(leadRequestActions.setCard(card));
         } catch (error) {
+            if (getState().leadRequest.leadId !== leadId) return;
             dispatch(
                 leadRequestActions.setError(
                     error instanceof Error
@@ -170,6 +186,37 @@ export const runDeepDuplicateCheck =
                     error instanceof Error
                         ? error.message
                         : 'Не удалось запустить проверку дублей',
+                ),
+            );
+        } finally {
+            dispatch(leadRequestActions.setSaving(false));
+        }
+    };
+
+/**
+ * Смена битриксовской стадии лида (STATUS_ID) из панели заявки.
+ *
+ * Пишем напрямую в портал типизированным сервисом; после успеха — оверрайд
+ * в слайсе (полоска обновляется мгновенно) и перечитка графа связей, чтобы
+ * миниатюры лидов в шапке и карточках показали ту же стадию.
+ */
+export const changeLeadBitrixStage =
+    (leadId: number, statusId: string): AppThunk =>
+    async dispatch => {
+        if (!leadId || !statusId) return;
+        dispatch(leadRequestActions.setSaving(true));
+        try {
+            await Bitrix.getService().lead.update(leadId, {
+                STATUS_ID: statusId,
+            });
+            dispatch(leadRequestActions.setBitrixStage({ leadId, statusId }));
+            await dispatch(fetchRelatedDetails({ force: true }));
+        } catch (error) {
+            dispatch(
+                leadRequestActions.setError(
+                    error instanceof Error
+                        ? error.message
+                        : 'Не удалось изменить стадию лида',
                 ),
             );
         } finally {

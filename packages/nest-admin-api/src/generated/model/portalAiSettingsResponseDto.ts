@@ -5,6 +5,7 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { PortalAiSettingsResponseDtoPresentationStrictness } from './portalAiSettingsResponseDtoPresentationStrictness';
 
 export interface PortalAiSettingsResponseDto {
   /**
@@ -107,4 +108,9 @@ export interface PortalAiSettingsResponseDto {
    * @nullable
    */
   presentationAuditEnabled: boolean | null;
+  /**
+   * Строгость определения ПРЕЗЕНТАЦИИ — влияет на тип звонка и всё вытекающее (поле «Презентация проведена», хвост/5К, утреннюю сверку). strict — только живой показ или предметный рассказ под задачи клиента; normal — плюс содержательный рассказ о продукте без привязки каждого инструмента к задачам; soft — любое содержательное обсуждение продукта. «Выслал демо» и мимолётное упоминание — не презентация ни на одном уровне. Пусто — strict.
+   * @nullable
+   */
+  presentationStrictness: PortalAiSettingsResponseDtoPresentationStrictness;
 }

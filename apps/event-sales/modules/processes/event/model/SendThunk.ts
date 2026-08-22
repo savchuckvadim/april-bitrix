@@ -25,6 +25,7 @@ import { returnToTmcActions } from '@/modules/features/ReturnToTMC';
 import { finishResultMenu } from '@/modules/widgets/EventItem/model/EventItemThunk';
 import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
 import { eventActions } from './EventSlice';
+import { eventItemActions } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { flowStatusActions } from './FlowStatusSlice';
 import { watchFlowOperation } from './FlowWatchThunk';
 import { createOperationId } from '../lib/operation-id';
@@ -36,6 +37,7 @@ import {
     type ClientContext,
 } from '@/modules/app/lib/utills/app-state-util';
 import { getPlannedFinishText, validateSend } from '../lib/send-validation';
+import { getSendPreflight } from '../lib/send-preflight';
 
 const flowHelper = new FlowHelper();
 
@@ -48,8 +50,11 @@ export const send =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
         const { result, isColorRequiredError } = validateSend(state);
+        // Полная предпроверка шире валидации: пометки заявок при
+        // продаже/отказе — тоже стоп, хотя validateSend про них не знает.
+        const preflight = getSendPreflight(state);
 
-        if (result.isError || isColorRequiredError) {
+        if (!preflight.isReady) {
             if (result.isError) {
                 dispatch(eventActions.setErrors(result));
             }
@@ -61,8 +66,14 @@ export const send =
                     }),
                 );
             }
+            // Всё незаполненное — одним окном у кнопки отправки: подсказки у
+            // самих полей остаются, но поля разбросаны по экрану, и раньше
+            // отправка молчала («нажал — ничего не произошло»).
+            dispatch(eventItemActions.setPreflightOpen({ isOpen: true }));
             return;
         }
+
+        dispatch(eventItemActions.setPreflightOpen({ isOpen: false }));
 
         // хвост опросника обязателен: если применим и не подтверждён —
         // открываем модалку как шаг перед отправкой, отправка продолжится после неё

@@ -33,9 +33,13 @@ describe('getReportDensity', () => {
         expect(countReportCards({ withPult: true, withSale: false })).toBe(1);
     });
 
-    it('чем теснее, тем меньше строк — и никогда меньше четырёх', () => {
+    it('чем теснее, тем меньше строк — и никогда меньше пяти', () => {
         expect(COMMENT_ROWS.roomy).toBeGreaterThan(COMMENT_ROWS.normal);
         expect(COMMENT_ROWS.normal).toBeGreaterThan(COMMENT_ROWS.dense);
-        expect(COMMENT_ROWS.dense).toBeGreaterThanOrEqual(4);
+        expect(COMMENT_ROWS.dense).toBeGreaterThanOrEqual(5);
+    });
+
+    it('обычный режим — десять строк под разговор', () => {
+        expect(COMMENT_ROWS.normal).toBe(10);
     });
 });

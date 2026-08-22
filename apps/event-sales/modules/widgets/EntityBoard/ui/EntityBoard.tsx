@@ -11,20 +11,21 @@ import { FlowStatusBanner } from '@/modules/widgets/EventList/ui/FlowStatusBanne
 import { getPanelLeadId } from '@/modules/features/LeadRequestCard/lib/lead-request-view';
 import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
 import { useEntityBoard } from '../lib/hooks/use-entity-board';
-import { EntityBoardHeader } from './EntityBoardHeader';
 import { EntityTasksCard } from './EntityTasksCard';
 
 // Секции связей и истории доезжают лениво, каждая со своим скелетоном: их код
 // не нужен для первого кадра, а данные всё равно приходят позже. Дела грузим
 // сразу — ради них сюда и заходят.
-const RelatedDealsCard = dynamic(
-    () => import('@/modules/entities/RelatedCrm/ui/RelatedDealsCard'),
-    { ssr: false, loading: () => <SectionSkeleton title="Сделки" /> },
-);
-const RelatedLeadsCard = dynamic(
-    () => import('@/modules/entities/RelatedCrm/ui/RelatedLeadsCard'),
-    { ssr: false, loading: () => <SectionSkeleton title="Лиды" /> },
-);
+// Секции «Сделки» и «Лиды» пока скрыты (решение владельца 20.08: без них
+// на экране и так много всего) — вернуть вместе с JSX ниже.
+// const RelatedDealsCard = dynamic(
+//     () => import('@/modules/entities/RelatedCrm/ui/RelatedDealsCard'),
+//     { ssr: false, loading: () => <SectionSkeleton title="Сделки" /> },
+// );
+// const RelatedLeadsCard = dynamic(
+//     () => import('@/modules/entities/RelatedCrm/ui/RelatedLeadsCard'),
+//     { ssr: false, loading: () => <SectionSkeleton title="Лиды" /> },
+// );
 const EntityHistoryCard = dynamic(
     () => import('@/modules/entities/EVHistory/ui/EntityHistoryCard'),
     { ssr: false, loading: () => <SectionSkeleton title="История" rows={2} /> },
@@ -34,6 +35,14 @@ const DuplicatesPanel = dynamic(
         import(
             '@/modules/features/Duplicates/ui/DuplicatesPanel/DuplicatesPanel'
         ).then(module => module.DuplicatesPanel),
+    { ssr: false },
+);
+
+const ContactsHubCard = dynamic(
+    () =>
+        import('@/modules/features/ContactsHub/ui/ContactsHubCard').then(
+            module => module.ContactsHubCard,
+        ),
     { ssr: false },
 );
 const LeadRequestPanel = dynamic(
@@ -50,21 +59,16 @@ const LeadRequestPanel = dynamic(
  * идут дела — то, ради чего сюда заходят чаще всего.
  */
 export const EntityBoard: FC = () => {
-    const {
-        descriptor,
-        details,
-        status,
-        includeClosed,
-        setIncludeClosed,
-        reload,
-    } = useEntityBoard();
+    // status/includeClosed/setIncludeClosed/reload вернутся вместе с
+    // секциями «Сделки»/«Лиды» (скрыты ниже).
+    const { descriptor, details } = useEntityBoard();
     // Во встройке-вкладке высоту задаём мы подгонкой под контент — значит экран
     // течёт, а не запирается в h-svh со своими скроллами (см. use-ui-density).
     const { isSelfSized } = useUiDensity();
 
     if (!descriptor) {
         return (
-            <div className="flex min-h-svh items-center justify-center p-4">
+            <div className="flex h-full min-h-40 items-center justify-center p-4">
                 <p className="text-sm text-muted-foreground">
                     Не удалось определить клиента: встройка открыта без
                     компании, лида и сделки.
@@ -77,16 +81,17 @@ export const EntityBoard: FC = () => {
         <div
             className={cn(
                 'flex flex-col gap-3 bg-background p-3',
-                isSelfSized ? 'min-h-0' : 'h-svh overflow-hidden',
+                // Высоту в запертом режиме даёт каркас App (flex h-svh со
+                // общей шапкой сверху) — берём её всю, а не h-svh: иначе
+                // доска вылезала бы за экран ровно на высоту шапки.
+                isSelfSized ? 'min-h-0' : 'h-full overflow-hidden',
             )}
         >
             <NoCallMenu />
             <ReturnToTMCMenu />
 
-            <EntityBoardHeader
-                descriptor={descriptor}
-                responsible={details?.responsible}
-            />
+            {/* Все действия экрана (создать, статистика, режим, темы) — в
+                правом верхнем углу общей шапки; своей строки действий нет. */}
             <FlowStatusBanner />
 
             <div
@@ -111,14 +116,11 @@ export const EntityBoard: FC = () => {
                         !isSelfSized && 'min-h-0 overflow-y-auto',
                     )}
                 >
-                    {/* Секции показываются ВСЕГДА, вместе со своим состоянием.
-                        Раньше они рендерились только при непустом списке: пока
-                        связи грузились или запрос падал, экран молчал — и это
-                        читалось как «связей нет», хотя их просто не принесли. */}
-                    {/* {связанные сделки точно закомменчу потом будем их доделывать сейчас работают криво
-                        показывается в сделке карточка пустая. Лиды это что типа если заявка не лид ?
-                        } */}
-                    {/* <RelatedDealsCard
+                    {/* Секции «Сделки» и «Лиды» пока скрыты (решение
+                        владельца 20.08): градиенты и так в общей шапке, а
+                        без них на экране меньше шума. Вернуть вместе с
+                        dynamic-импортами выше:
+                    <RelatedDealsCard
                         deals={details?.deals ?? []}
                         currentDealId={descriptor.currentDealId}
                         includeClosed={includeClosed}
@@ -126,19 +128,17 @@ export const EntityBoard: FC = () => {
                         status={status}
                         onRetry={reload}
                     />
-             */}
-
-                 {/* {details?.leads && details.leads.length > 0 && (
-                     <RelatedLeadsCard
-                        leads={details.leads}
+                    <RelatedLeadsCard
+                        leads={details?.leads ?? []}
                         status={status}
                         onRetry={reload}
-                    />)} */}
+                    /> */}
                     {/* Карточка заявки: первый открытый связанный лид либо
                         лид контекста встройки (панель сама скрывается). */}
                     <LeadRequestPanel leadId={getPanelLeadId(details?.leads)} />
                     <EntityHistoryCard />
                     <DuplicatesPanel />
+                    <ContactsHubCard />
                 </div>
             </div>
         </div>

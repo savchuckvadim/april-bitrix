@@ -84,7 +84,9 @@ describe('traitDirection / traitRamp', () => {
     it('шкалы «Да → Нет» убывают: рост означает ухудшение', () => {
         // Списки с портала: ork_chk_garant — Да(chk_garant_yes), Нет(chk_garant_no);
         // ork_is_most_user — Да, Нет. Второе значение хуже первого.
-        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_chk_garant)).toBe('down');
+        expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_chk_garant)).toBe(
+            'down',
+        );
         expect(traitDirection(EV_CONTACT_ITEM_PROP.ork_is_most_user)).toBe(
             'down',
         );

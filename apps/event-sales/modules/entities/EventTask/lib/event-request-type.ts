@@ -36,7 +36,9 @@ export const getIsRequestEvent = ({
     // заголовке задачи («Холодный звонок. Заявка» / «. Лид»).
     if (eventType === 'xoRequest' || eventType === 'xoLead') return true;
     // Старые задачи заведены до появления типов: там признак — привязанный лид.
-    return eventType === 'xo' && getCrmLinksFromRaw(ufCrmTask).leadIds.length > 0;
+    return (
+        eventType === 'xo' && getCrmLinksFromRaw(ufCrmTask).leadIds.length > 0
+    );
 };
 
 /**

@@ -27,7 +27,7 @@ export const PresentationCountBadge: FC = () => {
             title={`Презентаций проведено: ${count}`}
             lines={['Считаем по истории общения — по всем связям клиента.']}
         >
-            <span className="shrink-0 cursor-default rounded-full bg-event-pres/20 px-1.5 py-px text-[0.625rem] font-medium text-event-pres-foreground">
+            <span className="shrink-0 cursor-default rounded-full bg-event-pres/20 px-1.5 py-px text-[0.625rem] font-medium text-[color:color-mix(in_oklab,var(--event-pres),var(--foreground)_var(--tone-soft-mix-strong))]">
                 през. {count}
             </span>
         </HintTooltip>

@@ -47,3 +47,40 @@ export const buildPortalFieldPayload = ({
 
     return payload;
 };
+
+/** Порядок и подписи сводки — те же «К», что в анкете. */
+const FIVE_K_SUMMARY_CODES = [
+    'op_5k_client_what',
+    'op_5k_client_ready',
+    'op_5k_client_price',
+    'op_5k_company_who',
+    'op_5k_company_how',
+    'op_5k_company_right',
+    'op_5k_command',
+    'op_5k_concurent',
+    'op_5k_criteri',
+] as const;
+
+/**
+ * Сводное «Пять К» из ответов анкеты: `ЗАГОЛОВОК: ответ` построчно.
+ *
+ * Отдельные op_5k_* живут только на лиде, а сводка — и на сделке: тот, кто
+ * открыл сделку без лида, всё равно видит итог презентации одним полем.
+ * Пустые ответы пропускаются; не ответили ни на один — сводки нет, пустую
+ * строку не пишем (она стёрла бы прошлую).
+ */
+export const buildFiveKSummary = (
+    answers: Record<string, CheckPresentationValue>,
+    titleByCode: Record<string, string>,
+): string | null => {
+    const lines: string[] = [];
+
+    for (const code of FIVE_K_SUMMARY_CODES) {
+        const value = toPortalValue(answers[code] ?? '');
+        if (!value) continue;
+        const title = titleByCode[code] ?? code;
+        lines.push(`${title} ${value}`);
+    }
+
+    return lines.length ? lines.join('\n') : null;
+};

@@ -12,7 +12,10 @@ import { initReturnToTMC } from '@/modules/features/ReturnToTMC/model/ReturnToTM
 import { innActions } from '@/modules/features/Inn/model/InnSlice';
 import { clientSignalsActions } from '@/modules/features/ClientSignals/model/ClientSignalsSlice';
 import { taskDealsActions } from '@/modules/entities/RelatedCrm/model/TaskDealsSlice';
+import { relatedCrmActions } from '@/modules/entities/RelatedCrm/model/RelatedCrmSlice';
+import { startRelatedCrmAppListener } from '@/modules/entities/RelatedCrm/model/RelatedCrmAppListener';
 import { bitrixUserActions } from '@/modules/entities/BitrixUser';
+import { purchaseSignalsActions } from '@/modules/features/PurchaseSignals/model/PurchaseSignalsSlice';
 import { leadMarksActions } from '@/modules/features/LeadMarks/model/LeadMarksSlice';
 import { leadRequestActions } from '@/modules/features/LeadRequestCard/model/LeadRequestSlice';
 import { presentationLeadLinkActions } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
@@ -20,6 +23,7 @@ import { taskLeadLinksActions } from '@/modules/features/TaskLeadLinks/model/Tas
 import { searchDuplicates } from '@/modules/features/Duplicates/model/DuplicatesThunk';
 import { initCheckPresentation } from '@/modules/features/AfterPresentation/model/AfterPresentationThunk';
 import { startEventPlanAppListener } from '@/modules/entities/EventPlan/model/EventPlanAppListener';
+import { startEventPlanRescheduleListener } from '@/modules/entities/EventPlan/model/EventPlanRescheduleListener';
 import { startDuplicatesAppListener } from '@/modules/features/Duplicates';
 import type { AppStartListening } from '../store';
 
@@ -89,6 +93,14 @@ export function startStoreListeners(startAppListening: AppStartListening) {
                 // Привязанные к задачам сделки — напрямую из портала: в графе
                 // связей клиента старых сделок без CRM-связей нет, а полоски
                 // стадий обязаны показывать именно привязанные (по ним отчёт).
+                // Ждём слепок портала (до 5с): по нему thunk классифицирует
+                // воронку сделки (categoryCode → скрытие «ОП Основной»), а на
+                // TASK/CALL_CARD задачи готовы раньше слепка. Не дождались —
+                // запрос всё равно уходит, просто без категорий (fail-open).
+                await listenerApi.condition(
+                    (_action, currentState) => !!currentState.portal.portal,
+                    5000,
+                );
                 dispatch(
                     fetchTaskBoundDeals(
                         action.payload.tasks.flatMap(
@@ -149,7 +161,9 @@ export function startStoreListeners(startAppListening: AppStartListening) {
         actionCreator: appActions.reload,
         effect: async (_action, listenerApi) => {
             listenerApi.dispatch(taskDealsActions.reset());
+            listenerApi.dispatch(relatedCrmActions.reset());
             listenerApi.dispatch(bitrixUserActions.reset());
+            listenerApi.dispatch(purchaseSignalsActions.reset());
             listenerApi.dispatch(leadMarksActions.reset());
             listenerApi.dispatch(innActions.reset());
             listenerApi.dispatch(clientSignalsActions.reset());
@@ -163,6 +177,10 @@ export function startStoreListeners(startAppListening: AppStartListening) {
 
     // Подписки, живущие внутри своих слайсов (app/setAppData → инициализация плана).
     startEventPlanAppListener(startAppListening);
+    // «Не очень» → план перестраивается под перенос текущей задачи.
+    startEventPlanRescheduleListener(startAppListening);
     // app/setAppData → автопроверка дублей клиента (быстрый уровень + кэш).
     startDuplicatesAppListener(startAppListening);
+    // app/setAppData|setAppBitrixData → связи клиента в стор (шапка-layout).
+    startRelatedCrmAppListener(startAppListening);
 }

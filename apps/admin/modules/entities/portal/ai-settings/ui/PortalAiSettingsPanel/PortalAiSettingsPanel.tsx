@@ -26,7 +26,9 @@ import {
     AI_LLM_MODELS,
     AI_MASTER_TOGGLE_META,
     AI_MODEL_META,
+    AI_PRESENTATION_STRICTNESS_OPTIONS,
     AI_SETTINGS_GROUPS,
+    AI_STRICTNESS_META,
     PortalAiSettings,
     PortalAiSettingsUpdate,
 } from '../../model';
@@ -42,6 +44,8 @@ interface Draft {
     llmModel: string;
     deepAnalysisModel: string;
     allowedUserIds: string;
+    /** Строгость определения презентации (MODEL_GLOBAL = «как глобально»). */
+    presentationStrictness: string;
 }
 
 /** Серверные настройки → черновик формы. */
@@ -66,6 +70,7 @@ function toDraft(settings: PortalAiSettings | undefined): Draft {
         llmModel: settings?.llmModel ?? MODEL_GLOBAL,
         deepAnalysisModel: settings?.deepAnalysisModel ?? '',
         allowedUserIds: (settings?.allowedUserIds ?? []).join(', '),
+        presentationStrictness: settings?.presentationStrictness ?? MODEL_GLOBAL,
     };
 }
 
@@ -113,6 +118,10 @@ function toUpdate(draft: Draft): PortalAiSettingsUpdate | string {
 
     update.llmModel = draft.llmModel === MODEL_GLOBAL ? null : draft.llmModel;
     update.deepAnalysisModel = draft.deepAnalysisModel.trim() || null;
+    update.presentationStrictness =
+        draft.presentationStrictness === MODEL_GLOBAL
+            ? null
+            : draft.presentationStrictness;
 
     const usersRaw = draft.allowedUserIds.trim();
     if (usersRaw === '') {
@@ -432,6 +441,44 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                             </p>
                             <p className="text-xs text-muted-foreground/80">
                                 {AI_MODEL_META.deepAnalysisModel.globalHint}
+                            </p>
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label>{AI_STRICTNESS_META.label}</Label>
+                            <Select
+                                value={draft.presentationStrictness}
+                                onValueChange={(value) =>
+                                    setDraft((d) => ({
+                                        ...d,
+                                        presentationStrictness: value,
+                                    }))
+                                }
+                            >
+                                <SelectTrigger className="w-44">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={MODEL_GLOBAL}>
+                                        Как глобально
+                                    </SelectItem>
+                                    {AI_PRESENTATION_STRICTNESS_OPTIONS.map(
+                                        (option) => (
+                                            <SelectItem
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {option.label}
+                                            </SelectItem>
+                                        ),
+                                    )}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-sm text-muted-foreground">
+                                {AI_STRICTNESS_META.description}
+                            </p>
+                            <p className="text-xs text-muted-foreground/80">
+                                {AI_STRICTNESS_META.globalHint}
                             </p>
                         </div>
 

@@ -3,29 +3,36 @@ import { EV_PLAN_CODE } from '../type/event-plan-type';
 import { getAllowedPlanCodes } from './plan-rules';
 
 describe('getAllowedPlanCodes', () => {
-    it('компания — все пять типов', () => {
+    it('компания — все шесть типов', () => {
         expect(
             getAllowedPlanCodes({ context: 'company', isTmc: false }),
         ).toEqual([
             EV_PLAN_CODE.WARM,
             EV_PLAN_CODE.PRESENTATION,
+            EV_PLAN_CODE.REFINE,
             EV_PLAN_CODE.HOT,
             EV_PLAN_CODE.PAY,
             EV_PLAN_CODE.SUPPLY,
         ]);
     });
 
-    it('сделка без компании — звонок и презентация, без решения', () => {
+    it('сделка без компании — без решения, но с доработкой', () => {
         // «Решение» ведёт к оформлению, а оформлять без компании нечего:
         // реквизиты и счёт живут в ней (решение владельца 13.08.2026).
+        // «Доработка» — лёгкий аналог решения, доступный до компании (18.08).
         expect(
             getAllowedPlanCodes({ context: 'dealNoCompany', isTmc: false }),
-        ).toEqual([EV_PLAN_CODE.WARM, EV_PLAN_CODE.PRESENTATION]);
+        ).toEqual([
+            EV_PLAN_CODE.WARM,
+            EV_PLAN_CODE.PRESENTATION,
+            EV_PLAN_CODE.REFINE,
+        ]);
     });
 
-    it('лид и неизвестный контекст — только звонок', () => {
+    it('лид — звонок и доработка; неизвестный контекст — только звонок', () => {
         expect(getAllowedPlanCodes({ context: 'lead', isTmc: false })).toEqual([
             EV_PLAN_CODE.WARM,
+            EV_PLAN_CODE.REFINE,
         ]);
         expect(
             getAllowedPlanCodes({ context: 'unknown', isTmc: false }),
@@ -39,6 +46,7 @@ describe('getAllowedPlanCodes', () => {
         expect(
             getAllowedPlanCodes({ context: 'dealNoCompany', isTmc: true }),
         ).toEqual([EV_PLAN_CODE.WARM, EV_PLAN_CODE.PRESENTATION]);
+        // «Доработки» нет в наборе ТМЦ — пересечение её и отсекает.
         expect(getAllowedPlanCodes({ context: 'lead', isTmc: true })).toEqual([
             EV_PLAN_CODE.WARM,
         ]);
@@ -62,7 +70,7 @@ describe('getAllowedPlanCodes', () => {
                 isAfterSale: true,
                 isAllTypesShown: true,
             }),
-        ).toHaveLength(5);
+        ).toHaveLength(6);
     });
 
     it('там, где «Поставки» нет в контексте, сужать нечем', () => {
@@ -72,6 +80,6 @@ describe('getAllowedPlanCodes', () => {
                 isTmc: false,
                 isAfterSale: true,
             }),
-        ).toEqual([EV_PLAN_CODE.WARM]);
+        ).toEqual([EV_PLAN_CODE.WARM, EV_PLAN_CODE.REFINE]);
     });
 });

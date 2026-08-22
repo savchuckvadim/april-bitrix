@@ -6,6 +6,7 @@ import { Button } from '@workspace/ui/components/button';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { LEAD_REQUEST_TEXT } from '../consts/lead-request.const';
 import { useLeadConfirmGate } from '../lib/hooks/use-lead-confirm-gate';
+import { useSlaCountdown } from '../lib/hooks/use-sla-countdown';
 import { acceptLeadRequest } from '../model/LeadRequestThunk';
 import { LeadTransferDialog } from './LeadTransferDialog';
 
@@ -26,6 +27,7 @@ import { LeadTransferDialog } from './LeadTransferDialog';
 export const LeadConfirmGate: FC = () => {
     const dispatch = useAppDispatch();
     const gate = useLeadConfirmGate();
+    const sla = useSlaCountdown(gate.currentLeadId);
     const saving = useAppSelector(state => state.leadRequest.saving);
     const [isTransferOpen, setIsTransferOpen] = useState(false);
 
@@ -48,9 +50,29 @@ export const LeadConfirmGate: FC = () => {
                 <h1 className="max-w-xl text-xl font-semibold text-balance">
                     {gate.clientTitle}
                 </h1>
+                {gate.pendingAfter > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                        {`И ещё ${gate.pendingAfter} ждёт решения — покажем по одной`}
+                    </p>
+                )}
                 <p className="max-w-md text-sm text-muted-foreground">
                     {LEAD_REQUEST_TEXT.gateHint}
                 </p>
+                {/* Живой срок вместо абстрактного «часа»: цифра из того же
+                    поля, по которому крон забирает заявку. */}
+                {sla && (
+                    <p
+                        className={
+                            sla.isOverdue
+                                ? 'text-sm font-semibold text-destructive'
+                                : 'text-sm font-medium text-warning'
+                        }
+                    >
+                        {sla.isOverdue
+                            ? 'Срок вышел — заявку может забрать система'
+                            : `Осталось ≈ ${sla.minutesLeft} мин`}
+                    </p>
+                )}
             </div>
 
             <div className="relative flex flex-wrap items-center justify-center gap-2">

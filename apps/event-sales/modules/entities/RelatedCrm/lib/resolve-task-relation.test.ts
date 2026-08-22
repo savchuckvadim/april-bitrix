@@ -108,6 +108,112 @@ describe('resolveTaskRelation', () => {
         expect(result.deals[0]?.isOutsideClientGraph).toBeUndefined();
     });
 
+    it('withMainDeal=false скрывает сделку воронки «ОП Основная»', () => {
+        const base = deal({
+            id: 1,
+            stage: { bitrixId: 'C1:NEW', categoryCode: 'sales_base' },
+        });
+        const pres = deal({
+            id: 2,
+            stage: { bitrixId: 'C5:NEW', categoryCode: 'sales_present' },
+        });
+        const result = resolveTaskRelation({
+            details: details({ deals: [base, pres] }),
+            boundDeals: [],
+            dealIds: [],
+            leadIds: [],
+            withMainDeal: false,
+        });
+        expect(result.deals.map(item => item.id)).toEqual([2]);
+    });
+
+    it('скрытая флагом основная не возвращается через boundDeals с ложной меткой', () => {
+        const base = deal({
+            id: 1,
+            stage: { bitrixId: 'C1:NEW', categoryCode: 'sales_base' },
+        });
+        const result = resolveTaskRelation({
+            details: details({ deals: [base] }),
+            boundDeals: [deal({ id: 1 })],
+            dealIds: [1],
+            leadIds: [],
+            withMainDeal: false,
+        });
+        expect(result.deals).toEqual([]);
+    });
+
+    it('основная из привязок не вспыхивает, пока граф не загружен', () => {
+        const result = resolveTaskRelation({
+            details: null,
+            boundDeals: [
+                deal({
+                    id: 1,
+                    stage: { bitrixId: 'C1:NEW', categoryCode: 'sales_base' },
+                }),
+            ],
+            dealIds: [1],
+            leadIds: [],
+            withMainDeal: false,
+        });
+        expect(result.deals).toEqual([]);
+    });
+
+    it('основная вне графа клиента тоже скрывается флагом', () => {
+        const result = resolveTaskRelation({
+            details: details({ deals: [] }),
+            boundDeals: [
+                deal({
+                    id: 25111,
+                    stage: { bitrixId: 'C1:NEW', categoryCode: 'sales_base' },
+                }),
+            ],
+            dealIds: [25111],
+            leadIds: [],
+            withMainDeal: false,
+        });
+        expect(result.deals).toEqual([]);
+    });
+
+    it('привязанная без categoryCode показывается (fail-open)', () => {
+        const result = resolveTaskRelation({
+            details: null,
+            boundDeals: [deal({ id: 2, stage: { bitrixId: 'C5:NEW' } })],
+            dealIds: [2],
+            leadIds: [],
+            withMainDeal: false,
+        });
+        expect(result.deals.map(item => item.id)).toEqual([2]);
+    });
+
+    it('withMainDeal=true оставляет основную и в привязках', () => {
+        const result = resolveTaskRelation({
+            details: null,
+            boundDeals: [
+                deal({
+                    id: 1,
+                    stage: { bitrixId: 'C1:NEW', categoryCode: 'sales_base' },
+                }),
+            ],
+            dealIds: [1],
+            leadIds: [],
+        });
+        expect(result.deals.map(item => item.id)).toEqual([1]);
+    });
+
+    it('по умолчанию основная сделка показывается', () => {
+        const base = deal({
+            id: 1,
+            stage: { bitrixId: 'C1:NEW', categoryCode: 'sales_base' },
+        });
+        const result = resolveTaskRelation({
+            details: details({ deals: [base] }),
+            boundDeals: [],
+            dealIds: [],
+            leadIds: [],
+        });
+        expect(result.deals.map(item => item.id)).toEqual([1]);
+    });
+
     it('версия из графа предпочитается портальной привязке', () => {
         const result = resolveTaskRelation({
             details: details({

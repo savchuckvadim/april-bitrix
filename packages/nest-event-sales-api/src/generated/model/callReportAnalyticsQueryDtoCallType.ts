@@ -15,6 +15,7 @@ export type CallReportAnalyticsQueryDtoCallType =
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const CallReportAnalyticsQueryDtoCallType = {
     cold: 'cold',
+    site_lead: 'site_lead',
     call: 'call',
     presentation: 'presentation',
     decision: 'decision',

@@ -9,6 +9,13 @@
  * выпадают из CSS, и бэйдж рендерится без фона.
  */
 @source "../../../april-ui/src/**/*.{ts,tsx}";
+/*
+ * То же и для пакета тем: его панель и палитра живут классами Tailwind, а
+ * сканером не покрывались — работали только те классы, что случайно
+ * встретились где-то ещё. Кнопка-свотч без иконки внутри схлопывалась в
+ * нулевой размер, то есть переключатель цвета пропадал с экрана.
+ */
+@source "../../../theme/src/**/*.{ts,tsx}";
 
 @import 'tw-animate-css';
 
@@ -139,6 +146,8 @@
     --color-event-pres-foreground: var(--event-pres-foreground);
     --color-event-hot: var(--event-hot);
     --color-event-hot-foreground: var(--event-hot-foreground);
+    --color-event-refine: var(--event-refine);
+    --color-event-refine-foreground: var(--event-refine-foreground);
     --color-event-money: var(--event-money);
     --color-event-money-foreground: var(--event-money-foreground);
     --color-event-lead: var(--event-lead);
@@ -184,7 +193,9 @@
     --color-deal-stage-pres: var(--deal-stage-pres);
     --color-deal-stage-pres-foreground: var(--deal-stage-pres-foreground);
     --color-deal-stage-docs: var(--deal-stage-docs);
+    --color-deal-stage-refine: var(--deal-stage-refine);
     --color-deal-stage-docs-foreground: var(--deal-stage-docs-foreground);
+    --color-deal-stage-refine-foreground: var(--deal-stage-refine-foreground);
     --color-deal-stage-decision: var(--deal-stage-decision);
     --color-deal-stage-decision-foreground: var(--deal-stage-decision-foreground);
     --color-deal-stage-payment: var(--deal-stage-payment);
@@ -228,6 +239,23 @@
      * вторая половина цикла (55%…100% без движения).
      */
     --animate-stage-sheen: stage-sheen 3.4s ease-in-out infinite;
+
+    /*
+     * Подмигивание заголовка (animate-wink): режим секции сменился, и это
+     * надо заметить, не отвлекаясь от работы. Мягче animate-pulse — текст
+     * не уходит в прозрачность целиком и остаётся читаемым в любой фазе.
+     */
+    --animate-wink: wink 2.2s ease-in-out infinite;
+}
+
+@keyframes wink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.55;
+    }
 }
 
 @keyframes stage-sheen {

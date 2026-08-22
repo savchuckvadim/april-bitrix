@@ -7,6 +7,8 @@ import {
     fetchLeadRequestCard,
     saveLeadRequest,
 } from '../../model/LeadRequestThunk';
+import { leadRequestActions } from '../../model/LeadRequestSlice';
+import { needsNotCaType } from '../not-ca-rule';
 import type { LeadRequestUpdate } from '../../model';
 
 /** Enum-поля карточки, редактируемые селектами (типы значений — из DTO). */
@@ -49,9 +51,16 @@ export const useLeadRequest = (explicitLeadId?: number) => {
             key: K,
             value: NonNullable<LeadRequestEnumPatch[K]>,
         ) => {
-            dispatch(saveLeadRequest({ [key]: value }));
+            const patch = { [key]: value };
+            // «Не ЦА» без типа портал не примет (400) — спрашиваем тип и
+            // отправляем оба поля разом, а не ловим ошибку постфактум.
+            if (needsNotCaType(patch, card)) {
+                dispatch(leadRequestActions.askNotCaType(patch));
+                return;
+            }
+            dispatch(saveLeadRequest(patch));
         },
-        [dispatch],
+        [dispatch, card],
     );
 
     const patchBool = useCallback(

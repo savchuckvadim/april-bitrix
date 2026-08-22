@@ -1,6 +1,9 @@
 export { Spinner } from './Spinner';
 export type { SpinnerProps, SpinnerSize } from './Spinner';
 
+export { FieldErrorHint } from './FieldErrorHint';
+export type { FieldErrorHintProps } from './FieldErrorHint';
+
 // Микро-прелоадеры одного элемента (pbx-поля, микро-кнопки, бэйджи)
 export { MicroSkeleton } from './Micro/MicroSkeleton';
 export type { MicroSkeletonProps } from './Micro/MicroSkeleton';

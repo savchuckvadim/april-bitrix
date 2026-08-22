@@ -21,6 +21,8 @@ import { LeadRequestEnumField } from './LeadRequestEnumField';
 import { LeadRequestHistory } from './LeadRequestHistory';
 import { LeadRequestMarks } from './LeadRequestMarks';
 import { LeadRequestTitleRow } from './LeadRequestTitleRow';
+import { LeadStageControl } from './LeadStageControl';
+import { NotCaTypePrompt } from './NotCaTypePrompt';
 
 interface LeadRequestPanelProps {
     /** Явный лид (со связей); без него — лид встройки/текущей задачи. */
@@ -57,6 +59,8 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
                     : LEAD_REQUEST_TEXT.titleLead
             }
             density="compact"
+            collapsible
+            defaultOpen
             actions={
                 badge ? (
                     <ToneBadge
@@ -84,8 +88,12 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
                         <LeadRequestAcceptBar />
                         <LeadRequestTitleRow
                             title={card.title}
+                            leadId={card.leadId}
                             questUrl={card.questUrl ?? null}
                             regNumber={card.regNumber ?? null}
+                            // Битриксовская стадия — сразу за названием,
+                            // в ту же строку (полоска + смена стадии).
+                            afterTitle={<LeadStageControl title={card.title} />}
                         />
 
                         <div className="grid gap-2">
@@ -157,6 +165,10 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
                         {error && (
                             <p className="text-xs text-destructive">{error}</p>
                         )}
+
+                        {/* Тип «не ЦА» спрашиваем окном в момент выбора
+                            статуса: без него портал правку не примет. */}
+                        <NotCaTypePrompt />
                     </div>
                 )}
             </SectionState>

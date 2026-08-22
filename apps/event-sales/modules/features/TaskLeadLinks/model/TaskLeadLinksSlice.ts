@@ -9,9 +9,11 @@ import {
 export interface TaskLeadLinksState {
     /** Отмеченные лиды — уедут в plan.relatedLeadIds (L_* новой задачи). */
     selectedIds: number[];
+    /** Менеджер уже трогал набор — предвыбор больше не вмешивается. */
+    isTouched: boolean;
 }
 
-const initialState: TaskLeadLinksState = { selectedIds: [] };
+const initialState: TaskLeadLinksState = { selectedIds: [], isTouched: false };
 
 /**
  * Выбор заявок/лидов для НОВОЙ задачи (создаётся из сделки/компании без
@@ -27,6 +29,16 @@ const taskLeadLinksSlice = createSlice({
             state.selectedIds = state.selectedIds.includes(id)
                 ? state.selectedIds.filter(item => item !== id)
                 : [...state.selectedIds, id];
+            state.isTouched = true;
+        },
+        /**
+         * Предвыбор по умолчанию: связь с заявкой нужна почти всегда, и
+         * пустые чекбоксы менеджер чаще пролистывал, чем отмечал. Ручной
+         * выбор не трогаем — только пока к набору не притрагивались.
+         */
+        preselect(state, action: PayloadAction<number[]>) {
+            if (state.isTouched) return;
+            state.selectedIds = action.payload;
         },
         reset: () => initialState,
     },
@@ -35,6 +47,7 @@ const taskLeadLinksSlice = createSlice({
 /* Экспорты аннотированы явно — TS2742 (immer из pnpm-пути). */
 export const taskLeadLinksActions: {
     toggle: ActionCreatorWithPayload<number, 'taskLeadLinks/toggle'>;
+    preselect: ActionCreatorWithPayload<number[], 'taskLeadLinks/preselect'>;
     reset: ActionCreatorWithoutPayload<'taskLeadLinks/reset'>;
 } = taskLeadLinksSlice.actions;
 

@@ -1,4 +1,10 @@
-import { createEnumObject, createFieldItemsEnum, FieldItemCode, FieldItemCodesMap, FieldWithItems } from "../../field/type/pbx-field-type.util";
+import {
+    createEnumObject,
+    createFieldItemsEnum,
+    FieldItemCode,
+    FieldItemCodesMap,
+    FieldWithItems,
+} from '../../field/type/pbx-field-type.util';
 
 export const PBX_SALES_KPI_LIST_FIELDS = [
     {
@@ -197,6 +203,19 @@ export const PBX_SALES_KPI_LIST_FIELDS = [
                 name: 'Заявка с сайта',
                 SORT: 90,
                 VALUE: 'Заявка с сайта',
+            },
+            // Доработка: KPI пишется item'ом call, этот item нужен ИСТОРИИ
+            // (sales_history) — бэйдж «Доработка» в ленте. SORT 140 — синхронно
+            // с бэк-зеркалом реестра.
+            {
+                bitrixCode: 'REFINE',
+                code: 'refine',
+                fieldCode: 'event_type',
+                isActive: true,
+                isNeedUpdate: true,
+                name: 'Доработка',
+                SORT: 140,
+                VALUE: 'Доработка',
             },
         ],
     },

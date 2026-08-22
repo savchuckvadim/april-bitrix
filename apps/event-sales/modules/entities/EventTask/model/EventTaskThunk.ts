@@ -46,14 +46,24 @@ export const initialEventTasks =
         // легли портальные настройки приложения (fetchAppConfig).
         const { taskGroupId } = getState().app.config;
         void from;
-        const ufCrmTasks = companyId
-            ? `CO_${companyId}`
-            : dealId
-              ? `D_${dealId}`
-              : leadId
-                ? `L_${leadId}`
-                : null;
-        if (!ufCrmTasks) {
+        // const ufCrmTasks = companyId
+        //     ? `CO_${companyId}`
+        //     : dealId
+        //       ? `D_${dealId}`
+        //       : leadId
+        //         ? `L_${leadId}`
+        //         : null;
+        const ufCrmTasks: string[] = [];
+        if (companyId) {
+            ufCrmTasks.push(`CO_${companyId}`);
+        }
+        if (dealId) {
+            ufCrmTasks.push(`D_${dealId}`);
+        }
+        if (leadId) {
+            ufCrmTasks.push(`L_${leadId}`);
+        }
+        if (!ufCrmTasks || !ufCrmTasks.length) {
             dispatch(eventTaskActions.setFetchedTasks({ tasks: null }));
             return;
         }
@@ -62,7 +72,7 @@ export const initialEventTasks =
                 const response = await Bitrix.getService().task.getList(
                     {
                         GROUP_ID: taskGroupId,
-                        UF_CRM_TASK: [ufCrmTasks],
+                        UF_CRM_TASK: ufCrmTasks,
                         RESPONSIBLE_ID: userId,
                         '!=STATUS': 5,
                     } as never,

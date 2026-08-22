@@ -7,10 +7,9 @@ import { useRelationsBar } from '../lib/hooks/use-relations-bar';
 import {
     MAX_RELATION_BARS,
     MAX_RELATION_BARS_COMPACT,
+    type RelationsBarMode,
 } from '../lib/relations-bar';
-import { dealAmount } from '../lib/stage-view';
-import { DealStageBar } from './DealStageBar';
-import { LeadStageBar } from './LeadStageBar';
+import { RelationBarSlot } from './RelationBarSlot';
 
 interface RelationsBarProps {
     /**
@@ -19,6 +18,8 @@ interface RelationsBarProps {
      * дела на экране 630×600.
      */
     compact?: boolean;
+    /** Состав строки: всё, только основная, основная с заявками, только сделки. */
+    mode?: RelationsBarMode;
     className?: string;
 }
 
@@ -32,10 +33,12 @@ interface RelationsBarProps {
  */
 export const RelationsBar: FC<RelationsBarProps> = ({
     compact = false,
+    mode = 'all',
     className,
 }) => {
     const bar = useRelationsBar(
         compact ? MAX_RELATION_BARS_COMPACT : MAX_RELATION_BARS,
+        mode,
     );
 
     if (!bar.main && !bar.minis.length) return null;
@@ -49,12 +52,13 @@ export const RelationsBar: FC<RelationsBarProps> = ({
             )}
         >
             {bar.main && (
-                <DealStageBar
+                // Подпись и в compact: название и стадия — ответ на «что
+                // дальше», одна строка text-[0.6875rem] шапку не распирает.
+                // Миниатюры остаются немыми.
+                <RelationBarSlot
+                    item={bar.main}
+                    withLabel
                     className={cn('min-w-0 flex-1', compact && 'min-w-24')}
-                    stage={bar.main.stage}
-                    title={bar.main.title}
-                    note={dealAmount(bar.main.opportunity)}
-                    withLabel={!compact}
                 />
             )}
 
@@ -63,18 +67,7 @@ export const RelationsBar: FC<RelationsBarProps> = ({
                     key={`${item.kind}_${item.id}`}
                     className={cn('shrink-0', compact ? 'w-10' : 'w-16')}
                 >
-                    {item.kind === 'deal' && item.deal ? (
-                        <DealStageBar
-                            stage={item.deal.stage}
-                            title={item.deal.title}
-                            note={dealAmount(item.deal.opportunity)}
-                        />
-                    ) : (
-                        <LeadStageBar
-                            statusId={item.lead?.statusId}
-                            title={item.title}
-                        />
-                    )}
+                    <RelationBarSlot item={item} />
                 </div>
             ))}
 

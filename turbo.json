@@ -3,7 +3,8 @@
     "ui": "tui",
     "globalEnv": [
         "NEXT_PUBLIC_APP_URL",
-        "YANDEX_ID"
+        "YANDEX_ID",
+        "FRONT_ERROR_BACK_URL"
     ],
     "tasks": {
         "build": {
@@ -26,7 +27,8 @@
                 "IN_BITRIX",
                 "PUPPETEER_EXECUTABLE_PATH",
                 "PDF_PREVIEW_URL",
-                "REDIS_HOST"
+                "REDIS_HOST",
+                "FRONT_ERROR_BACK_URL"
             ]
         },
         "lint": {
@@ -39,7 +41,8 @@
                 "IN_BITRIX",
                 "PUPPETEER_EXECUTABLE_PATH",
                 "PDF_PREVIEW_URL",
-                "REDIS_HOST"
+                "REDIS_HOST",
+                "FRONT_ERROR_BACK_URL"
             ]
         },
         "check-types": {
@@ -66,7 +69,8 @@
                 "IN_BITRIX",
                 "PUPPETEER_EXECUTABLE_PATH",
                 "PDF_PREVIEW_URL",
-                "REDIS_HOST"
+                "REDIS_HOST",
+                "FRONT_ERROR_BACK_URL"
             ]
         }
     }

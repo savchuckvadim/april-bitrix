@@ -1,4 +1,5 @@
 import { RELATED_ENTITY_TYPE, type RelatedCrmDetails } from '../model';
+import { isBaseSalesDeal } from './deal-category';
 import type { EntityDescriptor } from './entity-descriptor';
 
 /**
@@ -12,9 +13,6 @@ import type { EntityDescriptor } from './entity-descriptor';
  *  2. сделка, из которой открылись, — если основной нет;
  *  3. сущность контекста встройки — компания, лид или та же сделка.
  */
-
-/** Код воронки «ОП Основная» в слепке портала. */
-const BASE_SALES_CATEGORY_CODE = 'sales_base';
 
 export interface FinishTarget {
     entityType: EntityDescriptor['entityType'];
@@ -33,9 +31,7 @@ export const getFinishTarget = ({
     if (!descriptor) return null;
 
     const baseDeal = details?.deals?.find(
-        deal =>
-            !deal.closed &&
-            deal.stage?.categoryCode === BASE_SALES_CATEGORY_CODE,
+        deal => !deal.closed && isBaseSalesDeal(deal),
     );
     if (baseDeal) {
         return { entityType: RELATED_ENTITY_TYPE.DEAL, entityId: baseDeal.id };

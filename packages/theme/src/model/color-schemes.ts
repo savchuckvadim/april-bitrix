@@ -38,6 +38,31 @@ export const ColorSchemes = [
     'claude',
 ] as const;
 
+/**
+ * Цвет-превью схемы для свотча в переключателе.
+ *
+ * Приходится держать значения здесь: сами темы объявлены селектором
+ * `:root.<схема>-<режим>`, поэтому применить класс схемы к маленькому
+ * квадратику и взять её `--primary` нельзя — переменные живут только на
+ * корне документа. Ключи типизированы `ColorScheme`, так что забытая схема
+ * не проедет мимо компилятора.
+ */
+export const COLOR_SCHEME_SWATCH: Record<ColorScheme, string> = {
+    default: '#1E293B',
+    blue: '#3B82F6',
+    violet: '#8B5CF6',
+    pink: '#d6409f',
+    green: '#46a758',
+    yellow: '#ffc53d',
+    orange: '#f76b15',
+    red: '#EF4444',
+    bx: '#30c3ef',
+    beige: '#F5F3F0',
+    'explosive-pink': '#bb52d4',
+    air: '#3773e0',
+    claude: '#D97757',
+};
+
 /*
  * Пресеты масштаба UI — см. packages/ui/src/styles/tokens/density.css.
  *

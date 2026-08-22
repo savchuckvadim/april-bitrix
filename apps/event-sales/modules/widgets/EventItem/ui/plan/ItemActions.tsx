@@ -6,7 +6,6 @@ import { cn } from '@workspace/ui/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { send, useEventNavigation } from '@/modules/processes/event';
 import { useLeadRequestSendBlock } from '@/modules/features/LeadRequestCard/lib/hooks/use-lead-request-send-block';
-import { cancelResultMenu } from '../../model/EventItemThunk';
 
 interface ItemActionsProps {
     /**
@@ -32,10 +31,9 @@ export const ItemActions: FC<ItemActionsProps> = ({ variant }) => {
     // Непринятая заявка блокирует отправку: сначала «Принять в работу».
     const acceptBlock = useLeadRequestSendBlock();
 
-    const cancel = async () => {
-        await dispatch(cancelResultMenu());
-        nav.toList();
-    };
+    // Только уход: форму сбросит EventProcessInit, когда список уже открыт
+    // (сброс до навигации показывал «Новое событие» прямо в уходящей форме).
+    const cancel = () => nav.toList();
 
     return (
         <div

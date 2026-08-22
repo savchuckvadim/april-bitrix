@@ -16,6 +16,14 @@ interface State {
     errorInfo: React.ErrorInfo | null;
 }
 
+/**
+ * «ResizeObserver loop …» — предупреждение спецификации, а не ошибка: браузер
+ * сообщает, что наблюдатель размеров не успел за один кадр. Ловить его
+ * экраном ошибки нельзя.
+ */
+const isResizeObserverNoise = (event: ErrorEvent): boolean =>
+    !event.error && /ResizeObserver loop/i.test(event.message ?? '');
+
 export class ErrorBoundary extends React.Component<Props, State> {
     private unsubscribe?: () => void;
     private unsubscribeCritical?: () => void;
@@ -53,6 +61,13 @@ export class ErrorBoundary extends React.Component<Props, State> {
     }
 
     handleGlobalError = (event: ErrorEvent) => {
+        // Шум браузера, а не поломка приложения: сообщение о том, что цикл
+        // ResizeObserver не уложился в кадр. Прилетает от стеклянных
+        // поверхностей и выпадающих списков (они меряют себя на открытии),
+        // приходит БЕЗ error-объекта — и роняло весь экран в «Что-то пошло
+        // не так» ровно в момент выбора контакта.
+        if (isResizeObserverNoise(event)) return;
+
         console.error('Global error caught:', event.error);
         this.setState({
             hasError: true,

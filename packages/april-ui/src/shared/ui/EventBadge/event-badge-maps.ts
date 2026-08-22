@@ -21,6 +21,7 @@ export const EVENT_TYPE_TONE: Record<string, Tone> = {
     Заявка: 'event-lead',
     Звонок: 'event-warm',
     Презентация: 'event-pres',
+    Доработка: 'event-refine',
     Решение: 'event-hot',
     Оплата: 'event-money',
     'Сервисный сигнал': 'event-ss',

@@ -40,6 +40,8 @@ export type EventTone =
     | 'event-lead'
     | 'event-warm'
     | 'event-pres'
+    /** Доработка — лёгкий шаг перед решением, янтарь. */
+    | 'event-refine'
     | 'event-hot'
     | 'event-money'
     | 'event-ss'
@@ -86,6 +88,7 @@ export const TONE_SOLID: Record<Tone, string> = {
     'event-cold': 'bg-event-cold text-event-cold-foreground',
     'event-warm': 'bg-event-warm text-event-warm-foreground',
     'event-pres': 'bg-event-pres text-event-pres-foreground',
+    'event-refine': 'bg-event-refine text-event-refine-foreground',
     'event-hot': 'bg-event-hot text-event-hot-foreground',
     'event-money': 'bg-event-money text-event-money-foreground',
     'event-ss': 'bg-event-ss text-event-ss-foreground',
@@ -145,6 +148,8 @@ export const TONE_SOFT: Record<Tone, string> = {
      */
     'event-pres':
         'bg-event-pres/20 text-[color:color-mix(in_oklab,var(--event-pres),var(--foreground)_var(--tone-soft-mix-strong))]',
+    'event-refine':
+        'bg-event-refine/10 text-[color:color-mix(in_oklab,var(--event-refine),var(--foreground)_var(--tone-soft-mix))]',
     'event-hot':
         'bg-event-hot/10 text-[color:color-mix(in_oklab,var(--event-hot),var(--foreground)_var(--tone-soft-mix))]',
     'event-money':
@@ -192,6 +197,7 @@ export const TONE_TEXT: Record<Tone, string> = {
     'event-cold': 'text-event-cold',
     'event-warm': 'text-event-warm',
     'event-pres': 'text-event-pres',
+    'event-refine': 'text-event-refine',
     'event-hot': 'text-event-hot',
     'event-money': 'text-event-money',
     'event-ss': 'text-event-ss',
@@ -225,6 +231,7 @@ export const TONE_BORDER: Record<Tone, string> = {
     'event-cold': 'border-event-cold',
     'event-warm': 'border-event-warm',
     'event-pres': 'border-event-pres',
+    'event-refine': 'border-event-refine',
     'event-hot': 'border-event-hot',
     'event-money': 'border-event-money',
     'event-ss': 'border-event-ss',
@@ -258,6 +265,7 @@ export const TONE_BG: Record<Tone, string> = {
     'event-cold': 'bg-event-cold',
     'event-warm': 'bg-event-warm',
     'event-pres': 'bg-event-pres',
+    'event-refine': 'bg-event-refine',
     'event-hot': 'bg-event-hot',
     'event-money': 'bg-event-money',
     'event-ss': 'bg-event-ss',

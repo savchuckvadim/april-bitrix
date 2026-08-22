@@ -1,7 +1,10 @@
 import { Bitrix } from '@workspace/bitrix';
 import { findUfKey } from '@workspace/pbx';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { buildPortalFieldPayload } from '../lib/check-presentation.persist';
+import {
+    buildFiveKSummary,
+    buildPortalFieldPayload,
+} from '../lib/check-presentation.persist';
 
 /**
  * Ответы опросника — в поля Битрикса.
@@ -26,6 +29,47 @@ export const persistCheckPresentation =
         const answers = state.afterPresentation.checkPresentation.committed;
 
         if (!portal || !Object.keys(answers).length) return;
+
+        // Сводное «Пять К» собирается из ответов: отдельные op_5k_* живут
+        // только на лиде, а сводка доезжает и до сделки.
+        //
+        // База — то, что УЖЕ лежит на лиде: при частичном повторном
+        // заполнении (ответили на два вопроса из девяти) сводка иначе
+        // теряла бы прошлые семь ответов и расходилась с op_5k_* полями.
+        const items = state.afterPresentation.checkPresentation.items;
+        const titleByCode = Object.fromEntries(
+            items.map(item => [item.code, `${item.title}:`]),
+        );
+        const leadRow = state.app.bitrix.lead as unknown as Record<
+            string,
+            unknown
+        > | null;
+        const baseAnswers: Record<string, string> = {};
+        if (leadRow) {
+            for (const item of items) {
+                const key = findUfKey(portal.lead?.bitrixfields, item.code);
+                const raw = key ? leadRow[key] : null;
+                if (typeof raw === 'string' && raw.trim()) {
+                    baseAnswers[item.code] = raw;
+                }
+            }
+        }
+        // Пустые ответы в мерж не идут: стёртое поле опросника НЕ пишется
+        // на портал (payload пустоту пропускает), значит и сводка обязана
+        // сохранить прошлую строку — иначе op_presentation_5k расходился бы
+        // с op_5k_* полями. Семантика «стереть нельзя, только перезаписать».
+        const filledAnswers = Object.fromEntries(
+            Object.entries(answers).filter(([, value]) =>
+                typeof value === 'string' ? value.trim() : value != null,
+            ),
+        );
+        const summary = buildFiveKSummary(
+            { ...baseAnswers, ...filledAnswers },
+            titleByCode,
+        );
+        const fullAnswers = summary
+            ? { ...answers, op_presentation_5k: summary }
+            : answers;
 
         const { company, deal, lead } = state.app.bitrix;
         const bitrix = Bitrix.getService();
@@ -57,7 +101,7 @@ export const persistCheckPresentation =
             if (!entityId) continue;
 
             const payload = buildPortalFieldPayload({
-                answers,
+                answers: fullAnswers,
                 resolveKey: code => findUfKey(target.fields, code),
             });
             if (!Object.keys(payload).length) continue;

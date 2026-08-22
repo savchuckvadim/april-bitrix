@@ -1,7 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import * as PopoverPrimitive from '@radix-ui/react-popover';
+/*
+ * Импорт через сборный `radix-ui`, а НЕ через @radix-ui/react-popover напрямую:
+ * pnpm резолвил их в разные физические копии @radix-ui/react-dismissable-layer
+ * (у Dialog одна, у Popover другая). Контекст слоёв там — модульный синглтон,
+ * поэтому Popover внутри модального Dialog не знал, что тот выставил
+ * `body { pointer-events: none }`, и не возвращал себе `pointer-events: auto`:
+ * клики проваливались СКВОЗЬ список под попап, фокус не держался в поиске,
+ * Esc закрывал окно вместе с попапом. Сборный пакет даёт один инстанс на всех.
+ */
+import { Popover as PopoverPrimitive } from 'radix-ui';
 
 import { cn } from '@workspace/ui/lib/utils';
 

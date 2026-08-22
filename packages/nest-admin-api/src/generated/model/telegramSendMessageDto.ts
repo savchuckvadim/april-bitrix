@@ -7,11 +7,24 @@
  */
 
 export interface TelegramSendMessageDto {
+  /**
+   * Маркер приложения-отправителя (например, event-sales-front) — по нему сообщение ищется в чате.
+   * @maxLength 200
+   */
   app: string;
-  /** Text message */
+  /**
+   * Text message
+   * @maxLength 4000
+   */
   text: string;
-  /** Domain */
+  /**
+   * Domain
+   * @maxLength 200
+   */
   domain: string;
-  /** User ID */
+  /**
+   * User ID
+   * @maxLength 200
+   */
   userId: string;
 }

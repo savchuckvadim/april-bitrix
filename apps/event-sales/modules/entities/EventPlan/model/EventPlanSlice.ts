@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import type { ClientContext } from '@/modules/app/lib/utills/app-state-util';
-import { EV_PLAN_PROP } from '../type/event-plan-type';
+import { EV_PLAN_CODE, EV_PLAN_PROP } from '../type/event-plan-type';
 import {
     getPlanInitState,
     isDifferenceMoreThanFourMonths,
@@ -71,6 +71,32 @@ const eventPlanSlice = createSlice({
                 state.isAfterSale,
                 true,
             )[EV_PLAN_PROP.TYPE];
+        },
+        /**
+         * Перенос: план встаёт на данные текущей задачи (buildRescheduleSeed).
+         * Тип ищем по КОДУ — в справочнике планов его может не быть вовсе
+         * (холодный обзвон), тогда оставляем как есть: при переносе тип и не
+         * нужен, задача остаётся той же.
+         */
+        seedFromTask: (
+            state: EventPlanState,
+            action: PayloadAction<{
+                name: string;
+                date: string | null;
+                typeCode: EV_PLAN_CODE;
+            }>,
+        ) => {
+            state[EV_PLAN_PROP.NAME] = action.payload.name;
+            if (action.payload.date) {
+                const date = action.payload.date;
+                state[EV_PLAN_PROP.DATE] = date;
+                state[EV_PLAN_PROP.IS_EXPIRED] =
+                    isDifferenceMoreThanFourMonths(date);
+            }
+            const item = state[EV_PLAN_PROP.TYPE].items.find(
+                type => type.code === action.payload.typeCode,
+            );
+            if (item) state[EV_PLAN_PROP.TYPE].current = item;
         },
         setPlanProp: (
             state: EventPlanState,

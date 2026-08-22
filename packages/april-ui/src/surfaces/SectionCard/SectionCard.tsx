@@ -163,9 +163,27 @@ export const SectionCard = ({
     const collapsibleProps = open === undefined ? { defaultOpen } : { open };
 
     const inner = collapsible ? (
-        <Collapsible {...collapsibleProps} onOpenChange={onOpenChange}>
+        // Collapsible — лишний div между Card и header/body: без своей
+        // колонки с gap он «съедал» flex-gap карточки, и заголовок прилипал
+        // к контенту. Повторяем раскладку Card на самом Collapsible.
+        <Collapsible
+            {...collapsibleProps}
+            onOpenChange={onOpenChange}
+            className={cn('flex min-h-0 flex-col', compact ? 'gap-4' : 'gap-6')}
+        >
             {header}
-            <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+            {/*
+             * `py-1 -my-1` — запас под focus-ring полей внутри карточки:
+             * кольцо это box-shadow, и `overflow-hidden` (он же механизм
+             * раскрытия) срезал его сверху и снизу. Отрицательный margin
+             * возвращает габариты: Radix меряет height, в которую свои margin
+             * не входят, поэтому высота раскрытия остаётся прежней.
+             *
+             * Анимация именно `collapsible`, а не `accordion`: переменную
+             * высоты Collapsible отдаёт под своим именем, и с accordion-*
+             * раскрытие деградировало в мгновенный скачок.
+             */}
+            <CollapsibleContent className="overflow-hidden py-1 -my-1 data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
                 {body}
             </CollapsibleContent>
         </Collapsible>

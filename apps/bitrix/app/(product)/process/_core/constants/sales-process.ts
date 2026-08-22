@@ -149,6 +149,23 @@ export const SALES_PROCESS: ProcessDefinition = {
             writesKpi: false,
         },
         {
+            id: 'sales_refine',
+            label: 'Доработка',
+            bitrixId: 'REFINE',
+            color: '#f5a623',
+            hint: 'доработать до решения: закрыть открытые вопросы и хвосты',
+            actor: 'mgr',
+            managerDoes: [
+                'Звонок-доработка: закрыть открытые вопросы, не дожимая до решения.',
+                'Лёгкий шаг перед «В решении» — доступен ещё до появления компании.',
+            ],
+            systemDoes: [
+                'Пишет в KPI обычный «Звонок» с пометкой «Доработка: …» в названии записи.',
+            ],
+            canBeLead: true,
+            writesKpi: true,
+        },
+        {
             id: 'sales_in_progress',
             label: 'В решении',
             bitrixId: 'IN_PROSRESS',

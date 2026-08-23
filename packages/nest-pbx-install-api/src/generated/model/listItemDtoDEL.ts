@@ -7,7 +7,7 @@
  */
 
 /**
- * Флаг удаления элемента списка в Bitrix. "Y" — элемент помечен на удаление, "N" — активный элемент.
+ * Флаг удаления элемента списка в Bitrix. "Y" — элемент помечен на удаление, "N" — активный элемент. Пустая строка допускается как синоним "N" (шаблоны const-смартов до 2026-08-16 отдавали её).
  */
 export type ListItemDtoDEL = typeof ListItemDtoDEL[keyof typeof ListItemDtoDEL];
 
@@ -16,4 +16,5 @@ export type ListItemDtoDEL = typeof ListItemDtoDEL[keyof typeof ListItemDtoDEL];
 export const ListItemDtoDEL = {
   Y: 'Y',
   N: 'N',
+  '': '',
 } as const;

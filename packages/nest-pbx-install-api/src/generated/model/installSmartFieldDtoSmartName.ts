@@ -18,4 +18,5 @@ export const InstallSmartFieldDtoSmartName = {
   presentation: 'presentation',
   cold: 'cold',
   aicall: 'aicall',
+  skap: 'skap',
 } as const;

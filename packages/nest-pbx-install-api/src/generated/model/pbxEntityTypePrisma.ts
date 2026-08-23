@@ -17,7 +17,7 @@ export const PbxEntityTypePrisma = {
   'App\Models\Smart': 'App\Models\Smart',
   'App\Models\BtxCompany': 'App\Models\BtxCompany',
   'App\Models\BtxContact': 'App\Models\BtxContact',
-  'App\Models\Lead': 'App\Models\Lead',
+  'App\Models\BtxLead': 'App\Models\BtxLead',
   'App\Models\BtxDeal': 'App\Models\BtxDeal',
   'App\Models\BtxRpa': 'App\Models\BtxRpa',
   'App\Models\BxRq': 'App\Models\BxRq',

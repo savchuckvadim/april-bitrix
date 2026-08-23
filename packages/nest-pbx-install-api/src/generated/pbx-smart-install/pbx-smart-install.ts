@@ -33,7 +33,7 @@ const pbxSmartInstallGetSmartsByDomain = (
  */
 const pbxSmartInstallGetSmartByPortalAndName = (
     domain: string,
-    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall' | 'skap',
     withBitrix: boolean,
  ) => {
       return customAxios<void>(
@@ -46,7 +46,7 @@ const pbxSmartInstallGetSmartByPortalAndName = (
  */
 const pbxSmartInstallInstallSmart = (
     domain: string,
-    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall' | 'skap',
     group: 'service' | 'sales' | 'general',
  ) => {
       return customAxios<void>(
@@ -59,7 +59,7 @@ const pbxSmartInstallInstallSmart = (
  */
 const pbxSmartInstallDeleteSmart = (
     domain: string,
-    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall' | 'skap',
     smartGroup: 'service' | 'sales' | 'general',
     params?: PbxSmartInstallDeleteSmartParams,
  ) => {

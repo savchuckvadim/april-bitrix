@@ -18,4 +18,5 @@ export const DeleteSmartCategoriesDtoSmartName = {
   presentation: 'presentation',
   cold: 'cold',
   aicall: 'aicall',
+  skap: 'skap',
 } as const;

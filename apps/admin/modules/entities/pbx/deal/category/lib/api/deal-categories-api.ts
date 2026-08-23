@@ -1,6 +1,8 @@
 import {
     getPbxDealCategoryInstall,
     getPbxDealCategoryInstallMonitoring,
+    type SyncDealCategoryStageDtoCategoryCode,
+    type SyncDealCategoryStageDtoGroup,
 } from '@workspace/nest-pbx-install-api';
 import '@/modules/entities/pbx/lib/pbx-install-client';
 import type { PbxCategoriesAdapter } from '../../../../categories';
@@ -68,5 +70,16 @@ export const dealCategoriesAdapter: PbxCategoriesAdapter = {
                 stageCode,
                 newValue,
             }),
+        // categoryCode берём из СТРОКИ таблицы, а не из `variant`: вариант
+        // может быть `all`, а стадия всегда принадлежит одной воронке.
+        syncStage: (domain, categoryCode, stageCode, reorder) =>
+            install.pbxDealCategoryInstallSyncDealCategoryStage({
+                domain,
+                group: group as SyncDealCategoryStageDtoGroup,
+                categoryCode:
+                    categoryCode as SyncDealCategoryStageDtoCategoryCode,
+                stageCode,
+                reorder,
+            }) as unknown as Promise<void>,
     }),
 };

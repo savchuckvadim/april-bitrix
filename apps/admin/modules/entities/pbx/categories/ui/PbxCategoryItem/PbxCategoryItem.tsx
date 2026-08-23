@@ -17,6 +17,11 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Input } from '@workspace/ui/components/input';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@workspace/ui/components/tooltip';
 import { PresenceBadge } from '../../../lib/ui';
 import { futureApiMessage, type SingleStoreTarget } from '../../../lib/future-api';
 import type {
@@ -33,6 +38,12 @@ interface PbxCategoryItemProps {
     onDeleteCategory: () => void;
     onDeleteStage: (stage: PbxStageCompareRow) => void;
     onEditStage: (stage: PbxStageCompareRow, newValue: string) => Promise<void>;
+    /**
+     * Поштучная установка/синхронизация стадии из шаблона. `undefined` —
+     * сущность такой операции не поддерживает (пока только сделка), кнопка
+     * не рисуется.
+     */
+    onSyncStage?: (stage: PbxStageCompareRow, reorder: boolean) => Promise<void>;
     isStagePending?: boolean;
 }
 
@@ -44,6 +55,7 @@ export function PbxCategoryItem({
     onDeleteCategory,
     onDeleteStage,
     onEditStage,
+    onSyncStage,
     isStagePending,
 }: PbxCategoryItemProps) {
     const [editingCode, setEditingCode] = React.useState<string | null>(null);
@@ -175,42 +187,66 @@ export function PbxCategoryItem({
                                                         </Button>
                                                     </>
                                                 ) : (
-                                                    (stage.inBitrix || stage.inDb) && (
-                                                        <>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                onClick={() =>
-                                                                    startEdit(stage)
+                                                    <>
+                                                        {onSyncStage && stage.inTemplate && (
+                                                            <StageSyncButton
+                                                                installed={
+                                                                    stage.inBitrix ||
+                                                                    stage.inDb
                                                                 }
-                                                            >
-                                                                Изменить
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                onClick={() => stub('bitrix')}
-                                                            >
-                                                                BX
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                onClick={() => stub('portal')}
-                                                            >
-                                                                Portal
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="destructive"
+                                                                pending={isStagePending}
                                                                 onClick={() =>
-                                                                    onDeleteStage(stage)
+                                                                    void onSyncStage(
+                                                                        stage,
+                                                                        true,
+                                                                    )
                                                                 }
-                                                            >
-                                                                Удалить
-                                                            </Button>
-                                                        </>
-                                                    )
+                                                            />
+                                                        )}
+                                                        {(stage.inBitrix ||
+                                                            stage.inDb) && (
+                                                            <>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() =>
+                                                                        startEdit(stage)
+                                                                    }
+                                                                >
+                                                                    Изменить
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() =>
+                                                                        stub('bitrix')
+                                                                    }
+                                                                >
+                                                                    BX
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() =>
+                                                                        stub('portal')
+                                                                    }
+                                                                >
+                                                                    Portal
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="destructive"
+                                                                    onClick={() =>
+                                                                        onDeleteStage(
+                                                                            stage,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Удалить
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                    </>
                                                 )}
                                             </div>
                                         </TableCell>
@@ -225,6 +261,51 @@ export function PbxCategoryItem({
                 )}
             </AccordionContent>
         </AccordionItem>
+    );
+}
+
+/**
+ * Поштучная установка/синхронизация стадии из шаблона.
+ *
+ * Отдельная кнопка нужна для стадии, которая есть в шаблоне, но ещё не стоит
+ * на портале (Ш=есть, BX/БД=нет): раньше у такой строки не было ни одного
+ * действия, и добавить её можно было только переустановкой всей воронки.
+ *
+ * Всегда идёт с пересчётом порядка (`reorder`): стадия, добавленная в
+ * СЕРЕДИНУ лестницы, иначе встанет в Bitrix последней — у соседей остаются
+ * их старые SORT. Правится только порядок, чужие названия и цвета не
+ * трогаются, ничего не удаляется.
+ */
+function StageSyncButton({
+    installed,
+    pending,
+    onClick,
+}: {
+    installed: boolean;
+    pending?: boolean;
+    onClick: () => void;
+}) {
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                    size="sm"
+                    variant={installed ? 'outline' : 'default'}
+                    disabled={pending}
+                    onClick={onClick}
+                >
+                    {installed ? 'Синхронизировать' : 'Установить'}
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+                {installed
+                    ? 'Перезаливает стадию из шаблона в Bitrix и PortalDB (название, цвет, семантика). '
+                    : 'Заводит стадию из шаблона в Bitrix и PortalDB. '}
+                Порядок остальных стадий воронки пересчитывается по шаблону —
+                иначе стадия из середины лестницы встанет в Bitrix последней.
+                Ничего не удаляется.
+            </TooltipContent>
+        </Tooltip>
     );
 }
 

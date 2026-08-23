@@ -98,6 +98,22 @@ export function usePbxCategories(
         onSuccess: onDone('Стадия изменена'),
         onError,
     });
+    const syncStage = useMutation({
+        mutationFn: (vars: {
+            domain: string;
+            categoryCode: string;
+            stageCode: string;
+            reorder: boolean;
+        }) =>
+            api.syncStage!(
+                vars.domain,
+                vars.categoryCode,
+                vars.stageCode,
+                vars.reorder,
+            ),
+        onSuccess: onDone('Стадия синхронизирована с шаблоном'),
+        onError,
+    });
 
     const allRows = useMemo<PbxCategoryCompareRow[]>(
         () =>
@@ -131,5 +147,8 @@ export function usePbxCategories(
         deleteCategories,
         deleteStage,
         editStage,
+        syncStage,
+        /** Поштучная синхронизация стадии есть не у всех сущностей (пока только сделка). */
+        canSyncStage: Boolean(api.syncStage),
     };
 }

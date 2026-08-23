@@ -9,7 +9,8 @@ import type {
   DeleteDealCategoriesDto,
   DeleteDealCategoryStageDto,
   EditDealCategoryStageDto,
-  InstallDealCategoryDto
+  InstallDealCategoryDto,
+  SyncDealCategoryStageDto
 } from '.././model';
 
 import { customAxios } from '../../lib/pbx-install-api';
@@ -87,9 +88,24 @@ const pbxDealCategoryInstallEditDealCategoryStage = (
     },
       );
     }
-  return {pbxDealCategoryInstallInstallDealCategories,pbxDealCategoryInstallInstallDealCategoriesByCategoriesData,pbxDealCategoryInstallDeleteDealCategories,pbxDealCategoryInstallDeleteDealCategoryStage,pbxDealCategoryInstallEditDealCategoryStage}};
+  /**
+ * Синхронизирует ОДНУ стадию воронки сделки из Excel-шаблона группы: заводит её в Bitrix (`crm.status.add`) либо обновляет существующую (`crm.status.update`) и зеркалит строку в `btx_stages`. НИЧЕГО НЕ УДАЛЯЕТ — в отличие от установки воронки целиком, прочие стадии остаются на месте. Все атрибуты стадии (название, цвет, `bitrixId`, семантика, порядок) берутся из строки шаблона, а не из запроса. По умолчанию `reorder: true` — SORT остальных стадий воронки пересчитывается по шаблону, иначе стадия, вставленная в середину лестницы, встанет в Bitrix последней. Воронка должна быть уже установлена: этот метод её не создаёт. Поддерживает `domain: "all"`.
+ * @summary Sync a single stage of a deal category from the template
+ */
+const pbxDealCategoryInstallSyncDealCategoryStage = (
+    syncDealCategoryStageDto: SyncDealCategoryStageDto,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/pbx-deal-category-install/sync-category-stage`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: syncDealCategoryStageDto
+    },
+      );
+    }
+  return {pbxDealCategoryInstallInstallDealCategories,pbxDealCategoryInstallInstallDealCategoriesByCategoriesData,pbxDealCategoryInstallDeleteDealCategories,pbxDealCategoryInstallDeleteDealCategoryStage,pbxDealCategoryInstallEditDealCategoryStage,pbxDealCategoryInstallSyncDealCategoryStage}};
 export type PbxDealCategoryInstallInstallDealCategoriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxDealCategoryInstall>['pbxDealCategoryInstallInstallDealCategories']>>>
 export type PbxDealCategoryInstallInstallDealCategoriesByCategoriesDataResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxDealCategoryInstall>['pbxDealCategoryInstallInstallDealCategoriesByCategoriesData']>>>
 export type PbxDealCategoryInstallDeleteDealCategoriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxDealCategoryInstall>['pbxDealCategoryInstallDeleteDealCategories']>>>
 export type PbxDealCategoryInstallDeleteDealCategoryStageResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxDealCategoryInstall>['pbxDealCategoryInstallDeleteDealCategoryStage']>>>
 export type PbxDealCategoryInstallEditDealCategoryStageResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxDealCategoryInstall>['pbxDealCategoryInstallEditDealCategoryStage']>>>
+export type PbxDealCategoryInstallSyncDealCategoryStageResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getPbxDealCategoryInstall>['pbxDealCategoryInstallSyncDealCategoryStage']>>>

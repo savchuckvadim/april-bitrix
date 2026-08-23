@@ -77,6 +77,8 @@ export function PbxCategoriesManager({
         deleteCategories,
         deleteStage,
         editStage,
+        syncStage,
+        canSyncStage,
     } = usePbxCategories(adapter, { domain, group, variant, search });
 
     const effectiveDomain = allowAllPortals && applyToAll ? 'all' : domain ?? '';
@@ -240,7 +242,20 @@ export function PbxCategoriesManager({
                             onToggleSelect={() => toggleSelect(row.code)}
                             onDeleteCategory={() => setDeleteRow(row)}
                             isStagePending={
-                                editStage.isPending || deleteStage.isPending
+                                editStage.isPending ||
+                                deleteStage.isPending ||
+                                syncStage.isPending
+                            }
+                            onSyncStage={
+                                canSyncStage
+                                    ? (stage, reorder) =>
+                                          syncStage.mutateAsync({
+                                              domain: effectiveDomain,
+                                              categoryCode: row.code,
+                                              stageCode: stage.code,
+                                              reorder,
+                                          })
+                                    : undefined
                             }
                             onDeleteStage={(stage) =>
                                 deleteStage.mutate({

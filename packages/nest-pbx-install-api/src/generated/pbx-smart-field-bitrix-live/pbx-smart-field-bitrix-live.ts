@@ -16,7 +16,7 @@ import { customAxios } from '../../lib/pbx-install-api';
  */
 const pbxSmartFieldBitrixInstallFields = (
     domain: string,
-    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall',
+    smartName: 'service_offer' | 'presentation' | 'cold' | 'aicall' | 'skap',
     group: 'service' | 'sales' | 'general',
  ) => {
       return customAxios<void>(

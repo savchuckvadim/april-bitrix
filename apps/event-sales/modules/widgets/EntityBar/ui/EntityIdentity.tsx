@@ -1,6 +1,7 @@
 'use client';
 
 import { FC } from 'react';
+import { cn } from '@workspace/ui/lib/utils';
 import { EntityLink, useCurrentRelations } from '@/modules/entities/RelatedCrm';
 
 /**
@@ -13,14 +14,34 @@ import { EntityLink, useCurrentRelations } from '@/modules/entities/RelatedCrm';
  * ширине — длинные имена (лидоген генерит простыни) не распирают шапку,
  * полное видно по наведению.
  */
-export const EntityIdentity: FC = () => {
+interface EntityIdentityProps {
+    /**
+     * `lg` — крупное название для высокого хедера широких экранов
+     * (todo2508 №6); `md` — прежний размер.
+     */
+    size?: 'md' | 'lg';
+}
+
+export const EntityIdentity: FC<EntityIdentityProps> = ({ size = 'md' }) => {
     const { descriptor, details } = useCurrentRelations();
     if (!descriptor) return null;
 
+    const isLarge = size === 'lg';
+
     return (
         <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="flex min-w-0 max-w-72 flex-col">
-                <h1 className="flex min-w-0 text-lg leading-tight font-semibold text-foreground">
+            <span
+                className={cn(
+                    'flex min-w-0 flex-col',
+                    isLarge ? 'max-w-[36rem]' : 'max-w-72',
+                )}
+            >
+                <h1
+                    className={cn(
+                        'flex min-w-0 leading-tight font-semibold text-foreground',
+                        isLarge ? 'text-2xl' : 'text-lg',
+                    )}
+                >
                     <EntityLink descriptor={descriptor} />
                 </h1>
                 <span className="text-[0.625rem] leading-none tracking-wide text-muted-foreground uppercase">

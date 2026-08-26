@@ -9,11 +9,31 @@ import type {
     EventFlowOperationDto,
     EventSalesFlowDto,
     EventSalesGetFlowStatusParams,
+    PresentationSurveyDto,
+    PresentationSurveyResultDto,
+    StagePredictRequestDto,
+    StagePredictResponseDto,
+    UnplannedPresentationSignalDto,
+    UnplannedSignalResultDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/event-sales-api';
 
 export const getEventSales = () => {
+    /**
+     * Считает, куда отправка отчёта с таким контекстом двинет основную сделку (та же лестница, что у реального flow). UX-хинт для чек-листов: реальный прогон пересчитает стадию сам.
+     * @summary Предикт стадии основной сделки
+     */
+    const eventSalesGetStagePredict = (
+        stagePredictRequestDto: StagePredictRequestDto,
+    ) => {
+        return customAxios<StagePredictResponseDto>({
+            url: `/api/event-sales/stage-predict`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: stagePredictRequestDto,
+        });
+    };
     /**
      * Ставит отправку отчёта в очередь и отвечает сразу. Исход приходит по WS-событию `event-sales-flow:done` / `event-sales-flow:error` на переданный `socketId`, а также доступен поллингом `GET /event-sales/flow/status/{operationId}`. Повторный вызов с тем же `operationId` возвращает статус уже принятой операции и НЕ выполняет flow второй раз.
      * @summary Event sales flow: принять отчёт в обработку
@@ -40,13 +60,68 @@ export const getEventSales = () => {
             params,
         });
     };
-    return { eventSalesGetFlow, eventSalesGetFlowStatus };
+    /**
+     * Перезаписывает ответы анкеты в поля клиента: лид получает девять детальных «5К» + сводные, сделки и компания — только сводные. Жёсткий серверный whitelist: ключи fiveK вне списка op_5k_* молча отбрасываются. Только перезапись (append нет) — повтор того же payload даёт тот же результат; повтор operationId в течение 24ч не пишется второй раз. Пустые values — no-op без похода в Битрикс. Неустановленное на портале поле пропускается с warning в ответе.
+     * @summary Анкета после презентации: хвост и «5К»
+     */
+    const presentationSurveySubmit = (
+        presentationSurveyDto: PresentationSurveyDto,
+    ) => {
+        return customAxios<PresentationSurveyResultDto>({
+            url: `/api/event-sales/presentation-survey`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: presentationSurveyDto,
+        });
+    };
+    /**
+     * Маленький POST от hook в конце его потока — без значений опросника. Если значения уже пришли от легаси-фронта, сводные («Хвост», «Пять К») дописываются в unplanned-сделку сразу (matched). Если сигнал обогнал опросник — он ждёт до часа (pending), и опросник допишет сводные сам. Повтор сигнала по той же сделке после записи — deduplicated. Redis недоступен — мягкая деградация с warning, ошибок наружу нет.
+     * @summary Сигнал hook: создана unplanned-сделка презентации
+     */
+    const presentationSurveyUnplannedSignal = (
+        unplannedPresentationSignalDto: UnplannedPresentationSignalDto,
+    ) => {
+        return customAxios<UnplannedSignalResultDto>({
+            url: `/api/event-sales/presentation-survey/unplanned-signal`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: unplannedPresentationSignalDto,
+        });
+    };
+    return {
+        eventSalesGetStagePredict,
+        eventSalesGetFlow,
+        eventSalesGetFlowStatus,
+        presentationSurveySubmit,
+        presentationSurveyUnplannedSignal,
+    };
 };
+export type EventSalesGetStagePredictResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getEventSales>['eventSalesGetStagePredict']
+        >
+    >
+>;
 export type EventSalesGetFlowResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getEventSales>['eventSalesGetFlow']>>
 >;
 export type EventSalesGetFlowStatusResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getEventSales>['eventSalesGetFlowStatus']>
+    >
+>;
+export type PresentationSurveySubmitResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getEventSales>['presentationSurveySubmit']>
+    >
+>;
+export type PresentationSurveyUnplannedSignalResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getEventSales
+            >['presentationSurveyUnplannedSignal']
+        >
     >
 >;

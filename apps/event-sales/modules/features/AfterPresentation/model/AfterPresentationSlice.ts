@@ -43,6 +43,24 @@ const afterPresentationSlice = createSlice({
             state.checkPresentation.answers[action.payload.id] =
                 action.payload.value;
         },
+        /**
+         * Ответ, записанный на портал МИМО опросника (ручная правка
+         * хвост-поля в «Полях сущности»). Пишем и в answers, и в committed:
+         * повторный submit опросника персистит committed целиком, и без
+         * синхронизации он откатывал бы ручную правку прошлым ответом.
+         */
+        syncAnswer: (
+            state: AfterPresentationState,
+            action: PayloadAction<{
+                id: string;
+                value: CheckPresentationValue;
+            }>,
+        ) => {
+            state.checkPresentation.answers[action.payload.id] =
+                action.payload.value;
+            state.checkPresentation.committed[action.payload.id] =
+                action.payload.value;
+        },
         setActiveStatus: (
             state: AfterPresentationState,
             action: PayloadAction<{ status: boolean }>,
@@ -81,6 +99,12 @@ const afterPresentationSlice = createSlice({
             state.pendingSend = false;
             state.isActive = false;
         },
+        /**
+         * Полный сброс (reloadApp): в отличие от resetForNewEvent гасит и
+         * initialized — initCheckPresentation на свежем setPortal перечитает
+         * каталог опросника, а не отсечётся флагом прошлой сессии.
+         */
+        reset: () => initialState,
     },
 });
 

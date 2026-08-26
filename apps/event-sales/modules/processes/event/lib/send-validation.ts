@@ -5,6 +5,8 @@ import {
     EV_PLAN_PROP,
 } from '@/modules/entities/EventPlan/type/event-plan-type';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
+import { selectIncompleteInlineChecklists } from '@/modules/features/CallChecklist/lib/checklist-selectors';
+import { COMMENT_MAX_LENGTH, PLAN_NAME_MAX_LENGTH } from './text-limits';
 import { emptyErrors } from '../model/EventSlice';
 import { EV_ERROR_CODE, SetErrorsPayload } from '../types/event-types';
 
@@ -40,18 +42,27 @@ export const validateSend = (state: RootState): SendValidationResult => {
     const isNoWork =
         workStatus === 'fail' ||
         workStatus === 'setAside' ||
-        workStatus === 'success';
+        workStatus === 'success' ||
+        workStatus === 'notCa';
     const isFail = workStatus === 'fail';
     const isPlanActive = plan[EV_PLAN_PROP.IS_ACTIVE];
 
     if (!report[EV_REPORT_PROP.COMMENT]) {
         result.errors[EV_ERROR_CODE.COMMENT] = 'Напишите комментарий';
+    } else if (report[EV_REPORT_PROP.COMMENT].length > COMMENT_MAX_LENGTH) {
+        // Страховка на случай значения мимо maxLength (вставка из буфера,
+        // черновик из localStorage): раздутый комментарий не записывается.
+        result.errors[EV_ERROR_CODE.COMMENT] =
+            `Комментарий длиннее ${COMMENT_MAX_LENGTH} символов — сократите`;
     }
 
     const isPlanning = isNew || !isNoWork;
     if (!isNoResult && isPlanning && isPlanActive) {
         if (!plan[EV_PLAN_PROP.NAME]) {
             result.errors[EV_ERROR_CODE.PLAN_NAME] = REQUIRED_TEXT;
+        } else if (plan[EV_PLAN_PROP.NAME].length > PLAN_NAME_MAX_LENGTH) {
+            result.errors[EV_ERROR_CODE.PLAN_NAME] =
+                `Название длиннее ${PLAN_NAME_MAX_LENGTH} символов — сократите`;
         }
         if (!plan[EV_PLAN_PROP.TYPE].current) {
             result.errors[EV_ERROR_CODE.PLAN_TYPE] = 'Не выбран тип звонка';
@@ -70,6 +81,27 @@ export const validateSend = (state: RootState): SendValidationResult => {
             result.errors[EV_ERROR_CODE.POST_FAIL_DATE] =
                 'Заполните дату следующего звонка';
         }
+    }
+
+    // «Не ЦА» без типа не отправляем: без него бэк не уведёт сделку в
+    // стадию «не ЦА» и не разметит заявки. Дата следующего звонка при
+    // «Не ЦА» НЕ требуется — возвращаться к нецелевому клиенту не планируем.
+    if (
+        workStatus === 'notCa' &&
+        !state.leadRequest.finalSync.notCaTypeCode
+    ) {
+        result.errors[EV_ERROR_CODE.NOT_CA_TYPE] = 'Выберите тип «не ЦА»';
+    }
+
+    // Чек-лист выбранного типа звонка (Доработка/Оплата): обязательные
+    // pbx-поля должны быть заполнены до отправки (включается настройками
+    // портала; неустановленные на портале поля не блокируют).
+    const incompleteChecklists = selectIncompleteInlineChecklists(state);
+    if (incompleteChecklists.length) {
+        result.errors[EV_ERROR_CODE.PLAN_CHECKLIST] =
+            `Заполните: ${incompleteChecklists
+                .map(def => def.title.toLowerCase())
+                .join(', ')}`;
     }
 
     result.isError = Object.values(result.errors).some(Boolean);

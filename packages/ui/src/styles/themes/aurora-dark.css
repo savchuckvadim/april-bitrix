@@ -1,0 +1,60 @@
+/*
+ * Aurora dark — глубокий индиго-фон, неоновая бирюза как primary, лаймовый
+ * CTA, прозрачные поверхности со стеклом (сияние над полярной ночью).
+ */
+:root.aurora-dark {
+    --radius: 0.8rem;
+
+    --background: oklch(0.17 0.045 290);
+    --foreground: oklch(0.93 0.015 260);
+
+    --card: oklch(0.24 0.055 290 / 62%);
+    --card-foreground: oklch(0.93 0.015 260);
+    --popover: oklch(0.22 0.05 290 / 90%);
+    --popover-foreground: oklch(0.93 0.015 260);
+
+    --primary: oklch(0.8 0.135 195);
+    --primary-foreground: oklch(0.2 0.05 210);
+
+    --secondary: oklch(0.3 0.05 290);
+    --secondary-foreground: oklch(0.93 0.015 260);
+
+    --muted: oklch(0.29 0.045 290);
+    --muted-foreground: oklch(0.72 0.03 275);
+
+    --accent: oklch(0.34 0.09 300);
+    --accent-foreground: oklch(0.82 0.12 310);
+
+    --destructive: oklch(0.68 0.19 25);
+    --destructive-foreground: oklch(1 0 0);
+
+    --border: oklch(1 0 0 / 13%);
+    --input: oklch(1 0 0 / 16%);
+    --ring: oklch(0.8 0.135 195);
+
+    --chart-1: oklch(0.8 0.135 195);
+    --chart-2: oklch(0.67 0.2 295);
+    --chart-3: oklch(0.83 0.21 128);
+    --chart-4: oklch(0.72 0.17 320);
+    --chart-5: oklch(0.79 0.14 75);
+
+    --sidebar: oklch(0.21 0.05 290 / 70%);
+    --sidebar-foreground: oklch(0.93 0.015 260);
+    --sidebar-primary: oklch(0.8 0.135 195);
+    --sidebar-primary-foreground: oklch(0.2 0.05 210);
+    --sidebar-accent: oklch(0.34 0.09 300);
+    --sidebar-accent-foreground: oklch(0.82 0.12 310);
+    --sidebar-border: oklch(1 0 0 / 13%);
+    --sidebar-ring: oklch(0.8 0.135 195);
+
+    /* CTA — лайм полярного сияния */
+    --action: oklch(0.83 0.21 128);
+    --action-foreground: oklch(0.25 0.06 130);
+
+    /* стекло включено (см. tokens/effects.css) */
+    --fx-glass: 1;
+    --fx-glass-blur: 16px;
+    --fx-glass-bg: oklch(0.26 0.06 290 / 45%);
+    --fx-glass-border: oklch(1 0 0 / 15%);
+    --fx-glass-shadow: 0 8px 32px 0 oklch(0 0 0 / 45%);
+}

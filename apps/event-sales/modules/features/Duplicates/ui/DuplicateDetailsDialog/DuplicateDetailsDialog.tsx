@@ -42,7 +42,7 @@ export const DuplicateDetailsDialog: FC = () => {
             <div className="space-y-3">
                 <header className="space-y-1.5">
                     <div className="flex flex-wrap items-baseline gap-2">
-                        <h2 className="text-base font-semibold text-foreground">
+                        <h2 className="min-w-0 break-words text-base font-semibold text-foreground">
                             {candidateTitle(candidate)}
                         </h2>
                         <span className="text-xs text-muted-foreground">
@@ -60,13 +60,21 @@ export const DuplicateDetailsDialog: FC = () => {
                             {candidateConfidence(candidate)}
                         </ToneBadge>
                         {candidate.reasons.map(reason => (
+                            // Как в DuplicateCard: значение причины бывает
+                            // длинным, многоточие — внутренним span'ом.
                             <ToneBadge
                                 key={`${reason.kind}-${reason.value}-${reason.via}`}
                                 tone={reasonTone(reason)}
                                 variant="outline"
                                 size="sm"
+                                className="max-w-full"
                             >
-                                {reasonLabel(reason)}
+                                <span
+                                    title={reasonLabel(reason)}
+                                    className="truncate"
+                                >
+                                    {reasonLabel(reason)}
+                                </span>
                             </ToneBadge>
                         ))}
                     </div>

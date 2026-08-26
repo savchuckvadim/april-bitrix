@@ -51,12 +51,25 @@ export const LeadStageBar: FC<LeadStageBarProps> = ({
             <span
                 title={title ? `${title}: ${view.label}` : view.label}
                 className={cn(
-                    'inline-flex min-w-0 max-w-full items-center gap-1 truncate rounded-full px-1.5 py-px text-[0.625rem]',
+                    'inline-flex min-w-0 max-w-full items-center gap-1 rounded-full px-1.5 py-px text-[0.625rem]',
                     view.className,
                     className,
                 )}
             >
-                {withLabel && title ? `${title} · ${view.label}` : view.label}
+                {/* truncate на самой пилюле не работает (text-overflow не
+                    применяется к flex-контейнеру) — название лежит отдельным
+                    span с потолком, как в подписи лестницы; статус не жмётся. */}
+                {withLabel && title && (
+                    <>
+                        <span className="min-w-0 max-w-56 truncate">
+                            {title}
+                        </span>
+                        <span aria-hidden className="shrink-0 opacity-50">
+                            ·
+                        </span>
+                    </>
+                )}
+                <span className="shrink-0 whitespace-nowrap">{view.label}</span>
             </span>
         );
     }

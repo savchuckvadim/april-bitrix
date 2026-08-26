@@ -1,4 +1,5 @@
 import { Bitrix } from '@workspace/bitrix';
+import { clearPortalCache } from '@workspace/pbx';
 import type { BXCompany } from '@workspace/bx';
 import { appActions } from '../slice/AppSlice';
 import type { AppDispatch, AppGetState } from '../store';
@@ -30,6 +31,9 @@ export const initial =
     };
 
 export const reloadApp = () => async (dispatch: AppDispatch) => {
+    // «Обновить» обязан перечитать и СЛЕПОК ПОРТАЛА: суточный localStorage-кэш
+    // иначе прячет свежеустановленные поля до следующего календарного дня.
+    clearPortalCache();
     // Reset the app shell; `useApp` re-runs `initial()` once `initialized` is false.
     dispatch(appActions.reload());
 };

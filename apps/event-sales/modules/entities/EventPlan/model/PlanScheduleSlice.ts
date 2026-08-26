@@ -34,6 +34,11 @@ const planScheduleSlice = createSlice({
         ) => {
             state.isLoading = action.payload.status;
         },
+        /**
+         * Полный сброс: reloadApp гасит кэш по дате — иначе занятость дня
+         * так и показывала бы задачи, снятые/добавленные после загрузки.
+         */
+        reset: () => initialState,
     },
 });
 

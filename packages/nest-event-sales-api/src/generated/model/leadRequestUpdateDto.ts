@@ -6,10 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { LeadRequestUpdateDtoSiteStatusCode } from './leadRequestUpdateDtoSiteStatusCode';
-import type { LeadRequestUpdateDtoSiteStageCode } from './leadRequestUpdateDtoSiteStageCode';
-import type { LeadRequestUpdateDtoLeadStatusCode } from './leadRequestUpdateDtoLeadStatusCode';
 import type { LeadRequestUpdateDtoNotCaTypeCode } from './leadRequestUpdateDtoNotCaTypeCode';
-import type { LeadRequestUpdateDtoRelatedBaseStageCode } from './leadRequestUpdateDtoRelatedBaseStageCode';
 
 export interface LeadRequestUpdateDto {
     /** Домен портала Bitrix. */
@@ -21,14 +18,8 @@ export interface LeadRequestUpdateDto {
     leadId: number;
     /** Новый статус заявки. */
     siteStatusCode?: LeadRequestUpdateDtoSiteStatusCode;
-    /** Новая стадия заявки. */
-    siteStageCode?: LeadRequestUpdateDtoSiteStageCode;
-    /** Новый статус лида (агрегированный). */
-    leadStatusCode?: LeadRequestUpdateDtoLeadStatusCode;
-    /** Тип «не ЦА». Обязателен при выборе статуса «Не ЦА» (site_status3 / lead_status_ten). */
+    /** Тип «не ЦА». Обязателен при выборе статуса «Не ЦА» (site_status3). */
     notCaTypeCode?: LeadRequestUpdateDtoNotCaTypeCode;
-    /** Зеркало стадии связанной основной сделки. */
-    relatedBaseStageCode?: LeadRequestUpdateDtoRelatedBaseStageCode;
     /** «Не звонить никогда» (чёрный список). */
     blackShort?: boolean;
     /** Причина «не звонить никогда». */

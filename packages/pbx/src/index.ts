@@ -12,6 +12,7 @@ export {
     getSalesTaskGroupId,
     getServiceTaskGroupId,
     getServiceSignalTaskGroupId,
+    clearPortalCache,
 } from './entities/portal/lib/portal-util';
 export type {
     Portal,

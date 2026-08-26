@@ -34,7 +34,10 @@ export const ReportPultCollapsed: FC<ReportPultCollapsedProps> = ({
             <span className="size-2 rounded-full bg-success" />
         </span>
 
-        <span className="text-xs font-semibold text-[color:color-mix(in_oklab,var(--success),var(--foreground)_var(--tone-soft-mix))]">
+        <span
+            title={workStatusName}
+            className="min-w-0 truncate text-xs font-semibold text-[color:color-mix(in_oklab,var(--success),var(--foreground)_var(--tone-soft-mix))]"
+        >
             {workStatusName}
         </span>
 

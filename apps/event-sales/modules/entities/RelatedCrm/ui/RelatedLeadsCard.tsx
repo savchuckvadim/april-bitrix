@@ -95,7 +95,10 @@ export const RelatedLeadsCard: FC<RelatedLeadsCardProps> = ({
                                     className="rounded-md border border-border px-2 py-1.5"
                                 >
                                     <div className="flex items-baseline justify-between gap-2">
-                                        <span className="min-w-0 truncate text-sm text-foreground">
+                                        <span
+                                            title={leadDisplayTitle(lead)}
+                                            className="min-w-0 truncate text-sm text-foreground"
+                                        >
                                             {leadDisplayTitle(lead)}
                                         </span>
                                         {lead.responsible?.name && (

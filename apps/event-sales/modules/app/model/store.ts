@@ -34,6 +34,10 @@ import { eventCallingRecordReducer } from '@/modules/entities/EventCallingRecord
 // Прямой путь, как у AppSlice: барель RelatedCrm тянет UI и в store не годится.
 import { bitrixUserReducer } from '@/modules/entities/BitrixUser/model/BitrixUserSlice';
 import { purchaseSignalsReducer } from '@/modules/features/PurchaseSignals/model/PurchaseSignalsSlice';
+// Прямой путь: барель XvostFields экспортирует карточку (UI).
+import { xvostFieldsReducer } from '@/modules/features/XvostFields/model/XvostFieldsSlice';
+import { callChecklistReducer } from '@/modules/features/CallChecklist/model/CallChecklistSlice';
+import { stagePredictReducer } from '@/modules/features/StagePredict/model/StagePredictSlice';
 import { taskDealsReducer } from '@/modules/entities/RelatedCrm/model/TaskDealsSlice';
 import { relatedCrmReducer } from '@/modules/entities/RelatedCrm/model/RelatedCrmSlice';
 import { departmentReducer } from '@/modules/features/Departament';
@@ -83,8 +87,18 @@ const errorMiddleware: Middleware = storeAPI => next => action => {
     }
 };
 
+/**
+ * WS живёт на бэке event-sales (socket.io в том же приложении, что и API) —
+ * хост совпадает с базой `@workspace/nest-event-sales-api`: та же переменная
+ * окружения, что и у api-provider (правило «одна переменная на сервис»).
+ * Без неё — дев-дефолт пакета. Дефолтный хост монолита из @workspace/ws сюда
+ * не годится: события flow (`zpr-flow:done` и др.) шлёт именно event-sales.
+ */
+const resolveWsHost = () =>
+    process.env.NEXT_PUBLIC_EVENT_SALES_API_URL || 'http://localhost:3005/';
+
 export const initWSClient = (userId: number, domain: string) => {
-    wsClient = new WSClient(userId, domain);
+    wsClient = new WSClient(userId, domain, resolveWsHost());
     return wsClient;
 };
 
@@ -134,6 +148,9 @@ const rootReducer = combineReducers({
     presentationLeadLink: presentationLeadLinkReducer,
     taskLeadLinks: taskLeadLinksReducer,
     purchaseSignals: purchaseSignalsReducer,
+    xvostFields: xvostFieldsReducer,
+    callChecklist: callChecklistReducer,
+    stagePredict: stagePredictReducer,
 
     // april
     portal: portalReducer,

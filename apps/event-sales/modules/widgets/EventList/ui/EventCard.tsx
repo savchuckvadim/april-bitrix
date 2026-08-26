@@ -95,7 +95,12 @@ export const EventCard: FC<EventCardProps> = ({
                         {task.deadline}
                     </span>
                 </div>
-                <p className="text-base font-medium leading-snug">
+                {/* Простыни лидогена не раздувают карточку: две строки с
+                    многоточием, полное имя — по наведению. */}
+                <p
+                    title={task.name}
+                    className="line-clamp-2 break-words text-base font-medium leading-snug"
+                >
                     {task.name}
                 </p>
                 {/* С кем разговор: контакт из привязок задачи, ссылка в CRM. */}

@@ -27,30 +27,44 @@ export const HistoryRecordRow: FC<HistoryRecordRowProps> = ({
     <li className="border-l-2 border-border pl-2">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <HistoryStatusDot status={status} />
+            {/* Имена типов/действий — из словарей портала: потолок ширины на
+                бэйдже, многоточие внутренним span'ом (на inline-flex бэйдже
+                truncate не работает). */}
             {record.eventType && (
                 /* Лёгкая обводка цвета события: тип узнаётся до чтения. */
                 <Badge
                     variant="secondary"
                     data-event-type={record.eventType.code}
-                    className="shrink-0 border border-[var(--event-current)]/40"
+                    title={record.eventType.name}
+                    className="max-w-48 shrink-0 border border-[var(--event-current)]/40"
                 >
-                    {record.eventType.name}
+                    <span className="truncate">{record.eventType.name}</span>
                 </Badge>
             )}
             {record.eventAction && (
-                <Badge variant="outline" className="shrink-0">
-                    {record.eventAction.name}
+                <Badge
+                    variant="outline"
+                    title={record.eventAction.name}
+                    className="max-w-48 shrink-0"
+                >
+                    <span className="truncate">{record.eventAction.name}</span>
                 </Badge>
             )}
             {record.resultStatus && (
                 <Badge
                     variant="outline"
-                    className="shrink-0 text-muted-foreground"
+                    title={record.resultStatus.name}
+                    className="max-w-48 shrink-0 text-muted-foreground"
                 >
-                    {record.resultStatus.name}
+                    <span className="truncate">
+                        {record.resultStatus.name}
+                    </span>
                 </Badge>
             )}
-            <span className="min-w-0 truncate text-sm text-foreground">
+            <span
+                title={record.title}
+                className="min-w-0 truncate text-sm text-foreground"
+            >
                 {record.title}
             </span>
             {record.date && (

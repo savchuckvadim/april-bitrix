@@ -51,7 +51,10 @@ export const HistoryGroupSection: FC<HistoryGroupSectionProps> = ({
         <section>
             <h4 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <Icon aria-hidden className="size-3.5 shrink-0" />
-                <span className="min-w-0 truncate normal-case">
+                <span
+                    title={group.binding.title}
+                    className="min-w-0 truncate normal-case"
+                >
                     {group.binding.title}
                 </span>
                 {group.binding.isSalesLead && (

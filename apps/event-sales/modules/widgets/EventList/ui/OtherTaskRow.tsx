@@ -36,7 +36,12 @@ export const OtherTaskRow: FC<OtherTaskRowProps> = ({ task }) => {
                     ufCrmTask: task.ufCrmTask,
                 })}
             />
-            <span className="min-w-0 flex-1 truncate text-sm">{task.name}</span>
+            <span
+                title={task.name}
+                className="min-w-0 flex-1 truncate text-sm"
+            >
+                {task.name}
+            </span>
             <span
                 className={cn(
                     'shrink-0 whitespace-nowrap text-xs',

@@ -1,0 +1,54 @@
+/*
+ * Aurora (todo2508 №12) — новая яркая схема: электрический индиго +
+ * неоновая бирюза + лаймовый CTA (полярное сияние). Light — холодный
+ * светлый фон, цвета работают акцентами.
+ */
+:root.aurora-light {
+    --radius: 0.8rem;
+
+    --background: oklch(0.972 0.008 280);
+    --foreground: oklch(0.22 0.03 285);
+
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.22 0.03 285);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.22 0.03 285);
+
+    --primary: oklch(0.55 0.22 285);
+    --primary-foreground: oklch(1 0 0);
+
+    --secondary: oklch(0.94 0.02 280);
+    --secondary-foreground: oklch(0.35 0.1 285);
+
+    --muted: oklch(0.94 0.012 280);
+    --muted-foreground: oklch(0.5 0.03 285);
+
+    --accent: oklch(0.93 0.05 195);
+    --accent-foreground: oklch(0.45 0.11 200);
+
+    --destructive: oklch(0.6 0.24 25);
+    --destructive-foreground: oklch(1 0 0);
+
+    --border: oklch(0.89 0.015 280);
+    --input: oklch(0.89 0.015 280);
+    --ring: oklch(0.62 0.18 285);
+
+    --chart-1: oklch(0.55 0.22 285);
+    --chart-2: oklch(0.75 0.13 195);
+    --chart-3: oklch(0.8 0.2 128);
+    --chart-4: oklch(0.67 0.18 320);
+    --chart-5: oklch(0.79 0.14 75);
+
+    --sidebar: oklch(1 0 0);
+    --sidebar-foreground: oklch(0.22 0.03 285);
+    --sidebar-primary: oklch(0.55 0.22 285);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.93 0.05 195);
+    --sidebar-accent-foreground: oklch(0.45 0.11 200);
+    --sidebar-border: oklch(0.89 0.015 280);
+    --sidebar-ring: oklch(0.62 0.18 285);
+
+    /* CTA — лайм полярного сияния */
+    --action: oklch(0.83 0.21 128);
+    --action-foreground: oklch(0.25 0.06 130);
+}

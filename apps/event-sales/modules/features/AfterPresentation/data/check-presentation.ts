@@ -63,36 +63,42 @@ export const checkPresentationData: CheckPresentationItem[] = [
         order: 5,
     },
     {
-        id: 'xo_offer_kp',
+        // Булевы вопросы «Разговора» — настоящие pbx-поля сделки (коды по
+        // владельческой таблице install todo2508): код вопроса = код поля,
+        // персист резолвит их сам и пишет в сделку.
+        id: 'op_xvost_is_offer',
         type: CheckPresentationFieldType.BOOLEAN,
-        code: 'xo_offer_kp',
+        code: 'op_xvost_is_offer',
         title: 'Предложение КП',
         placeholder: 'Предложено ли коммерческое предложение',
         required: true,
         order: 6,
     },
     {
-        id: 'xo_voice_content',
+        id: 'op_xvost_is_complect',
         type: CheckPresentationFieldType.BOOLEAN,
-        code: 'xo_voice_content',
+        code: 'op_xvost_is_complect',
         title: 'Озвучить наполнение',
         placeholder: 'Озвучено ли наполнение',
         required: true,
         order: 7,
     },
     {
-        id: 'xo_voice_price',
+        id: 'op_xvost_is_price',
         type: CheckPresentationFieldType.BOOLEAN,
-        code: 'xo_voice_price',
+        code: 'op_xvost_is_price',
         title: 'Озвучить цену',
         placeholder: 'Озвучена ли цена',
         required: true,
         order: 8,
     },
     {
-        id: 'xo_manager_approach_date',
+        // Код op_* (не исторический xo_ анкеты): вопрос «выдернут из
+        // Хвоста» в фича-поле — код вопроса обязан совпадать с кодом
+        // портального поля из реестра, тогда персист резолвит его сам.
+        id: 'op_manager_approach_date',
         type: CheckPresentationFieldType.DATE,
-        code: 'xo_manager_approach_date',
+        code: 'op_manager_approach_date',
         title: 'Дата подхода к руководителю',
         placeholder: 'Укажите дату обращения к руководителю',
         required: true,
@@ -198,9 +204,10 @@ export const checkPresentationData: CheckPresentationItem[] = [
         order: 20,
     },
     {
-        id: 'xo_decision_date_agreement',
+        // Код op_xvost_* — как поле установлено владельцем (todo2508).
+        id: 'op_xvost_decision_date_agreement',
         type: CheckPresentationFieldType.DATE,
-        code: 'xo_decision_date_agreement',
+        code: 'op_xvost_decision_date_agreement',
         title: 'Согласование даты по решению',
         placeholder: 'Укажите согласованную дату принятия решения',
         required: true,

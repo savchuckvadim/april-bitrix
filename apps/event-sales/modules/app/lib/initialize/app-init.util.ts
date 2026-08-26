@@ -7,6 +7,7 @@ import {
     TESTING_USER,
 } from '../../consts/app-global';
 import { appActions } from '../../model/slice/AppSlice';
+import { APP_DISPLAY_MODE } from '../../types/app/app-type';
 import type { AppDispatch, AppGetState } from '../../model/store';
 import {
     getDisplayMode,
@@ -61,6 +62,13 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
         !entities.currentLead &&
         !entities.currentDeal
     ) {
+        // Встройка задачи с битыми привязками (сделку/компанию удалили) —
+        // не техническая ошибка, а честная заглушка: работать не с чем.
+        if (display === APP_DISPLAY_MODE.TASK && entities.currentTask) {
+            dispatch(appActions.setGuard('noTaskEntity'));
+            dispatch(appActions.setInitializedSuccess({}));
+            return;
+        }
         dispatch(
             appActions.setInitializedError({
                 errorMessage:

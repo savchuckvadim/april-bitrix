@@ -8,6 +8,7 @@ import { ApiProvider } from './api-provider';
 import { AprilThemeProvider } from '@workspace/theme';
 import App from '@/modules/app/ui/App';
 import { ErrorBoundary } from '@/modules/app/providers/ErrorBoundary';
+import { QueryProvider } from '@/modules/app/providers/QueryProvider';
 import { EventProcessInit } from '@/modules/processes/event';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -22,12 +23,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
             >
                 <AprilThemeProvider>
                     <ApiProvider>
-                        <ErrorBoundary>
-                            <EventProcessInit />
-                            <App>
-                                {children}
-                            </App>
-                        </ErrorBoundary>
+                        <QueryProvider>
+                            <ErrorBoundary>
+                                <EventProcessInit />
+                                <App>
+                                    {children}
+                                </App>
+                            </ErrorBoundary>
+                        </QueryProvider>
                     </ApiProvider>
                 </AprilThemeProvider>
             </NextThemesProvider>

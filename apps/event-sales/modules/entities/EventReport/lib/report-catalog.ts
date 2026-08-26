@@ -21,6 +21,7 @@ export const WORK_STATUS_ID = {
     setAside: 1,
     success: 2,
     fail: 3,
+    notCa: 4,
 } as const satisfies Record<WorkStatusCode, number>;
 
 export const WORK_STATUS_ITEMS: EventReportSelectItem<WorkStatusCode>[] = [
@@ -43,6 +44,9 @@ export const WORK_STATUS_ITEMS: EventReportSelectItem<WorkStatusCode>[] = [
         isActive: true,
     },
     { id: WORK_STATUS_ID.fail, code: 'fail', name: 'Отказ', isActive: true },
+    // «Не ЦА» — брак, не отказ: без типа/причины отказа, со своим селектом
+    // «Тип не ЦА»; сделка уходит в стадию sales_not_ca (см. WorkStatusCode).
+    { id: WORK_STATUS_ID.notCa, code: 'notCa', name: 'Не ЦА', isActive: true },
 ];
 
 export const NORESULT_REASON_ITEMS: EventReportSelectItem<NoresultReasonCode>[] =

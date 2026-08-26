@@ -37,6 +37,15 @@ const DuplicatesPanel = dynamic(
         ).then(module => module.DuplicatesPanel),
     { ssr: false },
 );
+// Звонки по решению — стилистика RelatedDealsCard/RelatedLeadsCard; карточка
+// сама молчит у клиентов без ссылок op_zprs, поэтому без loading-скелетона.
+const ZprCallsCard = dynamic(
+    () =>
+        import('@/modules/entities/ZprCalls/ui/ZprCallsCard').then(
+            module => module.ZprCallsCard,
+        ),
+    { ssr: false },
+);
 
 const ContactsHubCard = dynamic(
     () =>
@@ -133,6 +142,9 @@ export const EntityBoard: FC = () => {
                         status={status}
                         onRetry={reload}
                     /> */}
+                    {/* Звонки по решению — на месте скрытых секций связей;
+                        у клиентов без ЗПР карточка молчит сама. */}
+                    <ZprCallsCard />
                     {/* Карточка заявки: первый открытый связанный лид либо
                         лид контекста встройки (панель сама скрывается). */}
                     <LeadRequestPanel leadId={getPanelLeadId(details?.leads)} />

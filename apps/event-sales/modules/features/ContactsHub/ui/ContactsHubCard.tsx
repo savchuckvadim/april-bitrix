@@ -1,7 +1,6 @@
 'use client';
 
 import { FC, useState } from 'react';
-import { Copy } from 'lucide-react';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { HintTooltip, MicroSkeleton, ToneBadge } from '@workspace/april-ui';
 import { cn } from '@workspace/ui/lib/utils';
@@ -13,20 +12,13 @@ import {
 } from '../lib/contacts-hub-view';
 import { useContactsHub } from '../lib/hooks/use-contacts-hub';
 
-/** Телефон/почта строкой: текст + копирование. Ссылок наружу тут нет. */
+/**
+ * Телефон/почта строкой. Кнопка копирования убрана (todo2508 №8) —
+ * `select-all` выделяет значение одним кликом, этого достаточно.
+ */
 const PointValue: FC<{ value: string }> = ({ value }) => (
     <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground">
         <span className="select-all">{value}</span>
-        <button
-            type="button"
-            aria-label={`Скопировать ${value}`}
-            className="cursor-pointer rounded-sm p-0.5 opacity-0 transition-opacity hover:bg-muted focus-visible:opacity-100 group-hover:opacity-100"
-            onClick={() => {
-                void navigator.clipboard?.writeText(value);
-            }}
-        >
-            <Copy aria-hidden className="size-3" />
-        </button>
     </span>
 );
 
@@ -54,21 +46,31 @@ const HubRowView: FC<{ row: HubRow; domain: string }> = ({ row, domain }) => {
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        title={row.name}
                         className="min-w-0 truncate text-sm font-medium hover:underline"
                     >
                         {row.name}
                     </a>
                 ) : (
-                    <span className="min-w-0 truncate text-sm font-medium">
+                    <span
+                        title={row.name}
+                        className="min-w-0 truncate text-sm font-medium"
+                    >
                         {row.name}
                     </span>
                 )}
                 {row.post && (
-                    <span className="min-w-0 truncate text-xs text-muted-foreground">
+                    <span
+                        title={row.post}
+                        className="min-w-0 truncate text-xs text-muted-foreground"
+                    >
                         {row.post}
                     </span>
                 )}
                 <span className="ml-auto inline-flex shrink-0 items-center gap-1">
+                    {/* Ярлычки-источники («Компания»/«Сделка»…) убраны
+                        (todo2508 №8): роль текущего дела остаётся, источники
+                        читаются фильтрами сверху. */}
                     {row.current && (
                         <ToneBadge tone="event" variant="soft" size="sm">
                             {row.current === 'both'
@@ -78,16 +80,6 @@ const HubRowView: FC<{ row: HubRow; domain: string }> = ({ row, domain }) => {
                                   : 'в отчёте'}
                         </ToneBadge>
                     )}
-                    {row.sources.map(source => (
-                        <ToneBadge
-                            key={source}
-                            tone="muted"
-                            variant="outline"
-                            size="sm"
-                        >
-                            {HUB_SOURCE_LABEL[source]}
-                        </ToneBadge>
-                    ))}
                 </span>
             </div>
             {(row.phones.length > 0 || row.emails.length > 0) && (

@@ -21,6 +21,8 @@ export type PreflightItemKind =
     | 'planName'
     | 'planType'
     | 'postFailDate'
+    | 'notCaType'
+    | 'planChecklist'
     | 'companyColor'
     | 'leadMarks'
     /** Исправить в окне нельзя — только объяснить (продажа без компании). */
@@ -47,6 +49,16 @@ export const PREFLIGHT_ITEMS: Record<PreflightItemKind, PreflightItem> = {
     planType: { kind: 'planType', label: 'Тип звонка' },
     planName: { kind: 'planName', label: 'О чём договорились' },
     postFailDate: { kind: 'postFailDate', label: 'Дата следующего звонка' },
+    notCaType: {
+        kind: 'notCaType',
+        label: 'Тип «не ЦА»',
+        hint: 'Почему клиент не целевой: без типа сделка не уедет в стадию «не ЦА».',
+    },
+    planChecklist: {
+        kind: 'planChecklist',
+        label: 'Чек-лист звонка',
+        hint: 'Обязательные поля выбранного типа звонка — те же, что в колонке плана.',
+    },
     comment: { kind: 'comment', label: 'Комментарий' },
     leadMarks: {
         kind: 'leadMarks',
@@ -66,6 +78,8 @@ const ERROR_TO_ITEM: Partial<Record<EV_ERROR_CODE, PreflightItem>> = {
     [EV_ERROR_CODE.PLAN_TYPE]: PREFLIGHT_ITEMS.planType,
     [EV_ERROR_CODE.PLAN_NAME]: PREFLIGHT_ITEMS.planName,
     [EV_ERROR_CODE.POST_FAIL_DATE]: PREFLIGHT_ITEMS.postFailDate,
+    [EV_ERROR_CODE.NOT_CA_TYPE]: PREFLIGHT_ITEMS.notCaType,
+    [EV_ERROR_CODE.PLAN_CHECKLIST]: PREFLIGHT_ITEMS.planChecklist,
     [EV_ERROR_CODE.COMMENT]: PREFLIGHT_ITEMS.comment,
 };
 
@@ -85,7 +99,7 @@ const getReportLeadIds = (state: RootState): number[] => {
 };
 
 /**
- * Продажа и отказ обязаны закрывать судьбу связанных заявок: статус
+ * Продажа, отказ и «не ЦА» обязаны закрывать судьбу связанных заявок: статус
  * («взята», «не ЦА»…), а у «не ЦА» — ещё и тип. Иначе заявка навсегда
  * остаётся «в воздухе», и отчётность по заявкам не сходится с продажами.
  *
@@ -96,7 +110,13 @@ const getReportLeadIds = (state: RootState): number[] => {
 export const hasIncompleteLeadMarks = (state: RootState): boolean => {
     const workStatus =
         state.eventReport.report[EV_REPORT_PROP.WORK_STATUS].current.code;
-    if (workStatus !== 'success' && workStatus !== 'fail') return false;
+    if (
+        workStatus !== 'success' &&
+        workStatus !== 'fail' &&
+        workStatus !== 'notCa'
+    ) {
+        return false;
+    }
 
     const leadIds = getReportLeadIds(state);
     if (!leadIds.length) return false;

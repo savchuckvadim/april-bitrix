@@ -100,6 +100,12 @@ const duplicatesSlice = createSlice({
             state.detailsError = null;
             state.details = null;
         },
+        /**
+         * Полный сброс: reloadApp запускает автопоиск заново (листенер на
+         * app/setAppData), а до его ответа лента не должна показывать
+         * кандидатов прошлой сессии.
+         */
+        reset: () => initialState,
     },
 });
 

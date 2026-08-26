@@ -21,7 +21,10 @@ export const DetailsLeadList: FC<DetailsLeadListProps> = ({ leads }) => (
                         key={lead.id}
                         className="flex items-baseline justify-between gap-2 rounded-md border border-border px-2 py-1.5"
                     >
-                        <span className="min-w-0 truncate text-sm text-foreground">
+                        <span
+                            title={lead.title}
+                            className="min-w-0 truncate text-sm text-foreground"
+                        >
                             {lead.title}
                         </span>
                         {lead.responsible && (

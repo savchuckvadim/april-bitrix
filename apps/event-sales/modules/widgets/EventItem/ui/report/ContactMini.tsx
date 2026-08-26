@@ -102,7 +102,10 @@ export const ContactMini: FC = () => {
             </div>
 
             {card.planName && (
-                <p className="truncate text-[0.625rem] text-muted-foreground">
+                <p
+                    title={card.planName}
+                    className="truncate text-[0.625rem] text-muted-foreground"
+                >
                     план: {card.planName}
                 </p>
             )}

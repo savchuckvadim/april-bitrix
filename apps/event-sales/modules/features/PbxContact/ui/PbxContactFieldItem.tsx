@@ -56,10 +56,13 @@ export const PbxContactFieldItem: FC<PbxContactFieldItemProps> = ({
                 <span className="min-w-0 truncate text-[0.6875rem] text-muted-foreground">
                     {name}
                 </span>
+                {/* Потолок ширины: длинное значение из слепка не выдавливает
+                    подпись характеристики из строки. */}
                 <span
+                    title={value ?? undefined}
                     className={
                         value
-                            ? 'shrink-0 text-[0.6875rem] font-medium text-foreground'
+                            ? 'max-w-[60%] shrink-0 truncate text-[0.6875rem] font-medium text-foreground'
                             : 'shrink-0 text-[0.6875rem] text-muted-foreground/70'
                     }
                 >

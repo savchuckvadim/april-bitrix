@@ -11,7 +11,13 @@ export enum EV_REPORT_PROP {
  * Единственный источник значений — WORK_STATUS_ITEMS / NORESULT_REASON_ITEMS /
  * FAIL_TYPE_ITEMS / FAIL_REASON_ITEMS в lib/report-catalog.
  */
-export type WorkStatusCode = 'inJob' | 'setAside' | 'success' | 'fail';
+/**
+ * `notCa` — фронтовый статус: «не целевая аудитория» — это брак, а не отказ.
+ * В контракт очереди он НЕ уходит: payload шлёт `fail` + `notCaTypeCode`
+ * (существующий канал leadSync), бэк по нему сам уводит сделку в
+ * `sales_not_ca` — см. buildFlowPayload.
+ */
+export type WorkStatusCode = 'inJob' | 'setAside' | 'success' | 'fail' | 'notCa';
 
 export type NoresultReasonCode =
     | 'secretar'

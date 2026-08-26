@@ -12,6 +12,8 @@ export interface ReportPultView {
     expand: () => void;
     workStatusName: string;
     isFail: boolean;
+    /** Статус «Не ЦА»: селект типа обязателен, отказные селекты скрыты. */
+    isNotCa: boolean;
     isPresentationDone: boolean;
     withPresentationChip: boolean;
     withNoresult: boolean;
@@ -39,6 +41,7 @@ export const useReportPult = (
 
     const workStatus = report[EV_REPORT_PROP.WORK_STATUS].current;
     const isFail = workStatus.code === 'fail';
+    const isNotCa = workStatus.code === 'notCa';
     const isInWork = workStatus.code === 'inJob';
     const withNoresult =
         withNoresultSection || resultType === EventItemResultType.NORESULT;
@@ -53,6 +56,7 @@ export const useReportPult = (
         expand: () => setIsExpanded(true),
         workStatusName: workStatus.name,
         isFail,
+        isNotCa,
         isPresentationDone,
         // Чип — запасной вход к той же отметке: там, где полноценной кнопки
         // в карточке комментария нет (нерезультативное событие, ТМЦ, лид).
@@ -60,6 +64,6 @@ export const useReportPult = (
         withPresentationChip:
             !withPresentationButton && (isPresTask || isPresentationDone),
         withNoresult,
-        hasRequired: withFail || withNoresult,
+        hasRequired: withFail || withNoresult || isNotCa,
     };
 };

@@ -8,7 +8,6 @@ import {
 import type { LeadRequestCard } from '@/modules/features/LeadRequestCard/model';
 import type {
     PresentationLeadCandidate,
-    PresentationSyncSiteStageCode,
     PresentationSyncSiteStatusCode,
 } from './index';
 
@@ -29,7 +28,6 @@ export interface PresentationLeadLinkState {
     card: LeadRequestCard | null;
     cardStatus: PresentationLeadLinkStatus;
     siteStatusCode: PresentationSyncSiteStatusCode | null;
-    siteStageCode: PresentationSyncSiteStageCode | null;
     /** Вопрос закрыт для текущего отчёта — отправка больше не перехватывается. */
     resolved: boolean;
 }
@@ -44,7 +42,6 @@ const initialState: PresentationLeadLinkState = {
     card: null,
     cardStatus: 'idle',
     siteStatusCode: null,
-    siteStageCode: null,
     resolved: false,
 };
 
@@ -78,7 +75,6 @@ const presentationLeadLinkSlice = createSlice({
             state.cardStatus = 'loading';
             state.card = null;
             state.siteStatusCode = null;
-            state.siteStageCode = null;
         },
         noLinkSelected(state) {
             state.noLink = true;
@@ -89,11 +85,10 @@ const presentationLeadLinkSlice = createSlice({
         cardLoaded(state, action: PayloadAction<LeadRequestCard>) {
             state.card = action.payload;
             state.cardStatus = 'ready';
-            // Префилл текущими значениями лида — менеджер их подтверждает
-            // или меняет; пустые обязан заполнить (валидация confirm).
+            // Префилл текущим значением лида — менеджер его подтверждает
+            // или меняет; пустое обязан заполнить (валидация confirm).
             state.siteStatusCode =
                 action.payload.siteStatus.currentCode ?? null;
-            state.siteStageCode = action.payload.siteStage.currentCode ?? null;
         },
         cardFailed(state) {
             state.cardStatus = 'error';
@@ -103,12 +98,6 @@ const presentationLeadLinkSlice = createSlice({
             action: PayloadAction<PresentationSyncSiteStatusCode>,
         ) {
             state.siteStatusCode = action.payload;
-        },
-        setSiteStageCode(
-            state,
-            action: PayloadAction<PresentationSyncSiteStageCode>,
-        ) {
-            state.siteStageCode = action.payload;
         },
         resolvedAndClosed(state) {
             state.resolved = true;
@@ -147,10 +136,6 @@ export const presentationLeadLinkActions: {
     setSiteStatusCode: ActionCreatorWithPayload<
         PresentationSyncSiteStatusCode,
         'presentationLeadLink/setSiteStatusCode'
-    >;
-    setSiteStageCode: ActionCreatorWithPayload<
-        PresentationSyncSiteStageCode,
-        'presentationLeadLink/setSiteStageCode'
     >;
     resolvedAndClosed: ActionCreatorWithoutPayload<'presentationLeadLink/resolvedAndClosed'>;
     closed: ActionCreatorWithoutPayload<'presentationLeadLink/closed'>;

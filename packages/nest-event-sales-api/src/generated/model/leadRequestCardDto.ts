@@ -6,10 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { LeadSiteStatusStateDto } from './leadSiteStatusStateDto';
-import type { LeadSiteStageStateDto } from './leadSiteStageStateDto';
-import type { LeadOpStatusStateDto } from './leadOpStatusStateDto';
 import type { LeadNotCaTypeStateDto } from './leadNotCaTypeStateDto';
-import type { LeadRelatedBaseStageStateDto } from './leadRelatedBaseStageStateDto';
 import type { LeadRequestSaleReadinessDto } from './leadRequestSaleReadinessDto';
 
 export interface LeadRequestCardDto {
@@ -34,16 +31,10 @@ export interface LeadRequestCardDto {
      * @nullable
      */
     regNumber?: string | null;
-    /** Статус заявки. */
+    /** Статус заявки (единая ось состояния). */
     siteStatus: LeadSiteStatusStateDto;
-    /** Стадия заявки. */
-    siteStage: LeadSiteStageStateDto;
-    /** Статус лида. */
-    leadStatus: LeadOpStatusStateDto;
     /** Тип «не ЦА». */
     notCaType: LeadNotCaTypeStateDto;
-    /** Зеркало стадии связанной сделки. */
-    relatedBaseStage: LeadRelatedBaseStageStateDto;
     /** «Не звонить никогда». */
     blackShort: boolean;
     /**
@@ -51,16 +42,10 @@ export interface LeadRequestCardDto {
      * @nullable
      */
     blackShortReason?: string | null;
-    /** Установлена компания. */
-    isCompany: boolean;
     /** Отправлен отчёт в НПП. */
     nppReported: boolean;
     /** Проверено на дубли (установлен ИНН). */
     duplicateChecked: boolean;
-    /** Найдены дубли. */
-    duplicateFound: boolean;
-    /** Присоединён к существующей работе. */
-    mergedByExist: boolean;
     /** Повлиял на продажу. */
     boostSale: boolean;
     /** История обработки заявки (append-only, старые не переписываются). */

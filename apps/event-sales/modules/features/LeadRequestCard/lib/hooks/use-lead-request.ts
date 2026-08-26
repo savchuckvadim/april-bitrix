@@ -11,10 +11,13 @@ import { leadRequestActions } from '../../model/LeadRequestSlice';
 import { needsNotCaType } from '../not-ca-rule';
 import type { LeadRequestUpdate } from '../../model';
 
-/** Enum-поля карточки, редактируемые селектами (типы значений — из DTO). */
+/**
+ * Enum-поля карточки, редактируемые селектами (типы значений — из DTO).
+ * Ось слита (аудит 2408): siteStageCode/leadStatusCode из контракта ушли.
+ */
 export type LeadRequestEnumPatch = Pick<
     LeadRequestUpdate,
-    'siteStatusCode' | 'siteStageCode' | 'leadStatusCode' | 'notCaTypeCode'
+    'siteStatusCode' | 'notCaTypeCode'
 >;
 export type LeadRequestEnumPatchKey = keyof LeadRequestEnumPatch;
 

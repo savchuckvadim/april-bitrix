@@ -7,6 +7,7 @@ import {
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import { eventTaskActions } from '@/modules/entities/EventTask';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';
+import { eventContactActions } from '@/modules/entities/EventContact/model/EventContactSlice';
 import { eventPlanActions } from '@/modules/entities/EventPlan';
 import {
     EventItemResultType,
@@ -70,6 +71,8 @@ export const getReturnToTMCMenu =
         dispatch(eventPlanActions.setActiveStatus({ status: !status }));
         dispatch(eventReportActions.clean({ isTmc: false }));
         dispatch(eventTaskActions.setCurrentTask({ task: currentTask }));
+        // Другая карточка — ручной выбор контакта прошлого дела не переносим.
+        dispatch(eventContactActions.clearManualCurrent());
         dispatch(setCurrentReportContact(currentTask));
 
         if (status) {

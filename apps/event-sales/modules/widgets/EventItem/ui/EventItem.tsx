@@ -9,6 +9,7 @@ import {
     TabsTrigger,
 } from '@workspace/ui/components/tabs';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport';
 import {
     getEventTypeAttr,
@@ -53,6 +54,16 @@ const ContactsHubCard = dynamic(
     { ssr: false },
 );
 
+// Звонки по решению: панель молчит у клиентов без ссылок op_zprs, поэтому
+// без loading-скелетона — не мигать пустышкой там, где ничего не появится.
+const ZprCallsPanel = dynamic(
+    () =>
+        import('@/modules/entities/ZprCalls/ui/ZprCallsPanel').then(
+            module => module.ZprCallsPanel,
+        ),
+    { ssr: false },
+);
+
 // Карточка заявки/лида: видна только при лиде в контексте, форму отчёта
 // не задерживает — лениво, как и дубли.
 // Экран подтверждения заявки: перекрывает всё, поэтому монтируется рядом с
@@ -71,6 +82,16 @@ const PresentationLeadLinkDialog = dynamic(
     () =>
         import(
             '@/modules/features/PresentationLeadLink/ui/PresentationLeadLinkDialog'
+        ),
+    { ssr: false },
+);
+
+// Стадийный чек-лист («Клиент на решении», «Продажа») — шаг отправки,
+// включается настройками портала; открывается редко, поэтому лениво.
+const CallChecklistDialog = dynamic(
+    () =>
+        import('@/modules/features/CallChecklist/ui/CallChecklistDialog').then(
+            module => module.CallChecklistDialog,
         ),
     { ssr: false },
 );
@@ -95,6 +116,7 @@ export const EventItem: FC = () => {
         s => s.eventPlan[EV_PLAN_PROP.TYPE].current,
     );
     const config = useAppSelector(s => s.app.config);
+    const { isWideDisplay } = useUiDensity();
     const departmentMode = useAppSelector(
         s => s.department[DEPARTAMENT_STATE_PROP.MODE].current,
     );
@@ -156,9 +178,18 @@ export const EventItem: FC = () => {
                                 иконка появляется только когда заявка есть, а
                                 карточка открывается окном — там ей хватает
                                 ширины на поля, историю и кнопки. */}
-                            <DuplicatesPanel />
-                            <PurchaseSignalsCard />
-                            <ContactsHubCard />
+                            {/* В компактных встройках всё «под Планом»
+                                скрыто (todo2508 №6, критерий — плейсмент):
+                                эти данные доступны через модалку «Поля
+                                сущности» и вкладки списка. */}
+                            {isWideDisplay && (
+                                <div className="space-y-3">
+                                    <DuplicatesPanel />
+                                    <ZprCallsPanel />
+                                    <PurchaseSignalsCard />
+                                    <ContactsHubCard />
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -181,6 +212,7 @@ export const EventItem: FC = () => {
             <SendPreflightDialog />
             <ActionPromptCard />
             <CheckPresentation />
+            <CallChecklistDialog />
             <PresentationLeadLinkDialog />
         </div>
     );

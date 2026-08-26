@@ -107,26 +107,9 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
                                     patchEnum('siteStatusCode', code)
                                 }
                             />
-                            <LeadRequestEnumField
-                                label={LEAD_REQUEST_ENUM_LABEL.siteStageCode}
-                                installed={card.siteStage.installed}
-                                currentCode={card.siteStage.currentCode}
-                                items={card.siteStage.items}
-                                disabled={saving}
-                                onChange={code =>
-                                    patchEnum('siteStageCode', code)
-                                }
-                            />
-                            <LeadRequestEnumField
-                                label={LEAD_REQUEST_ENUM_LABEL.leadStatusCode}
-                                installed={card.leadStatus.installed}
-                                currentCode={card.leadStatus.currentCode}
-                                items={card.leadStatus.items}
-                                disabled={saving}
-                                onChange={code =>
-                                    patchEnum('leadStatusCode', code)
-                                }
-                            />
+                            {/* Ось слита (аудит 2408): «Стадия заявки» и
+                                «Статус лида» из панели удалены — состояние
+                                несут статус заявки + битриксовская стадия. */}
                             {shouldShowNotCaSelect(card) && (
                                 <LeadRequestEnumField
                                     label={

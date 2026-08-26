@@ -1,6 +1,6 @@
 import { BitrixBaseApi } from '../../../../core';
 import { BxItemRepository } from '../repository/bx-item.repository';
-import { IBXItem } from '../interface/item.interface';
+import { IBXItem, IBXItemFilter } from '../interface/item.interface';
 import { BitrixOwnerTypeId } from '../../../enums/bitrix-constants.enum';
 
 export class BxItemBatchService {
@@ -28,7 +28,7 @@ export class BxItemBatchService {
     list(
         cmdCode: string,
         entityTypeId: string,
-        filter?: Partial<IBXItem>,
+        filter?: IBXItemFilter,
         select?: string[],
     ) {
         return this.repo.listBtch(cmdCode, entityTypeId, filter, select);

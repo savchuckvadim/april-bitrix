@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import type { RootState } from '@/modules/app/model/store';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
+import { WORK_STATUS_ITEMS } from '@/modules/entities/EventReport/lib/report-catalog';
 import {
     EV_PLAN_CODE,
     EV_PLAN_PROP,
@@ -35,7 +36,6 @@ const buildLeadSync = (state: RootState): EvFlowDto['leadSync'] => {
                   leadId: link.selectedLeadId,
                   presentationLink: true,
                   siteStatusCode: link.siteStatusCode ?? undefined,
-                  siteStageCode: link.siteStageCode ?? undefined,
               }
             : null;
     const notCaPart = state.leadRequest.finalSync.notCaTypeCode
@@ -53,6 +53,12 @@ interface BuildFlowOptions {
     isNoCall?: boolean;
     /** id операции: по нему бэкенд отличает повтор от новой отправки */
     operationId?: string;
+    /**
+     * socketId WS-подключения фрейма: по нему бэк шлёт `*-flow:done`
+     * (в т.ч. `zpr-flow:done` сайд-очереди ЗПР) точечно в наш сокет.
+     * Нет сокета — поле не уходит, бэк просто не шлёт push.
+     */
+    socketId?: string;
 }
 
 /**
@@ -88,10 +94,25 @@ export const buildFlowPayload = (
             : tailComment
         : userComment;
 
+    // «Не ЦА» — фронтовый статус: контракт очереди знает только четыре кода,
+    // поэтому по проводам уходит «Отказ», а признак «не ЦА» несёт
+    // leadSync.notCaTypeCode (buildLeadSync) — бэк по нему сам уводит сделку
+    // в sales_not_ca и подписывает историю «Не ЦА».
+    const workStatusSelect = reportState.report[EV_REPORT_PROP.WORK_STATUS];
+    const workStatusForDto =
+        workStatusSelect.current.code === 'notCa'
+            ? {
+                  ...workStatusSelect,
+                  current:
+                      WORK_STATUS_ITEMS.find(item => item.code === 'fail') ??
+                      workStatusSelect.current,
+              }
+            : workStatusSelect;
+
     const report = {
         resultStatus,
         description,
-        workStatus: reportState.report[EV_REPORT_PROP.WORK_STATUS],
+        workStatus: workStatusForDto,
         noresultReason: reportState.report[EV_REPORT_PROP.NORESULT_REASON],
         failType: reportState.report[EV_REPORT_PROP.FAIL_TYPE],
         failReason: reportState.report[EV_REPORT_PROP.FAIL_REASON],
@@ -138,8 +159,8 @@ export const buildFlowPayload = (
         isPlanned,
         contact: contactState.current.plan || undefined,
         isActive: !isNoCall && planState[EV_PLAN_PROP.IS_ACTIVE],
-        // TODO(бэк): принять поле и проставить PRIORITY задачи (1 — высокий).
-        // Пока бэк его игнорирует, признак живёт только на фронте.
+        // Бэк (PlanDto.isImportant, 2508): флаг даёт задаче PRIORITY=HIGH
+        // независимо от типа события.
         isImportant: planState[EV_PLAN_PROP.IS_IMPORTANT],
     };
 
@@ -192,6 +213,7 @@ export const buildFlowPayload = (
     return {
         domain: app.domain,
         operationId: options.operationId,
+        socketId: options.socketId,
         plan,
         report,
         context,
@@ -212,7 +234,29 @@ export const buildFlowPayload = (
             isUnplannedPresentation:
                 presentation[PresentationProp.IS_UNPLANNED_PRESENTATION],
         },
-        sale: { relationSalePresDeal: sale.presDeals.current },
+        // Чек-лист продажи (dto-канал): сумма → штатный OPPORTUNITY,
+        // дата первой оплаты → first_pay_date; пишет бэк одной операцией
+        // со сменой стадии (сделку может создавать сам flow).
+        sale: {
+            relationSalePresDeal: sale.presDeals.current,
+            ...(workStatusCode === 'success'
+                ? {
+                      opportunity:
+                          Number(
+                              state.callChecklist.valueByCode['OPPORTUNITY'],
+                          ) > 0
+                              ? Number(
+                                    state.callChecklist.valueByCode[
+                                        'OPPORTUNITY'
+                                    ],
+                                )
+                              : undefined,
+                      firstPayDate:
+                          state.callChecklist.valueByCode['first_pay_date'] ||
+                          undefined,
+                  }
+                : {}),
+        },
         contact: { current: contactState.current },
         departament: {
             mode: departament[DEPARTAMENT_STATE_PROP.MODE].current ?? undefined,

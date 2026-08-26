@@ -23,7 +23,7 @@ export interface ItemVisibility {
  * (замена размазанных условий legacy SalesMenu):
  * - презентация — только sales-режим, не лид, при «результативном»/новом событии;
  * - причина недозвона — не лид, когда событие НЕ результативное/новое;
- * - план — пока статус работы не финальный (не Продажа/Отказ);
+ * - план — пока статус работы не финальный (не Продажа/Отказ/Не ЦА);
  * - продажа — при статусе «Продажа», не лид;
  * - дата пост-отказа — при «Отказе» на доменах с withPostFail, не лид.
  */
@@ -38,7 +38,10 @@ export const getItemVisibility = ({
     const isResultLike =
         menuType === EventItemResultType.RESULT ||
         menuType === EventItemResultType.NEW;
-    const withPlan = workStatusCode !== 'fail' && workStatusCode !== 'success';
+    const withPlan =
+        workStatusCode !== 'fail' &&
+        workStatusCode !== 'success' &&
+        workStatusCode !== 'notCa';
 
     return {
         presentation: !isTmc && !isLeadContext && isResultLike,

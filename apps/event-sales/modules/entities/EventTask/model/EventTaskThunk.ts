@@ -1,6 +1,7 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
 import type { BXTask } from '@workspace/bx';
+import { waitForAppConfig } from '@/modules/app/lib/utills/app-config-wait';
 import { EventTask } from '../types/event-task-type';
 import { eventTaskActions } from './EventTaskSlice';
 import { getEvTasksFromBxTasks } from '../lib/task-util';
@@ -25,7 +26,8 @@ export const initialTasksFromCurrentTask =
 
 /**
  * Загрузка открытых задач обзвона пользователя по владельцу контекста
- * (tasks.task.list, группа задач — из domain-config).
+ * (tasks.task.list; группа задач — портальные настройки поверх
+ * domain-config, см. ожидание waitForAppConfig ниже).
  *
  * Привязка выбирается честно по владельцу: компания > сделка > лид.
  * Раньше при отсутствии компании фильтр превращался в `CO_null` и просто
@@ -42,17 +44,7 @@ export const initialEventTasks =
         from: APP_FROM_ENUM,
     ) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
-        // Из состояния, а не из хардкода по домену: поверх него уже
-        // легли портальные настройки приложения (fetchAppConfig).
-        const { taskGroupId } = getState().app.config;
         void from;
-        // const ufCrmTasks = companyId
-        //     ? `CO_${companyId}`
-        //     : dealId
-        //       ? `D_${dealId}`
-        //       : leadId
-        //         ? `L_${leadId}`
-        //         : null;
         const ufCrmTasks: string[] = [];
         if (companyId) {
             ufCrmTasks.push(`CO_${companyId}`);
@@ -68,6 +60,14 @@ export const initialEventTasks =
             return;
         }
         if (!tasks || !tasks.length) {
+            // Группа задач читается из состояния ПОСЛЕ портальных настроек
+            // (fetchAppConfig стартует листенером на setAppData и к этому
+            // моменту обычно ещё летит): без ожидания запрос стабильно уходил
+            // с хардкодом domain-config, и настройка группы на портале
+            // фактически не работала. Таймаут 1.5с — fail-open на хардкод;
+            // ветка TASK/CALL_CARD (задача уже известна) не ждёт вовсе.
+            await waitForAppConfig(getState);
+            const { taskGroupId } = getState().app.config;
             try {
                 const response = await Bitrix.getService().task.getList(
                     {

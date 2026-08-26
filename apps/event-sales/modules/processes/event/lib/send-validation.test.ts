@@ -13,6 +13,8 @@ const makeState = (over?: {
     planType?: { id: number; code: string; name: string } | null;
     comment?: string;
     workStatus?: string;
+    notCaTypeCode?: string | null;
+    withPostFail?: boolean;
 }): RootState =>
     ({
         eventReport: {
@@ -30,9 +32,15 @@ const makeState = (over?: {
         },
         eventItemMenu: { type: 'CURRENT' },
         eventPostFail: { postFailDate: null },
+        leadRequest: {
+            finalSync: { notCaTypeCode: over?.notCaTypeCode ?? null },
+        },
         company: { color: { isChanged: false } },
         app: {
-            config: { withPostFail: false, withColorRequired: false },
+            config: {
+                withPostFail: over?.withPostFail ?? false,
+                withColorRequired: false,
+            },
             bitrix: { company: null },
         },
     }) as unknown as RootState;
@@ -57,5 +65,43 @@ describe('validateSend — гейт «Без плана» (isActive)', () => {
             makeState({ isPlanActive: false, comment: '' }),
         );
         expect(result.errors.comment).toBe('Напишите комментарий');
+    });
+});
+
+describe('validateSend — статус «Не ЦА»', () => {
+    it('без типа «не ЦА» отправка не проходит', () => {
+        const { result } = validateSend(makeState({ workStatus: 'notCa' }));
+        expect(result.errors.notCaType).toBe('Выберите тип «не ЦА»');
+    });
+
+    it('с типом — ошибки нет, план не требуется (статус финальный)', () => {
+        const { result } = validateSend(
+            makeState({
+                workStatus: 'notCa',
+                notCaTypeCode: 'op_lead_not_ca_type1',
+            }),
+        );
+        expect(result.errors.notCaType).toBeFalsy();
+        // isNoWork: тип/название плана не требуются даже при активном плане.
+        expect(result.errors.type).toBeFalsy();
+        expect(result.isError).toBe(false);
+    });
+
+    it('дата следующего звонка при «Не ЦА» НЕ требуется даже на withPostFail', () => {
+        const { result } = validateSend(
+            makeState({
+                workStatus: 'notCa',
+                notCaTypeCode: 'op_lead_not_ca_type1',
+                withPostFail: true,
+            }),
+        );
+        expect(result.errors.postFailDate).toBeFalsy();
+    });
+
+    it('обычный отказ на withPostFail всё ещё требует дату', () => {
+        const { result } = validateSend(
+            makeState({ workStatus: 'fail', withPostFail: true }),
+        );
+        expect(result.errors.postFailDate).toBeTruthy();
     });
 });

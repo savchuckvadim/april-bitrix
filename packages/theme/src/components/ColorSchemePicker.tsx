@@ -7,7 +7,7 @@ import { useOutsideClick } from '../hook/useOutsideClick';
 import { ColorSchemes, COLOR_SCHEME_SWATCH } from '../model/color-schemes';
 import { ColorScheme } from '../provider/Theme';
 
-/** Схем 13 — два ряда по 7 и 6: ровный прямоугольник без хвоста в одну клетку. */
+/** Схем 14 — ровно два ряда по 7: прямоугольник без хвоста. */
 const GRID_COLUMNS = 7;
 
 export interface ColorSchemePickerProps {

@@ -26,7 +26,10 @@ export const EntityLink: FC<EntityLinkProps> = ({ descriptor, className }) => {
 
     if (!href) {
         return (
-            <span className={cn('min-w-0 truncate', className)}>
+            <span
+                title={descriptor.title}
+                className={cn('min-w-0 truncate', className)}
+            >
                 {descriptor.title}
             </span>
         );

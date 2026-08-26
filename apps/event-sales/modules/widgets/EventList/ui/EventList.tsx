@@ -1,6 +1,5 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 
 import { FC } from 'react';
 import {
@@ -37,15 +36,8 @@ import { EventListRow } from './EventListRow';
  * Список событий (задач обзвона) с действиями по строке.
  * Паттерн навигации: thunk меняет состояние → UI зовёт nav.toItem().
  */
-// «Все контакты» и в списке: до открытия дела видно, как дозвониться.
-// Свёрнут, связи грузит по раскрытию — списку в бандле не мешает.
-const ContactsHubCard = dynamic(
-    () =>
-        import('@/modules/features/ContactsHub/ui/ContactsHubCard').then(
-            module => module.ContactsHubCard,
-        ),
-    { ssr: false },
-);
+// «Все контакты» из низа списка переехали во вкладку «контакты»
+// (EventListTabs) — дубль карточки убран (todo2508 №6).
 
 export const EventList: FC = () => {
     const dispatch = useAppDispatch();
@@ -140,8 +132,6 @@ export const EventList: FC = () => {
                     </div>
                 )}
             </SectionState>
-
-            <ContactsHubCard />
         </div>
     );
 };

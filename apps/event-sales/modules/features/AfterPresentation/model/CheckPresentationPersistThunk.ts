@@ -1,6 +1,8 @@
 import { Bitrix } from '@workspace/bitrix';
 import { findUfKey } from '@workspace/pbx';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import { isBaseSalesDeal } from '@/modules/entities/RelatedCrm/lib/deal-category';
+import { isOwnDeal } from '@/modules/entities/RelatedCrm/lib/deal-ownership';
 import {
     buildFiveKSummary,
     buildPortalFieldPayload,
@@ -74,6 +76,24 @@ export const persistCheckPresentation =
         const { company, deal, lead } = state.app.bitrix;
         const bitrix = Bitrix.getService();
 
+        /*
+         * Сделка-цель: сделка контекста, а из встройки-компании (в сторе
+         * сделки нет) — открытая ОСНОВНАЯ сделка из связей клиента. Без
+         * фолбэка deal-only поля хвоста (op_xvost_*) из опросника терялись
+         * бы целиком: на компании и лиде их нет по реестру.
+         *
+         * Только СВОЯ (правило владения 2508): чужая открытая «текущей» не
+         * становится, и данные форм под неё не подставляются.
+         */
+        const currentUserId = Number(state.app.bitrix.user?.ID) || null;
+        const fallbackBaseDealId = state.relatedCrm.details?.deals?.find(
+            related =>
+                !related.closed &&
+                isBaseSalesDeal(related) &&
+                isOwnDeal(related, currentUserId),
+        )?.id;
+        const dealTargetId = deal?.ID ?? fallbackBaseDealId;
+
         const targets = [
             {
                 id: company?.ID,
@@ -82,7 +102,7 @@ export const persistCheckPresentation =
                     bitrix.company.update(id, payload as never),
             },
             {
-                id: deal?.ID,
+                id: dealTargetId,
                 // Поля сделки в слепке лежат под bitrixDeal — историческое имя.
                 fields: portal.bitrixDeal?.bitrixfields,
                 update: (id: number, payload: Record<string, string>) =>

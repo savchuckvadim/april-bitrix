@@ -67,13 +67,18 @@ export const PurchaseSignalsCard: FC = () => {
                 {signals.concurents.length > 0 && (
                     <div className="flex flex-wrap items-center gap-1 pt-1">
                         {signals.concurents.map(name => (
+                            // Название конкурента — живой текст из CRM: бэйдж
+                            // не шире карточки, многоточие внутренним span'ом.
                             <ToneBadge
                                 key={name}
                                 tone="muted"
                                 variant="soft"
                                 size="sm"
+                                className="max-w-full"
                             >
-                                {name}
+                                <span title={name} className="truncate">
+                                    {name}
+                                </span>
                             </ToneBadge>
                         ))}
                     </div>

@@ -16,6 +16,8 @@ const VIEW: Record<WorkStatusCode, WorkStatusView> = {
     setAside: { activeClass: 'bg-warning text-warning-foreground' },
     success: { activeClass: 'bg-success text-success-foreground' },
     fail: { activeClass: 'bg-destructive text-destructive-foreground' },
+    // «Не ЦА» — брак, не поражение: серый, чтобы не путать с «Отказом».
+    notCa: { activeClass: 'bg-muted-foreground text-background' },
 };
 
 const FALLBACK: WorkStatusView = {

@@ -20,7 +20,8 @@ export type ColorScheme =
     | 'beige'
     | 'explosive-pink'
     | 'air'
-    | 'claude';
+    | 'claude'
+    | 'aurora';
 
 export const ColorSchemes = [
     'default',
@@ -36,6 +37,7 @@ export const ColorSchemes = [
     'explosive-pink',
     'air',
     'claude',
+    'aurora',
 ] as const;
 
 /**
@@ -61,6 +63,7 @@ export const COLOR_SCHEME_SWATCH: Record<ColorScheme, string> = {
     'explosive-pink': '#bb52d4',
     air: '#3773e0',
     claude: '#D97757',
+    aurora: '#7c5cff',
 };
 
 /*

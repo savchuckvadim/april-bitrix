@@ -31,7 +31,11 @@ export { buildRelationsBar, MAX_RELATION_BARS } from './lib/relations-bar';
 export type {
     RelationsBarView,
     RelationsBarMode,
+    RelationsBarNotice,
 } from './lib/relations-bar';
+export { useRelationsNotice } from './lib/hooks/use-relations-notice';
+export type { RelationsNotice } from './lib/hooks/use-relations-notice';
+export { isOwnDeal } from './lib/deal-ownership';
 export { EntityLink } from './ui/EntityLink';
 export { getEntityCardUrl, getEntityCardPath } from './lib/entity-url';
 export { useCurrentRelations } from './lib/hooks/use-current-relations';

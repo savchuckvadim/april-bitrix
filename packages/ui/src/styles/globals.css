@@ -246,6 +246,24 @@
      * не уходит в прозрачность целиком и остаётся читаемым в любой фазе.
      */
     --animate-wink: wink 2.2s ease-in-out infinite;
+
+    /*
+     * Всплывашка-подсказка шапки (animate-hint-in): появляется из-под
+     * названия и оседает. ОДНОРАЗОВАЯ, в отличие от wink/echo — уход
+     * делается transition-opacity + размонтированием.
+     */
+    --animate-hint-in: hint-in 0.25s ease-out both;
+}
+
+@keyframes hint-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 @keyframes wink {

@@ -47,7 +47,10 @@ export const TaskLeadLinksCard: FC = () => {
                                     ? TASK_LEAD_LINKS_TEXT.requestBadge
                                     : TASK_LEAD_LINKS_TEXT.leadBadge}
                             </span>
-                            <span className="min-w-0 truncate">
+                            <span
+                                title={lead.title}
+                                className="min-w-0 truncate"
+                            >
                                 {lead.title}
                             </span>
                         </label>

@@ -1,15 +1,12 @@
-import type {
-    LeadRequestSyncDtoSiteStageCode,
-    LeadRequestSyncDtoSiteStatusCode,
-} from '@workspace/nest-event-sales-api';
+import type { LeadRequestSyncDtoSiteStatusCode } from '@workspace/nest-event-sales-api';
 
 /**
  * Доменные алиасы generated-типов связи «презентация ↔ заявка».
  * Коды статусов типизированы на бэке (pbx-lead-request enum) и доехали
  * литеральными union'ами — magic strings исключены и здесь.
+ * Стадии заявки больше нет: ось слита в статус (аудит 2408).
  */
 export type PresentationSyncSiteStatusCode = LeadRequestSyncDtoSiteStatusCode;
-export type PresentationSyncSiteStageCode = LeadRequestSyncDtoSiteStageCode;
 
 /** Кандидат на связь: открытый связанный лид/заявка клиента. */
 export interface PresentationLeadCandidate {

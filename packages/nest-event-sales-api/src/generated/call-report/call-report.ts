@@ -13,6 +13,8 @@ import type {
     InstallCallReportSmartResponseDto,
     PresentationAuditRequestDto,
     PresentationAuditResponseDto,
+    PresentationPlanFactRequestDto,
+    PresentationPlanFactResponseDto,
     ReviseCallsDto,
     ReviseCallsResponseDto,
     ScanCallsDto,
@@ -85,12 +87,27 @@ export const getCallReport = () => {
             data: presentationAuditRequestDto,
         });
     };
+    /**
+     * Планы презентаций из списка КПИ (тип события «Презентация», действие «План», дата события в окне) сопоставляются с фактами: AI-разбором звонка-презентации того же менеджера/сделки рядом по времени либо done-записью КПИ. Итог по каждому плану: подтверждён звонком / отчёт без звонка / пропущен. При наличии проблем — дайджест в телеграм. Ручной аналог утреннего крона (идёт после сверки по презентациям, тот же тумблер).
+     * @summary План-факт по презентациям (синхронно, ручной запуск)
+     */
+    const callReportPresentationPlanFactRun = (
+        presentationPlanFactRequestDto: PresentationPlanFactRequestDto,
+    ) => {
+        return customAxios<PresentationPlanFactResponseDto>({
+            url: `/api/call-report/presentation-plan-fact`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: presentationPlanFactRequestDto,
+        });
+    };
     return {
         callReportInstallSmart,
         callReportScan,
         callReportAnalyze,
         callReportRevise,
         callReportPresentationAuditRun,
+        callReportPresentationPlanFactRun,
     };
 };
 export type CallReportInstallSmartResult = NonNullable<
@@ -111,6 +128,15 @@ export type CallReportPresentationAuditRunResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<typeof getCallReport>['callReportPresentationAuditRun']
+        >
+    >
+>;
+export type CallReportPresentationPlanFactRunResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getCallReport
+            >['callReportPresentationPlanFactRun']
         >
     >
 >;

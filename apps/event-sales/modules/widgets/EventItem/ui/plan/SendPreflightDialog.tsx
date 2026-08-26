@@ -21,8 +21,14 @@ import { EV_PLAN_PROP, eventPlanActions } from '@/modules/entities/EventPlan';
 import { eventPostFailActions } from '@/modules/entities/EVPostFail';
 import { ProspectScale } from '@/modules/entities/EventCompany';
 import { send } from '@/modules/processes/event';
+import {
+    COMMENT_MAX_LENGTH,
+    PLAN_NAME_MAX_LENGTH,
+} from '@/modules/processes/event/lib/text-limits';
 import type { PreflightItem } from '@/modules/processes/event/lib/send-preflight';
 import { LeadMarksList } from '@/modules/features/LeadMarks';
+import { LeadRequestNotCaSelect } from '@/modules/features/LeadRequestCard/ui/LeadRequestNotCaSelect';
+import { ChecklistInlineCard } from '@/modules/features/CallChecklist/ui/ChecklistInlineCard';
 import { useRequestLeadIds } from '@/modules/features/LeadRequestCard/lib/hooks/use-request-lead-ids';
 import { useSendPreflight } from '../../lib/hooks/use-send-preflight';
 import { eventItemActions } from '../../model/EventItemSlice';
@@ -91,6 +97,7 @@ export const SendPreflightDialog: FC = () => {
                     <Input
                         value={planName}
                         placeholder="О чём договорились"
+                        maxLength={PLAN_NAME_MAX_LENGTH}
                         onChange={e =>
                             dispatch(
                                 eventPlanActions.setPlanProp({
@@ -107,6 +114,7 @@ export const SendPreflightDialog: FC = () => {
                         value={comment}
                         rows={4}
                         placeholder="Как прошёл разговор?"
+                        maxLength={COMMENT_MAX_LENGTH}
                         onChange={e =>
                             dispatch(setAndSaveComment(e.target.value))
                         }
@@ -131,6 +139,11 @@ export const SendPreflightDialog: FC = () => {
                         }}
                     />
                 );
+            case 'notCaType':
+                return <LeadRequestNotCaSelect />;
+            case 'planChecklist':
+                // Родной контрол: та же карточка чек-листа, что в плане.
+                return <ChecklistInlineCard />;
             case 'leadMarks':
                 return (
                     <LeadMarksList leadIds={leadIds} saleDealId={saleDealId} />

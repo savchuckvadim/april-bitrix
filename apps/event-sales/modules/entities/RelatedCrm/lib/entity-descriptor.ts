@@ -22,6 +22,12 @@ export interface EntityDescriptor {
      * подсветить её в списке связанных: «вот эта — та, что перед тобой».
      */
     currentDealId: number | null;
+    /**
+     * Сделка контекста закрыта (`CLOSED === 'Y'` из плейсмента). `null` —
+     * сделки нет или поле не пришло. Граф связей закрытых по умолчанию не
+     * отдаёт, поэтому закрытость контекста честно знает только плейсмент.
+     */
+    currentDealClosed: boolean | null;
     /** Компания найдена — значит можно искать дубли и историю по ней. */
     companyId: number | null;
 }
@@ -36,6 +42,15 @@ export interface EntityDescriptorInput {
 const toId = (value: unknown): number | null => {
     const id = Number(value);
     return Number.isFinite(id) && id > 0 ? id : null;
+};
+
+// CLOSED в типе BXDeal не описан (тип минимальный), но crm.deal.get его
+// отдаёт всегда; неизвестное значение честно остаётся null, а не false.
+const toDealClosed = (deal: BXDeal | null): boolean | null => {
+    const raw = (deal as unknown as Record<string, unknown> | null)?.CLOSED;
+    if (raw === 'Y') return true;
+    if (raw === 'N') return false;
+    return null;
 };
 
 export const getEntityDescriptor = ({
@@ -59,6 +74,7 @@ export const getEntityDescriptor = ({
             kindLabel: 'Компания',
             title: company?.TITLE?.trim() || `Компания ${companyId}`,
             currentDealId: dealId,
+            currentDealClosed: dealId ? toDealClosed(deal) : null,
             companyId,
         };
     }
@@ -71,6 +87,7 @@ export const getEntityDescriptor = ({
             kindLabel: 'Лид',
             title: lead?.TITLE?.trim() || `Лид ${leadId}`,
             currentDealId: null,
+            currentDealClosed: null,
             companyId: null,
         };
     }
@@ -83,6 +100,7 @@ export const getEntityDescriptor = ({
             kindLabel: 'Сделка',
             title: deal?.TITLE?.trim() || `Сделка ${dealId}`,
             currentDealId: dealId,
+            currentDealClosed: toDealClosed(deal),
             companyId: null,
         };
     }

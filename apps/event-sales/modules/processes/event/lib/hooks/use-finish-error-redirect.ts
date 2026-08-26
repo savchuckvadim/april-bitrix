@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
     getFinishTarget,
     useCurrentRelations,
@@ -37,6 +38,10 @@ export const useFinishErrorRedirect = (
 ): FinishErrorRedirect => {
     const { descriptor, details } = useCurrentRelations();
     const openEntityCard = useOpenEntityCard();
+    // Правило владения: чужая открытая основная целью перехода не становится.
+    const currentUserId = useAppSelector(
+        s => Number(s.app.bitrix.user?.ID) || null,
+    );
 
     const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
     const [isCancelled, setIsCancelled] = useState(false);
@@ -44,8 +49,13 @@ export const useFinishErrorRedirect = (
     // Мемо обязательно: без него цель — новый объект на каждый рендер, и
     // эффект отсчёта перезапускался бы бесконечно, обнуляя таймер.
     const target = useMemo(
-        () => getFinishTarget({ descriptor, details: details ?? null }),
-        [descriptor, details],
+        () =>
+            getFinishTarget({
+                descriptor,
+                details: details ?? null,
+                currentUserId,
+            }),
+        [descriptor, details, currentUserId],
     );
 
     const goNow = useCallback(() => {

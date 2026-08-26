@@ -43,6 +43,16 @@ const initialState = {
      * говорили» оставалось пустым при заполненной привязке.
      */
     pendingCurrentId: null as number | null,
+    /**
+     * РУЧНОЙ выбор менеджера (быстрый выбор / создание контакта).
+     *
+     * Сильнее привязки задачи: авто-инициализация (в т.ч. перепривязка после
+     * reload) его не затирает, а reset переносит его в pendingCurrentId —
+     * иначе reload молча подменял выбранного человека контактом из привязки.
+     * Гасится: явным снятием контакта, cleanEvent (contactId: null) и
+     * открытием другой карточки (clearManualCurrent из меню-тонков).
+     */
+    manualCurrentId: null as number | null,
     current: {
         contact: null as null | undefined | PBXContactStateItem,
         plan: null as null | undefined | PBXContactStateItem,
@@ -175,6 +185,9 @@ const eventContactSlice = createSlice({
             } else if (pay.type == 'report') {
                 state.current.report = currentContact;
             }
+            // Явный клик менеджера — с этого момента авто-инициализация
+            // из привязок задачи выбор не перезаписывает.
+            state.manualCurrentId = Number(pay.contactId) || null;
         },
         setInitCurrentContact: (
             state: EventContactState,
@@ -182,6 +195,21 @@ const eventContactSlice = createSlice({
         ) => {
             const pay = action.payload;
             if (pay.contactId) {
+                // Ручной выбор сильнее привязки задачи: перепривязка после
+                // reload не подменяет выбранного человека — применяем его
+                // как pending (список мог ещё не приехать).
+                if (state.manualCurrentId) {
+                    state.pendingCurrentId = state.manualCurrentId;
+                    const manualContact = state.contacts.find(
+                        contact =>
+                            Number(contact.ID) === state.manualCurrentId,
+                    );
+                    if (manualContact) {
+                        state.current.report = manualContact;
+                        state.current.plan = manualContact;
+                    }
+                    return;
+                }
                 // Список может ещё не приехать — id запоминаем, ссылку
                 // проставит relinkCurrent, когда контакт появится.
                 state.pendingCurrentId = Number(pay.contactId);
@@ -191,7 +219,10 @@ const eventContactSlice = createSlice({
                 state.current.report = currentContact ?? null;
                 state.current.plan = currentContact ?? null;
             } else {
+                // Явный сброс (cleanEvent после отправки) снимает всё,
+                // включая ручной выбор: следующий отчёт стартует с авто.
                 state.pendingCurrentId = null;
+                state.manualCurrentId = null;
                 state.current.report = null;
                 state.current.plan = null;
             }
@@ -259,6 +290,8 @@ const eventContactSlice = createSlice({
             );
             if (!isHave) state.contacts.push(created);
             state.current[action.payload.type] = created;
+            // Созданный и подставленный контакт — тот же ручной выбор.
+            state.manualCurrentId = Number(created.ID) || null;
         },
         setUpdatingContactStatus: (
             state: EventContactState,
@@ -299,6 +332,15 @@ const eventContactSlice = createSlice({
             // Отложенный id гасим для ЛЮБОЙ стороны: иначе ближайшая
             // перелинковка вернёт снятый контакт обратно на экран.
             state.pendingCurrentId = null;
+            // «Не с ним» отменяет и ручной выбор — дальше снова авто.
+            state.manualCurrentId = null;
+        },
+        /**
+         * Снять ручной выбор контакта (открытие ДРУГОЙ карточки из меню):
+         * выбор менеджера привязан к делу, в новом деле контакт снова авто.
+         */
+        clearManualCurrent: (state: EventContactState) => {
+            state.manualCurrentId = null;
         },
         /** Базовое поле контакта в общем списке (после удачного update). */
         setContactBaseField: (
@@ -369,6 +411,23 @@ const eventContactSlice = createSlice({
                 delete state.fieldErrors[key];
             }
         },
+        /**
+         * Полный сброс (reloadApp): список контактов копится идемпотентно
+         * («уже известный не перезаписываем»), поэтому без сброса правки,
+         * сделанные в CRM за пределами приложения, не доезжали бы никогда.
+         * Пересбор — листенерами setPortal/setFetchedTasks на новом init.
+         *
+         * Ручной выбор менеджера при этом переживает reload: id переезжает
+         * в pendingCurrentId, и relinkCurrent вернёт человека на карточку,
+         * когда контакт снова приедет в список. Без этого «Обновить» (и
+         * фоновый reload после отправки) молча подменял ручной выбор
+         * контактом из привязки задачи.
+         */
+        reset: (state: EventContactState) => ({
+            ...initialState,
+            manualCurrentId: state.manualCurrentId,
+            pendingCurrentId: state.manualCurrentId,
+        }),
         /** Текущее значение портального поля контакта (PbxContact feature). */
         setContactFieldCurrent: (
             state: EventContactState,

@@ -16,6 +16,10 @@ export enum EV_ERROR_CODE {
     PLAN_NAME = 'name',
     PLAN_TYPE = 'type',
     POST_FAIL_DATE = 'postFailDate',
+    /** Статус «Не ЦА» без выбранного типа. */
+    NOT_CA_TYPE = 'notCaType',
+    /** Незаполненный обязательный чек-лист типа звонка (CallChecklist). */
+    PLAN_CHECKLIST = 'planChecklist',
     /** Статус работы недоступен в текущем контексте (продажа без компании). */
     WORK_STATUS = 'workStatus',
     CONTACT_NAME = 'contactName',

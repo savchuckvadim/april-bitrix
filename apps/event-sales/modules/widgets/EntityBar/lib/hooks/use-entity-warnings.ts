@@ -19,11 +19,21 @@ export type EntityWarningActionId =
     | 'check-duplicates-inn'
     | 'check-duplicates-contacts';
 
+/** Тон пилюли; не задан — выводится из blocking (destructive/warning). */
+export type EntityWarningTone = 'info' | 'warning' | 'destructive';
+
 export interface EntityWarning {
     id: string;
     text: string;
+    /**
+     * Длинный кусок сообщения (название сделки, имя менеджера): рендерится
+     * вложенным span с потолком ширины и truncate, чтобы простыня лидогена
+     * не распирала всплывашку. `after` — хвост после него (кавычка).
+     */
+    accent?: { text: string; after?: string };
     /** true — блокирует презентацию; такие показываем первыми. */
     blocking: boolean;
+    tone?: EntityWarningTone;
     action?: { id: EntityWarningActionId; label: string };
 }
 

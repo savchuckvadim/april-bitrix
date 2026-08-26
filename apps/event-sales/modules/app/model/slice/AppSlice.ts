@@ -30,9 +30,18 @@ export enum APP_FROM_ENUM {
     //предыдущие
     // CALL_CARD = 'call_card',
 }
+/**
+ * Полноэкранные заглушки-гварды вместо приложения (todo2508):
+ * - `foreignTask` — открылись из задачи ЧУЖОЙ группы (не «Звонки» ОП);
+ * - `noTaskEntity` — у задачи не осталось живых привязок (компания/сделка/лид
+ *   удалены) — работать не с чем.
+ */
+export type AppGuard = 'foreignTask' | 'noTaskEntity';
+
 const initialState = {
     domain: '',
     app: APP_TYPE.EVENT as APP_TYPE,
+    guard: null as AppGuard | null,
     bitrix: {
         user: null as BXUser | null,
         company: null as BXCompany | null,
@@ -56,6 +65,13 @@ const initialState = {
         message: '' as string,
     },
     config: getDomainConfig('') as DomainFeatureConfig,
+    /**
+     * fetchAppConfig отработал (успехом ИЛИ ошибкой): портальные настройки
+     * уже легли поверх хардкода — или их не будет. Потребители, которым
+     * настройка нужна к ПЕРВОМУ запросу (initialEventTasks: taskGroupId),
+     * ждут этот флаг с таймаутом (fail-open на хардкод).
+     */
+    isConfigFetched: false as boolean,
 };
 
 const appSlice = createSlice({
@@ -116,6 +132,10 @@ const appSlice = createSlice({
         ) => {
             state.config = { ...state.config, ...action.payload };
         },
+        /** fetchAppConfig завершился (и при ошибке тоже — fail-open). */
+        setConfigFetched: (state: AppState) => {
+            state.isConfigFetched = true;
+        },
         setInitializedSuccess: (state: AppState, action: PayloadAction<{}>) => {
             state.initialized = true;
         },
@@ -131,8 +151,12 @@ const appSlice = createSlice({
             state.error.status = false;
             state.error.message = '';
         },
+        setGuard: (state: AppState, action: PayloadAction<AppGuard | null>) => {
+            state.guard = action.payload;
+        },
         reload: (state: AppState) => {
             state.initialized = false;
+            state.guard = null;
         },
     },
 });

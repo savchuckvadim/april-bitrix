@@ -86,7 +86,10 @@ export const RelatedDealsCard: FC<RelatedDealsCardProps> = ({
                             )}
                         >
                             <div className="flex items-baseline justify-between gap-2">
-                                <span className="min-w-0 truncate text-sm text-foreground">
+                                <span
+                                    title={deal.title}
+                                    className="min-w-0 truncate text-sm text-foreground"
+                                >
                                     {deal.title}
                                 </span>
                                 <span className="flex shrink-0 items-baseline gap-2 text-xs text-muted-foreground">

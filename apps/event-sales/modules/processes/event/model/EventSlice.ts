@@ -19,6 +19,8 @@ export const emptyErrors: EventCurrentErrors = {
     [EV_ERROR_CODE.PLAN_NAME]: '',
     [EV_ERROR_CODE.PLAN_TYPE]: '',
     [EV_ERROR_CODE.POST_FAIL_DATE]: '',
+    [EV_ERROR_CODE.NOT_CA_TYPE]: '',
+    [EV_ERROR_CODE.PLAN_CHECKLIST]: '',
     [EV_ERROR_CODE.WORK_STATUS]: '',
     [EV_ERROR_CODE.CONTACT_NAME]: '',
     [EV_ERROR_CODE.CONTACT_PHONE]: '',

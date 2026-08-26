@@ -1,6 +1,6 @@
 import { BitrixBaseApi } from '../../../../core';
 import { BxItemRepository } from '../repository/bx-item.repository';
-import { IBXItem } from '../interface/item.interface';
+import { IBXItem, IBXItemFilter } from '../interface/item.interface';
 import { BitrixOwnerTypeId } from '../../../enums/bitrix-constants.enum';
 import {
     BxItemListResponseDto,
@@ -30,7 +30,7 @@ export class BxItemService {
 
     async list(
         entityTypeId: string,
-        filter?: Partial<IBXItem>,
+        filter?: IBXItemFilter,
         select?: string[],
     ): Promise<BxItemListResponseDto | null> {
         return (await this.repo.list(entityTypeId, filter, select))

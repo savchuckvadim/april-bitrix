@@ -19,6 +19,11 @@ interface InnControlProps {
      * в тултипе. Для шапки списка дел, где вертикаль на вес золота.
      */
     compact?: boolean;
+    /**
+     * Пустой ИНН подмигивает эхом (главный хедер): жёлтые предупреждения об
+     * ИНН из шапки убраны — их роль взял сам контрол.
+     */
+    echoWhenEmpty?: boolean;
 }
 
 /**
@@ -26,13 +31,21 @@ interface InnControlProps {
  * раскрывается микро-редактор. Поле не проинсталлено на портале — контрол не
  * рендерится вовсе (§5 доктрины).
  */
-export const InnControl: FC<InnControlProps> = ({ compact = false }) => {
+export const InnControl: FC<InnControlProps> = ({
+    compact = false,
+    echoWhenEmpty = false,
+}) => {
     const dispatch = useAppDispatch();
     const target = useAppSelector(getInnTarget);
     const current = useAppSelector(getCurrentInn);
     const isOpen = useAppSelector(s => s.inn.isEditorOpen);
 
     if (!target) return null;
+
+    const echoClass =
+        echoWhenEmpty && !current && !isOpen
+            ? 'relative before:pointer-events-none before:absolute before:-inset-1 before:rounded-md before:animate-echo-ring motion-reduce:before:animate-none'
+            : '';
 
     const open = () => dispatch(innActions.setEditorOpen({ isOpen: true }));
     // Склад кандидатов: показываем в тултипе — «возможные варианты» рядом
@@ -55,7 +68,7 @@ export const InnControl: FC<InnControlProps> = ({ compact = false }) => {
                     <button
                         type="button"
                         onClick={open}
-                        className="inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                        className={`inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground ${echoClass}`}
                     >
                         <Hash aria-hidden className="size-3" />
                         {current ? `ИНН: ${current}` : 'ИНН: —'}
@@ -90,7 +103,7 @@ export const InnControl: FC<InnControlProps> = ({ compact = false }) => {
                 <button
                     type="button"
                     onClick={open}
-                    className="inline-flex w-fit cursor-pointer items-center gap-1 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                    className={`inline-flex w-fit cursor-pointer items-center gap-1 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline ${echoClass}`}
                 >
                     {current ? (
                         <>

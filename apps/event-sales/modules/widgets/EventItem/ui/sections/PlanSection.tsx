@@ -24,6 +24,7 @@ import {
     eventPlanActions,
 } from '@/modules/entities/EventPlan';
 import { eventContactActions } from '@/modules/entities/EventContact';
+import { PLAN_NAME_MAX_LENGTH } from '@/modules/processes/event/lib/text-limits';
 import { fetchPlanDaySchedule } from '@/modules/entities/EventPlan/model/PlanScheduleThunk';
 import { DateTimePicker } from '@workspace/ui/components/date-time-picker';
 
@@ -111,6 +112,7 @@ export const PlanSection: FC = () => {
                             value={plan[EV_PLAN_PROP.NAME]}
                             placeholder="О чём договорились"
                             aria-invalid={!!nameError}
+                            maxLength={PLAN_NAME_MAX_LENGTH}
                             onChange={e =>
                                 setProp(EV_PLAN_PROP.NAME)(e.target.value)
                             }

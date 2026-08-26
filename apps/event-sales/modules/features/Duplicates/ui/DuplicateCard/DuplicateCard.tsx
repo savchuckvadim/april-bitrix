@@ -66,7 +66,10 @@ export const DuplicateCard: FC<DuplicateCardProps> = ({
 
                 <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-baseline gap-1.5">
-                        <span className="min-w-0 truncate text-sm font-semibold text-foreground">
+                        <span
+                            title={candidateTitle(candidate)}
+                            className="min-w-0 truncate text-sm font-semibold text-foreground"
+                        >
                             {candidateTitle(candidate)}
                         </span>
                         <span className="shrink-0 text-[0.6875rem] text-muted-foreground">
@@ -80,13 +83,22 @@ export const DuplicateCard: FC<DuplicateCardProps> = ({
                             {candidateConfidence(candidate)}
                         </ToneBadge>
                         {reasons.map(reason => (
+                            // В причине живое значение (email/ИНН) — бэйдж не
+                            // шире карточки, многоточие внутренним span'ом:
+                            // на самом inline-flex бэйдже truncate не работает.
                             <ToneBadge
                                 key={`${reason.kind}-${reason.value}`}
                                 tone={reasonTone(reason)}
                                 variant="outline"
                                 size="sm"
+                                className="max-w-full"
                             >
-                                {reasonLabel(reason)}
+                                <span
+                                    title={reasonLabel(reason)}
+                                    className="truncate"
+                                >
+                                    {reasonLabel(reason)}
+                                </span>
                             </ToneBadge>
                         ))}
                         {restCount > 0 && (

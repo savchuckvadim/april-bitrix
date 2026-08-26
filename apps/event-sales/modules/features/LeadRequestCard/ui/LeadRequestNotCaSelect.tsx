@@ -1,6 +1,7 @@
 'use client';
 
 import { FC } from 'react';
+import { MicroField } from '@workspace/april-ui';
 import {
     Select,
     SelectContent,
@@ -13,15 +14,18 @@ import { useLeadRequestNotCa } from '../lib/hooks/use-lead-request-not-ca';
 import type { LeadNotCaTypeCode } from '../model';
 
 /**
- * Селект «Тип не ЦА» для блока отказа в форме отчёта: значение уезжает в
- * leadSync финального payload'а (не пишется в лид мгновенно — только с
- * отправкой отчёта). Скрыт, пока нет карточки заявки/поля на портале.
+ * Селект «Тип не ЦА»: значение уезжает в leadSync финального payload'а
+ * (не пишется в лид мгновенно — только с отправкой отчёта). Items берутся
+ * из слепка портала — работает и по сделке без заявки. Скрыт, пока поля
+ * нет ни в слепке, ни в карточке.
  */
-export const LeadRequestNotCaSelect: FC = () => {
+export const LeadRequestNotCaSelect: FC<{ required?: boolean }> = ({
+    required = false,
+}) => {
     const { visible, items, value, setValue } = useLeadRequestNotCa();
     if (!visible) return null;
 
-    return (
+    const select = (
         <Select
             value={value ?? undefined}
             onValueChange={code => setValue(code as LeadNotCaTypeCode)}
@@ -29,7 +33,7 @@ export const LeadRequestNotCaSelect: FC = () => {
             <SelectTrigger
                 size="sm"
                 aria-label={LEAD_REQUEST_ENUM_LABEL.notCaTypeCode}
-                className="w-full"
+                className={required ? 'w-56' : 'w-full'}
             >
                 <SelectValue
                     placeholder={LEAD_REQUEST_ENUM_LABEL.notCaTypeCode}
@@ -44,4 +48,16 @@ export const LeadRequestNotCaSelect: FC = () => {
             </SelectContent>
         </Select>
     );
+
+    // В пульте селект стоит в общей строке — с подписью и меткой
+    // обязательности тем же кеглем, что остальные поля отчёта.
+    if (required) {
+        return (
+            <MicroField label={LEAD_REQUEST_ENUM_LABEL.notCaTypeCode} required>
+                {select}
+            </MicroField>
+        );
+    }
+
+    return select;
 };

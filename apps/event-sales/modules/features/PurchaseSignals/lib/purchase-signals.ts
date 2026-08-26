@@ -11,7 +11,8 @@ import type { PBXField } from '@/modules/app/types/portal/portal-type';
  */
 
 export const PURCHASE_DATE_FIELDS = [
-    { code: 'op_possible_buy_date', label: 'Возможная дата покупки' },
+    // Код по владельческой таблице install (todo2508): бывший op_possible_buy_date.
+    { code: 'op_sale_date_prognoz', label: 'Плановая дата покупки' },
     { code: 'op_concurent_pay_date', label: 'Конкуренты: оплачено до' },
     { code: 'op_concurent_contract_date', label: 'Конкуренты: договор до' },
 ] as const;

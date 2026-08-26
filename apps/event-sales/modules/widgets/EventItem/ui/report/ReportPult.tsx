@@ -43,6 +43,16 @@ interface ReportPultProps {
     withPresentationButton?: boolean;
 }
 
+/**
+ * Стабильная геометрия селектов пульта (todo2508-02 №7): у MicroSelect ширина
+ * по содержимому (до max-w-40), и выбор длинной причины раздвигал селект,
+ * толкая соседей по flex-wrap — «тип отказа прыгал по карточке». Фиксированная
+ * ширина решает это: значение усечётся внутри span (line-clamp базового
+ * триггера + min-w-0, чтобы flex дал ему сжаться), полное название видно в
+ * раскрытом списке.
+ */
+const PULT_SELECT_STABLE = 'w-40 *:data-[slot=select-value]:min-w-0';
+
 export const ReportPult: FC<ReportPultProps> = ({
     withNoresult = false,
     withSale = false,
@@ -78,7 +88,7 @@ export const ReportPult: FC<ReportPultProps> = ({
         <div
             className={cn(
                 'relative rounded-lg border border-l-[3px] border-border bg-card p-2.5',
-                pult.isFail
+                pult.isFail || pult.isNotCa
                     ? 'border-l-destructive'
                     : 'border-l-[var(--event-current)]',
             )}
@@ -111,6 +121,7 @@ export const ReportPult: FC<ReportPultProps> = ({
                                 label: item.name,
                             }))}
                             onChange={setProp(EV_REPORT_PROP.NORESULT_REASON)}
+                            className={PULT_SELECT_STABLE}
                         />
                     </MicroField>
                 )}
@@ -125,6 +136,7 @@ export const ReportPult: FC<ReportPultProps> = ({
                                 label: item.name,
                             }))}
                             onChange={setProp(EV_REPORT_PROP.FAIL_TYPE)}
+                            className={PULT_SELECT_STABLE}
                         />
                     </MicroField>
                 )}
@@ -139,6 +151,7 @@ export const ReportPult: FC<ReportPultProps> = ({
                                 label: item.name,
                             }))}
                             onChange={setProp(EV_REPORT_PROP.FAIL_REASON)}
+                            className={PULT_SELECT_STABLE}
                         />
                     </MicroField>
                 )}
@@ -168,6 +181,7 @@ export const ReportPult: FC<ReportPultProps> = ({
                                         }),
                                     )
                                 }
+                                className={PULT_SELECT_STABLE}
                             />
                         </MicroField>
                     ) : (
@@ -201,8 +215,10 @@ export const ReportPult: FC<ReportPultProps> = ({
                     </MicroField>
                 )}
 
-                {/* Заявка при отказе: тип «не ЦА» уезжает в leadSync payload'а. */}
-                {pult.isFail && <LeadRequestNotCaSelect />}
+                {/* Статус «Не ЦА»: тип обязателен, уезжает в leadSync
+                    payload'а — бэк уводит сделку в стадию «не ЦА» и
+                    проставляет статусы связанных заявок. */}
+                {pult.isNotCa && <LeadRequestNotCaSelect required />}
             </div>
         </div>
     );

@@ -24,7 +24,12 @@ const CONFIG_KEYS = Object.keys(
 export const fetchAppConfig =
     (domain: string): AppThunk =>
     async (dispatch, getState) => {
-        if (!domain) return;
+        if (!domain) {
+            // Ждать нечего: потребители isConfigFetched (initialEventTasks)
+            // не должны съедать таймаут ради заведомо пустого запроса.
+            dispatch(appActions.setConfigFetched());
+            return;
+        }
         try {
             const settings = await helper.getEventSalesSettings(domain);
             const defaults = getState().app.config;
@@ -56,5 +61,7 @@ export const fetchAppConfig =
         } catch (error) {
             // Настройки недоступны — работаем по legacy domain-config.
             console.warn('app-settings недоступны, действует хардкод', error);
+        } finally {
+            dispatch(appActions.setConfigFetched());
         }
     };

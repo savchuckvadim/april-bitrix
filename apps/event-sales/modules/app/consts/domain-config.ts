@@ -26,6 +26,17 @@ export interface DomainFeatureConfig {
     withCheckPresentation: boolean;
     /** Показывать переключатель режима отдела ОП/ТМЦ (legacy: gsr, april-dev). */
     withDepartmentModeToggle: boolean;
+    /**
+     * Чек-листы pbx-полей (features/CallChecklist): включаются НАСТРОЙКАМИ
+     * ПОРТАЛА (админка → Settings → event-sales), в доменном хардкоде только
+     * дефолт false. Каталог полей — data/checklist-catalog.ts.
+     */
+    withChecklistRefine: boolean;
+    withChecklistPay: boolean;
+    withChecklistDecision: boolean;
+    withChecklistSale: boolean;
+    /** Кнопка «карточка сделки» (слайдер с табом конструктора) в чек-листах. */
+    withKonstructorSlider: boolean;
     /** Bitrix GROUP_ID группы задач обзвона (legacy EventTaskThunk). */
     taskGroupId: number;
     /** ID руководителя — постановщик планируемых задач (legacy DepartmentSlice). */
@@ -58,6 +69,11 @@ const DEFAULT_CONFIG: DomainFeatureConfig = {
     withColorRequired: false,
     withCheckPresentation: false,
     withDepartmentModeToggle: false,
+    withChecklistRefine: false,
+    withChecklistPay: false,
+    withChecklistDecision: false,
+    withChecklistSale: false,
+    withKonstructorSlider: false,
     taskGroupId: 1,
     bossId: 1,
 };

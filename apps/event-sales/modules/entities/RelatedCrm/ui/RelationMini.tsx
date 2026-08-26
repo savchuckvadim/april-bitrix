@@ -69,7 +69,10 @@ export const RelationMini: FC<RelationMiniProps> = ({
             >
                 {status.label}
             </span>
-            <span className="min-w-0 truncate text-xs text-muted-foreground">
+            <span
+                title={lead.title}
+                className="min-w-0 truncate text-xs text-muted-foreground"
+            >
                 {lead.title}
             </span>
         </div>

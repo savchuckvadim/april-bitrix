@@ -62,7 +62,7 @@ export const PresentationLeadLinkDialog: FC = () => {
                                 <button
                                     type="button"
                                     className={cn(
-                                        'w-full rounded-md border px-2 py-1.5 text-left text-sm',
+                                        'flex w-full items-center rounded-md border px-2 py-1.5 text-left text-sm',
                                         form.selectedLeadId === candidate.id
                                             ? 'border-primary bg-primary/10'
                                             : 'border-border hover:bg-muted/40',
@@ -75,14 +75,19 @@ export const PresentationLeadLinkDialog: FC = () => {
                                         )
                                     }
                                 >
-                                    <span className="mr-2 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                                    <span className="mr-2 shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
                                         {candidate.isRequest
                                             ? PRESENTATION_LEAD_LINK_TEXT.requestBadge
                                             : PRESENTATION_LEAD_LINK_TEXT.leadBadge}
                                     </span>
-                                    {candidate.title}
+                                    <span
+                                        title={candidate.title}
+                                        className="min-w-0 truncate"
+                                    >
+                                        {candidate.title}
+                                    </span>
                                     {candidate.responsibleName && (
-                                        <span className="ml-2 text-xs text-muted-foreground">
+                                        <span className="ml-2 shrink-0 text-xs text-muted-foreground">
                                             {candidate.responsibleName}
                                         </span>
                                     )}
@@ -124,45 +129,25 @@ export const PresentationLeadLinkDialog: FC = () => {
                                     {PRESENTATION_LEAD_LINK_TEXT.cardError}
                                 </p>
                             )}
+                            {/* Ось слита (аудит 2408): обязателен один
+                                статус заявки, стадия из модалки удалена. */}
                             {form.card && (
-                                <div className="grid gap-2 sm:grid-cols-2">
-                                    <LeadRequestEnumField
-                                        label={
-                                            LEAD_REQUEST_ENUM_LABEL.siteStatusCode
-                                        }
-                                        installed={
-                                            form.card.siteStatus.installed
-                                        }
-                                        currentCode={form.siteStatusCode}
-                                        items={form.card.siteStatus.items}
-                                        disabled={false}
-                                        onChange={code =>
-                                            dispatch(
-                                                presentationLeadLinkActions.setSiteStatusCode(
-                                                    code,
-                                                ),
-                                            )
-                                        }
-                                    />
-                                    <LeadRequestEnumField
-                                        label={
-                                            LEAD_REQUEST_ENUM_LABEL.siteStageCode
-                                        }
-                                        installed={
-                                            form.card.siteStage.installed
-                                        }
-                                        currentCode={form.siteStageCode}
-                                        items={form.card.siteStage.items}
-                                        disabled={false}
-                                        onChange={code =>
-                                            dispatch(
-                                                presentationLeadLinkActions.setSiteStageCode(
-                                                    code,
-                                                ),
-                                            )
-                                        }
-                                    />
-                                </div>
+                                <LeadRequestEnumField
+                                    label={
+                                        LEAD_REQUEST_ENUM_LABEL.siteStatusCode
+                                    }
+                                    installed={form.card.siteStatus.installed}
+                                    currentCode={form.siteStatusCode}
+                                    items={form.card.siteStatus.items}
+                                    disabled={false}
+                                    onChange={code =>
+                                        dispatch(
+                                            presentationLeadLinkActions.setSiteStatusCode(
+                                                code,
+                                            ),
+                                        )
+                                    }
+                                />
                             )}
                             {form.statusesMissing && (
                                 <p className="text-xs text-destructive">

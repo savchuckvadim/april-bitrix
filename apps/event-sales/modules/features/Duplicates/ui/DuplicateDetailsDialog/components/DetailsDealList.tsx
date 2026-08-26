@@ -23,7 +23,10 @@ export const DetailsDealList: FC<DetailsDealListProps> = ({ deals }) => (
                         className="rounded-md border border-border p-2"
                     >
                         <div className="flex items-baseline justify-between gap-2">
-                            <span className="min-w-0 truncate text-sm text-foreground">
+                            <span
+                                title={deal.title}
+                                className="min-w-0 truncate text-sm text-foreground"
+                            >
                                 {deal.title}
                             </span>
                             {deal.responsible && (

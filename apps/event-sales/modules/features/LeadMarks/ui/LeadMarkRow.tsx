@@ -54,7 +54,10 @@ export const LeadMarkRow: FC<LeadMarkRowProps> = ({ mark, saleDealId }) => {
     return (
         <div className="flex min-w-0 flex-col gap-1 rounded-md border border-border px-2 py-1.5">
             <div className="flex min-w-0 items-center gap-2">
-                <span className="min-w-0 flex-1 truncate text-sm">
+                <span
+                    title={mark.title}
+                    className="min-w-0 flex-1 truncate text-sm"
+                >
                     {mark.title}
                 </span>
                 {isSaving && <MicroSpinner size={12} />}

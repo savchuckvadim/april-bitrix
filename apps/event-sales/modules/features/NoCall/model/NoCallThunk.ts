@@ -4,6 +4,7 @@ import { eventReportActions } from '@/modules/entities/EventReport';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import { eventTaskActions } from '@/modules/entities/EventTask';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';
+import { eventContactActions } from '@/modules/entities/EventContact/model/EventContactSlice';
 import { CallResults, noCallActions } from './NoCallSlice';
 import { ResultCountHelper } from '../lib/api/result-count-helper';
 
@@ -49,6 +50,8 @@ export const getNoCallMenu =
 
         dispatch(eventReportActions.clean({ isTmc: false }));
         dispatch(eventTaskActions.setCurrentTask({ task: currentTask }));
+        // Другая карточка — ручной выбор контакта прошлого дела не переносим.
+        dispatch(eventContactActions.clearManualCurrent());
         dispatch(setCurrentReportContact(currentTask));
 
         if (status) {
@@ -97,9 +100,13 @@ export const sendNoCall =
         );
 
         const operationId = createOperationId();
+        const { getSocketIdSafe } = await import(
+            '@/modules/app/lib/ws/ws-client.util'
+        );
         const payload = buildFlowPayload(state, {
             isNoCall: true,
             operationId,
+            socketId: getSocketIdSafe(),
         });
 
         dispatch(

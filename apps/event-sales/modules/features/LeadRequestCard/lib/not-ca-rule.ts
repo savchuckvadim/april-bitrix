@@ -12,15 +12,12 @@ import type { LeadRequestCard, LeadRequestUpdate } from '../model';
  * поля одним запросом.
  */
 
-/** Код «Не ЦА» у статуса ЗАЯВКИ. */
+/** Код «Не ЦА» у статуса ЗАЯВКИ (единственная ось после аудита 2408). */
 export const NOT_CA_SITE_STATUS_CODE = 'op_lead_site_status3';
-/** Код «Не ЦА» у статуса ЛИДА. */
-export const NOT_CA_LEAD_STATUS_CODE = 'op_lead_status_ten';
 
-/** Правка переводит заявку или лид в «Не ЦА». */
+/** Правка переводит заявку в «Не ЦА». */
 export const isNotCaPatch = (patch: Partial<LeadRequestUpdate>): boolean =>
-    patch.siteStatusCode === NOT_CA_SITE_STATUS_CODE ||
-    patch.leadStatusCode === NOT_CA_LEAD_STATUS_CODE;
+    patch.siteStatusCode === NOT_CA_SITE_STATUS_CODE;
 
 /**
  * Спросить тип «не ЦА» перед сохранением: статус выбран, а типа нет ни в

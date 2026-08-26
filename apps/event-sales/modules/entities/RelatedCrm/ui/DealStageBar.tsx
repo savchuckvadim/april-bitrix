@@ -114,10 +114,14 @@ export const DealStageBar: FC<DealStageBarProps> = ({
         <div className={cn('flex min-w-0 flex-col', className)}>
             <div className="flex min-w-0 items-baseline gap-1.5 text-[0.6875rem] leading-tight text-muted-foreground">
                 {/* Название сжимается первым (shrink-[2]): стадия — ответ на
-                    «что дальше», ей место дороже. */}
+                    «что дальше», ей место дороже. Жёсткий потолок и title —
+                    как у LeadStageBar: простыни не съедают строку. */}
                 {title && (
                     <>
-                        <span className="min-w-0 shrink-[2] truncate font-medium text-foreground/75">
+                        <span
+                            title={title}
+                            className="min-w-0 max-w-56 shrink-[2] truncate font-medium text-foreground/75"
+                        >
                             {title}
                         </span>
                         <span

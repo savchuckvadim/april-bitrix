@@ -2,6 +2,7 @@
 
 import { FC } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { cn } from '@workspace/ui/lib/utils';
 import { EventTypeBadge, IconAction } from '@workspace/april-ui';
 import { TaskContactChip } from '@/modules/entities/EventContact';
 import { RelatedLinksBadge } from '@/modules/widgets/EventItem/ui/header/RelatedLinksBadge';
@@ -16,14 +17,29 @@ import { useEntityEventRow } from '../lib/hooks/use-entity-event-row';
  * появляется на экране дела: заголовки клиента остаются на месте, добавляется
  * ровно то, что относится к самому делу.
  */
-export const EntityEventRow: FC = () => {
+interface EntityEventRowProps {
+    /**
+     * `inline` — ужатый вариант ВНУТРИ микрохедера узких экранов
+     * (todo2508 №6): стрелка + название, без бейджей — экономим строку.
+     * `full` — отдельная строка шапки широких экранов, как раньше.
+     */
+    variant?: 'full' | 'inline';
+}
+
+export const EntityEventRow: FC<EntityEventRowProps> = ({
+    variant = 'full',
+}) => {
     const { title, typeLabel, eventTypeAttr, contactIds, backToList } =
         useEntityEventRow();
+    const isInline = variant === 'inline';
 
     return (
         <div
             data-event-type={eventTypeAttr}
-            className="flex flex-wrap items-center gap-x-3 gap-y-1 border-l-4 border-[var(--event-current)] pl-2"
+            className={cn(
+                'flex min-w-0 items-center gap-x-3 gap-y-1 border-l-4 border-[var(--event-current)] pl-2',
+                isInline ? 'flex-nowrap' : 'flex-wrap',
+            )}
         >
             {/* Назад = отмена: форма сбрасывается так же, как кнопкой
                 «Отмена» внизу — два разных «назад» с разным поведением
@@ -38,13 +54,23 @@ export const EntityEventRow: FC = () => {
                 onClick={backToList}
             />
 
-            <h2 className="min-w-0 max-w-72 truncate text-sm font-semibold text-foreground">
+            <h2
+                title={title}
+                className={cn(
+                    'min-w-0 truncate text-sm font-semibold text-foreground',
+                    isInline ? 'max-w-48' : 'max-w-72',
+                )}
+            >
                 {title}
             </h2>
 
-            {typeLabel && <EventTypeBadge type={typeLabel} />}
-            <RelatedLinksBadge />
-            <TaskContactChip contactIds={contactIds} />
+            {!isInline && (
+                <>
+                    {typeLabel && <EventTypeBadge type={typeLabel} />}
+                    <RelatedLinksBadge />
+                    <TaskContactChip contactIds={contactIds} />
+                </>
+            )}
         </div>
     );
 };

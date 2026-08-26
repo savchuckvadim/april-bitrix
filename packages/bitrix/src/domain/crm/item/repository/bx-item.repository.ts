@@ -5,7 +5,7 @@ import {
     EBxNamespace,
 } from '../../../../core/domain/consts/bitrix-api.enum';
 import { EBXEntity } from '../../../../core/domain/consts/bitrix-entities.enum';
-import { IBXItem } from '../interface/item.interface';
+import { IBXItem, IBXItemFilter } from '../interface/item.interface';
 import { BitrixOwnerTypeId } from '../../../enums/bitrix-constants.enum';
 import { IBitrixResponse } from '../../../../core/interface/bitrix-api.intterface';
 
@@ -42,7 +42,7 @@ export class BxItemRepository {
 
     async list(
         entityTypeId: string,
-        filter?: Partial<IBXItem>,
+        filter?: IBXItemFilter,
         select?: string[],
     ) {
         return await this.bxApi.callType(
@@ -55,7 +55,7 @@ export class BxItemRepository {
     listBtch(
         cmdCode: string,
         entityTypeId: string,
-        filter?: Partial<IBXItem>,
+        filter?: IBXItemFilter,
         select?: string[],
     ) {
         return this.bxApi.addCmdBatchType(

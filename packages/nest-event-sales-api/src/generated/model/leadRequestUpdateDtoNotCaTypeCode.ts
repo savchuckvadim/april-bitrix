@@ -7,7 +7,7 @@
  */
 
 /**
- * Тип «не ЦА». Обязателен при выборе статуса «Не ЦА» (site_status3 / lead_status_ten).
+ * Тип «не ЦА». Обязателен при выборе статуса «Не ЦА» (site_status3).
  */
 export type LeadRequestUpdateDtoNotCaTypeCode =
     (typeof LeadRequestUpdateDtoNotCaTypeCode)[keyof typeof LeadRequestUpdateDtoNotCaTypeCode];

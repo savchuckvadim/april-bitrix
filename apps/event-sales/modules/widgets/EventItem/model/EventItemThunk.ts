@@ -2,6 +2,7 @@ import type { AppDispatch } from '@/modules/app/model/store';
 import { eventTaskActions } from '@/modules/entities/EventTask';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';
+import { eventContactActions } from '@/modules/entities/EventContact/model/EventContactSlice';
 import { fetchLead } from '@/modules/entities/EVLid';
 import { eventSaleActions, getInitSale } from '@/modules/entities/EventSale';
 import {
@@ -25,6 +26,9 @@ export const getResultMenu =
         dispatch(getInitSale(task ? [task] : []));
 
         dispatch(eventTaskActions.setCurrentTask({ task }));
+        // Новая карточка — ручной выбор контакта прошлого дела не переносим:
+        // контакт снова инициализируется авто, из привязок задачи.
+        dispatch(eventContactActions.clearManualCurrent());
         dispatch(setCurrentReportContact(task));
         dispatch(
             eventItemActions.setEventItemMenuStatus({

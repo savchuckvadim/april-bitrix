@@ -21,4 +21,8 @@ export const LeadSiteStatusStateDtoCurrentCode = {
     op_lead_site_status3: 'op_lead_site_status3',
     op_lead_site_status4: 'op_lead_site_status4',
     op_lead_site_status5: 'op_lead_site_status5',
+    op_lead_site_status6: 'op_lead_site_status6',
+    op_lead_site_status7: 'op_lead_site_status7',
+    op_lead_site_status8: 'op_lead_site_status8',
+    op_lead_site_status9: 'op_lead_site_status9',
 } as const;

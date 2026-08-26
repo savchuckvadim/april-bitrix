@@ -23,6 +23,8 @@ import type { EventTaskEventType } from '@/modules/entities/EventTask/types/even
 import { usePlanReschedule } from '../../lib/hooks/use-plan-reschedule';
 import { PlanContactRow } from './PlanContactRow';
 import { TaskLeadLinksCard } from '@/modules/features/TaskLeadLinks/ui/TaskLeadLinksCard';
+import { ChecklistInlineCard } from '@/modules/features/CallChecklist/ui/ChecklistInlineCard';
+import { PLAN_NAME_MAX_LENGTH } from '@/modules/processes/event/lib/text-limits';
 import { PlanTypeRadio } from './PlanTypeRadio';
 
 interface PlanColumnProps {
@@ -162,6 +164,7 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                                 value={plan[EV_PLAN_PROP.NAME]}
                                 placeholder="О чём договорились"
                                 aria-invalid={!!nameError}
+                                maxLength={PLAN_NAME_MAX_LENGTH}
                                 onChange={e =>
                                     setProp(EV_PLAN_PROP.NAME)(e.target.value)
                                 }
@@ -220,6 +223,12 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                                 <AfterSaleHint />
                             </>
                         )}
+
+                        {/* Чек-лист pbx-полей выбранного типа звонка
+                            (Доработка/Оплата): текущие значения из CRM +
+                            обязательное заполнение до отправки. Включается
+                            настройками портала, сам решает видимость. */}
+                        <ChecklistInlineCard />
 
                         {/*
                          * Контейнерный запрос, а не брейкпоинт экрана: дата

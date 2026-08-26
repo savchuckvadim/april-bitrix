@@ -36,11 +36,9 @@ export const LEAD_REQUEST_TEXT = {
         'Глубокая проверка запущена — итог появится в timeline лида.',
 } as const;
 
-/** Подписи enum-полей карточки. */
+/** Подписи enum-полей карточки (ось слита — один статус заявки). */
 export const LEAD_REQUEST_ENUM_LABEL = {
     siteStatusCode: 'Статус заявки',
-    siteStageCode: 'Стадия заявки',
-    leadStatusCode: 'Статус лида',
     notCaTypeCode: 'Тип «не ЦА»',
 } as const;
 

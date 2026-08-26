@@ -5,6 +5,12 @@ import {
     type PBXField,
     type Portal,
 } from '@workspace/pbx';
+import {
+    toDateInputValue,
+    toDateTimeInputValue,
+    toHumanDate,
+    toHumanDateTime,
+} from '@/modules/shared/lib/crm-date';
 import type { ChecklistFieldDef } from '../type/call-checklist.type';
 
 /**
@@ -42,20 +48,26 @@ export interface ResolvedChecklistField {
     currentLabel: string;
 }
 
-/** `YYYY-MM-DD` для `<input type=date>` из того, что отдал портал. */
-export const toChecklistInputDate = (raw: unknown): string => {
-    if (typeof raw !== 'string' || !raw.trim()) return '';
-    const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
-    const crm = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})/);
-    if (crm) return `${crm[3]}-${crm[2]}-${crm[1]}`;
-    return '';
-};
+/**
+ * Значение контрола по типу поля: `date` — `YYYY-MM-DD`, `datetime` —
+ * `YYYY-MM-DDTHH:mm` (контрол `datetime-local`). Разбор обоих диалектов
+ * портала — в общем нормализаторе (`modules/shared/lib/crm-date`).
+ *
+ * До этого datetime-поля («Дата последнего счёта», «Направлено КП») читались
+ * и показывались как чистая дата: время из портала терялось молча, а обратная
+ * запись обнуляла его.
+ */
+export const toChecklistInputValue = (
+    type: ChecklistFieldDef['type'],
+    raw: unknown,
+): string =>
+    type === 'datetime' ? toDateTimeInputValue(raw) : toDateInputValue(raw);
 
-const toDisplayDate = (value: string): string => {
-    const m = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    return m ? `${m[3]}.${m[2]}.${m[1]}` : value;
-};
+/** Подпись «сейчас: …» — дата или дата со временем, в локали портала. */
+export const toChecklistDisplayValue = (
+    type: ChecklistFieldDef['type'],
+    raw: unknown,
+): string => (type === 'datetime' ? toHumanDateTime(raw) : toHumanDate(raw));
 
 const fieldsFor = (
     portal: Portal | null | undefined,
@@ -135,8 +147,8 @@ export const resolveChecklistField = (
             currentValue = item?.code ?? '';
             currentLabel = item?.name ?? '';
         } else if (def.type === 'date' || def.type === 'datetime') {
-            currentValue = toChecklistInputDate(raw);
-            currentLabel = toDisplayDate(currentValue);
+            currentValue = toChecklistInputValue(def.type, raw);
+            currentLabel = toChecklistDisplayValue(def.type, raw);
         } else {
             currentValue = typeof raw === 'string' ? raw : String(raw ?? '');
             currentLabel = currentValue;

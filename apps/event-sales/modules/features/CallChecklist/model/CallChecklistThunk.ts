@@ -1,6 +1,7 @@
 import { Bitrix } from '@workspace/bitrix';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { reportFrontError } from '@/modules/shared/front-error';
+import { toCrmDate, toCrmDateTime } from '@/modules/shared/lib/crm-date';
 import type {
     ChecklistFieldDef,
     ChecklistId,
@@ -8,38 +9,63 @@ import type {
 import {
     resolveChecklistField,
     type ChecklistEntityKind,
-    type ChecklistEntityRows,
+    type ResolvedChecklistField,
 } from '../lib/checklist-values';
+import {
+    cancelChecklistSave,
+    scheduleChecklistSave,
+} from '../lib/checklist-save-queue';
 import { getChecklistById } from '../data/checklist-catalog';
-import { getChecklistMissing } from '../lib/checklist-selectors';
+import {
+    getChecklistMissing,
+    selectChecklistRows,
+} from '../lib/checklist-selectors';
 import { callChecklistActions } from './CallChecklistSlice';
 
-const entityRows = (state: {
-    app: { bitrix: { company: unknown; deal: unknown; lead: unknown } };
-    callChecklist: { baseDeal: { row: Record<string, unknown> | null } };
-}): ChecklistEntityRows => ({
-    company: state.app.bitrix.company as Record<string, unknown> | null,
-    deal:
-        (state.app.bitrix.deal as Record<string, unknown> | null) ??
-        state.callChecklist.baseDeal.row,
-    lead: state.app.bitrix.lead as Record<string, unknown> | null,
-});
+/**
+ * Значение контрола → значение портального поля.
+ *
+ * Даты уходят каноном CRM (`DD.MM.YYYY[ HH:mm:ss]`, тот же, что пишет
+ * бэкенд), enum — bitrixId элемента, остальное — как есть. `''` снимает
+ * значение. `null` — «писать нечего» (enum без такого элемента,
+ * неразбираемая дата): запись отменяется, чужое значение не трогаем.
+ */
+const toPortalFieldValue = (
+    def: ChecklistFieldDef,
+    value: string,
+    resolved: ResolvedChecklistField,
+): string | null => {
+    if (!value) return '';
+    if (def.type === 'enumeration') {
+        const item = resolved.field?.items?.find(i => i.code === value);
+        return item ? String(item.bitrixId) : null;
+    }
+    if (def.type === 'date') return toCrmDate(value);
+    if (def.type === 'datetime') return toCrmDateTime(value);
+    return value;
+};
 
 /**
- * Запись поля чек-листа.
+ * Запись поля чек-листа в портал.
  *
  * crm-канал — пессимистично (паттерн PurchaseSignals/Inn): сначала портал,
- * потом стейт; неудача — честная ошибка, значение на экране не подменяется.
- * CRM — источник правды: значение обязано пережить отмену отправки.
+ * потом стейт; неудача — честная ошибка, значение-факт на экране не
+ * подменяется. CRM — источник правды: значение обязано пережить отмену
+ * отправки.
  *
  * dto-канал (продажа) — только стейт: значение уедет в payload отправки,
  * бэк запишет его одной операцией со сменой стадии.
+ *
+ * Вызывается отложенно (см. changeChecklistField) либо явной очисткой —
+ * напрямую из UI больше не зовётся.
  */
 export const saveChecklistField =
     (def: ChecklistFieldDef, value: string) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         if (def.channel === 'dto') {
-            dispatch(callChecklistActions.setValue({ code: def.code, value }));
+            dispatch(
+                callChecklistActions.saveSucceeded({ code: def.code, value }),
+            );
             return;
         }
 
@@ -47,17 +73,12 @@ export const saveChecklistField =
         const resolved = resolveChecklistField(
             def,
             state.portal.portal,
-            entityRows(state),
+            selectChecklistRows(state),
         );
         if (!resolved || !resolved.entityId) return;
 
-        // enum пишется bitrixId item'а; '' снимает значение.
-        let portalValue = value;
-        if (def.type === 'enumeration' && value) {
-            const item = resolved.field?.items?.find(i => i.code === value);
-            if (!item) return;
-            portalValue = String(item.bitrixId);
-        }
+        const portalValue = toPortalFieldValue(def, value, resolved);
+        if (portalValue === null) return;
 
         const bitrix = Bitrix.getService();
         const update: Record<
@@ -70,15 +91,18 @@ export const saveChecklistField =
             lead: (id, payload) => bitrix.lead.update(id, payload as never),
         };
 
-        dispatch(callChecklistActions.setError({ message: null }));
+        dispatch(callChecklistActions.saveStarted({ code: def.code }));
         try {
             await update[resolved.entity](resolved.entityId, {
                 [resolved.ufKey]: portalValue,
             });
-            dispatch(callChecklistActions.setValue({ code: def.code, value }));
+            dispatch(
+                callChecklistActions.saveSucceeded({ code: def.code, value }),
+            );
         } catch (error) {
             dispatch(
-                callChecklistActions.setError({
+                callChecklistActions.saveFailed({
+                    code: def.code,
                     message: 'Значение не сохранилось — попробуйте ещё раз',
                 }),
             );
@@ -88,6 +112,51 @@ export const saveChecklistField =
                 context: { code: def.code },
             });
         }
+    };
+
+/**
+ * Менеджер изменил поле.
+ *
+ * Два правила, ради которых это отдельный thunk:
+ * 1) запись откладывается (CHECKLIST_SAVE_DEBOUNCE_MS) — серия
+ *    правок даёт ОДИН update, а промежуточные состояния ввода в портал не
+ *    попадают;
+ * 2) ПУСТОЕ значение само в портал не уходит. `<input type="date">` отдаёт
+ *    `''` на каждом незавершённом вводе, и прежняя запись «как есть» стирала
+ *    стоявшую в CRM дату. Стереть значение можно только явно —
+ *    {@link clearChecklistField} (кнопка у заполненного поля).
+ *
+ * dto-канал пишется сразу: там нет ни запроса, ни чужого значения, которое
+ * можно затереть, — только payload отправки.
+ */
+export const changeChecklistField =
+    (def: ChecklistFieldDef, value: string) => (dispatch: AppDispatch) => {
+        dispatch(callChecklistActions.setDraft({ code: def.code, value }));
+
+        if (def.channel === 'dto') {
+            cancelChecklistSave(def.code);
+            dispatch(
+                callChecklistActions.saveSucceeded({ code: def.code, value }),
+            );
+            return;
+        }
+
+        if (!value) {
+            cancelChecklistSave(def.code);
+            return;
+        }
+
+        scheduleChecklistSave(def.code, () => {
+            void dispatch(saveChecklistField(def, value));
+        });
+    };
+
+/** Явная очистка поля — единственный путь, которым в портал уходит пустота. */
+export const clearChecklistField =
+    (def: ChecklistFieldDef) => async (dispatch: AppDispatch) => {
+        cancelChecklistSave(def.code);
+        dispatch(callChecklistActions.setDraft({ code: def.code, value: '' }));
+        await dispatch(saveChecklistField(def, ''));
     };
 
 /**

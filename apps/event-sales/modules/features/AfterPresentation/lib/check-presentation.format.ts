@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { toHumanDate } from '@/modules/shared/lib/crm-date';
 import {
     CheckPresentationFieldType,
     CheckPresentationItem,
@@ -21,9 +21,10 @@ const formatValue = (
             return value ? 'Да' : 'Нет';
 
         case CheckPresentationFieldType.DATE: {
+            // Через общий нормализатор: new Date('2026-08-26') — полночь UTC,
+            // и в отрицательных таймзонах комментарий показывал вчерашний день.
             const raw = String(value);
-            const date = new Date(raw);
-            return isNaN(date.getTime()) ? raw : format(date, 'dd.MM.yyyy');
+            return toHumanDate(raw) || raw;
         }
 
         case CheckPresentationFieldType.ENUMERATION: {
@@ -39,20 +40,6 @@ const formatValue = (
             return String(value);
     }
 };
-
-/**
- * Текст хвоста: «Заголовок: значение» по строкам, по порядку order,
- * только заполненные поля. Используется и в UI, и при отправке события.
- */
-export const buildCheckPresentationComment = (
-    items: CheckPresentationItem[],
-    answers: Record<string, CheckPresentationValue>,
-): string =>
-    [...items]
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .filter(item => isAnswerFilled(item, answers[item.id]))
-        .map(item => `${item.title}: ${formatValue(item, answers[item.id]!)}`)
-        .join('\n');
 
 /**
  * Структурный текст для КОММЕНТАРИЯ события/таймлайна: плоские 20 строк

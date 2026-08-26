@@ -7,3 +7,4 @@ export * from './model/PlanScheduleSlice';
 export * from './model/PlanScheduleThunk';
 export * from './type/event-plan-type';
 export * from './lib/plan.util';
+export * from './lib/plan-deadline';

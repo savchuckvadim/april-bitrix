@@ -20,6 +20,7 @@ export type PreflightItemKind =
     | 'comment'
     | 'planName'
     | 'planType'
+    | 'planDeadline'
     | 'postFailDate'
     | 'notCaType'
     | 'planChecklist'
@@ -48,6 +49,11 @@ export const PREFLIGHT_ITEMS: Record<PreflightItemKind, PreflightItem> = {
     },
     planType: { kind: 'planType', label: 'Тип звонка' },
     planName: { kind: 'planName', label: 'О чём договорились' },
+    planDeadline: {
+        kind: 'planDeadline',
+        label: 'Срок следующего события',
+        hint: 'Без срока задача не создаётся — клиент останется без следующего шага.',
+    },
     postFailDate: { kind: 'postFailDate', label: 'Дата следующего звонка' },
     notCaType: {
         kind: 'notCaType',
@@ -77,6 +83,7 @@ const ERROR_TO_ITEM: Partial<Record<EV_ERROR_CODE, PreflightItem>> = {
     [EV_ERROR_CODE.WORK_STATUS]: PREFLIGHT_ITEMS.blocked,
     [EV_ERROR_CODE.PLAN_TYPE]: PREFLIGHT_ITEMS.planType,
     [EV_ERROR_CODE.PLAN_NAME]: PREFLIGHT_ITEMS.planName,
+    [EV_ERROR_CODE.PLAN_DEADLINE]: PREFLIGHT_ITEMS.planDeadline,
     [EV_ERROR_CODE.POST_FAIL_DATE]: PREFLIGHT_ITEMS.postFailDate,
     [EV_ERROR_CODE.NOT_CA_TYPE]: PREFLIGHT_ITEMS.notCaType,
     [EV_ERROR_CODE.PLAN_CHECKLIST]: PREFLIGHT_ITEMS.planChecklist,

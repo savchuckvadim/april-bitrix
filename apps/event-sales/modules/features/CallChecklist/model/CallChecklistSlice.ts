@@ -27,6 +27,14 @@ export type ChecklistBaseDealStatus = 'idle' | 'loading' | 'ready' | 'error';
  */
 export interface CallChecklistState {
     valueByCode: Record<string, string>;
+    /**
+     * Набранное менеджером, ещё не уехавшее в CRM. Контрол показывает
+     * черновик: без него запись «через 600 мс» откатывала бы поле к прежнему
+     * значению на первом же ререндере стора (React возвращает `value` в DOM).
+     */
+    draftByCode: Record<string, string>;
+    /** Коды полей, по которым запись прямо сейчас идёт в портал. */
+    savingCodes: Record<string, boolean>;
     error: string | null;
     activeModalId: ChecklistId | null;
     confirmed: Partial<Record<ChecklistId, boolean>>;
@@ -40,6 +48,8 @@ export interface CallChecklistState {
 
 const initialState: CallChecklistState = {
     valueByCode: {},
+    draftByCode: {},
+    savingCodes: {},
     error: null,
     activeModalId: null,
     confirmed: {},
@@ -51,11 +61,37 @@ const callChecklistSlice = createSlice({
     name: 'callChecklist',
     initialState,
     reducers: {
-        setValue(
+        /** Менеджер набирает — показываем ровно это, в CRM пока не пишем. */
+        setDraft(
+            state,
+            action: PayloadAction<{ code: string; value: string }>,
+        ) {
+            state.draftByCode[action.payload.code] = action.payload.value;
+        },
+        /** Запись поля ушла в портал. */
+        saveStarted(state, action: PayloadAction<{ code: string }>) {
+            state.savingCodes[action.payload.code] = true;
+            state.error = null;
+        },
+        /** Портал принял значение — оно становится фактом, черновик не нужен. */
+        saveSucceeded(
             state,
             action: PayloadAction<{ code: string; value: string }>,
         ) {
             state.valueByCode[action.payload.code] = action.payload.value;
+            delete state.draftByCode[action.payload.code];
+            delete state.savingCodes[action.payload.code];
+        },
+        /**
+         * Портал не принял: черновик ОСТАЁТСЯ на экране (менеджер видит, что
+         * пытался записать), значение-факт не подменяется.
+         */
+        saveFailed(
+            state,
+            action: PayloadAction<{ code: string; message: string }>,
+        ) {
+            delete state.savingCodes[action.payload.code];
+            state.error = action.payload.message;
         },
         setError(state, action: PayloadAction<{ message: string | null }>) {
             state.error = action.payload.message;
@@ -103,9 +139,21 @@ const callChecklistSlice = createSlice({
 
 /* Экспорты аннотированы явно — TS2742 (immer из pnpm-пути). */
 export const callChecklistActions: {
-    setValue: ActionCreatorWithPayload<
+    setDraft: ActionCreatorWithPayload<
         { code: string; value: string },
-        'callChecklist/setValue'
+        'callChecklist/setDraft'
+    >;
+    saveStarted: ActionCreatorWithPayload<
+        { code: string },
+        'callChecklist/saveStarted'
+    >;
+    saveSucceeded: ActionCreatorWithPayload<
+        { code: string; value: string },
+        'callChecklist/saveSucceeded'
+    >;
+    saveFailed: ActionCreatorWithPayload<
+        { code: string; message: string },
+        'callChecklist/saveFailed'
     >;
     setError: ActionCreatorWithPayload<
         { message: string | null },

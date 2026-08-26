@@ -1,4 +1,5 @@
 import { PBX_SALES_EVENT_FIELD_CODES } from '@workspace/pbx-data/entities/field/type/sales/event/pbx-sales-event-field.type';
+import { toCrmDate, toDateInputValue } from '@/modules/shared/lib/crm-date';
 
 /**
  * Хвост-поля сделки (опросник после презентации) — данные и преобразования,
@@ -45,14 +46,26 @@ export type XvostDateCode = (typeof XVOST_DATE_FIELDS)[number]['code'];
 export type XvostFlagCode = (typeof XVOST_FLAG_FIELDS)[number]['code'];
 export type XvostFieldCode = XvostDateCode | XvostFlagCode;
 
-/** `YYYY-MM-DD` для `<input type=date>` из того, что отдал портал. */
-export const toInputDate = (raw: unknown): string => {
-    if (typeof raw !== 'string' || !raw.trim()) return '';
-    const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
-    const crm = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})/);
-    if (crm) return `${crm[3]}-${crm[2]}-${crm[1]}`;
-    return '';
+/**
+ * `YYYY-MM-DD` для `<input type=date>` из того, что отдал портал —
+ * общий нормализатор (`modules/shared/lib/crm-date`), тот же, что у
+ * чек-листа и опросника.
+ */
+export const toInputDate = toDateInputValue;
+
+/**
+ * Значение контрола → значение портального поля. Даты уходят каноном CRM
+ * (`DD.MM.YYYY`), флаги — своим диалектом `Y/N`. Пустая строка стирает поле
+ * (здесь это осознанное действие: карточка правится вручную).
+ * `null` — дата не разобралась, писать нечего.
+ */
+export const toXvostPortalValue = (
+    code: XvostFieldCode,
+    value: string,
+): string | null => {
+    if (XVOST_FLAG_FIELDS.some(field => field.code === code)) return value;
+    if (!value) return '';
+    return toCrmDate(value);
 };
 
 /**

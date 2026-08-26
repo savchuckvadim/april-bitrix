@@ -17,7 +17,13 @@ import {
     EV_REPORT_PROP,
     setAndSaveComment,
 } from '@/modules/entities/EventReport';
-import { EV_PLAN_PROP, eventPlanActions } from '@/modules/entities/EventPlan';
+import {
+    EV_PLAN_PROP,
+    changeWorkStatusFromDeadline,
+    eventPlanActions,
+} from '@/modules/entities/EventPlan';
+import { fetchPlanDaySchedule } from '@/modules/entities/EventPlan/model/PlanScheduleThunk';
+import { DateTimePicker } from '@workspace/ui/components/date-time-picker';
 import { eventPostFailActions } from '@/modules/entities/EVPostFail';
 import { ProspectScale } from '@/modules/entities/EventCompany';
 import { send } from '@/modules/processes/event';
@@ -57,6 +63,8 @@ export const SendPreflightDialog: FC = () => {
     );
     const planName = useAppSelector(s => s.eventPlan[EV_PLAN_PROP.NAME]);
     const planType = useAppSelector(s => s.eventPlan[EV_PLAN_PROP.TYPE]);
+    const planDeadline = useAppSelector(s => s.eventPlan[EV_PLAN_PROP.DATE]);
+    const daySchedule = useAppSelector(s => s.planSchedule.items);
     const postFailDate = useAppSelector(s => s.eventPostFail.postFailDate);
     const inProgress = useAppSelector(s => s.preloader.inProgress);
     const leadIds = useRequestLeadIds();
@@ -117,6 +125,26 @@ export const SendPreflightDialog: FC = () => {
                         maxLength={COMMENT_MAX_LENGTH}
                         onChange={e =>
                             dispatch(setAndSaveComment(e.target.value))
+                        }
+                    />
+                );
+            case 'planDeadline':
+                // Тот же контрол, что в колонке плана: значение общее.
+                return (
+                    <DateTimePicker
+                        value={planDeadline ?? ''}
+                        onChange={value => {
+                            dispatch(
+                                eventPlanActions.setPlanProp({
+                                    name: EV_PLAN_PROP.DATE,
+                                    value,
+                                }),
+                            );
+                            dispatch(changeWorkStatusFromDeadline());
+                        }}
+                        existingEvents={daySchedule}
+                        onDateCommit={date =>
+                            dispatch(fetchPlanDaySchedule(date))
                         }
                     />
                 );

@@ -1,12 +1,29 @@
 import { Bitrix } from '@workspace/bitrix';
 import { findUfKey } from '@workspace/pbx';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import { reportFrontError } from '@/modules/shared/front-error';
 import { isBaseSalesDeal } from '@/modules/entities/RelatedCrm/lib/deal-category';
 import { isOwnDeal } from '@/modules/entities/RelatedCrm/lib/deal-ownership';
 import {
     buildFiveKSummary,
     buildPortalFieldPayload,
 } from '../lib/check-presentation.persist';
+
+/** Чем закончилась запись ответов: по каждой цели — приняла или нет. */
+export interface CheckPresentationPersistResult {
+    /** Целей, которым реально было что записать. */
+    attempted: number;
+    /** Не принявшие ответы цели («deal:123») — для сообщения и разбора. */
+    failed: string[];
+    /** Ни одна цель не приняла: ответов на портале НЕТ. */
+    isTotalFailure: boolean;
+}
+
+const EMPTY_RESULT: CheckPresentationPersistResult = {
+    attempted: 0,
+    failed: [],
+    isTotalFailure: false,
+};
 
 /**
  * Ответы опросника — в поля Битрикса.
@@ -23,14 +40,22 @@ import {
  *
  * Пишем ТОЛЬКО то, под что на портале есть поле: ключи резолвятся из слепка,
  * никаких `UF_CRM_<КОД>` наугад.
+ *
+ * Возвращает итог по каждой цели: раньше ошибка записи уходила в
+ * `console.error`, отправка шла дальше, и менеджер был уверен, что ответы
+ * сохранены. Теперь решение принимает вызывающий (см. submitCheckPresentation).
  */
 export const persistCheckPresentation =
-    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+    () =>
+    async (
+        dispatch: AppDispatch,
+        getState: AppGetState,
+    ): Promise<CheckPresentationPersistResult> => {
         const state = getState();
         const portal = state.portal.portal;
         const answers = state.afterPresentation.checkPresentation.committed;
 
-        if (!portal || !Object.keys(answers).length) return;
+        if (!portal || !Object.keys(answers).length) return EMPTY_RESULT;
 
         // Сводное «Пять К» собирается из ответов: отдельные op_5k_* живут
         // только на лиде, а сводка доезжает и до сделки.
@@ -96,12 +121,14 @@ export const persistCheckPresentation =
 
         const targets = [
             {
+                kind: 'company',
                 id: company?.ID,
                 fields: portal.company?.bitrixfields,
                 update: (id: number, payload: Record<string, string>) =>
                     bitrix.company.update(id, payload as never),
             },
             {
+                kind: 'deal',
                 id: dealTargetId,
                 // Поля сделки в слепке лежат под bitrixDeal — историческое имя.
                 fields: portal.bitrixDeal?.bitrixfields,
@@ -109,12 +136,20 @@ export const persistCheckPresentation =
                     bitrix.deal.update(id, payload as never),
             },
             {
+                kind: 'lead',
                 id: lead?.ID,
                 fields: portal.lead?.bitrixfields,
                 update: (id: number, payload: Record<string, string>) =>
                     bitrix.lead.update(id, payload as never),
             },
         ];
+
+        const typeByCode = Object.fromEntries(
+            items.map(item => [item.code, item.type]),
+        );
+
+        let attempted = 0;
+        const failed: string[] = [];
 
         for (const target of targets) {
             const entityId = Number(target.id ?? 0);
@@ -123,19 +158,27 @@ export const persistCheckPresentation =
             const payload = buildPortalFieldPayload({
                 answers: fullAnswers,
                 resolveKey: code => findUfKey(target.fields, code),
+                typeByCode,
             });
             if (!Object.keys(payload).length) continue;
 
+            attempted += 1;
             try {
                 await target.update(entityId, payload);
             } catch (error) {
-                // Опросник уже подтверждён — падать отчётом из-за одной
-                // сущности нельзя, но и молчать про потерю данных тоже.
-                console.error(
-                    'persistCheckPresentation error',
-                    entityId,
-                    error,
-                );
+                failed.push(`${target.kind}:${entityId}`);
+                reportFrontError({
+                    place: 'check-presentation.persist',
+                    message:
+                        error instanceof Error ? error.message : String(error),
+                    context: { entity: target.kind, entityId },
+                });
             }
         }
+
+        return {
+            attempted,
+            failed,
+            isTotalFailure: attempted > 0 && failed.length === attempted,
+        };
     };

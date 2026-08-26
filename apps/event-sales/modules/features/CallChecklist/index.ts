@@ -2,6 +2,7 @@ export * from './type/call-checklist.type';
 export * from './data/checklist-catalog';
 export * from './lib/checklist-selectors';
 export * from './lib/checklist-values';
+export * from './lib/checklist-field-view';
 export * from './lib/hooks/use-inline-checklists';
 export * from './lib/hooks/use-modal-checklist';
 export * from './model/CallChecklistSlice';

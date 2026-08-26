@@ -6,6 +6,7 @@ import {
     flagToPortalValue,
     toFlag,
     toInputDate,
+    toXvostPortalValue,
     xvostToAnswerValue,
 } from './xvost-fields';
 
@@ -69,5 +70,31 @@ describe('toInputDate', () => {
         expect(toInputDate('')).toBe('');
         expect(toInputDate(null)).toBe('');
         expect(toInputDate('когда-нибудь')).toBe('');
+    });
+});
+
+describe('toXvostPortalValue', () => {
+    it('дата уходит каноном CRM, а не строкой контрола', () => {
+        expect(
+            toXvostPortalValue(
+                PBX_SALES_EVENT_FIELD_CODES.op_manager_approach_date,
+                '2026-08-25',
+            ),
+        ).toBe('25.08.2026');
+    });
+
+    it('флаг уходит своим диалектом Y/N', () => {
+        expect(
+            toXvostPortalValue(
+                PBX_SALES_EVENT_FIELD_CODES.op_xvost_is_offer,
+                'Y',
+            ),
+        ).toBe('Y');
+    });
+
+    it('пустая дата стирает поле, неразбираемая — не пишется вовсе', () => {
+        const code = PBX_SALES_EVENT_FIELD_CODES.op_manager_approach_date;
+        expect(toXvostPortalValue(code, '')).toBe('');
+        expect(toXvostPortalValue(code, 'потом')).toBeNull();
     });
 });

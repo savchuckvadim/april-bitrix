@@ -10,11 +10,48 @@ import {
  * то же поле вручную (XvostFields). Без syncAnswer повторный submit опросника
  * персистил бы committed со СТАРЫМ значением и откатывал ручную правку.
  */
+const run = (
+    state: AfterPresentationState | undefined,
+    action: Parameters<typeof afterPresentationReducer>[1],
+) => afterPresentationReducer(state, action);
+
+describe('afterPresentation.setAnswer гасит подтверждение', () => {
+    it('правка ответа снимает isConfirmed', () => {
+        let state = run(
+            undefined,
+            afterPresentationActions.setConfirmed({ status: true }),
+        );
+        expect(state.isConfirmed).toBe(true);
+
+        state = run(
+            state,
+            afterPresentationActions.setAnswer({
+                id: 'op_presentation_xvost',
+                value: 'поправил',
+            }),
+        );
+        // Иначе «поправил → Отмена → отправка» уводила бы старый снимок.
+        expect(state.isConfirmed).toBe(false);
+    });
+
+    it('синхронизация ручной правки подтверждение НЕ гасит', () => {
+        let state = run(
+            undefined,
+            afterPresentationActions.setConfirmed({ status: true }),
+        );
+        state = run(
+            state,
+            afterPresentationActions.syncAnswer({
+                id: 'op_xvost_is_offer',
+                value: true,
+            }),
+        );
+        // syncAnswer пишет и в answers, и в committed — снимок остаётся честным.
+        expect(state.isConfirmed).toBe(true);
+    });
+});
+
 describe('afterPresentation.syncAnswer', () => {
-    const run = (
-        state: AfterPresentationState | undefined,
-        action: Parameters<typeof afterPresentationReducer>[1],
-    ) => afterPresentationReducer(state, action);
 
     it('пишет ручную правку и в answers, и в committed', () => {
         // Опросник заполнен и подтверждён: ответ закоммичен.

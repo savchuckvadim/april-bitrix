@@ -56,6 +56,9 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
         s => (s.eventTask.tasks?.length ?? 0) > 1,
     );
     const nameError = useAppSelector(s => s.event.errors.current.name);
+    const deadlineError = useAppSelector(
+        s => s.event.errors.current.planDeadline,
+    );
     const daySchedule = useAppSelector(s => s.planSchedule.items);
 
     const isActive = plan[EV_PLAN_PROP.IS_ACTIVE];
@@ -103,8 +106,8 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                 density="compact"
                 collapsible
                 defaultOpen
-                state={nameError ? 'error' : 'default'}
-                message={nameError}
+                state={nameError || deadlineError ? 'error' : 'default'}
+                message={nameError || deadlineError}
                 actions={
                     /* «Без плана» — фича оригинальной версии: при второй
                        живой задаче клиента следующий шаг уже назначен, и
@@ -246,6 +249,11 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                                 }
                                 className="grid-cols-1 @[17rem]:grid-cols-2"
                             />
+                            {deadlineError && (
+                                <p className="text-xs font-medium text-destructive">
+                                    {deadlineError}
+                                </p>
+                            )}
                             {plan[EV_PLAN_PROP.IS_EXPIRED] && (
                                 <p className="text-xs text-warning">
                                     Дальше четырёх месяцев — событие уйдёт в

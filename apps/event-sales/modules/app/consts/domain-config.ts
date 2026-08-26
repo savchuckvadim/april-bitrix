@@ -35,6 +35,12 @@ export interface DomainFeatureConfig {
     withChecklistPay: boolean;
     withChecklistDecision: boolean;
     withChecklistSale: boolean;
+    /**
+     * Вопросы ПРИ ОТЧЁТЕ по типу события (доработка/решение/оплата): один
+     * флаг на весь набор — отдельные ключи под каждый тип только засорили
+     * бы админку, а включают их всегда вместе.
+     */
+    withReportQuestions: boolean;
     /** Кнопка «карточка сделки» (слайдер с табом конструктора) в чек-листах. */
     withKonstructorSlider: boolean;
     /** Bitrix GROUP_ID группы задач обзвона (legacy EventTaskThunk). */
@@ -73,6 +79,7 @@ const DEFAULT_CONFIG: DomainFeatureConfig = {
     withChecklistPay: false,
     withChecklistDecision: false,
     withChecklistSale: false,
+    withReportQuestions: false,
     withKonstructorSlider: false,
     taskGroupId: 1,
     bossId: 1,

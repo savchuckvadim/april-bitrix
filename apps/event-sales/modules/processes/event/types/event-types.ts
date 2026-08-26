@@ -15,6 +15,8 @@ export enum EV_ERROR_CODE {
     COMMENT = 'comment',
     PLAN_NAME = 'name',
     PLAN_TYPE = 'type',
+    /** Срок планируемого события: без него задача не создаётся. */
+    PLAN_DEADLINE = 'planDeadline',
     POST_FAIL_DATE = 'postFailDate',
     /** Статус «Не ЦА» без выбранного типа. */
     NOT_CA_TYPE = 'notCaType',

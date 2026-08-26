@@ -1,12 +1,25 @@
-import type { CheckPresentationValue } from '../type/check-presentation-type';
+import { toCrmDate } from '@/modules/shared/lib/crm-date';
+import {
+    CheckPresentationFieldType,
+    type CheckPresentationValue,
+} from '../type/check-presentation-type';
 
 /**
  * Как ответы опросника ложатся в поля Битрикса. Данные и преобразования
  * отдельно от запросов.
  */
 
-/** Значение ответа в том виде, в каком его принимает пользовательское поле. */
-export const toPortalValue = (value: CheckPresentationValue): string | null => {
+/**
+ * Значение ответа в том виде, в каком его принимает пользовательское поле.
+ *
+ * Даты уходят через общий нормализатор портала (`DD.MM.YYYY`): раньше в CRM
+ * улетало ровно то, что отдал `<input type=date>` (`YYYY-MM-DD`), мимо канона,
+ * которым пишет весь остальной код.
+ */
+export const toPortalValue = (
+    value: CheckPresentationValue,
+    type?: CheckPresentationFieldType,
+): string | null => {
     if (typeof value === 'boolean') return value ? 'Y' : 'N';
     if (Array.isArray(value)) {
         // Множественный список пишется id-шниками элементов, а их в ответах
@@ -14,7 +27,11 @@ export const toPortalValue = (value: CheckPresentationValue): string | null => {
         return null;
     }
     const text = String(value ?? '').trim();
-    return text || null;
+    if (!text) return null;
+    // Неразбираемую дату не пишем сырой строкой: пусть поле останется как
+    // было, чем ляжет мусор, который потом никто не прочитает.
+    if (type === CheckPresentationFieldType.DATE) return toCrmDate(text);
+    return text;
 };
 
 export interface PortalFieldWriteInput {
@@ -22,6 +39,8 @@ export interface PortalFieldWriteInput {
     answers: Record<string, CheckPresentationValue>;
     /** Резолвер ключа поля у конкретной сущности; нет поля — null. */
     resolveKey: (code: string) => string | null;
+    /** Тип вопроса по коду — от него зависит формат значения (даты). */
+    typeByCode?: Record<string, CheckPresentationFieldType>;
 }
 
 /**
@@ -34,13 +53,14 @@ export interface PortalFieldWriteInput {
 export const buildPortalFieldPayload = ({
     answers,
     resolveKey,
+    typeByCode,
 }: PortalFieldWriteInput): Record<string, string> => {
     const payload: Record<string, string> = {};
 
     for (const [code, value] of Object.entries(answers)) {
         const key = resolveKey(code);
         if (!key) continue;
-        const portalValue = toPortalValue(value);
+        const portalValue = toPortalValue(value, typeByCode?.[code]);
         if (portalValue === null) continue;
         payload[key] = portalValue;
     }

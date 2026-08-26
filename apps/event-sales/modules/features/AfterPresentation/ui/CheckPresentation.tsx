@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, Fragment, useState } from 'react';
+import { FC } from 'react';
 import {
     DialogDescription,
     DialogHeader,
@@ -8,78 +8,26 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { GlassDialog } from '@workspace/april-ui';
-import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { afterPresentationActions } from '../model/AfterPresentationSlice';
-import {
-    closeCheckPresentation,
-    submitCheckPresentation,
-} from '../model/AfterPresentationThunk';
-import { getMissingRequiredIds } from '../lib/check-presentation.validation';
-import { getFiveKGroup, isFiveKCode } from '../lib/check-presentation.groups';
-import type { CheckPresentationItem } from '../type/check-presentation-type';
+import { useCheckPresentation } from '../lib/hooks/use-check-presentation';
 import { CheckPresentationField } from './components/CheckPresentationField';
+import { CheckPresentationFiveK } from './components/CheckPresentationFiveK';
 
 /**
  * Опросник после презентации (обязательный шаг перед отправкой на доменах
  * с withCheckPresentation). Валидация обязательных полей — при сохранении.
  *
- * Две колонки: слева разговор (обязательные xo_* и «Хвост»), справа «Пять К»
- * с тонкими полосами-разделителями категорий. Одна колонка на 21 вопрос
- * превращала окно в бесконечный скролл; категории «КЛИЕНТ:» в каждом лейбле
- * дублировали друг друга — теперь категория написана один раз на полосе.
+ * Две колонки: слева разговор (обязательные xo_* и «Хвост»), справа «Пять К».
+ * Одна колонка на 21 вопрос превращала окно в бесконечный скролл.
  * intensity="soft": в окне много полей с наведением, liquid-рефракция на
  * каждый mousemove здесь подтормаживала бы (см. GlassDialog JSDoc).
  */
 export const CheckPresentation: FC = () => {
-    const dispatch = useAppDispatch();
-    const isActive = useAppSelector(s => s.afterPresentation.isActive);
-    const items = useAppSelector(
-        s => s.afterPresentation.checkPresentation.items,
-    );
-    const answers = useAppSelector(
-        s => s.afterPresentation.checkPresentation.answers,
-    );
-    const [missingIds, setMissingIds] = useState<string[]>([]);
-
-    const close = () => {
-        setMissingIds([]);
-        dispatch(closeCheckPresentation());
-    };
-
-    const save = () => {
-        const missing = getMissingRequiredIds(items, answers);
-        setMissingIds(missing);
-        if (missing.length) return;
-        dispatch(submitCheckPresentation());
-    };
-
-    const sortedItems = [...items].sort(
-        (a, b) => (a.order ?? 0) - (b.order ?? 0),
-    );
-    const talkItems = sortedItems.filter(item => !isFiveKCode(item.code));
-    const fiveKItems = sortedItems.filter(item => isFiveKCode(item.code));
-
-    const renderField = (item: CheckPresentationItem) => (
-        <CheckPresentationField
-            key={item.id}
-            item={item}
-            value={answers[item.id]}
-            isMissing={missingIds.includes(item.id)}
-            onChange={value => {
-                dispatch(
-                    afterPresentationActions.setAnswer({
-                        id: item.id,
-                        value,
-                    }),
-                );
-            }}
-        />
-    );
+    const view = useCheckPresentation();
 
     return (
         <GlassDialog
-            open={isActive}
-            onOpenChange={open => !open && close()}
+            open={view.isActive}
+            onOpenChange={open => !open && view.close()}
             size="lg"
             intensity="soft"
             cardClassName="gap-4 max-h-[85svh] overflow-y-auto"
@@ -94,46 +42,47 @@ export const CheckPresentation: FC = () => {
             </DialogHeader>
 
             <div className="grid gap-x-6 gap-y-3 md:grid-cols-2">
-                <div className="space-y-3">{talkItems.map(renderField)}</div>
-
                 <div className="space-y-3">
-                    {fiveKItems.map((item, index) => {
-                        const group = getFiveKGroup(item.code);
-                        const prevCode = fiveKItems[index - 1]?.code;
-                        const prevGroup = prevCode
-                            ? getFiveKGroup(prevCode)
-                            : null;
-                        return (
-                            <Fragment key={item.id}>
-                                {group && group !== prevGroup && (
-                                    <div
-                                        className="flex items-center gap-2 pt-1"
-                                        aria-hidden
-                                    >
-                                        <span className="text-[0.625rem] font-medium tracking-wide text-muted-foreground uppercase">
-                                            {group}
-                                        </span>
-                                        <span className="h-px flex-1 bg-border" />
-                                    </div>
-                                )}
-                                {renderField(item)}
-                            </Fragment>
-                        );
-                    })}
+                    {view.talkItems.map(item => (
+                        <CheckPresentationField
+                            key={item.id}
+                            item={item}
+                            value={view.answers[item.id]}
+                            isMissing={view.missingIds.includes(item.id)}
+                            onChange={value => view.setAnswer(item.id, value)}
+                        />
+                    ))}
                 </div>
+
+                <CheckPresentationFiveK
+                    items={view.fiveKItems}
+                    answers={view.answers}
+                    missingIds={view.missingIds}
+                    onChange={view.setAnswer}
+                />
             </div>
 
-            {missingIds.length > 0 && (
+            {view.missingIds.length > 0 && (
                 <p className="text-sm text-destructive">
                     Заполните обязательные поля
                 </p>
             )}
 
+            {view.persistError && (
+                <p className="text-sm text-destructive">{view.persistError}</p>
+            )}
+
             <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={close}>
+                <Button
+                    variant="outline"
+                    onClick={view.close}
+                    disabled={view.isSaving}
+                >
                     Отмена
                 </Button>
-                <Button onClick={save}>Сохранить</Button>
+                <Button onClick={view.save} disabled={view.isSaving}>
+                    {view.isSaving ? 'Сохраняем…' : 'Сохранить'}
+                </Button>
             </div>
         </GlassDialog>
     );

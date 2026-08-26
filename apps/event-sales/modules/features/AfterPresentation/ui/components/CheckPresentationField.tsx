@@ -1,9 +1,9 @@
 'use client';
 
 import { FC } from 'react';
+import { MicroSegmented, type MicroSegmentedOption } from '@workspace/april-ui';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
-import { Switch } from '@workspace/ui/components/switch';
 import { Textarea } from '@workspace/ui/components/textarea';
 import {
     Select,
@@ -12,12 +12,27 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import { toDateInputValue } from '@/modules/shared/lib/crm-date';
 import { getDisplayTitle } from '../../lib/check-presentation.groups';
 import {
     CheckPresentationFieldType,
     CheckPresentationItem,
     CheckPresentationValue,
 } from '../../type/check-presentation-type';
+
+const BOOLEAN_OPTIONS: MicroSegmentedOption[] = [
+    { value: 'yes', label: 'Да' },
+    { value: 'no', label: 'Нет' },
+];
+
+/**
+ * Ответ → сегмент. Всё, кроме честных `true`/`false` (в том числе ещё не
+ * тронутый вопрос), — «не выбрано»: ни один сегмент не подсвечен.
+ */
+const BOOLEAN_ANSWER: Record<string, string | undefined> = {
+    true: 'yes',
+    false: 'no',
+};
 
 interface CheckPresentationFieldProps {
     item: CheckPresentationItem;
@@ -53,21 +68,42 @@ export const CheckPresentationField: FC<CheckPresentationFieldProps> = ({
             )}
 
             {item.type === CheckPresentationFieldType.BOOLEAN && (
+                /*
+                 * Три состояния, а не тумблер. Тумблер по умолчанию стоял в
+                 * «Нет» и выглядел ответом: экран показывал заполненность
+                 * там, где менеджер ничего не выбирал, а «Нет» уезжало в
+                 * поле клиента как осознанный ответ. Ничего не выбрано —
+                 * не подсвечен ни один сегмент, и обязательный вопрос
+                 * блокирует сохранение.
+                 */
                 <div className="flex items-center gap-2">
-                    <Switch
-                        checked={value === true}
-                        onCheckedChange={checked => onChange(checked)}
+                    <MicroSegmented
+                        ariaLabel={item.title}
+                        value={BOOLEAN_ANSWER[String(value)]}
+                        options={BOOLEAN_OPTIONS}
+                        onChange={next => onChange(next === 'yes')}
                     />
-                    <span className="text-sm text-muted-foreground">
-                        {value === true ? 'Да' : 'Нет'}
-                    </span>
+                    {BOOLEAN_ANSWER[String(value)] === undefined && (
+                        <span
+                            className={
+                                isMissing
+                                    ? 'text-xs font-medium text-destructive'
+                                    : 'text-xs text-muted-foreground'
+                            }
+                        >
+                            не выбрано
+                        </span>
+                    )}
                 </div>
             )}
 
             {item.type === CheckPresentationFieldType.DATE && (
                 <Input
                     type="date"
-                    value={typeof value === 'string' ? value : ''}
+                    // Ответ мог приехать из портала в его формате (ручная
+                    // правка того же поля мимо опросника) — контрол принимает
+                    // только `YYYY-MM-DD`.
+                    value={toDateInputValue(value)}
                     aria-invalid={isMissing}
                     onChange={e => onChange(e.target.value)}
                 />

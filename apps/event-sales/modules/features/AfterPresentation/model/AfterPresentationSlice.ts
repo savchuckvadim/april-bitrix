@@ -20,6 +20,14 @@ export const initialState = {
     isConfirmed: false as boolean,
     /** модалка открыта как обязательный шаг перед отправкой события */
     pendingSend: false as boolean,
+    /**
+     * Что случилось с записью ответов в поля клиента: полный провал (окно
+     * остаётся открытым, подтверждения нет) или частичный — часть сущностей
+     * не приняла ответы, отправка продолжается с предупреждением. Раньше
+     * такие ошибки уходили в console.error, и менеджер был уверен, что
+     * ответы сохранены.
+     */
+    persistError: null as string | null,
 };
 
 const afterPresentationSlice = createSlice({
@@ -42,6 +50,15 @@ const afterPresentationSlice = createSlice({
         ) => {
             state.checkPresentation.answers[action.payload.id] =
                 action.payload.value;
+            /*
+             * Правка ответов снимает подтверждение. Иначе получался обмен
+             * втёмную: подтвердил → открыл окно → поправил → «Отмена»
+             * (answers откатываются к committed) → отправка идёт со СТАРЫМ
+             * снимком, хотя менеджер видел новый. Теперь после правки
+             * опросник снова обязателен и уедет ровно то, что подтверждено.
+             */
+            state.isConfirmed = false;
+            state.persistError = null;
         },
         /**
          * Ответ, записанный на портал МИМО опросника (ручная правка
@@ -91,6 +108,13 @@ const afterPresentationSlice = createSlice({
         ) => {
             state.pendingSend = action.payload.status;
         },
+        /** Итог записи ответов на портал: null — записались все цели. */
+        setPersistError: (
+            state: AfterPresentationState,
+            action: PayloadAction<{ message: string | null }>,
+        ) => {
+            state.persistError = action.payload.message;
+        },
         /** сброс перед новым событием (items/initialized сохраняем — грузятся раз на портал) */
         resetForNewEvent: (state: AfterPresentationState) => {
             state.checkPresentation.answers = {};
@@ -98,6 +122,7 @@ const afterPresentationSlice = createSlice({
             state.isConfirmed = false;
             state.pendingSend = false;
             state.isActive = false;
+            state.persistError = null;
         },
         /**
          * Полный сброс (reloadApp): в отличие от resetForNewEvent гасит и

@@ -12,7 +12,17 @@ import type { DomainFeatureConfig } from '@/modules/app/consts/domain-config';
  * настройками портала (админка → Settings → event-sales).
  */
 
-export type ChecklistId = 'refine' | 'pay' | 'decision' | 'sale';
+export type ChecklistId =
+    | 'refine'
+    | 'pay'
+    | 'decision'
+    | 'sale'
+    // Вопросы ПРИ ОТЧЁТЕ по типу события (todo 25.08): тип отчётного
+    // события до сих пор ни на что не влиял, хотя триггер `reportType`
+    // в движке был написан и не использован ни разу.
+    | 'reportRefine'
+    | 'reportDecision'
+    | 'reportPay';
 
 /**
  * Когда чек-лист активен:
@@ -26,19 +36,35 @@ export type ChecklistTrigger =
     | { kind: 'reportType'; eventType: EventTaskEventType }
     | { kind: 'targetStage'; stageCode: string };
 
-export type ChecklistFieldType = 'date' | 'datetime' | 'enumeration' | 'money';
+export type ChecklistFieldType =
+    | 'date'
+    | 'datetime'
+    | 'enumeration'
+    | 'money'
+    /** Однострочный текст: формулировка клиента своими словами. */
+    | 'string';
 
 export interface ChecklistFieldDef {
     /** Код pbx-поля из реестра (op_efield_fail_reason, op_invoice_date…). */
     code: string;
     type: ChecklistFieldType;
     title: string;
+    /** Подсказка под контролом (пример ответа, уточнение формулировки). */
+    placeholder?: string;
     /**
      * Обязательное поле блокирует отправку, пока пусто. Закрывается и
      * текущим значением из CRM: «показать и дать изменить», а не «заставить
      * перезаполнить».
      */
     required: boolean;
+    /**
+     * Срок годности значения из CRM (дни) — ТОЛЬКО для `date`/`datetime`,
+     * где сама дата и есть отметка времени. Обязательное поле со старым
+     * значением снова требует ответа: счёт годичной давности не должен
+     * закрывать чек-лист оплаты. У остальных типов отметки времени нет —
+     * свойство игнорируется (не объявляйте его там).
+     */
+    staleAfterDays?: number;
     /**
      * Куда уходит значение:
      * - `crm` (дефолт) — пессимистичная запись в сущность при изменении;
@@ -63,9 +89,16 @@ export interface ChecklistDef {
     /** Флаг конфига приложения, включающий чек-лист на портале. */
     configKey: keyof DomainFeatureConfig;
     /**
-     * `inline` — блок в колонке плана (заполняется при планировании);
+     * `inline` — блок в колонке (какой именно — говорит `place`);
      * `modal` — шаг-модалка в цепочке send() (заполняется перед отправкой).
      */
     presentation: 'inline' | 'modal';
+    /**
+     * В какой колонке живёт инлайн-блок: `plan` — «Планируем» (что нужно
+     * знать ДО следующего звонка), `report` — «Отчёт» (что выяснили В
+     * разговоре). Для `presentation: 'modal'` значения не имеет.
+     * По умолчанию `plan` — прежнее поведение каталога.
+     */
+    place?: 'plan' | 'report';
     fields: ChecklistFieldDef[];
 }

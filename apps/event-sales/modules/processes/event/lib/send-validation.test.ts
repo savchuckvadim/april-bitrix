@@ -11,6 +11,7 @@ const makeState = (over?: {
     isPlanActive?: boolean;
     planName?: string;
     planType?: { id: number; code: string; name: string } | null;
+    planDate?: string | null;
     comment?: string;
     workStatus?: string;
     notCaTypeCode?: string | null;
@@ -28,6 +29,10 @@ const makeState = (over?: {
         eventPlan: {
             isActive: over?.isPlanActive ?? true,
             name: over?.planName ?? '',
+            date:
+                over?.planDate === undefined
+                    ? '2026-08-26 15:00'
+                    : over.planDate,
             type: { items: [], current: over?.planType ?? null },
         },
         eventItemMenu: { type: 'CURRENT' },
@@ -65,6 +70,52 @@ describe('validateSend — гейт «Без плана» (isActive)', () => {
             makeState({ isPlanActive: false, comment: '' }),
         );
         expect(result.errors.comment).toBe('Напишите комментарий');
+    });
+});
+
+describe('validateSend — срок плана', () => {
+    it('срок пустой — отправка блокируется', () => {
+        const { result } = validateSend(makeState({ planDate: '' }));
+        expect(result.errors.planDeadline).toBeTruthy();
+        expect(result.isError).toBe(true);
+    });
+
+    it('срок неразбираемый — отправка блокируется', () => {
+        const { result } = validateSend(makeState({ planDate: 'завтра' }));
+        expect(result.errors.planDeadline).toBeTruthy();
+    });
+
+    it('корректный срок — ошибки нет', () => {
+        const { result } = validateSend(
+            makeState({ planDate: '2026-08-26 15:00' }),
+        );
+        expect(result.errors.planDeadline).toBeFalsy();
+    });
+
+    it('ISO дедлайна задачи (перенос) — ошибки нет', () => {
+        const { result } = validateSend(
+            makeState({ planDate: '2026-08-26T03:00:00+03:00' }),
+        );
+        expect(result.errors.planDeadline).toBeFalsy();
+    });
+
+    it('«Без плана» — срок не требуется', () => {
+        const { result } = validateSend(
+            makeState({ isPlanActive: false, planDate: '' }),
+        );
+        expect(result.errors.planDeadline).toBeFalsy();
+        expect(result.isError).toBe(false);
+    });
+
+    it('финальный статус (Отказ) — срок не требуется', () => {
+        const { result } = validateSend(
+            makeState({
+                workStatus: 'notCa',
+                notCaTypeCode: 'op_lead_not_ca_type1',
+                planDate: '',
+            }),
+        );
+        expect(result.errors.planDeadline).toBeFalsy();
     });
 });
 

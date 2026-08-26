@@ -17,7 +17,14 @@ import {
  * над RootState: их зовут и UI (карточка в плане), и send-validation.
  */
 
-const entityRows = (state: RootState): ChecklistEntityRows => ({
+/**
+ * Носители полей чек-листа. Единственное место, где решается, откуда берётся
+ * строка сделки — из стора или из лениво догруженной базовой (встройка-
+ * компания): у инлайн-хука раньше была своя копия БЕЗ этого фолбэка, и
+ * карточка не показывала чек-лист, который окно предпроверки требовало
+ * заполнить (дедлок).
+ */
+export const selectChecklistRows = (state: RootState): ChecklistEntityRows => ({
     company: state.app.bitrix.company as unknown as Record<
         string,
         unknown
@@ -57,6 +64,25 @@ export const selectActiveChecklists = (state: RootState): ChecklistDef[] =>
             isTriggerActive(def.trigger, state),
     );
 
+/**
+ * Инлайн-блоки конкретной колонки. `place` не задан — колонка плана
+ * (поведение прежнего каталога): вопросы отчёта появились позже и
+ * объявляют место явно.
+ */
+export const selectInlineChecklistsAt = (
+    state: RootState,
+    place: 'plan' | 'report',
+): ChecklistDef[] =>
+    selectActiveChecklists(state).filter(
+        def =>
+            def.presentation === 'inline' && (def.place ?? 'plan') === place,
+    );
+
+/**
+ * ВСЕ инлайн-блоки обеих колонок — для валидации отправки: обязательное
+ * поле обязано блокировать отправку независимо от того, в какой колонке
+ * его спрашивают.
+ */
 export const selectInlineChecklists = (state: RootState): ChecklistDef[] =>
     selectActiveChecklists(state).filter(def => def.presentation === 'inline');
 
@@ -67,25 +93,86 @@ export const resolveChecklistFields = (
 ): ResolvedChecklistField[] =>
     def.fields
         .map(field =>
-            resolveChecklistField(field, state.portal.portal, entityRows(state)),
+            resolveChecklistField(
+                field,
+                state.portal.portal,
+                selectChecklistRows(state),
+            ),
         )
         .filter((f): f is ResolvedChecklistField => f !== null);
 
 /**
- * Незакрытые обязательные поля: нет ни сохранённого менеджером значения,
- * ни текущего значения в CRM. Поле, не установленное на портале, отправку
- * не блокирует (его физически некуда писать).
+ * Обязательное поле не закрыто: нет ни сохранённого менеджером значения,
+ * ни ГОДНОГО текущего значения в CRM. Единственное определение «не
+ * заполнено» — его зовут и валидация отправки, и карточка (подсветка поля).
+ */
+export const isChecklistFieldMissing = (
+    resolved: ResolvedChecklistField,
+    savedValue: string | undefined,
+): boolean => {
+    if (!resolved.def.required) return false;
+    if (savedValue) return false;
+    if (!resolved.currentValue) return true;
+    return isChecklistValueStale(resolved);
+};
+
+/**
+ * Значение из CRM просрочено: смысл требования — «счёт выставлен ПЕРЕД
+ * этим звонком», а не «когда-нибудь». Без срока годности счёт годичной
+ * давности закрывал чек-лист оплаты, и звонок планировался без реального
+ * счёта.
+ *
+ * Работает только для дат: там значение само себе отметка времени. У
+ * справочников и строк узнать возраст ответа неоткуда — они не стареют.
+ */
+const isChecklistValueStale = (resolved: ResolvedChecklistField): boolean => {
+    const days = resolved.def.staleAfterDays;
+    if (!days) return false;
+    if (resolved.def.type !== 'date' && resolved.def.type !== 'datetime') {
+        return false;
+    }
+    const filledAt = parseChecklistDate(resolved.currentValue);
+    if (!filledAt) return false;
+    const ageDays = (Date.now() - filledAt) / MS_IN_DAY;
+    return ageDays > days;
+};
+
+const MS_IN_DAY = 24 * 60 * 60 * 1000;
+
+/**
+ * Дата значения контрола (`YYYY-MM-DD[THH:mm]`) в миллисекунды. Разбор
+ * лексический: значение — настенная дата портала, и прогон через
+ * часовой пояс браузера сдвигал бы полуночные даты на сутки.
+ */
+const parseChecklistDate = (value: string): number | null => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/.exec(
+        value,
+    );
+    if (!match) return null;
+    const [, year, month, day, hours = '0', minutes = '0'] = match;
+    return new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        Number(hours),
+        Number(minutes),
+    ).getTime();
+};
+
+/**
+ * Незакрытые обязательные поля чек-листа. Поле, не установленное на портале,
+ * отправку не блокирует (его физически некуда писать).
  */
 export const getChecklistMissing = (
     state: RootState,
     def: ChecklistDef,
 ): ChecklistFieldDef[] =>
     resolveChecklistFields(state, def)
-        .filter(
-            resolved =>
-                resolved.def.required &&
-                !state.callChecklist.valueByCode[resolved.def.code] &&
-                !resolved.currentValue,
+        .filter(resolved =>
+            isChecklistFieldMissing(
+                resolved,
+                state.callChecklist.valueByCode[resolved.def.code],
+            ),
         )
         .map(resolved => resolved.def);
 

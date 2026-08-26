@@ -24,6 +24,8 @@ import { eventPlanActions } from '@/modules/entities/EventPlan/model/EventPlanSl
 import { eventPresentationActions } from '@/modules/entities/EventPresentation/model/PresSlice';
 import { eventItemActions } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { leadRequestActions } from '@/modules/features/LeadRequestCard/model/LeadRequestSlice';
+import { callChecklistActions } from '@/modules/features/CallChecklist/model/CallChecklistSlice';
+import { cancelAllChecklistSaves } from '@/modules/features/CallChecklist/lib/checklist-save-queue';
 import { searchDuplicates } from '@/modules/features/Duplicates/model/DuplicatesThunk';
 import { initCheckPresentation } from '@/modules/features/AfterPresentation/model/AfterPresentationThunk';
 import { startEventPlanAppListener } from '@/modules/entities/EventPlan/model/EventPlanAppListener';
@@ -236,6 +238,18 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             getAppQueryClient().invalidateQueries({
                 queryKey: [ZPR_QUERY_ROOT],
             });
+        },
+    });
+
+    // Сброс чек-листов (смена сущности, reload, очистка после отправки) →
+    // гасим отложенные записи полей. Таймеры живут вне стора (их нельзя
+    // сериализовать) и вне компонент — иначе размонтирование одной из двух
+    // карточек чек-листа рубило бы запись другой; отменить их может только
+    // явная смена сущности.
+    startAppListening({
+        actionCreator: callChecklistActions.reset,
+        effect: async () => {
+            cancelAllChecklistSaves();
         },
     });
 

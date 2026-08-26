@@ -3,7 +3,11 @@ import { findUfKey } from '@workspace/pbx';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { afterPresentationActions } from '@/modules/features/AfterPresentation/model/AfterPresentationSlice';
 import { reportFrontError } from '@/modules/shared/front-error';
-import { xvostToAnswerValue, type XvostFieldCode } from '../lib/xvost-fields';
+import {
+    toXvostPortalValue,
+    xvostToAnswerValue,
+    type XvostFieldCode,
+} from '../lib/xvost-fields';
 import { xvostFieldsActions } from './XvostFieldsSlice';
 
 /**
@@ -25,10 +29,15 @@ export const saveXvostField =
         if (!deal || !key) return;
         const dealId = Number(deal.ID);
 
+        // В портал — каноном CRM, а не строкой браузерного контрола: то же
+        // поле пишет опросник, и два диалекта в одном поле не уживаются.
+        const portalValue = toXvostPortalValue(code, value);
+        if (portalValue === null) return;
+
         dispatch(xvostFieldsActions.setError({ message: null }));
         try {
             const bitrix = Bitrix.getService();
-            await bitrix.deal.update(dealId, { [key]: value } as never);
+            await bitrix.deal.update(dealId, { [key]: portalValue } as never);
             dispatch(xvostFieldsActions.setValue({ dealId, code, value }));
             // Тот же код живёт вопросом опросника (id вопроса = код поля):
             // синхронизируем ответ, иначе повторный submit опросника

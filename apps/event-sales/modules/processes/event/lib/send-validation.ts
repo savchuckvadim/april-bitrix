@@ -4,6 +4,7 @@ import {
     EV_PLAN_CODE,
     EV_PLAN_PROP,
 } from '@/modules/entities/EventPlan/type/event-plan-type';
+import { isPlanDeadlineValid } from '@/modules/entities/EventPlan/lib/plan-deadline';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { selectIncompleteInlineChecklists } from '@/modules/features/CallChecklist/lib/checklist-selectors';
 import { COMMENT_MAX_LENGTH, PLAN_NAME_MAX_LENGTH } from './text-limits';
@@ -66,6 +67,14 @@ export const validateSend = (state: RootState): SendValidationResult => {
         }
         if (!plan[EV_PLAN_PROP.TYPE].current) {
             result.errors[EV_ERROR_CODE.PLAN_TYPE] = 'Не выбран тип звонка';
+        }
+        // Срок — не «ещё одно поле формы», а условие существования задачи:
+        // без разбираемого дедлайна plan.isPlanned молча становится false,
+        // задача не создаётся, клиент остаётся без следующего шага, а экран
+        // финиша всё равно рапортует об успехе (SendThunk: finishResult).
+        if (!isPlanDeadlineValid(plan[EV_PLAN_PROP.DATE])) {
+            result.errors[EV_ERROR_CODE.PLAN_DEADLINE] =
+                'Укажите дату и время следующего события';
         }
     }
 

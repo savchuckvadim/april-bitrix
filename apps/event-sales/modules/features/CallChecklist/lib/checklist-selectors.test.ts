@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { RootState } from '@/modules/app/model/store';
+import { CHECKLIST_CATALOG } from '../data/checklist-catalog';
 import {
+    resolveChecklistFields,
+    selectChecklistRows,
     selectIncompleteInlineChecklists,
     selectInlineChecklists,
     selectNextPendingChecklist,
@@ -11,9 +14,19 @@ import {
  * обязательность закрывается текущим CRM-значением или сохранённым ответом,
  * неустановленное на портале поле не блокирует отправку (самогейт).
  */
-const FAIL_REASON_FIELD = {
-    code: 'op_efield_fail_reason',
-    bitrixId: 'OP_EFIELD_FAIL_REASON',
+/**
+ * Код поля берётся ИЗ КАТАЛОГА, а не пишется здесь руками: тест проверяет
+ * движок (активацию и обязательность), а какое поле стоит у «Доработки» —
+ * решение каталога, и его смена не должна ронять проверку движка.
+ */
+const REFINE_FIELD_CODE =
+    CHECKLIST_CATALOG.find(def => def.id === 'refine')?.fields[0]?.code ?? '';
+const REFINE_BITRIX_ID = REFINE_FIELD_CODE.toUpperCase();
+const REFINE_UF_KEY = `UF_CRM_${REFINE_BITRIX_ID}`;
+
+const REASON_FIELD = {
+    code: REFINE_FIELD_CODE,
+    bitrixId: REFINE_BITRIX_ID,
     items: [
         { code: 'op_efield_fail_nomoney', name: 'Нет денег', bitrixId: 555 },
         { code: 'op_efield_fail_lpr', name: 'ЛПР против', bitrixId: 556 },
@@ -46,8 +59,7 @@ const makeState = (over?: {
                         ? over.dealRow
                         : {
                               ID: '10',
-                              UF_CRM_OP_EFIELD_FAIL_REASON:
-                                  over?.dealValue ?? '',
+                              [REFINE_UF_KEY]: over?.dealValue ?? '',
                           },
                 lead: null,
             },
@@ -72,10 +84,12 @@ const makeState = (over?: {
         callChecklist: {
             valueByCode: {
                 ...(over?.override
-                    ? { op_efield_fail_reason: over.override }
+                    ? { [REFINE_FIELD_CODE]: over.override }
                     : {}),
                 ...(over?.values ?? {}),
             },
+            draftByCode: {},
+            savingCodes: {},
             confirmed: over?.confirmed ?? {},
             error: null,
             baseDeal: { id: null, row: null, status: 'idle' },
@@ -84,9 +98,7 @@ const makeState = (over?: {
             portal: {
                 bitrixDeal: {
                     bitrixfields:
-                        (over?.withDealField ?? true)
-                            ? [FAIL_REASON_FIELD]
-                            : [],
+                        (over?.withDealField ?? true) ? [REASON_FIELD] : [],
                 },
             },
         },
@@ -133,6 +145,43 @@ describe('CallChecklist: активация и обязательность', ()
 
     it('поле не установлено на портале — отправка не блокируется', () => {
         const state = makeState({ withDealField: false });
+        expect(selectIncompleteInlineChecklists(state)).toEqual([]);
+    });
+});
+
+/**
+ * Дедлок, ради которого триггеры свели в один источник: у инлайн-хука была
+ * СВОЯ копия резолва без фолбэка на базовую сделку. Во встройке-компании
+ * (сделки в сторе нет) карточка не показывала чек-лист, а окно предпроверки
+ * требовало его заполнить — отправить было нельзя, заполнить негде.
+ */
+describe('CallChecklist: один источник для карточки и предпроверки', () => {
+    const companyEmbed = (): RootState => {
+        const state = makeState({ dealRow: null });
+        state.callChecklist.baseDeal = {
+            id: 10,
+            row: { ID: '10', [REFINE_UF_KEY]: '' },
+            status: 'ready',
+        };
+        return state;
+    };
+
+    it('встройка-компания: чек-лист активен и его поля резолвятся', () => {
+        const state = companyEmbed();
+        // Предпроверка (валидация отправки) требует чек-лист…
+        expect(
+            selectIncompleteInlineChecklists(state).map(def => def.id),
+        ).toEqual(['refine']);
+
+        // …и ровно то же видит карточка: те же поля, из той же строки.
+        const def = selectInlineChecklists(state)[0]!;
+        expect(resolveChecklistFields(state, def)).toHaveLength(1);
+        expect(selectChecklistRows(state).deal).toMatchObject({ ID: '10' });
+    });
+
+    it('значение базовой сделки закрывает обязательность так же, как своей', () => {
+        const state = companyEmbed();
+        state.callChecklist.baseDeal.row = { ID: '10', [REFINE_UF_KEY]: 555 };
         expect(selectIncompleteInlineChecklists(state)).toEqual([]);
     });
 });

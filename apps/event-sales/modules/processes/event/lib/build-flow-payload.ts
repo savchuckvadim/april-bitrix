@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import type { RootState } from '@/modules/app/model/store';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import { WORK_STATUS_ITEMS } from '@/modules/entities/EventReport/lib/report-catalog';
@@ -6,6 +5,7 @@ import {
     EV_PLAN_CODE,
     EV_PLAN_PROP,
 } from '@/modules/entities/EventPlan/type/event-plan-type';
+import { toPlanDeadline } from '@/modules/entities/EventPlan/lib/plan-deadline';
 import {
     EV_TYPE,
     EventTask,
@@ -129,12 +129,17 @@ export const buildFlowPayload = (
         reportState.report[EV_REPORT_PROP.WORK_STATUS].current.code;
 
     const planType = planState[EV_PLAN_PROP.TYPE];
-    const deadlineRaw = planState[EV_PLAN_PROP.DATE];
+    // Дедлайн — через общий нормализатор (`DD.MM.YYYY HH:mm:ss`, канон
+    // BitrixDateTime): раньше здесь стоял format(new Date(raw)), который на
+    // неразбираемом сроке кидал RangeError прямо в отправке. Теперь
+    // неразбираемый срок даёт пустую строку и isPlanned=false, а до этого
+    // его не пропускает валидация (EV_ERROR_CODE.PLAN_DEADLINE).
+    const deadline = !isNoCall
+        ? toPlanDeadline(planState[EV_PLAN_PROP.DATE])
+        : '';
     const isPlanned =
         !isNoCall &&
-        Boolean(
-            responsibility && createdBy && planType.current && deadlineRaw,
-        ) &&
+        Boolean(responsibility && createdBy && planType.current && deadline) &&
         (workStatusCode === 'inJob' || workStatusCode === 'setAside');
 
     // Отмеченные менеджером заявки → L_* новой задачи. Шлём ровно тогда,
@@ -152,10 +157,7 @@ export const buildFlowPayload = (
         type: { current: planType.current },
         relatedLeadIds,
         name: planState[EV_PLAN_PROP.NAME],
-        deadline:
-            !isNoCall && deadlineRaw
-                ? format(new Date(deadlineRaw), 'dd.MM.yyyy HH:mm:ss')
-                : '',
+        deadline,
         isPlanned,
         contact: contactState.current.plan || undefined,
         isActive: !isNoCall && planState[EV_PLAN_PROP.IS_ACTIVE],

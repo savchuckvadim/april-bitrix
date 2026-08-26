@@ -9,6 +9,7 @@ import {
     ContactQuickPickDialog,
 } from '@/modules/entities/EventContact';
 import { ContactDetailsDialog } from './contact';
+import { ChecklistInlineCard } from '@/modules/features/CallChecklist';
 import { ReportPult } from './ReportPult';
 import { ReportSideMinis } from './ReportSideMinis';
 import { RequestDialog } from './RequestDialog';
@@ -50,6 +51,13 @@ export const ReportColumn: FC<ReportColumnProps> = ({
             />
             <ReportSideMinis />
         </div>
+
+        {/* Вопросы по типу ОТЧЁТНОГО события (доработка/решение/оплата):
+            итог разговора в поля, а не только в текст комментария. Стоят
+            НАД комментарием — их заполняют по горячим следам, пересказывая
+            разговор своими словами уже ниже. Набор пуст (настройка выключена,
+            тип другой) — не рендерится ничего. */}
+        <ChecklistInlineCard place="report" />
 
         {records}
 

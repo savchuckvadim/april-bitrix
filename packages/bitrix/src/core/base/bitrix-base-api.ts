@@ -135,10 +135,17 @@ export class BitrixBaseApi {
         minHeight?: number,
         minWidth?: number,
     ) {
-        if (this.inFrame) {
+        if (!this.inFrame) return null;
+        /*
+         * Ширину чаще всего НЕ задаём (её выбирает контейнер карточки), но
+         * передавать её `undefined` нельзя: SDK превращает пропуск в 0 и
+         * отвечает «Wrong width:number = 0» — во встройке-вкладке это
+         * сыпалось на каждую подгонку. Нет ширины — зовём без неё.
+         */
+        if (typeof minWidth === 'number' && minWidth > 0) {
             return this.bx.parent.resizeWindowAuto(node, minHeight, minWidth);
         }
-        return null;
+        return this.bx.parent.resizeWindowAuto(node, minHeight);
     }
 
     /** Прокрутка РОДИТЕЛЬСКОЙ страницы: вернуть встройку в поле зрения. */

@@ -17,12 +17,25 @@ const initialState = {
      */
     status: 'loading' as SectionStatus,
     error: '',
+    /**
+     * Группа задач, с которой ушёл ПОСЛЕДНИЙ запрос списка.
+     * Портальные настройки приезжают позже сущностей Битрикса, и
+     * если группа в них другая — список надо перезапросить
+     * (иначе дела молча остаются чужими или пустыми).
+     */
+    loadedWithGroupId: 0 as number,
 };
 
 const eventTaskSlice = createSlice({
     name: 'eventTask',
     initialState,
     reducers: {
+        setLoadedWithGroupId: (
+            state: EventTaskState,
+            action: PayloadAction<{ groupId: number }>,
+        ) => {
+            state.loadedWithGroupId = action.payload.groupId;
+        },
         setFetchedTasks: (
             state: EventTaskState,
             action: PayloadAction<{ tasks: Array<EventTask> | null }>,

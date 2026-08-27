@@ -57,6 +57,7 @@ import { eventItemReducer } from '@/modules/widgets/EventItem/model/EventItemSli
 import { preloaderReducer } from '@/modules/shared/Preloader';
 import { portalAPI, portalReducer } from '@workspace/pbx';
 import { startStoreListeners } from './listeners/start-store-listeners';
+import { installEventDebug } from '../lib/diagnostics/install-event-debug';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -196,7 +197,5 @@ export type AppGetState = AppStore['getState'];
 
 export const store = setupStore();
 
-if (typeof window !== 'undefined') {
-    //@ts-ignore
-    window.eventStore = store;
-}
+// Отладочные точки входа во фрейме: window.eventStore + window.eventDebug().
+installEventDebug(store);

@@ -3,6 +3,7 @@
 import { FC, useState } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import { ToneBadge } from '../../../badges/ToneBadge';
+import { isKeyboardFocus } from '../../../lib/focus';
 
 export interface LiquidChoiceSegment {
     code: string;
@@ -102,7 +103,14 @@ export const LiquidChoiceBar: FC<LiquidChoiceBarProps> = ({
                             title={segment.label}
                             disabled={disabled}
                             onMouseEnter={() => setHovered(index)}
-                            onFocus={() => setHovered(index)}
+                            // Только КЛАВИАТУРНЫЙ фокус: модальное окно при
+                            // открытии само уводит фокус на первую зону, и
+                            // бэйдж уезжал к ней вместо текущего значения.
+                            onFocus={event => {
+                                if (isKeyboardFocus(event.currentTarget)) {
+                                    setHovered(index);
+                                }
+                            }}
                             onBlur={() => setHovered(null)}
                             onClick={() => onSelect?.(segment.code)}
                             className={cn(

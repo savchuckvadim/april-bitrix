@@ -12,6 +12,7 @@ import { eventReportActions } from '@/modules/entities/EventReport/model/EventRe
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import { APP_DISPLAY_MODE } from '../../types/app/app-type';
 import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
+import { initialEventTasks } from '@/modules/entities/EventTask/model/EventTaskThunk';
 import { fetchTaskBoundDeals } from '@/modules/entities/RelatedCrm/model/TaskDealsThunk';
 import { getInitSale } from '@/modules/entities/EventSale/model/EventSaleThunk';
 import { fetchResults } from '@/modules/features/NoCall/model/NoCallThunk';
@@ -40,6 +41,7 @@ import { fetchLead } from '@/modules/entities/EVLid/model/EVLeadThunk';
 import { ZPR_QUERY_ROOT } from '@/modules/entities/ZprCalls';
 import { getAppQueryClient } from '@/modules/app/lib/query-client';
 import { getReloadResetActions } from './reload-reset';
+import { startAppDiagnosticsListener } from './app-diagnostics-listener';
 import type { AppStartListening } from '../store';
 
 /**
@@ -209,6 +211,45 @@ export function startStoreListeners(startAppListening: AppStartListening) {
         },
     });
 
+    /*
+     * Портальные настройки приехали ПОЗЖЕ сущностей Битрикса — это норма:
+     * сущности резолвятся мгновенно, а настройки идут по сети. Если в них
+     * оказалась ДРУГАЯ группа задач, список дел надо перезапросить: он уже
+     * ушёл со значением по домену и вернул чужие (или никакие) задачи.
+     *
+     * Раньше это лечилось ожиданием настроек перед первым запросом, но
+     * ожидание с таймаутом — гонка: на медленной сети запрос всё равно
+     * уходил со старым значением и молча отдавал пустой список (инцидент
+     * 27.08: «дел нет», а после отправки отчёта они появлялись).
+     */
+    startAppListening({
+        actionCreator: appActions.mergeConfig,
+        effect: async (action, listenerApi) => {
+            const nextGroupId = action.payload.taskGroupId;
+            if (!nextGroupId) return;
+            const state = listenerApi.getState();
+            // Встройка задачи: список строится из неё самой, запроса нет.
+            if (state.app.bitrix.task) return;
+            const loadedWith = state.eventTask.loadedWithGroupId;
+            if (!loadedWith || loadedWith === nextGroupId) return;
+
+            const bitrix = state.app.bitrix;
+            // from резолвится вместе с сущностями и к этому моменту есть;
+            // без него запрос строить нечем — тогда и перезапрашивать нечего.
+            if (!bitrix.from) return;
+            listenerApi.dispatch(
+                initialEventTasks(
+                    [],
+                    Number(bitrix.user?.ID || 0),
+                    Number(bitrix.company?.ID || 0),
+                    state.app.domain,
+                    Number(bitrix.lead?.ID || 0),
+                    Number(bitrix.deal?.ID || 0),
+                    bitrix.from,
+                ),
+            );
+        },
+    });
     // Контекст встройки установлен → портальные настройки приложения с бэка
     // (админка → Settings → event-sales) поверх legacy domain-config.
     startAppListening({
@@ -301,4 +342,6 @@ export function startStoreListeners(startAppListening: AppStartListening) {
     startDuplicatesAppListener(startAppListening);
     // app/setAppData|setAppBitrixData → связи клиента в стор (шапка-layout).
     startRelatedCrmAppListener(startAppListening);
+    // Инициализация завершена → одна свёрнутая группа диагностики в консоль.
+    startAppDiagnosticsListener(startAppListening);
 }

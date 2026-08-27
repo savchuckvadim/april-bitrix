@@ -177,8 +177,9 @@ export const SendPreflightDialog: FC = () => {
                     <LeadMarksList leadIds={leadIds} saleDealId={saleDealId} />
                 );
             case 'companyColor':
-                // В окне места хватает: полная шкала с подписью значения.
-                return <ProspectScale />;
+                // В окне места хватает: шкала во всю ширину и подпись
+                // «Сейчас: X → Y» — видно и что стоит, и что даст клик.
+                return <ProspectScale block />;
             case 'blocked':
                 return null;
         }

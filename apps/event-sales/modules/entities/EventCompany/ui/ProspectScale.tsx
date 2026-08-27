@@ -3,12 +3,7 @@
 import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import { LiquidChoiceBar, StepChoiceBar } from '@workspace/april-ui';
-import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { setCurrentColor } from '../model/EventCompanyThunk';
-import {
-    PROSPECT_SCALE,
-    type CompanyColorType,
-} from '../utils/event-company-util';
+import { useProspectScale } from '../lib/hooks/use-prospect-scale';
 
 /**
  * Прогноз по компании — кликабельная шкала из трёх ступеней.
@@ -18,65 +13,61 @@ import {
  * (LiquidChoiceBar, вариант `liquid`) заметна, но в плотной шапке перетягивала
  * внимание на себя — работа рядом выглядела тише прогноза.
  *
- * Цвета ступеней — токены темы, а не названия значений: `red/yellow/green` —
- * коды портального поля, не палитра.
+ * `block` — вид для ОКНА (предпроверка отправки): шкала во всю ширину, под
+ * ней подпись «Сейчас: X → Y». В шапке подписи места нет, там значение видно
+ * по наведению.
  */
-const SEGMENT_COLOR: Record<CompanyColorType, string> = {
-    red: 'var(--destructive)',
-    yellow: 'var(--warning)',
-    green: 'var(--success)',
-};
-
 interface ProspectScaleProps {
     compact?: boolean;
     /** `flat` — ступени одним цветом; `liquid` — прежняя градиентная полоса. */
     variant?: 'flat' | 'liquid';
+    /** Полная ширина + подпись отдельной строкой (карточки и окна). */
+    block?: boolean;
 }
 
 export const ProspectScale: FC<ProspectScaleProps> = ({
     compact,
     variant = 'flat',
+    block,
 }) => {
-    const dispatch = useAppDispatch();
-    const color = useAppSelector(s => s.company.color);
+    const scale = useProspectScale();
 
-    if (!color.field) return null;
+    if (!scale.hasField) return null;
 
-    const current = color.current?.code as CompanyColorType | undefined;
-
-    const steps = PROSPECT_SCALE.map(step => ({
-        code: step.code,
-        label: step.name,
-        color: SEGMENT_COLOR[step.code],
-    }));
-    const select = (code: string) =>
-        dispatch(setCurrentColor(code as CompanyColorType));
+    const barClassName = block
+        ? 'w-full'
+        : compact
+          ? 'w-20 shrink-0'
+          : 'w-28 shrink-0';
 
     return (
         <div
             className={cn(
-                'flex min-w-0 items-center',
-                compact ? 'gap-1' : 'gap-2',
+                'flex min-w-0',
+                block
+                    ? 'flex-col gap-1.5'
+                    : cn('items-center', compact ? 'gap-1' : 'gap-2'),
             )}
         >
             {variant === 'liquid' ? (
                 <LiquidChoiceBar
-                    className={compact ? 'w-24 shrink-0' : 'w-36 shrink-0'}
+                    className={block ? 'w-full' : compact ? 'w-24' : 'w-36'}
                     size="sm"
-                    segments={steps}
-                    value={current ?? null}
-                    disabled={color.isLoading}
-                    onSelect={select}
+                    segments={scale.steps}
+                    value={scale.current}
+                    disabled={scale.isLoading}
+                    onSelect={scale.select}
                     ariaLabel="Прогноз по компании"
                 />
             ) : (
                 <StepChoiceBar
-                    className={compact ? 'w-20 shrink-0' : 'w-28 shrink-0'}
+                    className={barClassName}
                     size={compact ? 'sm' : 'md'}
-                    steps={steps}
-                    value={current ?? null}
-                    disabled={color.isLoading}
-                    onSelect={select}
+                    steps={scale.steps}
+                    value={scale.current}
+                    disabled={scale.isLoading}
+                    onSelect={scale.select}
+                    onPreview={scale.setPreview}
                     ariaLabel="Прогноз по компании"
                 />
             )}
@@ -87,12 +78,12 @@ export const ProspectScale: FC<ProspectScaleProps> = ({
                 <span
                     className={cn(
                         'min-w-0 truncate text-xs',
-                        color.error
+                        scale.isCaptionError
                             ? 'text-destructive'
                             : 'text-muted-foreground',
                     )}
                 >
-                    {color.error || color.current?.name || 'Прогноз не задан'}
+                    {scale.caption}
                 </span>
             )}
         </div>

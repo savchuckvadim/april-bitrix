@@ -212,6 +212,27 @@ export const buildFlowPayload = (
           }
         : undefined;
 
+    /*
+     * Открытые дела клиента — ось «следующего события» на бэке.
+     *
+     * Поля вроде «дата следующего события» и «дата следующей презентации»
+     * раньше писались слепо от текущего отчёта: запланировали звонок на
+     * 7-е — и назначенная презентация 5-го исчезала с карточки. Теперь
+     * бэк выбирает БЛИЖАЙШЕЕ дело, но для этого ему нужен их список;
+     * фронт его уже загрузил, повторно ходить в Битрикс незачем.
+     *
+     * `deadlineRaw`, а НЕ `deadline`: второе перезаписано человекочитаемой
+     * строкой («5 сентября 2026 12:00») и на бэке не разбирается.
+     * Текущая задача НЕ исключается — бэк уберёт её сам по currentTask.id;
+     * при переносе иначе осталась бы её старая дата.
+     */
+    const openTasks = (state.eventTask.tasks ?? []).map(task => ({
+        id: Number(task.id),
+        eventType: task.eventType,
+        deadline: task.deadlineRaw ?? "",
+        name: task.name,
+        responsibleId: Number(task.responsibleId) || undefined,
+    }));
     return {
         domain: app.domain,
         operationId: options.operationId,
@@ -221,6 +242,7 @@ export const buildFlowPayload = (
         context,
         placement: app.bitrix.placement ?? undefined,
         currentTask: currentTask ?? undefined,
+        openTasks,
         presentation: {
             count: presentation[PresentationProp.COUNT],
             /*

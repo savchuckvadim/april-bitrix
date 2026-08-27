@@ -72,6 +72,13 @@ const initialState = {
      * ждут этот флаг с таймаутом (fail-open на хардкод).
      */
     isConfigFetched: false as boolean,
+    /**
+     * Ключи конфига, которые РЕАЛЬНО приехали из портальных настроек (а не
+     * из доменного хардкода). Нужны диагностике: «taskGroupId = 9» без
+     * источника не отвечает на главный вопрос прода — настройка портала
+     * применилась или мы работаем по legacy-хардкоду.
+     */
+    configPortalKeys: [] as string[],
 };
 
 const appSlice = createSlice({
@@ -110,6 +117,8 @@ const appSlice = createSlice({
             state.bitrix.from = payload.from;
 
             state.config = getDomainConfig(payload.domain, payload.user);
+            // Конфиг пересобран по домену — портальных ключей в нём ещё нет.
+            state.configPortalKeys = [];
         },
         setAppBitrixData: (
             state: AppState,
@@ -131,6 +140,12 @@ const appSlice = createSlice({
             action: PayloadAction<Partial<DomainFeatureConfig>>,
         ) => {
             state.config = { ...state.config, ...action.payload };
+            state.configPortalKeys = [
+                ...new Set([
+                    ...state.configPortalKeys,
+                    ...Object.keys(action.payload),
+                ]),
+            ];
         },
         /** fetchAppConfig завершился (и при ошибке тоже — fail-open). */
         setConfigFetched: (state: AppState) => {
@@ -157,6 +172,15 @@ const appSlice = createSlice({
         reload: (state: AppState) => {
             state.initialized = false;
             state.guard = null;
+            /*
+             * Флаг «портальные настройки получены» тоже гаснет: иначе
+             * повторный запуск не ждёт их и успевает уйти со значениями
+             * по домену, а первый — ждёт. Разное поведение первого и
+             * повторного запуска маскировало инцидент 27.08 (дела
+             * «появлялись» после отправки отчёта).
+             */
+            state.isConfigFetched = false;
+            state.configPortalKeys = [];
         },
     },
 });

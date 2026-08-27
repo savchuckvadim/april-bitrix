@@ -143,7 +143,18 @@ export const EntityHistoryCard: FC<EntityHistoryCardProps> = ({
                     <div
                         className={cn(
                             'space-y-4 overflow-y-auto pr-1',
-                            fill ? 'min-h-0 flex-1' : 'max-h-96 min-h-40',
+                            /*
+                             * Потолок есть и в fill-режиме: без него
+                             * длинная история растягивала ВКЛАДКУ, а за ней
+                             * и весь фрейм (подгонка под контент), после
+                             * чего модалки центрировались относительно
+                             * огромного фрейма и уезжали далеко вниз
+                             * (инцидент 27.08). Записи скроллятся внутри,
+                             * дозагрузка — «показать ещё» по привязке.
+                             */
+                            fill
+                                ? 'min-h-0 max-h-[32rem] flex-1'
+                                : 'max-h-96 min-h-40',
                         )}
                     >
                         {view.effectiveMode === EHistoryViewMode.ENTITY ? (

@@ -68,6 +68,13 @@ export const initialEventTasks =
             // ветка TASK/CALL_CARD (задача уже известна) не ждёт вовсе.
             await waitForAppConfig(getState);
             const { taskGroupId } = getState().app.config;
+            // Запомним, с чем ушли: настройки портала могут
+            // приехать позже и принести другую группу.
+            dispatch(
+                eventTaskActions.setLoadedWithGroupId({
+                    groupId: Number(taskGroupId) || 0,
+                }),
+            );
             try {
                 const response = await Bitrix.getService().task.getList(
                     {

@@ -16,6 +16,20 @@ const CONFIG_KEYS = Object.keys(
 ) as (keyof DomainFeatureConfig)[];
 
 /**
+ * Ключи-ИДЕНТИФИКАТОРЫ портала: 0 означает «на портале не задано», и
+ * такое значение НЕ должно затирать рабочее значение по домену.
+ *
+ * Инцидент 27.08: у настройки группы задач стоял дефолт 1, бэк отдаёт
+ * дефолты вместе с сохранёнными значениями — незаполненная настройка
+ * приезжала как настоящая единица, перебивала рабочую группу портала,
+ * и список дел оказывался пустым (задачи искались в чужой группе).
+ */
+const PORTAL_ID_KEYS: ReadonlySet<keyof DomainFeatureConfig> = new Set([
+    'taskGroupId',
+    'bossId',
+]);
+
+/**
  * Портальные настройки приложения «Звонки» с бэка → поверх legacy
  * domain-config. Берутся только известные ключи с совпадающим типом
  * (SLA-ключи и будущие серверные настройки фронту не мешают).
@@ -44,6 +58,13 @@ export const fetchAppConfig =
                     continue;
                 }
                 const value = settings[key];
+                // «Не задано» для идентификаторов — не значение, а пустота.
+                if (
+                    PORTAL_ID_KEYS.has(key) &&
+                    (typeof value !== 'number' || value <= 0)
+                ) {
+                    continue;
+                }
                 if (
                     value !== undefined &&
                     typeof value === typeof defaults[key]

@@ -2,6 +2,8 @@ import { isAnyOf } from '@reduxjs/toolkit';
 import { getSalesTaskGroupId, portalActions } from '@workspace/pbx';
 import { appActions } from '../slice/AppSlice';
 import { fetchAppConfig } from '../thunk/AppConfigThunk';
+// Прямой путь: барель слайса каталога тянет транспорт и данные.
+import { ensureQuestionnaireCatalog } from '@/modules/entities/Questionnaire/model/QuestionnaireCatalogThunk';
 import { setInitEventCompany } from '@/modules/entities/EventCompany/model/EventCompanyThunk';
 import {
     collectRelatedContacts,
@@ -251,11 +253,23 @@ export function startStoreListeners(startAppListening: AppStartListening) {
         },
     });
     // Контекст встройки установлен → портальные настройки приложения с бэка
-    // (админка → Settings → event-sales) поверх legacy domain-config.
+    // (админка → Settings → event-sales) поверх legacy domain-config и
+    // портальный КАТАЛОГ АНКЕТ (состав вопросов плана и отчёта).
+    //
+    // Самая ранняя точка, где известен домен, — и настройки, и каталог
+    // нужны до первого решения «что спрашивать». Ни один из двух запросов
+    // ничего не блокирует: у настроек действует хардкод по домену, у
+    // каталога — встроенный набор.
     startAppListening({
         actionCreator: appActions.setAppData,
         effect: async (action, listenerApi) => {
             listenerApi.dispatch(fetchAppConfig(action.payload.domain));
+            // ensure, а не fetch: ⟳ прогоняет init заново, и повторное
+            // чтение состава здесь было бы лишним запросом на каждое
+            // обновление карточки (см. ensureQuestionnaireCatalog).
+            listenerApi.dispatch(
+                ensureQuestionnaireCatalog(action.payload.domain),
+            );
         },
     });
 

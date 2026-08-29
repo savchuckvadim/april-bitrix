@@ -15,6 +15,7 @@ import type {
     PortalAppSettingDescriptor,
     PortalAppSettingValue,
 } from '../../../model';
+import { AppSettingListField } from './AppSettingListField';
 
 interface AppSettingFieldProps {
     descriptor: PortalAppSettingDescriptor;
@@ -27,11 +28,7 @@ interface AppSettingFieldProps {
 type BoolTriState = 'default' | 'on' | 'off';
 
 const toTriState = (value: PortalAppSettingValue | undefined): BoolTriState =>
-    value === null || value === undefined
-        ? 'default'
-        : value
-          ? 'on'
-          : 'off';
+    value === null || value === undefined ? 'default' : value ? 'on' : 'off';
 
 /**
  * Одно поле настройки: тип берётся из дескриптора бэка (boolean —
@@ -54,11 +51,25 @@ export const AppSettingField = ({
     // Текущее отображаемое значение: черновик приоритетнее сохранённого.
     const effective =
         draft !== undefined ? draft : normalizeValue(descriptor.value);
-    // «Настроено» = на портале есть своё значение (или несохранённый черновик).
+    /**
+     * «Настроено» = ключ реально лежит в JSON портала.
+     *
+     * Признак приходит с бэка отдельным полем `stored` — тем самым, что
+     * фрейм получает списком `storedKeys`. По значению это не вычисляется:
+     * заданное на портале значение может совпасть с дефолтом кода, и
+     * «настроено» пропало бы с экрана, хотя ключ никуда не делся.
+     * Несохранённый черновик считается по себе: `null` в нём — это и есть
+     * «сбросить на дефолт».
+     *
+     * Запасной путь для СТАРОГО бэка, где поля `stored` ещё нет: прежняя
+     * эвристика по значению. Без него все настройки портала разом стали бы
+     * «по умолчанию», хотя владелец их задавал. Убрать вместе с ветками
+     * старого бэка во фрейме, когда обновятся все стенды.
+     */
     const isCustomized =
         draft !== undefined
             ? draft !== null
-            : normalizeValue(descriptor.value) !== null;
+            : (descriptor.stored ?? descriptor.value !== null);
 
     return (
         <div className="space-y-1">
@@ -75,13 +86,20 @@ export const AppSettingField = ({
                 </span>
             </div>
 
-            {descriptor.type === 'boolean' ? (
+            {descriptor.isList && descriptor.options?.length ? (
+                /* Настройка-список: коды берутся из справочника бэка, а не
+                   набираются руками — опечатка в CSV молча означала бы
+                   «ничего не выбрано». */
+                <AppSettingListField
+                    options={descriptor.options}
+                    value={effective}
+                    onChange={onChange}
+                />
+            ) : descriptor.type === 'boolean' ? (
                 <Select
                     value={toTriState(effective)}
                     onValueChange={state =>
-                        onChange(
-                            state === 'default' ? null : state === 'on',
-                        )
+                        onChange(state === 'default' ? null : state === 'on')
                     }
                 >
                     <SelectTrigger className="w-56">

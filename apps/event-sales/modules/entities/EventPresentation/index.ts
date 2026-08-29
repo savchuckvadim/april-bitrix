@@ -1,4 +1,5 @@
 export * from './model/PresSlice';
+export * from './lib/presentation-done';
 
 /**
  * TODO(бэк): счётчики презентаций по задачам — legacy PHP `POST pres/count`

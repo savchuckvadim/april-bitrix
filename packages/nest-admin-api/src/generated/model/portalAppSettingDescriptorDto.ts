@@ -8,6 +8,7 @@
 import type { PortalAppSettingDescriptorDtoType } from './portalAppSettingDescriptorDtoType';
 import type { PortalAppSettingDescriptorDtoDefault } from './portalAppSettingDescriptorDtoDefault';
 import type { PortalAppSettingDescriptorDtoValue } from './portalAppSettingDescriptorDtoValue';
+import type { PortalAppSettingOptionDto } from './portalAppSettingOptionDto';
 
 export interface PortalAppSettingDescriptorDto {
   /** Ключ настройки (snake_case, стабилен навсегда). */
@@ -20,9 +21,15 @@ export interface PortalAppSettingDescriptorDto {
   type: PortalAppSettingDescriptorDtoType;
   /** Дефолт кода (действует, пока на портале не задано). */
   default: PortalAppSettingDescriptorDtoDefault;
+  /** Значение ЗАДАНО на портале: ключ реально лежит в JSON портала (а не приехал дефолтом кода). Ровно этот признак фрейм получает списком storedKeys — админка показывает его бэйджем «настроено». */
+  stored: boolean;
   /**
-   * Текущее действующее значение на портале.
+   * Текущее действующее значение на портале; null — не задано (действует дефолт кода), то же самое, что stored: false.
    * @nullable
    */
   value?: PortalAppSettingDescriptorDtoValue;
+  /** Справочник значений: админка рисует выбор, а не свободный ввод. Пусто — обычное поле по типу. */
+  options?: PortalAppSettingOptionDto[];
+  /** Значение — СПИСОК кодов через запятую (тип при этом string): админка рисует чекбоксы по options. */
+  isList?: boolean;
 }

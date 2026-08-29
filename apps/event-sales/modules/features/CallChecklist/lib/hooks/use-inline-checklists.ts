@@ -13,13 +13,21 @@ import {
     type ChecklistFieldView,
 } from '../checklist-field-view';
 import {
+    groupChecklistFields,
+    type ChecklistFieldGroupView,
+} from '../checklist-field-groups';
+import {
     changeChecklistField,
     clearChecklistField,
 } from '../../model/CallChecklistThunk';
+import { useChecklistBaselineCapture } from './use-checklist-baseline';
 
 export interface InlineChecklistView {
     def: ChecklistDef;
+    /** Все вопросы блока подряд — на них считается «есть незакрытые». */
     fields: ChecklistFieldView[];
+    /** Те же вопросы секциями `groupTitle` — в этом виде их рисует карточка. */
+    groups: ChecklistFieldGroupView[];
 }
 
 export interface InlineChecklistsView {
@@ -46,9 +54,10 @@ export const useInlineChecklists = (
 ): InlineChecklistsView => {
     const dispatch = useAppDispatch();
     const error = useAppSelector(s => s.callChecklist.error);
-    const saved = useAppSelector(s => s.callChecklist.valueByCode);
-    const drafts = useAppSelector(s => s.callChecklist.draftByCode);
-    const savingCodes = useAppSelector(s => s.callChecklist.savingCodes);
+    const saved = useAppSelector(s => s.callChecklist.valueByKey);
+    const drafts = useAppSelector(s => s.callChecklist.draftByKey);
+    const savingKeys = useAppSelector(s => s.callChecklist.savingKeys);
+    const baseline = useAppSelector(s => s.callChecklist.baselineByKey);
     const defs = useAppSelector(
         state => selectInlineChecklistsAt(state, place),
         shallowEqual,
@@ -56,24 +65,40 @@ export const useInlineChecklists = (
     const rows = useAppSelector(selectChecklistRows, shallowEqual);
     const portal = useAppSelector(s => s.portal.portal);
 
+    // Значения «до звонка» снимаются, как только вопросы показаны: пункт с
+    // «обязательностью изменения» иначе не отличит новый ответ от прежнего.
+    useChecklistBaselineCapture(defs);
+
     return useMemo(() => {
         const checklists = defs
-            .map(def => ({
-                def,
-                fields: buildChecklistFieldViews(def, {
+            .map(def => {
+                const fields = buildChecklistFieldViews(def, {
                     portal,
                     rows,
                     saved,
                     drafts,
-                    savingCodes,
-                    onChange: (field, value) =>
-                        dispatch(changeChecklistField(field, value)),
-                    onClear: field => dispatch(clearChecklistField(field)),
-                }),
-            }))
+                    savingKeys,
+                    baseline,
+                    onChange: (ref, value) =>
+                        dispatch(changeChecklistField(ref, value)),
+                    onClear: ref => dispatch(clearChecklistField(ref)),
+                });
+                return { def, fields, groups: groupChecklistFields(fields) };
+            })
             // Ни одно поле не установлено — чек-листа нет (самогейт).
             .filter(checklist => checklist.fields.length > 0);
 
         return { checklists, error };
-    }, [dispatch, defs, rows, portal, saved, drafts, savingCodes, error, place]);
+    }, [
+        dispatch,
+        defs,
+        rows,
+        portal,
+        saved,
+        drafts,
+        savingKeys,
+        baseline,
+        error,
+        place,
+    ]);
 };

@@ -63,7 +63,7 @@ export const PREFLIGHT_ITEMS: Record<PreflightItemKind, PreflightItem> = {
     planChecklist: {
         kind: 'planChecklist',
         label: 'Чек-лист звонка',
-        hint: 'Обязательные поля выбранного типа звонка — те же, что в колонке плана.',
+        hint: 'Обязательные вопросы этого звонка — те же, что в колонках плана и отчёта.',
     },
     comment: { kind: 'comment', label: 'Комментарий' },
     leadMarks: {

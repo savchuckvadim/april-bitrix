@@ -98,6 +98,10 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     );
 
     dispatch(getDepartment(domain, user));
+    // Слепок портала: кэш-первым, обновление тихо в фоне (см. PortalService).
+    // Не ждём намеренно — со второго запуска слепок приходит из браузерного
+    // кэша почти сразу, а первый запуск не должен упираться в сеть: гвард
+    // чужой задачи и инициализация компании висят листенерами на setPortal.
     dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
     dispatch(appActions.setInitializedSuccess({}));
 };

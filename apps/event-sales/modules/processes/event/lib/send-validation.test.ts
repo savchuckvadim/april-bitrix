@@ -41,6 +41,9 @@ const makeState = (over?: {
             finalSync: { notCaTypeCode: over?.notCaTypeCode ?? null },
         },
         company: { color: { isChanged: false } },
+        // Анкет в каталоге нет — этот тест проверяет остальные правила
+        // валидации (состав анкет проверяется в тестах движка).
+        questionnaireCatalog: { defs: [] },
         app: {
             config: {
                 withPostFail: over?.withPostFail ?? false,

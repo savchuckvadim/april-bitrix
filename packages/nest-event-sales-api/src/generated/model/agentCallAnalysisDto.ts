@@ -14,6 +14,8 @@ import type { AgentCallAnalysisDtoCompetitorsItem } from './agentCallAnalysisDto
 import type { AgentCallAnalysisDtoObjectionCategoriesItem } from './agentCallAnalysisDtoObjectionCategoriesItem';
 import type { AgentCallAnalysisDtoRiskFlagsItem } from './agentCallAnalysisDtoRiskFlagsItem';
 import type { AgentCallAnalysisDtoRefusalCategory } from './agentCallAnalysisDtoRefusalCategory';
+import type { AgentCallAnalysisDtoHvostSteps } from './agentCallAnalysisDtoHvostSteps';
+import type { AgentCallAnalysisDtoFiveKItems } from './agentCallAnalysisDtoFiveKItems';
 import type { AgentObjectionDto } from './agentObjectionDto';
 import type { AgentSectionAnalysisDto } from './agentSectionAnalysisDto';
 import type { AgentCallAnalysisDtoCoachingPriority } from './agentCallAnalysisDtoCoachingPriority';
@@ -80,6 +82,11 @@ export interface AgentCallAnalysisDto {
      */
     hvostAnalysis?: string | null;
     /**
+     * Гранулярный «хвост» по вопросам чеклиста менеджера (КП, наполнение, цена, дата решения, согласование даты). Итог hvostDone пересчитывается кодом из этих пунктов.
+     * @nullable
+     */
+    hvostSteps?: AgentCallAnalysisDtoHvostSteps;
+    /**
      * Закрыты ли все 5К после встречи (Клиент/Компания/Коллеги/Конкурент/Критерии выбора). Только для презентаций/решений; null — не применимо.
      * @nullable
      */
@@ -89,6 +96,11 @@ export interface AgentCallAnalysisDto {
      * @nullable
      */
     fiveKAnalysis?: string | null;
+    /**
+     * Гранулярные 5К по вопросам чеклиста менеджера (9 подвопросов: клиент ×3, компания ×3, коллеги, конкурент, критерии выбора). Итог fiveKDone пересчитывается кодом из этих пунктов.
+     * @nullable
+     */
+    fiveKItems?: AgentCallAnalysisDtoFiveKItems;
     /**
      * Сверка разбора звонка с отчётом менеджера (заполняет крон сверки, Фаза 4) — отдельная запись в таймлайн элемента.
      * @nullable

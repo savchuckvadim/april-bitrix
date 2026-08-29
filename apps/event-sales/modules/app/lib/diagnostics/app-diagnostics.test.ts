@@ -3,9 +3,12 @@ import type { RootState } from '../../model/store';
 import { APP_FROM_ENUM } from '../../model/slice/AppSlice';
 import { APP_DISPLAY_MODE } from '../../types/app/app-type';
 import { getDomainConfig } from '../../consts/domain-config';
+import { FALLBACK_CATALOG } from '@/modules/entities/Questionnaire/data/fallback-catalog';
 import { buildAppDiagnostics, formatAppDiagnostics } from './app-diagnostics';
 
 type StateOverrides = {
+    questionnaireSource?: 'server' | 'fallback';
+    questionnaireStatus?: 'idle' | 'loading' | 'ready' | 'error';
     configPortalKeys?: string[];
     taskGroupId?: number;
     bossId?: number;
@@ -43,6 +46,15 @@ const makeState = (overrides: StateOverrides = {}): RootState => {
             config,
             isConfigFetched: true,
             configPortalKeys: overrides.configPortalKeys ?? [],
+        },
+        questionnaireCatalog: {
+            status: overrides.questionnaireStatus ?? 'error',
+            domain: 'april-dev.bitrix24.ru',
+            contract: 1,
+            version: 0,
+            hash: null,
+            defs: FALLBACK_CATALOG,
+            source: overrides.questionnaireSource ?? 'fallback',
         },
         eventTask: {
             tasks: Array.from({ length: overrides.tasks ?? 3 }, () => ({})),
@@ -128,6 +140,27 @@ describe('formatAppDiagnostics', () => {
         );
         expect(lines).toContain(
             'прогноз: green, поле на портале: есть, менялся: да',
+        );
+    });
+
+    it('печатает, на каком составе анкет работает фрейм', () => {
+        // Каталог не доехал — это норма (fallback), но она обязана быть
+        // видна: иначе «анкеты не применились» не отличить от «состав тот же».
+        const fallback = formatAppDiagnostics(buildAppDiagnostics(makeState()));
+        expect(fallback).toContain(
+            `анкеты: встроенный, наборов: ${FALLBACK_CATALOG.length} (каталог не получен)`,
+        );
+
+        const portal = formatAppDiagnostics(
+            buildAppDiagnostics(
+                makeState({
+                    questionnaireSource: 'server',
+                    questionnaireStatus: 'ready',
+                }),
+            ),
+        );
+        expect(portal).toContain(
+            `анкеты: портал, наборов: ${FALLBACK_CATALOG.length} (каталог получен)`,
         );
     });
 

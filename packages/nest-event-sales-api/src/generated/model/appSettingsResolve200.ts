@@ -5,5 +5,8 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
+import type { AppSettingsResolvedDto } from './appSettingsResolvedDto';
+import type { AppSettingsResolve200AllOf } from './appSettingsResolve200AllOf';
 
-export type AppSettingsResolve200 = { [key: string]: unknown };
+export type AppSettingsResolve200 = AppSettingsResolvedDto &
+    AppSettingsResolve200AllOf;

@@ -1,39 +1,65 @@
-import type { AppThunk } from '@/modules/app/model/store';
+import { resolveSwrCache } from '@workspace/api';
+import type {
+    AppDispatch,
+    AppGetState,
+    AppThunk,
+} from '@/modules/app/model/store';
 import { appActions } from '../slice/AppSlice';
+import type { PortalAppSettings } from '../../lib/api/app-config-helper';
 import { AppConfigHelper } from '../../lib/api/app-config-helper';
 import {
-    ARE_CALLS_ENABLED,
-    CALL_FEATURE_KEYS,
-    DomainFeatureConfig,
-    getDomainConfig,
-} from '../../consts/domain-config';
+    APP_CONFIG_STALE_AFTER_MS,
+    getAppConfigCacheKey,
+    isAppSettingsPayload,
+} from '../../lib/cache/app-config-cache';
+import {
+    buildAppConfigPatch,
+    hasNewConfigValues,
+} from '../../lib/config/app-config-patch';
 
 const helper = new AppConfigHelper();
 
-/** Ключи конфига, которые приезжают из портальных настроек (реестр бэка). */
-const CONFIG_KEYS = Object.keys(
-    getDomainConfig(''),
-) as (keyof DomainFeatureConfig)[];
-
 /**
- * Ключи-ИДЕНТИФИКАТОРЫ портала: 0 означает «на портале не задано», и
- * такое значение НЕ должно затирать рабочее значение по домену.
+ * Настройки → стор. Зовётся дважды: на значении из кэша (сразу) и на том,
+ * что привезло фоновое обновление (позже, если оно вообще отличается).
  *
- * Инцидент 27.08: у настройки группы задач стоял дефолт 1, бэк отдаёт
- * дефолты вместе с сохранёнными значениями — незаполненная настройка
- * приезжала как настоящая единица, перебивала рабочую группу портала,
- * и список дел оказывался пустым (задачи искались в чужой группе).
+ * Что из ответа применить, решает `buildAppConfigPatch` — он же читает
+ * признак `storedKeys`: сырое значение доезжает сюда целиком и из сети, и
+ * из кэша, поэтому признак работает на обоих путях.
  */
-const PORTAL_ID_KEYS: ReadonlySet<keyof DomainFeatureConfig> = new Set([
-    'taskGroupId',
-    'bossId',
-]);
+const applyPortalSettings = (
+    settings: PortalAppSettings,
+    dispatch: AppDispatch,
+    getState: AppGetState,
+): void => {
+    const { config, configPortalKeys, domain } = getState().app;
+    const patch = buildAppConfigPatch(settings, config, domain);
+
+    if (!hasNewConfigValues(patch, config, configPortalKeys)) return;
+
+    // Видно в консоли фрейма, что именно приехало с портала: без этого
+    // «настройки не применились» неотличимо от «настройки такие же, как в
+    // хардкоде».
+    console.info('app-settings', domain, patch);
+    dispatch(appActions.mergeConfig(patch));
+};
 
 /**
  * Портальные настройки приложения «Звонки» с бэка → поверх legacy
- * domain-config. Берутся только известные ключи с совпадающим типом
- * (SLA-ключи и будущие серверные настройки фронту не мешают).
- * Ошибка сети — тихий no-op: действует прежний хардкод по домену.
+ * domain-config.
+ *
+ * Кэш-первым (`swr-cache`): значение прошлого старта применяется сразу, а
+ * свежее едет фоном и ложится поверх, только если реально отличается.
+ * Что это даёт первому экрану: `isConfigFetched` поднимается по кэшу за
+ * миллисекунды, поэтому `waitForAppConfig` (до 1.5 с) перестаёт держать
+ * первый запрос списка дел — раньше он ждал сеть на КАЖДОМ старте фрейма.
+ *
+ * Контур «группа задач приехала позже» не тронут и остаётся страховкой:
+ * если фоновое обновление принесло другой `taskGroupId`, `mergeConfig`
+ * будит листенер, и список дел перезапрашивается (инцидент 27.08).
+ *
+ * Провал в любой точке (сеть, битый ответ, пустой кэш) — тихий no-op:
+ * действует то, что уже в руках, вплоть до хардкода по домену.
  */
 export const fetchAppConfig =
     (domain: string): AppThunk =>
@@ -45,42 +71,19 @@ export const fetchAppConfig =
             return;
         }
         try {
-            const settings = await helper.getEventSalesSettings(domain);
-            const defaults = getState().app.config;
-            const patch: Partial<DomainFeatureConfig> = {};
-            for (const key of CONFIG_KEYS) {
-                // Общий выключатель звонков сильнее портальных настроек:
-                // иначе включённые на портале записи вернулись бы обратно.
-                if (
-                    !ARE_CALLS_ENABLED &&
-                    (CALL_FEATURE_KEYS as readonly string[]).includes(key)
-                ) {
-                    continue;
-                }
-                const value = settings[key];
-                // «Не задано» для идентификаторов — не значение, а пустота.
-                if (
-                    PORTAL_ID_KEYS.has(key) &&
-                    (typeof value !== 'number' || value <= 0)
-                ) {
-                    continue;
-                }
-                if (
-                    value !== undefined &&
-                    typeof value === typeof defaults[key]
-                ) {
-                    Object.assign(patch, { [key]: value });
-                }
-            }
-            // Видно в консоли фрейма, что именно приехало с портала:
-            // без этого «настройки не применились» неотличимо от «настройки
-            // такие же, как в хардкоде».
-            console.info('app-settings', domain, patch);
-            if (Object.keys(patch).length) {
-                dispatch(appActions.mergeConfig(patch));
-            }
+            const resolved = await resolveSwrCache<PortalAppSettings>({
+                key: getAppConfigCacheKey(domain),
+                staleAfterMs: APP_CONFIG_STALE_AFTER_MS,
+                fetcher: () => helper.getEventSalesSettings(domain),
+                validate: isAppSettingsPayload,
+                onUpdate: settings =>
+                    applyPortalSettings(settings, dispatch, getState),
+            });
+
+            applyPortalSettings(resolved.value, dispatch, getState);
         } catch (error) {
-            // Настройки недоступны — работаем по legacy domain-config.
+            // Настроек нет ни в кэше, ни в сети — работаем по legacy
+            // domain-config.
             console.warn('app-settings недоступны, действует хардкод', error);
         } finally {
             dispatch(appActions.setConfigFetched());

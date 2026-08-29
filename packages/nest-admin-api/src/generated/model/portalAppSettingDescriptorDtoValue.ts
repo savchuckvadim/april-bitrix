@@ -7,7 +7,7 @@
  */
 
 /**
- * Текущее действующее значение на портале.
+ * Текущее действующее значение на портале; null — не задано (действует дефолт кода), то же самое, что stored: false.
  * @nullable
  */
 export type PortalAppSettingDescriptorDtoValue = { [key: string]: unknown } | null;

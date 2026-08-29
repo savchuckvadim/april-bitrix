@@ -50,7 +50,7 @@ export interface LeadToWorkRunDto {
     createCompany?: LeadToWorkRunDtoCreateCompany;
     /** Режим стадии сделки ОП. */
     stageMode?: LeadToWorkRunDtoStageMode;
-    /** Что делать с открытыми задачами лида. */
+    /** Что делать с открытыми задачами лида: move / close / none (none — не трогать и новую не создавать). */
     taskMode?: LeadToWorkRunDtoTaskMode;
     /** Признак ХО (создать ХО-сделку). */
     isXo?: LeadToWorkRunDtoIsXo;

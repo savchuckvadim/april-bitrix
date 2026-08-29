@@ -13,4 +13,5 @@ export type LeadToWorkWebhookTaskMode =
 export const LeadToWorkWebhookTaskMode = {
     move: 'move',
     close: 'close',
+    none: 'none',
 } as const;

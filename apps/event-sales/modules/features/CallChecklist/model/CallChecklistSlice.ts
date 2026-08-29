@@ -5,18 +5,22 @@ import {
     type PayloadAction,
     type Reducer,
 } from '@reduxjs/toolkit';
-import type { ChecklistId } from '../type/call-checklist.type';
 
 export type ChecklistBaseDealStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 /**
  * Состояние чек-листов.
  *
- * `valueByCode` — значения ПОВЕРХ строк сущностей (строки перечитываются
+ * `valueByKey` — значения ПОВЕРХ строк сущностей (строки перечитываются
  * только на reload — как PurchaseSignals). Для crm-полей значение попадает
  * сюда ПОСЛЕ успешной записи в CRM (пессимистичный персист) — это факт, не
  * черновик. Для dto-полей (продажа) — значение просто копится и уезжает в
  * payload отправки.
+ *
+ * Ключ всех трёх карт — ОТВЕТ, а не поле: `код набора:код вопроса`
+ * (`answerKey` слайса каталога анкет). Одно и то же поле осознанно
+ * спрашивается в разных наборах (возражение — и в плане, и в отчёте), и по
+ * коду поля они делили бы значение, статус «сохранено» и таймер записи.
  *
  * Модальная часть — паттерн AfterPresentation: `pendingSend` + `confirmed`
  * дают идемпотентный re-entry send(): подтверждённый чек-лист при повторном
@@ -26,18 +30,34 @@ export type ChecklistBaseDealStatus = 'idle' | 'loading' | 'ready' | 'error';
  * когда во встройке-компании сделки в сторе нет (текущие значения полей).
  */
 export interface CallChecklistState {
-    valueByCode: Record<string, string>;
+    valueByKey: Record<string, string>;
     /**
      * Набранное менеджером, ещё не уехавшее в CRM. Контрол показывает
      * черновик: без него запись «через 600 мс» откатывала бы поле к прежнему
      * значению на первом же ререндере стора (React возвращает `value` в DOM).
      */
-    draftByCode: Record<string, string>;
-    /** Коды полей, по которым запись прямо сейчас идёт в портал. */
-    savingCodes: Record<string, boolean>;
+    draftByKey: Record<string, string>;
+    /** Ключи ответов, по которым запись прямо сейчас идёт в портал. */
+    savingKeys: Record<string, boolean>;
+    /**
+     * Снимок значений CRM на момент, когда карточка вопроса появилась на
+     * экране, — для пунктов с «обязательностью изменения»
+     * (`requireChange`): такой пункт закрывается только ответом ЭТОЙ сессии,
+     * и без снимка «записал то же, что стояло» считалось бы ответом.
+     *
+     * Первый снимок ключа побеждает (см. `baselineCaptured`): перезапись
+     * после ответа превратила бы уже данный ответ в «то же значение» и снова
+     * заперла бы отправку.
+     */
+    baselineByKey: Record<string, string>;
     error: string | null;
-    activeModalId: ChecklistId | null;
-    confirmed: Partial<Record<ChecklistId, boolean>>;
+    /**
+     * Код открытой модальной анкеты. Строка, а не union: коды анкет заводит
+     * портал, и compile-time списка их не существует — от опечатки защищают
+     * нормализатор каталога и валидация на бэке.
+     */
+    activeModalId: string | null;
+    confirmed: Record<string, boolean>;
     pendingSend: boolean;
     baseDeal: {
         id: number | null;
@@ -47,9 +67,10 @@ export interface CallChecklistState {
 }
 
 const initialState: CallChecklistState = {
-    valueByCode: {},
-    draftByCode: {},
-    savingCodes: {},
+    valueByKey: {},
+    draftByKey: {},
+    savingKeys: {},
+    baselineByKey: {},
     error: null,
     activeModalId: null,
     confirmed: {},
@@ -62,25 +83,22 @@ const callChecklistSlice = createSlice({
     initialState,
     reducers: {
         /** Менеджер набирает — показываем ровно это, в CRM пока не пишем. */
-        setDraft(
-            state,
-            action: PayloadAction<{ code: string; value: string }>,
-        ) {
-            state.draftByCode[action.payload.code] = action.payload.value;
+        setDraft(state, action: PayloadAction<{ key: string; value: string }>) {
+            state.draftByKey[action.payload.key] = action.payload.value;
         },
         /** Запись поля ушла в портал. */
-        saveStarted(state, action: PayloadAction<{ code: string }>) {
-            state.savingCodes[action.payload.code] = true;
+        saveStarted(state, action: PayloadAction<{ key: string }>) {
+            state.savingKeys[action.payload.key] = true;
             state.error = null;
         },
         /** Портал принял значение — оно становится фактом, черновик не нужен. */
         saveSucceeded(
             state,
-            action: PayloadAction<{ code: string; value: string }>,
+            action: PayloadAction<{ key: string; value: string }>,
         ) {
-            state.valueByCode[action.payload.code] = action.payload.value;
-            delete state.draftByCode[action.payload.code];
-            delete state.savingCodes[action.payload.code];
+            state.valueByKey[action.payload.key] = action.payload.value;
+            delete state.draftByKey[action.payload.key];
+            delete state.savingKeys[action.payload.key];
         },
         /**
          * Портал не принял: черновик ОСТАЁТСЯ на экране (менеджер видит, что
@@ -88,15 +106,31 @@ const callChecklistSlice = createSlice({
          */
         saveFailed(
             state,
-            action: PayloadAction<{ code: string; message: string }>,
+            action: PayloadAction<{ key: string; message: string }>,
         ) {
-            delete state.savingCodes[action.payload.code];
+            delete state.savingKeys[action.payload.key];
             state.error = action.payload.message;
+        },
+        /**
+         * Снимок значений для «обязательности изменения». Пишем ТОЛЬКО
+         * отсутствующие ключи: повторный снимок (карточка перерисовалась,
+         * модалка открылась второй раз) не имеет права затереть исходное
+         * значение — иначе данный ответ станет равен снимку и пункт снова
+         * окажется незакрытым.
+         */
+        baselineCaptured(
+            state,
+            action: PayloadAction<{ entries: Record<string, string> }>,
+        ) {
+            for (const [key, value] of Object.entries(action.payload.entries)) {
+                if (key in state.baselineByKey) continue;
+                state.baselineByKey[key] = value;
+            }
         },
         setError(state, action: PayloadAction<{ message: string | null }>) {
             state.error = action.payload.message;
         },
-        modalOpened(state, action: PayloadAction<{ id: ChecklistId }>) {
+        modalOpened(state, action: PayloadAction<{ id: string }>) {
             state.activeModalId = action.payload.id;
         },
         modalClosed(state) {
@@ -105,7 +139,7 @@ const callChecklistSlice = createSlice({
         setPendingSend(state, action: PayloadAction<{ status: boolean }>) {
             state.pendingSend = action.payload.status;
         },
-        setConfirmed(state, action: PayloadAction<{ id: ChecklistId }>) {
+        setConfirmed(state, action: PayloadAction<{ id: string }>) {
             state.confirmed[action.payload.id] = true;
         },
         baseDealPending(state, action: PayloadAction<{ id: number }>) {
@@ -140,27 +174,31 @@ const callChecklistSlice = createSlice({
 /* Экспорты аннотированы явно — TS2742 (immer из pnpm-пути). */
 export const callChecklistActions: {
     setDraft: ActionCreatorWithPayload<
-        { code: string; value: string },
+        { key: string; value: string },
         'callChecklist/setDraft'
     >;
     saveStarted: ActionCreatorWithPayload<
-        { code: string },
+        { key: string },
         'callChecklist/saveStarted'
     >;
     saveSucceeded: ActionCreatorWithPayload<
-        { code: string; value: string },
+        { key: string; value: string },
         'callChecklist/saveSucceeded'
     >;
     saveFailed: ActionCreatorWithPayload<
-        { code: string; message: string },
+        { key: string; message: string },
         'callChecklist/saveFailed'
+    >;
+    baselineCaptured: ActionCreatorWithPayload<
+        { entries: Record<string, string> },
+        'callChecklist/baselineCaptured'
     >;
     setError: ActionCreatorWithPayload<
         { message: string | null },
         'callChecklist/setError'
     >;
     modalOpened: ActionCreatorWithPayload<
-        { id: ChecklistId },
+        { id: string },
         'callChecklist/modalOpened'
     >;
     modalClosed: ActionCreatorWithoutPayload<'callChecklist/modalClosed'>;
@@ -169,7 +207,7 @@ export const callChecklistActions: {
         'callChecklist/setPendingSend'
     >;
     setConfirmed: ActionCreatorWithPayload<
-        { id: ChecklistId },
+        { id: string },
         'callChecklist/setConfirmed'
     >;
     baseDealPending: ActionCreatorWithPayload<

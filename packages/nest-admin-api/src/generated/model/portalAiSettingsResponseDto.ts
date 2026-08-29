@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { PortalAiSettingsResponseDtoPresentationStrictness } from './portalAiSettingsResponseDtoPresentationStrictness';
+import type { PortalAiSettingsResponseDtoWeeklyReportDelivery } from './portalAiSettingsResponseDtoWeeklyReportDelivery';
 
 export interface PortalAiSettingsResponseDto {
   /**
@@ -113,4 +114,29 @@ export interface PortalAiSettingsResponseDto {
    * @nullable
    */
   presentationStrictness: PortalAiSettingsResponseDtoPresentationStrictness;
+  /**
+   * Недельный Excel-отчёт по звонкам (пятница, 19:00 МСК): полные разборы, транскрипты и сверка с отчётами менеджеров — всё, что физически не помещается в карточку смарта.
+   * @nullable
+   */
+  weeklyReportEnabled: boolean | null;
+  /**
+   * Получатели недельного отчёта — bitrix-id сотрудников. Каждому приходит уведомление со ссылкой на файл. Пусто — отчёт только кладётся на Диск портала.
+   * @nullable
+   */
+  weeklyReportRecipients: number[] | null;
+  /**
+   * ID папки на Диске портала для файлов отчёта (например, папка рабочей группы «Продажи»). Пусто — папка приложения на Диске.
+   * @nullable
+   */
+  weeklyReportFolderId: number | null;
+  /**
+   * Как получателю приходит файл: chat — сообщением в личный чат с вложенным xlsx (по умолчанию), task — задачей с прикреплённым файлом, notify — уведомлением со ссылкой на Диск.
+   * @nullable
+   */
+  weeklyReportDelivery: PortalAiSettingsResponseDtoWeeklyReportDelivery;
+  /**
+   * Проверка звонка по документам компании после разбора: скрипт, регламент, фактчек продукта, методология презентации. Требует загруженных материалов и одного дополнительного дешёвого вызова модели на звонок.
+   * @nullable
+   */
+  complianceReviewEnabled: boolean | null;
 }

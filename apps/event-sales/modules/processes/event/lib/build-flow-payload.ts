@@ -11,6 +11,7 @@ import {
     EventTask,
 } from '@/modules/entities/EventTask/types/event-task-type';
 import { PresentationProp } from '@/modules/entities/EventPresentation/model/PresSlice';
+import { isPresentationDone } from '@/modules/entities/EventPresentation/lib/presentation-done';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import {
     DEPARTAMENT_STATE_PROP,
@@ -21,6 +22,10 @@ import {
     selectIsCheckPresentationApplicable,
 } from '@/modules/features/AfterPresentation';
 import { inheritsLeadLink } from '@/modules/features/TaskLeadLinks/lib/task-lead-links';
+// Прямые пути, а не барель фичи: барель тянет UI-диалог чек-листа.
+import { selectChecklistDtoAnswers } from '@/modules/features/CallChecklist/lib/checklist-dto-answers';
+import { selectChecklistSmartAnswers } from '@/modules/features/CallChecklist/lib/checklist-smart-answers';
+import { selectChecklistTextComment } from '@/modules/features/CallChecklist/lib/checklist-text-answers';
 import { EvFlowDto } from '../model';
 
 /**
@@ -46,6 +51,16 @@ const buildLeadSync = (state: RootState): EvFlowDto['leadSync'] => {
         : null;
     if (!presentationPart && !notCaPart) return undefined;
     return { ...presentationPart, ...notCaPart };
+};
+
+/**
+ * Сумма продажи из ответа чек-листа: нули и мусор — «не передавать».
+ * Бэк отличает «не прислали» от «прислали ноль», и обнулять сумму сделки
+ * из-за незаполненного вопроса он не должен.
+ */
+const toSaleAmount = (value: string | undefined): number | undefined => {
+    const amount = Number(value);
+    return Number.isFinite(amount) && amount > 0 ? amount : undefined;
 };
 
 interface BuildFlowOptions {
@@ -80,19 +95,24 @@ export const buildFlowPayload = (
     const sale = state.eventSale;
     const resultStatus = state.eventItemMenu.type;
 
-    // Итоговый комментарий: СНАЧАЛА слова менеджера, потом блоки опросника.
+    // Итоговый комментарий: СНАЧАЛА слова менеджера, потом блоки опросников.
     // Хвост первым прятал комментарий в самый низ («…СПС?: 123» и следом
     // сиротой «123»), а запись истории начинается с «Звонок совершён: …» —
     // первой строкой там должен быть живой комментарий, не заголовок блока.
+    //
+    // Ответы анкет канала `text` идут перед хвостом презентации: их два-три
+    // и они про этот звонок, а хвост — двадцать строк, которым место внизу.
     const tailComment = selectIsCheckPresentationApplicable(state)
         ? selectCheckPresentationComment(state)
         : '';
     const userComment = reportState.report[EV_REPORT_PROP.COMMENT];
-    const description = tailComment
-        ? userComment
-            ? `${userComment}\n\n${tailComment}`
-            : tailComment
-        : userComment;
+    const description = [
+        userComment,
+        selectChecklistTextComment(state),
+        tailComment,
+    ]
+        .filter(part => Boolean(part))
+        .join('\n\n');
 
     // «Не ЦА» — фронтовый статус: контракт очереди знает только четыре кода,
     // поэтому по проводам уходит «Отказ», а признак «не ЦА» несёт
@@ -212,6 +232,17 @@ export const buildFlowPayload = (
           }
         : undefined;
 
+    // Ответы вопросов dto-канала по адресам каталога: значения уезжают
+    // только в payload, в CRM фронт их не пишет.
+    const dtoAnswers = selectChecklistDtoAnswers(state);
+
+    // Ответы канала `smart` — конвертом: коды анкеты и вопроса плюс значение
+    // в каноне каталога. Их адресат — поле ЭЛЕМЕНТА смарта (презентации,
+    // ЗПР), которого сейчас ещё нет: элемент создаст или закроет сам поток
+    // этого отчёта, он же разложит ответы по полям. Ни имени поля, ни id
+    // элемента фрейм не шлёт — это адреса чужой системы.
+    const smartAnswers = selectChecklistSmartAnswers(state);
+
     /*
      * Открытые дела клиента — ось «следующего события» на бэке.
      *
@@ -229,7 +260,7 @@ export const buildFlowPayload = (
     const openTasks = (state.eventTask.tasks ?? []).map(task => ({
         id: Number(task.id),
         eventType: task.eventType,
-        deadline: task.deadlineRaw ?? "",
+        deadline: task.deadlineRaw ?? '',
         name: task.name,
         responsibleId: Number(task.responsibleId) || undefined,
     }));
@@ -252,35 +283,29 @@ export const buildFlowPayload = (
              * IS_UNPLANNED_PRESENTATION — без этого OR факт «презентация
              * проведена» терялся целиком: ни pres-сделки, ни KPI.
              */
-            isPresentationDone:
-                presentation[PresentationProp.IS_PRESENTATION_DONE] ||
-                presentation[PresentationProp.IS_UNPLANNED_PRESENTATION],
+            isPresentationDone: isPresentationDone(presentation),
             isUnplannedPresentation:
                 presentation[PresentationProp.IS_UNPLANNED_PRESENTATION],
         },
-        // Чек-лист продажи (dto-канал): сумма → штатный OPPORTUNITY,
-        // дата первой оплаты → first_pay_date; пишет бэк одной операцией
-        // со сменой стадии (сделку может создавать сам flow).
+        // Чек-лист продажи (dto-канал): ответы разложены по путям каталога
+        // (`sale.opportunity`, `sale.firstPayDate`) — код поля адресом
+        // больше не служит. Пишет их бэк одной операцией со сменой стадии
+        // (сделку может создавать сам flow).
         sale: {
             relationSalePresDeal: sale.presDeals.current,
             ...(workStatusCode === 'success'
                 ? {
-                      opportunity:
-                          Number(
-                              state.callChecklist.valueByCode['OPPORTUNITY'],
-                          ) > 0
-                              ? Number(
-                                    state.callChecklist.valueByCode[
-                                        'OPPORTUNITY'
-                                    ],
-                                )
-                              : undefined,
+                      opportunity: toSaleAmount(dtoAnswers['sale.opportunity']),
                       firstPayDate:
-                          state.callChecklist.valueByCode['first_pay_date'] ||
-                          undefined,
+                          dtoAnswers['sale.firstPayDate'] || undefined,
                   }
                 : {}),
         },
+        // Ответы портальных анкет, адресованные полям элемента смарта.
+        // Пусто — поля нет вовсе: бэк отличает «не прислали» (прежнее
+        // поведение) от «прислали пустой список», а старый фрейм этого поля
+        // не шлёт совсем и обязан работать по-прежнему.
+        questionnaireAnswers: smartAnswers.length ? smartAnswers : undefined,
         contact: { current: contactState.current },
         departament: {
             mode: departament[DEPARTAMENT_STATE_PROP.MODE].current ?? undefined,

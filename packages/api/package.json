@@ -3,7 +3,9 @@
     "version": "1.0.0",
     "main": "src/index.ts",
     "scripts": {
-        "lint": "eslint . --max-warnings 0"
+        "lint": "eslint . --max-warnings 0",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run"
     },
     "devDependencies": {
         "@turbo/gen": "^2.4.2",
@@ -14,7 +16,8 @@
         "@workspace/bx": "workspace:*",
         "@workspace/eslint-config": "workspace:*",
         "@workspace/typescript-config": "workspace:*",
-        "typescript": "^5.7.3"
+        "typescript": "^5.7.3",
+        "vitest": "^3.2.4"
     },
     "dependencies": {
         "@bitrix24/b24jssdk": "^0.1.7",

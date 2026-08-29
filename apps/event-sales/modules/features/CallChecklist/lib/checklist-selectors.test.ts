@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { RootState } from '@/modules/app/model/store';
-import { CHECKLIST_CATALOG } from '../data/checklist-catalog';
+import { answerKey } from '@/modules/entities/Questionnaire/lib/answer-key';
+import { FALLBACK_CATALOG } from '@/modules/entities/Questionnaire/data/fallback-catalog';
 import {
     resolveChecklistFields,
     selectChecklistRows,
@@ -10,9 +11,12 @@ import {
 } from './checklist-selectors';
 
 /**
- * Движок чек-листов: активация настройкой портала + типом плана,
- * обязательность закрывается текущим CRM-значением или сохранённым ответом,
- * неустановленное на портале поле не блокирует отправку (самогейт).
+ * Движок анкет: активация настройкой портала + условием, обязательность
+ * закрывается текущим CRM-значением или сохранённым ответом, неустановленное
+ * на портале поле не блокирует отправку (самогейт).
+ *
+ * Состав берётся из стора — здесь встроенный (`FALLBACK_CATALOG`), тот же,
+ * что стоит в сторе, пока портальный каталог не приехал.
  */
 /**
  * Код поля берётся ИЗ КАТАЛОГА, а не пишется здесь руками: тест проверяет
@@ -20,7 +24,7 @@ import {
  * решение каталога, и его смена не должна ронять проверку движка.
  */
 const REFINE_FIELD_CODE =
-    CHECKLIST_CATALOG.find(def => def.id === 'refine')?.fields[0]?.code ?? '';
+    FALLBACK_CATALOG.find(def => def.code === 'refine')?.items[0]?.code ?? '';
 const REFINE_BITRIX_ID = REFINE_FIELD_CODE.toUpperCase();
 const REFINE_UF_KEY = `UF_CRM_${REFINE_BITRIX_ID}`;
 
@@ -41,6 +45,8 @@ const makeState = (over?: {
     override?: string;
     withDealField?: boolean;
     config?: Record<string, boolean>;
+    /** Рубильник портала «анкеты выключены для типов события» (CSV кодов). */
+    disabledEventTypes?: string;
     targetStageCode?: string | null;
     values?: Record<string, string>;
     confirmed?: Record<string, boolean>;
@@ -50,6 +56,8 @@ const makeState = (over?: {
         app: {
             config: {
                 withChecklistRefine: over?.enabled ?? true,
+                questionnairesDisabledEventTypes:
+                    over?.disabledEventTypes ?? '',
                 ...(over?.config ?? {}),
             },
             bitrix: {
@@ -81,15 +89,22 @@ const makeState = (over?: {
                 ? { targetStageCode: over.targetStageCode, baseDealId: 10 }
                 : null,
         },
+        // Портального каталога нет — в сторе встроенный состав.
+        questionnaireCatalog: { defs: FALLBACK_CATALOG },
         callChecklist: {
-            valueByCode: {
+            valueByKey: {
+                // Ключ ответа — «анкета:вопрос», не код поля.
                 ...(over?.override
-                    ? { [REFINE_FIELD_CODE]: over.override }
+                    ? {
+                          [answerKey('refine', REFINE_FIELD_CODE)]:
+                              over.override,
+                      }
                     : {}),
                 ...(over?.values ?? {}),
             },
-            draftByCode: {},
-            savingCodes: {},
+            draftByKey: {},
+            savingKeys: {},
+            baselineByKey: {},
             confirmed: over?.confirmed ?? {},
             error: null,
             baseDeal: { id: null, row: null, status: 'idle' },
@@ -113,12 +128,31 @@ describe('CallChecklist: активация и обязательность', ()
 
     it('план «Доработка» + настройка — чек-лист активен и незакрыт', () => {
         const state = makeState();
-        expect(selectInlineChecklists(state).map(def => def.id)).toEqual([
+        expect(selectInlineChecklists(state).map(def => def.code)).toEqual([
             'refine',
         ]);
         expect(
-            selectIncompleteInlineChecklists(state).map(def => def.id),
+            selectIncompleteInlineChecklists(state).map(def => def.code),
         ).toEqual(['refine']);
+    });
+
+    /**
+     * Рубильник портала `questionnaires_disabled_event_types`. Считать его
+     * обязан фрейм: бэк ответы погашенной анкеты выбрасывает молча, и без
+     * этой проверки менеджер отвечал бы в пустоту, обязательный вопрос
+     * запирал бы отправку, а ответ канала `crm` уехал бы прямо в сделку.
+     */
+    it('тип события выключен рубильником — анкеты нет и отправку она не держит', () => {
+        const state = makeState({ disabledEventTypes: 'refine' });
+        expect(selectInlineChecklists(state)).toEqual([]);
+        expect(selectIncompleteInlineChecklists(state)).toEqual([]);
+    });
+
+    it('рубильник на чужой тип события анкету не трогает', () => {
+        const state = makeState({ disabledEventTypes: 'presentation, hot' });
+        expect(selectInlineChecklists(state).map(def => def.code)).toEqual([
+            'refine',
+        ]);
     });
 
     it('другой тип плана — чек-лист доработки не активен', () => {
@@ -141,6 +175,21 @@ describe('CallChecklist: активация и обязательность', ()
     it('сохранённый ответ закрывает обязательность', () => {
         const state = makeState({ override: 'op_efield_fail_lpr' });
         expect(selectIncompleteInlineChecklists(state)).toEqual([]);
+    });
+
+    /**
+     * Ластик стирает значение и в CRM, и в ответах, а строки сущностей в
+     * сторе не перечитываются: по устаревшему значению строки пункт
+     * выглядел бы закрытым, и отчёт уехал бы с пустым обязательным полем.
+     */
+    it('ластик стёр значение — обязательность снова не закрыта', () => {
+        const state = makeState({
+            dealValue: 555,
+            values: { [answerKey('refine', REFINE_FIELD_CODE)]: '' },
+        });
+        expect(
+            selectIncompleteInlineChecklists(state).map(def => def.code),
+        ).toEqual(['refine']);
     });
 
     it('поле не установлено на портале — отправка не блокируется', () => {
@@ -170,7 +219,7 @@ describe('CallChecklist: один источник для карточки и п
         const state = companyEmbed();
         // Предпроверка (валидация отправки) требует чек-лист…
         expect(
-            selectIncompleteInlineChecklists(state).map(def => def.id),
+            selectIncompleteInlineChecklists(state).map(def => def.code),
         ).toEqual(['refine']);
 
         // …и ровно то же видит карточка: те же поля, из той же строки.
@@ -195,7 +244,7 @@ describe('CallChecklist: стадийные модалки (по предикт�
             config: saleConfig,
             targetStageCode: 'sales_success',
         });
-        expect(selectNextPendingChecklist(state)?.id).toBe('sale');
+        expect(selectNextPendingChecklist(state)?.code).toBe('sale');
     });
 
     it('без предикта модалок нет', () => {
@@ -205,8 +254,8 @@ describe('CallChecklist: стадийные модалки (по предикт�
 
     it('заполненные dto-поля не закрывают шаг без confirm, confirm закрывает', () => {
         const filled = {
-            OPPORTUNITY: '150000',
-            first_pay_date: '2026-09-01',
+            [answerKey('sale', 'OPPORTUNITY')]: '150000',
+            [answerKey('sale', 'first_pay_date')]: '2026-09-01',
         };
         const notConfirmed = makeState({
             enabled: false,
@@ -215,7 +264,7 @@ describe('CallChecklist: стадийные модалки (по предикт�
             values: filled,
         });
         // Значения есть, но шаг-подтверждение ещё не пройден.
-        expect(selectNextPendingChecklist(notConfirmed)?.id).toBe('sale');
+        expect(selectNextPendingChecklist(notConfirmed)?.code).toBe('sale');
 
         const confirmed = makeState({
             enabled: false,
@@ -234,7 +283,7 @@ describe('CallChecklist: стадийные модалки (по предикт�
             targetStageCode: 'sales_success',
             confirmed: { sale: true },
         });
-        expect(selectNextPendingChecklist(state)?.id).toBe('sale');
+        expect(selectNextPendingChecklist(state)?.code).toBe('sale');
     });
 
     it('сделки в сторе нет (встройка-компания) — sale всё равно требуется (dto-канал)', () => {
@@ -244,6 +293,6 @@ describe('CallChecklist: стадийные модалки (по предикт�
             targetStageCode: 'sales_success',
             dealRow: null,
         });
-        expect(selectNextPendingChecklist(state)?.id).toBe('sale');
+        expect(selectNextPendingChecklist(state)?.code).toBe('sale');
     });
 });

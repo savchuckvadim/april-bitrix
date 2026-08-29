@@ -7,7 +7,7 @@
  */
 
 /**
- * Что делать с открытыми задачами лида.
+ * Что делать с открытыми задачами лида: move / close / none (none — не трогать и новую не создавать).
  */
 export type LeadToWorkRunDtoTaskMode =
     (typeof LeadToWorkRunDtoTaskMode)[keyof typeof LeadToWorkRunDtoTaskMode];
@@ -16,4 +16,5 @@ export type LeadToWorkRunDtoTaskMode =
 export const LeadToWorkRunDtoTaskMode = {
     move: 'move',
     close: 'close',
+    none: 'none',
 } as const;

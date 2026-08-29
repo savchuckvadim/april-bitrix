@@ -1,9 +1,10 @@
 import { Bitrix } from '@workspace/bitrix';
-import { clearPortalCache } from '@workspace/pbx';
+import { expirePortalCache } from '@workspace/pbx';
 import type { BXCompany } from '@workspace/bx';
 import { appActions } from '../slice/AppSlice';
 import type { AppDispatch, AppGetState } from '../store';
 import { appInit } from '../../lib/initialize/app-init.util';
+import { expireAppConfigCache } from '../../lib/cache/app-config-cache';
 
 /**
  * Тонкий оркестратор boot'а (Alfacentr-паттерн): guard + loading-флаги,
@@ -30,13 +31,32 @@ export const initial =
         }
     };
 
-export const reloadApp = () => async (dispatch: AppDispatch) => {
-    // «Обновить» обязан перечитать и СЛЕПОК ПОРТАЛА: суточный localStorage-кэш
-    // иначе прячет свежеустановленные поля до следующего календарного дня.
-    clearPortalCache();
-    // Reset the app shell; `useApp` re-runs `initial()` once `initialized` is false.
-    dispatch(appActions.reload());
-};
+/**
+ * Кнопка ⟳ — единственное место, где приложение узнаёт «на портале что-то
+ * переустановили/переключили»: явная инвалидация браузерного кэша живёт здесь.
+ *
+ * Кэш именно ПОМЕЧАЕТСЯ протухшим, а не сносится: прежний слепок и прежние
+ * настройки продолжают работать, пока не приедут новые. Раньше здесь стоял
+ * `clearPortalCache()`, который удалял запись ДО запроса — нажатие ⟳ при
+ * лежащем бэке превращало рабочий фрейм во фрейм вообще без конфигурации
+ * портала.
+ *
+ * Пометки ждём: `appActions.reload()` тут же запускает init заново, и
+ * `fetchPortal` должен увидеть уже помеченную запись, иначе отдаст её как
+ * свежую и в сеть не пойдёт.
+ */
+export const reloadApp =
+    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+        const domain = getState().app.domain;
+        if (domain) {
+            await Promise.all([
+                expirePortalCache(domain),
+                expireAppConfigCache(domain),
+            ]);
+        }
+        // Reset the app shell; `useApp` re-runs `initial()` once `initialized` is false.
+        dispatch(appActions.reload());
+    };
 
 /**
  * Подтянуть компанию в состояние ПОСЛЕ инициализации — без полного reload.

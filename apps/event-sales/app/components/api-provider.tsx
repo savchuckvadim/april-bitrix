@@ -3,8 +3,13 @@ import { configureBaseURL } from '@workspace/nest-event-sales-api';
 
 // Модуль импортируется из клиентского providers.tsx, поэтому setConfig
 // выполняется и на клиенте; ONLINE_API_KEY инлайнится в бандл через next.config `env`.
+//
+// appId попадает в ключи браузерного кэша (`swr-cache`): в проде мы делим
+// origin с event-service (`/sales` и `/service`), и без этого сегмента оба
+// приложения писали бы слепок портала в одну ячейку.
 setConfig({
     apiKey: process.env.ONLINE_API_KEY || '',
+    appId: 'event-sales',
 });
 
 // Бэкенд event-sales (back/apps/event-sales). NEXT_PUBLIC_* инлайнится

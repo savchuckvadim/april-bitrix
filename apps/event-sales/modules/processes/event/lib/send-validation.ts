@@ -6,7 +6,7 @@ import {
 } from '@/modules/entities/EventPlan/type/event-plan-type';
 import { isPlanDeadlineValid } from '@/modules/entities/EventPlan/lib/plan-deadline';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
-import { selectIncompleteInlineChecklists } from '@/modules/features/CallChecklist/lib/checklist-selectors';
+import { getChecklistGateError } from './questionnaire-gate';
 import { COMMENT_MAX_LENGTH, PLAN_NAME_MAX_LENGTH } from './text-limits';
 import { emptyErrors } from '../model/EventSlice';
 import { EV_ERROR_CODE, SetErrorsPayload } from '../types/event-types';
@@ -102,15 +102,17 @@ export const validateSend = (state: RootState): SendValidationResult => {
         result.errors[EV_ERROR_CODE.NOT_CA_TYPE] = 'Выберите тип «не ЦА»';
     }
 
-    // Чек-лист выбранного типа звонка (Доработка/Оплата): обязательные
-    // pbx-поля должны быть заполнены до отправки (включается настройками
-    // портала; неустановленные на портале поля не блокируют).
-    const incompleteChecklists = selectIncompleteInlineChecklists(state);
-    if (incompleteChecklists.length) {
-        result.errors[EV_ERROR_CODE.PLAN_CHECKLIST] =
-            `Заполните: ${incompleteChecklists
-                .map(def => def.title.toLowerCase())
-                .join(', ')}`;
+    // Анкеты выбранного типа звонка и типа отчёта: обязательные вопросы
+    // должны быть заполнены до отправки (неустановленные на портале поля
+    // не блокируют — вопрос без адреса просто не показывается).
+    //
+    // Состав берётся из стора: портальный каталог, если доехал, встроенный
+    // набор иначе. Ждать каталог отсюда нечем — валидация синхронна, её
+    // зовёт и рендер; ожидание с дедлайном стоит первым шагом send(). Из-за
+    // этого политика деградации записана ОДИН раз, в questionnaire-gate.
+    const checklistError = getChecklistGateError(state);
+    if (checklistError) {
+        result.errors[EV_ERROR_CODE.PLAN_CHECKLIST] = checklistError;
     }
 
     result.isError = Object.values(result.errors).some(Boolean);

@@ -363,6 +363,37 @@ export const portalAiSettingsEntities: Entity[] = [
 ];
 
 
+export const portalAppSettingsEntities: Entity[] = [
+    {
+        id: 0,
+        item: {
+            name: 'app-settings',
+            title: 'Настройки приложений',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/app-settings',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
+export const portalQuestionnairesEntities: Entity[] = [
+    {
+        id: 0,
+        item: {
+            name: 'questionnaires',
+            title: 'Анкеты',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/questionnaires',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
+
 export const portalProviderEntities: Entity[] = [
     {
         id: 0,

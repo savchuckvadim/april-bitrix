@@ -14,7 +14,7 @@ import {
     cancelCallChecklist,
     confirmCallChecklist,
 } from '../model/CallChecklistThunk';
-import { ChecklistField } from './components/ChecklistField';
+import { ChecklistFieldGroup } from './components/ChecklistFieldGroup';
 import { OpenDealSliderButton } from './components/OpenDealSliderButton';
 
 /**
@@ -55,8 +55,11 @@ export const CallChecklistDialog: FC = () => {
             </DialogHeader>
 
             <div className="space-y-2.5">
-                {view.fields.map(field => (
-                    <ChecklistField key={field.def.code} field={field} />
+                {view.groups.map((group, index) => (
+                    <ChecklistFieldGroup
+                        key={`${group.title ?? ''}:${index}`}
+                        group={group}
+                    />
                 ))}
                 {view.isBaseDealLoading && (
                     <p className="text-xs text-muted-foreground">
@@ -82,7 +85,7 @@ export const CallChecklistDialog: FC = () => {
                         disabled={!view.isReady}
                         onClick={() =>
                             view.def &&
-                            dispatch(confirmCallChecklist(view.def.id))
+                            dispatch(confirmCallChecklist(view.def.code))
                         }
                     >
                         Готово — отправить

@@ -33,6 +33,8 @@ export * from './admin-portal-keys/admin-portal-keys';
 export * from './admin-portal-management/admin-portal-management';
 export * from './admin-portal-measures-management/admin-portal-measures-management';
 export * from './admin-portal-provider/admin-portal-provider';
+export * from './admin-portal-questionnaire-fields/admin-portal-questionnaire-fields';
+export * from './admin-portal-questionnaires/admin-portal-questionnaires';
 export * from './admin-smarts-management/admin-smarts-management';
 export * from './admin-timezones-management/admin-timezones-management';
 export * from './admin-transcription-store/admin-transcription-store';

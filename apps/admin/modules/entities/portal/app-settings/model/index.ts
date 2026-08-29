@@ -1,5 +1,6 @@
 import type {
     PortalAppSettingDescriptorDto,
+    PortalAppSettingOptionDto,
     PortalAppSettingsBlockDto,
     PortalAppSettingsResponseDto,
     PortalAppSettingsSaveDto,
@@ -14,6 +15,8 @@ import { PortalAppSettingsBlockDtoAppCode } from '@workspace/nest-admin-api';
 export type PortalAppSettingsResponse = PortalAppSettingsResponseDto;
 export type PortalAppSettingsBlock = PortalAppSettingsBlockDto;
 export type PortalAppSettingDescriptor = PortalAppSettingDescriptorDto;
+/** Значение справочника настройки-списка: код + подпись чекбокса. */
+export type PortalAppSettingOption = PortalAppSettingOptionDto;
 export type PortalAppSettingsSave = PortalAppSettingsSaveDto;
 
 /** Код приложения (runtime-объект orval — автокомплит без magic strings). */

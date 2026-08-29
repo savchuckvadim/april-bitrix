@@ -23,9 +23,11 @@ const TOTAL = SALES_PROCESS.stages.length;
 const ELIGIBLE = SALES_PROCESS.stages.filter(stage => stage.canBeLead).length;
 
 describe('хребет процесса продажи', () => {
-    it('содержит десять стадий, конверсионный хвост — только закрывающая', () => {
-        expect(TOTAL).toBe(10);
-        expect(ELIGIBLE).toBe(9);
+    // Стадий стало одиннадцать: между «Отправлены» и «В решении» появилась
+    // «Доработка» — она есть и в приложении (EV_PLAN_CODE.REFINE).
+    it('содержит одиннадцать стадий, конверсионный хвост — только закрывающая', () => {
+        expect(TOTAL).toBe(11);
+        expect(ELIGIBLE).toBe(TOTAL - 1);
         expect(SALES_PROCESS.stages.at(-1)?.id).toBe('sales_success');
         expect(SALES_PROCESS.stages.at(-1)?.isClosing).toBe(true);
     });
@@ -160,11 +162,13 @@ describe('рекомендованная схема «Админ + Сделка�
         expect(SALES_PRESETS.filter(item => item.recommended)).toHaveLength(1);
     });
 
-    it('это 15 % лида и 90 % сделки', () => {
+    it('это 10 % лида и 90 % сделки', () => {
         const recommended = SALES_PRESETS.find(item => item.recommended)!;
 
         expect(recommended.id).toBe('admin-filter');
-        expect(recommended.leadPct).toBe(15);
+        // 10 % от десяти доступных лиду стадий — ровно одна, «Новая». Было 15 %,
+        // но с появлением «Доработки» столько же процентов стали давать две.
+        expect(recommended.leadPct).toBe(10);
         expect(recommended.dealPct).toBe(90);
         expect(recommended.whyRecommended).toBeTruthy();
     });
@@ -198,7 +202,7 @@ describe('рекомендованная схема «Админ + Сделка�
 describe('«Звонки» стоят там, где работает именно менеджер', () => {
     it('стадии системы и руководителя рабочим местом не считаются', () => {
         // Лид покрывает только «Новую» — её ведёт система.
-        expect(model(15, 90).callsApp.inLead).toBe(false);
+        expect(model(10, 90).callsApp.inLead).toBe(false);
         // Дотянули лид до «Переговоров» — там уже менеджер.
         expect(model(35, 90).callsApp.inLead).toBe(true);
     });

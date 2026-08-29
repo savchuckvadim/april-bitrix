@@ -32,6 +32,11 @@ import {
     xvostFieldsActions,
     xvostFieldsReducer,
 } from '@/modules/features/XvostFields/model/XvostFieldsSlice';
+import {
+    questionnaireCatalogActions,
+    questionnaireCatalogReducer,
+} from '@/modules/entities/Questionnaire/model/QuestionnaireCatalogSlice';
+import { FALLBACK_CATALOG } from '@/modules/entities/Questionnaire/data/fallback-catalog';
 import type { BXLead } from '@workspace/bx';
 
 /** Слайсы, которые обязан сбрасывать reload (префиксы action type). */
@@ -188,5 +193,41 @@ describe('reset-редьюсеры reload-каталога', () => {
         const cleaned = eventLeadReducer(dirty, eventLeadActions.clean());
         expect(cleaned.lead).toBeNull();
         expect(cleaned.status.items.length).toBeGreaterThan(0);
+    });
+});
+
+describe('⟳: ответы анкет сбрасываются, каталог — нет', () => {
+    it('в каталоге сбросов есть ответы и нет самого состава анкет', () => {
+        const types = getReloadResetActions().map(action =>
+            String(action.type),
+        );
+
+        expect(types).toContain('callChecklist/reset');
+        expect(
+            types.some(type => type.startsWith('questionnaireCatalog/')),
+        ).toBe(false);
+    });
+
+    it('прогон всех сбросов не трогает состав анкет', () => {
+        // Портальный каталог доехал; ⟳ обязан оставить его как есть —
+        // иначе на каждое обновление карточки уходил бы лишний запрос
+        // состава, а вопросы на секунду исчезали бы с экрана.
+        const loaded = questionnaireCatalogReducer(
+            undefined,
+            questionnaireCatalogActions.fulfilled({
+                contract: 1,
+                version: 3,
+                hash: 'sha1-состава',
+                defs: FALLBACK_CATALOG.slice(0, 1),
+            }),
+        );
+
+        const after = getReloadResetActions().reduce(
+            (state, action) => questionnaireCatalogReducer(state, action),
+            loaded,
+        );
+
+        expect(after).toBe(loaded);
+        expect(after.source).toBe('server');
     });
 });

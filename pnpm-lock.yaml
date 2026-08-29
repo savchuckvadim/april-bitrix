@@ -145,6 +145,9 @@ importers:
       typescript:
         specifier: ^5.7.3
         version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@20.17.46)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.100.0)(tsx@4.21.0)(yaml@2.8.1)
 
   apps/bitrix:
     dependencies:
@@ -988,6 +991,9 @@ importers:
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@20.17.46)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.100.0)(tsx@4.21.0)(yaml@2.8.1)
 
   packages/april-theme:
     dependencies:

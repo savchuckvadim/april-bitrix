@@ -18,6 +18,8 @@ export * from './event-sales-lead-request/event-sales-lead-request';
 export * from './sales-hooks/sales-hooks';
 // Настройки приложения на домене (замена хардкода domain-config)
 export * from './event-sales-app-settings/event-sales-app-settings';
+// Портальный каталог анкет (GET /api/questionnaires, /version)
+export * from './event-sales-questionnaires/event-sales-questionnaires';
 
 // Доступны после generate, подключать по мере необходимости:
 // export * from './bitrix-domain-team/bitrix-domain-team';

@@ -3,39 +3,70 @@
 import { FC } from 'react';
 import { MicroSelect } from '@workspace/april-ui';
 import { Input } from '@workspace/ui/components/input';
-import { checklistEnumItems } from '../../lib/checklist-values';
+import { Textarea } from '@workspace/ui/components/textarea';
+import { CHECKLIST_BOOLEAN_OPTIONS } from '../../lib/checklist-boolean';
+import { hasChecklistChoice } from '../../lib/checklist-values';
 import type { ChecklistFieldView } from '../../lib/checklist-field-view';
 
 const NUMERIC_CLASS = 'h-6 w-34 px-2 py-0 text-[0.6875rem]';
 
 /**
- * Контрол поля чек-листа по его типу.
+ * Контрол вопроса анкеты по его типу.
  *
  * `datetime` — именно `datetime-local`: поле портала хранит дату СО ВРЕМЕНЕМ
  * («Дата последнего счёта», «Направлено КП»), а контрол `type=date` молча
  * терял время и обнулял его обратной записью.
+ *
+ * `boolean` — селект ТРЕМЯ состояниями («—», «Да», «Нет»), а не галка:
+ * выключенная галка неотличима от «менеджер не отвечал», и дефолтное «Нет»
+ * закрывало бы обязательный вопрос само.
+ *
+ * Варианты справочника берутся из резолва (`field.options`): у портальной
+ * анкеты это `options` каталога с `bitrixId`, у встроенного вопроса — items
+ * поля из слепка. Значение контрола — КОД варианта, в портал уезжает
+ * `bitrixId` (см. toPortalFieldValue). Вариант может объявить и сам вопрос
+ * (`string` со своим списком) — тогда в поле уходит текст варианта.
  */
 export const ChecklistFieldControl: FC<{ field: ChecklistFieldView }> = ({
     field,
 }) => {
     const { def } = field;
 
-    if (def.type === 'enumeration' && field.field) {
+    if (def.control === 'enumeration' && field.options.length > 0) {
         return (
             <MicroSelect
                 ariaLabel={def.title}
                 value={field.value || undefined}
                 placeholder="Выбрать"
-                options={checklistEnumItems(field.field).map(item => ({
-                    value: item.code,
-                    label: item.name,
+                invalid={field.isMissing}
+                options={field.options.map(option => ({
+                    value: option.code,
+                    label: option.title,
                 }))}
                 onChange={field.setValue}
             />
         );
     }
 
-    if (def.type === 'money') {
+    if (def.control === 'boolean') {
+        return (
+            <MicroSelect
+                ariaLabel={def.title}
+                // Пустое значение — плейсхолдер «—»: «не выбрано» видно
+                // глазом и ответом не считается.
+                value={field.value || undefined}
+                placeholder="—"
+                invalid={field.isMissing}
+                options={CHECKLIST_BOOLEAN_OPTIONS.map(option => ({
+                    value: option.code,
+                    label: option.title,
+                }))}
+                onChange={field.setValue}
+            />
+        );
+    }
+
+    if (def.control === 'money') {
         return (
             <Input
                 type="number"
@@ -52,7 +83,7 @@ export const ChecklistFieldControl: FC<{ field: ChecklistFieldView }> = ({
         );
     }
 
-    if (def.type === 'datetime') {
+    if (def.control === 'datetime') {
         return (
             <Input
                 type="datetime-local"
@@ -65,7 +96,7 @@ export const ChecklistFieldControl: FC<{ field: ChecklistFieldView }> = ({
         );
     }
 
-    if (def.type === 'date') {
+    if (def.control === 'date') {
         return (
             <Input
                 type="date"
@@ -74,6 +105,42 @@ export const ChecklistFieldControl: FC<{ field: ChecklistFieldView }> = ({
                 aria-invalid={field.isMissing}
                 onChange={e => field.setValue(e.target.value)}
                 className={NUMERIC_CLASS}
+            />
+        );
+    }
+
+    // Многострочный ответ: сюда пишут реплику клиента целиком, и в строку
+    // высотой в шесть пикселей она не помещалась — текст уезжал за край без
+    // возможности перечитать.
+    if (def.control === 'text') {
+        return (
+            <Textarea
+                rows={2}
+                value={field.value}
+                aria-label={def.title}
+                aria-invalid={field.isMissing}
+                placeholder={def.placeholder ?? undefined}
+                onChange={e => field.setValue(e.target.value)}
+                className="min-h-12 w-64 resize-y px-2 py-1 text-[0.6875rem]"
+            />
+        );
+    }
+
+    // Строка со СВОИМ списком ответов: справочника в CRM нет (поле обычное
+    // строковое), но отвечать нужно из готового набора формулировок —
+    // варианты объявил сам вопрос анкеты.
+    if (hasChecklistChoice(def)) {
+        return (
+            <MicroSelect
+                ariaLabel={def.title}
+                value={field.value || undefined}
+                placeholder="Выбрать"
+                invalid={field.isMissing}
+                options={def.options.map(option => ({
+                    value: option.code,
+                    label: option.title,
+                }))}
+                onChange={field.setValue}
             />
         );
     }
@@ -87,7 +154,7 @@ export const ChecklistFieldControl: FC<{ field: ChecklistFieldView }> = ({
             value={field.value}
             aria-label={def.title}
             aria-invalid={field.isMissing}
-            placeholder={def.placeholder}
+            placeholder={def.placeholder ?? undefined}
             onChange={e => field.setValue(e.target.value)}
             className="h-6 w-56 px-2 py-0 text-[0.6875rem]"
         />

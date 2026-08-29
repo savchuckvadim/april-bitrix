@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { UpdatePortalAiSettingsDtoPresentationStrictness } from './updatePortalAiSettingsDtoPresentationStrictness';
+import type { UpdatePortalAiSettingsDtoWeeklyReportDelivery } from './updatePortalAiSettingsDtoWeeklyReportDelivery';
 
 export interface UpdatePortalAiSettingsDto {
   /**
@@ -122,4 +123,29 @@ export interface UpdatePortalAiSettingsDto {
    * @nullable
    */
   presentationStrictness?: UpdatePortalAiSettingsDtoPresentationStrictness;
+  /**
+   * Недельный Excel-отчёт по звонкам (пятница, 19:00 МСК).
+   * @nullable
+   */
+  weeklyReportEnabled?: boolean | null;
+  /**
+   * Получатели недельного отчёта — bitrix-id сотрудников (в интерфейсе вводятся через запятую).
+   * @nullable
+   */
+  weeklyReportRecipients?: number[] | null;
+  /**
+   * ID папки на Диске портала для файлов отчёта (папка рабочей группы). Пусто — папка приложения.
+   * @nullable
+   */
+  weeklyReportFolderId?: number | null;
+  /**
+   * Способ доставки недельного отчёта: chat (файл в личный чат), task (задача с файлом), notify (уведомление со ссылкой). null — сбросить на chat.
+   * @nullable
+   */
+  weeklyReportDelivery?: UpdatePortalAiSettingsDtoWeeklyReportDelivery;
+  /**
+   * Проверка звонка по документам компании (скрипт, регламент, фактчек продукта, методология презентации).
+   * @nullable
+   */
+  complianceReviewEnabled?: boolean | null;
 }

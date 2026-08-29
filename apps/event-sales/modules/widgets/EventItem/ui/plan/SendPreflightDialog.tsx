@@ -170,8 +170,18 @@ export const SendPreflightDialog: FC = () => {
             case 'notCaType':
                 return <LeadRequestNotCaSelect />;
             case 'planChecklist':
-                // Родной контрол: та же карточка чек-листа, что в плане.
-                return <ChecklistInlineCard />;
+                // Родные контролы: те же карточки, что в колонках — и плана,
+                // и отчёта. Отправку блокируют ОБЕ колонки, а здесь рисовалась
+                // одна: пока все вопросы отчёта были необязательны, это не
+                // стреляло, но портальная анкета вправе сделать обязательным
+                // и вопрос отчёта — и окно требовало бы заполнить то, чего в
+                // нём нет. Карточка без активных вопросов не рисуется сама.
+                return (
+                    <>
+                        <ChecklistInlineCard />
+                        <ChecklistInlineCard place="report" />
+                    </>
+                );
             case 'leadMarks':
                 return (
                     <LeadMarksList leadIds={leadIds} saleDealId={saleDealId} />

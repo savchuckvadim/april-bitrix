@@ -2,22 +2,28 @@ import { Bitrix } from '@workspace/bitrix';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { reportFrontError } from '@/modules/shared/front-error';
 import { toCrmDate, toCrmDateTime } from '@/modules/shared/lib/crm-date';
+// Прямой путь, а не барель слайса каталога: барель тянет транспорт.
+import { selectQuestionnaireByCode } from '@/modules/entities/Questionnaire/model/selectors';
 import type {
+    ChecklistDef,
     ChecklistFieldDef,
-    ChecklistId,
+    ChecklistFieldRef,
 } from '../type/call-checklist.type';
 import {
+    hasChecklistChoice,
     resolveChecklistField,
     type ChecklistEntityKind,
     type ResolvedChecklistField,
 } from '../lib/checklist-values';
+import { toPortalBooleanValue } from '../lib/checklist-boolean';
 import {
     cancelChecklistSave,
     scheduleChecklistSave,
 } from '../lib/checklist-save-queue';
-import { getChecklistById } from '../data/checklist-catalog';
 import {
     getChecklistMissing,
+    isChecklistRequireChange,
+    resolveChecklistFields,
     selectChecklistRows,
 } from '../lib/checklist-selectors';
 import { callChecklistActions } from './CallChecklistSlice';
@@ -26,9 +32,12 @@ import { callChecklistActions } from './CallChecklistSlice';
  * Значение контрола → значение портального поля.
  *
  * Даты уходят каноном CRM (`DD.MM.YYYY[ HH:mm:ss]`, тот же, что пишет
- * бэкенд), enum — bitrixId элемента, остальное — как есть. `''` снимает
- * значение. `null` — «писать нечего» (enum без такого элемента,
- * неразбираемая дата): запись отменяется, чужое значение не трогаем.
+ * бэкенд), справочник — `bitrixId` ВАРИАНТА ИЗ КАТАЛОГА (портальная анкета
+ * приносит его готовым, встроенный вопрос берёт из слепка — резолв сводит
+ * оба источника в один список), остальное — как есть. `''` снимает
+ * значение. `null` — «писать нечего» (нет такого варианта, вариант без
+ * bitrixId, неразбираемая дата): запись отменяется, чужое значение не
+ * трогаем.
  */
 const toPortalFieldValue = (
     def: ChecklistFieldDef,
@@ -36,12 +45,24 @@ const toPortalFieldValue = (
     resolved: ResolvedChecklistField,
 ): string | null => {
     if (!value) return '';
-    if (def.type === 'enumeration') {
-        const item = resolved.field?.items?.find(i => i.code === value);
-        return item ? String(item.bitrixId) : null;
+    if (def.control === 'enumeration') {
+        const option = resolved.options.find(item => item.code === value);
+        return option?.bitrixId === null || option === undefined
+            ? null
+            : String(option.bitrixId);
     }
-    if (def.type === 'date') return toCrmDate(value);
-    if (def.type === 'datetime') return toCrmDateTime(value);
+    // UF-поле типа boolean хранит 1/0; «не выбрано» сюда не доходит (пустое
+    // значение снято веткой выше).
+    if (def.control === 'boolean') return toPortalBooleanValue(value);
+    if (def.control === 'date') return toCrmDate(value);
+    if (def.control === 'datetime') return toCrmDateTime(value);
+    // Вариант «из пункта» уезжает в строковое поле ТЕКСТОМ: карточку
+    // Битрикса читают люди, и код вида `pay_now` был бы там шумом. Значение
+    // контрола при этом остаётся кодом — на нём держится выбор в селекте.
+    if (hasChecklistChoice(def)) {
+        const option = resolved.options.find(item => item.code === value);
+        return option?.title ?? value;
+    }
     return value;
 };
 
@@ -53,25 +74,34 @@ const toPortalFieldValue = (
  * подменяется. CRM — источник правды: значение обязано пережить отмену
  * отправки.
  *
- * dto-канал (продажа) — только стейт: значение уедет в payload отправки,
- * бэк запишет его одной операцией со сменой стадии.
+ * Остальные каналы — только стейт. `dto` (продажа): значение уедет в payload
+ * отправки, бэк запишет его одной операцией со сменой стадии. `smart`:
+ * ответ адресован полю ЭЛЕМЕНТА смарта, которого сейчас нет вовсе — его
+ * создаст или закроет сам поток отчёта, он же и разложит ответы. `text`:
+ * ответ уедет в комментарий события.
  *
  * Вызывается отложенно (см. changeChecklistField) либо явной очисткой —
  * напрямую из UI больше не зовётся.
  */
 export const saveChecklistField =
-    (def: ChecklistFieldDef, value: string) =>
+    (ref: ChecklistFieldRef, value: string) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
-        if (def.channel === 'dto') {
-            dispatch(
-                callChecklistActions.saveSucceeded({ code: def.code, value }),
-            );
+        const def = ref.def;
+        const key = ref.answerKey;
+        // В CRM пишет только crm-канал. Ответ dto-канала уезжает payload'ом
+        // отправки, ответ smart-канала — конвертом в элемент смарта, ответ
+        // text-канала — в комментарий события: все трое живут в стейте и в
+        // чужие поля не лезут. У смарт-вопроса при этом ЕСТЬ имя поля — но
+        // это имя поля в элементе, и подставлять его в компанию или сделку
+        // нельзя, поэтому ветка стоит до всякого резолва носителя.
+        if (def.channel !== 'crm') {
+            dispatch(callChecklistActions.saveSucceeded({ key, value }));
             return;
         }
 
         const state = getState();
         const resolved = resolveChecklistField(
-            def,
+            ref,
             state.portal.portal,
             selectChecklistRows(state),
         );
@@ -91,25 +121,25 @@ export const saveChecklistField =
             lead: (id, payload) => bitrix.lead.update(id, payload as never),
         };
 
-        dispatch(callChecklistActions.saveStarted({ code: def.code }));
+        dispatch(callChecklistActions.saveStarted({ key }));
         try {
             await update[resolved.entity](resolved.entityId, {
                 [resolved.ufKey]: portalValue,
             });
-            dispatch(
-                callChecklistActions.saveSucceeded({ code: def.code, value }),
-            );
+            dispatch(callChecklistActions.saveSucceeded({ key, value }));
         } catch (error) {
             dispatch(
                 callChecklistActions.saveFailed({
-                    code: def.code,
+                    key,
                     message: 'Значение не сохранилось — попробуйте ещё раз',
                 }),
             );
             reportFrontError({
                 place: 'call-checklist.save',
                 message: error instanceof Error ? error.message : String(error),
-                context: { code: def.code },
+                // Ключ ответа и код поля — по ключу видно, какой ВОПРОС не
+                // записался, по коду — какое поле портала.
+                context: { key, code: def.code },
             });
         }
     };
@@ -126,37 +156,38 @@ export const saveChecklistField =
  *    стоявшую в CRM дату. Стереть значение можно только явно —
  *    {@link clearChecklistField} (кнопка у заполненного поля).
  *
- * dto-канал пишется сразу: там нет ни запроса, ни чужого значения, которое
- * можно затереть, — только payload отправки.
+ * Каналы dto/smart/text пишутся сразу: там нет ни запроса, ни чужого
+ * значения, которое можно затереть, — только стейт и отправка.
  */
 export const changeChecklistField =
-    (def: ChecklistFieldDef, value: string) => (dispatch: AppDispatch) => {
-        dispatch(callChecklistActions.setDraft({ code: def.code, value }));
+    (ref: ChecklistFieldRef, value: string) => (dispatch: AppDispatch) => {
+        const key = ref.answerKey;
+        dispatch(callChecklistActions.setDraft({ key, value }));
 
-        if (def.channel === 'dto') {
-            cancelChecklistSave(def.code);
-            dispatch(
-                callChecklistActions.saveSucceeded({ code: def.code, value }),
-            );
+        if (ref.def.channel !== 'crm') {
+            cancelChecklistSave(key);
+            dispatch(callChecklistActions.saveSucceeded({ key, value }));
             return;
         }
 
         if (!value) {
-            cancelChecklistSave(def.code);
+            cancelChecklistSave(key);
             return;
         }
 
-        scheduleChecklistSave(def.code, () => {
-            void dispatch(saveChecklistField(def, value));
+        scheduleChecklistSave(key, () => {
+            void dispatch(saveChecklistField(ref, value));
         });
     };
 
 /** Явная очистка поля — единственный путь, которым в портал уходит пустота. */
 export const clearChecklistField =
-    (def: ChecklistFieldDef) => async (dispatch: AppDispatch) => {
-        cancelChecklistSave(def.code);
-        dispatch(callChecklistActions.setDraft({ code: def.code, value: '' }));
-        await dispatch(saveChecklistField(def, ''));
+    (ref: ChecklistFieldRef) => async (dispatch: AppDispatch) => {
+        cancelChecklistSave(ref.answerKey);
+        dispatch(
+            callChecklistActions.setDraft({ key: ref.answerKey, value: '' }),
+        );
+        await dispatch(saveChecklistField(ref, ''));
     };
 
 /**
@@ -199,10 +230,45 @@ export const ensureChecklistBaseDeal =
         }
     };
 
-/** Открыть модальный чек-лист (шаг цепочки send). */
+/**
+ * Снимок значений для пунктов с «обязательностью изменения».
+ *
+ * Момент снимка — появление вопроса на экране: карточка в колонке или
+ * открытая модалка. Раньше сравнивать было не с чем, и «требовать новое
+ * значение» означало бы «переписать поле хоть чем-нибудь», в том числе тем
+ * же самым.
+ *
+ * Снимаются только пункты `requireChange`: остальным снимок не нужен, а
+ * лишние ключи в сторе пришлось бы объяснять. Уже снятые ключи не трогаем —
+ * значение фиксируется один раз за сессию (сбрасывается вместе с ответами:
+ * `callChecklist/reset`).
+ */
+export const captureChecklistBaseline =
+    (defs: ChecklistDef[]) =>
+    (dispatch: AppDispatch, getState: AppGetState) => {
+        const state = getState();
+        const known = state.callChecklist.baselineByKey;
+        const entries: Record<string, string> = {};
+        for (const def of defs) {
+            for (const resolved of resolveChecklistFields(state, def)) {
+                if (!isChecklistRequireChange(resolved.def)) continue;
+                if (resolved.answerKey in known) continue;
+                entries[resolved.answerKey] = resolved.currentValue;
+            }
+        }
+        if (Object.keys(entries).length === 0) return;
+        dispatch(callChecklistActions.baselineCaptured({ entries }));
+    };
+
+/** Открыть модальную анкету по её коду (шаг цепочки send). */
 export const openCallChecklist =
-    (id: ChecklistId) => async (dispatch: AppDispatch) => {
+    (id: string) => async (dispatch: AppDispatch, getState: AppGetState) => {
+        // Строка базовой сделки — до снимка: снимать значения раньше, чем
+        // они прочитаны, значило бы зафиксировать пустоту вместо того, что
+        // стоит в CRM.
         await dispatch(ensureChecklistBaseDeal());
+        const def = selectQuestionnaireByCode(getState(), id);
+        if (def) dispatch(captureChecklistBaseline([def]));
         dispatch(callChecklistActions.modalOpened({ id }));
     };
 
@@ -213,9 +279,10 @@ export const openCallChecklist =
  * send() откроет СЛЕДУЮЩИЙ неподтверждённый чек-лист или отправит.
  */
 export const confirmCallChecklist =
-    (id: ChecklistId) =>
-    async (dispatch: AppDispatch, getState: AppGetState) => {
-        const def = getChecklistById(id);
+    (id: string) => async (dispatch: AppDispatch, getState: AppGetState) => {
+        // Анкету ищем в каталоге стора: состав задаёт портал, константы с
+        // наборами у движка больше нет.
+        const def = selectQuestionnaireByCode(getState(), id);
         if (!def) return;
         const missing = getChecklistMissing(getState(), def);
         if (missing.length > 0) return; // кнопка и так задизейблена

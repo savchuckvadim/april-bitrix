@@ -1,4 +1,7 @@
 import type { RootState } from '../../model/store';
+// Прямые пути: барель слайса каталога тянет транспорт.
+import { selectQuestionnaireDefs } from '@/modules/entities/Questionnaire/model/selectors';
+import type { QuestionnaireCatalogStatus } from '@/modules/entities/Questionnaire/model/QuestionnaireCatalogSlice';
 import type { AppGuard } from '../../model/slice/AppSlice';
 import type { APP_DISPLAY_MODE } from '../../types/app/app-type';
 
@@ -25,6 +28,12 @@ export interface AppDiagnostics {
     bossId: number;
     bossIdSource: ConfigSource;
     isConfigFetched: boolean;
+    /** Откуда действующий состав анкет: с портала или встроенный. */
+    questionnaireSource: 'портал' | 'встроенный';
+    /** Что случилось с запросом каталога — объясняет встроенный состав. */
+    questionnaireStatus: QuestionnaireCatalogStatus;
+    /** Сколько анкет действует сейчас (портальные плюс не замещённые встроенные). */
+    questionnaireCount: number;
     tasksCount: number;
     /** Состояние загрузки списка дел — объясняет нулевой счётчик. */
     tasksStatus: string;
@@ -38,6 +47,19 @@ export interface AppDiagnostics {
 
 const toId = (value: unknown): number => Number(value ?? 0) || 0;
 
+/** Статус запроса каталога — словами, как остальной снимок. */
+const QUESTIONNAIRE_STATUS_TEXT: Record<QuestionnaireCatalogStatus, string> = {
+    idle: 'не запрашивался',
+    loading: 'грузится',
+    ready: 'получен',
+    error: 'не получен',
+};
+
+/**
+ * «Портал» здесь означает ровно одно: ключ ЗАДАН в админке и применён.
+ * Значение, приехавшее в ответе дефолтом реестра, портальным не считается —
+ * `configPortalKeys` набирается только из заданных (lib/config/app-config-patch).
+ */
 const sourceOf = (
     portalKeys: string[],
     key: 'taskGroupId' | 'bossId',
@@ -71,6 +93,12 @@ export const buildAppDiagnostics = (state: RootState): AppDiagnostics => {
         bossId: app.config.bossId,
         bossIdSource: sourceOf(app.configPortalKeys, 'bossId'),
         isConfigFetched: app.isConfigFetched,
+        questionnaireSource:
+            state.questionnaireCatalog.source === 'server'
+                ? 'портал'
+                : 'встроенный',
+        questionnaireStatus: state.questionnaireCatalog.status,
+        questionnaireCount: selectQuestionnaireDefs(state).length,
         tasksCount: state.eventTask.tasks?.length ?? 0,
         tasksStatus: state.eventTask.status,
         prospectCode: color.current?.code ?? null,
@@ -95,6 +123,11 @@ export const formatAppDiagnostics = (
         diagnostics.isConfigFetched ? 'да' : 'нет'
     }`,
     `дела: ${diagnostics.tasksCount} (${diagnostics.tasksStatus})`,
+    // Без этой строки «анкеты не применились» на проде неотличимо от
+    // «работаем на встроенном наборе».
+    `анкеты: ${diagnostics.questionnaireSource}, наборов: ${diagnostics.questionnaireCount} (каталог ${
+        QUESTIONNAIRE_STATUS_TEXT[diagnostics.questionnaireStatus]
+    })`,
     `прогноз: ${diagnostics.prospectCode ?? 'не задан'}, поле на портале: ${
         diagnostics.prospectHasField ? 'есть' : 'нет'
     }, менялся: ${diagnostics.prospectIsChanged ? 'да' : 'нет'}`,

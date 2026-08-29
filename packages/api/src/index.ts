@@ -44,6 +44,41 @@ export {
     clearOldStorageKeys,
     removeOldPortalCache,
 } from './services/local-encrypt';
+// кэш «отдай старое, обнови в фоне» (IndexedDB → localStorage → сквозной режим)
+export {
+    swrCache,
+    readSwrCache,
+    writeSwrCache,
+    expireSwrCache,
+    removeSwrCache,
+    resolveSwrCache,
+    cleanupSwrCache,
+    resetSwrCacheRuntime,
+    getSwrStorageKind,
+    buildSwrCacheKey,
+    swrCacheKeyToString,
+    parseSwrCacheKeyString,
+    SwrTimeoutError,
+    SWR_CACHE_KEY_PREFIX,
+    SWR_DAY_MS,
+    SWR_DEFAULT_STALE_AFTER_MS,
+    SWR_DEFAULT_MAX_AGE_MS,
+    SWR_DEFAULT_TIMEOUT_MS,
+} from './services/swr-cache';
+export type {
+    SwrCacheEntry,
+    SwrCacheKey,
+    SwrFetchContext,
+    SwrFetcher,
+    SwrReadOptions,
+    SwrResolveOptions,
+    SwrResolveResult,
+    SwrRevalidateOutcome,
+    SwrStorageKind,
+    SwrValueSource,
+    SwrWriteOptions,
+} from './services/swr-cache';
+
 export {
     getLocalStorageJson,
     setLocalStorageJson,

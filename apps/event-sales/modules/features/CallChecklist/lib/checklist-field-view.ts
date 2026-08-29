@@ -1,6 +1,10 @@
 import type { Portal } from '@workspace/pbx';
-import type { ChecklistDef, ChecklistFieldDef } from '../type/call-checklist.type';
+import type {
+    ChecklistDef,
+    ChecklistFieldRef,
+} from '../type/call-checklist.type';
 import {
+    checklistFieldRefs,
     resolveChecklistField,
     type ChecklistEntityRows,
     type ResolvedChecklistField,
@@ -29,6 +33,11 @@ export interface ChecklistFieldView extends ResolvedChecklistField {
     clear: () => void;
 }
 
+/**
+ * Ответы, черновики и «пишется прямо сейчас» — все три по ключу ответа
+ * («набор:вопрос»), а не по коду поля: одно поле спрашивается в разных
+ * наборах и делить состояние между ними нельзя.
+ */
 export interface ChecklistFieldViewInput {
     portal: Portal | null | undefined;
     rows: ChecklistEntityRows;
@@ -36,30 +45,39 @@ export interface ChecklistFieldViewInput {
     saved: Record<string, string>;
     /** Набранное, ещё не записанное. */
     drafts: Record<string, string>;
-    savingCodes: Record<string, boolean>;
-    onChange: (def: ChecklistFieldDef, value: string) => void;
-    onClear: (def: ChecklistFieldDef) => void;
+    savingKeys: Record<string, boolean>;
+    /**
+     * Снимок значений CRM на момент появления вопроса — читают только
+     * пункты с «обязательностью изменения» (`requireChange`).
+     */
+    baseline: Record<string, string>;
+    onChange: (ref: ChecklistFieldRef, value: string) => void;
+    onClear: (ref: ChecklistFieldRef) => void;
 }
 
 export const buildChecklistFieldViews = (
     def: ChecklistDef,
     input: ChecklistFieldViewInput,
 ): ChecklistFieldView[] =>
-    def.fields
-        .map(field => resolveChecklistField(field, input.portal, input.rows))
+    checklistFieldRefs(def)
+        .map(ref => resolveChecklistField(ref, input.portal, input.rows))
         .filter((f): f is ResolvedChecklistField => f !== null)
         .map(resolved => {
-            const code = resolved.def.code;
-            const saved = input.saved[code];
-            const value = input.drafts[code] ?? saved ?? resolved.currentValue;
+            const key = resolved.answerKey;
+            const saved = input.saved[key];
+            const value = input.drafts[key] ?? saved ?? resolved.currentValue;
             return {
                 ...resolved,
                 value,
-                isMissing: isChecklistFieldMissing(resolved, saved),
+                isMissing: isChecklistFieldMissing(
+                    resolved,
+                    saved,
+                    input.baseline[key],
+                ),
                 isSaved: Boolean(saved),
-                isSaving: Boolean(input.savingCodes[code]),
+                isSaving: Boolean(input.savingKeys[key]),
                 canClear: Boolean(value),
-                setValue: (next: string) => input.onChange(resolved.def, next),
-                clear: () => input.onClear(resolved.def),
+                setValue: (next: string) => input.onChange(resolved, next),
+                clear: () => input.onClear(resolved),
             };
         });

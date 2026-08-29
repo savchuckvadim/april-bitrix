@@ -18,6 +18,7 @@ export const CallReportAnalyticsQueryDtoCallType = {
     site_lead: 'site_lead',
     call: 'call',
     presentation: 'presentation',
+    refine: 'refine',
     decision: 'decision',
     payment: 'payment',
     other: 'other',

@@ -1,5 +1,4 @@
 import {
-    findFieldItemByBitrixId,
     findPortalField,
     findUfKey,
     type PBXField,
@@ -11,20 +10,42 @@ import {
     toHumanDate,
     toHumanDateTime,
 } from '@/modules/shared/lib/crm-date';
-import type { ChecklistFieldDef } from '../type/call-checklist.type';
+// Прямые пути, а не барель слайса каталога: барель тянет транспорт.
+import { answerKey } from '@/modules/entities/Questionnaire/lib/answer-key';
+import type {
+    QuestionnaireControl,
+    QuestionnaireOption,
+} from '@/modules/entities/Questionnaire/model/questionnaire.type';
+import {
+    CHECKLIST_BOOLEAN_NO,
+    checklistBooleanTitle,
+    toChecklistBooleanValue,
+} from './checklist-boolean';
+import type {
+    ChecklistDef,
+    ChecklistFieldDef,
+    ChecklistFieldRef,
+} from '../type/call-checklist.type';
 
 /**
- * Резолв поля чек-листа в конкретного носителя и чтение текущего значения.
+ * Резолв вопроса анкеты в конкретного носителя и чтение текущего значения.
  *
- * Носитель — по приоритету ИНН (как PurchaseSignals): компания → сделка →
- * лид; берётся ПЕРВАЯ сущность, где поле установлено на портале и строка
- * загружена. Так один каталог кроет и поля компании (op_efield_fail_reason
- * пишется в сущность-владельца), и чисто сделочные поля конструктора
- * (op_invoice_date есть только на deal — компания его просто не отдаст ключа).
+ * АДРЕС ПОЛЯ. Портальная анкета несёт готовое имя поля (`field.name` — ровно
+ * та строка, что вернул Битрикс), оно и есть адрес: ни слепка портала, ни
+ * сборки ключа конкатенацией. Так видны поля, заведённые на портале руками,
+ * и суточный клиентский кэш слепка перестаёт их прятать. Слепок остался
+ * только для ВСТРОЕННЫХ вопросов (`legacyFieldCode`), где имя заранее
+ * неизвестно и ключ по-прежнему ищется по коду pbx-реестра.
  *
- * Ничего не резолвится (лид-only без поля, слепок без поля) — поле не
- * показывается и отправку не блокирует: самогейт, никакого релиза под
- * установку поля не нужно.
+ * НОСИТЕЛЬ. `target.mode: 'entity'` — носитель назван анкетой;
+ * `auto` — прежний приоритет ИНН: компания → сделка → лид. У канала
+ * `smart` носителя нет вовсе: ответ адресован ЭЛЕМЕНТУ смарта, которого на
+ * момент вопроса ещё не существует, и строку под него искать негде — такой
+ * вопрос резолвится без сущности и без текущего значения.
+ *
+ * Ничего не резолвится (носителя нет, поля нет в слепке, справочник без
+ * вариантов) — вопрос не показывается и отправку не блокирует: самогейт,
+ * никакого релиза под установку поля не нужно.
  */
 
 export type ChecklistEntityKind = 'company' | 'deal' | 'lead';
@@ -35,21 +56,29 @@ export interface ChecklistEntityRows {
     lead: Record<string, unknown> | null;
 }
 
-export interface ResolvedChecklistField {
-    def: ChecklistFieldDef;
+export interface ResolvedChecklistField extends ChecklistFieldRef {
     entity: ChecklistEntityKind;
+    /**
+     * 0 — носителя нет: `dto` (сделку создаст сам flow) и `smart` (элемент
+     * смарта родится отправкой). `entity` у таких вопросов формальный.
+     */
     entityId: number;
+    /** Имя поля Битрикса; '' — вопрос без поля в CRM (dto/text/smart). */
     ufKey: string;
-    /** null — штатное поле Bitrix (native), слепок не участвует. */
-    field: PBXField | null;
+    /**
+     * Варианты справочника ОДНИМ списком — и для контрола, и для записи: у
+     * портальной анкеты из `options` каталога (там уже `bitrixId`), у
+     * встроенного вопроса — из items поля в слепке.
+     */
+    options: QuestionnaireOption[];
     /** Нормализованное значение для контрола ('' — пусто). */
     currentValue: string;
-    /** Человекочитаемое значение (имя item'а, дата) для подписи «сейчас». */
+    /** Человекочитаемое значение (название варианта, дата) для «сейчас». */
     currentLabel: string;
 }
 
 /**
- * Значение контрола по типу поля: `date` — `YYYY-MM-DD`, `datetime` —
+ * Значение контрола по типу вопроса: `date` — `YYYY-MM-DD`, `datetime` —
  * `YYYY-MM-DDTHH:mm` (контрол `datetime-local`). Разбор обоих диалектов
  * портала — в общем нормализаторе (`modules/shared/lib/crm-date`).
  *
@@ -58,16 +87,16 @@ export interface ResolvedChecklistField {
  * запись обнуляла его.
  */
 export const toChecklistInputValue = (
-    type: ChecklistFieldDef['type'],
+    control: QuestionnaireControl,
     raw: unknown,
 ): string =>
-    type === 'datetime' ? toDateTimeInputValue(raw) : toDateInputValue(raw);
+    control === 'datetime' ? toDateTimeInputValue(raw) : toDateInputValue(raw);
 
 /** Подпись «сейчас: …» — дата или дата со временем, в локали портала. */
 export const toChecklistDisplayValue = (
-    type: ChecklistFieldDef['type'],
+    control: QuestionnaireControl,
     raw: unknown,
-): string => (type === 'datetime' ? toHumanDateTime(raw) : toHumanDate(raw));
+): string => (control === 'datetime' ? toHumanDateTime(raw) : toHumanDate(raw));
 
 const fieldsFor = (
     portal: Portal | null | undefined,
@@ -82,101 +111,340 @@ const fieldsFor = (
 
 const ENTITY_PRIORITY: ChecklistEntityKind[] = ['company', 'deal', 'lead'];
 
+/** Строка CRM, в которую движок умеет писать сам. */
+const isCrmEntityKind = (entity: string): entity is ChecklistEntityKind =>
+    (ENTITY_PRIORITY as readonly string[]).includes(entity);
+
+/**
+ * Носители, среди которых ищем поле: названный анкетой — один, `auto` —
+ * прежний приоритет компания → сделка → лид.
+ */
+const targetKinds = (def: ChecklistFieldDef): ChecklistEntityKind[] => {
+    const entity = def.target.mode === 'entity' ? def.target.entity : null;
+    if (!entity) return ENTITY_PRIORITY;
+    // Носитель назван, но он не строка CRM (`smart`) — искать поле негде.
+    // Канал `smart` сюда не доходит вовсе, у него своя ветка в резолве;
+    // пустой список остаётся страховкой на случай чужой формы каталога.
+    return isCrmEntityKind(entity) ? [entity] : [];
+};
+
 /** Сумма Bitrix ('150000.00'): нули и мусор считаются «пусто». */
 const toMoneyValue = (raw: unknown): string => {
     const value = Number(String(raw ?? '').replace(',', '.'));
     return Number.isFinite(value) && value > 0 ? String(value) : '';
 };
 
-export const resolveChecklistField = (
-    def: ChecklistFieldDef,
-    portal: Portal | null | undefined,
-    rows: ChecklistEntityRows,
-): ResolvedChecklistField | null => {
-    // dto-поля (продажа) уезжают в payload отправки, а не в CRM: строка
-    // сущности нужна только для подписи «сейчас» — её отсутствие (сделку
-    // создаст сам flow) не прячет поле, иначе обязательность молча
-    // испарялась бы, а сервер-гард всё равно вернул бы 400.
-    const isDtoChannel = def.channel === 'dto';
+/** Варианты поля из слепка — для встроенных вопросов (дедуп по коду). */
+const optionsFromPortalField = (
+    field: PBXField | null,
+): QuestionnaireOption[] => {
+    const seen = new Set<string>();
+    const options: QuestionnaireOption[] = [];
+    for (const item of field?.items ?? []) {
+        if (!item.code || seen.has(item.code)) continue;
+        seen.add(item.code);
+        options.push({
+            code: item.code,
+            title: item.name,
+            bitrixId: item.bitrixId,
+        });
+    }
+    return options;
+};
 
-    // Штатное поле Bitrix (OPPORTUNITY): живёт только на сделке, ключ —
-    // сам код, слепок портала не нужен.
-    if (def.native) {
-        const row = rows.deal;
-        const entityId = Number(row?.['ID']);
-        const hasRow = Boolean(
-            row && Number.isFinite(entityId) && entityId > 0,
-        );
-        if (!hasRow && !isDtoChannel) return null;
-        const currentValue = hasRow ? toMoneyValue(row?.[def.code]) : '';
+/** Вариант справочника по значению из CRM (в строке лежит bitrixId). */
+export const findChecklistOptionByBitrixId = (
+    options: QuestionnaireOption[],
+    raw: unknown,
+): QuestionnaireOption | null => {
+    if (raw === null || raw === undefined || raw === '') return null;
+    return (
+        options.find(
+            option =>
+                option.bitrixId !== null &&
+                String(option.bitrixId) === String(raw),
+        ) ?? null
+    );
+};
+
+/**
+ * У вопроса свой список ответов, объявленный САМИМ ПУНКТОМ анкеты, а не
+ * справочником Битрикса: поле обычное строковое, но отвечать на него нужно
+ * из готового набора формулировок. Без этого админу пришлось бы заводить
+ * справочное поле в CRM ради трёх вариантов ответа.
+ *
+ * Только `string`: у дат и сумм список ответов бессмыслен, а `enumeration`
+ * ходит своей веткой (там варианты пишутся `bitrixId`).
+ */
+export const hasChecklistChoice = (def: ChecklistFieldDef): boolean =>
+    def.control === 'string' && def.options.length > 0;
+
+/** Вариант по коду — код и есть значение контрола. */
+export const findChecklistOptionByCode = (
+    options: QuestionnaireOption[],
+    code: string,
+): QuestionnaireOption | null =>
+    options.find(option => option.code === code) ?? null;
+
+/**
+ * Вариант «из пункта» по значению строкового поля.
+ *
+ * В поле лежит ТЕКСТ варианта: строковое поле читают в карточке Битрикса
+ * руководитель и следующий менеджер, и код вида `pay_now` там был бы
+ * шумом. Код принимается тоже — на случай значений, записанных до того,
+ * как у вопроса появился список.
+ */
+const findChecklistChoiceOption = (
+    options: QuestionnaireOption[],
+    raw: string,
+): QuestionnaireOption | null =>
+    options.find(option => option.title === raw) ??
+    findChecklistOptionByCode(options, raw);
+
+/**
+ * Вопросы анкеты вместе с ключами ответов, в порядке показа.
+ *
+ * Единственное место, где ключ собирается из анкеты и вопроса: у портальной
+ * анкеты код вопроса и код поля — разные вещи, и разбирать эту разницу
+ * должен один файл, а не каждый потребитель.
+ *
+ * Здесь же единственная сортировка вопросов: `sort` анкеты, при равенстве —
+ * код (иначе порядок задавал бы порядок ключей в JSON, и два портала с
+ * одинаковым составом показывали бы вопросы по-разному). Порядок нужен
+ * одинаковый и карточке, и модалке, и сборке ответов, поэтому он живёт в
+ * общем перечислителе, а не в UI.
+ */
+const byDisplayOrder = (a: ChecklistFieldDef, b: ChecklistFieldDef): number =>
+    a.sort - b.sort || a.code.localeCompare(b.code);
+
+export const checklistFieldRefs = (def: ChecklistDef): ChecklistFieldRef[] =>
+    [...def.items].sort(byDisplayOrder).map(item => ({
+        answerKey: answerKey(def.code, item.code),
+        def: item,
+    }));
+
+/** Значение из строки сущности + подпись «сейчас» по типу вопроса. */
+const readCurrent = (
+    def: ChecklistFieldDef,
+    raw: unknown,
+    options: QuestionnaireOption[],
+): { currentValue: string; currentLabel: string } => {
+    if (def.control === 'enumeration') {
+        const option = findChecklistOptionByBitrixId(options, raw);
         return {
-            def,
-            entity: 'deal',
-            entityId: hasRow ? entityId : 0,
-            ufKey: def.code,
-            field: null,
-            currentValue,
-            currentLabel: currentValue
-                ? `${Number(currentValue).toLocaleString('ru-RU')} ₽`
+            currentValue: option?.code ?? '',
+            currentLabel: option?.title ?? '',
+        };
+    }
+    if (def.control === 'date' || def.control === 'datetime') {
+        return {
+            currentValue: toChecklistInputValue(def.control, raw),
+            currentLabel: toChecklistDisplayValue(def.control, raw),
+        };
+    }
+    if (def.control === 'money') {
+        const value = toMoneyValue(raw);
+        return {
+            currentValue: value,
+            currentLabel: value
+                ? `${Number(value).toLocaleString('ru-RU')} ₽`
                 : '',
         };
     }
-
-    for (const kind of ENTITY_PRIORITY) {
-        const row = rows[kind];
-        if (!row && !isDtoChannel) continue;
-        const fields = fieldsFor(portal, kind);
-        const field = findPortalField(fields, def.code);
-        const ufKey = findUfKey(fields, def.code);
-        const entityId = Number(row?.['ID']);
-        const hasRow = Boolean(
-            row && Number.isFinite(entityId) && entityId > 0,
-        );
-        if (!field || !ufKey || (!hasRow && !isDtoChannel)) {
-            continue;
-        }
-
-        const raw = hasRow ? row?.[ufKey] : undefined;
-        let currentValue = '';
-        let currentLabel = '';
-        if (def.type === 'enumeration') {
-            const item =
-                raw === null || raw === undefined || raw === ''
-                    ? null
-                    : findFieldItemByBitrixId(field, String(raw));
-            currentValue = item?.code ?? '';
-            currentLabel = item?.name ?? '';
-        } else if (def.type === 'date' || def.type === 'datetime') {
-            currentValue = toChecklistInputValue(def.type, raw);
-            currentLabel = toChecklistDisplayValue(def.type, raw);
-        } else {
-            currentValue = typeof raw === 'string' ? raw : String(raw ?? '');
-            currentLabel = currentValue;
-        }
-
+    if (def.control === 'boolean') {
+        // «Не выбрано» — не ответ, и «Нет» из поля им тоже не становится:
+        // UF-поле типа boolean хранит 0 и у вопроса, которого никто не
+        // касался (ноль пишет любое сохранение карточки Битрикса с
+        // выключенной галкой), поэтому отличить в нём ответ «нет» от
+        // молчания менеджера нечем — ровно та причина, по которой контрол
+        // сделан трёхсостоянийным. Значение из CRM видно подписью «сейчас»,
+        // но обязательный вопрос закрывает только ответ этой сессии, иначе
+        // отчёт уехал бы с ответом, которого менеджер не давал. «Да» ответ
+        // закрывает: единица дефолтом не появляется.
+        const value = toChecklistBooleanValue(raw);
         return {
-            def,
-            entity: kind,
-            entityId: hasRow ? entityId : 0,
-            ufKey,
-            field,
-            currentValue,
-            currentLabel,
+            currentValue: value === CHECKLIST_BOOLEAN_NO ? '' : value,
+            currentLabel: checklistBooleanTitle(value),
         };
     }
-    return null;
+    const value = typeof raw === 'string' ? raw : String(raw ?? '');
+    if (hasChecklistChoice(def)) {
+        // В поле лежит текст варианта — показываем его вариантом, а не
+        // свободной строкой, иначе селект не нашёл бы, что выбрано.
+        const option = findChecklistChoiceOption(def.options, value);
+        return {
+            currentValue: option?.code ?? value,
+            currentLabel: option?.title ?? value,
+        };
+    }
+    return { currentValue: value, currentLabel: value };
 };
 
-/** Items enum-поля без дублей кодов (в реестре встречаются задвоения). */
-export const checklistEnumItems = (
-    field: PBXField,
-): Array<{ code: string; name: string }> => {
-    const seen = new Set<string>();
-    const items: Array<{ code: string; name: string }> = [];
-    for (const item of field.items ?? []) {
-        if (!item.code || seen.has(item.code)) continue;
-        seen.add(item.code);
-        items.push({ code: item.code, name: item.name });
+const entityIdOf = (row: Record<string, unknown> | null): number => {
+    const id = Number(row?.['ID']);
+    return Number.isFinite(id) && id > 0 ? id : 0;
+};
+
+export const resolveChecklistField = (
+    ref: ChecklistFieldRef,
+    portal: Portal | null | undefined,
+    rows: ChecklistEntityRows,
+): ResolvedChecklistField | null => {
+    const def = ref.def;
+    // Ответ dto-канала уезжает в payload отправки, а не в CRM: носитель ему
+    // не нужен вовсе, и его отсутствие (сделку создаст сам flow) вопрос не
+    // прячет — иначе обязательность молча испарялась бы, хотя сервер-гард
+    // всё равно вернул бы 400. Строка носителя, если она есть, нужна только
+    // для подписи «сейчас».
+    const isCrmChannel = def.channel === 'crm';
+
+    // Справочник без вариантов записывать нечем: пустой селект блокировал бы
+    // отправку обязательностью, которую менеджеру нечем закрыть.
+    const enumGuard = (
+        options: QuestionnaireOption[],
+    ): QuestionnaireOption[] | null =>
+        def.control === 'enumeration' && options.length === 0 ? null : options;
+
+    // Канал `smart`: ответ уедет в ЭЛЕМЕНТ смарта, который создаст или
+    // закроет поток этого отчёта. Элемента сейчас нет вовсе, поэтому:
+    // носителя нет (entityId 0), «сейчас» показывать неоткуда (значения нет
+    // ни у кого), а `ufKey` пуст — имя из каталога адресует поле В ЭЛЕМЕНТЕ,
+    // и подставить его в строку компании или сделки нельзя: одноимённое поле
+    // прочиталось бы как текущее значение, а запись ушла бы в чужую сущность.
+    //
+    // Ветка стоит ДО всех остальных именно поэтому: у смарт-вопроса есть
+    // готовое `field.name`, и без неё он ушёл бы искать носителя по имени.
+    if (def.channel === 'smart') {
+        const options = enumGuard(def.options);
+        if (!options) return null;
+        return {
+            ...ref,
+            // Носителя нет; `entity` здесь формальность типа — ровно как у
+            // ответа dto-канала ниже.
+            entity: 'deal',
+            entityId: 0,
+            ufKey: '',
+            options,
+            currentValue: '',
+            currentLabel: '',
+        };
     }
-    return items;
+
+    // Штатное поле Битрикса (OPPORTUNITY, SOURCE_ID): живёт только на
+    // сделке, слепок портала не нужен — имя поля и есть ключ строки.
+    //
+    // Варианты берутся из каталога наравне с UF-полем и проходят тот же
+    // enumGuard: у штатного поля справочник тоже бывает, а пустой список
+    // здесь рисовал бы справочный вопрос свободной строкой, отменял запись
+    // без ошибки на экране (в резолве нет варианта — писать нечего) и
+    // запирал отправку обязательностью, которую нечем закрыть.
+    if (def.isNative) {
+        const row = rows.deal;
+        const entityId = entityIdOf(row);
+        if (!entityId && isCrmChannel) return null;
+        const ufKey = def.field?.name ?? def.code;
+        const options = enumGuard(def.options);
+        if (!options) return null;
+        return {
+            ...ref,
+            entity: 'deal',
+            entityId,
+            ufKey,
+            options,
+            ...readCurrent(def, entityId ? row?.[ufKey] : undefined, options),
+        };
+    }
+
+    // Портальная анкета: имя поля пришло готовым — адресуем напрямую.
+    if (def.field?.name) {
+        const ufKey = def.field.name;
+        const options = enumGuard(def.options);
+        if (!options) return null;
+        for (const kind of targetKinds(def)) {
+            const row = rows[kind];
+            // Носитель назван анкетой — верим ей; при `auto` носителя
+            // выдаёт сама строка: crm.*.get отдаёт все поля СВОЕЙ сущности,
+            // поэтому наличие ключа и есть признак владельца (слепок для
+            // этого больше не нужен).
+            const isCarrier =
+                row !== null &&
+                (def.target.mode === 'entity' ||
+                    Object.prototype.hasOwnProperty.call(row, ufKey));
+            if (!isCarrier) continue;
+            const entityId = entityIdOf(row);
+            if (!entityId && isCrmChannel) continue;
+            return {
+                ...ref,
+                entity: kind,
+                entityId,
+                ufKey,
+                options,
+                ...readCurrent(def, entityId ? row[ufKey] : undefined, options),
+            };
+        }
+        // Носителя не нашли: crm-вопрос прячем (писать некуда), ответ
+        // dto/text-канала живёт и без него.
+        return isCrmChannel
+            ? null
+            : {
+                  ...ref,
+                  entity: 'deal',
+                  entityId: 0,
+                  ufKey,
+                  options,
+                  currentValue: '',
+                  currentLabel: '',
+              };
+    }
+
+    // Встроенный вопрос: имени нет, ключ ищется по коду pbx-реестра в
+    // слепке портала (обратная совместимость с FALLBACK_CATALOG).
+    if (def.legacyFieldCode) {
+        const code = def.legacyFieldCode;
+        for (const kind of targetKinds(def)) {
+            const row = rows[kind];
+            if (!row && isCrmChannel) continue;
+            const fields = fieldsFor(portal, kind);
+            const field = findPortalField(fields, code);
+            const ufKey = findUfKey(fields, code);
+            const entityId = entityIdOf(row);
+            if (!field || !ufKey || (!entityId && isCrmChannel)) continue;
+            const options = enumGuard(
+                def.options.length
+                    ? def.options
+                    : optionsFromPortalField(field),
+            );
+            // Справочник без вариантов — пробуем следующего носителя.
+            if (!options) continue;
+            return {
+                ...ref,
+                entity: kind,
+                entityId,
+                ufKey,
+                options,
+                ...readCurrent(
+                    def,
+                    entityId ? row?.[ufKey] : undefined,
+                    options,
+                ),
+            };
+        }
+        // Поля нет в слепке: crm-вопрос прячем, ответ dto/text-канала
+        // («Дата первой оплаты») уходит ниже — он живёт и без носителя.
+    }
+
+    // Вопрос без поля вовсе (dto/text-канал): ответ хранится в стейте и
+    // уезжает payload'ом отправки — писать в CRM нечего и незачем.
+    if (isCrmChannel) return null;
+    const options = enumGuard(def.options);
+    if (!options) return null;
+    return {
+        ...ref,
+        entity: 'deal',
+        entityId: 0,
+        ufKey: '',
+        options,
+        currentValue: '',
+        currentLabel: '',
+    };
 };

@@ -12,8 +12,18 @@ export {
     getSalesTaskGroupId,
     getServiceTaskGroupId,
     getServiceSignalTaskGroupId,
-    clearPortalCache,
 } from './entities/portal/lib/portal-util';
+// Кэш слепка: ключ, срок годности и ЯВНАЯ инвалидация «поля переустановили».
+export {
+    PORTAL_CACHE_MAX_AGE_MS,
+    PORTAL_CACHE_STALE_AFTER_MS,
+    PORTAL_CACHE_VERSION,
+    getPortalCacheKey,
+    expirePortalCache,
+    isPortalSnapshot,
+    isSamePortalSnapshot,
+    resetPortalCacheRuntime,
+} from './entities/portal/lib/portal-cache';
 export type {
     Portal,
     PBX_GROUP,

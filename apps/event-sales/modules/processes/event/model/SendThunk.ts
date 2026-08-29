@@ -44,18 +44,28 @@ import {
 } from '@/modules/app/lib/utills/app-state-util';
 import { getSocketIdSafe } from '@/modules/app/lib/ws/ws-client.util';
 import { getPlannedFinishText, validateSend } from '../lib/send-validation';
+import { awaitQuestionnaireCatalog } from '../lib/questionnaire-gate';
 import { getSendPreflight } from '../lib/send-preflight';
 import { shouldCleanAfterSend } from '../lib/clean-after-send';
 
 const flowHelper = new FlowHelper();
 
 /**
- * Отправка отчёта: валидация → (обязательный опросник) → sendEvent.
+ * Отправка отчёта: каталог анкет → валидация → (обязательный опросник) →
+ * sendEvent.
  * Порт legacy send(). Навигация на Finish — декларативно: sendEvent ставит
  * event.isFinish, EventProcessInit переводит на /finish.
  */
 export const send =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
+        // Каталог анкет — ПЕРВЫМ шагом, до валидации: состав вопросов
+        // решает, что обязательно, и валидация на ещё не доехавшем каталоге
+        // пропустила бы незаполненную портальную анкету (риск «тихая утечка
+        // незаполненных анкет» из плана). Ждём только пока каталог грузится
+        // и только до дедлайна: не дождались — работаем на встроенном
+        // наборе, отправку это не останавливает (см. questionnaire-gate).
+        await awaitQuestionnaireCatalog(getState);
+
         const state = getState();
         const { result, isColorRequiredError } = validateSend(state);
         // Полная предпроверка шире валидации: пометки заявок при
@@ -108,7 +118,7 @@ export const send =
         const nextChecklist = selectNextPendingChecklist(getState());
         if (nextChecklist) {
             dispatch(callChecklistActions.setPendingSend({ status: true }));
-            await dispatch(openCallChecklist(nextChecklist.id));
+            await dispatch(openCallChecklist(nextChecklist.code));
             return;
         }
 

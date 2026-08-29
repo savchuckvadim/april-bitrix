@@ -9,6 +9,8 @@ import type {
     AnalyzeCallDto,
     AnalyzeCallsResponseDto,
     CallReportScanResponseDto,
+    CallReportWeeklyRequestDto,
+    CallReportWeeklyResponseDto,
     InstallCallReportSmartDto,
     InstallCallReportSmartResponseDto,
     PresentationAuditRequestDto,
@@ -101,6 +103,20 @@ export const getCallReport = () => {
             data: presentationPlanFactRequestDto,
         });
     };
+    /**
+     * Собирает по порталу все разобранные звонки за период, кладёт книгу Excel на Диск (в папку из настроек портала, иначе — в хранилище приложения) и уведомляет получателей из настроек. В файле — то, что физически не помещается в карточку смарта: полные разборы разделов, анализ речи, хвост и 5К, сверка с отчётом менеджера и транскрипт. Ручной аналог пятничного крона.
+     * @summary Недельный Excel-отчёт по звонкам (ручной запуск)
+     */
+    const callReportWeeklyReport = (
+        callReportWeeklyRequestDto: CallReportWeeklyRequestDto,
+    ) => {
+        return customAxios<CallReportWeeklyResponseDto>({
+            url: `/api/call-report/weekly-report`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: callReportWeeklyRequestDto,
+        });
+    };
     return {
         callReportInstallSmart,
         callReportScan,
@@ -108,6 +124,7 @@ export const getCallReport = () => {
         callReportRevise,
         callReportPresentationAuditRun,
         callReportPresentationPlanFactRun,
+        callReportWeeklyReport,
     };
 };
 export type CallReportInstallSmartResult = NonNullable<
@@ -138,5 +155,10 @@ export type CallReportPresentationPlanFactRunResult = NonNullable<
                 typeof getCallReport
             >['callReportPresentationPlanFactRun']
         >
+    >
+>;
+export type CallReportWeeklyReportResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getCallReport>['callReportWeeklyReport']>
     >
 >;

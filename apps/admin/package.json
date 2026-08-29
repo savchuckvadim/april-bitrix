@@ -11,6 +11,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "generate:admin-entities": "tsx scripts/generate-admin-entities/index.ts",
     "generate:navigation": "tsx scripts/generate-navigation/index.ts"
   },
@@ -52,7 +53,8 @@
     "typescript": "^5.7.3",
     "tsx": "^4.0.0",
     "glob": "^10.0.0",
-    "@types/glob": "^8.0.0"
+    "@types/glob": "^8.0.0",
+    "vitest": "^3.2.4"
   },
   "main": "eslint.config.js",
   "keywords": [],

@@ -3,7 +3,7 @@
 import { FC } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import { useInlineChecklists } from '../lib/hooks/use-inline-checklists';
-import { ChecklistField } from './components/ChecklistField';
+import { ChecklistFieldGroup } from './components/ChecklistFieldGroup';
 
 interface ChecklistInlineCardProps {
     /**
@@ -36,11 +36,11 @@ export const ChecklistInlineCard: FC<ChecklistInlineCardProps> = ({
 
     return (
         <div className="space-y-2">
-            {checklists.map(({ def, fields }) => {
+            {checklists.map(({ def, fields, groups }) => {
                 const hasMissing = fields.some(field => field.isMissing);
                 return (
                     <div
-                        key={def.id}
+                        key={def.code}
                         className={cn(
                             'space-y-1.5 rounded-lg border border-l-[3px] bg-card/60 p-2',
                             hasMissing
@@ -63,10 +63,13 @@ export const ChecklistInlineCard: FC<ChecklistInlineCardProps> = ({
                                 {def.hint}
                             </p>
                         )}
-                        {fields.map(field => (
-                            <ChecklistField
-                                key={field.def.code}
-                                field={field}
+                        {groups.map((group, index) => (
+                            <ChecklistFieldGroup
+                                // Секции — позиционные: заголовок ставится
+                                // там, где сменился groupTitle, и один и тот
+                                // же заголовок может встретиться дважды.
+                                key={`${group.title ?? ''}:${index}`}
+                                group={group}
                             />
                         ))}
                         {error && (

@@ -35,7 +35,7 @@ export type LeadToWorkWebhookParams = {
      */
     stageMode?: LeadToWorkWebhookStageMode;
     /**
-     * Задачи лида: move — перенести с префиксом «Звонок», close — закрыть и поставить новую.
+     * Задачи лида: move — перенести с префиксом «Звонок», close — закрыть и поставить новую, none — не трогать и новую не создавать.
      */
     taskMode?: LeadToWorkWebhookTaskMode;
     /**

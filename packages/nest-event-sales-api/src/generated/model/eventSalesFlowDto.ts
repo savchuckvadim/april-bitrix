@@ -8,6 +8,8 @@
 import type { PlanDto } from './planDto';
 import type { ReportDto } from './reportDto';
 import type { EventTaskDto } from './eventTaskDto';
+import type { OpenEventTaskDto } from './openEventTaskDto';
+import type { QuestionnaireAnswerDto } from './questionnaireAnswerDto';
 import type { EvFlowContextDto } from './evFlowContextDto';
 import type { PlacementDto } from './placementDto';
 import type { EventSalesFlowDtoContact } from './eventSalesFlowDtoContact';
@@ -32,6 +34,10 @@ export interface EventSalesFlowDto {
     report?: ReportDto;
     /** Текущая задача, по которой отчитывается менеджер. */
     currentTask?: EventTaskDto;
+    /** ВСЕ открытые дела клиента (включая ту задачу, по которой идёт отчёт — бэк исключит её сам). По ним считаются «дата следующего события» и «дата назначенной презентации»: у клиента может быть несколько открытых дел, и ближайшим окажется не обязательно то, которое планирует этот отчёт. Поле НЕ прислано — прежнее поведение (даты пишутся планом вслепую). */
+    openTasks?: OpenEventTaskDto[];
+    /** Ответы анкет портального каталога, адресованные полям ЭЛЕМЕНТА смарта (презентации, ЗПР). Значения — в каноне каталога: код варианта, «YYYY-MM-DD», «Y»/«N». Бэк сам находит поле и тот элемент, который создаёт или закрывает поток этого отчёта — включая спонтанный для незапланированного события. Поле НЕ прислано — прежнее поведение (анкеты в смарт не пишутся). */
+    questionnaireAnswers?: QuestionnaireAnswerDto[];
     /** Честный контекст встройки: тип + id сущностей. Приоритетный источник владельца события; `placement` остаётся только как фолбэк для старых клиентов. */
     context?: EvFlowContextDto;
     /**

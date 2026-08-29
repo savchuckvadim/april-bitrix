@@ -408,10 +408,13 @@ describe('что менеджер может запланировать сам',
     });
 
     it('список совпадает с PLAN_CALL_TYPES реального приложения', () => {
-        // apps/event-sales/modules/entities/EventPlan/lib/plan-util.ts
+        // apps/event-sales/modules/entities/EventPlan/lib/plan.util.ts
+        // Типов шесть: «Доработка» (EV_PLAN_CODE.REFINE) стоит в приложении
+        // между презентацией и решением — тем же местом идёт и здесь.
         expect(SIM_PLANNABLE_EVENTS.map(event => event.code)).toEqual([
             'warm',
             'presentation',
+            'refine',
             'hot',
             'moneyAwait',
             'supply',

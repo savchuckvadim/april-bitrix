@@ -15,6 +15,7 @@ export const PortalNavigation = () => {
         isPortalKeys,
         isPortalAiSettings,
         isPortalAppSettings,
+        isPortalQuestionnaires,
         isPortalProvider,
         portalId,
         isPortalStatistics,
@@ -39,6 +40,8 @@ export const PortalNavigation = () => {
                 {portalId && <Link href={`/portal/${portalId}/ai-settings`} className={isPortalAiSettings ? 'text-primary' : 'text-gray-500'}>{'AI'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/app-settings`} className={isPortalAppSettings ? 'text-primary' : 'text-gray-500'}>{'Settings'}</Link>}
+
+                {portalId && <Link href={`/portal/${portalId}/questionnaires`} className={isPortalQuestionnaires ? 'text-primary' : 'text-gray-500'}>{'Анкеты'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/provider`} className={isPortalProvider ? 'text-primary' : 'text-gray-500'}>{'Provider'}</Link>}
 

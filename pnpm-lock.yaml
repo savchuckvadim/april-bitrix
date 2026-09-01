@@ -293,6 +293,9 @@ importers:
       '@workspace/bx':
         specifier: workspace:*
         version: link:../../packages/bx
+      '@workspace/event-sales-flow':
+        specifier: workspace:*
+        version: link:../../packages/event-sales-flow
       '@workspace/nest-api':
         specifier: workspace:*
         version: link:../../packages/nest-api
@@ -1189,6 +1192,9 @@ importers:
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@20.17.46)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.100.0)(tsx@4.21.0)(yaml@2.8.1)
 
   packages/bx:
     dependencies:
@@ -1309,6 +1315,28 @@ importers:
       typescript-eslint:
         specifier: ^8.24.1
         version: 8.32.0(eslint@9.26.0(jiti@2.4.2))(typescript@5.7.3)
+
+  packages/event-sales-flow:
+    dependencies:
+      '@workspace/bitrix':
+        specifier: workspace:*
+        version: link:../bitrix
+      '@workspace/pbx':
+        specifier: workspace:*
+        version: link:../pbx
+      dayjs:
+        specifier: ^1.11.13
+        version: 1.11.21
+    devDependencies:
+      '@types/node':
+        specifier: ^20
+        version: 20.17.46
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@20.17.46)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.100.0)(tsx@4.21.0)(yaml@2.8.1)
 
   packages/nest-admin-api:
     dependencies:

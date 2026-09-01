@@ -1,0 +1,16 @@
+{
+    // Отдельная tsc-программа для браузерных адаптеров: они тянут живые
+    // исходники @workspace/bitrix и @workspace/pbx, которым нужны node-типы
+    // (process.env в bitrix-base-api и конфиге api). Основной tsconfig.json
+    // держит ядро изоморфным (types: только vitest/globals) и adapters
+    // исключает; `pnpm typecheck` пакета гоняет обе программы.
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "types": ["vitest/globals", "node"],
+        // @workspace/api держит пару .js-модулей без деклараций — как и
+        // приложения (typescript-config/nextjs.json), пускаем их через allowJs
+        "allowJs": true
+    },
+    "include": ["src/adapters/**/*"],
+    "exclude": []
+}

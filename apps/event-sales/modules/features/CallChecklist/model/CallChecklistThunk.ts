@@ -10,6 +10,7 @@ import type {
     ChecklistFieldRef,
 } from '../type/call-checklist.type';
 import {
+    checklistWriteCarriers,
     hasChecklistChoice,
     resolveChecklistField,
     type ChecklistEntityKind,
@@ -27,6 +28,7 @@ import {
     selectChecklistRows,
 } from '../lib/checklist-selectors';
 import { callChecklistActions } from './CallChecklistSlice';
+import { reportHiddenChecklistQuestions } from './ChecklistHiddenThunk';
 
 /**
  * Значение контрола → значение портального поля.
@@ -123,9 +125,15 @@ export const saveChecklistField =
 
         dispatch(callChecklistActions.saveStarted({ key }));
         try {
-            await update[resolved.entity](resolved.entityId, {
-                [resolved.ufKey]: portalValue,
-            });
+            // Во ВСЕХ носителей поля (сделка И компания): запись в одного
+            // разъезжала бы значение-истину — см. checklistWriteCarriers.
+            // Последовательно и с общим catch: упавший носитель = честная
+            // ошибка с повтором, перезапись уже записанных идемпотентна.
+            for (const carrier of checklistWriteCarriers(resolved)) {
+                await update[carrier.entity](carrier.entityId, {
+                    [carrier.ufKey]: portalValue,
+                });
+            }
             dispatch(callChecklistActions.saveSucceeded({ key, value }));
         } catch (error) {
             dispatch(
@@ -268,7 +276,12 @@ export const openCallChecklist =
         // стоит в CRM.
         await dispatch(ensureChecklistBaseDeal());
         const def = selectQuestionnaireByCode(getState(), id);
-        if (def) dispatch(captureChecklistBaseline([def]));
+        if (def) {
+            dispatch(captureChecklistBaseline([def]));
+            // Модалка — второй момент показа анкеты; спрятанные вопросы в ней
+            // тем более заметны (менеджер стоит перед пустым окном).
+            dispatch(reportHiddenChecklistQuestions([def]));
+        }
         dispatch(callChecklistActions.modalOpened({ id }));
     };
 

@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "outDir": "./build/",
+        "noImplicitAny": true,
+        // как на бэке (back/tsconfig.json): зеркальное ядро писано под
+        // strictNullChecks — без него typeof POLICY_KEEP вырождается в any
+        "strictNullChecks": true,
+        "module": "ESNext",
+        // ES2020: пакет собирается сборщиками приложений (как packages/api);
+        // изоморфное ядро — без DOM-глобалов, кроме console (есть в ES-либах через vitest/node types не тянем)
+        "target": "ES2020",
+        "lib": ["DOM", "ES2020"],
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        // как в @workspace/typescript-config/base.json: чужие .d.ts не наша забота
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "resolveJsonModule": true,
+        // спеки — тела 1:1 с jest-версиями бэка: describe/it/expect/vi
+        // глобальны (vitest.config.ts: globals true), импортов в спеках нет
+        "types": ["vitest/globals"]
+    },
+    "include": ["src/**/*"],
+    // adapters/browser тянут живые @workspace/bitrix|pbx (браузер + process.env)
+    // и проверяются отдельной программой tsconfig.adapters.json — ядро
+    // остаётся изоморфным, без node/browser-глобалов в ambient.
+    "exclude": ["src/adapters"]
+}

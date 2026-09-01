@@ -17,6 +17,8 @@ import {
     DEPARTAMENT_STATE_PROP,
     DUSER_ROLE,
 } from '@/modules/features/Departament/type/department-type';
+// Прямой путь: барель фичи в этом файле замокан ради UI-диалога.
+import { checkPresentationData } from '@/modules/features/AfterPresentation/data/check-presentation';
 import { buildFlowPayload } from './build-flow-payload';
 
 /**
@@ -37,10 +39,13 @@ const makeState = (over?: {
     answers?: Record<string, string>;
     comment?: string;
     defs?: QuestionnaireDef[];
+    /** подтверждённые ответы опросника «5К»/«Хвост» */
+    survey?: Record<string, string>;
 }): RootState =>
     ({
         app: {
             domain: 'demo.bitrix24.ru',
+            config: { withCheckPresentation: true },
             bitrix: {
                 from: 'CRM_DEAL_DETAIL_ACTIVITY',
                 company: null,
@@ -78,9 +83,19 @@ const makeState = (over?: {
         },
         eventPresentation: {
             [PresentationProp.COUNT]: 0,
-            [PresentationProp.IS_PRESENTATION_DONE]: false,
+            [PresentationProp.IS_PRESENTATION_DONE]: Boolean(over?.survey),
             [PresentationProp.IS_UNPLANNED_PRESENTATION]: false,
         },
+        // Опросник «5К»/«Хвост»: инициализирован ровно тогда, когда кейс о
+        // нём — иначе payload остаётся прежним (старое поведение).
+        afterPresentation: {
+            initialized: Boolean(over?.survey),
+            checkPresentation: {
+                items: checkPresentationData,
+                committed: over?.survey ?? {},
+            },
+        },
+        portal: { portal: null },
         contact: { current: { plan: null, report: null } },
         eventSale: { presDeals: { current: null } },
         eventItemMenu: { type: 'result' },
@@ -375,5 +390,70 @@ describe('payload: ответы анкет в элемент смарта', () =
 
         expect(saleOf(state).opportunity).toBeUndefined();
         expect(descriptionOf(state)).toBe('поговорили');
+    });
+});
+
+/**
+ * Опросник «5К»/«Хвост» — внутри блока презентации.
+ *
+ * Он такой же ответ при отчёте, как портальная анкета: раскладывает его сам
+ * поток, который создаёт презентационные сделки и элемент смарта. Отдельный
+ * серверный запрос ручки уходил своим порядком — и опросник, отправленный
+ * ПОСЛЕ отчёта, снимку смарта было нечего дать.
+ */
+describe('payload: ответы опросника презентации', () => {
+    const surveyOf = (state: RootState) =>
+        (
+            buildFlowPayload(state).presentation as unknown as {
+                survey?: {
+                    fiveK?: Record<string, string>;
+                    talk?: Record<string, string>;
+                    xvost?: string;
+                    fiveKSummary?: string;
+                };
+            }
+        ).survey;
+
+    it('ответы едут кодами реестра и со сводкой «Пять К»', () => {
+        const survey = surveyOf(
+            makeState({
+                survey: {
+                    // Код опросника: в реестре полей его нет, перевод —
+                    // на границе payload.
+                    xo_impression: 'слушали',
+                    op_5k_client_what: 'нормативка',
+                    op_presentation_xvost: 'дожать цену',
+                },
+            }),
+        );
+
+        expect(survey).toEqual({
+            talk: { op_talk_impression: 'слушали' },
+            fiveK: { op_5k_client_what: 'нормативка' },
+            xvost: 'дожать цену',
+            fiveKSummary: 'КЛИЕНТ: Что хочет?: нормативка',
+        });
+    });
+
+    it('пустые ответы в payload не попадают', () => {
+        const survey = surveyOf(
+            makeState({
+                survey: {
+                    xo_impression: '   ',
+                    op_5k_client_what: 'нормативка',
+                },
+            }),
+        );
+
+        expect(survey).toEqual({
+            fiveK: { op_5k_client_what: 'нормативка' },
+            fiveKSummary: 'КЛИЕНТ: Что хочет?: нормативка',
+        });
+    });
+
+    it('опросник не заполняли — блока survey нет вовсе', () => {
+        // Прежнее поведение: старые сборки фрейма его не шлют, и поток
+        // обязан работать как раньше.
+        expect(surveyOf(makeState())).toBeUndefined();
     });
 });

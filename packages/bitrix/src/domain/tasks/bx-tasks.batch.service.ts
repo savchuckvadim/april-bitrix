@@ -1,6 +1,10 @@
 import { BitrixBaseApi } from '../../core/base/bitrix-base-api';
 import { BxTasksRepository } from './bx-tasks.repository';
-import { BXTaskRequestFields } from './bx-tasks.interface';
+import {
+    BXTaskRequestFields,
+    IBXTaskCreateFields,
+    ITaskCommentAddFields,
+} from './bx-tasks.interface';
 
 export class BxTasksBatchService {
     private repo!: BxTasksRepository;
@@ -13,6 +17,23 @@ export class BxTasksBatchService {
 
     init(api: BitrixBaseApi) {
         this.repo = new BxTasksRepository(api);
+    }
+
+    add(cmdCode: string, fields: IBXTaskCreateFields) {
+        return this.repo.addBtch(cmdCode, fields);
+    }
+
+    complete(cmdCode: string, taskId: number | string) {
+        return this.repo.completeBtch(cmdCode, taskId);
+    }
+
+    /** Комментарий к задаче (`task.commentitem.add`). */
+    commentAdd(
+        cmdCode: string,
+        taskId: number | string,
+        fields: ITaskCommentAddFields,
+    ) {
+        return this.repo.commentAddBtch(cmdCode, taskId, fields);
     }
 
     get(cmdCode: string, taskId: number | string, select?: string[]) {

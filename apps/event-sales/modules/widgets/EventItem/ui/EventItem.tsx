@@ -19,7 +19,6 @@ import { EV_PLAN_PROP } from '@/modules/entities/EventPlan';
 import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
 import { ActionPromptCard } from '@/modules/features/ActionPrompts';
-import { PurchaseSignalsCard } from '@/modules/features/PurchaseSignals';
 import { SendPreflightDialog } from './plan/SendPreflightDialog';
 import { CheckPresentation } from '@/modules/features/AfterPresentation';
 import { getItemVisibility } from '../lib/item-visibility';
@@ -182,11 +181,15 @@ export const EventItem: FC = () => {
                                 скрыто (todo2508 №6, критерий — плейсмент):
                                 эти данные доступны через модалку «Поля
                                 сущности» и вкладки списка. */}
+                            {/* PurchaseSignalsCard из-под плана УБРАНА
+                                (решение владельца 31.08): даты покупки и
+                                конкуренты — поля КЛИЕНТА, их место в модалке
+                                «Поля сущности» (по сделке + по сущности) и во
+                                вкладках списка, а не в планировании события. */}
                             {isWideDisplay && (
                                 <div className="space-y-3">
                                     <DuplicatesPanel />
                                     <ZprCallsPanel />
-                                    <PurchaseSignalsCard />
                                     <ContactsHubCard />
                                 </div>
                             )}

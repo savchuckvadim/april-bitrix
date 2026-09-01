@@ -68,6 +68,21 @@ export const relatedLeadIds = ({
 /** Что и откуда собрали: id → источники (один контакт бывает сразу в двух). */
 export type ContactSourceMap = Record<number, ContactSource[]>;
 
+/** Сущности, опрос которых стоит сетевого запроса. */
+export type ContactRequestEntity = 'company' | 'deal' | 'lead';
+
+/**
+ * Ключ источника в реестре «уже опрошенных»: `company:1`, `deal:5`, `lead:7`.
+ *
+ * Листенеры зовут сбор контактов 2–3 раза за старт — реестр в слайсе даёт
+ * повторному прогону опрашивать только НОВЫЕ источники (появилась сделка →
+ * только её contactItems). id нормализуем числом: `'5'` и `5` — один источник.
+ */
+export const sourceRequestKey = (
+    entity: ContactRequestEntity,
+    id: number | string,
+): string => `${entity}:${Number(id)}`;
+
 export const addSource = (
     map: ContactSourceMap,
     source: ContactSource,

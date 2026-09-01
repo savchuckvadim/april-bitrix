@@ -6,12 +6,15 @@
  * OpenAPI spec version: 1.0
  */
 import type { PresentationSurveyValuesDtoFiveK } from './presentationSurveyValuesDtoFiveK';
+import type { PresentationSurveyValuesDtoTalk } from './presentationSurveyValuesDtoTalk';
 
 export interface PresentationSurveyValuesDto {
     /** Сводный «Хвост» — что дожимать после презентации (op_presentation_xvost). Длиннее 5000 символов — обрезается. */
     xvost?: string;
-    /** Детальные ответы «5К»: ключ — код поля (op_5k_client_what, op_5k_client_ready, op_5k_client_price, op_5k_company_who, op_5k_company_how, op_5k_company_right, op_5k_command, op_5k_concurent, op_5k_criteri), значение — ответ менеджера. Ключи вне этого списка молча отбрасываются (жёсткий серверный whitelist). Пишутся ТОЛЬКО в лид. */
+    /** Детальные ответы «5К»: ключ — код поля (op_5k_client_what, op_5k_client_ready, op_5k_client_price, op_5k_company_who, op_5k_company_how, op_5k_company_right, op_5k_command, op_5k_concurent, op_5k_criteri), значение — ответ менеджера. Ключи вне этого списка молча отбрасываются (жёсткий серверный whitelist). Пишутся в лид и сделки. */
     fiveK?: PresentationSurveyValuesDtoFiveK;
+    /** Шесть вопросов «Разговора»: ключ — код поля (op_talk_impression, op_talk_remembered, op_talk_desire, op_talk_decision_process, op_talk_price_opinion, op_talk_boss_readiness), значение — ответ менеджера. Тот же жёсткий whitelist, что у «5К»; пишутся в лид и сделки. Без этого блока ответы «Разговора» жили только строкой в комментарии — и снимку смарта было нечего читать. */
+    talk?: PresentationSurveyValuesDtoTalk;
     /** Сводка «Пять К» одним текстом (op_presentation_5k). Длиннее 5000 символов — обрезается. */
     fiveKSummary?: string;
 }

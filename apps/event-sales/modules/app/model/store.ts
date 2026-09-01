@@ -17,6 +17,7 @@ import { errorHandler } from '../lib/error-handler';
 // processes / entities / shared / april reducers (features добавляются по фазам миграции)
 import { eventReducer } from '@/modules/processes/event/model/EventSlice';
 import { flowStatusReducer } from '@/modules/processes/event/model/FlowStatusSlice';
+import { outboxReducer } from '@/modules/processes/event-outbox/model/OutboxSlice';
 import { eventTaskReducer } from '@/modules/entities/EventTask';
 import { eventCompanyReducer } from '@/modules/entities/EventCompany';
 import { eventContactReducer } from '@/modules/entities/EventContact';
@@ -60,6 +61,8 @@ import { preloaderReducer } from '@/modules/shared/Preloader';
 import { portalAPI, portalReducer } from '@workspace/pbx';
 import { startStoreListeners } from './listeners/start-store-listeners';
 import { installEventDebug } from '../lib/diagnostics/install-event-debug';
+// Прямой путь: барель shared/metrics тянет и врезки, а тут нужна подписка.
+import { installMetricsFlushHooks } from '@/modules/shared/metrics/lib/metrics-client';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -117,6 +120,8 @@ const rootReducer = combineReducers({
     // processes (роутинг — нативный Next, слайсов роутера нет)
     event: eventReducer,
     flowStatus: flowStatusReducer,
+    // Зеркало outbox: счётчик недоставленных конвертов + стадия отправки.
+    outbox: outboxReducer,
 
     // widgets
     eventItemMenu: eventItemReducer,
@@ -204,3 +209,9 @@ export const store = setupStore();
 
 // Отладочные точки входа во фрейме: window.eventStore + window.eventDebug().
 installEventDebug(store);
+
+// Сессионная подписка сборщика метрик: во фрейме Битрикса вкладку не
+// закрывают, её ПРЯЧУТ (менеджер ушёл в другой раздел портала), и без этой
+// подписки последняя пачка — в том числе фазы первой загрузки — не уехала бы
+// вовсе. Идемпотентно и вне браузера — no-op (см. installMetricsFlushHooks).
+installMetricsFlushHooks();

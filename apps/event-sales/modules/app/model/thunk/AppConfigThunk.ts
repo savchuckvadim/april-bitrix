@@ -16,6 +16,7 @@ import {
     buildAppConfigPatch,
     hasNewConfigValues,
 } from '../../lib/config/app-config-patch';
+import { markBootPhase } from '../../lib/diagnostics/boot-phases';
 
 const helper = new AppConfigHelper();
 
@@ -86,6 +87,7 @@ export const fetchAppConfig =
             // domain-config.
             console.warn('app-settings недоступны, действует хардкод', error);
         } finally {
+            markBootPhase('app-config-done');
             dispatch(appActions.setConfigFetched());
         }
     };

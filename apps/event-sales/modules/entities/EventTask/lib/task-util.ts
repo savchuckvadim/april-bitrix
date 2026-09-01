@@ -53,6 +53,32 @@ export const checkIfTaskIsOverdue = (task: BXTask): 'no' | 'almost' | 'yes' => {
     return result;
 };
 
+/**
+ * Имя события из заголовка задачи.
+ *
+ * Заголовки нашего флоу собраны как `<Тип>  <Имя события>  <Контакт?>` —
+ * разделитель двойной пробел (бэк, `buildTitle` в
+ * event-report-task-flow.service). Берём вторую секцию: это ровно то, что
+ * ввёл менеджер.
+ *
+ * Прежний глобальный стрип типовых слов калечил имя («Звонок по решению
+ * qwe» → «по решению  qwe») и ОБНУЛЯЛ его у заголовка из одного типа
+ * («Доработка» → «»). Пустое имя переносом заходило в план, оттуда — в
+ * заголовок следующей задачи и в KPI-запись: «Доработка: » без названия,
+ * и так по кругу (todo3108 №3).
+ *
+ * Заголовок без структуры (робот, ручная задача) — прежний стрип: там
+ * секций нет, и типовое слово из имени убрать больше нечем.
+ */
+const eventNameFromTitle = (title: string, typeRegex: RegExp): string => {
+    const sections = title
+        .split(/\s{2,}/)
+        .map(section => section.trim())
+        .filter(Boolean);
+    if (sections.length >= 2) return sections[1]!;
+    return title.replace(typeRegex, '').trim();
+};
+
 /** Тип/имя события из заголовка Bitrix-задачи (сервисный сигнал — цифры в скобках по краям). */
 export const parseTaskTitle = (title: string) => {
     let type: EV_TYPE = EV_TYPE.WARM;
@@ -69,7 +95,13 @@ export const parseTaskTitle = (title: string) => {
         'Поставка',
     ];
 
-    const regex = new RegExp(`(?:${phrases.join('|')})`, 'gi');
+    // Длинные фразы первыми: альтернация регулярки берёт ПЕРВОЕ совпадение,
+    // и при исходном порядке «Звонок» откусывался от «Звонок по решению»,
+    // оставляя в имени обрубок «по решению».
+    const regex = new RegExp(
+        `(?:${[...phrases].sort((a, b) => b.length - a.length).join('|')})`,
+        'gi',
+    );
     const name = title;
 
     // Тип по умолчанию — обычный звонок: код 'event' был легаси-синонимом
@@ -122,7 +154,7 @@ export const parseTaskTitle = (title: string) => {
 
     return {
         type,
-        name: title.replace(regex, '').trim(),
+        name: eventNameFromTitle(title, regex),
         eventType,
     };
 };

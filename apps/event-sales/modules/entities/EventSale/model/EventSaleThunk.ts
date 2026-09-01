@@ -6,6 +6,7 @@ import { eventSaleActions } from './EventSaleSlice';
 import { EventSaleHelper } from '../lib/api/event-sale-helper';
 import { Bitrix } from '@workspace/bitrix';
 import { getPresentationCategoryId } from '../lib/presentation-deals';
+import { BACKEND_SUPPORT_READY } from '@/modules/app/consts/backend-support.const';
 
 /** Что показываем в селекте презентаций: название, стадия, дата, сумма. */
 const PRES_DEAL_SELECT = [
@@ -31,6 +32,12 @@ export const getInitSale =
         const state = getState();
         const app = state.app;
         const tasks = actionTasks ?? state.eventTask.tasks;
+
+        // Эндпоинты deals/new-task/init на бэке — заглушки: до 10 пустых
+        // запросов на старт, а пустой ответ помечал presDeals «загруженными»
+        // и гасил настоящий fetchPresentationDeals. Пока бэк не готов —
+        // не ходим вовсе (см. backend-support.const).
+        if (!BACKEND_SUPPORT_READY.companyDeals) return;
 
         if (state.eventSale.isLoading) return;
         dispatch(eventSaleActions.setIsLoading({ status: true }));

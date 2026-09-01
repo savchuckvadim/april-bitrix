@@ -35,8 +35,21 @@ import { eventItemActions } from '@/modules/widgets/EventItem/model/EventItemSli
 import { flowStatusActions } from './FlowStatusSlice';
 import { watchFlowOperation } from './FlowWatchThunk';
 import { createOperationId } from '../lib/operation-id';
-import { FlowHelper } from '../lib/api/flow-helper';
 import { buildFlowPayload } from '../lib/build-flow-payload';
+// Прямые пути в слайс outbox: барель тянет дренаж (правило store).
+import {
+    OUTBOX_ENVELOPE_KIND,
+    OUTBOX_ENVELOPE_STATE,
+    createOutboxEnvelope,
+} from '@/modules/processes/event-outbox/lib/outbox-envelope';
+import {
+    DIRECT_BITRIX_TARGET_ID,
+    PRIMARY_BACKEND_TARGET_ID,
+} from '@/modules/processes/event-outbox/lib/delivery-targets';
+import {
+    enqueueAndDeliver,
+    type EnqueueDeliverySummary,
+} from '@/modules/processes/event-outbox/model/OutboxThunk';
 import {
     getClientContext,
     getIsTmcMode,
@@ -47,8 +60,6 @@ import { getPlannedFinishText, validateSend } from '../lib/send-validation';
 import { awaitQuestionnaireCatalog } from '../lib/questionnaire-gate';
 import { getSendPreflight } from '../lib/send-preflight';
 import { shouldCleanAfterSend } from '../lib/clean-after-send';
-
-const flowHelper = new FlowHelper();
 
 /**
  * Отправка отчёта: каталог анкет → валидация → (обязательный опросник) →
@@ -127,12 +138,14 @@ export const send =
     };
 
 /**
- * Сборка payload + POST /event-sales/flow.
+ * Сборка payload + отправка через outbox (план А3).
  *
- * Порядок намеренно такой: сначала уводим на финиш, потом ждём ответ. Запрос
- * идёт долго (бэкенд выполняет весь batch Битрикса синхронно), и держать
- * менеджера на форме всё это время незачем — он уже всё заполнил. Экран финиша
- * сам показывает стадию по `flowStatus`.
+ * Порядок строгий: конверт с payload пишется в хранилище awaited ДО первого
+ * HTTP, затем менеджера уводим на финиш, затем идёт доставка. Финиш, как и
+ * раньше, не ждёт ответа сети (запрос идёт долго — бэкенд выполняет весь
+ * batch Битрикса), а конверт добавляет страховку: вкладка, закрытая на
+ * середине отправки, больше не теряет отчёт — его дошлёт дренаж outbox.
+ * Экран финиша сам показывает стадию по `flowStatus`.
  *
  * Состояние формы чистим ТОЛЬКО после успеха и уже после ухода со страницы:
  * если чистить до перехода, сброс видно на самой форме (в лиде это выглядело
@@ -164,22 +177,43 @@ export const sendEvent =
             ? getPlannedFinishText(state)
             : '';
 
-        dispatch(
-            flowStatusActions.setSending({
-                startedAt: Date.now(),
-                result: finishResult,
-                operationId,
-            }),
-        );
-        dispatch(
-            eventActions.setFinishStatus({
-                status: true,
-                result: finishResult,
-            }),
-        );
+        // Конверт outbox. «Повторить» едет через outbox, а не мимо него:
+        // повтор с тем же operationId сливает историю попыток лежащего
+        // конверта в свежий (mergeRequeuedEnvelope) — accepted-улика
+        // переживает повтор, и дренаж сверяется со статусом операции, а не
+        // шлёт слепой повторный POST: идемпотентность бэка живёт лишь час
+        // (срок хранения статуса), после неё повтор выполнил бы flow дважды.
+        const envelope = createOutboxEnvelope({
+            operationId,
+            domain: payload.domain,
+            userId: Number(state.app.bitrix.user?.ID || 0),
+            kind: OUTBOX_ENVELOPE_KIND.report,
+            payload,
+        });
 
+        let summary: EnqueueDeliverySummary;
         try {
-            await flowHelper.sendFlow(payload);
+            summary = await dispatch(
+                enqueueAndDeliver(envelope, {
+                    // Финиш уходит МЕЖДУ awaited-записью конверта и первым
+                    // HTTP: менеджер, как и раньше, не ждёт сеть.
+                    onEnqueued: () => {
+                        dispatch(
+                            flowStatusActions.setSending({
+                                startedAt: Date.now(),
+                                result: finishResult,
+                                operationId,
+                            }),
+                        );
+                        dispatch(
+                            eventActions.setFinishStatus({
+                                status: true,
+                                result: finishResult,
+                            }),
+                        );
+                    },
+                }),
+            );
         } catch (error) {
             console.error('sendEvent error', error);
             dispatch(
@@ -190,6 +224,113 @@ export const sendEvent =
             );
             return;
         }
+
+        if (summary.status === 'rejected') {
+            // 4xx-валидация или бизнес-отказ: payload битый, авторетраев нет —
+            // повторяет человек кнопкой «Повторить».
+            console.error('sendEvent rejected', summary.detail);
+            dispatch(
+                flowStatusActions.setError({
+                    message:
+                        'Не удалось отправить отчёт. Данные никуда не делись — можно повторить.',
+                }),
+            );
+            return;
+        }
+
+        if (summary.status === 'direct-incomplete') {
+            // Прямое исполнение прошло НЕ ЦЕЛИКОМ (А4): батч ушёл, часть
+            // обязательных команд не применилась. Повторять нечем — маркер
+            // в задаче заблокирует повтор, а бэку исходный payload слать
+            // нельзя. Финиш обязан сказать правду: DONE (отправка
+            // закончилась) + INCOMPLETE, без обещаний «карточки обновлены».
+            console.error(
+                'sendEvent: отчёт проведён не целиком',
+                summary.failedCommands.join(', '),
+            );
+            dispatch(
+                flowStatusActions.setDeliveryTarget({
+                    target: DIRECT_BITRIX_TARGET_ID,
+                }),
+            );
+            dispatch(flowStatusActions.setDone({ tasksStale: true }));
+            // Порядок важен: setDone сбрасывает outboxState в NONE.
+            dispatch(flowStatusActions.setOutboxIncomplete());
+            // Форму НЕ чистим: менеджеру предстоит сверять карточку, и
+            // заполненный отчёт — единственное, с чем сверяться. Из
+            // процессных флагов гасим ТМЦ-меню: забытый isActive подмешал
+            // бы returnToTmc в payload следующей отправки.
+            dispatch(returnToTmcActions.setActiveStatus({ status: false }));
+            return;
+        }
+
+        if (summary.status === 'executed-direct') {
+            // Прямое исполнение (А4): бэк молчал, ядро отчёта выполнено прямо
+            // в Битриксе браузером. Поллинг FlowWatch НЕ запускается — на
+            // бэке нет операции, поллить нечего. Финиш: без хвоста — обычный
+            // DONE (менеджеру незачем знать про прямой путь, deliveryTarget
+            // остаётся диагностикой), с хвостом — DONE+PARTIAL («часть
+            // доедет позже», дошлёт эндпоинт А5). cleanEvent/reloadApp пути
+            // поллинга здесь сознательно нет: reloadApp при лежащем бэке
+            // рискован, а список освежит tasksStale — форму чистим только
+            // если она всё ещё принадлежит отправленному отчёту.
+            dispatch(
+                flowStatusActions.setDeliveryTarget({
+                    target: DIRECT_BITRIX_TARGET_ID,
+                }),
+            );
+            dispatch(flowStatusActions.setDone({ tasksStale: true }));
+            if (summary.envelopeState === OUTBOX_ENVELOPE_STATE.partial) {
+                // Порядок важен: setDone сбрасывает outboxState в NONE.
+                dispatch(flowStatusActions.setOutboxPartial());
+            }
+
+            const doneState = getState();
+            if (
+                shouldCleanAfterSend({
+                    isFinishOpen: doneState.event.isFinish,
+                    sentTaskId,
+                    currentTaskId: doneState.eventTask.current?.id ?? null,
+                    isItemMenuOpen: doneState.eventItemMenu.isActive,
+                })
+            ) {
+                await dispatch(cleanEvent(isTmc, context));
+            } else {
+                // Как в onDone поллинга: из процессных флагов гасим только
+                // ТМЦ-меню — забытый isActive подмешал бы returnToTmc в
+                // payload следующей отправки.
+                dispatch(returnToTmcActions.setActiveStatus({ status: false }));
+            }
+            return;
+        }
+
+        if (summary.status !== 'accepted') {
+            if (!summary.persisted) {
+                // Хранилище конверт не приняло (kind `none`, квота): он жил
+                // только в памяти и умрёт со вкладкой — «сохранено, отправим
+                // автоматически» было бы ложью, отчёт пропал бы молча.
+                // Честная ошибка с «Повторить», как до outbox.
+                console.error('sendEvent: конверт не записан, сеть исчерпана');
+                dispatch(
+                    flowStatusActions.setError({
+                        message:
+                            'Не удалось отправить отчёт. Данные никуда не делись — можно повторить.',
+                    }),
+                );
+                return;
+            }
+            // Сессионный бэкофф исчерпан (или конвертом уже занята соседняя
+            // вкладка): конверт в хранилище, дренаж дошлёт его сам. Финиш
+            // показывает честную стадию «сохранено, отправим автоматически».
+            dispatch(flowStatusActions.setOutboxQueued());
+            return;
+        }
+
+        dispatch(
+            flowStatusActions.setDeliveryTarget({
+                target: PRIMARY_BACKEND_TARGET_ID,
+            }),
+        );
 
         // POST лишь принял операцию — исход узнаём отдельно.
         await dispatch(

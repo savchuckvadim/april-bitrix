@@ -168,6 +168,40 @@ describe('Портальная анкета: носитель ответа (targ
         expect(resolved?.entityId).toBe(5);
     });
 
+    it('носители собираются ВСЕ — запись идёт в каждого (доктрина полей-истин)', () => {
+        const state = makeState(rows);
+        const [resolved] = resolveChecklistFields(state, def());
+
+        expect(resolved?.carriers).toEqual([
+            { entity: 'company', entityId: 5, ufKey: MANUAL_UF_KEY },
+            { entity: 'deal', entityId: 10, ufKey: MANUAL_UF_KEY },
+            { entity: 'lead', entityId: 7, ufKey: MANUAL_UF_KEY },
+        ]);
+    });
+
+    it('пустая компания не прячет живое значение сделки («сделка точнее»)', () => {
+        const dateDef = def({
+            items: [
+                item({
+                    control: 'date',
+                    options: [],
+                    field: { name: MANUAL_UF_KEY, type: 'date' },
+                }),
+            ],
+        });
+        const state = makeState({
+            company: { ID: '5', [MANUAL_UF_KEY]: '' },
+            deal: { ID: '10', [MANUAL_UF_KEY]: '05.09.2026' },
+        });
+        const [resolved] = resolveChecklistFields(state, dateDef);
+
+        // Главный носитель — прежний (компания), но «сейчас» добрано со
+        // сделки: раньше пустая компания показывала пустой контрол, хотя
+        // дата стояла.
+        expect(resolved?.entity).toBe('company');
+        expect(resolved?.currentValue).toBe('2026-09-05');
+    });
+
     it('mode «entity» — носитель, названный анкетой, а не первый по приоритету', () => {
         const onLead = def({
             items: [item({ target: { mode: 'entity', entity: 'lead' } })],

@@ -24,3 +24,25 @@ export const isPlanDeadlineValid = (
  */
 export const toPlanDeadline = (raw: string | null | undefined): string =>
     toCrmDateTime(raw) ?? '';
+
+const pad = (value: number): string => String(value).padStart(2, '0');
+
+/**
+ * Срок → строка контрола DateTimePicker (`yyyy-MM-dd HH:mm`); мусор — ''.
+ *
+ * Зачем: контрол разбирает СТРОГО свой формат, а посев переноса приносит
+ * ISO дедлайна задачи (`2026-08-31T06:51:00+02:00`). Без нормализации
+ * контрол показывал пустую дату, менеджер ставил время — и `emit`
+ * подставлял СЕГОДНЯ вместо даты задачи: перенос молча менял день
+ * (инцидент владельца 31.08, todo3108 №2). Преобразование лексическое
+ * (parseCrmDate) — настенное время портала не прогоняется через Date и
+ * не сдвигается таймзоной браузера.
+ */
+export const toPlanControlValue = (raw: string | null | undefined): string => {
+    const parts = parseCrmDate(raw);
+    if (!parts) return '';
+    return (
+        `${parts.year}-${pad(parts.month)}-${pad(parts.day)} ` +
+        `${pad(parts.hours)}:${pad(parts.minutes)}`
+    );
+};

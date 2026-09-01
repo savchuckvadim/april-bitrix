@@ -3,6 +3,7 @@ import { BxListItemRepository } from '../repository/bx-list-item.repository';
 import {
     BxListItemAddRequestType,
     BxListItemGetRequestType,
+    BxListItemUpdateRequestType,
 } from '../schema/bx-list-item.schema';
 
 export class BxListItemBatchService {
@@ -30,5 +31,13 @@ export class BxListItemBatchService {
         dto: Omit<BxListItemAddRequestType, 'IBLOCK_TYPE_ID'>,
     ) {
         return this.repo.addBtch(cmdCode, dto);
+    }
+
+    /** ВНИМАНИЕ: lists.element.update перезаписывает элемент целиком. */
+    update(
+        cmdCode: string,
+        dto: Omit<BxListItemUpdateRequestType, 'IBLOCK_TYPE_ID'>,
+    ) {
+        return this.repo.updateBtch(cmdCode, dto);
     }
 }

@@ -1,9 +1,20 @@
 import { EBxMethod } from '../../core/domain/consts/bitrix-api.enum';
 import { IBXTask } from '../interfaces/bitrix.interface';
 import { CrmListRequestType } from '../crm/type/crm-request.type';
-import { BXTaskRequestFields } from './bx-tasks.interface';
+import { BXTaskRequestFields, IBXTaskCreateFields } from './bx-tasks.interface';
 
 export type TasksSchema = {
+    [EBxMethod.ADD]: {
+        // tasks.task.add: { fields } → { task } (сверено по apidocs через
+        // b24-dev-mcp; back-эталон task.schema.ts даёт ту же форму).
+        request: { fields: IBXTaskCreateFields };
+        response: { task: IBXTask };
+    };
+    [EBxMethod.COMPLETE]: {
+        // tasks.task.complete: { taskId } → { task }.
+        request: { taskId: number | string };
+        response: { task: IBXTask };
+    };
     [EBxMethod.GET]: {
         // Реальный контракт tasks.task.get: { taskId, select } → { task }
         // (back-эталон task.schema.ts; прежняя форма { id } → IBXTask была

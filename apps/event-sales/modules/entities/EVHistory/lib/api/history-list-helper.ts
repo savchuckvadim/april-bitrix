@@ -6,6 +6,7 @@ import {
     toListItemPage,
 } from '@workspace/bitrix';
 import { HistoryListRef, getHistorySelect } from '../history-list';
+import { runExclusiveBatch } from '@/modules/app/lib/utills/bitrix-batch-queue';
 
 export { BX_LIST_PAGE_SIZE as HISTORY_PAGE_SIZE };
 
@@ -36,16 +37,18 @@ export class HistoryListHelper {
         ref: HistoryListRef,
         bindings: string[],
     ): Promise<Map<string, IBXListItemPage>> {
-        const bitrix = Bitrix.getService();
-        bindings.forEach((binding, index) => {
-            bitrix.batch.listItem.get(
-                `history_${index}`,
-                this.params(ref, binding, 0),
-            );
+        // Через общую очередь батчей: история может стартовать, пока ещё
+        // идёт контактный батч, — наполнять общий cmdBatch параллельно нельзя.
+        const raw = await runExclusiveBatch(bitrix => {
+            bindings.forEach((binding, index) => {
+                bitrix.batch.listItem.get(
+                    `history_${index}`,
+                    this.params(ref, binding, 0),
+                );
+            });
+            return bindings.length;
         });
-
-        const raw = await bitrix.api.callBatch();
-        const flat = flattenBatchResults(raw);
+        const flat = flattenBatchResults(raw as never);
 
         const pages = new Map<string, IBXListItemPage>();
         bindings.forEach((binding, index) => {

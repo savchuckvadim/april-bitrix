@@ -15,6 +15,12 @@ export enum EBXEntity {
     LISTS = 'lists',
     /** Элемент универсального списка: lists.element.* */
     ELEMENT = 'element',
+    /** Пункт чек-листа задачи: task.checklistitem.* */
+    CHECKLIST_ITEM = 'checklistitem',
+    /** Комментарий задачи: task.commentitem.* */
+    COMMENT_ITEM = 'commentitem',
+    /** Системные уведомления: im.notify.system.* */
+    NOTIFY_SYSTEM = 'notify.system',
     ACTIVITY = 'activity',
     ACTIVITY_CONFIGURABLE = 'activity.configurable',
     FILE = 'file',

@@ -1,4 +1,8 @@
-import type { AppGetState } from '@/modules/app/model/store';
+import { isAnyOf } from '@reduxjs/toolkit';
+import type { AppGetState, AppStartListening } from '@/modules/app/model/store';
+import { createSettleSignal } from '@/modules/app/lib/utills/settle-signal';
+// Прямой путь до слайса: барель каталога тянет транспорт и данные.
+import { questionnaireCatalogActions } from '../model/QuestionnaireCatalogSlice';
 
 /**
  * Каталог едет одним лёгким запросом; полторы секунды — честный потолок,
@@ -6,9 +10,8 @@ import type { AppGetState } from '@/modules/app/model/store';
  * отправку дольше.
  */
 const QUESTIONNAIRE_WAIT_TIMEOUT_MS = 1500;
-const QUESTIONNAIRE_WAIT_STEP_MS = 50;
 
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const signal = createSettleSignal();
 
 /**
  * Дождаться каталога анкет перед решением, что спрашивать (send() и
@@ -22,17 +25,44 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
  * ожидание положило бы отправку отчётов на всех порталах от одного 500,
  * а каталог решает лишь, какие вопросы показать.
  *
- * Поллинг, а не `listenerApi.condition`: зовётся из обычного thunk'а, у
- * которого есть только `getState` (тот же приём, что в app-config-wait).
+ * Механика — подписка, а не поллинг: будит листенер на fulfilled/failed
+ * каталога (startQuestionnaireCatalogSettleListener ниже); зовётся хелпер
+ * из обычного thunk'а с одним getState в руках — тот же приём, что в
+ * app-config-wait. Цикл — на случай ложного сигнала: всё ещё `loading` —
+ * ждём дальше, но не дольше исходного дедлайна.
  */
 export const waitForQuestionnaireCatalog = async (
     getState: AppGetState,
 ): Promise<void> => {
     const deadline = Date.now() + QUESTIONNAIRE_WAIT_TIMEOUT_MS;
-    while (
-        getState().questionnaireCatalog.status === 'loading' &&
-        Date.now() < deadline
-    ) {
-        await wait(QUESTIONNAIRE_WAIT_STEP_MS);
+    while (getState().questionnaireCatalog.status === 'loading') {
+        const remainingMs = deadline - Date.now();
+        if (remainingMs <= 0) return;
+        await signal.wait(remainingMs);
     }
+};
+
+/** Разбудить ожидающих каталога (зовёт листенер ниже; в тестах — руками). */
+export const notifyQuestionnaireCatalogSettled = (): void => {
+    signal.notify();
+};
+
+/**
+ * Будильник ожидающих: каталог доехал (fulfilled) или провалился во
+ * встроенный набор (failed) — оба исхода settled, и все
+ * waitForQuestionnaireCatalog отпускаются сразу, а не на ближайшем шаге
+ * поллинга. Регистрируется вместе с остальными листенерами приложения.
+ */
+export const startQuestionnaireCatalogSettleListener = (
+    startAppListening: AppStartListening,
+): void => {
+    startAppListening({
+        matcher: isAnyOf(
+            questionnaireCatalogActions.fulfilled,
+            questionnaireCatalogActions.failed,
+        ),
+        effect: async () => {
+            notifyQuestionnaireCatalogSettled();
+        },
+    });
 };

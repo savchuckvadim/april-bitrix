@@ -41,6 +41,11 @@ import {
 } from './domain/list-item';
 import { BxTasksService } from './domain/tasks/bx-tasks.service';
 import { BxTasksBatchService } from './domain/tasks/bx-tasks.batch.service';
+import {
+    BxChecklistItemService,
+    BxChecklistItemBatchService,
+} from './domain/tasks/checklist-item';
+import { BxImNotifyService } from './domain/im';
 
 // @Injectable()
 export class BitrixService {
@@ -63,6 +68,8 @@ export class BitrixService {
     public list!: BxListService;
     public listItem!: BxListItemService;
     public task!: BxTasksService;
+    public checklistItem!: BxChecklistItemService;
+    public imNotify!: BxImNotifyService;
     public product!: BxProductService;
     public userFieldConfig!: BxUserFieldConfigService;
     public smartType!: BxSmartTypeService;
@@ -82,6 +89,7 @@ export class BitrixService {
         list: null as unknown as BxListBatchService,
         listItem: null as unknown as BxListItemBatchService,
         task: null as unknown as BxTasksBatchService,
+        checklistItem: null as unknown as BxChecklistItemBatchService,
         product: null as unknown as BxProductBatchService,
         userFieldConfig: null as unknown as BxUserFieldConfigBatchService,
         rpaItem: null as unknown as BxRpaItemBatchService,
@@ -111,6 +119,8 @@ export class BitrixService {
         this.initList();
         this.initListItem();
         this.initTask();
+        this.initChecklistItem();
+        this.initImNotify();
         this.initProduct();
         this.initUserFieldConfig();
         this.initSmartType();
@@ -184,6 +194,17 @@ export class BitrixService {
     private initTask() {
         this.task = this.cloner.clone(BxTasksService, this.api);
         this.batch.task = this.cloner.clone(BxTasksBatchService, this.api);
+    }
+    private initChecklistItem() {
+        this.checklistItem = this.cloner.clone(BxChecklistItemService, this.api);
+        this.batch.checklistItem = this.cloner.clone(
+            BxChecklistItemBatchService,
+            this.api,
+        );
+    }
+    private initImNotify() {
+        // batch-варианта нет сознательно: уведомления шлются штучно.
+        this.imNotify = this.cloner.clone(BxImNotifyService, this.api);
     }
     private initProduct() {
         this.product = this.cloner.clone(BxProductService, this.api);

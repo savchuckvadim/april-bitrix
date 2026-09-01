@@ -1,0 +1,24 @@
+{
+    "name": "@workspace/event-sales-flow",
+    "version": "0.1.0",
+    "private": true,
+    "main": "src/index.ts",
+    "types": "./build/index.d.ts",
+    "scripts": {
+        "lint": "eslint . --max-warnings 0",
+        "typecheck": "tsc -p tsconfig.build.json && tsc -p tsconfig.adapters.json --noEmit",
+        "test": "vitest run",
+        "diff:back": "node scripts/diff-back.mjs",
+        "build": "tsc -p tsconfig.build.json"
+    },
+    "dependencies": {
+        "@workspace/bitrix": "workspace:*",
+        "@workspace/pbx": "workspace:*",
+        "dayjs": "^1.11.13"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "typescript": "^5.7.3",
+        "vitest": "^3.2.4"
+    }
+}

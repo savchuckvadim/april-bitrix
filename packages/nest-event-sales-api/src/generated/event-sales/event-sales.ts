@@ -7,6 +7,8 @@
  */
 import type {
     EventFlowOperationDto,
+    EventReportDeferredRequestDto,
+    EventReportDeferredResultDto,
     EventSalesFlowDto,
     EventSalesGetFlowStatusParams,
     PresentationSurveyDto,
@@ -61,6 +63,20 @@ export const getEventSales = () => {
         });
     };
     /**
+     * Доделывает шаги отчёта, которые браузер выполнить не смог: записи KPI (`kpi`), движения сделок воронок «Презентации» (`pres-deals`) и «ХО» (`xo-deals`), элементы смартов ЗПР и «Презентаций» вместе с ответами анкеты (`side-flow` + `flow`), синхронизацию заявок (`lead-request-sync`) и уведомление о переносе (`transfer-notify`). ЯДРО ОТЧЁТА НЕ ИСПОЛНЯЕТСЯ: карточку клиента, задачу и историю уже записал браузер, повтор был бы вторым отчётом по одному событию. Поэтому исходный payload едет сюда ТОЛЬКО как источник данных для перечисленных шагов — слать его в `POST /event-sales/flow` после прямого исполнения запрещено. Повтор пары (operationId, шаг) не выполняется второй раз (отметка живёт 7 суток; у KPI и сайд-джобов есть собственный дедуп). Один упавший шаг не мешает остальным: ответ перечисляет исход каждого шага, а список `pending` — то, что фронт обязан оставить в конверте и повторить.
+     * @summary Досылка хвоста прямого исполнения отчёта
+     */
+    const eventReportDeferredDeferred = (
+        eventReportDeferredRequestDto: EventReportDeferredRequestDto,
+    ) => {
+        return customAxios<EventReportDeferredResultDto>({
+            url: `/api/event-sales/flow/deferred`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: eventReportDeferredRequestDto,
+        });
+    };
+    /**
      * Перезаписывает ответы анкеты в поля клиента: лид получает девять детальных «5К» + сводные, сделки и компания — только сводные. Жёсткий серверный whitelist: ключи fiveK вне списка op_5k_* молча отбрасываются. Только перезапись (append нет) — повтор того же payload даёт тот же результат; повтор operationId в течение 24ч не пишется второй раз. Пустые values — no-op без похода в Битрикс. Неустановленное на портале поле пропускается с warning в ответе.
      * @summary Анкета после презентации: хвост и «5К»
      */
@@ -92,6 +108,7 @@ export const getEventSales = () => {
         eventSalesGetStagePredict,
         eventSalesGetFlow,
         eventSalesGetFlowStatus,
+        eventReportDeferredDeferred,
         presentationSurveySubmit,
         presentationSurveyUnplannedSignal,
     };
@@ -109,6 +126,13 @@ export type EventSalesGetFlowResult = NonNullable<
 export type EventSalesGetFlowStatusResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getEventSales>['eventSalesGetFlowStatus']>
+    >
+>;
+export type EventReportDeferredDeferredResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getEventSales>['eventReportDeferredDeferred']
+        >
     >
 >;
 export type PresentationSurveySubmitResult = NonNullable<

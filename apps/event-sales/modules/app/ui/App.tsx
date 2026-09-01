@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import { BootPreloaderGate } from '@workspace/april-ui/feedback';
+import { PreloaderScreen } from '@workspace/april-ui';
 import { EntityHeader } from '@/modules/widgets/EntityBar';
 
 import { useApp } from '../lib/hooks/app';
@@ -51,6 +52,12 @@ export const App = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className={cn(!isSelfSized && 'flex h-svh flex-col')}>
             <BootPreloaderGate ready={isReady} />
+            {/* Реинициализация ПОСЛЕ первого старта (кнопка ⟳ и любые
+                будущие reloadApp): boot-прелоадер уже удалён из DOM, гасить
+                гейту нечего — без этого экрана менеджер видел ГОЛЫЙ фон на
+                все секунды переинициализации (todo3108). Первый старт он не
+                трогает: isMounted ещё false, SSR-прелоадер на месте. */}
+            {!isReady && isMounted && <PreloaderScreen variant="brand" />}
             {isReady ? (
                 guard ? (
                     // Гвард вместо приложения: чужая задача / битые привязки.

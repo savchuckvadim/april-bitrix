@@ -3,6 +3,7 @@ import {
     buildFiveKSummary,
     buildPortalFieldPayload,
     toPortalValue,
+    translateSurveyCodes,
 } from './check-presentation.persist';
 import { CheckPresentationFieldType } from '../type/check-presentation-type';
 
@@ -92,5 +93,36 @@ describe('toPortalValue', () => {
         expect(
             toPortalValue('2026-08-26', CheckPresentationFieldType.STRING),
         ).toBe('2026-08-26');
+    });
+});
+
+describe('translateSurveyCodes', () => {
+    it('xo_* опросника → op_talk_* реестра, остальные ключи как были', () => {
+        expect(
+            translateSurveyCodes({
+                xo_impression: 'встретили хорошо',
+                xo_readiness_to_approach_manager: 'готов',
+                op_5k_client_what: 'хочет замену',
+                op_xvost_is_offer: true,
+            }),
+        ).toEqual({
+            op_talk_impression: 'встретили хорошо',
+            op_talk_boss_readiness: 'готов',
+            op_5k_client_what: 'хочет замену',
+            op_xvost_is_offer: true,
+        });
+    });
+
+    it('переведённые ответы резолвятся фрейм-записью в op_talk_* поля', () => {
+        // До перевода коды опросника не находились ни в одном слепке —
+        // ответы «Разговора» не писались никуда (todo3108 №1).
+        const payload = buildPortalFieldPayload({
+            answers: translateSurveyCodes({ xo_impression: 'слушали' }),
+            resolveKey: code =>
+                code === 'op_talk_impression'
+                    ? 'UF_CRM_OP_TALK_IMPRESSION'
+                    : null,
+        });
+        expect(payload).toEqual({ UF_CRM_OP_TALK_IMPRESSION: 'слушали' });
     });
 });

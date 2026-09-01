@@ -385,6 +385,97 @@ describe('чек-лист: адрес и вариант из портально�
  * в «Клиент на решении»). По коду поля они делили ключ — второй ответ
  * отменял таймер первого и подменял его статус «сохранено».
  */
+describe('чек-лист: запись во всех носителей поля', () => {
+    // Доктрина полей-истин (EntityFieldsDialog): значение живёт на сделке
+    // И компании разом — запись в одного носителя их разъезжала бы, а
+    // чтение «сделка точнее» показывало бы устаревшее.
+    const PORTAL_DATE_DUAL_DEF = item('purchase_date', 'date', {
+        title: 'Плановая дата покупки',
+        field: { name: 'UF_CRM_SALE_DATE_PROGNOZ', type: 'date' },
+        legacyFieldCode: null,
+    });
+    const DUAL_REF = ref('refine_plan', PORTAL_DATE_DUAL_DEF);
+    const dualState = {
+        app: {
+            bitrix: {
+                company: { ID: '7', UF_CRM_SALE_DATE_PROGNOZ: '' },
+                deal: { ID: '10', UF_CRM_SALE_DATE_PROGNOZ: '' },
+                lead: null,
+            },
+        },
+        callChecklist: { baseDeal: { row: null } },
+        portal: { portal: { bitrixDeal: { bitrixfields: [] } } },
+    } as unknown as RootState;
+
+    it('date-вопрос анкеты уходит и в компанию, и в сделку одним значением', async () => {
+        const { dispatch } = makeStore(dualState);
+        dispatch(changeChecklistField(DUAL_REF, '2026-09-05'));
+        await vi.advanceTimersByTimeAsync(2000);
+
+        expect(companyUpdate).toHaveBeenCalledWith(7, {
+            UF_CRM_SALE_DATE_PROGNOZ: '05.09.2026',
+        });
+        expect(dealUpdate).toHaveBeenCalledWith(10, {
+            UF_CRM_SALE_DATE_PROGNOZ: '05.09.2026',
+        });
+    });
+
+    it('справочник пишется только главному носителю: bitrixId варианта у каждой сущности свой', async () => {
+        const enumDualState = {
+            ...dualState,
+            app: {
+                bitrix: {
+                    company: { ID: '7', UF_CRM_1712345678: '' },
+                    deal: { ID: '10', UF_CRM_1712345678: '' },
+                    lead: null,
+                },
+            },
+        } as unknown as RootState;
+        const { dispatch } = makeStore(enumDualState);
+        dispatch(
+            changeChecklistField(
+                ref('refine_plan', PORTAL_MANUAL_DEF),
+                'pay_now',
+            ),
+        );
+        await vi.advanceTimersByTimeAsync(2000);
+
+        expect(companyUpdate).toHaveBeenCalledWith(7, {
+            UF_CRM_1712345678: '777',
+        });
+        expect(dealUpdate).not.toHaveBeenCalled();
+    });
+
+    it('встроенный вопрос: свой UF-ключ у каждого носителя из слепка', async () => {
+        const builtinDualState = {
+            app: {
+                bitrix: {
+                    company: { ID: '7' },
+                    deal: { ID: '10' },
+                    lead: null,
+                },
+            },
+            callChecklist: { baseDeal: { row: null } },
+            portal: {
+                portal: {
+                    company: { bitrixfields: [INVOICE_FIELD] },
+                    bitrixDeal: { bitrixfields: [INVOICE_FIELD] },
+                },
+            },
+        } as unknown as RootState;
+        const { dispatch } = makeStore(builtinDualState);
+        dispatch(changeChecklistField(DATE_REF, '2026-07-01'));
+        await vi.advanceTimersByTimeAsync(2000);
+
+        expect(companyUpdate).toHaveBeenCalledWith(7, {
+            UF_CRM_OP_INVOICE_DATE: '01.07.2026',
+        });
+        expect(dealUpdate).toHaveBeenCalledWith(10, {
+            UF_CRM_OP_INVOICE_DATE: '01.07.2026',
+        });
+    });
+});
+
 describe('чек-лист: два вопроса одного поля не делят состояние', () => {
     const PAY_REF = ref('pay', DATETIME_DEF);
     const DECISION_REF = ref('decision', DATETIME_DEF);

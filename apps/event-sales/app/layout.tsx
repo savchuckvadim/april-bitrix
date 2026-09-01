@@ -16,6 +16,27 @@ const fontMono = Geist_Mono({
     variable: '--font-mono',
 });
 
+/**
+ * Хосты, к которым фрейм пойдёт в первые же секунды: preconnect срезает
+ * DNS+TLS-рукопожатие с критического пути (первый запрос настроек/портала
+ * стартует уже по тёплому соединению). Значения — те же env, что у
+ * api-клиентов; пустой env — дев, preconnect не нужен.
+ */
+const PRECONNECT_HOSTS = [
+    process.env.NEXT_PUBLIC_EVENT_SALES_API_URL,
+    // Легаси-бэк захардкожен в @workspace/api (back-api.ts), env у него нет.
+    'https://back.april-app.ru/',
+]
+    .filter((value): value is string => !!value)
+    .map(value => {
+        try {
+            return new URL(value).origin;
+        } catch {
+            return null;
+        }
+    })
+    .filter((value): value is string => !!value);
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -23,6 +44,16 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
+            <head>
+                {PRECONNECT_HOSTS.map(origin => (
+                    <link
+                        key={origin}
+                        rel="preconnect"
+                        href={origin}
+                        crossOrigin="anonymous"
+                    />
+                ))}
+            </head>
             <body
                 className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
             >

@@ -8,9 +8,18 @@ import {
     dealContactIds,
     leadContactId,
     relatedLeadIds,
+    sourceRequestKey,
     uniqueIds,
     type ContactSourceMap,
 } from '../lib/contact-sources';
+import {
+    BATCH_CMD_LIMIT,
+    CONTACT_CMD,
+    CONTACT_PAGE_SIZE,
+    batchRows,
+    contactIdsOfRows,
+    runContactBatch,
+} from '../lib/contact-batch';
 import { EV_CONTACT_PROP, EV_CONTACT_TYPE } from '../type/event-contact-type';
 import { PBXContactStateItem } from '../type/pbx-contact-type';
 import {
@@ -40,8 +49,16 @@ import {
  * Раньше источник был один — контакты компании, и в сделке без компании (а
  * равно в лиде) список молча оставался пустым: «Контактов пока нет» при
  * заполненном контакте в самой сделке. Теперь собираем отовсюду, помним
- * источник каждого и дописываем в общий список — вызов идемпотентен, повторный
- * запрос спрашивает портал только про новые id.
+ * источник каждого и дописываем в общий список.
+ *
+ * Поход в сеть — ОДНИМ callBatch, а не тремя последовательными запросами:
+ * опрос компании, сделки и лидов плюс догрузка статических id едут вместе
+ * (см. contact-batch); контакты, открывшиеся только из ответа, доезжают
+ * вторым батчем в loadContactsByIds. Вызов идемпотентен: реестр
+ * requestedSources помнит уже опрошенные источники, и повторный прогон
+ * (листенеры зовут сбор 2–3 раза за старт) спрашивает только новые —
+ * появилась сделка, значит только её contactItems. reload (⟳) сбрасывает
+ * реестр вместе со слайсом — «Обновить» переопрашивает всё.
  *
  * Зовётся listener'ами: портал загружен, компания появилась позже, задачи
  * приехали (у задачи свои CRM-привязки).
@@ -51,72 +68,185 @@ export const collectRelatedContacts =
     async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
         const { company, deal, lead } = state.app.bitrix;
-        const bitrix = Bitrix.getService();
-        const sources: ContactSourceMap = {};
 
-        if (company) {
-            const items = await bitrix.company.contactItemsGet(company.ID);
+        // Статические источники: id уже лежат в загруженных объектах, сети
+        // не требуют. Пересобираем каждый прогон — подписи источников должны
+        // дописываться и там, где запросов не будет.
+        const sources: ContactSourceMap = {};
+        if (deal) {
             addSource(
                 sources,
-                'company',
-                uniqueIds((items ?? []).map(item => Number(item.CONTACT_ID))),
+                'deal',
+                dealContactIds(deal as unknown as Record<string, unknown>),
             );
         }
-
-        if (deal) {
-            const items = await bitrix.deal.contactItemsGet(deal.ID);
-            addSource(sources, 'deal', [
-                ...uniqueIds(
-                    (items ?? []).map(item => Number(item.CONTACT_ID)),
-                ),
-                ...dealContactIds(deal as unknown as Record<string, unknown>),
-            ]);
-        }
-
         const ownLeadContact = leadContactId(
             lead as unknown as Record<string, unknown> | null,
         );
         if (ownLeadContact) addSource(sources, 'lead', [ownLeadContact]);
-
-        // Лид, из которого выросла сделка, и лиды из привязок задачи: контакт
-        // мог остаться только там — в сделку его никто не переносил.
         const taskLinks = getCrmLinksFromRaw(
             state.eventTask.current?.ufCrmTask,
         );
+        addSource(sources, 'task', uniqueIds(taskLinks.contactIds));
+
+        // Сетевые источники — только ещё НЕ опрошенные (дедуп между
+        // прогонами). Лиды: породивший сделку и привязанные к задаче —
+        // контакт мог остаться только там, в сделку его никто не переносил.
+        const requested = state.contact.requestedSources;
+        const companyId =
+            company && !requested[sourceRequestKey('company', company.ID)]
+                ? company.ID
+                : null;
+        const dealId =
+            deal && !requested[sourceRequestKey('deal', deal.ID)]
+                ? deal.ID
+                : null;
         const leadIds = relatedLeadIds({
             deal: deal as unknown as Record<string, unknown> | null,
             lead: lead as unknown as Record<string, unknown> | null,
             taskLeadIds: taskLinks.leadIds,
-        });
-        if (leadIds.length) {
-            const response = await bitrix.lead.getList(
-                { ID: leadIds } as never,
-                ['ID', 'CONTACT_ID'],
-            );
-            addSource(
-                sources,
-                'relatedLead',
-                uniqueIds(
-                    (response?.result ?? []).map(item =>
-                        Number(item.CONTACT_ID),
-                    ),
-                ),
+        }).filter(id => !requested[sourceRequestKey('lead', id)]);
+
+        // Помечаем ДО первого await: сбор зовут три листенера почти
+        // одновременно, и без синхронной пометки параллельный прогон успевал
+        // бы опросить те же источники второй раз.
+        const requestKeys = [
+            ...(companyId != null
+                ? [sourceRequestKey('company', companyId)]
+                : []),
+            ...(dealId != null ? [sourceRequestKey('deal', dealId)] : []),
+            ...leadIds.map(id => sourceRequestKey('lead', id)),
+        ];
+        if (requestKeys.length) {
+            dispatch(
+                eventContactActions.markSourcesRequested({
+                    keys: requestKeys,
+                }),
             );
         }
 
-        addSource(sources, 'task', uniqueIds(taskLinks.contactIds));
+        // Статические id, которых ещё нет в списке, едут ТЕМ ЖЕ батчем, что
+        // и опрос источников: у клиента с одним контактом из привязки это
+        // единственный поход в сеть за весь старт.
+        const known = new Set(
+            state.contact.contacts.map(contact => Number(contact.ID)),
+        );
+        const staticChunks = chunkArray<number>(
+            Object.keys(sources)
+                .map(Number)
+                .filter(id => !known.has(id)),
+            CONTACT_PAGE_SIZE,
+        );
+        let askedIds = staticChunks.flat();
 
-        await dispatch(loadContactsByIds(portal, sources));
+        const fetched: BXContact[] = [];
+        if (requestKeys.length || staticChunks.length) {
+            const select = getContactsRequestSelect(portal);
+            try {
+                const flat = await runContactBatch(bitrix => {
+                    let count = 0;
+                    if (companyId != null) {
+                        bitrix.batch.company.contactItemsGet(
+                            CONTACT_CMD.COMPANY_ITEMS,
+                            companyId,
+                        );
+                        count += 1;
+                    }
+                    if (dealId != null) {
+                        bitrix.batch.deal.contactItemsGet(
+                            CONTACT_CMD.DEAL_ITEMS,
+                            dealId,
+                        );
+                        count += 1;
+                    }
+                    if (leadIds.length) {
+                        bitrix.batch.lead.getList(
+                            CONTACT_CMD.RELATED_LEADS,
+                            { ID: leadIds } as never,
+                            ['ID', 'CONTACT_ID'],
+                        );
+                        count += 1;
+                    }
+                    staticChunks.forEach((chunk, index) => {
+                        bitrix.batch.contact.getList(
+                            `${CONTACT_CMD.CONTACT_PAGE}${index}`,
+                            { ID: chunk } as never,
+                            select,
+                        );
+                        count += 1;
+                    });
+                    return count;
+                });
+
+                if (companyId != null) {
+                    addSource(
+                        sources,
+                        'company',
+                        contactIdsOfRows(flat[CONTACT_CMD.COMPANY_ITEMS]),
+                    );
+                }
+                if (dealId != null) {
+                    addSource(
+                        sources,
+                        'deal',
+                        contactIdsOfRows(flat[CONTACT_CMD.DEAL_ITEMS]),
+                    );
+                }
+                if (leadIds.length) {
+                    addSource(
+                        sources,
+                        'relatedLead',
+                        contactIdsOfRows(flat[CONTACT_CMD.RELATED_LEADS]),
+                    );
+                }
+                staticChunks.forEach((_chunk, index) => {
+                    fetched.push(
+                        ...(batchRows(
+                            flat[`${CONTACT_CMD.CONTACT_PAGE}${index}`],
+                        ) as unknown as BXContact[]),
+                    );
+                });
+            } catch (error) {
+                // Сорвавшийся батч: пометки снимаем — следующий вызов сбора
+                // переопросит источники (прежняя самопочинка), а статические
+                // id пробует догрузить loadContactsByIds ниже.
+                if (requestKeys.length) {
+                    dispatch(
+                        eventContactActions.unmarkSourcesRequested({
+                            keys: requestKeys,
+                        }),
+                    );
+                }
+                askedIds = [];
+                console.error(
+                    'collectRelatedContacts: батч сбора не прошёл',
+                    error,
+                );
+            }
+        }
+
+        // Первую волну кладём ДО догрузки: loadContactsByIds считает «уже
+        // известных» по стору и не должен спрашивать их второй раз.
+        if (fetched.length) {
+            await dispatch(setInitPBXContact(portal, fetched, sources));
+        }
+
+        await dispatch(loadContactsByIds(portal, sources, askedIds));
     };
 
 /**
  * Догрузить контакты по id и записать их источники.
  *
  * Уже известные повторно не спрашиваем — источник им дописываем всё равно:
- * один и тот же человек нередко висит и в компании, и в лиде.
+ * один и тот же человек нередко висит и в компании, и в лиде. `askedIds` —
+ * кого только что спросил батч сбора: не приехавший оттуда id (контакт
+ * удалён в CRM) не переспрашиваем тут же второй раз.
+ *
+ * Чанки по 50 id уезжают ОДНИМ callBatch вместо последовательных запросов;
+ * больше 50 чанков (2500+ контактов) — следующими батчами по очереди.
  */
 export const loadContactsByIds =
-    (portal: Portal, sources: ContactSourceMap) =>
+    (portal: Portal, sources: ContactSourceMap, askedIds: number[] = []) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         const ids = Object.keys(sources).map(Number);
         if (!ids.length) return;
@@ -124,22 +254,31 @@ export const loadContactsByIds =
         const known = new Set(
             getState().contact.contacts.map(contact => Number(contact.ID)),
         );
-        const missing = ids.filter(id => !known.has(id));
+        const asked = new Set(askedIds);
+        const missing = ids.filter(id => !known.has(id) && !asked.has(id));
 
         const contacts: BXContact[] = [];
         if (missing.length) {
-            const bitrix = Bitrix.getService();
             const select = getContactsRequestSelect(portal);
-            for (const chunk of chunkArray<number>(missing, 50)) {
-                const response = await bitrix.contact.getList(
-                    { ID: chunk } as never,
-                    select,
-                );
-                if (Array.isArray(response?.result)) {
+            const chunks = chunkArray<number>(missing, CONTACT_PAGE_SIZE);
+            for (const group of chunkArray(chunks, BATCH_CMD_LIMIT)) {
+                const flat = await runContactBatch(bitrix => {
+                    group.forEach((chunk, index) => {
+                        bitrix.batch.contact.getList(
+                            `${CONTACT_CMD.CONTACT_PAGE}${index}`,
+                            { ID: chunk } as never,
+                            select,
+                        );
+                    });
+                    return group.length;
+                });
+                group.forEach((_chunk, index) => {
                     contacts.push(
-                        ...(response.result as unknown as BXContact[]),
+                        ...(batchRows(
+                            flat[`${CONTACT_CMD.CONTACT_PAGE}${index}`],
+                        ) as unknown as BXContact[]),
                     );
-                }
+                });
             }
         }
 
@@ -217,6 +356,15 @@ export const bindContactToCurrentEntity =
                         ...existing,
                         id,
                     ]);
+                    // Состав контактов сделки только что изменился — реестр
+                    // опрошенных должен её забыть, иначе пересбор ниже
+                    // пропустит сделку и новый контакт останется без подписи
+                    // «из сделки».
+                    dispatch(
+                        eventContactActions.unmarkSourcesRequested({
+                            keys: [sourceRequestKey('deal', deal.ID)],
+                        }),
+                    );
                 }
             } else if (lead && !leadContactId(lead as never)) {
                 await bitrix.lead.update(lead.ID, { CONTACT_ID: String(id) });

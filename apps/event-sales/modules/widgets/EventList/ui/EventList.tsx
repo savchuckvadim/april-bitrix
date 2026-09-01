@@ -1,6 +1,5 @@
 'use client';
 
-
 import { FC } from 'react';
 import {
     Table,
@@ -22,6 +21,8 @@ import {
     getResultMenu,
 } from '@/modules/widgets/EventItem';
 import { useEventNavigation } from '@/modules/processes/event';
+// Прямой путь: барель outbox тянет дренаж, списку нужна только полоска.
+import { OutboxNoticeBanner } from '@/modules/processes/event-outbox/ui/OutboxNoticeBanner';
 import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
 import { ActionPromptCard } from '@/modules/features/ActionPrompts';
 import { LeadConfirmGate } from '@/modules/features/LeadRequestCard';
@@ -71,6 +72,9 @@ export const EventList: FC = () => {
             {/* Действия списка (обновить, создать, статистика, темы) — в
                 правом верхнем углу общей шапки; своей строки у списка нет. */}
             <FlowStatusBanner />
+            {/* Отчёты, сохранённые в браузере: сколько ждёт, что уезжает
+                сейчас и что требует сверки — той же тонкой полоской. */}
+            <OutboxNoticeBanner />
 
             <SectionState
                 status={status}

@@ -25,6 +25,35 @@ export enum FLOW_STAGE {
     ERROR = 'error',
 }
 
+/**
+ * Судьба конверта outbox поверх стадии HTTP: та же отправка глазами
+ * хранилища. Финиш-стадии плана А3: «отправлено» (DONE), «сохранено,
+ * отправим автоматически» (QUEUED), «ошибка + Повторить» (ERROR).
+ */
+export enum FLOW_OUTBOX_STATE {
+    /** Конверт в обычном полёте либо уже погашен — outbox не вмешивается. */
+    NONE = 'none',
+    /**
+     * Сеть исчерпала сессионный бэкофф: конверт лежит в хранилище, дренаж
+     * дошлёт его сам — менеджеру ждать не нужно.
+     */
+    QUEUED = 'queued',
+    /**
+     * А4: ядро исполнено напрямую в Битриксе, хвост (KPI и пр.) доедет
+     * досылкой (эндпоинт А5). Ставится setOutboxPartial ПОСЛЕ setDone —
+     * финиш и баннер читают связку DONE+PARTIAL.
+     */
+    PARTIAL = 'partial',
+    /**
+     * А4: отчёт проводился напрямую, пишущий батч ушёл, но часть
+     * обязательных изменений не применилась — и доисполнить их нечем
+     * (повтор заблокирован маркером, бэку исходный payload слать нельзя).
+     * Ставится setOutboxIncomplete ПОСЛЕ setDone: финиш и баннер читают
+     * связку DONE+INCOMPLETE и не утверждают, что карточки обновлены.
+     */
+    INCOMPLETE = 'incomplete',
+}
+
 export type FlowStatusState = typeof initialState;
 
 const initialState = {
@@ -45,6 +74,14 @@ const initialState = {
      * состоянии этого ещё нет. Снимается перезагрузкой списка.
      */
     isTasksStale: false as boolean,
+    /** Судьба конверта outbox текущей отправки (см. FLOW_OUTBOX_STATE). */
+    outboxState: FLOW_OUTBOX_STATE.NONE as FLOW_OUTBOX_STATE,
+    /**
+     * Кто принял доставку (id из реестра delivery-targets). Сегодня всегда
+     * primary-backend; А4 начнёт писать сюда direct-bitrix — по нему финиш
+     * различит «отправлено» и «выполнено напрямую».
+     */
+    deliveryTarget: null as string | null,
 };
 
 const flowStatusSlice = createSlice({
@@ -64,6 +101,9 @@ const flowStatusSlice = createSlice({
             state.result = action.payload.result;
             state.operationId = action.payload.operationId;
             state.error = '';
+            // Новая отправка (или повтор) — прошлая судьба конверта неактуальна.
+            state.outboxState = FLOW_OUTBOX_STATE.NONE;
+            state.deliveryTarget = null;
         },
         /**
          * `tasksStale` — надо ли перезагружать список. Отчёт закрывает событие,
@@ -77,6 +117,8 @@ const flowStatusSlice = createSlice({
             state.stage = FLOW_STAGE.DONE;
             state.error = '';
             state.isTasksStale = action.payload.tasksStale;
+            // Исход известен — история с «отправим автоматически» закрыта.
+            state.outboxState = FLOW_OUTBOX_STATE.NONE;
         },
         setError: (
             state: FlowStatusState,
@@ -84,6 +126,40 @@ const flowStatusSlice = createSlice({
         ) => {
             state.stage = FLOW_STAGE.ERROR;
             state.error = action.payload.message;
+        },
+        /**
+         * Сеть исчерпала сессионный бэкофф: конверт сохранён, дошлёт дренаж.
+         * Для менеджера это НЕ ошибка — финиш и баннер показывают честную
+         * стадию «сохранено, отправим автоматически».
+         */
+        setOutboxQueued: (state: FlowStatusState) => {
+            state.outboxState = FLOW_OUTBOX_STATE.QUEUED;
+        },
+        /**
+         * А4: ядро отчёта исполнено напрямую в Битриксе, хвост (KPI,
+         * движения сделок, смарты) ждёт досылки на бэк (А5). Ставится ПОСЛЕ
+         * setDone — тот сбрасывает outboxState в NONE, а финиш различает
+         * «отправлено» и «выполнено напрямую, часть доедет позже» именно по
+         * DONE+PARTIAL.
+         */
+        setOutboxPartial: (state: FlowStatusState) => {
+            state.outboxState = FLOW_OUTBOX_STATE.PARTIAL;
+        },
+        /**
+         * А4: прямое исполнение прошло НЕ ЦЕЛИКОМ — часть обязательных
+         * изменений не применилась, и доисполнить их нечем. Ставится ПОСЛЕ
+         * setDone (тот сбрасывает outboxState в NONE); финиш и баннер по
+         * связке DONE+INCOMPLETE говорят правду вместо «отчёт проведён».
+         */
+        setOutboxIncomplete: (state: FlowStatusState) => {
+            state.outboxState = FLOW_OUTBOX_STATE.INCOMPLETE;
+        },
+        /** Какая цель приняла доставку (для финиш-стадий А4). */
+        setDeliveryTarget: (
+            state: FlowStatusState,
+            action: PayloadAction<{ target: string }>,
+        ) => {
+            state.deliveryTarget = action.payload.target;
         },
         /** Список перезагружен — расхождения с Битриксом больше нет. */
         setTasksFresh: (state: FlowStatusState) => {

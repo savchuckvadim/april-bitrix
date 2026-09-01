@@ -22,6 +22,9 @@ import {
 } from '../../../domain/crm';
 
 import { TasksSchema } from '../../../domain/tasks/bx-tasks.schema';
+import { TaskCommentItemSchema } from '../../../domain/tasks/bx-task-comment-item.schema';
+import { ChecklistItemSchema } from '../../../domain/tasks/checklist-item/schema/bx-checklist-item.schema';
+import { BxImNotifySchema } from '../../../domain/im/schema/bx-im-notify.schema';
 import { BxListItemSchema } from '../../../domain/list-item/schema/bx-list-item.schema';
 import { ActivitySchema } from '../../../domain/activity/bx-activity.schema';
 import { FileSchema } from '../../../domain/file/bx-file.schema';
@@ -81,6 +84,15 @@ export type BXApiSchema = {
     };
     [EBxNamespace.TASKS]: {
         [EBXEntity.TASK]: TasksSchema;
+    };
+    // Исторический REST-неймспейс `task.*` (единственное число):
+    // чек-листы и комментарии задач.
+    [EBxNamespace.TASK]: {
+        [EBXEntity.CHECKLIST_ITEM]: ChecklistItemSchema;
+        [EBXEntity.COMMENT_ITEM]: TaskCommentItemSchema;
+    };
+    [EBxNamespace.IM]: {
+        [EBXEntity.NOTIFY_SYSTEM]: BxImNotifySchema;
     };
     [EBxNamespace.CRM_ITEM]: {
         [EBXEntity.PRODUCT_ROW]: ProductRowSchema;

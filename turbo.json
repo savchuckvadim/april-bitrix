@@ -4,7 +4,9 @@
     "globalEnv": [
         "NEXT_PUBLIC_APP_URL",
         "YANDEX_ID",
-        "FRONT_ERROR_BACK_URL"
+        "FRONT_ERROR_BACK_URL",
+        "METRICS_DISABLED",
+        "METRICS_SCRAPE_TOKEN"
     ],
     "tasks": {
         "build": {
@@ -19,7 +21,8 @@
                 ".next/**",
                 "!.next/cache/**",
                 "dist/**",
-                "src/generated/**"
+                "src/generated/**",
+                "build/**"
             ],
             "env": [
                 "ONLINE_API_KEY",

@@ -4,6 +4,7 @@ import {
     formatAppDiagnostics,
     type AppDiagnostics,
 } from './app-diagnostics';
+import { formatBootPhases, readBootPhases } from './boot-phases';
 
 /** Заголовок группы — по нему диагностику находят в общей консоли портала. */
 export const DIAGNOSTICS_TITLE = '[event-sales] диагностика';
@@ -25,6 +26,8 @@ export const printAppDiagnostics = (state: RootState): AppDiagnostics => {
     for (const line of formatAppDiagnostics(diagnostics)) {
         console.info(line);
     }
+    // Фазы бута: где именно потратилось время первой загрузки.
+    console.info(`фазы бута: ${formatBootPhases(readBootPhases())}`);
     console.groupEnd();
 
     return diagnostics;

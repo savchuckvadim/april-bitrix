@@ -5,6 +5,7 @@ export * from './type/pbx-contact-type';
 export * from './type/state-contact-type';
 export * from './util/contact-util';
 export * from './util/pbx-contact-util';
+export * from './lib/contact-batch';
 export * from './lib/contact-sources';
 export * from './lib/contact-view';
 export * from './lib/use-contact-options';

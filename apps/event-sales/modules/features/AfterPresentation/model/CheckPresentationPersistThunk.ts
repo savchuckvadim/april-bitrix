@@ -5,9 +5,11 @@ import { reportFrontError } from '@/modules/shared/front-error';
 import { isBaseSalesDeal } from '@/modules/entities/RelatedCrm/lib/deal-category';
 import { isOwnDeal } from '@/modules/entities/RelatedCrm/lib/deal-ownership';
 import {
-    buildFiveKSummary,
     buildPortalFieldPayload,
+    hasWritablePortalAnswers,
+    translateSurveyCodes,
 } from '../lib/check-presentation.persist';
+import { selectFiveKSummary } from '../lib/check-presentation.survey';
 
 /** Чем закончилась запись ответов: по каждой цели — приняла или нет. */
 export interface CheckPresentationPersistResult {
@@ -15,18 +17,40 @@ export interface CheckPresentationPersistResult {
     attempted: number;
     /** Не принявшие ответы цели («deal:123») — для сообщения и разбора. */
     failed: string[];
-    /** Ни одна цель не приняла: ответов на портале НЕТ. */
+    /**
+     * Пробовали писать — и ни одна цель не приняла. Портал ОТКАЗАЛ: сеть,
+     * права, удалённая сущность. Повтор имеет смысл, поэтому это блокер
+     * (см. submitCheckPresentation).
+     */
     isTotalFailure: boolean;
+    /**
+     * Цели ЕСТЬ, писать было что — а НЕКУДА: слепок портала в браузере не
+     * знает ни одного поля опросника (протух или полей не ставили —
+     * инцидент todo3108 №1). Повтор из окна не поможет НИКОГДА: слепок за
+     * время нажатия «Сохранить» не обновится. Не блокер — предупреждение:
+     * ответы уедут в payload отчёта, и поток запишет их по СВОЕМУ слепку.
+     */
+    nothingWritten: boolean;
+    /**
+     * Целей нет ВООБЩЕ: ни компании, ни сделки, ни лида в контексте
+     * (встройка без привязки к CRM). Это ДРУГАЯ беда, чем `nothingWritten`,
+     * и путать их нельзя: там поля не нашлись в живой карточке — здесь
+     * карточки нет вовсе, и «полей опросника нет в карточке клиента»
+     * отправило бы менеджера искать несуществующую проблему в настройках.
+     */
+    noTargets: boolean;
 }
 
 const EMPTY_RESULT: CheckPresentationPersistResult = {
     attempted: 0,
     failed: [],
     isTotalFailure: false,
+    nothingWritten: false,
+    noTargets: false,
 };
 
 /**
- * Ответы опросника — в поля Битрикса.
+ * Ответы опросника — в поля Битрикса ПРЯМО ИЗ ФРЕЙМА.
  *
  * До этого опросник был декоративным: ответы жили в сторе и не уезжали НИКУДА
  * — ни в flow-payload, ни в портал. Менеджер заполнял «Хвост» и «Пять К», а
@@ -40,6 +64,23 @@ const EMPTY_RESULT: CheckPresentationPersistResult = {
  *
  * Пишем ТОЛЬКО то, под что на портале есть поле: ключи резолвятся из слепка,
  * никаких `UF_CRM_<КОД>` наугад.
+ *
+ * ЗАЧЕМ ОНА НУЖНА, если ответы теперь уезжают и в payload отчёта
+ * (`selectCheckPresentationSurvey`). Две причины, обе про здесь и сейчас:
+ * ответы видно в карточке клиента СРАЗУ, не дожидаясь исполнения потока; и
+ * «заполнил опросник, а отчёт не отправил» — обычный день менеджера, поток
+ * в этом случае не запускается вовсе. Серверного дубля (ручка
+ * `/presentation-survey`) больше нет: серверный контур — сам поток отчёта.
+ *
+ * ОСТАТОЧНЫЙ РИСК. Слепок портала в браузере может протухнуть (поля
+ * установили после того, как слепок лёг в кэш) — тогда фрейм-записи некуда
+ * писать. Если при этом отчёт так и не отправят, ответы не попадут на
+ * портал вовсе. Раньше этот край закрывала серверная ручка; закрывать его
+ * отдельным контуром снова — держать трёх писателей одного значения, ровно
+ * ту болезнь, от которой ушли. Провал записи виден менеджеру честно (см.
+ * итог ниже и submitCheckPresentation), а отправленный отчёт довозит
+ * ответы своим путём — поэтому «некуда писать» отправку НЕ запирает:
+ * запереть её значило бы отнять единственный оставшийся путь ответов.
  *
  * Возвращает итог по каждой цели: раньше ошибка записи уходила в
  * `console.error`, отправка шла дальше, и менеджер был уверен, что ответы
@@ -57,46 +98,18 @@ export const persistCheckPresentation =
 
         if (!portal || !Object.keys(answers).length) return EMPTY_RESULT;
 
-        // Сводное «Пять К» собирается из ответов: отдельные op_5k_* живут
-        // только на лиде, а сводка доезжает и до сделки.
-        //
-        // База — то, что УЖЕ лежит на лиде: при частичном повторном
-        // заполнении (ответили на два вопроса из девяти) сводка иначе
-        // теряла бы прошлые семь ответов и расходилась с op_5k_* полями.
+        // Сводное «Пять К» собирается из ответов поверх уже записанных на
+        // лид: отдельные op_5k_* живут только на лиде, а сводка доезжает и
+        // до сделки. Та же сводка уходит в payload отчёта — писатель у неё
+        // общий, чтобы значения не разъезжались.
         const items = state.afterPresentation.checkPresentation.items;
-        const titleByCode = Object.fromEntries(
-            items.map(item => [item.code, `${item.title}:`]),
-        );
-        const leadRow = state.app.bitrix.lead as unknown as Record<
-            string,
-            unknown
-        > | null;
-        const baseAnswers: Record<string, string> = {};
-        if (leadRow) {
-            for (const item of items) {
-                const key = findUfKey(portal.lead?.bitrixfields, item.code);
-                const raw = key ? leadRow[key] : null;
-                if (typeof raw === 'string' && raw.trim()) {
-                    baseAnswers[item.code] = raw;
-                }
-            }
-        }
-        // Пустые ответы в мерж не идут: стёртое поле опросника НЕ пишется
-        // на портал (payload пустоту пропускает), значит и сводка обязана
-        // сохранить прошлую строку — иначе op_presentation_5k расходился бы
-        // с op_5k_* полями. Семантика «стереть нельзя, только перезаписать».
-        const filledAnswers = Object.fromEntries(
-            Object.entries(answers).filter(([, value]) =>
-                typeof value === 'string' ? value.trim() : value != null,
-            ),
-        );
-        const summary = buildFiveKSummary(
-            { ...baseAnswers, ...filledAnswers },
-            titleByCode,
-        );
+        const summary = selectFiveKSummary(state);
         const fullAnswers = summary
             ? { ...answers, op_presentation_5k: summary }
             : answers;
+        // Дальше живут только коды ПОЛЕЙ: xo_* опросника → op_talk_* реестра
+        // (иначе «Разговор» не резолвится фрейм-записью).
+        const portalAnswers = translateSurveyCodes(fullAnswers);
 
         const { company, deal, lead } = state.app.bitrix;
         const bitrix = Bitrix.getService();
@@ -144,19 +157,22 @@ export const persistCheckPresentation =
             },
         ];
 
-        const typeByCode = Object.fromEntries(
-            items.map(item => [item.code, item.type]),
+        const typeByCode = translateSurveyCodes(
+            Object.fromEntries(items.map(item => [item.code, item.type])),
         );
 
         let attempted = 0;
+        /** Живых сущностей в контексте — отдельно от «нашлись ли поля». */
+        let liveTargets = 0;
         const failed: string[] = [];
 
         for (const target of targets) {
             const entityId = Number(target.id ?? 0);
             if (!entityId) continue;
+            liveTargets += 1;
 
             const payload = buildPortalFieldPayload({
-                answers: fullAnswers,
+                answers: portalAnswers,
                 resolveKey: code => findUfKey(target.fields, code),
                 typeByCode,
             });
@@ -176,9 +192,38 @@ export const persistCheckPresentation =
             }
         }
 
+        /*
+         * Итог честный по факту записи — и РАЗНЫЙ у трёх непохожих бед.
+         *
+         * 1. Все цели отказали (`isTotalFailure`) — портал сказал «нет»:
+         *    сеть, права, удалённая сущность. Повтор осмыслен, окно держим.
+         * 2. Цели есть, поля не нашлись (`nothingWritten`) — слепок портала
+         *    в браузере не знает ни одного ключа опросника. Повтор
+         *    бессмыслен: слепок за секунду не поменяется. Мягкая деградация
+         *    по слепку (правило репо) — предупредить и пропустить.
+         * 3. Целей нет вовсе (`noTargets`) — в контексте ни компании, ни
+         *    сделки, ни лида. Раньше это поднимало флаг №2, и менеджер
+         *    видел «Полей опросника нет в карточке клиента» при живом
+         *    слепке — сообщение звало проверять настройки полей там, где
+         *    проверять нечего.
+         *
+         * Раньше (до появления этих флагов) `attempted === 0` вообще ничего
+         * не значило: результат отличался от успеха только по `failed`, и
+         * все три беды выглядели как «сохранено».
+         *
+         * Писать было нечего (пустой опросник) — не беда вовсе.
+         */
+        const hasValuesToWrite = hasWritablePortalAnswers(
+            portalAnswers,
+            typeByCode,
+        );
+
         return {
             attempted,
             failed,
             isTotalFailure: attempted > 0 && failed.length === attempted,
+            nothingWritten:
+                liveTargets > 0 && attempted === 0 && hasValuesToWrite,
+            noTargets: liveTargets === 0 && hasValuesToWrite,
         };
     };

@@ -13,6 +13,20 @@ const task = (over: Partial<EventTask>): EventTask =>
     }) as EventTask;
 
 describe('buildRescheduleSeed', () => {
+    it('CRM-строка дедлайна тоже нормализуется в формат контрола', () => {
+        expect(
+            buildRescheduleSeed(task({ deadlineRaw: '31.08.2026 06:51:00' }))
+                .date,
+        ).toBe('2026-08-31 06:51');
+    });
+
+    it('мусорный дедлайн — null, а не подставленное «сегодня»', () => {
+        expect(
+            buildRescheduleSeed(task({ deadlineRaw: 'мусор' })).date,
+        ).toBeNull();
+    });
+
+
     it('берёт название, срок и тип текущей задачи', () => {
         expect(
             buildRescheduleSeed(
@@ -20,7 +34,10 @@ describe('buildRescheduleSeed', () => {
             ),
         ).toEqual({
             name: 'Созвон',
-            date: '2026-08-20T10:00:00+03:00',
+            // ISO дедлайна нормализован в формат КОНТРОЛА: сырой ISO пикер
+            // не разбирал, показывал пустую дату, и перенос уезжал на
+            // «сегодня» (todo3108 №2). Настенное время без сдвига таймзоной.
+            date: '2026-08-20 10:00',
             typeCode: EV_PLAN_CODE.PRESENTATION,
         });
     });

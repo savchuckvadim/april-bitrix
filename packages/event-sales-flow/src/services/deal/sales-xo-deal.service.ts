@@ -1,0 +1,76 @@
+import { AppLogger as Logger } from '../../shared/lib/logger';
+import { FlowTransport as BitrixService } from '../../ports/flow-transport.port';
+import { IBXDeal } from '../../types/bitrix-entities.type';
+import { FlowPortalSource as PortalModel } from '../../ports/flow-portal.port';
+import { PbxDealCategoryCodeEnum } from '../../types/portal-deal.type';
+import { EventReportContext } from '../context/event-report.context';
+import { EEventReportEntityType } from '../init/event-report-init.types';
+import {
+    EDealRole,
+    EventReportEntityFieldsModel,
+} from '../entity/event-report-entity-fields.model';
+import {
+    composeStageId,
+    getXoTargetStageCode,
+} from './deal-target-stage.calculator';
+
+/**
+ * Обновление сделки воронки ОП Холодные (sales_xo). Здесь только update —
+ * новые xo-сделки в event-report flow не создаём (для этого есть cold-hook).
+ */
+export class SalesXoDealService {
+    private readonly logger = new Logger(SalesXoDealService.name);
+
+    constructor(
+        private readonly bitrix: BitrixService,
+        private readonly portal: PortalModel,
+    ) {}
+
+    queue(ctx: EventReportContext): void {
+        if (ctx.isNoCall) return;
+        if (!ctx.currentXoDeal) return;
+
+        const category = this.portal.getDealCategoryByCode(
+            PbxDealCategoryCodeEnum.sales_xo,
+        );
+        if (!category) {
+            this.logger.warn('sales_xo category not configured');
+            return;
+        }
+
+        const targetStage = getXoTargetStageCode({
+            category,
+            reportEventType: ctx.reportEventType,
+            isExpired: ctx.isExpired,
+            isResult: ctx.isResult,
+            isSuccess: ctx.isSuccessSale,
+            isFail: ctx.isFail,
+        });
+        if (!targetStage) return;
+
+        const entityFields = new EventReportEntityFieldsModel(
+            this.portal,
+            ctx,
+            EEventReportEntityType.DEAL,
+            {
+                deal: ctx.currentXoDeal as Record<string, unknown> | null,
+                role: EDealRole.XO,
+            },
+        ).toFields();
+
+        const fields: Partial<IBXDeal> = {
+            ...(entityFields as Partial<IBXDeal>),
+            ...ctx.ownerLinkFields,
+            CATEGORY_ID: String(category.bitrixId),
+            STAGE_ID: composeStageId(category.bitrixId, targetStage),
+            ASSIGNED_BY_ID: String(ctx.planResponsibleId),
+        };
+
+        const cmd = `update_xo_deal_${ctx.currentXoDeal.ID}`;
+        this.bitrix.batch.deal.update(
+            cmd,
+            Number(ctx.currentXoDeal.ID),
+            fields,
+        );
+    }
+}

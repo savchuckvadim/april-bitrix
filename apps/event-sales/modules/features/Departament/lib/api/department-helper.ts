@@ -19,7 +19,6 @@ export class DepartmentHelper {
             domain: domain as DepartmentDomain,
         });
 
-        console.log('result', result);
         return result;
     }
 }

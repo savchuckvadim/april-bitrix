@@ -16,6 +16,7 @@ import {
 import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
 import { TmcDealsForReturn, returnToTmcActions } from './ReturnToTMCSlice';
 import { TmcDealsHelper } from '../lib/api/tmc-deals-helper';
+import { BACKEND_SUPPORT_READY } from '@/modules/app/consts/backend-support.const';
 
 const tmcDealsHelper = new TmcDealsHelper();
 
@@ -34,6 +35,10 @@ export const initReturnToTMC =
             state.department[DEPARTAMENT_STATE_PROP.MODE].current?.code ===
             'sales';
         if (!withTmc || !isSalesDepartment) return;
+
+        // /pres/tmc-deals на бэке — заглушка (null): раньше запрос уходил и
+        // ничего не менял. Пока бэк не готов — не ходим (backend-support.const).
+        if (!BACKEND_SUPPORT_READY.tmcDeals) return;
 
         dispatch(returnToTmcActions.setLoadingStatus({ status: true }));
         try {

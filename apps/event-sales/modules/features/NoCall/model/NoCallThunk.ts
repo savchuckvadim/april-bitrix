@@ -6,7 +6,10 @@ import { eventTaskActions } from '@/modules/entities/EventTask';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';
 import { eventContactActions } from '@/modules/entities/EventContact/model/EventContactSlice';
 import { CallResults, noCallActions } from './NoCallSlice';
+// type-only: стирается компилятором, ленивость конвейера отправки не ломает.
+import type { EnqueueDeliverySummary } from '@/modules/processes/event-outbox/model/OutboxThunk';
 import { ResultCountHelper } from '../lib/api/result-count-helper';
+import { BACKEND_SUPPORT_READY } from '@/modules/app/consts/backend-support.const';
 
 const resultCountHelper = new ResultCountHelper();
 
@@ -20,6 +23,13 @@ export const fetchResults =
         const userId = Number(state.app.bitrix.user?.ID || 0);
         const domain = state.app.domain;
         if (!companyId || !domain) return;
+
+        // /result/count на бэке — заглушка (null). Терминальное состояние
+        // ставим без сети, поведение прежнее (см. backend-support.const).
+        if (!BACKEND_SUPPORT_READY.resultCount) {
+            dispatch(noCallActions.setFetched({ results: null }));
+            return;
+        }
 
         dispatch(noCallActions.setLoadingStatus({ status: true }));
         try {
@@ -70,13 +80,16 @@ export const getNoCallMenu =
     };
 
 /**
- * Отправка недозвона: payload с isNoCall и неактивным планом →
- * POST /event-sales/flow; отметка задачи и закрытие меню (без перехода на Finish).
+ * Отправка недозвона: payload с isNoCall и неактивным планом → тот же
+ * конвейер outbox, что у отчёта (kind `nocall`), без перехода на Finish.
  *
- * Как и отчёт, отправка асинхронная: POST только принимает операцию. Меню
- * закрываем сразу — менеджеру незачем ждать, — а исход доезжает наблюдателем
- * и виден баннером в списке. Список при этом НЕ перезагружаем: задача уже
- * помечена локально, а полная перезагрузка мешала бы отмечать недозвоны подряд.
+ * Порядок как у sendEvent: конверт пишется awaited ДО первого HTTP, затем
+ * `setSending` (баннер списка), затем доставка. Меню закрываем, не дожидаясь
+ * исхода — менеджеру незачем ждать; исход доезжает наблюдателем и виден
+ * баннером. Сеть легла — конверт сохранён и доедет дренажем, задачу так же
+ * помечаем локально; конверт в хранилище НЕ лёг (persisted: false) — честная
+ * ошибка без пометки. Список НЕ перезагружаем: полная перезагрузка мешала бы
+ * отмечать недозвоны подряд.
  */
 export const sendNoCall =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
@@ -86,9 +99,6 @@ export const sendNoCall =
         const { buildFlowPayload } = await import(
             '@/modules/processes/event/lib/build-flow-payload'
         );
-        const { FlowHelper } = await import(
-            '@/modules/processes/event/lib/api/flow-helper'
-        );
         const { createOperationId } = await import(
             '@/modules/processes/event/lib/operation-id'
         );
@@ -97,6 +107,20 @@ export const sendNoCall =
         );
         const { watchFlowOperation } = await import(
             '@/modules/processes/event/model/FlowWatchThunk'
+        );
+        const {
+            createOutboxEnvelope,
+            OUTBOX_ENVELOPE_KIND,
+            OUTBOX_ENVELOPE_STATE,
+        } = await import(
+            '@/modules/processes/event-outbox/lib/outbox-envelope'
+        );
+        const { DIRECT_BITRIX_TARGET_ID, PRIMARY_BACKEND_TARGET_ID } =
+            await import(
+                '@/modules/processes/event-outbox/lib/delivery-targets'
+            );
+        const { enqueueAndDeliver } = await import(
+            '@/modules/processes/event-outbox/model/OutboxThunk'
         );
 
         const operationId = createOperationId();
@@ -109,16 +133,31 @@ export const sendNoCall =
             socketId: getSocketIdSafe(),
         });
 
-        dispatch(
-            flowStatusActions.setSending({
-                startedAt: Date.now(),
-                result: '',
-                operationId,
-            }),
-        );
+        const envelope = createOutboxEnvelope({
+            operationId,
+            domain: payload.domain,
+            userId: Number(state.app.bitrix.user?.ID || 0),
+            kind: OUTBOX_ENVELOPE_KIND.nocall,
+            payload,
+        });
 
+        let summary: EnqueueDeliverySummary;
         try {
-            await new FlowHelper().sendFlow(payload);
+            summary = await dispatch(
+                enqueueAndDeliver(envelope, {
+                    // «Финиш» недозвона — баннер отправки: включается между
+                    // awaited-записью конверта и первым HTTP, как у отчёта.
+                    onEnqueued: () => {
+                        dispatch(
+                            flowStatusActions.setSending({
+                                startedAt: Date.now(),
+                                result: '',
+                                operationId,
+                            }),
+                        );
+                    },
+                }),
+            );
         } catch (error) {
             console.error('sendNoCall error', error);
             dispatch(
@@ -129,11 +168,87 @@ export const sendNoCall =
             return;
         }
 
+        if (summary.status === 'rejected') {
+            // Бэк payload получил и отверг — повторять без правок бессмысленно,
+            // меню оставляем открытым, задачу отправленной не помечаем.
+            console.error('sendNoCall rejected', summary.detail);
+            dispatch(
+                flowStatusActions.setError({
+                    message: 'Недозвон не отправлен — попробуйте ещё раз.',
+                }),
+            );
+            return;
+        }
+
+        if (summary.status !== 'accepted' && !summary.persisted) {
+            // Сеть исчерпана, а хранилище конверт не приняло (kind `none`,
+            // квота): недозвон жил только в памяти вкладки — пометить задачу
+            // «отправленной» значило бы молча его потерять. Честная ошибка,
+            // меню остаётся открытым для повтора.
+            console.error('sendNoCall: конверт не записан, сеть исчерпана');
+            dispatch(
+                flowStatusActions.setError({
+                    message: 'Недозвон не отправлен — попробуйте ещё раз.',
+                }),
+            );
+            return;
+        }
+
+        // Принят или сохранён конвертом (дошлёт дренаж) — для менеджера
+        // недозвон отмечен: задача помечается, меню закрывается.
         if (currentTaskId) {
             dispatch(noCallActions.setSendedTaskId({ taskId: currentTaskId }));
         }
         dispatch(setCurrentReportContact(null));
         dispatch(getNoCallMenu(null, false));
+
+        if (summary.status === 'direct-incomplete') {
+            // Прямое исполнение прошло НЕ ЦЕЛИКОМ (А4): батч ушёл, часть
+            // обязательных команд не применилась, доисполнить нечем. Стадия
+            // честная — DONE+INCOMPLETE, без «недозвон проведён».
+            console.error(
+                'sendNoCall: недозвон проведён не целиком',
+                summary.failedCommands.join(', '),
+            );
+            dispatch(
+                flowStatusActions.setDeliveryTarget({
+                    target: DIRECT_BITRIX_TARGET_ID,
+                }),
+            );
+            dispatch(flowStatusActions.setDone({ tasksStale: false }));
+            // Порядок важен: setDone сбрасывает outboxState в NONE.
+            dispatch(flowStatusActions.setOutboxIncomplete());
+            return;
+        }
+
+        if (summary.status === 'executed-direct') {
+            // Прямое исполнение (А4): бэк молчал, недозвон проведён прямо в
+            // Битриксе. Поллинга нет (операции на бэке не было); список не
+            // трогаем — как и в обычном пути недозвона. Хвост deferred (если
+            // есть) дошлёт эндпоинт А5 — баннер покажет DONE+PARTIAL.
+            dispatch(
+                flowStatusActions.setDeliveryTarget({
+                    target: DIRECT_BITRIX_TARGET_ID,
+                }),
+            );
+            dispatch(flowStatusActions.setDone({ tasksStale: false }));
+            if (summary.envelopeState === OUTBOX_ENVELOPE_STATE.partial) {
+                // Порядок важен: setDone сбрасывает outboxState в NONE.
+                dispatch(flowStatusActions.setOutboxPartial());
+            }
+            return;
+        }
+
+        if (summary.status !== 'accepted') {
+            dispatch(flowStatusActions.setOutboxQueued());
+            return;
+        }
+
+        dispatch(
+            flowStatusActions.setDeliveryTarget({
+                target: PRIMARY_BACKEND_TARGET_ID,
+            }),
+        );
 
         await dispatch(
             watchFlowOperation({

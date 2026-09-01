@@ -8,6 +8,7 @@ import {
     eventContactActions,
 } from '@/modules/entities/EventContact';
 import { ContactActions } from '../report/contact/ContactActions';
+import { ContactRemoveAction } from '../report/contact/ContactRemoveAction';
 
 /**
  * Контакт запланированного события: выбор плюс те же приборы, что у контакта
@@ -49,6 +50,13 @@ export const PlanContactRow: FC = () => {
                         )
                     }
                 />
+                {/* Снять контакт с плана (todo3108): встреча может быть и
+                    без конкретного человека — раньше выбранного было не
+                    убрать, только заменить. Тот же приём с переспросом,
+                    что у отчёта. */}
+                {hasContact && (
+                    <ContactRemoveAction type={EV_CONTACT_TYPE.PLAN} />
+                )}
             </span>
         </div>
     );

@@ -10,7 +10,9 @@ export default defineConfig({
     },
     test: {
         environment: 'node',
-        include: ['modules/**/*.test.ts'],
+        // `app/**` — серверная часть (реестр метрик, route-хелперы): она
+        // тоже заслуживает тестов, а жила вне прогона.
+        include: ['modules/**/*.test.ts', 'app/**/*.test.ts'],
         server: {
             deps: {
                 // workspace-пакеты — сырые TS-исходники, vitest должен их

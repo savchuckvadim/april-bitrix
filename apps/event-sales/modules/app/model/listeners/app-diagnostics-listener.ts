@@ -1,4 +1,5 @@
 import { isAnyOf } from '@reduxjs/toolkit';
+import { reportBootMetrics } from '../../lib/diagnostics/boot-metrics';
 import { printAppDiagnostics } from '../../lib/diagnostics/print-app-diagnostics';
 import { appActions } from '../slice/AppSlice';
 import type { AppStartListening, RootState } from '../store';
@@ -51,7 +52,15 @@ export function startAppDiagnosticsListener(
                 );
             }
 
-            printAppDiagnostics(listenerApi.getState());
+            const state = listenerApi.getState();
+            printAppDiagnostics(state);
+            // Те же фазы — метрикой. Момент выбран этот, а не
+            // setInitializedSuccess: сплэш снимается ДО прихода списка дел, и
+            // отчёт оттуда не знал бы главной цифры владельца — «сколько шло
+            // до дел». Здесь картина уже сложилась (или истёк её таймаут),
+            // и сюда же приходит провал инициализации — неполный бут
+            // отправляется наравне с полным (см. boot-metrics).
+            reportBootMetrics(state.app.domain);
         },
     });
 }

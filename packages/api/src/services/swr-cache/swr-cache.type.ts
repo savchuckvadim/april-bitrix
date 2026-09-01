@@ -7,6 +7,8 @@
  * старое остаётся жить, ошибка не долетает до экрана.
  */
 
+import type { KvStorage, KvStorageKind } from '../kv-storage';
+
 /**
  * Ключ записи кэша.
  *
@@ -107,13 +109,7 @@ export type SwrResolveResult<T> = {
 };
 
 /** Какое хранилище выбрала утилита. `none` — работаем сквозной, всегда в сеть. */
-export type SwrStorageKind = 'indexeddb' | 'localstorage' | 'none';
+export type SwrStorageKind = KvStorageKind;
 
-/** Единый интерфейс хранилища: IndexedDB и localStorage за одной дверью. */
-export type SwrStorage = {
-    kind: SwrStorageKind;
-    get: (key: string) => Promise<string | null>;
-    set: (key: string, raw: string) => Promise<boolean>;
-    remove: (key: string) => Promise<void>;
-    keys: () => Promise<string[]>;
-};
+/** Единый интерфейс хранилища — сам слой переехал в `services/kv-storage`. */
+export type SwrStorage = KvStorage;

@@ -8,6 +8,7 @@ import { getEvTasksFromBxTasks } from '../lib/task-util';
 import { EVENT_TASK_SELECT } from '../lib/task-select';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';
 import { APP_FROM_ENUM } from '@/modules/app/model/slice/AppSlice';
+import { markBootPhase } from '@/modules/app/lib/diagnostics/boot-phases';
 
 /**
  * Инициализация списка задач из уже известной текущей задачи
@@ -18,6 +19,11 @@ export const initialTasksFromCurrentTask =
     (tasks: Array<EventTask>) => async (dispatch: AppDispatch) => {
         const currentTask = tasks?.[0];
         if (currentTask) {
+            // Список дошёл до терминального состояния и на этом пути тоже.
+            // Пока метка стояла только в сетевой ветке, для ВСЕГО семейства
+            // встроек TASK / CALL_CARD главная цифра владельца не
+            // публиковалась никогда: задача известна заранее, запроса нет.
+            markBootPhase('tasks-fetched');
             dispatch(eventTaskActions.setFetchedTasks({ tasks }));
             dispatch(eventTaskActions.setCurrentTask({ task: currentTask }));
             dispatch(setCurrentReportContact(currentTask));
@@ -33,6 +39,34 @@ export const initialTasksFromCurrentTask =
  * Раньше при отсутствии компании фильтр превращался в `CO_null` и просто
  * ничего не находил — кейс «сделка без компании» был сломан.
  */
+/**
+ * ТОЧЕЧНОЕ обновление списка событий по текущему контексту приложения.
+ *
+ * Появился взамен `reloadApp()` в местах «flow отработал → список устарел»
+ * (баннер списка и «К списку событий» финиш-экрана). Полный reload ронял
+ * `initialized`, размонтировал весь шелл и на секунды оставлял ГОЛЫЙ фон:
+ * boot-прелоадер после первого старта уже удалён из DOM, гасить нечего —
+ * менеджер видел серый экран без лоадеров, затем жёсткий перемонтаж
+ * (todo3108, «подёргивание/серый экран после отправки»). Слепок портала и
+ * конфиг при этом перечитывать незачем — устаревают только задачи.
+ */
+export const refreshEventTasks =
+    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+        const state = getState();
+        const bitrix = state.app.bitrix;
+        await dispatch(
+            initialEventTasks(
+                [],
+                Number(bitrix.user?.ID) || 0,
+                Number(bitrix.company?.ID) || null,
+                state.app.domain,
+                Number(bitrix.lead?.ID) || null,
+                Number(bitrix.deal?.ID) || null,
+                bitrix.from,
+            ),
+        );
+    };
+
 export const initialEventTasks =
     (
         tasks: Array<BXTask>,
@@ -41,7 +75,9 @@ export const initialEventTasks =
         domain: string,
         leadId: number | null,
         dealId: number | null,
-        from: APP_FROM_ENUM,
+        // null допустим: параметр справочный (void from), а во время
+        // точечного рефреша встройка может его ещё не знать.
+        from: APP_FROM_ENUM | null,
     ) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         void from;
@@ -56,6 +92,9 @@ export const initialEventTasks =
             ufCrmTasks.push(`L_${leadId}`);
         }
         if (!ufCrmTasks || !ufCrmTasks.length) {
+            // Терминальный исход: грузить нечем — привязки к CRM нет.
+            markBootPhase('tasks-fetched');
+            markBootPhase('tasks-empty');
             dispatch(eventTaskActions.setFetchedTasks({ tasks: null }));
             return;
         }
@@ -96,6 +135,11 @@ export const initialEventTasks =
                 // Без этого падение запроса просто роняло thunk: isFetched
                 // оставался false, и список крутил скелетон бесконечно.
                 console.error('initialEventTasks error', error);
+                // Терминальный исход, и самый важный: список кончился
+                // ошибкой. Молчание здесь означало бы, что упавший бут не
+                // попадает в воронку вовсе — как будто его и не было.
+                markBootPhase('tasks-fetched');
+                markBootPhase('tasks-error');
                 dispatch(
                     eventTaskActions.setTasksError({
                         message: 'Не удалось загрузить события',
@@ -107,9 +151,15 @@ export const initialEventTasks =
 
         if (tasks && tasks.length) {
             const evntTasks = getEvTasksFromBxTasks(tasks);
+            markBootPhase('tasks-fetched');
             dispatch(eventTaskActions.setFetchedTasks({ tasks: evntTasks }));
             // getInitSale(evntTasks) — реакция listener'а на setFetchedTasks (Фаза 4)
         } else {
+            // Пустой список — штатная ситуация («дел у менеджера нет»), а не
+            // повод молчать: загрузка ДОШЛА до конца, и её время владельцу
+            // нужно ровно так же.
+            markBootPhase('tasks-fetched');
+            markBootPhase('tasks-empty');
             dispatch(eventTaskActions.setFetchedTasks({ tasks: null }));
             // TODO(Фаза 4): нет задач → открыть меню нового события
             // (getResultMenu(EventItemResultType.NEW, null))

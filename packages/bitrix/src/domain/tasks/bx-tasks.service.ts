@@ -1,6 +1,10 @@
 import { BitrixBaseApi } from '../../core/base/bitrix-base-api';
 import { BxTasksRepository } from './bx-tasks.repository';
-import { BXTaskRequestFields } from './bx-tasks.interface';
+import {
+    BXTaskRequestFields,
+    IBXTaskCreateFields,
+    ITaskCommentGetListRequest,
+} from './bx-tasks.interface';
 
 export class BxTasksService {
     private repo!: BxTasksRepository;
@@ -13,6 +17,19 @@ export class BxTasksService {
 
     init(api: BitrixBaseApi) {
         this.repo = new BxTasksRepository(api);
+    }
+
+    add(fields: IBXTaskCreateFields) {
+        return this.repo.add(fields);
+    }
+
+    complete(taskId: number | string) {
+        return this.repo.complete(taskId);
+    }
+
+    /** Комментарии задачи (`task.commentitem.getlist`) — страница до 50. */
+    commentGetList(data: ITaskCommentGetListRequest) {
+        return this.repo.commentGetList(data);
     }
 
     get(taskId: number | string, select?: string[]) {

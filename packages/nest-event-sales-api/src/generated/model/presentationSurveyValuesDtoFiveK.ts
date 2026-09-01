@@ -7,6 +7,6 @@
  */
 
 /**
- * Детальные ответы «5К»: ключ — код поля (op_5k_client_what, op_5k_client_ready, op_5k_client_price, op_5k_company_who, op_5k_company_how, op_5k_company_right, op_5k_command, op_5k_concurent, op_5k_criteri), значение — ответ менеджера. Ключи вне этого списка молча отбрасываются (жёсткий серверный whitelist). Пишутся ТОЛЬКО в лид.
+ * Детальные ответы «5К»: ключ — код поля (op_5k_client_what, op_5k_client_ready, op_5k_client_price, op_5k_company_who, op_5k_company_how, op_5k_company_right, op_5k_command, op_5k_concurent, op_5k_criteri), значение — ответ менеджера. Ключи вне этого списка молча отбрасываются (жёсткий серверный whitelist). Пишутся в лид и сделки.
  */
 export type PresentationSurveyValuesDtoFiveK = { [key: string]: unknown };

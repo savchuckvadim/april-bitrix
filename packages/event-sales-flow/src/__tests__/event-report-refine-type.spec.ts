@@ -1,0 +1,312 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { EventReportContext } from '../services/context/event-report.context';
+import { EventReportKpiPayloadBuilder } from '../services/kpi-list/event-report-kpi-payload.builder';
+import { DealFlowResult } from '../services/deal/event-report-deal-flow.service';
+import {
+    detectEventFromBaseStage,
+    getSalesBaseTargetStageCode,
+} from '../services/deal/deal-target-stage.calculator';
+import { EnumTaskEventType } from '../dto/event-sale-flow/task.dto';
+import { EnumEventPlanCode } from '../types/plan-types';
+
+// В рантайме плагины dayjs расширяются при импорте @lib/shared/lib/date.
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+/**
+ * Тип звонка «Доработка» (`refine`): клиента дорабатывают после презентации
+ * — узнают компанию, ИНН, реквизиты — и только потом готовят документы.
+ *
+ * Контракт:
+ *  - стадия воронки sales_refine между «Презентация» и «Документы»,
+ *    лестница не понижается;
+ *  - в сводке KPI считается «Звонком» (call) с префиксом имени
+ *    «Доработка: » — и в сводке, и в истории (свой item `refine` в
+ *    истории показывал «тип события неопределён»: на портале он в поле
+ *    EVENT_TYPE списков не установлен; решение владельца 27.08);
+ *  - рабочий статус — обычный in_work (без спец-веток);
+ *  - финал отказа наследует название: «Отказ: Доработка — {причина}»;
+ *  - задача плана: «🔧 Доработка  …», приоритет ОБЫЧНЫЙ (не HIGH).
+ */
+const NOW = new Date('2026-08-18T09:00:00.000Z');
+
+const makePortal = () => ({ getTimezone: () => 'Europe/Moscow' });
+
+const deals: DealFlowResult = {
+    baseDealId: null,
+    newPlanPresDealId: null,
+    newUnplannedPresDealId: null,
+};
+
+const makeCtx = (over: Record<string, unknown> = {}) =>
+    new EventReportContext(
+        {
+            ...((over.dto as object) ?? {}),
+        } as never,
+        makePortal() as never,
+        {
+            entityType: 'deal',
+            entityId: 1024,
+            lead: null,
+            company: null,
+            currentPresDeal: null,
+            ...((over.init as object) ?? {}),
+        } as never,
+        NOW,
+    );
+
+const build = (ctx: EventReportContext) =>
+    new EventReportKpiPayloadBuilder(
+        makePortal() as never,
+        ctx,
+        deals,
+    ).buildAll();
+
+/** Воронка ОП со стадией «Доработка». */
+const CATEGORY = {
+    bitrixId: '3',
+    stages: [
+        { code: 'sales_warm', bitrixId: 'WARM' },
+        { code: 'sales_pres', bitrixId: 'PRESENTATION' },
+        { code: 'sales_refine', bitrixId: 'REFINE' },
+        { code: 'sales_offer_create', bitrixId: 'OFFER_CREATE' },
+        { code: 'sales_document_send', bitrixId: 'DOCUMENT_SEND' },
+        { code: 'sales_in_progress', bitrixId: 'IN_PROSRESS' },
+        { code: 'sales_money_await', bitrixId: 'MONEY_AWAIT' },
+    ],
+} as never;
+
+/** Флаги финала по умолчанию сняты — тесты лестницы про них не про то. */
+const STAGE_FLAGS = {
+    isResult: true,
+    isUnplanned: false,
+    isSuccess: false,
+    isFail: false,
+    isNoResult: false,
+    isNotCa: false,
+} as const;
+
+describe('Доработка — лестница стадий', () => {
+    it('план refine поднимает сделку на стадию REFINE', () => {
+        expect(
+            getSalesBaseTargetStageCode({
+                category: CATEGORY,
+                currentStageEvent: 'warm',
+                planEventType: 'refine',
+                reportEventType: 'warm',
+                ...STAGE_FLAGS,
+            }),
+        ).toBe('REFINE');
+    });
+
+    it('сделка на sales_refine + отчёт warm — лестница НЕ понижается', () => {
+        const currentStageEvent = detectEventFromBaseStage(
+            CATEGORY,
+            'C3:REFINE',
+        );
+        expect(currentStageEvent).toBe('refine');
+        expect(
+            getSalesBaseTargetStageCode({
+                category: CATEGORY,
+                currentStageEvent,
+                planEventType: 'warm',
+                reportEventType: 'warm',
+                ...STAGE_FLAGS,
+            }),
+        ).toBe('REFINE');
+    });
+
+    it('доработка выше презентации, но ниже документов, решения и оплаты', () => {
+        expect(
+            getSalesBaseTargetStageCode({
+                category: CATEGORY,
+                currentStageEvent: 'presentation',
+                planEventType: 'refine',
+                reportEventType: null,
+                ...STAGE_FLAGS,
+            }),
+        ).toBe('REFINE');
+        expect(
+            getSalesBaseTargetStageCode({
+                category: CATEGORY,
+                currentStageEvent: 'refine',
+                planEventType: 'hot',
+                reportEventType: null,
+                ...STAGE_FLAGS,
+            }),
+        ).toBe('IN_PROSRESS');
+        /*
+         * Клиента дорабатывают ДО документов: если сделка уже на документах,
+         * план «доработка» её назад не откатывает.
+         */
+        expect(
+            getSalesBaseTargetStageCode({
+                category: CATEGORY,
+                currentStageEvent: 'document',
+                planEventType: 'refine',
+                reportEventType: null,
+                ...STAGE_FLAGS,
+            }),
+        ).toBe('OFFER_CREATE');
+    });
+
+    it('стадия sales_refine не сконфигурирована на портале → null (graceful)', () => {
+        const withoutRefine = {
+            bitrixId: '3',
+            stages: [{ code: 'sales_warm', bitrixId: 'WARM' }],
+        } as never;
+        expect(
+            getSalesBaseTargetStageCode({
+                category: withoutRefine,
+                currentStageEvent: null,
+                planEventType: 'refine',
+                reportEventType: null,
+                ...STAGE_FLAGS,
+            }),
+        ).toBeNull();
+    });
+});
+
+describe('Доработка — KPI-записи', () => {
+    const reportCtx = () =>
+        makeCtx({
+            dto: {
+                currentTask: { eventType: 'refine', name: 'ООО Ромашка' },
+                report: {
+                    resultStatus: 'result',
+                    workStatus: { current: { code: 'inJob' } },
+                },
+            },
+        });
+
+    it('в сводке и в истории — call с префиксом «Доработка: »', () => {
+        const report = build(reportCtx()).find(p => !p.dedup);
+        expect(report!.items.event_type).toBe('call');
+        expect(report!.name).toBe('Доработка: ООО Ромашка');
+        // Имя дублируется в event_title через assemble.
+        expect(report!.values.event_title).toBe('Доработка: ООО Ромашка');
+
+        // История получает ту же запись «call» — свой item на портале
+        // не установлен и показывался пустым типом события.
+        expect(report!.historyItems).toBeUndefined();
+        // Обычный рабочий статус — спец-веток у доработки нет.
+        expect(report!.items.op_work_status).toBe('op_status_in_work');
+    });
+
+    it('имя события берётся из сырого заголовка, когда фрейм его потерял', () => {
+        // Разбор заголовка в старых сборках фрейма обнулял имя (заголовок
+        // «Доработка» целиком стрипался как типовое слово), и KPI-запись
+        // уезжала безымянной — todo3108 №3. Сырой TITLE теперь доезжает до
+        // бэка, и имя достаётся из него: секции разделены двойным пробелом.
+        const ctx = makeCtx({
+            dto: {
+                currentTask: {
+                    eventType: 'refine',
+                    name: '',
+                    title: '🔧 Доработка  ООО Ромашка  Иван',
+                },
+                report: {
+                    resultStatus: 'result',
+                    workStatus: { current: { code: 'inJob' } },
+                },
+            },
+        });
+        const report = build(ctx).find(p => !p.dedup);
+
+        expect(report!.name).toBe('Доработка: ООО Ромашка');
+        expect(report!.values.event_title).toBe('Доработка: ООО Ромашка');
+    });
+
+    it('заголовок без имени события: «Доработка» без висячего двоеточия', () => {
+        // Заголовок из одного типового слова имени не несёт. Прежнее
+        // «Доработка: » выглядело в списке обрывом записи.
+        const ctx = makeCtx({
+            dto: {
+                currentTask: {
+                    eventType: 'refine',
+                    name: '',
+                    title: 'Доработка',
+                },
+                report: {
+                    resultStatus: 'result',
+                    workStatus: { current: { code: 'inJob' } },
+                },
+            },
+        });
+        const report = build(ctx).find(p => !p.dedup);
+
+        expect(report!.name).toBe('Доработка');
+        expect(report!.values.event_title).toBe('Доработка');
+    });
+
+    it('план доработки: call + префикс, без history-override', () => {
+        const ctx = makeCtx({
+            dto: {
+                report: { resultStatus: 'result' },
+                plan: {
+                    isPlanned: true,
+                    isActive: true,
+                    name: 'Дозакрыть возражения',
+                    type: { current: { code: 'refine' } },
+                },
+            },
+        });
+        const plan = build(ctx).find(p => p.items.event_action === 'plan');
+        expect(plan!.items.event_type).toBe('call');
+        expect(plan!.name).toBe('Доработка: Дозакрыть возражения');
+        // Своего item истории больше нет: на портале он не установлен,
+        // и запись показывалась с пустым типом события.
+        expect(plan!.historyItems).toBeUndefined();
+    });
+
+    it('обычный звонок historyItems не получает', () => {
+        const ctx = makeCtx({
+            dto: {
+                currentTask: { eventType: 'warm', name: 'ООО Ромашка' },
+                report: { resultStatus: 'result' },
+            },
+        });
+        const report = build(ctx).find(p => !p.dedup);
+        expect(report!.historyItems).toBeUndefined();
+    });
+
+    it('финал отказа по доработке: «Отказ: Доработка — {причина}»', () => {
+        const ctx = makeCtx({
+            dto: {
+                currentTask: { eventType: 'refine', name: 'ООО Ромашка' },
+                report: {
+                    resultStatus: 'result',
+                    workStatus: { current: { code: 'fail' } },
+                    // Причина отказа существует только при типе «Отказ» —
+                    // при остальных типах фронт селект не показывает.
+                    failType: { current: { code: 'failure', name: 'Отказ' } },
+                    failReason: {
+                        current: { code: 'nomoney', name: 'Нет денег' },
+                    },
+                },
+            },
+        });
+        const final = build(ctx).find(p => p.items.event_type === 'ev_fail');
+        expect(final!.name).toBe('Отказ: Доработка — Нет денег');
+    });
+});
+
+describe('Доработка — DTO и задача плана', () => {
+    /*
+     * class-validator-валидация DTO (plainToInstance + validate) остаётся на
+     * бэке: DTO пакета — интерфейсы без декораторов. Здесь закрепляется
+     * только контракт кодов, который та валидация охраняет.
+     */
+    it('код refine закреплён в контрактах плана и задачи', () => {
+        expect(EnumEventPlanCode.REFINE).toBe('refine');
+        expect(EnumTaskEventType.REFINE).toBe('refine');
+    });
+
+    /*
+     * Задача плана («🔧 Доработка  …», приоритет ОБЫЧНЫЙ — не HIGH) — кейс
+     * EventReportTaskFlowService; сервис I/O, пакет получает его в А2,
+     * кейс остаётся в бэковом спеке.
+     */
+});

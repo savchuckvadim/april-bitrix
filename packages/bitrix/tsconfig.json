@@ -3,11 +3,17 @@
         "outDir": "./build/",
         "noImplicitAny": true,
         "module": "ESNext",
-        "target": "es5",
+        // ES2020: пакет и так собирается сборщиками приложений, а на es5
+        // не типизируются ни спред Set (bx-user.service), ни .d.ts
+        // зависимостей (b24jssdk) — прецедент: packages/api/tsconfig.json
+        "target": "ES2020",
+        "lib": ["DOM", "DOM.Iterable", "ES2020"],
         "jsx": "react-jsx",
         "allowJs": true,
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
+        // как в @workspace/typescript-config/base.json: чужие .d.ts не наша забота
+        "skipLibCheck": true,
         "esModuleInterop": true,
         "baseUrl": ".",
         "resolveJsonModule": true,

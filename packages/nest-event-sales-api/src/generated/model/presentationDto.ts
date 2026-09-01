@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { PresentationCountDto } from './presentationCountDto';
+import type { PresentationSurveyAnswersDto } from './presentationSurveyAnswersDto';
 
 export interface PresentationDto {
     /** Счётчики презентаций по типам привязки. */
@@ -14,4 +15,6 @@ export interface PresentationDto {
     isPresentationDone: boolean;
     /** Признак внеплановой (незапланированной) презентации. */
     isUnplannedPresentation: boolean;
+    /** Ответы анкеты «5К/Хвост» после презентации. Поле НЕ прислано — прежнее поведение: старые сборки фрейма шлют анкету отдельным запросом в легаси-ручку `/event-sales/presentation-survey`, и поток ведёт себя ровно как раньше (ни одной новой команды). */
+    survey?: PresentationSurveyAnswersDto;
 }

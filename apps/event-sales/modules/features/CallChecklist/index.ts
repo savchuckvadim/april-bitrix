@@ -1,6 +1,7 @@
 export * from './type/call-checklist.type';
 export * from './lib/checklist-selectors';
 export * from './lib/checklist-values';
+export * from './lib/checklist-hidden';
 export * from './lib/checklist-boolean';
 export * from './lib/checklist-field-view';
 export * from './lib/checklist-field-groups';

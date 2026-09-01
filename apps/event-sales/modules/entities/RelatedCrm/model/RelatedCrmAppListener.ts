@@ -11,6 +11,13 @@ import { fetchRelatedDetails } from './RelatedCrmThunk';
  * запроса меняется, и дедуп в thunk'е второй раз тот же контекст не грузит.
  * Шапка-layout читает связи на всех экранах, поэтому загрузка живёт здесь,
  * а не в маунте компонента.
+ *
+ * Грузим сразу ПОЛНЫЙ граф (includeClosed:true): открытость каждой сделки
+ * приходит флагом `closed`, и все потребители открытого списка фильтруют её
+ * сами (buildRelationsBar, resolveTaskRelation, getFinishTarget — так
+ * работает тумблер «с закрытыми»). Зато истории закрытые НУЖНЫ — их ленты
+ * самая ценная часть архива, — и она берёт этот же ответ из стора вместо
+ * второго такого же `/duplicates/details` на старт (todo Б5).
  */
 export function startRelatedCrmAppListener(
     startAppListening: AppStartListening,
@@ -21,7 +28,9 @@ export function startRelatedCrmAppListener(
             // Свежий контекст отменяет предыдущую загрузку: менеджер мог
             // сменить сущность, пока шёл первый запрос.
             listenerApi.cancelActiveListeners();
-            await listenerApi.dispatch(fetchRelatedDetails());
+            await listenerApi.dispatch(
+                fetchRelatedDetails({ includeClosed: true }),
+            );
         },
     });
 }

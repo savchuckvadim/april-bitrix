@@ -96,6 +96,30 @@ const appSlice = createSlice({
         ) => {
             state.isLoading = action.payload.status;
         },
+        /**
+         * Домен и пользователь известны сразу после Bitrix.start — раньше
+         * резолва сущностей плейсмента. Это самая ранняя точка init-цикла:
+         * от неё стартуют независимые цепочки (портал, настройки, каталог
+         * анкет, отдел — см. app-init.util), и конфиг по домену
+         * пересобирается именно здесь, чтобы патч портальных настроек
+         * (mergeConfig) лёг ПОВЕРХ доменных дефолтов, а не был стёрт поздним
+         * setAppData.
+         *
+         * Пересборка — на КАЖДЫЙ init-цикл, включая ⟳: сброшенная в админке
+         * настройка обязана вернуться к доменному дефолту на следующем
+         * запуске (см. комментарий к mergeConfig).
+         */
+        setDomain: (
+            state: AppState,
+            action: PayloadAction<{ domain: string; user: BXUser | null }>,
+        ) => {
+            state.domain = action.payload.domain;
+            state.config = getDomainConfig(
+                action.payload.domain,
+                action.payload.user,
+            );
+            state.configPortalKeys = [];
+        },
         setAppData: (
             state: AppState,
             action: PayloadAction<{
@@ -111,6 +135,16 @@ const appSlice = createSlice({
             }>,
         ) => {
             const payload = action.payload;
+            // Конфиг по домену пересобрал ранний setDomain, и портальный
+            // патч (mergeConfig из кэша настроек) мог уже лечь поверх —
+            // пересборка здесь стёрла бы его до прихода фонового обновления.
+            // Пересобираем только на ДРУГОМ домене: это запасной путь для
+            // циклов без setDomain (юнит-тесты, нештатные вызовы).
+            if (state.domain !== payload.domain) {
+                state.config = getDomainConfig(payload.domain, payload.user);
+                // Конфиг пересобран по домену — портальных ключей в нём нет.
+                state.configPortalKeys = [];
+            }
             state.domain = payload.domain;
             state.bitrix.placement = payload.placement;
             state.bitrix.user = payload.user;
@@ -120,10 +154,6 @@ const appSlice = createSlice({
             state.bitrix.lead = payload.lead;
             state.display.mode = payload.display;
             state.bitrix.from = payload.from;
-
-            state.config = getDomainConfig(payload.domain, payload.user);
-            // Конфиг пересобран по домену — портальных ключей в нём ещё нет.
-            state.configPortalKeys = [];
         },
         setAppBitrixData: (
             state: AppState,

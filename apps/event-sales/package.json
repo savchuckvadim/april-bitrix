@@ -25,6 +25,7 @@
         "@workspace/april-ui": "workspace:*",
         "@workspace/bx": "workspace:*",
         "@workspace/bitrix": "workspace:*",
+        "@workspace/event-sales-flow": "workspace:*",
         "@workspace/pbx": "workspace:*",
         "@workspace/pbx-data": "workspace:*",
         "@workspace/theme": "workspace:*",

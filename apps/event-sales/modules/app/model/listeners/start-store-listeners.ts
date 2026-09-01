@@ -1,9 +1,9 @@
 import { isAnyOf } from '@reduxjs/toolkit';
 import { getSalesTaskGroupId, portalActions } from '@workspace/pbx';
 import { appActions } from '../slice/AppSlice';
-import { fetchAppConfig } from '../thunk/AppConfigThunk';
-// Прямой путь: барель слайса каталога тянет транспорт и данные.
-import { ensureQuestionnaireCatalog } from '@/modules/entities/Questionnaire/model/QuestionnaireCatalogThunk';
+import { startAppConfigSettleListener } from '../../lib/utills/app-config-wait';
+// Прямой путь: барель каталога анкет тянет транспорт и данные.
+import { startQuestionnaireCatalogSettleListener } from '@/modules/entities/Questionnaire/lib/questionnaire-wait';
 import { setInitEventCompany } from '@/modules/entities/EventCompany/model/EventCompanyThunk';
 import {
     collectRelatedContacts,
@@ -22,6 +22,10 @@ import { initReturnToTMC } from '@/modules/features/ReturnToTMC/model/ReturnToTM
 import { innActions } from '@/modules/features/Inn/model/InnSlice';
 import { clientSignalsActions } from '@/modules/features/ClientSignals/model/ClientSignalsSlice';
 import { startRelatedCrmAppListener } from '@/modules/entities/RelatedCrm/model/RelatedCrmAppListener';
+// Прямой путь в слайс outbox: листенеру нужен только повод дренажа.
+import { startOutboxDrainListener } from '@/modules/processes/event-outbox/model/OutboxDrainListener';
+// Прямой путь: барель RelatedCrm тянет UI (StageMini и компания).
+import { startRelatedCrmSettleListener } from '@/modules/entities/RelatedCrm/lib/related-crm-wait';
 import { fetchStagePredict } from '@/modules/features/StagePredict/model/StagePredictThunk';
 import { eventPlanActions } from '@/modules/entities/EventPlan/model/EventPlanSlice';
 import { eventPresentationActions } from '@/modules/entities/EventPresentation/model/PresSlice';
@@ -42,6 +46,7 @@ import {
 import { fetchLead } from '@/modules/entities/EVLid/model/EVLeadThunk';
 import { ZPR_QUERY_ROOT } from '@/modules/entities/ZprCalls';
 import { getAppQueryClient } from '@/modules/app/lib/query-client';
+import { markBootPhase } from '../../lib/diagnostics/boot-phases';
 import { getReloadResetActions } from './reload-reset';
 import { startAppDiagnosticsListener } from './app-diagnostics-listener';
 import type { AppStartListening } from '../store';
@@ -77,7 +82,9 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             dispatch(setInitEventCompany(portal));
             dispatch(collectRelatedContacts(portal));
             // История НЕ грузится здесь: у давнего клиента это сотни записей,
-            // а смотрят её единицы. Её тянет сама секция при появлении.
+            // а смотрят её единицы. Её тянут потребители сами: секция при
+            // первом показе, бейдж презентаций — в шапке широких экранов
+            // (usePresentationCount).
             dispatch(initCheckPresentation());
         },
     });
@@ -92,6 +99,14 @@ export function startStoreListeners(startAppListening: AppStartListening) {
     startAppListening({
         actionCreator: portalActions.setPortal,
         effect: async (action, listenerApi) => {
+            // Слепок стартует раньше сущностей (ранний init) и из кэша
+            // приходит ДО setAppData — display/task к этому моменту ещё
+            // пусты, и без ожидания гвард молча пропускал бы чужую задачу.
+            // Ждём резолва сущностей так же, как листенер компании выше.
+            await listenerApi.condition(
+                (_action, currentState) => !!currentState.app?.bitrix?.from,
+                5000,
+            );
             const state = listenerApi.getState();
             if (state.app.display.mode !== APP_DISPLAY_MODE.TASK) return;
             const task = state.app.bitrix.task as unknown as Record<
@@ -252,24 +267,22 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             );
         },
     });
-    // Контекст встройки установлен → портальные настройки приложения с бэка
-    // (админка → Settings → event-sales) поверх legacy domain-config и
-    // портальный КАТАЛОГ АНКЕТ (состав вопросов плана и отчёта).
+    // Портальные настройки и каталог анкет здесь БОЛЬШЕ НЕ диспатчатся:
+    // их старт поднят в app-init (сразу после Bitrix.start, когда известен
+    // домен) — листенер на setAppData давал бы второй запрос на каждый init.
+
+    // Приход слепка портала — метка фазы бута: ранний старт цепочек виден
+    // в сводке фаз именно по ней (сколько слепок ехал от начала init).
     //
-    // Самая ранняя точка, где известен домен, — и настройки, и каталог
-    // нужны до первого решения «что спрашивать». Ни один из двух запросов
-    // ничего не блокирует: у настроек действует хардкод по домену, у
-    // каталога — встроенный набор.
+    // `setPortal` за бут диспатчится ДВАЖДЫ (первичный ответ и фоновое
+    // обновление кэша — см. PortalService), поэтому засчитывается только
+    // первый: за один бут фаза обязана дать одно наблюдение, иначе count
+    // фазы перестаёт равняться числу бутов. Однократность обеспечивает сам
+    // `markBootPhase` — здесь ничего сторожить не нужно.
     startAppListening({
-        actionCreator: appActions.setAppData,
-        effect: async (action, listenerApi) => {
-            listenerApi.dispatch(fetchAppConfig(action.payload.domain));
-            // ensure, а не fetch: ⟳ прогоняет init заново, и повторное
-            // чтение состава здесь было бы лишним запросом на каждое
-            // обновление карточки (см. ensureQuestionnaireCatalog).
-            listenerApi.dispatch(
-                ensureQuestionnaireCatalog(action.payload.domain),
-            );
+        actionCreator: portalActions.setPortal,
+        effect: async () => {
+            markBootPhase('portal-fetched');
         },
     });
 
@@ -348,6 +361,15 @@ export function startStoreListeners(startAppListening: AppStartListening) {
         },
     });
 
+    // Будильники wait-хелперов (замена поллинга 50мс): настройки получены /
+    // каталог анкет settled → отпустить waitForAppConfig и
+    // waitForQuestionnaireCatalog сразу, не дожидаясь их дедлайна.
+    startAppConfigSettleListener(startAppListening);
+    startQuestionnaireCatalogSettleListener(startAppListening);
+    // Связи завершились/сброшены → отпустить waitForRelatedDetailsSettled
+    // (история ждёт летящий запрос листенера, а не шлёт свой дубль).
+    startRelatedCrmSettleListener(startAppListening);
+
     // Подписки, живущие внутри своих слайсов (app/setAppData → инициализация плана).
     startEventPlanAppListener(startAppListening);
     // «Не очень» → план перестраивается под перенос текущей задачи.
@@ -356,6 +378,9 @@ export function startStoreListeners(startAppListening: AppStartListening) {
     startDuplicatesAppListener(startAppListening);
     // app/setAppData|setAppBitrixData → связи клиента в стор (шапка-layout).
     startRelatedCrmAppListener(startAppListening);
+    // Инициализация завершена → фоновый дренаж outbox (fire-and-forget):
+    // недоставленные конверты отправки досылаются + подписка на 'online'.
+    startOutboxDrainListener(startAppListening);
     // Инициализация завершена → одна свёрнутая группа диагностики в консоль.
     startAppDiagnosticsListener(startAppListening);
 }

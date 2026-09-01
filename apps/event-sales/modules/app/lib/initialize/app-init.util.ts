@@ -18,6 +18,11 @@ import {
     getDepartment,
     setDepartmentMode,
 } from '@/modules/features/Departament/model/DepartmentThunk';
+import { fetchAppConfig } from '../../model/thunk/AppConfigThunk';
+// Прямой путь: барель каталога анкет тянет транспорт и данные.
+import { ensureQuestionnaireCatalog } from '@/modules/entities/Questionnaire/model/QuestionnaireCatalogThunk';
+import { markBootPhase } from '../diagnostics/boot-phases';
+import { armBootMetricsWatchdog } from '../diagnostics/boot-metrics';
 
 /**
  * Boot-последовательность приложения (паттерн: тонкий thunk +
@@ -30,7 +35,17 @@ import {
  * живут в listeners (model/listeners), а не во вложенных thunk'ах.
  */
 export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
+    markBootPhase('init-start');
+    // Сторож замера — ПЕРВЫМ делом, до единого `await`. Штатный отчёт висит
+    // на терминальном действии инициализации, но встать насмерть бут умеет
+    // прямо здесь: `Bitrix.start` или резолв сущностей ниже могут не
+    // вернуться никогда, и тогда ни одного действия не диспатчится. Именно
+    // такие буты («у менеджера ничего не грузится») раньше не отправляли
+    // вообще ничего — мерились одни выжившие. Домен читается лениво: сейчас
+    // он ещё неизвестен, а к моменту срабатывания обычно уже в сторе.
+    armBootMetricsWatchdog(() => getState().app.domain);
     const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
+    markBootPhase('bitrix-started');
     // fitWindow здесь НЕ зовём: на старте ещё нечего мерить, а во встройке
     // таймлайна он вообще запрещён. Подгонкой занимается useFitWindow —
     // после отрисовки и только для вкладок карточки (см. shouldFitWindow).
@@ -51,8 +66,32 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
 
     dispatch(setDepartmentMode(user, domain));
 
+    // РАННИЙ СТАРТ НЕЗАВИСИМЫХ ЦЕПОЧЕК. Порталу, настройкам, каталогу анкет
+    // и отделу нужен только домен — он известен сразу после Bitrix.start,
+    // и ждать резолва сущностей (1–3 последовательных запроса к Bitrix ниже)
+    // этим запросам незачем: раньше они стартовали листенером на setAppData
+    // и удлиняли путь до списка дел на те же раунды.
+    //
+    // setDomain — строго ПЕРЕД ними: он пересобирает доменный конфиг (эта
+    // обязанность переехала сюда из setAppData), и патч портальных настроек
+    // обязан лечь поверх него, а не быть стёртым им. Дублей на ⟳ нет:
+    // единственная точка диспатча цепочек — этот файл, а ходить ли в сеть,
+    // решают сами цепочки (swr-кэш у портала и настроек, сверка версии у
+    // каталога анкет — см. ensureQuestionnaireCatalog).
+    dispatch(appActions.setDomain({ domain, user }));
+    dispatch(fetchAppConfig(domain));
+    dispatch(ensureQuestionnaireCatalog(domain));
+    // Слепок портала: кэш-первым, обновление тихо в фоне (см. PortalService).
+    // Не ждём намеренно — со второго запуска слепок приходит из браузерного
+    // кэша почти сразу, а первый запуск не должен упираться в сеть: гвард
+    // чужой задачи и инициализация компании висят листенерами на setPortal
+    // (оба дожидаются резолва сущностей сами).
+    dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
+    dispatch(getDepartment(domain, user));
+
     // Resolve the CRM entities for the current placement via @workspace/bitrix services.
     const entities = await getEntitiesFromPlacement(placement, domain);
+    markBootPhase('entities-resolved');
     const display = getDisplayMode(placement);
 
     // Сделка без компании и чистый лид — легальные контексты. Падаем только
@@ -66,6 +105,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
         // не техническая ошибка, а честная заглушка: работать не с чем.
         if (display === APP_DISPLAY_MODE.TASK && entities.currentTask) {
             dispatch(appActions.setGuard('noTaskEntity'));
+            markBootPhase('splash-off');
             dispatch(appActions.setInitializedSuccess({}));
             return;
         }
@@ -97,11 +137,8 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
         from,
     );
 
-    dispatch(getDepartment(domain, user));
-    // Слепок портала: кэш-первым, обновление тихо в фоне (см. PortalService).
-    // Не ждём намеренно — со второго запуска слепок приходит из браузерного
-    // кэша почти сразу, а первый запуск не должен упираться в сеть: гвард
-    // чужой задачи и инициализация компании висят листенерами на setPortal.
-    dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
+    // Портал, настройки, каталог анкет и отдел уже в пути — их старт
+    // поднят выше, к моменту, когда стал известен домен.
+    markBootPhase('splash-off');
     dispatch(appActions.setInitializedSuccess({}));
 };

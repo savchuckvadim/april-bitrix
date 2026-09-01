@@ -2,8 +2,7 @@
 
 import { FC } from 'react';
 import { HintTooltip } from '@workspace/april-ui';
-import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { countDonePresentations } from '../lib/presentation-count';
+import { usePresentationCount } from '../lib/hooks/use-presentation-count';
 
 /**
  * Сколько презентаций уже провели клиенту — цифрой в шапке.
@@ -12,13 +11,15 @@ import { countDonePresentations } from '../lib/presentation-count';
  * нет. Раньше ответ был только внутри вкладки истории, до которой в разговоре
  * никто не доходит.
  *
+ * Историю бейдж заказывает сам (usePresentationCount): секция истории может
+ * стоять ниже фолда и её ленивый триггер не сработает вовсе.
+ *
  * Ноль не показываем: «Презентаций: 0» — шум, отсутствие и так очевидно по
  * пустой истории. Пока история не загружена, бейджа тоже нет — врать нулём
  * хуже, чем молчать.
  */
 export const PresentationCountBadge: FC = () => {
-    const records = useAppSelector(s => s.eventHistory.records);
-    const count = countDonePresentations(Object.values(records));
+    const count = usePresentationCount();
 
     if (!count) return null;
 

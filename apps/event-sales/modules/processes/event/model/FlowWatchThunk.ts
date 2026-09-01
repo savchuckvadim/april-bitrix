@@ -1,5 +1,10 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { FlowHelper } from '../lib/api/flow-helper';
+// Прямой путь в слайс outbox: барель тянет дренаж (правило store).
+import {
+    markDelivered,
+    markFailed,
+} from '@/modules/processes/event-outbox/model/OutboxThunk';
 import {
     FLOW_POLL_INTERVAL_MS,
     FLOW_POLL_TIMEOUT_MESSAGE,
@@ -51,6 +56,10 @@ export const watchFlowOperation =
 
             if (operation.status === EV_FLOW_OPERATION_STATUS.done) {
                 dispatch(flowStatusActions.setDone({ tasksStale }));
+                // Конверт outbox гасится ЭТИМ ЖЕ поллингом — других каналов
+                // подтверждения у отправки нет. Гасим до onDone: тот
+                // перезапускает init, и конверт должен быть уже погашен.
+                await dispatch(markDelivered(operationId));
                 onDone?.();
                 return;
             }
@@ -63,12 +72,23 @@ export const watchFlowOperation =
                             'Отправка не удалась. Данные никуда не делись — можно повторить.',
                     }),
                 );
+                // Провал от САМОГО бэка — payload он получил и отверг:
+                // авторетраев конверту не положено (rejected-попытка).
+                await dispatch(
+                    markFailed(
+                        operationId,
+                        operation.error || 'бэкенд сообщил об ошибке flow',
+                    ),
+                );
                 return;
             }
 
             await wait(FLOW_POLL_INTERVAL_MS);
         }
 
+        // Таймаут поллинга — НЕ приговор конверту: доставка принята, исход
+        // неизвестен. Конверт остаётся `delivering`; когда lease протухнет,
+        // дренаж сам сверится со статусом (checkStatus) и погасит его.
         dispatch(
             flowStatusActions.setError({ message: FLOW_POLL_TIMEOUT_MESSAGE }),
         );

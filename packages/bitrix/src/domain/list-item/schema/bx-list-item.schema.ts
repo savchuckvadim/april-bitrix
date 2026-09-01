@@ -29,6 +29,19 @@ export type BxListItemAddRequestType = {
     FIELDS: IBXListItemFields;
 };
 
+/**
+ * Параметры `lists.element.update`. Элемент адресуется ELEMENT_ID либо
+ * ELEMENT_CODE (хотя бы один обязателен). ВНИМАНИЕ: метод перезаписывает
+ * элемент целиком — не переданные поля очищаются, NAME в FIELDS обязателен.
+ */
+export type BxListItemUpdateRequestType = {
+    IBLOCK_TYPE_ID: 'lists';
+    IBLOCK_ID: string | number;
+    ELEMENT_ID?: string | number;
+    ELEMENT_CODE?: string;
+    FIELDS: IBXListItemFields;
+};
+
 export type BxListItemSchema = {
     [EBxMethod.GET]: {
         request: BxListItemGetRequestType;
@@ -37,5 +50,9 @@ export type BxListItemSchema = {
     [EBxMethod.ADD]: {
         request: BxListItemAddRequestType;
         response: number;
+    };
+    [EBxMethod.UPDATE]: {
+        request: BxListItemUpdateRequestType;
+        response: boolean;
     };
 };

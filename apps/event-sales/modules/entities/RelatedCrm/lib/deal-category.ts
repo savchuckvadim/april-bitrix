@@ -3,6 +3,9 @@ import type { RelatedDeal } from '../model';
 /** Код воронки «ОП Основная» в слепке портала. */
 export const BASE_SALES_CATEGORY_CODE = 'sales_base';
 
+/** Код воронки «ОП Презентации» в слепке портала. */
+export const PRESENTATION_SALES_CATEGORY_CODE = 'sales_presentation';
+
 /**
  * Сделка главной воронки продаж («ОП Основная»).
  *
@@ -14,6 +17,10 @@ export const BASE_SALES_CATEGORY_CODE = 'sales_base';
  */
 export const isBaseSalesDeal = (deal: RelatedDeal): boolean =>
     deal.stage?.categoryCode === BASE_SALES_CATEGORY_CODE;
+
+/** Сделка воронки презентаций («ОП Презентации») — та же механика категории. */
+export const isPresentationSalesDeal = (deal: RelatedDeal): boolean =>
+    deal.stage?.categoryCode === PRESENTATION_SALES_CATEGORY_CODE;
 
 /** Категория из слепка портала: номер воронки Битрикса + наш код. */
 export interface PortalDealCategory {

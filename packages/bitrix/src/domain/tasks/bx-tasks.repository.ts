@@ -5,12 +5,87 @@ import {
 } from '../../core/domain/consts/bitrix-api.enum';
 import { EBXEntity } from '../../core/domain/consts/bitrix-entities.enum';
 import { IBXTask } from '../interfaces/bitrix.interface';
-import { BXTaskRequestFields } from './bx-tasks.interface';
+import {
+    BXTaskRequestFields,
+    IBXTaskCreateFields,
+    ITaskCommentAddFields,
+    ITaskCommentGetListRequest,
+} from './bx-tasks.interface';
 import { TBXResponse } from '../../core';
 import { IBitrixResponse } from '../../core/interface/bitrix-api.intterface';
 
 export class BxTasksRepository {
     constructor(private readonly bitrixService: BitrixBaseApi) {}
+
+    /** Создаёт задачу (`tasks.task.add`). */
+    async add(fields: IBXTaskCreateFields) {
+        return this.bitrixService.callType(
+            EBxNamespace.TASKS,
+            EBXEntity.TASK,
+            EBxMethod.ADD,
+            { fields },
+        );
+    }
+
+    /** Создаёт задачу (batch). */
+    addBtch(cmdCode: string, fields: IBXTaskCreateFields) {
+        return this.bitrixService.addCmdBatchType(
+            cmdCode,
+            EBxNamespace.TASKS,
+            EBXEntity.TASK,
+            EBxMethod.ADD,
+            { fields },
+        );
+    }
+
+    /** Завершает задачу (`tasks.task.complete`). */
+    async complete(taskId: number | string) {
+        return this.bitrixService.callType(
+            EBxNamespace.TASKS,
+            EBXEntity.TASK,
+            EBxMethod.COMPLETE,
+            { taskId },
+        );
+    }
+
+    /** Завершает задачу (batch). */
+    completeBtch(cmdCode: string, taskId: number | string) {
+        return this.bitrixService.addCmdBatchType(
+            cmdCode,
+            EBxNamespace.TASKS,
+            EBXEntity.TASK,
+            EBxMethod.COMPLETE,
+            { taskId },
+        );
+    }
+
+    /**
+     * Добавляет комментарий к задаче (batch, `task.commentitem.add` —
+     * REST-неймспейс `task`, см. TaskCommentItemSchema).
+     */
+    commentAddBtch(
+        cmdCode: string,
+        taskId: number | string,
+        fields: ITaskCommentAddFields,
+    ) {
+        return this.bitrixService.addCmdBatchType(
+            cmdCode,
+            EBxNamespace.TASK,
+            EBXEntity.COMMENT_ITEM,
+            EBxMethod.ADD,
+            { TASKID: taskId, FIELDS: fields },
+        );
+    }
+
+    /** Комментарии задачи (`task.commentitem.getlist`) — страница до 50. */
+    async commentGetList(data: ITaskCommentGetListRequest) {
+        return this.bitrixService.callType(
+            EBxNamespace.TASK,
+            EBXEntity.COMMENT_ITEM,
+            EBxMethod.GET_LIST,
+            data,
+        );
+    }
 
     async get(taskId: number | string, select?: string[]) {
         return this.bitrixService.callType(

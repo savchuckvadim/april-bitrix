@@ -7,7 +7,11 @@ import {
 } from '@workspace/bx';
 import { APP_DISPLAY_MODE } from '../../types/app/app-type';
 import { IBXTask } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
-import { Bitrix } from '@workspace/bitrix';
+import {
+    Bitrix,
+    flattenBatchResults,
+    type BitrixService,
+} from '@workspace/bitrix';
 import { APP_FROM_ENUM } from '../../model/slice/AppSlice';
 import {
     ETaskLinkType,
@@ -71,6 +75,128 @@ export type EntitiesFromPlacement = {
 };
 
 /**
+ * Ключи команд батча сущностей плейсмента. На ключ сделки ссылается
+ * `$result`-подстановка компании, поэтому имена — часть протокола, а не
+ * косметика.
+ */
+const PLACEMENT_CMD = {
+    DEAL: 'get_deal',
+    COMPANY: 'get_company',
+    LEAD: 'get_lead',
+} as const;
+
+/**
+ * COMPANY_ID из ответа `get_deal` ТОЙ ЖЕ пачки. Подстановку делает сервер
+ * Битрикса при обработке batch: команды выполняются по порядку, и вторая
+ * видит результат первой. Работает в обоих транспортах:
+ *  - во фрейме b24jssdk сериализует параметры через qs (токен уходит
+ *    URL-энкоженным — та же форма, что у PHP CRest из официальной доки batch);
+ *  - в dev-режиме BitrixBatchBackApiHelper строит cmd-строки без энкода
+ *    (каноничная webhook-форма) и шлёт всю пачку одним REST `batch` — обе
+ *    наши команды заведомо в одном чанке (≤50), порядок ключей сохранён.
+ * У сделки без компании COMPANY_ID = 0 → `crm.company.get?ID=0` честно падает
+ * на сервере, но с halt=0 не роняет пачку — ключ просто отсутствует в ответе.
+ */
+const DEAL_COMPANY_ID_REF = `$result[${PLACEMENT_CMD.DEAL}][COMPANY_ID]`;
+
+/** Что нужно достать батчем; `dealId` сам дотягивает компанию по `$result`. */
+type PlacementBatchPlan = {
+    dealId?: number;
+    companyId?: number;
+    leadId?: number;
+};
+
+type PlacementBatchEntities = {
+    deal: BXDeal | null;
+    company: BXCompany | null;
+    lead: BXLead | null;
+};
+
+const EMPTY_BATCH_ENTITIES: PlacementBatchEntities = {
+    deal: null,
+    company: null,
+    lead: null,
+};
+
+/**
+ * Значение команды батча → сущность. Оба транспорта отдают per-command
+ * значения уже развёрнутыми (сам объект сделки/компании/лида), но в
+ * batch-ответах встречается и конверт `{ result }` (см. toListItemPage в
+ * @workspace/bitrix) — разбираем обе формы. Упавшая команда (halt=0) в ответ
+ * не попадает вовсе; всё остальное «не-объектное» — битый ответ → null.
+ */
+const unwrapBatchEntity = <T>(value: unknown): T | null => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        return null;
+    }
+    if ('result' in value) {
+        const inner = (value as { result?: unknown }).result;
+        if (!inner || typeof inner !== 'object' || Array.isArray(inner)) {
+            return null;
+        }
+        return inner as T;
+    }
+    return value as T;
+};
+
+/**
+ * Сущности плейсмента ОДНИМ batch-запросом вместо 2–3 последовательных —
+ * единственное ускорение самого сплэша: каждый срезанный раунд-трип к
+ * Битриксу виден на старте глазами.
+ *
+ * Правила общего `cmdBatch` (мутируемое поле синглтона BitrixService):
+ *  - наполняем и отправляем СИНХРОННО, без await между `batch.*` и
+ *    `callBatch()` — окно для чужих команд не оставляем (в этот момент бута
+ *    параллельных батчей нет: история грузится сильно позже);
+ *  - перед наполнением выкидываем СВОИ ключи из cmdBatch: упавший callBatch
+ *    очищает его только после успешного await, а addCmdBatchType молча
+ *    не перезаписывает существующий ключ — без зачистки повтор (⟳) уехал бы
+ *    со вчерашними параметрами.
+ */
+const fetchPlacementEntitiesBatch = async (
+    bitrix: BitrixService,
+    plan: PlacementBatchPlan,
+): Promise<PlacementBatchEntities> => {
+    const wantDeal = Number.isFinite(plan.dealId) && Number(plan.dealId) > 0;
+    const wantCompany =
+        !wantDeal &&
+        Number.isFinite(plan.companyId) &&
+        Number(plan.companyId) > 0;
+    const wantLead = Number.isFinite(plan.leadId) && Number(plan.leadId) > 0;
+
+    // Пустая пачка — не запрос: b24jssdk кидает JSSDK_BATCH_EMPTY, а нам
+    // и без него отдавать нечего. Совпадает со старым fallback'ом (null'ы).
+    if (!wantDeal && !wantCompany && !wantLead) return EMPTY_BATCH_ENTITIES;
+
+    // getCmdBatch() отдаёт живую ссылку на cmdBatch — чистим только свои ключи.
+    const pending = bitrix.api.getCmdBatch() as Record<string, unknown>;
+    for (const cmd of Object.values(PLACEMENT_CMD)) delete pending[cmd];
+
+    // batch.*.get — async только по сигнатуре: команда ложится в cmdBatch
+    // синхронно, до первого await (тот же паттерн, что в HistoryListHelper).
+    if (wantDeal) {
+        bitrix.batch.deal.get(PLACEMENT_CMD.DEAL, Number(plan.dealId));
+        bitrix.batch.company.get(PLACEMENT_CMD.COMPANY, DEAL_COMPANY_ID_REF);
+    } else if (wantCompany) {
+        bitrix.batch.company.get(PLACEMENT_CMD.COMPANY, Number(plan.companyId));
+    }
+    if (wantLead) {
+        bitrix.batch.lead.get(PLACEMENT_CMD.LEAD, Number(plan.leadId));
+    }
+
+    // $result-чейнинг живёт ТОЛЬКО в callBatch (объект команд);
+    // callBatchByChunk перекладывает команды в массив и рвёт ссылки по ключам.
+    const raw = await bitrix.api.callBatch();
+    const flat = flattenBatchResults(raw);
+
+    return {
+        deal: unwrapBatchEntity<BXDeal>(flat[PLACEMENT_CMD.DEAL]),
+        company: unwrapBatchEntity<BXCompany>(flat[PLACEMENT_CMD.COMPANY]),
+        lead: unwrapBatchEntity<BXLead>(flat[PLACEMENT_CMD.LEAD]),
+    };
+};
+
+/**
  * Resolve the CRM entities (company / deal / task / lead) for the current Bitrix
  * placement using the @workspace/bitrix domain services.
  *
@@ -98,16 +224,15 @@ export const getEntitiesFromPlacement = async (
         if (!bitrix || !type || !options) return result;
 
         if (type.includes('DEAL')) {
-            // расширяем этот кейс
-            // раньше в сделке по любому могла быть компания теперь нет
-            const deal = await bitrix.deal.get(Number(options.ID));
-            result.currentDeal = deal as unknown as BXDeal;
-            const companyId = deal?.COMPANY_ID;
-            if (companyId && Number(companyId) > 0) {
-                result.currentCompany = (await bitrix.company.get(
-                    Number(companyId),
-                )) as unknown as BXCompany;
-            }
+            // Сделка + её компания — одним батчем: company.get цепляется к
+            // COMPANY_ID сделки через $result. Сделка без компании — как и
+            // раньше, легальный контекст: company остаётся null, не ошибка.
+            const { deal, company } = await fetchPlacementEntitiesBatch(
+                bitrix,
+                { dealId: Number(options.ID) },
+            );
+            result.currentDeal = deal;
+            result.currentCompany = company;
             from = APP_FROM_ENUM.DEAL;
         } else if (type.includes('COMPANY')) {
             result.currentCompany = (await bitrix.company.get(
@@ -126,28 +251,31 @@ export const getEntitiesFromPlacement = async (
 
             // Приоритетная сущность задачи: компания > сделка > лид.
             // Работаем «как будто в ней», но в рамках текущей задачи.
+            // task.get остаётся первым — без него привязки неизвестны, зато
+            // вся вторая ступень (company | deal→company | lead) — один батч.
             const links = getCrmLinksFromRaw(
                 (currentTask as { ufCrmTask?: string[] } | null)?.ufCrmTask,
             );
             const { primary } = resolveTaskPrimaryContext(links);
             if (primary?.type === ETaskLinkType.COMPANY) {
-                result.currentCompany = (await bitrix.company.get(
-                    primary.id,
-                )) as unknown as BXCompany;
+                const { company } = await fetchPlacementEntitiesBatch(bitrix, {
+                    companyId: primary.id,
+                });
+                result.currentCompany = company;
                 from = APP_FROM_ENUM.COMPANY;
             } else if (primary?.type === ETaskLinkType.DEAL) {
-                const deal = await bitrix.deal.get(primary.id);
-                result.currentDeal = deal as unknown as BXDeal;
-                const dealCompanyId = Number(deal?.COMPANY_ID ?? 0);
-                if (dealCompanyId > 0) {
-                    result.currentCompany = (await bitrix.company.get(
-                        dealCompanyId,
-                    )) as unknown as BXCompany;
-                }
+                const { deal, company } = await fetchPlacementEntitiesBatch(
+                    bitrix,
+                    { dealId: primary.id },
+                );
+                result.currentDeal = deal;
+                result.currentCompany = company;
                 from = APP_FROM_ENUM.DEAL;
             } else if (primary?.type === ETaskLinkType.LEAD) {
-                result.currentLead = (await bitrix.lead.get(primary.id))
-                    ?.result as unknown as BXLead;
+                const { lead } = await fetchPlacementEntitiesBatch(bitrix, {
+                    leadId: primary.id,
+                });
+                result.currentLead = lead;
                 from = APP_FROM_ENUM.LEAD;
             }
             // from = APP_FROM_ENUM.TASK

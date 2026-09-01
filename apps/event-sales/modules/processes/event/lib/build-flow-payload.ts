@@ -21,6 +21,8 @@ import {
     selectCheckPresentationComment,
     selectIsCheckPresentationApplicable,
 } from '@/modules/features/AfterPresentation';
+// Прямой путь, а не барель фичи: барель тянет UI-окно опросника.
+import { selectCheckPresentationSurvey } from '@/modules/features/AfterPresentation/lib/check-presentation.survey';
 import { inheritsLeadLink } from '@/modules/features/TaskLeadLinks/lib/task-lead-links';
 // Прямые пути, а не барель фичи: барель тянет UI-диалог чек-листа.
 import { selectChecklistDtoAnswers } from '@/modules/features/CallChecklist/lib/checklist-dto-answers';
@@ -286,6 +288,16 @@ export const buildFlowPayload = (
             isPresentationDone: isPresentationDone(presentation),
             isUnplannedPresentation:
                 presentation[PresentationProp.IS_UNPLANNED_PRESENTATION],
+            /*
+             * Ответы опросника «5К»/«Хвост» — тем же путём, что портальные
+             * анкеты: вместе с отчётом. Раскладывает их поток, который сам
+             * создаёт презентационные сделки и элемент смарта, — поэтому
+             * ловушка «опросник отправили ПОСЛЕ отчёта, снимку нечего
+             * читать» исчезает как класс. Не заполняли — блока нет вовсе:
+             * старые сборки фрейма его не шлют, и поток обязан работать
+             * как раньше.
+             */
+            survey: selectCheckPresentationSurvey(state),
         },
         // Чек-лист продажи (dto-канал): ответы разложены по путям каталога
         // (`sale.opportunity`, `sale.firstPayDate`) — код поля адресом

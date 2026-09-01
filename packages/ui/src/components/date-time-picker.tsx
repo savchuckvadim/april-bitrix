@@ -42,7 +42,16 @@ const parseValue = (
     value: string,
 ): { date: Date | undefined; time: string } => {
     if (!value) return { date: undefined, time: '' };
-    const parsed = parse(value, 'yyyy-MM-dd HH:mm', new Date());
+    /*
+     * Основной формат — свой ('yyyy-MM-dd HH:mm'), но значением может
+     * приехать и ISO (посев из дедлайна задачи: '2026-08-31T06:51:00+02:00').
+     * Фолбэк ЛЕКСИЧЕСКИЙ — 'T' → пробел и обрезка до минут, БЕЗ new Date():
+     * менеджер видит настенное время портала, и прогон через таймзону
+     * браузера сдвигал бы полуночные значения на сутки. Не разобралось и
+     * так — пустой контрол, а не подставленное «сегодня».
+     */
+    const normalized = value.replace('T', ' ').slice(0, 16);
+    const parsed = parse(normalized, 'yyyy-MM-dd HH:mm', new Date());
     if (isNaN(parsed.getTime())) return { date: undefined, time: '' };
     return { date: parsed, time: format(parsed, 'HH:mm') };
 };

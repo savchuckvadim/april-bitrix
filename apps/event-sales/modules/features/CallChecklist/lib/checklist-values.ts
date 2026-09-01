@@ -56,6 +56,14 @@ export interface ChecklistEntityRows {
     lead: Record<string, unknown> | null;
 }
 
+/** Один носитель поля: куда писать и откуда читать. */
+export interface ChecklistFieldCarrier {
+    entity: ChecklistEntityKind;
+    entityId: number;
+    /** UF-ключ у ЭТОЙ сущности: у встроенных вопросов он свой на носителя. */
+    ufKey: string;
+}
+
 export interface ResolvedChecklistField extends ChecklistFieldRef {
     entity: ChecklistEntityKind;
     /**
@@ -65,6 +73,13 @@ export interface ResolvedChecklistField extends ChecklistFieldRef {
     entityId: number;
     /** Имя поля Битрикса; '' — вопрос без поля в CRM (dto/text/smart). */
     ufKey: string;
+    /**
+     * ВСЕ носители поля (первый — тот же, что `entity`/`entityId`).
+     * Значение-истина живёт на сделке И компании разом (доктрина
+     * EntityFieldsDialog), поэтому запись crm-канала идёт во всех — см.
+     * {@link checklistWriteCarriers}. Пусто у вопросов без поля в CRM.
+     */
+    carriers: ChecklistFieldCarrier[];
     /**
      * Варианты справочника ОДНИМ списком — и для контрола, и для записи: у
      * портальной анкеты из `options` каталога (там уже `bitrixId`), у
@@ -285,11 +300,135 @@ const entityIdOf = (row: Record<string, unknown> | null): number => {
     return Number.isFinite(id) && id > 0 ? id : 0;
 };
 
-export const resolveChecklistField = (
+/**
+ * Порядок добора «сейчас» при нескольких носителях: сделка точнее
+ * (доктрина полей-истин — чтение EntityFieldsDialog идёт в том же порядке).
+ */
+const CARRIER_VALUE_PRIORITY: ChecklistEntityKind[] = [
+    'deal',
+    'company',
+    'lead',
+];
+
+/**
+ * «Сейчас» при нескольких носителях: главный (прежний приоритет
+ * компания → сделка → лид) — как раньше, но ПУСТОЙ главный больше не прячет
+ * живое значение соседа: добирается первое непустое в порядке
+ * {@link CARRIER_VALUE_PRIORITY}. Справочники не добираются: значение
+ * enumeration-поля — bitrixId ВАРИАНТА, свой у каждой сущности, и чужой
+ * вариант по опциям главного не прочитается.
+ */
+const readCurrentAcrossCarriers = (
+    def: ChecklistFieldDef,
+    rows: ChecklistEntityRows,
+    carriers: ChecklistFieldCarrier[],
+    options: QuestionnaireOption[],
+): { currentValue: string; currentLabel: string } => {
+    const primary = carriers[0]!;
+    const primaryRead = readCurrent(
+        def,
+        primary.entityId ? rows[primary.entity]?.[primary.ufKey] : undefined,
+        options,
+    );
+    if (primaryRead.currentValue || def.control === 'enumeration') {
+        return primaryRead;
+    }
+    for (const kind of CARRIER_VALUE_PRIORITY) {
+        const carrier = carriers.find(
+            item => item.entity === kind && item.entityId > 0,
+        );
+        if (!carrier || carrier === primary) continue;
+        const read = readCurrent(
+            def,
+            rows[carrier.entity]?.[carrier.ufKey],
+            options,
+        );
+        if (read.currentValue) return read;
+    }
+    return primaryRead;
+};
+
+/**
+ * Куда ПИСАТЬ ответ crm-канала: во все носители поля разом — значение-истина
+ * живёт на сделке И компании, запись в одного их разъезжала бы (доктрина
+ * EntityFieldsDialog: «запись — во всех, у кого поле есть»). Исключение —
+ * справочник: пишется bitrixId варианта, свой у каждой сущности, поэтому
+ * enumeration уходит только главному носителю.
+ */
+export const checklistWriteCarriers = (
+    resolved: ResolvedChecklistField,
+): ChecklistFieldCarrier[] => {
+    const writable = resolved.carriers.filter(item => item.entityId > 0);
+    if (!writable.length) {
+        return resolved.entityId
+            ? [
+                  {
+                      entity: resolved.entity,
+                      entityId: resolved.entityId,
+                      ufKey: resolved.ufKey,
+                  },
+              ]
+            : [];
+    }
+    if (resolved.def.control === 'enumeration') return [writable[0]!];
+    return writable;
+};
+
+/**
+ * Почему вопрос не показался менеджеру.
+ *
+ * Отказ резолва до сих пор был МОЛЧАЛИВЫМ: владелец включал вопрос на
+ * портале, вопрос не появлялся, и узнать причину было неоткуда — час поисков
+ * на пустом месте. Причина известна ровно здесь, в ветке, где резолв сдался,
+ * поэтому здесь она и называется.
+ *
+ * Считать её отсюда нельзя: резолв — ЧИСТАЯ функция, её зовут селекторы на
+ * каждый рендер, и сетевой клиент внутри неё означал бы поток запросов с
+ * каждой перерисовки. Поэтому резолв причину только ВОЗВРАЩАЕТ, а считает
+ * вызывающий — один раз на появление анкеты (см. checklist-hidden.ts).
+ */
+export type HiddenChecklistReason =
+    /** Носителя нет: ни у одной сущности нет строки или ID. */
+    | 'no-carrier'
+    /** Встроенный вопрос: поля нет в слепке портала. */
+    | 'field-not-in-portal'
+    /** Справочник без вариантов — отвечать нечем. */
+    | 'enum-without-options'
+    /** crm-вопрос вообще без адреса поля: писать некуда. */
+    | 'no-field-in-crm';
+
+/** Итог резолва: поле либо причина, по которой его не будет. */
+export interface ChecklistFieldResolution {
+    /** null — вопрос не показывается. */
+    field: ResolvedChecklistField | null;
+    /** null — показывается; иначе причина отказа. */
+    hiddenReason: HiddenChecklistReason | null;
+}
+
+const shown = (field: ResolvedChecklistField): ChecklistFieldResolution => ({
+    field,
+    hiddenReason: null,
+});
+
+const hidden = (reason: HiddenChecklistReason): ChecklistFieldResolution => ({
+    field: null,
+    hiddenReason: reason,
+});
+
+/**
+ * Резолв вопроса ВМЕСТЕ С ПРИЧИНОЙ отказа.
+ *
+ * Тело здесь одно на обе формы: {@link resolveChecklistField} — та же
+ * функция без причины, ради неизменной сигнатуры у всех прежних
+ * потребителей. Отдельной «объясняющей» функции нет намеренно: она
+ * повторяла бы условия резолва и разошлась бы с ними на первой же правке —
+ * ровно тем способом, каким молчаливые отказы и заводятся.
+ */
+export const resolveChecklistFieldDetailed = (
     ref: ChecklistFieldRef,
     portal: Portal | null | undefined,
     rows: ChecklistEntityRows,
-): ResolvedChecklistField | null => {
+): ChecklistFieldResolution => {
     const def = ref.def;
     // Ответ dto-канала уезжает в payload отправки, а не в CRM: носитель ему
     // не нужен вовсе, и его отсутствие (сделку создаст сам flow) вопрос не
@@ -316,8 +455,8 @@ export const resolveChecklistField = (
     // готовое `field.name`, и без неё он ушёл бы искать носителя по имени.
     if (def.channel === 'smart') {
         const options = enumGuard(def.options);
-        if (!options) return null;
-        return {
+        if (!options) return hidden('enum-without-options');
+        return shown({
             ...ref,
             // Носителя нет; `entity` здесь формальность типа — ровно как у
             // ответа dto-канала ниже.
@@ -325,9 +464,10 @@ export const resolveChecklistField = (
             entityId: 0,
             ufKey: '',
             options,
+            carriers: [],
             currentValue: '',
             currentLabel: '',
-        };
+        });
     }
 
     // Штатное поле Битрикса (OPPORTUNITY, SOURCE_ID): живёт только на
@@ -341,31 +481,34 @@ export const resolveChecklistField = (
     if (def.isNative) {
         const row = rows.deal;
         const entityId = entityIdOf(row);
-        if (!entityId && isCrmChannel) return null;
+        if (!entityId && isCrmChannel) return hidden('no-carrier');
         const ufKey = def.field?.name ?? def.code;
         const options = enumGuard(def.options);
-        if (!options) return null;
-        return {
+        if (!options) return hidden('enum-without-options');
+        return shown({
             ...ref,
             entity: 'deal',
             entityId,
             ufKey,
             options,
+            carriers: entityId ? [{ entity: 'deal', entityId, ufKey }] : [],
             ...readCurrent(def, entityId ? row?.[ufKey] : undefined, options),
-        };
+        });
     }
 
     // Портальная анкета: имя поля пришло готовым — адресуем напрямую.
     if (def.field?.name) {
         const ufKey = def.field.name;
         const options = enumGuard(def.options);
-        if (!options) return null;
+        if (!options) return hidden('enum-without-options');
+        const carriers: ChecklistFieldCarrier[] = [];
         for (const kind of targetKinds(def)) {
             const row = rows[kind];
             // Носитель назван анкетой — верим ей; при `auto` носителя
             // выдаёт сама строка: crm.*.get отдаёт все поля СВОЕЙ сущности,
             // поэтому наличие ключа и есть признак владельца (слепок для
-            // этого больше не нужен).
+            // этого больше не нужен). Собираются ВСЕ носители: писать
+            // предстоит в каждого (см. checklistWriteCarriers).
             const isCarrier =
                 row !== null &&
                 (def.target.mode === 'entity' ||
@@ -373,34 +516,49 @@ export const resolveChecklistField = (
             if (!isCarrier) continue;
             const entityId = entityIdOf(row);
             if (!entityId && isCrmChannel) continue;
-            return {
+            carriers.push({ entity: kind, entityId, ufKey });
+        }
+        const primary = carriers[0];
+        if (primary) {
+            return shown({
                 ...ref,
-                entity: kind,
-                entityId,
+                entity: primary.entity,
+                entityId: primary.entityId,
                 ufKey,
                 options,
-                ...readCurrent(def, entityId ? row[ufKey] : undefined, options),
-            };
+                carriers,
+                ...readCurrentAcrossCarriers(def, rows, carriers, options),
+            });
         }
         // Носителя не нашли: crm-вопрос прячем (писать некуда), ответ
         // dto/text-канала живёт и без него.
         return isCrmChannel
-            ? null
-            : {
+            ? hidden('no-carrier')
+            : shown({
                   ...ref,
                   entity: 'deal',
                   entityId: 0,
                   ufKey,
                   options,
+                  carriers: [],
                   currentValue: '',
                   currentLabel: '',
-              };
+              });
     }
 
     // Встроенный вопрос: имени нет, ключ ищется по коду pbx-реестра в
     // слепке портала (обратная совместимость с FALLBACK_CATALOG).
+    //
+    // Причину отказа собираем по ходу перебора носителей: в конце цикла
+    // видно только «не вышло», а различить «поля нет в слепке» и «справочник
+    // в слепке пуст» можно лишь там, где эти условия проверяются. Сами
+    // условия не меняются — это два флага рядом с `continue`.
+    let legacyFieldMissing = false;
+    let legacyEnumBlocked = false;
     if (def.legacyFieldCode) {
         const code = def.legacyFieldCode;
+        const carriers: ChecklistFieldCarrier[] = [];
+        let primaryOptions: QuestionnaireOption[] | null = null;
         for (const kind of targetKinds(def)) {
             const row = rows[kind];
             if (!row && isCrmChannel) continue;
@@ -408,26 +566,42 @@ export const resolveChecklistField = (
             const field = findPortalField(fields, code);
             const ufKey = findUfKey(fields, code);
             const entityId = entityIdOf(row);
-            if (!field || !ufKey || (!entityId && isCrmChannel)) continue;
+            if (!field || !ufKey) {
+                legacyFieldMissing = true;
+                continue;
+            }
+            if (!entityId && isCrmChannel) continue;
             const options = enumGuard(
                 def.options.length
                     ? def.options
                     : optionsFromPortalField(field),
             );
             // Справочник без вариантов — пробуем следующего носителя.
-            if (!options) continue;
-            return {
+            if (!options) {
+                legacyEnumBlocked = true;
+                continue;
+            }
+            carriers.push({ entity: kind, entityId, ufKey });
+            // Контрол и подпись «сейчас» живут по главному носителю
+            // (прежний приоритет); остальные — адресаты записи.
+            if (!primaryOptions) primaryOptions = options;
+        }
+        const primary = carriers[0];
+        if (primary && primaryOptions) {
+            return shown({
                 ...ref,
-                entity: kind,
-                entityId,
-                ufKey,
-                options,
-                ...readCurrent(
+                entity: primary.entity,
+                entityId: primary.entityId,
+                ufKey: primary.ufKey,
+                options: primaryOptions,
+                carriers,
+                ...readCurrentAcrossCarriers(
                     def,
-                    entityId ? row?.[ufKey] : undefined,
-                    options,
+                    rows,
+                    carriers,
+                    primaryOptions,
                 ),
-            };
+            });
         }
         // Поля нет в слепке: crm-вопрос прячем, ответ dto/text-канала
         // («Дата первой оплаты») уходит ниже — он живёт и без носителя.
@@ -435,16 +609,40 @@ export const resolveChecklistField = (
 
     // Вопрос без поля вовсе (dto/text-канал): ответ хранится в стейте и
     // уезжает payload'ом отправки — писать в CRM нечего и незачем.
-    if (isCrmChannel) return null;
+    if (isCrmChannel) {
+        // Порядок причин — от самой конкретной: пустой справочник объясняет
+        // отказ точнее, чем «поля нет», а встроенный вопрос без поля в
+        // слепке — точнее, чем общее «адреса нет вовсе».
+        if (legacyEnumBlocked) return hidden('enum-without-options');
+        if (def.legacyFieldCode) {
+            return hidden(
+                legacyFieldMissing ? 'field-not-in-portal' : 'no-carrier',
+            );
+        }
+        return hidden('no-field-in-crm');
+    }
     const options = enumGuard(def.options);
-    if (!options) return null;
-    return {
+    if (!options) return hidden('enum-without-options');
+    return shown({
         ...ref,
         entity: 'deal',
         entityId: 0,
         ufKey: '',
         options,
+        carriers: [],
         currentValue: '',
         currentLabel: '',
-    };
+    });
 };
+
+/**
+ * Резолв без причины — прежняя сигнатура для всех, кому причина не нужна
+ * (селекторы, сборка вьюх, запись значения). Ни одного потребителя эта
+ * правка не касается: поведение и тип возврата те же, что были.
+ */
+export const resolveChecklistField = (
+    ref: ChecklistFieldRef,
+    portal: Portal | null | undefined,
+    rows: ChecklistEntityRows,
+): ResolvedChecklistField | null =>
+    resolveChecklistFieldDetailed(ref, portal, rows).field;

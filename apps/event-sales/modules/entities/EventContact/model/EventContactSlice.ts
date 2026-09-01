@@ -16,6 +16,15 @@ const initialState = {
     contacts: [] as PBXContactStateItem[],
     /** Откуда пришёл каждый контакт: компания, сделка, лид, привязка задачи. */
     sourceById: {} as ContactSourceMap,
+    /**
+     * Сетевые источники, УЖЕ опрошенные у портала (`company:1`, `deal:5`,
+     * `lead:7` — см. sourceRequestKey). Листенеры зовут collectRelatedContacts
+     * 2–3 раза за старт, и без памяти каждый прогон заново спрашивал
+     * contactItems компании/сделки и лиды. Реестр помнит ЗАПРОСЫ (contacts
+     * копит результаты), повторный сбор опрашивает только новые источники.
+     * reset (⟳) чистит его вместе со слайсом — «Обновить» переопрашивает всё.
+     */
+    requestedSources: {} as Record<string, true>,
     /** `<contactId>:<fieldCode>` → почему характеристика не сохранилась. */
     fieldErrors: {} as Record<string, string>,
     /**
@@ -171,6 +180,34 @@ const eventContactSlice = createSlice({
             relinkCurrent(state);
             state.isFetched = true;
             state.isLoading = false;
+        },
+        /**
+         * Пометить сетевые источники опрошенными. Диспатчится СИНХРОННО с
+         * решением «этот источник берём», до первого await сбора: сбор зовут
+         * три листенера почти одновременно, и без немедленной пометки
+         * параллельный прогон успевал бы опросить те же источники второй раз.
+         */
+        markSourcesRequested: (
+            state: EventContactState,
+            action: PayloadAction<{ keys: string[] }>,
+        ) => {
+            for (const key of action.payload.keys) {
+                state.requestedSources[key] = true;
+            }
+        },
+        /**
+         * Снять пометку с источников: батч сорвался (следующий вызов сбора
+         * переопросит их — прежняя самопочинка последовательных запросов)
+         * либо состав источника изменился (контакт привязали к сделке — её
+         * contactItems надо перечитать).
+         */
+        unmarkSourcesRequested: (
+            state: EventContactState,
+            action: PayloadAction<{ keys: string[] }>,
+        ) => {
+            for (const key of action.payload.keys) {
+                delete state.requestedSources[key];
+            }
         },
         setCurrentContact: (
             state: EventContactState,

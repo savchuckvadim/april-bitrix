@@ -45,6 +45,31 @@ export class BitrixBaseApi {
 
     private cmdBatch: Record<string, any> = {};
 
+    /**
+     * Отладочные дампы ответов Битрикса в консоль.
+     *
+     * По умолчанию выключены: каждый вызов печатал полный ответ — это шум
+     * в проде и данные клиентов в консоли браузера. Включаются на время
+     * разбора: NEXT_PUBLIC_BITRIX_DEBUG=1 либо в DevTools —
+     * localStorage.setItem('bitrix_debug', '1') и перезагрузка.
+     */
+    private readonly isDebug: boolean =
+        process.env.NEXT_PUBLIC_BITRIX_DEBUG === '1' ||
+        (typeof window !== 'undefined' &&
+            (() => {
+                try {
+                    return window.localStorage?.getItem('bitrix_debug') === '1';
+                } catch {
+                    return false;
+                }
+            })());
+
+    private debugDump(label: string, payload: unknown): void {
+        if (!this.isDebug) return;
+        console.log(label);
+        console.log(payload);
+    }
+
     private readonly logger = {
         log: (message: string) => console.log(message),
         error: (message: string) => console.error(message),
@@ -327,8 +352,7 @@ export class BitrixBaseApi {
             response = bxRresponse.getData() as IBitrixResponse<
                 TBXResponse<NAMESPACE, ENTITY, METHOD>
             >;
-            console.log('BITRIX RESPONSE CALL METHOD');
-            console.log(response);
+            this.debugDump('BITRIX RESPONSE CALL METHOD', response);
             return response;
         } else {
             const bxReqHookData = {
@@ -343,8 +367,7 @@ export class BitrixBaseApi {
             >(EBACK_ENDPOINT.BITRIX_METHOD, API_METHOD.POST, bxReqHookData);
 
             result = backReponse?.data || null;
-            console.log('BACK RESPONSE CALL METHOD');
-            console.log(result);
+            this.debugDump('BACK RESPONSE CALL METHOD', result);
             return result;
         }
     }
@@ -370,8 +393,7 @@ export class BitrixBaseApi {
             )) as Result;
             const bxData = bxRresponse.getData() as any;
             response = (bxData?.result ?? bxData) as T;
-            console.log('BITRIX RESPONSE CALL METHOD');
-            console.log(response);
+            this.debugDump('BITRIX RESPONSE CALL METHOD', response);
             return response;
         } else {
             const bxReqHookData = {
@@ -387,8 +409,7 @@ export class BitrixBaseApi {
             );
             const backData = backReponse?.data as any;
             result = backData?.result ?? backData ?? null;
-            console.log('BACK RESPONSE CALL METHOD');
-            console.log(result);
+            this.debugDump('BACK RESPONSE CALL METHOD', result);
             return result as T;
         }
     }
@@ -408,8 +429,7 @@ export class BitrixBaseApi {
                 false,
             )) as Result;
             const result = bxResponse.getData();
-            console.log('BITRIX RESPONSE CALL BATCH');
-            console.log(result);
+            this.debugDump('BITRIX RESPONSE CALL BATCH', result);
             this.cmdBatch = {};
             return result;
         }
@@ -420,8 +440,7 @@ export class BitrixBaseApi {
             this.cmdBatch,
         );
         const result = await devBatchService.callBatchWithConcurrency();
-        console.log('RESULT BACK CALL BATCH');
-        console.log(result);
+        this.debugDump('RESULT BACK CALL BATCH', result);
         this.cmdBatch = {};
         return result;
     }
@@ -438,8 +457,7 @@ export class BitrixBaseApi {
                 false,
             )) as Result;
             const result = bxResponse.getData();
-            console.log('BITRIX RESPONSE CALL BATCH');
-            console.log(result);
+            this.debugDump('BITRIX RESPONSE CALL BATCH', result);
 
             this.cmdBatch = {};
             return result;
@@ -452,8 +470,7 @@ export class BitrixBaseApi {
             this.cmdBatch,
         );
         const result = await devBatchService.callBatchWithConcurrency();
-        console.log('RESULT BACK CALL BATCH');
-        console.log(result);
+        this.debugDump('RESULT BACK CALL BATCH', result);
         this.cmdBatch = {};
         return result;
     }

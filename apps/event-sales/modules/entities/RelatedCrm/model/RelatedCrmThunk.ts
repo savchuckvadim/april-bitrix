@@ -1,15 +1,12 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { RelatedCrmHelper } from '../lib/api/related-crm-helper';
 import { getEntityDescriptor } from '../lib/entity-descriptor';
+// Формат ключа общий с details-coverage: по нему же история узнаёт ответ
+// листенера в сторе — менять только вместе.
+import { buildDetailsKey } from '../lib/details-coverage';
 import { relatedCrmActions } from './RelatedCrmSlice';
 
 const helper = new RelatedCrmHelper();
-
-const buildKey = (
-    entityType: string,
-    entityId: number,
-    includeClosed: boolean,
-): string => `${entityType}:${entityId}:${includeClosed ? 'all' : 'open'}`;
 
 export interface FetchRelatedDetailsParams {
     /** Не задан — остаётся текущее значение тумблера из состояния. */
@@ -36,7 +33,7 @@ export const fetchRelatedDetails =
         if (!domain || !descriptor) return;
 
         const withClosed = includeClosed ?? state.relatedCrm.includeClosed;
-        const key = buildKey(
+        const key = buildDetailsKey(
             descriptor.entityType,
             descriptor.entityId,
             withClosed,

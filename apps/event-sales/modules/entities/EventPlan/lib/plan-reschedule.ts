@@ -1,6 +1,7 @@
 import { eventTypeToPlanCode } from '@/modules/entities/EventTask/lib/event-type-token';
 import type { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { EV_PLAN_CODE } from '../type/event-plan-type';
+import { toPlanControlValue } from './plan-deadline';
 
 /**
  * Перенос события: что подставить в план от текущей задачи.
@@ -13,7 +14,15 @@ import { EV_PLAN_CODE } from '../type/event-plan-type';
  */
 export interface PlanSeed {
     name: string;
-    /** Дедлайн задачи (ISO) — план правит именно его; null — срока не было. */
+    /**
+     * Дедлайн задачи В ФОРМАТЕ КОНТРОЛА (`yyyy-MM-dd HH:mm`) — план правит
+     * именно его; null — срока не было либо он не разобрался.
+     *
+     * Именно формат контрола, а не сырой ISO: DateTimePicker разбирает
+     * строго свой формат, и ISO из `deadlineRaw` он показывал ПУСТОЙ датой —
+     * менеджер ставил время, и перенос молча уезжал на СЕГОДНЯ
+     * (todo3108 №2).
+     */
     date: string | null;
     /** Код типа для справочника планов; в списке может не оказаться (cold). */
     typeCode: EV_PLAN_CODE;
@@ -21,6 +30,6 @@ export interface PlanSeed {
 
 export const buildRescheduleSeed = (task: EventTask): PlanSeed => ({
     name: task.name?.trim() ?? '',
-    date: task.deadlineRaw ?? null,
+    date: toPlanControlValue(task.deadlineRaw) || null,
     typeCode: eventTypeToPlanCode(task.eventType),
 });

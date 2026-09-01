@@ -68,6 +68,57 @@ export const buildPortalFieldPayload = ({
     return payload;
 };
 
+/**
+ * Есть ли вообще что записывать: хотя бы один ответ даёт значение для
+ * портала.
+ *
+ * Нужно для честного итога записи. «Ни одна цель не приняла» — провал
+ * только тогда, когда записывать БЫЛО что: пустой опросник, который никуда
+ * не поехал, — не провал, а отсутствие ответов. Правило годности значения
+ * ровно одно с `buildPortalFieldPayload` (пустая строка, неразбираемая дата
+ * и множественный список ответом не считаются) — иначе итог расходился бы
+ * с тем, что реально уходит в Битрикс.
+ */
+export const hasWritablePortalAnswers = (
+    answers: Record<string, CheckPresentationValue>,
+    typeByCode?: Record<string, CheckPresentationFieldType>,
+): boolean =>
+    Object.entries(answers).some(
+        ([code, value]) => toPortalValue(value, typeByCode?.[code]) !== null,
+    );
+
+/**
+ * Коды шести вопросов «Разговора» в опроснике (xo_*) → коды полей реестра
+ * pbx (op_talk_*). Вопросы исторически заведены под кодами опросника,
+ * которых нет ни в одном реестре полей: фрейм-запись резолвила их в никуда,
+ * ручка /presentation-survey их не принимала — ответы жили только строкой
+ * в комментарии, и снимку смарта (PRES_TALK_*) было нечего читать
+ * (todo3108 №1). Переводим на границе: данные опросника не трогаем.
+ */
+const XO_TO_TALK_FIELD: Record<string, string> = {
+    xo_impression: 'op_talk_impression',
+    xo_remembered: 'op_talk_remembered',
+    xo_desire_to_work: 'op_talk_desire',
+    xo_decision_process: 'op_talk_decision_process',
+    xo_price_opinion: 'op_talk_price_opinion',
+    xo_readiness_to_approach_manager: 'op_talk_boss_readiness',
+};
+
+/**
+ * Ответы опросника с кодами ПОЛЕЙ: xo_* переименованы в op_talk_*,
+ * остальные ключи как были. Дальше этой функции коды опросника не живут —
+ * и фрейм-запись, и серверная ручка видят только реестровые коды.
+ */
+export const translateSurveyCodes = <T>(
+    answers: Record<string, T>,
+): Record<string, T> =>
+    Object.fromEntries(
+        Object.entries(answers).map(([code, value]) => [
+            XO_TO_TALK_FIELD[code] ?? code,
+            value,
+        ]),
+    );
+
 /** Порядок и подписи сводки — те же «К», что в анкете. */
 const FIVE_K_SUMMARY_CODES = [
     'op_5k_client_what',

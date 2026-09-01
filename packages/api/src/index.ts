@@ -79,6 +79,15 @@ export type {
     SwrWriteOptions,
 } from './services/swr-cache';
 
+// общий KV-слой браузера: IndexedDB → localStorage → сквозной режим;
+// на нём и swr-cache, и outbox event-sales (изоляция — префиксами ключей)
+export {
+    getKvStorage,
+    getKvStorageKind,
+    resetKvStorage,
+} from './services/kv-storage';
+export type { KvStorage, KvStorageKind } from './services/kv-storage';
+
 export {
     getLocalStorageJson,
     setLocalStorageJson,

@@ -6,3 +6,5 @@ export * from './list-item';
 export * from './userfieldconfig';
 export * from './rpa/item';
 export * from './user';
+export * from './tasks/checklist-item';
+export * from './im';

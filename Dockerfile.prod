@@ -77,7 +77,19 @@ ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
     NEXT_PUBLIC_KPI_SALES_API_URL=${NEXT_PUBLIC_KPI_SALES_API_URL} \
     NEXT_PUBLIC_EVENT_SALES_API_URL=${NEXT_PUBLIC_EVENT_SALES_API_URL}
 
-RUN pnpm --filter ${APP} run build
+# Сборка через turbo, а НЕ `pnpm --filter ${APP} run build`.
+#
+# У приложений есть workspace-пакеты, которые обязаны собраться ПЕРВЫМИ.
+# Живой пример — @workspace/event-sales-flow: рантайм приложения берёт его
+# исходники (transpilePackages), а ТИПЫ — сгенерированные декларации из
+# `build/`, которого нет в git. Прямой вызов сборки приложения падал на
+# «Cannot find module '@workspace/event-sales-flow' or its corresponding type
+# declarations», и локально это не всплывало: там `build/` уже лежал.
+#
+# turbo знает граф (`dependsOn: ["^build"]` в turbo.json) и собирает
+# зависимости сам — правило работает для любого приложения и любого будущего
+# пакета, а не только для этого случая.
+RUN pnpm exec turbo build --filter=${APP}
 
 # public может отсутствовать в git (напр. apps/web — пустая папка не коммитится);
 # гарантируем её наличие, чтобы COPY в prod-стадии не падал

@@ -6,45 +6,41 @@ import {
     isFiveKCode,
 } from './check-presentation.groups';
 
+/**
+ * Раскладка опросника после переделки 01.09.2026.
+ *
+ * Девять вопросов «5К» схлопнулись в пять блоков по теме, и заголовок блока
+ * («КЛИЕНТ») сам называет категорию. Поэтому отдельного имени группы больше
+ * нет, а из заголовка нечего срезать. Осталась одна работа — делить вопросы
+ * на колонки: слева «Хвост», справа «5К».
+ */
+
 const item = (code: string, title: string): CheckPresentationItem =>
     ({ id: code, code, title }) as CheckPresentationItem;
 
 describe('isFiveKCode', () => {
     it('op_5k_* — да, остальное — нет', () => {
-        expect(isFiveKCode('op_5k_client_what')).toBe(true);
+        expect(isFiveKCode('op_5k_client')).toBe(true);
+        expect(isFiveKCode('op_5k_criteria')).toBe(true);
         expect(isFiveKCode('op_presentation_xvost')).toBe(false);
-        expect(isFiveKCode('xo_impression')).toBe(false);
+        expect(isFiveKCode('op_xvost_desire')).toBe(false);
     });
 });
 
 describe('getFiveKGroup', () => {
-    it('раскладывает все пять категорий по сегменту кода', () => {
-        expect(getFiveKGroup('op_5k_client_what')).toBe('Клиент');
-        expect(getFiveKGroup('op_5k_company_who')).toBe('Компания');
-        expect(getFiveKGroup('op_5k_command')).toBe('Коллеги');
-        expect(getFiveKGroup('op_5k_concurent')).toBe('Конкурент');
-        expect(getFiveKGroup('op_5k_criteri')).toBe('Критерий выбора');
-    });
-
-    it('не-5К и неизвестный сегмент — null', () => {
+    it('групп внутри блока больше нет — категорию называет заголовок', () => {
+        expect(getFiveKGroup('op_5k_client')).toBeNull();
         expect(getFiveKGroup('op_presentation_xvost')).toBeNull();
-        expect(getFiveKGroup('op_5k_unknown_thing')).toBeNull();
     });
 });
 
 describe('getDisplayTitle', () => {
-    it('срезает префикс категории только у 5К', () => {
+    it('заголовок показывается как есть — резать нечего', () => {
+        // Прежний срез «до двоеточия» оставил бы от «КЛИЕНТ» пустую строку.
+        expect(getDisplayTitle(item('op_5k_client', 'КЛИЕНТ'))).toBe('КЛИЕНТ');
         expect(
-            getDisplayTitle(item('op_5k_client_what', 'КЛИЕНТ: Что хочет?')),
-        ).toBe('Что хочет?');
-        expect(
-            getDisplayTitle(
-                item(
-                    'op_5k_criteri',
-                    'КРИТЕРИЙ ВЫБОРА: Что важно при выборе СПС?',
-                ),
-            ),
-        ).toBe('Что важно при выборе СПС?');
+            getDisplayTitle(item('op_5k_criteria', 'КРИТЕРИИ ВЫБОРА')),
+        ).toBe('КРИТЕРИИ ВЫБОРА');
     });
 
     it('обычные вопросы не трогает, даже с двоеточием в тексте', () => {
@@ -52,7 +48,7 @@ describe('getDisplayTitle', () => {
             'Хвост',
         );
         expect(
-            getDisplayTitle(item('xo_impression', 'Итог: первое впечатление')),
-        ).toBe('Итог: первое впечатление');
+            getDisplayTitle(item('op_xvost_desire', 'Итог: впечатление')),
+        ).toBe('Итог: впечатление');
     });
 });

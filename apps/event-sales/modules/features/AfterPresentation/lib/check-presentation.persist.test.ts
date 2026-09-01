@@ -8,31 +8,28 @@ import {
 import { CheckPresentationFieldType } from '../type/check-presentation-type';
 
 const TITLES = {
-    op_5k_client_what: 'КЛИЕНТ: Что хочет?:',
-    op_5k_concurent: 'КОНКУРЕНТ: По каким критериям нас сравнивают?:',
+    op_5k_client: 'КЛИЕНТ:',
+    op_5k_competitor: 'КОНКУРЕНТ:',
 };
 
 describe('buildFiveKSummary', () => {
     it('собирает только отвеченные «К», построчно и по порядку', () => {
         const summary = buildFiveKSummary(
             {
-                op_5k_concurent: 'Консультант, цена',
-                op_5k_client_what: 'Нормативка',
-                xo_impression: 'не пятёрка — не попадает',
+                op_5k_competitor: 'Консультант, цена',
+                op_5k_client: 'Нормативка',
+                op_xvost_desire: 'не пятёрка — не попадает',
             },
             TITLES,
         );
-        expect(summary).toBe(
-            'КЛИЕНТ: Что хочет?: Нормативка\n' +
-                'КОНКУРЕНТ: По каким критериям нас сравнивают?: Консультант, цена',
-        );
+        // Порядок каталожный (КЛИЕНТ раньше КОНКУРЕНТА), а не тот, в котором
+        // ответы легли в объект.
+        expect(summary).toBe('КЛИЕНТ: Нормативка\nКОНКУРЕНТ: Консультант, цена');
     });
 
     it('ни одного ответа — сводки нет, пустую строку не пишем', () => {
         expect(buildFiveKSummary({}, TITLES)).toBeNull();
-        expect(
-            buildFiveKSummary({ op_5k_client_what: '  ' }, TITLES),
-        ).toBeNull();
+        expect(buildFiveKSummary({ op_5k_client: '  ' }, TITLES)).toBeNull();
     });
 });
 
@@ -97,32 +94,28 @@ describe('toPortalValue', () => {
 });
 
 describe('translateSurveyCodes', () => {
-    it('xo_* опросника → op_talk_* реестра, остальные ключи как были', () => {
+    it('перевод стал тождественным: код вопроса и есть код поля', () => {
+        // Раньше здесь жила таблица xo_* → op_talk_*: вопросы были заведены
+        // под кодами опросника, которых нет ни в одном реестре, и ответы
+        // «Разговора» не писались никуда (todo3108 №1). С переделки
+        // 01.09.2026 коды у вопроса и поля общие, переводить нечего.
         expect(
             translateSurveyCodes({
-                xo_impression: 'встретили хорошо',
-                xo_readiness_to_approach_manager: 'готов',
-                op_5k_client_what: 'хочет замену',
-                op_xvost_is_offer: true,
+                op_xvost_desire: 'встретили хорошо',
+                op_5k_client: 'хочет замену',
             }),
         ).toEqual({
-            op_talk_impression: 'встретили хорошо',
-            op_talk_boss_readiness: 'готов',
-            op_5k_client_what: 'хочет замену',
-            op_xvost_is_offer: true,
+            op_xvost_desire: 'встретили хорошо',
+            op_5k_client: 'хочет замену',
         });
     });
 
-    it('переведённые ответы резолвятся фрейм-записью в op_talk_* поля', () => {
-        // До перевода коды опросника не находились ни в одном слепке —
-        // ответы «Разговора» не писались никуда (todo3108 №1).
+    it('ответы резолвятся фрейм-записью в поля реестра', () => {
         const payload = buildPortalFieldPayload({
-            answers: translateSurveyCodes({ xo_impression: 'слушали' }),
+            answers: translateSurveyCodes({ op_xvost_desire: 'слушали' }),
             resolveKey: code =>
-                code === 'op_talk_impression'
-                    ? 'UF_CRM_OP_TALK_IMPRESSION'
-                    : null,
+                code === 'op_xvost_desire' ? 'UF_CRM_OP_XVOST_DESIRE' : null,
         });
-        expect(payload).toEqual({ UF_CRM_OP_TALK_IMPRESSION: 'слушали' });
+        expect(payload).toEqual({ UF_CRM_OP_XVOST_DESIRE: 'слушали' });
     });
 });

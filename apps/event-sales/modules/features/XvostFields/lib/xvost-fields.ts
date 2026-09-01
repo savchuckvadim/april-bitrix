@@ -10,6 +10,10 @@ import { toCrmDate, toDateInputValue } from '@/modules/shared/lib/crm-date';
  * закрыли мимо опросника, договорённость изменилась задним числом). Коды —
  * из реестра pbx-data; по владельческой таблице install (todo2508) весь
  * блок стоит ТОЛЬКО на сделке, поэтому и запись deal-only.
+ *
+ * С переделки 01.09.2026 от блока осталась одна дата: три галочки стали
+ * частью текстового «ЧТО ПРЕДЛОЖИЛИ», а «согласование даты» и «дата похода
+ * к руководителю» из состава ушли.
  */
 
 export const XVOST_DATE_FIELDS = [
@@ -17,34 +21,19 @@ export const XVOST_DATE_FIELDS = [
         code: PBX_SALES_EVENT_FIELD_CODES.op_xvost_decision_call_date,
         label: 'Дата звонка по решению',
     },
-    {
-        code: PBX_SALES_EVENT_FIELD_CODES.op_xvost_decision_date_agreement,
-        label: 'Согласование даты по решению',
-    },
-    {
-        code: PBX_SALES_EVENT_FIELD_CODES.op_manager_approach_date,
-        label: 'Дата похода к руководителю',
-    },
 ] as const;
 
-export const XVOST_FLAG_FIELDS = [
-    {
-        code: PBX_SALES_EVENT_FIELD_CODES.op_xvost_is_offer,
-        label: 'Предложено КП',
-    },
-    {
-        code: PBX_SALES_EVENT_FIELD_CODES.op_xvost_is_complect,
-        label: 'Озвучено наполнение',
-    },
-    {
-        code: PBX_SALES_EVENT_FIELD_CODES.op_xvost_is_price,
-        label: 'Озвучена цена',
-    },
-] as const;
+/*
+ * Галочек в блоке больше нет (переделка 01.09.2026): «КП предложено»,
+ * «наполнение озвучено» и «цена озвучена» растворились в связном тексте
+ * «ЧТО ПРЕДЛОЖИЛИ» — сменился и смысл, и тип поля. Вместе с ними ушло и
+ * понятие флага: пустой список типизировался бы как `never` и ломал бы
+ * потребителей, а мёртвый код здесь никому не нужен. Вернётся флаг —
+ * вернётся и список.
+ */
 
 export type XvostDateCode = (typeof XVOST_DATE_FIELDS)[number]['code'];
-export type XvostFlagCode = (typeof XVOST_FLAG_FIELDS)[number]['code'];
-export type XvostFieldCode = XvostDateCode | XvostFlagCode;
+export type XvostFieldCode = XvostDateCode;
 
 /**
  * `YYYY-MM-DD` для `<input type=date>` из того, что отдал портал —
@@ -63,34 +52,18 @@ export const toXvostPortalValue = (
     code: XvostFieldCode,
     value: string,
 ): string | null => {
-    if (XVOST_FLAG_FIELDS.some(field => field.code === code)) return value;
     if (!value) return '';
     return toCrmDate(value);
 };
 
-/**
- * Boolean-UF читается из CRM как `'1'/'0'`, а опросник пишет `'Y'/'N'` —
- * принимаем оба диалекта (плюс честные boolean/number).
- */
-const TRUTHY_FLAGS = new Set(['1', 'y', 'true']);
-
-export const toFlag = (raw: unknown): boolean =>
-    TRUTHY_FLAGS.has(String(raw ?? '').trim().toLowerCase());
-
-/** В том же диалекте, что персист опросника (`check-presentation.persist`). */
-export const flagToPortalValue = (value: boolean): string =>
-    value ? 'Y' : 'N';
 
 /**
  * Портальное значение ручной правки → значение ответа опросника
- * (id вопроса = код поля): флаги в опроснике живут boolean'ом, даты —
- * той же строкой `YYYY-MM-DD`. Нужен для синхронизации ручной записи в
- * стор опросника, чтобы повторный submit не откатывал правку.
+ * (id вопроса = код поля): даты едут той же строкой `YYYY-MM-DD`. Нужен для
+ * синхронизации ручной записи в стор опросника, чтобы повторный submit не
+ * откатывал правку.
  */
 export const xvostToAnswerValue = (
-    code: XvostFieldCode,
+    _code: XvostFieldCode,
     portalValue: string,
-): string | boolean =>
-    XVOST_FLAG_FIELDS.some(field => field.code === code)
-        ? toFlag(portalValue)
-        : portalValue;
+): string => portalValue;

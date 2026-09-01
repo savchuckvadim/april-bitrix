@@ -254,9 +254,21 @@ export interface FlowCompanyBatch {
     ): void;
 }
 
-/** Накопительные команды контактов (crm.contact.get — план/отчёт-контакты init). */
+/**
+ * Накопительные команды контактов.
+ *
+ * `get` — план/отчёт-контакты на инициализации. `update` появился
+ * 01.09.2026 вместе с зеркалом полей в контакт: возражение и плановая дата
+ * покупки пишутся в собеседника звонка, и прямой путь обязан уметь то же,
+ * что сервер, иначе браузер исполнил бы отчёт «почти целиком».
+ */
 export interface FlowContactBatch {
     get(cmdKey: FlowBatchCmdKey, contactId: number): void;
+    update(
+        cmdKey: FlowBatchCmdKey,
+        contactId: number | string,
+        data: Record<string, unknown>,
+    ): void;
 }
 
 /** Накопительные команды задач (tasks.task.*). */

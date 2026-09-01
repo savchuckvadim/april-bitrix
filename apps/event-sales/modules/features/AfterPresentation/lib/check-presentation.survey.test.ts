@@ -15,14 +15,14 @@ import {
  */
 
 const ANSWERS: Record<string, CheckPresentationValue> = {
-    xo_impression: 'встретили хорошо',
-    xo_readiness_to_approach_manager: ' готов ',
-    op_5k_client_what: 'нормативка',
-    op_5k_concurent: 'сравнивают с консультантом',
+    op_xvost_desire: 'встретили хорошо',
+    op_xvost_decision_way: ' готов ',
+    op_5k_client: 'нормативка',
+    op_5k_competitor: 'сравнивают с консультантом',
     op_presentation_xvost: 'дожать цену',
-    // Не текстовые ответы контракта: их пишет только фрейм-запись.
-    op_xvost_is_offer: true,
-    op_manager_approach_date: '2026-09-10',
+    // Не текстовый ответ контракта: дата живёт своей фичей (XvostFields) и в
+    // блок опросника не входит.
+    op_xvost_decision_call_date: '2026-09-10',
 };
 
 /** Состояние с подтверждённым опросником применимого события. */
@@ -59,18 +59,19 @@ const makeState = (over?: {
 
 describe('buildCheckPresentationSurvey', () => {
     it('ответы уезжают КОДАМИ РЕЕСТРА, разложенные по блокам контракта', () => {
-        // xo_* опросника нет ни в одном реестре полей: перевод в op_talk_*
-        // делается на этой границе, дальше коды опросника не живут.
+        // С 01.09.2026 код вопроса и есть код поля реестра — переводить
+        // нечего, но граница перевода осталась: через неё пойдут коды
+        // портального каталога анкет.
         const survey = buildCheckPresentationSurvey(ANSWERS, 'сводка «5К»');
 
         expect(survey).toEqual({
             talk: {
-                op_talk_impression: 'встретили хорошо',
-                op_talk_boss_readiness: 'готов',
+                op_xvost_desire: 'встретили хорошо',
+                op_xvost_decision_way: 'готов',
             },
             fiveK: {
-                op_5k_client_what: 'нормативка',
-                op_5k_concurent: 'сравнивают с консультантом',
+                op_5k_client: 'нормативка',
+                op_5k_competitor: 'сравнивают с консультантом',
             },
             xvost: 'дожать цену',
             fiveKSummary: 'сводка «5К»',
@@ -82,16 +83,16 @@ describe('buildCheckPresentationSurvey', () => {
         // «не прислали» и «прислали пусто» — разные вещи для бэка.
         const survey = buildCheckPresentationSurvey(
             {
-                xo_impression: '   ',
-                op_5k_client_what: '',
-                op_5k_concurent: 'сравнивают с консультантом',
+                op_xvost_desire: '   ',
+                op_5k_client: '',
+                op_5k_competitor: 'сравнивают с консультантом',
                 op_presentation_xvost: ' ',
             },
             null,
         );
 
         expect(survey).toEqual({
-            fiveK: { op_5k_concurent: 'сравнивают с консультантом' },
+            fiveK: { op_5k_competitor: 'сравнивают с консультантом' },
         });
     });
 
@@ -99,7 +100,7 @@ describe('buildCheckPresentationSurvey', () => {
         expect(buildCheckPresentationSurvey({}, null)).toBeUndefined();
         expect(
             buildCheckPresentationSurvey(
-                { op_xvost_is_offer: true, op_5k_client_what: '' },
+                { op_xvost_decision_call_date: '2026-09-10', op_5k_client: '' },
                 null,
             ),
         ).toBeUndefined();
@@ -111,38 +112,34 @@ describe('selectCheckPresentationSurvey', () => {
         const survey = selectCheckPresentationSurvey(makeState());
 
         expect(survey?.talk).toEqual({
-            op_talk_impression: 'встретили хорошо',
-            op_talk_boss_readiness: 'готов',
+            op_xvost_desire: 'встретили хорошо',
+            op_xvost_decision_way: 'готов',
         });
         expect(survey?.xvost).toBe('дожать цену');
         expect(survey?.fiveKSummary).toBe(
-            'КЛИЕНТ: Что хочет?: нормативка\n' +
-                'КОНКУРЕНТ: По каким критериям нас сравнивают?: ' +
-                'сравнивают с консультантом',
+            'КЛИЕНТ: нормативка\nКОНКУРЕНТ: сравнивают с консультантом',
         );
     });
 
     it('сводка не теряет «К», уже записанные на лид', () => {
-        // Частичное повторное заполнение: ответили на один вопрос из
-        // девяти — сводка обязана сохранить прошлые, иначе она разъедется
-        // с полями op_5k_*.
+        // Частичное повторное заполнение: ответили на один блок из пяти —
+        // сводка обязана сохранить прошлые, иначе она разъедется с полями
+        // op_5k_*.
         const survey = selectCheckPresentationSurvey(
             makeState({
-                committed: { op_5k_concurent: 'сравнивают с консультантом' },
-                lead: { UF_CRM_OP_5K_CLIENT_WHAT: 'нормативка' },
+                committed: { op_5k_competitor: 'сравнивают с консультантом' },
+                lead: { UF_CRM_OP_5K_CLIENT: 'нормативка' },
                 leadFields: [
                     {
-                        code: 'op_5k_client_what',
-                        bitrixId: 'OP_5K_CLIENT_WHAT',
+                        code: 'op_5k_client',
+                        bitrixId: 'OP_5K_CLIENT',
                     },
                 ],
             }),
         );
 
         expect(survey?.fiveKSummary).toBe(
-            'КЛИЕНТ: Что хочет?: нормативка\n' +
-                'КОНКУРЕНТ: По каким критериям нас сравнивают?: ' +
-                'сравнивают с консультантом',
+            'КЛИЕНТ: нормативка\nКОНКУРЕНТ: сравнивают с консультантом',
         );
     });
 

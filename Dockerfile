@@ -41,8 +41,21 @@ RUN pnpm config set fetch-retries 5 && \
     pnpm install --no-frozen-lockfile
 RUN pnpm approve-builds
 
-# Сборка NextJS API и проверка
-RUN pnpm --filter ${APP} run build
+# Сборка NextJS API и проверка.
+#
+# Через turbo, а НЕ через `pnpm --filter ${APP} run build`: у приложений есть
+# workspace-пакеты, которые обязаны собраться ПЕРВЫМИ. Живой пример —
+# @workspace/event-sales-flow: рантайм приложения берёт его исходники
+# (transpilePackages), а типы — сгенерированные декларации из `build/`,
+# которого нет в git. Прямой вызов сборки приложения падал на
+# «Cannot find module '@workspace/event-sales-flow' or its corresponding type
+# declarations», и локально это не всплывало: там `build/` уже лежал с
+# прошлого прогона.
+#
+# turbo знает граф (`dependsOn: ["^build"]` в turbo.json) и собирает
+# зависимости сам — правило работает для любого приложения и любого будущего
+# пакета, а не только для этого случая.
+RUN pnpm exec turbo build --filter=${APP}
 
 
 # ==== PRODUCTION ====

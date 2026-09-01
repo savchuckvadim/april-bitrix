@@ -6,222 +6,6 @@ import {
     FieldWithItems,
 } from '../../pbx-field-type.util';
 export const PBX_SALES_EVENT_FIELDS = [
-    /*
-     * «Пять К» — анкета после презентации: Клиент, Компания, Коллеги,
-     * Конкурент, Критерий выбора. Девять вопросов, все установлены на ЛИДЕ;
-     * сводные op_presentation_xvost / op_presentation_5k — на лиде и сделке.
-     * Список полей — от владельца 14.08.2026 (todo.md).
-     */
-    {
-        name: 'КЛИЕНТ: Что хочет?',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_5k_client_what',
-        lead: 'OP_5K_CLIENT_WHAT',
-        company: '',
-        deal: 'OP_5K_CLIENT_WHAT',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 221,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'КЛИЕНТ: Готов работать?',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_5k_client_ready',
-        lead: 'OP_5K_CLIENT_READY',
-        company: '',
-        deal: 'OP_5K_CLIENT_READY',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 221,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'КЛИЕНТ: Укладываемся в цену?',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_5k_client_price',
-        lead: 'OP_5K_CLIENT_PRICE',
-        company: '',
-        deal: 'OP_5K_CLIENT_PRICE',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 221,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'КОМПАНИЯ: Кто принимает решение?',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_5k_company_who',
-        lead: 'OP_5K_COMPANY_WHO',
-        company: '',
-        deal: 'OP_5K_COMPANY_WHO',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 221,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'КОМПАНИЯ: Как принимается решение?',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_5k_company_how',
-        lead: 'OP_5K_COMPANY_HOW',
-        company: '',
-        deal: 'OP_5K_COMPANY_HOW',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 221,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'КОМПАНИЯ: Правильно ли подобрали цену и комплект?',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_5k_company_right',
-        lead: 'OP_5K_COMPANY_RIGHT',
-        company: '',
-        deal: 'OP_5K_COMPANY_RIGHT',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 221,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'КОЛЛЕГИ: Кто будет работать с системой, будут ли обсуждать?',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_5k_command',
-        lead: 'OP_5K_COMMAND',
-        company: '',
-        deal: 'OP_5K_COMMAND',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 221,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'КОНКУРЕНТ: По каким критериям нас сравнивают?',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_5k_concurent',
-        lead: 'OP_5K_CONCURENT',
-        company: '',
-        deal: 'OP_5K_CONCURENT',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 221,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'КРИТЕРИЙ ВЫБОРА: Что важно при выборе СПС?',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_5k_criteri',
-        lead: 'OP_5K_CRITERI',
-        company: '',
-        deal: 'OP_5K_CRITERI',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 221,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        /*
-         * Признак «заявка назначена и ждёт подтверждения»: время назначения.
-         * Пустое — заявка принята или в подтверждении не нуждается. На это
-         * поле завязаны и экран подтверждения во фрейме, и SLA-крон на бэке —
-         * поэтому признак ОДИН, а не «стадия плюс история».
-         */
-        name: 'ОП Время назначения заявки',
-        appType: 'lead',
-        type: 'datetime',
-        items: [],
-        code: 'op_lead_assigned_at',
-        lead: 'OP_LEAD_ASSIGNED_AT',
-        company: '',
-        deal: 'OP_LEAD_ASSIGNED_AT',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 703,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'ОП Хвост презентации',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_presentation_xvost',
-        lead: 'OP_PRESENTATION_XVOST',
-        company: 'OP_PRESENTATION_XVOST',
-        deal: 'OP_PRESENTATION_XVOST',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 220,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'ОП Пять К презентации',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_presentation_5k',
-        lead: 'OP_PRESENTATION_5K',
-        company: 'OP_PRESENTATION_5K',
-        deal: 'OP_PRESENTATION_5K',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 220,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
     {
         name: 'ОП Название ХО',
         appType: 'xo',
@@ -407,6 +191,152 @@ export const PBX_SALES_EVENT_FIELDS = [
         order: 220,
         is_rewrite: '',
         isNeedUpdate: true,
+        isMultiple: true,
+    },
+    /*
+     * Ответы опросника после презентации (`withCheckPresentation`). Поля
+     * заведены на порталах и заполняются ФРЕЙМОМ напрямую в карточке
+     * клиента; в реестре они нужны, чтобы бэк умел их читать/писать
+     * типизированно (`PBX_SALES_EVENT_FIELD_CODES.op_presentation_xvost`) и
+     * чтобы инсталлятор доводил их на новых порталах.
+     *
+     * `company` пуст намеренно: анкета относится к конкретной презентации,
+     * а презентация живёт в лиде и сделке — на компании такое поле хранило
+     * бы «последний ответ по любой из сделок» и вводило в заблуждение.
+     */
+    {
+        name: 'ОП Хвост (после презентации)',
+        appType: 'pres',
+        type: 'string',
+        items: [],
+        code: 'op_presentation_xvost',
+        lead: 'OP_PRESENTATION_XVOST',
+        company: '',
+        deal: 'OP_PRESENTATION_XVOST',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 220,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
+        name: 'ОП Пять К (после презентации)',
+        appType: 'pres',
+        type: 'string',
+        items: [],
+        code: 'op_presentation_5k',
+        lead: 'OP_PRESENTATION_5K',
+        company: '',
+        deal: 'OP_PRESENTATION_5K',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 220,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    /*
+     * «Пять К» — ПЯТЬ текстовых полей (переделка 01.09.2026).
+     *
+     * Было девять полей по одному вопросу в каждом; стало пять по теме, а
+     * подвопросы живут ВНУТРИ значения текстом (шаблон собирает
+     * SURVEY_TEMPLATES в shared/presentation-survey) и в подсказке поля.
+     *
+     * Коды НОВЫЕ целиком, включая те две темы, что и раньше жили одним
+     * полем (конкурент, критерии): решение владельца — «поля новые, запись
+     * новая». Переиспользуй мы старый код, ответы на СТАРЫЙ вопрос
+     * смешались бы с ответами на новый в одном поле, и разделить их было бы
+     * уже нечем.
+     *
+     * Установлены на лиде и сделке; сводные op_presentation_5k /
+     * op_presentation_xvost выше не тронуты.
+     */
+    {
+        name: "5К КЛИЕНТ",
+        appType: 'pres',
+        type: 'string',
+        items: [],
+        code: 'op_5k_client',
+        lead: 'OP_5K_CLIENT',
+        company: '',
+        deal: 'OP_5K_CLIENT',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 220,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
+        name: "5К КОМПАНИЯ",
+        appType: 'pres',
+        type: 'string',
+        items: [],
+        code: 'op_5k_company',
+        lead: 'OP_5K_COMPANY',
+        company: '',
+        deal: 'OP_5K_COMPANY',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 220,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
+        name: "5К КОЛЛЕГИ",
+        appType: 'pres',
+        type: 'string',
+        items: [],
+        code: 'op_5k_colleagues',
+        lead: 'OP_5K_COLLEAGUES',
+        company: '',
+        deal: 'OP_5K_COLLEAGUES',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 220,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
+        name: "5К КОНКУРЕНТ",
+        appType: 'pres',
+        type: 'string',
+        items: [],
+        code: 'op_5k_competitor',
+        lead: 'OP_5K_COMPETITOR',
+        company: '',
+        deal: 'OP_5K_COMPETITOR',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 220,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
+        name: "5К КРИТЕРИИ ВЫБОРА",
+        appType: 'pres',
+        type: 'string',
+        items: [],
+        code: 'op_5k_criteria',
+        lead: 'OP_5K_CRITERIA',
+        company: '',
+        deal: 'OP_5K_CRITERIA',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 220,
+        is_rewrite: '',
+        isNeedUpdate: true,
         isMultiple: false,
     },
     {
@@ -577,7 +507,7 @@ export const PBX_SALES_EVENT_FIELDS = [
         order: 220,
         is_rewrite: '',
         isNeedUpdate: true,
-        isMultiple: false,
+        isMultiple: true,
     },
     {
         name: 'ОП Статус Работы',
@@ -694,7 +624,7 @@ export const PBX_SALES_EVENT_FIELDS = [
         order: 230,
         is_rewrite: '',
         isNeedUpdate: true,
-        isMultiple: false,
+        isMultiple: true,
     },
     {
         name: 'ОП Причины нерезультативности',
@@ -980,7 +910,7 @@ export const PBX_SALES_EVENT_FIELDS = [
         order: 230,
         is_rewrite: '',
         isNeedUpdate: true,
-        isMultiple: false,
+        isMultiple: true,
     },
     {
         name: 'Сумма предложения',
@@ -1462,9 +1392,25 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     {
-        // Пара к «Конкуренты оплачено до»/«договор до»: когда клиент сам
-        // называет срок, в который планирует покупать. Код и сущности — по
-        // владельческой таблице install (todo2508): бывший op_possible_buy_date.
+        name: 'Конкуренты оплачено до',
+        appType: 'calling',
+        type: 'date',
+        items: [],
+        code: 'op_concurent_pay_date',
+        lead: 'OP_CONCURENT_PAY_DATE',
+        company: 'OP_CONCURENT_PAY_DATE',
+        deal: 'OP_CONCURENT_PAY_DATE',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 703,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    {
+        // Плановая дата покупки — по владельческой таблице install
+        // (front todo2508, строка 418): фильтровое поле компании и сделки.
         name: 'ОП Плановая дата покупки',
         appType: 'calling',
         type: 'date',
@@ -1484,8 +1430,7 @@ export const PBX_SALES_EVENT_FIELDS = [
     {
         // Чек-лист перехода «Клиент на решении» (2408): дата звонка по
         // решению «выдернута из Хвоста» в отдельное фича-поле — по нему
-        // строятся фильтры. Заполняется уже на презентации, сам звонок
-        // планируется позже. Коды и сущности xvost-блока — по владельческой
+        // строятся фильтры. Коды и сущности xvost-блока — по владельческой
         // таблице install (todo2508): префикс op_xvost_*, ТОЛЬКО сделка.
         name: 'ОП Дата звонка по решению',
         appType: 'calling',
@@ -1503,99 +1448,15 @@ export const PBX_SALES_EVENT_FIELDS = [
         isNeedUpdate: true,
         isMultiple: false,
     },
-    {
-        // Вопрос «выдернут из Хвоста» в фича-поле: код вопроса опросника
-        // совпадает с кодом поля — персист CheckPresentation резолвит его
-        // сам (findUfKey).
-        name: 'ОП Согласование даты по решению',
-        appType: 'pres',
-        type: 'date',
-        items: [],
-        code: 'op_xvost_decision_date_agreement',
-        lead: '',
-        company: '',
-        deal: 'OP_XVOST_DECISION_DATE_AGREEMENT',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 705,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        // Вопрос «выдернут из Хвоста» — см. выше. Код БЕЗ префикса xvost —
-        // так поле установлено владельцем (таблица todo2508, строка 416).
-        name: 'ОП Дата похода к руководителю',
-        appType: 'pres',
-        type: 'date',
-        items: [],
-        code: 'op_manager_approach_date',
-        lead: '',
-        company: '',
-        deal: 'OP_MANAGER_APPROACH_DATE',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 706,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        // Булевы вопросы «Разговора» опросника хвоста — теперь настоящие
-        // pbx-поля сделки (владельческая таблица todo2508): код вопроса =
-        // код поля, персист CheckPresentation резолвит их сам.
-        name: 'Предложено КП ?',
-        appType: 'pres',
-        type: 'boolean',
-        items: [],
-        code: 'op_xvost_is_offer',
-        lead: '',
-        company: '',
-        deal: 'OP_XVOST_IS_OFFER',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 707,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'Озвучить наполнение ?',
-        appType: 'pres',
-        type: 'boolean',
-        items: [],
-        code: 'op_xvost_is_complect',
-        lead: '',
-        company: '',
-        deal: 'OP_XVOST_IS_COMPLECT',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 708,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'Озвучить цену ?',
-        appType: 'pres',
-        type: 'boolean',
-        items: [],
-        code: 'op_xvost_is_price',
-        lead: '',
-        company: '',
-        deal: 'OP_XVOST_IS_PRICE',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 709,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
+    /*
+     * ЗДЕСЬ БЫЛИ пять полей «Хвоста», ушедших из состава 01.09.2026:
+     * согласование даты по решению, дата похода к руководителю и три
+     * галочки (КП предложено / наполнение озвучено / цена озвучена).
+     *
+     * Галочки растворились в связном тексте «ЧТО ПРЕДЛОЖИЛИ»
+     * (op_xvost_offered ниже) — сменился и смысл, и ТИП поля. Из дат
+     * осталась одна: op_xvost_decision_call_date выше.
+     */
     {
         // Связи «Звонки По решению» — элементы будущего ЗПР-смарта
         // (концепция front/docs/zpr-smart-concept.md). Пока только реестр.
@@ -1617,10 +1478,10 @@ export const PBX_SALES_EVENT_FIELDS = [
     },
     {
         // Связи «Презентации» — элементы смарта pres_sales (зеркало сделок
-        // «ОП Презентации»). Обратная ссылка на элемент:
-        // `T{hex(entityTypeId)}_{id}` — её дописывает бэковая сайд-очередь
-        // presentation-flow. Пара к op_zprs: тот же контур, но про
-        // презентации. Реестры фронта и бэка симметричны.
+        // «ОП Презентации», libs/portal-lib/pbx/pbx-presentation-smart).
+        // Обратная ссылка на элемент: `T{hex(entityTypeId)}_{id}` —
+        // presentation-flow дописывает её в сделку и компанию. Пара к
+        // op_zprs: тот же контур, только про презентации.
         name: 'Презентации',
         appType: 'pres',
         type: 'crm',
@@ -1639,7 +1500,7 @@ export const PBX_SALES_EVENT_FIELDS = [
     },
     {
         // Дата следующего звонка после ОТКАЗА (withPostFail-порталы):
-        // перебивает интервал реанимации отказников (бэк reject-revive).
+        // перебивает интервал реанимации отказников (sales-hooks/reject-revive).
         name: 'ОП Дата звонка после отказа',
         appType: 'fail',
         type: 'date',
@@ -1657,9 +1518,9 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     {
-        // Маркеры реанимации отказников — пишет и читает ТОЛЬКО бэк
-        // (двухфазная подстраховка cold-call хука); фронту — для полноты
-        // зеркала реестра.
+        // Маркеры реанимации отказников (двухфазная подстраховка):
+        // queued_at ставится ДО отправки cold-call хука — упавший хук
+        // оставляет сделку «недоехавшей», и чек-крон досылает её.
         name: 'ОП Реанимация: взято в очередь',
         appType: 'fail',
         type: 'datetime',
@@ -1677,6 +1538,7 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     {
+        // Пара к queued_at: cold-call хук принят буфером — повторно не шлём.
         name: 'ОП Реанимация: хук отправлен',
         appType: 'fail',
         type: 'datetime',
@@ -1694,11 +1556,11 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     {
-        // Счётчик переносов события (todo2508-02 №6) — пишет ТОЛЬКО бэк
-        // (event-report, ветка переноса): ХО-сделка при холодном контексте,
-        // основная — при остальных типах. Фронту — для полноты зеркала
-        // реестра; смарты Презентаций/ЗПР считаются отдельно, поэтому поле
-        // ТОЛЬКО сделочное.
+        // Счётчик переносов события (todo2508-02 №6): сколько раз менеджер
+        // переносил текущий шаг («Не очень» → новая дата). Инкрементирует
+        // event-report в ветке переноса: ХО-сделка при холодном контексте,
+        // основная — при остальных типах (DealMoveCountService). Смарты
+        // Презентаций/ЗПР считаются отдельно, поэтому поле ТОЛЬКО сделочное.
         name: 'ОП Количество переносов',
         appType: 'calling',
         type: 'integer',
@@ -1715,28 +1577,10 @@ export const PBX_SALES_EVENT_FIELDS = [
         isNeedUpdate: true,
         isMultiple: false,
     },
-    {
-        name: 'Конкуренты оплачено до',
-        appType: 'calling',
-        type: 'date',
-        items: [],
-        code: 'op_concurent_pay_date',
-        lead: 'OP_CONCURENT_PAY_DATE',
-        company: 'OP_CONCURENT_PAY_DATE',
-        deal: 'OP_CONCURENT_PAY_DATE',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 703,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    /*
-     * Синхронизировано с бэк-реестром 2026-08-08 (долг §7.1: реестр жил в
-     * трёх копиях и разошёлся). Поля лидов/заявок и связей сделка-лид нужны
-     * фиче пометок лидов при продаже.
-     */
+
+    // === Граф связей «лид ↔ сделка» + пакет op_lead_* (2026-08, b2b-flow) ===
+    // Зеркало листа calling_fields (строки 73-89 + to_sale_deal):
+    // связи сделки с лидами живут в НАШИХ полях, штатная конвертация — сигнал.
     {
         name: 'Лид из которого была создана сделка',
         appType: 'lead',
@@ -1880,6 +1724,41 @@ export const PBX_SALES_EVENT_FIELDS = [
         isNeedUpdate: true,
         isMultiple: false,
     },
+    /*
+     * Вид работы по лиду — НАШ признак, которым управляем только мы.
+     *
+     * Пишется хуком «лид → работа» в момент передачи лида в работу (рядом с
+     * `op_lead_assigned_at`) и дальше служит источником истины: от него
+     * зависит слово в заголовке задачи («Заявка»/«Лид»), а значит и тип
+     * события во фрейме, и код события в KPI.
+     *
+     * Почему своё поле, а не штатный `SOURCE_ID`: источник — чужое поле,
+     * его правят руками и настраивают на каждом портале по-своему, поэтому
+     * держать на нём вид работы нельзя. Наше поле переживает и ручные
+     * правки источника, и разницу настроек порталов.
+     */
+    {
+        name: 'ОП Вид работы по лиду',
+        appType: 'lead',
+        type: 'enumeration',
+        items: [
+            { code: 'op_lead_work_kind1', name: 'Холодный' },
+            { code: 'op_lead_work_kind2', name: 'Заявка' },
+            { code: 'op_lead_work_kind3', name: 'Лид' },
+        ],
+        code: 'op_lead_work_kind',
+        lead: 'OP_LEAD_WORK_KIND',
+        company: '',
+        deal: '',
+        smart: '',
+        task: '',
+        app: 'calling',
+        // Зеркало факта установки на портале (garantservisvoronezh, SORT 702).
+        order: 702,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
     {
         name: 'Стадия Связанной сделки',
         appType: 'lead',
@@ -1982,6 +1861,43 @@ export const PBX_SALES_EVENT_FIELDS = [
         isNeedUpdate: true,
         isMultiple: false,
     },
+    /*
+     * Момент НАЗНАЧЕНИЯ заявки менеджеру — старт отсчёта SLA принятия.
+     * Пишется хуком при каждом назначении и передаче (таймер стартует
+     * заново), очищается принятием. Нужен как надёжная опора вместо
+     * DATE_MODIFY: тот сбивается любой правкой карточки, а стадию лида
+     * может двинуть кто угодно (конструктор, робот, руками).
+     *
+     * ⚠ На порталах поле заведено И НА СДЕЛКЕ, поэтому маппинг здесь есть —
+     * реестр обязан отражать реальность. Но бэк пишет и читает ТОЛЬКО
+     * лидовую копию: «ждёт подтверждения» обязан иметь ОДИН источник, иначе
+     * фрейм и SLA-крон разъедутся. Все потребители лид-скоупные:
+     * `LeadRequestService.isAccepted`, `LeadRequestSlaService`,
+     * `LeadRequestAcceptService`, `LeadIntakeRescueService`,
+     * `LeadXoEventEntityModel`.
+     * Копия на сделке (решение владельца, todo2508): таймер работы по сделке.
+     * Ставит deal-work-timer.util (передача работы + создание сделки из лида
+     * хуком lead-to-work), снимает принятие (LeadRequestAcceptService),
+     * страхует SLA-проход по сделкам.
+     */
+    {
+        name: 'Заявка назначена (дата)',
+        appType: 'lead',
+        type: 'datetime',
+        items: [],
+        code: 'op_lead_assigned_at',
+        lead: 'OP_LEAD_ASSIGNED_AT',
+        company: '',
+        deal: 'OP_LEAD_ASSIGNED_AT',
+        smart: '',
+        task: '',
+        app: 'calling',
+        // Зеркало факта установки на портале (SORT 701).
+        order: 701,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
     {
         name: 'История Обработки заяки',
         appType: 'lead',
@@ -1997,7 +1913,7 @@ export const PBX_SALES_EVENT_FIELDS = [
         order: 660,
         is_rewrite: '',
         isNeedUpdate: true,
-        isMultiple: false,
+        isMultiple: true,
     },
     {
         name: 'Установлена комания',
@@ -2102,6 +2018,82 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     /*
+     * ОФИЦИАЛЬНЫЙ статус заявки в ТПС Гаранта (docs/newfields.md, «Правила
+     * оценки заявок»). Это ВНЕШНИЙ словарь — коды семантические, завязаны
+     * на документ (не op_..._1..N): партнёр обязан проставить статус в ТПС
+     * за 4 рабочих дня, иначе заявка ротируется другому партнёру.
+     */
+    {
+        name: 'Статус заявки ТПС (Гарант)',
+        appType: 'lead',
+        type: 'enumeration',
+        items: [
+            { code: 'tps_alien_client', name: 'Чужой клиент' },
+            { code: 'tps_alien_territory', name: 'Чужая территория' },
+            { code: 'tps_served_client', name: 'Обслуживаемый клиент' },
+            { code: 'tps_sale', name: 'Продажа' },
+            { code: 'tps_refuse', name: 'Отказ' },
+            { code: 'tps_no_answer', name: 'Телефон не отвечает' },
+            { code: 'tps_in_work', name: 'В работе' },
+            { code: 'tps_reserve', name: 'Бронь' },
+        ],
+        code: 'op_lead_tps_status',
+        lead: 'OP_LEAD_TPS_STATUS',
+        company: '',
+        deal: '',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 662,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    // Анкета оценки ТПС, вопрос 1: потребность в СПС в целом.
+    {
+        name: 'ТПС анкета: потребность в СПС',
+        appType: 'lead',
+        type: 'enumeration',
+        items: [
+            { code: 'tps_quest_yes', name: 'Да' },
+            { code: 'tps_quest_no', name: 'Нет' },
+            { code: 'tps_quest_no_info', name: 'Нет информации' },
+        ],
+        code: 'op_lead_tps_quest_need',
+        lead: 'OP_LEAD_TPS_QUEST_NEED',
+        company: '',
+        deal: '',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 663,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    // Анкета оценки ТПС, вопрос 2: заявка оформлена корректно.
+    {
+        name: 'ТПС анкета: заявка оформлена корректно',
+        appType: 'lead',
+        type: 'enumeration',
+        items: [
+            { code: 'tps_quest2_yes', name: 'Да' },
+            { code: 'tps_quest2_no', name: 'Нет' },
+            { code: 'tps_quest2_no_info', name: 'Нет информации' },
+        ],
+        code: 'op_lead_tps_quest_valid',
+        lead: 'OP_LEAD_TPS_QUEST_VALID',
+        company: '',
+        deal: '',
+        smart: '',
+        task: '',
+        app: 'calling',
+        order: 664,
+        is_rewrite: '',
+        isNeedUpdate: true,
+        isMultiple: false,
+    },
+    /*
      * ВОЗРАЖЕНИЕ клиента — своя пара полей, отдельно от причины отказа.
      *
      * Раньше чек-лист «Доработка» писал возражение в `op_efield_fail_reason`,
@@ -2145,7 +2137,18 @@ export const PBX_SALES_EVENT_FIELDS = [
         order: 720,
         is_rewrite: '',
         isNeedUpdate: true,
-        isMultiple: false,
+        // МНОЖЕСТВЕННОЕ (решение 01.09.2026). На звонке возражений обычно
+        // несколько — «дорого» и «нет времени» разом, — и одиночное поле
+        // заставляло менеджера выбрать одно, потеряв остальные.
+        //
+        // Запись — ЗАМЕНОЙ всего набора за звонок, не добавлением: поле
+        // отвечает на «что мешает СЕЙЧАС», а накопление за полгода
+        // превратило бы его в свалку, где текущего возражения не видно.
+        // История «что мешало раньше» и так лежит в оси событий клиента.
+        //
+        // Парное op_objection_comment остаётся ОДИНОЧНЫМ: это дословная
+        // фраза клиента, она одна.
+        isMultiple: true,
     },
     {
         // Формулировка клиента СВОИМИ СЛОВАМИ: справочник огрубляет
@@ -2216,26 +2219,33 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     /*
-     * Вопросы опросника «Разговор» (обязательные шесть) — в свои поля.
+     * «Хвост» — ПЯТЬ текстовых полей плюс дата (переделка 01.09.2026).
      *
-     * До этого ответы жили ТОЛЬКО в тексте комментария к презентации:
-     * прочитать их мог человек, а отфильтровать «кому цена дорога» — никто.
-     * Префикс op_talk_* намеренный: xo_* занят холодным обзвоном, и эти
-     * ответы к нему отношения не имеют.
+     * Что заменено: шесть полей op_talk_* (по одному вопросу в каждом), три
+     * галочки op_xvost_is_* и две даты. Галочки стали частью связного
+     * текста «ЧТО ПРЕДЛОЖИЛИ», то есть сменился и смысл, и ТИП — переносить
+     * старые значения некуда и незачем.
      *
-     * Сущности lead+company+deal: анкету пишет ФРЕЙМ в лид, а event-report
-     * разносит «последнюю проведённую» по сделкам тем же каркасом, что и
-     * «5К» (PRESENTATION_SURVEY_FIELD_CODES).
+     * Датой осталась одна — op_xvost_decision_call_date (выше): «дата звонка
+     * по решению». «Дата подхода к руководителю» и «согласование даты» из
+     * состава ушли.
+     *
+     * Сущности lead+deal, БЕЗ компании — намеренно. У op_talk_* компания
+     * была, но не писал в неё никто: шесть вечно пустых полей в карточке.
+     * Повторять это в новом составе нет причины.
+     *
+     * Подвопросы живут ВНУТРИ значения текстом (шаблон — SURVEY_TEMPLATES
+     * в shared/presentation-survey) и в подсказке поля.
      */
     {
-        name: 'РАЗГОВОР: Первое впечатление',
+        name: "ХВОСТ ЖЕЛАНИЕ РАБОТАТЬ С ГАРАНТОМ",
         appType: 'pres',
         type: 'string',
         items: [],
-        code: 'op_talk_impression',
-        lead: 'OP_TALK_IMPRESSION',
-        company: 'OP_TALK_IMPRESSION',
-        deal: 'OP_TALK_IMPRESSION',
+        code: 'op_xvost_desire',
+        lead: 'OP_XVOST_DESIRE',
+        company: '',
+        deal: 'OP_XVOST_DESIRE',
         smart: '',
         task: '',
         app: 'calling',
@@ -2245,14 +2255,14 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     {
-        name: 'РАЗГОВОР: Что запомнили',
+        name: "ХВОСТ ЧТО ПРЕДЛОЖИЛИ",
         appType: 'pres',
         type: 'string',
         items: [],
-        code: 'op_talk_remembered',
-        lead: 'OP_TALK_REMEMBERED',
-        company: 'OP_TALK_REMEMBERED',
-        deal: 'OP_TALK_REMEMBERED',
+        code: 'op_xvost_offered',
+        lead: 'OP_XVOST_OFFERED',
+        company: '',
+        deal: 'OP_XVOST_OFFERED',
         smart: '',
         task: '',
         app: 'calling',
@@ -2262,14 +2272,14 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     {
-        name: 'РАЗГОВОР: Желание работать',
+        name: "ХВОСТ РЕАКЦИЯ НА ЦЕНУ",
         appType: 'pres',
         type: 'string',
         items: [],
-        code: 'op_talk_desire',
-        lead: 'OP_TALK_DESIRE',
-        company: 'OP_TALK_DESIRE',
-        deal: 'OP_TALK_DESIRE',
+        code: 'op_xvost_price_reaction',
+        lead: 'OP_XVOST_PRICE_REACTION',
+        company: '',
+        deal: 'OP_XVOST_PRICE_REACTION',
         smart: '',
         task: '',
         app: 'calling',
@@ -2279,14 +2289,14 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     {
-        name: 'РАЗГОВОР: Как принимается решение',
+        name: "ХВОСТ ПРОЦЕСС ПРИНЯТИЯ РЕШЕНИЯ",
         appType: 'pres',
         type: 'string',
         items: [],
-        code: 'op_talk_decision_process',
-        lead: 'OP_TALK_DECISION_PROCESS',
-        company: 'OP_TALK_DECISION_PROCESS',
-        deal: 'OP_TALK_DECISION_PROCESS',
+        code: 'op_xvost_decision_process',
+        lead: 'OP_XVOST_DECISION_PROCESS',
+        company: '',
+        deal: 'OP_XVOST_DECISION_PROCESS',
         smart: '',
         task: '',
         app: 'calling',
@@ -2296,35 +2306,18 @@ export const PBX_SALES_EVENT_FIELDS = [
         isMultiple: false,
     },
     {
-        name: 'РАЗГОВОР: Мнение о цене',
+        name: "ХВОСТ ВЫХОД НА РЕШЕНИЕ",
         appType: 'pres',
         type: 'string',
         items: [],
-        code: 'op_talk_price_opinion',
-        lead: 'OP_TALK_PRICE_OPINION',
-        company: 'OP_TALK_PRICE_OPINION',
-        deal: 'OP_TALK_PRICE_OPINION',
+        code: 'op_xvost_decision_way',
+        lead: 'OP_XVOST_DECISION_WAY',
+        company: '',
+        deal: 'OP_XVOST_DECISION_WAY',
         smart: '',
         task: '',
         app: 'calling',
         order: 728,
-        is_rewrite: '',
-        isNeedUpdate: true,
-        isMultiple: false,
-    },
-    {
-        name: 'РАЗГОВОР: Готовность подойти к руководителю',
-        appType: 'pres',
-        type: 'string',
-        items: [],
-        code: 'op_talk_boss_readiness',
-        lead: 'OP_TALK_BOSS_READINESS',
-        company: 'OP_TALK_BOSS_READINESS',
-        deal: 'OP_TALK_BOSS_READINESS',
-        smart: '',
-        task: '',
-        app: 'calling',
-        order: 729,
         is_rewrite: '',
         isNeedUpdate: true,
         isMultiple: false,

@@ -41,7 +41,7 @@ import { EEventReportEntityType } from '../../../services/init/event-report-init
 import { normalizePresentationSurvey } from '../../../shared/presentation-survey';
 
 const XVOST = 'UF_CRM_OP_PRESENTATION_XVOST';
-const CLIENT_WHAT = 'UF_CRM_OP_5K_CLIENT_WHAT';
+const CLIENT_BLOCK = 'UF_CRM_OP_5K_CLIENT';
 
 /**
  * Ответ менеджера со всеми четырьмя опасными символами: `&` режет
@@ -60,7 +60,7 @@ const makePortal = () => ({
             code === 'op_presentation_xvost' ||
             code === 'op_presentation_5k' ||
             code.startsWith('op_5k_') ||
-            code.startsWith('op_talk_');
+            code.startsWith('op_xvost_');
         if (!isSurvey || entity !== 'lead') return undefined;
         return { bitrixId: code.toUpperCase(), items: [] };
     },
@@ -74,7 +74,7 @@ const makeCtx = () => ({
     isPresentationDone: true,
     presentationSurvey: normalizePresentationSurvey({
         xvost: XVOST_ANSWER,
-        fiveK: { op_5k_client_what: CLIENT_ANSWER },
+        fiveK: { op_5k_client: CLIENT_ANSWER },
     }),
 });
 
@@ -190,7 +190,7 @@ describe('Прямой путь пишет в поле то же, что и се
 
         // Ровно то, что набрал менеджер: ни одного нашего escape'а.
         expect(params[XVOST]).toBe(XVOST_ANSWER);
-        expect(params[CLIENT_WHAT]).toBe(CLIENT_ANSWER);
+        expect(params[CLIENT_BLOCK]).toBe(CLIENT_ANSWER);
     });
 
     it('вне фрейма (бэк-прокси клеит строку сам) экранирование остаётся', () => {
@@ -214,7 +214,7 @@ describe('Прямой путь пишет в поле то же, что и се
         const standalone = bitrixParse(backWire(handedToWire(false)));
 
         expect(onServer[XVOST]).toBe(XVOST_ANSWER);
-        expect(onServer[CLIENT_WHAT]).toBe(CLIENT_ANSWER);
+        expect(onServer[CLIENT_BLOCK]).toBe(CLIENT_ANSWER);
         expect(inFrame).toEqual(onServer);
         expect(standalone).toEqual(onServer);
     });

@@ -1,3 +1,9 @@
+import {
+    FIVE_K_TEMPLATES,
+    isSurveyTemplateOnly,
+    surveyTemplateByCode,
+} from '@workspace/event-sales-flow';
+
 import { toCrmDate } from '@/modules/shared/lib/crm-date';
 import {
     CheckPresentationFieldType,
@@ -19,6 +25,7 @@ import {
 export const toPortalValue = (
     value: CheckPresentationValue,
     type?: CheckPresentationFieldType,
+    code?: string,
 ): string | null => {
     if (typeof value === 'boolean') return value ? 'Y' : 'N';
     if (Array.isArray(value)) {
@@ -28,6 +35,13 @@ export const toPortalValue = (
     }
     const text = String(value ?? '').trim();
     if (!text) return null;
+    // Нетронутый шаблон — это НЕ ответ.
+    //
+    // С 01.09.2026 поле открывается с вопросами внутри и пустым не бывает
+    // никогда. Не отсеки мы шаблон здесь — сработало бы ровно то, от чего
+    // защищает проверка на пустоту: значение поехало бы в портал и затёрло
+    // бы настоящий ответ, положенный кем-то другим.
+    if (code && isUntouchedSurveyTemplate(code, text)) return null;
     // Неразбираемую дату не пишем сырой строкой: пусть поле останется как
     // было, чем ляжет мусор, который потом никто не прочитает.
     if (type === CheckPresentationFieldType.DATE) return toCrmDate(text);
@@ -60,7 +74,7 @@ export const buildPortalFieldPayload = ({
     for (const [code, value] of Object.entries(answers)) {
         const key = resolveKey(code);
         if (!key) continue;
-        const portalValue = toPortalValue(value, typeByCode?.[code]);
+        const portalValue = toPortalValue(value, typeByCode?.[code], code);
         if (portalValue === null) continue;
         payload[key] = portalValue;
     }
@@ -84,53 +98,31 @@ export const hasWritablePortalAnswers = (
     typeByCode?: Record<string, CheckPresentationFieldType>,
 ): boolean =>
     Object.entries(answers).some(
-        ([code, value]) => toPortalValue(value, typeByCode?.[code]) !== null,
+        ([code, value]) =>
+            toPortalValue(value, typeByCode?.[code], code) !== null,
     );
 
 /**
- * Коды шести вопросов «Разговора» в опроснике (xo_*) → коды полей реестра
- * pbx (op_talk_*). Вопросы исторически заведены под кодами опросника,
- * которых нет ни в одном реестре полей: фрейм-запись резолвила их в никуда,
- * ручка /presentation-survey их не принимала — ответы жили только строкой
- * в комментарии, и снимку смарта (PRES_TALK_*) было нечего читать
- * (todo3108 №1). Переводим на границе: данные опросника не трогаем.
- */
-const XO_TO_TALK_FIELD: Record<string, string> = {
-    xo_impression: 'op_talk_impression',
-    xo_remembered: 'op_talk_remembered',
-    xo_desire_to_work: 'op_talk_desire',
-    xo_decision_process: 'op_talk_decision_process',
-    xo_price_opinion: 'op_talk_price_opinion',
-    xo_readiness_to_approach_manager: 'op_talk_boss_readiness',
-};
-
-/**
- * Ответы опросника с кодами ПОЛЕЙ: xo_* переименованы в op_talk_*,
- * остальные ключи как были. Дальше этой функции коды опросника не живут —
- * и фрейм-запись, и серверная ручка видят только реестровые коды.
+ * Ответы опросника с кодами ПОЛЕЙ.
+ *
+ * Перевод стал ТОЖДЕСТВЕННЫМ: с переделки 01.09.2026 код вопроса и есть код
+ * поля реестра. Раньше здесь жила таблица xo_* → op_talk_*, потому что
+ * вопросы были заведены под кодами опросника, которых нет ни в одном
+ * реестре: фрейм-запись резолвила их в никуда, ручка их не принимала, и
+ * ответы оставались только строкой в комментарии (todo3108 №1).
+ *
+ * Функция оставлена намеренно, а не выпилена: это единственная граница, где
+ * коды опросника превращаются в коды полей, и когда портальный каталог
+ * анкет начнёт присылать свои коды, переводить их будет здесь.
  */
 export const translateSurveyCodes = <T>(
     answers: Record<string, T>,
-): Record<string, T> =>
-    Object.fromEntries(
-        Object.entries(answers).map(([code, value]) => [
-            XO_TO_TALK_FIELD[code] ?? code,
-            value,
-        ]),
-    );
+): Record<string, T> => ({ ...answers });
 
-/** Порядок и подписи сводки — те же «К», что в анкете. */
-const FIVE_K_SUMMARY_CODES = [
-    'op_5k_client_what',
-    'op_5k_client_ready',
-    'op_5k_client_price',
-    'op_5k_company_who',
-    'op_5k_company_how',
-    'op_5k_company_right',
-    'op_5k_command',
-    'op_5k_concurent',
-    'op_5k_criteri',
-] as const;
+/** Порядок и подписи сводки — те же пять «К», что в анкете. */
+const FIVE_K_SUMMARY_CODES = FIVE_K_TEMPLATES.map(
+    template => template.code,
+);
 
 /**
  * Сводное «Пять К» из ответов анкеты: `ЗАГОЛОВОК: ответ` построчно.
@@ -154,4 +146,16 @@ export const buildFiveKSummary = (
     }
 
     return lines.length ? lines.join('\n') : null;
+};
+
+/**
+ * Поле открыли, но не тронули: внутри только вопросы шаблона.
+ *
+ * Тот же предикат, что и на бэке (`presentation-survey.templates`), и текст
+ * вопросов у обоих один — иначе фронт считал бы поле пустым, а бэк
+ * заполненным, или наоборот.
+ */
+const isUntouchedSurveyTemplate = (code: string, text: string): boolean => {
+    const template = surveyTemplateByCode(code);
+    return template !== null && isSurveyTemplateOnly(text, template);
 };

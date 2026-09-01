@@ -37,8 +37,8 @@ const fields = (...codes: string[]) =>
     codes.map(code => ({ code, bitrixId: code.toUpperCase(), items: [] }));
 
 const ANSWERS: Record<string, CheckPresentationValue> = {
-    xo_impression: 'слушали',
-    op_5k_client_what: 'нормативка',
+    op_xvost_desire: 'слушали',
+    op_5k_client: 'нормативка',
     op_presentation_xvost: 'дожать цену',
 };
 
@@ -77,8 +77,8 @@ const makeState = (over?: {
                     bitrixfields:
                         over?.leadFields ??
                         fields(
-                            'op_talk_impression',
-                            'op_5k_client_what',
+                            'op_xvost_desire',
+                            'op_5k_client',
                             'op_presentation_xvost',
                             'op_presentation_5k',
                         ),
@@ -126,18 +126,18 @@ describe('фрейм-запись ответов опросника', () => {
         const result = await dispatch(persistCheckPresentation());
 
         expect(leadUpdate).toHaveBeenCalledWith(1, {
-            // xo_impression опросника переведён в поле реестра.
-            UF_CRM_OP_TALK_IMPRESSION: 'слушали',
-            UF_CRM_OP_5K_CLIENT_WHAT: 'нормативка',
+            // op_xvost_desire опросника переведён в поле реестра.
+            UF_CRM_OP_XVOST_DESIRE: 'слушали',
+            UF_CRM_OP_5K_CLIENT: 'нормативка',
             UF_CRM_OP_PRESENTATION_XVOST: 'дожать цену',
-            UF_CRM_OP_PRESENTATION_5K: 'КЛИЕНТ: Что хочет?: нормативка',
+            UF_CRM_OP_PRESENTATION_5K: 'КЛИЕНТ: нормативка',
         });
         expect(dealUpdate).toHaveBeenCalledWith(10, {
             UF_CRM_OP_PRESENTATION_XVOST: 'дожать цену',
-            UF_CRM_OP_PRESENTATION_5K: 'КЛИЕНТ: Что хочет?: нормативка',
+            UF_CRM_OP_PRESENTATION_5K: 'КЛИЕНТ: нормативка',
         });
         expect(companyUpdate).toHaveBeenCalledWith(5, {
-            UF_CRM_OP_PRESENTATION_5K: 'КЛИЕНТ: Что хочет?: нормативка',
+            UF_CRM_OP_PRESENTATION_5K: 'КЛИЕНТ: нормативка',
         });
         expect(result).toEqual({
             attempted: 3,
@@ -219,7 +219,7 @@ describe('итог записи честен без серверного кон�
     it('писать было нечего — ни провала, ни «некуда»', async () => {
         const { dispatch } = makeStore(
             makeState({
-                committed: { xo_impression: '  ', op_5k_client_what: '' },
+                committed: { op_xvost_desire: '  ', op_5k_client: '' },
                 leadFields: [],
                 dealFields: [],
                 companyFields: [],

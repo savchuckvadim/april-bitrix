@@ -4,7 +4,6 @@ import { FC } from 'react';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { useXvostFields } from '../lib/hooks/use-xvost-fields';
 import { XvostDateRow } from './XvostDateRow';
-import { XvostFlagRow } from './XvostFlagRow';
 
 /**
  * «Хвост» — ручная правка хвост-полей СДЕЛКИ (даты решения и булевы вопросы
@@ -32,13 +31,6 @@ export const XvostFieldsCard: FC = () => {
                     <XvostDateRow key={date.code} date={date} />
                 ))}
 
-                {xvost.flags.length > 0 && (
-                    <div className="space-y-1.5 pt-1">
-                        {xvost.flags.map(flag => (
-                            <XvostFlagRow key={flag.code} flag={flag} />
-                        ))}
-                    </div>
-                )}
 
                 {xvost.error && (
                     <p className="text-xs text-destructive">{xvost.error}</p>

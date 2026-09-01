@@ -1,62 +1,36 @@
 import { describe, expect, it } from 'vitest';
+import { PBX_SALES_EVENT_FIELD_CODES } from '@workspace/pbx-data/entities/field/type/sales/event/pbx-sales-event-field.type';
 import {
-    PBX_SALES_EVENT_FIELD_CODES,
-} from '@workspace/pbx-data/entities/field/type/sales/event/pbx-sales-event-field.type';
-import {
-    flagToPortalValue,
-    toFlag,
     toInputDate,
     toXvostPortalValue,
     xvostToAnswerValue,
+    XVOST_DATE_FIELDS,
 } from './xvost-fields';
 
-describe('toFlag', () => {
-    it('читает диалект CRM (1/0) и диалект опросника (Y/N)', () => {
-        expect(toFlag('1')).toBe(true);
-        expect(toFlag('0')).toBe(false);
-        expect(toFlag('Y')).toBe(true);
-        expect(toFlag('N')).toBe(false);
-    });
+/**
+ * Блок «Хвоста» в модалке «Поля сущности» после переделки 01.09.2026.
+ *
+ * От блока осталась одна дата — звонок по решению. Три галочки стали частью
+ * связного текста «ЧТО ПРЕДЛОЖИЛИ» (сменился и смысл, и тип), «согласование
+ * даты» и «дата похода к руководителю» из состава ушли. Тесты на флаги
+ * удалены вместе с самими флагами: проверять пустое понятие нечего.
+ */
 
-    it('понимает честные boolean/number и пустоту', () => {
-        expect(toFlag(true)).toBe(true);
-        expect(toFlag(1)).toBe(true);
-        expect(toFlag(false)).toBe(false);
-        expect(toFlag(undefined)).toBe(false);
-        expect(toFlag('')).toBe(false);
-    });
-});
+const DECISION_CALL_DATE =
+    PBX_SALES_EVENT_FIELD_CODES.op_xvost_decision_call_date;
 
-describe('flagToPortalValue', () => {
-    it('пишет в диалекте персиста опросника', () => {
-        expect(flagToPortalValue(true)).toBe('Y');
-        expect(flagToPortalValue(false)).toBe('N');
+describe('состав блока', () => {
+    it('одна дата — звонок по решению', () => {
+        expect(XVOST_DATE_FIELDS).toHaveLength(1);
+        expect(XVOST_DATE_FIELDS[0]!.code).toBe(DECISION_CALL_DATE);
     });
 });
 
 describe('xvostToAnswerValue', () => {
-    it('флаг → boolean-ответ опросника (Y/N-диалект портала)', () => {
-        expect(
-            xvostToAnswerValue(
-                PBX_SALES_EVENT_FIELD_CODES.op_xvost_is_offer,
-                'Y',
-            ),
-        ).toBe(true);
-        expect(
-            xvostToAnswerValue(
-                PBX_SALES_EVENT_FIELD_CODES.op_xvost_is_price,
-                'N',
-            ),
-        ).toBe(false);
-    });
-
     it('дата остаётся строкой того же диалекта YYYY-MM-DD', () => {
-        expect(
-            xvostToAnswerValue(
-                PBX_SALES_EVENT_FIELD_CODES.op_manager_approach_date,
-                '2026-08-25',
-            ),
-        ).toBe('2026-08-25');
+        expect(xvostToAnswerValue(DECISION_CALL_DATE, '2026-08-25')).toBe(
+            '2026-08-25',
+        );
     });
 });
 
@@ -75,26 +49,13 @@ describe('toInputDate', () => {
 
 describe('toXvostPortalValue', () => {
     it('дата уходит каноном CRM, а не строкой контрола', () => {
-        expect(
-            toXvostPortalValue(
-                PBX_SALES_EVENT_FIELD_CODES.op_manager_approach_date,
-                '2026-08-25',
-            ),
-        ).toBe('25.08.2026');
-    });
-
-    it('флаг уходит своим диалектом Y/N', () => {
-        expect(
-            toXvostPortalValue(
-                PBX_SALES_EVENT_FIELD_CODES.op_xvost_is_offer,
-                'Y',
-            ),
-        ).toBe('Y');
+        expect(toXvostPortalValue(DECISION_CALL_DATE, '2026-08-25')).toBe(
+            '25.08.2026',
+        );
     });
 
     it('пустая дата стирает поле, неразбираемая — не пишется вовсе', () => {
-        const code = PBX_SALES_EVENT_FIELD_CODES.op_manager_approach_date;
-        expect(toXvostPortalValue(code, '')).toBe('');
-        expect(toXvostPortalValue(code, 'потом')).toBeNull();
+        expect(toXvostPortalValue(DECISION_CALL_DATE, '')).toBe('');
+        expect(toXvostPortalValue(DECISION_CALL_DATE, 'потом')).toBeNull();
     });
 });

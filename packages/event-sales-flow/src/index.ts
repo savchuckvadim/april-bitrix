@@ -120,6 +120,11 @@ export * from './zpr-flow/dto/zpr-flow-job.dto';
 export * from './zpr-flow/lib/zpr-survey-snapshot';
 export * from './presentation-flow/dto/presentation-flow-job.dto';
 export * from './presentation-flow/lib/presentation-outcome';
+// Анкета «5К/Хвост»: коды-whitelist, нормализация ответов и КАНОНИЧЕСКИЙ
+// текст вопросов. Текст нужен фронту, чтобы открыть поле шаблоном, и бэку,
+// чтобы отличить нетронутый шаблон от ответа — копия на фронте разъехалась
+// бы на первой правке формулировки.
+export * from './shared/presentation-survey';
 export * from './presentation-flow/lib/presentation-survey-snapshot';
 export * from './sales-hooks/duplicate-check/lib/duplicate-timeline.formatter';
 

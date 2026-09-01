@@ -7,12 +7,8 @@ import { saveXvostField } from '../../model/XvostFieldsThunk';
 import { xvostOverrideKey } from '../../model/XvostFieldsSlice';
 import {
     XVOST_DATE_FIELDS,
-    XVOST_FLAG_FIELDS,
-    flagToPortalValue,
-    toFlag,
     toInputDate,
     type XvostDateCode,
-    type XvostFlagCode,
 } from '../xvost-fields';
 
 export interface XvostDateView {
@@ -22,18 +18,10 @@ export interface XvostDateView {
     setValue: (value: string) => void;
 }
 
-export interface XvostFlagView {
-    code: XvostFlagCode;
-    label: string;
-    value: boolean;
-    setValue: (value: boolean) => void;
-}
-
 export interface XvostFieldsView {
     /** Есть сделка и хоть одно хвост-поле установлено — иначе карточки нет. */
     isAvailable: boolean;
     dates: XvostDateView[];
-    flags: XvostFlagView[];
     /** Локальный откат/ошибка записи. */
     error: string | null;
 }
@@ -41,8 +29,9 @@ export interface XvostFieldsView {
 /**
  * Хвост-поля СДЕЛКИ контекста для ручной правки.
  *
- * Носитель ровно один — сделка (блок op_xvost_* установлен только на ней),
- * без фолбэков на компанию/лид. Поля читаются по слепку и показываются
+ * Носитель ровно один — сделка (дата звонка по решению установлена только на
+ * ней), без фолбэков на компанию/лид. С переделки 01.09.2026 в блоке
+ * осталась одна эта дата: галочки стали текстом, две другие даты ушли. Поля читаются по слепку и показываются
  * только установленные: карточка самогейтится и не требует релиза под
  * установку поля (§5 доктрины pbx-fields-system).
  */
@@ -57,7 +46,7 @@ export const useXvostFields = (): XvostFieldsView => {
 
     return useMemo(() => {
         if (!deal) {
-            return { isAvailable: false, dates: [], flags: [], error };
+            return { isAvailable: false, dates: [], error };
         }
         const row = deal as unknown as Record<string, unknown>;
         const dealId = Number(deal.ID);
@@ -76,25 +65,9 @@ export const useXvostFields = (): XvostFieldsView => {
             });
         }
 
-        const flags: XvostFlagView[] = [];
-        for (const field of XVOST_FLAG_FIELDS) {
-            const key = findUfKey(fields, field.code);
-            if (!key) continue;
-            flags.push({
-                code: field.code,
-                label: field.label,
-                value: toFlag(stored(field.code, key)),
-                setValue: value =>
-                    dispatch(
-                        saveXvostField(field.code, flagToPortalValue(value)),
-                    ),
-            });
-        }
-
         return {
-            isAvailable: dates.length > 0 || flags.length > 0,
+            isAvailable: dates.length > 0,
             dates,
-            flags,
             error,
         };
     }, [deal, fields, dispatch, error, overrides]);

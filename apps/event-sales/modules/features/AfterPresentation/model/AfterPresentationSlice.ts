@@ -39,6 +39,22 @@ const afterPresentationSlice = createSlice({
             action: PayloadAction<{ items: CheckPresentationItem[] }>,
         ) => {
             state.checkPresentation.items = action.payload.items;
+            // Шаблон — стартовое ЗНАЧЕНИЕ поля, а не подсказка: менеджер
+            // открывает опросник и сразу видит пронумерованные вопросы,
+            // между которыми пишет ответы. Посев идёт и в committed, иначе
+            // «отмена» вычистила бы вопросы из поля.
+            //
+            // Уже введённый ответ шаблоном не затирается: инициализация
+            // случается раз на портал, но перестраховка здесь дешевле
+            // потерянного ответа.
+            for (const item of action.payload.items) {
+                if (!item.template) continue;
+                if (state.checkPresentation.answers[item.id] !== undefined) {
+                    continue;
+                }
+                state.checkPresentation.answers[item.id] = item.template;
+                state.checkPresentation.committed[item.id] = item.template;
+            }
             state.initialized = true;
         },
         setAnswer: (

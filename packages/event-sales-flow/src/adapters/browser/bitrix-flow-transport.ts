@@ -188,6 +188,12 @@ export class BitrixFlowTransport implements FlowTransport {
         contact: {
             get: (cmdKey, contactId) =>
                 void this.service.batch.contact.get(cmdKey, contactId),
+            update: (cmdKey, contactId, data) =>
+                void this.service.batch.contact.update(
+                    cmdKey,
+                    Number(contactId),
+                    this.forSdk(data) as never,
+                ),
         },
         task: {
             add: (cmdKey, fields: FlowTaskCreateFields) =>

@@ -1,3 +1,10 @@
+import {
+    FIVE_K_TEMPLATES,
+    isSurveyTemplateOnly,
+    surveyTemplateByCode,
+    XVOST_TEMPLATES,
+} from '@workspace/event-sales-flow';
+
 import { findUfKey } from '@workspace/pbx';
 import type { RootState } from '@/modules/app/model/store';
 // Форма блока — из сгенерированного DTO (ре-маппинг живёт в model потока).
@@ -36,8 +43,8 @@ import { selectIsCheckPresentationApplicable } from './check-presentation.select
  */
 export type CheckPresentationSurvey = EvPresentationSurvey;
 
-const FIVE_K_PREFIX = 'op_5k_';
-const TALK_PREFIX = 'op_talk_';
+const FIVE_K_CODES = new Set(FIVE_K_TEMPLATES.map(t => t.code));
+const XVOST_CODES = new Set(XVOST_TEMPLATES.map(t => t.code));
 const XVOST_CODE = 'op_presentation_xvost';
 
 /**
@@ -49,21 +56,30 @@ const XVOST_CODE = 'op_presentation_xvost';
  */
 const asAnswerText = (
     value: CheckPresentationValue | undefined,
+    code?: string,
 ): string | null => {
     if (typeof value !== 'string') return null;
     const text = value.trim();
-    return text || null;
+    if (!text) return null;
+    // Нетронутый шаблон — не ответ. С 01.09.2026 поле открывается с
+    // вопросами внутри и пустым не бывает никогда, поэтому проверка на
+    // пустоту сама по себе больше ничего не гарантирует.
+    if (code) {
+        const template = surveyTemplateByCode(code);
+        if (template && isSurveyTemplateOnly(text, template)) return null;
+    }
+    return text;
 };
 
 /** Ответы блока по префиксу кода реестра; пустых в блоке не бывает. */
 const pickBlock = (
     answers: Record<string, CheckPresentationValue>,
-    prefix: string,
+    codes: ReadonlySet<string>,
 ): Record<string, string> => {
     const block: Record<string, string> = {};
     for (const [code, value] of Object.entries(answers)) {
-        if (!code.startsWith(prefix)) continue;
-        const text = asAnswerText(value);
+        if (!codes.has(code)) continue;
+        const text = asAnswerText(value, code);
         if (text) block[code] = text;
     }
     return block;
@@ -84,8 +100,8 @@ export const buildCheckPresentationSurvey = (
 ): CheckPresentationSurvey | undefined => {
     const portalAnswers = translateSurveyCodes(answers);
 
-    const fiveK = pickBlock(portalAnswers, FIVE_K_PREFIX);
-    const talk = pickBlock(portalAnswers, TALK_PREFIX);
+    const fiveK = pickBlock(portalAnswers, FIVE_K_CODES);
+    const talk = pickBlock(portalAnswers, XVOST_CODES);
     const xvost = asAnswerText(portalAnswers[XVOST_CODE]);
 
     const survey: CheckPresentationSurvey = {

@@ -420,18 +420,18 @@ describe('payload: ответы опросника презентации', () =
                 survey: {
                     // Код опросника: в реестре полей его нет, перевод —
                     // на границе payload.
-                    xo_impression: 'слушали',
-                    op_5k_client_what: 'нормативка',
+                    op_xvost_desire: 'слушали',
+                    op_5k_client: 'нормативка',
                     op_presentation_xvost: 'дожать цену',
                 },
             }),
         );
 
         expect(survey).toEqual({
-            talk: { op_talk_impression: 'слушали' },
-            fiveK: { op_5k_client_what: 'нормативка' },
+            talk: { op_xvost_desire: 'слушали' },
+            fiveK: { op_5k_client: 'нормативка' },
             xvost: 'дожать цену',
-            fiveKSummary: 'КЛИЕНТ: Что хочет?: нормативка',
+            fiveKSummary: 'КЛИЕНТ: нормативка',
         });
     });
 
@@ -439,15 +439,15 @@ describe('payload: ответы опросника презентации', () =
         const survey = surveyOf(
             makeState({
                 survey: {
-                    xo_impression: '   ',
-                    op_5k_client_what: 'нормативка',
+                    op_xvost_desire: '   ',
+                    op_5k_client: 'нормативка',
                 },
             }),
         );
 
         expect(survey).toEqual({
-            fiveK: { op_5k_client_what: 'нормативка' },
-            fiveKSummary: 'КЛИЕНТ: Что хочет?: нормативка',
+            fiveK: { op_5k_client: 'нормативка' },
+            fiveKSummary: 'КЛИЕНТ: нормативка',
         });
     });
 

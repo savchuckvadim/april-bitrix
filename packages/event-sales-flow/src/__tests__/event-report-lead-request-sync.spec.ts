@@ -77,7 +77,7 @@ const FIELD_DEFS: Record<
     // Анкета после презентации (перенос на связанный лид).
     op_presentation_xvost: { bitrixId: 'OP_PRESENTATION_XVOST' },
     op_presentation_5k: { bitrixId: 'OP_PRESENTATION_5K' },
-    op_5k_client_what: { bitrixId: 'OP_5K_CLIENT_WHAT' },
+    op_5k_client: { bitrixId: 'OP_5K_CLIENT' },
 };
 
 const makePortal = () => ({
@@ -438,7 +438,7 @@ describe('EventReportLeadRequestSyncService', () => {
         ID: '42',
         UF_CRM_OP_PRESENTATION_XVOST: 'Дожать по хвосту',
         UF_CRM_OP_PRESENTATION_5K: 'Сводка 5К',
-        UF_CRM_OP_5K_CLIENT_WHAT: 'Хочет замену Консультанта',
+        UF_CRM_OP_5K_CLIENT: 'Хочет замену Консультанта',
     };
 
     const surveyCtx = (over: Record<string, unknown> = {}) =>
@@ -478,7 +478,7 @@ describe('EventReportLeadRequestSyncService', () => {
         const fields = updates[0].fields;
         // Скаляр перезаписан значением последней проведённой.
         expect(fields.UF_CRM_OP_PRESENTATION_XVOST).toBe('Дожать по хвосту');
-        expect(fields.UF_CRM_OP_5K_CLIENT_WHAT).toBe(
+        expect(fields.UF_CRM_OP_5K_CLIENT).toBe(
             'Хочет замену Консультанта',
         );
         // Пустой ответ не затирает то, что уже стоит на заявке.
@@ -533,7 +533,7 @@ describe('EventReportLeadRequestSyncService', () => {
 
         const fields = updates[0].fields;
         expect(fields.UF_CRM_OP_PRESENTATION_XVOST).toBeUndefined();
-        expect(fields.UF_CRM_OP_5K_CLIENT_WHAT).toBeUndefined();
+        expect(fields.UF_CRM_OP_5K_CLIENT).toBeUndefined();
         // Стадия игнорируется (ось слита); автостатус единой оси при
         // проведённой презентации двигает статус на «Презентация».
         expect(fields.UF_CRM_OP_LEAD_SITE_STAGE).toBeUndefined();
@@ -573,19 +573,19 @@ describe('EventReportLeadRequestSyncService', () => {
                 lead: {
                     ID: '42',
                     UF_CRM_OP_PRESENTATION_XVOST: 'прошлый хвост',
-                    UF_CRM_OP_5K_CLIENT_WHAT: 'прошлый ответ 5К',
+                    UF_CRM_OP_5K_CLIENT: 'прошлый ответ 5К',
                     UF_CRM_OP_PRESENTATION_5K: 'прошлая сводка',
                 },
                 presentationSurvey: surveyOf({
                     xvost: 'хвост ЭТОГО отчёта',
-                    fiveK: { op_5k_client_what: 'ответ ЭТОГО отчёта' },
+                    fiveK: { op_5k_client: 'ответ ЭТОГО отчёта' },
                 }),
             }),
         );
 
         const fields = updates[0].fields;
         expect(fields.UF_CRM_OP_PRESENTATION_XVOST).toBe('хвост ЭТОГО отчёта');
-        expect(fields.UF_CRM_OP_5K_CLIENT_WHAT).toBe('ответ ЭТОГО отчёта');
+        expect(fields.UF_CRM_OP_5K_CLIENT).toBe('ответ ЭТОГО отчёта');
         // Кода нет в payload — легаси-путь (перенос с лида) сохранён.
         expect(fields.UF_CRM_OP_PRESENTATION_5K).toBe('прошлая сводка');
     });
@@ -640,7 +640,7 @@ describe('EventReportLeadRequestSyncService', () => {
         const fields = updates[0].fields;
         expect(fields.UF_CRM_OP_PRESENTATION_XVOST).toBeUndefined();
         // Себя самого лид донором не служит: снапшот init-фазы не едет.
-        expect(fields.UF_CRM_OP_5K_CLIENT_WHAT).toBeUndefined();
+        expect(fields.UF_CRM_OP_5K_CLIENT).toBeUndefined();
         // Остальная работа волны 2 на месте: автостатус единой оси.
         expect(fields.UF_CRM_OP_LEAD_SITE_STATUS).toBe(38);
     });

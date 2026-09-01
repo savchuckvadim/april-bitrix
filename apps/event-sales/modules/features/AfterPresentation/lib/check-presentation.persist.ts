@@ -139,7 +139,14 @@ export const buildFiveKSummary = (
     const lines: string[] = [];
 
     for (const code of FIVE_K_SUMMARY_CODES) {
-        const value = toPortalValue(answers[code] ?? '');
+        /*
+         * КОД ОБЯЗАТЕЛЕН третьим аргументом: без него toPortalValue не
+         * проверяет «в поле только шаблон», и в сводку — а значит в
+         * op_presentation_5k — уезжали бы сами пронумерованные вопросы
+         * блоков, которых менеджер не касался, перезаписывая прошлую
+         * настоящую сводку.
+         */
+        const value = toPortalValue(answers[code] ?? '', undefined, code);
         if (!value) continue;
         const title = titleByCode[code] ?? code;
         lines.push(`${title} ${value}`);

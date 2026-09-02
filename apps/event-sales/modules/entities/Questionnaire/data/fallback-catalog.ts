@@ -27,8 +27,15 @@ import type {
  *   поле и живёт по своей шкале времени (25.08).
  * - `op_invoice_date` — «Дата отправки Счета» из konstructor-реестра, уже
  *   стоит на порталах со сделками конструктора.
- * - `decision`/`sale` (`targetStage`) заполняются модалками перед отправкой —
- *   активируются, когда stage-predict сообщает целевую стадию.
+ * - `decision`/`sale` заполняются модалками перед отправкой. Условие у них
+ *   — СОБЫТИЕ, а не стадия (решение владельца 02.09): `decision` — план
+ *   «Решение», `sale` — статус работы «Продажа». Привязка к целевой стадии
+ *   предикта (`targetStage`) вставала на любой сделке, уже стоящей на
+ *   «Клиент на решении», и не отпускала даже план «Доработка».
+ * - `op_sale_date_prognoz` («Плановая дата покупки») спрашивается в КАЖДОЙ
+ *   отчётной анкете и в модалке решения — необязательно: отчёт нельзя
+ *   запирать за датой, которой у менеджера может не быть. В контакт её
+ *   дублирует поток (модель полей контакта).
  */
 
 /**
@@ -112,17 +119,28 @@ const FALLBACK_PLAN_QUESTIONNAIRES: QuestionnaireDef[] = [
         ],
     },
     {
-        // Переход на «Клиент на решении»: направлены КП/договор/счёт
+        // План «Решение» (звонок по решению): направлены КП/договор/счёт
         // (даты-факты, konstructor-реестр) + дата звонка по решению
-        // (новое поле, «выдернуто из Хвоста»). ВСЕ обязательны — по ТЗ.
+        // (новое поле, «выдернуто из Хвоста»).
+        //
+        // Условие — ПЛАН, а не стадия (02.09). Через `targetStage` анкета
+        // вставала перед каждой отправкой по сделке, уже стоящей на
+        // «Клиент на решении»: лестница бэка не понижает, и целевой стадией
+        // возвращалась она же — даже при плане «Доработка».
+        //
+        // Обязательны только КП и дата звонка (правка владельца 02.09).
+        // Проект договора и счёт на переходе бывают ещё не готовы: клиент
+        // ушёл думать по КП, а договор со счётом появятся к оплате —
+        // требовать их здесь значило бы заставлять менеджера ставить
+        // выдуманные даты, чтобы отправить отчёт.
         code: 'decision',
         title: 'Клиент на решении',
-        hint: 'Сделка уходит на «Клиент на решении» — документы должны быть направлены, дата звонка по решению известна.',
+        hint: 'Планируется звонок по решению — документы должны быть направлены, дата звонка известна.',
         purpose: 'plan',
         presentation: 'modal',
         place: null,
         persist: 'onChange',
-        conditions: [{ kind: 'targetStage', values: ['sales_in_progress'] }],
+        conditions: [{ kind: 'planType', values: ['hot'] }],
         configKey: 'withChecklistDecision',
         legacyChecklistId: 'decision',
         sort: 30,
@@ -135,11 +153,11 @@ const FALLBACK_PLAN_QUESTIONNAIRES: QuestionnaireDef[] = [
                 'op_contract_date',
                 'datetime',
                 'Направлен проект договора',
-                { sort: 20, isRequired: true },
+                { sort: 20, isRequired: false },
             ),
             legacyItem('op_invoice_date', 'datetime', 'Направлен счёт', {
                 sort: 30,
-                isRequired: true,
+                isRequired: false,
             }),
             legacyItem(
                 'op_xvost_decision_call_date',
@@ -147,12 +165,20 @@ const FALLBACK_PLAN_QUESTIONNAIRES: QuestionnaireDef[] = [
                 'Дата звонка по решению',
                 { sort: 40, isRequired: true },
             ),
+            legacyItem('op_sale_date_prognoz', 'date', 'Плановая дата покупки', {
+                sort: 50,
+                staleAfterDays: 30,
+            }),
         ],
     },
     {
         // Продажа: сумма → штатный OPPORTUNITY, дата оплаты → first_pay_date.
         // Оба уезжают DTO (sale-блок) — сделку может создавать сам flow,
         // фронту некуда писать заранее; сервер-гард дублирует обязательность.
+        //
+        // Условие — статус работы «Продажа» (02.09): ровно то, на что
+        // смотрит серверный гард (`event-flow-guard.service`), а не целевая
+        // стадия предикта — у продажи стадия следствие статуса.
         code: 'sale',
         title: 'Продажа',
         hint: 'Сумма сделки и дата первой оплаты обязательны при продаже.',
@@ -160,7 +186,7 @@ const FALLBACK_PLAN_QUESTIONNAIRES: QuestionnaireDef[] = [
         presentation: 'modal',
         place: null,
         persist: 'onChange',
-        conditions: [{ kind: 'targetStage', values: ['sales_success'] }],
+        conditions: [{ kind: 'workStatus', values: ['success'] }],
         configKey: 'withChecklistSale',
         legacyChecklistId: 'sale',
         sort: 40,
@@ -233,6 +259,13 @@ const FALLBACK_REPORT_QUESTIONNAIRES: QuestionnaireDef[] = [
                     placeholder: 'Как клиент сказал это своими словами',
                 },
             ),
+            // Срок годности — прошлая дата покупки не выдаёт себя за
+            // сегодняшний ответ: обязательности нет, но «сейчас: …» с датой
+            // месячной давности читалось бы как актуальное обещание.
+            legacyItem('op_sale_date_prognoz', 'date', 'Плановая дата покупки', {
+                sort: 30,
+                staleAfterDays: 30,
+            }),
         ],
     },
     {
@@ -257,6 +290,10 @@ const FALLBACK_REPORT_QUESTIONNAIRES: QuestionnaireDef[] = [
             }),
             legacyItem('op_objection_reason', 'enumeration', 'Что мешает', {
                 sort: 30,
+            }),
+            legacyItem('op_sale_date_prognoz', 'date', 'Плановая дата покупки', {
+                sort: 40,
+                staleAfterDays: 30,
             }),
         ],
     },

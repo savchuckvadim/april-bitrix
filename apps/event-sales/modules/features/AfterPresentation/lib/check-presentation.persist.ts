@@ -1,8 +1,4 @@
-import {
-    FIVE_K_TEMPLATES,
-    isSurveyTemplateOnly,
-    surveyTemplateByCode,
-} from '@workspace/event-sales-flow';
+import { FIVE_K_TEMPLATES } from '@workspace/event-sales-flow';
 
 import { toCrmDate } from '@/modules/shared/lib/crm-date';
 import {
@@ -15,33 +11,41 @@ import {
  * отдельно от запросов.
  */
 
+/** Вариант справочника носителя: код общий, id — свой у каждой сущности. */
+export interface PortalOption {
+    code: string;
+    bitrixId: string | number | null | undefined;
+}
+
 /**
  * Значение ответа в том виде, в каком его принимает пользовательское поле.
  *
  * Даты уходят через общий нормализатор портала (`DD.MM.YYYY`): раньше в CRM
  * улетало ровно то, что отдал `<input type=date>` (`YYYY-MM-DD`), мимо канона,
  * которым пишет весь остальной код.
+ *
+ * Множественный справочник (`string[]` кодов) переводится в id элементов
+ * СПРАВОЧНИКА НОСИТЕЛЯ: у компании, сделки и лида id разные, общий язык —
+ * код варианта. Без справочника или без единого совпавшего кода — null:
+ * писать чужой id значило бы положить в карточку случайное возражение.
  */
 export const toPortalValue = (
     value: CheckPresentationValue,
     type?: CheckPresentationFieldType,
-    code?: string,
-): string | null => {
+    _code?: string,
+    options?: readonly PortalOption[] | null,
+): string | string[] | null => {
     if (typeof value === 'boolean') return value ? 'Y' : 'N';
     if (Array.isArray(value)) {
-        // Множественный список пишется id-шниками элементов, а их в ответах
-        // нет: такие поля пока не переносим, вместо тихой порчи — пропуск.
-        return null;
+        if (!value.length || !options) return null;
+        const ids = value
+            .map(code => options.find(option => option.code === code)?.bitrixId)
+            .filter((id): id is string | number => id != null)
+            .map(String);
+        return ids.length ? ids : null;
     }
     const text = String(value ?? '').trim();
     if (!text) return null;
-    // Нетронутый шаблон — это НЕ ответ.
-    //
-    // С 01.09.2026 поле открывается с вопросами внутри и пустым не бывает
-    // никогда. Не отсеки мы шаблон здесь — сработало бы ровно то, от чего
-    // защищает проверка на пустоту: значение поехало бы в портал и затёрло
-    // бы настоящий ответ, положенный кем-то другим.
-    if (code && isUntouchedSurveyTemplate(code, text)) return null;
     // Неразбираемую дату не пишем сырой строкой: пусть поле останется как
     // было, чем ляжет мусор, который потом никто не прочитает.
     if (type === CheckPresentationFieldType.DATE) return toCrmDate(text);
@@ -55,6 +59,8 @@ export interface PortalFieldWriteInput {
     resolveKey: (code: string) => string | null;
     /** Тип вопроса по коду — от него зависит формат значения (даты). */
     typeByCode?: Record<string, CheckPresentationFieldType>;
+    /** Справочник поля у конкретной сущности — для множественного выбора. */
+    resolveOptions?: (code: string) => readonly PortalOption[] | null;
 }
 
 /**
@@ -68,13 +74,19 @@ export const buildPortalFieldPayload = ({
     answers,
     resolveKey,
     typeByCode,
-}: PortalFieldWriteInput): Record<string, string> => {
-    const payload: Record<string, string> = {};
+    resolveOptions,
+}: PortalFieldWriteInput): Record<string, string | string[]> => {
+    const payload: Record<string, string | string[]> = {};
 
     for (const [code, value] of Object.entries(answers)) {
         const key = resolveKey(code);
         if (!key) continue;
-        const portalValue = toPortalValue(value, typeByCode?.[code], code);
+        const portalValue = toPortalValue(
+            value,
+            typeByCode?.[code],
+            code,
+            resolveOptions?.(code) ?? null,
+        );
         if (portalValue === null) continue;
         payload[key] = portalValue;
     }
@@ -89,17 +101,19 @@ export const buildPortalFieldPayload = ({
  * Нужно для честного итога записи. «Ни одна цель не приняла» — провал
  * только тогда, когда записывать БЫЛО что: пустой опросник, который никуда
  * не поехал, — не провал, а отсутствие ответов. Правило годности значения
- * ровно одно с `buildPortalFieldPayload` (пустая строка, неразбираемая дата
- * и множественный список ответом не считаются) — иначе итог расходился бы
- * с тем, что реально уходит в Битрикс.
+ * ровно одно с `buildPortalFieldPayload` (пустая строка и неразбираемая
+ * дата ответом не считаются) — иначе итог расходился бы с тем, что реально
+ * уходит в Битрикс. Множественный выбор считается ответом сам по себе:
+ * справочник носителя здесь неизвестен, а непустой список — уже намерение.
  */
 export const hasWritablePortalAnswers = (
     answers: Record<string, CheckPresentationValue>,
     typeByCode?: Record<string, CheckPresentationFieldType>,
 ): boolean =>
-    Object.entries(answers).some(
-        ([code, value]) =>
-            toPortalValue(value, typeByCode?.[code], code) !== null,
+    Object.entries(answers).some(([code, value]) =>
+        Array.isArray(value)
+            ? value.length > 0
+            : toPortalValue(value, typeByCode?.[code], code) !== null,
     );
 
 /**
@@ -139,30 +153,11 @@ export const buildFiveKSummary = (
     const lines: string[] = [];
 
     for (const code of FIVE_K_SUMMARY_CODES) {
-        /*
-         * КОД ОБЯЗАТЕЛЕН третьим аргументом: без него toPortalValue не
-         * проверяет «в поле только шаблон», и в сводку — а значит в
-         * op_presentation_5k — уезжали бы сами пронумерованные вопросы
-         * блоков, которых менеджер не касался, перезаписывая прошлую
-         * настоящую сводку.
-         */
         const value = toPortalValue(answers[code] ?? '', undefined, code);
-        if (!value) continue;
+        if (!value || Array.isArray(value)) continue;
         const title = titleByCode[code] ?? code;
         lines.push(`${title} ${value}`);
     }
 
     return lines.length ? lines.join('\n') : null;
-};
-
-/**
- * Поле открыли, но не тронули: внутри только вопросы шаблона.
- *
- * Тот же предикат, что и на бэке (`presentation-survey.templates`), и текст
- * вопросов у обоих один — иначе фронт считал бы поле пустым, а бэк
- * заполненным, или наоборот.
- */
-const isUntouchedSurveyTemplate = (code: string, text: string): boolean => {
-    const template = surveyTemplateByCode(code);
-    return template !== null && isSurveyTemplateOnly(text, template);
 };

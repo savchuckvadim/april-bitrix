@@ -103,3 +103,108 @@ describe('afterPresentation.syncAnswer', () => {
         ).toBe('2026-08-25');
     });
 });
+
+/**
+ * Блок с подвопросами (02.09): черновик живёт в `blocks`, а значение поля
+ * CRM собирается в `answers` при каждой правке — всё, что читает ответы,
+ * видит одну строку. Разворот/сворачивание значение не меняет.
+ */
+describe('afterPresentation: блоки с подвопросами', () => {
+    const BLOCK = {
+        id: 'op_5k_client',
+        type: 'string' as const,
+        code: 'op_5k_client',
+        title: 'КЛИЕНТ',
+        placeholder: '',
+        required: false,
+        questions: ['Какие задачи решает клиент?', 'Что важно отслеживать?'],
+    };
+
+    const init = () =>
+        run(
+            undefined,
+            afterPresentationActions.setInitialized({
+                items: [BLOCK as never],
+            }),
+        );
+
+    it('инициализация больше не сеет шаблон в ответы', () => {
+        const state = init();
+
+        expect(state.checkPresentation.answers).toEqual({});
+        expect(state.initialized).toBe(true);
+    });
+
+    it('текст блока и ответ на подвопрос собираются в значение поля', () => {
+        let state = run(
+            init(),
+            afterPresentationActions.setBlockText({
+                id: BLOCK.id,
+                text: 'Общее впечатление',
+            }),
+        );
+        expect(state.checkPresentation.answers[BLOCK.id]).toBe(
+            'Общее впечатление',
+        );
+
+        state = run(
+            state,
+            afterPresentationActions.setBlockSub({
+                id: BLOCK.id,
+                index: 1,
+                text: 'Судебную практику',
+            }),
+        );
+        expect(state.checkPresentation.answers[BLOCK.id]).toBe(
+            'Общее впечатление\n2. Что важно отслеживать? — Судебную практику',
+        );
+        expect(state.isConfirmed).toBe(false);
+    });
+
+    it('разворот не трогает значение и подтверждение', () => {
+        let state = run(
+            init(),
+            afterPresentationActions.setConfirmed({ status: true }),
+        );
+        state = run(
+            state,
+            afterPresentationActions.setBlockExpanded({
+                id: BLOCK.id,
+                expanded: true,
+            }),
+        );
+
+        expect(state.checkPresentation.blocks[BLOCK.id]?.expanded).toBe(true);
+        expect(state.checkPresentation.answers[BLOCK.id]).toBeUndefined();
+        expect(state.isConfirmed).toBe(true);
+    });
+
+    it('«Отмена» откатывает черновик блока вместе с ответами', () => {
+        let state = run(
+            init(),
+            afterPresentationActions.setBlockSub({
+                id: BLOCK.id,
+                index: 0,
+                text: 'Договоры',
+            }),
+        );
+        state = run(state, afterPresentationActions.commitAnswers());
+        state = run(
+            state,
+            afterPresentationActions.setBlockSub({
+                id: BLOCK.id,
+                index: 0,
+                text: 'Совсем другое',
+            }),
+        );
+
+        state = run(state, afterPresentationActions.revertAnswers());
+
+        expect(state.checkPresentation.blocks[BLOCK.id]?.sub[0]).toBe(
+            'Договоры',
+        );
+        expect(state.checkPresentation.answers[BLOCK.id]).toBe(
+            '1. Какие задачи решает клиент? — Договоры',
+        );
+    });
+});

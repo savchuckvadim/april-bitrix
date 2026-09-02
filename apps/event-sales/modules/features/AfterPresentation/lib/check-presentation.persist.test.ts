@@ -63,11 +63,31 @@ describe('buildPortalFieldPayload', () => {
 });
 
 describe('toPortalValue', () => {
-    it('булево — Y/N, массивы пропускаются, пустое — null', () => {
+    it('булево — Y/N, массив без справочника пропускается, пустое — null', () => {
         expect(toPortalValue(false)).toBe('N');
         expect(toPortalValue(['a'])).toBeNull();
         expect(toPortalValue(' текст ')).toBe('текст');
         expect(toPortalValue('')).toBeNull();
+    });
+
+    /*
+     * Множественный справочник (возражения, 02.09): опросник держит КОДЫ
+     * вариантов, в портал уезжают id СПРАВОЧНИКА НОСИТЕЛЯ — у сделки и
+     * компании они разные. Код без пары выпадает, ни одного — null.
+     */
+    it('массив кодов → id справочника носителя, чужие коды выпадают', () => {
+        const options = [
+            { code: 'nomoney', bitrixId: 101 },
+            { code: 'lpr', bitrixId: 102 },
+        ];
+
+        expect(
+            toPortalValue(['lpr', 'nomoney'], undefined, undefined, options),
+        ).toEqual(['102', '101']);
+        expect(
+            toPortalValue(['unknown'], undefined, undefined, options),
+        ).toBeNull();
+        expect(toPortalValue([], undefined, undefined, options)).toBeNull();
     });
 
     it('дата уходит каноном портала, а не строкой браузера', () => {

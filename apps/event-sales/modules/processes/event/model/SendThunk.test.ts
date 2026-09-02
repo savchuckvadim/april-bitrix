@@ -33,10 +33,21 @@ import { sendEvent, retrySendEvent } from './SendThunk';
  */
 
 // Журнал порядка событий — общий для моков и харнеса.
-const { events, sendFlowMock, watchMock } = vi.hoisted(() => ({
+const { events, sendFlowMock, watchMock, clearDraftMock } = vi.hoisted(() => ({
     events: [] as string[],
     sendFlowMock: vi.fn(),
     watchMock: vi.fn(),
+    clearDraftMock: vi.fn(),
+}));
+
+// Черновик комментария в localStorage: ловим только его стирание, остальной
+// пакет (kv-хранилище outbox) остаётся настоящим.
+vi.mock('@workspace/api', async importOriginal => ({
+    ...(await importOriginal<typeof import('@workspace/api')>()),
+    clearFromLocalStorage: (key: string) => {
+        clearDraftMock(key);
+        return Promise.resolve();
+    },
 }));
 
 // Единственный HTTP отправки — мокаем класс, которым пользуется primary-цель.
@@ -130,6 +141,7 @@ beforeEach(() => {
     events.length = 0;
     sendFlowMock.mockReset();
     watchMock.mockReset();
+    clearDraftMock.mockReset();
 });
 
 afterEach(() => {
@@ -306,6 +318,43 @@ describe('sendEvent: порядок конвейера', () => {
         expect((error?.payload as { message: string }).message).toContain(
             'можно повторить',
         );
+    });
+});
+
+describe('sendEvent: черновик комментария', () => {
+    /*
+     * Черновик живёт в localStorage под ключом компании и пользователя — без
+     * задачи. Стирать его в cleanEvent мало: очистка идёт по `done` поллинга
+     * и пропускается, если менеджер уже открыл другую задачу той же
+     * компании, — тогда reloadApp → getSavedComment возвращал отправленный
+     * комментарий в форму следующего отчёта.
+     */
+    it('accepted: черновик стёрт сразу, не дожидаясь done', async () => {
+        sendFlowMock.mockResolvedValue({ operationId: 'x', status: 'queued' });
+
+        const { dispatch } = makeHarness();
+
+        await dispatch(sendEvent());
+
+        expect(clearDraftMock).toHaveBeenCalledTimes(1);
+        expect(String(clearDraftMock.mock.calls[0]![0])).toContain(
+            '_comment',
+        );
+    });
+
+    it('4xx: черновик остаётся — «Повторить» и перезагрузка не теряют текст', async () => {
+        sendFlowMock.mockRejectedValue(
+            Object.assign(new Error('Bad Request'), {
+                isAxiosError: true,
+                response: { status: 422 },
+            }),
+        );
+
+        const { dispatch } = makeHarness();
+
+        await dispatch(sendEvent());
+
+        expect(clearDraftMock).not.toHaveBeenCalled();
     });
 });
 

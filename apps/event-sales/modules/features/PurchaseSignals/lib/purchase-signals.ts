@@ -31,8 +31,37 @@ export const toInputDate = (raw: unknown): string => {
     return '';
 };
 
-/** Названия выбранных конкурентов из multiple-enum значения строки. */
-export const readConcurents = (
+/** Вариант справочника конкурентов: код общий для всех сущностей, имя — с портала. */
+export interface ConcurentOption {
+    code: string;
+    name: string;
+}
+
+/**
+ * Варианты справочника «Конкуренты» у носителя, где поле установлено.
+ *
+ * Именно ВАРИАНТЫ, а не только выбранные: до 02.09 карточка показывала
+ * конкурентов бэйджами и лишь когда они уже стояли в CRM — пустое поле
+ * было невидимо, и владелец не находил в UI «проинсталлированное поле».
+ * Выбирать конкурентов нужно здесь же, где смотрят даты его договора.
+ */
+export const readConcurentOptions = (
+    fields: PBXField[] | null | undefined,
+): ConcurentOption[] => {
+    const field = findPortalField(fields, CONCURENTS_FIELD_CODE);
+    if (!field) return [];
+    return field.items
+        .filter(item => item.code)
+        .map(item => ({ code: item.code, name: item.name }));
+};
+
+/**
+ * Коды выбранных конкурентов из multiple-enum значения строки носителя.
+ *
+ * Именно КОДЫ: у компании, сделки и лида справочник свой, числовые id
+ * элементов разные, и общий язык между носителями — только код варианта.
+ */
+export const readConcurentCodes = (
     fields: PBXField[] | null | undefined,
     row: Record<string, unknown> | null | undefined,
 ): string[] => {
@@ -43,6 +72,30 @@ export const readConcurents = (
     const raw = row[key];
     const ids = Array.isArray(raw) ? raw.map(String) : [];
     return ids
-        .map(id => field.items.find(item => String(item.bitrixId) === id)?.name)
-        .filter((name): name is string => Boolean(name));
+        .map(id => field.items.find(item => String(item.bitrixId) === id)?.code)
+        .filter((code): code is string => Boolean(code));
+};
+
+/**
+ * Значение multiple-enum поля носителя по кодам вариантов.
+ *
+ * Нет поля у носителя — null (писать некуда). Код без пары в справочнике
+ * носителя выпадает молча: писать чужой id значило бы положить в карточку
+ * случайного конкурента. Пусто — `''`: пустой массив в query-строке фрейма
+ * исчезает целиком, и поле осталось бы неочищенным.
+ */
+export const toConcurentFieldValue = (
+    fields: PBXField[] | null | undefined,
+    codes: readonly string[],
+): { key: string; value: string[] | '' } | null => {
+    const field = findPortalField(fields, CONCURENTS_FIELD_CODE);
+    const key = findUfKey(fields, CONCURENTS_FIELD_CODE);
+    if (!field || !key) return null;
+
+    const ids = codes
+        .map(code => field.items.find(item => item.code === code)?.bitrixId)
+        .filter((id): id is NonNullable<typeof id> => id != null)
+        .map(String);
+
+    return { key, value: ids.length ? ids : '' };
 };

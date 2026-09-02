@@ -1,5 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
+    composeSurveyBlockValue,
+    EMPTY_SURVEY_BLOCK,
+    type SurveyBlockDraft,
+} from '../lib/check-presentation.blocks';
+import {
     CheckPresentationItem,
     CheckPresentationValue,
 } from '../type/check-presentation-type';
@@ -13,6 +18,15 @@ export const initialState = {
         answers: {} as Record<string, CheckPresentationValue>,
         /** последний сохранённый снимок ответов (baseline для отмены) */
         committed: {} as Record<string, CheckPresentationValue>,
+        /**
+         * Черновики блоков с подвопросами (02.09): собственный текст,
+         * ответы по подвопросам, развёрнут ли блок. Значение поля CRM из
+         * черновика собирается в `answers` при каждой правке — всё, что
+         * читает ответы (persist, payload, сводка), видит одну строку.
+         */
+        blocks: {} as Record<string, SurveyBlockDraft>,
+        /** снимок черновиков блоков — откатывается вместе с committed */
+        committedBlocks: {} as Record<string, SurveyBlockDraft>,
     },
     isActive: false as boolean,
     initialized: false as boolean,
@@ -30,6 +44,23 @@ export const initialState = {
     persistError: null as string | null,
 };
 
+/** Правка ответов снимает подтверждение — см. setAnswer. */
+const touch = (state: AfterPresentationState): void => {
+    state.isConfirmed = false;
+    state.persistError = null;
+};
+
+/** Пересобрать значение блока после правки черновика. */
+const recomposeBlock = (state: AfterPresentationState, id: string): void => {
+    const item = state.checkPresentation.items.find(entry => entry.id === id);
+    const draft = state.checkPresentation.blocks[id] ?? EMPTY_SURVEY_BLOCK;
+    state.checkPresentation.answers[id] = composeSurveyBlockValue(
+        item?.questions ?? [],
+        draft,
+    );
+    touch(state);
+};
+
 const afterPresentationSlice = createSlice({
     name: 'afterPresentation',
     initialState,
@@ -39,22 +70,6 @@ const afterPresentationSlice = createSlice({
             action: PayloadAction<{ items: CheckPresentationItem[] }>,
         ) => {
             state.checkPresentation.items = action.payload.items;
-            // Шаблон — стартовое ЗНАЧЕНИЕ поля, а не подсказка: менеджер
-            // открывает опросник и сразу видит пронумерованные вопросы,
-            // между которыми пишет ответы. Посев идёт и в committed, иначе
-            // «отмена» вычистила бы вопросы из поля.
-            //
-            // Уже введённый ответ шаблоном не затирается: инициализация
-            // случается раз на портал, но перестраховка здесь дешевле
-            // потерянного ответа.
-            for (const item of action.payload.items) {
-                if (!item.template) continue;
-                if (state.checkPresentation.answers[item.id] !== undefined) {
-                    continue;
-                }
-                state.checkPresentation.answers[item.id] = item.template;
-                state.checkPresentation.committed[item.id] = item.template;
-            }
             state.initialized = true;
         },
         setAnswer: (
@@ -73,8 +88,48 @@ const afterPresentationSlice = createSlice({
              * снимком, хотя менеджер видел новый. Теперь после правки
              * опросник снова обязателен и уедет ровно то, что подтверждено.
              */
-            state.isConfirmed = false;
-            state.persistError = null;
+            touch(state);
+        },
+        /** Собственный текст блока (свёрнутый режим или общий ответ). */
+        setBlockText: (
+            state: AfterPresentationState,
+            action: PayloadAction<{ id: string; text: string }>,
+        ) => {
+            const current =
+                state.checkPresentation.blocks[action.payload.id] ??
+                EMPTY_SURVEY_BLOCK;
+            state.checkPresentation.blocks[action.payload.id] = {
+                ...current,
+                text: action.payload.text,
+            };
+            recomposeBlock(state, action.payload.id);
+        },
+        /** Ответ на подвопрос блока по его индексу. */
+        setBlockSub: (
+            state: AfterPresentationState,
+            action: PayloadAction<{ id: string; index: number; text: string }>,
+        ) => {
+            const current =
+                state.checkPresentation.blocks[action.payload.id] ??
+                EMPTY_SURVEY_BLOCK;
+            state.checkPresentation.blocks[action.payload.id] = {
+                ...current,
+                sub: { ...current.sub, [action.payload.index]: action.payload.text },
+            };
+            recomposeBlock(state, action.payload.id);
+        },
+        /** «Развернуть подробно» / свернуть — вид, значение не меняется. */
+        setBlockExpanded: (
+            state: AfterPresentationState,
+            action: PayloadAction<{ id: string; expanded: boolean }>,
+        ) => {
+            const current =
+                state.checkPresentation.blocks[action.payload.id] ??
+                EMPTY_SURVEY_BLOCK;
+            state.checkPresentation.blocks[action.payload.id] = {
+                ...current,
+                expanded: action.payload.expanded,
+            };
         },
         /**
          * Ответ, записанный на портал МИМО опросника (ручная правка
@@ -105,11 +160,17 @@ const afterPresentationSlice = createSlice({
             state.checkPresentation.committed = {
                 ...state.checkPresentation.answers,
             };
+            state.checkPresentation.committedBlocks = {
+                ...state.checkPresentation.blocks,
+            };
         },
         /** откатить рабочие ответы к последнему сохранённому снимку (при отмене) */
         revertAnswers: (state: AfterPresentationState) => {
             state.checkPresentation.answers = {
                 ...state.checkPresentation.committed,
+            };
+            state.checkPresentation.blocks = {
+                ...state.checkPresentation.committedBlocks,
             };
         },
         setConfirmed: (
@@ -135,6 +196,8 @@ const afterPresentationSlice = createSlice({
         resetForNewEvent: (state: AfterPresentationState) => {
             state.checkPresentation.answers = {};
             state.checkPresentation.committed = {};
+            state.checkPresentation.blocks = {};
+            state.checkPresentation.committedBlocks = {};
             state.isConfirmed = false;
             state.pendingSend = false;
             state.isActive = false;

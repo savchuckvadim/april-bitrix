@@ -1,9 +1,4 @@
 import {
-    isSurveyTemplateOnly,
-    surveyTemplateByCode,
-} from '@workspace/event-sales-flow';
-
-import {
     CheckPresentationFieldType,
     CheckPresentationItem,
     CheckPresentationValue,
@@ -12,12 +7,11 @@ import {
 /**
  * Заполнен ли ответ по полю (с учётом типа поля).
  *
- * ШАБЛОН ВОПРОСОВ — НЕ ОТВЕТ. Поле открывается с пронумерованными
- * подвопросами внутри (переделка 01.09.2026), и они лежат в answers как
- * обычное значение. Без этой проверки обязательность блоков «Хвоста»
- * становилась бутафорией: менеджер жал «Сохранить», не написав ни слова,
- * валидатор видел непустую строку и пропускал, а в CRM не уезжало ничего —
- * там тот же шаблон отсекается. Отчёт выглядел заполненным, ответов не было.
+ * Для блока с подвопросами значение — уже собранная строка
+ * (`composeSurveyBlockValue`): она непуста ровно тогда, когда менеджер
+ * написал хоть что-то в строке Вопроса или ответил хоть на один
+ * подвопрос — это и есть обязательность родителя (02.09). Шаблон вопросов
+ * в значение больше не сеется, поэтому «непусто» снова значит «отвечено».
  */
 export const isAnswerFilled = (
     item: CheckPresentationItem,
@@ -35,12 +29,8 @@ export const isAnswerFilled = (
 
         case CheckPresentationFieldType.DATE:
         case CheckPresentationFieldType.STRING:
-        default: {
-            if (typeof value !== 'string' || !value.trim()) return false;
-            const template = surveyTemplateByCode(item.code);
-            if (template && isSurveyTemplateOnly(value, template)) return false;
-            return true;
-        }
+        default:
+            return typeof value === 'string' && value.trim().length > 0;
     }
 };
 

@@ -1,6 +1,7 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import {
     clearComment,
+    clearCommentDraft,
     eventReportActions,
 } from '@/modules/entities/EventReport';
 import { eventTaskActions } from '@/modules/entities/EventTask';
@@ -236,6 +237,24 @@ export const sendEvent =
                 }),
             );
             return;
+        }
+
+        /*
+         * Черновик комментария потреблён: отчёт принят бэком, исполнен прямо
+         * либо лежит в хранилище и доедет дренажем. Стираем СЕЙЧАС, а не в
+         * cleanEvent: тот идёт по `done` поллинга и пропускается, если
+         * менеджер к тому моменту открыл другую задачу той же компании
+         * (clean-after-send), — и черновик возвращался в форму следующего
+         * отчёта через reloadApp → getSavedComment. Форма не трогается:
+         * «Повторить» при ошибке шлёт комментарий из стейта.
+         */
+        if (
+            summary.status === 'accepted' ||
+            summary.status === 'executed-direct' ||
+            summary.status === 'direct-incomplete' ||
+            summary.persisted
+        ) {
+            void dispatch(clearCommentDraft());
         }
 
         if (summary.status === 'direct-incomplete') {

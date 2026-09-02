@@ -52,26 +52,52 @@ export const setAndSaveComment =
         }, 400);
     };
 
-/** Восстановление черновика комментария при инициализации процесса. */
+/**
+ * Восстановление черновика комментария при инициализации процесса.
+ *
+ * Только в ПУСТУЮ форму. Init перезапускается после каждой отправки
+ * (`reloadApp`), и менеджер к этому моменту нередко уже печатает
+ * комментарий к следующей задаче той же компании: ключ черновика знает
+ * компанию и пользователя, но не задачу, и восстановление поверх набранного
+ * подменяло бы живой текст сохранённым 400 мс назад.
+ */
 export const getSavedComment =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
         const { domain, key } = getCommentContext(getState());
         const saved = await getFromLocalStorage(key, domain);
-        if (saved) {
-            dispatch(
-                eventReportActions.setReportProp({
-                    propName: EV_REPORT_PROP.COMMENT,
-                    value: String(saved),
-                }),
-            );
-        }
+        if (!saved) return;
+        if (getState().eventReport.report[EV_REPORT_PROP.COMMENT]) return;
+        dispatch(
+            eventReportActions.setReportProp({
+                propName: EV_REPORT_PROP.COMMENT,
+                value: String(saved),
+            }),
+        );
     };
 
-/** Очистка черновика после успешной отправки. */
+/**
+ * Черновик в localStorage стирается, форма НЕ трогается.
+ *
+ * Зовётся в момент, когда отчёт принят к доставке: черновик потреблён, и
+ * держать его дальше — значит вернуть отправленный комментарий в форму
+ * следующего отчёта. Именно так и происходило: очистка формы (`cleanEvent`)
+ * идёт по `done` поллинга и пропускается, если менеджер до этого открыл
+ * другую задачу той же компании (clean-after-send) — черновик переживал
+ * отправку, а `reloadApp` → `getSavedComment` возвращал его в форму.
+ *
+ * Состояние формы остаётся на своём месте: при ошибке доставки «Повторить»
+ * шлёт комментарий из стейта, а не из черновика.
+ */
+export const clearCommentDraft =
+    () => async (_dispatch: AppDispatch, getState: AppGetState) => {
+        const { key } = getCommentContext(getState());
+        await clearFromLocalStorage(key);
+    };
+
+/** Очистка черновика И формы после успешной отправки. */
 export const clearComment =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const { key } = getCommentContext(getState());
-        clearFromLocalStorage(key);
+        await dispatch(clearCommentDraft());
         dispatch(
             eventReportActions.setReportProp({
                 propName: EV_REPORT_PROP.COMMENT,

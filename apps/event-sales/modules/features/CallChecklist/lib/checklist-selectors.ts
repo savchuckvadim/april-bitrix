@@ -99,8 +99,17 @@ const isConditionActive = (
         case 'targetStage': {
             // Отправка двинет основную сделку на эту стадию — знает только
             // предикт (лестница живёт на бэке). Нет предикта — анкета молчит.
-            const code = state.stagePredict.result?.targetStageCode;
-            return Boolean(code) && values.includes(String(code));
+            const predict = state.stagePredict.result;
+            if (!predict?.targetStageCode) return false;
+            if (!values.includes(String(predict.targetStageCode))) return false;
+            // Условие про ПЕРЕХОД, а не про «сделка стоит на этой стадии».
+            // Лестница бэка не умеет понижать: у сделки, которая уже на
+            // «Клиент на решении», целевой стадией возвращается она же — и
+            // без этой проверки модалка вставала перед КАЖДОЙ отправкой по
+            // такой сделке, даже когда планируют доработку и сделка никуда
+            // не едет. `willChange` бэк считает сам (target !== current),
+            // фронт его до 02.09 просто не читал.
+            return predict.willChange;
         }
         default:
             // Вид условия, которого движок не знает: анкету НЕ показываем.

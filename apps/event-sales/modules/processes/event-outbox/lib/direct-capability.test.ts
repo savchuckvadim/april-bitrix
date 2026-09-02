@@ -49,6 +49,7 @@ describe('buildDirectFlowSettings — зеркало бэковых выраже
             withTaskChecklist: true,
             withCalculatedNextEvent: false,
             withFinalFieldsReset: true,
+            withRefineStageOnPlan: true,
         });
 
         expect(settings.withTaskChecklist).toBe(true);
@@ -56,6 +57,13 @@ describe('buildDirectFlowSettings — зеркало бэковых выраже
             calculatedNextEvent: false,
             resetOnFinal: true,
         });
+        expect(settings.stageRuleSettings).toEqual({ refineStageOnPlan: true });
+    });
+
+    it('ключа правила стадий нет (кэш прошлой схемы) — undefined, дефолт схемы решает use-case', () => {
+        const settings = buildDirectFlowSettings({ withTaskChecklist: false });
+
+        expect(settings.stageRuleSettings).toBeUndefined();
     });
 
     it('ответ без ключей политик (кэш прошлой схемы) — политики undefined, дефолты схемы решает use-case', () => {

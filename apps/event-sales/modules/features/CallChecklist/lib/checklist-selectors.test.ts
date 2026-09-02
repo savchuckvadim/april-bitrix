@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { RootState } from '@/modules/app/model/store';
+import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import { answerKey } from '@/modules/entities/Questionnaire/lib/answer-key';
 import { FALLBACK_CATALOG } from '@/modules/entities/Questionnaire/data/fallback-catalog';
+import type { QuestionnaireDef } from '@/modules/entities/Questionnaire/model/questionnaire.type';
 import {
     resolveChecklistFields,
     selectChecklistRows,
@@ -48,6 +50,14 @@ const makeState = (over?: {
     /** Рубильник портала «анкеты выключены для типов события» (CSV кодов). */
     disabledEventTypes?: string;
     targetStageCode?: string | null;
+    /** Предикт говорит «стадия сменится». По умолчанию да — это переход. */
+    stageWillChange?: boolean;
+    /** Статус работы в отчёте; по умолчанию «В работе». */
+    workStatus?: string;
+    /** Состав анкет в сторе; по умолчанию встроенный каталог. */
+    defs?: QuestionnaireDef[];
+    /** Поля сделки в слепке портала; по умолчанию — поле «Доработки». */
+    dealFields?: Array<Record<string, unknown>>;
     values?: Record<string, string>;
     confirmed?: Record<string, boolean>;
     dealRow?: Record<string, unknown> | null;
@@ -82,15 +92,26 @@ const makeState = (over?: {
             },
         },
         eventTask: { current: null },
+        eventReport: {
+            report: {
+                [EV_REPORT_PROP.WORK_STATUS]: {
+                    current: { code: over?.workStatus ?? 'inJob' },
+                },
+            },
+        },
         stagePredict: {
             status: over?.targetStageCode ? 'ready' : 'idle',
             requestKey: null,
             result: over?.targetStageCode
-                ? { targetStageCode: over.targetStageCode, baseDealId: 10 }
+                ? {
+                      targetStageCode: over.targetStageCode,
+                      baseDealId: 10,
+                      willChange: over.stageWillChange ?? true,
+                  }
                 : null,
         },
         // Портального каталога нет — в сторе встроенный состав.
-        questionnaireCatalog: { defs: FALLBACK_CATALOG },
+        questionnaireCatalog: { defs: over?.defs ?? FALLBACK_CATALOG },
         callChecklist: {
             valueByKey: {
                 // Ключ ответа — «анкета:вопрос», не код поля.
@@ -113,7 +134,8 @@ const makeState = (over?: {
             portal: {
                 bitrixDeal: {
                     bitrixfields:
-                        (over?.withDealField ?? true) ? [REASON_FIELD] : [],
+                        over?.dealFields ??
+                        ((over?.withDealField ?? true) ? [REASON_FIELD] : []),
                 },
             },
         },
@@ -235,21 +257,57 @@ describe('CallChecklist: один источник для карточки и п
     });
 });
 
-describe('CallChecklist: стадийные модалки (по предикту)', () => {
+/*
+ * Модалки встроенного каталога висят на СОБЫТИИ, не на стадии (02.09):
+ * `sale` — статус работы «Продажа», `decision` — план «Решение». Через
+ * `targetStage` анкета вставала перед каждой отправкой по сделке, уже
+ * стоящей на «Клиент на решении», даже при плане «Доработка».
+ */
+describe('CallChecklist: модалки по событию', () => {
     const saleConfig = { withChecklistSale: true };
 
-    it('предикт «Продажа» + настройка → модалка sale в очереди', () => {
+    it('статус «Продажа» + настройка → модалка sale в очереди', () => {
+        const state = makeState({
+            enabled: false,
+            config: saleConfig,
+            workStatus: 'success',
+        });
+        expect(selectNextPendingChecklist(state)?.code).toBe('sale');
+    });
+
+    it('статус «В работе» — модалки продажи нет, даже с предиктом «Успех»', () => {
         const state = makeState({
             enabled: false,
             config: saleConfig,
             targetStageCode: 'sales_success',
         });
-        expect(selectNextPendingChecklist(state)?.code).toBe('sale');
+        expect(selectNextPendingChecklist(state)).toBeNull();
     });
 
-    it('без предикта модалок нет', () => {
-        const state = makeState({ enabled: false, config: saleConfig });
-        expect(selectNextPendingChecklist(state)).toBeNull();
+    it('план «Решение» + настройка → модалка decision; план «Доработка» — нет', () => {
+        const decisionConfig = { withChecklistDecision: true };
+        const decisionField = {
+            code: 'op_offer_date',
+            bitrixId: 'OP_OFFER_DATE',
+            items: [],
+        };
+        const withHot = makeState({
+            enabled: false,
+            config: decisionConfig,
+            planCode: 'hot',
+            dealRow: { ID: '10', UF_CRM_OP_OFFER_DATE: '' },
+            dealFields: [decisionField],
+        });
+        expect(selectNextPendingChecklist(withHot)?.code).toBe('decision');
+
+        const withRefine = makeState({
+            enabled: false,
+            config: decisionConfig,
+            planCode: 'refine',
+            dealRow: { ID: '10', UF_CRM_OP_OFFER_DATE: '' },
+            dealFields: [decisionField],
+        });
+        expect(selectNextPendingChecklist(withRefine)).toBeNull();
     });
 
     it('заполненные dto-поля не закрывают шаг без confirm, confirm закрывает', () => {
@@ -260,7 +318,7 @@ describe('CallChecklist: стадийные модалки (по предикт�
         const notConfirmed = makeState({
             enabled: false,
             config: saleConfig,
-            targetStageCode: 'sales_success',
+            workStatus: 'success',
             values: filled,
         });
         // Значения есть, но шаг-подтверждение ещё не пройден.
@@ -269,7 +327,7 @@ describe('CallChecklist: стадийные модалки (по предикт�
         const confirmed = makeState({
             enabled: false,
             config: saleConfig,
-            targetStageCode: 'sales_success',
+            workStatus: 'success',
             values: filled,
             confirmed: { sale: true },
         });
@@ -280,7 +338,7 @@ describe('CallChecklist: стадийные модалки (по предикт�
         const state = makeState({
             enabled: false,
             config: saleConfig,
-            targetStageCode: 'sales_success',
+            workStatus: 'success',
             confirmed: { sale: true },
         });
         expect(selectNextPendingChecklist(state)?.code).toBe('sale');
@@ -290,9 +348,49 @@ describe('CallChecklist: стадийные модалки (по предикт�
         const state = makeState({
             enabled: false,
             config: saleConfig,
-            targetStageCode: 'sales_success',
+            workStatus: 'success',
             dealRow: null,
         });
         expect(selectNextPendingChecklist(state)?.code).toBe('sale');
+    });
+});
+
+/*
+ * Вид `targetStage` остаётся для ПОРТАЛЬНЫХ анкет: схема бэка его допускает.
+ * Инцидент 02.09: у сделки, которая УЖЕ на «Клиент на решении», лестница
+ * бэка возвращает целевой стадией её же (понижать нельзя) — отличает
+ * переход от «стоит на стадии» только `willChange`.
+ */
+describe('CallChecklist: портальная анкета по целевой стадии', () => {
+    const stageDef: QuestionnaireDef = {
+        ...(FALLBACK_CATALOG.find(def => def.code === 'sale') as QuestionnaireDef),
+        code: 'portalStage',
+        configKey: null,
+        legacyChecklistId: null,
+        conditions: [{ kind: 'targetStage', values: ['sales_success'] }],
+    };
+
+    it('переход на стадию — модалка в очереди', () => {
+        const state = makeState({
+            enabled: false,
+            defs: [stageDef],
+            targetStageCode: 'sales_success',
+        });
+        expect(selectNextPendingChecklist(state)?.code).toBe('portalStage');
+    });
+
+    it('стадия не меняется (сделка уже там) — модалки нет', () => {
+        const state = makeState({
+            enabled: false,
+            defs: [stageDef],
+            targetStageCode: 'sales_success',
+            stageWillChange: false,
+        });
+        expect(selectNextPendingChecklist(state)).toBeNull();
+    });
+
+    it('без предикта модалки нет', () => {
+        const state = makeState({ enabled: false, defs: [stageDef] });
+        expect(selectNextPendingChecklist(state)).toBeNull();
     });
 });

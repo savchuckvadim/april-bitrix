@@ -12,10 +12,16 @@ import {
  */
 export interface PurchaseSignalsState {
     valueByCode: Record<string, string>;
+    /** Коды выбранных конкурентов поверх строки; null — правок не было. */
+    concurentCodes: string[] | null;
     error: string | null;
 }
 
-const initialState: PurchaseSignalsState = { valueByCode: {}, error: null };
+const initialState: PurchaseSignalsState = {
+    valueByCode: {},
+    concurentCodes: null,
+    error: null,
+};
 
 const purchaseSignalsSlice = createSlice({
     name: 'purchaseSignals',
@@ -26,6 +32,9 @@ const purchaseSignalsSlice = createSlice({
             action: PayloadAction<{ code: string; value: string }>,
         ) {
             state.valueByCode[action.payload.code] = action.payload.value;
+        },
+        setConcurents(state, action: PayloadAction<{ codes: string[] }>) {
+            state.concurentCodes = action.payload.codes;
         },
         setError(state, action: PayloadAction<{ message: string | null }>) {
             state.error = action.payload.message;
@@ -40,6 +49,10 @@ export const purchaseSignalsActions: {
     setValue: ActionCreatorWithPayload<
         { code: string; value: string },
         'purchaseSignals/setValue'
+    >;
+    setConcurents: ActionCreatorWithPayload<
+        { codes: string[] },
+        'purchaseSignals/setConcurents'
     >;
     setError: ActionCreatorWithPayload<
         { message: string | null },

@@ -2,13 +2,14 @@
 
 import { FC, useState } from 'react';
 import { SectionCard } from '@workspace/april-ui/surfaces';
-import { ToneBadge } from '@workspace/april-ui';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
+import { ChoiceChips } from '@/modules/shared/ui/ChoiceChips';
 import { usePurchaseSignals } from '../lib/hooks/use-purchase-signals';
 
 /**
- * «Покупка и конкуренты» — даты, от которых зависит, когда звонить о покупке.
+ * «Покупка и конкуренты» — даты, от которых зависит, когда звонить о покупке,
+ * и сами конкуренты клиента.
  *
  * Обязательны к ОЗНАКОМЛЕНИЮ, не к заполнению: карточка стоит на виду и
  * ничего не блокирует. Возможная дата покупки бессмысленна без сроков
@@ -64,23 +65,18 @@ export const PurchaseSignalsCard: FC = () => {
                     </div>
                 ))}
 
-                {signals.concurents.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1 pt-1">
-                        {signals.concurents.map(name => (
-                            // Название конкурента — живой текст из CRM: бэйдж
-                            // не шире карточки, многоточие внутренним span'ом.
-                            <ToneBadge
-                                key={name}
-                                tone="muted"
-                                variant="soft"
-                                size="sm"
-                                className="max-w-full"
-                            >
-                                <span title={name} className="truncate">
-                                    {name}
-                                </span>
-                            </ToneBadge>
-                        ))}
+                {signals.concurents.options.length > 0 && (
+                    <div className="space-y-1 pt-1">
+                        <Label className="text-xs text-muted-foreground">
+                            Конкуренты
+                        </Label>
+                        {/* Пишет в CRM сразу, как даты рядом. */}
+                        <ChoiceChips
+                            ariaLabel="Конкуренты"
+                            options={signals.concurents.options}
+                            selected={signals.concurents.selected}
+                            onToggle={signals.concurents.toggle}
+                        />
                     </div>
                 )}
 

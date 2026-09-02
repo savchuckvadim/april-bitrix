@@ -3,6 +3,7 @@ import { readSwrCache } from '@workspace/api';
 import type {
     DirectCapabilityMap,
     EventFieldPolicySettings,
+    EventStageRuleSettings,
     FlowSettings,
 } from '@workspace/event-sales-flow';
 
@@ -64,9 +65,18 @@ export const buildDirectFlowSettings = (
               }
             : undefined;
 
+    // Правило «Доработка всегда» (бэковый resolveStageRuleSettings): ключа
+    // в записи нет (кэш прошлой схемы) — undefined, use-case берёт дефолт
+    // схемы, исключение выключено.
+    const stageRuleSettings: EventStageRuleSettings | undefined =
+        raw && raw.withRefineStageOnPlan !== undefined
+            ? { refineStageOnPlan: Boolean(raw.withRefineStageOnPlan) }
+            : undefined;
+
     return {
         withTaskChecklist: raw ? Boolean(raw.withTaskChecklist) : false,
         fieldPolicySettings,
+        stageRuleSettings,
         capabilities: { ...DIRECT_CAPABILITY_DEFAULTS },
     };
 };

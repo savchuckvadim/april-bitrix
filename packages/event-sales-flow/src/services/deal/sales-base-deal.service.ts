@@ -53,6 +53,7 @@ export class SalesBaseDealService {
             isFail: ctx.isFail,
             isNoResult: ctx.isNoResult,
             isNotCa: ctx.isNotCa,
+            refineStageOnPlan: ctx.stageRuleSettings.refineStageOnPlan,
         });
         if (!targetStage) {
             this.logger.warn('sales_base target stage not resolved');

@@ -19,7 +19,10 @@ import {
     EventReportContext,
 } from '../services/context/event-report.context';
 import { EventReportEntityFlowService } from '../services/entity/event-report-entity-flow.service';
-import { DEFAULT_FIELD_POLICY_SETTINGS } from '../services/entity/field-policy';
+import {
+    DEFAULT_FIELD_POLICY_SETTINGS,
+    DEFAULT_STAGE_RULE_SETTINGS,
+} from '../services/entity/field-policy';
 import {
     DealFlowResult,
     EventReportDealFlowService,
@@ -351,6 +354,11 @@ export async function executeEventReportFlow(
     // недоступны»: упавший источник настроек не повод врать в карточку).
     ctx.setFieldPolicySettings(
         settings.fieldPolicySettings ?? DEFAULT_FIELD_POLICY_SETTINGS,
+    );
+    // Правила стадий (бэковый resolveStageRuleSettings): не переданы —
+    // дефолт СХЕМЫ, исключение «Доработка всегда» выключено.
+    ctx.setStageRuleSettings(
+        settings.stageRuleSettings ?? DEFAULT_STAGE_RULE_SETTINGS,
     );
 
     const entityFlow = new EventReportEntityFlowService(bitrix, portal);

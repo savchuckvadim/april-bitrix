@@ -72,13 +72,32 @@ const viewsOf = (state: RootState, def: ChecklistDef) =>
         onClear: () => {},
     });
 
+/**
+ * Набор решения с ОБЯЗАТЕЛЬНЫМ счётом.
+ *
+ * В каталоге счёт на переходе необязателен (правка владельца 02.09: договор
+ * и счёт к этому моменту бывают ещё не готовы). Проверка здесь — про
+ * изоляцию ключа ответа, а не про политику обязательности: обязательность
+ * задаётся локально, чтобы тест не переставал что-либо доказывать при
+ * следующей правке состава.
+ */
+const decisionWithRequiredInvoice = (): ChecklistDef => {
+    const def = defById('decision');
+    return {
+        ...def,
+        items: def.items.map(item =>
+            item.code === INVOICE_CODE ? { ...item, isRequired: true } : item,
+        ),
+    };
+};
+
 describe('Ключ ответа: одно поле в двух наборах', () => {
     it('ответ в наборе оплаты не закрывает тот же вопрос в наборе решения', () => {
         const state = makeState();
 
         expect(getChecklistMissing(state, defById('pay'))).toEqual([]);
         expect(
-            getChecklistMissing(state, defById('decision')).map(
+            getChecklistMissing(state, decisionWithRequiredInvoice()).map(
                 field => field.code,
             ),
         ).toContain(INVOICE_CODE);
@@ -93,9 +112,10 @@ describe('Ключ ответа: одно поле в двух наборах', 
         expect(payField?.isSaved).toBe(true);
         expect(payField?.isMissing).toBe(false);
 
-        const decisionField = viewsOf(state, defById('decision')).find(
-            field => field.def.code === INVOICE_CODE,
-        );
+        const decisionField = viewsOf(
+            state,
+            decisionWithRequiredInvoice(),
+        ).find(field => field.def.code === INVOICE_CODE);
         expect(decisionField?.answerKey).toBe('decision:op_invoice_date');
         expect(decisionField?.value).toBe('');
         expect(decisionField?.isSaved).toBe(false);

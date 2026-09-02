@@ -1,14 +1,16 @@
 'use client';
 
-import { FC, Fragment } from 'react';
-import { getFiveKGroup } from '../../lib/check-presentation.groups';
+import { FC } from 'react';
 import type {
     CheckPresentationItem,
     CheckPresentationValue,
 } from '../../type/check-presentation-type';
-import { CheckPresentationField } from './CheckPresentationField';
+import {
+    CheckPresentationField,
+    type SurveyBlockHandlers,
+} from './CheckPresentationField';
 
-interface CheckPresentationFiveKProps {
+interface CheckPresentationFiveKProps extends SurveyBlockHandlers {
     items: CheckPresentationItem[];
     answers: Record<string, CheckPresentationValue>;
     missingIds: string[];
@@ -16,43 +18,27 @@ interface CheckPresentationFiveKProps {
 }
 
 /**
- * Колонка «Пять К»: вопросы с тонкими полосами-разделителями категорий.
- *
- * Категория написана один раз на полосе, а не в каждом лейбле («КЛИЕНТ: …»
- * двадцать раз подряд читались как шум).
+ * Колонка «Пять К»: пять блоков-категорий, каждый со своими подвопросами.
+ * Категорию называет заголовок блока — отдельных полос-разделителей нет с
+ * переделки 01.09.2026, когда подвопросы ушли внутрь блока.
  */
 export const CheckPresentationFiveK: FC<CheckPresentationFiveKProps> = ({
     items,
     answers,
     missingIds,
     onChange,
+    ...blockHandlers
 }) => (
     <div className="space-y-3">
-        {items.map((item, index) => {
-            const group = getFiveKGroup(item.code);
-            const prevCode = items[index - 1]?.code;
-            const prevGroup = prevCode ? getFiveKGroup(prevCode) : null;
-            return (
-                <Fragment key={item.id}>
-                    {group && group !== prevGroup && (
-                        <div
-                            className="flex items-center gap-2 pt-1"
-                            aria-hidden
-                        >
-                            <span className="text-[0.625rem] font-medium tracking-wide text-muted-foreground uppercase">
-                                {group}
-                            </span>
-                            <span className="h-px flex-1 bg-border" />
-                        </div>
-                    )}
-                    <CheckPresentationField
-                        item={item}
-                        value={answers[item.id]}
-                        isMissing={missingIds.includes(item.id)}
-                        onChange={value => onChange(item.id, value)}
-                    />
-                </Fragment>
-            );
-        })}
+        {items.map(item => (
+            <CheckPresentationField
+                key={item.id}
+                item={item}
+                value={answers[item.id]}
+                isMissing={missingIds.includes(item.id)}
+                onChange={value => onChange(item.id, value)}
+                {...blockHandlers}
+            />
+        ))}
     </div>
 );

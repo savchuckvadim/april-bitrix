@@ -1,5 +1,6 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { checkPresentationData } from '../data/check-presentation';
+import { withPortalOptions } from '../lib/check-presentation.options';
 import { afterPresentationActions } from './AfterPresentationSlice';
 import {
     persistCheckPresentation,
@@ -7,15 +8,23 @@ import {
 } from './CheckPresentationPersistThunk';
 
 /**
- * Загрузка опросника. TODO(бэк): заменить мок-каталог на запрос
- * (опросник у разных клиентов отличается) — см. gap-док.
+ * Загрузка опросника: встроенный состав + варианты справочников со слепка
+ * портала (возражения). Зовётся листенером на setPortal — слепок к этому
+ * моменту в сторе. TODO(бэк): заменить мок-каталог на запрос (опросник у
+ * разных клиентов отличается) — см. gap-док.
  */
 export const initCheckPresentation =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
-        if (getState().afterPresentation.initialized) return;
+        const state = getState();
+        if (state.afterPresentation.initialized) return;
+        const portal = state.portal.portal;
         dispatch(
             afterPresentationActions.setInitialized({
-                items: checkPresentationData,
+                items: withPortalOptions(checkPresentationData, {
+                    deal: portal?.bitrixDeal?.bitrixfields,
+                    company: portal?.company?.bitrixfields,
+                    lead: portal?.lead?.bitrixfields,
+                }),
             }),
         );
     };

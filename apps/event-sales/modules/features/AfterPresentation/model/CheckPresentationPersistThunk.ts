@@ -1,5 +1,5 @@
 import { Bitrix } from '@workspace/bitrix';
-import { findUfKey } from '@workspace/pbx';
+import { findPortalField, findUfKey } from '@workspace/pbx';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { reportFrontError } from '@/modules/shared/front-error';
 import { isBaseSalesDeal } from '@/modules/entities/RelatedCrm/lib/deal-category';
@@ -137,7 +137,7 @@ export const persistCheckPresentation =
                 kind: 'company',
                 id: company?.ID,
                 fields: portal.company?.bitrixfields,
-                update: (id: number, payload: Record<string, string>) =>
+                update: (id: number, payload: Record<string, string | string[]>) =>
                     bitrix.company.update(id, payload as never),
             },
             {
@@ -145,14 +145,14 @@ export const persistCheckPresentation =
                 id: dealTargetId,
                 // Поля сделки в слепке лежат под bitrixDeal — историческое имя.
                 fields: portal.bitrixDeal?.bitrixfields,
-                update: (id: number, payload: Record<string, string>) =>
+                update: (id: number, payload: Record<string, string | string[]>) =>
                     bitrix.deal.update(id, payload as never),
             },
             {
                 kind: 'lead',
                 id: lead?.ID,
                 fields: portal.lead?.bitrixfields,
-                update: (id: number, payload: Record<string, string>) =>
+                update: (id: number, payload: Record<string, string | string[]>) =>
                     bitrix.lead.update(id, payload as never),
             },
         ];
@@ -175,6 +175,9 @@ export const persistCheckPresentation =
                 answers: portalAnswers,
                 resolveKey: code => findUfKey(target.fields, code),
                 typeByCode,
+                // Справочник носителя: коды вариантов общие, id — свои.
+                resolveOptions: code =>
+                    findPortalField(target.fields, code)?.items ?? null,
             });
             if (!Object.keys(payload).length) continue;
 

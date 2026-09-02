@@ -8,7 +8,10 @@
  * настройки приложения (storedKeys) и конфиг фронта; сборка — А3/А4.
  */
 
-import type { EventFieldPolicySettings } from '../services/entity/field-policy';
+import type {
+    EventFieldPolicySettings,
+    EventStageRuleSettings,
+} from '../services/entity/field-policy';
 import type { LeadUfDefinitions } from '../shared/portal-fields';
 
 /**
@@ -88,6 +91,14 @@ export interface FlowSettings {
      * недоступны — работаем на дефолтах схемы, а не выключаем расчёт».
      */
     fieldPolicySettings?: EventFieldPolicySettings;
+    /**
+     * Правила стадий основной воронки — итог бэкового
+     * `resolveStageRuleSettings` (Boolean-коэрция портального
+     * `withRefineStageOnPlan`). Отсутствует → дефолт СХЕМЫ
+     * (`DEFAULT_STAGE_RULE_SETTINGS`): исключение «Доработка всегда»
+     * выключено — бэковая ветка «настройки недоступны».
+     */
+    stageRuleSettings?: EventStageRuleSettings;
     /**
      * Определения UF-полей-связей лида «как они есть на портале» — итог
      * бэкового `leadLinkDefinitions` (`LeadUfDefinitionsService.resolve`,

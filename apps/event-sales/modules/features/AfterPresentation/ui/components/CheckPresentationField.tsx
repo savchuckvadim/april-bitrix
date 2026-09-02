@@ -12,13 +12,19 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import { ChoiceChips } from '@/modules/shared/ui/ChoiceChips';
 import { toDateInputValue } from '@/modules/shared/lib/crm-date';
 import { getDisplayTitle } from '../../lib/check-presentation.groups';
+import {
+    EMPTY_SURVEY_BLOCK,
+    type SurveyBlockDraft,
+} from '../../lib/check-presentation.blocks';
 import {
     CheckPresentationFieldType,
     CheckPresentationItem,
     CheckPresentationValue,
 } from '../../type/check-presentation-type';
+import { SurveyBlockField } from './SurveyBlockField';
 
 const BOOLEAN_OPTIONS: MicroSegmentedOption[] = [
     { value: 'yes', label: 'Да' },
@@ -34,12 +40,25 @@ const BOOLEAN_ANSWER: Record<string, string | undefined> = {
     false: 'no',
 };
 
-interface CheckPresentationFieldProps {
+/** Обработчики блока с подвопросами; нужны только позициям с `questions`. */
+export interface SurveyBlockHandlers {
+    blocks: Record<string, SurveyBlockDraft>;
+    onBlockText: (id: string, text: string) => void;
+    onBlockSub: (id: string, index: number, text: string) => void;
+    onBlockExpanded: (id: string, expanded: boolean) => void;
+}
+
+interface CheckPresentationFieldProps extends SurveyBlockHandlers {
     item: CheckPresentationItem;
     value: CheckPresentationValue | undefined;
     isMissing: boolean;
     onChange: (value: CheckPresentationValue) => void;
 }
+
+const toggleCode = (selected: string[], code: string): string[] =>
+    selected.includes(code)
+        ? selected.filter(item => item !== code)
+        : [...selected, code];
 
 /** Одно поле опросника: рендер по типу (string/boolean/date/enumeration). */
 export const CheckPresentationField: FC<CheckPresentationFieldProps> = ({
@@ -47,12 +66,38 @@ export const CheckPresentationField: FC<CheckPresentationFieldProps> = ({
     value,
     isMissing,
     onChange,
+    blocks,
+    onBlockText,
+    onBlockSub,
+    onBlockExpanded,
 }) => {
+    // Блок с подвопросами — свой виджет: заголовок с тултипом, разворот.
+    if (item.type === CheckPresentationFieldType.STRING && item.questions) {
+        return (
+            <SurveyBlockField
+                item={item}
+                block={blocks[item.id] ?? EMPTY_SURVEY_BLOCK}
+                isMissing={isMissing}
+                onText={text => onBlockText(item.id, text)}
+                onSub={(index, text) => onBlockSub(item.id, index, text)}
+                onExpanded={expanded => onBlockExpanded(item.id, expanded)}
+            />
+        );
+    }
+
+    // Множественный справочник без вариантов на портале не рисуется вовсе:
+    // выбирать не из чего, а пустая подпись читалась бы как сломанное поле.
+    if (
+        item.type === CheckPresentationFieldType.ENUMERATION &&
+        item.isMultiple &&
+        !item.options?.length
+    ) {
+        return null;
+    }
+
     return (
         <div className="space-y-1.5">
             <Label className={isMissing ? 'text-destructive' : undefined}>
-                {/* У 5К префикс «КЛИЕНТ:» срезан — категорию несёт
-                    полоса-разделитель группы; в данных title полный. */}
                 {getDisplayTitle(item)}
                 {item.required && ' *'}
             </Label>
@@ -109,23 +154,48 @@ export const CheckPresentationField: FC<CheckPresentationFieldProps> = ({
                 />
             )}
 
-            {item.type === CheckPresentationFieldType.ENUMERATION && (
-                <Select
-                    value={typeof value === 'string' ? value : undefined}
-                    onValueChange={onChange}
-                >
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder={item.placeholder} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {(item.options ?? []).map(option => (
-                            <SelectItem key={option.code} value={option.code}>
-                                {option.title}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            )}
+            {item.type === CheckPresentationFieldType.ENUMERATION &&
+                item.isMultiple && (
+                    <ChoiceChips
+                        ariaLabel={item.title}
+                        invalid={isMissing}
+                        options={(item.options ?? []).map(option => ({
+                            code: option.code,
+                            name: option.title,
+                        }))}
+                        selected={Array.isArray(value) ? value : []}
+                        onToggle={code =>
+                            onChange(
+                                toggleCode(
+                                    Array.isArray(value) ? value : [],
+                                    code,
+                                ),
+                            )
+                        }
+                    />
+                )}
+
+            {item.type === CheckPresentationFieldType.ENUMERATION &&
+                !item.isMultiple && (
+                    <Select
+                        value={typeof value === 'string' ? value : undefined}
+                        onValueChange={onChange}
+                    >
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder={item.placeholder} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {(item.options ?? []).map(option => (
+                                <SelectItem
+                                    key={option.code}
+                                    value={option.code}
+                                >
+                                    {option.title}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
         </div>
     );
 };

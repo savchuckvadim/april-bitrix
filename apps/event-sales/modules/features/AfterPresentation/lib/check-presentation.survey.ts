@@ -1,9 +1,4 @@
-import {
-    FIVE_K_TEMPLATES,
-    isSurveyTemplateOnly,
-    surveyTemplateByCode,
-    XVOST_TEMPLATES,
-} from '@workspace/event-sales-flow';
+import { FIVE_K_TEMPLATES, XVOST_TEMPLATES } from '@workspace/event-sales-flow';
 
 import { findUfKey } from '@workspace/pbx';
 import type { RootState } from '@/modules/app/model/store';
@@ -53,22 +48,15 @@ const XVOST_CODE = 'op_presentation_xvost';
  * Пустое в payload не уезжает: бэк отличает «не прислали» от «прислали
  * пусто», и пустая строка стёрла бы поле, которое мог заполнить кто-то
  * другой — ровно то же правило, что у фрейм-записи (`toPortalValue`).
+ * Блок с подвопросами уже собран в одну строку слайсом
+ * (`composeSurveyBlockValue`) — здесь он неотличим от обычного текста.
  */
 const asAnswerText = (
     value: CheckPresentationValue | undefined,
-    code?: string,
 ): string | null => {
     if (typeof value !== 'string') return null;
     const text = value.trim();
-    if (!text) return null;
-    // Нетронутый шаблон — не ответ. С 01.09.2026 поле открывается с
-    // вопросами внутри и пустым не бывает никогда, поэтому проверка на
-    // пустоту сама по себе больше ничего не гарантирует.
-    if (code) {
-        const template = surveyTemplateByCode(code);
-        if (template && isSurveyTemplateOnly(text, template)) return null;
-    }
-    return text;
+    return text || null;
 };
 
 /** Ответы блока по префиксу кода реестра; пустых в блоке не бывает. */
@@ -79,7 +67,7 @@ const pickBlock = (
     const block: Record<string, string> = {};
     for (const [code, value] of Object.entries(answers)) {
         if (!codes.has(code)) continue;
-        const text = asAnswerText(value, code);
+        const text = asAnswerText(value);
         if (text) block[code] = text;
     }
     return block;

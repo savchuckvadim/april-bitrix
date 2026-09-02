@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { RootState } from '@/modules/app/model/store';
+import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import { FALLBACK_CATALOG } from '@/modules/entities/Questionnaire/data/fallback-catalog';
 import type { QuestionnaireDef } from '@/modules/entities/Questionnaire/model/questionnaire.type';
 import {
@@ -51,6 +52,12 @@ const makeState = (over?: {
             current: over?.reportEventType
                 ? { eventType: over.reportEventType }
                 : null,
+        },
+        // Статус работы читает условие `workStatus` встроенной «Продажи».
+        eventReport: {
+            report: {
+                [EV_REPORT_PROP.WORK_STATUS]: { current: { code: 'inJob' } },
+            },
         },
         stagePredict: { status: 'idle', requestKey: null, result: null },
         // По умолчанию портального каталога нет — в сторе встроенный состав.

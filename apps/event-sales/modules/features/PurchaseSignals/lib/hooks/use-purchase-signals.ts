@@ -3,11 +3,16 @@
 import { useMemo } from 'react';
 import { findUfKey } from '@workspace/pbx';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { savePurchaseDate } from '../../model/PurchaseSignalsThunk';
+import {
+    saveConcurents,
+    savePurchaseDate,
+} from '../../model/PurchaseSignalsThunk';
 import {
     PURCHASE_DATE_FIELDS,
-    readConcurents,
+    readConcurentCodes,
+    readConcurentOptions,
     toInputDate,
+    type ConcurentOption,
     type PurchaseDateCode,
 } from '../purchase-signals';
 
@@ -18,17 +23,25 @@ export interface PurchaseDateView {
     setValue: (value: string) => void;
 }
 
+export interface ConcurentsView {
+    /** Варианты справочника; пусто — поле не установлено ни у одного носителя. */
+    options: ConcurentOption[];
+    /** Коды выбранных вариантов. */
+    selected: string[];
+    toggle: (code: string) => void;
+}
+
 export interface PurchaseSignalsView {
     /** Хоть одно поле установлено на портале — иначе карточки нет вовсе. */
     isAvailable: boolean;
     dates: PurchaseDateView[];
-    concurents: string[];
+    concurents: ConcurentsView;
     /** Локальный откат/ошибка записи. */
     error: string | null;
 }
 
 /**
- * Даты покупки и конкурентов текущего клиента.
+ * Даты покупки и конкуренты текущего клиента.
  *
  * Носители — СДЕЛКА + сущность-владелец (компания, а без неё лид), а не
  * один по приоритету (требование владельца 31.08, todo3108: «не вижу
@@ -39,7 +52,13 @@ export interface PurchaseSignalsView {
  *
  * Чтение: значение — первое непустое по носителям (сделка точнее, она
  * первая); показ поля — если оно установлено ХОТЬ у одного носителя.
- * Запись (savePurchaseDate) — во всех носителей, у кого поле есть.
+ * Запись (savePurchaseDate / saveConcurents) — во всех носителей, у кого
+ * поле есть.
+ *
+ * Конкуренты — ВЫБОР, а не только показ (02.09): справочник виден всегда,
+ * когда поле установлено, даже пустой. До этого карточка рисовала лишь уже
+ * выбранных бэйджами, и пустое поле было невидимо — владелец не находил в
+ * UI «проинсталлированное поле конкурентов».
  */
 export const usePurchaseSignals = (): PurchaseSignalsView => {
     const dispatch = useAppDispatch();
@@ -47,6 +66,9 @@ export const usePurchaseSignals = (): PurchaseSignalsView => {
     const bitrix = useAppSelector(s => s.app.bitrix);
     const error = useAppSelector(s => s.purchaseSignals.error);
     const overrides = useAppSelector(s => s.purchaseSignals.valueByCode);
+    const concurentOverride = useAppSelector(
+        s => s.purchaseSignals.concurentCodes,
+    );
 
     return useMemo(() => {
         const targets = [
@@ -75,8 +97,19 @@ export const usePurchaseSignals = (): PurchaseSignalsView => {
             Boolean(target),
         );
 
+        const noConcurents: ConcurentsView = {
+            options: [],
+            selected: [],
+            toggle: () => {},
+        };
+
         if (!targets.length) {
-            return { isAvailable: false, dates: [], concurents: [], error };
+            return {
+                isAvailable: false,
+                dates: [],
+                concurents: noConcurents,
+                error,
+            };
         }
 
         const dates: PurchaseDateView[] = [];
@@ -98,16 +131,38 @@ export const usePurchaseSignals = (): PurchaseSignalsView => {
             });
         }
 
-        // Справочник конкурентов — тоже первый носитель, у которого он есть.
-        const concurents = targets
-            .map(target => readConcurents(target.fields, target.row))
-            .find(names => names.length > 0);
+        // Справочник — у первого носителя, где поле установлено; выбранные
+        // — у первого, где они есть (сделка точнее компании).
+        const options =
+            targets
+                .map(target => readConcurentOptions(target.fields))
+                .find(items => items.length > 0) ?? [];
+        const storedCodes =
+            targets
+                .map(target => readConcurentCodes(target.fields, target.row))
+                .find(codes => codes.length > 0) ?? [];
+        const selected = concurentOverride ?? storedCodes;
+
+        const concurents: ConcurentsView = options.length
+            ? {
+                  options,
+                  selected,
+                  toggle: code =>
+                      dispatch(
+                          saveConcurents(
+                              selected.includes(code)
+                                  ? selected.filter(item => item !== code)
+                                  : [...selected, code],
+                          ),
+                      ),
+              }
+            : noConcurents;
 
         return {
-            isAvailable: dates.length > 0,
+            isAvailable: dates.length > 0 || options.length > 0,
             dates,
-            concurents: concurents ?? [],
+            concurents,
             error,
         };
-    }, [bitrix, portal, dispatch, error, overrides]);
+    }, [bitrix, portal, dispatch, error, overrides, concurentOverride]);
 };

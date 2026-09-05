@@ -4,7 +4,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Eye, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector, selectIsViewAs } from '@/modules/app';
 import { deactivateViewAs } from '../model/view-as-thunks';
-import { headOfLabel } from '../lib/head-of-label.util';
+import { visibilityLabel } from '@/modules/entities/department';
 
 /**
  * Жёлтая плашка активного режима «Смотреть как…»: кто и в какой роли
@@ -15,7 +15,7 @@ export const ViewAsBanner = () => {
     const dispatch = useAppDispatch();
     const isViewAs = useAppSelector(selectIsViewAs);
     const user = useAppSelector(s => s.app.viewAs.user);
-    const headOf = useAppSelector(s => s.department.currentUser?.headOf);
+    const currentUser = useAppSelector(s => s.department.currentUser);
 
     if (!isViewAs || !user) return null;
 
@@ -27,7 +27,7 @@ export const ViewAsBanner = () => {
                 <span className="font-medium">
                     {user.LAST_NAME} {user.NAME}
                 </span>{' '}
-                — {headOfLabel(headOf ?? null)}. Сохранение настроек отключено.
+                — {visibilityLabel(currentUser)}. Сохранение настроек отключено.
             </span>
             <Button
                 variant="outline"

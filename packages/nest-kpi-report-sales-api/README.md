@@ -15,8 +15,17 @@ npm run dev:kpi-report-sales  # поднимет http://localhost:3000 (swagger:
 pnpm generate
 ```
 
-После генерации обнови ручной баррель `src/generated/index.ts` — orval в режиме
-`tags-split` не создаёт корневой index (см. комментарии в файле).
+Без поднятого бэка (нет локальной БД): выгрузить спеку офлайн и передать файл —
+
+```bash
+# в back/ — DI-граф без init(): Prisma не коннектится, кроны не стартуют
+npx ts-node -T -r tsconfig-paths/register scripts/dump-openapi.ts kpi-report-sales out.json
+# в этом пакете
+ORVAL_INPUT=/abs/path/out.json pnpm generate
+```
+
+Баррель `src/generated/index.ts` пересобирается скриптом после orval
+(`scripts/build-generated-index.mjs`), руками его не трогать.
 
 ## Использование
 

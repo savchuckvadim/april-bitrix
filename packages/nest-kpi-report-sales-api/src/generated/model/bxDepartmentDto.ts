@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 import type { BXUserDto } from './bXUserDto';
-import type { BxDepartmentDtoUFHEAD } from './bxDepartmentDtoUFHEAD';
 
 export interface BxDepartmentDto {
     /** Department ID */
@@ -19,6 +18,11 @@ export interface BxDepartmentDto {
     SORT: number;
     /** Department users */
     USERS: BXUserDto[];
-    /** Department head */
-    UF_HEAD: BxDepartmentDtoUFHEAD;
+    /**
+     * Руководитель отдела (user id). Битрикс отдаёт строкой/числом — сервис нормализует к числу; 0/пусто → null.
+     * @nullable
+     */
+    UF_HEAD: number | null;
+    /** Руководители отдела (user id): руководитель первым, потом заместители. Собирается из новой структуры компании (REST 3.0, роли участников узла) и легаси UF_HEAD; пустой список — руководителя нет. UF_HEAD = первый элемент. */
+    HEADS: number[];
 }

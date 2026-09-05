@@ -3,4 +3,4 @@
 export { ViewAsControl } from './ui/ViewAsControl';
 export { ViewAsBanner } from './ui/ViewAsBanner';
 export { activateViewAs, deactivateViewAs } from './model/view-as-thunks';
-export { headOfLabel } from './lib/head-of-label.util';
+export { visibilityLabel } from '@/modules/entities/department';

@@ -9,6 +9,7 @@ import type {
     BxWebHookDto,
     ColdCallHookResponseDto,
     EventSalesHookColdCallParams,
+    EventSalesHookV2ColdCallParams,
 } from '.././model';
 
 import { customAxios } from '../../lib/event-sales-api';
@@ -30,12 +31,35 @@ export const getEventSalesColdHook = () => {
             params,
         });
     };
-    return { eventSalesHookColdCall };
+    /**
+     * Принимает хук холодного звонка и кладёт его в silence-буфер на отложенную обработку. Создание сделок, задачи и элементов KPI в Bitrix выполняется асинхронно после окна тишины. Дедлайн (query `deadline`) трактуется как локальное время портала и конвертируется в Москву для задачи и в локаль портала для CRM-полей.
+     * @summary Поставить холодный звонок
+     */
+    const eventSalesHookV2ColdCall = (
+        bxWebHookDto: BxWebHookDto,
+        params: EventSalesHookV2ColdCallParams,
+    ) => {
+        return customAxios<ColdCallHookResponseDto>({
+            url: `/api/event-sales-hook/cold-call-v2`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: bxWebHookDto,
+            params,
+        });
+    };
+    return { eventSalesHookColdCall, eventSalesHookV2ColdCall };
 };
 export type EventSalesHookColdCallResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<typeof getEventSalesColdHook>['eventSalesHookColdCall']
+        >
+    >
+>;
+export type EventSalesHookV2ColdCallResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getEventSalesColdHook>['eventSalesHookV2ColdCall']
         >
     >
 >;

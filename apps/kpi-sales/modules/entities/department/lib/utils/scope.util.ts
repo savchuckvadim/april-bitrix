@@ -4,6 +4,7 @@ import type {
     DepartmentScope,
     SalesDepartment,
 } from '../../model';
+import { resolveVisibility } from './visibility.util';
 
 const uniqueUsers = (users: BXUser[]): BXUser[] => {
     const byId = new Map<number, BXUser>();
@@ -32,11 +33,14 @@ const findSelf = (
 };
 
 /**
- * Видимый периметр по роли (currentUser.headOf из structure-эндпоинта):
- *  cup / суперпользователь — вся структура;
- *  op — свои отделы (headOfDepartmentIds);
+ * Видимый периметр по уровню видимости (currentUser.visibility из
+ * structure-эндпоинта; для старых ответов и снимков ссылок — по headOf):
+ *  all / суперпользователь — вся структура;
+ *  department — свои отделы (headOfDepartmentIds);
  *  group — свои группы;
- *  null (менеджер) — только он сам.
+ *  own (менеджер) — только он сам.
+ * Уровень может быть поднят настройкой портала (headOfSource=settings) —
+ * бэк уже учёл это в headOf/headOfDepartmentIds, фронт ничего не досчитывает.
  *
  * defaultSelected — выбор по умолчанию до применения сохранённого фильтра:
  * руководитель со своей группой — своя группа, иначе все видимые.
@@ -52,7 +56,9 @@ export const computeDepartmentScope = (
         (currentUser.headOfDepartmentIds ?? []).map(Number),
     );
 
-    if (superUser || currentUser.headOf === 'cup') {
+    const visibility = resolveVisibility(currentUser);
+
+    if (superUser || visibility === 'all') {
         const groups = departments.flatMap(dep => dep.groups);
         return {
             users: uniqueUsers(departments.flatMap(dep => dep.allUsers)),
@@ -64,7 +70,7 @@ export const computeDepartmentScope = (
         };
     }
 
-    if (currentUser.headOf === 'op') {
+    if (visibility === 'department') {
         const own = departments.filter(dep =>
             headIds.has(Number(dep.department.ID)),
         );
@@ -78,7 +84,7 @@ export const computeDepartmentScope = (
         };
     }
 
-    if (currentUser.headOf === 'group') {
+    if (visibility === 'group') {
         const ownGroups = departments
             .flatMap(dep => dep.groups)
             .filter(group => headIds.has(Number(group.ID)));

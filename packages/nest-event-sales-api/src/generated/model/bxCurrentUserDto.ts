@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type { BxCurrentUserDtoHeadOf } from './bxCurrentUserDtoHeadOf';
+import type { BxCurrentUserDtoVisibility } from './bxCurrentUserDtoVisibility';
+import type { BxCurrentUserDtoHeadOfSource } from './bxCurrentUserDtoHeadOfSource';
 import type { BxCurrentUserColleaguesDto } from './bxCurrentUserColleaguesDto';
 
 export interface BxCurrentUserDto {
@@ -20,6 +22,10 @@ export interface BxCurrentUserDto {
     headOf: BxCurrentUserDtoHeadOf;
     /** Идентификаторы отделов, которыми руководит пользователь (на уровне headOf). */
     headOfDepartmentIds: number[];
+    /** Уровень видимости: own — только себя; group — своя группа; department — свой ОП со всеми группами; all — вся структура. Соответствует headOf: null / group / op / cup. */
+    visibility: BxCurrentUserDtoVisibility;
+    /** Источник роли: structure — руководитель по структуре Битрикса (HEADS отдела); settings — уровень поднят настройкой портала «Отдел продаж» (visibility_*_user_ids). */
+    headOfSource: BxCurrentUserDtoHeadOfSource;
     /** Коллеги текущего пользователя. */
     colleagues: BxCurrentUserColleaguesDto;
 }

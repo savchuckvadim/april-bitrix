@@ -8,47 +8,27 @@
 
 export interface AgentFiveKItemsDto {
     /**
-     * КЛИЕНТ: Что хочет?
+     * КЛИЕНТ: задачи, что важно отслеживать, какой функционал важен
      * @nullable
      */
-    clientWhat?: boolean | null;
+    client?: boolean | null;
     /**
-     * КЛИЕНТ: Готов работать?
+     * КОМПАНИЯ: сфера, структура, как принимается решение, кто влияет
      * @nullable
      */
-    clientReady?: boolean | null;
+    company?: boolean | null;
     /**
-     * КЛИЕНТ: Укладываемся в цену?
-     * @nullable
-     */
-    clientPrice?: boolean | null;
-    /**
-     * КОМПАНИЯ: Кто принимает решение?
-     * @nullable
-     */
-    companyWho?: boolean | null;
-    /**
-     * КОМПАНИЯ: Как принимается решение?
-     * @nullable
-     */
-    companyHow?: boolean | null;
-    /**
-     * КОМПАНИЯ: Правильно ли подобрали цену и комплект?
-     * @nullable
-     */
-    companyRight?: boolean | null;
-    /**
-     * КОЛЛЕГИ: Кто будет работать с системой, будут ли обсуждать?
+     * КОЛЛЕГИ: бухгалтерия, кадры, охрана труда, правовые вопросы
      * @nullable
      */
     colleagues?: boolean | null;
     /**
-     * КОНКУРЕНТ: По каким критериям нас сравнивают?
+     * КОНКУРЕНТ: чья СПС, срок договора, цена, чего не хватает
      * @nullable
      */
     competitor?: boolean | null;
     /**
-     * КРИТЕРИЙ ВЫБОРА: Что важно клиенту при выборе СПС?
+     * КРИТЕРИИ ВЫБОРА: что ещё предлагают, на что смотрит при выборе
      * @nullable
      */
     criteria?: boolean | null;

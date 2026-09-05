@@ -12,6 +12,7 @@ const dep = (
     parent: number,
     head: number | string | null,
     users: number[] = [],
+    heads?: number[],
 ): BXDepartment =>
     ({
         ID: id,
@@ -19,6 +20,7 @@ const dep = (
         PARENT: String(parent),
         SORT: 100,
         UF_HEAD: head,
+        ...(heads ? { HEADS: heads } : {}),
         USERS: users.map(uid => user(uid, [id])),
     }) as unknown as BXDepartment;
 
@@ -88,6 +90,78 @@ describe('resolveDepartmentRole', () => {
             allUsers: [user(100, [3])],
         });
         expect(info.role).toBe(EDepartmentRole.DEPARTMENT_HEAD);
+    });
+
+    it('второй руководитель отдела из HEADS при UF_HEAD null → DEPARTMENT_HEAD', () => {
+        // Новая структура при двух руководителях пишет в UF_HEAD null;
+        // бэк восстанавливает список HEADS из структуры v3.
+        const twoHeads: DepartmentStructureState = {
+            general: [dep(3, 1, null, [100, 101], [100, 101])],
+            children: [dep(7, 3, 200, [200, 300])],
+            parents: [dep(1, 0, 900, [900])],
+        };
+        const users = [
+            user(100, [3]),
+            user(101, [3]),
+            user(200, [7]),
+            user(300, [7]),
+        ];
+        const second = resolveDepartmentRole({
+            userId: 101,
+            bossId: 0,
+            structure: twoHeads,
+            allUsers: users,
+        });
+        expect(second.role).toBe(EDepartmentRole.DEPARTMENT_HEAD);
+        // Руководитель второго руководителя — из родительского отдела.
+        expect(second.headId).toBe(900);
+        // Сотрудник группы по-прежнему подчинён руководителю группы.
+        const employee = resolveDepartmentRole({
+            userId: 300,
+            bossId: 0,
+            structure: twoHeads,
+            allUsers: users,
+        });
+        expect(employee.headId).toBe(200);
+    });
+
+    it('заместитель группы из HEADS → GROUP_HEAD, его руководитель — выше по цепочке', () => {
+        const withDeputy: DepartmentStructureState = {
+            general: [dep(3, 1, 100, [100])],
+            children: [dep(7, 3, 200, [200, 300, 301], [200, 300])],
+            parents: [],
+        };
+        const info = resolveDepartmentRole({
+            userId: 300,
+            bossId: 0,
+            structure: withDeputy,
+            allUsers: [
+                user(100, [3]),
+                user(200, [7]),
+                user(300, [7]),
+                user(301, [7]),
+            ],
+        });
+        expect(info.role).toBe(EDepartmentRole.GROUP_HEAD);
+        // Сам в HEADS группы → руководитель из отдела выше, как у руководителя.
+        expect(info.headId).toBe(100);
+        expect(info.colleagueIds.sort()).toEqual([200, 301]);
+    });
+
+    it('HEADS пустой при UF_HEAD null — руководителя нет, роль EMPLOYEE', () => {
+        const headless: DepartmentStructureState = {
+            general: [dep(3, 0, null, [300], [])],
+            children: [],
+            parents: [],
+        };
+        const info = resolveDepartmentRole({
+            userId: 300,
+            bossId: 42,
+            structure: headless,
+            allUsers: [user(300, [3])],
+        });
+        expect(info.role).toBe(EDepartmentRole.EMPLOYEE);
+        expect(info.headId).toBe(42);
     });
 
     it('без head в цепочке падаем на bossId, без bossId — null', () => {

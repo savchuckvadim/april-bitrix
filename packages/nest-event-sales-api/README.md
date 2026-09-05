@@ -17,6 +17,16 @@ pnpm generate
 После генерации обнови ручной баррель `src/generated/index.ts` — orval в режиме
 `tags-split` не создаёт корневой index (см. комментарии в файле).
 
+Без поднятого бэка (нет локальной БД, кроны event-sales ходят в боевые порталы):
+выгрузить спеку офлайн и передать файл —
+
+```bash
+# в back/ — DI-граф без init(): Prisma не коннектится, кроны не стартуют
+npx ts-node -T -r tsconfig-paths/register scripts/dump-openapi.ts event-sales out.json
+# в этом пакете
+ORVAL_INPUT=/abs/path/out.json pnpm generate
+```
+
 ## Использование
 
 Только внутри `lib/api/*-helper.ts` слайсов приложения (правило CLAUDE.md).

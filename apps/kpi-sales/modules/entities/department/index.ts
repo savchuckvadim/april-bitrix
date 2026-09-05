@@ -10,3 +10,4 @@ export * from './lib/utils/super-user';
 export * from './lib/utils/department-util';
 export { default as departmentReducer } from './model/department-slice';
 export * from './lib/utils/structure-sections.util';
+export * from './lib/utils/visibility.util';

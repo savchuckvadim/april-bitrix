@@ -8,28 +8,28 @@
 
 export interface AgentHvostStepsDto {
     /**
-     * Предложено КП?
+     * ЖЕЛАНИЕ РАБОТАТЬ С ГАРАНТОМ: впечатление, что запомнилось, с чем хотел бы работать
      * @nullable
      */
-    offer?: boolean | null;
+    desire?: boolean | null;
     /**
-     * Озвучено наполнение комплекта?
+     * ЧТО ПРЕДЛОЖИЛИ: кому нужна СПС, какое наполнение и цену озвучили
      * @nullable
      */
-    complect?: boolean | null;
+    offered?: boolean | null;
     /**
-     * Озвучена цена?
+     * РЕАКЦИЯ НА ЦЕНУ: как клиент отреагировал
      * @nullable
      */
-    price?: boolean | null;
+    priceReaction?: boolean | null;
     /**
-     * Назначена дата звонка по решению?
+     * ПРОЦЕСС ПРИНЯТИЯ РЕШЕНИЯ: кто и как решает, контакты коллег
      * @nullable
      */
-    decisionDate?: boolean | null;
+    decisionProcess?: boolean | null;
     /**
-     * Дата согласована с клиентом (он подтвердил)?
+     * ВЫХОД НА РЕШЕНИЕ: готовность продвигать, направленные документы, о чём договорились
      * @nullable
      */
-    dateAgreed?: boolean | null;
+    decisionWay?: boolean | null;
 }

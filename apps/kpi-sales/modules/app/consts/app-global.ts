@@ -5,7 +5,7 @@ import { BXUser } from '@workspace/bx';
  * Bitrix — вне фрейма показываем nonauth. DEV: вне фрейма работаем
  * с TESTING_* данными (fallback внутри @workspace/bitrix).
  */
-export const IS_PROD = process.env.NEXT_PUBLIC_IN_BITRIX === 'true'
+export const IS_PROD = true // process.env.NEXT_PUBLIC_IN_BITRIX === 'true' || true
 export const KPI_REPORT_BASE_URL = process.env.NEXT_PUBLIC_KPI_SALES_API_URL || 'https://api.kpi-report-sales.ru/'
 // export const TESTING_DOMAIN = 'gsr.bitrix24.ru';
 export const TESTING_DOMAIN = 'gsirk.bitrix24.ru';

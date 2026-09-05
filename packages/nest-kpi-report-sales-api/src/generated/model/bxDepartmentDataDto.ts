@@ -15,6 +15,8 @@ export interface BxDepartmentDataDto {
     generalDepartment: BxDepartmentDto[];
     /** Children departments */
     childrenDepartments: BxDepartmentDto[];
+    /** Родительские отделы базового (климб по PARENT до 3 уровней, с сотрудниками) — для честного «вышестоящего» без хардкода bossId. */
+    parentDepartments?: BxDepartmentDto[];
     /** All users */
     allUsers: BXUserDto[];
 }

@@ -20,7 +20,10 @@ export interface BXDepartment {
     NAME: string;
     PARENT: string; // "1"
     SORT: number;
-    UF_HEAD?: number[] | number | string[] | string; // "1"
+    /** Легаси руководитель; бэк отдаёт number|null, сырой Битрикс — строку/массив. */
+    UF_HEAD?: number[] | number | string[] | string | null;
+    /** Руководители и заместители (бэк: структура v3 ∪ UF_HEAD), руководитель первым. */
+    HEADS?: number[];
     USERS: BXUser[] | null;
 }
 

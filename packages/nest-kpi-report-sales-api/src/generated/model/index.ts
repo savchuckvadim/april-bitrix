@@ -37,6 +37,8 @@ export * from './bitrixUser';
 export * from './bxCurrentUserColleaguesDto';
 export * from './bxCurrentUserDto';
 export * from './bxCurrentUserDtoHeadOf';
+export * from './bxCurrentUserDtoHeadOfSource';
+export * from './bxCurrentUserDtoVisibility';
 export * from './bxDepartmentCacheResetRequestDto';
 export * from './bxDepartmentCacheResetRequestDtoDomain';
 export * from './bxDepartmentCacheResetResponseDto';

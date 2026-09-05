@@ -4,10 +4,13 @@ import { DepartmentStructureState } from '../type/department-type';
 /**
  * Роль пользователя в структуре отдела продаж (as const — литеральные типы):
  *  - EMPLOYEE — обычный сотрудник;
- *  - GROUP_HEAD — руководитель группы (UF_HEAD дочернего отдела);
- *  - DEPARTMENT_HEAD — руководитель отдела (UF_HEAD базового отдела);
- *  - SUPER — вышестоящий: bossId, UF_HEAD родительского отдела или человек
- *    вне поддерева продаж (директор смотрит чужую карточку) — «можно всё».
+ *  - GROUP_HEAD — руководитель или заместитель группы (HEADS дочернего отдела);
+ *  - DEPARTMENT_HEAD — руководитель или заместитель отдела (HEADS базового);
+ *  - SUPER — вышестоящий: bossId, руководитель родительского отдела или
+ *    человек вне поддерева продаж (директор смотрит чужую карточку) —
+ *    «можно всё».
+ * Руководители отдела — список HEADS с бэка (структура v3 + UF_HEAD);
+ * для ответов без списка — UF_HEAD.
  */
 export const EDepartmentRole = {
     EMPLOYEE: 'employee',
@@ -38,18 +41,30 @@ export interface ResolveDepartmentRoleInput {
 /** Предохранитель подъёма по PARENT (порт headIdFor из responsible.service). */
 const HEAD_CLIMB_LIMIT = 5;
 
-/** UF_HEAD приходит числом/строкой/массивом — наружу только валидный id. */
-const headOf = (dep: BXDepartment | undefined): number | null => {
-    if (!dep) return null;
-    const raw = Array.isArray(dep.UF_HEAD) ? dep.UF_HEAD[0] : dep.UF_HEAD;
-    const id = Number(raw);
-    return Number.isFinite(id) && id > 0 ? id : null;
-};
-
 const toId = (value: unknown): number | null => {
     const id = Number(value);
     return Number.isFinite(id) && id > 0 ? id : null;
 };
+
+/**
+ * Руководители отдела: HEADS (руководитель первым, потом заместители);
+ * без списка — UF_HEAD числом/строкой/массивом/null. Наружу — валидные id.
+ */
+const headsOf = (dep: BXDepartment | undefined): number[] => {
+    if (!dep) return [];
+    const raw: unknown[] =
+        Array.isArray(dep.HEADS) && dep.HEADS.length > 0
+            ? dep.HEADS
+            : Array.isArray(dep.UF_HEAD)
+              ? dep.UF_HEAD
+              : [dep.UF_HEAD];
+    return [
+        ...new Set(raw.map(toId).filter((id): id is number => id !== null)),
+    ];
+};
+
+const isHeadOf = (dep: BXDepartment, userId: number): boolean =>
+    headsOf(dep).includes(userId);
 
 /** Отделы пользователя: пересечение его UF_DEPARTMENT с известными отделами. */
 const userDepartments = (
@@ -67,9 +82,10 @@ const userDepartments = (
 };
 
 /**
- * Руководитель пользователя: по его отделам вверх по цепочке `UF_HEAD →
- * PARENT`; первый валидный head, не равный самому пользователю. Свой отдел
- * возглавляешь сам → руководитель сидит в родительском отделе.
+ * Руководитель пользователя: по его отделам вверх по цепочке `HEADS →
+ * PARENT`; первый отдел, где пользователь сам не в HEADS, даёт его
+ * руководителя. Свой отдел возглавляешь (или замещаешь) сам → руководитель
+ * сидит в родительском отделе.
  */
 const resolveHeadId = (
     userId: number,
@@ -80,8 +96,10 @@ const resolveHeadId = (
     for (const start of ownDepartments) {
         let current: BXDepartment | undefined = start;
         for (let step = 0; step < HEAD_CLIMB_LIMIT && current; step++) {
-            const head = headOf(current);
-            if (head && head !== userId) return head;
+            const [firstHead] = headsOf(current);
+            if (firstHead !== undefined && !headsOf(current).includes(userId)) {
+                return firstHead;
+            }
             const parentId = toId(current.PARENT);
             current = parentId ? byId.get(parentId) : undefined;
         }
@@ -121,13 +139,13 @@ export const resolveDepartmentRole = ({
 
     const role = ((): DepartmentRole => {
         if (bossId > 0 && userId === bossId) return EDepartmentRole.SUPER;
-        if (parents.some(dep => headOf(dep) === userId)) {
+        if (parents.some(dep => isHeadOf(dep, userId))) {
             return EDepartmentRole.SUPER;
         }
-        if (general.some(dep => headOf(dep) === userId)) {
+        if (general.some(dep => isHeadOf(dep, userId))) {
             return EDepartmentRole.DEPARTMENT_HEAD;
         }
-        if (children.some(dep => headOf(dep) === userId)) {
+        if (children.some(dep => isHeadOf(dep, userId))) {
             return EDepartmentRole.GROUP_HEAD;
         }
         // Не входит ни в один отдел поддерева продаж — вышестоящий смотрит

@@ -2,6 +2,8 @@ import type {
     BXUserDto,
     BxCurrentUserDto,
     BxCurrentUserDtoHeadOf,
+    BxCurrentUserDtoHeadOfSource,
+    BxCurrentUserDtoVisibility,
     BxDepartmentDto,
     BxDepartmentStructureRequestDto,
     BxDepartmentStructureResponseDto,
@@ -14,10 +16,20 @@ import type { BXDepartment, BXUser } from '@workspace/bx';
 export type DepartmentStructureDto = BxDepartmentStructureResponseDto;
 export type DepartmentStructureRequest = BxDepartmentStructureRequestDto;
 export type SalesDepartmentDto = BxSalesDepartmentDto;
+/** Отдел; HEADS — руководитель и заместители (первый — руководитель). */
 export type DepartmentUnitDto = BxDepartmentDto;
 export type DepartmentUserDto = BXUserDto;
-export type CurrentUserInfo = BxCurrentUserDto;
 export type DepartmentHeadType = BxCurrentUserDtoHeadOf;
+/** Уровень видимости: own — только себя; group — своя группа; department — свой ОП; all — вся структура. */
+export type VisibilityLevel = BxCurrentUserDtoVisibility;
+/** Источник роли: структура Битрикса или настройка портала «Отдел продаж». */
+export type HeadOfSource = BxCurrentUserDtoHeadOfSource;
+/**
+ * Текущий пользователь структуры. В снимках публичных ссылок (v: 1) полей
+ * visibility/headOfSource нет — потребители читают уровень через
+ * resolveVisibility, который падает на headOf.
+ */
+export type CurrentUserInfo = BxCurrentUserDto;
 
 /** Отдел продаж после нормализации: типы @workspace/bx, ID приведены к числам. */
 export interface SalesDepartment {

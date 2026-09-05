@@ -12,8 +12,8 @@ export const TESTING_DOMAIN = 'gsirk.bitrix24.ru';
 // export const TESTING_DOMAIN = 'alfacentr.bitrix24.ru'
 // export const TESTING_DOMAIN = "april-garant.bitrix24.ru" as string;
 // export const TESTING_DOMAIN = 'garantservisvoronezh.bitrix24.ru'
-const TESTING_USER_ID = 2153 // 447 //2153
-const LAST_NAME = "Савчук" //Савчук
+const TESTING_USER_ID =  211 // 2153 // 447 //2153
+const LAST_NAME = "211" //Савчук
 const EMAIL = "" //savchuk
 export const TESTING_USER = {
     ID: TESTING_USER_ID,

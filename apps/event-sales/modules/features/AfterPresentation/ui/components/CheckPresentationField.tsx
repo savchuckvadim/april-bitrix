@@ -14,6 +14,7 @@ import {
 } from '@workspace/ui/components/select';
 import { ChoiceChips } from '@/modules/shared/ui/ChoiceChips';
 import { toDateInputValue } from '@/modules/shared/lib/crm-date';
+import { toggleObjection } from '@/modules/entities/EventReport/lib/objection';
 import { getDisplayTitle } from '../../lib/check-presentation.groups';
 import {
     EMPTY_SURVEY_BLOCK,
@@ -55,10 +56,22 @@ interface CheckPresentationFieldProps extends SurveyBlockHandlers {
     onChange: (value: CheckPresentationValue) => void;
 }
 
-const toggleCode = (selected: string[], code: string): string[] =>
-    selected.includes(code)
-        ? selected.filter(item => item !== code)
+/**
+ * Множественный выбор; для возражений — с исключающим «Нет возражений».
+ * Правило живёт в сущности отчёта, чтобы чек-листы и опросник не разошлись.
+ */
+const toggleCode = (
+    item: CheckPresentationItem,
+    selected: string[],
+    code: string,
+): string[] => {
+    if (item.code === 'op_objection_reason') {
+        return toggleObjection(selected, code);
+    }
+    return selected.includes(code)
+        ? selected.filter(entry => entry !== code)
         : [...selected, code];
+};
 
 /** Одно поле опросника: рендер по типу (string/boolean/date/enumeration). */
 export const CheckPresentationField: FC<CheckPresentationFieldProps> = ({
@@ -167,6 +180,7 @@ export const CheckPresentationField: FC<CheckPresentationFieldProps> = ({
                         onToggle={code =>
                             onChange(
                                 toggleCode(
+                                    item,
                                     Array.isArray(value) ? value : [],
                                     code,
                                 ),

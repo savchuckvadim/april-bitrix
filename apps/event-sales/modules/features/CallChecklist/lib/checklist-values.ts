@@ -167,6 +167,47 @@ const optionsFromPortalField = (
     return options;
 };
 
+/**
+ * Множественный справочник хранится в значении контрола кодами через
+ * запятую: значение движка — всегда строка (ключи ответов, черновики,
+ * baseline сравниваются как строки), а коды вариантов запятых не содержат.
+ */
+export const MULTI_VALUE_SEPARATOR = ',';
+
+export const splitMultiValue = (value: string): string[] =>
+    value
+        .split(MULTI_VALUE_SEPARATOR)
+        .map(code => code.trim())
+        .filter(Boolean);
+
+export const joinMultiValue = (codes: readonly string[]): string =>
+    codes.filter(Boolean).join(MULTI_VALUE_SEPARATOR);
+
+/**
+ * Значение справочника для портала: `bitrixId` варианта, у множественного —
+ * массив id (пустой выбор снимает значение пустой строкой). Код без пары в
+ * справочнике носителя выпадает; ни одного — null, писать нечего.
+ */
+export const toPortalEnumValue = (
+    options: QuestionnaireOption[],
+    value: string,
+    isMultiple: boolean,
+): string | string[] | null => {
+    if (!isMultiple) {
+        const option = findChecklistOptionByCode(options, value);
+        return option?.bitrixId === null || option === null
+            ? null
+            : String(option.bitrixId);
+    }
+    const codes = splitMultiValue(value);
+    if (!codes.length) return '';
+    const ids = codes
+        .map(code => findChecklistOptionByCode(options, code)?.bitrixId)
+        .filter((id): id is number => id !== null && id !== undefined)
+        .map(String);
+    return ids.length ? ids : null;
+};
+
 /** Вариант справочника по значению из CRM (в строке лежит bitrixId). */
 export const findChecklistOptionByBitrixId = (
     options: QuestionnaireOption[],
@@ -245,6 +286,18 @@ const readCurrent = (
     options: QuestionnaireOption[],
 ): { currentValue: string; currentLabel: string } => {
     if (def.control === 'enumeration') {
+        if (def.isMultiple) {
+            // Множественное поле отдаёт массив id; одиночное значение
+            // (поле было обычным до 01.09) читается как список из одного.
+            const ids = Array.isArray(raw) ? raw : [raw];
+            const found = ids
+                .map(id => findChecklistOptionByBitrixId(options, id))
+                .filter((option): option is QuestionnaireOption => !!option);
+            return {
+                currentValue: joinMultiValue(found.map(option => option.code)),
+                currentLabel: found.map(option => option.title).join(', '),
+            };
+        }
         const option = findChecklistOptionByBitrixId(options, raw);
         return {
             currentValue: option?.code ?? '',

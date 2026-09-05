@@ -3,6 +3,7 @@ import { checklistBooleanTitle } from './checklist-boolean';
 import {
     findChecklistOptionByCode,
     hasChecklistChoice,
+    splitMultiValue,
     toChecklistDisplayValue,
 } from './checklist-values';
 
@@ -22,6 +23,12 @@ export const checklistAnswerLabel = (
 ): string => {
     if (!value) return '';
     if (def.control === 'boolean') return checklistBooleanTitle(value) || value;
+    if (def.control === 'enumeration' && def.isMultiple) {
+        // Несколько возражений — через запятую, названиями.
+        return splitMultiValue(value)
+            .map(code => findChecklistOptionByCode(def.options, code)?.title ?? code)
+            .join(', ');
+    }
     if (def.control === 'enumeration' || hasChecklistChoice(def)) {
         return findChecklistOptionByCode(def.options, value)?.title ?? value;
     }

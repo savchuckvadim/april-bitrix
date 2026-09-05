@@ -4,9 +4,30 @@ import { FC } from 'react';
 import { MicroSelect } from '@workspace/april-ui';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
+import { ChoiceChips } from '@/modules/shared/ui/ChoiceChips';
+import { toggleObjection } from '@/modules/entities/EventReport/lib/objection';
 import { CHECKLIST_BOOLEAN_OPTIONS } from '../../lib/checklist-boolean';
-import { hasChecklistChoice } from '../../lib/checklist-values';
+import {
+    hasChecklistChoice,
+    joinMultiValue,
+    splitMultiValue,
+} from '../../lib/checklist-values';
 import type { ChecklistFieldView } from '../../lib/checklist-field-view';
+
+/** Переключение пункта множественного справочника; у возражений — с
+ * исключающим «Нет возражений» (правило живёт в сущности отчёта). */
+const toggleMulti = (
+    fieldCode: string | null,
+    selected: string[],
+    code: string,
+): string[] => {
+    if (fieldCode === 'op_objection_reason') {
+        return toggleObjection(selected, code);
+    }
+    return selected.includes(code)
+        ? selected.filter(item => item !== code)
+        : [...selected, code];
+};
 
 const NUMERIC_CLASS = 'h-6 w-34 px-2 py-0 text-[0.6875rem]';
 
@@ -31,6 +52,39 @@ export const ChecklistFieldControl: FC<{ field: ChecklistFieldView }> = ({
     field,
 }) => {
     const { def } = field;
+
+    // Множественный справочник (возражения): чипы вместо селекта — все
+    // варианты видны сразу, выбранных может быть несколько, «Нет
+    // возражений» снимает остальные.
+    if (
+        def.control === 'enumeration' &&
+        def.isMultiple &&
+        field.options.length > 0
+    ) {
+        const selected = splitMultiValue(field.value);
+        return (
+            <ChoiceChips
+                ariaLabel={def.title}
+                invalid={field.isMissing}
+                options={field.options.map(option => ({
+                    code: option.code,
+                    name: option.title,
+                }))}
+                selected={selected}
+                onToggle={code =>
+                    field.setValue(
+                        joinMultiValue(
+                            toggleMulti(
+                                def.legacyFieldCode ?? def.code,
+                                selected,
+                                code,
+                            ),
+                        ),
+                    )
+                }
+            />
+        );
+    }
 
     if (def.control === 'enumeration' && field.options.length > 0) {
         return (

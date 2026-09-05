@@ -91,8 +91,25 @@ const FALLBACK_PLAN_QUESTIONNAIRES: QuestionnaireDef[] = [
                 'op_objection_reason',
                 'enumeration',
                 'Причина возражения',
-                { sort: 10, isRequired: true },
+                { sort: 10, isRequired: true, isMultiple: true },
             ),
+            // Формулировка своими словами и причина доработки (02.09):
+            // менеджер описывает ситуацию текстом, а поток по этой причине
+            // ставит сделке признак «На доработке» (op_refined_reason —
+            // поле сделки, во встройке-компании резолвится по базовой).
+            legacyItem(
+                'op_objection_comment',
+                'string',
+                'Формулировка клиента',
+                {
+                    sort: 20,
+                    placeholder: 'Как клиент сказал это своими словами',
+                },
+            ),
+            legacyItem('op_refined_reason', 'text', 'Причина доработки', {
+                sort: 30,
+                placeholder: 'Что дорабатываем и почему клиент ещё не готов',
+            }),
         ],
     },
     {
@@ -248,7 +265,7 @@ const FALLBACK_REPORT_QUESTIONNAIRES: QuestionnaireDef[] = [
                 'op_objection_reason',
                 'enumeration',
                 'Возражение клиента',
-                { sort: 10 },
+                { sort: 10, isMultiple: true },
             ),
             legacyItem(
                 'op_objection_comment',
@@ -290,6 +307,7 @@ const FALLBACK_REPORT_QUESTIONNAIRES: QuestionnaireDef[] = [
             }),
             legacyItem('op_objection_reason', 'enumeration', 'Что мешает', {
                 sort: 30,
+                isMultiple: true,
             }),
             legacyItem('op_sale_date_prognoz', 'date', 'Плановая дата покупки', {
                 sort: 40,

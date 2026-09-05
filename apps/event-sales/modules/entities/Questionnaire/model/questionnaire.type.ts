@@ -213,6 +213,14 @@ export interface QuestionnaireItem {
      */
     legacyFieldCode: string | null;
     options: QuestionnaireOption[];
+    /**
+     * Множественный справочник (02.09): в поле Битрикса лежит массив
+     * `bitrixId`, значение контрола — коды вариантов через запятую
+     * (`splitMultiValue` / `joinMultiValue` в checklist-values). Пока только
+     * у встроенных вопросов (возражения): портальные пункты с этим флагом
+     * нормализатор по-прежнему отсеивает.
+     */
+    isMultiple?: boolean;
 }
 
 /** Анкета каталога. */

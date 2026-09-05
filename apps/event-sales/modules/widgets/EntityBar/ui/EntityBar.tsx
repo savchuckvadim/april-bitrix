@@ -4,11 +4,12 @@ import { FC } from 'react';
 import { PresentationCountBadge } from '@/modules/entities/EVHistory/ui/PresentationCountBadge';
 import { RelationsBar } from '@/modules/entities/RelatedCrm';
 import { SignalsControl } from '@/modules/features/ClientSignals';
+import { RefineBadge } from '@/modules/features/RefineState';
 import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
 
 /**
  * Клиентская строка шапки: куда движется клиент — основная воронка с
- * подписью, счётчик презентаций, точки связи.
+ * подписью, счётчик презентаций, признак «на доработке», точки связи.
  *
  * Прогноз/статус компании и ИНН отсюда ПЕРЕЕХАЛИ в первый ряд высокого
  * хедера, к названию сущности (todo2508 №6) — строка стала легче и видна
@@ -20,6 +21,7 @@ export const EntityBar: FC = () => {
         <div className="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-1">
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
                 <PresentationCountBadge />
+                <RefineBadge />
             </div>
             <div className="flex min-w-0 flex-1 items-center gap-x-3">
                 <RelationsBar

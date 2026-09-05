@@ -5,7 +5,7 @@ import { Dialog, DialogContent } from '@workspace/ui/components/dialog';
 import { cn } from '@workspace/ui/lib/utils';
 import { GlassCard } from '../../shared/ui/Glass/GlassCard';
 
-export type GlassDialogSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type GlassDialogSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 export type GlassDialogOverlay = 'blur' | 'dim';
 export type GlassDialogIntensity = 'soft' | 'strong' | 'liquid';
 
@@ -16,6 +16,12 @@ const SIZE_CLASS: Record<GlassDialogSize, string> = {
     md: 'w-[min(96vw,52rem)]',
     lg: 'w-[min(96vw,56rem)]',
     xl: 'w-[min(96vw,64rem)]',
+    /**
+     * Почти во весь фрейм — для окон-рабочих мест с несколькими колонками
+     * (опросник после презентации). Потолок держит строки читаемыми на
+     * широких мониторах; высоту задаёт вызывающий через `cardClassName`.
+     */
+    full: 'w-[min(98vw,88rem)]',
 };
 
 const OVERLAY_CLASS: Record<GlassDialogOverlay, string> = {

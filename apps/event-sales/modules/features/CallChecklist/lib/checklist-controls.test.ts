@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { answerKey } from '@/modules/entities/Questionnaire/lib/answer-key';
 import type { QuestionnaireItem } from '@/modules/entities/Questionnaire/model/questionnaire.type';
+import { toggleObjection } from '@/modules/entities/EventReport/lib/objection';
 import {
     hasChecklistChoice,
     resolveChecklistField,
+    toPortalEnumValue,
     type ChecklistEntityRows,
     type ResolvedChecklistField,
 } from './checklist-values';
@@ -266,6 +268,69 @@ describe('Многострочный ответ', () => {
         expect(resolved.currentValue).toBe('сказал, что дорого\nи ушёл думать');
         expect(isChecklistFieldMissing(resolved, undefined, undefined)).toBe(
             false,
+        );
+    });
+});
+
+/**
+ * Множественный справочник (02.09): в поле Битрикса массив id, в движке —
+ * коды через запятую. До этого возражения (поле множественное с 01.09)
+ * писались одним значением, и второе возражение на звонке терялось.
+ */
+describe('Множественный справочник (возражения)', () => {
+    const OBJECTIONS = item({
+        code: 'op_objection_reason',
+        title: 'Возражения',
+        control: 'enumeration',
+        isMultiple: true,
+        field: { name: UF_KEY, type: 'enumeration' },
+        options: [
+            { code: 'op_objection_nomoney', title: 'Нет денег', bitrixId: 101 },
+            { code: 'op_objection_lpr', title: 'ЛПР против', bitrixId: 102 },
+            { code: 'op_objection_none', title: 'Нет возражений', bitrixId: 103 },
+        ],
+    });
+
+    it('массив id из CRM читается кодами через запятую, подпись — названиями', () => {
+        const resolved = resolve(OBJECTIONS, ['101', '102']);
+
+        expect(resolved.currentValue).toBe(
+            'op_objection_nomoney,op_objection_lpr',
+        );
+        expect(resolved.currentLabel).toBe('Нет денег, ЛПР против');
+        expect(checklistAnswerLabel(OBJECTIONS, resolved.currentValue)).toBe(
+            'Нет денег, ЛПР против',
+        );
+    });
+
+    it('одиночное значение (поле было обычным до 01.09) читается как список из одного', () => {
+        expect(resolve(OBJECTIONS, '102').currentValue).toBe('op_objection_lpr');
+    });
+
+    it('в портал уезжает массив id справочника носителя; пусто — снятие', () => {
+        expect(
+            toPortalEnumValue(
+                OBJECTIONS.options,
+                'op_objection_lpr,op_objection_nomoney',
+                true,
+            ),
+        ).toEqual(['102', '101']);
+        expect(toPortalEnumValue(OBJECTIONS.options, '', true)).toBe('');
+        expect(toPortalEnumValue(OBJECTIONS.options, 'unknown', true)).toBeNull();
+        expect(
+            toPortalEnumValue(OBJECTIONS.options, 'op_objection_lpr', false),
+        ).toBe('102');
+    });
+
+    it('«Нет возражений» исключает остальные пункты и наоборот', () => {
+        expect(toggleObjection(['op_objection_lpr'], 'op_objection_none')).toEqual(
+            ['op_objection_none'],
+        );
+        expect(toggleObjection(['op_objection_none'], 'op_objection_lpr')).toEqual(
+            ['op_objection_lpr'],
+        );
+        expect(toggleObjection(['op_objection_lpr'], 'op_objection_lpr')).toEqual(
+            [],
         );
     });
 });

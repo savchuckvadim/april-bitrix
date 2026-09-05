@@ -17,8 +17,10 @@ import { isFiveKCode } from '../check-presentation.groups';
 
 export interface CheckPresentationView {
     isActive: boolean;
-    /** Вопросы разговора («Хвост», итоги), по порядку. */
+    /** Пять блоков «Хвоста» с подвопросами, по порядку. */
     talkItems: CheckPresentationItem[];
+    /** Итоги разговора: сводный «Хвост», дата покупки, возражения. */
+    outcomeItems: CheckPresentationItem[];
     /** Вопросы «Пять К», по порядку. */
     fiveKItems: CheckPresentationItem[];
     answers: Record<string, CheckPresentationValue>;
@@ -98,9 +100,14 @@ export const useCheckPresentation = (): CheckPresentationView => {
         setIsSaving(false);
     };
 
+    // Три колонки окна: блоки «Хвоста» — итоги — блоки «5К». Итоги — всё,
+    // что в разговоре без подвопросов (сводка, дата, возражения).
+    const talk = sorted.filter(item => !isFiveKCode(item.code));
+
     return {
         isActive,
-        talkItems: sorted.filter(item => !isFiveKCode(item.code)),
+        talkItems: talk.filter(item => Boolean(item.questions)),
+        outcomeItems: talk.filter(item => !item.questions),
         fiveKItems: sorted.filter(item => isFiveKCode(item.code)),
         answers,
         blocks,

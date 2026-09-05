@@ -144,10 +144,12 @@ export const EventItem: FC = () => {
                 defaultValue="report"
                 className="flex min-h-0 flex-1 flex-col"
             >
-                <TabsList className="mx-3 mt-2 self-start">
+                {/* TODO посмотреть без них и решить осталть или нет */}
+                {/* Пока что протестим ui без этих вкладок в элементе  - очень много на себя берут */}
+                {/* <TabsList className="mx-3 mt-2 self-start">
                     <TabsTrigger value="report">Отчёт</TabsTrigger>
                     <TabsTrigger value="history">История</TabsTrigger>
-                </TabsList>
+                </TabsList> */}
 
                 <TabsContent
                     value="report"

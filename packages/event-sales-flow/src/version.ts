@@ -8,4 +8,4 @@
 export const FLOW_PACKAGE_VERSION = '0.1.0';
 
 /** SHA коммита бэка (`git -C back rev-parse HEAD`), с которого снят код. */
-export const FLOW_SOURCE_COMMIT = '30322cfbeed8a5f61b1d4b0412db62d6b811d093';
+export const FLOW_SOURCE_COMMIT = '8380a8233c00cb952e36e88f6c0e5e5f936318b4';

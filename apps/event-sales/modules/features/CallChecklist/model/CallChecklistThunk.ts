@@ -13,6 +13,7 @@ import {
     checklistWriteCarriers,
     hasChecklistChoice,
     resolveChecklistField,
+    toPortalEnumValue,
     type ChecklistEntityKind,
     type ResolvedChecklistField,
 } from '../lib/checklist-values';
@@ -45,13 +46,16 @@ const toPortalFieldValue = (
     def: ChecklistFieldDef,
     value: string,
     resolved: ResolvedChecklistField,
-): string | null => {
+): string | string[] | null => {
     if (!value) return '';
     if (def.control === 'enumeration') {
-        const option = resolved.options.find(item => item.code === value);
-        return option?.bitrixId === null || option === undefined
-            ? null
-            : String(option.bitrixId);
+        // Множественный справочник (возражения) — массив id; одиночный —
+        // один id. Правило одно на оба, см. toPortalEnumValue.
+        return toPortalEnumValue(
+            resolved.options,
+            value,
+            Boolean(def.isMultiple),
+        );
     }
     // UF-поле типа boolean хранит 1/0; «не выбрано» сюда не доходит (пустое
     // значение снято веткой выше).
@@ -115,7 +119,10 @@ export const saveChecklistField =
         const bitrix = Bitrix.getService();
         const update: Record<
             ChecklistEntityKind,
-            (id: number, payload: Record<string, string>) => Promise<unknown>
+            (
+                id: number,
+                payload: Record<string, string | string[]>,
+            ) => Promise<unknown>
         > = {
             company: (id, payload) =>
                 bitrix.company.update(id, payload as never),

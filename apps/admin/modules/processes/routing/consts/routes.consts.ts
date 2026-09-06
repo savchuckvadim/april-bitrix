@@ -149,6 +149,23 @@ export const aiKnowledgeEntities: Entity[] = [
 ];
 
 
+// Раздел «AI-аналитика ОП»: url — полный путь (baseUrl пустой).
+export const aiAnalyticsEntities: Entity[] = [
+    {
+        id: 41,
+        item: {
+            name: 'ai-analytics-audit',
+            title: 'Аудит данных',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/ai-analytics/audit',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
+
 export const portalEntities: Entity[] = [
 
     {

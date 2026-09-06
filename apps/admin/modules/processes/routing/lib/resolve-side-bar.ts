@@ -1,5 +1,6 @@
 import {
     ALL_ENTITIES,
+    aiAnalyticsEntities,
     aiKnowledgeEntities,
     clientEntities,
     garantEntities,
@@ -50,6 +51,7 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
         isKonstructor,
         isPortalKonstructor,
         isAiKnowledge,
+        isAiAnalytics,
     } = route;
 
     let currentNavItems: ALL_ENTITIES = garantEntities;
@@ -101,6 +103,10 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
     } else if (isAiKnowledge) {
         // База знаний AI: url элементов — полные пути
         currentNavItems = aiKnowledgeEntities;
+        baseUrl = '';
+    } else if (isAiAnalytics) {
+        // AI-аналитика ОП: url элементов — полные пути
+        currentNavItems = aiAnalyticsEntities;
         baseUrl = '';
     } else if (isKonstructor || isPortalKonstructor) {
         currentNavItems = konstructorEntities;

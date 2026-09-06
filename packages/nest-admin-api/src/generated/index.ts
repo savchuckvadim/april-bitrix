@@ -62,5 +62,6 @@ export * from './offer-template-page-sticker/offer-template-page-sticker';
 export * from './offer-template-portal/offer-template-portal';
 export * from './portal-konstructor/portal-konstructor';
 export * from './portal-outer/portal-outer';
+export * from './sales-ai-analytics-admin/sales-ai-analytics-admin';
 export * from './telegram/telegram';
 export * from './user-selected-template/user-selected-template';

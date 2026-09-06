@@ -33,6 +33,10 @@ export interface DeepRoute {
     isEvent: boolean;
     isKonstructor: boolean;
     isAiKnowledge: boolean;
+    /** Раздел «AI-аналитика ОП» (верхний уровень, вне портала). */
+    isAiAnalytics: boolean;
+    /** Экран «Аудит данных» раздела AI-аналитики. */
+    isAiAnalyticsAudit: boolean;
     isPortalEvent: boolean;
     isPortalKonstructor: boolean;
     isStatisticsTranscription: boolean;
@@ -67,6 +71,8 @@ export const resolveDeepRoute = (
     const isEvent = root === 'event';
     const isKonstructor = root === 'konstructor';
     const isAiKnowledge = root === 'ai-knowledge';
+    const isAiAnalytics = root === 'ai-analytics';
+    const isAiAnalyticsAudit = isAiAnalytics && second === 'audit';
     const isPortalList = isPortal && second === 'list';
 
     const isPortalGarant = isPortal && portalSection === 'garant';
@@ -125,6 +131,8 @@ export const resolveDeepRoute = (
         isEvent,
         isKonstructor,
         isAiKnowledge,
+        isAiAnalytics,
+        isAiAnalyticsAudit,
         isPortalEvent,
         isPortalKonstructor,
         isStatisticsTranscription,

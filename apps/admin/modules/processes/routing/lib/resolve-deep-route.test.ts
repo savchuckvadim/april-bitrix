@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { resolveDeepRoute } from './resolve-deep-route';
 import { resolveSideBar } from './resolve-side-bar';
 import {
+    aiAnalyticsEntities,
+    aiKnowledgeEntities,
     garantEntities,
     portalAiSettingsEntities,
     portalAppSettingsEntities,
@@ -108,6 +110,43 @@ describe('resolveDeepRoute: карточка портала и её раздел
             resolveDeepRoute(`/portal/${PORTAL_ID}/statistics/ai`, PORTAL_ID)
                 .isPortalStatisticsAi,
         ).toBe(true);
+    });
+});
+
+describe('resolveDeepRoute: раздел «AI-аналитика ОП»', () => {
+    it('/ai-analytics/audit поднимает флаги раздела и экрана аудита', () => {
+        const route = resolveDeepRoute('/ai-analytics/audit', '');
+
+        expect(route.isAiAnalytics).toBe(true);
+        expect(route.isAiAnalyticsAudit).toBe(true);
+        expect(route.isAiKnowledge).toBe(false);
+        expect(route.isPortal).toBe(false);
+        expect(route.isPortalDetail).toBe(false);
+    });
+
+    it('корень раздела — без флага экрана аудита', () => {
+        const route = resolveDeepRoute('/ai-analytics', '');
+
+        expect(route.isAiAnalytics).toBe(true);
+        expect(route.isAiAnalyticsAudit).toBe(false);
+    });
+
+    it('«База знаний AI» и «AI-аналитика» не путаются между собой', () => {
+        const route = resolveDeepRoute('/ai-knowledge', '');
+
+        expect(route.isAiKnowledge).toBe(true);
+        expect(route.isAiAnalytics).toBe(false);
+    });
+
+    it('раздел получает своё меню с полными ссылками', () => {
+        const view = resolveSideBar(resolveDeepRoute('/ai-analytics/audit', ''));
+
+        expect(view.currentNavItems).toBe(aiAnalyticsEntities);
+        expect(view.currentNavItems).not.toBe(aiKnowledgeEntities);
+        expect(view.baseUrl).toBe('');
+        expect(
+            `${view.baseUrl}${view.currentNavItems[0]?.item.get.url}`,
+        ).toBe('/ai-analytics/audit');
     });
 });
 

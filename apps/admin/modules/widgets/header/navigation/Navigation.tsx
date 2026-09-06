@@ -1,9 +1,11 @@
 'use client';
+import { useFeature } from "@/modules/app";
 import { useDeepRouting } from "@/modules/processes";
 import { NavigationItem } from "./NavigationItem";
 
 export const Navigation = () => {
-    const { isGarant, isPortal, isClient, isMarketplace, isDashboard, isStatistics, isKonstructor, isEvent, isAiKnowledge } = useDeepRouting();
+    const { isGarant, isPortal, isClient, isMarketplace, isDashboard, isStatistics, isKonstructor, isEvent, isAiKnowledge, isAiAnalytics } = useDeepRouting();
+    const hasAiAnalytics = useFeature('aiAnalytics');
 
 
     return (
@@ -17,6 +19,7 @@ export const Navigation = () => {
             <NavigationItem isActive={isKonstructor} href="/konstructor" title="Konstructor" />
             <NavigationItem isActive={isEvent} href="/event" title="Event" />
             <NavigationItem isActive={isAiKnowledge} href="/ai-knowledge" title="База знаний AI" />
+            {hasAiAnalytics && <NavigationItem isActive={isAiAnalytics} href="/ai-analytics/audit" title="AI-аналитика" />}
 
         </div>
     );

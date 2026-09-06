@@ -10,6 +10,7 @@ export * from './health/health';
 export * from './kpi-sales-report-download/kpi-sales-report-download';
 export * from './metrics/metrics';
 export * from './pbx-fields/pbx-fields';
+export * from './sales-ai-analytics/sales-ai-analytics';
 export * from './sales-airtime/sales-airtime';
 export * from './sales-finance/sales-finance';
 export * from './sales-plans/sales-plans';

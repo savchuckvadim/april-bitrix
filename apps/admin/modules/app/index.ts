@@ -10,7 +10,3 @@
 export * from './lib/hooks/redux';
 export * from './lib/hooks/app';
 export * from './ui/App';
-// Фич-флаги: константы + хук + заглушка выключенного раздела (стор не тянут)
-export * from './consts/app-features';
-export * from './lib/hooks/use-feature';
-export * from './ui/FeatureDisabledScreen';

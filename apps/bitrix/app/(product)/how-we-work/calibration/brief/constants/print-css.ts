@@ -1,17 +1,12 @@
-import React from 'react';
-
 /**
  * Стили печати брифа.
  *
- * Чёрное на белом и жёсткие рамки таблиц — намеренно вне системы токенов:
- * на бумаге нет тем, а тонкие оттенки `--muted` печатаются как «ничего».
- * Прецедент в монорепе — `apps/bitrix/app/(site)/legal/components/
- * LegalPrintStyles.tsx`.
- *
- * Ширина листа A4 меньше брейкпоинта `md`, поэтому в печати принудительно
- * показываем табличное представление и прячем мобильные карточки.
+ * Чёрное на белом и жёсткие рамки таблиц — намеренно вне системы токенов: на
+ * бумаге нет тем, а тонкие оттенки `--muted` печатаются как «ничего».
+ * Прецедент в приложении — `app/(site)/legal/components/LegalPrintStyles.tsx`
+ * (там тот же набор правил на styled-jsx).
  */
-const PRINT_CSS = `
+export const BRIEF_PRINT_CSS = `
 @media print {
     nav,
     button,
@@ -60,15 +55,6 @@ const PRINT_CSS = `
         page-break-before: always;
     }
 
-    .calibration-table__cards {
-        display: none !important;
-    }
-
-    .calibration-table__grid {
-        display: block !important;
-        border: 0 !important;
-    }
-
     .brief-document table {
         width: 100% !important;
         border-collapse: collapse !important;
@@ -86,7 +72,3 @@ const PRINT_CSS = `
     margin: 15mm;
 }
 `;
-
-export const BriefPrintStyles: React.FC = () => (
-    <style dangerouslySetInnerHTML={{ __html: PRINT_CSS }} />
-);

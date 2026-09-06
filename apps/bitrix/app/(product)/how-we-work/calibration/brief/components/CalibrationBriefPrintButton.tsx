@@ -4,8 +4,8 @@ import React from 'react';
 import { Printer } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 
-/** Кнопка печати брифа: открывает системный диалог печати браузера */
-export const BriefPrintButton: React.FC = () => (
+/** Кнопка печати брифа: открывает системный диалог печати браузера. */
+export const CalibrationBriefPrintButton: React.FC = () => (
     <Button
         type="button"
         size="lg"

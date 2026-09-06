@@ -1,8 +1,9 @@
 /**
- * ЕДИНСТВЕННОЕ место с контактами-плейсхолдерами.
+ * ЕДИНСТВЕННОЕ место с контактами-плейсхолдерами калибровки.
  *
  * Владелец заменяет значения здесь — они подставляются и в текст страницы
- * `/calibration`, и в бриф `/calibration/brief`. Файл брифа для скачивания
+ * `/how-we-work/calibration`, и в печатный бриф
+ * `/how-we-work/calibration/brief`. Файл брифа для скачивания
  * (`public/brief-ai-analytics-calibration.md`) правится отдельно.
  */
 export const CALIBRATION_CONTACTS = {
@@ -23,3 +24,9 @@ export const CALIBRATION_BRIEF_FILE = {
     href: '/brief-ai-analytics-calibration.md',
     fileName: 'brief-ai-analytics-calibration.md',
 } as const;
+
+/** Адрес печатной версии брифа */
+export const CALIBRATION_BRIEF_PATH = '/how-we-work/calibration/brief';
+
+/** Адрес страницы калибровки */
+export const CALIBRATION_PATH = '/how-we-work/calibration';

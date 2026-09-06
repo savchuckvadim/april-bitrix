@@ -16,6 +16,7 @@ export const HOW_NAV_ITEMS: HowNavItem[] = [
     { slug: 'fields', label: 'Автозаполнение' },
     { slug: 'implementation', label: 'Внедрение' },
     { slug: 'ai', label: 'ИИ-анализ' },
+    { slug: 'calibration', label: 'Калибровка' },
 ];
 
 export const howPath = (slug: string): string =>

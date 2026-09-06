@@ -1,9 +1,7 @@
 import React from 'react';
-import Link from 'next/link';
-import { Button } from '@workspace/ui/components/button';
-import { ArrowRight } from 'lucide-react';
 import { HowPageContent } from '../constants/types';
-import { HowBlockRenderer } from './blocks/HowBlockRenderer';
+import { HowBlockList } from './blocks/HowBlockList';
+import { HowPageCta } from './HowPageCta';
 
 interface HowContentPageProps {
     page: HowPageContent;
@@ -24,33 +22,8 @@ export const HowContentPage: React.FC<HowContentPageProps> = ({ page }) => (
             </p>
         </header>
 
-        <div className="space-y-6">
-            {page.blocks.map((block, index) => (
-                <HowBlockRenderer key={index} block={block} />
-            ))}
-        </div>
+        <HowBlockList blocks={page.blocks} />
 
-        {page.cta && (
-            <footer className="mt-14 rounded-xl border bg-card p-6 sm:p-8">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <p className="font-semibold text-foreground">
-                            {page.cta.label}
-                        </p>
-                        {page.cta.note && (
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                {page.cta.note}
-                            </p>
-                        )}
-                    </div>
-                    <Button asChild size="lg">
-                        <Link href={page.cta.href}>
-                            Продолжить
-                            <ArrowRight className="ml-1.5 h-4 w-4" />
-                        </Link>
-                    </Button>
-                </div>
-            </footer>
-        )}
+        {page.cta && <HowPageCta cta={page.cta} />}
     </article>
 );

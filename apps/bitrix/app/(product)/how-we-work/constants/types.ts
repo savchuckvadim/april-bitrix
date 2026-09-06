@@ -17,6 +17,23 @@ export type HowContentBlock =
     | { type: 'screen'; label: string }
     | { type: 'questionnaire'; questionnaireId: HowQuestionnaireId };
 
+/** Финальный CTA страницы. */
+export interface HowPageCtaContent {
+    /** Заголовок карточки CTA */
+    label: string;
+    /** Куда ведёт основная кнопка */
+    href: string;
+    /** Пояснение под заголовком */
+    note?: string;
+    /**
+     * `href` ведёт на файл в `public/`: кнопка скачивает его, а не переходит
+     * по маршруту. Не задано — обычная навигация по сайту.
+     */
+    download?: boolean;
+    /** Вторая, необязательная ссылка рядом с основной кнопкой */
+    secondary?: { label: string; href: string };
+}
+
 /** Страница раздела. */
 export interface HowPageContent {
     /** Сегмент URL внутри /how-we-work */
@@ -30,7 +47,28 @@ export interface HowPageContent {
     /** Контентные блоки в порядке рендера */
     blocks: HowContentBlock[];
     /** Финальный CTA страницы */
-    cta?: { label: string; href: string; note?: string };
+    cta?: HowPageCtaContent;
+}
+
+/** Раздел печатного документа (бриф): заголовок и те же контентные блоки. */
+export interface HowDocumentSection {
+    title: string;
+    blocks: HowContentBlock[];
+    /**
+     * Начинать печать раздела с новой страницы. Ставим только крупным
+     * разделам — иначе документ разъезжается на десяток почти пустых листов.
+     */
+    pageBreakBefore?: boolean;
+}
+
+/** Печатный документ под заполнение (бриф калибровки). */
+export interface HowDocumentContent {
+    title: string;
+    /** Блоки до первого раздела */
+    intro: HowContentBlock[];
+    sections: HowDocumentSection[];
+    /** Блоки после последнего раздела: подписи, куда отправить */
+    outro: HowContentBlock[];
 }
 
 /** Идентификаторы анкет внедрения. */

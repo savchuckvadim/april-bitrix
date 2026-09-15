@@ -25,7 +25,6 @@ export const RequestDialog: FC = () => {
     const isOpen = useAppSelector(s => s.leadRequest.isDialogOpen);
     const card = useAppSelector(s => s.leadRequest.card);
     const loadedLeadId = useAppSelector(s => s.leadRequest.leadId);
-    const hasCompany = useAppSelector(s => Boolean(s.app.bitrix.company));
     const leadIds = useRequestLeadIds();
 
     const [selectedLeadId, setSelectedLeadId] = useState<number | null>(null);
@@ -33,7 +32,7 @@ export const RequestDialog: FC = () => {
 
     const isCardOurs =
         card !== null && loadedLeadId !== null && loadedLeadId === activeLeadId;
-    const badge = isCardOurs ? getReadinessBadge(card, { hasCompany }) : null;
+    const badge = isCardOurs ? getReadinessBadge(card) : null;
 
     const setOpen = (open: boolean) => {
         dispatch(leadRequestActions.setDialogOpen(open));

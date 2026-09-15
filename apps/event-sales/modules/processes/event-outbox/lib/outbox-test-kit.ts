@@ -47,7 +47,15 @@ export const TEST_DOMAIN = 'test.bitrix24.ru';
 
 let operationSeq = 0;
 
-/** Конверт для тестов: валидный v1 c минимальным payload. */
+/**
+ * Конверт для тестов: валидный v1 c минимальным payload.
+ *
+ * Время рождения — СЕЙЧАС, а не условная «1000»: у конверта есть срок
+ * годности (`OUTBOX_AUTO_SEND_TTL_MS`), и конверт из эпохи Unix сценарии
+ * дренажа на реальных часах отсеивали бы как просроченный, ничего при этом
+ * не проверяя. Тесты, которым важен возраст, задают `createdAt` явно — там
+ * часы свои (makeClock).
+ */
 export const makeEnvelope = (
     overrides: Partial<OutboxEnvelope> = {},
 ): OutboxEnvelope => {
@@ -63,7 +71,7 @@ export const makeEnvelope = (
                 domain: TEST_DOMAIN,
                 presentation: {},
             } as unknown as EvFlowDto,
-            now: 1_000,
+            now: Date.now(),
         }),
         ...overrides,
     };

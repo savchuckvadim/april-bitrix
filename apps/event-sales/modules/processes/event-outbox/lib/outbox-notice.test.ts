@@ -6,7 +6,9 @@ import {
     OUTBOX_NOTICE_SENDING_TEXT,
     OUTBOX_NOTICE_TONE,
     formatIncompleteText,
+    formatStaleText,
     formatTailText,
+    formatTooOldText,
     formatWaitingText,
     pluralizeReports,
     resolveOutboxNotice,
@@ -235,5 +237,69 @@ describe('resolveOutboxNotice: о текущей отправке уже ска�
                 covered: OUTBOX_NOTICE_COVERED.WAITING,
             }),
         ).toBeNull();
+    });
+});
+
+/**
+ * Застрявшие конверты: полоска обязана перестать обещать «уйдёт сам» —
+ * уехать они не могут, и оба случая требуют человека.
+ */
+describe('полоска: конверты, которые машина больше не двигает', () => {
+    it('принят без подтверждения — зовём сверить карточку, а не повторять', () => {
+        const notice = resolveOutboxNotice({
+            count: 0,
+            partialCount: 0,
+            incompleteCount: 0,
+            staleCount: 1,
+            draining: false,
+        });
+
+        expect(notice?.kind).toBe(OUTBOX_NOTICE_KIND.STALE);
+        expect(notice?.tone).toBe(OUTBOX_NOTICE_TONE.WARNING);
+        expect(notice?.text).toBe(formatStaleText(1));
+        expect(notice?.text).not.toContain('уйдёт сам');
+    });
+
+    it('просрочен — зовём отчитаться заново', () => {
+        const notice = resolveOutboxNotice({
+            count: 0,
+            partialCount: 0,
+            incompleteCount: 0,
+            tooOldCount: 2,
+            draining: false,
+        });
+
+        expect(notice?.kind).toBe(OUTBOX_NOTICE_KIND.TOO_OLD);
+        expect(notice?.text).toBe(formatTooOldText(2));
+    });
+
+    it('порядок важности: не целиком → просрочен → без подтверждения → ждущие', () => {
+        const all = {
+            count: 3,
+            partialCount: 0,
+            incompleteCount: 1,
+            staleCount: 1,
+            tooOldCount: 1,
+            draining: false,
+        };
+
+        expect(resolveOutboxNotice(all)?.kind).toBe(
+            OUTBOX_NOTICE_KIND.INCOMPLETE,
+        );
+        expect(resolveOutboxNotice({ ...all, incompleteCount: 0 })?.kind).toBe(
+            OUTBOX_NOTICE_KIND.TOO_OLD,
+        );
+        expect(
+            resolveOutboxNotice({ ...all, incompleteCount: 0, tooOldCount: 0 })
+                ?.kind,
+        ).toBe(OUTBOX_NOTICE_KIND.STALE);
+        expect(
+            resolveOutboxNotice({
+                ...all,
+                incompleteCount: 0,
+                tooOldCount: 0,
+                staleCount: 0,
+            })?.kind,
+        ).toBe(OUTBOX_NOTICE_KIND.WAITING);
     });
 });

@@ -1,69 +1,61 @@
 import type { LeadRequestCard } from '../model';
 import { LEAD_SITE_STATUS_CODE } from '../model';
+import { LEAD_REQUEST_TEXT } from '../consts/lead-request.const';
 
 /**
  * Отработана ли заявка — и что осталось.
  *
- * «Готова к продаже» звучало как решение о клиенте («созрел») и путало: это не
- * про клиента, а про то, доведена ли заявка до конца. А доведена она ровно в
- * двух случаях: у клиента появилась КОМПАНИЯ (пошли в работу) либо заявку
- * честно закрыли как «не ЦА»/отказ. Всё остальное — заявка ещё в руках.
- *
- * Незаполненные отметки (`saleReadiness.missing` с бэка) остаются: без них
- * продажу не зафиксировать, но это уточнение, а не сам исход.
+ * Считаем ровно по отметкам, которые ведёт бэк (`saleReadiness`): статус
+ * заявки и проверка на дубли. Компании и отметки «не ЦА» бейдж больше не
+ * требует (решение владельца 15.09): заявка живёт и без них — клиент бывает
+ * физлицом, компанию заводят позже, исход бывает и третьим. Прежнее правило
+ * такую заявку объявляло провалом — красным «Не отработана» и зовущим
+ * эхо-кольцом, — хотя отмечать менеджеру было нечего.
  */
 export interface ReadinessBadgeView {
-    tone: 'success' | 'warning' | 'destructive';
+    tone: 'success' | 'warning';
     label: string;
     /** Чего не хватает — списком под бейджем. */
     missing: string[];
-    /** Исхода нет: ни компании, ни закрытия. Зовём мягким эхом. */
-    isCompanyMissing: boolean;
+    /**
+     * Та же правда одной строкой — для подсказки на бейдже и на иконке.
+     * Бейдж говорит «Отработана не до конца: 1», и первый же вопрос к нему —
+     * «а что именно осталось?»: ответ есть в карточке, но бейджи живут в
+     * пульте и в миниатюре, где карточка ещё не открыта.
+     */
+    hint: string;
 }
-
-export interface ReadinessInput {
-    /** У клиента есть компания: заявка дошла до работы. */
-    hasCompany: boolean;
-}
-
-/** Заявка закрыта как «не ЦА» — это тоже законченная работа, а не провал. */
-const isClosedAsNotCa = (card: LeadRequestCard): boolean =>
-    card.siteStatus.currentCode ===
-        LEAD_SITE_STATUS_CODE.op_lead_site_status3 ||
-    Boolean(card.notCaType.currentCode);
 
 export const getReadinessBadge = (
     card: LeadRequestCard,
-    { hasCompany }: ReadinessInput = { hasCompany: true },
 ): ReadinessBadgeView => {
-    const isWorkedOut = hasCompany || isClosedAsNotCa(card);
-    const missing = [
-        ...(isWorkedOut ? [] : ['Нет компании и не отмечено «не ЦА»']),
-        ...card.saleReadiness.missing,
-    ];
+    const missing = [...card.saleReadiness.missing];
 
-    if (!isWorkedOut) {
+    // Подсказка собирается из того же списка, что и строка под бейджем:
+    // два места, где менеджер спрашивает «а что осталось?», обязаны
+    // отвечать одинаково.
+    const hintOf = (label: string): string =>
+        missing.length > 0
+            ? `${label}. ${LEAD_REQUEST_TEXT.readinessMissingPrefix}: ${missing.join(', ')}`
+            : label;
+
+    if (card.saleReadiness.ready) {
         return {
-            tone: 'destructive',
-            label: 'Не отработана',
+            tone: 'success',
+            label: 'Отработана',
             missing,
-            isCompanyMissing: true,
+            hint: hintOf('Отработана'),
         };
     }
 
-    return card.saleReadiness.ready
-        ? {
-              tone: 'success',
-              label: 'Отработана',
-              missing,
-              isCompanyMissing: false,
-          }
-        : {
-              tone: 'warning',
-              label: `Отработана не до конца: ${missing.length}`,
-              missing,
-              isCompanyMissing: false,
-          };
+    const label = `Отработана не до конца: ${missing.length}`;
+
+    return {
+        tone: 'warning',
+        label,
+        missing,
+        hint: hintOf(label),
+    };
 };
 
 /**

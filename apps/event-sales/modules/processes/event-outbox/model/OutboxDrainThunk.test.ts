@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
     OUTBOX_DELIVERY_OUTCOME,
     OUTBOX_ENVELOPE_STATE,
+    OUTBOX_STALLED_REASON,
 } from '../lib/outbox-envelope';
 import {
     OUTBOX_BACKOFF_DELAYS_MS,
@@ -498,12 +499,45 @@ describe('drainOutbox: сверка статуса перед повторной
             envelope.operationId,
         );
 
-        expect(stored?.state).toBe(OUTBOX_ENVELOPE_STATE.delivering);
+        // Конверт ПАРКУЕТСЯ: `delivering` навсегда означало бы 404 на каждом
+        // прогоне и вечное «ждёт отправки — уйдёт сам» в полоске.
+        expect(stored?.state).toBe(OUTBOX_ENVELOPE_STATE.failed);
+        expect(stored?.stalled).toBe(OUTBOX_STALLED_REASON.statusExpired);
+        expect(stored?.nextAttemptAt).toBeNull();
+        expect(stored?.lease).toBeUndefined();
         expect(target.calls).toHaveLength(0);
         expect(console.warn).toHaveBeenCalledWith(
             expect.stringContaining('статус истёк'),
             envelope.operationId,
         );
+    });
+
+    it('запаркованный конверт дренаж больше не трогает: ни сверки, ни доставки', async () => {
+        const { now, wait } = makeClock();
+        const envelope = makeEnvelope({
+            state: OUTBOX_ENVELOPE_STATE.delivering,
+            lease: { tabId: 'tab-dead', until: 0 },
+            attempts: [
+                {
+                    targetId: 'primary-backend',
+                    at: 1_000,
+                    outcome: OUTBOX_DELIVERY_OUTCOME.accepted,
+                },
+            ],
+        });
+
+        await writeOutboxEnvelope(envelope);
+
+        const target = makeTarget([ACCEPTED_QUEUED], {
+            checkStatus: [{ kind: 'not-found' }, { kind: 'not-found' }],
+        });
+
+        await drainWith(target, now, wait);
+        await drainWith(target, now, wait);
+
+        // Сверка была ровно одна — на прогоне, который конверт и запарковал.
+        expect(target.checkCalls).toHaveLength(1);
+        expect(target.calls).toHaveLength(0);
     });
 
     it('pending-конверт без accepted статусом не сверяется — сразу доставка', async () => {

@@ -33,6 +33,7 @@ import { eventItemActions } from '@/modules/widgets/EventItem/model/EventItemSli
 import { leadRequestActions } from '@/modules/features/LeadRequestCard/model/LeadRequestSlice';
 import { callChecklistActions } from '@/modules/features/CallChecklist/model/CallChecklistSlice';
 import { cancelAllChecklistSaves } from '@/modules/features/CallChecklist/lib/checklist-save-queue';
+import { restoreChecklistDraft } from '@/modules/features/CallChecklist/model/ChecklistDraftThunk';
 import { searchDuplicates } from '@/modules/features/Duplicates/model/DuplicatesThunk';
 import { initCheckPresentation } from '@/modules/features/AfterPresentation/model/AfterPresentationThunk';
 import { startEventPlanAppListener } from '@/modules/entities/EventPlan/model/EventPlanAppListener';
@@ -298,6 +299,11 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             for (const action of getReloadResetActions()) {
                 listenerApi.dispatch(action);
             }
+            // Ответы анкет сброс гасит намеренно (crm-ответы перечитаются из
+            // карточки), но ответы каналов dto/smart/text в карточке не
+            // лежат — их возвращает черновик. Строго ПОСЛЕ сброса: иначе
+            // reset затёр бы восстановленное.
+            void listenerApi.dispatch(restoreChecklistDraft());
             // ЗПР живёт в react-query, а не в redux: у него свой кэш, и
             // общий каталог сбросов до него не достаёт. Ссылки op_zprs
             // мержатся с перечитанным стором, но САМИ элементы (стадия,

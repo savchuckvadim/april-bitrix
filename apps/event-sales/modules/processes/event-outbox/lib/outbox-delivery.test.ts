@@ -7,6 +7,7 @@ import {
     OUTBOX_ENVELOPE_STATE,
 } from './outbox-envelope';
 import {
+    OUTBOX_AUTO_SEND_TTL_MS,
     OUTBOX_BACKOFF_DELAYS_MS,
     deliverOutboxEnvelope,
     getDeliverySkipReason,
@@ -420,6 +421,43 @@ describe('getDeliverySkipReason', () => {
                 'tab-a',
             ),
         ).toBe('state');
+    });
+
+    /**
+     * Срок годности: конверт, чей POST не долетел, не имеет права уехать
+     * сам спустя сутки — в payload снимок того дня.
+     */
+    it('старше срока годности — машина его больше не отправляет', () => {
+        expect(
+            getDeliverySkipReason(
+                makeEnvelope({
+                    createdAt: now - OUTBOX_AUTO_SEND_TTL_MS - 1,
+                }),
+                now,
+                'tab-a',
+            ),
+        ).toBe('too-old');
+    });
+
+    it('у принятого бэком возраст не смотрим — его судьбу решает сверка статуса', () => {
+        expect(
+            getDeliverySkipReason(
+                makeEnvelope({
+                    createdAt: now - OUTBOX_AUTO_SEND_TTL_MS - 1,
+                    state: OUTBOX_ENVELOPE_STATE.delivering,
+                    lease: { tabId: 'x', until: 0 },
+                    attempts: [
+                        {
+                            targetId: PRIMARY_BACKEND_TARGET_ID,
+                            at: 1,
+                            outcome: OUTBOX_DELIVERY_OUTCOME.accepted,
+                        },
+                    ],
+                }),
+                now,
+                'tab-a',
+            ),
+        ).toBeNull();
     });
 });
 

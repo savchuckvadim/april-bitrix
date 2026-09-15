@@ -237,6 +237,7 @@ jobs:
     needs: [detect, build]
     if: needs.detect.outputs.apps != '[]'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Deploy изменённых приложений по SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -251,7 +252,12 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           timeout: 60s
-          command_timeout: 30m
+          # Изменение в packages/** тянет деплой всех 7 apps, а образы не делят
+          # слои между собой (~400 МБ на каждое). Последовательный pull не
+          # укладывался в 30m: ssh-action убивал команду по command_timeout, и
+          # job краснел без единой ошибки в логе. Ниже pull идёт параллельно,
+          # но запас всё равно увеличен.
+          command_timeout: 45m
           envs: APPS_JSON,IMAGE_TAG,GHCR_OWNER,GHCR_USER,GHCR_PAT
           script: |
             set -e
@@ -261,6 +267,11 @@ jobs:
             GHCR_OWNER=$(echo "$GHCR_OWNER" | tr '[:upper:]' '[:lower:]')
             export GHCR_OWNER IMAGE_TAG
             COMPOSE="docker compose --env-file .env -f docker-compose.prod.yml"
+
+            # --quiet у pull есть не во всех сборках compose v2; на старой
+            # неизвестный флаг уронил бы сразу все приложения, поэтому спрашиваем.
+            PULL_Q="--quiet"
+            $COMPOSE pull --help 2>/dev/null | grep -q -- "--quiet" || PULL_Q=""
 
             echo "🧩 Обновляю checkout (нужен свежий docker-compose.prod.yml и apps/*/.env)"
             # Deploy-клон выравниваем жёстко под ветку (без merge/divergence).
@@ -289,15 +300,17 @@ jobs:
             # GHCR иногда отвечает "denied: denied" на аутентифицированный
             # запрос (протухший/узко выданный PAT, вторичный rate limit), хотя
             # образ публичный. Пробуем: как есть -> пауза -> анонимно.
+            # --quiet: построчный прогресс слоёв раздувает лог до обрезки, и
+            # настоящая ошибка в нём тонет. Ошибки pull идут в stderr и видны.
             pull_image () {
               local svc="$1"
-              $COMPOSE pull "$svc" && return 0
+              $COMPOSE pull $PULL_Q "$svc" && return 0
               echo "⚠️ pull $svc не удался — повтор через 30s"
               sleep 30
-              $COMPOSE pull "$svc" && return 0
+              $COMPOSE pull $PULL_Q "$svc" && return 0
               echo "⚠️ pull $svc снова не удался — пробую без учётки GHCR"
               docker logout ghcr.io >/dev/null 2>&1 || true
-              $COMPOSE pull "$svc" && return 0
+              $COMPOSE pull $PULL_Q "$svc" && return 0
               echo "❌ pull $svc не удался"
               return 1
             }
@@ -327,31 +340,58 @@ jobs:
             APPS=$(echo "$APPS_JSON" | tr -d '[]"' | tr ',' ' ')
             echo "🚀 Деплой приложений: $APPS (tag=$IMAGE_TAG)"
 
-            FAILED=""; SKIPPED=""
+            # Сначала отбираем сервисы: пустой .env = приложение на этом сервере
+            # ещё не настроено, пропускаем без ошибки (заполни apps/$app/.env).
+            SERVICES=""; SKIPPED=""; FAILED=""
             for app in $APPS; do
-              svc="front-$app"
-              # пустой .env = приложение на этом сервере ещё не настроено —
-              # пропускаем без ошибки (заполни apps/$app/.env, чтобы деплоить)
               if [ ! -s "apps/$app/.env" ]; then
-                echo "⚠️ apps/$app/.env пуст — пропускаю $svc"
-                SKIPPED="$SKIPPED $svc"
+                echo "⚠️ apps/$app/.env пуст — пропускаю front-$app"
+                SKIPPED="$SKIPPED front-$app"
                 continue
               fi
-              echo "📦 pull + up: $svc"
-              # set -e не должен ронять весь цикл из-за одного приложения:
-              # раньше отказ pull обрывал деплой и остальные apps молча
-              # оставались на старом теге.
-              if ! pull_image "$svc"; then
-                FAILED="$FAILED $svc"
-                continue
-              fi
-              if ! $COMPOSE up -d "$svc"; then
-                echo "❌ up -d $svc не удался"
-                FAILED="$FAILED $svc"
-                continue
-              fi
-              wait_healthy "$svc" || FAILED="$FAILED $svc"
+              SERVICES="$SERVICES front-$app"
             done
+
+            if [ -n "$SERVICES" ]; then
+              # Чистим dangling-образы ДО pull: на забитом диске распаковка
+              # слоёв ползёт, и деплой упирается в command_timeout.
+              docker image prune -f || true
+
+              echo "📦 pull:$SERVICES"
+              # Один pull на все сервисы — compose тянет их параллельно.
+              # Поштучно 7 образов по ~400 МБ в таймаут не укладывались.
+              # Пустой $SERVICES сюда не попадёт: без аргументов pull тянет ВСЁ.
+              if ! $COMPOSE pull $PULL_Q $SERVICES; then
+                echo "⚠️ групповой pull не прошёл — добираю по одному"
+                REST=""
+                for svc in $SERVICES; do
+                  if pull_image "$svc"; then REST="$REST $svc"; else FAILED="$FAILED $svc"; fi
+                done
+                SERVICES="$REST"
+              fi
+            fi
+
+            if [ -n "$SERVICES" ]; then
+              echo "🚢 up -d:$SERVICES"
+              # Разом: контейнеры стартуют параллельно, ожидания healthcheck
+              # накладываются друг на друга, а не складываются.
+              if ! $COMPOSE up -d $SERVICES; then
+                echo "⚠️ групповой up -d не прошёл — поднимаю по одному"
+                REST=""
+                for svc in $SERVICES; do
+                  if $COMPOSE up -d "$svc"; then
+                    REST="$REST $svc"
+                  else
+                    echo "❌ up -d $svc не удался"
+                    FAILED="$FAILED $svc"
+                  fi
+                done
+                SERVICES="$REST"
+              fi
+              for svc in $SERVICES; do
+                wait_healthy "$svc" || FAILED="$FAILED $svc"
+              done
+            fi
 
             docker image prune -f || true
             $COMPOSE ps

@@ -112,6 +112,30 @@ const callChecklistSlice = createSlice({
             state.error = action.payload.message;
         },
         /**
+         * Засев ответов dto-канала значением, уже стоящим в CRM.
+         *
+         * Ответ такого вопроса уезжает ТОЛЬКО payload'ом отправки, а
+         * обязательность его раньше закрывало значение из карточки: сумма
+         * стояла в сделке, вопрос выглядел закрытым, ответа не возникало —
+         * и `sale.opportunity` уходила пустой, а сервер-гард отвергал весь
+         * отчёт о продаже. Теперь значение карточки становится ОТВЕТОМ:
+         * менеджер видит то же, что видел, но оно реально уезжает.
+         *
+         * Пишем только ключи, которых нет ни в ответах, ни в черновиках:
+         * засев не имеет права затереть ни данный ответ, ни набираемое
+         * прямо сейчас.
+         */
+        answersSeeded(
+            state,
+            action: PayloadAction<{ entries: Record<string, string> }>,
+        ) {
+            for (const [key, value] of Object.entries(action.payload.entries)) {
+                if (key in state.valueByKey) continue;
+                if (key in state.draftByKey) continue;
+                state.valueByKey[key] = value;
+            }
+        },
+        /**
          * Снимок значений для «обязательности изменения». Пишем ТОЛЬКО
          * отсутствующие ключи: повторный снимок (карточка перерисовалась,
          * модалка открылась второй раз) не имеет права затереть исходное
@@ -188,6 +212,10 @@ export const callChecklistActions: {
     saveFailed: ActionCreatorWithPayload<
         { key: string; message: string },
         'callChecklist/saveFailed'
+    >;
+    answersSeeded: ActionCreatorWithPayload<
+        { entries: Record<string, string> },
+        'callChecklist/answersSeeded'
     >;
     baselineCaptured: ActionCreatorWithPayload<
         { entries: Record<string, string> },

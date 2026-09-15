@@ -35,6 +35,13 @@ export interface ToneBadgeProps {
     surface?: ToneBadgeSurface;
     size?: ToneBadgeSize;
     uppercase?: boolean;
+    /**
+     * Подсказка по наведению (нативный ). Бэйдж часто говорит
+     * коротко («Отработана не до конца: 1»), а подробность живёт в карточке,
+     * до которой ещё надо дойти, — одна строка объяснения снимает вопрос на
+     * месте.
+     */
+    title?: string;
     className?: string;
     children: ReactNode;
 }
@@ -60,6 +67,7 @@ export const ToneBadge = ({
     surface = 'flat',
     size = 'md',
     uppercase = false,
+    title,
     className,
     children,
 }: ToneBadgeProps) => {
@@ -89,11 +97,15 @@ export const ToneBadge = ({
 
     if (isLiquid) {
         return (
-            <GlassSurface borderRadius={999} className={classes}>
+            <GlassSurface borderRadius={999} className={classes} title={title}>
                 {children}
             </GlassSurface>
         );
     }
 
-    return <span className={classes}>{children}</span>;
+    return (
+        <span className={classes} title={title}>
+            {children}
+        </span>
+    );
 };

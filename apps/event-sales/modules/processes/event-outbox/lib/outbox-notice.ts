@@ -32,6 +32,10 @@ export const OUTBOX_NOTICE_KIND = {
     TAIL: 'tail',
     /** Отчёт проведён НЕ ЦЕЛИКОМ — нужен человек. */
     INCOMPLETE: 'incomplete',
+    /** Принят бэком, подтверждения уже не будет — сверить карточку. */
+    STALE: 'stale',
+    /** Старше суток и не ушёл — отчитаться заново. */
+    TOO_OLD: 'too-old',
 } as const;
 export type OutboxNoticeKind =
     (typeof OUTBOX_NOTICE_KIND)[keyof typeof OUTBOX_NOTICE_KIND];
@@ -73,6 +77,17 @@ export interface OutboxNoticeInput {
     partialCount: number;
     /** Проведены НЕ ЦЕЛИКОМ (directFailedCommands); в count не входят. */
     incompleteCount: number;
+    /**
+     * Приняты бэком, но статус операции там истёк (`statusExpired`): в count
+     * не входят — отправлять их заново нельзя, и обещать автоматическую
+     * отправку тем более. Не передан — ноль (старые вызовы).
+     */
+    staleCount?: number;
+    /**
+     * Старше срока годности и так и не ушли (`stalled: 'too-old'`): в count
+     * не входят. Единственное состояние, где отчёт ТОЧНО не проведён.
+     */
+    tooOldCount?: number;
     /** Прогон дренажа идёт прямо сейчас. */
     draining: boolean;
     /** Что уже сказал баннер стадии о текущей отправке. */
@@ -166,6 +181,31 @@ export const formatIncompleteText = (incomplete: number): string =>
     `удалось. Откройте карточку клиента и сверьте — отправлять заново не ` +
     `нужно.`;
 
+/**
+ * «N отчётов приняты, но подтверждения нет»: POST бэк принял, а статус
+ * операции живёт час — и час прошёл. Отправлять заново НЕЛЬЗЯ (flow
+ * выполнится второй раз), поэтому текст не предлагает ни «Повторить», ни
+ * «уйдёт сам»: он зовёт сверить карточку. Чаще всего отчёт на месте —
+ * очередь его исполнила, просто подтверждения уже не спросить.
+ */
+export const formatStaleText = (stale: number): string =>
+    `${pluralizeReports(stale)} ${waitingVerb(stale)} проверки: сервер принял ` +
+    `отправку, но подтверждения по ней уже не получить. Откройте карточку ` +
+    `клиента и сверьте — отправлять заново не нужно.`;
+
+/**
+ * «N отчётов старше суток так и не ушли». Отправлять их машина больше не
+ * вправе: в конверте снимок ТОГО дня (план с прошедшим сроком,
+ * ответственный из снимка, стадия), а сделку с тех пор могли передать
+ * другому. Текст зовёт сделать единственное, что тут осмысленно, —
+ * отчитаться заново по живому делу.
+ */
+export const formatTooOldText = (tooOld: number): string =>
+    `${pluralizeReports(tooOld)} старше суток так и не ${
+        isSingular(tooOld) ? 'ушёл' : 'ушли'
+    }: отправить ${isSingular(tooOld) ? 'его' : 'их'} автоматически уже нельзя — ` +
+    `данные устарели. Откройте дело и отчитайтесь заново.`;
+
 /** Счётчики за вычетом того, о чём уже сказал баннер стадии. */
 const withoutCovered = (
     params: OutboxNoticeInput,
@@ -211,6 +251,26 @@ export const resolveOutboxNotice = (
             kind: OUTBOX_NOTICE_KIND.INCOMPLETE,
             tone: OUTBOX_NOTICE_TONE.WARNING,
             text: formatIncompleteText(incomplete),
+            busy,
+        };
+    }
+    // Просроченный отчёт НЕ проведён — это важнее всех остальных строк
+    // после «проведён не целиком»: менеджеру предстоит работа.
+    if ((params.tooOldCount ?? 0) > 0) {
+        return {
+            kind: OUTBOX_NOTICE_KIND.TOO_OLD,
+            tone: OUTBOX_NOTICE_TONE.WARNING,
+            text: formatTooOldText(params.tooOldCount ?? 0),
+            busy,
+        };
+    }
+    // Следом — принятые без подтверждения: тоже требует человека, но
+    // ситуация мягче, отчёт скорее всего на месте.
+    if ((params.staleCount ?? 0) > 0) {
+        return {
+            kind: OUTBOX_NOTICE_KIND.STALE,
+            tone: OUTBOX_NOTICE_TONE.WARNING,
+            text: formatStaleText(params.staleCount ?? 0),
             busy,
         };
     }

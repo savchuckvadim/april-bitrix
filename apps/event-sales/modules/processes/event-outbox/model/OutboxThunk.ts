@@ -10,9 +10,11 @@ import {
 import {
     OUTBOX_DELIVERY_OUTCOME,
     OUTBOX_ENVELOPE_STATE,
+    OUTBOX_STALLED_REASON,
     applyAttempt,
     canTransition,
     isIncompleteEnvelope,
+    isStalledBy,
     isUndeliveredEnvelope,
     mergeRequeuedEnvelope,
     releaseEnvelopeLease,
@@ -98,6 +100,16 @@ export const refreshOutboxMirror =
                 // Проведённые не целиком: в недоставленные не входят (их
                 // никто не дошлёт), но менеджеру о них знать обязательно.
                 incompleteCount: envelopes.filter(isIncompleteEnvelope).length,
+                // Принятые бэком, чей статус истёк: подтверждения не будет,
+                // отправлять заново нельзя — только сверить карточку.
+                staleCount: envelopes.filter(envelope =>
+                    isStalledBy(envelope, OUTBOX_STALLED_REASON.statusExpired),
+                ).length,
+                // Старше суток и так и не ушли: отправлять их машина
+                // больше не вправе — в payload снимок того дня.
+                tooOldCount: envelopes.filter(envelope =>
+                    isStalledBy(envelope, OUTBOX_STALLED_REASON.tooOld),
+                ).length,
             }),
         );
     };

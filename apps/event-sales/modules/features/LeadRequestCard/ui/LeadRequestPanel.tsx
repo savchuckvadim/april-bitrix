@@ -4,7 +4,6 @@ import { FC } from 'react';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { ToneBadge } from '@workspace/april-ui';
 import { SectionState } from '@/modules/shared/SectionState';
-import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
     LEAD_REQUEST_ENUM_LABEL,
     LEAD_REQUEST_TEXT,
@@ -44,12 +43,10 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
         patchEnum,
         patchBool,
     } = useLeadRequest(leadId);
-    // Компания — стоп-фактор продажи, а не одно из незаполненного.
-    const hasCompany = useAppSelector(s => Boolean(s.app.bitrix.company));
 
     if (!visible) return null;
 
-    const badge = card ? getReadinessBadge(card, { hasCompany }) : null;
+    const badge = card ? getReadinessBadge(card) : null;
 
     return (
         <SectionCard
@@ -63,15 +60,7 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
             defaultOpen
             actions={
                 badge ? (
-                    <ToneBadge
-                        tone={badge.tone}
-                        variant="soft"
-                        className={
-                            badge.isCompanyMissing
-                                ? 'relative before:pointer-events-none before:absolute before:-inset-px before:rounded-[inherit] before:animate-echo-ring motion-reduce:before:animate-none'
-                                : undefined
-                        }
-                    >
+                    <ToneBadge tone={badge.tone} variant="soft">
                         {badge.label}
                     </ToneBadge>
                 ) : undefined

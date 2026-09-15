@@ -43,6 +43,21 @@ const initialState = {
      * полоска говорит о них тревожным тоном.
      */
     incompleteCount: 0,
+    /**
+     * Конверты, принятые бэком, чей статус там уже истёк (`statusExpired`):
+     * подтверждения не будет никогда — повторный POST запрещён, сверять
+     * нечего. В undeliveredCount не входят (терминальные), но молчать о них
+     * нельзя: отчёт скорее всего проведён, а «скорее всего» менеджер обязан
+     * проверить сам.
+     */
+    staleCount: 0,
+    /**
+     * Конверты старше срока годности (`stalled: 'too-old'`): POST так и не
+     * долетел, а снимок в payload устарел — отправлять его машина больше не
+     * вправе. Отчёт НЕ проведён, и это единственный случай, где менеджеру
+     * придётся отчитаться заново.
+     */
+    tooOldCount: 0,
     /** Для какого домена посчитан счётчик (страховка от смешения порталов). */
     countedDomain: null as string | null,
     /**
@@ -76,12 +91,18 @@ const outboxSlice = createSlice({
                 partialCount?: number;
                 /** Проведённые не целиком (в count не входят); нет — ноль. */
                 incompleteCount?: number;
+                /** Принятые, но с истёкшим статусом; не передан — ноль. */
+                staleCount?: number;
+                /** Просроченные (старше суток, не ушли); нет — ноль. */
+                tooOldCount?: number;
             }>,
         ) => {
             state.countedDomain = action.payload.domain;
             state.undeliveredCount = action.payload.count;
             state.partialCount = action.payload.partialCount ?? 0;
             state.incompleteCount = action.payload.incompleteCount ?? 0;
+            state.staleCount = action.payload.staleCount ?? 0;
+            state.tooOldCount = action.payload.tooOldCount ?? 0;
         },
         /**
          * Прогон дренажа начался/закончился. Взводится только у прогона, у

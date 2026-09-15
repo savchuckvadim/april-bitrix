@@ -20,6 +20,8 @@ describe('OutboxSlice: счётчики зеркала', () => {
             undeliveredCount: 0,
             partialCount: 0,
             incompleteCount: 0,
+            staleCount: 0,
+            tooOldCount: 0,
             countedDomain: null,
             current: null,
             draining: false,

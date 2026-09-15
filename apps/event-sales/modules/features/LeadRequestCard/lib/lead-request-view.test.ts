@@ -32,29 +32,31 @@ const makeCard = (over: Partial<LeadRequestCard> = {}): LeadRequestCard =>
     }) as LeadRequestCard;
 
 describe('lead-request-view', () => {
-    it('заявка с компанией отработана; незакрытые отметки — уточнение', () => {
-        expect(getReadinessBadge(makeCard(), { hasCompany: true })).toEqual({
+    it('незакрытые отметки — уточнение, а не провал', () => {
+        expect(getReadinessBadge(makeCard())).toEqual({
             tone: 'warning',
             label: 'Отработана не до конца: 1',
             missing: ['Статус заявки'],
-            isCompanyMissing: false,
+            // Подсказка бэйджа отвечает на вопрос, который он сам и вызывает:
+            // «не до конца — а что осталось?»
+            hint: 'Отработана не до конца: 1. Осталось отметить: Статус заявки',
         });
         expect(
             getReadinessBadge(
                 makeCard({ saleReadiness: { ready: true, missing: [] } }),
-                { hasCompany: true },
             ).tone,
         ).toBe('success');
     });
 
-    it('ни компании, ни «не ЦА» — заявка не отработана', () => {
+    // Компания и «не ЦА» больше не условие: заявка без них законная
+    // (решение владельца 15.09) — бейдж считает только отметки с бэка.
+    it('без компании и без «не ЦА» заявка отработана', () => {
         const badge = getReadinessBadge(
             makeCard({ saleReadiness: { ready: true, missing: [] } }),
-            { hasCompany: false },
         );
-        expect(badge.tone).toBe('destructive');
-        expect(badge.isCompanyMissing).toBe(true);
-        expect(badge.missing).toEqual(['Нет компании и не отмечено «не ЦА»']);
+        expect(badge.tone).toBe('success');
+        expect(badge.label).toBe('Отработана');
+        expect(badge.missing).toEqual([]);
     });
 
     it('селект «не ЦА» виден при статусе «Не ЦА» или уже выбранном типе', () => {

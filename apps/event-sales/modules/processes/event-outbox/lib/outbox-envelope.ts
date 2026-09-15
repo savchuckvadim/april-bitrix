@@ -92,6 +92,19 @@ export type OutboxDeliveryOutcome =
     (typeof OUTBOX_DELIVERY_OUTCOME)[keyof typeof OUTBOX_DELIVERY_OUTCOME];
 
 /** Запись о попытке доставки — след для дренажа и диагностики. */
+/**
+ * Почему конверт застрял насовсем (поле `stalled`). Разница важна для
+ * текста менеджеру: `status-expired` — отчёт, скорее всего, проведён и его
+ * надо сверить; `too-old` — не проведён, и отправлять его снова машина не
+ * вправе (в payload снимок того дня).
+ */
+export const OUTBOX_STALLED_REASON = {
+    statusExpired: 'status-expired',
+    tooOld: 'too-old',
+} as const;
+export type OutboxStalledReason =
+    (typeof OUTBOX_STALLED_REASON)[keyof typeof OUTBOX_STALLED_REASON];
+
 export interface OutboxAttempt {
     /** Куда доставляли (id из реестра delivery-targets). */
     targetId: string;
@@ -184,6 +197,25 @@ export interface OutboxEnvelope {
      */
     directFailedCommands?: string[];
     deferred?: OutboxDeferredStep[];
+    /**
+     * Конверт ЗАСТРЯЛ: машина его больше не двигает, дальше нужен человек.
+     * Отметка терминальная — дренаж такой конверт не берёт, уборка снесёт
+     * через сутки, полоска говорит о нём отдельной строкой.
+     *
+     * - `status-expired` — операция БЫЛА принята бэком, но её статус там уже
+     *   не живёт (срок — час): исход выяснить нечем, а повторный POST
+     *   выполнил бы flow второй раз. Отчёт почти наверняка проведён.
+     *   До 15.09 такой конверт оставался `delivering` НАВСЕГДА: дренаж
+     *   сверял его статус на каждом прогоне (404 при каждом заходе
+     *   менеджера), а полоска обещала «уйдёт сам, как только сервер
+     *   ответит» — при том, что уйти он не мог.
+     * - `too-old` — POST так и не долетел, и с тех пор прошло больше
+     *   {@link OUTBOX_AUTO_SEND_TTL_MS}. Отправить его молча нельзя: в
+     *   payload лежит СНИМОК того дня (план с прошедшим сроком,
+     *   ответственный из снимка, стадия), а сделку с тех пор могли передать
+     *   другому. Отчёт не проведён — менеджеру о нём надо знать.
+     */
+    stalled?: OutboxStalledReason;
     /**
      * Терминальный исход этого конверта УЖЕ посчитан метрикой
      * (`markReportOutcome`, lib/report-outcome.ts).
@@ -563,6 +595,54 @@ export const isRetryableFailure = (envelope: OutboxEnvelope): boolean => {
  */
 export const isIncompleteEnvelope = (envelope: OutboxEnvelope): boolean =>
     (envelope.directFailedCommands?.length ?? 0) > 0;
+
+/**
+ * Конверт застрял — дальше нужен человек, а не машина.
+ *
+ * Как и «проведён не целиком», это состояние ДЛЯ ЧЕЛОВЕКА: сдвинуть конверт
+ * нечем, и единственное осмысленное действие — открыть карточку и
+ * посмотреть, что там на самом деле.
+ */
+export const isStalledEnvelope = (envelope: OutboxEnvelope): boolean =>
+    envelope.stalled !== undefined;
+
+/** Застрял по этой причине (см. {@link OutboxStalledReason}). */
+export const isStalledBy = (
+    envelope: OutboxEnvelope,
+    reason: OutboxStalledReason,
+): boolean => envelope.stalled === reason;
+
+/**
+ * Пометить конверт застрявшим: `failed` без ретраев, аренда снята.
+ *
+ * `failed` выбран не ради красоты — это ЕДИНСТВЕННОЕ состояние, из которого
+ * конверт перестаёт быть кандидатом дренажа (`getDeliverySkipReason` →
+ * `state`, потому что `isRetryableFailure` смотрит на исход последней
+ * попытки) и попадает под уборку (`planOutboxRetention` удаляет
+ * терминальные старше суток). Именно этого не хватало: конверт от 09.09
+ * висел `delivering` и давал 404 на каждом заходе менеджера.
+ *
+ * Конверт в неподходящем состоянии получает только отметку: пометка —
+ * следствие наблюдения, а не команда, и ронять из-за неё прогон дренажа
+ * (transitionEnvelope бросает на нелегальном переходе) нельзя.
+ */
+export const markStalledEnvelope = (
+    envelope: OutboxEnvelope,
+    reason: OutboxStalledReason,
+    now: number,
+): OutboxEnvelope => {
+    if (!canTransition(envelope.state, OUTBOX_ENVELOPE_STATE.failed)) {
+        return { ...envelope, stalled: reason };
+    }
+
+    return {
+        ...releaseEnvelopeLease(
+            transitionEnvelope(envelope, OUTBOX_ENVELOPE_STATE.failed, now),
+        ),
+        nextAttemptAt: null,
+        stalled: reason,
+    };
+};
 
 /**
  * Недоставленный — конверт, у которого доставка ещё впереди: `pending`,

@@ -5,15 +5,19 @@ import { shallowEqual } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import type { ChecklistDef } from '../../type/call-checklist.type';
 import { selectChecklistRows } from '../checklist-selectors';
-import { captureChecklistBaseline } from '../../model/CallChecklistThunk';
+import {
+    captureChecklistBaseline,
+    seedChecklistDtoAnswers,
+} from '../../model/CallChecklistThunk';
 import {
     isHiddenChecklistReportReady,
     reportHiddenChecklistQuestions,
 } from '../../model/ChecklistHiddenThunk';
 
 /**
- * Снимок значений CRM для пунктов с «обязательностью изменения» — в момент,
- * когда вопросы появились на экране.
+ * Что происходит в момент «вопросы появились на экране»: снимок значений CRM
+ * для пунктов с «обязательностью изменения», засев ответов dto-канала
+ * значением карточки и отчёт о спрятанных вопросах.
  *
  * Отдельным хуком, а не эффектом в компоненте: карточка вопросов монтируется
  * дважды (колонка плана и окно предпроверки), и снимок обязан быть общим —
@@ -36,6 +40,12 @@ export const useChecklistBaselineCapture = (defs: ChecklistDef[]): void => {
 
     useEffect(() => {
         dispatch(captureChecklistBaseline(defs));
+        // Тот же момент — вопрос на экране — годится и для засева ответов
+        // dto-канала: значение карточки обязано стать ответом, иначе оно
+        // никуда не поедет (ответ dto живёт только в payload отправки).
+        // Зависимость от строк сущностей та же: во встройке-компании строка
+        // базовой сделки догружается позже показа карточки.
+        dispatch(seedChecklistDtoAnswers(defs));
         // Тот же момент — «вопросы появились на экране» — единственный, в
         // который честно видно, каких вопросов на экране НЕ появилось. Но
         // считать спрятанные можно только по ПРИЕХАВШИМ данным: до слепка

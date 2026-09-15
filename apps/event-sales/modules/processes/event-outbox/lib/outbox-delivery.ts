@@ -17,6 +17,7 @@ import {
     applyDirectExecution,
     applyDirectIncomplete,
     claimEnvelope,
+    hasAcceptedAttempt,
     isRetryableFailure,
     releaseEnvelopeLease,
     type OutboxAttempt,
@@ -53,6 +54,28 @@ export const OUTBOX_BACKOFF_DELAYS_MS: readonly number[] = [
     2_000, 5_000, 15_000,
 ];
 
+/**
+ * СРОК ГОДНОСТИ конверта: сколько он вправе уехать САМ.
+ *
+ * Возраста у конверта не было вовсе — дренаж смотрел состояние, аренду и
+ * бэкофф. Конверт, чей POST не долетел (сеть или бэк лежали), оставался
+ * ретраебельным бессрочно и уезжал при следующем открытии фрейма, хоть
+ * через неделю. Уезжал при этом СНИМОК того дня: план с прошедшим сроком,
+ * ответственный из снимка, движение стадии, запись в историю, строка KPI —
+ * а сделку за это время могли передать другому (ХО), и новый владелец
+ * получал задачу на старого ответственного и стадию, спорящую с его
+ * работой.
+ *
+ * 24 часа — тот же горизонт, по которому живёт уборка терминальных
+ * конвертов: «вчерашнее ещё наше, позавчерашнее решает человек». Значение
+ * согласуется с владельцем (см. docs/event-sales-sale-send-fixes.tasks.md).
+ *
+ * Правило касается ТОЛЬКО конвертов без принятой попытки: у принятого
+ * повторной отправки не бывает по построению (её запрещает доктрина), и его
+ * судьбу решает сверка статуса.
+ */
+export const OUTBOX_AUTO_SEND_TTL_MS = 24 * 60 * 60 * 1000;
+
 /** Зависимости двигателя. Продовые дефолты; тесты инжектируют свои. */
 export interface OutboxDeliveryDeps {
     targets?: DeliveryTarget[];
@@ -76,7 +99,9 @@ export type OutboxDeliverySkipReason =
     | 'state'
     | 'version'
     | 'missing'
-    | 'no-target';
+    | 'no-target'
+    /** Старше срока годности: сам уже не уедет, решает человек. */
+    | 'too-old';
 
 /** Итог прогона двигателя по одному конверту. */
 export type OutboxDeliverySummary =
@@ -134,6 +159,20 @@ export const getDeliverySkipReason = (
     OutboxDeliverySkipReason,
     'lock' | 'version' | 'missing' | 'no-target'
 > | null => {
+    /*
+     * Срок годности — ПЕРВЫМ и только для конвертов без принятой попытки:
+     * их и только их машина может отправить вслепую спустя сутки, а в
+     * payload у них снимок того дня. У принятого конверта другой путь —
+     * сверка статуса (она же его и паркует), и перехватывать его здесь
+     * нельзя: иначе он снова завис бы `delivering` навсегда.
+     */
+    if (
+        !hasAcceptedAttempt(envelope) &&
+        now - envelope.createdAt > OUTBOX_AUTO_SEND_TTL_MS
+    ) {
+        return 'too-old';
+    }
+
     if (envelope.state === OUTBOX_ENVELOPE_STATE.pending) {
         return null;
     }

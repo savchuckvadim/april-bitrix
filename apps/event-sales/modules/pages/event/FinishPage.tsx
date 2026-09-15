@@ -54,6 +54,18 @@ const FinishPage: FC = () => {
         nav.toList();
     };
 
+    /*
+     * Отказ с причиной («заполните сумму сделки») повтором не лечится: тот
+     * же payload получит тот же ответ. Единственное осмысленное действие —
+     * вернуться к заполненной форме и дозаполнить. Флаг финиша снимаем
+     * первым: пока он стоит, EventProcessInit возвращает на /finish.
+     */
+    const backToForm = () => {
+        redirect.cancel();
+        dispatch(eventActions.setFinishStatus({ status: false, result: '' }));
+        nav.toItem();
+    };
+
     return (
         <div className="flex min-h-svh items-center justify-center bg-background p-4">
             <div className="max-w-sm space-y-4 text-center">
@@ -198,6 +210,9 @@ const FinishPage: FC = () => {
                                 }}
                             >
                                 Повторить
+                            </Button>
+                            <Button variant="outline" onClick={backToForm}>
+                                Вернуться к форме
                             </Button>
                             <Button variant="outline" onClick={redirect.goNow}>
                                 Открыть карточку

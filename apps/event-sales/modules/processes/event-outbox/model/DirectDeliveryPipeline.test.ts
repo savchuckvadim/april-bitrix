@@ -189,6 +189,8 @@ describe('врезка А4: primary 3×сеть → direct исполнил яд
             count: 1,
             partialCount: 1,
             incompleteCount: 0,
+            staleCount: 0,
+            tooOldCount: 0,
         });
         // зеркало → полоска: про partial говорим «ждёт досылки», отправить
         // такой конверт целиком нельзя.
@@ -423,6 +425,8 @@ describe('врезка А4: прямое исполнение прошло НЕ 
             count: 0,
             partialCount: 0,
             incompleteCount: 1,
+            staleCount: 0,
+            tooOldCount: 0,
         });
         expect(
             resolveOutboxNotice({

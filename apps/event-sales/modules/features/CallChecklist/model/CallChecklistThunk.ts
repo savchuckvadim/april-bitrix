@@ -29,6 +29,7 @@ import {
     selectChecklistRows,
 } from '../lib/checklist-selectors';
 import { callChecklistActions } from './CallChecklistSlice';
+import { saveChecklistDraft } from './ChecklistDraftThunk';
 import { reportHiddenChecklistQuestions } from './ChecklistHiddenThunk';
 
 /**
@@ -102,6 +103,9 @@ export const saveChecklistField =
         // нельзя, поэтому ветка стоит до всякого резолва носителя.
         if (def.channel !== 'crm') {
             dispatch(callChecklistActions.saveSucceeded({ key, value }));
+            // Ответ, живущий только в стейте, обязан пережить перезагрузку
+            // фрейма — иначе его теряет любой уход со страницы.
+            dispatch(saveChecklistDraft());
             return;
         }
 
@@ -182,6 +186,7 @@ export const changeChecklistField =
         if (ref.def.channel !== 'crm') {
             cancelChecklistSave(key);
             dispatch(callChecklistActions.saveSucceeded({ key, value }));
+            dispatch(saveChecklistDraft());
             return;
         }
 
@@ -275,6 +280,46 @@ export const captureChecklistBaseline =
         dispatch(callChecklistActions.baselineCaptured({ entries }));
     };
 
+/**
+ * Засев ответов dto-канала значением, уже стоящим в CRM.
+ *
+ * Момент тот же, что у снимка baseline, — вопрос появился на экране
+ * (карточка в колонке, открытая модалка). Смысл: у канала `dto` ответ
+ * уезжает ТОЛЬКО payload'ом отправки, и значение карточки, которое менеджер
+ * видит подписью «сейчас: …», обязано стать ответом, иначе оно никуда не
+ * поедет. Ровно на этом ломалась отправка продажи: сумма в сделке есть,
+ * вопрос выглядит закрытым, `sale.opportunity` уходит пустой — и гард бэка
+ * отвергает весь отчёт.
+ *
+ * Канал `smart` не засевается: текущего значения у него нет по построению
+ * (элемента смарта ещё не существует), засевать нечем.
+ *
+ * Уже данный ответ и набираемый черновик засев не трогает
+ * (`answersSeeded` пишет только отсутствующие ключи), поэтому повторные
+ * вызовы безвредны — как и у снимка baseline.
+ */
+export const seedChecklistDtoAnswers =
+    (defs: ChecklistDef[]) =>
+    (dispatch: AppDispatch, getState: AppGetState) => {
+        const state = getState();
+        const entries: Record<string, string> = {};
+        for (const def of defs) {
+            for (const resolved of resolveChecklistFields(state, def)) {
+                if (resolved.def.channel !== 'dto') continue;
+                if (!resolved.currentValue) continue;
+                if (resolved.answerKey in state.callChecklist.valueByKey) {
+                    continue;
+                }
+                if (resolved.answerKey in state.callChecklist.draftByKey) {
+                    continue;
+                }
+                entries[resolved.answerKey] = resolved.currentValue;
+            }
+        }
+        if (Object.keys(entries).length === 0) return;
+        dispatch(callChecklistActions.answersSeeded({ entries }));
+    };
+
 /** Открыть модальную анкету по её коду (шаг цепочки send). */
 export const openCallChecklist =
     (id: string) => async (dispatch: AppDispatch, getState: AppGetState) => {
@@ -285,6 +330,9 @@ export const openCallChecklist =
         const def = selectQuestionnaireByCode(getState(), id);
         if (def) {
             dispatch(captureChecklistBaseline([def]));
+            // Значение карточки становится ответом ДО показа: иначе вопрос
+            // dto-канала выглядел бы закрытым, а payload уехал бы пустым.
+            dispatch(seedChecklistDtoAnswers([def]));
             // Модалка — второй момент показа анкеты; спрятанные вопросы в ней
             // тем более заметны (менеджер стоит перед пустым окном).
             dispatch(reportHiddenChecklistQuestions([def]));

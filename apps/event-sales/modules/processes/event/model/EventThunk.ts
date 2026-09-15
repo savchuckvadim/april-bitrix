@@ -2,6 +2,8 @@ import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Placement } from '@workspace/bx';
 import { Bitrix } from '@workspace/bitrix';
 import { getSavedComment } from '@/modules/entities/EventReport';
+// Прямой путь, а не барель фичи: барель тянет UI-диалог чек-листа.
+import { restoreChecklistDraft } from '@/modules/features/CallChecklist/model/ChecklistDraftThunk';
 import { eventActions } from './EventSlice';
 
 /**
@@ -21,6 +23,10 @@ export const initialEventApp =
         }
 
         dispatch(getSavedComment());
+        // Ответы анкет, живущие только в стейте (продажа, смарт, блоки
+        // комментария), — тем же черновиком и в тот же момент, что
+        // комментарий: они одинаково не переживают перезагрузку фрейма.
+        void dispatch(restoreChecklistDraft());
         dispatch(eventActions.setFinishStatus({ status: false, result: '' }));
 
         if (!placement?.options) {

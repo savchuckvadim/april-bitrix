@@ -94,8 +94,35 @@ export interface DeliveryTarget {
     ) => Promise<FlowStatusCheck>;
 }
 
-const getErrorMessage = (error: unknown): string =>
-    error instanceof Error ? error.message : String(error);
+/**
+ * Человеческая причина отказа.
+ *
+ * `error.message` у axios — «Request failed with status code 400», то есть
+ * ничто: настоящий текст бэк кладёт в тело ответа
+ * (`{ resultCode, message, errors: ['Продажа: заполните…'] }`), и писан он
+ * по-русски ИМЕННО для экрана менеджера (см. docblock гарда на бэке).
+ * Поэтому сначала смотрим тело, и только потом — сообщение исключения:
+ * без этого причина отказа доходила лишь до devtools.
+ */
+const getErrorMessage = (error: unknown): string => {
+    const data = (
+        error as {
+            response?: { data?: { message?: unknown; errors?: unknown } };
+        }
+    )?.response?.data;
+
+    if (data) {
+        const errors = Array.isArray(data.errors)
+            ? data.errors.filter(item => typeof item === 'string')
+            : [];
+        if (errors.length > 0) return errors.join('; ');
+        if (typeof data.message === 'string' && data.message) {
+            return data.message;
+        }
+    }
+
+    return error instanceof Error ? error.message : String(error);
+};
 
 const getHttpStatus = (error: unknown): number | null => {
     if (typeof error !== 'object' || error === null) {

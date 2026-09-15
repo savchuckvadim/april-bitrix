@@ -238,8 +238,21 @@ export const SendPreflightDialog: FC = () => {
                                 </span>
                             )}
                         </Label>
-                        {item.hint && !isDone && (
-                            <p className="text-xs text-muted-foreground">
+                        {/*
+                            Подсказка НЕ размонтируется при закрытии пункта —
+                            только гаснет. Окно центрировано трансформом, и
+                            исчезнувшая строка меняла его высоту прямо под
+                            курсором: клик по «Изменить цвет» дёргал окно в
+                            момент нажатия.
+                        */}
+                        {item.hint && (
+                            <p
+                                className={
+                                    isDone
+                                        ? 'text-xs text-muted-foreground/50'
+                                        : 'text-xs text-muted-foreground'
+                                }
+                            >
                                 {item.hint}
                             </p>
                         )}

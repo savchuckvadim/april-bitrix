@@ -22,7 +22,6 @@ export const RequestMini: FC = () => {
     const leadIds = useRequestLeadIds();
     const card = useAppSelector(s => s.leadRequest.card);
     const loadedLeadId = useAppSelector(s => s.leadRequest.leadId);
-    const hasCompany = useAppSelector(s => Boolean(s.app.bitrix.company));
 
     if (!leadIds.length) return null;
 
@@ -30,7 +29,7 @@ export const RequestMini: FC = () => {
     // приложение, и в нём вполне может лежать лид из очереди подтверждений.
     const isCardOurs =
         card !== null && loadedLeadId !== null && loadedLeadId === leadIds[0];
-    const badge = isCardOurs ? getReadinessBadge(card, { hasCompany }) : null;
+    const badge = isCardOurs ? getReadinessBadge(card) : null;
     const title = isCardOurs ? card.title : `Заявка №${leadIds[0]}`;
 
     return (
@@ -51,7 +50,13 @@ export const RequestMini: FC = () => {
             </span>
 
             {badge ? (
-                <ToneBadge tone={badge.tone} variant="soft">
+                <ToneBadge
+                    tone={badge.tone}
+                    variant="soft"
+                    // Подсказка — тем же текстом, что строка под бейджем в
+                    // карточке: «а что осталось?» спрашивают именно здесь.
+                    title={badge.hint}
+                >
                     {badge.label}
                 </ToneBadge>
             ) : (

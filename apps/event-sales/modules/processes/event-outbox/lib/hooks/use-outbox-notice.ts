@@ -58,6 +58,8 @@ export const useOutboxNotice = (): OutboxNotice | null => {
     const count = useAppSelector(s => s.outbox.undeliveredCount);
     const partialCount = useAppSelector(s => s.outbox.partialCount);
     const incompleteCount = useAppSelector(s => s.outbox.incompleteCount);
+    const staleCount = useAppSelector(s => s.outbox.staleCount);
+    const tooOldCount = useAppSelector(s => s.outbox.tooOldCount);
     const draining = useAppSelector(s => s.outbox.draining);
     const countedDomain = useAppSelector(s => s.outbox.countedDomain);
     const domain = useAppSelector(s => s.app.domain);
@@ -72,6 +74,8 @@ export const useOutboxNotice = (): OutboxNotice | null => {
         count,
         partialCount,
         incompleteCount,
+        staleCount,
+        tooOldCount,
         draining,
         covered: resolveCovered(stage, outboxState),
     });

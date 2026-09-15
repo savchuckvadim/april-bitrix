@@ -329,17 +329,19 @@ describe('sendEvent: черновик комментария', () => {
      * компании, — тогда reloadApp → getSavedComment возвращал отправленный
      * комментарий в форму следующего отчёта.
      */
-    it('accepted: черновик стёрт сразу, не дожидаясь done', async () => {
+    it('accepted: черновики стёрты сразу, не дожидаясь done', async () => {
         sendFlowMock.mockResolvedValue({ operationId: 'x', status: 'queued' });
 
         const { dispatch } = makeHarness();
 
         await dispatch(sendEvent());
 
-        expect(clearDraftMock).toHaveBeenCalledTimes(1);
-        expect(String(clearDraftMock.mock.calls[0]![0])).toContain(
-            '_comment',
-        );
+        // Два черновика одной природы: комментарий и ответы анкет каналов
+        // dto/smart/text — оба уехали в payload и оба обязаны исчезнуть,
+        // иначе вернутся в форму следующего отчёта того же клиента.
+        const keys = clearDraftMock.mock.calls.map(call => String(call[0]));
+        expect(keys.some(key => key.endsWith('_comment'))).toBe(true);
+        expect(keys.some(key => key.endsWith('_checklist'))).toBe(true);
     });
 
     it('4xx: черновик остаётся — «Повторить» и перезагрузка не теряют текст', async () => {

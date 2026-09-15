@@ -30,13 +30,12 @@ export const RequestToolButton: FC = () => {
     const leadIds = useRequestLeadIds();
     const card = useAppSelector(s => s.leadRequest.card);
     const loadedLeadId = useAppSelector(s => s.leadRequest.leadId);
-    const hasCompany = useAppSelector(s => Boolean(s.app.bitrix.company));
     const { isLeadLinked } = useTaskLinkTools();
 
     const hasLeads = leadIds.length > 0;
     const isCardOurs =
         card !== null && loadedLeadId !== null && loadedLeadId === leadIds[0];
-    const badge = isCardOurs ? getReadinessBadge(card, { hasCompany }) : null;
+    const badge = isCardOurs ? getReadinessBadge(card) : null;
 
     return (
         <IconAction
@@ -44,7 +43,7 @@ export const RequestToolButton: FC = () => {
             label={card?.isRequest === false && isCardOurs ? 'Лид' : 'Заявка'}
             hint={
                 hasLeads
-                    ? (badge?.label ??
+                    ? (badge?.hint ??
                       (isLeadLinked
                           ? 'Заявка прикреплена к делу — открыть карточку'
                           : 'Открыть карточку заявки'))

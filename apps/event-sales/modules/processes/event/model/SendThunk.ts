@@ -26,6 +26,7 @@ import { taskLeadLinksActions } from '@/modules/features/TaskLeadLinks/model/Tas
 import { selectNextPendingChecklist } from '@/modules/features/CallChecklist/lib/checklist-selectors';
 import { callChecklistActions } from '@/modules/features/CallChecklist/model/CallChecklistSlice';
 import { openCallChecklist } from '@/modules/features/CallChecklist/model/CallChecklistThunk';
+import { clearChecklistDraft } from '@/modules/features/CallChecklist/model/ChecklistDraftThunk';
 import { ensureStagePredict } from '@/modules/features/StagePredict/model/StagePredictThunk';
 import { stagePredictActions } from '@/modules/features/StagePredict/model/StagePredictSlice';
 import { returnToTmcActions } from '@/modules/features/ReturnToTMC';
@@ -60,6 +61,7 @@ import { getSocketIdSafe } from '@/modules/app/lib/ws/ws-client.util';
 import { getPlannedFinishText, validateSend } from '../lib/send-validation';
 import { awaitQuestionnaireCatalog } from '../lib/questionnaire-gate';
 import { getSendPreflight } from '../lib/send-preflight';
+import { toSendErrorMessage } from '../lib/send-error-message';
 import { shouldCleanAfterSend } from '../lib/clean-after-send';
 
 /**
@@ -232,8 +234,7 @@ export const sendEvent =
             console.error('sendEvent rejected', summary.detail);
             dispatch(
                 flowStatusActions.setError({
-                    message:
-                        'Не удалось отправить отчёт. Данные никуда не делись — можно повторить.',
+                    message: toSendErrorMessage(summary.detail),
                 }),
             );
             return;
@@ -255,6 +256,9 @@ export const sendEvent =
             summary.persisted
         ) {
             void dispatch(clearCommentDraft());
+            // Ответы анкет уехали в payload — держать их черновиком дальше
+            // значит подставить их в следующий отчёт того же клиента.
+            void dispatch(clearChecklistDraft());
         }
 
         if (summary.status === 'direct-incomplete') {
@@ -420,6 +424,10 @@ export const cleanEvent =
         dispatch(afterPresentationActions.resetForNewEvent());
         dispatch(presentationLeadLinkActions.resetForNewEvent());
         dispatch(taskLeadLinksActions.reset());
+        // Черновик ответов стираем ДО сброса и дожидаемся: сброс поднимает
+        // восстановление (листенер reload), и недоделанная очистка вернула
+        // бы ответы отправленного отчёта в чистую форму.
+        await dispatch(clearChecklistDraft());
         dispatch(callChecklistActions.reset());
         dispatch(stagePredictActions.reset());
         dispatch(returnToTmcActions.setActiveStatus({ status: false }));

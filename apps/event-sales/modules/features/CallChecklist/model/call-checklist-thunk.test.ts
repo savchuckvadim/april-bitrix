@@ -32,7 +32,9 @@ import {
 import {
     changeChecklistField,
     clearChecklistField,
+    seedChecklistDtoAnswers,
 } from './CallChecklistThunk';
+import { FALLBACK_CATALOG } from '@/modules/entities/Questionnaire/data/fallback-catalog';
 
 const INVOICE_FIELD = {
     code: 'op_invoice_date',
@@ -657,5 +659,79 @@ describe('чек-лист: ответ смарта в CRM не уходит', ()
         expect(dealUpdate).not.toHaveBeenCalled();
         expect(companyUpdate).not.toHaveBeenCalled();
         expect(leadUpdate).not.toHaveBeenCalled();
+    });
+});
+
+/**
+ * Засев ответов dto-канала значением карточки.
+ *
+ * Ответ такого вопроса уезжает ТОЛЬКО payload'ом отправки, поэтому значение,
+ * которое менеджер видит подписью «сейчас: …», обязано стать ответом —
+ * иначе оно никуда не поедет (та самая потерянная `sale.opportunity`).
+ */
+describe('чек-лист: засев ответов dto из значения CRM', () => {
+    const SALE_DEF = FALLBACK_CATALOG.find(def => def.code === 'sale')!;
+
+    const saleState = (over?: {
+        values?: Record<string, string>;
+        drafts?: Record<string, string>;
+        deal?: Record<string, unknown> | null;
+    }): RootState =>
+        ({
+            app: {
+                bitrix: {
+                    company: null,
+                    deal:
+                        over?.deal !== undefined
+                            ? over.deal
+                            : { ID: '10', OPPORTUNITY: '250000' },
+                    lead: null,
+                },
+            },
+            callChecklist: {
+                valueByKey: over?.values ?? {},
+                draftByKey: over?.drafts ?? {},
+                baseDeal: { row: null },
+            },
+            portal: { portal: { bitrixDeal: { bitrixfields: [] } } },
+        }) as unknown as RootState;
+
+    it('сумма из сделки становится ответом', () => {
+        const { dispatch, actions } = makeStore(saleState());
+        dispatch(seedChecklistDtoAnswers([SALE_DEF]));
+
+        expect(actions).toEqual([
+            {
+                type: 'callChecklist/answersSeeded',
+                payload: {
+                    entries: {
+                        [answerKey('sale', 'OPPORTUNITY')]: '250000',
+                    },
+                },
+            },
+        ]);
+    });
+
+    it('данный ответ и набираемый черновик засев не трогает', () => {
+        const withAnswer = makeStore(
+            saleState({ values: { [answerKey('sale', 'OPPORTUNITY')]: '1' } }),
+        );
+        withAnswer.dispatch(seedChecklistDtoAnswers([SALE_DEF]));
+        expect(withAnswer.actions).toEqual([]);
+
+        const withDraft = makeStore(
+            saleState({ drafts: { [answerKey('sale', 'OPPORTUNITY')]: '2' } }),
+        );
+        withDraft.dispatch(seedChecklistDtoAnswers([SALE_DEF]));
+        expect(withDraft.actions).toEqual([]);
+    });
+
+    it('в сделке пусто — засевать нечем', () => {
+        const { dispatch, actions } = makeStore(
+            saleState({ deal: { ID: '10', OPPORTUNITY: '' } }),
+        );
+        dispatch(seedChecklistDtoAnswers([SALE_DEF]));
+
+        expect(actions).toEqual([]);
     });
 });

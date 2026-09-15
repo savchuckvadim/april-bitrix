@@ -18,11 +18,14 @@ import {
 import {
     OUTBOX_ENVELOPE_STATE,
     OUTBOX_ENVELOPE_VERSION,
+    OUTBOX_STALLED_REASON,
     applyDeferredTail,
     hasAcceptedAttempt,
     isIncompleteEnvelope,
+    isStalledEnvelope,
     isTailPendingEnvelope,
     isUndeliveredEnvelope,
+    markStalledEnvelope,
     type OutboxDeferredStep,
     type OutboxEnvelope,
 } from '../lib/outbox-envelope';
@@ -33,10 +36,7 @@ import {
     type OutboxDeliverySummary,
 } from '../lib/outbox-delivery';
 import { getOutboxTabId } from '../lib/outbox-lock';
-import {
-    isReportOutcomeCounted,
-    markReportOutcome,
-} from '../lib/report-outcome';
+import { markReportOutcome } from '../lib/report-outcome';
 import {
     OUTBOX_DOMAIN_CAP,
     listOutboxEnvelopes,
@@ -386,6 +386,14 @@ export const drainOutbox =
             if (known.length < live.length) {
                 countSkip(stats, 'version');
             }
+            /*
+             * Просроченные конверты (`too-old`) не просто пропускаются —
+             * они ПАРКУЮТСЯ: иначе конверт остался бы «недоставленным»
+             * навсегда, полоска обещала бы «уйдёт сам», а уехать он уже не
+             * может. Отметка терминальная, менеджер увидит про него
+             * отдельную строку.
+             */
+            const stalledByAge: OutboxEnvelope[] = [];
             const candidates = known
                 // partial отсеивается здесь же (skip reason `state`) — см.
                 // констрейнт А5 в докблоке drainOutbox.
@@ -398,12 +406,33 @@ export const drainOutbox =
 
                     if (reason) {
                         countSkip(stats, reason);
+                        if (
+                            reason === 'too-old' &&
+                            !isStalledEnvelope(envelope)
+                        ) {
+                            stalledByAge.push(envelope);
+                        }
                         return false;
                     }
 
                     return true;
                 })
                 .sort((a, b) => a.createdAt - b.createdAt);
+
+            for (const envelope of stalledByAge) {
+                console.warn(
+                    '[event-outbox] конверт старше суток так и не ушёл — ' +
+                        'автоматическая отправка отменена, решает менеджер',
+                    envelope.operationId,
+                );
+                await writeOutboxEnvelope(
+                    markStalledEnvelope(
+                        markReportOutcome(envelope, 'stuck'),
+                        OUTBOX_STALLED_REASON.tooOld,
+                        now(),
+                    ),
+                );
+            }
             // Хвост (А5) считаем здесь же: по нему решается, есть ли у
             // прогона работа вообще — и он же попадает в лог старта.
             const tailPending = known.filter(isTailPendingEnvelope);
@@ -527,17 +556,36 @@ export const drainOutbox =
                         // мы шли по списку, и запись снимка воскресила бы
                         // погашенное. Лишнее чтение случается один раз за
                         // жизнь конверта — дальше отметка уже стоит.
-                        if (!isReportOutcomeCounted(candidate)) {
-                            const fresh = await readOutboxEnvelope(
-                                domain,
-                                candidate.operationId,
-                            );
+                        const fresh = await readOutboxEnvelope(
+                            domain,
+                            candidate.operationId,
+                        );
 
-                            if (fresh && !isReportOutcomeCounted(fresh)) {
-                                await writeOutboxEnvelope(
+                        if (fresh && !isStalledEnvelope(fresh)) {
+                            /*
+                             * Конверт ПАРКУЕТСЯ, а не остаётся кандидатом.
+                             *
+                             * Раньше здесь стояла только отметка метрики, и
+                             * конверт продолжал висеть `delivering`: каждый
+                             * прогон дренажа снова спрашивал у бэка его
+                             * статус и снова получал 404 — менеджер видел
+                             * их пачкой при каждом заходе в приложение, а
+                             * полоска обещала «уйдёт сам». Ни того, ни
+                             * другого случиться не могло: повторный POST
+                             * запрещён, статуса больше нет.
+                             *
+                             * Пометка делает конверт терминальным: дренаж
+                             * его больше не трогает, уборка снесёт через
+                             * сутки, а полоска говорит правду — «сверьте
+                             * карточку».
+                             */
+                            await writeOutboxEnvelope(
+                                markStalledEnvelope(
                                     markReportOutcome(fresh, 'stuck'),
-                                );
-                            }
+                                    OUTBOX_STALLED_REASON.statusExpired,
+                                    now(),
+                                ),
+                            );
                         }
                         continue;
                     }

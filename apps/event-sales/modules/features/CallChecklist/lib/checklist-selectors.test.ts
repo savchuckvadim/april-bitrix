@@ -5,6 +5,7 @@ import { answerKey } from '@/modules/entities/Questionnaire/lib/answer-key';
 import { FALLBACK_CATALOG } from '@/modules/entities/Questionnaire/data/fallback-catalog';
 import type { QuestionnaireDef } from '@/modules/entities/Questionnaire/model/questionnaire.type';
 import {
+    getChecklistMissing,
     resolveChecklistFields,
     selectChecklistRows,
     selectIncompleteInlineChecklists,
@@ -363,7 +364,9 @@ describe('CallChecklist: модалки по событию', () => {
  */
 describe('CallChecklist: портальная анкета по целевой стадии', () => {
     const stageDef: QuestionnaireDef = {
-        ...(FALLBACK_CATALOG.find(def => def.code === 'sale') as QuestionnaireDef),
+        ...(FALLBACK_CATALOG.find(
+            def => def.code === 'sale',
+        ) as QuestionnaireDef),
         code: 'portalStage',
         configKey: null,
         legacyChecklistId: null,
@@ -392,5 +395,56 @@ describe('CallChecklist: портальная анкета по целевой �
     it('без предикта модалки нет', () => {
         const state = makeState({ enabled: false, defs: [stageDef] });
         expect(selectNextPendingChecklist(state)).toBeNull();
+    });
+});
+
+/**
+ * Продажа: оба вопроса уезжают payload'ом (канал `dto`), и закрыть их может
+ * ТОЛЬКО ответ. Именно здесь ломалась отправка: сумма стояла в сделке,
+ * вопрос выглядел закрытым, ответа не возникало — `sale.opportunity`
+ * уходила пустой, и гард бэка отвергал весь отчёт о продаже.
+ */
+describe('CallChecklist: продажа (канал dto)', () => {
+    const SALE_OPPORTUNITY_KEY = answerKey('sale', 'OPPORTUNITY');
+    const SALE_PAY_DATE_KEY = answerKey('sale', 'first_pay_date');
+
+    const saleState = (values?: Record<string, string>): RootState =>
+        makeState({
+            config: { withChecklistSale: true },
+            workStatus: 'success',
+            dealRow: { ID: '10', OPPORTUNITY: '250000' },
+            values,
+        });
+
+    it('сумма стоит в сделке, ответа нет — вопросы НЕ закрыты', () => {
+        const state = saleState();
+        const def = selectNextPendingChecklist(state);
+
+        expect(def?.code).toBe('sale');
+        expect(getChecklistMissing(state, def!).map(item => item.code)).toEqual(
+            ['OPPORTUNITY', 'first_pay_date'],
+        );
+    });
+
+    it('ответы (в т.ч. засеянные из сделки) закрывают анкету', () => {
+        const state = saleState({
+            [SALE_OPPORTUNITY_KEY]: '250000',
+            [SALE_PAY_DATE_KEY]: '2026-09-24',
+        });
+        const def = selectNextPendingChecklist(state);
+
+        expect(getChecklistMissing(state, def!)).toEqual([]);
+    });
+
+    it('пустой ответ значением сделки не подменяется', () => {
+        const state = saleState({
+            [SALE_OPPORTUNITY_KEY]: '',
+            [SALE_PAY_DATE_KEY]: '2026-09-24',
+        });
+        const def = selectNextPendingChecklist(state);
+
+        expect(getChecklistMissing(state, def!).map(item => item.code)).toEqual(
+            ['OPPORTUNITY'],
+        );
     });
 });

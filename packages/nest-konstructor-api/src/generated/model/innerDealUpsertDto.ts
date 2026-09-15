@@ -5,6 +5,7 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { InnerDealUpsertDtoSettings } from './innerDealUpsertDtoSettings';
 
 export interface InnerDealUpsertDto {
     domain: string;
@@ -13,6 +14,11 @@ export interface InnerDealUpsertDto {
     userId?: number | null;
     /** @nullable */
     serviceSmartId?: number | null;
+    /**
+     * Элемент смарта «Варианты комплекта»: с ним слепок становится одним из вариантов предложения на сделке
+     * @nullable
+     */
+    variantSmartId?: number | null;
     /** @nullable */
     templateId?: number | null;
     /** @nullable */
@@ -41,4 +47,9 @@ export interface InnerDealUpsertDto {
     iskraConfig?: string | null;
     /** @nullable */
     ltOther?: string | null;
+    /**
+     * Настройки сборки комплекта. Хранятся у строки самой сделки; передавать вместе со слепком сделки, а не варианта
+     * @nullable
+     */
+    settings?: InnerDealUpsertDtoSettings;
 }

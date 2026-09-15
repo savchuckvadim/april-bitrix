@@ -7,6 +7,7 @@ import {
     EAccessFeature,
 } from '@/modules/shared/access';
 import { isSuperUser } from '@/modules/entities/department/lib/utils/super-user';
+import { resolveVisibility } from '@/modules/entities/department/lib/utils/visibility.util';
 import type { RootState } from '../../model/store';
 import { selectEffectiveUser, selectIsViewAs } from '../../model/selectors';
 
@@ -20,15 +21,19 @@ export const selectAccessContext = (state: RootState): AccessContext => {
     const realUser = state.app.bitrix.user;
     const effectiveUser = selectEffectiveUser(state);
     const isViewAs = selectIsViewAs(state);
+    const currentUser = state.department.currentUser;
     return {
         features: state.app.features,
-        headOf: state.department.currentUser?.headOf ?? null,
+        headOf: currentUser?.headOf ?? null,
         // В режиме viewAs суперюзерский бонус эффективного юзера гасится —
         // права считаются честно по роли просматриваемого.
         isSuperUser: !isViewAs && isSuperUser(effectiveUser),
         isRealSuperUser: isSuperUser(realUser),
         isViewAs,
         isMulti: state.department.isMulti,
+        // Рядовой менеджер структуры: периметр «только себя».
+        isSelf:
+            currentUser !== null && resolveVisibility(currentUser) === 'own',
     };
 };
 

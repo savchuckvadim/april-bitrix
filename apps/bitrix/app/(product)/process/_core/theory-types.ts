@@ -4,8 +4,15 @@
  * Здесь мы не показываем схему, а объясняем, почему она такая. Форма врезок
  * важнее оформления: именно она заставляет дочитать до решения, а не проскочить
  * взглядом, как проскакивают обычную плашку-примечание.
+ *
+ * Вторая группа блоков — справочные (`screen`, `table`, `steps`, `list`,
+ * `note`, `diagram`, `code`, `glossary`, `readiness`, `links`,
+ * `questionnaire`): их требует база знаний, где рядом с рассуждением стоят
+ * инструкция, таблица настроек, место под скрин и форма под заполнение.
+ * Рендер справочных блоков переиспользует движок `how-we-work`.
  */
 
+import type { HowQuestionnaireId } from '../../how-we-work/constants/types';
 import type { ProcessConfig } from './types';
 
 /** Позиция в споре: у неё всегда есть носитель, иначе спор абстрактный. */
@@ -47,6 +54,52 @@ export interface EntityColumn {
     /** Что сущность показывает про связанные с ней сущности. */
     linked: string[];
     readiness: TheoryReadiness;
+}
+
+/** Соотношение сторон места под скрин. */
+export type TheoryScreenAspect = '16:9' | '4:3' | 'phone';
+
+/**
+ * Место под скриншот интерфейса. Пока картинки нет — рамка с подписью
+ * «СКРИН: …», чтобы владелец снимал по списку; с `src` — сама картинка.
+ */
+export interface TheoryScreen {
+    /** Что должно быть на скриншоте. */
+    label: string;
+    aspect?: TheoryScreenAspect;
+    /** Путь к картинке в `public/`; не задан — плейсхолдер. */
+    src?: string;
+}
+
+/** Тон примечания: `neutral` — без окраски, остальные — по смыслу. */
+export type TheoryNoteTone = 'good' | 'warn' | 'bad' | 'neutral';
+
+/** Шаг нумерованной инструкции; скрин — необязательная иллюстрация шага. */
+export interface TheoryStep {
+    title: string;
+    text: string;
+    screen?: TheoryScreen;
+}
+
+/**
+ * Ссылка-действие под текстом: версия для печати, файл брифа, соседняя глава.
+ * Проза ссылок не поддерживает намеренно — адрес в тексте читается хуже
+ * кнопки и хуже озвучивается скринридером.
+ */
+export interface TheoryLink {
+    label: string;
+    href: string;
+    /** Пояснение под подписью: что откроется и зачем. */
+    note?: string;
+    /** Ссылка на файл в `public/`: скачиваем, а не переходим по маршруту. */
+    download?: boolean;
+}
+
+/** Термин словаря; `href` ведёт на главу, где термин раскрыт. */
+export interface TheoryGlossaryItem {
+    term: string;
+    definition: string;
+    href?: string;
 }
 
 export type TheoryBlock =
@@ -106,7 +159,30 @@ export type TheoryBlock =
           kind: 'scenario';
           title: string;
           options: { label: string; meaning: string }[];
-      };
+      }
+    /* --- Справочные блоки базы знаний --- */
+    | ({ kind: 'screen' } & TheoryScreen)
+    /** Таблица; на узком экране прокручивается внутри блока, не страница. */
+    | { kind: 'table'; head: string[]; rows: string[][]; caption?: string }
+    /** Нумерованная инструкция. */
+    | { kind: 'steps'; items: TheoryStep[] }
+    | { kind: 'list'; items: string[]; ordered?: boolean }
+    | { kind: 'note'; tone: TheoryNoteTone; text: string }
+    /** Схема в синтаксисе mermaid. */
+    | { kind: 'diagram'; chart: string; caption?: string }
+    /** Пример кода: JSON разбора, ключ настройки. */
+    | { kind: 'code'; lang: string; code: string; caption?: string }
+    | { kind: 'glossary'; items: TheoryGlossaryItem[] }
+    /** Ссылки-действия: печатная версия, файл, соседняя глава. */
+    | { kind: 'links'; items: TheoryLink[] }
+    /**
+     * Интерактивная анкета движка «Как мы работаем» по идентификатору из
+     * общего реестра: бриф заполняется прямо в главе, а не на отдельной
+     * странице.
+     */
+    | { kind: 'questionnaire'; questionnaireId: HowQuestionnaireId }
+    /** Плашка готовности главы: работает, в работе, открыто. */
+    | { kind: 'readiness'; state: TheoryReadiness; text: string };
 
 export interface TheoryPageContent {
     slug: string;

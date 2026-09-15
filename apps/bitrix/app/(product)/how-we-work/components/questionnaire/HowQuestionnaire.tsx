@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Download, Copy, RotateCcw } from 'lucide-react';
@@ -8,8 +8,10 @@ import {
     HowProtocolAttachment,
     HowQuestionnaire as QuestionnaireData,
 } from '../../constants/types';
+import { groupQuestions } from '../../lib/group-questions';
 import { useHowQuestionnaire } from './useHowQuestionnaire';
-import { HowQuestionnaireQuestion } from './HowQuestionnaireQuestion';
+import { HowQuestionnaireGroup } from './HowQuestionnaireGroup';
+import { HowQuestionnaireSubmit } from './HowQuestionnaireSubmit';
 
 interface HowQuestionnaireProps {
     questionnaire: QuestionnaireData;
@@ -19,7 +21,8 @@ interface HowQuestionnaireProps {
 
 /**
  * Интерактивная анкета внедрения: клиент отмечает варианты, пишет свои,
- * а затем скачивает или копирует готовый протокол решений.
+ * а затем скачивает, копирует или (если анкета это разрешает) отправляет
+ * нам готовый протокол решений.
  */
 export const HowQuestionnaire: React.FC<HowQuestionnaireProps> = ({
     questionnaire,
@@ -38,6 +41,11 @@ export const HowQuestionnaire: React.FC<HowQuestionnaireProps> = ({
         reset,
     } = useHowQuestionnaire(questionnaire, getAttachments);
 
+    const groups = useMemo(
+        () => groupQuestions(questionnaire.questions),
+        [questionnaire.questions],
+    );
+
     return (
         <section className="space-y-4">
             <div>
@@ -49,25 +57,22 @@ export const HowQuestionnaire: React.FC<HowQuestionnaireProps> = ({
                 </p>
             </div>
 
-            {questionnaire.questions.map((question, index) => (
-                <HowQuestionnaireQuestion
-                    key={question.id}
-                    index={index}
-                    question={question}
-                    answer={state.answers[question.id] ?? {}}
-                    onToggleChoice={(value) =>
-                        toggleChoice(question.id, value)
+            {groups.map((group, groupIndex) => (
+                <HowQuestionnaireGroup
+                    key={group.title ?? groupIndex}
+                    group={group}
+                    answers={state.answers}
+                    onToggleChoice={toggleChoice}
+                    onCustomChange={(questionId, custom) =>
+                        setAnswer(questionId, { custom, choice: undefined })
                     }
-                    onCustomChange={(custom) =>
-                        setAnswer(question.id, { custom, choice: undefined })
-                    }
-                    onCommentChange={(comment) =>
-                        setAnswer(question.id, { comment })
+                    onCommentChange={(questionId, comment) =>
+                        setAnswer(questionId, { comment })
                     }
                 />
             ))}
 
-            <div className="rounded-xl border bg-card p-5">
+            <div className="relative rounded-xl border bg-card p-5">
                 <div className="grid gap-3 sm:grid-cols-2">
                     <Input
                         value={state.company}
@@ -91,6 +96,13 @@ export const HowQuestionnaire: React.FC<HowQuestionnaireProps> = ({
                         <Download className="mr-1.5 h-4 w-4" />
                         Скачать протокол
                     </Button>
+                    {questionnaire.submit && (
+                        <HowQuestionnaireSubmit
+                            questionnaire={questionnaire}
+                            submit={questionnaire.submit}
+                            state={state}
+                        />
+                    )}
                     <Button variant="outline" onClick={copy}>
                         <Copy className="mr-1.5 h-4 w-4" />
                         Скопировать

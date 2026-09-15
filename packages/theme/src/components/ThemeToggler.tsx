@@ -26,9 +26,13 @@ const toggledTheme = (theme: string | undefined): string => {
 };
 
 export const ThemeToggler = ({
-    pickerAlign = 'start',
+    pickerAlign = 'end',
 }: {
-    /** Прокидывается в ColorSchemePicker — см. его докблок. */
+    /**
+     * Прокидывается в ColorSchemePicker — см. его докблок. По умолчанию 'end':
+     * переключатель почти всегда стоит в правом конце шапки, и палитра должна
+     * расти влево. Если места не хватит, сторона скорректируется сама.
+     */
     pickerAlign?: 'start' | 'end';
 }) => {
     const { theme, setTheme } = useTheme();
@@ -47,7 +51,10 @@ export const ThemeToggler = ({
     const label = isDark ? 'Светлая тема' : 'Тёмная тема';
 
     return (
-        <div className="text-foreground flex items-center gap-1">
+        // gap-2, а не gap-1: у кнопки-свотча нет внутреннего отступа (это
+        // голый квадрат 20×20), и при четырёх пикселях она зрительно слипалась
+        // с иконкой темы.
+        <div className="text-foreground flex items-center gap-2">
             <button
                 type="button"
                 onClick={() => setTheme(toggledTheme(theme))}

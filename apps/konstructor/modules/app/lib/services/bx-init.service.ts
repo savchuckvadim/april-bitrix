@@ -10,9 +10,8 @@ import { BxDealCompanyService } from './bx-deal-compny.service';
 
 export interface IBitrixinitResult {
     deal: IBXDeal;
-    company: IBXCompany;
-
-
+    /** null — у сделки не указана компания: конструктор в такой сделке работать не может. */
+    company: IBXCompany | null;
 }
 interface IBitrixinitResponse {
     dealGet: IBXDeal;
@@ -43,11 +42,13 @@ export class BxInitService {
 
         const { company, deal } = this.prepare(totalBxResponse);
 
-        if (!company) {
+        // null возвращаем только когда нет самой сделки: «сделка без компании» —
+        // отдельный случай, вызывающий код показывает по нему свой экран
+        if (!deal) {
             return null;
         }
 
-        return { deal, company} as IBitrixinitResult;
+        return { deal, company: company ?? null };
     }
 
     private getPlacement() {
@@ -73,8 +74,7 @@ export class BxInitService {
 
     private prepare(totalBxResponse: IBitrixinitResponse): {
         deal: IBXDeal;
-        company: IBXCompany;
-
+        company: IBXCompany | null;
     } {
         const deal = totalBxResponse.dealGet;
         const company = totalBxResponse.companyGet;

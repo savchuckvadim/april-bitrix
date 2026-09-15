@@ -1,4 +1,6 @@
+import { CALL_REVIEW_QUESTIONNAIRE } from '../../ai/constants/call-review-questionnaire';
 import { HowQuestionnaire, HowQuestionnaireId } from './types';
+import { CALIBRATION_QUESTIONNAIRE } from './calibration-questionnaire';
 
 /** Анкета 1: процесс и отчётность. */
 const PROCESS_QUESTIONNAIRE: HowQuestionnaire = {
@@ -220,9 +222,17 @@ const CATALOGS_QUESTIONNAIRE: HowQuestionnaire = {
     ],
 };
 
+/**
+ * Реестр анкет движка. Анкеты внедрения описаны здесь же, брифы раздела
+ * «AI для отдела продаж» — в своих папках: `calibration-questionnaire`
+ * (двенадцать разделов) и `ai/constants/call-review-questionnaire` (оценка
+ * одного звонка). Ключ реестра всегда совпадает с `id` анкеты.
+ */
 export const HOW_QUESTIONNAIRES: Record<HowQuestionnaireId, HowQuestionnaire> =
     {
         process: PROCESS_QUESTIONNAIRE,
         inbound: INBOUND_QUESTIONNAIRE,
         catalogs: CATALOGS_QUESTIONNAIRE,
+        calibration: CALIBRATION_QUESTIONNAIRE,
+        'call-review': CALL_REVIEW_QUESTIONNAIRE,
     };

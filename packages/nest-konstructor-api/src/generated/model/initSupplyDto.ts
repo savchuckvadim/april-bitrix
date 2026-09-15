@@ -22,6 +22,8 @@ import type { SupplyReportDto } from './supplyReportDto';
 import type { PbxDealDto } from './pbxDealDto';
 import type { PbxCompanyDto } from './pbxCompanyDto';
 import type { ProductRowSupplyDto } from './productRowSupplyDto';
+import type { InitSupplyDtoFlow } from './initSupplyDtoFlow';
+import type { InitSupplyFileDto } from './initSupplyFileDto';
 
 export interface InitSupplyDto {
     /** Domain of the supply */
@@ -72,4 +74,8 @@ export interface InitSupplyDto {
     supply: ProductRowSupplyDto;
     /** Total sum */
     total: number;
+    /** Поставка или перезаключение */
+    flow?: InitSupplyDtoFlow;
+    /** Файлы, приложенные менеджером в конструкторе (договор/счёт). Уходят и в поле RPA, и в поле сделки. */
+    files?: InitSupplyFileDto[];
 }

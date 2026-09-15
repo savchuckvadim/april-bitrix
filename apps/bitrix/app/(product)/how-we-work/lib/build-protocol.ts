@@ -1,8 +1,33 @@
 import {
+    HowAnswer,
     HowProtocolAttachment,
     HowQuestionnaire,
+    HowQuestionnaireQuestion,
     HowQuestionnaireState,
 } from '../constants/types';
+
+/** Отступ продолжения многострочного ответа и комментария в протоколе. */
+const INDENT = '   ';
+
+/** Раздел и страница в подписи протокола, если анкета их не задала. */
+const DEFAULT_SOURCE_SECTION = 'Как мы работаем';
+const DEFAULT_SOURCE_PAGE = 'Внедрение';
+
+/** Пустой ответ подписывается по виду вопроса: у свободных полей нечего «выбирать». */
+const emptyAnswerLabel = (question: HowQuestionnaireQuestion): string =>
+    question.kind === 'text' || question.kind === 'link'
+        ? 'НЕ ЗАПОЛНЕНО'
+        : 'НЕ ВЫБРАНО';
+
+/** Значение ответа одной строкой; многострочный текст уходит с отступом. */
+const formatAnswerValue = (
+    question: HowQuestionnaireQuestion,
+    answer: HowAnswer,
+): string => {
+    const value =
+        answer.custom?.trim() || answer.choice || emptyAnswerLabel(question);
+    return value.replace(/\r?\n/g, `\n${INDENT}`);
+};
 
 /** Собирает человекочитаемый текстовый протокол по заполненной анкете. */
 export const buildProtocol = (
@@ -17,13 +42,19 @@ export const buildProtocol = (
     lines.push(`Дата: ${new Date().toLocaleDateString('ru-RU')}`);
     lines.push('');
 
+    let currentGroup: string | undefined;
     questionnaire.questions.forEach((question, index) => {
+        if (question.group && question.group !== currentGroup) {
+            if (currentGroup) lines.push('');
+            currentGroup = question.group;
+            lines.push(`== ${question.group} ==`);
+        }
         const answer = state.answers[question.id] ?? {};
-        const value =
-            answer.custom?.trim() || answer.choice || 'НЕ ВЫБРАНО';
-        lines.push(`${index + 1}. ${question.title}: ${value}`);
+        lines.push(
+            `${index + 1}. ${question.title}: ${formatAnswerValue(question, answer)}`,
+        );
         if (answer.comment?.trim()) {
-            lines.push(`   Комментарий: ${answer.comment.trim()}`);
+            lines.push(`${INDENT}Комментарий: ${answer.comment.trim()}`);
         }
     });
 
@@ -38,7 +69,9 @@ export const buildProtocol = (
     }
 
     lines.push('');
-    lines.push('Сформировано на странице «Как мы работаем → Внедрение».');
+    lines.push(
+        `Сформировано на странице «${questionnaire.sourceSection ?? DEFAULT_SOURCE_SECTION} → ${questionnaire.sourcePage ?? DEFAULT_SOURCE_PAGE}».`,
+    );
     return lines.join('\n');
 };
 

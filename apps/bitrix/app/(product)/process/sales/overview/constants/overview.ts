@@ -11,6 +11,9 @@
 
 import type { TheoryPageContent } from '../../../_core/theory-types';
 
+/** Подпись над карточками «куда дальше» в конце обзора. */
+export const SALES_OVERVIEW_NAV_TITLE = 'С чего начать';
+
 export const SALES_OVERVIEW: TheoryPageContent = {
     slug: '',
     eyebrow: 'Процесс продажи · о документе',

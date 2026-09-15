@@ -5,6 +5,7 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { InnerDealSnapshotDtoSettings } from './innerDealSnapshotDtoSettings';
 
 export interface InnerDealSnapshotDto {
     id: number;
@@ -16,6 +17,11 @@ export interface InnerDealSnapshotDto {
     domain: string | null;
     /** @nullable */
     serviceSmartId: number | null;
+    /**
+     * Элемент смарта «Варианты комплекта» (колонка smartId). Заполнен — это один из вариантов предложения на сделке
+     * @nullable
+     */
+    variantSmartId: number | null;
     /** @nullable */
     templateId: number | null;
     /** @nullable */
@@ -46,4 +52,9 @@ export interface InnerDealSnapshotDto {
     iskraConfig: string | null;
     /** @nullable */
     ltOther: string | null;
+    /**
+     * Настройки сборки комплекта: режим, участники, настройки КП. null — сделка ведёт себя как раньше (один набор, одно КП)
+     * @nullable
+     */
+    settings: InnerDealSnapshotDtoSettings;
 }

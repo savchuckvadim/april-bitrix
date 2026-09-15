@@ -6,6 +6,8 @@ import type {
     ComparisonMode,
     FinanceHotThreshold,
 } from '@/modules/entities/finance';
+import type { AiCallTypeSelection } from '@/modules/entities/ai-analytics/lib/ai-call-types.data';
+import type { AiByTypeLayout } from '@/modules/entities/ai-analytics/model';
 
 /**
  * Единый блоб UI-настроек kpi-sales: localStorage — кэш, бэк
@@ -30,5 +32,12 @@ export interface UiSettingsBlob {
     finance?: {
         comparison: ComparisonMode;
         hotThreshold: FinanceHotThreshold;
+    };
+    /** Настройки вкладки «AI аналитика». */
+    ai?: {
+        /** Подвкладка разбора по типам звонков. */
+        selectedCallType: AiCallTypeSelection;
+        /** Раскладка среза по типу (wide | long). */
+        typesLayout?: AiByTypeLayout;
     };
 }

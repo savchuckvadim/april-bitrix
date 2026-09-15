@@ -32,6 +32,20 @@ export enum EAccessFeature {
     PLANS_VIEW_ALL = 'plansViewAll',
     /** Настраивать планы (показатели, значения) — руководители op/cup. */
     PLANS_CONFIGURE = 'plansConfigure',
+    /**
+     * Вкладка «AI аналитика»: оба флага (константа приложения + портальный
+     * ai_analytics_enabled) И (суперюзер | руководитель). Только
+     * руководителям (решение владельца 07.09.2026); режим «менеджер видит
+     * себя» вернёт портальная настройка selfViewEnabled из settings/get.
+     */
+    AI_TAB = 'aiTab',
+    /** Видеть AI-аналитику по ВСЕМ менеджерам периметра (руководители). */
+    AI_VIEW_ALL = 'aiViewAll',
+    /**
+     * Настраивать AI-аналитику (уровни менеджеров, settings/save) —
+     * руководители op/cup и суперюзер; сервер отвечает 403 остальным.
+     */
+    AI_CONFIGURE = 'aiConfigure',
 }
 
 /**
@@ -44,6 +58,17 @@ export interface AppFeatureFlags {
     financeTab: boolean;
     /** Планы руководителя включены в приложении вообще (гасит всю фичу). */
     plans: boolean;
+    /**
+     * AI-аналитика ОП включена в приложении (константа, НЕ env).
+     * Первый из двух уровней включения вкладки «AI аналитика».
+     */
+    aiAnalytics: boolean;
+    /**
+     * Портальный уровень: ai_analytics_enabled из settings/get — кладёт
+     * listener feature/ai-flags после загрузки приложения. Дефолт false:
+     * до ответа бэка вкладка не показывается.
+     */
+    aiAnalyticsPortalEnabled: boolean;
 }
 
 /**
@@ -63,4 +88,12 @@ export interface AccessContext {
     isViewAs: boolean;
     /** Мультипортал (несколько отделов продаж). */
     isMulti: boolean;
+    /**
+     * Эффективный пользователь — рядовой менеджер структуры: периметр
+     * видимости «только себя» (visibility own). Для правил вида «менеджер
+     * видит только своё» — сервер режет данные до self, флаг страхует UI.
+     * Сейчас правилами не используется (AI_TAB — только руководителям);
+     * понадобится, когда придёт портальный selfViewEnabled.
+     */
+    isSelf: boolean;
 }

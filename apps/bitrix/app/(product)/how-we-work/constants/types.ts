@@ -71,8 +71,27 @@ export interface HowDocumentContent {
     outro: HowContentBlock[];
 }
 
-/** Идентификаторы анкет внедрения. */
-export type HowQuestionnaireId = 'process' | 'inbound' | 'catalogs';
+/**
+ * Идентификаторы анкет внедрения и брифов.
+ *
+ * `calibration` и `call-review` — брифы раздела «AI для отдела продаж»: они
+ * показываются на `/ai/briefs` тем же движком, а содержание `call-review`
+ * лежит в константах раздела AI.
+ */
+export type HowQuestionnaireId =
+    | 'process'
+    | 'inbound'
+    | 'catalogs'
+    | 'calibration'
+    | 'call-review';
+
+/**
+ * Вид вопроса. `choice` (по умолчанию) — варианты-кнопки плюс «свой вариант»
+ * и комментарий; `text` — свободный многострочный ответ; `link` — одна
+ * ссылка (папка, файл, звонок в Битриксе). У `text`/`link` вариантов нет,
+ * ответ хранится в `HowAnswer.custom`.
+ */
+export type HowQuestionnaireQuestionKind = 'choice' | 'text' | 'link';
 
 /** Вариант ответа на вопрос анкеты. */
 export interface HowQuestionnaireOption {
@@ -92,6 +111,32 @@ export interface HowQuestionnaireQuestion {
     allowCustom?: boolean;
     /** Плейсхолдер поля комментария */
     commentPlaceholder?: string;
+    /** Вид вопроса; не задан — `choice` */
+    kind?: HowQuestionnaireQuestionKind;
+    /**
+     * Раздел анкеты (для длинных анкет вроде брифа). Вопросы одного раздела
+     * идут подряд; заголовок раздела рисуется перед первым из них и
+     * попадает в протокол.
+     */
+    group?: string;
+    /** Плейсхолдер поля свободного ответа (`text`/`link`) */
+    placeholder?: string;
+    /**
+     * Без ответа на этот вопрос протокол не отправляется: согласие, дата,
+     * ссылка на запись. Скачать и скопировать протокол по-прежнему можно —
+     * ограничение стоит только на отправке нам.
+     */
+    required?: boolean;
+}
+
+/**
+ * Отправка протокола нам прямо со страницы. `path` — маршрут приложения,
+ * который пересылает протокол в Telegram; `domainQuestionId` — вопрос,
+ * из ответа на который берётся домен портала для темы сообщения.
+ */
+export interface HowQuestionnaireSubmit {
+    path: string;
+    domainQuestionId: string;
 }
 
 /** Анкета целиком. */
@@ -102,6 +147,16 @@ export interface HowQuestionnaire {
     questions: HowQuestionnaireQuestion[];
     /** Заголовок скачиваемого протокола */
     protocolTitle: string;
+    /** Название страницы раздела в подписи протокола; не задано — «Внедрение» */
+    sourcePage?: string;
+    /**
+     * Название раздела сайта в подписи протокола; не задано — «Как мы
+     * работаем». Задаётся анкетами, переехавшими в другой раздел, чтобы в
+     * протоколе стоял адрес, по которому его действительно заполняли.
+     */
+    sourceSection?: string;
+    /** Задано — рядом со «Скачать протокол» появляется «Отправить нам» */
+    submit?: HowQuestionnaireSubmit;
 }
 
 /** Ответ на один вопрос (состояние клиента). */

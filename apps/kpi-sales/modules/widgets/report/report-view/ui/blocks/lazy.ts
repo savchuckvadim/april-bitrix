@@ -21,6 +21,15 @@ export const AirtimeWidget = dynamic(
     { ssr: false },
 );
 
+/** Вкладка «AI аналитика» — целиком ленивый виджет (стекло, aurora). */
+export const AiAnalyticsReport = dynamic(
+    () =>
+        import('@/modules/widgets/ai-analytics-report').then(
+            mod => mod.AiAnalyticsReport,
+        ),
+    { ssr: false },
+);
+
 /** Вкладка «Финансы» — целиком ленивый виджет. */
 export const FinanceReport = dynamic(
     () =>

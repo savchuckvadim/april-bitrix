@@ -22,11 +22,6 @@ export default async function InstallPage({
     console.log('params');
     console.log(params);
 
-    const installParam = params?.install;
-    const installStatus = Array.isArray(installParam)
-        ? installParam[0]
-        : installParam;
-
     return (
         <div className="w-screen h-screen bg-black flex items-center justify-center min-h-svh">
             <BitrixInstallPage  />

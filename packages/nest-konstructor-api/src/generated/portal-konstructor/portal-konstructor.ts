@@ -10,47 +10,11 @@ import type {
     ProviderWithRqResponseDto,
     RqResponseDto,
     UpdateRqDto,
-    UpdateWebhookDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/konstructor-api';
 
 export const getPortalKonstructor = () => {
-    /**
-     * @summary Get portal by id
-     */
-    const portalGetPortal = (id: number) => {
-        return customAxios<void>({ url: `/api/portal/${id}`, method: 'GET' });
-    };
-    /**
-     * @summary Get portal by domain
-     */
-    const portalGetPortalByDomain = (domain: string) => {
-        return customAxios<void>({
-            url: `/api/portal/domain/${domain}`,
-            method: 'GET',
-        });
-    };
-    /**
-     * @summary Get all portals
-     */
-    const portalGetPortals = () => {
-        return customAxios<void>({ url: `/api/portal`, method: 'GET' });
-    };
-    /**
-     * @summary Update webhook by domain
-     */
-    const portalUpdateWebhook = (
-        domain: string,
-        updateWebhookDto: UpdateWebhookDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/portal/webhook/${domain}`,
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            data: updateWebhookDto,
-        });
-    };
     /**
      * Возвращает реквизиты (rqs) поставщика (agents) по его id. Если поставщик не найден — возвращает null.
      * @summary Реквизиты поставщика по id
@@ -126,10 +90,6 @@ export const getPortalKonstructor = () => {
         });
     };
     return {
-        portalGetPortal,
-        portalGetPortalByDomain,
-        portalGetPortals,
-        portalUpdateWebhook,
         providerGetProvider,
         providerDeleteProvider,
         providerGetProviderByDomain,
@@ -140,30 +100,6 @@ export const getPortalKonstructor = () => {
         templateBaseGetTemplates,
     };
 };
-export type PortalGetPortalResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getPortalKonstructor>['portalGetPortal']>
-    >
->;
-export type PortalGetPortalByDomainResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getPortalKonstructor>['portalGetPortalByDomain']
-        >
-    >
->;
-export type PortalGetPortalsResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getPortalKonstructor>['portalGetPortals']>
-    >
->;
-export type PortalUpdateWebhookResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<typeof getPortalKonstructor>['portalUpdateWebhook']
-        >
-    >
->;
 export type ProviderGetProviderResult = NonNullable<
     Awaited<
         ReturnType<

@@ -4,10 +4,10 @@ import type { FC } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@workspace/ui/lib/utils';
-import { SALES_TABS, salesTabPath } from '../constants/views';
+import { useSection } from '../hooks/use-section';
 
 /**
- * Вкладки процесса на узком экране.
+ * Вкладки раздела на узком экране.
  *
  * Боковое меню на телефоне спрятано, и без этой полосы попасть из схемы в
  * симулятор или теорию было нельзя вообще — разделы существовали, но были
@@ -16,14 +16,15 @@ import { SALES_TABS, salesTabPath } from '../constants/views';
  */
 export const ProcessTabsMobile: FC = () => {
     const pathname = usePathname();
+    const { tabs, tabPath } = useSection();
 
     return (
         <nav
             aria-label="Разделы процесса"
             className="scrollbar-none flex gap-1.5 overflow-x-auto px-4 pb-2 lg:hidden"
         >
-            {SALES_TABS.map(tab => {
-                const href = salesTabPath(tab.slug);
+            {tabs.map(tab => {
+                const href = tabPath(tab.slug);
                 const isActive = pathname === href;
 
                 return (

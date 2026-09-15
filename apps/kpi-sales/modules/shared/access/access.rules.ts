@@ -1,5 +1,9 @@
 import { AccessContext, EAccessFeature } from './access.types';
 
+/** Оба уровня включения AI-аналитики: константа приложения + портал. */
+const isAiEnabled = (ctx: AccessContext): boolean =>
+    ctx.features.aiAnalytics && ctx.features.aiAnalyticsPortalEnabled;
+
 /**
  * ЦЕНТРАЛЬНАЯ ТАБЛИЦА ПРАВ — единственное место, где настраивается
  * «кому что видно». Новое ограничение = ключ в EAccessFeature + правило
@@ -49,6 +53,25 @@ export const ACCESS_RULES: Record<
 
     [EAccessFeature.PLANS_CONFIGURE]: ctx =>
         ctx.features.plans &&
+        (ctx.isSuperUser || ctx.headOf === 'op' || ctx.headOf === 'cup'),
+
+    // AI-АНАЛИТИКА ОП: два уровня включения (константа приложения И
+    // портальный ai_analytics_enabled из settings/get). Кому видна:
+    // ТОЛЬКО руководители (решение владельца 07.09.2026) — суперюзер или
+    // любой headOf. Рядовой менеджер (ctx.isSelf) вкладку не видит.
+    // Задел: бэк добавит в settings/get портальную настройку
+    // selfViewEnabled — она вернёт режим «менеджер видит себя»
+    // (правило станет `… || (ctx.isSelf && selfViewEnabled)`).
+    [EAccessFeature.AI_TAB]: ctx =>
+        isAiEnabled(ctx) && (ctx.isSuperUser || ctx.headOf !== null),
+
+    [EAccessFeature.AI_VIEW_ALL]: ctx =>
+        isAiEnabled(ctx) && (ctx.isSuperUser || ctx.headOf !== null),
+
+    // Уровни менеджеров (settings/save) — как PLANS_CONFIGURE: op/cup и
+    // суперюзер; руководителю группы сервер вернёт 403.
+    [EAccessFeature.AI_CONFIGURE]: ctx =>
+        isAiEnabled(ctx) &&
         (ctx.isSuperUser || ctx.headOf === 'op' || ctx.headOf === 'cup'),
 };
 

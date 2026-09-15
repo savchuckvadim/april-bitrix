@@ -4,28 +4,30 @@ import type { FC } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@workspace/ui/lib/utils';
-import { SALES_TABS, salesTabPath } from '../constants/views';
+import { useSection } from '../hooks/use-section';
 
 interface ProcessTabsProps {
     className?: string;
 }
 
 /**
- * Вкладки процесса в боковом меню.
+ * Вкладки раздела в боковом меню.
  *
- * Конфигурация общая и живёт вне React, поэтому переход между вкладками её не
- * теряет: симулятор проходит ровно ту схему, которую вы собрали рядом.
+ * Список вкладок берётся из контекста раздела, поэтому одна и та же рама
+ * показывает и процесс продаж, и базу знаний AI. Конфигурация процесса живёт
+ * вне React, и переход между вкладками её не теряет.
  */
 export const ProcessTabs: FC<ProcessTabsProps> = ({ className }) => {
     const pathname = usePathname();
+    const { tabs, tabPath } = useSection();
 
     return (
         <nav
             aria-label="Разделы процесса"
             className={cn('flex flex-col gap-0.5', className)}
         >
-            {SALES_TABS.map(tab => {
-                const href = salesTabPath(tab.slug);
+            {tabs.map(tab => {
+                const href = tabPath(tab.slug);
                 const isActive = pathname === href;
 
                 return (

@@ -9,7 +9,7 @@ import { CallingsReportBlock } from './blocks/CallingsReportBlock';
 import { MergedReportBlock } from './blocks/MergedReportBlock';
 import { AirtimeBlock } from './blocks/AirtimeBlock';
 import { PlansBlock } from './blocks/PlansBlock';
-import { ConversionsBlock, FinanceReport } from './blocks/lazy';
+import { AiAnalyticsReport, ConversionsBlock, FinanceReport } from './blocks/lazy';
 
 /**
  * Тело отчёта: переключатель типа + композиция блоков.
@@ -20,6 +20,10 @@ export const Report = () => {
     const { current: reportType } = useReportType();
     // Гейт на случай кадра до авто-увода недоступной вкладки на «Все»
     const canFinance = useAccess(EAccessFeature.FINANCE_TAB);
+    const canAi = useAccess(EAccessFeature.AI_TAB);
+    // Вкладки без блоков отчёта: эфирное время к ним не относится.
+    const isStandalone =
+        reportType === EReportType.FINANCE || reportType === EReportType.AI;
 
     return (
         <div>
@@ -66,8 +70,10 @@ export const Report = () => {
                 <FinanceReport />
             )}
 
-            {/* Эфирное время — во всех типах отчёта, кроме «Финансов». */}
-            {reportType !== EReportType.FINANCE && <AirtimeBlock />}
+            {reportType === EReportType.AI && canAi && <AiAnalyticsReport />}
+
+            {/* Эфирное время — во всех типах отчёта, кроме «Финансов» и «AI». */}
+            {!isStandalone && <AirtimeBlock />}
         </div>
     );
 };

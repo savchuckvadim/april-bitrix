@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { ArrowLeft, Download } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import {
+    AI_CALIBRATION_PATH,
     CALIBRATION_BRIEF_FILE,
-    CALIBRATION_PATH,
 } from '../../../constants/calibration-contacts';
 import { CalibrationBriefPrintButton } from './CalibrationBriefPrintButton';
 
@@ -12,7 +12,7 @@ import { CalibrationBriefPrintButton } from './CalibrationBriefPrintButton';
 export const CalibrationBriefActions: React.FC = () => (
     <div className="no-print mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Button asChild variant="ghost" size="lg">
-            <Link href={CALIBRATION_PATH}>
+            <Link href={AI_CALIBRATION_PATH}>
                 <ArrowLeft className="h-4 w-4" />
                 К странице калибровки
             </Link>

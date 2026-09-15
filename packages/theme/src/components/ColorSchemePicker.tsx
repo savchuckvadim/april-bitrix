@@ -1,10 +1,15 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 import { useColorScheme } from '../hook/useColorScheme';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOutsideClick } from '../hook/useOutsideClick';
 import { ColorSchemes, COLOR_SCHEME_SWATCH } from '../model/color-schemes';
+import {
+    PICKER_VIEWPORT_PADDING_PX,
+    PickerSide,
+    resolvePickerSide,
+} from '../model/picker-side';
 import { ColorScheme } from '../provider/Theme';
 
 /** Схем 14 — ровно два ряда по 7: прямоугольник без хвоста. */
@@ -14,8 +19,13 @@ export interface ColorSchemePickerProps {
     /**
      * К какому краю кнопки прижат дропдаун: 'start' растёт вправо
      * (кнопка у левого края экрана), 'end' — влево (кнопка у правого).
+     *
+     * Это пожелание, а не приказ: если с выбранной стороны панель не
+     * помещается в окно, она откроется с другой (см. `resolvePickerSide`).
+     * Кнопка переключателя почти всегда стоит в правом конце шапки, поэтому
+     * по умолчанию — 'end'.
      */
-    align?: 'start' | 'end';
+    align?: PickerSide;
 }
 
 /**
@@ -29,13 +39,36 @@ export interface ColorSchemePickerProps {
  * держит одинаковые ряды.
  */
 export const ColorSchemePicker = ({
-    align = 'start',
+    align = 'end',
 }: ColorSchemePickerProps) => {
     const { scheme, setScheme } = useColorScheme();
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const [side, setSide] = useState<PickerSide>(align);
 
     useOutsideClick(ref, () => setOpen(false));
+
+    /*
+     * Сторону выбираем в момент раскрытия, до отрисовки: на узкой шапке или
+     * у самого края окна панель с желаемой стороны не помещается, и её надо
+     * отзеркалить. useLayoutEffect, а не useEffect, чтобы пользователь не
+     * увидел кадр с панелью за краем экрана.
+     */
+    useLayoutEffect(() => {
+        if (!open) return;
+        const trigger = triggerRef.current;
+        if (!trigger || typeof window === 'undefined') return;
+        const rect = trigger.getBoundingClientRect();
+        setSide(
+            resolvePickerSide({
+                preferred: align,
+                triggerLeft: rect.left,
+                triggerRight: rect.right,
+                viewportWidth: window.innerWidth,
+            }),
+        );
+    }, [open, align]);
 
     return (
         // flex items-center: кнопка-свотч без содержимого внутри — как
@@ -46,6 +79,7 @@ export const ColorSchemePicker = ({
                 вопрос «какая схема сейчас», иконка палитры была лишним
                 посредником. */}
             <button
+                ref={triggerRef}
                 type="button"
                 aria-label="Цветовая схема"
                 aria-expanded={open}
@@ -70,10 +104,14 @@ export const ColorSchemePicker = ({
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
                         className={`absolute top-full z-50 mt-1 grid w-max gap-1.5 rounded-lg border border-border bg-popover p-2 shadow-lg ${
-                            align === 'end' ? 'right-0' : 'left-0'
+                            side === 'end' ? 'right-0' : 'left-0'
                         }`}
                         style={{
                             gridTemplateColumns: `repeat(${GRID_COLUMNS}, 1.25rem)`,
+                            // Страховка для совсем узких экранов: даже
+                            // отзеркалив панель, места может не хватить —
+                            // тогда она ужимается, а не уезжает за край.
+                            maxWidth: `calc(100vw - ${2 * PICKER_VIEWPORT_PADDING_PX}px)`,
                         }}
                     >
                         {ColorSchemes.map(value => (

@@ -22,6 +22,7 @@ import { financeReducer } from '@/modules/entities/finance/model/finance-slice';
 import { reportAwardsReducer } from '@/modules/feature/report-awards/model/report-awards-slice';
 import { pbxFieldsReducer } from '@/modules/feature/pbx-fields/model/pbx-fields-slice';
 import { plansReducer } from '@/modules/feature/plans/model/plans-slice';
+import { aiAnalyticsReducer } from '@/modules/entities/ai-analytics/model/ai-analytics-slice';
 import { getWSClient } from './ws-client';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
@@ -50,6 +51,7 @@ const rootReducer = combineReducers({
     reportAwards: reportAwardsReducer,
     pbxFields: pbxFieldsReducer,
     plans: plansReducer,
+    aiAnalytics: aiAnalyticsReducer,
 });
 
 export const setupStore = () =>

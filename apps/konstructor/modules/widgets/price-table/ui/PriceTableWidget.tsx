@@ -3,6 +3,7 @@
 import { AlertTriangle } from 'lucide-react';
 import { RowBuilderPanel } from '@/modules/features/row-builder';
 import { CompositionEditorPanel } from '@/modules/features/composition-editor';
+import { ComplectVariantPanel } from '@/modules/features/complect-variant-select';
 import { TableHeader } from '../table-header';
 import { SetBlock } from '../set-block';
 import { usePriceTable } from '../hooks/use-price-table';
@@ -38,6 +39,7 @@ export const PriceTableWidget = () => {
             ) : null}
 
             <TableHeader />
+            <ComplectVariantPanel />
 
             <h2 className="mt-1 text-sm font-semibold uppercase text-muted-foreground">
                 Основные

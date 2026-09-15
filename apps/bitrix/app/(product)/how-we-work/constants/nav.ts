@@ -6,6 +6,11 @@ export interface HowNavItem {
 
 export const HOW_BASE_PATH = '/how-we-work';
 
+/**
+ * «Калибровка» из меню убрана: страница переехала в раздел `/ai`, а меню
+ * строит адреса из своих же slug и наружу вести не умеет. Вход в базу знаний
+ * AI — со страницы «ИИ-анализ», которая на неё и ссылается.
+ */
 export const HOW_NAV_ITEMS: HowNavItem[] = [
     { slug: '', label: 'Обзор' },
     { slug: 'philosophy', label: 'Наш подход' },
@@ -16,7 +21,6 @@ export const HOW_NAV_ITEMS: HowNavItem[] = [
     { slug: 'fields', label: 'Автозаполнение' },
     { slug: 'implementation', label: 'Внедрение' },
     { slug: 'ai', label: 'ИИ-анализ' },
-    { slug: 'calibration', label: 'Калибровка' },
 ];
 
 export const howPath = (slug: string): string =>

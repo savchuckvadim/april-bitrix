@@ -6,11 +6,14 @@ export enum EReportType {
     CALLINGS = 'callings',
     MERGED = 'merged',
     FINANCE = 'finance',
+    /** AI-аналитика ОП (пульс, повестка, сигналы) — по флагам и правам. */
+    AI = 'ai',
 }
 export const REPORT_TYPE_LABELS = {
     [EReportType.EVENTS]: 'События',
     [EReportType.CALLINGS]: 'Звонки',
     [EReportType.MERGED]: 'Объединенный отчет',
     [EReportType.FINANCE]: 'Финансы',
+    [EReportType.AI]: 'AI аналитика',
     [EReportType.All]: 'Все',
 } as const;

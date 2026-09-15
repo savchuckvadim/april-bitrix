@@ -2,7 +2,8 @@ import React from 'react';
 import { renderInline } from '../../lib/render-inline';
 
 interface HowNoteProps {
-    tone: 'info' | 'good' | 'warn' | 'bad';
+    /** `neutral` — без окраски: справочная сноска, а не предупреждение. */
+    tone: 'info' | 'good' | 'warn' | 'bad' | 'neutral';
     text: string;
 }
 
@@ -11,6 +12,7 @@ const TONE_CLASSES: Record<HowNoteProps['tone'], string> = {
     good: 'border-success/40 bg-success/10',
     warn: 'border-warning/40 bg-warning/10',
     bad: 'border-destructive/40 bg-destructive/10',
+    neutral: 'border-border bg-muted/40',
 };
 
 /** Акцентная плашка-примечание. */

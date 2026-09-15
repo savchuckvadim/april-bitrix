@@ -11,7 +11,8 @@
     "./actions": "./src/actions/index.ts",
     "./feedback": "./src/feedback/index.ts",
     "./tones": "./src/lib/tones.ts",
-    "./glass": "./src/lib/glass/index.ts"
+    "./glass": "./src/lib/glass/index.ts",
+    "./ai": "./src/components/ai/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

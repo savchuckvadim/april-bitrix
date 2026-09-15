@@ -25,6 +25,7 @@ import { documentProviderReducer } from '@/modules/entities/provider';
 import { dealReducer } from '@/modules/entities/deal';
 import { bxrqReducer } from '@workspace/bx-rq';
 import { snapshotReducer } from '@/modules/entities/snapshot';
+import { complectVariantReducer } from '@/modules/entities/complect-variant';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
 export const listenerMiddleware = createListenerMiddleware();
@@ -54,6 +55,8 @@ const rootReducer = combineReducers({
     catalog: catalogReducer,
     rowSet: rowSetReducer,
     snapshot: snapshotReducer,
+    // варианты комплекта: несколько предложений внутри одной сделки
+    complectVariant: complectVariantReducer,
     portal: portalReducer,
 
     documentProvider: documentProviderReducer,

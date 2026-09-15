@@ -2,9 +2,16 @@
 
 import type { FC } from 'react';
 import { ProcessShell } from '../ProcessShell';
+import type { SectionDefinition } from '../../section/section-definition';
 import type { TheoryPageContent } from '../../theory-types';
 import { TheoryBlockRenderer } from './TheoryBlockRenderer';
 import { TheoryFooter } from './TheoryFooter';
+
+interface TheoryPageViewProps {
+    page: TheoryPageContent;
+    /** Раздел, в раме которого показать страницу; не задан — продажи. */
+    definition?: SectionDefinition;
+}
 
 /**
  * Страница раздела «Теория»: связный рассказ с врезками.
@@ -12,8 +19,15 @@ import { TheoryFooter } from './TheoryFooter';
  * Ширина ограничена намеренно — это текст, а не схема: длинная строка убивает
  * читаемость быстрее, чем что-либо ещё.
  */
-export const TheoryPageView: FC<{ page: TheoryPageContent }> = ({ page }) => (
-    <ProcessShell eyebrow={page.eyebrow} title={page.title}>
+export const TheoryPageView: FC<TheoryPageViewProps> = ({
+    page,
+    definition,
+}) => (
+    <ProcessShell
+        eyebrow={page.eyebrow}
+        title={page.title}
+        definition={definition}
+    >
         <article className="mx-auto max-w-4xl px-4 py-8 sm:px-8">
             <header className="mb-8 border-b pb-6">
                 <h1 className="text-foreground text-3xl font-bold tracking-tight text-balance sm:text-4xl">

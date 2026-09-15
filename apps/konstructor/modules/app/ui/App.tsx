@@ -5,10 +5,14 @@ import type { ReactNode } from 'react';
 import { LoadingScreen } from '@/modules/shared';
 
 import { useApp } from '../lib/hooks/app';
-import { NON_AUTH_ERROR } from '../lib/initialize/app-init/app-init.util';
+import {
+    NON_AUTH_ERROR,
+    NO_COMPANY_ERROR,
+} from '../lib/initialize/app-init/app-init.util';
 import { IS_PROD } from '../consts/app-global';
 import { store } from '../model/store';
 import { NonAuthScreen } from './NonAuthScreen';
+import { NoCompanyScreen } from './NoCompanyScreen';
 
 export const App = ({ children }: { children: ReactNode }) => {
     const { app, initialized, isLoading, isClient } = useApp();
@@ -22,6 +26,10 @@ export const App = ({ children }: { children: ReactNode }) => {
 
     if (isClient && app.error.status && app.error.message === NON_AUTH_ERROR) {
         return <NonAuthScreen />;
+    }
+
+    if (isClient && app.error.status && app.error.message === NO_COMPANY_ERROR) {
+        return <NoCompanyScreen />;
     }
 
     return (

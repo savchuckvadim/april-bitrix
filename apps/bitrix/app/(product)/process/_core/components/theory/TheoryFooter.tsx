@@ -1,7 +1,10 @@
+'use client';
+
 import type { FC } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { SALES_TABS, salesTabPath } from '../../constants/views';
+import { useSection } from '../../hooks/use-section';
+import { findTabIndex } from '../../section/section-definition';
 
 /**
  * Подвал повествовательной страницы: предыдущая и следующая части.
@@ -12,18 +15,17 @@ import { SALES_TABS, salesTabPath } from '../../constants/views';
  * схема теперь идёт ПОСЛЕ теории, а не до неё.
  */
 export const TheoryFooter: FC<{ slug: string }> = ({ slug }) => {
-    const index = SALES_TABS.findIndex(tab => tab.slug.endsWith(slug));
-    const previous = index > 0 ? SALES_TABS[index - 1] : undefined;
+    const { definition, tabs, tabPath } = useSection();
+    const index = findTabIndex(definition, slug);
+    const previous = index > 0 ? tabs[index - 1] : undefined;
     const next =
-        index >= 0 && index < SALES_TABS.length - 1
-            ? SALES_TABS[index + 1]
-            : undefined;
+        index >= 0 && index < tabs.length - 1 ? tabs[index + 1] : undefined;
 
     return (
         <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
             {previous ? (
                 <Link
-                    href={salesTabPath(previous.slug)}
+                    href={tabPath(previous.slug)}
                     className="text-muted-foreground hover:text-foreground focus-visible:outline-primary flex items-center gap-2 rounded-md text-sm focus-visible:outline-2"
                 >
                     <ArrowLeft className="size-4" aria-hidden />
@@ -35,7 +37,7 @@ export const TheoryFooter: FC<{ slug: string }> = ({ slug }) => {
 
             {next && (
                 <Link
-                    href={salesTabPath(next.slug)}
+                    href={tabPath(next.slug)}
                     className="text-primary focus-visible:outline-primary flex items-center gap-2 rounded-md text-sm font-semibold hover:underline focus-visible:outline-2"
                 >
                     Дальше: {next.label}

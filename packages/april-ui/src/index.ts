@@ -38,6 +38,9 @@ export * from './actions';
 // Состояния загрузки: спиннер, boot-прелоадер, экран сборки отчёта
 export * from './feedback';
 
+// Заголовок и фон вкладки AI-аналитики (обёртки над reactbits-эффектами)
+export * from './components/ai';
+
 export { PreloaderCard } from './shared/Preloader';
 export { PreloaderMicro } from './shared/Preloader';
 export { PreloaderScreen } from './shared/Preloader';

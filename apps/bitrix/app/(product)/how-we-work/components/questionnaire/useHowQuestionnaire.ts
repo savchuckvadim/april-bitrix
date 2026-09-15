@@ -12,6 +12,7 @@ import {
     downloadDataUrl,
     downloadText,
 } from '../../lib/build-protocol';
+import { isAnswered } from '../../lib/is-answered.util';
 
 const EMPTY_STATE: HowQuestionnaireState = {
     respondent: '',
@@ -103,10 +104,9 @@ export const useHowQuestionnaire = (
 
     const answeredCount = useMemo(
         () =>
-            questionnaire.questions.filter((question) => {
-                const answer = state.answers[question.id];
-                return Boolean(answer?.choice || answer?.custom?.trim());
-            }).length,
+            questionnaire.questions.filter((question) =>
+                isAnswered(state.answers[question.id]),
+            ).length,
         [questionnaire.questions, state.answers],
     );
 

@@ -15,4 +15,11 @@ export const APP_FEATURES: AppFeatureFlags = {
     financeTab: true,
     /** Планы руководителя: false гасит всю фичу (настройки, блоки, Excel). */
     plans: true,
+    /**
+     * AI-аналитика ОП: false гасит вкладку и запрос settings/get целиком.
+     * Второй уровень — портальный флаг, его ставит listener feature/ai-flags.
+     */
+    aiAnalytics: true,
+    /** Портальный уровень приходит с бэка (settings/get); до ответа — выкл. */
+    aiAnalyticsPortalEnabled: false,
 };

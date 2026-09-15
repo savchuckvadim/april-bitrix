@@ -13,11 +13,14 @@ export type Portal = {
     smarts: PBXSmart[]
 
 }
+export type PBX_SMART_TYPE = 'service_offer' | 'complect_variant';
+
 export interface PBXSmart {
     id: number,
     name: string,
     description: string,
-    type: 'service_offer',
+    /** service_offer — предложение на будущий период; complect_variant — варианты комплекта сделки */
+    type: PBX_SMART_TYPE,
     group: PBX_GROUP,
     entityTypeId: number,
     bitrixfields: PBXField[]

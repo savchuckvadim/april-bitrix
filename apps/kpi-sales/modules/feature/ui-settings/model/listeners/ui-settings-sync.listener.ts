@@ -6,6 +6,7 @@ import { conversionsActions } from '@/modules/feature/report-conversions';
 import { mergedReportActions } from '@/modules/feature/merged-kpi-calling-report';
 import { reportTypeActions } from '@/modules/feature/report-widget-type/model/ReportTypeSlice';
 import { financeActions } from '@/modules/entities/finance';
+import { aiAnalyticsActions } from '@/modules/entities/ai-analytics/model/ai-analytics-slice';
 import { UiSettingsHelper } from '../../lib/api/ui-settings-helper';
 import type { UiSettingsBlob } from '../../lib/ui-settings.types';
 import {
@@ -57,6 +58,10 @@ const buildBlob = (state: RootState): UiSettingsBlob => {
             comparison: state.finance.comparison.mode,
             hotThreshold: state.finance.hot.threshold,
         },
+        ai: {
+            selectedCallType: state.aiAnalytics.selectedCallType,
+            typesLayout: state.aiAnalytics.typesLayout,
+        },
     };
 };
 
@@ -90,6 +95,9 @@ const applyBlob = (blob: UiSettingsBlob, dispatch: AppDispatch): void => {
                 hotThreshold: blob.finance.hotThreshold,
             }),
         );
+    }
+    if (blob.ai) {
+        dispatch(aiAnalyticsActions.hydrateSettings(blob.ai));
     }
 };
 
@@ -187,6 +195,8 @@ export const startUiSettingsSyncListeners = (
             reportTypeActions.setCurrentReportType,
             financeActions.setComparisonMode,
             financeActions.setHotThreshold,
+            aiAnalyticsActions.setSelectedCallType,
+            aiAnalyticsActions.setTypesLayout,
             uiSettingsActions.touched,
         ),
         effect: async (_action, listenerApi) => {

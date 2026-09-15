@@ -13,6 +13,8 @@ export interface AiFeedbackListResponseDto {
     status: AiFeedbackListResponseDtoStatus;
     /** Ключ запроса/результата (ключ кэша). Одинаковые запросы дают один ключ — по нему дедуплицируются повторы. */
     requestKey: string;
+    /** Id Bull-джобы при queued/processing (равен requestKey — повторный запрос подписывается на идущий расчёт). */
+    jobId?: string;
     /** Текст ошибки при status = error. */
     message?: string;
     /** Список (при status = ready). */

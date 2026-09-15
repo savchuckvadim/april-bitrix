@@ -15,6 +15,9 @@ import { wsInit } from '../../../model/ws/Websocket';
 /** Код ошибки инициализации «не во фрейме Bitrix в PROD». */
 export const NON_AUTH_ERROR = 'nonauth';
 
+/** Код ошибки инициализации «в сделке не указана компания». */
+export const NO_COMPANY_ERROR = 'nocompany';
+
 /** Структурный минимум placement (Placement | CustomPlacement из @workspace/bx) */
 interface PlacementLike {
     placement: string;
@@ -80,6 +83,16 @@ export const appInit = async (dispatch: AppDispatch) => {
         company = bxResult?.company ?? null;
     } catch (error) {
         console.warn('app-init: bitrix deal/company недоступны', error);
+    }
+
+    // Без компании не собрать ни реквизиты, ни документы — дальше идти незачем.
+    // Проверяем только когда сделка реально прочиталась: deal === null означает
+    // «REST недоступен», а не «компании нет».
+    if (deal && !company) {
+        dispatch(
+            appActions.setInitializedError({ errorMessage: NO_COMPANY_ERROR }),
+        );
+        return;
     }
 
     dispatch(appActions.setAppData({ domain, user, deal, company, dealId }));

@@ -6,11 +6,16 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+    InnerDealCopyDto,
+    InnerDealCopyResponseDto,
     InnerDealFindParams,
     InnerDealFindResponseDto,
     InnerDealListParams,
+    InnerDealSettingsDto,
     InnerDealSnapshotDto,
     InnerDealUpsertDto,
+    InnerDealVariantParams,
+    InnerDealVariantsParams,
 } from '.././model';
 
 import { customAxios } from '../../lib/konstructor-api';
@@ -27,7 +32,7 @@ export const getKonstructorDeal = () => {
         });
     };
     /**
-     * @summary Upsert слепка по (domain, dealId, serviceSmartId)
+     * @summary Upsert слепка по (domain, dealId, serviceSmartId | variantSmartId)
      */
     const innerDealUpsert = (innerDealUpsertDto: InnerDealUpsertDto) => {
         return customAxios<InnerDealSnapshotDto>({
@@ -47,7 +52,63 @@ export const getKonstructorDeal = () => {
             params,
         });
     };
-    return { innerDealFind, innerDealUpsert, innerDealList };
+    /**
+     * Слепки вариантов предложения, собранных на сделке (строки с непустым variantSmartId). Обычный слепок сделки и слепок «предложения на будущий период» сюда не попадают.
+     * @summary Варианты комплекта сделки
+     */
+    const innerDealVariants = (params: InnerDealVariantsParams) => {
+        return customAxios<InnerDealSnapshotDto[]>({
+            url: `/api/konstructor/deal/variants`,
+            method: 'GET',
+            params,
+        });
+    };
+    /**
+     * Состояние конструктора конкретного варианта — тем же контрактом, что и обычный слепок сделки.
+     * @summary Слепок одного варианта комплекта
+     */
+    const innerDealVariant = (params: InnerDealVariantParams) => {
+        return customAxios<InnerDealFindResponseDto>({
+            url: `/api/konstructor/deal/variant`,
+            method: 'GET',
+            params,
+        });
+    };
+    /**
+     * Режим (сравнение / вместе разными договорами / вместе одним договором), участники и настройки КП. Пишет только колонку настроек — слепок конструктора не трогает. settings:null возвращает сделку к поведению «один набор, одно КП».
+     * @summary Сохранить настройки сборки комплекта
+     */
+    const innerDealUpdateSettings = (
+        innerDealSettingsDto: InnerDealSettingsDto,
+    ) => {
+        return customAxios<InnerDealSnapshotDto>({
+            url: `/api/konstructor/deal/settings`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: innerDealSettingsDto,
+        });
+    };
+    /**
+     * Ручное восстановление состояния конструктора: берёт слепок сделки-источника (при указанном sourceServiceSmartId — слепок её сервисного смарта) и кладёт копию в сделку-получатель. Если у получателя слепок уже есть, копия делается только с force:true — иначе вернётся copied:false, чтобы не затереть работу менеджера.
+     * @summary Скопировать слепок из одной сделки в другую
+     */
+    const innerDealCopy = (innerDealCopyDto: InnerDealCopyDto) => {
+        return customAxios<InnerDealCopyResponseDto>({
+            url: `/api/konstructor/deal/copy`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: innerDealCopyDto,
+        });
+    };
+    return {
+        innerDealFind,
+        innerDealUpsert,
+        innerDealList,
+        innerDealVariants,
+        innerDealVariant,
+        innerDealUpdateSettings,
+        innerDealCopy,
+    };
 };
 export type InnerDealFindResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealFind']>>
@@ -59,4 +120,24 @@ export type InnerDealUpsertResult = NonNullable<
 >;
 export type InnerDealListResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealList']>>
+>;
+export type InnerDealVariantsResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealVariants']>
+    >
+>;
+export type InnerDealVariantResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealVariant']>
+    >
+>;
+export type InnerDealUpdateSettingsResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getKonstructorDeal>['innerDealUpdateSettings']
+        >
+    >
+>;
+export type InnerDealCopyResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealCopy']>>
 >;

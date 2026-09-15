@@ -6,10 +6,13 @@
  * OpenAPI spec version: 1.0
  */
 import type { BitrixHookAuthRequestDto } from './bitrixHookAuthRequestDto';
+import type { InitDealDtoFlow } from './initDealDtoFlow';
 
 export interface InitDealDto {
     /** Bitrix hook auth */
     auth: BitrixHookAuthRequestDto;
     /** Document id info */
     document_id: string[];
+    /** Сценарий: supply — поставка, renewal — перезаключение. Не передан — определяется по RPA */
+    flow?: InitDealDtoFlow;
 }

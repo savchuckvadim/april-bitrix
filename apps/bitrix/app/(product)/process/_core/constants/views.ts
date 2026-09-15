@@ -6,12 +6,13 @@
  * собрали на схеме процесса.
  */
 
-export interface ProcessTab {
-    /** Кусок маршрута после базового пути; пустая строка — базовая вкладка. */
-    slug: string;
-    label: string;
-    hint: string;
-}
+import type {
+    ProcessTab,
+    SectionDefinition,
+} from '../section/section-definition';
+import { sectionTabPath } from '../section/section-definition';
+
+export type { ProcessTab } from '../section/section-definition';
 
 export const SALES_BASE_PATH = '/process/sales';
 
@@ -64,5 +65,15 @@ export const SALES_TABS: ProcessTab[] = [
     },
 ];
 
+/** Подпись группы вкладок в боковом меню раздела продаж. */
+export const SALES_SECTION_EYEBROW = 'Процесс продажи';
+
+/** Раздел продаж как определение для рамы; дефолт контекста раздела. */
+export const SALES_SECTION: SectionDefinition = {
+    basePath: SALES_BASE_PATH,
+    tabs: SALES_TABS,
+    eyebrow: SALES_SECTION_EYEBROW,
+};
+
 export const salesTabPath = (slug: string): string =>
-    slug ? `${SALES_BASE_PATH}/${slug}` : SALES_BASE_PATH;
+    sectionTabPath(SALES_SECTION, slug);

@@ -81,6 +81,16 @@ export const getServiceOfferPbxSmartEntityId = (portal: Portal): number | null =
     return null;
 };
 
+/**
+ * Смарт «Варианты комплекта»: несколько собранных предложений внутри одной
+ * сделки. Не установлен на портале — null, и конструктор работает как раньше.
+ */
+export const getComplectVariantPbxSmart = (portal: Portal | null): PBXSmart | null =>
+    portal?.smarts.find(smart => smart.type === 'complect_variant') ?? null;
+
+export const getComplectVariantPbxSmartEntityId = (portal: Portal | null): number | null =>
+    getComplectVariantPbxSmart(portal)?.entityTypeId || null;
+
 export const getRpaFieldId = (
     portal: Portal,
     rpaBxEntityTypeId: number,

@@ -15,7 +15,12 @@ import { fetchBaseTemplate } from '@/modules/entities/base-template';
 import { fetchOfferTemplates } from '@/modules/entities/offer-template/model/OfferTemplateThunk';
 import { initProviders } from '@/modules/entities/provider';
 import { initPortal } from '@/modules/entities/portal';
-import { restoreSnapshot, type V1Record } from '@/modules/entities/snapshot';
+import {
+    restoreSnapshot,
+    snapshotActions,
+    type V1Record,
+} from '@/modules/entities/snapshot';
+import { syncOpenComplectVariant } from '@/modules/entities/complect-variant';
 import legacyRecord from '@/modules/entities/snapshot/lib/__fixtures__/legacy-deal.v1.json';
 import oldInit from '../../../../docs/oldinit.json';
 import {
@@ -35,9 +40,31 @@ export function startStoreListeners(
     setupAppDataListener(listenerMiddleware);
     setupCatalogFallbackListener(listenerMiddleware);
     setupSnapshotRestoreListener(listenerMiddleware);
+    setupOpenVariantSyncListener(listenerMiddleware);
     setupRowSetSyncListener(listenerMiddleware);
     setupProviderTaxListener(listenerMiddleware);
     setupAcademyDurationListener(listenerMiddleware);
+}
+
+/**
+ * Слепок сделки сохранён → при открытом варианте комплекта то же состояние
+ * уходит и в вариант. В оба места намеренно: вариант получает правки без
+ * отдельной кнопки, а слепок сделки остаётся актуальным для перезагрузки —
+ * даже если смарт вариантов с портала снимут.
+ */
+function setupOpenVariantSyncListener(
+    listenerMiddleware: ListenerMiddlewareInstance,
+) {
+    const startListening = listenerMiddleware.startListening as unknown as (
+        options: unknown,
+    ) => void;
+
+    startListening({
+        actionCreator: snapshotActions.saveDone,
+        effect: (_action: unknown, listenerApi: { dispatch: AppDispatch }) => {
+            listenerApi.dispatch(syncOpenComplectVariant());
+        },
+    });
 }
 
 /**

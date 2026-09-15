@@ -8,18 +8,26 @@
 import type {
     AiAgendaRequestDto,
     AiAgendaResponseDto,
+    AiAttentionRequestDto,
+    AiAttentionResponseDto,
+    AiByTypeRequestDto,
+    AiByTypeResponseDto,
     AiCacheResetRequestDto,
     AiCacheResetResponseDto,
     AiFeedbackListRequestDto,
     AiFeedbackListResponseDto,
     AiFeedbackRequestDto,
     AiFeedbackResponseDto,
+    AiOverviewRequestDto,
+    AiOverviewResponseDto,
     AiPulseRequestDto,
     AiPulseResponseDto,
     AiPushRequestDto,
     AiPushResponseDto,
     AiSettingsGetRequestDto,
     AiSettingsResponseDto,
+    AiSettingsSaveRequestDto,
+    AiSettingsSaveResponseDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/kpi-report-sales-api';
@@ -92,7 +100,7 @@ export const getSalesAiAnalytics = () => {
         });
     };
     /**
-     * Удаляет ключи кэша модуля: scope=pulse|agenda|settings — соответствующий раздел, all (по умолчанию) — всё, включая периметры доступа. Только руководители уровня cup|op.
+     * Удаляет ключи кэша модуля: scope=pulse|agenda|settings|overview|attention|kpi-month|plans — соответствующий раздел, all (по умолчанию) — всё, включая периметры доступа. Только руководители уровня cup|op.
      * @summary Сброс кэша AI-аналитики по домену
      */
     const aiAnalyticsResetCache = (
@@ -117,6 +125,62 @@ export const getSalesAiAnalytics = () => {
             data: aiPushRequestDto,
         });
     };
+    /**
+     * Матрица менеджер × AI-тип: оценки качества по разборам (n ≥ 8, иначе value = null), разделы рубрики, чек-листы, KPI-факты самоотчёта, план CRM и план руководителя, финансовый хвост, рёбра воронки, сигналы «Внимания», итоги по типам и отделам, срез возражений. Период в TZ портала не длиннее 3 месяцев. Кэш по ключу requestKey (период + нормализованный ростер + confirmedOnly): попадание → ready; расчёт идёт → processing; промах → джоба SALES_AI_ANALYTICS_OVERVIEW (jobId = requestKey) → queued, по завершении WS ai-analytics:overview:done|error с requestKey — затем повторить POST. forceRefresh пересчитывает и перезаписывает кэш. Строки — только в периметре requester'а.
+     * @summary Обзор менеджер × тип звонка за период
+     */
+    const aiAnalyticsOverviewGetOverview = (
+        aiOverviewRequestDto: AiOverviewRequestDto,
+    ) => {
+        return customAxios<AiOverviewResponseDto>({
+            url: `/api/ai-analytics/overview`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiOverviewRequestDto,
+        });
+    };
+    /**
+     * До 7 карточек (не больше 3 на менеджера) по правилам Фазы 1: risk — риск-звонки; no_data — n < 8 при звонках; discipline — < 50 % плана CRM при плане ≥ 10; next_step_drop — падение доли «шаг с датой» при n ≥ 20 в обоих окнах. Считается синхронно над кэшем обзора с теми же фильтрами и requestKey; если обзор ещё не посчитан — конверт queued/processing обзора (дождаться WS и повторить). Карточки — только по менеджерам периметра requester'а.
+     * @summary «Внимание» РОПу над обзором
+     */
+    const aiAnalyticsOverviewGetAttention = (
+        aiAttentionRequestDto: AiAttentionRequestDto,
+    ) => {
+        return customAxios<AiAttentionResponseDto>({
+            url: `/api/ai-analytics/attention`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiAttentionRequestDto,
+        });
+    };
+    /**
+     * callType — подвкладка AI-типа, all (все типы вместе: строки на каждую пару менеджер × тип, итоги по типам в totalsByType) либо objections (сквозной срез возражений). layout=wide (по умолчанию) — строка на менеджера (при all — на пару менеджер × тип): ячейка типа, главный KPI-факт, финансы; layout=long — строка на «сотрудник | показатель | оценка | объяснение» по оценке типа, разделам, чек-листам, KPI-фактам (для objections — по категориям); каждая длинная строка несёт callType. Синхронно над кэшем обзора: если обзор не посчитан — конверт queued/processing обзора. Строки — в периметре requester'а.
+     * @summary Срез обзора по типу звонка, всем типам или возражениям
+     */
+    const aiAnalyticsOverviewGetByType = (
+        aiByTypeRequestDto: AiByTypeRequestDto,
+    ) => {
+        return customAxios<AiByTypeResponseDto>({
+            url: `/api/ai-analytics/by-type`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiByTypeRequestDto,
+        });
+    };
+    /**
+     * Только руководители cup|op. Полный список уровней менеджеров (junior/middle/senior, since — начало стажа не позже сегодня в TZ портала; каждый managerId — из периметра requester'а). Пустой список сбрасывает уровни к дефолту по стажу. Запись в ais (type = ai-analytics-settings) и сброс кэша overview/attention домена — следующий обзор пересчитается с новыми уровнями.
+     * @summary Сохранение настроек витрины (уровни менеджеров)
+     */
+    const aiAnalyticsOverviewSaveSettings = (
+        aiSettingsSaveRequestDto: AiSettingsSaveRequestDto,
+    ) => {
+        return customAxios<AiSettingsSaveResponseDto>({
+            url: `/api/ai-analytics/settings/save`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiSettingsSaveRequestDto,
+        });
+    };
     return {
         aiAnalyticsGetSettings,
         aiAnalyticsGetPulse,
@@ -125,6 +189,10 @@ export const getSalesAiAnalytics = () => {
         aiAnalyticsListFeedback,
         aiAnalyticsResetCache,
         aiAnalyticsPush,
+        aiAnalyticsOverviewGetOverview,
+        aiAnalyticsOverviewGetAttention,
+        aiAnalyticsOverviewGetByType,
+        aiAnalyticsOverviewSaveSettings,
     };
 };
 export type AiAnalyticsGetSettingsResult = NonNullable<
@@ -172,5 +240,41 @@ export type AiAnalyticsResetCacheResult = NonNullable<
 export type AiAnalyticsPushResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsPush']>
+    >
+>;
+export type AiAnalyticsOverviewGetOverviewResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getSalesAiAnalytics
+            >['aiAnalyticsOverviewGetOverview']
+        >
+    >
+>;
+export type AiAnalyticsOverviewGetAttentionResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getSalesAiAnalytics
+            >['aiAnalyticsOverviewGetAttention']
+        >
+    >
+>;
+export type AiAnalyticsOverviewGetByTypeResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getSalesAiAnalytics
+            >['aiAnalyticsOverviewGetByType']
+        >
+    >
+>;
+export type AiAnalyticsOverviewSaveSettingsResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getSalesAiAnalytics
+            >['aiAnalyticsOverviewSaveSettings']
+        >
     >
 >;

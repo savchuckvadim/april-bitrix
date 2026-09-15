@@ -10,6 +10,7 @@ import type {
     GetInitDataDto,
     InitDealDto,
     InitSupplyDto,
+    InitTaskAccountantDto,
     KonstructorInitDataDto,
     OfferDto,
     OfferWordByTemplateGenerateDto,
@@ -82,6 +83,19 @@ export const getKonstructor = () => {
         });
     };
     /**
+     * @summary Задача бухгалтеру по заявке на поставку (вебхук робота RPA)
+     */
+    const initTaskAccountantInitTaskAccountant = (
+        initTaskAccountantDto: InitTaskAccountantDto,
+    ) => {
+        return customAxios<void>({
+            url: `/api/supply/init-task-accountant`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: initTaskAccountantDto,
+        });
+    };
+    /**
      * Generate offer word by template
      * @summary Generate offer word by template
      */
@@ -136,6 +150,7 @@ export const getKonstructor = () => {
         konstructorInitInit,
         initSupplyInitSupply,
         initDealInitDeal,
+        initTaskAccountantInitTaskAccountant,
         offerWordGenerateGenerateOfferWord,
         offerWordPdfPreviewStartPreview,
         offerWordPdfPreviewGetPreviewStatus,
@@ -173,6 +188,15 @@ export type InitSupplyInitSupplyResult = NonNullable<
 >;
 export type InitDealInitDealResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getKonstructor>['initDealInitDeal']>>
+>;
+export type InitTaskAccountantInitTaskAccountantResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getKonstructor
+            >['initTaskAccountantInitTaskAccountant']
+        >
+    >
 >;
 export type OfferWordGenerateGenerateOfferWordResult = NonNullable<
     Awaited<

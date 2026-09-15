@@ -1,5 +1,9 @@
 import { HowDocumentContent } from '../../../constants/types';
 import { CALIBRATION_CONTACTS } from '../../../constants/calibration-contacts';
+import {
+    CALIBRATION_BRIEF_SECTIONS,
+    CALIBRATION_CALL_TYPES,
+} from '../../../constants/calibration-brief-sections';
 
 /**
  * Бриф на настройку AI-аналитики звонков — тот же текст, что лежит файлом в
@@ -24,7 +28,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
     ],
     sections: [
         {
-            title: '1. Кто участвует',
+            title: CALIBRATION_BRIEF_SECTIONS.participants,
             blocks: [
                 {
                     type: 'table',
@@ -58,7 +62,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '2. Процесс продаж',
+            title: CALIBRATION_BRIEF_SECTIONS.process,
             blocks: [
                 {
                     type: 'note',
@@ -107,7 +111,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '3. Типы звонков',
+            title: CALIBRATION_BRIEF_SECTIONS.callTypes,
             blocks: [
                 {
                     type: 'table',
@@ -118,45 +122,12 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
                         'Примечания',
                     ],
                     rows: [
-                        [
-                            'Холодный выход на лицо, принимающее решение',
+                        ...CALIBRATION_CALL_TYPES.map((callType) => [
+                            callType,
                             '',
                             'да / нет',
                             '',
-                        ],
-                        ['Звонок по заявке с сайта', '', 'да / нет', ''],
-                        [
-                            'Обычный звонок (договориться о показе)',
-                            '',
-                            'да / нет',
-                            '',
-                        ],
-                        ['Презентация / показ системы', '', 'да / нет', ''],
-                        ['Доработка возражений', '', 'да / нет', ''],
-                        [
-                            'Разговор по решению (условия, сроки)',
-                            '',
-                            'да / нет',
-                            '',
-                        ],
-                        [
-                            'Разговор по оплате (счёт, договор)',
-                            '',
-                            'да / нет',
-                            '',
-                        ],
-                        [
-                            'Другое (сопровождение, обучение, оргвопросы)',
-                            '',
-                            'да / нет',
-                            '',
-                        ],
-                        [
-                            'Не по работе (личное, ошибочный набор)',
-                            '',
-                            'да / нет',
-                            '',
-                        ],
+                        ]),
                         ['Свой тип:', '', '', ''],
                     ],
                 },
@@ -167,7 +138,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '4. Определения',
+            title: CALIBRATION_BRIEF_SECTIONS.definitions,
             blocks: [
                 {
                     type: 'note',
@@ -197,7 +168,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '5. Критерии оценки',
+            title: CALIBRATION_BRIEF_SECTIONS.criteria,
             pageBreakBefore: true,
             blocks: [
                 {
@@ -238,7 +209,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '6. Чек-листы',
+            title: CALIBRATION_BRIEF_SECTIONS.checklists,
             blocks: [
                 {
                     type: 'table',
@@ -281,7 +252,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '7. Материалы',
+            title: CALIBRATION_BRIEF_SECTIONS.materials,
             pageBreakBefore: true,
             blocks: [
                 {
@@ -332,7 +303,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '8. Эталонные звонки',
+            title: CALIBRATION_BRIEF_SECTIONS.referenceCalls,
             blocks: [
                 {
                     type: 'note',
@@ -360,7 +331,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '9. Что не оцениваем',
+            title: CALIBRATION_BRIEF_SECTIONS.exclusions,
             blocks: [
                 {
                     type: 'paragraph',
@@ -377,7 +348,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '10. Календарь работ',
+            title: CALIBRATION_BRIEF_SECTIONS.schedule,
             pageBreakBefore: true,
             blocks: [
                 {
@@ -414,7 +385,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '11. Согласия',
+            title: CALIBRATION_BRIEF_SECTIONS.consents,
             blocks: [
                 {
                     type: 'list',
@@ -431,7 +402,7 @@ export const CALIBRATION_BRIEF: HowDocumentContent = {
             ],
         },
         {
-            title: '12. Свободные примечания',
+            title: CALIBRATION_BRIEF_SECTIONS.notes,
             blocks: [
                 {
                     type: 'note',

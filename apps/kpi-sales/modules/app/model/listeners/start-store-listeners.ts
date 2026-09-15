@@ -11,6 +11,9 @@ import { startReportTypeAppListener } from '@/modules/feature/report-widget-type
 import { startReportLinksListener } from '@/modules/feature/report-links/model/listeners/report-links.listener';
 import { startSharePresenceListener } from '@/modules/feature/report-links/model/listeners/share-presence.listener';
 import { startReportAwardsListener } from '@/modules/feature/report-awards/model/listeners/awards.listener';
+import { startAiFlagsListener } from '@/modules/feature/ai-flags/model/listeners/ai-flags.listener';
+import { startAiRefetchListener } from '@/modules/entities/ai-analytics/model/listeners/ai-refetch.listener';
+import { startAiWsListener } from '@/modules/entities/ai-analytics/model/listeners/ai-ws.listener';
 import type { AppDispatch, RootState, ThunkExtraArgument } from '../store';
 
 type AppListenerMiddleware = ListenerMiddlewareInstance<
@@ -36,6 +39,11 @@ export function startStoreListeners(listenerMiddleware: AppListenerMiddleware) {
     startFinanceWsListener(listenerMiddleware);
     startFinanceRefetchListener(listenerMiddleware);
     startAirtimeWsListener(listenerMiddleware);
+    // AI-аналитика: портальный флаг (settings/get), освежение секций и
+    // WS-события очереди обзора (done → повторный POST по requestKey).
+    startAiFlagsListener(listenerMiddleware);
+    startAiRefetchListener(listenerMiddleware);
+    startAiWsListener(listenerMiddleware);
     // Синк UI-настроек регистрируется последним: его гидратация должна
     // перекрывать доменные дефолты (например, тип отчёта).
     startUiSettingsSyncListeners(listenerMiddleware);

@@ -1,10 +1,10 @@
-import type { AppThunk } from '@/modules/app/model/store';
+import type { AppThunk, RootState } from '@/modules/app/model/store';
 import { rowSetActions, findMainRow } from '../../row-set';
 import { parseV1, hasDealData } from '../lib/v1/parse-v1';
 import { mapV1 } from '../lib/v1/map-v1';
 import { restoreV2, serializeV2 } from '../lib/v2/serialize';
 import { isSnapshotV2 } from './types';
-import type { RestoredState } from './types';
+import type { RestoredState, SnapshotV2 } from './types';
 import type { V1Record } from '../lib/v1/types';
 import { SnapshotHelper, hasSnapshotApi } from '../lib/api/snapshot-helper';
 import { snapshotActions } from './SnapshotSlice';
@@ -66,42 +66,7 @@ export const restoreSnapshot =
                 return;
             }
 
-            const catalog = getState().catalog.catalog;
-            let restored: RestoredState;
-            const v2 = tryParseV2(record);
-            if (v2) {
-                restored = restoreV2(v2);
-            } else {
-                const parsed = parseV1(record);
-                if (!hasDealData(parsed)) {
-                    dispatch(snapshotActions.none());
-                    return;
-                }
-                // mapV1 сам добавляет parseErrors в warnings
-                restored = mapV1(parsed, catalog);
-            }
-
-            if (restored.regionCode) {
-                dispatch(
-                    rowSetActions.setContext({
-                        regionCode: restored.regionCode,
-                    }),
-                );
-            }
-            dispatch(
-                rowSetActions.restore({
-                    general: restored.general,
-                    alternative: restored.alternative,
-                }),
-            );
-            const main = findMainRow(restored.general);
-            dispatch(rowSetActions.selectRow(main?.key ?? null));
-            dispatch(
-                snapshotActions.restored({
-                    warnings: restored.warnings,
-                    templateId: restored.templateId,
-                }),
-            );
+            await dispatch(restoreSnapshotRecord(record));
         } catch (error) {
             dispatch(
                 snapshotActions.failed(
@@ -114,6 +79,83 @@ export const restoreSnapshot =
     };
 
 /**
+ * Раскладка уже полученной записи слепка по стейту: v2 — как есть, v1 — через
+ * адаптер. Вынесено из restoreSnapshot, потому что запись приходит не только
+ * по сделке: вариант комплекта открывается тем же путём, но из своей строки.
+ * Ошибки пробрасываются вызывающему — у него свой статус.
+ */
+export const restoreSnapshotRecord =
+    (record: V1Record): AppThunk<Promise<void>> =>
+    async (dispatch, getState) => {
+        const catalog = getState().catalog.catalog;
+        let restored: RestoredState;
+        const v2 = tryParseV2(record);
+        if (v2) {
+            restored = restoreV2(v2);
+        } else {
+            const parsed = parseV1(record);
+            if (!hasDealData(parsed)) {
+                dispatch(snapshotActions.none());
+                return;
+            }
+            // mapV1 сам добавляет parseErrors в warnings
+            restored = mapV1(parsed, catalog);
+        }
+
+        if (restored.regionCode) {
+            dispatch(
+                rowSetActions.setContext({
+                    regionCode: restored.regionCode,
+                }),
+            );
+        }
+        dispatch(
+            rowSetActions.restore({
+                general: restored.general,
+                alternative: restored.alternative,
+            }),
+        );
+        const main = findMainRow(restored.general);
+        dispatch(rowSetActions.selectRow(main?.key ?? null));
+        dispatch(
+            snapshotActions.restored({
+                warnings: restored.warnings,
+                templateId: restored.templateId,
+            }),
+        );
+    };
+
+/**
+ * Слепок v2 текущего состояния — общий сборщик для сделки и для варианта:
+ * оба пишут одно и то же, разница только в адресе (variantSmartId).
+ */
+export const buildCurrentSnapshotV2 = (
+    state: RootState,
+): SnapshotV2 | null => {
+    const { dealId, domain } = state.app;
+    const user = state.app.bitrix.user;
+    const { general, alternative, context } = state.rowSet;
+    if (!dealId || !domain || !general.rows.length) {
+        return null;
+    }
+    const main = findMainRow(general);
+    return serializeV2({
+        state: {
+            regionCode: context.regionCode,
+            contractCode: main?.refs.contractCode ?? null,
+            supplyCode: main?.refs.supplyCode ?? null,
+            general,
+            alternative,
+            templateId: state.snapshot.templateId,
+        },
+        dealId,
+        domain,
+        userId: user ? Number(user.ID) || null : null,
+        savedAt: new Date().toISOString(),
+    });
+};
+
+/**
  * Сохранение текущего состояния как слепка v2 (POST upsert по domain+dealId).
  * Возвращает успех — UI показывает «Сохранено» ПО ФАКТУ ответа (front-refactor).
  * v1-запись перезаписывается v2-форматом; чтение поддерживает оба.
@@ -122,35 +164,19 @@ export const saveSnapshot =
     (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
         const state = getState();
         const { dealId, domain } = state.app;
-        const user = state.app.bitrix.user;
-        const { general, alternative, context } = state.rowSet;
 
         if (!dealId || !domain) {
             dispatch(snapshotActions.saveFailed('Сделка не определена'));
             return false;
         }
-        if (!general.rows.length) {
+        const snapshot = buildCurrentSnapshotV2(state);
+        if (!snapshot) {
             dispatch(snapshotActions.saveFailed('Нечего сохранять'));
             return false;
         }
 
         dispatch(snapshotActions.saveStarted());
         try {
-            const main = findMainRow(general);
-            const snapshot = serializeV2({
-                state: {
-                    regionCode: context.regionCode,
-                    contractCode: main?.refs.contractCode ?? null,
-                    supplyCode: main?.refs.supplyCode ?? null,
-                    general,
-                    alternative,
-                    templateId: state.snapshot.templateId,
-                },
-                dealId,
-                domain,
-                userId: user ? Number(user.ID) || null : null,
-                savedAt: new Date().toISOString(),
-            });
             await snapshotHelper.saveSnapshot(snapshot);
             dispatch(snapshotActions.saveDone());
             return true;

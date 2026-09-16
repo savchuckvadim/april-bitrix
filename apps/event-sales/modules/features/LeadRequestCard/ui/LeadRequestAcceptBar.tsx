@@ -4,6 +4,7 @@ import { FC, useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { acceptLeadRequest } from '../model/LeadRequestThunk';
+import { LeadRequestForeignBar } from './LeadRequestForeignBar';
 import { LeadTransferDialog } from './LeadTransferDialog';
 import { useLeadRequestAcceptState } from '../lib/hooks/use-lead-request-accept-state';
 import { LEAD_REQUEST_TEXT } from '../consts/lead-request.const';
@@ -12,8 +13,7 @@ import { LEAD_REQUEST_TEXT } from '../consts/lead-request.const';
  * Блок обязательного подтверждения: заявка назначена, но не принята —
  * работать нельзя, пока менеджер не нажмёт «Принять в работу» либо
  * «Передать другому» (следующему в его отделе; тот принимает так же).
- * Заявка назначена другому (передана повторно / после непринятия) —
- * информационный блок без кнопок: принимает новый ответственный.
+ * Заявка назначена другому — {@link LeadRequestForeignBar}.
  */
 export const LeadRequestAcceptBar: FC = () => {
     const dispatch = useAppDispatch();
@@ -23,18 +23,7 @@ export const LeadRequestAcceptBar: FC = () => {
 
     if (view === 'hidden') return null;
 
-    if (view === 'foreign') {
-        return (
-            <div className="space-y-1 rounded-md border border-muted-foreground/40 bg-muted/40 p-3">
-                <p className="text-sm font-medium">
-                    {LEAD_REQUEST_TEXT.foreignTitle}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                    {LEAD_REQUEST_TEXT.foreignHint}
-                </p>
-            </div>
-        );
-    }
+    if (view === 'foreign') return <LeadRequestForeignBar />;
 
     return (
         <div className="space-y-2 rounded-md border border-amber-500/60 bg-amber-500/10 p-3">

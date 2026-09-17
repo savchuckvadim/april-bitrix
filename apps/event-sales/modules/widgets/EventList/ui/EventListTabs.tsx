@@ -52,6 +52,13 @@ const ContactsHubCard = dynamic(
         ),
     { ssr: false },
 );
+const InnDealPanel = dynamic(
+    () =>
+        import('@/modules/features/InnDeal/ui/InnDealPanel').then(
+            module => module.InnDealPanel,
+        ),
+    { ssr: false },
+);
 
 /**
  * Маленький экран списка дел — вкладками (todo2508 №6): *дела (default),
@@ -80,6 +87,12 @@ export const EventListTabs: FC = () => {
                 <TabsTrigger value="contacts" className="px-2 text-xs">
                     контакты
                 </TabsTrigger>
+                {/* ИНН отдельной вкладкой: выбор плательщика по договору —
+                    решение, которое принимают один раз на сделку, и место
+                    ему рядом с карточкой, а не в шапке. */}
+                <TabsTrigger value="inn" className="px-2 text-xs">
+                    ИНН
+                </TabsTrigger>
             </TabsList>
 
             <TabsContent value="tasks" className="min-h-0 flex-1">
@@ -101,6 +114,12 @@ export const EventListTabs: FC = () => {
                 className="min-h-0 flex-1 space-y-2 p-2"
             >
                 <ContactsHubCard />
+            </TabsContent>
+            <TabsContent
+                value="inn"
+                className="min-h-0 flex-1 space-y-2 overflow-y-auto p-2"
+            >
+                <InnDealPanel />
             </TabsContent>
         </Tabs>
     );

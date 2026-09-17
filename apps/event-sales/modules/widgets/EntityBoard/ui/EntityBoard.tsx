@@ -58,6 +58,14 @@ const LeadRequestPanel = dynamic(
     () => import('@/modules/features/LeadRequestCard/ui/LeadRequestPanel'),
     { ssr: false, loading: () => <SectionSkeleton title="Заявка" /> },
 );
+// ИНН договора: карточка молчит, если сделки в контексте нет.
+const InnDealPanel = dynamic(
+    () =>
+        import('@/modules/features/InnDeal/ui/InnDealPanel').then(
+            module => module.InnDealPanel,
+        ),
+    { ssr: false },
+);
 
 /**
  * Полноэкранная карточка клиента для встройки таймлайна.
@@ -150,6 +158,7 @@ export const EntityBoard: FC = () => {
                     <LeadRequestPanel leadId={getPanelLeadId(details?.leads)} />
                     <EntityHistoryCard />
                     <DuplicatesPanel />
+                    <InnDealPanel />
                     <ContactsHubCard />
                 </div>
             </div>

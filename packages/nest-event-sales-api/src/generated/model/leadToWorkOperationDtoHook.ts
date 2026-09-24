@@ -21,4 +21,6 @@ export const LeadToWorkOperationDtoHook = {
     'convert-normalizer': 'convert-normalizer',
     'duplicate-check': 'duplicate-check',
     'lead-accept': 'lead-accept',
+    'lead-client': 'lead-client',
+    'join-to-main': 'join-to-main',
 } as const;

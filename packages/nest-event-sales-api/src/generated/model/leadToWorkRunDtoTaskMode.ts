@@ -15,6 +15,7 @@ export type LeadToWorkRunDtoTaskMode =
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const LeadToWorkRunDtoTaskMode = {
     move: 'move',
+    move_keep: 'move_keep',
     close: 'close',
     none: 'none',
 } as const;

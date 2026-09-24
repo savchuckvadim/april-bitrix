@@ -18,4 +18,8 @@ export interface LeadRequestAcceptResultDto {
     firstprepareSeconds?: number | null;
     /** Предупреждения graceful degradation. */
     warnings: string[];
+    /** Сколько открытых задач лида и сделок перешло принявшему (перехват работы: кто принял, тот и ведёт все задачи). */
+    tasksMoved?: number;
+    /** Сколько открытых дел CRM (звонки, встречи, напоминания) лида и сделок перешло принявшему. */
+    activitiesMoved?: number;
 }

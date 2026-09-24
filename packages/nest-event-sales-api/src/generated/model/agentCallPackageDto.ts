@@ -8,6 +8,7 @@
 import type { AgentPendingCallDto } from './agentPendingCallDto';
 import type { AgentAiResultDto } from './agentAiResultDto';
 import type { AgentCallPackageDtoDeal } from './agentCallPackageDtoDeal';
+import type { AgentCallPackageDtoLead } from './agentCallPackageDtoLead';
 import type { AgentCallPackageDtoCompany } from './agentCallPackageDtoCompany';
 import type { AgentCallPackageDtoContact } from './agentCallPackageDtoContact';
 import type { AgentCallPackageDtoHistoryCandidatesItem } from './agentCallPackageDtoHistoryCandidatesItem';
@@ -26,10 +27,15 @@ export interface AgentCallPackageDto {
     /** Результаты первичных AI-анализов по звонку (GigaChat resume/recomendation и др.). */
     aiResults: AgentAiResultDto[];
     /**
-     * Сделка из Bitrix (сырые поля crm.deal). null — если не удалось получить.
+     * Сделка-ВЛАДЕЛЕЦ звонка (сырые поля crm.deal). null — звонок по лиду либо сделку не удалось получить.
      * @nullable
      */
     deal?: AgentCallPackageDtoDeal;
+    /**
+     * Лид-ВЛАДЕЛЕЦ звонка (сырые поля crm.lead). null — звонок по сделке либо лид не удалось получить. Читается строго по типу сущности звонка: для лида сделка с тем же номером НЕ читается.
+     * @nullable
+     */
+    lead?: AgentCallPackageDtoLead;
     /**
      * Компания сделки из Bitrix (сырые поля crm.company). null — если нет/не удалось.
      * @nullable
@@ -44,7 +50,7 @@ export interface AgentCallPackageDto {
     historyCandidates: AgentCallPackageDtoHistoryCandidatesItem[];
     /** Кандидаты записей из списка ОП KPI в том же окне дат — для привязки kpiItem. */
     kpiCandidates: AgentCallPackageDtoKpiCandidatesItem[];
-    /** Активные сделки компании по воронкам ОП: salesBase (основная), salesPresentation (презентации), salesXo (ХО) — кандидаты для relatedDeals. */
+    /** Сделки КЛИЕНТА звонка (компания и контакт) по воронкам ОП: salesBase (основная), salesPresentation (презентации), salesXo (ХО) — кандидаты для relatedDeals. ЗАКРЫТЫЕ сделки тоже здесь: целевая сделка часто стоит в «Не состоялась» (открытые идут первыми). */
     dealCandidates: AgentCallPackageDtoDealCandidates;
     /** Словарь pbx-полей компании портала (code → UF-имя + enum-элементы) — для расшифровки сырых UF_CRM_* значений компании (статусы op_*). */
     companyFields: AgentCallPackageDtoCompanyFieldsItem[];

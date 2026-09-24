@@ -7,7 +7,7 @@
  */
 
 /**
- * Сделка из Bitrix (сырые поля crm.deal). null — если не удалось получить.
+ * Сделка-ВЛАДЕЛЕЦ звонка (сырые поля crm.deal). null — звонок по лиду либо сделку не удалось получить.
  * @nullable
  */
 export type AgentCallPackageDtoDeal = { [key: string]: unknown } | null;

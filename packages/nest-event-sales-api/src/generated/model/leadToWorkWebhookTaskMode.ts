@@ -12,6 +12,7 @@ export type LeadToWorkWebhookTaskMode =
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const LeadToWorkWebhookTaskMode = {
     move: 'move',
+    move_keep: 'move_keep',
     close: 'close',
     none: 'none',
 } as const;

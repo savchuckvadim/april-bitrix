@@ -1,8 +1,10 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { getDuplicateContext } from '@/modules/app/lib/utills/app-state-util';
+import { selectMyDepartmentRole } from '@/modules/features/Departament/model/selectors';
 import { DuplicatesHelper } from '../lib/api/duplicates-helper';
 import { resolveDuplicateTarget } from '../lib/duplicate-context';
 import { toErrorText } from '../lib/error-text.util';
+import { resolveJoinTarget } from '../lib/join-to-main.util';
 import { duplicatesActions } from './DuplicatesSlice';
 import {
     DUPLICATE_SEARCH_LEVEL,
@@ -11,6 +13,8 @@ import {
     type DuplicateEntityType,
     type DuplicateRawSignals,
     type DuplicateSearchLevel,
+    type JoinToMainResult,
+    type SalesHookOperation,
 } from './index';
 
 const helper = new DuplicatesHelper();
@@ -108,6 +112,85 @@ export const deepSearchDuplicates = () => async (dispatch: AppDispatch) => {
         }),
     );
 };
+
+/**
+ * «Присоединить сюда»: текущая сделка-дубль → в работу кандидата.
+ *
+ * Хук join-to-main ничего не удаляет: контакты уходят в компанию и
+ * основную, лид и задачи — ответственному основной, текущая сделка
+ * закрывается стадией «Дубль». Право и цель считает `resolveJoinTarget`,
+ * подтверждение — в UI (двухшаговая кнопка), здесь только вызов и ожидание
+ * операции. Пропуск на бэке (чужая воронка, основная закрыта) — это ошибка
+ * для пользователя: причина в warnings.
+ */
+export const joinToMain =
+    (candidate: DuplicateCandidate) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
+        const state = getState();
+        const domain = state.app.domain;
+        if (!domain) return;
+
+        const target = resolveJoinTarget(
+            candidate,
+            getDuplicateContext(state),
+            selectMyDepartmentRole(state).role,
+        );
+        if (
+            !target.allowed ||
+            !target.targetType ||
+            !target.targetId ||
+            !target.dealId
+        ) {
+            dispatch(
+                duplicatesActions.joinFailed({
+                    message: target.reason ?? 'Присоединение недоступно',
+                }),
+            );
+            return;
+        }
+
+        dispatch(duplicatesActions.joinStarted());
+        try {
+            const initiator = Number(state.app.bitrix.user?.ID ?? 0);
+            const operation = await helper.joinToMain({
+                domain,
+                dealId: target.dealId,
+                targetType: target.targetType,
+                targetId: target.targetId,
+                closeAsDuplicate: true,
+                ...(initiator > 0 ? { initiatorUserId: initiator } : {}),
+            });
+            const result = (operation.result as JoinToMainResult | null)
+                ?.items?.[0];
+            if (operation.status === 'failed' || !result) {
+                throw new Error(
+                    operationError(operation) ??
+                        'Операция завершилась без результата',
+                );
+            }
+            if (result.skipped) {
+                dispatch(
+                    duplicatesActions.joinFailed({
+                        message:
+                            result.warnings.join('; ') ||
+                            'Присоединение пропущено',
+                    }),
+                );
+                return;
+            }
+            dispatch(duplicatesActions.joinSucceeded({ result }));
+        } catch (error) {
+            dispatch(
+                duplicatesActions.joinFailed({ message: toErrorText(error) }),
+            );
+        }
+    };
+
+/** Текст ошибки операции, если бэк его прислал (поле необязательное). */
+const operationError = (operation: SalesHookOperation): string | null =>
+    typeof operation.error === 'string' && operation.error.trim()
+        ? operation.error
+        : null;
 
 /** Детали кандидата: ответственный, его связанные сделки и лиды. */
 export const fetchDuplicateDetails =

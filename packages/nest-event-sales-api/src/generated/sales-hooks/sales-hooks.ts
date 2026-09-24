@@ -13,6 +13,12 @@ import type {
     DuplicateCheckOperationDto,
     DuplicateCheckRunDto,
     DuplicateCheckWebhookParams,
+    JoinToMainOperationDto,
+    JoinToMainRunDto,
+    JoinToMainWebhookParams,
+    LeadClientOperationDto,
+    LeadClientRunDto,
+    LeadClientWebhookParams,
     LeadToWorkOperationDto,
     LeadToWorkRunDto,
     LeadToWorkWebhookParams,
@@ -197,6 +203,62 @@ export const getSalesHooks = () => {
             data: duplicateCheckRunDto,
         });
     };
+    /**
+     * Для каждого лида сделки: у лида без клиента создаётся контакт (или компания — по параметру kind либо настройкам портала), привязывается к лиду (телефоны и почта уезжают в клиента) и к сделке; дела лида привязываются к сделке и клиенту — звонки видны в сделке. Заодно переносятся данные заявки. Лид остаётся открытым. Повторный запуск ничего не дублирует.
+     * @summary Вебхук робота: клиент из лида для сделки
+     */
+    const leadClientWebhook = (
+        bxWebHookDto: BxWebHookDto,
+        params: LeadClientWebhookParams,
+    ) => {
+        return customAxios<SalesHookAcceptedDto>({
+            url: `/api/sales-hooks/lead-client/webhook`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: bxWebHookDto,
+            params,
+        });
+    };
+    /**
+     * Для каждого лида сделки: у лида без клиента создаётся контакт (или компания — по параметру kind либо настройкам портала), привязывается к лиду (телефоны и почта уезжают в клиента) и к сделке; дела лида привязываются к сделке и клиенту — звонки видны в сделке. Заодно переносятся данные заявки. Лид остаётся открытым. Повторный запуск ничего не дублирует. Статус — GET /sales-hooks/operations/{operationId} или WS.
+     * @summary Ручной запуск: клиент из лида для сделки
+     */
+    const leadClientRun = (leadClientRunDto: LeadClientRunDto) => {
+        return customAxios<LeadClientOperationDto>({
+            url: `/api/sales-hooks/lead-client/run`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: leadClientRunDto,
+        });
+    };
+    /**
+     * Принимает событие в silence-буфер (окно тишины схлопывает burst по одной сделке). Параметры — в query: dealId и одна цель, mainDealId либо companyId. Контакты дубля уходят в компанию и основную сделку, лиды и задачи — ответственному основной, дубль закрывается стадией «Дубль» (closeAsDuplicate=N — остаётся открытым). Ничего не удаляется.
+     * @summary Вебхук робота: присоединить сделку-дубль к основной
+     */
+    const joinToMainWebhook = (
+        bxWebHookDto: BxWebHookDto,
+        params: JoinToMainWebhookParams,
+    ) => {
+        return customAxios<SalesHookAcceptedDto>({
+            url: `/api/sales-hooks/join-to-main/webhook`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: bxWebHookDto,
+            params,
+        });
+    };
+    /**
+     * Ставит операцию в очередь без silence-задержки. Статус — GET /sales-hooks/operations/{operationId} или WS-события sales-hook:done / sales-hook:error. Во фронте кнопка доступна только руководителю.
+     * @summary Кнопка фрейма: присоединить сделку-дубль к основной
+     */
+    const joinToMainRun = (joinToMainRunDto: JoinToMainRunDto) => {
+        return customAxios<JoinToMainOperationDto>({
+            url: `/api/sales-hooks/join-to-main/run`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: joinToMainRunDto,
+        });
+    };
     return {
         salesHookOperationsGetOperation,
         leadToWorkWebhook,
@@ -210,6 +272,10 @@ export const getSalesHooks = () => {
         convertNormalizerRun,
         duplicateCheckWebhook,
         duplicateCheckRun,
+        leadClientWebhook,
+        leadClientRun,
+        joinToMainWebhook,
+        joinToMainRun,
     };
 };
 export type SalesHookOperationsGetOperationResult = NonNullable<
@@ -257,4 +323,16 @@ export type DuplicateCheckWebhookResult = NonNullable<
 >;
 export type DuplicateCheckRunResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getSalesHooks>['duplicateCheckRun']>>
+>;
+export type LeadClientWebhookResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getSalesHooks>['leadClientWebhook']>>
+>;
+export type LeadClientRunResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getSalesHooks>['leadClientRun']>>
+>;
+export type JoinToMainWebhookResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getSalesHooks>['joinToMainWebhook']>>
+>;
+export type JoinToMainRunResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getSalesHooks>['joinToMainRun']>>
 >;

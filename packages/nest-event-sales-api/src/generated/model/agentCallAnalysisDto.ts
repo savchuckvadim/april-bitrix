@@ -21,12 +21,23 @@ import type { AgentSectionAnalysisDto } from './agentSectionAnalysisDto';
 import type { AgentCallAnalysisDtoCoachingPriority } from './agentCallAnalysisDtoCoachingPriority';
 import type { AgentRelatedDealsDto } from './agentRelatedDealsDto';
 import type { AgentListItemLinkDto } from './agentListItemLinkDto';
+import type { AgentAnalysisVersionsDto } from './agentAnalysisVersionsDto';
 import type { AgentFlowDraftDto } from './agentFlowDraftDto';
 import type { AgentCallAnalysisDtoExtra } from './agentCallAnalysisDtoExtra';
 
 export interface AgentCallAnalysisDto {
     /** Код типа звонка, определённый агентом: встроенные коды (cold/call/presentation/decision/payment/other) либо код из реестра типов (пакет звонка несёт typeProfiles со всеми доступными кодами). Неизвестный смарту код не попадёт в enum-поле CALL_TYPE элемента (graceful), но сохранится в БД. */
     callType: string;
+    /**
+     * Тип звонка, уточнённый синтезом разбора по всему разговору (классификатор видел выжимку). Применяется кодом, если классификатор был неуверен или поставил «другое».
+     * @nullable
+     */
+    callTypeRefined?: string | null;
+    /**
+     * По каким признакам разговора синтез определил тип.
+     * @nullable
+     */
+    callTypeReason?: string | null;
     /** Итоговый статус звонка: результативный или нет (был контакт и продвижение). */
     productive?: boolean;
     /** С кем в итоге говорили: ЛПР / пользователь / секретарь / другое. Для холодных звонков «вышел на ЛПР» — мера успеха. */
@@ -52,6 +63,11 @@ export interface AgentCallAnalysisDto {
     riskFlags?: AgentCallAnalysisDtoRiskFlagsItem[];
     /** Категория отказа при провале: рыночная (цена/конкурент/нет решения) или исполнительская (квалификация/исполнение). */
     refusalCategory?: AgentCallAnalysisDtoRefusalCategory;
+    /**
+     * ПРИЧИНА ОТКАЗА СЛОВАМИ КЛИЕНТА — то, что реально прозвучало в разговоре (не код справочника): «работают с Консультантом, договор до декабря». Нужна для сверки с полем причины отказа в карточке: менеджер закрывает сделку отказом и часто не заполняет поле, а разбор причину слышал. null — отказа в разговоре не было или причина не прозвучала.
+     * @nullable
+     */
+    refusalReason?: string | null;
     /**
      * Доля речи менеджера в %, по словам транскрипта (норма 40-60, >65 — флаг).
      * @minimum 0
@@ -150,6 +166,8 @@ export interface AgentCallAnalysisDto {
     relatedReportIds?: string[];
     /** Версия скилла агента, которым сделан анализ (для отслеживания самообучения скилла). */
     agentVersion?: string;
+    /** Версии разбора (промпт, рубрика, реестр типов, атрибуция, классификатор) — сравнимость истории оценок между разборами. */
+    versions?: AgentAnalysisVersionsDto;
     /** Черновик события в кодах event-sales flow (report + plan) — «как агент заполнил бы отчёт менеджера». Сохраняется в ais.report_result для будущей автоотправки в /event-sales/flow; сейчас в endpoint НЕ отправляется. */
     flow?: AgentFlowDraftDto;
     /** Произвольные дополнительные данные анализа (сохраняются в ais.user_result как есть). */

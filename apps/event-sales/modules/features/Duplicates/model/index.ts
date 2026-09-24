@@ -3,6 +3,10 @@ import type {
     DuplicateMatchReasonDto,
     DuplicateRawSignalsDto,
     DuplicateSignalsDto,
+    JoinToMainItemResultDto,
+    JoinToMainResultDto,
+    JoinToMainRunDto,
+    SalesHookOperationDto,
     SearchDuplicatesRequestDto,
     SearchDuplicatesResponseDto,
 } from '@workspace/nest-event-sales-api';
@@ -22,6 +26,12 @@ export type DuplicateSignals = DuplicateSignalsDto;
 export type DuplicateRawSignals = DuplicateRawSignalsDto;
 export type DuplicateSearchRequest = SearchDuplicatesRequestDto;
 export type DuplicateSearchResponse = SearchDuplicatesResponseDto;
+
+// «Присоединить сюда»: сделка-дубль → в работу клиента (хук join-to-main).
+export type JoinToMainRequest = JoinToMainRunDto;
+export type JoinToMainResult = JoinToMainResultDto;
+export type JoinToMainItemResult = JoinToMainItemResultDto;
+export type SalesHookOperation = SalesHookOperationDto;
 
 // Связи клиента — общая сущность: тем же ответом живёт полноэкранная карточка.
 // Здесь только доменные имена фичи поверх неё, своих типов фича не заводит.

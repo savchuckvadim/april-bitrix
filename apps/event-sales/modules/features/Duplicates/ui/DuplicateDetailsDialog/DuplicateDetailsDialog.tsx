@@ -18,6 +18,7 @@ import {
 import { DetailsDealList } from './components/DetailsDealList';
 import { DetailsLeadList } from './components/DetailsLeadList';
 import { DetailsResponsible } from './components/DetailsResponsible';
+import { JoinToMainAction } from './components/JoinToMainAction';
 
 /**
  * Подробности по кандидату: с кем клиент уже работает и что по нему
@@ -108,6 +109,10 @@ export const DuplicateDetailsDialog: FC = () => {
                         <DetailsLeadList leads={view.details.leads} />
                     </div>
                 )}
+
+                {/* Руководителю из сделки: забрать работу кандидата в одно
+                    действие вместо ручного слияния в списке сделок. */}
+                <JoinToMainAction view={view} />
 
                 <footer className="flex items-center justify-between gap-2 pt-1">
                     <Button variant="outline" size="sm" onClick={view.close}>

@@ -7,6 +7,6 @@
  */
 
 /**
- * Активные сделки компании по воронкам ОП: salesBase (основная), salesPresentation (презентации), salesXo (ХО) — кандидаты для relatedDeals.
+ * Сделки КЛИЕНТА звонка (компания и контакт) по воронкам ОП: salesBase (основная), salesPresentation (презентации), salesXo (ХО) — кандидаты для relatedDeals. ЗАКРЫТЫЕ сделки тоже здесь: целевая сделка часто стоит в «Не состоялась» (открытые идут первыми).
  */
 export type AgentCallPackageDtoDealCandidates = { [key: string]: unknown };

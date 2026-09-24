@@ -11,6 +11,8 @@ import type {
     CallReportScanResponseDto,
     CallReportWeeklyRequestDto,
     CallReportWeeklyResponseDto,
+    CallTypeStatsRequestDto,
+    CallTypeStatsResponseDto,
     InstallCallReportSmartDto,
     InstallCallReportSmartResponseDto,
     PresentationAuditRequestDto,
@@ -117,6 +119,20 @@ export const getCallReport = () => {
             data: callReportWeeklyRequestDto,
         });
     };
+    /**
+     * По ais-записям портала за период: распределение типов «как сказал классификатор» и итоговое (после приора CRM и уточнения синтезом разбора), доля «другое», средняя и низкая уверенность, сколько раз сработали приор и синтез, примеры «другое» с обоснованием. Ничего не меняет — только читает БД.
+     * @summary Статистика типов звонков (калибровка классификатора)
+     */
+    const callReportTypeStatsRun = (
+        callTypeStatsRequestDto: CallTypeStatsRequestDto,
+    ) => {
+        return customAxios<CallTypeStatsResponseDto>({
+            url: `/api/call-report/type-stats`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: callTypeStatsRequestDto,
+        });
+    };
     return {
         callReportInstallSmart,
         callReportScan,
@@ -125,6 +141,7 @@ export const getCallReport = () => {
         callReportPresentationAuditRun,
         callReportPresentationPlanFactRun,
         callReportWeeklyReport,
+        callReportTypeStatsRun,
     };
 };
 export type CallReportInstallSmartResult = NonNullable<
@@ -160,5 +177,10 @@ export type CallReportPresentationPlanFactRunResult = NonNullable<
 export type CallReportWeeklyReportResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getCallReport>['callReportWeeklyReport']>
+    >
+>;
+export type CallReportTypeStatsRunResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getCallReport>['callReportTypeStatsRun']>
     >
 >;

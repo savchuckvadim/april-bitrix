@@ -5,6 +5,7 @@ import type {
     DuplicateSearchResponse,
     DuplicateSignals,
     DuplicatesStatus,
+    JoinToMainItemResult,
 } from './index';
 
 const initialState = {
@@ -32,7 +33,14 @@ const initialState = {
     detailsError: null as string | null,
     details: null as DuplicateDetails | null,
 
-    /** Открыта ли форма ручного поиска. */
+    /**
+     * «Присоединить сюда» (руководитель): двухшаговое подтверждение —
+     * кнопка взводит `joinArmed`, второй клик запускает операцию.
+     */
+    joinArmed: false,
+    joinStatus: 'idle' as DuplicatesStatus,
+    joinError: null as string | null,
+    joinResult: null as JoinToMainItemResult | null,
 };
 
 export type DuplicatesState = typeof initialState;
@@ -99,6 +107,38 @@ const duplicatesSlice = createSlice({
             state.detailsStatus = 'idle';
             state.detailsError = null;
             state.details = null;
+            state.joinArmed = false;
+            state.joinStatus = 'idle';
+            state.joinError = null;
+            state.joinResult = null;
+        },
+        joinArmed: (
+            state: DuplicatesState,
+            action: PayloadAction<{ armed: boolean }>,
+        ) => {
+            state.joinArmed = action.payload.armed;
+            state.joinError = null;
+        },
+        joinStarted: (state: DuplicatesState) => {
+            state.joinStatus = 'loading';
+            state.joinError = null;
+            state.joinResult = null;
+        },
+        joinSucceeded: (
+            state: DuplicatesState,
+            action: PayloadAction<{ result: JoinToMainItemResult }>,
+        ) => {
+            state.joinStatus = 'ready';
+            state.joinArmed = false;
+            state.joinResult = action.payload.result;
+        },
+        joinFailed: (
+            state: DuplicatesState,
+            action: PayloadAction<{ message: string }>,
+        ) => {
+            state.joinStatus = 'error';
+            state.joinArmed = false;
+            state.joinError = action.payload.message;
         },
         /**
          * Полный сброс: reloadApp запускает автопоиск заново (листенер на

@@ -34,6 +34,8 @@ export interface LeadToWorkItemResultDto {
     tasksMoved: number;
     /** Сколько открытых задач закрыто (close/ХО-режим). */
     tasksClosed: number;
+    /** Сколько открытых дел CRM лида и сделки (напоминания роботов, звонки, встречи) передано новому ответственному. */
+    activitiesMoved: number;
     /** Создана ли новая задача «Звонок»/«Холодный обзвон». */
     taskCreated: boolean;
     /**

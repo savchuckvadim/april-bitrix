@@ -14,12 +14,12 @@
  */
 
 :root {
-    --success: oklch(0.627 0.17 149.2);
-    --success-foreground: oklch(0.985 0 0);
-    --warning: oklch(0.769 0.16 70.7);
-    --warning-foreground: oklch(0.216 0.006 56.04);
-    --info: oklch(0.62 0.14 235);
-    --info-foreground: oklch(0.985 0 0);
+    --success: oklch(62.7% 0.17 149.2);
+    --success-foreground: oklch(98.5% 0 0);
+    --warning: oklch(76.9% 0.16 70.7);
+    --warning-foreground: oklch(21.6% 0.006 56.04);
+    --info: oklch(62% 0.14 235);
+    --info-foreground: oklch(98.5% 0 0);
 
     /*
      * Доля --card в подложке GlassCard (см. april-ui/Glass/GlassCard.css).
@@ -68,51 +68,51 @@
      * жёлтый → оранжево-красный → фиолетовый. Foreground у каждого подобран
      * под светлоту: на светлых (голубой, жёлтый) тёмный текст, на остальных белый.
      */
-    --event-cold: oklch(0.72 0.13 232);               /* холодный (xo) — голубой */
-    --event-cold-foreground: oklch(0.216 0.006 56.04);
-    --event-warm: oklch(0.627 0.17 149.2);            /* звонок (warm) — зелёный */
-    --event-warm-foreground: oklch(0.985 0 0);
+    --event-cold: oklch(72% 0.13 232);               /* холодный (xo) — голубой */
+    --event-cold-foreground: oklch(21.6% 0.006 56.04);
+    --event-warm: oklch(62.7% 0.17 149.2);            /* звонок (warm) — зелёный */
+    --event-warm-foreground: oklch(98.5% 0 0);
     /*
      * Презентация — кислотный лайм-жёлтый + охристый текст (пара
      * «маркер-выделитель»): фон заметный, текст читается и на заливке,
      * и сам по себе в soft-подаче.
      */
-    --event-pres: oklch(0.89 0.18 104);               /* презентация — кислотный лайм */
-    --event-pres-foreground: oklch(0.45 0.09 84);     /* охра */
-    --event-hot: oklch(0.65 0.2 38);                  /* решение (hot) — оранжево-красный */
-    --event-hot-foreground: oklch(0.985 0 0);
+    --event-pres: oklch(89% 0.18 104);               /* презентация — кислотный лайм */
+    --event-pres-foreground: oklch(45% 0.09 84);     /* охра */
+    --event-hot: oklch(65% 0.2 38);                  /* решение (hot) — оранжево-красный */
+    --event-hot-foreground: oklch(98.5% 0 0);
     /*
      * Доработка (refine) — янтарь/шафран: честная середина по тону между
      * кислотным лаймом презентации (hue 104) и оранжевым решения (hue 38).
      * ⚠ Близок к --event-gold (hue 85, «Обращение» event-service) — принятое
      * решение владельца: приложения разные, в общих лентах не встречаются.
      */
-    --event-refine: oklch(0.8 0.16 80);
-    --event-refine-foreground: oklch(0.216 0.006 56.04);
-    --event-money: oklch(0.606 0.219 292.717);        /* оплата — фиолетовый */
-    --event-money-foreground: oklch(0.985 0 0);
+    --event-refine: oklch(80% 0.16 80);
+    --event-refine-foreground: oklch(21.6% 0.006 56.04);
+    --event-money: oklch(60.6% 0.219 292.717);        /* оплата — фиолетовый */
+    --event-money-foreground: oklch(98.5% 0 0);
     /*
      * Холодный, но с заявкой — «особый» тип. Цвет ПРЕДВАРИТЕЛЬНЫЙ: намеренно
      * взят маджента, которой нет больше нигде в палитре, чтобы тип читался
      * как выделенный. Заменить, когда определитесь.
      */
-    --event-lead: oklch(0.62 0.24 350);
-    --event-lead-foreground: oklch(0.985 0 0);
-    --event-ss: oklch(0.715 0.13 215.2);              /* сервисный сигнал — циан */
-    --event-ss-foreground: oklch(0.216 0.006 56.04);
-    --event-supply: oklch(0.48 0.16 258);             /* поставка — тёмно-синий */
-    --event-supply-foreground: oklch(0.985 0 0);
+    --event-lead: oklch(62% 0.24 350);
+    --event-lead-foreground: oklch(98.5% 0 0);
+    --event-ss: oklch(71.5% 0.13 215.2);              /* сервисный сигнал — циан */
+    --event-ss-foreground: oklch(21.6% 0.006 56.04);
+    --event-supply: oklch(48% 0.16 258);             /* поставка — тёмно-синий */
+    --event-supply-foreground: oklch(98.5% 0 0);
     /*
      * Сервисные типы (event-service): свои три цвета сверх общей палитры —
      * остальные 8 из 11 сервисных типов переиспользуют цвета выше
      * (маппинг — в приложении, service-event-catalog).
      */
-    --event-doc: oklch(0.45 0.02 260);                /* документы — графит */
-    --event-doc-foreground: oklch(0.985 0 0);
-    --event-renew: oklch(0.72 0.19 130);              /* продление — лайм-зелёный */
-    --event-renew-foreground: oklch(0.216 0.006 56.04);
-    --event-gold: oklch(0.8 0.16 85);                 /* обращение — золото */
-    --event-gold-foreground: oklch(0.216 0.006 56.04);
+    --event-doc: oklch(45% 0.02 260);                /* документы — графит */
+    --event-doc-foreground: oklch(98.5% 0 0);
+    --event-renew: oklch(72% 0.19 130);              /* продление — лайм-зелёный */
+    --event-renew-foreground: oklch(21.6% 0.006 56.04);
+    --event-gold: oklch(80% 0.16 85);                 /* обращение — золото */
+    --event-gold-foreground: oklch(21.6% 0.006 56.04);
 
     /* Текущий тип события (переопределяется data-event-type ниже) */
     --event-current: var(--event-warm);
@@ -124,14 +124,14 @@
      * monthly — регулярная выручка (синий), potential — ожидаемое за
      * договор (фиолетовый), hot — горячие клиенты (янтарный).
      */
-    --finance-advance: oklch(0.627 0.17 149.2);
-    --finance-advance-foreground: oklch(0.985 0 0);
-    --finance-monthly: oklch(0.588 0.158 241.966);
-    --finance-monthly-foreground: oklch(0.985 0 0);
-    --finance-potential: oklch(0.606 0.219 292.717);
-    --finance-potential-foreground: oklch(0.985 0 0);
-    --finance-hot: oklch(0.769 0.16 70.7);
-    --finance-hot-foreground: oklch(0.216 0.006 56.04);
+    --finance-advance: oklch(62.7% 0.17 149.2);
+    --finance-advance-foreground: oklch(98.5% 0 0);
+    --finance-monthly: oklch(58.8% 0.158 241.966);
+    --finance-monthly-foreground: oklch(98.5% 0 0);
+    --finance-potential: oklch(60.6% 0.219 292.717);
+    --finance-potential-foreground: oklch(98.5% 0 0);
+    --finance-hot: oklch(76.9% 0.16 70.7);
+    --finance-hot-foreground: oklch(21.6% 0.006 56.04);
 
     /*
      * Стадии сделки (финансовый отчёт и любые подсветки стадий/фильтров):
@@ -140,20 +140,20 @@
      * payment — «В оплате» (красно-фиолетовый). Единые токены для бэйджей
      * стадий и threshold-кнопок — согласованная подсветка везде.
      */
-    --deal-stage-pres: oklch(0.82 0.16 90);
-    --deal-stage-pres-foreground: oklch(0.216 0.006 56.04);
-    --deal-stage-docs: oklch(0.606 0.219 292.717);
-    --deal-stage-docs-foreground: oklch(0.985 0 0);
+    --deal-stage-pres: oklch(82% 0.16 90);
+    --deal-stage-pres-foreground: oklch(21.6% 0.006 56.04);
+    --deal-stage-docs: oklch(60.6% 0.219 292.717);
+    --deal-stage-docs-foreground: oklch(98.5% 0 0);
     /* refine — «Доработка»: тот же янтарь, что у типа события. */
-    --deal-stage-refine: oklch(0.8 0.16 80);
-    --deal-stage-refine-foreground: oklch(0.216 0.006 56.04);
-    --deal-stage-decision: oklch(0.62 0.24 30);
-    --deal-stage-decision-foreground: oklch(0.985 0 0);
-    --deal-stage-payment: oklch(0.55 0.24 345);
-    --deal-stage-payment-foreground: oklch(0.985 0 0);
+    --deal-stage-refine: oklch(80% 0.16 80);
+    --deal-stage-refine-foreground: oklch(21.6% 0.006 56.04);
+    --deal-stage-decision: oklch(62% 0.24 30);
+    --deal-stage-decision-foreground: oklch(98.5% 0 0);
+    --deal-stage-payment: oklch(55% 0.24 345);
+    --deal-stage-payment-foreground: oklch(98.5% 0 0);
     /* supply — «Поставка» (уверенный тёмно-синий, финал воронки). */
-    --deal-stage-supply: oklch(0.45 0.15 255);
-    --deal-stage-supply-foreground: oklch(0.985 0 0);
+    --deal-stage-supply: oklch(45% 0.15 255);
+    --deal-stage-supply-foreground: oklch(98.5% 0 0);
 
     /*
      * «Второй primary» для главных CTA (Отправить и т.п.) — паттерн Bitrix24
@@ -168,10 +168,10 @@
 
 /* Тёмные темы (классы вида default-dark, blue-dark, …) — приглушаем */
 :root[class*='-dark'] {
-    --success: oklch(0.696 0.14 149.2);
-    --warning: oklch(0.795 0.14 75.5);
-    --warning-foreground: oklch(0.216 0.006 56.04);
-    --info: oklch(0.7 0.12 235);
+    --success: oklch(69.6% 0.14 149.2);
+    --warning: oklch(79.5% 0.14 75.5);
+    --warning-foreground: oklch(21.6% 0.006 56.04);
+    --info: oklch(70% 0.12 235);
     --air-link: #6db3ec; /* читаемая ссылка на тёмном */
 
     /*
@@ -184,38 +184,38 @@
 
     /* Тот же порядок цветов, приподнятая светлота — foreground'ы наследуются
        из :root и остаются контрастными. */
-    --event-cold: oklch(0.76 0.11 232);
-    --event-warm: oklch(0.696 0.14 149.2);
+    --event-cold: oklch(76% 0.11 232);
+    --event-warm: oklch(69.6% 0.14 149.2);
     /* Кислотный лайм чуть тише, охра темнее — на тёмном фоне заливка и так
        кричит, а тёмный текст на ней держит контраст. */
-    --event-pres: oklch(0.87 0.17 104);
-    --event-pres-foreground: oklch(0.36 0.08 84);
-    --event-hot: oklch(0.72 0.17 38);
-    --event-refine: oklch(0.82 0.14 80);
-    --event-money: oklch(0.673 0.18 292.717);
-    --event-lead: oklch(0.7 0.2 350);
-    --event-ss: oklch(0.75 0.11 215.2);
+    --event-pres: oklch(87% 0.17 104);
+    --event-pres-foreground: oklch(36% 0.08 84);
+    --event-hot: oklch(72% 0.17 38);
+    --event-refine: oklch(82% 0.14 80);
+    --event-money: oklch(67.3% 0.18 292.717);
+    --event-lead: oklch(70% 0.2 350);
+    --event-ss: oklch(75% 0.11 215.2);
     /* Поставка остаётся тёмно-синей и в тёмной теме — приподнимаем ровно
        настолько, чтобы читалась на тёмном фоне, но не уходила в голубой
        (иначе сольётся с «холодным»). Текст на ней белый. */
-    --event-supply: oklch(0.58 0.16 258);
+    --event-supply: oklch(58% 0.16 258);
     /* Сервисные: графит светлеет, чтобы не сливаться с фоном. */
-    --event-doc: oklch(0.62 0.02 260);
-    --event-renew: oklch(0.76 0.16 130);
-    --event-gold: oklch(0.82 0.14 85);
+    --event-doc: oklch(62% 0.02 260);
+    --event-renew: oklch(76% 0.16 130);
+    --event-gold: oklch(82% 0.14 85);
 
-    --finance-advance: oklch(0.696 0.14 149.2);
-    --finance-monthly: oklch(0.65 0.14 241.966);
-    --finance-potential: oklch(0.673 0.18 292.717);
-    --finance-hot: oklch(0.795 0.14 75.5);
+    --finance-advance: oklch(69.6% 0.14 149.2);
+    --finance-monthly: oklch(65% 0.14 241.966);
+    --finance-potential: oklch(67.3% 0.18 292.717);
+    --finance-hot: oklch(79.5% 0.14 75.5);
 
-    --deal-stage-pres: oklch(0.85 0.14 92);
-    --deal-stage-pres-foreground: oklch(0.216 0.006 56.04);
-    --deal-stage-docs: oklch(0.673 0.18 292.717);
-    --deal-stage-refine: oklch(0.82 0.14 80);
-    --deal-stage-decision: oklch(0.68 0.2 32);
-    --deal-stage-payment: oklch(0.62 0.2 345);
-    --deal-stage-supply: oklch(0.6 0.16 255);
+    --deal-stage-pres: oklch(85% 0.14 92);
+    --deal-stage-pres-foreground: oklch(21.6% 0.006 56.04);
+    --deal-stage-docs: oklch(67.3% 0.18 292.717);
+    --deal-stage-refine: oklch(82% 0.14 80);
+    --deal-stage-decision: oklch(68% 0.2 32);
+    --deal-stage-payment: oklch(62% 0.2 345);
+    --deal-stage-supply: oklch(60% 0.16 255);
 }
 
 /* Реактивный текущий тип события (значения = EventTaskEventType) */
@@ -272,16 +272,16 @@
    --complect-current инлайн-переменной — он побеждает токен.
    ========================================================================== */
 :root {
-    --complect-buh: oklch(0.704 0.12 182.5); /* бухгалтерские — бирюзовый */
-    --complect-buh-foreground: oklch(0.216 0.006 56.04);
-    --complect-ur: oklch(0.585 0.204 277.1); /* юристы — индиго */
-    --complect-ur-foreground: oklch(0.985 0 0);
-    --complect-expert: oklch(0.769 0.16 70.7); /* эксперты — янтарный */
-    --complect-expert-foreground: oklch(0.216 0.006 56.04);
-    --complect-office: oklch(0.606 0.219 292.717); /* офис/предприятие — фиолетовый */
-    --complect-office-foreground: oklch(0.985 0 0);
-    --complect-universal: oklch(0.588 0.158 241.966); /* универсальная линейка — синий */
-    --complect-universal-foreground: oklch(0.985 0 0);
+    --complect-buh: oklch(70.4% 0.12 182.5); /* бухгалтерские — бирюзовый */
+    --complect-buh-foreground: oklch(21.6% 0.006 56.04);
+    --complect-ur: oklch(58.5% 0.204 277.1); /* юристы — индиго */
+    --complect-ur-foreground: oklch(98.5% 0 0);
+    --complect-expert: oklch(76.9% 0.16 70.7); /* эксперты — янтарный */
+    --complect-expert-foreground: oklch(21.6% 0.006 56.04);
+    --complect-office: oklch(60.6% 0.219 292.717); /* офис/предприятие — фиолетовый */
+    --complect-office-foreground: oklch(98.5% 0 0);
+    --complect-universal: oklch(58.8% 0.158 241.966); /* универсальная линейка — синий */
+    --complect-universal-foreground: oklch(98.5% 0 0);
 
     /* Текущий комплект (переопределяется data-complect ниже) */
     --complect-current: var(--complect-universal);
@@ -289,11 +289,11 @@
 }
 
 :root[class*='-dark'] {
-    --complect-buh: oklch(0.74 0.1 182.5);
-    --complect-ur: oklch(0.66 0.17 277.1);
-    --complect-expert: oklch(0.795 0.14 75.5);
-    --complect-office: oklch(0.673 0.18 292.717);
-    --complect-universal: oklch(0.65 0.14 241.966);
+    --complect-buh: oklch(74% 0.1 182.5);
+    --complect-ur: oklch(66% 0.17 277.1);
+    --complect-expert: oklch(79.5% 0.14 75.5);
+    --complect-office: oklch(67.3% 0.18 292.717);
+    --complect-universal: oklch(65% 0.14 241.966);
 }
 
 /* Бухгалтерские */

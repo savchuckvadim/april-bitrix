@@ -27,6 +27,7 @@
                 "build/**"
             ],
             "env": [
+                "LEGACY_CSS",
                 "ONLINE_API_KEY",
                 "LOG_FILE_PATH",
                 "IN_BITRIX",

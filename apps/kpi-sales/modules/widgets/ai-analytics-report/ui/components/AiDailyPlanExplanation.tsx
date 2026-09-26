@@ -21,60 +21,65 @@ interface AiDailyPlanExplanationProps {
 }
 
 /**
- * Как получились числа плана: одна строка и раскрываемые шаги расчёта
- * G → Y₀ → λ_pipe → N_req → разворот → потолок (value null — «—»).
+ * «Как посчитано» — свёрнуто по умолчанию: строка бэка с формулами и
+ * шаги G → Y₀ → λ_pipe → N_req → разворот → потолок (value null — «—»).
+ * Простой заголовок плана показывает карточка, формулы — только здесь.
  */
 export const AiDailyPlanExplanation = ({
     explanation,
 }: AiDailyPlanExplanationProps) => {
     const [open, setOpen] = useState(false);
 
+    if (!explanation.text && !explanation.steps.length) return null;
+
     return (
         <Collapsible open={open} onOpenChange={setOpen} className="space-y-2">
-            <p className="text-sm">{explanation.text}</p>
-            {explanation.steps.length > 0 && (
-                <>
-                    <CollapsibleTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 gap-1 px-2 text-xs"
-                        >
-                            Как посчитано
-                            <ChevronDown
-                                className={cn(
-                                    'h-3 w-3 transition-transform',
-                                    open && 'rotate-180',
-                                )}
-                            />
-                        </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                        <ol className="space-y-1 text-xs">
-                            {explanation.steps.map(step => (
-                                <li
-                                    key={step.code}
-                                    className="flex flex-wrap items-center gap-2"
+            <CollapsibleTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 gap-1 px-2 text-xs"
+                >
+                    Как посчитано
+                    <ChevronDown
+                        className={cn(
+                            'h-3 w-3 transition-transform',
+                            open && 'rotate-180',
+                        )}
+                    />
+                </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-2">
+                {explanation.text && (
+                    <p className="text-xs text-muted-foreground">
+                        {explanation.text}
+                    </p>
+                )}
+                {explanation.steps.length > 0 && (
+                    <ol className="space-y-1 text-xs">
+                        {explanation.steps.map(step => (
+                            <li
+                                key={step.code}
+                                className="flex flex-wrap items-center gap-2"
+                            >
+                                <ToneBadge
+                                    tone="muted"
+                                    variant="outline"
+                                    size="sm"
                                 >
-                                    <ToneBadge
-                                        tone="muted"
-                                        variant="outline"
-                                        size="sm"
-                                    >
-                                        {AI_DAILY_PLAN_STEP_SYMBOL[step.code]}
-                                    </ToneBadge>
-                                    <span>{step.text}</span>
-                                    <span className="text-muted-foreground tabular-nums">
-                                        {step.value === null
-                                            ? '—'
-                                            : formatAiPlanNumber(step.value)}
-                                    </span>
-                                </li>
-                            ))}
-                        </ol>
-                    </CollapsibleContent>
-                </>
-            )}
+                                    {AI_DAILY_PLAN_STEP_SYMBOL[step.code]}
+                                </ToneBadge>
+                                <span>{step.text}</span>
+                                <span className="text-muted-foreground tabular-nums">
+                                    {step.value === null
+                                        ? '—'
+                                        : formatAiPlanNumber(step.value)}
+                                </span>
+                            </li>
+                        ))}
+                    </ol>
+                )}
+            </CollapsibleContent>
         </Collapsible>
     );
 };

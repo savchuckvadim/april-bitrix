@@ -1,11 +1,13 @@
 import type { BXUser } from '@workspace/bx';
 import { appActions } from '@/modules/app/model/AppSlice';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { isSuperUser } from '@/modules/entities/department';
-import { getDepartmentStructure } from '@/modules/entities/department';
+import { selectAccessContext } from '@/modules/app/lib/access/use-access';
+import { checkAccess, EAccessFeature } from '@/modules/shared/access';
+import { getDepartmentStructure } from '@/modules/entities/department/model/department-thunk';
 
 /**
- * Режим «Смотреть как…» (только для superuser).
+ * Режим «Смотреть как…» (только реальный суперпользователь вендора —
+ * правило VIEW_AS в shared/access, флаг бэка currentUser.isSuperUser).
  *
  * Механика: подменяется ТОЛЬКО app.viewAs.user (bitrix.user остаётся
  * реальным), затем перезапрашивается структура от имени просматриваемого —
@@ -20,8 +22,12 @@ import { getDepartmentStructure } from '@/modules/entities/department';
  */
 export const activateViewAs =
     (user: BXUser) => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const realUser = getState().app.bitrix.user;
-        if (!isSuperUser(realUser)) return; // только superuser
+        const state = getState();
+        // Только реальный суперпользователь (центральное правило VIEW_AS).
+        if (!checkAccess(EAccessFeature.VIEW_AS, selectAccessContext(state))) {
+            return;
+        }
+        const realUser = state.app.bitrix.user;
         if (String(user.ID) === String(realUser?.ID)) return; // сам на себя — no-op
 
         dispatch(appActions.setViewAsUser(user));

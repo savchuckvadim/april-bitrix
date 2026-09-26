@@ -15,6 +15,14 @@ const initialState = {
     app: APP_TYPE.REPORT as APP_TYPE,
     bitrix: {
         user: null as BXUser | null,
+        /**
+         * РЕАЛЬНЫЙ пользователь — суперпользователь вендора (флаг бэка
+         * currentUser.isSuperUser, env BX_SUPER_USER_IDS). Ставит
+         * department-thunk только из структуры, загруженной БЕЗ viewAs;
+         * режим «Смотреть как…» его не меняет. Единственный источник
+         * для прав (selectAccessContext).
+         */
+        isSuperUser: false,
     },
     client: {
         id: '',
@@ -69,6 +77,8 @@ const appSlice = createSlice({
             const payload = action.payload;
             state.domain = payload.domain;
             state.bitrix.user = payload.user;
+            // Новый пользователь/домен — флаг придёт со следующей структурой.
+            state.bitrix.isSuperUser = false;
             state.initialized = true;
             //   if (state.domain === "gsirk.bitrix24.ru") {
             //     state.client.isExpired = true;
@@ -140,6 +150,14 @@ const appSlice = createSlice({
             action: PayloadAction<BXUser | null>,
         ) => {
             state.viewAs.user = action.payload;
+        },
+        /**
+         * Флаг суперпользователя вендора РЕАЛЬНОГО пользователя (бэк:
+         * currentUser.isSuperUser). Диспатчится только из структуры без
+         * viewAs и ДО setStructure.
+         */
+        setRealSuperUser: (state: AppState, action: PayloadAction<boolean>) => {
+            state.bitrix.isSuperUser = action.payload;
         },
     },
 });

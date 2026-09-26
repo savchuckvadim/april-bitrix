@@ -21,9 +21,7 @@ import { AiOverviewMeta } from './components/AiOverviewMeta';
 import { AiSignalSection } from './components/AiSignalSection';
 import { AiStyleDialog } from './AiStyleDialog';
 import { AiDossierDialog } from './AiDossierDialog';
-
-/** Колонки: сотрудник, сигнал, цифра, 3 корзины, тренды, год назад, продажи, аванс, чек, 2 плана, рычаги, «Не согласен». */
-const COLUMNS = 12 + AI_BUCKETS.length;
+import { aiSignalColumns } from '../lib/ai-signal.util';
 
 /**
  * Таблица сигналов по менеджерам (обзор менеджер × тип за период):
@@ -31,11 +29,15 @@ const COLUMNS = 12 + AI_BUCKETS.length;
  * данных». Кнопка открывает второй уровень — разбор по типам звонков;
  * «Стиль» в строке — карточку стиля менеджера (последний профиль),
  * «Досье» — досье менеджера за окно месяцев (Фаза 3). Колонки «Тренды» и
- * «Год назад» — из снапшотов трендов и пары «тот же месяц год назад».
+ * «Год назад» — из снапшотов трендов и пары «тот же месяц год назад»;
+ * пока ни у одной строки их нет, колонки скрыты (когда появятся — пишет
+ * чек-лист «Готовность витрины»).
  */
 export const AiSignalTable = () => {
     const overview = useAiSection('overview');
-    const sections = useAiOverviewGroups(overview.data?.managers ?? []);
+    const managers = overview.data?.managers ?? [];
+    const sections = useAiOverviewGroups(managers);
+    const columns = aiSignalColumns(managers);
     const { openWithType } = useAiTypesDrawer();
     const [styleManagerId, setStyleManagerId] = useState<string | null>(null);
     const [dossierManagerId, setDossierManagerId] = useState<string | null>(
@@ -90,8 +92,12 @@ export const AiSignalTable = () => {
                                                 {AI_BUCKET_LABELS[bucket]}
                                             </TableHead>
                                         ))}
-                                        <TableHead>Тренды</TableHead>
-                                        <TableHead>Год назад</TableHead>
+                                        {columns.trends && (
+                                            <TableHead>Тренды</TableHead>
+                                        )}
+                                        {columns.yoy && (
+                                            <TableHead>Год назад</TableHead>
+                                        )}
                                         <TableHead className="text-right">
                                             Продажи
                                         </TableHead>
@@ -114,7 +120,7 @@ export const AiSignalTable = () => {
                                         <AiSignalSection
                                             key={section.id}
                                             section={section}
-                                            columns={COLUMNS}
+                                            columns={columns}
                                             onOpenStyle={setStyleManagerId}
                                             onOpenDossier={setDossierManagerId}
                                         />

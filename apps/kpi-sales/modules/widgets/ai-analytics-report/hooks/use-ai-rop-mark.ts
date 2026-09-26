@@ -1,25 +1,40 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/modules/app';
+import {
+    useAppDispatch,
+    useAppSelector,
+    selectIsRealSuperUser,
+    selectIsViewAs,
+} from '@/modules/app';
 import {
     fetchAiRopMarkWeek,
-    isAiRopMarkWeekEmpty,
     saveAiRopMark,
     selectAiIsLeader,
     type AiRopMarkInput,
 } from '@/modules/entities/ai-analytics';
+import { repickAiRopMarkWeek } from '@/modules/entities/ai-analytics/model/ai-analytics-rop-mark.thunks';
+import {
+    aiRopMarkCardView,
+    aiRopMarkErrorView,
+} from '../lib/ai-rop-mark-state.util';
+import { aiRopMarkAccess } from '../lib/ai-rop-mark-access.util';
 
 /**
  * Карточка слепой оценки: секция ropMark (list; при пустом подборе thunk
- * сам делает pick), состояние записи метки, повтор и «Подобрать» с force.
- * Только руководителю: не руководителю запрос не шлём (сервер ответил бы
- * 403) — карточка не рендерится. Данные секции остаются на экране, пока
- * идёт перечитка после метки.
+ * сам делает pick), режим карточки (aiRopMarkCardView), состояние записи
+ * метки, повтор, «Подобрать» (list с force) и «Подобрать заново» (pick с
+ * forceRefresh, когда подбор вышел без звонков). Только руководителю: не
+ * руководителю запрос не шлём (сервер ответил бы 403) — карточка не
+ * рендерится. В режиме «Смотреть как…» записи неактивны с подсказкой;
+ * суперпользователю вендора кнопки записи не показываем (бэк ответил бы
+ * 403) — вместо них строка «только чтение» (aiRopMarkAccess).
  */
 export const useAiRopMark = () => {
     const dispatch = useAppDispatch();
     const isLeader = useAppSelector(selectAiIsLeader);
+    const isViewAs = useAppSelector(selectIsViewAs);
+    const isRealSuperUser = useAppSelector(selectIsRealSuperUser);
     const section = useAppSelector(state => state.aiAnalytics.ropMark);
     const query = useAppSelector(state => state.aiAnalytics.ropMarkQuery);
     const saveState = useAppSelector(state => state.aiAnalytics.ropMarkSave);
@@ -38,6 +53,11 @@ export const useAiRopMark = () => {
         [dispatch, query],
     );
 
+    const repick = useCallback(
+        () => dispatch(repickAiRopMarkWeek()),
+        [dispatch],
+    );
+
     const save = useCallback(
         (input: AiRopMarkInput): Promise<boolean> => {
             setLastCallId(input.transcriptionId);
@@ -49,12 +69,15 @@ export const useAiRopMark = () => {
     return {
         isLeader,
         status: section.status,
-        error: section.error,
+        view: aiRopMarkCardView(section.status, section.data),
+        errorView: aiRopMarkErrorView(section.error),
         week: section.data,
-        isEmpty: !!section.data && isAiRopMarkWeekEmpty(section.data),
         query,
+        /** readOnlyHint («Смотреть как…»), superUserHint, showWriteControls. */
+        ...aiRopMarkAccess(isViewAs, isRealSuperUser),
         retry: reload,
         pick: reload,
+        repick,
         save,
         savePending: saveState.pending,
         saveError: saveState.error,

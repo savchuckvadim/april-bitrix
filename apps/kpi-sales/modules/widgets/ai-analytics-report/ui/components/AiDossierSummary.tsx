@@ -3,8 +3,8 @@
 import { ToneBadge } from '@workspace/april-ui';
 import {
     AI_READINESS_LABELS,
-    aiDossierFeedbackKindLabel,
     aiObjectionCategoryLabel,
+    formatAiDossierFeedback,
     formatAiDossierReason,
     formatAiScore,
     type AiDossier,
@@ -28,13 +28,7 @@ export const AiDossierSummary = ({ dossier }: AiDossierSummaryProps) => (
             <section>
                 <h4 className={TITLE}>Обратная связь</h4>
                 <p className="mt-1">
-                    реакций {dossier.feedbackSummary.total}:{' '}
-                    {Object.entries(dossier.feedbackSummary.byKind)
-                        .map(
-                            ([kind, count]) =>
-                                `${aiDossierFeedbackKindLabel(kind)} ${String(count)}`,
-                        )
-                        .join(', ')}
+                    {formatAiDossierFeedback(dossier.feedbackSummary)}
                 </p>
             </section>
         )}

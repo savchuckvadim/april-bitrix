@@ -1,53 +1,23 @@
 'use client';
 
-import { ClipboardCheck } from 'lucide-react';
-import { Button } from '@workspace/ui/components/button';
 import { SectionCard, ToneBadge } from '@workspace/april-ui';
 import type { AiAnalyticsSettings } from '@/modules/entities/ai-analytics';
-import {
-    buildAiReadinessBanner,
-    type AiReadinessReasonItem,
-} from '../lib/ai-readiness-banner.util';
+import { buildAiReadinessBanner } from '../lib/ai-readiness-banner.util';
+import type { AiSettingsTab } from '../lib/ai-settings-form.util';
+import { AI_CHECKLIST_VERDICT_VIEW } from '../lib/ai-setup-checklist.data';
+import type { AiSetupChecklist as AiSetupChecklistModel } from '../lib/ai-setup-checklist.types';
+import { AiSetupChecklist } from './AiSetupChecklist';
 
 interface AiReadinessBannerProps {
     settings: AiAnalyticsSettings;
+    /** Чек-лист готовности (use-ai-analytics-report). */
+    checklist: AiSetupChecklistModel;
     /**
-     * Подтвердить состав и уровни менеджеров (причина roster-not-confirmed);
-     * без колбэка кнопки «Подтвердить состав» нет.
+     * Открыть настройки витрины на вкладке (уровни, цели, отсутствия,
+     * состав); без колбэка — только чтение, кнопок вкладок нет.
      */
-    onConfirmRoster?: () => void;
+    onOpenSettings?: (tab: AiSettingsTab) => void;
 }
-
-interface AiReadinessReasonRowProps {
-    reason: AiReadinessReasonItem;
-    onConfirmRoster?: () => void;
-}
-
-/** Причина режима: подпись, подсказка «что делать», кнопка подтверждения состава. */
-const AiReadinessReasonRow = ({
-    reason,
-    onConfirmRoster,
-}: AiReadinessReasonRowProps) => (
-    <li className="space-y-0.5">
-        <div className="flex flex-wrap items-center gap-2">
-            <span>{reason.label}</span>
-            {reason.confirmRoster && onConfirmRoster && (
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-6 gap-1 px-2 text-xs"
-                    onClick={onConfirmRoster}
-                >
-                    <ClipboardCheck className="h-3 w-3" />
-                    Подтвердить состав
-                </Button>
-            )}
-        </div>
-        {reason.hint && (
-            <p className="text-xs text-muted-foreground">{reason.hint}</p>
-        )}
-    </li>
-);
 
 /** Состояние push-контуров портала: алерты и дайджест. */
 const AiReadinessFlags = ({ settings }: { settings: AiAnalyticsSettings }) => (
@@ -70,43 +40,33 @@ const AiReadinessFlags = ({ settings }: { settings: AiAnalyticsSettings }) => (
 );
 
 /**
- * Баннер готовности витрины (ReadinessDto): режим, одна строка «что это
- * значит», причины режима русскими подписями с подсказками «что делать»
- * (нет модели портала, состав не подтверждён, гипотеза не задана,
- * календарь не импортирован), связь «качество → исход», счётчик
- * «до оценки β», источник шума оценщика σ_llm и объём истории. В kpi-only — предупреждение: оценок нет.
+ * «Готовность витрины: <режим>»: строка «что значит режим», флаги
+ * алертов и дайджеста, чек-лист «донастроить или просто подождать?»
+ * (причины режима — его пункты) и строка истории разборов.
  */
 export const AiReadinessBanner = ({
     settings,
-    onConfirmRoster,
+    checklist,
+    onOpenSettings,
 }: AiReadinessBannerProps) => {
     const banner = buildAiReadinessBanner(settings.readiness);
 
     return (
         <SectionCard
-            tone={banner.tone}
+            tone={AI_CHECKLIST_VERDICT_VIEW[checklist.verdict].tone}
             accent
             density="compact"
             title={banner.title}
             description={banner.hint}
             actions={<AiReadinessFlags settings={settings} />}
         >
-            {banner.reasons.length > 0 && (
-                <ul className="list-disc space-y-1 pl-5 text-sm">
-                    {banner.reasons.map(reason => (
-                        <AiReadinessReasonRow
-                            key={reason.code}
-                            reason={reason}
-                            onConfirmRoster={onConfirmRoster}
-                        />
-                    ))}
-                </ul>
-            )}
+            <AiSetupChecklist
+                checklist={checklist}
+                onOpenSettings={onOpenSettings}
+            />
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                <span>{banner.betaSource}</span>
-                {banner.countdown && <span>{banner.countdown}</span>}
-                {banner.sigmaSource && <span>{banner.sigmaSource}</span>}
                 <span>{banner.history}</span>
+                {banner.sigmaSource && <span>{banner.sigmaSource}</span>}
             </div>
         </SectionCard>
     );

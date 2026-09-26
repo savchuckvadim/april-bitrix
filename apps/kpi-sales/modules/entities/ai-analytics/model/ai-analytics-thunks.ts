@@ -3,7 +3,8 @@
  * listeners/тестов/фич не зависели от разбиения:
  * - ai-analytics-thunks.shared — клиент, тайминги, requester, руководитель;
  * - ai-analytics-sync.thunks — settings / pulse / agenda / план дня /
- *   стиль / feedback / refresh;
+ *   стиль / refresh;
+ * - ai-analytics-feedback.thunks — реакции и view-телеметрия;
  * - ai-analytics-queued.thunks — overview / attention / byType / brief
  *   (очередь + WS), resume / fail по WS, recalc, уровни;
  * - ai-analytics-rop-mark.thunks — слепая оценка (list | pick | save);
@@ -25,9 +26,8 @@ export {
     fetchAiSettings,
     fetchAiStyleProfile,
     refreshAiAnalytics,
-    sendAiFeedback,
-    sendAiView,
 } from './ai-analytics-sync.thunks';
+export { sendAiFeedback, sendAiView } from './ai-analytics-feedback.thunks';
 export {
     AI_QUEUED_ERROR_MESSAGES,
     failAiQueuedSections,

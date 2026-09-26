@@ -7,6 +7,6 @@
  */
 
 export interface AiFeedbackResultDto {
-    /** Id записи ais. */
+    /** Id записи ais; для повторной реакции того же дня — id уже существующей записи (дубль не пишется). */
     id: string;
 }

@@ -20,6 +20,7 @@ import {
 import { useAiManagerName } from '../../hooks/use-ai-manager-name';
 import type { AiTargetFormRow } from '../../lib/ai-settings-form.util';
 import { aiTargetErrorKey } from '../../lib/ai-settings-form.validate';
+import { AI_TARGET_TIMING_LINES } from '../../lib/ai-target-timing.texts';
 
 interface AiSettingsTargetsTabProps {
     rows: AiTargetFormRow[];
@@ -67,7 +68,7 @@ const FIELDS: { field: AiTargetField; label: string; hint: string }[] = [
     {
         field: 'sales',
         label: 'Продаж в месяц',
-        hint: 'пусто — медиана полосы стажа за 3 месяца',
+        hint: 'пусто — у уровня цели нет',
     },
     {
         field: 'presentationsMin',
@@ -86,7 +87,10 @@ const rangeLabel = (field: AiTargetField): string => {
     return `${min}–${max}`;
 };
 
-/** Вкладка «Цели по уровням»: три уровня × продажи, презентации, холодные. */
+/**
+ * Вкладка «Цели по уровням»: три уровня × продажи, презентации, холодные.
+ * Над таблицей — каскад цели плана дня и когда каждая ступень заработает.
+ */
 export const AiSettingsTargetsTab = ({
     rows,
     overrides,
@@ -96,9 +100,16 @@ export const AiSettingsTargetsTab = ({
 }: AiSettingsTargetsTabProps) => (
     <div className="space-y-2">
         <p className="text-xs text-muted-foreground">
-            Текущие цели портала; пустые продажи — медиана полосы стажа.
-            Сохранение перезаписывает цели всех трёх уровней.
+            Текущие цели портала; пусто в продажах — у уровня цели нет. Цель
+            уровня работает, если у менеджера нет личной цели и плана в снимке
+            «Планов» (CRM) — они главнее. Сохранение перезаписывает цели всех
+            трёх уровней.
         </p>
+        <div className="space-y-0.5 text-[0.6875rem] text-muted-foreground">
+            {AI_TARGET_TIMING_LINES.map(line => (
+                <p key={line}>{line}</p>
+            ))}
+        </div>
         <Table>
             <TableHeader>
                 <TableRow>
@@ -140,7 +151,7 @@ export const AiSettingsTargetsTab = ({
                                         value={row[column.field]}
                                         placeholder={
                                             column.field === 'sales'
-                                                ? 'медиана'
+                                                ? 'нет цели'
                                                 : undefined
                                         }
                                         disabled={disabled}

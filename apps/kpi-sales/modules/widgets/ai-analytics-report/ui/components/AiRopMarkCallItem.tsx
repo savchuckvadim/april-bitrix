@@ -9,6 +9,7 @@ import type {
 } from '@/modules/entities/ai-analytics';
 import { useAiRopMarkForm } from '../../hooks/use-ai-rop-mark-form';
 import { AI_ROP_MARK_REASON } from '../../lib/ai-rop-mark.util';
+import { AI_ROP_MARK_NO_MARK_TEXT } from '../../lib/ai-rop-mark-access.util';
 import { AiManagerName } from './AiManagerName';
 import { AiRopMarkForm } from './AiRopMarkForm';
 import { AiRopMarkSaved } from './AiRopMarkSaved';
@@ -23,6 +24,10 @@ interface AiRopMarkCallItemProps {
     error: string | null;
     /** Заметки последнего сохранения этого звонка. */
     notes: string[];
+    /** Режим «Смотреть как…»: сохранение неактивно с этой подсказкой. */
+    readOnlyHint: string | null;
+    /** false — суперпользователь вендора: без формы и «Изменить метку». */
+    canMark?: boolean;
     onSave: (input: AiRopMarkInput) => Promise<boolean>;
 }
 
@@ -39,6 +44,8 @@ export const AiRopMarkCallItem = ({
     pending,
     error,
     notes,
+    readOnlyHint,
+    canMark = true,
     onSave,
 }: AiRopMarkCallItemProps) => {
     const form = useAiRopMarkForm({ call, query, onSave });
@@ -83,11 +90,12 @@ export const AiRopMarkCallItem = ({
                     </ToneBadge>
                 )}
             </div>
-            {form.editing ? (
+            {canMark && form.editing ? (
                 <AiRopMarkForm
                     form={form.form}
                     error={form.error ?? error}
                     pending={pending}
+                    readOnlyHint={readOnlyHint}
                     onAgree={form.setAgree}
                     onScore={form.setScore}
                     onToggleSection={form.toggleSection}
@@ -101,11 +109,13 @@ export const AiRopMarkCallItem = ({
                     call={call}
                     mark={call.mark}
                     notes={notes}
-                    onEdit={form.startEdit}
+                    onEdit={canMark ? form.startEdit : undefined}
                 />
             ) : (
                 <p className="text-xs text-muted-foreground">
-                    Метка сохранена — обновляем подбор…
+                    {canMark
+                        ? 'Метка сохранена — обновляем подбор…'
+                        : AI_ROP_MARK_NO_MARK_TEXT}
                 </p>
             )}
         </li>

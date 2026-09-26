@@ -5,6 +5,7 @@
  * API приложения kpi-report-sales
  * OpenAPI spec version: 1.0
  */
+import type { AiManagerRowDtoSinceSource } from './aiManagerRowDtoSinceSource';
 import type { AiManagerRowDtoLevel } from './aiManagerRowDtoLevel';
 import type { AiManagerRowDtoLevelSource } from './aiManagerRowDtoLevelSource';
 import type { AiManagerRowDtoSignal } from './aiManagerRowDtoSignal';
@@ -23,6 +24,10 @@ import type { AiManagerRowDtoTrends } from './aiManagerRowDtoTrends';
 import type { AiManagerRowDtoYoy } from './aiManagerRowDtoYoy';
 
 export interface AiManagerRowDto {
+    /** Дата начала стажа YYYY-MM-DD, от которой считается tenureMonths: since записи уровня РОПа, а без неё — дата паспорта менеджера из месячного снапшота (каскад UF_EMPLOYMENT_DATE → DATE_REGISTER → первое событие). Поля нет — дата не известна ни РОПу, ни паспорту. */
+    since?: string;
+    /** Откуда взята дата стажа: manual — задана РОПом в записи уровня; employment — поле трудоустройства (UF_EMPLOYMENT_DATE); register — дата регистрации в Bitrix (DATE_REGISTER); proxy — первое событие телефонии или отчётности (приблизительно). Поля нет — даты нет либо источник паспорта незнаком. */
+    sinceSource?: AiManagerRowDtoSinceSource;
     /** Bitrix-id менеджера. */
     managerId: string;
     /**
@@ -35,12 +40,12 @@ export interface AiManagerRowDto {
      * @nullable
      */
     groupId: number | null;
-    /** Уровень: manual — назначен РОПом (settings/save), default — по стажу (< 6 мес. junior, иначе middle). */
+    /** Уровень менеджера; откуда взят — в levelSource. Тот же, что у ночного конвейера в месячном снапшоте. */
     level: AiManagerRowDtoLevel;
-    /** Источник уровня. */
+    /** Источник уровня: manual — назначен РОПом (settings/save), всегда главнее; passport — подсказка паспорта из месячного снапшота по полосе стажа (tenure_gates, по умолчанию < 6 мес. junior, 6–18 middle, 18+ senior); default — ни записи, ни паспорта: по стажу (< 6 мес. junior, иначе middle). */
     levelSource: AiManagerRowDtoLevelSource;
     /**
-     * Стаж, месяцев, от since уровня; null — дата стажа не задана (DATE_REGISTER Bitrix — Фаза 2).
+     * Стаж, полных месяцев: при записи РОПа — от since до конца периода; без записи — стаж из паспорта месяца; null — даты стажа нет (откуда дата — sinceSource).
      * @nullable
      */
     tenureMonths: number | null;
@@ -90,6 +95,4 @@ export interface AiManagerRowDto {
      * @nullable
      */
     yoy?: AiManagerRowDtoYoy;
-    /** Дата начала стажа YYYY-MM-DD (since уровня; каскад UF_EMPLOYMENT_DATE → DATE_REGISTER приезжает из паспорта конвейера); нет — дата не задана. */
-    since?: string;
 }

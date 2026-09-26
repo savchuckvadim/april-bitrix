@@ -1,7 +1,6 @@
 'use client';
 
-import { Shuffle } from 'lucide-react';
-import { Button } from '@workspace/ui/components/button';
+import { RotateCw, Shuffle } from 'lucide-react';
 import { SectionCard, ToneBadge } from '@workspace/april-ui';
 import { useAiRopMark } from '../hooks/use-ai-rop-mark';
 import {
@@ -11,25 +10,29 @@ import {
     formatAiRopMarkPeriod,
     formatAiRopMarkProgress,
 } from '../lib/ai-rop-mark.util';
+import { AI_ROP_MARK_NO_CALLS_TEXT } from '../lib/ai-rop-mark-state.util';
 import { AiSectionState } from './components/AiSectionState';
 import { AiRopMarkCallItem } from './components/AiRopMarkCallItem';
+import { AiRopMarkNotice } from './components/AiRopMarkNotice';
 
 /**
  * Слепая оценка руководителя «три звонка недели» (rop-mark): подбор
  * недели без оценки AI, форма метки по каждому звонку; после сохранения
  * тип и оценка разбора раскрываются. Только руководителям (cup/op/group)
  * — остальным карточка не рендерится (сервер ответил бы 403). Подбора
- * нет — «Подобрать» (list с force → pick).
+ * нет — «Подобрать» (list с force → pick); подбор без звонков —
+ * «Подобрать заново» (pick с forceRefresh). Ошибка — текст сервера как
+ * есть, «Повторить» — только когда повтор может помочь. Суперпользователю
+ * вендора — строка «только чтение», без формы метки и «Подобрать заново».
  */
 export const AiRopMarkCard = () => {
     const ropMark = useAiRopMark();
     if (!ropMark.isLeader) return null;
 
-    const { week } = ropMark;
-    const showState = !week || ropMark.status === 'error';
-    const showWeek = !!week && ropMark.status !== 'error';
-    const progress =
-        showWeek && !ropMark.isEmpty ? aiRopMarkProgress(week) : null;
+    const { week, view, errorView } = ropMark;
+    const loading = ropMark.status === 'loading';
+    const progress = view === 'calls' && week ? aiRopMarkProgress(week) : null;
+    const repickLabel = loading ? 'Подбираем…' : 'Подобрать заново';
 
     return (
         <SectionCard
@@ -37,7 +40,7 @@ export const AiRopMarkCard = () => {
             title="Слепая оценка: три звонка недели"
             description={
                 week
-                    ? `Неделя ${week.weekKey} · ${formatAiRopMarkPeriod(week)}`
+                    ? `Неделя ${formatAiRopMarkPeriod(week)}`
                     : 'Проверка разбора руководителем: до трёх звонков недели без подсказки AI'
             }
             actions={
@@ -56,32 +59,50 @@ export const AiRopMarkCard = () => {
                 )
             }
         >
-            {showState && (
+            {ropMark.superUserHint && (
+                <p className="mb-2 text-xs text-muted-foreground">
+                    {ropMark.superUserHint}
+                </p>
+            )}
+            {view === 'loading' && (
                 <AiSectionState
                     status={ropMark.status}
-                    error={ropMark.error}
+                    error={null}
                     loadingText="Подбираем звонки недели…"
-                    onRetry={ropMark.retry}
                 />
             )}
-            {showWeek && ropMark.isEmpty && (
-                <div className="flex flex-wrap items-center gap-3 py-2">
-                    <p className="text-sm text-muted-foreground">
-                        {AI_ROP_MARK_EMPTY_TEXT}
-                    </p>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 gap-1 text-xs"
-                        disabled={ropMark.status === 'loading'}
-                        onClick={ropMark.pick}
-                    >
-                        <Shuffle className="h-3 w-3" />
-                        Подобрать
-                    </Button>
-                </div>
+            {view === 'error' && (
+                <AiRopMarkNotice
+                    error
+                    text={errorView.text}
+                    actionLabel={errorView.canRetry ? 'Повторить' : undefined}
+                    actionIcon={<RotateCw className="h-3 w-3" />}
+                    onAction={ropMark.retry}
+                />
             )}
-            {showWeek && !ropMark.isEmpty && (
+            {view === 'noPick' && (
+                <AiRopMarkNotice
+                    text={AI_ROP_MARK_EMPTY_TEXT}
+                    actionLabel="Подобрать"
+                    actionIcon={<Shuffle className="h-3 w-3" />}
+                    onAction={ropMark.pick}
+                    actionDisabled={loading}
+                    actionHint={ropMark.readOnlyHint}
+                />
+            )}
+            {view === 'noCalls' && (
+                <AiRopMarkNotice
+                    text={AI_ROP_MARK_NO_CALLS_TEXT}
+                    actionLabel={
+                        ropMark.showWriteControls ? repickLabel : undefined
+                    }
+                    actionIcon={<Shuffle className="h-3 w-3" />}
+                    onAction={ropMark.repick}
+                    actionDisabled={loading}
+                    actionHint={ropMark.readOnlyHint}
+                />
+            )}
+            {view === 'calls' && week && (
                 <div className="space-y-3">
                     <p className="text-xs text-muted-foreground">
                         {week.blindNote}
@@ -108,6 +129,8 @@ export const AiRopMarkCard = () => {
                                               )
                                             : []
                                     }
+                                    readOnlyHint={ropMark.readOnlyHint}
+                                    canMark={ropMark.showWriteControls}
                                     onSave={ropMark.save}
                                 />
                             );

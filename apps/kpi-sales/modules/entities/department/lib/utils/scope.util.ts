@@ -35,7 +35,7 @@ const findSelf = (
 /**
  * Видимый периметр по уровню видимости (currentUser.visibility из
  * structure-эндпоинта; для старых ответов и снимков ссылок — по headOf):
- *  all / суперпользователь — вся структура;
+ *  all — вся структура (суперпользователю вендора бэк сам отдаёт 'all');
  *  department — свои отделы (headOfDepartmentIds);
  *  group — свои группы;
  *  own (менеджер) — только он сам.
@@ -48,7 +48,6 @@ const findSelf = (
 export const computeDepartmentScope = (
     departments: SalesDepartment[],
     currentUser: CurrentUserInfo,
-    superUser: boolean,
     appUser: BXUser | null,
 ): DepartmentScope => {
     const userId = Number(currentUser.userId);
@@ -58,7 +57,7 @@ export const computeDepartmentScope = (
 
     const visibility = resolveVisibility(currentUser);
 
-    if (superUser || visibility === 'all') {
+    if (visibility === 'all') {
         const groups = departments.flatMap(dep => dep.groups);
         return {
             users: uniqueUsers(departments.flatMap(dep => dep.allUsers)),

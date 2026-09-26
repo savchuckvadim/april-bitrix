@@ -13,7 +13,7 @@ export interface AiFeedbackRequestDto {
     domain: string;
     /** Bitrix-id пользователя, запрашивающего данные (requester). По нему определяется периметр видимости: руководитель — все/отдел/группа, менеджер — только свои строки. */
     requesterUserId: string;
-    /** Вид реакции: view, useful, not_useful, disagree, alert_handled (остальные виды — служебные, пишет push-контур). */
+    /** Вид реакции пользователя: view, useful, not_useful, disagree, alert_handled. Служебные виды (alert_sent, digest_sent, agenda_sent, rop_mark) отклоняются валидацией с 400. alert_handled — только руководителям (менеджеру — 403). useful / not_useful — одна оценка на автора, объект и день портала: та же оценка возвращает id прежней записи, смена оценки пишет новую, прежняя уходит в superseded. Повтор alert_handled за день возвращает id прежней записи. */
     kind: AiFeedbackRequestDtoKind;
     /** Объект реакции: pulse, agenda, call:<id>, section:<code>. */
     object: string;

@@ -7,7 +7,7 @@
  */
 
 /**
- * Источник уровня.
+ * Источник уровня: manual — назначен РОПом (settings/save), всегда главнее; passport — подсказка паспорта из месячного снапшота по полосе стажа (tenure_gates, по умолчанию < 6 мес. junior, 6–18 middle, 18+ senior); default — ни записи, ни паспорта: по стажу (< 6 мес. junior, иначе middle).
  */
 export type AiManagerRowDtoLevelSource =
     (typeof AiManagerRowDtoLevelSource)[keyof typeof AiManagerRowDtoLevelSource];
@@ -16,4 +16,5 @@ export type AiManagerRowDtoLevelSource =
 export const AiManagerRowDtoLevelSource = {
     manual: 'manual',
     default: 'default',
+    passport: 'passport',
 } as const;

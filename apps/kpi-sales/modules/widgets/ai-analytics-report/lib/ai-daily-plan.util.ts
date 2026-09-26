@@ -16,7 +16,8 @@ import {
 /*
  * Чистая логика карточки «План дня»: подписи кодов DTO по-русски, честные
  * подписи null-полей (λ_pipe = null — «истории стадий нет», а не ноль),
- * порядок строк, опции селекта менеджеров и выбор менеджера по умолчанию.
+ * остаток до цели, опции селекта менеджеров и выбор менеджера по умолчанию.
+ * Модель отображения (состояние, заголовок, строки) — ai-daily-plan-view.util.
  */
 
 /** Источник цели месяца (target.source). */
@@ -26,7 +27,7 @@ export const AI_DAILY_PLAN_TARGET_SOURCE: Record<
 > = {
     plan: 'план руководителя или личная цель',
     levelTarget: 'цель уровня',
-    median: 'медиана полосы стажа',
+    median: 'обычный результат коллег того же стажа',
 };
 
 /** Оговорки к цели (target.warnings). */
@@ -34,20 +35,23 @@ export const AI_DAILY_PLAN_TARGET_WARNING: Record<
     AiDailyPlanTargetWarning,
     string
 > = {
-    'target-empty': 'Цель не задана ни одной ступенью каскада',
-    wish: 'Цель ниже медианы факта полосы — «план = пожелание»',
-    'unreachable-by-volume': 'Цель выше потолка полосы × рабочие дни',
+    'target-empty': 'Цель на месяц не задана',
+    wish: 'Цель ниже обычного результата коллег того же стажа — это скорее пожелание',
+    'unreachable-by-volume':
+        'Цель выше потолка месяца: обычный максимум звонков в день по порталу × рабочие дни',
 };
 
-/** Штатная деградация (reason): почему план построен по объёму. */
+/** Штатная деградация (reason): почему план посчитан упрощённо, по объёму. */
 export const AI_DAILY_PLAN_REASON: Record<
     NonNullable<AiDailyPlanReason>,
     string
 > = {
     'portal-model-missing':
-        'Модели портала нет: нормы не показываем, план построен по объёму',
-    'forecast-missing': 'Прогноза за этот день нет: план построен по объёму',
-    'manager-month-missing': 'Месяца менеджера нет: план построен по объёму',
+        'Модель портала ещё не построена — план посчитан упрощённо, по объёму активности',
+    'forecast-missing':
+        'Прогноза на этот день нет — план посчитан упрощённо, по объёму активности',
+    'manager-month-missing':
+        'Данных менеджера за месяц нет — план посчитан упрощённо, по объёму активности',
 };
 
 /** Режим связи «качество → исход» (ropOnly.betaSource). */
@@ -61,7 +65,7 @@ export const AI_DAILY_PLAN_BETA_SOURCE: Record<AiDailyPlanBetaSource, string> =
 /** Почему цель недостижима (ropOnly.unreachable). */
 export const AI_DAILY_PLAN_UNREACHABLE: Record<AiDailyPlanUnreachable, string> =
     {
-        'cap-exceeded': 'требуемый темп выше потолка дня',
+        'cap-exceeded': 'требуемый темп выше обычного максимума по порталу',
         'no-days-left': 'рабочих дней не осталось',
         'edge-theta-zero': 'разворот упёрся в θ = 0',
     };
@@ -88,10 +92,8 @@ export const AI_DAILY_PLAN_STEP_SYMBOL: Record<AiDailyPlanStepCode, string> = {
 };
 
 /** λ_pipe без истории стадий: цель на пайплайн не уменьшается. */
-export const AI_DAILY_PLAN_NO_STAGE_HISTORY = 'истории стадий нет';
-/** N_req не считали (план по объёму), а причина не названа. */
-export const AI_DAILY_PLAN_BY_VOLUME = 'план построен по объёму';
-/** Потолок дневного темпа не оценён (cap = null). */
+export const AI_DAILY_PLAN_NO_STAGE_HISTORY = 'не знаем — истории стадий нет';
+/** Обычный максимум звонков не оценён (cap = null). */
 export const AI_DAILY_PLAN_CAP_UNKNOWN = 'не оценён';
 
 const PLAN_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -114,16 +116,7 @@ export const formatAiPlanNumber = (value: number): string =>
 export const formatAiPipelineExpected = (value: number | null): string =>
     value === null ? AI_DAILY_PLAN_NO_STAGE_HISTORY : formatAiPlanNumber(value);
 
-/** N_req: null — обратную задачу не решали, показываем причину из reason. */
-export const formatAiRequiredVolume = (
-    value: number | null,
-    reason: AiDailyPlanReason,
-): string => {
-    if (value !== null) return formatAiCount(value);
-    return reason ? AI_DAILY_PLAN_REASON[reason] : AI_DAILY_PLAN_BY_VOLUME;
-};
-
-/** Потолок дневного темпа полосы стажа; null — не оценён. */
+/** Обычный максимум звонков в день по порталу (cap, p90); null — не оценён. */
 export const formatAiPlanCap = (cap: number | null): string =>
     cap === null ? AI_DAILY_PLAN_CAP_UNKNOWN : formatAiCount(cap);
 
@@ -136,10 +129,20 @@ export const aiSalesLeft = (
         plan.target.sales - plan.doneSales - (plan.pipelineExpected ?? 0),
     );
 
-/** Строки плана по приоритету утечки (1 — первая); исходный массив не трогаем. */
-export const sortAiDailyPlanItems = (
+/** Осталось закрыть: G − Y₀ целыми сделками (дробная цель — вверх), не ниже 0. */
+export const aiSalesToClose = (
+    plan: Pick<AiDailyPlan, 'target' | 'doneSales'>,
+): number => Math.max(0, Math.ceil(plan.target.sales - plan.doneSales));
+
+/**
+ * Обычный максимум звонков руководителю: бэк копирует cap ЗВОНКОВ во все строки,
+ * поэтому показываем одно число — со строки звонков (иначе с первой).
+ */
+export const aiDailyPlanCallCap = (
     items: readonly AiDailyPlanItem[],
-): AiDailyPlanItem[] => [...items].sort((a, b) => a.priority - b.priority);
+): number | null =>
+    (items.find(item => item.callType === 'call_to_presentation') ?? items[0])
+        ?.cap ?? null;
 
 /** Подпись ребра-ограничения: название строки плана, иначе код ребра по-русски. */
 export const aiBindingConstraintLabel = (

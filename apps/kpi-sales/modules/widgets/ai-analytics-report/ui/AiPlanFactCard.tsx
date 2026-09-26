@@ -1,45 +1,73 @@
 'use client';
 
-import { RefreshCw } from 'lucide-react';
+import { Info, RefreshCw } from 'lucide-react';
 import { SectionCard } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
-import {
-    aiPlanFactReasonLabel,
-    formatAiPlanFactPeriod,
-    type AiPlanFact,
-} from '@/modules/entities/ai-analytics';
+import { formatAiPlanFactPeriod } from '@/modules/entities/ai-analytics';
 import { useAiPlanFact } from '../hooks/use-ai-plan-fact';
+import type { AiPlanFactView } from '../lib/ai-plan-fact-view.util';
 import { AiHowWeCountButton } from './components/AiHowWeCountButton';
 import { AiSectionState } from './components/AiSectionState';
-import {
-    AiPlanFactTable,
-    type AiPlanFactGroup,
-} from './components/AiPlanFactTable';
+import { AiPlanFactTable } from './components/AiPlanFactTable';
 
-/** Группы таблицы: свод отдела первым, затем менеджеры по имени. */
-const groupsOf = (
-    planFact: AiPlanFact,
-    managerName: (managerId: string) => string,
-): AiPlanFactGroup[] => [
-    ...(planFact.team.length
-        ? [{ key: 'team', title: 'Отдел (свод)', rows: planFact.team }]
-        : []),
-    ...planFact.rows
-        .map(manager => ({
-            key: manager.managerId,
-            title: managerName(manager.managerId),
-            rows: manager.rows,
-        }))
-        .sort((a, b) => a.title.localeCompare(b.title, 'ru')),
-];
+const MUTED = 'text-xs text-muted-foreground';
+
+/** Причины бэка списком (текст бэка, иначе подпись кода). */
+const ReasonList = ({ lines }: { lines: readonly string[] }) =>
+    lines.length ? (
+        <ul className={cn('list-disc space-y-0.5 pl-5', MUTED)}>
+            {lines.map((line, index) => (
+                <li key={`${index}-${line}`}>{line}</li>
+            ))}
+        </ul>
+    ) : null;
+
+/** Режим «только факт»: что не так и что сделать; причины бэка — мелко ниже. */
+const FactOnlyNote = ({
+    note,
+    reasonLines,
+}: {
+    note: string;
+    reasonLines: readonly string[];
+}) => (
+    <div className="space-y-2 rounded-md border border-dashed border-border/60 p-3">
+        <p className="flex gap-2 text-sm">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            <span>{note}</span>
+        </p>
+        <ReasonList lines={reasonLines} />
+    </div>
+);
+
+/** Подсказки над таблицей и сама таблица по готовому виду карточки. */
+const PlanFactBody = ({ view }: { view: AiPlanFactView }) => (
+    <div className="space-y-3">
+        {view.note ? (
+            <FactOnlyNote note={view.note} reasonLines={view.reasonLines} />
+        ) : (
+            <ReasonList lines={view.reasonLines} />
+        )}
+        {view.coverageText && <p className={MUTED}>{view.coverageText}</p>}
+        {view.empty ? (
+            <p className={cn('py-2', MUTED)}>
+                В периметре нет менеджеров с целями или фактом за месяц.
+            </p>
+        ) : (
+            <AiPlanFactTable
+                groups={view.groups}
+                factOnly={view.mode === 'fact-only'}
+            />
+        )}
+    </div>
+);
 
 /**
- * «План — факт» месяца (Фаза 3): цели руководителя из снимка против факта
- * на дату — темп по рабочим дням, прогноз P50, разрыв и «в день надо».
+ * «План — факт» месяца (Фаза 3): цели из снимка планов на 1-е число против
+ * факта на дату — темп по рабочим дням, прогноз, разрыв и «в день надо».
  * Месяц — конец периода фильтра, менеджеры — выбранные в фильтре.
- * Причины деградации (нет снимка целей, месяцы не посчитаны, план дня
- * выключен) — подписями над таблицей.
+ * Целей нет совсем — компактно «Показатель | Факт» и подсказка, как их
+ * задать; цели не у всех — строка покрытия и «плана нет» у строк без цели.
  */
 export const AiPlanFactCard = () => {
     const planFact = useAiPlanFact();
@@ -52,7 +80,7 @@ export const AiPlanFactCard = () => {
             description={
                 planFact.data
                     ? formatAiPlanFactPeriod(planFact.data)
-                    : 'Цели руководителя против факта на дату: темп, прогноз и «в день надо»'
+                    : 'Цели месяца против факта: идём ли в график, чем закончим месяц и сколько надо в день'
             }
             actions={
                 <>
@@ -73,8 +101,8 @@ export const AiPlanFactCard = () => {
             }
         >
             {!planFact.hasScope ? (
-                <p className="py-2 text-xs text-muted-foreground">
-                    Период отчёта не задан — месяц реконсиляции неизвестен.
+                <p className={cn('py-2', MUTED)}>
+                    Период отчёта не задан — не знаем, за какой месяц сверять.
                 </p>
             ) : (
                 <>
@@ -84,37 +112,7 @@ export const AiPlanFactCard = () => {
                         loadingText="Сверяем план с фактом…"
                         onRetry={planFact.retry}
                     />
-                    {planFact.data && (
-                        <div className="space-y-3">
-                            {planFact.data.reasons.length > 0 && (
-                                <ul className="list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
-                                    {planFact.data.reasons.map(
-                                        (code, index) => (
-                                            <li key={code}>
-                                                {planFact.data?.reasonTexts[
-                                                    index
-                                                ] ?? aiPlanFactReasonLabel(code)}
-                                            </li>
-                                        ),
-                                    )}
-                                </ul>
-                            )}
-                            {planFact.data.rows.length ||
-                            planFact.data.team.length ? (
-                                <AiPlanFactTable
-                                    groups={groupsOf(
-                                        planFact.data,
-                                        planFact.managerName,
-                                    )}
-                                />
-                            ) : (
-                                <p className="py-2 text-xs text-muted-foreground">
-                                    В периметре нет менеджеров с целями или
-                                    фактом за месяц.
-                                </p>
-                            )}
-                        </div>
-                    )}
+                    {planFact.view && <PlanFactBody view={planFact.view} />}
                 </>
             )}
         </SectionCard>

@@ -10,14 +10,17 @@ import { AiHowWeCountButton } from './components/AiHowWeCountButton';
 import { AiSectionState } from './components/AiSectionState';
 import { AiDailyPlanDisabledNote } from './components/AiDailyPlanDisabledNote';
 import { AiDailyPlanToolbar } from './components/AiDailyPlanToolbar';
-import { AiDailyPlanTarget } from './components/AiDailyPlanTarget';
-import { AiDailyPlanItemsTable } from './components/AiDailyPlanItemsTable';
-import { AiDailyPlanExplanation } from './components/AiDailyPlanExplanation';
-import { AiDailyPlanRopOnly } from './components/AiDailyPlanRopOnly';
+import { AiDailyPlanBody } from './components/AiDailyPlanBody';
 
 interface AiDailyPlanCardProps {
     /** Чей план открыть первым (руководителю; менеджер видит только свой). */
     defaultManagerId?: string;
+    /**
+     * Открыть настройки витрины на вкладке «Цели по уровням». Передаётся
+     * только тому, кто может настраивать: есть — в состоянии «цели нет»
+     * кнопка «Задать цель», нет — «Попросите руководителя отдела задать цель».
+     */
+    onOpenTargets?: () => void;
 }
 
 type DailyPlanState = ReturnType<typeof useAiDailyPlan>;
@@ -36,13 +39,16 @@ const emptyHint = (plan: DailyPlanState): string | null => {
 };
 
 /**
- * «План дня» — обратная задача от цели месяца: цель и прогресс, строки
- * по рёбрам воронки, объяснение шагов и служебный блок руководителя.
- * Выбор менеджера (руководителю — из периметра обзора) и дня; гейт
- * настройки портала dailyPlanEnabled; «Обновить» — повторный запрос,
- * минуя кэш секции.
+ * «План дня» — обратная задача от цели месяца: простой заголовок, цель и
+ * прогресс, строки в порядке воронки, «Как посчитано» и служебный блок
+ * руководителя; без цели — пустое состояние (AiDailyPlanBody). Выбор
+ * менеджера (руководителю — из периметра обзора) и дня; гейт настройки
+ * портала dailyPlanEnabled; «Обновить» — повторный запрос, минуя кэш.
  */
-export const AiDailyPlanCard = ({ defaultManagerId }: AiDailyPlanCardProps) => {
+export const AiDailyPlanCard = ({
+    defaultManagerId,
+    onOpenTargets,
+}: AiDailyPlanCardProps) => {
     const plan = useAiDailyPlan(defaultManagerId);
     const loading = plan.status === 'loading';
     const hint = emptyHint(plan);
@@ -107,22 +113,12 @@ export const AiDailyPlanCard = ({ defaultManagerId }: AiDailyPlanCardProps) => {
                                     loadingText="Считаем план дня…"
                                     onRetry={plan.refresh}
                                 />
-                                {plan.data && (
-                                    <div className="space-y-5">
-                                        <AiDailyPlanTarget plan={plan.data} />
-                                        <AiDailyPlanItemsTable
-                                            items={plan.data.items}
-                                        />
-                                        <AiDailyPlanExplanation
-                                            explanation={plan.data.explanation}
-                                        />
-                                        {plan.data.ropOnly && (
-                                            <AiDailyPlanRopOnly
-                                                ropOnly={plan.data.ropOnly}
-                                                items={plan.data.items}
-                                            />
-                                        )}
-                                    </div>
+                                {plan.data && plan.view && (
+                                    <AiDailyPlanBody
+                                        plan={plan.data}
+                                        view={plan.view}
+                                        onOpenTargets={onOpenTargets}
+                                    />
                                 )}
                             </>
                         )

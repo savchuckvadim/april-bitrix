@@ -16,16 +16,20 @@ import { AiLevelsDialog } from './AiLevelsDialog';
 import { AiKpiOnlyNote } from './components/AiKpiOnlyNote';
 
 /**
- * Вкладка «AI аналитика»: шапка, баннер готовности, пульс, AI-резюме
- * периода, «Внимание», повестка планёрки, слепая оценка (руководителю),
- * план дня, план-факт месяца, таблица сигналов; второй уровень — разбор по типам (drawer),
- * стиль менеджера (диалог из строки таблицы), «Как считаем» (кнопки в
- * шапках секций) и настройки витрины (диалог руководителя: уровни, цели,
- * отсутствия, состав — баннер готовности открывает вкладку «Состав»).
- * В kpi-only разборов нет — секции с оценками скрыты с пояснением.
+ * Вкладка «AI аналитика»: шапка, «Готовность витрины» с чек-листом
+ * «донастроить или просто подождать?», пульс, AI-резюме периода,
+ * «Внимание», повестка планёрки, слепая оценка (руководителю), план дня,
+ * план-факт месяца, таблица сигналов; второй уровень — разбор по типам
+ * (drawer), стиль менеджера, «Как считаем» и настройки витрины (диалог
+ * руководителя: уровни, цели, отсутствия, состав — пункты чек-листа и
+ * «Задать цель» плана дня открывают нужную вкладку). В kpi-only разборов
+ * нет — секции с оценками скрыты с пояснением.
  */
 export const AiAnalyticsReport = () => {
     const report = useAiAnalyticsReport();
+    const onOpenSettings = report.canConfigure
+        ? report.openSettings
+        : undefined;
 
     return (
         <div className="space-y-4">
@@ -39,12 +43,11 @@ export const AiAnalyticsReport = () => {
                 onRecalc={report.recalc}
                 onOpenLevels={report.openLevels}
             />
-            {report.settings && (
+            {report.settings && report.checklist && (
                 <AiReadinessBanner
                     settings={report.settings}
-                    onConfirmRoster={
-                        report.canConfigure ? report.openRoster : undefined
-                    }
+                    checklist={report.checklist}
+                    onOpenSettings={onOpenSettings}
                 />
             )}
             {report.kpiOnly ? (
@@ -56,7 +59,11 @@ export const AiAnalyticsReport = () => {
                     <AiAttentionList />
                     <AiAgendaCard />
                     <AiRopMarkCard />
-                    <AiDailyPlanCard />
+                    <AiDailyPlanCard
+                        onOpenTargets={
+                            report.canConfigure ? report.openTargets : undefined
+                        }
+                    />
                     <AiPlanFactCard />
                     <AiSignalTable />
                     <AiTypesDrawer />

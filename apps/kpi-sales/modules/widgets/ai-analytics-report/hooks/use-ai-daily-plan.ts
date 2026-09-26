@@ -16,6 +16,10 @@ import {
     isAiPlanDate,
     pickAiPlanManager,
 } from '../lib/ai-daily-plan.util';
+import {
+    buildAiDailyPlanView,
+    type AiDailyPlanView,
+} from '../lib/ai-daily-plan-view.util';
 
 /**
  * Состояние карточки «План дня»: чей план (руководителю — селект из
@@ -23,7 +27,9 @@ import {
  * день (по умолчанию сегодня), гейт настройки портала dailyPlanEnabled,
  * запрос при смене входов (гарды thunk не дадут дублей) и «Обновить» с
  * force. Пока в сторе ответ на другой запрос (сменили менеджера или день)
- * — секция показывается как loading, а не чужими данными.
+ * — секция показывается как loading, а не чужими данными. view — модель
+ * отображения ответа: состояние (цели нет / выполнено / план), заголовок,
+ * строки в порядке воронки, прогноз месяца руководителю.
  */
 export const useAiDailyPlan = (defaultManagerId?: string) => {
     const dispatch = useAppDispatch();
@@ -79,10 +85,15 @@ export const useAiDailyPlan = (defaultManagerId?: string) => {
     const status: AiStatus = isCurrent ? section.status : 'loading';
     const data: AiDailyPlan | null =
         isCurrent && section.status === 'ready' ? section.data : null;
+    const view: AiDailyPlanView | null = useMemo(
+        () => (data ? buildAiDailyPlanView(data) : null),
+        [data],
+    );
 
     return {
         status,
         data,
+        view,
         error: isCurrent ? section.error : null,
         isLeader,
         /** План дня выключен настройкой портала — запрос не шлём. */

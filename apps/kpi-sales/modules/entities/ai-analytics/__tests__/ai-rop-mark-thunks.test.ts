@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { appActions } from '@/modules/app/model/AppSlice';
 import {
     fetchAiRopMarkWeek,
     isAiRopMarkWeekEmpty,
@@ -96,6 +97,16 @@ describe('fetchAiRopMarkWeek — list / pick', () => {
         expect(pickRopMark).not.toHaveBeenCalled();
         expect(store.getState().aiAnalytics.ropMark.status).toBe('ready');
         expect(store.getState().aiAnalytics.ropMark.data?.calls).toEqual([]);
+    });
+
+    it('реальный суперпользователь вендора — автоподбор не шлём, только list', async () => {
+        listRopMark.mockResolvedValue(ready(ropMarkWeekEmpty()));
+        const store = makeAiStore({ leader: true });
+        store.dispatch(appActions.setRealSuperUser(true));
+        await store.dispatch(fetchAiRopMarkWeek());
+        expect(pickRopMark).not.toHaveBeenCalled();
+        expect(listRopMark).toHaveBeenCalledTimes(1);
+        expect(store.getState().aiAnalytics.ropMark.status).toBe('ready');
     });
 
     it('403 менеджеру на list → status error с текстом сервера', async () => {

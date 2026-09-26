@@ -10,6 +10,6 @@ import type { AiDossierFeedbackSummaryDtoByKind } from './aiDossierFeedbackSumma
 export interface AiDossierFeedbackSummaryDto {
     /** Реакций всего за окно. */
     total: number;
-    /** Счётчики по видам реакции (useful, not_useful, disagree, view, alert_handled …): код вида → число. */
+    /** Счётчики по видам реакции: только useful, not_useful, disagree и alert_handled в актуальном статусе (просмотры, служебные записи и замещённые метки не считаются): код вида → число. */
     byKind: AiDossierFeedbackSummaryDtoByKind;
 }

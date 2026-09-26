@@ -7,7 +7,7 @@
  */
 
 /**
- * Источник роли: structure — руководитель по структуре Битрикса (HEADS отдела); settings — уровень поднят настройкой портала «Отдел продаж» (visibility_*_user_ids).
+ * Источник роли: structure — руководитель по структуре Битрикса (HEADS отдела); settings — уровень поднят настройкой портала «Отдел продаж» (visibility_*_user_ids); superuser — суперпользователь вендора из env BX_SUPER_USER_IDS: видимость all, headOf = cup, headOfDepartmentIds — все ОП, независимо от структуры и настроек.
  */
 export type BxCurrentUserDtoHeadOfSource =
     (typeof BxCurrentUserDtoHeadOfSource)[keyof typeof BxCurrentUserDtoHeadOfSource];
@@ -16,4 +16,5 @@ export type BxCurrentUserDtoHeadOfSource =
 export const BxCurrentUserDtoHeadOfSource = {
     structure: 'structure',
     settings: 'settings',
+    superuser: 'superuser',
 } as const;

@@ -4,6 +4,7 @@ import type {
     RootState,
 } from '@/modules/app/model/store';
 import { getWSClient } from '@/modules/app/model/ws-client';
+import { selectIsViewAs } from '@/modules/app/model/selectors';
 import type { AiRequester } from '../lib/api/ai-analytics-helper';
 import { buildAiRequestKey } from '../lib/ai-request-key.util';
 import { clampAiPeriod } from '../lib/ai-period.util';
@@ -392,13 +393,18 @@ export const recalcAiOverview =
 
 export const AI_SETTINGS_SAVE_ERROR = 'Настройки не сохранены';
 
+/** saveAiLevels в режиме «Смотреть как…»: запись заблокирована гардом. */
+export const AI_SETTINGS_VIEW_AS_ERROR =
+    'В режиме «Смотреть как…» настройки не сохраняются: выйдите из режима и сохраните от своего имени.';
+
 /**
  * Настройки витрины → settings/save: уровни, цели по уровням, отсутствия,
  * подтверждение состава и прочие блоки DTO. В payload — только блоки,
  * которые менялись: не переданный блок сервер не трогает. Имя историческое
  * (первым блоком были уровни); состояние — `levels` слайса. Возвращает
  * итог сервера (comparableFrom, breaksSeries, warnings) либо null — текст
- * ошибки в `levels.error`. После успеха listener перечитывает обзор.
+ * ошибки в `levels.error`. В режиме «Смотреть как…» — null без запроса
+ * (AI_SETTINGS_VIEW_AS_ERROR). После успеха listener перечитывает обзор.
  */
 export const saveAiLevels =
     (input: AiSettingsInput) =>
@@ -406,6 +412,14 @@ export const saveAiLevels =
         dispatch: AppDispatch,
         getState: AppGetState,
     ): Promise<AiSettingsSaveResult | null> => {
+        // «Смотреть как…»: настройки ушли бы от имени просматриваемого —
+        // запроса нет, в диалоге понятная причина вместо молчания.
+        if (selectIsViewAs(getState())) {
+            dispatch(
+                aiAnalyticsActions.levelsFailed(AI_SETTINGS_VIEW_AS_ERROR),
+            );
+            return null;
+        }
         const requester = selectAiRequester(getState());
         if (!requester || getState().aiAnalytics.levels.saving) return null;
 

@@ -8,31 +8,48 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table';
-import { HintTooltip } from '@workspace/april-ui';
-import type { AiDailyPlanItem } from '@/modules/entities/ai-analytics';
-import {
-    formatAiPlanCap,
-    sortAiDailyPlanItems,
-} from '../../lib/ai-daily-plan.util';
-import { AiPlanCell } from './AiPlanCell';
+import { HintTooltip, LiquidProgress, ToneBadge } from '@workspace/april-ui';
+import { aiPlanTone } from '@/modules/entities/ai-analytics';
+import { AI_DAILY_PLAN_TOP_LEAK } from '../../lib/ai-daily-plan-activity.data';
+import type { AiDailyPlanRowView } from '../../lib/ai-daily-plan-view.util';
 
 interface AiDailyPlanItemsTableProps {
-    items: AiDailyPlanItem[];
+    /** Строки в порядке воронки (buildAiDailyPlanView). */
+    rows: AiDailyPlanRowView[];
 }
 
+/** «За месяц»: сделано из плана с полосой; без плана — только сделано. */
+const MonthCell = ({ row }: { row: AiDailyPlanRowView }) => (
+    <div className="flex min-w-24 flex-col gap-1">
+        <span className="text-sm tabular-nums">
+            {row.monthDone}
+            {row.monthPlan !== null && (
+                <span className="text-muted-foreground">
+                    {' '}
+                    из {row.monthPlan}
+                </span>
+            )}
+        </span>
+        {row.monthShare !== null && (
+            <LiquidProgress
+                value={row.monthShare}
+                tone={aiPlanTone(row.monthShare)}
+                size="sm"
+            />
+        )}
+    </div>
+);
+
 /**
- * Строки плана по рёбрам воронки в порядке приоритета утечки: сегодня
- * (сделано / нужно с полосой), месяц (сделано / план) и потолок дневного
- * темпа полосы стажа.
+ * Строки плана в порядке воронки: активность (вход ребра), сколько нужно
+ * сегодня и сколько сделано за месяц из плана. Строку главной утечки
+ * помечаем «узким местом».
  */
-export const AiDailyPlanItemsTable = ({
-    items,
-}: AiDailyPlanItemsTableProps) => {
-    if (!items.length) {
+export const AiDailyPlanItemsTable = ({ rows }: AiDailyPlanItemsTableProps) => {
+    if (!rows.length) {
         return (
             <p className="py-2 text-xs text-muted-foreground">
-                Строк плана нет: требуемый объём уже закрыт или разворачивать
-                нечего.
+                Строк плана нет: разворачивать по воронке нечего.
             </p>
         );
     }
@@ -41,47 +58,41 @@ export const AiDailyPlanItemsTable = ({
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead className="w-8">#</TableHead>
                     <TableHead>Активность</TableHead>
-                    <TableHead>Сегодня</TableHead>
-                    <TableHead>Месяц</TableHead>
-                    <TableHead className="text-right">
-                        <HintTooltip
-                            title="Потолок дня"
-                            lines={[
-                                'p90 дневного темпа полосы стажа: выше него план не ставится — догонять недобор за три дня не план, а демотивация.',
-                            ]}
-                        >
-                            <span className="border-b border-dashed border-muted-foreground">
-                                Потолок
-                            </span>
-                        </HintTooltip>
-                    </TableHead>
+                    <TableHead className="text-right">Нужно сегодня</TableHead>
+                    <TableHead>За месяц</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {sortAiDailyPlanItems(items).map(item => (
-                    <TableRow key={item.callType}>
-                        <TableCell className="text-xs text-muted-foreground">
-                            {item.priority}
-                        </TableCell>
+                {rows.map(row => (
+                    <TableRow key={row.callType}>
                         <TableCell className="font-medium">
-                            {item.title}
+                            <div className="flex flex-wrap items-center gap-2">
+                                <HintTooltip
+                                    title={row.label}
+                                    lines={[row.hint]}
+                                >
+                                    <span className="border-b border-dashed border-muted-foreground">
+                                        {row.label}
+                                    </span>
+                                </HintTooltip>
+                                {row.topLeak && (
+                                    <ToneBadge
+                                        tone="warning"
+                                        variant="soft"
+                                        size="sm"
+                                        title={AI_DAILY_PLAN_TOP_LEAK.hint}
+                                    >
+                                        {AI_DAILY_PLAN_TOP_LEAK.label}
+                                    </ToneBadge>
+                                )}
+                            </div>
+                        </TableCell>
+                        <TableCell className="text-right text-base font-semibold tabular-nums">
+                            {row.today}
                         </TableCell>
                         <TableCell>
-                            <AiPlanCell
-                                done={item.doneToday}
-                                plan={item.requiredToday}
-                            />
-                        </TableCell>
-                        <TableCell>
-                            <AiPlanCell
-                                done={item.monthDone}
-                                plan={item.monthPlan}
-                            />
-                        </TableCell>
-                        <TableCell className="text-right text-xs tabular-nums text-muted-foreground">
-                            {formatAiPlanCap(item.cap)}
+                            <MonthCell row={row} />
                         </TableCell>
                     </TableRow>
                 ))}

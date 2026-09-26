@@ -2,8 +2,20 @@ import { describe, expect, it } from 'vitest';
 import type { AiRiskCall } from '@/modules/entities/ai-analytics/model';
 import { AI_DISAGREE_REASON_MAX } from '@/modules/entities/ai-analytics/lib/ai-feedback.util';
 import {
+    managerTrends,
+    yoy,
+} from '@/modules/entities/ai-analytics/__tests__/ai-fixtures';
+import {
     AI_LEVER_NO_EFFECT,
+    AI_NOT_ANALYZED_HINT,
+    AI_SIGNAL_FIXED_COLUMNS,
     AI_TENURE_UNKNOWN,
+    AI_TENURE_UNKNOWN_HINT,
+    aiAnalyzedLabel,
+    aiSignalColumnCount,
+    aiSignalColumns,
+    aiTenureLabel,
+    isAiRowOutOfAnalysis,
     aiDisagreeCommentMax,
     aiLeverHintLines,
     aiLeverTitle,
@@ -114,11 +126,85 @@ describe('ai-signal.util — стаж и риск-звонки', () => {
         expect(formatAiDateRu('мусор')).toBe('мусор');
     });
 
-    it('formatAiSince: дата и стаж, только стаж, ничего', () => {
-        expect(formatAiSince('2025-03-01', 9)).toBe('с 01.03.2025 · 9 мес.');
+    it('formatAiSince: стаж с датой и источником, с датой, только стаж, ничего', () => {
+        expect(formatAiSince('2025-03-01', 9, 'employment')).toBe(
+            'стаж 9 мес. (с 01.03.2025, по дате приёма)',
+        );
+        expect(formatAiSince('2025-03-01', 9, 'register')).toBe(
+            'стаж 9 мес. (с 01.03.2025, по регистрации в Bitrix)',
+        );
+        expect(formatAiSince(undefined, 9, 'proxy')).toBe(
+            'стаж 9 мес. (по первому событию)',
+        );
+        expect(formatAiSince('2025-03-01', 9, 'manual')).toBe(
+            'стаж 9 мес. (с 01.03.2025, задан вручную)',
+        );
+        expect(formatAiSince('2025-03-01', 9)).toBe(
+            'стаж 9 мес. (с 01.03.2025)',
+        );
         expect(formatAiSince('2025-03-01', null)).toBe('с 01.03.2025');
         expect(formatAiSince(undefined, 9)).toBe('стаж 9 мес.');
         expect(formatAiSince(undefined, null)).toBe(AI_TENURE_UNKNOWN);
+    });
+
+    it('aiTenureLabel: «стаж не задан» — с подсказкой «задайте дату в «Уровни»»', () => {
+        expect(aiTenureLabel({ since: undefined, tenureMonths: null })).toEqual(
+            { text: AI_TENURE_UNKNOWN, hint: AI_TENURE_UNKNOWN_HINT },
+        );
+        expect(
+            aiTenureLabel({
+                since: '2025-11-03',
+                sinceSource: 'employment',
+                tenureMonths: 10,
+            }),
+        ).toEqual({
+            text: 'стаж 10 мес. (с 03.11.2025, по дате приёма)',
+            hint: null,
+        });
+        // Дата есть, стаж ещё не посчитан — это не «стаж не задан».
+        expect(
+            aiTenureLabel({ since: '2026-10-01', tenureMonths: null }),
+        ).toEqual({ text: 'с 01.10.2026', hint: null });
+    });
+
+    it('aiAnalyzedLabel: «разобрано 0 из 0» при звонках в CRM — подсказка про готовность', () => {
+        const discipline = (callDone: number) => ({
+            callPlan: 0,
+            callDone,
+            presentationPlan: 0,
+            presentationDone: 0,
+        });
+        expect(
+            aiAnalyzedLabel({
+                analyzedCalls: 0,
+                callsTotal: 0,
+                discipline: discipline(12),
+            }),
+        ).toEqual({ text: 'разобрано 0 из 0', hint: AI_NOT_ANALYZED_HINT });
+        expect(
+            aiAnalyzedLabel({
+                analyzedCalls: 0,
+                callsTotal: 0,
+                discipline: discipline(0),
+            }).hint,
+        ).toBeNull();
+        expect(
+            isAiRowOutOfAnalysis({ callsTotal: 5, discipline: discipline(12) }),
+        ).toBe(false);
+    });
+
+    it('aiSignalColumns: «Тренды» и «Год назад» — только при данных; число колонок', () => {
+        const none = aiSignalColumns([{ trends: null, yoy: null }, {}]);
+        expect(none).toEqual({ trends: false, yoy: false });
+        expect(aiSignalColumnCount(none)).toBe(AI_SIGNAL_FIXED_COLUMNS);
+        expect(AI_SIGNAL_FIXED_COLUMNS).toBe(13);
+        const both = aiSignalColumns([
+            { trends: managerTrends(), yoy: null },
+            { yoy: yoy() },
+        ]);
+        expect(both).toEqual({ trends: true, yoy: true });
+        expect(aiSignalColumnCount(both)).toBe(15);
+        expect(aiSignalColumnCount({ trends: true, yoy: false })).toBe(14);
     });
 
     it('pickAiRiskCalls: свежие первыми, не больше трёх; «ещё N»', () => {

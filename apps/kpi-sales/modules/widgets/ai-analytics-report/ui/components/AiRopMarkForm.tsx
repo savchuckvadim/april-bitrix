@@ -15,6 +15,7 @@ import {
     AI_ROP_MARK_TEXT_MAX,
     type AiRopMarkFormValues,
 } from '../../lib/ai-rop-mark.util';
+import { AiReadOnlyHint } from './AiReadOnlyHint';
 
 const AGREE_OPTIONS: MicroSegmentedOption[] = [
     { value: 'yes', label: 'Согласен с AI' },
@@ -29,6 +30,8 @@ interface AiRopMarkFormProps {
     /** Ошибка проверки формы либо текст 400/403 сервера. */
     error: string | null;
     pending: boolean;
+    /** Режим «Смотреть как…»: «Сохранить метку» неактивна с подсказкой. */
+    readOnlyHint?: string | null;
     onAgree: (agree: boolean) => void;
     onScore: (score: number | null) => void;
     onToggleSection: (code: AiRopMarkSection) => void;
@@ -49,6 +52,7 @@ export const AiRopMarkForm = ({
     form,
     error,
     pending,
+    readOnlyHint = null,
     onAgree,
     onScore,
     onToggleSection,
@@ -179,15 +183,17 @@ export const AiRopMarkForm = ({
                             Отмена
                         </Button>
                     )}
-                    <Button
-                        size="sm"
-                        className="h-7 gap-1 text-xs"
-                        disabled={pending}
-                        onClick={onSubmit}
-                    >
-                        <Send className="h-3.5 w-3.5" />
-                        {pending ? 'Сохраняем…' : 'Сохранить метку'}
-                    </Button>
+                    <AiReadOnlyHint hint={readOnlyHint}>
+                        <Button
+                            size="sm"
+                            className="h-7 gap-1 text-xs"
+                            disabled={pending || readOnlyHint !== null}
+                            onClick={onSubmit}
+                        >
+                            <Send className="h-3.5 w-3.5" />
+                            {pending ? 'Сохраняем…' : 'Сохранить метку'}
+                        </Button>
+                    </AiReadOnlyHint>
                 </div>
             </div>
         </div>

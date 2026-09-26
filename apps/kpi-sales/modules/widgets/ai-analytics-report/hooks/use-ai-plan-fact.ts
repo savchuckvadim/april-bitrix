@@ -11,6 +11,10 @@ import {
     type AiPlanFactQuery,
     type AiStatus,
 } from '@/modules/entities/ai-analytics';
+import {
+    buildAiPlanFactView,
+    type AiPlanFactView,
+} from '../lib/ai-plan-fact-view.util';
 import { useAiManagerName } from './use-ai-manager-name';
 
 /**
@@ -18,7 +22,9 @@ import { useAiManagerName } from './use-ai-manager-name';
  * фильтра, менеджеры — выбранные в фильтре (руководителю; менеджеру
  * периметр отсекает сервер), запрос при смене входов (гарды thunk не дадут
  * дублей), «Обновить» с force. Пока в сторе ответ на другой запрос —
- * секция показывается как loading, а не чужими данными.
+ * секция показывается как loading, а не чужими данными. view — готовый
+ * вид карточки: режим (только факт / часть с планом / у всех), группы,
+ * строка покрытия и подсказка «что сделать».
  */
 export const useAiPlanFact = () => {
     const dispatch = useAppDispatch();
@@ -56,10 +62,15 @@ export const useAiPlanFact = () => {
     const status: AiStatus = isCurrent ? section.status : 'loading';
     const data: AiPlanFact | null =
         isCurrent && section.status === 'ready' ? section.data : null;
+    const view = useMemo<AiPlanFactView | null>(
+        () => (data ? buildAiPlanFactView(data, managerName) : null),
+        [data, managerName],
+    );
 
     return {
         status,
         data,
+        view,
         error: isCurrent ? section.error : null,
         isLeader,
         /** Период фильтра задан — есть месяц реконсиляции. */

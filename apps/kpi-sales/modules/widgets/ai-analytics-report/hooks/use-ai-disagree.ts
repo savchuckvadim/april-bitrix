@@ -24,10 +24,13 @@ const REASON_OPTIONS: MicroSelectOption[] = AI_DISAGREE_REASONS.map(reason => ({
  * необязательным комментарием — в feedback уходят одной строкой reason
  * («Подпись: комментарий», ≤ 300 символов, комментарий подрезается под
  * выбранную подпись). Успех — по факту ответа бэка (feedback.sent), после
- * него popover закрывается, поля очищаются.
+ * него popover закрывается, поля очищаются; ошибка остаётся в popover
+ * («Не сохранилось: …»), «Отправить» — повтор. В режиме «Смотреть как…»
+ * кнопка неактивна с подсказкой.
  */
 export const useAiDisagree = (managerId: string) => {
-    const { sent, pending, markDisagree } = useAiFeedback(
+    const { sent, pending, readOnlyHint, error, send } = useAiFeedback(
+        'disagree',
         AI_FEEDBACK_OBJECT.managerRow(managerId),
         { managerId },
     );
@@ -51,7 +54,8 @@ export const useAiDisagree = (managerId: string) => {
     );
 
     const submit = useCallback(async () => {
-        const ok = await markDisagree(
+        const ok = await send(
+            'disagree',
             composeAiDisagreeReason(reasonCode, comment),
         );
         if (ok) {
@@ -60,7 +64,7 @@ export const useAiDisagree = (managerId: string) => {
             setCommentRaw('');
         }
         return ok;
-    }, [markDisagree, reasonCode, comment]);
+    }, [send, reasonCode, comment]);
 
     return {
         open,
@@ -74,8 +78,12 @@ export const useAiDisagree = (managerId: string) => {
         counter: formatAiDisagreeCommentCounter(reasonCode, comment),
         pending,
         disagreed,
-        /** Кнопка-триггер неактивна: реакция уже записана или отправляется. */
-        disabled: pending || disagreed,
+        /** «Не сохранилось: …» последней отправки; null — ошибки нет. */
+        error,
+        /** Подсказка режима «Смотреть как…»; null — запись доступна. */
+        readOnlyHint,
+        /** Кнопка-триггер неактивна: записано, отправляется или режим просмотра. */
+        disabled: pending || disagreed || readOnlyHint !== null,
         submit,
     };
 };

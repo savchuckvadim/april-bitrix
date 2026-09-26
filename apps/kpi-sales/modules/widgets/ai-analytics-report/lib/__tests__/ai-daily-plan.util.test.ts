@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import {
-    dailyPlan,
-    dailyPlanItem,
-} from '@/modules/entities/ai-analytics/__tests__/ai-fixtures';
+import type {
+    AiDailyPlan,
+    AiDailyPlanItem,
+} from '@/modules/entities/ai-analytics';
 import {
     AI_DAILY_PLAN_BETA_SOURCE,
-    AI_DAILY_PLAN_BY_VOLUME,
     AI_DAILY_PLAN_CAP_UNKNOWN,
     AI_DAILY_PLAN_EDGE,
     AI_DAILY_PLAN_NO_STAGE_HISTORY,
@@ -15,20 +14,46 @@ import {
     AI_DAILY_PLAN_TARGET_WARNING,
     AI_DAILY_PLAN_UNREACHABLE,
     aiBindingConstraintLabel,
+    aiDailyPlanCallCap,
     aiSalesLeft,
+    aiSalesToClose,
     buildAiPlanManagerOptions,
     formatAiPipelineExpected,
     formatAiPlanCap,
     formatAiPlanDate,
     formatAiPlanNumber,
-    formatAiRequiredVolume,
     isAiPlanDate,
     pickAiPlanManager,
-    sortAiDailyPlanItems,
 } from '../ai-daily-plan.util';
 
-// Неразрывный пробел ru-RU: сравниваем без учёта вида пробелов.
-const plain = (value: string) => value.replace(/\s/g, ' ');
+/* Локальные фикстуры: форма AiDailyPlanDto как её отдаёт бэк. */
+const dailyPlanItem = (
+    overrides: Partial<AiDailyPlanItem> = {},
+): AiDailyPlanItem => ({
+    callType: 'call_to_presentation',
+    title: 'Звонки',
+    requiredToday: 12,
+    doneToday: 0,
+    monthPlan: 180,
+    monthDone: 96,
+    cap: 20,
+    priority: 1,
+    ...overrides,
+});
+
+const dailyPlan = (overrides: Partial<AiDailyPlan> = {}): AiDailyPlan => ({
+    managerId: '7',
+    date: '2026-09-22',
+    target: { sales: 10, source: 'plan', warnings: [] },
+    doneSales: 4,
+    pipelineExpected: 1.5,
+    requiredVolume: 120,
+    daysLeft: 7,
+    items: [dailyPlanItem()],
+    explanation: { steps: [], text: '' },
+    reason: null,
+    ...overrides,
+});
 
 describe('подписи кодов плана дня', () => {
     it('карты покрывают все коды DTO', () => {
@@ -104,16 +129,6 @@ describe('честные подписи null-полей', () => {
         expect(formatAiPipelineExpected(0)).toBe('0');
     });
 
-    it('N_req: число, иначе причина деградации либо «по объёму»', () => {
-        expect(plain(formatAiRequiredVolume(1200, null))).toBe('1 200');
-        expect(formatAiRequiredVolume(null, 'forecast-missing')).toBe(
-            AI_DAILY_PLAN_REASON['forecast-missing'],
-        );
-        expect(formatAiRequiredVolume(null, null)).toBe(
-            AI_DAILY_PLAN_BY_VOLUME,
-        );
-    });
-
     it('потолок дневного темпа: null — не оценён', () => {
         expect(formatAiPlanCap(null)).toBe(AI_DAILY_PLAN_CAP_UNKNOWN);
         expect(formatAiPlanCap(20)).toBe('20');
@@ -132,18 +147,30 @@ describe('до цели', () => {
     it('перевыполнение — 0, а не отрицательное', () => {
         expect(aiSalesLeft(dailyPlan({ doneSales: 12 }))).toBe(0);
     });
+
+    it('осталось закрыть: G − Y₀ целыми сделками, без пайплайна', () => {
+        expect(aiSalesToClose(dailyPlan())).toBe(6);
+        expect(
+            aiSalesToClose(
+                dailyPlan({
+                    target: { sales: 2.5, source: 'median', warnings: [] },
+                    doneSales: 1,
+                }),
+            ),
+        ).toBe(2);
+        expect(aiSalesToClose(dailyPlan({ doneSales: 12 }))).toBe(0);
+    });
 });
 
 describe('строки плана', () => {
-    it('сортировка по приоритету, исходный массив не меняется', () => {
-        const items = [
-            dailyPlanItem({ priority: 2, callType: 'presentation_to_offer' }),
-            dailyPlanItem({ priority: 1 }),
-        ];
-        expect(sortAiDailyPlanItems(items).map(item => item.priority)).toEqual([
-            1, 2,
-        ]);
-        expect(items[0]?.priority).toBe(2);
+    it('потолок дня — со строки звонков (бэк копирует его во все рёбра)', () => {
+        const offer = dailyPlanItem({ callType: 'offer_to_invoice', cap: 3 });
+        expect(aiDailyPlanCallCap([offer, dailyPlanItem({ cap: 25 })])).toBe(
+            25,
+        );
+        expect(aiDailyPlanCallCap([offer])).toBe(3);
+        expect(aiDailyPlanCallCap([dailyPlanItem({ cap: null })])).toBeNull();
+        expect(aiDailyPlanCallCap([])).toBeNull();
     });
 
     it('связующее ограничение: название строки плана, иначе код по-русски', () => {

@@ -15,14 +15,18 @@ interface HowQuestionnaireQuestionProps {
     question: QuestionData;
     answer: HowAnswer;
     onToggleChoice: (value: string) => void;
+    /** Чекбокс вопроса `multi` */
+    onToggleValue: (value: string) => void;
     onCustomChange: (value: string) => void;
     onCommentChange: (value: string) => void;
 }
 
 /**
  * Один вопрос анкеты. `choice` — варианты-кнопки, «свой вариант» и
- * комментарий; `text` — многострочное поле; `link` — поле ссылки.
- * У свободных видов комментария нет: сам ответ и есть комментарий.
+ * комментарий; `multi` — те же кнопки, но отмечать можно несколько;
+ * `text` — многострочное поле; `link` — поле ссылки.
+ * У свободных видов и у `multi` комментария нет: сам ответ и есть
+ * комментарий.
  */
 export const HowQuestionnaireQuestion: React.FC<
     HowQuestionnaireQuestionProps
@@ -31,6 +35,7 @@ export const HowQuestionnaireQuestion: React.FC<
     question,
     answer,
     onToggleChoice,
+    onToggleValue,
     onCustomChange,
     onCommentChange,
 }) => {
@@ -74,11 +79,37 @@ export const HowQuestionnaireQuestion: React.FC<
                     })}
                 </div>
             )}
+            {kind === 'multi' && (
+                <div
+                    className="flex flex-wrap gap-2"
+                    role="group"
+                    aria-label={question.title}
+                >
+                    {question.options.map((option) => {
+                        const selected = Boolean(
+                            answer.values?.includes(option.value),
+                        );
+                        return (
+                            <button
+                                key={option.value}
+                                type="button"
+                                role="checkbox"
+                                aria-checked={selected}
+                                onClick={() => onToggleValue(option.value)}
+                                className={optionPillClass(selected, false)}
+                            >
+                                {option.value}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
             {kind === 'choice' && question.allowCustom && (
                 <Input
                     value={answer.custom ?? ''}
                     onChange={(event) => onCustomChange(event.target.value)}
                     placeholder={question.placeholder ?? 'Свой вариант'}
+                    maxLength={question.maxLength}
                     className="mt-3"
                 />
             )}
@@ -87,6 +118,7 @@ export const HowQuestionnaireQuestion: React.FC<
                     value={answer.custom ?? ''}
                     onChange={(event) => onCustomChange(event.target.value)}
                     placeholder={question.placeholder ?? 'Ваш ответ'}
+                    maxLength={question.maxLength}
                     aria-label={question.title}
                 />
             )}
@@ -97,6 +129,7 @@ export const HowQuestionnaireQuestion: React.FC<
                     value={answer.custom ?? ''}
                     onChange={(event) => onCustomChange(event.target.value)}
                     placeholder={question.placeholder ?? 'https://…'}
+                    maxLength={question.maxLength}
                     aria-label={question.title}
                 />
             )}

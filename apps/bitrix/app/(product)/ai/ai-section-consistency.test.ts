@@ -20,11 +20,11 @@ const SECTION_DIR = __dirname;
 const pageBySlug = (slug: string) => AI_PAGES.find(page => page.slug === slug);
 
 describe('раздел AI: вкладки', () => {
-    it('базовый путь — /ai, вкладок пятнадцать, первая — обзор', () => {
+    it('базовый путь — /ai, вкладок шестнадцать, первая — обзор', () => {
         expect(AI_BASE_PATH).toBe('/ai');
         expect(AI_SECTION.basePath).toBe(AI_BASE_PATH);
         expect(AI_SECTION.tabs).toBe(AI_TABS);
-        expect(AI_TABS).toHaveLength(15);
+        expect(AI_TABS).toHaveLength(16);
         expect(AI_TABS[0]?.slug).toBe('');
     });
 

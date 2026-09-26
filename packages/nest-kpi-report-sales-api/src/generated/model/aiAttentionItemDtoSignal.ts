@@ -7,7 +7,7 @@
  */
 
 /**
- * Сигнал Фазы 1: risk — риск-звонки; no_data — n < 8 при звонках; discipline — < 50 % плана CRM при плане ≥ 10; next_step_drop — падение доли «шаг с датой» при n ≥ 20 в обоих окнах; plan_gap — план руководителя vs норма (с Фазы 2).
+ * Сигнал Фазы 1: risk — риск-звонки; no_data — n < 8 при звонках; discipline — < 50 % плана CRM при плане ≥ 10; next_step_drop — падение доли «шаг с датой» при n ≥ 20 в обоих окнах; plan_gap — план руководителя vs норма (с Фазы 2). Фаза 3: goodhart — метрика давления растёт, противовес падает (goodhart_drop за goodhart_window_months); trend_shift / trend_drift — сдвиг уровня или дрейф ряда вниз.
  */
 export type AiAttentionItemDtoSignal =
     (typeof AiAttentionItemDtoSignal)[keyof typeof AiAttentionItemDtoSignal];
@@ -19,4 +19,7 @@ export const AiAttentionItemDtoSignal = {
     discipline: 'discipline',
     next_step_drop: 'next_step_drop',
     plan_gap: 'plan_gap',
+    goodhart: 'goodhart',
+    trend_shift: 'trend_shift',
+    trend_drift: 'trend_drift',
 } as const;

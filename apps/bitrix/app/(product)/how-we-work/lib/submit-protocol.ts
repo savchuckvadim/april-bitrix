@@ -1,18 +1,19 @@
 import type {
-    CalibrationBriefSubmission,
     CalibrationSubmitResponse,
+    QuestionnaireSubmission,
 } from '@/app/api/calibration/lib/calibration-submission';
 
 const NETWORK_ERROR = 'Нет связи — проверьте интернет и повторите';
 
 /**
- * Отправка протокола в маршрут приложения (`/api/calibration`), который уже
- * пересылает его в Telegram. Никогда не бросает: сетевой сбой и кривой ответ
- * превращаются в `{ ok: false, error }`, чтобы кнопка показала «повторить».
+ * Отправка протокола в маршрут приложения (`/api/calibration` и другие
+ * двери анкет), который уже пересылает его дальше. Никогда не бросает:
+ * сетевой сбой и кривой ответ превращаются в `{ ok: false, error }`, чтобы
+ * кнопка показала «повторить».
  */
 export const submitProtocol = async (
     path: string,
-    submission: CalibrationBriefSubmission,
+    submission: QuestionnaireSubmission,
 ): Promise<CalibrationSubmitResponse> => {
     try {
         const response = await fetch(path, {

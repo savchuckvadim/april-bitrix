@@ -1,13 +1,27 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type {
+    AiAbout,
+    AiAboutEndpoint,
     AiAgenda,
     AiAnalyticsSettings,
     AiAttention,
+    AiBrief,
     AiByType,
     AiByTypeLayout,
+    AiDailyPlan,
+    AiDailyPlanQuery,
+    AiDossier,
+    AiDossierQuery,
     AiFeedbackKind,
     AiOverview,
+    AiPlanFact,
+    AiPlanFactQuery,
     AiPulse,
+    AiRopMarkSaveResult,
+    AiRopMarkWeek,
+    AiRopMarkWeekQuery,
+    AiStyleCard,
+    AiStyleQuery,
 } from './index';
 import {
     AI_CALL_TYPE_ALL,
@@ -42,10 +56,22 @@ export type AiDataSection =
     | 'agenda'
     | 'overview'
     | 'attention'
-    | 'byType';
+    | 'byType'
+    | 'dailyPlan'
+    | 'brief'
+    | 'ropMark'
+    | 'style'
+    | 'planFact'
+    | 'dossier';
 
 /** Секции, которые считает очередь (WS done → повторный POST). */
-export const AI_QUEUED_SECTIONS = ['overview', 'attention', 'byType'] as const;
+export const AI_QUEUED_SECTIONS = [
+    'overview',
+    'attention',
+    'byType',
+    'brief',
+    'dossier',
+] as const;
 export type AiQueuedSection = (typeof AI_QUEUED_SECTIONS)[number];
 
 export type AiSectionData = {
@@ -55,7 +81,23 @@ export type AiSectionData = {
     overview: AiOverview;
     attention: AiAttention;
     byType: AiByType;
+    dailyPlan: AiDailyPlan;
+    brief: AiBrief;
+    ropMark: AiRopMarkWeek;
+    style: AiStyleCard;
+    planFact: AiPlanFact;
+    dossier: AiDossier;
 };
+
+/** Сохранение слепой метки (rop-mark/save); список недели остаётся на экране. */
+export interface AiRopMarkSaveState {
+    /** transcriptionId звонка, метка по которому отправляется; null — нет. */
+    pending: string | null;
+    /** Текст 400/403 сервера или сети; сбрасывается новой отправкой. */
+    error: string | null;
+    /** Результат последней записи (id, replaced, blind). */
+    lastSaved: AiRopMarkSaveResult | null;
+}
 
 export interface AiAnalyticsState {
     settings: AiSection<AiAnalyticsSettings>;
@@ -64,6 +106,31 @@ export interface AiAnalyticsState {
     overview: AiSection<AiOverview>;
     attention: AiSection<AiAttention>;
     byType: AiSection<AiByType>;
+    /** План дня менеджера (plan/daily); гейт — settings.data.dailyPlanEnabled. */
+    dailyPlan: AiSection<AiDailyPlan>;
+    /** Чей план и на какой день запрошен (нужен UI в loading/error). */
+    dailyPlanQuery: AiDailyPlanQuery | null;
+    /** AI-резюме периода (brief, очередь + WS). */
+    brief: AiSection<AiBrief>;
+    /** Слепая оценка: подбор недели и метки (rop-mark/list, при отсутствии — pick). */
+    ropMark: AiSection<AiRopMarkWeek>;
+    /** Какая неделя запрошена (пусто — текущая неделя портала); по ней перечитка после метки. */
+    ropMarkQuery: AiRopMarkWeekQuery | null;
+    ropMarkSave: AiRopMarkSaveState;
+    /** Карточка стиля менеджера (manager/style). */
+    style: AiSection<AiStyleCard>;
+    /** Чья карточка и за какой месяц запрошена. */
+    styleQuery: AiStyleQuery | null;
+    /** Реконсиляция «план — факт» месяца (plan-fact, sync; Фаза 3). */
+    planFact: AiSection<AiPlanFact>;
+    /** Какой месяц и какие менеджеры запрошены. */
+    planFactQuery: AiPlanFactQuery | null;
+    /** Досье менеджера (dossier, очередь + WS; Фаза 3). */
+    dossier: AiSection<AiDossier>;
+    /** Чьё досье и за какое окно запрошено. */
+    dossierQuery: AiDossierQuery | null;
+    /** «Как считаем» — кэш по ручке (overview | plan/daily | brief | manager/style). */
+    about: Partial<Record<AiAboutEndpoint, AiSection<AiAbout>>>;
     feedback: {
         /** Объекты, по которым реакция сейчас отправляется. */
         pending: string[];
@@ -98,6 +165,12 @@ const emptySection = <T>(): AiSection<T> => ({
     error: null,
 });
 
+const emptyRopMarkSave = (): AiRopMarkSaveState => ({
+    pending: null,
+    error: null,
+    lastSaved: null,
+});
+
 const initialState: AiAnalyticsState = {
     settings: emptySection(),
     pulse: emptySection(),
@@ -105,6 +178,19 @@ const initialState: AiAnalyticsState = {
     overview: emptySection(),
     attention: emptySection(),
     byType: emptySection(),
+    dailyPlan: emptySection(),
+    dailyPlanQuery: null,
+    brief: emptySection(),
+    ropMark: emptySection(),
+    ropMarkQuery: null,
+    ropMarkSave: emptyRopMarkSave(),
+    style: emptySection(),
+    styleQuery: null,
+    planFact: emptySection(),
+    planFactQuery: null,
+    dossier: emptySection(),
+    dossierQuery: null,
+    about: {},
     feedback: { pending: [], sent: {}, viewed: [], error: null },
     levels: { saving: false, error: null, savedAt: null },
     selectedCallType: AI_CALL_TYPE_ALL,
@@ -118,6 +204,18 @@ interface SectionReadyPayload {
     requestKey: string;
     serverKey: string;
 }
+
+/** Секция кэша «Как считаем» по ручке; отсутствующая — создаётся пустой. */
+const aboutSection = (
+    state: AiAnalyticsState,
+    endpoint: AiAboutEndpoint,
+): AiSection<AiAbout> => {
+    const existing = state.about[endpoint];
+    if (existing) return existing;
+    const created = emptySection<AiAbout>();
+    state.about[endpoint] = created;
+    return created;
+};
 
 /**
  * AI-аналитика ОП: настройки/готовность, пульс дисциплины, повестка РОПа,
@@ -270,6 +368,114 @@ const aiAnalyticsSlice = createSlice({
             state.levels.error = action.payload;
         },
 
+        /* ---------- Фаза 2: план дня, стиль, слепая оценка, «Как считаем» ---------- */
+
+        /** Запомнить, чей план и на какой день запрошен (до sectionPending). */
+        dailyPlanQueried: (
+            state: AiAnalyticsState,
+            action: PayloadAction<AiDailyPlanQuery>,
+        ) => {
+            state.dailyPlanQuery = action.payload;
+        },
+        /** Запомнить, чья карточка стиля и за какой месяц запрошена. */
+        styleQueried: (
+            state: AiAnalyticsState,
+            action: PayloadAction<AiStyleQuery>,
+        ) => {
+            state.styleQuery = action.payload;
+        },
+
+        /* ---------- Фаза 3: план-факт, досье ---------- */
+
+        /** Запомнить месяц и менеджеров план-факта (до sectionPending). */
+        planFactQueried: (
+            state: AiAnalyticsState,
+            action: PayloadAction<AiPlanFactQuery>,
+        ) => {
+            state.planFactQuery = action.payload;
+        },
+        /** Запомнить, чьё досье и за какое окно запрошено. */
+        dossierQueried: (
+            state: AiAnalyticsState,
+            action: PayloadAction<AiDossierQuery>,
+        ) => {
+            state.dossierQuery = action.payload;
+        },
+
+        /** Запомнить неделю слепой оценки (до sectionPending). */
+        ropMarkQueried: (
+            state: AiAnalyticsState,
+            action: PayloadAction<AiRopMarkWeekQuery>,
+        ) => {
+            state.ropMarkQuery = action.payload;
+        },
+        ropMarkSaving: (
+            state: AiAnalyticsState,
+            action: PayloadAction<string>,
+        ) => {
+            state.ropMarkSave.pending = action.payload;
+            state.ropMarkSave.error = null;
+        },
+        /** Метка записана; список недели перечитает thunk. */
+        ropMarkSaved: (
+            state: AiAnalyticsState,
+            action: PayloadAction<AiRopMarkSaveResult>,
+        ) => {
+            state.ropMarkSave.pending = null;
+            state.ropMarkSave.lastSaved = action.payload;
+        },
+        /** 400 (вне подбора) / 403 (вне периметра, не руководитель) — текст сервера. */
+        ropMarkSaveFailed: (
+            state: AiAnalyticsState,
+            action: PayloadAction<string>,
+        ) => {
+            state.ropMarkSave.pending = null;
+            state.ropMarkSave.error = action.payload;
+        },
+
+        aboutPending: (
+            state: AiAnalyticsState,
+            action: PayloadAction<{
+                endpoint: AiAboutEndpoint;
+                requestKey: string;
+            }>,
+        ) => {
+            const section = aboutSection(state, action.payload.endpoint);
+            section.status = 'loading';
+            section.requestKey = action.payload.requestKey;
+            section.error = null;
+        },
+        aboutReady: (
+            state: AiAnalyticsState,
+            action: PayloadAction<{
+                endpoint: AiAboutEndpoint;
+                data: AiAbout;
+                requestKey: string;
+                serverKey: string;
+            }>,
+        ) => {
+            const { endpoint, data, requestKey, serverKey } = action.payload;
+            const section = aboutSection(state, endpoint);
+            if (section.requestKey !== requestKey) return;
+            section.status = 'ready';
+            section.serverKey = serverKey;
+            section.error = null;
+            section.data = data;
+        },
+        aboutFailed: (
+            state: AiAnalyticsState,
+            action: PayloadAction<{
+                endpoint: AiAboutEndpoint;
+                requestKey: string;
+                error: string;
+            }>,
+        ) => {
+            const section = aboutSection(state, action.payload.endpoint);
+            if (section.requestKey !== action.payload.requestKey) return;
+            section.status = 'error';
+            section.error = action.payload.error;
+        },
+
         setSelectedCallType: (
             state: AiAnalyticsState,
             action: PayloadAction<AiCallTypeSelection>,
@@ -310,6 +516,15 @@ const aiAnalyticsSlice = createSlice({
             state.overview = emptySection();
             state.attention = emptySection();
             state.byType = emptySection();
+            state.dailyPlan = emptySection();
+            state.dailyPlanQuery = null;
+            state.brief = emptySection();
+            state.ropMark = emptySection();
+            state.ropMarkQuery = null;
+            state.ropMarkSave = emptyRopMarkSave();
+            state.style = emptySection();
+            state.styleQuery = null;
+            state.about = {};
             state.feedback = { pending: [], sent: {}, viewed: [], error: null };
             state.levels = { saving: false, error: null, savedAt: null };
             state.typesDrawerOpen = false;

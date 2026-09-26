@@ -16,4 +16,5 @@ export type AiPushResultDtoKind =
 export const AiPushResultDtoKind = {
     agenda: 'agenda',
     digest: 'digest',
+    digest_all: 'digest_all',
 } as const;

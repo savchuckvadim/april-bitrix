@@ -5,12 +5,15 @@ import { AuditAboutCard } from '../audit-about-card';
 import { AuditResultView } from '../audit-result-view';
 import { AuditNotice } from './components/AuditNotice';
 import { AuditRunForm } from './components/AuditRunForm';
+import { GoldenSetCard } from './components/GoldenSetCard';
+import { StageHistoryProbeCard } from './components/StageHistoryProbeCard';
 import { useAiAnalyticsAuditPanel } from './hooks/use-ai-analytics-audit-panel';
 
 /**
  * Раздел «AI-аналитика ОП → Аудит данных»: форма запуска по порталу,
- * самоописание аудита (всегда, сворачиваемое) и результат — свежий расчёт
- * или последний снапшот.
+ * проба истории стадий сделок того же портала, надёжность оценщика
+ * (test-retest), самоописание аудита
+ * (всегда, сворачиваемое) и результат — свежий расчёт или последний снапшот.
  */
 export const AiAnalyticsAuditPanel = () => {
     const panel = useAiAnalyticsAuditPanel();
@@ -47,6 +50,10 @@ export const AiAnalyticsAuditPanel = () => {
             {panel.isLatestNotFound && (
                 <AuditNotice tone="info" message={AUDIT_TEXT.noSnapshots} />
             )}
+
+            <StageHistoryProbeCard domain={panel.form.domain} />
+
+            <GoldenSetCard domain={panel.form.domain} />
 
             <AuditAboutCard
                 about={panel.about}

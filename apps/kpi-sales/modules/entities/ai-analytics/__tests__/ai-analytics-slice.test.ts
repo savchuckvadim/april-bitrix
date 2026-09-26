@@ -16,6 +16,7 @@ import {
 } from '../model/ai-analytics-thunks';
 import { buildAiRequestKey } from '../lib/ai-request-key.util';
 import type { AiEnvelope, AiPulse } from '../model';
+import { about, dailyPlan } from './ai-fixtures';
 
 // vi.mock поднимается выше импортов — моки объявляем через vi.hoisted.
 const { getPulse, addFeedback } = vi.hoisted(() => ({
@@ -101,6 +102,19 @@ describe('buildAiRequestKey', () => {
         expect(buildAiRequestKey({ ...scope, managerIds: [1, 2, 3] })).toBe(
             'd|1|2026-09-01|2026-09-07|1_2_3',
         );
+    });
+
+    it('extra: параметры секции после «#», пустые — пустой строкой', () => {
+        expect(
+            buildAiRequestKey({
+                domain: 'd',
+                requesterUserId: '1',
+                extra: ['plan', '7', undefined],
+            }),
+        ).toBe('d|1||||#|plan|7|');
+        expect(
+            buildAiRequestKey({ domain: 'd', requesterUserId: '1', extra: [] }),
+        ).toBe('d|1|||');
     });
 
     it('пульс/повестка: только домен и requester', () => {
@@ -334,5 +348,132 @@ describe('aiAnalyticsSlice — реакции', () => {
             aiAnalyticsActions.hydrateSettings({ selectedCallType: 'all' }),
         );
         expect(store.getState().aiAnalytics.selectedCallType).toBe('all');
+    });
+});
+
+describe('aiAnalyticsSlice — секции Фазы 2', () => {
+    it('стартуют пустыми: dailyPlan, brief, ropMark, style, about, запросы и ropMarkSave', () => {
+        const ai = makeStore().getState().aiAnalytics;
+        for (const section of [ai.dailyPlan, ai.brief, ai.ropMark, ai.style]) {
+            expect(section.status).toBe('idle');
+            expect(section.data).toBeNull();
+            expect(section.requestKey).toBeNull();
+        }
+        expect(ai.dailyPlanQuery).toBeNull();
+        expect(ai.styleQuery).toBeNull();
+        expect(ai.ropMarkQuery).toBeNull();
+        expect(ai.about).toEqual({});
+        expect(ai.ropMarkSave).toEqual({
+            pending: null,
+            error: null,
+            lastSaved: null,
+        });
+    });
+
+    it('sectionReady/sectionFailed работают по имени секции; чужой ключ игнорируется', () => {
+        const store = makeStore();
+        store.dispatch(
+            aiAnalyticsActions.sectionPending({
+                section: 'brief',
+                requestKey: 'k1',
+            }),
+        );
+        store.dispatch(
+            aiAnalyticsActions.sectionFailed({
+                section: 'brief',
+                requestKey: 'k0',
+                error: 'устаревшая',
+            }),
+        );
+        expect(store.getState().aiAnalytics.brief.status).toBe('loading');
+        store.dispatch(
+            aiAnalyticsActions.sectionFailed({
+                section: 'brief',
+                requestKey: 'k1',
+                error: 'Квота',
+            }),
+        );
+        expect(store.getState().aiAnalytics.brief.status).toBe('error');
+        expect(store.getState().aiAnalytics.brief.error).toBe('Квота');
+        // Другие секции не затронуты.
+        expect(store.getState().aiAnalytics.dailyPlan.status).toBe('idle');
+    });
+
+    it('about: aboutReady с чужим ключом отбрасывается, с нашим — данные по ручке', () => {
+        const store = makeStore();
+        store.dispatch(
+            aiAnalyticsActions.aboutPending({
+                endpoint: 'brief',
+                requestKey: 'k1',
+            }),
+        );
+        store.dispatch(
+            aiAnalyticsActions.aboutReady({
+                endpoint: 'brief',
+                data: about({ endpoint: 'brief' }),
+                requestKey: 'old',
+                serverKey: 's',
+            }),
+        );
+        expect(store.getState().aiAnalytics.about.brief?.status).toBe(
+            'loading',
+        );
+        store.dispatch(
+            aiAnalyticsActions.aboutReady({
+                endpoint: 'brief',
+                data: about({ endpoint: 'brief' }),
+                requestKey: 'k1',
+                serverKey: 's',
+            }),
+        );
+        expect(store.getState().aiAnalytics.about.brief?.status).toBe('ready');
+        expect(store.getState().aiAnalytics.about.overview).toBeUndefined();
+    });
+
+    it('resetData сбрасывает секции Фазы 2, запросы и кэш «Как считаем»', () => {
+        const store = makeStore();
+        store.dispatch(
+            aiAnalyticsActions.dailyPlanQueried({
+                managerId: '7',
+                date: '2026-09-22',
+            }),
+        );
+        store.dispatch(aiAnalyticsActions.styleQueried({ managerId: '7' }));
+        store.dispatch(
+            aiAnalyticsActions.ropMarkQueried({ weekKey: '2026-W38' }),
+        );
+        store.dispatch(
+            aiAnalyticsActions.sectionPending({
+                section: 'dailyPlan',
+                requestKey: 'k',
+            }),
+        );
+        store.dispatch(
+            aiAnalyticsActions.sectionReady({
+                section: 'dailyPlan',
+                data: dailyPlan(),
+                requestKey: 'k',
+                serverKey: 's',
+            }),
+        );
+        store.dispatch(
+            aiAnalyticsActions.aboutPending({
+                endpoint: 'overview',
+                requestKey: 'a',
+            }),
+        );
+        store.dispatch(aiAnalyticsActions.ropMarkSaving('t-1'));
+        store.dispatch(aiAnalyticsActions.ropMarkSaveFailed('Вне подбора'));
+        expect(store.getState().aiAnalytics.dailyPlan.status).toBe('ready');
+
+        store.dispatch(aiAnalyticsActions.resetData());
+        const ai = store.getState().aiAnalytics;
+        expect(ai.dailyPlan.status).toBe('idle');
+        expect(ai.dailyPlan.data).toBeNull();
+        expect(ai.dailyPlanQuery).toBeNull();
+        expect(ai.styleQuery).toBeNull();
+        expect(ai.ropMarkQuery).toBeNull();
+        expect(ai.about).toEqual({});
+        expect(ai.ropMarkSave.error).toBeNull();
     });
 });

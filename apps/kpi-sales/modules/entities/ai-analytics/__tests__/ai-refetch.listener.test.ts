@@ -23,14 +23,15 @@ import {
     aiAnalyticsActions,
     aiAnalyticsReducer,
 } from '../model/ai-analytics-slice';
-import { fetchAiOverview } from '../model/ai-analytics-thunks';
+import { fetchAiBrief, fetchAiOverview } from '../model/ai-analytics-thunks';
 import { startAiRefetchListener } from '../model/listeners/ai-refetch.listener';
-import { byType, overview, ready } from './ai-fixtures';
+import { brief, byType, overview, ready } from './ai-fixtures';
 
-const { getOverview, getAttention, getByType } = vi.hoisted(() => ({
+const { getOverview, getAttention, getByType, getBrief } = vi.hoisted(() => ({
     getOverview: vi.fn(),
     getAttention: vi.fn(),
     getByType: vi.fn(),
+    getBrief: vi.fn(),
 }));
 
 vi.mock('../lib/api/ai-analytics-helper', () => ({
@@ -38,6 +39,7 @@ vi.mock('../lib/api/ai-analytics-helper', () => ({
         getOverview = getOverview;
         getAttention = getAttention;
         getByType = getByType;
+        getBrief = getBrief;
         getPulse = vi.fn();
         getAgenda = vi.fn();
     },
@@ -136,6 +138,28 @@ describe('ai-refetch.listener — обзор', () => {
         });
         expect(getAttention).toHaveBeenCalledTimes(1);
         expect(getByType).not.toHaveBeenCalled();
+    });
+
+    it('резюме периода: смена периметра после загрузки → повторный POST; idle — нет', async () => {
+        getBrief.mockResolvedValue(ready(brief()));
+        const store = makeStore();
+        store.dispatch(reportActions.setSavedFilter(null));
+        await flush();
+        expect(getBrief).not.toHaveBeenCalled();
+
+        await store.dispatch(fetchAiBrief());
+        store.dispatch(
+            departmentActions.setDepartmentCurrent([
+                { ID: 3 },
+            ] as unknown as BXUser[]),
+        );
+        store.dispatch(reportActions.setSavedFilter(null));
+        await flush();
+        expect(getBrief).toHaveBeenCalledTimes(2);
+        expect(getBrief.mock.calls[1]?.[1]).toMatchObject({ managerIds: [3] });
+        expect(getBrief.mock.calls[1]?.[2]).toMatchObject({
+            forceRefresh: false,
+        });
     });
 
     it('открытие drawer и смена типа/раскладки → срез by-type; закрытый drawer — нет', async () => {

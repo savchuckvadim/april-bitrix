@@ -6,12 +6,38 @@
  * OpenAPI spec version: 1.0
  */
 import type { AiManagerLevelDto } from './aiManagerLevelDto';
+import type { AiTargetsDto } from './aiTargetsDto';
+import type { AiManagerAbsencesDto } from './aiManagerAbsencesDto';
+import type { AiManagerParamsDto } from './aiManagerParamsDto';
+import type { AiDefinitionsDto } from './aiDefinitionsDto';
+import type { AiPortalEventDto } from './aiPortalEventDto';
+import type { AiModelParamDto } from './aiModelParamDto';
+import type { AiScoringDto } from './aiScoringDto';
+import type { AiHypothesisDto } from './aiHypothesisDto';
 
 export interface AiSettingsSaveRequestDto {
     /** Домен портала Bitrix24. */
     domain: string;
     /** Bitrix-id пользователя, запрашивающего данные (requester). По нему определяется периметр видимости: руководитель — все/отдел/группа, менеджер — только свои строки. */
     requesterUserId: string;
-    /** Уровни менеджеров (полный список; пусто — сброс к дефолту). */
-    levels: AiManagerLevelDto[];
+    /** Уровни менеджеров (полный список; пустой массив — сброс к дефолту по стажу; поле не передано — уровни не меняются). */
+    levels?: AiManagerLevelDto[];
+    /** Цели по уровням и личные цели менеджеров. */
+    targets?: AiTargetsDto;
+    /** Отсутствия менеджеров (отпуск, больничный, обучение): отрезки одного менеджера не пересекаются и не уходят дальше 90 дней вперёд. */
+    absences?: AiManagerAbsencesDto[];
+    /** Слои параметров по менеджерам (ставка, личная цель и т.п.). */
+    managerParams?: AiManagerParamsDto[];
+    /** Определения событий портала. Смена продуктивного звонка, канона презентации, порога длительности или вложенности счетов сдвигает comparableFrom. */
+    definitions?: AiDefinitionsDto;
+    /** Журнал событий портала (полный список). */
+    events?: AiPortalEventDto[];
+    /** Гиперпараметры модели: коды реестра и значения в его диапазонах (κ, forget_lambda, пороги n, f_min и т.п.). */
+    modelParams?: AiModelParamDto[];
+    /** Потолки оценивания и стоп-фразы. Меняют шкалу оценки, поэтому сохранение сдвигает comparableFrom. */
+    scoring?: AiScoringDto;
+    /** Гипотеза «качество → объём»: без неё режим hypothesis недостижим. Сравнимую историю не рвёт. */
+    hypothesis?: AiHypothesisDto;
+    /** Дата подтверждения состава и уровней (YYYY-MM-DD, не в будущем). Пустая строка снимает подтверждение. */
+    rosterConfirmedAt?: string;
 }

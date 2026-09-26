@@ -7,6 +7,8 @@
  */
 import type { ReadinessDto } from './readinessDto';
 import type { AiCallTypeDto } from './aiCallTypeDto';
+import type { AiTargetsDto } from './aiTargetsDto';
+import type { AiManagerAbsencesDto } from './aiManagerAbsencesDto';
 
 export interface AiAnalyticsSettingsDto {
     /** AI-аналитика ОП включена на портале (ai_analytics_enabled). */
@@ -27,4 +29,28 @@ export interface AiAnalyticsSettingsDto {
     comparableFrom: string;
     /** Bitrix-id РОПов (ai_analytics_rop_user_ids). */
     ropUserIds: number[];
+    /** Менеджер без роли руководителя видит витрину по себе (ai_analytics_self_view_enabled). false — читающие ручки (pulse, agenda, overview, attention, by-type, feedback/list) отвечают ему 403, фронт скрывает вкладку; settings/get доступна всем. На push-рассылки менеджеру не влияет. */
+    selfViewEnabled: boolean;
+    /** План дня в утреннем дайджесте менеджера и ручка plan/daily (ai_analytics_daily_plan_enabled). */
+    dailyPlanEnabled: boolean;
+    /** Bitrix-id адресатов сводного утреннего дайджеста по всем менеджерам портала (ai_analytics_digest_all_user_ids); пусто — сводный дайджест не отправляется. */
+    digestAllUserIds: string[];
+    /** Согласие портала на обезличенный пул порталов (ai_analytics_pool_opt_in). */
+    poolOptIn: boolean;
+    /**
+     * Дата согласия на пул в ISO 8601 (ai_analytics_pool_consent_at); null — не задана.
+     * @nullable
+     */
+    poolConsentAt: string | null;
+    /** Эксперименты на портале включены (ai_analytics_experiments_enabled): «фокус недели» и далее. */
+    experimentsEnabled: boolean;
+    /** Текущие цели по уровням и личные цели менеджеров (ai_analytics_targets) в форме блока settings/save — для предзаполнения формы настроек; sales = null у уровня — медиана полосы стажа. */
+    targets: AiTargetsDto;
+    /** Текущие отсутствия менеджеров (ai_analytics_absences), только менеджеры с отрезками, в форме блока settings/save. */
+    absences: AiManagerAbsencesDto[];
+    /**
+     * Дата подтверждения состава руководителем (ai_analytics_roster_confirmed_at, YYYY-MM-DD); null — состав не подтверждён (причина готовности roster-not-confirmed).
+     * @nullable
+     */
+    rosterConfirmedAt: string | null;
 }

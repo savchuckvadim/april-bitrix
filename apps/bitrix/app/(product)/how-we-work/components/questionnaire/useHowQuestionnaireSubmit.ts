@@ -85,7 +85,7 @@ export const useHowQuestionnaireSubmit = (
         writeSentFingerprint(questionnaire.id, currentFingerprint);
         setSentFingerprint(currentFingerprint);
         setStatus('sent');
-        setMessage('Бриф отправлен — мы свяжемся с вами.');
+        setMessage(submit.sentMessage ?? 'Бриф отправлен — мы свяжемся с вами.');
     }, [
         alreadySent,
         currentFingerprint,

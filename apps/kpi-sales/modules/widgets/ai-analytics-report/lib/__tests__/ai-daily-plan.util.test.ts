@@ -1,0 +1,188 @@
+import { describe, expect, it } from 'vitest';
+import {
+    dailyPlan,
+    dailyPlanItem,
+} from '@/modules/entities/ai-analytics/__tests__/ai-fixtures';
+import {
+    AI_DAILY_PLAN_BETA_SOURCE,
+    AI_DAILY_PLAN_BY_VOLUME,
+    AI_DAILY_PLAN_CAP_UNKNOWN,
+    AI_DAILY_PLAN_EDGE,
+    AI_DAILY_PLAN_NO_STAGE_HISTORY,
+    AI_DAILY_PLAN_REASON,
+    AI_DAILY_PLAN_STEP_SYMBOL,
+    AI_DAILY_PLAN_TARGET_SOURCE,
+    AI_DAILY_PLAN_TARGET_WARNING,
+    AI_DAILY_PLAN_UNREACHABLE,
+    aiBindingConstraintLabel,
+    aiSalesLeft,
+    buildAiPlanManagerOptions,
+    formatAiPipelineExpected,
+    formatAiPlanCap,
+    formatAiPlanDate,
+    formatAiPlanNumber,
+    formatAiRequiredVolume,
+    isAiPlanDate,
+    pickAiPlanManager,
+    sortAiDailyPlanItems,
+} from '../ai-daily-plan.util';
+
+// Неразрывный пробел ru-RU: сравниваем без учёта вида пробелов.
+const plain = (value: string) => value.replace(/\s/g, ' ');
+
+describe('подписи кодов плана дня', () => {
+    it('карты покрывают все коды DTO', () => {
+        expect(Object.keys(AI_DAILY_PLAN_TARGET_SOURCE).sort()).toEqual([
+            'levelTarget',
+            'median',
+            'plan',
+        ]);
+        expect(Object.keys(AI_DAILY_PLAN_TARGET_WARNING).sort()).toEqual([
+            'target-empty',
+            'unreachable-by-volume',
+            'wish',
+        ]);
+        expect(Object.keys(AI_DAILY_PLAN_REASON).sort()).toEqual([
+            'forecast-missing',
+            'manager-month-missing',
+            'portal-model-missing',
+        ]);
+        expect(Object.keys(AI_DAILY_PLAN_BETA_SOURCE).sort()).toEqual([
+            'data',
+            'hypothesis',
+            'none',
+        ]);
+        expect(Object.keys(AI_DAILY_PLAN_UNREACHABLE).sort()).toEqual([
+            'cap-exceeded',
+            'edge-theta-zero',
+            'no-days-left',
+        ]);
+        expect(Object.keys(AI_DAILY_PLAN_EDGE)).toEqual([
+            'call_to_presentation',
+            'presentation_to_offer',
+            'offer_to_invoice',
+            'invoice_to_sale',
+        ]);
+        expect(Object.keys(AI_DAILY_PLAN_STEP_SYMBOL)).toEqual([
+            'target',
+            'done_sales',
+            'pipeline_expected',
+            'required_volume',
+            'unwind',
+            'ceiling',
+        ]);
+    });
+});
+
+describe('день плана', () => {
+    it('isAiPlanDate: только YYYY-MM-DD с реальной датой', () => {
+        expect(isAiPlanDate('2026-09-22')).toBe(true);
+        expect(isAiPlanDate('22.09.2026')).toBe(false);
+        expect(isAiPlanDate('')).toBe(false);
+        expect(isAiPlanDate('2026-13-01')).toBe(false);
+    });
+
+    it('formatAiPlanDate: YYYY-MM-DD → ДД.ММ.ГГГГ, битое — как есть', () => {
+        expect(formatAiPlanDate('2026-09-22')).toBe('22.09.2026');
+        expect(formatAiPlanDate('2026-09-22T10:00:00Z')).toBe('22.09.2026');
+        expect(formatAiPlanDate('битая')).toBe('битая');
+    });
+});
+
+describe('честные подписи null-полей', () => {
+    it('число плана: один знак после запятой', () => {
+        expect(formatAiPlanNumber(4.5)).toBe('4,5');
+        expect(formatAiPlanNumber(10)).toBe('10');
+        expect(formatAiPlanNumber(1.26)).toBe('1,3');
+    });
+
+    it('λ_pipe: null — «истории стадий нет», не ноль', () => {
+        expect(formatAiPipelineExpected(null)).toBe(
+            AI_DAILY_PLAN_NO_STAGE_HISTORY,
+        );
+        expect(formatAiPipelineExpected(1.5)).toBe('1,5');
+        expect(formatAiPipelineExpected(0)).toBe('0');
+    });
+
+    it('N_req: число, иначе причина деградации либо «по объёму»', () => {
+        expect(plain(formatAiRequiredVolume(1200, null))).toBe('1 200');
+        expect(formatAiRequiredVolume(null, 'forecast-missing')).toBe(
+            AI_DAILY_PLAN_REASON['forecast-missing'],
+        );
+        expect(formatAiRequiredVolume(null, null)).toBe(
+            AI_DAILY_PLAN_BY_VOLUME,
+        );
+    });
+
+    it('потолок дневного темпа: null — не оценён', () => {
+        expect(formatAiPlanCap(null)).toBe(AI_DAILY_PLAN_CAP_UNKNOWN);
+        expect(formatAiPlanCap(20)).toBe('20');
+    });
+});
+
+describe('до цели', () => {
+    it('G − Y₀ − λ_pipe по фикстуре = 4,5', () => {
+        expect(aiSalesLeft(dailyPlan())).toBe(4.5);
+    });
+
+    it('без истории стадий пайплайн не вычитается', () => {
+        expect(aiSalesLeft(dailyPlan({ pipelineExpected: null }))).toBe(6);
+    });
+
+    it('перевыполнение — 0, а не отрицательное', () => {
+        expect(aiSalesLeft(dailyPlan({ doneSales: 12 }))).toBe(0);
+    });
+});
+
+describe('строки плана', () => {
+    it('сортировка по приоритету, исходный массив не меняется', () => {
+        const items = [
+            dailyPlanItem({ priority: 2, callType: 'presentation_to_offer' }),
+            dailyPlanItem({ priority: 1 }),
+        ];
+        expect(sortAiDailyPlanItems(items).map(item => item.priority)).toEqual([
+            1, 2,
+        ]);
+        expect(items[0]?.priority).toBe(2);
+    });
+
+    it('связующее ограничение: название строки плана, иначе код по-русски', () => {
+        const items = [
+            dailyPlanItem({
+                callType: 'call_to_presentation',
+                title: 'Звонки',
+            }),
+        ];
+        expect(aiBindingConstraintLabel('call_to_presentation', items)).toBe(
+            'Звонки',
+        );
+        expect(aiBindingConstraintLabel('invoice_to_sale', items)).toBe(
+            AI_DAILY_PLAN_EDGE.invoice_to_sale,
+        );
+    });
+});
+
+describe('менеджер плана', () => {
+    const NAMES: Record<string, string> = {
+        '7': 'Яна',
+        '8': 'Антон',
+        '9': 'Борис',
+    };
+    const name = (managerId: string) => NAMES[managerId] ?? `#${managerId}`;
+
+    it('опции без дублей и по имени', () => {
+        expect(buildAiPlanManagerOptions(['7', '8', '7', '9'], name)).toEqual([
+            { value: '8', label: 'Антон' },
+            { value: '9', label: 'Борис' },
+            { value: '7', label: 'Яна' },
+        ]);
+        expect(buildAiPlanManagerOptions([], name)).toEqual([]);
+    });
+
+    it('первый предпочтительный из периметра, иначе первая опция, иначе null', () => {
+        const options = buildAiPlanManagerOptions(['7', '8'], name);
+        expect(pickAiPlanManager(options, ['42', null, '7'])).toBe('7');
+        expect(pickAiPlanManager(options, [undefined, '42'])).toBe('8');
+        expect(pickAiPlanManager([], ['7'])).toBeNull();
+    });
+});

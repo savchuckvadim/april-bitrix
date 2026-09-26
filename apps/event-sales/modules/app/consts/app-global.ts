@@ -8,8 +8,8 @@ import { PlacementPlace } from '@workspace/bx/src/type/placement-type';
 export const TESTING_DOMAIN = 'garantservisvoronezh.bitrix24.ru' as string;
 const TESTING_PLACEMENT_LEAD_ID = 318051;
 const TESTING_PLACEMENT_COMPANY_ID = 158479;
-const TESTING_PLACEMENT_DEAL_ID = 25221; //25111; // 158479
-const TESTING_USER_ID = 447; // 447
+const TESTING_PLACEMENT_DEAL_ID = 86627; //25111; // 158479
+const TESTING_USER_ID = 325; // 447
 const TESTING_USER_NAME = 'Татьяна'; //Савчук
 const TESTING_USER_LAST_NAME = 'Попова'; //Савчук
 export const TESTING_TASK_ID = 724547;

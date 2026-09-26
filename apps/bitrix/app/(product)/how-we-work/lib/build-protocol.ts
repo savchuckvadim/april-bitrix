@@ -19,11 +19,19 @@ const emptyAnswerLabel = (question: HowQuestionnaireQuestion): string =>
         ? 'НЕ ЗАПОЛНЕНО'
         : 'НЕ ВЫБРАНО';
 
-/** Значение ответа одной строкой; многострочный текст уходит с отступом. */
+/**
+ * Значение ответа одной строкой; многострочный текст уходит с отступом,
+ * отмеченные чекбоксы (`multi`) перечисляются через запятую.
+ */
 const formatAnswerValue = (
     question: HowQuestionnaireQuestion,
     answer: HowAnswer,
 ): string => {
+    if (question.kind === 'multi') {
+        return answer.values?.length
+            ? answer.values.join(', ')
+            : emptyAnswerLabel(question);
+    }
     const value =
         answer.custom?.trim() || answer.choice || emptyAnswerLabel(question);
     return value.replace(/\r?\n/g, `\n${INDENT}`);

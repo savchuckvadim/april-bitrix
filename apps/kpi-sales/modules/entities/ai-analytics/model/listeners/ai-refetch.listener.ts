@@ -9,6 +9,7 @@ import { aiAnalyticsActions } from '../ai-analytics-slice';
 import {
     fetchAiAgenda,
     fetchAiAttention,
+    fetchAiBrief,
     fetchAiByType,
     fetchAiOverview,
     fetchAiPulse,
@@ -32,13 +33,15 @@ export const startAiRefetchListener = (
     listener.startListening({
         matcher: isAnyOf(reportActions.setSavedFilter),
         effect: async (_action, { dispatch, getState }) => {
-            const { pulse, agenda, overview, attention, byType } =
+            const { pulse, agenda, overview, attention, byType, brief } =
                 getState().aiAnalytics;
             if (pulse.status !== 'idle') dispatch(fetchAiPulse());
             if (agenda.status !== 'idle') dispatch(fetchAiAgenda());
             if (overview.status !== 'idle') dispatch(fetchAiOverview());
             if (attention.status !== 'idle') dispatch(fetchAiAttention());
             if (byType.status !== 'idle') dispatch(fetchAiByType());
+            // Резюме периода живёт в периметре обзора — тот же повод.
+            if (brief.status !== 'idle') dispatch(fetchAiBrief());
         },
     });
 

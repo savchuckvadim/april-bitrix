@@ -18,21 +18,29 @@ import reportReducer, {
 import departmentReducer from '@/modules/entities/department/model/department-slice';
 import { ReportDateType } from '@/modules/entities/report/model/types/report/report-type';
 import { aiAnalyticsReducer } from '../model/ai-analytics-slice';
-import { fetchAiOverview } from '../model/ai-analytics-thunks';
+import {
+    fetchAiBrief,
+    fetchAiDossier,
+    fetchAiOverview,
+} from '../model/ai-analytics-thunks';
 import {
     AI_WS_EVENTS,
     startAiWsListener,
 } from '../model/listeners/ai-ws.listener';
-import { overview, queued, ready } from './ai-fixtures';
+import { brief, dossier, overview, queued, ready } from './ai-fixtures';
 
-const { getOverview, handlers } = vi.hoisted(() => ({
+const { getOverview, getBrief, getDossier, handlers } = vi.hoisted(() => ({
     getOverview: vi.fn(),
+    getBrief: vi.fn(),
+    getDossier: vi.fn(),
     handlers: new Map<string, (payload: unknown) => void>(),
 }));
 
 vi.mock('../lib/api/ai-analytics-helper', () => ({
     AiAnalyticsHelper: class {
         getOverview = getOverview;
+        getBrief = getBrief;
+        getDossier = getDossier;
         getAttention = vi.fn();
         getByType = vi.fn();
     },
@@ -133,5 +141,103 @@ describe('ai-ws.listener — очередь обзора', () => {
         await flush();
         expect(store.getState().aiAnalytics.overview.status).toBe('error');
         expect(store.getState().aiAnalytics.overview.error).toBe('Сломалось');
+    });
+});
+
+describe('ai-ws.listener — очередь резюме (brief)', () => {
+    beforeEach(() => {
+        getBrief.mockReset();
+        getOverview.mockReset();
+    });
+
+    it('подписан на brief:done и brief:error', () => {
+        expect(handlers.has(AI_WS_EVENTS.BRIEF_DONE)).toBe(true);
+        expect(handlers.has(AI_WS_EVENTS.BRIEF_ERROR)).toBe(true);
+    });
+
+    it('brief:done по ключу → повторный POST резюме → ready; обзор не трогает', async () => {
+        getBrief
+            .mockResolvedValueOnce(queued('srv-brief'))
+            .mockResolvedValueOnce(ready(brief(), 'srv-brief'));
+        await store.dispatch(fetchAiBrief({ force: true }));
+        expect(getBrief.mock.calls[0]?.[2]).toMatchObject({
+            socketId: 'sock-1',
+        });
+        expect(store.getState().aiAnalytics.brief.status).toBe('loading');
+
+        handlers.get(AI_WS_EVENTS.BRIEF_DONE)?.({
+            requestKey: 'srv-brief',
+            generatedAt: 'now',
+        });
+        await flush();
+        expect(getBrief).toHaveBeenCalledTimes(2);
+        expect(getOverview).not.toHaveBeenCalled();
+        expect(store.getState().aiAnalytics.brief.status).toBe('ready');
+        expect(store.getState().aiAnalytics.brief.data?.source).toBe('llm');
+    });
+
+    it('brief:error по ключу → секция резюме в ошибку', async () => {
+        getBrief.mockResolvedValue(queued('srv-brief-2'));
+        await store.dispatch(fetchAiBrief({ force: true }));
+        handlers.get(AI_WS_EVENTS.BRIEF_ERROR)?.({
+            requestKey: 'srv-brief-2',
+            message: 'Факт-чек провален',
+        });
+        await flush();
+        expect(store.getState().aiAnalytics.brief.status).toBe('error');
+        expect(store.getState().aiAnalytics.brief.error).toBe(
+            'Факт-чек провален',
+        );
+    });
+});
+
+describe('ai-ws.listener — очередь досье (dossier)', () => {
+    beforeEach(() => {
+        getDossier.mockReset();
+        getBrief.mockReset();
+        getOverview.mockReset();
+    });
+
+    it('подписан на dossier:done и dossier:error', () => {
+        expect(handlers.has(AI_WS_EVENTS.DOSSIER_DONE)).toBe(true);
+        expect(handlers.has(AI_WS_EVENTS.DOSSIER_ERROR)).toBe(true);
+    });
+
+    it('dossier:done по ключу → повторный POST досье → ready; обзор и резюме не трогает', async () => {
+        getDossier
+            .mockResolvedValueOnce(queued('srv-dossier'))
+            .mockResolvedValueOnce(ready(dossier(), 'srv-dossier'));
+        await store.dispatch(fetchAiDossier({ managerId: '7', months: 3 }));
+        expect(getDossier.mock.calls[0]?.[2]).toMatchObject({
+            socketId: 'sock-1',
+        });
+        expect(store.getState().aiAnalytics.dossier.status).toBe('loading');
+
+        handlers.get(AI_WS_EVENTS.DOSSIER_DONE)?.({
+            requestKey: 'srv-dossier',
+            generatedAt: 'now',
+        });
+        await flush();
+        expect(getDossier).toHaveBeenCalledTimes(2);
+        expect(getOverview).not.toHaveBeenCalled();
+        expect(getBrief).not.toHaveBeenCalled();
+        expect(store.getState().aiAnalytics.dossier.status).toBe('ready');
+        expect(store.getState().aiAnalytics.dossier.data?.managerId).toBe('7');
+    });
+
+    it('dossier:error по ключу → секция досье в ошибку', async () => {
+        getDossier.mockResolvedValue(queued('srv-dossier-2'));
+        await store.dispatch(
+            fetchAiDossier({ managerId: '7', months: 6 }, { force: true }),
+        );
+        handlers.get(AI_WS_EVENTS.DOSSIER_ERROR)?.({
+            requestKey: 'srv-dossier-2',
+            message: 'Снапшоты не собраны',
+        });
+        await flush();
+        expect(store.getState().aiAnalytics.dossier.status).toBe('error');
+        expect(store.getState().aiAnalytics.dossier.error).toBe(
+            'Снапшоты не собраны',
+        );
     });
 });

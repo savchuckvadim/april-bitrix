@@ -7,7 +7,7 @@
  */
 
 /**
- * Что отправить: agenda — повестка планёрки РОПам (3 звонка текущей ISO-недели), digest — утренний разбор менеджерам за вчерашний рабочий день.
+ * Что отправить: agenda — повестка планёрки РОПам (3 звонка текущей ISO-недели), digest — утренний разбор каждому менеджеру за вчерашний рабочий день, digest_all — один сводный дайджест по всем менеджерам портала (по отделам, до 3 звонков на менеджера, итог «кому что») адресатам из ai_analytics_digest_all_user_ids; сводный не зависит от ai_analytics_digest_enabled.
  */
 export type AiPushRequestDtoKind =
     (typeof AiPushRequestDtoKind)[keyof typeof AiPushRequestDtoKind];
@@ -16,4 +16,5 @@ export type AiPushRequestDtoKind =
 export const AiPushRequestDtoKind = {
     agenda: 'agenda',
     digest: 'digest',
+    digest_all: 'digest_all',
 } as const;

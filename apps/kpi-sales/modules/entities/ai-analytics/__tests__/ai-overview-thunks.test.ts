@@ -26,6 +26,7 @@ import {
     saveAiLevels,
 } from '../model/ai-analytics-thunks';
 import { buildAiRequestKey } from '../lib/ai-request-key.util';
+import type { AiSettingsInput, AiSettingsSaveResult } from '../model';
 import {
     attention,
     byType,
@@ -374,40 +375,108 @@ describe('fetchAiByType — тип и раскладка в ключе', () => {
     });
 });
 
-describe('saveAiLevels', () => {
+describe('saveAiLevels (settings/save)', () => {
+    const result: AiSettingsSaveResult = {
+        id: '1',
+        levels: [{ managerId: 7, level: 'senior' }],
+        savedAt: '2026-09-07T10:00:00Z',
+        resetCount: 2,
+        comparableFrom: '2026-09-07',
+        paramsVersion: 'sha',
+        breaksSeries: ['ai_analytics_definitions.productiveCall'],
+        warnings: ['Уровень не задан менеджерам: 3'],
+    };
+
     beforeEach(() => {
         saveSettings.mockReset();
     });
 
-    it('ready → levelsSaved с savedAt; повторный вызов при saving не шлётся', async () => {
-        saveSettings.mockResolvedValue(
-            ready({
-                id: '1',
-                levels: [],
-                savedAt: '2026-09-07T10:00:00Z',
-                resetCount: 2,
-            }),
-        );
+    it('ready → levelsSaved с savedAt и итог сервера; POST несёт только переданные блоки', async () => {
+        saveSettings.mockResolvedValue(ready(result));
         const store = makeStore();
-        const ok = await store.dispatch(
-            saveAiLevels([{ managerId: 7, level: 'senior' }]),
+        const saved = await store.dispatch(
+            saveAiLevels({ levels: [{ managerId: 7, level: 'senior' }] }),
         );
-        expect(ok).toBe(true);
+        expect(saved).toEqual(result);
         expect(store.getState().aiAnalytics.levels.savedAt).toBe(
             '2026-09-07T10:00:00Z',
         );
+        expect(store.getState().aiAnalytics.levels.saving).toBe(false);
         expect(saveSettings).toHaveBeenCalledWith(
             { domain: 'test.bitrix24.ru', requesterUserId: '42' },
-            [{ managerId: 7, level: 'senior' }],
+            { levels: [{ managerId: 7, level: 'senior' }] },
         );
     });
 
-    it('403 сервера → levels.error, saving снят', async () => {
+    it('цели, отсутствия и подтверждение состава уходят как есть, без уровней', async () => {
+        saveSettings.mockResolvedValue(ready(result));
+        const store = makeStore();
+        const input: AiSettingsInput = {
+            targets: {
+                byLevel: [
+                    {
+                        level: 'junior',
+                        sales: null,
+                        presentationsMin: 20,
+                        coldPerDay: 40,
+                    },
+                ],
+            },
+            absences: [
+                {
+                    managerId: 7,
+                    items: [
+                        { from: '2026-10-01', to: '2026-10-05', kind: 'sick' },
+                    ],
+                },
+            ],
+            rosterConfirmedAt: '2026-09-07',
+        };
+        await store.dispatch(saveAiLevels(input));
+        const body = saveSettings.mock.calls[0]?.[1] as AiSettingsInput;
+        expect(body).toEqual(input);
+        expect(body).not.toHaveProperty('levels');
+    });
+
+    it('повторный вызов, пока идёт сохранение, не шлётся и даёт null', async () => {
+        let resolveFirst: (value: unknown) => void = () => undefined;
+        saveSettings.mockImplementationOnce(
+            () =>
+                new Promise(resolve => {
+                    resolveFirst = resolve;
+                }),
+        );
+        const store = makeStore();
+        const first = store.dispatch(saveAiLevels({ levels: [] }));
+        const second = await store.dispatch(saveAiLevels({ levels: [] }));
+        expect(second).toBeNull();
+        resolveFirst(ready(result));
+        expect(await first).toEqual(result);
+        expect(saveSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it('403 сервера → levels.error, saving снят, null', async () => {
         saveSettings.mockRejectedValue(new Error('Forbidden'));
         const store = makeStore();
-        const ok = await store.dispatch(saveAiLevels([]));
-        expect(ok).toBe(false);
+        const saved = await store.dispatch(saveAiLevels({ levels: [] }));
+        expect(saved).toBeNull();
         expect(store.getState().aiAnalytics.levels.saving).toBe(false);
         expect(store.getState().aiAnalytics.levels.error).toBe('Forbidden');
+    });
+
+    it('error-конверт → текст сервера в levels.error', async () => {
+        saveSettings.mockResolvedValue({
+            status: 'error',
+            requestKey: 'k',
+            message: 'Цель продаж уровня junior (99) вне [0; 50]',
+        });
+        const store = makeStore();
+        const saved = await store.dispatch(
+            saveAiLevels({ rosterConfirmedAt: '2026-09-07' }),
+        );
+        expect(saved).toBeNull();
+        expect(store.getState().aiAnalytics.levels.error).toBe(
+            'Цель продаж уровня junior (99) вне [0; 50]',
+        );
     });
 });

@@ -37,11 +37,21 @@ const SETTINGS: AiAnalyticsSettings = {
         presentations: 12,
         sales: 0,
         comparableFrom: '',
+        betaSource: 'none',
         reasons: ['мало презентаций'],
     },
     callTypes: [],
     comparableFrom: '',
     ropUserIds: [7],
+    selfViewEnabled: false,
+    dailyPlanEnabled: false,
+    digestAllUserIds: [],
+    poolOptIn: false,
+    poolConsentAt: null,
+    experimentsEnabled: false,
+    targets: { byLevel: [], overrides: [] },
+    absences: [],
+    rosterConfirmedAt: null,
 };
 
 const USER = { ID: 42, LAST_NAME: 'Тест' } as unknown as BXUser;
@@ -75,6 +85,24 @@ describe('ai-flags listener', () => {
         getSettings.mockReset();
     });
 
+    it('портальная настройка self_view доезжает до флагов приложения', async () => {
+        getSettings.mockResolvedValue({
+            status: 'ready',
+            requestKey: 'k',
+            data: { ...SETTINGS, selfViewEnabled: true },
+        });
+        const store = makeStore();
+
+        store.dispatch(
+            appActions.setAppData({ domain: 'test.bitrix24.ru', user: USER }),
+        );
+        await flush();
+
+        expect(store.getState().app.features.aiAnalyticsSelfViewEnabled).toBe(
+            true,
+        );
+    });
+
     it('setAppData → settings/get → портальный флаг и настройки в сторе', async () => {
         getSettings.mockResolvedValue({
             status: 'ready',
@@ -97,6 +125,10 @@ describe('ai-flags listener', () => {
         });
         expect(store.getState().app.features.aiAnalyticsPortalEnabled).toBe(
             true,
+        );
+        // Портал видимость менеджеру не включал — флаг остаётся выключенным.
+        expect(store.getState().app.features.aiAnalyticsSelfViewEnabled).toBe(
+            false,
         );
         expect(store.getState().aiAnalytics.settings.status).toBe('ready');
         expect(store.getState().aiAnalytics.settings.data?.ropUserIds).toEqual([

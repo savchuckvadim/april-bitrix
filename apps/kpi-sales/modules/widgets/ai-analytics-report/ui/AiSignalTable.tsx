@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Layers } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Card } from '@workspace/ui/components/card';
@@ -18,24 +19,33 @@ import { useAiTypesDrawer } from '../hooks/use-ai-types-drawer';
 import { AiQueuedState } from './components/AiQueuedState';
 import { AiOverviewMeta } from './components/AiOverviewMeta';
 import { AiSignalSection } from './components/AiSignalSection';
+import { AiStyleDialog } from './AiStyleDialog';
+import { AiDossierDialog } from './AiDossierDialog';
 
-/** Колонки: сотрудник, сигнал, цифра, 3 корзины, продажи, аванс, чек, 2 плана, «Не согласен». */
-const COLUMNS = 9 + AI_BUCKETS.length;
+/** Колонки: сотрудник, сигнал, цифра, 3 корзины, тренды, год назад, продажи, аванс, чек, 2 плана, рычаги, «Не согласен». */
+const COLUMNS = 12 + AI_BUCKETS.length;
 
 /**
  * Таблица сигналов по менеджерам (обзор менеджер × тип за период):
  * группировка по отделам/группам структуры, при n < 8 — бэйдж «мало
- * данных». Кнопка открывает второй уровень — разбор по типам звонков.
+ * данных». Кнопка открывает второй уровень — разбор по типам звонков;
+ * «Стиль» в строке — карточку стиля менеджера (последний профиль),
+ * «Досье» — досье менеджера за окно месяцев (Фаза 3). Колонки «Тренды» и
+ * «Год назад» — из снапшотов трендов и пары «тот же месяц год назад».
  */
 export const AiSignalTable = () => {
     const overview = useAiSection('overview');
     const sections = useAiOverviewGroups(overview.data?.managers ?? []);
     const { openWithType } = useAiTypesDrawer();
+    const [styleManagerId, setStyleManagerId] = useState<string | null>(null);
+    const [dossierManagerId, setDossierManagerId] = useState<string | null>(
+        null,
+    );
 
     return (
         <SectionCard
             title="Сигналы по менеджерам"
-            description="Менеджер → сигнал, ключевая цифра, корзины звонков, финансы и план CRM"
+            description="Менеджер → сигнал, ключевая цифра, корзины звонков, финансы, план CRM и рычаги"
             actions={
                 <Button
                     variant="outline"
@@ -80,6 +90,8 @@ export const AiSignalTable = () => {
                                                 {AI_BUCKET_LABELS[bucket]}
                                             </TableHead>
                                         ))}
+                                        <TableHead>Тренды</TableHead>
+                                        <TableHead>Год назад</TableHead>
                                         <TableHead className="text-right">
                                             Продажи
                                         </TableHead>
@@ -91,6 +103,9 @@ export const AiSignalTable = () => {
                                         </TableHead>
                                         <TableHead>Звонки CRM</TableHead>
                                         <TableHead>Презентации CRM</TableHead>
+                                        <TableHead className="min-w-44">
+                                            Рычаги
+                                        </TableHead>
                                         <TableHead />
                                     </TableRow>
                                 </TableHeader>
@@ -100,6 +115,8 @@ export const AiSignalTable = () => {
                                             key={section.id}
                                             section={section}
                                             columns={COLUMNS}
+                                            onOpenStyle={setStyleManagerId}
+                                            onOpenDossier={setDossierManagerId}
                                         />
                                     ))}
                                 </TableBody>
@@ -112,6 +129,20 @@ export const AiSignalTable = () => {
                     )}
                 </div>
             )}
+            <AiStyleDialog
+                managerId={styleManagerId ?? ''}
+                open={styleManagerId !== null}
+                onOpenChange={open => {
+                    if (!open) setStyleManagerId(null);
+                }}
+            />
+            <AiDossierDialog
+                managerId={dossierManagerId ?? ''}
+                open={dossierManagerId !== null}
+                onOpenChange={open => {
+                    if (!open) setDossierManagerId(null);
+                }}
+            />
         </SectionCard>
     );
 };

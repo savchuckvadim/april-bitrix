@@ -69,6 +69,12 @@ export interface AppFeatureFlags {
      * до ответа бэка вкладка не показывается.
      */
     aiAnalyticsPortalEnabled: boolean;
+    /**
+     * Портальная настройка ai_analytics_self_view_enabled из settings/get:
+     * рядовому менеджеру показывается вкладка со своими данными. Дефолт
+     * false (решение владельца 07.09.2026: витрина только руководителям).
+     */
+    aiAnalyticsSelfViewEnabled: boolean;
 }
 
 /**

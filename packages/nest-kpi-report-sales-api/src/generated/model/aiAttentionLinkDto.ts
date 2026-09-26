@@ -5,6 +5,7 @@
  * API приложения kpi-report-sales
  * OpenAPI spec version: 1.0
  */
+import type { AiAttentionCallLinkDto } from './aiAttentionCallLinkDto';
 
 export interface AiAttentionLinkDto {
     /** Bitrix-id менеджера. */
@@ -13,4 +14,6 @@ export interface AiAttentionLinkDto {
     callType?: string;
     /** Id транскрипций риск-звонков (сигнал risk). */
     transcriptionIds?: string[];
+    /** Риск-звонки со ссылками на разборы (те же id, что в transcriptionIds) — кнопка «Открыть разбор» на карточке. Только у сигнала risk. */
+    calls?: AiAttentionCallLinkDto[];
 }

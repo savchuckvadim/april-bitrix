@@ -7,7 +7,7 @@
  */
 
 /**
- * Режим: calibration (< 3 мес. или < 60 презентаций) → descriptive → norms (≥ 3 мес., ≥ 100 презентаций) → hypothesis → forecast → recommendations; kpi-only — аналитика включена, но разборов нет.
+ * Режим: calibration (< 3 мес. или < 60 презентаций) → descriptive → norms (≥ 3 мес., ≥ 100 презентаций) → hypothesis → forecast → recommendations; kpi-only — аналитика включена, но разборов нет. Без снапшота месячной модели портала режим не выше descriptive (причина no-portal-model): норм без модели нет.
  */
 export type ReadinessDtoMode =
     (typeof ReadinessDtoMode)[keyof typeof ReadinessDtoMode];

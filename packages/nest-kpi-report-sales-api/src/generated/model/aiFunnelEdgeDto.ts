@@ -7,6 +7,9 @@
  */
 import type { AiFunnelEdgeDtoEdge } from './aiFunnelEdgeDtoEdge';
 import type { MetricDto } from './metricDto';
+import type { AiFunnelEdgeDtoGapDirection } from './aiFunnelEdgeDtoGapDirection';
+import type { AiFunnelEdgeDtoEstimand } from './aiFunnelEdgeDtoEstimand';
+import type { AiFunnelEdgeDtoNormFlag } from './aiFunnelEdgeDtoNormFlag';
 import type { AiFunnelEdgeDtoPriorSource } from './aiFunnelEdgeDtoPriorSource';
 
 export interface AiFunnelEdgeDto {
@@ -18,10 +21,20 @@ export interface AiFunnelEdgeDto {
     n: number;
     /** Перешло дальше (числитель). */
     s: number;
-    /** Доля s/n (0..1) с интервалом Уилсона; s > n → confidence mixed-sources (числитель и знаменатель из разных событий). */
+    /** Доля s/n (0..1) с интервалом Уилсона; при усадке к норме — апостериор E[θ] и доля собственных данных w; s > n → confidence mixed-sources (числитель и знаменатель из разных событий). */
     rate: MetricDto;
-    /** Норма уровня (Фаза 2; сейчас не отдаётся). */
+    /** Норма слоя μ (leave-one-out: собственные данные менеджера в неё не входят); нет — модели портала нет. */
     levelNorm?: number;
-    /** Источник приора усадки: Фаза 1b — none. */
+    /** Норма портала целиком — второй разрыв при norm_stratum = level и при заниженной норме полосы; совпадает с levelNorm, когда норма и так портальная. */
+    portalNorm?: number;
+    /** Разрыв к норме слоя Δ = E[θ] − μ в единицах ребра (доля или интенсивность); нет — сравнивать не с чем. */
+    gap?: number;
+    /** Направление разрыва: above — выше нормы, below — ниже, none — интервал разности накрывает ноль либо |Δ| меньше практического порога (5 п.п.). */
+    gapDirection?: AiFunnelEdgeDtoGapDirection;
+    /** Трактовка ребра портала: prob — вероятность перехода, rate — интенсивность (числитель и знаменатель из разных зёрен). */
+    estimand?: AiFunnelEdgeDtoEstimand;
+    /** Флаг нормы: level_norm_understated — норма полосы ниже 0,7 нормы портала, полоса набрана составом; фронт показывает оба разрыва. */
+    normFlag?: AiFunnelEdgeDtoNormFlag;
+    /** Источник приора усадки: none — модели нет; tenure — полоса стажа; portal — портал целиком; global — дефолт дампа; pool — межпортальный слой (Фазы 3–4). */
     priorSource: AiFunnelEdgeDtoPriorSource;
 }

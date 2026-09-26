@@ -7,29 +7,49 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@workspace/ui/components/dialog';
-import {
-    Table,
-    TableBody,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@workspace/ui/components/table';
 import { GlassDialog } from '@workspace/april-ui';
-import { useAiLevelsForm } from '../hooks/use-ai-levels-form';
-import { AiLevelRow } from './components/AiLevelRow';
+import { AI_SETTINGS_BLOCK_LABELS } from '@/modules/entities/ai-analytics';
+import {
+    useAiSettingsForm,
+    type AiSettingsForm,
+} from '../hooks/use-ai-settings-form';
+import type { AiSettingsTab } from '../lib/ai-settings-form.util';
+import { AiSettingsTabs } from './components/AiSettingsTabs';
+import { AiSettingsConfirm } from './components/AiSettingsConfirm';
+import { AiSettingsSummary } from './components/AiSettingsSummary';
 
 interface AiLevelsDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    /** Вкладка при открытии; по умолчанию «Уровни». */
+    initialTab?: AiSettingsTab;
 }
 
+/** Подпись состояния формы в подвале: ошибка бэка, что уйдёт, read-only. */
+const footerNote = (form: AiSettingsForm): string | null => {
+    if (form.readOnly) {
+        return 'Менять настройки могут только руководители отдела продаж.';
+    }
+    if (form.payloadBlocks.length === 0) return 'Изменений нет.';
+    return `Будет сохранено: ${form.payloadBlocks
+        .map(block => AI_SETTINGS_BLOCK_LABELS[block].toLowerCase())
+        .join(', ')}.`;
+};
+
 /**
- * Уровни менеджеров (AI_CONFIGURE, руководители op/cup): форма по строкам
- * обзора → settings/save; после успеха сервер сбрасывает кэш обзора, а
- * listener перечитывает его принудительно.
+ * Настройки витрины (AI_CONFIGURE, руководители op/cup): уровни менеджеров
+ * из обзора, цели по уровням, отсутствия, подтверждение состава →
+ * settings/save только изменёнными блоками. Блоки, рвущие сравнимую
+ * историю, требуют подтверждения; после ответа бэка — сводка
+ * (comparableFrom, коды, предупреждения). Обзор перечитывает listener.
  */
-export const AiLevelsDialog = ({ open, onOpenChange }: AiLevelsDialogProps) => {
-    const form = useAiLevelsForm(open, () => onOpenChange(false));
+export const AiLevelsDialog = ({
+    open,
+    onOpenChange,
+    initialTab = 'levels',
+}: AiLevelsDialogProps) => {
+    const form = useAiSettingsForm(open, initialTab);
+    const close = () => onOpenChange(false);
 
     return (
         <GlassDialog
@@ -40,69 +60,71 @@ export const AiLevelsDialog = ({ open, onOpenChange }: AiLevelsDialogProps) => {
             cardClassName="max-h-[85vh] gap-4 overflow-hidden"
         >
             <DialogHeader>
-                <DialogTitle>Уровни менеджеров</DialogTitle>
+                <DialogTitle>Настройки витрины</DialogTitle>
                 <DialogDescription>
-                    Уровень определяет нормы и цели. По умолчанию — по стажу (до
-                    6 месяцев — джун); дата стажа нужна только если хотите её
-                    задать.
+                    Уровни менеджеров, цели по уровням, отсутствия и
+                    подтверждение состава. Сохраняются только изменённые блоки;
+                    после сохранения обзор пересчитывается.
                 </DialogDescription>
             </DialogHeader>
-            <div className="min-h-0 flex-1 overflow-y-auto">
-                {form.isEmpty ? (
-                    <p className="py-4 text-sm text-muted-foreground">
-                        Сначала дождитесь обзора — уровни задаются менеджерам из
-                        него.
-                    </p>
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                {form.step === 'done' && form.summary ? (
+                    <AiSettingsSummary summary={form.summary} />
+                ) : form.step === 'confirm' ? (
+                    <AiSettingsConfirm blocks={form.breakingBlocks} />
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Менеджер</TableHead>
-                                <TableHead>Уровень</TableHead>
-                                <TableHead>Стаж с</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {form.rows.map(row => (
-                                <AiLevelRow
-                                    key={row.managerId}
-                                    row={row}
-                                    error={
-                                        form.errors.get(row.managerId) ?? null
-                                    }
-                                    disabled={form.saving}
-                                    onLevel={level =>
-                                        form.setLevel(row.managerId, level)
-                                    }
-                                    onSince={since =>
-                                        form.setSince(row.managerId, since)
-                                    }
-                                />
-                            ))}
-                        </TableBody>
-                    </Table>
+                    <AiSettingsTabs form={form} />
                 )}
             </div>
             <DialogFooter className="items-center gap-2">
-                {form.error && (
+                {form.error && form.step !== 'done' && (
                     <p className="mr-auto text-xs text-destructive">
                         {form.error}
                     </p>
                 )}
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onOpenChange(false)}
-                >
-                    Отмена
-                </Button>
-                <Button
-                    size="sm"
-                    disabled={form.saving || form.hasErrors || form.isEmpty}
-                    onClick={form.submit}
-                >
-                    {form.saving ? 'Сохраняем…' : 'Сохранить'}
-                </Button>
+                {form.step === 'edit' && (
+                    <>
+                        {!form.error && (
+                            <p className="mr-auto text-xs text-muted-foreground">
+                                {footerNote(form)}
+                            </p>
+                        )}
+                        <Button variant="outline" size="sm" onClick={close}>
+                            Отмена
+                        </Button>
+                        <Button
+                            size="sm"
+                            disabled={!form.canSave}
+                            onClick={form.submit}
+                        >
+                            {form.saving ? 'Сохраняем…' : 'Сохранить'}
+                        </Button>
+                    </>
+                )}
+                {form.step === 'confirm' && (
+                    <>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={form.saving}
+                            onClick={form.backToEdit}
+                        >
+                            Назад
+                        </Button>
+                        <Button
+                            size="sm"
+                            disabled={form.saving}
+                            onClick={form.submit}
+                        >
+                            {form.saving ? 'Сохраняем…' : 'Продолжить'}
+                        </Button>
+                    </>
+                )}
+                {form.step === 'done' && (
+                    <Button size="sm" onClick={close}>
+                        Закрыть
+                    </Button>
+                )}
             </DialogFooter>
         </GlassDialog>
     );

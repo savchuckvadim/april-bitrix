@@ -9,10 +9,12 @@ import { buildAiRequestKey } from '../lib/ai-request-key.util';
 import { clampAiPeriod } from '../lib/ai-period.util';
 import { resolveAiByTypeCallType } from '../lib/ai-call-types.data';
 import type {
+    AiDossierQuery,
     AiEnvelope,
-    AiManagerLevelInput,
     AiOverviewFilters,
     AiQueueOptions,
+    AiSettingsInput,
+    AiSettingsSaveResult,
 } from './index';
 import {
     AI_QUEUED_SECTIONS,
@@ -30,9 +32,9 @@ import {
 } from './ai-analytics-thunks.shared';
 
 /*
- * Тяжёлые ручки (очередь + WS): обзор, «Внимание», срез по типу, их
- * возобновление/падение по WS, «Пересчитать» и уровни менеджеров
- * (сбрасывают кэш обзора). Синхронные — ai-analytics-sync.thunks.
+ * Тяжёлые ручки (очередь + WS): обзор, «Внимание», срез по типу, AI-резюме
+ * периода (brief), их возобновление/падение по WS, «Пересчитать» и уровни
+ * менеджеров (сбрасывают кэш обзора). Синхронные — ai-analytics-sync.thunks.
  */
 
 /** Id WS-соединения; до инициализации клиента — без подписки (придёт по таймауту). */
@@ -42,6 +44,15 @@ const safeSocketId = (): string | undefined => {
     } catch {
         return undefined;
     }
+};
+
+/** Текст ошибки секции, когда сервер причины не назвал. */
+export const AI_QUEUED_ERROR_MESSAGES: Record<AiQueuedSection, string> = {
+    overview: 'Ошибка расчёта обзора',
+    attention: 'Ошибка расчёта обзора',
+    byType: 'Ошибка расчёта обзора',
+    brief: 'Ошибка сборки резюме',
+    dossier: 'Ошибка сборки досье',
 };
 
 /** Периметр тяжёлых ручек: requester + период фильтра (≤ 3 мес.) + выбранные менеджеры. */
@@ -99,13 +110,26 @@ const clearQueuedTimer = (section: AiQueuedSection): void => {
     queuedTimers.delete(section);
 };
 
-/** Ключ секции: overview/attention — периметр; byType — плюс тип и раскладка. */
+/**
+ * Ключ секции: overview/attention — периметр; byType — плюс тип и
+ * раскладка; dossier — requester, менеджер и окно (период фильтра на
+ * досье не влияет).
+ */
 const queuedRequestKey = (
     section: AiQueuedSection,
     scope: AiOverviewScope,
     state: RootState,
 ): string =>
-    buildAiRequestKey({
+    section === 'dossier'
+        ? buildAiRequestKey({
+              ...scope.requester,
+              extra: [
+                  'dossier',
+                  state.aiAnalytics.dossierQuery?.managerId,
+                  state.aiAnalytics.dossierQuery?.months,
+              ],
+          })
+        : buildAiRequestKey({
         ...scope.requester,
         ...scope.filters,
         ...(section === 'byType'
@@ -180,7 +204,9 @@ const loadQueuedSection =
                 return;
             }
             if (response.status === 'error') {
-                throw new Error(response.message || 'Ошибка расчёта обзора');
+                throw new Error(
+                    response.message || AI_QUEUED_ERROR_MESSAGES[section],
+                );
             }
             if (
                 getState().aiAnalytics[section].queuedAttempts >=
@@ -210,7 +236,10 @@ const loadQueuedSection =
                 aiAnalyticsActions.sectionFailed({
                     section,
                     requestKey,
-                    error: aiErrorMessage(error, 'Ошибка расчёта обзора'),
+                    error: aiErrorMessage(
+                        error,
+                        AI_QUEUED_ERROR_MESSAGES[section],
+                    ),
                 }),
             );
         }
@@ -250,9 +279,48 @@ export const fetchAiByType = (options: AiQueuedLoadOptions = {}) =>
     );
 
 /**
- * WS ai-analytics:overview:done — обзор в кэше сервера: повторяем POST у
- * всех тяжёлых секций, которые ждали этот ключ (attention/by-type при
- * отсутствии обзора отвечают его ключом).
+ * AI-резюме периода в периметре обзора (те же период и менеджеры).
+ * queued/processing → ждём WS ai-analytics:brief:done с requestKey и
+ * повторяем POST; `source = template` и `reason` приходят в data как есть.
+ * { force: true } — forceRefresh пересобирает резюме.
+ */
+export const fetchAiBrief = (options: AiQueuedLoadOptions = {}) =>
+    loadQueuedSection(
+        'brief',
+        (scope, queue) =>
+            aiHelper.getBrief(scope.requester, scope.filters, queue),
+        options,
+    );
+
+/** Загрузчик досье по запомненному запросу (resume по WS без повторного dossierQueried). */
+const loadDossierSection = (options: AiQueuedLoadOptions = {}) =>
+    loadQueuedSection(
+        'dossier',
+        (scope, queue, state) => {
+            const query = state.aiAnalytics.dossierQuery;
+            if (!query) throw new Error('Досье: менеджер не выбран');
+            return aiHelper.getDossier(scope.requester, query, queue);
+        },
+        options,
+    );
+
+/**
+ * Досье менеджера за окно месяцев (Фаза 3, П4): очередь + WS
+ * ai-analytics:dossier:done; ключ — менеджер и окно. { force: true } —
+ * собрать заново, минуя кэш.
+ */
+export const fetchAiDossier =
+    (query: AiDossierQuery, options: AiQueuedLoadOptions = {}) =>
+    async (dispatch: AppDispatch): Promise<void> => {
+        dispatch(aiAnalyticsActions.dossierQueried(query));
+        await dispatch(loadDossierSection(options));
+    };
+
+/**
+ * WS ai-analytics:overview:done / brief:done — результат в кэше сервера:
+ * повторяем POST у всех тяжёлых секций, которые ждали этот ключ
+ * (attention/by-type при отсутствии обзора отвечают его ключом; у резюме
+ * свой ключ по packHash).
  */
 export const resumeAiQueuedSections =
     (serverKey?: string) =>
@@ -262,6 +330,8 @@ export const resumeAiQueuedSections =
             overview: fetchAiOverview,
             attention: fetchAiAttention,
             byType: fetchAiByType,
+            brief: fetchAiBrief,
+            dossier: loadDossierSection,
         } as const;
         await Promise.all(
             AI_QUEUED_SECTIONS.filter(section => {
@@ -275,7 +345,7 @@ export const resumeAiQueuedSections =
         );
     };
 
-/** WS ai-analytics:overview:error — расчёт упал: секции с этим ключом в ошибку. */
+/** WS ai-analytics:overview:error / brief:error — расчёт упал: секции с этим ключом в ошибку. */
 export const failAiQueuedSections =
     (payload: { requestKey?: string; message?: string }) =>
     (dispatch: AppDispatch, getState: AppGetState): void => {
@@ -293,7 +363,9 @@ export const failAiQueuedSections =
                     aiAnalyticsActions.sectionFailed({
                         section,
                         requestKey: current.requestKey,
-                        error: payload.message || 'Ошибка расчёта обзора',
+                        error:
+                            payload.message ||
+                            AI_QUEUED_ERROR_MESSAGES[section],
                     }),
                 );
             }
@@ -318,27 +390,39 @@ export const recalcAiOverview =
         await Promise.all(tasks);
     };
 
-/** Уровни менеджеров → settings/save; true — сохранено (кэш обзора сброшен). */
+export const AI_SETTINGS_SAVE_ERROR = 'Настройки не сохранены';
+
+/**
+ * Настройки витрины → settings/save: уровни, цели по уровням, отсутствия,
+ * подтверждение состава и прочие блоки DTO. В payload — только блоки,
+ * которые менялись: не переданный блок сервер не трогает. Имя историческое
+ * (первым блоком были уровни); состояние — `levels` слайса. Возвращает
+ * итог сервера (comparableFrom, breaksSeries, warnings) либо null — текст
+ * ошибки в `levels.error`. После успеха listener перечитывает обзор.
+ */
 export const saveAiLevels =
-    (levels: AiManagerLevelInput[]) =>
-    async (dispatch: AppDispatch, getState: AppGetState): Promise<boolean> => {
+    (input: AiSettingsInput) =>
+    async (
+        dispatch: AppDispatch,
+        getState: AppGetState,
+    ): Promise<AiSettingsSaveResult | null> => {
         const requester = selectAiRequester(getState());
-        if (!requester || getState().aiAnalytics.levels.saving) return false;
+        if (!requester || getState().aiAnalytics.levels.saving) return null;
 
         dispatch(aiAnalyticsActions.levelsSaving());
         try {
-            const response = await aiHelper.saveSettings(requester, levels);
+            const response = await aiHelper.saveSettings(requester, input);
             if (response.status !== 'ready' || !response.data) {
-                throw new Error(response.message || 'Уровни не сохранены');
+                throw new Error(response.message || AI_SETTINGS_SAVE_ERROR);
             }
             dispatch(aiAnalyticsActions.levelsSaved(response.data.savedAt));
-            return true;
+            return response.data;
         } catch (error) {
             dispatch(
                 aiAnalyticsActions.levelsFailed(
-                    aiErrorMessage(error, 'Уровни не сохранены'),
+                    aiErrorMessage(error, AI_SETTINGS_SAVE_ERROR),
                 ),
             );
-            return false;
+            return null;
         }
     };

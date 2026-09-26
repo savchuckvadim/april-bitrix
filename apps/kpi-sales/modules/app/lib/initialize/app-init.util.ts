@@ -10,6 +10,7 @@ import {
 import { appActions } from '../../model/AppSlice';
 import type { AppDispatch } from '../../model/store';
 import { initWSClient } from '../../model/ws-client';
+import { bootstrapPortalSession } from '../portal-session/portal-session';
 
 /** Код ошибки инициализации «не во фрейме Bitrix в PROD». */
 export const NON_AUTH_ERROR = 'nonauth';
@@ -48,6 +49,10 @@ export const appInit = async (
     if (!inFrame) {
         console.info(`app-init: вне фрейма Bitrix — dev-режим (${domain})`);
     }
+
+    // Portal-context сессия kpi-report-sales: Bearer на все запросы к бэку.
+    // Вне фрейма ничего не делает; ошибка обмена — fail-open (см. модуль).
+    await bootstrapPortalSession(bitrix.api);
 
     // WS-коннект к kpi-report-sales (события user-report ловит listener).
     initWSClient(Number(user.ID), domain);

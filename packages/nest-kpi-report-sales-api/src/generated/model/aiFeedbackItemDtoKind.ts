@@ -22,4 +22,5 @@ export const AiFeedbackItemDtoKind = {
     alert_handled: 'alert_handled',
     digest_sent: 'digest_sent',
     agenda_sent: 'agenda_sent',
+    rop_mark: 'rop_mark',
 } as const;

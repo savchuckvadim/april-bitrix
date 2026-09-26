@@ -35,6 +35,8 @@ export const startAiFlagsListener = (
             dispatch(
                 appActions.setFeatures({
                     aiAnalyticsPortalEnabled: settings?.enabled ?? false,
+                    aiAnalyticsSelfViewEnabled:
+                        settings?.selfViewEnabled ?? false,
                 }),
             );
         },

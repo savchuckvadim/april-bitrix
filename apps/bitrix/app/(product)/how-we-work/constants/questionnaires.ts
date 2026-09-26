@@ -1,4 +1,5 @@
 import { CALL_REVIEW_QUESTIONNAIRE } from '../../ai/constants/call-review-questionnaire';
+import { ROP_REVIEW_QUESTIONNAIRE } from '../../ai/constants/rop-review-questionnaire';
 import { HowQuestionnaire, HowQuestionnaireId } from './types';
 import { CALIBRATION_QUESTIONNAIRE } from './calibration-questionnaire';
 
@@ -225,8 +226,9 @@ const CATALOGS_QUESTIONNAIRE: HowQuestionnaire = {
 /**
  * Реестр анкет движка. Анкеты внедрения описаны здесь же, брифы раздела
  * «AI для отдела продаж» — в своих папках: `calibration-questionnaire`
- * (двенадцать разделов) и `ai/constants/call-review-questionnaire` (оценка
- * одного звонка). Ключ реестра всегда совпадает с `id` анкеты.
+ * (двенадцать разделов), `ai/constants/call-review-questionnaire` (оценка
+ * одного звонка) и `ai/constants/rop-review-questionnaire` (отзыв
+ * руководителя на разбор). Ключ реестра всегда совпадает с `id` анкеты.
  */
 export const HOW_QUESTIONNAIRES: Record<HowQuestionnaireId, HowQuestionnaire> =
     {
@@ -235,4 +237,5 @@ export const HOW_QUESTIONNAIRES: Record<HowQuestionnaireId, HowQuestionnaire> =
         catalogs: CATALOGS_QUESTIONNAIRE,
         calibration: CALIBRATION_QUESTIONNAIRE,
         'call-review': CALL_REVIEW_QUESTIONNAIRE,
+        'rop-review': ROP_REVIEW_QUESTIONNAIRE,
     };

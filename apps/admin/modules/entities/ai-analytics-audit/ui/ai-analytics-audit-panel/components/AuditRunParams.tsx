@@ -1,6 +1,5 @@
 'use client';
 
-import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import {
     Select,
@@ -16,6 +15,7 @@ import {
 } from '../../../consts/ai-analytics-audit.const';
 import { AI_ANALYTICS_AUDIT_RUN_DEFAULTS } from '../../../model';
 import type { AuditFormActions, AuditFormState } from '../types';
+import { MonthsField } from './MonthsField';
 
 interface AuditRunParamsProps {
     form: AuditFormState;
@@ -28,33 +28,17 @@ interface AuditRunParamsProps {
  */
 export const AuditRunParams = ({ form, actions }: AuditRunParamsProps) => (
     <>
-        <div className="space-y-1.5">
-            <Label htmlFor="audit-months" className="text-xs font-semibold">
-                {AUDIT_TEXT.months}
-            </Label>
-            <Input
-                id="audit-months"
-                type="number"
-                inputMode="numeric"
-                min={AI_ANALYTICS_AUDIT_RUN_DEFAULTS.minMonths}
-                max={AI_ANALYTICS_AUDIT_RUN_DEFAULTS.maxMonths}
-                step={1}
-                value={form.monthsRaw}
-                aria-invalid={!form.isMonthsValid}
-                onChange={event => actions.setMonthsRaw(event.target.value)}
-            />
-            <p
-                className={
-                    form.isMonthsValid
-                        ? 'text-xs text-muted-foreground'
-                        : 'text-xs text-destructive'
-                }
-            >
-                {form.isMonthsValid
-                    ? AUDIT_TEXT.monthsHint
-                    : AUDIT_TEXT.monthsInvalid}
-            </p>
-        </div>
+        <MonthsField
+            id="audit-months"
+            label={AUDIT_TEXT.months}
+            value={form.monthsRaw}
+            isValid={form.isMonthsValid}
+            min={AI_ANALYTICS_AUDIT_RUN_DEFAULTS.minMonths}
+            max={AI_ANALYTICS_AUDIT_RUN_DEFAULTS.maxMonths}
+            hint={AUDIT_TEXT.monthsHint}
+            invalidHint={AUDIT_TEXT.monthsInvalid}
+            onChange={actions.setMonthsRaw}
+        />
 
         <div className="space-y-1.5">
             <Label htmlFor="audit-time-zone" className="text-xs font-semibold">

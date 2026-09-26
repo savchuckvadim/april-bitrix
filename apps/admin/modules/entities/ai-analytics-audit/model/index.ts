@@ -7,6 +7,11 @@ import type {
     AiAnalyticsAuditResultDto,
     AiAnalyticsAuditResultDtoSource,
     AiAnalyticsAuditRunDto,
+    AiAnalyticsGoldenSetEntryDto,
+    AiAnalyticsGoldenSetResultDto,
+    AiAnalyticsGoldenSetRunDto,
+    AiAnalyticsGoldenSetRunResultDto,
+    AiAnalyticsStageHistoryProbeResponseDto,
 } from '@workspace/nest-admin-api';
 
 /**
@@ -37,6 +42,39 @@ export const AI_ANALYTICS_AUDIT_RUN_DEFAULTS = {
     maxMonths: 24,
     timeZone: 'Europe/Moscow',
     save: true,
+} as const;
+
+/**
+ * Проба истории стадий сделок портала (`GET .../stage-history/probe`):
+ * доступен ли crm.stagehistory.list и на сколько месяцев вглубь есть
+ * история переходов — на нём стоит шаг StageHistoryStep AI-аналитики.
+ */
+export type AiAnalyticsStageHistoryProbe =
+    AiAnalyticsStageHistoryProbeResponseDto;
+
+/** Границы и умолчание окна пробы — зеркало AI_ANALYTICS_STAGE_HISTORY_PROBE_DEFAULTS бэка. */
+export const AI_ANALYTICS_STAGE_HISTORY_PROBE_DEFAULTS = {
+    months: 12,
+    minMonths: 1,
+    maxMonths: 36,
+} as const;
+
+/**
+ * Набор test-retest (`GET .../golden-set`): отчёты согласия портала по
+ * версиям промпта — σ_llm, квота, уложилась ли выборка. Запуск
+ * (`POST .../golden-set/run`) ставит джобу повторного прогона в очередь
+ * CALL_REPORT; отчёт появляется в наборе, когда воркер досчитает.
+ */
+export type AiAnalyticsGoldenSetEntry = AiAnalyticsGoldenSetEntryDto;
+export type AiAnalyticsGoldenSetResult = AiAnalyticsGoldenSetResultDto;
+export type AiAnalyticsGoldenSetRun = AiAnalyticsGoldenSetRunDto;
+export type AiAnalyticsGoldenSetRunResult = AiAnalyticsGoldenSetRunResultDto;
+
+/** Границы и умолчание квоты пар — зеркало DTO бэка и retest_budget_calls реестра. */
+export const AI_ANALYTICS_GOLDEN_SET_DEFAULTS = {
+    quota: 300,
+    minQuota: 10,
+    maxQuota: 1000,
 } as const;
 
 /* ---------- Структурированный отчёт (AuditReport бэка) ---------- */

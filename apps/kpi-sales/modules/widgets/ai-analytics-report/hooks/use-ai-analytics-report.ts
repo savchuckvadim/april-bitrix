@@ -15,6 +15,7 @@ import {
     selectAiOverviewScope,
     sendAiView,
 } from '@/modules/entities/ai-analytics';
+import type { AiSettingsTab } from '../lib/ai-settings-form.util';
 
 /**
  * Состояние вкладки «AI аналитика»: загрузка пульса, повестки, обзора и
@@ -39,6 +40,9 @@ export const useAiAnalyticsReport = () => {
     const canViewAll = useAccess(EAccessFeature.AI_VIEW_ALL);
     const canConfigure = useAccess(EAccessFeature.AI_CONFIGURE);
     const [levelsOpen, setLevelsOpen] = useState(false);
+    // Вкладка диалога настроек при открытии: «Уровни» из шапки, «Состав» —
+    // из баннера готовности (причина roster-not-confirmed).
+    const [levelsTab, setLevelsTab] = useState<AiSettingsTab>('levels');
 
     const kpiOnly = isAiKpiOnly(settings.data?.readiness.mode);
 
@@ -66,7 +70,15 @@ export const useAiAnalyticsReport = () => {
         isRefreshing: pulseStatus === 'loading' || agendaStatus === 'loading',
         isRecalculating: overviewStatus === 'loading',
         levelsOpen,
-        openLevels: () => setLevelsOpen(true),
+        levelsTab,
+        openLevels: () => {
+            setLevelsTab('levels');
+            setLevelsOpen(true);
+        },
+        openRoster: () => {
+            setLevelsTab('roster');
+            setLevelsOpen(true);
+        },
         setLevelsOpen,
         refresh,
         recalc,

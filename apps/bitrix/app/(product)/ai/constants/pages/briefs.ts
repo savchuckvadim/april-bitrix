@@ -18,6 +18,7 @@ import {
 import type { TheoryPageContent } from '../../../process/_core/theory-types';
 import { AI_EYEBROW_PREFIX } from '../copy';
 import { AI_SCREENS_GENERAL, aiScreenBlock } from '../screens';
+import { AI_ROP_PATH } from './rop';
 
 export const AI_BRIEFS: TheoryPageContent = {
     slug: 'briefs',
@@ -41,6 +42,20 @@ export const AI_BRIEFS: TheoryPageContent = {
             kind: 'note',
             tone: 'neutral',
             text: 'Пустое поле — тоже ответ. «У нас такого нет», «не знаю», «решим позже» полезнее выдуманной точности: по выдуманному ответу система настроится неправильно, а по честному пробелу мы зададим один уточняющий вопрос.',
+        },
+        {
+            kind: 'paragraph',
+            text: 'Третья форма — отзыв руководителя на готовый разбор звонка — живёт не здесь, а на странице «Что нужно от руководителя»: там же коротко описаны три обязанности руководителя по обратной связи, которые вместе занимают меньше часа в месяц.',
+        },
+        {
+            kind: 'links',
+            items: [
+                {
+                    label: 'Что нужно от руководителя',
+                    href: AI_ROP_PATH,
+                    note: 'Слепая оценка раз в неделю, один разбор в месяц через форму и сообщение об изменениях в отделе.',
+                },
+            ],
         },
 
         { kind: 'heading', text: 'Общий бриф подключения' },

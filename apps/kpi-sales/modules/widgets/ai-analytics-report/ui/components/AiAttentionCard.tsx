@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { HintTooltip, ToneBadge } from '@workspace/april-ui';
 import {
@@ -30,6 +30,12 @@ export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
     const linkType = item.link.callType;
     const callType = linkType ? callTypeBadge(linkType) : null;
     const riskCount = item.link.transcriptionIds?.length ?? 0;
+    // Ссылки на карточки разборов риск-звонков (бэк подставляет по
+    // transcriptionIds; null — элемента разбора в смарте ещё нет).
+    const callLinks = (item.link.calls ?? []).filter(
+        (call): call is { transcriptionId: string; link: string } =>
+            call.link !== null,
+    );
 
     return (
         <li className="flex flex-col gap-2 rounded-md border border-border/60 p-3">
@@ -69,6 +75,21 @@ export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
                         </Button>
                     )}
                     {riskCount > 0 && <span>риск-звонков: {riskCount}</span>}
+                    {callLinks.map((call, index) => (
+                        <a
+                            key={call.transcriptionId}
+                            href={call.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-primary underline-offset-2 hover:underline"
+                            title={`Открыть разбор звонка (транскрипция ${call.transcriptionId})`}
+                        >
+                            {callLinks.length > 1
+                                ? `разбор ${index + 1}`
+                                : 'открыть разбор'}
+                            <ExternalLink className="h-3 w-3" />
+                        </a>
+                    ))}
                 </div>
                 <AiFeedbackButtons
                     object={AI_FEEDBACK_OBJECT.attention(

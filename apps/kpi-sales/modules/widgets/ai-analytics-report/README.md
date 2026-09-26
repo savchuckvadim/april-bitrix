@@ -58,3 +58,17 @@
   собраны на shadcn `Table` в той же `Card`-обёртке, что и `RTable`.
 - Ссылок на транскрипции по `transcriptionId` (опорные звонки, риск-звонки)
   бэк пока не отдаёт — показываем id.
+
+## Волна D (22.09.2026): новые секции и диалоги
+
+- `AiBriefCard` — AI-резюме периода (очередь + WS `ai-analytics:brief:done|error`, «Пересобрать» руководителю, бэйдж «шаблон» с причиной, расход).
+- `AiRopMarkCard` — слепая оценка: три звонка недели, форма метки (`AiRopMarkForm`), сохранённая метка с раскрытой оценкой AI (`AiRopMarkSaved`); только руководителям, ссылки на разборы из `link`.
+- `AiDailyPlanCard` — план дня по менеджеру и дате (гейт `dailyPlanEnabled`), цель, прогресс, таблица активностей, объяснение и блок «только руководителю».
+- `AiStyleDialog` — стиль менеджера (кнопка «Стиль» в строке таблицы сигналов): оси, подписи, заметки few_data/opt_out/stale.
+- `AiHowWeCountDialog` + `AiHowWeCountButton({ endpoint })` — «Как считаем» для overview (шапка вкладки), brief, plan/daily, manager/style.
+- `AiLevelsDialog` — теперь диалог настроек витрины с вкладками «Уровни», «Цели по уровням», «Отсутствия», «Состав» (`initialTab`; баннер готовности открывает «Состав» через `onConfirmRoster`), подтверждение breaksSeries, сводка после сохранения.
+- `AiReadinessBanner` — русские подписи причин, подсказки «что делать», счётчик β (`formatBetaCountdown`).
+- `AiSectionState` / `AiQueuedState` — текст сервера и подсказки для 403 (`lib/ai-section-error.util.ts`), «Повторить».
+- Таблица сигналов: колонка «Рычаги» (`AiSignalLeversCell`), риск-звонки (`AiSignalRiskCalls`), стаж `since`, чипы стиля; «Не согласен» с причиной и комментарием.
+- «Внимание»: ссылки «открыть разбор» по `link.calls` (бэк подставляет по transcriptionIds).
+- Чистая логика — `lib/*.util.ts`, тесты в `lib/__tests__/` и `__tests__/` (vitest, node).

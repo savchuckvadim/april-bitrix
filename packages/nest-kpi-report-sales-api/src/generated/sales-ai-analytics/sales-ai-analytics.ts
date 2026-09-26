@@ -6,28 +6,47 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+    AiAboutRequestDto,
+    AiAboutResponseDto,
     AiAgendaRequestDto,
     AiAgendaResponseDto,
     AiAttentionRequestDto,
     AiAttentionResponseDto,
+    AiBriefRequestDto,
+    AiBriefResponseDto,
     AiByTypeRequestDto,
     AiByTypeResponseDto,
     AiCacheResetRequestDto,
     AiCacheResetResponseDto,
+    AiDailyPlanRequestDto,
+    AiDailyPlanResponseDto,
+    AiDossierRequestDto,
+    AiDossierResponseDto,
     AiFeedbackListRequestDto,
     AiFeedbackListResponseDto,
     AiFeedbackRequestDto,
     AiFeedbackResponseDto,
     AiOverviewRequestDto,
     AiOverviewResponseDto,
+    AiPlanFactRequestDto,
+    AiPlanFactResponseDto,
     AiPulseRequestDto,
     AiPulseResponseDto,
     AiPushRequestDto,
     AiPushResponseDto,
+    AiReviewRequestDto,
+    AiReviewResponseDto,
+    AiRopMarkListRequestDto,
+    AiRopMarkPickRequestDto,
+    AiRopMarkSaveRequestDto,
+    AiRopMarkSaveResponseDto,
+    AiRopMarkWeekResponseDto,
     AiSettingsGetRequestDto,
     AiSettingsResponseDto,
     AiSettingsSaveRequestDto,
     AiSettingsSaveResponseDto,
+    AiStyleCardDto,
+    AiStyleProfileRequestDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/kpi-report-sales-api';
@@ -48,7 +67,7 @@ export const getSalesAiAnalytics = () => {
         });
     };
     /**
-     * Окно 5 рабочих дней до вчерашнего рабочего дня (TZ портала): доля разобранных звонков с назначенным шагом и датой, XmR по дневным долям 25 рабочих дней, строки менеджеров с n ≥ 20 и сигналы руководителю — в периметре requester'а. Кэш 1 ч.
+     * Окно 5 рабочих дней до вчерашнего рабочего дня (TZ портала): доля разобранных звонков с назначенным шагом и датой, XmR по дневным долям 25 рабочих дней, строки менеджеров с n ≥ 20 и сигналы руководителю — в периметре requester'а. Менеджер без роли руководителя — 403, если не включена ai_analytics_self_view_enabled. Кэш 1 ч.
      * @summary Пульс дисциплины «следующий шаг с датой»
      */
     const aiAnalyticsGetPulse = (aiPulseRequestDto: AiPulseRequestDto) => {
@@ -60,7 +79,7 @@ export const getSalesAiAnalytics = () => {
         });
     };
     /**
-     * 3 звонка текущей ISO-недели по приоритету риск-флаг → спорное возражение → слабый раздел, с цитатой и ссылкой на карточку разбора; несогласия недели. В периметре requester'а. Кэш до следующего понедельника.
+     * 3 звонка текущей ISO-недели по приоритету риск-флаг → спорное возражение → слабый раздел, с цитатой и ссылкой на карточку разбора; несогласия недели. В периметре requester'а; менеджер без роли руководителя — 403, если не включена ai_analytics_self_view_enabled. Кэш до следующего понедельника.
      * @summary Повестка РОПа на неделю
      */
     const aiAnalyticsGetAgenda = (aiAgendaRequestDto: AiAgendaRequestDto) => {
@@ -86,7 +105,7 @@ export const getSalesAiAnalytics = () => {
         });
     };
     /**
-     * Записи ais типа ai-analytics-feedback по домену и периоду (даты в TZ портала), опционально по менеджеру, плюс доля несогласий. Список по всем менеджерам — только руководителям; менеджер видит только свои строки.
+     * Записи ais типа ai-analytics-feedback по домену и периоду (даты в TZ портала), опционально по менеджеру, плюс доля несогласий. Список по всем менеджерам — только руководителям; менеджер видит только свои строки и лишь при ai_analytics_self_view_enabled (иначе 403).
      * @summary Список обратной связи за период
      */
     const aiAnalyticsListFeedback = (
@@ -114,8 +133,8 @@ export const getSalesAiAnalytics = () => {
         });
     };
     /**
-     * Синхронно выполняет тот же код, что и крон (пн 08:30 МСК повестка РОПам, ежедневно 08:00 МСК дайджест менеджерам): kind=agenda|digest, date — день запуска в TZ портала (по умолчанию сегодня), recipients — кому отправить вместо получателей по настройкам (тест «отправить себе»; отметки доставки при этом не пишутся). Только руководители.
-     * @summary Ручной запуск push-рассылки (повестка / утренний разбор)
+     * Синхронно выполняет тот же код, что и крон (пн 08:30 МСК повестка РОПам, ежедневно 08:00 МСК дайджест каждому менеджеру и сводный дайджест по всем менеджерам адресатам из ai_analytics_digest_all_user_ids): kind=agenda|digest|digest_all, date — день запуска в TZ портала (по умолчанию сегодня), recipients — кому отправить вместо получателей по настройкам (тест «отправить себе»; отметки доставки при этом не пишутся). Только руководители.
+     * @summary Ручной запуск push-рассылки (повестка / утренний разбор / сводный дайджест)
      */
     const aiAnalyticsPush = (aiPushRequestDto: AiPushRequestDto) => {
         return customAxios<AiPushResponseDto>({
@@ -168,8 +187,8 @@ export const getSalesAiAnalytics = () => {
         });
     };
     /**
-     * Только руководители cup|op. Полный список уровней менеджеров (junior/middle/senior, since — начало стажа не позже сегодня в TZ портала; каждый managerId — из периметра requester'а). Пустой список сбрасывает уровни к дефолту по стажу. Запись в ais (type = ai-analytics-settings) и сброс кэша overview/attention домена — следующий обзор пересчитается с новыми уровнями.
-     * @summary Сохранение настроек витрины (уровни менеджеров)
+     * Только руководители cup|op. Блоки необязательны: передан — перезаписывается, не передан — остаётся прежним. Уровни (junior/middle/senior, since — начало стажа не позже сегодня в TZ портала; каждый managerId — из периметра requester'а; пустой список сбрасывает уровни к дефолту по стажу), цели по уровням, отсутствия, параметры менеджеров, определения событий, журнал событий портала, гиперпараметры модели, потолки оценивания, гипотеза качества и дата подтверждения ростера. Значения вне диапазонов реестра — 400, чужой менеджер — 403. Запись идёт в ключи настроек портала [kpiSales], сбрасываются кэши overview/attention/model/plan/settings домена, каждое сохранение пишет снапшот ai-analytics-settings-audit. Правка поля с breaksSeries двигает comparableFrom вперёд (список кодов — в ответе).
+     * @summary Сохранение настроек витрины (девять блоков и уровни)
      */
     const aiAnalyticsOverviewSaveSettings = (
         aiSettingsSaveRequestDto: AiSettingsSaveRequestDto,
@@ -179,6 +198,142 @@ export const getSalesAiAnalytics = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: aiSettingsSaveRequestDto,
+        });
+    };
+    /**
+     * Система сама подбирает до 3 звонков закончившейся или указанной недели: с неуверенным типом, с лучшим баллом (проверка на подыгрывание метрике) и случайный — не более одного звонка на менеджера. Подбор детерминирован зерном домена и ключа недели: повтор запроса и ночной шаг понедельника дают один набор; forceRefresh пересобирает подбор по текущим звонкам недели. Слепой режим: колонки оценки AI (aiCallType, aiScore) отдаются только по звонкам с уже сохранённой меткой. Только руководителям (cup/op/group), менеджеру — 403; звонки чужих менеджеров вырезаются периметром.
+     * @summary Подбор трёх звонков недели для слепой проверки
+     */
+    const aiAnalyticsRopMarkPick = (
+        aiRopMarkPickRequestDto: AiRopMarkPickRequestDto,
+    ) => {
+        return customAxios<AiRopMarkWeekResponseDto>({
+            url: `/api/ai-analytics/rop-mark/pick`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiRopMarkPickRequestDto,
+        });
+    };
+    /**
+     * Сохранённый подбор недели вместе с метками; подбора ещё нет — пустой список calls (новый подбор эта ручка не делает, для этого есть rop-mark/pick). Слепой режим и периметр — как у подбора. Только руководителям, менеджеру — 403.
+     * @summary Подбор недели и метки руководителя по нему
+     */
+    const aiAnalyticsRopMarkList = (
+        aiRopMarkListRequestDto: AiRopMarkListRequestDto,
+    ) => {
+        return customAxios<AiRopMarkWeekResponseDto>({
+            url: `/api/ai-analytics/rop-mark/list`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiRopMarkListRequestDto,
+        });
+    };
+    /**
+     * Согласие с оценкой AI, своя оценка 1–10, разделы рубрики, «почему так» и «как лучше» по одному из звонков подбора недели. Звонок вне подбора или подбор, которого ещё нет, — 400 с текстом причины; менеджер звонка вне периметра — 403. Повторная метка заменяет прежнюю (та уходит в superseded) и слепой уже не считается: к этому моменту оценка AI по звонку раскрыта. Только руководителям, менеджеру — 403.
+     * @summary Слепая метка руководителя по звонку подбора
+     */
+    const aiAnalyticsRopMarkSave = (
+        aiRopMarkSaveRequestDto: AiRopMarkSaveRequestDto,
+    ) => {
+        return customAxios<AiRopMarkSaveResponseDto>({
+            url: `/api/ai-analytics/rop-mark/save`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiRopMarkSaveRequestDto,
+        });
+    };
+    /**
+     * Обратная задача: цель месяца G минус закрытые продажи Y₀ и ожидание от открытого пайплайна λ_pipe даёт требуемый объём входной активности N_req, он разворачивается по рёбрам воронки (N_k = N_{k+1}/E[θ]) и делится на оставшиеся рабочие дни с потолком дня plan_day_ceiling — догонять месячный недобор за три дня не план, а демотивация. Считается синхронно по снапшотам ai-analytics-forecast, ai-analytics-portal-model и ai-analytics-manager-month; Битрикс не вызывается. Кэш на 180 с по паре день + менеджер, сбрасывается при сохранении настроек. Без истории стадий pipelineExpected = null, и цель на пайплайн НЕ уменьшается. Нет модели портала или прогноза — штатная деградация: план по объёму и код причины в reason. Руководителю дополнительно отдаётся блок ropOnly (нормы, режим betaSource, два G′ и связующее ограничение).
+     * @summary План дня менеджера от цели месяца
+     */
+    const aiAnalyticsPlanGetDailyPlan = (
+        aiDailyPlanRequestDto: AiDailyPlanRequestDto,
+    ) => {
+        return customAxios<AiDailyPlanResponseDto>({
+            url: `/api/ai-analytics/plan/daily`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiDailyPlanRequestDto,
+        });
+    };
+    /**
+     * По каждому менеджеру периметра и по отделу целиком: план месяца из снимка целей руководителя, факт на дату из месячных снапшотов, темп относительно прошедшей доли месяца по рабочим дням календаря портала, описательный прогноз закрытия при текущем темпе (срезан потолком plan_day_ceiling), разрыв и «сколько надо в день». Синхронно: всё уже лежит в снапшотах, Битрикс не опрашивается; закрытый месяц читается из кэша. Плана нет — строка no-plan без единого числа, причина в reasons. Признак «План дня» выключен — perDayNeeded = null с причиной, остальные числа на месте, а не 403.
+     * @summary Реконсиляция план-факт за месяц
+     */
+    const aiAnalyticsPlanFactGetPlanFact = (
+        aiPlanFactRequestDto: AiPlanFactRequestDto,
+    ) => {
+        return customAxios<AiPlanFactResponseDto>({
+            url: `/api/ai-analytics/plan-fact`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiPlanFactRequestDto,
+        });
+    };
+    /**
+     * Короткое резюме периода по пакету фактов: алерты пульса, карточки «Внимания», разрывы воронки к норме, продажи против плана, ожидание из пайплайна, дисциплина «шаг с датой», звонки и эфирное время, прогноз месяца и качество данных. Пакет собирается только из кэша витрины и снапшотов ночного конвейера (в Bitrix и транскрипции ручка не ходит), режется до 10 фактов и 4 КБ; каждое число буллета обязано быть в пакете, иначе буллет отбрасывается. Ключ результата — sales-ai-analytics:v1:{domain}:brief:{packHash}: попадание в кэш → ready; расчёт идёт → processing; промах → джоба SALES_AI_ANALYTICS_BRIEF (jobId = requestKey) → queued, по завершении WS ai-analytics:brief:done|error с requestKey — затем повторить POST. Кэш 6 ч, forceRefresh пересобирает. Без ключа VibeCode, при исчерпанной дневной квоте (brief_quota_per_day) или провале факт-чека приходит шаблонное резюме с подписью причины (source = template).
+     * @summary AI-резюме периода (очередь + WS)
+     */
+    const aiAnalyticsBriefGetBrief = (aiBriefRequestDto: AiBriefRequestDto) => {
+        return customAxios<AiBriefResponseDto>({
+            url: `/api/ai-analytics/brief`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiBriefRequestDto,
+        });
+    };
+    /**
+     * Одной ручкой — всё, что витрина знает о менеджере за окно (по умолчанию 3 месяца): паспорт, ряды недель и месяцев, тренды, план-факт, год назад, стиль, возражения, свод обратной связи, метки руководителя и готовность витрины. Собирается только из снапшотов ночного конвейера и записей ais — в Bitrix ручка не ходит. Любой раздел, которого нет или который не собрался, приходит null, а причина — в reasons[]: досье при этом отдаётся целиком. Ключ результата — sales-ai-analytics:v1:{domain}:dossier:{managerId}:{from}_{to}: попадание в кэш → ready; расчёт идёт → processing; промах → джоба SALES_AI_ANALYTICS_DOSSIER (jobId = requestKey) → queued, по завершении WS ai-analytics:dossier:done|error с requestKey — затем повторить POST. Кэш: окно с текущим месяцем — 10 минут, окно из закрытых месяцев — 30 дней; forceRefresh пересобирает, сброс — POST cache/reset.
+     * @summary Досье менеджера за окно (очередь + WS)
+     */
+    const aiAnalyticsDossierGetDossier = (
+        aiDossierRequestDto: AiDossierRequestDto,
+    ) => {
+        return customAxios<AiDossierResponseDto>({
+            url: `/api/ai-analytics/dossier`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiDossierRequestDto,
+        });
+    };
+    /**
+     * Профиль стиля из снапшота ai-analytics-style: до трёх подписей-фактов с опорой в числах, оси с отклонением от нормы коллег и интервалом 80 %, форма воронки как контекст, блок «Как считаем». Ничего не считает на лету — отдаёт результат ночного шага конвейера. monthKey не передан — последний рассчитанный профиль. Меньше style_min_calls разборов или доверие none — status few_data с текстом «данных для стиля пока мало». Сотрудник из ai_analytics_style_opt_out — status opt_out без подписей и осей. Подпись, оспоренная самим сотрудником, остаётся в карточке с пометкой, но в notable не попадает. Менеджер вне периметра пользователя — 403.
+     * @summary Карточка стиля менеджера за месячное окно
+     */
+    const aiAnalyticsStyleGetStyleProfile = (
+        aiStyleProfileRequestDto: AiStyleProfileRequestDto,
+    ) => {
+        return customAxios<AiStyleCardDto>({
+            url: `/api/ai-analytics/manager/style`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiStyleProfileRequestDto,
+        });
+    };
+    /**
+     * Собирается из реестра параметров и последнего снапшота месячной модели портала, а не пишется руками: тексты ручки, параметры с действующими значениями и слоем (портал, полоса стажа, менеджер, дефолт), версия набора параметров, готовность с причинами, κ / φ / λ с источником (estimated | configured | hybrid), betaSource, трактовка рёбер, comparableFrom и санити-панель. Модели портала ещё нет — model = null с причиной в modelReason, параметры остаются.
+     * @summary Блок «Как считаем» для ручки витрины
+     */
+    const aiAnalyticsAboutGetAbout = (aiAboutRequestDto: AiAboutRequestDto) => {
+        return customAxios<AiAboutResponseDto>({
+            url: `/api/ai-analytics/about`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiAboutRequestDto,
+        });
+    };
+    /**
+     * Принимает отзыв по ссылке на карточку разбора: из ссылки берутся портал, смарт-процесс и элемент; смарт сверяется с установленным на портале «AI-анализ звонков» (иначе 400), запись разбора ищется по элементу. Отзыв пишется записью обратной связи (ai-analytics-feedback: useful при согласии, disagree иначе, object site-review:{itemId}, детали в payload) и уходит в чат админов. Ручка открытая: без portal-context сессии, лимит отправок с одного адреса — 10 за 10 минут (429).
+     * @summary Отзыв руководителя на разбор звонка (с сайта продукта)
+     */
+    const aiAnalyticsReviewSubmit = (
+        aiReviewRequestDto: AiReviewRequestDto,
+    ) => {
+        return customAxios<AiReviewResponseDto>({
+            url: `/api/ai-analytics/review`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiReviewRequestDto,
         });
     };
     return {
@@ -193,6 +348,16 @@ export const getSalesAiAnalytics = () => {
         aiAnalyticsOverviewGetAttention,
         aiAnalyticsOverviewGetByType,
         aiAnalyticsOverviewSaveSettings,
+        aiAnalyticsRopMarkPick,
+        aiAnalyticsRopMarkList,
+        aiAnalyticsRopMarkSave,
+        aiAnalyticsPlanGetDailyPlan,
+        aiAnalyticsPlanFactGetPlanFact,
+        aiAnalyticsBriefGetBrief,
+        aiAnalyticsDossierGetDossier,
+        aiAnalyticsStyleGetStyleProfile,
+        aiAnalyticsAboutGetAbout,
+        aiAnalyticsReviewSubmit,
     };
 };
 export type AiAnalyticsGetSettingsResult = NonNullable<
@@ -275,6 +440,84 @@ export type AiAnalyticsOverviewSaveSettingsResult = NonNullable<
             ReturnType<
                 typeof getSalesAiAnalytics
             >['aiAnalyticsOverviewSaveSettings']
+        >
+    >
+>;
+export type AiAnalyticsRopMarkPickResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsRopMarkPick']
+        >
+    >
+>;
+export type AiAnalyticsRopMarkListResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsRopMarkList']
+        >
+    >
+>;
+export type AiAnalyticsRopMarkSaveResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsRopMarkSave']
+        >
+    >
+>;
+export type AiAnalyticsPlanGetDailyPlanResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getSalesAiAnalytics
+            >['aiAnalyticsPlanGetDailyPlan']
+        >
+    >
+>;
+export type AiAnalyticsPlanFactGetPlanFactResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getSalesAiAnalytics
+            >['aiAnalyticsPlanFactGetPlanFact']
+        >
+    >
+>;
+export type AiAnalyticsBriefGetBriefResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsBriefGetBrief']
+        >
+    >
+>;
+export type AiAnalyticsDossierGetDossierResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getSalesAiAnalytics
+            >['aiAnalyticsDossierGetDossier']
+        >
+    >
+>;
+export type AiAnalyticsStyleGetStyleProfileResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getSalesAiAnalytics
+            >['aiAnalyticsStyleGetStyleProfile']
+        >
+    >
+>;
+export type AiAnalyticsAboutGetAboutResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsAboutGetAbout']
+        >
+    >
+>;
+export type AiAnalyticsReviewSubmitResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsReviewSubmit']
         >
     >
 >;

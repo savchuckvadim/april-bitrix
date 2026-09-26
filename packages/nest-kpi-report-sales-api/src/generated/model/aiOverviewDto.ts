@@ -12,6 +12,7 @@ import type { AiManagerRowDto } from './aiManagerRowDto';
 import type { AiTypeTotalsDto } from './aiTypeTotalsDto';
 import type { AiDepartmentTotalsDto } from './aiDepartmentTotalsDto';
 import type { AiObjectionsDto } from './aiObjectionsDto';
+import type { AiOverviewDtoYoy } from './aiOverviewDtoYoy';
 import type { AiOverviewMetaDto } from './aiOverviewMetaDto';
 
 export interface AiOverviewDto {
@@ -33,6 +34,11 @@ export interface AiOverviewDto {
     departmentTotals: AiDepartmentTotalsDto[];
     /** Сквозной срез возражений (источник для by-type objections). */
     objections: AiObjectionsDto;
+    /**
+     * Тот же месяц год назад по всему периметру обзора (Фаза 3, П3): величины двух периодов рядом и флаг сопоставимости с причинами. Только описательно, без оценок. null — период обзора не месяц, истории меньше 13 месяцев либо разборов в обоих периодах меньше n_min_none (8).
+     * @nullable
+     */
+    yoy?: AiOverviewDtoYoy;
     /** Служебная сводка. */
     meta: AiOverviewMetaDto;
 }

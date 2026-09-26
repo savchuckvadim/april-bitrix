@@ -7,6 +7,9 @@ import {
 
 /* Общее для sync- и queued-thunks: клиент, тайминги, requester, ошибки. */
 
+/** Текст ошибки секции: сообщение сервера (403/400) → Error.message → запас. */
+export { aiErrorMessage } from '../lib/ai-error.util';
+
 /** Единственный экземпляр клиента ручек AI-аналитики на оба набора thunks. */
 export const aiHelper = new AiAnalyticsHelper();
 
@@ -23,9 +26,6 @@ export const AI_QUEUED_MAX_ATTEMPTS = 3;
 export const AI_TIMEOUT_MESSAGE =
     'Расчёт занял слишком долго. Нажмите «Повторить».';
 
-export const aiErrorMessage = (error: unknown, fallback: string): string =>
-    error instanceof Error && error.message ? error.message : fallback;
-
 /** Кто спрашивает; null — публичная /share или приложение не инициализировано. */
 export const selectAiRequester = (state: RootState): AiRequester | null => {
     const user = selectEffectiveUser(state);
@@ -33,3 +33,11 @@ export const selectAiRequester = (state: RootState): AiRequester | null => {
     if (!domain || state.app.isPublic || !user?.ID) return null;
     return { domain, requesterUserId: String(user.ID) };
 };
+
+/**
+ * Эффективный пользователь — руководитель (суперюзер или любой headOf по
+ * структуре): периметр структуры уже посчитан department-слайсом. Нужен
+ * ручкам «только руководителям» (rop-mark/pick), чтобы не ловить 403.
+ */
+export const selectAiIsLeader = (state: RootState): boolean =>
+    state.department.isHeadManager;

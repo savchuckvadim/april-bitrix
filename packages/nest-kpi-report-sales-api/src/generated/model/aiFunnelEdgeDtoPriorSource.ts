@@ -7,7 +7,7 @@
  */
 
 /**
- * Источник приора усадки: Фаза 1b — none.
+ * Источник приора усадки: none — модели нет; tenure — полоса стажа; portal — портал целиком; global — дефолт дампа; pool — межпортальный слой (Фазы 3–4).
  */
 export type AiFunnelEdgeDtoPriorSource =
     (typeof AiFunnelEdgeDtoPriorSource)[keyof typeof AiFunnelEdgeDtoPriorSource];
@@ -16,5 +16,7 @@ export type AiFunnelEdgeDtoPriorSource =
 export const AiFunnelEdgeDtoPriorSource = {
     none: 'none',
     portal: 'portal',
+    tenure: 'tenure',
+    global: 'global',
     pool: 'pool',
 } as const;

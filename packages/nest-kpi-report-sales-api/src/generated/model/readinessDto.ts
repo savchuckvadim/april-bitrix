@@ -6,18 +6,30 @@
  * OpenAPI spec version: 1.0
  */
 import type { ReadinessDtoMode } from './readinessDtoMode';
+import type { ReadinessDtoBetaSource } from './readinessDtoBetaSource';
+import type { ReadinessDtoBetaCountdown } from './readinessDtoBetaCountdown';
+import type { ReadinessDtoSigmaLlmSource } from './readinessDtoSigmaLlmSource';
 
 export interface ReadinessDto {
-    /** Режим: calibration (< 3 мес. или < 60 презентаций) → descriptive → norms (≥ 3 мес., ≥ 100 презентаций) → hypothesis → forecast → recommendations; kpi-only — аналитика включена, но разборов нет. */
+    /** Режим: calibration (< 3 мес. или < 60 презентаций) → descriptive → norms (≥ 3 мес., ≥ 100 презентаций) → hypothesis → forecast → recommendations; kpi-only — аналитика включена, но разборов нет. Без снапшота месячной модели портала режим не выше descriptive (причина no-portal-model): норм без модели нет. */
     mode: ReadinessDtoMode;
-    /** Месяцев истории разборов (по первому разобранному звонку). */
+    /** Месяцев истории: из окна модели портала (глубина истории стадий за 12 месяцев), без модели — по первому разобранному звонку в периоде. */
     historyMonths: number;
     /** Разобранных презентаций за окно готовности. */
     presentations: number;
-    /** Продаж за окно готовности (Фаза 1b — из закрытых сделок; в Фазе 1a всегда 0). */
+    /** Продаж за окно готовности: закрытые сделки финансов, а при пустых финансах — продажи эпизодов из снапшота прогноза. */
     sales: number;
     /** Дата (YYYY-MM-DD), с которой разборы сопоставимы по версиям (max по датам версий prompt/rubric/registry/attribution/classifier); пусто — версий нет. */
     comparableFrom: string;
-    /** Причины текущего режима (для баннера). */
+    /** Причины текущего режима (для баннера): коды гейтов с их значением (history-months-below-3, presentations-below-60, norms-presentations-below-100), календарь и состав (calendar-not-imported, roster-not-confirmed), гипотеза (hypothesis-not-set), кап без модели портала (no-portal-model) и качество данных (data-quality-timestamp-leak). */
     reasons: string[];
+    /** Связь «качество → исход»: none — не задана, hypothesis — гипотеза портала (ai_analytics_hypothesis), data — оценка по данным портала (гейт β пройден). */
+    betaSource: ReadinessDtoBetaSource;
+    /**
+     * Счётчик «до оценки β»; null — гейт уже пройден (betaSource = data), режим kpi-only либо считать не из чего.
+     * @nullable
+     */
+    betaCountdown?: ReadinessDtoBetaCountdown;
+    /** Источник σ_llm (Фаза 3, П7): measured — отчёт согласия test-retest прошёл ценз пар, configured — дефолт реестра sigma_llm_default. Нет поля — отчёта согласия у портала нет. */
+    sigmaLlmSource?: ReadinessDtoSigmaLlmSource;
 }

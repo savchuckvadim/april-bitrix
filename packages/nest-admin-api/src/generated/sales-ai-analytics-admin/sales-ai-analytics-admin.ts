@@ -7,10 +7,28 @@
  */
 import type {
   AiAnalyticsAuditAboutResponseDto,
+  AiAnalyticsAuditAdminAboutParams,
+  AiAnalyticsAuditAdminLatestParams,
+  AiAnalyticsAuditAdminProbeStageHistoryParams,
   AiAnalyticsAuditResultDto,
   AiAnalyticsAuditRunDto,
-  SalesAiAnalyticsAdminAboutParams,
-  SalesAiAnalyticsAdminLatestParams
+  AiAnalyticsBackfillDto,
+  AiAnalyticsBackfillResultDto,
+  AiAnalyticsCostResultDto,
+  AiAnalyticsEtlStatusResultDto,
+  AiAnalyticsFeedbackCostAdminCostSummaryParams,
+  AiAnalyticsFeedbackCostAdminFeedbackSummaryParams,
+  AiAnalyticsFeedbackResultDto,
+  AiAnalyticsGoldenSetAdminListParams,
+  AiAnalyticsGoldenSetResultDto,
+  AiAnalyticsGoldenSetRunDto,
+  AiAnalyticsGoldenSetRunResultDto,
+  AiAnalyticsPipelineAdminStatusParams,
+  AiAnalyticsRecomputeDto,
+  AiAnalyticsRecomputeResultDto,
+  AiAnalyticsRetentionResultDto,
+  AiAnalyticsRetentionRunDto,
+  AiAnalyticsStageHistoryProbeResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
@@ -23,14 +41,14 @@ import { customAxios } from '../../lib/admin-api';
 
 Считает: итоги окна, покрытие менеджера по месяцам, разборы по ячейкам менеджер × тип × месяц, доля разборов в «достаточных» ячейках, шум типов, длительности, версии разбора, заполненность полей разбора, глубина истории ais, рекомендация по порогам.
 
-Правило рекомендации: Если меньше 30 % разборов окна лежит в ячейках с n ≥ 8 — пороги «мало данных» стоит снизить (данных на ячейку не хватает). Если доля звонков короче 300 с превышает 40 % — нужен дешёвый контур классификации коротких звонков (ЛПР / секретарь / недозвон), иначе они остаются вне аналитики.
+Правило рекомендации: Если меньше 30 % разборов окна лежит в ячейках с n ≥ 8 — пороги «мало данных» стоит снизить (данных на ячейку не хватает). Если доля звонков короче порога разбора портала (report.rules.shortCallSec — минимум карты min_duration_sec_by_type, без настроек портала 300 с) превышает 40 % — нужен дешёвый контур классификации коротких звонков (ЛПР / секретарь / недозвон), иначе они остаются вне аналитики.
 
 Доступ: Запуск — только SUPER_USER (JWT + роль) и только для портала, у которого в настройках kpi-sales включён признак ai_analytics_audit_enabled («Аудит и калибровка данных разрешены»). Без признака ручка отвечает 403, а месячный крон портал пропускает. Чтение последнего снапшота признаком не ограничено.
 
 Ручка синхронна (на больших порталах — секунды): читает transcriptions/ais домена за последние months календарных месяцев (текущий включительно), собирает отчёт и при save = true пишет снапшот в ais (type = ai-analytics-audit, source = admin). Ответ содержит markdown (разделы 1–8), структурированный report и самоописание about — тот же текст, что и здесь.
  * @summary Запустить аудит данных AI-аналитики по живой БД
  */
-const salesAiAnalyticsAdminRun = (
+const aiAnalyticsAuditAdminRun = (
     aiAnalyticsAuditRunDto: AiAnalyticsAuditRunDto,
  ) => {
       return customAxios<AiAnalyticsAuditResultDto>(
@@ -44,8 +62,8 @@ const salesAiAnalyticsAdminRun = (
  * Последняя запись ais типа ai-analytics-audit по домену (ручка или месячный крон) за 400 дней — та же форма, что у свежего отчёта, с fromSnapshot = true и source = admin | cron. Признаком портала не ограничена. 404 — снапшотов ещё нет.
  * @summary Последний снапшот аудита домена
  */
-const salesAiAnalyticsAdminLatest = (
-    params: SalesAiAnalyticsAdminLatestParams,
+const aiAnalyticsAuditAdminLatest = (
+    params: AiAnalyticsAuditAdminLatestParams,
  ) => {
       return customAxios<AiAnalyticsAuditResultDto>(
       {url: `/api/admin/ai-analytics/audit/latest`, method: 'GET',
@@ -57,8 +75,8 @@ const salesAiAnalyticsAdminLatest = (
  * Единый текст для UI, Swagger и README: назначение, источники данных, границы, считаемые показатели (ключи report), разделы отчёта с правилами чтения, правило рекомендации по порогам, хранение, доступ и способы запуска. С параметром domain — ещё и состояние портала: признак ai_analytics_audit_enabled и дата последнего снапшота, чтобы UI показал, можно ли запускать.
  * @summary Что делает аудит и как читать результат (самоописание)
  */
-const salesAiAnalyticsAdminAbout = (
-    params?: SalesAiAnalyticsAdminAboutParams,
+const aiAnalyticsAuditAdminAbout = (
+    params?: AiAnalyticsAuditAdminAboutParams,
  ) => {
       return customAxios<AiAnalyticsAuditAboutResponseDto>(
       {url: `/api/admin/ai-analytics/audit/about`, method: 'GET',
@@ -66,7 +84,139 @@ const salesAiAnalyticsAdminAbout = (
     },
       );
     }
-  return {salesAiAnalyticsAdminRun,salesAiAnalyticsAdminLatest,salesAiAnalyticsAdminAbout}};
-export type SalesAiAnalyticsAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['salesAiAnalyticsAdminRun']>>>
-export type SalesAiAnalyticsAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['salesAiAnalyticsAdminLatest']>>>
-export type SalesAiAnalyticsAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['salesAiAnalyticsAdminAbout']>>>
+  /**
+ * Ответ на вопрос владельцу A6: доступен ли на портале REST-метод crm.stagehistory.list и на сколько месяцев вглубь есть история переходов сделок по стадиям. На этом методе стоит шаг StageHistoryStep AI-аналитики ОП (путь сделки, ожидание от пайплайна, вероятностные рёбра воронки): без него шаг штатно деградирует, и половина модели считается только на синтетике. Два лёгких запроса к порталу по категории sales_base (не настроена — по всем воронкам сделок, о чём скажет hint): самая ранняя запись и число переходов за последние months месяцев. Ошибка Bitrix (нет прав/scope, метод недоступен, сеть) — не 500, а available = false с текстом в error. enough = true означает: метод доступен и глубина истории не меньше окна months — аналитика будет считаться по живым данным.
+ * @summary Проба истории стадий сделок портала (crm.stagehistory.list)
+ */
+const aiAnalyticsAuditAdminProbeStageHistory = (
+    params: AiAnalyticsAuditAdminProbeStageHistoryParams,
+ ) => {
+      return customAxios<AiAnalyticsStageHistoryProbeResponseDto>(
+      {url: `/api/admin/ai-analytics/stage-history/probe`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Ставит ОДНУ джобу снапшотов в общую очередь sales-kpi-report с forceRefresh = true: уже посчитанный период переписывается, прошлые версии становятся superseded. Сам расчёт идёт в воркере kpi-report-sales — ручка отвечает сразу, до прогона. jobId несёт метку момента, поэтому повторный вызов очередь не проглатывает (у ритмов jobId детерминирован по периоду, и Bull молча игнорирует повтор существующего id). Аудит данных Фазы 0 сюда не входит — для него POST admin/ai-analytics/audit.
+ * @summary Пересчитать период конвейера (ручная джоба)
+ */
+const aiAnalyticsPipelineAdminRecompute = (
+    aiAnalyticsRecomputeDto: AiAnalyticsRecomputeDto,
+ ) => {
+      return customAxios<AiAnalyticsRecomputeResultDto>(
+      {url: `/api/admin/ai-analytics/recompute`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsRecomputeDto
+    },
+      );
+    }
+  /**
+ * Ставит по джобе ритма backfill на каждый месяц диапазона (включительно) в очередь sales-kpi-report. Ответ — оценка объёма: список месяцев и поставленные джобы. jobId детерминирован месяцем, поэтому повтор запроса дублей не создаёт, а уже посчитанные периоды раннер пропускает сам (forceRefresh здесь не ставится — для пересчёта есть отдельная ручка recompute). Диапазон шире 24 месяцев отклоняется с reason = backfill-range-too-wide: столько джоб за раз заливает общую очередь.
+ * @summary Догнать историю снапшотов за диапазон месяцев
+ */
+const aiAnalyticsPipelineAdminBackfill = (
+    aiAnalyticsBackfillDto: AiAnalyticsBackfillDto,
+ ) => {
+      return customAxios<AiAnalyticsBackfillResultDto>(
+      {url: `/api/admin/ai-analytics/backfill`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsBackfillDto
+    },
+      );
+    }
+  /**
+ * Журналы прогонов (снапшоты ai-analytics-etl-run, зерно portal-day) домена за окно days: шаги с длительностями, загруженными строками и вызовами Bitrix, отдельными списками штатно пропущенные и упавшие шаги, предупреждения санити-панели, признак дрейфа входов и метрики прогона — те же четыре величины, что уходят в Prometheus. Сверху сводка окна: сколько прогонов ok / partial / failed. Только чтение: журнал пишет воркер kpi-report-sales.
+ * @summary Состояние ночного конвейера за последние дни
+ */
+const aiAnalyticsPipelineAdminStatus = (
+    params: AiAnalyticsPipelineAdminStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsEtlStatusResultDto>(
+      {url: `/api/admin/ai-analytics/etl-status`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Читает записи AI-аналитики домена и считает по дескрипторам типов, что подлежит удалению: forecast — 180 дней, etl-run — 90, brief — 30, месячные и недельные зёрна — по числу записей на менеджера, бессрочные типы (golden-report, settings-audit, rop-mark, feedback, settings) не трогаются вовсе. Поверх сроков удерживаются актуальная запись каждого ключа и две последние версии (решение владельца B10). 
+
+По умолчанию dryRun = true: ручка только считает. dryRun = false означает «запуск всерьёз» — сводка одной строкой уходит в чат админов (решение В8). Физического удаления пока нет: у ais-репозитория (@lib/call-lib) нет метода delete, поэтому такой запуск возвращает тот же план со статусом delete-not-available и deleted = 0 — ложного «удалено» в ответе не будет.
+ * @summary Посчитать (и при dryRun = false запустить) ретенцию
+ */
+const aiAnalyticsRetentionAdminRun = (
+    aiAnalyticsRetentionRunDto: AiAnalyticsRetentionRunDto,
+ ) => {
+      return customAxios<AiAnalyticsRetentionResultDto>(
+      {url: `/api/admin/ai-analytics/retention/run`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsRetentionRunDto
+    },
+      );
+    }
+  /**
+ * Записи ais типа ai-analytics-feedback домена за период дат (границы по UTC, обе включительно): реакции витрины (view, useful, not_useful, disagree), факты доставки push-контура (alert_sent, alert_handled, digest_sent, agenda_sent) и слепые метки руководителя (rop_mark) — счётчиками по видам и по менеджерам, плюс доля полезных реакций. Записи чужой формы в счётчики не попадают, но показаны числом skipped, чтобы потеря не пряталась.
+ * @summary Сводка обратной связи витрины за период
+ */
+const aiAnalyticsFeedbackCostAdminFeedbackSummary = (
+    params: AiAnalyticsFeedbackCostAdminFeedbackSummaryParams,
+ ) => {
+      return customAxios<AiAnalyticsFeedbackResultDto>(
+      {url: `/api/admin/ai-analytics/feedback`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Токены и стоимость вызовов LLM живут в колонках самих ais-записей (tokens_count и price, решение владельца B2 от 21.09.2026), поэтому расход по всем типам снапшотов считается одним чтением месяца. Рядом — оценка по цене реестра: токены / 1000 × llm_price_per_1k. Если цена в реестре нулевая («не задана») или записи не несут стоимости, ответ помечается estimated = true — числа тогда оценка, а не факт биллинга.
+ * @summary Расход языковой модели по порталу за месяц
+ */
+const aiAnalyticsFeedbackCostAdminCostSummary = (
+    params: AiAnalyticsFeedbackCostAdminCostSummaryParams,
+ ) => {
+      return customAxios<AiAnalyticsCostResultDto>(
+      {url: `/api/admin/ai-analytics/cost`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Снапшоты ai-analytics-golden-report портала (по одному на версию промпта, хранятся бессрочно): версия, число пар разборов, квота retest_budget_calls и уложилась ли выборка, σ_llm к применению и её источник (measured — измерена на парах, configured — дефолт реестра). Свежие первыми. Флаг runAvailable показывает, подключён ли запуск прогона.
+ * @summary Состав золотого набора: отчёты согласия оценщика
+ */
+const aiAnalyticsGoldenSetAdminList = (
+    params: AiAnalyticsGoldenSetAdminListParams,
+ ) => {
+      return customAxios<AiAnalyticsGoldenSetResultDto>(
+      {url: `/api/admin/ai-analytics/golden-set`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Ставит джобу CALL_REPORT_RETEST (очередь CALL_REPORT, воркер apps/event-sales): разборы текущей версии промпта за 90 дней (не больше квоты) повторяются тем же фокус-разбором, пары сводятся в отчёт согласия ai-analytics-golden-report — по одной актуальной записи на версию. Один запуск на домен в сутки (jobId по дате); бюджет времени прогона 45 минут. Без очереди в сборке ответ честный: dispatched = false с причиной, ошибка не бросается.
+ * @summary Запустить повторный прогон test-retest
+ */
+const aiAnalyticsGoldenSetAdminRun = (
+    aiAnalyticsGoldenSetRunDto: AiAnalyticsGoldenSetRunDto,
+ ) => {
+      return customAxios<AiAnalyticsGoldenSetRunResultDto>(
+      {url: `/api/admin/ai-analytics/golden-set/run`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsGoldenSetRunDto
+    },
+      );
+    }
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun}};
+export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
+export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
+export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
+export type AiAnalyticsAuditAdminProbeStageHistoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminProbeStageHistory']>>>
+export type AiAnalyticsPipelineAdminRecomputeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPipelineAdminRecompute']>>>
+export type AiAnalyticsPipelineAdminBackfillResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPipelineAdminBackfill']>>>
+export type AiAnalyticsPipelineAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPipelineAdminStatus']>>>
+export type AiAnalyticsRetentionAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRetentionAdminRun']>>>
+export type AiAnalyticsFeedbackCostAdminFeedbackSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsFeedbackCostAdminFeedbackSummary']>>>
+export type AiAnalyticsFeedbackCostAdminCostSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsFeedbackCostAdminCostSummary']>>>
+export type AiAnalyticsGoldenSetAdminListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGoldenSetAdminList']>>>
+export type AiAnalyticsGoldenSetAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGoldenSetAdminRun']>>>

@@ -8,10 +8,19 @@ interface AiSignalSectionProps {
     section: AiRowsSection;
     /** Число колонок таблицы — для строки-заголовка секции. */
     columns: number;
+    /** Открыть карточку стиля менеджера. */
+    onOpenStyle: (managerId: string) => void;
+    /** Открыть досье менеджера. */
+    onOpenDossier: (managerId: string) => void;
 }
 
 /** Секция таблицы (отдел/группа): строка-заголовок + строки менеджеров. */
-export const AiSignalSection = ({ section, columns }: AiSignalSectionProps) => (
+export const AiSignalSection = ({
+    section,
+    columns,
+    onOpenStyle,
+    onOpenDossier,
+}: AiSignalSectionProps) => (
     <>
         {section.name && (
             <TableRow className="bg-muted/40 hover:bg-muted/40">
@@ -24,7 +33,12 @@ export const AiSignalSection = ({ section, columns }: AiSignalSectionProps) => (
             </TableRow>
         )}
         {section.rows.map(row => (
-            <AiSignalRow key={row.managerId} row={row} />
+            <AiSignalRow
+                key={row.managerId}
+                row={row}
+                onOpenStyle={onOpenStyle}
+                onOpenDossier={onOpenDossier}
+            />
         ))}
     </>
 );

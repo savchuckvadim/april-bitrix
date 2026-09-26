@@ -9,6 +9,8 @@ interface HowQuestionnaireGroupProps {
     group: HowQuestionGroup;
     answers: Record<string, HowAnswer>;
     onToggleChoice: (questionId: string, value: string) => void;
+    /** Чекбокс вопроса `multi` */
+    onToggleValue: (questionId: string, value: string) => void;
     onCustomChange: (questionId: string, value: string) => void;
     onCommentChange: (questionId: string, value: string) => void;
 }
@@ -18,6 +20,7 @@ export const HowQuestionnaireGroup: React.FC<HowQuestionnaireGroupProps> = ({
     group,
     answers,
     onToggleChoice,
+    onToggleValue,
     onCustomChange,
     onCommentChange,
 }) => (
@@ -34,6 +37,7 @@ export const HowQuestionnaireGroup: React.FC<HowQuestionnaireGroupProps> = ({
                 question={question}
                 answer={answers[question.id] ?? {}}
                 onToggleChoice={(value) => onToggleChoice(question.id, value)}
+                onToggleValue={(value) => onToggleValue(question.id, value)}
                 onCustomChange={(value) => onCustomChange(question.id, value)}
                 onCommentChange={(value) =>
                     onCommentChange(question.id, value)

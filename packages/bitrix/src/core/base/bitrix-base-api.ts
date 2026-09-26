@@ -30,6 +30,8 @@ import {
 import { CustomPlacement } from '../../domain/interfaces/bitrix-placement.intreface';
 import { BitrixBatchBackApiHelper } from '../inner-api-helper/bitrix-batch-back-api-helper';
 import { BXInitializedDto } from '../dto/bx-initialized.dto';
+import { BxFrameAuth } from '../dto/bx-frame-auth';
+import { portalHostname, toBxFrameAuth } from '../lib/frame-auth.util';
 export enum BxAuthType {
     TOKEN = 'token',
     HOOK = 'hook',
@@ -201,12 +203,44 @@ export class BitrixBaseApi {
         }
     }
 
+    /**
+     * Auth-данные фрейма для обмена на portal-context сессию бэка
+     * (`POST /api/auth/portal-session`): access_token, хост портала,
+     * member_id. Вне фрейма — null. Null и во фрейме, если срок
+     * access_token уже вышел: SDK отдаёт `false`, пока токен не обновлён
+     * REST-вызовом или `refreshFrameAuth()`.
+     */
+    public getFrameAuth(): BxFrameAuth | null {
+        if (!this.inFrame) return null;
+        const authData = this.bx.auth.getAuthData() as false | AuthData;
+        return authData ? toBxFrameAuth(authData) : null;
+    }
+
+    /**
+     * Обновить протухший access_token фрейма через родительское окно
+     * (`BX24.refreshAuth`) и отдать свежие auth-данные. Вне фрейма или при
+     * отказе портала — null: вызывающий решает, что делать без сессии.
+     */
+    public async refreshFrameAuth(): Promise<BxFrameAuth | null> {
+        if (!this.inFrame) return null;
+        try {
+            const authData = (await this.bx.auth.refreshAuth()) as
+                | false
+                | AuthData;
+            return authData ? toBxFrameAuth(authData) : null;
+        } catch (error) {
+            this.logger.warn(
+                `refreshFrameAuth не выполнен: ${String(error)}`,
+            );
+            return null;
+        }
+    }
+
     private async getInitialized() {
         if (this.inFrame) {
             const authData = this.bx.auth.getAuthData() as false | AuthData;
             if (!authData) return this.domain;
-            const hostname = new URL(authData.domain).hostname;
-            this.domain = hostname;
+            this.domain = portalHostname(authData.domain);
             this.user = (await this.getCurrentUser()) as IBXUser;
             this.initialized = true;
         }

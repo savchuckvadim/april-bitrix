@@ -42,3 +42,33 @@ export interface AuditPortalState {
     /** Кто и при каком признаке может запускать — текст about.access с бэка. */
     accessText: string | null;
 }
+
+/** Форма пробы истории стадий: окно в месяцах (домен общий с формой аудита). */
+export interface StageHistoryProbeFormState {
+    /** Поле месяцев как ввёл владелец — валидность считается отдельно. */
+    monthsRaw: string;
+    isMonthsValid: boolean;
+}
+
+/** Кнопка «Проверить» пробы истории стадий и её состояние. */
+export interface StageHistoryProbeControls {
+    canProbe: boolean;
+    isProbing: boolean;
+    probe: () => void;
+}
+
+/** Форма запуска test-retest: квота пар как ввёл владелец (домен общий с формой аудита). */
+export interface GoldenSetFormState {
+    quotaRaw: string;
+    isQuotaValid: boolean;
+}
+
+/** Кнопки «Запустить прогон» / «Обновить список» и их состояние. */
+export interface GoldenSetControls {
+    canRun: boolean;
+    isRunning: boolean;
+    run: () => void;
+    canRefresh: boolean;
+    isRefreshing: boolean;
+    refresh: () => void;
+}

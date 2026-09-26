@@ -1,6 +1,11 @@
-import type { CalibrationBriefSubmission } from '@/app/api/calibration/lib/calibration-submission';
+import type {
+    QuestionnaireSubmission,
+    SubmissionAnswer,
+} from '@/app/api/calibration/lib/calibration-submission';
 import {
+    HowAnswer,
     HowQuestionnaire,
+    HowQuestionnaireQuestion,
     HowQuestionnaireState,
     HowQuestionnaireSubmit,
 } from '../constants/types';
@@ -18,6 +23,8 @@ export const readSubmissionDomain = (
  * Что мешает отправить: пустая строка — можно слать. Организация нужна для
  * темы сообщения, портал или имя — чтобы было с кем связаться, обязательные
  * вопросы (согласие, дата, ссылка на запись) — чтобы бриф вообще был о чём.
+ * Последней идёт своя проверка анкеты (`questionnaire.validate`), если она
+ * есть: шаблон ссылки, условно обязательные вопросы.
  *
  * Порядок проверок = порядок чтения анкеты: сначала подвал, потом первый
  * незаполненный обязательный вопрос сверху вниз.
@@ -36,8 +43,31 @@ export const validateSubmission = (
     if (!readSubmissionDomain(submit, state) && !state.respondent.trim()) {
         return 'Укажите адрес портала или кто заполнил — иначе нам не с кем связаться';
     }
-    return '';
+    return questionnaire.validate?.(state) ?? '';
 };
+
+/** Значение ответа для структурной отправки: список у `multi`, строка у прочих. */
+const answerValue = (
+    question: HowQuestionnaireQuestion,
+    answer: HowAnswer,
+): string | string[] =>
+    question.kind === 'multi'
+        ? (answer.values ?? [])
+        : answer.custom?.trim() || answer.choice || '';
+
+/**
+ * Структурные ответы по всем вопросам анкеты в её порядке: по ним маршрут
+ * собирает JSON для бэка, не разбирая текст протокола. Неотвеченный вопрос
+ * тоже на месте — с пустой строкой или пустым списком.
+ */
+export const buildSubmissionAnswers = (
+    questionnaire: HowQuestionnaire,
+    state: HowQuestionnaireState,
+): SubmissionAnswer[] =>
+    questionnaire.questions.map(question => ({
+        id: question.id,
+        value: answerValue(question, state.answers[question.id] ?? {}),
+    }));
 
 /**
  * Тело запроса на отправку протокола нам. `website` — honeypot: человек его
@@ -48,12 +78,13 @@ export const buildSubmission = (
     submit: HowQuestionnaireSubmit,
     state: HowQuestionnaireState,
     website: string,
-): CalibrationBriefSubmission => ({
+): QuestionnaireSubmission => ({
     company: state.company.trim(),
     respondent: state.respondent.trim(),
     domain: readSubmissionDomain(submit, state),
     protocol: buildProtocol(questionnaire, state),
     website,
+    answers: buildSubmissionAnswers(questionnaire, state),
 });
 
 /**

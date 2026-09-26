@@ -11,7 +11,11 @@ const FEATURES: AppFeatureFlags = {
     plans: true,
     aiAnalytics: true,
     aiAnalyticsPortalEnabled: true,
+    aiAnalyticsSelfViewEnabled: false,
 };
+
+/** Портал включил показ витрины рядовому менеджеру. */
+const SELF_VIEW = { ...FEATURES, aiAnalyticsSelfViewEnabled: true };
 
 const ctx = (overrides: Partial<AccessContext> = {}): AccessContext => ({
     features: FEATURES,
@@ -54,6 +58,50 @@ describe('ACCESS_RULES — AI_TAB', () => {
             checkAccess(
                 EAccessFeature.AI_TAB,
                 ctx({ isSelf: true, isViewAs: true, isRealSuperUser: true }),
+            ),
+        ).toBe(false);
+    });
+
+    // Портальная настройка ai_analytics_self_view_enabled (бэк отдаёт её в
+    // settings/get и при выключенной отвечает менеджеру 403): включена —
+    // рядовой менеджер видит вкладку со своими данными, но не чужие строки.
+    it('self_view включён на портале — рядовой менеджер видит вкладку', () => {
+        expect(
+            checkAccess(
+                EAccessFeature.AI_TAB,
+                ctx({ isSelf: true, features: SELF_VIEW }),
+            ),
+        ).toBe(true);
+        expect(
+            checkAccess(
+                EAccessFeature.AI_VIEW_ALL,
+                ctx({ isSelf: true, features: SELF_VIEW }),
+            ),
+        ).toBe(false);
+    });
+
+    it('self_view включён — «Смотреть как…» рядового менеджера показывает то же, что видит он', () => {
+        expect(
+            checkAccess(
+                EAccessFeature.AI_TAB,
+                ctx({
+                    isSelf: true,
+                    isViewAs: true,
+                    isRealSuperUser: true,
+                    features: SELF_VIEW,
+                }),
+            ),
+        ).toBe(true);
+    });
+
+    it('self_view включён, но AI на портале выключен — вкладки нет', () => {
+        expect(
+            checkAccess(
+                EAccessFeature.AI_TAB,
+                ctx({
+                    isSelf: true,
+                    features: { ...SELF_VIEW, aiAnalyticsPortalEnabled: false },
+                }),
             ),
         ).toBe(false);
     });

@@ -76,22 +76,26 @@ export interface HowDocumentContent {
  *
  * `calibration` и `call-review` — брифы раздела «AI для отдела продаж»: они
  * показываются на `/ai/briefs` тем же движком, а содержание `call-review`
- * лежит в константах раздела AI.
+ * лежит в константах раздела AI. `rop-review` — отзыв руководителя на
+ * готовый разбор звонка со страницы `/ai/rop`.
  */
 export type HowQuestionnaireId =
     | 'process'
     | 'inbound'
     | 'catalogs'
     | 'calibration'
-    | 'call-review';
+    | 'call-review'
+    | 'rop-review';
 
 /**
  * Вид вопроса. `choice` (по умолчанию) — варианты-кнопки плюс «свой вариант»
  * и комментарий; `text` — свободный многострочный ответ; `link` — одна
- * ссылка (папка, файл, звонок в Битриксе). У `text`/`link` вариантов нет,
- * ответ хранится в `HowAnswer.custom`.
+ * ссылка (папка, файл, звонок в Битриксе); `multi` — группа чекбоксов, можно
+ * отметить несколько вариантов. У `text`/`link` вариантов нет, ответ
+ * хранится в `HowAnswer.custom`; у `multi` отмеченное лежит в
+ * `HowAnswer.values`.
  */
-export type HowQuestionnaireQuestionKind = 'choice' | 'text' | 'link';
+export type HowQuestionnaireQuestionKind = 'choice' | 'text' | 'link' | 'multi';
 
 /** Вариант ответа на вопрос анкеты. */
 export interface HowQuestionnaireOption {
@@ -127,6 +131,11 @@ export interface HowQuestionnaireQuestion {
      * ограничение стоит только на отправке нам.
      */
     required?: boolean;
+    /**
+     * Потолок длины свободного ответа (`text`/`link`/«свой вариант»): поле
+     * не даёт набрать больше. Не задан — длина не ограничена.
+     */
+    maxLength?: number;
 }
 
 /**
@@ -137,6 +146,8 @@ export interface HowQuestionnaireQuestion {
 export interface HowQuestionnaireSubmit {
     path: string;
     domainQuestionId: string;
+    /** Подпись после успешной отправки; не задана — «Бриф отправлен…» */
+    sentMessage?: string;
 }
 
 /** Анкета целиком. */
@@ -157,6 +168,13 @@ export interface HowQuestionnaire {
     sourceSection?: string;
     /** Задано — рядом со «Скачать протокол» появляется «Отправить нам» */
     submit?: HowQuestionnaireSubmit;
+    /**
+     * Своя проверка анкеты перед отправкой, сверх общих правил движка
+     * (организация, обязательные вопросы): шаблон ссылки, вопрос, который
+     * обязателен только при определённом выборе. Возвращает текст ошибки;
+     * пустая строка — можно слать.
+     */
+    validate?: (state: HowQuestionnaireState) => string;
 }
 
 /** Ответ на один вопрос (состояние клиента). */
@@ -164,6 +182,8 @@ export interface HowAnswer {
     choice?: string;
     custom?: string;
     comment?: string;
+    /** Отмеченные варианты вопроса вида `multi` */
+    values?: string[];
 }
 
 /** Приложение к протоколу анкеты (например, PNG-схема клиента). */

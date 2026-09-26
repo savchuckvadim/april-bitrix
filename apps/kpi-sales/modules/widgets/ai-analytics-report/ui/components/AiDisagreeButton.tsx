@@ -8,7 +8,7 @@ import {
     PopoverTrigger,
 } from '@workspace/ui/components/popover';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { AI_DISAGREE_REASON_MAX } from '@/modules/entities/ai-analytics';
+import { MicroSelect } from '@workspace/april-ui';
 import { useAiDisagree } from '../../hooks/use-ai-disagree';
 
 interface AiDisagreeButtonProps {
@@ -16,16 +16,21 @@ interface AiDisagreeButtonProps {
 }
 
 /**
- * «Не согласен» со строкой обзора: по клику — popover с необязательной
- * причиной (≤ 300 символов, счётчик) и «Отправить» → feedback disagree
- * по менеджеру. Логика — useAiDisagree.
+ * «Не согласен» со строкой обзора: по клику — popover с причиной из
+ * списка и необязательным комментарием (общий лимит 300 символов,
+ * счётчик) и «Отправить» → feedback disagree по менеджеру одной строкой
+ * reason. Логика — useAiDisagree.
  */
 export const AiDisagreeButton = ({ managerId }: AiDisagreeButtonProps) => {
     const {
         open,
         setOpen,
-        reason,
-        setReason,
+        reasonOptions,
+        reasonCode,
+        setReasonCode,
+        comment,
+        setComment,
+        commentMax,
         counter,
         pending,
         disagreed,
@@ -53,14 +58,23 @@ export const AiDisagreeButton = ({ managerId }: AiDisagreeButtonProps) => {
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80 space-y-2 p-3">
                 <p className="text-sm font-medium">Не согласен с разбором</p>
-                <Textarea
-                    value={reason}
-                    onChange={event => setReason(event.target.value)}
-                    maxLength={AI_DISAGREE_REASON_MAX}
+                <MicroSelect
+                    ariaLabel="Причина несогласия"
+                    value={reasonCode ?? ''}
+                    options={reasonOptions}
                     placeholder="Причина (необязательно)"
+                    disabled={pending}
+                    className="max-w-full"
+                    onChange={setReasonCode}
+                />
+                <Textarea
+                    value={comment}
+                    onChange={event => setComment(event.target.value)}
+                    maxLength={commentMax}
+                    placeholder="Комментарий (необязательно)"
                     className="min-h-20 text-sm"
                     disabled={pending}
-                    aria-label="Причина несогласия"
+                    aria-label="Комментарий к несогласию"
                 />
                 <div className="flex items-center justify-between gap-2">
                     <span className="text-[0.6875rem] text-muted-foreground tabular-nums">

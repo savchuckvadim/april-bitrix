@@ -12,20 +12,31 @@ import {
     resumeAiQueuedSections,
 } from '../ai-analytics-thunks';
 
-/** WS-события обзора AI-аналитики (зеркало констант бэка). */
+/** WS-события тяжёлых ручек AI-аналитики (зеркало констант бэка). */
 export const AI_WS_EVENTS = {
     OVERVIEW_DONE: 'ai-analytics:overview:done',
     OVERVIEW_ERROR: 'ai-analytics:overview:error',
+    BRIEF_DONE: 'ai-analytics:brief:done',
+    BRIEF_ERROR: 'ai-analytics:brief:error',
+    DOSSIER_DONE: 'ai-analytics:dossier:done',
+    DOSSIER_ERROR: 'ai-analytics:dossier:error',
 } as const;
 
+/** Пары done/error: обработка одна на все очереди — различаются ключом. */
+const AI_WS_QUEUES = [
+    { done: AI_WS_EVENTS.OVERVIEW_DONE, error: AI_WS_EVENTS.OVERVIEW_ERROR },
+    { done: AI_WS_EVENTS.BRIEF_DONE, error: AI_WS_EVENTS.BRIEF_ERROR },
+    { done: AI_WS_EVENTS.DOSSIER_DONE, error: AI_WS_EVENTS.DOSSIER_ERROR },
+] as const;
+
 /** Полезная нагрузка done: ключ результата и момент расчёта. */
-export interface AiOverviewDonePayload {
+export interface AiQueueDonePayload {
     requestKey?: string;
     generatedAt?: string;
 }
 
 /** Полезная нагрузка error: ключ и текст ошибки. */
-export interface AiOverviewErrorPayload {
+export interface AiQueueErrorPayload {
     requestKey?: string;
     message?: string;
 }
@@ -40,10 +51,11 @@ const waitForConnection = async (wsClient: WSClient) =>
 let handlersWired = false;
 
 /**
- * Очередь обзора отвечает по WS только фактом готовности — сам обзор по
- * сокету НЕ приходит. На done thunk повторяет тот же POST у секций, что
- * ждали этот ключ (обзор, «Внимание», срез по типу), и получает ready из
- * кэша в своём периметре; на error — секции уходят в ошибку с текстом.
+ * Очереди (обзор, резюме) отвечают по WS только фактом готовности — сами
+ * данные по сокету НЕ приходят. На done thunk повторяет тот же POST у
+ * секций, что ждали этот ключ (обзор, «Внимание», срез по типу — ключ
+ * обзора; резюме — свой ключ по packHash), и получает ready из кэша в
+ * своём периметре; на error — секции с этим ключом уходят в ошибку.
  */
 export const startAiWsListener = (
     listener: ListenerMiddlewareInstance<
@@ -60,18 +72,20 @@ export const startAiWsListener = (
             await waitForConnection(wsClient);
             handlersWired = true;
 
-            wsClient.on(
-                AI_WS_EVENTS.OVERVIEW_DONE,
-                (payload: AiOverviewDonePayload | undefined) => {
-                    dispatch(resumeAiQueuedSections(payload?.requestKey));
-                },
-            );
-            wsClient.on(
-                AI_WS_EVENTS.OVERVIEW_ERROR,
-                (payload: AiOverviewErrorPayload | undefined) => {
-                    dispatch(failAiQueuedSections(payload ?? {}));
-                },
-            );
+            for (const queue of AI_WS_QUEUES) {
+                wsClient.on(
+                    queue.done,
+                    (payload: AiQueueDonePayload | undefined) => {
+                        dispatch(resumeAiQueuedSections(payload?.requestKey));
+                    },
+                );
+                wsClient.on(
+                    queue.error,
+                    (payload: AiQueueErrorPayload | undefined) => {
+                        dispatch(failAiQueuedSections(payload ?? {}));
+                    },
+                );
+            }
         },
     });
 };

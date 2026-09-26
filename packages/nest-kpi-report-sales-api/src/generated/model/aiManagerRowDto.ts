@@ -18,6 +18,9 @@ import type { AiDisciplineDto } from './aiDisciplineDto';
 import type { AiNextStepRateDto } from './aiNextStepRateDto';
 import type { AiRiskCallDto } from './aiRiskCallDto';
 import type { AiRecommendationDto } from './aiRecommendationDto';
+import type { AiManagerRowDtoStyle } from './aiManagerRowDtoStyle';
+import type { AiManagerRowDtoTrends } from './aiManagerRowDtoTrends';
+import type { AiManagerRowDtoYoy } from './aiManagerRowDtoYoy';
 
 export interface AiManagerRowDto {
     /** Bitrix-id менеджера. */
@@ -70,6 +73,23 @@ export interface AiManagerRowDto {
     nextStepRate: AiNextStepRateDto;
     /** Риск-звонки периода. */
     riskCalls: AiRiskCallDto[];
-    /** Рекомендации (Фаза 2; сейчас пусто). */
+    /** Топ-3 рычага из дневного снапшота прогноза; пусто — модели портала нет либо разборов меньше порога n_min_none (8). */
     recommendations: AiRecommendationDto[];
+    /**
+     * Профиль стиля из снапшота ai-analytics-style; null — разборов меньше style_min_calls (40) либо коллег для сравнения мало.
+     * @nullable
+     */
+    style?: AiManagerRowDtoStyle;
+    /**
+     * Тренды рядов менеджера из недельного снапшота ai-analytics-trends (Фаза 3): сдвиг уровня, дрейф и выброс по оценке, объёму, корзинам и рёбрам воронки; null — снапшота нет, разборов за период меньше n_min_none либо сравнимых недель меньше минимума ряда.
+     * @nullable
+     */
+    trends?: AiManagerRowDtoTrends;
+    /**
+     * Тот же месяц год назад из снапшота ai-analytics-manager-month M−12 (Фаза 3): объёмы, качество и финансы двух периодов рядом плюс флаг сопоставимости с причинами. Только описательно, без оценок. null — период обзора не месяц, истории меньше 13 месяцев либо в обоих периодах разборов меньше n_min_none (8).
+     * @nullable
+     */
+    yoy?: AiManagerRowDtoYoy;
+    /** Дата начала стажа YYYY-MM-DD (since уровня; каскад UF_EMPLOYMENT_DATE → DATE_REGISTER приезжает из паспорта конвейера); нет — дата не задана. */
+    since?: string;
 }

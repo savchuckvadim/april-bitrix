@@ -102,6 +102,18 @@ export const useHowQuestionnaire = (
         [setAnswer, state.answers],
     );
 
+    /** Чекбокс вопроса `multi`: отмечен — снимаем, не отмечен — добавляем в порядке вариантов. */
+    const toggleValue = useCallback(
+        (questionId: string, value: string) => {
+            const current = state.answers[questionId]?.values ?? [];
+            const values = current.includes(value)
+                ? current.filter(item => item !== value)
+                : [...current, value];
+            setAnswer(questionId, { values });
+        },
+        [setAnswer, state.answers],
+    );
+
     const answeredCount = useMemo(
         () =>
             questionnaire.questions.filter((question) =>
@@ -161,6 +173,7 @@ export const useHowQuestionnaire = (
         setCompany,
         setAnswer,
         toggleChoice,
+        toggleValue,
         download,
         copy,
         reset,

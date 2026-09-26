@@ -8,12 +8,20 @@
 import type { AiManagerLevelDto } from './aiManagerLevelDto';
 
 export interface AiSettingsSaveResultDto {
-    /** Id ais-записи настроек (type = ai-analytics-settings). */
+    /** Id ais-записи аудита сохранения (type = ai-analytics-settings-audit). */
     id: string;
-    /** Сохранённые уровни. */
+    /** Сохранённые уровни (пусто — блок не передавали). */
     levels: AiManagerLevelDto[];
     /** Момент сохранения (ISO, UTC). */
     savedAt: string;
-    /** Сколько ключей кэша overview/attention домена сброшено. */
+    /** Сколько ключей кэша сброшено (overview, attention, model, plan). */
     resetCount: number;
+    /** Начало сравнимой истории после сохранения (YYYY-MM-DD); пусто — история ни разу не рвалась настройками. */
+    comparableFrom: string;
+    /** Версия параметров расчёта после сохранения (sha256). */
+    paramsVersion: string;
+    /** Коды изменений, разорвавших сравнимую историю; пусто — ряды сохранены. */
+    breaksSeries: string[];
+    /** Предупреждения проверки настроек (сохранение состоялось). */
+    warnings: string[];
 }

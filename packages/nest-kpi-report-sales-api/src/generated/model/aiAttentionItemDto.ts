@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { AiAttentionItemDtoSignal } from './aiAttentionItemDtoSignal';
+import type { AiAttentionItemDtoAvailableFrom } from './aiAttentionItemDtoAvailableFrom';
 import type { AiAttentionBasisDto } from './aiAttentionBasisDto';
 import type { AiAttentionLinkDto } from './aiAttentionLinkDto';
 
@@ -14,10 +15,10 @@ export interface AiAttentionItemDto {
     managerId: string;
     /** Ранг карточки с 1. */
     rank: number;
-    /** Сигнал Фазы 1: risk — риск-звонки; no_data — n < 8 при звонках; discipline — < 50 % плана CRM при плане ≥ 10; next_step_drop — падение доли «шаг с датой» при n ≥ 20 в обоих окнах; plan_gap — план руководителя vs норма (с Фазы 2). */
+    /** Сигнал Фазы 1: risk — риск-звонки; no_data — n < 8 при звонках; discipline — < 50 % плана CRM при плане ≥ 10; next_step_drop — падение доли «шаг с датой» при n ≥ 20 в обоих окнах; plan_gap — план руководителя vs норма (с Фазы 2). Фаза 3: goodhart — метрика давления растёт, противовес падает (goodhart_drop за goodhart_window_months); trend_shift / trend_drift — сдвиг уровня или дрейф ряда вниз. */
     signal: AiAttentionItemDtoSignal;
-    /** С какой фазы доступен сигнал (все правила — Фаза 1). */
-    availableFrom: number;
+    /** С какой фазы доступен сигнал: 1 — правила Фазы 1, 3 — тренды и детектор Гудхарта. */
+    availableFrom: AiAttentionItemDtoAvailableFrom;
     /** Заголовок карточки с числами. */
     headline: string;
     /** Опоры карточки. */

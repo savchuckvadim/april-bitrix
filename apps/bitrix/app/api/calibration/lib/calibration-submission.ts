@@ -27,6 +27,27 @@ export interface CalibrationBriefSubmission {
     website: string;
 }
 
+/**
+ * Ответ на один вопрос в структурном виде: `id` вопроса и значение —
+ * строка (вариант или свободный текст) либо список отмеченных вариантов
+ * у группы чекбоксов. Комментарий к варианту сюда не попадает: он есть в
+ * протоколе.
+ */
+export interface SubmissionAnswer {
+    id: string;
+    value: string | string[];
+}
+
+/**
+ * Тело отправки любой анкеты движка: бриф калибровки плюс структурные
+ * ответы. Маршруты брифов (`/api/calibration`, `/api/call-review`) поле
+ * `answers` не читают — им нужен только текст протокола; его разбирает
+ * маршрут отзыва руководителя (`/api/rop-review`).
+ */
+export interface QuestionnaireSubmission extends CalibrationBriefSubmission {
+    answers: SubmissionAnswer[];
+}
+
 export type CalibrationSubmitResponse =
     | { ok: true; parts: number }
     | { ok: false; error: string };

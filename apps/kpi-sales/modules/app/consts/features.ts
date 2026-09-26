@@ -22,4 +22,6 @@ export const APP_FEATURES: AppFeatureFlags = {
     aiAnalytics: true,
     /** Портальный уровень приходит с бэка (settings/get); до ответа — выкл. */
     aiAnalyticsPortalEnabled: false,
+    /** Показ вкладки рядовому менеджеру — тоже с бэка; до ответа — выкл. */
+    aiAnalyticsSelfViewEnabled: false,
 };

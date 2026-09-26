@@ -25,7 +25,12 @@ import {
     sortAiRows,
 } from '../lib/ai-overview.util';
 import {
+    AI_ABSENCE_KIND_OPTIONS,
+    AI_SETTINGS_BREAKING_BLOCKS,
     buildAiLevelsForm,
+    defaultAiLevelTarget,
+    formatAiSettingsBreakCode,
+    isAiAbsenceKind,
     toAiLevelsPayload,
     validateAiLevelRow,
 } from '../lib/ai-levels.util';
@@ -261,6 +266,53 @@ describe('форма уровней', () => {
         expect(
             validateAiLevelRow({ ...row, since: '2026-09-07' }, '2026-09-07'),
         ).toBeNull();
+    });
+});
+
+describe('справочники настроек витрины', () => {
+    it('виды отсутствий: четыре опции с подписями и гард', () => {
+        expect(AI_ABSENCE_KIND_OPTIONS.map(option => option.value)).toEqual([
+            'vacation',
+            'sick',
+            'training',
+            'other',
+        ]);
+        expect(AI_ABSENCE_KIND_OPTIONS[0]?.label).toBe('Отпуск');
+        expect(isAiAbsenceKind('sick')).toBe(true);
+        expect(isAiAbsenceKind('holiday')).toBe(false);
+        expect(isAiAbsenceKind(1)).toBe(false);
+    });
+
+    it('цель уровня по умолчанию: новичку 20 презентаций, остальным 0, продажи — медиана', () => {
+        expect(defaultAiLevelTarget('junior')).toEqual({
+            level: 'junior',
+            sales: null,
+            presentationsMin: 20,
+            coldPerDay: 40,
+        });
+        expect(defaultAiLevelTarget('senior').presentationsMin).toBe(0);
+    });
+
+    it('ряд рвут только определения и потолки оценивания', () => {
+        expect(AI_SETTINGS_BREAKING_BLOCKS).toEqual(['definitions', 'scoring']);
+    });
+
+    it('код breaksSeries человеком: ключ, поле, неизвестный код', () => {
+        expect(
+            formatAiSettingsBreakCode(
+                'ai_analytics_definitions.productiveCall',
+            ),
+        ).toBe('Определения событий · productiveCall');
+        expect(formatAiSettingsBreakCode('ai_analytics_scoring')).toBe(
+            'Потолки оценивания',
+        );
+        expect(
+            formatAiSettingsBreakCode('ai_analytics_roster_confirmed_at'),
+        ).toBe('Подтверждение состава');
+        expect(formatAiSettingsBreakCode('ai_analytics_unknown')).toBe(
+            'ai_analytics_unknown',
+        );
+        expect(formatAiSettingsBreakCode('kappa')).toBe('kappa');
     });
 });
 

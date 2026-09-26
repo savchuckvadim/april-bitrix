@@ -6,6 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 import type { AiPipelineDto } from './aiPipelineDto';
+import type { AiHotByColorDto } from './aiHotByColorDto';
+import type { AiPipelineByContractTypeDto } from './aiPipelineByContractTypeDto';
+import type { AiPipelineByTermDto } from './aiPipelineByTermDto';
 
 export interface AiFinanceTailDto {
     /** Продаж: сделок sales_base в успехе по CLOSEDATE за период. */
@@ -16,6 +19,14 @@ export interface AiFinanceTailDto {
     monthlyAmount: number;
     /** Пайплайн от стадии «Презентация» и выше (открытые сделки). */
     pipelineFromStage: AiPipelineDto;
-    /** Открытых сделок от стадии «Документы» и выше (стадийное определение sales-finance; событие hot — с Фазы 2). */
+    /** «Горячие»: открытых сделок sales_base со стадией не ниже «В решении» (sales_in_progress) — решение владельца А.2; цвет компании условием не является. */
     hotEvents: number;
+    /** Горячие сделки по цвету компании (сумма = hotEvents). */
+    hotByColor: AiHotByColorDto;
+    /** Горячих сделок «с предложением» — с товарными строками (productRowsAmount > 0). */
+    withOfferCount: number;
+    /** Весь пайплайн от стадии по типу договора (только непустые группы). */
+    pipelineByContractType: AiPipelineByContractTypeDto[];
+    /** Весь пайплайн от стадии по сроку договора (только непустые бакеты). */
+    pipelineByTerm: AiPipelineByTermDto[];
 }

@@ -19,6 +19,7 @@ import { AI_NUMBERS } from './numbers';
 import { AI_OVERVIEW } from './overview';
 import { AI_PUSH } from './push';
 import { AI_ROADMAP } from './roadmap';
+import { AI_ROP } from './rop';
 import { AI_SETTINGS } from './settings';
 import { AI_SETUP } from './setup';
 import { AI_SMART } from './smart';
@@ -36,6 +37,7 @@ export const AI_PAGES: readonly TheoryPageContent[] = [
     AI_BITRIX,
     AI_SETUP,
     AI_CALIBRATION,
+    AI_ROP,
     AI_GLOSSARY,
     AI_ROADMAP,
     AI_BRIEFS,

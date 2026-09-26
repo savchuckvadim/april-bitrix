@@ -22,4 +22,10 @@ export const AiCacheResetRequestDtoScope = {
     attention: 'attention',
     'kpi-month': 'kpi-month',
     plans: 'plans',
+    model: 'model',
+    plan: 'plan',
+    brief: 'brief',
+    'brief-quota': 'brief-quota',
+    'stage-history': 'stage-history',
+    calendar: 'calendar',
 } as const;

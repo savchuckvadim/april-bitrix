@@ -5,14 +5,22 @@ import {
 
 type QuestionExtras = Pick<
     HowQuestionnaireQuestion,
-    'hint' | 'placeholder' | 'commentPlaceholder' | 'allowCustom' | 'required'
+    | 'hint'
+    | 'placeholder'
+    | 'commentPlaceholder'
+    | 'allowCustom'
+    | 'required'
+    | 'maxLength'
 >;
 
 /** Дополнения свободных вопросов: у них нет вариантов и комментария. */
 type FreeQuestionExtras = Pick<
     QuestionExtras,
-    'hint' | 'placeholder' | 'required'
+    'hint' | 'placeholder' | 'required' | 'maxLength'
 >;
+
+/** Дополнения группы чекбоксов: ни «своего варианта», ни комментария. */
+type MultiQuestionExtras = Pick<QuestionExtras, 'hint' | 'required'>;
 
 /** Фабрики вопросов брифа: раздел подставляется один раз на группу. */
 export const questionFactories = (group: string) => ({
@@ -49,6 +57,21 @@ export const questionFactories = (group: string) => ({
         id,
         title,
         group,
+        options: options.map(
+            (value): HowQuestionnaireOption => ({ value }),
+        ),
+        ...extras,
+    }),
+    multi: (
+        id: string,
+        title: string,
+        options: readonly string[],
+        extras: MultiQuestionExtras = {},
+    ): HowQuestionnaireQuestion => ({
+        id,
+        title,
+        group,
+        kind: 'multi',
         options: options.map(
             (value): HowQuestionnaireOption => ({ value }),
         ),

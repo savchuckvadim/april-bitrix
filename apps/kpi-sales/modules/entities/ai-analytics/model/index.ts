@@ -1,10 +1,58 @@
 import type {
+    AiAbsenceDto,
+    AiAbsenceDtoKind,
+    AiAboutDto,
+    AiAboutEstimandDto,
+    AiAboutEstimandDtoKind,
+    AiAboutEstimateDto,
+    AiAboutEstimateDtoSource,
+    AiAboutModelDto,
+    AiAboutParamDto,
+    AiAboutParamDtoKind,
+    AiAboutParamDtoLayer,
+    AiAboutParamDtoReason,
+    AiAboutParamDtoValue,
+    AiAboutRequestDtoEndpoint,
+    AiAboutSanityDto,
+    AiAboutSanityDtoDataQuality,
     AiAgendaDisagreementDto,
     AiAgendaDto,
     AiAgendaItemDto,
     AiAgendaItemDtoKind,
     AiAnalyticsSettingsDto,
     AiAttentionBasisDto,
+    AiBetaCountdownDto,
+    AiBriefBulletDto,
+    AiBriefDto,
+    AiBriefDtoSource,
+    AiBriefDtoTone,
+    AiBriefUsageDto,
+    AiDailyPlanDto,
+    AiDailyPlanDtoReason,
+    AiDailyPlanExplanationDto,
+    AiDailyPlanItemDto,
+    AiDailyPlanItemDtoCallType,
+    AiDailyPlanRopOnlyDto,
+    AiDailyPlanRopOnlyDtoBetaSource,
+    AiDailyPlanRopOnlyDtoBindingConstraint,
+    AiDailyPlanRopOnlyDtoUnreachable,
+    AiDailyPlanStepDto,
+    AiDailyPlanStepDtoCode,
+    AiDailyPlanTargetDto,
+    AiDailyPlanTargetDtoSource,
+    AiDailyPlanTargetDtoWarningsItem,
+    AiRopMarkCallDto,
+    AiRopMarkCallDtoReason,
+    AiRopMarkDto,
+    AiRopMarkDtoSectionsItem,
+    AiRopMarkSaveRequestDto,
+    AiRopMarkSaveResultDto,
+    AiRopMarkWeekDto,
+    AiStyleAxisDto,
+    AiStyleCardDto,
+    AiStyleCardDtoStatus,
+    AiStyleProfileDto,
+    AiStyleTagDto,
     AiAttentionDto,
     AiAttentionItemDto,
     AiAttentionItemDtoSignal,
@@ -30,6 +78,8 @@ import type {
     AiFeedbackRequestDtoKind,
     AiFinanceTailDto,
     AiFunnelEdgeDto,
+    AiLevelTargetDto,
+    AiManagerAbsencesDto,
     AiManagerLevelDto,
     AiManagerLevelDtoLevel,
     AiManagerRowDto,
@@ -51,12 +101,43 @@ import type {
     AiPulseXmrDto,
     AiPulseXmrDtoState,
     AiRiskCallDto,
+    AiSettingsSaveRequestDto,
     AiSettingsSaveResultDto,
+    AiTargetOverrideDto,
+    AiTargetsDto,
     AiTypeTotalsDto,
     MetricConfidenceDtoLevel,
     MetricDto,
     ReadinessDto,
+    ReadinessDtoBetaCountdown,
+    ReadinessDtoBetaSource,
     ReadinessDtoMode,
+    AiAboutReliabilityCategoryDto,
+    AiAboutReliabilityDto,
+    AiAboutSigmaLlmDto,
+    AiAboutSigmaLlmDtoSource,
+    AiDossierDto,
+    AiDossierFeedbackSummaryDto,
+    AiDossierMetaDto,
+    AiDossierPassportDto,
+    AiDossierReasonDto,
+    AiDossierRopMarksDto,
+    AiDossierSeriesDto,
+    AiDossierSeriesPointDto,
+    AiGoodhartFlagDto,
+    AiManagerTrendsDto,
+    AiPlanFactDto,
+    AiPlanFactManagerDto,
+    AiPlanFactPeriodDto,
+    AiPlanFactRowDto,
+    AiPlanFactRowDtoIndicator,
+    AiPlanFactRowDtoStatus,
+    AiTrendSignalDto,
+    AiTrendSignalDtoKind,
+    AiYoyDto,
+    AiYoyMetricDto,
+    AiYoyMetricDtoMetric,
+    ReadinessDtoSigmaLlmSource,
 } from '@workspace/nest-kpi-report-sales-api';
 
 /**
@@ -66,6 +147,11 @@ import type {
 export type AiAnalyticsSettings = AiAnalyticsSettingsDto;
 export type AiReadiness = ReadinessDto;
 export type AiReadinessMode = ReadinessDtoMode;
+/** Связь «качество → исход»: none | hypothesis | data (гейт β пройден). */
+export type AiReadinessBetaSource = ReadinessDtoBetaSource;
+/** Счётчик «до оценки β»; null — гейт пройден / kpi-only / считать не из чего. */
+export type AiReadinessBetaCountdown = ReadinessDtoBetaCountdown;
+export type AiBetaCountdown = AiBetaCountdownDto;
 export type AiCallType = AiCallTypeDto;
 export type AiCallTypeCode = AiCallTypeDtoCode;
 
@@ -133,14 +219,178 @@ export type AiObjectionsManager = AiObjectionsManagerDto;
 export type AiObjectionCategory = AiObjectionCategoryDto;
 export type AiObjectionOutcomes = AiObjectionOutcomesDto;
 
-/* ---------- Настройки уровней ---------- */
+/* ---------- Настройки витрины (settings/save) ---------- */
 
 export type AiManagerLevelInput = AiManagerLevelDto;
 export type AiSettingsSaveResult = AiSettingsSaveResultDto;
+/** Цель уровня: продажи в месяц (null — медиана полосы), минимум презентаций, холодных в день. */
+export type AiLevelTargetInput = AiLevelTargetDto;
+export type AiTargetOverrideInput = AiTargetOverrideDto;
+export type AiTargetsInput = AiTargetsDto;
+/** Вид отсутствия: vacation | sick | training | other. */
+export type AiAbsenceKind = AiAbsenceDtoKind;
+export type AiAbsenceInput = AiAbsenceDto;
+export type AiManagerAbsencesInput = AiManagerAbsencesDto;
+/**
+ * Тело settings/save без requester'а. Каждый блок необязателен: передан —
+ * перезаписывается целиком, не передан — на сервере остаётся прежним.
+ */
+export type AiSettingsInput = Omit<
+    AiSettingsSaveRequestDto,
+    'domain' | 'requesterUserId'
+>;
+/** Имя блока настроек (levels | targets | absences | … | rosterConfirmedAt). */
+export type AiSettingsBlockName = keyof AiSettingsInput;
+
+/* ---------- План дня менеджера (Фаза 2, plan/daily) ---------- */
+
+export type AiDailyPlan = AiDailyPlanDto;
+/** Штатная деградация плана: portal-model-missing | forecast-missing | manager-month-missing; null — полные данные. */
+export type AiDailyPlanReason = AiDailyPlanDtoReason;
+export type AiDailyPlanItem = AiDailyPlanItemDto;
+/** Ребро воронки строки плана (call_to_presentation, …). */
+export type AiDailyPlanItemCallType = AiDailyPlanItemDtoCallType;
+export type AiDailyPlanTarget = AiDailyPlanTargetDto;
+export type AiDailyPlanTargetSource = AiDailyPlanTargetDtoSource;
+export type AiDailyPlanTargetWarning = AiDailyPlanTargetDtoWarningsItem;
+export type AiDailyPlanExplanation = AiDailyPlanExplanationDto;
+export type AiDailyPlanStep = AiDailyPlanStepDto;
+export type AiDailyPlanStepCode = AiDailyPlanStepDtoCode;
+/** Служебный блок руководителя; менеджеру не отдаётся. */
+export type AiDailyPlanRopOnly = AiDailyPlanRopOnlyDto;
+export type AiDailyPlanBetaSource = AiDailyPlanRopOnlyDtoBetaSource;
+export type AiDailyPlanBindingConstraint =
+    AiDailyPlanRopOnlyDtoBindingConstraint;
+export type AiDailyPlanUnreachable = AiDailyPlanRopOnlyDtoUnreachable;
+
+/** Запрос плана дня: чей план и на какой день (без даты — сегодня в TZ портала). */
+export interface AiDailyPlanQuery {
+    managerId: string;
+    date?: string;
+}
+
+/* ---------- AI-резюме периода (brief, очередь + WS) ---------- */
+
+export type AiBrief = AiBriefDto;
+export type AiBriefBullet = AiBriefBulletDto;
+/** Тон резюме: calm | attention | alarm. */
+export type AiBriefTone = AiBriefDtoTone;
+/** llm — ответ модели прошёл факт-чек; template — шаблон по фактам (см. reason). */
+export type AiBriefSource = AiBriefDtoSource;
+export type AiBriefUsage = AiBriefUsageDto;
+
+/* ---------- Слепая оценка руководителя (rop-mark) ---------- */
+
+export type AiRopMarkWeek = AiRopMarkWeekDto;
+export type AiRopMarkCall = AiRopMarkCallDto;
+/** Почему звонок в подборе: uncertain_type | best_score | random. */
+export type AiRopMarkCallReason = AiRopMarkCallDtoReason;
+export type AiRopMark = AiRopMarkDto;
+/** Раздел рубрики метки (GREETING … REFUSAL). */
+export type AiRopMarkSection = AiRopMarkDtoSectionsItem;
+export type AiRopMarkSaveResult = AiRopMarkSaveResultDto;
+
+/** Неделя проверки: ключ ISO-недели YYYY-Www либо любой её день; пусто — текущая неделя портала. */
+export interface AiRopMarkWeekQuery {
+    weekKey?: string;
+    date?: string;
+}
+
+/** Метка руководителя по звонку подбора (тело rop-mark/save без requester'а). */
+export type AiRopMarkInput = Omit<
+    AiRopMarkSaveRequestDto,
+    'domain' | 'requesterUserId'
+>;
+
+/* ---------- Карточка стиля менеджера (manager/style) ---------- */
+
+export type AiStyleCard = AiStyleCardDto;
+/** ready — профиль есть; few_data — данных мало; opt_out — сотрудник отказался. */
+export type AiStyleCardStatus = AiStyleCardDtoStatus;
+export type AiStyleProfile = AiStyleProfileDto;
+export type AiStyleAxis = AiStyleAxisDto;
+export type AiStyleTag = AiStyleTagDto;
+
+/** Запрос карточки стиля: менеджер и месяц окна YYYY-MM (без месяца — последний профиль). */
+export interface AiStyleQuery {
+    managerId: string;
+    month?: string;
+}
+
+/* ---------- Блок «Как считаем» (about) ---------- */
+
+export type AiAbout = AiAboutDto;
+/** Ручка витрины, для которой нужен блок: overview | plan/daily | brief | manager/style. */
+export type AiAboutEndpoint = AiAboutRequestDtoEndpoint;
+export type AiAboutParam = AiAboutParamDto;
+export type AiAboutParamValue = AiAboutParamDtoValue;
+export type AiAboutParamLayer = AiAboutParamDtoLayer;
+export type AiAboutParamKind = AiAboutParamDtoKind;
+export type AiAboutParamReason = AiAboutParamDtoReason;
+export type AiAboutModel = AiAboutModelDto;
+export type AiAboutEstimate = AiAboutEstimateDto;
+export type AiAboutEstimateSource = AiAboutEstimateDtoSource;
+export type AiAboutEstimand = AiAboutEstimandDto;
+export type AiAboutEstimandKind = AiAboutEstimandDtoKind;
+export type AiAboutSanity = AiAboutSanityDto;
+export type AiAboutDataQuality = AiAboutSanityDtoDataQuality;
 
 /** Статус конверта ответа (одинаков у всех ручек модуля). */
 export type AiEnvelopeStatus = AiPulseResponseDtoStatus;
 export type AiCacheResetScope = AiCacheResetRequestDtoScope;
+
+/* ---------- Фаза 3: тренды, план-факт, год назад, досье, надёжность ---------- */
+
+/** Блок трендов строки менеджера (ai-analytics-trends): сигналы и флаги Гудхарта. */
+export type AiManagerTrends = AiManagerTrendsDto;
+export type AiTrendSignal = AiTrendSignalDto;
+/** Вид сигнала: shift — сдвиг уровня, drift — дрейф, outlier — выброс. */
+export type AiTrendSignalKind = AiTrendSignalDtoKind;
+/** Флаг детектора Гудхарта: давление выросло, противовес упал. */
+export type AiGoodhartFlag = AiGoodhartFlagDto;
+
+export type AiPlanFact = AiPlanFactDto;
+export type AiPlanFactManager = AiPlanFactManagerDto;
+export type AiPlanFactPeriod = AiPlanFactPeriodDto;
+export type AiPlanFactRow = AiPlanFactRowDto;
+/** Показатель строки план-факта: sales | calls | presentations. */
+export type AiPlanFactIndicator = AiPlanFactRowDtoIndicator;
+/** Статус строки: on-track | behind | ahead | no-plan. */
+export type AiPlanFactRowStatus = AiPlanFactRowDtoStatus;
+
+/** Запрос план-факта: месяц YYYY-MM и (руководителю) менеджеры; пусто — весь периметр. */
+export interface AiPlanFactQuery {
+    monthKey: string;
+    managerIds?: string[];
+}
+
+export type AiYoy = AiYoyDto;
+export type AiYoyMetric = AiYoyMetricDto;
+/** Величина сравнения: quality | analyzed_calls | sales_count | sales_sum | average_check. */
+export type AiYoyMetricCode = AiYoyMetricDtoMetric;
+
+export type AiDossier = AiDossierDto;
+export type AiDossierPassport = AiDossierPassportDto;
+export type AiDossierSeries = AiDossierSeriesDto;
+export type AiDossierSeriesPoint = AiDossierSeriesPointDto;
+export type AiDossierFeedbackSummary = AiDossierFeedbackSummaryDto;
+export type AiDossierRopMarks = AiDossierRopMarksDto;
+export type AiDossierReason = AiDossierReasonDto;
+export type AiDossierMeta = AiDossierMetaDto;
+
+/** Запрос досье: менеджер и окно в месяцах (1..12, по умолчанию 3). */
+export interface AiDossierQuery {
+    managerId: string;
+    months: number;
+}
+
+/** Секция «надёжность оценщика» блока «Как считаем» (test-retest). */
+export type AiAboutReliability = AiAboutReliabilityDto;
+export type AiAboutReliabilityCategory = AiAboutReliabilityCategoryDto;
+export type AiAboutSigmaLlm = AiAboutSigmaLlmDto;
+/** measured — σ_llm измерена на парах, configured — дефолт реестра. */
+export type AiAboutSigmaSource = AiAboutSigmaLlmDtoSource;
+export type AiReadinessSigmaSource = ReadinessDtoSigmaLlmSource;
 
 /** Конверт ответа ручек AI-аналитики (ready|queued|processing|error). */
 export interface AiEnvelope<T> {

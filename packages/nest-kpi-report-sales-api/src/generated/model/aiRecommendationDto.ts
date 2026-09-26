@@ -5,24 +5,26 @@
  * API приложения kpi-report-sales
  * OpenAPI spec version: 1.0
  */
+import type { AiRecommendationDtoLever } from './aiRecommendationDtoLever';
+import type { AiRecommendationDtoEvidence } from './aiRecommendationDtoEvidence';
 
 export interface AiRecommendationDto {
-    /** Рычаг: volume | quality | checklist | pipeline | objection. */
-    lever: string;
+    /** Рычаг: volume — объём активностей, quality — качество разговора, checklist — пункт чек-листа, pipeline — работа с открытыми сделками, objection — работа с возражением. */
+    lever: AiRecommendationDtoLever;
     /** AI-тип звонка. */
     callType?: string;
-    /** Раздел рубрики. */
+    /** Раздел рубрики либо код пункта чек-листа. */
     section?: string;
     /** Категория возражения. */
     category?: string;
-    /** Ожидаемый прирост продаж. */
+    /** Ожидаемый прирост продаж; нет — уровень E0 (сцепки звонков со сделками ещё нет, число называть нечестно). */
     deltaSales?: number;
-    /** Стоимость рекомендации. */
+    /** Стоимость рекомендации: минуты активности либо часы коучинга. */
     cost: number;
-    /** Уровень доказательности: data | prior-only. */
-    evidence: string;
-    /** Опоры. */
+    /** Уровень доказательности: E0 — факт с интервалом, E1 — связь в данных, E2 — пул порталов либо квази-эксперимент, E3 — пререгистрированный эксперимент. */
+    evidence: AiRecommendationDtoEvidence;
+    /** Опоры рекомендации в числах. */
     basis: string[];
-    /** Код правила. */
+    /** Код правила, породившего рекомендацию. */
     ruleCode: string;
 }

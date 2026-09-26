@@ -36,6 +36,7 @@ export const HowQuestionnaire: React.FC<HowQuestionnaireProps> = ({
         setCompany,
         setAnswer,
         toggleChoice,
+        toggleValue,
         download,
         copy,
         reset,
@@ -63,6 +64,7 @@ export const HowQuestionnaire: React.FC<HowQuestionnaireProps> = ({
                     group={group}
                     answers={state.answers}
                     onToggleChoice={toggleChoice}
+                    onToggleValue={toggleValue}
                     onCustomChange={(questionId, custom) =>
                         setAnswer(questionId, { custom, choice: undefined })
                     }

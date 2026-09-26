@@ -57,13 +57,16 @@ export const ACCESS_RULES: Record<
 
     // AI-АНАЛИТИКА ОП: два уровня включения (константа приложения И
     // портальный ai_analytics_enabled из settings/get). Кому видна:
-    // ТОЛЬКО руководители (решение владельца 07.09.2026) — суперюзер или
-    // любой headOf. Рядовой менеджер (ctx.isSelf) вкладку не видит.
-    // Задел: бэк добавит в settings/get портальную настройку
-    // selfViewEnabled — она вернёт режим «менеджер видит себя»
-    // (правило станет `… || (ctx.isSelf && selfViewEnabled)`).
+    // руководители (суперюзер или любой headOf) — всегда; рядовой
+    // менеджер (ctx.isSelf) — только при портальной настройке
+    // ai_analytics_self_view_enabled (решение владельца 07.09.2026: по
+    // умолчанию витрина только руководителям; бэк при выключенной
+    // настройке отвечает менеджеру 403 — правило совпадает с сервером).
     [EAccessFeature.AI_TAB]: ctx =>
-        isAiEnabled(ctx) && (ctx.isSuperUser || ctx.headOf !== null),
+        isAiEnabled(ctx) &&
+        (ctx.isSuperUser ||
+            ctx.headOf !== null ||
+            (ctx.isSelf && ctx.features.aiAnalyticsSelfViewEnabled)),
 
     [EAccessFeature.AI_VIEW_ALL]: ctx =>
         isAiEnabled(ctx) && (ctx.isSuperUser || ctx.headOf !== null),

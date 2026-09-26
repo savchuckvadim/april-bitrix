@@ -2,12 +2,16 @@
 
 import { TableCell, TableRow } from '@workspace/ui/components/table';
 import type { AiRowsSection } from '@/modules/entities/ai-analytics';
+import {
+    aiSignalColumnCount,
+    type AiSignalColumns,
+} from '../../lib/ai-signal.util';
 import { AiSignalRow } from './AiSignalRow';
 
 interface AiSignalSectionProps {
     section: AiRowsSection;
-    /** Число колонок таблицы — для строки-заголовка секции. */
-    columns: number;
+    /** Видимые колонки «Тренды» / «Год назад» — и для colSpan заголовка секции. */
+    columns: AiSignalColumns;
     /** Открыть карточку стиля менеджера. */
     onOpenStyle: (managerId: string) => void;
     /** Открыть досье менеджера. */
@@ -25,7 +29,7 @@ export const AiSignalSection = ({
         {section.name && (
             <TableRow className="bg-muted/40 hover:bg-muted/40">
                 <TableCell
-                    colSpan={columns}
+                    colSpan={aiSignalColumnCount(columns)}
                     className="py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
                 >
                     {section.name}
@@ -36,6 +40,7 @@ export const AiSignalSection = ({
             <AiSignalRow
                 key={row.managerId}
                 row={row}
+                columns={columns}
                 onOpenStyle={onOpenStyle}
                 onOpenDossier={onOpenDossier}
             />

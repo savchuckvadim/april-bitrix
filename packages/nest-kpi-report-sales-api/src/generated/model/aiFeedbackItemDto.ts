@@ -10,7 +10,7 @@ import type { AiFeedbackItemDtoKind } from './aiFeedbackItemDtoKind';
 export interface AiFeedbackItemDto {
     /** Id записи ais. */
     id: string;
-    /** Вид реакции. */
+    /** Вид реакции (только пользовательские: служебные виды доставки, алертов и меток руководителя в список не попадают). */
     kind: AiFeedbackItemDtoKind;
     /** Объект реакции. */
     object: string;

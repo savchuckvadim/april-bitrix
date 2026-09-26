@@ -10,9 +10,15 @@ import {
     formatAiTrendSignal,
 } from '../lib/ai-trend.util';
 import {
+    AI_PLAN_FACT_INDICATOR,
+    AI_PLAN_FACT_NOT_COUNTED_STATUS,
     AI_PLAN_FACT_REASON_LABELS,
+    AI_PLAN_FACT_STATUS,
+    aiPlanFactIndicatorLabel,
     aiPlanFactMonthKey,
     aiPlanFactReasonLabel,
+    aiPlanFactRowHasPlan,
+    aiPlanFactRowStatusView,
     formatAiPlanFactGap,
     formatAiPlanFactPace,
     formatAiPlanFactPerDay,
@@ -152,6 +158,41 @@ describe('ai-plan-fact.util — план-факт месяца', () => {
             expect(AI_PLAN_FACT_REASON_LABELS[code]).toBeTruthy();
         }
         expect(aiPlanFactReasonLabel('unknown')).toBe('unknown');
+    });
+
+    it('подпись показателя с единицей одним текстом; звонки — из CRM', () => {
+        expect(aiPlanFactIndicatorLabel('sales')).toBe('Продажи, шт.');
+        expect(aiPlanFactIndicatorLabel('calls')).toBe('Звонки (CRM), шт.');
+        expect(aiPlanFactIndicatorLabel('presentations')).toBe(
+            'Презентации, шт.',
+        );
+        for (const indicator of ['sales', 'calls', 'presentations'] as const) {
+            expect(aiPlanFactIndicatorLabel(indicator)).toBe(
+                `${AI_PLAN_FACT_INDICATOR[indicator].label}, ${AI_PLAN_FACT_INDICATOR[indicator].unit}`,
+            );
+        }
+    });
+
+    it('цель в строке: план больше нуля; null и 0 — цели нет', () => {
+        expect(aiPlanFactRowHasPlan(planFactRow())).toBe(true);
+        expect(aiPlanFactRowHasPlan(planFactRow({ plan: null }))).toBe(false);
+        expect(aiPlanFactRowHasPlan(planFactRow({ plan: 0 }))).toBe(false);
+    });
+
+    it('статус: no-plan без цели — «плана нет», при цели — «не посчитано»', () => {
+        expect(aiPlanFactRowStatusView(planFactRow())).toBe(
+            AI_PLAN_FACT_STATUS.behind,
+        );
+        expect(
+            aiPlanFactRowStatusView(
+                planFactRow({ plan: null, status: 'no-plan' }),
+            ),
+        ).toBe(AI_PLAN_FACT_STATUS['no-plan']);
+        expect(
+            aiPlanFactRowStatusView(
+                planFactRow({ fact: null, status: 'no-plan' }),
+            ),
+        ).toBe(AI_PLAN_FACT_NOT_COUNTED_STATUS);
     });
 });
 

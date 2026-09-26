@@ -8,7 +8,7 @@
 import type { AiFeedbackItemDto } from './aiFeedbackItemDto';
 
 export interface AiFeedbackListDto {
-    /** Записи за период. */
+    /** Пользовательские реакции за период. Без managerId — только менеджеры периметра руководителя; записи без менеджера видит только cup. */
     items: AiFeedbackItemDto[];
     /**
      * Доля несогласий, %: disagree среди реакций useful/not_useful/disagree; null — реакций нет.

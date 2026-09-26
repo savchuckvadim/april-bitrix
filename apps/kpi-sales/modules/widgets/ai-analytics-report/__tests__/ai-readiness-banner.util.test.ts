@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import {
-    AI_READINESS_LABELS,
-    AI_READINESS_REASON_LABELS,
+    AI_READINESS_HINTS,
     type AiReadiness,
 } from '@/modules/entities/ai-analytics';
 import {
-    AI_BETA_SOURCE_LABELS,
+    AI_READINESS_GATED_REASON,
+    AI_READINESS_MODE_SHORT,
     AI_READINESS_REASON_CODE,
     AI_SIGMA_SOURCE_LABELS,
-    AI_READINESS_REASON_HINTS,
+    aiReadinessGate,
     buildAiReadinessBanner,
-    buildAiReadinessReasons,
     formatAiReadinessHistory,
     hasAiReadinessReason,
+    isAiKnownReadinessReason,
 } from '../lib/ai-readiness-banner.util';
 
 const readiness = (overrides: Partial<AiReadiness> = {}): AiReadiness => ({
@@ -26,58 +26,51 @@ const readiness = (overrides: Partial<AiReadiness> = {}): AiReadiness => ({
     ...overrides,
 });
 
-describe('buildAiReadinessReasons — подписи и подсказки причин', () => {
-    it('коды → русские подписи, дубли схлопнуты, порядок бэка', () => {
-        const items = buildAiReadinessReasons([
-            'no-portal-model',
-            'presentations-below-60',
-            'no-portal-model',
-        ]);
-        expect(items.map(item => item.code)).toEqual([
-            'no-portal-model',
-            'presentations-below-60',
-        ]);
-        expect(items[0]?.label).toBe(
-            AI_READINESS_REASON_LABELS['no-portal-model'],
-        );
-        expect(items[1]?.label).toBe('Разобранных презентаций меньше 60');
+describe('aiReadinessGate — число гейта из кода причины', () => {
+    it('history-months-below-3 → 3, presentations-below-60 → 60', () => {
+        const reasons = ['history-months-below-3', 'presentations-below-60'];
+        expect(
+            aiReadinessGate(reasons, AI_READINESS_GATED_REASON.HISTORY_MONTHS),
+        ).toBe(3);
+        expect(
+            aiReadinessGate(reasons, AI_READINESS_GATED_REASON.PRESENTATIONS),
+        ).toBe(60);
     });
 
-    it('особые коды несут подсказку «что делать», гейты — нет', () => {
-        const [model, gate] = buildAiReadinessReasons([
-            AI_READINESS_REASON_CODE.NO_PORTAL_MODEL,
-            'history-months-below-3',
-        ]);
-        expect(model?.hint).toContain('не построил модель портала');
-        expect(model?.hint).toContain('после первого расчёта');
-        expect(gate?.hint).toBeNull();
+    it('префикс целиком: presentations-below не ловит norms-presentations-below-100', () => {
+        const reasons = ['norms-presentations-below-100'];
+        expect(
+            aiReadinessGate(reasons, AI_READINESS_GATED_REASON.PRESENTATIONS),
+        ).toBeNull();
+        expect(
+            aiReadinessGate(
+                reasons,
+                AI_READINESS_GATED_REASON.NORMS_PRESENTATIONS,
+            ),
+        ).toBe(100);
     });
 
-    it('у всех особых кодов есть подсказка', () => {
+    it('причины нет — null', () => {
+        expect(
+            aiReadinessGate([], AI_READINESS_GATED_REASON.HISTORY_MONTHS),
+        ).toBeNull();
+    });
+});
+
+describe('isAiKnownReadinessReason — у кода есть свой пункт чек-листа', () => {
+    it('коды без гейта и коды с гейтом — известны', () => {
         for (const code of Object.values(AI_READINESS_REASON_CODE)) {
-            expect(AI_READINESS_REASON_HINTS[code]).toBeTruthy();
-            expect(AI_READINESS_REASON_LABELS[code]).toBeTruthy();
+            expect(isAiKnownReadinessReason(code)).toBe(true);
         }
-    });
-
-    it('roster-not-confirmed — единственная причина с кнопкой подтверждения', () => {
-        const items = buildAiReadinessReasons([
-            'roster-not-confirmed',
-            'hypothesis-not-set',
-            'calendar-not-imported',
-        ]);
-        expect(items.map(item => item.confirmRoster)).toEqual([
+        expect(isAiKnownReadinessReason('history-months-below-3')).toBe(true);
+        expect(isAiKnownReadinessReason('norms-presentations-below-100')).toBe(
             true,
-            false,
-            false,
-        ]);
-        expect(items[1]?.hint).toContain('гипотезу');
-        expect(items[2]?.hint).toContain('календарь');
+        );
     });
 
-    it('undefined и пустой список — без причин', () => {
-        expect(buildAiReadinessReasons(undefined)).toEqual([]);
-        expect(buildAiReadinessReasons([])).toEqual([]);
+    it('новый код бэка — неизвестен', () => {
+        expect(isAiKnownReadinessReason('brand-new-reason')).toBe(false);
+        expect(isAiKnownReadinessReason('brand-new-below-5')).toBe(false);
     });
 });
 
@@ -112,22 +105,26 @@ describe('formatAiReadinessHistory', () => {
     });
 });
 
-describe('buildAiReadinessBanner — модель баннера', () => {
-    it('kpi-only: предупреждение, без счётчика β', () => {
-        const banner = buildAiReadinessBanner(
-            readiness({ mode: 'kpi-only', betaCountdown: null }),
+describe('buildAiReadinessBanner — шапка баннера', () => {
+    it('заголовок «Готовность витрины: <режим>», строка режима, история', () => {
+        const banner = buildAiReadinessBanner(readiness({ mode: 'kpi-only' }));
+        expect(banner.title).toBe(
+            `Готовность витрины: ${AI_READINESS_MODE_SHORT['kpi-only']}`,
         );
-        expect(banner.title).toBe(AI_READINESS_LABELS['kpi-only']);
-        expect(banner.tone).toBe('warning');
-        expect(banner.countdown).toBeNull();
-        expect(banner.betaSource).toBe(AI_BETA_SOURCE_LABELS.none);
+        expect(banner.hint).toBe(AI_READINESS_HINTS['kpi-only']);
+        expect(banner.history).toContain('История разборов: 1 мес.');
     });
 
-    it('счётчик β и источник связи «качество → исход» подписаны по-русски', () => {
+    it('у каждого режима есть короткое имя', () => {
+        for (const name of Object.values(AI_READINESS_MODE_SHORT)) {
+            expect(name.length).toBeGreaterThan(0);
+        }
+    });
+
+    it('причины и счётчик β в шапке не дублируются — их показывает чек-лист', () => {
         const banner = buildAiReadinessBanner(
             readiness({
-                mode: 'norms',
-                betaSource: 'hypothesis',
+                reasons: ['roster-not-confirmed'],
                 betaCountdown: {
                     seNow: 0.4,
                     presentationsLeft: 40,
@@ -135,24 +132,15 @@ describe('buildAiReadinessBanner — модель баннера', () => {
                 },
             }),
         );
-        expect(banner.tone).toBe('success');
-        expect(banner.countdown).toContain('40 презентаций');
-        expect(banner.countdown).toContain('2 месяца');
-        expect(banner.betaSource).toContain('по гипотезе');
+        expect(Object.keys(banner).sort()).toEqual([
+            'hint',
+            'history',
+            'sigmaSource',
+            'title',
+        ]);
     });
 
-    it('гейт β пройден: источник data, счётчика нет', () => {
-        const banner = buildAiReadinessBanner(
-            readiness({ mode: 'hypothesis', betaSource: 'data' }),
-        );
-        expect(banner.countdown).toBeNull();
-        expect(banner.betaSource).toContain('по данным');
-        expect(banner.reasons).toEqual([]);
-    });
-});
-
-describe('buildAiReadinessBanner — источник σ_llm (Фаза 3, П7)', () => {
-    it('measured/configured подписаны по-русски; поле не пришло — строки нет', () => {
+    it('σ_llm: measured/configured подписаны по-русски; поля нет — строки нет', () => {
         expect(
             buildAiReadinessBanner(readiness({ sigmaLlmSource: 'measured' }))
                 .sigmaSource,

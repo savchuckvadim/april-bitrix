@@ -3,14 +3,20 @@
 import { SectionCard } from '@workspace/april-ui';
 import { AI_FEEDBACK_OBJECT } from '@/modules/entities/ai-analytics';
 import { useAiSection } from '../hooks/use-ai-section';
+import {
+    AI_AGENDA_TEXT,
+    aiAgendaDescription,
+} from '../lib/ai-agenda-week.util';
 import { AiSectionState } from './components/AiSectionState';
 import { AiFeedbackButtons } from './components/AiFeedbackButtons';
 import { AiAgendaItemRow } from './components/AiAgendaItemRow';
 import { AiAgendaDisagreements } from './components/AiAgendaDisagreements';
 
 /**
- * «Повестка» планёрки: 3 звонка текущей ISO-недели (риск-флаг → спорное
- * возражение → слабый раздел) с цитатами и ссылками, плюс несогласия недели.
+ * «Повестка» планёрки: звонки ПРОШЛОЙ полной ISO-недели (пн–вс, TZ портала;
+ * риск-флаг → спорное возражение → слабый раздел) с цитатами и ссылками,
+ * плюс несогласия с разбором с понедельника прошлой недели по сейчас.
+ * weekKey ответа — текущая неделя планёрки; в подписи — даты прошлой недели.
  */
 export const AiAgendaCard = () => {
     const agenda = useAiSection('agenda');
@@ -19,11 +25,7 @@ export const AiAgendaCard = () => {
         <SectionCard
             surface="glass"
             title="Повестка планёрки"
-            description={
-                agenda.data
-                    ? `Неделя ${agenda.data.weekKey}: три звонка для разбора`
-                    : 'Три звонка недели для разбора на планёрке'
-            }
+            description={aiAgendaDescription(agenda.data?.weekKey)}
             actions={
                 agenda.status === 'ready' && (
                     <AiFeedbackButtons object={AI_FEEDBACK_OBJECT.AGENDA} />
@@ -50,7 +52,7 @@ export const AiAgendaCard = () => {
                         </ol>
                     ) : (
                         <p className="py-2 text-xs text-muted-foreground">
-                            За неделю подходящих звонков для повестки нет.
+                            {AI_AGENDA_TEXT.itemsEmpty}
                         </p>
                     )}
                     <AiAgendaDisagreements items={agenda.data.disagreements} />

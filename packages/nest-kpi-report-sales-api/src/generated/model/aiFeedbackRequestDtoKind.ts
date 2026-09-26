@@ -7,7 +7,7 @@
  */
 
 /**
- * Вид реакции: view, useful, not_useful, disagree, alert_handled (остальные виды — служебные, пишет push-контур).
+ * Вид реакции пользователя: view, useful, not_useful, disagree, alert_handled. Служебные виды (alert_sent, digest_sent, agenda_sent, rop_mark) отклоняются валидацией с 400. alert_handled — только руководителям (менеджеру — 403). useful / not_useful — одна оценка на автора, объект и день портала: та же оценка возвращает id прежней записи, смена оценки пишет новую, прежняя уходит в superseded. Повтор alert_handled за день возвращает id прежней записи.
  */
 export type AiFeedbackRequestDtoKind =
     (typeof AiFeedbackRequestDtoKind)[keyof typeof AiFeedbackRequestDtoKind];
@@ -18,9 +18,5 @@ export const AiFeedbackRequestDtoKind = {
     useful: 'useful',
     not_useful: 'not_useful',
     disagree: 'disagree',
-    alert_sent: 'alert_sent',
     alert_handled: 'alert_handled',
-    digest_sent: 'digest_sent',
-    agenda_sent: 'agenda_sent',
-    rop_mark: 'rop_mark',
 } as const;

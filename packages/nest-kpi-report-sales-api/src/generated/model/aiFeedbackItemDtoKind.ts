@@ -7,7 +7,7 @@
  */
 
 /**
- * Вид реакции.
+ * Вид реакции (только пользовательские: служебные виды доставки, алертов и меток руководителя в список не попадают).
  */
 export type AiFeedbackItemDtoKind =
     (typeof AiFeedbackItemDtoKind)[keyof typeof AiFeedbackItemDtoKind];
@@ -18,9 +18,5 @@ export const AiFeedbackItemDtoKind = {
     useful: 'useful',
     not_useful: 'not_useful',
     disagree: 'disagree',
-    alert_sent: 'alert_sent',
     alert_handled: 'alert_handled',
-    digest_sent: 'digest_sent',
-    agenda_sent: 'agenda_sent',
-    rop_mark: 'rop_mark',
 } as const;

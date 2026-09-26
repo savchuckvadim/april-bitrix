@@ -20,7 +20,8 @@ interface AiRopMarkSavedProps {
     mark: AiRopMark;
     /** Заметки последнего сохранения: прежняя метка заменена / метка не слепая. */
     notes: string[];
-    onEdit: () => void;
+    /** Нет — «Изменить метку» не показываем (суперпользователь вендора). */
+    onEdit?: () => void;
 }
 
 /**
@@ -110,18 +111,23 @@ export const AiRopMarkSaved = ({
                 ))}
             </ul>
         )}
-        <HintTooltip title="Изменить метку" lines={[AI_ROP_MARK_REMARK_HINT]}>
-            <span className="inline-flex">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 gap-1 px-1 text-xs"
-                    onClick={onEdit}
-                >
-                    <Pencil className="h-3 w-3" />
-                    Изменить метку
-                </Button>
-            </span>
-        </HintTooltip>
+        {onEdit && (
+            <HintTooltip
+                title="Изменить метку"
+                lines={[AI_ROP_MARK_REMARK_HINT]}
+            >
+                <span className="inline-flex">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 gap-1 px-1 text-xs"
+                        onClick={onEdit}
+                    >
+                        <Pencil className="h-3 w-3" />
+                        Изменить метку
+                    </Button>
+                </span>
+            </HintTooltip>
+        )}
     </div>
 );

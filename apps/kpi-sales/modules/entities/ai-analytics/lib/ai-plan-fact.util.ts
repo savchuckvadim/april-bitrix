@@ -11,15 +11,34 @@ import type {
  * статусов, формат темпа и «в день надо», ключ месяца из даты фильтра.
  */
 
-/** Показатель строки: подпись и единица. */
+/**
+ * Показатель строки: подпись и единица. Звонки — из CRM (все звонки
+ * менеджера), а не разобранные AI: подпись это различает.
+ */
 export const AI_PLAN_FACT_INDICATOR: Record<
     AiPlanFactIndicator,
     { label: string; unit: string }
 > = {
     sales: { label: 'Продажи', unit: 'шт.' },
-    calls: { label: 'Звонки', unit: 'шт.' },
+    calls: { label: 'Звонки (CRM)', unit: 'шт.' },
     presentations: { label: 'Презентации', unit: 'шт.' },
 };
+
+/**
+ * Подпись показателя с единицей одним текстом: «Продажи, шт.» — так она
+ * копируется и читается скринридером без склейки «Продажишт.».
+ */
+export const aiPlanFactIndicatorLabel = (
+    indicator: AiPlanFactIndicator,
+): string => {
+    const { label, unit } = AI_PLAN_FACT_INDICATOR[indicator];
+    return unit ? `${label}, ${unit}` : label;
+};
+
+/** У строки есть цель: план задан и больше нуля (plan-missing / target-empty — нет). */
+export const aiPlanFactRowHasPlan = (
+    row: Pick<AiPlanFactRow, 'plan'>,
+): boolean => row.plan !== null && row.plan > 0;
 
 /** Статус строки: подпись и тон. */
 export const AI_PLAN_FACT_STATUS: Record<
@@ -31,6 +50,23 @@ export const AI_PLAN_FACT_STATUS: Record<
     ahead: { label: 'опережает', tone: 'info' },
     'no-plan': { label: 'плана нет', tone: 'muted' },
 };
+
+/** no-plan при заданной цели: не хватает факта или рабочих дней, а не плана. */
+export const AI_PLAN_FACT_NOT_COUNTED_STATUS: { label: string; tone: Tone } = {
+    label: 'не посчитано',
+    tone: 'muted',
+};
+
+/**
+ * Бэйдж статуса строки. Бэк ставит no-plan и когда цели нет, и когда нет
+ * факта: при заданной цели честнее «не посчитано», чем «плана нет».
+ */
+export const aiPlanFactRowStatusView = (
+    row: Pick<AiPlanFactRow, 'plan' | 'status'>,
+): { label: string; tone: Tone } =>
+    row.status === 'no-plan' && aiPlanFactRowHasPlan(row)
+        ? AI_PLAN_FACT_NOT_COUNTED_STATUS
+        : AI_PLAN_FACT_STATUS[row.status];
 
 /** Причины строки и ручки (коды бэка) по-русски. */
 export const AI_PLAN_FACT_REASON_LABELS: Record<string, string> = {

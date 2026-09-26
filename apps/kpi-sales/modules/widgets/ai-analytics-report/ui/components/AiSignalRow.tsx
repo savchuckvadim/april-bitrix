@@ -13,7 +13,11 @@ import {
     formatAiMoneyCompact,
     type AiManagerRow,
 } from '@/modules/entities/ai-analytics';
-import { formatAiSince } from '../../lib/ai-signal.util';
+import {
+    aiAnalyzedLabel,
+    aiTenureLabel,
+    type AiSignalColumns,
+} from '../../lib/ai-signal.util';
 import { AiManagerName } from './AiManagerName';
 import { AiLevelBadge } from './AiLevelBadge';
 import { AiKeyMetricCell } from './AiKeyMetricCell';
@@ -28,6 +32,8 @@ import { AiYoyBadge } from './AiYoyBadge';
 
 interface AiSignalRowProps {
     row: AiManagerRow;
+    /** Видимые колонки «Тренды» / «Год назад» (скрыты, пока данных нет ни у кого). */
+    columns: AiSignalColumns;
     /** Открыть карточку стиля менеджера. */
     onOpenStyle: (managerId: string) => void;
     /** Открыть досье менеджера (Фаза 3). */
@@ -35,18 +41,22 @@ interface AiSignalRowProps {
 }
 
 /**
- * Строка таблицы сигналов: сотрудник + уровень + стаж + подписи стиля +
+ * Строка таблицы сигналов: сотрудник + уровень + «разобрано N из M» и
+ * стаж с источником даты (с подсказкой, что сделать) + подписи стиля +
  * «Стиль» и «Досье» | сигнал + риск-звонки | ключевая цифра | корзины |
- * тренды | год назад | продажи | аванс | месячный чек | план CRM | рычаги |
- * «Не согласен».
+ * тренды | год назад (если колонки видны) | продажи | аванс | месячный
+ * чек | план CRM | рычаги | «Не согласен».
  */
 export const AiSignalRow = ({
     row,
+    columns,
     onOpenStyle,
     onOpenDossier,
 }: AiSignalRowProps) => {
     const signal = row.signal ? AI_SIGNAL[row.signal.signal] : null;
     const styleTags = row.style?.tags ?? [];
+    const analyzed = aiAnalyzedLabel(row);
+    const tenure = aiTenureLabel(row);
 
     return (
         <TableRow>
@@ -61,9 +71,18 @@ export const AiSignalRow = ({
                     />
                 </div>
                 <div className="text-[0.6875rem] text-muted-foreground">
-                    разобрано {row.analyzedCalls} из {row.callsTotal} ·{' '}
-                    {formatAiSince(row.since, row.tenureMonths)}
+                    {analyzed.text} · {tenure.text}
                 </div>
+                {[analyzed.hint, tenure.hint]
+                    .filter((hint): hint is string => hint !== null)
+                    .map(hint => (
+                        <div
+                            key={hint}
+                            className="text-[0.6875rem] text-warning"
+                        >
+                            {hint}
+                        </div>
+                    ))}
                 {styleTags.length > 0 && (
                     <div className="mt-1 flex flex-wrap gap-1">
                         {styleTags.map(tag => (
@@ -123,12 +142,16 @@ export const AiSignalRow = ({
                     <AiBucketCell bucket={aiBucketScore(row, bucket)} />
                 </TableCell>
             ))}
-            <TableCell>
-                <AiTrendsCell trends={row.trends} />
-            </TableCell>
-            <TableCell>
-                <AiYoyBadge yoy={row.yoy} />
-            </TableCell>
+            {columns.trends && (
+                <TableCell>
+                    <AiTrendsCell trends={row.trends} />
+                </TableCell>
+            )}
+            {columns.yoy && (
+                <TableCell>
+                    <AiYoyBadge yoy={row.yoy} />
+                </TableCell>
+            )}
             <TableCell className="text-right tabular-nums">
                 {formatAiCount(row.finance.salesCount)}
             </TableCell>

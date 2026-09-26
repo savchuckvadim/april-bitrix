@@ -15,6 +15,7 @@ import {
     sendAiView,
 } from '../model/ai-analytics-thunks';
 import { buildAiRequestKey } from '../lib/ai-request-key.util';
+import { aiFeedbackKey } from '../lib/ai-feedback.util';
 import type { AiEnvelope, AiPulse } from '../model';
 import { about, dailyPlan } from './ai-fixtures';
 
@@ -277,9 +278,11 @@ describe('aiAnalyticsSlice — реакции', () => {
         expect(
             store.getState().aiAnalytics.pulse.data?.alerts[0]?.handled,
         ).toBe(true);
-        expect(store.getState().aiAnalytics.feedback.sent['call:t-1']).toBe(
-            'alert_handled',
-        );
+        expect(
+            store.getState().aiAnalytics.feedback.sent[
+                aiFeedbackKey('alert_handled', 'call:t-1')
+            ],
+        ).toBe('alert_handled');
         expect(addFeedback).toHaveBeenCalledWith(
             { domain: 'test.bitrix24.ru', requesterUserId: '42' },
             expect.objectContaining({
@@ -300,7 +303,11 @@ describe('aiAnalyticsSlice — реакции', () => {
         expect(
             store.getState().aiAnalytics.feedback.sent.pulse,
         ).toBeUndefined();
-        expect(store.getState().aiAnalytics.feedback.error).toBe('403');
+        expect(
+            store.getState().aiAnalytics.feedback.errors[
+                aiFeedbackKey('useful', 'pulse')
+            ],
+        ).toBe('403');
     });
 
     it('view — один раз за сессию на объект и без подсветки кнопок', async () => {

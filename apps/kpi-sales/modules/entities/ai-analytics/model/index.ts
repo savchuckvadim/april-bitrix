@@ -20,6 +20,7 @@ import type {
     AiAgendaItemDto,
     AiAgendaItemDtoKind,
     AiAnalyticsSettingsDto,
+    AiCallReportStatusDto,
     AiAttentionBasisDto,
     AiBetaCountdownDto,
     AiBriefBulletDto,
@@ -85,6 +86,7 @@ import type {
     AiManagerRowDto,
     AiManagerRowDtoFunnelShape,
     AiManagerRowDtoLevelSource,
+    AiManagerRowDtoSinceSource,
     AiManagerTypeCellDto,
     AiObjectionCategoryDto,
     AiObjectionOutcomesDto,
@@ -127,6 +129,7 @@ import type {
     AiGoodhartFlagDto,
     AiManagerTrendsDto,
     AiPlanFactDto,
+    AiPlanFactDtoReasonsItem,
     AiPlanFactManagerDto,
     AiPlanFactPeriodDto,
     AiPlanFactRowDto,
@@ -145,6 +148,13 @@ import type {
  * работают только с ними — переименование на бэке затронет один файл.
  */
 export type AiAnalyticsSettings = AiAnalyticsSettingsDto;
+/**
+ * Конвейер разбора звонков портала (settings/get.callReport): включён ли,
+ * пилотный список сотрудников (непустой — разборы только у них; null —
+ * весь отдел продаж), только ОП, порог длительности. Поля нет в settings —
+ * статус не прочитан (не путать с «выключено»).
+ */
+export type AiCallReportStatus = AiCallReportStatusDto;
 export type AiReadiness = ReadinessDto;
 export type AiReadinessMode = ReadinessDtoMode;
 /** Связь «качество → исход»: none | hypothesis | data (гейт β пройден). */
@@ -182,7 +192,10 @@ export type AiOverviewPeriod = AiOverviewPeriodDto;
 export type AiManagerRow = AiManagerRowDto;
 /** Уровень менеджера (junior | middle | senior) — общий для строки и формы. */
 export type AiManagerLevel = AiManagerLevelDtoLevel;
+/** Источник уровня: manual — РОП; passport — по стажу из дат Bitrix (ночной паспорт); default — ни того, ни другого. */
 export type AiManagerLevelSource = AiManagerRowDtoLevelSource;
+/** Откуда дата стажа: manual | employment (дата приёма) | register (регистрация в Bitrix) | proxy (первое событие). */
+export type AiManagerSinceSource = AiManagerRowDtoSinceSource;
 export type AiFunnelShape = AiManagerRowDtoFunnelShape;
 export type AiBucketScore = AiBucketScoreDto;
 export type AiBucket = AiBucketScoreDtoBucket;
@@ -223,7 +236,12 @@ export type AiObjectionOutcomes = AiObjectionOutcomesDto;
 
 export type AiManagerLevelInput = AiManagerLevelDto;
 export type AiSettingsSaveResult = AiSettingsSaveResultDto;
-/** Цель уровня: продажи в месяц (null — медиана полосы), минимум презентаций, холодных в день. */
+/**
+ * Цель уровня: продажи в месяц, минимум презентаций, холодных в день.
+ * sales = null — цели уровня нет: цель месяца берётся из плана
+ * руководителя или личной цели, а без них план дня получает оговорку
+ * target-empty («цель не задана»): медиану полосы бэк не подставляет.
+ */
 export type AiLevelTargetInput = AiLevelTargetDto;
 export type AiTargetOverrideInput = AiTargetOverrideDto;
 export type AiTargetsInput = AiTargetsDto;
@@ -357,6 +375,8 @@ export type AiPlanFactRow = AiPlanFactRowDto;
 export type AiPlanFactIndicator = AiPlanFactRowDtoIndicator;
 /** Статус строки: on-track | behind | ahead | no-plan. */
 export type AiPlanFactRowStatus = AiPlanFactRowDtoStatus;
+/** Причина пустых чисел план-факта: plan-snapshot-missing | manager-month-missing | daily-plan-disabled. */
+export type AiPlanFactReason = AiPlanFactDtoReasonsItem;
 
 /** Запрос план-факта: месяц YYYY-MM и (руководителю) менеджеры; пусто — весь периметр. */
 export interface AiPlanFactQuery {

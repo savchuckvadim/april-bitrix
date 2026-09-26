@@ -1,4 +1,8 @@
-import type { AiDossier, AiDossierReason } from '../model';
+import type {
+    AiDossier,
+    AiDossierFeedbackSummary,
+    AiDossierReason,
+} from '../model';
 
 /*
  * Досье менеджера (Фаза 3, П4): подписи разделов и причин пустого раздела,
@@ -57,14 +61,55 @@ export const AI_DOSSIER_SINCE_SOURCE_LABELS: Record<string, string> = {
 export const aiDossierSinceSourceLabel = (source: string | null): string =>
     source === null ? '' : (AI_DOSSIER_SINCE_SOURCE_LABELS[source] ?? source);
 
-/** Виды реакций свода обратной связи по-русски. */
+/** Виды реакций свода обратной связи по-русски (порядок — как в своде). */
 export const AI_DOSSIER_FEEDBACK_KIND_LABELS: Record<string, string> = {
     useful: 'полезно',
     not_useful: 'не полезно',
     disagree: 'не согласен',
-    view: 'просмотров',
     alert_handled: 'отработано',
+    view: 'просмотров',
 };
+
+/** Сводная подпись видов, которых нет в справочнике (служебные и новые). */
+export const AI_DOSSIER_FEEDBACK_OTHER = 'прочее';
 
 export const aiDossierFeedbackKindLabel = (kind: string): string =>
     AI_DOSSIER_FEEDBACK_KIND_LABELS[kind] ?? kind;
+
+const feedbackCount = (value: unknown): number =>
+    typeof value === 'number' && Number.isFinite(value) && value > 0
+        ? value
+        : 0;
+
+/**
+ * Части свода по видам: известные — по-русски в порядке справочника,
+ * неизвестные складываются в одно «прочее N» (сырые коды не показываем);
+ * нули пропускаем.
+ */
+export const aiDossierFeedbackParts = (
+    byKind: Record<string, unknown>,
+): string[] => {
+    let other = 0;
+    const known = new Map<string, number>();
+    for (const [kind, value] of Object.entries(byKind)) {
+        const count = feedbackCount(value);
+        if (!count) continue;
+        if (kind in AI_DOSSIER_FEEDBACK_KIND_LABELS) known.set(kind, count);
+        else other += count;
+    }
+    const parts = Object.entries(AI_DOSSIER_FEEDBACK_KIND_LABELS)
+        .filter(([kind]) => known.has(kind))
+        .map(([kind, label]) => `${label} ${String(known.get(kind))}`);
+    if (other) parts.push(`${AI_DOSSIER_FEEDBACK_OTHER} ${String(other)}`);
+    return parts;
+};
+
+/** Свод «Обратная связь»: «реакций 7: полезно 4, не согласен 1, прочее 2». */
+export const formatAiDossierFeedback = (
+    summary: AiDossierFeedbackSummary,
+): string => {
+    if (!summary.total) return 'реакций пока нет';
+    const parts = aiDossierFeedbackParts(summary.byKind);
+    const head = `реакций ${String(summary.total)}`;
+    return parts.length ? `${head}: ${parts.join(', ')}` : head;
+};

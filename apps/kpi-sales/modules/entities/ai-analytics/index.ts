@@ -49,6 +49,10 @@ export {
     sendAiView,
 } from './model/ai-analytics-thunks';
 export type { AiQueuedLoadOptions } from './model/ai-analytics-thunks';
+export {
+    AI_SETTINGS_SAVE_ERROR,
+    AI_SETTINGS_VIEW_AS_ERROR,
+} from './model/ai-analytics-queued.thunks';
 export { startAiRefetchListener } from './model/listeners/ai-refetch.listener';
 export {
     AI_WS_EVENTS,

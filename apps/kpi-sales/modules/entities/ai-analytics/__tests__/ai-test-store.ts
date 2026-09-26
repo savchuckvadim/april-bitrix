@@ -43,6 +43,7 @@ const currentUser = (leader: boolean): CurrentUserInfo =>
         headOfDepartmentIds: leader ? [10] : [],
         visibility: leader ? 'department' : 'own',
         headOfSource: 'structure',
+        isSuperUser: false,
         colleagues: { sameGroup: [], sameDepartment: [] },
     }) as unknown as CurrentUserInfo;
 

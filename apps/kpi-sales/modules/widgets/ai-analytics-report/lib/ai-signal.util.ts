@@ -1,16 +1,22 @@
 import type { Tone } from '@workspace/april-ui';
 import type {
     AiManagerRow,
+    AiManagerSinceSource,
     AiRiskCall,
 } from '@/modules/entities/ai-analytics/model';
-import { aiObjectionCategoryLabel } from '@/modules/entities/ai-analytics/lib/ai-overview.data';
+import {
+    AI_BUCKETS,
+    AI_SINCE_SOURCE_LABELS,
+    aiObjectionCategoryLabel,
+} from '@/modules/entities/ai-analytics/lib/ai-overview.data';
 import {
     AI_DISAGREE_REASON_MAX,
     clampAiDisagreeReason,
 } from '@/modules/entities/ai-analytics/lib/ai-feedback.util';
 
 /*
- * Чистая логика строки таблицы сигналов: рычаги (recommendations), стаж,
+ * Чистая логика строки таблицы сигналов: рычаги (recommendations), стаж с
+ * источником даты, «разобрано N из M» с подсказкой, видимые колонки,
  * риск-звонки и причина «Не согласен» из списка + комментарий.
  * Импорты сущности точечные (model / lib).
  */
@@ -116,20 +122,90 @@ export const formatAiDateRu = (value: string): string => {
     return year && month && day ? `${day}.${month}.${year}` : value;
 };
 
-export const AI_TENURE_UNKNOWN = 'стаж не задан';
+/* ---------- Строка: стаж, «разобрано N из M», видимые колонки ---------- */
 
-/** Стаж: «с 01.03.2025 · 9 мес.»; без даты — «стаж 9 мес.»; ничего — «стаж не задан». */
+export const AI_TENURE_UNKNOWN = 'стаж не задан';
+export const AI_TENURE_UNKNOWN_HINT = 'задайте дату в «Уровни»';
+export const AI_NOT_ANALYZED_HINT =
+    'звонки менеджера не попадают в разбор — см. «Готовность витрины»';
+
+/** Подпись с подсказкой «что сделать»; hint null — подсказки нет. */
+export interface AiHintedLabel {
+    text: string;
+    hint: string | null;
+}
+
+/**
+ * Стаж с датой и источником: «стаж 9 мес. (с 01.03.2025, по дате приёма)»;
+ * чего нет — то опускаем: «стаж 9 мес. (по дате приёма)», «стаж 9 мес.
+ * (с 01.03.2025)», «стаж 9 мес.»; только дата — «с 01.03.2025»; ничего —
+ * «стаж не задан».
+ */
 export const formatAiSince = (
     since: string | undefined,
     tenureMonths: number | null,
+    sinceSource?: AiManagerSinceSource,
 ): string => {
-    const tenure = tenureMonths === null ? null : `${tenureMonths} мес.`;
-    if (since) {
-        const from = `с ${formatAiDateRu(since)}`;
-        return tenure ? `${from} · ${tenure}` : from;
+    if (tenureMonths === null) {
+        return since ? `с ${formatAiDateRu(since)}` : AI_TENURE_UNKNOWN;
     }
-    return tenure ? `стаж ${tenure}` : AI_TENURE_UNKNOWN;
+    const details = [
+        since ? `с ${formatAiDateRu(since)}` : null,
+        sinceSource ? AI_SINCE_SOURCE_LABELS[sinceSource] : null,
+    ].filter((part): part is string => part !== null);
+    const tenure = `стаж ${tenureMonths} мес.`;
+    return details.length ? `${tenure} (${details.join(', ')})` : tenure;
 };
+
+/** Стаж не посчитать: ни стажа, ни даты («стаж не задан»). */
+export const isAiTenureUnknown = (
+    row: Pick<AiManagerRow, 'since' | 'tenureMonths'>,
+): boolean => row.tenureMonths === null && !row.since;
+
+/** Стаж строки + подсказка «задайте дату», когда стаж не задан. */
+export const aiTenureLabel = (
+    row: Pick<AiManagerRow, 'since' | 'sinceSource' | 'tenureMonths'>,
+): AiHintedLabel => ({
+    text: formatAiSince(row.since, row.tenureMonths, row.sinceSource),
+    hint: isAiTenureUnknown(row) ? AI_TENURE_UNKNOWN_HINT : null,
+});
+
+/**
+ * Звонки в CRM есть, а телефония за период пуста — звонки менеджера не
+ * видны разбору (вне пилота, вне отдела продаж, короче порога).
+ */
+export const isAiRowOutOfAnalysis = (
+    row: Pick<AiManagerRow, 'callsTotal' | 'discipline'>,
+): boolean => row.callsTotal === 0 && row.discipline.callDone > 0;
+
+/** «разобрано N из M»; вне разбора — с подсказкой «см. Готовность витрины». */
+export const aiAnalyzedLabel = (
+    row: Pick<AiManagerRow, 'analyzedCalls' | 'callsTotal' | 'discipline'>,
+): AiHintedLabel => ({
+    text: `разобрано ${row.analyzedCalls} из ${row.callsTotal}`,
+    hint: isAiRowOutOfAnalysis(row) ? AI_NOT_ANALYZED_HINT : null,
+});
+
+/** Колонки, которые показываем только при данных хотя бы у одной строки. */
+export interface AiSignalColumns {
+    trends: boolean;
+    yoy: boolean;
+}
+
+/** Постоянные колонки: сотрудник, сигнал, цифра, корзины, продажи, аванс, чек, 2 плана, рычаги, «Не согласен». */
+export const AI_SIGNAL_FIXED_COLUMNS = 10 + AI_BUCKETS.length;
+
+/** «Тренды» и «Год назад» — только если хоть у одной строки они есть. */
+export const aiSignalColumns = (
+    rows: readonly Pick<AiManagerRow, 'trends' | 'yoy'>[],
+): AiSignalColumns => ({
+    trends: rows.some(row => !!row.trends),
+    yoy: rows.some(row => !!row.yoy),
+});
+
+/** Число видимых колонок — для colSpan строки-заголовка секции. */
+export const aiSignalColumnCount = (columns: AiSignalColumns): number =>
+    AI_SIGNAL_FIXED_COLUMNS + Number(columns.trends) + Number(columns.yoy);
 
 /** Сколько риск-звонков показывать в строке. */
 export const AI_RISK_CALLS_MAX = 3;

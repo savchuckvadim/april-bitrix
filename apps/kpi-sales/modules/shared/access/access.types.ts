@@ -86,9 +86,12 @@ export interface AccessContext {
     features: AppFeatureFlags;
     /** Роль эффективного пользователя (в режиме viewAs — просматриваемого). */
     headOf: AccessHeadOf;
-    /** Эффективный пользователь — суперюзер (в viewAs всегда false). */
+    /**
+     * Эффективный пользователь — суперпользователь вендора (флаг бэка
+     * currentUser.isSuperUser реального пользователя; в viewAs всегда false).
+     */
     isSuperUser: boolean;
-    /** РЕАЛЬНЫЙ пользователь — суперюзер (не зависит от viewAs). */
+    /** РЕАЛЬНЫЙ пользователь — суперпользователь вендора (не зависит от viewAs). */
     isRealSuperUser: boolean;
     /** Активен режим «Смотреть как…». */
     isViewAs: boolean;

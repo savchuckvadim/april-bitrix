@@ -9,6 +9,7 @@ import type { ReadinessDto } from './readinessDto';
 import type { AiCallTypeDto } from './aiCallTypeDto';
 import type { AiTargetsDto } from './aiTargetsDto';
 import type { AiManagerAbsencesDto } from './aiManagerAbsencesDto';
+import type { AiCallReportStatusDto } from './aiCallReportStatusDto';
 
 export interface AiAnalyticsSettingsDto {
     /** AI-аналитика ОП включена на портале (ai_analytics_enabled). */
@@ -53,4 +54,6 @@ export interface AiAnalyticsSettingsDto {
      * @nullable
      */
     rosterConfirmedAt: string | null;
+    /** Конвейер разбора звонков портала (portal_ai_settings): включён ли, пилотный список сотрудников, только ОП, порог длительности. Поля нет — статус не прочитан (не путать с «выключено»). */
+    callReport?: AiCallReportStatusDto;
 }

@@ -9,10 +9,10 @@ import type { AiAgendaItemDto } from './aiAgendaItemDto';
 import type { AiAgendaDisagreementDto } from './aiAgendaDisagreementDto';
 
 export interface AiAgendaDto {
-    /** Ключ ISO-недели (YYYY-Www). */
+    /** Ключ текущей ISO-недели планёрки (YYYY-Www). */
     weekKey: string;
-    /** Звонки повестки. */
+    /** Звонки повестки: прошлая полная ISO-неделя (пн–вс, TZ портала). */
     items: AiAgendaItemDto[];
-    /** Несогласия с разбором за неделю. */
+    /** Несогласия с разбором: с понедельника прошлой недели по момент запроса. */
     disagreements: AiAgendaDisagreementDto[];
 }

@@ -4,7 +4,10 @@ import type {
     ShareLinkFilterSnapshotDto,
 } from '@workspace/nest-kpi-report-sales-api';
 import type { RootState } from '@/modules/app/model/store';
-import { modifyDateToReportRequest, ReportDateType } from '@/modules/entities/report';
+// Прямые пути (не барели): util чистый, барели тянут UI отчёта/структуры.
+import { modifyDateToReportRequest } from '@/modules/entities/report/lib/date-util';
+import { ReportDateType } from '@/modules/entities/report/model/types/report/report-type';
+import { toShareCurrentUser } from '@/modules/entities/department/lib/utils/share-current-user.util';
 import type { ShareUiBlob } from '../model/share-ui-blob';
 
 /**
@@ -13,6 +16,10 @@ import type { ShareUiBlob } from '../model/share-ui-blob';
  * reportFilters/callingFilters — ровно те же тела, что шлют
  * getReportData/getCallingStatistics (бэк реплеит их при обновлении
  * снимка), ui — блоб для сидинга read-only страницы.
+ *
+ * Роль суперпользователя вендора в снимке сбрасывается до «без роли»
+ * (toShareCurrentUser): публичная страница остаётся как раньше — без
+ * вкладки «Финансы» и командных видов.
  */
 export const buildShareFilterSnapshot = (
     state: RootState,
@@ -78,7 +85,7 @@ export const buildShareFilterSnapshot = (
             isMulti: department.isMulti,
             multipleTag: department.multipleTag,
             departments: department.departments,
-            currentUser: department.currentUser,
+            currentUser: toShareCurrentUser(department.currentUser),
             visibleUsers: department.items,
             visibleGroups: department.groups.items,
             isHeadManager: department.isHeadManager,

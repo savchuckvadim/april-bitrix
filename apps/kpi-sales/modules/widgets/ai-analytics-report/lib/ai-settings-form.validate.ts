@@ -54,7 +54,10 @@ const TARGET_FIELDS: readonly [AiTargetField, boolean][] = [
     ['coldPerDay', true],
 ];
 
-/** Ошибки полей строки целей: продажи необязательны (медиана), минимумы — нет. */
+/**
+ * Ошибки полей строки целей: продажи необязательны (пусто — цели уровня
+ * нет, см. AiTargetFormRow), минимумы — обязательны.
+ */
 export const validateAiTargetRow = (
     row: AiTargetFormRow,
 ): Map<string, string> => {

@@ -4,13 +4,11 @@ import {
     buildAiRequestKey,
     type AiRequestKeyPart,
 } from '../lib/ai-request-key.util';
-import { AI_FEEDBACK_OBJECT } from '../lib/ai-pulse.data';
 import type {
     AiCacheResetScope,
     AiDailyPlanQuery,
     AiPlanFactQuery,
     AiEnvelope,
-    AiFeedbackInput,
     AiStyleQuery,
 } from './index';
 import { aiAnalyticsActions, type AiSectionData } from './ai-analytics-slice';
@@ -25,7 +23,9 @@ import {
 
 /*
  * Синхронные ручки: настройки, пульс, повестка (опрос при queued), план
- * дня и карточка стиля (ключ с параметрами), реакции и «Обновить».
+ * дня и карточка стиля (ключ с параметрами), «Обновить». Реакции —
+ * ai-analytics-feedback.thunks (они сами зовут fetchAiAgenda — поэтому
+ * отсюда их не реэкспортируем, иначе импорт замкнулся бы в цикл).
  * Тяжёлые (очередь + WS) — ai-analytics-queued.thunks; слепая оценка —
  * ai-analytics-rop-mark.thunks; «Как считаем» — ai-analytics-about.thunks.
  */
@@ -132,7 +132,7 @@ export const fetchAiSettings = (force = false) =>
 export const fetchAiPulse = (force = false) =>
     loadSection('pulse', requester => aiHelper.getPulse(requester), { force });
 
-/** Повестка РОПа на текущую ISO-неделю. */
+/** Повестка планёрки: звонки прошлой полной ISO-недели и несогласия с её понедельника (weekKey — текущая неделя). */
 export const fetchAiAgenda = (force = false) =>
     loadSection('agenda', requester => aiHelper.getAgenda(requester), {
         force,
@@ -225,52 +225,6 @@ export const fetchAiStyleProfile =
                 { force, extra: ['style', query.managerId, query.month] },
             ),
         );
-    };
-
-/* ---------- Реакции ---------- */
-
-/** Реакция на витрину; true — записана. */
-export const sendAiFeedback =
-    (feedback: AiFeedbackInput) =>
-    async (dispatch: AppDispatch, getState: AppGetState): Promise<boolean> => {
-        const requester = selectAiRequester(getState());
-        if (!requester) return false;
-        const { object, kind } = feedback;
-        if (getState().aiAnalytics.feedback.pending.includes(object)) {
-            return false;
-        }
-
-        dispatch(aiAnalyticsActions.feedbackSending(object));
-        try {
-            const response = await aiHelper.addFeedback(requester, feedback);
-            if (response.status !== 'ready') {
-                throw new Error(response.message || 'Реакция не записана');
-            }
-            dispatch(aiAnalyticsActions.feedbackSent({ object, kind }));
-            if (kind === 'alert_handled' && feedback.transcriptionId) {
-                dispatch(
-                    aiAnalyticsActions.alertHandled(feedback.transcriptionId),
-                );
-            }
-            return true;
-        } catch (error) {
-            dispatch(
-                aiAnalyticsActions.feedbackFailed({
-                    object,
-                    error: aiErrorMessage(error, 'Реакция не записана'),
-                }),
-            );
-            return false;
-        }
-    };
-
-/** Телеметрия «открыл витрину» — один раз за сессию на объект. */
-export const sendAiView =
-    (object: string = AI_FEEDBACK_OBJECT.PULSE) =>
-    async (dispatch: AppDispatch, getState: AppGetState): Promise<void> => {
-        if (getState().aiAnalytics.feedback.viewed.includes(object)) return;
-        dispatch(aiAnalyticsActions.markViewed(object));
-        await dispatch(sendAiFeedback({ kind: 'view', object }));
     };
 
 /**

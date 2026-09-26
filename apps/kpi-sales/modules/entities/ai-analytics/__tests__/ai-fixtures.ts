@@ -483,7 +483,7 @@ export const yoy = (overrides: Partial<AiYoy> = {}): AiYoy => ({
     ...overrides,
 });
 
-/** Строка план-факта по показателю: продажи отстают от темпа. */
+/** Строка план-факта по показателю: продажи отстают от темпа (gap = план − прогноз). */
 export const planFactRow = (
     overrides: Partial<AiPlanFactRow> = {},
 ): AiPlanFactRow => ({
@@ -492,7 +492,7 @@ export const planFactRow = (
     fact: 3,
     pace: 0.5,
     forecastP50: 6,
-    gap: -4,
+    gap: 4,
     perDayNeeded: 0.7,
     status: 'behind',
     reasons: [],
@@ -509,7 +509,7 @@ export const planFact = (overrides: Partial<AiPlanFact> = {}): AiPlanFact => ({
         closed: false,
     },
     rows: [{ managerId: '7', rows: [planFactRow()] }],
-    team: [planFactRow({ plan: 40, fact: 12, forecastP50: 25, gap: -15 })],
+    team: [planFactRow({ plan: 40, fact: 12, forecastP50: 25, gap: 15 })],
     reasons: [],
     reasonTexts: [],
     ...overrides,
@@ -541,8 +541,16 @@ export const dossier = (overrides: Partial<AiDossier> = {}): AiDossier => ({
     ropMarks: null,
     readiness: null,
     reasons: [
-        { section: 'trends', reason: 'too-few-data', text: 'разборов меньше порога' },
-        { section: 'yoy', reason: 'no-history', text: 'снапшота год назад нет' },
+        {
+            section: 'trends',
+            reason: 'too-few-data',
+            text: 'разборов меньше порога',
+        },
+        {
+            section: 'yoy',
+            reason: 'no-history',
+            text: 'снапшота год назад нет',
+        },
     ],
     meta: {
         calcVersion: 'v1',

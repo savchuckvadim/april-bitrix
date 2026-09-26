@@ -8,7 +8,10 @@ import {
 } from '@/modules/entities/report';
 import { callingStatisticsActions } from '@/modules/entities/calling-statistics';
 import type { ReportCallingData } from '@/modules/entities/calling-statistics';
-import { departmentActions } from '@/modules/entities/department';
+import {
+    departmentActions,
+    toShareCurrentUser,
+} from '@/modules/entities/department';
 import { reportTypeActions } from '@/modules/feature/report-widget-type/model/ReportTypeSlice';
 import { mergedReportActions } from '@/modules/feature/merged-kpi-calling-report';
 import { conversionsActions } from '@/modules/feature/report-conversions/model/conversions-slice';
@@ -118,13 +121,18 @@ export const hydrateFromShareSnapshot =
         }
 
         // 3. Структура отделов (разбивки, рейтинги, excel-структура).
+        //    Роль суперпользователя вендора сбрасываем и здесь: снимки,
+        //    собранные до нормализации (бэк уже с флагом, фронт ещё
+        //    старый), иначе открыли бы публике вкладку «Финансы».
         if (ui.department) {
             dispatch(
                 departmentActions.setStructure({
                     isMulti: ui.department.isMulti,
                     multipleTag: ui.department.multipleTag,
                     departments: ui.department.departments,
-                    currentUser: ui.department.currentUser!,
+                    currentUser: toShareCurrentUser(
+                        ui.department.currentUser,
+                    )!,
                     visibleUsers: ui.department.visibleUsers,
                     visibleGroups: ui.department.visibleGroups,
                     isHeadManager: ui.department.isHeadManager,

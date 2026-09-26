@@ -25,6 +25,7 @@ export {
     selectEffectiveUser,
     selectIsViewAs,
     selectIsPublic,
+    selectIsRealSuperUser,
 } from './model/selectors';
 
 // централизованный доступ (правила — modules/shared/access)

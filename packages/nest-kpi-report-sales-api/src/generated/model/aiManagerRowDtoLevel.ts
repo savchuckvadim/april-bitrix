@@ -7,7 +7,7 @@
  */
 
 /**
- * Уровень: manual — назначен РОПом (settings/save), default — по стажу (< 6 мес. junior, иначе middle).
+ * Уровень менеджера; откуда взят — в levelSource. Тот же, что у ночного конвейера в месячном снапшоте.
  */
 export type AiManagerRowDtoLevel =
     (typeof AiManagerRowDtoLevel)[keyof typeof AiManagerRowDtoLevel];

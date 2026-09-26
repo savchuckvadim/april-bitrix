@@ -7,6 +7,7 @@ import type {
     AiFunnelShape,
     AiManagerLevel,
     AiManagerLevelSource,
+    AiManagerSinceSource,
 } from '../model';
 
 /** Сигнал карточки «Внимание» / строки таблицы: подпись, тон, пояснение. */
@@ -93,10 +94,23 @@ export const AI_LEVEL_OPTIONS: { value: AiManagerLevel; label: string }[] = [
     { value: 'senior', label: AI_LEVEL.senior.label },
 ];
 
-/** Источник уровня: назначен РОПом или по стажу. */
+/**
+ * Источник уровня: назначен РОПом; по стажу из дат Bitrix (ночной паспорт
+ * по полосам tenure_gates: < 6 мес. — джун, 6–18 — мидл, 18+ — сеньор);
+ * по умолчанию, когда дат нет.
+ */
 export const AI_LEVEL_SOURCE: Record<AiManagerLevelSource, string> = {
     manual: 'назначен руководителем',
-    default: 'по стажу (до 6 мес. — джун)',
+    passport: 'по стажу из Bitrix',
+    default: 'по умолчанию: до 6 мес. — джун, иначе мидл',
+};
+
+/** Откуда дата стажа (sinceSource строки): подпись в скобках после стажа. */
+export const AI_SINCE_SOURCE_LABELS: Record<AiManagerSinceSource, string> = {
+    manual: 'задан вручную',
+    employment: 'по дате приёма',
+    register: 'по регистрации в Bitrix',
+    proxy: 'по первому событию',
 };
 
 /** Форма воронки менеджера. */

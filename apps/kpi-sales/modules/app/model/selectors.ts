@@ -13,6 +13,13 @@ export const selectRealUser = (state: RootState): BXUser | null =>
 export const selectEffectiveUser = (state: RootState): BXUser | null =>
     state.app.viewAs.user ?? state.app.bitrix.user;
 
+/**
+ * Реальный пользователь — суперпользователь вендора (флаг бэка из
+ * структуры без viewAs). Не зависит от режима «Смотреть как…».
+ */
+export const selectIsRealSuperUser = (state: RootState): boolean =>
+    state.app.bitrix.isSuperUser;
+
 /** Активен ли режим «Смотреть как…». */
 export const selectIsViewAs = (state: RootState): boolean =>
     state.app.viewAs.user !== null;

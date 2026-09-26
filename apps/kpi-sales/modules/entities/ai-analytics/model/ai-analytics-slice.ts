@@ -12,7 +12,6 @@ import type {
     AiDailyPlanQuery,
     AiDossier,
     AiDossierQuery,
-    AiFeedbackKind,
     AiOverview,
     AiPlanFact,
     AiPlanFactQuery,
@@ -29,6 +28,11 @@ import {
     type AiCallTypeSelection,
 } from '../lib/ai-call-types.data';
 import { isAiByTypeLayout } from '../lib/ai-overview.data';
+import {
+    aiFeedbackReducers,
+    emptyAiFeedback,
+    type AiFeedbackState,
+} from './ai-analytics-feedback.reducers';
 
 export type AiStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -131,15 +135,7 @@ export interface AiAnalyticsState {
     dossierQuery: AiDossierQuery | null;
     /** «Как считаем» — кэш по ручке (overview | plan/daily | brief | manager/style). */
     about: Partial<Record<AiAboutEndpoint, AiSection<AiAbout>>>;
-    feedback: {
-        /** Объекты, по которым реакция сейчас отправляется. */
-        pending: string[];
-        /** object → последняя отправленная реакция (подсветка кнопок). */
-        sent: Record<string, AiFeedbackKind>;
-        /** Объекты, по которым view-телеметрия уже ушла в этой сессии. */
-        viewed: string[];
-        error: string | null;
-    };
+    feedback: AiFeedbackState;
     /** Сохранение уровней менеджеров (settings/save). */
     levels: {
         saving: boolean;
@@ -191,7 +187,7 @@ const initialState: AiAnalyticsState = {
     dossier: emptySection(),
     dossierQuery: null,
     about: {},
-    feedback: { pending: [], sent: {}, viewed: [], error: null },
+    feedback: emptyAiFeedback(),
     levels: { saving: false, error: null, savedAt: null },
     selectedCallType: AI_CALL_TYPE_ALL,
     typesLayout: 'wide',
@@ -299,44 +295,8 @@ const aiAnalyticsSlice = createSlice({
             section.error = action.payload.error;
         },
 
-        feedbackSending: (
-            state: AiAnalyticsState,
-            action: PayloadAction<string>,
-        ) => {
-            if (!state.feedback.pending.includes(action.payload)) {
-                state.feedback.pending.push(action.payload);
-            }
-            state.feedback.error = null;
-        },
-        feedbackSent: (
-            state: AiAnalyticsState,
-            action: PayloadAction<{ object: string; kind: AiFeedbackKind }>,
-        ) => {
-            const { object, kind } = action.payload;
-            state.feedback.pending = state.feedback.pending.filter(
-                item => item !== object,
-            );
-            // view — телеметрия, кнопки по ней не подсвечиваем.
-            if (kind !== 'view') state.feedback.sent[object] = kind;
-        },
-        feedbackFailed: (
-            state: AiAnalyticsState,
-            action: PayloadAction<{ object: string; error: string }>,
-        ) => {
-            state.feedback.pending = state.feedback.pending.filter(
-                item => item !== action.payload.object,
-            );
-            state.feedback.error = action.payload.error;
-        },
-        /** Дедуп view-телеметрии на сессию (стор живёт сессию фрейма). */
-        markViewed: (
-            state: AiAnalyticsState,
-            action: PayloadAction<string>,
-        ) => {
-            if (!state.feedback.viewed.includes(action.payload)) {
-                state.feedback.viewed.push(action.payload);
-            }
-        },
+        /* Реакции: pending / sent / errors / viewed — feedback.reducers. */
+        ...aiFeedbackReducers,
         /** «Отработано» по сигналу: локально гасим флаг до перечитки пульса. */
         alertHandled: (
             state: AiAnalyticsState,
@@ -524,8 +484,12 @@ const aiAnalyticsSlice = createSlice({
             state.ropMarkSave = emptyRopMarkSave();
             state.style = emptySection();
             state.styleQuery = null;
+            state.planFact = emptySection();
+            state.planFactQuery = null;
+            state.dossier = emptySection();
+            state.dossierQuery = null;
             state.about = {};
-            state.feedback = { pending: [], sent: {}, viewed: [], error: null };
+            state.feedback = emptyAiFeedback();
             state.levels = { saving: false, error: null, savedAt: null };
             state.typesDrawerOpen = false;
         },

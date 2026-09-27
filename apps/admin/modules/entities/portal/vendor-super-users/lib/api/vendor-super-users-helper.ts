@@ -12,8 +12,14 @@ import type { VendorSuperUser, VendorSuperUserSave } from '../../model';
  * Прецедент — `entities/portal/questionnaires`, `entities/pbx/smart/db`.
  */
 export class VendorSuperUsersHelper {
+    /**
+     * Путь с префиксом `/api` — его ставит `setGlobalPrefix` на бэке
+     * (libs/core/bootstrap-app.ts), и сгенерированные orval клиенты
+     * обращаются точно так же (`/api/admin/portal/:id/app-settings`).
+     * Без префикса запрос уходит мимо приложения.
+     */
     private base(portalId: number): string {
-        return `admin/portal/${portalId}/vendor-super-users`;
+        return `/api/admin/portal/${portalId}/vendor-super-users`;
     }
 
     /** Все записи портала, включая снятые с доступа. */
@@ -32,6 +38,9 @@ export class VendorSuperUsersHelper {
         return customAxios<VendorSuperUser>({
             url: this.base(portalId),
             method: 'POST',
+            // Заголовок задаём явно, как это делают сгенерированные клиенты:
+            // не зависим от дефолтов транспорта.
+            headers: { 'Content-Type': 'application/json' },
             data: payload,
         });
     }

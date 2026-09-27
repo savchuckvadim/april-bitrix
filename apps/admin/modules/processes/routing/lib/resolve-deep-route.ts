@@ -23,6 +23,7 @@ export interface DeepRoute {
     isPortalAppSettings: boolean;
     /** Раздел «Анкеты» карточки портала. */
     isPortalQuestionnaires: boolean;
+    isPortalVendorSuperUsers: boolean;
     isPortalProvider: boolean;
     portalId: string;
     /** Карточка портала: портал открыт, но ни один его раздел не выбран. */
@@ -82,6 +83,8 @@ export const resolveDeepRoute = (
     const isPortalAppSettings = isPortal && portalSection === 'app-settings';
     const isPortalQuestionnaires =
         isPortal && portalSection === 'questionnaires';
+    const isPortalVendorSuperUsers =
+        isPortal && portalSection === 'vendor-super-users';
     const isPortalProvider = isPortal && portalSection === 'provider';
     const isPortalStatistics = isPortal && portalSection === 'statistics';
     const isPortalKonstructor = isPortal && portalSection === 'konstructor';
@@ -98,6 +101,7 @@ export const resolveDeepRoute = (
             !isPortalAiSettings &&
             !isPortalAppSettings &&
             !isPortalQuestionnaires &&
+            !isPortalVendorSuperUsers &&
             !isPortalProvider &&
             !isPortalKonstructor,
     );
@@ -122,6 +126,7 @@ export const resolveDeepRoute = (
         isPortalAiSettings,
         isPortalAppSettings,
         isPortalQuestionnaires,
+        isPortalVendorSuperUsers,
         isPortalProvider,
         portalId,
         isPortalDetail,

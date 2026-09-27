@@ -70,6 +70,18 @@ describe('resolveDeepRoute: карточка портала и её раздел
         expect(route.isPortalProvider).toBe(false);
     });
 
+    it('«Суперюзеры» поднимают свой флаг и не считаются карточкой портала', () => {
+        const route = resolveDeepRoute(
+            `/portal/${PORTAL_ID}/vendor-super-users`,
+            PORTAL_ID,
+        );
+
+        expect(route.isPortalVendorSuperUsers).toBe(true);
+        expect(route.isPortalDetail).toBe(false);
+        expect(route.isPortalQuestionnaires).toBe(false);
+        expect(route.isPortalAppSettings).toBe(false);
+    });
+
     it('вложенные экраны раздела остаются в своём разделе', () => {
         const route = resolveDeepRoute(
             `/portal/${PORTAL_ID}/questionnaires/some-id`,

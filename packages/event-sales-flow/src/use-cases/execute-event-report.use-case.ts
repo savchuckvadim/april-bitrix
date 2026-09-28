@@ -18,6 +18,7 @@ import {
     EEventReportFlowStrategy,
     EventReportContext,
 } from '../services/context/event-report.context';
+import { actingManagerFromDto } from '../services/acting-manager/acting-manager-from-dto';
 import { EventReportEntityFlowService } from '../services/entity/event-report-entity-flow.service';
 import {
     DEFAULT_FIELD_POLICY_SETTINGS,
@@ -360,6 +361,9 @@ export async function executeEventReportFlow(
     ctx.setStageRuleSettings(
         settings.stageRuleSettings ?? DEFAULT_STAGE_RULE_SETTINGS,
     );
+    // Режим руководителя: пометка «кто отчитался» — до flow-сервисов, её
+    // читают история карточки, описание задачи и KPI.
+    ctx.setActingManager(actingManagerFromDto(dto));
 
     const entityFlow = new EventReportEntityFlowService(bitrix, portal);
     const dealFlow = new EventReportDealFlowService(bitrix, portal);

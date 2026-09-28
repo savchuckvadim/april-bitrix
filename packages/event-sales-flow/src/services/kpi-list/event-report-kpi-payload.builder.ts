@@ -16,6 +16,7 @@ import {
     eventTypeName,
 } from '../../types/event-report.event-codes';
 import { EventReportContext } from '../context/event-report.context';
+import { withActingManagerNote } from '../acting-manager/acting-manager.mark';
 import { EEventReportEntityType } from '../init/event-report-init.types';
 import { DealFlowResult } from '../deal/event-report-deal-flow.service';
 import { toBatchText } from '../../shared/batch/batch-text';
@@ -782,7 +783,12 @@ export class EventReportKpiPayloadBuilder {
                     : undefined,
                 // Комментарий уходит в lists.element.* через batch-строку:
                 // сырые \n там теряются, экранируем в %0A.
-                manager_comment: toBatchText(ctx.reportComment),
+                manager_comment: toBatchText(
+                    withActingManagerNote(
+                        ctx.reportComment,
+                        ctx.actingManagerNote,
+                    ),
+                ),
             },
             items: {
                 event_type: input.eventType,

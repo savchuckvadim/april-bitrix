@@ -95,6 +95,17 @@ export interface ReturnToTmcDto {
     isActive?: boolean;
 }
 
+/**
+ * Руководитель, который отчитался ЗА сотрудника (режим руководителя).
+ * Сам отчёт идёт от имени сотрудника: он в `plan.responsibility`.
+ */
+export interface ActingManagerDto {
+    /** Идентификатор руководителя в Битрикс. */
+    ID: number;
+    /** Имя руководителя для подписи в истории и задаче. */
+    NAME?: string;
+}
+
 export interface EventSalesFlowDto {
     /**
      * Домен портала Bitrix клиента. По нему `PBXService.init` отдаёт
@@ -182,6 +193,12 @@ export interface EventSalesFlowDto {
 
     /** Данные презентации: счётчики и флаги проведения. */
     presentation: PresentationDto;
+
+    /**
+     * Режим руководителя: кто фактически отправил отчёт за сотрудника.
+     * Поле не передано — обычный отчёт.
+     */
+    actingManager?: ActingManagerDto;
 
     /**
      * Синхронизация связанной заявки при финале (отказ/продажа):

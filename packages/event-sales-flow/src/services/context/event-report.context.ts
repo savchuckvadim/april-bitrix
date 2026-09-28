@@ -27,6 +27,10 @@ import {
 } from '../init/event-report-init.types';
 import { EventTaskChecklistOutcome } from '../task/event-task-checklist.catalog';
 import {
+    ActingManagerMark,
+    actingManagerNote,
+} from '../acting-manager/acting-manager.mark';
+import {
     buildClientEventAxis,
     ClientEvent,
     DEFAULT_FIELD_POLICY_SETTINGS,
@@ -419,14 +423,14 @@ export class EventReportContext {
     /**
      * ЗА КЕМ РАБОТА и кому она засчитывается.
      *
-     * Продажа по существующей основной сделке закрывается на её
-     * ОТВЕТСТВЕННОГО, а не на того, кто нажал (решение владельца
+     * Продажа И ОТКАЗ по существующей основной сделке закрываются на её
+     * ОТВЕТСТВЕННОГО, а не на того, кто нажал (решения владельца
      * 28.09.2026): сделка не переназначается, «Менеджер по продажам» и KPI
-     * продажи — ответственному сделки. Во всех остальных случаях — как
+     * финала — ответственному сделки. Во всех остальных случаях — как
      * раньше, ответственный плана.
      */
     get workResponsibleId(): number {
-        if (this.isSuccessSale) {
+        if (this.isFinalOutcome) {
             const owner = Number(
                 (this.currentBaseDeal as Record<string, unknown> | null)
                     ?.ASSIGNED_BY_ID,
@@ -437,6 +441,35 @@ export class EventReportContext {
     }
     get planCreatedById(): number {
         return Number(this.dto.plan?.createdBy?.ID ?? 0);
+    }
+
+    // === Режим руководителя ===
+    /**
+     * Руководитель, отчитавшийся ЗА сотрудника; null — обычный отчёт.
+     *
+     * Ставится ОДИН раз исполнителем, до прогонки flow-сервисов: читателей
+     * пометки несколько (история, задача, KPI), и каждый не должен сам
+     * решать, верить ли сырому полю DTO.
+     */
+    get actingManager(): ActingManagerMark | null {
+        return this.actingManagerVo;
+    }
+    setActingManager(mark: ActingManagerMark | null): void {
+        this.actingManagerVo = mark;
+    }
+    private actingManagerVo: ActingManagerMark | null = null;
+
+    /**
+     * Пометка «кто отчитался» одной строкой; '' — обычный отчёт.
+     *
+     * Отдельным геттером, а НЕ префиксом в {@link reportComment}: комментарий
+     * читают причина доработки и поля отказа, и подпись руководителя
+     * протекла бы в них как слова клиента.
+     */
+    get actingManagerNote(): string {
+        return this.actingManagerVo
+            ? actingManagerNote(this.actingManagerVo)
+            : '';
     }
 
     // === Report flags ===

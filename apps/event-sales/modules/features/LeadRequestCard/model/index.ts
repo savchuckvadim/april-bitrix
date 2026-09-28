@@ -2,6 +2,7 @@ import type {
     LeadRequestAcceptResultDto,
     LeadRequestCardDto,
     LeadRequestItemDto,
+    LeadRequestRepeatDto,
     LeadRequestSaleReadinessDto,
     LeadRequestUpdateDto,
     LeadRequestUpdateResultDto,
@@ -22,6 +23,8 @@ export type LeadRequestItem = LeadRequestItemDto;
 export type LeadRequestUpdate = LeadRequestUpdateDto;
 export type LeadRequestUpdateResult = LeadRequestUpdateResultDto;
 export type LeadRequestSaleReadiness = LeadRequestSaleReadinessDto;
+/** Повторное обращение: заявка присоединена к работе клиента. */
+export type LeadRequestRepeat = LeadRequestRepeatDto;
 
 /** Типизированные коды «не ЦА» (runtime-объект orval). */
 export const LEAD_NOT_CA_TYPE_CODE = LeadRequestUpdateDtoNotCaTypeCode;

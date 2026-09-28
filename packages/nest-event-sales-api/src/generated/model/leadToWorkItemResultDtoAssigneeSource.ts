@@ -19,4 +19,5 @@ export const LeadToWorkItemResultDtoAssigneeSource = {
     explicit: 'explicit',
     lead: 'lead',
     'round-robin': 'round-robin',
+    repeat: 'repeat',
 } as const;

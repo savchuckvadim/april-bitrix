@@ -35,6 +35,19 @@ export const LEAD_REQUEST_TEXT = {
         'Глубокая проверка запущена — итог появится в timeline лида.',
 } as const;
 
+/** Блок «повторное обращение» (решение владельца 28.09.2026). */
+export const LEAD_REQUEST_REPEAT_TEXT = {
+    title: 'Повторное обращение',
+    hint: 'Клиент уже в работе — заявка присоединена к его основной сделке.',
+    mainDeal: 'Основная сделка',
+    stageBefore: 'Работа шла на стадии',
+    willReturn: 'после принятия сделка вернётся на неё',
+    responsible: 'Вёл клиента',
+    you: 'вы',
+    notInRotation: 'сотрудника нет в карусели распределения',
+    dismissed: 'сотрудник не работает',
+} as const;
+
 /** Подписи enum-полей карточки (ось слита — один статус заявки). */
 export const LEAD_REQUEST_ENUM_LABEL = {
     siteStatusCode: 'Статус заявки',

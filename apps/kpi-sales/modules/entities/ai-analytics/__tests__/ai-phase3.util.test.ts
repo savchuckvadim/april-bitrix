@@ -28,12 +28,14 @@ import {
 } from '../lib/ai-plan-fact.util';
 import {
     AI_YOY_REASON_LABELS,
+    AI_YOY_REASON_OTHER,
     aiYoyBadgeLabel,
     aiYoyHintLines,
     aiYoyReasonLabel,
     aiYoyTone,
     formatAiYoyDelta,
     formatAiYoyLine,
+    formatAiYoyPeriods,
 } from '../lib/ai-yoy.util';
 import {
     AI_DOSSIER_MONTH_OPTIONS,
@@ -55,11 +57,11 @@ import {
 } from './ai-fixtures';
 
 describe('ai-trend.util — сигналы трендов и флаги Гудхарта', () => {
-    it('подписи метрик: известный код по-русски, чужой — как есть', () => {
+    it('подписи метрик: известный код по-русски, чужой — «показатель» без кода', () => {
         expect(aiTrendMetricLabel('quality')).toBe(
             AI_TREND_METRIC_LABELS.quality,
         );
-        expect(aiTrendMetricLabel('unknown_metric')).toBe('unknown_metric');
+        expect(aiTrendMetricLabel('unknown_metric')).toBe('показатель');
     });
 
     it('величина: доли рёбер — в п.п., оценка — с одним знаком и знаком минус', () => {
@@ -74,13 +76,17 @@ describe('ai-trend.util — сигналы трендов и флаги Гудх
         ).toBe('+15 п.п.');
     });
 
-    it('строка сигнала собирает метрику, стрелку, вид, величину и неделю', () => {
+    it('строка сигнала собирает метрику, стрелку, вид, величину и неделю датами', () => {
         const [signal] = managerTrends().signals;
         const line = formatAiTrendSignal(signal!);
         expect(line).toContain(AI_TREND_METRIC_LABELS.quality);
         expect(line).toContain('↓');
         expect(line).toContain(AI_TREND_KIND.shift.label);
-        expect(line).toContain('с 2026-W36');
+        expect(line).toContain('с недели 31.08–06.09');
+        expect(line).not.toContain('W36');
+        expect(
+            formatAiTrendSignal({ ...signal!, sinceWeek: 'garbage' }),
+        ).not.toContain('с недели');
     });
 
     it('тон: сдвиг вниз — warning, дрейф вверх — success/info, пусто — muted', () => {
@@ -90,18 +96,20 @@ describe('ai-trend.util — сигналы трендов и флаги Гудх
         );
     });
 
-    it('флаг Гудхарта нейтрален: без слов «накрут»/«обман»', () => {
+    it('флаг «показатель растёт, результат — нет» нейтрален, месяцы словами', () => {
         const [flag] = managerTrends().goodhart ?? [];
         const text = formatAiGoodhartFlag(flag!);
-        expect(text).toContain('2026-06');
-        expect(text).toContain('2026-08');
+        expect(text).toContain('(июнь – август 2026)');
+        expect(text).not.toContain('2026-0');
         expect(text.toLowerCase()).not.toMatch(/накрут|обман/);
     });
 
-    it('подсказка ячейки: шапка недели, сигналы и флаги строками', () => {
+    it('подсказка ячейки: сигналы, флаги и неделя расчёта датами', () => {
         const lines = aiTrendsHintLines(managerTrends());
         expect(lines.length).toBeGreaterThanOrEqual(3);
-        expect(lines.join('\n')).toContain('2026-W38');
+        const text = lines.join('\n');
+        expect(text).toContain('Посчитано на неделе 14.09–20.09');
+        expect(text).not.toContain('W38');
     });
 });
 
@@ -157,7 +165,9 @@ describe('ai-plan-fact.util — план-факт месяца', () => {
         ]) {
             expect(AI_PLAN_FACT_REASON_LABELS[code]).toBeTruthy();
         }
-        expect(aiPlanFactReasonLabel('unknown')).toBe('unknown');
+        expect(aiPlanFactReasonLabel('unknown')).toBe(
+            'причина не описана — уточните у разработчика',
+        );
     });
 
     it('подпись показателя с единицей одним текстом; звонки — из CRM', () => {
@@ -197,6 +207,15 @@ describe('ai-plan-fact.util — план-факт месяца', () => {
 });
 
 describe('ai-yoy.util — «тот же месяц год назад»', () => {
+    it('периоды словами: «август 2026 против августа 2025», без ключей; незнакомая оговорка — нейтрально', () => {
+        expect(formatAiYoyPeriods(yoy())).toBe('август 2026 против августа 2025');
+        const text = aiYoyHintLines(yoy()).join('\n');
+        expect(text).toContain('август 2026 против августа 2025');
+        expect(text).not.toContain('2026-08');
+        expect(aiYoyReasonLabel('brand-new')).toBe(AI_YOY_REASON_OTHER);
+        expect(AI_YOY_REASON_LABELS['no-history']).not.toContain('снапшот');
+    });
+
     it('строка и разница величины: оценка с одним знаком, счётчики — целые', () => {
         const [quality, sales] = yoy().metrics;
         expect(formatAiYoyLine(quality!)).toContain('6,4');
@@ -269,12 +288,12 @@ describe('ai-dossier.util — досье менеджера', () => {
         );
     });
 
-    it('подписи паспорта и обратной связи: известные коды по-русски, чужие — как есть', () => {
+    it('подписи паспорта и обратной связи: известные коды по-русски, чужие — нейтрально', () => {
         expect(aiDossierStatusLabel('active')).not.toBe('active');
         expect(aiDossierStatusLabel(null)).toBe('—');
         expect(aiDossierSinceSourceLabel('employment')).not.toBe('employment');
         expect(aiDossierSinceSourceLabel(null)).toBe('');
         expect(aiDossierFeedbackKindLabel('useful')).not.toBe('useful');
-        expect(aiDossierFeedbackKindLabel('custom')).toBe('custom');
+        expect(aiDossierFeedbackKindLabel('custom')).toBe('прочее');
     });
 });

@@ -10,79 +10,89 @@ import type {
     AiAboutParamLayer,
     AiAboutParamReason,
     AiAboutParamValue,
+    AiAboutReliability,
     AiReadinessSigmaSource,
+} from '@/modules/entities/ai-analytics';
+import {
+    formatAiFullDate,
+    formatAiMonthKey,
+    formatAiMonthRange,
+    pluralRu,
 } from '@/modules/entities/ai-analytics';
 
 /*
- * Блок «Как считаем» (ручка about): подписи кодов DTO по-русски и
- * форматирование значений. Слова про смысл ручки приходят с бэка
+ * Блок «Как считаем» (раздел about): подписи кодов DTO по-русски и
+ * форматирование значений. Слова про смысл раздела приходят с бэка
  * (title/purpose/sources/…), здесь — только словари enum'ов и числа.
  */
 
-/** Ручка витрины → заголовок диалога, пока данных ещё нет. */
+/** Раздел витрины → заголовок диалога, пока данных ещё нет. */
 export const AI_ABOUT_ENDPOINT_LABELS: Record<AiAboutEndpoint, string> = {
-    overview: 'Обзор менеджер × тип',
+    overview: 'Обзор по менеджерам и типам звонков',
     'plan/daily': 'План дня',
-    brief: 'AI-резюме периода',
+    brief: 'Итоги периода',
     'manager/style': 'Карточка стиля менеджера',
     'plan-fact': 'План — факт месяца',
     dossier: 'Досье менеджера',
 };
 
-/** Слой, давший значение параметра (менеджер → полоса стажа → портал → реестр). */
+/** Откуда взято значение параметра (менеджер → группа стажа → портал → по умолчанию). */
 export const AI_ABOUT_LAYER_LABELS: Record<AiAboutParamLayer, string> = {
-    default: 'реестр (по умолчанию)',
+    default: 'по умолчанию',
     portal: 'настройка портала',
-    tenure: 'полоса стажа',
+    tenure: 'группа стажа',
     manager: 'настройка менеджера',
     hybrid: 'настройка + данные',
 };
 
-/** Класс параметра: решение человека, оценка из данных, прайор до гейта. */
+/** Тип параметра: решение человека, оценка из данных, настройка до накопления данных. */
 export const AI_ABOUT_KIND: Record<
     AiAboutParamKind,
     { label: string; tone: Tone }
 > = {
     configured: { label: 'настроен', tone: 'info' },
     estimated: { label: 'оценён по данным', tone: 'success' },
-    hybrid: { label: 'прайор → данные', tone: 'accent' },
+    hybrid: { label: 'сначала по умолчанию, потом по данным', tone: 'accent' },
 };
 
-/** Почему значение слоя портала не применено и взят дефолт реестра. */
+/** Почему значение портала не применено и взято значение по умолчанию. */
 export const AI_ABOUT_REASON_LABELS: Record<AiAboutParamReason, string> = {
-    'out-of-range': 'значение портала вне допустимого диапазона — взят дефолт',
-    'type-mismatch': 'у значения портала другой тип — взят дефолт',
-    'invalid-value': 'значение портала не из словаря — взят дефолт',
-    'unknown-code': 'код не найден в реестре — взят дефолт',
+    'out-of-range':
+        'значение портала вне допустимого диапазона — взято значение по умолчанию',
+    'type-mismatch':
+        'у значения портала другой тип — взято значение по умолчанию',
+    'invalid-value':
+        'значение портала не из словаря — взято значение по умолчанию',
+    'unknown-code': 'такой параметр не известен — взято значение по умолчанию',
 };
 
-/** Источник оценки модели (κ / φ / λ). */
+/** Источник оценки модели. */
 export const AI_ABOUT_ESTIMATE_SOURCE_LABELS: Record<
     AiAboutEstimateSource,
     string
 > = {
     estimated: 'оценено по данным портала',
-    configured: 'настройка портала или реестра',
-    hybrid: 'настроенный прайор до гейта',
+    configured: 'настройка портала или значение по умолчанию',
+    hybrid: 'значение по умолчанию, пока данных мало',
 };
 
-/** Трактовка рёбер воронки портала. */
+/** Как считаются переходы воронки портала. */
 export const AI_ABOUT_ESTIMAND_KIND_LABELS: Record<
     AiAboutEstimandKind,
     string
 > = {
-    rate: 'интенсивность на агрегатах (rate)',
-    prob: 'вероятность эпизода после сцепки звонков со сделками (prob)',
+    rate: 'по сводным данным',
+    prob: 'по вероятности события после связки звонков со сделками',
 };
 
-/** Качество данных санити-панели недели. */
+/** Качество данных по недельной проверке. */
 export const AI_ABOUT_DATA_QUALITY: Record<
     AiAboutDataQuality,
     { label: string; tone: Tone }
 > = {
-    ok: { label: 'метки времени в порядке', tone: 'success' },
-    flagged: { label: 'протечка меток времени выше порога', tone: 'warning' },
-    unknown: { label: 'плацебо-тест не отработал', tone: 'muted' },
+    ok: { label: 'даты событий в порядке', tone: 'success' },
+    flagged: { label: 'даты событий расходятся сильнее нормы', tone: 'warning' },
+    unknown: { label: 'проверка качества данных не проводилась', tone: 'muted' },
 };
 
 /** Бэйдж параметра, смена которого рвёт сравнимость рядов. */
@@ -108,28 +118,25 @@ export const formatAiAboutParamValue = (
 export const formatAiAboutEstimateValue = (value: number | null): string =>
     value === null ? '—' : formatAiAboutNumber(value);
 
-/** Оценки модели в порядке формул: κ, φ, λ. */
+/** Оценки модели в порядке расчёта: усадка, разброс, забывание. */
 export const aiAboutEstimates = (model: AiAboutModel): AiAboutEstimate[] => [
     model.kappa,
     model.phi,
     model.lambda,
 ];
 
-/** Дата YYYY-MM-DD → «07.09.2026»; пусто — «—». */
-export const formatAiAboutDate = (value: string | null | undefined): string => {
-    if (!value) return '—';
-    const [year, month, day] = value.slice(0, 10).split('-');
-    return year && month && day ? `${day}.${month}.${year}` : value;
+/** Дата YYYY-MM-DD → «07.09.2026»; пусто или не дата — «—». */
+export const formatAiAboutDate = formatAiFullDate;
+
+/** Окно норм: «июнь – август 2026 (3 мес.)»; один месяц — он сам; пусто — «—». */
+export const formatAiAboutWindow = (window: readonly string[]): string => {
+    if (!window.length) return '—';
+    const range = formatAiMonthRange(window);
+    return window.length === 1 ? range : `${range} (${window.length} мес.)`;
 };
 
-/** Окно норм: «2026-06 – 2026-08 (3 мес.)»; один месяц — как есть. */
-export const formatAiAboutWindow = (window: readonly string[]): string => {
-    const first = window[0];
-    const last = window[window.length - 1];
-    if (!first || !last) return '—';
-    if (window.length === 1) return first;
-    return `${first} – ${last} (${window.length} мес.)`;
-};
+/** Месяц модели «2026-09» → «сентябрь 2026». */
+export const formatAiAboutMonth = formatAiMonthKey;
 
 /** Начало сравнимой истории; пусто/null — ряд не рвался. */
 export const formatAiAboutComparableFrom = (
@@ -139,27 +146,31 @@ export const formatAiAboutComparableFrom = (
         ? `сравнимая история с ${formatAiAboutDate(value)}`
         : 'ряд параметров не рвался';
 
-/** Доля сцепки звонков со сделками, %. */
+/** Доля связки звонков со сделками, %. */
 export const formatAiAboutChainShare = (pct: number): string =>
     `${formatAiAboutNumber(Math.round(pct * 10) / 10)} %`;
 
-const VERSION_VISIBLE = 12;
+/** Текст, когда модели портала нет, а причина не пришла словами. */
+export const AI_ABOUT_NO_MODEL_TEXT =
+    'Модели портала пока нет — нормы появятся после первого ночного расчёта.';
 
-/** Версия набора параметров (sha256) укорачивается до префикса. */
-export const shortAiAboutVersion = (version: string): string =>
-    version.length > VERSION_VISIBLE + 4
-        ? `${version.slice(0, VERSION_VISIBLE)}…`
-        : version;
+/** Причина отсутствия модели: текст бэка по-русски — как есть; служебный код или пусто — нейтральный текст. */
+export const aiAboutModelReasonText = (reason: string | null): string =>
+    reason && /[а-яё]/i.test(reason) ? reason : AI_ABOUT_NO_MODEL_TEXT;
 
-/* ---------- Надёжность оценщика (Фаза 3, П7) ---------- */
+/** «24 наблюдения (менеджер за месяц)». */
+export const formatAiAboutObservations = (count: number): string =>
+    `${count} ${pluralRu(count, ['наблюдение', 'наблюдения', 'наблюдений'])} (менеджер за месяц)`;
 
-/** Источник σ_llm: измерена повтором разборов или взята из реестра. */
+/* ---------- Надёжность оценок AI ---------- */
+
+/** Источник разброса оценок: измерен повторными разборами или взят по умолчанию. */
 export const AI_ABOUT_SIGMA_SOURCE_LABELS: Record<AiReadinessSigmaSource, string> = {
-    measured: 'измерена повтором разборов',
-    configured: 'значение реестра',
+    measured: 'по повторным разборам',
+    configured: 'по умолчанию',
 };
 
-/** Поля разбора, по которым меряется согласие повторного прогона (коды бэка). */
+/** Поля разбора, по которым меряется согласие повторного разбора; незнакомое — нейтрально. */
 export const AI_ABOUT_RELIABILITY_CATEGORY_LABELS: Record<string, string> = {
     callType: 'тип звонка',
     productive: 'звонок продуктивный',
@@ -168,6 +179,41 @@ export const AI_ABOUT_RELIABILITY_CATEGORY_LABELS: Record<string, string> = {
     nextStepSet: 'следующий шаг назначен',
 };
 
-/** κ / F1 двумя знаками; null — «не измерено». */
+export const AI_ABOUT_RELIABILITY_CATEGORY_FALLBACK = 'другое поле разбора';
+
+export const aiAboutReliabilityCategoryLabel = (code: string): string =>
+    AI_ABOUT_RELIABILITY_CATEGORY_LABELS[code] ??
+    AI_ABOUT_RELIABILITY_CATEGORY_FALLBACK;
+
+/** Согласие или разброс двумя знаками; null — «не измерено». */
 export const formatAiAboutKappa = (value: number | null): string =>
     value === null ? 'не измерено' : value.toFixed(2).replace('.', ',');
+
+/** Совпадение двух разборов (0..1) → «82 %»; null — «не измерено». */
+export const formatAiAboutAgreementPct = (value: number | null): string =>
+    value === null ? 'не измерено' : `${Math.round(value * 100)} %`;
+
+const PAIR_FORMS = ['паре', 'парам', 'парам'] as const;
+
+/**
+ * Строка надёжности: «Разброс оценок AI: 0,35 (по 20 парам из нужных 30) ·
+ * совпадение по возражениям 82 %»; значение по умолчанию — с пометкой.
+ */
+export const formatAiAboutReliabilityLine = (
+    reliability: AiAboutReliability,
+): string => {
+    const { sigmaLlm } = reliability;
+    const pairs = `по ${sigmaLlm.n} ${pluralRu(sigmaLlm.n, PAIR_FORMS)} из нужных ${sigmaLlm.minPairs}`;
+    const source =
+        sigmaLlm.source === 'measured'
+            ? pairs
+            : `${AI_ABOUT_SIGMA_SOURCE_LABELS.configured}: пока ${pairs}`;
+    return (
+        `Разброс оценок AI: ${formatAiAboutKappa(sigmaLlm.value)} (${source}) · ` +
+        `совпадение по возражениям ${formatAiAboutAgreementPct(reliability.objectionsF1)}`
+    );
+};
+
+/** Заголовок колонки надёжности: «Надёжно (согласие не ниже 0,6)». */
+export const formatAiAboutReliableHeader = (kappaMin: number): string =>
+    `Надёжно (согласие не ниже ${formatAiAboutNumber(kappaMin)})`;

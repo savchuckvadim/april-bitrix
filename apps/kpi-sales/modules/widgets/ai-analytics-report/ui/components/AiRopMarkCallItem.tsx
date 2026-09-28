@@ -26,7 +26,7 @@ interface AiRopMarkCallItemProps {
     notes: string[];
     /** Режим «Смотреть как…»: сохранение неактивно с этой подсказкой. */
     readOnlyHint: string | null;
-    /** false — суперпользователь вендора: без формы и «Изменить метку». */
+    /** false — сотрудник April: без формы и «Изменить метку». */
     canMark?: boolean;
     onSave: (input: AiRopMarkInput) => Promise<boolean>;
 }
@@ -34,8 +34,8 @@ interface AiRopMarkCallItemProps {
 /**
  * Звонок подбора: причина подбора (бэйдж с пояснением), менеджер, ссылка
  * «Открыть разбор» на карточку разбора в смарт-процессе портала (link
- * null — элемента ещё нет, показываем id); без метки — форма, с меткой —
- * сохранённое и раскрытая оценка AI.
+ * null — карточки ещё нет, id не показываем); без метки — форма, с
+ * меткой — сохранённое и раскрытая оценка AI.
  */
 export const AiRopMarkCallItem = ({
     call,
@@ -71,7 +71,7 @@ export const AiRopMarkCallItem = ({
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center gap-1 text-primary hover:underline"
-                        title={`Разбор ${call.transcriptionId}`}
+                        title="Открыть разбор звонка"
                     >
                         <ExternalLink className="h-3 w-3" />
                         Открыть разбор
@@ -79,9 +79,9 @@ export const AiRopMarkCallItem = ({
                 ) : (
                     <span
                         className="text-muted-foreground"
-                        title="Элемент разбора ещё не создан"
+                        title="Карточка разбора на портале ещё не создана"
                     >
-                        разбор {call.transcriptionId}
+                        разбор ещё не создан
                     </span>
                 )}
                 {call.marked && (

@@ -6,6 +6,7 @@ import { useAiSection } from '../hooks/use-ai-section';
 import { useAiTypesDrawer } from '../hooks/use-ai-types-drawer';
 import { AiQueuedState } from './components/AiQueuedState';
 import { AiAttentionCard } from './components/AiAttentionCard';
+import { AiTheoryLink } from './components/AiTheoryLink';
 
 /**
  * «Внимание» — кого разбирать на неделе: ≤ 7 карточек, ≤ 3 на менеджера
@@ -23,11 +24,14 @@ export const AiAttentionList = () => {
             title="Внимание"
             description="Кого разбирать на этой неделе: сигналы по менеджерам с основанием"
             actions={
-                attention.data && (
-                    <ToneBadge tone="muted" variant="soft" size="sm">
-                        рассмотрено {attention.data.managersConsidered}
-                    </ToneBadge>
-                )
+                <>
+                    <AiTheoryLink topic="attention" variant="icon" />
+                    {attention.data && (
+                        <ToneBadge tone="muted" variant="soft" size="sm">
+                            рассмотрено {attention.data.managersConsidered}
+                        </ToneBadge>
+                    )}
+                </>
             }
         >
             <AiQueuedState

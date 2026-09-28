@@ -3,13 +3,13 @@ import { brief } from '@/modules/entities/ai-analytics/__tests__/ai-fixtures';
 import {
     AI_BRIEF_LOADING_TEXT,
     AI_BRIEF_QUEUED_TEXT,
-    AI_BRIEF_SOURCE,
     AI_BRIEF_TEMPLATE_REASON_FALLBACK,
     AI_BRIEF_TONE,
+    aiBriefCostHint,
+    aiBriefFooterReason,
     aiBriefLoadingText,
     aiBriefScopeKey,
     aiBriefTemplateReason,
-    formatAiBriefFactRefs,
     formatAiBriefUsage,
     isAiBriefTemplate,
 } from '../ai-brief.util';
@@ -17,8 +17,8 @@ import {
 // Неразрывный пробел ru-RU: сравниваем без учёта вида пробелов.
 const plain = (value: string | null) => (value ?? '').replace(/\s/g, ' ');
 
-describe('тон и источник резюме', () => {
-    it('карты покрывают calm | attention | alarm и llm | template', () => {
+describe('тон итогов и причина шаблона', () => {
+    it('карта тона покрывает calm | attention | alarm; подписи — по-русски', () => {
         expect(Object.keys(AI_BRIEF_TONE).sort()).toEqual([
             'alarm',
             'attention',
@@ -26,10 +26,9 @@ describe('тон и источник резюме', () => {
         ]);
         expect(AI_BRIEF_TONE.calm.tone).toBe('success');
         expect(AI_BRIEF_TONE.alarm.tone).toBe('destructive');
-        expect(Object.keys(AI_BRIEF_SOURCE).sort()).toEqual([
-            'llm',
-            'template',
-        ]);
+        for (const { label } of Object.values(AI_BRIEF_TONE)) {
+            expect(label).toMatch(/^[а-яё ]+$/);
+        }
     });
 
     it('шаблон: причина сервера, иначе общая подпись', () => {
@@ -45,6 +44,31 @@ describe('тон и источник резюме', () => {
             AI_BRIEF_TEMPLATE_REASON_FALLBACK,
         );
     });
+
+    it('строка под итогами: причина только у шаблона', () => {
+        expect(aiBriefFooterReason(brief())).toBeNull();
+        expect(
+            aiBriefFooterReason(
+                brief({ source: 'llm', reason: 'не должно попасть на экран' }),
+            ),
+        ).toBeNull();
+        expect(
+            aiBriefFooterReason(
+                brief({
+                    source: 'template',
+                    reason: 'Резюме собрано по шаблону: нейросеть не ответила.',
+                }),
+            ),
+        ).toBe('Резюме собрано по шаблону: нейросеть не ответила.');
+        expect(
+            aiBriefFooterReason(brief({ source: 'template', reason: null })),
+        ).toBe(AI_BRIEF_TEMPLATE_REASON_FALLBACK);
+        expect(
+            aiBriefFooterReason(
+                brief({ source: 'template', reason: undefined }),
+            ),
+        ).toBe(AI_BRIEF_TEMPLATE_REASON_FALLBACK);
+    });
 });
 
 describe('ожидание очереди', () => {
@@ -55,47 +79,32 @@ describe('ожидание очереди', () => {
     });
 });
 
-describe('расход модели', () => {
-    it('токены и рубли; оценка — со знаком ≈', () => {
-        expect(plain(formatAiBriefUsage(brief().usage))).toBe(
-            '800 токенов · 1,20 ₽',
+describe('стоимость подготовки', () => {
+    it('только рубли; оценка — словом «около», без значков', () => {
+        expect(plain(formatAiBriefUsage(brief().usage))).toBe('1,20 ₽');
+        const estimated = plain(
+            formatAiBriefUsage({ tokens: 1201, price: 0.5, estimated: true }),
         );
-        expect(
-            plain(
-                formatAiBriefUsage({
-                    tokens: 1201,
-                    price: 0.5,
-                    estimated: true,
-                }),
-            ),
-        ).toBe('≈ 1 201 токен · 0,50 ₽');
+        expect(estimated).toBe('около 0,50 ₽');
+        expect(estimated).not.toContain('≈');
+        expect(plain(aiBriefCostHint(brief().usage))).toBe(
+            'Стоимость подготовки: 1,20 ₽',
+        );
     });
 
-    it('модель не вызывали — null; без цены — только токены', () => {
+    it('нейросеть не вызывали или цены нет — null', () => {
         expect(formatAiBriefUsage(undefined)).toBeNull();
         expect(
             formatAiBriefUsage({ tokens: null, price: null, estimated: false }),
         ).toBeNull();
         expect(
-            plain(
-                formatAiBriefUsage({
-                    tokens: 2,
-                    price: null,
-                    estimated: false,
-                }),
-            ),
-        ).toBe('2 токена');
+            formatAiBriefUsage({ tokens: 2, price: null, estimated: false }),
+        ).toBeNull();
+        expect(aiBriefCostHint(undefined)).toBeNull();
     });
 });
 
-describe('факты и периметр', () => {
-    it('коды фактов через точку, пустые отбрасываются', () => {
-        expect(formatAiBriefFactRefs(['alerts', '', 'funnel_gap'])).toBe(
-            'alerts · funnel_gap',
-        );
-        expect(formatAiBriefFactRefs([])).toBe('');
-    });
-
+describe('периметр', () => {
     it('ключ периметра: период и менеджеры; без периметра — null', () => {
         expect(
             aiBriefScopeKey({

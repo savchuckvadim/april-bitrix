@@ -15,8 +15,8 @@ interface AiPulseHeadlineProps {
 
 /**
  * Шапка пульса: доля звонков с «следующим шагом и датой» за окно
- * (n, интервал), состояние XmR, окно рабочих дней, разобрано звонков,
- * доля коротких звонков вне разбора.
+ * (по скольким звонкам, разброс), стабильность доли по дням, окно рабочих
+ * дней, разобрано звонков, доля коротких звонков вне разбора.
  */
 export const AiPulseHeadline = ({ pulse }: AiPulseHeadlineProps) => {
     const xmr = pulse.xmr ? AI_XMR_STATE[pulse.xmr.state] : null;
@@ -35,12 +35,12 @@ export const AiPulseHeadline = ({ pulse }: AiPulseHeadlineProps) => {
                     />
                     {xmr && pulse.xmr && (
                         <HintTooltip
-                            title="Контрольная карта XmR"
+                            title="Стабильность доли по дням"
                             lines={aiXmrHintLines(pulse.xmr)}
                         >
                             <span>
                                 <ToneBadge tone={xmr.tone} variant="soft">
-                                    XmR: {xmr.label}
+                                    Стабильность: {xmr.label}
                                 </ToneBadge>
                             </span>
                         </HintTooltip>

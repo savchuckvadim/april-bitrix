@@ -7,8 +7,8 @@ import { ToneBadge } from '@workspace/april-ui';
 import {
     AiMetricValue,
     aiCellChecklistEntries,
-    aiEvidenceEntries,
     aiRestKpi,
+    formatAiCalls,
     formatAiKpiLine,
     type AiManagerTypeCell,
 } from '@/modules/entities/ai-analytics';
@@ -18,15 +18,19 @@ interface AiExplanationCellProps {
 }
 
 /**
- * Объяснение оценки ячейки (шаблон бэка) с раскрытием: опоры чисел,
- * опорные звонки (лучший / худший / медианный), остальные KPI типа и
- * чек-листы. Ссылок на транскрипции по id пока нет — показываем id.
+ * Объяснение оценки ячейки (текст бэка) с раскрытием: остальные показатели
+ * CRM типа, чек-листы, звонки до начала сравнимой истории. Идентификаторы
+ * опорных звонков и служебные опоры чисел в интерфейс не выводятся —
+ * ссылок на разборы пока нет.
  */
 export const AiExplanationCell = ({ cell }: AiExplanationCellProps) => {
     const [open, setOpen] = useState(false);
-    const evidence = aiEvidenceEntries(cell);
     const restKpi = aiRestKpi(cell);
     const checklists = aiCellChecklistEntries(cell);
+    const hasDetails =
+        restKpi.length > 0 ||
+        checklists.length > 0 ||
+        cell.nBeforeComparable > 0;
 
     return (
         <div className="min-w-64 space-y-1 text-sm">
@@ -39,49 +43,31 @@ export const AiExplanationCell = ({ cell }: AiExplanationCellProps) => {
                 )}
                 {cell.explanation.source === 'llm' && (
                     <ToneBadge tone="info" variant="soft" size="sm">
-                        LLM
+                        написано AI
                     </ToneBadge>
                 )}
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 gap-1 px-1 text-xs"
-                    onClick={() => setOpen(value => !value)}
-                >
-                    {open ? (
-                        <ChevronDown className="h-3 w-3" />
-                    ) : (
-                        <ChevronRight className="h-3 w-3" />
-                    )}
-                    Подробнее
-                </Button>
+                {hasDetails && (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 gap-1 px-1 text-xs"
+                        aria-expanded={open}
+                        onClick={() => setOpen(value => !value)}
+                    >
+                        {open ? (
+                            <ChevronDown className="h-3 w-3" />
+                        ) : (
+                            <ChevronRight className="h-3 w-3" />
+                        )}
+                        Подробнее
+                    </Button>
+                )}
             </div>
-            {open && (
+            {open && hasDetails && (
                 <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                    {evidence.length > 0 && (
-                        <>
-                            <dt>Звонки-опоры</dt>
-                            <dd className="text-foreground">
-                                {evidence
-                                    .map(
-                                        item =>
-                                            `${item.label}: ${item.transcriptionId}`,
-                                    )
-                                    .join(' · ')}
-                            </dd>
-                        </>
-                    )}
-                    {cell.explanation.basis.length > 0 && (
-                        <>
-                            <dt>Опоры чисел</dt>
-                            <dd className="text-foreground">
-                                {cell.explanation.basis.join(' · ')}
-                            </dd>
-                        </>
-                    )}
                     {restKpi.length > 0 && (
                         <>
-                            <dt>KPI типа</dt>
+                            <dt>Показатели типа</dt>
                             <dd className="text-foreground">
                                 {restKpi.map(formatAiKpiLine).join(' · ')}
                             </dd>
@@ -101,9 +87,10 @@ export const AiExplanationCell = ({ cell }: AiExplanationCellProps) => {
                     ))}
                     {cell.nBeforeComparable > 0 && (
                         <>
-                            <dt>До сопоставимости</dt>
+                            <dt>Не в оценке</dt>
                             <dd className="text-foreground">
-                                {cell.nBeforeComparable} звонков не в оценке
+                                {formatAiCalls(cell.nBeforeComparable)} до
+                                начала сравнимой истории
                             </dd>
                         </>
                     )}

@@ -14,10 +14,12 @@ import {
     AI_DOSSIER_MONTHS,
     aiDossierFilledCount,
     formatAiMoment,
+    formatAiMonthRange,
 } from '@/modules/entities/ai-analytics';
 import { useAiDossier } from '../hooks/use-ai-dossier';
 import { useAiManagerName } from '../hooks/use-ai-manager-name';
 import { AiHowWeCountButton } from './components/AiHowWeCountButton';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiQueuedState } from './components/AiQueuedState';
 import { AiDossierPassport } from './components/AiDossierPassport';
 import { AiDossierSeries } from './components/AiDossierSeries';
@@ -55,10 +57,10 @@ const Section = ({
 );
 
 /**
- * Досье менеджера (Фаза 3, П4): паспорт, ряды недель и месяцев, тренды,
- * план-факт, «год назад», своды обратной связи и меток, готовность и
- * причины пустых разделов. Очередь + WS: пока собирается — скелетон с
- * состоянием джобы; «Пересобрать» — заново, минуя кэш. Окно — 3/6/12
+ * Досье менеджера: паспорт, ряды недель и месяцев, тренды, план-факт,
+ * «год назад», своды обратной связи и меток, готовность и причины пустых
+ * разделов. Очередь + WS: пока собирается — скелетон с состоянием
+ * задания; «Пересобрать» — заново, свежими данными. Окно — 3/6/12
  * месяцев, считая текущий.
  */
 export const AiDossierDialog = ({
@@ -84,10 +86,11 @@ export const AiDossierDialog = ({
                 <div className="flex flex-wrap items-center gap-2">
                     <DialogTitle>Досье: {managerName(managerId)}</DialogTitle>
                     <AiHowWeCountButton endpoint="dossier" />
+                    <AiTheoryLink topic="dossier" variant="icon" />
                 </div>
                 <DialogDescription>
                     Всё, что витрина знает о менеджере за окно: разделы
-                    собираются из ночных снапшотов, пустой раздел приходит с
+                    собираются из ночного пересчёта, пустой раздел приходит с
                     причиной.
                 </DialogDescription>
             </DialogHeader>
@@ -116,8 +119,8 @@ export const AiDossierDialog = ({
                 {data && (
                     <span className="text-xs text-muted-foreground">
                         разделов собрано {aiDossierFilledCount(data)} из 10 ·
-                        окно {data.meta.months[0]} – {data.meta.months.at(-1)}{' '}
-                        · собрано {formatAiMoment(data.meta.generatedAt)}
+                        окно {formatAiMonthRange(data.meta.months)} · собрано{' '}
+                        {formatAiMoment(data.meta.generatedAt)}
                     </span>
                 )}
             </div>

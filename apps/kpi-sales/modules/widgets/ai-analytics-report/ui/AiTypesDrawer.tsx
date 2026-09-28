@@ -10,6 +10,7 @@ import { aiByTypeDescription } from '@/modules/entities/ai-analytics';
 import { useAiSection } from '../hooks/use-ai-section';
 import { useAiTypesDrawer } from '../hooks/use-ai-types-drawer';
 import { AiTypesToolbar } from './components/AiTypesToolbar';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiQueuedState } from './components/AiQueuedState';
 import { AiScoreTable } from './components/AiScoreTable';
 import { AiLongTable } from './components/AiLongTable';
@@ -18,8 +19,8 @@ import { AiObjectionsTable } from './components/AiObjectionsTable';
 /**
  * Второй уровень «Разбор по типам»: подвкладки «Все» + типы из карты
  * алфавитов + «Возражения», раскладка широкий / длинный. Данные — срез
- * кэша обзора (by-type); запрос делает listener сущности при открытии и
- * смене выбора. При «Все» строки идут на пары менеджер × тип.
+ * обзора (by-type); запрос делает listener сущности при открытии и смене
+ * выбора. При «Все» строки идут на каждого менеджера и тип.
  */
 export const AiTypesDrawer = () => {
     const { open, setOpen } = useAiTypesDrawer();
@@ -35,7 +36,10 @@ export const AiTypesDrawer = () => {
             cardClassName="max-h-[88vh] gap-4 overflow-hidden"
         >
             <DialogHeader>
-                <DialogTitle>Разбор по типам звонков</DialogTitle>
+                <div className="flex flex-wrap items-center gap-2">
+                    <DialogTitle>Разбор по типам звонков</DialogTitle>
+                    <AiTheoryLink topic="types" variant="icon" />
+                </div>
                 <DialogDescription>
                     {aiByTypeDescription(data)}
                 </DialogDescription>

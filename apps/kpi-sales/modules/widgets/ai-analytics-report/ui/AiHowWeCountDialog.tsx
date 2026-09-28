@@ -11,16 +11,17 @@ import { useAiAbout } from '../hooks/use-ai-about';
 import {
     AI_ABOUT_ENDPOINT_LABELS,
     formatAiAboutComparableFrom,
-    shortAiAboutVersion,
 } from '../lib/ai-about.util';
+import { AI_ABOUT_THEORY_TOPIC } from '../lib/ai-theory-link';
 import { AiSectionState } from './components/AiSectionState';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiHowWeCountTexts } from './components/AiHowWeCountTexts';
 import { AiHowWeCountParams } from './components/AiHowWeCountParams';
 import { AiHowWeCountModel } from './components/AiHowWeCountModel';
 import { AiHowWeCountReliability } from './components/AiHowWeCountReliability';
 
 interface AiHowWeCountDialogProps {
-    /** Ручка витрины, для которой показываем блок. */
+    /** Раздел витрины, для которого показываем блок. */
     endpoint: AiAboutEndpoint;
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -30,12 +31,12 @@ const DEFAULT_DESCRIPTION =
     'Что считает раздел, откуда берёт данные и какие параметры действуют на портале.';
 
 /**
- * «Как считаем» (ручка about) для одной ручки витрины: назначение,
- * источники, как читать, чего не делаем, таблица параметров реестра с
- * действующими значениями, модель портала (готовность, κ/φ/λ, трактовка
- * рёбер, санити) либо причина её отсутствия, надёжность оценщика
- * (test-retest: σ_llm, κ по полям, F1 возражений), версия параметров и
- * начало сравнимой истории. Запрос уходит при открытии; кэш — по ручке.
+ * «Как считаем» (раздел about) для одного раздела витрины: назначение,
+ * источники, как читать, чего не делаем, таблица параметров с действующими
+ * значениями, модель портала (готовность, оценки модели, переходы воронки,
+ * проверка качества данных) либо причина её отсутствия, надёжность оценок
+ * AI (повторные разборы) и начало сравнимой истории. Запрос уходит при
+ * открытии; ответ хранится по разделу.
  */
 export const AiHowWeCountDialog = ({
     endpoint,
@@ -80,22 +81,15 @@ export const AiHowWeCountDialog = ({
                         <AiHowWeCountReliability
                             reliability={data.reliability}
                         />
-                        <footer className="flex flex-wrap gap-x-4 gap-y-1 border-t border-border/60 pt-3 text-xs text-muted-foreground">
-                            <span title={data.paramsVersion}>
-                                версия параметров:{' '}
-                                <code>
-                                    {shortAiAboutVersion(data.paramsVersion)}
-                                </code>
-                            </span>
-                            <span>
-                                {formatAiAboutComparableFrom(
-                                    data.comparableFrom,
-                                )}
-                            </span>
-                        </footer>
                     </>
                 )}
             </div>
+            <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground">
+                <span>
+                    {data ? formatAiAboutComparableFrom(data.comparableFrom) : ''}
+                </span>
+                <AiTheoryLink topic={AI_ABOUT_THEORY_TOPIC[endpoint]} />
+            </footer>
         </GlassDialog>
     );
 };

@@ -69,10 +69,14 @@ describe('aiRopMarkErrorView — ошибка карточки', () => {
         ).toBe(false);
     });
 
-    it('сеть/таймаут — с повтором; пустой текст — запасной', () => {
+    it('сеть/таймаут — с повтором и запасным текстом вместо служебного; пустой текст — запасной', () => {
         expect(aiRopMarkErrorView('Network Error')).toEqual({
-            text: 'Network Error',
+            text: AI_ROP_MARK_LOAD_ERROR,
             canRetry: true,
+        });
+        expect(aiRopMarkErrorView('Request failed with status code 403')).toEqual({
+            text: AI_ROP_MARK_LOAD_ERROR,
+            canRetry: false,
         });
         expect(aiRopMarkErrorView(null)).toEqual({
             text: AI_ROP_MARK_LOAD_ERROR,

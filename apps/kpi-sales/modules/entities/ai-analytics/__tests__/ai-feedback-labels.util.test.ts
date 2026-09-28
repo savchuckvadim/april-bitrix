@@ -76,7 +76,7 @@ describe('ai-feedback.util — объект реакции по-человече
         expect(aiFeedbackObjectLabel('site-review:128')).toBe(
             'отзыв с сайта по разбору',
         );
-        expect(aiFeedbackObjectLabel('call:9001')).toBe('звонок #9001');
+        expect(aiFeedbackObjectLabel('call:9001')).toBe('звонок');
         expect(aiFeedbackObjectLabel('attention:7:quality')).toBe(
             'сигнал «Внимания»',
         );

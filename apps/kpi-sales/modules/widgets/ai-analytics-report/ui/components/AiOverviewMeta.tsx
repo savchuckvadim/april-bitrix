@@ -12,7 +12,7 @@ interface AiOverviewMetaProps {
     overview: AiOverview;
 }
 
-/** Служебная сводка обзора: период, объём, доля «прочего», кэш и момент расчёта. */
+/** Служебная сводка обзора: период, объём, доля «прочего», момент расчёта и «сохранённый расчёт». */
 export const AiOverviewMeta = ({ overview }: AiOverviewMetaProps) => {
     const { period, meta } = overview;
     return (
@@ -37,7 +37,7 @@ export const AiOverviewMeta = ({ overview }: AiOverviewMetaProps) => {
             <span>расчёт {formatAiMoment(meta.generatedAt)}</span>
             {meta.fromCache && (
                 <ToneBadge tone="muted" variant="soft" size="sm">
-                    из кэша
+                    сохранённый расчёт
                 </ToneBadge>
             )}
         </div>

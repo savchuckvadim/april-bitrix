@@ -79,6 +79,77 @@ describe('fetchAiBrief — AI-резюме периода (очередь + WS)'
         expect(store.getState().aiAnalytics.brief.status).toBe('ready');
     });
 
+    it('done по ключу из очереди → повторный POST отдаёт ready с другим ключом → готово, без повторов', async () => {
+        vi.useFakeTimers();
+        // Очередь и WS несут ключ пакета до данных прошлого периода,
+        // готовый ответ — уже ключ пакета с ними.
+        getBrief
+            .mockResolvedValueOnce(queued('srv-pack'))
+            .mockResolvedValueOnce(ready(brief(), 'srv-pack-with-previous'));
+        const store = makeAiStore({ period: true });
+        await store.dispatch(fetchAiBrief());
+        expect(store.getState().aiAnalytics.brief.serverKey).toBe('srv-pack');
+
+        await store.dispatch(resumeAiQueuedSections('srv-pack'));
+        const section = store.getState().aiAnalytics.brief;
+        expect(section.status).toBe('ready');
+        expect(section.jobStatus).toBeNull();
+        expect(section.error).toBeNull();
+        expect(section.requestKey).toBe(BRIEF_KEY);
+        expect(section.serverKey).toBe('srv-pack-with-previous');
+        expect(section.data?.comparable).toBe(true);
+        expect(getBrief).toHaveBeenCalledTimes(2);
+
+        // Повторные done по любому из ключей, новый запрос карточки и
+        // истёкший таймаут очереди — новых POST нет.
+        await store.dispatch(resumeAiQueuedSections('srv-pack'));
+        await store.dispatch(resumeAiQueuedSections('srv-pack-with-previous'));
+        await store.dispatch(resumeAiQueuedSections());
+        await store.dispatch(fetchAiBrief());
+        await vi.advanceTimersByTimeAsync(AI_QUEUED_TIMEOUT_MS * 2);
+        expect(getBrief).toHaveBeenCalledTimes(2);
+        expect(store.getState().aiAnalytics.brief.status).toBe('ready');
+    });
+
+    it('таймаут без WS → повторный POST отдаёт ready с другим ключом → готово', async () => {
+        vi.useFakeTimers();
+        getBrief
+            .mockResolvedValueOnce(processing('srv-pack'))
+            .mockResolvedValueOnce(ready(brief(), 'srv-pack-with-previous'));
+        const store = makeAiStore({ period: true });
+        await store.dispatch(fetchAiBrief());
+        await vi.advanceTimersByTimeAsync(AI_QUEUED_TIMEOUT_MS + 10);
+
+        const section = store.getState().aiAnalytics.brief;
+        expect(section.status).toBe('ready');
+        expect(section.serverKey).toBe('srv-pack-with-previous');
+        await vi.advanceTimersByTimeAsync(AI_QUEUED_TIMEOUT_MS * 2);
+        expect(getBrief).toHaveBeenCalledTimes(2);
+    });
+
+    it('«Пересобрать» после готовых итогов: ждём done по ключу очереди, а не по прежнему ключу', async () => {
+        getBrief
+            .mockResolvedValueOnce(ready(brief(), 'srv-pack-with-previous'))
+            .mockResolvedValueOnce(queued('srv-pack'))
+            .mockResolvedValueOnce(
+                ready(brief({ packHash: 'hash-2' }), 'srv-pack-with-previous'),
+            );
+        const store = makeAiStore({ period: true });
+        await store.dispatch(fetchAiBrief());
+        await store.dispatch(fetchAiBrief({ force: true }));
+        expect(store.getState().aiAnalytics.brief.serverKey).toBe('srv-pack');
+
+        await store.dispatch(resumeAiQueuedSections('srv-pack-with-previous'));
+        expect(getBrief).toHaveBeenCalledTimes(2);
+        expect(store.getState().aiAnalytics.brief.status).toBe('loading');
+
+        await store.dispatch(resumeAiQueuedSections('srv-pack'));
+        expect(getBrief).toHaveBeenCalledTimes(3);
+        const section = store.getState().aiAnalytics.brief;
+        expect(section.status).toBe('ready');
+        expect(section.data?.packHash).toBe('hash-2');
+    });
+
     it('done обзора с чужим ключом резюме не возобновляет; обзор — не трогает резюме', async () => {
         getBrief.mockResolvedValue(processing('srv-brief'));
         getOverview.mockResolvedValue(ready({ managers: [] }, 'srv-ov'));
@@ -106,13 +177,13 @@ describe('fetchAiBrief — AI-резюме периода (очередь + WS)'
         );
     });
 
-    it('WS error без текста → запасной текст резюме, не обзора', async () => {
+    it('WS error без текста → запасной текст итогов, не обзора', async () => {
         getBrief.mockResolvedValue(queued('srv-brief'));
         const store = makeAiStore({ period: true });
         await store.dispatch(fetchAiBrief());
         store.dispatch(failAiQueuedSections({ requestKey: 'srv-brief' }));
         expect(store.getState().aiAnalytics.brief.error).toBe(
-            'Ошибка сборки резюме',
+            'Не удалось собрать итоги периода',
         );
     });
 

@@ -2,6 +2,7 @@
 
 import { Button } from '@workspace/ui/components/button';
 import { ToneBadge } from '@workspace/april-ui';
+import { formatAiFullDate } from '@/modules/entities/ai-analytics';
 
 interface AiSettingsRosterTabProps {
     /** settings/get загружены — дата ниже достоверна. */
@@ -27,7 +28,7 @@ const statusBadge = (loaded: boolean, current: string | null) => {
     }
     return current ? (
         <ToneBadge tone="success" variant="soft" size="sm">
-            состав подтверждён {current}
+            состав подтверждён {formatAiFullDate(current)}
         </ToneBadge>
     ) : (
         <ToneBadge tone="warning" variant="soft" size="sm">
@@ -40,7 +41,7 @@ const pendingLine = (pending: string | null): string | null => {
     if (pending === null) return null;
     return pending === ''
         ? 'После сохранения подтверждение будет снято.'
-        : `После сохранения состав будет подтверждён на ${pending}.`;
+        : `После сохранения состав будет подтверждён на ${formatAiFullDate(pending)}.`;
 };
 
 /** Вкладка «Состав»: дата подтверждения и кнопка «Подтвердить состав». */
@@ -58,7 +59,7 @@ export const AiSettingsRosterTab = ({
         <p className="text-xs text-muted-foreground">
             Подтверждение означает, что список менеджеров и их уровни актуальны
             — это одно из условий выхода витрины в режим норм. Дата пишется в
-            настройки портала (rosterConfirmedAt).
+            настройки портала.
         </p>
         <div className="flex flex-wrap items-center gap-2 text-sm">
             <span>Сейчас:</span>
@@ -75,7 +76,7 @@ export const AiSettingsRosterTab = ({
                 }
                 onClick={onConfirm}
             >
-                Подтвердить состав на сегодня ({today})
+                Подтвердить состав на сегодня ({formatAiFullDate(today)})
             </Button>
             <Button
                 variant="outline"

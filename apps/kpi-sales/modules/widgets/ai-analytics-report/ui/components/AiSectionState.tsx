@@ -2,7 +2,7 @@
 
 import { Button } from '@workspace/ui/components/button';
 import { Preloader } from '@/modules/shared';
-import type { AiStatus } from '@/modules/entities/ai-analytics';
+import { aiUserErrorText, type AiStatus } from '@/modules/entities/ai-analytics';
 import { aiSectionErrorHint } from '../../lib/ai-section-error.util';
 
 export const AI_SECTION_ERROR_FALLBACK =
@@ -21,9 +21,9 @@ interface AiSectionStateProps {
 
 /**
  * Состояния секции вкладки: idle/loading — спиннер с текстом; error — текст
- * сервера (403/400 из тела ответа), подсказка «что это значит» для типовых
- * случаев (витрина только руководителям, раздел выключен на портале) и
- * «Повторить»; ready — null.
+ * сервера из тела ответа (служебный текст заменяется запасным), подсказка
+ * «что это значит» для типовых случаев (витрина только руководителям,
+ * раздел выключен на портале) и «Повторить»; ready — null.
  */
 export const AiSectionState = ({
     status,
@@ -48,7 +48,7 @@ export const AiSectionState = ({
         return (
             <div className="flex flex-col items-start gap-2 py-4" role="alert">
                 <p className="text-sm text-destructive">
-                    {error || fallbackError}
+                    {aiUserErrorText(error, fallbackError)}
                 </p>
                 {hint && (
                     <p className="text-xs text-muted-foreground">{hint}</p>

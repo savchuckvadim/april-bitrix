@@ -9,6 +9,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import {
     AI_JOB_STATUS_LABELS,
+    aiUserErrorText,
     type AiJobStatus,
     type AiStatus,
 } from '@/modules/entities/ai-analytics';
@@ -25,6 +26,8 @@ interface AiQueuedStateProps {
     loadingText: string;
     /** Сколько строк-скелетонов рисовать под спиннером. */
     skeletonRows?: number;
+    /** Текст ошибки, когда сервер причины понятно не назвал (по умолчанию — про обзор). */
+    errorFallback?: string;
     /** Повтор с force; без колбэка кнопки «Повторить» нет. */
     onRetry?: () => void;
 }
@@ -32,7 +35,8 @@ interface AiQueuedStateProps {
 /**
  * Состояния тяжёлой секции: idle/loading — скелетоны со спиннером и
  * человеческим текстом очереди («в очереди» / «считает»), error — Alert
- * с текстом сервера, подсказкой для типовых 403 и «Повторить»; ready — null.
+ * с текстом сервера (служебный заменяется запасным), подсказкой для
+ * типовых отказов доступа и «Повторить»; ready — null.
  */
 export const AiQueuedState = ({
     status,
@@ -40,6 +44,7 @@ export const AiQueuedState = ({
     error,
     loadingText,
     skeletonRows = 4,
+    errorFallback = AI_QUEUED_ERROR_FALLBACK,
     onRetry,
 }: AiQueuedStateProps) => {
     if (status === 'loading' || status === 'idle') {
@@ -70,7 +75,7 @@ export const AiQueuedState = ({
             <Alert variant="destructive" className="my-2">
                 <AlertTitle>Не удалось получить данные</AlertTitle>
                 <AlertDescription className="flex flex-col items-start gap-2">
-                    <span>{error || AI_QUEUED_ERROR_FALLBACK}</span>
+                    <span>{aiUserErrorText(error, errorFallback)}</span>
                     {hint && (
                         <span className="text-xs text-muted-foreground">
                             {hint}

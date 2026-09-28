@@ -3,10 +3,7 @@
 /** Гейт настройки портала: план дня выключен — запрос не отправляем. */
 export const AiDailyPlanDisabledNote = () => (
     <p className="py-2 text-xs text-muted-foreground">
-        План дня выключен на портале (настройка{' '}
-        <code className="rounded bg-muted px-1">
-            ai_analytics_daily_plan_enabled
-        </code>
-        ).
+        План дня на портале выключен. Чтобы включить — попросите
+        разработчика.
     </p>
 );

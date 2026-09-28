@@ -3,25 +3,26 @@ import type { AiAboutModel } from '@/modules/entities/ai-analytics';
 import {
     AI_ABOUT_DATA_QUALITY,
     AI_ABOUT_ENDPOINT_LABELS,
-    AI_ABOUT_RELIABILITY_CATEGORY_LABELS,
-    AI_ABOUT_SIGMA_SOURCE_LABELS,
     AI_ABOUT_ESTIMATE_SOURCE_LABELS,
     AI_ABOUT_KIND,
     AI_ABOUT_LAYER_LABELS,
+    AI_ABOUT_NO_MODEL_TEXT,
     AI_ABOUT_REASON_LABELS,
+    AI_ABOUT_SIGMA_SOURCE_LABELS,
     aiAboutEstimates,
+    aiAboutModelReasonText,
     formatAiAboutChainShare,
     formatAiAboutComparableFrom,
     formatAiAboutDate,
     formatAiAboutEstimateValue,
-    formatAiAboutKappa,
+    formatAiAboutMonth,
     formatAiAboutNumber,
+    formatAiAboutObservations,
     formatAiAboutParamValue,
     formatAiAboutWindow,
-    shortAiAboutVersion,
 } from '../lib/ai-about.util';
 
-/** Модель портала с оценками κ / φ / λ (санити не отрабатывала). */
+/** Модель портала с тремя оценками (проверка качества не проводилась). */
 const aboutModel = (): AiAboutModel => ({
     modelSnapshotId: 'ais-1',
     monthKey: '2026-08',
@@ -47,15 +48,15 @@ const aboutModel = (): AiAboutModel => ({
         title: 'Сила усадки',
         value: 0.35,
         source: 'estimated',
-        note: 'по данным 24 менеджер-месяцев',
+        note: 'по данным 24 наблюдений',
     },
     phi: {
         code: 'phi_overdispersion',
         symbol: 'φ',
-        title: 'Сверхдисперсия',
+        title: 'Разброс',
         value: null,
         source: 'configured',
-        note: 'настройка реестра',
+        note: 'значение по умолчанию',
     },
     lambda: {
         code: 'lambda_forget',
@@ -63,14 +64,16 @@ const aboutModel = (): AiAboutModel => ({
         title: 'Забывание',
         value: 0.8,
         source: 'hybrid',
-        note: 'прайор до гейта',
+        note: 'пока данных мало',
     },
     estimand: { kind: 'rate', reason: 'chain-share-low', chainSharePct: 37.46 },
     sanity: null,
 });
 
+const JARGON = /реестр|прайор|гейт|×|\(rate\)|\(prob\)|плацебо|протечк|σ|κ|λ/i;
+
 describe('словари «Как считаем» — все коды DTO подписаны по-русски', () => {
-    it('ручки, слои, классы, причины, источники, качество данных', () => {
+    it('разделы, слои, типы, причины, источники, качество данных', () => {
         expect(Object.keys(AI_ABOUT_ENDPOINT_LABELS).sort()).toEqual(
             [
                 'brief',
@@ -104,6 +107,26 @@ describe('словари «Как считаем» — все коды DTO по�
         expect(AI_ABOUT_DATA_QUALITY.flagged.tone).toBe('warning');
         expect(AI_ABOUT_KIND.estimated.tone).toBe('success');
     });
+
+    it('подписи без жаргона и технических кодов', () => {
+        const texts = [
+            ...Object.values(AI_ABOUT_ENDPOINT_LABELS),
+            ...Object.values(AI_ABOUT_LAYER_LABELS),
+            ...Object.values(AI_ABOUT_KIND).map(kind => kind.label),
+            ...Object.values(AI_ABOUT_REASON_LABELS),
+            ...Object.values(AI_ABOUT_ESTIMATE_SOURCE_LABELS),
+            ...Object.values(AI_ABOUT_DATA_QUALITY).map(item => item.label),
+            ...Object.values(AI_ABOUT_SIGMA_SOURCE_LABELS),
+        ];
+        for (const text of texts) expect(text).not.toMatch(JARGON);
+        expect(AI_ABOUT_LAYER_LABELS.default).toBe('по умолчанию');
+        expect(AI_ABOUT_ENDPOINT_LABELS.overview).toBe(
+            'Обзор по менеджерам и типам звонков',
+        );
+        expect(AI_ABOUT_DATA_QUALITY.unknown.label).toBe(
+            'проверка качества данных не проводилась',
+        );
+    });
 });
 
 describe('formatAiAboutParamValue — значение с единицей', () => {
@@ -131,35 +154,60 @@ describe('formatAiAboutParamValue — значение с единицей', () 
 });
 
 describe('оценки модели', () => {
-    it('порядок κ, φ, λ и значение null → «—»', () => {
-        const symbols = aiAboutEstimates(aboutModel()).map(
-            estimate => estimate.symbol,
+    it('порядок усадка → разброс → забывание; значение null → «—»', () => {
+        const codes = aiAboutEstimates(aboutModel()).map(
+            estimate => estimate.code,
         );
-        expect(symbols).toEqual(['κ', 'φ', 'λ']);
+        expect(codes).toEqual([
+            'kappa_edge_late',
+            'phi_overdispersion',
+            'lambda_forget',
+        ]);
         expect(formatAiAboutEstimateValue(null)).toBe('—');
         expect(formatAiAboutEstimateValue(0.5)).toMatch(/^0[.,]5$/);
     });
 
-    it('доля сцепки округляется до десятых', () => {
+    it('доля связки округляется до десятых', () => {
         expect(formatAiAboutChainShare(37.46)).toMatch(/^37[.,]5 %$/);
         expect(formatAiAboutChainShare(100)).toBe('100 %');
     });
+
+    it('причина отсутствия модели: текст бэка по-русски — как есть, код — нейтрально', () => {
+        expect(aiAboutModelReasonText('Модель ещё не считалась')).toBe(
+            'Модель ещё не считалась',
+        );
+        expect(aiAboutModelReasonText('no-model')).toBe(AI_ABOUT_NO_MODEL_TEXT);
+        expect(aiAboutModelReasonText(null)).toBe(AI_ABOUT_NO_MODEL_TEXT);
+    });
 });
 
-describe('даты, окно и версия', () => {
-    it('formatAiAboutDate: полная дата с годом; пусто — «—»; мусор — как есть', () => {
+describe('даты, окно и месяц', () => {
+    it('formatAiAboutDate: полная дата с годом; пусто и мусор — «—»', () => {
         expect(formatAiAboutDate('2026-09-07')).toBe('07.09.2026');
         expect(formatAiAboutDate('2026-09-07T10:00:00Z')).toBe('07.09.2026');
         expect(formatAiAboutDate('')).toBe('—');
         expect(formatAiAboutDate(null)).toBe('—');
-        expect(formatAiAboutDate('garbage')).toBe('garbage');
+        expect(formatAiAboutDate('garbage')).toBe('—');
     });
 
-    it('formatAiAboutWindow: пусто, один месяц, диапазон с числом месяцев', () => {
+    it('formatAiAboutWindow: пусто, один месяц, диапазон словами с числом месяцев', () => {
         expect(formatAiAboutWindow([])).toBe('—');
-        expect(formatAiAboutWindow(['2026-08'])).toBe('2026-08');
+        expect(formatAiAboutWindow(['2026-08'])).toBe('август 2026');
         expect(formatAiAboutWindow(['2026-06', '2026-07', '2026-08'])).toBe(
-            '2026-06 – 2026-08 (3 мес.)',
+            'июнь – август 2026 (3 мес.)',
+        );
+    });
+
+    it('месяц модели словами и наблюдения со склонением', () => {
+        expect(formatAiAboutMonth('2026-09')).toBe('сентябрь 2026');
+        expect(formatAiAboutObservations(24)).toBe(
+            '24 наблюдения (менеджер за месяц)',
+        );
+        expect(formatAiAboutObservations(1)).toBe(
+            '1 наблюдение (менеджер за месяц)',
+        );
+        expect(formatAiAboutObservations(11)).toBe(
+            '11 наблюдений (менеджер за месяц)',
         );
     });
 
@@ -173,35 +221,5 @@ describe('даты, окно и версия', () => {
         expect(formatAiAboutComparableFrom('2026-05-01')).toBe(
             'сравнимая история с 01.05.2026',
         );
-    });
-
-    it('shortAiAboutVersion: короткая как есть, sha256 — префикс с многоточием', () => {
-        expect(shortAiAboutVersion('v1')).toBe('v1');
-        const sha = 'a'.repeat(64);
-        expect(shortAiAboutVersion(sha)).toBe(`${'a'.repeat(12)}…`);
-    });
-});
-
-describe('надёжность оценщика (Фаза 3, П7)', () => {
-    it('κ двумя знаками с запятой; null — «не измерено»', () => {
-        expect(formatAiAboutKappa(0.4567)).toBe('0,46');
-        expect(formatAiAboutKappa(1)).toBe('1,00');
-        expect(formatAiAboutKappa(null)).toBe('не измерено');
-    });
-
-    it('поля повторного прогона и источники σ_llm подписаны по-русски', () => {
-        for (const code of [
-            'callType',
-            'productive',
-            'refusalCategory',
-            'coachingPriority',
-            'nextStepSet',
-        ]) {
-            expect(AI_ABOUT_RELIABILITY_CATEGORY_LABELS[code]).toBeTruthy();
-        }
-        expect(AI_ABOUT_SIGMA_SOURCE_LABELS.measured).toContain('измерена');
-        expect(AI_ABOUT_SIGMA_SOURCE_LABELS.configured).toContain('реестра');
-        expect(AI_ABOUT_ENDPOINT_LABELS['plan-fact']).toBeTruthy();
-        expect(AI_ABOUT_ENDPOINT_LABELS.dossier).toBeTruthy();
     });
 });

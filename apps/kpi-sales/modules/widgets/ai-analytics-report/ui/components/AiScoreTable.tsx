@@ -28,17 +28,17 @@ interface AiScoreTableProps {
     rows: AiByTypeWideRow[];
     /** Выбранный тип; при «все типы» — колонка «Тип» и итоги по типам. */
     callType: AiByTypeCallType;
-    /** Итог по домену для одного типа (null при «все типы» и возражениях). */
+    /** Итог по порталу для одного типа (null при «все типы» и возражениях). */
     totals: AiTypeTotals | null;
     /** Итоги по каждому типу (только при «все типы»). */
     totalsByType: AiTypeTotals[] | null;
 }
 
 /**
- * «Широкая» раскладка среза по типу: строка на менеджера + итог по домену.
- * В режиме «все типы» — строка на пару менеджер × тип, сгруппированы по
- * менеджеру (имя один раз), вместо итога — «Итоги по типам»; пары и типы
- * без звонков за период отсеяны, под таблицей — подпись об этом.
+ * «Широкая» раскладка среза по типу: строка на менеджера + итог по порталу.
+ * В режиме «все типы» — строка на каждого менеджера и тип, сгруппированы
+ * по менеджеру (имя один раз), вместо итога — «Итоги по типам»; пары и
+ * типы без звонков за период отсеяны, под таблицей — подпись об этом.
  */
 export const AiScoreTable = ({
     rows,
@@ -86,13 +86,15 @@ export const AiScoreTable = ({
                                 Сотрудник
                             </TableHead>
                             {isAll && <TableHead>Тип</TableHead>}
-                            <TableHead className="text-right">n</TableHead>
+                            <TableHead className="text-right">
+                                Звонков
+                            </TableHead>
                             <TableHead>Оценка</TableHead>
                             <TableHead className="min-w-48">
                                 Показатели типа
                             </TableHead>
                             <TableHead className="text-right">
-                                Главный KPI
+                                Главный показатель
                             </TableHead>
                             <TableHead>Финансы</TableHead>
                             <TableHead className="min-w-64">

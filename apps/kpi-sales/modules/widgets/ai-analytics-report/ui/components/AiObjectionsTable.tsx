@@ -22,9 +22,9 @@ interface AiObjectionsTableProps {
 }
 
 /**
- * Срез возражений: строка на (сотрудник × категория): n, звонков,
- * handled % (Уилсон 90 %), исходы continued / converted / disengaged.
- * Итоги по домену — отдельной строкой снизу.
+ * Срез возражений: строка на сотрудника и категорию — возражений, звонков,
+ * доля отработанных, исходы (продолжили / согласились / ушли). Итоги по
+ * порталу — отдельными строками снизу.
  */
 export const AiObjectionsTable = ({ objections }: AiObjectionsTableProps) => {
     if (!objections.byManager.length) {
@@ -42,7 +42,7 @@ export const AiObjectionsTable = ({ objections }: AiObjectionsTableProps) => {
                     <TableRow>
                         <TableHead className="min-w-44">Сотрудник</TableHead>
                         <TableHead>Категория</TableHead>
-                        <TableHead className="text-right">n</TableHead>
+                        <TableHead className="text-right">Возражений</TableHead>
                         <TableHead className="text-right">Звонков</TableHead>
                         <TableHead>Отработано</TableHead>
                         <TableHead className="text-right">Продолжили</TableHead>
@@ -110,7 +110,7 @@ export const AiObjectionsTable = ({ objections }: AiObjectionsTableProps) => {
                             className="bg-muted/40 hover:bg-muted/40"
                         >
                             <TableCell className="text-xs font-semibold text-muted-foreground">
-                                Итого по домену
+                                Итого по порталу
                             </TableCell>
                             <TableCell>
                                 {aiObjectionCategoryLabel(category.category)}

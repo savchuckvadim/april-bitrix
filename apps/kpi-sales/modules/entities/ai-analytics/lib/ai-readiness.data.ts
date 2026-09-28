@@ -17,7 +17,7 @@ export const AI_READINESS_HINTS: Record<AiReadinessMode, string> = {
     'kpi-only':
         'AI-аналитика включена, но за последние 30 дней разборов звонков нет — оценки качества не показываем, доступны только KPI-данные.',
     calibration:
-        'Накоплено меньше 3 месяцев истории или меньше 60 разобранных презентаций. Числа несут n и интервал; выводы делать рано.',
+        'Накоплено меньше 3 месяцев истории или меньше 60 разобранных презентаций. У чисел указано, по скольким звонкам они посчитаны, и вероятный разброс; выводы делать рано.',
     descriptive:
         'Истории достаточно для описания фактов, но нормы ещё не рассчитаны — сравнений «выше/ниже нормы» пока нет.',
     norms: 'Нормы рассчитаны из данных портала: доступны сравнения с нормой.',
@@ -48,7 +48,7 @@ export const isAiKpiOnly = (mode: AiReadinessMode | undefined): boolean =>
  * AI_READINESS_QUALITY_REASON_CODES) → подпись баннера.
  */
 export const AI_READINESS_REASON_LABELS: Record<string, string> = {
-    'no-analysis-in-pipeline-window': 'Разборов звонков в окне конвейера нет',
+    'no-analysis-in-pipeline-window': 'Разборов звонков за последние 30 дней нет',
     'calendar-not-imported': 'Производственный календарь не импортирован',
     'roster-not-confirmed': 'Состав и уровни менеджеров не подтверждены',
     'hypothesis-not-set': 'Гипотеза «качество → объём» не задана',
@@ -75,9 +75,12 @@ export const AI_READINESS_GATED_REASON_LABELS: Record<
 
 const GATED_REASON = /^(.+)-(\d+)$/;
 
-/** Запасная подпись неизвестного кода — код показываем, чтобы не терять смысл. */
-export const formatUnknownAiReadinessReason = (code: string): string =>
-    `Причина: ${code}`;
+/** Запасная подпись неизвестного кода: нейтральная, без самого кода. */
+export const AI_READINESS_REASON_UNKNOWN =
+    'Новая причина режима — подробности у разработчика';
+
+export const formatUnknownAiReadinessReason = (): string =>
+    AI_READINESS_REASON_UNKNOWN;
 
 /** Подпись причины режима по коду; неизвестный код — запасная подпись. */
 export const formatAiReadinessReason = (code: string): string => {
@@ -88,7 +91,7 @@ export const formatAiReadinessReason = (code: string): string => {
         const gated = AI_READINESS_GATED_REASON_LABELS[match[1] ?? ''];
         if (gated) return gated(Number(match[2]));
     }
-    return formatUnknownAiReadinessReason(code);
+    return formatUnknownAiReadinessReason();
 };
 
 /** Подписи всех причин баннера в порядке бэка (дубли кодов схлопнуты). */
@@ -97,7 +100,7 @@ export const formatAiReadinessReasons = (
 ): string[] =>
     [...new Set(reasons ?? [])].map(code => formatAiReadinessReason(code));
 
-/* ---------- Счётчик «до оценки β» ---------- */
+/* ---------- Счётчик «до оценки связи „качество → продажи“» ---------- */
 
 type PluralForms = readonly [one: string, few: string, many: string];
 
@@ -122,13 +125,17 @@ export const pluralRu = (count: number, forms: PluralForms): string => {
     return forms[2];
 };
 
-/** Гейт β уже набран объёмом, но пересчёт ещё не прошёл. */
-export const AI_BETA_COUNTDOWN_REACHED = 'Объём для оценки β накоплен';
+/** Подпись связи «качество → продажи» в счётчике (без греческих символов). */
+export const AI_BETA_LINK_LABEL = 'связи «качество → продажи»';
+
+/** Гейт связи уже набран объёмом, но пересчёт ещё не прошёл. */
+export const AI_BETA_COUNTDOWN_REACHED = `Объём для оценки ${AI_BETA_LINK_LABEL} накоплен`;
 
 /**
- * Подпись счётчика «до оценки β»: «до оценки β осталось ≈ N презентаций /
- * M месяцев». Месяцы — при известном темпе (`monthsLeft`), иначе только
- * презентации; null — счётчика нет (гейт пройден, kpi-only, нечего считать).
+ * Подпись счётчика: «до оценки связи «качество → продажи» осталось ≈ N
+ * презентаций / M месяцев». Месяцы — при известном темпе (`monthsLeft`),
+ * иначе только презентации; null — счётчика нет (гейт пройден, kpi-only,
+ * нечего считать).
  */
 export const formatBetaCountdown = (
     countdown: AiReadinessBetaCountdown | null | undefined,
@@ -144,5 +151,5 @@ export const formatBetaCountdown = (
         const months = Math.max(1, Math.round(countdown.monthsLeft));
         parts.push(`${months} ${pluralRu(months, MONTH_FORMS)}`);
     }
-    return `до оценки β осталось ≈ ${parts.join(' / ')}`;
+    return `до оценки ${AI_BETA_LINK_LABEL} осталось ≈ ${parts.join(' / ')}`;
 };

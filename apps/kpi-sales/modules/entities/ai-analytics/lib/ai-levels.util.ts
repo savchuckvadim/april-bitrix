@@ -137,7 +137,7 @@ export const AI_SETTINGS_BLOCK_LABELS: Record<AiSettingsBlockName, string> = {
     managerParams: 'Параметры менеджеров',
     definitions: 'Определения событий',
     events: 'Журнал событий',
-    modelParams: 'Гиперпараметры модели',
+    modelParams: 'Настройки модели',
     scoring: 'Потолки оценивания',
     hypothesis: 'Гипотеза качества',
     rosterConfirmedAt: 'Подтверждение состава',
@@ -168,19 +168,23 @@ const AI_SETTINGS_CODE_BLOCKS: Record<string, AiSettingsBlockName> = {
     roster_confirmed_at: 'rosterConfirmedAt',
 };
 
+/** Подпись для кода breaksSeries, который не удалось отнести к блоку. */
+export const AI_SETTINGS_UNKNOWN_BLOCK = 'настройки';
+
 /**
- * Код breaksSeries человеком: ai_analytics_definitions.productiveCall →
- * «Определения событий · productiveCall»; неизвестный код — как есть.
+ * Код breaksSeries человеком — только подпись блока, без имени поля:
+ * ai_analytics_definitions.productiveCall → «Определения событий»;
+ * незнакомый код → «настройки» (сырой код не показываем).
  */
 export const formatAiSettingsBreakCode = (code: string): string => {
-    if (!code.startsWith(AI_SETTINGS_CODE_PREFIX)) return code;
-    const [key = '', ...fields] = code
-        .slice(AI_SETTINGS_CODE_PREFIX.length)
-        .split('.');
+    if (!code.startsWith(AI_SETTINGS_CODE_PREFIX)) {
+        return AI_SETTINGS_UNKNOWN_BLOCK;
+    }
+    const [key = ''] = code.slice(AI_SETTINGS_CODE_PREFIX.length).split('.');
     const block = AI_SETTINGS_CODE_BLOCKS[key];
-    if (!block) return code;
-    const field = fields.join('.');
-    return field
-        ? `${AI_SETTINGS_BLOCK_LABELS[block]} · ${field}`
-        : AI_SETTINGS_BLOCK_LABELS[block];
+    return block ? AI_SETTINGS_BLOCK_LABELS[block] : AI_SETTINGS_UNKNOWN_BLOCK;
 };
+
+/** Список кодов → подписи блоков без повторов (поля одного блока сливаются). */
+export const formatAiSettingsBreakCodes = (codes: readonly string[]): string[] =>
+    [...new Set(codes.map(formatAiSettingsBreakCode))];

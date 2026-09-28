@@ -13,7 +13,7 @@ import type { AiAboutParamDtoReason } from './aiAboutParamDtoReason';
 export interface AiAboutParamDto {
     /** Код параметра в реестре (snake_case). */
     code: string;
-    /** Название параметра по-русски из реестра. */
+    /** Название параметра для руководителя простыми словами (из реестра). */
     title: string;
     /** Единица измерения по-русски. */
     unit: string;
@@ -23,7 +23,7 @@ export interface AiAboutParamDto {
     layer: AiAboutParamDtoLayer;
     /** Класс параметра: configured — решение человека, estimated — оценка из данных, hybrid — настроенный прайор, вытесняемый данными. */
     kind: AiAboutParamDtoKind;
-    /** Описание из реестра — что параметр делает в расчёте. */
+    /** Описание для руководителя простыми словами — что параметр делает в расчёте. */
     description: string;
     /** Смена значения рвёт сравнимость рядов (сдвигает comparableFrom). */
     breaksSeries: boolean;

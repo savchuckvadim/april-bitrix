@@ -8,16 +8,16 @@ import {
 } from '../../lib/ai-about.util';
 
 interface AiHowWeCountSanityProps {
-    /** null — панель недели не отрабатывала. */
+    /** null — недельная проверка ещё не проводилась. */
     sanity: AiAboutSanity | null;
 }
 
-/** Санити-панель недели: качество меток времени и предупреждения панели. */
+/** Недельная проверка качества данных: даты событий и предупреждения. */
 export const AiHowWeCountSanity = ({ sanity }: AiHowWeCountSanityProps) => {
     if (!sanity) {
         return (
             <p className="text-xs text-muted-foreground">
-                Санити-панель недели ещё не отрабатывала.
+                Проверка качества данных ещё не проводилась.
             </p>
         );
     }
@@ -27,7 +27,8 @@ export const AiHowWeCountSanity = ({ sanity }: AiHowWeCountSanityProps) => {
         <div className="space-y-1 text-sm">
             <div className="flex flex-wrap items-center gap-2">
                 <span className="text-muted-foreground">
-                    Санити-панель от {formatAiAboutDate(sanity.day)}:
+                    Проверка качества данных от {formatAiAboutDate(sanity.day)}
+                    :
                 </span>
                 <ToneBadge tone={quality.tone} variant="soft" size="sm">
                     {quality.label}
@@ -45,7 +46,7 @@ export const AiHowWeCountSanity = ({ sanity }: AiHowWeCountSanityProps) => {
                 </ul>
             ) : (
                 <p className="text-xs text-muted-foreground">
-                    Предупреждений панели нет.
+                    Предупреждений по данным нет.
                 </p>
             )}
         </div>

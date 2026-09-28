@@ -2,18 +2,19 @@
 
 import {
     AiMetricValue,
+    formatAiCallsShort,
     type AiTypeTotals,
 } from '@/modules/entities/ai-analytics';
 import { AiCallTypeBadge } from './AiCallTypeBadge';
 
 interface AiTypeTotalsListProps {
-    /** Итоги типов к показу: родитель уже отсеял типы без звонков (n = 0). */
+    /** Итоги типов к показу: родитель уже отсеял типы без звонков. */
     totals: AiTypeTotals[];
 }
 
 /**
  * «Итоги по типам» в режиме «все типы»: компактно, чип на тип —
- * тип | n | оценка по домену (порядок справочника, как отдал бэк).
+ * тип | звонков | оценка по порталу (порядок справочника, как отдал бэк).
  * Пустой список — ничего не рисуем (все типы без звонков отсеяны).
  */
 export const AiTypeTotalsList = ({ totals }: AiTypeTotalsListProps) => {
@@ -28,7 +29,9 @@ export const AiTypeTotalsList = ({ totals }: AiTypeTotalsListProps) => {
                     className="inline-flex items-center gap-2 rounded-md border border-border/60 px-2 py-1"
                 >
                     <AiCallTypeBadge code={total.callType} />
-                    <span className="tabular-nums">n = {total.n}</span>
+                    <span className="tabular-nums">
+                        {formatAiCallsShort(total.n)}
+                    </span>
                     <AiMetricValue metric={total.score} kind="score" />
                 </span>
             ))}

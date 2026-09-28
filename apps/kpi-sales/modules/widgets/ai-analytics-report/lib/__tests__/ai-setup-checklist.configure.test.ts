@@ -66,16 +66,16 @@ describe('состав, календарь, гипотеза', () => {
         );
     });
 
-    it('calendar-not-imported — блокер норм, текст про ai_analytics_calendar', () => {
+    it('calendar-not-imported — блокер норм, «попросите разработчика» без ключа настройки', () => {
         const item = itemOf(AI_CHECKLIST_ITEM.CALENDAR, {
             settings: settings({
                 readiness: readiness({ reasons: ['calendar-not-imported'] }),
             }),
         });
         expect(item?.optional).toBe(false);
-        expect(JSON.stringify(item?.actions)).toContain(
-            'ai_analytics_calendar',
-        );
+        const actions = JSON.stringify(item?.actions);
+        expect(actions).toContain('разработчик');
+        expect(actions).not.toContain('ai_analytics_');
     });
 
     it('hypothesis-not-set — рекомендация', () => {
@@ -100,7 +100,7 @@ describe('стаж (tenure)', () => {
         expect(item?.optional).toBe(true);
         expect(item?.title).toBe('Стаж неизвестен у 1 менеджера');
         expect(item?.detail).toBe(
-            'Менеджер 3: стаж ещё не посчитан (нет месячного снимка менеджера) — задайте дату вручную в «Уровни» или дождитесь ночного пересчёта.',
+            'Менеджер 3: стаж ещё не посчитан (нет данных менеджера за месяц) — задайте дату вручную в «Уровни» или дождитесь ночного пересчёта.',
         );
         expect(item?.actions[0]).toMatchObject({ tab: 'levels' });
     });
@@ -140,15 +140,19 @@ describe('стаж (tenure)', () => {
 });
 
 describe('рассылки (push)', () => {
-    it('выключены алерты и пуст список РОПов → блокер с ключами админки', () => {
+    it('выключены алерты и пуст список руководителей → блокер, просьба к разработчику по-русски', () => {
         const item = itemOf(AI_CHECKLIST_ITEM.PUSH, {
             settings: settings({ alertsEnabled: false, ropUserIds: [] }),
         });
         expect(item?.optional).toBe(false);
-        expect(item?.detail).toBe('Не настроено: алерты РОПу, список РОПов.');
-        expect(JSON.stringify(item?.actions)).toContain(
-            'ai_analytics_alerts_enabled, ai_analytics_rop_user_ids',
+        expect(item?.detail).toBe(
+            'Не настроено: сигналы руководителю, список руководителей для повестки.',
         );
+        const actions = JSON.stringify(item?.actions);
+        expect(actions).toContain(
+            'Попросите разработчика включить: сигналы руководителю, список руководителей для повестки.',
+        );
+        expect(actions).not.toContain('ai_analytics_');
     });
 
     it('не хватает только сводного дайджеста — по желанию; всё есть — готово', () => {

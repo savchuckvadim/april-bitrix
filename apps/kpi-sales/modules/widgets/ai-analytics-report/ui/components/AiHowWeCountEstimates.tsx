@@ -18,14 +18,13 @@ interface AiHowWeCountEstimatesProps {
     estimates: AiAboutEstimate[];
 }
 
-/** κ / φ / λ модели портала: символ, подпись, значение, источник, пояснение. */
+/** Оценки модели портала: подпись величины, значение, источник, пояснение. */
 export const AiHowWeCountEstimates = ({
     estimates,
 }: AiHowWeCountEstimatesProps) => (
     <Table>
         <TableHeader>
             <TableRow>
-                <TableHead className="w-12">Символ</TableHead>
                 <TableHead>Величина</TableHead>
                 <TableHead className="text-right">Значение</TableHead>
                 <TableHead>Источник</TableHead>
@@ -35,15 +34,7 @@ export const AiHowWeCountEstimates = ({
         <TableBody>
             {estimates.map(estimate => (
                 <TableRow key={estimate.code}>
-                    <TableCell className="align-top text-base">
-                        {estimate.symbol}
-                    </TableCell>
-                    <TableCell className="align-top">
-                        <div>{estimate.title}</div>
-                        <code className="text-[0.6875rem] text-muted-foreground">
-                            {estimate.code}
-                        </code>
-                    </TableCell>
+                    <TableCell className="align-top">{estimate.title}</TableCell>
                     <TableCell className="text-right align-top font-medium tabular-nums">
                         {formatAiAboutEstimateValue(estimate.value)}
                     </TableCell>

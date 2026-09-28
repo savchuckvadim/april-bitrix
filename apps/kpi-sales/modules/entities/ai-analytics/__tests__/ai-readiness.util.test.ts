@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
     AI_BETA_COUNTDOWN_REACHED,
     AI_READINESS_REASON_LABELS,
+    AI_READINESS_REASON_UNKNOWN,
     formatAiReadinessReason,
     formatAiReadinessReasons,
     formatBetaCountdown,
@@ -9,9 +10,13 @@ import {
     pluralRu,
 } from '../lib/ai-readiness.data';
 import {
+    AI_ERROR_FORBIDDEN_TEXT,
+    AI_ERROR_GENERIC_TEXT,
     aiErrorMessage,
     aiErrorStatus,
     aiServerMessage,
+    aiUserErrorText,
+    isAiTechnicalErrorText,
 } from '../lib/ai-error.util';
 import { httpError } from './ai-fixtures';
 
@@ -50,11 +55,15 @@ describe('formatAiReadinessReason — подписи кодов причин', (
         );
     });
 
-    it('неизвестный код — запасная подпись с самим кодом', () => {
+    it('неизвестный код — нейтральная подпись без самого кода', () => {
         expect(formatAiReadinessReason('something-new-7')).toBe(
-            formatUnknownAiReadinessReason('something-new-7'),
+            formatUnknownAiReadinessReason(),
         );
-        expect(formatAiReadinessReason('weird')).toContain('weird');
+        expect(formatAiReadinessReason('weird')).toBe(
+            AI_READINESS_REASON_UNKNOWN,
+        );
+        expect(formatAiReadinessReason('weird')).not.toContain('weird');
+        expect(AI_READINESS_REASON_UNKNOWN).toContain('разработчика');
     });
 
     it('список причин: порядок бэка, дубли схлопнуты, undefined — пусто', () => {
@@ -85,7 +94,7 @@ describe('pluralRu', () => {
     });
 });
 
-describe('formatBetaCountdown — счётчик «до оценки β»', () => {
+describe('formatBetaCountdown — счётчик «до оценки связи „качество → продажи“»', () => {
     it('null/undefined — счётчика нет', () => {
         expect(formatBetaCountdown(null)).toBeNull();
         expect(formatBetaCountdown(undefined)).toBeNull();
@@ -98,14 +107,18 @@ describe('formatBetaCountdown — счётчик «до оценки β»', () =
                 presentationsLeft: 40,
                 monthsLeft: 2.4,
             }),
-        ).toBe('до оценки β осталось ≈ 40 презентаций / 2 месяца');
+        ).toBe(
+            'до оценки связи «качество → продажи» осталось ≈ 40 презентаций / 2 месяца',
+        );
         expect(
             formatBetaCountdown({
                 seNow: null,
                 presentationsLeft: 1,
                 monthsLeft: 0.2,
             }),
-        ).toBe('до оценки β осталось ≈ 1 презентация / 1 месяц');
+        ).toBe(
+            'до оценки связи «качество → продажи» осталось ≈ 1 презентация / 1 месяц',
+        );
     });
 
     it('темп неизвестен — только презентации', () => {
@@ -115,10 +128,10 @@ describe('formatBetaCountdown — счётчик «до оценки β»', () =
                 presentationsLeft: 23,
                 monthsLeft: null,
             }),
-        ).toBe('до оценки β осталось ≈ 23 презентации');
+        ).toBe('до оценки связи «качество → продажи» осталось ≈ 23 презентации');
     });
 
-    it('объём набран — отдельная подпись', () => {
+    it('объём набран — отдельная подпись без греческих символов', () => {
         expect(
             formatBetaCountdown({
                 seNow: 0.1,
@@ -126,6 +139,26 @@ describe('formatBetaCountdown — счётчик «до оценки β»', () =
                 monthsLeft: 0,
             }),
         ).toBe(AI_BETA_COUNTDOWN_REACHED);
+        expect(AI_BETA_COUNTDOWN_REACHED).not.toContain('β');
+    });
+});
+
+describe('isAiTechnicalErrorText / aiUserErrorText — служебный текст не показываем', () => {
+    it('латиница без русского и маркеры axios — служебные', () => {
+        expect(isAiTechnicalErrorText('Request failed with status code 403')).toBe(
+            true,
+        );
+        expect(isAiTechnicalErrorText('Network Error')).toBe(true);
+        expect(isAiTechnicalErrorText('План дня выключен на портале')).toBe(
+            false,
+        );
+    });
+
+    it('текст из стора: понятный — как есть, служебный или пустой — запасной', () => {
+        expect(aiUserErrorText('Доступ закрыт')).toBe('Доступ закрыт');
+        expect(aiUserErrorText('Network Error')).toBe(AI_ERROR_GENERIC_TEXT);
+        expect(aiUserErrorText('', 'запас')).toBe('запас');
+        expect(aiUserErrorText(null, 'запас')).toBe('запас');
     });
 });
 
@@ -148,6 +181,23 @@ describe('aiErrorMessage — текст сервера из HTTP-ошибки', 
         });
         expect(aiErrorMessage(error, 'запас')).toBe(
             'agree обязателен; ropScore ≤ 10',
+        );
+    });
+
+    it('служебный текст axios не показываем: 403 без текста — «доступ закрыт», иначе запасной', () => {
+        const forbidden = Object.assign(
+            new Error('Request failed with status code 403'),
+            { response: { status: 403, data: {} } },
+        );
+        expect(aiErrorMessage(forbidden, 'запас')).toBe(
+            AI_ERROR_FORBIDDEN_TEXT,
+        );
+        const server = Object.assign(new Error('Network Error'), {
+            response: { status: 500, data: {} },
+        });
+        expect(aiErrorMessage(server, 'запас')).toBe('запас');
+        expect(aiErrorMessage(new Error('Network Error'), 'запас')).toBe(
+            'запас',
         );
     });
 

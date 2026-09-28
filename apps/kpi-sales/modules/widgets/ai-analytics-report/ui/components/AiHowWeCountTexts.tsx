@@ -24,7 +24,7 @@ interface AiHowWeCountTextsProps {
     about: AiAbout;
 }
 
-/** Слова ручки с бэка: источники данных, как читать результат, чего не делаем. */
+/** Слова раздела с бэка: источники данных, как читать результат, чего не делаем. */
 export const AiHowWeCountTexts = ({ about }: AiHowWeCountTextsProps) => (
     <div className="grid gap-4 md:grid-cols-3">
         <AiHowWeCountList title="Источники данных" items={about.sources} />

@@ -3,6 +3,11 @@ import path from 'node:path';
 
 /** Первые тесты kpi-sales — по образцу apps/admin/vitest.config.ts. */
 export default defineConfig({
+    // Инлайн-конфиг PostCSS: без него Vite ищет postcss.config.mjs приложения
+    // (плагин @tailwindcss/postcss, недоступный в тестах) и валит любой сьют,
+    // чей импорт доходит до CSS april-ui (ToneBadge → GlassSurface.css).
+    // Стили тестам не нужны — в среде node CSS всё равно не применяется.
+    css: { postcss: {} },
     resolve: {
         alias: {
             '@workspace/ui': path.resolve(__dirname, '../../packages/ui/src'),

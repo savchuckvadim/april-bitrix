@@ -8,13 +8,15 @@ import {
     selectAiOverviewScope,
 } from '@/modules/entities/ai-analytics';
 import { aiBriefScopeKey } from '../lib/ai-brief.util';
+import { aiBriefDescription } from '../lib/ai-brief-view.util';
 
 /**
- * Состояние карточки «AI-резюме периода»: секция brief, периметр обзора
+ * Состояние карточки «Итоги периода»: секция brief, периметр обзора
  * (период фильтра ≤ 3 мес. и выбранные менеджеры — thunk считает сам),
  * запрос при монтировании и смене периметра (гарды thunk не дадут дублей;
  * queued/processing дожидается WS в thunk), «Пересобрать» / «Повторить» —
- * force: сервер обходит кэш и error-конверт.
+ * force: сервер собирает заново. Подпись карточки — период и сравнение с
+ * прошлым периодом (сравнение — только у готовых итогов).
  */
 export const useAiBrief = () => {
     const dispatch = useAppDispatch();
@@ -45,8 +47,10 @@ export const useAiBrief = () => {
         isLeader,
         /** Периметр есть (даты фильтра заданы, приложение не публичное). */
         hasScope: scopeKey !== null,
-        from,
-        to,
+        description: aiBriefDescription(
+            { from, to },
+            section.status === 'ready' ? section.data : null,
+        ),
         rebuild,
         retry: rebuild,
     };

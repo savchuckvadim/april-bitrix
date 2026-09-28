@@ -10,7 +10,7 @@ import { AiHowWeCountDialog } from '../AiHowWeCountDialog';
 export const AI_HOW_WE_COUNT_LABEL = 'Как считаем';
 
 interface AiHowWeCountButtonProps {
-    /** Ручка витрины: overview | plan/daily | brief | manager/style. */
+    /** Раздел витрины: overview | plan/daily | brief | manager/style. */
     endpoint: AiAboutEndpoint;
     /** Подпись действия (aria-label и заголовок подсказки). */
     label?: string;
@@ -19,7 +19,7 @@ interface AiHowWeCountButtonProps {
 
 /**
  * Иконка «Как считаем» с подсказкой: открывает диалог блока about для
- * ручки; запрос (fetchAiAbout) уходит при открытии, состояния загрузки и
+ * раздела; запрос (fetchAiAbout) уходит при открытии, состояния загрузки и
  * ошибки — внутри диалога. Самодостаточна — ставится рядом с действиями
  * любой секции.
  */

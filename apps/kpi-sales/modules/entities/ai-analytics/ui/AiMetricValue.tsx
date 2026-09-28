@@ -4,6 +4,8 @@ import { HintTooltip, ToneBadge } from '@workspace/april-ui';
 import { cn } from '@workspace/ui/lib/utils';
 import type { AiMetric } from '../model';
 import {
+    AI_METRIC_LOW_HINT,
+    aiByCallsLabel,
     aiConfidenceReasonLabel,
     aiFewDataLabel,
     formatAiCi90,
@@ -18,15 +20,16 @@ interface AiMetricValueProps {
     kind?: AiMetricKind;
     /** Крупная цифра (заголовок пульса) или строка таблицы. */
     size?: 'lg' | 'sm';
-    /** Показывать n и интервал рядом с цифрой. */
+    /** Показывать рядом с цифрой, по скольким звонкам она и разброс. */
     withDetails?: boolean;
     className?: string;
 }
 
 /**
- * Честное значение метрики: confidence none → бэйдж «мало данных (n = …)»
+ * Честное значение метрики: confidence none → бэйдж «мало данных: N звонков»
  * без числа; low → значение пунктиром с подсказкой; ok — обычная цифра.
- * Рядом — n и 90 %-й интервал (withDetails; интервал есть только у долей).
+ * Рядом — «по N звонкам · разброс 31–55 %» (withDetails; разброс есть
+ * только у долей).
  */
 export const AiMetricValue = ({
     metric,
@@ -62,14 +65,14 @@ export const AiMetricValue = ({
                     size === 'lg' ? 'text-3xl' : 'text-sm',
                     low && 'border-b border-dashed border-muted-foreground',
                 )}
-                title={low ? 'Мало данных для выводов (n < 20)' : undefined}
+                title={low ? AI_METRIC_LOW_HINT : undefined}
             >
                 {formatAiMetricValue(metric?.value, kind)}
             </span>
             {withDetails && (
                 <span className="text-xs text-muted-foreground">
-                    n = {metric?.n ?? 0}
-                    {ci && ` · ${ci}`}
+                    {aiByCallsLabel(metric?.n ?? 0)}
+                    {ci && ` · разброс ${ci}`}
                 </span>
             )}
         </span>

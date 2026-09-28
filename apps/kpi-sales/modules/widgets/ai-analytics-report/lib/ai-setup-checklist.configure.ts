@@ -7,7 +7,6 @@ import {
     AI_CHECKLIST_PLAN_SNAPSHOT_MISSING,
     AI_CHECKLIST_PRE_NORMS_MODES,
     AI_CHECKLIST_PROXY_SINCE,
-    AI_CHECKLIST_PUSH_KEYS,
     AI_CHECKLIST_SCHEDULE,
     AI_MANAGER_GENITIVE,
 } from './ai-setup-checklist.data';
@@ -33,7 +32,7 @@ import {
  * «Настроить»: планы руководителя, состав, календарь, стаж, рассылки и
  * гипотеза (цель месяца — ai-setup-checklist.targets). Что можно сделать в
  * диалоге настроек — кнопка вкладки (руководителю группы — текст),
- * остальное — текст для админки April.
+ * остальное — текст «попросите разработчика».
  */
 
 const T = AI_CHECKLIST_TEXT;
@@ -90,7 +89,7 @@ export const aiRosterItem = (
         : null;
 };
 
-/** Праздники не загружены: известное ограничение — только через админку April. */
+/** Праздники не загружены: известное ограничение — из витрины их не задать. */
 export const aiCalendarItem = (
     ctx: AiChecklistContext,
 ): AiChecklistItem | null =>
@@ -170,28 +169,16 @@ export const aiTenureItem = (ctx: AiChecklistContext): AiChecklistItem => {
 export const aiPushItem = (ctx: AiChecklistContext): AiChecklistItem => {
     const { settings } = ctx;
     const missing = [
-        {
-            off: !settings.alertsEnabled,
-            label: T.push.alerts,
-            key: AI_CHECKLIST_PUSH_KEYS.ALERTS,
-            required: true,
-        },
+        { off: !settings.alertsEnabled, label: T.push.alerts, required: true },
         {
             off: !settings.ropUserIds.length,
             label: T.push.rops,
-            key: AI_CHECKLIST_PUSH_KEYS.ROPS,
             required: true,
         },
-        {
-            off: !settings.digestEnabled,
-            label: T.push.digest,
-            key: AI_CHECKLIST_PUSH_KEYS.DIGEST,
-            required: true,
-        },
+        { off: !settings.digestEnabled, label: T.push.digest, required: true },
         {
             off: !settings.digestAllUserIds.length,
             label: T.push.digestAll,
-            key: AI_CHECKLIST_PUSH_KEYS.DIGEST_ALL,
             required: false,
         },
     ].filter(part => part.off);
@@ -201,14 +188,13 @@ export const aiPushItem = (ctx: AiChecklistContext): AiChecklistItem => {
             detail: T.push.doneDetail,
         });
     }
+    const labels = missing.map(part => part.label).join(', ');
     return aiTodoItem(AI_CHECKLIST_ITEM.PUSH, CONFIGURE, {
         optional: missing.every(part => !part.required),
         title: T.push.title,
-        detail: T.push.detail(missing.map(part => part.label).join(', ')),
+        detail: T.push.detail(labels),
         unlocks: T.push.unlocks,
-        actions: [
-            aiTextAction(T.push.fix(missing.map(part => part.key).join(', '))),
-        ],
+        actions: [aiTextAction(T.push.fix(labels))],
     });
 };
 

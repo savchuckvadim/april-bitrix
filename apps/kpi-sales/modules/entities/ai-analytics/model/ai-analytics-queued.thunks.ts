@@ -1,250 +1,39 @@
-import type {
-    AppDispatch,
-    AppGetState,
-    RootState,
-} from '@/modules/app/model/store';
-import { getWSClient } from '@/modules/app/model/ws-client';
+import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { selectIsViewAs } from '@/modules/app/model/selectors';
-import type { AiRequester } from '../lib/api/ai-analytics-helper';
-import { buildAiRequestKey } from '../lib/ai-request-key.util';
-import { clampAiPeriod } from '../lib/ai-period.util';
 import { resolveAiByTypeCallType } from '../lib/ai-call-types.data';
 import type {
     AiDossierQuery,
-    AiEnvelope,
-    AiOverviewFilters,
-    AiQueueOptions,
     AiSettingsInput,
     AiSettingsSaveResult,
 } from './index';
+import { AI_QUEUED_SECTIONS, aiAnalyticsActions } from './ai-analytics-slice';
 import {
-    AI_QUEUED_SECTIONS,
-    aiAnalyticsActions,
-    type AiQueuedSection,
-    type AiSectionData,
-} from './ai-analytics-slice';
-import {
-    AI_QUEUED_MAX_ATTEMPTS,
-    AI_QUEUED_TIMEOUT_MS,
-    AI_TIMEOUT_MESSAGE,
     aiErrorMessage,
     aiHelper,
     selectAiRequester,
 } from './ai-analytics-thunks.shared';
+import {
+    AI_QUEUED_ERROR_MESSAGES,
+    clearQueuedTimer,
+    loadQueuedSection,
+    type AiQueuedLoadOptions,
+} from './ai-analytics-queued.loader';
+import { fetchAiTypesMatrix } from './ai-analytics-types-matrix.thunks';
 
 /*
  * Тяжёлые ручки (очередь + WS): обзор, «Внимание», срез по типу, AI-резюме
- * периода (brief), их возобновление/падение по WS, «Пересчитать» и уровни
- * менеджеров (сбрасывают кэш обзора). Синхронные — ai-analytics-sync.thunks.
+ * периода (brief), досье, их возобновление/падение по WS, «Пересчитать» и
+ * уровни менеджеров (сбрасывают кэш обзора). Общий загрузчик, периметр и
+ * ключи секций — ai-analytics-queued.loader; синхронные —
+ * ai-analytics-sync.thunks.
  */
 
-/** Id WS-соединения; до инициализации клиента — без подписки (придёт по таймауту). */
-const safeSocketId = (): string | undefined => {
-    try {
-        return getWSClient().socket.id;
-    } catch {
-        return undefined;
-    }
-};
-
-/** Текст ошибки секции, когда сервер причины не назвал. */
-export const AI_QUEUED_ERROR_MESSAGES: Record<AiQueuedSection, string> = {
-    overview: 'Ошибка расчёта обзора',
-    attention: 'Ошибка расчёта обзора',
-    byType: 'Ошибка расчёта обзора',
-    brief: 'Ошибка сборки резюме',
-    dossier: 'Ошибка сборки досье',
-};
-
-/** Периметр тяжёлых ручек: requester + период фильтра (≤ 3 мес.) + выбранные менеджеры. */
-export interface AiOverviewScope {
-    requester: AiRequester;
-    filters: AiOverviewFilters;
-    /** Начало периода подтянуто к лимиту бэка — показать подсказку. */
-    clamped: boolean;
-}
-
-export const selectAiOverviewScope = (
-    state: RootState,
-): AiOverviewScope | null => {
-    const requester = selectAiRequester(state);
-    if (!requester) return null;
-    const period = clampAiPeriod(state.report.date.from, state.report.date.to);
-    if (!period) return null;
-    const managerIds = state.department.current
-        .map(user => Number(user.ID))
-        .filter(Boolean);
-    return {
-        requester,
-        filters: {
-            from: period.from,
-            to: period.to,
-            managerIds: managerIds.length ? managerIds : undefined,
-        },
-        clamped: period.clamped,
-    };
-};
-
-export interface AiQueuedLoadOptions {
-    /** «Пересчитать»: forceRefresh — сервер обходит кэш и error-конверт. */
-    force?: boolean;
-    /**
-     * Повторный POST по тому же requestKey (WS done или таймаут) — не
-     * сбрасывает секцию в pending и не форсит пересчёт.
-     */
-    resume?: boolean;
-}
-
-type QueuedFetcher<S extends AiQueuedSection> = (
-    scope: AiOverviewScope,
-    options: AiQueueOptions,
-    /** Стор в момент POST (срез по типу берёт отсюда тип и раскладку). */
-    state: RootState,
-) => Promise<AiEnvelope<AiSectionData[S]>>;
-
-/** Таймеры «WS не пришёл» по секциям; новый запрос секции гасит старый. */
-const queuedTimers = new Map<AiQueuedSection, ReturnType<typeof setTimeout>>();
-
-const clearQueuedTimer = (section: AiQueuedSection): void => {
-    const timer = queuedTimers.get(section);
-    if (timer) clearTimeout(timer);
-    queuedTimers.delete(section);
-};
-
-/**
- * Ключ секции: overview/attention — периметр; byType — плюс тип и
- * раскладка; dossier — requester, менеджер и окно (период фильтра на
- * досье не влияет).
- */
-const queuedRequestKey = (
-    section: AiQueuedSection,
-    scope: AiOverviewScope,
-    state: RootState,
-): string =>
-    section === 'dossier'
-        ? buildAiRequestKey({
-              ...scope.requester,
-              extra: [
-                  'dossier',
-                  state.aiAnalytics.dossierQuery?.managerId,
-                  state.aiAnalytics.dossierQuery?.months,
-              ],
-          })
-        : buildAiRequestKey({
-        ...scope.requester,
-        ...scope.filters,
-        ...(section === 'byType'
-            ? {
-                  callType: resolveAiByTypeCallType(
-                      state.aiAnalytics.selectedCallType,
-                  ),
-                  layout: state.aiAnalytics.typesLayout,
-              }
-            : {}),
-    });
-
-/**
- * Загрузчик тяжёлой секции. ready — данные; queued/processing — секция
- * остаётся в loading с серверным ключом и ждёт WS ai-analytics:overview:done
- * (listener повторяет POST) либо таймаут 90 с (повтор POST, не больше
- * AI_QUEUED_MAX_ATTEMPTS раз); error — ошибка. Гард: тот же ключ уже
- * грузится (без resume) или готов (без force) — второй POST не шлём.
- */
-const loadQueuedSection =
-    <S extends AiQueuedSection>(
-        section: S,
-        fetcher: QueuedFetcher<S>,
-        options: AiQueuedLoadOptions = {},
-    ) =>
-    async (dispatch: AppDispatch, getState: AppGetState): Promise<void> => {
-        const state = getState();
-        const scope = selectAiOverviewScope(state);
-        if (!scope) return;
-
-        const requestKey = queuedRequestKey(section, scope, state);
-        const current = state.aiAnalytics[section];
-        const same = current.requestKey === requestKey;
-        if (options.resume) {
-            // Возобновлять нечего: ключ сменился или секция уже не грузится.
-            if (!same || current.status !== 'loading') return;
-        } else if (same && !options.force) {
-            if (current.status === 'loading' || current.status === 'ready')
-                return;
-        }
-
-        clearQueuedTimer(section);
-        if (!options.resume) {
-            dispatch(
-                aiAnalyticsActions.sectionPending({ section, requestKey }),
-            );
-        }
-        try {
-            const response = await fetcher(
-                scope,
-                {
-                    socketId: safeSocketId(),
-                    forceRefresh: !!options.force && !options.resume,
-                },
-                state,
-            );
-            // Пока ждали ответ, фильтр мог смениться — редьюсер отбросит,
-            // но таймер под чужой ключ ставить не нужно.
-            if (getState().aiAnalytics[section].requestKey !== requestKey)
-                return;
-
-            if (response.status === 'ready') {
-                if (!response.data) throw new Error('Пустой ответ сервера');
-                dispatch(
-                    aiAnalyticsActions.sectionReady({
-                        section,
-                        data: response.data,
-                        requestKey,
-                        serverKey: response.requestKey,
-                    }),
-                );
-                return;
-            }
-            if (response.status === 'error') {
-                throw new Error(
-                    response.message || AI_QUEUED_ERROR_MESSAGES[section],
-                );
-            }
-            if (
-                getState().aiAnalytics[section].queuedAttempts >=
-                AI_QUEUED_MAX_ATTEMPTS
-            ) {
-                throw new Error(AI_TIMEOUT_MESSAGE);
-            }
-            dispatch(
-                aiAnalyticsActions.sectionQueued({
-                    section,
-                    requestKey,
-                    serverKey: response.requestKey,
-                    jobStatus: response.status,
-                }),
-            );
-            queuedTimers.set(
-                section,
-                setTimeout(() => {
-                    queuedTimers.delete(section);
-                    dispatch(
-                        loadQueuedSection(section, fetcher, { resume: true }),
-                    );
-                }, AI_QUEUED_TIMEOUT_MS),
-            );
-        } catch (error) {
-            dispatch(
-                aiAnalyticsActions.sectionFailed({
-                    section,
-                    requestKey,
-                    error: aiErrorMessage(
-                        error,
-                        AI_QUEUED_ERROR_MESSAGES[section],
-                    ),
-                }),
-            );
-        }
-    };
+export {
+    AI_QUEUED_ERROR_MESSAGES,
+    selectAiOverviewScope,
+    type AiOverviewScope,
+    type AiQueuedLoadOptions,
+} from './ai-analytics-queued.loader';
 
 /** Обзор менеджер × тип за период глобального фильтра. */
 export const fetchAiOverview = (options: AiQueuedLoadOptions = {}) =>
@@ -283,6 +72,9 @@ export const fetchAiByType = (options: AiQueuedLoadOptions = {}) =>
  * AI-резюме периода в периметре обзора (те же период и менеджеры).
  * queued/processing → ждём WS ai-analytics:brief:done с requestKey и
  * повторяем POST; `source = template` и `reason` приходят в data как есть.
+ * WS сверяем с ключом queued-ответа (пакет фактов до данных прошлого
+ * периода); ready повторного POST может нести другой requestKey —
+ * принимаем любой: гарды смотрят на наш ключ периметра.
  * { force: true } — forceRefresh пересобирает резюме.
  */
 export const fetchAiBrief = (options: AiQueuedLoadOptions = {}) =>
@@ -320,8 +112,8 @@ export const fetchAiDossier =
 /**
  * WS ai-analytics:overview:done / brief:done — результат в кэше сервера:
  * повторяем POST у всех тяжёлых секций, которые ждали этот ключ
- * (attention/by-type при отсутствии обзора отвечают его ключом; у резюме
- * свой ключ по packHash).
+ * (attention/by-type/матрица типов при отсутствии обзора отвечают его
+ * ключом; у резюме свой ключ по packHash).
  */
 export const resumeAiQueuedSections =
     (serverKey?: string) =>
@@ -333,6 +125,7 @@ export const resumeAiQueuedSections =
             byType: fetchAiByType,
             brief: fetchAiBrief,
             dossier: loadDossierSection,
+            typesMatrix: fetchAiTypesMatrix,
         } as const;
         await Promise.all(
             AI_QUEUED_SECTIONS.filter(section => {
@@ -374,9 +167,10 @@ export const failAiQueuedSections =
     };
 
 /**
- * «Пересчитать» (AI_VIEW_ALL): forceRefresh обзора, затем «Внимание» и
- * открытый срез по типу — они увидят идущий расчёт (processing) и
- * дождутся WS done; повторной джобы сервер не заводит.
+ * «Пересчитать» (AI_VIEW_ALL): forceRefresh обзора, затем «Внимание»,
+ * открытый срез по типу и матрица типов (если блоки уже открывались) —
+ * они увидят идущий расчёт (processing) и дождутся WS done; повторной
+ * джобы сервер не заводит.
  */
 export const recalcAiOverview =
     () =>
@@ -385,8 +179,12 @@ export const recalcAiOverview =
         const tasks: Promise<void>[] = [
             dispatch(fetchAiAttention({ force: true })),
         ];
-        if (getState().aiAnalytics.byType.status !== 'idle') {
+        const { byType, typesMatrix } = getState().aiAnalytics;
+        if (byType.status !== 'idle') {
             tasks.push(dispatch(fetchAiByType({ force: true })));
+        }
+        if (typesMatrix.status !== 'idle') {
+            tasks.push(dispatch(fetchAiTypesMatrix({ force: true })));
         }
         await Promise.all(tasks);
     };

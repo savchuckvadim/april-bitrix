@@ -51,6 +51,7 @@ const PULSE: AiPulse = {
             quote: '',
             callStartedAt: '2026-09-03T10:00:00Z',
             handled: false,
+            link: null,
         },
     ],
 };
@@ -293,7 +294,7 @@ describe('aiAnalyticsSlice — реакции', () => {
     });
 
     it('ошибка записи: pending снимается, sent не меняется', async () => {
-        addFeedback.mockRejectedValue(new Error('403'));
+        addFeedback.mockRejectedValue(new Error('Нет прав'));
         const store = makeStore();
         const ok = await store.dispatch(
             sendAiFeedback({ kind: 'useful', object: 'pulse' }),
@@ -307,7 +308,7 @@ describe('aiAnalyticsSlice — реакции', () => {
             store.getState().aiAnalytics.feedback.errors[
                 aiFeedbackKey('useful', 'pulse')
             ],
-        ).toBe('403');
+        ).toBe('Нет прав');
     });
 
     it('view — один раз за сессию на объект и без подсветки кнопок', async () => {

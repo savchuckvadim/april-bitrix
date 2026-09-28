@@ -24,9 +24,9 @@ export interface BxCurrentUserDto {
     headOfDepartmentIds: number[];
     /** Уровень видимости: own — только себя; group — своя группа; department — свой ОП со всеми группами; all — вся структура. Соответствует headOf: null / group / op / cup. */
     visibility: BxCurrentUserDtoVisibility;
-    /** Источник роли: structure — руководитель по структуре Битрикса (HEADS отдела); settings — уровень поднят настройкой портала «Отдел продаж» (visibility_*_user_ids); superuser — суперпользователь вендора из env BX_SUPER_USER_IDS: видимость all, headOf = cup, headOfDepartmentIds — все ОП, независимо от структуры и настроек. */
+    /** Источник роли: structure — руководитель по структуре Битрикса (HEADS отдела); settings — уровень поднят настройкой портала «Отдел продаж» (visibility_*_user_ids); superuser — суперпользователь вендора, заведённый в админке: видимость all, headOf = cup, headOfDepartmentIds — все ОП, независимо от структуры и настроек. */
     headOfSource: BxCurrentUserDtoHeadOfSource;
-    /** Суперпользователь вендора — сотрудник April, заданный для портала в env BX_SUPER_USER_IDS (domain:id). true — видимость all в отчётах продаж/сервиса и AI-аналитике (headOfSource = superuser), доступ к «Смотреть как…» и служебным ссылкам; isHead и коллеги остаются по структуре. Единый источник правды для фронтов вместо проверки по фамилии. */
+    /** Суперпользователь вендора — сотрудник April, заданный для портала в админке April. true — видимость all в отчётах продаж/сервиса и AI-аналитике (headOfSource = superuser), доступ к «Смотреть как…» и служебным ссылкам; isHead и коллеги остаются по структуре. Единый источник правды для фронтов вместо проверки по фамилии. */
     isSuperUser: boolean;
     /** Коллеги текущего пользователя. */
     colleagues: BxCurrentUserColleaguesDto;

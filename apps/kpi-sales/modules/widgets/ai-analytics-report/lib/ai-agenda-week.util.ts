@@ -1,22 +1,15 @@
 import {
-    addDays,
-    addWeeks,
-    format,
-    getISOWeeksInYear,
-    startOfISOWeek,
-} from 'date-fns';
+    aiIsoWeekMondayUtc,
+    aiIsoWeekRange,
+} from '@/modules/entities/ai-analytics/lib/ai-period-label.util';
 
 /*
  * Неделя «Повестки планёрки» по-человечески. weekKey ответа — ТЕКУЩАЯ
  * ISO-неделя планёрки (YYYY-Www), а звонки повестки — прошлой полной
  * недели (пн–вс, TZ портала), несогласия — с понедельника прошлой недели
  * по сейчас. Сырой YYYY-Www на экран не выводим: только даты «дд.мм–дд.мм».
+ * Разбор ключа недели — общий форматтер периодов сущности.
  */
-
-const WEEK_KEY = /^(\d{4})-W(\d{2})$/;
-/** 4 января всегда в первой ISO-неделе года. */
-const ISO_ANCHOR_DAY = 4;
-const DAYS_IN_WEEK = 7;
 
 export const AI_AGENDA_TEXT = {
     description: (range: string) =>
@@ -28,24 +21,12 @@ export const AI_AGENDA_TEXT = {
         'С понедельника прошлой недели несогласий с разбором не было.',
 } as const;
 
-/** Понедельник ISO-недели YYYY-Www; битый ключ или номер вне года — null. */
-export const aiIsoWeekMonday = (weekKey: string): Date | null => {
-    const match = WEEK_KEY.exec(weekKey);
-    if (!match) return null;
-    const anchor = new Date(Number(match[1]), 0, ISO_ANCHOR_DAY);
-    const week = Number(match[2]);
-    if (week < 1 || week > getISOWeeksInYear(anchor)) return null;
-    return addWeeks(startOfISOWeek(anchor), week - 1);
-};
+/** Понедельник ISO-недели YYYY-Www (UTC); битый ключ или номер вне года — null. */
+export const aiIsoWeekMonday = aiIsoWeekMondayUtc;
 
 /** «14.09–20.09» — неделя перед неделей планёрки; битый ключ — null. */
-export const aiAgendaPrevWeekRange = (weekKey: string): string | null => {
-    const monday = aiIsoWeekMonday(weekKey);
-    if (!monday) return null;
-    const from = addWeeks(monday, -1);
-    const to = addDays(from, DAYS_IN_WEEK - 1);
-    return `${format(from, 'dd.MM')}–${format(to, 'dd.MM')}`;
-};
+export const aiAgendaPrevWeekRange = (weekKey: string): string | null =>
+    aiIsoWeekRange(weekKey, -1);
 
 /** Подпись карточки: «Звонки прошлой недели (14.09–20.09) для планёрки». */
 export const aiAgendaDescription = (

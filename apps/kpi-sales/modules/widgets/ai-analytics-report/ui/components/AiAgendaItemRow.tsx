@@ -5,6 +5,7 @@ import { ToneBadge } from '@workspace/april-ui';
 import {
     AI_AGENDA_KIND,
     AI_FEEDBACK_OBJECT,
+    formatAiScore,
     type AiAgendaItem,
 } from '@/modules/entities/ai-analytics';
 import { useAiCallTypeBadge } from '../../hooks/use-ai-call-type-badge';
@@ -42,7 +43,7 @@ export const AiAgendaItemRow = ({ item, index }: AiAgendaItemRowProps) => {
                 )}
                 {item.score !== null && (
                     <span className="text-muted-foreground">
-                        оценка {item.score}
+                        оценка {formatAiScore(item.score)}
                     </span>
                 )}
             </div>

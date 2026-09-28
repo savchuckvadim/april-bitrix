@@ -1,7 +1,4 @@
-import {
-    formatAiReadinessReason,
-    isAiKpiOnly,
-} from '@/modules/entities/ai-analytics';
+import { isAiKpiOnly } from '@/modules/entities/ai-analytics';
 import {
     AI_BETA_SOURCE_LABELS,
     AI_READINESS_GATED_REASON,
@@ -276,7 +273,10 @@ export const aiBetaItem = (ctx: AiChecklistContext): AiChecklistItem | null => {
     });
 };
 
-/** Причины, которых фронт не знает, — отдельным пунктом с подписью бэка. */
+/**
+ * Причины, которых фронт не знает, — отдельным пунктом с нейтральной
+ * подписью: сам код на экран не выводим (ключ пункта его сохраняет).
+ */
 export const aiUnknownReasonItems = (
     ctx: AiChecklistContext,
 ): AiChecklistItem[] =>
@@ -285,7 +285,7 @@ export const aiUnknownReasonItems = (
         .map(code =>
             aiTodoItem(AI_CHECKLIST_ITEM.REASON, WAIT, {
                 key: `${AI_CHECKLIST_ITEM.REASON}:${code}`,
-                title: formatAiReadinessReason(code),
+                title: T.reason.title,
                 detail: T.reason.detail,
             }),
         );

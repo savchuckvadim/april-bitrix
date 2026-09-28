@@ -19,7 +19,6 @@ import {
     aiDisagreeCommentMax,
     aiLeverHintLines,
     aiLeverTitle,
-    aiRiskCallsRestLabel,
     clampAiDisagreeComment,
     composeAiDisagreeReason,
     formatAiDateRu,
@@ -51,6 +50,7 @@ const riskCall = (overrides: Partial<AiRiskCall> = {}): AiRiskCall => ({
     transcriptionId: 't-1',
     kind: 'promise',
     callStartedAt: '2026-09-10T10:00:00Z',
+    link: null,
     ...overrides,
 });
 
@@ -69,7 +69,7 @@ describe('ai-signal.util — рычаги', () => {
 
     it('aiLeverTitle: тип · раздел · категория, иначе подпись рычага', () => {
         expect(aiLeverTitle(recommendation(), code => `[${code}]`)).toBe(
-            '[presentation] · NEEDS',
+            '[presentation] · Выявление потребностей',
         );
         expect(
             aiLeverTitle(
@@ -107,15 +107,20 @@ describe('ai-signal.util — рычаги', () => {
         );
     });
 
-    it('строки подсказки рычага', () => {
+    it('строки подсказки рычага: раздел по-русски, без кода уровня и правила', () => {
         expect(aiLeverHintLines(recommendation())).toEqual([
-            'Рычаг: Качество — presentation · NEEDS',
+            'Рычаг: Качество — presentation · Выявление потребностей',
             'Ожидаемый эффект: +1,5 продаж',
             'Стоимость: 2 ч коучинга',
-            'Доказательность: E1 — связь в данных',
+            'Доказательность: связь в данных',
             'Оценка раздела 4,1 против 6,0 нормы',
-            'Правило: quality-section-gap',
         ]);
+    });
+
+    it('адресат: незнакомый раздел — нейтрально, без кода', () => {
+        expect(aiLeverTitle(recommendation({ section: 'BRAND_NEW' }))).toBe(
+            'presentation · другой раздел',
+        );
     });
 });
 
@@ -207,7 +212,7 @@ describe('ai-signal.util — стаж и риск-звонки', () => {
         expect(aiSignalColumnCount({ trends: true, yoy: false })).toBe(14);
     });
 
-    it('pickAiRiskCalls: свежие первыми, не больше трёх; «ещё N»', () => {
+    it('pickAiRiskCalls: свежие первыми, не больше трёх', () => {
         const calls = [
             riskCall({
                 transcriptionId: 'old',
@@ -230,9 +235,6 @@ describe('ai-signal.util — стаж и риск-звонки', () => {
             pickAiRiskCalls(calls).map(call => call.transcriptionId),
         ).toEqual(['new', 'mid', 'old']);
         expect(calls.map(call => call.transcriptionId)[0]).toBe('old');
-        expect(aiRiskCallsRestLabel(calls.length)).toBe('ещё 1');
-        expect(aiRiskCallsRestLabel(3)).toBeNull();
-        expect(aiRiskCallsRestLabel(0)).toBeNull();
     });
 });
 

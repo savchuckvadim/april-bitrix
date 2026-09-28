@@ -1,22 +1,34 @@
 'use client';
 
+import { HintTooltip } from '@workspace/april-ui';
 import { formatAiMoment, type AiBrief } from '@/modules/entities/ai-analytics';
-import { AI_BRIEF_SOURCE, formatAiBriefUsage } from '../../lib/ai-brief.util';
+import { aiBriefCostHint, aiBriefFooterReason } from '../../lib/ai-brief.util';
 
 interface AiBriefMetaProps {
-    brief: AiBrief;
+    brief: Pick<AiBrief, 'generatedAt' | 'source' | 'reason' | 'usage'>;
 }
 
-/** Служебная строка: момент сборки, источник, расход модели (токены / ₽), версия промпта. */
+/**
+ * Строка под итогами: когда собрано (стоимость подготовки — в подсказке)
+ * и, если итоги собраны по шаблону, причина.
+ */
 export const AiBriefMeta = ({ brief }: AiBriefMetaProps) => {
-    const usage = formatAiBriefUsage(brief.usage);
+    const costHint = aiBriefCostHint(brief.usage);
+    const reason = aiBriefFooterReason(brief);
+    const built = `собрано ${formatAiMoment(brief.generatedAt)}`;
 
     return (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            <span>собрано {formatAiMoment(brief.generatedAt)}</span>
-            <span>источник: {AI_BRIEF_SOURCE[brief.source]}</span>
-            {usage && <span>расход: {usage}</span>}
-            <span>промпт {brief.promptVersion}</span>
+            {costHint ? (
+                <HintTooltip lines={[costHint]}>
+                    <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        {built}
+                    </span>
+                </HintTooltip>
+            ) : (
+                <span>{built}</span>
+            )}
+            {reason && <span>{reason}</span>}
         </div>
     );
 };

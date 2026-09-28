@@ -5,8 +5,12 @@
  * - ai-analytics-sync.thunks — settings / pulse / agenda / план дня /
  *   стиль / refresh;
  * - ai-analytics-feedback.thunks — реакции и view-телеметрия;
- * - ai-analytics-queued.thunks — overview / attention / byType / brief
- *   (очередь + WS), resume / fail по WS, recalc, уровни;
+ * - ai-analytics-queued.loader — периметр обзора, ключи и общий загрузчик
+ *   тяжёлых секций (очередь + WS);
+ * - ai-analytics-queued.thunks — overview / attention / byType / brief /
+ *   dossier, resume / fail по WS, recalc, уровни;
+ * - ai-analytics-types-matrix.thunks — срез «все типы × wide» для матриц
+ *   KPI-вида (секция typesMatrix);
  * - ai-analytics-rop-mark.thunks — слепая оценка (list | pick | save);
  * - ai-analytics-about.thunks — «Как считаем» (кэш по ручке).
  */
@@ -30,6 +34,14 @@ export {
 export { sendAiFeedback, sendAiView } from './ai-analytics-feedback.thunks';
 export {
     AI_QUEUED_ERROR_MESSAGES,
+    AI_TYPES_MATRIX_KEY_PART,
+    selectAiOverviewScope,
+} from './ai-analytics-queued.loader';
+export type {
+    AiOverviewScope,
+    AiQueuedLoadOptions,
+} from './ai-analytics-queued.loader';
+export {
     failAiQueuedSections,
     fetchAiAttention,
     fetchAiBrief,
@@ -39,12 +51,8 @@ export {
     recalcAiOverview,
     resumeAiQueuedSections,
     saveAiLevels,
-    selectAiOverviewScope,
 } from './ai-analytics-queued.thunks';
-export type {
-    AiOverviewScope,
-    AiQueuedLoadOptions,
-} from './ai-analytics-queued.thunks';
+export { fetchAiTypesMatrix } from './ai-analytics-types-matrix.thunks';
 export {
     AI_ROP_MARK_SAVE_ERROR,
     fetchAiRopMarkWeek,

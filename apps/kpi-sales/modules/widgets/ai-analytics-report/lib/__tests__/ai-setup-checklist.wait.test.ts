@@ -25,7 +25,7 @@ const withReadiness = (overrides: Parameters<typeof readiness>[0]) => ({
 });
 
 describe('гейты готовности: модель, история, презентации', () => {
-    it('no-portal-model → ночной догон и 3-е число: срок примерный, без времени', () => {
+    it('no-portal-model → ночной пересчёт и 3-е число: срок примерный, без времени', () => {
         const item = itemOf(
             AI_CHECKLIST_ITEM.PORTAL_MODEL,
             withReadiness({ reasons: ['no-portal-model'] }),
@@ -37,7 +37,7 @@ describe('гейты готовности: модель, история, пре�
             time: null,
         });
         expect(item?.detail).toBe(
-            'Модель строится ночным догоном истории (22:00–06:00) и обновляется 3-го числа: может появиться уже после ближайшего догона, плановый пересчёт — 03.10.2026; до неё норм нет.',
+            'Модель строится ночным пересчётом (22:00–06:00) и обновляется 3-го числа: может появиться уже после ближайшей ночи, плановый пересчёт — 03.10.2026; до неё норм нет.',
         );
     });
 
@@ -213,7 +213,7 @@ describe('связь «качество → исход» (beta)', () => {
 });
 
 describe('неизвестные причины режима', () => {
-    it('новый код бэка — отдельный пункт с запасной подписью', () => {
+    it('новый код бэка — отдельный пункт с нейтральной подписью, код только в ключе', () => {
         const items = buildAiChecklistItems(
             checklistInput(withReadiness({ reasons: ['brand-new-gate'] })),
         );
@@ -221,6 +221,10 @@ describe('неизвестные причины режима', () => {
             item => item.code === AI_CHECKLIST_ITEM.REASON,
         );
         expect(reason?.key).toBe('reason:brand-new-gate');
-        expect(reason?.title).toBe('Причина: brand-new-gate');
+        expect(reason?.title).toBe('Новая причина режима');
+        expect(reason?.detail).toContain('разработчика');
+        expect(`${reason?.title} ${reason?.detail}`).not.toContain(
+            'brand-new-gate',
+        );
     });
 });

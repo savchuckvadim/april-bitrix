@@ -11,8 +11,10 @@ import {
 import { ToneBadge } from '@workspace/april-ui';
 import {
     AI_YOY_METRIC,
-    aiYoyReasonLabel,
+    aiDossierYoyReasonLabel,
     aiYoyTone,
+    formatAiMonthKey,
+    formatAiMonthKeyGenitive,
     formatAiYoyDelta,
     formatAiYoyValue,
     type AiYoy,
@@ -31,7 +33,8 @@ export const AiDossierYoy = ({ yoy }: AiDossierYoyProps) => (
     <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <span>
-                {yoy.periodKey} против {yoy.basePeriodKey}
+                {formatAiMonthKey(yoy.periodKey)} против{' '}
+                {formatAiMonthKeyGenitive(yoy.basePeriodKey)}
             </span>
             <ToneBadge tone={aiYoyTone(yoy)} variant="soft" size="sm">
                 {yoy.comparable ? 'сопоставимо' : 'с оговорками'}
@@ -66,7 +69,7 @@ export const AiDossierYoy = ({ yoy }: AiDossierYoyProps) => (
         {!yoy.comparable && yoy.reasons.length > 0 && (
             <ul className="list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
                 {yoy.reasons.map(code => (
-                    <li key={code}>{aiYoyReasonLabel(code)}</li>
+                    <li key={code}>{aiDossierYoyReasonLabel(code)}</li>
                 ))}
             </ul>
         )}

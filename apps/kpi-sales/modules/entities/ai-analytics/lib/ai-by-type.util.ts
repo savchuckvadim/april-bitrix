@@ -6,6 +6,7 @@ import type {
     AiTypeTotals,
 } from '../model';
 import { isAiByTypeAll } from './ai-call-types.data';
+import { formatAiFullDate } from './ai-period-label.util';
 
 /** Строки одного менеджера подряд (порядок первого появления сохранён). */
 export interface AiManagerRowsGroup<T> {
@@ -15,8 +16,8 @@ export interface AiManagerRowsGroup<T> {
 
 /**
  * Группировка строк среза по менеджеру: в режиме «все типы» бэк отдаёт
- * строку на пару менеджер × тип (в длинной раскладке — × показатель), а
- * таблица показывает имя один раз и дальше строки типов. Порядок
+ * строку на каждого менеджера и тип (в длинной раскладке — и показатель),
+ * а таблица показывает имя один раз и дальше строки типов. Порядок
  * менеджеров и строк внутри — как пришёл; строки одного менеджера,
  * разнесённые по списку, всё равно попадают в одну группу.
  */
@@ -37,14 +38,14 @@ export const groupAiRowsByManager = <T extends { managerId: string }>(
 };
 
 const BY_TYPE_IDLE_DESCRIPTION =
-    'Оценки, разделы и KPI по выбранному типу звонка или по всем типам сразу; возражения — сквозной срез';
+    'Оценки, разделы и показатели CRM по выбранному типу звонка или по всем типам сразу; возражения — сквозной срез';
 
 /** Подзаголовок drawer «Разбор по типам»: до данных — что это, с данными — что показано. */
 export const aiByTypeDescription = (data: AiByType | null): string => {
     if (!data) return BY_TYPE_IDLE_DESCRIPTION;
-    const period = `срез обзора за ${data.period.from} – ${data.period.to}`;
+    const period = `срез обзора за ${formatAiFullDate(data.period.from)} – ${formatAiFullDate(data.period.to)}`;
     return isAiByTypeAll(data.callType)
-        ? `${data.title}: строка на каждую пару менеджер × тип, ${period}`
+        ? `${data.title}: по каждому менеджеру и типу звонка, ${period}`
         : `${data.title}: ${period}`;
 };
 
@@ -52,7 +53,7 @@ export const aiByTypeDescription = (data: AiByType | null): string => {
 
 /**
  * Что показать после отсева и сколько скрыто. `hidden` считается в единицах
- * списка: пары менеджер × тип у строк таблиц, типы у чипов «Итоги по типам».
+ * списка: строки «менеджер и тип» у таблиц, типы у чипов «Итоги по типам».
  */
 export interface AiByTypeVisibility<T> {
     visible: T[];
@@ -73,8 +74,8 @@ const splitVisible = <T>(
 };
 
 /**
- * Широкая раскладка, режим «все типы»: бэк отдаёт строку на каждую пару
- * менеджер × тип справочника, включая other / irrelevant и типы без
+ * Широкая раскладка, режим «все типы»: бэк отдаёт строку на каждого
+ * менеджера и тип справочника, включая other / irrelevant и типы без
  * звонков — остаются только строки с разобранными звонками (cell.n > 0).
  */
 export const pickAiByTypeVisibleRows = (
@@ -92,10 +93,11 @@ const longPairKey = (row: AiByTypeLongRow): string =>
     `${row.managerId}|${row.callType}`;
 
 /**
- * Длинная раскладка, режим «все типы»: строки пары менеджер × тип идут
- * вместе (оценка типа, разделы, чек-листы, KPI). Пара скрывается целиком,
- * если её строка «оценка типа» (kind = score) без звонков (metric.n = 0);
- * пара без строки score остаётся — судить не по чему. `hidden` — число пар.
+ * Длинная раскладка, режим «все типы»: строки одного менеджера и типа идут
+ * вместе (оценка типа, разделы, чек-листы, показатели CRM). Пара скрывается
+ * целиком, если её строка «оценка типа» (kind = score) без звонков;
+ * пара без строки score остаётся — судить не по чему.
+ * `hidden` — число пар.
  */
 export const pickAiByTypeVisibleLongRows = (
     rows: AiByTypeLongRow[],
@@ -120,8 +122,8 @@ export interface AiByTypeVisibilityInput<T> {
 
 /**
  * Отсев пустых типов применяется только в режиме «все типы». При обычном
- * типе список возвращается как есть и скрытых нет: там строки с n = 0
- * нужны — видно, у кого «мало данных».
+ * типе список возвращается как есть и скрытых нет: там строки без
+ * звонков нужны — видно, у кого «мало данных».
  */
 export const applyAiByTypeVisibility = <T>({
     callType,

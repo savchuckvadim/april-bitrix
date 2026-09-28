@@ -16,8 +16,8 @@ export const countUnhandledAlerts = (alerts: AiPulseAlert[]): number =>
 export const sortAiManagers = (rows: AiPulseManager[]): AiPulseManager[] =>
     [...rows].sort((a, b) => b.analyzed - a.analyzed);
 
-/** Подсказка к состоянию XmR: центр, границы и что значит состояние. */
+/** Подсказка к стабильности доли: обычный уровень, обычный коридор и что значит состояние. */
 export const aiXmrHintLines = (xmr: AiPulseXmr): string[] => [
-    `Центр ${formatAiRate(xmr.center)}, границы ${formatAiRate(xmr.lcl)} – ${formatAiRate(xmr.ucl)}.`,
+    `Обычный уровень ${formatAiRate(xmr.center)}, обычный коридор ${formatAiRate(xmr.lcl)}–${formatAiRate(xmr.ucl)}.`,
     AI_XMR_STATE[xmr.state].hint,
 ];

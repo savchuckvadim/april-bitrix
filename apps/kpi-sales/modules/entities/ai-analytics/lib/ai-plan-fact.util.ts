@@ -7,8 +7,9 @@ import type {
 } from '../model';
 
 /*
- * Реконсиляция «план — факт» месяца (Фаза 3, П2): подписи показателей и
- * статусов, формат темпа и «в день надо», ключ месяца из даты фильтра.
+ * Сверка «план — факт» месяца: подписи показателей и статусов, формат
+ * темпа и «в день надо», ключ месяца из даты фильтра. Коды причин на
+ * экран не выводим.
  */
 
 /**
@@ -80,16 +81,20 @@ export const AI_PLAN_FACT_REASON_LABELS: Record<string, string> = {
     'manager-month-missing': 'месяцы менеджеров ещё не рассчитаны',
 };
 
+/** Незнакомая причина — нейтрально, без кода. */
+export const AI_PLAN_FACT_REASON_OTHER =
+    'причина не описана — уточните у разработчика';
+
 export const aiPlanFactReasonLabel = (code: string): string =>
-    AI_PLAN_FACT_REASON_LABELS[code] ?? code;
+    AI_PLAN_FACT_REASON_LABELS[code] ?? AI_PLAN_FACT_REASON_OTHER;
 
 /** Число показателя; null — прочерк. */
 export const formatAiPlanFactValue = (value: number | null): string =>
     value === null ? '—' : String(Math.round(value * 10) / 10).replace('.', ',');
 
-/** Темп «×1,2» относительно графика; null — прочерк. */
+/** Темп «120 % графика»: факт к тому, что нужно было сделать к сегодня; null — прочерк. */
 export const formatAiPlanFactPace = (pace: number | null): string =>
-    pace === null ? '—' : `×${pace.toFixed(2).replace('.', ',')}`;
+    pace === null ? '—' : `${Math.round(pace * 100)} % графика`;
 
 /** Разрыв к плану со знаком; null — прочерк. */
 export const formatAiPlanFactGap = (gap: number | null): string => {

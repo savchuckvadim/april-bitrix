@@ -8,11 +8,17 @@ import type {
     AiStyleTag,
 } from '@/modules/entities/ai-analytics/model';
 import { AI_FUNNEL_SHAPE } from '@/modules/entities/ai-analytics/lib/ai-overview.data';
+import {
+    formatAiMonthKey,
+    formatAiMonthRange,
+} from '@/modules/entities/ai-analytics/lib/ai-period-label.util';
+import { formatAiByCalls } from '@/modules/entities/ai-analytics/lib/ai-overview.util';
 
 /*
  * Чистая логика карточки стиля менеджера (manager/style): подписи
- * состояний и доверия, формат отклонений в σ, положение на шкале оси,
- * строки подсказок, месяцы окна. Импорты сущности точечные (model / lib).
+ * состояний и доверия, отклонение от коллег словами и числом, положение
+ * на шкале оси, строки подсказок, месяцы окна. Импорты сущности точечные
+ * (model / lib).
  */
 
 /** Текст пустого состояния, если бэк не прислал note. */
@@ -55,20 +61,26 @@ export const AI_STYLE_CONFIDENCE: Record<
     none: { label: 'нет данных', tone: 'muted' },
 };
 
+/** Доверие с незнакомым кодом — нейтральная подпись, не код. */
+export const AI_STYLE_CONFIDENCE_FALLBACK: { label: string; tone: Tone } = {
+    label: 'не определено',
+    tone: 'muted',
+};
+
 export const isAiStyleConfidence = (
     value: string,
 ): value is AiStyleConfidence =>
     value === 'ok' || value === 'low' || value === 'none';
 
-/** Подпись и тон доверия; неизвестный уровень — как есть, тоном muted. */
+/** Подпись и тон доверия; незнакомый уровень — нейтрально, тоном muted. */
 export const aiStyleConfidence = (
     level: string,
 ): { label: string; tone: Tone } =>
     isAiStyleConfidence(level)
         ? AI_STYLE_CONFIDENCE[level]
-        : { label: level, tone: 'muted' };
+        : AI_STYLE_CONFIDENCE_FALLBACK;
 
-/** Причины пониженного доверия оси; неизвестная — как есть. */
+/** Причины пониженного доверия оси; незнакомая — нейтрально. */
 export const AI_STYLE_REASON_LABELS: Record<string, string> = {
     'few-calls': 'мало звонков',
     'few-peers': 'мало коллег для сравнения',
@@ -78,13 +90,19 @@ export const AI_STYLE_REASON_LABELS: Record<string, string> = {
     'style-crm-unavailable': 'телефония была недоступна',
 };
 
+export const AI_STYLE_REASON_FALLBACK = 'данных для уверенного вывода мало';
+
 export const aiStyleReasonLabel = (
     reason: string | null | undefined,
 ): string | null =>
-    reason ? (AI_STYLE_REASON_LABELS[reason] ?? reason) : null;
+    reason ? (AI_STYLE_REASON_LABELS[reason] ?? AI_STYLE_REASON_FALLBACK) : null;
 
-/** Число со знаком и одним знаком после запятой: 1.23 → «+1,2», −0.4 → «−0,4», 0 → «0,0». */
-const formatSigmaValue = (value: number): string => {
+/**
+ * Отклонение от нормы коллег числом со знаком и одним знаком после
+ * запятой: 1.23 → «+1,2», −0.4 → «−0,4», 0 → «0,0». Единицы измерения в
+ * интерфейс не выносим — это условная шкала.
+ */
+export const formatAiStyleDeviation = (value: number): string => {
     const rounded = Math.round(value * 10) / 10;
     const sign = rounded > 0 ? '+' : rounded < 0 ? '−' : '';
     return `${sign}${Math.abs(rounded).toLocaleString('ru-RU', {
@@ -93,24 +111,20 @@ const formatSigmaValue = (value: number): string => {
     })}`;
 };
 
-/** Отклонение от нормы коллег: «+1,2 σ». */
-export const formatAiSigma = (value: number): string =>
-    `${formatSigmaValue(value)} σ`;
-
-/** Интервал 80 %: [0.6, 1.8] → «+0,6…+1,8 σ»; нет двух границ — пусто. */
+/** Интервал 80 %: [0.6, 1.8] → «вероятно от +0,6 до +1,8»; нет двух границ — пусто. */
 export const formatAiStyleCi80 = (ci80: number[] | undefined): string => {
     if (!ci80 || ci80.length < 2) return '';
     const [low, high] = ci80;
     if (low === undefined || high === undefined) return '';
-    return `${formatSigmaValue(low)}…${formatSigmaValue(high)} σ`;
+    return `вероятно от ${formatAiStyleDeviation(low)} до ${formatAiStyleDeviation(high)}`;
 };
 
-/** Границы шкалы оси: ±3 σ (дальше — упор). */
-export const AI_STYLE_AXIS_RANGE_SIGMA = 3;
+/** Границы шкалы оси: ±3 отклонения (дальше — упор). */
+export const AI_STYLE_AXIS_RANGE = 3;
 
-/** Положение на шкале 0..1: −3 σ → 0, 0 → 0,5, +3 σ → 1. */
+/** Положение на шкале 0..1: −3 → 0, 0 → 0,5, +3 → 1. */
 export const aiStyleAxisShare = (value: number): number => {
-    const range = AI_STYLE_AXIS_RANGE_SIGMA;
+    const range = AI_STYLE_AXIS_RANGE;
     const clamped = Math.max(-range, Math.min(range, value));
     return (clamped + range) / (2 * range);
 };
@@ -130,21 +144,23 @@ export const aiStyleCi80Band = (
 export type AiStyleAxisSide = 'minus' | 'plus' | 'center';
 
 /** Порог «заметного» отклонения — меньше считаем нормой. */
-export const AI_STYLE_NOTABLE_SIGMA = 0.5;
+export const AI_STYLE_NOTABLE_DEVIATION = 0.5;
 
 /** К какому полюсу тяготеет ось. */
 export const aiStyleAxisSide = (value: number): AiStyleAxisSide => {
-    if (Math.abs(value) < AI_STYLE_NOTABLE_SIGMA) return 'center';
+    if (Math.abs(value) < AI_STYLE_NOTABLE_DEVIATION) return 'center';
     return value < 0 ? 'minus' : 'plus';
 };
 
-/** Строки подсказки оси: отклонение, интервал, n, доверие, причина. */
+/** Строки подсказки оси: отклонение, интервал, наблюдений (звонки, лиды, рабочие дни), доверие, причина. */
 export const aiStyleAxisHintLines = (axis: AiStyleAxis): string[] => {
-    const lines = [`Отклонение: ${formatAiSigma(axis.value)}`];
+    const lines = [
+        `Отклонение от коллег: ${formatAiStyleDeviation(axis.value)}`,
+    ];
     const ci = formatAiStyleCi80(axis.ci80);
-    if (ci) lines.push(`80 %: ${ci}`);
+    if (ci) lines.push(`${ci.charAt(0).toUpperCase()}${ci.slice(1)}`);
     lines.push(
-        `Наблюдений: n = ${axis.n}`,
+        `Наблюдений: ${axis.n}`,
         `Доверие: ${aiStyleConfidence(axis.confidence).label}`,
     );
     const reason = aiStyleReasonLabel(axis.reason);
@@ -152,53 +168,26 @@ export const aiStyleAxisHintLines = (axis: AiStyleAxis): string[] => {
     return lines;
 };
 
-/** Строки подсказки подписи: опора в числах, n, пометка об оспаривании. */
+/** Строки подсказки подписи: опора в числах, «по 24 звонкам», пометка об оспаривании. */
 export const aiStyleTagHintLines = (tag: AiStyleTag): string[] => [
     tag.basis,
-    `n = ${tag.n}`,
+    formatAiByCalls(tag.n),
     ...(tag.disputed
         ? ['Оспорена менеджером — вне карточки подпись не используется.']
         : []),
 ];
 
-const RU_MONTHS = [
-    'январь',
-    'февраль',
-    'март',
-    'апрель',
-    'май',
-    'июнь',
-    'июль',
-    'август',
-    'сентябрь',
-    'октябрь',
-    'ноябрь',
-    'декабрь',
-];
+/** «2026-08» → «август 2026»; пусто или не ключ — «—». */
+export const formatAiStyleMonth = formatAiMonthKey;
 
-/** «2026-08» → «август 2026»; пусто → «—»; иное — как есть. */
-export const formatAiStyleMonth = (
-    value: string | null | undefined,
-): string => {
-    if (!value) return '—';
-    const [year, month] = value.split('-');
-    const name = RU_MONTHS[Number(month) - 1];
-    return year && name ? `${name} ${year}` : value;
-};
-
-/** Окно профиля: «июнь 2026 — август 2026»; один месяц — он сам; пусто — «—». */
-export const formatAiStyleWindow = (window: string[]): string => {
-    const first = window[0];
-    if (first === undefined) return '—';
-    const last = window[window.length - 1] ?? first;
-    return first === last
-        ? formatAiStyleMonth(first)
-        : `${formatAiStyleMonth(first)} — ${formatAiStyleMonth(last)}`;
-};
+/** Окно профиля: «июнь – август 2026»; один месяц — он сам; пусто — «—». */
+export const formatAiStyleWindow = formatAiMonthRange;
 
 export const isAiFunnelShape = (value: string): value is AiFunnelShape =>
     Object.prototype.hasOwnProperty.call(AI_FUNNEL_SHAPE, value);
 
-/** Форма воронки как контекст карточки; неизвестная — как есть. */
+export const AI_FUNNEL_SHAPE_FALLBACK = 'не определена';
+
+/** Форма воронки как контекст карточки; незнакомая — нейтрально. */
 export const aiFunnelShapeLabel = (shape: string): string =>
-    isAiFunnelShape(shape) ? AI_FUNNEL_SHAPE[shape] : shape;
+    isAiFunnelShape(shape) ? AI_FUNNEL_SHAPE[shape] : AI_FUNNEL_SHAPE_FALLBACK;

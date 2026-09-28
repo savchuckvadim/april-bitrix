@@ -140,7 +140,7 @@ describe('buildAiReadinessBanner — шапка баннера', () => {
         ]);
     });
 
-    it('σ_llm: measured/configured подписаны по-русски; поля нет — строки нет', () => {
+    it('разброс оценок: measured/configured подписаны по-русски без символов; поля нет — строки нет', () => {
         expect(
             buildAiReadinessBanner(readiness({ sigmaLlmSource: 'measured' }))
                 .sigmaSource,
@@ -148,7 +148,10 @@ describe('buildAiReadinessBanner — шапка баннера', () => {
         expect(
             buildAiReadinessBanner(readiness({ sigmaLlmSource: 'configured' }))
                 .sigmaSource,
-        ).toContain('реестра');
+        ).toContain('по умолчанию');
+        for (const label of Object.values(AI_SIGMA_SOURCE_LABELS)) {
+            expect(label).not.toMatch(/σ|llm|реестр/i);
+        }
         expect(buildAiReadinessBanner(readiness()).sigmaSource).toBeNull();
     });
 });

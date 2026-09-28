@@ -66,7 +66,8 @@ export type AiDataSection =
     | 'ropMark'
     | 'style'
     | 'planFact'
-    | 'dossier';
+    | 'dossier'
+    | 'typesMatrix';
 
 /** Секции, которые считает очередь (WS done → повторный POST). */
 export const AI_QUEUED_SECTIONS = [
@@ -75,6 +76,7 @@ export const AI_QUEUED_SECTIONS = [
     'byType',
     'brief',
     'dossier',
+    'typesMatrix',
 ] as const;
 export type AiQueuedSection = (typeof AI_QUEUED_SECTIONS)[number];
 
@@ -91,6 +93,7 @@ export type AiSectionData = {
     style: AiStyleCard;
     planFact: AiPlanFact;
     dossier: AiDossier;
+    typesMatrix: AiByType;
 };
 
 /** Сохранение слепой метки (rop-mark/save); список недели остаётся на экране. */
@@ -133,6 +136,8 @@ export interface AiAnalyticsState {
     dossier: AiSection<AiDossier>;
     /** Чьё досье и за какое окно запрошено. */
     dossierQuery: AiDossierQuery | null;
+    /** Срез «все типы × wide» для матриц KPI-вида (очередь + WS; ключ обзора + маркер). */
+    typesMatrix: AiSection<AiByType>;
     /** «Как считаем» — кэш по ручке (overview | plan/daily | brief | manager/style). */
     about: Partial<Record<AiAboutEndpoint, AiSection<AiAbout>>>;
     feedback: AiFeedbackState;
@@ -186,6 +191,7 @@ const initialState: AiAnalyticsState = {
     planFactQuery: null,
     dossier: emptySection(),
     dossierQuery: null,
+    typesMatrix: emptySection(),
     about: {},
     feedback: emptyAiFeedback(),
     levels: { saving: false, error: null, savedAt: null },
@@ -488,6 +494,7 @@ const aiAnalyticsSlice = createSlice({
             state.planFactQuery = null;
             state.dossier = emptySection();
             state.dossierQuery = null;
+            state.typesMatrix = emptySection();
             state.about = {};
             state.feedback = emptyAiFeedback();
             state.levels = { saving: false, error: null, savedAt: null };

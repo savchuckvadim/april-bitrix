@@ -34,11 +34,11 @@ export interface AiAboutModelDto {
     comparableFrom: string | null;
     /** Готовность витрины по модели: режим и причины. */
     readiness: ReadinessDto;
-    /** κ — сила усадки к норме. */
+    /** Сила усадки: насколько цифры менеджера подтягиваются к норме. */
     kappa: AiAboutEstimateDto;
-    /** φ — сверхдисперсия темпов. */
+    /** Разброс между менеджерами: насколько отличаются их темпы. */
     phi: AiAboutEstimateDto;
-    /** λ — забывание прошлых месяцев. */
+    /** Память ряда: как быстро забываются прошлые месяцы. */
     lambda: AiAboutEstimateDto;
     /** Трактовка рёбер портала. */
     estimand: AiAboutEstimandDto;

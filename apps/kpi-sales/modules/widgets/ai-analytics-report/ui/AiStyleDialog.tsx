@@ -14,7 +14,10 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { GlassDialog } from '@workspace/april-ui';
-import { formatAiMoment } from '@/modules/entities/ai-analytics';
+import {
+    formatAiByCalls,
+    formatAiMoment,
+} from '@/modules/entities/ai-analytics';
 import { useAiStyle } from '../hooks/use-ai-style';
 import { useAiManagerName } from '../hooks/use-ai-manager-name';
 import {
@@ -23,6 +26,7 @@ import {
     formatAiStyleWindow,
 } from '../lib/ai-style.util';
 import { AiHowWeCountButton } from './components/AiHowWeCountButton';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiSectionState } from './components/AiSectionState';
 import { AiStyleNotes } from './components/AiStyleNotes';
 import { AiStyleTagChip } from './components/AiStyleTagChip';
@@ -43,10 +47,10 @@ const SECTION_TITLE =
 /**
  * Карточка стиля менеджера (manager/style): КАК человек работает —
  * заметные особенности, подписи с опорой в числах, оси с отклонением от
- * нормы коллег (σ, интервал 80 %, n, доверие), форма воронки как
- * контекст, «Как считаем». Стиль — не оценка качества: в нормы, цели и
- * премии не входит. few_data / opt_out — текст note; stale — пометка;
- * 403 — текст сервера с «Повторить».
+ * коллег (интервал, звонков, доверие), форма воронки как контекст,
+ * «Как считаем». Стиль — не оценка качества: в нормы, цели и премии не
+ * входит. few_data / opt_out — текст note; stale — пометка; 403 — текст
+ * сервера с «Повторить».
  */
 export const AiStyleDialog = ({
     managerId,
@@ -71,6 +75,7 @@ export const AiStyleDialog = ({
                 <div className="flex items-center gap-2">
                     <DialogTitle>Стиль: {managerName(managerId)}</DialogTitle>
                     <AiHowWeCountButton endpoint="manager/style" />
+                    <AiTheoryLink topic="style" variant="icon" />
                 </div>
                 <DialogDescription>
                     Как менеджер работает — отклонение от нормы коллег по осям
@@ -111,7 +116,8 @@ export const AiStyleDialog = ({
                                         >
                                             <AiStyleTagChip tag={tag} />
                                             <span className="text-muted-foreground">
-                                                {tag.basis} · n = {tag.n}
+                                                {tag.basis} ·{' '}
+                                                {formatAiByCalls(tag.n)}
                                             </span>
                                         </li>
                                     ))}
@@ -134,13 +140,13 @@ export const AiStyleDialog = ({
                                             <TableHead className="text-right">
                                                 −
                                             </TableHead>
-                                            <TableHead>Шкала −3…+3 σ</TableHead>
+                                            <TableHead>Шкала</TableHead>
                                             <TableHead>+</TableHead>
                                             <TableHead className="text-right">
-                                                σ
+                                                Отклонение от коллег
                                             </TableHead>
                                             <TableHead className="text-right">
-                                                n
+                                                Наблюдений
                                             </TableHead>
                                             <TableHead>Доверие</TableHead>
                                         </TableRow>

@@ -17,6 +17,7 @@ import type { AiSettingsTab } from '../lib/ai-settings-form.util';
 import { AiSettingsTabs } from './components/AiSettingsTabs';
 import { AiSettingsConfirm } from './components/AiSettingsConfirm';
 import { AiSettingsSummary } from './components/AiSettingsSummary';
+import { AiTheoryLink } from './components/AiTheoryLink';
 
 interface AiLevelsDialogProps {
     open: boolean;
@@ -60,7 +61,10 @@ export const AiLevelsDialog = ({
             cardClassName="max-h-[85vh] gap-4 overflow-hidden"
         >
             <DialogHeader>
-                <DialogTitle>Настройки витрины</DialogTitle>
+                <div className="flex flex-wrap items-center gap-2">
+                    <DialogTitle>Настройки витрины</DialogTitle>
+                    <AiTheoryLink topic="levels" variant="icon" />
+                </div>
                 <DialogDescription>
                     Уровни менеджеров, цели по уровням, отсутствия и
                     подтверждение состава. Сохраняются только изменённые блоки;

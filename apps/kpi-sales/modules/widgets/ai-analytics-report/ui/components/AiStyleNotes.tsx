@@ -15,7 +15,7 @@ interface AiStyleNotesProps {
 
 /**
  * Оговорки карточки стиля: пустое состояние (few_data / opt_out — текст
- * note бэка), оговорка готового профиля, устаревший снапшот (stale),
+ * note бэка), оговорка готового профиля, давно не пересчитывался (stale),
  * низкое доверие профиля.
  */
 export const AiStyleNotes = ({ card }: AiStyleNotesProps) => {

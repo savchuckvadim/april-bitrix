@@ -31,6 +31,11 @@ vi.mock('@/modules/app/lib/utills/app-config-wait', () => ({
     waitForAppConfig: vi.fn(async () => undefined),
 }));
 
+// Список подчинённых в этих кейсах уже получен — ждать нечего.
+vi.mock('@/modules/features/HeadMode/lib/head-mode-wait', () => ({
+    waitForHeadPerimeter: vi.fn(async () => undefined),
+}));
+
 vi.mock('@/modules/entities/EventContact/model/EventContactThunk', () => ({
     setCurrentReportContact: vi.fn(() => ({
         type: 'test/setCurrentReportContact',
@@ -63,9 +68,22 @@ const dispatch = ((action: { type: string }) => {
     return action;
 }) as unknown as AppDispatch;
 
+/** Режим руководителя: по умолчанию пользователь — обычный менеджер. */
+const headMode = {
+    status: 'ready',
+    enabled: true,
+    subordinateIds: [] as number[],
+};
+
 const getState = (() => ({
     app: { config: { taskGroupId: 42 } },
+    headMode,
 })) as unknown as AppGetState;
+
+/** С чьими делами ушёл запрос списка. */
+const requestedResponsible = (): unknown =>
+    (h.getList.mock.calls[0]?.[0] as { RESPONSIBLE_ID?: unknown } | undefined)
+        ?.RESPONSIBLE_ID;
 
 const phases = (): string[] => readBootPhases().map(row => row.phase);
 
@@ -85,6 +103,8 @@ beforeEach(() => {
     resetBootPhasesForTests();
     dispatched.length = 0;
     h.getList.mockReset();
+    headMode.enabled = true;
+    headMode.subordinateIds = [];
     // Бут начался: без него окно сводки не с чего отсчитывать.
     markBootPhase('init-start');
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -153,5 +173,34 @@ describe('фаза «до списка дел» во всех терминаль
         expect(
             phases().filter(phase => phase === 'tasks-fetched'),
         ).toHaveLength(1);
+    });
+});
+
+describe('чьи дела запрашиваются в список', () => {
+    beforeEach(() => {
+        h.getList.mockResolvedValue({ result: { tasks: [] } });
+    });
+
+    it('обычный менеджер — только свои', async () => {
+        await runList(5);
+
+        expect(requestedResponsible()).toBe(7);
+    });
+
+    it('руководитель с включённым режимом — свои и сотрудников', async () => {
+        headMode.subordinateIds = [231, 465];
+
+        await runList(5);
+
+        expect(requestedResponsible()).toEqual([7, 231, 465]);
+    });
+
+    it('руководитель выключил режим — только свои', async () => {
+        headMode.subordinateIds = [231, 465];
+        headMode.enabled = false;
+
+        await runList(5);
+
+        expect(requestedResponsible()).toBe(7);
     });
 });

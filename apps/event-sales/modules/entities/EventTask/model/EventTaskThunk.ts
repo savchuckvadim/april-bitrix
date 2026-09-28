@@ -2,6 +2,8 @@ import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
 import type { BXTask } from '@workspace/bx';
 import { waitForAppConfig } from '@/modules/app/lib/utills/app-config-wait';
+import { waitForHeadPerimeter } from '@/modules/features/HeadMode/lib/head-mode-wait';
+import { resolveTaskResponsibleIds } from '@/modules/features/HeadMode/lib/head-mode.util';
 import { EventTask } from '../types/event-task-type';
 import { eventTaskActions } from './EventTaskSlice';
 import { getEvTasksFromBxTasks } from '../lib/task-util';
@@ -106,6 +108,16 @@ export const initialEventTasks =
             // фактически не работала. Таймаут 1.5с — fail-open на хардкод;
             // ветка TASK/CALL_CARD (задача уже известна) не ждёт вовсе.
             await waitForAppConfig(getState);
+            // Руководитель видит и дела своих сотрудников: список
+            // подчинённых ждём так же, как настройки. Не дождались —
+            // только свои дела, остальные доедут перезапросом.
+            await waitForHeadPerimeter(getState);
+            const { enabled, subordinateIds } = getState().headMode;
+            const responsibleIds = resolveTaskResponsibleIds(
+                userId,
+                subordinateIds,
+                enabled,
+            );
             const { taskGroupId } = getState().app.config;
             // Запомним, с чем ушли: настройки портала могут
             // приехать позже и принести другую группу.
@@ -119,7 +131,10 @@ export const initialEventTasks =
                     {
                         GROUP_ID: taskGroupId,
                         UF_CRM_TASK: ufCrmTasks,
-                        RESPONSIBLE_ID: userId,
+                        RESPONSIBLE_ID:
+                            responsibleIds.length > 1
+                                ? responsibleIds
+                                : userId,
                         '!=STATUS': 5,
                     } as never,
                     EVENT_TASK_SELECT,

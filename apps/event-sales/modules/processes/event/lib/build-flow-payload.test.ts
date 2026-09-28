@@ -41,6 +41,13 @@ const makeState = (over?: {
     defs?: QuestionnaireDef[];
     /** подтверждённые ответы опросника «5К»/«Хвост» */
     survey?: Record<string, string>;
+    /** режим руководителя: кто отправляет и на кого записано дело */
+    head?: {
+        me: { ID: number; NAME?: string; LAST_NAME?: string } | null;
+        responsibleId: number;
+        subordinateIds: number[];
+        enabled?: boolean;
+    };
 }): RootState =>
     ({
         app: {
@@ -52,9 +59,15 @@ const makeState = (over?: {
                 deal: { ID: '10' },
                 lead: null,
                 task: null,
-                user: null,
+                user: over?.head?.me ?? null,
                 placement: null,
             },
+        },
+        // Режим руководителя: по умолчанию пользователь — обычный менеджер.
+        headMode: {
+            status: 'ready',
+            enabled: over?.head?.enabled ?? true,
+            subordinateIds: over?.head?.subordinateIds ?? [],
         },
         eventReport: {
             report: {
@@ -77,7 +90,11 @@ const makeState = (over?: {
         department: {
             [DEPARTAMENT_STATE_PROP.MODE]: { current: null },
             [DEPARTAMENT_STATE_PROP.PLAN]: {
-                [DUSER_ROLE.RESPONSIBLE]: { current: null },
+                [DUSER_ROLE.RESPONSIBLE]: {
+                    current: over?.head
+                        ? { ID: over.head.responsibleId }
+                        : null,
+                },
                 [DUSER_ROLE.CREATED_BY]: { current: null },
             },
         },
@@ -455,5 +472,60 @@ describe('payload: ответы опросника презентации', () =
         // Прежнее поведение: старые сборки фрейма его не шлют, и поток
         // обязан работать как раньше.
         expect(surveyOf(makeState())).toBeUndefined();
+    });
+});
+
+describe('payload: режим руководителя', () => {
+    const HEAD = { ID: 481, NAME: 'Иван', LAST_NAME: 'Иванов' };
+    const actingOf = (state: RootState) =>
+        (buildFlowPayload(state) as { actingManager?: unknown }).actingManager;
+
+    it('отчёт за сотрудника — пометка с именем руководителя', () => {
+        const state = makeState({
+            head: { me: HEAD, responsibleId: 231, subordinateIds: [231, 465] },
+        });
+
+        expect(actingOf(state)).toEqual({ ID: 481, NAME: 'Иванов Иван' });
+        // Сам отчёт записан на сотрудника — он в plan.responsibility.
+        expect(
+            (
+                buildFlowPayload(state).plan as {
+                    responsibility?: { ID?: number };
+                }
+            ).responsibility?.ID,
+        ).toBe(231);
+    });
+
+    it('обычный отчёт — поля нет вовсе', () => {
+        expect(actingOf(makeState())).toBeUndefined();
+    });
+
+    it('дело записано на себя — поля нет', () => {
+        const state = makeState({
+            head: { me: HEAD, responsibleId: 481, subordinateIds: [231] },
+        });
+
+        expect(actingOf(state)).toBeUndefined();
+    });
+
+    it('сотрудник вне подчинения — поля нет', () => {
+        const state = makeState({
+            head: { me: HEAD, responsibleId: 700, subordinateIds: [231] },
+        });
+
+        expect(actingOf(state)).toBeUndefined();
+    });
+
+    it('режим выключен — поля нет', () => {
+        const state = makeState({
+            head: {
+                me: HEAD,
+                responsibleId: 231,
+                subordinateIds: [231],
+                enabled: false,
+            },
+        });
+
+        expect(actingOf(state)).toBeUndefined();
     });
 });

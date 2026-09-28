@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { selectWorkingUserId } from '@/modules/app/lib/utills/working-user';
 import {
     buildRelationsBar,
     MAX_RELATION_BARS,
@@ -33,7 +34,9 @@ export const useRelationsBar = (
     const boundDealsById = useAppSelector(s => s.taskDeals.byId);
     // Пользователь фрейма — правило владения: автовыбор главной только
     // среди СВОИХ открытых сделок (deal-ownership).
-    const currentUserId = useAppSelector(s => Number(s.app.bitrix.user?.ID) || null);
+    // В режиме руководителя «свои» — сделки сотрудника, за которого идёт
+    // работа, а не руководителя.
+    const currentUserId = useAppSelector(selectWorkingUserId);
 
     const boundDeals = useMemo(
         () =>

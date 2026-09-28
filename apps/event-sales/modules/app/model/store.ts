@@ -44,6 +44,8 @@ import { stagePredictReducer } from '@/modules/features/StagePredict/model/Stage
 import { taskDealsReducer } from '@/modules/entities/RelatedCrm/model/TaskDealsSlice';
 import { relatedCrmReducer } from '@/modules/entities/RelatedCrm/model/RelatedCrmSlice';
 import { departmentReducer } from '@/modules/features/Departament';
+// Прямой путь в слайс: барель фичи тянет UI и листенер.
+import { headModeReducer } from '@/modules/features/HeadMode/model/HeadModeSlice';
 import { noCallReducer } from '@/modules/features/NoCall';
 import { returnToTmcReducer } from '@/modules/features/ReturnToTMC';
 import { afterPresentationReducer } from '@/modules/features/AfterPresentation';
@@ -148,6 +150,9 @@ const rootReducer = combineReducers({
 
     // features
     department: departmentReducer,
+    // Режим руководителя. В reload-reset НЕ входит: состав подчинённых
+    // перезагрузкой карточки не меняется.
+    headMode: headModeReducer,
     noCall: noCallReducer,
     returnToTmc: returnToTmcReducer,
     afterPresentation: afterPresentationReducer,

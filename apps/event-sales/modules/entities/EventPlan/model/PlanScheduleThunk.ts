@@ -3,12 +3,17 @@ import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
 import type { BXTask } from '@workspace/bx';
 import { parseTaskTitle } from '@/modules/entities/EventTask/lib/task-util';
+import { selectWorkingUserId } from '@/modules/app/lib/utills/working-user';
 import { PlanScheduleEvent, planScheduleActions } from './PlanScheduleSlice';
 
 /**
- * Занятость пользователя на выбранную дату плана (задачи с дедлайном в этот
- * день) — для таймлайна TimePicker. Кэш по дате: повторный выбор того же дня
- * не дёргает API (запрос идёт при коммите даты, не на каждый ввод времени).
+ * Занятость на выбранную дату плана (задачи с дедлайном в этот день) — для
+ * таймлайна TimePicker. Кэш по дате: повторный выбор того же дня не дёргает
+ * API (запрос идёт при коммите даты, не на каждый ввод времени).
+ *
+ * Занятость — ТОГО, НА КОГО записывается дело: в режиме руководителя это
+ * сотрудник, и свободное время руководителя ему ничего не говорит. Смена
+ * сотрудника сбрасывает кэш (листенер режима руководителя).
  */
 export const fetchPlanDaySchedule =
     (date: string) => async (dispatch: AppDispatch, getState: AppGetState) => {
@@ -17,7 +22,7 @@ export const fetchPlanDaySchedule =
         if (state.planSchedule.isLoading || state.planSchedule.date === date)
             return;
 
-        const userId = Number(state.app.bitrix.user?.ID || 0);
+        const userId = selectWorkingUserId(state) ?? 0;
         if (!userId) return;
 
         dispatch(planScheduleActions.setLoading({ status: true }));

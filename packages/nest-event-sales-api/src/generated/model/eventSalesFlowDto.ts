@@ -19,6 +19,7 @@ import type { FailDto } from './failDto';
 import type { ReturnToTmcDto } from './returnToTmcDto';
 import type { LeadDto } from './leadDto';
 import type { PresentationDto } from './presentationDto';
+import type { ActingManagerDto } from './actingManagerDto';
 import type { LeadRequestSyncDto } from './leadRequestSyncDto';
 
 export interface EventSalesFlowDto {
@@ -67,6 +68,8 @@ export interface EventSalesFlowDto {
     lead?: LeadDto;
     /** Данные презентации: счётчики и флаги проведения. */
     presentation: PresentationDto;
+    /** Режим руководителя: кто фактически отправил отчёт за сотрудника. Отчёт идёт от имени сотрудника (он в `plan.responsibility`): сделки, задачи и KPI остаются за ним, а руководитель попадает пометкой в историю, таймлайн, задачу и KPI; сотрудник получает уведомление. Поле не передано — обычный отчёт. */
+    actingManager?: ActingManagerDto;
     /** Синхронизация связанной заявки при финале (отказ/продажа): тип «не ЦА», заметка в историю обработки. */
     leadSync?: LeadRequestSyncDto;
 }

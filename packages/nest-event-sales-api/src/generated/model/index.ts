@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
+export * from './actingManagerDto';
 export * from './agentAiResultDto';
 export * from './agentAnalysisResponseDto';
 export * from './agentAnalysisVersionsDto';

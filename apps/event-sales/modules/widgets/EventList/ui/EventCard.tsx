@@ -15,6 +15,7 @@ import { getEventTypeAttr } from '@/modules/entities/EventTask/lib/event-type-to
 import { getTaskSummary } from '@/modules/entities/EventTask/lib/task-util';
 import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
 import { TaskContactChip } from '@/modules/entities/EventContact';
+import { TaskOwnerChip } from '@/modules/features/HeadMode';
 import {
     RelationDealBars,
     RelationMini,
@@ -108,6 +109,8 @@ export const EventCard: FC<EventCardProps> = ({
                     contactIds={getTaskLinks(task).contactIds}
                     className="mt-0.5"
                 />
+                {/* Режим руководителя: дело сотрудника подписано его именем. */}
+                <TaskOwnerChip task={task} className="mt-0.5" />
                 {relation && (
                     <RelationMini
                         deals={boundDeals}

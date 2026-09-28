@@ -28,6 +28,8 @@ import { inheritsLeadLink } from '@/modules/features/TaskLeadLinks/lib/task-lead
 import { selectChecklistDtoAnswers } from '@/modules/features/CallChecklist/lib/checklist-dto-answers';
 import { selectChecklistSmartAnswers } from '@/modules/features/CallChecklist/lib/checklist-smart-answers';
 import { selectChecklistTextComment } from '@/modules/features/CallChecklist/lib/checklist-text-answers';
+// Прямой путь: барель режима руководителя тянет UI.
+import { selectActingManager } from '@/modules/features/HeadMode/model/selectors';
 import { EvFlowDto } from '../model';
 
 /**
@@ -328,6 +330,10 @@ export const buildFlowPayload = (
         // (модалка перед отправкой). Бэк двинет статусы связанных лидов,
         // залинкует презентацию и допишет историю.
         leadSync: buildLeadSync(state),
+        // Режим руководителя: отчёт записан на сотрудника (он в
+        // plan.responsibility), а кто его отправил — отдельной пометкой.
+        // Вне режима поля нет вовсе.
+        actingManager: selectActingManager(state),
         fail: { postFailDate: state.eventPostFail.postFailDate },
         isPostSale,
         returnToTmc: {

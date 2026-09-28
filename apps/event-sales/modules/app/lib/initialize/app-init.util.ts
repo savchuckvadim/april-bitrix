@@ -19,6 +19,8 @@ import {
     setDepartmentMode,
 } from '@/modules/features/Departament/model/DepartmentThunk';
 import { fetchAppConfig } from '../../model/thunk/AppConfigThunk';
+// Прямой путь: барель режима руководителя тянет UI.
+import { fetchHeadPerimeter } from '@/modules/features/HeadMode/model/HeadModeThunk';
 // Прямой путь: барель каталога анкет тянет транспорт и данные.
 import { ensureQuestionnaireCatalog } from '@/modules/entities/Questionnaire/model/QuestionnaireCatalogThunk';
 import { markBootPhase } from '../diagnostics/boot-phases';
@@ -88,6 +90,9 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     // (оба дожидаются резолва сущностей сами).
     dispatch(portalAPI.endpoints.fetchPortal.initiate({ domain }));
     dispatch(getDepartment(domain, user));
+    // Подчинённые руководителя: список дел ждёт их перед первым запросом
+    // (waitForHeadPerimeter), поэтому старт — здесь, вместе с отделом.
+    dispatch(fetchHeadPerimeter(domain, Number(user?.ID) || 0));
 
     // Resolve the CRM entities for the current placement via @workspace/bitrix services.
     const entities = await getEntitiesFromPlacement(placement, domain);

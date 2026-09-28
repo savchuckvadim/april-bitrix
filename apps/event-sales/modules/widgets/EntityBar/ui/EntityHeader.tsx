@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { ClientBar } from '@/modules/entities/EventCompany';
 import { useCurrentRelations } from '@/modules/entities/RelatedCrm';
 import { InnControl } from '@/modules/features/Inn';
+import { HeadModeBanner } from '@/modules/features/HeadMode';
 import { EVENT_ROUTE_PATH, ROUTE_EVENT } from '@/modules/processes/event';
 import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
 import { useEntityWarnings } from '../lib/hooks/use-entity-warnings';
@@ -100,6 +101,10 @@ export const EntityHeader: FC = () => {
 
                     <EntityActions />
                 </div>
+
+                {/* На чьё имя уйдёт отчёт — видно до отправки, в обоих
+                    режимах шапки. */}
+                <HeadModeBanner />
 
                 {isWideDisplay && withEntity && <EntityBar />}
                 {isWideDisplay && withCurrentEvent && <EntityEventRow />}

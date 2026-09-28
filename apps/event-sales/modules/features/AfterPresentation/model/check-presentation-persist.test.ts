@@ -94,6 +94,9 @@ const makeState = (over?: {
             },
         },
         relatedCrm: { details: null },
+        // Обычный менеджер: режим руководителя на правило «своей сделки»
+        // не влияет.
+        headMode: { status: 'ready', enabled: true, subordinateIds: [] },
     }) as unknown as RootState;
 
 /** Мини-стор: thunk'и исполняются, простые экшены копятся. */

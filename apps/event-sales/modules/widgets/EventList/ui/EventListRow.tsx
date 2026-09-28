@@ -10,6 +10,7 @@ import {
 import { getEventTypeLabel } from '@/modules/entities/EventTask/lib/event-request-type';
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { EventItemResultType } from '@/modules/widgets/EventItem';
+import { TaskOwnerChip } from '@/modules/features/HeadMode';
 import { EventListActions } from './EventListActions';
 
 interface EventListRowProps {
@@ -49,6 +50,8 @@ export const EventListRow: FC<EventListRowProps> = ({
                         {task.name}
                     </span>
                 )}
+                {/* Режим руководителя: дело сотрудника подписано его именем. */}
+                <TaskOwnerChip task={task} className="mt-0.5 flex" />
             </TableCell>
             <TableCell>
                 <EventTypeBadge

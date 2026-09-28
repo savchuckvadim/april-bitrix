@@ -2,6 +2,7 @@ import { Bitrix } from '@workspace/bitrix';
 import { findPortalField, findUfKey } from '@workspace/pbx';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { reportFrontError } from '@/modules/shared/front-error';
+import { selectWorkingUserId } from '@/modules/app/lib/utills/working-user';
 import { isBaseSalesDeal } from '@/modules/entities/RelatedCrm/lib/deal-category';
 import { isOwnDeal } from '@/modules/entities/RelatedCrm/lib/deal-ownership';
 import {
@@ -123,7 +124,7 @@ export const persistCheckPresentation =
          * Только СВОЯ (правило владения 2508): чужая открытая «текущей» не
          * становится, и данные форм под неё не подставляются.
          */
-        const currentUserId = Number(state.app.bitrix.user?.ID) || null;
+        const currentUserId = selectWorkingUserId(state);
         const fallbackBaseDealId = state.relatedCrm.details?.deals?.find(
             related =>
                 !related.closed &&

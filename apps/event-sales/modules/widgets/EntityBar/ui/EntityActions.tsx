@@ -11,6 +11,7 @@ import { FrameTopButton } from '@/modules/app/ui/FrameTopButton';
 import { useEventNavigation } from '@/modules/processes/event';
 import { EVENT_ROUTE_PATH, ROUTE_EVENT } from '@/modules/processes/event';
 import { DepartmentMode } from '@/modules/features/Departament';
+import { HeadModeToggle } from '@/modules/features/HeadMode';
 import { EntityFieldsButton } from '@/modules/features/EntityFieldsDialog';
 import { ResultStatistics } from '@/modules/features/ResultStatistics';
 import {
@@ -42,6 +43,7 @@ export const EntityActions: FC = () => {
     return (
         <div className="ml-auto flex shrink-0 items-center gap-2">
             <DepartmentMode />
+            <HeadModeToggle />
             <ResultStatistics />
             {/* Все общие ручные pbx-поля клиента — модалкой: на узких
                 экранах карточки этих полей скрыты, вход остаётся здесь. */}

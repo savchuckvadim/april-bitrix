@@ -26,6 +26,7 @@ import { TaskLeadLinksCard } from '@/modules/features/TaskLeadLinks/ui/TaskLeadL
 import { ChecklistInlineCard } from '@/modules/features/CallChecklist/ui/ChecklistInlineCard';
 import { PLAN_NAME_MAX_LENGTH } from '@/modules/processes/event/lib/text-limits';
 import { PlanTypeRadio } from './PlanTypeRadio';
+import { PlanAssigneeField } from '@/modules/features/HeadMode';
 
 interface PlanColumnProps {
     /** visibility.plan — false при финальных статусах (Продажа/Отказ). */
@@ -269,6 +270,11 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                                 </p>
                             )}
                         </div>
+
+                        {/* Режим руководителя: на кого записать дело. При
+                            переносе не выбирают — задача остаётся у того же
+                            сотрудника, меняется только срок. */}
+                        {!isReschedule && <PlanAssigneeField />}
 
                         <PlanContactRow />
 

@@ -39,6 +39,8 @@ import { initCheckPresentation } from '@/modules/features/AfterPresentation/mode
 import { startEventPlanAppListener } from '@/modules/entities/EventPlan/model/EventPlanAppListener';
 import { startEventPlanRescheduleListener } from '@/modules/entities/EventPlan/model/EventPlanRescheduleListener';
 import { startDuplicatesAppListener } from '@/modules/features/Duplicates';
+// Прямой путь: барель режима руководителя тянет UI.
+import { startHeadModeListener } from '@/modules/features/HeadMode/model/HeadModeListener';
 import {
     resolveCurrentTaskRelink,
     resolveCurrentTaskSource,
@@ -387,6 +389,8 @@ export function startStoreListeners(startAppListening: AppStartListening) {
     // Инициализация завершена → фоновый дренаж outbox (fire-and-forget):
     // недоставленные конверты отправки досылаются + подписка на 'online'.
     startOutboxDrainListener(startAppListening);
+    // Режим руководителя: за кого идёт работа, дела сотрудников в списке.
+    startHeadModeListener(startAppListening);
     // Инициализация завершена → одна свёрнутая группа диагностики в консоль.
     startAppDiagnosticsListener(startAppListening);
 }

@@ -121,7 +121,12 @@ export type TheoryBlock =
           }[];
       }
     | { kind: 'lead'; text: string }
-    | { kind: 'heading'; text: string }
+    /**
+     * Заголовок части главы. `id` — якорь для ссылок извне (вкладка AI в
+     * отчёте KPI ведёт на `/ai/...#id`): латиница, цифры и дефис, уникален
+     * внутри страницы. Без `id` заголовок якорем не становится.
+     */
+    | { kind: 'heading'; text: string; id?: string }
     | { kind: 'paragraph'; text: string }
     /**
      * Контринтуитивное. Три такта в жёстком порядке: во что верится → как

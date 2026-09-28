@@ -8,7 +8,7 @@
 
 export interface AiBriefUsageDto {
     /**
-     * Токенов вызова; null — модель не вызывали (шаблон без LLM).
+     * Токенов вызова; null — нейросеть не вызывали (резюме по шаблону).
      * @nullable
      */
     tokens: number | null;

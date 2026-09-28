@@ -5,14 +5,16 @@ import type {
     AiTrendSignal,
     AiTrendSignalKind,
 } from '../model';
+import { aiIsoWeekRange, formatAiMonthLabelRange } from './ai-period-label.util';
 
 /*
- * Тренды строки менеджера (Фаза 3, П1) и флаги детектора Гудхарта (П9):
- * подписи метрик и видов сигнала, стрелки направления, формат величин.
- * Слова нейтральные: тренд — факт о ряде, не оценка человека.
+ * Тренды строки менеджера и флаги «показатель растёт, результат — нет»:
+ * подписи показателей и видов сигнала, стрелки направления, формат величин.
+ * Слова нейтральные: тренд — факт о ряде, не оценка человека. Недели и
+ * месяцы — датами, не ключами бэка.
  */
 
-/** Подписи метрик рядов: недельные, корзины, рёбра воронки (edge_*). */
+/** Подписи показателей рядов: недельные, корзины, рёбра воронки (edge_*). */
 export const AI_TREND_METRIC_LABELS: Record<string, string> = {
     quality: 'оценка',
     volume: 'разборов',
@@ -25,9 +27,12 @@ export const AI_TREND_METRIC_LABELS: Record<string, string> = {
     edge_invoice_to_sale: 'счёт → продажа',
 };
 
-/** Подпись метрики; незнакомый код — как есть. */
+/** Подпись незнакомого показателя — нейтрально, без кода. */
+export const AI_TREND_METRIC_UNKNOWN = 'показатель';
+
+/** Подпись показателя; незнакомый код — «показатель». */
 export const aiTrendMetricLabel = (metric: string): string =>
-    AI_TREND_METRIC_LABELS[metric] ?? metric;
+    AI_TREND_METRIC_LABELS[metric] ?? AI_TREND_METRIC_UNKNOWN;
 
 /** Вид сигнала: подпись и тон бэйджа. */
 export const AI_TREND_KIND: Record<
@@ -43,7 +48,7 @@ export const AI_TREND_KIND: Record<
 export const aiTrendArrow = (direction: AiTrendSignal['direction']): string =>
     direction === 'up' ? '↑' : '↓';
 
-/** Величина сигнала в единицах метрики: доли рёбер — в п.п., остальное — как есть. */
+/** Величина сигнала в единицах показателя: доли рёбер — в п.п., остальное — как есть. */
 export const formatAiTrendMagnitude = (signal: AiTrendSignal): string => {
     const sign = signal.magnitude > 0 ? '+' : '−';
     const abs = Math.abs(signal.magnitude);
@@ -53,11 +58,15 @@ export const formatAiTrendMagnitude = (signal: AiTrendSignal): string => {
     return `${sign}${abs.toFixed(1).replace('.', ',')}`;
 };
 
-/** Строка сигнала: «оценка ↓ сдвиг −0,8 с 2026-W31». */
-export const formatAiTrendSignal = (signal: AiTrendSignal): string =>
-    `${aiTrendMetricLabel(signal.metric)} ${aiTrendArrow(signal.direction)} ` +
-    `${AI_TREND_KIND[signal.kind].label} ${formatAiTrendMagnitude(signal)} ` +
-    `с ${signal.sinceWeek}`;
+/** Строка сигнала: «оценка ↓ сдвиг −0,8 с недели 27.07–02.08»; битая неделя — без хвоста. */
+export const formatAiTrendSignal = (signal: AiTrendSignal): string => {
+    const week = aiIsoWeekRange(signal.sinceWeek);
+    return (
+        `${aiTrendMetricLabel(signal.metric)} ${aiTrendArrow(signal.direction)} ` +
+        `${AI_TREND_KIND[signal.kind].label} ${formatAiTrendMagnitude(signal)}` +
+        (week ? ` с недели ${week}` : '')
+    );
+};
 
 /** Тон ячейки трендов: сдвиг вниз — warning, дрейф вниз — info, иначе muted. */
 export const aiTrendsTone = (trends: AiManagerTrends): Tone => {
@@ -67,27 +76,28 @@ export const aiTrendsTone = (trends: AiManagerTrends): Tone => {
     return 'muted';
 };
 
-/** Проценты изменения флага Гудхарта: «+50 %», «−36 %». */
+/** Проценты изменения флага: «+50 %», «−36 %». */
 export const formatAiGoodhartChange = (change: number): string =>
     `${change > 0 ? '+' : '−'}${Math.round(Math.abs(change) * 100)} %`;
 
-/** Строка флага: «разборов +50 %, оценка −36 % за 3 мес. (2026-06 – 2026-08)». */
+/** Строка флага: «разборов +50 %, оценка −36 % за 3 мес. (июнь – август 2026)». */
 export const formatAiGoodhartFlag = (flag: AiGoodhartFlag): string =>
     `${aiTrendMetricLabel(flag.pressure)} ${formatAiGoodhartChange(flag.pressureChange)}, ` +
     `${aiTrendMetricLabel(flag.counter)} ${formatAiGoodhartChange(flag.counterChange)} ` +
-    `за ${flag.points} мес. (${flag.fromKey} – ${flag.toKey})`;
+    `за ${flag.points} мес. (${formatAiMonthLabelRange(flag.fromKey, flag.toKey)})`;
 
-/** Строки подсказки ячейки трендов: сигналы, затем флаги Гудхарта. */
+/** Строки подсказки ячейки трендов: сигналы, затем флаги «показатель растёт, результат — нет». */
 export const aiTrendsHintLines = (trends: AiManagerTrends): string[] => {
     const lines = trends.signals.map(formatAiTrendSignal);
     for (const flag of trends.goodhart ?? []) {
-        lines.push(`метрика растёт, результат — нет: ${formatAiGoodhartFlag(flag)}`);
+        lines.push(`показатель растёт, результат — нет: ${formatAiGoodhartFlag(flag)}`);
     }
     if (lines.length === 0) {
         lines.push('Ряды спокойны: сдвигов и дрейфов за окно нет.');
     }
+    const week = aiIsoWeekRange(trends.weekKey);
     lines.push(
-        `Неделя расчёта ${trends.weekKey} · разборов в окне ${trends.calls} · ` +
+        `Посчитано на неделе ${week ?? '—'} · разборов в окне ${trends.calls} · ` +
             `сравнимых недель ${trends.weeks}`,
     );
     return lines;

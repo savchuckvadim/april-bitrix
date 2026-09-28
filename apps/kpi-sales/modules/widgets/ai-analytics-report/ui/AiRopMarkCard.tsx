@@ -12,6 +12,7 @@ import {
 } from '../lib/ai-rop-mark.util';
 import { AI_ROP_MARK_NO_CALLS_TEXT } from '../lib/ai-rop-mark-state.util';
 import { AiSectionState } from './components/AiSectionState';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiRopMarkCallItem } from './components/AiRopMarkCallItem';
 import { AiRopMarkNotice } from './components/AiRopMarkNotice';
 
@@ -44,19 +45,22 @@ export const AiRopMarkCard = () => {
                     : 'Проверка разбора руководителем: до трёх звонков недели без подсказки AI'
             }
             actions={
-                progress && (
-                    <ToneBadge
-                        tone={
-                            progress.marked === progress.total
-                                ? 'success'
-                                : 'muted'
-                        }
-                        variant="soft"
-                        size="sm"
-                    >
-                        {formatAiRopMarkProgress(progress)}
-                    </ToneBadge>
-                )
+                <>
+                    <AiTheoryLink topic="blindCheck" variant="icon" />
+                    {progress && (
+                        <ToneBadge
+                            tone={
+                                progress.marked === progress.total
+                                    ? 'success'
+                                    : 'muted'
+                            }
+                            variant="soft"
+                            size="sm"
+                        >
+                            {formatAiRopMarkProgress(progress)}
+                        </ToneBadge>
+                    )}
+                </>
             }
         >
             {ropMark.superUserHint && (

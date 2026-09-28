@@ -15,6 +15,7 @@ import {
     shouldShowNotCaSelect,
 } from '../lib/lead-request-view';
 import { LeadRequestAcceptBar } from './LeadRequestAcceptBar';
+import { LeadRequestRepeatBar } from './LeadRequestRepeatBar';
 import { LeadRequestActionsBar } from './LeadRequestActionsBar';
 import { LeadRequestEnumField } from './LeadRequestEnumField';
 import { LeadRequestHistory } from './LeadRequestHistory';
@@ -75,6 +76,9 @@ export const LeadRequestPanel: FC<LeadRequestPanelProps> = ({ leadId }) => {
                 {card && (
                     <div className="space-y-3">
                         <LeadRequestAcceptBar />
+                        {card.repeat && (
+                            <LeadRequestRepeatBar repeat={card.repeat} />
+                        )}
                         <LeadRequestTitleRow
                             title={card.title}
                             leadId={card.leadId}

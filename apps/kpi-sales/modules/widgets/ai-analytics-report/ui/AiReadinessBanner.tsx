@@ -7,6 +7,7 @@ import type { AiSettingsTab } from '../lib/ai-settings-form.util';
 import { AI_CHECKLIST_VERDICT_VIEW } from '../lib/ai-setup-checklist.data';
 import type { AiSetupChecklist as AiSetupChecklistModel } from '../lib/ai-setup-checklist.types';
 import { AiSetupChecklist } from './AiSetupChecklist';
+import { AiTheoryLink } from './components/AiTheoryLink';
 
 interface AiReadinessBannerProps {
     settings: AiAnalyticsSettings;
@@ -19,7 +20,7 @@ interface AiReadinessBannerProps {
     onOpenSettings?: (tab: AiSettingsTab) => void;
 }
 
-/** Состояние push-контуров портала: алерты и дайджест. */
+/** Состояние рассылок портала: сигналы руководителю и дайджест. */
 const AiReadinessFlags = ({ settings }: { settings: AiAnalyticsSettings }) => (
     <div className="flex flex-wrap gap-1">
         <ToneBadge
@@ -27,7 +28,7 @@ const AiReadinessFlags = ({ settings }: { settings: AiAnalyticsSettings }) => (
             variant="soft"
             size="sm"
         >
-            Алерты {settings.alertsEnabled ? 'вкл' : 'выкл'}
+            Сигналы руководителю {settings.alertsEnabled ? 'вкл' : 'выкл'}
         </ToneBadge>
         <ToneBadge
             tone={settings.digestEnabled ? 'success' : 'muted'}
@@ -41,7 +42,7 @@ const AiReadinessFlags = ({ settings }: { settings: AiAnalyticsSettings }) => (
 
 /**
  * «Готовность витрины: <режим>»: строка «что значит режим», флаги
- * алертов и дайджеста, чек-лист «донастроить или просто подождать?»
+ * сигналов руководителю и дайджеста, чек-лист «донастроить или просто подождать?»
  * (причины режима — его пункты) и строка истории разборов.
  */
 export const AiReadinessBanner = ({
@@ -58,7 +59,12 @@ export const AiReadinessBanner = ({
             density="compact"
             title={banner.title}
             description={banner.hint}
-            actions={<AiReadinessFlags settings={settings} />}
+            actions={
+                <>
+                    <AiTheoryLink topic="readinessModes" variant="icon" />
+                    <AiReadinessFlags settings={settings} />
+                </>
+            }
         >
             <AiSetupChecklist
                 checklist={checklist}

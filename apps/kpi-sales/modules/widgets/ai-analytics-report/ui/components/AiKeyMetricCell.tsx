@@ -2,9 +2,11 @@
 
 import { LiquidProgress, ToneBadge } from '@workspace/april-ui';
 import {
+    AI_METRIC_LOW_HINT,
     aiFewDataLabel,
     aiScoreShare,
     aiScoreTone,
+    formatAiCallsShort,
     formatAiScore,
     hasAiMetricValue,
     isAiMetricLow,
@@ -18,7 +20,7 @@ interface AiKeyMetricCellProps {
 
 /**
  * Ключевая цифра строки: оценка качества 1–10 полосой LiquidProgress с
- * числом и n; при confidence none — бэйдж «мало данных (n = …)».
+ * числом и объёмом «18 зв.»; при confidence none — бэйдж «мало данных».
  */
 export const AiKeyMetricCell = ({ metric }: AiKeyMetricCellProps) => {
     if (!hasAiMetricValue(metric)) {
@@ -42,12 +44,12 @@ export const AiKeyMetricCell = ({ metric }: AiKeyMetricCellProps) => {
                     'shrink-0 text-sm font-semibold tabular-nums',
                     low && 'border-b border-dashed border-muted-foreground',
                 )}
-                title={low ? 'Мало данных для выводов (n < 20)' : undefined}
+                title={low ? AI_METRIC_LOW_HINT : undefined}
             >
                 {formatAiScore(metric.value)}
             </span>
             <span className="shrink-0 text-xs text-muted-foreground">
-                n = {metric.n}
+                {formatAiCallsShort(metric.n)}
             </span>
         </div>
     );

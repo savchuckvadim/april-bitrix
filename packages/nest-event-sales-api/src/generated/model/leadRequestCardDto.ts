@@ -7,6 +7,7 @@
  */
 import type { LeadSiteStatusStateDto } from './leadSiteStatusStateDto';
 import type { LeadNotCaTypeStateDto } from './leadNotCaTypeStateDto';
+import type { LeadRequestCardDtoRepeat } from './leadRequestCardDtoRepeat';
 import type { LeadRequestSaleReadinessDto } from './leadRequestSaleReadinessDto';
 
 export interface LeadRequestCardDto {
@@ -60,6 +61,11 @@ export interface LeadRequestCardDto {
      * @nullable
      */
     xoDealId?: number | null;
+    /**
+     * Повторное обращение: заявка присоединена к уже существующей работе клиента (есть основная сделка ОП из другого лида). null — заявка первичная либо сделка не прочитана.
+     * @nullable
+     */
+    repeat?: LeadRequestCardDtoRepeat;
     /** Заявка принята менеджером после последнего назначения (назначение ≠ принятие). false — показать кнопку «Принять в работу». */
     isAccepted: boolean;
     /**

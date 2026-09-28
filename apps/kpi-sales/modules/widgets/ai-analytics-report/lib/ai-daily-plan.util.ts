@@ -15,9 +15,10 @@ import {
 
 /*
  * Чистая логика карточки «План дня»: подписи кодов DTO по-русски, честные
- * подписи null-полей (λ_pipe = null — «истории стадий нет», а не ноль),
- * остаток до цели, опции селекта менеджеров и выбор менеджера по умолчанию.
- * Модель отображения (состояние, заголовок, строки) — ai-daily-plan-view.util.
+ * подписи null-полей (ожидание от сделок в работе = null — «истории стадий
+ * нет», а не ноль), остаток до цели, опции селекта менеджеров и выбор
+ * менеджера по умолчанию. Модель отображения (состояние, заголовок,
+ * строки) — ai-daily-plan-view.util. Обозначения формул на экран не выводим.
  */
 
 /** Источник цели месяца (target.source). */
@@ -38,7 +39,7 @@ export const AI_DAILY_PLAN_TARGET_WARNING: Record<
     'target-empty': 'Цель на месяц не задана',
     wish: 'Цель ниже обычного результата коллег того же стажа — это скорее пожелание',
     'unreachable-by-volume':
-        'Цель выше потолка месяца: обычный максимум звонков в день по порталу × рабочие дни',
+        'Цель выше того, что реально сделать за месяц даже при обычном максимуме звонков',
 };
 
 /** Штатная деградация (reason): почему план посчитан упрощённо, по объёму. */
@@ -67,7 +68,8 @@ export const AI_DAILY_PLAN_UNREACHABLE: Record<AiDailyPlanUnreachable, string> =
     {
         'cap-exceeded': 'требуемый темп выше обычного максимума по порталу',
         'no-days-left': 'рабочих дней не осталось',
-        'edge-theta-zero': 'разворот упёрся в θ = 0',
+        'edge-theta-zero':
+            'на одном из шагов воронки нет ни одного перехода — объём не посчитать',
     };
 
 /** Рёбра воронки: коды строк плана и связующего ограничения. */
@@ -81,17 +83,17 @@ export const AI_DAILY_PLAN_EDGE: Record<
     invoice_to_sale: 'счёт → продажа',
 };
 
-/** Обозначение шага расчёта (explanation.steps[].code) в формулах бэка. */
-export const AI_DAILY_PLAN_STEP_SYMBOL: Record<AiDailyPlanStepCode, string> = {
-    target: 'G',
-    done_sales: 'Y₀',
-    pipeline_expected: 'λ_pipe',
-    required_volume: 'N_req',
-    unwind: 'разворот',
-    ceiling: 'потолок',
+/** Подпись шага расчёта (explanation.steps[].code) — словами, без обозначений формул. */
+export const AI_DAILY_PLAN_STEP_LABEL: Record<AiDailyPlanStepCode, string> = {
+    target: 'Цель',
+    done_sales: 'Закрыто',
+    pipeline_expected: 'Принесут сделки в работе',
+    required_volume: 'Нужно активности',
+    unwind: 'По воронке',
+    ceiling: 'Лимит дня',
 };
 
-/** λ_pipe без истории стадий: цель на пайплайн не уменьшается. */
+/** Ожидание от сделок в работе без истории стадий: цель на них не уменьшается. */
 export const AI_DAILY_PLAN_NO_STAGE_HISTORY = 'не знаем — истории стадий нет';
 /** Обычный максимум звонков не оценён (cap = null). */
 export const AI_DAILY_PLAN_CAP_UNKNOWN = 'не оценён';
@@ -112,15 +114,15 @@ export const formatAiPlanDate = (value: string): string => {
 export const formatAiPlanNumber = (value: number): string =>
     value.toLocaleString('ru-RU', { maximumFractionDigits: 1 });
 
-/** λ_pipe: null — истории стадий нет, это НЕ ноль. */
+/** Ожидание от сделок в работе: null — истории стадий нет, это НЕ ноль. */
 export const formatAiPipelineExpected = (value: number | null): string =>
     value === null ? AI_DAILY_PLAN_NO_STAGE_HISTORY : formatAiPlanNumber(value);
 
-/** Обычный максимум звонков в день по порталу (cap, p90); null — не оценён. */
+/** Обычный максимум звонков в день по порталу (так звонят самые активные); null — не оценён. */
 export const formatAiPlanCap = (cap: number | null): string =>
     cap === null ? AI_DAILY_PLAN_CAP_UNKNOWN : formatAiCount(cap);
 
-/** До цели: G − Y₀ − λ_pipe (без истории стадий пайплайн не вычитаем), не ниже 0. */
+/** До цели: цель − закрыто − ожидание от сделок в работе (без истории стадий его не вычитаем), не ниже 0. */
 export const aiSalesLeft = (
     plan: Pick<AiDailyPlan, 'target' | 'doneSales' | 'pipelineExpected'>,
 ): number =>
@@ -129,7 +131,7 @@ export const aiSalesLeft = (
         plan.target.sales - plan.doneSales - (plan.pipelineExpected ?? 0),
     );
 
-/** Осталось закрыть: G − Y₀ целыми сделками (дробная цель — вверх), не ниже 0. */
+/** Осталось закрыть: цель − закрыто целыми сделками (дробная цель — вверх), не ниже 0. */
 export const aiSalesToClose = (
     plan: Pick<AiDailyPlan, 'target' | 'doneSales'>,
 ): number => Math.max(0, Math.ceil(plan.target.sales - plan.doneSales));

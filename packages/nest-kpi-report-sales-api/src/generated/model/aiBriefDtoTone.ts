@@ -7,7 +7,7 @@
  */
 
 /**
- * Тон резюме: calm — спокойно, attention — требует внимания, alarm — есть алерты.
+ * Тон резюме: calm — спокойно, attention — требует внимания, alarm — есть сигналы риска.
  */
 export type AiBriefDtoTone =
     (typeof AiBriefDtoTone)[keyof typeof AiBriefDtoTone];

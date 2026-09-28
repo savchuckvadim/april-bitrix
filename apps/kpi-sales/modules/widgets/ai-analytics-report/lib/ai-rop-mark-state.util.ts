@@ -1,12 +1,14 @@
 import type { AiRopMarkWeek } from '@/modules/entities/ai-analytics/model';
 import type { AiStatus } from '@/modules/entities/ai-analytics/model/ai-analytics-slice';
 import { isAiRopMarkWeekEmpty } from '@/modules/entities/ai-analytics/lib/ai-rop-mark-week.util';
+import { aiUserErrorText } from '@/modules/entities/ai-analytics/lib/ai-error.util';
 import { isAiSectionAccessError } from './ai-section-error.util';
 
 /*
  * Что показывает карточка слепой оценки (чистая логика): загрузку, ошибку
- * (текст сервера как есть), «подбора нет», «звонков нет» или звонки.
- * Импорты сущности точечные, чтобы vitest не тянул UI-кит через барель.
+ * (понятный текст сервера; служебный — запасной), «подбора нет»,
+ * «звонков нет» или звонки. Импорты сущности точечные, чтобы vitest не
+ * тянул UI-кит через барель.
  */
 
 export type AiRopMarkCardView =
@@ -44,7 +46,7 @@ export const AI_ROP_MARK_VIEW_AS_HINT =
 const ACCESS_TEXT = /доступ/i;
 
 export interface AiRopMarkErrorView {
-    /** Текст сервера как есть (например, 403 суперпользователю вендора). */
+    /** Понятный текст сервера (например, отказ сотруднику April); служебный — запасной. */
     text: string;
     /** Повтор имеет смысл: не отказ в доступе и не выключенный раздел. */
     canRetry: boolean;
@@ -53,9 +55,9 @@ export interface AiRopMarkErrorView {
 export const aiRopMarkErrorView = (
     error: string | null | undefined,
 ): AiRopMarkErrorView => {
-    const text = error?.trim() || AI_ROP_MARK_LOAD_ERROR;
+    const raw = error?.trim() ?? '';
     return {
-        text,
-        canRetry: !isAiSectionAccessError(text) && !ACCESS_TEXT.test(text),
+        text: aiUserErrorText(raw, AI_ROP_MARK_LOAD_ERROR),
+        canRetry: !isAiSectionAccessError(raw) && !ACCESS_TEXT.test(raw),
     };
 };

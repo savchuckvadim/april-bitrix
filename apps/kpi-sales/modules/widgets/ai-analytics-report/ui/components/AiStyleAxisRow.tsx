@@ -11,8 +11,8 @@ import {
     aiStyleCi80Band,
     aiStyleConfidence,
     aiStyleReasonLabel,
-    formatAiSigma,
     formatAiStyleCi80,
+    formatAiStyleDeviation,
 } from '../../lib/ai-style.util';
 
 interface AiStyleAxisRowProps {
@@ -22,9 +22,9 @@ interface AiStyleAxisRowProps {
 const pct = (share: number): string => `${Math.round(share * 100)}%`;
 
 /**
- * Ось стиля: полюса (ближний выделен), шкала −3…+3 σ с точкой значения
- * и полосой интервала 80 %, отклонение с интервалом, n, доверие и его
- * причина. У оси два законных полюса — цвет один, без «хорошо/плохо».
+ * Ось стиля: полюса (ближний выделен), шкала с точкой значения и полосой
+ * интервала 80 %, отклонение от коллег с интервалом, звонков, доверие и
+ * его причина. У оси два законных полюса — цвет один, без «хорошо/плохо».
  */
 export const AiStyleAxisRow = ({ axis }: AiStyleAxisRowProps) => {
     const side = aiStyleAxisSide(axis.value);
@@ -85,7 +85,7 @@ export const AiStyleAxisRow = ({ axis }: AiStyleAxisRowProps) => {
                 {axis.plus}
             </TableCell>
             <TableCell className="text-right text-xs tabular-nums">
-                {formatAiSigma(axis.value)}
+                {formatAiStyleDeviation(axis.value)}
                 {ci && (
                     <div className="text-[0.6875rem] text-muted-foreground">
                         {ci}

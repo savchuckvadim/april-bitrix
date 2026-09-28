@@ -3,9 +3,11 @@
 import { ToneBadge } from '@workspace/april-ui';
 import {
     AI_READINESS_LABELS,
+    aiDossierReasonBadge,
     aiObjectionCategoryLabel,
     formatAiDossierFeedback,
     formatAiDossierReason,
+    formatAiDossierRopSections,
     formatAiScore,
     type AiDossier,
 } from '@/modules/entities/ai-analytics';
@@ -20,7 +22,8 @@ const TITLE =
 /**
  * Короткие своды досье: обратная связь по видам, метки руководителя,
  * возражения по категориям, готовность витрины — и причины, по которым
- * разделы пришли пустыми (каждая с подписью бэка).
+ * разделы пришли пустыми (каждая с подписью бэка; бэйдж — только для
+ * известной причины).
  */
 export const AiDossierSummary = ({ dossier }: AiDossierSummaryProps) => (
     <div className="grid gap-4 text-sm md:grid-cols-2">
@@ -43,7 +46,8 @@ export const AiDossierSummary = ({ dossier }: AiDossierSummaryProps) => (
                 </p>
                 {dossier.ropMarks.sections.length > 0 && (
                     <p className="text-xs text-muted-foreground">
-                        замечания: {dossier.ropMarks.sections.join(', ')}
+                        замечания:{' '}
+                        {formatAiDossierRopSections(dossier.ropMarks.sections)}
                     </p>
                 )}
             </section>
@@ -74,19 +78,28 @@ export const AiDossierSummary = ({ dossier }: AiDossierSummaryProps) => (
             <section className="md:col-span-2">
                 <h4 className={TITLE}>Пустые разделы</h4>
                 <ul className="mt-1 space-y-1">
-                    {dossier.reasons.map(reason => (
-                        <li
-                            key={reason.section}
-                            className="flex flex-wrap items-center gap-2 text-xs"
-                        >
-                            <ToneBadge tone="muted" variant="soft" size="sm">
-                                {reason.reason}
-                            </ToneBadge>
-                            <span className="text-muted-foreground">
-                                {formatAiDossierReason(reason)}
-                            </span>
-                        </li>
-                    ))}
+                    {dossier.reasons.map(reason => {
+                        const badge = aiDossierReasonBadge(reason.reason);
+                        return (
+                            <li
+                                key={reason.section}
+                                className="flex flex-wrap items-center gap-2 text-xs"
+                            >
+                                {badge && (
+                                    <ToneBadge
+                                        tone="muted"
+                                        variant="soft"
+                                        size="sm"
+                                    >
+                                        {badge}
+                                    </ToneBadge>
+                                )}
+                                <span className="text-muted-foreground">
+                                    {formatAiDossierReason(reason)}
+                                </span>
+                            </li>
+                        );
+                    })}
                 </ul>
             </section>
         )}

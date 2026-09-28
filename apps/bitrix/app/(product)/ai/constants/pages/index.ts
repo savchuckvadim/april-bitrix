@@ -14,9 +14,11 @@ import { AI_CALIBRATION } from './calibration';
 import { AI_CALL_ANALYSIS } from './call-analysis';
 import { AI_CALL_TYPES } from './call-types';
 import { AI_GLOSSARY } from './glossary';
+import { AI_HISTORY } from './history';
 import { AI_NEEDS } from './needs';
 import { AI_NUMBERS } from './numbers';
 import { AI_OVERVIEW } from './overview';
+import { AI_PLANS } from './plans';
 import { AI_PUSH } from './push';
 import { AI_ROADMAP } from './roadmap';
 import { AI_ROP } from './rop';
@@ -31,6 +33,8 @@ export const AI_PAGES: readonly TheoryPageContent[] = [
     AI_CALL_TYPES,
     AI_SMART,
     AI_ANALYTICS,
+    AI_PLANS,
+    AI_HISTORY,
     AI_NUMBERS,
     AI_PUSH,
     AI_SETTINGS,

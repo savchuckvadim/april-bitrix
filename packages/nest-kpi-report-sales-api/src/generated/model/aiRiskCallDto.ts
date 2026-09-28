@@ -14,4 +14,9 @@ export interface AiRiskCallDto {
     kind: AiRiskCallDtoKind;
     /** Начало звонка (ISO 8601). */
     callStartedAt: string;
+    /**
+     * Ссылка на карточку разбора звонка в Битрикс24 (смарт-процесс «AI-анализ звонков»); null — элемент разбора ещё не создан или смарт не установлен.
+     * @nullable
+     */
+    link: string | null;
 }

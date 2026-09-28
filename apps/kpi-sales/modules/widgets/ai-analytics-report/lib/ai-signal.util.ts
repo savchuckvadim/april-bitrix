@@ -13,12 +13,14 @@ import {
     AI_DISAGREE_REASON_MAX,
     clampAiDisagreeReason,
 } from '@/modules/entities/ai-analytics/lib/ai-feedback.util';
+import { aiLeverSectionLabel } from './ai-lever-target.util';
 
 /*
  * Чистая логика строки таблицы сигналов: рычаги (recommendations), стаж с
  * источником даты, «разобрано N из M» с подсказкой, видимые колонки,
  * риск-звонки и причина «Не согласен» из списка + комментарий.
- * Импорты сущности точечные (model / lib).
+ * Импорты сущности точечные (model / lib). Коды правил и уровней
+ * доказательности на экран не выводим.
  */
 
 /** Рычаг из дневного снапшота прогноза (алиаса в model сущности нет). */
@@ -42,12 +44,12 @@ export const AI_LEVER: Record<
     },
 };
 
-/** Уровень доказательности рекомендации. */
+/** Уровень доказательности рекомендации — словами, без кода уровня. */
 export const AI_EVIDENCE: Record<AiRecommendationEvidence, string> = {
     E0: 'факт с интервалом',
     E1: 'связь в данных',
-    E2: 'пул порталов или квази-эксперимент',
-    E3: 'пререгистрированный эксперимент',
+    E2: 'данные нескольких порталов',
+    E3: 'проверено экспериментом',
 };
 
 /** Сколько рычагов показывать в строке (бэк отдаёт топ-3). */
@@ -68,7 +70,9 @@ export const aiLeverTitle = (
 ): string => {
     const parts = [
         recommendation.callType ? callTypeLabel(recommendation.callType) : null,
-        recommendation.section ?? null,
+        recommendation.section
+            ? aiLeverSectionLabel(recommendation.section)
+            : null,
         recommendation.category
             ? aiObjectionCategoryLabel(recommendation.category)
             : null,
@@ -98,7 +102,7 @@ export const formatAiLeverCost = (
         maximumFractionDigits: 1,
     })} ${AI_LEVER[recommendation.lever].costUnit}`;
 
-/** Строки подсказки рычага: адресат, эффект, стоимость, доказательность, опоры, правило. */
+/** Строки подсказки рычага: адресат, эффект, стоимость, доказательность, опоры. */
 export const aiLeverHintLines = (
     recommendation: AiRecommendation,
     callTypeLabel?: (code: string) => string,
@@ -109,11 +113,8 @@ export const aiLeverHintLines = (
     )}`,
     `Ожидаемый эффект: ${formatAiLeverEffect(recommendation)}`,
     `Стоимость: ${formatAiLeverCost(recommendation)}`,
-    `Доказательность: ${recommendation.evidence} — ${
-        AI_EVIDENCE[recommendation.evidence]
-    }`,
+    `Доказательность: ${AI_EVIDENCE[recommendation.evidence]}`,
     ...recommendation.basis,
-    `Правило: ${recommendation.ruleCode}`,
 ];
 
 /** YYYY-MM-DD → «01.03.2025»; иное — как есть. */
@@ -218,12 +219,6 @@ export const pickAiRiskCalls = (
     [...calls]
         .sort((a, b) => b.callStartedAt.localeCompare(a.callStartedAt))
         .slice(0, max);
-
-/** Подпись «ещё N» для скрытых риск-звонков; всё показано — null. */
-export const aiRiskCallsRestLabel = (
-    total: number,
-    max = AI_RISK_CALLS_MAX,
-): string | null => (total > max ? `ещё ${total - max}` : null);
 
 /* ---------- «Не согласен»: причина из списка + комментарий ---------- */
 

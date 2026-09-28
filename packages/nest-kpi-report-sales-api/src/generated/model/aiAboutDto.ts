@@ -19,7 +19,7 @@ export interface AiAboutDto {
     purpose: string;
     /** Источники данных. */
     sources: string[];
-    /** Как читать результат. */
+    /** Как читать результат (числа подставлены из реестра). */
     howToRead: string[];
     /** Чего ручка не делает. */
     notDoing: string[];

@@ -50,8 +50,9 @@ describe('доступ к обзору (access)', () => {
         const texts = access?.actions.map(action =>
             action.kind === AI_CHECKLIST_ACTION.TEXT ? action.text : '',
         );
-        expect(texts?.join(' ')).toContain('видят всю структуру');
-        expect(texts?.join(' ')).toContain('BX_SUPER_USER_IDS');
+        expect(texts?.join(' ')).toContain('видит всю структуру');
+        expect(texts?.join(' ')).toContain('Сотруднику April');
+        expect(texts?.join(' ')).not.toMatch(/BX_|403|админ/);
     });
 
     it('обзор пришёл — готово; не 403 (сеть) — пункта нет', () => {

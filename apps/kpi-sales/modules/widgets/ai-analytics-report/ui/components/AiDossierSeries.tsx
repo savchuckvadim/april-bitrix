@@ -10,6 +10,7 @@ import {
 } from '@workspace/ui/components/table';
 import {
     AiMetricValue,
+    formatAiPeriodKey,
     type AiDossierSeries as AiDossierSeriesData,
     type AiDossierSeriesPoint,
 } from '@/modules/entities/ai-analytics';
@@ -43,7 +44,7 @@ const PointsTable = ({
                     {points.map(point => (
                         <TableRow key={point.periodKey}>
                             <TableCell className="tabular-nums">
-                                {point.periodKey}
+                                {formatAiPeriodKey(point.periodKey)}
                             </TableCell>
                             <TableCell className="text-right tabular-nums">
                                 {point.n}

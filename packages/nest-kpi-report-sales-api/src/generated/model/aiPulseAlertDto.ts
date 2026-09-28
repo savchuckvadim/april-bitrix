@@ -23,4 +23,9 @@ export interface AiPulseAlertDto {
     callStartedAt: string;
     /** Отработан ли сигнал (есть feedback kind = alert_handled). */
     handled: boolean;
+    /**
+     * Ссылка на карточку разбора звонка в Битрикс24 (смарт-процесс «AI-анализ звонков»); null — элемент разбора ещё не создан или смарт не установлен.
+     * @nullable
+     */
+    link: string | null;
 }

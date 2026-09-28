@@ -5,9 +5,12 @@ import { HintTooltip } from '@workspace/april-ui';
 import {
     AI_LEVEL,
     AiMetricValue,
+    aiKpiEventLabel,
     aiKpiHintLines,
+    aiKpiReasonLabel,
     aiSectionHintLines,
     formatAiCount,
+    formatAiDeals,
     formatAiMoneyCompact,
     formatAiScore,
     pickAiCellSections,
@@ -25,9 +28,12 @@ interface AiScoreRowProps {
     withType: boolean;
 }
 
+/** Раздел без оценки: звонков раздела меньше порога показа. */
+const FEW_DATA = 'мало данных';
+
 /**
- * Строка «широкой» раскладки: сотрудник | [тип] | n | оценка | 2–4 раздела
- * типа | главный KPI | финансовый хвост | объяснение с раскрытием.
+ * Строка «широкой» раскладки: сотрудник | [тип] | звонков | оценка | 2–4
+ * раздела типа | главный показатель CRM | финансы | объяснение с раскрытием.
  */
 export const AiScoreRow = ({ row, showManager, withType }: AiScoreRowProps) => {
     const { cell, primaryKpi, finance } = row;
@@ -70,11 +76,15 @@ export const AiScoreRow = ({ row, showManager, withType }: AiScoreRowProps) => {
                                         {section.title}
                                     </span>
                                 </HintTooltip>
-                                <span className="tabular-nums">
-                                    {section.avgScore === null
-                                        ? `n = ${section.n}`
-                                        : formatAiScore(section.avgScore)}
-                                </span>
+                                {section.avgScore === null ? (
+                                    <span className="text-muted-foreground">
+                                        {FEW_DATA}
+                                    </span>
+                                ) : (
+                                    <span className="tabular-nums">
+                                        {formatAiScore(section.avgScore)}
+                                    </span>
+                                )}
                             </li>
                         ))}
                     </ul>
@@ -85,7 +95,7 @@ export const AiScoreRow = ({ row, showManager, withType }: AiScoreRowProps) => {
             <TableCell className="text-right tabular-nums">
                 {primaryKpi ? (
                     <HintTooltip
-                        title={primaryKpi.code}
+                        title={aiKpiEventLabel(primaryKpi.code)}
                         lines={aiKpiHintLines(primaryKpi)}
                     >
                         <span>
@@ -100,7 +110,7 @@ export const AiScoreRow = ({ row, showManager, withType }: AiScoreRowProps) => {
                     </HintTooltip>
                 ) : (
                     <span className="text-xs text-muted-foreground">
-                        {cell.kpiReason ?? '—'}
+                        {aiKpiReasonLabel(cell.kpiReason) ?? '—'}
                     </span>
                 )}
             </TableCell>
@@ -109,7 +119,7 @@ export const AiScoreRow = ({ row, showManager, withType }: AiScoreRowProps) => {
                 <div>аванс {formatAiMoneyCompact(finance.advanceAmount)}</div>
                 <div>чек {formatAiMoneyCompact(finance.monthlyAmount)}</div>
                 <div className="text-muted-foreground">
-                    пайплайн {finance.pipelineFromStage.count} ·{' '}
+                    в работе {formatAiDeals(finance.pipelineFromStage.count)} ·{' '}
                     {formatAiMoneyCompact(
                         finance.pipelineFromStage.monthlyAmount,
                     )}

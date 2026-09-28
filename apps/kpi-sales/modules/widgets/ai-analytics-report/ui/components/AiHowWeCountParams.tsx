@@ -22,17 +22,14 @@ interface AiHowWeCountParamRowProps {
     param: AiAboutParam;
 }
 
-/** Параметр реестра: название и код, значение с единицей, слой, класс, описание. */
+/** Параметр расчёта: название, значение с единицей, откуда взято, тип, описание. */
 const AiHowWeCountParamRow = ({ param }: AiHowWeCountParamRowProps) => {
     const kind = AI_ABOUT_KIND[param.kind];
 
     return (
         <TableRow>
-            <TableCell className="align-top">
-                <div className="font-medium">{param.title}</div>
-                <code className="text-[0.6875rem] text-muted-foreground">
-                    {param.code}
-                </code>
+            <TableCell className="align-top font-medium">
+                {param.title}
             </TableCell>
             <TableCell className="whitespace-nowrap align-top font-medium tabular-nums">
                 {formatAiAboutParamValue(param.value, param.unit)}
@@ -56,7 +53,7 @@ const AiHowWeCountParamRow = ({ param }: AiHowWeCountParamRowProps) => {
                     <HintTooltip
                         title={AI_ABOUT_BREAKS_SERIES_LABEL}
                         lines={[
-                            'Смена значения сдвигает начало сравнимой истории — ряды до и после менять местами нельзя.',
+                            'Смена значения сдвигает начало сравнимой истории — ряды до и после сравнивать нельзя.',
                         ]}
                     >
                         <span className="mt-1 inline-block">
@@ -79,7 +76,7 @@ interface AiHowWeCountParamsProps {
     params: AiAboutParam[];
 }
 
-/** Параметры реестра, которые использует ручка, с действующими значениями. */
+/** Параметры расчёта, которые использует раздел, с действующими значениями. */
 export const AiHowWeCountParams = ({ params }: AiHowWeCountParamsProps) => (
     <section className="space-y-2">
         <h4 className="text-sm font-medium">
@@ -94,8 +91,8 @@ export const AiHowWeCountParams = ({ params }: AiHowWeCountParamsProps) => (
                     <TableRow>
                         <TableHead>Параметр</TableHead>
                         <TableHead>Значение</TableHead>
-                        <TableHead>Слой</TableHead>
-                        <TableHead>Класс</TableHead>
+                        <TableHead>Откуда значение</TableHead>
+                        <TableHead>Тип</TableHead>
                         <TableHead>Описание</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -107,7 +104,7 @@ export const AiHowWeCountParams = ({ params }: AiHowWeCountParamsProps) => (
             </Table>
         ) : (
             <p className="text-xs text-muted-foreground">
-                Параметров реестра ручка не использует.
+                У раздела нет настраиваемых параметров.
             </p>
         )}
     </section>

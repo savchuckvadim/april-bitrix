@@ -12,7 +12,7 @@ import { cn } from '@workspace/ui/lib/utils';
 import { ToneBadge } from '@workspace/april-ui';
 import type { AiDailyPlanExplanation as AiDailyPlanExplanationData } from '@/modules/entities/ai-analytics';
 import {
-    AI_DAILY_PLAN_STEP_SYMBOL,
+    AI_DAILY_PLAN_STEP_LABEL,
     formatAiPlanNumber,
 } from '../../lib/ai-daily-plan.util';
 
@@ -21,9 +21,10 @@ interface AiDailyPlanExplanationProps {
 }
 
 /**
- * «Как посчитано» — свёрнуто по умолчанию: строка бэка с формулами и
- * шаги G → Y₀ → λ_pipe → N_req → разворот → потолок (value null — «—»).
- * Простой заголовок плана показывает карточка, формулы — только здесь.
+ * «Как посчитано» — свёрнуто по умолчанию: строка бэка и шаги «Цель →
+ * Закрыто → Принесут сделки в работе → Нужно активности → По воронке →
+ * Лимит дня» (value null — «—»). Простой заголовок плана показывает
+ * карточка, подробности — только здесь.
  */
 export const AiDailyPlanExplanation = ({
     explanation,
@@ -67,7 +68,7 @@ export const AiDailyPlanExplanation = ({
                                     variant="outline"
                                     size="sm"
                                 >
-                                    {AI_DAILY_PLAN_STEP_SYMBOL[step.code]}
+                                    {AI_DAILY_PLAN_STEP_LABEL[step.code]}
                                 </ToneBadge>
                                 <span>{step.text}</span>
                                 <span className="text-muted-foreground tabular-nums">

@@ -3,6 +3,7 @@ import type {
     AiAttention,
     AiAttentionItem,
     AiBrief,
+    AiBriefBullet,
     AiByType,
     AiByTypeLongRow,
     AiByTypeWideRow,
@@ -290,18 +291,27 @@ export const dailyPlan = (
     ...overrides,
 });
 
-/** AI-резюме периода от модели (source = llm). */
+/** Пункт резюме: по умолчанию изменение без менеджера, ссылки и числа. */
+export const briefBullet = (
+    overrides: Partial<AiBriefBullet> = {},
+): AiBriefBullet => ({
+    text: 'Шаг с датой ставится в 42 % звонков.',
+    group: 'change',
+    link: null,
+    delta: null,
+    factRefs: ['discipline_next_step'],
+    ...overrides,
+});
+
+/** AI-резюме периода от модели (source = llm), со сравнением с прошлым периодом. */
 export const brief = (overrides: Partial<AiBrief> = {}): AiBrief => ({
     headline: 'Неделя спокойная: дисциплина держится',
-    bullets: [
-        {
-            text: 'Шаг с датой ставится в 42 % звонков.',
-            factRefs: ['discipline_next_step'],
-        },
-    ],
+    bullets: [briefBullet({ delta: -0.08 })],
     tone: 'calm',
     source: 'llm',
     packHash: 'hash-1',
+    comparable: true,
+    previousPeriod: { from: '2026-07-01', to: '2026-07-31' },
     generatedAt: '2026-09-22T06:00:00Z',
     promptVersion: 'brief-v1',
     reason: null,

@@ -12,8 +12,8 @@ interface AiStyleTagChipProps {
 }
 
 /**
- * Подпись стиля чипом с подсказкой (опора в числах, n); оспоренная
- * сотрудником — контуром с пометкой «оспорена менеджером».
+ * Подпись стиля чипом с подсказкой (опора в числах, «по N звонкам»);
+ * оспоренная сотрудником — контуром с пометкой «оспорена менеджером».
  */
 export const AiStyleTagChip = ({ tag }: AiStyleTagChipProps) => (
     <HintTooltip title={tag.title} lines={aiStyleTagHintLines(tag)}>

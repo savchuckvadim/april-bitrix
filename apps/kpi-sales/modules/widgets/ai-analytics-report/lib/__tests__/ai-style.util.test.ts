@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { styleCard } from '@/modules/entities/ai-analytics/__tests__/ai-fixtures';
 import {
+    AI_FUNNEL_SHAPE_FALLBACK,
+    AI_STYLE_CONFIDENCE_FALLBACK,
     AI_STYLE_LOW_CONFIDENCE_TEXT,
+    AI_STYLE_REASON_FALLBACK,
     AI_STYLE_STATUS_TEXT,
     aiFunnelShapeLabel,
     aiStyleAxisHintLines,
@@ -13,11 +16,13 @@ import {
     aiStyleReasonLabel,
     aiStyleStatusNote,
     aiStyleTagHintLines,
-    formatAiSigma,
     formatAiStyleCi80,
+    formatAiStyleDeviation,
     formatAiStyleMonth,
     formatAiStyleWindow,
 } from '../ai-style.util';
+
+const JARGON = /σ|n =|n=/;
 
 describe('ai-style.util — состояния карточки', () => {
     it('ready — оговорки нет; few_data / opt_out — note бэка либо запасной текст', () => {
@@ -44,41 +49,41 @@ describe('ai-style.util — состояния карточки', () => {
         ).toBe(AI_STYLE_LOW_CONFIDENCE_TEXT);
     });
 
-    it('доверие: подпись и тон, неизвестный уровень — как есть', () => {
+    it('доверие: подпись и тон, незнакомый уровень — нейтрально, не код', () => {
         expect(aiStyleConfidence('ok')).toEqual({
             label: 'уверенно',
             tone: 'success',
         });
         expect(aiStyleConfidence('low').tone).toBe('warning');
         expect(aiStyleConfidence('none').tone).toBe('muted');
-        expect(aiStyleConfidence('weird')).toEqual({
-            label: 'weird',
-            tone: 'muted',
-        });
+        expect(aiStyleConfidence('weird')).toEqual(AI_STYLE_CONFIDENCE_FALLBACK);
+        expect(AI_STYLE_CONFIDENCE_FALLBACK.label).not.toContain('weird');
     });
 
-    it('причины пониженного доверия по-русски', () => {
+    it('причины пониженного доверия по-русски; незнакомая — нейтрально', () => {
         expect(aiStyleReasonLabel(null)).toBeNull();
         expect(aiStyleReasonLabel(undefined)).toBeNull();
         expect(aiStyleReasonLabel('few-calls')).toBe('мало звонков');
         expect(aiStyleReasonLabel('few-peers')).toBe(
             'мало коллег для сравнения',
         );
-        expect(aiStyleReasonLabel('unknown-code')).toBe('unknown-code');
+        expect(aiStyleReasonLabel('unknown-code')).toBe(AI_STYLE_REASON_FALLBACK);
     });
 });
 
-describe('ai-style.util — σ и шкала оси', () => {
-    it('formatAiSigma: знак, одна цифра, типографский минус', () => {
-        expect(formatAiSigma(1.23)).toBe('+1,2 σ');
-        expect(formatAiSigma(-0.44)).toBe('−0,4 σ');
-        expect(formatAiSigma(0)).toBe('0,0 σ');
-        expect(formatAiSigma(-0.04)).toBe('0,0 σ');
+describe('ai-style.util — отклонение и шкала оси', () => {
+    it('formatAiStyleDeviation: знак, одна цифра, типографский минус, без единиц', () => {
+        expect(formatAiStyleDeviation(1.23)).toBe('+1,2');
+        expect(formatAiStyleDeviation(-0.44)).toBe('−0,4');
+        expect(formatAiStyleDeviation(0)).toBe('0,0');
+        expect(formatAiStyleDeviation(-0.04)).toBe('0,0');
     });
 
-    it('formatAiStyleCi80: «+0,6…+1,8 σ», без двух границ — пусто', () => {
-        expect(formatAiStyleCi80([0.6, 1.8])).toBe('+0,6…+1,8 σ');
-        expect(formatAiStyleCi80([-1.2, -0.3])).toBe('−1,2…−0,3 σ');
+    it('formatAiStyleCi80: «вероятно от … до …», без двух границ — пусто', () => {
+        expect(formatAiStyleCi80([0.6, 1.8])).toBe('вероятно от +0,6 до +1,8');
+        expect(formatAiStyleCi80([-1.2, -0.3])).toBe(
+            'вероятно от −1,2 до −0,3',
+        );
         expect(formatAiStyleCi80([1])).toBe('');
         expect(formatAiStyleCi80(undefined)).toBe('');
     });
@@ -100,23 +105,25 @@ describe('ai-style.util — σ и шкала оси', () => {
         expect(aiStyleCi80Band(undefined)).toBeNull();
     });
 
-    it('aiStyleAxisSide: центр при |σ| < 0,5', () => {
+    it('aiStyleAxisSide: центр при отклонении меньше 0,5', () => {
         expect(aiStyleAxisSide(0.3)).toBe('center');
         expect(aiStyleAxisSide(-0.49)).toBe('center');
         expect(aiStyleAxisSide(-0.5)).toBe('minus');
         expect(aiStyleAxisSide(1.2)).toBe('plus');
     });
 
-    it('строки подсказки оси: отклонение, интервал, n, доверие, причина', () => {
+    it('строки подсказки оси: отклонение, интервал, звонков, доверие, причина — без жаргона', () => {
         const axis = styleCard().axes[0];
         expect(axis).toBeDefined();
         if (!axis) return;
-        expect(aiStyleAxisHintLines(axis)).toEqual([
-            'Отклонение: +1,2 σ',
-            '80 %: +0,6…+1,8 σ',
-            'Наблюдений: n = 40',
+        const lines = aiStyleAxisHintLines(axis);
+        expect(lines).toEqual([
+            'Отклонение от коллег: +1,2',
+            'Вероятно от +0,6 до +1,8',
+            'Наблюдений: 40',
             'Доверие: уверенно',
         ]);
+        expect(lines.join('\n')).not.toMatch(JARGON);
         expect(
             aiStyleAxisHintLines({
                 ...axis,
@@ -125,14 +132,14 @@ describe('ai-style.util — σ и шкала оси', () => {
                 reason: 'few-calls',
             }),
         ).toEqual([
-            'Отклонение: +1,2 σ',
-            'Наблюдений: n = 40',
+            'Отклонение от коллег: +1,2',
+            'Наблюдений: 40',
             'Доверие: мало данных',
             'Причина: мало звонков',
         ]);
     });
 
-    it('строки подсказки подписи: опора, n, пометка об оспаривании', () => {
+    it('строки подсказки подписи: опора, «по N звонкам», пометка об оспаривании', () => {
         const tag = {
             code: 'long_calls',
             title: 'Долгие разговоры',
@@ -141,33 +148,33 @@ describe('ai-style.util — σ и шкала оси', () => {
         };
         expect(aiStyleTagHintLines(tag)).toEqual([
             'Медиана 9 мин против 6 у коллег',
-            'n = 40',
+            'по 40 звонкам',
         ]);
         expect(aiStyleTagHintLines({ ...tag, disputed: true })).toHaveLength(3);
     });
 });
 
 describe('ai-style.util — месяцы и воронка', () => {
-    it('formatAiStyleMonth: «август 2026», пусто — «—», мусор — как есть', () => {
+    it('formatAiStyleMonth: «август 2026», пусто и не ключ — «—»', () => {
         expect(formatAiStyleMonth('2026-08')).toBe('август 2026');
         expect(formatAiStyleMonth('2026-01')).toBe('январь 2026');
         expect(formatAiStyleMonth(null)).toBe('—');
         expect(formatAiStyleMonth('')).toBe('—');
-        expect(formatAiStyleMonth('2026-13')).toBe('2026-13');
+        expect(formatAiStyleMonth('2026-13')).toBe('—');
     });
 
     it('formatAiStyleWindow: диапазон, один месяц, пусто', () => {
         expect(formatAiStyleWindow(['2026-06', '2026-07', '2026-08'])).toBe(
-            'июнь 2026 — август 2026',
+            'июнь – август 2026',
         );
         expect(formatAiStyleWindow(['2026-08'])).toBe('август 2026');
         expect(formatAiStyleWindow([])).toBe('—');
     });
 
-    it('форма воронки как контекст; неизвестная — как есть', () => {
+    it('форма воронки как контекст; незнакомая — нейтрально', () => {
         expect(aiFunnelShapeLabel('balanced')).toBe('Сбалансирован');
         expect(aiFunnelShapeLabel('closer')).toBe('Закрыватель');
-        expect(aiFunnelShapeLabel('toString')).toBe('toString');
-        expect(aiFunnelShapeLabel('odd')).toBe('odd');
+        expect(aiFunnelShapeLabel('toString')).toBe(AI_FUNNEL_SHAPE_FALLBACK);
+        expect(aiFunnelShapeLabel('odd')).toBe(AI_FUNNEL_SHAPE_FALLBACK);
     });
 });

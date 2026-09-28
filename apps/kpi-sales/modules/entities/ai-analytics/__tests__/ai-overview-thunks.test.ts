@@ -30,6 +30,7 @@ import type { AiSettingsInput, AiSettingsSaveResult } from '../model';
 import {
     attention,
     byType,
+    httpError,
     overview,
     processing,
     queued,
@@ -455,13 +456,13 @@ describe('saveAiLevels (settings/save)', () => {
         expect(saveSettings).toHaveBeenCalledTimes(1);
     });
 
-    it('403 сервера → levels.error, saving снят, null', async () => {
-        saveSettings.mockRejectedValue(new Error('Forbidden'));
+    it('403 сервера → levels.error с текстом сервера, saving снят, null', async () => {
+        saveSettings.mockRejectedValue(httpError(403, 'Нет прав'));
         const store = makeStore();
         const saved = await store.dispatch(saveAiLevels({ levels: [] }));
         expect(saved).toBeNull();
         expect(store.getState().aiAnalytics.levels.saving).toBe(false);
-        expect(store.getState().aiAnalytics.levels.error).toBe('Forbidden');
+        expect(store.getState().aiAnalytics.levels.error).toBe('Нет прав');
     });
 
     it('error-конверт → текст сервера в levels.error', async () => {

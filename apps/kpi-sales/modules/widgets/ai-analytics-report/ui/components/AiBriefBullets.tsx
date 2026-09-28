@@ -1,25 +1,33 @@
 'use client';
 
-import type { AiBriefBullet } from '@/modules/entities/ai-analytics';
-import { AiBriefBulletRow } from './AiBriefBulletRow';
+import {
+    AI_BRIEF_NO_BULLETS_TEXT,
+    buildAiBriefGroups,
+    type AiBriefBulletSource,
+} from '../../lib/ai-brief-view.util';
+import { AiBriefGroupSection } from './AiBriefGroupSection';
 
 interface AiBriefBulletsProps {
-    bullets: AiBriefBullet[];
+    bullets: readonly AiBriefBulletSource[] | null | undefined;
 }
 
-/** Буллеты резюме (до 5, прошли факт-чек); пусто — фактов не набралось. */
-export const AiBriefBullets = ({ bullets }: AiBriefBulletsProps) =>
-    bullets.length ? (
-        <ul className="space-y-2">
-            {bullets.map((bullet, index) => (
-                <AiBriefBulletRow
-                    key={`${index}-${bullet.text}`}
-                    bullet={bullet}
-                />
+/**
+ * Пункты итогов по группам: что изменилось, на кого смотреть, что сделать
+ * на неделе. Группы без пунктов не показываем; пунктов нет совсем —
+ * остаётся только главный вывод.
+ */
+export const AiBriefBullets = ({ bullets }: AiBriefBulletsProps) => {
+    const groups = buildAiBriefGroups(bullets);
+
+    return groups.length ? (
+        <div className="grid gap-4 lg:auto-cols-fr lg:grid-flow-col">
+            {groups.map(group => (
+                <AiBriefGroupSection key={group.group} group={group} />
             ))}
-        </ul>
+        </div>
     ) : (
         <p className="py-2 text-xs text-muted-foreground">
-            Фактов для буллетов за период не набралось — только заголовок.
+            {AI_BRIEF_NO_BULLETS_TEXT}
         </p>
     );
+};

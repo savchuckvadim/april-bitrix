@@ -1,41 +1,41 @@
 'use client';
 
-import { ToneBadge } from '@workspace/april-ui';
-import type { AiBriefBullet } from '@/modules/entities/ai-analytics';
-import { useAiManagerName } from '../../hooks/use-ai-manager-name';
-import { formatAiBriefFactRefs } from '../../lib/ai-brief.util';
-import { AiCallTypeBadge } from './AiCallTypeBadge';
+import { Square } from 'lucide-react';
+import {
+    hasAiBriefBulletMeta,
+    type AiBriefBulletView,
+} from '../../lib/ai-brief-view.util';
+import { AiBriefBulletMeta } from './AiBriefBulletMeta';
+import { AiManagerName } from './AiManagerName';
 
 interface AiBriefBulletRowProps {
-    bullet: AiBriefBullet;
+    bullet: AiBriefBulletView;
 }
 
-/** Буллет резюме: текст, чип менеджера, бэйдж типа звонка, коды фактов мелким серым. */
-export const AiBriefBulletRow = ({ bullet }: AiBriefBulletRowProps) => {
-    const managerName = useAiManagerName();
-    const factRefs = formatAiBriefFactRefs(bullet.factRefs);
-    const hasMeta = !!bullet.managerId || !!bullet.callType || !!factRefs;
-
-    return (
-        <li className="rounded-md border border-border/60 p-3">
-            <p className="text-sm">{bullet.text}</p>
-            {hasMeta && (
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                    {bullet.managerId && (
-                        <ToneBadge tone="muted" variant="soft" size="sm">
-                            {managerName(bullet.managerId)}
-                        </ToneBadge>
-                    )}
-                    {bullet.callType && (
-                        <AiCallTypeBadge code={bullet.callType} />
-                    )}
-                    {factRefs && (
-                        <span className="text-[0.6875rem] text-muted-foreground">
-                            факты: {factRefs}
-                        </span>
-                    )}
-                </div>
+/**
+ * Пункт итогов. «На кого смотреть» начинается с имени менеджера, «Что
+ * сделать» выглядит строкой списка дел; под текстом — слово изменения,
+ * менеджер, тип звонка и ссылка на разбор, когда они есть.
+ */
+export const AiBriefBulletRow = ({ bullet }: AiBriefBulletRowProps) => (
+    <li className="flex gap-2 rounded-md border border-border/60 p-3">
+        {bullet.group === 'action' && (
+            <Square
+                className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
+                aria-hidden
+            />
+        )}
+        <div className="min-w-0 space-y-2">
+            {bullet.group === 'focus' && bullet.managerId && (
+                <AiManagerName
+                    managerId={bullet.managerId}
+                    className="block text-sm"
+                />
             )}
-        </li>
-    );
-};
+            <p className="text-sm">{bullet.text}</p>
+            {hasAiBriefBulletMeta(bullet) && (
+                <AiBriefBulletMeta bullet={bullet} />
+            )}
+        </div>
+    </li>
+);

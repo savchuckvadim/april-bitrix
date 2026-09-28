@@ -9,13 +9,19 @@ import type {
     AiRopMarkWeekQuery,
 } from '@/modules/entities/ai-analytics/model';
 import { formatAiDay } from '@/modules/entities/ai-analytics/lib/ai-metric.util';
+import {
+    AI_CALL_SECTION_CODES,
+    AI_CALL_SECTION_FALLBACK,
+    AI_CALL_SECTION_SHORT_LABELS,
+    aiCallSectionShortLabel,
+} from '@/modules/entities/ai-analytics/lib/ai-call-sections.data';
 
 /*
  * Чистая логика карточки слепой оценки «три звонка недели» (rop-mark):
- * подписи разделов рубрики и причин подбора, форма метки → тело
- * rop-mark/save, подписи прогресса и заметки после сохранения.
- * Импорты сущности точечные (model / lib), чтобы vitest не тянул UI-кит
- * через барель.
+ * разделы рубрики (короткие названия из справочника сущности) и причины
+ * подбора, форма метки → тело rop-mark/save, подписи прогресса и заметки
+ * после сохранения. Импорты сущности точечные (model / lib), чтобы vitest
+ * не тянул UI-кит через барель.
  */
 
 /** Шкала оценки руководителя — та же, что у разбора (зеркало лимитов бэка). */
@@ -30,23 +36,21 @@ export const AI_ROP_MARK_SCORES: number[] = Array.from(
     (_, index) => AI_ROP_MARK_SCORE.min + index,
 );
 
-/** Разделы рубрики метки в порядке разговора. */
+/** Разделы рубрики метки в порядке разговора — короткие названия для чекбоксов. */
 export const AI_ROP_MARK_SECTIONS: {
     code: AiRopMarkSection;
     label: string;
-}[] = [
-    { code: 'GREETING', label: 'Приветствие' },
-    { code: 'NEEDS', label: 'Потребности' },
-    { code: 'PRESENTATION', label: 'Презентация' },
-    { code: 'OBJECTIONS', label: 'Возражения' },
-    { code: 'PRICE', label: 'Цена' },
-    { code: 'CLOSING', label: 'Закрытие' },
-    { code: 'REFUSAL', label: 'Отказ' },
-];
+}[] = AI_CALL_SECTION_CODES.map(code => ({
+    code,
+    label: AI_CALL_SECTION_SHORT_LABELS[code],
+}));
 
-/** Подпись раздела рубрики; неизвестный код — как есть. */
+/** Незнакомый раздел рубрики — нейтрально, без кода. */
+export const AI_ROP_MARK_SECTION_OTHER = AI_CALL_SECTION_FALLBACK;
+
+/** Короткая подпись раздела рубрики; незнакомый код — «другой раздел». */
 export const aiRopMarkSectionLabel = (code: AiRopMarkSection): string =>
-    AI_ROP_MARK_SECTIONS.find(section => section.code === code)?.label ?? code;
+    aiCallSectionShortLabel(code);
 
 /** Причина подбора: тон бэйджа и пояснение (подпись reasonTitle приходит с бэка). */
 export const AI_ROP_MARK_REASON: Record<

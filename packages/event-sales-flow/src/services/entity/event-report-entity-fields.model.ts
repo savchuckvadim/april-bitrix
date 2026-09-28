@@ -299,7 +299,7 @@ export class EventReportEntityFieldsModel {
                 value: this.nowCrmDate(),
             });
             this.applyNextEventAxis(out);
-            this.setScalar(out, 'manager_op', this.ctx.planResponsibleId);
+            this.setScalar(out, 'manager_op', this.ctx.workResponsibleId);
         }
 
         // ===== isPresentationDone =====
@@ -441,9 +441,9 @@ export class EventReportEntityFieldsModel {
         if (
             (this.entityType === EEventReportEntityType.COMPANY ||
                 this.entityType === EEventReportEntityType.LEAD) &&
-            this.ctx.planResponsibleId
+            this.ctx.workResponsibleId
         ) {
-            out['ASSIGNED_BY_ID'] = this.ctx.planResponsibleId;
+            out['ASSIGNED_BY_ID'] = this.ctx.workResponsibleId;
         }
 
         // ===== Deal-only: связь pres-сделки с корневой sales_base =====

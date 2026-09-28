@@ -27,9 +27,11 @@ import {
 import {
     AI_ABSENCE_KIND_OPTIONS,
     AI_SETTINGS_BREAKING_BLOCKS,
+    AI_SETTINGS_UNKNOWN_BLOCK,
     buildAiLevelsForm,
     defaultAiLevelTarget,
     formatAiSettingsBreakCode,
+    formatAiSettingsBreakCodes,
     isAiAbsenceKind,
     toAiLevelsPayload,
     validateAiLevelRow,
@@ -104,15 +106,17 @@ describe('основание карточки «Внимание»', () => {
                 n: 24,
                 ci90: [0.2, 0.45],
             }),
-        ).toBe('Шаг с датой: 31 % (норма 50 %) · n = 24 · 90 %: 20–45 %');
+        ).toBe(
+            'Шаг с датой: 31 % (норма 50 %) · звонков: 24 · вероятно от 20 до 45 %',
+        );
     });
 
-    it('счётчик без n (значение из настройки) и неизвестный код', () => {
+    it('счётчик без n (значение из настройки) и неизвестный код — без кода', () => {
         expect(formatAiBasisLine({ code: 'plan_head', value: 30, n: 0 })).toBe(
             'План руководителя: 30',
         );
         expect(formatAiBasisLine({ code: 'weird', value: 2, n: 2 })).toBe(
-            'weird: 2 · n = 2',
+            'показатель: 2 · звонков: 2',
         );
     });
 });
@@ -297,12 +301,12 @@ describe('справочники настроек витрины', () => {
         expect(AI_SETTINGS_BREAKING_BLOCKS).toEqual(['definitions', 'scoring']);
     });
 
-    it('код breaksSeries человеком: ключ, поле, неизвестный код', () => {
+    it('код breaksSeries человеком: только подпись блока, незнакомый — «настройки»', () => {
         expect(
             formatAiSettingsBreakCode(
                 'ai_analytics_definitions.productiveCall',
             ),
-        ).toBe('Определения событий · productiveCall');
+        ).toBe('Определения событий');
         expect(formatAiSettingsBreakCode('ai_analytics_scoring')).toBe(
             'Потолки оценивания',
         );
@@ -310,9 +314,22 @@ describe('справочники настроек витрины', () => {
             formatAiSettingsBreakCode('ai_analytics_roster_confirmed_at'),
         ).toBe('Подтверждение состава');
         expect(formatAiSettingsBreakCode('ai_analytics_unknown')).toBe(
-            'ai_analytics_unknown',
+            AI_SETTINGS_UNKNOWN_BLOCK,
         );
-        expect(formatAiSettingsBreakCode('kappa')).toBe('kappa');
+        expect(formatAiSettingsBreakCode('kappa')).toBe(
+            AI_SETTINGS_UNKNOWN_BLOCK,
+        );
+        expect(AI_SETTINGS_UNKNOWN_BLOCK).not.toContain('kappa');
+    });
+
+    it('список кодов → подписи блоков без повторов', () => {
+        expect(
+            formatAiSettingsBreakCodes([
+                'ai_analytics_definitions.a',
+                'ai_analytics_definitions.b',
+                'kappa',
+            ]),
+        ).toEqual(['Определения событий', AI_SETTINGS_UNKNOWN_BLOCK]);
     });
 });
 

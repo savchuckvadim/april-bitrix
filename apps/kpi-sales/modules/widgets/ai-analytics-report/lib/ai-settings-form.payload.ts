@@ -1,7 +1,8 @@
 import {
     AI_SETTINGS_BLOCK_LABELS,
     AI_SETTINGS_BREAKING_BLOCKS,
-    formatAiSettingsBreakCode,
+    formatAiFullDate,
+    formatAiSettingsBreakCodes,
     pluralRu,
     toAiLevelsPayload,
     type AiLevelTargetInput,
@@ -139,7 +140,7 @@ export const describeAiSettingsPayload = (payload: AiSettingsInput): string[] =>
                 return `${label}: ${countManagers(payload.absences?.length ?? 0)}`;
             case 'rosterConfirmedAt':
                 return payload.rosterConfirmedAt
-                    ? `${label}: ${payload.rosterConfirmedAt}`
+                    ? `${label}: ${formatAiFullDate(payload.rosterConfirmedAt)}`
                     : `${label}: снято`;
             default:
                 return label;
@@ -152,7 +153,7 @@ export const buildAiSettingsSummary = (
 ): AiSettingsSaveSummary => ({
     saved: describeAiSettingsPayload(payload),
     comparableFrom: result.comparableFrom,
-    breaks: result.breaksSeries.map(formatAiSettingsBreakCode),
+    breaks: formatAiSettingsBreakCodes(result.breaksSeries),
     warnings: result.warnings,
     resetCount: result.resetCount,
 });

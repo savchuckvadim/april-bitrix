@@ -24,9 +24,11 @@ import type {
     AiAttentionBasisDto,
     AiBetaCountdownDto,
     AiBriefBulletDto,
+    AiBriefBulletDtoGroup,
     AiBriefDto,
     AiBriefDtoSource,
     AiBriefDtoTone,
+    AiBriefPreviousPeriodDto,
     AiBriefUsageDto,
     AiDailyPlanDto,
     AiDailyPlanDtoReason,
@@ -291,6 +293,10 @@ export interface AiDailyPlanQuery {
 
 export type AiBrief = AiBriefDto;
 export type AiBriefBullet = AiBriefBulletDto;
+/** Группа пункта: change — что изменилось, focus — на кого смотреть, action — что сделать. */
+export type AiBriefBulletGroup = AiBriefBulletDtoGroup;
+/** Прошлый период сравнения той же длины (YYYY-MM-DD). */
+export type AiBriefPreviousPeriod = AiBriefPreviousPeriodDto;
 /** Тон резюме: calm | attention | alarm. */
 export type AiBriefTone = AiBriefDtoTone;
 /** llm — ответ модели прошёл факт-чек; template — шаблон по фактам (см. reason). */

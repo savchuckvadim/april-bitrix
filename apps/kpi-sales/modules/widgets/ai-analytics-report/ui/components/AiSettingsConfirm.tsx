@@ -12,7 +12,7 @@ import {
 } from '@/modules/entities/ai-analytics';
 
 interface AiSettingsConfirmProps {
-    /** Блоки payload, правка которых двигает comparableFrom. */
+    /** Блоки payload, правка которых сдвигает начало сравнимой истории. */
     blocks: AiSettingsBlockName[];
 }
 
@@ -29,9 +29,9 @@ export const AiSettingsConfirm = ({ blocks }: AiSettingsConfirmProps) => (
                 {blocks
                     .map(block => `«${AI_SETTINGS_BLOCK_LABELS[block]}»`)
                     .join(', ')}{' '}
-                меняют правила расчёта. Сервер сдвинет comparableFrom на
-                сегодня: тренды до этой даты станут несопоставимы с новыми, а в
-                журнале событий появится автозапись о разрыве ряда.
+                меняют правила расчёта. Начало сравнимой истории сдвинется на
+                сегодня: тренды до этой даты станут несопоставимы с новыми, а
+                в журнале событий появится запись о разрыве ряда.
             </p>
             <p>Остальные блоки сохранятся как обычно.</p>
         </AlertDescription>

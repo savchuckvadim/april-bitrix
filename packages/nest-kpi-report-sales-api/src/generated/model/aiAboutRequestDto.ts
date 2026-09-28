@@ -12,6 +12,6 @@ export interface AiAboutRequestDto {
     domain: string;
     /** Bitrix-id пользователя, запрашивающего данные (requester). По нему определяется периметр видимости: руководитель — все/отдел/группа, менеджер — только свои строки. */
     requesterUserId: string;
-    /** Ручка витрины, для которой нужен блок: overview — обзор менеджер × тип, plan/daily — план дня, brief — AI-резюме, manager/style — карточка стиля. */
+    /** Ручка витрины, для которой нужен блок: overview — обзор менеджеров и типов звонков, plan/daily — план дня, brief — краткое резюме, plan-fact — план и факт, dossier — досье, manager/style — карточка стиля. */
     endpoint: AiAboutRequestDtoEndpoint;
 }

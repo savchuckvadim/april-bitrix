@@ -37,6 +37,7 @@ export {
     fetchAiRopMarkWeek,
     fetchAiSettings,
     fetchAiStyleProfile,
+    fetchAiTypesMatrix,
     isAiRopMarkWeekEmpty,
     recalcAiOverview,
     refreshAiAnalytics,
@@ -59,11 +60,13 @@ export {
     startAiWsListener,
 } from './model/listeners/ai-ws.listener';
 export * from './lib/ai-call-types.data';
+export * from './lib/ai-call-sections.data';
 export * from './lib/ai-readiness.data';
 export * from './lib/ai-pulse.data';
 export * from './lib/ai-overview.data';
 export * from './lib/ai-metric.util';
 export * from './lib/ai-pulse.util';
+export * from './lib/ai-pulse-list.util';
 export * from './lib/ai-score.util';
 export * from './lib/ai-finance.util';
 export * from './lib/ai-attention.util';
@@ -75,10 +78,21 @@ export * from './lib/ai-trend.util';
 export * from './lib/ai-plan-fact.util';
 export * from './lib/ai-yoy.util';
 export * from './lib/ai-dossier.util';
+export * from './lib/ai-kpi-codes.data';
+export * from './lib/ai-matrix-table.util';
+export * from './lib/ai-types-matrix.util';
+export * from './lib/ai-sections-matrix.util';
+export * from './lib/ai-types-matrix-rating.util';
+export * from './lib/ai-types-matrix-csv.util';
+export * from './lib/ai-period-label.util';
 export {
+    AI_ERROR_FORBIDDEN_TEXT,
+    AI_ERROR_GENERIC_TEXT,
     aiErrorMessage,
     aiErrorStatus,
     aiServerMessage,
+    aiUserErrorText,
+    isAiTechnicalErrorText,
 } from './lib/ai-error.util';
 export {
     AI_MAX_PERIOD_MONTHS,

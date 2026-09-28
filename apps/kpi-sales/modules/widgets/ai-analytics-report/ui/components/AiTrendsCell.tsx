@@ -11,7 +11,7 @@ interface AiTrendsCellProps {
     trends: AiManagerTrends | null | undefined;
 }
 
-/** Короткая подпись ячейки: сколько сигналов вниз/вверх, есть ли флаги Гудхарта. */
+/** Короткая подпись ячейки: сколько сигналов вниз/вверх, есть ли флаги «показатель ↑ результат ↓». */
 export const aiTrendsCellLabel = (trends: AiManagerTrends): string => {
     const down = trends.signals.filter(s => s.direction === 'down').length;
     const up = trends.signals.length - down;
@@ -25,12 +25,12 @@ export const aiTrendsCellLabel = (trends: AiManagerTrends): string => {
 /**
  * Ячейка «Тренды» строки: бэйдж со сводкой сигналов (тон — по худшему
  * сигналу вниз) и подсказкой с каждым сигналом и флагом. Блока нет
- * (снапшота трендов нет или разборов мало) — прочерк.
+ * (тренды ещё не посчитаны или разборов мало) — прочерк.
  */
 export const AiTrendsCell = ({ trends }: AiTrendsCellProps) => {
     if (!trends) return <span className="text-muted-foreground">—</span>;
     return (
-        <HintTooltip title="Тренды рядов" lines={aiTrendsHintLines(trends)}>
+        <HintTooltip title="Тренды" lines={aiTrendsHintLines(trends)}>
             <span>
                 <ToneBadge tone={aiTrendsTone(trends)} variant="soft" size="sm">
                     {aiTrendsCellLabel(trends)}

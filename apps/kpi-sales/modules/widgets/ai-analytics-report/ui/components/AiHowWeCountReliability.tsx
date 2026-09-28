@@ -14,42 +14,37 @@ import {
     type AiAboutReliability,
 } from '@/modules/entities/ai-analytics';
 import {
-    AI_ABOUT_RELIABILITY_CATEGORY_LABELS,
-    AI_ABOUT_SIGMA_SOURCE_LABELS,
+    aiAboutReliabilityCategoryLabel,
     formatAiAboutKappa,
+    formatAiAboutReliabilityLine,
+    formatAiAboutReliableHeader,
 } from '../../lib/ai-about.util';
 
 interface AiHowWeCountReliabilityProps {
-    /** null — прогона test-retest на портале ещё не было. */
+    /** null — повторных разборов для проверки на портале ещё не было. */
     reliability: AiAboutReliability | null;
 }
 
+const NOT_MEASURED_TEXT =
+    'Повторные разборы для проверки AI ещё не делали: разброс оценок взят по умолчанию.';
+
 /**
- * «Надёжность оценщика»: итог test-retest языковой модели — σ_llm и её
- * источник, согласие по полям разбора против порога golden_kappa_min
- * (ненадёжное поле подсвечено), F1 по возражениям, когда мерили.
+ * «Надёжность оценок AI»: итог повторных разборов тех же звонков —
+ * разброс оценок и на скольких парах он измерен, согласие по полям
+ * разбора против порога (ненадёжное поле подсвечено), совпадение по
+ * возражениям, когда мерили.
  */
 export const AiHowWeCountReliability = ({
     reliability,
 }: AiHowWeCountReliabilityProps) => (
     <section className="space-y-2">
-        <h4 className="text-sm font-medium">Надёжность оценщика</h4>
+        <h4 className="text-sm font-medium">Надёжность оценок AI</h4>
         {!reliability ? (
-            <p className="text-xs text-muted-foreground">
-                Повторный прогон разборов (test-retest) на портале ещё не
-                делали: σ_llm взята из реестра, согласие по полям не измерено.
-            </p>
+            <p className="text-xs text-muted-foreground">{NOT_MEASURED_TEXT}</p>
         ) : (
             <>
                 <p className="text-sm text-muted-foreground">
-                    σ_llm = {reliability.sigmaLlm.value.toFixed(2)} (
-                    {AI_ABOUT_SIGMA_SOURCE_LABELS[reliability.sigmaLlm.source]}
-                    ; пар {reliability.sigmaLlm.n} из ценза{' '}
-                    {reliability.sigmaLlm.minPairs}) · версия промпта{' '}
-                    <code>{reliability.promptVersion}</code> · пар в отчёте{' '}
-                    {reliability.pairs}
-                    {reliability.withinQuota ? '' : ' (сверх квоты)'} · F1 по
-                    возражениям {formatAiAboutKappa(reliability.objectionsF1)} ·{' '}
+                    {formatAiAboutReliabilityLine(reliability)} ·{' '}
                     {formatAiMoment(reliability.generatedAt)}
                 </p>
                 <Table>
@@ -57,9 +52,13 @@ export const AiHowWeCountReliability = ({
                         <TableRow>
                             <TableHead>Поле разбора</TableHead>
                             <TableHead className="text-right">Пар</TableHead>
-                            <TableHead className="text-right">κ</TableHead>
+                            <TableHead className="text-right">
+                                Согласие
+                            </TableHead>
                             <TableHead>
-                                Надёжно (κ ≥ {reliability.kappaMin})
+                                {formatAiAboutReliableHeader(
+                                    reliability.kappaMin,
+                                )}
                             </TableHead>
                         </TableRow>
                     </TableHeader>
@@ -67,9 +66,9 @@ export const AiHowWeCountReliability = ({
                         {reliability.categories.map(category => (
                             <TableRow key={category.code}>
                                 <TableCell>
-                                    {AI_ABOUT_RELIABILITY_CATEGORY_LABELS[
-                                        category.code
-                                    ] ?? category.code}
+                                    {aiAboutReliabilityCategoryLabel(
+                                        category.code,
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right tabular-nums">
                                     {category.n}

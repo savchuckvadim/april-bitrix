@@ -13,6 +13,7 @@ import {
     fetchAiByType,
     fetchAiOverview,
     fetchAiPulse,
+    fetchAiTypesMatrix,
 } from '../ai-analytics-thunks';
 
 /**
@@ -33,15 +34,23 @@ export const startAiRefetchListener = (
     listener.startListening({
         matcher: isAnyOf(reportActions.setSavedFilter),
         effect: async (_action, { dispatch, getState }) => {
-            const { pulse, agenda, overview, attention, byType, brief } =
-                getState().aiAnalytics;
+            const {
+                pulse,
+                agenda,
+                overview,
+                attention,
+                byType,
+                brief,
+                typesMatrix,
+            } = getState().aiAnalytics;
             if (pulse.status !== 'idle') dispatch(fetchAiPulse());
             if (agenda.status !== 'idle') dispatch(fetchAiAgenda());
             if (overview.status !== 'idle') dispatch(fetchAiOverview());
             if (attention.status !== 'idle') dispatch(fetchAiAttention());
             if (byType.status !== 'idle') dispatch(fetchAiByType());
-            // Резюме периода живёт в периметре обзора — тот же повод.
+            // Резюме периода и матрицы типов живут в периметре обзора — тот же повод.
             if (brief.status !== 'idle') dispatch(fetchAiBrief());
+            if (typesMatrix.status !== 'idle') dispatch(fetchAiTypesMatrix());
         },
     });
 
@@ -51,8 +60,12 @@ export const startAiRefetchListener = (
         effect: async (_action, { dispatch, getState }) => {
             dispatch(fetchAiOverview({ force: true }));
             dispatch(fetchAiAttention({ force: true }));
-            if (getState().aiAnalytics.byType.status !== 'idle') {
+            const { byType, typesMatrix } = getState().aiAnalytics;
+            if (byType.status !== 'idle') {
                 dispatch(fetchAiByType({ force: true }));
+            }
+            if (typesMatrix.status !== 'idle') {
+                dispatch(fetchAiTypesMatrix({ force: true }));
             }
         },
     });

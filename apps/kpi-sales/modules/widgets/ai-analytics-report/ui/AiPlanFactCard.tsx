@@ -8,6 +8,7 @@ import { formatAiPlanFactPeriod } from '@/modules/entities/ai-analytics';
 import { useAiPlanFact } from '../hooks/use-ai-plan-fact';
 import type { AiPlanFactView } from '../lib/ai-plan-fact-view.util';
 import { AiHowWeCountButton } from './components/AiHowWeCountButton';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiSectionState } from './components/AiSectionState';
 import { AiPlanFactTable } from './components/AiPlanFactTable';
 
@@ -84,6 +85,7 @@ export const AiPlanFactCard = () => {
             }
             actions={
                 <>
+                    <AiTheoryLink topic="planFact" variant="icon" />
                     <AiHowWeCountButton endpoint="plan-fact" />
                     <Button
                         variant="outline"

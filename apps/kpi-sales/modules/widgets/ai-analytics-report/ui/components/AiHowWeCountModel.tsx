@@ -11,10 +11,12 @@ import {
 import {
     AI_ABOUT_ESTIMAND_KIND_LABELS,
     aiAboutEstimates,
+    aiAboutModelReasonText,
     formatAiAboutChainShare,
     formatAiAboutComparableFrom,
+    formatAiAboutMonth,
+    formatAiAboutObservations,
     formatAiAboutWindow,
-    shortAiAboutVersion,
 } from '../../lib/ai-about.util';
 import { AiHowWeCountEstimates } from './AiHowWeCountEstimates';
 import { AiHowWeCountSanity } from './AiHowWeCountSanity';
@@ -27,7 +29,8 @@ interface AiHowWeCountModelProps {
 
 /**
  * Модель портала: месяц и окно, объём, готовность по модели с причинами,
- * κ / φ / λ, трактовка рёбер и санити-панель; без модели — причина.
+ * оценки модели, переходы воронки и проверка качества данных; без модели —
+ * причина словами.
  */
 export const AiHowWeCountModel = ({
     model,
@@ -38,8 +41,7 @@ export const AiHowWeCountModel = ({
             <section className="space-y-1">
                 <h4 className="text-sm font-medium">Модель портала</h4>
                 <p className="text-sm text-muted-foreground">
-                    {modelReason ??
-                        'Модели портала пока нет — нормы появятся после первого ночного расчёта.'}
+                    {aiAboutModelReasonText(modelReason)}
                 </p>
             </section>
         );
@@ -51,17 +53,14 @@ export const AiHowWeCountModel = ({
             <h4 className="text-sm font-medium">
                 Модель портала
                 <span className="ml-2 text-xs font-normal text-muted-foreground">
-                    {model.monthKey}
+                    {formatAiAboutMonth(model.monthKey)}
                 </span>
             </h4>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                 <span>окно {formatAiAboutWindow(model.window)}</span>
-                <span>менеджер-месяцев {model.observations}</span>
+                <span>{formatAiAboutObservations(model.observations)}</span>
                 <span>менеджеров {model.managers}</span>
                 <span>расчёт {formatAiMoment(model.generatedAt)}</span>
-                <span title={model.paramsVersion}>
-                    параметры {shortAiAboutVersion(model.paramsVersion)}
-                </span>
                 <span>{formatAiAboutComparableFrom(model.comparableFrom)}</span>
                 {model.reused && (
                     <ToneBadge tone="muted" variant="soft" size="sm">
@@ -92,15 +91,15 @@ export const AiHowWeCountModel = ({
             </div>
             <AiHowWeCountEstimates estimates={aiAboutEstimates(model)} />
             <p className="text-sm">
-                <span className="text-muted-foreground">Трактовка рёбер: </span>
+                <span className="text-muted-foreground">
+                    Переходы воронки считаем{' '}
+                </span>
                 {AI_ABOUT_ESTIMAND_KIND_LABELS[model.estimand.kind]}
                 <span className="text-muted-foreground">
                     {' '}
-                    · сцепка звонков со сделками{' '}
-                    {formatAiAboutChainShare(model.estimand.chainSharePct)} ·
-                    причина:{' '}
+                    · связка звонков со сделками{' '}
+                    {formatAiAboutChainShare(model.estimand.chainSharePct)}
                 </span>
-                <code className="text-xs">{model.estimand.reason}</code>
             </p>
             <AiHowWeCountSanity sanity={model.sanity} />
         </section>

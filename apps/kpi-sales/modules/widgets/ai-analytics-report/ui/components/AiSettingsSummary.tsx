@@ -6,6 +6,7 @@ import {
     AlertDescription,
     AlertTitle,
 } from '@workspace/ui/components/alert';
+import { formatAiFullDate } from '@/modules/entities/ai-analytics';
 import type { AiSettingsSaveSummary } from '../../lib/ai-settings-form.payload';
 
 interface AiSettingsSummaryProps {
@@ -42,7 +43,9 @@ export const AiSettingsSummary = ({ summary }: AiSettingsSummaryProps) => (
                 <TriangleAlert className="h-4 w-4" />
                 <AlertTitle>
                     Начало сравнимой истории сдвинуто на{' '}
-                    {summary.comparableFrom || 'сегодня'}
+                    {summary.comparableFrom
+                        ? formatAiFullDate(summary.comparableFrom)
+                        : 'сегодня'}
                 </AlertTitle>
                 <AlertDescription className="text-xs">
                     <p>Тренды до этой даты несопоставимы с новыми. Сдвинули:</p>
@@ -53,7 +56,7 @@ export const AiSettingsSummary = ({ summary }: AiSettingsSummaryProps) => (
             <p className="text-xs text-muted-foreground">
                 Сравнимая история не изменилась
                 {summary.comparableFrom
-                    ? ` — по-прежнему с ${summary.comparableFrom}.`
+                    ? ` — по-прежнему с ${formatAiFullDate(summary.comparableFrom)}.`
                     : ' — ряды ни разу не рвались настройками.'}
             </p>
         )}
@@ -68,8 +71,7 @@ export const AiSettingsSummary = ({ summary }: AiSettingsSummaryProps) => (
         )}
 
         <p className="text-xs text-muted-foreground">
-            Сброшено ключей кэша: {summary.resetCount} — обзор и «Внимание»
-            пересчитываются.
+            Обзор и «Внимание» пересчитываются.
         </p>
     </div>
 );

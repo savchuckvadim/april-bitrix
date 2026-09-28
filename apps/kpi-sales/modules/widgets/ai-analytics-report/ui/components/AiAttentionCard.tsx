@@ -6,6 +6,7 @@ import { HintTooltip, ToneBadge } from '@workspace/april-ui';
 import {
     AI_FEEDBACK_OBJECT,
     AI_SIGNAL,
+    aiAttentionActionLine,
     aiAttentionHintLines,
     type AiAttentionItem,
 } from '@/modules/entities/ai-analytics';
@@ -20,9 +21,9 @@ interface AiAttentionCardProps {
 }
 
 /**
- * Карточка «Внимание»: ранг, сигнал (ToneBadge с подсказкой «Основание»
- * из basis), менеджер, заголовок с числами, переход к менеджеру/типу,
- * «полезно / не полезно».
+ * Карточка «Внимание»: ранг, сигнал (ToneBadge с подсказкой: что значит,
+ * что сделать, основание из basis), менеджер, заголовок с числами, строка
+ * «Что сделать», переход к менеджеру/типу, «полезно / не полезно».
  */
 export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
     const signal = AI_SIGNAL[item.signal];
@@ -44,8 +45,8 @@ export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
                     {item.rank}.
                 </span>
                 <HintTooltip
-                    title="Основание"
-                    lines={[signal.hint, ...aiAttentionHintLines(item)]}
+                    title={signal.label}
+                    lines={aiAttentionHintLines(item)}
                 >
                     <span>
                         <ToneBadge tone={signal.tone} variant="soft" size="sm">
@@ -61,6 +62,9 @@ export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
                 )}
             </div>
             <p className="text-sm">{item.headline}</p>
+            <p className="text-xs text-muted-foreground">
+                {aiAttentionActionLine(item.signal)}
+            </p>
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     {linkType && (
@@ -82,7 +86,7 @@ export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-1 text-primary underline-offset-2 hover:underline"
-                            title={`Открыть разбор звонка (транскрипция ${call.transcriptionId})`}
+                            title="Открыть разбор звонка"
                         >
                             {callLinks.length > 1
                                 ? `разбор ${index + 1}`

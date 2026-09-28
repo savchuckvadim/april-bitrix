@@ -16,6 +16,8 @@ import type {
 } from '../model';
 import { AI_CHECKLIST_LABELS, AI_WIDE_SECTIONS_MAX } from './ai-overview.data';
 import { formatAiCount } from './ai-finance.util';
+import { aiKpiEventLabel, aiKpiReasonLabel } from './ai-kpi-codes.data';
+import { pluralRu } from './ai-readiness.data';
 
 type AiChecklistKey = keyof typeof AI_CHECKLIST_LABELS;
 
@@ -111,35 +113,42 @@ export const pickAiCellSections = (
         .sort((a, b) => b.avgRelevance - a.avgRelevance || b.n - a.n)
         .slice(0, max);
 
-/** Id опорных звонков ячейки без null: best/worst/median → строки. */
-export const aiEvidenceEntries = (
-    cell: AiManagerTypeCell,
-): { label: string; transcriptionId: string }[] => {
-    const { best, worst, median } = cell.explanation.evidenceCallIds;
-    return [
-        { label: 'Лучший', transcriptionId: best },
-        { label: 'Худший', transcriptionId: worst },
-        { label: 'Медианный', transcriptionId: median },
-    ].filter(
-        (item): item is { label: string; transcriptionId: string } =>
-            item.transcriptionId !== null,
-    );
-};
+/* ---------- Счётчики словами ---------- */
 
-/** KPI ячейки без главного (он уже в своей колонке). */
+const CALL_FORMS = ['звонок', 'звонка', 'звонков'] as const;
+const CALL_DATIVE_FORMS = ['звонку', 'звонкам', 'звонкам'] as const;
+const DEAL_FORMS = ['сделка', 'сделки', 'сделок'] as const;
+
+/** «42 звонка», «1 звонок», «5 звонков». */
+export const formatAiCalls = (n: number): string =>
+    `${n} ${pluralRu(n, CALL_FORMS)}`;
+
+/** «по 11 звонкам», «по 1 звонку», «по 21 звонку». */
+export const formatAiByCalls = (n: number): string =>
+    `по ${n} ${pluralRu(n, CALL_DATIVE_FORMS)}`;
+
+/** «3 сделки», «1 сделка», «7 сделок». */
+export const formatAiDeals = (n: number): string =>
+    `${n} ${pluralRu(n, DEAL_FORMS)}`;
+
+/* ---------- Показатели CRM ячейки ---------- */
+
+/** Показатели ячейки без главного (он уже в своей колонке). */
 export const aiRestKpi = (cell: AiManagerTypeCell): AiCellKpi[] =>
     cell.kpi.filter(item => item.code !== cell.primaryKpi?.code);
 
-/** KPI строкой: «code: факт / план CRM» либо причина отсутствия факта. */
+/** Показатель строкой: «Звонок: 12 / 20» либо причина отсутствия факта. */
 export const formatAiKpiLine = (kpi: AiCellKpi): string => {
-    if (kpi.fact === null)
-        return `${kpi.code}: — (${kpi.reason ?? 'нет факта'})`;
+    const label = aiKpiEventLabel(kpi.code);
+    if (kpi.fact === null) {
+        return `${label}: — (${aiKpiReasonLabel(kpi.reason) ?? 'нет факта'})`;
+    }
     const plan =
         kpi.planCrm !== undefined ? ` / ${formatAiCount(kpi.planCrm)}` : '';
-    return `${kpi.code}: ${formatAiCount(kpi.fact)}${plan}`;
+    return `${label}: ${formatAiCount(kpi.fact)}${plan}`;
 };
 
-/** Подсказка к главному KPI: план CRM и план руководителя. */
+/** Подсказка к главному показателю: план CRM и план руководителя. */
 export const aiKpiHintLines = (kpi: AiCellKpi): string[] => [
     kpi.planCrm !== undefined
         ? `План CRM: ${formatAiCount(kpi.planCrm)}`
@@ -160,8 +169,8 @@ export const aiCellChecklistEntries = (
             : [];
     });
 
-/** Подсказка к разделу рубрики в широкой раскладке. */
+/** Подсказка к разделу рубрики в широкой раскладке: «Применимость 72 % по 11 звонкам.» */
 export const aiSectionHintLines = (section: AiCellSection): string[] => [
     section.explanation.text,
-    `Применимость ${Math.round(section.avgRelevance)} %, n = ${section.n}.`,
+    `Применимость ${Math.round(section.avgRelevance)} % ${formatAiByCalls(section.n)}.`,
 ];

@@ -529,7 +529,7 @@ describe('breaksSeries и сводка', () => {
             'Уровни менеджеров: 2 менеджера',
             'Цели по уровням',
             'Отсутствия: 1 менеджер',
-            `Подтверждение состава: ${TODAY}`,
+            'Подтверждение состава: 22.09.2026',
         ]);
         expect(describeAiSettingsPayload({ rosterConfirmedAt: '' })).toEqual([
             'Подтверждение состава: снято',
@@ -553,7 +553,7 @@ describe('breaksSeries и сводка', () => {
         expect(summary).toEqual({
             saved: ['Уровни менеджеров: 1 менеджер'],
             comparableFrom: '2026-09-22',
-            breaks: ['Определения событий · productiveCall'],
+            breaks: ['Определения событий'],
             warnings: ['Уровень не задан менеджерам: 3'],
             resetCount: 3,
         });

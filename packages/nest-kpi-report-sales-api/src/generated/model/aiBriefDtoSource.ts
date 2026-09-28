@@ -7,7 +7,7 @@
  */
 
 /**
- * Источник: llm — ответ модели прошёл факт-чек; template — шаблон по фактам пакета (см. reason).
+ * Источник: llm — изменения и фокус написала нейросеть, ответ прошёл проверку фактов; template — резюме собрано по шаблону из фактов пакета (см. reason).
  */
 export type AiBriefDtoSource =
     (typeof AiBriefDtoSource)[keyof typeof AiBriefDtoSource];

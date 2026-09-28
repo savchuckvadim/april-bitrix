@@ -19,6 +19,7 @@ import { useAiTypesDrawer } from '../hooks/use-ai-types-drawer';
 import { AiQueuedState } from './components/AiQueuedState';
 import { AiOverviewMeta } from './components/AiOverviewMeta';
 import { AiSignalSection } from './components/AiSignalSection';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiStyleDialog } from './AiStyleDialog';
 import { AiDossierDialog } from './AiDossierDialog';
 import { aiSignalColumns } from '../lib/ai-signal.util';
@@ -49,16 +50,19 @@ export const AiSignalTable = () => {
             title="Сигналы по менеджерам"
             description="Менеджер → сигнал, ключевая цифра, корзины звонков, финансы, план CRM и рычаги"
             actions={
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 gap-1 text-xs"
-                    disabled={overview.status !== 'ready'}
-                    onClick={() => openWithType()}
-                >
-                    <Layers className="h-3 w-3" />
-                    Разбор по типам
-                </Button>
+                <>
+                    <AiTheoryLink topic="signalsTable" variant="icon" />
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 gap-1 text-xs"
+                        disabled={overview.status !== 'ready'}
+                        onClick={() => openWithType()}
+                    >
+                        <Layers className="h-3 w-3" />
+                        Разбор по типам
+                    </Button>
+                </>
             }
         >
             <AiQueuedState

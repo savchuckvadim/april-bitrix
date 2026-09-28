@@ -39,8 +39,16 @@ export const TheoryBlockRenderer: FC<{ block: TheoryBlock }> = ({ block }) => {
             );
 
         case 'heading':
+            /*
+             * scroll-mt: при переходе по якорю заголовок не должен
+             * упираться в верхний край окна — иначе первая строка части
+             * оказывается над видимой областью.
+             */
             return (
-                <h2 className="text-foreground pt-4 text-2xl font-bold tracking-tight">
+                <h2
+                    id={block.id}
+                    className="text-foreground scroll-mt-6 pt-4 text-2xl font-bold tracking-tight"
+                >
                     {block.text}
                 </h2>
             );
@@ -145,7 +153,9 @@ export const TheoryBlockRenderer: FC<{ block: TheoryBlock }> = ({ block }) => {
             );
 
         case 'readiness':
-            return <TheoryReadinessNote state={block.state} text={block.text} />;
+            return (
+                <TheoryReadinessNote state={block.state} text={block.text} />
+            );
 
         default:
             return null;

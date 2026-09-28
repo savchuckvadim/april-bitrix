@@ -8,6 +8,7 @@ import {
 import { useAiSection } from '../hooks/use-ai-section';
 import { AiSectionState } from './components/AiSectionState';
 import { AiFeedbackButtons } from './components/AiFeedbackButtons';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiPulseHeadline } from './components/AiPulseHeadline';
 import { AiPulseManagersTable } from './components/AiPulseManagersTable';
 import { AiPulseAlertsList } from './components/AiPulseAlertsList';
@@ -19,8 +20,10 @@ interface AiPulseCardProps {
 
 /**
  * «Пульс» — дисциплина «следующий шаг с датой» за окно 5 рабочих дней:
- * цифра с n и интервалом, состояние XmR, окно, доля коротких звонков,
- * строки менеджеров (n ≥ 20) и сигналы руководителю с «Отработано».
+ * цифра с объёмом и интервалом, стабильность по дням, окно, доля коротких
+ * звонков, строки менеджеров и сигналы руководителю (фильтр
+ * «Не отработано / Все», свёрнутый список, ссылка на разбор, «что
+ * сделать», «Отработано»). В шапке — ссылка на теорию.
  */
 export const AiPulseCard = ({ canViewAll }: AiPulseCardProps) => {
     const pulse = useAiSection('pulse');
@@ -31,9 +34,12 @@ export const AiPulseCard = ({ canViewAll }: AiPulseCardProps) => {
             title="Пульс"
             description="Доля разобранных звонков, где назначен следующий шаг с датой"
             actions={
-                pulse.status === 'ready' && (
-                    <AiFeedbackButtons object={AI_FEEDBACK_OBJECT.PULSE} />
-                )
+                <>
+                    <AiTheoryLink topic="pulse" variant="icon" />
+                    {pulse.status === 'ready' && (
+                        <AiFeedbackButtons object={AI_FEEDBACK_OBJECT.PULSE} />
+                    )}
+                </>
             }
         >
             <AiSectionState

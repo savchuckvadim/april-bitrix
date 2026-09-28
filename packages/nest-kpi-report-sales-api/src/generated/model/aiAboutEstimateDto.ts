@@ -10,9 +10,9 @@ import type { AiAboutEstimateDtoSource } from './aiAboutEstimateDtoSource';
 export interface AiAboutEstimateDto {
     /** Код реестра, к которому относится оценка. */
     code: string;
-    /** Символ величины в формулах. */
+    /** Короткая подпись величины простыми словами (без символов и формул). */
     symbol: string;
-    /** Подпись величины по-русски. */
+    /** Полное название величины по-русски. */
     title: string;
     /**
      * Значение в модели портала; null — модель его не несёт.
@@ -21,6 +21,6 @@ export interface AiAboutEstimateDto {
     value: number | null;
     /** Источник: estimated — оценено по данным портала, configured — настройка портала или реестра, hybrid — настроенный прайор до гейта. */
     source: AiAboutEstimateDtoSource;
-    /** Пояснение источника: гейт, объём данных, слой. */
+    /** Пояснение источника словами: по данным, настройкой, стандартное. */
     note: string;
 }

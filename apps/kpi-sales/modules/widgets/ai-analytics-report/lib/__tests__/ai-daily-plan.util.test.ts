@@ -9,7 +9,7 @@ import {
     AI_DAILY_PLAN_EDGE,
     AI_DAILY_PLAN_NO_STAGE_HISTORY,
     AI_DAILY_PLAN_REASON,
-    AI_DAILY_PLAN_STEP_SYMBOL,
+    AI_DAILY_PLAN_STEP_LABEL,
     AI_DAILY_PLAN_TARGET_SOURCE,
     AI_DAILY_PLAN_TARGET_WARNING,
     AI_DAILY_PLAN_UNREACHABLE,
@@ -88,7 +88,7 @@ describe('подписи кодов плана дня', () => {
             'offer_to_invoice',
             'invoice_to_sale',
         ]);
-        expect(Object.keys(AI_DAILY_PLAN_STEP_SYMBOL)).toEqual([
+        expect(Object.keys(AI_DAILY_PLAN_STEP_LABEL)).toEqual([
             'target',
             'done_sales',
             'pipeline_expected',
@@ -96,6 +96,20 @@ describe('подписи кодов плана дня', () => {
             'unwind',
             'ceiling',
         ]);
+    });
+
+    it('подписи шагов и причин — словами, без обозначений формул', () => {
+        const texts = [
+            ...Object.values(AI_DAILY_PLAN_STEP_LABEL),
+            ...Object.values(AI_DAILY_PLAN_UNREACHABLE),
+            ...Object.values(AI_DAILY_PLAN_TARGET_WARNING),
+        ];
+        for (const text of texts) {
+            expect(text).not.toMatch(/λ|θ|Y₀|N_req|×|\bG\b/);
+        }
+        expect(AI_DAILY_PLAN_STEP_LABEL.pipeline_expected).toBe(
+            'Принесут сделки в работе',
+        );
     });
 });
 

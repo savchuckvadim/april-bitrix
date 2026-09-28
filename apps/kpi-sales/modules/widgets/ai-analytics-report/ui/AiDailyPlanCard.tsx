@@ -7,6 +7,7 @@ import { cn } from '@workspace/ui/lib/utils';
 import { useAiDailyPlan } from '../hooks/use-ai-daily-plan';
 import { formatAiPlanDate } from '../lib/ai-daily-plan.util';
 import { AiHowWeCountButton } from './components/AiHowWeCountButton';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiSectionState } from './components/AiSectionState';
 import { AiDailyPlanDisabledNote } from './components/AiDailyPlanDisabledNote';
 import { AiDailyPlanToolbar } from './components/AiDailyPlanToolbar';
@@ -64,6 +65,7 @@ export const AiDailyPlanCard = ({
             }
             actions={
                 <>
+                    <AiTheoryLink topic="dailyPlan" variant="icon" />
                     <AiHowWeCountButton endpoint="plan/daily" />
                     {!plan.disabled && (
                         <Button

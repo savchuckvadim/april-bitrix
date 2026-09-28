@@ -9,11 +9,14 @@ import type {
 import type { Tone } from '@workspace/april-ui';
 import type { AiSettingsTab } from './ai-settings-form.util';
 import {
+    AI_CHECKLIST_ITEM,
     AI_CHECKLIST_SECTION,
     AI_CHECKLIST_VERDICT,
+    type AiChecklistItemCode,
     type AiChecklistSectionKey,
     type AiChecklistVerdict,
 } from './ai-setup-checklist.types';
+import type { AiTheoryTopic } from './ai-theory-link';
 
 /*
  * Пороги, расписание и тексты чек-листа «Готовность витрины». Числа, которых
@@ -82,14 +85,6 @@ export const AI_CHECKLIST_MANUAL_SINCE: AiManagerSinceSource = 'manual';
 /** Дата стажа приблизительная: первое событие телефонии или отчётности. */
 export const AI_CHECKLIST_PROXY_SINCE: AiManagerSinceSource = 'proxy';
 
-/** Ключи push-контура в админке April (портал → настройки kpi-sales). */
-export const AI_CHECKLIST_PUSH_KEYS = {
-    ALERTS: 'ai_analytics_alerts_enabled',
-    ROPS: 'ai_analytics_rop_user_ids',
-    DIGEST: 'ai_analytics_digest_enabled',
-    DIGEST_ALL: 'ai_analytics_digest_all_user_ids',
-} as const;
-
 /** Подписи вкладок диалога настроек — для текста «где настроить». */
 export const AI_CHECKLIST_TAB_LABELS: Record<AiSettingsTab, string> = {
     levels: 'Уровни',
@@ -123,6 +118,39 @@ export const AI_CHECKLIST_VERDICT_VIEW: Record<
     [AI_CHECKLIST_VERDICT.WAIT]: { label: 'Осталось подождать', tone: 'info' },
     [AI_CHECKLIST_VERDICT.READY]: { label: 'Всё готово', tone: 'success' },
 };
+
+/** Пункт чек-листа → тема сайта теории (ссылка в пункте); нет темы — без ссылки. */
+export const AI_CHECKLIST_ITEM_THEORY: Partial<
+    Record<AiChecklistItemCode, AiTheoryTopic>
+> = {
+    [AI_CHECKLIST_ITEM.ACCESS]: 'access',
+    [AI_CHECKLIST_ITEM.CALL_COVERAGE]: 'troubleshooting',
+    [AI_CHECKLIST_ITEM.PILOT]: 'troubleshooting',
+    [AI_CHECKLIST_ITEM.NOT_ANALYZED]: 'troubleshooting',
+    [AI_CHECKLIST_ITEM.PIPELINE]: 'troubleshooting',
+    [AI_CHECKLIST_ITEM.DATA_QUALITY]: 'troubleshooting',
+    [AI_CHECKLIST_ITEM.COMPARABLE]: 'comparable',
+    [AI_CHECKLIST_ITEM.TENURE]: 'levels',
+    [AI_CHECKLIST_ITEM.ROSTER]: 'levels',
+    [AI_CHECKLIST_ITEM.TARGETS]: 'targetsSetup',
+    [AI_CHECKLIST_ITEM.HEAD_PLANS]: 'goalCascade',
+    [AI_CHECKLIST_ITEM.PUSH]: 'push',
+    [AI_CHECKLIST_ITEM.CALENDAR]: 'settingsKeys',
+    [AI_CHECKLIST_ITEM.HISTORY]: 'readinessModes',
+    [AI_CHECKLIST_ITEM.PRESENTATIONS]: 'readinessModes',
+    [AI_CHECKLIST_ITEM.PORTAL_MODEL]: 'gates',
+    [AI_CHECKLIST_ITEM.TRENDS]: 'trends',
+    [AI_CHECKLIST_ITEM.YOY]: 'yearAgo',
+    [AI_CHECKLIST_ITEM.BETA]: 'gates',
+    [AI_CHECKLIST_ITEM.HYPOTHESIS]: 'gates',
+    [AI_CHECKLIST_ITEM.NORMS_PRESENTATIONS]: 'norms',
+    [AI_CHECKLIST_ITEM.NORMS_GATES]: 'calibration',
+};
+
+/** Тема теории для пункта; null — ссылки в пункте нет. */
+export const aiChecklistTheoryTopic = (
+    code: AiChecklistItemCode,
+): AiTheoryTopic | null => AI_CHECKLIST_ITEM_THEORY[code] ?? null;
 
 /** Склонения для «у N менеджеров», «звонки N сотрудников». */
 export const AI_MANAGER_GENITIVE = [

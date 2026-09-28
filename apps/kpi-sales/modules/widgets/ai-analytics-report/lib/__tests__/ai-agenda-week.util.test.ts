@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 import {
     AI_AGENDA_TEXT,
@@ -7,7 +6,7 @@ import {
     aiIsoWeekMonday,
 } from '../ai-agenda-week.util';
 
-const day = (date: Date | null) => (date ? format(date, 'yyyy-MM-dd') : null);
+const day = (date: Date | null) => date?.toISOString().slice(0, 10) ?? null;
 
 describe('неделя повестки планёрки', () => {
     it('понедельник ISO-недели, включая 53-ю и переход года', () => {

@@ -9,7 +9,7 @@ import { formatAiAboutDate } from './ai-about.util';
 
 /*
  * Баннер готовности витрины: шапка из ReadinessDto (режим, одна строка «что
- * это значит», строка истории, источник σ_llm) и коды причин режима. Сами
+ * это значит», строка истории, источник разброса оценок) и коды причин режима. Сами
  * причины показывает чек-лист (ai-setup-checklist.*) — здесь их не дублируем.
  */
 
@@ -56,11 +56,11 @@ export const AI_BETA_SOURCE_LABELS: Record<AiReadinessBetaSource, string> = {
     data: 'связь «качество → исход» оценена по данным портала',
 };
 
-/** Подпись источника σ_llm (ReadinessDto.sigmaLlmSource). */
+/** Подпись источника разброса оценок AI (ReadinessDto.sigmaLlmSource). */
 export const AI_SIGMA_SOURCE_LABELS: Record<AiReadinessSigmaSource, string> = {
-    measured: 'шум оценщика (σ_llm) измерен повтором разборов',
+    measured: 'Разброс оценок AI измерен повторными разборами',
     configured:
-        'шум оценщика (σ_llm) взят из реестра — повтор разборов ещё не делали',
+        'Разброс оценок AI взят по умолчанию — повторных разборов ещё не было',
 };
 
 /**
@@ -117,7 +117,7 @@ export interface AiReadinessBannerModel {
     title: string;
     /** Одна строка «что значит режим». */
     hint: string;
-    /** Строка источника σ_llm; null — бэк поле не прислал. */
+    /** Строка источника разброса оценок; null — бэк поле не прислал. */
     sigmaSource: string | null;
     history: string;
 }

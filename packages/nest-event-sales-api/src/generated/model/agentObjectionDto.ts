@@ -7,6 +7,7 @@
  */
 import type { AgentObjectionDtoCategory } from './agentObjectionDtoCategory';
 import type { AgentObjectionDtoOutcome } from './agentObjectionDtoOutcome';
+import type { AgentObjectionDtoReaction } from './agentObjectionDtoReaction';
 
 export interface AgentObjectionDto {
     /** Формулировка возражения клиента из разговора. */
@@ -21,4 +22,19 @@ export interface AgentObjectionDto {
     quote?: string;
     /** Исход после ответа менеджера: разговор продолжился конструктивно / клиент согласился / разговор свернулся. Замыкает петлю «ответ → исход» для библиотеки лучших ответов. */
     outcome?: AgentObjectionDtoOutcome;
+    /**
+     * Секунда начала цитаты по расшифровке с таймкодами (Фаза 3, П6); null — меток в расшифровке не было.
+     * @nullable
+     */
+    startSec?: number | null;
+    /**
+     * Секунда конца цитаты; null — меток не было.
+     * @nullable
+     */
+    endSec?: number | null;
+    /**
+     * Первая реакция менеджера на возражение (ось стиля, П8): answer — ответил по существу, clarify — уточнил вопросом, other — иное или не отреагировал.
+     * @nullable
+     */
+    reaction?: AgentObjectionDtoReaction;
 }

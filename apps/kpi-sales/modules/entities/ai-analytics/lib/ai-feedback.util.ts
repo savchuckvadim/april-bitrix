@@ -116,7 +116,8 @@ export const AI_FEEDBACK_OBJECT_OTHER = 'другой раздел витрин�
 /**
  * Объект реакции по-человечески (блок «Несогласия недели»):
  * overview:<id> — «строка обзора», site-review:<id> — «отзыв с сайта по
- * разбору», call:<id> — «звонок #id», attention:… — «сигнал «Внимания»».
+ * разбору», call:<id> — «звонок» (id на экран не выводим), attention:… —
+ * «сигнал «Внимания»».
  */
 export const aiFeedbackObjectLabel = (object: string): string => {
     const { prefix, id } = splitAiFeedbackObject(object.trim());
@@ -128,7 +129,7 @@ export const aiFeedbackObjectLabel = (object: string): string => {
         case 'overview':
             return id ? 'строка обзора' : 'обзор';
         case 'call':
-            return id ? `звонок #${id}` : 'звонок';
+            return 'звонок';
         case 'attention':
             return 'сигнал «Внимания»';
         case 'site-review':

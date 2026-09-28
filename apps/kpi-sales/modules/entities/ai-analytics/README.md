@@ -19,6 +19,7 @@
 | `ropMark`   | `rop-mark/list` | sync (+ `pick` при пустом)  | `…\|#\|rop-mark\|weekKey\|date`     |
 | `style`     | `manager/style` | sync (снапшот ночного шага) | `…\|#\|style\|managerId\|month`     |
 | `about[e]`  | `about`         | sync, кэш по ручке `e`      | `…\|#\|about\|endpoint`             |
+| `typesMatrix` | `by-type` (`all` × `wide`) | **очередь + WS** (ключ обзора) | как overview + `\|#\|types-matrix` |
 
 Каждая секция — `AiSection<T>`: `status` (idle | loading | ready | error),
 `data`, `requestKey` (наш ключ, `lib/ai-request-key.util.ts`), `serverKey`
@@ -58,9 +59,18 @@ HTTP-ошибки (403 «план дня выключен», 403 «вне пер
   **`fetchAiStyleProfile({ managerId, month? }, force?)`** (состояние
   карточки `ready | few_data | opt_out` — в `data.status`; 403 — error),
   реакции `sendAiFeedback` / `sendAiView`, «Обновить»;
+- `ai-analytics-queued.loader.ts` — периметр обзора
+  (`selectAiOverviewScope`), ключи тяжёлых секций и общий загрузчик
+  `loadQueuedSection` (гард дублей, таймер «WS не пришёл»);
 - `ai-analytics-queued.thunks.ts` — overview / attention / byType /
-  **`fetchAiBrief(options)`**, `resumeAiQueuedSections` /
+  **`fetchAiBrief(options)`** / dossier, `resumeAiQueuedSections` /
   `failAiQueuedSections` по WS, `recalcAiOverview`, `saveAiLevels`;
+- `ai-analytics-types-matrix.thunks.ts` — **`fetchAiTypesMatrix(options)`**:
+  срез by-type «все типы × wide» для блоков KPI-вида «AI: типы звонков» и
+  «AI: разделы оценки по типу» (секция `typesMatrix`, от подвкладки drawer
+  не зависит; refetch по смене фильтра и после `levelsSaved`). Сборка
+  таблиц RTable, рейтингов и CSV — `lib/ai-matrix-table.util.ts`,
+  `lib/ai-types-matrix*.util.ts`, `lib/ai-sections-matrix.util.ts`;
 - `ai-analytics-rop-mark.thunks.ts` — **`fetchAiRopMarkWeek(query?,
 force?)`**: `list`; если подбора ещё нет (`generatedAt === ''`,
   `calls: []` — `isAiRopMarkWeekEmpty`) и requester — руководитель → `pick`
@@ -96,6 +106,14 @@ force?)`**: `list`; если подбора ещё нет (`generatedAt === ''`,
 Резюме (`AiBrief`): `source = template` и `reason` сохраняются как есть —
 UI показывает подпись причины шаблона.
 
+Ключ резюме меняется по ходу расчёта: `queued` / `processing` и WS
+`ai-analytics:brief:done` несут ключ пакета фактов ДО данных прошлого
+периода, а `ready` повторного POST может прийти уже с другим
+`requestKey`. Поэтому WS-событие сверяется с `serverKey` из
+queued-ответа, а готовый ответ принимается с любым серверным ключом:
+гарды `loadQueuedSection` и `sectionReady` смотрят только на наш
+`requestKey` (периметр), `serverKey` после `ready` просто перезаписывается.
+
 ## Listeners (`model/listeners`)
 
 - `ai-refetch.listener.ts`: `setSavedFilter` → освежить уже открытые секции
@@ -125,7 +143,17 @@ UI показывает подпись причины шаблона.
   подзаголовок drawer. Режим `all` уходит на бэк как есть
   (`resolveAiByTypeCallType` — тождество), ответ несёт `totalsByType`
   вместо `totals`, у long-строк — `callType`.
-- `ai-attention.util.ts` — строки «Основание» карточки.
+- `ai-attention.util.ts` — строки подсказки сигнала «Внимание»: что значит
+  (`AI_SIGNAL.hint`), «Что сделать: …» (`AI_SIGNAL.action`), опоры с числами.
+- `ai-pulse.data.ts` / `ai-pulse-list.util.ts` — виды сигналов пульса с
+  «что значит / что сделать», фильтр «Не отработано / Все», свёрнутый
+  список (5 строк), ссылка на разбор (`aiAlertLink` терпит `undefined` из
+  старого кэша).
+- `ai-period-label.util.ts` — ЕДИНСТВЕННЫЙ форматтер дат и ключей периодов
+  (день, месяц, окно месяцев «июнь – август 2026», ISO-неделя со сдвигом);
+  досье и повестка своих копий не держат.
+- `ai-call-sections.data.ts` — единый справочник разделов рубрики разбора:
+  полные названия (досье, рычаги) и короткие (чипы метки руководителя).
 - `ai-score.util.ts` / `ai-finance.util.ts` — форматирование оценок 1–10,
   %, денег, плана CRM; тона полос.
 - `ai-levels.util.ts` — форма уровней ↔ payload `settings/save`.
@@ -138,13 +166,15 @@ UI показывает подпись причины шаблона.
 
 `ai-analytics-slice` (статусы, секции Фазы 2, resetData, ключ с `extra`),
 `ai-overview-thunks` (ключи, очередь, done, таймаут, by-type, уровни),
-`ai-brief-thunks` (queued → WS done → повторный POST → ready, error,
+`ai-brief-thunks` (queued → WS done → повторный POST → ready, в том числе
+ready с другим серверным ключом без повторных запросов, error,
 template/reason, force, таймаут, смена периметра), `ai-plan-style-thunks`
 (план дня: ready, 403, гейт настройки; стиль: ready, opt_out, 403),
 `ai-rop-mark-thunks` (list, pick при пустом подборе только руководителю,
 save → повторный list, 400/403), `ai-about-thunks` (кэш по ручке),
 `ai-readiness.util` (подписи причин, счётчик β, `aiErrorMessage`),
-`ai-ws.listener` (события обзора и резюме), `ai-refetch.listener`,
+`ai-ws.listener` (события обзора и резюме, в том числе done по ключу
+очереди и ready с другим ключом), `ai-refetch.listener`,
 `ai-format.util`, `ai-by-type.util`, `ai-feedback.util`. Общий стор для
 thunks Фазы 2 — `ai-test-store.ts` (`leader`, `period`), фикстуры DTO —
 `ai-fixtures.ts` (в т.ч. `httpError(status, message)`).

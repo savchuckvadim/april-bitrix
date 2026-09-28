@@ -9,6 +9,7 @@ import {
 } from '../lib/ai-agenda-week.util';
 import { AiSectionState } from './components/AiSectionState';
 import { AiFeedbackButtons } from './components/AiFeedbackButtons';
+import { AiTheoryLink } from './components/AiTheoryLink';
 import { AiAgendaItemRow } from './components/AiAgendaItemRow';
 import { AiAgendaDisagreements } from './components/AiAgendaDisagreements';
 
@@ -27,9 +28,12 @@ export const AiAgendaCard = () => {
             title="Повестка планёрки"
             description={aiAgendaDescription(agenda.data?.weekKey)}
             actions={
-                agenda.status === 'ready' && (
-                    <AiFeedbackButtons object={AI_FEEDBACK_OBJECT.AGENDA} />
-                )
+                <>
+                    <AiTheoryLink topic="agenda" variant="icon" />
+                    {agenda.status === 'ready' && (
+                        <AiFeedbackButtons object={AI_FEEDBACK_OBJECT.AGENDA} />
+                    )}
+                </>
             }
         >
             <AiSectionState

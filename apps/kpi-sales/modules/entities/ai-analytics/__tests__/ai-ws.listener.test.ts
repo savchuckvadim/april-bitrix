@@ -176,6 +176,51 @@ describe('ai-ws.listener — очередь резюме (brief)', () => {
         expect(store.getState().aiAnalytics.brief.data?.source).toBe('llm');
     });
 
+    it('brief:done по ключу очереди → повторный POST отдаёт ready с другим ключом → готово, повторов нет', async () => {
+        // Очередь и событие несут ключ пакета до данных прошлого периода,
+        // готовый ответ — ключ пакета уже с ними.
+        getBrief
+            .mockResolvedValueOnce(queued('srv-pack'))
+            .mockResolvedValueOnce(ready(brief(), 'srv-pack-with-previous'));
+        await store.dispatch(fetchAiBrief({ force: true }));
+        expect(store.getState().aiAnalytics.brief.serverKey).toBe('srv-pack');
+
+        // Событие с ключом, которого очередь не называла, — не наше.
+        handlers.get(AI_WS_EVENTS.BRIEF_DONE)?.({
+            requestKey: 'srv-pack-with-previous',
+        });
+        await flush();
+        expect(getBrief).toHaveBeenCalledTimes(1);
+        expect(store.getState().aiAnalytics.brief.status).toBe('loading');
+
+        handlers.get(AI_WS_EVENTS.BRIEF_DONE)?.({
+            requestKey: 'srv-pack',
+            generatedAt: 'now',
+        });
+        await flush();
+        expect(getBrief).toHaveBeenCalledTimes(2);
+        expect(getBrief.mock.calls[1]?.[2]).toMatchObject({
+            forceRefresh: false,
+        });
+        const section = store.getState().aiAnalytics.brief;
+        expect(section.status).toBe('ready');
+        expect(section.jobStatus).toBeNull();
+        expect(section.serverKey).toBe('srv-pack-with-previous');
+        expect(section.data?.previousPeriod).toEqual({
+            from: '2026-07-01',
+            to: '2026-07-31',
+        });
+
+        // Повторные события по любому из ключей готовую секцию не трогают.
+        handlers.get(AI_WS_EVENTS.BRIEF_DONE)?.({ requestKey: 'srv-pack' });
+        handlers.get(AI_WS_EVENTS.BRIEF_DONE)?.({
+            requestKey: 'srv-pack-with-previous',
+        });
+        await flush();
+        expect(getBrief).toHaveBeenCalledTimes(2);
+        expect(store.getState().aiAnalytics.brief.status).toBe('ready');
+    });
+
     it('brief:error по ключу → секция резюме в ошибку', async () => {
         getBrief.mockResolvedValue(queued('srv-brief-2'));
         await store.dispatch(fetchAiBrief({ force: true }));

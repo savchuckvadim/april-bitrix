@@ -89,6 +89,15 @@ ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
 # turbo знает граф (`dependsOn: ["^build"]` в turbo.json) и собирает
 # зависимости сам — правило работает для любого приложения и любого будущего
 # пакета, а не только для этого случая.
+# Фоллбэки цветов для старых браузеров (Chrome 99–110; на Windows 7 максимум
+# 109): LEGACY_CSS=1 включает postcss-плагин legacy-colors (packages/ui),
+# который дописывает каждому современному цвету хекс-эквивалент ПЕРЕД ним,
+# а точное значение уводит в @supports (color: lab(...)). Новые браузеры
+# видят ровно те же цвета (проверено scripts/verify-legacy-css.mjs), старые
+# перестают быть чёрно-белыми. Один CSS на всех — без UA-снифинга и второй
+# сборки. Откат без правки кода: build-arg LEGACY_CSS=0.
+ARG LEGACY_CSS=1
+ENV LEGACY_CSS=${LEGACY_CSS}
 RUN pnpm exec turbo build --filter=${APP}
 
 # public может отсутствовать в git (напр. apps/web — пустая папка не коммитится);

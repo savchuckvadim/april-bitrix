@@ -25,6 +25,7 @@ const currentUser = (overrides: Partial<CurrentUserInfo>): CurrentUserInfo => ({
     headOfDepartmentIds: [],
     visibility: 'own',
     headOfSource: 'structure',
+    subordinateIds: [],
     isSuperUser: false,
     colleagues: { group: [], department: [] },
     ...overrides,

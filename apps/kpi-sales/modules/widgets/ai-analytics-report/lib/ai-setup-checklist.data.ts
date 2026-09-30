@@ -91,6 +91,8 @@ export const AI_CHECKLIST_TAB_LABELS: Record<AiSettingsTab, string> = {
     targets: 'Цели по уровням',
     absences: 'Отсутствия',
     roster: 'Состав',
+    hypothesis: 'Гипотеза качества',
+    pool: 'Пул порталов',
 };
 
 /** Заголовки разделов. */
@@ -141,10 +143,15 @@ export const AI_CHECKLIST_ITEM_THEORY: Partial<
     [AI_CHECKLIST_ITEM.PORTAL_MODEL]: 'gates',
     [AI_CHECKLIST_ITEM.TRENDS]: 'trends',
     [AI_CHECKLIST_ITEM.YOY]: 'yearAgo',
-    [AI_CHECKLIST_ITEM.BETA]: 'gates',
-    [AI_CHECKLIST_ITEM.HYPOTHESIS]: 'gates',
+    [AI_CHECKLIST_ITEM.BETA]: 'betaGate',
+    [AI_CHECKLIST_ITEM.HYPOTHESIS]: 'qualityLink',
     [AI_CHECKLIST_ITEM.NORMS_PRESENTATIONS]: 'norms',
     [AI_CHECKLIST_ITEM.NORMS_GATES]: 'calibration',
+    [AI_CHECKLIST_ITEM.FORECAST_SHADOW]: 'forecastShadow',
+    [AI_CHECKLIST_ITEM.FORECAST_ACCURACY]: 'forecastBacktest',
+    [AI_CHECKLIST_ITEM.FORECAST_STAGE]: 'forecast',
+    [AI_CHECKLIST_ITEM.RECOMMENDATIONS]: 'recommendationsEffect',
+    [AI_CHECKLIST_ITEM.RECOMMENDATIONS_STAGE]: 'recommendationsEffect',
 };
 
 /** Тема теории для пункта; null — ссылки в пункте нет. */

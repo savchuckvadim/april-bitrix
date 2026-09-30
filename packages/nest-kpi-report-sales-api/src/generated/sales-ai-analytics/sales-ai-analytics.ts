@@ -26,6 +26,8 @@ import type {
     AiFeedbackListResponseDto,
     AiFeedbackRequestDto,
     AiFeedbackResponseDto,
+    AiForecastRequestDto,
+    AiForecastResponseDto,
     AiOverviewRequestDto,
     AiOverviewResponseDto,
     AiPlanFactRequestDto,
@@ -201,6 +203,20 @@ export const getSalesAiAnalytics = () => {
         });
     };
     /**
+     * Вилка продаж отдела на месяц (низ, середина, верх; уровень forecast_interval_level) из ночного журнала ai-analytics-forecast-log и сводка проверки точности на истории из ai-analytics-forecast-backtest. Режим published — теневых месяцев не меньше forecast_shadow_min_months, проверка пройдена, ступень включена флагом портала forecast_stage_enabled и режим готовности портала (тот же, что в settings/get) не ниже «прогноза»: тогда в ответе вилка и рубли по среднему чеку, если журнал за месяц уже есть. Иначе режим shadow: вилки и рублей нет, коды причин — в reasons; сводка теневого режима отдаётся всегда. Синхронно, без своего кэша; только руководителям.
+     * @summary Прогноз продаж отдела на текущий месяц
+     */
+    const aiAnalyticsForecastGetForecast = (
+        aiForecastRequestDto: AiForecastRequestDto,
+    ) => {
+        return customAxios<AiForecastResponseDto>({
+            url: `/api/ai-analytics/forecast`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiForecastRequestDto,
+        });
+    };
+    /**
      * Система сама подбирает до 3 звонков закончившейся или указанной недели: с неуверенным типом, с лучшим баллом (проверка на подыгрывание метрике) и случайный — не более одного звонка на менеджера. Подбор детерминирован зерном домена и ключа недели: повтор запроса и ночной шаг понедельника дают один набор; forceRefresh пересобирает подбор по текущим звонкам недели. Слепой режим: колонки оценки AI (aiCallType, aiScore) отдаются только по звонкам с уже сохранённой меткой. Только руководителям (cup/op/group), менеджеру — 403; звонки чужих менеджеров вырезаются периметром. Суперпользователь вендора подбор не сохраняет: forceRefresh — 403, а если подбора недели ещё нет, он получает тот же подбор как предпросмотр без записи.
      * @summary Подбор трёх звонков недели для слепой проверки
      */
@@ -311,7 +327,7 @@ export const getSalesAiAnalytics = () => {
         });
     };
     /**
-     * Собирается из реестра параметров и последнего снапшота месячной модели портала, а не пишется руками: тексты ручки, параметры с действующими значениями и слоем (портал, полоса стажа, менеджер, дефолт), версия набора параметров, готовность с причинами, κ / φ / λ с источником (estimated | configured | hybrid), betaSource, трактовка рёбер, comparableFrom и санити-панель. Модели портала ещё нет — model = null с причиной в modelReason, параметры остаются.
+     * Собирается из реестра параметров и последнего снапшота месячной модели портала, а не пишется руками: тексты ручки, параметры с действующими значениями и слоем (портал, полоса стажа, менеджер, дефолт), версия набора параметров, готовность с причинами, κ / φ / λ с источником (estimated | configured | hybrid), betaSource, трактовка рёбер, comparableFrom и санити-панель; с Фазы 4 — связь качества с результатом, точность прогноза, пул порталов и эффект советов (каждая секция null, пока данных нет). Модели портала ещё нет — model = null с причиной в modelReason, параметры остаются.
      * @summary Блок «Как считаем» для ручки витрины
      */
     const aiAnalyticsAboutGetAbout = (aiAboutRequestDto: AiAboutRequestDto) => {
@@ -348,6 +364,7 @@ export const getSalesAiAnalytics = () => {
         aiAnalyticsOverviewGetAttention,
         aiAnalyticsOverviewGetByType,
         aiAnalyticsOverviewSaveSettings,
+        aiAnalyticsForecastGetForecast,
         aiAnalyticsRopMarkPick,
         aiAnalyticsRopMarkList,
         aiAnalyticsRopMarkSave,
@@ -440,6 +457,15 @@ export type AiAnalyticsOverviewSaveSettingsResult = NonNullable<
             ReturnType<
                 typeof getSalesAiAnalytics
             >['aiAnalyticsOverviewSaveSettings']
+        >
+    >
+>;
+export type AiAnalyticsForecastGetForecastResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getSalesAiAnalytics
+            >['aiAnalyticsForecastGetForecast']
         >
     >
 >;

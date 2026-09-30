@@ -21,6 +21,7 @@ import type {
     AiEnvelope,
     AiFeedbackInput,
     AiFeedbackList,
+    AiForecast,
     AiOverview,
     AiOverviewFilters,
     AiPlanFact,
@@ -230,11 +231,8 @@ export class AiAnalyticsHelper {
     }
 
     /**
-     * Карточка стиля менеджера. Единственная ручка модуля без конверта —
-     * сервер отдаёт AiStyleCardDto как есть (status: ready | few_data |
-     * opt_out — это состояние КАРТОЧКИ, не конверта); заворачиваем в
-     * конверт сами, чтобы секция грузилась общим загрузчиком. Ключ —
-     * менеджер и месяц профиля.
+     * Карточка стиля — ручка без конверта (status — состояние КАРТОЧКИ):
+     * заворачиваем сами для общего загрузчика; ключ — менеджер и месяц.
      */
     async getStyleProfile(
         requester: AiRequester,
@@ -279,6 +277,13 @@ export class AiAnalyticsHelper {
             ...query,
             ...options,
         });
+    }
+
+    /** Фаза 4: прогноз отдела на месяц (sync; не руководителю — 403). */
+    async getForecast(
+        requester: AiRequester,
+    ): Promise<AiEnvelope<AiForecast>> {
+        return await this.api.aiAnalyticsForecastGetForecast(requester);
     }
 
     /** Блок «Как считаем» для ручки витрины (sync, status всегда ready). */

@@ -48,7 +48,7 @@ export const AiSignalTable = () => {
     return (
         <SectionCard
             title="Сигналы по менеджерам"
-            description="Менеджер → сигнал, ключевая цифра, корзины звонков, финансы, план CRM и рычаги"
+            description="По каждому менеджеру: сигнал, ключевая цифра, корзины звонков, финансы, план CRM и советы"
             actions={
                 <>
                     <AiTheoryLink topic="signalsTable" variant="icon" />
@@ -114,7 +114,7 @@ export const AiSignalTable = () => {
                                         <TableHead>Звонки CRM</TableHead>
                                         <TableHead>Презентации CRM</TableHead>
                                         <TableHead className="min-w-44">
-                                            Рычаги
+                                            Советы
                                         </TableHead>
                                         <TableHead />
                                     </TableRow>

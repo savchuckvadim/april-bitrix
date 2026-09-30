@@ -101,9 +101,9 @@ export const AiSettingsTargetsTab = ({
     <div className="space-y-2">
         <p className="text-xs text-muted-foreground">
             Текущие цели портала; пусто в продажах — у уровня цели нет. Цель
-            уровня работает, если у менеджера нет личной цели и плана в
-            «Планах» (CRM) — они главнее. Сохранение перезаписывает цели всех
-            трёх уровней.
+            уровня работает, если у менеджера нет личной цели и плана в «Планах»
+            (CRM) — они главнее. Сохранение перезаписывает цели всех трёх
+            уровней.
         </p>
         <div className="space-y-0.5 text-[0.6875rem] text-muted-foreground">
             {AI_TARGET_TIMING_LINES.map(line => (

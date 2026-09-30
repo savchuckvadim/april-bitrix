@@ -450,3 +450,7 @@ export interface AiQueueOptions {
     socketId?: string;
     forceRefresh?: boolean;
 }
+
+// Фаза 4 (волна C): алиасы новых DTO — в отдельных файлах, барель не растёт.
+export * from './ai-phase4-forecast.types';
+export * from './ai-phase4-about.types';

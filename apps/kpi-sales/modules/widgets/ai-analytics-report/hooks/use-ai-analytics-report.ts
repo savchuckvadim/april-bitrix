@@ -49,6 +49,12 @@ export const useAiAnalyticsReport = () => {
         state => state.aiAnalytics.dailyPlanQuery?.date ?? null,
     );
     const planFact = useAppSelector(state => state.aiAnalytics.planFact.data);
+    // Прогноз отдела (Фаза 4) — только руководителю: месяцы в тени и точность.
+    const forecast = useAppSelector(state =>
+        state.aiAnalytics.forecast.status === 'ready'
+            ? state.aiAnalytics.forecast.data
+            : null,
+    );
     const periodClamped = useAppSelector(
         state => selectAiOverviewScope(state)?.clamped ?? false,
     );
@@ -98,6 +104,7 @@ export const useAiAnalyticsReport = () => {
                           overview.status === 'error' ? overview.error : null,
                       dailyPlan,
                       planFact,
+                      forecast,
                       managerName,
                       today,
                       canConfigure,
@@ -110,6 +117,7 @@ export const useAiAnalyticsReport = () => {
             overview.error,
             dailyPlan,
             planFact,
+            forecast,
             managerName,
             today,
             canConfigure,

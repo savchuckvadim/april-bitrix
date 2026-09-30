@@ -174,7 +174,10 @@ export const AiSignalRow = ({
                 />
             </TableCell>
             <TableCell>
-                <AiSignalLeversCell recommendations={row.recommendations} />
+                <AiSignalLeversCell
+                    managerId={row.managerId}
+                    recommendations={row.recommendations}
+                />
             </TableCell>
             <TableCell className="text-right">
                 <AiDisagreeButton managerId={row.managerId} />

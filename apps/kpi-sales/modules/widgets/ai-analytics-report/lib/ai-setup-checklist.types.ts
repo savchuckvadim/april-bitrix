@@ -1,6 +1,7 @@
 import type {
     AiAnalyticsSettings,
     AiDailyPlan,
+    AiForecast,
     AiOverview,
     AiPlanFact,
 } from '@/modules/entities/ai-analytics';
@@ -74,6 +75,16 @@ export const AI_CHECKLIST_ITEM = {
     TRENDS: 'trends',
     YOY: 'yoy',
     BETA: 'beta',
+    /** Фаза 4: прогноз копится в тени (месяцы сверки с фактом). */
+    FORECAST_SHADOW: 'forecast-shadow',
+    /** Фаза 4: проверка точности прогноза на истории не пройдена. */
+    FORECAST_ACCURACY: 'forecast-accuracy',
+    /** Фаза 4: прогноз проверен, показ не включён. */
+    FORECAST_STAGE: 'forecast-stage',
+    /** Фаза 4: советы проверяются на данных портала. */
+    RECOMMENDATIONS: 'recommendations',
+    /** Фаза 4: советы проверены, показ не включён. */
+    RECOMMENDATIONS_STAGE: 'recommendations-stage',
     /** Причина режима, которой фронт ещё не знает (новый код бэка). */
     REASON: 'reason',
 } as const;
@@ -162,6 +173,8 @@ export interface AiChecklistInput {
     dailyPlan?: AiDailyPlan | null;
     /** План-факт (причина plan-snapshot-missing, снимок «Планов» этого месяца). */
     planFact?: AiPlanFact | null;
+    /** Прогноз отдела (Фаза 4): месяцы в тени и последняя проверка; только руководителю. */
+    forecast?: AiForecast | null;
     /** Имя по Bitrix-id. */
     managerName: (managerId: string) => string;
     /** Сегодня YYYY-MM-DD. */

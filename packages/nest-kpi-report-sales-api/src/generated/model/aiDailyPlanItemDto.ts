@@ -27,4 +27,9 @@ export interface AiDailyPlanItemDto {
     cap: number | null;
     /** Место в приоритете по утечке ребра, начиная с 1. */
     priority: number;
+    /**
+     * Ожидаемые потери продаж на этом шаге; нет значения — приоритет задан порядком, а не утечкой.
+     * @nullable
+     */
+    leak?: number | null;
 }

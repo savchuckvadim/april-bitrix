@@ -18,6 +18,7 @@ const currentUser = (overrides: Partial<CurrentUserInfo>): CurrentUserInfo => ({
     headOfDepartmentIds: [],
     visibility: 'own',
     headOfSource: 'structure',
+    subordinateIds: [],
     isSuperUser: false,
     colleagues: { group: [], department: [] },
     ...overrides,
@@ -64,6 +65,7 @@ describe('hydrateFromShareSnapshot — роль в снимке', () => {
                 headOfDepartmentIds: [10, 20],
                 visibility: 'all',
                 headOfSource: 'superuser',
+                subordinateIds: [],
                 isSuperUser: true,
             }),
         );
@@ -73,6 +75,7 @@ describe('hydrateFromShareSnapshot — роль в снимке', () => {
             headOfDepartmentIds: [],
             visibility: 'own',
             headOfSource: 'structure',
+            subordinateIds: [],
         });
     });
 

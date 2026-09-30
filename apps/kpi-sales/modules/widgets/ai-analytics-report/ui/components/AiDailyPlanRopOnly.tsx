@@ -95,7 +95,7 @@ export const AiDailyPlanRopOnly = ({
                         : formatAiRate(ropOnly.normAtRefQuality)}
                 </dd>
 
-                <dt>Связь «качество → исход»</dt>
+                <dt>Связь качества разговоров с результатом</dt>
                 <dd className="text-foreground">
                     {AI_DAILY_PLAN_BETA_SOURCE[ropOnly.betaSource]}
                 </dd>

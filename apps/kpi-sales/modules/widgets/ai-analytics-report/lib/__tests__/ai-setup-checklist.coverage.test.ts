@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { aiPilotIds } from '@/modules/entities/ai-analytics';
 import { AI_CHECKLIST_TEXT } from '../ai-setup-checklist.texts';
 import {
     AI_NOT_ANALYZED_REASON,
     aiNotAnalyzedReason,
-    aiPilotIds,
 } from '../ai-setup-checklist.coverage';
 import {
     AI_CHECKLIST_ACTION,

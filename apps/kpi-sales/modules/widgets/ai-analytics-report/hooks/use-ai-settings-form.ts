@@ -26,6 +26,14 @@ import {
     type AiSettingsTab,
 } from '../lib/ai-settings-form.util';
 import {
+    addAiHypothesisRow,
+    aiSettingsPhase4State,
+    patchAiHypothesisRow,
+    removeAiHypothesisRow,
+    setAiPool,
+} from '../lib/ai-settings-form.phase4';
+import type { AiHypothesisFormRow } from '../lib/ai-settings-form.hypothesis';
+import {
     aiSettingsErrorTabs,
     validateAiSettingsForm,
 } from '../lib/ai-settings-form.validate';
@@ -42,8 +50,9 @@ import {
 export type AiSettingsStep = 'edit' | 'confirm' | 'done';
 
 /**
- * Форма настроек витрины: уровни из обзора; цели, личные цели, отсутствия
- * и дата подтверждения состава — из settings/get (предзаполнение при
+ * Форма настроек витрины: уровни из обзора; цели, личные цели, отсутствия,
+ * дата подтверждения состава, гипотеза качества и согласие на общую
+ * статистику порталов — из settings/get (предзаполнение при
  * открытии и когда настройки приходят позже). В payload уходят только
  * изменённые блоки; если среди них есть рвущие сравнимую историю — сначала
  * подтверждение; после ответа бэка — сводка (comparableFrom, коды,
@@ -174,6 +183,8 @@ export const useAiSettingsForm = (
         managerOptions,
         /** settings/get загружены — статус состава и цели известны. */
         settingsLoaded: settings !== null,
+        /** Гипотеза и пул: сервер прислал их поля (старый — нет). */
+        phase4State: aiSettingsPhase4State(settings),
         today: aiToday(),
         setLevel: (managerId: number, level: AiManagerLevel) =>
             setForm(prev => patchAiLevelRow(prev, managerId, { level })),
@@ -194,6 +205,16 @@ export const useAiSettingsForm = (
         confirmRoster: () => setForm(prev => setAiRoster(prev, aiToday())),
         clearRoster: () => setForm(prev => setAiRoster(prev, '')),
         resetRoster: () => setForm(prev => setAiRoster(prev, null)),
+        addHypothesisPair: () => setForm(prev => addAiHypothesisRow(prev)),
+        patchHypothesisPair: (
+            id: number,
+            changes: Partial<Omit<AiHypothesisFormRow, 'id'>>,
+        ) => setForm(prev => patchAiHypothesisRow(prev, id, changes)),
+        removeHypothesisPair: (id: number) =>
+            setForm(prev => removeAiHypothesisRow(prev, id)),
+        givePoolConsent: () => setForm(prev => setAiPool(prev, true)),
+        revokePoolConsent: () => setForm(prev => setAiPool(prev, false)),
+        resetPool: () => setForm(prev => setAiPool(prev, null)),
         submit,
         backToEdit: () => setStep('edit'),
     };

@@ -72,15 +72,15 @@ export const AI_DAILY_PLAN_UNREACHABLE: Record<AiDailyPlanUnreachable, string> =
             'на одном из шагов воронки нет ни одного перехода — объём не посчитать',
     };
 
-/** Рёбра воронки: коды строк плана и связующего ограничения. */
+/** Рёбра воронки (коды строк плана и связующего ограничения) — словами, без стрелок, как на бэке. */
 export const AI_DAILY_PLAN_EDGE: Record<
     AiDailyPlanItemCallType | AiDailyPlanBindingConstraint,
     string
 > = {
-    call_to_presentation: 'звонок → презентация',
-    presentation_to_offer: 'презентация → предложение',
-    offer_to_invoice: 'предложение → счёт',
-    invoice_to_sale: 'счёт → продажа',
+    call_to_presentation: 'доля презентаций после звонков',
+    presentation_to_offer: 'доля КП после презентаций',
+    offer_to_invoice: 'доля счетов после КП',
+    invoice_to_sale: 'доля продаж после счетов',
 };
 
 /** Подпись шага расчёта (explanation.steps[].code) — словами, без обозначений формул. */

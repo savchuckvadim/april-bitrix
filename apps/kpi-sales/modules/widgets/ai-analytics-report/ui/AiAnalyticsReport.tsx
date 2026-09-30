@@ -8,6 +8,7 @@ import { AiBriefCard } from './AiBriefCard';
 import { AiRopMarkCard } from './AiRopMarkCard';
 import { AiDailyPlanCard } from './AiDailyPlanCard';
 import { AiPlanFactCard } from './AiPlanFactCard';
+import { AiForecastCard } from './AiForecastCard';
 import { AiAttentionList } from './AiAttentionList';
 import { AiAgendaCard } from './AiAgendaCard';
 import { AiSignalTable } from './AiSignalTable';
@@ -21,8 +22,9 @@ import { AiKpiOnlyNote } from './components/AiKpiOnlyNote';
  * Вкладка «AI аналитика»: шапка, «Готовность витрины» с чек-листом
  * «донастроить или просто подождать?», пульс, AI-резюме периода,
  * «Внимание», повестка планёрки, слепая оценка (руководителю), план дня,
- * план-факт месяца, таблица сигналов, матрицы KPI-вида «AI: типы звонков»
- * и «AI: разделы оценки по типу»; второй уровень — разбор по типам
+ * план-факт месяца, прогноз отдела (руководителю), таблица сигналов,
+ * матрицы KPI-вида «AI: типы звонков» и «AI: разделы оценки по типу»;
+ * второй уровень — разбор по типам
  * (drawer), стиль менеджера, «Как считаем» и настройки витрины (диалог
  * руководителя: уровни, цели, отсутствия, состав — пункты чек-листа и
  * «Задать цель» плана дня открывают нужную вкладку). В kpi-only разборов
@@ -68,6 +70,7 @@ export const AiAnalyticsReport = () => {
                         }
                     />
                     <AiPlanFactCard />
+                    <AiForecastCard />
                     <AiSignalTable />
                     <AiTypesMatrixBlock />
                     <AiSectionsMatrixBlock />

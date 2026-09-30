@@ -1,5 +1,11 @@
 import type { Tone } from '@workspace/april-ui';
 import type { AiReadinessBetaCountdown, AiReadinessMode } from '../model';
+import {
+    AI_READINESS_PHASE4_GATED_REASON_LABELS,
+    AI_READINESS_PHASE4_REASON_LABELS,
+} from './ai-readiness-phase4.data';
+
+export * from './ai-readiness-phase4.data';
 
 /** Подпись режима готовности витрины (ReadinessDto.mode) для баннера. */
 export const AI_READINESS_LABELS: Record<AiReadinessMode, string> = {
@@ -8,8 +14,8 @@ export const AI_READINESS_LABELS: Record<AiReadinessMode, string> = {
     descriptive: 'Описательный режим: показываем факты без норм',
     norms: 'Нормы из данных',
     hypothesis: 'Проверка гипотез',
-    forecast: 'Прогноз',
-    recommendations: 'Рекомендации',
+    forecast: 'Прогноз отдела проверен и включён',
+    recommendations: 'Советы проверены на ваших данных',
 };
 
 /** Пояснение режима человеческим языком (вторая строка баннера). */
@@ -21,9 +27,12 @@ export const AI_READINESS_HINTS: Record<AiReadinessMode, string> = {
     descriptive:
         'Истории достаточно для описания фактов, но нормы ещё не рассчитаны — сравнений «выше/ниже нормы» пока нет.',
     norms: 'Нормы рассчитаны из данных портала: доступны сравнения с нормой.',
-    hypothesis: 'Проверяем связь качества и исхода на данных портала.',
-    forecast: 'Прогноз строится на накопленной истории.',
-    recommendations: 'Рекомендации подтверждены данными.',
+    hypothesis:
+        'Задано ваше правило «качество — результат»: оно работает только в калькуляторе «что если» и на план и советы не влияет. Связь по данным портала оценится отдельно, когда разобранных презентаций станет достаточно.',
+    forecast:
+        'Прогноз продаж отдела прошёл проверку на истории и включён: руководителю видна вилка итога месяца. Советы менеджерам пока проверяются.',
+    recommendations:
+        'Прогноз прошёл проверку на истории, а советы проверены на ваших данных: после выполненных советов воронка улучшилась хотя бы на одном шаге.',
 };
 
 /** Тон баннера: kpi-only — предупреждение, калибровка — инфо, дальше — норма. */
@@ -51,10 +60,11 @@ export const AI_READINESS_REASON_LABELS: Record<string, string> = {
     'no-analysis-in-pipeline-window': 'Разборов звонков за последние 30 дней нет',
     'calendar-not-imported': 'Производственный календарь не импортирован',
     'roster-not-confirmed': 'Состав и уровни менеджеров не подтверждены',
-    'hypothesis-not-set': 'Гипотеза «качество → объём» не задана',
+    'hypothesis-not-set': 'Гипотеза о связи качества разговоров и числа презентаций не задана',
     'no-portal-model': 'Модели портала ещё нет — норм без неё не бывает',
     'data-quality-timestamp-leak':
         'Качество данных: продажи закрываются раньше объясняющих их активностей',
+    ...AI_READINESS_PHASE4_REASON_LABELS,
 };
 
 /**
@@ -71,6 +81,7 @@ export const AI_READINESS_GATED_REASON_LABELS: Record<
     'presentations-below': gate => `Разобранных презентаций меньше ${gate}`,
     'norms-presentations-below': gate =>
         `Для норм нужно не меньше ${gate} презентаций`,
+    ...AI_READINESS_PHASE4_GATED_REASON_LABELS,
 };
 
 const GATED_REASON = /^(.+)-(\d+)$/;
@@ -126,7 +137,7 @@ export const pluralRu = (count: number, forms: PluralForms): string => {
 };
 
 /** Подпись связи «качество → продажи» в счётчике (без греческих символов). */
-export const AI_BETA_LINK_LABEL = 'связи «качество → продажи»';
+export const AI_BETA_LINK_LABEL = 'связи качества разговоров с продажами';
 
 /** Гейт связи уже набран объёмом, но пересчёт ещё не прошёл. */
 export const AI_BETA_COUNTDOWN_REACHED = `Объём для оценки ${AI_BETA_LINK_LABEL} накоплен`;

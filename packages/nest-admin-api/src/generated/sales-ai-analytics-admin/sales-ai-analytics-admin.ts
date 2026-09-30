@@ -19,11 +19,19 @@ import type {
   AiAnalyticsFeedbackCostAdminCostSummaryParams,
   AiAnalyticsFeedbackCostAdminFeedbackSummaryParams,
   AiAnalyticsFeedbackResultDto,
+  AiAnalyticsForecastBacktestResultDto,
   AiAnalyticsGoldenSetAdminListParams,
   AiAnalyticsGoldenSetResultDto,
   AiAnalyticsGoldenSetRunDto,
   AiAnalyticsGoldenSetRunResultDto,
+  AiAnalyticsPhase4AdminForecastBacktestParams,
+  AiAnalyticsPhase4AdminPoolStatusParams,
+  AiAnalyticsPhase4AdminQualityLinkParams,
+  AiAnalyticsPhase4AdminRecommendationEffectParams,
   AiAnalyticsPipelineAdminStatusParams,
+  AiAnalyticsPoolStatusResultDto,
+  AiAnalyticsQualityLinkResultDto,
+  AiAnalyticsRecommendationEffectResultDto,
   AiAnalyticsRecomputeDto,
   AiAnalyticsRecomputeResultDto,
   AiAnalyticsRetentionResultDto,
@@ -155,7 +163,7 @@ const aiAnalyticsRetentionAdminRun = (
       );
     }
   /**
- * Записи ais типа ai-analytics-feedback домена за период дат (границы по UTC, обе включительно): реакции витрины (view, useful, not_useful, disagree), факты доставки push-контура (alert_sent, alert_handled, digest_sent, agenda_sent) и слепые метки руководителя (rop_mark) — счётчиками по видам и по менеджерам, плюс доля полезных реакций. Записи чужой формы в счётчики не попадают, но показаны числом skipped, чтобы потеря не пряталась.
+ * Записи ais типа ai-analytics-feedback домена за период дат (границы по UTC, обе включительно): реакции витрины (view, useful, not_useful, disagree), факты доставки push-контура (alert_sent, alert_handled, digest_sent, agenda_sent) и слепые метки руководителя (rop_mark) — счётчиками по видам и по менеджерам, плюс доля полезных реакций. Записи чужой формы в счётчики не попадают, но показаны числом skipped, чтобы потеря не пряталась; замещённые (superseded) — тоже вне счётчиков, их число — в superseded.
  * @summary Сводка обратной связи витрины за период
  */
 const aiAnalyticsFeedbackCostAdminFeedbackSummary = (
@@ -207,7 +215,59 @@ const aiAnalyticsGoldenSetAdminRun = (
     },
       );
     }
-  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun}};
+  /**
+ * Последний снапшот ai-analytics-pool домена (месячный шаг конвейера, копия у каждого участника): статус и причины, число порталов с согласием и вошедших в пул, вердикты по порталам обезличенными ключами (доменов нет), свой ключ, β пула с неоднородностью I² и готовность к уровню E2. latest = null — пул не собирался или у портала нет согласия.
+ * @summary Состояние пула порталов для портала
+ */
+const aiAnalyticsPhase4AdminPoolStatus = (
+    params: AiAnalyticsPhase4AdminPoolStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsPoolStatusResultDto>(
+      {url: `/api/admin/ai-analytics/pool-status`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Последние months (по умолчанию 6) снапшотов ai-analytics-forecast-backtest домена, свежие первыми: статус гейта L4 и причины, теневые месяцы и порог, покрытие вилки с интервалом Уилсона, отношение ошибок к простым прогнозам с бутстрап-интервалом, pinball. Замещённые записи не отдаются.
+ * @summary Проверки точности прогноза отдела по закрытым месяцам
+ */
+const aiAnalyticsPhase4AdminForecastBacktest = (
+    params: AiAnalyticsPhase4AdminForecastBacktestParams,
+ ) => {
+      return customAxios<AiAnalyticsForecastBacktestResultDto>(
+      {url: `/api/admin/ai-analytics/forecast-backtest`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Последний снапшот ai-analytics-recommendation-effect домена: выдано / выполнено / несогласий с долями и интервалами Уилсона, «до/после» по шагам воронки с интервалом Ньюкомба (единица — окно «менеджер × месяц выдачи»), свод по рычагам, гейт L5 с причинами и флаги подгонки показателей.
+ * @summary Эффект советов (гейт ступени «рекомендации»)
+ */
+const aiAnalyticsPhase4AdminRecommendationEffect = (
+    params: AiAnalyticsPhase4AdminRecommendationEffectParams,
+ ) => {
+      return customAxios<AiAnalyticsRecommendationEffectResultDto>(
+      {url: `/api/admin/ai-analytics/recommendation-effect`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Последний снапшот ai-analytics-quality-link домена: статус и причины, выборка, β внутри менеджера / между менеджерами / общая с интервалами, надёжность оценки, наклон калибровки, плацебо и гейт публикации (серия пересчётов подряд).
+ * @summary Связь качества разговора с ближним исходом (β)
+ */
+const aiAnalyticsPhase4AdminQualityLink = (
+    params: AiAnalyticsPhase4AdminQualityLinkParams,
+ ) => {
+      return customAxios<AiAnalyticsQualityLinkResultDto>(
+      {url: `/api/admin/ai-analytics/quality-link`, method: 'GET',
+        params
+    },
+      );
+    }
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink}};
 export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
 export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
 export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
@@ -220,3 +280,7 @@ export type AiAnalyticsFeedbackCostAdminFeedbackSummaryResult = NonNullable<Awai
 export type AiAnalyticsFeedbackCostAdminCostSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsFeedbackCostAdminCostSummary']>>>
 export type AiAnalyticsGoldenSetAdminListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGoldenSetAdminList']>>>
 export type AiAnalyticsGoldenSetAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGoldenSetAdminRun']>>>
+export type AiAnalyticsPhase4AdminPoolStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminPoolStatus']>>>
+export type AiAnalyticsPhase4AdminForecastBacktestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminForecastBacktest']>>>
+export type AiAnalyticsPhase4AdminRecommendationEffectResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminRecommendationEffect']>>>
+export type AiAnalyticsPhase4AdminQualityLinkResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminQualityLink']>>>

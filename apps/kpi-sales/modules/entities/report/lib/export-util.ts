@@ -1,37 +1,48 @@
-import { ReportData } from '../model/types/report/report-type';
-import { RTableProps } from '@/modules/shared';
+import type { ReportData } from '../model/types/report/report-type';
+import type { RTableProps } from '@/modules/shared';
 import { getReportTableData } from './ui-util';
 
+/** BOM в начале файла — Excel открывает UTF-8 CSV с кириллицей без кракозябр. */
+const CSV_BOM = '\ufeff';
+const CSV_MIME = 'text/csv;charset=utf-8;';
+
+/** Ячейка CSV: всегда в кавычках, внутренние кавычки удваиваются. */
+const toCsvCell = (cell: string): string => `"${cell.replace(/"/g, '""')}"`;
+
+/** Строки → текст CSV: запятая между ячейками, \n между строками (без BOM). */
+export const csvRowsToContent = (rows: readonly (readonly string[])[]): string =>
+    rows.map(row => row.map(toCsvCell).join(',')).join('\n');
+
 /**
- * Экспорт таблицы в CSV формат
+ * RTableProps → строки CSV: шапка (firstCellName + имена показателей первой
+ * строки) и строки «имя + значения». Пустая таблица → [].
  */
-export const exportTableToCSV = (tableData: RTableProps, filename: string = 'table.csv') => {
-    if (!tableData.data || tableData.data.length === 0) {
-        return;
-    }
+export const tableToCsvRows = (tableData: RTableProps): string[][] => {
+    const firstRow = tableData.data?.[0];
+    if (!firstRow) return [];
+    const headers = [
+        String(tableData.firstCellName),
+        ...firstRow.actions.map(a => String(a.name)),
+    ];
+    const rows = tableData.data.map(item => [
+        String(item.name),
+        ...item.actions.map(a => String(a.value)),
+    ]);
+    return [headers, ...rows];
+};
 
-    // Создаем заголовки
-    const firstRow = tableData.data[0];
-    if (!firstRow) return;
-    const headers = [tableData.firstCellName, ...firstRow.actions.map(a => a.name)];
-    const rows = [headers];
-
-    // Добавляем данные
-    tableData.data.forEach(item => {
-        const row = [
-            item.name,
-            ...item.actions.map(a => String(a.value))
-        ];
-        rows.push(row);
+/**
+ * Скачивание строк CSV файлом (BOM, кавычки, \n). Пустой набор строк —
+ * ничего не скачивается.
+ */
+export const downloadCsvRows = (
+    rows: readonly (readonly string[])[],
+    filename: string,
+): void => {
+    if (rows.length === 0) return;
+    const blob = new Blob([CSV_BOM + csvRowsToContent(rows)], {
+        type: CSV_MIME,
     });
-
-    // Конвертируем в CSV
-    const csvContent = rows.map(row =>
-        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
-    ).join('\n');
-
-    // Скачиваем файл
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
@@ -40,6 +51,13 @@ export const exportTableToCSV = (tableData: RTableProps, filename: string = 'tab
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+};
+
+/**
+ * Экспорт таблицы в CSV формат
+ */
+export const exportTableToCSV = (tableData: RTableProps, filename: string = 'table.csv') => {
+    downloadCsvRows(tableToCsvRows(tableData), filename);
 };
 
 /**
@@ -57,6 +75,11 @@ export const exportMergedTableToCSV = (tableData: RTableProps, filename: string 
     exportTableToCSV(tableData, filename);
 };
 
+/** Окно с необязательной глобальной html2canvas (подключается отдельно). */
+interface Html2CanvasWindow {
+    html2canvas?: (element: HTMLElement) => Promise<HTMLCanvasElement>;
+}
+
 /**
  * Экспорт графика как изображения (скриншот элемента)
  */
@@ -68,8 +91,12 @@ export const exportChartAsImage = (chartElementId: string, filename: string = 'c
     }
 
     // Используем html2canvas если доступен, иначе просто показываем сообщение
-    if (typeof window !== 'undefined' && (window as any).html2canvas) {
-        (window as any).html2canvas(element).then((canvas: HTMLCanvasElement) => {
+    const html2canvas =
+        typeof window !== 'undefined'
+            ? (window as Window & Html2CanvasWindow).html2canvas
+            : undefined;
+    if (html2canvas) {
+        html2canvas(element).then((canvas: HTMLCanvasElement) => {
             const link = document.createElement('a');
             link.download = filename;
             link.href = canvas.toDataURL('image/png');
@@ -80,4 +107,3 @@ export const exportChartAsImage = (chartElementId: string, filename: string = 'c
         alert('Для экспорта графика установите библиотеку html2canvas');
     }
 };
-

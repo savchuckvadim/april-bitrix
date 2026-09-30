@@ -19,6 +19,10 @@ import { AiHowWeCountTexts } from './components/AiHowWeCountTexts';
 import { AiHowWeCountParams } from './components/AiHowWeCountParams';
 import { AiHowWeCountModel } from './components/AiHowWeCountModel';
 import { AiHowWeCountReliability } from './components/AiHowWeCountReliability';
+import { AiHowWeCountQualityLink } from './components/AiHowWeCountQualityLink';
+import { AiHowWeCountForecastAccuracy } from './components/AiHowWeCountForecastAccuracy';
+import { AiHowWeCountPool } from './components/AiHowWeCountPool';
+import { AiHowWeCountAdviceEffect } from './components/AiHowWeCountAdviceEffect';
 
 interface AiHowWeCountDialogProps {
     /** Раздел витрины, для которого показываем блок. */
@@ -35,7 +39,9 @@ const DEFAULT_DESCRIPTION =
  * источники, как читать, чего не делаем, таблица параметров с действующими
  * значениями, модель портала (готовность, оценки модели, переходы воронки,
  * проверка качества данных) либо причина её отсутствия, надёжность оценок
- * AI (повторные разборы) и начало сравнимой истории. Запрос уходит при
+ * AI (повторные разборы), секции Фазы 4 — связь качества с результатом,
+ * точность прогноза на истории, общая статистика порталов, эффект советов
+ * (только те, что прислал бэк) — и начало сравнимой истории. Запрос уходит при
  * открытии; ответ хранится по разделу.
  */
 export const AiHowWeCountDialog = ({
@@ -78,6 +84,23 @@ export const AiHowWeCountDialog = ({
                             model={data.model}
                             modelReason={data.modelReason}
                         />
+                        {data.qualityLink && (
+                            <AiHowWeCountQualityLink
+                                link={data.qualityLink}
+                                readiness={data.model?.readiness ?? null}
+                            />
+                        )}
+                        {data.forecastAccuracy && (
+                            <AiHowWeCountForecastAccuracy
+                                accuracy={data.forecastAccuracy}
+                            />
+                        )}
+                        {data.pool && <AiHowWeCountPool pool={data.pool} />}
+                        {data.recommendationsEffect && (
+                            <AiHowWeCountAdviceEffect
+                                effect={data.recommendationsEffect}
+                            />
+                        )}
                         <AiHowWeCountReliability
                             reliability={data.reliability}
                         />
@@ -86,7 +109,9 @@ export const AiHowWeCountDialog = ({
             </div>
             <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground">
                 <span>
-                    {data ? formatAiAboutComparableFrom(data.comparableFrom) : ''}
+                    {data
+                        ? formatAiAboutComparableFrom(data.comparableFrom)
+                        : ''}
                 </span>
                 <AiTheoryLink topic={AI_ABOUT_THEORY_TOPIC[endpoint]} />
             </footer>

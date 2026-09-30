@@ -27,8 +27,7 @@ export const AiHowWeCountSanity = ({ sanity }: AiHowWeCountSanityProps) => {
         <div className="space-y-1 text-sm">
             <div className="flex flex-wrap items-center gap-2">
                 <span className="text-muted-foreground">
-                    Проверка качества данных от {formatAiAboutDate(sanity.day)}
-                    :
+                    Проверка качества данных от {formatAiAboutDate(sanity.day)}:
                 </span>
                 <ToneBadge tone={quality.tone} variant="soft" size="sm">
                     {quality.label}

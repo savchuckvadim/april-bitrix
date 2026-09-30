@@ -14,6 +14,7 @@ import type { AiPortalEventDto } from './aiPortalEventDto';
 import type { AiModelParamDto } from './aiModelParamDto';
 import type { AiScoringDto } from './aiScoringDto';
 import type { AiHypothesisDto } from './aiHypothesisDto';
+import type { AiPoolConsentDto } from './aiPoolConsentDto';
 
 export interface AiSettingsSaveRequestDto {
     /** Домен портала Bitrix24. */
@@ -40,4 +41,6 @@ export interface AiSettingsSaveRequestDto {
     hypothesis?: AiHypothesisDto;
     /** Дата подтверждения состава и уровней (YYYY-MM-DD, не в будущем). Пустая строка снимает подтверждение. */
     rosterConfirmedAt?: string;
+    /** Согласие на обезличенный пул порталов. Передано — перезаписывается вместе с датой согласия (сегодня при первом включении, повторное включение дату не сдвигает; пусто при отзыве); не передано — остаётся прежним. Сравнимую историю не рвёт. */
+    pool?: AiPoolConsentDto;
 }

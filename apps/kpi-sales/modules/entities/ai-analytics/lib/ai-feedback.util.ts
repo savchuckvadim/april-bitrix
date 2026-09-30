@@ -1,4 +1,4 @@
-import type { AiFeedbackKind } from '../model';
+import type { AiFeedbackKind, AiRecommendationItem } from '../model';
 
 /** Лимит длины причины «Не согласен» (зеркало ограничения бэка). */
 export const AI_DISAGREE_REASON_MAX = 300;
@@ -113,6 +113,31 @@ const splitAiFeedbackObject = (
 /** Неизвестный объект — без сырого кода. */
 export const AI_FEEDBACK_OBJECT_OTHER = 'другой раздел витрины';
 
+/** Вид совета словами (общие подписи витрины и объектов реакций). */
+export const AI_LEVER_LABELS: Record<AiRecommendationItem['lever'], string> = {
+    volume: 'Объём',
+    quality: 'Качество',
+    checklist: 'Чек-лист',
+    pipeline: 'Сделки',
+    objection: 'Возражение',
+};
+
+export const isAiLever = (
+    value: string,
+): value is AiRecommendationItem['lever'] =>
+    Object.prototype.hasOwnProperty.call(AI_LEVER_LABELS, value);
+
+/**
+ * Совет по объекту «{id менеджера}:{ключ}», где ключ начинается с вида
+ * совета: «по совету «Качество»»; вид не распознан — «по совету».
+ */
+const leverObjectLabel = (id: string): string => {
+    const lever = id.split(':')[1] ?? '';
+    return isAiLever(lever)
+        ? `по совету «${AI_LEVER_LABELS[lever]}»`
+        : 'по совету';
+};
+
 /**
  * Объект реакции по-человечески (блок «Несогласия недели»):
  * overview:<id> — «строка обзора», site-review:<id> — «отзыв с сайта по
@@ -134,6 +159,8 @@ export const aiFeedbackObjectLabel = (object: string): string => {
             return 'сигнал «Внимания»';
         case 'site-review':
             return 'отзыв с сайта по разбору';
+        case 'lever':
+            return leverObjectLabel(id);
         default:
             return AI_FEEDBACK_OBJECT_OTHER;
     }

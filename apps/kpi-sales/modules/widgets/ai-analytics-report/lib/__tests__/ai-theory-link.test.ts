@@ -56,8 +56,29 @@ describe('ai-theory-link — темы и адреса', () => {
         );
     });
 
+    it('главы прогноза и связи качества с исходом — свои якоря', () => {
+        const base = 'https://bitrix.april-app.ru';
+        const phase4: Record<string, string> = {
+            forecast: '/ai/forecast#band',
+            forecastShadow: '/ai/forecast#shadow',
+            forecastBacktest: '/ai/forecast#backtest',
+            forecastMoney: '/ai/forecast#money',
+            qualityLink: '/ai/quality-link#beta-sources',
+            qualityOutcome: '/ai/quality-link#outcome',
+            betaGate: '/ai/quality-link#beta-gate',
+            pool: '/ai/quality-link#pool',
+            recommendationsEffect: '/ai/quality-link#recommendations-effect',
+        };
+        for (const [topic, tail] of Object.entries(phase4)) {
+            expect(isAiTheoryTopic(topic)).toBe(true);
+            if (isAiTheoryTopic(topic)) {
+                expect(aiTheoryUrl(topic, base)).toBe(`${base}${tail}`);
+            }
+        }
+    });
+
     it('у каждой темы путь от /ai/ и непустой якорь из латиницы и дефисов', () => {
-        expect(AI_THEORY_TOPIC_LIST.length).toBeGreaterThanOrEqual(33);
+        expect(AI_THEORY_TOPIC_LIST).toHaveLength(42);
         for (const topic of AI_THEORY_TOPIC_LIST) {
             const ref = AI_THEORY_TOPICS[topic];
             expect(ref.path).toMatch(/^\/ai(\/[a-z-]+)+$/);
@@ -76,6 +97,7 @@ describe('ai-theory-link — темы и адреса', () => {
             brief: 'brief',
             'manager/style': 'style',
             dossier: 'dossier',
+            forecast: 'forecast',
         });
     });
 });
@@ -93,7 +115,13 @@ describe('ai-setup-checklist.data — темы теории у пунктов ч
             'goalCascade',
         );
         expect(aiChecklistTheoryTopic(AI_CHECKLIST_ITEM.YOY)).toBe('yearAgo');
-        expect(aiChecklistTheoryTopic(AI_CHECKLIST_ITEM.BETA)).toBe('gates');
+        expect(aiChecklistTheoryTopic(AI_CHECKLIST_ITEM.BETA)).toBe('betaGate');
+        expect(aiChecklistTheoryTopic(AI_CHECKLIST_ITEM.HYPOTHESIS)).toBe(
+            'qualityLink',
+        );
+        expect(aiChecklistTheoryTopic(AI_CHECKLIST_ITEM.PORTAL_MODEL)).toBe(
+            'gates',
+        );
         expect(aiChecklistTheoryTopic(AI_CHECKLIST_ITEM.REASON)).toBeNull();
         for (const topic of Object.values(AI_CHECKLIST_ITEM_THEORY)) {
             expect(isAiTheoryTopic(topic)).toBe(true);

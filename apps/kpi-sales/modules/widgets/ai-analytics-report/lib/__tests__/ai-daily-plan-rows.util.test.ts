@@ -11,6 +11,7 @@ import {
     aiDailyPlanActivity,
     aiDailyPlanMonthFacts,
     aiDailyPlanPipelineFact,
+    aiDailyPlanTopLeak,
     buildAiDailyPlanRows,
     sortAiDailyPlanFunnel,
 } from '../ai-daily-plan-view.util';
@@ -46,8 +47,9 @@ const leakOrderedItems = (): AiDailyPlanItem[] => [
         monthPlan: 8,
         monthDone: 5,
         priority: 1,
+        leak: 1.4,
     }),
-    item({ priority: 2, monthDone: 144, monthPlan: 200 }),
+    item({ priority: 2, monthDone: 144, monthPlan: 200, leak: 0.9 }),
     item({
         callType: 'invoice_to_sale',
         title: 'Счета',
@@ -55,6 +57,7 @@ const leakOrderedItems = (): AiDailyPlanItem[] => [
         monthPlan: 6,
         monthDone: 3,
         priority: 3,
+        leak: 0.5,
     }),
     item({
         callType: 'presentation_to_offer',
@@ -63,6 +66,7 @@ const leakOrderedItems = (): AiDailyPlanItem[] => [
         monthPlan: 40,
         monthDone: 30,
         priority: 4,
+        leak: 0.2,
     }),
 ];
 
@@ -124,8 +128,8 @@ describe('строки плана', () => {
         expect(items[0]?.callType).toBe('offer_to_invoice');
     });
 
-    it('подпись — вход ребра, «<1» сегодня, узкое место — priority 1', () => {
-        const rows = buildAiDailyPlanRows(leakOrderedItems(), true, true);
+    it('подпись — вход ребра, «<1» сегодня, узкое место — priority 1 с утечкой', () => {
+        const rows = buildAiDailyPlanRows(leakOrderedItems(), true);
         expect(rows.map(row => row.label)).toEqual([
             'Звонки',
             'Презентации',
@@ -142,9 +146,33 @@ describe('строки плана', () => {
         expect(rows[1]?.hint).toContain('Уникальные по компании');
     });
 
-    it('план по объёму (priority не по утечке) — «узкого места» нет', () => {
-        const rows = buildAiDailyPlanRows(leakOrderedItems(), true, false);
+    it('план по объёму (leak = null, priority лишь порядок) — «узкого места» нет', () => {
+        const rows = buildAiDailyPlanRows(
+            leakOrderedItems().map(row => ({ ...row, leak: null })),
+            true,
+        );
         expect(rows.some(row => row.topLeak)).toBe(false);
+    });
+
+    it('старый ответ без поля leak — «узкого места» нет', () => {
+        const legacy = leakOrderedItems().map(row => {
+            const copy = { ...row };
+            delete copy.leak;
+            return copy;
+        });
+        expect(legacy.every(row => !('leak' in row))).toBe(true);
+        const rows = buildAiDailyPlanRows(legacy, true);
+        expect(rows.some(row => row.topLeak)).toBe(false);
+    });
+
+    it('aiDailyPlanTopLeak: утечка больше нуля, priority 1 и больше одной строки', () => {
+        expect(aiDailyPlanTopLeak({ leak: 0.3, priority: 1 }, 2)).toBe(true);
+        // Нулевая утечка на первом месте — теряем везде ноль, «узкого места» нет.
+        expect(aiDailyPlanTopLeak({ leak: 0, priority: 1 }, 2)).toBe(false);
+        expect(aiDailyPlanTopLeak({ leak: 0.3, priority: 2 }, 2)).toBe(false);
+        expect(aiDailyPlanTopLeak({ leak: 0.3, priority: 1 }, 1)).toBe(false);
+        expect(aiDailyPlanTopLeak({ leak: null, priority: 1 }, 3)).toBe(false);
+        expect(aiDailyPlanTopLeak({ priority: 1 }, 3)).toBe(false);
     });
 
     it('незнакомый код ребра — не падаем: подпись из title, в конце воронки', () => {
@@ -156,7 +184,7 @@ describe('строки плана', () => {
             monthDone: 5,
         });
         expect(aiDailyPlanActivity(extra).label).toBe('Допродажи');
-        const rows = buildAiDailyPlanRows([extra, item()], true, true);
+        const rows = buildAiDailyPlanRows([extra, item()], true);
         expect(rows.map(row => row.label)).toEqual(['Звонки', 'Допродажи']);
         expect(aiDailyPlanMonthFacts({ doneSales: 0, items: [extra] })).toBe(
             'За месяц: 0 сделок и 5 действий.',
@@ -164,7 +192,7 @@ describe('строки плана', () => {
     });
 
     it('с целью: «сделано из плана» и доля; без цели — только сделано', () => {
-        const [calls] = buildAiDailyPlanRows([item()], true, true);
+        const [calls] = buildAiDailyPlanRows([item()], true);
         expect(calls).toMatchObject({
             monthDone: '96',
             monthPlan: '180',
@@ -175,7 +203,6 @@ describe('строки плана', () => {
         const [noGoal] = buildAiDailyPlanRows(
             [item({ monthPlan: 96 })],
             false,
-            true,
         );
         expect(noGoal?.monthPlan).toBeNull();
         expect(noGoal?.monthShare).toBeNull();

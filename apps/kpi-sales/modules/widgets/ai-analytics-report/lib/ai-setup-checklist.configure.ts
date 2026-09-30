@@ -208,6 +208,6 @@ export const aiHypothesisItem = (
               title: T.hypothesis.title,
               detail: T.hypothesis.detail,
               unlocks: T.hypothesis.unlocks,
-              actions: [aiTextAction(T.hypothesis.fix)],
+              actions: [aiSettingsAction(ctx, 'hypothesis', T.hypothesis.action)],
           })
         : null;

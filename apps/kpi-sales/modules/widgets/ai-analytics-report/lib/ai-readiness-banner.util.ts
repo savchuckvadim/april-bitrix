@@ -1,8 +1,11 @@
 import {
     AI_READINESS_HINTS,
+    AI_READINESS_PHASE4_GATED_REASON,
+    AI_READINESS_PHASE4_REASON,
     type AiReadiness,
     type AiReadinessBetaSource,
     type AiReadinessMode,
+    type AiReadinessPhase4GatedReason,
     type AiReadinessSigmaSource,
 } from '@/modules/entities/ai-analytics';
 import { formatAiAboutDate } from './ai-about.util';
@@ -30,13 +33,19 @@ export const AI_READINESS_GATED_REASON = {
     NORMS_PRESENTATIONS: 'norms-presentations-below',
 } as const;
 export type AiReadinessGatedReason =
-    (typeof AI_READINESS_GATED_REASON)[keyof typeof AI_READINESS_GATED_REASON];
+    | (typeof AI_READINESS_GATED_REASON)[keyof typeof AI_READINESS_GATED_REASON]
+    | AiReadinessPhase4GatedReason;
 
 const GATED_REASON = /^(.+)-(\d+)$/;
-const GATED_PREFIXES: readonly string[] = Object.values(
-    AI_READINESS_GATED_REASON,
-);
-const PLAIN_CODES: readonly string[] = Object.values(AI_READINESS_REASON_CODE);
+// Коды ступеней «Прогноз» и «Советы» (Фаза 4) у чек-листа свои пункты.
+const GATED_PREFIXES: readonly string[] = [
+    ...Object.values(AI_READINESS_GATED_REASON),
+    ...Object.values(AI_READINESS_PHASE4_GATED_REASON),
+];
+const PLAIN_CODES: readonly string[] = [
+    ...Object.values(AI_READINESS_REASON_CODE),
+    ...Object.values(AI_READINESS_PHASE4_REASON),
+];
 
 /** Короткое имя режима для заголовка «Готовность витрины: …». */
 export const AI_READINESS_MODE_SHORT: Record<AiReadinessMode, string> = {
@@ -46,14 +55,14 @@ export const AI_READINESS_MODE_SHORT: Record<AiReadinessMode, string> = {
     norms: 'нормы',
     hypothesis: 'проверка гипотез',
     forecast: 'прогноз',
-    recommendations: 'рекомендации',
+    recommendations: 'советы',
 };
 
 /** Подпись связи «качество → исход» (ReadinessDto.betaSource). */
 export const AI_BETA_SOURCE_LABELS: Record<AiReadinessBetaSource, string> = {
-    none: 'связь «качество → исход» не задана',
-    hypothesis: 'связь «качество → исход» — по гипотезе портала',
-    data: 'связь «качество → исход» оценена по данным портала',
+    none: 'связь качества разговоров с результатом не задана',
+    hypothesis: 'связь качества разговоров с результатом — по гипотезе портала',
+    data: 'связь качества разговоров с результатом оценена по данным портала',
 };
 
 /** Подпись источника разброса оценок AI (ReadinessDto.sigmaLlmSource). */

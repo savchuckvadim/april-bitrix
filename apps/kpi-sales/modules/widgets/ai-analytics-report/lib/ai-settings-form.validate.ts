@@ -13,11 +13,16 @@ import type {
     AiSettingsTab,
     AiTargetFormRow,
 } from './ai-settings-form.util';
+import {
+    validateAiHypothesisRows,
+    type AiHypothesisErrors,
+} from './ai-settings-form.hypothesis';
 
 /*
  * Валидация формы настроек по-русски — правила из описаний DTO и проверки
  * бэка: since и дата подтверждения не позже сегодня, цели в диапазонах,
- * отсутствия — from ≤ to, без пересечений у менеджера, не дальше 90 дней.
+ * отсутствия — from ≤ to, без пересечений у менеджера, не дальше 90 дней;
+ * гипотеза — только если её правили (ai-settings-form.hypothesis.ts).
  */
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -29,7 +34,14 @@ export interface AiSettingsFormErrors {
     targets: Map<string, string>;
     absences: Map<number, string>;
     roster: string | null;
+    /** null — гипотезу не правили, проверять нечего. */
+    hypothesis: AiHypothesisErrors | null;
 }
+
+/** Есть ли ошибки у вкладки гипотезы. */
+export const hasAiHypothesisErrors = (
+    errors: AiHypothesisErrors | null,
+): boolean => !!errors && (errors.rows.size > 0 || errors.total !== null);
 
 export const aiTargetErrorKey = (
     level: AiManagerLevel,
@@ -154,6 +166,9 @@ export const validateAiSettingsForm = (
         targets,
         absences: validateAiAbsenceRows(state.absences, today),
         roster: validateAiRoster(state.roster, today),
+        hypothesis: state.dirty.includes('hypothesis')
+            ? validateAiHypothesisRows(state.hypothesis)
+            : null,
     };
 };
 
@@ -166,5 +181,6 @@ export const aiSettingsErrorTabs = (
     if (errors.targets.size > 0) tabs.push('targets');
     if (errors.absences.size > 0) tabs.push('absences');
     if (errors.roster) tabs.push('roster');
+    if (hasAiHypothesisErrors(errors.hypothesis)) tabs.push('hypothesis');
     return tabs;
 };

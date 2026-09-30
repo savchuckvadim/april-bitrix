@@ -78,6 +78,7 @@ describe('словари «Как считаем» — все коды DTO по�
             [
                 'brief',
                 'dossier',
+                'forecast',
                 'manager/style',
                 'overview',
                 'plan-fact',

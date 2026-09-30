@@ -185,6 +185,25 @@ describe('связь «качество → исход» (beta)', () => {
         expect(item?.eta?.date).toBe('2026-11-26');
     });
 
+    it('объём набран — без обещания «после ночного пересчёта»: связь месячная и с проверкой два раза подряд', () => {
+        const item = itemOf(
+            AI_CHECKLIST_ITEM.BETA,
+            withReadiness({
+                betaSource: 'none',
+                betaCountdown: {
+                    seNow: 0.2,
+                    presentationsLeft: 0,
+                    monthsLeft: 0,
+                },
+            }),
+        );
+        expect(item?.detail).toContain('объём для оценки по данным набран');
+        expect(item?.detail).toContain('раз в месяц');
+        expect(item?.detail).toContain('два месячных пересчёта подряд');
+        expect(item?.detail).not.toContain('ночного');
+        expect(item?.eta).toBeNull();
+    });
+
     it('по данным — готово; счётчика нет — источник всё равно виден, без срока', () => {
         expect(itemOf(AI_CHECKLIST_ITEM.BETA)?.status).toBe(
             AI_CHECKLIST_STATUS.DONE,

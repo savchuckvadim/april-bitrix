@@ -104,7 +104,9 @@ describe('buildAiSettingsForm', () => {
 
     it('isAiSettingsTab — гард значения вкладки', () => {
         expect(isAiSettingsTab('absences')).toBe(true);
-        expect(isAiSettingsTab('hypothesis')).toBe(false);
+        expect(isAiSettingsTab('hypothesis')).toBe(true);
+        expect(isAiSettingsTab('pool')).toBe(true);
+        expect(isAiSettingsTab('unknown')).toBe(false);
     });
 });
 

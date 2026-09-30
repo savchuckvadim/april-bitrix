@@ -2,6 +2,7 @@ import {
     isAiKpiOnly,
     type AiAnalyticsSettings,
     type AiDailyPlan,
+    type AiForecast,
     type AiOverview,
     type AiPlanFact,
     type AiReadiness,
@@ -43,6 +44,8 @@ export interface AiChecklistContext {
     overviewState: AiChecklistOverviewState;
     dailyPlan: AiDailyPlan | null;
     planFact: AiPlanFact | null;
+    /** Прогноз отдела (Фаза 4); null — не руководитель или ещё не пришёл. */
+    forecast: AiForecast | null;
     managerName: (managerId: string) => string;
     today: string;
     canConfigure: boolean;
@@ -84,6 +87,7 @@ export const buildAiChecklistContext = (
         overviewState,
         dailyPlan: input.dailyPlan ?? null,
         planFact: input.planFact ?? null,
+        forecast: input.forecast ?? null,
         managerName: input.managerName,
         today: input.today,
         canConfigure: input.canConfigure,

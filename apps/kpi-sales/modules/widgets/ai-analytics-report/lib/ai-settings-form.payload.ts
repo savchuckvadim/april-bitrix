@@ -1,6 +1,7 @@
 import {
     AI_SETTINGS_BLOCK_LABELS,
     AI_SETTINGS_BREAKING_BLOCKS,
+    aiToday,
     formatAiFullDate,
     formatAiSettingsBreakCodes,
     pluralRu,
@@ -17,6 +18,7 @@ import type {
     AiSettingsPrefill,
     AiTargetFormRow,
 } from './ai-settings-form.util';
+import { aiHypothesisPairs } from './ai-settings-form.hypothesis';
 
 /*
  * Диф формы → payload settings/save (только изменённые блоки), блоки,
@@ -55,9 +57,12 @@ export const groupAiAbsences = (
  * блок сервер не трогает). Сервер заменяет блок целиком, поэтому targets
  * уходит с личными целями (overrides) из настроек, а отсутствия — полным
  * списком, в том числе пустым (все строки удалены — отсутствий нет).
+ * Гипотеза уходит заполненными парами с датой начала действия (сегодня),
+ * пул — только флагом согласия: дату согласия ставит сервер.
  */
 export const toAiSettingsPayload = (
     state: AiSettingsFormState,
+    today: string = aiToday(),
 ): AiSettingsInput => {
     const payload: AiSettingsInput = {};
     if (state.dirty.includes('levels')) {
@@ -75,8 +80,30 @@ export const toAiSettingsPayload = (
     if (state.dirty.includes('rosterConfirmedAt') && state.roster !== null) {
         payload.rosterConfirmedAt = state.roster;
     }
+    if (state.dirty.includes('hypothesis')) {
+        payload.hypothesis = {
+            pairs: aiHypothesisPairs(state.hypothesis),
+            since: today,
+        };
+    }
+    if (state.dirty.includes('pool') && state.pool !== null) {
+        payload.pool = { optIn: state.pool };
+    }
     return payload;
 };
+
+/**
+ * Согласие после сохранения: включение без прежней даты — сегодня
+ * (повторное включение дату не сдвигает), отзыв — без даты.
+ */
+const applyAiPool = (
+    settings: AiSettingsPrefill,
+    optIn: boolean,
+    today: string,
+): Pick<AiSettingsPrefill, 'poolOptIn' | 'poolConsentAt'> => ({
+    poolOptIn: optIn,
+    poolConsentAt: optIn ? (settings.poolConsentAt ?? today) : null,
+});
 
 /**
  * Настройки после успешного сохранения payload — предзаполнение следующего
@@ -86,13 +113,17 @@ export const toAiSettingsPayload = (
 export const applyAiSettingsPayload = (
     settings: AiSettingsPrefill,
     payload: AiSettingsInput,
+    today: string = aiToday(),
 ): AiSettingsPrefill => ({
+    ...settings,
     targets: payload.targets ?? settings.targets,
     absences: payload.absences ?? settings.absences,
     rosterConfirmedAt:
         payload.rosterConfirmedAt === undefined
             ? settings.rosterConfirmedAt
             : payload.rosterConfirmedAt || null,
+    ...(payload.hypothesis ? { hypothesis: payload.hypothesis } : {}),
+    ...(payload.pool ? applyAiPool(settings, payload.pool.optIn, today) : {}),
 });
 
 /** Блоки, которые несёт payload (для подписи «Будет сохранено»). */
@@ -129,6 +160,8 @@ const MANAGER_FORMS = ['менеджер', 'менеджера', 'менедже
 const countManagers = (count: number): string =>
     `${count} ${pluralRu(count, MANAGER_FORMS)}`;
 
+const PAIR_FORMS = ['пара', 'пары', 'пар'] as const;
+
 /** Строки «что сохранено» по payload. */
 export const describeAiSettingsPayload = (payload: AiSettingsInput): string[] =>
     aiSettingsPayloadBlocks(payload).map(block => {
@@ -142,6 +175,14 @@ export const describeAiSettingsPayload = (payload: AiSettingsInput): string[] =>
                 return payload.rosterConfirmedAt
                     ? `${label}: ${formatAiFullDate(payload.rosterConfirmedAt)}`
                     : `${label}: снято`;
+            case 'hypothesis': {
+                const count = payload.hypothesis?.pairs.length ?? 0;
+                return `${label}: ${count} ${pluralRu(count, PAIR_FORMS)}`;
+            }
+            case 'pool':
+                return payload.pool?.optIn
+                    ? `${label}: согласие дано`
+                    : `${label}: согласие отозвано`;
             default:
                 return label;
         }

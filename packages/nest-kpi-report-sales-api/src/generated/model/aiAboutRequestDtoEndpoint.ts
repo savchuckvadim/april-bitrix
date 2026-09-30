@@ -7,7 +7,7 @@
  */
 
 /**
- * Ручка витрины, для которой нужен блок: overview — обзор менеджеров и типов звонков, plan/daily — план дня, brief — краткое резюме, plan-fact — план и факт, dossier — досье, manager/style — карточка стиля.
+ * Ручка витрины, для которой нужен блок: overview — обзор менеджеров и типов звонков, plan/daily — план дня, brief — краткое резюме, plan-fact — план и факт, dossier — досье, manager/style — карточка стиля, forecast — прогноз отдела.
  */
 export type AiAboutRequestDtoEndpoint =
     (typeof AiAboutRequestDtoEndpoint)[keyof typeof AiAboutRequestDtoEndpoint];
@@ -20,4 +20,5 @@ export const AiAboutRequestDtoEndpoint = {
     brief: 'brief',
     'manager/style': 'manager/style',
     dossier: 'dossier',
+    forecast: 'forecast',
 } as const;

@@ -85,6 +85,24 @@ describe('состав, календарь, гипотеза', () => {
             }),
         });
         expect(item?.optional).toBe(true);
+        expect(item?.actions).toEqual([
+            {
+                kind: AI_CHECKLIST_ACTION.SETTINGS,
+                tab: 'hypothesis',
+                label: 'Задать гипотезу',
+            },
+        ]);
+        expect(JSON.stringify(item?.actions)).not.toContain('разработчик');
+    });
+
+    it('hypothesis-not-set без права настраивать — текст «через руководителя» с вкладкой', () => {
+        const item = itemOf(AI_CHECKLIST_ITEM.HYPOTHESIS, {
+            settings: settings({
+                readiness: readiness({ reasons: ['hypothesis-not-set'] }),
+            }),
+            canConfigure: false,
+        });
+        expect(JSON.stringify(item?.actions)).toContain('Гипотеза качества');
     });
 });
 

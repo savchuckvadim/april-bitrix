@@ -22,6 +22,7 @@ const currentUser = (overrides: Partial<CurrentUserInfo>): CurrentUserInfo => ({
     headOfDepartmentIds: [],
     visibility: 'own',
     headOfSource: 'structure',
+    subordinateIds: [],
     isSuperUser: false,
     colleagues: { group: [], department: [] },
     ...overrides,
@@ -32,6 +33,7 @@ const SUPER_USER = currentUser({
     headOfDepartmentIds: [10, 20],
     visibility: 'all',
     headOfSource: 'superuser',
+    subordinateIds: [],
     isSuperUser: true,
 });
 
@@ -81,6 +83,7 @@ describe('buildShareFilterSnapshot — роль в снимке', () => {
             headOf: null,
             visibility: 'own',
             headOfSource: 'structure',
+            subordinateIds: [],
         });
         expect(publicFinanceTab(shared)).toBe(false);
         // Без нормализации роль cup от бэка открыла бы публике «Финансы».

@@ -35,6 +35,13 @@ import {
     aiYoyItem,
 } from './ai-setup-checklist.wait';
 import {
+    aiForecastAccuracyItem,
+    aiForecastShadowItem,
+    aiForecastStageItem,
+    aiRecommendationsItem,
+    aiRecommendationsStageItem,
+} from './ai-setup-checklist.phase4';
+import {
     AI_CHECKLIST_GROUP,
     AI_CHECKLIST_SECTION,
     AI_CHECKLIST_STATUS,
@@ -82,6 +89,11 @@ const BUILDERS: readonly ItemBuilder[] = [
     aiTrendsItem,
     aiYoyItem,
     aiBetaItem,
+    aiForecastStageItem,
+    aiRecommendationsStageItem,
+    aiForecastShadowItem,
+    aiForecastAccuracyItem,
+    aiRecommendationsItem,
 ];
 
 /** Все пункты чек-листа в порядке показа (без разбиения на разделы). */

@@ -12,6 +12,7 @@ import type {
     AiDailyPlanQuery,
     AiDossier,
     AiDossierQuery,
+    AiForecast,
     AiOverview,
     AiPlanFact,
     AiPlanFactQuery,
@@ -33,6 +34,12 @@ import {
     emptyAiFeedback,
     type AiFeedbackState,
 } from './ai-analytics-feedback.reducers';
+import {
+    emptyRopMarkSave,
+    type AiRopMarkSaveState,
+} from './ai-analytics-rop-mark.state';
+
+export type { AiRopMarkSaveState } from './ai-analytics-rop-mark.state';
 
 export type AiStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -67,7 +74,8 @@ export type AiDataSection =
     | 'style'
     | 'planFact'
     | 'dossier'
-    | 'typesMatrix';
+    | 'typesMatrix'
+    | 'forecast';
 
 /** Секции, которые считает очередь (WS done → повторный POST). */
 export const AI_QUEUED_SECTIONS = [
@@ -94,17 +102,8 @@ export type AiSectionData = {
     planFact: AiPlanFact;
     dossier: AiDossier;
     typesMatrix: AiByType;
+    forecast: AiForecast;
 };
-
-/** Сохранение слепой метки (rop-mark/save); список недели остаётся на экране. */
-export interface AiRopMarkSaveState {
-    /** transcriptionId звонка, метка по которому отправляется; null — нет. */
-    pending: string | null;
-    /** Текст 400/403 сервера или сети; сбрасывается новой отправкой. */
-    error: string | null;
-    /** Результат последней записи (id, replaced, blind). */
-    lastSaved: AiRopMarkSaveResult | null;
-}
 
 export interface AiAnalyticsState {
     settings: AiSection<AiAnalyticsSettings>;
@@ -138,6 +137,8 @@ export interface AiAnalyticsState {
     dossierQuery: AiDossierQuery | null;
     /** Срез «все типы × wide» для матриц KPI-вида (очередь + WS; ключ обзора + маркер). */
     typesMatrix: AiSection<AiByType>;
+    /** Прогноз отдела на месяц (forecast, sync; Фаза 4, только руководителям). */
+    forecast: AiSection<AiForecast>;
     /** «Как считаем» — кэш по ручке (overview | plan/daily | brief | manager/style). */
     about: Partial<Record<AiAboutEndpoint, AiSection<AiAbout>>>;
     feedback: AiFeedbackState;
@@ -166,12 +167,6 @@ const emptySection = <T>(): AiSection<T> => ({
     error: null,
 });
 
-const emptyRopMarkSave = (): AiRopMarkSaveState => ({
-    pending: null,
-    error: null,
-    lastSaved: null,
-});
-
 const initialState: AiAnalyticsState = {
     settings: emptySection(),
     pulse: emptySection(),
@@ -192,6 +187,7 @@ const initialState: AiAnalyticsState = {
     dossier: emptySection(),
     dossierQuery: null,
     typesMatrix: emptySection(),
+    forecast: emptySection(),
     about: {},
     feedback: emptyAiFeedback(),
     levels: { saving: false, error: null, savedAt: null },
@@ -495,6 +491,7 @@ const aiAnalyticsSlice = createSlice({
             state.dossier = emptySection();
             state.dossierQuery = null;
             state.typesMatrix = emptySection();
+            state.forecast = emptySection();
             state.about = {};
             state.feedback = emptyAiFeedback();
             state.levels = { saving: false, error: null, savedAt: null };

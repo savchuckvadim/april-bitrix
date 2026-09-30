@@ -29,4 +29,9 @@ export const AiAnalyticsRetentionTypeDtoType = {
   'ai-analytics-feedback': 'ai-analytics-feedback',
   'ai-analytics-audit': 'ai-analytics-audit',
   'ai-analytics-settings': 'ai-analytics-settings',
+  'ai-analytics-quality-link': 'ai-analytics-quality-link',
+  'ai-analytics-pool': 'ai-analytics-pool',
+  'ai-analytics-forecast-log': 'ai-analytics-forecast-log',
+  'ai-analytics-forecast-backtest': 'ai-analytics-forecast-backtest',
+  'ai-analytics-recommendation-effect': 'ai-analytics-recommendation-effect',
 } as const;

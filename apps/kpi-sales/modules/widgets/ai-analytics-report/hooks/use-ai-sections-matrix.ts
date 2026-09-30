@@ -3,12 +3,12 @@
 import { useCallback, useMemo } from 'react';
 import type { MicroSegmentedOption } from '@workspace/april-ui';
 import {
-    buildAiMatrixCsvTable,
+    buildAiMatrixCsvRows,
     buildAiSectionsCountRatingDataset,
     buildAiSectionsMatrixTable,
     buildAiSectionsScorePoints,
 } from '@/modules/entities/ai-analytics';
-import { exportTableToCSV } from '@/modules/entities/report';
+import { downloadCsvRows } from '@/modules/entities/report';
 import { usePersistedSelection } from '@/modules/shared';
 import {
     AI_SECTIONS_MATRIX_TYPE_KEY,
@@ -76,8 +76,8 @@ export const useAiSectionsMatrix = () => {
     );
 
     const download = () =>
-        exportTableToCSV(
-            buildAiMatrixCsvTable(summaryTable.table, summaryTable.annotations),
+        downloadCsvRows(
+            buildAiMatrixCsvRows(summaryTable.table, summaryTable.annotations),
             CSV_FILENAME,
         );
 

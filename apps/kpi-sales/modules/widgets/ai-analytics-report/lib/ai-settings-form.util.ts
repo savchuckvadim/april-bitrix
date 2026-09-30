@@ -12,23 +12,37 @@ import {
     type AiTargetField,
     type AiTargetOverrideInput,
 } from '@/modules/entities/ai-analytics';
+import {
+    prefillAiHypothesisRows,
+    type AiHypothesisFormRow,
+} from './ai-settings-form.hypothesis';
 
 /*
  * Состояние формы диалога настроек витрины и правки по блокам: каждая
  * правка помечает свой блок изменённым — только такие блоки уходят на
- * сервер. Цели, отсутствия и дата подтверждения предзаполняются из
- * settings/get. Валидация — ai-settings-form.validate.ts, payload и
- * сводка — ai-settings-form.payload.ts. Без React и стора — покрыто vitest.
+ * сервер. Цели, отсутствия, дата подтверждения, гипотеза и согласие на
+ * общую статистику порталов предзаполняются из settings/get. Правки
+ * гипотезы и пула — ai-settings-form.phase4.ts, валидация —
+ * ai-settings-form.validate.ts, payload и сводка — ai-settings-form.payload.ts.
+ * Без React и стора — покрыто vitest.
  */
 
 /** Вкладки диалога. */
-export type AiSettingsTab = 'levels' | 'targets' | 'absences' | 'roster';
+export type AiSettingsTab =
+    | 'levels'
+    | 'targets'
+    | 'absences'
+    | 'roster'
+    | 'hypothesis'
+    | 'pool';
 
 export const AI_SETTINGS_TABS: readonly AiSettingsTab[] = [
     'levels',
     'targets',
     'absences',
     'roster',
+    'hypothesis',
+    'pool',
 ];
 
 export const isAiSettingsTab = (value: unknown): value is AiSettingsTab =>
@@ -38,14 +52,25 @@ export const isAiSettingsTab = (value: unknown): value is AiSettingsTab =>
 /** Блоки DTO, которые редактирует диалог. */
 export type AiSettingsFormBlock = Extract<
     AiSettingsBlockName,
-    'levels' | 'targets' | 'absences' | 'rosterConfirmedAt'
+    | 'levels'
+    | 'targets'
+    | 'absences'
+    | 'rosterConfirmedAt'
+    | 'hypothesis'
+    | 'pool'
 >;
 
-/** Текущие блоки из settings/get — предзаполнение формы. */
+/**
+ * Текущие блоки из settings/get — предзаполнение формы. Гипотеза и пул —
+ * необязательны: старая версия бэка их не присылает.
+ */
 export type AiSettingsPrefill = Pick<
     AiAnalyticsSettings,
     'targets' | 'absences' | 'rosterConfirmedAt'
->;
+> &
+    Partial<
+        Pick<AiAnalyticsSettings, 'hypothesis' | 'poolOptIn' | 'poolConsentAt'>
+    >;
 
 /**
  * Строка целей уровня: значения строками, как в полях. Пустые продажи —
@@ -79,6 +104,15 @@ export interface AiSettingsFormState {
     roster: string | null;
     /** Текущая дата подтверждения состава из настроек; null — не подтверждён. */
     rosterConfirmedAt: string | null;
+    /** Пары гипотезы «качество — число презентаций». */
+    hypothesis: AiHypothesisFormRow[];
+    nextHypothesisId: number;
+    /** null — не трогали; true — дать согласие; false — отозвать. */
+    pool: boolean | null;
+    /** Текущее согласие на общую статистику порталов из настроек. */
+    poolOptIn: boolean;
+    /** Дата согласия из настроек (ISO); null — не задана. */
+    poolConsentAt: string | null;
     /** Блоки, которых касались: только они уходят в payload. */
     dirty: AiSettingsFormBlock[];
     nextAbsenceId: number;
@@ -126,6 +160,7 @@ export const buildAiSettingsForm = (
     settings: AiSettingsPrefill | null = null,
 ): AiSettingsFormState => {
     const absences = prefillAiAbsenceRows(settings?.absences ?? []);
+    const hypothesis = prefillAiHypothesisRows(settings?.hypothesis);
     return {
         levels: buildAiLevelsForm(managers),
         targets: prefillAiTargetRows(settings?.targets.byLevel ?? []),
@@ -133,18 +168,26 @@ export const buildAiSettingsForm = (
         absences,
         roster: null,
         rosterConfirmedAt: settings?.rosterConfirmedAt ?? null,
+        hypothesis,
+        nextHypothesisId: hypothesis.length + 1,
+        pool: null,
+        poolOptIn: settings?.poolOptIn ?? false,
+        poolConsentAt: settings?.poolConsentAt ?? null,
         dirty: [],
         nextAbsenceId: absences.length + 1,
     };
 };
 
-const withDirty = (
+/** Помечает блок изменённым (уходит в payload). */
+export const withAiSettingsDirty = (
     state: AiSettingsFormState,
     block: AiSettingsFormBlock,
 ): AiSettingsFormState =>
     state.dirty.includes(block)
         ? state
         : { ...state, dirty: [...state.dirty, block] };
+
+const withDirty = withAiSettingsDirty;
 
 /* ---------- Правки ---------- */
 

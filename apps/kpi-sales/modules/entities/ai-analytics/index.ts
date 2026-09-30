@@ -31,6 +31,7 @@ export {
     fetchAiByType,
     fetchAiDailyPlan,
     fetchAiDossier,
+    fetchAiForecast,
     fetchAiOverview,
     fetchAiPlanFact,
     fetchAiPulse,
@@ -85,6 +86,7 @@ export * from './lib/ai-sections-matrix.util';
 export * from './lib/ai-types-matrix-rating.util';
 export * from './lib/ai-types-matrix-csv.util';
 export * from './lib/ai-period-label.util';
+export * from './lib/ai-pilot.util';
 export {
     AI_ERROR_FORBIDDEN_TEXT,
     AI_ERROR_GENERIC_TEXT,

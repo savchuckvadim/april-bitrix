@@ -149,7 +149,7 @@ describe('buildAiSetupChecklist — сценарии портала', () => {
         expect(roster?.actions).toEqual([
             {
                 kind: AI_CHECKLIST_ACTION.TEXT,
-                text: 'Руководитель отдела: «Настройки витрины» → «Состав».',
+                text: 'Руководитель отдела: «Настройки витрины», вкладка «Состав».',
             },
         ]);
     });

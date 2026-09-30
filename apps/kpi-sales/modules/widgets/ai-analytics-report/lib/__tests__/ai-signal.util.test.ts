@@ -43,6 +43,9 @@ const recommendation = (
     evidence: 'E1',
     basis: ['Оценка раздела 4,1 против 6,0 нормы'],
     ruleCode: 'quality-section-gap',
+    key: 'quality:quality-section-gap:presentation:NEEDS:',
+    done: false,
+    issuedAt: null,
     ...overrides,
 });
 
@@ -109,7 +112,7 @@ describe('ai-signal.util — рычаги', () => {
 
     it('строки подсказки рычага: раздел по-русски, без кода уровня и правила', () => {
         expect(aiLeverHintLines(recommendation())).toEqual([
-            'Рычаг: Качество — presentation · Выявление потребностей',
+            'Совет: Качество — presentation · Выявление потребностей',
             'Ожидаемый эффект: +1,5 продаж',
             'Стоимость: 2 ч коучинга',
             'Доказательность: связь в данных',

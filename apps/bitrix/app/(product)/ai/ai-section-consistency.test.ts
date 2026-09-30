@@ -32,11 +32,11 @@ const headingIdsOf = (page: (typeof AI_PAGES)[number]): string[] =>
     );
 
 describe('раздел AI: вкладки', () => {
-    it('базовый путь — /ai, вкладок восемнадцать, первая — обзор', () => {
+    it('базовый путь — /ai, вкладок двадцать, первая — обзор', () => {
         expect(AI_BASE_PATH).toBe('/ai');
         expect(AI_SECTION.basePath).toBe(AI_BASE_PATH);
         expect(AI_SECTION.tabs).toBe(AI_TABS);
-        expect(AI_TABS).toHaveLength(18);
+        expect(AI_TABS).toHaveLength(20);
         expect(AI_TABS[0]?.slug).toBe('');
     });
 

@@ -1,4 +1,3 @@
-import type { Tone } from '@workspace/april-ui';
 import type {
     AiManagerRow,
     AiManagerSinceSource,
@@ -13,46 +12,21 @@ import {
     AI_DISAGREE_REASON_MAX,
     clampAiDisagreeReason,
 } from '@/modules/entities/ai-analytics/lib/ai-feedback.util';
+import { aiEvidenceWords, aiLeverView } from './ai-lever-view.util';
 import { aiLeverSectionLabel } from './ai-lever-target.util';
 
 /*
- * Чистая логика строки таблицы сигналов: рычаги (recommendations), стаж с
+ * Чистая логика строки таблицы сигналов: советы (recommendations), стаж с
  * источником даты, «разобрано N из M» с подсказкой, видимые колонки,
  * риск-звонки и причина «Не согласен» из списка + комментарий.
  * Импорты сущности точечные (model / lib). Коды правил и уровней
  * доказательности на экран не выводим.
  */
 
-/** Рычаг из дневного снапшота прогноза (алиаса в model сущности нет). */
+/** Совет из дневного снапшота прогноза (строка обзора). */
 export type AiRecommendation = AiManagerRow['recommendations'][number];
-export type AiRecommendationLever = AiRecommendation['lever'];
-export type AiRecommendationEvidence = AiRecommendation['evidence'];
 
-/** Рычаг: подпись, тон, единица стоимости (volume — минуты активности, остальные — часы). */
-export const AI_LEVER: Record<
-    AiRecommendationLever,
-    { label: string; tone: Tone; costUnit: string }
-> = {
-    volume: { label: 'Объём', tone: 'info', costUnit: 'мин активности' },
-    quality: { label: 'Качество', tone: 'primary', costUnit: 'ч коучинга' },
-    checklist: { label: 'Чек-лист', tone: 'accent', costUnit: 'ч коучинга' },
-    pipeline: { label: 'Сделки', tone: 'secondary', costUnit: 'ч' },
-    objection: {
-        label: 'Возражение',
-        tone: 'warning',
-        costUnit: 'ч коучинга',
-    },
-};
-
-/** Уровень доказательности рекомендации — словами, без кода уровня. */
-export const AI_EVIDENCE: Record<AiRecommendationEvidence, string> = {
-    E0: 'факт с интервалом',
-    E1: 'связь в данных',
-    E2: 'данные нескольких порталов',
-    E3: 'проверено экспериментом',
-};
-
-/** Сколько рычагов показывать в строке (бэк отдаёт топ-3). */
+/** Сколько советов показывать в строке (бэк отдаёт топ-3). */
 export const AI_LEVERS_MAX = 3;
 
 export const pickAiLevers = (
@@ -61,8 +35,8 @@ export const pickAiLevers = (
 ): AiRecommendation[] => recommendations.slice(0, max);
 
 /**
- * Адресат рычага: тип звонка · раздел/пункт · категория возражения;
- * ничего не задано — подпись самого рычага.
+ * Адресат совета: тип звонка · раздел/пункт · категория возражения;
+ * ничего не задано — подпись вида совета.
  */
 export const aiLeverTitle = (
     recommendation: AiRecommendation,
@@ -79,7 +53,7 @@ export const aiLeverTitle = (
     ].filter((part): part is string => !!part);
     return parts.length
         ? parts.join(' · ')
-        : AI_LEVER[recommendation.lever].label;
+        : aiLeverView(recommendation.lever).label;
 };
 
 export const AI_LEVER_NO_EFFECT = 'без оценки эффекта';
@@ -94,26 +68,26 @@ export const formatAiLeverEffect = (
               maximumFractionDigits: 1,
           })} продаж`;
 
-/** Стоимость рычага в его единицах: «30 мин активности», «1,5 ч коучинга». */
+/** Стоимость совета в его единицах: «30 мин активности», «1,5 ч коучинга». */
 export const formatAiLeverCost = (
     recommendation: Pick<AiRecommendation, 'cost' | 'lever'>,
 ): string =>
     `${recommendation.cost.toLocaleString('ru-RU', {
         maximumFractionDigits: 1,
-    })} ${AI_LEVER[recommendation.lever].costUnit}`;
+    })} ${aiLeverView(recommendation.lever).costUnit}`;
 
-/** Строки подсказки рычага: адресат, эффект, стоимость, доказательность, опоры. */
+/** Строки подсказки совета: адресат, эффект, стоимость, доказательность, опоры. */
 export const aiLeverHintLines = (
     recommendation: AiRecommendation,
     callTypeLabel?: (code: string) => string,
 ): string[] => [
-    `Рычаг: ${AI_LEVER[recommendation.lever].label} — ${aiLeverTitle(
+    `Совет: ${aiLeverView(recommendation.lever).label} — ${aiLeverTitle(
         recommendation,
         callTypeLabel,
     )}`,
     `Ожидаемый эффект: ${formatAiLeverEffect(recommendation)}`,
     `Стоимость: ${formatAiLeverCost(recommendation)}`,
-    `Доказательность: ${AI_EVIDENCE[recommendation.evidence]}`,
+    `Доказательность: ${aiEvidenceWords(recommendation.evidence)}`,
     ...recommendation.basis,
 ];
 
@@ -193,7 +167,7 @@ export interface AiSignalColumns {
     yoy: boolean;
 }
 
-/** Постоянные колонки: сотрудник, сигнал, цифра, корзины, продажи, аванс, чек, 2 плана, рычаги, «Не согласен». */
+/** Постоянные колонки: сотрудник, сигнал, цифра, корзины, продажи, аванс, чек, 2 плана, советы, «Не согласен». */
 export const AI_SIGNAL_FIXED_COLUMNS = 10 + AI_BUCKETS.length;
 
 /** «Тренды» и «Год назад» — только если хоть у одной строки они есть. */

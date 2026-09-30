@@ -163,6 +163,18 @@ export const aiAnalyticsEntities: Entity[] = [
             }
         },
     },
+    {
+        id: 42,
+        item: {
+            name: 'ai-analytics-model',
+            title: 'Модель и обратная связь',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/ai-analytics/model',
+                method: API_METHOD.GET
+            }
+        },
+    },
 ];
 
 

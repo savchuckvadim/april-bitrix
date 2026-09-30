@@ -37,7 +37,8 @@ export type SyncSection =
     | 'dailyPlan'
     | 'ropMark'
     | 'style'
-    | 'planFact';
+    | 'planFact'
+    | 'forecast';
 
 export interface SyncLoadOptions {
     /** Повторить запрос, даже если секция с тем же ключом уже готова. */

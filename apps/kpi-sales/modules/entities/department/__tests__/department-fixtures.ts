@@ -40,6 +40,7 @@ export const makeCurrentUser = (
     headOfDepartmentIds: [],
     visibility: 'own',
     headOfSource: 'structure',
+    subordinateIds: [],
     isSuperUser: false,
     colleagues: { group: [], department: [] },
     ...overrides,
@@ -55,6 +56,7 @@ export const makeSuperUser = (
         headOfDepartmentIds: [10, 20],
         visibility: 'all',
         headOfSource: 'superuser',
+        subordinateIds: [],
         isSuperUser: true,
         ...overrides,
     });

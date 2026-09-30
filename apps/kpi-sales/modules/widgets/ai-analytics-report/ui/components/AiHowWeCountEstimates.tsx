@@ -34,7 +34,9 @@ export const AiHowWeCountEstimates = ({
         <TableBody>
             {estimates.map(estimate => (
                 <TableRow key={estimate.code}>
-                    <TableCell className="align-top">{estimate.title}</TableCell>
+                    <TableCell className="align-top">
+                        {estimate.title}
+                    </TableCell>
                     <TableCell className="text-right align-top font-medium tabular-nums">
                         {formatAiAboutEstimateValue(estimate.value)}
                     </TableCell>

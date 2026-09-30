@@ -17,14 +17,14 @@ import { aiIsoWeekRange, formatAiMonthLabelRange } from './ai-period-label.util'
 /** Подписи показателей рядов: недельные, корзины, рёбра воронки (edge_*). */
 export const AI_TREND_METRIC_LABELS: Record<string, string> = {
     quality: 'оценка',
-    volume: 'разборов',
+    volume: 'число разборов',
     bucket_contact: 'оценка контакта',
     bucket_presentation: 'оценка презентации',
     bucket_closing: 'оценка закрытия',
-    edge_call_to_presentation: 'звонок → презентация',
-    edge_presentation_to_offer: 'презентация → КП',
-    edge_offer_to_invoice: 'КП → счёт',
-    edge_invoice_to_sale: 'счёт → продажа',
+    edge_call_to_presentation: 'доля презентаций после звонков',
+    edge_presentation_to_offer: 'доля КП после презентаций',
+    edge_offer_to_invoice: 'доля счетов после КП',
+    edge_invoice_to_sale: 'доля продаж после счетов',
 };
 
 /** Подпись незнакомого показателя — нейтрально, без кода. */
@@ -80,7 +80,7 @@ export const aiTrendsTone = (trends: AiManagerTrends): Tone => {
 export const formatAiGoodhartChange = (change: number): string =>
     `${change > 0 ? '+' : '−'}${Math.round(Math.abs(change) * 100)} %`;
 
-/** Строка флага: «разборов +50 %, оценка −36 % за 3 мес. (июнь – август 2026)». */
+/** Строка флага: «число разборов +50 %, оценка −36 % за 3 мес. (июнь – август 2026)». */
 export const formatAiGoodhartFlag = (flag: AiGoodhartFlag): string =>
     `${aiTrendMetricLabel(flag.pressure)} ${formatAiGoodhartChange(flag.pressureChange)}, ` +
     `${aiTrendMetricLabel(flag.counter)} ${formatAiGoodhartChange(flag.counterChange)} ` +

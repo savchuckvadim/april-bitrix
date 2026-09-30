@@ -84,14 +84,20 @@ export const aiDailyPlanState = (plan: AiDailyPlan): AiDailyPlanViewState => {
 };
 
 /**
- * Приоритет строк посчитан по утечке воронки только в плане ночного
- * прогноза: reason = null и N_req посчитан (requiredVolume ≠ null — бэк
- * решал обратную задачу). План по объёму (деградация) утечек не знает —
- * его priority лишь порядок строк, «узкое место» там было бы выдумкой.
+ * «Узкое место» — строка с первой по утечке позицией, если бэк прислал саму
+ * утечку (leak — положительное число). leak = null (план по объёму: priority
+ * лишь порядок строк), нулевая утечка и старые ответы без поля — «узкого
+ * места» нет, иначе выдумка.
+ * Одна строка — выбирать не из чего.
  */
-export const aiDailyPlanLeakRanked = (
-    plan: Pick<AiDailyPlan, 'reason' | 'requiredVolume'>,
-): boolean => plan.reason === null && plan.requiredVolume !== null;
+export const aiDailyPlanTopLeak = (
+    item: Pick<AiDailyPlanItem, 'leak' | 'priority'>,
+    rowsCount: number,
+): boolean =>
+    typeof item.leak === 'number' &&
+    item.leak > 0 &&
+    item.priority === 1 &&
+    rowsCount > 1;
 
 const funnelIndex = (callType: string): number => {
     const index = (AI_DAILY_PLAN_FUNNEL_ORDER as readonly string[]).indexOf(
@@ -122,13 +128,12 @@ export const sortAiDailyPlanFunnel = (
     );
 
 /**
- * Строки плана в порядке воронки. hasGoal — есть план месяца; leakRanked —
- * priority посчитан по утечке (иначе «узкое место» не ставим).
+ * Строки плана в порядке воронки. hasGoal — есть план месяца; «узкое
+ * место» — только по присланной утечке (aiDailyPlanTopLeak).
  */
 export const buildAiDailyPlanRows = (
     items: readonly AiDailyPlanItem[],
     hasGoal: boolean,
-    leakRanked: boolean,
 ): AiDailyPlanRowView[] =>
     sortAiDailyPlanFunnel(items).map(item => {
         const activity = aiDailyPlanActivity(item);
@@ -142,7 +147,7 @@ export const buildAiDailyPlanRows = (
             monthShare: hasGoal
                 ? aiPlanShare(item.monthDone, item.monthPlan)
                 : null,
-            topLeak: leakRanked && items.length > 1 && item.priority === 1,
+            topLeak: aiDailyPlanTopLeak(item, items.length),
         };
     });
 
@@ -233,11 +238,7 @@ export const buildAiDailyPlanView = (plan: AiDailyPlan): AiDailyPlanView => {
         headline: aiDailyPlanHeadline(plan, state),
         monthFacts: aiDailyPlanMonthFacts(plan),
         pipelineFact: aiDailyPlanPipelineFact(plan.pipelineExpected),
-        rows: buildAiDailyPlanRows(
-            plan.items,
-            state !== 'no-target',
-            aiDailyPlanLeakRanked(plan),
-        ),
+        rows: buildAiDailyPlanRows(plan.items, state !== 'no-target'),
         forecast,
         forecastNote: note,
         reasonText: plan.reason ? AI_DAILY_PLAN_REASON[plan.reason] : null,

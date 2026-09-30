@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import {
     aiMatrixVisibleTypes,
-    buildAiMatrixCsvTable,
+    buildAiMatrixCsvRows,
     buildAiTypesCountRatingDataset,
     buildAiTypesMatrixFor,
     buildAiTypesScorePoints,
@@ -11,7 +11,7 @@ import {
     serializeAiHiddenTypes,
     toggleAiHiddenType,
 } from '@/modules/entities/ai-analytics';
-import { exportTableToCSV } from '@/modules/entities/report';
+import { downloadCsvRows } from '@/modules/entities/report';
 import { usePersistedSelection } from '@/modules/shared';
 import {
     AI_TYPES_MATRIX_HIDDEN_KEY,
@@ -85,8 +85,8 @@ export const useAiTypesMatrix = () => {
         );
     const showAllTypes = () => setHiddenRaw('');
     const download = () =>
-        exportTableToCSV(
-            buildAiMatrixCsvTable(summaryTable.table, summaryTable.annotations),
+        downloadCsvRows(
+            buildAiMatrixCsvRows(summaryTable.table, summaryTable.annotations),
             CSV_FILENAME,
         );
 

@@ -107,6 +107,8 @@ export const AI_FEEDBACK_OBJECT = {
         `attention:${managerId}:${signal}`,
     /** Строка таблицы сигналов: «Не согласен». */
     managerRow: (managerId: string) => `overview:${managerId}`,
+    /** Совет менеджеру: «Сделано» (recommendation_done); key — ключ совета с бэка. */
+    lever: (managerId: string, key: string) => `lever:${managerId}:${key}`,
 } as const;
 
 /** Пороги «мало данных» (зеркало правил бэка: n < 8 — none, 8–19 — low). */

@@ -34,6 +34,7 @@ export const AI_ABOUT_ENDPOINT_LABELS: Record<AiAboutEndpoint, string> = {
     'manager/style': 'Карточка стиля менеджера',
     'plan-fact': 'План — факт месяца',
     dossier: 'Досье менеджера',
+    forecast: 'Прогноз отдела',
 };
 
 /** Откуда взято значение параметра (менеджер → группа стажа → портал → по умолчанию). */

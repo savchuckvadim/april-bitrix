@@ -138,6 +138,7 @@ export const AI_SETTINGS_BLOCK_LABELS: Record<AiSettingsBlockName, string> = {
     definitions: 'Определения событий',
     events: 'Журнал событий',
     modelParams: 'Настройки модели',
+    pool: 'Пул порталов',
     scoring: 'Потолки оценивания',
     hypothesis: 'Гипотеза качества',
     rosterConfirmedAt: 'Подтверждение состава',

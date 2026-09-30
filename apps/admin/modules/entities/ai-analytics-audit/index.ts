@@ -23,3 +23,4 @@ export type {
     AiAnalyticsGoldenSetRunResult,
     AiAnalyticsStageHistoryProbe,
 } from './model';
+export { toPortalOptions } from './lib/portal-options.util';

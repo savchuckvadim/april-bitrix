@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
     AI_READINESS_HINTS,
+    AI_READINESS_PHASE4_GATED_REASON,
+    AI_READINESS_PHASE4_REASON,
     type AiReadiness,
 } from '@/modules/entities/ai-analytics';
 import {
@@ -71,6 +73,31 @@ describe('isAiKnownReadinessReason — у кода есть свой пункт 
     it('новый код бэка — неизвестен', () => {
         expect(isAiKnownReadinessReason('brand-new-reason')).toBe(false);
         expect(isAiKnownReadinessReason('brand-new-below-5')).toBe(false);
+    });
+
+    it('Фаза 4: коды ступеней «Прогноз» и «Советы» известны (свои пункты)', () => {
+        for (const code of Object.values(AI_READINESS_PHASE4_REASON)) {
+            expect(isAiKnownReadinessReason(code)).toBe(true);
+        }
+        expect(isAiKnownReadinessReason('forecast-shadow-months-below-9')).toBe(
+            true,
+        );
+        expect(
+            isAiKnownReadinessReason('recommendations-issued-below-30'),
+        ).toBe(true);
+        expect(
+            aiReadinessGate(
+                ['forecast-log-missing', 'forecast-shadow-months-below-9'],
+                AI_READINESS_PHASE4_GATED_REASON.FORECAST_SHADOW_MONTHS,
+            ),
+        ).toBe(9);
+    });
+
+    it('Фаза 4: режим советов назван «советы», без «рекомендаций»', () => {
+        expect(AI_READINESS_MODE_SHORT.recommendations).toBe('советы');
+        expect(
+            buildAiReadinessBanner(readiness({ mode: 'forecast' })).title,
+        ).toBe('Готовность витрины: прогноз');
     });
 });
 

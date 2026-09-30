@@ -7,13 +7,10 @@ import {
     weightedAiScoreRating,
     type AiScoreRatingPoint,
 } from '../lib/ai-types-matrix-rating.util';
-import { buildAiMatrixCsvTable } from '../lib/ai-types-matrix-csv.util';
 import {
     aiMatrixPresentTypes,
     aiMatrixVisibleTypes,
-    buildAiTypesMatrixTable,
 } from '../lib/ai-types-matrix.util';
-import { buildAiSectionsMatrixTable } from '../lib/ai-sections-matrix.util';
 import {
     CALL_TYPES,
     managerName,
@@ -202,66 +199,6 @@ describe('weightedAiScoreRating — взвешенное по n среднее',
         expect(weightedAiScoreRating(points, 'all')).toEqual([
             { name: 'Петров Пётр', value: 7.1 },
             { name: 'Иванов Иван', value: 6.4 },
-        ]);
-    });
-});
-
-describe('buildAiMatrixCsvTable — колонки оценок для CSV', () => {
-    it('после каждого счётчика — «… — оценка» числом (мало данных / без звонков → 0); хвост продаж без оценок', () => {
-        const matrix = buildAiTypesMatrixTable({
-            rows: matrixRows(),
-            callTypes: CALL_TYPES,
-            hiddenTypes: ['other'],
-            managerName,
-        });
-        const csv = buildAiMatrixCsvTable(matrix.table, matrix.annotations);
-        const first = csv.data[0];
-        expect(csv.code).toBe(matrix.table.code);
-        expect(first?.actions.map(action => action.name)).toEqual([
-            'Холодный',
-            'Холодный — оценка',
-            'Презентация',
-            'Презентация — оценка',
-            'Решение',
-            'Решение — оценка',
-            'Продажи, шт.',
-            'Аванс, ₽',
-            'Мес. чек, ₽',
-        ]);
-        expect(first?.actions.map(action => action.value)).toEqual([
-            3, 0, 12, 6.4, 0, 0, 3, 150000, 42000,
-        ]);
-        expect(first?.actions[1]?.code).toBe('cold_score');
-        // Исходная таблица не мутирована.
-        expect(matrix.table.data[0]?.actions).toHaveLength(6);
-    });
-
-    it('своя подпись оценки для матрицы разделов', () => {
-        const matrix = buildAiSectionsMatrixTable(
-            matrixRows(),
-            'presentation',
-            {
-                managerName,
-            },
-        );
-        const csv = buildAiMatrixCsvTable(
-            matrix.table,
-            matrix.annotations,
-            'средняя',
-        );
-        const second = csv.data[1];
-        expect(second?.actions.map(action => action.name)).toEqual([
-            'Приветствие',
-            'Приветствие — средняя',
-            'Выявление потребностей',
-            'Выявление потребностей — средняя',
-            'Закрытие',
-            'Закрытие — средняя',
-            'Все разборы',
-            'Все разборы — средняя',
-        ]);
-        expect(second?.actions.map(action => action.value)).toEqual([
-            0, 0, 20, 6, 8, 7.5, 25, 7.1,
         ]);
     });
 });

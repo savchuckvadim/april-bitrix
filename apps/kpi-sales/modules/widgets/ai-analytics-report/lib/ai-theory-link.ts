@@ -35,6 +35,8 @@ const PUSH = '/ai/push';
 const SETTINGS = '/ai/settings';
 const SETUP = '/ai/setup';
 const ROADMAP = '/ai/roadmap';
+const FORECAST = '/ai/forecast';
+const QUALITY_LINK = '/ai/quality-link';
 
 /** Темы вкладки → страница и якорь сайта теории. */
 export const AI_THEORY_TOPICS = {
@@ -71,6 +73,15 @@ export const AI_THEORY_TOPICS = {
     troubleshooting: { path: SETUP, anchor: 'troubleshooting' },
     roadmap: { path: ROADMAP, anchor: 'status' },
     gates: { path: ROADMAP, anchor: 'gates' },
+    forecast: { path: FORECAST, anchor: 'band' },
+    forecastShadow: { path: FORECAST, anchor: 'shadow' },
+    forecastBacktest: { path: FORECAST, anchor: 'backtest' },
+    forecastMoney: { path: FORECAST, anchor: 'money' },
+    qualityLink: { path: QUALITY_LINK, anchor: 'beta-sources' },
+    qualityOutcome: { path: QUALITY_LINK, anchor: 'outcome' },
+    betaGate: { path: QUALITY_LINK, anchor: 'beta-gate' },
+    pool: { path: QUALITY_LINK, anchor: 'pool' },
+    recommendationsEffect: { path: QUALITY_LINK, anchor: 'recommendations-effect' },
 } as const satisfies Record<string, AiTheoryTopicRef>;
 
 export type AiTheoryTopic = keyof typeof AI_THEORY_TOPICS;
@@ -102,4 +113,5 @@ export const AI_ABOUT_THEORY_TOPIC: Record<AiAboutEndpoint, AiTheoryTopic> = {
     brief: 'brief',
     'manager/style': 'style',
     dossier: 'dossier',
+    forecast: 'forecast',
 };

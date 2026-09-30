@@ -9,6 +9,7 @@ import type { ReadinessDto } from './readinessDto';
 import type { AiCallTypeDto } from './aiCallTypeDto';
 import type { AiTargetsDto } from './aiTargetsDto';
 import type { AiManagerAbsencesDto } from './aiManagerAbsencesDto';
+import type { AiAnalyticsSettingsDtoHypothesis } from './aiAnalyticsSettingsDtoHypothesis';
 import type { AiCallReportStatusDto } from './aiCallReportStatusDto';
 
 export interface AiAnalyticsSettingsDto {
@@ -54,6 +55,11 @@ export interface AiAnalyticsSettingsDto {
      * @nullable
      */
     rosterConfirmedAt: string | null;
+    /**
+     * Текущая гипотеза «качество → объём» (ai_analytics_hypothesis) в форме блока settings/save — для предзаполнения формы гипотезы; null — гипотеза не задана (причина готовности hypothesis-not-set). Поля нет — ответ старой версии.
+     * @nullable
+     */
+    hypothesis?: AiAnalyticsSettingsDtoHypothesis;
     /** Конвейер разбора звонков портала (portal_ai_settings): включён ли, пилотный список сотрудников, только ОП, порог длительности. Поля нет — статус не прочитан (не путать с «выключено»). */
     callReport?: AiCallReportStatusDto;
 }

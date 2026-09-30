@@ -19,4 +19,5 @@ export const AiFeedbackRequestDtoKind = {
     not_useful: 'not_useful',
     disagree: 'disagree',
     alert_handled: 'alert_handled',
+    recommendation_done: 'recommendation_done',
 } as const;

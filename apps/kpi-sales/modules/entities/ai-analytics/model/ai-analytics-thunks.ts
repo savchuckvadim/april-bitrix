@@ -63,3 +63,7 @@ export {
     AI_ABOUT_ERROR_MESSAGE,
     fetchAiAbout,
 } from './ai-analytics-about.thunks';
+export {
+    AI_FORECAST_KEY_PART,
+    fetchAiForecast,
+} from './ai-analytics-forecast.thunks';

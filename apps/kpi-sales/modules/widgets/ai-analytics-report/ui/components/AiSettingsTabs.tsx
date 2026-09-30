@@ -16,12 +16,16 @@ import { AiSettingsLevelsTab } from './AiSettingsLevelsTab';
 import { AiSettingsTargetsTab } from './AiSettingsTargetsTab';
 import { AiSettingsAbsencesTab } from './AiSettingsAbsencesTab';
 import { AiSettingsRosterTab } from './AiSettingsRosterTab';
+import { AiSettingsHypothesisTab } from './AiSettingsHypothesisTab';
+import { AiSettingsPoolTab } from './AiSettingsPoolTab';
 
 const TAB_LABELS: Record<AiSettingsTab, string> = {
     levels: 'Уровни',
     targets: 'Цели по уровням',
     absences: 'Отсутствия',
     roster: 'Состав',
+    hypothesis: 'Гипотеза качества',
+    pool: 'Пул порталов',
 };
 
 interface AiSettingsTabsProps {
@@ -35,7 +39,7 @@ export const AiSettingsTabs = ({ form }: AiSettingsTabsProps) => (
         onValueChange={value => isAiSettingsTab(value) && form.setTab(value)}
         className="min-h-0 flex-1"
     >
-        <TabsList className="w-full">
+        <TabsList className="h-auto w-full flex-wrap">
             {AI_SETTINGS_TABS.map(tab => (
                 <TabsTrigger key={tab} value={tab} className="gap-1.5 text-xs">
                     {TAB_LABELS[tab]}
@@ -88,6 +92,29 @@ export const AiSettingsTabs = ({ form }: AiSettingsTabsProps) => (
                     onConfirm={form.confirmRoster}
                     onClear={form.clearRoster}
                     onReset={form.resetRoster}
+                />
+            </TabsContent>
+            <TabsContent value="hypothesis">
+                <AiSettingsHypothesisTab
+                    state={form.phase4State}
+                    rows={form.form.hypothesis}
+                    errors={form.errors.hypothesis}
+                    disabled={form.disabled}
+                    onAdd={form.addHypothesisPair}
+                    onChange={form.patchHypothesisPair}
+                    onRemove={form.removeHypothesisPair}
+                />
+            </TabsContent>
+            <TabsContent value="pool">
+                <AiSettingsPoolTab
+                    state={form.phase4State}
+                    optIn={form.form.poolOptIn}
+                    consentAt={form.form.poolConsentAt}
+                    pending={form.form.pool}
+                    disabled={form.disabled}
+                    onGive={form.givePoolConsent}
+                    onRevoke={form.revokePoolConsent}
+                    onReset={form.resetPool}
                 />
             </TabsContent>
         </div>

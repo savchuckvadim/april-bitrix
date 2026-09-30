@@ -9,6 +9,10 @@ import type { AiAboutDtoEndpoint } from './aiAboutDtoEndpoint';
 import type { AiAboutParamDto } from './aiAboutParamDto';
 import type { AiAboutDtoModel } from './aiAboutDtoModel';
 import type { AiAboutDtoReliability } from './aiAboutDtoReliability';
+import type { AiAboutDtoQualityLink } from './aiAboutDtoQualityLink';
+import type { AiAboutDtoForecastAccuracy } from './aiAboutDtoForecastAccuracy';
+import type { AiAboutDtoPool } from './aiAboutDtoPool';
+import type { AiAboutDtoRecommendationsEffect } from './aiAboutDtoRecommendationsEffect';
 
 export interface AiAboutDto {
     /** Ручка, для которой собран блок. */
@@ -44,6 +48,26 @@ export interface AiAboutDto {
      * @nullable
      */
     reliability: AiAboutDtoReliability;
+    /**
+     * Связь качества разговора с результатом (Фаза 4): оценки с интервалами, согласие с фактом, проверка «не объясняется будущим», сколько месяцев подряд проверка пройдена; null — оценки ещё не было.
+     * @nullable
+     */
+    qualityLink?: AiAboutDtoQualityLink;
+    /**
+     * Точность прогноза отдела на прошлых месяцах (Фаза 4): месяцы без показа, попадания в вилку и отношение ошибок с интервалами; null — проверки ещё не было.
+     * @nullable
+     */
+    forecastAccuracy?: AiAboutDtoForecastAccuracy;
+    /**
+     * Обезличенный пул порталов (Фаза 4): участники, общая связь и что из пула попало в расчёт; null — пула нет.
+     * @nullable
+     */
+    pool?: AiAboutDtoPool;
+    /**
+     * Эффект советов (Фаза 4): выполнение, несогласия и шаги воронки до/после с интервалами; null — оценки ещё не было.
+     * @nullable
+     */
+    recommendationsEffect?: AiAboutDtoRecommendationsEffect;
     /** Запрос от менеджера в режиме self_view (роль manager при включённой ai_analytics_self_view_enabled). Блок менеджеру отдаётся целиком (решение 22.09.2026, B13); по этому признаку фронт сворачивает детали параметров. false — руководитель. */
     selfView: boolean;
 }

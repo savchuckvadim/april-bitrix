@@ -1,4 +1,5 @@
 import {
+    aiPilotIds,
     isAiKpiOnly,
     pluralRu,
     type AiCallReportStatus,
@@ -59,10 +60,6 @@ export const aiAccessItem = (
     }
     return null;
 };
-
-/** Пилот: разбор включён и ограничен непустым списком сотрудников. */
-export const aiPilotIds = (report: AiCallReportStatus | undefined): string[] =>
-    report?.enabled && report.pilotUserIds?.length ? report.pilotUserIds : [];
 
 /** Разбор звонков на портале: выключен / включён / статус не прочитан. */
 export const aiCallCoverageItem = (

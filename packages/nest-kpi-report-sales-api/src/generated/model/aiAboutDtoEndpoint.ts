@@ -20,4 +20,5 @@ export const AiAboutDtoEndpoint = {
     brief: 'brief',
     'manager/style': 'manager/style',
     dossier: 'dossier',
+    forecast: 'forecast',
 } as const;

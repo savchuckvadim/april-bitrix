@@ -23,6 +23,20 @@ describe('AI_SIGNAL — у каждого сигнала есть «что сд�
         expect(AI_SIGNAL.trend_shift.action).toBe(AI_SIGNAL.trend_drift.action);
     });
 
+    it('бейджи без жаргона: отставание от плана, стало ниже, постепенно снижается', () => {
+        expect(AI_SIGNAL.discipline.label).toBe('Отставание от плана');
+        expect(AI_SIGNAL.trend_shift.label).toBe('Стало ниже');
+        expect(AI_SIGNAL.trend_drift.label).toBe('Постепенно снижается');
+        const texts = Object.values(AI_SIGNAL).flatMap(view => [
+            view.label,
+            view.hint,
+            view.action,
+        ]);
+        for (const text of texts) {
+            expect(text).not.toMatch(/Дисциплина|Дрейф|Сдвиг|сместился|норм[аеуой] уровня|[→×≥]/);
+        }
+    });
+
     it('«KPI» в длинной раскладке — «Показатель CRM»', () => {
         expect(AI_LONG_KIND.kpi.label).toBe('Показатель CRM');
     });
@@ -37,7 +51,7 @@ describe('aiAttentionHintLines — смысл, действие, основан�
             'Риск-звонков: 2 · звонков: 2',
         ]);
         expect(aiAttentionActionLine('discipline')).toBe(
-            'Что сделать: Напомните менеджеру фиксировать звонки и презентации в CRM',
+            'Что сделать: Разберите с менеджером, почему план по звонкам и презентациям отстаёт, и напомните фиксировать их в CRM',
         );
     });
 

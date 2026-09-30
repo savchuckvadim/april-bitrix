@@ -27,12 +27,13 @@ const ropOnly = (
 
 /** Две строки: главная утечка — КП (priority 1). */
 const twoItems = () => [
-    dailyPlanItem({ priority: 2 }),
+    dailyPlanItem({ priority: 2, leak: 0.4 }),
     dailyPlanItem({
         callType: 'offer_to_invoice',
         title: 'КП',
         requiredToday: 1,
         priority: 1,
+        leak: 1.1,
     }),
 ];
 
@@ -44,7 +45,7 @@ const degraded = (
         reason,
         requiredVolume: null,
         pipelineExpected: null,
-        items: twoItems().map(item => ({ ...item, cap: null })),
+        items: twoItems().map(item => ({ ...item, cap: null, leak: null })),
         ropOnly: ropOnly({ gExpected: 4, gCeiling: 4 }),
     });
 
@@ -97,15 +98,18 @@ describe('прогноз месяца руководителю', () => {
 });
 
 describe('деградация в модели карточки', () => {
-    it('план ночного прогноза — «узкое место» у priority 1', () => {
+    it('план ночного прогноза — «узкое место» у priority 1 с утечкой', () => {
         const view = buildAiDailyPlanView(dailyPlan({ items: twoItems() }));
         expect(view.rows.map(row => row.topLeak)).toEqual([false, true]);
         expect(view.reasonText).toBeNull();
     });
 
-    it('reason = null, но N_req не посчитан (план по объёму) — «узкого места» нет', () => {
+    it('утечки нет (leak = null: план по объёму) — «узкого места» нет', () => {
         const view = buildAiDailyPlanView(
-            dailyPlan({ items: twoItems(), requiredVolume: null }),
+            dailyPlan({
+                items: twoItems().map(item => ({ ...item, leak: null })),
+                requiredVolume: null,
+            }),
         );
         expect(view.rows.some(row => row.topLeak)).toBe(false);
     });

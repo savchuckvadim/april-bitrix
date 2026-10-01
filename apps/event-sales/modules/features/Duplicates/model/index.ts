@@ -6,6 +6,9 @@ import type {
     JoinToMainItemResultDto,
     JoinToMainResultDto,
     JoinToMainRunDto,
+    MergeDuplicatesResultDto,
+    MergeDuplicatesRunDto,
+    MergeGroupResultDto,
     SalesHookOperationDto,
     SearchDuplicatesRequestDto,
     SearchDuplicatesResponseDto,
@@ -32,6 +35,20 @@ export type JoinToMainRequest = JoinToMainRunDto;
 export type JoinToMainResult = JoinToMainResultDto;
 export type JoinToMainItemResult = JoinToMainItemResultDto;
 export type SalesHookOperation = SalesHookOperationDto;
+
+// «Объединить карточки»: слияние Битрикса (хук merge-duplicates, необратимо).
+export type MergeCardsRequest = MergeDuplicatesRunDto;
+export type MergeCardsResult = MergeDuplicatesResultDto;
+export type MergeGroupResult = MergeGroupResultDto;
+
+/** Объединение карточек: план → подтверждение → слияние → итог. */
+export type MergeCardsStatus =
+    | 'idle'
+    | 'planning'
+    | 'planned'
+    | 'merging'
+    | 'done'
+    | 'error';
 
 // Связи клиента — общая сущность: тем же ответом живёт полноэкранная карточка.
 // Здесь только доменные имена фичи поверх неё, своих типов фича не заводит.

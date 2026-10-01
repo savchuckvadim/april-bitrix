@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+    DealAuditRunNowRequestDto,
+    DealAuditRunNowResponseDto,
     DealAuditRunRequestDto,
     DealAuditRunResponseDto,
 } from '.././model';
@@ -13,6 +15,20 @@ import type {
 import { customAxios } from '../../lib/event-sales-api';
 
 export const getDealAudit = () => {
+    /**
+     * Прогон портала вне интервала, по его настройкам: разметка и сводки — как у ночного крона. Идёт в фоне (на большой воронке он дольше таймаута прокси), итог приходит в Telegram. Метка последнего прогона обновляется — крон не повторит его следом.
+     * @summary Прогнать аудит сейчас, как крон
+     */
+    const dealAuditRunNow = (
+        dealAuditRunNowRequestDto: DealAuditRunNowRequestDto,
+    ) => {
+        return customAxios<DealAuditRunNowResponseDto>({
+            url: `/api/deal-audit/run-now`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: dealAuditRunNowRequestDto,
+        });
+    };
     /**
      * Считает признаки «забытости» по открытым сделкам воронки ОП и возвращает полный разбор. Пороги и получатели сводок — из настроек портала; `dryRun` и `maxDeals` их перебивают. Выполняется синхронно: на большой воронке ответ занимает десятки секунд.
      * @summary Прогнать аудит сделок по домену
@@ -25,8 +41,11 @@ export const getDealAudit = () => {
             data: dealAuditRunRequestDto,
         });
     };
-    return { dealAuditRun };
+    return { dealAuditRunNow, dealAuditRun };
 };
+export type DealAuditRunNowResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getDealAudit>['dealAuditRunNow']>>
+>;
 export type DealAuditRunResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getDealAudit>['dealAuditRun']>>
 >;

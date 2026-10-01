@@ -49,7 +49,11 @@ import { headModeReducer } from '@/modules/features/HeadMode/model/HeadModeSlice
 import { noCallReducer } from '@/modules/features/NoCall';
 import { returnToTmcReducer } from '@/modules/features/ReturnToTMC';
 import { afterPresentationReducer } from '@/modules/features/AfterPresentation';
-import { duplicatesReducer } from '@/modules/features/Duplicates';
+import {
+    duplicatesReducer,
+    mergeCardsReducer,
+} from '@/modules/features/Duplicates';
+import { clientWorkReducer } from '@/modules/features/ClientWork';
 import { innReducer } from '@/modules/features/Inn';
 import { clientSignalsReducer } from '@/modules/features/ClientSignals';
 import { leadMarksReducer } from '@/modules/features/LeadMarks';
@@ -157,6 +161,8 @@ const rootReducer = combineReducers({
     returnToTmc: returnToTmcReducer,
     afterPresentation: afterPresentationReducer,
     duplicates: duplicatesReducer,
+    duplicatesMerge: mergeCardsReducer,
+    clientWork: clientWorkReducer,
     inn: innReducer,
     clientSignals: clientSignalsReducer,
     leadMarks: leadMarksReducer,

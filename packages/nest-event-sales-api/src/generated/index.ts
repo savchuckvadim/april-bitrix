@@ -23,6 +23,8 @@ export * from './event-sales-questionnaires/event-sales-questionnaires';
 
 // Доступны после generate, подключать по мере необходимости:
 // export * from './bitrix-domain-team/bitrix-domain-team';
+// export * from './deal-audit/deal-audit';
+// export * from './duplicate-report/duplicate-report';
 // export * from './event-sales-cold-hook/event-sales-cold-hook';
 // export * from './event-sales-lead-hook/event-sales-lead-hook';
 // export * from './health/health';

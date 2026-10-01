@@ -7,6 +7,9 @@
  */
 import type {
     BxWebHookDto,
+    ClientWorkJoinRequestDto,
+    ClientWorkRequestDto,
+    ClientWorkResponseDto,
     ConvertNormalizerOperationDto,
     ConvertNormalizerRunDto,
     ConvertNormalizerWebhookParams,
@@ -80,7 +83,7 @@ export const getSalesHooks = () => {
         });
     };
     /**
-     * Ставит операцию объединения в очередь. dryRun=true (по умолчанию) — только расчёт плана, без записи. Реальный merge требует dryRun=false и planHash из dry-run-ответа: сущности-жертвы удаляются безвозвратно. Статус — GET /sales-hooks/operations/{operationId} или WS.
+     * Ставит операцию объединения в очередь. dryRun=true (по умолчанию) — только расчёт плана, без записи. Реальный merge требует dryRun=false и planHash из dry-run-ответа: сущности-жертвы удаляются безвозвратно. Только руководителю отдела продаж: initiatorUserId проверяется на сервере, иначе 403. Статус — GET /sales-hooks/operations/{operationId} или WS.
      * @summary Смержить дубли (кнопка руководителя)
      */
     const mergeDuplicatesRun = (
@@ -248,7 +251,7 @@ export const getSalesHooks = () => {
         });
     };
     /**
-     * Ставит операцию в очередь без silence-задержки. Статус — GET /sales-hooks/operations/{operationId} или WS-события sales-hook:done / sales-hook:error. Во фронте кнопка доступна только руководителю.
+     * Ставит операцию в очередь без silence-задержки. Статус — GET /sales-hooks/operations/{operationId} или WS-события sales-hook:done / sales-hook:error. Только руководителю отдела продаж: initiatorUserId проверяется на сервере, иначе 403.
      * @summary Кнопка фрейма: присоединить сделку-дубль к основной
      */
     const joinToMainRun = (joinToMainRunDto: JoinToMainRunDto) => {
@@ -257,6 +260,32 @@ export const getSalesHooks = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: joinToMainRunDto,
+        });
+    };
+    /**
+     * Клиент сделки (компания, без неё — контакт) и все его открытые сделки в воронке продаж: предложенная основная, самая свежая, кто ведёт сам, что проверить до присоединения. canJoin — проверено на сервере, руководитель ли сотрудник.
+     * @summary Открытые сделки клиента сделки
+     */
+    const clientWorkDeals = (clientWorkRequestDto: ClientWorkRequestDto) => {
+        return customAxios<ClientWorkResponseDto>({
+            url: `/api/sales-hooks/client-work/deals`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: clientWorkRequestDto,
+        });
+    };
+    /**
+     * Только руководителю отдела продаж (проверка на сервере, иначе 403). Каждая выбранная сделка присоединяется к основной так же, как кнопкой «Присоединить сюда»: закрывается стадией «Дубль», задачи, дела, контакты и заявки переходят в основную, ничего не удаляется. Одна операция на всю пачку; статус — GET /sales-hooks/operations/{operationId} или WS-события.
+     * @summary Присоединить выбранные сделки клиента к основной
+     */
+    const clientWorkJoin = (
+        clientWorkJoinRequestDto: ClientWorkJoinRequestDto,
+    ) => {
+        return customAxios<JoinToMainOperationDto>({
+            url: `/api/sales-hooks/client-work/join`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: clientWorkJoinRequestDto,
         });
     };
     return {
@@ -276,6 +305,8 @@ export const getSalesHooks = () => {
         leadClientRun,
         joinToMainWebhook,
         joinToMainRun,
+        clientWorkDeals,
+        clientWorkJoin,
     };
 };
 export type SalesHookOperationsGetOperationResult = NonNullable<
@@ -335,4 +366,10 @@ export type JoinToMainWebhookResult = NonNullable<
 >;
 export type JoinToMainRunResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getSalesHooks>['joinToMainRun']>>
+>;
+export type ClientWorkDealsResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getSalesHooks>['clientWorkDeals']>>
+>;
+export type ClientWorkJoinResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getSalesHooks>['clientWorkJoin']>>
 >;

@@ -43,6 +43,16 @@ const DuplicatesPanel = dynamic(
     { ssr: false },
 );
 
+// «Открытые сделки по клиенту» — сделки той же компании, которые «Пересечения» не
+// показывают; появляется только у клиента с несколькими открытыми сделками.
+const ClientWorkPanel = dynamic(
+    () =>
+        import(
+            '@/modules/features/ClientWork/ui/ClientWorkPanel/ClientWorkPanel'
+        ).then(module => module.ClientWorkPanel),
+    { ssr: false },
+);
+
 // «Все контакты» свёрнуты по умолчанию и грузят связи по раскрытию —
 // самой карточке в бандле формы тоже делать нечего.
 const ContactsHubCard = dynamic(
@@ -191,6 +201,7 @@ export const EventItem: FC = () => {
                             {isWideDisplay && (
                                 <div className="space-y-3">
                                     <DuplicatesPanel />
+                                    <ClientWorkPanel />
                                     <ZprCallsPanel />
                                     <ContactsHubCard />
                                 </div>

@@ -1,5 +1,6 @@
 import { getDuplicates, getSalesHooks } from '@workspace/nest-event-sales-api';
 import { withRetry } from '@/modules/shared/lib/with-retry';
+import { waitForOperation } from '@/modules/shared/lib/wait-operation';
 import { RelatedCrmHelper } from '@/modules/entities/RelatedCrm/lib/api/related-crm-helper';
 import type {
     DuplicateDetails,
@@ -7,16 +8,13 @@ import type {
     DuplicateSearchRequest,
     DuplicateSearchResponse,
     JoinToMainRequest,
+    MergeCardsRequest,
     SalesHookOperation,
 } from '../../model';
 
 /** Опрос операции хука: раз в полторы секунды, не дольше минуты. */
 const OPERATION_POLL_MS = 1500;
 const OPERATION_POLL_LIMIT = 40;
-
-const FINAL_OPERATION_STATUSES = new Set<string>(['done', 'failed']);
-
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Единственное место импорта `@workspace/nest-event-sales-api` для поиска дублей.
@@ -48,26 +46,33 @@ export class DuplicatesHelper {
     }
 
     /**
-     * Поллинг статуса: фрейм без WS-подписки, поэтому спрашиваем сами.
-     * Первый запрос — сразу: короткая операция к этому моменту уже done.
+     * «Объединить карточки»: план (dryRun) или слияние (dryRun=false +
+     * planHash) хуком merge-duplicates. Без retry на постановке — как у
+     * присоединения: повтор POST при сбое дал бы 409.
      */
+    async mergeCards(dto: MergeCardsRequest): Promise<SalesHookOperation> {
+        const started = await this.hooks.mergeDuplicatesRun(dto);
+        return this.waitOperation(dto.domain, started.operationId);
+    }
+
+    /** Поллинг статуса операции (shared/lib/wait-operation). */
     private async waitOperation(
         domain: string,
         operationId: string,
     ): Promise<SalesHookOperation> {
-        for (let attempt = 0; attempt < OPERATION_POLL_LIMIT; attempt += 1) {
-            if (attempt > 0) await sleep(OPERATION_POLL_MS);
-            const current = await withRetry(() =>
-                this.hooks.salesHookOperationsGetOperation(operationId, {
-                    domain,
-                }),
-            );
-            if (FINAL_OPERATION_STATUSES.has(String(current.status))) {
-                return current;
-            }
-        }
-        throw new Error(
-            'Операция ещё выполняется — обновите приложение через минуту и проверьте сделку',
+        return waitForOperation(
+            () =>
+                withRetry(() =>
+                    this.hooks.salesHookOperationsGetOperation(operationId, {
+                        domain,
+                    }),
+                ),
+            {
+                intervalMs: OPERATION_POLL_MS,
+                attempts: OPERATION_POLL_LIMIT,
+                timeoutMessage:
+                    'Операция ещё выполняется — обновите приложение через минуту и проверьте сделку',
+            },
         );
     }
 

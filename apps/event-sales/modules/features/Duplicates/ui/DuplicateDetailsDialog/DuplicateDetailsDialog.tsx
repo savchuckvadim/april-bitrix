@@ -5,7 +5,7 @@ import { ExternalLink } from 'lucide-react';
 import { GlassDialog } from '@workspace/april-ui/surfaces';
 import { Spinner, ToneBadge } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
-import { useDuplicateDetails } from '../../lib/hooks';
+import { useDuplicateDetails, useMergeCards } from '../../lib/hooks';
 import {
     ENTITY_TYPE_LABEL,
     buildCrmUrl,
@@ -19,6 +19,7 @@ import { DetailsDealList } from './components/DetailsDealList';
 import { DetailsLeadList } from './components/DetailsLeadList';
 import { DetailsResponsible } from './components/DetailsResponsible';
 import { JoinToMainAction } from './components/JoinToMainAction';
+import { MergeCardsAction } from './components/MergeCardsAction';
 
 /**
  * Подробности по кандидату: с кем клиент уже работает и что по нему
@@ -27,6 +28,7 @@ import { JoinToMainAction } from './components/JoinToMainAction';
 export const DuplicateDetailsDialog: FC = () => {
     const view = useDuplicateDetails();
     const candidate = view.candidate;
+    const merge = useMergeCards(candidate);
     const crmUrl = candidate
         ? buildCrmUrl(view.domain ?? '', candidate.entityType, candidate.id)
         : null;
@@ -113,6 +115,9 @@ export const DuplicateDetailsDialog: FC = () => {
                 {/* Руководителю из сделки: забрать работу кандидата в одно
                     действие вместо ручного слияния в списке сделок. */}
                 <JoinToMainAction view={view} />
+                {/* Две карточки одной организации — слияние Битрикса
+                    (необратимо, сначала план). */}
+                <MergeCardsAction view={merge} />
 
                 <footer className="flex items-center justify-between gap-2 pt-1">
                     <Button variant="outline" size="sm" onClick={view.close}>

@@ -71,7 +71,7 @@ export const EntityHeader: FC = () => {
     const withCurrentEvent = pathname === EVENT_ROUTE_PATH[ROUTE_EVENT.ITEM];
 
     return (
-        <header className="z-20 shrink-0 bg-background/80 backdrop-blur-sm">
+        <header className="z-20 shrink-0 bg-background">
             <div className="space-y-1 px-3 py-1.5">
                 {/* Ряд 1: контент зависит от режима, действия рисуются
                     ВСЕГДА — во встройке без сущностей «обновить» —

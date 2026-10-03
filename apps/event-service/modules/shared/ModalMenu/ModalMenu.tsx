@@ -58,7 +58,7 @@ export const ModalMenu: FC<{
         // );
         if (!isOpen) return null;
         return (
-            <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
                 <div className="bg-background opacity-100  rounded-lg p-6 max-w-md w-full mx-4 z-100 shadow-xl">
                     <div className="flex items-center space-x-3 mb-4">
                         <div>

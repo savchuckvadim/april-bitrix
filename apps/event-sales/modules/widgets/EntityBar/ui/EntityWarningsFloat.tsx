@@ -72,7 +72,7 @@ export const EntityWarningsFloat: FC<{
                 <div
                     role="status"
                     aria-live="polite"
-                    className="absolute top-full left-0 z-30 mt-1.5 flex w-max max-w-96 flex-col gap-1 rounded-md border border-border bg-popover/95 p-1.5 shadow-md backdrop-blur animate-hint-in motion-reduce:animate-none"
+                    className="absolute top-full left-0 z-30 mt-1.5 flex w-max max-w-96 flex-col gap-1 rounded-md border border-border bg-popover p-1.5 shadow-md animate-hint-in motion-reduce:animate-none"
                     onMouseEnter={hint.markerProps.onMouseEnter}
                     onMouseLeave={hint.markerProps.onMouseLeave}
                 >

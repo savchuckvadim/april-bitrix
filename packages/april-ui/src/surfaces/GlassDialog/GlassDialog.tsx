@@ -24,9 +24,10 @@ const SIZE_CLASS: Record<GlassDialogSize, string> = {
     full: 'w-[min(98vw,88rem)]',
 };
 
+/** `fx-backdrop` — размытие гаснет вместе со стеклом (data-glass="off"). */
 const OVERLAY_CLASS: Record<GlassDialogOverlay, string> = {
-    blur: 'bg-black/20 backdrop-blur-md',
-    dim: 'bg-black/30 backdrop-blur-sm',
+    blur: 'fx-backdrop bg-black/20 backdrop-blur-md',
+    dim: 'fx-backdrop bg-black/30 backdrop-blur-sm',
 };
 
 /**

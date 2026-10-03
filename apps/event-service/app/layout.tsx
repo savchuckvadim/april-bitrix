@@ -22,7 +22,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        // data-glass="off": рабочий фрейм открывают десятки раз за день, на
+        // офисных ПК без видеоускорения размытие фона считает процессор и
+        // тормозит весь Битрикс. Интерфейс минимальный — без стекла.
+        <html lang="en" data-glass="off" suppressHydrationWarning>
             <body
                 className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
             >

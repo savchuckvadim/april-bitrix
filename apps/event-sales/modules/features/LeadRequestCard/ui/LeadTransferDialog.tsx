@@ -43,7 +43,12 @@ export const LeadTransferDialog: FC<LeadTransferDialogProps> = ({
     };
 
     return (
-        <GlassDialog open={open} onOpenChange={onOpenChange} size="sm">
+        <GlassDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            size="sm"
+            intensity="soft"
+        >
             <DialogHeader>
                 <DialogTitle>Передать заявку</DialogTitle>
                 <DialogDescription>

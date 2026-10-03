@@ -40,6 +40,7 @@ export const DuplicateDetailsDialog: FC = () => {
             open={view.isOpen}
             onOpenChange={isOpen => !isOpen && view.close()}
             size="md"
+            intensity="soft"
             cardClassName="max-h-[85vh] overflow-y-auto"
         >
             <div className="space-y-3">

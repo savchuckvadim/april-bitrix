@@ -12,6 +12,14 @@ export interface ThemeInitScriptProps {
      * перекраска, ради устранения которой этот скрипт и нужен.
      */
     defaultTheme?: string;
+    /**
+     * `off` — стекло в приложении выключено жёстко: сохранённый выбор
+     * `ui-glass` не действует. Для часто открываемых рабочих фреймов, где
+     * скорость отрисовки важнее эффекта. Тот же `data-glass="off"` ставьте и
+     * на `<html>` в layout — он работает, даже если скрипт упадёт на
+     * недоступном localStorage.
+     */
+    glass?: 'off';
 }
 
 /*
@@ -40,7 +48,7 @@ export interface ThemeInitScriptProps {
  *
  * Рендерить в корневом layout ПЕРЕД контентом.
  */
-const buildInitCode = (defaultTheme: string) => `(function(){try{
+const buildInitCode = (defaultTheme: string, glass?: 'off') => `(function(){try{
 var d=document.documentElement;
 var schemes=${JSON.stringify([...ColorSchemes])};
 d.dataset.scale=localStorage.getItem('ui-scale')||'compact';
@@ -62,12 +70,15 @@ if(schemes.indexOf(s)===-1){s='default';}
 d.classList.add(s+'-'+mode);
 d.style.colorScheme=mode;
 
-var g=localStorage.getItem('ui-glass');
+var g=${glass ? JSON.stringify(glass) : "localStorage.getItem('ui-glass')"};
 if(g==='on'||g==='off'){d.dataset.glass=g;}
 }catch(e){}})();`;
 
 export const ThemeInitScript = ({
     defaultTheme = 'air-light',
+    glass,
 }: ThemeInitScriptProps) => (
-    <script dangerouslySetInnerHTML={{ __html: buildInitCode(defaultTheme) }} />
+    <script
+        dangerouslySetInnerHTML={{ __html: buildInitCode(defaultTheme, glass) }}
+    />
 );

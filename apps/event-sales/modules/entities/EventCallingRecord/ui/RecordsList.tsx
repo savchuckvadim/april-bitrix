@@ -27,7 +27,6 @@ export const RecordsList: FC = () => {
     return (
         <SectionCard
             title="Записи звонков"
-            surface="liquid"
             density="compact"
             collapsible
             defaultOpen={false}

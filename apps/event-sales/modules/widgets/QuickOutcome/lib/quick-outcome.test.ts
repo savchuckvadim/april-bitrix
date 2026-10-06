@@ -92,19 +92,19 @@ describe('getQuickOutcomeButtons', () => {
     const base = {
         isItemScreen: false,
         hasClient: true,
-        hasCompany: true,
+        canSell: true,
         isTmc: false,
     };
 
-    it('компания в режиме отдела продаж — «продажа» и «отказ»', () => {
+    it('есть сделка или компания, режим отдела продаж — «продажа» и «отказ»', () => {
         expect(getQuickOutcomeButtons(base)).toEqual([
             QUICK_OUTCOME.sale,
             QUICK_OUTCOME.fail,
         ]);
     });
 
-    it('без компании продать нельзя — только «отказ»', () => {
-        expect(getQuickOutcomeButtons({ ...base, hasCompany: false })).toEqual([
+    it('нет ни сделки, ни компании (чистый лид) — только «отказ»', () => {
+        expect(getQuickOutcomeButtons({ ...base, canSell: false })).toEqual([
             QUICK_OUTCOME.fail,
         ]);
     });

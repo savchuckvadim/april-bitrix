@@ -2,6 +2,7 @@
 
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
+    getCanSellContext,
     getClientContext,
     getIsTmcMode,
 } from '@/modules/app/lib/utills/app-state-util';
@@ -30,6 +31,7 @@ export const useQuickOutcomeActions = (
 ): QuickOutcomeActions => {
     const dispatch = useAppDispatch();
     const context = useAppSelector(getClientContext);
+    const canSell = useAppSelector(getCanSellContext);
     const isTmc = useAppSelector(getIsTmcMode);
     const inProgress = useAppSelector(s => s.preloader.inProgress);
     const isSending = useAppSelector(
@@ -40,7 +42,7 @@ export const useQuickOutcomeActions = (
         kinds: getQuickOutcomeButtons({
             isItemScreen,
             hasClient: context !== 'unknown',
-            hasCompany: context === 'company',
+            canSell,
             isTmc,
         }),
         disabled: inProgress || isSending,

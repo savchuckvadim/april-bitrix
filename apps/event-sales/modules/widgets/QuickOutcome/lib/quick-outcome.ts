@@ -110,19 +110,18 @@ export const getOutcomeOwnerNote = (ownerName: string): string => {
  * Какие кнопки показать.
  *
  *  - на экране дела кнопок нет: там открыта форма, и итог ставится в ней;
- *  - «Продажа» — только при клиенте-компании в режиме отдела продаж: без
- *    компании сделка продажи не создаётся, у ТМЦ статуса «Продажа» нет;
+ *  - «Продажа» — где её можно оформить (`canSell`: есть сделка или
+ *    компания, см. getCanSellContext) и не в ТМЦ — там статуса «Продажа» нет;
  *  - «Отказ» — везде, где есть клиент.
  */
 export const getQuickOutcomeButtons = (input: {
     isItemScreen: boolean;
     hasClient: boolean;
-    hasCompany: boolean;
+    canSell: boolean;
     isTmc: boolean;
 }): QuickOutcomeKind[] => {
     if (input.isItemScreen || !input.hasClient) return [];
-    const canSell = input.hasCompany && !input.isTmc;
-    return canSell
+    return input.canSell && !input.isTmc
         ? [QUICK_OUTCOME.sale, QUICK_OUTCOME.fail]
         : [QUICK_OUTCOME.fail];
 };

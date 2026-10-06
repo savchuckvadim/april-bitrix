@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { RootState } from '@/modules/app/model/store';
 import { validateSend } from './send-validation';
+import { EV_ERROR_CODE } from '../types/event-types';
 
 /**
  * Минимальный срез стейта для validateSend. Дефолт: отчёт «в работе»
@@ -16,6 +17,8 @@ const makeState = (over?: {
     workStatus?: string;
     notCaTypeCode?: string | null;
     withPostFail?: boolean;
+    /** Сущности встройки; по умолчанию — никаких (компании нет). */
+    bitrix?: { company?: unknown; deal?: unknown; lead?: unknown };
 }): RootState =>
     ({
         eventReport: {
@@ -49,7 +52,7 @@ const makeState = (over?: {
                 withPostFail: over?.withPostFail ?? false,
                 withColorRequired: false,
             },
-            bitrix: { company: null },
+            bitrix: over?.bitrix ?? { company: null },
         },
     }) as unknown as RootState;
 
@@ -157,5 +160,26 @@ describe('validateSend — статус «Не ЦА»', () => {
             makeState({ workStatus: 'fail', withPostFail: true }),
         );
         expect(result.errors.postFailDate).toBeTruthy();
+    });
+});
+
+describe('validateSend — продажа без компании (владелец, 06.10.2026)', () => {
+    const sale = (bitrix: { company?: unknown; deal?: unknown; lead?: unknown }) =>
+        validateSend(
+            makeState({ workStatus: 'success', isPlanActive: false, bitrix }),
+        ).result.errors[EV_ERROR_CODE.WORK_STATUS];
+
+    it('сделка без компании — продажу оформить можно', () => {
+        expect(sale({ company: null, deal: { ID: '27537' } })).toBeFalsy();
+    });
+
+    it('компания — можно, как и раньше', () => {
+        expect(sale({ company: { ID: '5' } })).toBeFalsy();
+    });
+
+    it('чистый лид — нельзя: закрывать в «Успех» нечего', () => {
+        expect(sale({ company: null, deal: null, lead: { ID: '9' } })).toBe(
+            'Продажу нельзя оформить без сделки — переведите заявку в работу',
+        );
     });
 });

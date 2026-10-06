@@ -8,8 +8,7 @@ import {
     TabsList,
     TabsTrigger,
 } from '@workspace/ui/components/tabs';
-import { useCurrentRelations } from '@/modules/entities/RelatedCrm';
-import { getPanelLeadId } from '@/modules/features/LeadRequestCard/lib/lead-request-view';
+import { usePanelLeadId } from '@/modules/features/LeadRequestCard/lib/hooks/use-panel-lead-id';
 import { EventListSkeleton } from './EventListSkeleton';
 
 // Тяжёлые карточки — лениво, как в EntityBoard (правило lazy).
@@ -66,11 +65,15 @@ const InnDealPanel = dynamic(
  * здесь разложено по вкладкам — вертикаль экономится, а вся информация
  * остаётся в двух тапах.
  *
+ * На вкладке «дела», пока дел мало (вид «карточки»), рядом с карточками
+ * стоит вторая колонка — контакты клиента и история по клику (EventListSide).
+ * Вкладки «история» и «контакты» остаются: там те же данные во всю ширину.
+ *
  * Nav минималистичный: узкий TabsList слева, на уровне «микрохедера» —
  * там же, где у широкой раскладки стоит градиент стадии основной сделки.
  */
 export const EventListTabs: FC = () => {
-    const { details } = useCurrentRelations();
+    const panelLeadId = usePanelLeadId();
 
     return (
         <Tabs defaultValue="tasks" className="flex h-full min-h-0 flex-col">
@@ -99,7 +102,7 @@ export const EventListTabs: FC = () => {
                 <EventList />
             </TabsContent>
             <TabsContent value="info" className="min-h-0 flex-1 space-y-2 p-2">
-                <LeadRequestPanel leadId={getPanelLeadId(details?.leads)} />
+                <LeadRequestPanel leadId={panelLeadId} />
                 <DuplicatesPanel />
                 <PurchaseSignalsCard />
             </TabsContent>

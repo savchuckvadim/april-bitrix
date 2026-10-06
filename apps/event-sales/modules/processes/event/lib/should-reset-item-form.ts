@@ -30,3 +30,31 @@ export const shouldResetItemForm = ({
     isMenuActive &&
     from === EVENT_ROUTE_PATH[ROUTE_EVENT.ITEM] &&
     to === EVENT_ROUTE_PATH[ROUTE_EVENT.LIST];
+
+export interface LeaveQuickOutcomeInput {
+    /** Роут предыдущего рендера. */
+    from: string | null;
+    /** Роут сейчас. */
+    to: string;
+    /** Идёт быстрый итог («Продажа» / «Отказ»). */
+    isQuickOutcome: boolean;
+}
+
+/**
+ * Пора ли закончить быстрый итог.
+ *
+ * Итог открывается и отправляется ПРЯМО НА СПИСКЕ, поэтому правило — тоже
+ * переход, а не «мы на списке»: к списку пришли с экрана финиша (отчёт ушёл
+ * либо менеджер отказался от повтора после ошибки) или из формы дела, куда
+ * финиш вернул дозаполнять. В обоих случаях итог закончен — режим нельзя
+ * оставлять включённым: следующий отчёт ушёл бы на ответственного сделки.
+ */
+export const shouldLeaveQuickOutcome = ({
+    from,
+    to,
+    isQuickOutcome,
+}: LeaveQuickOutcomeInput): boolean =>
+    isQuickOutcome &&
+    from !== null &&
+    from !== EVENT_ROUTE_PATH[ROUTE_EVENT.LIST] &&
+    to === EVENT_ROUTE_PATH[ROUTE_EVENT.LIST];

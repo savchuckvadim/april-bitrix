@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+    FLOW_ERROR_KIND,
     FLOW_OUTBOX_STATE,
     FLOW_STAGE,
     flowStatusActions,
@@ -155,3 +156,54 @@ describe('flowStatus x неполное прямое исполнение (MAJOR
         expect(state.outboxState).toBe(FLOW_OUTBOX_STATE.NONE);
     });
 });
+
+describe('flowStatus × повторная отправка по тому же делу', () => {
+    it('отправка помнит своё дело — список покажет его «отправляется»', () => {
+        const state = flowReducerSending(769671);
+        expect(state.sentTaskId).toBe(769671);
+        expect(state.errorKind).toBe(FLOW_ERROR_KIND.FAILED);
+    });
+
+    it('отказ второму отчёту — свой вид ошибки, новая отправка его сбрасывает', () => {
+        const rejected = flowStatusReducer(
+            flowReducerSending(1),
+            flowStatusActions.setError({
+                message: 'уже принят',
+                kind: FLOW_ERROR_KIND.DUPLICATE,
+            }),
+        );
+        expect(rejected.stage).toBe(FLOW_STAGE.ERROR);
+        expect(rejected.errorKind).toBe(FLOW_ERROR_KIND.DUPLICATE);
+
+        const next = flowStatusReducer(
+            rejected,
+            flowStatusActions.setSending({
+                startedAt: 2_000,
+                result: '',
+                operationId: 'op-2',
+            }),
+        );
+        expect(next.errorKind).toBe(FLOW_ERROR_KIND.FAILED);
+        expect(next.sentTaskId).toBeNull();
+    });
+
+    it('ошибка без вида — обычный сбой', () => {
+        const state = flowStatusReducer(
+            flowReducerSending(1),
+            flowStatusActions.setError({ message: 'сбой' }),
+        );
+        expect(state.errorKind).toBe(FLOW_ERROR_KIND.FAILED);
+    });
+});
+
+function flowReducerSending(sentTaskId: number) {
+    return flowStatusReducer(
+        undefined,
+        flowStatusActions.setSending({
+            startedAt: 1_000,
+            result: '',
+            operationId: 'op-1',
+            sentTaskId,
+        }),
+    );
+}

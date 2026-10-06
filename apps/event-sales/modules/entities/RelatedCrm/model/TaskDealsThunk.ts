@@ -1,3 +1,4 @@
+import { resolveSwrCache } from '@workspace/api';
 import { Bitrix } from '@workspace/bitrix';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import {
@@ -9,6 +10,11 @@ import {
     mapBoundDeal,
 } from '../lib/bound-deal-view';
 import { buildDealCategoryCodeMap } from '../lib/deal-category';
+import {
+    STAGE_DICT_STALE_AFTER_MS,
+    getStageDictCacheKey,
+    isStageDictPayload,
+} from '../lib/stage-dict-cache';
 import { taskDealsActions } from './TaskDealsSlice';
 
 const DEAL_SELECT = [
@@ -24,11 +30,30 @@ const DEAL_SELECT = [
 /** Запросы словарей, которые уже в полёте — не дублируем параллельные. */
 const stageDictInflight = new Map<string, Promise<StageDictItem[]>>();
 
-const requestStageDict = async (entityId: string): Promise<StageDictItem[]> => {
+const fetchStageDict = async (entityId: string): Promise<StageDictItem[]> => {
     const response = await Bitrix.getService().status.getList({
         ENTITY_ID: entityId,
     });
     return buildStageDict((response?.result ?? []) as RawStatusRow[]);
+};
+
+/**
+ * Словарь стадий воронки — из браузерного кэша (сутки), в портал только
+ * когда записи нет или она устарела (см. stage-dict-cache). Без домена
+ * (dev вне фрейма) кэш не трогаем — запрос идёт напрямую.
+ */
+const requestStageDict = async (
+    domain: string,
+    entityId: string,
+): Promise<StageDictItem[]> => {
+    if (!domain) return fetchStageDict(entityId);
+    const resolved = await resolveSwrCache<StageDictItem[]>({
+        key: getStageDictCacheKey(domain, entityId),
+        staleAfterMs: STAGE_DICT_STALE_AFTER_MS,
+        fetcher: () => fetchStageDict(entityId),
+        validate: isStageDictPayload,
+    });
+    return resolved.value;
 };
 
 /**
@@ -41,6 +66,7 @@ export const ensureStageDicts =
     (entityIds: string[]) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         const loaded = getState().taskDeals.stageDicts;
+        const domain = getState().app.domain;
         const missing = [...new Set(entityIds)].filter(
             entityId =>
                 entityId &&
@@ -51,7 +77,7 @@ export const ensureStageDicts =
 
         await Promise.all(
             missing.map(async entityId => {
-                const request = requestStageDict(entityId);
+                const request = requestStageDict(domain, entityId);
                 stageDictInflight.set(entityId, request);
                 try {
                     const dict = await request;

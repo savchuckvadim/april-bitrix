@@ -93,6 +93,21 @@ export interface DomainFeatureConfig {
     withReportQuestions: boolean;
     /** Кнопка «карточка сделки» (слайдер с табом конструктора) в чек-листах. */
     withKonstructorSlider: boolean;
+    /**
+     * Подсказки внизу экрана («Записать ИНН клиента?», «Проверить
+     * пересечения глубже?») и автопоиск пересечений при каждом открытии.
+     * По умолчанию ВЫКЛЮЧЕНО (владелец, 05.10.2026): поиск на каждом
+     * открытии стоил бэку 3–4 запроса в Битрикс, а фрейм открывают на
+     * каждый звонок. Выключено — пересечения ищутся, когда менеджер сам
+     * открыл блок «Возможные пересечения».
+     */
+    withActionPrompts: boolean;
+    /**
+     * Полоски стадий связанных сделок клиента в карточках дел. По умолчанию
+     * ВЫКЛЮЧЕНО (владелец, 05.10.2026): только ради них граф связей клиента
+     * (8–9 запросов в Битрикс) грузился при каждом открытии.
+     */
+    withRelationStrips: boolean;
     /** Bitrix GROUP_ID группы задач обзвона (legacy EventTaskThunk). */
     taskGroupId: number;
     /** ID руководителя — постановщик планируемых задач (legacy DepartmentSlice). */
@@ -134,6 +149,8 @@ const DEFAULT_CONFIG: DomainFeatureConfig = {
     questionnairesDisabledEventTypes: '',
     withReportQuestions: false,
     withKonstructorSlider: false,
+    withActionPrompts: false,
+    withRelationStrips: false,
     taskGroupId: 1,
     bossId: 1,
 };

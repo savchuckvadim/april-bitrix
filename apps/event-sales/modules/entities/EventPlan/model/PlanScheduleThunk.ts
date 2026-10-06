@@ -3,6 +3,7 @@ import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { Bitrix } from '@workspace/bitrix';
 import type { BXTask } from '@workspace/bx';
 import { parseTaskTitle } from '@/modules/entities/EventTask/lib/task-util';
+import { OPEN_TASK_FILTER } from '@/modules/entities/EventTask/lib/open-task-filter';
 import { selectWorkingUserId } from '@/modules/app/lib/utills/working-user';
 import { PlanScheduleEvent, planScheduleActions } from './PlanScheduleSlice';
 
@@ -32,9 +33,12 @@ export const fetchPlanDaySchedule =
                     RESPONSIBLE_ID: userId,
                     '>=DEADLINE': `${date} 00:00:00`,
                     '<=DEADLINE': `${date} 23:59:59`,
-                    '!=STATUS': 5,
-                } as never,
+                    // Занятость дня — только то, что ещё предстоит сделать:
+                    // завершённое и ждущее приёмки время не занимает.
+                    ...OPEN_TASK_FILTER,
+                },
                 ['ID', 'TITLE', 'DEADLINE'],
+                { withoutTotal: true },
             );
 
             const items: PlanScheduleEvent[] = (

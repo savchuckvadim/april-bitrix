@@ -71,11 +71,22 @@ vi.mock('../lib/build-flow-payload', () => ({
     buildFlowPayload: (
         _state: unknown,
         options: { operationId: string; socketId?: string },
-    ) => ({
-        domain: 'test.bitrix24.ru',
-        operationId: options.operationId,
-        plan: { isPlanned: false },
-    }),
+    ) => {
+        events.push('payload');
+        return {
+            domain: 'test.bitrix24.ru',
+            operationId: options.operationId,
+            plan: { isPlanned: false },
+        };
+    },
+}));
+
+// Страховка привязки заявки к новой задаче: её правила проверяет свой тест
+// (TaskLeadLinksThunk.test), здесь важны только факт вызова и порядок.
+vi.mock('@/modules/features/TaskLeadLinks/model/TaskLeadLinksThunk', () => ({
+    ensureTaskLeadLinks: () => async () => {
+        events.push('lead-links');
+    },
 }));
 
 /** Состояние — только то, что sendEvent реально читает. */
@@ -177,6 +188,23 @@ describe('sendEvent: порядок конвейера', () => {
         expect(sendingAt).toBeGreaterThan(firstWrite);
         expect(finishAt).toBeGreaterThan(sendingAt);
         expect(httpAt).toBeGreaterThan(finishAt);
+    });
+
+    it('заявка для новой задачи подбирается ДО сборки отчёта', async () => {
+        // Связи клиента грузятся по требованию: если предвыбор заявки не
+        // успел встать при открытии дела, sendEvent ставит его сам — и
+        // обязательно до payload, иначе новая задача уехала бы без заявки.
+        sendFlowMock.mockResolvedValue({ operationId: 'x', status: 'queued' });
+
+        const { dispatch } = makeHarness();
+
+        await dispatch(sendEvent());
+
+        const leadLinksAt = events.indexOf('lead-links');
+        const payloadAt = events.indexOf('payload');
+
+        expect(leadLinksAt).toBeGreaterThanOrEqual(0);
+        expect(payloadAt).toBeGreaterThan(leadLinksAt);
     });
 
     it('accepted: конверт delivering (kind report), цель записана, поллинг позван', async () => {

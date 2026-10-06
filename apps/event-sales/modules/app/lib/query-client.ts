@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import { isRetryable } from '@/modules/shared/lib/with-retry';
 
 /**
  * Единый QueryClient приложения — листовой модуль, чтобы к кэшу можно было
@@ -15,7 +16,12 @@ const makeQueryClient = (): QueryClient =>
         defaultOptions: {
             queries: {
                 refetchOnWindowFocus: false,
-                retry: 1,
+                // Один повтор — и только для быстрых сбоев (сеть моргнула,
+                // сервер перезапускается). Запрос, провисевший до таймаута,
+                // повторять нельзя: сервер занят, повтор добавит ему работы
+                // (то же правило, что у withRetry).
+                retry: (failureCount, error) =>
+                    failureCount < 1 && isRetryable(error),
             },
         },
     });

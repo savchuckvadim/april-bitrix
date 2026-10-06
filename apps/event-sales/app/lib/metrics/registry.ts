@@ -97,6 +97,7 @@ interface BusinessMetrics {
     outboxBacklog: Gauge<'state' | 'domain'>;
     checklistQuestionHidden: Counter<'reason' | 'channel' | 'domain'>;
     send: Counter<'kind' | 'domain'>;
+    bitrixDirectCall: Counter<'outcome' | 'domain'>;
     /** Домены, уже попавшие в метки, — гард кардинальности. */
     domains: Set<string>;
 }
@@ -155,6 +156,12 @@ const createBusinessMetrics = (): BusinessMetrics => {
             name: METRIC.send,
             help: METRIC_SPECS[METRIC.send].help,
             labelNames: ['kind', DOMAIN_LABEL],
+            registers: [registry],
+        }),
+        bitrixDirectCall: new Counter({
+            name: METRIC.bitrixDirectCall,
+            help: METRIC_SPECS[METRIC.bitrixDirectCall].help,
+            labelNames: ['outcome', DOMAIN_LABEL],
             registers: [registry],
         }),
         domains: new Set<string>(),
@@ -227,6 +234,9 @@ export const recordMetricEvent = (event: SerializedMetricEvent): boolean => {
                 return true;
             case METRIC.send:
                 metrics.send.inc(labels, event.value);
+                return true;
+            case METRIC.bitrixDirectCall:
+                metrics.bitrixDirectCall.inc(labels, event.value);
                 return true;
             default:
                 return false;

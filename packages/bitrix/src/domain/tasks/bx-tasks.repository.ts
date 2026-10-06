@@ -6,6 +6,7 @@ import {
 import { EBXEntity } from '../../core/domain/consts/bitrix-entities.enum';
 import { IBXTask } from '../interfaces/bitrix.interface';
 import {
+    BXTaskListOptions,
     BXTaskRequestFields,
     IBXTaskCreateFields,
     ITaskCommentAddFields,
@@ -113,6 +114,7 @@ export class BxTasksRepository {
     async getList(
         filter: Partial<BXTaskRequestFields>,
         select?: string[],
+        options: BXTaskListOptions = {},
     ): Promise<
         IBitrixResponse<
             TBXResponse<EBxNamespace.TASKS, EBXEntity.TASK, EBxMethod.LIST>
@@ -122,7 +124,14 @@ export class BxTasksRepository {
             EBxNamespace.TASKS,
             EBXEntity.TASK,
             EBxMethod.LIST,
-            { select, filter },
+            {
+                select,
+                filter,
+                // `start: -1` — без подсчёта общего числа записей: одна
+                // страница и ничего больше. На портале с десятками тысяч
+                // задач подсчёт стоил в разы дороже самой выборки.
+                ...(options.withoutTotal ? { start: -1 as const } : {}),
+            },
         );
     }
 

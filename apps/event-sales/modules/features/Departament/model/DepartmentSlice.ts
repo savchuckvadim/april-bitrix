@@ -7,6 +7,7 @@ import {
     DepartmentState,
     SetCurrentUserPayload,
     SetFetchedDepartamentPayload,
+    UpdateDepartamentPayload,
 } from '../type/department-type';
 
 export const DEPARTMENT_MODES: DepartmentModeStateItem[] = [
@@ -72,6 +73,28 @@ const departmentSlice = createSlice({
             ] as const) {
                 state[target][DUSER_ROLE.RESPONSIBLE].current = currentUser;
                 state[target][DUSER_ROLE.CREATED_BY].current = boss;
+            }
+        },
+        /**
+         * Свежий отдел пришёл в фоне (первым был показан кэш браузера):
+         * обновляются только списки и структура. Ответственный и постановщик
+         * плана и отчёта остаются как есть — менеджер мог уже выбрать их в
+         * форме, и тихий фон не вправе сбросить его выбор.
+         */
+        updateDepartament: (
+            state: DepartmentState,
+            action: PayloadAction<UpdateDepartamentPayload>,
+        ) => {
+            const { department, structure } = action.payload;
+            const users = department ?? [];
+            state[DEPARTAMENT_STATE_PROP.DEPARTAMENT][
+                DUSER_ROLE.RESPONSIBLE
+            ].items = users;
+            state[DEPARTAMENT_STATE_PROP.DEPARTAMENT][
+                DUSER_ROLE.CREATED_BY
+            ].items = users;
+            if (structure) {
+                state[DEPARTAMENT_STATE_PROP.STRUCTURE] = structure;
             }
         },
         setCurrentUser: (

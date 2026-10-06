@@ -1,4 +1,5 @@
 // import * as https from 'https';
+import { observeBitrixCall } from './bitrix-call-observer';
 // import * as http from 'http';
 // import { TelegramService } from '../../../telegram/telegram.service';
 // import { AxiosResponse } from 'axios';
@@ -32,6 +33,7 @@ import { BitrixBatchBackApiHelper } from '../inner-api-helper/bitrix-batch-back-
 import { BXInitializedDto } from '../dto/bx-initialized.dto';
 import { BxFrameAuth } from '../dto/bx-frame-auth';
 import { portalHostname, toBxFrameAuth } from '../lib/frame-auth.util';
+import { isFrameMeasurable } from '../lib/frame-size.util';
 export enum BxAuthType {
     TOKEN = 'token',
     HOOK = 'hook',
@@ -164,15 +166,25 @@ export class BitrixBaseApi {
     ) {
         if (!this.inFrame) return null;
         /*
+         * Скрытый фрейм (переключили вкладку карточки и вернулись) мерить
+         * нечем: SDK отклоняет промис «Wrong width:number = 0», а
+         * необработанное отклонение роняло весь экран в «Что-то пошло не
+         * так». Подгонка придёт сама, когда фрейм снова покажут.
+         */
+        if (!isFrameMeasurable()) return null;
+        /*
          * Ширину чаще всего НЕ задаём (её выбирает контейнер карточки), но
          * передавать её `undefined` нельзя: SDK превращает пропуск в 0 и
          * отвечает «Wrong width:number = 0» — во встройке-вкладке это
          * сыпалось на каждую подгонку. Нет ширины — зовём без неё.
          */
-        if (typeof minWidth === 'number' && minWidth > 0) {
-            return this.bx.parent.resizeWindowAuto(node, minHeight, minWidth);
-        }
-        return this.bx.parent.resizeWindowAuto(node, minHeight);
+        const resized =
+            typeof minWidth === 'number' && minWidth > 0
+                ? this.bx.parent.resizeWindowAuto(node, minHeight, minWidth)
+                : this.bx.parent.resizeWindowAuto(node, minHeight);
+        // Отказ подгонки — не поломка приложения: фрейм могли скрыть между
+        // замером и ответом родителя. Гасим, а не отдаём наверх.
+        return resized.catch((): null => null);
     }
 
     /** Прокрутка РОДИТЕЛЬСКОЙ страницы: вернуть встройку в поле зрения. */
@@ -378,10 +390,8 @@ export class BitrixBaseApi {
         let response = null;
 
         if (this.inFrame) {
-            const bxRresponse = (await this.bx.callMethod(
-                method,
-                data as object,
-                -1,
+            const bxRresponse = (await observeBitrixCall(() =>
+                this.bx.callMethod(method, data as object, -1),
             )) as Result;
             response = bxRresponse.getData() as IBitrixResponse<
                 TBXResponse<NAMESPACE, ENTITY, METHOD>
@@ -420,10 +430,8 @@ export class BitrixBaseApi {
         let response = null;
 
         if (this.inFrame) {
-            const bxRresponse = (await this.bx.callMethod(
-                method,
-                data as object,
-                -1,
+            const bxRresponse = (await observeBitrixCall(() =>
+                this.bx.callMethod(method, data as object, -1),
             )) as Result;
             const bxData = bxRresponse.getData() as any;
             response = (bxData?.result ?? bxData) as T;
@@ -454,13 +462,14 @@ export class BitrixBaseApi {
      */
     public async callBatchByChunk(): Promise<IBitrixBatchResponseResult[]> {
         if (this.inFrame) {
-            const commands = [];
+            // Тип — тот же, что у значений cmdBatch: внутри замыкания вывод
+            // "растущего" массива не работает.
+            const commands: Array<(typeof this.cmdBatch)[string]> = [];
             for (const key in this.cmdBatch) {
                 commands.push(this.cmdBatch[key]);
             }
-            const bxResponse = (await this.bx.callBatchByChunk(
-                commands,
-                false,
+            const bxResponse = (await observeBitrixCall(() =>
+                this.bx.callBatchByChunk(commands, false),
             )) as Result;
             const result = bxResponse.getData();
             this.debugDump('BITRIX RESPONSE CALL BATCH', result);
@@ -486,9 +495,8 @@ export class BitrixBaseApi {
      */
     public async callBatch(): Promise<any> {
         if (this.inFrame) {
-            const bxResponse = (await this.bx.callBatch(
-                this.cmdBatch,
-                false,
+            const bxResponse = (await observeBitrixCall(() =>
+                this.bx.callBatch(this.cmdBatch, false),
             )) as Result;
             const result = bxResponse.getData();
             this.debugDump('BITRIX RESPONSE CALL BATCH', result);

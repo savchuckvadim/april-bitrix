@@ -79,6 +79,18 @@ const eventNameFromTitle = (title: string, typeRegex: RegExp): string => {
     return title.replace(typeRegex, '').trim();
 };
 
+/**
+ * Слово вида холодной работы стоит СРАЗУ после типа: «Холодный обзвон. Лид.
+ * {название}», «Холодный звонок. Заявка …» (формат бэка — buildColdTaskTitle,
+ * и робота воронки заявок). Раньше слово искалось по всему заголовку, и
+ * «Лид» находился в самом названии события — «Холодный обзвон В работу
+ * Лиды-заявки с сайта» (garant, 06.10.2026): холодное дело уходило в
+ * отчётность «Входящим звонком», хотя запланировано было «Холодным».
+ * После слова — не буква, не цифра и не дефис: «Лиды», «Лид-форма» меткой
+ * не считаются.
+ */
+const COLD_KIND_MARKER = /Холодный (?:звонок|обзвон)\.?\s+(Заявка|Лид)(?![\p{L}\d-])/u;
+
 /** Тип/имя события из заголовка Bitrix-задачи (сервисный сигнал — цифры в скобках по краям). */
 export const parseTaskTitle = (title: string) => {
     let type: EV_TYPE = EV_TYPE.WARM;
@@ -111,10 +123,11 @@ export const parseTaskTitle = (title: string) => {
         // «Холодный звонок. Заявка» и «. Лид» — не холодный обзвон: клиент
         // обратился сам и нас ЖДЁТ. Слово в заголовке ставит робот воронки
         // заявок, оно и есть признак (см. docs/event-sales-event-types.md).
-        if (name.includes('Заявка')) {
+        const kind = COLD_KIND_MARKER.exec(name)?.[1];
+        if (kind === 'Заявка') {
             eventType = 'xoRequest';
             type = EV_TYPE.REQUEST;
-        } else if (name.includes('Лид')) {
+        } else if (kind === 'Лид') {
             eventType = 'xoLead';
             type = EV_TYPE.REQUEST;
         } else {

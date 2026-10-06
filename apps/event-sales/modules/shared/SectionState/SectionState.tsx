@@ -11,6 +11,11 @@ interface SectionStateProps {
     isEmpty: boolean;
     /** Текст пустого состояния — у каждой секции он свой. */
     emptyText: string;
+    /**
+     * Своё пустое состояние вместо текста — когда «пусто» означает «что
+     * делать дальше», а не просто «ничего нет» (список дел).
+     */
+    emptyContent?: ReactNode;
     /** Текст ошибки, если у секции он должен быть особым. */
     errorText?: string;
     onRetry?: () => void;
@@ -29,6 +34,7 @@ export const SectionState: FC<SectionStateProps> = ({
     status,
     isEmpty,
     emptyText,
+    emptyContent,
     errorText,
     onRetry,
     children,
@@ -63,7 +69,11 @@ export const SectionState: FC<SectionStateProps> = ({
     }
 
     if (isEmpty) {
-        return <p className="text-sm text-muted-foreground">{emptyText}</p>;
+        return (
+            emptyContent ?? (
+                <p className="text-sm text-muted-foreground">{emptyText}</p>
+            )
+        );
     }
 
     return <>{children}</>;

@@ -1,3 +1,4 @@
+import { resolveSwrCache } from '@workspace/api';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { departmentActions } from '@/modules/features/Departament/model/DepartmentSlice';
 import { selectAllDepartmentUsers } from '@/modules/features/Departament/model/selectors';
@@ -11,6 +12,13 @@ import {
     saveHeadModeEnabled,
 } from '../lib/head-mode-storage';
 import { findAssignee, taskResponsibleName } from '../lib/head-mode.util';
+import {
+    HEAD_PERIMETER_STALE_AFTER_MS,
+    type HeadPerimeter,
+    getHeadPerimeterCacheKey,
+    isHeadPerimeter,
+    sameSubordinates,
+} from '../lib/head-perimeter-cache';
 import { headModeActions } from './HeadModeSlice';
 import { selectTaskOwnerId } from './selectors';
 
@@ -20,6 +28,11 @@ const headModeHelper = new HeadModeHelper();
  * Загрузка списка подчинённых. Стартует на буте вместе с отделом —
  * нужен только домен и пользователь. Повторный вызов при готовом списке
  * в сеть не ходит; после ошибки — пробует снова.
+ *
+ * Список берётся из кэша браузера сразу, свежий приходит в фоне (см.
+ * head-perimeter-cache): список дел ждёт подчинённых и не должен ждать
+ * сеть на каждом открытии. Фоновое обновление применяется, только если
+ * состав изменился: иначе список дел перезапрашивался бы впустую.
  */
 export const fetchHeadPerimeter =
     (domain: string, userId: number) =>
@@ -38,13 +51,30 @@ export const fetchHeadPerimeter =
 
         dispatch(headModeActions.setLoading());
         try {
-            const currentUser = await headModeHelper.getCurrentUser(
-                domain,
-                userId,
-            );
+            const resolved = await resolveSwrCache<HeadPerimeter>({
+                key: getHeadPerimeterCacheKey(domain, userId),
+                staleAfterMs: HEAD_PERIMETER_STALE_AFTER_MS,
+                fetcher: async () => {
+                    const currentUser = await headModeHelper.getCurrentUser(
+                        domain,
+                        userId,
+                    );
+                    return { subordinateIds: currentUser.subordinateIds ?? [] };
+                },
+                validate: isHeadPerimeter,
+                onUpdate: fresh => {
+                    const current = getState().headMode.subordinateIds;
+                    if (sameSubordinates(current, fresh.subordinateIds)) return;
+                    dispatch(
+                        headModeActions.setFetched({
+                            subordinateIds: fresh.subordinateIds,
+                        }),
+                    );
+                },
+            });
             dispatch(
                 headModeActions.setFetched({
-                    subordinateIds: currentUser.subordinateIds ?? [],
+                    subordinateIds: resolved.value.subordinateIds,
                 }),
             );
         } catch (error) {
@@ -107,6 +137,16 @@ export const syncActingFromTask =
         const state = getState();
         const me = state.app.bitrix.user;
         if (!me) return;
+        // Быстрый итог («Продажа» / «Отказ») записывается на ответственного
+        // сделки. Пока он не закончен, пересчёт ставит именно его — не
+        // пропускает шаг, а возвращает: перечитанный отдел сам пишет
+        // ответственным текущего пользователя, и без возврата продажа
+        // молча ушла бы на нажавшего кнопку.
+        const { kind, ownerId: outcomeOwnerId } = state.quickOutcome;
+        if (kind !== null && outcomeOwnerId) {
+            dispatch(setResponsible(outcomeOwnerId));
+            return;
+        }
         const ownerId = selectTaskOwnerId(state);
         dispatch(
             setResponsible(

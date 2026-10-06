@@ -76,9 +76,11 @@ const eventSaleSlice = createSlice({
                 type: 'show' | 'current';
             }>,
         ) => {
+            // Портал отдаёт id строкой, селект — числом: сравниваем числа,
+            // иначе выбор молча не находил сделку.
             const deal =
                 state.presDeals.items.find(
-                    d => d.ID === action.payload.dealId,
+                    d => Number(d.ID) === Number(action.payload.dealId),
                 ) ?? null;
             state.presDeals[action.payload.type] = deal;
         },

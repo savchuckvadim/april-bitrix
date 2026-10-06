@@ -1,5 +1,9 @@
 import { setConfig } from '@workspace/api';
-import { configureBaseURL } from '@workspace/nest-event-sales-api';
+import {
+    configureBaseURL,
+    configureRequestTimeout,
+} from '@workspace/nest-event-sales-api';
+import { resolveRequestTimeout } from '@/modules/shared/lib/request-timeout';
 
 // Модуль импортируется из клиентского providers.tsx, поэтому setConfig
 // выполняется и на клиенте; ONLINE_API_KEY инлайнится в бандл через next.config `env`.
@@ -19,6 +23,11 @@ setConfig({
 if (process.env.NEXT_PUBLIC_EVENT_SALES_API_URL) {
     configureBaseURL(process.env.NEXT_PUBLIC_EVENT_SALES_API_URL);
 }
+
+// Потолок ожидания для интерактивных чтений (связи, пересечения, отдел…):
+// без него перегруженный сервер держал запрос минутами, а фрейм показывал
+// вечный скелетон. Какие ручки считаются интерактивными — в request-timeout.
+configureRequestTimeout(resolveRequestTimeout);
 
 export function ApiProvider({ children }: { children: React.ReactNode }) {
     return <>{children}</>;

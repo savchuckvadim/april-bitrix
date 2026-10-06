@@ -1,6 +1,7 @@
 import { BitrixBaseApi } from '../../core/base/bitrix-base-api';
 import { BxTasksRepository } from './bx-tasks.repository';
 import {
+    BXTaskListOptions,
     BXTaskRequestFields,
     IBXTaskCreateFields,
     ITaskCommentGetListRequest,
@@ -36,8 +37,12 @@ export class BxTasksService {
         return this.repo.get(taskId, select);
     }
 
-    getList(filter: Partial<BXTaskRequestFields>, select?: string[]) {
-        return this.repo.getList(filter, select);
+    getList(
+        filter: Partial<BXTaskRequestFields>,
+        select?: string[],
+        options?: BXTaskListOptions,
+    ) {
+        return this.repo.getList(filter, select, options);
     }
 
     getAll(filter: Partial<BXTaskRequestFields>, select?: string[]) {

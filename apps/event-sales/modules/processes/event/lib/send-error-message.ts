@@ -28,6 +28,15 @@ const TRANSPORT_NOISE = [
 /** Общий хвост: главное — работа менеджера никуда не делась. */
 const TAIL = 'Данные никуда не делись — можно повторить.';
 
+const DUPLICATE_PREFIX = /^HTTP\s+409\b/;
+
+/**
+ * Сервер отказал второму отчёту по тому же делу (HTTP 409): первый уже идёт
+ * или принят. Повторять тут нечего.
+ */
+export const isDuplicateSendRejection = (detail?: string): boolean =>
+    DUPLICATE_PREFIX.test(detail ?? '');
+
 export const toSendErrorMessage = (detail?: string): string => {
     const reason = (detail ?? '')
         .replace(HTTP_PREFIX, '')
@@ -37,6 +46,10 @@ export const toSendErrorMessage = (detail?: string): string => {
     const isHuman =
         reason.length > 0 &&
         !TRANSPORT_NOISE.some(pattern => pattern.test(reason));
+
+    // Отказ второму отчёту написан целиком для менеджера: «не удалось» и
+    // «можно повторить» тут неправда — первый отчёт принят.
+    if (isHuman && isDuplicateSendRejection(detail)) return `${reason}.`;
 
     return isHuman
         ? `Не удалось отправить отчёт: ${reason}. ${TAIL}`

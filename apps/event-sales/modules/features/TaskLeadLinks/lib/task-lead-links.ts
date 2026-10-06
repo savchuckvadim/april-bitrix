@@ -52,6 +52,32 @@ export const buildTaskLeadLinksView = ({
     return { visible: candidates.length > 0, candidates };
 };
 
+export interface LeadLinkDefaultInput {
+    currentTask: EventTask | null | undefined;
+    planActive: boolean;
+    /** Менеджер уже трогал набор — его выбор важнее предвыбора. */
+    isTouched: boolean;
+    selectedIds: readonly number[];
+}
+
+/**
+ * Нужно ли перед отправкой самим подобрать заявку для новой задачи.
+ *
+ * Да — когда новая задача будет (план активен), лид ей наследовать не от
+ * кого, а набор пуст и менеджер его не трогал. Пустой набор после ручного
+ * снятия галочки — это решение менеджера, его не перебиваем.
+ */
+export const needsLeadLinkDefault = ({
+    currentTask,
+    planActive,
+    isTouched,
+    selectedIds,
+}: LeadLinkDefaultInput): boolean =>
+    planActive &&
+    !inheritsLeadLink(currentTask) &&
+    !isTouched &&
+    selectedIds.length === 0;
+
 /** Заявка с сайта отличима от обычного лида полями лидогена. */
 const isRequest = (lead: RelatedLead): boolean =>
     Boolean(lead.questUrl || lead.regNumber);

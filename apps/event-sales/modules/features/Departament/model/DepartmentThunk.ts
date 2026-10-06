@@ -1,4 +1,5 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import { resolveSwrCache } from '@workspace/api';
 import { BXUser } from '@workspace/bx';
 import { getClientContext } from '@/modules/app/lib/utills/app-state-util';
 import { eventPlanActions } from '@/modules/entities/EventPlan';
@@ -15,43 +16,84 @@ import {
     DUSER_ROLE,
     DepartmentStructureState,
 } from '../type/department-type';
+import {
+    type CachedDepartment,
+    DEPARTMENT_STALE_AFTER_MS,
+    getDepartmentCacheKey,
+    isCachedDepartment,
+    sameDepartment,
+} from '../lib/department-cache';
 
 const departmentHelper = new DepartmentHelper();
+
+/** Отдел с сервера — в форме кэша браузера. */
+const fetchDepartment = async (domain: string): Promise<CachedDepartment> => {
+    const response = await departmentHelper.getSalesDepartment(domain);
+    const data = response?.department;
+    // Структура отделов (general/children/parents c UF_HEAD) — сырьё
+    // для ролей: раньше выбрасывалась, и роли считать было не из чего.
+    return {
+        users: (data?.allUsers ?? []) as unknown as BXUser[],
+        structure: data
+            ? {
+                  general: (data.generalDepartment ??
+                      []) as unknown as DepartmentStructureState['general'],
+                  children: (data.childrenDepartments ??
+                      []) as unknown as DepartmentStructureState['children'],
+                  parents: (data.parentDepartments ??
+                      []) as unknown as DepartmentStructureState['parents'],
+              }
+            : null,
+    };
+};
 
 /**
  * Пользователи отдела продаж портала.
  * Замена legacy PHP full/department (+localStorage-кэш — теперь Redis на бэке).
+ *
+ * Со второго открытия отдел берётся из кэша браузера сразу, свежий
+ * приходит в фоне (см. department-cache): форма не ждёт сервер, а
+ * обновление не сбрасывает выбранных в ней людей.
  */
 export const getDepartment =
     (domain: string, currentUser: BXUser | null) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         try {
-            const response = await departmentHelper.getSalesDepartment(domain);
-            const data = response?.department;
-            const users = (data?.allUsers ?? null) as unknown as
-                | BXUser[]
-                | null;
+            // Свежий отдел может прийти раньше, чем показан кэш, — тогда
+            // показываем сразу свежий; позже — только обновляем списки.
+            const seen: {
+                shown: CachedDepartment | null;
+                early: CachedDepartment | null;
+            } = { shown: null, early: null };
+            const resolved = await resolveSwrCache<CachedDepartment>({
+                key: getDepartmentCacheKey(domain),
+                staleAfterMs: DEPARTMENT_STALE_AFTER_MS,
+                fetcher: () => fetchDepartment(domain),
+                validate: isCachedDepartment,
+                onUpdate: fresh => {
+                    if (!seen.shown) {
+                        seen.early = fresh;
+                        return;
+                    }
+                    if (sameDepartment(seen.shown, fresh)) return;
+                    dispatch(
+                        departmentActions.updateDepartament({
+                            department: fresh.users,
+                            structure: fresh.structure,
+                        }),
+                    );
+                },
+            });
+            const shown = seen.early ?? resolved.value;
+            seen.shown = shown;
             const { bossId } = getState().app.config;
-
-            // Структура отделов (general/children/parents c UF_HEAD) — сырьё
-            // для ролей: раньше выбрасывалась, и роли считать было не из чего.
-            const structure = data
-                ? {
-                      general: (data.generalDepartment ??
-                          []) as unknown as DepartmentStructureState['general'],
-                      children: (data.childrenDepartments ??
-                          []) as unknown as DepartmentStructureState['children'],
-                      parents: (data.parentDepartments ??
-                          []) as unknown as DepartmentStructureState['parents'],
-                  }
-                : null;
 
             dispatch(
                 departmentActions.setFetchedDepartament({
-                    department: users,
+                    department: shown.users,
                     currentUser,
                     bossId,
-                    structure,
+                    structure: shown.structure,
                 }),
             );
         } catch (error) {

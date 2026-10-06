@@ -3,8 +3,19 @@ export interface BXTaskRequest {
     filter: BXTaskRequestFields;
 }
 
+/** Параметры выборки списка задач (`tasks.task.list`). */
+export interface BXTaskListOptions {
+    /**
+     * Не считать общее число записей (`start: -1`): вернётся одна страница
+     * без `total`. Для экранов, которым нужен только сам список.
+     */
+    withoutTotal?: boolean;
+}
+
 export interface BXTaskRequestFields {
-    [key: string]: string | number | string[] | undefined;
+    // number[] — фильтры «в списке»/«не в списке»: RESPONSIBLE_ID: [1, 2],
+    // '!REAL_STATUS': [4, 5].
+    [key: string]: string | number | string[] | number[] | undefined;
     ID?: number | string;
     PARENT_ID?: number | string;
     GROUP_ID?: number | string;
@@ -12,7 +23,7 @@ export interface BXTaskRequestFields {
     STATUS_CHANGED_BY?: number | string;
     PRIORITY?: number | string;
     FORUM_TOPIC_ID?: number | string;
-    RESPONSIBLE_ID?: number | string;
+    RESPONSIBLE_ID?: number | string | number[];
     TITLE?: number | string;
     TAG?: number | string;
     REAL_STATUS?: number | string;

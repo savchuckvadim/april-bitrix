@@ -1,3 +1,5 @@
+import { getResponseStatus, isSlowServerError } from './request-error';
+
 /** Сколько раз повторяем запрос, прежде чем признать его неудачным. */
 export const RETRY_ATTEMPTS = 3;
 /** База экспоненциальной паузы: 400мс → 800мс. */
@@ -5,24 +7,35 @@ export const RETRY_BASE_DELAY_MS = 400;
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+/** Сервер перезапускается или временно недоступен — повтор уместен. */
+const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([429, 502, 503]);
+
 /**
- * Повторяемая ли ошибка. 4xx не повторяем: неверный домен или несуществующая
- * сущность от повторения не исправятся. Нет ответа вовсе — сеть или таймаут,
- * это как раз тот случай, ради которого ретрай и нужен.
+ * Повторяемая ли ошибка.
+ *
+ * Повторяем только БЫСТРЫЕ сбои, которые лечатся повтором: сеть моргнула
+ * (ответа нет вовсе) или сервер перезапускается (502/503).
+ *
+ * НЕ повторяем:
+ *  - 4xx — неверный домен или несуществующая сущность от повтора не
+ *    исправятся;
+ *  - таймаут и 504 — запрос провисел до предела, потому что сервер занят;
+ *    повтор ×3 утраивал нагрузку ровно в момент перегруза (разбор
+ *    05.10.2026: до шести цепочек одного запроса вместо одной);
+ *  - 500 — ошибка самого обработчика, повтор даст её же.
  */
-const isRetryable = (error: unknown): boolean => {
-    const status = (error as { response?: { status?: number } })?.response
-        ?.status;
+export const isRetryable = (error: unknown): boolean => {
+    if (isSlowServerError(error)) return false;
+    const status = getResponseStatus(error);
     if (status === undefined) return true;
-    return status >= 500 || status === 429;
+    return RETRYABLE_STATUSES.has(status);
 };
 
 /**
  * Повтор с нарастающей паузой.
  *
- * Живёт в api-хелперах, а не в компонентах: запросы к порталу стартуют сами
- * при открытии фрейма, и разовый сетевой сбой не должен показывать менеджеру
- * ошибку там, где достаточно повторить.
+ * Живёт в api-хелперах, а не в компонентах: разовый сетевой сбой не должен
+ * показывать менеджеру ошибку там, где достаточно повторить.
  */
 export const withRetry = async <T>(request: () => Promise<T>): Promise<T> => {
     let lastError: unknown;

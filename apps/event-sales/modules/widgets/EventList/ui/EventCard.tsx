@@ -48,6 +48,11 @@ interface EventCardProps {
  * реактивного --event-current (data-event-type) — вместо прежней толстой
  * полосы слева. Статус срока — цветом текста срока, без отдельного бэйджа:
  * во фрейме-миниатюре каждая лишняя заливка складывается в «светофор».
+ *
+ * Тонировка считается через color-mix(). Браузеры без него (Chrome до 111 —
+ * потолок Windows 7) получают белую карточку с цветной точкой типа: запасные
+ * значения правит сборка (packages/ui/postcss-legacy-color-mix.cjs). Раньше
+ * на таких ПК карточка заливалась цветом типа целиком.
  */
 export const EventCard: FC<EventCardProps> = ({
     task,
@@ -79,6 +84,15 @@ export const EventCard: FC<EventCardProps> = ({
         >
             <CardHeader className="gap-2 px-4">
                 <div className="flex flex-wrap items-center gap-2">
+                    {/* Старые браузеры (Chrome до 111, Windows 7) не умеют
+                        смешивать цвета: тонировка карточки там отключена
+                        сборкой, карточка белая, а тип события показывает эта
+                        точка. В современных браузерах тип виден по тонировке —
+                        точка скрыта. */}
+                    <span
+                        aria-hidden
+                        className="size-2.5 shrink-0 rounded-full bg-event-current supports-[color:color-mix(in_lab,red,red)]:hidden"
+                    />
                     <EventTypeBadge
                         type={getEventTypeLabel({
                             eventType: task.eventType,

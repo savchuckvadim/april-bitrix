@@ -4,6 +4,7 @@ import type { RelatedLead } from '@/modules/entities/RelatedCrm';
 import {
     buildTaskLeadLinksView,
     inheritsLeadLink,
+    needsLeadLinkDefault,
     pickDefaultLeadIds,
 } from './task-lead-links';
 
@@ -115,5 +116,41 @@ describe('pickDefaultLeadIds', () => {
 
     it('кандидатов нет — отмечать нечего', () => {
         expect(pickDefaultLeadIds([])).toEqual([]);
+    });
+});
+
+describe('needsLeadLinkDefault', () => {
+    const base = {
+        currentTask: null,
+        planActive: true,
+        isTouched: false,
+        selectedIds: [] as number[],
+    };
+
+    it('новая задача без заявки и без выбора — предвыбор нужен', () => {
+        expect(needsLeadLinkDefault(base)).toBe(true);
+        expect(
+            needsLeadLinkDefault({ ...base, currentTask: task(['CO_5']) }),
+        ).toBe(true);
+    });
+
+    it('следующего шага нет — связывать нечего', () => {
+        expect(needsLeadLinkDefault({ ...base, planActive: false })).toBe(
+            false,
+        );
+    });
+
+    it('текущая задача уже несёт заявку — новая её унаследует', () => {
+        expect(
+            needsLeadLinkDefault({ ...base, currentTask: task(['L_77']) }),
+        ).toBe(false);
+    });
+
+    it('менеджер сам снял галочки — его решение не перебиваем', () => {
+        expect(needsLeadLinkDefault({ ...base, isTouched: true })).toBe(false);
+    });
+
+    it('выбор уже есть — второй раз не подбираем', () => {
+        expect(needsLeadLinkDefault({ ...base, selectedIds: [7] })).toBe(false);
     });
 });

@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { useCurrentRelations } from '@/modules/entities/RelatedCrm';
+import {
+    useCurrentRelations,
+    useEnsureRelations,
+} from '@/modules/entities/RelatedCrm';
 import {
     HubFilters,
     HubRow,
@@ -44,7 +47,9 @@ export const useContactsHub = (enabled: boolean): ContactsHubData => {
         s => s.app.bitrix.lead as Record<string, unknown> | null,
     );
 
-    // Связи уже в сторе (их грузит листенер для шапки) — гейт не нужен.
+    // Связи клиента грузятся по требованию: блок контактов раскрыли —
+    // запрашиваем (повторов нет, готовый ответ берётся из стора).
+    useEnsureRelations(enabled);
     const related = useCurrentRelations();
 
     const [selectedSources, setSelectedSources] = useState<

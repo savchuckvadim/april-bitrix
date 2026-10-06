@@ -7,11 +7,16 @@ import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { APP_SCROLL_CONTAINER_ID } from '@/modules/app/consts/app-scroll';
 import { shouldFitWindow } from '@/modules/app/lib/utills/placement-util';
 import { cancelResultMenu } from '@/modules/widgets/EventItem';
+// Прямой путь: барель быстрого итога тянет UI.
+import { cancelQuickOutcome } from '@/modules/widgets/QuickOutcome/model/QuickOutcomeThunk';
 import { initialEventApp } from '../model/EventThunk';
 import { useEventNavigation } from '../lib/use-event-navigation';
 import { useFitWindow } from '../lib/hooks/use-fit-window';
 import { EVENT_ROUTE_PATH } from '../lib/event-routes';
-import { shouldResetItemForm } from '../lib/should-reset-item-form';
+import {
+    shouldLeaveQuickOutcome,
+    shouldResetItemForm,
+} from '../lib/should-reset-item-form';
 import { ROUTE_EVENT } from '../types/event-types';
 
 /**
@@ -27,6 +32,7 @@ export const EventProcessInit = () => {
     const initialized = useAppSelector(s => s.app.initialized);
     const isFinish = useAppSelector(s => s.event.isFinish);
     const isMenuActive = useAppSelector(s => s.eventItemMenu.isActive);
+    const isQuickOutcome = useAppSelector(s => s.quickOutcome.kind !== null);
     const placement = useAppSelector(s => s.app.bitrix.placement);
 
     // Подгонка высоты фрейма на каждой странице — только для вкладок карточки.
@@ -52,10 +58,16 @@ export const EventProcessInit = () => {
     useEffect(() => {
         const from = prevPathname.current;
         prevPathname.current = pathname;
+        // Быстрый итог («Продажа» / «Отказ») заканчивается с возвратом к
+        // списку и сам закрывает своё дело — общий сброс формы ему не нужен.
+        if (shouldLeaveQuickOutcome({ from, to: pathname, isQuickOutcome })) {
+            void dispatch(cancelQuickOutcome());
+            return;
+        }
         if (shouldResetItemForm({ from, to: pathname, isMenuActive })) {
             dispatch(cancelResultMenu());
         }
-    }, [pathname, isMenuActive]);
+    }, [pathname, isMenuActive, isQuickOutcome]);
 
     /*
      * Скролл к началу на каждый переход (todo2508 №16): во встройке-вкладке

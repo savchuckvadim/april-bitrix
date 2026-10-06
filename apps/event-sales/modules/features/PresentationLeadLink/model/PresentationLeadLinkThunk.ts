@@ -1,11 +1,11 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { getEntityDescriptor, isLeadOpen } from '@/modules/entities/RelatedCrm';
-import { RelatedCrmHelper } from '@/modules/entities/RelatedCrm/lib/api/related-crm-helper';
+// Прямые пути, а не барель сущности: тот тянет за собой UI.
+import { isLeadOpen } from '@/modules/entities/RelatedCrm/lib/lead-status-view';
+import { ensureRelatedDetails } from '@/modules/entities/RelatedCrm/model/RelatedCrmThunk';
 import { LeadRequestHelper } from '@/modules/features/LeadRequestCard/lib/api/lead-request-helper';
 import { presentationLeadLinkActions } from './PresentationLeadLinkSlice';
 import type { PresentationLeadCandidate } from './index';
 
-const relatedHelper = new RelatedCrmHelper();
 const leadRequestHelper = new LeadRequestHelper();
 
 /** Продолжить отправку после закрытия вопроса (ленивый импорт — цикл). */
@@ -56,36 +56,28 @@ export const openPresentationLeadLink =
             });
         }
 
-        try {
-            const descriptor = getEntityDescriptor({
-                from: state.app.bitrix.from,
-                company: state.app.bitrix.company,
-                deal: state.app.bitrix.deal,
-                lead: state.app.bitrix.lead,
+        // Связи клиента — из общего стора: уже загруженные берутся сразу,
+        // летящий запрос дожидаемся, отсутствующий запрашиваем один раз на
+        // всех потребителей. Раньше здесь уходил СВОЙ запрос связей — второй
+        // за отчёт, хотя те же данные уже были у формы.
+        const details = await dispatch(ensureRelatedDetails());
+        for (const lead of details?.leads ?? []) {
+            if (!isLeadOpen(lead.statusSemanticId)) continue;
+            push({
+                id: lead.id,
+                title: lead.title,
+                isRequest: Boolean(lead.questUrl || lead.regNumber),
+                responsibleName: lead.responsible?.name ?? null,
             });
-            if (descriptor) {
-                const details = await relatedHelper.getDetails({
-                    domain: state.app.domain,
-                    entityType: descriptor.entityType,
-                    entityId: descriptor.entityId,
-                    includeClosed: false,
-                });
-                for (const lead of details.leads ?? []) {
-                    if (!isLeadOpen(lead.statusSemanticId)) continue;
-                    push({
-                        id: lead.id,
-                        title: lead.title,
-                        isRequest: Boolean(lead.questUrl || lead.regNumber),
-                        responsibleName: lead.responsible?.name ?? null,
-                    });
-                }
-            }
-        } catch (error) {
-            console.error('presentation lead link candidates error', error);
-            // Кандидаты контекста уже есть — падение related не блокирует.
-            if (!candidates.length) {
-                dispatch(presentationLeadLinkActions.candidatesFailed());
-            }
+        }
+        // Связи не приехали. Кандидаты контекста уже есть — падение связей
+        // отправку не блокирует; нет и их — честно отмечаем сбой.
+        if (
+            !details &&
+            getState().relatedCrm.status === 'error' &&
+            !candidates.length
+        ) {
+            dispatch(presentationLeadLinkActions.candidatesFailed());
         }
 
         if (!candidates.length) {

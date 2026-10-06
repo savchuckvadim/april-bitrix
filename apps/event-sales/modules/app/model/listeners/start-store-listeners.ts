@@ -1,7 +1,10 @@
 import { isAnyOf } from '@reduxjs/toolkit';
 import { getSalesTaskGroupId, portalActions } from '@workspace/pbx';
 import { appActions } from '../slice/AppSlice';
-import { startAppConfigSettleListener } from '../../lib/utills/app-config-wait';
+import {
+    startAppConfigSettleListener,
+    waitForAppConfig,
+} from '../../lib/utills/app-config-wait';
 // Прямой путь: барель каталога анкет тянет транспорт и данные.
 import { startQuestionnaireCatalogSettleListener } from '@/modules/entities/Questionnaire/lib/questionnaire-wait';
 import { setInitEventCompany } from '@/modules/entities/EventCompany/model/EventCompanyThunk';
@@ -41,6 +44,8 @@ import { startEventPlanRescheduleListener } from '@/modules/entities/EventPlan/m
 import { startDuplicatesAppListener } from '@/modules/features/Duplicates';
 // Прямой путь: барель режима руководителя тянет UI.
 import { startHeadModeListener } from '@/modules/features/HeadMode/model/HeadModeListener';
+// Прямой путь: барель быстрого итога тянет UI.
+import { startQuickOutcomeListener } from '@/modules/widgets/QuickOutcome/model/QuickOutcomeListener';
 import {
     resolveCurrentTaskRelink,
     resolveCurrentTaskSource,
@@ -85,9 +90,8 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             dispatch(setInitEventCompany(portal));
             dispatch(collectRelatedContacts(portal));
             // История НЕ грузится здесь: у давнего клиента это сотни записей,
-            // а смотрят её единицы. Её тянут потребители сами: секция при
-            // первом показе, бейдж презентаций — в шапке широких экранов
-            // (usePresentationCount).
+            // а смотрят её единицы. Её тянет секция при первом показе; бейдж
+            // презентаций в шапке читает уже загруженное и сам не заказывает.
             dispatch(initCheckPresentation());
         },
     });
@@ -181,6 +185,19 @@ export function startStoreListeners(startAppListening: AppStartListening) {
                 // Привязанные к задачам сделки — напрямую из портала: в графе
                 // связей клиента старых сделок без CRM-связей нет, а полоски
                 // стадий обязаны показывать именно привязанные (по ним отчёт).
+                //
+                // Запрос уходит НЕ всегда (облегчённый бут, 05.10.2026).
+                // Сделки привязок нужны двоим: полоскам в карточках дел (по
+                // настройке портала, по умолчанию выключены) и главной
+                // полоске шапки, когда во встройке нет своей сделки
+                // (компания, лид). У встройки-сделки шапка строится из самой
+                // сделки плейсмента — запрос был бы лишним.
+                await waitForAppConfig(listenerApi.getState);
+                const latest = listenerApi.getState();
+                const needsBoundDeals =
+                    latest.app.config.withRelationStrips ||
+                    !latest.app.bitrix.deal;
+                if (!needsBoundDeals) return;
                 // Ждём слепок портала (до 5с): по нему thunk классифицирует
                 // воронку сделки (categoryCode → скрытие «ОП Основной»), а на
                 // TASK/CALL_CARD задачи готовы раньше слепка. Не дождались —
@@ -350,21 +367,32 @@ export function startStoreListeners(startAppListening: AppStartListening) {
     // Предикт стадии основной воронки — топливо стадийных чек-листов
     // («Клиент на решении», «Продажа»). Пересчитывается на всё, что меняет
     // вход лестницы: статус работы, тип плана, отметка презентации, тип
-    // меню, инициализация. Debounce: серия кликов по сегментам — один
-    // запрос. Гейт настроек — внутри buildStagePredictRequest.
+    // меню. Debounce: серия кликов по сегментам — один запрос. Гейт
+    // настроек — внутри buildStagePredictRequest.
+    //
+    // На открытие фрейма (setAppData) предикт БОЛЬШЕ НЕ считается: чек-лист
+    // нужен только в форме отчёта. На буте это был лишний запрос к нашему
+    // серверу и 1–2 запроса сервера в Битрикс на каждый звонок (разбор
+    // нагрузки 05.10.2026), причём с пустым типом меню — то есть заведомо
+    // не тот, что понадобится форме. Первый расчёт уходит на открытие дела
+    // (setEventItemMenuStatus), а пока форма закрыта, листенер молчит.
+    // Перед отправкой актуальность предикта гарантирует ensureStagePredict.
     startAppListening({
         matcher: isAnyOf(
-            appActions.setAppData,
             eventReportActions.setReportProp,
             eventPlanActions.setPlanProp,
             eventPlanActions.setIsActive,
             eventPresentationActions.setPresentationProp,
+            eventItemActions.setEventItemMenuStatus,
             eventItemActions.setMenuType,
             leadRequestActions.setNotCaTypeCode,
         ),
         effect: async (_action, listenerApi) => {
             listenerApi.cancelActiveListeners();
             await listenerApi.delay(400);
+            // Вне формы отчёта предикт никому не нужен: план и статус
+            // инициализируются и на списке, а запрос за ними — впустую.
+            if (!listenerApi.getState().eventItemMenu.isActive) return;
             await listenerApi.dispatch(fetchStagePredict());
         },
     });
@@ -391,6 +419,8 @@ export function startStoreListeners(startAppListening: AppStartListening) {
     startOutboxDrainListener(startAppListening);
     // Режим руководителя: за кого идёт работа, дела сотрудников в списке.
     startHeadModeListener(startAppListening);
+    // Быстрый итог («Продажа» / «Отказ»): режим не переживает свой отчёт.
+    startQuickOutcomeListener(startAppListening);
     // Инициализация завершена → одна свёрнутая группа диагностики в консоль.
     startAppDiagnosticsListener(startAppListening);
 }

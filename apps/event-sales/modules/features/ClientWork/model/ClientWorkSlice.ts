@@ -124,6 +124,11 @@ const clientWorkSlice = createSlice({
                 summary: null,
             };
         },
+        /**
+         * Полный сброс (⟳ и переинициализация после отчёта): стадии и состав
+         * сделок клиента могли измениться — открытый блок перечитает список.
+         */
+        reset: () => initialState,
     },
 });
 
@@ -163,6 +168,7 @@ export const clientWorkActions: {
         { message: string },
         'clientWork/joinFailed'
     >;
+    reset: ActionCreatorWithoutPayload<'clientWork/reset'>;
 } = clientWorkSlice.actions;
 
 export const clientWorkReducer: Reducer<ClientWorkState> =

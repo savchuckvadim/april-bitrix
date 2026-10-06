@@ -1,6 +1,10 @@
 import { Bitrix } from '@workspace/bitrix';
 import type { AppThunk, RootState } from '@/modules/app/model/store';
-import { fetchRelatedDetails } from '@/modules/entities/RelatedCrm/model/RelatedCrmThunk';
+import { refreshRelatedDetailsIfLoaded } from '@/modules/entities/RelatedCrm/model/RelatedCrmThunk';
+import {
+    SLOW_SERVER_TEXT,
+    isSlowServerError,
+} from '@/modules/shared/lib/request-error';
 import { LeadRequestHelper } from '../lib/api/lead-request-helper';
 import type { LeadRequestUpdate } from './index';
 import { leadRequestActions } from './LeadRequestSlice';
@@ -55,9 +59,12 @@ export const fetchLeadRequestCard =
             if (getState().leadRequest.leadId !== leadId) return;
             dispatch(
                 leadRequestActions.setError(
-                    error instanceof Error
-                        ? error.message
-                        : 'Не удалось загрузить заявку',
+                    // Таймаут: сообщение axios техническое — свой текст.
+                    isSlowServerError(error)
+                        ? SLOW_SERVER_TEXT
+                        : error instanceof Error
+                          ? error.message
+                          : 'Не удалось загрузить заявку',
                 ),
             );
         }
@@ -210,7 +217,7 @@ export const changeLeadBitrixStage =
                 STATUS_ID: statusId,
             });
             dispatch(leadRequestActions.setBitrixStage({ leadId, statusId }));
-            await dispatch(fetchRelatedDetails({ force: true }));
+            await dispatch(refreshRelatedDetailsIfLoaded());
         } catch (error) {
             dispatch(
                 leadRequestActions.setError(

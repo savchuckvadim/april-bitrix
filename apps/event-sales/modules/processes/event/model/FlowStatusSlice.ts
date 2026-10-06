@@ -54,6 +54,18 @@ export enum FLOW_OUTBOX_STATE {
     INCOMPLETE = 'incomplete',
 }
 
+/**
+ * Почему отправка не прошла.
+ *
+ * DUPLICATE — сервер отказал второму отчёту по тому же делу (HTTP 409):
+ * первый уже идёт или принят. Это не сбой — повторять нечего, экран
+ * говорит «уже принят» и ведёт к обновлённому списку.
+ */
+export enum FLOW_ERROR_KIND {
+    FAILED = 'failed',
+    DUPLICATE = 'duplicate',
+}
+
 export type FlowStatusState = typeof initialState;
 
 const initialState = {
@@ -67,6 +79,14 @@ const initialState = {
     /** Что именно запланировали — показываем на финише. */
     result: '' as string,
     error: '' as string,
+    /** Вид ошибки: сбой или отказ второму отчёту (см. FLOW_ERROR_KIND). */
+    errorKind: FLOW_ERROR_KIND.FAILED as FLOW_ERROR_KIND,
+    /**
+     * Дело, по которому идёт отправка. Пока она идёт, список показывает это
+     * дело «отправляется» и не даёт отчитаться по нему второй раз (06.10.2026:
+     * отчёт шёл долго, менеджер вернулся к списку и отправил его повторно).
+     */
+    sentTaskId: null as number | null,
     /** Метка старта: прогресс считается от неё (Date.now() в редьюсер не тащим). */
     startedAt: null as number | null,
     /**
@@ -94,13 +114,17 @@ const flowStatusSlice = createSlice({
                 startedAt: number;
                 result: string;
                 operationId: string;
+                /** Дело отчёта; нет — отчёт без дела (новое событие, итог). */
+                sentTaskId?: number | null;
             }>,
         ) => {
             state.stage = FLOW_STAGE.SENDING;
             state.startedAt = action.payload.startedAt;
             state.result = action.payload.result;
             state.operationId = action.payload.operationId;
+            state.sentTaskId = action.payload.sentTaskId ?? null;
             state.error = '';
+            state.errorKind = FLOW_ERROR_KIND.FAILED;
             // Новая отправка (или повтор) — прошлая судьба конверта неактуальна.
             state.outboxState = FLOW_OUTBOX_STATE.NONE;
             state.deliveryTarget = null;
@@ -122,10 +146,11 @@ const flowStatusSlice = createSlice({
         },
         setError: (
             state: FlowStatusState,
-            action: PayloadAction<{ message: string }>,
+            action: PayloadAction<{ message: string; kind?: FLOW_ERROR_KIND }>,
         ) => {
             state.stage = FLOW_STAGE.ERROR;
             state.error = action.payload.message;
+            state.errorKind = action.payload.kind ?? FLOW_ERROR_KIND.FAILED;
         },
         /**
          * Сеть исчерпала сессионный бэкофф: конверт сохранён, дошлёт дренаж.

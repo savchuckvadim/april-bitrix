@@ -2,6 +2,7 @@
 export * from './domain';
 
 export * from './base/bitrix-base-api';
+export * from './base/bitrix-call-observer';
 export * from './lib/batch-result.util';
 
 // export * from './domain/consts/bitrix-api.enum';

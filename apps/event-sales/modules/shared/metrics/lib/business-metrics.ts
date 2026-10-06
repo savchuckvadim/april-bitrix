@@ -1,5 +1,6 @@
 import { METRIC } from '../model/metric-event.type';
 import type {
+    BitrixCallOutcomeLabel,
     BootPhaseLabel,
     DeliveryAttemptOutcomeLabel,
     HiddenQuestionReasonLabel,
@@ -172,6 +173,25 @@ export const countHiddenChecklistQuestion = (
             channel: params.channel,
             domain: domainLabel(params.domain),
         },
+    });
+};
+
+/**
+ * ПРЯМЫЕ ВЫЗОВЫ БИТРИКСА из браузера: сколько вызовов с этим исходом
+ * накопилось с прошлой отправки (суммирует bitrix-direct-metrics).
+ */
+export const countBitrixDirectCalls = (
+    params: {
+        outcome: BitrixCallOutcomeLabel;
+        value: number;
+        domain?: string | null;
+    },
+    client: MetricsClient = metrics,
+): void => {
+    client.collect({
+        name: METRIC.bitrixDirectCall,
+        labels: { outcome: params.outcome, domain: domainLabel(params.domain) },
+        value: params.value,
     });
 };
 

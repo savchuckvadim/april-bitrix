@@ -30,6 +30,8 @@ import { selectChecklistSmartAnswers } from '@/modules/features/CallChecklist/li
 import { selectChecklistTextComment } from '@/modules/features/CallChecklist/lib/checklist-text-answers';
 // Прямой путь: барель режима руководителя тянет UI.
 import { selectActingManager } from '@/modules/features/HeadMode/model/selectors';
+// Прямой путь: барель быстрого итога тянет UI.
+import { selectQuickOutcomeSender } from '@/modules/widgets/QuickOutcome/model/selectors';
 import { EvFlowDto } from '../model';
 
 /**
@@ -333,7 +335,11 @@ export const buildFlowPayload = (
         // Режим руководителя: отчёт записан на сотрудника (он в
         // plan.responsibility), а кто его отправил — отдельной пометкой.
         // Вне режима поля нет вовсе.
-        actingManager: selectActingManager(state),
+        // Та же пометка — у быстрого итога («Продажа» / «Отказ»): он
+        // записывается на ответственного сделки, а нажавший кнопку уезжает
+        // сюда, чтобы было видно, кто отправил отчёт.
+        actingManager:
+            selectActingManager(state) ?? selectQuickOutcomeSender(state),
         fail: { postFailDate: state.eventPostFail.postFailDate },
         isPostSale,
         returnToTmc: {

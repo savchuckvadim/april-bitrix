@@ -237,6 +237,9 @@ export const QUESTION_CHANNEL_VALUES = ['crm', 'dto', 'smart', 'text'] as const;
 /** Вид отправки — зеркало OUTBOX_ENVELOPE_KIND. */
 export const SEND_KIND_VALUES = ['report', 'nocall'] as const;
 
+/** Исход прямого вызова Битрикса — как его сообщает пакет @workspace/bitrix. */
+export const BITRIX_CALL_OUTCOME_VALUES = ['ok', 'limit', 'error'] as const;
+
 /**
  * Типы значений меток — чтобы врезка в бизнес-код не могла передать строку,
  * которой в контракте нет: опечатка в `outcome` иначе тихо схлопнулась бы в
@@ -253,6 +256,8 @@ export type HiddenQuestionReasonLabel =
     (typeof HIDDEN_QUESTION_REASON_VALUES)[number];
 export type QuestionChannelLabel = (typeof QUESTION_CHANNEL_VALUES)[number];
 export type SendKindLabel = (typeof SEND_KIND_VALUES)[number];
+export type BitrixCallOutcomeLabel =
+    (typeof BITRIX_CALL_OUTCOME_VALUES)[number];
 
 export const METRIC_SPECS: Readonly<Record<MetricName, MetricSpec>> = {
     [METRIC.bootPhase]: {
@@ -325,6 +330,18 @@ export const METRIC_SPECS: Readonly<Record<MetricName, MetricSpec>> = {
         help: 'Отправки всего: отчёты и недозвоны',
         labels: ['kind', DOMAIN_LABEL],
         values: { kind: SEND_KIND_VALUES, [DOMAIN_LABEL]: null },
+        maxValue: MAX_METRIC_VALUE,
+    },
+    [METRIC.bitrixDirectCall]: {
+        kind: METRIC_KIND.counter,
+        help:
+            'Прямые вызовы Битрикса из браузера по исходу: ok, limit (ошибка ' +
+            'лимита), error. Битрикс считает их по внешнему IP офиса',
+        labels: ['outcome', DOMAIN_LABEL],
+        values: {
+            outcome: BITRIX_CALL_OUTCOME_VALUES,
+            [DOMAIN_LABEL]: null,
+        },
         maxValue: MAX_METRIC_VALUE,
     },
 };

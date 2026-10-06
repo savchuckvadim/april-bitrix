@@ -48,6 +48,8 @@ const makeState = (over?: {
         subordinateIds: number[];
         enabled?: boolean;
     };
+    /** идёт быстрый итог («Продажа» / «Отказ») */
+    quickOutcome?: boolean;
 }): RootState =>
     ({
         app: {
@@ -118,6 +120,15 @@ const makeState = (over?: {
         eventItemMenu: { type: 'result' },
         eventTask: { current: null, tasks: [] },
         taskLeadLinks: { selectedIds: [] },
+        // Быстрый итог: по умолчанию его нет — отчёт обычный.
+        quickOutcome: {
+            kind: over?.quickOutcome ? 'fail' : null,
+            isOpen: Boolean(over?.quickOutcome),
+            ownerId: over?.quickOutcome
+                ? (over.head?.responsibleId ?? null)
+                : null,
+            restore: null,
+        },
         presentationLeadLink: {
             resolved: false,
             noLink: false,
@@ -524,6 +535,46 @@ describe('payload: режим руководителя', () => {
                 subordinateIds: [231],
                 enabled: false,
             },
+        });
+
+        expect(actingOf(state)).toBeUndefined();
+    });
+});
+
+describe('payload: быстрый итог («Продажа» / «Отказ»)', () => {
+    const ME = { ID: 11, NAME: 'Надежда', LAST_NAME: 'Карнаухова' };
+    const actingOf = (state: RootState) =>
+        (buildFlowPayload(state) as { actingManager?: unknown }).actingManager;
+
+    it('итог за ответственного сделки — пометка «кто отправил», даже если он не подчинённый', () => {
+        const state = makeState({
+            head: { me: ME, responsibleId: 369, subordinateIds: [] },
+            quickOutcome: true,
+        });
+
+        expect(actingOf(state)).toEqual({ ID: 11, NAME: 'Карнаухова Надежда' });
+        // Сам отчёт записан на ответственного сделки.
+        expect(
+            (
+                buildFlowPayload(state).plan as {
+                    responsibility?: { ID?: number };
+                }
+            ).responsibility?.ID,
+        ).toBe(369);
+    });
+
+    it('итог за самого себя — поля нет', () => {
+        const state = makeState({
+            head: { me: ME, responsibleId: 11, subordinateIds: [] },
+            quickOutcome: true,
+        });
+
+        expect(actingOf(state)).toBeUndefined();
+    });
+
+    it('без быстрого итога чужой ответственный пометки не даёт', () => {
+        const state = makeState({
+            head: { me: ME, responsibleId: 369, subordinateIds: [] },
         });
 
         expect(actingOf(state)).toBeUndefined();

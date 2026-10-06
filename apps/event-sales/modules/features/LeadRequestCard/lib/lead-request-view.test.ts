@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
     getHistoryNewestFirst,
     getPanelLeadId,
+    pickPanelLeadId,
     getReadinessBadge,
     shouldShowNotCaSelect,
 } from './lead-request-view';
@@ -90,5 +91,27 @@ describe('lead-request-view', () => {
         expect(getPanelLeadId([{ id: 1, statusSemanticId: 'F' }])).toBe(1);
         expect(getPanelLeadId([])).toBeUndefined();
         expect(getPanelLeadId(undefined)).toBeUndefined();
+    });
+});
+
+describe('лид панели заявки, пока связи клиента не запрашивали', () => {
+    it('связей нет — берём заявку, к которой привязаны дела клиента', () => {
+        expect(pickPanelLeadId(undefined, [325519, 400001])).toBe(325519);
+    });
+
+    it('связи загружены — решают они: открытая заявка важнее привязки дела', () => {
+        expect(
+            pickPanelLeadId(
+                [
+                    { id: 10, statusSemanticId: 'S' },
+                    { id: 20, statusSemanticId: 'P' },
+                ],
+                [325519],
+            ),
+        ).toBe(20);
+    });
+
+    it('ни связей, ни привязок — панель возьмёт лид контекста сама', () => {
+        expect(pickPanelLeadId(undefined, [])).toBeUndefined();
     });
 });

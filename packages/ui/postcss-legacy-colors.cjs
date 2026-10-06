@@ -30,10 +30,15 @@
  * -webkit-префиксы ненужными и ВЫБРОСИТ их — в Safari отвалится
  * backdrop-filter (стекло перестанет размываться).
  *
+ * ВТОРОЙ ШАГ — color-mix() с CSS-переменными. Его lightningcss перевести не
+ * может (значение переменной на сборке неизвестно), а запасное значение
+ * Tailwind там неудачное; правит его postcss-legacy-color-mix.cjs.
+ *
  * Рубильник: включается переменной LEGACY_CSS=1 в postcss.config.mjs.
  * Без неё плагин не подключается вовсе и CSS собирается как раньше.
  */
 const { transform } = require("lightningcss");
+const { rewriteColorMixFallbacks } = require("./postcss-legacy-color-mix.cjs");
 
 /**
  * Нижняя граница поддержки. Chrome 99 — потолок Windows 7 (там максимум 109).
@@ -64,11 +69,17 @@ module.exports = function legacyColors({ targets = TARGETS } = {}) {
             });
 
             const downleveled = code.toString();
-            if (downleveled === original) return;
+            if (downleveled !== original) {
+                const rebuilt = postcss.parse(downleveled);
+                root.removeAll();
+                root.append(rebuilt.nodes);
+            }
 
-            const rebuilt = postcss.parse(downleveled);
-            root.removeAll();
-            root.append(rebuilt.nodes);
+            // color-mix() с переменными lightningcss посчитать не может —
+            // Tailwind оставляет запасным первый цвет смеси целиком, и на
+            // старом браузере «10% зелёного» становятся сплошным зелёным.
+            // Поправляем запасные значения (ветки @supports не трогаем).
+            rewriteColorMixFallbacks(root);
         },
     };
 };

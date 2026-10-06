@@ -54,6 +54,7 @@ const EXPECTED_RESET_SLICES = [
     'presentationLeadLink',
     'taskLeadLinks',
     'duplicates',
+    'clientWork',
     'afterPresentation',
     'xvostFields',
     'eventContactSlice',

@@ -16,6 +16,10 @@ export type { TaskRelation, RelationDeal } from './lib/resolve-task-relation';
 // Сделки, привязанные к задачам (наполняются листенером setFetchedTasks)
 export { taskDealsReducer, taskDealsActions } from './model/TaskDealsSlice';
 export { fetchTaskBoundDeals } from './model/TaskDealsThunk';
+export {
+    ensureRelatedDetails,
+    fetchRelatedDetails,
+} from './model/RelatedCrmThunk';
 export { StageMini } from './ui/StageMini';
 export { DealStageBar } from './ui/DealStageBar';
 export { LeadStageBar } from './ui/LeadStageBar';
@@ -39,6 +43,7 @@ export { isOwnDeal } from './lib/deal-ownership';
 export { EntityLink } from './ui/EntityLink';
 export { getEntityCardUrl, getEntityCardPath } from './lib/entity-url';
 export { useCurrentRelations } from './lib/hooks/use-current-relations';
+export { useEnsureRelations } from './lib/hooks/use-ensure-relations';
 export type { CurrentRelations } from './lib/hooks/use-current-relations';
 export { getEntityDescriptor } from './lib/entity-descriptor';
 export type { EntityDescriptor } from './lib/entity-descriptor';

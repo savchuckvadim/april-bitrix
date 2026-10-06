@@ -6,9 +6,9 @@ import {
     markFailed,
 } from '@/modules/processes/event-outbox/model/OutboxThunk';
 import {
-    FLOW_POLL_INTERVAL_MS,
     FLOW_POLL_TIMEOUT_MESSAGE,
     FLOW_POLL_TIMEOUT_MS,
+    getFlowPollDelayMs,
 } from '../lib/flow-watch';
 import { EV_FLOW_OPERATION_STATUS, EvFlowOperation } from './index';
 import { flowStatusActions } from './FlowStatusSlice';
@@ -37,7 +37,10 @@ export interface WatchFlowOperationOptions {
 export const watchFlowOperation =
     ({ operationId, domain, tasksStale, onDone }: WatchFlowOperationOptions) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
-        const deadline = Date.now() + FLOW_POLL_TIMEOUT_MS;
+        const startedAt = Date.now();
+        const deadline = startedAt + FLOW_POLL_TIMEOUT_MS;
+        // Чем дольше ждём, тем реже спрашиваем (см. getFlowPollDelayMs).
+        const pause = () => wait(getFlowPollDelayMs(Date.now() - startedAt));
 
         while (Date.now() < deadline) {
             // Пользователь начал новую отправку — эта уже не актуальна.
@@ -50,7 +53,7 @@ export const watchFlowOperation =
                 // Сеть моргнула или статус ещё не доехал до реплики — не
                 // объявляем провал, у нас есть запас времени до дедлайна.
                 console.warn('flow status poll failed', error);
-                await wait(FLOW_POLL_INTERVAL_MS);
+                await pause();
                 continue;
             }
 
@@ -83,7 +86,7 @@ export const watchFlowOperation =
                 return;
             }
 
-            await wait(FLOW_POLL_INTERVAL_MS);
+            await pause();
         }
 
         // Таймаут поллинга — НЕ приговор конверту: доставка принята, исход

@@ -4,11 +4,13 @@ import { FC } from 'react';
 import dynamic from 'next/dynamic';
 import { cn } from '@workspace/ui/lib/utils';
 import { SectionSkeleton } from '@/modules/shared/SectionState';
+import { LazySection } from '@/modules/shared/LazySection';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 
 import { NoCallMenu } from '@/modules/features/NoCall';
 import { ReturnToTMCMenu } from '@/modules/features/ReturnToTMC';
 import { FlowStatusBanner } from '@/modules/widgets/EventList/ui/FlowStatusBanner';
-import { getPanelLeadId } from '@/modules/features/LeadRequestCard/lib/lead-request-view';
+import { usePanelLeadId } from '@/modules/features/LeadRequestCard/lib/hooks/use-panel-lead-id';
 import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
 import { useEntityBoard } from '../lib/hooks/use-entity-board';
 import { EntityTasksCard } from './EntityTasksCard';
@@ -16,6 +18,8 @@ import { EntityTasksCard } from './EntityTasksCard';
 // Секции связей и истории доезжают лениво, каждая со своим скелетоном: их код
 // не нужен для первого кадра, а данные всё равно приходят позже. Дела грузим
 // сразу — ради них сюда и заходят.
+// Тяжёлые секции (история, пересечения, ИНН) — ещё и ПО ТРЕБОВАНИЮ
+// (LazySection): до клика они не смонтированы и в Битрикс не ходят.
 // Секции «Сделки» и «Лиды» пока скрыты (решение владельца 20.08: без них
 // на экране и так много всего) — вернуть вместе с JSX ниже.
 // const RelatedDealsCard = dynamic(
@@ -82,6 +86,9 @@ export const EntityBoard: FC = () => {
     // Во встройке-вкладке высоту задаём мы подгонкой под контент — значит экран
     // течёт, а не запирается в h-svh со своими скроллами (см. use-ui-density).
     const { isSelfSized } = useUiDensity();
+    // ИНН договора живёт на сделке: без сделки в контексте секции нет вовсе.
+    const hasDeal = useAppSelector(state => Boolean(state.app.bitrix.deal));
+    const panelLeadId = usePanelLeadId();
 
     if (!descriptor) {
         return (
@@ -153,12 +160,38 @@ export const EntityBoard: FC = () => {
                     {/* Звонки по решению — на месте скрытых секций связей;
                         у клиентов без ЗПР карточка молчит сама. */}
                     <ZprCallsCard />
-                    {/* Карточка заявки: первый открытый связанный лид либо
-                        лид контекста встройки (панель сама скрывается). */}
-                    <LeadRequestPanel leadId={getPanelLeadId(details?.leads)} />
-                    <EntityHistoryCard />
-                    <DuplicatesPanel />
-                    <InnDealPanel />
+                    {/* Карточка заявки: лид из связей клиента, пока их не
+                        запрашивали — из привязок дел, иначе лид контекста
+                        встройки (панель сама скрывается). */}
+                    <LeadRequestPanel leadId={panelLeadId} />
+                    {/* Дальше — по требованию: фрейм открывают на каждый
+                        звонок, а эти блоки смотрят единицы (владелец,
+                        05.10.2026). До клика они в Битрикс не ходят. */}
+                    <LazySection
+                        id="board:history"
+                        title="История"
+                        hint="Звонки, презентации и комментарии по клиенту"
+                    >
+                        <EntityHistoryCard />
+                    </LazySection>
+                    <LazySection
+                        id="board:duplicates"
+                        title="Возможные пересечения"
+                        hint="Не ведёт ли клиента кто-то ещё"
+                    >
+                        <DuplicatesPanel />
+                    </LazySection>
+                    {hasDeal && (
+                        <LazySection
+                            id="board:inn"
+                            title="ИНН договора"
+                            hint="Кто платит по этому договору"
+                        >
+                            <InnDealPanel />
+                        </LazySection>
+                    )}
+                    {/* Контакты свёрнуты сами и связи запрашивают только
+                        по раскрытию — отдельная обёртка не нужна. */}
                     <ContactsHubCard />
                 </div>
             </div>

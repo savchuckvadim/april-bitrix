@@ -4,9 +4,10 @@ import { FC } from 'react';
 import { AlertCircle, CheckCircle2, CloudOff } from 'lucide-react';
 import { Spinner } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
-import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
+import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { refreshEventTasks } from '@/modules/entities/EventTask/model/EventTaskThunk';
 import {
+    FLOW_ERROR_KIND,
     FLOW_OUTBOX_STATE,
     FLOW_STAGE,
     FlowShowcase,
@@ -34,7 +35,14 @@ const FinishPage: FC = () => {
     const nav = useEventNavigation();
     const { stage, outboxState, step, isSlow, showcase, result, error } =
         useFlowProgress();
-    const redirect = useFinishErrorRedirect(stage === FLOW_STAGE.ERROR);
+    const errorKind = useAppSelector(s => s.flowStatus.errorKind);
+    // Сервер отказал второму отчёту по тому же делу: первый уже идёт или
+    // принят. Это не сбой — ни «Повторить», ни ухода в карточку не нужно.
+    const isDuplicate =
+        stage === FLOW_STAGE.ERROR && errorKind === FLOW_ERROR_KIND.DUPLICATE;
+    const redirect = useFinishErrorRedirect(
+        stage === FLOW_STAGE.ERROR && !isDuplicate,
+    );
     const isQueued = outboxState === FLOW_OUTBOX_STATE.QUEUED;
     // А4: ядро исполнено напрямую в Битриксе, хвост ждёт эндпоинта А5.
     const isPartial = outboxState === FLOW_OUTBOX_STATE.PARTIAL;
@@ -47,7 +55,9 @@ const FinishPage: FC = () => {
         // Если ещё летит — обновит баннер в самом списке по ответу.
         // Полный reload() здесь ронял весь шелл: серый экран без лоадера
         // и жёсткий перемонтаж на возврате (todo3108).
-        if (stage === FLOW_STAGE.DONE) {
+        // Второй отчёт отвергнут — первый закрыл (или закрывает) дело:
+        // список тоже устарел.
+        if (stage === FLOW_STAGE.DONE || isDuplicate) {
             dispatch(flowStatusActions.setTasksFresh());
             void dispatch(refreshEventTasks());
         }
@@ -187,7 +197,25 @@ const FinishPage: FC = () => {
                     </>
                 )}
 
-                {stage === FLOW_STAGE.ERROR && (
+                {isDuplicate && (
+                    <>
+                        <CheckCircle2 className="mx-auto size-12 text-muted-foreground" />
+                        <h1 className="text-lg font-semibold text-foreground">
+                            Этот отчёт уже принят
+                        </h1>
+                        <p className="text-sm text-muted-foreground">{error}</p>
+                        <div className="flex flex-wrap justify-center gap-2">
+                            <Button onClick={backToList}>
+                                К списку событий
+                            </Button>
+                            <Button variant="outline" onClick={redirect.goNow}>
+                                Открыть карточку
+                            </Button>
+                        </div>
+                    </>
+                )}
+
+                {stage === FLOW_STAGE.ERROR && !isDuplicate && (
                     <>
                         <AlertCircle className="mx-auto size-12 text-destructive" />
                         <h1 className="text-lg font-semibold text-foreground">

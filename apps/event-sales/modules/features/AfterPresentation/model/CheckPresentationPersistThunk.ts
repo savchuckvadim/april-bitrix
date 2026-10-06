@@ -5,6 +5,7 @@ import { reportFrontError } from '@/modules/shared/front-error';
 import { selectWorkingUserId } from '@/modules/app/lib/utills/working-user';
 import { isBaseSalesDeal } from '@/modules/entities/RelatedCrm/lib/deal-category';
 import { isOwnDeal } from '@/modules/entities/RelatedCrm/lib/deal-ownership';
+import { ensureRelatedDetails } from '@/modules/entities/RelatedCrm/model/RelatedCrmThunk';
 import {
     buildPortalFieldPayload,
     hasWritablePortalAnswers,
@@ -125,7 +126,14 @@ export const persistCheckPresentation =
          * становится, и данные форм под неё не подставляются.
          */
         const currentUserId = selectWorkingUserId(state);
-        const fallbackBaseDealId = state.relatedCrm.details?.deals?.find(
+        // Связи клиента грузятся по требованию (не на каждое открытие
+        // фрейма), поэтому из встройки без сделки запрашиваем их здесь —
+        // иначе искать основную сделку было бы не в чем. Со сделкой в
+        // контексте связи не нужны, и запрос не уходит.
+        const relatedDeals = deal?.ID
+            ? undefined
+            : (await dispatch(ensureRelatedDetails()))?.deals;
+        const fallbackBaseDealId = relatedDeals?.find(
             related =>
                 !related.closed &&
                 isBaseSalesDeal(related) &&

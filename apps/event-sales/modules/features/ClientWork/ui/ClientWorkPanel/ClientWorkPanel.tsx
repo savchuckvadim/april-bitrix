@@ -27,8 +27,8 @@ export const ClientWorkPanel: FC = () => {
         <SectionCard
             title={CLIENT_WORK_TEXT.title}
             description={view.clientTitle ?? undefined}
-            tone="warning"
-            accent
+            tone={view.hasSeveral ? 'warning' : 'neutral'}
+            accent={view.hasSeveral}
             density="compact"
             collapsible
             defaultOpen
@@ -55,6 +55,12 @@ export const ClientWorkPanel: FC = () => {
             {view.isError && (
                 <p className="text-xs text-destructive">
                     {view.error ?? CLIENT_WORK_TEXT.loadError}
+                </p>
+            )}
+
+            {view.isSingle && (
+                <p className="text-xs text-muted-foreground">
+                    {CLIENT_WORK_TEXT.single}
                 </p>
             )}
 

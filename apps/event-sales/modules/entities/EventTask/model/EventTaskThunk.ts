@@ -8,6 +8,7 @@ import { EventTask } from '../types/event-task-type';
 import { eventTaskActions } from './EventTaskSlice';
 import { getEvTasksFromBxTasks } from '../lib/task-util';
 import { EVENT_TASK_SELECT } from '../lib/task-select';
+import { OPEN_TASK_FILTER } from '../lib/open-task-filter';
 import { setCurrentReportContact } from '@/modules/entities/EventContact/model/EventContactThunk';
 import { APP_FROM_ENUM } from '@/modules/app/model/slice/AppSlice';
 import { markBootPhase } from '@/modules/app/lib/diagnostics/boot-phases';
@@ -135,9 +136,12 @@ export const initialEventTasks =
                             responsibleIds.length > 1
                                 ? responsibleIds
                                 : userId,
-                        '!=STATUS': 5,
-                    } as never,
+                        // Без завершённых И без ждущих приёмки — см. фильтр.
+                        ...OPEN_TASK_FILTER,
+                    },
                     EVENT_TASK_SELECT,
+                    // Общее число дел экрану не нужно — только страница.
+                    { withoutTotal: true },
                 );
 
                 const fetched = response?.result?.tasks as unknown as

@@ -31,11 +31,16 @@ export interface ActionPromptsView {
  * Гашение живёт в компоненте, а не в сторе: «позже» — это решение на сейчас.
  * Хранить его дольше сессии нельзя, иначе менеджер один раз отмахнётся и
  * больше никогда не увидит подсказку.
+ *
+ * Подсказки включаются настройкой портала «Подсказки внизу экрана»
+ * (`withActionPrompts`, по умолчанию выключено — владелец, 05.10.2026):
+ * выключено — подсказок нет вовсе.
  */
 export const useActionPrompts = (): ActionPromptsView => {
     const dispatch = useAppDispatch();
     const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
+    const isEnabled = useAppSelector(s => s.app.config.withActionPrompts);
     const context = useAppSelector(getClientContext);
     const innTarget = useAppSelector(getInnTarget);
     const currentInn = useAppSelector(getCurrentInn);
@@ -72,7 +77,7 @@ export const useActionPrompts = (): ActionPromptsView => {
     }
 
     return {
-        current: pickActionPrompt(prompts, dismissedIds),
+        current: isEnabled ? pickActionPrompt(prompts, dismissedIds) : null,
         dismiss: () => {
             const id = pickActionPrompt(prompts, dismissedIds)?.id;
             if (id) setDismissedIds(ids => [...ids, id]);

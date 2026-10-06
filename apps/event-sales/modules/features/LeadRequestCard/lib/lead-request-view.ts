@@ -94,3 +94,16 @@ export const getPanelLeadId = (
     );
     return (open ?? leads[0])?.id;
 };
+
+/**
+ * Лид панели заявки на экране клиента.
+ *
+ * Связи клиента грузятся по требованию (не на каждое открытие фрейма), а
+ * карточка заявки нужна сразу. Поэтому, пока связей нет, лид берётся из
+ * привязок дел клиента — они приходят вместе со списком дел. Появились
+ * связи — решают они: там видно, какая заявка открыта.
+ */
+export const pickPanelLeadId = (
+    relatedLeads: PanelLeadCandidate[] | undefined,
+    taskLeadIds: readonly number[],
+): number | undefined => getPanelLeadId(relatedLeads) ?? taskLeadIds[0];

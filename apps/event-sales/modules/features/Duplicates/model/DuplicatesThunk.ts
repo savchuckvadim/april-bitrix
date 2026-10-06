@@ -103,6 +103,21 @@ export const autoSearchDuplicates = () => async (dispatch: AppDispatch) => {
     );
 };
 
+/**
+ * Поиск при показе блока «Возможные пересечения» — менеджер открыл его сам.
+ *
+ * Быстрый уровень и без force, как у автопоиска (бэкенд отдаст ответ из
+ * кэша, если в пределах двух минут уже искали). Отличие одно, и оно
+ * важное: это НЕ автопоиск. Человек открыл блок и ждёт результат, поэтому
+ * сбой показывается с кнопкой «Повторить», а не прячется за фразой
+ * «проверка ещё не запускалась».
+ */
+export const openSearchDuplicates = () => async (dispatch: AppDispatch) => {
+    await dispatch(
+        searchDuplicates({ level: DUPLICATE_SEARCH_LEVEL.NUMBER_1 }),
+    );
+};
+
 /** Углублённый поиск по кнопке: реквизиты и подстрочный поиск по названию. */
 export const deepSearchDuplicates = () => async (dispatch: AppDispatch) => {
     await dispatch(

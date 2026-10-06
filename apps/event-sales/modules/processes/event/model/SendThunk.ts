@@ -22,6 +22,9 @@ import { selectNeedPresentationLeadLink } from '@/modules/features/PresentationL
 import { openPresentationLeadLink } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkThunk';
 import { presentationLeadLinkActions } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
 import { taskLeadLinksActions } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksSlice';
+import { ensureTaskLeadLinks } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksThunk';
+// Прямой путь в слайс: барель быстрого итога тянет UI.
+import { quickOutcomeActions } from '@/modules/widgets/QuickOutcome/model/QuickOutcomeSlice';
 // Прямые пути: барель CallChecklist тянет UI-диалог (правило store).
 import { selectNextPendingChecklist } from '@/modules/features/CallChecklist/lib/checklist-selectors';
 import { callChecklistActions } from '@/modules/features/CallChecklist/model/CallChecklistSlice';
@@ -31,10 +34,10 @@ import { ensureStagePredict } from '@/modules/features/StagePredict/model/StageP
 import { stagePredictActions } from '@/modules/features/StagePredict/model/StagePredictSlice';
 import { returnToTmcActions } from '@/modules/features/ReturnToTMC';
 import { finishResultMenu } from '@/modules/widgets/EventItem/model/EventItemThunk';
-import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
+import { reinitApp } from '@/modules/app/model/thunk/AppThunk';
 import { eventActions } from './EventSlice';
 import { eventItemActions } from '@/modules/widgets/EventItem/model/EventItemSlice';
-import { flowStatusActions } from './FlowStatusSlice';
+import { FLOW_ERROR_KIND, flowStatusActions } from './FlowStatusSlice';
 import { watchFlowOperation } from './FlowWatchThunk';
 import { createOperationId } from '../lib/operation-id';
 import { buildFlowPayload } from '../lib/build-flow-payload';
@@ -61,7 +64,10 @@ import { getSocketIdSafe } from '@/modules/app/lib/ws/ws-client.util';
 import { getPlannedFinishText, validateSend } from '../lib/send-validation';
 import { awaitQuestionnaireCatalog } from '../lib/questionnaire-gate';
 import { getSendPreflight } from '../lib/send-preflight';
-import { toSendErrorMessage } from '../lib/send-error-message';
+import {
+    isDuplicateSendRejection,
+    toSendErrorMessage,
+} from '../lib/send-error-message';
 import { shouldCleanAfterSend } from '../lib/clean-after-send';
 
 /**
@@ -158,6 +164,12 @@ export const send =
 export const sendEvent =
     (options: { reuseOperation?: boolean } = {}) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
+        // Заявка для новой задачи: связи клиента грузятся по требованию,
+        // и если блок выбора не успел поставить предвыбор — ставим его
+        // здесь, до сборки payload (иначе путь заявки обрывался бы молча).
+        // Выбор уже есть или не нужен — возврат мгновенный.
+        await dispatch(ensureTaskLeadLinks());
+
         const state = getState();
         // Повтор идёт с тем же id: если предыдущая отправка на самом деле
         // дошла, бэкенд вернёт её статус, а не выполнит flow второй раз.
@@ -206,6 +218,10 @@ export const sendEvent =
                                 startedAt: Date.now(),
                                 result: finishResult,
                                 operationId,
+                                sentTaskId:
+                                    sentTaskId === null
+                                        ? null
+                                        : Number(sentTaskId) || null,
                             }),
                         );
                         dispatch(
@@ -235,6 +251,9 @@ export const sendEvent =
             dispatch(
                 flowStatusActions.setError({
                     message: toSendErrorMessage(summary.detail),
+                    kind: isDuplicateSendRejection(summary.detail)
+                        ? FLOW_ERROR_KIND.DUPLICATE
+                        : FLOW_ERROR_KIND.FAILED,
                 }),
             );
             return;
@@ -393,7 +412,13 @@ export const sendEvent =
                     // листенеры и перечитывает данные: другого честного
                     // способа увидеть результат flow у фрейма нет. Остальные
                     // процессные флаги сбрасывает его каталог reload-reset.
-                    dispatch(reloadApp());
+                    //
+                    // Именно reinitApp, а не reloadApp: отчёт не меняет ни
+                    // состав полей портала, ни настройки приложения, поэтому
+                    // браузерный кэш слепка и настроек остаётся в силе.
+                    // Раньше после КАЖДОГО отчёта слепок (сотни килобайт)
+                    // заново качался с сервера — разбор нагрузки 05.10.2026.
+                    dispatch(reinitApp());
                 },
             }),
         );
@@ -415,6 +440,10 @@ export const retrySendEvent = () => async (dispatch: AppDispatch) => {
 export const cleanEvent =
     (isTmc: boolean, context: ClientContext) =>
     async (dispatch: AppDispatch) => {
+        // Быстрый итог закончен — строго ДО сброса дела: тот возвращает «за
+        // кого идёт работа» на пользователя, а при живом режиме итога
+        // ответственным остался бы ответственный сделки.
+        dispatch(quickOutcomeActions.closed());
         dispatch(eventTaskActions.setCurrentTask({ task: null }));
         dispatch(setCurrentReportContact(null));
         dispatch(finishResultMenu());

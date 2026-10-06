@@ -62,6 +62,12 @@ export const METRIC = {
     checklistQuestionHidden: 'event_sales_checklist_question_hidden_total',
     /** ОТПРАВКИ ВСЕГО: отчёты и недозвоны (метка `kind`). */
     send: 'event_sales_send_total',
+    /**
+     * ПРЯМЫЕ ВЫЗОВЫ БИТРИКСА из браузера по исходу (`outcome`: ok / limit /
+     * error). Битрикс считает их по внешнему IP офиса: рост `limit` —
+     * признак, что менеджеры за одним адресом упираются в общее ведро.
+     */
+    bitrixDirectCall: 'event_sales_bitrix_direct_calls_total',
 } as const;
 
 export type MetricName = (typeof METRIC)[keyof typeof METRIC];

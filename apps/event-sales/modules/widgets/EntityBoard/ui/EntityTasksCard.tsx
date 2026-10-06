@@ -50,6 +50,8 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({
     const status = useAppSelector(s => s.eventTask.status);
     // Привязанные к задачам сделки (наполняет листенер setFetchedTasks).
     const boundDealsById = useAppSelector(s => s.taskDeals.byId);
+    // Полоски стадий в карточках — по настройке портала (см. EventList).
+    const withStrips = useAppSelector(s => s.app.config.withRelationStrips);
     // Встройка в задачу: работаем по ней одной, соседние дела только показываем.
     const isTaskMode = useAppSelector(
         s => s.app.display.mode === APP_DISPLAY_MODE.TASK,
@@ -100,13 +102,18 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({
                             <EventCard
                                 key={`board-task-${task.id ?? index}`}
                                 task={task}
-                                relation={resolveTaskRelation({
-                                    details,
-                                    boundDeals: Object.values(boundDealsById),
-                                    dealIds: links.dealIds,
-                                    leadIds: links.leadIds,
-                                    withMainDeal,
-                                })}
+                                relation={
+                                    withStrips
+                                        ? resolveTaskRelation({
+                                              details,
+                                              boundDeals:
+                                                  Object.values(boundDealsById),
+                                              dealIds: links.dealIds,
+                                              leadIds: links.leadIds,
+                                              withMainDeal,
+                                          })
+                                        : undefined
+                                }
                                 spacious={isTaskMode}
                                 onSelect={selectEvent}
                             />

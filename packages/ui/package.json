@@ -65,6 +65,7 @@
         "./globals.css": "./src/styles/globals.css",
         "./postcss.config": "./postcss.config.mjs",
         "./postcss-legacy-colors": "./postcss-legacy-colors.cjs",
+        "./postcss-legacy-color-mix": "./postcss-legacy-color-mix.cjs",
         "./lib/*": "./src/lib/*.ts",
         "./components/*": [
             "./src/components/*.tsx",

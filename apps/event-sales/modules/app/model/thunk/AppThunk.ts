@@ -5,6 +5,8 @@ import { appActions } from '../slice/AppSlice';
 import type { AppDispatch, AppGetState } from '../store';
 import { appInit } from '../../lib/initialize/app-init.util';
 import { expireAppConfigCache } from '../../lib/cache/app-config-cache';
+// Прямой путь: барель RelatedCrm тянет UI.
+import { expireStageDictCaches } from '@/modules/entities/RelatedCrm/lib/stage-dict-cache';
 
 /**
  * Тонкий оркестратор boot'а (Alfacentr-паттерн): guard + loading-флаги,
@@ -47,16 +49,36 @@ export const initial =
  */
 export const reloadApp =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const domain = getState().app.domain;
+        const state = getState();
+        const domain = state.app.domain;
         if (domain) {
             await Promise.all([
                 expirePortalCache(domain),
                 expireAppConfigCache(domain),
+                // Словари стадий воронок живут в браузере сутки — ⟳ после
+                // правки воронки на портале обязан перечитать и их.
+                expireStageDictCaches(
+                    domain,
+                    Object.keys(state.taskDeals.stageDicts),
+                ),
             ]);
         }
         // Reset the app shell; `useApp` re-runs `initial()` once `initialized` is false.
         dispatch(appActions.reload());
     };
+
+/**
+ * Переинициализация БЕЗ инвалидации браузерного кэша — для случая «данные
+ * клиента изменились, конфигурация портала нет» (отчёт отработан).
+ *
+ * Делает то же, что ⟳: бут проходит заново, слайсы сбрасываются по каталогу
+ * reload-reset, сущности и дела перечитываются. Отличие одно — слепок
+ * портала, настройки приложения и словари стадий берутся из кэша, а не
+ * качаются заново: отчёт их не меняет, а слепок весит сотни килобайт.
+ */
+export const reinitApp = () => async (dispatch: AppDispatch) => {
+    dispatch(appActions.reload());
+};
 
 /**
  * Подтянуть компанию в состояние ПОСЛЕ инициализации — без полного reload.

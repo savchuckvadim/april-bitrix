@@ -27,12 +27,42 @@ export const $api = axios.create({
 });
 
 /**
+ * Сколько ждать ответа на запрос, мс. `undefined` или 0 — без ограничения.
+ *
+ * Правило задаёт приложение, а не пакет: только оно знает, какие ручки
+ * интерактивные (человек ждёт у экрана и должен получить ошибку с кнопкой
+ * «повторить», а не вечный скелетон), а какие заведомо долгие или пишущие
+ * (обрывать их таймаутом нельзя — на сервере запись всё равно выполнится).
+ */
+export type RequestTimeoutResolver = (request: {
+    url?: string;
+    method?: string;
+}) => number | undefined;
+
+let _resolveTimeout: RequestTimeoutResolver | null = null;
+
+/** По умолчанию правила нет: запросы без таймаута, как и раньше. */
+export function configureRequestTimeout(
+    resolver: RequestTimeoutResolver | null,
+) {
+    _resolveTimeout = resolver;
+}
+
+/** Таймаут, заданный самим вызовом, сильнее общего правила. */
+const applyRequestTimeout = (config: AxiosRequestConfig): AxiosRequestConfig => {
+    if (config.timeout !== undefined || !_resolveTimeout) return config;
+    const timeout = _resolveTimeout({ url: config.url, method: config.method });
+    return timeout && timeout > 0 ? { ...config, timeout } : config;
+};
+
+/**
  * Orval mutator — all generated API calls go through this function.
  * Unwraps the Nest `{ resultCode, data, message }` envelope.
  */
 export const customAxios = async <T>(
-    config: AxiosRequestConfig,
+    requestConfig: AxiosRequestConfig,
 ): Promise<T> => {
+    const config = applyRequestTimeout(requestConfig);
 
     if (config.responseType && config.responseType !== 'json') {
         const res = await $api.request<T>(config);

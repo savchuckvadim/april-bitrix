@@ -3,9 +3,14 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { EV_PLAN_PROP } from '@/modules/entities/EventPlan';
+import { useEnsureRelations } from '@/modules/entities/RelatedCrm';
 import type { RelatedLead } from '@/modules/entities/RelatedCrm';
 import { taskLeadLinksActions } from '../../model/TaskLeadLinksSlice';
-import { buildTaskLeadLinksView, pickDefaultLeadIds } from '../task-lead-links';
+import {
+    buildTaskLeadLinksView,
+    inheritsLeadLink,
+    pickDefaultLeadIds,
+} from '../task-lead-links';
 
 export interface TaskLeadLinksData {
     /** Блок уместен: новая задача не унаследует лид и есть открытые. */
@@ -28,6 +33,11 @@ export const useTaskLeadLinks = (): TaskLeadLinksData => {
     const selectedIds = useAppSelector(s => s.taskLeadLinks.selectedIds);
     const isTouched = useAppSelector(s => s.taskLeadLinks.isTouched);
     const leads = useAppSelector(s => s.relatedCrm.details?.leads);
+
+    // Связи клиента грузятся по требованию. Блоку они нужны только когда
+    // новой задаче не от кого унаследовать заявку — у задачи с привязкой
+    // к заявке запрос не уходит вовсе.
+    useEnsureRelations(planActive && !inheritsLeadLink(currentTask));
 
     const { visible, candidates } = buildTaskLeadLinksView({
         currentTask,

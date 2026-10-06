@@ -1,15 +1,7 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { RelatedCrmHelper } from '@/modules/entities/RelatedCrm/lib/api/related-crm-helper';
-import {
-    getEntityDescriptor,
-    type EntityDescriptor,
-} from '@/modules/entities/RelatedCrm/lib/entity-descriptor';
-import {
-    getFullGraphDetails,
-    isFullGraphDetailsInFlight,
-} from '@/modules/entities/RelatedCrm/lib/details-coverage';
-import { waitForRelatedDetailsSettled } from '@/modules/entities/RelatedCrm/lib/related-crm-wait';
-import type { RelatedCrmDetails } from '@/modules/entities/RelatedCrm';
+import { getEntityDescriptor } from '@/modules/entities/RelatedCrm/lib/entity-descriptor';
+// Прямой путь, а не барель сущности: тот тянет за собой UI.
+import { ensureRelatedDetails } from '@/modules/entities/RelatedCrm/model/RelatedCrmThunk';
 import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
 import { HistoryListHelper } from '../lib/api/history-list-helper';
 import { getHistoryListRef, HistoryListRef } from '../lib/history-list';
@@ -23,14 +15,12 @@ import { HistoryBinding } from './history-record.type';
 import { eventHistoryActions } from './EVHistorySlice';
 
 const historyHelper = new HistoryListHelper();
-const relatedHelper = new RelatedCrmHelper();
 
 /**
  * История по ВСЕМ привязкам контекста из портального списка «ОП История».
  *
- * Ленивая: вызывается при первом показе раскрытой секции истории, а на
- * широких экранах ещё и бейджем презентаций в шапке (usePresentationCount)
- * — повторный вызов гасят status-гварды ниже.
+ * Ленивая: вызывается при первом показе раскрытой секции истории —
+ * повторный вызов гасят status-гварды ниже.
  * Сначала собираем множество привязок (сущности контекста + связи из
  * `/duplicates/details` + CRM-привязки задачи), затем ОДНИМ batch'ем берём
  * первые 50 записей каждой ленты. Связи могли не загрузиться — тогда честно
@@ -56,11 +46,12 @@ export const loadEventSalesHistory =
 
         dispatch(eventHistoryActions.setLoading());
 
-        const related = await resolveRelatedDetails(
-            getState,
-            descriptor,
-            state.app.domain,
-        );
+        // Полный граф связей (с закрытыми сделками: их ленты — самая ценная
+        // часть архива) — через общий стор: готовый берётся сразу, летящий
+        // дожидаемся, отсутствующий запрашиваем один раз на всех
+        // потребителей. Не получилось — null: история по контексту лучше
+        // пустого экрана.
+        const related = await dispatch(ensureRelatedDetails());
 
         const bindings = annotateLeadBindings(
             buildHistoryBindings({
@@ -98,45 +89,6 @@ export const loadEventSalesHistory =
             dispatch(eventHistoryActions.setError());
         }
     };
-
-/**
- * Полный граф связей (includeClosed:true) — из стора, а не вторым запросом.
- *
- * Тот же `/duplicates/details` уже грузит листенер RelatedCrm для шапки
- * (с флагом includeClosed:true — см. RelatedCrmAppListener), поэтому:
- * готовый ответ берём из стора; летящий — ждём и перечитываем (второй такой
- * же запрос в полёте и был дублем, который Б5 убирает); нет ни того, ни
- * другого (листенер упал, в сторе открытый граф после тумблера) —
- * самопочинка: дозапрашиваем сами, как раньше. Ошибка собственного запроса
- * не роняет историю — работаем без связей, по контексту.
- */
-const resolveRelatedDetails = async (
-    getState: AppGetState,
-    descriptor: EntityDescriptor,
-    domain: string,
-): Promise<RelatedCrmDetails | null> => {
-    let related = getFullGraphDetails(getState().relatedCrm, descriptor);
-    if (
-        !related &&
-        isFullGraphDetailsInFlight(getState().relatedCrm, descriptor)
-    ) {
-        await waitForRelatedDetailsSettled(getState, descriptor);
-        related = getFullGraphDetails(getState().relatedCrm, descriptor);
-    }
-    if (related) return related;
-
-    try {
-        return await relatedHelper.getDetails({
-            domain,
-            entityType: descriptor.entityType,
-            entityId: descriptor.entityId,
-            includeClosed: true,
-        });
-    } catch (error) {
-        console.error('history related-details error', error);
-        return null;
-    }
-};
 
 /** Первые страницы указанных привязок одним batch'ем + маппинг записей. */
 const loadGroupsPages = async (

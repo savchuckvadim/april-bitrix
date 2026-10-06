@@ -2,18 +2,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit';
 
 /**
- * История без дубля `/duplicates/details` (todo Б5).
+ * История и связи клиента: граф запрашивается ПО ТРЕБОВАНИЮ и один раз.
  *
- * Что здесь защищается:
- * 1. на старт уходит ОДИН details-запрос — листенера RelatedCrm, с
- *    includeClosed:true (полный граф); история берёт ответ из стора;
- * 2. раскрытие во время полёта запроса листенера — история ЖДЁТ его
+ * Что здесь защищается (разбор 05.10.2026 — связи на каждом открытии фрейма
+ * стоили бэку 8–9 запросов в Битрикс и душили отчёты):
+ * 1. открытие фрейма (`setAppData`) связи НЕ запрашивает;
+ * 2. первый показ истории запрашивает полный граф (includeClosed:true) один
+ *    раз и кладёт его в общий стор — следующие потребители берут оттуда;
+ * 3. показ во время полёта запроса другого потребителя — история ЖДЁТ его
  *    (будильник related-crm-wait), а не шлёт второй такой же;
- * 3. история грузится один раз: повторные вызовы при loading/ready — no-op,
- *    кнопка «повторить» перечитывает ленты, но details не перезапрашивает;
- * 4. самопочинка: листенер упал или в сторе только открытый граф — история
- *    дозапрашивает полный сама, как раньше;
- * 5. ⟳ (reset слайсов) — новый цикл честно перезапрашивает всё по разу.
+ * 4. история грузится один раз: повторные вызовы при loading/ready — no-op,
+ *    кнопка «повторить» перечитывает ленты, но связи не перезапрашивает;
+ * 5. самопочинка: прошлый запрос упал или в сторе только открытый граф —
+ *    история запрашивает полный;
+ * 6. ⟳ (reset слайсов) — новый цикл честно перезапрашивает всё по разу;
+ * 7. граф уже запрашивали, а контекст пришёл заново — листенер держит его
+ *    свежим; не запрашивали — молчит.
  *
  * Стор настоящий: редьюсеры relatedCrm/eventHistory и оба листенера
  * (RelatedCrmAppListener + settle-будильник) работают как в приложении,
@@ -64,6 +68,7 @@ import {
     relatedCrmReducer,
 } from '@/modules/entities/RelatedCrm/model/RelatedCrmSlice';
 import { startRelatedCrmAppListener } from '@/modules/entities/RelatedCrm/model/RelatedCrmAppListener';
+import { fetchRelatedDetails } from '@/modules/entities/RelatedCrm/model/RelatedCrmThunk';
 import {
     notifyRelatedDetailsSettled,
     startRelatedCrmSettleListener,
@@ -184,14 +189,20 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-describe('история без дубля details-запроса', () => {
-    it('старт: листенер грузит полный граф один раз, история берёт его из стора', async () => {
+describe('связи клиента по требованию, история без дубля запроса', () => {
+    it('открытие фрейма связи не запрашивает; первый показ истории — один запрос полного графа в общий стор', async () => {
         const { store, dispatchThunk } = makeHarness();
 
         store.dispatch(setAppDataAction());
         await flush();
 
-        // Один запрос листенера, полный граф.
+        // Открытие само по себе в Битрикс за связями не ходит.
+        expect(h.getDetails).not.toHaveBeenCalled();
+        expect(store.getState().relatedCrm.status).toBe('idle');
+
+        // Показ секции: история просит полный граф — один запрос, ответ в
+        // сторе; закрытая сделка из полного графа получает свою ленту.
+        await dispatchThunk(loadEventSalesHistory());
         expect(h.getDetails).toHaveBeenCalledTimes(1);
         expect(h.getDetails).toHaveBeenNthCalledWith(
             1,
@@ -203,11 +214,6 @@ describe('история без дубля details-запроса', () => {
         );
         expect(store.getState().relatedCrm.key).toBe('COMPANY:1:all');
         expect(store.getState().relatedCrm.status).toBe('ready');
-
-        // Показ секции: история собирает ленты БЕЗ второго details-запроса,
-        // закрытая сделка из полного графа получает свою ленту.
-        await dispatchThunk(loadEventSalesHistory());
-        expect(h.getDetails).toHaveBeenCalledTimes(1);
         expect(h.getFirstPages).toHaveBeenCalledTimes(1);
         expect(h.getFirstPages).toHaveBeenNthCalledWith(1, expect.anything(), [
             'CO_1',
@@ -224,13 +230,13 @@ describe('история без дубля details-запроса', () => {
         await dispatchThunk(loadEventSalesHistory());
         expect(h.getFirstPages).toHaveBeenCalledTimes(1);
 
-        // «Повторить» перечитывает ленты, но details не перезапрашивает.
+        // «Повторить» перечитывает ленты, но связи не перезапрашивает.
         await dispatchThunk(loadEventSalesHistory({ reset: true }));
         expect(h.getFirstPages).toHaveBeenCalledTimes(2);
         expect(h.getDetails).toHaveBeenCalledTimes(1);
     });
 
-    it('показ во время полёта запроса листенера — история ждёт его, а не шлёт второй', async () => {
+    it('показ во время полёта запроса другого потребителя — история ждёт его, а не шлёт второй', async () => {
         const { store, dispatchThunk } = makeHarness();
 
         let release!: (details: unknown) => void;
@@ -239,13 +245,16 @@ describe('история без дубля details-запроса', () => {
                 release = resolve;
             });
 
-        store.dispatch(setAppDataAction());
+        // Связи уже попросил кто-то ещё (контакты, выбор заявки).
+        const pending = dispatchThunk(
+            fetchRelatedDetails({ includeClosed: true }),
+        );
         await flush();
         expect(store.getState().relatedCrm.status).toBe('loading');
 
         const loading = dispatchThunk(loadEventSalesHistory());
         await flush();
-        // Второго details-запроса нет, история честно в loading.
+        // Второго запроса нет, история честно в loading.
         expect(h.getDetails).toHaveBeenCalledTimes(1);
         expect(store.getState().eventHistory.status).toBe('loading');
         expect(h.getFirstPages).not.toHaveBeenCalled();
@@ -254,8 +263,9 @@ describe('история без дубля details-запроса', () => {
         await dispatchThunk(loadEventSalesHistory());
         expect(h.getDetails).toHaveBeenCalledTimes(1);
 
-        // Ответ листенера будит ожидание (настоящий settle-листенер).
+        // Ответ будит ожидание (настоящий settle-листенер).
         release(detailsOf());
+        await pending;
         await loading;
 
         expect(h.getDetails).toHaveBeenCalledTimes(1);
@@ -267,14 +277,13 @@ describe('история без дубля details-запроса', () => {
         expect(store.getState().eventHistory.status).toBe('ready');
     });
 
-    it('листенер упал — история дозапрашивает полный граф сама (самопочинка)', async () => {
+    it('прошлый запрос связей упал — история запрашивает граф заново (самопочинка)', async () => {
         const { store, dispatchThunk } = makeHarness();
 
         h.state.respond = async () => {
             throw new Error('портал не ответил');
         };
-        store.dispatch(setAppDataAction());
-        await flush();
+        await dispatchThunk(fetchRelatedDetails({ includeClosed: true }));
         expect(store.getState().relatedCrm.status).toBe('error');
 
         h.state.respond = async () => detailsOf();
@@ -293,7 +302,21 @@ describe('история без дубля details-запроса', () => {
         ).toEqual(['CO_1', 'D_5']);
     });
 
-    it('в сторе только открытый граф — истории его мало, дозапрашивает полный', async () => {
+    it('связи не ответили вовсе — история всё равно показывает ленту контекста', async () => {
+        const { store, dispatchThunk } = makeHarness();
+
+        h.state.respond = async () => {
+            throw new Error('портал не ответил');
+        };
+        await dispatchThunk(loadEventSalesHistory());
+
+        expect(store.getState().eventHistory.status).toBe('ready');
+        expect(h.getFirstPages).toHaveBeenNthCalledWith(1, expect.anything(), [
+            'CO_1',
+        ]);
+    });
+
+    it('в сторе только открытый граф — истории его мало, запрашивает полный', async () => {
         const { store, dispatchThunk } = makeHarness();
 
         // Тумблер «с закрытыми» выключили: в сторе ключ :open.
@@ -334,16 +357,34 @@ describe('история без дубля details-запроса', () => {
         store.dispatch(eventHistoryActions.reset());
         expect(store.getState().eventHistory.status).toBe('idle');
 
-        // Новый init-цикл: листенер перезапрашивает граф (ключ сброшен),
-        // ре-показ секции — ленты, и снова без дубля details.
+        // Новый init-цикл: само открытие связи не запрашивает…
         store.dispatch(setAppDataAction());
         await flush();
-        expect(h.getDetails).toHaveBeenCalledTimes(2);
+        expect(h.getDetails).toHaveBeenCalledTimes(1);
 
+        // …а показ секции запрашивает граф и ленты ровно по разу.
         await dispatchThunk(loadEventSalesHistory());
         expect(h.getDetails).toHaveBeenCalledTimes(2);
         expect(h.getFirstPages).toHaveBeenCalledTimes(2);
         expect(store.getState().eventHistory.status).toBe('ready');
+    });
+
+    it('граф уже запрашивали и он не загрузился — на новый контекст листенер пробует снова', async () => {
+        const { store, dispatchThunk } = makeHarness();
+
+        h.state.respond = async () => {
+            throw new Error('портал не ответил');
+        };
+        await dispatchThunk(fetchRelatedDetails({ includeClosed: true }));
+        expect(h.getDetails).toHaveBeenCalledTimes(1);
+        expect(store.getState().relatedCrm.status).toBe('error');
+
+        h.state.respond = async () => detailsOf();
+        store.dispatch(setAppDataAction());
+        await flush();
+
+        expect(h.getDetails).toHaveBeenCalledTimes(2);
+        expect(store.getState().relatedCrm.status).toBe('ready');
     });
 
     it('списка на портале нет — setListMissing без единого запроса', async () => {

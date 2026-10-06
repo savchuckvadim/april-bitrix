@@ -107,3 +107,37 @@ describe('parseTaskTitle — «Доработка» только первым с
         );
     });
 });
+
+describe('parseTaskTitle — вид холодной работы только по метке после типа', () => {
+    it('метка бэка «. Лид.» и «. Заявка.» читается', () => {
+        expect(parseTaskTitle('Холодный обзвон. Лид. Иванов').eventType).toBe(
+            'xoLead',
+        );
+        expect(
+            parseTaskTitle('Холодный обзвон. Заявка. ООО Ромашка').eventType,
+        ).toBe('xoRequest');
+        expect(parseTaskTitle('Холодный звонок. Заявка 3059140').eventType).toBe(
+            'xoRequest',
+        );
+    });
+
+    it('«Лид» внутри названия события — не метка (garant 06.10)', () => {
+        const parsed = parseTaskTitle(
+            'Холодный обзвон В работу Лиды-заявки с сайта',
+        );
+        expect(parsed.eventType).toBe('xo');
+        expect(parsed.type).toBe(EV_TYPE.XO);
+    });
+
+    it('«Заявка» или «Лид» не сразу после типа — обычный холодный обзвон', () => {
+        expect(
+            parseTaskTitle('Холодный обзвон ООО Заявкин и партнёры').eventType,
+        ).toBe('xo');
+        expect(parseTaskTitle('Холодный обзвон  Иванов (Лид 123)').eventType).toBe(
+            'xo',
+        );
+        expect(parseTaskTitle('Холодный обзвон. Лид-форма сайта').eventType).toBe(
+            'xo',
+        );
+    });
+});

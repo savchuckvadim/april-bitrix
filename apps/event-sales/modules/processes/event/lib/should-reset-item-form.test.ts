@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { shouldResetItemForm } from './should-reset-item-form';
+import {
+    shouldLeaveQuickOutcome,
+    shouldResetItemForm,
+} from './should-reset-item-form';
 
 describe('shouldResetItemForm', () => {
     it('уход с дела в список — сбрасываем', () => {
@@ -48,6 +51,68 @@ describe('shouldResetItemForm', () => {
                 from: '/item',
                 to: '/',
                 isMenuActive: false,
+            }),
+        ).toBe(false);
+    });
+});
+
+describe('shouldLeaveQuickOutcome', () => {
+    it('вернулись с финиша к списку — итог закончен', () => {
+        expect(
+            shouldLeaveQuickOutcome({
+                from: '/finish',
+                to: '/',
+                isQuickOutcome: true,
+            }),
+        ).toBe(true);
+    });
+
+    it('ушли из формы дела (после ошибки отправки) — итог закончен', () => {
+        expect(
+            shouldLeaveQuickOutcome({
+                from: '/item',
+                to: '/',
+                isQuickOutcome: true,
+            }),
+        ).toBe(true);
+    });
+
+    it('итог открыли на списке: роут не менялся — НЕ заканчиваем', () => {
+        expect(
+            shouldLeaveQuickOutcome({
+                from: '/',
+                to: '/',
+                isQuickOutcome: true,
+            }),
+        ).toBe(false);
+    });
+
+    it('отправка увела на финиш — режим ещё нужен повтору', () => {
+        expect(
+            shouldLeaveQuickOutcome({
+                from: '/',
+                to: '/finish',
+                isQuickOutcome: true,
+            }),
+        ).toBe(false);
+    });
+
+    it('первый рендер (прошлого роута нет) — НЕ заканчиваем', () => {
+        expect(
+            shouldLeaveQuickOutcome({
+                from: null,
+                to: '/',
+                isQuickOutcome: true,
+            }),
+        ).toBe(false);
+    });
+
+    it('быстрого итога нет — заканчивать нечего', () => {
+        expect(
+            shouldLeaveQuickOutcome({
+                from: '/finish',
+                to: '/',
+                isQuickOutcome: false,
             }),
         ).toBe(false);
     });

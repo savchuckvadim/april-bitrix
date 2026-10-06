@@ -1,25 +1,23 @@
 'use client';
 
 import { useMemo } from 'react';
-import { findUfKey } from '@workspace/pbx';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
     saveConcurents,
     savePurchaseDate,
 } from '../../model/PurchaseSignalsThunk';
 import {
-    PURCHASE_DATE_FIELDS,
+    CONCURENT_DATE_FIELDS,
+    CONTRACT_DATE_FIELDS,
     readConcurentCodes,
     readConcurentOptions,
-    toInputDate,
+    resolveDates,
     type ConcurentOption,
-    type PurchaseDateCode,
+    type ResolvedDate,
+    type SignalCarrier,
 } from '../purchase-signals';
 
-export interface PurchaseDateView {
-    code: PurchaseDateCode;
-    label: string;
-    value: string;
+export interface PurchaseDateView extends ResolvedDate {
     setValue: (value: string) => void;
 }
 
@@ -32,16 +30,27 @@ export interface ConcurentsView {
 }
 
 export interface PurchaseSignalsView {
-    /** Хоть одно поле установлено на портале — иначе карточки нет вовсе. */
-    isAvailable: boolean;
-    dates: PurchaseDateView[];
+    /** Есть что показать в карточке «Конкуренты» — иначе её нет вовсе. */
+    hasConcurents: boolean;
+    /** Есть что показать в карточке «Покупка и договор». */
+    hasContract: boolean;
+    /** Сроки конкурента: оплачено до, договор до. */
+    concurentDates: PurchaseDateView[];
+    /** Свои сроки клиента: плановая покупка, договор, подарочный период. */
+    contractDates: PurchaseDateView[];
     concurents: ConcurentsView;
     /** Локальный откат/ошибка записи. */
     error: string | null;
 }
 
+const NO_CONCURENTS: ConcurentsView = {
+    options: [],
+    selected: [],
+    toggle: () => {},
+};
+
 /**
- * Даты покупки и конкуренты текущего клиента.
+ * Даты покупки, договора и конкуренты текущего клиента.
  *
  * Носители — СДЕЛКА + сущность-владелец (компания, а без неё лид), а не
  * один по приоритету (требование владельца 31.08, todo3108: «не вижу
@@ -71,75 +80,61 @@ export const usePurchaseSignals = (): PurchaseSignalsView => {
     );
 
     return useMemo(() => {
-        const targets = [
-            bitrix.deal
-                ? {
-                      row: bitrix.deal as unknown as Record<string, unknown>,
-                      fields: portal?.bitrixDeal?.bitrixfields ?? null,
-                  }
-                : null,
-            bitrix.company
-                ? {
-                      row: bitrix.company as unknown as Record<
-                          string,
-                          unknown
-                      >,
-                      fields: portal?.company?.bitrixfields ?? null,
-                  }
-                : null,
-            !bitrix.company && bitrix.lead
-                ? {
-                      row: bitrix.lead as unknown as Record<string, unknown>,
-                      fields: portal?.lead?.bitrixfields ?? null,
-                  }
-                : null,
-        ].filter((target): target is NonNullable<typeof target> =>
-            Boolean(target),
-        );
+        const carriers: SignalCarrier[] = [];
+        if (bitrix.deal) {
+            carriers.push({
+                row: bitrix.deal as unknown as Record<string, unknown>,
+                fields: portal?.bitrixDeal?.bitrixfields ?? null,
+            });
+        }
+        if (bitrix.company) {
+            carriers.push({
+                row: bitrix.company as unknown as Record<string, unknown>,
+                fields: portal?.company?.bitrixfields ?? null,
+            });
+        }
+        if (!bitrix.company && bitrix.lead) {
+            carriers.push({
+                row: bitrix.lead as unknown as Record<string, unknown>,
+                fields: portal?.lead?.bitrixfields ?? null,
+            });
+        }
 
-        const noConcurents: ConcurentsView = {
-            options: [],
-            selected: [],
-            toggle: () => {},
-        };
-
-        if (!targets.length) {
+        if (!carriers.length) {
             return {
-                isAvailable: false,
-                dates: [],
-                concurents: noConcurents,
+                hasConcurents: false,
+                hasContract: false,
+                concurentDates: [],
+                contractDates: [],
+                concurents: NO_CONCURENTS,
                 error,
             };
         }
 
-        const dates: PurchaseDateView[] = [];
-        for (const field of PURCHASE_DATE_FIELDS) {
-            let installed = false;
-            let value = '';
-            for (const target of targets) {
-                const key = findUfKey(target.fields, field.code);
-                if (!key) continue;
-                installed = true;
-                if (!value) value = toInputDate(target.row[key]);
-            }
-            if (!installed) continue;
-            dates.push({
-                code: field.code,
-                label: field.label,
-                value: overrides[field.code] ?? value,
-                setValue: next => dispatch(savePurchaseDate(field.code, next)),
-            });
-        }
+        const toView = (date: ResolvedDate): PurchaseDateView => ({
+            ...date,
+            setValue: next => dispatch(savePurchaseDate(date.code, next)),
+        });
+        const concurentDates = resolveDates(
+            carriers,
+            CONCURENT_DATE_FIELDS,
+            overrides,
+        ).map(toView);
+        const contractDates = resolveDates(
+            carriers,
+            CONTRACT_DATE_FIELDS,
+            overrides,
+        ).map(toView);
 
         // Справочник — у первого носителя, где поле установлено; выбранные
         // — у первого, где они есть (сделка точнее компании).
         const options =
-            targets
-                .map(target => readConcurentOptions(target.fields))
+            carriers
+                .map(carrier => readConcurentOptions(carrier.fields))
                 .find(items => items.length > 0) ?? [];
         const storedCodes =
-            targets
-                .map(target => readConcurentCodes(target.fields, target.row))
+            carriers
+                .map(carrier => readConcurentCodes(carrier.fields, carrier.row))
                 .find(codes => codes.length > 0) ?? [];
         const selected = concurentOverride ?? storedCodes;
 
@@ -156,11 +151,13 @@ export const usePurchaseSignals = (): PurchaseSignalsView => {
                           ),
                       ),
               }
-            : noConcurents;
+            : NO_CONCURENTS;
 
         return {
-            isAvailable: dates.length > 0 || options.length > 0,
-            dates,
+            hasConcurents: concurentDates.length > 0 || options.length > 0,
+            hasContract: contractDates.length > 0,
+            concurentDates,
+            contractDates,
             concurents,
             error,
         };

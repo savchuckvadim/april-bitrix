@@ -1,3 +1,8 @@
+import {
+    SLOW_SERVER_TEXT,
+    isSlowServerError,
+} from '@/modules/shared/lib/request-error';
+
 /**
  * Человеческий текст ошибки запроса блока «Открытые сделки по клиенту».
  *
@@ -10,6 +15,8 @@ export function toClientWorkErrorText(error: unknown): string {
         ?.response?.data?.message;
     if (typeof message === 'string' && message) return message;
     if (Array.isArray(message) && message.length) return message.join('; ');
+    // Сообщение axios о таймауте — техническое, менеджеру его не показываем.
+    if (isSlowServerError(error)) return SLOW_SERVER_TEXT;
     return error instanceof Error && error.message
         ? error.message
         : 'Не удалось выполнить запрос — повторите через минуту';

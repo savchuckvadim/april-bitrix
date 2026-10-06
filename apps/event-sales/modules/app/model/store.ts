@@ -63,12 +63,14 @@ import { leadRequestReducer } from '@/modules/features/LeadRequestCard/model/Lea
 import { presentationLeadLinkReducer } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
 import { taskLeadLinksReducer } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksSlice';
 import { eventItemReducer } from '@/modules/widgets/EventItem/model/EventItemSlice';
+import { quickOutcomeReducer } from '@/modules/widgets/QuickOutcome/model/QuickOutcomeSlice';
 import { preloaderReducer } from '@/modules/shared/Preloader';
 import { portalAPI, portalReducer } from '@workspace/pbx';
 import { startStoreListeners } from './listeners/start-store-listeners';
 import { installEventDebug } from '../lib/diagnostics/install-event-debug';
 // Прямой путь: барель shared/metrics тянет и врезки, а тут нужна подписка.
 import { installMetricsFlushHooks } from '@/modules/shared/metrics/lib/metrics-client';
+import { startBitrixDirectMetrics } from '@/modules/shared/metrics/lib/bitrix-direct-metrics';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -131,6 +133,8 @@ const rootReducer = combineReducers({
 
     // widgets
     eventItemMenu: eventItemReducer,
+    // Быстрый итог «Продажа» / «Отказ» (кнопки рядом с «создать»).
+    quickOutcome: quickOutcomeReducer,
 
     // entities
     eventTask: eventTaskReducer,
@@ -226,3 +230,7 @@ installEventDebug(store);
 // подписки последняя пачка — в том числе фазы первой загрузки — не уехала бы
 // вовсе. Идемпотентно и вне браузера — no-op (см. installMetricsFlushHooks).
 installMetricsFlushHooks();
+
+// Прямые вызовы Битрикса из браузера — счётчиком по исходу: видно, упирается
+// ли офис в лимит по своему внешнему IP (см. bitrix-direct-metrics).
+startBitrixDirectMetrics(() => store.getState().app.domain);

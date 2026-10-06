@@ -19,6 +19,12 @@ export interface SetFetchedDepartamentPayload {
     structure: DepartmentStructureState | null;
 }
 
+/** Фоновое обновление отдела: только списки, без выбранных людей. */
+export type UpdateDepartamentPayload = Pick<
+    SetFetchedDepartamentPayload,
+    'department' | 'structure'
+>;
+
 export interface SetCurrentUserPayload {
     from: DEPARTAMENT_STATE_PROP.PLAN | DEPARTAMENT_STATE_PROP.REPORT;
     role: DUSER_ROLE;

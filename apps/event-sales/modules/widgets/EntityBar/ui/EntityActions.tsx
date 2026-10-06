@@ -18,15 +18,21 @@ import {
     EventItemResultType,
     getResultMenu,
 } from '@/modules/widgets/EventItem';
+import { QuickOutcomeButtons } from '@/modules/widgets/QuickOutcome';
 
 /**
  * Действия приложения в правом верхнем углу общей шапки: обновить,
- * режим отдела, статистика, «создать», возврат к фрейму, темы.
+ * режим отдела, статистика, «создать», «продажа» и «отказ», возврат к
+ * фрейму, темы.
  * Отдельных строк действий на экранах больше нет (решение владельца) —
  * один угол на всё приложение.
  *
  * «Создать» скрыта на экране дела: там открыта форма, и сброс её
- * новым событием по соседней кнопке был бы миной.
+ * новым событием по соседней кнопке был бы миной. По той же причине там
+ * нет и кнопок итога («продажа» / «отказ») — итог ставится в самой форме.
+ *
+ * Строка переносится, а не вылезает за край: в узкой встройке (вкладка
+ * карточки) кнопок больше, чем помещается в одну линию.
  */
 export const EntityActions: FC = () => {
     const dispatch = useAppDispatch();
@@ -41,7 +47,7 @@ export const EntityActions: FC = () => {
     };
 
     return (
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+        <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1">
             <DepartmentMode />
             <HeadModeToggle />
             <ResultStatistics />
@@ -58,6 +64,8 @@ export const EntityActions: FC = () => {
                     создать
                 </Button>
             )}
+            {/* Итог по клиенту одним действием, без открытия дела. */}
+            <QuickOutcomeButtons isItemScreen={isItemScreen} />
             {/* Обновление — ПОСЛЕ «создать» и перед служебными кнопками:
                 это редкое действие-починка, ему не место первым в строке. */}
             <button

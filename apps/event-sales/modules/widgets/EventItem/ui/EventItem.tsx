@@ -18,6 +18,9 @@ import {
 import { EV_PLAN_PROP } from '@/modules/entities/EventPlan';
 import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
 import { getIsLeadContext } from '@/modules/app/lib/utills/app-state-util';
+import { LazySection } from '@/modules/shared/LazySection';
+// Прямой путь: тексты блока без его слайса и панели.
+import { CLIENT_WORK_TEXT } from '@/modules/features/ClientWork/lib/client-work-text';
 import { ActionPromptCard } from '@/modules/features/ActionPrompts';
 import { SendPreflightDialog } from './plan/SendPreflightDialog';
 import { CheckPresentation } from '@/modules/features/AfterPresentation';
@@ -44,7 +47,7 @@ const DuplicatesPanel = dynamic(
 );
 
 // «Открытые сделки по клиенту» — сделки той же компании, которые «Пересечения» не
-// показывают; появляется только у клиента с несколькими открытыми сделками.
+// показывают; открывается по требованию и сам говорит, если сделка одна.
 const ClientWorkPanel = dynamic(
     () =>
         import(
@@ -130,6 +133,8 @@ export const EventItem: FC = () => {
         s => s.department[DEPARTAMENT_STATE_PROP.MODE].current,
     );
     const isLeadContext = useAppSelector(getIsLeadContext);
+    // «Открытые сделки по клиенту» уместны только там, где есть сделка.
+    const hasDeal = useAppSelector(s => Boolean(s.app.bitrix.deal?.ID));
 
     const visibility = getItemVisibility({
         menuType,
@@ -198,10 +203,32 @@ export const EventItem: FC = () => {
                                 конкуренты — поля КЛИЕНТА, их место в модалке
                                 «Поля сущности» (по сделке + по сущности) и во
                                 вкладках списка, а не в планировании события. */}
+                            {/* Пересечения и открытые сделки клиента — ПО
+                                ТРЕБОВАНИЮ (облегчённый режим, 05.10.2026):
+                                до клика блок не смонтирован и ничего не
+                                запрашивает. Раньше оба грузились на каждое
+                                открытие дела — десяток запросов сервера в
+                                Битрикс на каждый звонок. ЗПР молчит сам у
+                                клиентов без ссылок, «Все контакты» грузят
+                                связи по раскрытию — им обёртка не нужна. */}
                             {isWideDisplay && (
                                 <div className="space-y-3">
-                                    <DuplicatesPanel />
-                                    <ClientWorkPanel />
+                                    <LazySection
+                                        id="item:duplicates"
+                                        title="Возможные пересечения"
+                                        hint="Не ведёт ли клиента кто-то ещё"
+                                    >
+                                        <DuplicatesPanel />
+                                    </LazySection>
+                                    {hasDeal && (
+                                        <LazySection
+                                            id="item:client-work"
+                                            title={CLIENT_WORK_TEXT.title}
+                                            hint={CLIENT_WORK_TEXT.hint}
+                                        >
+                                            <ClientWorkPanel />
+                                        </LazySection>
+                                    )}
                                     <ZprCallsPanel />
                                     <ContactsHubCard />
                                 </div>

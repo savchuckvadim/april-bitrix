@@ -10,6 +10,7 @@ import {
     type RelationsBarView,
 } from '../relations-bar';
 import { collectTaskBoundDeals } from '../task-bound-deals';
+import { useContextDeal } from './use-context-deal';
 import { useCurrentRelations } from './use-current-relations';
 
 /**
@@ -17,6 +18,11 @@ import { useCurrentRelations } from './use-current-relations';
  *
  * Данные те же, что у полноэкранной карточки (общий `useCurrentRelations`),
  * поэтому лишнего запроса шапка не делает — ответ переиспользуется.
+ *
+ * Связи клиента грузятся ПО ТРЕБОВАНИЮ (история, контакты, пересечения),
+ * а не на каждое открытие фрейма, поэтому первый источник здесь — сама
+ * сделка плейсмента (useContextDeal): она уже в сторе, и главная полоска
+ * видна сразу и без запросов. Связи, когда приедут, её дополнят.
  *
  * Вторым источником — сделки привязок задач клиента (слайс taskDeals): у
  * лид-клиента без компании граф связей сделку «нового стиля» не видит, и без
@@ -37,15 +43,20 @@ export const useRelationsBar = (
     // В режиме руководителя «свои» — сделки сотрудника, за которого идёт
     // работа, а не руководителя.
     const currentUserId = useAppSelector(selectWorkingUserId);
+    const contextDeal = useContextDeal();
 
-    const boundDeals = useMemo(
-        () =>
-            collectTaskBoundDeals(
-                [currentTask, ...(tasks ?? [])],
-                boundDealsById,
-            ),
-        [currentTask, tasks, boundDealsById],
-    );
+    const boundDeals = useMemo(() => {
+        const fromTasks = collectTaskBoundDeals(
+            [currentTask, ...(tasks ?? [])],
+            boundDealsById,
+        );
+        // Сделка плейсмента — впереди привязок задач; дубль по id не нужен.
+        if (!contextDeal) return fromTasks;
+        return [
+            contextDeal,
+            ...fromTasks.filter(deal => deal.id !== contextDeal.id),
+        ];
+    }, [currentTask, tasks, boundDealsById, contextDeal]);
 
     const view = useMemo(
         () =>

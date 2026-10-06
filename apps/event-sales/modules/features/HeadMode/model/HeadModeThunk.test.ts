@@ -48,6 +48,8 @@ interface Scenario {
     /** На кого сейчас записано дело. */
     responsible?: BXUser | null;
     me?: BXUser | null;
+    /** Идёт быстрый итог: на кого он записывается (ответственный сделки). */
+    outcomeOwnerId?: number;
 }
 
 interface PlainAction {
@@ -62,6 +64,11 @@ const run = (scenario: Scenario) => {
             status: scenario.status ?? 'ready',
             enabled: scenario.enabled ?? true,
             subordinateIds: scenario.subordinateIds ?? [231, 465],
+        },
+        // Быстрый итог («Продажа» / «Отказ»): по умолчанию его нет.
+        quickOutcome: {
+            kind: scenario.outcomeOwnerId ? 'fail' : null,
+            ownerId: scenario.outcomeOwnerId ?? null,
         },
         eventTask: {
             current:
@@ -194,6 +201,50 @@ describe('за кого идёт работа — по открытому дел
 
     it('пользователь ещё неизвестен — ничего не делаем', () => {
         const ctx = run({ me: null, taskResponsibleId: 231 });
+
+        ctx.dispatch(syncActingFromTask());
+
+        expect(ctx.actions).toHaveLength(0);
+    });
+});
+
+describe('за кого идёт работа — быстрый итог («Продажа» / «Отказ»)', () => {
+    it('итог записывается на ответственного сделки, а не на нажавшего', () => {
+        const ctx = run({ outcomeOwnerId: 465 });
+
+        ctx.dispatch(syncActingFromTask());
+
+        expect(ctx.assignedTo()).toBe(465);
+    });
+
+    it('отдел перечитали, ответственным снова стал пользователь — итог возвращается на сделку', () => {
+        // Перечитанный отдел сам ставит ответственным текущего
+        // пользователя: без возврата продажа ушла бы на нажавшего кнопку.
+        const ctx = run({ outcomeOwnerId: 465, responsible: HEAD });
+
+        ctx.dispatch(syncActingFromTask());
+
+        expect(ctx.assignedTo()).toBe(465);
+    });
+
+    it('ответственный сделки — не подчинённый и вне отдела: итог всё равно его', () => {
+        const ctx = run({ subordinateIds: [], outcomeOwnerId: 700 });
+
+        ctx.dispatch(syncActingFromTask());
+
+        expect(ctx.assignedTo()).toBe(700);
+    });
+
+    it('открытое дело сотрудника итог не перебивает', () => {
+        const ctx = run({ outcomeOwnerId: 465, taskResponsibleId: 231 });
+
+        ctx.dispatch(syncActingFromTask());
+
+        expect(ctx.assignedTo()).toBe(465);
+    });
+
+    it('итог уже записан на ответственного сделки — лишних записей нет', () => {
+        const ctx = run({ outcomeOwnerId: 465, responsible: SIDOROVA });
 
         ctx.dispatch(syncActingFromTask());
 

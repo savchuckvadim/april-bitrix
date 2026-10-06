@@ -17,6 +17,7 @@ import { leadRequestActions } from '@/modules/features/LeadRequestCard/model/Lea
 import { presentationLeadLinkActions } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
 import { taskLeadLinksActions } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksSlice';
 import { duplicatesActions } from '@/modules/features/Duplicates/model/DuplicatesSlice';
+import { clientWorkActions } from '@/modules/features/ClientWork/model/ClientWorkSlice';
 import { afterPresentationActions } from '@/modules/features/AfterPresentation/model/AfterPresentationSlice';
 import { xvostFieldsActions } from '@/modules/features/XvostFields/model/XvostFieldsSlice';
 
@@ -45,7 +46,9 @@ import { xvostFieldsActions } from '@/modules/features/XvostFields/model/XvostFi
  * Слайсы формы текущего отчёта (eventReport, eventPlan, eventPresentation,
  * eventPostFail, черновик комментария) сюда НЕ входят намеренно: ручное
  * обновление не должно терять заполняемый отчёт; их чистит cleanEvent после
- * успешной отправки.
+ * успешной отправки. По той же причине сюда не входит быстрый итог
+ * (quickOutcome): это режим той же формы, и сброс оставил бы открытое дело
+ * со статусом «Продажа»/«Отказ» без самого окна.
  */
 export const getReloadResetActions = (): UnknownAction[] => [
     taskDealsActions.reset(),
@@ -61,6 +64,7 @@ export const getReloadResetActions = (): UnknownAction[] => [
     presentationLeadLinkActions.resetForNewEvent(),
     taskLeadLinksActions.reset(),
     duplicatesActions.reset(),
+    clientWorkActions.reset(),
     afterPresentationActions.reset(),
     xvostFieldsActions.reset(),
     eventContactActions.reset(),

@@ -3,6 +3,7 @@ import type { PBXFieldItem } from '@/modules/app/types/portal/portal-type';
 import {
     getProspectCaption,
     getProspectName,
+    getProspectPreviewCaption,
     getProspectSteps,
 } from './prospect-scale-view';
 
@@ -92,5 +93,33 @@ describe('getProspectCaption', () => {
                 previewName: 'Красный',
             }),
         ).toBe('Не удалось сохранить');
+    });
+});
+
+describe('getProspectPreviewCaption — плашка шапки (06.10.2026)', () => {
+    it('под курсором другое значение — «Станет: Y»', () => {
+        expect(
+            getProspectPreviewCaption({
+                currentName: 'Холодный',
+                previewName: 'Горячий',
+            }),
+        ).toBe('Станет: Горячий');
+    });
+
+    it('нет превью, оно совпадает с текущим или есть ошибка — плашки нет', () => {
+        expect(getProspectPreviewCaption({ currentName: 'Холодный' })).toBeNull();
+        expect(
+            getProspectPreviewCaption({
+                currentName: 'Холодный',
+                previewName: 'Холодный',
+            }),
+        ).toBeNull();
+        expect(
+            getProspectPreviewCaption({
+                error: 'Не сохранилось',
+                currentName: 'Холодный',
+                previewName: 'Горячий',
+            }),
+        ).toBeNull();
     });
 });

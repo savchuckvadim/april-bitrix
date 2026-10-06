@@ -48,6 +48,14 @@ const innSlice = createSlice({
             state.isSaving = false;
             state.isEditorOpen = false;
         },
+        /**
+         * ИНН поменяли в обход этого блока (вкладка «ИНН» сделки) — шапка
+         * показывает значение из Битрикса. Без поиска дублей: в отличие от
+         * setSaved это не новый сигнал, а уже известный вариант.
+         */
+        syncValue(state, action: PayloadAction<{ value: string }>) {
+            state.savedValue = action.payload.value;
+        },
         setError(state, action: PayloadAction<{ message: string }>) {
             state.error = action.payload.message;
             state.isSaving = false;
@@ -71,6 +79,7 @@ export const innActions: {
     >;
     setSaving: ActionCreatorWithPayload<{ status: boolean }, 'inn/setSaving'>;
     setSaved: ActionCreatorWithPayload<{ value: string }, 'inn/setSaved'>;
+    syncValue: ActionCreatorWithPayload<{ value: string }, 'inn/syncValue'>;
     setError: ActionCreatorWithPayload<{ message: string }, 'inn/setError'>;
     clearError: ActionCreatorWithoutPayload<'inn/clearError'>;
 } = innSlice.actions;

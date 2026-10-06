@@ -60,3 +60,21 @@ export const getProspectCaption = ({
     if (!previewName || previewName === currentName) return now;
     return `${now} → ${previewName}`;
 };
+
+/**
+ * Что станет при клике — отдельной плашкой, для шапки.
+ *
+ * В шапке подпись стоит в строке с соседями, и удлинение «Сейчас: X → Y» при
+ * наведении сдвигало всё правее — шапка «плясала» (владелец, 06.10.2026).
+ * Там подпись остаётся «Сейчас: X», а превью всплывает поверх, не занимая
+ * места. null — показывать нечего: ошибка, нет превью или оно совпадает с
+ * текущим значением.
+ */
+export const getProspectPreviewCaption = ({
+    error,
+    currentName,
+    previewName,
+}: ProspectCaptionInput): string | null => {
+    if (error || !previewName || previewName === currentName) return null;
+    return `Станет: ${previewName}`;
+};

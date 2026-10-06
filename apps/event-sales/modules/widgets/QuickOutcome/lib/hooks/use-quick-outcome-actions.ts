@@ -2,19 +2,23 @@
 
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
-    getCanSellContext,
     getClientContext,
     getIsTmcMode,
 } from '@/modules/app/lib/utills/app-state-util';
 import { FLOW_STAGE } from '@/modules/processes/event/model/FlowStatusSlice';
 import { openQuickOutcome } from '../../model/QuickOutcomeThunk';
-import { type QuickOutcomeKind, getQuickOutcomeButtons } from '../quick-outcome';
+import {
+    type QuickOutcomeButtonState,
+    type QuickOutcomeKind,
+    getQuickOutcomeButtons,
+} from '../quick-outcome';
 
 export interface QuickOutcomeActions {
-    /** Какие итоги доступны (правило getQuickOutcomeButtons). */
-    kinds: QuickOutcomeKind[];
+    /** Какие кнопки итога видны и какие из них серые (правило getQuickOutcomeButtons). */
+    buttons: QuickOutcomeButtonState[];
+    /** Все кнопки неактивны — идёт отправка или загрузка. */
     disabled: boolean;
-    /** Почему кнопки неактивны — подсказкой при наведении. */
+    /** Почему все кнопки неактивны — подсказкой при наведении. */
     hint?: string;
     open: (kind: QuickOutcomeKind) => void;
 }
@@ -31,7 +35,6 @@ export const useQuickOutcomeActions = (
 ): QuickOutcomeActions => {
     const dispatch = useAppDispatch();
     const context = useAppSelector(getClientContext);
-    const canSell = useAppSelector(getCanSellContext);
     const isTmc = useAppSelector(getIsTmcMode);
     const inProgress = useAppSelector(s => s.preloader.inProgress);
     const isSending = useAppSelector(
@@ -39,12 +42,7 @@ export const useQuickOutcomeActions = (
     );
 
     return {
-        kinds: getQuickOutcomeButtons({
-            isItemScreen,
-            hasClient: context !== 'unknown',
-            canSell,
-            isTmc,
-        }),
+        buttons: getQuickOutcomeButtons({ isItemScreen, context, isTmc }),
         disabled: inProgress || isSending,
         hint: isSending ? 'Отчёт ещё отправляется — дождитесь' : undefined,
         open: kind => void dispatch(openQuickOutcome(kind)),

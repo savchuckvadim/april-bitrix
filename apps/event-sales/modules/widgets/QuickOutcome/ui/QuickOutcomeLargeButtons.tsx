@@ -1,15 +1,13 @@
 'use client';
 
 import { FC } from 'react';
-import { Button } from '@workspace/ui/components/button';
-import { cn } from '@workspace/ui/lib/utils';
 import {
     QUICK_OUTCOME,
     QUICK_OUTCOME_TEXT,
     type QuickOutcomeKind,
 } from '../lib/quick-outcome';
 import { useQuickOutcomeActions } from '../lib/hooks/use-quick-outcome-actions';
-import { QUICK_OUTCOME_TONE_CLASS } from './quick-outcome-tone';
+import { QuickOutcomeAction } from './QuickOutcomeAction';
 
 /** Порядок крупных кнопок — как просил владелец: сначала «Отказ», потом «Продажа». */
 const LARGE_ORDER: readonly QuickOutcomeKind[] = [
@@ -32,22 +30,23 @@ interface QuickOutcomeLargeButtonsProps {
 export const QuickOutcomeLargeButtons: FC<QuickOutcomeLargeButtonsProps> = ({
     className,
 }) => {
-    const { kinds, disabled, hint, open } = useQuickOutcomeActions(false);
+    const { buttons, disabled, hint, open } = useQuickOutcomeActions(false);
 
     return (
         <>
-            {LARGE_ORDER.filter(kind => kinds.includes(kind)).map(kind => (
-                <Button
-                    key={kind}
-                    variant="outline"
-                    disabled={disabled}
-                    title={hint}
-                    className={cn(className, QUICK_OUTCOME_TONE_CLASS[kind])}
-                    onClick={() => open(kind)}
-                >
-                    {QUICK_OUTCOME_TEXT[kind].title}
-                </Button>
-            ))}
+            {LARGE_ORDER.map(kind => buttons.find(b => b.kind === kind))
+                .filter(button => button !== undefined)
+                .map(button => (
+                    <QuickOutcomeAction
+                        key={button.kind}
+                        button={button}
+                        label={QUICK_OUTCOME_TEXT[button.kind].title}
+                        className={className}
+                        disabled={disabled}
+                        hint={hint}
+                        onOpen={open}
+                    />
+                ))}
         </>
     );
 };

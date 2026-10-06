@@ -5,6 +5,7 @@ import {
     QUICK_OUTCOME_WORK_STATUS,
     buildQuickOutcomeSender,
     getOutcomeOwnerNote,
+    SALE_NEEDS_COMPANY_HINT,
     getQuickOutcomeButtons,
     resolveOutcomeOwnerId,
 } from './quick-outcome';
@@ -91,27 +92,35 @@ describe('getOutcomeOwnerNote', () => {
 describe('getQuickOutcomeButtons', () => {
     const base = {
         isItemScreen: false,
-        hasClient: true,
-        canSell: true,
+        context: 'company' as const,
         isTmc: false,
     };
+    const sale = { kind: QUICK_OUTCOME.sale };
+    const fail = { kind: QUICK_OUTCOME.fail };
 
-    it('есть сделка или компания, режим отдела продаж — «продажа» и «отказ»', () => {
-        expect(getQuickOutcomeButtons(base)).toEqual([
-            QUICK_OUTCOME.sale,
-            QUICK_OUTCOME.fail,
-        ]);
+    it('компания в режиме отдела продаж — «продажа» и «отказ»', () => {
+        expect(getQuickOutcomeButtons(base)).toEqual([sale, fail]);
     });
 
-    it('нет ни сделки, ни компании (чистый лид) — только «отказ»', () => {
-        expect(getQuickOutcomeButtons({ ...base, canSell: false })).toEqual([
-            QUICK_OUTCOME.fail,
+    it('сделка без компании — «продажа» серая с подсказкой, «отказ» как есть', () => {
+        expect(
+            getQuickOutcomeButtons({ ...base, context: 'dealNoCompany' }),
+        ).toEqual([
+            { kind: QUICK_OUTCOME.sale, blockedHint: SALE_NEEDS_COMPANY_HINT },
+            fail,
+        ]);
+        expect(SALE_NEEDS_COMPANY_HINT).toBe('Добавьте компанию в сделку');
+    });
+
+    it('лид — только «отказ»', () => {
+        expect(getQuickOutcomeButtons({ ...base, context: 'lead' })).toEqual([
+            fail,
         ]);
     });
 
     it('у ТМЦ статуса «Продажа» нет — только «отказ»', () => {
         expect(getQuickOutcomeButtons({ ...base, isTmc: true })).toEqual([
-            QUICK_OUTCOME.fail,
+            fail,
         ]);
     });
 
@@ -122,7 +131,7 @@ describe('getQuickOutcomeButtons', () => {
     });
 
     it('клиента нет — записывать итог некому', () => {
-        expect(getQuickOutcomeButtons({ ...base, hasClient: false })).toEqual(
+        expect(getQuickOutcomeButtons({ ...base, context: 'unknown' })).toEqual(
             [],
         );
     });

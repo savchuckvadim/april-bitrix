@@ -1,4 +1,5 @@
 import type { BXUser } from '@workspace/bx';
+import type { ClientContext } from '@/modules/app/lib/utills/app-state-util';
 import type { WorkStatusCode } from '@/modules/entities/EventReport/type/event-report-type';
 import {
     type ActingManagerPayload,
@@ -107,21 +108,43 @@ export const getOutcomeOwnerNote = (ownerName: string): string => {
 };
 
 /**
+ * Почему «Продажа» в сделке без компании серая: продать без компании
+ * нельзя (сделка продажи и её привязки без неё не создаются) — компанию надо
+ * добавить в сделку (владелец, 06.10.2026).
+ */
+export const SALE_NEEDS_COMPANY_HINT = 'Добавьте компанию в сделку';
+
+/** Кнопка итога: какая и, если недоступна, — почему (кнопка серая с подсказкой). */
+export interface QuickOutcomeButtonState {
+    kind: QuickOutcomeKind;
+    blockedHint?: string;
+}
+
+/**
  * Какие кнопки показать.
  *
  *  - на экране дела кнопок нет: там открыта форма, и итог ставится в ней;
- *  - «Продажа» — где её можно оформить (`canSell`: есть сделка или
- *    компания, см. getCanSellContext) и не в ТМЦ — там статуса «Продажа» нет;
+ *  - «Продажа» — только при компании: в сделке без компании она видна, но
+ *    серая с подсказкой «Добавьте компанию в сделку»; по лиду её нет; у ТМЦ
+ *    статуса «Продажа» нет вовсе;
  *  - «Отказ» — везде, где есть клиент.
  */
 export const getQuickOutcomeButtons = (input: {
     isItemScreen: boolean;
-    hasClient: boolean;
-    canSell: boolean;
+    context: ClientContext;
     isTmc: boolean;
-}): QuickOutcomeKind[] => {
-    if (input.isItemScreen || !input.hasClient) return [];
-    return input.canSell && !input.isTmc
-        ? [QUICK_OUTCOME.sale, QUICK_OUTCOME.fail]
-        : [QUICK_OUTCOME.fail];
+}): QuickOutcomeButtonState[] => {
+    if (input.isItemScreen || input.context === 'unknown') return [];
+    const fail: QuickOutcomeButtonState = { kind: QUICK_OUTCOME.fail };
+    if (input.isTmc) return [fail];
+    if (input.context === 'company') {
+        return [{ kind: QUICK_OUTCOME.sale }, fail];
+    }
+    if (input.context === 'dealNoCompany') {
+        return [
+            { kind: QUICK_OUTCOME.sale, blockedHint: SALE_NEEDS_COMPANY_HINT },
+            fail,
+        ];
+    }
+    return [fail];
 };

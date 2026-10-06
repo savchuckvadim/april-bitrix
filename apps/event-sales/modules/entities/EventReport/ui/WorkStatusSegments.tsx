@@ -3,7 +3,7 @@
 import { FC } from 'react';
 import { MicroSegmented } from '@workspace/april-ui';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { getCanSellContext } from '@/modules/app/lib/utills/app-state-util';
+import { getIsWithoutCompany } from '@/modules/app/lib/utills/app-state-util';
 import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
 import { eventReportActions } from '../model/EventReportSlice';
 import { EV_REPORT_PROP } from '../type/event-report-type';
@@ -27,14 +27,13 @@ export const WorkStatusSegments: FC = () => {
     const departmentMode = useAppSelector(
         s => s.department[DEPARTAMENT_STATE_PROP.MODE].current,
     );
-    // Без сделки и компании «Продажу» не показываем вовсе: оформить её
-    // нельзя (getCanSellContext).
-    const canSell = useAppSelector(getCanSellContext);
+    // Без компании «Продажу» не показываем вовсе: отправить её нельзя.
+    const isWithoutCompany = useAppSelector(getIsWithoutCompany);
 
     const items = getCurrentWorkStatusItems(
         report,
         departmentMode?.code ?? 'sales',
-        canSell,
+        isWithoutCompany,
     );
     const currentId = report[EV_REPORT_PROP.WORK_STATUS].current.id;
 

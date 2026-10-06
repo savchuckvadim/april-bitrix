@@ -1,6 +1,6 @@
 // Публичная поверхность фичи ИНН.
 export { innReducer, innActions } from './model/InnSlice';
-export { saveInn } from './model/InnThunk';
+export { refreshInnFromBitrix, saveInn } from './model/InnThunk';
 export { getCurrentInn, getInnTarget } from './lib/inn-selectors';
 export type { InnTarget } from './lib/inn-selectors';
 export {

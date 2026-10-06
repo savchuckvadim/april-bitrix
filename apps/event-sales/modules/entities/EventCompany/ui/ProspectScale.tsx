@@ -74,7 +74,7 @@ export const ProspectScale: FC<ProspectScaleProps> = ({
 
             {/* В компактной шапке подпись съедала бы ширину — значение
                 видно по наведению (liquid-бэйдж и title зон). */}
-            {!compact && (
+            {!compact && block && (
                 <span
                     className={cn(
                         'min-w-0 truncate text-xs',
@@ -84,6 +84,30 @@ export const ProspectScale: FC<ProspectScaleProps> = ({
                     )}
                 >
                     {scale.caption}
+                </span>
+            )}
+            {/* Шапка: подпись постоянной ширины («Сейчас: X»), а «Станет: Y»
+                всплывает плашкой ПОВЕРХ — соседи не сдвигаются. */}
+            {!compact && !block && (
+                <span className="relative min-w-0">
+                    <span
+                        className={cn(
+                            'block truncate text-xs',
+                            scale.isCaptionError
+                                ? 'text-destructive'
+                                : 'text-muted-foreground',
+                        )}
+                    >
+                        {scale.currentCaption}
+                    </span>
+                    {scale.previewCaption && (
+                        <span
+                            role="status"
+                            className="pointer-events-none absolute left-0 top-full z-30 mt-1 whitespace-nowrap rounded-md border border-border bg-popover px-2 py-0.5 text-xs text-popover-foreground shadow-sm"
+                        >
+                            {scale.previewCaption}
+                        </span>
+                    )}
                 </span>
             )}
         </div>

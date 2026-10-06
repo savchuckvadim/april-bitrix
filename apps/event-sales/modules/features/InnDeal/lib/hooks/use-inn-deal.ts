@@ -2,7 +2,8 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { refreshInnFromBitrix } from '@/modules/features/Inn';
 import type { SectionStatus } from '@/modules/shared/SectionState';
 import type { InnCandidate, InnSnapshot } from '../../model';
 import { InnDealHelper } from '../api/inn-deal-helper';
@@ -46,6 +47,7 @@ export interface InnDealState {
  * запись.
  */
 export const useInnDeal = (): InnDealState => {
+    const dispatch = useAppDispatch();
     const domain = useAppSelector(state => state.app.domain);
     const deal = useAppSelector(state => state.app.bitrix.deal);
     const user = useAppSelector(state => state.app.bitrix.user);
@@ -91,7 +93,12 @@ export const useInnDeal = (): InnDealState => {
                 version: snapshotQuery.data?.version ?? '',
                 userId,
             }),
-        onSuccess: applySnapshot,
+        onSuccess: snapshot => {
+            applySnapshot(snapshot);
+            // Шапка показывает ИНН из сущности — после выбора она жила
+            // старым значением до перезагрузки.
+            void dispatch(refreshInnFromBitrix());
+        },
         onError: onWriteError,
     });
 

@@ -5,7 +5,7 @@ import {
     mergeInnPool,
     normalizeInn,
 } from '../lib/inn-validate';
-import { getInnTarget } from '../lib/inn-selectors';
+import { getCurrentInn, getInnTarget } from '../lib/inn-selectors';
 import { innActions } from './InnSlice';
 
 /**
@@ -67,5 +67,40 @@ export const saveInn =
                 }),
             );
             return false;
+        }
+    };
+
+/**
+ * ИНН записали в обход этого блока (вкладка «ИНН» сделки, «Выбрать»): в
+ * Битриксе значение уже новое, а шапка до перезагрузки показывала старое.
+ * Перечитываем ОДНУ сущность — ту, чей ИНН показывает шапка (компания,
+ * без неё сделка, лид), — и показываем ровно то, что увидели бы после
+ * перезагрузки. Бэк при выборе пишет ИНН в сделку, а в компанию — только в
+ * пустое поле, поэтому гадать по ответу вкладки нельзя.
+ *
+ * Полное обновление сущностей (setAppBitrixData) не годится: оно заново
+ * собирает поля, контакты и связи клиента — лишние запросы ради одного ИНН.
+ */
+export const refreshInnFromBitrix =
+    () => async (dispatch: AppDispatch, getState: AppGetState) => {
+        const target = getInnTarget(getState());
+        if (!target) return;
+        try {
+            const bitrix = Bitrix.getService();
+            const row = (
+                target.entity === 'company'
+                    ? await bitrix.company.get(target.entityId)
+                    : target.entity === 'deal'
+                      ? await bitrix.deal.get(target.entityId)
+                      : // У лида get отдаёт ответ целиком, запись — в result.
+                        (await bitrix.lead.get(target.entityId))?.result
+            ) as unknown as Record<string, unknown> | null;
+            const raw = row?.[target.ufKey];
+            const value = typeof raw === 'string' ? raw.trim() : '';
+            if (value && value !== getCurrentInn(getState())) {
+                dispatch(innActions.syncValue({ value }));
+            }
+        } catch (error) {
+            console.error('refreshInnFromBitrix error', error);
         }
     };

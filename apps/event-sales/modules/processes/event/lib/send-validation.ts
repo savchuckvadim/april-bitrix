@@ -1,5 +1,4 @@
 import type { RootState } from '@/modules/app/model/store';
-import { getCanSellContext } from '@/modules/app/lib/utills/app-state-util';
 import { EV_REPORT_PROP } from '@/modules/entities/EventReport/type/event-report-type';
 import {
     EV_PLAN_CODE,
@@ -79,11 +78,11 @@ export const validateSend = (state: RootState): SendValidationResult => {
         }
     }
 
-    // Продажа закрывает сделку в «Успех»: нужна сделка или компания
-    // (getCanSellContext). По чистому лиду закрывать нечего. Отказ разрешён.
-    if (workStatus === 'success' && !getCanSellContext(state)) {
+    // Продажа требует компанию: без неё сделка продажи и её привязки на
+    // бэке не создаются — отчёт уходил бы в никуда. Отказ разрешён.
+    if (workStatus === 'success' && !state.app.bitrix.company) {
         result.errors[EV_ERROR_CODE.WORK_STATUS] =
-            'Продажу нельзя оформить без сделки — переведите заявку в работу';
+            'Продажу нельзя оформить без компании — привяжите компанию к сделке';
     }
 
     if (isFail && state.app.config.withPostFail) {

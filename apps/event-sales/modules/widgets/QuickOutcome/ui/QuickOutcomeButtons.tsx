@@ -2,12 +2,10 @@
 
 import { FC } from 'react';
 import dynamic from 'next/dynamic';
-import { Button } from '@workspace/ui/components/button';
-import { cn } from '@workspace/ui/lib/utils';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { QUICK_OUTCOME_TEXT } from '../lib/quick-outcome';
 import { useQuickOutcomeActions } from '../lib/hooks/use-quick-outcome-actions';
-import { QUICK_OUTCOME_TONE_CLASS } from './quick-outcome-tone';
+import { QuickOutcomeAction } from './QuickOutcomeAction';
 
 /*
  * Окно тянет за собой шаги отправки («Осталось заполнить», чек-лист
@@ -29,7 +27,9 @@ interface QuickOutcomeButtonsProps {
 
 /**
  * «Продажа» и «Отказ» рядом с «создать»: итог по клиенту одним действием,
- * без открытия дела. Какие кнопки показать — правило getQuickOutcomeButtons.
+ * без открытия дела. Какие кнопки показать — правило getQuickOutcomeButtons:
+ * в сделке без компании «Продажа» серая с подсказкой «Добавьте компанию в
+ * сделку».
  *
  * Окно итога рисуется только здесь: шапка на экране списка есть всегда, и
  * крупные кнопки пустого списка (QuickOutcomeLargeButtons) открывают это же
@@ -38,26 +38,23 @@ interface QuickOutcomeButtonsProps {
 export const QuickOutcomeButtons: FC<QuickOutcomeButtonsProps> = ({
     isItemScreen,
 }) => {
-    const { kinds, disabled, hint, open } = useQuickOutcomeActions(isItemScreen);
+    const { buttons, disabled, hint, open } =
+        useQuickOutcomeActions(isItemScreen);
     const isStarted = useAppSelector(s => s.quickOutcome.kind !== null);
 
     return (
         <>
-            {kinds.map(kind => (
-                <Button
-                    key={kind}
+            {buttons.map(button => (
+                <QuickOutcomeAction
+                    key={button.kind}
+                    button={button}
+                    label={QUICK_OUTCOME_TEXT[button.kind].button}
                     size="sm"
-                    variant="outline"
+                    className="h-6 px-2 text-xs"
                     disabled={disabled}
-                    title={hint}
-                    className={cn(
-                        'h-6 px-2 text-xs',
-                        QUICK_OUTCOME_TONE_CLASS[kind],
-                    )}
-                    onClick={() => open(kind)}
-                >
-                    {QUICK_OUTCOME_TEXT[kind].button}
-                </Button>
+                    hint={hint}
+                    onOpen={open}
+                />
             ))}
             {isStarted && <QuickOutcomeDialog />}
         </>

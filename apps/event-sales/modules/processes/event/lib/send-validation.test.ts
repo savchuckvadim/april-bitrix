@@ -163,23 +163,28 @@ describe('validateSend — статус «Не ЦА»', () => {
     });
 });
 
-describe('validateSend — продажа без компании (владелец, 06.10.2026)', () => {
+describe('validateSend — продажа только с компанией (владелец, 06.10.2026)', () => {
     const sale = (bitrix: { company?: unknown; deal?: unknown; lead?: unknown }) =>
         validateSend(
             makeState({ workStatus: 'success', isPlanActive: false, bitrix }),
         ).result.errors[EV_ERROR_CODE.WORK_STATUS];
 
-    it('сделка без компании — продажу оформить можно', () => {
-        expect(sale({ company: null, deal: { ID: '27537' } })).toBeFalsy();
-    });
+    const NEEDS_COMPANY =
+        'Продажу нельзя оформить без компании — привяжите компанию к сделке';
 
-    it('компания — можно, как и раньше', () => {
+    it('компания — продажу оформить можно', () => {
         expect(sale({ company: { ID: '5' } })).toBeFalsy();
     });
 
-    it('чистый лид — нельзя: закрывать в «Успех» нечего', () => {
+    it('сделка без компании — нельзя: компанию надо добавить в сделку', () => {
+        expect(sale({ company: null, deal: { ID: '27537' } })).toBe(
+            NEEDS_COMPANY,
+        );
+    });
+
+    it('чистый лид — нельзя', () => {
         expect(sale({ company: null, deal: null, lead: { ID: '9' } })).toBe(
-            'Продажу нельзя оформить без сделки — переведите заявку в работу',
+            NEEDS_COMPANY,
         );
     });
 });

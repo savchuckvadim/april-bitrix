@@ -30,6 +30,38 @@ export interface InnTarget {
 const INN_CODE = PBX_SALES_KONSTRUCTOR_FIELD_CODES.op_inn;
 const INN_POOL_CODE = PBX_SALES_KONSTRUCTOR_FIELD_CODES.op_inn_pool;
 
+type InnFields = Parameters<typeof findUfKey>[0];
+
+/** Куда писать ИНН у одной сущности; поля нет или id битый — null. */
+const toInnTarget = (
+    entity: InnTarget['entity'],
+    raw: object,
+    fields: InnFields,
+): InnTarget | null => {
+    const row = raw as Record<string, unknown>;
+    const key = findUfKey(fields, INN_CODE);
+    if (!key) return null;
+
+    const entityId = Number(row.ID);
+    if (!Number.isFinite(entityId) || entityId <= 0) return null;
+
+    const rawValue = row[key];
+    const value =
+        typeof rawValue === 'string' && rawValue.trim()
+            ? rawValue.trim()
+            : null;
+
+    const poolKey = findUfKey(fields, INN_POOL_CODE);
+    return {
+        entity,
+        entityId,
+        ufKey: key,
+        value,
+        poolKey,
+        poolValues: poolKey ? row[poolKey] : null,
+    };
+};
+
 export const getInnTarget = createSelector(
     [
         (state: RootState) => state.portal.portal,
@@ -38,53 +70,38 @@ export const getInnTarget = createSelector(
         (state: RootState) => state.app.bitrix.lead,
     ],
     (portal, company, deal, lead): InnTarget | null => {
-        const target = company
-            ? {
-                  entity: 'company' as const,
-                  raw: company,
-                  fields: portal?.company?.bitrixfields,
-              }
-            : deal
-              ? {
-                    entity: 'deal' as const,
-                    raw: deal,
-                    fields: portal?.bitrixDeal?.bitrixfields,
-                }
-              : lead
-                ? {
-                      entity: 'lead' as const,
-                      raw: lead,
-                      fields: portal?.lead?.bitrixfields,
-                  }
-                : null;
-        if (!target) return null;
-
-        const key = findUfKey(target.fields, INN_CODE);
-        if (!key) return null;
-
-        const entityId = Number((target.raw as { ID?: unknown }).ID);
-        if (!Number.isFinite(entityId) || entityId <= 0) return null;
-
-        const rawValue = (target.raw as Record<string, unknown>)[key];
-        const value =
-            typeof rawValue === 'string' && rawValue.trim()
-                ? rawValue.trim()
-                : null;
-
-        const poolKey = findUfKey(target.fields, INN_POOL_CODE);
-        const poolValues = poolKey
-            ? (target.raw as Record<string, unknown>)[poolKey]
-            : null;
-
-        return {
-            entity: target.entity,
-            entityId,
-            ufKey: key,
-            value,
-            poolKey,
-            poolValues,
-        };
+        if (company) {
+            return toInnTarget(
+                'company',
+                company,
+                portal?.company?.bitrixfields,
+            );
+        }
+        if (deal) {
+            return toInnTarget('deal', deal, portal?.bitrixDeal?.bitrixfields);
+        }
+        if (lead) {
+            return toInnTarget('lead', lead, portal?.lead?.bitrixfields);
+        }
+        return null;
     },
+);
+
+/**
+ * Второй носитель текущего ИНН: шапка пишет ИНН компании — тот же ИНН
+ * обязан встать и в сделку (владелец, 06.10.2026: текущий ИНН один в
+ * сделке и в компании). Компании или сделки нет — null.
+ */
+export const getInnMirrorTarget = createSelector(
+    [
+        (state: RootState) => state.portal.portal,
+        (state: RootState) => state.app.bitrix.company,
+        (state: RootState) => state.app.bitrix.deal,
+    ],
+    (portal, company, deal): InnTarget | null =>
+        company && deal
+            ? toInnTarget('deal', deal, portal?.bitrixDeal?.bitrixfields)
+            : null,
 );
 
 /** Текущий ИНН: свежесохранённый в сессии перекрывает значение из сущности. */

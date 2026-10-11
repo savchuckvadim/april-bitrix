@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { PBXFieldItem } from '@/modules/app/types/portal/portal-type';
 import {
     getProspectCaption,
+    getProspectCaptionVariants,
     getProspectName,
     getProspectPreviewCaption,
     getProspectSteps,
@@ -121,5 +122,16 @@ describe('getProspectPreviewCaption — плашка шапки (06.10.2026)', (
                 previewName: 'Горячий',
             }),
         ).toBeNull();
+    });
+});
+
+describe('getProspectCaptionVariants — ширина подписи шапки', () => {
+    it('по варианту на ступень и «не задан» — по ним держится ширина', () => {
+        expect(
+            getProspectCaptionVariants([
+                { code: 'red', label: 'Красный', color: 'x' },
+                { code: 'green', label: 'Зелёный', color: 'y' },
+            ] as Parameters<typeof getProspectCaptionVariants>[0]),
+        ).toEqual(['Сейчас: Красный', 'Сейчас: Зелёный', 'Прогноз не задан']);
     });
 });

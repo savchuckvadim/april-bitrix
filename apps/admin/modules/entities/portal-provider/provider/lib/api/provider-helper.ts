@@ -1,5 +1,4 @@
-import { getAdminPortalProvider } from '@workspace/nest-pbx-install-api';
-import '@/modules/entities/pbx/lib/pbx-install-client';
+import { getAdminPortalProvider } from '@workspace/nest-admin-api';
 import type {
     CreateProviderWithRq,
     Provider,

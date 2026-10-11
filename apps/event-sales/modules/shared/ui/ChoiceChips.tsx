@@ -14,6 +14,8 @@ interface ChoiceChipsProps {
     onToggle: (code: string) => void;
     /** Подсветка обязательного, но пустого выбора. */
     invalid?: boolean;
+    /** Выбор сохраняется — чипы неактивны до ответа. */
+    disabled?: boolean;
     ariaLabel?: string;
 }
 
@@ -30,12 +32,14 @@ export const ChoiceChips: FC<ChoiceChipsProps> = ({
     selected,
     onToggle,
     invalid,
+    disabled,
     ariaLabel,
 }) => (
     <div
         role="group"
         aria-label={ariaLabel}
         aria-invalid={invalid}
+        aria-busy={disabled}
         className="flex flex-wrap items-center gap-1"
     >
         {options.map(option => {
@@ -46,9 +50,11 @@ export const ChoiceChips: FC<ChoiceChipsProps> = ({
                     type="button"
                     aria-pressed={isSelected}
                     title={option.name}
+                    disabled={disabled}
                     onClick={() => onToggle(option.code)}
                     className={cn(
                         'max-w-full truncate rounded-md border px-2 py-0.5 text-xs transition-colors',
+                        'disabled:cursor-wait disabled:opacity-60',
                         'focus-visible:ring-ring/50 outline-none focus-visible:ring-[3px]',
                         isSelected
                             ? 'border-primary/40 bg-primary/10 text-foreground'

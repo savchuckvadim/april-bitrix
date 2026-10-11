@@ -6,6 +6,7 @@ import { setCurrentColor } from '../../model/EventCompanyThunk';
 import type { CompanyColorType } from '../../utils/event-company-util';
 import {
     getProspectCaption,
+    getProspectCaptionVariants,
     getProspectName,
     getProspectPreviewCaption,
     getProspectSteps,
@@ -24,6 +25,8 @@ export interface ProspectScaleView {
     currentCaption: string;
     /** «Станет: Y» под курсором — плашка поверх шапки; null — нечего. */
     previewCaption: string | null;
+    /** Все варианты «Сейчас: …» — шапка держит ширину по самому длинному. */
+    captionVariants: string[];
     isCaptionError: boolean;
     isLoading: boolean;
     select: (code: string) => void;
@@ -43,6 +46,7 @@ export const useProspectScale = (): ProspectScaleView => {
     const [previewCode, setPreview] = useState<string | null>(null);
 
     const current = (color.current?.code as CompanyColorType | null) ?? null;
+    const steps = getProspectSteps(color.items);
     const captionInput = {
         error: color.error,
         currentName: getProspectName(color.items, current),
@@ -51,7 +55,7 @@ export const useProspectScale = (): ProspectScaleView => {
 
     return {
         hasField: Boolean(color.field),
-        steps: getProspectSteps(color.items),
+        steps,
         current,
         caption: getProspectCaption(captionInput),
         currentCaption: getProspectCaption({
@@ -59,6 +63,7 @@ export const useProspectScale = (): ProspectScaleView => {
             previewName: undefined,
         }),
         previewCaption: getProspectPreviewCaption(captionInput),
+        captionVariants: getProspectCaptionVariants(steps),
         isCaptionError: Boolean(color.error),
         isLoading: color.isLoading,
         select: code => dispatch(setCurrentColor(code as CompanyColorType)),

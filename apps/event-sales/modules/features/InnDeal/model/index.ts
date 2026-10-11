@@ -39,7 +39,9 @@ export type InnConflictKind =
     | 'inn_other_company'
     | 'requisite_foreign'
     | 'fields_missing'
-    | 'requisites_denied';
+    | 'requisites_denied'
+    /** ИНН сделки и компании разные — выбор пишет текущий в обе. */
+    | 'current_mismatch';
 
 export type InnConflictLevel = 'info' | 'warning' | 'error';
 

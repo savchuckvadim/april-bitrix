@@ -18,6 +18,7 @@ import {
 import { useEventNavigation } from '@/modules/processes/event';
 import { EventCard } from '@/modules/widgets/EventList/ui/EventCard';
 import { OtherTaskRow } from '@/modules/widgets/EventList/ui/OtherTaskRow';
+import { EmptyEventsActions } from '@/modules/widgets/EventList/ui/EmptyEventsActions';
 import { APP_DISPLAY_MODE } from '@/modules/app/types/app/app-type';
 import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
 import { cn } from '@workspace/ui/lib/utils';
@@ -92,6 +93,9 @@ export const EntityTasksCard: FC<EntityTasksCardProps> = ({
                 status={status}
                 isEmpty={!tasks?.length}
                 emptyText="Открытых событий нет."
+                // Дел нет — на их месте «Создать», «Отказ», «Продажа», как в
+                // списке событий (владелец, 06.10.2026).
+                emptyContent={<EmptyEventsActions />}
                 errorText="Не удалось загрузить события — портал не ответил."
                 onRetry={() => dispatch(reloadApp())}
             >

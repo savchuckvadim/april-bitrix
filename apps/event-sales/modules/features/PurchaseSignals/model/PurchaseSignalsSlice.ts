@@ -14,12 +14,15 @@ export interface PurchaseSignalsState {
     valueByCode: Record<string, string>;
     /** Коды выбранных конкурентов поверх строки; null — правок не было. */
     concurentCodes: string[] | null;
+    /** Выбор конкурентов пишется в CRM — чипы ждут ответа. */
+    isConcurentsSaving: boolean;
     error: string | null;
 }
 
 const initialState: PurchaseSignalsState = {
     valueByCode: {},
     concurentCodes: null,
+    isConcurentsSaving: false,
     error: null,
 };
 
@@ -35,6 +38,9 @@ const purchaseSignalsSlice = createSlice({
         },
         setConcurents(state, action: PayloadAction<{ codes: string[] }>) {
             state.concurentCodes = action.payload.codes;
+        },
+        setConcurentsSaving(state, action: PayloadAction<{ status: boolean }>) {
+            state.isConcurentsSaving = action.payload.status;
         },
         setError(state, action: PayloadAction<{ message: string | null }>) {
             state.error = action.payload.message;
@@ -53,6 +59,10 @@ export const purchaseSignalsActions: {
     setConcurents: ActionCreatorWithPayload<
         { codes: string[] },
         'purchaseSignals/setConcurents'
+    >;
+    setConcurentsSaving: ActionCreatorWithPayload<
+        { status: boolean },
+        'purchaseSignals/setConcurentsSaving'
     >;
     setError: ActionCreatorWithPayload<
         { message: string | null },

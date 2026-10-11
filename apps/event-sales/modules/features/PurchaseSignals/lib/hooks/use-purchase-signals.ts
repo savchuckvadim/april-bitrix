@@ -26,6 +26,8 @@ export interface ConcurentsView {
     options: ConcurentOption[];
     /** Коды выбранных вариантов. */
     selected: string[];
+    /** Выбор пишется в CRM — чипы неактивны, рядом «Сохраняем…». */
+    isSaving: boolean;
     toggle: (code: string) => void;
 }
 
@@ -46,6 +48,7 @@ export interface PurchaseSignalsView {
 const NO_CONCURENTS: ConcurentsView = {
     options: [],
     selected: [],
+    isSaving: false,
     toggle: () => {},
 };
 
@@ -77,6 +80,9 @@ export const usePurchaseSignals = (): PurchaseSignalsView => {
     const overrides = useAppSelector(s => s.purchaseSignals.valueByCode);
     const concurentOverride = useAppSelector(
         s => s.purchaseSignals.concurentCodes,
+    );
+    const isConcurentsSaving = useAppSelector(
+        s => s.purchaseSignals.isConcurentsSaving,
     );
 
     return useMemo(() => {
@@ -142,6 +148,7 @@ export const usePurchaseSignals = (): PurchaseSignalsView => {
             ? {
                   options,
                   selected,
+                  isSaving: isConcurentsSaving,
                   toggle: code =>
                       dispatch(
                           saveConcurents(
@@ -161,5 +168,13 @@ export const usePurchaseSignals = (): PurchaseSignalsView => {
             concurents,
             error,
         };
-    }, [bitrix, portal, dispatch, error, overrides, concurentOverride]);
+    }, [
+        bitrix,
+        portal,
+        dispatch,
+        error,
+        overrides,
+        concurentOverride,
+        isConcurentsSaving,
+    ]);
 };

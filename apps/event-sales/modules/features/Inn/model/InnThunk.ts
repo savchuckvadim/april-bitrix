@@ -5,8 +5,43 @@ import {
     mergeInnPool,
     normalizeInn,
 } from '../lib/inn-validate';
-import { getCurrentInn, getInnTarget } from '../lib/inn-selectors';
+import {
+    getCurrentInn,
+    getInnMirrorTarget,
+    getInnTarget,
+} from '../lib/inn-selectors';
+import { reportFrontError } from '@/modules/shared/front-error';
 import { innActions } from './InnSlice';
+
+/**
+ * Тот же ИНН — во второй носитель (сделку, когда пишем компанию). Сбой не
+ * отменяет основную запись: ИНН компании уже сохранён, а сделку выровняет
+ * вкладка «ИНН» при следующем открытии.
+ */
+const writeInnMirror = async (
+    getState: AppGetState,
+    digits: string,
+): Promise<void> => {
+    const mirror = getInnMirrorTarget(getState());
+    if (!mirror || mirror.value === digits) return;
+    const fields: Record<string, unknown> = { [mirror.ufKey]: digits };
+    if (mirror.poolKey) {
+        fields[mirror.poolKey] = mergeInnPool(
+            mirror.poolValues,
+            mirror.value,
+            digits,
+        );
+    }
+    try {
+        await Bitrix.getService().deal.update(mirror.entityId, fields as never);
+    } catch (error) {
+        reportFrontError({
+            place: 'inn.save-mirror',
+            message: error instanceof Error ? error.message : String(error),
+            context: { entity: mirror.entity, id: mirror.entityId },
+        });
+    }
+};
 
 /**
  * Запись ИНН в текущую сущность (компания приоритетно, без неё — сделка/лид).
@@ -57,6 +92,7 @@ export const saveInn =
             } else {
                 await bitrix.lead.update(target.entityId, fields as never);
             }
+            await writeInnMirror(getState, digits);
             dispatch(innActions.setSaved({ value: digits }));
             return true;
         } catch (error) {

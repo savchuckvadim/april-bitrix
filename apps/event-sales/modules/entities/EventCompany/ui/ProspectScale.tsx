@@ -89,10 +89,22 @@ export const ProspectScale: FC<ProspectScaleProps> = ({
             {/* Шапка: подпись постоянной ширины («Сейчас: X»), а «Станет: Y»
                 всплывает плашкой ПОВЕРХ — соседи не сдвигаются. */}
             {!compact && !block && (
-                <span className="relative min-w-0">
+                <span className="relative grid min-w-0 text-xs">
+                    {/* Невидимые варианты в той же ячейке задают ширину по
+                        самому длинному: «Сейчас: Красный» и «Сейчас: Зелёный»
+                        разной длины, смена цвета не должна сдвигать соседей. */}
+                    {scale.captionVariants.map(variant => (
+                        <span
+                            key={variant}
+                            aria-hidden
+                            className="invisible col-start-1 row-start-1 whitespace-nowrap"
+                        >
+                            {variant}
+                        </span>
+                    ))}
                     <span
                         className={cn(
-                            'block truncate text-xs',
+                            'col-start-1 row-start-1 truncate',
                             scale.isCaptionError
                                 ? 'text-destructive'
                                 : 'text-muted-foreground',

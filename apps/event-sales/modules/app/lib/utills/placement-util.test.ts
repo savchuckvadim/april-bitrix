@@ -70,6 +70,9 @@ const runServerBatch = (
                     | Record<string, unknown>
                     | undefined;
                 rawId = source?.[ref[2]!];
+                // Как настоящий Битрикс (gsr, 09.10.2026): поле-источник null →
+                // подстановка не падает, crm.company.get отдаёт компанию #1.
+                if (source && rawId === null) rawId = 1;
             }
         }
         const id = Number(rawId);
@@ -225,6 +228,24 @@ describe('getEntitiesFromPlacement: DEAL одним батчем', () => {
         );
 
         expect(fake.service.api.callBatch).toHaveBeenCalledTimes(1);
+        expect(result.currentDeal).toEqual(deal);
+        expect(result.currentCompany).toBeNull();
+        expect(result.from).toBe(APP_FROM_ENUM.DEAL);
+    });
+
+    it('сделка с COMPANY_ID: null — компанию #1 портала, которую отдаёт подстановка, не берём', async () => {
+        const deal = { ID: '12', COMPANY_ID: null, TITLE: 'Заведена руками' };
+        const fake = makeFakeBitrix({
+            deals: { 12: deal },
+            companies: { 1: { ID: '1', TITLE: 'Первая компания портала' } },
+        });
+        h.service = fake.service;
+
+        const result = await getEntitiesFromPlacement(
+            dealPlacement(12),
+            DOMAIN,
+        );
+
         expect(result.currentDeal).toEqual(deal);
         expect(result.currentCompany).toBeNull();
         expect(result.from).toBe(APP_FROM_ENUM.DEAL);

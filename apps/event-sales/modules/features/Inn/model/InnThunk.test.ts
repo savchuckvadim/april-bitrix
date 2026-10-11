@@ -7,16 +7,27 @@ const h = vi.hoisted(() => ({
         ufKey: string;
     } | null,
     current: null as string | null,
+    mirror: null as {
+        entity: 'deal';
+        entityId: number;
+        ufKey: string;
+        value: string | null;
+        poolKey: string | null;
+        poolValues: unknown;
+    } | null,
     companyGet: vi.fn(),
     dealGet: vi.fn(),
     leadGet: vi.fn(),
+    companyUpdate: vi.fn(),
+    dealUpdate: vi.fn(),
+    reportFrontError: vi.fn(),
 }));
 
 vi.mock('@workspace/bitrix', () => ({
     Bitrix: {
         getService: () => ({
-            company: { get: h.companyGet },
-            deal: { get: h.dealGet },
+            company: { get: h.companyGet, update: h.companyUpdate },
+            deal: { get: h.dealGet, update: h.dealUpdate },
             lead: { get: h.leadGet },
         }),
     },
@@ -25,10 +36,15 @@ vi.mock('@workspace/bitrix', () => ({
 vi.mock('../lib/inn-selectors', () => ({
     getInnTarget: () => h.target,
     getCurrentInn: () => h.current,
+    getInnMirrorTarget: () => h.mirror,
+}));
+
+vi.mock('@/modules/shared/front-error', () => ({
+    reportFrontError: h.reportFrontError,
 }));
 
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import { refreshInnFromBitrix } from './InnThunk';
+import { refreshInnFromBitrix, saveInn } from './InnThunk';
 
 const UF = 'UF_CRM_OP_INN';
 
@@ -45,6 +61,10 @@ const run = async () => {
 beforeEach(() => {
     h.target = { entity: 'deal', entityId: 27537, ufKey: UF };
     h.current = null;
+    h.mirror = null;
+    h.companyUpdate.mockReset();
+    h.dealUpdate.mockReset();
+    h.reportFrontError.mockReset();
     h.companyGet.mockReset();
     h.dealGet.mockReset();
     h.leadGet.mockReset();
@@ -98,5 +118,92 @@ describe('refreshInnFromBitrix', () => {
 
         expect(await run()).toEqual([]);
         expect(error).toHaveBeenCalled();
+    });
+});
+
+const save = async (value: string) => {
+    const types: string[] = [];
+    const dispatch = ((action: { type: string }) => {
+        types.push(action.type);
+        return action;
+    }) as unknown as AppDispatch;
+    const ok = await saveInn(value)(dispatch, (() => ({})) as AppGetState);
+    return { ok, types };
+};
+
+/**
+ * Текущий ИНН — один в сделке и в компании (владелец, 06.10.2026): шапка,
+ * записав ИНН компании, пишет его и в сделку.
+ */
+describe('saveInn — второй носитель', () => {
+    const COMPANY = {
+        entity: 'company' as const,
+        entityId: 5,
+        ufKey: UF,
+        value: null,
+        poolKey: null,
+        poolValues: null,
+    };
+
+    it('ИНН компании уходит и в сделку, с пополнением её вариантов', async () => {
+        h.target = COMPANY;
+        h.mirror = {
+            entity: 'deal',
+            entityId: 27537,
+            ufKey: UF,
+            value: '7812032055',
+            poolKey: 'UF_CRM_OP_INN_POOL',
+            poolValues: ['7812032055'],
+        };
+        h.companyUpdate.mockResolvedValue(true);
+        h.dealUpdate.mockResolvedValue(true);
+
+        const { ok, types } = await save('7707083893');
+
+        expect(ok).toBe(true);
+        expect(h.companyUpdate).toHaveBeenCalledWith(5, { [UF]: '7707083893' });
+        expect(h.dealUpdate).toHaveBeenCalledWith(27537, {
+            [UF]: '7707083893',
+            UF_CRM_OP_INN_POOL: ['7812032055', '7707083893'],
+        });
+        expect(types).toContain('inn/setSaved');
+    });
+
+    it('в сделке уже этот ИНН или сделки нет — пишем только компанию', async () => {
+        h.target = COMPANY;
+        h.companyUpdate.mockResolvedValue(true);
+        await save('7707083893');
+
+        h.mirror = {
+            entity: 'deal',
+            entityId: 27537,
+            ufKey: UF,
+            value: '7707083893',
+            poolKey: null,
+            poolValues: null,
+        };
+        await save('7707083893');
+
+        expect(h.dealUpdate).not.toHaveBeenCalled();
+    });
+
+    it('сделка не приняла ИНН — сохранение компании не отменяем, сбой в отчёт', async () => {
+        h.target = COMPANY;
+        h.mirror = {
+            entity: 'deal',
+            entityId: 27537,
+            ufKey: UF,
+            value: null,
+            poolKey: null,
+            poolValues: null,
+        };
+        h.companyUpdate.mockResolvedValue(true);
+        h.dealUpdate.mockRejectedValue(new Error('сеть'));
+
+        const { ok, types } = await save('7707083893');
+
+        expect(ok).toBe(true);
+        expect(types).toContain('inn/setSaved');
+        expect(h.reportFrontError).toHaveBeenCalled();
     });
 });

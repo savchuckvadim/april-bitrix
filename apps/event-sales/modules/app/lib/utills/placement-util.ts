@@ -94,10 +94,29 @@ const PLACEMENT_CMD = {
  *  - в dev-режиме BitrixBatchBackApiHelper строит cmd-строки без энкода
  *    (каноничная webhook-форма) и шлёт всю пачку одним REST `batch` — обе
  *    наши команды заведомо в одном чанке (≤50), порядок ключей сохранён.
- * У сделки без компании COMPANY_ID = 0 → `crm.company.get?ID=0` честно падает
- * на сервере, но с halt=0 не роняет пачку — ключ просто отсутствует в ответе.
+ * У сделки без компании COMPANY_ID бывает 0 — тогда `crm.company.get?ID=0`
+ * честно падает (halt=0, ключа нет в ответе) — а бывает null (сделка, заведённая
+ * руками без компании): подстановка тогда НЕ падает, и Битрикс отдаёт компанию
+ * #1 портала (проверено на gsr 09.10.2026 — отчёт ушёл в чужую компанию и
+ * создал под неё сделку). Поэтому ответ сверяется с COMPANY_ID сделки
+ * (`ownDealCompany`).
  */
 const DEAL_COMPANY_ID_REF = `$result[${PLACEMENT_CMD.DEAL}][COMPANY_ID]`;
+
+/**
+ * Компания пачки — только если это действительно компания сделки: COMPANY_ID
+ * сделки > 0 и совпадает с ID пришедшей компании. Иначе — сделка без компании.
+ */
+const ownDealCompany = (
+    deal: BXDeal | null,
+    company: BXCompany | null,
+): BXCompany | null => {
+    const dealCompanyId = Number(
+        (deal as { COMPANY_ID?: unknown } | null)?.COMPANY_ID,
+    );
+    if (!company || !(dealCompanyId > 0)) return null;
+    return Number(company.ID) === dealCompanyId ? company : null;
+};
 
 /** Что нужно достать батчем; `dealId` сам дотягивает компанию по `$result`. */
 type PlacementBatchPlan = {
@@ -189,9 +208,12 @@ const fetchPlacementEntitiesBatch = async (
     const raw = await bitrix.api.callBatch();
     const flat = flattenBatchResults(raw);
 
+    const deal = unwrapBatchEntity<BXDeal>(flat[PLACEMENT_CMD.DEAL]);
+    const company = unwrapBatchEntity<BXCompany>(flat[PLACEMENT_CMD.COMPANY]);
     return {
-        deal: unwrapBatchEntity<BXDeal>(flat[PLACEMENT_CMD.DEAL]),
-        company: unwrapBatchEntity<BXCompany>(flat[PLACEMENT_CMD.COMPANY]),
+        deal,
+        // Компания по $result-ссылке сделки — только своя (см. DEAL_COMPANY_ID_REF).
+        company: wantDeal ? ownDealCompany(deal, company) : company,
         lead: unwrapBatchEntity<BXLead>(flat[PLACEMENT_CMD.LEAD]),
     };
 };

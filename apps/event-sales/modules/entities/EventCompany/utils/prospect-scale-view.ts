@@ -62,6 +62,17 @@ export const getProspectCaption = ({
 };
 
 /**
+ * Все варианты подписи «Сейчас: …» — по ним шапка держит ширину подписи
+ * по самому длинному, чтобы смена цвета не сдвигала соседей.
+ */
+export const getProspectCaptionVariants = (
+    steps: readonly ProspectStepView[],
+): string[] => [
+    ...steps.map(step => getProspectCaption({ currentName: step.label })),
+    getProspectCaption({}),
+];
+
+/**
  * Что станет при клике — отдельной плашкой, для шапки.
  *
  * В шапке подпись стоит в строке с соседями, и удлинение «Сейчас: X → Y» при

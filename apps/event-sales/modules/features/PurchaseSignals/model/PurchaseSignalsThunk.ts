@@ -132,6 +132,9 @@ export const savePurchaseDate =
 export const saveConcurents =
     (codes: string[]) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
+        // Запись уже идёт: второй клик посчитан бы от старого выбора и
+        // ушёл параллельной записью — последний ответ перетёр бы первый.
+        if (getState().purchaseSignals.isConcurentsSaving) return;
         const targets = signalTargets(getState());
 
         const writable = targets
@@ -149,34 +152,43 @@ export const saveConcurents =
         if (!writable.length) return;
 
         dispatch(purchaseSignalsActions.setError({ message: null }));
+        dispatch(purchaseSignalsActions.setConcurentsSaving({ status: true }));
         let accepted = 0;
-        for (const target of writable) {
-            try {
-                await target.update(target.id, {
-                    [target.field.key]: target.field.value,
-                });
-                accepted += 1;
-            } catch (error) {
-                reportFrontError({
-                    place: 'purchase-signals.save-concurents',
-                    message:
-                        error instanceof Error ? error.message : String(error),
-                    context: { entity: target.kind, id: target.id },
-                });
+        try {
+            for (const target of writable) {
+                try {
+                    await target.update(target.id, {
+                        [target.field.key]: target.field.value,
+                    });
+                    accepted += 1;
+                } catch (error) {
+                    reportFrontError({
+                        place: 'purchase-signals.save-concurents',
+                        message:
+                            error instanceof Error
+                                ? error.message
+                                : String(error),
+                        context: { entity: target.kind, id: target.id },
+                    });
+                }
             }
-        }
-
-        if (accepted > 0) {
-            dispatch(purchaseSignalsActions.setConcurents({ codes }));
-        }
-        if (accepted < writable.length) {
+            if (accepted > 0) {
+                dispatch(purchaseSignalsActions.setConcurents({ codes }));
+            }
+            if (accepted < writable.length) {
+                dispatch(
+                    purchaseSignalsActions.setError({
+                        message:
+                            accepted === 0
+                                ? 'Конкуренты не сохранились — попробуйте ещё раз'
+                                : 'Конкуренты записаны не во все карточки — проверьте после отправки',
+                    }),
+                );
+            }
+        } finally {
+            // Снимаем «Сохраняем…» последним: новый выбор уже на экране.
             dispatch(
-                purchaseSignalsActions.setError({
-                    message:
-                        accepted === 0
-                            ? 'Конкуренты не сохранились — попробуйте ещё раз'
-                            : 'Конкуренты записаны не во все карточки — проверьте после отправки',
-                }),
+                purchaseSignalsActions.setConcurentsSaving({ status: false }),
             );
         }
     };

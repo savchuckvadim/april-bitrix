@@ -8,7 +8,7 @@ import type {
     ProviderWithRqResponseDto,
     RqResponseDto,
     UpdateRqDto,
-} from '@workspace/nest-pbx-install-api';
+} from '@workspace/nest-admin-api';
 
 /** Поставщик портала вместе с реквизитами (ответ бэка, слабо типизирован). */
 export type Provider = ProviderWithRqResponseDto;

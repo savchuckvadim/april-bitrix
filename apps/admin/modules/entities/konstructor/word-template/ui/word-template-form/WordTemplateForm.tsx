@@ -22,7 +22,45 @@ import {
 } from '@workspace/ui/components/select';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { OfferTemplateVisibility } from '@workspace/nest-konstructor-api';
+import { FormFieldRenderer, type FormFieldConfig } from '@/modules/shared/ui';
+import {
+    CLIENT_TYPE_OPTIONS,
+    EMPTY_CRITERIA_HELPER_TEXT,
+    SUPPLY_TYPE_OPTIONS,
+} from '@/modules/entities/konstructor/lib';
+import { usePortals } from '@/modules/entities/portal';
 import { ICreateWordTemplateDto, IUpdateWordTemplateDto } from '../../model';
+
+/**
+ * Критерии подбора: поставщик + типы клиента + виды размещения.
+ *
+ * Поля ХРАНЯТСЯ и редактируются, автоподбора шаблона КП по ним НЕТ
+ * (зафиксированное решение: шаблоны КП не заходят в общий резолвер
+ * шаблонов документов). Поэтому помечены как справочные.
+ */
+const CRITERIA_FIELDS: FormFieldConfig[] = [
+    {
+        name: 'agent_id',
+        label: 'ID поставщика',
+        type: 'text',
+        placeholder: '42',
+        helperText: 'Пусто — шаблон подходит любому поставщику.',
+    },
+    {
+        name: 'client_types',
+        label: 'Типы клиента',
+        type: 'multiselect',
+        options: CLIENT_TYPE_OPTIONS,
+        helperText: EMPTY_CRITERIA_HELPER_TEXT,
+    },
+    {
+        name: 'supply_types',
+        label: 'Виды размещения',
+        type: 'multiselect',
+        options: SUPPLY_TYPE_OPTIONS,
+        helperText: EMPTY_CRITERIA_HELPER_TEXT,
+    },
+];
 
 type WordTemplateFormCreateProps = {
     initialData?: Partial<ICreateWordTemplateDto>;
@@ -50,20 +88,21 @@ type WordTemplateFormEditProps = {
 
 type WordTemplateFormProps = WordTemplateFormCreateProps | WordTemplateFormEditProps;
 
+/**
+ * Видимость шаблона КП. Словарь бэкенда — public | private | user;
+ * «private» и есть портальная область (привязка через offer_template_portal).
+ */
 const visibilityOptions = [
-    { value: OfferTemplateVisibility.public, label: 'Public' },
-    // Backend visibility enum is public | private | user; "Portal" scope === private.
-    { value: OfferTemplateVisibility.private, label: 'Portal' },
-    { value: OfferTemplateVisibility.user, label: 'User' },
+    { value: OfferTemplateVisibility.public, label: 'Публичный — виден всем порталам' },
+    { value: OfferTemplateVisibility.private, label: 'Портальный — для выбранных порталов' },
+    { value: OfferTemplateVisibility.user, label: 'Пользовательский — для одного сотрудника' },
 ] as const;
-
 
 export function WordTemplateForm({
     initialData,
     onSubmit,
     onCreate,
     onUpdate,
-
     onCancel,
     isLoading = false,
     mode = 'create',
@@ -87,10 +126,41 @@ export function WordTemplateForm({
             portal_id: initialData?.portal_id ?? (portalId ? Number(portalId) : undefined),
             user_id: initialData?.user_id ?? (userId ? Number(userId) : undefined),
             file: initialData?.file,
+            // Критерии подбора. Пустая строка и пустой список = «для любого»;
+            // нормализация в DTO — в lib/utils/word-template-criteria-payload.
+            agent_id: initialData?.agent_id ?? '',
+            client_types: initialData?.client_types ?? [],
+            supply_types: initialData?.supply_types ?? [],
+            // Привязки к порталам (мультиселект в глобальном дереве).
+            portal_ids: initialData?.portal_ids ?? [],
         },
     });
 
     const selectedFile = watch('file');
+    const visibility = watch('visibility');
+
+    // Мультиселект порталов нужен только в ГЛОБАЛЬНОМ дереве и только для
+    // портальной видимости: внутри портала привязка задана самим маршрутом.
+    const showPortalsPicker = !portalId && visibility === OfferTemplateVisibility.private;
+    const portals = usePortals();
+    const portalOptions = React.useMemo(
+        () =>
+            (portals.data ?? []).map((portal) => ({
+                value: String(portal.id),
+                label: portal.domain ? `${portal.domain} (#${portal.id})` : `Портал #${portal.id}`,
+            })),
+        [portals.data],
+    );
+    const portalsField: FormFieldConfig = {
+        name: 'portal_ids',
+        label: 'Порталы',
+        type: 'multiselect',
+        options: portalOptions,
+        helperText:
+            portals.isLoading
+                ? 'Загружаем список порталов…'
+                : 'Шаблон будет доступен на отмеченных порталах. Привязки синхронизируются: снятая галочка удаляет привязку.',
+    };
 
     const onSubmitForm = (data: ICreateWordTemplateDto) => {
         const payload = {
@@ -98,6 +168,9 @@ export function WordTemplateForm({
             portal_id: portalId ? Number(portalId) : (data.portal_id ?? 0),
             user_id: userId ? Number(userId) : (data.user_id ?? 0),
             tags: data.tags ?? '',
+            // Вне портальной видимости мультиселект смысла не имеет — не шлём,
+            // иначе update трактовал бы [] как «снять все привязки».
+            portal_ids: showPortalsPicker ? data.portal_ids : undefined,
         };
 
         if (mode === 'create') {
@@ -156,9 +229,25 @@ export function WordTemplateForm({
                         <Input id="tags" {...register('tags')} placeholder="tag1, tag2" />
                     </div>
 
-                    {!portalId && (
+                    {showPortalsPicker && (
+                        <div className="space-y-2 rounded-md border p-4">
+                            <FormFieldRenderer<ICreateWordTemplateDto>
+                                fieldConfig={portalsField}
+                                register={register}
+                                control={control}
+                                errors={errors}
+                            />
+                            {portals.isError && (
+                                <p className="text-sm text-destructive">
+                                    Не удалось загрузить список порталов.
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {!portalId && !showPortalsPicker && (
                         <div className="space-y-2">
-                            <Label htmlFor="portal_id">Portal ID</Label>
+                            <Label htmlFor="portal_id">ID портала</Label>
                             <Input
                                 id="portal_id"
                                 type="number"
@@ -171,7 +260,7 @@ export function WordTemplateForm({
 
                     {!userId && (
                         <div className="space-y-2">
-                            <Label htmlFor="user_id">User ID</Label>
+                            <Label htmlFor="user_id">ID пользователя</Label>
                             <Input
                                 id="user_id"
                                 type="number"
@@ -181,6 +270,27 @@ export function WordTemplateForm({
                             />
                         </div>
                     )}
+
+                    <div className="space-y-4 rounded-md border p-4">
+                        <div className="space-y-1">
+                            <p className="text-sm font-medium">
+                                Критерии подбора
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                Поля сохраняются у шаблона справочно:
+                                автоподбор шаблона КП по ним не выполняется.
+                            </p>
+                        </div>
+                        {CRITERIA_FIELDS.map((fieldConfig) => (
+                            <FormFieldRenderer<ICreateWordTemplateDto>
+                                key={fieldConfig.name}
+                                fieldConfig={fieldConfig}
+                                register={register}
+                                control={control}
+                                errors={errors}
+                            />
+                        ))}
+                    </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="file">DOCX файл</Label>

@@ -3,7 +3,11 @@
 import { useRouter } from 'next/navigation';
 import { Button } from '@workspace/ui/components/button';
 import { WordTemplateForm } from '../word-template-form/WordTemplateForm';
-import { useUpdateWordTemplate, useWordTemplate } from '../../lib/hooks';
+import {
+    useUpdateWordTemplate,
+    useWordTemplate,
+    useWordTemplatePortals,
+} from '../../lib/hooks';
 import { IUpdateWordTemplateDto } from '../../model';
 
 interface WordTemplateEditPageContentProps {
@@ -20,8 +24,11 @@ export function WordTemplateEditPageContent({
     const router = useRouter();
     const updateTemplate = useUpdateWordTemplate();
     const { data: template, isLoading } = useWordTemplate(id);
+    // Текущие привязки к порталам — чтобы мультиселект в глобальном дереве
+    // показывал реальное состояние, а не пустой список.
+    const bindings = useWordTemplatePortals(portalId ? undefined : id);
 
-    if (isLoading) {
+    if (isLoading || (!portalId && bindings.isLoading)) {
         return (
             <div className="flex items-center justify-center p-8">
                 <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
@@ -66,6 +73,11 @@ export function WordTemplateEditPageContent({
                     is_active: template.is_active,
                     tags: template.tags || '',
                     portal_id: portalId ? Number(portalId) : undefined,
+                    // Критерии подбора: null на бэке = «для любого».
+                    agent_id: template.agent_id ?? '',
+                    client_types: template.client_types ?? [],
+                    supply_types: template.supply_types ?? [],
+                    portal_ids: (bindings.data ?? []).map((binding) => binding.portal_id),
                 }}
                 onSubmit={handleSubmit}
                 onCancel={() => router.push(`${listPath}/${id}`)}

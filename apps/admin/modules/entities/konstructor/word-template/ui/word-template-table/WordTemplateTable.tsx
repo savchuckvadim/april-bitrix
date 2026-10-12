@@ -3,6 +3,11 @@
 import * as React from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { DataTable, Column } from '@/modules/shared/ui/data-table';
+import {
+    formatCriteriaList,
+    getClientTypeLabel,
+    getSupplyTypeLabel,
+} from '@/modules/entities/konstructor/lib';
 import { IWordTemplateSummury } from '../../model';
 
 interface WordTemplateTableProps {
@@ -45,6 +50,25 @@ export function WordTemplateTable({
         { id: 'type', header: 'Тип', accessorKey: 'type', className: 'w-24' },
         { id: 'code', header: 'Код', accessorKey: 'code', className: 'w-48' },
         { id: 'counter', header: 'Счетчик', accessorKey: 'counter', className: 'w-24' },
+        {
+            id: 'agent_id',
+            // null — «любой поставщик», а не отсутствие данных.
+            header: 'Поставщик',
+            cell: (row) => row.agent_id ?? 'Любой',
+            className: 'w-24',
+        },
+        {
+            id: 'client_types',
+            header: 'Типы клиента',
+            cell: (row) => formatCriteriaList(row.client_types, getClientTypeLabel),
+            className: 'w-48',
+        },
+        {
+            id: 'supply_types',
+            header: 'Виды размещения',
+            cell: (row) => formatCriteriaList(row.supply_types, getSupplyTypeLabel),
+            className: 'w-40',
+        },
         {
             id: 'created_at',
             header: 'Создан',

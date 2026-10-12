@@ -22,6 +22,7 @@ import { ICreateWordTemplateDto, IUpdateWordTemplateDto, IWordTemplateSummury } 
 import { WordTemplateTagsDocumentControls } from '../components/WordTemplateTagsDocumentControls';
 import { WordTemplateForm } from '../word-template-form/WordTemplateForm';
 import { WordTemplateTable } from '../word-template-table/WordTemplateTable';
+import { WordTemplateUserWorkspace } from '../word-template-user-workspace/WordTemplateUserWorkspace';
 
 interface WordTemplateListProps {
     portalId?: string;
@@ -47,9 +48,12 @@ export function WordTemplateList({ portalId, userId, basePath }: WordTemplateLis
     const downloadTemplate = useDownloadWordTemplate();
 
     const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+    const [isWorkspaceOpen, setIsWorkspaceOpen] = React.useState(false);
     const [templateToDelete, setTemplateToDelete] = React.useState<IWordTemplateSummury | null>(null);
     const [templateToEdit, setTemplateToEdit] = React.useState<IWordTemplateSummury | null>(null);
 
+    // Какой запрос показываем. Для (портал + пользователь) ответ — объект
+    // { templates, selected }, у остальных — массив; приводим к списку ниже.
     const activeQuery = React.useMemo(() => {
         if (portalId && userId) {
             return userTemplates;
@@ -63,7 +67,16 @@ export function WordTemplateList({ portalId, userId, basePath }: WordTemplateLis
         return publicTemplates;
     }, [allTemplates, portalId, portalTemplates, publicTemplates, userId, userTemplates]);
 
-    const templates = Array.isArray(activeQuery.data) ? activeQuery.data : [];
+    const templates: IWordTemplateSummury[] = React.useMemo(() => {
+        const data: unknown = activeQuery.data;
+        if (Array.isArray(data)) {
+            return data as IWordTemplateSummury[];
+        }
+        if (data && typeof data === 'object' && 'templates' in data) {
+            return (data as { templates: IWordTemplateSummury[] }).templates;
+        }
+        return [];
+    }, [activeQuery.data]);
 
     const handleCreate = async (dto: ICreateWordTemplateDto) => {
         await createTemplate.mutateAsync(dto);
@@ -94,11 +107,19 @@ export function WordTemplateList({ portalId, userId, basePath }: WordTemplateLis
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between gap-2">
-                <h1 className="text-3xl font-bold">Word Templates</h1>
+                <h1 className="text-3xl font-bold">Шаблоны Word КП</h1>
                 <div className="flex gap-2">
                     <Button onClick={() => setIsCreateOpen((prev) => !prev)}>
                         {isCreateOpen ? 'Закрыть форму' : 'Создать шаблон'}
                     </Button>
+                    {portalId && !userId && (
+                        <Button
+                            variant="secondary"
+                            onClick={() => setIsWorkspaceOpen((prev) => !prev)}
+                        >
+                            {isWorkspaceOpen ? 'Скрыть режим пользователя' : 'От лица пользователя'}
+                        </Button>
+                    )}
                     <Button
                         variant="outline"
                         onClick={() => router.push(`${navigationPath}`)}
@@ -132,11 +153,19 @@ export function WordTemplateList({ portalId, userId, basePath }: WordTemplateLis
                         is_default: templateToEdit.is_default,
                         is_active: templateToEdit.is_active,
                         tags: '',
+                        // Критерии подбора: null на бэке = «для любого».
+                        agent_id: templateToEdit.agent_id ?? '',
+                        client_types: templateToEdit.client_types ?? [],
+                        supply_types: templateToEdit.supply_types ?? [],
                     }}
                     isLoading={updateTemplate.isPending}
                     onSubmit={handleEdit}
                     onCancel={() => setTemplateToEdit(null)}
                 />
+            )}
+
+            {portalId && !userId && isWorkspaceOpen && (
+                <WordTemplateUserWorkspace portalId={portalId} />
             )}
 
             <WordTemplateTable

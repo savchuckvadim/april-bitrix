@@ -11,3 +11,6 @@ export * from './use-user-word-templates';
 export * from './use-portal-word-templates';
 export * from './use-download-word-template-tags';
 export * from './use-upload-word-template-tags';
+export * from './use-word-template-portals';
+export * from './use-department-users';
+export * from './use-user-selected-template-actions';

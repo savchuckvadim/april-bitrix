@@ -9,6 +9,11 @@ import {
     CardHeader,
     CardTitle,
 } from '@workspace/ui/components/card';
+import {
+    formatCriteriaList,
+    getClientTypeLabel,
+    getSupplyTypeLabel,
+} from '@/modules/entities/konstructor/lib';
 import { IWordTemplate } from '../../model';
 
 interface WordTemplateCardProps {
@@ -39,6 +44,16 @@ export function WordTemplateCard({
                 <p><strong>Активен:</strong> {item.is_active ? 'Да' : 'Нет'}</p>
                 <p><strong>По умолчанию:</strong> {item.is_default ? 'Да' : 'Нет'}</p>
                 <p><strong>Теги:</strong> {item.tags || '—'}</p>
+                {/* Критерии подбора: хранятся справочно, автоподбор КП по ним не идёт. */}
+                <p><strong>Поставщик:</strong> {item.agent_id ?? 'Любой'}</p>
+                <p>
+                    <strong>Типы клиента:</strong>{' '}
+                    {formatCriteriaList(item.client_types, getClientTypeLabel)}
+                </p>
+                <p>
+                    <strong>Виды размещения:</strong>{' '}
+                    {formatCriteriaList(item.supply_types, getSupplyTypeLabel)}
+                </p>
             </CardContent>
             <CardFooter className="flex flex-wrap gap-2">
                 {onDownload && (

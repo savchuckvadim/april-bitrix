@@ -685,6 +685,50 @@ export const konstructorEntities: Entity[] = [
             }
         },
     },
+    {
+        // НЕ путать с пунктом «Виды договоров» (`/contract`) выше: тот —
+        // справочник видов договора в телефонии, а это шаблоны DOCX,
+        // по которым генерируется сам документ.
+        id: 6,
+        item: {
+            name: 'contract-template',
+            title: 'Шаблоны договоров',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/contract-template',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        // Шаблоны DOCX отчёта о поставке. Колонки `contract_type` у них нет
+        // (она только у шаблонов договоров), зато есть состав полей формы:
+        // `required_fields` / `optional_fields`.
+        id: 7,
+        item: {
+            name: 'supply-report-template',
+            title: 'Шаблоны отчётов о поставке',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/supply-report-template',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        // Шаблоны счетов. У них, в отличие от шаблонов договоров, ЕСТЬ
+        // колонка `visibility` (public | portal | provider).
+        id: 8,
+        item: {
+            name: 'invoice-template',
+            title: 'Шаблоны счетов',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/invoice-template',
+                method: API_METHOD.GET
+            }
+        },
+    },
 ]
 
 
@@ -757,6 +801,48 @@ export const portalKonstructorEntities: Entity[] = [
             type: ENTITY_QUANTITY.ENTITY,
             get: {
                 url: '/numerator',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        // Портальное дерево: список сужается до шаблонов этого портала
+        // ПЛЮС унаследованных общих (так отвечает GET /portal/:portal_id).
+        id: 6,
+        item: {
+            name: 'contract-template',
+            title: 'Шаблоны договоров',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/contract-template',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        // Портальное дерево: GET /supply-report-templates/portal/:portal_id
+        // отдаёт портальные шаблоны ВМЕСТЕ с унаследованными общими.
+        id: 7,
+        item: {
+            name: 'supply-report-template',
+            title: 'Шаблоны отчётов о поставке',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/supply-report-template',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        // Портальное дерево шаблонов счетов. Тот же модуль сущности, что и в
+        // глобальном дереве: разделяются только portalId и basePath.
+        id: 8,
+        item: {
+            name: 'invoice-template',
+            title: 'Шаблоны счетов',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/invoice-template',
                 method: API_METHOD.GET
             }
         },

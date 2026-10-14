@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
     Card,
     CardContent,
@@ -13,30 +13,42 @@ import {
     PORTAL_APP_TITLE,
 } from '../../../consts/app-settings.const';
 import { useSavePortalAppSettings } from '../../../lib/hooks/use-app-settings';
+import {
+    buildGroupViews,
+    normalizeSettingsQuery,
+} from '../../../lib/settings-view';
 import type {
     PortalAppSettingsBlock,
     PortalAppSettingValue,
 } from '../../../model';
-import { AppSettingField } from './AppSettingField';
+import { AppSettingsGroupSection } from './AppSettingsGroupSection';
 
 interface AppSettingsBlockProps {
     portalId: number;
     block: PortalAppSettingsBlock;
+    /** Строка поиска панели: пусто — все категории свёрнуты. */
+    query: string;
 }
 
 /**
- * Блок одного приложения: поля из схемы бэка, локальный черновик
- * изменений, «Сохранить» шлёт только изменённые ключи (null = сброс).
+ * Блок одного приложения: категории из схемы бэка (сворачиваемые секции),
+ * локальный черновик изменений, «Сохранить» шлёт только изменённые ключи
+ * (null = сброс). При поиске блок без совпадений не показывается.
  */
 export const AppSettingsBlock = ({
     portalId,
     block,
+    query,
 }: AppSettingsBlockProps) => {
     const [draft, setDraft] = useState<
         Record<string, PortalAppSettingValue>
     >({});
     const save = useSavePortalAppSettings();
     const hasChanges = Object.keys(draft).length > 0;
+    const searching = normalizeSettingsQuery(query).length > 0;
+    const views = useMemo(() => buildGroupViews(block, query), [block, query]);
+
+    if (searching && views.length === 0) return null;
 
     const onSave = () =>
         save.mutate(
@@ -73,30 +85,28 @@ export const AppSettingsBlock = ({
                     </Button>
                 )}
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
                 {block.settings.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
                         {APP_SETTINGS_TEXT.empty}
                     </p>
                 ) : (
-                    block.settings.map(descriptor => {
-                        // Ключ черновика = camelCase-ключ схемы. Бэк отдаёт
-                        // snake_case code — маппинг ключа формы делаем по нему.
-                        const key = descriptor.code;
-                        return (
-                            <AppSettingField
-                                key={key}
-                                descriptor={descriptor}
-                                draft={draft[key]}
-                                onChange={value =>
-                                    setDraft(current => ({
-                                        ...current,
-                                        [key]: value,
-                                    }))
-                                }
-                            />
-                        );
-                    })
+                    views.map(view => (
+                        <AppSettingsGroupSection
+                            key={view.group.code}
+                            portalId={portalId}
+                            view={view}
+                            searching={searching}
+                            draft={draft}
+                            // Ключ черновика — snake_case code настройки.
+                            onChange={(code, value) =>
+                                setDraft(current => ({
+                                    ...current,
+                                    [code]: value,
+                                }))
+                            }
+                        />
+                    ))
                 )}
             </CardContent>
         </Card>

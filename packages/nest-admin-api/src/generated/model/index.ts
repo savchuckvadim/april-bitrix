@@ -525,6 +525,8 @@ export * from './portalAppSettingDescriptorDto';
 export * from './portalAppSettingDescriptorDtoDefault';
 export * from './portalAppSettingDescriptorDtoType';
 export * from './portalAppSettingDescriptorDtoValue';
+export * from './portalAppSettingGroupDto';
+export * from './portalAppSettingLinkDto';
 export * from './portalAppSettingOptionDto';
 export * from './portalAppSettingsBlockDto';
 export * from './portalAppSettingsBlockDtoAppCode';

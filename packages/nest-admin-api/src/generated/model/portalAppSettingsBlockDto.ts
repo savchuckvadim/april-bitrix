@@ -7,10 +7,13 @@
  */
 import type { PortalAppSettingsBlockDtoAppCode } from './portalAppSettingsBlockDtoAppCode';
 import type { PortalAppSettingDescriptorDto } from './portalAppSettingDescriptorDto';
+import type { PortalAppSettingGroupDto } from './portalAppSettingGroupDto';
 
 export interface PortalAppSettingsBlockDto {
   /** Код приложения. */
   appCode: PortalAppSettingsBlockDtoAppCode;
   /** Ключи настроек приложения со значениями. */
   settings: PortalAppSettingDescriptorDto[];
+  /** Категории, в которые попали ключи приложения, в порядке показа. */
+  groups: PortalAppSettingGroupDto[];
 }

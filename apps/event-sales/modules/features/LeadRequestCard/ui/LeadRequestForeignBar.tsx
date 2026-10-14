@@ -1,20 +1,22 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
-import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { acceptLeadRequest } from '../model/LeadRequestThunk';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { LEAD_REQUEST_TEXT } from '../consts/lead-request.const';
+import { LeadForeignAcceptDialog } from './LeadForeignAcceptDialog';
 
 /**
  * Непринятая заявка назначена другому сотруднику — справка без блокировки.
  *
  * Работу по делу она не запирает, а принять её может любой (решение
  * владельца 16.09): заявку закрывает сам факт принятия, а не то, кто нажал.
- * «Передать» здесь нет — передаёт тот, на ком заявка.
+ * Но принявший забирает клиента целиком, поэтому сначала — окно
+ * подтверждения (14.10.2026). «Передать» здесь нет — передаёт тот, на ком
+ * заявка.
  */
 export const LeadRequestForeignBar: FC = () => {
-    const dispatch = useAppDispatch();
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const saving = useAppSelector(state => state.leadRequest.saving);
 
     return (
@@ -29,10 +31,15 @@ export const LeadRequestForeignBar: FC = () => {
                 size="sm"
                 variant="outline"
                 disabled={saving}
-                onClick={() => dispatch(acceptLeadRequest())}
+                onClick={() => setIsConfirmOpen(true)}
             >
                 {LEAD_REQUEST_TEXT.acceptButton}
             </Button>
+
+            <LeadForeignAcceptDialog
+                open={isConfirmOpen}
+                onOpenChange={setIsConfirmOpen}
+            />
         </div>
     );
 };

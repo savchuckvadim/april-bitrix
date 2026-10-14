@@ -32,4 +32,6 @@ export interface PortalAppSettingDescriptorDto {
   options?: PortalAppSettingOptionDto[];
   /** Значение — СПИСОК кодов через запятую (тип при этом string): админка рисует чекбоксы по options. */
   isList?: boolean;
+  /** Код категории настройки (секция в админке); описание категории — в groups блока приложения. */
+  group: string;
 }

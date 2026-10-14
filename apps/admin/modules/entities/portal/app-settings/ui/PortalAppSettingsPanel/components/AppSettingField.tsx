@@ -73,8 +73,14 @@ export const AppSettingField = ({
 
     return (
         <div className="space-y-1">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
                 <Label>{descriptor.name}</Label>
+                <code
+                    className="select-all rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
+                    title={APP_SETTINGS_TEXT.copyCodeHint}
+                >
+                    {descriptor.code}
+                </code>
                 <span
                     className={
                         isCustomized

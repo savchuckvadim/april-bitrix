@@ -33,8 +33,10 @@ const block = (
                 { code: 'presentation', name: 'Презентация' },
                 { code: 'hot', name: 'Решение' },
             ],
+            group: 'calls_features',
         },
     ],
+    groups: [],
 });
 
 describe('parseDisabledEventTypes', () => {

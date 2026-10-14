@@ -1,5 +1,7 @@
 import type {
     PortalAppSettingDescriptorDto,
+    PortalAppSettingGroupDto,
+    PortalAppSettingLinkDto,
     PortalAppSettingOptionDto,
     PortalAppSettingsBlockDto,
     PortalAppSettingsResponseDto,
@@ -18,6 +20,10 @@ export type PortalAppSettingDescriptor = PortalAppSettingDescriptorDto;
 /** Значение справочника настройки-списка: код + подпись чекбокса. */
 export type PortalAppSettingOption = PortalAppSettingOptionDto;
 export type PortalAppSettingsSave = PortalAppSettingsSaveDto;
+/** Категория настроек приложения: секция с названием, пояснением и ссылками. */
+export type PortalAppSettingGroup = PortalAppSettingGroupDto;
+/** Ссылка категории на раздел админки (`{portalId}` подставляется). */
+export type PortalAppSettingLink = PortalAppSettingLinkDto;
 
 /** Код приложения (runtime-объект orval — автокомплит без magic strings). */
 export const PORTAL_APP_CODE = PortalAppSettingsBlockDtoAppCode;

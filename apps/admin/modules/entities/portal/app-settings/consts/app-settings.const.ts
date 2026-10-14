@@ -21,4 +21,7 @@ export const APP_SETTINGS_TEXT = {
     defaultHint: 'По умолчанию',
     resetToDefault: 'Сбросить на значение по умолчанию',
     loadError: 'Не удалось загрузить настройки приложений',
+    searchPlaceholder: 'Поиск: название, код или описание настройки',
+    nothingFound: 'Ничего не найдено. Попробуйте другое слово или код.',
+    copyCodeHint: 'Код настройки — по нему тоже ищется',
 } as const;

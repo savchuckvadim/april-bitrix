@@ -7,12 +7,12 @@
  */
 
 export interface AiDisciplineDto {
-    /** Звонков запланировано (call_plan). */
+    /** Звонков запланировано менеджером в CRM за период (записи «План» списка KPI, строка отчёта call_plan) — не план руководителя. */
     callPlan: number;
-    /** Звонков сделано (call_done). */
+    /** Звонков отмечено состоявшимися за период (строка отчёта call_done — «Звонок» таблицы KPI). */
     callDone: number;
-    /** Презентаций запланировано (presentation_plan). */
+    /** Презентаций запланировано менеджером в CRM за период (записи «План», строка отчёта presentation_plan) — не план руководителя. */
     presentationPlan: number;
-    /** Презентаций сделано (presentation_done). */
+    /** Презентаций проведено за период (строка отчёта presentation_done — «Презентация» таблицы KPI). */
     presentationDone: number;
 }

@@ -371,3 +371,21 @@
     --kpi-action-ev-success-done: rgba(35, 186, 35, 1);
     --kpi-action-ev-fail-done: rgba(255, 96, 85, 1);
 }
+
+/* ==========================================================================
+   KPI-sales: дневной дайджест — стеки почасовых графиков и рейтингов.
+   rgba (не oklch): canvas-чарты в Chrome 109 (LEGACY_CSS) oklch не понимают.
+   ========================================================================== */
+:root {
+    --digest-done: rgba(35, 186, 35, 1);
+    --digest-not-held: rgba(255, 96, 85, 1);
+    --digest-postponed: rgba(255, 180, 0, 1);
+    --digest-expired: rgba(160, 160, 160, 1);
+    --digest-planned: rgba(30, 144, 255, 1);
+    --digest-planned-at-start: rgba(135, 206, 250, 1);
+    --digest-documents: rgba(48, 224, 226, 1);
+    --digest-sales: rgba(20, 150, 20, 1);
+    --digest-refusals: rgba(200, 60, 50, 1);
+    --digest-calls: rgba(106, 180, 242, 1);
+    --digest-airtime: rgba(166, 110, 200, 1);
+}

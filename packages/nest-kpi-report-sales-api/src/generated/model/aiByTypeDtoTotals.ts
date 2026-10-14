@@ -8,7 +8,7 @@
 import type { AiTypeTotalsDto } from './aiTypeTotalsDto';
 
 /**
- * Итог по выбранному типу по домену; null при callType = all (см. totalsByType) и objections.
+ * Итог по выбранному типу по сотрудникам обзора (фильтр ∩ список разбора); null при callType = all (см. totalsByType) и objections.
  * @nullable
  */
 export type AiByTypeDtoTotals = AiTypeTotalsDto | null;

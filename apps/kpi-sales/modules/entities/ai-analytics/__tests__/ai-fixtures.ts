@@ -149,11 +149,15 @@ export const overview = (
         totalCalls: 100,
         analyzedCalls: 40,
         skippedNoManager: 0,
+        excludedShort: 0,
+        excludedNoType: 0,
+        excludedNoAnalysis: 0,
         otherSharePct: 10,
         disagreementsCount: 0,
         fromCache: false,
         generatedAt: '2026-09-07T10:00:00Z',
         confirmedOnly: false,
+        scope: { pilotActive: false, shownManagers: 5, hiddenByPilot: 0 },
     },
 });
 
@@ -182,6 +186,13 @@ export const byType = (overrides: Partial<AiByType> = {}): AiByType => ({
     totals: null,
     totalsByType: null,
     objections: null,
+    coverage: {
+        comparableFrom: '',
+        analyzedCalls: 0,
+        excludedBeforeComparable: 0,
+        excludedShort: 0,
+        excludedNoType: 0,
+    },
     ...overrides,
 });
 
@@ -539,8 +550,22 @@ export const dossier = (overrides: Partial<AiDossier> = {}): AiDossier => ({
         tenureBand: '6-12',
     },
     series: {
-        weeks: [{ periodKey: '2026-W37', n: 12, score: metric(6.2, 12) }],
-        months: [{ periodKey: '2026-08', n: 40, score: metric(6.4, 40) }],
+        weeks: [
+            {
+                periodKey: '2026-W37',
+                n: 12,
+                nBeforeComparable: 0,
+                score: metric(6.2, 12),
+            },
+        ],
+        months: [
+            {
+                periodKey: '2026-08',
+                n: 40,
+                nBeforeComparable: 0,
+                score: metric(6.4, 40),
+            },
+        ],
     },
     trends: null,
     planFact: null,

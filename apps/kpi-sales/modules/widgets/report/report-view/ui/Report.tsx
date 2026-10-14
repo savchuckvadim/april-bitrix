@@ -9,7 +9,12 @@ import { CallingsReportBlock } from './blocks/CallingsReportBlock';
 import { MergedReportBlock } from './blocks/MergedReportBlock';
 import { AirtimeBlock } from './blocks/AirtimeBlock';
 import { PlansBlock } from './blocks/PlansBlock';
-import { AiAnalyticsReport, ConversionsBlock, FinanceReport } from './blocks/lazy';
+import {
+    AiAnalyticsReport,
+    ConversionsBlock,
+    DigestReport,
+    FinanceReport,
+} from './blocks/lazy';
 
 /**
  * Тело отчёта: переключатель типа + композиция блоков.
@@ -21,9 +26,12 @@ export const Report = () => {
     // Гейт на случай кадра до авто-увода недоступной вкладки на «Все»
     const canFinance = useAccess(EAccessFeature.FINANCE_TAB);
     const canAi = useAccess(EAccessFeature.AI_TAB);
-    // Вкладки без блоков отчёта: эфирное время к ним не относится.
+    // Вкладки без блоков отчёта: эфирное время к ним не относится
+    // (у дайджеста свои звонки и эфир за день).
     const isStandalone =
-        reportType === EReportType.FINANCE || reportType === EReportType.AI;
+        reportType === EReportType.FINANCE ||
+        reportType === EReportType.AI ||
+        reportType === EReportType.DIGEST;
 
     return (
         <div>
@@ -65,6 +73,8 @@ export const Report = () => {
                     <PlansBlock />
                 </div>
             )}
+
+            {reportType === EReportType.DIGEST && <DigestReport />}
 
             {reportType === EReportType.FINANCE && canFinance && (
                 <FinanceReport />

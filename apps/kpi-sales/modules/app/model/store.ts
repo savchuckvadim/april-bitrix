@@ -23,6 +23,7 @@ import { reportAwardsReducer } from '@/modules/feature/report-awards/model/repor
 import { pbxFieldsReducer } from '@/modules/feature/pbx-fields/model/pbx-fields-slice';
 import { plansReducer } from '@/modules/feature/plans/model/plans-slice';
 import { aiAnalyticsReducer } from '@/modules/entities/ai-analytics/model/ai-analytics-slice';
+import { digestReducer } from '@/modules/entities/digest/model/digest-slice';
 import { getWSClient } from './ws-client';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
@@ -52,6 +53,7 @@ const rootReducer = combineReducers({
     pbxFields: pbxFieldsReducer,
     plans: plansReducer,
     aiAnalytics: aiAnalyticsReducer,
+    digest: digestReducer,
 });
 
 export const setupStore = () =>

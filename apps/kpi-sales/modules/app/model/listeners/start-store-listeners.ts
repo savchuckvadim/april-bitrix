@@ -14,6 +14,7 @@ import { startReportAwardsListener } from '@/modules/feature/report-awards/model
 import { startAiFlagsListener } from '@/modules/feature/ai-flags/model/listeners/ai-flags.listener';
 import { startAiRefetchListener } from '@/modules/entities/ai-analytics/model/listeners/ai-refetch.listener';
 import { startAiWsListener } from '@/modules/entities/ai-analytics/model/listeners/ai-ws.listener';
+import { startDigestWsListener } from '@/modules/entities/digest/model/listeners/digest-ws.listener';
 import type { AppDispatch, RootState, ThunkExtraArgument } from '../store';
 
 type AppListenerMiddleware = ListenerMiddlewareInstance<
@@ -44,6 +45,8 @@ export function startStoreListeners(listenerMiddleware: AppListenerMiddleware) {
     startAiFlagsListener(listenerMiddleware);
     startAiRefetchListener(listenerMiddleware);
     startAiWsListener(listenerMiddleware);
+    // Дневной дайджест: WS-события очереди (done несёт данные, error — текст).
+    startDigestWsListener(listenerMiddleware);
     // Синк UI-настроек регистрируется последним: его гидратация должна
     // перекрывать доменные дефолты (например, тип отчёта).
     startUiSettingsSyncListeners(listenerMiddleware);

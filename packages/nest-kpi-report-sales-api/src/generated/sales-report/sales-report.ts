@@ -8,6 +8,10 @@
 import type {
     CallingStatisticResponseDto,
     GetCallingStatisticDto,
+    KpiDigestCacheResetRequestDto,
+    KpiDigestCacheResetResponseDto,
+    KpiDigestRequestDto,
+    KpiDigestResponseDto,
     KpiReportGetResponseDto,
     PbxSalesKpiListItemDto,
     ReportGetRequestDto,
@@ -80,12 +84,40 @@ export const getSalesReport = () => {
             data: salesUserReportGetRequestDto,
         });
     };
+    /**
+     * Срез дня по сотрудникам из событий списка sales_kpi: что было запланировано на начало дня, что проведено результативно / не состоялось / перенесено / просрочено (с разбивкой по типам, звонки по подтипам), что запланировано на будущее, продажи и отказы, документы, фактические звонки и эфир по часам, записи с комментариями, сводка по всему порталу. Мгновенный ответ {status: ready|queued|error}; готовый дайджест приходит WS-событием kpi-report:digest:done на socketId либо поллингом (повторный POST до status ready). Партиции дня кэшируются: закрытый день — 30 дней, сегодня — 120 с.
+     * @summary Дневной дайджест отдела продаж
+     */
+    const kpiDigestGetDigest = (kpiDigestRequestDto: KpiDigestRequestDto) => {
+        return customAxios<KpiDigestResponseDto>({
+            url: `/api/kpi-report/digest/get`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: kpiDigestRequestDto,
+        });
+    };
+    /**
+     * Удаляет партиции дайджеста домена (события, план на день, звонки, конверты результатов): все дни либо только указанный день.
+     * @summary Сброс кэша дневного дайджеста
+     */
+    const kpiDigestResetCache = (
+        kpiDigestCacheResetRequestDto: KpiDigestCacheResetRequestDto,
+    ) => {
+        return customAxios<KpiDigestCacheResetResponseDto>({
+            url: `/api/kpi-report/digest/cache/reset`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: kpiDigestCacheResetRequestDto,
+        });
+    };
     return {
         kpiReportGetReport,
         kpiReportGetCallingStatistic,
         salesUserReportStart,
         salesUserReportStop,
         salesUserReportGetReportWithoutWs,
+        kpiDigestGetDigest,
+        kpiDigestResetCache,
     };
 };
 export type KpiReportGetReportResult = NonNullable<
@@ -115,5 +147,13 @@ export type SalesUserReportGetReportWithoutWsResult = NonNullable<
                 typeof getSalesReport
             >['salesUserReportGetReportWithoutWs']
         >
+    >
+>;
+export type KpiDigestGetDigestResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getSalesReport>['kpiDigestGetDigest']>>
+>;
+export type KpiDigestResetCacheResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getSalesReport>['kpiDigestResetCache']>
     >
 >;

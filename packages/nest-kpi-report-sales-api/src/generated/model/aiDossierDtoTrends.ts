@@ -8,7 +8,7 @@
 import type { AiManagerTrendsDto } from './aiManagerTrendsDto';
 
 /**
- * Тренды метрик менеджера за последнюю неделю окна (поток П1); null — снапшота трендов нет или данных мало, см. reasons.
+ * Тренды метрик менеджера за последнюю неделю окна (поток П1); null — снапшота трендов нет или разобранных звонков за окно (сумма n месяцев ряда) меньше порога n_min_none, см. reasons.
  * @nullable
  */
 export type AiDossierDtoTrends = AiManagerTrendsDto | null;

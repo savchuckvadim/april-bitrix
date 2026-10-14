@@ -30,6 +30,15 @@ export const AiAnalyticsReport = dynamic(
     { ssr: false },
 );
 
+/** Вкладка «Дайджест» — целиком ленивый виджет (chart.js, свой период). */
+export const DigestReport = dynamic(
+    () =>
+        import('@/modules/widgets/digest-report').then(
+            mod => mod.DigestReport,
+        ),
+    { ssr: false },
+);
+
 /** Вкладка «Финансы» — целиком ленивый виджет. */
 export const FinanceReport = dynamic(
     () =>

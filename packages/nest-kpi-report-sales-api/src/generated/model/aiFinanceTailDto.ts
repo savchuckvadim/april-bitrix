@@ -5,18 +5,21 @@
  * API приложения kpi-report-sales
  * OpenAPI spec version: 1.0
  */
+import type { AiFinanceSourceDto } from './aiFinanceSourceDto';
 import type { AiPipelineDto } from './aiPipelineDto';
 import type { AiHotByColorDto } from './aiHotByColorDto';
 import type { AiPipelineByContractTypeDto } from './aiPipelineByContractTypeDto';
 import type { AiPipelineByTermDto } from './aiPipelineByTermDto';
 
 export interface AiFinanceTailDto {
-    /** Продаж: сделок sales_base в успехе по CLOSEDATE за период. */
+    /** Продаж: сделок sales_base, закрытых в успех за период по дате закрытия, у которых менеджер — ответственный. То же число, что «Сделок» на вкладке «Финансы» за эти даты. */
     salesCount: number;
-    /** Аванс: сумма price × qty по товарным строкам. */
+    /** Аванс: сумма price × qty по товарным строкам закрытых сделок — «Аванс (в кассе)» вкладки «Финансы». */
     advanceAmount: number;
-    /** Месячный чек: сумма (сумма строки / эффективные месяцы). */
+    /** Месячный чек: сумма (сумма строки / эффективные месяцы) — «Месячная сумма» вкладки «Финансы». */
     monthlyAmount: number;
+    /** Откуда числа закрытых продаж: период и момент расчёта. Нет — обзор посчитан до появления поля (сохранённый расчёт). */
+    source?: AiFinanceSourceDto;
     /** Пайплайн от стадии «Презентация» и выше (открытые сделки). */
     pipelineFromStage: AiPipelineDto;
     /** «Горячие»: открытых сделок sales_base со стадией не ниже «В решении» (sales_in_progress) — решение владельца А.2; цвет компании условием не является. */

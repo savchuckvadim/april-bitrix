@@ -16,8 +16,8 @@ export interface AiCellKpiDto {
     fact: number | null;
     /** Причина отсутствия факта: kpiReason карты (refine-mapped-to-call, other-share-in-meta) либо kpi-item-missing:{code}. */
     reason?: string;
-    /** План CRM по коду за период (call_plan, presentation_*_plan). */
+    /** План CRM по коду за период — сколько менеджер сам запланировал в CRM (call_plan, presentation_*_plan); не план руководителя. */
     planCrm?: number;
-    /** План руководителя (UF_USR_A_SALES_PLAN_*) для кода: calls_done → call, presentations_done → presentation_uniq. */
+    /** План руководителя на период обзора (поле «План: …» сотрудника, пересчитан на даты обзора, как в блоке «Планы») для кода, чей факт — строка отчёта KPI «{код}_done» по каталогу планов: calls_done → call, presentations_done → presentation, sales_count → ev_success. Только включённые в настройках планов показатели с заданным значением больше нуля. */
     planHead?: number;
 }

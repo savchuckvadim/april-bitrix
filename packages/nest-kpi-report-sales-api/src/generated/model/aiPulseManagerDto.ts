@@ -10,7 +10,7 @@ import type { MetricDto } from './metricDto';
 export interface AiPulseManagerDto {
     /** Bitrix-id менеджера. */
     managerId: string;
-    /** Разобранных звонков менеджера в окне (n ≥ 20). */
+    /** Разобранных звонков менеджера в окне; не меньше порога портала managerMinN (иначе строки нет). */
     analyzed: number;
     /** Доля звонков с назначенным шагом и датой. */
     nextStepDateRate: MetricDto;

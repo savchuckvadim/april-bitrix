@@ -33,3 +33,5 @@ export {
     type PlansExcelPayload,
 } from './lib/plan-excel.util';
 export { formatPlanPercent, formatPlanValue, planTone } from './lib/plans.data';
+// Пересчёт цели на произвольный диапазон — нужен дневному дайджесту.
+export { planForRange } from './lib/plan-period.util';

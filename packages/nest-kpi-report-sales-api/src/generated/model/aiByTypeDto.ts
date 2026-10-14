@@ -13,6 +13,7 @@ import type { AiByTypeLongRowDto } from './aiByTypeLongRowDto';
 import type { AiByTypeDtoTotals } from './aiByTypeDtoTotals';
 import type { AiTypeTotalsDto } from './aiTypeTotalsDto';
 import type { AiByTypeDtoObjections } from './aiByTypeDtoObjections';
+import type { AiByTypeCoverageDto } from './aiByTypeCoverageDto';
 
 export interface AiByTypeDto {
     /** Выбранный тип; all — все типы вместе; objections — возражения. */
@@ -34,12 +35,12 @@ export interface AiByTypeDto {
      */
     long: AiByTypeLongRowDto[] | null;
     /**
-     * Итог по выбранному типу по домену; null при callType = all (см. totalsByType) и objections.
+     * Итог по выбранному типу по сотрудникам обзора (фильтр ∩ список разбора); null при callType = all (см. totalsByType) и objections.
      * @nullable
      */
     totals: AiByTypeDtoTotals;
     /**
-     * Итоги по каждому типу по домену (порядок справочника); заполнено только при callType = all, иначе null.
+     * Итоги по каждому типу по сотрудникам обзора (порядок справочника); заполнено только при callType = all, иначе null.
      * @nullable
      */
     totalsByType: AiTypeTotalsDto[] | null;
@@ -48,4 +49,6 @@ export interface AiByTypeDto {
      * @nullable
      */
     objections: AiByTypeDtoObjections;
+    /** Покрытие разборами: сколько звонков в оценке и почему остальные не вошли (до даты сравнимости, короткие, без типа) — для пустого состояния матриц. */
+    coverage: AiByTypeCoverageDto;
 }

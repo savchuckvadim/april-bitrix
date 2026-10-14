@@ -9,8 +9,8 @@ import { useReportType } from './report-type.hook';
 /**
  * Доступные вкладки отчёта для текущего (эффективного) пользователя.
  * Видимость «Финансов» и «AI аналитики» решает центральная таблица прав
- * (shared/access/access.rules.ts — FINANCE_TAB / AI_TAB). «AI аналитика»
- * дополнительно скрыта на публичной странице /share (снимка её данных нет).
+ * (shared/access/access.rules.ts — FINANCE_TAB / AI_TAB). «AI аналитика» и
+ * «Дайджест» скрыты на публичной странице /share (снимка их данных нет).
  * Новые ограничения вкладок добавлять по тому же образцу: ключ в
  * EAccessFeature + правило + фильтр здесь.
  */
@@ -24,9 +24,10 @@ export const useAvailableReportTypes = (): EReportType[] => {
             Object.values(EReportType).filter(type => {
                 if (type === EReportType.FINANCE) return canFinance;
                 if (type === EReportType.AI) return showAi;
+                if (type === EReportType.DIGEST) return !isPublic;
                 return true;
             }),
-        [canFinance, showAi],
+        [canFinance, showAi, isPublic],
     );
 };
 

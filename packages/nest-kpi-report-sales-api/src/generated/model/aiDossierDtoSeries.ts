@@ -8,7 +8,7 @@
 import type { AiDossierSeriesDto } from './aiDossierSeriesDto';
 
 /**
- * Ряды недель и месяцев; null — см. reasons.
+ * Ряды недель и месяцев: объём разборов, разборы до даты сравнимости и средняя оценка каждого периода; неделя и месяц считаются одной функцией по одним звонкам. null — см. reasons.
  * @nullable
  */
 export type AiDossierDtoSeries = AiDossierSeriesDto | null;

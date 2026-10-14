@@ -16,6 +16,7 @@ import type { AiManagerTypeCellDto } from './aiManagerTypeCellDto';
 import type { AiFunnelEdgeDto } from './aiFunnelEdgeDto';
 import type { AiFinanceTailDto } from './aiFinanceTailDto';
 import type { AiDisciplineDto } from './aiDisciplineDto';
+import type { AiPlanTargetCellDto } from './aiPlanTargetCellDto';
 import type { AiNextStepRateDto } from './aiNextStepRateDto';
 import type { AiRiskCallDto } from './aiRiskCallDto';
 import type { AiRecommendationDto } from './aiRecommendationDto';
@@ -66,10 +67,12 @@ export interface AiManagerRowDto {
     byType: AiManagerTypeCellDto[];
     /** Рёбра воронки по KPI-фактам. */
     funnel: AiFunnelEdgeDto[];
-    /** Финансовый хвост. */
+    /** Финансовый хвост: закрытые продажи за период (как вкладка «Финансы» за эти даты) и живой пайплайн. */
     finance: AiFinanceTailDto;
-    /** План CRM. */
+    /** План CRM — самоотчёт менеджера: сколько звонков и презентаций он сам запланировал в CRM и сколько сделал. Не план руководителя (тот — в planTargets). */
     discipline: AiDisciplineDto;
+    /** План руководителя (поля «План: …» сотрудника) против факта за период обзора — ровно как блок «Планы» вкладки KPI: только включённые в настройках планов показатели в их порядке, план пересчитан на даты обзора. Пусто — показатели планов не включены или настройки не прочитаны; нет поля — сохранённый расчёт до появления поля. */
+    planTargets?: AiPlanTargetCellDto[];
     /** Звонков менеджера в телефонии за период (включая без разбора). */
     callsTotal: number;
     /** Разобранных сравнимых звонков менеджера за период. */

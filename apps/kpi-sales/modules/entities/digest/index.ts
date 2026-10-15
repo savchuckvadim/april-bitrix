@@ -12,3 +12,4 @@ export * from './lib/digest-format.util';
 export * from './lib/digest-metrics.util';
 export * from './lib/digest-period.util';
 export * from './lib/digest-timeline.util';
+export * from './lib/digest-presentations.util';

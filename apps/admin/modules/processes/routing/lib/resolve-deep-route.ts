@@ -46,6 +46,10 @@ export interface DeepRoute {
     isStatisticsAi: boolean;
     isPortalStatisticsTranscription: boolean;
     isPortalStatisticsAi: boolean;
+    /** Раздел «Хуки и автоматика» верхнего уровня (`/hooks`). */
+    isHooks: boolean;
+    /** «Хуки и автоматика» карточки портала (`/portal/:id/hooks`). */
+    isPortalHooks: boolean;
 }
 
 /**
@@ -77,6 +81,7 @@ export const resolveDeepRoute = (
     const isAiAnalytics = root === 'ai-analytics';
     const isAiAnalyticsAudit = isAiAnalytics && second === 'audit';
     const isAiAnalyticsModel = isAiAnalytics && second === 'model';
+    const isHooks = root === 'hooks';
     const isPortalList = isPortal && second === 'list';
 
     const isPortalGarant = isPortal && portalSection === 'garant';
@@ -92,6 +97,7 @@ export const resolveDeepRoute = (
     const isPortalStatistics = isPortal && portalSection === 'statistics';
     const isPortalKonstructor = isPortal && portalSection === 'konstructor';
     const isPortalEvent = isPortal && portalSection === 'event';
+    const isPortalHooks = isPortal && portalSection === 'hooks';
 
     // Карточка портала — это «портал без раздела»: каждый новый раздел
     // обязан быть исключением, иначе он получит навигацию карточки.
@@ -106,7 +112,8 @@ export const resolveDeepRoute = (
             !isPortalQuestionnaires &&
             !isPortalVendorSuperUsers &&
             !isPortalProvider &&
-            !isPortalKonstructor,
+            !isPortalKonstructor &&
+            !isPortalHooks,
     );
 
     const isStatisticsTranscription = isStatistics && second === 'transcription';
@@ -148,5 +155,7 @@ export const resolveDeepRoute = (
         isStatisticsAi,
         isPortalStatisticsTranscription,
         isPortalStatisticsAi,
+        isHooks,
+        isPortalHooks,
     };
 };

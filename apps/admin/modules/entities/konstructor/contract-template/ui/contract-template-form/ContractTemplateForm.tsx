@@ -9,13 +9,17 @@
  * канонического модуля `@/modules/entities/konstructor/lib` — своей копии у сущности
  * нет сознательно.
  *
+ * Портал и поставщик — СЕЛЕКТЫ, а не ручной ввод id: портал из справочника
+ * порталов, поставщик — из поставщиков выбранного портала (они живут по
+ * домену портала). Значения остаются строками: id — BIGINT.
+ *
  * Нормализация значений в тело запроса — в `lib/utils`, не здесь:
  * правило «пустой список = любой» и вывод portal_id/agent_id из `scope`
  * покрыты юнит-тестами, а компонент только собирает значения и показывает
  * ошибки.
  */
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@workspace/ui/components/button';
 import {
     Card,
@@ -26,6 +30,13 @@ import {
     CardTitle,
 } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@workspace/ui/components/select';
 import { Field } from '@workspace/ui/shared';
 import { FormFieldRenderer, type FormFieldConfig } from '@/modules/shared/ui';
 import {
@@ -33,6 +44,8 @@ import {
     CONTRACT_LTYPE_OPTIONS,
     SUPPLY_TYPE_OPTIONS,
     TEMPLATE_SCOPE_OPTIONS,
+    usePortalOptions,
+    useProviderOptions,
 } from '@/modules/entities/konstructor/lib';
 import type { IContractTemplateFormValues } from '../../model';
 import {
@@ -80,6 +93,10 @@ export function ContractTemplateForm({
     // договора) считаются той же функцией, что и в тесте, — одна правда.
     const domainErrors = validateContractTemplateForm(values, { mode });
     const canSubmit = Object.keys(domainErrors).length === 0;
+
+    const portalOptions = usePortalOptions();
+    const effectivePortalId = portalId ?? (values.portal_id ? String(values.portal_id) : undefined);
+    const providerOptions = useProviderOptions(effectivePortalId);
 
     const contractTypeField: FormFieldConfig = {
         name: 'contract_type',
@@ -193,34 +210,87 @@ export function ContractTemplateForm({
 
                     {withPortal && (
                         <Field
-                            label="ID портала"
+                            label="Портал"
                             required
                             error={domainErrors.portal_id}
                             helperText={
                                 portalId
                                     ? 'Портал подставлен из адреса страницы.'
-                                    : 'ID портала (BIGINT, строка).'
+                                    : portalOptions.isError
+                                      ? 'Не удалось загрузить список порталов.'
+                                      : 'Шаблон будет доступен только этому порталу.'
                             }
                         >
-                            <Input
-                                id="portal_id"
-                                inputMode="numeric"
-                                // Не type="number": id — строка, BIGINT > 2^53
-                                // потерял бы точность при приведении к number.
-                                disabled={Boolean(portalId)}
-                                {...register('portal_id')}
+                            <Controller
+                                name="portal_id"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        value={field.value ? String(field.value) : ''}
+                                        onValueChange={field.onChange}
+                                        disabled={Boolean(portalId)}
+                                    >
+                                        <SelectTrigger id="portal_id" className="w-full">
+                                            <SelectValue
+                                                placeholder={
+                                                    portalOptions.isLoading ? 'Загружаем порталы…' : 'Выберите портал'
+                                                }
+                                            />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {portalOptions.options.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
                             />
                         </Field>
                     )}
 
                     {withAgent && (
                         <Field
-                            label="ID поставщика"
+                            label="Поставщик"
                             required
                             error={domainErrors.agent_id}
-                            helperText="ID из agents. Нужен только для области «под поставщика»."
+                            helperText={
+                                !providerOptions.hasPortal
+                                    ? 'Сначала выберите портал: поставщики живут по его домену.'
+                                    : providerOptions.options.length === 0 && !providerOptions.isLoading
+                                      ? 'У этого портала нет поставщиков — заведите их в разделе портала.'
+                                      : 'Нужен только для области «под поставщика».'
+                            }
                         >
-                            <Input id="agent_id" inputMode="numeric" {...register('agent_id')} />
+                            <Controller
+                                name="agent_id"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        value={field.value ? String(field.value) : ''}
+                                        onValueChange={field.onChange}
+                                        disabled={!providerOptions.hasPortal}
+                                    >
+                                        <SelectTrigger id="agent_id" className="w-full">
+                                            <SelectValue
+                                                placeholder={
+                                                    providerOptions.isLoading
+                                                        ? 'Загружаем поставщиков…'
+                                                        : 'Выберите поставщика'
+                                                }
+                                            />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {providerOptions.options.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
                         </Field>
                     )}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { SectionCard } from '@workspace/april-ui';
+import { DigestSection } from '../../digest-section';
 import { ReportGroupTabs } from '@/modules/feature/report-tabs';
 import { useDigestTable } from '../hooks/use-digest-table';
 import { DigestTableView } from './DigestTableView';
@@ -27,8 +27,8 @@ export const DigestTable = () => {
     };
 
     return (
-        <SectionCard
-            surface="glass"
+        <DigestSection
+            widget="employees"
             title="По сотрудникам"
             description="Клик по имени — фокус на сотруднике: часы, лента и сравнение только по нему. Наведите на число — разбивка по типам."
         >
@@ -37,6 +37,6 @@ export const DigestTable = () => {
                 renderSummary={() => renderRows()}
                 renderSection={userIds => renderRows(userIds)}
             />
-        </SectionCard>
+        </DigestSection>
     );
 };

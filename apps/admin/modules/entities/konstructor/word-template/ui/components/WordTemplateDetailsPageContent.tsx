@@ -1,14 +1,19 @@
 'use client';
 
+import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@workspace/ui/components/button';
+import { usePortalOptions } from '@/modules/entities/konstructor/lib';
 import { WordTemplateCard } from '../word-template-card/WordTemplateCard';
 import {
+    useArchiveWordTemplate,
     useDownloadWordTemplate,
     useRemoveWordTemplate,
     useSetActiveWordTemplate,
     useSetDefaultWordTemplate,
+    useUnarchiveWordTemplate,
     useWordTemplate,
+    useWordTemplatePortals,
 } from '../../lib/hooks';
 import { downloadFromResponse } from '../../lib/utils';
 
@@ -23,10 +28,19 @@ export function WordTemplateDetailsPageContent({
 }: WordTemplateDetailsPageContentProps) {
     const router = useRouter();
     const { data: template, isLoading } = useWordTemplate(id);
+    const bindings = useWordTemplatePortals(id);
+    const portals = usePortalOptions();
     const downloadTemplate = useDownloadWordTemplate();
     const removeTemplate = useRemoveWordTemplate();
     const setActiveTemplate = useSetActiveWordTemplate();
     const setDefaultTemplate = useSetDefaultWordTemplate();
+    const archiveTemplate = useArchiveWordTemplate();
+    const unarchiveTemplate = useUnarchiveWordTemplate();
+
+    const portalLabelById = React.useMemo(
+        () => new Map(portals.options.map((option) => [option.value, option.label])),
+        [portals.options],
+    );
 
     if (isLoading) {
         return (
@@ -62,12 +76,16 @@ export function WordTemplateDetailsPageContent({
 
             <WordTemplateCard
                 item={template}
+                bindings={bindings.data ?? []}
+                portalLabelById={portalLabelById}
                 onDownload={async () => {
                     const file = await downloadTemplate.mutateAsync(template.id);
                     downloadFromResponse(file, `${template.name || template.id}.docx`);
                 }}
                 onSetActive={() => setActiveTemplate.mutate(template.id)}
                 onSetDefault={() => setDefaultTemplate.mutate(template.id)}
+                onArchive={() => archiveTemplate.mutate(template.id)}
+                onUnarchive={() => unarchiveTemplate.mutate(template.id)}
                 onDelete={async () => {
                     await removeTemplate.mutateAsync(template.id);
                     router.push(listPath);

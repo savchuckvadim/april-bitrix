@@ -22,6 +22,7 @@ export const PortalNavigation = () => {
         isPortalStatistics,
         isPortalEvent,
         isPortalKonstructor,
+        isPortalHooks,
     } = useDeepRouting();
     const { data: currentPortal } = usePortal(Number(portalId))
 
@@ -41,6 +42,8 @@ export const PortalNavigation = () => {
                 {portalId && <Link href={`/portal/${portalId}/ai-settings`} className={isPortalAiSettings ? 'text-primary' : 'text-gray-500'}>{'AI'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/app-settings`} className={isPortalAppSettings ? 'text-primary' : 'text-gray-500'}>{'Settings'}</Link>}
+
+                {portalId && <Link href={`/portal/${portalId}/hooks`} className={isPortalHooks ? 'text-primary' : 'text-gray-500'}>{'Хуки'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/questionnaires`} className={isPortalQuestionnaires ? 'text-primary' : 'text-gray-500'}>{'Анкеты'}</Link>}
 

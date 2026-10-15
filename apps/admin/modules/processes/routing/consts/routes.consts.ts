@@ -178,6 +178,24 @@ export const aiAnalyticsEntities: Entity[] = [
 ];
 
 
+// Раздел «Хуки и автоматика» (верхний уровень): url — полный путь
+// (baseUrl пустой). Портал выбирается на странице (?portalId=).
+export const hooksEntities: Entity[] = [
+    {
+        id: 43,
+        item: {
+            name: 'hooks',
+            title: 'Каталог хуков',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/hooks',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
+
 export const portalEntities: Entity[] = [
 
     {
@@ -395,6 +413,48 @@ export const portalAiSettingsEntities: Entity[] = [
 export const portalAppSettingsEntities: Entity[] = [
     {
         id: 0,
+        item: {
+            name: 'app-settings',
+            title: 'Настройки приложений',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/app-settings',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    // Настройки и хуки ссылаются друг на друга: у категории настроек —
+    // хуки, которые её читают; у хука — его настройки. Рядом в меню.
+    {
+        id: 1,
+        item: {
+            name: 'hooks',
+            title: 'Хуки и автоматика',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/hooks',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
+// Раздел «Хуки и автоматика» карточки портала (baseUrl `/portal/{id}`).
+export const portalHooksEntities: Entity[] = [
+    {
+        id: 0,
+        item: {
+            name: 'hooks',
+            title: 'Хуки и автоматика',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/hooks',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        id: 1,
         item: {
             name: 'app-settings',
             title: 'Настройки приложений',
@@ -843,6 +903,21 @@ export const portalKonstructorEntities: Entity[] = [
             type: ENTITY_QUANTITY.ENTITY,
             get: {
                 url: '/invoice-template',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    // Шаблоны Word КП портала: страница существовала, но в сайдбаре портала
+    // её не было — до неё нельзя было добраться. Пункт «Шаблоны» (/template)
+    // рядом — это нумераторы PBX, не КП.
+    {
+        id: 9,
+        item: {
+            name: 'word-template',
+            title: 'Шаблоны Word КП',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/word-template',
                 method: API_METHOD.GET
             }
         },

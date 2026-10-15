@@ -18,6 +18,8 @@ interface DigestRecordRowProps {
     listId: string;
     /** Время берётся из дедлайна (срез «план на день»), а не из записи. */
     timeFrom?: 'eventDate' | 'planDate';
+    /** Автор записи — в общей хронологии нескольких сотрудников. */
+    employeeName?: string;
 }
 
 /** Строка события: время · тип · действие · название · компания · комментарий. */
@@ -27,6 +29,7 @@ export const DigestRecordRow = ({
     domain,
     listId,
     timeFrom = 'eventDate',
+    employeeName,
 }: DigestRecordRowProps) => {
     const elementHref = listElementLink(domain, listId, record.id);
     const companyHref = companyLink(domain, record.companyId);
@@ -44,6 +47,9 @@ export const DigestRecordRow = ({
             </span>
             <div className="min-w-0 space-y-0.5">
                 <div className="flex flex-wrap items-center gap-1.5">
+                    {employeeName && (
+                        <span className="font-medium text-foreground">{employeeName}</span>
+                    )}
                     <ToneBadge tone="muted" variant="outline" size="sm">
                         {record.typeName ??
                             (record.typeCode ? (names.types[record.typeCode] ?? record.typeCode) : '—')}

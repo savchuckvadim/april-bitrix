@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { ACard, FileUpload } from '@workspace/ui/shared';
 import { FormFieldRenderer } from '@/modules/shared/ui/form-field-renderer';
 import { FormSubmitFooter } from '@/modules/shared/ui/form-submit-footer';
+import { usePortalOptions, useProviderOptions } from '@/modules/entities/konstructor/lib';
 import {
     INVOICE_TEMPLATE_TYPE,
     INVOICE_TEMPLATE_VISIBILITY,
@@ -71,18 +72,29 @@ export function InvoiceTemplateForm({
 
     const visibility = watch('visibility');
     const selectedFile = watch('file');
+    const selectedPortalId = watch('portal_id');
 
     // Поле поставщика нужно только для видимости «Поставщик»: показывать его
     // всегда — приглашать заполнить то, что бэк всё равно отбросит.
     const showAgent = visibility === INVOICE_TEMPLATE_VISIBILITY.provider;
+
+    // Селекты вместо ввода id: порталы — справочник, поставщики — выбранного портала.
+    const portalOptions = usePortalOptions();
+    const effectivePortalId = portalId ?? (selectedPortalId ? String(selectedPortalId) : undefined);
+    const providerOptions = useProviderOptions(effectivePortalId);
 
     const fields = React.useMemo(
         () =>
             invoiceTemplateFormFields({
                 portalLocked: !!portalId,
                 showAgent,
+                portalOptions: portalOptions.options,
+                portalsLoading: portalOptions.isLoading,
+                providerOptions: providerOptions.options,
+                providersLoading: providerOptions.isLoading,
+                hasPortal: providerOptions.hasPortal,
             }),
-        [portalId, showAgent],
+        [portalId, showAgent, portalOptions, providerOptions],
     );
 
     // Ошибки доменной проверки расставляются по полям формы, а не выводятся

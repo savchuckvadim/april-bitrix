@@ -1,10 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { MarkdownView } from '@/modules/shared/ui/markdown';
+import { APP_SETTINGS_TEXT } from '../../../consts/app-settings.const';
 import type { AppSettingsGroupView } from '../../../lib/settings-view';
 import { resolveSettingsLink } from '../../../lib/settings-view';
 import type { PortalAppSettingValue } from '../../../model';
 import { AppSettingField } from './AppSettingField';
+import { AppSettingGroupRelations } from './AppSettingRelations';
 
 interface AppSettingsGroupSectionProps {
     portalId: number;
@@ -17,7 +20,8 @@ interface AppSettingsGroupSectionProps {
 
 /**
  * Секция категории: заголовок со счётчиком «настроено», пояснение,
- * ссылки на связанные разделы админки и сами поля. Без поиска свёрнута —
+ * ссылки на связанные разделы админки, теория «Как это работает»
+ * (свёрнута), хуки и PBX-поля категории и сами поля. Без поиска свёрнута —
  * в сотне ключей ориентируются по заголовкам.
  */
 export const AppSettingsGroupSection = ({
@@ -64,12 +68,27 @@ export const AppSettingsGroupSection = ({
                     )}
                 </div>
             )}
+            {view.group.theory && (
+                <details className="rounded-md bg-muted/40 px-3 py-2">
+                    <summary className="cursor-pointer text-xs font-medium text-foreground">
+                        {APP_SETTINGS_TEXT.theoryToggle}
+                    </summary>
+                    <MarkdownView text={view.group.theory} className="mt-2" />
+                </details>
+            )}
+            <AppSettingGroupRelations
+                portalId={portalId}
+                hooks={view.group.hooks}
+                pbxFields={view.group.pbxFields}
+                stages={view.group.stages}
+            />
             {view.settings.map(descriptor => (
                 <AppSettingField
                     key={descriptor.code}
                     descriptor={descriptor}
                     draft={draft[descriptor.code]}
                     onChange={value => onChange(descriptor.code, value)}
+                    portalId={portalId}
                 />
             ))}
         </div>

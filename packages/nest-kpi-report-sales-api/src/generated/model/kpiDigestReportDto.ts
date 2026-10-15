@@ -9,6 +9,7 @@ import type { KpiDigestPeriodDto } from './kpiDigestPeriodDto';
 import type { KpiDigestCatalogDto } from './kpiDigestCatalogDto';
 import type { KpiDigestEmployeeDto } from './kpiDigestEmployeeDto';
 import type { KpiDigestSummaryDto } from './kpiDigestSummaryDto';
+import type { KpiDigestReportDtoPresentations } from './kpiDigestReportDtoPresentations';
 
 export interface KpiDigestReportDto {
     period: KpiDigestPeriodDto;
@@ -24,4 +25,9 @@ export interface KpiDigestReportDto {
     warnings: string[];
     /** Какая-то из партиций обрезана по лимиту строк — данные неполные. */
     truncated: boolean;
+    /**
+     * Презентации (сделки «ОП Презентации») и продажи дня; null — выборка сделок недоступна (причина в warnings).
+     * @nullable
+     */
+    presentations: KpiDigestReportDtoPresentations;
 }

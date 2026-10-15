@@ -44,7 +44,7 @@ export const buildRatingBoards = (
     });
 
 /** Метрики, где меньше — лучше (цвет дельты инвертируется). */
-const LOWER_IS_BETTER = new Set<DigestMetricCode>(['notHeld', 'postponed', 'expired']);
+const LOWER_IS_BETTER = new Set<DigestMetricCode>(['notHeld', 'postponed']);
 
 export type DeltaTone = 'success' | 'destructive' | 'muted';
 

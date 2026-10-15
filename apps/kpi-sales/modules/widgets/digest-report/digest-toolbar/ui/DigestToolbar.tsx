@@ -9,7 +9,11 @@ import { DigestWarnings } from './DigestWarnings';
 
 interface DigestToolbarProps {
     status: DigestStatus;
+    /** Данные уже на экране — обновление идёт тихо, без прелоадера. */
+    hasData: boolean;
     generatedAt?: string;
+    /** Сегодняшний день обновляется автоматически. */
+    autoRefresh: boolean;
     warnings: string[];
     truncated: boolean;
     onRefresh: () => void;
@@ -18,7 +22,9 @@ interface DigestToolbarProps {
 /** Шапка дайджеста: день, состояние сборки, пересчёт, предупреждения. */
 export const DigestToolbar = ({
     status,
+    hasData,
     generatedAt,
+    autoRefresh,
     warnings,
     truncated,
     onRefresh,
@@ -27,7 +33,12 @@ export const DigestToolbar = ({
         <div className="flex flex-wrap items-center justify-between gap-2">
             <DigestDayNav />
             <div className="flex items-center gap-2">
-                <DigestStatusBadge status={status} generatedAt={generatedAt} />
+                <DigestStatusBadge
+                    status={status}
+                    hasData={hasData}
+                    generatedAt={generatedAt}
+                    autoRefresh={autoRefresh}
+                />
                 <Button
                     variant="outline"
                     size="sm"

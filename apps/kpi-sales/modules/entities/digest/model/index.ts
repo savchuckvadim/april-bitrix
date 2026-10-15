@@ -10,6 +10,12 @@ import type {
     KpiDigestEmployeeDto,
     KpiDigestFiltersDto,
     KpiDigestFiltersDtoKind,
+    KpiDigestEntityRefDto,
+    KpiDigestPresentationDto,
+    KpiDigestPresentationDtoDayStatus,
+    KpiDigestPresentationsDto,
+    KpiDigestSaleDto,
+    KpiDigestSalePresentationDto,
     KpiDigestHourDto,
     KpiDigestRecordDto,
     KpiDigestReportDto,
@@ -49,6 +55,14 @@ export type DigestEmployee = KpiDigestEmployeeDto;
 
 /** Сводка по всем ответственным портала (база «Ø все»). */
 export type DigestSummary = KpiDigestSummaryDto;
+
+/** Презентации и продажи дня (сделки «ОП Презентации» / «ОП Основная»). */
+export type DigestEntityRef = KpiDigestEntityRefDto;
+export type DigestPresentation = KpiDigestPresentationDto;
+export type DigestPresDayStatus = KpiDigestPresentationDtoDayStatus;
+export type DigestPresentations = KpiDigestPresentationsDto;
+export type DigestSale = KpiDigestSaleDto;
+export type DigestSalePresentation = KpiDigestSalePresentationDto;
 
 export type DigestCatalogItem = KpiDigestCatalogItemDto;
 export type DigestCatalog = KpiDigestCatalogDto;

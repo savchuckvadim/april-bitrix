@@ -5,10 +5,12 @@ import {
     aiAnalyticsEntities,
     aiKnowledgeEntities,
     garantEntities,
+    hooksEntities,
     portalAiSettingsEntities,
     portalAppSettingsEntities,
     portalEntities,
     portalGarantEntities,
+    portalHooksEntities,
     portalKeysEntities,
     portalKonstructorEntities,
     portalPbxEntities,
@@ -32,7 +34,44 @@ const PORTAL_SECTIONS = [
     { section: 'questionnaires', entities: portalQuestionnairesEntities },
     { section: 'provider', entities: portalProviderEntities },
     { section: 'konstructor', entities: portalKonstructorEntities },
+    { section: 'hooks', entities: portalHooksEntities },
 ] as const;
+
+describe('resolveDeepRoute: раздел «Хуки и автоматика»', () => {
+    it('/hooks — верхний уровень со своим меню, не портал', () => {
+        const route = resolveDeepRoute('/hooks', '');
+
+        expect(route.isHooks).toBe(true);
+        expect(route.isPortal).toBe(false);
+        expect(route.isPortalHooks).toBe(false);
+        expect(resolveSideBar(route)).toEqual({
+            currentNavItems: hooksEntities,
+            baseUrl: '',
+        });
+    });
+
+    it('карточка хука остаётся в разделе', () => {
+        const route = resolveDeepRoute('/hooks/lead-to-work', '');
+
+        expect(route.isHooks).toBe(true);
+        expect(resolveSideBar(route).currentNavItems).toBe(hooksEntities);
+    });
+
+    it('хуки портала — раздел карточки портала с меню «хуки + настройки»', () => {
+        const route = resolveDeepRoute(
+            `/portal/${PORTAL_ID}/hooks/lead-to-work`,
+            PORTAL_ID,
+        );
+
+        expect(route.isPortalHooks).toBe(true);
+        expect(route.isPortalDetail).toBe(false);
+        expect(route.isHooks).toBe(false);
+        expect(resolveSideBar(route)).toEqual({
+            currentNavItems: portalHooksEntities,
+            baseUrl: `/portal/${PORTAL_ID}`,
+        });
+    });
+});
 
 describe('resolveDeepRoute: карточка портала и её разделы', () => {
     it('портал без раздела — это карточка портала', () => {

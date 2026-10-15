@@ -30,9 +30,9 @@ const MULTIPART_HEADERS = { 'Content-Type': 'multipart/form-data' } as const;
 
 /**
  * Ручные вызовы (customAxios) там, где сгенерированный клиент либо не знает
- * ручку (привязки порталов, синхронизация, отдел продаж), либо собирает
- * multipart неправильно. Замена на генерацию механическая: тела методов
- * меняются, подписи остаются.
+ * ручку (привязки порталов, синхронизация, архив через PATCH, отдел продаж),
+ * либо собирает multipart неправильно. Замена на генерацию механическая:
+ * тела методов меняются, подписи остаются.
  */
 export class WordTemplateHelper {
     private api: ReturnType<typeof getKonstructorWordTemplate>;
@@ -152,6 +152,15 @@ export class WordTemplateHelper {
         return this.api.wordTemplateRemove(id);
     }
 
+    /** Архив через PATCH: мутирующий GET бэкенда оставлен легаси-фронту. */
+    async archive(id: string): Promise<boolean> {
+        return customAxios<boolean>({ url: `${WORD_TEMPLATE_API_BASE}/${id}/archive`, method: 'PATCH' });
+    }
+
+    async unarchive(id: string): Promise<boolean> {
+        return customAxios<boolean>({ url: `${WORD_TEMPLATE_API_BASE}/${id}/unarchive`, method: 'PATCH' });
+    }
+
     async findPublic(): Promise<IWordTemplateSummury[]> {
         return this.api.wordTemplateFindPublic();
     }
@@ -165,15 +174,23 @@ export class WordTemplateHelper {
         };
     }
 
+    /** Портальные (visibility=private) шаблоны, привязанные к порталу. Публичные — отдельно, findPublic(). */
     async findByPortal(portalId: string): Promise<IWordTemplateSummury[]> {
         return this.api.wordTemplateFindByPortal(portalId);
     }
 
-    // ---- привязки к порталам ----
+    // ---- привязки к порталам (offer_template_portal) ----
 
     async getPortalBindings(templateId: string): Promise<IWordTemplatePortalBinding[]> {
         return customAxios<IWordTemplatePortalBinding[]>({
             url: `${PORTAL_BINDINGS_API_BASE}/template/${templateId}`,
+            method: 'GET',
+        });
+    }
+
+    async getPortalBindingsByPortal(portalId: string): Promise<IWordTemplatePortalBinding[]> {
+        return customAxios<IWordTemplatePortalBinding[]>({
+            url: `${PORTAL_BINDINGS_API_BASE}/portal/${portalId}`,
             method: 'GET',
         });
     }
@@ -183,6 +200,41 @@ export class WordTemplateHelper {
             url: `${WORD_TEMPLATE_API_BASE}/${templateId}/portals`,
             method: 'PUT',
             data: { portal_ids: portalIds },
+        });
+    }
+
+    /** Подключить существующий шаблон к порталу — привязка сразу активная. */
+    async attachToPortal(templateId: string, portalId: string): Promise<IWordTemplatePortalBinding> {
+        return customAxios<IWordTemplatePortalBinding>({
+            url: PORTAL_BINDINGS_API_BASE,
+            method: 'POST',
+            data: {
+                offer_template_id: Number(templateId),
+                portal_id: Number(portalId),
+                is_active: true,
+                is_default: false,
+            },
+        });
+    }
+
+    /** Отключить от портала — удаляется ПРИВЯЗКА, сам шаблон остаётся. */
+    async detachBinding(bindingId: string): Promise<void> {
+        await customAxios<void>({ url: `${PORTAL_BINDINGS_API_BASE}/${bindingId}`, method: 'DELETE' });
+    }
+
+    async setBindingActive(bindingId: string, isActive: boolean): Promise<IWordTemplatePortalBinding> {
+        return customAxios<IWordTemplatePortalBinding>({
+            url: `${PORTAL_BINDINGS_API_BASE}/${bindingId}/active`,
+            method: 'PATCH',
+            data: { is_active: isActive },
+        });
+    }
+
+    async setBindingDefault(bindingId: string, isDefault: boolean): Promise<IWordTemplatePortalBinding> {
+        return customAxios<IWordTemplatePortalBinding>({
+            url: `${PORTAL_BINDINGS_API_BASE}/${bindingId}/default`,
+            method: 'PATCH',
+            data: { is_default: isDefault },
         });
     }
 

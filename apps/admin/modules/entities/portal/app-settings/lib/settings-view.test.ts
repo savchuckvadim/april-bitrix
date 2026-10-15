@@ -6,8 +6,35 @@ import type {
 import {
     buildGroupViews,
     FALLBACK_GROUP,
+    groupRequirementsByEntity,
     resolveSettingsLink,
 } from './settings-view';
+
+describe('groupRequirementsByEntity', () => {
+    it('поля и стадии — по сущностям от лида к задаче, обязательные первыми', () => {
+        const result = groupRequirementsByEntity(
+            [
+                { entity: 'deal', code: 'd_opt', name: 'Д1', href: '/d' },
+                { entity: 'lead', code: 'l_opt', name: 'Л1', required: false, href: '/l' },
+                { entity: 'lead', code: 'l_req', name: 'Л2', required: true, href: '/l' },
+                { entity: 'company', code: 'c', name: 'К', required: true, href: '/c' },
+            ],
+            [
+                { entity: 'deal', code: 'sales_new', title: 'Новая', required: true, href: '/d' },
+                { entity: 'lead', code: 'lead_assigned', title: 'Назначена', href: '/l' },
+            ],
+        );
+
+        expect(result.map(item => item.entity)).toEqual(['lead', 'deal', 'company']);
+        expect(result[0]?.fields.map(field => field.code)).toEqual(['l_req', 'l_opt']);
+        expect(result[0]?.stages.map(stage => stage.code)).toEqual(['lead_assigned']);
+        expect(result[1]?.stages.map(stage => stage.code)).toEqual(['sales_new']);
+    });
+
+    it('без требований — пусто', () => {
+        expect(groupRequirementsByEntity()).toEqual([]);
+    });
+});
 
 /** Значение настройки: в контракте оно описано шире, чем приезжает. */
 type SettingValue = PortalAppSettingDescriptor['default'];

@@ -16,12 +16,18 @@ import type {
     PortalAppSettingValue,
 } from '../../../model';
 import { AppSettingListField } from './AppSettingListField';
+import { AppSettingUsage } from './AppSettingRelations';
 
 interface AppSettingFieldProps {
     descriptor: PortalAppSettingDescriptor;
     /** Черновик формы: undefined = не менялось, null = сброс на дефолт. */
     draft: PortalAppSettingValue | undefined;
     onChange: (value: PortalAppSettingValue) => void;
+    /**
+     * Портал — для ссылок на хуки и PBX-поля настройки. Не передан (поле
+     * встроено в карточку хука) — связи не показываются: там они и так видны.
+     */
+    portalId?: number;
 }
 
 /** Трёхсостояние булевой настройки (Radix Select не терпит ''). */
@@ -47,6 +53,7 @@ export const AppSettingField = ({
     descriptor,
     draft,
     onChange,
+    portalId,
 }: AppSettingFieldProps) => {
     // Текущее отображаемое значение: черновик приоритетнее сохранённого.
     const effective =
@@ -159,6 +166,9 @@ export const AppSettingField = ({
             <p className="text-sm text-muted-foreground">
                 {descriptor.description}
             </p>
+            {portalId !== undefined && (
+                <AppSettingUsage portalId={portalId} hooks={descriptor.hooks} />
+            )}
         </div>
     );
 };

@@ -2,6 +2,9 @@
  * Справочники дневного дайджеста — данные отдельно от UI: метрики,
  * подписи групп/действий, стеки почасовых графиков. Имена типов и действий
  * с портала (catalog ответа) имеют приоритет над фолбэками отсюда.
+ *
+ * «Просрочено» (expired) в дайджесте не показываем: честной информации о
+ * просрочке в списке нет (её пишут только хуки), решение владельца 14.10.
  */
 import type { DigestTypeGroup } from '../model';
 
@@ -11,7 +14,6 @@ export type DigestMetricCode =
     | 'done'
     | 'notHeld'
     | 'postponed'
-    | 'expired'
     | 'planned'
     | 'plannedBeyond'
     | 'documents'
@@ -19,6 +21,7 @@ export type DigestMetricCode =
     | 'refusals'
     | 'resultRate'
     | 'planCompletion'
+    | 'planResultRate'
     | 'callsCount'
     | 'airtimeMinutes';
 
@@ -38,30 +41,30 @@ export interface DigestMetricDef {
 export const DIGEST_METRICS: readonly DigestMetricDef[] = [
     {
         code: 'plannedAtStart',
-        label: 'Запланировано на начало дня',
-        short: 'План дня',
-        hint: 'План и переносы с дедлайном в этот день, созданные до его начала.',
+        label: 'Запланировано в CRM на день',
+        short: 'План CRM',
+        hint: 'События (план и переносы) с дедлайном в этот день, поставленные до его начала.',
         kind: 'count',
     },
     {
         code: 'worked',
         label: 'Отработано',
         short: 'Отработано',
-        hint: 'Результативно + не состоялось + перенесено + просрочено.',
+        hint: 'Состоялось + не состоялось + перенесено.',
         kind: 'count',
     },
     {
         code: 'done',
-        label: 'Результативно',
-        short: 'Результ.',
-        hint: 'События с действием «Состоялся».',
+        label: 'Состоялось (результативно)',
+        short: 'Состоялось',
+        hint: 'События с действием «Состоялся» — результативные коммуникации.',
         kind: 'count',
     },
     {
         code: 'notHeld',
         label: 'Не состоялось',
         short: 'Не сост.',
-        hint: 'События с действием «Не состоялся» (нерезультативные).',
+        hint: 'События с действием «Не состоялся» (нерезультативные: недозвон, занято…).',
         kind: 'count',
     },
     {
@@ -69,13 +72,6 @@ export const DIGEST_METRICS: readonly DigestMetricDef[] = [
         label: 'Перенесено',
         short: 'Перенос',
         hint: 'Переносы: событие запланировано заново на другую дату.',
-        kind: 'count',
-    },
-    {
-        code: 'expired',
-        label: 'Просрочено',
-        short: 'Проср.',
-        hint: 'События с действием «Просрочен».',
         kind: 'count',
     },
     {
@@ -117,15 +113,23 @@ export const DIGEST_METRICS: readonly DigestMetricDef[] = [
         code: 'resultRate',
         label: 'Результативность',
         short: 'Результ. %',
-        hint: 'Результативно / отработано. В рейтинге — при ≥ 3 отработанных.',
+        hint: 'Состоялось / отработано. В рейтинге — при ≥ 3 отработанных.',
         kind: 'percent',
         ratingMinBase: 3,
     },
     {
         code: 'planCompletion',
-        label: 'Выполнение плана дня',
-        short: 'План %',
-        hint: 'Отработано / запланировано на начало дня.',
+        label: 'Отработано из плана CRM',
+        short: 'Отраб. плана %',
+        hint: 'Отработано / запланировано в CRM на день: сколько из плана дня взяли в работу.',
+        kind: 'percent',
+        ratingMinBase: 1,
+    },
+    {
+        code: 'planResultRate',
+        label: 'Конверсия плана CRM',
+        short: 'Конв. плана %',
+        hint: 'Состоялось / запланировано в CRM на день: сколько из плана дня состоялось.',
         kind: 'percent',
         ratingMinBase: 1,
     },
@@ -157,7 +161,7 @@ export const DIGEST_TABLE_METRICS: readonly DigestMetricCode[] = [
     'done',
     'notHeld',
     'postponed',
-    'expired',
+    'planResultRate',
     'plannedBeyond',
     'documents',
     'sales',
@@ -171,6 +175,7 @@ export const DIGEST_TABLE_METRICS: readonly DigestMetricCode[] = [
 export const DIGEST_RATING_METRICS: readonly DigestMetricCode[] = [
     'done',
     'resultRate',
+    'planResultRate',
     'sales',
     'plannedBeyond',
     'callsCount',
@@ -183,6 +188,7 @@ export const DIGEST_COMPARE_METRICS: readonly DigestMetricCode[] = [
     'done',
     'notHeld',
     'postponed',
+    'planResultRate',
     'plannedBeyond',
     'sales',
     'resultRate',
@@ -215,7 +221,6 @@ export const DIGEST_ACTION_LABELS: Record<string, string> = {
     pound: 'Перенос',
     done: 'Состоялся',
     act_noresult_fail: 'Не состоялся',
-    expired: 'Просрочен',
     act_send: 'Отправлен',
 };
 
@@ -224,7 +229,6 @@ export type DigestStackKey =
     | 'done'
     | 'notHeld'
     | 'postponed'
-    | 'expired'
     | 'planned'
     | 'documents'
     | 'sales'
@@ -238,10 +242,9 @@ export interface DigestStackDef {
 }
 
 export const DIGEST_EVENT_STACKS: readonly DigestStackDef[] = [
-    { key: 'done', label: 'Результативно', token: '--digest-done' },
+    { key: 'done', label: 'Состоялось', token: '--digest-done' },
     { key: 'notHeld', label: 'Не состоялось', token: '--digest-not-held' },
     { key: 'postponed', label: 'Перенесено', token: '--digest-postponed' },
-    { key: 'expired', label: 'Просрочено', token: '--digest-expired' },
     { key: 'planned', label: 'Новый план', token: '--digest-planned' },
     { key: 'documents', label: 'Документы', token: '--digest-documents' },
     { key: 'sales', label: 'Продажи', token: '--digest-sales' },

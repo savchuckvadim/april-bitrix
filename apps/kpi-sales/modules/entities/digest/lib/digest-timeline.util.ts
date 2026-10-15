@@ -43,8 +43,6 @@ export const stackOfRecord = (record: DigestRecord): DigestStackKey | null => {
             return 'notHeld';
         case 'pound':
             return 'postponed';
-        case 'expired':
-            return 'expired';
         case 'plan':
             return 'planned';
         default:

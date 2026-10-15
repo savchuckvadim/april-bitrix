@@ -3,26 +3,19 @@ import {
     formatDigestPercent,
     type DigestMetricValues,
 } from '@/modules/entities/digest';
+import type { DigestTileData } from '../../lib/digest-tile';
 
-export interface SummaryTile {
-    key: string;
-    label: string;
-    value: string;
-    sub?: string;
-    /** Токен-класс акцента подписи (text-success и т.п.). */
-    accent: string;
-}
+export type SummaryTile = DigestTileData;
 
 const n = formatDigestNumber;
 
 /** Плитки итогов выборки из суммарных значений метрик. */
 export const buildSummaryTiles = (values: DigestMetricValues): SummaryTile[] => {
     const workedParts = [
-        `результативно ${n(values.done)}`,
+        `состоялось ${n(values.done)}`,
         `не состоялось ${n(values.notHeld)}`,
         `перенесено ${n(values.postponed)}`,
     ];
-    if ((values.expired ?? 0) > 0) workedParts.push(`просрочено ${n(values.expired)}`);
 
     const calls =
         values.callsCount === null
@@ -32,12 +25,12 @@ export const buildSummaryTiles = (values: DigestMetricValues): SummaryTile[] => 
     return [
         {
             key: 'plannedAtStart',
-            label: 'Запланировано на начало дня',
+            label: 'Запланировано в CRM на день',
             value: n(values.plannedAtStart),
             sub:
-                values.planCompletion === null
+                values.planResultRate === null
                     ? undefined
-                    : `отработано ${formatDigestPercent(values.planCompletion)} плана`,
+                    : `состоялось ${formatDigestPercent(values.planResultRate)} плана · отработано ${formatDigestPercent(values.planCompletion)}`,
             accent: 'text-info',
         },
         {
@@ -51,7 +44,7 @@ export const buildSummaryTiles = (values: DigestMetricValues): SummaryTile[] => 
             key: 'resultRate',
             label: 'Результативность',
             value: formatDigestPercent(values.resultRate),
-            sub: 'результативно / отработано',
+            sub: 'состоялось / отработано',
             accent: 'text-success',
         },
         {

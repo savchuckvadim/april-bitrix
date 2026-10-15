@@ -1,8 +1,54 @@
 import type {
     PortalAppSettingDescriptor,
+    PortalAppSettingEntity,
     PortalAppSettingGroup,
+    PortalAppSettingPbxField,
     PortalAppSettingsBlock,
+    PortalAppSettingStage,
 } from '../model';
+
+/** Порядок сущностей в блоке «Что установить»: от лида к задаче. */
+const ENTITY_ORDER: readonly PortalAppSettingEntity[] = [
+    'lead',
+    'deal',
+    'company',
+    'contact',
+    'task',
+];
+
+/** Требования к порталу по одной сущности: поля и стадии. */
+export interface AppSettingRequirementsByEntity {
+    entity: PortalAppSettingEntity;
+    fields: PortalAppSettingPbxField[];
+    stages: PortalAppSettingStage[];
+}
+
+const requiredFirst = <T extends { required?: boolean }>(items: T[]): T[] =>
+    items
+        .map((item, index) => ({ item, index }))
+        .sort(
+            (left, right) =>
+                Number(Boolean(right.item.required)) -
+                    Number(Boolean(left.item.required)) ||
+                left.index - right.index,
+        )
+        .map(entry => entry.item);
+
+/**
+ * «Что установить на портале» для категории: поля и стадии хуков,
+ * сгруппированные по сущностям в порядке лид → сделка → компания →
+ * контакт → задача; внутри — обязательные первыми, дальше порядок бэка.
+ * Пустые сущности не показываются.
+ */
+export const groupRequirementsByEntity = (
+    pbxFields: readonly PortalAppSettingPbxField[] = [],
+    stages: readonly PortalAppSettingStage[] = [],
+): AppSettingRequirementsByEntity[] =>
+    ENTITY_ORDER.map(entity => ({
+        entity,
+        fields: requiredFirst(pbxFields.filter(field => field.entity === entity)),
+        stages: requiredFirst(stages.filter(stage => stage.entity === entity)),
+    })).filter(item => item.fields.length > 0 || item.stages.length > 0);
 
 /** Секция блока: категория и её настройки (после поиска). */
 export interface AppSettingsGroupView {

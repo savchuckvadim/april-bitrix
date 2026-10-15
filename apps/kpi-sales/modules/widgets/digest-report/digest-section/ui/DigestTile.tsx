@@ -3,14 +3,14 @@
 import { CardContent } from '@workspace/ui/components/card';
 import { cn } from '@workspace/ui/lib/utils';
 import { GlassCard } from '@workspace/april-ui';
-import type { SummaryTile } from '../lib/summary-tiles.util';
+import type { DigestTileData } from '../../lib/digest-tile';
 
-interface DigestStatTileProps {
-    tile: SummaryTile;
+interface DigestTileProps {
+    tile: DigestTileData;
 }
 
-/** Плитка итога дня: подпись, значение, пояснение. */
-export const DigestStatTile = ({ tile }: DigestStatTileProps) => (
+/** Плитка итога: подпись, значение, пояснение (общая для виджетов дайджеста). */
+export const DigestTile = ({ tile }: DigestTileProps) => (
     <GlassCard intensity="strong" className="bg-popover">
         <CardContent className="p-3">
             <p className={cn('text-xs', tile.accent)}>{tile.label}</p>

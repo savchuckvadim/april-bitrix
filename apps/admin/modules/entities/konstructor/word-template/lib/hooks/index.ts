@@ -14,3 +14,5 @@ export * from './use-upload-word-template-tags';
 export * from './use-word-template-portals';
 export * from './use-department-users';
 export * from './use-user-selected-template-actions';
+export * from './use-word-template-archive';
+export * from './use-portal-word-template-bindings';

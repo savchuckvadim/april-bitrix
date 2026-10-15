@@ -42,7 +42,6 @@ const COUNT_FIELDS: Partial<Record<DigestMetricCode, keyof DigestEmployee>> = {
     done: 'done',
     notHeld: 'notHeld',
     postponed: 'postponed',
-    expired: 'expired',
     documents: 'documents',
 };
 

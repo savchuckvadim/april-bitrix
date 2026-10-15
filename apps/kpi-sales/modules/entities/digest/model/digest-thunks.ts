@@ -88,6 +88,9 @@ export const fetchDigest =
                 return;
             }
         }
+        // Повторный POST (поллинг/автообновление) только для загруженного
+        // ключа: день или выборка сменились — обычный запрос уже в пути.
+        if (options.poll && digest.requestKey !== requestKey) return;
         if (!options.poll) {
             dispatch(digestActions.pending({ requestKey }));
         }

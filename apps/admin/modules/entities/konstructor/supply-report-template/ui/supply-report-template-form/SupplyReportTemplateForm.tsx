@@ -20,6 +20,8 @@ import {
     SUPPLY_REPORT_FIELDS_HELPER_TEXT,
     SUPPLY_REPORT_FIELD_OPTIONS,
     SUPPLY_TYPE_OPTIONS,
+    usePortalOptions,
+    useProviderOptions,
 } from '@/modules/entities/konstructor/lib';
 import {
     SUPPLY_REPORT_TEMPLATE_SCOPE,
@@ -71,6 +73,7 @@ export function SupplyReportTemplateForm({
     const demo = watch('demo');
     const requiredFields = watch('required_fields');
     const optionalFields = watch('optional_fields');
+    const selectedPortalId = watch('portal_id');
 
     /** Файл шаблона обязателен только при создании: при правке он остаётся. */
     const [fileError, setFileError] = React.useState<string | null>(null);
@@ -92,6 +95,12 @@ export function SupplyReportTemplateForm({
     const showPortalField =
         !portalId && scope !== SUPPLY_REPORT_TEMPLATE_SCOPE.common;
     const showAgentField = scope === SUPPLY_REPORT_TEMPLATE_SCOPE.provider;
+
+    // Селекты вместо ручного ввода id: портал — из справочника порталов,
+    // поставщик — из поставщиков ВЫБРАННОГО портала (они живут по домену).
+    const portalOptions = usePortalOptions();
+    const effectivePortalId = portalId ?? (selectedPortalId ? String(selectedPortalId) : undefined);
+    const providerOptions = useProviderOptions(effectivePortalId);
 
     const fields: FormFieldConfig[] = React.useMemo(() => {
         const list: FormFieldConfig[] = [
@@ -119,22 +128,36 @@ export function SupplyReportTemplateForm({
         if (showPortalField) {
             list.push({
                 name: 'portal_id',
-                label: 'ID портала',
-                type: 'text',
+                label: 'Портал',
+                type: 'select',
                 required: true,
-                placeholder: '7',
+                options: portalOptions.options,
+                placeholder: portalOptions.isLoading ? 'Загружаем порталы…' : 'Выберите портал',
+                helperText: portalOptions.isError
+                    ? 'Не удалось загрузить список порталов.'
+                    : undefined,
             });
         }
 
         if (showAgentField) {
             list.push({
                 name: 'agent_id',
-                label: 'ID поставщика',
-                type: 'text',
+                label: 'Поставщик',
+                type: 'select',
                 required: true,
-                placeholder: '42',
+                options: providerOptions.options,
+                disabled: !providerOptions.hasPortal,
+                placeholder: !providerOptions.hasPortal
+                    ? 'Сначала выберите портал'
+                    : providerOptions.isLoading
+                      ? 'Загружаем поставщиков…'
+                      : 'Выберите поставщика',
                 helperText:
-                    'Пусто — шаблон годится любому поставщику портала.',
+                    providerOptions.hasPortal &&
+                    !providerOptions.isLoading &&
+                    providerOptions.options.length === 0
+                        ? 'У этого портала нет поставщиков — заведите их в разделе портала.'
+                        : 'Поставщики берутся из справочника выбранного портала.',
             });
         }
 
@@ -189,7 +212,7 @@ export function SupplyReportTemplateForm({
         );
 
         return list;
-    }, [portalId, showAgentField, showPortalField]);
+    }, [portalId, showAgentField, showPortalField, portalOptions, providerOptions]);
 
     const onSubmitForm = (values: ISupplyReportTemplateFormValues) => {
         if (mode === 'create' && !values.file) {

@@ -1,26 +1,42 @@
 'use client';
 
-import { SectionCard } from '@workspace/april-ui';
-import { PlansAchievementTable } from '@/modules/feature/plans';
+import { DigestSection } from '../../digest-section';
+import { ReportGroupTabs } from '@/modules/feature/report-tabs';
 import { useDigestPlans } from '../hooks/use-digest-plans';
+import { DigestPlansSection } from './DigestPlansSection';
 
-/** «План дня»: цели руководителя, приведённые к одному дню, против факта дня. */
+/**
+ * «План дня»: связка «запланировано в CRM → план руководителя → факт» по
+ * показателям «Планов», рейтинг достигаемости планов и конверсия плана CRM;
+ * разбивка Сводный / По отделам / По группам.
+ */
 export const DigestPlans = () => {
     const plans = useDigestPlans();
-    if (!plans.visible) return null;
+    const renderSection = (userIds?: Set<number>) => (
+        <DigestPlansSection
+            indicators={plans.indicators}
+            rows={userIds ? plans.rows.filter(row => userIds.has(row.userId)) : plans.rows}
+            expected={plans.expected}
+        />
+    );
 
     return (
-        <SectionCard
-            surface="glass"
+        <DigestSection
+            widget="plan"
             title="План дня"
-            description="Цель периода (месяц/квартал/год), приведённая к одному календарному дню, против факта этого дня. Риска — ожидаемая доля рабочего дня 9:00–18:00. Финансовые показатели в дне не считаются."
+            description="Факт дня против плана руководителя (цель периода, приведённая к одному дню) и против плана в CRM (события с дедлайном в этот день, конверсия плана). Риска — ожидаемая доля рабочего дня 9:00–18:00. Финансовые показатели в дне не считаются."
         >
-            <PlansAchievementTable
-                indicators={plans.indicators}
-                rows={plans.rows}
-                totals={plans.totals}
-                expected={plans.expected}
-            />
-        </SectionCard>
+            {!plans.visible ? (
+                <p className="py-3 text-sm text-muted-foreground">
+                    Планы руководителя не настроены или недоступны: кнопка «Планы» в шапке отчёта.
+                </p>
+            ) : (
+                <ReportGroupTabs
+                    presentUserIds={plans.presentUserIds}
+                    renderSummary={() => renderSection()}
+                    renderSection={userIds => renderSection(userIds)}
+                />
+            )}
+        </DigestSection>
     );
 };

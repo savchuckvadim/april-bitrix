@@ -1,8 +1,9 @@
 'use client';
+import { Suspense } from 'react';
 import { ReportType } from '@/modules/feature';
 import { useAccess } from '@/modules/app';
 import { EAccessFeature } from '@/modules/shared/access';
-import { useReportType } from '@/modules/feature/report-widget-type';
+import { ReportTypeUrlSync, useReportType } from '@/modules/feature/report-widget-type';
 import { EReportType } from '@/modules/feature/report-widget-type/consts/report-type.consts';
 import { KpiReportBlock } from './blocks/KpiReportBlock';
 import { CallingsReportBlock } from './blocks/CallingsReportBlock';
@@ -35,6 +36,10 @@ export const Report = () => {
 
     return (
         <div>
+            {/* `?tab=` — ссылка сразу на вкладку отчёта (напр. дайджест). */}
+            <Suspense fallback={null}>
+                <ReportTypeUrlSync />
+            </Suspense>
             <div className="mt-6 mb-4 flex h-10 w-full items-center justify-between rounded-md p-0">
                 <ReportType />
             </div>

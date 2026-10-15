@@ -1,6 +1,7 @@
 'use client';
 
-import { MicroSegmented, SectionCard } from '@workspace/april-ui';
+import { MicroSegmented } from '@workspace/april-ui';
+import { DigestSection } from '../../digest-section';
 import { useDigestTimeline } from '../hooks/use-digest-timeline';
 import { TIMELINE_VIEW_OPTIONS } from '../lib/timeline-series';
 import { DigestTimelineSection } from './DigestTimelineSection';
@@ -10,8 +11,8 @@ export const DigestTimeline = () => {
     const timeline = useDigestTimeline();
 
     return (
-        <SectionCard
-            surface="glass"
+        <DigestSection
+            widget="hours"
             title="По часам"
             description={`Как приходили события, что было запланировано и как шли звонки — ${timeline.scopeLabel}`}
             actions={
@@ -57,6 +58,6 @@ export const DigestTimeline = () => {
                     />
                 </div>
             </div>
-        </SectionCard>
+        </DigestSection>
     );
 };

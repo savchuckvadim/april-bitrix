@@ -1,33 +1,34 @@
 'use client';
 
-import { SectionCard } from '@workspace/april-ui';
 import { EntityRatingChart } from '@/modules/feature/report-rating';
+import { DigestSection } from '../../digest-section';
 import { useDigestRatings } from '../hooks/use-digest-ratings';
 import { DigestCompareCard } from './DigestCompareCard';
 import { DigestRatingList } from './DigestRatingList';
 
-/** «Рейтинг дня»: top-N по ключевым метрикам, график победителей, сравнение. */
+/** «Рейтинг дня»: сравнение сотрудника в фокусе, top-N по ключевым метрикам, победители. */
 export const DigestRatingBoard = () => {
     const ratings = useDigestRatings();
 
     return (
-        <div className="space-y-4">
+        <DigestSection
+            widget="rating"
+            title="Рейтинг дня"
+            description="Лучшие по ключевым показателям и средние: по выборке и по всем сотрудникам портала. Клик по сотруднику в таблице — сравнение его со средними отдела и всех."
+        >
             {ratings.comparison && <DigestCompareCard comparison={ratings.comparison} />}
-            {ratings.hasRating && (
-                <SectionCard
-                    surface="glass"
-                    title="Рейтинг дня"
-                    description="Лучшие по ключевым показателям и средние: по выборке и по всем сотрудникам портала"
-                >
+            {!ratings.hasRating ? (
+                <p className="py-3 text-sm text-muted-foreground">
+                    Для рейтинга нужно хотя бы два сотрудника в выборке
+                </p>
+            ) : (
+                <>
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                         {ratings.boards.map(board => (
                             <DigestRatingList key={board.def.code} board={board} />
                         ))}
                     </div>
-                    <EntityRatingChart
-                        title="Победители дня — сотрудники"
-                        dataset={ratings.dataset}
-                    />
+                    <EntityRatingChart title="Победители дня — сотрудники" dataset={ratings.dataset} />
                     {ratings.departmentSections && (
                         <EntityRatingChart
                             title="Победители дня — отделы"
@@ -42,8 +43,8 @@ export const DigestRatingBoard = () => {
                             sections={ratings.groupSections}
                         />
                     )}
-                </SectionCard>
+                </>
             )}
-        </div>
+        </DigestSection>
     );
 };

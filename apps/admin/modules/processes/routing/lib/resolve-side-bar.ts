@@ -4,12 +4,14 @@ import {
     aiKnowledgeEntities,
     clientEntities,
     garantEntities,
+    hooksEntities,
     konstructorEntities,
     marketplaceEntities,
     portalAiSettingsEntities,
     portalAppSettingsEntities,
     portalEntities,
     portalGarantEntities,
+    portalHooksEntities,
     portalKeysEntities,
     portalKonstructorEntities,
     portalPbxEntities,
@@ -52,6 +54,8 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
         isPortalKonstructor,
         isAiKnowledge,
         isAiAnalytics,
+        isHooks,
+        isPortalHooks,
     } = route;
 
     let currentNavItems: ALL_ENTITIES = garantEntities;
@@ -89,6 +93,9 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
         } else if (isPortalKonstructor) {
             currentNavItems = portalKonstructorEntities;
             baseUrl = `/portal/${portalId}/konstructor`;
+        } else if (isPortalHooks) {
+            currentNavItems = portalHooksEntities;
+            baseUrl = `/portal/${portalId}`;
         } else if (isPortalDetail) {
             currentNavItems = portalEntities;
             baseUrl = `/portal/${portalId}`;
@@ -107,6 +114,10 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
     } else if (isAiAnalytics) {
         // AI-аналитика ОП: url элементов — полные пути
         currentNavItems = aiAnalyticsEntities;
+        baseUrl = '';
+    } else if (isHooks) {
+        // Хуки и автоматика: url элементов — полные пути
+        currentNavItems = hooksEntities;
         baseUrl = '';
     } else if (isKonstructor || isPortalKonstructor) {
         currentNavItems = konstructorEntities;

@@ -43,18 +43,15 @@ export const metricValuesOf = (
     counters: DigestCounters,
     calls: DigestCalls | null,
 ): DigestMetricValues => {
+    // «Просрочено» в отработанное не входит: честных данных о просрочке нет.
     const worked =
-        counters.done.total +
-        counters.notHeld.total +
-        counters.postponed.total +
-        counters.expired.total;
+        counters.done.total + counters.notHeld.total + counters.postponed.total;
     return {
         plannedAtStart: counters.plannedAtStart.total,
         worked,
         done: counters.done.total,
         notHeld: counters.notHeld.total,
         postponed: counters.postponed.total,
-        expired: counters.expired.total,
         planned: counters.planned.total,
         plannedBeyond: counters.plannedBeyond.total,
         documents: counters.documents.total,
@@ -62,6 +59,7 @@ export const metricValuesOf = (
         refusals: counters.refusals,
         resultRate: ratio(counters.done.total, worked),
         planCompletion: ratio(worked, counters.plannedAtStart.total),
+        planResultRate: ratio(counters.done.total, counters.plannedAtStart.total),
         ...callsValues(calls),
     };
 };
@@ -100,6 +98,7 @@ export const sumRows = (rows: readonly DigestRow[]): DigestMetricValues => {
     }
     total.resultRate = ratio(total.done ?? 0, total.worked ?? 0);
     total.planCompletion = ratio(total.worked ?? 0, total.plannedAtStart ?? 0);
+    total.planResultRate = ratio(total.done ?? 0, total.plannedAtStart ?? 0);
     return total;
 };
 
@@ -123,7 +122,9 @@ export interface DigestRankEntry {
 /** База метрики для порога участия (доли считаются от знаменателя). */
 const ratingBaseOf = (row: DigestRow, code: DigestMetricCode): number => {
     if (code === 'resultRate') return row.values.worked ?? 0;
-    if (code === 'planCompletion') return row.values.plannedAtStart ?? 0;
+    if (code === 'planCompletion' || code === 'planResultRate') {
+        return row.values.plannedAtStart ?? 0;
+    }
     return 1;
 };
 

@@ -27,25 +27,22 @@ import {
     CLIENT_TYPE_OPTIONS,
     EMPTY_CRITERIA_HELPER_TEXT,
     SUPPLY_TYPE_OPTIONS,
+    usePortalOptions,
+    useProviderOptions,
 } from '@/modules/entities/konstructor/lib';
-import { usePortals } from '@/modules/entities/portal';
+import { useDepartmentUsers } from '../../lib/hooks';
+import { formatDepartmentUser } from '../../lib/utils/word-template-user-selection';
 import { ICreateWordTemplateDto, IUpdateWordTemplateDto } from '../../model';
 
 /**
- * Критерии подбора: поставщик + типы клиента + виды размещения.
+ * Критерии подбора: типы клиента + виды размещения. Поставщик — отдельным
+ * селектом ниже (зависит от портала).
  *
  * Поля ХРАНЯТСЯ и редактируются, автоподбора шаблона КП по ним НЕТ
  * (зафиксированное решение: шаблоны КП не заходят в общий резолвер
  * шаблонов документов). Поэтому помечены как справочные.
  */
 const CRITERIA_FIELDS: FormFieldConfig[] = [
-    {
-        name: 'agent_id',
-        label: 'ID поставщика',
-        type: 'text',
-        placeholder: '42',
-        helperText: 'Пусто — шаблон подходит любому поставщику.',
-    },
     {
         name: 'client_types',
         label: 'Типы клиента',
@@ -119,7 +116,11 @@ export function WordTemplateForm({
     } = useForm<ICreateWordTemplateDto>({
         defaultValues: {
             name: initialData?.name ?? '',
-            visibility: initialData?.visibility ?? OfferTemplateVisibility.public,
+            // В портальном дереве по умолчанию портальный шаблон: он создаётся
+            // для этого портала, а не публичный на всех.
+            visibility:
+                initialData?.visibility ??
+                (portalId ? OfferTemplateVisibility.private : OfferTemplateVisibility.public),
             is_default: initialData?.is_default ?? false,
             tags: initialData?.tags ?? '',
             is_active: initialData?.is_active ?? true,
@@ -138,28 +139,45 @@ export function WordTemplateForm({
 
     const selectedFile = watch('file');
     const visibility = watch('visibility');
+    const portalIds = watch('portal_ids');
+    const singlePortalId = watch('portal_id');
+
+    const isPortalVisibility = visibility === OfferTemplateVisibility.private;
+    const isUserVisibility = visibility === OfferTemplateVisibility.user;
 
     // Мультиселект порталов нужен только в ГЛОБАЛЬНОМ дереве и только для
     // портальной видимости: внутри портала привязка задана самим маршрутом.
-    const showPortalsPicker = !portalId && visibility === OfferTemplateVisibility.private;
-    const portals = usePortals();
-    const portalOptions = React.useMemo(
-        () =>
-            (portals.data ?? []).map((portal) => ({
-                value: String(portal.id),
-                label: portal.domain ? `${portal.domain} (#${portal.id})` : `Портал #${portal.id}`,
-            })),
-        [portals.data],
-    );
+    const showPortalsPicker = !portalId && isPortalVisibility;
+    // Пользовательский шаблон в глобальном дереве: сначала ОДИН портал,
+    // затем сотрудник его отдела продаж.
+    const showSinglePortalPicker = !portalId && isUserVisibility;
+
+    const portals = usePortalOptions();
+
+    /**
+     * Портал, по которому ищем поставщиков и сотрудников:
+     * портальное дерево → из маршрута; портальная видимость → первый из
+     * мультиселекта; пользовательская → выбранный один портал.
+     */
+    const effectivePortalId = portalId
+        ? String(portalId)
+        : isPortalVisibility
+          ? portalIds?.[0]
+          : singlePortalId
+            ? String(singlePortalId)
+            : undefined;
+
+    const providers = useProviderOptions(effectivePortalId);
+    const users = useDepartmentUsers(providers.domain);
+
     const portalsField: FormFieldConfig = {
         name: 'portal_ids',
         label: 'Порталы',
         type: 'multiselect',
-        options: portalOptions,
-        helperText:
-            portals.isLoading
-                ? 'Загружаем список порталов…'
-                : 'Шаблон будет доступен на отмеченных порталах. Привязки синхронизируются: снятая галочка удаляет привязку.',
+        options: portals.options,
+        helperText: portals.isLoading
+            ? 'Загружаем список порталов…'
+            : 'Шаблон будет доступен на отмеченных порталах. Привязки синхронизируются: снятая галочка удаляет привязку.',
     };
 
     const onSubmitForm = (data: ICreateWordTemplateDto) => {
@@ -245,29 +263,74 @@ export function WordTemplateForm({
                         </div>
                     )}
 
-                    {!portalId && !showPortalsPicker && (
+                    {showSinglePortalPicker && (
                         <div className="space-y-2">
-                            <Label htmlFor="portal_id">ID портала</Label>
-                            <Input
-                                id="portal_id"
-                                type="number"
-                                {...register('portal_id', {
-                                    setValueAs: (value) => (value === '' ? undefined : Number(value)),
-                                })}
+                            <Label htmlFor="portal_id">Портал</Label>
+                            <Controller
+                                name="portal_id"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        value={field.value ? String(field.value) : ''}
+                                        onValueChange={(value) => field.onChange(Number(value))}
+                                    >
+                                        <SelectTrigger id="portal_id">
+                                            <SelectValue
+                                                placeholder={portals.isLoading ? 'Загружаем порталы…' : 'Выберите портал'}
+                                            />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {portals.options.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
                             />
+                            <p className="text-xs text-muted-foreground">
+                                Пользовательский шаблон принадлежит сотруднику конкретного портала.
+                            </p>
                         </div>
                     )}
 
-                    {!userId && (
+                    {isUserVisibility && !userId && (
                         <div className="space-y-2">
-                            <Label htmlFor="user_id">ID пользователя</Label>
-                            <Input
-                                id="user_id"
-                                type="number"
-                                {...register('user_id', {
-                                    setValueAs: (value) => (value === '' ? undefined : Number(value)),
-                                })}
+                            <Label htmlFor="user_id">Сотрудник</Label>
+                            <Controller
+                                name="user_id"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        value={field.value ? String(field.value) : ''}
+                                        onValueChange={(value) => field.onChange(Number(value))}
+                                        disabled={!providers.domain}
+                                    >
+                                        <SelectTrigger id="user_id">
+                                            <SelectValue
+                                                placeholder={
+                                                    !effectivePortalId
+                                                        ? 'Сначала выберите портал'
+                                                        : users.isLoading
+                                                          ? 'Загружаем отдел продаж…'
+                                                          : 'Выберите сотрудника'
+                                                }
+                                            />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {(users.data ?? []).map((user) => (
+                                                <SelectItem key={user.ID} value={String(user.ID)}>
+                                                    {formatDepartmentUser(user)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
                             />
+                            <p className="text-xs text-muted-foreground">
+                                Сотрудники отдела продаж портала из Bitrix.
+                            </p>
                         </div>
                     )}
 
@@ -281,6 +344,57 @@ export function WordTemplateForm({
                                 автоподбор шаблона КП по ним не выполняется.
                             </p>
                         </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="agent_id">Поставщик</Label>
+                            <Controller
+                                name="agent_id"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        value={field.value ? String(field.value) : ''}
+                                        onValueChange={field.onChange}
+                                        disabled={!providers.hasPortal}
+                                    >
+                                        <SelectTrigger id="agent_id">
+                                            <SelectValue
+                                                placeholder={
+                                                    !providers.hasPortal
+                                                        ? 'Любой поставщик (сначала выберите портал)'
+                                                        : providers.isLoading
+                                                          ? 'Загружаем поставщиков…'
+                                                          : 'Любой поставщик'
+                                                }
+                                            />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {providers.options.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            <div className="flex items-center gap-2">
+                                <p className="text-xs text-muted-foreground">
+                                    Пусто — шаблон подходит любому поставщику.
+                                </p>
+                                {watch('agent_id') && (
+                                    <Button
+                                        type="button"
+                                        variant="link"
+                                        size="sm"
+                                        className="h-auto p-0 text-xs"
+                                        onClick={() => setValue('agent_id', '')}
+                                    >
+                                        Сбросить
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+
                         {CRITERIA_FIELDS.map((fieldConfig) => (
                             <FormFieldRenderer<ICreateWordTemplateDto>
                                 key={fieldConfig.name}

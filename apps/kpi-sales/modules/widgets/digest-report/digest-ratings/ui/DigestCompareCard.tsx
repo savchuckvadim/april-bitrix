@@ -8,7 +8,6 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table';
-import { SectionCard } from '@workspace/april-ui';
 import { cn } from '@workspace/ui/lib/utils';
 import {
     DIGEST_METRIC_BY_CODE,
@@ -30,16 +29,15 @@ const TONE_CLASS = {
 
 /** Сотрудник в фокусе против Ø отдела и Ø всех по ключевым метрикам. */
 export const DigestCompareCard = ({ comparison }: DigestCompareCardProps) => (
-    <SectionCard
-        surface="glass"
-        density="compact"
-        title={`${comparison.row.name} — сравнение со средними`}
-        description={
-            comparison.deptName
+    <div className="space-y-2 rounded-md border border-border bg-popover/60 p-3">
+        <div>
+            <h4 className="text-sm font-semibold">{comparison.row.name} — сравнение со средними</h4>
+            <p className="text-xs text-muted-foreground">
+                {comparison.deptName
                 ? `Ø отдела «${comparison.deptName}» — по сотрудникам отдела в выборке; Ø все — по всем ответственным портала за день`
-                : 'Ø все — по всем ответственным портала за день'
-        }
-    >
+                : 'Ø все — по всем ответственным портала за день'}
+            </p>
+        </div>
         <Table className="text-xs">
             <TableHeader>
                 <TableRow>
@@ -85,5 +83,5 @@ export const DigestCompareCard = ({ comparison }: DigestCompareCardProps) => (
                 })}
             </TableBody>
         </Table>
-    </SectionCard>
+    </div>
 );

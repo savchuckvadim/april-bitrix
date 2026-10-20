@@ -7,16 +7,15 @@
  */
 
 /**
- * Вид сигнала: риск-флаг разбора (promise/conflict/compliance/client_negative) либо urgent — срочный приоритет коучинга.
+ * Вид сигнала: действующий риск-флаг разбора с цитатой (conflict — конфликт / грубость, compliance — нарушение регламента, door_closed — после отказа не оставил дверь открытой) либо urgent — срочный приоритет коучинга. Отменённые флаги (promise, client_negative) сигналом не считаются даже в старых данных.
  */
 export type AiPulseAlertDtoKind =
     (typeof AiPulseAlertDtoKind)[keyof typeof AiPulseAlertDtoKind];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AiPulseAlertDtoKind = {
-    promise: 'promise',
     conflict: 'conflict',
     compliance: 'compliance',
-    client_negative: 'client_negative',
+    door_closed: 'door_closed',
     urgent: 'urgent',
 } as const;

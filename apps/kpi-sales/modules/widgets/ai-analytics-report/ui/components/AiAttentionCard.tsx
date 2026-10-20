@@ -1,13 +1,15 @@
 'use client';
 
-import { ArrowRight, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { HintTooltip, ToneBadge } from '@workspace/april-ui';
 import {
+    AI_ATTENTION_TEXT,
     AI_FEEDBACK_OBJECT,
-    AI_SIGNAL,
     aiAttentionActionLine,
+    aiAttentionCallsLabel,
     aiAttentionHintLines,
+    aiSignalView,
     type AiAttentionItem,
 } from '@/modules/entities/ai-analytics';
 import { useAiCallTypeBadge } from '../../hooks/use-ai-call-type-badge';
@@ -20,18 +22,26 @@ interface AiAttentionCardProps {
     onOpenType: (callType: string) => void;
 }
 
+const T = AI_ATTENTION_TEXT;
+const HINT_TRIGGER = 'cursor-help border-b border-dashed border-muted-foreground/60';
+
 /**
- * Карточка «Внимание»: ранг, сигнал (ToneBadge с подсказкой: что значит,
- * что сделать, основание из basis), менеджер, заголовок с числами, строка
- * «Что сделать», переход к менеджеру/типу, «полезно / не полезно».
+ * Карточка «Внимание»: ранг (подсказка — порядок важности), сигнал
+ * (ToneBadge с подсказкой: что значит, что сделать, основание из basis),
+ * менеджер, заголовок с числами, строка «Что сделать», переход к типу
+ * звонка (без стрелки, с подсказкой), «риск-звонков: N» с подсказкой,
+ * «полезно / не полезно».
  */
 export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
-    const signal = AI_SIGNAL[item.signal];
+    // Сигнал из старого кэша, которого нет в словаре, — запасная подпись.
+    const signal = aiSignalView(item.signal);
     const callTypeBadge = useAiCallTypeBadge();
     const linkType = item.link.callType;
     const callType = linkType ? callTypeBadge(linkType) : null;
-    const riskCount = item.link.transcriptionIds?.length ?? 0;
-    // Ссылки на карточки разборов риск-звонков (бэк подставляет по
+    const callsCount = item.link.transcriptionIds?.length ?? 0;
+    const callsHint = item.signal === 'risk' ? T.riskCallsHint : T.callsHint;
+    // Ссылки на карточки разборов звонков карточки — риск-звонков, слабых
+    // презентаций и доработки, звонков с низкой оценкой (бэк подставляет по
     // transcriptionIds; null — элемента разбора в смарте ещё нет).
     const callLinks = (item.link.calls ?? []).filter(
         (call): call is { transcriptionId: string; link: string } =>
@@ -41,9 +51,11 @@ export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
     return (
         <li className="flex flex-col gap-2 rounded-md border border-border/60 p-3">
             <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="font-semibold text-muted-foreground">
-                    {item.rank}.
-                </span>
+                <HintTooltip title={T.rankHint.title} lines={[...T.rankHint.lines]}>
+                    <span className={`font-semibold text-muted-foreground ${HINT_TRIGGER}`}>
+                        {item.rank}.
+                    </span>
+                </HintTooltip>
                 <HintTooltip
                     title={signal.label}
                     lines={aiAttentionHintLines(item)}
@@ -68,17 +80,27 @@ export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     {linkType && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 gap-1 px-2 text-xs"
-                            onClick={() => onOpenType(linkType)}
+                        <HintTooltip
+                            title={T.openType.hint.title}
+                            lines={[...T.openType.hint.lines]}
                         >
-                            Разбор по типу
-                            <ArrowRight className="h-3 w-3" />
-                        </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                onClick={() => onOpenType(linkType)}
+                            >
+                                {T.openType.label}
+                            </Button>
+                        </HintTooltip>
                     )}
-                    {riskCount > 0 && <span>риск-звонков: {riskCount}</span>}
+                    {callsCount > 0 && (
+                        <HintTooltip title={callsHint.title} lines={[...callsHint.lines]}>
+                            <span className={HINT_TRIGGER}>
+                                {aiAttentionCallsLabel(item.signal, callsCount)}
+                            </span>
+                        </HintTooltip>
+                    )}
                     {callLinks.map((call, index) => (
                         <a
                             key={call.transcriptionId}

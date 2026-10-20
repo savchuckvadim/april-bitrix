@@ -24,6 +24,12 @@ import type {
   AiAnalyticsGoldenSetResultDto,
   AiAnalyticsGoldenSetRunDto,
   AiAnalyticsGoldenSetRunResultDto,
+  AiAnalyticsLaunchAdminStatusParams,
+  AiAnalyticsLaunchCacheResetDto,
+  AiAnalyticsLaunchCacheResetResultDto,
+  AiAnalyticsLaunchStageFlagsDto,
+  AiAnalyticsLaunchStageFlagsResultDto,
+  AiAnalyticsLaunchStatusDto,
   AiAnalyticsPhase4AdminForecastBacktestParams,
   AiAnalyticsPhase4AdminPoolStatusParams,
   AiAnalyticsPhase4AdminQualityLinkParams,
@@ -31,12 +37,18 @@ import type {
   AiAnalyticsPipelineAdminStatusParams,
   AiAnalyticsPoolStatusResultDto,
   AiAnalyticsQualityLinkResultDto,
+  AiAnalyticsReanalyzeAdminStatusParams,
+  AiAnalyticsReanalyzeRunDto,
+  AiAnalyticsReanalyzeRunResultDto,
+  AiAnalyticsReanalyzeStatusDto,
   AiAnalyticsRecommendationEffectResultDto,
   AiAnalyticsRecomputeDto,
   AiAnalyticsRecomputeResultDto,
   AiAnalyticsRetentionResultDto,
   AiAnalyticsRetentionRunDto,
-  AiAnalyticsStageHistoryProbeResponseDto
+  AiAnalyticsStageHistoryProbeResponseDto,
+  AiGuideSectionDto,
+  AiGuideSectionItemDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
@@ -267,7 +279,99 @@ const aiAnalyticsPhase4AdminQualityLink = (
     },
       );
     }
-  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink}};
+  /**
+ * Ставит джобу CALL_REPORT_REANALYZE (очередь CALL_REPORT, воркер apps/event-sales). Кандидаты — готовые транскрипции периода сотрудников списка (по умолчанию пилот из настроек портала), у которых активный разбор другой серии промпта или без версий; разбор текущей серии и звонки без разбора пропускаются, повтор запуска безопасен. Новая запись agent-analysis копирует ссылки старой (карточка смарта, дело, сущность, владелец), старая помечается superseded; Битрикс не вызывается, алерты не шлются. Квота на часть и бюджет 45 минут: остаток джоба дорабатывает продолжениями сама. dryRun — без модели: кандидаты и оценка стоимости в запись статуса (тоже через джобу). Без очереди в сборке — dispatched: false с причиной.
+ * @summary Запустить переразбор истории текущей версией промпта
+ */
+const aiAnalyticsReanalyzeAdminRun = (
+    aiAnalyticsReanalyzeRunDto: AiAnalyticsReanalyzeRunDto,
+ ) => {
+      return customAxios<AiAnalyticsReanalyzeRunResultDto>(
+      {url: `/api/admin/ai-analytics/reanalyze`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsReanalyzeRunDto
+    },
+      );
+    }
+  /**
+ * Запись статуса call-report-reanalysis-run по домену и периоду (кандидаты, сделано, сбои, пропуски по причинам, токены и стоимость, finished, оценка dryRun) и активные отчёты ai-analytics-version-agreement портала: по каждой старой серии — пары, ICC/σ, средний сдвиг общего балла и оценок разделов в разбивке по старой версии промпта. По ним владелец решает, объявлять ли старые серии совместимыми на других порталах.
+ * @summary Статус переразбора периода и отчёт согласия версий
+ */
+const aiAnalyticsReanalyzeAdminStatus = (
+    params: AiAnalyticsReanalyzeAdminStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsReanalyzeStatusDto>(
+      {url: `/api/admin/ai-analytics/reanalyze-status`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Разделы путеводителя в порядке показа: включение и рассылки, сотрудники и цели, разбор звонков, модель и данные, прогноз, обратная связь и надёжность, запуск после выкладки — коды, названия и счётчики связей. Тексты — GET guide/:code.
+ * @summary Путеводитель по AI-аналитике: оглавление разделов
+ */
+const aiAnalyticsGuideAdminList = (
+    
+ ) => {
+      return customAxios<AiGuideSectionItemDto[]>(
+      {url: `/api/admin/ai-analytics/guide`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Теория (markdown: что это, как работает, когда срабатывает, где смотреть результат, что подготовить, риски) и связи раздела: ключи kpiSales с названиями из схемы и категорией, поля настроек AI портала, коды реестра параметров с названиями, слоем и диапазоном, kind базы знаний с описаниями, ручки с телами запросов и кодами действий для форм, страницы админки (`{portalId}` подставляет фронт), связанные разделы и шаги чек-листа «Запуск».
+ * @summary Раздел путеводителя: теория и связи
+ */
+const aiAnalyticsGuideAdminEntry = (
+    code: string,
+ ) => {
+      return customAxios<AiGuideSectionDto>(
+      {url: `/api/admin/ai-analytics/guide/${code}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Та же очистка, что у POST ai-analytics/cache/reset приложения kpi-report-sales, но из админки (SUPER_USER, без requesterUserId): строки app_cache и ключи Redis пространства sales-ai-analytics:v1 по домену. scope = all (по умолчанию) — весь кэш витрины, иначе одна секция. Нужен после выкладки и после переразбора — иначе пульс и повестка отдают старый расчёт до истечения TTL (час / 15 минут).
+ * @summary Сбросить кэш витрины AI портала
+ */
+const aiAnalyticsLaunchAdminResetCache = (
+    aiAnalyticsLaunchCacheResetDto: AiAnalyticsLaunchCacheResetDto,
+ ) => {
+      return customAxios<AiAnalyticsLaunchCacheResetResultDto>(
+      {url: `/api/admin/ai-analytics/cache/reset`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsLaunchCacheResetDto
+    },
+      );
+    }
+  /**
+ * Безопасно мёржит forecast_stage_enabled и recommendations_stage_enabled в JSON ai_analytics_model_params портала: текущее значение читается из БД, меняются только эти ключи, сохраняется тем же сервисом, что форма настроек админки. Битый JSON — 400 с текстом, ничего не перезаписывается. forecast = true — только если последняя проверка точности прогноза в статусе pass, иначе 409 с причинами; force = true — обход для разработчика. После смены флага сбрасывается кэш витрины портала (сбой сброса — подсказка в message).
+ * @summary Включить / выключить показ прогноза и эффекта советов
+ */
+const aiAnalyticsLaunchAdminSetStageFlags = (
+    aiAnalyticsLaunchStageFlagsDto: AiAnalyticsLaunchStageFlagsDto,
+ ) => {
+      return customAxios<AiAnalyticsLaunchStageFlagsResultDto>(
+      {url: `/api/admin/ai-analytics/stage-flags`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsLaunchStageFlagsDto
+    },
+      );
+    }
+  /**
+ * Одним ответом для панели запуска: настройки (AI-аналитика, разбор звонков, пилот), смарт (установлен ли, есть ли значения door_closed и event_invite), журнал прогонов (последние backfill / monthly / nightly), прогноз (теневые месяцы, из истории, статус проверки, флаг показа), последний переразбор по домену с прогрессом и расход модели за месяц. У каждого блока — state (done | todo | running | unknown) и текст «что это и что сделать дальше». Только чтение; упавшее чтение даёт unknown своему блоку, остальные собираются.
+ * @summary Сводка запуска AI после выкладки
+ */
+const aiAnalyticsLaunchAdminStatus = (
+    params: AiAnalyticsLaunchAdminStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsLaunchStatusDto>(
+      {url: `/api/admin/ai-analytics/launch-status`, method: 'GET',
+        params
+    },
+      );
+    }
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus}};
 export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
 export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
 export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
@@ -284,3 +388,10 @@ export type AiAnalyticsPhase4AdminPoolStatusResult = NonNullable<Awaited<ReturnT
 export type AiAnalyticsPhase4AdminForecastBacktestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminForecastBacktest']>>>
 export type AiAnalyticsPhase4AdminRecommendationEffectResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminRecommendationEffect']>>>
 export type AiAnalyticsPhase4AdminQualityLinkResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminQualityLink']>>>
+export type AiAnalyticsReanalyzeAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsReanalyzeAdminRun']>>>
+export type AiAnalyticsReanalyzeAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsReanalyzeAdminStatus']>>>
+export type AiAnalyticsGuideAdminListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGuideAdminList']>>>
+export type AiAnalyticsGuideAdminEntryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGuideAdminEntry']>>>
+export type AiAnalyticsLaunchAdminResetCacheResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsLaunchAdminResetCache']>>>
+export type AiAnalyticsLaunchAdminSetStageFlagsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsLaunchAdminSetStageFlags']>>>
+export type AiAnalyticsLaunchAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsLaunchAdminStatus']>>>

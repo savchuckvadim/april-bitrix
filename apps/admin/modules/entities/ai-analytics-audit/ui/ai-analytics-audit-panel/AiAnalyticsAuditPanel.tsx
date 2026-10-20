@@ -1,5 +1,6 @@
 'use client';
 
+import { GuideLinkButton } from '@/modules/entities/ai-analytics-guide';
 import { AUDIT_TEXT } from '../../consts/ai-analytics-audit.const';
 import { AuditAboutCard } from '../audit-about-card';
 import { AuditResultView } from '../audit-result-view';
@@ -20,7 +21,10 @@ export const AiAnalyticsAuditPanel = () => {
 
     return (
         <div className="space-y-4">
-            <h1 className="text-3xl font-bold">{AUDIT_TEXT.pageTitle}</h1>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <h1 className="text-3xl font-bold">{AUDIT_TEXT.pageTitle}</h1>
+                <GuideLinkButton section="feedback-reliability" />
+            </div>
 
             <AuditRunForm
                 form={panel.form}

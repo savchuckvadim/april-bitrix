@@ -4,12 +4,16 @@ import {
     AI_ATTENTION_NO_BASIS,
     aiAttentionActionLine,
     aiAttentionBasisLines,
+    aiAttentionCallsLabel,
     aiAttentionHintLines,
+    formatAiBasisLine,
 } from '../lib/ai-attention.util';
 import {
     AI_LONG_KIND,
     AI_SIGNAL,
     AI_SIGNAL_NO_DATA_EXPLANATION,
+    AI_SIGNAL_UNKNOWN,
+    aiSignalView,
 } from '../lib/ai-overview.data';
 
 describe('AI_SIGNAL — у каждого сигнала есть «что сделать»', () => {
@@ -39,6 +43,44 @@ describe('AI_SIGNAL — у каждого сигнала есть «что сд�
 
     it('«KPI» в длинной раскладке — «Показатель CRM»', () => {
         expect(AI_LONG_KIND.kpi.label).toBe('Показатель CRM');
+    });
+
+    it('сигналы этапа 2: слабые презентации, слабая доработка, звонки с низкой оценкой; риск без обещаний и негатива', () => {
+        expect(AI_SIGNAL.weak_presentation.label).toBe('Слабые презентации');
+        expect(AI_SIGNAL.weak_followup.label).toBe('Слабая доработка');
+        expect(AI_SIGNAL.low_score_calls.label).toBe('Звонки с низкой оценкой');
+        expect(AI_SIGNAL.risk.hint).not.toMatch(/обещани|негатив/i);
+        expect(AI_SIGNAL.risk.hint).toMatch(/цитат/);
+        // Незнакомый сигнал из старого кэша — запасная подпись, не падение.
+        expect(aiSignalView('promise_calls')).toBe(AI_SIGNAL_UNKNOWN);
+        expect(aiSignalView('risk')).toBe(AI_SIGNAL.risk);
+        expect(aiAttentionActionLine('weak_followup')).toBe(
+            `Что сделать: ${AI_SIGNAL.weak_followup.action}`,
+        );
+    });
+
+    it('опоры этапа 2: средняя раздела — «из 10», доли — в процентах, подписи по-русски', () => {
+        expect(
+            formatAiBasisLine({
+                code: 'needs_section_mean',
+                value: 4.25,
+                norm: 5,
+                n: 12,
+            }),
+        ).toBe('Выявление потребностей, средняя: 4,3 из 10 (норма 5 из 10) · звонков: 12');
+        expect(
+            formatAiBasisLine({
+                code: 'objection_unhandled_share',
+                value: 0.6,
+                norm: 0.5,
+                n: 10,
+            }),
+        ).toBe('Возражений не отработано: 60 % (норма 50 %) · звонков: 10');
+        expect(
+            formatAiBasisLine({ code: 'low_score_calls', value: 3, norm: 4, n: 30 }),
+        ).toBe('Звонков с низкой оценкой: 3 (норма 4) · звонков: 30');
+        expect(aiAttentionCallsLabel('risk', 2)).toBe('риск-звонков: 2');
+        expect(aiAttentionCallsLabel('weak_presentation', 3)).toBe('звонков: 3');
     });
 });
 

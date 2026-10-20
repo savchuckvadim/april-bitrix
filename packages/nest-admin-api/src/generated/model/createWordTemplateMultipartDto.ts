@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type { OfferTemplateVisibility } from './offerTemplateVisibility';
+import type { ClientTypeEnum } from './clientTypeEnum';
+import type { SupplyTypeEnum } from './supplyTypeEnum';
 
 export interface CreateWordTemplateMultipartDto {
   /** The name of the word template */
@@ -22,6 +24,12 @@ export interface CreateWordTemplateMultipartDto {
   portal_id: number;
   /** id of the user */
   user_id: number;
+  /** ID агента (поставщика), под которого годится шаблон. Отсутствие поля означает «для любого поставщика» (в БД NULL). Автоподбор по этому полю НЕ выполняется: у шаблонов КП своя логика выбора, поле хранится и редактируется как есть. */
+  agent_id?: string;
+  /** Типы клиента, для которых годится шаблон. Пустой список и отсутствие поля означают «для любого типа клиента» (в БД NULL). */
+  client_types?: ClientTypeEnum[];
+  /** Типы поставки, для которых годится шаблон. Пустой список и отсутствие поля означают «для любого типа поставки» (в БД NULL). */
+  supply_types?: SupplyTypeEnum[];
   /** DOCX template file */
   file: Blob;
 }

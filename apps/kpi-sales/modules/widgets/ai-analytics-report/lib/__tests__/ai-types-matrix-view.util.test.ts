@@ -1,20 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import type { AiTypeTotals } from '@/modules/entities/ai-analytics/model';
-import { aiMatrixPresentTypes } from '@/modules/entities/ai-analytics/lib/ai-types-matrix.util';
+import { AI_CALL_TYPE_OUTSIDE_SCORE_HINT } from '@/modules/entities/ai-analytics/lib/ai-call-types.data';
 import {
-    AI_SECTIONS_MATRIX_ALL,
+    aiMatrixPresentTypes,
+    aiTypesMatrixColumns,
+} from '@/modules/entities/ai-analytics/lib/ai-types-matrix.util';
+import {
+    aiSectionsMatrixColumns,
     aiMatrixSections,
 } from '@/modules/entities/ai-analytics/lib/ai-sections-matrix.util';
-import { typeTotals } from '@/modules/entities/ai-analytics/__tests__/ai-fixtures';
 import {
     CALL_TYPES,
     matrixRows,
+    matrixRowsWithInvites,
 } from '@/modules/entities/ai-analytics/__tests__/ai-types-matrix-fixtures';
 import {
     aiMatrixPresentUserIds,
-    aiMatrixVisibleTotals,
-    aiSectionsScoreIndicators,
-    aiTypesScoreIndicators,
+    aiMatrixScoreIndicators,
     buildAiTypeChips,
     resolveAiSectionsType,
 } from '../ai-types-matrix-view.util';
@@ -46,19 +47,29 @@ describe('buildAiTypeChips', () => {
     });
 
     it('скрытые коды, которых в периоде нет, в счётчик не входят', () => {
-        const state = buildAiTypeChips(
-            presentTypes,
-            ['payment', 'presentation'],
-            CALL_TYPES,
-        );
+        const state = buildAiTypeChips(presentTypes, ['payment', 'presentation'], CALL_TYPES);
         expect(state.hiddenCount).toBe(1);
-        expect(state.chips.filter(chip => chip.hidden)).toHaveLength(1);
+        expect(state.footnote).toBeNull();
+    });
+
+    it('чип приглашения на мероприятие несёт подсказку «вне средней оценки» и общую сноску', () => {
+        const withInvites = aiMatrixPresentTypes(matrixRowsWithInvites(), CALL_TYPES);
+        const state = buildAiTypeChips(withInvites, [], CALL_TYPES);
+        expect(state.chips.find(chip => chip.code === 'event_invite')).toEqual({
+            code: 'event_invite',
+            label: 'Мероприятие',
+            tone: 'info',
+            hidden: false,
+            hint: AI_CALL_TYPE_OUTSIDE_SCORE_HINT,
+        });
+        expect(state.footnote).toBe(AI_CALL_TYPE_OUTSIDE_SCORE_HINT);
     });
 });
 
 describe('aiMatrixPresentUserIds', () => {
-    it('менеджеры с n > 0 уникально в порядке появления', () => {
+    it('менеджеры с n > 0 уникально в порядке появления; «все типы» — как без типа', () => {
         expect(aiMatrixPresentUserIds(rows)).toEqual([7, 3]);
+        expect(aiMatrixPresentUserIds(rows, 'all')).toEqual([7, 3]);
     });
 
     it('по типу — только менеджеры со звонками этого типа', () => {
@@ -68,61 +79,43 @@ describe('aiMatrixPresentUserIds', () => {
     });
 });
 
-describe('aiMatrixVisibleTotals', () => {
-    const totals: AiTypeTotals[] = [
-        typeTotals({ callType: 'cold', n: 3 }),
-        typeTotals({ callType: 'presentation', n: 37 }),
-        typeTotals({ callType: 'decision', n: 0 }),
-    ];
-
-    it('только видимые типы со звонками, порядок бэка', () => {
-        const visible = presentTypes.filter(type => type.code !== 'cold');
-        expect(
-            aiMatrixVisibleTotals(totals, visible).map(total => total.callType),
-        ).toEqual(['presentation']);
-    });
-
-    it('без итогов — пусто', () => {
-        expect(aiMatrixVisibleTotals(null, presentTypes)).toEqual([]);
-    });
-});
-
 describe('resolveAiSectionsType', () => {
-    it('сохранённый тип есть в периоде — он', () => {
-        expect(resolveAiSectionsType('decision', presentTypes)).toBe(
-            'decision',
-        );
+    it('сохранённый тип есть в периоде — он; «все типы» — всегда допустимы', () => {
+        expect(resolveAiSectionsType('decision', presentTypes)).toBe('decision');
+        expect(resolveAiSectionsType('all', presentTypes)).toBe('all');
     });
 
-    it('сохранённого нет или пусто — первый тип периода', () => {
-        expect(resolveAiSectionsType('payment', presentTypes)).toBe('cold');
-        expect(resolveAiSectionsType('', presentTypes)).toBe('cold');
+    it('сохранённого нет или пусто — «все типы» по умолчанию', () => {
+        expect(resolveAiSectionsType('payment', presentTypes)).toBe('all');
+        expect(resolveAiSectionsType('', presentTypes)).toBe('all');
     });
 
     it('типов нет — null', () => {
         expect(resolveAiSectionsType('cold', [])).toBeNull();
+        expect(resolveAiSectionsType('all', [])).toBeNull();
     });
 });
 
-describe('показатели графиков оценок', () => {
-    it('типы: код и подпись', () => {
-        expect(aiTypesScoreIndicators(presentTypes.slice(0, 2))).toEqual([
+describe('aiMatrixScoreIndicators — показатели графиков оценок', () => {
+    it('колонки-оценки без хвоста продаж: типы или корзины', () => {
+        expect(
+            aiMatrixScoreIndicators(aiTypesMatrixColumns(presentTypes.slice(0, 2), 'types', CALL_TYPES)),
+        ).toEqual([
             { code: 'cold', name: 'Холодный' },
             { code: 'presentation', name: 'Презентация' },
         ]);
+        expect(
+            aiMatrixScoreIndicators(aiTypesMatrixColumns(presentTypes, 'buckets', CALL_TYPES)).map(
+                item => item.code,
+            ),
+        ).toEqual(['bucket:contact', 'bucket:presentation', 'bucket:closing', 'other']);
     });
 
-    it('разделы типа + «Все разборы» последним', () => {
-        const indicators = aiSectionsScoreIndicators(
-            aiMatrixSections(rows, 'presentation'),
+    it('разделы типа + «Итог» последним', () => {
+        const indicators = aiMatrixScoreIndicators(
+            aiSectionsMatrixColumns(aiMatrixSections(rows, 'presentation')),
         );
-        expect(indicators.map(item => item.code)).toEqual([
-            'GREETING',
-            'NEEDS',
-            'CLOSING',
-            AI_SECTIONS_MATRIX_ALL.code,
-        ]);
-        expect(indicators[0]?.name).toBe('Приветствие');
-        expect(indicators.at(-1)).toEqual(AI_SECTIONS_MATRIX_ALL);
+        expect(indicators.map(item => item.code)).toEqual(['GREETING', 'NEEDS', 'CLOSING', 'all']);
+        expect(indicators.at(-1)?.name).toBe('Итог');
     });
 });

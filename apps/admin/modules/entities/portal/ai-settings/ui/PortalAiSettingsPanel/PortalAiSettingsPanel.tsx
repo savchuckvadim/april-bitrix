@@ -32,6 +32,7 @@ import {
     PortalAiSettings,
     PortalAiSettingsUpdate,
 } from '../../model';
+import { AiSettingsRelatedLinks } from './components/AiSettingsRelatedLinks';
 import { NumberField, TriStateField } from './components/SettingFields';
 
 /** Сентинел селекта моделей: «как глобально» (Radix не принимает ''). */
@@ -290,6 +291,8 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
     return (
         <div className="space-y-4">
             <StatusHeader domain={portal.data?.domain} settings={settings.data} />
+
+            <AiSettingsRelatedLinks portalId={portalId} />
 
             {/* Главный выключатель — отдельной заметной карточкой, чтобы
                 «где включить AI для портала» находилось с первого взгляда. */}

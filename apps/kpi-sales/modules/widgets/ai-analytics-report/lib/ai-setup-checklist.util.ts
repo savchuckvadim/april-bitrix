@@ -10,6 +10,7 @@ import {
     aiCallCoverageItem,
     aiDataQualityItem,
     aiNotAnalyzedItem,
+    aiPilotHiddenItem,
     aiPilotItem,
     aiPipelineItem,
 } from './ai-setup-checklist.coverage';
@@ -70,6 +71,7 @@ const BUILDERS: readonly ItemBuilder[] = [
     aiAccessItem,
     aiCallCoverageItem,
     aiPilotItem,
+    aiPilotHiddenItem,
     aiNotAnalyzedItem,
     aiPipelineItem,
     aiDataQualityItem,

@@ -1,12 +1,12 @@
 'use client';
 
 import { Sparkles } from 'lucide-react';
-import { SectionCard } from '@workspace/april-ui';
+import { HintTooltip, SectionCard } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 import { AI_QUEUED_ERROR_MESSAGES } from '@/modules/entities/ai-analytics';
 import { useAiBrief } from '../hooks/use-ai-brief';
-import { aiBriefLoadingText } from '../lib/ai-brief.util';
+import { AI_BRIEF_REBUILD_HINT, aiBriefLoadingText } from '../lib/ai-brief.util';
 import {
     AI_BRIEF_NO_SCOPE_TEXT,
     AI_BRIEF_TITLE,
@@ -40,21 +40,26 @@ export const AiBriefCard = () => {
                     <AiTheoryLink topic="brief" variant="icon" />
                     <AiHowWeCountButton endpoint="brief" />
                     {brief.isLeader && brief.hasScope && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 gap-1 text-xs"
-                            disabled={loading}
-                            onClick={brief.rebuild}
+                        <HintTooltip
+                            title={AI_BRIEF_REBUILD_HINT.title}
+                            lines={[...AI_BRIEF_REBUILD_HINT.lines]}
                         >
-                            <Sparkles
-                                className={cn(
-                                    'h-3 w-3',
-                                    loading && 'animate-pulse',
-                                )}
-                            />
-                            Пересобрать
-                        </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 gap-1 text-xs"
+                                disabled={loading}
+                                onClick={brief.rebuild}
+                            >
+                                <Sparkles
+                                    className={cn(
+                                        'h-3 w-3',
+                                        loading && 'animate-pulse',
+                                    )}
+                                />
+                                {AI_BRIEF_REBUILD_HINT.label}
+                            </Button>
+                        </HintTooltip>
                     )}
                 </>
             }

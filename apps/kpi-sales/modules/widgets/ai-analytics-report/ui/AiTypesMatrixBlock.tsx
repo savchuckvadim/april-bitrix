@@ -6,31 +6,33 @@ import {
     type StructureSection,
 } from '@/modules/feature/report-tabs';
 import { useAiTypesMatrix } from '../hooks/use-ai-types-matrix';
-import { AI_MATRIX_EMPTY_TEXT } from '../lib/ai-types-matrix-view.util';
+import { AI_MATRIX_BLOCK_TEXT } from '../lib/ai-matrix-texts';
+import { aiMatrixNorms } from '../lib/ai-matrix-view.util';
 import { AiQueuedState } from './components/AiQueuedState';
-import { AiTheoryLink } from './components/AiTheoryLink';
-import { AiTypesFilterChips } from './components/AiTypesFilterChips';
-import { AiMatrixTable } from './components/AiMatrixTable';
+import { AiMatrixEmptyState } from './components/AiMatrixEmptyState';
+import { AiMatrixLegend } from './components/AiMatrixLegend';
+import { AiMatrixModeSwitch } from './components/AiMatrixModeSwitch';
 import { AiMatrixRatingFooter } from './components/AiMatrixRatingFooter';
-import { AiTypeTotalsList } from './components/AiTypeTotalsList';
+import { AiMatrixSummary } from './components/AiMatrixSummary';
+import { AiMatrixTable } from './components/AiMatrixTable';
+import { AiTypesFilterChips } from './components/AiTypesFilterChips';
 
 const BLOCK_LABEL = 'AI: типы';
-const SCORE_STORAGE_PREFIX = 'ai-types-matrix-score';
+const STORAGE_PREFIX = 'ai-types-matrix-score';
+const T = AI_MATRIX_BLOCK_TEXT;
 
 /**
- * Блок «AI: типы звонков» в стиле KPI-отчёта: менеджеры периода × типы
- * звонков (разборов, подстрока — оценка типа) + хвост продаж; вкладки
- * Сводный / По отделам / По группам с рейтингами-победителями по
- * счётчикам и по оценке; чипы-фильтр типов; CSV с колонками оценок.
- * Периметр — тот же, что у остальных секций вкладки (глобальный фильтр).
+ * Блок «AI: типы звонков» в стиле KPI-отчёта: менеджеры периода × корзины
+ * (Контакт / Презентация / Закрытие) или типы — оценка крупно, разборов
+ * мелко, цвет относительно «Итого по отделу»; легенда, профиль и рейтинги
+ * на «Сводном», вкладки По отделам / По группам со своими итогами; чипы
+ * фильтра типов; CSV с оценкой и числом разборов. Пустое состояние —
+ * причина и действие. Периметр — глобальный фильтр, как у вкладки.
  */
 export const AiTypesMatrixBlock = () => {
     const matrix = useAiTypesMatrix();
 
-    const renderFooter = (
-        entityLabel: string,
-        sections: StructureSection[],
-    ) => (
+    const renderFooter = (entityLabel: string, sections: StructureSection[]) => (
         <AiMatrixRatingFooter
             entityLabel={entityLabel}
             blockLabel={BLOCK_LABEL}
@@ -38,61 +40,75 @@ export const AiTypesMatrixBlock = () => {
             dataset={matrix.countDataset}
             points={matrix.scorePoints}
             indicators={matrix.indicators}
-            storagePrefix={SCORE_STORAGE_PREFIX}
+            norms={aiMatrixNorms(matrix.summaryTable)}
+            storagePrefix={STORAGE_PREFIX}
         />
     );
+
+    const renderSection = (userIds: Set<number>) => {
+        const table = matrix.buildTable(userIds);
+        return (
+            <AiMatrixTable
+                matrix={table}
+                totals={matrix.buildTotalsRow(table)}
+                columnHints={matrix.columnHints}
+                onColumnClick={matrix.openColumn}
+            />
+        );
+    };
 
     return (
         <ReportBlockWrapper
             blockId="ai-types-matrix"
-            title="AI: типы звонков"
+            title={T.types.title}
             onDownload={matrix.canDownload ? matrix.download : undefined}
         >
-            <div className="mb-2 flex justify-end">
-                <AiTheoryLink topic="kpiTables" />
-            </div>
             <AiQueuedState
                 status={matrix.section.status}
                 jobStatus={matrix.section.jobStatus}
                 error={matrix.section.error}
-                loadingText="Считаем срез по типам…"
+                loadingText={T.types.loading}
                 skeletonRows={5}
                 onRetry={matrix.section.retry}
             />
             {matrix.isReady && matrix.isEmpty && (
-                <p className="py-2 text-xs text-muted-foreground">
-                    {AI_MATRIX_EMPTY_TEXT}
-                </p>
+                <AiMatrixEmptyState reason={matrix.coverage.reason} />
             )}
             {matrix.isReady && !matrix.isEmpty && (
                 <div className="space-y-3">
-                    <AiTypesFilterChips
-                        chips={matrix.chips}
-                        hiddenCount={matrix.hiddenCount}
-                        onToggle={matrix.toggleType}
-                        onShowAll={matrix.showAllTypes}
-                    />
+                    <AiMatrixLegend legend={matrix.legend} />
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <AiTypesFilterChips
+                            chips={matrix.chips}
+                            hiddenCount={matrix.hiddenCount}
+                            onToggle={matrix.toggleType}
+                            onShowAll={matrix.showAllTypes}
+                            footnote={matrix.footnote}
+                        />
+                        <AiMatrixModeSwitch value={matrix.mode} onChange={matrix.setMode} />
+                    </div>
                     <ReportGroupTabs
                         presentUserIds={matrix.presentUserIds}
                         renderSummary={() => (
-                            <>
-                                <AiMatrixTable matrix={matrix.summaryTable} />
-                                <AiTypeTotalsList
-                                    totals={matrix.visibleTotals}
-                                />
-                            </>
-                        )}
-                        renderSection={userIds => (
-                            <AiMatrixTable
-                                matrix={matrix.buildTable(userIds)}
+                            <AiMatrixSummary
+                                matrix={matrix.summaryTable}
+                                totalsRow={matrix.totalsRow}
+                                columnHints={matrix.columnHints}
+                                onColumnClick={matrix.openColumn}
+                                hiddenManagers={matrix.hiddenManagers}
+                                showHidden={matrix.showHidden}
+                                onToggleHidden={matrix.toggleHidden}
+                                profileColumnsLabel={T.chart.columns[matrix.mode]}
+                                indicators={matrix.indicators}
+                                points={matrix.scorePoints}
+                                countDataset={matrix.countDataset}
+                                blockLabel={BLOCK_LABEL}
+                                storagePrefix={STORAGE_PREFIX}
                             />
                         )}
-                        renderDepartmentsFooter={sections =>
-                            renderFooter('отделы', sections)
-                        }
-                        renderGroupsFooter={sections =>
-                            renderFooter('группы', sections)
-                        }
+                        renderSection={renderSection}
+                        renderDepartmentsFooter={sections => renderFooter('отделы', sections)}
+                        renderGroupsFooter={sections => renderFooter('группы', sections)}
                     />
                 </div>
             )}

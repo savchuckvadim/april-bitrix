@@ -31,6 +31,7 @@ export {
     fetchAiByType,
     fetchAiDailyPlan,
     fetchAiDossier,
+    fetchAiFeedbackList,
     fetchAiForecast,
     fetchAiOverview,
     fetchAiPlanFact,
@@ -60,10 +61,20 @@ export {
     AI_WS_EVENTS,
     startAiWsListener,
 } from './model/listeners/ai-ws.listener';
+export {
+    selectAiAnalysisSince,
+    selectAiMinDurationSec,
+    selectAiPilotIds,
+    selectAiScopeNote,
+} from './model/ai-analytics-scope.selectors';
 export * from './lib/ai-call-types.data';
 export * from './lib/ai-call-sections.data';
 export * from './lib/ai-readiness.data';
 export * from './lib/ai-pulse.data';
+export * from './lib/ai-pulse.texts';
+export * from './lib/ai-attention.texts';
+export * from './lib/ai-scope.util';
+export * from './lib/ai-dossier-series.util';
 export * from './lib/ai-overview.data';
 export * from './lib/ai-metric.util';
 export * from './lib/ai-pulse.util';
@@ -80,13 +91,20 @@ export * from './lib/ai-plan-fact.util';
 export * from './lib/ai-yoy.util';
 export * from './lib/ai-dossier.util';
 export * from './lib/ai-kpi-codes.data';
+export * from './lib/ai-matrix.texts';
+export * from './lib/ai-matrix-norm.util';
+export * from './lib/ai-matrix-cell.util';
 export * from './lib/ai-matrix-table.util';
+export * from './lib/ai-matrix-buckets.util';
+export * from './lib/ai-matrix-totals.util';
+export * from './lib/ai-matrix-coverage.util';
 export * from './lib/ai-types-matrix.util';
 export * from './lib/ai-sections-matrix.util';
 export * from './lib/ai-types-matrix-rating.util';
 export * from './lib/ai-types-matrix-csv.util';
 export * from './lib/ai-period-label.util';
 export * from './lib/ai-pilot.util';
+export * from './lib/ai-employee-tabs.data';
 export {
     AI_ERROR_FORBIDDEN_TEXT,
     AI_ERROR_GENERIC_TEXT,

@@ -2,7 +2,7 @@
 
 import { ToneBadge } from '@workspace/april-ui';
 import {
-    AI_ALERT_KIND,
+    aiAlertKindView,
     formatAiMoment,
     type AiRiskCall,
 } from '@/modules/entities/ai-analytics';
@@ -24,7 +24,8 @@ interface AiSignalRiskCallRowProps {
  * ничего не известно (обзор сохранён раньше) — только вид и время.
  */
 export const AiSignalRiskCallRow = ({ call }: AiSignalRiskCallRowProps) => {
-    const kind = AI_ALERT_KIND[call.kind];
+    // Обзор из старого кэша может нести отменённый вид — запасная подпись.
+    const kind = aiAlertKindView(call.kind);
     const link = aiRiskCallLink(call);
     const noLinkText = aiRiskCallNoLinkText(call);
 

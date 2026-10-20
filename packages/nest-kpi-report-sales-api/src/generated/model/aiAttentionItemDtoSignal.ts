@@ -7,18 +7,21 @@
  */
 
 /**
- * Сигнал Фазы 1: risk — риск-звонки; no_data — n < 8 при звонках; discipline — < 50 % плана CRM при плане ≥ 10; next_step_drop — падение доли «шаг с датой» при n ≥ 20 в обоих окнах; plan_gap — план руководителя vs норма (с Фазы 2). Фаза 3: goodhart — метрика давления растёт, противовес падает (goodhart_drop за goodhart_window_months); trend_shift / trend_drift — сдвиг уровня или дрейф ряда вниз.
+ * Сигнал в порядке приоритета (решение владельца 19.10.2026): weak_presentation — у презентаций слабы «Выявление потребностей» или «Презентация под потребности» (средняя ≤ weak_section_score_max либо ниже отдела на weak_section_gap при n ≥ 8); weak_followup — у доработки (refine / decision) возражения не отработаны или шаг без даты в половине случаев и чаще либо слабы «Работа с возражениями» / «Закрытие разговора»; low_score_calls — звонки с общей оценкой ≤ low_score_call_max; no_data — n < 8 при звонках; discipline — < 50 % плана CRM при плане ≥ 10; next_step_drop — падение доли «шаг с датой» при n ≥ 20 в обоих окнах; plan_gap — план руководителя vs норма (с Фазы 2); risk — последним: действующие риск-флаги с цитатой (conflict / compliance / door_closed) и срочный коучинг. Фаза 3: goodhart — метрика давления растёт, противовес падает; trend_shift / trend_drift — сдвиг уровня или дрейф ряда вниз.
  */
 export type AiAttentionItemDtoSignal =
     (typeof AiAttentionItemDtoSignal)[keyof typeof AiAttentionItemDtoSignal];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AiAttentionItemDtoSignal = {
-    risk: 'risk',
+    weak_presentation: 'weak_presentation',
+    weak_followup: 'weak_followup',
+    low_score_calls: 'low_score_calls',
     no_data: 'no_data',
     discipline: 'discipline',
     next_step_drop: 'next_step_drop',
     plan_gap: 'plan_gap',
+    risk: 'risk',
     goodhart: 'goodhart',
     trend_shift: 'trend_shift',
     trend_drift: 'trend_drift',

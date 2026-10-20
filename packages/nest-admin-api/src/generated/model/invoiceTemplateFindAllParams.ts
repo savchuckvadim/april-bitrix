@@ -6,11 +6,21 @@
  * OpenAPI spec version: 1.0
  */
 import type { InvoiceTemplateFindAllVisibility } from './invoiceTemplateFindAllVisibility';
+import type { ClientTypeEnum } from './clientTypeEnum';
+import type { SupplyTypeEnum } from './supplyTypeEnum';
 
 export type InvoiceTemplateFindAllParams = {
 visibility?: InvoiceTemplateFindAllVisibility;
 portal_id?: string;
 agent_id?: string;
+/**
+ * Фильтр по типу клиента. Совпадение считается в TypeScript: список лежит JSON-ом в LongText, у Prisma нет операций по массивам в строковой колонке, а сырой SQL в проекте запрещён. Шаблоны с NULL («для любого») в выборку попадают.
+ */
+client_type?: ClientTypeEnum;
+/**
+ * Фильтр по типу поставки. Считается так же, в TypeScript; шаблоны с NULL («для любого») в выборку попадают.
+ */
+supply_type?: SupplyTypeEnum;
 is_active?: boolean;
 is_archived?: boolean;
 search?: string;

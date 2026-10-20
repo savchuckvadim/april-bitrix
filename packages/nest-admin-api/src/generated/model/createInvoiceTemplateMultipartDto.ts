@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type { CreateInvoiceTemplateMultipartDtoVisibility } from './createInvoiceTemplateMultipartDtoVisibility';
+import type { ClientTypeEnum } from './clientTypeEnum';
+import type { SupplyTypeEnum } from './supplyTypeEnum';
 import type { CreateInvoiceTemplateMultipartDtoType } from './createInvoiceTemplateMultipartDtoType';
 
 export interface CreateInvoiceTemplateMultipartDto {
@@ -15,6 +17,10 @@ export interface CreateInvoiceTemplateMultipartDto {
   portal_id?: string;
   /** ID агента (поставщика); для visibility=provider обязателен */
   agent_id?: string;
+  /** Типы клиента, для которых годится шаблон. Пустой список и отсутствие поля означают «для любого типа клиента» (в БД пишется NULL). */
+  client_types?: ClientTypeEnum[];
+  /** Типы поставки, для которых годится шаблон. Пустой список и отсутствие поля означают «для любого типа поставки» (в БД пишется NULL). */
+  supply_types?: SupplyTypeEnum[];
   description?: string;
   type?: CreateInvoiceTemplateMultipartDtoType;
   is_default?: boolean;

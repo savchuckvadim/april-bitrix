@@ -1,27 +1,33 @@
 'use client';
 
 import { ExternalLink } from 'lucide-react';
-import { ToneBadge } from '@workspace/april-ui';
+import { HintTooltip, ToneBadge } from '@workspace/april-ui';
 import {
-    AI_AGENDA_KIND,
     AI_FEEDBACK_OBJECT,
+    AI_SCORE_SCALE_HINT,
+    aiAgendaKindView,
     formatAiScore,
     type AiAgendaItem,
 } from '@/modules/entities/ai-analytics';
 import { useAiCallTypeBadge } from '../../hooks/use-ai-call-type-badge';
 import { useAiManagerName } from '../../hooks/use-ai-manager-name';
 import { AiFeedbackButtons } from './AiFeedbackButtons';
+import { AiManagerName } from './AiManagerName';
 
 interface AiAgendaItemRowProps {
     item: AiAgendaItem;
     index: number;
 }
 
-/** Звонок повестки: причина, менеджер, тип, цитата, ссылка на разбор. */
+/**
+ * Звонок повестки: причина (бэйдж с подсказкой «что это и что сделать»),
+ * менеджер, тип, цитата, ссылка на разбор. Причина из старого кэша,
+ * которой нет в словаре, получает запасную подпись.
+ */
 export const AiAgendaItemRow = ({ item, index }: AiAgendaItemRowProps) => {
     const managerName = useAiManagerName();
     const callTypeBadge = useAiCallTypeBadge();
-    const kind = AI_AGENDA_KIND[item.kind];
+    const kind = aiAgendaKindView(item.kind);
     const callType = item.callType ? callTypeBadge(item.callType) : null;
 
     return (
@@ -30,21 +36,31 @@ export const AiAgendaItemRow = ({ item, index }: AiAgendaItemRowProps) => {
                 <span className="font-semibold text-muted-foreground">
                     {index + 1}.
                 </span>
-                <ToneBadge tone={kind.tone} variant="soft" size="sm">
-                    {kind.label}
-                </ToneBadge>
-                <span className="font-medium text-foreground">
-                    {managerName(item.managerId)}
-                </span>
+                <HintTooltip title={kind.label} lines={[kind.hint]}>
+                    <span>
+                        <ToneBadge tone={kind.tone} variant="soft" size="sm">
+                            {kind.label}
+                        </ToneBadge>
+                    </span>
+                </HintTooltip>
+                {item.managerId ? (
+                    <AiManagerName managerId={item.managerId} tab="calls" />
+                ) : (
+                    <span className="font-medium text-foreground">
+                        {managerName(item.managerId)}
+                    </span>
+                )}
                 {callType && (
                     <ToneBadge tone={callType.tone} variant="outline" size="sm">
                         {callType.label}
                     </ToneBadge>
                 )}
                 {item.score !== null && (
-                    <span className="text-muted-foreground">
-                        оценка {formatAiScore(item.score)}
-                    </span>
+                    <HintTooltip title="Оценка звонка" lines={[AI_SCORE_SCALE_HINT]}>
+                        <span className="cursor-help border-b border-dashed text-muted-foreground">
+                            оценка {formatAiScore(item.score)}
+                        </span>
+                    </HintTooltip>
                 )}
             </div>
             <p className="mt-2 text-sm">{item.reason}</p>

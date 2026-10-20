@@ -1,20 +1,12 @@
-import type { AiByTypeWideRow } from '../model';
 import type { AiMatrixColumn, AiMatrixTable } from './ai-matrix-table.util';
-import {
-    buildAiTypesMatrixFor,
-    isAiMatrixSalesCode,
-    type AiMatrixType,
-} from './ai-types-matrix.util';
-import {
-    AI_SECTIONS_MATRIX_ALL,
-    buildAiSectionsMatrixTable,
-} from './ai-sections-matrix.util';
+import { roundAiScore } from './ai-matrix-norm.util';
 
 /*
- * Рейтинги-победители матриц AI. Счётчики — датасет в форме RatingDataset
- * фичи report-rating (EntityRatingChart / RatingFooter суммируют по
- * сотрудникам и секциям). Оценки суммировать нельзя — для них точки
- * {score, n} и взвешенное среднее Σ(score·n)/Σn (AiScoreRatingChart).
+ * Рейтинги матриц AI. Счётчики — датасет в форме RatingDataset фичи
+ * report-rating (EntityRatingChart / RatingFooter суммируют по сотрудникам
+ * и секциям). Оценки суммировать нельзя — для них точки {score, n} и
+ * взвешенное среднее Σ(score·n)/Σn (AiScoreRatingChart). Источник обоих —
+ * уже собранная матрица: value ячейки = число разборов, аннотация — оценка.
  */
 
 export interface AiRatingAction {
@@ -34,19 +26,30 @@ export interface AiRatingDataset {
     rows: AiRatingDatasetRow[];
 }
 
-export type AiManagerNameFn = (id: string) => string;
+/**
+ * Порог порядкового сравнения людей — зеркало реестра бэка
+ * (registry.thresholds.const n_min_rating = 50): меньше — порядок в рейтинге
+ * предварительный. В ответах бэка порога нет.
+ */
+export const AI_RATING_MIN_N = 50;
 
-const TYPE_COUNT_SUFFIX = ' — разборов';
-const SECTION_COUNT_SUFFIX = ' — оценённых звонков';
+export const AI_TYPE_COUNT_SUFFIX = ' — разборов';
+export const AI_SECTION_COUNT_SUFFIX = ' — оценённых звонков';
 
-/** Матрица → датасет рейтингов; подпись показателя задаёт name(column). */
-const matrixToRatingDataset = (
+/** Подпись показателя-счётчика: колонки-числа как есть, оценки — с суффиксом. */
+export const aiCountActionName = (
+    column: AiMatrixColumn,
+    suffix: string,
+): string => (column.plain ? column.name : `${column.name}${suffix}`);
+
+/** Матрица → датасет рейтингов по счётчикам (value ячеек = число разборов). */
+export const buildAiMatrixCountDataset = (
     matrix: AiMatrixTable,
-    name: (column: AiMatrixColumn) => string,
+    suffix: string,
 ): AiRatingDataset => ({
     actions: matrix.columns.map(column => ({
         code: column.code,
-        name: name(column),
+        name: aiCountActionName(column, suffix),
     })),
     rows: matrix.table.data.map(row => ({
         userId: row.id ?? 0,
@@ -60,37 +63,9 @@ const matrixToRatingDataset = (
     })),
 });
 
-/** «<Тип> — разборов» по видимым типам + «Продажи, шт.», «Аванс, ₽», «Мес. чек, ₽». */
-export const buildAiTypesCountRatingDataset = (
-    rows: AiByTypeWideRow[],
-    visibleTypes: AiMatrixType[],
-    managerName: AiManagerNameFn,
-): AiRatingDataset =>
-    matrixToRatingDataset(
-        buildAiTypesMatrixFor(rows, visibleTypes, { managerName }),
-        column =>
-            isAiMatrixSalesCode(column.code)
-                ? column.name
-                : `${column.name}${TYPE_COUNT_SUFFIX}`,
-    );
-
-/** «<Раздел> — оценённых звонков» по разделам типа + «Все разборы». */
-export const buildAiSectionsCountRatingDataset = (
-    rows: AiByTypeWideRow[],
-    callType: string,
-    managerName: AiManagerNameFn,
-): AiRatingDataset =>
-    matrixToRatingDataset(
-        buildAiSectionsMatrixTable(rows, callType, { managerName }),
-        column =>
-            column.code === AI_SECTIONS_MATRIX_ALL.code
-                ? column.name
-                : `${column.name}${SECTION_COUNT_SUFFIX}`,
-    );
-
 /* ---------- Оценки: точки и взвешенное среднее ---------- */
 
-/** Оценка показателя code у сотрудника с весом n; score = null — «мало данных». */
+/** Оценка показателя code у сотрудника с весом n; score = null — оценки нет. */
 export interface AiScoreRatingPoint {
     userId: number;
     name: string;
@@ -110,66 +85,26 @@ export interface AiScoreRatingGroup {
     userIds: readonly number[];
 }
 
-const point = (
-    row: AiByTypeWideRow,
-    managerName: AiManagerNameFn,
-    code: string,
-    score: number | null,
-    n: number,
-): AiScoreRatingPoint => ({
-    userId: Number(row.managerId),
-    name: managerName(row.managerId),
-    code,
-    score,
-    n,
-});
-
-/** Точки по типам: code = тип, score = оценка типа (cell.score.value), n = разборов. */
-export const buildAiTypesScorePoints = (
-    rows: AiByTypeWideRow[],
-    visibleTypes: AiMatrixType[],
-    managerName: AiManagerNameFn,
-): AiScoreRatingPoint[] => {
-    const codes = new Set(visibleTypes.map(type => type.code));
-    return rows
-        .filter(row => codes.has(row.cell.callType))
-        .map(row =>
-            point(
-                row,
-                managerName,
-                row.cell.callType,
-                row.cell.score.value,
-                row.cell.n,
-            ),
-        );
-};
-
-/** Точки по разделам типа (avgScore / n) плюс code 'all' — оценка типа. */
-export const buildAiSectionsScorePoints = (
-    rows: AiByTypeWideRow[],
-    callType: string,
-    managerName: AiManagerNameFn,
+/** Точки оценок по колонкам-оценкам матрицы (ячейки со звонками). */
+export const buildAiMatrixScorePoints = (
+    matrix: AiMatrixTable,
 ): AiScoreRatingPoint[] =>
-    rows
-        .filter(row => row.cell.callType === callType)
-        .flatMap(row => [
-            ...row.cell.sections.map(section =>
-                point(
-                    row,
-                    managerName,
-                    section.section,
-                    section.avgScore,
-                    section.n,
-                ),
-            ),
-            point(
-                row,
-                managerName,
-                AI_SECTIONS_MATRIX_ALL.code,
-                row.cell.score.value,
-                row.cell.n,
-            ),
-        ]);
+    matrix.table.data.flatMap(row =>
+        matrix.columns.flatMap(column => {
+            if (column.plain || row.id === undefined) return [];
+            const annotation = matrix.annotations.get(`${row.id}:${column.code}`);
+            if (!annotation) return [];
+            return [
+                {
+                    userId: row.id,
+                    name: row.name,
+                    code: column.code,
+                    score: annotation.score,
+                    n: annotation.n,
+                },
+            ];
+        }),
+    );
 
 type ScoredPoint = AiScoreRatingPoint & { score: number };
 
@@ -184,9 +119,6 @@ interface WeightedAcc {
     sum: number;
     n: number;
 }
-
-/** До 0,1: 5.75 → 5.8. */
-const roundScore = (value: number): number => Math.round(value * 10) / 10;
 
 /**
  * Рейтинг по оценке показателя code: взвешенное по n среднее Σ(score·n)/Σn
@@ -220,6 +152,21 @@ export const weightedAiScoreRating = (
         for (const item of scored) add(String(item.userId), item.name, item);
     }
     return [...accs.values()]
-        .map(acc => ({ name: acc.name, value: roundScore(acc.sum / acc.n) }))
+        .map(acc => ({ name: acc.name, value: roundAiScore(acc.sum / acc.n) }))
         .sort((a, b) => b.value - a.value);
 };
+
+/** Σ n по точкам с оценкой показателя code — объём, на котором стоит рейтинг. */
+export const aiScoreRatingVolume = (
+    points: readonly AiScoreRatingPoint[],
+    code: string,
+): number =>
+    points
+        .filter((item): item is ScoredPoint => isScored(item, code))
+        .reduce((sum, item) => sum + item.n, 0);
+
+/** Порядок в рейтинге людей предварительный: разборов меньше AI_RATING_MIN_N. */
+export const isAiRatingPreliminary = (
+    volume: number,
+    minN: number = AI_RATING_MIN_N,
+): boolean => volume < minN;

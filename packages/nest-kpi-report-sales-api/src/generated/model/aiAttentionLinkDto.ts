@@ -10,10 +10,10 @@ import type { AiAttentionCallLinkDto } from './aiAttentionCallLinkDto';
 export interface AiAttentionLinkDto {
     /** Bitrix-id менеджера. */
     managerId: string;
-    /** AI-тип звонка (подвкладка), если сигнал про тип. */
+    /** AI-тип звонка (подвкладка), если сигнал про тип: presentation у слабых презентаций, refine у слабой доработки, call у дисциплины. */
     callType?: string;
-    /** Id транскрипций риск-звонков (сигнал risk). */
+    /** Id транскрипций звонков карточки: риск-звонки (risk), слабые презентации (weak_presentation), слабая доработка (weak_followup), звонки с низкой оценкой (low_score_calls). */
     transcriptionIds?: string[];
-    /** Риск-звонки со ссылками на разборы (те же id, что в transcriptionIds) — кнопка «Открыть разбор» на карточке. Только у сигнала risk. */
+    /** Звонки карточки со ссылками на разборы (те же id, что в transcriptionIds) — кнопка «Открыть разбор» на карточке. */
     calls?: AiAttentionCallLinkDto[];
 }

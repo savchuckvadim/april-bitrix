@@ -7,16 +7,15 @@
  */
 
 /**
- * Вид сигнала.
+ * Вид сигнала: действующий риск-флаг с цитатой (conflict / compliance / door_closed) либо urgent — срочный коучинг.
  */
 export type AiRiskCallDtoKind =
     (typeof AiRiskCallDtoKind)[keyof typeof AiRiskCallDtoKind];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AiRiskCallDtoKind = {
-    promise: 'promise',
     conflict: 'conflict',
     compliance: 'compliance',
-    client_negative: 'client_negative',
+    door_closed: 'door_closed',
     urgent: 'urgent',
 } as const;

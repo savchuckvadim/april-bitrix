@@ -10,18 +10,25 @@ interface AiTypesFilterChipsProps {
     hiddenCount: number;
     onToggle: (code: string) => void;
     onShowAll: () => void;
+    /** Сноска к помеченным типам (вне средней оценки); null — не показывать. */
+    footnote?: string | null;
 }
+
+/** Знак сноски у типа, который считается отдельно (вне средней оценки). */
+const AI_HINT_MARK = '*';
 
 /**
  * Чипы-фильтр типов звонков блока «AI: типы звонков»: клик прячет тип
  * из таблицы, CSV и рейтингов (и возвращает обратно); скрытые —
- * приглушённые; при скрытых — счётчик и «Показать все».
+ * приглушённые; при скрытых — счётчик и «Показать все». Тип вне средней
+ * оценки (приглашение на мероприятие) помечен звёздочкой со сноской.
  */
 export const AiTypesFilterChips = ({
     chips,
     hiddenCount,
     onToggle,
     onShowAll,
+    footnote = null,
 }: AiTypesFilterChipsProps) => (
     <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs text-muted-foreground">Типы:</span>
@@ -30,7 +37,9 @@ export const AiTypesFilterChips = ({
                 key={chip.code}
                 type="button"
                 aria-pressed={!chip.hidden}
-                title={chip.hidden ? 'Показать тип' : 'Скрыть тип'}
+                title={[chip.hint, chip.hidden ? 'Показать тип' : 'Скрыть тип']
+                    .filter(Boolean)
+                    .join('. ')}
                 onClick={() => onToggle(chip.code)}
                 className={cn(
                     'cursor-pointer rounded-md transition-opacity',
@@ -43,9 +52,15 @@ export const AiTypesFilterChips = ({
                     size="sm"
                 >
                     {chip.label}
+                    {chip.hint && <span aria-hidden>{AI_HINT_MARK}</span>}
                 </ToneBadge>
             </button>
         ))}
+        {footnote && (
+            <span className="text-xs text-muted-foreground">
+                {AI_HINT_MARK} {footnote}
+            </span>
+        )}
         {hiddenCount > 0 && (
             <>
                 <span className="text-xs text-muted-foreground">

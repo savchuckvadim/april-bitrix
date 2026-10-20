@@ -9,6 +9,9 @@ import type { PortalAppSettingDescriptorDtoType } from './portalAppSettingDescri
 import type { PortalAppSettingDescriptorDtoDefault } from './portalAppSettingDescriptorDtoDefault';
 import type { PortalAppSettingDescriptorDtoValue } from './portalAppSettingDescriptorDtoValue';
 import type { PortalAppSettingOptionDto } from './portalAppSettingOptionDto';
+import type { PortalAppSettingHookLinkDto } from './portalAppSettingHookLinkDto';
+import type { PortalAppSettingPbxFieldDto } from './portalAppSettingPbxFieldDto';
+import type { PortalAppSettingStageDto } from './portalAppSettingStageDto';
 
 export interface PortalAppSettingDescriptorDto {
   /** Ключ настройки (snake_case, стабилен навсегда). */
@@ -34,4 +37,10 @@ export interface PortalAppSettingDescriptorDto {
   isList?: boolean;
   /** Код категории настройки (секция в админке); описание категории — в groups блока приложения. */
   group: string;
+  /** Хуки каталога, которые читают именно эту настройку. */
+  hooks?: PortalAppSettingHookLinkDto[];
+  /** PBX-поля хуков, читающих настройку. */
+  pbxFields?: PortalAppSettingPbxFieldDto[];
+  /** Стадии, нужные хукам, читающим настройку. */
+  stages?: PortalAppSettingStageDto[];
 }

@@ -1,9 +1,12 @@
 'use client';
 
-import { SectionCard } from '@workspace/april-ui';
+import { HintTooltip, SectionCard } from '@workspace/april-ui';
+import { useAppSelector } from '@/modules/app';
 import {
     AI_FEEDBACK_OBJECT,
+    AI_PULSE_TEXT,
     countUnhandledAlerts,
+    selectAiMinDurationSec,
 } from '@/modules/entities/ai-analytics';
 import { useAiSection } from '../hooks/use-ai-section';
 import { AiSectionState } from './components/AiSectionState';
@@ -18,21 +21,24 @@ interface AiPulseCardProps {
     canViewAll: boolean;
 }
 
+const T = AI_PULSE_TEXT;
+
 /**
- * «Пульс» — дисциплина «следующий шаг с датой» за окно 5 рабочих дней:
- * цифра с объёмом и интервалом, стабильность по дням, окно, доля коротких
- * звонков, строки менеджеров и сигналы руководителю (фильтр
- * «Не отработано / Все», свёрнутый список, ссылка на разбор, «что
- * сделать», «Отработано»). В шапке — ссылка на теорию.
+ * «Пульс» — дисциплина «следующий шаг с датой» за окно 5 рабочих дней
+ * (не зависит от периода отчёта): цифра с объёмом и интервалом,
+ * стабильность по дням, окно, доля коротких звонков, строки менеджеров и
+ * сигналы руководителю (фильтр «Не отработано / Все», свёрнутый список,
+ * ссылка на разбор, «что сделать», «Отработано»). Пороги — из ответа.
  */
 export const AiPulseCard = ({ canViewAll }: AiPulseCardProps) => {
     const pulse = useAiSection('pulse');
+    const minDurationSec = useAppSelector(selectAiMinDurationSec);
 
     return (
         <SectionCard
             surface="glass"
-            title="Пульс"
-            description="Доля разобранных звонков, где назначен следующий шаг с датой"
+            title={T.title}
+            description={T.description}
             actions={
                 <>
                     <AiTheoryLink topic="pulse" variant="icon" />
@@ -50,21 +56,35 @@ export const AiPulseCard = ({ canViewAll }: AiPulseCardProps) => {
             />
             {pulse.status === 'ready' && pulse.data && (
                 <div className="space-y-5">
-                    <AiPulseHeadline pulse={pulse.data} />
+                    <AiPulseHeadline
+                        pulse={pulse.data}
+                        minDurationSec={minDurationSec}
+                    />
                     {canViewAll && (
                         <section>
                             <h4 className="mb-2 text-sm font-medium">
-                                По менеджерам
+                                {T.managers.title}
                             </h4>
-                            <AiPulseManagersTable rows={pulse.data.byManager} />
+                            <AiPulseManagersTable
+                                pulse={pulse.data}
+                                minDurationSec={minDurationSec}
+                            />
                         </section>
                     )}
                     <section>
                         <h4 className="mb-2 text-sm font-medium">
-                            Сигналы
+                            <HintTooltip
+                                title={T.alerts.hint.title}
+                                lines={[...T.alerts.hint.lines]}
+                            >
+                                <span className="cursor-help border-b border-dashed border-muted-foreground/60">
+                                    {T.alerts.title}
+                                </span>
+                            </HintTooltip>
                             <span className="ml-2 text-xs font-normal text-muted-foreground">
-                                {countUnhandledAlerts(pulse.data.alerts)} не
-                                отработано
+                                {T.alerts.unhandled(
+                                    countUnhandledAlerts(pulse.data.alerts),
+                                )}
                             </span>
                         </h4>
                         <AiPulseAlertsList alerts={pulse.data.alerts} />

@@ -7,7 +7,7 @@
  */
 
 /**
- * Корзина оценок (contact/presentation/closing); null — тип не участвует в оценках.
+ * Корзина оценок (contact/presentation/closing); null — тип не участвует в общей оценке (средняя менеджера и отдела, нормы, план дня, советы): приглашение на мероприятие, other, irrelevant.
  * @nullable
  */
 export type AiCallTypeDtoBucket =

@@ -15,11 +15,11 @@ export interface AiAttentionItemDto {
     managerId: string;
     /** Ранг карточки с 1. */
     rank: number;
-    /** Сигнал Фазы 1: risk — риск-звонки; no_data — n < 8 при звонках; discipline — < 50 % плана CRM при плане ≥ 10; next_step_drop — падение доли «шаг с датой» при n ≥ 20 в обоих окнах; plan_gap — план руководителя vs норма (с Фазы 2). Фаза 3: goodhart — метрика давления растёт, противовес падает (goodhart_drop за goodhart_window_months); trend_shift / trend_drift — сдвиг уровня или дрейф ряда вниз. */
+    /** Сигнал в порядке приоритета (решение владельца 19.10.2026): weak_presentation — у презентаций слабы «Выявление потребностей» или «Презентация под потребности» (средняя ≤ weak_section_score_max либо ниже отдела на weak_section_gap при n ≥ 8); weak_followup — у доработки (refine / decision) возражения не отработаны или шаг без даты в половине случаев и чаще либо слабы «Работа с возражениями» / «Закрытие разговора»; low_score_calls — звонки с общей оценкой ≤ low_score_call_max; no_data — n < 8 при звонках; discipline — < 50 % плана CRM при плане ≥ 10; next_step_drop — падение доли «шаг с датой» при n ≥ 20 в обоих окнах; plan_gap — план руководителя vs норма (с Фазы 2); risk — последним: действующие риск-флаги с цитатой (conflict / compliance / door_closed) и срочный коучинг. Фаза 3: goodhart — метрика давления растёт, противовес падает; trend_shift / trend_drift — сдвиг уровня или дрейф ряда вниз. */
     signal: AiAttentionItemDtoSignal;
     /** С какой фазы доступен сигнал: 1 — правила Фазы 1, 3 — тренды и детектор Гудхарта. */
     availableFrom: AiAttentionItemDtoAvailableFrom;
-    /** Заголовок карточки с числами. */
+    /** Заголовок карточки с числами (по-русски, без кодов). */
     headline: string;
     /** Опоры карточки. */
     basis: AiAttentionBasisDto[];

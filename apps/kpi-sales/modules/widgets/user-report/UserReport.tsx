@@ -25,6 +25,7 @@ import { UserReportChart } from "./UserReportChart";
 import { ArrowBack } from "./ArrowBack";
 import { UserReportSection } from "./components/UserReportSection";
 import { Preloader } from "@/modules/shared";
+import { AiEmployeeSection } from "@/modules/widgets/ai-employee";
 
 
 
@@ -278,6 +279,11 @@ export const UserReport = ({ userId }: { userId: number }) => {
                     <UserConversionsSummary userId={userId} />
                 </UserReportSection>
             )}
+
+            {/* AI-аналитика по сотруднику: секция сама решает, кому она открыта
+                (руководителю и самому сотруднику при доступной вкладке AI). */}
+            <AiEmployeeSection userId={userId} />
+
 
             <Tabs defaultValue="events">
                 <TabsList>

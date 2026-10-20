@@ -4,6 +4,8 @@ import { RefreshCw } from 'lucide-react';
 import { SectionCard, ToneBadge } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
+import { useAppSelector } from '@/modules/app';
+import { AI_SCOPE_TEXT, selectAiScopeNote } from '@/modules/entities/ai-analytics';
 import { useAiForecast } from '../hooks/use-ai-forecast';
 import { AI_FORECAST_TEXT } from '../lib/ai-forecast.texts';
 import { AiHowWeCountButton } from './components/AiHowWeCountButton';
@@ -22,6 +24,8 @@ const T = AI_FORECAST_TEXT;
  */
 export const AiForecastCard = () => {
     const forecast = useAiForecast();
+    // Прогноз — по всему отделу продаж; при действующем списке разбора — подпись.
+    const scope = useAppSelector(selectAiScopeNote);
     if (!forecast.isLeader) return null;
 
     const { view } = forecast;
@@ -78,6 +82,11 @@ export const AiForecastCard = () => {
             {view?.kind === 'empty' && (
                 <p className="py-2 text-xs text-muted-foreground">
                     {view.text}
+                </p>
+            )}
+            {scope?.pilotActive && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                    {AI_SCOPE_TEXT.forecastNote}
                 </p>
             )}
         </SectionCard>

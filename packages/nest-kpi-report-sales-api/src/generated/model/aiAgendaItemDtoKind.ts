@@ -7,13 +7,16 @@
  */
 
 /**
- * Класс причины: риск-флаг → спорное возражение → слабый раздел.
+ * Класс причины в порядке приоритета (решение владельца 19.10.2026): weak_presentation — у презентации слаб раздел потребностей или презентации; weak_followup — у доработки возражение не отработано, шаг без даты или слаб раздел возражений / закрытия; low_score — общая оценка не выше порога; risk — действующий риск-флаг с цитатой; затем запасные: objection — спорное возражение, section — худший раздел.
  */
 export type AiAgendaItemDtoKind =
     (typeof AiAgendaItemDtoKind)[keyof typeof AiAgendaItemDtoKind];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AiAgendaItemDtoKind = {
+    weak_presentation: 'weak_presentation',
+    weak_followup: 'weak_followup',
+    low_score: 'low_score',
     risk: 'risk',
     objection: 'objection',
     section: 'section',

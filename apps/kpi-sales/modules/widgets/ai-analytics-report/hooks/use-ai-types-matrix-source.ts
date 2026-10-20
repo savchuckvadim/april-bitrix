@@ -19,9 +19,10 @@ const NO_CALL_TYPES: AiCallType[] = [];
  * Общий источник блоков-матриц KPI-вида: секция typesMatrix (срез «все
  * типы × wide» в периметре обзора), загрузка при монтировании (гард
  * thunk не даст дублей от двух блоков; в kpi-only разборов нет — не
- * запрашиваем), строки, справочник типов портала, типы со звонками за
- * период и подпись менеджера. Смена фильтра перезапрашивает секцию
- * listener сущности — блоки перерисуются по стору.
+ * запрашиваем), строки, итоги по типам, покрытие разборами (старый кэш —
+ * без поля), справочник типов портала, типы со звонками за период и
+ * подпись менеджера. Смена фильтра перезапрашивает секцию listener
+ * сущности — блоки перерисуются по стору.
  */
 export const useAiTypesMatrixSource = () => {
     const dispatch = useAppDispatch();
@@ -49,6 +50,7 @@ export const useAiTypesMatrixSource = () => {
         section,
         rows,
         totalsByType: section.data?.totalsByType ?? null,
+        coverage: section.data?.coverage ?? null,
         callTypes,
         presentTypes,
         managerName,

@@ -200,7 +200,21 @@ describe('resolveDeepRoute: раздел «AI-аналитика ОП»', () => 
             view.currentNavItems.map(
                 entity => `${view.baseUrl}${entity.item.get.url}`,
             ),
-        ).toEqual(['/ai-analytics/audit', '/ai-analytics/model']);
+        ).toEqual([
+            '/ai-analytics/audit',
+            '/ai-analytics/model',
+            '/ai-analytics/guide',
+        ]);
+    });
+
+    it('/ai-analytics/guide поднимает флаг путеводителя и остаётся в разделе', () => {
+        const route = resolveDeepRoute('/ai-analytics/guide', '');
+
+        expect(route.isAiAnalytics).toBe(true);
+        expect(route.isAiAnalyticsGuide).toBe(true);
+        expect(route.isAiAnalyticsModel).toBe(false);
+        expect(route.isAiAnalyticsAudit).toBe(false);
+        expect(resolveSideBar(route).currentNavItems).toBe(aiAnalyticsEntities);
     });
 
     it('«База знаний AI» и «AI-аналитика» не путаются между собой', () => {

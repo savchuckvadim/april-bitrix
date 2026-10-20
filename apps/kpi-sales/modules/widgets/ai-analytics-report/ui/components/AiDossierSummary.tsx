@@ -1,11 +1,13 @@
 'use client';
 
-import { ToneBadge } from '@workspace/april-ui';
+import { HintTooltip, ToneBadge } from '@workspace/april-ui';
 import {
+    AI_DOSSIER_OBJECTIONS_TEXT,
     AI_READINESS_LABELS,
     aiDossierReasonBadge,
-    aiObjectionCategoryLabel,
+    aiMetricMinN,
     formatAiDossierFeedback,
+    formatAiDossierObjection,
     formatAiDossierReason,
     formatAiDossierRopSections,
     formatAiScore,
@@ -54,12 +56,18 @@ export const AiDossierSummary = ({ dossier }: AiDossierSummaryProps) => (
         )}
         {dossier.objections && dossier.objections.length > 0 && (
             <section>
-                <h4 className={TITLE}>Возражения</h4>
+                <HintTooltip
+                    title={AI_DOSSIER_OBJECTIONS_TEXT.hint(aiMetricMinN()).title}
+                    lines={[...AI_DOSSIER_OBJECTIONS_TEXT.hint(aiMetricMinN()).lines]}
+                >
+                    <h4 className={`${TITLE} w-fit cursor-help border-b border-dashed`}>
+                        {AI_DOSSIER_OBJECTIONS_TEXT.title}
+                    </h4>
+                </HintTooltip>
                 <ul className="mt-1 space-y-0.5">
                     {dossier.objections.map(category => (
                         <li key={category.category}>
-                            {aiObjectionCategoryLabel(category.category)}:{' '}
-                            {category.n} в {category.calls} звонках
+                            {formatAiDossierObjection(category)}
                         </li>
                     ))}
                 </ul>

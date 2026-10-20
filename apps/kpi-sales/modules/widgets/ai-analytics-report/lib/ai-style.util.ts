@@ -21,22 +21,59 @@ import { formatAiByCalls } from '@/modules/entities/ai-analytics/lib/ai-overview
  * (model / lib).
  */
 
-/** Текст пустого состояния, если бэк не прислал note. */
+/** Разобранных звонков для профиля стиля (зеркало style_min_calls бэка, constants/ai-style.const.ts). */
+export const AI_STYLE_MIN_CALLS = 40;
+
+/** Текст пустого состояния: «мало данных» — всегда с порогом; opt_out — если бэк не прислал note. */
 export const AI_STYLE_STATUS_TEXT: Record<
     Exclude<AiStyleCardStatus, 'ready'>,
     string
 > = {
-    few_data: 'Данных для стиля пока мало',
+    few_data: `Стиль появится, когда у менеджера наберётся ${AI_STYLE_MIN_CALLS} разобранных звонков.`,
     opt_out: 'Профиль отключён по запросу сотрудника',
 };
 
-/** Пояснение пустого состояния (few_data / opt_out); ready — null. */
+/** «Сейчас: 12» — сколько сравнимых разборов уже есть (если бэк прислал профиль). */
+export const aiStyleCallsNow = (calls: number | null | undefined): string =>
+    typeof calls === 'number' ? ` Сейчас: ${calls}.` : '';
+
+/**
+ * Пояснение пустого состояния: few_data — порог 40 и сколько есть (note
+ * бэка «данных мало» порога не называет, поэтому не используется);
+ * opt_out — note бэка либо запасной текст; ready — null.
+ */
 export const aiStyleStatusNote = (
-    card: Pick<AiStyleCard, 'status' | 'note'>,
-): string | null =>
-    card.status === 'ready'
-        ? null
-        : card.note || AI_STYLE_STATUS_TEXT[card.status];
+    card: Pick<AiStyleCard, 'status' | 'note'> & {
+        profile?: Pick<AiStyleProfile, 'calls'> | null;
+    },
+): string | null => {
+    if (card.status === 'ready') return null;
+    if (card.status === 'few_data') {
+        return `${AI_STYLE_STATUS_TEXT.few_data}${aiStyleCallsNow(card.profile?.calls)}`;
+    }
+    return card.note || AI_STYLE_STATUS_TEXT[card.status];
+};
+
+/** Колонки таблицы осей стиля и подсказка к ней: у оси два равноправных края. */
+export const AI_STYLE_AXES_TEXT = {
+    title: 'Оси стиля',
+    hint: {
+        title: 'Как читать оси',
+        lines: [
+            'Точка посередине — как у большинства коллег; ближе к краю — сильнее отличается.',
+            'Ни один край не лучше другого: это черта стиля, а не оценка.',
+        ],
+    },
+    columns: {
+        axis: 'Черта стиля',
+        minus: 'Один край',
+        scale: 'Где менеджер',
+        plus: 'Другой край',
+        deviation: 'Насколько отличается от коллег',
+        n: 'Звонков',
+        confidence: 'Насколько уверены',
+    },
+} as const;
 
 export const AI_STYLE_STALE_TEXT =
     'Профиль давно не пересчитывался — читайте с оговоркой';

@@ -1,5 +1,6 @@
 'use client';
 
+import { GuideLinkButton } from '@/modules/entities/ai-analytics-guide';
 import { MODEL_TEXT } from '../../consts/ai-analytics-model.const';
 import {
     FeedbackCard,
@@ -21,7 +22,10 @@ export const AiAnalyticsModelPanel = () => {
 
     return (
         <div className="space-y-4">
-            <h1 className="text-3xl font-bold">{MODEL_TEXT.pageTitle}</h1>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <h1 className="text-3xl font-bold">{MODEL_TEXT.pageTitle}</h1>
+                <GuideLinkButton section="forecast" />
+            </div>
             <ModelPortalForm form={form} actions={actions} />
             <FeedbackCard
                 domain={form.domain}

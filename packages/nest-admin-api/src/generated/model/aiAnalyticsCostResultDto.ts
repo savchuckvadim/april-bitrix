@@ -27,6 +27,6 @@ export interface AiAnalyticsCostResultDto {
    * @nullable
    */
   estimatedPrice: number | null;
-  /** Разрез по типам снапшотов; типы без вызовов опущены. */
+  /** Разрез по типам записей (снапшоты AI-аналитики, разбор звонков и его повторы); типы без вызовов опущены. */
   byType: AiAnalyticsCostTypeDto[];
 }

@@ -26,6 +26,8 @@ export const RTable: FC<RTableProps> = ({
     onClick,
     annotations,
     planAnnotations,
+    columnHints,
+    onColumnClick,
 }) => (
     <Card className="my-4 p-4 bg-popover text-primary">
         <ShadcnTable className="bg-popover text-primary">
@@ -34,11 +36,16 @@ export const RTable: FC<RTableProps> = ({
                     code={code}
                     firstCellName={firstCellName}
                     templateRow={data?.[0]}
+                    columnHints={columnHints}
+                    onColumnClick={onColumnClick}
                 />
             </TableHeader>
             <TableBody>
                 {data.map((row, rowIndex) => (
-                    <TableRow key={`report-${code}-${row.name}-${rowIndex}`}>
+                    <TableRow
+                        key={`report-${code}-${row.name}-${rowIndex}`}
+                        className={row.className}
+                    >
                         <RTableNameCell
                             row={row}
                             withLink={withLink}
@@ -52,7 +59,7 @@ export const RTable: FC<RTableProps> = ({
                             return (
                                 <RTableValueCell
                                     key={`cell-${code}-action-${index}`}
-                                    value={action.value}
+                                    action={action}
                                     annotation={
                                         cellKey
                                             ? annotations?.get(cellKey)

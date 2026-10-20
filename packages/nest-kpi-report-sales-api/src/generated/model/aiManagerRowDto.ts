@@ -19,6 +19,7 @@ import type { AiDisciplineDto } from './aiDisciplineDto';
 import type { AiPlanTargetCellDto } from './aiPlanTargetCellDto';
 import type { AiNextStepRateDto } from './aiNextStepRateDto';
 import type { AiRiskCallDto } from './aiRiskCallDto';
+import type { AiManagerQualityFactsDto } from './aiManagerQualityFactsDto';
 import type { AiRecommendationDto } from './aiRecommendationDto';
 import type { AiManagerRowDtoStyle } from './aiManagerRowDtoStyle';
 import type { AiManagerRowDtoTrends } from './aiManagerRowDtoTrends';
@@ -79,8 +80,10 @@ export interface AiManagerRowDto {
     analyzedCalls: number;
     /** Доля «шаг с датой» за два окна периода. */
     nextStepRate: AiNextStepRateDto;
-    /** Риск-звонки периода. */
+    /** Риск-звонки периода: действующий риск-флаг с цитатой либо срочный коучинг. */
     riskCalls: AiRiskCallDto[];
+    /** Факты качества для сигналов «слабые презентации», «слабая доработка», «звонки с низкой оценкой»; у строк старого кэша поля нет. */
+    quality?: AiManagerQualityFactsDto;
     /** Топ-3 рычага из дневного снапшота прогноза; пусто — модели портала нет либо разборов меньше порога n_min_none (8). */
     recommendations: AiRecommendationDto[];
     /**

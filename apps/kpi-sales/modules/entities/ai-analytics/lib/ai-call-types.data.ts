@@ -24,6 +24,7 @@ export const AI_CALL_TYPE_LABELS: Record<AiCallTypeCode, string> = {
     refine: 'Доработка',
     decision: 'Решение',
     payment: 'Оплата',
+    event_invite: 'Мероприятие',
     other: 'Прочее',
     irrelevant: 'Нерелевантный',
 };
@@ -33,7 +34,11 @@ export const AI_OBJECTIONS_LABEL = 'Возражения';
 export const AI_ALL_TYPES_OPTION_LABEL = 'Все';
 export const AI_ALL_TYPES_LABEL = 'Все типы';
 
-/** Порядок подвкладок типов; other/irrelevant в переключатель не попадают. */
+/**
+ * Порядок подвкладок типов; other/irrelevant в переключатель не попадают.
+ * Приглашение на мероприятие — отдельная колонка (решение владельца
+ * 19.10.2026): свои разборы и оценка, но в среднюю оценку не входит.
+ */
 export const AI_CALL_TYPE_ORDER: AiCallTypeCode[] = [
     'cold',
     'site_lead',
@@ -42,11 +47,47 @@ export const AI_CALL_TYPE_ORDER: AiCallTypeCode[] = [
     'refine',
     'decision',
     'payment',
+    'event_invite',
 ];
+
+/** Подсказка у типа, который считается отдельно и в среднюю оценку не входит. */
+export const AI_CALL_TYPE_OUTSIDE_SCORE_HINT =
+    'Не входит в среднюю оценку; считается отдельно';
+/** Короткая пометка той же подсказки — в шапку CSV и к итогам по типам. */
+export const AI_CALL_TYPE_OUTSIDE_SCORE_SHORT = 'вне средней оценки';
+
+/** Фолбэк без карты портала: типы со своей колонкой, но вне средней оценки. */
+const AI_CALL_TYPES_OUTSIDE_SCORE: readonly AiCallTypeCode[] = ['event_invite'];
 
 /** Гард кода AI-типа звонка (ключ фолбэк-подписей). */
 export const isAiCallTypeCode = (value: unknown): value is AiCallTypeCode =>
     typeof value === 'string' && value in AI_CALL_TYPE_LABELS;
+
+/**
+ * Тип считается отдельной колонкой, но в среднюю оценку не входит: по карте
+ * портала — корзины нет, а колонка есть (у «прочего» колонки нет, оно в
+ * сводке долей); без карты или без признака колонки — фолбэк по коду.
+ */
+export const isAiCallTypeOutsideScore = (
+    code: string | null | undefined,
+    callTypes: AiCallType[] = [],
+): boolean => {
+    if (!code) return false;
+    const fallback =
+        isAiCallTypeCode(code) && AI_CALL_TYPES_OUTSIDE_SCORE.includes(code);
+    const fromPortal = callTypes.find(item => item.code === code);
+    if (!fromPortal) return fallback;
+    return fromPortal.bucket === null && (fromPortal.column ?? fallback);
+};
+
+/** Подсказка «вне средней оценки» для такого типа; иначе null. */
+export const aiCallTypeScoreHint = (
+    code: string | null | undefined,
+    callTypes: AiCallType[] = [],
+): string | null =>
+    isAiCallTypeOutsideScore(code, callTypes)
+        ? AI_CALL_TYPE_OUTSIDE_SCORE_HINT
+        : null;
 
 /** Срез by-type в режиме «все типы» (строки на пары менеджер × тип). */
 export const isAiByTypeAll = (callType: string | null | undefined): boolean =>

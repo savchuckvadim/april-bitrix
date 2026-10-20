@@ -175,6 +175,18 @@ export const aiAnalyticsEntities: Entity[] = [
             }
         },
     },
+    {
+        id: 44,
+        item: {
+            name: 'ai-analytics-guide',
+            title: 'Путеводитель',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/ai-analytics/guide',
+                method: API_METHOD.GET
+            }
+        },
+    },
 ];
 
 

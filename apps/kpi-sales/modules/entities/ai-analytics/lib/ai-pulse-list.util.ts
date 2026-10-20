@@ -1,5 +1,5 @@
 import type { AiPulseAlert, AiPulseAlertKind } from '../model';
-import { AI_ALERT_KIND } from './ai-pulse.data';
+import { aiAlertKindView } from './ai-pulse.data';
 import { countUnhandledAlerts, sortAiAlerts } from './ai-pulse.util';
 
 /*
@@ -123,12 +123,12 @@ export const aiAlertLink = (alert: Pick<AiPulseAlert, 'link'>): string | null =>
         ? alert.link
         : null;
 
-/** «Что сделать: …» по виду сигнала. */
+/** «Что сделать: …» по виду сигнала (незнакомый вид — запасной текст). */
 export const aiAlertActionLine = (kind: AiPulseAlertKind): string =>
-    `Что сделать: ${AI_ALERT_KIND[kind].action}`;
+    `Что сделать: ${aiAlertKindView(kind).action}`;
 
 /** Строки подсказки бэйджа вида: что значит сигнал и что сделать. */
 export const aiAlertHintLines = (kind: AiPulseAlertKind): string[] => [
-    AI_ALERT_KIND[kind].hint,
+    aiAlertKindView(kind).hint,
     aiAlertActionLine(kind),
 ];

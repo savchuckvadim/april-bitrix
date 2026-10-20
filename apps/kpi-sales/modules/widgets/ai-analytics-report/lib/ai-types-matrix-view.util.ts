@@ -1,34 +1,27 @@
 import type { Tone } from '@workspace/april-ui';
-import type {
-    AiByTypeWideRow,
-    AiCallType,
-    AiTypeTotals,
-} from '@/modules/entities/ai-analytics/model';
-import { aiCallTypeTone } from '@/modules/entities/ai-analytics/lib/ai-call-types.data';
-import type { AiMatrixType } from '@/modules/entities/ai-analytics/lib/ai-types-matrix.util';
+import type { AiByTypeWideRow, AiCallType } from '@/modules/entities/ai-analytics/model';
 import {
-    AI_SECTIONS_MATRIX_ALL,
-    type AiMatrixSection,
-} from '@/modules/entities/ai-analytics/lib/ai-sections-matrix.util';
+    AI_CALL_TYPE_ALL,
+    aiCallTypeTone,
+} from '@/modules/entities/ai-analytics/lib/ai-call-types.data';
+import type { AiMatrixColumn } from '@/modules/entities/ai-analytics/lib/ai-matrix-table.util';
+import type { AiMatrixType } from '@/modules/entities/ai-analytics/lib/ai-types-matrix.util';
 
 /*
  * Представление матриц KPI-вида на вкладке AI (блоки «AI: типы звонков»
- * и «AI: разделы оценки по типу»): чипы-фильтр типов,
- * менеджеры со звонками для вкладок разбивки, итоги по видимым типам,
- * выбор типа для матрицы разделов и показатели графиков оценок.
- * Сборка самих таблиц/датасетов — в lib сущности ai-analytics. Импорты
- * сущности точечные (model / lib): баррел тянет UI, а утилиты — под vitest.
+ * и «AI: разделы оценки по типу»): чипы-фильтр типов, менеджеры со
+ * звонками для вкладок разбивки, выбор типа для матрицы разделов и
+ * показатели графиков оценок. Сборка самих таблиц — в lib сущности
+ * ai-analytics. Импорты сущности точечные (model / lib): баррел тянет UI,
+ * а утилиты — под vitest.
  */
-
-export const AI_MATRIX_EMPTY_TEXT =
-    'За период разобранных звонков в периметре нет';
-export const AI_MATRIX_SECTION_EMPTY_TEXT = 'Нет данных за период';
 
 /** Ключи localStorage (usePersistedSelection). */
 export const AI_TYPES_MATRIX_HIDDEN_KEY = 'ai-types-matrix-hidden';
+export const AI_TYPES_MATRIX_MODE_KEY = 'ai-types-matrix-mode';
 export const AI_SECTIONS_MATRIX_TYPE_KEY = 'ai-sections-matrix-type';
 
-/** Показатель графика оценок (тип звонка либо раздел рубрики). */
+/** Показатель графика оценок (корзина, тип звонка либо раздел рубрики). */
 export interface AiScoreIndicator {
     code: string;
     name: string;
@@ -40,12 +33,16 @@ export interface AiTypeChip {
     label: string;
     tone: Tone;
     hidden: boolean;
+    /** Подсказка типа вне средней оценки (приглашение на мероприятие). */
+    hint?: string;
 }
 
 export interface AiTypeChipsState {
     chips: AiTypeChip[];
     /** Сколько типов периода сейчас скрыто (устаревшие коды не считаются). */
     hiddenCount: number;
+    /** Общая сноска к помеченным чипам (null — помеченных нет). */
+    footnote: string | null;
 }
 
 /** Чипы по типам периода; скрытые коды, которых в периоде нет, не учитываются. */
@@ -59,8 +56,13 @@ export const buildAiTypeChips = (
         label: type.label,
         tone: aiCallTypeTone(type.code, callTypes),
         hidden: hiddenTypes.includes(type.code),
+        ...(type.hint ? { hint: type.hint } : {}),
     }));
-    return { chips, hiddenCount: chips.filter(chip => chip.hidden).length };
+    return {
+        chips,
+        hiddenCount: chips.filter(chip => chip.hidden).length,
+        footnote: chips.find(chip => chip.hint)?.hint ?? null,
+    };
 };
 
 /**
@@ -76,45 +78,33 @@ export const aiMatrixPresentUserIds = (
             .filter(
                 row =>
                     row.cell.n > 0 &&
-                    (callType === undefined || row.cell.callType === callType),
+                    (callType === undefined ||
+                        callType === AI_CALL_TYPE_ALL ||
+                        row.cell.callType === callType),
             )
             .map(row => Number(row.managerId)),
     ),
 ];
 
-/** Итоги по типам к строке «Итого по типам»: только видимые типы со звонками, порядок бэка. */
-export const aiMatrixVisibleTotals = (
-    totals: AiTypeTotals[] | null,
-    visibleTypes: AiMatrixType[],
-): AiTypeTotals[] => {
-    const codes = new Set(visibleTypes.map(type => type.code));
-    return (totals ?? []).filter(
-        total => total.n > 0 && codes.has(total.callType),
-    );
-};
-
-/** Тип матрицы разделов: сохранённый, если он есть в периоде, иначе первый; null — типов нет. */
+/**
+ * Тип матрицы разделов: сохранённый, если он есть в периоде; «все типы»
+ * всегда допустимы и стоят по умолчанию. null — типов в периоде нет.
+ */
 export const resolveAiSectionsType = (
     stored: string,
     presentTypes: AiMatrixType[],
-): string | null =>
-    presentTypes.find(type => type.code === stored)?.code ??
-    presentTypes[0]?.code ??
-    null;
+): string | null => {
+    if (!presentTypes.length) return null;
+    if (stored === AI_CALL_TYPE_ALL) return AI_CALL_TYPE_ALL;
+    return (
+        presentTypes.find(type => type.code === stored)?.code ?? AI_CALL_TYPE_ALL
+    );
+};
 
-/** Показатели графика оценок блока типов: видимые типы. */
-export const aiTypesScoreIndicators = (
-    types: AiMatrixType[],
+/** Показатели графика оценок: колонки-оценки матрицы (без хвоста продаж). */
+export const aiMatrixScoreIndicators = (
+    columns: AiMatrixColumn[],
 ): AiScoreIndicator[] =>
-    types.map(type => ({ code: type.code, name: type.label }));
-
-/** Показатели графика оценок блока разделов: разделы типа + «Все разборы». */
-export const aiSectionsScoreIndicators = (
-    sections: AiMatrixSection[],
-): AiScoreIndicator[] => [
-    ...sections.map(section => ({
-        code: section.code,
-        name: section.title,
-    })),
-    AI_SECTIONS_MATRIX_ALL,
-];
+    columns
+        .filter(column => !column.plain)
+        .map(column => ({ code: column.code, name: column.name }));

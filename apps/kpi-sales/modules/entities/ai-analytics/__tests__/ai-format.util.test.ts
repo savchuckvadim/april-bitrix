@@ -341,13 +341,23 @@ describe('подвкладки типов', () => {
                 title: 'Презентации',
                 tone: 'event-pres',
                 bucket: 'presentation',
+                column: true,
                 kpiPrimaryEventTypeCode: null,
+            },
+            {
+                code: 'event_invite',
+                title: 'Мероприятие',
+                tone: 'info',
+                bucket: null,
+                column: true,
+                kpiPrimaryEventTypeCode: 'seminar',
             },
             {
                 code: 'cold',
                 title: 'Холод',
                 tone: 'event-cold',
                 bucket: 'contact',
+                column: true,
                 kpiPrimaryEventTypeCode: null,
             },
             {
@@ -355,13 +365,17 @@ describe('подвкладки типов', () => {
                 title: 'Прочее',
                 tone: 'neutral',
                 bucket: null,
+                column: false,
                 kpiPrimaryEventTypeCode: null,
             },
         ]);
+        // Приглашение на мероприятие (bucket null, но своя колонка) не
+        // отбрасывается — подвкладка есть; «прочее» в переключатель не идёт.
         expect(options.map(option => option.value)).toEqual([
             'all',
             'cold',
             'presentation',
+            'event_invite',
             'objections',
         ]);
         expect(options[0]?.label).toBe('Все');

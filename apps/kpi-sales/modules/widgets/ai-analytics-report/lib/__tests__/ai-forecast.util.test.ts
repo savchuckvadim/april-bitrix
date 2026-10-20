@@ -102,7 +102,7 @@ describe('точность на истории словами', () => {
             reasons: ['forecast-coverage-outside'],
         });
         expect(aiForecastAccuracyText(forecast)).toBe(
-            'Проверка на истории за 9 мес.: факт попадал в вилку в 7 случаях из 10 (нужно 8 из 10); прогноз точнее простого правила «по темпу с начала месяца».',
+            'Проверка на истории за 9 мес.: факт попадал в диапазон прогноза в 7 случаях из 10 (нужно 8 из 10); прогноз точнее простого правила «по темпу с начала месяца».',
         );
     });
 
@@ -181,7 +181,7 @@ describe('карточка: режим «в тени»', () => {
     it('прогресс «4 из 9 месяцев», срок, «ждать», вилки нет, тема теории', () => {
         const view = shadowView();
         expect(view.progressTitle).toBe(
-            'Прогноз копится в тени: 4 из 9 месяцев',
+            'Прогноз пока проверяется: сверено 4 из 9 месяцев',
         );
         expect(view.progress).toEqual({ value: 4, target: 9 });
         expect(view.share).toBeCloseTo(4 / 9);
@@ -203,7 +203,7 @@ describe('карточка: режим «в тени»', () => {
             reasons: ['forecast-log-missing'],
         });
         expect(view.progressTitle).toBe(
-            'Прогноз копится в тени: 0 из 9 месяцев',
+            'Прогноз пока проверяется: сверено 0 из 9 месяцев',
         );
         expect(view.todo).toBe(AI_FORECAST_TEXT.shadow.todoStart);
         expect(view.todo).toContain('попросите разработчика включить показ');
@@ -237,7 +237,7 @@ describe('карточка: режим «в тени»', () => {
             shadow: { monthsLogged: 3, minMonths: 1, backtest: null },
         });
         expect(view.progressTitle).toBe(
-            'Прогноз копится в тени: 1 из 1 месяца',
+            'Прогноз пока проверяется: сверено 1 из 1 месяца',
         );
         expect(view.share).toBe(1);
     });

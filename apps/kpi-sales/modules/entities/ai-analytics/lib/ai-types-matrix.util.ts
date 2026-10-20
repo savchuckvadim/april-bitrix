@@ -1,29 +1,59 @@
-import type { AiByTypeWideRow, AiCallType, AiFinanceTail } from '../model';
-import { AI_CALL_TYPE_ORDER, aiCallTypeLabel } from './ai-call-types.data';
+import type {
+    AiBucketScore,
+    AiByTypeWideRow,
+    AiCallType,
+    AiFinanceTail,
+    AiTypeTotals,
+} from '../model';
+import {
+    AI_CALL_TYPE_ORDER,
+    aiCallTypeLabel,
+    aiCallTypeScoreHint,
+} from './ai-call-types.data';
+import {
+    aiBucketColumnCode,
+    aiBucketLabel,
+    aiBucketOfColumnCode,
+    aiBucketOfType,
+    aiBucketScoreSource,
+    aiPresentBuckets,
+} from './ai-matrix-buckets.util';
+import { aiWeightedScore } from './ai-matrix-norm.util';
 import {
     AI_MATRIX_EMPTY_CELL,
-    aiMatrixScoreAnnotation,
+    aiPlainCell,
+    aiScoreCell,
     buildAiMatrix,
+    type AiMatrixBackendTotal,
+    type AiMatrixBuildOptions,
+    type AiMatrixCell,
     type AiMatrixCellOf,
     type AiMatrixColumn,
-    type AiMatrixManagerOptions,
     type AiMatrixTable,
 } from './ai-matrix-table.util';
+import { aiTypeTotalToBackend } from './ai-matrix-totals.util';
+import { isAiMetricHidden } from './ai-metric.util';
 
 /*
- * Блок «AI: типы звонков» (KPI-вид): менеджер × тип звонка — число
- * разборов с подстрокой-оценкой типа, хвост продаж (finance строки
- * менеджера) и чипы-фильтр скрытых типов (localStorage). Общая сборка
- * матрицы — ai-matrix-table.util.
+ * Блок «AI: типы звонков» (KPI-вид): менеджер × колонка — оценка крупно,
+ * разборов мелко. Два вида колонок: «Корзины» (по умолчанию: Контакт /
+ * Презентация / Закрытие + типы вне корзин своей колонкой) и «По типам»
+ * (прежние колонки по типам). Хвост продаж — числа из finance строки.
+ * Чипы-фильтр скрытых типов (localStorage) режут типы в обоих видах.
  */
 
 export const AI_TYPES_MATRIX_CODE = 'ai-types-matrix';
 
+export type AiTypesMatrixMode = 'buckets' | 'types';
+export const AI_TYPES_MATRIX_DEFAULT_MODE: AiTypesMatrixMode = 'buckets';
+export const isAiTypesMatrixMode = (value: unknown): value is AiTypesMatrixMode =>
+    value === 'buckets' || value === 'types';
+
 /** Хвост продаж из finance строки менеджера (одинаков во всех его строках). */
 export const AI_MATRIX_SALES_COLUMNS = [
-    { code: 'sales_count', name: 'Продажи, шт.' },
-    { code: 'advance_amount', name: 'Аванс, ₽' },
-    { code: 'monthly_amount', name: 'Мес. чек, ₽' },
+    { code: 'sales_count', name: 'Продажи, шт.', plain: true },
+    { code: 'advance_amount', name: 'Аванс, ₽', plain: true },
+    { code: 'monthly_amount', name: 'Мес. чек, ₽', plain: true },
 ] as const satisfies readonly AiMatrixColumn[];
 export type AiMatrixSalesCode =
     (typeof AI_MATRIX_SALES_COLUMNS)[number]['code'];
@@ -45,14 +75,8 @@ export const isAiMatrixSalesCode = (code: string): code is AiMatrixSalesCode =>
 export interface AiMatrixType {
     code: string;
     label: string;
-}
-
-export interface AiTypesMatrixInput extends AiMatrixManagerOptions {
-    rows: AiByTypeWideRow[];
-    /** Справочник типов портала (settings.callTypes) для подписей. */
-    callTypes: AiCallType[];
-    /** Коды типов, снятых чипами-фильтром (localStorage). */
-    hiddenTypes: readonly string[];
+    /** Подсказка колонки: тип считается отдельно, в среднюю оценку не входит. */
+    hint?: string;
 }
 
 /* ---------- Типы: наличие, порядок, скрытые ---------- */
@@ -64,8 +88,9 @@ const typeOrderIndex = (code: string): number => {
 
 /**
  * Типы со звонками за период (Σn > 0 по строкам): порядок подвкладок
- * AI_CALL_TYPE_ORDER, следом прочие (other, irrelevant, неизвестные) в
- * порядке появления.
+ * AI_CALL_TYPE_ORDER (приглашение на мероприятие — своей колонкой с
+ * подсказкой «вне средней оценки»), следом прочие (other, irrelevant,
+ * неизвестные) в порядке появления.
  */
 export const aiMatrixPresentTypes = (
     rows: AiByTypeWideRow[],
@@ -84,7 +109,14 @@ export const aiMatrixPresentTypes = (
                 typeOrderIndex(a.code) - typeOrderIndex(b.code) ||
                 a.appearance - b.appearance,
         )
-        .map(({ code }) => ({ code, label: aiCallTypeLabel(code, callTypes) }));
+        .map(({ code }) => {
+            const hint = aiCallTypeScoreHint(code, callTypes);
+            return {
+                code,
+                label: aiCallTypeLabel(code, callTypes),
+                ...(hint ? { hint } : {}),
+            };
+        });
 };
 
 /** Типы после чипов-фильтра: скрытые исключены из таблицы, CSV и рейтингов. */
@@ -112,57 +144,133 @@ export const toggleAiHiddenType = (
 export const serializeAiHiddenTypes = (list: readonly string[]): string =>
     list.join(',');
 
-/* ---------- Таблица ---------- */
+/* ---------- Колонки ---------- */
 
-const typeColumns = (types: AiMatrixType[]): AiMatrixColumn[] => [
-    ...types.map(type => ({ code: type.code, name: type.label })),
-    ...AI_MATRIX_SALES_COLUMNS,
-];
+const typeColumn = (type: AiMatrixType): AiMatrixColumn => ({
+    code: type.code,
+    name: type.label,
+    callType: type.code,
+    ...(type.hint ? { hint: type.hint } : {}),
+});
 
-const typesCell: AiMatrixCellOf = (group, column) => {
-    if (isAiMatrixSalesCode(column.code)) {
-        const finance = group.rows[0]?.finance;
-        return finance
-            ? { value: FINANCE_PICK[column.code](finance), annotation: null }
-            : AI_MATRIX_EMPTY_CELL;
-    }
-    const cell = group.rows.find(
-        row => row.cell.callType === column.code,
-    )?.cell;
-    return cell
-        ? {
-              value: cell.n,
-              annotation: aiMatrixScoreAnnotation(cell.score, cell.n),
-          }
-        : AI_MATRIX_EMPTY_CELL;
+/**
+ * Колонки блока: «по типам» — видимые типы; «корзины» — корзины, в которых
+ * есть видимые типы, затем типы вне корзин своей колонкой; хвост продаж.
+ */
+export const aiTypesMatrixColumns = (
+    types: AiMatrixType[],
+    mode: AiTypesMatrixMode,
+    callTypes: AiCallType[],
+): AiMatrixColumn[] => {
+    const typeColumns =
+        mode === 'types'
+            ? types.map(typeColumn)
+            : [
+                  ...aiPresentBuckets(
+                      types.map(type => type.code),
+                      callTypes,
+                  ).map(bucket => ({
+                      code: aiBucketColumnCode(bucket),
+                      name: aiBucketLabel(bucket),
+                  })),
+                  ...types
+                      .filter(type => aiBucketOfType(type.code, callTypes) === null)
+                      .map(typeColumn),
+              ];
+    return [...typeColumns, ...AI_MATRIX_SALES_COLUMNS];
 };
+
+/* ---------- Ячейки ---------- */
+
+export interface AiTypesMatrixOptions extends AiMatrixBuildOptions {
+    /** Вид колонок; по умолчанию — по типам. */
+    mode?: AiTypesMatrixMode;
+    /** Справочник типов портала (корзины и подписи). */
+    callTypes?: AiCallType[];
+    /** Точные оценки корзин менеджера (строка обзора); нет — складываются из ячеек. */
+    bucketsOf?: (managerId: string) => readonly AiBucketScore[] | null | undefined;
+}
+
+const typesCellOf =
+    ({ callTypes = [], bucketsOf }: AiTypesMatrixOptions): AiMatrixCellOf =>
+    (group, column): AiMatrixCell => {
+        if (isAiMatrixSalesCode(column.code)) {
+            const finance = group.rows[0]?.finance;
+            return aiPlainCell(finance ? FINANCE_PICK[column.code](finance) : 0);
+        }
+        const bucket = aiBucketOfColumnCode(column.code);
+        if (bucket) {
+            return aiScoreCell(
+                aiBucketScoreSource(
+                    group.rows.map(row => row.cell),
+                    bucket,
+                    callTypes,
+                    bucketsOf?.(group.managerId),
+                ),
+            );
+        }
+        const cell = group.rows.find(
+            row => row.cell.callType === column.code,
+        )?.cell;
+        if (!cell) return AI_MATRIX_EMPTY_CELL;
+        return aiScoreCell({
+            n: cell.n,
+            score: isAiMetricHidden(cell.score) ? null : cell.score.value,
+            explanation: cell.explanation?.text || null,
+        });
+    };
 
 /** Матрица типов по уже отобранным (видимым) типам — общая для таблицы и рейтингов. */
 export const buildAiTypesMatrixFor = (
     rows: AiByTypeWideRow[],
     types: AiMatrixType[],
-    options: AiMatrixManagerOptions,
+    options: AiTypesMatrixOptions,
 ): AiMatrixTable =>
     buildAiMatrix(
         AI_TYPES_MATRIX_CODE,
         rows,
-        typeColumns(types),
+        aiTypesMatrixColumns(types, options.mode ?? 'types', options.callTypes ?? []),
         options,
-        typesCell,
+        typesCellOf(options),
     );
 
-/** Строки — менеджеры периметра, колонки — видимые типы (n + оценка) и хвост продаж. */
-export const buildAiTypesMatrixTable = ({
-    rows,
-    callTypes,
-    hiddenTypes,
-    ...options
-}: AiTypesMatrixInput): AiMatrixTable =>
-    buildAiTypesMatrixFor(
-        rows,
-        aiMatrixVisibleTypes(
-            aiMatrixPresentTypes(rows, callTypes),
-            hiddenTypes,
-        ),
-        options,
-    );
+/* ---------- Итоги с бэка для сводной ---------- */
+
+/**
+ * Итоги колонок из totalsByType (режим «все типы»): тип — как есть, корзина —
+ * сумма разборов и взвешенная оценка типов корзины (сотрудников считаем по
+ * строкам). Хвост продаж — суммы по строкам.
+ */
+export const aiTypesBackendTotals = (
+    totalsByType: AiTypeTotals[] | null,
+    columns: AiMatrixColumn[],
+    callTypes: AiCallType[],
+): Map<string, AiMatrixBackendTotal> => {
+    const result = new Map<string, AiMatrixBackendTotal>();
+    if (!totalsByType) return result;
+    for (const column of columns) {
+        if (column.plain) continue;
+        const bucket = aiBucketOfColumnCode(column.code);
+        if (bucket) {
+            const parts = totalsByType.filter(
+                total => aiBucketOfType(total.callType, callTypes) === bucket,
+            );
+            if (!parts.length) continue;
+            const weighted = aiWeightedScore(
+                parts.map(total => ({
+                    n: total.n,
+                    score: isAiMetricHidden(total.score) ? null : total.score.value,
+                })),
+            );
+            result.set(column.code, {
+                n: weighted.n,
+                score: weighted.score,
+                partial: weighted.score !== null && weighted.scoredN < weighted.n,
+            });
+            continue;
+        }
+        const total = totalsByType.find(item => item.callType === column.code);
+        if (total) result.set(column.code, aiTypeTotalToBackend(total));
+    }
+    return result;
+};

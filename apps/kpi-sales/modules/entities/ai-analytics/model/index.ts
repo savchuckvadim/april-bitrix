@@ -62,6 +62,7 @@ import type {
     AiAttentionLinkDto,
     AiBucketScoreDto,
     AiBucketScoreDtoBucket,
+    AiByTypeCoverageDto,
     AiByTypeDto,
     AiByTypeLongRowDto,
     AiByTypeLongRowDtoKind,
@@ -79,6 +80,7 @@ import type {
     AiFeedbackItemDto,
     AiFeedbackListDto,
     AiFeedbackRequestDtoKind,
+    AiFinanceSourceDto,
     AiFinanceTailDto,
     AiFunnelEdgeDto,
     AiLevelTargetDto,
@@ -97,6 +99,9 @@ import type {
     AiOverviewDto,
     AiOverviewMetaDto,
     AiOverviewPeriodDto,
+    AiOverviewScopeDto,
+    AiPlanTargetCellDto,
+    AiPlanTargetCellDtoUnit,
     AiPulseAlertDto,
     AiPulseAlertDtoKind,
     AiPulseDto,
@@ -191,7 +196,14 @@ export type AiMetricConfidenceLevel = MetricConfidenceDtoLevel;
 export type AiOverview = AiOverviewDto;
 export type AiOverviewMeta = AiOverviewMetaDto;
 export type AiOverviewPeriod = AiOverviewPeriodDto;
+/** Кого показывает вкладка: список разбора действует, сколько строк показано и скрыто. */
+export type AiOverviewScope = AiOverviewScopeDto;
 export type AiManagerRow = AiManagerRowDto;
+/** План руководителя против факта за период обзора — как блок «Планы» вкладки KPI. */
+export type AiPlanTargetCell = AiPlanTargetCellDto;
+export type AiPlanTargetUnit = AiPlanTargetCellDtoUnit;
+/** Откуда числа закрытых продаж строки: период и момент расчёта (как вкладка «Финансы»). */
+export type AiFinanceSource = AiFinanceSourceDto;
 /** Уровень менеджера (junior | middle | senior) — общий для строки и формы. */
 export type AiManagerLevel = AiManagerLevelDtoLevel;
 /** Источник уровня: manual — РОП; passport — по стажу из дат Bitrix (ночной паспорт); default — ни того, ни другого. */
@@ -223,6 +235,8 @@ export type AiAttentionLink = AiAttentionLinkDto;
 /* ---------- Срез по типу / возражения ---------- */
 
 export type AiByType = AiByTypeDto;
+/** Покрытие разборами среза: сколько в оценке и почему остальные не вошли (старый кэш — без поля). */
+export type AiByTypeCoverage = AiByTypeCoverageDto;
 /** Код типа звонка подвкладки, all — все типы вместе, objections — срез возражений. */
 export type AiByTypeCallType = AiByTypeRequestDtoCallType;
 export type AiByTypeLayout = AiByTypeRequestDtoLayout;
@@ -388,6 +402,16 @@ export type AiPlanFactReason = AiPlanFactDtoReasonsItem;
 export interface AiPlanFactQuery {
     monthKey: string;
     managerIds?: string[];
+}
+
+/**
+ * Запрос списка обратной связи (feedback/list): период YYYY-MM-DD и
+ * менеджер; без менеджера — весь периметр (только руководителям).
+ */
+export interface AiFeedbackListQuery {
+    from: string;
+    to: string;
+    managerId?: string;
 }
 
 export type AiYoy = AiYoyDto;

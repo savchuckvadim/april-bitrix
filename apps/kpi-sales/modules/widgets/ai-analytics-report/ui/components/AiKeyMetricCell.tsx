@@ -1,9 +1,11 @@
 'use client';
 
-import { LiquidProgress, ToneBadge } from '@workspace/april-ui';
+import { HintTooltip, LiquidProgress, ToneBadge } from '@workspace/april-ui';
 import {
-    AI_METRIC_LOW_HINT,
-    aiFewDataLabel,
+    aiFewDataHint,
+    aiMetricHiddenLabel,
+    aiMetricLowHint,
+    aiMetricLowHintLines,
     aiScoreShare,
     aiScoreTone,
     formatAiCallsShort,
@@ -20,17 +22,33 @@ interface AiKeyMetricCellProps {
 
 /**
  * Ключевая цифра строки: оценка качества 1–10 полосой LiquidProgress с
- * числом и объёмом «18 зв.»; при confidence none — бэйдж «мало данных».
+ * числом и объёмом «18 зв.»; при confidence none — бэйдж «мало данных» с
+ * подсказкой о пороге; при low — цифра пунктиром с подсказкой.
  */
 export const AiKeyMetricCell = ({ metric }: AiKeyMetricCellProps) => {
     if (!hasAiMetricValue(metric)) {
+        const hint = aiFewDataHint(metric, 'score');
         return (
-            <ToneBadge tone="muted" variant="soft" size="sm">
-                {aiFewDataLabel(metric.n)}
-            </ToneBadge>
+            <HintTooltip title={hint.title} lines={[...hint.lines]}>
+                <span>
+                    <ToneBadge tone="muted" variant="soft" size="sm">
+                        {aiMetricHiddenLabel(metric)}
+                    </ToneBadge>
+                </span>
+            </HintTooltip>
         );
     }
     const low = isAiMetricLow(metric);
+    const value = (
+        <span
+            className={cn(
+                'shrink-0 text-sm font-semibold tabular-nums',
+                low && 'cursor-help border-b border-dashed border-muted-foreground',
+            )}
+        >
+            {formatAiScore(metric.value)}
+        </span>
+    );
     return (
         <div className="flex min-w-32 items-center gap-2">
             <LiquidProgress
@@ -39,15 +57,16 @@ export const AiKeyMetricCell = ({ metric }: AiKeyMetricCellProps) => {
                 size="sm"
                 className="flex-1"
             />
-            <span
-                className={cn(
-                    'shrink-0 text-sm font-semibold tabular-nums',
-                    low && 'border-b border-dashed border-muted-foreground',
-                )}
-                title={low ? AI_METRIC_LOW_HINT : undefined}
-            >
-                {formatAiScore(metric.value)}
-            </span>
+            {low ? (
+                <HintTooltip
+                    title={aiMetricLowHint('score')}
+                    lines={aiMetricLowHintLines('score')}
+                >
+                    {value}
+                </HintTooltip>
+            ) : (
+                value
+            )}
             <span className="shrink-0 text-xs text-muted-foreground">
                 {formatAiCallsShort(metric.n)}
             </span>

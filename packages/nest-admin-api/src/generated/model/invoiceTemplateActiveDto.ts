@@ -7,5 +7,6 @@
  */
 
 export interface InvoiceTemplateActiveDto {
+  /** Активен ли шаблон. Неактивные не участвуют в подборе при генерации счёта, но остаются видны в админке. */
   is_active: boolean;
 }

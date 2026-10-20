@@ -76,11 +76,12 @@ describe('ai-trend.util — сигналы трендов и флаги Гудх
         ).toBe('+15 п.п.');
     });
 
-    it('строка сигнала собирает метрику, стрелку, вид, величину и неделю датами', () => {
+    it('строка сигнала собирает метрику, направление словами, вид, величину и неделю датами', () => {
         const [signal] = managerTrends().signals;
         const line = formatAiTrendSignal(signal!);
         expect(line).toContain(AI_TREND_METRIC_LABELS.quality);
-        expect(line).toContain('↓');
+        expect(line).toContain('снижается');
+        expect(line).not.toMatch(/[↑↓→]/);
         expect(line).toContain(AI_TREND_KIND.shift.label);
         expect(line).toContain('с недели 31.08–06.09');
         expect(line).not.toContain('W36');
@@ -125,8 +126,10 @@ describe('ai-plan-fact.util — план-факт месяца', () => {
         expect(formatAiPlanFactValue(null)).toBe('—');
         expect(formatAiPlanFactPace(0.5)).toContain('50');
         expect(formatAiPlanFactPace(null)).toBe('—');
-        expect(formatAiPlanFactGap(-4)).toContain('−4');
-        expect(formatAiPlanFactGap(3)).toContain('+3');
+        // Разрыв словами, без «+3» / «−2».
+        expect(formatAiPlanFactGap(-4)).toBe('сверх плана 4');
+        expect(formatAiPlanFactGap(3)).toBe('не хватит 3');
+        expect(formatAiPlanFactGap(0)).toBe('ровно по плану');
         expect(formatAiPlanFactGap(null)).toBe('—');
         expect(formatAiPlanFactPerDay(0.7)).toBe('1');
         expect(formatAiPlanFactPerDay(2)).toBe('2');
@@ -170,9 +173,11 @@ describe('ai-plan-fact.util — план-факт месяца', () => {
         );
     });
 
-    it('подпись показателя с единицей одним текстом; звонки — из CRM', () => {
+    it('подпись показателя с единицей одним текстом; звонки — по отчётам, с подсказкой', () => {
         expect(aiPlanFactIndicatorLabel('sales')).toBe('Продажи, шт.');
-        expect(aiPlanFactIndicatorLabel('calls')).toBe('Звонки (CRM), шт.');
+        expect(aiPlanFactIndicatorLabel('calls')).toBe('Звонки по отчётам, шт.');
+        expect(AI_PLAN_FACT_INDICATOR.calls.hint).toContain('не телефония');
+        expect(AI_PLAN_FACT_INDICATOR.calls.hint).toContain('Входящие');
         expect(aiPlanFactIndicatorLabel('presentations')).toBe(
             'Презентации, шт.',
         );

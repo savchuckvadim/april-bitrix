@@ -20,6 +20,8 @@ export interface AiAnalyticsForecastBacktestDto {
   shadowMonths: number;
   /** Сколько теневых месяцев нужно (forecast_shadow_min_months). */
   shadowMinMonths: number;
+  /** Из теневых месяцев восстановлено по истории шагом forecast-log-replay (хотя бы один день журнала воспроизведён задним числом); 0 — все месяцы записаны ночным прогоном или запись старее воспроизведения. */
+  replayedMonths: number;
   /** Месяцев в проверке; 0 — журналов с фактом нет. */
   months: number;
   /** Дней-прогнозов в проверке. */

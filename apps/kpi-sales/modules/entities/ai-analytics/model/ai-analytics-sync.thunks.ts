@@ -7,6 +7,7 @@ import {
 import type {
     AiCacheResetScope,
     AiDailyPlanQuery,
+    AiFeedbackListQuery,
     AiPlanFactQuery,
     AiEnvelope,
     AiStyleQuery,
@@ -38,7 +39,8 @@ export type SyncSection =
     | 'ropMark'
     | 'style'
     | 'planFact'
-    | 'forecast';
+    | 'forecast'
+    | 'feedbackList';
 
 export interface SyncLoadOptions {
     /** Повторить запрос, даже если секция с тем же ключом уже готова. */
@@ -204,6 +206,38 @@ export const fetchAiPlanFact =
                         'plan-fact',
                         query.monthKey,
                         ...(query.managerIds ?? []),
+                    ],
+                },
+            ),
+        );
+    };
+
+/**
+ * Список обратной связи за период (feedback/list; страница сотрудника):
+ * реакции по менеджеру — руководителю в периметре, менеджеру только свои
+ * (403 сервера — текст в error). Ключ — период и менеджер.
+ */
+export const fetchAiFeedbackList =
+    (query: AiFeedbackListQuery, force = false) =>
+    async (dispatch: AppDispatch): Promise<void> => {
+        dispatch(aiAnalyticsActions.feedbackListQueried(query));
+        await dispatch(
+            loadSection(
+                'feedbackList',
+                requester =>
+                    aiHelper.listFeedback(
+                        requester,
+                        query.from,
+                        query.to,
+                        query.managerId,
+                    ),
+                {
+                    force,
+                    extra: [
+                        'feedback-list',
+                        query.from,
+                        query.to,
+                        query.managerId,
                     ],
                 },
             ),

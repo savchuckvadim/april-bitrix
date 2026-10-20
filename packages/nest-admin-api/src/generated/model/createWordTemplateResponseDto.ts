@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type { CreateWordTemplateResponseDtoVisibility } from './createWordTemplateResponseDtoVisibility';
+import type { ClientTypeEnum } from './clientTypeEnum';
+import type { SupplyTypeEnum } from './supplyTypeEnum';
 
 export interface CreateWordTemplateResponseDto {
   id: string;
@@ -26,4 +28,19 @@ export interface CreateWordTemplateResponseDto {
   archived_at?: string;
   portal_id?: number;
   user_id?: number;
+  /**
+   * ID агента (поставщика); null — «для любого».
+   * @nullable
+   */
+  agent_id?: string | null;
+  /**
+   * Типы клиента; null — «для любого». Разобрано из JSON-колонки.
+   * @nullable
+   */
+  client_types?: ClientTypeEnum[] | null;
+  /**
+   * Типы поставки; null — «для любого». Разобрано из JSON-колонки.
+   * @nullable
+   */
+  supply_types?: SupplyTypeEnum[] | null;
 }

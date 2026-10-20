@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type { WordTemplateDtoVisibility } from './wordTemplateDtoVisibility';
+import type { ClientTypeEnum } from './clientTypeEnum';
+import type { SupplyTypeEnum } from './supplyTypeEnum';
 
 export interface WordTemplateDto {
   id: string;
@@ -24,4 +26,19 @@ export interface WordTemplateDto {
   template_url?: string;
   created_at?: string;
   updated_at?: string;
+  /**
+   * ID агента (поставщика); null — «для любого».
+   * @nullable
+   */
+  agent_id?: string | null;
+  /**
+   * Типы клиента; null — «для любого».
+   * @nullable
+   */
+  client_types?: ClientTypeEnum[] | null;
+  /**
+   * Типы поставки; null — «для любого».
+   * @nullable
+   */
+  supply_types?: SupplyTypeEnum[] | null;
 }

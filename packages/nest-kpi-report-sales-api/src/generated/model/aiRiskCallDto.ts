@@ -10,7 +10,7 @@ import type { AiRiskCallDtoKind } from './aiRiskCallDtoKind';
 export interface AiRiskCallDto {
     /** Id транскрипции. */
     transcriptionId: string;
-    /** Вид сигнала. */
+    /** Вид сигнала: действующий риск-флаг с цитатой (conflict / compliance / door_closed) либо urgent — срочный коучинг. */
     kind: AiRiskCallDtoKind;
     /** Начало звонка (ISO 8601). */
     callStartedAt: string;

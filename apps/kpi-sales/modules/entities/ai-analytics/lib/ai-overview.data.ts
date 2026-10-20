@@ -24,11 +24,34 @@ export interface AiSignalView {
 export const AI_SIGNAL_NO_DATA_EXPLANATION =
     'Разбор — это звонок, который AI прослушал и оценил. Звонки не попадают в разбор, если сотрудник не в пилоте, звонок короче порога или не привязан к сделке.';
 
+/**
+ * Сигналы в порядке приоритета (решение владельца 19.10.2026): слабые
+ * презентации → слабая доработка → звонки с низкой оценкой → данные и
+ * план → риск последним и только с цитатой; затем тренды.
+ */
 export const AI_SIGNAL: Record<AiAttentionSignal, AiSignalView> = {
+    weak_presentation: {
+        label: 'Слабые презентации',
+        tone: 'warning',
+        hint: 'У звонков-презентаций слабо выявляются потребности или показ не привязан к ним: средняя оценка раздела не выше порога либо заметно ниже, чем у отдела.',
+        action: 'Прослушайте слабые презентации и разберите с менеджером вопросы на потребности и связку показа с задачами клиента',
+    },
+    weak_followup: {
+        label: 'Слабая доработка',
+        tone: 'warning',
+        hint: 'В звонках после презентации возражения часто остаются без ответа, следующий шаг без даты или слабы разделы работы с возражениями и закрытия.',
+        action: 'Разберите с менеджером ответы на возражения и правило «следующий шаг только с датой»',
+    },
+    low_score_calls: {
+        label: 'Звонки с низкой оценкой',
+        tone: 'info',
+        hint: 'За период есть звонки с общей оценкой не выше порога.',
+        action: 'Прослушайте худший из них и разберите с менеджером самый слабый раздел',
+    },
     risk: {
         label: 'Риск',
         tone: 'destructive',
-        hint: 'За период были звонки с риск-флагами (обещание, конфликт, комплаенс, негатив клиента).',
+        hint: 'За период были звонки с подтверждённым цитатой сигналом: конфликт, нарушение регламента или закрытая после отказа дверь.',
         action: 'Прослушайте риск-звонки и обсудите с менеджером',
     },
     no_data: {
@@ -75,8 +98,28 @@ export const AI_SIGNAL: Record<AiAttentionSignal, AiSignalView> = {
     },
 };
 
+/** Сигнал из старого кэша, которого в словаре больше нет. */
+export const AI_SIGNAL_UNKNOWN: AiSignalView = {
+    label: 'Прочий сигнал',
+    tone: 'muted',
+    hint: 'Сигнал старого расчёта, которого в текущих правилах нет.',
+    action: 'Обновите страницу позже: после пересчёта карточка исчезнет или получит новый вид',
+};
+
+/** Подпись сигнала; незнакомый код (старый кэш) — «Прочий сигнал». */
+export const aiSignalView = (signal: string): AiSignalView =>
+    (AI_SIGNAL as Record<string, AiSignalView | undefined>)[signal] ??
+    AI_SIGNAL_UNKNOWN;
+
 /** Подписи опор карточки «Внимание» (basis.code); неизвестный код — «показатель» (ai-attention.util). */
 export const AI_BASIS_LABELS: Record<string, string> = {
+    needs_section_mean: 'Выявление потребностей, средняя',
+    presentation_section_mean: 'Презентация под потребности, средняя',
+    objections_section_mean: 'Работа с возражениями, средняя',
+    closing_section_mean: 'Закрытие разговора, средняя',
+    objection_unhandled_share: 'Возражений не отработано',
+    next_step_no_date_share: 'Шагов без даты',
+    low_score_calls: 'Звонков с низкой оценкой',
     risk_calls: 'Риск-звонков',
     analyzed_calls: 'Разобрано звонков',
     calls_total: 'Звонков в телефонии',
@@ -90,14 +133,17 @@ export const AI_BASIS_LABELS: Record<string, string> = {
     next_step_date_rate_prev: 'Шаг с датой (пред. окно)',
     plan_head: 'План руководителя',
     level_norm: 'Норма уровня',
-    goodhart_pressure_change: 'Рост метрики давления',
-    goodhart_counter_change: 'Изменение противовеса',
-    trend_shift_magnitude: 'Величина сдвига',
-    trend_drift_magnitude: 'Величина дрейфа',
+    goodhart_pressure_change: 'На сколько вырос показатель, который требуют',
+    goodhart_counter_change: 'Как изменился результат, ради которого его требуют',
+    trend_shift_magnitude: 'На сколько просел показатель',
+    trend_drift_magnitude: 'Как быстро понемногу снижается',
 };
 
 /** Коды опор, значения которых — доли 0..1 (форматируем в %). */
 export const AI_BASIS_RATE_CODES = ['share', 'rate', 'pct'];
+
+/** Коды опор, значения которых — средняя оценка раздела 1–10 («4,3 из 10»). */
+export const AI_BASIS_SCORE_CODES = ['section_mean'];
 
 /** Уровень менеджера: подпись и тон бэйджа. */
 export const AI_LEVEL: Record<AiManagerLevel, { label: string; tone: Tone }> = {
@@ -132,12 +178,15 @@ export const AI_SINCE_SOURCE_LABELS: Record<AiManagerSinceSource, string> = {
     proxy: 'по первому событию',
 };
 
+/** Счетов, с которых бэк определяет форму воронки (dto: «при не менее 20 счетов»). */
+export const AI_FUNNEL_SHAPE_MIN_INVOICES = 20;
+
 /** Форма воронки менеджера. */
 export const AI_FUNNEL_SHAPE: Record<AiFunnelShape, string> = {
     presenter: 'Презентатор',
     closer: 'Закрыватель',
     balanced: 'Сбалансирован',
-    unknown: 'Мало счетов',
+    unknown: `Мало счетов (нужно ${AI_FUNNEL_SHAPE_MIN_INVOICES})`,
 };
 
 /** Строки подсказки бэйджа уровня: источник, стаж, форма воронки. */
@@ -160,11 +209,15 @@ export const AI_BUCKET_LABELS: Record<AiBucket, string> = {
     closing: 'Закрытие',
 };
 
-/** Раскладки среза по типу. */
+/** Раскладки среза по типу: таблицей (строка на менеджера) или списком (показатель строкой). */
 export const AI_LAYOUT_OPTIONS: { value: AiByTypeLayout; label: string }[] = [
-    { value: 'wide', label: 'Широкий' },
-    { value: 'long', label: 'Длинный' },
+    { value: 'wide', label: 'Таблицей' },
+    { value: 'long', label: 'Списком' },
 ];
+
+/** Подсказка к переключателю раскладки. */
+export const AI_LAYOUT_HINT =
+    'Таблицей — одна строка на менеджера. Списком — каждый показатель отдельной строкой, удобно читать с телефона.';
 
 /** Гард раскладки (значение из переключателя или ui-settings blob). */
 export const isAiByTypeLayout = (value: unknown): value is AiByTypeLayout =>

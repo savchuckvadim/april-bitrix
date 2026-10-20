@@ -1,10 +1,11 @@
 'use client';
 
-import { ToneBadge } from '@workspace/april-ui';
+import { HintTooltip, ToneBadge } from '@workspace/april-ui';
 import {
+    AI_TREND_GOODHART,
     AI_TREND_KIND,
     aiDossierMetricLabel,
-    aiTrendArrow,
+    aiTrendDirectionWord,
     formatAiGoodhartFlag,
     formatAiTrendMagnitude,
     formatAiWeekKey,
@@ -17,15 +18,16 @@ interface AiDossierTrendsProps {
 }
 
 /**
- * Тренды менеджера в досье: сигналы (показатель, вид, направление,
- * величина, с какой недели) и флаги «показатель растёт, результат — нет»;
- * шапка — неделя расчёта, разборов в окне, сравнимых недель и доверие.
+ * Тренды менеджера в досье: сигналы (показатель, вид, направление словами,
+ * величина, с какой недели) и флаги «показатель растёт, результат нет» с
+ * подсказкой; шапка — неделя расчёта, разборов в окне, сравнимых недель и
+ * насколько уверены.
  */
 export const AiDossierTrends = ({ trends }: AiDossierTrendsProps) => (
     <div className="space-y-2 text-sm">
         <p className="text-xs text-muted-foreground">
             Неделя расчёта {formatAiWeekKey(trends.weekKey)} · разборов в окне{' '}
-            {trends.calls} · сравнимых недель {trends.weeks} · доверие:{' '}
+            {trends.calls} · сравнимых недель {trends.weeks} · насколько уверены:{' '}
             {aiStyleConfidence(trends.confidence).label}
         </p>
         {trends.signals.length ? (
@@ -40,16 +42,17 @@ export const AiDossierTrends = ({ trends }: AiDossierTrendsProps) => (
                             variant="soft"
                             size="sm"
                         >
-                            {AI_TREND_KIND[signal.kind].label}{' '}
-                            {aiTrendArrow(signal.direction)}
+                            {AI_TREND_KIND[signal.kind].label}
                         </ToneBadge>
                         <span>
                             {aiDossierMetricLabel(signal.metric)}{' '}
+                            {aiTrendDirectionWord(signal.direction)}:{' '}
                             {formatAiTrendMagnitude(signal)} с недели{' '}
                             {formatAiWeekKey(signal.sinceWeek)}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                            доверие: {aiStyleConfidence(signal.confidence).label}
+                            насколько уверены:{' '}
+                            {aiStyleConfidence(signal.confidence).label}
                         </span>
                     </li>
                 ))}
@@ -66,9 +69,16 @@ export const AiDossierTrends = ({ trends }: AiDossierTrendsProps) => (
                         key={flag.pair}
                         className="flex flex-wrap items-center gap-2"
                     >
-                        <ToneBadge tone="warning" variant="soft" size="sm">
-                            показатель ↑ результат ↓
-                        </ToneBadge>
+                        <HintTooltip
+                            title={AI_TREND_GOODHART.hint.title}
+                            lines={[...AI_TREND_GOODHART.hint.lines]}
+                        >
+                            <span>
+                                <ToneBadge tone="warning" variant="soft" size="sm">
+                                    {AI_TREND_GOODHART.label}
+                                </ToneBadge>
+                            </span>
+                        </HintTooltip>
                         <span>{formatAiGoodhartFlag(flag)}</span>
                     </li>
                 ))}

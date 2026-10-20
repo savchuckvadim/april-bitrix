@@ -8,6 +8,8 @@
 import type {
   CreateWordTemplateMultipartDto,
   CreateWordTemplateResponseDto,
+  OfferTemplatePortalResponseDto,
+  SyncWordTemplatePortalsDto,
   UpdateWordTemplateDto,
   UserSelectedResponseDto,
   WordTemplateDto,
@@ -34,6 +36,15 @@ formData.append(`tags`, createWordTemplateMultipartDto.tags)
 formData.append(`is_active`, createWordTemplateMultipartDto.is_active.toString())
 formData.append(`portal_id`, createWordTemplateMultipartDto.portal_id.toString())
 formData.append(`user_id`, createWordTemplateMultipartDto.user_id.toString())
+if(createWordTemplateMultipartDto.agent_id !== undefined) {
+ formData.append(`agent_id`, createWordTemplateMultipartDto.agent_id)
+ }
+if(createWordTemplateMultipartDto.client_types !== undefined) {
+ createWordTemplateMultipartDto.client_types.forEach(value => formData.append(`client_types`, value));
+ }
+if(createWordTemplateMultipartDto.supply_types !== undefined) {
+ createWordTemplateMultipartDto.supply_types.forEach(value => formData.append(`supply_types`, value));
+ }
 formData.append(`file`, createWordTemplateMultipartDto.file)
 
       return customAxios<CreateWordTemplateResponseDto>(
@@ -154,11 +165,34 @@ const wordTemplateDownloadTemplate = (
     },
       );
     }
+  /**
+ * Та же операция, что GET :id/archive, но без мутирующего GET — его может дёрнуть предпросмотр ссылки или краулер. GET оставлен ради легаси-фронта.
+ * @summary Архивировать шаблон (PATCH)
+ */
+const wordTemplateArchivePatch = (
+    id: string,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/word-templates/${id}/archive`, method: 'PATCH'
+    },
+      );
+    }
   const wordTemplateUnarchive = (
     id: string,
  ) => {
       return customAxios<void>(
       {url: `/api/word-templates/${id}/unarchive`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Вернуть шаблон из архива (PATCH)
+ */
+const wordTemplateUnarchivePatch = (
+    id: string,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/word-templates/${id}/unarchive`, method: 'PATCH'
     },
       );
     }
@@ -186,7 +220,22 @@ const wordTemplateSetDefault = (
     },
       );
     }
-  return {wordTemplateCreateWordTemplate,wordTemplateFindAllWordTemplates,wordTemplateFindPublic,wordTemplateFindByPortal,wordTemplateFindUserTemplates,wordTemplateFindOne,wordTemplateUpdate,wordTemplateRemove,wordTemplateDownloadTemplate,wordTemplateArchive,wordTemplateUnarchive,wordTemplateSetActiveWordTemplate,wordTemplateSetDefault}};
+  /**
+ * Принимает ПОЛНЫЙ список порталов: недостающие привязки создаются (активными), лишние удаляются, существующие не трогаются. Пустой список снимает все привязки. Под мультиселект порталов в админке.
+ * @summary Синхронизировать привязки шаблона к порталам
+ */
+const wordTemplateSyncPortals = (
+    id: string,
+    syncWordTemplatePortalsDto: SyncWordTemplatePortalsDto,
+ ) => {
+      return customAxios<OfferTemplatePortalResponseDto[]>(
+      {url: `/api/word-templates/${id}/portals`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: syncWordTemplatePortalsDto
+    },
+      );
+    }
+  return {wordTemplateCreateWordTemplate,wordTemplateFindAllWordTemplates,wordTemplateFindPublic,wordTemplateFindByPortal,wordTemplateFindUserTemplates,wordTemplateFindOne,wordTemplateUpdate,wordTemplateRemove,wordTemplateDownloadTemplate,wordTemplateArchive,wordTemplateArchivePatch,wordTemplateUnarchive,wordTemplateUnarchivePatch,wordTemplateSetActiveWordTemplate,wordTemplateSetDefault,wordTemplateSyncPortals}};
 export type WordTemplateCreateWordTemplateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateCreateWordTemplate']>>>
 export type WordTemplateFindAllWordTemplatesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateFindAllWordTemplates']>>>
 export type WordTemplateFindPublicResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateFindPublic']>>>
@@ -197,6 +246,9 @@ export type WordTemplateUpdateResult = NonNullable<Awaited<ReturnType<ReturnType
 export type WordTemplateRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateRemove']>>>
 export type WordTemplateDownloadTemplateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateDownloadTemplate']>>>
 export type WordTemplateArchiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateArchive']>>>
+export type WordTemplateArchivePatchResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateArchivePatch']>>>
 export type WordTemplateUnarchiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateUnarchive']>>>
+export type WordTemplateUnarchivePatchResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateUnarchivePatch']>>>
 export type WordTemplateSetActiveWordTemplateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateSetActiveWordTemplate']>>>
 export type WordTemplateSetDefaultResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateSetDefault']>>>
+export type WordTemplateSyncPortalsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorWordTemplate>['wordTemplateSyncPortals']>>>

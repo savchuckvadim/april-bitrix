@@ -12,7 +12,7 @@ import type { QuestionnaireLostOptionDto } from './questionnaireLostOptionDto';
 
 export interface QuestionnaireCheckDiffDto {
   /**
-   * Подпись поля в Битриксе разошлась с формулировкой вопроса. null — совпадают.
+   * Поле ПЕРЕИМЕНОВАЛИ в Битриксе: живая подпись разошлась со слепком, который владелец принял (`meta.bitrixField.accepted`). null — не переименовывали. С формулировкой вопроса живая подпись НЕ сравнивается: она авторская («Дата решения» в поле против «Когда клиент примет решение?» в анкете), и такая строка загоралась бы почти у каждого вопроса.
    * @nullable
    */
   title: QuestionnaireCheckDiffDtoTitle;

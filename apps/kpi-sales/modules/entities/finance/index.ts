@@ -16,6 +16,7 @@ export {
 export { startFinanceWsListener } from './model/listeners/finance-ws.listener';
 export { startFinanceRefetchListener } from './model/listeners/finance-refetch.listener';
 export * from './lib/format-money.util';
+export * from './lib/period-caption.util';
 export * from './lib/period-shift.util';
 export * from './lib/month-buckets.util';
 export * from './lib/finance-calc.util';

@@ -1,4 +1,6 @@
 import type {
+    AiCallReportStatus,
+    AiFinanceSource,
     AiManagerRow,
     AiManagerSinceSource,
     AiRiskCall,
@@ -8,12 +10,17 @@ import {
     AI_SINCE_SOURCE_LABELS,
     aiObjectionCategoryLabel,
 } from '@/modules/entities/ai-analytics/lib/ai-overview.data';
-import {
-    AI_DISAGREE_REASON_MAX,
-    clampAiDisagreeReason,
-} from '@/modules/entities/ai-analytics/lib/ai-feedback.util';
+import type { AiHint } from '@/modules/entities/ai-analytics/lib/ai-metric.util';
 import { aiEvidenceWords, aiLeverView } from './ai-lever-view.util';
 import { aiLeverSectionLabel } from './ai-lever-target.util';
+import {
+    AI_NOT_ANALYZED_REASON,
+    aiNotAnalyzedReason,
+    isAiPeriodBeforeAnalysis,
+    type AiAnalysisPeriodContext,
+} from './ai-not-analyzed.util';
+import { AI_ANALYZED_TEXT, aiNotAnalyzedHint } from './ai-signal.texts';
+import { aiSignalHasPlanHead } from './ai-plan-head.util';
 
 /*
  * Чистая логика строки таблицы сигналов: советы (recommendations), стаж с
@@ -100,9 +107,7 @@ export const formatAiDateRu = (value: string): string => {
 /* ---------- Строка: стаж, «разобрано N из M», видимые колонки ---------- */
 
 export const AI_TENURE_UNKNOWN = 'стаж не задан';
-export const AI_TENURE_UNKNOWN_HINT = 'задайте дату в «Уровни»';
-export const AI_NOT_ANALYZED_HINT =
-    'звонки менеджера не попадают в разбор — см. «Готовность витрины»';
+export const AI_TENURE_UNKNOWN_HINT = 'задайте дату в «Настройки»';
 
 /** Подпись с подсказкой «что сделать»; hint null — подсказки нет. */
 export interface AiHintedLabel {
@@ -153,34 +158,99 @@ export const isAiRowOutOfAnalysis = (
     row: Pick<AiManagerRow, 'callsTotal' | 'discipline'>,
 ): boolean => row.callsTotal === 0 && row.discipline.callDone > 0;
 
-/** «разобрано N из M»; вне разбора — с подсказкой «см. Готовность витрины». */
-export const aiAnalyzedLabel = (
-    row: Pick<AiManagerRow, 'analyzedCalls' | 'callsTotal' | 'discipline'>,
-): AiHintedLabel => ({
-    text: `разобрано ${row.analyzedCalls} из ${row.callsTotal}`,
-    hint: isAiRowOutOfAnalysis(row) ? AI_NOT_ANALYZED_HINT : null,
-});
+/** Что знает строка о разборе на портале: статус конвейера, период, дата сравнимости. */
+export interface AiAnalyzedContext extends AiAnalysisPeriodContext {
+    callReport?: AiCallReportStatus;
+    /** Дата, с которой разборы сравнимы (обзор); пусто — null. */
+    comparableFrom: string | null;
+}
+
+/** «Разобрано N из M» или «AI-разборов нет» с подсказкой: что это и почему пусто. */
+export interface AiAnalyzedView {
+    text: string;
+    /** Подсказка (всегда у ненулевых; у нулевых — причина); null — сказать нечего. */
+    hint: AiHint | null;
+    /** Нулевая строка с причиной — подпись подсвечивается как предупреждение. */
+    warning: boolean;
+}
+
+/**
+ * Подпись «разобрано N из M» с подсказкой, что такое оба числа. При
+ * callsTotal = 0 — «AI-разборов нет · в CRM N звонков» и причина: период
+ * раньше старта разбора, вне пилота, вне отдела продаж, короче порога,
+ * иначе — «см. «Готовность витрины»». Без звонков в CRM и не до старта
+ * разбора подсказки нет: сравнивать нечего.
+ */
+export const aiAnalyzedView = (
+    row: Pick<
+        AiManagerRow,
+        'managerId' | 'departmentId' | 'analyzedCalls' | 'callsTotal' | 'discipline'
+    >,
+    ctx: AiAnalyzedContext,
+): AiAnalyzedView => {
+    if (row.callsTotal > 0) {
+        return {
+            text: AI_ANALYZED_TEXT.label(row.analyzedCalls, row.callsTotal),
+            hint: AI_ANALYZED_TEXT.hint(ctx.comparableFrom),
+            warning: false,
+        };
+    }
+    const crmCalls = row.discipline.callDone;
+    const text =
+        crmCalls > 0 ? AI_ANALYZED_TEXT.noneWithCrm(crmCalls) : AI_ANALYZED_TEXT.none;
+    const beforeStart = isAiPeriodBeforeAnalysis(ctx);
+    if (crmCalls === 0 && !beforeStart) return { text, hint: null, warning: false };
+    const reason = aiNotAnalyzedReason(row, ctx.callReport, ctx);
+    return {
+        text,
+        hint: aiNotAnalyzedHint(reason, {
+            analysisSince: ctx.analysisSince ?? null,
+            minDurationSec: ctx.callReport?.minDurationSec ?? null,
+        }),
+        // «Разбор ещё не шёл» — к сведению, не предупреждение.
+        warning: reason !== AI_NOT_ANALYZED_REASON.BEFORE_PIPELINE,
+    };
+};
 
 /** Колонки, которые показываем только при данных хотя бы у одной строки. */
 export interface AiSignalColumns {
     trends: boolean;
     yoy: boolean;
+    /** «План руководителя» — когда хоть у одной строки задан план. */
+    planHead: boolean;
 }
 
-/** Постоянные колонки: сотрудник, сигнал, цифра, корзины, продажи, аванс, чек, 2 плана, советы, «Не согласен». */
+/** Постоянные колонки: сотрудник, сигнал, цифра, корзины, сделки, аванс, месячная сумма, 2 колонки CRM, советы, «Не согласен». */
 export const AI_SIGNAL_FIXED_COLUMNS = 10 + AI_BUCKETS.length;
 
-/** «Тренды» и «Год назад» — только если хоть у одной строки они есть. */
+/** «Тренды», «Год назад» и «План руководителя» — только если хоть у одной строки они есть. */
 export const aiSignalColumns = (
-    rows: readonly Pick<AiManagerRow, 'trends' | 'yoy'>[],
+    rows: readonly Pick<AiManagerRow, 'trends' | 'yoy' | 'planTargets'>[],
 ): AiSignalColumns => ({
     trends: rows.some(row => !!row.trends),
     yoy: rows.some(row => !!row.yoy),
+    planHead: aiSignalHasPlanHead(rows),
 });
 
 /** Число видимых колонок — для colSpan строки-заголовка секции. */
 export const aiSignalColumnCount = (columns: AiSignalColumns): number =>
-    AI_SIGNAL_FIXED_COLUMNS + Number(columns.trends) + Number(columns.yoy);
+    AI_SIGNAL_FIXED_COLUMNS +
+    Number(columns.trends) +
+    Number(columns.yoy) +
+    Number(columns.planHead);
+
+/** Колонок до финансовых («Сделок»): сотрудник, сигнал, цифра, корзины, тренды, год назад. */
+export const aiSignalColumnsBeforeFinance = (columns: AiSignalColumns): number =>
+    3 + AI_BUCKETS.length + Number(columns.trends) + Number(columns.yoy);
+
+/** Финансовых колонок: сделок, аванс, месячная сумма. */
+export const AI_SIGNAL_FINANCE_COLUMNS = 3;
+
+/** Период закрытых продаж строк (у всех строк один); старый кэш без source — null. */
+export const aiFinanceSourceOf = (
+    rows: readonly Pick<AiManagerRow, 'finance'>[],
+): AiFinanceSource | null =>
+    rows.find(row => row.finance.source)?.finance.source ?? null;
 
 /** Сколько риск-звонков показывать в строке. */
 export const AI_RISK_CALLS_MAX = 3;
@@ -194,72 +264,5 @@ export const pickAiRiskCalls = (
         .sort((a, b) => b.callStartedAt.localeCompare(a.callStartedAt))
         .slice(0, max);
 
-/* ---------- «Не согласен»: причина из списка + комментарий ---------- */
-
-/** Причины несогласия со строкой обзора; в feedback уходит одной строкой reason. */
-export const AI_DISAGREE_REASONS = [
-    { code: 'score', label: 'Оценка не соответствует звонкам' },
-    { code: 'signal', label: 'Сигнал не по делу' },
-    { code: 'type', label: 'Тип звонка определён неверно' },
-    { code: 'data', label: 'Разобраны не все звонки' },
-    { code: 'other', label: 'Другое' },
-] as const;
-
-export type AiDisagreeReasonCode = (typeof AI_DISAGREE_REASONS)[number]['code'];
-
-export const isAiDisagreeReasonCode = (
-    value: string,
-): value is AiDisagreeReasonCode =>
-    AI_DISAGREE_REASONS.some(reason => reason.code === value);
-
-export const aiDisagreeReasonLabel = (
-    code: AiDisagreeReasonCode | null,
-): string | null =>
-    code
-        ? (AI_DISAGREE_REASONS.find(reason => reason.code === code)?.label ??
-          null)
-        : null;
-
-/** Разделитель «Подпись: комментарий». */
-const REASON_SEPARATOR = ': ';
-
-/** Сколько символов остаётся комментарию, чтобы «подпись: комментарий» уложились в лимит. */
-export const aiDisagreeCommentMax = (
-    code: AiDisagreeReasonCode | null,
-): number => {
-    const label = aiDisagreeReasonLabel(code);
-    return label
-        ? Math.max(
-              0,
-              AI_DISAGREE_REASON_MAX - label.length - REASON_SEPARATOR.length,
-          )
-        : AI_DISAGREE_REASON_MAX;
-};
-
-export const clampAiDisagreeComment = (
-    code: AiDisagreeReasonCode | null,
-    value: string,
-): string => {
-    const max = aiDisagreeCommentMax(code);
-    return value.length > max ? value.slice(0, max) : value;
-};
-
-/** Причина для feedback: «Подпись: комментарий» | подпись | комментарий; пусто — undefined. */
-export const composeAiDisagreeReason = (
-    code: AiDisagreeReasonCode | null,
-    comment: string,
-): string | undefined => {
-    const label = aiDisagreeReasonLabel(code);
-    const text = clampAiDisagreeComment(code, comment).trim();
-    const joined =
-        label && text ? `${label}${REASON_SEPARATOR}${text}` : (label ?? text);
-    const result = clampAiDisagreeReason(joined).trim();
-    return result.length ? result : undefined;
-};
-
-/** Счётчик комментария «введено / доступно». */
-export const formatAiDisagreeCommentCounter = (
-    code: AiDisagreeReasonCode | null,
-    value: string,
-): string =>
-    `${clampAiDisagreeComment(code, value).length} / ${aiDisagreeCommentMax(code)}`;
+/* «Не согласен»: причина из списка + комментарий — ai-disagree.util.ts. */
+export * from './ai-disagree.util';

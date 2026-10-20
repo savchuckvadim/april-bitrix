@@ -30,13 +30,17 @@ export const section = (
     explanation: { text: '', basis: [], evidenceCallIds: [] },
 });
 
-/** Справочник типов портала: подписи cold/presentation с бэка, остальные — фолбэк. */
+/**
+ * Справочник типов портала: подписи cold/presentation/event_invite с бэка,
+ * остальные — фолбэк. Приглашение на мероприятие — своя колонка без корзины.
+ */
 export const CALL_TYPES: AiCallType[] = [
     {
         code: 'cold',
         title: 'Холодный',
         tone: 'event-cold',
         bucket: 'contact',
+        column: true,
         kpiPrimaryEventTypeCode: null,
     },
     {
@@ -44,8 +48,34 @@ export const CALL_TYPES: AiCallType[] = [
         title: 'Презентация',
         tone: 'event-pres',
         bucket: 'presentation',
+        column: true,
         kpiPrimaryEventTypeCode: null,
     },
+    {
+        code: 'event_invite',
+        title: 'Мероприятие',
+        tone: 'info',
+        bucket: null,
+        column: true,
+        kpiPrimaryEventTypeCode: 'seminar',
+    },
+];
+
+/** Строки матрицы с приглашениями на мероприятие у менеджера 7 (9 разборов, оценка 4,1). */
+export const matrixRowsWithInvites = (): AiByTypeWideRow[] => [
+    ...matrixRows(),
+    wideRow({
+        managerId: '7',
+        finance: matrixRows()[0]!.finance,
+        cell: cell({
+            callType: 'event_invite',
+            title: 'Мероприятие',
+            bucket: null,
+            n: 9,
+            score: metric(4.1, 9),
+            sections: [],
+        }),
+    }),
 ];
 
 const finance = (

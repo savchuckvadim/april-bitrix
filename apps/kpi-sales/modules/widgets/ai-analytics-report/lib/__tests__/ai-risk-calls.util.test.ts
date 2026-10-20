@@ -14,7 +14,7 @@ const CARD_LINK = 'https://april.bitrix24.ru/crm/type/1036/details/128/';
 
 const riskCall = (overrides: Partial<AiRiskCall> = {}): AiRiskCall => ({
     transcriptionId: 't-1',
-    kind: 'promise',
+    kind: 'conflict',
     callStartedAt: '2026-09-10T10:00:00Z',
     link: null,
     ...overrides,
@@ -66,7 +66,7 @@ describe('ai-risk-calls.util — ссылка на разбор', () => {
     it('обзор, сохранённый до появления ссылок (поля нет), — ссылки нет', () => {
         const cached: Partial<AiRiskCall> = {
             transcriptionId: 't-1',
-            kind: 'promise',
+            kind: 'conflict',
             callStartedAt: '2026-09-10T10:00:00Z',
         };
         expect(aiRiskCallLink(cached)).toBeNull();
@@ -92,7 +92,7 @@ describe('ai-risk-calls.util — подпись на месте ссылки', (
     it('обзор, сохранённый до появления ссылок (поля нет), — про разбор ничего не утверждаем', () => {
         const cached: Partial<AiRiskCall> = {
             transcriptionId: 't-1',
-            kind: 'promise',
+            kind: 'conflict',
             callStartedAt: '2026-09-10T10:00:00Z',
         };
         expect(aiRiskCallNoLinkText(cached)).toBeNull();

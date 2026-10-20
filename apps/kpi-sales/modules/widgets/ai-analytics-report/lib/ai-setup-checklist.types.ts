@@ -55,6 +55,8 @@ export const AI_CHECKLIST_ITEM = {
     ACCESS: 'access',
     CALL_COVERAGE: 'call-coverage',
     PILOT: 'pilot',
+    /** Сотрудник из списка разбора без строки в обзоре (не в фильтре или не в отделе продаж). */
+    PILOT_HIDDEN: 'pilot-hidden',
     NOT_ANALYZED: 'not-analyzed',
     PIPELINE: 'pipeline',
     DATA_QUALITY: 'data-quality',

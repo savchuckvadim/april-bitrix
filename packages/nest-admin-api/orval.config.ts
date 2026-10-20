@@ -11,7 +11,13 @@
 // приходят циклическим импортом: 2026-07-20 так выродились в string
 // ContractDto.code, OfferTemplateDto.visibility и OfferTemplateSummaryDto —
 // с живого сервера те же файлы генерируются корректно.
-const baseurl = `http://localhost:3004/docs/api-json`;
+//
+// Офлайн-вариант (как у nest-kpi-report-sales-api): выгрузить спеку
+// `back/scripts/dump-openapi.ts admin out.json` и передать файл через
+// ORVAL_INPUT=<путь к json> pnpm generate. После генерации сверьте diff
+// generated/ — перечисления DTO с циклическими импортами могут выродиться.
+const baseurl =
+    process.env.ORVAL_INPUT ?? `http://localhost:3004/docs/api-json`;
 // const baseurl = `https://api.admin.april-app.ru/docs/api-json`; // prod URL — TBD
 export default {
     api: {

@@ -20,6 +20,7 @@
 | `style`     | `manager/style` | sync (снапшот ночного шага) | `…\|#\|style\|managerId\|month`     |
 | `about[e]`  | `about`         | sync, кэш по ручке `e`      | `…\|#\|about\|endpoint`             |
 | `typesMatrix` | `by-type` (`all` × `wide`) | **очередь + WS** (ключ обзора) | как overview + `\|#\|types-matrix` |
+| `feedbackList` | `feedback/list` | sync (страница сотрудника) | `…\|#\|feedback-list\|from\|to\|managerId` |
 
 Каждая секция — `AiSection<T>`: `status` (idle | loading | ready | error),
 `data`, `requestKey` (наш ключ, `lib/ai-request-key.util.ts`), `serverKey`
@@ -69,8 +70,14 @@ HTTP-ошибки (403 «план дня выключен», 403 «вне пер
   срез by-type «все типы × wide» для блоков KPI-вида «AI: типы звонков» и
   «AI: разделы оценки по типу» (секция `typesMatrix`, от подвкладки drawer
   не зависит; refetch по смене фильтра и после `levelsSaved`). Сборка
-  таблиц RTable, рейтингов и CSV — `lib/ai-matrix-table.util.ts`,
-  `lib/ai-types-matrix*.util.ts`, `lib/ai-sections-matrix.util.ts`;
+  таблиц RTable, рейтингов и CSV — `lib/ai-matrix-table.util.ts` (сырые
+  ячейки → итоги колонок → представление с нормой), `lib/ai-matrix-cell.util.ts`
+  (оценка крупно / «ещё N» / «предварительно» / цвет), `lib/ai-matrix-norm.util.ts`,
+  `lib/ai-matrix-buckets.util.ts` (корзины типов, зеркало карты бэка),
+  `lib/ai-matrix-totals.util.ts` (строка «Итого по отделу»),
+  `lib/ai-matrix-coverage.util.ts` (причина пустой матрицы),
+  `lib/ai-types-matrix*.util.ts`, `lib/ai-sections-matrix.util.ts`; тексты
+  ячеек — `lib/ai-matrix.texts.ts`;
 - `ai-analytics-rop-mark.thunks.ts` — **`fetchAiRopMarkWeek(query?,
 force?)`**: `list`; если подбора ещё нет (`generatedAt === ''`,
   `calls: []` — `isAiRopMarkWeekEmpty`) и requester — руководитель → `pick`

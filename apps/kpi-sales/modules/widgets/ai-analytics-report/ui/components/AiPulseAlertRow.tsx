@@ -5,13 +5,13 @@ import { Button } from '@workspace/ui/components/button';
 import { HintTooltip, ToneBadge } from '@workspace/april-ui';
 import { useAppSelector } from '@/modules/app';
 import {
-    AI_ALERT_HANDLED_HINT,
-    AI_ALERT_KIND,
     AI_ALERT_NO_LINK_TEXT,
     AI_ALERT_OPEN_LINK_LABEL,
     AI_FEEDBACK_OBJECT,
+    AI_PULSE_TEXT,
     aiAlertActionLine,
     aiAlertHintLines,
+    aiAlertKindView,
     aiAlertLink,
     formatAiMoment,
     selectAiIsLeader,
@@ -20,6 +20,7 @@ import {
 import { useAiFeedback } from '../../hooks/use-ai-feedback';
 import { useAiManagerName } from '../../hooks/use-ai-manager-name';
 import { AiFeedbackError } from './AiFeedbackError';
+import { AiManagerName } from './AiManagerName';
 import { AiReadOnlyHint } from './AiReadOnlyHint';
 
 interface AiPulseAlertRowProps {
@@ -56,13 +57,15 @@ const AlertLink = ({ alert }: { alert: AiPulseAlert }) => {
 export const AiPulseAlertRow = ({ alert }: AiPulseAlertRowProps) => {
     const managerName = useAiManagerName();
     const isLeader = useAppSelector(selectAiIsLeader);
-    const kind = AI_ALERT_KIND[alert.kind];
+    // Старый кэш может нести вид, которого в словаре больше нет.
+    const kind = aiAlertKindView(alert.kind);
     const { disabled, readOnlyHint, error, send } = useAiFeedback(
         'alert_handled',
         AI_FEEDBACK_OBJECT.call(alert.transcriptionId),
         { managerId: alert.managerId, transcriptionId: alert.transcriptionId },
     );
 
+    const H = AI_PULSE_TEXT.handled;
     const handledButton = (
         <Button
             variant="outline"
@@ -71,7 +74,7 @@ export const AiPulseAlertRow = ({ alert }: AiPulseAlertRowProps) => {
             disabled={disabled}
             onClick={() => void send('alert_handled')}
         >
-            Отработано
+            {H.button}
         </Button>
     );
 
@@ -89,9 +92,13 @@ export const AiPulseAlertRow = ({ alert }: AiPulseAlertRowProps) => {
                             </ToneBadge>
                         </span>
                     </HintTooltip>
-                    <span className="font-medium text-foreground">
-                        {managerName(alert.managerId)}
-                    </span>
+                    {alert.managerId ? (
+                        <AiManagerName managerId={alert.managerId} tab="calls" />
+                    ) : (
+                        <span className="font-medium text-foreground">
+                            {managerName(alert.managerId)}
+                        </span>
+                    )}
                     <span className="text-muted-foreground">
                         {formatAiMoment(alert.callStartedAt)}
                     </span>
@@ -108,19 +115,28 @@ export const AiPulseAlertRow = ({ alert }: AiPulseAlertRowProps) => {
             </div>
             <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
                 {alert.handled ? (
-                    <ToneBadge tone="success" variant="soft" size="sm">
-                        <Check /> Отработан
-                    </ToneBadge>
+                    <HintTooltip title={H.badgeHint.title} lines={[...H.badgeHint.lines]}>
+                        <span>
+                            <ToneBadge tone="success" variant="soft" size="sm">
+                                <Check /> {H.badge}
+                            </ToneBadge>
+                        </span>
+                    </HintTooltip>
                 ) : !isLeader ? (
-                    <span className="text-xs text-muted-foreground">
-                        Отмечает руководитель
-                    </span>
+                    <HintTooltip
+                        title={H.managerWaitHint.title}
+                        lines={[...H.managerWaitHint.lines]}
+                    >
+                        <span className="cursor-help text-xs text-muted-foreground">
+                            {H.managerWait}
+                        </span>
+                    </HintTooltip>
                 ) : readOnlyHint ? (
                     <AiReadOnlyHint hint={readOnlyHint}>
                         {handledButton}
                     </AiReadOnlyHint>
                 ) : (
-                    <HintTooltip title={AI_ALERT_HANDLED_HINT}>
+                    <HintTooltip title={H.hint.title} lines={[...H.hint.lines]}>
                         {handledButton}
                     </HintTooltip>
                 )}

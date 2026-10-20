@@ -6,10 +6,24 @@
  * OpenAPI spec version: 1.0
  */
 import type { WordTemplateFindAllWordTemplatesVisibility } from './wordTemplateFindAllWordTemplatesVisibility';
+import type { ClientTypeEnum } from './clientTypeEnum';
+import type { SupplyTypeEnum } from './supplyTypeEnum';
 
 export type WordTemplateFindAllWordTemplatesParams = {
 visibility?: WordTemplateFindAllWordTemplatesVisibility;
 portal_id?: string;
 is_active?: boolean;
 search?: string;
+/**
+ * Фильтр по агенту (поставщику).
+ */
+agent_id?: string;
+/**
+ * Фильтр по типу клиента. Совпадение считается в TypeScript: список лежит JSON-ом в LongText, у Prisma нет операций по массивам в строковой колонке, а сырой SQL в проекте запрещён. Шаблоны с NULL («для любого») в выборку попадают.
+ */
+client_type?: ClientTypeEnum;
+/**
+ * Фильтр по типу поставки. Считается так же, в TypeScript; шаблоны с NULL («для любого») в выборку попадают.
+ */
+supply_type?: SupplyTypeEnum;
 };

@@ -25,6 +25,7 @@ export {
     AI_DAILY_PLAN_DISABLED_MESSAGE,
     fetchAiAgenda,
     fetchAiDailyPlan,
+    fetchAiFeedbackList,
     fetchAiPlanFact,
     fetchAiPulse,
     fetchAiSettings,

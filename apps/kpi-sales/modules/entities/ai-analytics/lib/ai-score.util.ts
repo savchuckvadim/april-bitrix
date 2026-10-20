@@ -49,6 +49,9 @@ export const aiLongRowMetricKind = (
     }
 };
 
+/** Как читать оценку звонка — одна строка для подсказок у любой цифры 1–10. */
+export const AI_SCORE_SCALE_HINT = `Оценка звонка AI от 1 до 10: ${AI_SCORE_TONE_THRESHOLDS.success} и выше — хорошо, от ${AI_SCORE_TONE_THRESHOLDS.warning} до ${AI_SCORE_TONE_THRESHOLDS.success} — средне, ниже ${AI_SCORE_TONE_THRESHOLDS.warning} — плохо.`;
+
 /** Доля полосы для оценки 1–10 (6.4 → 0.64); null → 0. */
 export const aiScoreShare = (value: number | null | undefined): number =>
     value === null || value === undefined

@@ -3,12 +3,38 @@
 Композиция вкладки (грузится лениво из `report-view/blocks/lazy`). Данные и
 логика — в `entities/ai-analytics`; здесь только хуки-адаптеры и вёрстка.
 
-## Экран
+## Экран (подвкладки, 21.10.2026)
 
-`ui/AiAnalyticsReport.tsx` → `AiTabHeader` (Уровни · Пересчитать · Обновить)
-→ `AiReadinessBanner` → `AiPulseCard` → `AiAttentionList` → `AiAgendaCard`
-→ `AiSignalTable` → `AiTypesDrawer` (второй уровень) → `AiLevelsDialog`.
-В kpi-only вместо секций с оценками — `components/AiKpiOnlyNote`.
+`ui/AiAnalyticsReport.tsx` → `AiTabHeader` (Настройки · Пересчитать · Обновить)
+→ `AiReadinessBanner` → `AiTabsBar` → одна из подвкладок (`ui/tabs/*`):
+
+- **Сводка** (`AiSummaryTab`, по умолчанию): пульс, итоги периода, «Внимание»,
+  повестка, план дня, план-факт, прогноз отдела.
+- **Сотрудники** (`AiEmployeesTab`): таблица сигналов + раскрытые секции
+  настроек по людям («Уровни», «Цели по уровням», «Отсутствия», «Состав») —
+  `components/AiSettingsInline` на том же `useAiSettingsForm`, что и диалог
+  (общая кнопка «Сохранить», подтверждение сдвига истории, сводка).
+- **Качество звонков** (`AiQualityTab`): три звонка недели, матрицы типов и разделов.
+- **Настройки витрины** (`AiShowcaseSettingsTab`): «Гипотеза качества», «Пул
+  порталов» (тем же инлайном) и `components/AiHowWeCountList` — «Как считаем»
+  по каждому разделу.
+
+Подвкладка живёт в URL (`?aiTab=`, `lib/ai-tabs.ts`, хук `use-ai-tab`),
+секция настроек — в `?aiSection=` (кнопка «Настройки» шапки, пункты чек-листа
+и «Задать цель» плана дня ведут на подвкладку и прокручивают к секции —
+`aiSettingsSectionId`). Переключение данные не перезапрашивает — секции стора
+общие. `AiTypesDrawer` смонтирован на уровне вкладки. `AiLevelsDialog` остался
+тонкой обёрткой тех же секций (сейчас не используется экраном). В kpi-only
+вместо секций с оценками — `components/AiKpiOnlyNote`, настройки доступны.
+
+Имена сотрудников везде — `components/AiManagerName` (ссылка на страницу
+сотрудника `/report/user?userId=…`, при необходимости с подвкладкой AI-раздела
+`aiUserTab=` — словарь `entities/ai-analytics/lib/ai-employee-tabs.data.ts`);
+«Стиль» и «Досье» в строке таблицы сигналов — ссылки на страницу сотрудника,
+диалоги `AiStyleDialog` / `AiDossierDialog` — запасной путь без ссылки
+(публичный снимок), их содержимое вынесено в `components/AiStyleCardBody` и
+`components/AiDossierBody`. Страница сотрудника — `widgets/ai-employee`,
+переиспользуемые части экспортирует `index.ts`.
 
 - **Внимание** (`AiAttentionList` + `components/AiAttentionCard`): ≤ 7
   карточек, `ToneBadge` сигнала с `HintTooltip «Основание»` из `basis`,
@@ -45,30 +71,51 @@
 Два блока после таблицы сигналов, в обёртке `ReportBlockWrapper` (как блоки
 KPI-отчёта) и на секции `typesMatrix` сущности (срез «все типы × wide» в
 периметре глобального фильтра: период + выбранные менеджеры; очередь + WS,
-общий источник — `hooks/use-ai-types-matrix-source`). Таблицы — `RTable`
-april-ui (`components/AiMatrixTable`, аннотации-подстроки «↳ оценка 6,4» /
-«↳ мало данных»), вкладки Сводный / По отделам / По группам — `ReportGroupTabs`,
-рейтинги — `components/AiMatrixRatingFooter`: победители по счётчикам
-(`EntityRatingChart` фичи report-rating) и по оценке
-(`components/AiScoreRatingChart` — взвешенное по n среднее
-`weightedAiScoreRating` сущности, ось 0..10, скрыт при < 2 сущностях с
-оценкой; оценки никогда не суммируются). CSV — `exportTableToCSV` поверх
-`buildAiMatrixCsvTable` (колонки оценок рядом со счётчиками).
+общий источник — `hooks/use-ai-types-matrix-source`). Решение владельца
+20.10.2026 (inv_matrices-ux): ячейка — оценка крупно («6,4»), мелко «по 18
+звонкам»; при n < 8 — «ещё N» и «до оценки», при 8–19 — «предварительно»
+без цвета; от 20 — цвет относительно строки «Итого по отделу»
+(`presentAiScoreCell` сущности, порог ±0,5 балла `AI_MATRIX_NORM_DELTA`);
+подсказка ячейки — текст бэка `explanation.text`, иначе «выше/ниже среднего
+по отделу». Таблицы — `RTable` april-ui (`components/AiMatrixTable`:
+`display`/`className`/`tooltip` ячейки, клик по шапке типа →
+`useAiTypesDrawer().openWithType`) + строка `components/AiMatrixTotalsRow`
+(отдельная RTable с одной строкой id 0, как `KPIReportTotalTable`).
+Сотрудники без разборов скрыты, `components/AiMatrixHiddenNote` раскрывает.
+Легенда — `components/AiMatrixLegend`; пустое состояние с причиной и
+действием («Показать с даты», «Добавить в фильтр») —
+`components/AiMatrixEmptyState` поверх `aiMatrixCoverageReason` сущности и
+`hooks/use-ai-matrix-filter-actions`. «Сводный» — `components/AiMatrixSummary`:
+таблица → итог → профиль (`components/AiMatrixProfileChart`: оценки
+сотрудника рядом со средним по отделу, показывается и для одного) →
+средняя оценка по сотрудникам → больше всего разборов. Вкладки По отделам /
+По группам — `ReportGroupTabs` со своим итогом на секцию, футер —
+`components/AiMatrixRatingFooter` («Больше всего разборов», «Средняя
+оценка … (взвешено по числу звонков)»; `components/AiScoreRatingChart`:
+линия среднего по отделу, виден и при одной сущности с нормой, подпись
+«порядок предварительный» при < 50 разборов — `AI_RATING_MIN_N`). CSV —
+`buildAiMatrixCsvRows` (оценка и число разборов отдельными колонками,
+«ещё N до оценки» вместо нуля, строка итогов).
 
-- **«AI: типы звонков»** (`hooks/use-ai-types-matrix`): менеджер × тип
-  (разборов + оценка типа) и хвост продаж «Продажи, шт. / Аванс, ₽ / Мес. чек, ₽»;
-  чипы-фильтр типов (`components/AiTypesFilterChips`, localStorage
-  `ai-types-matrix-hidden`, коды через запятую) — скрытые типы исключены из
-  таблицы, итогов, CSV и рейтингов; под сводной таблицей — «Итоги по типам»
-  (`AiTypeTotalsList` по видимым типам).
-- **«AI: разделы оценки по типу»** (`hooks/use-ai-sections-matrix`):
-  `MicroSegmented` по типам со звонками за период (localStorage
-  `ai-sections-matrix-type`, протухший выбор → первый тип), менеджер × разделы
-  рубрики типа (оценённых звонков + средняя) и сводная колонка «Все разборы».
+- **«AI: типы звонков»** (`hooks/use-ai-types-matrix`): переключатель колонок
+  `components/AiMatrixModeSwitch` — «Корзины» по умолчанию (Контакт /
+  Презентация / Закрытие из `settings.callTypes.bucket`, точные оценки из
+  `overview.managers[].buckets`, иначе сложены из ячеек) или «По типам»
+  (localStorage `ai-types-matrix-mode`); типы вне корзин («Мероприятие» с
+  пометкой «вне средней оценки», прочее) — своей колонкой; хвост продаж;
+  чипы-фильтр типов (`components/AiTypesFilterChips`, `ai-types-matrix-hidden`).
+- **«AI: разделы оценки по типу»** (`hooks/use-ai-sections-matrix`): по
+  умолчанию «Все типы» (разделы складываются по видам звонков с корзиной),
+  тип — фильтр `MicroSegmented` (localStorage `ai-sections-matrix-type`);
+  разделы по ходу разговора (`AI_CALL_SECTION_CODES`), колонка «Итог»;
+  подсказки шапки — раздел + «важен на X %» из `totalsByType[].sections`.
 - Чистая логика вида — `lib/ai-types-matrix-view.util.ts` (чипы, менеджеры со
-  звонками, итоги, выбор типа, показатели графиков) и
-  `lib/ai-score-rating-chart.util.ts` (график оценок); тесты в `lib/__tests__/`.
-  Импорты сущности в утилитах точечные (model / lib) — баррел тянет UI.
+  звонками, выбор типа, показатели), `lib/ai-matrix-hints.util.ts` (подсказки
+  шапок), `lib/ai-matrix-legend.util.ts`, `lib/ai-matrix-empty.util.ts`,
+  `lib/ai-matrix-profile-chart.util.ts`, `lib/ai-score-rating-chart.util.ts`;
+  тексты — `lib/ai-matrix-texts.ts` (тест на правила владельца); тесты в
+  `lib/__tests__/`. Импорты сущности в утилитах точечные (model / lib) —
+  баррел тянет UI.
 
 ## Состояния тяжёлых секций — `components/AiQueuedState`
 

@@ -139,4 +139,9 @@ export interface PortalAiSettingsResponseDto {
    * @nullable
    */
   complianceReviewEnabled: boolean | null;
+  /**
+   * Названия НАШИХ организаций на этом портале: как менеджеры представляются клиенту («Альфа-центр», «Апрель»). Разбор считает представление одним из этих имён нормой и не снижает за него оценку. Пусто — прежнее поведение.
+   * @nullable
+   */
+  ownOrgNames: string[] | null;
 }

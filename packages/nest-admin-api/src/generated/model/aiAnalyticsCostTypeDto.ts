@@ -5,10 +5,11 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { AiAnalyticsCostTypeDtoType } from './aiAnalyticsCostTypeDtoType';
 
 export interface AiAnalyticsCostTypeDto {
-  /** Тип снапшота, чьи записи несли вызов модели. */
-  type: string;
+  /** Тип ais-записи, чьи записи несли вызов модели: снапшот AI-аналитики (резюме и др.), глубокий разбор звонка (agent-analysis) или его test-retest повтор (agent-analysis-retest). */
+  type: AiAnalyticsCostTypeDtoType;
   /** Записей с вызовом модели (tokens_count > 0). */
   calls: number;
   /** Суммарно токенов по колонке tokens_count. */

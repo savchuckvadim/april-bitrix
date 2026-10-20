@@ -40,6 +40,8 @@ export interface DeepRoute {
     isAiAnalyticsAudit: boolean;
     /** Экран «Модель и обратная связь» раздела AI-аналитики. */
     isAiAnalyticsModel: boolean;
+    /** Экран «Путеводитель» раздела AI-аналитики. */
+    isAiAnalyticsGuide: boolean;
     isPortalEvent: boolean;
     isPortalKonstructor: boolean;
     isStatisticsTranscription: boolean;
@@ -81,6 +83,7 @@ export const resolveDeepRoute = (
     const isAiAnalytics = root === 'ai-analytics';
     const isAiAnalyticsAudit = isAiAnalytics && second === 'audit';
     const isAiAnalyticsModel = isAiAnalytics && second === 'model';
+    const isAiAnalyticsGuide = isAiAnalytics && second === 'guide';
     const isHooks = root === 'hooks';
     const isPortalList = isPortal && second === 'list';
 
@@ -149,6 +152,7 @@ export const resolveDeepRoute = (
         isAiAnalytics,
         isAiAnalyticsAudit,
         isAiAnalyticsModel,
+        isAiAnalyticsGuide,
         isPortalEvent,
         isPortalKonstructor,
         isStatisticsTranscription,

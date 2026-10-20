@@ -93,13 +93,48 @@ describe('разбор звонков и пилот', () => {
         });
         expect(item?.title).toBe('Пилот: разбираются звонки 3 сотрудников');
         expect(item?.detail).toBe(
-            'В разборе: Менеджер 7, Менеджер 9, Менеджер 11. У остальных менеджеров оценок не будет, пока пилот не расширят.',
+            'В разборе: Менеджер 7, Менеджер 9, Менеджер 11. Во вкладке показаны только они. Остальные появятся здесь, когда их добавят в разбор, — попросите разработчика.',
         );
         expect(item?.optional).toBe(true);
         expect(item?.actions[0]).toEqual({
             kind: AI_CHECKLIST_ACTION.TEXT,
             text: T.pilot.widen,
         });
+    });
+
+    it('сотрудник из разбора без строки в обзоре — «к сведению» с двумя «что сделать»', () => {
+        const item = itemOf(AI_CHECKLIST_ITEM.PILOT_HIDDEN, {
+            overview: readyOverview([passportRow({ managerId: '7' })]),
+            settings: settings({
+                callReport: callReport({ pilotUserIds: ['7', '9'] }),
+            }),
+        });
+        expect(item?.status).toBe(AI_CHECKLIST_STATUS.TODO);
+        expect(item?.optional).toBe(true);
+        expect(item?.title).toBe('1 сотрудника из разбора не видно во вкладке');
+        expect(item?.detail).toContain('Менеджер 9');
+        expect(item?.detail).toContain('не состоит в отделе продаж');
+        expect(item?.actions).toEqual([
+            { kind: AI_CHECKLIST_ACTION.TEXT, text: T.pilotHidden.fixFilter },
+            { kind: AI_CHECKLIST_ACTION.TEXT, text: T.pilotHidden.fixSales },
+        ]);
+        // Все из разбора в строках — пункта нет; без обзора — тоже.
+        expect(
+            itemOf(AI_CHECKLIST_ITEM.PILOT_HIDDEN, {
+                overview: readyOverview([passportRow({ managerId: '7' })]),
+                settings: settings({
+                    callReport: callReport({ pilotUserIds: ['7'] }),
+                }),
+            }),
+        ).toBeUndefined();
+        expect(
+            itemOf(AI_CHECKLIST_ITEM.PILOT_HIDDEN, {
+                overview: null,
+                settings: settings({
+                    callReport: callReport({ pilotUserIds: ['7', '9'] }),
+                }),
+            }),
+        ).toBeUndefined();
     });
 
     it('пилот из одного сотрудника — «1 сотрудника»; null или выключено — пункта нет', () => {
@@ -179,6 +214,39 @@ describe('менеджеры вне разбора (not-analyzed)', () => {
         expect(aiNotAnalyzedReason(row, callReport())).toBe(
             AI_NOT_ANALYZED_REASON.OTHER,
         );
+    });
+
+    it('период раньше старта разбора — «к сведению»: разбор ещё не шёл, выберите период позже', () => {
+        const base = readyOverview([silentRow('3'), silentRow('5')]);
+        const item = itemOf(AI_CHECKLIST_ITEM.NOT_ANALYZED, {
+            overview: {
+                ...base,
+                period: { ...base.period, from: '2026-04-27', to: '2026-07-01' },
+            },
+            settings: settings({ analysisSince: '2026-07-21' }),
+        });
+        expect(item?.status).toBe(AI_CHECKLIST_STATUS.TODO);
+        expect(item?.optional).toBe(true);
+        expect(item?.title).toBe(T.notAnalyzed.beforeStartTitle);
+        expect(item?.detail).toContain('идёт с 21.07.2026');
+        expect(item?.detail).toContain('у 2 менеджеров');
+        expect(item?.actions).toEqual([
+            { kind: AI_CHECKLIST_ACTION.TEXT, text: T.notAnalyzed.beforeStartFix },
+        ]);
+        // Период после старта — обычная цепочка причин.
+        expect(
+            itemOf(AI_CHECKLIST_ITEM.NOT_ANALYZED, {
+                overview: base,
+                settings: settings({ analysisSince: '2026-07-21' }),
+            })?.title,
+        ).toBe('Звонки 2 менеджеров не попадают в разбор');
+        expect(
+            aiNotAnalyzedReason(
+                { managerId: '3', departmentId: 10 },
+                callReport({ pilotUserIds: ['7'] }),
+                { periodTo: '2026-07-01', analysisSince: '2026-07-21' },
+            ),
+        ).toBe(AI_NOT_ANALYZED_REASON.BEFORE_PIPELINE);
     });
 
     it('порог длительности в подписи: «звонки короче 30 сек»', () => {

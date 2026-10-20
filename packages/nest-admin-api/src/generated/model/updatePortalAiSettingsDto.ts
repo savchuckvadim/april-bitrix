@@ -148,4 +148,9 @@ export interface UpdatePortalAiSettingsDto {
    * @nullable
    */
   complianceReviewEnabled?: boolean | null;
+  /**
+   * Названия наших организаций (как менеджеры представляются клиенту). Пустой список или null — сбросить: разбор перестанет считать эти имена своими.
+   * @nullable
+   */
+  ownOrgNames?: string[] | null;
 }

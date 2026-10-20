@@ -21,6 +21,7 @@ export const AiCallTypeDtoCode = {
     refine: 'refine',
     decision: 'decision',
     payment: 'payment',
+    event_invite: 'event_invite',
     other: 'other',
     irrelevant: 'irrelevant',
 } as const;

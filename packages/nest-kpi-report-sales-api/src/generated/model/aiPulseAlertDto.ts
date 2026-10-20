@@ -15,9 +15,9 @@ export interface AiPulseAlertDto {
     managerId: string | null;
     /** Id транскрипции звонка. */
     transcriptionId: string;
-    /** Вид сигнала: риск-флаг разбора (promise/conflict/compliance/client_negative) либо urgent — срочный приоритет коучинга. */
+    /** Вид сигнала: действующий риск-флаг разбора с цитатой (conflict — конфликт / грубость, compliance — нарушение регламента, door_closed — после отказа не оставил дверь открытой) либо urgent — срочный приоритет коучинга. Отменённые флаги (promise, client_negative) сигналом не считаются даже в старых данных. */
     kind: AiPulseAlertDtoKind;
-    /** Цитата из разбора (возражение или худший раздел); может быть пустой. */
+    /** Цитата: доказательство риск-флага, иначе возражение или худший раздел разбора; может быть пустой. */
     quote: string;
     /** Начало звонка (ISO 8601). */
     callStartedAt: string;

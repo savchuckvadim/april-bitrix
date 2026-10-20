@@ -8,8 +8,9 @@ import {
     PopoverTrigger,
 } from '@workspace/ui/components/popover';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { MicroSelect } from '@workspace/april-ui';
+import { HintTooltip, MicroSelect } from '@workspace/april-ui';
 import { useAiDisagree } from '../../hooks/use-ai-disagree';
+import { AI_SIGNAL_ROW_BUTTON } from '../../lib/ai-signal.texts';
 import { AiFeedbackError } from './AiFeedbackError';
 import { AiReadOnlyHint } from './AiReadOnlyHint';
 
@@ -49,13 +50,7 @@ export const AiDisagreeButton = ({ managerId }: AiDisagreeButtonProps) => {
             size="sm"
             className="h-7 gap-1 px-2 text-xs"
             disabled={disabled}
-            title={
-                readOnlyHint
-                    ? undefined
-                    : disagreed
-                      ? 'Несогласие записано'
-                      : 'Не согласен с разбором'
-            }
+            title={readOnlyHint || disagreed ? 'Несогласие записано' : undefined}
         >
             <MessageSquareWarning className="h-3.5 w-3.5" />
             {disagreed ? 'Записано' : 'Не согласен'}
@@ -66,9 +61,21 @@ export const AiDisagreeButton = ({ managerId }: AiDisagreeButtonProps) => {
         return <AiReadOnlyHint hint={readOnlyHint}>{trigger}</AiReadOnlyHint>;
     }
 
+    // Подсказка «что это и куда попадёт» — пока несогласие не записано.
+    const hinted = disagreed ? (
+        trigger
+    ) : (
+        <HintTooltip
+            title={AI_SIGNAL_ROW_BUTTON.disagree.title}
+            lines={[...AI_SIGNAL_ROW_BUTTON.disagree.lines]}
+        >
+            {trigger}
+        </HintTooltip>
+    );
+
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+            <PopoverTrigger asChild>{hinted}</PopoverTrigger>
             <PopoverContent align="end" className="w-80 space-y-2 p-3">
                 <p className="text-sm font-medium">Не согласен с разбором</p>
                 <MicroSelect

@@ -8,21 +8,34 @@ import type {
 
 /*
  * Сверка «план — факт» месяца: подписи показателей и статусов, формат
- * темпа и «в день надо», ключ месяца из даты фильтра. Коды причин на
- * экран не выводим.
+ * темпа и «в день надо», разрыв словами, ключ месяца из даты фильтра. Коды
+ * причин на экран не выводим.
  */
 
 /**
- * Показатель строки: подпись и единица. Звонки — из CRM (все звонки
- * менеджера), а не разобранные AI: подпись это различает.
+ * Показатель строки: подпись, единица и подсказка «что это». Звонки —
+ * отчёты менеджера в списке KPI с отметкой «звонок сделан» (холодные,
+ * в работе, в деньгах), а не телефония и не разобранные AI звонки.
  */
 export const AI_PLAN_FACT_INDICATOR: Record<
     AiPlanFactIndicator,
-    { label: string; unit: string }
+    { label: string; unit: string; hint: string }
 > = {
-    sales: { label: 'Продажи', unit: 'шт.' },
-    calls: { label: 'Звонки (CRM)', unit: 'шт.' },
-    presentations: { label: 'Презентации', unit: 'шт.' },
+    sales: {
+        label: 'Продажи',
+        unit: 'шт.',
+        hint: 'Сделки, закрытые в успех за месяц по дате закрытия, у которых сотрудник — ответственный.',
+    },
+    calls: {
+        label: 'Звонки по отчётам',
+        unit: 'шт.',
+        hint: 'Сколько раз сотрудник отметил в отчёте, что звонок сделан: холодные, в работе и в деньгах. Входящие звонки и заявки с сайта сюда не входят. Это не телефония и не разобранные AI звонки.',
+    },
+    presentations: {
+        label: 'Презентации',
+        unit: 'шт.',
+        hint: 'Сколько презентаций сотрудник отметил в отчёте как проведённые за месяц.',
+    },
 };
 
 /**
@@ -35,6 +48,11 @@ export const aiPlanFactIndicatorLabel = (
     const { label, unit } = AI_PLAN_FACT_INDICATOR[indicator];
     return unit ? `${label}, ${unit}` : label;
 };
+
+/** Подсказка к показателю строки: что за число. */
+export const aiPlanFactIndicatorHint = (
+    indicator: AiPlanFactIndicator,
+): string => AI_PLAN_FACT_INDICATOR[indicator].hint;
 
 /** У строки есть цель: план задан и больше нуля (plan-missing / target-empty — нет). */
 export const aiPlanFactRowHasPlan = (
@@ -96,11 +114,20 @@ export const formatAiPlanFactValue = (value: number | null): string =>
 export const formatAiPlanFactPace = (pace: number | null): string =>
     pace === null ? '—' : `${Math.round(pace * 100)} % графика`;
 
-/** Разрыв к плану со знаком; null — прочерк. */
+/** Разрыв словами: план выше прогноза — «не хватит», ниже — «сверх плана», равны — «ровно по плану». */
+export const AI_PLAN_FACT_GAP_WORDS = {
+    short: (value: string) => `не хватит ${value}`,
+    over: (value: string) => `сверх плана ${value}`,
+    exact: 'ровно по плану',
+} as const;
+
+/** Разрыв к плану словами (без «+3» / «−2»); null — прочерк. */
 export const formatAiPlanFactGap = (gap: number | null): string => {
     if (gap === null) return '—';
-    const sign = gap > 0 ? '+' : gap < 0 ? '−' : '';
-    return `${sign}${formatAiPlanFactValue(Math.abs(gap))}`;
+    const value = formatAiPlanFactValue(Math.abs(gap));
+    if (gap > 0) return AI_PLAN_FACT_GAP_WORDS.short(value);
+    if (gap < 0) return AI_PLAN_FACT_GAP_WORDS.over(value);
+    return AI_PLAN_FACT_GAP_WORDS.exact;
 };
 
 /** «В день надо»: целое вверх; null — прочерк (плана нет или план дня выключен). */

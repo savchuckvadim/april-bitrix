@@ -1,39 +1,34 @@
 'use client';
 
-import { Fingerprint, FolderOpen } from 'lucide-react';
-import { Button } from '@workspace/ui/components/button';
 import { TableCell, TableRow } from '@workspace/ui/components/table';
 import { HintTooltip, ToneBadge } from '@workspace/april-ui';
 import {
     AI_BUCKETS,
-    AI_SIGNAL,
     aiAttentionHintLines,
     aiBucketScore,
-    formatAiCount,
-    formatAiMoneyCompact,
+    aiSignalView,
     type AiManagerRow,
 } from '@/modules/entities/ai-analytics';
-import {
-    aiAnalyzedLabel,
-    aiTenureLabel,
-    type AiSignalColumns,
-} from '../../lib/ai-signal.util';
-import { AiManagerName } from './AiManagerName';
-import { AiLevelBadge } from './AiLevelBadge';
+import type { AiSignalColumns } from '../../lib/ai-signal.util';
+import type { AiSignalRowContext } from '../../hooks/use-ai-signal-row-context';
 import { AiKeyMetricCell } from './AiKeyMetricCell';
 import { AiBucketCell } from './AiBucketCell';
 import { AiPlanCell } from './AiPlanCell';
 import { AiDisagreeButton } from './AiDisagreeButton';
-import { AiStyleTagChip } from './AiStyleTagChip';
 import { AiSignalRiskCalls } from './AiSignalRiskCalls';
 import { AiSignalLeversCell } from './AiSignalLeversCell';
 import { AiTrendsCell } from './AiTrendsCell';
 import { AiYoyBadge } from './AiYoyBadge';
+import { AiSignalManagerCell } from './AiSignalManagerCell';
+import { AiFinanceCells } from './AiFinanceCells';
+import { AiPlanHeadCell } from './AiPlanHeadCell';
 
 interface AiSignalRowProps {
     row: AiManagerRow;
-    /** Видимые колонки «Тренды» / «Год назад» (скрыты, пока данных нет ни у кого). */
+    /** Видимые колонки «Тренды» / «Год назад» / «План руководителя». */
     columns: AiSignalColumns;
+    /** Общий для строк контекст: статус разбора, период, ожидаемая доля плана. */
+    context: AiSignalRowContext;
     /** Открыть карточку стиля менеджера. */
     onOpenStyle: (managerId: string) => void;
     /** Открыть досье менеджера (Фаза 3). */
@@ -41,77 +36,31 @@ interface AiSignalRowProps {
 }
 
 /**
- * Строка таблицы сигналов: сотрудник + уровень + «разобрано N из M» и
- * стаж с источником даты (с подсказкой, что сделать) + подписи стиля +
- * «Стиль» и «Досье» | сигнал + риск-звонки | ключевая цифра | корзины |
- * тренды | год назад (если колонки видны) | продажи | аванс | месячный
- * чек | план CRM | рычаги | «Не согласен».
+ * Строка таблицы сигналов: сотрудник (уровень, «разобрано N из M», стаж,
+ * стиль, «Стиль» и «Досье») | сигнал + риск-звонки | ключевая цифра |
+ * корзины | тренды | год назад (если колонки видны) | сделок | аванс
+ * (в кассе) | месячная сумма | звонки и презентации «сделано / в CRM» |
+ * план руководителя (если есть) | советы | «Не согласен».
  */
 export const AiSignalRow = ({
     row,
     columns,
+    context,
     onOpenStyle,
     onOpenDossier,
 }: AiSignalRowProps) => {
-    const signal = row.signal ? AI_SIGNAL[row.signal.signal] : null;
-    const styleTags = row.style?.tags ?? [];
-    const analyzed = aiAnalyzedLabel(row);
-    const tenure = aiTenureLabel(row);
+    // Сигнал из старого кэша, которого нет в словаре, — запасная подпись.
+    const signal = row.signal ? aiSignalView(row.signal.signal) : null;
 
     return (
         <TableRow>
             <TableCell>
-                <div className="flex flex-wrap items-center gap-2">
-                    <AiManagerName managerId={row.managerId} />
-                    <AiLevelBadge
-                        level={row.level}
-                        source={row.levelSource}
-                        tenureMonths={row.tenureMonths}
-                        funnelShape={row.funnelShape}
-                    />
-                </div>
-                <div className="text-[0.6875rem] text-muted-foreground">
-                    {analyzed.text} · {tenure.text}
-                </div>
-                {[analyzed.hint, tenure.hint]
-                    .filter((hint): hint is string => hint !== null)
-                    .map(hint => (
-                        <div
-                            key={hint}
-                            className="text-[0.6875rem] text-warning"
-                        >
-                            {hint}
-                        </div>
-                    ))}
-                {styleTags.length > 0 && (
-                    <div className="mt-1 flex flex-wrap gap-1">
-                        {styleTags.map(tag => (
-                            <AiStyleTagChip key={tag.code} tag={tag} />
-                        ))}
-                    </div>
-                )}
-                <div className="mt-1 flex flex-wrap gap-1">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 gap-1 px-1 text-xs"
-                        title="Карточка стиля менеджера"
-                        onClick={() => onOpenStyle(row.managerId)}
-                    >
-                        <Fingerprint className="h-3 w-3" />
-                        Стиль
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 gap-1 px-1 text-xs"
-                        title="Досье менеджера за окно месяцев"
-                        onClick={() => onOpenDossier(row.managerId)}
-                    >
-                        <FolderOpen className="h-3 w-3" />
-                        Досье
-                    </Button>
-                </div>
+                <AiSignalManagerCell
+                    row={row}
+                    analyzedCtx={context.analyzed}
+                    onOpenStyle={onOpenStyle}
+                    onOpenDossier={onOpenDossier}
+                />
             </TableCell>
             <TableCell>
                 {signal && row.signal ? (
@@ -152,15 +101,7 @@ export const AiSignalRow = ({
                     <AiYoyBadge yoy={row.yoy} />
                 </TableCell>
             )}
-            <TableCell className="text-right tabular-nums">
-                {formatAiCount(row.finance.salesCount)}
-            </TableCell>
-            <TableCell className="text-right tabular-nums">
-                {formatAiMoneyCompact(row.finance.advanceAmount)}
-            </TableCell>
-            <TableCell className="text-right tabular-nums">
-                {formatAiMoneyCompact(row.finance.monthlyAmount)}
-            </TableCell>
+            <AiFinanceCells finance={row.finance} />
             <TableCell>
                 <AiPlanCell
                     done={row.discipline.callDone}
@@ -173,6 +114,14 @@ export const AiSignalRow = ({
                     plan={row.discipline.presentationPlan}
                 />
             </TableCell>
+            {columns.planHead && (
+                <TableCell>
+                    <AiPlanHeadCell
+                        targets={row.planTargets}
+                        expected={context.planExpected}
+                    />
+                </TableCell>
+            )}
             <TableCell>
                 <AiSignalLeversCell
                     managerId={row.managerId}

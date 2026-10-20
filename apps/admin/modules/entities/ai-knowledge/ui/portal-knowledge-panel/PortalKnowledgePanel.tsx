@@ -45,10 +45,20 @@ function toTarget(document: KnowledgeDocument): KnowledgeDocumentTarget {
  * материалов (kind), загрузка файлов, создание/правка текстов, просмотр
  * извлечённого текста, удаление. В списке видны и общие материалы
  * (general + выбранного kind) — ровно то, что попадёт в RAG портала.
+ * `initialKind` — kind, выбранный при открытии (ссылки путеводителя
+ * `?tab=knowledge&kind=…`); невалидный слаг игнорируется.
  */
-export function PortalKnowledgePanel({ domain }: { domain: string }) {
-    const [kindValue, setKindValue] = React.useState<string>(
-        KNOWLEDGE_GENERAL_KIND,
+export function PortalKnowledgePanel({
+    domain,
+    initialKind,
+}: {
+    domain: string;
+    initialKind?: string;
+}) {
+    const [kindValue, setKindValue] = React.useState<string>(() =>
+        initialKind && KNOWLEDGE_KIND_PATTERN.test(initialKind)
+            ? initialKind
+            : KNOWLEDGE_GENERAL_KIND,
     );
     const [newKind, setNewKind] = React.useState('');
     const [toView, setToView] = React.useState<KnowledgeDocumentTarget | null>(

@@ -11,6 +11,7 @@ import {
 } from '@workspace/ui/components/table';
 import type { AiAboutParam } from '@/modules/entities/ai-analytics';
 import {
+    AI_ABOUT_BREAKS_SERIES_HINT,
     AI_ABOUT_BREAKS_SERIES_LABEL,
     AI_ABOUT_KIND,
     AI_ABOUT_LAYER_LABELS,
@@ -52,9 +53,7 @@ const AiHowWeCountParamRow = ({ param }: AiHowWeCountParamRowProps) => {
                 {param.breaksSeries && (
                     <HintTooltip
                         title={AI_ABOUT_BREAKS_SERIES_LABEL}
-                        lines={[
-                            'Смена значения сдвигает начало сравнимой истории — ряды до и после сравнивать нельзя.',
-                        ]}
+                        lines={[AI_ABOUT_BREAKS_SERIES_HINT]}
                     >
                         <span className="mt-1 inline-block">
                             <ToneBadge

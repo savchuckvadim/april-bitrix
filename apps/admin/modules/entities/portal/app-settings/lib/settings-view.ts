@@ -122,6 +122,35 @@ export const buildGroupViews = (
         .filter(view => view.settings.length > 0);
 };
 
-/** Путь ссылки категории для конкретного портала. */
+/**
+ * Путь ссылки категории для конкретного портала. Ссылки без `{portalId}`
+ * (глобальные страницы админки: путеводитель, «Модель», «Аудит») остаются
+ * как есть.
+ */
 export const resolveSettingsLink = (href: string, portalId: number): string =>
     href.replace('{portalId}', String(portalId));
+
+/** Якорь категории на странице настроек: `#group-<код категории>`. */
+export const groupAnchorId = (groupCode: string): string => `group-${groupCode}`;
+
+/** Якорь настройки: `#setting-<snake_case код>` — на него ведут путеводитель и хуки. */
+export const settingAnchorId = (settingCode: string): string =>
+    `setting-${settingCode}`;
+
+/**
+ * Секция категории должна быть раскрыта по якорю адреса: якорь указывает
+ * на саму категорию либо на одну из её настроек. Иначе ссылка «на ключ»
+ * привела бы в свёрнутую секцию.
+ */
+export const isGroupAnchored = (
+    hash: string,
+    groupCode: string,
+    settingCodes: readonly string[],
+): boolean => {
+    const anchor = hash.replace(/^#/, '');
+    if (!anchor) return false;
+    return (
+        anchor === groupAnchorId(groupCode) ||
+        settingCodes.some(code => settingAnchorId(code) === anchor)
+    );
+};

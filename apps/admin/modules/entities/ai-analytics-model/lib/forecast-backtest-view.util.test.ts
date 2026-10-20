@@ -9,6 +9,7 @@ const backtest = (patch: Partial<ModelForecastBacktest> = {}): ModelForecastBack
     status: 'fail',
     reasons: ['coverage-below', 'mase-naive'],
     shadowMonths: 2,
+    replayedMonths: 0,
     shadowMinMonths: 3,
     months: 3,
     days: 62,

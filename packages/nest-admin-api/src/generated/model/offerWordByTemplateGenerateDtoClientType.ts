@@ -18,4 +18,5 @@ export const OfferWordByTemplateGenerateDtoClientType = {
   org: 'org',
   ip: 'ip',
   fiz: 'fiz',
+  advokat: 'advokat',
 } as const;

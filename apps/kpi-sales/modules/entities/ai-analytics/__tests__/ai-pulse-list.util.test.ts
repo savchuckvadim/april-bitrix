@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { AiPulseAlert } from '../model';
-import { AI_ALERT_KIND } from '../lib/ai-pulse.data';
+import {
+    AI_ALERT_KIND,
+    AI_ALERT_KIND_UNKNOWN,
+    aiAlertKindView,
+} from '../lib/ai-pulse.data';
 import {
     AI_PULSE_ALERTS_COLLAPSED_MAX,
     AI_PULSE_ALERTS_EMPTY,
@@ -23,7 +27,7 @@ const alert = (
 ): AiPulseAlert => ({
     managerId: '7',
     transcriptionId: id,
-    kind: 'promise',
+    kind: 'conflict',
     quote: '',
     callStartedAt: `2026-09-${id.padStart(2, '0')}T10:00:00Z`,
     handled: false,
@@ -163,11 +167,34 @@ describe('ссылка на разбор и «что сделать»', () => {
                 `Что сделать: ${view.action}`,
             ]);
         }
-        expect(aiAlertActionLine('promise')).toBe(
-            'Что сделать: Проверьте, выполнено ли обещание клиенту, и обсудите с менеджером',
+        expect(aiAlertActionLine('door_closed')).toBe(
+            'Что сделать: Разберите с менеджером, как после отказа договариваться о возврате: срок, повод, новое предложение',
         );
         expect(aiAlertActionLine('urgent')).toBe(
             'Что сделать: Разберите звонок с менеджером в ближайший день',
         );
+    });
+
+    it('виды «обещание» и «негатив клиента» отменены: в словаре их нет, старый кэш получает запасную подпись', () => {
+        expect(Object.keys(AI_ALERT_KIND)).toEqual([
+            'conflict',
+            'compliance',
+            'door_closed',
+            'urgent',
+        ]);
+        expect(AI_ALERT_KIND.door_closed.label).toBe('Дверь закрыта');
+        const legacy = aiAlertKindView('promise');
+        expect(legacy).toBe(AI_ALERT_KIND_UNKNOWN);
+        expect(legacy.label).toBe('Прочий сигнал');
+        expect(aiAlertHintLines('client_negative' as AiPulseAlert['kind'])).toEqual([
+            AI_ALERT_KIND_UNKNOWN.hint,
+            `Что сделать: ${AI_ALERT_KIND_UNKNOWN.action}`,
+        ]);
+        // Тексты по-русски, без кодов и слова «админка».
+        for (const view of [...Object.values(AI_ALERT_KIND), AI_ALERT_KIND_UNKNOWN]) {
+            for (const text of [view.label, view.hint, view.action]) {
+                expect(text).not.toMatch(/[a-z_]{4,}|админк/i);
+            }
+        }
     });
 });

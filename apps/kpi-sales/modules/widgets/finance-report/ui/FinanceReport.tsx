@@ -9,9 +9,12 @@ import { Preloader } from '@/modules/shared';
 import { ReportGroupTabs, StructureSection } from '@/modules/feature/report-tabs';
 import { EntityRatingChart } from '@/modules/feature/report-rating';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { HintTooltip } from '@workspace/april-ui';
 import {
     COMPARISON_MODE_LABELS,
+    FINANCE_PERIOD_CAPTION_HINT,
     filterClosedReportByTypes,
+    formatFinancePeriodCaption,
     getClosedSales,
     getComparisonClosedSales,
     getHotClients,
@@ -137,7 +140,15 @@ export const FinanceReport: React.FC = () => {
             >
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                     {/* <ComparisonToggle /> TODO допилить сравнение периодов обдуманно */}
-                    <div></div>
+                    {/* Период расчёта — чтобы сверка с вкладкой AI шла за одинаковое окно. */}
+                    <HintTooltip
+                        title={FINANCE_PERIOD_CAPTION_HINT.title}
+                        lines={[...FINANCE_PERIOD_CAPTION_HINT.lines]}
+                    >
+                        <span className="cursor-help border-b border-dashed border-muted-foreground/60 text-xs text-muted-foreground">
+                            {formatFinancePeriodCaption(from, to)}
+                        </span>
+                    </HintTooltip>
                     <div className="flex flex-wrap items-center gap-3">
                         <FinanceTypeFilters />
                         <Button

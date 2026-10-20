@@ -13,6 +13,7 @@ export {
     buildPlanRatingDataset,
     buildUserAchievementCells,
     enabledIndicators,
+    planExpectedShare,
     rowsWithAnyPlan,
 } from './lib/plan-achievement.util';
 export type { PlanFactSources } from './lib/plan-fact.util';

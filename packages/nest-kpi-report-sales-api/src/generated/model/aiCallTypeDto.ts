@@ -17,10 +17,12 @@ export interface AiCallTypeDto {
     /** Тон UI (реестр tones пакета april-ui). */
     tone: AiCallTypeDtoTone;
     /**
-     * Корзина оценок (contact/presentation/closing); null — тип не участвует в оценках.
+     * Корзина оценок (contact/presentation/closing); null — тип не участвует в общей оценке (средняя менеджера и отдела, нормы, план дня, советы): приглашение на мероприятие, other, irrelevant.
      * @nullable
      */
     bucket: AiCallTypeDtoBucket;
+    /** У типа своя колонка матриц и подвкладка витрины (свои n, оценка и KPI-факт). false — other / irrelevant: их доля уходит в «прочее» сводки. Колонка с bucket = null (приглашение на мероприятие) считается отдельно и в среднюю оценку не входит. */
+    column: boolean;
     /**
      * Главный KPI-код event_type для заголовочной цифры; null — нет.
      * @nullable

@@ -1,35 +1,36 @@
 import { describe, expect, it } from 'vitest';
 import {
-    buildAiSectionsCountRatingDataset,
-    buildAiSectionsScorePoints,
-    buildAiTypesCountRatingDataset,
-    buildAiTypesScorePoints,
+    AI_RATING_MIN_N,
+    AI_SECTION_COUNT_SUFFIX,
+    AI_TYPE_COUNT_SUFFIX,
+    aiScoreRatingVolume,
+    buildAiMatrixCountDataset,
+    buildAiMatrixScorePoints,
+    isAiRatingPreliminary,
     weightedAiScoreRating,
     type AiScoreRatingPoint,
 } from '../lib/ai-types-matrix-rating.util';
+import { buildAiSectionsMatrixTable } from '../lib/ai-sections-matrix.util';
 import {
     aiMatrixPresentTypes,
     aiMatrixVisibleTypes,
+    buildAiTypesMatrixFor,
 } from '../lib/ai-types-matrix.util';
-import {
-    CALL_TYPES,
-    managerName,
-    matrixRows,
-} from './ai-types-matrix-fixtures';
+import { CALL_TYPES, managerName, matrixRows } from './ai-types-matrix-fixtures';
 
-const visibleTypes = (hidden: string[] = []) =>
-    aiMatrixVisibleTypes(
-        aiMatrixPresentTypes(matrixRows(), CALL_TYPES),
-        hidden,
+const typesMatrix = (hidden: string[] = []) =>
+    buildAiTypesMatrixFor(
+        matrixRows(),
+        aiMatrixVisibleTypes(aiMatrixPresentTypes(matrixRows(), CALL_TYPES), hidden),
+        { managerName, callTypes: CALL_TYPES, mode: 'types' },
     );
 
-describe('датасеты счётчиков (RatingDataset)', () => {
-    it('типы: «<Тип> — разборов» по видимым типам + хвост продаж; скрытый тип отсутствует', () => {
-        const dataset = buildAiTypesCountRatingDataset(
-            matrixRows(),
-            visibleTypes(['cold']),
-            managerName,
-        );
+const sectionsMatrix = () =>
+    buildAiSectionsMatrixTable(matrixRows(), 'presentation', { managerName });
+
+describe('датасеты счётчиков (RatingDataset) из матрицы', () => {
+    it('типы: «<Тип> — разборов» по видимым типам + хвост продаж как есть', () => {
+        const dataset = buildAiMatrixCountDataset(typesMatrix(['cold']), AI_TYPE_COUNT_SUFFIX);
         expect(dataset.actions).toEqual([
             { code: 'presentation', name: 'Презентация — разборов' },
             { code: 'decision', name: 'Решение — разборов' },
@@ -53,17 +54,13 @@ describe('датасеты счётчиков (RatingDataset)', () => {
         expect(dataset.rows[1]?.values.decision).toBe(9);
     });
 
-    it('разделы: «<Раздел> — оценённых звонков» + «Все разборы»', () => {
-        const dataset = buildAiSectionsCountRatingDataset(
-            matrixRows(),
-            'presentation',
-            managerName,
-        );
+    it('разделы: «<Раздел> — оценённых звонков» + «Итог — оценённых звонков»', () => {
+        const dataset = buildAiMatrixCountDataset(sectionsMatrix(), AI_SECTION_COUNT_SUFFIX);
         expect(dataset.actions.map(action => action.name)).toEqual([
             'Приветствие — оценённых звонков',
             'Выявление потребностей — оценённых звонков',
             'Закрытие — оценённых звонков',
-            'Все разборы',
+            'Итог — оценённых звонков',
         ]);
         expect(dataset.rows[1]).toEqual({
             userId: 3,
@@ -73,58 +70,20 @@ describe('датасеты счётчиков (RatingDataset)', () => {
     });
 });
 
-describe('точки оценок', () => {
-    it('по типам: только видимые типы, score = оценка типа, n = разборов', () => {
-        const points = buildAiTypesScorePoints(
-            matrixRows(),
-            visibleTypes(['cold', 'other']),
-            managerName,
-        );
-        expect(points).toEqual([
-            {
-                userId: 7,
-                name: 'Иванов Иван',
-                code: 'presentation',
-                score: 6.4,
-                n: 12,
-            },
-            {
-                userId: 7,
-                name: 'Иванов Иван',
-                code: 'decision',
-                score: null,
-                n: 0,
-            },
-            {
-                userId: 3,
-                name: 'Петров Пётр',
-                code: 'presentation',
-                score: 7.1,
-                n: 25,
-            },
-            {
-                userId: 3,
-                name: 'Петров Пётр',
-                code: 'decision',
-                score: 5.5,
-                n: 9,
-            },
+describe('точки оценок из матрицы', () => {
+    it('по типам: ячейки со звонками, score из аннотации, n = разборов; продажи — нет', () => {
+        expect(buildAiMatrixScorePoints(typesMatrix(['cold', 'other']))).toEqual([
+            { userId: 7, name: 'Иванов Иван', code: 'presentation', score: 6.4, n: 12 },
+            { userId: 3, name: 'Петров Пётр', code: 'presentation', score: 7.1, n: 25 },
+            { userId: 3, name: 'Петров Пётр', code: 'decision', score: 5.5, n: 9 },
         ]);
     });
 
-    it('по разделам типа: avgScore/n разделов плюс all — оценка типа', () => {
-        const points = buildAiSectionsScorePoints(
-            matrixRows(),
-            'presentation',
-            managerName,
-        );
+    it('по разделам типа: средняя/n разделов плюс all — оценка типа', () => {
         expect(
-            points.map(({ userId, code, score, n }) => [
-                userId,
-                code,
-                score,
-                n,
-            ]),
+            buildAiMatrixScorePoints(sectionsMatrix()).map(
+                ({ userId, code, score, n }) => [userId, code, score, n],
+            ),
         ).toEqual([
             [7, 'GREETING', 4.2, 10],
             [7, 'NEEDS', null, 3],
@@ -150,7 +109,7 @@ describe('weightedAiScoreRating — взвешенное по n среднее',
         ]);
     });
 
-    it('по сотрудникам: сортировка по убыванию, без оценки (null или n = 0) — опущены, чужой код — не учитывается', () => {
+    it('по сотрудникам: сортировка по убыванию, без оценки — опущены, чужой код — не учитывается', () => {
         const points = [
             p(1, 8, 2),
             p(1, 5, 6),
@@ -169,13 +128,7 @@ describe('weightedAiScoreRating — взвешенное по n среднее',
     });
 
     it('по группам: Σ(score·n)/Σn по userIds группы; группа без оценок опущена', () => {
-        const points = [
-            p(1, 8, 2),
-            p(1, 5, 6),
-            p(2, 7, 4),
-            p(3, 9, 1),
-            p(4, null, 10),
-        ];
+        const points = [p(1, 8, 2), p(1, 5, 6), p(2, 7, 4), p(3, 9, 1), p(4, null, 10)];
         const groups = [
             { id: 'a', name: 'Отдел А', userIds: [1, 2] },
             { id: 'b', name: 'Отдел Б', userIds: [3] },
@@ -188,11 +141,7 @@ describe('weightedAiScoreRating — взвешенное по n среднее',
     });
 
     it('точки разделов: NEEDS у менеджера без средней опущен, all — оценки типов', () => {
-        const points = buildAiSectionsScorePoints(
-            matrixRows(),
-            'presentation',
-            managerName,
-        );
+        const points = buildAiMatrixScorePoints(sectionsMatrix());
         expect(weightedAiScoreRating(points, 'NEEDS')).toEqual([
             { name: 'Петров Пётр', value: 6 },
         ]);
@@ -200,5 +149,14 @@ describe('weightedAiScoreRating — взвешенное по n среднее',
             { name: 'Петров Пётр', value: 7.1 },
             { name: 'Иванов Иван', value: 6.4 },
         ]);
+    });
+
+    it('объём рейтинга и порог предварительности 50 разборов', () => {
+        const points = buildAiMatrixScorePoints(typesMatrix());
+        expect(aiScoreRatingVolume(points, 'presentation')).toBe(37);
+        expect(aiScoreRatingVolume(points, 'cold')).toBe(0);
+        expect(AI_RATING_MIN_N).toBe(50);
+        expect(isAiRatingPreliminary(37)).toBe(true);
+        expect(isAiRatingPreliminary(50)).toBe(false);
     });
 });

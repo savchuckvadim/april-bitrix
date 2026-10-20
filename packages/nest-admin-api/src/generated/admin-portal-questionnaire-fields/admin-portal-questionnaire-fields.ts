@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  QuestionnaireFieldCreateDto,
+  QuestionnaireFieldCreateResponseDto,
   QuestionnaireFieldSourcesResponseDto,
   QuestionnaireFieldsListFieldsParams,
   QuestionnaireFieldsResponseDto
@@ -42,6 +44,22 @@ const questionnaireFieldsListFields = (
     },
       );
     }
-  return {questionnaireFieldsListSources,questionnaireFieldsListFields}};
+  /**
+ * Создаёт пользовательское поле прямо в Битриксе портала и возвращает его В ТОМ ЖЕ ВИДЕ, что и список полей: имя поля и идентификаторы значений списка ПРОЧИТАНЫ ОБРАТНО из Битрикса, а не собраны формулой (формула имени врёт — боевой инцидент UF_CRM_94_TRANSCRIPT_1), поэтому редактор собирает из ответа вопрос без второго запроса. Повтор с тем же кодом дубля НЕ создаёт: поле сначала ищется среди уже заведённых, и найденное возвращается как есть (`created: false`) — настройки чужому полю мы не правим. Строку в слепок `bitrixfields` ручка не создаёт никогда: переустановка сущности сносит её строки скопом вместе со смыслом анкеты. Метод требует прав администратора CRM (`userfieldconfig`): без них приходит 403 с рецептом, а не урезанный режим — писать `crm.item.fields` не умеет. ДОЛГАЯ: список полей носителя, запись и чтение назад — на большом портале это десятки секунд, клиенту нужен свой таймаут и запрет второго нажатия.
+ * @summary Завести поле в носителе
+ */
+const questionnaireFieldsCreateField = (
+    portalId: number,
+    questionnaireFieldCreateDto: QuestionnaireFieldCreateDto,
+ ) => {
+      return customAxios<QuestionnaireFieldCreateResponseDto>(
+      {url: `/api/admin/portal/${portalId}/questionnaire-fields`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: questionnaireFieldCreateDto
+    },
+      );
+    }
+  return {questionnaireFieldsListSources,questionnaireFieldsListFields,questionnaireFieldsCreateField}};
 export type QuestionnaireFieldsListSourcesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalQuestionnaireFields>['questionnaireFieldsListSources']>>>
 export type QuestionnaireFieldsListFieldsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalQuestionnaireFields>['questionnaireFieldsListFields']>>>
+export type QuestionnaireFieldsCreateFieldResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalQuestionnaireFields>['questionnaireFieldsCreateField']>>>

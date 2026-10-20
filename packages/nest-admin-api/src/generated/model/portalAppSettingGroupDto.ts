@@ -6,6 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 import type { PortalAppSettingLinkDto } from './portalAppSettingLinkDto';
+import type { PortalAppSettingHookLinkDto } from './portalAppSettingHookLinkDto';
+import type { PortalAppSettingPbxFieldDto } from './portalAppSettingPbxFieldDto';
+import type { PortalAppSettingStageDto } from './portalAppSettingStageDto';
 
 export interface PortalAppSettingGroupDto {
   /** Код категории — тот же, что у настроек в поле group. */
@@ -16,4 +19,12 @@ export interface PortalAppSettingGroupDto {
   description: string;
   /** Связанные разделы админки (поля, стадии, отделы). */
   links: PortalAppSettingLinkDto[];
+  /** Теория категории (markdown, русский): как работает механизм, которым управляют эти настройки, и что от них зависит. */
+  theory?: string;
+  /** Хуки каталога, которые читают настройки категории. */
+  hooks?: PortalAppSettingHookLinkDto[];
+  /** PBX-поля, задействованные хуками категории (что должно быть установлено). */
+  pbxFields?: PortalAppSettingPbxFieldDto[];
+  /** Стадии лида и воронки ОП, нужные хукам категории (что поставить или сопоставить). */
+  stages?: PortalAppSettingStageDto[];
 }

@@ -7,9 +7,14 @@ import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Label } from '@workspace/ui/components/label';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { cn } from '@workspace/ui/lib/utils';
-import { MicroSegmented, type MicroSegmentedOption } from '@workspace/april-ui';
+import {
+    HintTooltip,
+    MicroSegmented,
+    type MicroSegmentedOption,
+} from '@workspace/april-ui';
 import type { AiRopMarkSection } from '@/modules/entities/ai-analytics';
 import {
+    AI_ROP_MARK_QUESTION,
     AI_ROP_MARK_SCORES,
     AI_ROP_MARK_SECTIONS,
     AI_ROP_MARK_TEXT_MAX,
@@ -18,8 +23,8 @@ import {
 import { AiReadOnlyHint } from './AiReadOnlyHint';
 
 const AGREE_OPTIONS: MicroSegmentedOption[] = [
-    { value: 'yes', label: 'Согласен с AI' },
-    { value: 'no', label: 'Не согласен' },
+    { value: 'yes', label: AI_ROP_MARK_QUESTION.agree },
+    { value: 'no', label: AI_ROP_MARK_QUESTION.disagree },
 ];
 
 const agreeValue = (agree: boolean | null): string | undefined =>
@@ -66,11 +71,16 @@ export const AiRopMarkForm = ({
     return (
         <div className="space-y-3 text-sm">
             <div className="flex flex-wrap items-center gap-3">
-                <span className="text-xs text-muted-foreground">
-                    Оценка AI по звонку
-                </span>
+                <HintTooltip
+                    title={AI_ROP_MARK_QUESTION.hint.title}
+                    lines={[...AI_ROP_MARK_QUESTION.hint.lines]}
+                >
+                    <span className="cursor-help border-b border-dashed text-xs text-muted-foreground">
+                        {AI_ROP_MARK_QUESTION.label}
+                    </span>
+                </HintTooltip>
                 <MicroSegmented
-                    ariaLabel="Согласие с оценкой AI"
+                    ariaLabel={AI_ROP_MARK_QUESTION.label}
                     size="sm"
                     options={AGREE_OPTIONS}
                     value={agreeValue(form.agree)}
@@ -169,7 +179,7 @@ export const AiRopMarkForm = ({
                         error ? 'text-destructive' : 'text-muted-foreground',
                     )}
                 >
-                    {error ?? 'До сохранения метки оценка AI не показывается'}
+                    {error ?? AI_ROP_MARK_QUESTION.blindNote}
                 </span>
                 <div className="flex items-center gap-2">
                     {onCancel && (

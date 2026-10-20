@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { shallowEqual } from 'react-redux';
 import {
     selectIsViewAs,
     useAccess,
@@ -20,19 +21,21 @@ import {
     refreshAiAnalytics,
     selectAiOverviewScope,
     selectAiRequester,
+    selectAiScopeNote,
     sendAiView,
 } from '@/modules/entities/ai-analytics';
-import type { AiSettingsTab } from '../lib/ai-settings-form.util';
 import { buildAiSetupChecklist } from '../lib/ai-setup-checklist.util';
 import { useAiManagerName } from './use-ai-manager-name';
+import { useAiTab } from './use-ai-tab';
 
 /**
  * Состояние вкладки «AI аналитика»: загрузка пульса, повестки, обзора и
  * «Внимания» при монтировании (thunk-гарды не дадут дублей), view-
  * телеметрия от реального пользователя (повтор после выхода из «Смотреть
- * как…»), «Обновить» / «Пересчитать», диалог настроек на нужной вкладке и
- * чек-лист готовности витрины. В kpi-only оценок нет — секции не
- * запрашиваются, показывается баннер с чек-листом.
+ * как…»), «Обновить» / «Пересчитать», подвкладка из URL и переход к
+ * секции настроек на её подвкладке, чек-лист готовности витрины. В
+ * kpi-only оценок нет — секции не запрашиваются, показывается баннер с
+ * чек-листом.
  */
 export const useAiAnalyticsReport = () => {
     const dispatch = useAppDispatch();
@@ -55,9 +58,18 @@ export const useAiAnalyticsReport = () => {
             ? state.aiAnalytics.forecast.data
             : null,
     );
-    const periodClamped = useAppSelector(
-        state => selectAiOverviewScope(state)?.clamped ?? false,
-    );
+    // Период обрезан до лимита бэка — плашка с точными датами AI и фильтра.
+    const clampedPeriod = useAppSelector(state => {
+        const scope = selectAiOverviewScope(state);
+        if (!scope?.clamped) return null;
+        return {
+            from: scope.filters.from,
+            to: scope.filters.to,
+            filterFrom: state.report.date.from,
+            filterTo: state.report.date.to,
+        };
+    }, shallowEqual);
+    const scopeNote = useAppSelector(selectAiScopeNote, shallowEqual);
     const isViewAs = useAppSelector(selectIsViewAs);
     const requesterId = useAppSelector(
         state => selectAiRequester(state)?.requesterUserId ?? null,
@@ -65,10 +77,9 @@ export const useAiAnalyticsReport = () => {
     const managerName = useAiManagerName();
     const canViewAll = useAccess(EAccessFeature.AI_VIEW_ALL);
     const canConfigure = useAccess(EAccessFeature.AI_CONFIGURE);
-    const [settingsOpen, setSettingsOpen] = useState(false);
-    // Вкладка диалога настроек при открытии: «Уровни» из шапки, остальные —
+    // Подвкладка и секция настроек — из URL: «Уровни» из шапки, остальные —
     // из чек-листа готовности и плана дня («Цели», «Состав»).
-    const [settingsTab, setSettingsTab] = useState<AiSettingsTab>('levels');
+    const { tab, section, setTab, openSettings } = useAiTab();
 
     const kpiOnly = isAiKpiOnly(settings.data?.readiness.mode);
     // План дня в чек-листе — лишь деталь пункта «Цель месяца» и только
@@ -129,10 +140,11 @@ export const useAiAnalyticsReport = () => {
         [dispatch],
     );
     const recalc = useCallback(() => dispatch(recalcAiOverview()), [dispatch]);
-    const openSettings = useCallback((tab: AiSettingsTab) => {
-        setSettingsTab(tab);
-        setSettingsOpen(true);
-    }, []);
+    const openLevels = useCallback(() => openSettings('levels'), [openSettings]);
+    const openTargets = useCallback(
+        () => openSettings('targets'),
+        [openSettings],
+    );
 
     return {
         settings: settings.data,
@@ -140,16 +152,17 @@ export const useAiAnalyticsReport = () => {
         kpiOnly,
         canViewAll,
         canConfigure,
-        periodClamped,
+        clampedPeriod,
+        scopeNote,
         isRefreshing: pulseStatus === 'loading' || agendaStatus === 'loading',
         isRecalculating: overview.status === 'loading',
-        levelsOpen: settingsOpen,
-        levelsTab: settingsTab,
+        /** Подвкладка из URL и секция настроек, к которой прокрутить. */
+        tab,
+        section,
+        setTab,
         openSettings,
-        openLevels: () => openSettings('levels'),
-        openRoster: () => openSettings('roster'),
-        openTargets: () => openSettings('targets'),
-        setLevelsOpen: setSettingsOpen,
+        openLevels,
+        openTargets,
         refresh,
         recalc,
     };

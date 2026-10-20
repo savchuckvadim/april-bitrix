@@ -12,6 +12,8 @@ import type {
     AiDailyPlanQuery,
     AiDossier,
     AiDossierQuery,
+    AiFeedbackList,
+    AiFeedbackListQuery,
     AiForecast,
     AiOverview,
     AiPlanFact,
@@ -75,7 +77,8 @@ export type AiDataSection =
     | 'planFact'
     | 'dossier'
     | 'typesMatrix'
-    | 'forecast';
+    | 'forecast'
+    | 'feedbackList';
 
 /** Секции, которые считает очередь (WS done → повторный POST). */
 export const AI_QUEUED_SECTIONS = [
@@ -103,6 +106,7 @@ export type AiSectionData = {
     dossier: AiDossier;
     typesMatrix: AiByType;
     forecast: AiForecast;
+    feedbackList: AiFeedbackList;
 };
 
 export interface AiAnalyticsState {
@@ -139,6 +143,10 @@ export interface AiAnalyticsState {
     typesMatrix: AiSection<AiByType>;
     /** Прогноз отдела на месяц (forecast, sync; Фаза 4, только руководителям). */
     forecast: AiSection<AiForecast>;
+    /** Список обратной связи за период (feedback/list, sync) — страница сотрудника. */
+    feedbackList: AiSection<AiFeedbackList>;
+    /** Период и менеджер запрошенного списка обратной связи. */
+    feedbackListQuery: AiFeedbackListQuery | null;
     /** «Как считаем» — кэш по ручке (overview | plan/daily | brief | manager/style). */
     about: Partial<Record<AiAboutEndpoint, AiSection<AiAbout>>>;
     feedback: AiFeedbackState;
@@ -188,6 +196,8 @@ const initialState: AiAnalyticsState = {
     dossierQuery: null,
     typesMatrix: emptySection(),
     forecast: emptySection(),
+    feedbackList: emptySection(),
+    feedbackListQuery: null,
     about: {},
     feedback: emptyAiFeedback(),
     levels: { saving: false, error: null, savedAt: null },
@@ -363,6 +373,13 @@ const aiAnalyticsSlice = createSlice({
         ) => {
             state.dossierQuery = action.payload;
         },
+        /** Запомнить период и менеджера списка обратной связи (до sectionPending). */
+        feedbackListQueried: (
+            state: AiAnalyticsState,
+            action: PayloadAction<AiFeedbackListQuery>,
+        ) => {
+            state.feedbackListQuery = action.payload;
+        },
 
         /** Запомнить неделю слепой оценки (до sectionPending). */
         ropMarkQueried: (
@@ -492,6 +509,8 @@ const aiAnalyticsSlice = createSlice({
             state.dossierQuery = null;
             state.typesMatrix = emptySection();
             state.forecast = emptySection();
+            state.feedbackList = emptySection();
+            state.feedbackListQuery = null;
             state.about = {};
             state.feedback = emptyAiFeedback();
             state.levels = { saving: false, error: null, savedAt: null };

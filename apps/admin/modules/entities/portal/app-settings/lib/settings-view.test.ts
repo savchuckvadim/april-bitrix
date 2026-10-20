@@ -6,9 +6,42 @@ import type {
 import {
     buildGroupViews,
     FALLBACK_GROUP,
+    groupAnchorId,
     groupRequirementsByEntity,
+    isGroupAnchored,
     resolveSettingsLink,
+    settingAnchorId,
 } from './settings-view';
+
+describe('resolveSettingsLink: глобальные ссылки', () => {
+    it('ссылка без плейсхолдера портала остаётся как есть', () => {
+        expect(resolveSettingsLink('/ai-analytics/guide#enable-and-push', 7)).toBe(
+            '/ai-analytics/guide#enable-and-push',
+        );
+        expect(resolveSettingsLink('/portal/{portalId}/ai-settings?tab=knowledge', 7)).toBe(
+            '/portal/7/ai-settings?tab=knowledge',
+        );
+    });
+});
+
+describe('isGroupAnchored', () => {
+    it('раскрывает секцию по якорю категории или её настройки, иначе нет', () => {
+        expect(groupAnchorId('ai_analytics_main')).toBe('group-ai_analytics_main');
+        expect(settingAnchorId('ai_analytics_enabled')).toBe('setting-ai_analytics_enabled');
+        expect(isGroupAnchored('#group-ai_analytics_main', 'ai_analytics_main', [])).toBe(true);
+        expect(
+            isGroupAnchored('#setting-ai_analytics_enabled', 'ai_analytics_main', [
+                'ai_analytics_enabled',
+            ]),
+        ).toBe(true);
+        expect(
+            isGroupAnchored('#setting-ai_analytics_enabled', 'ai_analytics_people', [
+                'ai_analytics_levels',
+            ]),
+        ).toBe(false);
+        expect(isGroupAnchored('', 'ai_analytics_main', ['ai_analytics_enabled'])).toBe(false);
+    });
+});
 
 describe('groupRequirementsByEntity', () => {
     it('поля и стадии — по сущностям от лида к задаче, обязательные первыми', () => {

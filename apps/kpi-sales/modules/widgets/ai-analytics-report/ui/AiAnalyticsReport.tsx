@@ -3,32 +3,24 @@
 import { useAiAnalyticsReport } from '../hooks/use-ai-analytics-report';
 import { AiTabHeader } from './AiTabHeader';
 import { AiReadinessBanner } from './AiReadinessBanner';
-import { AiPulseCard } from './AiPulseCard';
-import { AiBriefCard } from './AiBriefCard';
-import { AiRopMarkCard } from './AiRopMarkCard';
-import { AiDailyPlanCard } from './AiDailyPlanCard';
-import { AiPlanFactCard } from './AiPlanFactCard';
-import { AiForecastCard } from './AiForecastCard';
-import { AiAttentionList } from './AiAttentionList';
-import { AiAgendaCard } from './AiAgendaCard';
-import { AiSignalTable } from './AiSignalTable';
-import { AiTypesMatrixBlock } from './AiTypesMatrixBlock';
-import { AiSectionsMatrixBlock } from './AiSectionsMatrixBlock';
+import { AiTabsBar } from './AiTabsBar';
 import { AiTypesDrawer } from './AiTypesDrawer';
-import { AiLevelsDialog } from './AiLevelsDialog';
-import { AiKpiOnlyNote } from './components/AiKpiOnlyNote';
+import { AiSummaryTab } from './tabs/AiSummaryTab';
+import { AiEmployeesTab } from './tabs/AiEmployeesTab';
+import { AiQualityTab } from './tabs/AiQualityTab';
+import { AiShowcaseSettingsTab } from './tabs/AiShowcaseSettingsTab';
 
 /**
- * Вкладка «AI аналитика»: шапка, «Готовность витрины» с чек-листом
- * «донастроить или просто подождать?», пульс, AI-резюме периода,
- * «Внимание», повестка планёрки, слепая оценка (руководителю), план дня,
- * план-факт месяца, прогноз отдела (руководителю), таблица сигналов,
- * матрицы KPI-вида «AI: типы звонков» и «AI: разделы оценки по типу»;
- * второй уровень — разбор по типам
- * (drawer), стиль менеджера, «Как считаем» и настройки витрины (диалог
- * руководителя: уровни, цели, отсутствия, состав — пункты чек-листа и
- * «Задать цель» плана дня открывают нужную вкладку). В kpi-only разборов
- * нет — секции с оценками скрыты с пояснением.
+ * Вкладка «AI аналитика»: шапка и «Готовность витрины» с чек-листом над
+ * подвкладками; подвкладки — «Сводка» (пульс, итоги периода, «Внимание»,
+ * повестка, план дня, план-факт, прогноз), «Сотрудники» (таблица сигналов
+ * и раскрытые настройки по людям), «Качество звонков» (три звонка недели,
+ * матрицы типов и разделов), «Настройки витрины» (гипотеза качества, пул
+ * порталов, «Как считаем»). Подвкладка — в URL (`?aiTab=`), ссылки «Задать
+ * цель» и пункты чек-листа ведут на подвкладку и секцию (`?aiSection=`).
+ * Разбор по типам (drawer) смонтирован на уровне вкладки: открывается из
+ * «Сводки» и «Качества». В kpi-only разборов нет — секции с оценками
+ * заменяет пояснение, настройки остаются доступны.
  */
 export const AiAnalyticsReport = () => {
     const report = useAiAnalyticsReport();
@@ -41,12 +33,13 @@ export const AiAnalyticsReport = () => {
             <AiTabHeader
                 canViewAll={report.canViewAll}
                 canConfigure={report.canConfigure}
-                periodClamped={report.periodClamped}
+                clampedPeriod={report.clampedPeriod}
+                scope={report.scopeNote}
                 isRefreshing={report.isRefreshing}
                 isRecalculating={report.isRecalculating}
                 onRefresh={report.refresh}
                 onRecalc={report.recalc}
-                onOpenLevels={report.openLevels}
+                onOpenSettings={report.openLevels}
             />
             {report.settings && report.checklist && (
                 <AiReadinessBanner
@@ -55,35 +48,33 @@ export const AiAnalyticsReport = () => {
                     onOpenSettings={onOpenSettings}
                 />
             )}
-            {report.kpiOnly ? (
-                <AiKpiOnlyNote />
-            ) : (
-                <>
-                    <AiPulseCard canViewAll={report.canViewAll} />
-                    <AiBriefCard />
-                    <AiAttentionList />
-                    <AiAgendaCard />
-                    <AiRopMarkCard />
-                    <AiDailyPlanCard
-                        onOpenTargets={
-                            report.canConfigure ? report.openTargets : undefined
-                        }
-                    />
-                    <AiPlanFactCard />
-                    <AiForecastCard />
-                    <AiSignalTable />
-                    <AiTypesMatrixBlock />
-                    <AiSectionsMatrixBlock />
-                    <AiTypesDrawer />
-                </>
-            )}
-            {report.canConfigure && (
-                <AiLevelsDialog
-                    open={report.levelsOpen}
-                    onOpenChange={report.setLevelsOpen}
-                    initialTab={report.levelsTab}
+            <AiTabsBar tab={report.tab} onChange={report.setTab} />
+            {report.tab === 'summary' && (
+                <AiSummaryTab
+                    canViewAll={report.canViewAll}
+                    kpiOnly={report.kpiOnly}
+                    onOpenTargets={
+                        report.canConfigure ? report.openTargets : undefined
+                    }
                 />
             )}
+            {report.tab === 'employees' && (
+                <AiEmployeesTab
+                    canConfigure={report.canConfigure}
+                    kpiOnly={report.kpiOnly}
+                    focusSection={report.section}
+                />
+            )}
+            {report.tab === 'quality' && (
+                <AiQualityTab kpiOnly={report.kpiOnly} />
+            )}
+            {report.tab === 'settings' && (
+                <AiShowcaseSettingsTab
+                    canConfigure={report.canConfigure}
+                    focusSection={report.section}
+                />
+            )}
+            {!report.kpiOnly && <AiTypesDrawer />}
         </div>
     );
 };

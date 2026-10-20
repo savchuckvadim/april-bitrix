@@ -11,6 +11,7 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { APP_SETTINGS_TEXT } from '../../../consts/app-settings.const';
+import { settingAnchorId } from '../../../lib/settings-view';
 import type {
     PortalAppSettingDescriptor,
     PortalAppSettingValue,
@@ -79,7 +80,8 @@ export const AppSettingField = ({
             : (descriptor.stored ?? descriptor.value !== null);
 
     return (
-        <div className="space-y-1">
+        // id — якорь `#setting-<код>` для ссылок путеводителя и хуков.
+        <div id={settingAnchorId(descriptor.code)} className="scroll-mt-4 space-y-1">
             <div className="flex flex-wrap items-center gap-2">
                 <Label>{descriptor.name}</Label>
                 <code

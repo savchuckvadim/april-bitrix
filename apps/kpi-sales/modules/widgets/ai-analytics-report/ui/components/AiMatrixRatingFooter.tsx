@@ -6,6 +6,7 @@ import type {
 } from '@/modules/entities/ai-analytics';
 import { EntityRatingChart } from '@/modules/feature/report-rating';
 import type { StructureSection } from '@/modules/feature/report-tabs';
+import { AI_MATRIX_BLOCK_TEXT } from '../../lib/ai-matrix-texts';
 import type { AiScoreIndicator } from '../../lib/ai-types-matrix-view.util';
 import { AiScoreRatingChart } from './AiScoreRatingChart';
 
@@ -23,13 +24,17 @@ interface AiMatrixRatingFooterProps {
     /** Оценки — взвешенное среднее по секции, не сумма. */
     points: AiScoreRatingPoint[];
     indicators: AiScoreIndicator[];
+    /** Среднее по отделу по коду показателя — линия на графике оценок. */
+    norms: ReadonlyMap<string, number | null>;
     /** Префикс ключей памяти выбранного показателя графиков оценок. */
     storagePrefix: string;
 }
 
+const T = AI_MATRIX_BLOCK_TEXT.rating;
+
 /**
- * Футер вкладки разбивки матриц AI (как RatingFooter KPI-отчёта):
- * победители по счётчикам и по оценке — сначала сущности (отделы/группы),
+ * Футер вкладки разбивки матриц AI (как RatingFooter KPI-отчёта): больше
+ * всего разборов и средняя оценка — сначала сущности (отделы/группы),
  * затем сотрудники.
  */
 export const AiMatrixRatingFooter = ({
@@ -39,29 +44,32 @@ export const AiMatrixRatingFooter = ({
     dataset,
     points,
     indicators,
+    norms,
     storagePrefix,
 }: AiMatrixRatingFooterProps) => (
     <div className="mt-6 space-y-4">
         <EntityRatingChart
-            title={`Победители — ${entityLabel} (${blockLabel})`}
+            title={`${T.mostReviews(entityLabel)} (${blockLabel})`}
             dataset={dataset}
             sections={sections}
         />
         <AiScoreRatingChart
-            title={`Оценка — ${entityLabel}`}
+            entityLabel={entityLabel}
             points={points}
             indicators={indicators}
+            norms={norms}
             sections={sections}
             storageKey={`${storagePrefix}-${entityLabel}`}
         />
         <EntityRatingChart
-            title={`Победители — сотрудники (${blockLabel})`}
+            title={`${T.mostReviews(T.employees)} (${blockLabel})`}
             dataset={dataset}
         />
         <AiScoreRatingChart
-            title="Оценка — сотрудники"
+            entityLabel={T.employees}
             points={points}
             indicators={indicators}
+            norms={norms}
             storageKey={`${storagePrefix}-users`}
         />
     </div>

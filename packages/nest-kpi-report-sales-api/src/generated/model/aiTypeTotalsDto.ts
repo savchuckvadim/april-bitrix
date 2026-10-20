@@ -19,7 +19,7 @@ export interface AiTypeTotalsDto {
     /** Подпись типа из карты алфавитов. */
     title: string;
     /**
-     * Корзина оценок типа; null — тип в оценках не участвует (other / irrelevant).
+     * Корзина оценок типа; null — тип в общую оценку не входит (приглашение на мероприятие — своя колонка со своей оценкой; other / irrelevant — доля «прочее»).
      * @nullable
      */
     bucket: AiTypeTotalsDtoBucket;

@@ -29,21 +29,23 @@ interface AiDailyPlanRopOnlyProps {
     forecastNote: string | null;
 }
 
+const T = AI_DAILY_PLAN_ROP_HINT;
+
 /** Подпись с пунктиром и объяснением в тултипе. */
 const Hinted = ({ label, hint }: { label: string; hint: string }) => (
     <HintTooltip title={label} lines={[hint]}>
-        <span className="border-b border-dashed border-muted-foreground">
+        <span className="cursor-help border-b border-dashed border-muted-foreground">
             {label}
         </span>
     </HintTooltip>
 );
 
 /**
- * Служебный блок руководителя (менеджеру не отдаётся): прогноз месяца
- * при нынешнем темпе и потолок (в деградации — «прогноз не оценён»),
- * обычный максимум звонков портала (cap), норма входного ребра
- * (leave-one-out, с n и долей своих данных), норма при опорном качестве,
- * связь «качество → исход», упор в cap, почему цель недостижима, S_req.
+ * Блок руководителя (менеджеру не отдаётся): прогноз месяца при нынешнем
+ * темпе и потолок (в деградации — «прогноз не оценён»), обычный максимум
+ * звонков портала, норма входного ребра с долей своих данных, норма при
+ * опорном качестве, связь качества с результатом, упор в максимум, почему
+ * цель недостижима, качество для цели — у каждой строки подсказка словами.
  */
 export const AiDailyPlanRopOnly = ({
     ropOnly,
@@ -54,10 +56,14 @@ export const AiDailyPlanRopOnly = ({
     return (
         <section className="rounded-md border border-dashed border-border/60 p-3">
             <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
-                Только руководителю
-                <ToneBadge tone="muted" variant="soft" size="sm">
-                    служебные числа
-                </ToneBadge>
+                {T.title}
+                <HintTooltip title={T.badge} lines={[T.badgeHint]}>
+                    <span>
+                        <ToneBadge tone="muted" variant="soft" size="sm">
+                            {T.badge}
+                        </ToneBadge>
+                    </span>
+                </HintTooltip>
             </h4>
             <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-xs text-muted-foreground sm:grid-cols-[auto_1fr]">
                 {forecast && <AiDailyPlanForecastRows forecast={forecast} />}
@@ -69,38 +75,44 @@ export const AiDailyPlanRopOnly = ({
                 )}
 
                 <dt>
-                    <Hinted
-                        label={AI_DAILY_PLAN_ROP_HINT.capLabel}
-                        hint={AI_DAILY_PLAN_ROP_HINT.cap}
-                    />
+                    <Hinted label={T.capLabel} hint={T.cap} />
                 </dt>
                 <dd className="text-foreground tabular-nums">
                     {formatAiPlanCap(aiDailyPlanCallCap(items))}
                 </dd>
 
-                <dt>Норма конверсии на входе воронки</dt>
+                <dt>
+                    <Hinted label={T.normLabel} hint={T.norm} />
+                </dt>
                 <dd className="text-foreground">
                     <AiMetricValue metric={ropOnly.norm} withDetails />
                     {ropOnly.norm.w !== undefined && (
                         <span className="ml-2 text-muted-foreground">
-                            своих данных {Math.round(ropOnly.norm.w * 100)} %
+                            <Hinted
+                                label={T.ownDataLabel(Math.round(ropOnly.norm.w * 100))}
+                                hint={T.ownData}
+                            />
                         </span>
                     )}
                 </dd>
 
-                <dt>Норма при опорном качестве</dt>
+                <dt>
+                    <Hinted label={T.normAtRefLabel} hint={T.normAtRef} />
+                </dt>
                 <dd className="text-foreground tabular-nums">
                     {ropOnly.normAtRefQuality === null
                         ? 'нет — связь с качеством не оценена'
                         : formatAiRate(ropOnly.normAtRefQuality)}
                 </dd>
 
-                <dt>Связь качества разговоров с результатом</dt>
+                <dt>
+                    <Hinted label={T.betaLabel} hint={T.beta} />
+                </dt>
                 <dd className="text-foreground">
                     {AI_DAILY_PLAN_BETA_SOURCE[ropOnly.betaSource]}
                 </dd>
 
-                <dt>{AI_DAILY_PLAN_ROP_HINT.bindingLabel}</dt>
+                <dt>{T.bindingLabel}</dt>
                 <dd className="text-foreground">
                     {ropOnly.bindingConstraint ? (
                         <Hinted
@@ -108,7 +120,7 @@ export const AiDailyPlanRopOnly = ({
                                 ropOnly.bindingConstraint,
                                 items,
                             )}
-                            hint={AI_DAILY_PLAN_ROP_HINT.binding}
+                            hint={T.binding}
                         />
                     ) : (
                         'нет'
@@ -117,7 +129,7 @@ export const AiDailyPlanRopOnly = ({
 
                 {ropOnly.unreachable && (
                     <>
-                        <dt>Цель недостижима</dt>
+                        <dt>{T.unreachableLabel}</dt>
                         <dd>
                             <ToneBadge
                                 tone="destructive"
@@ -133,7 +145,7 @@ export const AiDailyPlanRopOnly = ({
                 {ropOnly.sReq !== undefined && (
                     <>
                         <dt>
-                            Качество, при котором цель берётся текущим объёмом
+                            <Hinted label={T.sReqLabel} hint={T.sReq} />
                         </dt>
                         <dd className="text-foreground tabular-nums">
                             {formatAiPlanNumber(ropOnly.sReq)}

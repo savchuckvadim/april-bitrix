@@ -7,11 +7,10 @@ import {
 } from '@/modules/entities/ai-analytics/__tests__/ai-fixtures';
 import {
     AI_LEVER_NO_EFFECT,
-    AI_NOT_ANALYZED_HINT,
     AI_SIGNAL_FIXED_COLUMNS,
     AI_TENURE_UNKNOWN,
     AI_TENURE_UNKNOWN_HINT,
-    aiAnalyzedLabel,
+    aiAnalyzedView,
     aiSignalColumnCount,
     aiSignalColumns,
     aiTenureLabel,
@@ -51,7 +50,7 @@ const recommendation = (
 
 const riskCall = (overrides: Partial<AiRiskCall> = {}): AiRiskCall => ({
     transcriptionId: 't-1',
-    kind: 'promise',
+    kind: 'conflict',
     callStartedAt: '2026-09-10T10:00:00Z',
     link: null,
     ...overrides,
@@ -175,44 +174,144 @@ describe('ai-signal.util — стаж и риск-звонки', () => {
         ).toEqual({ text: 'с 01.10.2026', hint: null });
     });
 
-    it('aiAnalyzedLabel: «разобрано 0 из 0» при звонках в CRM — подсказка про готовность', () => {
-        const discipline = (callDone: number) => ({
-            callPlan: 0,
-            callDone,
-            presentationPlan: 0,
-            presentationDone: 0,
+    const discipline = (callDone: number) => ({
+        callPlan: 0,
+        callDone,
+        presentationPlan: 0,
+        presentationDone: 0,
+    });
+    const silent = (callDone: number) => ({
+        managerId: '7',
+        departmentId: 10,
+        analyzedCalls: 0,
+        callsTotal: 0,
+        discipline: discipline(callDone),
+    });
+    const ctx = {
+        periodTo: '2026-09-30',
+        analysisSince: '2026-07-21',
+        callReport: {
+            enabled: true,
+            pilotUserIds: null,
+            salesOnly: null,
+            minDurationSec: null,
+        },
+        comparableFrom: '2026-09-25',
+    };
+
+    it('aiAnalyzedView: «разобрано N из M» с подсказкой, что такое оба числа', () => {
+        const view = aiAnalyzedView(
+            { ...silent(12), analyzedCalls: 3, callsTotal: 140 },
+            ctx,
+        );
+        expect(view.text).toBe('разобрано 3 из 140');
+        expect(view.warning).toBe(false);
+        expect(view.hint?.lines.join(' ')).toContain('с 25.09.2026');
+        expect(view.hint?.lines.join(' ')).toContain('Второе — все звонки');
+    });
+
+    it('aiAnalyzedView: нет разборов при звонках в CRM — «AI-разборов нет · в CRM 12 звонков» и причина', () => {
+        const other = aiAnalyzedView(silent(12), ctx);
+        expect(other.text).toBe('AI-разборов нет · в CRM 12 звонков');
+        expect(other.warning).toBe(true);
+        expect(other.hint?.lines.join(' ')).toContain('«Готовность витрины»');
+        // Вне пилота.
+        const pilot = aiAnalyzedView(silent(12), {
+            ...ctx,
+            callReport: { ...ctx.callReport, pilotUserIds: ['9'] },
         });
+        expect(pilot.hint?.title).toBe('Сотрудник не в пилоте');
+        expect(pilot.hint?.lines.join(' ')).toContain('попросите разработчика');
+        // Короче порога — число из настроек.
+        const short = aiAnalyzedView(silent(12), {
+            ...ctx,
+            callReport: { ...ctx.callReport, minDurationSec: 300 },
+        });
+        expect(short.hint?.lines[0]).toBe(
+            'Все звонки короче 300 сек, такие AI не разбирает.',
+        );
+    });
+
+    it('aiAnalyzedView: период раньше старта разбора — «разбор ещё не шёл» с датой, не предупреждение', () => {
+        const before = aiAnalyzedView(silent(12), {
+            ...ctx,
+            periodTo: '2026-07-01',
+        });
+        expect(before.hint?.title).toBe('Разбор ещё не шёл');
+        expect(before.hint?.lines[0]).toContain('он идёт с 21.07.2026');
+        expect(before.warning).toBe(false);
+        // Без звонков в CRM, но до старта — подсказка всё равно есть.
         expect(
-            aiAnalyzedLabel({
-                analyzedCalls: 0,
-                callsTotal: 0,
-                discipline: discipline(12),
-            }),
-        ).toEqual({ text: 'разобрано 0 из 0', hint: AI_NOT_ANALYZED_HINT });
-        expect(
-            aiAnalyzedLabel({
-                analyzedCalls: 0,
-                callsTotal: 0,
-                discipline: discipline(0),
-            }).hint,
-        ).toBeNull();
+            aiAnalyzedView(silent(0), { ...ctx, periodTo: '2026-07-01' }).hint
+                ?.title,
+        ).toBe('Разбор ещё не шёл');
+    });
+
+    it('aiAnalyzedView: без звонков в CRM и после старта — «AI-разборов нет» без подсказки', () => {
+        const view = aiAnalyzedView(silent(0), ctx);
+        expect(view).toEqual({
+            text: 'AI-разборов нет',
+            hint: null,
+            warning: false,
+        });
         expect(
             isAiRowOutOfAnalysis({ callsTotal: 5, discipline: discipline(12) }),
         ).toBe(false);
     });
 
-    it('aiSignalColumns: «Тренды» и «Год назад» — только при данных; число колонок', () => {
+    it('aiSignalColumns: «Тренды», «Год назад» и «План руководителя» — только при данных; число колонок', () => {
         const none = aiSignalColumns([{ trends: null, yoy: null }, {}]);
-        expect(none).toEqual({ trends: false, yoy: false });
+        expect(none).toEqual({ trends: false, yoy: false, planHead: false });
         expect(aiSignalColumnCount(none)).toBe(AI_SIGNAL_FIXED_COLUMNS);
         expect(AI_SIGNAL_FIXED_COLUMNS).toBe(13);
         const both = aiSignalColumns([
             { trends: managerTrends(), yoy: null },
             { yoy: yoy() },
         ]);
-        expect(both).toEqual({ trends: true, yoy: true });
+        expect(both).toEqual({ trends: true, yoy: true, planHead: false });
         expect(aiSignalColumnCount(both)).toBe(15);
-        expect(aiSignalColumnCount({ trends: true, yoy: false })).toBe(14);
+        expect(
+            aiSignalColumnCount({ trends: true, yoy: false, planHead: false }),
+        ).toBe(14);
+        // План руководителя — только если хоть у кого-то задан план (plan > 0).
+        const withPlan = aiSignalColumns([
+            {
+                planTargets: [
+                    {
+                        code: 'sales_count',
+                        name: 'Продажи',
+                        unit: 'count',
+                        factSource: 'finance',
+                        periodType: 'month',
+                        target: 3,
+                        plan: 3,
+                        fact: 1,
+                        percent: 0.33,
+                    },
+                ],
+            },
+        ]);
+        expect(withPlan.planHead).toBe(true);
+        expect(aiSignalColumnCount(withPlan)).toBe(14);
+        expect(
+            aiSignalColumns([
+                {
+                    planTargets: [
+                        {
+                            code: 'sales_count',
+                            name: 'Продажи',
+                            unit: 'count',
+                            factSource: 'finance',
+                            periodType: 'month',
+                            target: null,
+                            plan: null,
+                            fact: 1,
+                            percent: null,
+                        },
+                    ],
+                },
+            ]).planHead,
+        ).toBe(false);
     });
 
     it('pickAiRiskCalls: свежие первыми, не больше трёх', () => {

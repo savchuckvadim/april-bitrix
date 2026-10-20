@@ -25,17 +25,26 @@ import {
 const JARGON = /σ|n =|n=/;
 
 describe('ai-style.util — состояния карточки', () => {
-    it('ready — оговорки нет; few_data / opt_out — note бэка либо запасной текст', () => {
+    it('ready — оговорки нет; few_data — порог 40 и «сейчас N»; opt_out — note бэка либо запасной текст', () => {
         expect(aiStyleStatusNote(styleCard())).toBeNull();
+        // Note бэка «данных мало» порога не называет — текст с порогом важнее.
         expect(
             aiStyleStatusNote({ status: 'few_data', note: 'мало разборов' }),
-        ).toBe('мало разборов');
-        expect(aiStyleStatusNote({ status: 'few_data', note: null })).toBe(
-            AI_STYLE_STATUS_TEXT.few_data,
-        );
+        ).toBe(AI_STYLE_STATUS_TEXT.few_data);
+        expect(AI_STYLE_STATUS_TEXT.few_data).toContain('40 разобранных звонков');
+        expect(
+            aiStyleStatusNote({
+                status: 'few_data',
+                note: null,
+                profile: { calls: 12 },
+            }),
+        ).toBe(`${AI_STYLE_STATUS_TEXT.few_data} Сейчас: 12.`);
         expect(aiStyleStatusNote({ status: 'opt_out', note: '' })).toBe(
             AI_STYLE_STATUS_TEXT.opt_out,
         );
+        expect(
+            aiStyleStatusNote({ status: 'opt_out', note: 'по просьбе' }),
+        ).toBe('по просьбе');
     });
 
     it('оговорка профиля при низком доверии', () => {

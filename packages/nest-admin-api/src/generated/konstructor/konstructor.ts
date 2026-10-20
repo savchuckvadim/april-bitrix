@@ -11,7 +11,9 @@ import type {
   OfferWordByTemplateGenerateResponseDto,
   OfferWordEphemeralPdfPollResponseDto,
   OfferWordEphemeralPdfStartResponseDto,
-  OfferWordEphemeralPdfStopResponseDto
+  OfferWordEphemeralPdfStopResponseDto,
+  OfferWordMultiGenerateDto,
+  OfferWordMultiGenerateResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
@@ -71,6 +73,20 @@ const offerWordPdfPreviewStopPreview = (
     },
       );
     }
+  /**
+ * Генерация КП и счетов для нескольких вариантов комплекта. Режим печати берётся из настроек сборки: compare — открытый вариант (остальные «для сравнения»), merged — один документ с объединённым наполнением, independent — рендер на участника со склейкой PDF или отдельными документами. Счета выставляются по группам с одним типом договора. Старая ручка generate не меняется.
+ * @summary Сгенерировать КП по шаблону (v2, несколько участников)
+ */
+const offerWordMultiGenerateGenerateOfferWordMulti = (
+    offerWordMultiGenerateDto: OfferWordMultiGenerateDto,
+ ) => {
+      return customAxios<OfferWordMultiGenerateResponseDto>(
+      {url: `/api/offer-word-document/generate-multi`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: offerWordMultiGenerateDto
+    },
+      );
+    }
   const offerCreateOffer = (
     offerDto: OfferDto,
  ) => {
@@ -81,9 +97,10 @@ const offerWordPdfPreviewStopPreview = (
     },
       );
     }
-  return {offerWordGenerateGenerateOfferWord,offerWordPdfPreviewStartPreview,offerWordPdfPreviewGetPreviewStatus,offerWordPdfPreviewStopPreview,offerCreateOffer}};
+  return {offerWordGenerateGenerateOfferWord,offerWordPdfPreviewStartPreview,offerWordPdfPreviewGetPreviewStatus,offerWordPdfPreviewStopPreview,offerWordMultiGenerateGenerateOfferWordMulti,offerCreateOffer}};
 export type OfferWordGenerateGenerateOfferWordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordGenerateGenerateOfferWord']>>>
 export type OfferWordPdfPreviewStartPreviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordPdfPreviewStartPreview']>>>
 export type OfferWordPdfPreviewGetPreviewStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordPdfPreviewGetPreviewStatus']>>>
 export type OfferWordPdfPreviewStopPreviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordPdfPreviewStopPreview']>>>
+export type OfferWordMultiGenerateGenerateOfferWordMultiResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordMultiGenerateGenerateOfferWordMulti']>>>
 export type OfferCreateOfferResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerCreateOffer']>>>

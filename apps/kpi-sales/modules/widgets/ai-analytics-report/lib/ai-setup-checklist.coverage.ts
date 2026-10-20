@@ -3,10 +3,16 @@ import {
     isAiKpiOnly,
     pluralRu,
     type AiCallReportStatus,
-    type AiManagerRow,
 } from '@/modules/entities/ai-analytics';
 import { AI_READINESS_REASON_CODE } from './ai-readiness-banner.util';
-import { isAiRowOutOfAnalysis } from './ai-signal.util';
+import { formatAiDateRu, isAiRowOutOfAnalysis } from './ai-signal.util';
+import {
+    AI_NOT_ANALYZED_REASON,
+    aiNotAnalyzedReason,
+    isAiPeriodBeforeAnalysis,
+    type AiAnalysisPeriodContext,
+    type AiNotAnalyzedReason,
+} from './ai-not-analyzed.util';
 import {
     AI_EMPLOYEE_GENITIVE,
     AI_MANAGER_GENITIVE,
@@ -27,6 +33,13 @@ import {
     AI_CHECKLIST_OVERVIEW,
     type AiChecklistItem,
 } from './ai-setup-checklist.types';
+
+export {
+    AI_NOT_ANALYZED_REASON,
+    aiNotAnalyzedReason,
+    type AiNotAnalyzedReason,
+} from './ai-not-analyzed.util';
+export { aiPilotHiddenItem } from './ai-setup-checklist.pilot';
 
 /*
  * «Сначала данные»: доступ к обзору, разбор звонков на портале, пилот,
@@ -91,7 +104,7 @@ export const aiCallCoverageItem = (
 
 /**
  * Пилот — осознанное решение по стоимости, поэтому рекомендация, а не
- * блокер: менеджеров вне пилота с CRM-звонками покажет «вне разбора».
+ * блокер: во вкладке показаны только сотрудники из разбора.
  */
 export const aiPilotItem = (
     ctx: AiChecklistContext,
@@ -110,34 +123,14 @@ export const aiPilotItem = (
     });
 };
 
-/** Вероятная причина, почему звонки менеджера не видны разбору. */
-export const AI_NOT_ANALYZED_REASON = {
-    OUT_OF_PILOT: 'out-of-pilot',
-    OUT_OF_SALES: 'out-of-sales',
-    SHORT: 'short',
-    OTHER: 'other',
-} as const;
-export type AiNotAnalyzedReason =
-    (typeof AI_NOT_ANALYZED_REASON)[keyof typeof AI_NOT_ANALYZED_REASON];
-
-/**
- * Причина по статусу конвейера: не в пилоте → вне отдела продаж (разбор
- * «только ОП» по умолчанию, salesOnly = null) → порог длительности → иное.
- */
-export const aiNotAnalyzedReason = (
-    row: Pick<AiManagerRow, 'managerId' | 'departmentId'>,
-    report: AiCallReportStatus | undefined,
-): AiNotAnalyzedReason => {
-    const pilot = aiPilotIds(report);
-    if (pilot.length && !pilot.includes(row.managerId)) {
-        return AI_NOT_ANALYZED_REASON.OUT_OF_PILOT;
-    }
-    if (report?.salesOnly !== false && row.departmentId === null) {
-        return AI_NOT_ANALYZED_REASON.OUT_OF_SALES;
-    }
-    if (report?.minDurationSec) return AI_NOT_ANALYZED_REASON.SHORT;
-    return AI_NOT_ANALYZED_REASON.OTHER;
-};
+/** Период обзора и день старта разбора — для причины «раньше старта». */
+const analysisPeriod = (ctx: AiChecklistContext): AiAnalysisPeriodContext | undefined =>
+    ctx.overview
+        ? {
+              periodTo: ctx.overview.period.to,
+              analysisSince: ctx.settings.analysisSince ?? null,
+          }
+        : undefined;
 
 /** Подпись причины в скобках после имени. */
 export const aiNotAnalyzedReasonLabel = (
@@ -145,6 +138,8 @@ export const aiNotAnalyzedReasonLabel = (
     report: AiCallReportStatus | undefined,
 ): string => {
     switch (reason) {
+        case AI_NOT_ANALYZED_REASON.BEFORE_PIPELINE:
+            return T.notAnalyzed.beforeStart;
         case AI_NOT_ANALYZED_REASON.OUT_OF_PILOT:
             return T.notAnalyzed.outOfPilot;
         case AI_NOT_ANALYZED_REASON.OUT_OF_SALES:
@@ -157,13 +152,18 @@ export const aiNotAnalyzedReasonLabel = (
 };
 
 const NOT_ANALYZED_FIX: Record<AiNotAnalyzedReason, string> = {
+    [AI_NOT_ANALYZED_REASON.BEFORE_PIPELINE]: T.notAnalyzed.beforeStartFix,
     [AI_NOT_ANALYZED_REASON.OUT_OF_PILOT]: T.pilot.widen,
     [AI_NOT_ANALYZED_REASON.OUT_OF_SALES]: T.notAnalyzed.fixSales,
     [AI_NOT_ANALYZED_REASON.SHORT]: T.notAnalyzed.fixShort,
     [AI_NOT_ANALYZED_REASON.OTHER]: T.notAnalyzed.fixOther,
 };
 
-/** Менеджеры с CRM-звонками и пустой телефонией за период — поимённо с причиной. */
+/**
+ * Менеджеры с CRM-звонками и пустой телефонией за период — поимённо с
+ * причиной. Период целиком раньше старта разбора — отдельный пункт «к
+ * сведению»: это не поломка, а выбранные даты.
+ */
 export const aiNotAnalyzedItem = (ctx: AiChecklistContext): AiChecklistItem => {
     const code = AI_CHECKLIST_ITEM.NOT_ANALYZED;
     if (!ctx.overview) {
@@ -177,7 +177,21 @@ export const aiNotAnalyzedItem = (ctx: AiChecklistContext): AiChecklistItem => {
             detail: T.notAnalyzed.doneDetail,
         });
     }
-    const reasons = rows.map(row => aiNotAnalyzedReason(row, report));
+    const period = analysisPeriod(ctx);
+    if (isAiPeriodBeforeAnalysis(period) && period?.analysisSince) {
+        return aiTodoItem(code, DATA, {
+            optional: true,
+            title: T.notAnalyzed.beforeStartTitle,
+            detail: T.notAnalyzed.beforeStartDetail(
+                formatAiDateRu(period.analysisSince),
+                rows.length,
+                pluralRu(rows.length, AI_MANAGER_GENITIVE),
+            ),
+            unlocks: T.notAnalyzed.unlocks,
+            actions: [aiTextAction(T.notAnalyzed.beforeStartFix)],
+        });
+    }
+    const reasons = rows.map(row => aiNotAnalyzedReason(row, report, period));
     const names = rows.map(
         (row, index) =>
             `${ctx.managerName(row.managerId)} (${aiNotAnalyzedReasonLabel(reasons[index] ?? AI_NOT_ANALYZED_REASON.OTHER, report)})`,

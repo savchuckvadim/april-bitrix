@@ -24,6 +24,22 @@ export const AI_BRIEF_TONE: Record<AiBriefTone, { label: string; tone: Tone }> =
         alarm: { label: 'есть сигналы риска', tone: 'destructive' },
     };
 
+/** Подсказка к плашке тона: что значит каждое слово. */
+export const AI_BRIEF_TONE_HINT = {
+    title: 'Общий итог периода',
+    lines: [
+        `Одним словом: «${AI_BRIEF_TONE.alarm.label}» — в звонках были риски, «${AI_BRIEF_TONE.attention.label}» — есть просадки, «${AI_BRIEF_TONE.calm.label}» — заметных проблем нет.`,
+        'Подробности — в пунктах ниже.',
+    ],
+} as const;
+
+/** Подсказка кнопки «Пересобрать». */
+export const AI_BRIEF_REBUILD_HINT = {
+    label: 'Пересобрать',
+    title: 'Пересобрать итоги',
+    lines: ['Собрать итоги заново по свежим данным. Займёт несколько секунд.'],
+} as const;
+
 /** Шаблон без названной причины (сервер reason не прислал). */
 export const AI_BRIEF_TEMPLATE_REASON_FALLBACK = 'Итоги собраны по шаблону.';
 

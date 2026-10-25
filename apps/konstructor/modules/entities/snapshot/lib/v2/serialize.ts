@@ -1,5 +1,15 @@
+import { normalizeComposition } from '../../../composition';
+import type { RowSet } from '../../../row-set';
 import type { RestoredState, SnapshotV2 } from '../../model/types';
 import { isSnapshotV2 } from '../../model/types';
+
+/** Составы строк из записи до появления новых полей — с дефолтами */
+const normalizeSet = (set: RowSet): RowSet => ({
+    ...set,
+    rows: set.rows.map(row =>
+        row.composition ? { ...row, composition: normalizeComposition(row.composition) } : row,
+    ),
+});
 
 export interface SerializeV2Input {
     state: Pick<
@@ -40,10 +50,24 @@ export const restoreV2 = (snapshot: SnapshotV2): RestoredState => ({
     regionCode: snapshot.regionCode,
     contractCode: snapshot.contractCode,
     supplyCode: snapshot.supplyCode,
-    general: snapshot.general,
-    alternative: snapshot.alternative,
+    general: normalizeSet(snapshot.general),
+    alternative: snapshot.alternative.map(normalizeSet),
     templateId: snapshot.templateId,
     warnings: [],
 });
+
+/**
+ * Слепок v2 из колонки rows записи bx_document_deals; легаси-v1 или битый
+ * JSON — null (v1 разбирает parse-v1).
+ */
+export const parseSnapshotV2 = (rows: string | null | undefined): SnapshotV2 | null => {
+    if (!rows) return null;
+    try {
+        const parsed = JSON.parse(rows) as unknown;
+        return isSnapshotV2(parsed) ? parsed : null;
+    } catch {
+        return null;
+    }
+};
 
 export { isSnapshotV2 };

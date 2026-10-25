@@ -13,9 +13,17 @@ describe('head-perimeter-cache', () => {
     });
 
     it('в кэш попадает только список целых id', () => {
-        expect(isHeadPerimeter({ subordinateIds: [231, 465] })).toBe(true);
-        expect(isHeadPerimeter({ subordinateIds: [] })).toBe(true);
-        expect(isHeadPerimeter({ subordinateIds: ['231'] })).toBe(false);
+        expect(
+            isHeadPerimeter({ subordinateIds: [231, 465], isSuperUser: false }),
+        ).toBe(true);
+        expect(isHeadPerimeter({ subordinateIds: [], isSuperUser: true })).toBe(
+            true,
+        );
+        expect(
+            isHeadPerimeter({ subordinateIds: ['231'], isSuperUser: false }),
+        ).toBe(false);
+        // Кэш прежней формы (без флага супера) не принимается — перезапрос.
+        expect(isHeadPerimeter({ subordinateIds: [231] })).toBe(false);
         expect(isHeadPerimeter(null)).toBe(false);
     });
 

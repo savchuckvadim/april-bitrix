@@ -48,6 +48,25 @@ export const canManageJoin = (role: DepartmentRole): boolean =>
     role !== EDepartmentRole.EMPLOYEE;
 
 /**
+ * Роль для действий руководителя в дублях.
+ *
+ * Роль из структуры отдела считается во фронте и не знает двух вещей
+ * бэка: суперпользователя April (таблица на бэке) и руководителя, чьи
+ * подчинённые найдены сервером (структура v3, режим руководителя).
+ * garant 23.10.2026: суперпользователь не видел «Присоединить сюда».
+ */
+export const effectiveManageRole = (
+    role: DepartmentRole,
+    flags: { isSuperUser: boolean; hasSubordinates: boolean },
+): DepartmentRole => {
+    if (flags.isSuperUser) return EDepartmentRole.SUPER;
+    if (role === EDepartmentRole.EMPLOYEE && flags.hasSubordinates) {
+        return EDepartmentRole.GROUP_HEAD;
+    }
+    return role;
+};
+
+/**
  * Можно ли присоединить ТЕКУЩУЮ сделку к этому кандидату и как именно.
  *
  * Чистая функция: правила доступа — данные для теста, а не ветвление в

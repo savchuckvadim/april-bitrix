@@ -27,6 +27,7 @@ import {
 import { BxSmartTypeService } from './domain/crm/smart-type/services/bx-smart-type.service';
 import { BxRpaItemService } from './domain/rpa/item/services/bx-rpa-item.service';
 import { BxRpaItemBatchService } from './domain/rpa/item/services/bx-rpa-item.batch.service';
+import { BxRpaStageService } from './domain/rpa/stage/services/bx-rpa-stage.service';
 import { BxFileService } from './domain/file/bx-file.service';
 import { BxUserService } from './domain/user';
 import { IBXUser } from './domain/interfaces/bitrix.interface';
@@ -74,6 +75,7 @@ export class BitrixService {
     public userFieldConfig!: BxUserFieldConfigService;
     public smartType!: BxSmartTypeService;
     public rpaItem!: BxRpaItemService;
+    public rpaStage!: BxRpaStageService;
     public file!: BxFileService;
 
     public batch = {
@@ -226,6 +228,9 @@ export class BitrixService {
     private initRpaItem() {
         this.rpaItem = this.cloner.clone(BxRpaItemService, this.api);
         this.batch.rpaItem = this.cloner.clone(BxRpaItemBatchService, this.api);
+    }
+    private initRpaStage() {
+        this.rpaStage = this.cloner.clone(BxRpaStageService, this.api);
     }
     private initFile() {
         this.file = this.cloner.clone(BxFileService, this.api);

@@ -31,6 +31,10 @@ export const mergeCompositions = (
         ersInPacket: union(...compositions.map(c => c.ersInPacket)),
         lt: union(...compositions.map(c => c.lt)),
         ltInPacket: union(...compositions.map(c => c.ltInPacket)),
+        // пакеты LT-other — по id без повторов (у каждой строки свои)
+        ltOther: compositions
+            .flatMap(c => c.ltOther ?? [])
+            .filter((packet, index, all) => all.findIndex(item => item.id === packet.id) === index),
         freeBlocks: union(...compositions.map(c => c.freeBlocks)),
         consalting,
         star: compositions.some(c => c.star),

@@ -1,6 +1,10 @@
 'use client';
 
+import { ChipSelect } from '@workspace/april-ui/fields';
 import { OdSelect } from '@/modules/features/custom-od';
+import { SaveToLibraryButton } from '@/modules/features/save-to-library';
+import { DealSendButton } from '@/modules/features/deal-send';
+import { ServicePeriodSwitch } from '@/modules/features/service-period';
 import { useTableHeader } from '../hooks/use-table-header';
 import { CurrentComplectName } from './CurrentComplectName';
 import { SaveSnapshotButton } from './SaveSnapshotButton';
@@ -8,6 +12,7 @@ import { SaveSnapshotButton } from './SaveSnapshotButton';
 /**
  * Шапка таблицы (легаси Total.jsx): имя текущего комплекта + селекты
  * главной строки (комплект / ОД / договор), регион и поставщик (налог).
+ * Селекты — чипы дизайн-системы: значения меняют редко.
  */
 export const TableHeader = () => {
     const header = useTableHeader();
@@ -20,29 +25,23 @@ export const TableHeader = () => {
                 </span>
                 <CurrentComplectName complect={header.mainComplect} />
             </div>
+            <ServicePeriodSwitch />
 
             {header.mainRow ? (
                 <>
                     <label className="flex flex-col gap-1 text-xs text-muted-foreground">
                         Комплект
-                        <select
-                            className="rounded border bg-background px-2 py-1.5 text-sm text-foreground"
+                        <ChipSelect
+                            ariaLabel="Комплект"
                             value={header.mainRow.refs.complectCode ?? ''}
-                            onChange={event =>
-                                header.changeMainRefs({
-                                    complectCode: event.target.value,
-                                })
+                            options={header.allComplects.map(complect => ({
+                                code: complect.code,
+                                name: complect.title,
+                            }))}
+                            onChange={complectCode =>
+                                header.changeMainRefs({ complectCode })
                             }
-                        >
-                            {header.allComplects.map(complect => (
-                                <option
-                                    key={complect.code}
-                                    value={complect.code}
-                                >
-                                    {complect.title}
-                                </option>
-                            ))}
-                        </select>
+                        />
                     </label>
                     <label className="flex flex-col gap-1 text-xs text-muted-foreground">
                         Кол-во доступов (ОД)
@@ -50,7 +49,6 @@ export const TableHeader = () => {
                             catalog={header.catalog}
                             supplies={header.availableSupplies}
                             value={header.mainRow.refs.supplyCode}
-                            className="rounded border bg-background px-2 py-1.5 text-sm text-foreground"
                             onChange={supplyCode =>
                                 header.changeMainRefs({ supplyCode })
                             }
@@ -58,63 +56,52 @@ export const TableHeader = () => {
                     </label>
                     <label className="flex flex-col gap-1 text-xs text-muted-foreground">
                         Тип договора
-                        <select
-                            className="rounded border bg-background px-2 py-1.5 text-sm text-foreground"
+                        <ChipSelect
+                            ariaLabel="Тип договора"
                             value={header.mainRow.refs.contractCode}
-                            onChange={event =>
-                                header.changeMainRefs({
-                                    contractCode: event.target.value,
-                                })
+                            options={header.availableContracts.map(contract => ({
+                                code: contract.code,
+                                name: contract.name,
+                            }))}
+                            onChange={contractCode =>
+                                header.changeMainRefs({ contractCode })
                             }
-                        >
-                            {header.availableContracts.map(contract => (
-                                <option
-                                    key={contract.code}
-                                    value={contract.code}
-                                >
-                                    {contract.name}
-                                </option>
-                            ))}
-                        </select>
+                        />
                     </label>
                 </>
             ) : null}
 
             <label className="flex flex-col gap-1 text-xs text-muted-foreground">
                 Регион
-                <select
-                    className="rounded border bg-background px-2 py-1.5 text-sm text-foreground"
+                <ChipSelect
+                    ariaLabel="Регион"
                     value={header.context.regionCode ?? ''}
-                    onChange={event => header.setRegion(event.target.value)}
-                >
-                    {header.regions.map(region => (
-                        <option key={region.code} value={region.code}>
-                            {region.title}
-                        </option>
-                    ))}
-                </select>
+                    options={header.regions.map(region => ({
+                        code: region.code,
+                        name: region.title,
+                    }))}
+                    onChange={header.setRegion}
+                />
             </label>
 
             {header.providers.length ? (
                 <label className="flex flex-col gap-1 text-xs text-muted-foreground">
                     Поставщик
-                    <select
-                        className="rounded border bg-background px-2 py-1.5 text-sm text-foreground"
+                    <ChipSelect
+                        ariaLabel="Поставщик"
                         value={header.currentProvider?.id ?? ''}
-                        onChange={event =>
-                            header.setProvider(Number(event.target.value))
-                        }
-                    >
-                        {header.providers.map(provider => (
-                            <option key={provider.id} value={provider.id}>
-                                {provider.title || provider.name}
-                            </option>
-                        ))}
-                    </select>
+                        options={header.providers.map(provider => ({
+                            code: provider.id,
+                            name: provider.name,
+                        }))}
+                        onChange={header.setProvider}
+                    />
                 </label>
             ) : null}
 
+            <SaveToLibraryButton />
             <SaveSnapshotButton />
+            <DealSendButton navigateAfter />
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
 import { getDuplicateContext } from '@/modules/app/lib/utills/app-state-util';
-import { selectMyDepartmentRole } from '@/modules/features/Departament/model/selectors';
+import { selectDuplicatesManageRole } from './selectors';
 import { DuplicatesHelper } from '../lib/api/duplicates-helper';
 import { resolveDuplicateTarget } from '../lib/duplicate-context';
 import { toErrorText } from '../lib/error-text.util';
@@ -148,7 +148,7 @@ export const joinToMain =
         const target = resolveJoinTarget(
             candidate,
             getDuplicateContext(state),
-            selectMyDepartmentRole(state).role,
+            selectDuplicatesManageRole(state),
         );
         if (
             !target.allowed ||

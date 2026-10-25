@@ -5,11 +5,6 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
-import type { InitSupplyDtoRpaId } from './initSupplyDtoRpaId';
-import type { InitSupplyDtoUserId } from './initSupplyDtoUserId';
-import type { InitSupplyDtoCompanyId } from './initSupplyDtoCompanyId';
-import type { InitSupplyDtoDealId } from './initSupplyDtoDealId';
-import type { InitSupplyDtoServiceSmartId } from './initSupplyDtoServiceSmartId';
 import type { ContactIdDto } from './contactIdDto';
 import type { ContractDto } from './contractDto';
 import type { ContractLtype } from './contractLtype';
@@ -21,29 +16,46 @@ import type { ContractSpecificationDto } from './contractSpecificationDto';
 import type { SupplyReportDto } from './supplyReportDto';
 import type { PbxDealDto } from './pbxDealDto';
 import type { PbxCompanyDto } from './pbxCompanyDto';
-import type { ProductRowSupplyDto } from './productRowSupplyDto';
+import type { SupplyDto } from './supplyDto';
+import type { ProductRowDto } from './productRowDto';
 import type { InitSupplyDtoFlow } from './initSupplyDtoFlow';
 import type { InitSupplyFileDto } from './initSupplyFileDto';
+import type { DocumentVariantDto } from './documentVariantDto';
 
 export interface InitSupplyDto {
     /** Domain of the supply */
     domain: string;
-    /** RPA ID of the supply */
-    rpa_id: InitSupplyDtoRpaId;
+    /**
+     * RPA ID of the supply
+     * @nullable
+     */
+    rpa_id?: number | null;
     /** ID of the provider */
     providerId: number;
-    /** User ID of the supply */
-    userId: InitSupplyDtoUserId;
-    /** Company ID of the supply */
-    companyId: InitSupplyDtoCompanyId;
+    /**
+     * User ID of the supply
+     * @nullable
+     */
+    userId?: number | null;
+    /**
+     * Company ID of the supply
+     * @nullable
+     */
+    companyId?: number | null;
     /** Company name of the supply */
     companyName: string;
-    /** Base deal ID of the supply */
-    dealId: InitSupplyDtoDealId;
-    /** Service smart ID of the supply */
-    serviceSmartId: InitSupplyDtoServiceSmartId;
+    /**
+     * Base deal ID of the supply
+     * @nullable
+     */
+    dealId?: number | null;
+    /**
+     * Service smart ID of the supply
+     * @nullable
+     */
+    serviceSmartId?: number | null;
     /** Contacts  */
-    bxContacts: ContactIdDto;
+    bxContacts: ContactIdDto[];
     /** Contract  */
     contract: ContractDto;
     /** Contract type */
@@ -59,7 +71,7 @@ export interface InitSupplyDto {
     /** Contract specification state of the contract */
     contractSpecificationState: ContractSpecificationDto;
     /** Supply report form fields */
-    supplyReport: SupplyReportDto;
+    supplyReport: SupplyReportDto[];
     /** PbxDealDto of the supply report */
     bxDealItems: PbxDealDto;
     /** PbxCompanyDto of the supply report */
@@ -71,11 +83,13 @@ export interface InitSupplyDto {
     /** Client arm id */
     clientArmId: string;
     /** Supply */
-    supply: ProductRowSupplyDto;
-    /** Total sum */
-    total: number;
+    supply: SupplyDto;
+    /** Итоговая строка (массив из одной) */
+    total: ProductRowDto[];
     /** Поставка или перезаключение */
     flow?: InitSupplyDtoFlow;
     /** Файлы, приложенные менеджером в конструкторе (договор/счёт). Уходят и в поле RPA, и в поле сделки. */
     files?: InitSupplyFileDto[];
+    /** Участники заявки — варианты комплекта. На каждого своя страница в таймлайне и ссылка в поле заявки. Нет или один — заявка как раньше */
+    variants?: DocumentVariantDto[];
 }

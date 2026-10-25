@@ -5,7 +5,11 @@ import type {
     AiReadiness,
     AiReadinessBetaSource,
 } from '@/modules/entities/ai-analytics/model';
-import { pluralRu } from '@/modules/entities/ai-analytics/lib/ai-readiness.data';
+import {
+    AI_BETA_BEYOND_HORIZON,
+    isAiBetaBeyondHorizon,
+    pluralRu,
+} from '@/modules/entities/ai-analytics/lib/ai-readiness.data';
 import { formatAiAboutKappa } from './ai-about.util';
 import {
     AI_ABOUT_CHECK_LABELS,
@@ -73,7 +77,9 @@ export const formatAiAboutCountdown = (
     const left = Math.max(0, Math.ceil(countdown.presentationsLeft));
     if (left === 0) return 'объём набран — ждём ближайшего пересчёта';
     const parts = [`≈ ${left} ${pluralRu(left, PRESENTATION_FORMS)}`];
-    if (countdown.monthsLeft !== null && countdown.monthsLeft > 0) {
+    if (isAiBetaBeyondHorizon(countdown)) {
+        parts.push(AI_BETA_BEYOND_HORIZON);
+    } else if (countdown.monthsLeft !== null && countdown.monthsLeft > 0) {
         parts.push(`≈ ${Math.max(1, Math.round(countdown.monthsLeft))} мес.`);
     }
     return parts.join(' / ');

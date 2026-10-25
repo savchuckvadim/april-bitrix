@@ -18,15 +18,20 @@ import type { ProductRowSetDto } from './productRowSetDto';
 import type { DocumentSupplyReportGenerateDtoClientType } from './documentSupplyReportGenerateDtoClientType';
 import type { BxRqDto } from './bxRqDto';
 import type { ContractSpecificationDto } from './contractSpecificationDto';
-import type { DocumentSupplyReportGenerateDtoBxCompanyItemsItem } from './documentSupplyReportGenerateDtoBxCompanyItemsItem';
+import type { DocumentSupplyReportGenerateDtoBxCompanyItems } from './documentSupplyReportGenerateDtoBxCompanyItems';
 import type { DocumentSupplyReportGenerateDtoBxContactsItem } from './documentSupplyReportGenerateDtoBxContactsItem';
-import type { DocumentSupplyReportGenerateDtoBxDealItemsItem } from './documentSupplyReportGenerateDtoBxDealItemsItem';
+import type { DocumentSupplyReportGenerateDtoBxDealItems } from './documentSupplyReportGenerateDtoBxDealItems';
 import type { DocumentSupplyReportGenerateDtoSupplyReportItem } from './documentSupplyReportGenerateDtoSupplyReportItem';
 import type { DocumentSupplyReportGenerateDtoContractProviderState } from './documentSupplyReportGenerateDtoContractProviderState';
 import type { DocumentSupplyReportGenerateDtoContractBaseState } from './documentSupplyReportGenerateDtoContractBaseState';
 import type { DocumentSupplyReportGenerateDtoContractClientState } from './documentSupplyReportGenerateDtoContractClientState';
 import type { DocumentSupplyReportGenerateDtoConsalting } from './documentSupplyReportGenerateDtoConsalting';
 import type { DocumentSupplyReportGenerateDtoDocumentPrice } from './documentSupplyReportGenerateDtoDocumentPrice';
+import type { DocumentSupplyReportGenerateDtoManager } from './documentSupplyReportGenerateDtoManager';
+import type { DocumentSupplyReportGenerateDtoInvoice } from './documentSupplyReportGenerateDtoInvoice';
+import type { DocumentSupplyReportGenerateDtoProductsItem } from './documentSupplyReportGenerateDtoProductsItem';
+import type { DocumentSupplyReportGenerateDtoLegalTech } from './documentSupplyReportGenerateDtoLegalTech';
+import type { DocumentSupplyReportGenerateDtoCurrentComplect } from './documentSupplyReportGenerateDtoCurrentComplect';
 
 export interface DocumentSupplyReportGenerateDto {
     /** Domain of the company */
@@ -34,9 +39,9 @@ export interface DocumentSupplyReportGenerateDto {
     /** ID of the company */
     companyId: string;
     /** Placement of the contract */
-    placement: PlacementDto;
+    placement?: PlacementDto;
     /** Is the contract a product */
-    isProd: boolean;
+    isProd?: boolean;
     /** ID of the deal */
     dealId: string;
     /** ID of the provider */
@@ -49,20 +54,20 @@ export interface DocumentSupplyReportGenerateDto {
     complect: ComplectDto[];
     /** Supply of the contract */
     supply: ProductRowSupplyDto;
-    /** Price of the contract */
-    price: PriceDto;
+    /** Цены оффера. Легаси-конструктор это поле не шлёт, поэтому обязательным его делать нельзя — иначе весь запрос отвалится с 400 ещё до сервиса. */
+    price?: PriceDto;
     /** Contract of the contract */
     contract: ContractDto;
     /** Regions of the contract */
     regions: RegionsDto;
     /** Region of the contract */
     region: RegionDto;
-    /** Rows of the contract */
-    rows: ProductRowDto[];
+    /** Rows of the contract (легаси; отчёт читает arows) */
+    rows?: ProductRowDto[];
     /** Total of the contract */
     total: ProductRowDto;
     /** Product set of the contract */
-    productSet: ProductRowSetDto;
+    productSet?: ProductRowSetDto;
     /** Contract start of the contract */
     contractStart: string;
     /** Contract end of the contract */
@@ -77,7 +82,7 @@ export interface DocumentSupplyReportGenerateDto {
     garantClientEmail: string;
     /** First pay date of the contract */
     firstPayDate: string;
-    /** Client type of the contract */
+    /** Тип клиента. Легаси-конструктор шлёт объект SelectItem {id, code, name, title}, ветка IS_BACK и новый фронт — строку-код. Принимаем обе формы, код достаём через resolveClientTypeCode. */
     clientType: DocumentSupplyReportGenerateDtoClientType;
     /** BxRQ of the contract */
     bxrq: BxRqDto;
@@ -85,22 +90,50 @@ export interface DocumentSupplyReportGenerateDto {
     contractSpecificationState: ContractSpecificationDto;
     /** Product rows (arows) */
     arows: ProductRowDto[];
-    /** Bitrix company items */
-    bxCompanyItems: DocumentSupplyReportGenerateDtoBxCompanyItemsItem[];
+    /** Поля компании из битрикса, ключованные кодом поля pbx: {op_client_type: {current, field, items}, ...} — именно так их отдаёт formatBxCompanyState. Массив с item.key тоже принимаем ради ветки IS_BACK. */
+    bxCompanyItems: DocumentSupplyReportGenerateDtoBxCompanyItems;
     /** Bitrix contacts */
     bxContacts: DocumentSupplyReportGenerateDtoBxContactsItem[];
-    /** Bitrix deal items */
-    bxDealItems: DocumentSupplyReportGenerateDtoBxDealItemsItem[];
-    /** Supply report data */
+    /** Поля сделки из битрикса, ключованные кодом поля pbx: {contract_start: {current, field}, ...}. Форма та же, что у bxCompanyItems. */
+    bxDealItems: DocumentSupplyReportGenerateDtoBxDealItems;
+    /** Заполненная менеджером форма отчёта о поставке — те же 15 полей, что отдал init-form, со значениями. */
     supplyReport: DocumentSupplyReportGenerateDtoSupplyReportItem[];
     /** Contract provider state */
     contractProviderState: DocumentSupplyReportGenerateDtoContractProviderState;
-    /** Contract base state */
-    contractBaseState: DocumentSupplyReportGenerateDtoContractBaseState;
-    /** Contract client state */
-    contractClientState: DocumentSupplyReportGenerateDtoContractClientState;
+    /** Contract base state (легаси, не читается) */
+    contractBaseState?: DocumentSupplyReportGenerateDtoContractBaseState;
+    /** Contract client state (легаси, не читается) */
+    contractClientState?: DocumentSupplyReportGenerateDtoContractClientState;
     /** Consalting data */
     consalting?: DocumentSupplyReportGenerateDtoConsalting;
     /** Document price */
     documentPrice?: DocumentSupplyReportGenerateDtoDocumentPrice;
+    /** Id элемента RPA «Поставка», если отчёт делается из заявки. Пусто при облегчённом пути. */
+    rpa_id?: string;
+    /** Показывать ли набор товаров в документе. */
+    isSetShow?: boolean;
+    /** Признак генерации счёта вместе с отчётом. */
+    isInvoice?: boolean;
+    /** Публичный документ (без реквизитов). */
+    isPublic?: boolean;
+    /** Признак отчёта о поставке. Легаси шлёт его вместе с supplyReport. */
+    isSupplyReport?: boolean;
+    /** Дёргать ли внешний хук full/contract/flow. На бэке не используется — хук шлёт сам фронт. */
+    withHook?: boolean;
+    /** Менеджер отдела продаж, как его собрал конструктор. */
+    manager?: DocumentSupplyReportGenerateDtoManager;
+    /** Данные счёта. */
+    invoice?: DocumentSupplyReportGenerateDtoInvoice;
+    /** Продукты конструктора (ProductTypesEnum.GARANT). */
+    products?: DocumentSupplyReportGenerateDtoProductsItem[];
+    /** Состояние блока LegalTech. */
+    legalTech?: DocumentSupplyReportGenerateDtoLegalTech;
+    /** Текущий комплект конструктора. */
+    currentComplect?: DocumentSupplyReportGenerateDtoCurrentComplect;
+    /** Пустые заглушки легаси-payload’а: фронт шлёт document/link/file пустыми строками и заполняет их уже нашим ответом. */
+    document?: string;
+    /** См. document. */
+    link?: string;
+    /** См. document. */
+    file?: string;
 }

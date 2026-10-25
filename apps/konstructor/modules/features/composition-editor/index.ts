@@ -1,2 +1,2 @@
 export { CompositionEditorPanel } from './ui/CompositionEditorPanel';
-export { useCompositionEditor } from './hooks/use-composition-editor';
+export { RowCompositionButton } from './ui/RowCompositionButton';

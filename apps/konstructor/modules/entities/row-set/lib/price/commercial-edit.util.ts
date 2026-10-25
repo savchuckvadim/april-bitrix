@@ -20,7 +20,8 @@ export const applyCommercialEdit = (
     switch (edit.kind) {
         case 'price': {
             const current = round2(edit.value);
-            return finalizeRowPrice({ ...price, current });
+            // цена задана руками — ориентировочной (X-ОД) она больше не является
+            return finalizeRowPrice({ ...price, current, estimated: undefined });
         }
         case 'quantity': {
             // Количество всегда целое (легаси toFixed(0)), границы 0 < q < 100
@@ -54,7 +55,7 @@ export const applyCommercialEdit = (
                 const ratio = current / price.base;
                 if (!(ratio > -50 && ratio < 50)) return price;
             }
-            const next = finalizeRowPrice({ ...price, current });
+            const next = finalizeRowPrice({ ...price, current, estimated: undefined });
             // Легаси: правка суммы перезаписывает month значением current
             return { ...next, month: next.current };
         }

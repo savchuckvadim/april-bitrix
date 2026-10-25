@@ -1,9 +1,7 @@
 import { Bitrix } from '@bitrix/bitrix';
 import { BitrixService } from '@bitrix/bitrix.service';
-import { TESTING_PLACEMENT } from '../../consts/app-global';
-import { Placement } from '@workspace/bx';
 
-
+/** Batch-команды «сделка → её компания» (companyId берётся из результата dealGet). */
 export class BxDealCompanyService {
     private bitrix: BitrixService;
 
@@ -11,18 +9,8 @@ export class BxDealCompanyService {
         this.bitrix = Bitrix.getService();
     }
 
-    public async getDealAndCompanyComand(dealId: number) {
-
+    public getDealAndCompanyComand(dealId: number) {
         this.bitrix.batch.deal.get('dealGet', dealId);
-
-        const companyId = `$result[dealGet][COMPANY_ID]`;
-        this.bitrix.batch.company.get('companyGet', companyId);
-
-    }
-
-    private getPlacement() {
-        return (
-            this.bitrix.api.getPlacement() || (TESTING_PLACEMENT as Placement)
-        );
+        this.bitrix.batch.company.get('companyGet', '$result[dealGet][COMPANY_ID]');
     }
 }

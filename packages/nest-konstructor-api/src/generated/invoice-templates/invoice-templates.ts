@@ -55,6 +55,16 @@ export const getInvoiceTemplates = () => {
                 createInvoiceTemplateMultipartDto.agent_id,
             );
         }
+        if (createInvoiceTemplateMultipartDto.client_types !== undefined) {
+            createInvoiceTemplateMultipartDto.client_types.forEach(value =>
+                formData.append(`client_types`, value),
+            );
+        }
+        if (createInvoiceTemplateMultipartDto.supply_types !== undefined) {
+            createInvoiceTemplateMultipartDto.supply_types.forEach(value =>
+                formData.append(`supply_types`, value),
+            );
+        }
         if (createInvoiceTemplateMultipartDto.description !== undefined) {
             formData.append(
                 `description`,
@@ -149,6 +159,16 @@ export const getInvoiceTemplates = () => {
         }
         if (updateInvoiceTemplateDto.agent_id !== undefined) {
             formData.append(`agent_id`, updateInvoiceTemplateDto.agent_id);
+        }
+        if (updateInvoiceTemplateDto.client_types !== undefined) {
+            updateInvoiceTemplateDto.client_types.forEach(value =>
+                formData.append(`client_types`, value),
+            );
+        }
+        if (updateInvoiceTemplateDto.supply_types !== undefined) {
+            updateInvoiceTemplateDto.supply_types.forEach(value =>
+                formData.append(`supply_types`, value),
+            );
         }
         if (updateInvoiceTemplateDto.description !== undefined) {
             formData.append(

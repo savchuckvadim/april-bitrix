@@ -14,6 +14,29 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
+import { Textarea } from '@workspace/ui/components/textarea';
+
+/**
+ * Тексты договоров и КП — ШАБЛОНЫ по числу ОД (рендер на бэке,
+ * libs/garant/src/supply/lib/supply-template.util.ts). Плейсхолдеры:
+ * {n}, {words}, {words:gen}, {Words}, {plural:доступ|доступа|доступов}.
+ */
+const SUPPLY_TEXT_FIELDS: Array<{ name: keyof CreateSupplyDto; label: string }> = [
+    { name: 'quantityForKp', label: 'КП: подпись поставки (quantityForKp)' },
+    { name: 'contractPropSuppliesQuantity', label: 'Договор: количество поставок ({n} или «Флэш»)' },
+    { name: 'contractName', label: 'Договор услуг: название поставки' },
+    { name: 'contractProp1', label: 'Договор услуг: носитель (prop1)' },
+    { name: 'contractProp2', label: 'Договор услуг: способ доставки (prop2)' },
+    { name: 'contractPropLoginsQuantity', label: 'Договор услуг: количество логинов' },
+    { name: 'contractPropComment', label: 'Договор услуг: комментарий' },
+    { name: 'contractPropEmail', label: 'Договор услуг: e-mail / носитель' },
+    { name: 'lcontractName', label: 'Лицензионный: название поставки' },
+    { name: 'lcontractProp2', label: 'Лицензионный: prop2' },
+    { name: 'lcontractPropComment', label: 'Лицензионный: комментарий' },
+    { name: 'lcontractPropEmail', label: 'Лицензионный: e-mail' },
+    { name: 'acontractName', label: 'Абонентский: название поставки' },
+    { name: 'acontractPropComment', label: 'Абонентский: комментарий' },
+];
 
 interface SuppliesFormProps {
     initialData?: CreateSupplyDto;
@@ -135,7 +158,20 @@ export function SuppliesForm({
                             <span className="text-sm text-destructive">{errors.coefficient.message}</span>
                         )}
                     </div>
-                    {/* TODO: Добавьте остальные поля формы на основе CreateSupplyDto */}
+                    <div className="space-y-2 pt-4 border-t">
+                        <p className="text-sm font-medium">Тексты договоров и КП (шаблоны)</p>
+                        <p className="text-xs text-muted-foreground">
+                            Число ОД подставляется на бэке: {'{n}'} — цифрой, {'{words}'} /{' '}
+                            {'{words:gen}'} — прописью (им./род. падеж), {'{plural:доступ|доступа|доступов}'} —
+                            форма слова. Пусто — поле у поставки не задано.
+                        </p>
+                    </div>
+                    {SUPPLY_TEXT_FIELDS.map(field => (
+                        <div key={field.name} className="space-y-2">
+                            <Label htmlFor={field.name}>{field.label}</Label>
+                            <Textarea id={field.name} rows={2} {...register(field.name)} />
+                        </div>
+                    ))}
                 </CardContent>
                 <CardFooter className="flex gap-2 justify-end">
                     {onCancel && (

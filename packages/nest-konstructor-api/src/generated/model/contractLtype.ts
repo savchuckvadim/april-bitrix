@@ -7,7 +7,7 @@
  */
 
 /**
- * Contract type
+ * ContractType of the FormFieldDto
  */
 export type ContractLtype = (typeof ContractLtype)[keyof typeof ContractLtype];
 

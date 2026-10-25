@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
+import { APP_DEP } from '@/modules/app/model/AppSlice';
 import { selectCatalog } from '@/modules/entities/catalog';
 import {
     applyAction,
@@ -9,58 +10,62 @@ import {
     type CompositionAction,
     type RuleResult,
 } from '@/modules/entities/composition';
-import {
-    rowSetActions,
-    selectSelectedRow,
-} from '@/modules/entities/row-set';
+import { rowSetActions, type KRow } from '@/modules/entities/row-set';
+import { useCompositionSections } from './use-composition-sections';
 
 /**
- * Редактор наполнения ВЫБРАННОЙ строки (любой garant-строки любого сета —
- * снятие легаси-ограничения «наполнение только у главного товара»).
+ * Редактор наполнения ПЕРЕДАННОЙ строки — любой garant-строки любого сета
+ * (снятие легаси-ограничения «наполнение только у главного товара»): на шаге
+ * «Комплект» — главная строка, на «Ценах» — строка из своей карточки.
  * Чекбоксы гоняются через rules-engine (applyAction); в free-режиме правила
  * не принуждают, только подсвечивают.
  */
-export const useCompositionEditor = () => {
+export const useCompositionEditor = (row: KRow | null) => {
     const dispatch = useAppDispatch();
     const catalog = useAppSelector(selectCatalog);
-    const row = useAppSelector(selectSelectedRow);
+    // текущий регион сборки — тумблер «Региональное законодательство» тянет его в состав
+    const regionCode = useAppSelector(state => state.rowSet.context.regionCode);
+    // сервисному отделу открыт средний пакет LT-other (вес 4)
+    const serviceDepartment = useAppSelector(
+        state => state.app.department === APP_DEP.SERVICE,
+    );
     const [lastResult, setLastResult] = useState<RuleResult | null>(null);
+    const sections = useCompositionSections(catalog, row?.composition ?? null);
 
     const composition = row?.composition ?? null;
     const complect = composition
         ? (catalog.complects.byCode[composition.complectCode] ?? null)
         : null;
 
-    const applyComposition = (action: CompositionAction) => {
-        if (!row || !composition || !complect) return;
-        const result = applyAction(composition, action, { complect, catalog });
-        setLastResult(result);
+    const writeComposition = (next: NonNullable<KRow['composition']>) => {
+        if (!row) return;
         dispatch(
             rowSetActions.setRowComposition({
                 setId: row.setId,
                 key: row.key,
-                composition: result.composition,
+                composition: next,
             }),
         );
+    };
+
+    const applyComposition = (action: CompositionAction) => {
+        if (!composition || !complect) return;
+        const result = applyAction(composition, action, {
+            complect,
+            catalog,
+            regionCode,
+            serviceDepartment,
+        });
+        setLastResult(result);
+        writeComposition(result.composition);
     };
 
     const toggleMode = () => {
-        if (!row || !composition) return;
-        dispatch(
-            rowSetActions.setRowComposition({
-                setId: row.setId,
-                key: row.key,
-                composition: {
-                    ...composition,
-                    mode: composition.mode === 'rules' ? 'free' : 'rules',
-                },
-            }),
-        );
-    };
-
-    const close = () => {
-        dispatch(rowSetActions.selectRow(null));
-        setLastResult(null);
+        if (!composition) return;
+        writeComposition({
+            ...composition,
+            mode: composition.mode === 'rules' ? 'free' : 'rules',
+        });
     };
 
     const weightCheck =
@@ -68,25 +73,17 @@ export const useCompositionEditor = () => {
             ? checkComplectWeight(composition, { complect, catalog })
             : null;
 
-    const infoblocks = Object.values(catalog.infoblocks).filter(
-        block => block.groupType === 'infoblocks',
-    );
-    const ers = Object.values(catalog.infoblocks).filter(
-        block => block.groupType === 'er' && block.groupCode !== 'per',
-    );
-    const erPackets = Object.values(catalog.infoblocks).filter(
-        block => block.groupCode === 'per',
-    );
-
     return {
         row,
         composition,
         catalog,
-        groups: { infoblocks, ers, erPackets },
+        sections,
+        serviceDepartment,
         applyComposition,
         toggleMode,
-        close,
         lastResult,
         weightCheck,
     };
 };
+
+export type CompositionEditorState = ReturnType<typeof useCompositionEditor>;

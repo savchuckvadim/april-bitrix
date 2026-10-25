@@ -19,8 +19,13 @@ const MAX_MAIN_PDF_WIDTH = 1720;
 const DEFAULT_MAIN_BOX = { w: 720, h: 1780 };
 
 export const WordTemplatePdfPreviewPanel: React.FC = () => {
-    const { previewPhase: phase, previewPdfObjectUrl: pdfObjectUrl, previewError: error, refreshPdfPreview } =
-        useWordTemplatePdfPreview();
+    const {
+        previewPhase: phase,
+        previewPdfObjectUrl: pdfObjectUrl,
+        previewError: error,
+        needUpdate,
+        refreshPdfPreview,
+    } = useWordTemplatePdfPreview();
 
     const [numPages, setNumPages] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -111,6 +116,9 @@ export const WordTemplatePdfPreviewPanel: React.FC = () => {
                     {busy ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
                     Обновить превью
                 </Button>
+                {!busy && needUpdate && pdfObjectUrl && (
+                    <p className="text-sm text-warning">Данные изменились — превью устарело</p>
+                )}
                 {busy && (
                     <p className="text-sm text-muted-foreground">
                         {phase === 'starting' ? 'Запуск генерации PDF…' : 'Ожидание PDF в очереди…'}

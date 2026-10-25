@@ -1,23 +1,31 @@
-import type {
-    Composition,
-    CompositionCtx,
-    RuleResult,
-    RuleViolation,
+import { getComplectRuleFlags } from '../../../catalog';
+import {
+    violation,
+    type Composition,
+    type CompositionCtx,
+    type Rule,
+    type RuleResult,
+    type RuleViolation,
 } from '../../model/types';
 import { addUnique, remove } from '../utils';
 
 /**
- * Связность инфоблоков (legacy fillingInfoblocks + fillingFreeblocksWithUncheck):
+ * Инфоблоки (legacy fillingInfoblocks + fillingFreeblocksWithUncheck + noChanged
+ * + onRegionInfoblockChange):
  * - блок с родителем и весом 0 («Доп. материалы») нельзя переключать отдельно —
  *   он следует за родителем;
  * - арбитражная практика (lv/la/laa) ⇄ бесплатный онлайн-архив online2;
- * - практика судов общей юрисдикции (lgeneral) ⇄ архив online1.
+ * - практика судов общей юрисдикции (lgeneral) ⇄ архив online1;
+ * - noChanged комплекта (флаг) — блок снять нельзя;
+ * - рутовый блок «Региональное законодательство» (reg) тянет за собой текущий
+ *   регион сборки: включили — регион в составе, выключили — регион снят.
  */
 
-const ARBITRATION_CODES = ['lv', 'la', 'laa'];
-const GENERAL_COURT_CODE = 'lgeneral';
-const ARBITRATION_FREE = 'online2';
-const GENERAL_FREE = 'online1';
+export const ARBITRATION_CODES = ['lv', 'la', 'laa'];
+export const GENERAL_COURT_CODE = 'lgeneral';
+export const ARBITRATION_FREE = 'online2';
+export const GENERAL_FREE = 'online1';
+export const REGION_ROOT_CODE = 'reg';
 
 export const applyInfoblockToggle = (
     composition: Composition,
@@ -28,16 +36,31 @@ export const applyInfoblockToggle = (
     const violations: RuleViolation[] = [];
     const autoFixes: string[] = [];
     const block = ctx.catalog.infoblocks[code];
+    const flags = getComplectRuleFlags(ctx.complect);
 
     // «Доп. материалы» — только вместе с родителем
     if (block && block.weight === 0 && block.parents.length > 0) {
         return {
             composition,
             violations: [
-                {
-                    code: 'infoblock/child-locked',
-                    message: `«${block.name}» переключается только вместе с основным блоком`,
-                },
+                violation(
+                    'infoblock/child-locked',
+                    `«${block.name}» переключается только вместе с основным блоком`,
+                ),
+            ],
+            autoFixes: [],
+        };
+    }
+
+    // Неотключаемые блоки комплекта (legacy noChanged)
+    if (!checked && flags.noChanged?.includes(code)) {
+        return {
+            composition,
+            violations: [
+                violation(
+                    'infoblock/no-changed',
+                    `«${block?.name ?? code}» входит в комплект «${ctx.complect.title}» и не снимается`,
+                ),
             ],
             autoFixes: [],
         };
@@ -102,5 +125,28 @@ export const applyInfoblockToggle = (
         }
     }
 
+    // Рутовый региональный блок ⇄ текущий регион сборки
+    if (code === REGION_ROOT_CODE && ctx.regionCode) {
+        const region = ctx.catalog.regions.byCode[ctx.regionCode];
+        const inRegions = next.regions.includes(ctx.regionCode);
+        if (checked && !inRegions) {
+            next = { ...next, regions: addUnique(next.regions, ctx.regionCode) };
+            autoFixes.push(`Регион «${region?.title ?? ctx.regionCode}» добавлен в состав`);
+        }
+        if (!checked && inRegions) {
+            next = { ...next, regions: remove(next.regions, ctx.regionCode) };
+            autoFixes.push(`Регион «${region?.title ?? ctx.regionCode}» снят`);
+        }
+    }
+
     return { composition: next, violations, autoFixes };
+};
+
+export const infoblockRule: Rule = {
+    code: 'infoblock',
+    actions: ['toggleInfoblock'],
+    apply: (composition, action, ctx) =>
+        action.kind === 'toggleInfoblock'
+            ? applyInfoblockToggle(composition, action.code, action.checked, ctx)
+            : null,
 };

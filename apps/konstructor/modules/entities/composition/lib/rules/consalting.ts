@@ -1,4 +1,4 @@
-import type { Composition, RuleResult } from '../../model/types';
+import type { Composition, Rule, RuleResult } from '../../model/types';
 import { addUnique, remove } from '../utils';
 
 /**
@@ -48,3 +48,10 @@ export const applyConsalting = (
 /** Прямое включение консалтинговых freeblocks запрещено (только через выбор консалтинга) */
 export const isConsaltingFreeblock = (code: string): boolean =>
     (CONSALTING_FREEBLOCKS as readonly string[]).includes(code);
+
+export const consaltingRule: Rule = {
+    code: 'consalting',
+    actions: ['setConsalting'],
+    apply: (composition, action) =>
+        action.kind === 'setConsalting' ? applyConsalting(composition, action.code) : null,
+};

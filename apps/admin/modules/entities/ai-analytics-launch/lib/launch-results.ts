@@ -83,7 +83,7 @@ export function historyOutcome(result: LaunchBackfillResult): LaunchOutcome {
     const last = result.monthKeys[result.monthKeys.length - 1];
     return {
         ok: true,
-        text: `Поставлено в очередь: ${months(result.jobs.length)} (${first} — ${last}). Считается в фоне; уже посчитанные месяцы пропускаются.`,
+        text: `Поставлено в очередь: ${months(result.jobs.length)} (${first} — ${last}). Считается в фоне по одному месяцу, от старых к свежим.`,
         next: LAUNCH_STEP_TEXT.history.next,
         raw: result,
     };

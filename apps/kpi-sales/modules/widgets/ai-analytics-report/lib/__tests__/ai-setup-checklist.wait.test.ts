@@ -185,6 +185,26 @@ describe('связь «качество → исход» (beta)', () => {
         expect(item?.eta?.date).toBe('2026-11-26');
     });
 
+    // Прод 21.10.2026: пилот из одного менеджера дал «ждём ≈ 21.04.6891».
+    it('срок дальше пяти лет — без даты, со словами «дольше пяти лет» и как ускорить', () => {
+        const item = itemOf(
+            AI_CHECKLIST_ITEM.BETA,
+            withReadiness({
+                betaSource: 'none',
+                betaCountdown: {
+                    seNow: 0.9,
+                    presentationsLeft: 58_000,
+                    monthsLeft: 58_000,
+                },
+            }),
+        );
+        expect(item?.status).toBe(AI_CHECKLIST_STATUS.TODO);
+        expect(item?.eta).toBeNull();
+        expect(item?.detail).toContain('дольше пяти лет');
+        expect(item?.detail).toContain('Пул порталов');
+        expect(item?.detail).toContain('попросите разработчика');
+    });
+
     it('объём набран — без обещания «после ночного пересчёта»: связь месячная и с проверкой два раза подряд', () => {
         const item = itemOf(
             AI_CHECKLIST_ITEM.BETA,

@@ -6,17 +6,15 @@ import {
     filterSuppliesForComplect,
     selectCatalog,
 } from '@/modules/entities/catalog';
-import { documentProvidertAC } from '@/modules/entities/provider';
+import { setCurrentProvider } from '@/modules/entities/provider';
 import type { RootState } from '@/modules/app';
 import {
+    rebuildRowWithRefs,
     rowSetActions,
     selectMainRow,
     selectRowSetContext,
-} from '@/modules/entities/row-set';
-import {
-    rebuildRowWithRefs,
     type RowRefsPatch,
-} from '../../lib/change-row-refs.util';
+} from '@/modules/entities/row-set';
 
 /**
  * Экранные контролы главной строки (легаси-шапка Total.jsx): комплект,
@@ -52,8 +50,7 @@ export const useTableHeader = () => {
     const setRegion = (regionCode: string) =>
         dispatch(rowSetActions.setContext({ regionCode }));
 
-    const setProvider = (id: number) =>
-        dispatch(documentProvidertAC.setCurrent(id));
+    const setProvider = (id: string) => dispatch(setCurrentProvider(id));
 
     return {
         catalog,

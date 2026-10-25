@@ -1,21 +1,12 @@
 'use client';
 
 import { FC } from 'react';
-import { cn } from '@workspace/ui/lib/utils';
-import { LiquidChoiceBar, StepChoiceBar } from '@workspace/april-ui';
+import { ProspectScaleBar } from '@workspace/april-ui/entity';
 import { useProspectScale } from '../lib/hooks/use-prospect-scale';
 
 /**
- * Прогноз по компании — кликабельная шкала из трёх ступеней.
- *
- * По умолчанию лёгкий вариант (StepChoiceBar): цвет ОДИН — текущего значения,
- * им закрашены ступени до него. Переливающаяся полоса всего спектра сразу
- * (LiquidChoiceBar, вариант `liquid`) заметна, но в плотной шапке перетягивала
- * внимание на себя — работа рядом выглядела тише прогноза.
- *
- * `block` — вид для ОКНА (предпроверка отправки): шкала во всю ширину, под
- * ней подпись «Сейчас: X → Y». В шапке подписи места нет, там значение видно
- * по наведению.
+ * Прогноз по компании — шкала из трёх ступеней. Вёрстка общая с
+ * конструктором (ProspectScaleBar), здесь — данные и запись «Звонков».
  */
 interface ProspectScaleProps {
     compact?: boolean;
@@ -30,98 +21,16 @@ export const ProspectScale: FC<ProspectScaleProps> = ({
     variant = 'flat',
     block,
 }) => {
-    const scale = useProspectScale();
+    const { hasField, ...scale } = useProspectScale();
 
-    if (!scale.hasField) return null;
-
-    const barClassName = block
-        ? 'w-full'
-        : compact
-          ? 'w-20 shrink-0'
-          : 'w-28 shrink-0';
+    if (!hasField) return null;
 
     return (
-        <div
-            className={cn(
-                'flex min-w-0',
-                block
-                    ? 'flex-col gap-1.5'
-                    : cn('items-center', compact ? 'gap-1' : 'gap-2'),
-            )}
-        >
-            {variant === 'liquid' ? (
-                <LiquidChoiceBar
-                    className={block ? 'w-full' : compact ? 'w-24' : 'w-36'}
-                    size="sm"
-                    segments={scale.steps}
-                    value={scale.current}
-                    disabled={scale.isLoading}
-                    onSelect={scale.select}
-                    ariaLabel="Прогноз по компании"
-                />
-            ) : (
-                <StepChoiceBar
-                    className={barClassName}
-                    size={compact ? 'sm' : 'md'}
-                    steps={scale.steps}
-                    value={scale.current}
-                    disabled={scale.isLoading}
-                    onSelect={scale.select}
-                    onPreview={scale.setPreview}
-                    ariaLabel="Прогноз по компании"
-                />
-            )}
-
-            {/* В компактной шапке подпись съедала бы ширину — значение
-                видно по наведению (liquid-бэйдж и title зон). */}
-            {!compact && block && (
-                <span
-                    className={cn(
-                        'min-w-0 truncate text-xs',
-                        scale.isCaptionError
-                            ? 'text-destructive'
-                            : 'text-muted-foreground',
-                    )}
-                >
-                    {scale.caption}
-                </span>
-            )}
-            {/* Шапка: подпись постоянной ширины («Сейчас: X»), а «Станет: Y»
-                всплывает плашкой ПОВЕРХ — соседи не сдвигаются. */}
-            {!compact && !block && (
-                <span className="relative grid min-w-0 text-xs">
-                    {/* Невидимые варианты в той же ячейке задают ширину по
-                        самому длинному: «Сейчас: Красный» и «Сейчас: Зелёный»
-                        разной длины, смена цвета не должна сдвигать соседей. */}
-                    {scale.captionVariants.map(variant => (
-                        <span
-                            key={variant}
-                            aria-hidden
-                            className="invisible col-start-1 row-start-1 whitespace-nowrap"
-                        >
-                            {variant}
-                        </span>
-                    ))}
-                    <span
-                        className={cn(
-                            'col-start-1 row-start-1 truncate',
-                            scale.isCaptionError
-                                ? 'text-destructive'
-                                : 'text-muted-foreground',
-                        )}
-                    >
-                        {scale.currentCaption}
-                    </span>
-                    {scale.previewCaption && (
-                        <span
-                            role="status"
-                            className="pointer-events-none absolute left-0 top-full z-30 mt-1 whitespace-nowrap rounded-md border border-border bg-popover px-2 py-0.5 text-xs text-popover-foreground shadow-sm"
-                        >
-                            {scale.previewCaption}
-                        </span>
-                    )}
-                </span>
-            )}
-        </div>
+        <ProspectScaleBar
+            {...scale}
+            compact={compact}
+            variant={variant}
+            block={block}
+        />
     );
 };

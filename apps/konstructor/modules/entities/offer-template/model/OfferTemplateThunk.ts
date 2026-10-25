@@ -11,7 +11,6 @@ export const fetchOfferTemplates = createAsyncThunk<
     {
         state: RootState;
         rejectValue: string;
-        extra: { getWSClient: () => void };
     }
 >(
     'offerTemplate/fetchTemplates',
@@ -30,8 +29,8 @@ export const fetchOfferTemplates = createAsyncThunk<
             })
 
             return templates;
-        } catch (e: any) {
-            return rejectWithValue(e.message || 'Ошибка загрузки');
+        } catch (e) {
+            return rejectWithValue(e instanceof Error ? e.message : 'Ошибка загрузки');
         }
     },
 );
@@ -43,7 +42,6 @@ export const saveOfferTemplateThunk = createAsyncThunk<
     {
         state: RootState;
         rejectValue: string;
-        extra: { getWSClient: () => void };
     }
 >(
     'offerTemplate/save',
@@ -133,8 +131,8 @@ export const saveOfferTemplateThunk = createAsyncThunk<
 
 
             return template;
-        } catch (e: any) {
-            return rejectWithValue(e.message || 'Ошибка загрузки');
+        } catch (e) {
+            return rejectWithValue(e instanceof Error ? e.message : 'Ошибка загрузки');
         }
     },
 );

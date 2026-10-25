@@ -30,11 +30,9 @@ import { ProviderForm } from '../ProviderForm';
 import { RqForm } from '../RqForm';
 
 /**
- * Ответы бэка по поставщику слабо типизированы (`{ [key: string]: unknown }`).
- * Нормализуем то, что нужно UI: id поставщика (для удаления), id реквизитов
- * (для PATCH) и плоскую карту полей реквизитов (для отображения/редактирования).
- *
- * Реальная форма payload уточняется на рантайме — здесь перебираем частые варианты.
+ * Поставщик типизирован (ProviderWithRqResponseDto). Нормализуем то, что
+ * нужно UI: id поставщика (для удаления), id реквизитов (для PATCH) и плоскую
+ * карту полей реквизитов для отображения/редактирования по PROVIDER_RQ_FIELDS.
  */
 interface NormalizedProvider {
     providerId: number | null;
@@ -44,21 +42,16 @@ interface NormalizedProvider {
 }
 
 function normalizeProvider(raw: Provider, index: number): NormalizedProvider {
-    const p = raw as Record<string, unknown>;
-    const nested =
-        p.rq && typeof p.rq === 'object' ? (p.rq as Record<string, unknown>) : null;
-    const rq = nested ?? p;
-
+    const rq: Record<string, unknown> = raw.rq
+        ? Object.fromEntries(Object.entries(raw.rq))
+        : {};
     const toNum = (v: unknown): number | null =>
         typeof v === 'number' ? v : typeof v === 'string' ? Number(v) || null : null;
 
-    const providerId = toNum(p.id ?? p.agentId);
-    const rqId = toNum((nested?.id ?? p.rqId ?? p.id) as unknown);
+    const providerId = toNum(raw.id);
+    const rqId = raw.rq?.id ?? toNum(raw.rqId);
     const title =
-        (typeof p.name === 'string' && p.name) ||
-        (typeof rq.name === 'string' && (rq.name as string)) ||
-        (typeof rq.shortname === 'string' && (rq.shortname as string)) ||
-        `Поставщик ${index + 1}`;
+        raw.name || raw.rq?.name || raw.rq?.shortname || `Поставщик ${index + 1}`;
 
     return { providerId, rqId, rq, title };
 }

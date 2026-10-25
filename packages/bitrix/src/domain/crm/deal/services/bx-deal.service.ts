@@ -48,6 +48,16 @@ export class BxDealService {
             | number
             | null;
     }
+    /**
+     * Добавить контакт к сделке, остальные контакты остаются.
+     * true — добавлен, false — уже был привязан.
+     */
+    async contactAdd(
+        dealId: number | string,
+        contactId: number | string,
+    ): Promise<boolean> {
+        return (await this.repo.contactAdd(dealId, contactId))?.result === true;
+    }
     /** Контакты сделки: `[{ CONTACT_ID, IS_PRIMARY, ... }]`. */
     async contactItemsGet(dealId: number | string) {
         return (await this.repo.contactItemsGet(dealId))?.result ?? [];

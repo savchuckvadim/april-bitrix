@@ -1,6 +1,7 @@
 'use client';
 
 import { Trash2 } from 'lucide-react';
+import { RowCompositionButton } from '@/modules/features/composition-editor';
 import {
     getComplectAttr,
     getComplectIcon,
@@ -21,7 +22,7 @@ interface RowCardProps {
 /**
  * Карточка garant-строки: тема комплекта (data-complect), имя с inline-
  * rename, per-row селекты комплект/ОД/договор, коммерческие поля, удаление.
- * Клик по заголовку выбирает строку для редактора наполнения.
+ * «Наполнение» — у каждого Гаранта своё, окном (RowCompositionButton).
  */
 export const RowCard = ({ row, collapsed }: RowCardProps) => {
     const card = useRowCard(row, collapsed);
@@ -33,17 +34,13 @@ export const RowCard = ({ row, collapsed }: RowCardProps) => {
             style={getComplectStyleOverride(card.complect)}
             className={`rounded-md border border-l-4 border-l-[var(--complect-current)] bg-card p-3 transition-opacity ${
                 card.isBlurred ? 'opacity-50' : ''
-            } ${card.isSelected ? 'ring-2 ring-[var(--complect-current)]' : ''}`}
+            }`}
         >
             <div className="flex items-center gap-2">
-                <button
-                    type="button"
-                    onClick={card.select}
-                    aria-label="Наполнение строки"
-                    className="shrink-0"
-                >
-                    <Icon className="h-4 w-4 text-complect-current" />
-                </button>
+                <Icon
+                    aria-hidden
+                    className="h-4 w-4 shrink-0 text-complect-current"
+                />
                 <RowName
                     displayName={getRowDisplayName(row, card.catalog)}
                     isCustom={Boolean(row.names.alternativeName)}
@@ -55,16 +52,21 @@ export const RowCard = ({ row, collapsed }: RowCardProps) => {
                         {row.role === 'main' ? 'главный' : 'доп.'}
                     </span>
                 ) : null}
-                {card.canDelete ? (
-                    <button
-                        type="button"
-                        onClick={card.remove}
-                        aria-label="Удалить строку"
-                        className="ml-auto rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </button>
-                ) : null}
+                <div className="ml-auto flex shrink-0 items-center gap-1">
+                    {row.composition && !card.isBlurred ? (
+                        <RowCompositionButton row={row} />
+                    ) : null}
+                    {card.canDelete ? (
+                        <button
+                            type="button"
+                            onClick={card.remove}
+                            aria-label="Удалить строку"
+                            className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </button>
+                    ) : null}
+                </div>
             </div>
 
             <div className="mt-1">

@@ -1,30 +1,40 @@
 import type { Catalog } from '../../../catalog';
 import {
+    ACADEMY_INDEX_TO_CODE,
+    COMPLECT_NUMBER_TO_CODE,
     CONSALTING_INDEX_TO_CODE,
+    CONTRACT_NUMBER_TO_CODE,
     ER_INDEX_TO_CODE,
     ER_PACKET_INDEX_TO_CODE,
     FREEBLOCK_INDEX_TO_CODE,
     LT_NUMBER_TO_CODE,
     LT_PACKAGE_BY_WEIGHT,
     STAR_CODE,
+    SUPPLY_CODE_FLASH,
+    SUPPLY_CODE_LOCAL,
     SUPPLY_NUMBER_TO_KEY,
     infoblockCodeByName,
 } from '../../../catalog';
-import type { Composition } from '../../../composition';
+import type { Composition, LtOtherPacket } from '../../../composition';
+import { defaultComposition } from '../../../composition';
 import type { KRow, RowPrice, RowSet } from '../../../row-set';
 import type { RestoredState } from '../../model/types';
-import type { V1CurrentComplect, V1Parsed, V1Row, V1RowSet } from './types';
+import type { V1CurrentComplect, V1LtOtherPacket, V1Parsed, V1Row, V1RowSet } from './types';
 
 /**
  * Маппер слепка v1 → доменное состояние (code-джойны).
- * Правила (см. docs/legacy-persistence.md §5 и отчёт по адресации):
+ *
+ * Единственное место, где живёт легаси-адресация: все номера и индексы
+ * переводятся в коды таблицами из catalog/lib/legacy-codes.ts, а затем
+ * проверяются по живому каталогу. Сам каталог легаси-номеров не знает.
+ *
+ * Правила (см. docs/legacy-persistence.md §5):
  * - filling — ИМЕНА инфоблоков → code (мусорные имена игнорируются);
  * - ers/packetsEr/freeBlocks/consalting/academy — ИНДЕКСЫ позиций;
  * - lt/ltInPacket — бизнес-NUMBER;
  * - star — флаг-массив;
- * - академия: индекс = number − 1 (off-by-one);
- * - row.number — счётчик генерации, игнорируется; идентичность строки —
- *   (productType, complect.number, supply.number, contract.number|code);
+ * - академия: индекс = легаси-номер − 1 (off-by-one);
+ * - row.number — счётчик генерации, игнорируется;
  * - role: id === 0 → main; прочие garant в general → additional;
  * - цены НЕ пересчитываются — берутся сохранённые;
  * - composition главной строки — из currentComplect; остальным garant-строкам
@@ -36,28 +46,34 @@ const complectCodeByNumber = (
     number: number | undefined,
 ): string | null => {
     if (number === undefined) return null;
-    const all = [...catalog.complects.prof, ...catalog.complects.universal];
-    return all.find(complect => complect.number === number)?.code ?? null;
+    const code = COMPLECT_NUMBER_TO_CODE[number];
+    return code && catalog.complects.byCode[code] ? code : null;
 };
 
+/**
+ * Поставка по легаси-номеру: особые (Стандартная, Локальная, Флэш) — по коду,
+ * остальные — по (тип, количество ОД) среди обычных поставок каталога.
+ */
 const supplyCodeByNumber = (
     catalog: Catalog,
     number: number | undefined,
 ): string | null => {
     if (number === undefined) return null;
-    // Сначала прямой legacy-номер (каталог из oldinit его хранит)
-    const direct = catalog.supplies.items.find(
-        supply => supply.number === number,
-    );
-    if (direct) return direct.code;
-    // Иначе — по (тип, количество ОД)
     const key = SUPPLY_NUMBER_TO_KEY[number];
     if (!key) return null;
+    if (key.special === 'flash') {
+        return catalog.supplies.byCode[SUPPLY_CODE_FLASH]?.code ?? null;
+    }
+    if (key.special === 'local') {
+        return catalog.supplies.byCode[SUPPLY_CODE_LOCAL]?.code ?? null;
+    }
     return (
         catalog.supplies.items.find(
             supply =>
                 supply.type === key.type &&
-                supply.usersQuantity === key.usersQuantity,
+                supply.usersQuantity === key.usersQuantity &&
+                supply.code !== SUPPLY_CODE_FLASH &&
+                supply.code !== SUPPLY_CODE_LOCAL,
         )?.code ?? null
     );
 };
@@ -71,10 +87,17 @@ const contractCodeOf = (
         return contract.code;
     }
     // Старые записи без code — достройка по number (легаси-миграция rememberRows)
-    return (
-        catalog.contracts.items.find(item => item.number === contract.number)
-            ?.code ?? null
-    );
+    const code = CONTRACT_NUMBER_TO_CODE[contract.number];
+    return code && catalog.contracts.byCode[code] ? code : null;
+};
+
+const academyCodeByIndex = (
+    catalog: Catalog,
+    index: number | undefined,
+): string | null => {
+    if (index === undefined) return null;
+    const code = ACADEMY_INDEX_TO_CODE[index];
+    return code && catalog.academy.some(pkg => pkg.code === code) ? code : null;
 };
 
 /** currentComplect (номерная адресация) → Composition (codes) */
@@ -124,7 +147,6 @@ export const mapV1Composition = (
     };
 
     const consaltingIndex = legacy.consaltingProduct?.[0];
-    const academyIndex = legacy.academy?.[0];
 
     return {
         complectCode,
@@ -143,6 +165,7 @@ export const mapV1Composition = (
         ),
         lt: byLtNumber(legacy.lt),
         ltInPacket: byLtNumber(legacy.ltInPacket),
+        ltOther: [],
         freeBlocks: byIndex(
             legacy.freeBlocks,
             FREEBLOCK_INDEX_TO_CODE,
@@ -153,14 +176,44 @@ export const mapV1Composition = (
                 ? (CONSALTING_INDEX_TO_CODE[consaltingIndex] ?? null)
                 : null,
         star: (legacy.star?.length ?? 0) > 0,
-        // Академия: в слепке индекс = number − 1
-        academy:
-            academyIndex !== undefined
-                ? (catalog.academy.find(pkg => pkg.number === academyIndex + 1)
-                      ?.code ?? null)
-                : null,
+        academy: academyCodeByIndex(catalog, legacy.academy?.[0]),
         regions: regionCodes,
     };
+};
+
+/**
+ * Пакеты LT Other записи (поле ltOther, IOtherLtPack[]): сервисы — по code,
+ * старые — по number; пустые после маппинга пакеты не переносятся.
+ */
+export const mapV1LtOther = (
+    packets: V1LtOtherPacket[] | null,
+    catalog: Catalog,
+    warnings: string[],
+): LtOtherPacket[] => {
+    const known = new Set(catalog.services.lt.map(service => service.code));
+    const result: LtOtherPacket[] = [];
+    (packets ?? []).forEach((packet, index) => {
+        const services: string[] = [];
+        for (const service of packet.services ?? []) {
+            const code =
+                service.code ??
+                (service.number !== undefined ? LT_NUMBER_TO_CODE[service.number] : undefined);
+            if (code && known.has(code)) {
+                if (!services.includes(code)) services.push(code);
+            } else {
+                warnings.push(
+                    `ltOther: сервис ${service.name ?? service.code ?? service.number} не найден в каталоге`,
+                );
+            }
+        }
+        if (!services.length) return;
+        result.push({
+            id: packet.id !== undefined && packet.id !== null ? String(packet.id) : `v1_lt_other_${index}`,
+            services,
+            alternativeName: packet.alternativePacketName?.trim() || null,
+        });
+    });
+    return result;
 };
 
 const mapV1Price = (price: V1Row['price']): RowPrice => ({
@@ -182,33 +235,35 @@ const mapV1Price = (price: V1Row['price']): RowPrice => ({
     },
 });
 
-/** Код сервиса для сервисных строк (lt/consalting/star) по легаси-номеру */
-const serviceCodeOf = (
-    row: V1Row,
-    catalog: Catalog,
-): string | undefined => {
+/**
+ * Код сервиса для сервисных строк по легаси-номеру в `row.complect.number`
+ * (легаси складывал туда номер сервиса). У академии стабильного номера в
+ * строке нет — код берётся из наполнения главной строки при сборке сета.
+ */
+const serviceCodeOf = (row: V1Row): string | undefined => {
     const number = row.complect?.number;
     switch (row.productType) {
         case 'lt':
-        case 'lt_other': {
-            const pkg = Object.values(LT_PACKAGE_BY_WEIGHT).find(
-                item => item.number === number,
-            );
-            return pkg?.code;
-        }
+        case 'lt_other':
+            return Object.values(LT_PACKAGE_BY_WEIGHT).find(
+                item => item.legacyNumber === number,
+            )?.code;
         case 'consalting':
             return number !== undefined
                 ? CONSALTING_INDEX_TO_CODE[number]
                 : undefined;
         case 'star':
             return STAR_CODE;
-        case 'academy':
-            // Прямого стабильного номера пакета в легаси-строке нет
-            return catalog.academy.length ? undefined : undefined;
         default:
             return undefined;
     }
 };
+
+/** Рефы главной строки — наследуются «голыми» строками v1 без своих supply/contract. */
+interface MainRefs {
+    supplyCode: string | null;
+    contractCode: string | null;
+}
 
 const mapV1Row = (
     row: V1Row,
@@ -217,6 +272,7 @@ const mapV1Row = (
     index: number,
     catalog: Catalog,
     mainComposition: Composition | null,
+    mainRefs: MainRefs | null,
     warnings: string[],
 ): KRow => {
     const isMain = kind === 'general' && row.id === 0;
@@ -224,14 +280,22 @@ const mapV1Row = (
         row.productType === 'garant'
             ? (complectCodeByNumber(catalog, row.complect?.number) ?? undefined)
             : undefined;
+    // В легаси второй Гарант/сервисы могли идти без своих supply/contract —
+    // они жили у главного товара. Наследуем молча; warning — только когда
+    // поставка указана, но в таблице её нет.
+    const inheritedSupply = !row.supply && !isMain ? mainRefs?.supplyCode : null;
     const supplyCode =
-        supplyCodeByNumber(catalog, row.supply?.number) ?? 'unknown';
+        inheritedSupply ??
+        supplyCodeByNumber(catalog, row.supply?.number) ??
+        'unknown';
     if (supplyCode === 'unknown') {
         warnings.push(
             `Строка «${row.name}»: не удалось смапить поставку number=${row.supply?.number}`,
         );
     }
-    const contractCode = contractCodeOf(catalog, row.contract ?? null);
+    const inheritedContract = !row.contract && !isMain ? mainRefs?.contractCode : null;
+    const contractCode =
+        inheritedContract ?? contractCodeOf(catalog, row.contract ?? null);
     if (!contractCode) {
         warnings.push(
             `Строка «${row.name}»: не удалось смапить договор number=${row.contract?.number}`,
@@ -247,22 +311,17 @@ const mapV1Row = (
             // остальным ставим дефолт их комплекта
             const complect = catalog.complects.byCode[complectCode]!;
             composition = {
-                complectCode,
-                mode: 'rules',
-                infoblocks: [...complect.defaults.infoblocks],
-                ers: [...complect.defaults.ers],
-                erPackets: [...complect.defaults.erPackets],
-                ersInPacket: [...complect.defaults.ersInPacket],
-                lt: [],
-                ltInPacket: [],
-                freeBlocks: [],
-                consalting: null,
-                star: false,
-                academy: null,
+                ...defaultComposition(complect),
                 regions: mainComposition?.regions ?? [],
             };
         }
     }
+
+    // Академия: номера пакета в строке нет — берём из наполнения главной строки
+    const serviceCode =
+        row.productType === 'academy'
+            ? (mainComposition?.academy ?? undefined)
+            : serviceCodeOf(row);
 
     return {
         key: `${setId}_${row.productType}_${index}`,
@@ -273,7 +332,7 @@ const mapV1Row = (
             complectCode,
             supplyCode,
             contractCode: contractCode ?? 'unknown',
-            serviceCode: serviceCodeOf(row, catalog),
+            serviceCode,
         },
         composition,
         names: {
@@ -296,6 +355,7 @@ const mapV1Set = (
     setIndex: number,
     catalog: Catalog,
     mainComposition: Composition | null,
+    mainRefs: MainRefs | null,
     collapsed: boolean,
     warnings: string[],
 ): RowSet => {
@@ -320,6 +380,7 @@ const mapV1Set = (
                     index++,
                     catalog,
                     mainComposition,
+                    mainRefs,
                     warnings,
                 ),
             );
@@ -335,7 +396,7 @@ export const mapV1 = (parsed: V1Parsed, catalog: Catalog): RestoredState => {
         .map(region => region.name)
         .filter(Boolean);
 
-    const mainComposition = parsed.currentComplect
+    const mapped = parsed.currentComplect
         ? mapV1Composition(
               parsed.currentComplect,
               catalog,
@@ -343,9 +404,28 @@ export const mapV1 = (parsed: V1Parsed, catalog: Catalog): RestoredState => {
               warnings,
           )
         : null;
+    // пакеты LT Other жили отдельным полем записи — теперь в наполнении главной строки
+    const mainComposition: Composition | null = mapped
+        ? { ...mapped, ltOther: mapV1LtOther(parsed.ltOther, catalog, warnings) }
+        : null;
 
     const collapsed = parsed.rows?.show === 'set';
     const generalV1 = parsed.rows?.sets?.general?.[0];
+
+    // Рефы главного товара (garant id 0), иначе — глобальные ОД/договор записи:
+    // их наследуют строки без своих supply/contract.
+    const mainV1 =
+        generalV1?.rows.garant?.find(row => row.id === 0) ??
+        generalV1?.rows.garant?.[0];
+    const mainRefs: MainRefs = {
+        supplyCode:
+            supplyCodeByNumber(catalog, mainV1?.supply?.number) ??
+            supplyCodeByNumber(catalog, parsed.odNumber ?? undefined),
+        contractCode:
+            contractCodeOf(catalog, mainV1?.contract ?? null) ??
+            contractCodeOf(catalog, parsed.contract),
+    };
+
     const general: RowSet = generalV1
         ? mapV1Set(
               generalV1,
@@ -353,6 +433,7 @@ export const mapV1 = (parsed: V1Parsed, catalog: Catalog): RestoredState => {
               0,
               catalog,
               mainComposition,
+              mainRefs,
               collapsed,
               warnings,
           )
@@ -366,6 +447,7 @@ export const mapV1 = (parsed: V1Parsed, catalog: Catalog): RestoredState => {
                 index,
                 catalog,
                 mainComposition,
+                mainRefs,
                 collapsed,
                 warnings,
             ),

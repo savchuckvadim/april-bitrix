@@ -25,9 +25,9 @@ export interface ContractGenerateDto {
     /** ID of the company */
     companyId: string;
     /** Placement of the contract */
-    placement: PlacementDto;
+    placement?: PlacementDto;
     /** Is the contract a product */
-    isProd: boolean;
+    isProd?: boolean;
     /** ID of the deal */
     dealId: string;
     /** ID of the provider */
@@ -40,34 +40,34 @@ export interface ContractGenerateDto {
     complect: ComplectDto[];
     /** Supply of the contract */
     supply: ProductRowSupplyDto;
-    /** Price of the contract */
-    price: PriceDto;
+    /** Price of the contract (легаси HTML-КП, в договор не идёт) */
+    price?: PriceDto;
     /** Contract of the contract */
     contract: ContractDto;
     /** Regions of the contract */
     regions: RegionsDto;
     /** Region of the contract */
-    region: RegionDto;
+    region?: RegionDto;
     /** Rows of the contract */
     rows: ProductRowDto[];
     /** Total of the contract */
     total: ProductRowDto;
     /** Product set of the contract */
-    productSet: ProductRowSetDto;
+    productSet?: ProductRowSetDto;
     /** Contract start of the contract */
-    contractStart: string;
+    contractStart?: string;
     /** Contract end of the contract */
-    contractEnd: string;
+    contractEnd?: string;
     /** Contract number of the contract */
-    contractNumber: string;
+    contractNumber?: string;
     /** Contract create date of the contract */
-    contractCreateDate: string;
+    contractCreateDate?: string;
     /** Garant client assigned name of the contract */
-    garantClientAssignedName: string;
+    garantClientAssignedName?: string;
     /** Garant client assigned email of the contract */
-    garantClientEmail: string;
+    garantClientEmail?: string;
     /** First pay date of the contract */
-    firstPayDate: string;
+    firstPayDate?: string;
     /** Client type of the contract */
     clientType: ContractGenerateDtoClientType;
     /** BxRQ of the contract */

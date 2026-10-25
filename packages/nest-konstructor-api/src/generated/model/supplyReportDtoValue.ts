@@ -5,8 +5,10 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { SupplyReportDtoValueOneOf } from './supplyReportDtoValueOneOf';
 
 /**
- * Value of the FormFieldDto
+ * Value of the FormFieldDto: строка либо объект (select / файл)
+ * @nullable
  */
-export type SupplyReportDtoValue = { [key: string]: unknown };
+export type SupplyReportDtoValue = string | SupplyReportDtoValueOneOf | null;

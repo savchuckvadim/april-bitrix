@@ -5,7 +5,7 @@ import {
     createListenerMiddleware,
     type ListenerMiddlewareInstance,
 } from '@reduxjs/toolkit';
-import oldInit from '../../../../docs/oldinit.json';
+import oldInit from '../../catalog/lib/__fixtures__/oldinit.json';
 import { appReducer, appActions } from '@/modules/app/model/AppSlice';
 import type { InitApp } from '@/modules/app/model/AppSlice';
 import {
@@ -21,6 +21,7 @@ import {
     setupRowSetSyncListener,
 } from '@/modules/entities/row-set';
 import { snapshotReducer } from '../model/SnapshotSlice';
+import { serviceOfferReducer } from '../../service-offer/model/ServiceOfferSlice';
 import { restoreSnapshot, saveSnapshot } from '../model/SnapshotThunk';
 import { SnapshotHelper } from './api/snapshot-helper';
 import { isSnapshotV2, type SnapshotV2 } from '../model/types';
@@ -41,6 +42,7 @@ const makeStore = () => {
             catalog: catalogReducer,
             rowSet: rowSetReducer,
             snapshot: snapshotReducer,
+            serviceOffer: serviceOfferReducer,
         }),
         middleware: getDefault =>
             getDefault().concat(listenerMiddleware.middleware),

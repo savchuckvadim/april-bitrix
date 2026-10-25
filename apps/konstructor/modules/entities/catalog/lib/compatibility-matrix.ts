@@ -3,6 +3,7 @@ import type {
     ComplectType,
     KContract,
     KSupply,
+    SupplyKind,
 } from '../model/types';
 import { isCustomSupplyCode, resolveSupply } from './custom-od.util';
 
@@ -124,4 +125,60 @@ export const resolveContractForSupplyChange = (
         return prevContractCode;
     }
     return contracts[0]?.code ?? null;
+};
+
+export interface BuildParams {
+    complectType: ComplectType;
+    supplyKind: SupplyKind;
+}
+
+export interface MainRefs {
+    complectCode: string;
+    supplyCode: string;
+    contractCode: string;
+}
+
+/**
+ * Рефы главной строки под параметры сборки (шаг «Параметры»: линейка × вид
+ * доступа). Совместимое прежнее сохраняется: комплект — если той же линейки,
+ * поставка — если того же вида доступа (включая X-ОД). Иначе — первые
+ * допустимые. null — для комбинации нет ни одной поставки.
+ */
+export const resolveRefsForBuildParams = (
+    catalog: Catalog,
+    params: BuildParams,
+    prev: Partial<MainRefs> | null,
+): MainRefs | null => {
+    const prevComplect = prev?.complectCode
+        ? catalog.complects.byCode[prev.complectCode]
+        : undefined;
+    const complect =
+        prevComplect?.type === params.complectType
+            ? prevComplect
+            : catalog.complects[params.complectType][0];
+    if (!complect) return null;
+
+    const supplies = filterSuppliesForComplect(
+        catalog.supplies.items,
+        params.complectType,
+    ).filter(supply => supply.type === params.supplyKind);
+    const prevSupply = prev?.supplyCode
+        ? resolveSupply(catalog, prev.supplyCode)
+        : null;
+    const keepSupply =
+        prevSupply?.type === params.supplyKind &&
+        (isCustomSupplyCode(prevSupply.code) ||
+            supplies.some(supply => supply.code === prevSupply.code));
+    const supplyCode = keepSupply ? prevSupply.code : supplies[0]?.code;
+    if (!supplyCode) return null;
+
+    const contractCode = resolveContractForSupplyChange(
+        catalog,
+        params.complectType,
+        supplyCode,
+        prev?.contractCode ?? '',
+    );
+    if (!contractCode) return null;
+
+    return { complectCode: complect.code, supplyCode, contractCode };
 };

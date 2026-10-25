@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { logClient } from '../lib/helper/logClient';
 import { ErrorPage } from '@/modules/pages';
 import { errorHandler } from '../lib/error-handler';
 // логгер на клиенте
@@ -88,10 +87,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
         this.setState({ error, errorInfo });
-        logClient('React ErrorBoundary', {
-            error: error.toString(),
-            stack: errorInfo.componentStack,
-        });
+        // серверного сборщика логов у конструктора нет — консоль браузера
+        console.error('React ErrorBoundary', error, errorInfo.componentStack);
     }
 
     resetError = () => {

@@ -40,12 +40,25 @@ export const COMPLECT_NUMBER_TO_CODE: Record<number, string> = {
     20: 'exjobsec',
 };
 
-/** Легаси-номер вида поставки (0..18) → (тип, кол-во ОД) для лукапа в каталоге */
+/** Коды особых поставок — совпадают с админкой и compatibility-matrix. */
+export const SUPPLY_CODE_FLASH = 'proxima_flash';
+export const SUPPLY_CODE_LOCAL = 'proxima_local';
+export const SUPPLY_CODE_STD = 'internet_std';
+
+/**
+ * Легаси-номер вида поставки (0..18) → (тип, кол-во ОД) для лукапа в каталоге.
+ * `special` — поставки, которые по (тип, ОД) не отличить: Стандартная (0 ОД),
+ * Локальная и Флэш (обе «проксима, 1 ОД»).
+ */
 export const SUPPLY_NUMBER_TO_KEY: Record<
     number,
-    { type: 'internet' | 'proxima'; usersQuantity: number; flash?: boolean }
+    {
+        type: 'internet' | 'proxima';
+        usersQuantity: number;
+        special?: 'std' | 'local' | 'flash';
+    }
 > = {
-    0: { type: 'internet', usersQuantity: 0 }, // Интернет Стандартная
+    0: { type: 'internet', usersQuantity: 0, special: 'std' }, // Интернет Стандартная
     1: { type: 'internet', usersQuantity: 1 },
     2: { type: 'internet', usersQuantity: 2 },
     3: { type: 'internet', usersQuantity: 3 },
@@ -54,8 +67,8 @@ export const SUPPLY_NUMBER_TO_KEY: Record<
     6: { type: 'internet', usersQuantity: 20 },
     7: { type: 'internet', usersQuantity: 30 },
     8: { type: 'internet', usersQuantity: 50 },
-    9: { type: 'proxima', usersQuantity: 1 }, // Локальная
-    10: { type: 'proxima', usersQuantity: 1, flash: true }, // Проксима Флэш
+    9: { type: 'proxima', usersQuantity: 1, special: 'local' }, // Локальная
+    10: { type: 'proxima', usersQuantity: 1, special: 'flash' }, // Проксима Флэш
     11: { type: 'proxima', usersQuantity: 1 },
     12: { type: 'proxima', usersQuantity: 2 },
     13: { type: 'proxima', usersQuantity: 3 },
@@ -70,9 +83,9 @@ export const SUPPLY_NUMBER_TO_KEY: Record<
 export const supplyCodeFromNumber = (number: number): string => {
     const key = SUPPLY_NUMBER_TO_KEY[number];
     if (!key) return `supply_${number}`;
-    if (number === 0) return 'internet_std';
-    if (number === 9) return 'proxima_local';
-    if (key.flash) return 'proxima_flash';
+    if (key.special === 'std') return SUPPLY_CODE_STD;
+    if (key.special === 'local') return SUPPLY_CODE_LOCAL;
+    if (key.special === 'flash') return SUPPLY_CODE_FLASH;
     return `${key.type}_${key.usersQuantity}`;
 };
 
@@ -156,20 +169,51 @@ export const LT_CODE_WEIGHT: Record<string, number> = {
 /** Пакеты LT: суммарный вес ltInPacket → пакет */
 export const LT_PACKAGE_BY_WEIGHT: Record<
     number,
-    { code: string; number: number; name: string }
+    { code: string; legacyNumber: number; name: string }
 > = {
-    2: { code: 'ltpackSmall', number: 13, name: 'ГАРАНТ-LegalTech. Малый пакет' },
+    2: {
+        code: 'ltpackSmall',
+        legacyNumber: 13,
+        name: 'ГАРАНТ-LegalTech. Малый пакет',
+    },
     5: {
         code: 'ltpackMedium',
-        number: 14,
+        legacyNumber: 14,
         name: 'ГАРАНТ-LegalTech. Средний пакет',
     },
     10: {
         code: 'ltpackBig',
-        number: 15,
+        legacyNumber: 15,
         name: 'ГАРАНТ-LegalTech. Большой пакет',
     },
 };
+
+/**
+ * Легаси-номер договора → code. Номера 0..7 — из init (konstruct/contracts);
+ * 9 и 10 — договоры «передача ключа» (легаси row-price-utils: measure.type 1 и
+ * contract.number ∉ {9, 10} означало «не key»).
+ */
+export const CONTRACT_NUMBER_TO_CODE: Record<number, string> = {
+    0: 'internet',
+    1: 'proxima',
+    2: 'abonHalf',
+    3: 'abonYear',
+    4: 'licHalf',
+    5: 'licYear',
+    6: 'abonTwoYears',
+    7: 'licTwoYears',
+    9: 'key',
+    10: 'key',
+};
+
+/**
+ * Академия в слепке v1 — индекс позиции (= легаси-number − 1). Коды пакетов
+ * `academy_<n>` стабильны (их уже пишет слепок v2), n — тот же легаси-номер.
+ */
+export const ACADEMY_INDEX_TO_CODE: readonly string[] = Array.from(
+    { length: 21 },
+    (_, index) => `academy_${index + 1}`,
+);
 
 /** Консалтинг: индекс == number из init (0/1/2) → code */
 export const CONSALTING_INDEX_TO_CODE: readonly string[] = [
@@ -287,3 +331,21 @@ export const INFOBLOCK_GROUP_BY_CODE: Record<string, string> = {
     bcaonsalting: 'spec',
     fascase: 'spec',
 };
+
+/**
+ * Группы инфоблоков для фикстуры (в init v2 приходят с бэка). Названия — из
+ * легаси infoblocks-reducer (groupsName); ЭР и пакеты ЭР — отдельные группы.
+ */
+export const FIXTURE_INFOGROUPS: ReadonlyArray<{
+    code: string;
+    name: string;
+    type: string;
+}> = [
+    { code: 'npa', name: 'Нормативно-правовые акты', type: 'infoblocks' },
+    { code: 'sud', name: 'Судебная практика', type: 'infoblocks' },
+    { code: 'cons', name: 'Консультационные материалы', type: 'infoblocks' },
+    { code: 'spec', name: 'Специализированные блоки', type: 'infoblocks' },
+    { code: 'er', name: 'Энциклопедии решений', type: 'er' },
+    { code: 'per', name: 'Пакеты энциклопедий решений', type: 'er' },
+    { code: 'free', name: 'Бесплатные блоки', type: 'free' },
+];

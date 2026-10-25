@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type { UpdateInvoiceTemplateDtoVisibility } from './updateInvoiceTemplateDtoVisibility';
+import type { ClientTypeEnum } from './clientTypeEnum';
+import type { SupplyTypeEnum } from './supplyTypeEnum';
 import type { UpdateInvoiceTemplateDtoType } from './updateInvoiceTemplateDtoType';
 
 export interface UpdateInvoiceTemplateDto {
@@ -13,6 +15,10 @@ export interface UpdateInvoiceTemplateDto {
     visibility?: UpdateInvoiceTemplateDtoVisibility;
     portal_id?: string;
     agent_id?: string;
+    /** Типы клиента. Пустой массив сбрасывает привязку в NULL — «годится любому типу клиента». */
+    client_types?: ClientTypeEnum[];
+    /** Типы поставки. Пустой массив сбрасывает привязку в NULL — «годится любому типу поставки». */
+    supply_types?: SupplyTypeEnum[];
     description?: string;
     type?: UpdateInvoiceTemplateDtoType;
     is_default?: boolean;

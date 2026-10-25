@@ -5,6 +5,7 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { DirectServiceDealPrepareResponseDtoExistingServiceDeal } from './directServiceDealPrepareResponseDtoExistingServiceDeal';
 
 export interface DirectServiceDealPrepareResponseDto {
     /** @nullable */
@@ -19,4 +20,9 @@ export interface DirectServiceDealPrepareResponseDto {
     contactIds: number[];
     /** Сколько вариантов комплекта переедет вместе со сделкой */
     variantsCount: number;
+    /**
+     * Сервисная сделка, уже созданная по этой базовой. Не null — конструктор обязан спросить менеджера: обновить её (mode = update, targetDealId = id) или создать новую (mode = create).
+     * @nullable
+     */
+    existingServiceDeal: DirectServiceDealPrepareResponseDtoExistingServiceDeal;
 }

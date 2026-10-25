@@ -14,6 +14,7 @@ import { defaultComposition } from '@/modules/entities/composition';
 import {
     buildGarantRow,
     canAddComparisonSet,
+    MAIN_ROW_KEY,
     rowSetActions,
     selectAlternativeSets,
     selectGeneralSet,
@@ -98,7 +99,7 @@ export const useRowBuilder = () => {
 
     const hasMain = general.rows.some(row => row.role === 'main');
 
-    const buildMain = () => buildRowInto('general', 'main', 'general_main');
+    const buildMain = () => buildRowInto('general', 'main', MAIN_ROW_KEY);
 
     const addAdditional = () =>
         buildRowInto('general', 'additional', `general_add_${nanoid(6)}`);

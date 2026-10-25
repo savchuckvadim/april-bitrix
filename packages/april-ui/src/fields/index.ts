@@ -11,3 +11,15 @@ export type {
     MicroSegmentedProps,
     MicroSegmentedSize,
 } from './MicroSegmented';
+
+// Компактный селект-чип для шапок
+export { ChipSelect } from './ChipSelect';
+export type { ChipSelectOption, ChipSelectProps } from './ChipSelect';
+
+// Выбор из многих вариантов чипами; на узком экране — селект
+export { ChoiceChips } from './ChoiceChips';
+export type {
+    ChoiceChipOption,
+    ChoiceChipsBreakpoint,
+    ChoiceChipsProps,
+} from './ChoiceChips';

@@ -2,7 +2,7 @@ import type {
     OfferWordEphemeralPdfPollResponseDto,
     OfferWordEphemeralPdfStartResponseDto,
     OfferWordEphemeralPdfStopResponseDto,
-} from '@workspace/nest-api';
+} from '@workspace/nest-konstructor-api';
 
 export enum OfferWordEphemeralPdfStatusEnum {
     PENDING = 'pending',

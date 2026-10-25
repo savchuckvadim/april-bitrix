@@ -1,5 +1,6 @@
 // import * as https from 'https';
 import { observeBitrixCall } from './bitrix-call-observer';
+import { BitrixServerMode } from './bitrix-server-mode';
 // import * as http from 'http';
 // import { TelegramService } from '../../../telegram/telegram.service';
 // import { AxiosResponse } from 'axios';
@@ -48,6 +49,13 @@ export class BitrixBaseApi {
     public authType: BxAuthType = BxAuthType.HOOK;
 
     private cmdBatch: Record<string, any> = {};
+
+    /**
+     * Работа через сервер при отказе Битрикса по правам: приложение
+     * подключает транспорт (`serverMode.connect`), дальше вызовы фрейма
+     * сами уходят на сервер после первого «нет доступа».
+     */
+    public readonly serverMode = new BitrixServerMode();
 
     /**
      * Отладочные дампы ответов Битрикса в консоль.
@@ -390,14 +398,25 @@ export class BitrixBaseApi {
         let response = null;
 
         if (this.inFrame) {
-            const bxRresponse = (await observeBitrixCall(() =>
-                this.bx.callMethod(method, data as object, -1),
-            )) as Result;
-            response = bxRresponse.getData() as IBitrixResponse<
-                TBXResponse<NAMESPACE, ENTITY, METHOD>
-            >;
-            this.debugDump('BITRIX RESPONSE CALL METHOD', response);
-            return response;
+            type Answer = IBitrixResponse<TBXResponse<NAMESPACE, ENTITY, METHOD>>;
+            if (this.serverMode.isActive) {
+                return (await this.serverMode.call(method, data)) as Answer;
+            }
+            try {
+                const bxRresponse = (await observeBitrixCall(() =>
+                    this.bx.callMethod(method, data as object, -1),
+                )) as Result;
+                response = bxRresponse.getData() as Answer;
+                this.debugDump('BITRIX RESPONSE CALL METHOD', response);
+                return response;
+            } catch (error) {
+                if (!this.serverMode.canTakeOver(error)) throw error;
+                return (await this.serverMode.takeOver(
+                    method,
+                    data,
+                    error,
+                )) as Answer;
+            }
         } else {
             const bxReqHookData = {
                 domain: this.domain,
@@ -430,10 +449,20 @@ export class BitrixBaseApi {
         let response = null;
 
         if (this.inFrame) {
-            const bxRresponse = (await observeBitrixCall(() =>
-                this.bx.callMethod(method, data as object, -1),
-            )) as Result;
-            const bxData = bxRresponse.getData() as any;
+            let bxData: any;
+            if (this.serverMode.isActive) {
+                bxData = await this.serverMode.call(method, data);
+            } else {
+                try {
+                    const bxRresponse = (await observeBitrixCall(() =>
+                        this.bx.callMethod(method, data as object, -1),
+                    )) as Result;
+                    bxData = bxRresponse.getData();
+                } catch (error) {
+                    if (!this.serverMode.canTakeOver(error)) throw error;
+                    bxData = await this.serverMode.takeOver(method, data, error);
+                }
+            }
             response = (bxData?.result ?? bxData) as T;
             this.debugDump('BITRIX RESPONSE CALL METHOD', response);
             return response;
@@ -461,6 +490,15 @@ export class BitrixBaseApi {
      * Возвращает массив ответов от битрикса без cmd key всех пачек > 50
      */
     public async callBatchByChunk(): Promise<IBitrixBatchResponseResult[]> {
+        if (this.inFrame && this.serverMode.isActive) {
+            // Как у SDK: результаты успешных команд по порядку, без ключей.
+            const commands = { ...this.cmdBatch };
+            const result = await this.serverMode.batch(commands);
+            this.cmdBatch = {};
+            return Object.keys(commands)
+                .filter(key => key in result)
+                .map(key => result[key]) as IBitrixBatchResponseResult[];
+        }
         if (this.inFrame) {
             // Тип — тот же, что у значений cmdBatch: внутри замыкания вывод
             // "растущего" массива не работает.
@@ -495,10 +533,23 @@ export class BitrixBaseApi {
      */
     public async callBatch(): Promise<any> {
         if (this.inFrame) {
+            const commands = this.cmdBatch;
+            if (this.serverMode.isActive) {
+                const result = await this.serverMode.batch(commands);
+                this.debugDump('SERVER RESPONSE CALL BATCH', result);
+                this.cmdBatch = {};
+                return result;
+            }
             const bxResponse = (await observeBitrixCall(() =>
-                this.bx.callBatch(this.cmdBatch, false),
+                this.bx.callBatch(commands, false),
             )) as Result;
-            const result = bxResponse.getData();
+            // Отказ по правам в пакете — досылаем упавшие команды через
+            // сервер и дальше работаем через него.
+            const result = await this.serverMode.completeFrameBatch(
+                commands,
+                (bxResponse.getData() ?? {}) as Record<string, unknown>,
+                bxResponse.errors,
+            );
             this.debugDump('BITRIX RESPONSE CALL BATCH', result);
 
             this.cmdBatch = {};

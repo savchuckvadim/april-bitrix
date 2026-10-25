@@ -1,16 +1,8 @@
 import type {
     CreateUserSelectedTemplateRequest,
-    UserSelectedTemplate,
     UserSelectedTemplateIdParams,
-    UserSelectedTemplateQueryParams,
 } from '../types/word-template-types';
 import { userSelectedTemplatesHttp } from './api/user-selected.api';
-
-export const fetchUserSelectedTemplatesAPI = async (
-    query?: UserSelectedTemplateQueryParams,
-): Promise<UserSelectedTemplate[]> => {
-    return userSelectedTemplatesHttp.fetchList(query);
-};
 
 export const deleteUserSelectedTemplateAPI = async (
     params: UserSelectedTemplateIdParams,

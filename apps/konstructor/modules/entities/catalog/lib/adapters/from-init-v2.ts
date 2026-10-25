@@ -28,7 +28,7 @@ const contractKind = (code: string): ContractKind => {
 
 const toComplect = (dto: InitV2ComplectDto): KComplect => ({
     code: dto.tag || dto.name,
-    number: dto.number,
+    order: dto.number,
     type: dto.type === 'universal' ? 'universal' : 'prof',
     title: dto.title,
     fullTitle: dto.fullTitle,
@@ -55,7 +55,7 @@ const toService = (
     productType: KServiceProductType,
 ): KService => ({
     code: dto.code,
-    number: dto.number,
+    order: dto.number,
     name: dto.name,
     fullName: dto.fullName,
     shortName: dto.shortName,
@@ -78,8 +78,8 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
         if (complect.type === 'prof') catalog.complects.prof.push(complect);
         else catalog.complects.universal.push(complect);
     }
-    catalog.complects.prof.sort((a, b) => a.number - b.number);
-    catalog.complects.universal.sort((a, b) => a.number - b.number);
+    catalog.complects.prof.sort((a, b) => a.order - b.order);
+    catalog.complects.universal.sort((a, b) => a.order - b.order);
 
     for (const group of data.infoblocks ?? []) {
         const codes: string[] = [];
@@ -97,6 +97,7 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
                 children: block.children ?? [],
                 description: block.description || null,
                 shortDescription: block.shortDescription || null,
+                descriptionForSale: block.descriptionForSale || null,
             };
             catalog.infoblocks[block.code] = infoblock;
         }
@@ -112,7 +113,6 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
     for (const dto of data.supplies ?? []) {
         const supply = {
             code: dto.code,
-            number: null,
             name: dto.name,
             fullName: dto.fullName,
             shortName: dto.shortName,
@@ -122,6 +122,8 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
             usersQuantity: dto.usersQuantity,
             coefficient: dto.coefficient,
             color: dto.color,
+            quantityForKp: dto.quantityForKp ?? null,
+            contractPropSuppliesQuantity: dto.contractPropSuppliesQuantity ?? null,
         };
         catalog.supplies.items.push(supply);
         catalog.supplies.byCode[supply.code] = supply;
@@ -143,7 +145,6 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
                 name: dto.measureName,
                 fullName: dto.measureFullName,
             },
-            number: dto.number,
             order: dto.order,
         };
         catalog.contracts.items.push(contract);
@@ -154,7 +155,6 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
     for (const dto of data.regions ?? []) {
         const region = {
             code: dto.code,
-            number: dto.number,
             title: dto.title,
             abs: dto.abs,
             tax: dto.tax ?? 0,
@@ -164,6 +164,19 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
         };
         catalog.regions.items.push(region);
         catalog.regions.byCode[region.code] = region;
+    }
+
+    for (const dto of data.measures ?? []) {
+        const measure = {
+            id: dto.id,
+            code: dto.code,
+            bitrixId: dto.bitrixId ? Number(dto.bitrixId) : null,
+            name: dto.name,
+            shortName: dto.shortName,
+            fullName: dto.fullName,
+        };
+        catalog.measures.items.push(measure);
+        catalog.measures.byCode[measure.code] = measure;
     }
 
     for (const dto of data.prices ?? []) {

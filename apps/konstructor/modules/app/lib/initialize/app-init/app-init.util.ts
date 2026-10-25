@@ -7,10 +7,14 @@ import {
     TESTING_USER,
 } from '../../../consts/app-global';
 import type { AppDispatch } from '../../../model/store';
-import { WSClient } from '@/modules/shared';
 import { appActions } from '../../../model/AppSlice';
 import { bitrixInit } from '../bitrix-init/bitrix-init.util';
-import { wsInit } from '../../../model/ws/Websocket';
+import {
+    COMPANY_DEAL_SELECT,
+    pickCompanyDeal,
+    resolvePlacementEntity,
+    type PlacementEntity,
+} from './placement-entity.util';
 
 /** Код ошибки инициализации «не во фрейме Bitrix в PROD». */
 export const NON_AUTH_ERROR = 'nonauth';
@@ -18,33 +22,35 @@ export const NON_AUTH_ERROR = 'nonauth';
 /** Код ошибки инициализации «в сделке не указана компания». */
 export const NO_COMPANY_ERROR = 'nocompany';
 
-/** Структурный минимум placement (Placement | CustomPlacement из @workspace/bx) */
-interface PlacementLike {
-    placement: string;
-    options: unknown;
-}
+/** Код ошибки инициализации «открыто из компании, а сделок у неё нет». */
+export const NO_DEAL_ERROR = 'nodeal';
 
 /**
- * ID сделки из placement. COMPANY/LEAD-плейсменты пока не резолвят сделку
- * (легаси ходил в hookAPI full/document/company/deals — отложено, см. docs).
+ * dealId по сущности placement: из сделки — её ID; из компании — её сделка
+ * (открытая и самая свежая) через crm.deal.list по COMPANY_ID (решение 5).
+ * null — компания без сделок (или REST недоступен).
  */
-const resolveDealIdFromPlacement = (
-    placement: PlacementLike | null,
-): number | null => {
-    if (!placement?.options || typeof placement.options !== 'object')
+const resolveDealId = async (entity: PlacementEntity): Promise<number | null> => {
+    if (!entity) return null;
+    if (entity.kind === 'deal') return entity.id;
+    try {
+        const response = await Bitrix.getService().deal.getList(
+            { COMPANY_ID: String(entity.id) },
+            COMPANY_DEAL_SELECT,
+            { DATE_CREATE: 'DESC' },
+        );
+        return pickCompanyDeal(response?.result ?? [])?.ID ?? null;
+    } catch (error) {
+        console.warn('app-init: сделки компании недоступны', error);
         return null;
-    if (!String(placement.placement || '').includes('DEAL')) return null;
-    const options = placement.options as Record<string, unknown>;
-    const raw =
-        'ID' in options ? options.ID : 'dealId' in options ? options.dealId : null;
-    const dealId = Number(raw);
-    return Number.isFinite(dealId) && dealId > 0 ? dealId : null;
+    }
 };
 
 /**
  * Boot-последовательность: Bitrix.start (во фрейме — реальные domain/user,
- * вне фрейма — TESTING_*) → placement → dealId → WS → setAppData.
- * setAppData — единый триггер для listeners (каталог, шаблоны, слепок сделки).
+ * вне фрейма — TESTING_*) → placement → dealId → сделка+компания → setAppData.
+ * setAppData — единый триггер для listeners (каталог, портал, слепок сделки,
+ * реквизиты, поставщики).
  */
 export const appInit = async (dispatch: AppDispatch) => {
     const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
@@ -67,22 +73,27 @@ export const appInit = async (dispatch: AppDispatch) => {
 
     const placement =
         bitrix.api.getPlacement() || (TESTING_PLACEMENT as Placement);
-    const dealId = resolveDealIdFromPlacement(placement);
+    const entity = resolvePlacementEntity(placement);
+    const dealId = await resolveDealId(entity);
 
-    const wsService = new WSClient(Number(user.ID), domain);
-    wsService.init();
-    dispatch(wsInit({ userId: Number(user.ID), domain }));
+    // Из карточки компании без единой сделки конструктору нечего открывать.
+    if (entity?.kind === 'company' && !dealId) {
+        dispatch(appActions.setInitializedError({ errorMessage: NO_DEAL_ERROR }));
+        return;
+    }
 
     // Сделка+компания из Bitrix REST — best-effort: в dev против чужого
     // портала REST может быть недоступен, init не должен падать.
     let deal = null;
     let company = null;
-    try {
-        const bxResult = await bitrixInit();
-        deal = bxResult?.deal ?? null;
-        company = bxResult?.company ?? null;
-    } catch (error) {
-        console.warn('app-init: bitrix deal/company недоступны', error);
+    if (dealId) {
+        try {
+            const bxResult = await bitrixInit(dealId);
+            deal = bxResult?.deal ?? null;
+            company = bxResult?.company ?? null;
+        } catch (error) {
+            console.warn('app-init: bitrix deal/company недоступны', error);
+        }
     }
 
     // Без компании не собрать ни реквизиты, ни документы — дальше идти незачем.

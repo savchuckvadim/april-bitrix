@@ -17,6 +17,7 @@ import {
     ER_INDEX_TO_CODE,
     ER_PACKET_INCLUDING,
     ER_PACKET_INDEX_TO_CODE,
+    FIXTURE_INFOGROUPS,
     FREEBLOCK_INDEX_TO_CODE,
     INFOBLOCK_GROUP_BY_CODE,
     INFOBLOCK_NAME_TO_CODE,
@@ -30,9 +31,10 @@ import {
 } from '../legacy-codes';
 
 /**
- * Каталог из дампа СТАРОГО init (docs/oldinit.json).
- * Используется в тестах паритета цен/правил и как dev-фикстура,
- * пока данные не заведены в БД. Коды синтезируются по legacy-codes.
+ * Каталог из дампа СТАРОГО init (lib/__fixtures__/oldinit.json) — ТОЛЬКО для тестов
+ * ядра: в рантайме каталог приходит с бэка (init v2). Дамп портало-зависимый.
+ * Используется в тестах паритета цен и правил.
+ * Коды синтезируются по legacy-codes.
  */
 
 interface OldInit {
@@ -52,6 +54,8 @@ interface OldInit {
         name: string;
         type: 'internet' | 'proxima';
         coefficient: number;
+        quantityForKp?: string;
+        contractPropSuppliesQuantity?: string | number;
     }>;
     contracts: {
         current: unknown[];
@@ -139,7 +143,7 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
         if (!code) continue;
         const complect: KComplect = {
             code,
-            number: item.number,
+            order: item.number,
             type: item.type,
             title: item.name,
             fullTitle: item.fullName ?? item.name,
@@ -159,15 +163,14 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
         if (item.type === 'prof') catalog.complects.prof.push(complect);
         else catalog.complects.universal.push(complect);
     }
-    catalog.complects.prof.sort((a, b) => a.number - b.number);
-    catalog.complects.universal.sort((a, b) => a.number - b.number);
+    catalog.complects.prof.sort((a, b) => a.order - b.order);
+    catalog.complects.universal.sort((a, b) => a.order - b.order);
 
     // --- поставки (ОД) ---
     for (const item of old.supplies ?? []) {
         const key = SUPPLY_NUMBER_TO_KEY[item.number];
         const supply: KSupply = {
             code: supplyCodeFromNumber(item.number),
-            number: item.number,
             name: item.name,
             fullName: item.name,
             shortName: item.name,
@@ -175,11 +178,20 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
             usersQuantity: key?.usersQuantity ?? 0,
             coefficient: item.coefficient,
             color: null,
+            quantityForKp: item.quantityForKp ?? null,
+            contractPropSuppliesQuantity:
+                item.contractPropSuppliesQuantity === undefined
+                    ? null
+                    : String(item.contractPropSuppliesQuantity),
         };
         catalog.supplies.items.push(supply);
         catalog.supplies.byCode[supply.code] = supply;
     }
-    catalog.supplies.items.sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
+    // Как в легаси: сначала интернет, затем проксима; внутри — по числу ОД
+    catalog.supplies.items.sort(
+        (a, b) =>
+            a.type.localeCompare(b.type) || a.usersQuantity - b.usersQuantity,
+    );
 
     // --- договоры ---
     for (const item of old.contracts?.items ?? []) {
@@ -197,7 +209,6 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
                 name: item.measureName,
                 fullName: item.measureFullName,
             },
-            number: item.number,
             order: item.order,
         };
         catalog.contracts.items.push(contract);
@@ -205,11 +216,26 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
     }
     catalog.contracts.items.sort((a, b) => a.order - b.order);
 
+    // --- меры: в легаси-init только вложенно в договоры; bitrixId = measureCode ---
+    for (const contract of catalog.contracts.items) {
+        const code = String(contract.measure.id);
+        if (catalog.measures.byCode[code]) continue;
+        const measure = {
+            id: contract.measure.id,
+            code,
+            bitrixId: contract.measure.code || null,
+            name: contract.measure.name,
+            shortName: contract.measure.name,
+            fullName: contract.measure.fullName,
+        };
+        catalog.measures.items.push(measure);
+        catalog.measures.byCode[code] = measure;
+    }
+
     // --- регионы ---
     for (const item of old.regions ?? []) {
         const region: KRegion = {
             code: item.name,
-            number: item.number,
             title: item.title,
             abs: item.abs,
             tax: 0,
@@ -274,7 +300,7 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
         if (!code) continue;
         const service: KService = {
             code,
-            number: lt.number,
+            order: lt.number,
             name: lt.name,
             fullName: lt.fullName,
             shortName: lt.name,
@@ -287,14 +313,14 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
         catalog.services.lt.push(service);
         pushServicePrices(code, lt.msk, lt.regions);
     }
-    catalog.services.lt.sort((a, b) => a.number - b.number);
+    catalog.services.lt.sort((a, b) => a.order - b.order);
 
     for (const pkg of old.legalTech?.packages ?? []) {
         const byWeight = LT_PACKAGE_BY_WEIGHT[pkg.weight];
         const code = byWeight?.code ?? `ltpack_${pkg.number}`;
         const service: KService = {
             code,
-            number: pkg.number,
+            order: pkg.number,
             name: pkg.name,
             fullName: pkg.fullName,
             shortName: pkg.name,
@@ -314,7 +340,7 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
         if (!code) continue;
         catalog.services.consalting.push({
             code,
-            number: cons.number,
+            order: cons.number,
             name: cons.name,
             fullName: cons.title,
             shortName: cons.name,
@@ -330,7 +356,7 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
     for (const star of old.star ?? []) {
         catalog.services.star.push({
             code: STAR_CODE,
-            number: star.number,
+            order: star.number,
             name: star.name,
             fullName: star.fullName,
             shortName: star.name,
@@ -363,6 +389,7 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
             children: [],
             description: null,
             shortDescription: null,
+            descriptionForSale: null,
         });
     }
     ER_INDEX_TO_CODE.forEach((code, index) => {
@@ -380,6 +407,7 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
             children: [],
             description: null,
             shortDescription: null,
+            descriptionForSale: null,
         });
     });
     ER_PACKET_INDEX_TO_CODE.forEach(code => {
@@ -395,6 +423,7 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
             children: [...(ER_PACKET_INCLUDING[code] ?? [])],
             description: null,
             shortDescription: null,
+            descriptionForSale: null,
         });
     });
     FREEBLOCK_INDEX_TO_CODE.forEach((code, index) => {
@@ -410,8 +439,21 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
             children: [],
             description: null,
             shortDescription: null,
+            descriptionForSale: null,
         });
     });
+
+    // --- группы: как в init v2, чтобы редактор наполнения работал одинаково ---
+    const blocks = Object.values(catalog.infoblocks);
+    for (const group of FIXTURE_INFOGROUPS) {
+        catalog.groups.push({
+            ...group,
+            productType: 'garant',
+            infoblockCodes: blocks
+                .filter(block => block.groupCode === group.code)
+                .map(block => block.code),
+        });
+    }
 
     return catalog;
 };

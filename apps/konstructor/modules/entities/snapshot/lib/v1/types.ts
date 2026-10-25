@@ -6,9 +6,9 @@
  */
 
 export interface V1Record {
-    dealId?: number;
-    userId?: number;
-    domain?: string;
+    dealId?: number | null;
+    userId?: number | null;
+    domain?: string | null;
     serviceSmartId?: number | null;
     templateId?: number | null;
     app?: string | null;
@@ -101,6 +101,13 @@ export interface V1Rows {
     sets?: { general?: V1RowSet[]; alternative?: V1RowSet[] };
 }
 
+/** Пакет LT Other легаси (IOtherLtPack): сервисы — по number/code */
+export interface V1LtOtherPacket {
+    id?: string | number;
+    services?: Array<{ number?: number; code?: string; name?: string }>;
+    alternativePacketName?: string | null;
+}
+
 export interface V1Parsed {
     dealId: number | null;
     domain: string | null;
@@ -114,6 +121,8 @@ export interface V1Parsed {
         noWidth?: V1Region[];
     } | null;
     globalRegion: V1Region | null;
+    /** Пакеты LT Other (поле ltOther записи) */
+    ltOther: V1LtOtherPacket[] | null;
     templateId: number | null;
     /** Поля, которые не удалось разобрать */
     parseErrors: string[];

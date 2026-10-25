@@ -5,7 +5,6 @@ export * from './lib/hooks/redux';
 export * from './model/AppSlice';
 export * from './model/AppThunk';
 export * from './model/selectors';
-export type * from './model/types';
 export * from './lib/hooks/is-client-mounted.hook';
 export * from './lib/hooks/auth';
 export * from './ui/App';

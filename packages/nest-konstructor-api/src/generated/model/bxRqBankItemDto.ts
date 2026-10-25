@@ -5,10 +5,11 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { BRQFieldDto } from './bRQFieldDto';
 
 export interface BxRqBankItemDto {
     /** Id of the RQ */
     id: number;
-    /** Fields of the RQ */
-    fields: string[];
+    /** Поля банка */
+    fields: BRQFieldDto[];
 }

@@ -11,6 +11,7 @@ export type {
     ContractDto as InitV2ContractDto,
     SupplyInitDto as InitV2SupplyDto,
     PriceInitDto as InitV2PriceDto,
+    MeasureInitDto as InitV2MeasureDto,
     ServicesInitDto as InitV2ServicesDto,
     KServiceItemDto as InitV2ServiceDto,
 } from '@workspace/nest-konstructor-api';

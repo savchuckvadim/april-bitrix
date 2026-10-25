@@ -29,6 +29,10 @@ const selectMyId = (state: RootState): number =>
 export const selectSubordinateIds = (state: RootState): number[] =>
     state.headMode.subordinateIds;
 
+/** Суперпользователь April — права руководителя (флаг с бэка). */
+export const selectIsSuperUser = (state: RootState): boolean =>
+    state.headMode.isSuperUser;
+
 /** У пользователя есть подчинённые — тумблер режима ему показывается. */
 export const selectIsHead = (state: RootState): boolean =>
     state.headMode.subordinateIds.length > 0;

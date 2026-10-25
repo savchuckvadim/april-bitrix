@@ -3,7 +3,7 @@
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getDuplicateContext } from '@/modules/app/lib/utills/app-state-util';
 import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
-import { selectMyDepartmentRole } from '@/modules/features/Departament/model/selectors';
+import { selectDuplicatesManageRole } from '../../model/selectors';
 import { mergeCardsActions } from '../../model/MergeCardsSlice';
 import {
     executeMergeCards,
@@ -19,7 +19,7 @@ import { mergePlanView, resolveMergeTarget } from '../merge-cards.util';
 export function useMergeCards(candidate: DuplicateCandidate | undefined) {
     const dispatch = useAppDispatch();
     const context = useAppSelector(getDuplicateContext);
-    const role = useAppSelector(selectMyDepartmentRole).role;
+    const role = useAppSelector(selectDuplicatesManageRole);
     const state = useAppSelector(s => s.duplicatesMerge);
     const target = resolveMergeTarget(candidate, context, role);
 

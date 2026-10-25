@@ -19,7 +19,8 @@ const initialState = {
         company: null as IBXCompany | null,
     },
 
-    department: APP_DEP.SERVICE,
+    // отдел продаж по умолчанию; сервисный выставляет initPortal по категории сделки
+    department: APP_DEP.SALES,
     initialized: false,
     isLoading: false,
     error: {
@@ -53,6 +54,10 @@ const appSlice = createSlice({
             state.initialized = true;
         },
 
+        /** Сделка создана отправкой из конструктора (deal-send без dealId) */
+        setDealId: (state: AppState, action: PayloadAction<number>) => {
+            state.dealId = action.payload;
+        },
         setInitializedSuccess: (state: AppState, action: PayloadAction<{}>) => {
             state.initialized = true;
         },
@@ -74,6 +79,15 @@ const appSlice = createSlice({
         ) => {
             state.error.status = false;
             state.error.message = '';
+        },
+
+        /** Точечная правка полей компании после записи в Битрикс (прогноз, статус). */
+        patchCompany: (
+            state: AppState,
+            action: PayloadAction<Record<string, unknown>>,
+        ) => {
+            if (!state.bitrix.company) return;
+            Object.assign(state.bitrix.company, action.payload);
         },
 
         reload: (state: AppState, action: PayloadAction) => {

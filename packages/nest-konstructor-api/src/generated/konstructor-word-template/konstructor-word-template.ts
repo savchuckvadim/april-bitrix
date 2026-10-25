@@ -8,6 +8,8 @@
 import type {
     CreateWordTemplateMultipartDto,
     CreateWordTemplateResponseDto,
+    OfferTemplatePortalResponseDto,
+    SyncWordTemplatePortalsDto,
     UpdateWordTemplateDto,
     UserSelectedResponseDto,
     WordTemplateDto,
@@ -48,6 +50,22 @@ export const getKonstructorWordTemplate = () => {
             `user_id`,
             createWordTemplateMultipartDto.user_id.toString(),
         );
+        if (createWordTemplateMultipartDto.agent_id !== undefined) {
+            formData.append(
+                `agent_id`,
+                createWordTemplateMultipartDto.agent_id,
+            );
+        }
+        if (createWordTemplateMultipartDto.client_types !== undefined) {
+            createWordTemplateMultipartDto.client_types.forEach(value =>
+                formData.append(`client_types`, value),
+            );
+        }
+        if (createWordTemplateMultipartDto.supply_types !== undefined) {
+            createWordTemplateMultipartDto.supply_types.forEach(value =>
+                formData.append(`supply_types`, value),
+            );
+        }
         formData.append(`file`, createWordTemplateMultipartDto.file);
 
         return customAxios<CreateWordTemplateResponseDto>({
@@ -135,7 +153,7 @@ export const getKonstructorWordTemplate = () => {
      * @summary Delete word template
      */
     const wordTemplateRemove = (id: string) => {
-        return customAxios<void>({
+        return customAxios<boolean>({
             url: `/api/word-templates/${id}`,
             method: 'DELETE',
         });
@@ -151,16 +169,43 @@ export const getKonstructorWordTemplate = () => {
             responseType: 'blob',
         });
     };
+    /**
+     * @deprecated
+     * @summary Архивировать шаблон (GET, легаси)
+     */
     const wordTemplateArchive = (id: string) => {
-        return customAxios<void>({
+        return customAxios<boolean>({
             url: `/api/word-templates/${id}/archive`,
             method: 'GET',
         });
     };
+    /**
+     * Та же операция, что GET :id/archive, но без мутирующего GET — его может дёрнуть предпросмотр ссылки или краулер. GET оставлен ради легаси-фронта.
+     * @summary Архивировать шаблон (PATCH)
+     */
+    const wordTemplateArchivePatch = (id: string) => {
+        return customAxios<boolean>({
+            url: `/api/word-templates/${id}/archive`,
+            method: 'PATCH',
+        });
+    };
+    /**
+     * @deprecated
+     * @summary Вернуть шаблон из архива (GET, легаси)
+     */
     const wordTemplateUnarchive = (id: string) => {
-        return customAxios<void>({
+        return customAxios<boolean>({
             url: `/api/word-templates/${id}/unarchive`,
             method: 'GET',
+        });
+    };
+    /**
+     * @summary Вернуть шаблон из архива (PATCH)
+     */
+    const wordTemplateUnarchivePatch = (id: string) => {
+        return customAxios<boolean>({
+            url: `/api/word-templates/${id}/unarchive`,
+            method: 'PATCH',
         });
     };
     /**
@@ -183,6 +228,21 @@ export const getKonstructorWordTemplate = () => {
             method: 'PATCH',
         });
     };
+    /**
+     * Принимает ПОЛНЫЙ список порталов: недостающие привязки создаются (активными), лишние удаляются, существующие не трогаются. Пустой список снимает все привязки. Под мультиселект порталов в админке.
+     * @summary Синхронизировать привязки шаблона к порталам
+     */
+    const wordTemplateSyncPortals = (
+        id: string,
+        syncWordTemplatePortalsDto: SyncWordTemplatePortalsDto,
+    ) => {
+        return customAxios<OfferTemplatePortalResponseDto[]>({
+            url: `/api/word-templates/${id}/portals`,
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            data: syncWordTemplatePortalsDto,
+        });
+    };
     return {
         wordTemplateCreateWordTemplate,
         wordTemplateFindAllWordTemplates,
@@ -194,9 +254,12 @@ export const getKonstructorWordTemplate = () => {
         wordTemplateRemove,
         wordTemplateDownloadTemplate,
         wordTemplateArchive,
+        wordTemplateArchivePatch,
         wordTemplateUnarchive,
+        wordTemplateUnarchivePatch,
         wordTemplateSetActiveWordTemplate,
         wordTemplateSetDefault,
+        wordTemplateSyncPortals,
     };
 };
 export type WordTemplateCreateWordTemplateResult = NonNullable<
@@ -281,12 +344,30 @@ export type WordTemplateArchiveResult = NonNullable<
         >
     >
 >;
+export type WordTemplateArchivePatchResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getKonstructorWordTemplate
+            >['wordTemplateArchivePatch']
+        >
+    >
+>;
 export type WordTemplateUnarchiveResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<
                 typeof getKonstructorWordTemplate
             >['wordTemplateUnarchive']
+        >
+    >
+>;
+export type WordTemplateUnarchivePatchResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getKonstructorWordTemplate
+            >['wordTemplateUnarchivePatch']
         >
     >
 >;
@@ -305,6 +386,15 @@ export type WordTemplateSetDefaultResult = NonNullable<
             ReturnType<
                 typeof getKonstructorWordTemplate
             >['wordTemplateSetDefault']
+        >
+    >
+>;
+export type WordTemplateSyncPortalsResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getKonstructorWordTemplate
+            >['wordTemplateSyncPortals']
         >
     >
 >;

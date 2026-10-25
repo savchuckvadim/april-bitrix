@@ -1,8 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { ExternalLink } from 'lucide-react';
-import { cn } from '@workspace/ui/lib/utils';
+import { EntityLinkText } from '@workspace/april-ui/entity';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import type { EntityDescriptor } from '../lib/entity-descriptor';
 import { getEntityCardUrl } from '../lib/entity-url';
@@ -15,6 +14,7 @@ interface EntityLinkProps {
 /**
  * Название текущей сущности — ссылкой на её карточку в CRM (новая вкладка).
  * Домена нет (dev вне фрейма) — рендерится обычным текстом, без мёртвой ссылки.
+ * Вёрстка — общая с конструктором (@workspace/april-ui/entity).
  */
 export const EntityLink: FC<EntityLinkProps> = ({ descriptor, className }) => {
     const domain = useAppSelector(s => s.app.domain);
@@ -24,33 +24,11 @@ export const EntityLink: FC<EntityLinkProps> = ({ descriptor, className }) => {
         descriptor.entityId,
     );
 
-    if (!href) {
-        return (
-            <span
-                title={descriptor.title}
-                className={cn('min-w-0 truncate', className)}
-            >
-                {descriptor.title}
-            </span>
-        );
-    }
-
     return (
-        <a
+        <EntityLinkText
+            title={descriptor.title}
             href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={`Открыть в новой вкладке: ${descriptor.title}`}
-            className={cn(
-                'inline-flex min-w-0 items-center gap-1 underline-offset-4 hover:underline',
-                className,
-            )}
-        >
-            <span className="min-w-0 truncate">{descriptor.title}</span>
-            <ExternalLink
-                aria-hidden
-                className="size-3.5 shrink-0 text-muted-foreground"
-            />
-        </a>
+            className={className}
+        />
     );
 };

@@ -1,4 +1,4 @@
-import { RqItem } from '@workspace/bx-rq';
+import type { RqItem } from '../../model/types';
 import {
     E_REQUIRED_DOCUMENT_ADDRESS_RQ_ITEM_CODE,
     E_REQUIRED_DOCUMENT_BANK_RQ_ITEM_CODE,

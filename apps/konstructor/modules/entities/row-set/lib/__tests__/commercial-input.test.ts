@@ -1,87 +1,126 @@
 import { describe, expect, it } from 'vitest';
+import oldInit from '../../../catalog/lib/__fixtures__/oldinit.json';
+import { catalogFromOldInit } from '../../../catalog';
+import { buildGarantRow } from '../row';
 import {
+    applyCommercialEdit,
+    applyTaxChange,
     discountDisplayValue,
     parseCommercialInput,
     quantityFieldLabel,
 } from '../price';
-import type { RowPrice } from '../../model/types';
 
-const price = (over: Partial<RowPrice> = {}): RowPrice => ({
-    base: 1000,
-    current: 900,
-    quantity: 2,
-    month: 1000,
-    sum: 1800,
-    measure: { id: 1, code: 1, name: 'мес.', type: 1 },
-    discount: { percent: 0.9, amount: 100, current: 'percent' },
-    ...over,
-});
+/**
+ * Границы правок коммерции — паритет с легаси row-price-utils
+ * (calculateTotalPrice / transformToNumber / changeDisplayCommercial):
+ * QUANTITY 0 < q < 100 (целое), DISCOUNT в %/₽ с границами ввода,
+ * SUM с гардом −50 < (sum/q)/base < 50, DEFAULT ±5 % налога.
+ */
+const catalog = catalogFromOldInit(oldInit);
+const row = buildGarantRow({
+    catalog,
+    regionCode: 'stv',
+    withTax: false,
+    key: 'row1',
+    setId: 'general',
+    role: 'main',
+    complectCode: 'buh',
+    supplyCode: 'internet_1',
+    contractCode: 'abonYear',
+})!;
 
-describe('подписи и отображение', () => {
-    it('Аванс — помесячный сервисный договор, иначе Количество', () => {
-        expect(
-            quantityFieldLabel({ kind: 'service', durationMonths: 1 }),
-        ).toBe('Аванс');
-        expect(
-            quantityFieldLabel({ kind: 'abon', durationMonths: 12 }),
-        ).toBe('Количество');
-        expect(quantityFieldLabel({ kind: 'key', durationMonths: 1 })).toBe(
-            'Количество',
-        );
-        expect(quantityFieldLabel(null)).toBe('Количество');
-    });
-
-    it('скидка: %-режим → (1−percent)×100, ₽-режим → amount', () => {
-        expect(discountDisplayValue(price())).toBe(10);
-        expect(
-            discountDisplayValue(
-                price({
-                    discount: { percent: 0.9, amount: 100, current: 'amount' },
-                }),
-            ),
-        ).toBe(100);
-    });
-});
-
-describe('разбор ввода', () => {
-    it('количество: целое в границах 0<q<100', () => {
-        expect(parseCommercialInput('quantity', '5', price())).toEqual({
+describe('parseCommercialInput: границы ввода', () => {
+    it('количество — целое в (0, 100); дробь округляется, края отклоняются', () => {
+        expect(parseCommercialInput('quantity', '2,6', row.price)).toEqual({
             kind: 'quantity',
-            value: 5,
+            value: 3,
         });
-        expect(parseCommercialInput('quantity', '5,6', price())).toEqual({
+        expect(parseCommercialInput('quantity', '0', row.price)).toBeNull();
+        expect(parseCommercialInput('quantity', '100', row.price)).toBeNull();
+        expect(parseCommercialInput('quantity', '99', row.price)).toEqual({
             kind: 'quantity',
-            value: 6,
+            value: 99,
         });
-        expect(parseCommercialInput('quantity', '0', price())).toBeNull();
-        expect(parseCommercialInput('quantity', '100', price())).toBeNull();
     });
 
-    it('скидка %: display → коэффициент; границы −1500<v<500', () => {
-        expect(parseCommercialInput('discount', '20', price())).toEqual({
+    it('цена — не отрицательная; пробелы и запятая допустимы', () => {
+        expect(parseCommercialInput('price', '12 345,5', row.price)).toEqual({
+            kind: 'price',
+            value: 12345.5,
+        });
+        expect(parseCommercialInput('price', '-1', row.price)).toBeNull();
+        expect(parseCommercialInput('price', 'abc', row.price)).toBeNull();
+    });
+
+    it('скидка: % → коэффициент (1 − v/100), ₽ → сумма; границы −1500 < v < 500', () => {
+        expect(parseCommercialInput('discount', '20', row.price)).toEqual({
             kind: 'discountPercent',
             value: 0.8,
         });
-        expect(parseCommercialInput('discount', '500', price())).toBeNull();
-        expect(parseCommercialInput('discount', '-1500', price())).toBeNull();
-    });
-
-    it('скидка ₽: значение в рублях', () => {
-        const rub = price({
-            discount: { percent: 0.9, amount: 100, current: 'amount' },
-        });
-        expect(parseCommercialInput('discount', '150', rub)).toEqual({
+        const amountMode = {
+            ...row.price,
+            discount: { ...row.price.discount, current: 'amount' as const },
+        };
+        expect(parseCommercialInput('discount', '300', amountMode)).toEqual({
             kind: 'discountAmount',
-            value: 150,
+            value: 300,
         });
+        // границы ввода общие для обоих режимов
+        expect(parseCommercialInput('discount', '1000', amountMode)).toBeNull();
+        expect(parseCommercialInput('discount', '500', row.price)).toBeNull();
+        expect(parseCommercialInput('discount', '-1500', row.price)).toBeNull();
+    });
+});
+
+describe('applyCommercialEdit: границы применения', () => {
+    it('сумма: гард −50 < (sum/q)/base < 50 и month = current после правки суммы', () => {
+        const ok = applyCommercialEdit(row.price, { kind: 'sum', value: 50000 });
+        expect(ok.current).toBe(50000);
+        expect(ok.month).toBe(ok.current);
+        const tooBig = applyCommercialEdit(row.price, {
+            kind: 'sum',
+            value: row.price.base * 60,
+        });
+        expect(tooBig).toBe(row.price);
     });
 
-    it('цена: неотрицательная, «1 234,56» парсится', () => {
-        expect(parseCommercialInput('price', '1 234,56', price())).toEqual({
-            kind: 'price',
-            value: 1234.56,
+    it('скидка в %: current = base × percent, amount = base − current', () => {
+        const edited = applyCommercialEdit(row.price, {
+            kind: 'discountPercent',
+            value: 0.9,
         });
-        expect(parseCommercialInput('price', '-5', price())).toBeNull();
-        expect(parseCommercialInput('price', 'abc', price())).toBeNull();
+        expect(edited.current).toBe(Number((row.price.base * 0.9).toFixed(2)));
+        expect(edited.discount.amount).toBe(
+            Number((row.price.base - edited.current).toFixed(2)),
+        );
+        expect(edited.discount.current).toBe('percent');
+    });
+
+    it('налог поставщика (DEFAULT ±5 %): туда и обратно без дрейфа', () => {
+        const contract = catalog.contracts.byCode['abonYear']!;
+        const taxed = applyTaxChange(row.price, contract, false, true);
+        expect(taxed.base).toBe(Number((row.price.base * 1.05).toFixed(2)));
+        const back = applyTaxChange(taxed, contract, true, false);
+        expect(back.base).toBeCloseTo(row.price.base, 1);
+        // процентная скидка сохраняется при смене налога
+        expect(back.discount.percent).toBe(row.price.discount.percent);
+    });
+});
+
+describe('подписи полей', () => {
+    it('«Аванс» только у помесячного сервисного договора', () => {
+        expect(quantityFieldLabel(catalog.contracts.byCode['internet']!)).toBe('Аванс');
+        expect(quantityFieldLabel(catalog.contracts.byCode['abonYear']!)).toBe('Количество');
+        expect(quantityFieldLabel(null)).toBe('Количество');
+    });
+
+    it('отображение скидки: % как (1 − percent)·100, ₽ как amount', () => {
+        expect(discountDisplayValue(row.price)).toBe(20); // abonYear: 0.8
+        expect(
+            discountDisplayValue({
+                ...row.price,
+                discount: { percent: 1, amount: 777, current: 'amount' },
+            }),
+        ).toBe(777);
     });
 });

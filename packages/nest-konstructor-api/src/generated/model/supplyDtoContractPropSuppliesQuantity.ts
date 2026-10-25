@@ -9,4 +9,4 @@
 /**
  * Contract prop supplies quantity
  */
-export type SupplyDtoContractPropSuppliesQuantity = { [key: string]: unknown };
+export type SupplyDtoContractPropSuppliesQuantity = number | string;

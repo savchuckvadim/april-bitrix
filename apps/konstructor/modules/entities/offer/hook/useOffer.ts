@@ -49,7 +49,7 @@ export const useOffer = () => {
     const complects = useMemo<IComplect[]>(
         () =>
             catalog.complects.prof.map(complect => ({
-                number: complect.number,
+                number: complect.order,
                 name: complect.title,
                 fullName: complect.fullTitle,
                 shortName: complect.shortTitle,

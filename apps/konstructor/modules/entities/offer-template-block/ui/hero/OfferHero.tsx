@@ -1,7 +1,10 @@
 import { IOfferBlockHero } from '@/modules/entities/offer-template-block/type/offer-template-block.type';
 import { useOfferTemplateKonstructor } from '@/modules/entities/offer-template-konstructor/hook/useOfferTemplateKonstructor';
 import Image from 'next/image';
-import { FC } from 'react';
+import { FC, type CSSProperties } from 'react';
+
+/** Легаси-ключ toleftp — опечатка вместо left; React его игнорирует, поведение замороженной зоны сохранено. */
+type HeroStyle = CSSProperties & { toleftp?: string | number };
 
 const OfferHero: FC<{
     block: IOfferBlockHero;
@@ -10,7 +13,7 @@ const OfferHero: FC<{
 
     let style = {
         position: 'absolute',
-    } as any;
+    } as HeroStyle;
     if (block.content.slogan.top) {
         style = {
             ...style,

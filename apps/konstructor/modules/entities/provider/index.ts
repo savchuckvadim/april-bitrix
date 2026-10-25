@@ -1,20 +1,14 @@
-export type { Provider } from './type/provider.type';
-export { PROVIDER_KEY } from './type/provider.type';
-
+export type { Provider, ProviderRq } from './model/dto';
 export {
-
     documentProviderReducer,
     documentProviderSlice,
     documentProvidertAC,
     type DocumentProviderState,
-    type ProviderStateType,
-    type ProviderUser,
+    type DocumentProviderStatus,
 } from './model/DocumentProviderSlice';
-
 export {
-    initDocumentProvider,
-    initProviderUser,
+    applyDealProvider,
     initProviders,
-    setCurrentProviderByProviderThunk,
-    setCurrentProviderThunk,
+    setCurrentProvider,
 } from './model/DocumentProviderThunk';
+export { resolveCurrentProvider } from './lib/resolve-current-provider.util';

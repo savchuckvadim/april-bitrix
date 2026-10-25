@@ -3,7 +3,6 @@ import { getComplectVariantPbxSmartEntityId } from '../../portal';
 import {
     buildCurrentSnapshotV2,
     restoreSnapshotRecord,
-    type V1Record,
 } from '../../snapshot';
 import { ComplectVariantHelper } from '../lib/api/complect-variant-helper';
 import { buildVariantStageId, type ComplectVariantStage } from '../lib/stage';
@@ -144,25 +143,28 @@ export const createComplectVariant =
 /**
  * Открыть вариант: его запись раскладывается по стейту тем же путём, что и
  * слепок сделки. Пока вариант открыт, сохранение сделки пишет и в него.
+ * Возвращает, открылся ли вариант, — переход экрана делается по факту.
  */
 export const openComplectVariant =
-    (record: ComplectVariantRecordDto): AppThunk<Promise<void>> =>
+    (record: ComplectVariantRecordDto): AppThunk<Promise<boolean>> =>
     async dispatch => {
         dispatch(complectVariantActions.busy(true));
         try {
-            await dispatch(restoreSnapshotRecord(record as unknown as V1Record));
+            await dispatch(restoreSnapshotRecord(record));
             dispatch(complectVariantActions.setOpenVariant(record.variantSmartId));
             await dispatch(
                 saveComplectComposition({
                     openVariantSmartId: record.variantSmartId,
                 }),
             );
+            return true;
         } catch (error) {
             dispatch(
                 complectVariantActions.failed(
                     errorText(error, 'вариант не открыт'),
                 ),
             );
+            return false;
         } finally {
             dispatch(complectVariantActions.busy(false));
         }

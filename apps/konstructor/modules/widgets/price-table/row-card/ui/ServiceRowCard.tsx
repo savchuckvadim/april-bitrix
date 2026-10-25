@@ -1,12 +1,16 @@
 'use client';
 
 import { Trash2 } from 'lucide-react';
+import { MicroSelect } from '@workspace/april-ui/fields';
 import type { KRow } from '@/modules/entities/row-set';
 import { getServiceRefsLabel } from '../../lib/row-display.util';
 import { CommercialInputs } from '../../commercial-inputs';
 import { RowName } from './RowName';
 import { useRowCard } from '../hooks/use-row-card';
 import { useServiceRow } from '../hooks/use-service-row';
+
+/** Radix Select не принимает пустое значение — «без выбора» кодируем сентинелом. */
+const NONE_OPTION = '__none__';
 
 const PRODUCT_TYPE_LABEL: Record<string, string> = {
     lt: 'Legal Tech',
@@ -25,7 +29,8 @@ interface ServiceRowCardProps {
  * Сервисная строка (выводится из наполнения garant-строк). Функциональный
  * паритет с легаси-карточкой: сменить консалтинг/академию или убрать СТАР
  * можно прямо здесь (правка composition ведущей строки — sync пересоберёт);
- * LT-пакет производен от веса, меняется в наполнении.
+ * LT-пакет производен от веса, меняется в наполнении; пакет LT-other —
+ * своё имя и удаление пишутся в наполнение строки-владельца.
  */
 export const ServiceRowCard = ({ row, collapsed }: ServiceRowCardProps) => {
     const card = useRowCard(row, collapsed);
@@ -46,7 +51,7 @@ export const ServiceRowCard = ({ row, collapsed }: ServiceRowCardProps) => {
                     displayName={row.names.alternativeName ?? row.names.name}
                     isCustom={Boolean(row.names.alternativeName)}
                     canEdit={!card.isBlurred}
-                    onRename={card.rename}
+                    onRename={row.productType === 'lt_other' ? service.renameLtOther : card.rename}
                 />
                 {row.isFree ? (
                     <span className="shrink-0 text-xs text-success">
@@ -60,46 +65,62 @@ export const ServiceRowCard = ({ row, collapsed }: ServiceRowCardProps) => {
 
             <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 {row.productType === 'consalting' ? (
-                    <select
-                        className="rounded border bg-background px-1.5 py-1 text-xs text-foreground"
-                        value={service.currentConsalting ?? ''}
+                    <MicroSelect
+                        ariaLabel="Консалтинг"
+                        value={service.currentConsalting ?? NONE_OPTION}
                         disabled={selectsDisabled}
-                        onChange={event =>
-                            service.setConsalting(event.target.value || null)
+                        options={[
+                            { value: NONE_OPTION, label: 'Только Горячая линия' },
+                            ...service.consaltingOptions.map(option => ({
+                                value: option.code,
+                                label: option.name,
+                            })),
+                        ]}
+                        onChange={value =>
+                            service.setConsalting(value === NONE_OPTION ? null : value)
                         }
-                    >
-                        <option value="">Только Горячая линия</option>
-                        {service.consaltingOptions.map(option => (
-                            <option key={option.code} value={option.code}>
-                                {option.name}
-                            </option>
-                        ))}
-                    </select>
+                    />
                 ) : null}
 
                 {row.productType === 'academy' ? (
-                    <select
-                        className="rounded border bg-background px-1.5 py-1 text-xs text-foreground"
-                        value={service.currentAcademy ?? ''}
+                    <MicroSelect
+                        ariaLabel="Пакет академии"
+                        value={service.currentAcademy ?? NONE_OPTION}
                         disabled={selectsDisabled}
-                        onChange={event =>
-                            service.setAcademy(event.target.value || null)
+                        options={[
+                            { value: NONE_OPTION, label: 'Без академии' },
+                            ...service.academyOptions.map(pkg => ({
+                                value: pkg.code,
+                                label: `${pkg.totalHours} ч / ${pkg.monthQuantity ?? 'до конца'} мес`,
+                            })),
+                        ]}
+                        onChange={value =>
+                            service.setAcademy(value === NONE_OPTION ? null : value)
                         }
-                    >
-                        <option value="">Без академии</option>
-                        {service.academyOptions.map(pkg => (
-                            <option key={pkg.code} value={pkg.code}>
-                                {pkg.totalHours} ч /{' '}
-                                {pkg.monthQuantity ?? 'до конца'} мес
-                            </option>
-                        ))}
-                    </select>
+                    />
                 ) : null}
 
                 {row.productType === 'lt' ? (
                     <span title="Состав пакета меняется в наполнении строки">
                         пакет по весу LT: {service.ltWeight}
                     </span>
+                ) : null}
+
+                {row.productType === 'lt_other' && service.ltOther ? (
+                    <>
+                        <span title="Состав пакета меняется в наполнении строки">
+                            доп. пакет LT: вес {service.ltOther.weight}, сервисов{' '}
+                            {service.ltOther.servicesCount}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={service.removeLtOther}
+                            disabled={card.isBlurred}
+                            className="flex items-center gap-1 rounded border px-1.5 py-0.5 hover:bg-destructive/10 hover:text-destructive"
+                        >
+                            <Trash2 className="h-3 w-3" /> убрать пакет
+                        </button>
+                    </>
                 ) : null}
 
                 {row.productType === 'star' && service.canChangeService ? (

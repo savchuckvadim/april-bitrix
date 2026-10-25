@@ -17,7 +17,7 @@ import {
     type HeadPerimeter,
     getHeadPerimeterCacheKey,
     isHeadPerimeter,
-    sameSubordinates,
+    samePerimeter,
 } from '../lib/head-perimeter-cache';
 import { headModeActions } from './HeadModeSlice';
 import { selectTaskOwnerId } from './selectors';
@@ -59,22 +59,24 @@ export const fetchHeadPerimeter =
                         domain,
                         userId,
                     );
-                    return { subordinateIds: currentUser.subordinateIds ?? [] };
+                    return {
+                        subordinateIds: currentUser.subordinateIds ?? [],
+                        isSuperUser: currentUser.isSuperUser === true,
+                    };
                 },
                 validate: isHeadPerimeter,
                 onUpdate: fresh => {
-                    const current = getState().headMode.subordinateIds;
-                    if (sameSubordinates(current, fresh.subordinateIds)) return;
-                    dispatch(
-                        headModeActions.setFetched({
-                            subordinateIds: fresh.subordinateIds,
-                        }),
-                    );
+                    const { subordinateIds, isSuperUser } = getState().headMode;
+                    if (samePerimeter({ subordinateIds, isSuperUser }, fresh)) {
+                        return;
+                    }
+                    dispatch(headModeActions.setFetched(fresh));
                 },
             });
             dispatch(
                 headModeActions.setFetched({
                     subordinateIds: resolved.value.subordinateIds,
+                    isSuperUser: resolved.value.isSuperUser,
                 }),
             );
         } catch (error) {

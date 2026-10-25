@@ -1,4 +1,4 @@
-import { customAxios, getKonstructorWordTemplate } from '@workspace/nest-api';
+import { customAxios, getKonstructorWordTemplate } from '@workspace/nest-konstructor-api';
 import type {
     CreateWordTemplateRequest,
     UpdateWordTemplateRequest,
@@ -109,7 +109,7 @@ export class OfferWordTemplateAPI {
         });
     }
 
-    public delete(id: string): Promise<void> {
+    public delete(id: string): Promise<boolean> {
         return this.api.wordTemplateRemove(id);
     }
 
@@ -117,12 +117,13 @@ export class OfferWordTemplateAPI {
         return this.api.wordTemplateDownloadTemplate(id);
     }
 
-    public archive(id: string): Promise<void> {
-        return this.api.wordTemplateArchive(id);
+    /** PATCH: мутирующий GET бэкенда оставлен легаси-фронту. */
+    public archive(id: string): Promise<boolean> {
+        return this.api.wordTemplateArchivePatch(id);
     }
 
-    public unarchive(id: string): Promise<void> {
-        return this.api.wordTemplateUnarchive(id);
+    public unarchive(id: string): Promise<boolean> {
+        return this.api.wordTemplateUnarchivePatch(id);
     }
 
     public setActive(id: string, is_active: boolean): Promise<WordTemplate> {

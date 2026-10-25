@@ -3,7 +3,7 @@
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getDuplicateContext } from '@/modules/app/lib/utills/app-state-util';
 import { reloadApp } from '@/modules/app/model/thunk/AppThunk';
-import { selectMyDepartmentRole } from '@/modules/features/Departament/model/selectors';
+import { selectDuplicatesManageRole } from '../../model/selectors';
 import { duplicatesActions } from '../../model/DuplicatesSlice';
 import { fetchDuplicateDetails, joinToMain } from '../../model/DuplicatesThunk';
 import {
@@ -25,7 +25,7 @@ export function useDuplicateDetails() {
     const details = useAppSelector(s => s.duplicates.details);
 
     const context = useAppSelector(getDuplicateContext);
-    const role = useAppSelector(selectMyDepartmentRole).role;
+    const role = useAppSelector(selectDuplicatesManageRole);
     const joinArmed = useAppSelector(s => s.duplicates.joinArmed);
     const joinStatus = useAppSelector(s => s.duplicates.joinStatus);
     const joinError = useAppSelector(s => s.duplicates.joinError);

@@ -18,4 +18,5 @@ export const ContractGenerateDtoClientType = {
     org: 'org',
     ip: 'ip',
     fiz: 'fiz',
+    advokat: 'advokat',
 } as const;

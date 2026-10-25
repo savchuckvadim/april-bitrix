@@ -70,6 +70,10 @@ const snapshotSlice = createSlice({
             state.saveStatus = 'idle';
             state.saveError = null;
         },
+        /** Выбор Word-шаблона → в слепок (легаси читал templateId, но не писал) */
+        setTemplateId(state, action: PayloadAction<number | null>) {
+            state.templateId = action.payload;
+        },
         reset() {
             return initialState;
         },
@@ -86,6 +90,7 @@ const {
     saveDone,
     saveFailed,
     saveReset,
+    setTemplateId,
     reset,
 } = snapshotSlice.actions;
 export const snapshotActions = {
@@ -97,6 +102,7 @@ export const snapshotActions = {
     saveDone,
     saveFailed,
     saveReset,
+    setTemplateId,
     reset,
 };
 export const snapshotReducer = snapshotSlice.reducer;

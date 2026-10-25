@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import oldInit from '../../../../docs/oldinit.json';
+import oldInit from '../../catalog/lib/__fixtures__/oldinit.json';
 import { catalogFromOldInit } from '../../catalog';
 import type { Composition, CompositionCtx } from '../model/types';
 import { defaultComposition } from '../model/types';

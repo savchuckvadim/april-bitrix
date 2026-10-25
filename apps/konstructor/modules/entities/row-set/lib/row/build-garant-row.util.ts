@@ -1,4 +1,4 @@
-import { resolveSupply } from '../../../catalog';
+import { isCustomSupplyCode, resolveSupply } from '../../../catalog';
 import type { Composition } from '../../../composition';
 import type { KRow, RowRole } from '../../model/types';
 import {
@@ -74,6 +74,10 @@ export const buildGarantRow = (input: BuildGarantRowInput): KRow | null => {
             shortName: complect.shortTitle,
             alternativeName: null,
         },
-        price: makeRowPrice(period, contract, input.quantity ?? 1),
+        price: {
+            ...makeRowPrice(period, contract, input.quantity ?? 1),
+            // X-ОД: прайс справочной поставки-источника, точную цену задаёт менеджер
+            ...(isCustomSupplyCode(supply.code) ? { estimated: true } : {}),
+        },
     };
 };

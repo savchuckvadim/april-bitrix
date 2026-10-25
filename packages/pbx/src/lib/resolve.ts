@@ -52,3 +52,17 @@ export const findFieldItemByBitrixId = (
 ): PBXFieldItem | null =>
     field?.items?.find(item => String(item.bitrixId) === String(bitrixId)) ??
     null;
+
+/**
+ * Патч enumeration-поля для crm.*.update: `{ UF_CRM_<id>: bitrixId значения }`.
+ * Поля нет на портале или значения нет в поле — null (запись не делаем).
+ */
+export const buildEnumFieldPatch = (
+    fields: PBXField[] | null | undefined,
+    code: string,
+    itemCode: string,
+): Record<string, number> | null => {
+    const field = findPortalField(fields, code);
+    const item = findFieldItemByCode(field, itemCode);
+    return field && item ? { [ufKey(field)]: item.bitrixId } : null;
+};

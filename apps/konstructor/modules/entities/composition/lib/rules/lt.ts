@@ -1,27 +1,31 @@
 import type { Catalog } from '../../../catalog';
-import { LT_CODE_WEIGHT, LT_PACKAGE_BY_WEIGHT } from '../../../catalog';
-import type {
-    Composition,
-    CompositionCtx,
-    RuleResult,
-    RuleViolation,
+import {
+    getComplectRuleFlags,
+    LT_CODE_WEIGHT,
+    LT_PACKAGE_BY_WEIGHT,
+} from '../../../catalog';
+import {
+    violation,
+    type Composition,
+    type CompositionCtx,
+    type Rule,
+    type RuleResult,
+    type RuleViolation,
 } from '../../model/types';
 import { addUnique, remove } from '../utils';
 
 /**
- * Legal Tech (legacy fillingLt):
- * - «Офис» / «Эксперт в закупках» (exzak): минимум 5 бесплатных LT;
- *   лишние — в платный пакет; при падении ниже 5 сервис поднимается из пакета;
- * - прочие PROF (кроме «Эксперт PRO»): ровно 2 бесплатных, сверх — платно;
- * - «Эксперт PRO» (expert): при опустошении остаётся ltdisk;
- * - универсальная линейка: весь LT платный (ltInPacket);
+ * Legal Tech (legacy fillingLt + weightLt), пороги — из флагов комплекта:
+ * - minFreeLt (Офис / Эксперт в закупках: 5): первые 5 бесплатно, сверх —
+ *   в платный пакет; при падении ниже — сервис поднимается из пакета;
+ * - exactFreeLt (прочие PROF: 2): ровно 2 бесплатных, сверх — платно, ниже
+ *   нельзя; keepLtCode (Эксперт PRO: ltdisk) — при опустошении остаётся он;
+ * - универсал: весь LT платный (ltInPacket);
+ * - «ЧекДок» и прочие тяжёлые сервисы (вес 2) занимают два бесплатных слота
+ *   (легаси withDoubleLt);
  * - платный пакет подбирается по суммарному весу ltInPacket (2/5/10),
  *   иной вес — нарушение «LT собран неверно».
  */
-
-const MIN_FIVE_COMPLECTS = ['office', 'exzak'];
-const EXPERT_CODE = 'expert';
-const EXPERT_FALLBACK = 'ltdisk';
 
 /**
  * Вес LT-сервиса: источник истины — каталог (БД); статическая таблица —
@@ -32,14 +36,17 @@ export const ltServiceWeight = (code: string, catalog?: Catalog): number =>
     LT_CODE_WEIGHT[code] ??
     1;
 
+const weightOf = (codes: readonly string[], catalog?: Catalog): number =>
+    codes.reduce((sum, code) => sum + ltServiceWeight(code, catalog), 0);
+
 export const ltPacketWeight = (
     composition: Composition,
     catalog?: Catalog,
-): number =>
-    composition.ltInPacket.reduce(
-        (sum, code) => sum + ltServiceWeight(code, catalog),
-        0,
-    );
+): number => weightOf(composition.ltInPacket, catalog);
+
+/** Занятые бесплатные слоты: сумма весов бесплатных сервисов (ЧекДок = 2) */
+export const ltFreeWeight = (composition: Composition, catalog?: Catalog): number =>
+    weightOf(composition.lt, catalog);
 
 /** Нарушения по платному пакету LT (вес должен соответствовать пакету из каталога) */
 export const validateLtPacket = (
@@ -53,17 +60,20 @@ export const validateLtPacket = (
         : Boolean(LT_PACKAGE_BY_WEIGHT[weight]);
     if (packageExists) return [];
     return [
-        {
-            code: 'lt/invalid-packet-weight',
-            message: `LT собран неверно: суммарный вес платных сервисов ${weight} не соответствует ни одному пакету`,
-        },
+        violation(
+            'lt/invalid-packet-weight',
+            `LT собран неверно: суммарный вес платных сервисов ${weight} не соответствует ни одному пакету`,
+            // подсветка: сборка продолжается, пакет менеджер добивает сам
+            'warning',
+        ),
     ];
 };
 
+/** Лимит бесплатных слотов по весу; 0 — всё платно (универсал) */
 const freeLimit = (ctx: CompositionCtx): number => {
+    const flags = getComplectRuleFlags(ctx.complect);
     if (ctx.complect.type === 'universal') return 0;
-    if (MIN_FIVE_COMPLECTS.includes(ctx.complect.code)) return Infinity; // минимум 5, сверху не ограничено
-    return 2;
+    return flags.minFreeLt ?? flags.exactFreeLt ?? 0;
 };
 
 export const applyLtToggle = (
@@ -72,57 +82,34 @@ export const applyLtToggle = (
     checked: boolean,
     ctx: CompositionCtx,
 ): RuleResult => {
-    const violations: RuleViolation[] = [];
     const autoFixes: string[] = [];
-    const isMinFive = MIN_FIVE_COMPLECTS.includes(ctx.complect.code);
+    const flags = getComplectRuleFlags(ctx.complect);
     const limit = freeLimit(ctx);
+    const { catalog } = ctx;
 
-    let next: Composition = composition;
+    let next: Composition = {
+        ...composition,
+        lt: remove(composition.lt, code),
+        ltInPacket: remove(composition.ltInPacket, code),
+    };
 
     if (checked) {
-        if (ctx.complect.type === 'universal') {
-            // Универсал: всё платно
-            next = {
-                ...composition,
-                ltInPacket: addUnique(composition.ltInPacket, code),
-            };
-        } else if (
-            composition.lt.length < (isMinFive ? 5 : limit) ||
-            isMinFive
-        ) {
-            // Бесплатный слот доступен (для office/exzak первые 5 бесплатны)
-            const target =
-                isMinFive && composition.lt.length >= 5 ? 'ltInPacket' : 'lt';
-            if (!isMinFive && composition.lt.length >= limit) {
-                next = {
-                    ...composition,
-                    ltInPacket: addUnique(composition.ltInPacket, code),
-                };
-                autoFixes.push('Лимит бесплатных LT исчерпан — сервис добавлен платно');
-            } else if (target === 'lt') {
-                next = { ...composition, lt: addUnique(composition.lt, code) };
-            } else {
-                next = {
-                    ...composition,
-                    ltInPacket: addUnique(composition.ltInPacket, code),
-                };
-            }
+        const freeWeight = ltFreeWeight(next, catalog);
+        const fitsFree =
+            limit > 0 && freeWeight + ltServiceWeight(code, catalog) <= limit;
+        if (fitsFree) {
+            next = { ...next, lt: addUnique(next.lt, code) };
         } else {
-            next = {
-                ...composition,
-                ltInPacket: addUnique(composition.ltInPacket, code),
-            };
-            autoFixes.push('Лимит бесплатных LT исчерпан — сервис добавлен платно');
+            next = { ...next, ltInPacket: addUnique(next.ltInPacket, code) };
+            if (limit > 0) {
+                autoFixes.push('Лимит бесплатных LT исчерпан — сервис добавлен платно');
+            }
         }
     } else {
         const wasFree = composition.lt.includes(code);
-        next = {
-            ...composition,
-            lt: remove(composition.lt, code),
-            ltInPacket: remove(composition.ltInPacket, code),
-        };
+        const freeWeight = ltFreeWeight(next, catalog);
 
-        if (wasFree && isMinFive && next.lt.length < 5) {
+        if (wasFree && flags.minFreeLt && freeWeight < flags.minFreeLt) {
             // Поднимаем сервис из платного пакета в бесплатные
             const promoted = next.ltInPacket[0];
             if (promoted) {
@@ -136,10 +123,10 @@ export const applyLtToggle = (
                 return {
                     composition,
                     violations: [
-                        {
-                            code: 'lt/min-five-required',
-                            message: `В комплекте «${ctx.complect.title}» должно быть минимум 5 сервисов Legal Tech`,
-                        },
+                        violation(
+                            'lt/min-five-required',
+                            `В комплекте «${ctx.complect.title}» должно быть минимум ${flags.minFreeLt} сервисов Legal Tech`,
+                        ),
                     ],
                     autoFixes: [],
                 };
@@ -148,33 +135,44 @@ export const applyLtToggle = (
 
         if (
             wasFree &&
-            !isMinFive &&
-            ctx.complect.type === 'prof' &&
-            ctx.complect.code !== EXPERT_CODE &&
-            next.lt.length < 2
+            flags.exactFreeLt &&
+            freeWeight < flags.exactFreeLt &&
+            !flags.keepLtCode
         ) {
             return {
                 composition,
                 violations: [
-                    {
-                        code: 'lt/two-required',
-                        message: `В комплекте «${ctx.complect.title}» должно быть 2 сервиса Legal Tech`,
-                    },
+                    violation(
+                        'lt/two-required',
+                        `В комплекте «${ctx.complect.title}» должно быть ${flags.exactFreeLt} сервиса Legal Tech`,
+                    ),
                 ],
                 autoFixes: [],
             };
         }
 
-        if (
-            ctx.complect.code === EXPERT_CODE &&
-            next.lt.length === 0 &&
-            next.ltInPacket.length === 0
-        ) {
-            next = { ...next, lt: [EXPERT_FALLBACK] };
-            autoFixes.push('Эксперт PRO: возвращён сервис Гарант Диск');
+        if (flags.keepLtCode && next.lt.length === 0 && next.ltInPacket.length === 0) {
+            next = { ...next, lt: [flags.keepLtCode] };
+            const kept = catalog.services.lt.find(service => service.code === flags.keepLtCode);
+            autoFixes.push(
+                `${ctx.complect.title}: возвращён сервис «${kept?.name ?? flags.keepLtCode}»`,
+            );
         }
     }
 
-    violations.push(...validateLtPacket(next, ctx.catalog));
-    return { composition: next, violations, autoFixes };
+    return {
+        composition: next,
+        violations: validateLtPacket(next, catalog),
+        autoFixes,
+    };
+};
+
+export const ltRule: Rule = {
+    code: 'lt',
+    actions: ['toggleLt'],
+    apply: (composition, action, ctx) =>
+        action.kind === 'toggleLt'
+            ? applyLtToggle(composition, action.code, action.checked, ctx)
+            : null,
+    validate: (composition, ctx) => validateLtPacket(composition, ctx.catalog),
 };

@@ -8,38 +8,42 @@
 import type { SupplyDtoContractPropSuppliesQuantity } from './supplyDtoContractPropSuppliesQuantity';
 
 export interface SupplyDto {
+    /** Код поставки (internet_5, proxima_flash, X-ОД: x_internet_7) */
+    code?: string;
+    /** Число одновременных доступов */
+    usersQuantity?: number;
     /** Contract prop supplies quantity */
-    contractPropSuppliesQuantity: SupplyDtoContractPropSuppliesQuantity;
+    contractPropSuppliesQuantity?: SupplyDtoContractPropSuppliesQuantity;
     /** Contract prop 2 */
-    lcontractProp2: string;
+    lcontractProp2?: string;
     /** Contract name */
-    lcontractName: string;
+    lcontractName?: string;
     /** Contract prop email */
-    lcontractPropEmail: string;
+    lcontractPropEmail?: string;
     /** Type */
     type: string;
     /** Contract prop logins quantity */
-    contractPropLoginsQuantity: string;
+    contractPropLoginsQuantity?: string;
     /** Number */
     number: number;
     /** Acontract name */
-    acontractName: string;
+    acontractName?: string;
     /** Contract prop comment */
-    contractPropComment: string;
+    contractPropComment?: string;
     /** Contract prop email */
-    contractPropEmail: string;
+    contractPropEmail?: string;
     /** Quantity for KP */
-    quantityForKp: string;
+    quantityForKp?: string;
     /** Name */
     name: string;
     /** Coefficient */
     coefficient: number;
     /** Acontract prop comment */
-    acontractPropComment: string;
+    acontractPropComment?: string;
     /** Contract name */
-    contractName: string;
+    contractName?: string;
     /** Contract prop comment */
-    lcontractPropComment: string;
+    lcontractPropComment?: string;
     /** Contract prop 1 */
-    contractProp1: string;
+    contractProp1?: string;
 }

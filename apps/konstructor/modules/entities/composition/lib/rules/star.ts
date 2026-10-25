@@ -1,30 +1,30 @@
-import type {
-    Composition,
-    CompositionCtx,
-    RuleResult,
+import { getComplectRuleFlags } from '../../../catalog';
+import {
+    violation,
+    type Composition,
+    type CompositionCtx,
+    type Rule,
+    type RuleResult,
 } from '../../model/types';
 
 /**
- * СТАР (legacy fillingStar): недоступен комплекту «Эксперт в закупках»
- * (exzak — там СТАР зашит и не переключается); при complect.withStar
- * строка СТАР бесплатна (обрабатывается в pricing).
+ * СТАР (legacy fillingStar): один; у комплекта с флагом withStar (Эксперт в
+ * закупках) СТАР зашит и не переключается, строка СТАР бесплатна
+ * (обрабатывается в pricing по тому же флагу).
  */
-const EXZAK_CODE = 'exzak';
-
 export const applyStar = (
     composition: Composition,
     checked: boolean,
     ctx: CompositionCtx,
 ): RuleResult => {
-    if (ctx.complect.code === EXZAK_CODE) {
+    if (getComplectRuleFlags(ctx.complect).withStar) {
         return {
             composition,
             violations: [
-                {
-                    code: 'star/locked-for-exzak',
-                    message:
-                        'В комплекте «Эксперт в закупках» СТАР входит по умолчанию и не переключается',
-                },
+                violation(
+                    'star/locked-for-exzak',
+                    `В комплекте «${ctx.complect.title}» СТАР входит по умолчанию и не переключается`,
+                ),
             ],
             autoFixes: [],
         };
@@ -34,4 +34,11 @@ export const applyStar = (
         violations: [],
         autoFixes: [],
     };
+};
+
+export const starRule: Rule = {
+    code: 'star',
+    actions: ['toggleStar'],
+    apply: (composition, action, ctx) =>
+        action.kind === 'toggleStar' ? applyStar(composition, action.checked, ctx) : null,
 };

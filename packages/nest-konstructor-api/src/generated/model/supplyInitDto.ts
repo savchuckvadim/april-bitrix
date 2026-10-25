@@ -48,4 +48,14 @@ export interface SupplyInitDto {
      * @nullable
      */
     saleName_3: string | null;
+    /**
+     * Текст поставки для КП под её число ОД (шаблон quantityForKp уже отрендерен)
+     * @nullable
+     */
+    quantityForKp: string | null;
+    /**
+     * Количество поставок для договора (число ОД или «Флэш»), отрендерено
+     * @nullable
+     */
+    contractPropSuppliesQuantity: string | null;
 }

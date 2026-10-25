@@ -44,8 +44,6 @@ export const DealSendFieldDtoCode = {
     op_supplies_q: 'op_supplies_q',
     op_offer_pres_q: 'op_offer_pres_q',
     op_invoice_pres_q: 'op_invoice_pres_q',
-    op_inn: 'op_inn',
-    op_inn_pool: 'op_inn_pool',
     op_position: 'op_position',
     op_name: 'op_name',
     op_contacts: 'op_contacts',

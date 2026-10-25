@@ -7,30 +7,26 @@ import {
     selectCatalog,
 } from '@/modules/entities/catalog';
 import {
+    rebuildRowWithRefs,
     rowSetActions,
     selectEditingSetId,
     selectRowSetContext,
-    selectSelectedRow,
     type CommercialEdit,
     type KRow,
+    type RowRefsPatch,
 } from '@/modules/entities/row-set';
 import type { CommercialDisabled } from '../../commercial-inputs';
-import {
-    rebuildRowWithRefs,
-    type RowRefsPatch,
-} from '../../lib/change-row-refs.util';
 
 /**
  * Логика карточки строки: правки коммерции, рефов (комплект/ОД/договор
  * per-row), rename, удаление, disabled-матрица (свёрнутый вид, редактирование
- * другого сета), выбор строки для редактора наполнения.
+ * другого сета). Наполнение товара — окном из его карточки (RowCompositionButton).
  */
 export const useRowCard = (row: KRow, collapsed: boolean) => {
     const dispatch = useAppDispatch();
     const catalog = useAppSelector(selectCatalog);
     const context = useAppSelector(selectRowSetContext);
     const editingSetId = useAppSelector(selectEditingSetId);
-    const selectedRow = useAppSelector(selectSelectedRow);
 
     const contract = catalog.contracts.byCode[row.refs.contractCode] ?? null;
     const complect = row.refs.complectCode
@@ -80,13 +76,6 @@ export const useRowCard = (row: KRow, collapsed: boolean) => {
             rowSetActions.removeRow({ setId: row.setId, key: row.key }),
         );
 
-    const select = () =>
-        dispatch(
-            rowSetActions.selectRow(
-                selectedRow?.key === row.key ? null : row.key,
-            ),
-        );
-
     /** Смена рефов garant-строки: пересборка через каталог + sync listener */
     const changeRefs = (next: RowRefsPatch) => {
         const rebuilt = rebuildRowWithRefs(catalog, context, row, next);
@@ -108,7 +97,6 @@ export const useRowCard = (row: KRow, collapsed: boolean) => {
         catalog,
         contract,
         complect,
-        isSelected: selectedRow?.key === row.key,
         isBlurred,
         canDelete: row.role !== 'main' && !rowsLocked && !isBlurred,
         canEditRefs:
@@ -124,7 +112,6 @@ export const useRowCard = (row: KRow, collapsed: boolean) => {
         toggleDiscountMode,
         rename,
         remove,
-        select,
         changeRefs,
     };
 };

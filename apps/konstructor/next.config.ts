@@ -2,10 +2,8 @@ import type { NextConfig } from 'next';
 
 // Проверяем наличие обязательных переменных окружения
 const requiredEnvVars = [
-    'ONLINE_API_KEY',
     'IN_BITRIX',
     'LOG_FILE_PATH',
-    'PDF_PREVIEW_URL',
     'PORT',
 ];
 for (const envVar of requiredEnvVars) {
@@ -17,7 +15,6 @@ for (const envVar of requiredEnvVars) {
 
 const nextConfig: NextConfig = {
     env: {
-        ONLINE_API_KEY: process.env.ONLINE_API_KEY,
         LOG_FILE_PATH: process.env.LOG_FILE_PATH,
         IN_BITRIX: process.env.IN_BITRIX,
     },
@@ -30,6 +27,12 @@ const nextConfig: NextConfig = {
     transpilePackages: [
         '@workspace/api',
         '@workspace/ui',
+        '@workspace/april-ui',
+        '@workspace/theme',
+        '@workspace/bitrix',
+        '@workspace/bx',
+        '@workspace/pbx',
+        '@workspace/pbx-data',
         '@workspace/nest-konstructor-api',
     ],
 };

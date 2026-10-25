@@ -8,6 +8,7 @@ import {
     Scale,
     ShieldCheck,
 } from 'lucide-react';
+import type { ComplectTone } from '@workspace/april-ui/tones';
 import type { KComplect } from '../model/types';
 
 /**
@@ -78,4 +79,15 @@ export const getComplectIcon = (
     if (!code) return Briefcase;
     const family = FAMILY_BY_CODE[code];
     return family ? ICON_BY_FAMILY[family] : Briefcase;
+};
+
+/**
+ * Тон дизайн-системы для комплекта (плитки, бэйджи) — по семейству кода.
+ * Неизвестный код — «текущий комплект», цвет от ближайшего data-complect.
+ */
+export const getComplectTone = (
+    code: string | null | undefined,
+): ComplectTone => {
+    const family = code ? FAMILY_BY_CODE[code] : undefined;
+    return family ? `complect-${family}` : 'complect';
 };

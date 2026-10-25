@@ -64,6 +64,7 @@ const run = (scenario: Scenario) => {
             status: scenario.status ?? 'ready',
             enabled: scenario.enabled ?? true,
             subordinateIds: scenario.subordinateIds ?? [231, 465],
+            isSuperUser: false,
         },
         // Быстрый итог («Продажа» / «Отказ»): по умолчанию его нет.
         quickOutcome: {

@@ -5,7 +5,41 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { PlacementDto } from './placementDto';
+import type { ProviderDto } from './providerDto';
+import type { RecipientDto } from './recipientDto';
+import type { ComplectDto } from './complectDto';
+import type { SupplyDto } from './supplyDto';
+import type { PriceDto } from './priceDto';
+import type { ContractDto } from './contractDto';
+import type { RegionsDto } from './regionsDto';
+import type { RegionDto } from './regionDto';
+import type { OtherProvidersDto } from './otherProvidersDto';
+import type { ProductRowsItemsDto } from './productRowsItemsDto';
+import type { ProductRowDto } from './productRowDto';
+import type { ProductRowSetDto } from './productRowSetDto';
 
 export interface ZakupkiOfferCreateDto {
-    [key: string]: unknown;
+    domain: string;
+    companyId: string;
+    placement?: PlacementDto;
+    isProd?: boolean;
+    dealId: string;
+    provider?: ProviderDto;
+    /** Наш поставщик документов (agents.id) — вместо provider */
+    providerId?: number;
+    recipient: RecipientDto;
+    userId: number;
+    contractStart: string;
+    contractEnd: string;
+    complect: ComplectDto[];
+    supply?: SupplyDto;
+    price?: PriceDto;
+    contract?: ContractDto;
+    regions: RegionsDto;
+    region?: RegionDto;
+    otherProviders: OtherProvidersDto;
+    rows?: ProductRowsItemsDto;
+    total: ProductRowDto;
+    productSet?: ProductRowSetDto;
 }

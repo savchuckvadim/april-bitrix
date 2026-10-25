@@ -41,7 +41,7 @@ export interface ICurrentComplect {
     type: ComplectsTypes;
     abs?: false | number;
     msk?: number;
-    regions?: Array<any>;
+    regions?: unknown[];
 }
 
 export type ComplectNumberType =

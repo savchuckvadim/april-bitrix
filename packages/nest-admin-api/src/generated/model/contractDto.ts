@@ -34,7 +34,7 @@ export interface ContractDto {
   order: number;
   /** Portal measure of the contract */
   portalMeasure: ContractMeasureDto;
-  /** Measure code of the contract */
+  /** Код единицы измерения в Bitrix портала (portal_measure.bitrixId) — уходит в productRows сделки */
   measureCode: number;
   /** Measure full name of the contract */
   measureFullName: string;

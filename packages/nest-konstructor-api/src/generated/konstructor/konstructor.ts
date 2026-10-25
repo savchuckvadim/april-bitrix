@@ -7,9 +7,11 @@
  */
 import type {
     ContractGenerateDto,
+    ContractGenerateResponseDto,
     GetInitDataDto,
     InitDealDto,
     InitSupplyDto,
+    InitSupplyResponseDto,
     InitTaskAccountantDto,
     KonstructorInitDataDto,
     OfferDto,
@@ -18,26 +20,36 @@ import type {
     OfferWordEphemeralPdfPollResponseDto,
     OfferWordEphemeralPdfStartResponseDto,
     OfferWordEphemeralPdfStopResponseDto,
+    OfferWordMultiGenerateDto,
+    OfferWordMultiGenerateResponseDto,
     ZakupkiOfferCreateDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/konstructor-api';
 
 export const getKonstructor = () => {
+    /**
+     * Ставит генерацию в очередь ZAKUPKI_OFFER; результат уходит в Битрикс (ссылка в таймлайн). Ручки статуса нет.
+     * @summary Сформировать «3 КП для торгов»
+     */
     const zakupkiOfferCreateZakupkiOffer = (
         zakupkiOfferCreateDto: ZakupkiOfferCreateDto,
     ) => {
-        return customAxios<void>({
+        return customAxios<string>({
             url: `/api/zakupki-offer/create`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: zakupkiOfferCreateDto,
         });
     };
+    /**
+     * Собирает DOCX договора по шаблону поставщика, кладёт ссылку в таймлайн компании и сделки. Один договор за вызов.
+     * @summary Сформировать договор
+     */
     const contractGenerateGenerateContract = (
         contractGenerateDto: ContractGenerateDto,
     ) => {
-        return customAxios<void>({
+        return customAxios<ContractGenerateResponseDto>({
             url: `/api/contract/generate`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -63,8 +75,12 @@ export const getKonstructor = () => {
             data: getInitDataDto,
         });
     };
+    /**
+     * Создаёт или обновляет элемент RPA «Поставка», кладёт договор и счёт в сделку, пишет таймлайн на каждого участника.
+     * @summary Запустить процесс поставки (RPA)
+     */
     const initSupplyInitSupply = (initSupplyDto: InitSupplyDto) => {
-        return customAxios<void>({
+        return customAxios<InitSupplyResponseDto>({
             url: `/api/konstructor/init-supply`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -96,8 +112,9 @@ export const getKonstructor = () => {
         });
     };
     /**
-     * Generate offer word by template
-     * @summary Generate offer word by template
+     * Ответ: operationId джобы (строка) либо при withoutQueue — результат генерации. Новый фронт использует generate-multi.
+     * @deprecated
+     * @summary Generate offer word by template (легаси)
      */
     const offerWordGenerateGenerateOfferWord = (
         offerWordByTemplateGenerateDto: OfferWordByTemplateGenerateDto,
@@ -143,6 +160,20 @@ export const getKonstructor = () => {
             method: 'DELETE',
         });
     };
+    /**
+     * Генерация КП и счетов для нескольких вариантов комплекта. Режим печати берётся из настроек сборки: compare — открытый вариант (остальные «для сравнения»), merged — один документ с объединённым наполнением, independent — рендер на участника со склейкой PDF или отдельными документами. Счета выставляются по группам с одним типом договора. Старая ручка generate не меняется.
+     * @summary Сгенерировать КП по шаблону (v2, несколько участников)
+     */
+    const offerWordMultiGenerateGenerateOfferWordMulti = (
+        offerWordMultiGenerateDto: OfferWordMultiGenerateDto,
+    ) => {
+        return customAxios<OfferWordMultiGenerateResponseDto>({
+            url: `/api/offer-word-document/generate-multi`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: offerWordMultiGenerateDto,
+        });
+    };
     return {
         zakupkiOfferCreateZakupkiOffer,
         contractGenerateGenerateContract,
@@ -155,6 +186,7 @@ export const getKonstructor = () => {
         offerWordPdfPreviewStartPreview,
         offerWordPdfPreviewGetPreviewStatus,
         offerWordPdfPreviewStopPreview,
+        offerWordMultiGenerateGenerateOfferWordMulti,
     };
 };
 export type ZakupkiOfferCreateZakupkiOfferResult = NonNullable<
@@ -227,6 +259,15 @@ export type OfferWordPdfPreviewStopPreviewResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<typeof getKonstructor>['offerWordPdfPreviewStopPreview']
+        >
+    >
+>;
+export type OfferWordMultiGenerateGenerateOfferWordMultiResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getKonstructor
+            >['offerWordMultiGenerateGenerateOfferWordMulti']
         >
     >
 >;

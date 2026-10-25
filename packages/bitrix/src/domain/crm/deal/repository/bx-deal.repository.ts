@@ -209,6 +209,15 @@ export class BxDealRepository {
         );
     }
 
+    async contactAdd(dealId: number | string, contactId: number | string) {
+        return this.bxApi.callType(
+            EBxNamespace.CRM,
+            EBXEntity.DEAL,
+            EBxMethod.CONTACT_ADD,
+            { id: dealId, fields: { CONTACT_ID: contactId } },
+        );
+    }
+
     async contactItemsGet(dealId: number | string) {
         return this.bxApi.callType(
             EBxNamespace.CRM,

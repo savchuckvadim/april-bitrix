@@ -1,103 +1,80 @@
 import type { IBXDeal } from '@bitrix/domain';
+import {
+    PBX_DEAL_CATEGORY,
+    PBX_RPA_SUPPLY,
+    PBX_SMART_TYPE,
+    type PBXSmart,
+    type Portal,
+} from '../model/dto';
 
-import type { PBXCategory, PBXRPA, PBXSmart, Portal } from '../type/portal.type';
-
-export const getRpaSupplyTypeId = (portal: Portal): number | null => {
-    const rpas = portal.rpas;
-    let supplyRPA: PBXRPA | undefined;
-    if (rpas && rpas.length) {
-        supplyRPA = rpas.find(rpa => rpa.code === 'supply');
-    }
-    if (supplyRPA) {
-        return supplyRPA.bitrixId;
-    }
-    return null;
+/** bitrixId категории приходит строкой («34») — наружу отдаём число. */
+const toId = (raw: string | number | null | undefined): number | null => {
+    const id = Number(raw);
+    return Number.isFinite(id) && id > 0 ? id : null;
 };
 
-export const getSalesCategoryeId = (portal: Portal): number | null => {
-    const deals = portal.bitrixDeal.categories as PBXCategory[];
-    let categoryId = null;
-    if (deals && deals.length) {
-        const category = deals.find(category => category.code === 'sales_base');
-        if (category) {
-            categoryId = category.bitrixId;
-        }
-    }
+const findDealCategoryId = (
+    portal: Portal | null,
+    code: string,
+): number | null =>
+    toId(
+        portal?.bitrixDeal?.categories.find(category => category.code === code)
+            ?.bitrixId,
+    );
 
-    return categoryId;
+const findSmart = (portal: Portal | null, type: string): PBXSmart | null =>
+    portal?.smarts.find(smart => smart.type === type) ?? null;
+
+export const getRpaSupplyTypeId = (portal: Portal | null): number | null =>
+    toId(portal?.rpas.find(rpa => rpa.code === PBX_RPA_SUPPLY)?.bitrixId);
+
+export const getSalesCategoryId = (portal: Portal | null): number | null =>
+    findDealCategoryId(portal, PBX_DEAL_CATEGORY.SALES);
+
+export const getServiceCategoryId = (portal: Portal | null): number | null =>
+    findDealCategoryId(portal, PBX_DEAL_CATEGORY.SERVICE);
+
+/** Сделка в сервисной воронке — конструктор работает в режиме отдела сервиса. */
+export const getIsServiceDepartment = (
+    portal: Portal | null,
+    deal: IBXDeal | null,
+): boolean => {
+    const serviceCategoryId = getServiceCategoryId(portal);
+    const dealCategoryId = toId(deal?.CATEGORY_ID);
+    return (
+        serviceCategoryId !== null &&
+        dealCategoryId !== null &&
+        serviceCategoryId === dealCategoryId
+    );
 };
 
-export const getServiceCategoryeId = (portal: Portal): number | null => {
-    const deals = portal.bitrixDeal.categories as PBXCategory[];
-    let categoryId = null;
-    if (deals && deals.length) {
-        const category = deals.find(category => category.code === 'service_base');
-        if (category) {
-            categoryId = category.bitrixId;
-        }
-    }
+/** Смарт «Предложение на будущий период» (сервисный отдел). */
+export const getServiceOfferPbxSmart = (portal: Portal | null): PBXSmart | null =>
+    findSmart(portal, PBX_SMART_TYPE.SERVICE_OFFER);
 
-    return categoryId;
-};
-
-export const getIsServiceDepartment = (portal: Portal | null, deal: IBXDeal | null): boolean => {
-    let result = false;
-
-    if (deal && deal.CATEGORY_ID) {
-        if (portal) {
-            const serviceCategoryId = getServiceCategoryeId(portal);
-
-            if (serviceCategoryId && Number(serviceCategoryId) === Number(deal.CATEGORY_ID)) {
-                result = true;
-            }
-        }
-    }
-    return result;
-};
-
-export const getServiceOfferPbxSmart = (portal: Portal): PBXSmart | null => {
-    const smarts = portal.smarts;
-    const serviceSmart = smarts.find(smart => smart.type === 'service_offer');
-    if (serviceSmart) {
-        return serviceSmart;
-    }
-    return null;
-};
-export const hasPortalServiceOfferPbxSmart = (portal: Portal): boolean => {
-    const smarts = portal.smarts;
-    const serviceSmart = smarts.find(smart => smart.type === 'service_offer');
-    if (serviceSmart && serviceSmart.entityTypeId) {
-        return true;
-    }
-    return false;
-};
-
-export const getServiceOfferPbxSmartEntityId = (portal: Portal): number | null => {
-    const smarts = portal.smarts;
-    const serviceSmart = smarts.find(smart => smart.type === 'service_offer');
-    if (serviceSmart) {
-        return serviceSmart.entityTypeId || null;
-    }
-    return null;
-};
+export const getServiceOfferPbxSmartEntityId = (
+    portal: Portal | null,
+): number | null => getServiceOfferPbxSmart(portal)?.entityTypeId || null;
 
 /**
  * Смарт «Варианты комплекта»: несколько собранных предложений внутри одной
  * сделки. Не установлен на портале — null, и конструктор работает как раньше.
  */
 export const getComplectVariantPbxSmart = (portal: Portal | null): PBXSmart | null =>
-    portal?.smarts.find(smart => smart.type === 'complect_variant') ?? null;
+    findSmart(portal, PBX_SMART_TYPE.COMPLECT_VARIANT);
 
-export const getComplectVariantPbxSmartEntityId = (portal: Portal | null): number | null =>
-    getComplectVariantPbxSmart(portal)?.entityTypeId || null;
+export const getComplectVariantPbxSmartEntityId = (
+    portal: Portal | null,
+): number | null => getComplectVariantPbxSmart(portal)?.entityTypeId || null;
 
+/** Полный ключ UF-поля RPA «Поставка» по коду поля (`UF_RPA_<typeId>_<fieldId>`). */
 export const getRpaFieldId = (
-    portal: Portal,
+    portal: Portal | null,
     rpaBxEntityTypeId: number,
     fieldCode: 'rpa_crm_base_deal' | 'service_offer_smart',
-) => {
-    const portalRpa = portal?.rpas.find(rpa => rpa.code === 'supply');
-    const rpaFieldId =
-        portalRpa?.bitrixfields.find(field => field.code === fieldCode)?.bitrixId || '';
-    return `UF_RPA_${rpaBxEntityTypeId}_${rpaFieldId}`;
+): string => {
+    const rpa = portal?.rpas.find(item => item.code === PBX_RPA_SUPPLY);
+    const fieldId =
+        rpa?.bitrixfields.find(field => field.code === fieldCode)?.bitrixId ?? '';
+    return `UF_RPA_${rpaBxEntityTypeId}_${fieldId}`;
 };

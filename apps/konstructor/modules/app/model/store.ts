@@ -3,18 +3,13 @@ import {
     combineReducers,
     configureStore,
     createListenerMiddleware,
-    Dispatch,
     Middleware,
-    MiddlewareAPI,
     ThunkAction,
 } from '@reduxjs/toolkit';
 import { appReducer } from './AppSlice';
-import { WSClient } from '@/modules/shared';
-import { WSClient as WSClientWorkspace } from '@workspace/ws';
 import { catalogReducer } from '@/modules/entities/catalog';
 import { rowSetReducer } from '@/modules/entities/row-set';
 import { offerTemplateBlockReducer } from '@/modules/entities/offer-template-block';
-import { baseTemplateReducer } from '@/modules/entities/base-template';
 import { offerTemplateReducer } from '@/modules/entities/offer-template';
 import { offerTemplateKonstructorReducer } from '@/modules/entities/offer-template-konstructor';
 import { offerReducer } from '@/modules/entities/offer';
@@ -23,28 +18,21 @@ import { wordTemplate, wordTemplatePdfPreviewReducer } from '@/modules/entities/
 import { portalReducer } from '@/modules/entities/portal';
 import { documentProviderReducer } from '@/modules/entities/provider';
 import { dealReducer } from '@/modules/entities/deal';
-import { bxrqReducer } from '@workspace/bx-rq';
+import { bxrqReducer } from '@/modules/entities/bx-rq';
 import { snapshotReducer } from '@/modules/entities/snapshot';
 import { complectVariantReducer } from '@/modules/entities/complect-variant';
+import { libraryReducer } from '@/modules/entities/library';
+import { offerDocumentReducer } from '@/modules/entities/offer-document';
+import { contractDocumentReducer } from '@/modules/entities/contract-document';
+import { supplyReportReducer } from '@/modules/entities/supply-report-document';
+import { appSettingsReducer } from '@/modules/entities/app-settings';
+import { zakupkiReducer } from '@/modules/entities/zakupki';
+import { serviceOfferReducer } from '@/modules/entities/service-offer';
+import { complectDescriptionReducer } from '@/modules/entities/complect-description';
+import { dealSendReducer } from '@/modules/features/deal-send';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
 export const listenerMiddleware = createListenerMiddleware();
-let wsClient: WSClient;
-
-// const socketMiddleware: Middleware = (storeAPI: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
-//   // Место для обработки действий или взаимодействия с сокетом
-//   return next(action);
-// };
-
-export const initWSClient = (userId: number, domain: string) => {
-    wsClient = new WSClient(userId, domain);
-    return wsClient;
-};
-
-export const getWSClient = () => {
-    if (!wsClient) throw new Error('WSClient not initialized');
-    return wsClient;
-};
 
 const rootReducer = combineReducers({
     app: appReducer,
@@ -57,10 +45,27 @@ const rootReducer = combineReducers({
     snapshot: snapshotReducer,
     // варианты комплекта: несколько предложений внутри одной сделки
     complectVariant: complectVariantReducer,
+    // избранное и акции (библиотека заготовок)
+    library: libraryReducer,
+    // отправка сделки в Bitrix (статус/skipped) — фича deal-send
+    dealSend: dealSendReducer,
+    // шапка КП (получатель, счёт) и статус генерации — экран документа
+    offerDocument: offerDocumentReducer,
+    // договор: поля сделки, спецификация с бэка, статус генерации
+    contractDocument: contractDocumentReducer,
+    // отчёт о поставке: форма для отдела сервиса, файлы, заявка RPA
+    supplyReport: supplyReportReducer,
+    // портальные настройки приложения (флаги вроде «3 КП для торгов»)
+    appSettings: appSettingsReducer,
+    // «3 КП для торгов»: поставщики 1/2 и генерация
+    zakupki: zakupkiReducer,
+    // сервисный отдел: период «текущий / следующий» (смарт service_offer)
+    serviceOffer: serviceOfferReducer,
+    complectDescription: complectDescriptionReducer,
     portal: portalReducer,
 
     documentProvider: documentProviderReducer,
-    baseTemplate: baseTemplateReducer,
+    // Легаси HTML-КП (/offer/**): заморожен, со старта не грузится
     offer: offerReducer,
     offerTemplate: offerTemplateReducer,
     offerTemplateBlock: offerTemplateBlockReducer,
@@ -69,45 +74,30 @@ const rootReducer = combineReducers({
     wordTemplatePdfPreview: wordTemplatePdfPreviewReducer,
 });
 
-
 // Middleware для обработки ошибок
-const errorMiddleware: Middleware = storeAPI => next => action => {
+const errorMiddleware: Middleware = () => next => action => {
     try {
         return next(action);
     } catch (error) {
         console.error('Redux Error:', error);
-        // Обрабатываем ошибку через ErrorHandler
         errorHandler.handleAsyncError(error);
         return next(action);
     }
 };
 
-
 export const setupStore = () => {
     return configureStore({
         reducer: rootReducer,
         middleware: getDefaultMiddleware =>
-            getDefaultMiddleware({
-                thunk: {
-                    extraArgument: { getWSClient: WSClient.getClient },
-                },
-            })
+            getDefaultMiddleware()
                 .concat(errorMiddleware)
                 .concat(listenerMiddleware.middleware),
-        // .concat(portalAPI.middleware)
-        // .concat(infoblockAPI.middleware)
-
-        // .concat(reportMiddleware)
     });
 };
 
+/** Доп. аргумента у thunk'ов нет (extraArgument не задан): DAL — helper-классы слайсов. */
+export type ThunkExtraArgument = undefined;
 
-// Тип для extraArgument
-export type ThunkExtraArgument = {
-    getWSClient: () => WSClientWorkspace;
-};
-
-// Тип для thunk
 export type AppThunk<ReturnType = void> = ThunkAction<
     ReturnType,
     RootState,

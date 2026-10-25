@@ -1,4 +1,4 @@
-import { getKonstructorWordTemplateTags } from "@workspace/nest-api";
+import { getKonstructorWordTemplateTags } from '@workspace/nest-konstructor-api';
 
 
 export class OfferWordTemplateTagsAPI {

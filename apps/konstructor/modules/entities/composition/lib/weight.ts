@@ -1,4 +1,5 @@
 import type { KComplect } from '../../catalog';
+import { getComplectRuleFlags } from '../../catalog';
 import type { Composition, CompositionCtx } from '../model/types';
 
 /**
@@ -8,8 +9,6 @@ import type { Composition, CompositionCtx } from '../model/types';
  * + регионы: каждый ×0.5 + рутовый блок reg ×0.5 (если есть регионы или блок).
  */
 
-/** Комплект «Максимум»: допустим вес ≥ эталона */
-const MAXIMUM_CODE = 'maximum';
 const REGION_ROOT_CODE = 'reg';
 export const WEIGHT_TOLERANCE = 0.01;
 
@@ -61,8 +60,8 @@ export const checkComplectWeight = (
     const weight = compositionWeight(composition, ctx);
     const expected = ctx.complect.weight;
 
-    const matches =
-        ctx.complect.code === MAXIMUM_CODE
+    // флаг weightAtLeast (Максимум): допустим вес ≥ эталона
+    const matches = getComplectRuleFlags(ctx.complect).weightAtLeast
             ? weight >= expected - WEIGHT_TOLERANCE
             : Math.abs(weight - expected) <= WEIGHT_TOLERANCE;
 

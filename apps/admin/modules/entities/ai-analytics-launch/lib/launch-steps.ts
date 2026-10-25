@@ -81,6 +81,16 @@ function restoreState(status: LaunchStatus, now: Date): StepState {
         return { state: 'unknown', stateText: forecast.text };
     }
     const replayed = forecast.replayedMonths ?? 0;
+    const need = forecast.shadowMinMonths;
+    const shadow = forecast.shadowMonths ?? 0;
+    // Мало для проверки — значит, прошлые месяцы не пересчитаны: подсказка
+    // ведёт на догон (gsr 21.10.2026: «восстановлено 1, нужно 9»).
+    if (replayed > 0 && need !== null && shadow < need) {
+        return {
+            state: 'todo',
+            stateText: `Восстановлено по истории месяцев: ${replayed}, всего в журнале ${shadow} из ${need} нужных. Нажмите «Догнать историю за 24 месяца» — пересчитаются прошлые месяцы, — а когда догон закончится, снова эту кнопку.`,
+        };
+    }
     if (replayed > 0) {
         return {
             state: 'done',

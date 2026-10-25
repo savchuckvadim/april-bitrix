@@ -10,16 +10,20 @@
  * (`ContractLtype`, `DocumentSupplyReportGenerateDtoClientType`), поэтому
  * `satisfies` ниже ловит расхождение на этапе компиляции.
  */
-import { ContractLtype } from '@workspace/nest-konstructor-api';
+import {
+    ContractLtype,
+    type ClientTypeEnum,
+    type SupplyTypeEnum,
+} from '@workspace/nest-konstructor-api';
 
 /** Тип договора (`contract_type` / `ltype`). */
 export type ContractLtypeCode = 'service' | 'abon' | 'lic' | 'key';
 
-/** Тип клиента (`client_types[]`). */
-export type ClientTypeCode = 'org_state' | 'org' | 'ip' | 'fiz' | 'advokat';
+/** Тип клиента (`client_types[]`) — сгенерированный enum бэка. */
+export type ClientTypeCode = ClientTypeEnum;
 
-/** Вид размещения / поставки (`supply_types[]`). */
-export type SupplyTypeCode = 'internet' | 'proxima';
+/** Вид размещения / поставки (`supply_types[]`) — сгенерированный enum бэка. */
+export type SupplyTypeCode = SupplyTypeEnum;
 
 /** Подписи типов договора. */
 export const CONTRACT_LTYPE_LABELS: Record<ContractLtypeCode, string> = {

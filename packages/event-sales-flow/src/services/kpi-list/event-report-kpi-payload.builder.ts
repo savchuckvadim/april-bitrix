@@ -49,6 +49,14 @@ const UNPLANNED_NEXT_PLAN_OFFSET_SEC = 3;
 const FINAL_EVENT_DATE_OFFSET_SEC = PLAN_EVENT_DATE_OFFSET_SEC;
 
 /**
+ * Имя записи, когда ни задача, ни план названия не дали. У задач ХО название
+ * через один пробел («Холодный обзвон …»), и eventNameFromTaskTitle его не
+ * разбирает: на отказе без следующего шага имя выходило пустым, и Битрикс
+ * отвергал запись. Зеркало правки бэка от 20.10.2026.
+ */
+const KPI_FALLBACK_NAME = 'Событие';
+
+/**
  * KPI-сценарии (см. event-report-service-map.md «Блок 4»):
  * `unique` — уникальные презентации sales_kpi
  * (presentation_uniq / presentation_contact_uniq, легаси-коды).
@@ -345,7 +353,9 @@ export class EventReportKpiPayloadBuilder {
         return this.assemble({
             scenario: 'report',
             name: withRefineMark(
-                ctx.reportEventName || ctx.planEventName,
+                ctx.reportEventName ||
+                    ctx.planEventName ||
+                    eventTypeName(ctx.reportEventType as string),
                 ctx.reportEventType,
             ),
             eventType,
@@ -410,7 +420,9 @@ export class EventReportKpiPayloadBuilder {
         return this.assemble({
             scenario: 'plan',
             name: withRefineMark(
-                ctx.planEventName || ctx.reportEventName,
+                ctx.planEventName ||
+                    ctx.reportEventName ||
+                    eventTypeName(planEventType as string),
                 planEventType,
             ),
             eventType,
@@ -762,11 +774,14 @@ export class EventReportKpiPayloadBuilder {
             ? new Date(ctx.nowDate.getTime() + input.eventDateOffsetSec * 1000)
             : ctx.nowDate;
 
+        // Пустое имя Битрикс отвергает («The field Название is required») и
+        // запись KPI теряется — страховка (зеркало бэка, 20.10.2026).
+        const name = input.name.trim() || KPI_FALLBACK_NAME;
         return {
-            name: input.name,
+            name,
             values: {
                 event_date: this.formatCrm(eventDate),
-                event_title: input.name,
+                event_title: name,
                 plan_date: ctx.planDeadline?.toCrmDateTime() ?? null,
                 author: ctx.planCreatedById || ctx.planResponsibleId,
                 // Продажа — ответственному сделки (workResponsibleId).

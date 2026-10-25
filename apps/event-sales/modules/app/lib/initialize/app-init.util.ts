@@ -23,6 +23,7 @@ import { fetchAppConfig } from '../../model/thunk/AppConfigThunk';
 import { fetchHeadPerimeter } from '@/modules/features/HeadMode/model/HeadModeThunk';
 // Прямой путь: барель каталога анкет тянет транспорт и данные.
 import { ensureQuestionnaireCatalog } from '@/modules/entities/Questionnaire/model/QuestionnaireCatalogThunk';
+import { connectBitrixServerMode } from '@/modules/shared/bitrix-server-mode';
 import { markBootPhase } from '../diagnostics/boot-phases';
 import { armBootMetricsWatchdog } from '../diagnostics/boot-metrics';
 
@@ -64,6 +65,13 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
 
     if (!inFrame) {
         console.info(`app-init: вне фрейма Bitrix — dev-режим (${domain})`);
+    } else {
+        // До первого запроса к Битриксу: отказ по правам уже при резолве
+        // сущностей ниже должен уйти на сервер, а не уронить старт.
+        connectBitrixServerMode(bitrix.api, {
+            domain,
+            userId: String(user?.ID ?? ''),
+        });
     }
 
     dispatch(setDepartmentMode(user, domain));

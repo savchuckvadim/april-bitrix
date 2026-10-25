@@ -1,4 +1,5 @@
 'use client';
+import { toast } from 'sonner';
 
 import React, { useRef, useState } from 'react';
 import { useDownloadTagsForTemplates } from '../../../hooks/useDownloadTagsForTemplates';
@@ -18,7 +19,7 @@ export const WordTemplateTagsExampleDownloadButton: React.FC = () => {
             await downloadTagsExample();
         } catch (error) {
             console.error('Failed to download tags example:', error);
-            alert('Ошибка при скачивании примера с тегами');
+            toast.error('Ошибка при скачивании примера с тегами');
         }
     };
 
@@ -33,10 +34,10 @@ export const WordTemplateTagsExampleDownloadButton: React.FC = () => {
         try {
             setIsUploading(true);
             await uploadTagsForTemplatesAPI(file);
-            alert('Файл тегов успешно загружен');
+            toast.success('Файл тегов успешно загружен');
         } catch (error) {
             console.error('Failed to upload tags file:', error);
-            alert('Ошибка при загрузке файла тегов');
+            toast.error('Ошибка при загрузке файла тегов');
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) {

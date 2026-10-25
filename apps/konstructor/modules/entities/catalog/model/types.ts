@@ -1,7 +1,8 @@
 /**
  * Доменные типы каталога конструктора.
- * Вся адресация — по стабильным `code`; числовые number сохранены только
- * как справочная информация для маппинга легаси-слепков (entities/snapshot).
+ * Вся адресация — по стабильным `code` (справочники) и `id` (записи).
+ * Легаси-номеров здесь нет: таблицы `number → code` для старых слепков живут
+ * в lib/legacy-codes.ts и нужны только адаптеру v1 (entities/snapshot).
  */
 
 export type ComplectType = 'prof' | 'universal';
@@ -13,8 +14,8 @@ export type RegionScope = 'msk' | 'regions';
 
 export interface KComplect {
     code: string;
-    /** Легаси-номер комплекта (0..20) — только для маппинга слепков */
-    number: number;
+    /** Порядок в линейке (из init) */
+    order: number;
     type: ComplectType;
     title: string;
     fullTitle: string;
@@ -52,6 +53,8 @@ export interface KInfoblock {
     children: string[];
     description: string | null;
     shortDescription: string | null;
+    /** Продающее описание для КП (init v2) */
+    descriptionForSale: string | null;
 }
 
 export interface KInfogroup {
@@ -64,8 +67,6 @@ export interface KInfogroup {
 
 export interface KSupply {
     code: string;
-    /** Легаси-номер вида поставки (0..18) — только для маппинга слепков */
-    number: number | null;
     name: string;
     fullName: string;
     shortName: string;
@@ -75,12 +76,28 @@ export interface KSupply {
     /** Ценовой коэффициент (1 … 7) */
     coefficient: number;
     color: string | null;
+    /** Подпись поставки в КП («Интернет версия на 5 одновременных доступов…»), с бэка */
+    quantityForKp: string | null;
+    /** Количество поставок для сводки договора («5» или «Флэш»), с бэка */
+    contractPropSuppliesQuantity: string | null;
 }
 
 export interface KMeasure {
     id: number;
     code: number;
     name: string;
+    fullName: string;
+}
+
+/** Единица измерения портала (measures + portal_measure.bitrixId) — productRows и КП. */
+export interface KPortalMeasure {
+    id: number;
+    /** Код «для APP»: month, piece… */
+    code: string;
+    /** Код единицы в Bitrix портала (crm.measure); null — на портале не заведена */
+    bitrixId: number | null;
+    name: string;
+    shortName: string;
     fullName: string;
 }
 
@@ -97,14 +114,11 @@ export interface KContract {
     /** ID товара каталога Bitrix */
     bitrixItemId: number;
     measure: KMeasure;
-    /** Легаси-номер договора — только для маппинга слепков */
-    number: number;
     order: number;
 }
 
 export interface KRegion {
     code: string;
-    number: number;
     title: string;
     /** Ставка абонентского обслуживания региона */
     abs: number;
@@ -120,8 +134,8 @@ export type KServiceProductType = 'lt' | 'consalting' | 'star';
 
 export interface KService {
     code: string;
-    /** Легаси-номер — только для маппинга слепков */
-    number: number;
+    /** Порядок в списке (из init) */
+    order: number;
     name: string;
     fullName: string;
     shortName: string;
@@ -134,8 +148,6 @@ export interface KService {
 }
 
 export interface KAcademyPackage {
-    /** Легаси-номер пакета 1..21 (в слепке индекс = number − 1!) */
-    number: number;
     code: string;
     name: string;
     totalHours: number;
@@ -176,6 +188,7 @@ export interface Catalog {
     supplies: { items: KSupply[]; byCode: Record<string, KSupply> };
     contracts: { items: KContract[]; byCode: Record<string, KContract> };
     regions: { items: KRegion[]; byCode: Record<string, KRegion> };
+    measures: { items: KPortalMeasure[]; byCode: Record<string, KPortalMeasure> };
     services: {
         lt: KService[];
         ltPackages: KService[];
@@ -194,6 +207,7 @@ export const emptyCatalog = (): Catalog => ({
     supplies: { items: [], byCode: {} },
     contracts: { items: [], byCode: {} },
     regions: { items: [], byCode: {} },
+    measures: { items: [], byCode: {} },
     services: { lt: [], ltPackages: [], consalting: [], star: [] },
     academy: [],
     prices: { items: [] },

@@ -5,11 +5,7 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
-import type { PlacementDtoOptions } from './placementDtoOptions';
 
 export interface PlacementDto {
-    /** Placement of the contract */
-    placement: string;
-    /** Options of the placement */
-    options: PlacementDtoOptions;
+    [key: string]: unknown;
 }

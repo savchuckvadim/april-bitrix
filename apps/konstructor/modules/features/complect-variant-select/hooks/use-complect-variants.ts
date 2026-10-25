@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import type { RootState } from '@/modules/app/model/store';
 import { getComplectVariantPbxSmartEntityId } from '@/modules/entities/portal';
 import {
     closeComplectVariant,
     createComplectVariant,
-    fetchComplectVariants,
     getVariantContractCode,
     isSingleContractAllowed,
     openComplectVariant,
@@ -23,9 +22,9 @@ import {
 } from '@/modules/entities/complect-variant';
 
 /**
- * Данные и действия панели вариантов комплекта. Смарт на портале не
- * установлен — `hasSmart: false`, панель не рисуется, конструктор работает
- * как раньше.
+ * Данные и действия вариантов комплекта. Список грузит слушатель на входе
+ * (start-store-listeners); смарт на портале не установлен — `hasSmart: false`,
+ * варианты не показываются, конструктор работает как раньше.
  */
 export const useComplectVariants = () => {
     const dispatch = useAppDispatch();
@@ -36,12 +35,6 @@ export const useComplectVariants = () => {
     const composition = useAppSelector(selectComposition);
     const stageOf = useAppSelector(selectVariantStageOf);
     const [newTitle, setNewTitle] = useState('');
-
-    useEffect(() => {
-        if (hasSmart && variantState.status === 'idle') {
-            void dispatch(fetchComplectVariants());
-        }
-    }, [hasSmart, variantState.status, dispatch]);
 
     const participants = useMemo(
         () => selectParticipants(variantState.records, stageOf),

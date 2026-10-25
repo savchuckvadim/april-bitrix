@@ -2,40 +2,69 @@
 
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { LoadingScreen } from '@/modules/shared';
+import { PreloaderScreen } from '@workspace/april-ui';
+import { BootPreloaderGate } from '@workspace/april-ui/feedback';
 
 import { useApp } from '../lib/hooks/app';
 import {
     NON_AUTH_ERROR,
     NO_COMPANY_ERROR,
+    NO_DEAL_ERROR,
 } from '../lib/initialize/app-init/app-init.util';
 import { IS_PROD } from '../consts/app-global';
 import { store } from '../model/store';
 import { NonAuthScreen } from './NonAuthScreen';
 import { NoCompanyScreen } from './NoCompanyScreen';
+import { NoDealScreen } from './NoDealScreen';
 
+declare global {
+    interface Window {
+        /** Dev-консоль: store.getState() в браузере (dev-guide §7) */
+        store?: typeof store;
+    }
+}
+
+/**
+ * Гейт приложения: инициализация Bitrix → готовый экран.
+ *
+ * Экран загрузки один — SSR boot-прелоадер из корневого layout; гасится по
+ * готовности приложения, а не по гидратации. PreloaderScreen — только на
+ * повторную инициализацию (⟳), когда boot-прелоадера в DOM уже нет.
+ */
 export const App = ({ children }: { children: ReactNode }) => {
     const { app, initialized, isLoading, isClient } = useApp();
 
-    // Dev-консоль: store.getState() в браузере (рецепты — docs/dev-guide.md §8)
+    // Dev-консоль: store.getState() в браузере (рецепты — docs/dev-guide.md §7)
     useEffect(() => {
-        if (!IS_PROD && typeof window !== 'undefined') {
-            (window as unknown as { store: typeof store }).store = store;
+        if (!IS_PROD) {
+            window.store = store;
         }
     }, []);
 
-    if (isClient && app.error.status && app.error.message === NON_AUTH_ERROR) {
-        return <NonAuthScreen />;
-    }
-
-    if (isClient && app.error.status && app.error.message === NO_COMPANY_ERROR) {
-        return <NoCompanyScreen />;
-    }
+    const isReady = isClient && initialized && !isLoading;
+    const errorMessage = isClient && app.error.status ? app.error.message : null;
+    const isNonAuth = errorMessage === NON_AUTH_ERROR;
+    const isNoCompany = errorMessage === NO_COMPANY_ERROR;
+    const isNoDeal = errorMessage === NO_DEAL_ERROR;
+    const isGate = isNonAuth || isNoCompany || isNoDeal;
 
     return (
-        <div className="h-calc(100vh - 300px)">
-            {isClient && initialized && !isLoading ? children : <LoadingScreen />}
-        </div>
+        <>
+            {/* Гейт-экран — тоже «готово»: иначе прелоадер висел бы над ним
+                до предохранителя maxWaitMs. */}
+            <BootPreloaderGate ready={isReady || isGate} />
+            {isNonAuth && <NonAuthScreen />}
+            {isNoCompany && <NoCompanyScreen />}
+            {isNoDeal && <NoDealScreen />}
+            {!isGate && (
+                <>
+                    {!isReady && isClient && (
+                        <PreloaderScreen variant="brand" />
+                    )}
+                    {isReady ? children : null}
+                </>
+            )}
+        </>
     );
 };
 

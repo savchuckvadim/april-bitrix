@@ -121,6 +121,28 @@ describe('buildLaunchSteps', () => {
         expect(stepOf(passed, 'forecast-check').state).toBe('done');
         expect(stepOf(passed, 'forecast-restore').state).toBe('done');
 
+        // gsr 21.10.2026: восстановлен 1 месяц из 9 нужных — шаг не «сделано»,
+        // подсказка ведёт на догон истории.
+        const few = buildLaunchSteps(
+            launchStatus({
+                forecast: {
+                    status: 'insufficient',
+                    replayedMonths: 1,
+                    shadowMonths: 1,
+                    shadowMinMonths: 9,
+                },
+            }),
+            NO_SESSION,
+            NOW,
+        );
+        expect(stepOf(few, 'forecast-restore').state).toBe('todo');
+        expect(stepOf(few, 'forecast-restore').stateText).toContain(
+            '1 из 9',
+        );
+        expect(stepOf(few, 'forecast-restore').stateText).toContain(
+            'Догнать историю за 24 месяца',
+        );
+
         const shown = buildLaunchSteps(
             launchStatus({ forecast: { status: 'pass', stageEnabled: true } }),
             NO_SESSION,

@@ -1,14 +1,7 @@
 import { BxInitService, IBitrixinitResult } from '../../services/bx-init.service';
 
-export const bitrixInit = async (): Promise<IBitrixinitResult | null> => {
+/** Сделка и компания по известному dealId (placement разобран в app-init). */
+export const bitrixInit = async (dealId: number): Promise<IBitrixinitResult | null> => {
     const bxInitService = new BxInitService();
-
-    const result = await bxInitService.init();
-
-    if (!result) {
-        return null;
-    }
-    const { deal, company } = result;
-
-    return { deal, company };
+    return bxInitService.init(dealId);
 };

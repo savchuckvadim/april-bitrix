@@ -1,4 +1,5 @@
 'use client';
+import { toast } from 'sonner';
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
@@ -129,11 +130,13 @@ export const WordTemplateSettingsWidget: React.FC = () => {
     };
 
     const handleDelete = async (template: WordTemplateSummary) => {
-        if (!confirm(`Удалить шаблон "${template.name}"?`)) {
-            return;
-        }
-
-        remove({ id: template.id.toString() });
+        // подтверждение тостом с действием — вместо модального confirm
+        toast(`Удалить шаблон «${template.name}»?`, {
+            action: {
+                label: 'Удалить',
+                onClick: () => remove({ id: template.id.toString() }),
+            },
+        });
     };
 
     const handleSelect = async (template: WordTemplateSummary) => {
@@ -145,7 +148,7 @@ export const WordTemplateSettingsWidget: React.FC = () => {
             await download(template.id.toString(), template.name);
         } catch (error) {
             console.error('Failed to download template:', error);
-            alert('Ошибка при скачивании шаблона');
+            toast.error('Ошибка при скачивании шаблона');
         }
     };
 

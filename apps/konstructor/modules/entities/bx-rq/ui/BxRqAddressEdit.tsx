@@ -9,18 +9,12 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { BxRqEditModal } from './BxRqEditModal';
-import {
-    RqItem,
-    RQ_TYPE,
-    BX_ADDRESS_TYPE,
-    isFieldsEmpty,
-    useBxRqEditAddress,
-    AddressTypeId,
-    getAddressFillPercent,
-} from '@workspace/bx-rq';
+import { BX_ADDRESS_TYPE, RQ_TYPE, type AddressTypeId } from '../model/types';
+import { isFieldsEmpty } from '../lib/field-items-util';
+import { useBxRqEditAddress } from '../lib/hooks/use-bx-rq';
 import { Edit2, Copy, CheckCircle } from 'lucide-react';
 import { useApp } from '@/modules/app/lib/hooks/app';
-import { useClientType } from '@/modules/features/client-type/hook/useClientType';
+import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
 
 interface BxRqAddressEditProps {
     // addresses: AddressRqItem[]
@@ -68,7 +62,6 @@ export const BxRqAddressEdit = ({}: BxRqAddressEditProps) => {
             companyId,
             clientType as RQ_TYPE,
             typeId,
-            creating?.fields || [],
         );
     };
 
@@ -189,7 +182,7 @@ export const BxRqAddressEdit = ({}: BxRqAddressEditProps) => {
                         <CardContent>
                             {!isEmpty ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {(address.fields as RqItem[]).map(field => (
+                                    {address.fields.map(field => (
                                         <div
                                             key={field.code}
                                             className="space-y-1"

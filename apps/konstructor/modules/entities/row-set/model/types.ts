@@ -46,6 +46,11 @@ export interface RowPrice {
     sum: number;
     measure: RowMeasure;
     discount: RowDiscount;
+    /**
+     * Ориентировочная цена: X-ОД получает прайс ближайшей справочной
+     * поставки, точную задаёт менеджер вручную (правка цены снимает признак).
+     */
+    estimated?: boolean;
 }
 
 export interface RowRefs {
@@ -54,6 +59,8 @@ export interface RowRefs {
     contractCode: string;
     /** Код сервиса/пакета для lt/lt_other/consalting/star/academy строк */
     serviceCode?: string;
+    /** id пакета LT-other в наполнении (composition.ltOther) — у lt_other строк */
+    packetId?: string;
 }
 
 export interface RowNames {

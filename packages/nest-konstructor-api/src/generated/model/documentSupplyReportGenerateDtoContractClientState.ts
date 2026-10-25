@@ -7,7 +7,7 @@
  */
 
 /**
- * Contract client state
+ * Contract client state (легаси, не читается)
  */
 export type DocumentSupplyReportGenerateDtoContractClientState = {
     [key: string]: unknown;

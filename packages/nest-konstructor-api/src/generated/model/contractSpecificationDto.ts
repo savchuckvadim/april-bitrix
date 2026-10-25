@@ -5,7 +5,9 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { ContractSpecificationItemDto } from './contractSpecificationItemDto';
 
 export interface ContractSpecificationDto {
-    [key: string]: unknown;
+    /** Строки спецификации */
+    items: ContractSpecificationItemDto[];
 }

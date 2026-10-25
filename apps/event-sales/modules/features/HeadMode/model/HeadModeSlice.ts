@@ -7,6 +7,8 @@ export interface HeadModeState {
     status: HeadModeStatus;
     /** Сотрудники, чьи дела видит руководитель; пусто — не руководитель. */
     subordinateIds: number[];
+    /** Суперпользователь April: права руководителя (кнопки в дублях). */
+    isSuperUser: boolean;
     /** Режим включён тумблером (по умолчанию включён). */
     enabled: boolean;
 }
@@ -14,6 +16,7 @@ export interface HeadModeState {
 const initialState: HeadModeState = {
     status: 'idle',
     subordinateIds: [],
+    isSuperUser: false,
     enabled: true,
 };
 
@@ -31,15 +34,20 @@ const headModeSlice = createSlice({
         },
         setFetched: (
             state: HeadModeState,
-            action: PayloadAction<{ subordinateIds: number[] }>,
+            action: PayloadAction<{
+                subordinateIds: number[];
+                isSuperUser: boolean;
+            }>,
         ) => {
             state.status = 'ready';
             state.subordinateIds = action.payload.subordinateIds;
+            state.isSuperUser = action.payload.isSuperUser;
         },
         /** Список не получен — работаем как обычный менеджер. */
         setFailed: (state: HeadModeState) => {
             state.status = 'error';
             state.subordinateIds = [];
+            state.isSuperUser = false;
         },
         setEnabled: (
             state: HeadModeState,

@@ -5,10 +5,11 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { ProductRowSetDto } from './productRowSetDto';
 
 export interface ProductRowFullSetsDto {
     /** General set of the product rows */
-    general: string[];
+    general: ProductRowSetDto[];
     /** Alternative set of the product rows */
-    alternative: string[];
+    alternative: ProductRowSetDto[];
 }

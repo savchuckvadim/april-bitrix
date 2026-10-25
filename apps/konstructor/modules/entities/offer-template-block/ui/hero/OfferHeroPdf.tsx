@@ -2,7 +2,10 @@ import { IOfferBlockHero } from '@/modules/entities/offer-template-block/type/of
 import { IOfferTemplate } from '@/modules/entities/offer-template/type/offer-template.type';
 import { OfferTemplateDto } from '@workspace/nest-api';
 import Image from 'next/image';
-import { FC } from 'react';
+import { FC, type CSSProperties } from 'react';
+
+/** Легаси-ключ toleftp — опечатка вместо left; React его игнорирует, поведение замороженной зоны сохранено. */
+type HeroStyle = CSSProperties & { toleftp?: string | number };
 
 const OfferHeroPdf: FC<{
     template: OfferTemplateDto;
@@ -12,7 +15,7 @@ const OfferHeroPdf: FC<{
 
     let style = {
         position: 'absolute',
-    } as any;
+    } as HeroStyle;
     if (block.content.slogan.top) {
         style = {
             ...style,

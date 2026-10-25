@@ -14,4 +14,9 @@ export interface DealSendResponseDto {
     created: boolean;
     /** Поля, значения которых записаны не были: not_on_portal — поля нет в схеме портала, ambiguous_code — коду соответствует несколько полей и не передан appType */
     skipped: SkippedDealFieldDto[];
+    /**
+     * Элемент смарта, в который записали (target.kind = smart); иначе null
+     * @nullable
+     */
+    smartId?: number | null;
 }

@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
+    AI_BETA_BEYOND_HORIZON,
     AI_BETA_COUNTDOWN_REACHED,
+    AI_BETA_HORIZON_MONTHS,
     AI_READINESS_REASON_LABELS,
     AI_READINESS_REASON_UNKNOWN,
     formatAiReadinessReason,
     formatAiReadinessReasons,
     formatBetaCountdown,
     formatUnknownAiReadinessReason,
+    isAiBetaBeyondHorizon,
     pluralRu,
 } from '../lib/ai-readiness.data';
 import {
@@ -119,6 +122,23 @@ describe('formatBetaCountdown — счётчик «до оценки связи 
         ).toBe(
             'до оценки связи качества разговоров с продажами осталось ≈ 1 презентация / 1 месяц',
         );
+    });
+
+    it('срок за горизонтом (больше пяти лет) — без числа месяцев', () => {
+        expect(
+            formatBetaCountdown({
+                seNow: 0.9,
+                presentationsLeft: 900,
+                monthsLeft: AI_BETA_HORIZON_MONTHS + 1,
+            }),
+        ).toBe(
+            `до оценки связи качества разговоров с продажами осталось ≈ 900 презентаций — ${AI_BETA_BEYOND_HORIZON}`,
+        );
+        expect(isAiBetaBeyondHorizon({ monthsLeft: AI_BETA_HORIZON_MONTHS })).toBe(
+            false,
+        );
+        expect(isAiBetaBeyondHorizon({ monthsLeft: null })).toBe(false);
+        expect(isAiBetaBeyondHorizon(null)).toBe(false);
     });
 
     it('темп неизвестен — только презентации', () => {

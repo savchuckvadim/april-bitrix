@@ -223,6 +223,14 @@ describe('Связь качества с результатом', () => {
                 monthsLeft: null,
             }),
         ).toBe('≈ 21 презентация');
+        // Срок за горизонтом — словами, без тысяч месяцев.
+        expect(
+            formatAiAboutCountdown({
+                seNow: 0.9,
+                presentationsLeft: 900,
+                monthsLeft: 6_000,
+            }),
+        ).toBe('≈ 900 презентаций / при нынешнем темпе — дольше пяти лет');
         expect(formatAiAboutCountdown(null)).toBeNull();
     });
 });

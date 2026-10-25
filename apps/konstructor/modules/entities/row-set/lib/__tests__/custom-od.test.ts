@@ -1,22 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import oldInit from '../../../../../docs/oldinit.json';
+import oldInit from '../../../catalog/lib/__fixtures__/oldinit.json';
 import {
     catalogFromOldInit,
     filterContractsForSupply,
     makeCustomSupplyCode,
     parseCustomSupplyCode,
+    referenceSupplyForCustom,
     resolveSupply,
 } from '../../../catalog';
 import { buildGarantRow } from '../row';
-import { findProfBasePriceForSupply } from '../price';
+import { applyCommercialEdit, findProfBasePriceForSupply } from '../price';
 
 /**
  * X-ОД: произвольное количество одновременных доступов через синтетический
- * код поставки x_<type>_<n>. Коэффициент и PROF-цена — линейная интерполяция
- * между соседними справочными поставками (рабочее допущение формулы).
+ * код поставки x_<type>_<n>. Цена НЕ вычисляется (решение владельца 14):
+ * коэффициент и прайс — у ближайшей справочной поставки того же типа
+ * (снизу, иначе сверху), строка помечена ориентировочной.
  */
 
 const catalog = catalogFromOldInit(oldInit);
+const internet = (usersQuantity: number) =>
+    catalog.supplies.items.find(
+        supply =>
+            supply.type === 'internet' &&
+            supply.usersQuantity === usersQuantity &&
+            supply.code === `internet_${usersQuantity}`,
+    )!;
 
 describe('X-ОД: код и резолв', () => {
     it('make/parse round-trip; мусор не парсится', () => {
@@ -34,58 +43,47 @@ describe('X-ОД: код и резолв', () => {
         expect(custom.usersQuantity).toBe(4);
         expect(custom.type).toBe('internet');
         expect(custom.name).toContain('4 ОД');
+        expect(custom.contractPropSuppliesQuantity).toBe('4');
+        // подпись КП для X-ОД рендерит бэк по коду
+        expect(custom.quantityForKp).toBeNull();
     });
 
-    it('коэффициент интерполируется между соседями', () => {
-        const three = catalog.supplies.items.find(
-            supply => supply.type === 'internet' && supply.usersQuantity === 3,
-        )!;
-        const five = catalog.supplies.items.find(
-            supply => supply.type === 'internet' && supply.usersQuantity === 5,
-        )!;
-        const four = resolveSupply(catalog, 'x_internet_4')!;
-        expect(four.coefficient).toBeCloseTo(
-            (three.coefficient + five.coefficient) / 2,
-            4,
+    it('источник — ближайшая справочная снизу; особые (std/local/flash) не участвуют', () => {
+        expect(referenceSupplyForCustom(catalog, 'internet', 4)?.code).toBe('internet_3');
+        expect(referenceSupplyForCustom(catalog, 'internet', 5)?.code).toBe('internet_5');
+        expect(referenceSupplyForCustom(catalog, 'proxima', 1)?.code).toBe('proxima_1');
+        expect(referenceSupplyForCustom(catalog, 'internet', 999)?.code).toBe('internet_50');
+    });
+
+    it('коэффициент = коэффициент справочной поставки-источника (без интерполяции)', () => {
+        expect(resolveSupply(catalog, 'x_internet_4')!.coefficient).toBe(
+            internet(3).coefficient,
         );
-    });
-
-    it('за пределами справочника — коэффициент ближней поставки', () => {
-        const max = [...catalog.supplies.items]
-            .filter(supply => supply.type === 'internet' && supply.usersQuantity > 0)
-            .sort((a, b) => b.usersQuantity - a.usersQuantity)[0]!;
-        const beyond = resolveSupply(
-            catalog,
-            makeCustomSupplyCode('internet', max.usersQuantity + 50),
-        )!;
-        expect(beyond.coefficient).toBe(max.coefficient);
+        expect(resolveSupply(catalog, 'x_internet_60')!.coefficient).toBe(
+            internet(50).coefficient,
+        );
     });
 });
 
 describe('X-ОД: цены и совместимость', () => {
-    it('PROF-цена интерполируется между прайсами соседних поставок', () => {
+    it('PROF-цена = прайс справочной поставки-источника', () => {
         const direct3 = findProfBasePriceForSupply(
             catalog,
             'buh',
             resolveSupply(catalog, 'internet_3')!,
             'regions',
         )!;
-        const direct5 = findProfBasePriceForSupply(
-            catalog,
-            'buh',
-            resolveSupply(catalog, 'internet_5')!,
-            'regions',
-        )!;
-        const interpolated = findProfBasePriceForSupply(
-            catalog,
-            'buh',
-            resolveSupply(catalog, 'x_internet_4')!,
-            'regions',
-        )!;
-        expect(interpolated).toBeCloseTo((direct3 + direct5) / 2, 2);
+        expect(
+            findProfBasePriceForSupply(
+                catalog,
+                'buh',
+                resolveSupply(catalog, 'x_internet_4')!,
+                'regions',
+            ),
+        ).toBe(direct3);
     });
 
-    it('garant-строка собирается с кастомным ОД (PROF и универсал)', () => {
+    it('garant-строка собирается с кастомным ОД и помечена ориентировочной', () => {
         const prof = buildGarantRow({
             catalog,
             regionCode: 'stv',
@@ -100,6 +98,21 @@ describe('X-ОД: цены и совместимость', () => {
         expect(prof).not.toBeNull();
         expect(prof!.refs.supplyCode).toBe('x_internet_4');
         expect(prof!.price.base).toBeGreaterThan(0);
+        expect(prof!.price.estimated).toBe(true);
+
+        const reference = buildGarantRow({
+            catalog,
+            regionCode: 'stv',
+            withTax: false,
+            key: 'r0',
+            setId: 'general',
+            role: 'main',
+            complectCode: 'buh',
+            supplyCode: 'internet_3',
+            contractCode: 'internet',
+        })!;
+        expect(prof!.price.base).toBe(reference.price.base);
+        expect(reference.price.estimated).toBeUndefined();
 
         const universal = buildGarantRow({
             catalog,
@@ -111,13 +124,34 @@ describe('X-ОД: цены и совместимость', () => {
             complectCode: 'classic',
             supplyCode: 'x_internet_4',
             contractCode: 'internet',
-        });
-        // abs × region.abs × интерполированный коэффициент
-        const supply = resolveSupply(catalog, 'x_internet_4')!;
-        expect(universal!.price.base).toBeCloseTo(
-            Math.round(2 * 3975.6 * supply.coefficient * 100) / 100,
+        })!;
+        // abs × region.abs × коэффициент справочной поставки-источника
+        expect(universal.price.base).toBeCloseTo(
+            Math.round(2 * 3975.6 * internet(3).coefficient * 100) / 100,
             2,
         );
+        expect(universal.price.estimated).toBe(true);
+    });
+
+    it('ручная правка цены снимает признак «ориентировочно»', () => {
+        const row = buildGarantRow({
+            catalog,
+            regionCode: 'stv',
+            withTax: false,
+            key: 'r1',
+            setId: 'general',
+            role: 'main',
+            complectCode: 'buh',
+            supplyCode: 'x_internet_4',
+            contractCode: 'internet',
+        })!;
+        const edited = applyCommercialEdit(row.price, { kind: 'price', value: 12345 });
+        expect(edited.current).toBe(12345);
+        expect(edited.estimated).toBeUndefined();
+        // количество/скидка цену не задают — признак остаётся
+        expect(
+            applyCommercialEdit(row.price, { kind: 'quantity', value: 2 }).estimated,
+        ).toBe(true);
     });
 
     it('матрица договоров работает для кастомного кода', () => {

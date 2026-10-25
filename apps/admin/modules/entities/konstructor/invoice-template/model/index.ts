@@ -87,20 +87,31 @@ interface IInvoiceTemplateNullableStrings {
     updated_at?: string | null;
 }
 
+/**
+ * Критерии в сгенерированных DTO уже есть (регенерация 24.10.2026), но без
+ * `null` на создании/обновлении: пустой список бэк нормализует в NULL сам.
+ * Форма работает с `null` = «подходит любому», поэтому поля критериев берём
+ * из локального интерфейса, а из DTO их вырезаем.
+ */
+type InvoiceTemplateCriteriaFields = keyof IInvoiceTemplateCriteria;
+
 /** Строка/карточка шаблона счёта. */
 export interface IInvoiceTemplate
-    extends Omit<InvoiceTemplateResponseDto, InvoiceTemplateNullableStringFields>,
+    extends Omit<
+            InvoiceTemplateResponseDto,
+            InvoiceTemplateNullableStringFields | InvoiceTemplateCriteriaFields
+        >,
         IInvoiceTemplateNullableStrings,
         IInvoiceTemplateCriteria {}
 
 /** Полезная нагрузка создания: multipart, файл обязателен. */
 export interface ICreateInvoiceTemplateDto
-    extends CreateInvoiceTemplateMultipartDto,
+    extends Omit<CreateInvoiceTemplateMultipartDto, InvoiceTemplateCriteriaFields>,
         IInvoiceTemplateCriteria {}
 
 /** Полезная нагрузка обновления: multipart, файл опционален. */
 export interface IUpdateInvoiceTemplateDto
-    extends UpdateInvoiceTemplateDto,
+    extends Omit<UpdateInvoiceTemplateDto, InvoiceTemplateCriteriaFields>,
         IInvoiceTemplateCriteria {
     /** Новый файл шаблона. Не передан — файл не меняется. */
     file?: Blob;

@@ -9,8 +9,6 @@
 export interface RegionInitDto {
     /** Id */
     id: string;
-    /** Name */
-    name: string;
     /** Code */
     code: string;
     /** Weight */

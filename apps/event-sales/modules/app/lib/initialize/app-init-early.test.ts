@@ -66,6 +66,13 @@ vi.mock('@workspace/bitrix', () => ({
     },
 }));
 
+// Работа через сервер подключается до резолва сущностей — пишем веху.
+vi.mock('@/modules/shared/bitrix-server-mode', () => ({
+    connectBitrixServerMode: vi.fn(() => {
+        h.log.push('server-mode:connect');
+    }),
+}));
+
 vi.mock('@workspace/pbx', () => ({
     portalAPI: {
         endpoints: {
@@ -200,6 +207,10 @@ describe('appInit — ранний старт независимых цепоч�
         expect(h.log.indexOf('test/setDepartmentMode')).toBeLessThan(
             h.log.indexOf(appActions.setDomain.type),
         );
+        // Работа через сервер подключена до первого запроса к сущностям:
+        // отказ по правам при резолве уже уйдёт на сервер.
+        expect(h.log.indexOf('server-mode:connect')).toBeGreaterThan(-1);
+        expect(h.log.indexOf('server-mode:connect')).toBeLessThan(entitiesAt);
 
         h.resolvers.shift()?.(COMPANY_ENTITIES);
         await run;

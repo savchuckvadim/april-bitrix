@@ -15,11 +15,9 @@ export const TESTING_DOMAIN = 'gsr.bitrix24.ru' as string;
 // export const TESTING_DOMAIN = 'april-garant.bitrix24.ru' // deal 32990, company 32442
 
 export const TESTING_DEAL_ID = 129487;
-export const TESTING_COMPANY_ID = 105453 as number;
+export const TESTING_COMPANY_ID = 95817 as number;
 export const DEV_CURRENT_USER_ID = 1;
 
-/** Dev-режим вспоминания: на старте тянуть слепок TESTING_DEAL_ID (см. snapshot-listener). */
-export const IS_REMEMBER_DEV = true;
 
 export const TESTING_USER = {
     ID: 1,

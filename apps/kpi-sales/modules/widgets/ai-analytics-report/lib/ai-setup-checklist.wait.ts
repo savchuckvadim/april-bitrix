@@ -1,4 +1,7 @@
-import { isAiKpiOnly } from '@/modules/entities/ai-analytics';
+import {
+    isAiBetaBeyondHorizon,
+    isAiKpiOnly,
+} from '@/modules/entities/ai-analytics';
 import {
     AI_BETA_SOURCE_LABELS,
     AI_READINESS_GATED_REASON,
@@ -258,15 +261,20 @@ export const aiBetaItem = (ctx: AiChecklistContext): AiChecklistItem | null => {
     }
     const left = Math.max(0, Math.ceil(betaCountdown.presentationsLeft));
     const months = betaCountdown.monthsLeft;
+    // За горизонтом дата ничего не значит (прод 21.10.2026: «≈ 21.04.6891»):
+    // вместо неё — «дольше пяти лет» и как ускорить.
+    const slow = left > 0 && isAiBetaBeyondHorizon(betaCountdown);
     return aiTodoItem(AI_CHECKLIST_ITEM.BETA, WAIT, {
         title: T.beta.title,
         detail:
-            left > 0
-                ? T.beta.detail(source, left)
-                : T.beta.detailReached(source),
+            left === 0
+                ? T.beta.detailReached(source)
+                : slow
+                  ? T.beta.detailSlow(source, left)
+                  : T.beta.detail(source, left),
         unlocks: T.beta.unlocks,
         eta: aiRoughEta(
-            left > 0 && months !== null && months > 0
+            left > 0 && !slow && months !== null && months > 0
                 ? aiAddMonthsIso(ctx.today, months)
                 : null,
         ),

@@ -56,14 +56,21 @@ export class AiAnalyticsLaunchHelper {
         });
     }
 
+    /**
+     * Догон месяцев. С `force` — пересчёт заново: без него очередь молча
+     * отбрасывает месяцы, которые уже догонялись (gsr 21.10.2026: прогноз
+     * по истории восстановился только за последний месяц).
+     */
     backfill(
         domain: string,
         months: LaunchPeriod,
+        force = false,
     ): Promise<LaunchBackfillResult> {
         return this.api.aiAnalyticsPipelineAdminBackfill({
             domain,
             from: months.from,
             to: months.to,
+            ...(force ? { force: true } : {}),
         });
     }
 

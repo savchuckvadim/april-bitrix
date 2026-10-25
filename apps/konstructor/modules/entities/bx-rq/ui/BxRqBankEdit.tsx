@@ -9,12 +9,10 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { BxRqEditModal } from './BxRqEditModal';
-import {
-    BankRqItem,
-    RqItem,
-    isFieldsEmpty,
-    useBxRqEditBank,
-} from '@workspace/bx-rq';
+import { RQ_TYPE, type BankRqItem, type RqItem } from '../model/types';
+import { isFieldsEmpty } from '../lib/field-items-util';
+import { useBxRqEditBank } from '../lib/hooks/use-bx-rq';
+import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
 import { Edit2, Plus } from 'lucide-react';
 import { useApp } from '@/modules/app/lib/hooks/app';
 
@@ -37,6 +35,7 @@ export const BxRqBankEdit = ({
     // const bankItems = bank.items && bank.items.length ? bank.items : [bank.current]
 
     const { domain, companyId } = useApp();
+    const { clientType } = useClientType();
     const {
         creating,
         percent,
@@ -51,7 +50,7 @@ export const BxRqBankEdit = ({
     };
 
     const handleSave = (bankId: number) => {
-        saveBank(domain, companyId);
+        saveBank(domain, companyId, clientType ?? RQ_TYPE.ORGANIZATION);
     };
 
     const handleCancel = () => {

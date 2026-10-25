@@ -7,7 +7,7 @@
  */
 
 /**
- * Contract base state
+ * Contract base state (легаси, не читается)
  */
 export type DocumentSupplyReportGenerateDtoContractBaseState = {
     [key: string]: unknown;

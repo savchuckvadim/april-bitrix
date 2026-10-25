@@ -27,7 +27,7 @@ export const updateDealField = createAsyncThunk(
             if (!portal) {
                 return rejectWithValue('Portal is required');
             }
-            const field = portal.bitrixDeal.bitrixfields.find(item => item.code === payload.fieldCode)
+            const field = portal.bitrixDeal?.bitrixfields.find(item => item.code === payload.fieldCode)
             if (!field) {
                 return rejectWithValue('Field not found');
             }

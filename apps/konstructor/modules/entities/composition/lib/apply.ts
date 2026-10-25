@@ -5,24 +5,26 @@ import type {
     RuleResult,
     RuleViolation,
 } from '../model/types';
-import { applyInfoblockToggle } from './rules/infoblock-links';
-import { applyErPacketToggle, applyErToggle } from './rules/er-packets';
-import { applyLtToggle, validateLtPacket } from './rules/lt';
-import { applyConsalting, isConsaltingFreeblock } from './rules/consalting';
-import { applyStar } from './rules/star';
-import { applyAcademy } from './rules/academy';
+import { isBlocking } from '../model/types';
 import { addUnique, remove } from './utils';
-import { checkComplectWeight } from './weight';
+import { COMPOSITION_RULES } from './rules/registry';
+import {
+    addLtOtherPacket,
+    removeLtOtherPacket,
+    renameLtOtherPacket,
+    toggleLtOtherService,
+} from './rules/lt-other';
 
 /**
- * Применение действия к составу.
- * mode 'rules' — работают автокоррекции и запреты (violations блокируют);
+ * Применение действия к составу через реестр правил (lib/rules/registry.ts).
+ * mode 'rules' — автокоррекции и запреты (блокирующие нарушения оставляют
+ *                состав прежним);
  * mode 'free'  — действие применяется «как есть», правила лишь подсвечивают
- *                нарушения (легаси-прецедент — withoutRules у LT-other).
+ *                нарушения (тумблер «Без правил» доступен всем — решение 19).
  */
 
 /** Наивное применение без правил (free-режим) */
-const applyNaive = (
+export const applyNaive = (
     composition: Composition,
     action: CompositionAction,
 ): Composition => {
@@ -78,87 +80,47 @@ const applyNaive = (
                     ? addUnique(composition.regions, action.code)
                     : remove(composition.regions, action.code),
             };
+        // пакеты LT-other: без правил сборка та же, разница — в подборе пакета
+        case 'addLtOtherPacket':
+            return addLtOtherPacket(composition, action.id);
+        case 'removeLtOtherPacket':
+            return removeLtOtherPacket(composition, action.id);
+        case 'toggleLtOtherService':
+            return toggleLtOtherService(composition, action.id, action.code, action.checked);
+        case 'renameLtOtherPacket':
+            return renameLtOtherPacket(composition, action.id, action.name);
     }
 };
 
-/** Применение с правилами (rules-режим) */
+/** Сквозные проверки состава всеми правилами-валидаторами (подсветка) */
+export const validateComposition = (
+    composition: Composition,
+    ctx: CompositionCtx,
+): RuleViolation[] =>
+    COMPOSITION_RULES.flatMap(rule => rule.validate?.(composition, ctx) ?? []);
+
+/** Применение с правилами: первое правило, объявившее действие */
 const applyWithRules = (
     composition: Composition,
     action: CompositionAction,
     ctx: CompositionCtx,
 ): RuleResult => {
-    switch (action.kind) {
-        case 'toggleInfoblock':
-            return applyInfoblockToggle(
-                composition,
-                action.code,
-                action.checked,
-                ctx,
-            );
-        case 'toggleEr':
-            return applyErToggle(composition, action.code, action.checked, ctx);
-        case 'toggleErPacket':
-            return applyErPacketToggle(
-                composition,
-                action.code,
-                action.checked,
-                ctx,
-            );
-        case 'toggleLt':
-            return applyLtToggle(composition, action.code, action.checked, ctx);
-        case 'toggleFreeBlock':
-            if (isConsaltingFreeblock(action.code)) {
-                return {
-                    composition,
-                    violations: [
-                        {
-                            code: 'freeblock/consalting-only',
-                            message:
-                                'Блок добавляется только в составе консалтинга',
-                        },
-                    ],
-                    autoFixes: [],
-                };
-            }
-            return {
-                composition: applyNaive(composition, action),
-                violations: [],
-                autoFixes: [],
-            };
-        case 'setConsalting':
-            return applyConsalting(composition, action.code);
-        case 'toggleStar':
-            return applyStar(composition, action.checked, ctx);
-        case 'setAcademy':
-            return applyAcademy(composition, action.code, ctx);
-        case 'toggleRegion':
-            return {
-                composition: applyNaive(composition, action),
-                violations: [],
-                autoFixes: [],
-            };
+    for (const rule of COMPOSITION_RULES) {
+        if (!rule.apply || !rule.actions.includes(action.kind)) continue;
+        const result = rule.apply(composition, action, ctx);
+        if (result) return result;
     }
+    // Действие без правила — применяется как есть
+    return { composition: applyNaive(composition, action), violations: [], autoFixes: [] };
 };
 
-/** Сквозные проверки состава (не блокируют — подсветка) */
-export const validateComposition = (
-    composition: Composition,
-    ctx: CompositionCtx,
-): RuleViolation[] => {
-    const violations: RuleViolation[] = [];
-
-    violations.push(...validateLtPacket(composition, ctx.catalog));
-
-    const weightCheck = checkComplectWeight(composition, ctx);
-    if (!weightCheck.matches) {
-        violations.push({
-            code: 'weight/mismatch',
-            message: `Неправильный вес комплекта: ${weightCheck.weight} вместо ${weightCheck.expected}`,
-        });
-    }
-
-    return violations;
-};
+const mergeViolations = (
+    primary: RuleViolation[],
+    secondary: RuleViolation[],
+): RuleViolation[] => [
+    ...primary,
+    ...secondary.filter(item => !primary.some(v => v.code === item.code)),
+];
 
 export const applyAction = (
     composition: Composition,
@@ -175,15 +137,12 @@ export const applyAction = (
     }
 
     const result = applyWithRules(composition, action, ctx);
-    // Блокирующее нарушение в rules-режиме — состав не изменился
+    // Блокирующее нарушение в rules-режиме — состав остаётся прежним
+    const blocked = result.violations.some(isBlocking);
+    const next = blocked ? composition : result.composition;
     return {
-        ...result,
-        violations: [
-            ...result.violations,
-            ...validateComposition(result.composition, ctx).filter(
-                violation =>
-                    !result.violations.some(v => v.code === violation.code),
-            ),
-        ],
+        composition: next,
+        violations: mergeViolations(result.violations, validateComposition(next, ctx)),
+        autoFixes: blocked ? [] : result.autoFixes,
     };
 };

@@ -5,24 +5,30 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
-import type { SupplyReportDtoGroup } from './supplyReportDtoGroup';
+import type { FormFieldType } from './formFieldType';
+import type { RqClientType } from './rqClientType';
+import type { SupplyType } from './supplyType';
+import type { ContractLtype } from './contractLtype';
+import type { ContractRqGroup } from './contractRqGroup';
 import type { SupplyReportDtoValue } from './supplyReportDtoValue';
+import type { SupplyReportCode } from './supplyReportCode';
+import type { SupplyReportSelectItemDto } from './supplyReportSelectItemDto';
 
 export interface SupplyReportDto {
     /** Type of the FormFieldDto */
-    type: string;
+    type: FormFieldType;
     /** Name of the FormFieldDto */
     name: string;
     /** IsRequired of the FormFieldDto */
     isRequired: boolean;
     /** Includes of the FormFieldDto */
-    includes: string[];
+    includes: RqClientType[];
     /** Supplies of the FormFieldDto */
-    supplies: string[];
+    supplies?: SupplyType[];
     /** ContractType of the FormFieldDto */
-    contractType: string[];
+    contractType?: ContractLtype[];
     /** Group of the FormFieldDto */
-    group: SupplyReportDtoGroup;
+    group: ContractRqGroup;
     /** IsActive of the FormFieldDto */
     isActive: boolean;
     /** IsDisable of the FormFieldDto */
@@ -30,9 +36,16 @@ export interface SupplyReportDto {
     /** Order of the FormFieldDto */
     order: number;
     /** Component of the FormFieldDto */
-    component: string;
+    component?: string;
     /** IsHidden of the FormFieldDto */
-    isHidden: boolean;
-    /** Value of the FormFieldDto */
+    isHidden?: boolean;
+    /**
+     * Value of the FormFieldDto: строка либо объект (select / файл)
+     * @nullable
+     */
     value: SupplyReportDtoValue;
+    /** Код поля формы отчёта о поставке */
+    code: SupplyReportCode;
+    /** Варианты select-поля */
+    items?: SupplyReportSelectItemDto[];
 }

@@ -11,7 +11,7 @@ import type {
     WordTemplateDto,
     WordTemplateFindAllWordTemplatesParams,
     WordTemplateSummaryDto,
-} from "@workspace/nest-api";
+} from '@workspace/nest-konstructor-api';
 
 /** Mirrors generated list filters; use this at the API boundary instead of importing params DTO elsewhere. */
 export type WordTemplateListQuery = WordTemplateFindAllWordTemplatesParams;

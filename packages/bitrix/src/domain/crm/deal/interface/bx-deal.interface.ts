@@ -6,6 +6,9 @@ export interface IBXDeal {
     CATEGORY_ID: string;
     STAGE_ID: string;
     COMPANY_ID: string;
+    /** Y — сделка закрыта (успех или провал). */
+    CLOSED?: 'Y' | 'N';
+    DATE_CREATE?: string;
     COMMENTS: string;
     ASSIGNED_BY_ID: string;
     CREATED_BY_ID: string;

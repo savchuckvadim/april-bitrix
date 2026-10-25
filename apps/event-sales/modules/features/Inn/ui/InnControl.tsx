@@ -1,7 +1,8 @@
 'use client';
 
 import { FC } from 'react';
-import { Hash, Pencil, Plus } from 'lucide-react';
+import { Hash } from 'lucide-react';
+import { InnChip } from '@workspace/april-ui/entity';
 import {
     Tooltip,
     TooltipContent,
@@ -100,23 +101,11 @@ export const InnControl: FC<InnControlProps> = ({
     return (
         <div className="flex min-w-0 flex-col gap-1">
             {!isOpen && (
-                <button
-                    type="button"
-                    onClick={open}
-                    className={`inline-flex w-fit cursor-pointer items-center gap-1 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline ${echoClass}`}
-                >
-                    {current ? (
-                        <>
-                            <span className="font-medium">ИНН {current}</span>
-                            <Pencil aria-hidden className="size-3" />
-                        </>
-                    ) : (
-                        <>
-                            <Plus aria-hidden className="size-3" />
-                            Записать ИНН
-                        </>
-                    )}
-                </button>
+                <InnChip
+                    value={current ?? null}
+                    onEdit={open}
+                    echoWhenEmpty={echoWhenEmpty}
+                />
             )}
             <InnEditor />
         </div>

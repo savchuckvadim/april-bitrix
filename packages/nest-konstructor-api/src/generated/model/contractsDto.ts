@@ -8,7 +8,7 @@
 import type { ContractDto } from './contractDto';
 
 export interface ContractsDto {
-    /** Current */
+    /** id строк portal_contracts этого портала (какие договоры подключены); состав items — те же договоры */
     current: number[];
     /** Items */
     items: ContractDto[];

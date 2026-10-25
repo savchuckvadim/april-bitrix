@@ -2,19 +2,14 @@
 
 import { useState } from 'react';
 import {
-    filterFieldItems,
-    getRqShowName,
-    useBxRq,
-} from '@workspace/bx-rq';
-
-import {
     RQ_TYPE,
-    CONTRACT_LTYPE,
-    SupplyTypesType,
-    EvsRqItem,
+    filterFieldItems,
     getClinetTypeNameByCode,
+    getRqShowName,
     isFieldsEmpty,
-} from '@workspace/bx-rq';
+    useBxRq,
+    type RqRecord,
+} from '@/modules/entities/bx-rq';
 
 import { Save, X } from 'lucide-react';
 import {
@@ -50,9 +45,6 @@ import {
 } from '@/modules/entities/bx-rq';
 
 interface BxRqPageProps {
-    currentClientType?: RQ_TYPE;
-    contractType?: CONTRACT_LTYPE;
-    supplyType?: SupplyTypesType;
     onSave?: () => void;
     onCancel?: () => void;
     isSimpleBankCommentMode?: boolean;
@@ -147,7 +139,7 @@ export const BxRqPage = ({
 
     const handleRqSelect = (rqId: string) => {
         const selected = currentRqs.find(
-            (rq: EvsRqItem) => rq.bx_id.toString() === rqId,
+            (rq: RqRecord) => rq.bx_id.toString() === rqId,
         );
         if (selected) {
             setCurrent({
@@ -204,7 +196,7 @@ export const BxRqPage = ({
                                 <SelectValue placeholder="Выберите реквизиты" />
                             </SelectTrigger>
                             <SelectContent>
-                                {currentRqs.map((rq: EvsRqItem) => {
+                                {currentRqs.map((rq: RqRecord) => {
                                     const displayName = getRqShowName(
                                         rq.fields,
                                         clientType as RQ_TYPE,
@@ -261,7 +253,7 @@ export const BxRqPage = ({
                         </TabsContent>
 
                         <TabsContent value="bank" className="space-y-4">
-                            {!isEmpty && currentRq.bank ? (
+                            {!isEmpty && currentRq.bank.current ? (
                                 <BxRqBankEdit bank={currentRq.bank.current} />
                             ) : (
                                 <Card>

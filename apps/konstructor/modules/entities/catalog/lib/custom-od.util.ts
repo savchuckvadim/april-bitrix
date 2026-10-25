@@ -6,10 +6,13 @@ import type { Catalog, KSupply, SupplyKind } from '../model/types';
  * синтетический КОД поставки `x_<type>_<n>` живёт в KRow.refs.supplyCode —
  * благодаря этому слепок v2, sync, пересборка и deal-send получают кастомное
  * количество без спец-веток: везде, где раньше был byCode-лукап, теперь
- * resolveSupply(). Коэффициент цены — линейная интерполяция между соседними
- * справочными поставками того же типа (за пределами — ближняя).
- * ⚠️ Формула цены X-ОД (интерполяция) — рабочее допущение, согласовать с
- * бизнесом; цена строки в любом случае правится вручную.
+ * resolveSupply().
+ *
+ * Цена X-ОД НЕ вычисляется (решение владельца 14): строке подставляются
+ * коэффициент и прайс ближайшей справочной поставки того же типа (снизу,
+ * иначе сверху) с признаком «ориентировочная» — менеджер задаёт цену вручную.
+ * Тексты договора/КП для X-ОД собирает бэк из шаблона той же справочной
+ * поставки (SupplyTextService).
  */
 
 const CUSTOM_PREFIX = 'x_';
@@ -42,9 +45,15 @@ export const parseCustomSupplyCode = (
     return { type: match[1] as SupplyKind, usersQuantity };
 };
 
+/** Справочная поставка с числом ОД в коде (internet_5); особые std/local/flash — нет. */
+const isNumberedReference = (supply: KSupply): boolean =>
+    supply.usersQuantity > 0 &&
+    !isCustomSupplyCode(supply.code) &&
+    /_\d+$/.test(supply.code);
+
 /**
- * Соседние справочные поставки типа по количеству ОД (только с ОД > 0 —
- * «Стандартная»/«Локальная» не участвуют). lower ≤ quantity ≤ upper.
+ * Соседние справочные поставки типа по количеству ОД («Стандартная»,
+ * «Локальная», «Флэш» не участвуют). lower ≤ n ≤ upper.
  */
 export const neighborSupplies = (
     catalog: Catalog,
@@ -52,7 +61,7 @@ export const neighborSupplies = (
     usersQuantity: number,
 ): { lower: KSupply | null; upper: KSupply | null } => {
     const candidates = catalog.supplies.items
-        .filter(supply => supply.type === type && supply.usersQuantity > 0)
+        .filter(supply => supply.type === type && isNumberedReference(supply))
         .sort((a, b) => a.usersQuantity - b.usersQuantity);
     let lower: KSupply | null = null;
     let upper: KSupply | null = null;
@@ -63,23 +72,20 @@ export const neighborSupplies = (
     return { lower, upper };
 };
 
-/** Линейная интерполяция значения между соседями (за пределами — ближний) */
-export const interpolateByOd = (
-    lower: { usersQuantity: number; value: number } | null,
-    upper: { usersQuantity: number; value: number } | null,
+/**
+ * Справочная поставка-источник для X-ОД: ближайшая снизу, иначе ближайшая
+ * сверху (та же логика у бэка в SupplyTextService.findReference).
+ */
+export const referenceSupplyForCustom = (
+    catalog: Catalog,
+    type: SupplyKind,
     usersQuantity: number,
-): number | null => {
-    if (lower && upper) {
-        if (lower.usersQuantity === upper.usersQuantity) return lower.value;
-        const ratio =
-            (usersQuantity - lower.usersQuantity) /
-            (upper.usersQuantity - lower.usersQuantity);
-        return lower.value + (upper.value - lower.value) * ratio;
-    }
-    return lower?.value ?? upper?.value ?? null;
+): KSupply | null => {
+    const { lower, upper } = neighborSupplies(catalog, type, usersQuantity);
+    return lower ?? upper;
 };
 
-/** Синтетическая поставка X-ОД; null — некорректное количество/нет соседей */
+/** Синтетическая поставка X-ОД; null — некорректное количество/нет справочных того же типа */
 export const makeCustomSupply = (
     catalog: Catalog,
     type: SupplyKind,
@@ -87,25 +93,24 @@ export const makeCustomSupply = (
 ): KSupply | null => {
     const code = makeCustomSupplyCode(type, usersQuantity);
     if (!parseCustomSupplyCode(code)) return null;
-    const { lower, upper } = neighborSupplies(catalog, type, usersQuantity);
-    const coefficient = interpolateByOd(
-        lower && { usersQuantity: lower.usersQuantity, value: lower.coefficient },
-        upper && { usersQuantity: upper.usersQuantity, value: upper.coefficient },
-        usersQuantity,
-    );
-    if (coefficient === null) return null;
+    const reference = referenceSupplyForCustom(catalog, type, usersQuantity);
+    if (!reference) return null;
     const typeName = type === 'internet' ? 'Интернет' : 'Проксима';
     const name = `${typeName} ${usersQuantity} ОД (X)`;
     return {
         code,
-        number: null,
         name,
         fullName: name,
         shortName: name,
         type,
         usersQuantity,
-        coefficient: Math.round(coefficient * 10000) / 10000,
+        // коэффициент справочной поставки-источника: цена всё равно ориентировочная
+        coefficient: reference.coefficient,
         color: null,
+        // Тексты X-ОД (подпись КП, количество для договора) рендерит бэк по коду
+        // x_<type>_<n> из шаблона ближайшей справочной поставки (SupplyTextService).
+        quantityForKp: null,
+        contractPropSuppliesQuantity: String(usersQuantity),
     };
 };
 

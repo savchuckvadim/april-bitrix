@@ -10,12 +10,8 @@ import type { V1Record } from '../v1/types';
  */
 export const hasSnapshotApi = true;
 
-/**
- * SnapshotRecordDto → V1Record: та же плоская запись; DTO даёт `null`
- * там, где V1Record ждёт undefined — parse-v1 защищённо переваривает оба.
- */
-const toV1Record = (dto: SnapshotRecordDto): V1Record =>
-    dto as unknown as V1Record;
+/** SnapshotRecordDto — та же плоская запись v1; null и undefined parse-v1 переваривает одинаково. */
+const toV1Record = (dto: SnapshotRecordDto): V1Record => dto;
 
 export class SnapshotHelper {
     private api = getKonstructorDeal();

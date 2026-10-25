@@ -1,10 +1,10 @@
-import { RQ_TYPE } from '@workspace/bx-rq';
+import { RQ_TYPE } from '@/modules/entities/bx-rq';
 import { IBXDeal } from '@bitrix/index';
 import {
     PBXDeal,
     PBXField,
     PBXFieldItem,
-} from '@/modules/entities/portal/type/portal.type';
+} from '@/modules/entities/portal';
 
 /** Code of the pbx "Тип Клиента" field (see PBX_SALES_EVENT_FIELDS). */
 export const CLIENT_TYPE_FIELD_CODE = 'op_client_type';

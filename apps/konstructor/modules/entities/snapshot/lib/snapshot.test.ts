@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import oldInit from '../../../../docs/oldinit.json';
+import oldInit from '../../catalog/lib/__fixtures__/oldinit.json';
 import { catalogFromOldInit } from '../../catalog';
 import legacyRecord from './__fixtures__/legacy-deal.v1.json';
 import { hasDealData, parseV1 } from './v1/parse-v1';

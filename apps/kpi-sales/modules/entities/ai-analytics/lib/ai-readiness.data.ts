@@ -143,6 +143,26 @@ export const AI_BETA_LINK_LABEL = 'связи качества разговор�
 export const AI_BETA_COUNTDOWN_REACHED = `Объём для оценки ${AI_BETA_LINK_LABEL} накоплен`;
 
 /**
+ * Горизонт срока счётчика, месяцев: дальше дату не показываем — при таком
+ * темпе она ничего не значит (прод 21.10.2026: пилот из одного менеджера
+ * дал «ждём ≈ 21.04.6891»). Вместо даты — «дольше пяти лет».
+ */
+export const AI_BETA_HORIZON_MONTHS = 60;
+
+/** Подпись срока за горизонтом. */
+export const AI_BETA_BEYOND_HORIZON = 'при нынешнем темпе — дольше пяти лет';
+
+/** Срок счётчика за горизонтом (темп известен и слишком медленный). */
+export const isAiBetaBeyondHorizon = (
+    countdown:
+        | Pick<NonNullable<AiReadinessBetaCountdown>, 'monthsLeft'>
+        | null
+        | undefined,
+): boolean =>
+    typeof countdown?.monthsLeft === 'number' &&
+    countdown.monthsLeft > AI_BETA_HORIZON_MONTHS;
+
+/**
  * Подпись счётчика: «до оценки связи «качество → продажи» осталось ≈ N
  * презентаций / M месяцев». Месяцы — при известном темпе (`monthsLeft`),
  * иначе только презентации; null — счётчика нет (гейт пройден, kpi-only,
@@ -158,6 +178,9 @@ export const formatBetaCountdown = (
     const parts = [
         `${presentations} ${pluralRu(presentations, PRESENTATION_FORMS)}`,
     ];
+    if (isAiBetaBeyondHorizon(countdown)) {
+        return `до оценки ${AI_BETA_LINK_LABEL} осталось ≈ ${parts[0]} — ${AI_BETA_BEYOND_HORIZON}`;
+    }
     if (countdown.monthsLeft !== null && countdown.monthsLeft > 0) {
         const months = Math.max(1, Math.round(countdown.monthsLeft));
         parts.push(`${months} ${pluralRu(months, MONTH_FORMS)}`);

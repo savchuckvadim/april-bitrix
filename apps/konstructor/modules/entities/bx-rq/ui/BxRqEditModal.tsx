@@ -19,10 +19,10 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { BANK_RQ_ITEM_CODE, RqItem } from '@workspace/bx-rq';
+import { BANK_RQ_ITEM_CODE, type RqItem } from '../model/types';
 import { Loader2 } from 'lucide-react';
 import { isFieldRequired } from '../lib/utils/is-field-required';
-import { useBxRqEditBase } from '@workspace/bx-rq';
+import { useBxRqEditBase } from '../lib/hooks/use-bx-rq';
 import { MicroPreloader } from '@/modules/shared/';
 import { ComponentPreloader } from '@/modules/shared';
 import { createPortal } from 'react-dom';

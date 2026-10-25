@@ -5,12 +5,11 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
-import type { DealSendDtoDealId } from './dealSendDtoDealId';
-import type { DealSendDtoUserId } from './dealSendDtoUserId';
-import type { DealSendDtoCompanyId } from './dealSendDtoCompanyId';
 import type { DealSendDtoCategoryCode } from './dealSendDtoCategoryCode';
+import type { DealSendDtoContractKind } from './dealSendDtoContractKind';
 import type { DealSendFieldDto } from './dealSendFieldDto';
 import type { DealSendProductRowDto } from './dealSendProductRowDto';
+import type { DealSendTargetDto } from './dealSendTargetDto';
 
 export interface DealSendDto {
     domain: string;
@@ -18,25 +17,31 @@ export interface DealSendDto {
      * Сделка. Не передана — сделка будет создана
      * @nullable
      */
-    dealId?: DealSendDtoDealId;
+    dealId?: number | null;
     /**
      * Ответственный
      * @nullable
      */
-    userId?: DealSendDtoUserId;
+    userId?: number | null;
     /**
      * Компания
      * @nullable
      */
-    companyId?: DealSendDtoCompanyId;
+    companyId?: number | null;
     /** Название сделки (нужно при создании) */
     dealName?: string;
     /** Воронка сделки; по умолчанию sales_base */
     categoryCode?: DealSendDtoCategoryCode;
     /** Открытая сделка (доступна всем) */
     opened?: boolean;
+    /** Код поставки главной строки (internet_5, proxima_flash, X-ОД x_internet_7): по нему бэк подставляет договорные тексты поставки (supply_for_contract, note, note_3, hdd, way, logins_quantity, contract_supply_prop_q, quantity_for_kp), если они не присланы в fields */
+    supplyCode?: string;
+    /** Вид договора главной строки — какие тексты поставки брать; по умолчанию service */
+    contractKind?: DealSendDtoContractKind;
     /** Поля сделки */
     fields: DealSendFieldDto[];
     /** Товарные строки; не переданы — строки не трогаем */
     productRows?: DealSendProductRowDto[];
+    /** Куда писать; не передан — в сделку */
+    target?: DealSendTargetDto;
 }

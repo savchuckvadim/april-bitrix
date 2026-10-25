@@ -5,28 +5,32 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
-import type { ComplectInfoblockValueDtoDescription } from './complectInfoblockValueDtoDescription';
-import type { ComplectInfoblockValueDtoSubtitle } from './complectInfoblockValueDtoSubtitle';
 
 export interface ComplectInfoblockValueDto {
-    /** Name of the complect value */
+    /** Название блока */
     name: string;
-    /** Title of the complect value */
-    title: string;
-    /** Number of the complect value */
-    number: number;
-    /** Code of the complect value */
-    code: string;
-    /** Checked of the complect value */
+    /** Заголовок для документа (регион — название инфоблока) */
+    title?: string;
+    /** Легаси-номер блока */
+    number?: number;
+    /** Код блока (pbx/каталог) */
+    code?: string;
+    /** Блок выбран в наполнение */
     checked: boolean;
-    /** Weight of the complect value */
+    /** Вес блока */
     weight: number;
-    /** Description of the complect value */
-    description: ComplectInfoblockValueDtoDescription;
-    /** Is LA of the complect value */
-    isLa: boolean;
-    /** Region of the complect value */
-    isRegion: boolean;
-    /** Description of the complect value */
-    subtitle: ComplectInfoblockValueDtoSubtitle;
+    /**
+     * Описание блока для КП
+     * @nullable
+     */
+    description?: string | null;
+    /** Судебная практика (онлайн-архив) */
+    isLa?: boolean;
+    /** Региональный блок */
+    isRegion?: boolean;
+    /**
+     * Подзаголовок (например, «N запросов в день» у Искры)
+     * @nullable
+     */
+    subtitle?: string | null;
 }

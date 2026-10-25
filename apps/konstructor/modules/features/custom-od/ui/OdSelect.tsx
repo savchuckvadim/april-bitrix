@@ -1,5 +1,8 @@
 'use client';
 
+import { Input } from '@workspace/ui/components/input';
+import { ChipSelect, MicroSelect } from '@workspace/april-ui/fields';
+import { cn } from '@workspace/ui/lib/utils';
 import type { Catalog, KSupply } from '@/modules/entities/catalog';
 import { useOdSelect } from '../hooks/use-od-select';
 
@@ -8,16 +11,21 @@ interface OdSelectProps {
     supplies: KSupply[];
     value: string;
     disabled?: boolean;
+    /** chip — шапка цен (ChipSelect), micro — карточка строки (MicroSelect) */
+    variant?: 'chip' | 'micro';
     className?: string;
     onChange: (supplyCode: string) => void;
 }
 
-/** Вид поставки (ОД) с пунктом «X-ОД — своё количество…» */
+const CUSTOM_LABEL = 'X-ОД — своё количество…';
+
+/** Вид поставки (ОД) с пунктом «X-ОД — своё количество…» на селектах дизайн-системы. */
 export const OdSelect = ({
     catalog,
     supplies,
     value,
     disabled = false,
+    variant = 'chip',
     className,
     onChange,
 }: OdSelectProps) => {
@@ -25,43 +33,55 @@ export const OdSelect = ({
 
     if (od.customMode) {
         return (
-            <span className="flex items-center gap-1">
-                <input
-                    autoFocus
-                    inputMode="numeric"
-                    placeholder="Кол-во ОД"
-                    className={
-                        className ??
-                        'w-24 rounded border bg-background px-2 py-1.5 text-sm text-foreground'
-                    }
-                    value={od.customValue}
-                    onChange={event => od.setCustomValue(event.target.value)}
-                    onBlur={od.commitCustom}
-                    onKeyDown={event => {
-                        if (event.key === 'Enter') od.commitCustom();
-                        if (event.key === 'Escape') od.cancelCustom();
-                    }}
-                />
-            </span>
+            <Input
+                autoFocus
+                inputMode="numeric"
+                placeholder="Кол-во ОД"
+                aria-label="Количество одновременных доступов"
+                className={cn(
+                    variant === 'micro'
+                        ? 'h-6 w-20 px-2 py-0 text-[0.6875rem]'
+                        : 'h-7 w-36 px-2 text-xs',
+                    className,
+                )}
+                value={od.customValue}
+                onChange={event => od.setCustomValue(event.target.value)}
+                onBlur={od.commitCustom}
+                onKeyDown={event => {
+                    if (event.key === 'Enter') od.commitCustom();
+                    if (event.key === 'Escape') od.cancelCustom();
+                }}
+            />
+        );
+    }
+
+    if (variant === 'micro') {
+        return (
+            <MicroSelect
+                ariaLabel="Кол-во доступов (ОД)"
+                value={value}
+                disabled={disabled}
+                className={className}
+                options={[
+                    ...od.options.map(supply => ({ value: supply.code, label: supply.name })),
+                    { value: od.customOption, label: CUSTOM_LABEL },
+                ]}
+                onChange={od.handleSelect}
+            />
         );
     }
 
     return (
-        <select
-            className={
-                className ??
-                'rounded border bg-background px-2 py-1.5 text-sm text-foreground'
-            }
+        <ChipSelect
+            ariaLabel="Кол-во доступов (ОД)"
             value={value}
             disabled={disabled}
-            onChange={event => od.handleSelect(event.target.value)}
-        >
-            {od.options.map(supply => (
-                <option key={supply.code} value={supply.code}>
-                    {supply.name}
-                </option>
-            ))}
-            <option value={od.customOption}>X-ОД — своё количество…</option>
-        </select>
+            className={className}
+            options={[
+                ...od.options.map(supply => ({ code: supply.code, name: supply.name })),
+                { code: od.customOption, name: CUSTOM_LABEL },
+            ]}
+            onChange={od.handleSelect}
+        />
     );
 };

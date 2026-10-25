@@ -65,4 +65,39 @@ export interface GetSupplyResponseDto {
   created_at?: GetSupplyResponseDtoCreatedAt;
   /** Updated at */
   updated_at?: GetSupplyResponseDtoUpdatedAt;
+  /**
+   * Договор услуг: носитель (prop1), шаблон
+   * @nullable
+   */
+  contractProp1?: string | null;
+  /**
+   * Договор услуг: способ доставки (prop2), шаблон
+   * @nullable
+   */
+  contractProp2?: string | null;
+  /**
+   * Договор услуг: количество поставок ({n} или «Флэш»)
+   * @nullable
+   */
+  contractPropSuppliesQuantity?: string | null;
+  /**
+   * Текст поставки для КП, шаблон («на {n} {plural:…}»)
+   * @nullable
+   */
+  quantityForKp?: string | null;
+  /**
+   * Лицензионный договор: prop2, шаблон
+   * @nullable
+   */
+  lcontractProp2?: string | null;
+  /**
+   * Абонентский договор: название поставки, шаблон
+   * @nullable
+   */
+  acontractName?: string | null;
+  /**
+   * Абонентский договор: комментарий, шаблон
+   * @nullable
+   */
+  acontractPropComment?: string | null;
 }

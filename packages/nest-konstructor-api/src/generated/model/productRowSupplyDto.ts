@@ -7,5 +7,13 @@
  */
 
 export interface ProductRowSupplyDto {
-    [key: string]: unknown;
+    name: string;
+    /** Подпись поставки для КП (quantityForKp) */
+    forkp: string;
+    /** Легаси-номер поставки */
+    number: number;
+    /** internet | proxima */
+    type: string;
+    defaultName?: string;
+    alternativeName?: string;
 }

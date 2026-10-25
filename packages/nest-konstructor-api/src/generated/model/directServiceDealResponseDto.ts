@@ -5,9 +5,12 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { DirectServiceDealResponseDtoAction } from './directServiceDealResponseDtoAction';
 
 export interface DirectServiceDealResponseDto {
     dealId: number;
+    /** Что именно произошло: created — сервисная сделка создана, updated — обновлена существующая (mode = update). */
+    action: DirectServiceDealResponseDtoAction;
     /** Слепок конструктора перенесён на новую сделку */
     snapshotCopied: boolean;
     /** Сколько вариантов комплекта перенесено */

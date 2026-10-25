@@ -1,4 +1,4 @@
-import { getKonstructor, OfferWordByTemplateGenerateDto, OfferWordEphemeralPdfPollResponseDto, OfferWordEphemeralPdfStartResponseDto, OfferWordEphemeralPdfStopResponseDto } from "@workspace/nest-api";
+import { getKonstructor, OfferWordByTemplateGenerateDto, OfferWordEphemeralPdfPollResponseDto, OfferWordEphemeralPdfStartResponseDto, OfferWordEphemeralPdfStopResponseDto } from '@workspace/nest-konstructor-api';
 
 export class OfferWordPdfPreviewAPI {
     private api: ReturnType<typeof getKonstructor>;

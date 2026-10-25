@@ -5,17 +5,15 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { ClientTypeSelectDto } from './clientTypeSelectDto';
 
 /**
- * Client type of the contract
+ * Тип клиента. Легаси-конструктор шлёт объект SelectItem {id, code, name, title}, ветка IS_BACK и новый фронт — строку-код. Принимаем обе формы, код достаём через resolveClientTypeCode.
  */
 export type DocumentSupplyReportGenerateDtoClientType =
-    (typeof DocumentSupplyReportGenerateDtoClientType)[keyof typeof DocumentSupplyReportGenerateDtoClientType];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const DocumentSupplyReportGenerateDtoClientType = {
-    org_state: 'org_state',
-    org: 'org',
-    ip: 'ip',
-    fiz: 'fiz',
-} as const;
+    | 'org_state'
+    | 'org'
+    | 'ip'
+    | 'fiz'
+    | 'advokat'
+    | ClientTypeSelectDto;

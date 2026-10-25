@@ -8,6 +8,8 @@
 import type { InvoiceTemplateResponseDtoVisibility } from './invoiceTemplateResponseDtoVisibility';
 import type { InvoiceTemplateResponseDtoType } from './invoiceTemplateResponseDtoType';
 import type { InvoiceTemplateResponseDtoDescription } from './invoiceTemplateResponseDtoDescription';
+import type { ClientTypeEnum } from './clientTypeEnum';
+import type { SupplyTypeEnum } from './supplyTypeEnum';
 import type { InvoiceTemplateResponseDtoArchivedAt } from './invoiceTemplateResponseDtoArchivedAt';
 import type { InvoiceTemplateResponseDtoPortalId } from './invoiceTemplateResponseDtoPortalId';
 import type { InvoiceTemplateResponseDtoAgentId } from './invoiceTemplateResponseDtoAgentId';
@@ -22,6 +24,16 @@ export interface InvoiceTemplateResponseDto {
     type: InvoiceTemplateResponseDtoType;
     code: string;
     description?: InvoiceTemplateResponseDtoDescription;
+    /**
+     * Типы клиента, для которых годится шаблон; null — «для любого». Разобрано из JSON-колонки client_types.
+     * @nullable
+     */
+    client_types: ClientTypeEnum[] | null;
+    /**
+     * Типы поставки, для которых годится шаблон; null — «для любого». Разобрано из JSON-колонки supply_types.
+     * @nullable
+     */
+    supply_types: SupplyTypeEnum[] | null;
     counter: number;
     is_default: boolean;
     is_active: boolean;

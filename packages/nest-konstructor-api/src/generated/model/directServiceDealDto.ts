@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { DealSendFieldDto } from './dealSendFieldDto';
+import type { DirectServiceDealDtoMode } from './directServiceDealDtoMode';
 
 export interface DirectServiceDealDto {
     domain: string;
@@ -21,4 +22,8 @@ export interface DirectServiceDealDto {
     contractEnd?: string;
     /** Поля сервисной сделки кодами pbx — то, что обычно заполняли в карточке RPA (даты поставки и первого платежа, номера договора и счёта, описание ситуации и т.д.) */
     fields: DealSendFieldDto[];
+    /** Переотправка в отдел сервиса: create — создать новую сервисную сделку (поведение по умолчанию, обратная совместимость), update — обновить уже созданную, её id передаётся в targetDealId. */
+    mode?: DirectServiceDealDtoMode;
+    /** Сервисная сделка, которую обновляем. Обязателен при mode = update; при create игнорируется. */
+    targetDealId?: number;
 }

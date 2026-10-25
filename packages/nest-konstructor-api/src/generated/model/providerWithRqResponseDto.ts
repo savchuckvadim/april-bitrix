@@ -5,7 +5,19 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { RqEntity } from './rqEntity';
 
 export interface ProviderWithRqResponseDto {
-    [key: string]: unknown;
+    /** Id поставщика (agents.id) */
+    id: string;
+    /** Название поставщика */
+    name: string;
+    /** Id набора реквизитов (rqs.id) */
+    rqId: string;
+    /** Домен портала */
+    domain: string;
+    /** Работает с НДС: цены строк умножаются на 1.05 */
+    withTax: boolean;
+    /** Реквизиты поставщика */
+    rq: RqEntity;
 }

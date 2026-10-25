@@ -1,4 +1,5 @@
 'use client';
+import { toast } from 'sonner';
 
 import React from 'react';
 import { useAppSelector } from '@/modules/app';
@@ -33,7 +34,7 @@ export const WordTemplateMenu: React.FC<WordTemplateMenuProps> = ({ isWord }) =>
                 await download(selectedTemplate.id.toString(), selectedTemplate.name);
             } catch (error) {
                 console.error('Failed to download template:', error);
-                alert('Ошибка при скачивании шаблона');
+                toast.error('Ошибка при скачивании шаблона');
             }
         }
     };

@@ -32,6 +32,7 @@ import {
     getPbxContactByContact,
 } from '../util/pbx-contact-util';
 import { getCrmLinksFromRaw } from '@/modules/entities/EventTask/lib/task-links';
+import { resolveNewContactTarget } from './resolve-new-contact-target';
 import { reportFrontError } from '@/modules/shared/front-error';
 import {
     emptyErrors,
@@ -327,42 +328,37 @@ export const setInitPBXContact =
     };
 
 /**
- * Привязать контакт к сущности, в которой мы сейчас работаем.
+ * Привязать контакт к работе: к сделке (если она есть) или к лиду.
  *
  * Контакт, заведённый «в компанию», в сделке без компании повисал ничей: в
  * следующий раз его было негде взять. Компания задаётся при создании
  * (COMPANY_ID), а сделке и лиду связь проставляется отдельно — здесь.
  *
- * Сделке связи ЗАМЕНЯЮТСЯ целиком (`crm.deal.contact.items.set`), поэтому
- * дописываем к уже существующим. Лиду контакт один — чужой не перетираем.
+ * Сделке — `crm.deal.contact.add`: один контакт дописывается, остальные
+ * остаются, повтор не ошибка. Лиду контакт один — чужой не перетираем.
+ * Отказ Битрикса по правам уводит запрос на сервер (@workspace/bitrix).
  */
-export const bindContactToCurrentEntity =
-    (contactId: number) =>
+export const linkContactToWork =
+    (contactId: number, dealId: number | null) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
-        const { deal, lead } = getState().app.bitrix;
+        const state = getState();
+        const { lead } = state.app.bitrix;
         const id = Number(contactId);
         if (!Number.isFinite(id) || id <= 0) return;
 
         const bitrix = Bitrix.getService();
 
         try {
-            if (deal) {
-                const items = await bitrix.deal.contactItemsGet(deal.ID);
-                const existing = uniqueIds(
-                    (items ?? []).map(item => Number(item.CONTACT_ID)),
-                );
-                if (!existing.includes(id)) {
-                    await bitrix.deal.contactItemsSet(deal.ID, [
-                        ...existing,
-                        id,
-                    ]);
+            if (dealId) {
+                const added = await bitrix.deal.contactAdd(dealId, id);
+                if (added) {
                     // Состав контактов сделки только что изменился — реестр
                     // опрошенных должен её забыть, иначе пересбор ниже
                     // пропустит сделку и новый контакт останется без подписи
                     // «из сделки».
                     dispatch(
                         eventContactActions.unmarkSourcesRequested({
-                            keys: [sourceRequestKey('deal', deal.ID)],
+                            keys: [sourceRequestKey('deal', dealId)],
                         }),
                     );
                 }
@@ -370,12 +366,29 @@ export const bindContactToCurrentEntity =
                 await bitrix.lead.update(lead.ID, { CONTACT_ID: String(id) });
             }
         } catch (error) {
-            console.error('bindContactToCurrentEntity error', id, error);
+            console.error('linkContactToWork error', id, error);
+            reportFrontError({
+                place: 'contact.bind',
+                message: error instanceof Error ? error.message : String(error),
+                domain: state.app.domain,
+                userId: state.app.bitrix.user?.ID,
+                context: { contactId: id, dealId },
+            });
         }
 
         // Источники пересобираем: контакт только что стал «из сделки».
         const portal = getState().portal.portal;
         if (portal) await dispatch(collectRelatedContacts(portal as Portal));
+    };
+
+/** Привязать выбранный контакт к сделке или лиду, из которых открыт фрейм. */
+export const bindContactToCurrentEntity =
+    (contactId: number) =>
+    async (dispatch: AppDispatch, getState: AppGetState) => {
+        const { deal } = getState().app.bitrix;
+        await dispatch(
+            linkContactToWork(contactId, deal ? Number(deal.ID) : null),
+        );
     };
 
 /** Создание нового контакта в Bitrix и подстановка его в план/отчёт. */
@@ -429,9 +442,9 @@ export const saveCreatedContact =
         } else {
             dispatch(eventContactActions.setCreatingStage({ stage: 'saving' }));
             try {
-                const currentCompanyId = state.app.bitrix.company?.ID;
-                // TODO(Фаза 5): ответственный — из department PLAN responsible
-                const currentUserId = state.app.bitrix.user?.ID;
+                // Компания клиента, сделка работы и ответственный — как у
+                // сделки (решение владельца 25.10.2026, new-contact-target).
+                const target = await resolveNewContactTarget(state);
 
                 const fields = {
                     ...creatingContact,
@@ -444,8 +457,9 @@ export const saveCreatedContact =
                     ...(creatingContact.EMAIL
                         ? { EMAIL: [{ VALUE: creatingContact.EMAIL }] }
                         : { EMAIL: undefined }),
-                    ASSIGNED_BY_ID: currentUserId,
-                    COMPANY_ID: currentCompanyId,
+                    ASSIGNED_BY_ID:
+                        target.responsibleId ?? state.app.bitrix.user?.ID,
+                    COMPANY_ID: target.companyId ?? undefined,
                 };
 
                 const bitrix = Bitrix.getService();
@@ -467,7 +481,9 @@ export const saveCreatedContact =
                 );
                 // Компания проставилась при создании; сделке и лиду связь
                 // нужно завести отдельно — иначе контакт повиснет ничей.
-                await dispatch(bindContactToCurrentEntity(Number(contactId)));
+                await dispatch(
+                    linkContactToWork(Number(contactId), target.dealId),
+                );
 
                 // Окно НЕ закрываем: оно превращается в правку созданного —
                 // характеристики и детали дозаполняются тут же.

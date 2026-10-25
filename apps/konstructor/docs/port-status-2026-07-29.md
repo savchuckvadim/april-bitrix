@@ -1,5 +1,9 @@
 # Статус переноса: вспоминание сделок + экран товаров (2026-07-29)
 
+> **Исторический документ (июль 2026).** Актуальный статус и остаток работ —
+> [migration-completion.tasks.md](./migration-completion.tasks.md); разработчику —
+> [dev-guide.md](./dev-guide.md), маршруты — [routing.md](./routing.md).
+
 Продолжение миграции по [migration-plan.md](./migration-plan.md). Закрыты (полностью или в рабочем объёме)
 фазы **1** (каркас), **3–4** (состояние + PRODUCTS), **6** (персистентность/restore) и бэкенд-задача **B3**.
 Домен и правила — [legacy-core.md](./legacy-core.md), формат слепков — [legacy-persistence.md](./legacy-persistence.md).

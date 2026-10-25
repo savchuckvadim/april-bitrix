@@ -5,3 +5,4 @@ export * from './model/listeners';
 export * from './lib/price';
 export * from './lib/row';
 export * from './lib/set';
+export * from './lib/bitrix/build-product-rows.util';

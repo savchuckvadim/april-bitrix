@@ -2,25 +2,14 @@ import type { AppThunk, RootState } from '@/modules/app/model/store';
 import { rowSetActions, findMainRow } from '../../row-set';
 import { parseV1, hasDealData } from '../lib/v1/parse-v1';
 import { mapV1 } from '../lib/v1/map-v1';
-import { restoreV2, serializeV2 } from '../lib/v2/serialize';
-import { isSnapshotV2 } from './types';
+import { parseSnapshotV2, restoreV2, serializeV2 } from '../lib/v2/serialize';
 import type { RestoredState, SnapshotV2 } from './types';
 import type { V1Record } from '../lib/v1/types';
 import { SnapshotHelper, hasSnapshotApi } from '../lib/api/snapshot-helper';
 import { snapshotActions } from './SnapshotSlice';
+import { selectServiceSmartId } from '../../service-offer/model/ServiceOfferSlice';
 
 const snapshotHelper = new SnapshotHelper();
-
-/** v2-слепок хранится сериализованным в колонке rows (schemaVersion: 2) */
-const tryParseV2 = (record: V1Record) => {
-    if (!record.rows) return null;
-    try {
-        const parsed = JSON.parse(record.rows) as unknown;
-        return isSnapshotV2(parsed) ? parsed : null;
-    } catch {
-        return null;
-    }
-};
 
 /**
  * Вспоминание сделки: fetch слепка → v1-адаптер (или restore v2) → стейт.
@@ -89,7 +78,7 @@ export const restoreSnapshotRecord =
     async (dispatch, getState) => {
         const catalog = getState().catalog.catalog;
         let restored: RestoredState;
-        const v2 = tryParseV2(record);
+        const v2 = parseSnapshotV2(record.rows);
         if (v2) {
             restored = restoreV2(v2);
         } else {
@@ -151,6 +140,8 @@ export const buildCurrentSnapshotV2 = (
         dealId,
         domain,
         userId: user ? Number(user.ID) || null : null,
+        // «следующий период» сервисного отдела — слепок со смартом, иначе обычный
+        serviceSmartId: selectServiceSmartId(state),
         savedAt: new Date().toISOString(),
     });
 };

@@ -105,7 +105,7 @@ export class ErrorHandler {
 export const errorHandler = ErrorHandler.getInstance();
 
 // Утилита для оборачивания функций
-export const withErrorHandling = <T extends any[], R>(
+export const withErrorHandling = <T extends unknown[], R>(
     fn: (...args: T) => R | Promise<R>,
 ) => {
     return async (...args: T): Promise<R> => {

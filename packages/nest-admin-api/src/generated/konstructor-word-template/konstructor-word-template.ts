@@ -139,7 +139,7 @@ const wordTemplateUpdate = (
 const wordTemplateRemove = (
     id: string,
  ) => {
-      return customAxios<void>(
+      return customAxios<boolean>(
       {url: `/api/word-templates/${id}`, method: 'DELETE'
     },
       );
@@ -157,10 +157,14 @@ const wordTemplateDownloadTemplate = (
     },
       );
     }
-  const wordTemplateArchive = (
+  /**
+ * @deprecated
+ * @summary Архивировать шаблон (GET, легаси)
+ */
+const wordTemplateArchive = (
     id: string,
  ) => {
-      return customAxios<void>(
+      return customAxios<boolean>(
       {url: `/api/word-templates/${id}/archive`, method: 'GET'
     },
       );
@@ -172,15 +176,19 @@ const wordTemplateDownloadTemplate = (
 const wordTemplateArchivePatch = (
     id: string,
  ) => {
-      return customAxios<void>(
+      return customAxios<boolean>(
       {url: `/api/word-templates/${id}/archive`, method: 'PATCH'
     },
       );
     }
-  const wordTemplateUnarchive = (
+  /**
+ * @deprecated
+ * @summary Вернуть шаблон из архива (GET, легаси)
+ */
+const wordTemplateUnarchive = (
     id: string,
  ) => {
-      return customAxios<void>(
+      return customAxios<boolean>(
       {url: `/api/word-templates/${id}/unarchive`, method: 'GET'
     },
       );
@@ -191,7 +199,7 @@ const wordTemplateArchivePatch = (
 const wordTemplateUnarchivePatch = (
     id: string,
  ) => {
-      return customAxios<void>(
+      return customAxios<boolean>(
       {url: `/api/word-templates/${id}/unarchive`, method: 'PATCH'
     },
       );

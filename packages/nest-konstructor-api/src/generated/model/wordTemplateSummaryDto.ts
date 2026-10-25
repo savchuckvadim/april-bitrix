@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type { WordTemplateSummaryDtoVisibility } from './wordTemplateSummaryDtoVisibility';
+import type { ClientTypeEnum } from './clientTypeEnum';
+import type { SupplyTypeEnum } from './supplyTypeEnum';
 
 export interface WordTemplateSummaryDto {
     id: string;
@@ -22,4 +24,19 @@ export interface WordTemplateSummaryDto {
     template_url?: string;
     created_at?: string;
     portal_id?: number;
+    /**
+     * ID агента (поставщика); null — «для любого».
+     * @nullable
+     */
+    agent_id?: string | null;
+    /**
+     * Типы клиента; null — «для любого».
+     * @nullable
+     */
+    client_types?: ClientTypeEnum[] | null;
+    /**
+     * Типы поставки; null — «для любого».
+     * @nullable
+     */
+    supply_types?: SupplyTypeEnum[] | null;
 }

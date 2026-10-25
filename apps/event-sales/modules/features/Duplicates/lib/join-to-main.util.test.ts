@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import type { DuplicateContext } from '@/modules/app/lib/utills/app-state-util';
 import { APP_FROM_ENUM } from '@/modules/app/model/slice/AppSlice';
 import { EDepartmentRole } from '@/modules/features/Departament/lib/department-role-util';
-import { JOIN_TO_MAIN_TEXT, resolveJoinTarget } from './join-to-main.util';
+import {
+    JOIN_TO_MAIN_TEXT,
+    effectiveManageRole,
+    resolveJoinTarget,
+} from './join-to-main.util';
 
 const context = (over: Partial<DuplicateContext> = {}): DuplicateContext => ({
     from: APP_FROM_ENUM.DEAL,
@@ -75,5 +79,36 @@ describe('resolveJoinTarget', () => {
                 EDepartmentRole.SUPER,
             ).reason,
         ).toBe(JOIN_TO_MAIN_TEXT.onlyDealOrCompany);
+    });
+});
+
+describe('effectiveManageRole', () => {
+    const none = { isSuperUser: false, hasSubordinates: false };
+
+    it('суперпользователь April — права руководителя при любой роли', () => {
+        expect(
+            effectiveManageRole(EDepartmentRole.EMPLOYEE, {
+                ...none,
+                isSuperUser: true,
+            }),
+        ).toBe(EDepartmentRole.SUPER);
+    });
+
+    it('у сотрудника по структуре есть подчинённые на бэке — руководитель группы', () => {
+        expect(
+            effectiveManageRole(EDepartmentRole.EMPLOYEE, {
+                ...none,
+                hasSubordinates: true,
+            }),
+        ).toBe(EDepartmentRole.GROUP_HEAD);
+    });
+
+    it('без флагов роль не меняется', () => {
+        expect(effectiveManageRole(EDepartmentRole.EMPLOYEE, none)).toBe(
+            EDepartmentRole.EMPLOYEE,
+        );
+        expect(effectiveManageRole(EDepartmentRole.DEPARTMENT_HEAD, none)).toBe(
+            EDepartmentRole.DEPARTMENT_HEAD,
+        );
     });
 });

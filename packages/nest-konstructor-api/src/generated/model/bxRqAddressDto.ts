@@ -5,8 +5,9 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { AddressRqItemDto } from './addressRqItemDto';
 
 export interface BxRqAddressDto {
-    /** Items of the RQ */
-    items: string[];
+    /** Адреса реквизита */
+    items: AddressRqItemDto[];
 }

@@ -68,7 +68,7 @@ describe('итоги нажатий словами', () => {
         expect(failed.text).toContain('Не удалось создать полей: 1');
     });
 
-    it('история: поставленные месяцы и «ещё раз через час»; отказ — причиной словами', () => {
+    it('история: поставленные месяцы и «когда догон закончится»; отказ — причиной словами', () => {
         const ok = historyOutcome({
             domain: 'x',
             monthKeys: ['2024-10', '2026-09'],
@@ -79,7 +79,9 @@ describe('итоги нажатий словами', () => {
             reason: null,
         });
         expect(ok.text).toContain('2 месяца (2024-10 — 2026-09)');
-        expect(ok.next).toContain('ещё раз через час');
+        expect(ok.text).toContain('по одному месяцу, от старых к свежим');
+        expect(ok.next).toContain('Когда догон закончится');
+        expect(ok.next).toContain('Восстановить прогноз по истории');
         const refused = historyOutcome({
             domain: 'x',
             monthKeys: [],

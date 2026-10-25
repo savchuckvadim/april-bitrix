@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import type { Portal } from '../type/portal.type';
+import type { Portal } from './dto';
 import { initPortal } from './PortalThunk';
 
 export interface PortalState {

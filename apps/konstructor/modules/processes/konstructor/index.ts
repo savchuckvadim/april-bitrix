@@ -1,1 +1,2 @@
-export { SnapshotNavWatcher } from './ui/SnapshotNavWatcher';
+export { EntryGate } from './ui/EntryGate';
+export { FlowLayout } from './ui/FlowLayout';

@@ -61,8 +61,13 @@ export interface IWordTemplateSummury
         IWordTemplateCriteria {}
 export interface IWordTemplate extends WordTemplateDto, IWordTemplateCriteria {}
 
+/**
+ * Критерии в сгенерированном DTO создания уже есть (регенерация 24.10.2026),
+ * но без `null`; форма работает с `null` = «для любого», поэтому поля
+ * критериев берём из локального интерфейса, а из DTO их вырезаем.
+ */
 export interface ICreateWordTemplateDto
-    extends CreateWordTemplateMultipartDto,
+    extends Omit<CreateWordTemplateMultipartDto, keyof IWordTemplateCriteria>,
         IWordTemplateCriteria,
         IWordTemplatePortalsField {}
 

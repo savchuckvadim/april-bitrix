@@ -42,3 +42,14 @@ export const buildDealCategoryCodeMap = (
             category.code,
         ]),
     );
+
+/** Номер воронки «ОП Основная» на портале; нет слепка или воронки — null. */
+export const baseSalesCategoryId = (
+    categories: ReadonlyArray<PortalDealCategory> | undefined,
+): number | null => {
+    const category = (categories ?? []).find(
+        item => item.code === BASE_SALES_CATEGORY_CODE,
+    );
+    const id = Number(category?.bitrixId);
+    return Number.isFinite(id) && id >= 0 && category ? id : null;
+};

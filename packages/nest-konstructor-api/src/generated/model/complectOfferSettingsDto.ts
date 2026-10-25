@@ -12,4 +12,6 @@ export interface ComplectOfferSettingsDto {
     infoblocks: ComplectOfferInfoblocks;
     /** Показывать в КП наборы «для сравнения» рядом с основными (альтернативные наборы) */
     showAlternatives: boolean;
+    /** Печатать КП отдельными документами: в режиме independent по документу на участника, PDF не склеиваются. Без флага PDF участников склеиваются в один */
+    separateDocuments?: boolean;
 }

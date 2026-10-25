@@ -32,6 +32,21 @@ export type DealSchema = {
         };
         response: number;
     };
+    /**
+     * `crm.deal.contact.add` — добавить ОДИН контакт, не трогая остальных.
+     * Повторная привязка не ошибка: result=false «уже связан».
+     */
+    [EBxMethod.CONTACT_ADD]: {
+        request: {
+            id: number | string;
+            fields: {
+                CONTACT_ID: number | string;
+                IS_PRIMARY?: 'Y' | 'N';
+                SORT?: number;
+            };
+        };
+        response: boolean;
+    };
     [EBxMethod.CONTACT_ITEMS_GET]: {
         request: { id: number | string };
         response: {

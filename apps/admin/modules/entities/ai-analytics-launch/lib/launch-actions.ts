@@ -68,9 +68,11 @@ export async function runLaunchStep(
             return smartOutcome(await api.installSmart(domain));
         case 'cache':
             return cacheOutcome(await api.resetCache(domain));
+        // Пересчёт заново: месяцы, которые уже догонялись, иначе молча
+        // пропускаются очередью — и прогноз по истории не восстанавливается.
         case 'history':
             return historyOutcome(
-                await api.backfill(domain, historyRange(now)),
+                await api.backfill(domain, historyRange(now), true),
             );
         case 'forecast-restore': {
             const monthKey = lastClosedMonth(now);
@@ -106,7 +108,10 @@ export async function runLaunchStep(
                 reanalysisRunPeriod(status, now),
                 now,
             );
-            const backfill = months ? await api.backfill(domain, months) : null;
+            // После переразбора месяцы уже посчитаны — только заново.
+            const backfill = months
+                ? await api.backfill(domain, months, true)
+                : null;
             return rebuildOutcome(backfill, await api.resetCache(domain));
         }
     }

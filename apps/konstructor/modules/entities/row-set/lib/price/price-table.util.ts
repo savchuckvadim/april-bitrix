@@ -1,9 +1,5 @@
 import type { Catalog, KRegion, KSupply, RegionScope } from '../../../catalog';
-import {
-    interpolateByOd,
-    isCustomSupplyCode,
-    neighborSupplies,
-} from '../../../catalog';
+import { isCustomSupplyCode, referenceSupplyForCustom } from '../../../catalog';
 
 /**
  * Поиск базовых цен в прайс-таблицах каталога (state.catalog.catalog.prices).
@@ -30,8 +26,9 @@ export const findProfBasePrice = (
 
 /**
  * Базовая PROF-цена с поддержкой X-ОД: справочная поставка — прямой лукап;
- * кастомная — линейная интерполяция цен соседних поставок того же типа
- * (⚠️ рабочее допущение формулы X-ОД, цена строки правится вручную).
+ * кастомная — цена ближайшей справочной поставки того же типа (снизу, иначе
+ * сверху), нет и такой — 0. Цена X-ОД не вычисляется (решение владельца 14),
+ * строка помечается ориентировочной и правится вручную.
  */
 export const findProfBasePriceForSupply = (
     catalog: Catalog,
@@ -42,29 +39,13 @@ export const findProfBasePriceForSupply = (
     if (!isCustomSupplyCode(supply.code)) {
         return findProfBasePrice(catalog, complectCode, supply.code, scope);
     }
-    const { lower, upper } = neighborSupplies(
+    const reference = referenceSupplyForCustom(
         catalog,
         supply.type,
         supply.usersQuantity,
     );
-    const priceOf = (neighbor: KSupply | null) => {
-        if (!neighbor) return null;
-        const value = findProfBasePrice(
-            catalog,
-            complectCode,
-            neighbor.code,
-            scope,
-        );
-        return value === null
-            ? null
-            : { usersQuantity: neighbor.usersQuantity, value };
-    };
-    const interpolated = interpolateByOd(
-        priceOf(lower),
-        priceOf(upper),
-        supply.usersQuantity,
-    );
-    return interpolated === null ? null : Math.round(interpolated * 100) / 100;
+    if (!reference) return 0;
+    return findProfBasePrice(catalog, complectCode, reference.code, scope) ?? 0;
 };
 
 /** Цена пакета/сервиса (LT-пакет, СТАР) из прайса по packageCode */

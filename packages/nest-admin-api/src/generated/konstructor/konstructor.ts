@@ -22,8 +22,9 @@ import { customAxios } from '../../lib/admin-api';
 
   export const getKonstructor = () => {
 /**
- * Generate offer word by template
- * @summary Generate offer word by template
+ * Ответ: operationId джобы (строка) либо при withoutQueue — результат генерации. Новый фронт использует generate-multi.
+ * @deprecated
+ * @summary Generate offer word by template (легаси)
  */
 const offerWordGenerateGenerateOfferWord = (
     offerWordByTemplateGenerateDto: OfferWordByTemplateGenerateDto,

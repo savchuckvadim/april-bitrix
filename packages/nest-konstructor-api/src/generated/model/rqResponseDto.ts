@@ -5,7 +5,9 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { Erqdto } from './erqdto';
 
 export interface RqResponseDto {
-    [key: string]: unknown;
+    /** Реквизиты */
+    rqs: Erqdto;
 }

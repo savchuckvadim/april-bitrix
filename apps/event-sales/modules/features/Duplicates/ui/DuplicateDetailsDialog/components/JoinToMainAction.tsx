@@ -22,7 +22,13 @@ interface JoinToMainActionProps {
  */
 export const JoinToMainAction: FC<JoinToMainActionProps> = ({ view }) => {
     const { join } = view;
-    if (!join.canJoin) return null;
+    // Нельзя — говорим почему: молча спрятанная кнопка выглядела как
+    // «функции нет» (garant 23.10.2026).
+    if (!join.canJoin) {
+        return join.reason ? (
+            <p className="text-xs text-muted-foreground">{join.reason}</p>
+        ) : null;
+    }
 
     if (join.isLoading) {
         return (

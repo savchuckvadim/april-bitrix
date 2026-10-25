@@ -1,25 +1,20 @@
 import { Bitrix } from '@bitrix/bitrix';
 import { BitrixService } from '@bitrix/bitrix.service';
-import { TESTING_PLACEMENT } from '../../consts/app-global';
-import { Placement } from '@workspace/bx';
-import { IBXCompany, IBXDeal, IBXItem } from '@bitrix/index';
-
+import { IBXCompany, IBXDeal } from '@bitrix/index';
 import { BxDealCompanyService } from './bx-deal-compny.service';
-
-
 
 export interface IBitrixinitResult {
     deal: IBXDeal;
     /** null — у сделки не указана компания: конструктор в такой сделке работать не может. */
     company: IBXCompany | null;
 }
+
 interface IBitrixinitResponse {
     dealGet: IBXDeal;
     companyGet: IBXCompany;
-    participants: {
-        items: IBXItem[];
-    };
 }
+
+/** Сделка и её компания одним batch-запросом. dealId резолвит app-init из placement. */
 export class BxInitService {
     private bitrix: BitrixService;
     private dealCompanyService: BxDealCompanyService;
@@ -29,55 +24,19 @@ export class BxInitService {
         this.dealCompanyService = new BxDealCompanyService();
     }
 
-    public async init(): Promise<IBitrixinitResult | null> {
-        const dealId = await this.getDealId();
-        //TODO: переделать сейчас сделано как будто по любому из сделки открывается
-        // но может открываться и и з Компании и тогда все упадет
-
-        this.dealCompanyService.getDealAndCompanyComand(Number(dealId));
-
+    public async init(dealId: number): Promise<IBitrixinitResult | null> {
+        this.dealCompanyService.getDealAndCompanyComand(dealId);
 
         const totalBxResponse =
             (await this.bitrix.api.callBatch()) as IBitrixinitResponse;
 
-        const { company, deal } = this.prepare(totalBxResponse);
-
+        const deal = totalBxResponse.dealGet;
         // null возвращаем только когда нет самой сделки: «сделка без компании» —
         // отдельный случай, вызывающий код показывает по нему свой экран
         if (!deal) {
             return null;
         }
 
-        return { deal, company: company ?? null };
-    }
-
-    private getPlacement() {
-        return (
-            this.bitrix.api.getPlacement() || (TESTING_PLACEMENT as Placement)
-        );
-    }
-
-    private async getDealId(): Promise<number> {
-        //TODO смотря что за placement type - compane или deal будут обязательными
-        const placement = this.getPlacement();
-        const dealId =
-            'ID' in placement.options
-                ? placement.options.ID
-                : 'dealId' in placement.options
-                  ? placement.options.dealId
-                  : null;
-        if (!dealId) {
-            throw new Error('Deal ID not found in placement options');
-        }
-        return Number(dealId) as number;
-    }
-
-    private prepare(totalBxResponse: IBitrixinitResponse): {
-        deal: IBXDeal;
-        company: IBXCompany | null;
-    } {
-        const deal = totalBxResponse.dealGet;
-        const company = totalBxResponse.companyGet;
-        return { deal, company };
+        return { deal, company: totalBxResponse.companyGet ?? null };
     }
 }

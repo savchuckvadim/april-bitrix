@@ -5,7 +5,13 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { RegionDto } from './regionDto';
 
 export interface RegionsDto {
-    [key: string]: unknown;
+    /** Регионы в составе комплекта */
+    inComplect: RegionDto[];
+    /** Избранные регионы */
+    favorite: RegionDto[];
+    /** Регионы без веса */
+    noWidth: RegionDto[];
 }

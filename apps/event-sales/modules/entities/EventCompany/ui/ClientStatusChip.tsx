@@ -1,13 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@workspace/ui/components/select';
+import { ChipSelect } from '@workspace/april-ui/fields';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { EV_COMPANY_PROP } from '../model/EventCompanySlice';
 import { updateCompany } from '../model/EventCompanyThunk';
@@ -17,11 +11,7 @@ import { updateCompany } from '../model/EventCompanyThunk';
  *
  * Значений около десяти — сегменты тут не годятся, селект оправдан. Но лейбл
  * с полем во всю ширину для значения, которое меняют раз в полгода, — перебор:
- * в шапке это компактный чип.
- *
- * Ширина ФИКСИРОВАННАЯ, а не по содержимому: названия статусов разной длины,
- * и при каждой смене чип менял размер, сдвигая всю правую часть шапки. Длинное
- * название обрезается — полное видно в раскрытом списке.
+ * в шапке это компактный чип (общий с конструктором — ChipSelect).
  */
 export const ClientStatusChip: FC = () => {
     const dispatch = useAppDispatch();
@@ -35,27 +25,15 @@ export const ClientStatusChip: FC = () => {
             : undefined;
 
     return (
-        <Select
+        <ChipSelect
             value={current}
+            options={status.items}
             disabled={status.isLoading}
-            onValueChange={code =>
+            onChange={code =>
                 dispatch(updateCompany(EV_COMPANY_PROP.STATUS, code))
             }
-        >
-            <SelectTrigger
-                size="sm"
-                aria-label="Статус клиента"
-                className="h-7 w-36 gap-1 border-dashed px-2 text-xs [&>span]:truncate"
-            >
-                <SelectValue placeholder="Статус клиента" />
-            </SelectTrigger>
-            <SelectContent>
-                {status.items.map(item => (
-                    <SelectItem key={item.code} value={item.code}>
-                        {item.name}
-                    </SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
+            ariaLabel="Статус клиента"
+            placeholder="Статус клиента"
+        />
     );
 };

@@ -1,149 +1,112 @@
-import {
-    API_METHOD,
-    getFromLocalStorage,
-    getStorageKey,
-    onlineAPI,
-    removeOldPortalCache,
-    saveToLocalStorage,
-} from '@workspace/api';
+import { resolveSwrCache, SWR_DAY_MS } from '@workspace/api';
+import { readFieldValue } from '@workspace/pbx';
+// Глубокий импорт файла-констант: баррель pbx-data тянет class-энтити
+// (так же делают event-sales и client-card).
+import { PBX_SALES_KONSTRUCTOR_FIELD_CODES } from '@workspace/pbx-data/entities/field/type/sales/konstructor/pbx-sales-konstructor-field.type';
+import type { AppThunk } from '@/modules/app/model/store';
+import { ProviderHelper } from '../lib/api/provider-helper';
+import { ProviderSettingsHelper } from '../lib/api/provider-settings-helper';
+import { resolveCurrentProvider } from '../lib/resolve-current-provider.util';
+import type { Provider } from './dto';
+import { documentProvidertAC } from './DocumentProviderSlice';
 
-import type { AppDispatch, AppGetState, RootState } from '@/modules/app';
+/** Версия схемы списка в кэше: меняем вместе с формой ProviderWithRqResponseDto. */
+const PROVIDERS_CACHE_VERSION = 1;
 
-import { PROVIDER_KEY, type Provider } from '../type/provider.type';
+const helper = new ProviderHelper();
+const settings = new ProviderSettingsHelper();
 
-import { documentProvidertAC, type ProviderUser } from './DocumentProviderSlice';
+const errorText = (error: unknown, fallback: string): string =>
+    error instanceof Error ? error.message : fallback;
 
-function getOfferInitialProviderId(_state: RootState, providers: Provider[]): number {
-    return providers[0]?.id ?? 0;
-}
-
-type ProvidersBundle = { providers: Provider[]; current: ProviderUser };
-
+/**
+ * Поставщики портала с нашего бэка через swrCache + поставщик по умолчанию
+ * из настроек пользователя. Поле сделки подхватывается отдельно слушателем,
+ * когда загружен портал (applyDealProvider).
+ */
 export const initProviders =
-    (domain: string, userId: number) => async (dispatch: AppDispatch, _getState: AppGetState) => {
-        let providers: Provider[] | undefined;
-        let currenUserProvider: ProviderUser | null = null;
-
-        const data = { domain, userId };
-        const localPrifixProvider = 'provider_cache';
-        const localPrifixProviderUser = 'provideruser_cache';
-
-        const storageKeyProvider = getStorageKey(localPrifixProvider);
-        const storageKeyProviderUser = getStorageKey(localPrifixProviderUser);
-        const secretKey = domain || 'nmbrsdntl';
-        removeOldPortalCache(localPrifixProvider);
-        removeOldPortalCache(localPrifixProviderUser);
-        providers = (await getFromLocalStorage(storageKeyProvider, secretKey)) as Provider[] | undefined;
-        currenUserProvider = (await getFromLocalStorage(
-            storageKeyProviderUser,
-            secretKey,
-        )) as ProviderUser | null;
-
-        if (!providers || !currenUserProvider) {
-            const res = await onlineAPI.service<ProvidersBundle>(
-                'konstructor/front/get/providers',
-                API_METHOD.POST,
-                data,
+    (domain: string, bxUserId: number): AppThunk<Promise<void>> =>
+    async (dispatch, getState) => {
+        dispatch(documentProvidertAC.loading());
+        try {
+            const [{ value: providers }, preferredId] = await Promise.all([
+                resolveSwrCache<Provider[]>({
+                    key: {
+                        name: 'providers',
+                        domain,
+                        version: PROVIDERS_CACHE_VERSION,
+                    },
+                    staleAfterMs: SWR_DAY_MS,
+                    fetcher: () => helper.list(domain),
+                    onUpdate: fresh =>
+                        dispatch(
+                            documentProvidertAC.setFetched({
+                                providers: fresh,
+                                currentId:
+                                    getState().documentProvider.current?.id ??
+                                    null,
+                            }),
+                        ),
+                }),
+                settings.readProviderId(domain, bxUserId),
+            ]);
+            dispatch(
+                documentProvidertAC.setFetched({
+                    providers,
+                    currentId:
+                        resolveCurrentProvider(providers, null, preferredId)?.id ??
+                        null,
+                }),
             );
-            if (res.resultCode === 0 && res.data) {
-                providers = res.data.providers;
-                currenUserProvider = res.data.current;
-                if (providers) {
-                    await saveToLocalStorage(storageKeyProvider, providers, secretKey);
-                }
-                if (currenUserProvider) {
-                    await saveToLocalStorage(storageKeyProviderUser, currenUserProvider, secretKey);
-                }
-            }
-        }
-        if (providers) {
-            const list = providers;
-            const currentProvider = list.find(p => p.id == currenUserProvider?.agentId) || null;
-            dispatch(documentProvidertAC.setFetched(list, currentProvider));
+        } catch (error) {
+            dispatch(
+                documentProvidertAC.failed(
+                    errorText(error, 'поставщики не загружены'),
+                ),
+            );
         }
     };
 
-export const initDocumentProvider =
-    (providers: Provider[]) => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const state = getState();
-        const currentProviderId = getOfferInitialProviderId(state, providers);
-        const currentProvider = providers.find(p => p.id == currentProviderId) || null;
-        dispatch(documentProvidertAC.setInit(providers, currentProvider));
-    };
+/**
+ * Поставщик, записанный в сделке (`document_provider` хранит название), —
+ * сильнее настройки пользователя. Зовётся слушателем, когда известны и
+ * портал (ключ поля), и список поставщиков.
+ */
+export const applyDealProvider = (): AppThunk => (dispatch, getState) => {
+    const state = getState();
+    const { items, current } = state.documentProvider;
+    if (!items.length) return;
 
-export const initProviderUser =
-    (domain: string, userId: number) => async (dispatch: AppDispatch, _getState: AppGetState) => {
-        const data = { domain, userId };
+    const dealProviderName = readFieldValue(
+        state.portal.current?.bitrixDeal?.bitrixfields,
+        state.app.bitrix.deal as Record<string, unknown> | null,
+        PBX_SALES_KONSTRUCTOR_FIELD_CODES.document_provider,
+    );
+    const resolved = resolveCurrentProvider(
+        items,
+        typeof dealProviderName === 'string' ? dealProviderName : null,
+        current?.id ?? null,
+    );
+    if (resolved && resolved.id !== current?.id) {
+        dispatch(documentProvidertAC.setCurrent(resolved.id));
+    }
+};
 
-        const res = await onlineAPI.service<ProviderUser>(
-            'konstructor/front/get/provider',
-            API_METHOD.POST,
-            data,
-        );
-
-        if (res.resultCode === 0 && res.data) {
-            dispatch(documentProvidertAC.setProviderUser(res.data));
-        }
-    };
-
-export const setCurrentProviderThunk =
-    (providerId: number) => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const state = getState();
-        const domain = state.app.domain;
-        const userId = Number(state.app.bitrix.user?.ID) || 1;
-        const providers = state.documentProvider.items;
-        const currentProvider = providers.find(provider => provider.id === providerId);
-        if (!currentProvider) {
-            return;
-        }
-
-        const data = {
-            domain,
-            userId,
-            agentId: providerId,
-            providerName: currentProvider[PROVIDER_KEY.NAME],
-        };
-
-        const res = await onlineAPI.service<ProviderUser>(
-            'konstructor/front/provider',
-            API_METHOD.POST,
-            data,
-        );
-
-        if (res.resultCode === 0 && res.data) {
-            dispatch(documentProvidertAC.setProviderUser(res.data));
-        }
+/**
+ * Выбор поставщика менеджером: сразу в состояние, в фоне — в настройки
+ * пользователя (дефолт на следующий раз). В сделку поставщик уходит вместе
+ * с отправкой сделки (deal-send, поле `document_provider`).
+ */
+export const setCurrentProvider =
+    (providerId: string): AppThunk<Promise<void>> =>
+    async (dispatch, getState) => {
         dispatch(documentProvidertAC.setCurrent(providerId));
-    };
-
-export const setCurrentProviderByProviderThunk =
-    (currentProvider: Provider) => async (dispatch: AppDispatch, getState: AppGetState) => {
-        const state = getState();
-        const domain = state.app.domain;
-        const userId = Number(state.app.bitrix.user?.ID) || 1;
-        const localPrifix = 'provideruser_cache';
-        const storageKey = getStorageKey(localPrifix);
-        const secretKey = domain || 'nmbrsdntl';
-
-        const providerId = currentProvider.id;
-
-        const data = {
-            domain,
-            userId,
-            agentId: providerId,
-            providerName: currentProvider[PROVIDER_KEY.NAME],
-        };
-
-        const res = await onlineAPI.service<ProviderUser>(
-            'konstructor/front/provider',
-            API_METHOD.POST,
-            data,
-        );
-
-        await saveToLocalStorage(storageKey, res.resultCode === 0 ? res.data : null, secretKey);
-
-        if (res.resultCode === 0 && res.data) {
-            dispatch(documentProvidertAC.setProviderUser(res.data));
+        const { domain, bitrix } = getState().app;
+        const bxUserId = Number(bitrix.user?.ID);
+        if (!domain || !Number.isFinite(bxUserId)) return;
+        try {
+            await settings.writeProviderId(domain, bxUserId, providerId);
+        } catch (error) {
+            console.warn('provider: настройка пользователя не сохранена', error);
         }
-        dispatch(documentProvidertAC.setCurrent(providerId));
     };

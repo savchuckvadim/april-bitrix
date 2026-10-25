@@ -5,7 +5,7 @@ import {
     createListenerMiddleware,
     type ListenerMiddlewareInstance,
 } from '@reduxjs/toolkit';
-import oldInit from '../../../../docs/oldinit.json';
+import oldInit from '../../catalog/lib/__fixtures__/oldinit.json';
 import legacyRecord from './__fixtures__/legacy-deal.v1.json';
 import {
     catalogActions,

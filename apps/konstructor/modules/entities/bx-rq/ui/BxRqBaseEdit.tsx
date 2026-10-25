@@ -9,21 +9,17 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { BxRqEditModal } from './BxRqEditModal';
-import {
-    EvsRqItem,
-    RqItem,
-    useBxRqEditBase,
-    useBxRq,
-} from '@workspace/bx-rq';
+import type { RqItem, RqRecord } from '../model/types';
+import { useBxRq, useBxRqEditBase } from '../lib/hooks/use-bx-rq';
 import { Edit2,  } from 'lucide-react';
 // import { useApp } from '@/modules/app';
-// import { useClientType } from '@/modules/features/client-type/hook/useClientType';
+// import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { useApp } from '@/modules/app/lib/hooks/app';
-import { useClientType } from '@/modules/features/client-type/hook/useClientType';
+import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
 
 interface BxRqBaseEditProps {
-    rq: EvsRqItem;
+    rq: RqRecord;
     fields: RqItem[];
     isEmpty: boolean;
     // currentClientType: RQ_TYPE

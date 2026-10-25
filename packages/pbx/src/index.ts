@@ -7,6 +7,7 @@ export {
     readFieldValue,
     findFieldItemByCode,
     findFieldItemByBitrixId,
+    buildEnumFieldPatch,
 } from './lib/resolve';
 export {
     getSalesTaskGroupId,

@@ -68,8 +68,8 @@ export const initializeWordTemplates = () => async (dispatch: AppDispatch, getSt
         dispatch(wordTemplateAC.setInitialized(true));
         dispatch(wordTemplateAC.setFetched(true));
 
-        const rememberedTemplateId = (getState().app as { rememberedTemplateId?: string | number | null })
-            .rememberedTemplateId;
+        // слепок сделки помнит, каким шаблоном печатали КП (6.6): он важнее выбора «по умолчанию»
+        const rememberedTemplateId = getState().snapshot.templateId;
         if (rememberedTemplateId) {
             await applyRememberedTemplate(dispatch, uniqueTemplates, rememberedTemplateId);
         }

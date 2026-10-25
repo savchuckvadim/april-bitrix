@@ -7,5 +7,16 @@
  */
 
 export interface RegionDto {
-    [key: string]: unknown;
+    /** Легаси-номер региона (0 — не используется) */
+    number: number;
+    /** Ставка абонентского обслуживания */
+    abs: number;
+    /** Код региона */
+    name: string;
+    /** Название региона */
+    title: string;
+    /** Название регионального инфоблока — так регион печатается в договоре */
+    infoblock: string;
+    /** ID региона */
+    id?: number;
 }

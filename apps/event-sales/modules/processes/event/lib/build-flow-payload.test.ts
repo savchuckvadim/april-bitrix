@@ -70,6 +70,7 @@ const makeState = (over?: {
             status: 'ready',
             enabled: over?.head?.enabled ?? true,
             subordinateIds: over?.head?.subordinateIds ?? [],
+            isSuperUser: false,
         },
         eventReport: {
             report: {

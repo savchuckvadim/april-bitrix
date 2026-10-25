@@ -148,7 +148,7 @@ export class WordTemplateHelper {
         return this.api.wordTemplateSetDefault(id);
     }
 
-    async remove(id: string): Promise<void> {
+    async remove(id: string): Promise<boolean> {
         return this.api.wordTemplateRemove(id);
     }
 

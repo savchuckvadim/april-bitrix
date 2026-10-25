@@ -12,6 +12,7 @@ import type { ContractsDto } from './contractsDto';
 import type { SupplyInitDto } from './supplyInitDto';
 import type { PriceInitDto } from './priceInitDto';
 import type { ServicesInitDto } from './servicesInitDto';
+import type { MeasureInitDto } from './measureInitDto';
 
 export interface KonstructorInitDataDto {
     /** Complects */
@@ -28,4 +29,6 @@ export interface KonstructorInitDataDto {
     prices: PriceInitDto[];
     /** Дополнительные сервисы (LT/консалтинг/СТАР) */
     services: ServicesInitDto;
+    /** Меры портала (ед. изм.) с bitrixId для productRows и КП */
+    measures: MeasureInitDto[];
 }

@@ -14,7 +14,7 @@ import type { SwrCacheKey } from '@workspace/api';
 const HEAD_PERIMETER_CACHE_NAME = 'event-sales:head-perimeter';
 
 /** Версия формы значения; поднимать при смене формы. */
-const HEAD_PERIMETER_CACHE_VERSION = 1;
+const HEAD_PERIMETER_CACHE_VERSION = 2;
 
 /** Протухает сразу: из кэша — мгновенно, обновление — в фоне. */
 export const HEAD_PERIMETER_STALE_AFTER_MS = 0;
@@ -22,6 +22,8 @@ export const HEAD_PERIMETER_STALE_AFTER_MS = 0;
 /** Что лежит в кэше. */
 export interface HeadPerimeter {
     subordinateIds: number[];
+    /** Суперпользователь April (таблица на бэке): права руководителя везде. */
+    isSuperUser: boolean;
 }
 
 export const getHeadPerimeterCacheKey = (
@@ -35,9 +37,21 @@ export const getHeadPerimeterCacheKey = (
 
 export const isHeadPerimeter = (value: unknown): boolean => {
     if (!value || typeof value !== 'object') return false;
-    const ids = (value as { subordinateIds?: unknown }).subordinateIds;
-    return Array.isArray(ids) && ids.every(id => Number.isInteger(id));
+    const { subordinateIds: ids, isSuperUser } = value as {
+        subordinateIds?: unknown;
+        isSuperUser?: unknown;
+    };
+    return (
+        Array.isArray(ids) &&
+        ids.every(id => Number.isInteger(id)) &&
+        typeof isSuperUser === 'boolean'
+    );
 };
+
+/** Тот же периметр: состав подчинённых (порядок не важен) и флаг супера. */
+export const samePerimeter = (a: HeadPerimeter, b: HeadPerimeter): boolean =>
+    a.isSuperUser === b.isSuperUser &&
+    sameSubordinates(a.subordinateIds, b.subordinateIds);
 
 /** Тот же состав подчинённых, порядок не важен. */
 export const sameSubordinates = (

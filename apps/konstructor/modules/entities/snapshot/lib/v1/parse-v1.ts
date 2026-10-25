@@ -49,6 +49,7 @@ export const parseV1 = (record: V1Record): V1Parsed => {
         'global',
         errors,
     );
+    const ltOther = safeParse<V1Parsed['ltOther']>(record.ltOther, 'ltOther', errors);
 
     return {
         dealId: record.dealId ?? null,
@@ -59,6 +60,7 @@ export const parseV1 = (record: V1Record): V1Parsed => {
         rows,
         regions,
         globalRegion: global?.currentRegion ?? null,
+        ltOther: Array.isArray(ltOther) ? ltOther : null,
         templateId: record.templateId ?? null,
         parseErrors: errors,
     };

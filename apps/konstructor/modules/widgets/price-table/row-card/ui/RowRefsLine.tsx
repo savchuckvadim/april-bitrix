@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Settings2 } from 'lucide-react';
+import { Badge } from '@workspace/ui/components/badge';
 import { resolveSupply, type Catalog } from '@/modules/entities/catalog';
 import type { KRow } from '@/modules/entities/row-set';
 import type {
@@ -76,6 +77,15 @@ export const RowRefsLine = ({
                     .filter(Boolean)
                     .join(' • ')}
             </span>
+            {row.price.estimated ? (
+                <Badge
+                    variant="outline"
+                    className="h-4 px-1 text-[0.625rem] font-normal"
+                    title="X-ОД: подставлена цена ближайшей справочной поставки — задайте цену вручную"
+                >
+                    цена ориентировочная
+                </Badge>
+            ) : null}
             {canEdit ? (
                 <button
                     type="button"

@@ -63,10 +63,13 @@ describe('runLaunchStep — что зовёт кнопка каждого шаг
         const api = fakeApi();
         const context = { domain: DOMAIN, status: launchStatus(), now: NOW };
         await runLaunchStep(api as never, 'history', context);
-        expect(api.backfill).toHaveBeenCalledWith(DOMAIN, {
-            from: '2024-10',
-            to: '2026-09',
-        });
+        // Пересчёт заново (force): иначе очередь молча пропускает месяцы,
+        // которые уже догонялись (gsr 21.10.2026: «1 из 9»).
+        expect(api.backfill).toHaveBeenCalledWith(
+            DOMAIN,
+            { from: '2024-10', to: '2026-09' },
+            true,
+        );
         const restore = await runLaunchStep(
             api as never,
             'forecast-restore',
@@ -136,10 +139,11 @@ describe('runLaunchStep — что зовёт кнопка каждого шаг
             status: finished,
             now: NOW,
         });
-        expect(api.backfill).toHaveBeenCalledWith(DOMAIN, {
-            from: '2026-07',
-            to: '2026-09',
-        });
+        expect(api.backfill).toHaveBeenCalledWith(
+            DOMAIN,
+            { from: '2026-07', to: '2026-09' },
+            true,
+        );
         expect(api.resetCache).toHaveBeenCalledWith(DOMAIN);
         expect(outcome.text).toContain('Кэш витрины сброшен.');
 

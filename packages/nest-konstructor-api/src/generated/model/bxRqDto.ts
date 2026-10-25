@@ -7,14 +7,15 @@
  */
 import type { BxRqAddressDto } from './bxRqAddressDto';
 import type { BxRqBankDto } from './bxRqBankDto';
+import type { RQFieldDto } from './rQFieldDto';
 
 export interface BxRqDto {
-    /** Address of the RQ */
+    /** Адреса */
     address: BxRqAddressDto;
-    /** Bank of the RQ */
+    /** Банки */
     bank: BxRqBankDto;
     /** Preset ID of the RQ */
     preset_id: number;
-    /** Fields of the RQ */
-    fields: string[];
+    /** Базовые поля реквизита */
+    fields: RQFieldDto[];
 }

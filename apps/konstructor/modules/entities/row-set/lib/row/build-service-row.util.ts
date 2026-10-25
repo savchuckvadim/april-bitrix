@@ -24,6 +24,10 @@ export interface BuildServiceRowInput extends BuildRowCtx {
     contractCode: string;
     /** СТАР бесплатен при complect.withStar / комплекте exzak */
     isFree?: boolean;
+    /** lt_other: пакет наполнения, из которого выведена строка */
+    packetId?: string;
+    /** lt_other: своё имя пакета (composition.ltOther[].alternativeName) */
+    alternativeName?: string | null;
 }
 
 export const buildServiceRow = (input: BuildServiceRowInput): KRow | null => {
@@ -60,11 +64,12 @@ export const buildServiceRow = (input: BuildServiceRowInput): KRow | null => {
             supplyCode: input.supplyCode,
             contractCode: contract.code,
             serviceCode: service.code,
+            packetId: input.packetId,
         },
         names: {
             name: service.fullName,
             shortName: service.shortName,
-            alternativeName: null,
+            alternativeName: input.alternativeName ?? null,
         },
         price: input.isFree
             ? {

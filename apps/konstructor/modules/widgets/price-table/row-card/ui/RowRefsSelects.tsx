@@ -1,5 +1,6 @@
 'use client';
 
+import { MicroSelect } from '@workspace/april-ui/fields';
 import type {
     Catalog,
     KComplect,
@@ -36,37 +37,33 @@ export const RowRefsSelects = ({
     onChange,
 }: RowRefsSelectsProps) => (
     <div className="flex flex-wrap gap-2">
-        <select
-            className="rounded border bg-background px-1.5 py-1 text-xs text-foreground"
+        <MicroSelect
+            ariaLabel="Комплект"
             value={row.refs.complectCode ?? ''}
             disabled={disabled}
-            onChange={event => onChange({ complectCode: event.target.value })}
-        >
-            {allComplects.map(complect => (
-                <option key={complect.code} value={complect.code}>
-                    {complect.title}
-                </option>
-            ))}
-        </select>
+            options={allComplects.map(complect => ({
+                value: complect.code,
+                label: complect.title,
+            }))}
+            onChange={complectCode => onChange({ complectCode })}
+        />
         <OdSelect
+            variant="micro"
             catalog={catalog}
             supplies={availableSupplies}
             value={row.refs.supplyCode}
             disabled={disabled}
-            className="rounded border bg-background px-1.5 py-1 text-xs text-foreground"
             onChange={supplyCode => onChange({ supplyCode })}
         />
-        <select
-            className="rounded border bg-background px-1.5 py-1 text-xs text-foreground"
+        <MicroSelect
+            ariaLabel="Тип договора"
             value={row.refs.contractCode}
             disabled={disabled}
-            onChange={event => onChange({ contractCode: event.target.value })}
-        >
-            {availableContracts.map(contract => (
-                <option key={contract.code} value={contract.code}>
-                    {contract.name}
-                </option>
-            ))}
-        </select>
+            options={availableContracts.map(contract => ({
+                value: contract.code,
+                label: contract.name,
+            }))}
+            onChange={contractCode => onChange({ contractCode })}
+        />
     </div>
 );

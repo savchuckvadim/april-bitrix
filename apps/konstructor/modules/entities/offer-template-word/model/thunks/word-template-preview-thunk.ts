@@ -1,7 +1,7 @@
 import type { AppDispatch, AppGetState } from '@/modules/app';
 
 import { offerWordPdfPreviewHttp } from '../../lib/api/pdf-preview.api';
-import { buildOfferWordTemplateGenerateRequest } from '../../lib/utils/build-offer-word-template-generate-request';
+import { buildOfferGenerateRequest } from '../../../offer-document';
 import { wordTemplatePdfPreviewAC } from '../WordTemplatePdfPreviewSlice';
 import type { OfferWordEphemeralPdfPollResponse } from '../../types/ephemeral-pdf-types';
 import { OfferWordEphemeralPdfStatusEnum } from '../../types/ephemeral-pdf-types';
@@ -88,7 +88,7 @@ export const requestWordTemplatePdfPreview =
 
         let dto = null;
         try {
-            dto = buildOfferWordTemplateGenerateRequest(getState());
+            dto = buildOfferGenerateRequest(getState());
         } catch (e) {
             dispatch(
                 wordTemplatePdfPreviewAC.setPreviewPatch({
@@ -103,7 +103,7 @@ export const requestWordTemplatePdfPreview =
                 wordTemplatePdfPreviewAC.setPreviewPatch({
                     previewPhase: 'failed',
                     previewError:
-                        'Недостаточно данных для превью: выберите шаблон Word, убедитесь что есть сделка и данные документа.',
+                        'Недостаточно данных для превью: нужны сохранённая сделка, главная строка, шаблон и поставщик.',
                 }),
             );
             return;

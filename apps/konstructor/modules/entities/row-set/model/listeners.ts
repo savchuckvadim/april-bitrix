@@ -1,8 +1,9 @@
 import type { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import type { Catalog } from '../../catalog';
-// Прямой импорт слайса (не баррель) — баррель provider тянет thunks с @workspace/api
-import { documentProvidertAC } from '../../provider/model/DocumentProviderSlice';
-import type { DocumentProviderState } from '../../provider/model/DocumentProviderSlice';
+import {
+    documentProvidertAC,
+    type DocumentProviderState,
+} from '../../provider';
 import { rowSetActions, type RowSetState } from './RowSetSlice';
 import type { RowSet } from './types';
 import {
@@ -97,8 +98,7 @@ export function setupProviderTaxListener(
     loose(listenerMiddleware)({
         matcher: (action: { type: string }) =>
             action.type === documentProvidertAC.setCurrent.type ||
-            action.type === documentProvidertAC.setFetched.type ||
-            action.type === documentProvidertAC.setInit.type,
+            action.type === documentProvidertAC.setFetched.type,
         effect: (_action: unknown, listenerApi: ListenerApiLike) => {
             const state = listenerApi.getState();
             const nowTaxed = Boolean(state.documentProvider.current?.withTax);

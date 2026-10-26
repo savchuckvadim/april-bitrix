@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AppDispatch, RootState } from '@/modules/app/model/store';
 
 const h = vi.hoisted(() => ({ align: vi.fn() }));
@@ -10,17 +10,6 @@ vi.mock('../lib/api/inn-deal-helper', () => ({
 }));
 
 import { alignDealInnOnOpen } from './inn-align.thunk';
-
-/** Хранилище вкладки: тесты идут без браузера. */
-const createSessionStorage = () => {
-    const bag = new Map<string, string>();
-    return {
-        getItem: (key: string) => bag.get(key) ?? null,
-        setItem: (key: string, value: string) => {
-            bag.set(key, value);
-        },
-    };
-};
 
 const FIELDS = [
     { code: 'op_inn', bitrixId: 'OP_INN' },
@@ -69,11 +58,6 @@ const run = async (state: RootState) => {
 
 beforeEach(() => {
     h.align.mockReset();
-    vi.stubGlobal('window', { sessionStorage: createSessionStorage() });
-});
-
-afterEach(() => {
-    vi.unstubAllGlobals();
 });
 
 describe('alignDealInnOnOpen', () => {
@@ -88,14 +72,14 @@ describe('alignDealInnOnOpen', () => {
         ]);
     });
 
-    it('одна сделка — один вызов за вкладку', async () => {
+    it('повторное открытие зовёт бэк снова — повторы режет сервер', async () => {
         h.align.mockResolvedValue({ current: null, warnings: [] });
         const state = makeState({});
 
         await run(state);
         await run(state);
 
-        expect(h.align).toHaveBeenCalledTimes(1);
+        expect(h.align).toHaveBeenCalledTimes(2);
     });
 
     it('заполнена только сделка — тоже зовём: компании допишется', async () => {

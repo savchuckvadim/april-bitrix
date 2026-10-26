@@ -3,9 +3,10 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@workspace/ui/components/button';
-import { ConfirmDialog, ExcelManager } from '@/modules/shared/ui';
+import { ConfirmDialog } from '@/modules/shared/ui';
+import { CatalogTableLink } from '@/modules/entities/garant/catalog-table';
 import { GetSupplyResponseDto } from '@workspace/nest-admin-api';
-import { useSupplies, useDownloadExcelExample, useUploadExcel, useUpdateByExcel } from '../../lib/hooks';
+import { useSupplies } from '../../lib/hooks';
 import { SuppliesTable } from '../supplies-table/SuppliesTable';
 const path = '/garant/supplies';
 export function SuppliesList() {
@@ -14,9 +15,6 @@ export function SuppliesList() {
     const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
     const [supplyToDelete, setSupplyToDelete] = React.useState<string | null>(null);
 
-    const downloadExample = useDownloadExcelExample();
-    const uploadExcel = useUploadExcel();
-    const updateByExcel = useUpdateByExcel();
     const handleRowClick = (supply: GetSupplyResponseDto) => {
         router.push(`${path}/${supply.id}`);
     };
@@ -38,29 +36,21 @@ export function SuppliesList() {
         }
     };
 
-    const handleUploadExcel = (file: File) => {
-        uploadExcel.mutate({ file });
-    };
-
-    const handleUpdateByExcel = () => {
-        updateByExcel.mutate();
-    };
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold">Supplies</h1>
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold">Виды поставок</h1>
+                    <p className="text-muted-foreground text-sm">
+                        Число ОД, коэффициенты и тексты договоров. Много
+                        значений сразу удобнее править таблицей.
+                    </p>
+                </div>
                 <div className="flex items-center gap-2">
-                    <ExcelManager
-                        onDownloadExample={() => downloadExample.mutate()}
-                        onUploadExcel={handleUploadExcel}
-                        onUpdateByExcel={handleUpdateByExcel}
-                        isDownloading={downloadExample.isPending}
-                        isUploading={uploadExcel.isPending}
-                        isUpdating={updateByExcel.isPending}
-                    />
+                    <CatalogTableLink kind="supplies" />
                     <Button onClick={() => router.push(`${path}/new`)}>
-                        Создать supply
+                        Добавить вид поставки
                     </Button>
                 </div>
             </div>

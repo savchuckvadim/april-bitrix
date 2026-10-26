@@ -7,7 +7,7 @@
  */
 
 /**
- * Code of the contract
+ * Код вида договора — по нему генерация резолвит шаблоны; произвольные строки запрещены (опечатка молча превращала договор в internet).
  */
 export type ContractCode = typeof ContractCode[keyof typeof ContractCode];
 

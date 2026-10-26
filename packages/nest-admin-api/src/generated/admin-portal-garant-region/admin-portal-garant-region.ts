@@ -7,6 +7,8 @@
  */
 import type {
   AdminPortalGarantRegionListParams,
+  BulkSetPortalRegionsDto,
+  BulkSetPortalRegionsResultDto,
   CreatePortalRegionDtoAdminRequest,
   GetPortalRegionResponseDto,
   UpdatePortalRegionDtoAdmin
@@ -39,6 +41,20 @@ const adminPortalGarantRegionCreate = (
       {url: `/api/admin/portal/garant/regions`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: createPortalRegionDtoAdminRequest
+    },
+      );
+    }
+  /**
+ * Включает/выключает регионы портала и ставит собственный рабс (own_abs) одним запросом — под интерфейс с чекбоксами. Достаточно передавать только изменившиеся строки.
+ * @summary Массово применить чекбоксы регионов портала
+ */
+const adminPortalGarantRegionBulkSet = (
+    bulkSetPortalRegionsDto: BulkSetPortalRegionsDto,
+ ) => {
+      return customAxios<BulkSetPortalRegionsResultDto>(
+      {url: `/api/admin/portal/garant/regions/bulk`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: bulkSetPortalRegionsDto
     },
       );
     }
@@ -81,9 +97,10 @@ const adminPortalGarantRegionDelete = (
     },
       );
     }
-  return {adminPortalGarantRegionList,adminPortalGarantRegionCreate,adminPortalGarantRegionGetUpdateInitialData,adminPortalGarantRegionUpdate,adminPortalGarantRegionDelete}};
+  return {adminPortalGarantRegionList,adminPortalGarantRegionCreate,adminPortalGarantRegionBulkSet,adminPortalGarantRegionGetUpdateInitialData,adminPortalGarantRegionUpdate,adminPortalGarantRegionDelete}};
 export type AdminPortalGarantRegionListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalGarantRegion>['adminPortalGarantRegionList']>>>
 export type AdminPortalGarantRegionCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalGarantRegion>['adminPortalGarantRegionCreate']>>>
+export type AdminPortalGarantRegionBulkSetResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalGarantRegion>['adminPortalGarantRegionBulkSet']>>>
 export type AdminPortalGarantRegionGetUpdateInitialDataResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalGarantRegion>['adminPortalGarantRegionGetUpdateInitialData']>>>
 export type AdminPortalGarantRegionUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalGarantRegion>['adminPortalGarantRegionUpdate']>>>
 export type AdminPortalGarantRegionDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalGarantRegion>['adminPortalGarantRegionDelete']>>>

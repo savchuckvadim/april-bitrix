@@ -7,27 +7,17 @@ const h = vi.hoisted(() => ({
         ufKey: string;
     } | null,
     current: null as string | null,
-    mirror: null as {
-        entity: 'deal';
-        entityId: number;
-        ufKey: string;
-        value: string | null;
-        poolKey: string | null;
-        poolValues: unknown;
-    } | null,
     companyGet: vi.fn(),
     dealGet: vi.fn(),
     leadGet: vi.fn(),
-    companyUpdate: vi.fn(),
-    dealUpdate: vi.fn(),
-    reportFrontError: vi.fn(),
+    setInnOnServer: vi.fn(),
 }));
 
 vi.mock('@workspace/bitrix', () => ({
     Bitrix: {
         getService: () => ({
-            company: { get: h.companyGet, update: h.companyUpdate },
-            deal: { get: h.dealGet, update: h.dealUpdate },
+            company: { get: h.companyGet },
+            deal: { get: h.dealGet },
             lead: { get: h.leadGet },
         }),
     },
@@ -36,11 +26,10 @@ vi.mock('@workspace/bitrix', () => ({
 vi.mock('../lib/inn-selectors', () => ({
     getInnTarget: () => h.target,
     getCurrentInn: () => h.current,
-    getInnMirrorTarget: () => h.mirror,
 }));
 
-vi.mock('@/modules/shared/front-error', () => ({
-    reportFrontError: h.reportFrontError,
+vi.mock('../lib/api/inn-set-helper', () => ({
+    setInnOnServer: h.setInnOnServer,
 }));
 
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
@@ -61,13 +50,10 @@ const run = async () => {
 beforeEach(() => {
     h.target = { entity: 'deal', entityId: 27537, ufKey: UF };
     h.current = null;
-    h.mirror = null;
-    h.companyUpdate.mockReset();
-    h.dealUpdate.mockReset();
-    h.reportFrontError.mockReset();
     h.companyGet.mockReset();
     h.dealGet.mockReset();
     h.leadGet.mockReset();
+    h.setInnOnServer.mockReset();
 });
 
 /**
@@ -121,89 +107,96 @@ describe('refreshInnFromBitrix', () => {
     });
 });
 
+/** Стор фрейма: открыта сделка 27537 компании 5, сотрудник 447. */
+const STATE = {
+    app: {
+        domain: 'garant.bitrix24.ru',
+        bitrix: {
+            deal: { ID: '27537' },
+            company: { ID: '5' },
+            lead: null,
+            user: { ID: '447' },
+        },
+    },
+};
+
 const save = async (value: string) => {
-    const types: string[] = [];
-    const dispatch = ((action: { type: string }) => {
-        types.push(action.type);
+    const actions: Array<{ type: string; payload?: unknown }> = [];
+    const dispatch = ((action: { type: string; payload?: unknown }) => {
+        actions.push(action);
         return action;
     }) as unknown as AppDispatch;
-    const ok = await saveInn(value)(dispatch, (() => ({})) as AppGetState);
-    return { ok, types };
+    const ok = await saveInn(value)(
+        dispatch,
+        (() => STATE) as unknown as AppGetState,
+    );
+    return { ok, actions, types: actions.map(action => action.type) };
 };
 
 /**
- * Текущий ИНН — один в сделке и в компании (владелец, 06.10.2026): шапка,
- * записав ИНН компании, пишет его и в сделку.
+ * Шапка пишет ИНН через бэк (26.10.2026): раньше — прямо из браузера в
+ * компанию и сделку, мимо правил «Выбрать» и без записи в ленте.
  */
-describe('saveInn — второй носитель', () => {
-    const COMPANY = {
-        entity: 'company' as const,
-        entityId: 5,
-        ufKey: UF,
-        value: null,
-        poolKey: null,
-        poolValues: null,
-    };
-
-    it('ИНН компании уходит и в сделку, с пополнением её вариантов', async () => {
-        h.target = COMPANY;
-        h.mirror = {
+describe('saveInn — через бэк', () => {
+    it('в бэк уходят открытые сущности и автор, состояние — после ответа', async () => {
+        h.setInnOnServer.mockResolvedValue({
+            inn: '7707083893',
             entity: 'deal',
-            entityId: 27537,
-            ufKey: UF,
-            value: '7812032055',
-            poolKey: 'UF_CRM_OP_INN_POOL',
-            poolValues: ['7812032055'],
-        };
-        h.companyUpdate.mockResolvedValue(true);
-        h.dealUpdate.mockResolvedValue(true);
-
-        const { ok, types } = await save('7707083893');
-
-        expect(ok).toBe(true);
-        expect(h.companyUpdate).toHaveBeenCalledWith(5, { [UF]: '7707083893' });
-        expect(h.dealUpdate).toHaveBeenCalledWith(27537, {
-            [UF]: '7707083893',
-            UF_CRM_OP_INN_POOL: ['7812032055', '7707083893'],
+            warnings: [],
         });
-        expect(types).toContain('inn/setSaved');
-    });
 
-    it('в сделке уже этот ИНН или сделки нет — пишем только компанию', async () => {
-        h.target = COMPANY;
-        h.companyUpdate.mockResolvedValue(true);
-        await save('7707083893');
-
-        h.mirror = {
-            entity: 'deal',
-            entityId: 27537,
-            ufKey: UF,
-            value: '7707083893',
-            poolKey: null,
-            poolValues: null,
-        };
-        await save('7707083893');
-
-        expect(h.dealUpdate).not.toHaveBeenCalled();
-    });
-
-    it('сделка не приняла ИНН — сохранение компании не отменяем, сбой в отчёт', async () => {
-        h.target = COMPANY;
-        h.mirror = {
-            entity: 'deal',
-            entityId: 27537,
-            ufKey: UF,
-            value: null,
-            poolKey: null,
-            poolValues: null,
-        };
-        h.companyUpdate.mockResolvedValue(true);
-        h.dealUpdate.mockRejectedValue(new Error('сеть'));
-
-        const { ok, types } = await save('7707083893');
+        const { ok, types } = await save(' 7707083893 ');
 
         expect(ok).toBe(true);
-        expect(types).toContain('inn/setSaved');
-        expect(h.reportFrontError).toHaveBeenCalled();
+        expect(h.setInnOnServer).toHaveBeenCalledWith({
+            domain: 'garant.bitrix24.ru',
+            inn: '7707083893',
+            dealId: 27537,
+            companyId: 5,
+            leadId: undefined,
+            userId: 447,
+        });
+        expect(types).toEqual(['inn/setSaving', 'inn/setSaved']);
+    });
+
+    it('отказ бэка — его причина в шапке, ИНН не меняется', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        h.setInnOnServer.mockRejectedValue({
+            response: {
+                data: {
+                    message:
+                        'Сделка 27537 закрыта: ИНН договора можно только посмотреть.',
+                },
+            },
+        });
+
+        const { ok, actions } = await save('7707083893');
+
+        expect(ok).toBe(false);
+        expect(actions.at(-1)).toEqual({
+            type: 'inn/setError',
+            payload: {
+                message:
+                    'Сделка 27537 закрыта: ИНН договора можно только посмотреть.',
+            },
+        });
+    });
+
+    it('сеть упала — общая фраза вместо кода ответа', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        h.setInnOnServer.mockRejectedValue(new Error('Network Error'));
+
+        const { actions } = await save('7707083893');
+
+        expect(actions.at(-1)).toEqual({
+            type: 'inn/setError',
+            payload: { message: 'Не удалось сохранить ИНН — попробуйте ещё раз.' },
+        });
+    });
+
+    it('не ИНН — в бэк не ходим', async () => {
+        const { ok } = await save('12345');
+        expect(ok).toBe(false);
+        expect(h.setInnOnServer).not.toHaveBeenCalled();
     });
 });

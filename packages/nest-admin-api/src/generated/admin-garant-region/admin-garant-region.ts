@@ -75,21 +75,9 @@ const adminGarantRegionDelete = (
     },
       );
     }
-  /**
- * @summary Обновить регионы из Excel файла
- */
-const adminGarantRegionUpdateFromExcel = (
-    
- ) => {
-      return customAxios<GetRegionResponseDto[]>(
-      {url: `/api/admin/garant/regions/update-from-excel`, method: 'POST'
-    },
-      );
-    }
-  return {adminGarantRegionCreate,adminGarantRegionFindAll,adminGarantRegionFindOne,adminGarantRegionUpdate,adminGarantRegionDelete,adminGarantRegionUpdateFromExcel}};
+  return {adminGarantRegionCreate,adminGarantRegionFindAll,adminGarantRegionFindOne,adminGarantRegionUpdate,adminGarantRegionDelete}};
 export type AdminGarantRegionCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantRegion>['adminGarantRegionCreate']>>>
 export type AdminGarantRegionFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantRegion>['adminGarantRegionFindAll']>>>
 export type AdminGarantRegionFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantRegion>['adminGarantRegionFindOne']>>>
 export type AdminGarantRegionUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantRegion>['adminGarantRegionUpdate']>>>
 export type AdminGarantRegionDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantRegion>['adminGarantRegionDelete']>>>
-export type AdminGarantRegionUpdateFromExcelResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantRegion>['adminGarantRegionUpdateFromExcel']>>>

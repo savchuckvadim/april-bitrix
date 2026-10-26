@@ -5,11 +5,14 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { InfoblockGroupType } from './infoblockGroupType';
 import type { ComplectInfoblockValueDto } from './complectInfoblockValueDto';
 
 export interface ComplectDto {
-  /** Name of the complect */
+  /** Название группы (легаси groupsName) */
   groupsName: string;
-  /** Value of the complect */
-  type: ComplectInfoblockValueDto[];
+  /** Тип группы */
+  type: InfoblockGroupType;
+  /** Блоки группы */
+  value: ComplectInfoblockValueDto[];
 }

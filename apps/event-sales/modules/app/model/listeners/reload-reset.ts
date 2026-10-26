@@ -12,6 +12,7 @@ import { callChecklistActions } from '@/modules/features/CallChecklist/model/Cal
 import { stagePredictActions } from '@/modules/features/StagePredict/model/StagePredictSlice';
 import { leadMarksActions } from '@/modules/features/LeadMarks/model/LeadMarksSlice';
 import { innActions } from '@/modules/features/Inn/model/InnSlice';
+import { clientTypeActions } from '@/modules/features/ClientType/model/ClientTypeSlice';
 import { clientSignalsActions } from '@/modules/features/ClientSignals/model/ClientSignalsSlice';
 import { leadRequestActions } from '@/modules/features/LeadRequestCard/model/LeadRequestSlice';
 import { presentationLeadLinkActions } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
@@ -59,6 +60,7 @@ export const getReloadResetActions = (): UnknownAction[] => [
     stagePredictActions.reset(),
     leadMarksActions.reset(),
     innActions.reset(),
+    clientTypeActions.reset(),
     clientSignalsActions.reset(),
     leadRequestActions.reset(),
     presentationLeadLinkActions.resetForNewEvent(),

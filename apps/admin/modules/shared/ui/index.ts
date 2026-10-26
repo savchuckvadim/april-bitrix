@@ -3,7 +3,6 @@ export * from './confirm-dialog';
 export * from './preloader/screen/LoadingScreen';
 export * from './sidebar';
 export * from './scroll-content-wrapper/scroll-content-wrapper';
-export * from './excel-manager';
 export * from './form-field-renderer';
 export * from './form-submit-footer';
 export * from './entity-select';

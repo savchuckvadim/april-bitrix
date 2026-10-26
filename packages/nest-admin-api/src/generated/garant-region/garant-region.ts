@@ -68,17 +68,6 @@ const regionUpdate = (
       );
     }
   /**
- * @summary Обновить регионы из Excel файла
- */
-const regionUpdateFromExcel = (
-    
- ) => {
-      return customAxios<RegionEntity[]>(
-      {url: `/api/region/update-from-excel`, method: 'POST'
-    },
-      );
-    }
-  /**
  * @summary Получить регионы для портала
  */
 const portalRegionGetPortalRegions = (
@@ -128,12 +117,11 @@ const portalRegionDeletePortalRegion = (
     },
       );
     }
-  return {regionCreate,regionFindAll,regionFindOne,regionUpdate,regionUpdateFromExcel,portalRegionGetPortalRegions,portalRegionCreatePortalRegion,portalRegionUpdatePortalRegion,portalRegionDeletePortalRegion}};
+  return {regionCreate,regionFindAll,regionFindOne,regionUpdate,portalRegionGetPortalRegions,portalRegionCreatePortalRegion,portalRegionUpdatePortalRegion,portalRegionDeletePortalRegion}};
 export type RegionCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantRegion>['regionCreate']>>>
 export type RegionFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantRegion>['regionFindAll']>>>
 export type RegionFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantRegion>['regionFindOne']>>>
 export type RegionUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantRegion>['regionUpdate']>>>
-export type RegionUpdateFromExcelResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantRegion>['regionUpdateFromExcel']>>>
 export type PortalRegionGetPortalRegionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantRegion>['portalRegionGetPortalRegions']>>>
 export type PortalRegionCreatePortalRegionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantRegion>['portalRegionCreatePortalRegion']>>>
 export type PortalRegionUpdatePortalRegionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGarantRegion>['portalRegionUpdatePortalRegion']>>>

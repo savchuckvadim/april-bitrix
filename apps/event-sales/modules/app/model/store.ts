@@ -55,6 +55,7 @@ import {
 } from '@/modules/features/Duplicates';
 import { clientWorkReducer } from '@/modules/features/ClientWork';
 import { innReducer } from '@/modules/features/Inn';
+import { clientTypeReducer } from '@/modules/features/ClientType/model/ClientTypeSlice';
 import { clientSignalsReducer } from '@/modules/features/ClientSignals';
 import { leadMarksReducer } from '@/modules/features/LeadMarks';
 // Прямой путь: барель LeadRequestCard тянет UI (см. комментарий к AppSlice).
@@ -168,6 +169,7 @@ const rootReducer = combineReducers({
     duplicatesMerge: mergeCardsReducer,
     clientWork: clientWorkReducer,
     inn: innReducer,
+    clientType: clientTypeReducer,
     clientSignals: clientSignalsReducer,
     leadMarks: leadMarksReducer,
     leadRequest: leadRequestReducer,

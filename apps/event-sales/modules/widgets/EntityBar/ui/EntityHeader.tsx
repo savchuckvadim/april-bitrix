@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { ClientBar } from '@/modules/entities/EventCompany';
 import { useCurrentRelations } from '@/modules/entities/RelatedCrm';
 import { InnControl } from '@/modules/features/Inn';
+import { ClientTypeChip } from '@/modules/features/ClientType';
 import { HeadModeBanner } from '@/modules/features/HeadMode';
 import { EVENT_ROUTE_PATH, ROUTE_EVENT } from '@/modules/processes/event';
 import { useUiDensity } from '@/modules/app/lib/hooks/use-ui-density';
@@ -88,6 +89,7 @@ export const EntityHeader: FC = () => {
                                 в высокий хедер, после названия. */}
                             <ClientBar className="min-w-50" />
                             <InnControl echoWhenEmpty />
+                            <ClientTypeChip />
                         </div>
                     )}
 

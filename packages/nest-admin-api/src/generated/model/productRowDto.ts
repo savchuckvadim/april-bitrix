@@ -5,5 +5,34 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { ProductType } from './productType';
+import type { RowComplectDto } from './rowComplectDto';
+import type { ProductRowContractDto } from './productRowContractDto';
+import type { ProductRowSupplyDto } from './productRowSupplyDto';
+import type { RowPriceDto } from './rowPriceDto';
+import type { ProductDto } from './productDto';
+import type { SupplyDto } from './supplyDto';
 
-export interface ProductRowDto { [key: string]: unknown }
+export interface ProductRowDto {
+  /** Легаси-номер строки */
+  number: number;
+  name: string;
+  shortName: string;
+  defaultName?: string;
+  defaultShortName?: string;
+  alternativeName?: string;
+  alternativeShortName?: string;
+  /** general | alternative */
+  type: string;
+  /** id строки в сете (0 — главный товар) */
+  id: number;
+  setId: number;
+  isUpdating: boolean;
+  productType?: ProductType;
+  complect: RowComplectDto;
+  contract: ProductRowContractDto;
+  supply?: ProductRowSupplyDto;
+  price: RowPriceDto;
+  product: ProductDto;
+  currentSupply: SupplyDto;
+}

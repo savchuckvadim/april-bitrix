@@ -52,6 +52,10 @@ export interface DeepRoute {
     isHooks: boolean;
     /** «Хуки и автоматика» карточки портала (`/portal/:id/hooks`). */
     isPortalHooks: boolean;
+    /** Раздел «Поддержка клиентов» (`/support`). */
+    isSupport: boolean;
+    /** Раздел «Журналы» (`/logs`): журналы всех приложений из ClickHouse. */
+    isLogs: boolean;
 }
 
 /**
@@ -85,6 +89,8 @@ export const resolveDeepRoute = (
     const isAiAnalyticsModel = isAiAnalytics && second === 'model';
     const isAiAnalyticsGuide = isAiAnalytics && second === 'guide';
     const isHooks = root === 'hooks';
+    const isSupport = root === 'support';
+    const isLogs = root === 'logs';
     const isPortalList = isPortal && second === 'list';
 
     const isPortalGarant = isPortal && portalSection === 'garant';
@@ -161,5 +167,7 @@ export const resolveDeepRoute = (
         isPortalStatisticsAi,
         isHooks,
         isPortalHooks,
+        isSupport,
+        isLogs,
     };
 };

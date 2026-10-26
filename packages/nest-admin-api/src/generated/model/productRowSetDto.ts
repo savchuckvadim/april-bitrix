@@ -5,5 +5,13 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { ProductRowSetItemDto } from './productRowSetItemDto';
+import type { ProductRowDto } from './productRowDto';
 
-export interface ProductRowSetDto { [key: string]: unknown }
+export interface ProductRowSetDto {
+  id: number;
+  /** Сет показан свёрнуто (одной строкой) */
+  show: boolean;
+  rows: ProductRowSetItemDto;
+  total: ProductRowDto[];
+}

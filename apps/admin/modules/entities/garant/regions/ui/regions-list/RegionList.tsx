@@ -7,6 +7,7 @@ import { ConfirmDialog } from '@/modules/shared';
 import { GetRegionResponseDto } from '@workspace/nest-admin-api';
 import { useDeleteRegion, useRegions } from '../../lib/hooks/use-regions';
 import { RegionTable } from '../regions-table';
+import { CatalogTableLink } from '@/modules/entities/garant/catalog-table';
 
 export function RegionList() {
     const router = useRouter();
@@ -42,10 +43,19 @@ export function RegionList() {
     return (
         <>
             <div className="flex items-center justify-between mb-4">
-                <h1 className="text-3xl font-bold">Regions</h1>
-                <Button onClick={() => router.push('/regions/new')}>
-                    Создать region
-                </Button>
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold">Регионы</h1>
+                    <p className="text-muted-foreground text-sm">
+                        Рабс региона. Много значений сразу удобнее править
+                        таблицей.
+                    </p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <CatalogTableLink kind="regions" />
+                    <Button onClick={() => router.push('/regions/new')}>
+                        Добавить регион
+                    </Button>
+                </div>
             </div>
 
             <RegionTable

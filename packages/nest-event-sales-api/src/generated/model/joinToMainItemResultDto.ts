@@ -32,6 +32,12 @@ export interface JoinToMainItemResultDto {
     activitiesMoved: number;
     /** Сделка-дубль закрыта стадией «Дубль» этим прогоном. */
     closedAsDuplicate: boolean;
+    /** Сколько открытых сделок ХО дубля закрыто в «Не состоялся». */
+    xoClosed: number;
+    /** Сколько сделок презентаций дубля (открытых и закрытых) перешло к основной. */
+    presentationsRelinked: number;
+    /** Сколько открытых ЗПР дубля перешло к основной. */
+    zprRelinked: number;
     /** Присоединение не выполнено (чужая воронка, основная закрыта, сделка не найдена) — причина в warnings. */
     skipped: boolean;
     /** Предупреждения graceful degradation. */

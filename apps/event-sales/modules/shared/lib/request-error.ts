@@ -40,3 +40,15 @@ export const isSlowServerError = (error: unknown): boolean => {
 /** Текст для менеджера, когда сервер не успел ответить. */
 export const SLOW_SERVER_TEXT =
     'Сервер долго не отвечает. Попробуйте ещё раз чуть позже.';
+
+/**
+ * Причина отказа от нашего сервера — как есть: Nest кладёт её в
+ * `response.data.message` («не похоже на ИНН», «сделка закрыта»). Нет
+ * причины — общая фраза: «Request failed with status code 500» менеджеру
+ * ни о чём.
+ */
+export const serverReasonText = (error: unknown, fallback: string): string => {
+    const message = (error as { response?: { data?: { message?: unknown } } })
+        ?.response?.data?.message;
+    return typeof message === 'string' && message ? message : fallback;
+};

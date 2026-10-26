@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-  AdminGarantProfPriceUploadExcelBody,
   CreatePriceDto,
   PriceEntityDto
 } from '.././model';
@@ -37,46 +36,6 @@ const adminGarantProfPriceFindAll = (
  ) => {
       return customAxios<PriceEntityDto[]>(
       {url: `/api/admin/garant/prof-prices`, method: 'GET'
-    },
-      );
-    }
-  /**
- * @summary Скачать пример таблицы цен
- */
-const adminGarantProfPriceDownloadExample = (
-    
- ) => {
-      return customAxios<Blob>(
-      {url: `/api/admin/garant/prof-prices/download-example`, method: 'GET',
-        responseType: 'blob'
-    },
-      );
-    }
-  /**
- * @summary Обновить цены из Excel файла
- */
-const adminGarantProfPriceUpdateFromExcel = (
-    
- ) => {
-      return customAxios<PriceEntityDto[]>(
-      {url: `/api/admin/garant/prof-prices/update-from-excel`, method: 'POST'
-    },
-      );
-    }
-  /**
- * @summary Загрузить таблицу цен и обновить существующие
- */
-const adminGarantProfPriceUploadExcel = (
-    adminGarantProfPriceUploadExcelBody: AdminGarantProfPriceUploadExcelBody,
- ) => {const formData = new FormData();
-if(adminGarantProfPriceUploadExcelBody.file !== undefined) {
- formData.append(`file`, adminGarantProfPriceUploadExcelBody.file)
- }
-
-      return customAxios<PriceEntityDto[]>(
-      {url: `/api/admin/garant/prof-prices/upload-excel`, method: 'POST',
-      headers: {'Content-Type': 'multipart/form-data', },
-       data: formData
     },
       );
     }
@@ -140,12 +99,9 @@ const adminGarantProfPriceDeleteMany = (
     },
       );
     }
-  return {adminGarantProfPriceCreate,adminGarantProfPriceFindAll,adminGarantProfPriceDownloadExample,adminGarantProfPriceUpdateFromExcel,adminGarantProfPriceUploadExcel,adminGarantProfPriceFindOne,adminGarantProfPriceUpdate,adminGarantProfPriceDelete,adminGarantProfPriceDeleteAll,adminGarantProfPriceDeleteMany}};
+  return {adminGarantProfPriceCreate,adminGarantProfPriceFindAll,adminGarantProfPriceFindOne,adminGarantProfPriceUpdate,adminGarantProfPriceDelete,adminGarantProfPriceDeleteAll,adminGarantProfPriceDeleteMany}};
 export type AdminGarantProfPriceCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantProfPrice>['adminGarantProfPriceCreate']>>>
 export type AdminGarantProfPriceFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantProfPrice>['adminGarantProfPriceFindAll']>>>
-export type AdminGarantProfPriceDownloadExampleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantProfPrice>['adminGarantProfPriceDownloadExample']>>>
-export type AdminGarantProfPriceUpdateFromExcelResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantProfPrice>['adminGarantProfPriceUpdateFromExcel']>>>
-export type AdminGarantProfPriceUploadExcelResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantProfPrice>['adminGarantProfPriceUploadExcel']>>>
 export type AdminGarantProfPriceFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantProfPrice>['adminGarantProfPriceFindOne']>>>
 export type AdminGarantProfPriceUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantProfPrice>['adminGarantProfPriceUpdate']>>>
 export type AdminGarantProfPriceDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantProfPrice>['adminGarantProfPriceDelete']>>>

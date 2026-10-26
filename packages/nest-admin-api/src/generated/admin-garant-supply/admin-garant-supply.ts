@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-  AdminGarantSupplyUploadExcelBody,
   CreateSupplyDto,
   GetSupplyResponseDto
 } from '.././model';
@@ -41,46 +40,6 @@ const adminGarantSupplyFindAll = (
       );
     }
   /**
- * @summary Скачать пример таблицы поставок
- */
-const adminGarantSupplyDownloadExample = (
-    
- ) => {
-      return customAxios<Blob>(
-      {url: `/api/admin/garant/supplies/download-example`, method: 'GET',
-        responseType: 'blob'
-    },
-      );
-    }
-  /**
- * @summary Обновить поставки из Excel файла
- */
-const adminGarantSupplyUpdateFromExcel = (
-    
- ) => {
-      return customAxios<GetSupplyResponseDto[]>(
-      {url: `/api/admin/garant/supplies/update-from-excel`, method: 'POST'
-    },
-      );
-    }
-  /**
- * @summary Загрузить таблицу поставок и обновить существующие
- */
-const adminGarantSupplyUploadExcel = (
-    adminGarantSupplyUploadExcelBody: AdminGarantSupplyUploadExcelBody,
- ) => {const formData = new FormData();
-if(adminGarantSupplyUploadExcelBody.file !== undefined) {
- formData.append(`file`, adminGarantSupplyUploadExcelBody.file)
- }
-
-      return customAxios<GetSupplyResponseDto[]>(
-      {url: `/api/admin/garant/supplies/upload-excel`, method: 'POST',
-      headers: {'Content-Type': 'multipart/form-data', },
-       data: formData
-    },
-      );
-    }
-  /**
  * @summary Получить поставку по ID
  */
 const adminGarantSupplyFindOne = (
@@ -105,11 +64,8 @@ const adminGarantSupplyUpdate = (
     },
       );
     }
-  return {adminGarantSupplyCreate,adminGarantSupplyFindAll,adminGarantSupplyDownloadExample,adminGarantSupplyUpdateFromExcel,adminGarantSupplyUploadExcel,adminGarantSupplyFindOne,adminGarantSupplyUpdate}};
+  return {adminGarantSupplyCreate,adminGarantSupplyFindAll,adminGarantSupplyFindOne,adminGarantSupplyUpdate}};
 export type AdminGarantSupplyCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantSupply>['adminGarantSupplyCreate']>>>
 export type AdminGarantSupplyFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantSupply>['adminGarantSupplyFindAll']>>>
-export type AdminGarantSupplyDownloadExampleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantSupply>['adminGarantSupplyDownloadExample']>>>
-export type AdminGarantSupplyUpdateFromExcelResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantSupply>['adminGarantSupplyUpdateFromExcel']>>>
-export type AdminGarantSupplyUploadExcelResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantSupply>['adminGarantSupplyUploadExcel']>>>
 export type AdminGarantSupplyFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantSupply>['adminGarantSupplyFindOne']>>>
 export type AdminGarantSupplyUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantSupply>['adminGarantSupplyUpdate']>>>

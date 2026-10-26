@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
     innValidationError,
     isValidInn,
-    mergeInnPool,
     normalizeInn,
 } from './inn-validate';
 
@@ -40,20 +39,5 @@ describe('innValidationError', () => {
         expect(innValidationError('')).toBe('Введите ИНН');
         expect(innValidationError('12345')).toContain('5 цифр');
         expect(innValidationError('7707083894')).toContain('контрольная сумма');
-    });
-});
-
-describe('mergeInnPool', () => {
-    it('уникально сливает существующие и новые, порядок сохраняется', () => {
-        expect(
-            mergeInnPool(['7707083893'], '500100732259', '7707083893'),
-        ).toEqual(['7707083893', '500100732259']);
-    });
-
-    it('невалидные и пустые отбрасываются, скаляр existing поддержан', () => {
-        expect(mergeInnPool('7707083893', null, '123')).toEqual(['7707083893']);
-        expect(mergeInnPool(undefined, '500100732259')).toEqual([
-            '500100732259',
-        ]);
     });
 });

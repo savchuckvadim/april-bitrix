@@ -5,5 +5,9 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { ContractSpecificationItemDto } from './contractSpecificationItemDto';
 
-export interface ContractSpecificationDto { [key: string]: unknown }
+export interface ContractSpecificationDto {
+  /** Строки спецификации */
+  items: ContractSpecificationItemDto[];
+}

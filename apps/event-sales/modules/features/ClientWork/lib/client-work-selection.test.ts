@@ -99,6 +99,9 @@ describe('«Открытые сделки по клиенту»: выбор ру
             contactsLinked: 0,
             leadsRelinked: 0,
             closedAsDuplicate: true,
+            xoClosed: 0,
+            presentationsRelinked: 0,
+            zprRelinked: 0,
         };
         expect(
             summarizeJoin(1, {

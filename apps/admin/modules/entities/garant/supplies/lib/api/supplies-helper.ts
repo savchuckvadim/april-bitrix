@@ -1,5 +1,5 @@
 import { getAdminGarantSupply } from "@workspace/nest-admin-api";
-import { CreateSupplyDto, AdminGarantSupplyUploadExcelBody } from "../../model";
+import { CreateSupplyDto } from "../../model";
 
 export class SuppliesHelper {
     private api: ReturnType<typeof getAdminGarantSupply>;
@@ -27,16 +27,4 @@ export class SuppliesHelper {
         return response;
     }
 
-    async downLoadExcelExample() {
-        const response = await this.api.adminGarantSupplyDownloadExample();
-        return response;
-    }
-    async upLoadExcel(dto: AdminGarantSupplyUploadExcelBody) {
-        const response = await this.api.adminGarantSupplyUploadExcel(dto);
-        return response;
-    }
-    async updateByExcel() {
-        const response = await this.api.adminGarantSupplyUpdateFromExcel();
-        return response;
-    }
 }

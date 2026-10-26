@@ -208,6 +208,40 @@ export const hooksEntities: Entity[] = [
 ];
 
 
+// Раздел «Журналы» (верхний уровень): url — полный путь.
+export const logsEntities: Entity[] = [
+    {
+        id: 45,
+        item: {
+            name: 'logs',
+            title: 'Журналы приложений',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/logs',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
+
+// Раздел «Поддержка клиентов» (верхний уровень): url — полный путь.
+export const supportEntities: Entity[] = [
+    {
+        id: 44,
+        item: {
+            name: 'support',
+            title: 'Путеводитель и проверка линии',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/support',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
+
 export const portalEntities: Entity[] = [
 
     {
@@ -513,6 +547,21 @@ export const portalProviderEntities: Entity[] = [
 
 export const garantEntities: Entity[] = [
 
+    // Массовое обновление каталога таблицами (скачать текущие данные →
+    // поправить → загрузить) + первое наполнение справочников.
+    {
+        id: 2,
+        item: {
+            name: 'catalog-tables',
+            title: 'Таблицы каталога',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/catalog-tables',
+                method: API_METHOD.GET
+            }
+        },
+
+    },
 
     {
         id: 3,

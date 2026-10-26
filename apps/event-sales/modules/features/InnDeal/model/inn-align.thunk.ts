@@ -9,29 +9,15 @@ import { InnDealHelper } from '../lib/api/inn-deal-helper';
 
 const helper = new InnDealHelper();
 
-const STORAGE_PREFIX = 'event-sales:inn-align';
-
-/** Уже выравнивали в этой вкладке — второй раз не ходим. */
-const markAligned = (domain: string, dealId: number): boolean => {
-    try {
-        const key = `${STORAGE_PREFIX}:${domain}:${dealId}`;
-        if (window.sessionStorage.getItem(key) === '1') return false;
-        window.sessionStorage.setItem(key, '1');
-        return true;
-    } catch {
-        // Нет хранилища — выравниваем: бэк сам ничего не пишет без нужды.
-        return true;
-    }
-};
-
 /**
  * Текущий ИНН сделки — при открытии, а не только во вкладке «ИНН»
  * (владелец 25.10.2026).
  *
  * Сделка с компанией, и у одной из сторон ИНН пуст → бэк лёгким чтением
  * (сделка, компания, её реквизиты) дописывает пустую сторону: из другой
- * стороны или из реквизита компании. Один вызов на сделку за вкладку;
- * обе стороны заполнены — в сеть не ходим. Ответ сразу ставится в шапку.
+ * стороны или из реквизита компании. Обе стороны заполнены — в сеть не
+ * ходим; повторы одного открытия режет бэк (отметка в Redis на 15 минут,
+ * владелец 26.10.2026). Ответ сразу ставится в шапку.
  */
 export const alignDealInnOnOpen =
     () => async (dispatch: AppDispatch, getState: AppGetState) => {
@@ -46,7 +32,6 @@ export const alignDealInnOnOpen =
         if (!domain || !deal || !dealTarget || !companyTarget) return;
         if (String(deal.CLOSED ?? '').toUpperCase() === 'Y') return;
         if (dealTarget.value && companyTarget.value) return;
-        if (!markAligned(domain, dealTarget.entityId)) return;
 
         try {
             const { current } = await helper.align(

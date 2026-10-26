@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { Button } from '@workspace/ui/components/button';
-import { ConfirmDialog, ExcelManager } from '@/modules/shared/ui';
+import { ConfirmDialog } from '@/modules/shared/ui';
+import { CatalogTableLink } from '@/modules/entities/garant/catalog-table';
 import {
 
     useProfPriceFilter,
@@ -26,13 +27,8 @@ export function ProfPricesList() {
         handleEdit,
         handleDelete,
         confirmDelete,
-        handleUploadExcel,
-        handleUpdateByExcel,
         toNew,
         setDeleteDialogOpen,
-        downloadExample,
-        uploadExcel,
-        updateByExcel,
     } = useProfPriceList();
     // Инкапсулированная логика фильтрации
     const {
@@ -49,19 +45,17 @@ export function ProfPricesList() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold">Prof Prices</h1>
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold">Цены</h1>
+                    <p className="text-muted-foreground text-sm">
+                        Здесь правят отдельные цены. Чтобы обновить много
+                        сразу — скачайте таблицу, поправьте и загрузите
+                        обратно.
+                    </p>
+                </div>
                 <div className="flex items-center gap-2">
-                    <ExcelManager
-                        onDownloadExample={() => downloadExample.mutate()}
-                        onUploadExcel={handleUploadExcel}
-                        onUpdateByExcel={handleUpdateByExcel}
-                        isDownloading={downloadExample.isPending}
-                        isUploading={uploadExcel.isPending}
-                        isUpdating={updateByExcel.isPending}
-                    />
-                    <Button onClick={toNew}>
-                        Создать prof price
-                    </Button>
+                    <CatalogTableLink kind="prices" />
+                    <Button onClick={toNew}>Добавить цену</Button>
                     <DeletePrice type='all' />
                 </div>
             </div>

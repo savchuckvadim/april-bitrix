@@ -16,6 +16,8 @@ import {
     portalPbxEntities,
     portalProviderEntities,
     portalQuestionnairesEntities,
+    supportEntities,
+    logsEntities,
 } from '../consts/routes.consts';
 
 const PORTAL_ID = '42';
@@ -36,6 +38,33 @@ const PORTAL_SECTIONS = [
     { section: 'konstructor', entities: portalKonstructorEntities },
     { section: 'hooks', entities: portalHooksEntities },
 ] as const;
+
+describe('resolveDeepRoute: раздел «Поддержка клиентов»', () => {
+    it('/support — верхний уровень со своим меню, не портал и не хуки', () => {
+        const route = resolveDeepRoute('/support', '');
+
+        expect(route.isSupport).toBe(true);
+        expect(route.isPortal).toBe(false);
+        expect(route.isHooks).toBe(false);
+        expect(resolveSideBar(route)).toEqual({
+            currentNavItems: supportEntities,
+            baseUrl: '',
+        });
+    });
+});
+
+describe('resolveDeepRoute: раздел «Журналы»', () => {
+    it('/logs — верхний уровень со своим меню', () => {
+        const route = resolveDeepRoute('/logs', '');
+
+        expect(route.isLogs).toBe(true);
+        expect(route.isSupport).toBe(false);
+        expect(resolveSideBar(route)).toEqual({
+            currentNavItems: logsEntities,
+            baseUrl: '',
+        });
+    });
+});
 
 describe('resolveDeepRoute: раздел «Хуки и автоматика»', () => {
     it('/hooks — верхний уровень со своим меню, не портал', () => {

@@ -49,6 +49,7 @@ const EXPECTED_RESET_SLICES = [
     'stagePredict',
     'leadMarks',
     'inn',
+    'clientType',
     'clientSignals',
     'leadRequest',
     'presentationLeadLink',

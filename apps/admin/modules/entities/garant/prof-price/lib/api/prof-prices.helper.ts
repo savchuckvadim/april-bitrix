@@ -1,4 +1,4 @@
-import { ProfPriceUploadExcelDto, CreatePriceDto } from "../../model";
+import { CreatePriceDto } from "../../model";
 import { getAdminGarantProfPrice } from "@workspace/nest-admin-api";
 
 export class ProfPricesHelper {
@@ -20,18 +20,6 @@ export class ProfPricesHelper {
     }
     async get(id: string) {
         const response = await this.api.adminGarantProfPriceFindOne(id);
-        return response;
-    }
-    async downLoadExcelExample() {
-        const response = await this.api.adminGarantProfPriceDownloadExample();
-        return response;
-    }
-    async upLoadExcel(dto: ProfPriceUploadExcelDto) {
-        const response = await this.api.adminGarantProfPriceUploadExcel(dto);
-        return response;
-    }
-    async updateByExcel() {
-        const response = await this.api.adminGarantProfPriceUpdateFromExcel();
         return response;
     }
 

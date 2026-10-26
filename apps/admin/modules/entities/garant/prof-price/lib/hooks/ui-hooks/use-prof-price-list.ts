@@ -1,12 +1,7 @@
 'use client'
 
 import { PriceEntity } from '@/modules/entities/garant/prof-price/model';
-import {
-    useProfPrices,
-    useDownloadExcelExample,
-    useUploadExcel,
-    useUpdateByExcel,
-} from '@/modules/entities/garant/prof-price/lib/hooks';
+import { useProfPrices } from '@/modules/entities/garant/prof-price/lib/hooks';
 
 import { useComplects } from '@/modules/entities/garant/complect';
 import { useSupplies } from '@/modules/entities/garant/supplies';
@@ -15,7 +10,10 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 const path = PROF_PRICE_PATH;
 
-
+/**
+ * Список цен: точечные правки. Массовое обновление — таблицей каталога
+ * (modules/entities/garant/catalog-table).
+ */
 export function useProfPriceList() {
     const router = useRouter();
     const { data: profPrices, isLoading } = useProfPrices();
@@ -23,11 +21,6 @@ export function useProfPriceList() {
     const [profPriceToDelete, setProfPriceToDelete] = React.useState<string | null>(null);
     const { data: complects } = useComplects();
     const { data: supplies } = useSupplies();
-
-
-    const downloadExample = useDownloadExcelExample();
-    const uploadExcel = useUploadExcel();
-    const updateByExcel = useUpdateByExcel();
 
     const handleRowClick = (profPrice: PriceEntity) => {
         router.push(`${path}/${profPrice.id}`);
@@ -50,14 +43,6 @@ export function useProfPriceList() {
         }
     };
 
-    const handleUploadExcel = (file: File) => {
-        uploadExcel.mutate({ file });
-    };
-
-    const handleUpdateByExcel = () => {
-        updateByExcel.mutate();
-    };
-
     const toNew = () => {
         router.push(`${path}/new`);
     };
@@ -73,14 +58,7 @@ export function useProfPriceList() {
         handleEdit,
         handleDelete,
         confirmDelete,
-        handleUploadExcel,
-        handleUpdateByExcel,
         toNew,
         setDeleteDialogOpen,
-        downloadExample,
-        uploadExcel,
-        updateByExcel,
-
-
     };
 }

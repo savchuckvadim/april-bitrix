@@ -45,6 +45,11 @@ export const JoinToMainAction: FC<JoinToMainActionProps> = ({ view }) => {
             result.leadsRelinked ? `лидов: ${result.leadsRelinked}` : null,
             result.tasksMoved ? `задач: ${result.tasksMoved}` : null,
             result.activitiesMoved ? `дел: ${result.activitiesMoved}` : null,
+            result.presentationsRelinked
+                ? `презентаций: ${result.presentationsRelinked}`
+                : null,
+            result.zprRelinked ? `ЗПР: ${result.zprRelinked}` : null,
+            result.xoClosed ? `ХО закрыто: ${result.xoClosed}` : null,
         ].filter(Boolean);
         return (
             <div className="space-y-2 rounded-md border border-success/40 bg-success/5 p-2">

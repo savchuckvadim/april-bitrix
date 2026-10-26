@@ -2,12 +2,16 @@
 
 import * as React from 'react';
 
-import { PortalRegionsTable } from '../../ui/portalRegions-table';
-import { Button } from '@workspace/ui/components/button';
-import { GetPortalRegionResponseDto } from '../../model';
 import { usePortalRegionsList } from '../../lib/hooks/';
+import { usePortalRegionsDraft } from '../../lib/hooks/use-portalRegions-bulk';
 import { PortalRegionsFilter } from './components/PortalRegionsFilter';
+import { PortalRegionsBulkBar } from '../portalRegions-bulk/PortalRegionsBulkBar';
+import { PortalRegionsBulkTable } from '../portalRegions-bulk/PortalRegionsBulkTable';
 
+/**
+ * Регионы портала: отмечаем галочками, какие доступны, и при
+ * необходимости задаём свой рабс. Все правки уходят одним сохранением.
+ */
 export function PortalRegionsList({ portalId }: { portalId: number }) {
     const {
         regions,
@@ -18,21 +22,28 @@ export function PortalRegionsList({ portalId }: { portalId: number }) {
         setIsOwnRegionsFilter,
         isNotOwnRegionsFilter,
         setIsNotOwnRegionsFilter,
-
-        handleRowClick,
-        handleEdit,
-        // handleDelete,
-        // confirmDelete,
-        handleCheckboxChange,
     } = usePortalRegionsList(portalId);
 
+    const draft = usePortalRegionsDraft(portalId, regions);
+
     return (
-        <>
-
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold">Portal Regions</h1>
-
+        <div className="space-y-4">
+            <div className="space-y-1">
+                <h1 className="text-3xl font-bold">Регионы портала</h1>
+                <p className="text-muted-foreground text-sm">
+                    Отметьте регионы, с которыми работает этот портал. Общий
+                    справочник регионов и их рабсы — в разделе «Гарант».
+                </p>
             </div>
+
+            <PortalRegionsBulkBar
+                changesCount={draft.changesCount}
+                isSaving={draft.isSaving}
+                result={draft.result}
+                error={draft.error}
+                onSave={() => void draft.save()}
+                onReset={draft.reset}
+            />
 
             <PortalRegionsFilter
                 search={search}
@@ -43,15 +54,14 @@ export function PortalRegionsList({ portalId }: { portalId: number }) {
                 onNotOwnRegionsFilterChange={setIsNotOwnRegionsFilter}
             />
 
-            <PortalRegionsTable
-                onCheckboxChange={handleCheckboxChange}
-                data={regions}
+            <PortalRegionsBulkTable
+                regions={regions ?? []}
                 isLoading={isLoading}
-                onRowClick={(region: GetPortalRegionResponseDto) => handleRowClick(Number(region.id))}
-                onEdit={handleEdit}
-
+                effective={draft.effective}
+                changes={draft.changes}
+                onToggle={draft.toggle}
+                onOwnAbsChange={draft.setOwnAbs}
             />
-
-        </>
+        </div>
     );
 }

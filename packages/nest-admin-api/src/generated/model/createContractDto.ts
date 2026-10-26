@@ -5,6 +5,7 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { ContractCode } from './contractCode';
 
 export interface CreateContractDto {
   /** Contract name */
@@ -13,8 +14,8 @@ export interface CreateContractDto {
   number: number;
   /** Contract title */
   title: string;
-  /** Contract code */
-  code: string;
+  /** Код вида договора — по нему генерация резолвит шаблоны; произвольные строки запрещены (опечатка молча превращала договор в internet). */
+  code: ContractCode;
   /** Contract type */
   type: string;
   /** With prepayment */

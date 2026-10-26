@@ -15,6 +15,8 @@ export * from './admin-btx-rpas-management/admin-btx-rpas-management';
 export * from './admin-bx-rqs-management/admin-bx-rqs-management';
 export * from './admin-client-management/admin-client-management';
 export * from './admin-contracts-management/admin-contracts-management';
+export * from './admin-garant-catalog-tables/admin-garant-catalog-tables';
+export * from './admin-garant-catalog-seed/admin-garant-catalog-seed';
 export * from './admin-garant-complect/admin-garant-complect';
 export * from './admin-garant-info-group/admin-garant-info-group';
 export * from './admin-garant-infoblock-package/admin-garant-infoblock-package';

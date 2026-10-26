@@ -76,9 +76,22 @@ const adminGarantPackageUpdate = (
     },
       );
     }
-  return {adminGarantPackageCreate,adminGarantPackageFindAll,adminGarantPackageFindByCode,adminGarantPackageFindOne,adminGarantPackageUpdate}};
+  /**
+ * Удаляет пакет услуг по ID. Возвращает true, если пакет найден и удалён.
+ * @summary Удалить пакет
+ */
+const adminGarantPackageDelete = (
+    id: string,
+ ) => {
+      return customAxios<boolean>(
+      {url: `/api/admin/garant/packages/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  return {adminGarantPackageCreate,adminGarantPackageFindAll,adminGarantPackageFindByCode,adminGarantPackageFindOne,adminGarantPackageUpdate,adminGarantPackageDelete}};
 export type AdminGarantPackageCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantPackage>['adminGarantPackageCreate']>>>
 export type AdminGarantPackageFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantPackage>['adminGarantPackageFindAll']>>>
 export type AdminGarantPackageFindByCodeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantPackage>['adminGarantPackageFindByCode']>>>
 export type AdminGarantPackageFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantPackage>['adminGarantPackageFindOne']>>>
 export type AdminGarantPackageUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantPackage>['adminGarantPackageUpdate']>>>
+export type AdminGarantPackageDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminGarantPackage>['adminGarantPackageDelete']>>>

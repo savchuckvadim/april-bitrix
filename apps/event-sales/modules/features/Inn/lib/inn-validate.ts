@@ -51,22 +51,3 @@ export const innValidationError = (raw: string): string | null => {
     }
     return null;
 };
-
-/**
- * Склад кандидатов ИНН: слияние существующих значений multiple-поля с новыми,
- * уникально и только валидные. Порядок сохраняется, новые — в конец.
- */
-export const mergeInnPool = (
-    existing: unknown,
-    ...values: Array<string | null | undefined>
-): string[] => {
-    const pool: string[] = [];
-    const push = (raw: unknown) => {
-        const digits = normalizeInn(typeof raw === 'string' ? raw : null);
-        if (digits && !pool.includes(digits)) pool.push(digits);
-    };
-    if (Array.isArray(existing)) existing.forEach(push);
-    else push(existing);
-    values.forEach(push);
-    return pool;
-};

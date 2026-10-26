@@ -1,6 +1,7 @@
 import { customAxios } from '@workspace/nest-event-sales-api';
 import { withRetry } from '@/modules/shared/lib/with-retry';
 import type {
+    InnAlignResult,
     InnChooseRequest,
     InnHideRequest,
     InnSnapshot,
@@ -42,6 +43,19 @@ export class InnDealHelper {
             url: `${INN_URL}/${dealId}/choose`,
             method: 'POST',
             data: request,
+        });
+    }
+
+    /**
+     * Выровнять текущий ИНН сделки без вкладки (лёгкое чтение на бэке):
+     * пустая сторона дописывается из компании или её реквизита. Без
+     * `withRetry`: при успехе остаётся запись в таймлайне.
+     */
+    async align(dealId: number, domain: string): Promise<InnAlignResult> {
+        return customAxios<InnAlignResult>({
+            url: `${INN_URL}/${dealId}/align`,
+            method: 'POST',
+            data: { domain },
         });
     }
 

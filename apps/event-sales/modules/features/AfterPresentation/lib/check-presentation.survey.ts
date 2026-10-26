@@ -7,6 +7,7 @@ import type { EvPresentationSurvey } from '@/modules/processes/event/model';
 import type { CheckPresentationValue } from '../type/check-presentation-type';
 import {
     buildFiveKSummary,
+    buildXvostSummary,
     translateSurveyCodes,
 } from './check-presentation.persist';
 import { selectIsCheckPresentationApplicable } from './check-presentation.selectors';
@@ -40,7 +41,6 @@ export type CheckPresentationSurvey = EvPresentationSurvey;
 
 const FIVE_K_CODES = new Set(FIVE_K_TEMPLATES.map(t => t.code));
 const XVOST_CODES = new Set(XVOST_TEMPLATES.map(t => t.code));
-const XVOST_CODE = 'op_presentation_xvost';
 
 /**
  * Непустой текстовый ответ; всё прочее — не ответ.
@@ -75,22 +75,24 @@ const pickBlock = (
 
 /**
  * Ответы опросника → блок `survey` payload'а. Чистая функция: на вход —
- * ответы КАК ИХ ХРАНИТ опросник (коды вопросов) и готовая сводка «Пять К».
+ * ответы КАК ИХ ХРАНИТ опросник (коды вопросов) и готовые сводки «Пять К»
+ * и «Хвоста» (обе собираются из блоков, руками их не пишут).
  *
  * Коды переводятся здесь же (`xo_*` → `op_talk_*`): дальше этой границы
  * коды опросника не живут — ни фрейм-запись, ни бэк их не знают. Ключи вне
- * блоков контракта (булев «Хвост», даты подхода) в payload не едут: у
- * ручки их тоже не было, их пишет фрейм-запись.
+ * блоков контракта (даты подхода) в payload не едут: у ручки их тоже не
+ * было, их пишет фрейм-запись.
  */
 export const buildCheckPresentationSurvey = (
     answers: Record<string, CheckPresentationValue>,
     fiveKSummary: string | null,
+    xvostSummary: string | null = null,
 ): CheckPresentationSurvey | undefined => {
     const portalAnswers = translateSurveyCodes(answers);
 
     const fiveK = pickBlock(portalAnswers, FIVE_K_CODES);
     const talk = pickBlock(portalAnswers, XVOST_CODES);
-    const xvost = asAnswerText(portalAnswers[XVOST_CODE]);
+    const xvost = asAnswerText(xvostSummary ?? undefined);
 
     const survey: CheckPresentationSurvey = {
         ...(Object.keys(fiveK).length ? { fiveK } : {}),
@@ -103,27 +105,55 @@ export const buildCheckPresentationSurvey = (
 };
 
 /**
- * Ответы «Пять К», которые УЖЕ лежат на лиде: база сводки.
+ * Ответы анкеты, которые УЖЕ лежат на сущности: база сводки. «Пять К» живут
+ * на лиде, блоки «Хвоста» — на сделке.
  *
  * При частичном повторном заполнении (ответили на два вопроса из девяти)
- * сводка иначе теряла бы прошлые семь ответов и расходилась с полями
- * op_5k_*. Читаем по слепку портала — никаких `UF_CRM_<КОД>` наугад.
+ * сводка иначе теряла бы прошлые семь ответов и расходилась с полями.
+ * Читаем по слепку портала — никаких `UF_CRM_<КОД>` наугад.
  */
-const selectLeadStoredAnswers = (state: RootState): Record<string, string> => {
-    const leadRow = state.app.bitrix.lead as unknown as Record<
-        string,
-        unknown
-    > | null;
-    if (!leadRow) return {};
+const selectStoredAnswers = (
+    state: RootState,
+    entity: 'lead' | 'deal',
+): Record<string, string> => {
+    const row = (entity === 'lead'
+        ? state.app.bitrix.lead
+        : state.app.bitrix.deal) as unknown as Record<string, unknown> | null;
+    if (!row) return {};
 
-    const leadFields = state.portal.portal?.lead?.bitrixfields;
+    const fields =
+        entity === 'lead'
+            ? state.portal.portal?.lead?.bitrixfields
+            : state.portal.portal?.bitrixDeal?.bitrixfields;
     const stored: Record<string, string> = {};
     for (const item of state.afterPresentation.checkPresentation.items) {
-        const key = findUfKey(leadFields, item.code);
-        const raw = key ? leadRow[key] : null;
+        const key = findUfKey(fields, item.code);
+        const raw = key ? row[key] : null;
         if (typeof raw === 'string' && raw.trim()) stored[item.code] = raw;
     }
     return stored;
+};
+
+/** Подтверждённые ответы поверх записанных и подписи блоков анкеты. */
+const summaryInput = (
+    state: RootState,
+    entity: 'lead' | 'deal',
+): {
+    answers: Record<string, CheckPresentationValue>;
+    titleByCode: Record<string, string>;
+} => {
+    const { items, committed } = state.afterPresentation.checkPresentation;
+    const filled = Object.fromEntries(
+        Object.entries(committed).filter(([, value]) =>
+            typeof value === 'string' ? value.trim() : value != null,
+        ),
+    );
+    return {
+        answers: { ...selectStoredAnswers(state, entity), ...filled },
+        titleByCode: Object.fromEntries(
+            items.map(item => [item.code, `${item.title}:`]),
+        ),
+    };
 };
 
 /**
@@ -138,20 +168,17 @@ const selectLeadStoredAnswers = (state: RootState): Record<string, string> => {
  * «стереть нельзя, только перезаписать».
  */
 export const selectFiveKSummary = (state: RootState): string | null => {
-    const { items, committed } = state.afterPresentation.checkPresentation;
-    const titleByCode = Object.fromEntries(
-        items.map(item => [item.code, `${item.title}:`]),
-    );
-    const filled = Object.fromEntries(
-        Object.entries(committed).filter(([, value]) =>
-            typeof value === 'string' ? value.trim() : value != null,
-        ),
-    );
+    const { answers, titleByCode } = summaryInput(state, 'lead');
+    return buildFiveKSummary(answers, titleByCode);
+};
 
-    return buildFiveKSummary(
-        { ...selectLeadStoredAnswers(state), ...filled },
-        titleByCode,
-    );
+/**
+ * Сводный «Хвост» по подтверждённым блокам поверх уже записанных на сделку
+ * — те же правила и тот же общий писатель, что у «Пять К».
+ */
+export const selectXvostSummary = (state: RootState): string | null => {
+    const { answers, titleByCode } = summaryInput(state, 'deal');
+    return buildXvostSummary(answers, titleByCode);
 };
 
 /**
@@ -171,5 +198,6 @@ export const selectCheckPresentationSurvey = (
     return buildCheckPresentationSurvey(
         state.afterPresentation.checkPresentation.committed,
         selectFiveKSummary(state),
+        selectXvostSummary(state),
     );
 };

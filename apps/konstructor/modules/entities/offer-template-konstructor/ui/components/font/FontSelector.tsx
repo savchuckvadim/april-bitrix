@@ -4,9 +4,11 @@ import { IOfferTemplateFont } from '@/modules/entities/offer-template/type/offer
 import { Inter, Roboto, Open_Sans, Lato, Nunito } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+// Вариативные шрифты (Roboto, Nunito) — без weight: на фиксированные начертания Google
+// отдаёт URL вида /l/font?kit=…&skey=…, а Turbopack 15.3 не экранирует '&' в своём
+// запросе («next/font/google queries have exactly one entry») и валит сборку.
 const roboto = Roboto({
     subsets: ['latin'],
-    weight: ['400', '700'],
     variable: '--font-roboto',
 });
 const openSans = Open_Sans({
@@ -20,7 +22,6 @@ const lato = Lato({
 });
 const nunito = Nunito({
     subsets: ['latin'],
-    weight: ['400', '700'],
     variable: '--font-nunito',
 });
 

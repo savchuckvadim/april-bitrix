@@ -36,6 +36,13 @@ const makeState = (over: {
                 },
             },
         },
+        // Режим руководителя: отчёт за сотрудника planResponsibleId.
+        headMode: {
+            enabled: true,
+            subordinateIds: over.planResponsibleId
+                ? [over.planResponsibleId]
+                : [],
+        },
         department: {
             plan: {
                 responsible: {
@@ -67,7 +74,7 @@ describe('resolveNewContactTarget', () => {
         expect(h.getList).not.toHaveBeenCalled();
     });
 
-    it('из компании — открытые «ОП Основная» компании, своя по ответственному плана', async () => {
+    it('из компании — открытые «ОП Основная», своя — того, за кого работа (режим руководителя)', async () => {
         h.getList.mockResolvedValue({
             result: [
                 { ID: '500', ASSIGNED_BY_ID: '69', DATE_MODIFY: '2026-10-22T10:00:00+03:00' },

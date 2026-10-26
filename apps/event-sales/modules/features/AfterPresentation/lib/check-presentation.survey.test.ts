@@ -19,7 +19,6 @@ const ANSWERS: Record<string, CheckPresentationValue> = {
     op_xvost_decision_way: ' готов ',
     op_5k_client: 'нормативка',
     op_5k_competitor: 'сравнивают с консультантом',
-    op_presentation_xvost: 'дожать цену',
     // Не текстовый ответ контракта: дата живёт своей фичей (XvostFields) и в
     // блок опросника не входит.
     op_xvost_decision_call_date: '2026-09-10',
@@ -62,7 +61,11 @@ describe('buildCheckPresentationSurvey', () => {
         // С 01.09.2026 код вопроса и есть код поля реестра — переводить
         // нечего, но граница перевода осталась: через неё пойдут коды
         // портального каталога анкет.
-        const survey = buildCheckPresentationSurvey(ANSWERS, 'сводка «5К»');
+        const survey = buildCheckPresentationSurvey(
+            ANSWERS,
+            'сводка «5К»',
+            'сводка «Хвоста»',
+        );
 
         expect(survey).toEqual({
             talk: {
@@ -73,7 +76,7 @@ describe('buildCheckPresentationSurvey', () => {
                 op_5k_client: 'нормативка',
                 op_5k_competitor: 'сравнивают с консультантом',
             },
-            xvost: 'дожать цену',
+            xvost: 'сводка «Хвоста»',
             fiveKSummary: 'сводка «5К»',
         });
     });
@@ -86,9 +89,9 @@ describe('buildCheckPresentationSurvey', () => {
                 op_xvost_desire: '   ',
                 op_5k_client: '',
                 op_5k_competitor: 'сравнивают с консультантом',
-                op_presentation_xvost: ' ',
             },
             null,
+            ' ',
         );
 
         expect(survey).toEqual({
@@ -115,7 +118,11 @@ describe('selectCheckPresentationSurvey', () => {
             op_xvost_desire: 'встретили хорошо',
             op_xvost_decision_way: 'готов',
         });
-        expect(survey?.xvost).toBe('дожать цену');
+        // Сводный «Хвост» — из блоков, в порядке анкеты (ручного поля нет).
+        expect(survey?.xvost).toBe(
+            'ЖЕЛАНИЕ РАБОТАТЬ С ГАРАНТОМ: встретили хорошо\n' +
+                'ВЫХОД НА РЕШЕНИЕ: готов',
+        );
         expect(survey?.fiveKSummary).toBe(
             'КЛИЕНТ: нормативка\nКОНКУРЕНТ: сравнивают с консультантом',
         );

@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from 'sonner';
 import type { ChoiceChipOption } from '@workspace/april-ui/fields';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
@@ -8,6 +9,7 @@ import {
     selectCatalog,
 } from '@/modules/entities/catalog';
 import {
+    explainRefsRebuildFailure,
     rebuildRowWithRefs,
     rowSetActions,
     selectMainRow,
@@ -48,7 +50,11 @@ export const useComplectBuilder = () => {
         const row = rebuildRowWithRefs(catalog, context, mainRow, {
             complectCode,
         });
-        if (row) dispatch(rowSetActions.upsertRow(row));
+        if (!row) {
+            toast.error(explainRefsRebuildFailure(catalog, context, mainRow, { complectCode }));
+            return;
+        }
+        dispatch(rowSetActions.upsertRow(row));
     };
 
     return {

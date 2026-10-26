@@ -12,9 +12,14 @@ import {
 /**
  * Состав опросника «Хвост / 5К» (переделка 01.09.2026, ревизия 02.09).
  *
- * Пять блоков «Хвоста», сводный «Хвост», пять блоков «5К» — плюс три
- * вопроса по итогам разговора: плановая дата покупки, возражения и прогноз
- * по компании (последний — виджет окна, не позиция списка).
+ * Пять блоков «Хвоста», пять блоков «5К» — плюс три вопроса по итогам
+ * разговора: плановая дата покупки, возражения и прогноз по компании
+ * (последний — виджет окна, не позиция списка).
+ *
+ * Отдельного поля «Хвост» в отчёте нет (решение владельца 25.10.2026): это
+ * пережиток, когда весь отчёт писали в одно поле. Сводный «Хвост»
+ * (`op_presentation_xvost`, у смартов — «Хвост (сводно)») собирается из
+ * блоков сам, как сводка «5К» (buildXvostSummary).
  *
  * Блок = Вопрос с подвопросами и ОДНИМ полем CRM. Подвопросы живут в
  * `questions`: тултип на заголовке, плейсхолдер пустого поля, а «развернуть
@@ -55,22 +60,6 @@ const itemFromTemplate = (
 });
 
 /**
- * Сводный «Хвост» — единственная позиция, которую менеджер пишет своими
- * словами без подвопросов: это итог презентации, который читают
- * руководитель и следующий менеджер. Сводка «5К» (`op_presentation_5k`)
- * собирается из блоков автоматически и вопросом не является.
- */
-const XVOST_SUMMARY_ITEM: CheckPresentationItem = {
-    id: 'op_presentation_xvost',
-    type: CheckPresentationFieldType.STRING,
-    code: 'op_presentation_xvost',
-    title: 'Хвост',
-    placeholder: 'Что осталось «хвостом» после презентации',
-    required: false,
-    order: XVOST_TEMPLATES.length,
-};
-
-/**
  * Итоги разговора (просьба владельца 02.09): дата и возражения —
  * необязательны, но спрашиваются здесь же, чтобы после презентации не
  * искать их по другим окнам. Варианты возражений приезжают со слепка
@@ -83,7 +72,7 @@ const SALE_DATE_ITEM: CheckPresentationItem = {
     title: 'Плановая дата покупки',
     placeholder: '',
     required: false,
-    order: XVOST_TEMPLATES.length + 1,
+    order: XVOST_TEMPLATES.length,
 };
 
 const OBJECTION_ITEM: CheckPresentationItem = {
@@ -95,17 +84,16 @@ const OBJECTION_ITEM: CheckPresentationItem = {
     required: false,
     isMultiple: true,
     options: [],
-    order: XVOST_TEMPLATES.length + 2,
+    order: XVOST_TEMPLATES.length + 1,
 };
 
-const TALK_TAIL_COUNT = 3;
+const TALK_TAIL_COUNT = 2;
 
 export const checkPresentationData: CheckPresentationItem[] = [
     // «Хвост» обязателен: без него отчёт по презентации не проводится.
     ...XVOST_TEMPLATES.map((template, index) =>
         itemFromTemplate(template, index, true),
     ),
-    XVOST_SUMMARY_ITEM,
     SALE_DATE_ITEM,
     OBJECTION_ITEM,
     // «5К» — не обязателен: часть вопросов на конкретном звонке не звучит.

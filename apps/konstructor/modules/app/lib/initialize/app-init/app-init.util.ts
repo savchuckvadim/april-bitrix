@@ -2,6 +2,8 @@ import { Bitrix } from '@workspace/bitrix';
 import { Placement } from '@workspace/bx';
 import {
     IS_PROD,
+    DEV_PLACEMENT_HINT,
+    HAS_DEV_PLACEMENT,
     TESTING_DOMAIN,
     TESTING_PLACEMENT,
     TESTING_USER,
@@ -62,6 +64,11 @@ export const appInit = async (dispatch: AppDispatch) => {
 
     if (!inFrame && IS_PROD) {
         dispatch(appActions.setInitializedError({ errorMessage: NON_AUTH_ERROR }));
+        return;
+    }
+    // Вне фрейма без тестового портала/сделки в env — не угадываем, а просим настроить.
+    if (!inFrame && !HAS_DEV_PLACEMENT) {
+        dispatch(appActions.setInitializedError({ errorMessage: DEV_PLACEMENT_HINT }));
         return;
     }
 

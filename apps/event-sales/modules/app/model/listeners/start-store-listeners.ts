@@ -23,6 +23,7 @@ import { getInitSale } from '@/modules/entities/EventSale/model/EventSaleThunk';
 import { fetchResults } from '@/modules/features/NoCall/model/NoCallThunk';
 import { initReturnToTMC } from '@/modules/features/ReturnToTMC/model/ReturnToTMCThunk';
 import { innActions } from '@/modules/features/Inn/model/InnSlice';
+import { alignDealInnOnOpen } from '@/modules/features/InnDeal/model/inn-align.thunk';
 import { clientSignalsActions } from '@/modules/features/ClientSignals/model/ClientSignalsSlice';
 import { startRelatedCrmAppListener } from '@/modules/entities/RelatedCrm/model/RelatedCrmAppListener';
 // Прямой путь в слайс outbox: листенеру нужен только повод дренажа.
@@ -89,6 +90,9 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             // Company-таноки сами no-op'ятся без компании.
             dispatch(setInitEventCompany(portal));
             dispatch(collectRelatedContacts(portal));
+            // Текущий ИНН сделки с компанией: пустая сторона дописывается
+            // при открытии, а не только во вкладке «ИНН» (25.10.2026).
+            dispatch(alignDealInnOnOpen());
             // История НЕ грузится здесь: у давнего клиента это сотни записей,
             // а смотрят её единицы. Её тянет секция при первом показе; бейдж
             // презентаций в шапке читает уже загруженное и сам не заказывает.
@@ -139,6 +143,7 @@ export function startStoreListeners(startAppListening: AppStartListening) {
             if (!portal) return;
             listenerApi.dispatch(setInitEventCompany(portal));
             listenerApi.dispatch(collectRelatedContacts(portal));
+            listenerApi.dispatch(alignDealInnOnOpen());
         },
     });
 

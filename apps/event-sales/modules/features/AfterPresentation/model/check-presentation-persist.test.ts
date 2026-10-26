@@ -39,8 +39,10 @@ const fields = (...codes: string[]) =>
 const ANSWERS: Record<string, CheckPresentationValue> = {
     op_xvost_desire: 'слушали',
     op_5k_client: 'нормативка',
-    op_presentation_xvost: 'дожать цену',
 };
+
+/** Сводный «Хвост» собирается из блоков — ручного поля нет (25.10.2026). */
+const XVOST_SUMMARY = 'ЖЕЛАНИЕ РАБОТАТЬ С ГАРАНТОМ: слушали';
 
 const makeState = (over?: {
     committed?: Record<string, CheckPresentationValue>;
@@ -137,11 +139,11 @@ describe('фрейм-запись ответов опросника', () => {
             // op_xvost_desire опросника переведён в поле реестра.
             UF_CRM_OP_XVOST_DESIRE: 'слушали',
             UF_CRM_OP_5K_CLIENT: 'нормативка',
-            UF_CRM_OP_PRESENTATION_XVOST: 'дожать цену',
+            UF_CRM_OP_PRESENTATION_XVOST: XVOST_SUMMARY,
             UF_CRM_OP_PRESENTATION_5K: 'КЛИЕНТ: нормативка',
         });
         expect(dealUpdate).toHaveBeenCalledWith(10, {
-            UF_CRM_OP_PRESENTATION_XVOST: 'дожать цену',
+            UF_CRM_OP_PRESENTATION_XVOST: XVOST_SUMMARY,
             UF_CRM_OP_PRESENTATION_5K: 'КЛИЕНТ: нормативка',
         });
         expect(companyUpdate).toHaveBeenCalledWith(5, {

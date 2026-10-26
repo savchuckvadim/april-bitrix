@@ -1,6 +1,7 @@
 'use client';
 
-import { BxRqPage } from '@/modules/pages';
+// глубокий импорт: баррель pages тянет замороженный /offer (Google-шрифты) во все маршруты
+import { BxRqPage } from '@/modules/pages/bx-rq/BxRqPage';
 import { Screen, ScreenHeader } from '@/modules/shared';
 
 /** Реквизиты клиента (бывший /bitrix/bx-rq). */

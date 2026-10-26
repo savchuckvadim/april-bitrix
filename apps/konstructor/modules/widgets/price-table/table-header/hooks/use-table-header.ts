@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
     filterContractsForSupply,
@@ -9,6 +10,7 @@ import {
 import { setCurrentProvider } from '@/modules/entities/provider';
 import type { RootState } from '@/modules/app';
 import {
+    explainRefsRebuildFailure,
     rebuildRowWithRefs,
     rowSetActions,
     selectMainRow,
@@ -41,7 +43,7 @@ export const useTableHeader = () => {
         if (!mainRow) return;
         const rebuilt = rebuildRowWithRefs(catalog, context, mainRow, next);
         if (!rebuilt) {
-            console.warn('Нет цены для выбранной комбинации', next);
+            toast.error(explainRefsRebuildFailure(catalog, context, mainRow, next));
             return;
         }
         dispatch(rowSetActions.upsertRow(rebuilt));

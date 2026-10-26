@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { ErrorPage } from '@/modules/pages';
+// глубокий импорт: баррель pages тянет замороженный /offer (Google-шрифты) во все маршруты
+import { ErrorPage } from '@/modules/pages/error-page/ErrorPage';
 import { errorHandler } from '../lib/error-handler';
 // логгер на клиенте
 

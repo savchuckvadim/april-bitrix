@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
     filterContractsForSupply,
@@ -7,6 +8,7 @@ import {
     selectCatalog,
 } from '@/modules/entities/catalog';
 import {
+    explainRefsRebuildFailure,
     rebuildRowWithRefs,
     rowSetActions,
     selectEditingSetId,
@@ -80,7 +82,7 @@ export const useRowCard = (row: KRow, collapsed: boolean) => {
     const changeRefs = (next: RowRefsPatch) => {
         const rebuilt = rebuildRowWithRefs(catalog, context, row, next);
         if (!rebuilt) {
-            console.warn('Нет цены для выбранной комбинации', next);
+            toast.error(explainRefsRebuildFailure(catalog, context, row, next));
             return;
         }
         dispatch(rowSetActions.upsertRow(rebuilt));

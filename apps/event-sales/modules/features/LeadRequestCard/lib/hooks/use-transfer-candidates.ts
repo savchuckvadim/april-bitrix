@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import type { ComboboxOption } from '@workspace/april-ui/fields';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { toUserOptions } from '@/modules/features/Departament/lib/user-options';
 import { selectAllDepartmentUsers } from '@/modules/features/Departament/model/selectors';
 
 /**
@@ -19,18 +20,7 @@ export const useTransferCandidates = (): ComboboxOption[] => {
     );
 
     return useMemo(
-        () =>
-            users
-                .filter(user => Number(user.ID) !== currentUserId)
-                .map(user => ({
-                    value: String(user.ID),
-                    label:
-                        [user.NAME, user.LAST_NAME]
-                            .filter(Boolean)
-                            .join(' ')
-                            .trim() || `Сотрудник ${user.ID}`,
-                    hint: user.WORK_POSITION || undefined,
-                })),
+        () => toUserOptions(users, [currentUserId]),
         [users, currentUserId],
     );
 };

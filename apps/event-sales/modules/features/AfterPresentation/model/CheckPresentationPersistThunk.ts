@@ -11,7 +11,10 @@ import {
     hasWritablePortalAnswers,
     translateSurveyCodes,
 } from '../lib/check-presentation.persist';
-import { selectFiveKSummary } from '../lib/check-presentation.survey';
+import {
+    selectFiveKSummary,
+    selectXvostSummary,
+} from '../lib/check-presentation.survey';
 
 /** Чем закончилась запись ответов: по каждой цели — приняла или нет. */
 export interface CheckPresentationPersistResult {
@@ -104,11 +107,15 @@ export const persistCheckPresentation =
         // лид: отдельные op_5k_* живут только на лиде, а сводка доезжает и
         // до сделки. Та же сводка уходит в payload отчёта — писатель у неё
         // общий, чтобы значения не разъезжались.
+        // Сводный «Хвост» — так же из блоков: ручного поля больше нет.
         const items = state.afterPresentation.checkPresentation.items;
         const summary = selectFiveKSummary(state);
-        const fullAnswers = summary
-            ? { ...answers, op_presentation_5k: summary }
-            : answers;
+        const xvostSummary = selectXvostSummary(state);
+        const fullAnswers = {
+            ...answers,
+            ...(summary ? { op_presentation_5k: summary } : {}),
+            ...(xvostSummary ? { op_presentation_xvost: xvostSummary } : {}),
+        };
         // Дальше живут только коды ПОЛЕЙ: xo_* опросника → op_talk_* реестра
         // (иначе «Разговор» не резолвится фрейм-записью).
         const portalAnswers = translateSurveyCodes(fullAnswers);

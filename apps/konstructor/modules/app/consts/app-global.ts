@@ -8,19 +8,28 @@ import { Placement } from '@workspace/bx';
 export const IS_PROD = process.env.NEXT_PUBLIC_IN_BITRIX === 'true';
 
 /**
- * Тестовая сделка с реальным слепком v1 в bx_document_deals
- * (та же запись, что фикстура entities/snapshot/lib/__fixtures__/legacy-deal.v1.json).
+ * Dev вне фрейма Bitrix: портал, сделка и пользователь — ТОЛЬКО из env
+ * (`NEXT_PUBLIC_DEV_*` в apps/konstructor/.env) и только тестовые. Реальные
+ * порталы в коде не живут: dev-сборка против настоящей сделки пишет в неё
+ * слепки и документы. В прод-сборке значения всегда пустые.
  */
-export const TESTING_DOMAIN = 'gsr.bitrix24.ru' as string;
-// export const TESTING_DOMAIN = 'april-garant.bitrix24.ru' // deal 32990, company 32442
+const devEnv = (value: string | undefined): string =>
+    IS_PROD ? '' : (value ?? '').trim();
 
-export const TESTING_DEAL_ID = 129487;
-export const TESTING_COMPANY_ID = 95817 as number;
-export const DEV_CURRENT_USER_ID = 1;
+export const TESTING_DOMAIN = devEnv(process.env.NEXT_PUBLIC_DEV_DOMAIN);
+export const TESTING_DEAL_ID = Number(devEnv(process.env.NEXT_PUBLIC_DEV_DEAL_ID)) || 0;
+export const TESTING_COMPANY_ID = Number(devEnv(process.env.NEXT_PUBLIC_DEV_COMPANY_ID)) || 0;
+export const DEV_CURRENT_USER_ID = Number(devEnv(process.env.NEXT_PUBLIC_DEV_USER_ID)) || 1;
 
+/** Dev-режим настроен: есть тестовый портал и сделка */
+export const HAS_DEV_PLACEMENT = Boolean(TESTING_DOMAIN && TESTING_DEAL_ID);
+
+export const DEV_PLACEMENT_HINT =
+    'Dev-режим вне фрейма Bitrix: задайте NEXT_PUBLIC_DEV_DOMAIN и NEXT_PUBLIC_DEV_DEAL_ID ' +
+    'в apps/konstructor/.env — только тестовый портал и тестовая сделка.';
 
 export const TESTING_USER = {
-    ID: 1,
+    ID: DEV_CURRENT_USER_ID,
     ACTIVE: true,
     DATE_REGISTER: '29/08/1988',
     EMAIL: 'string',

@@ -138,3 +138,12 @@ export interface InnHideRequest {
     /** true — вернуть ранее скрытый вариант в список. */
     restore?: boolean;
 }
+
+/**
+ * Итог выравнивания без вкладки (`POST …/align`): текущий ИНН сделки после
+ * выравнивания; null — ИНН не нашёлся.
+ */
+export interface InnAlignResult {
+    current: string | null;
+    warnings: string[];
+}

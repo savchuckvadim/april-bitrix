@@ -1,7 +1,7 @@
 import { Bitrix } from '@workspace/bitrix';
 import type { RootState } from '@/modules/app/model/store';
+import { selectWorkingUserId } from '@/modules/app/lib/utills/working-user';
 import { baseSalesCategoryId } from '@/modules/entities/RelatedCrm/lib/deal-category';
-import { selectPlanResponsible } from '@/modules/features/HeadMode/model/selectors';
 import {
     buildNewContactTarget,
     pickBaseDealForContact,
@@ -44,9 +44,9 @@ const fetchOpenBaseDeals = async (
 export const resolveNewContactTarget = async (
     state: RootState,
 ): Promise<NewContactTarget> => {
-    const { deal, company, lead, user } = state.app.bitrix;
-    const workOwnerId =
-        Number(selectPlanResponsible(state)?.ID ?? user?.ID ?? 0) || null;
+    const { deal, company, lead } = state.app.bitrix;
+    // Чья работа: сотрудник в режиме руководителя, иначе сам пользователь.
+    const workOwnerId = selectWorkingUserId(state);
 
     let baseDeal: ContactDealRow | null = null;
     if (!deal && company) {

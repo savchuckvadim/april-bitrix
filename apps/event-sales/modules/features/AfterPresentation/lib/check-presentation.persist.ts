@@ -1,4 +1,4 @@
-import { FIVE_K_TEMPLATES } from '@workspace/event-sales-flow';
+import { FIVE_K_TEMPLATES, XVOST_TEMPLATES } from '@workspace/event-sales-flow';
 
 import { toCrmDate } from '@/modules/shared/lib/crm-date';
 import {
@@ -133,26 +133,25 @@ export const translateSurveyCodes = <T>(
     answers: Record<string, T>,
 ): Record<string, T> => ({ ...answers });
 
-/** Порядок и подписи сводки — те же пять «К», что в анкете. */
+/** Порядок и подписи сводок — те же блоки, что в анкете. */
 const FIVE_K_SUMMARY_CODES = FIVE_K_TEMPLATES.map(
     template => template.code,
 );
+const XVOST_SUMMARY_CODES = XVOST_TEMPLATES.map(template => template.code);
 
 /**
- * Сводное «Пять К» из ответов анкеты: `ЗАГОЛОВОК: ответ` построчно.
- *
- * Отдельные op_5k_* живут только на лиде, а сводка — и на сделке: тот, кто
- * открыл сделку без лида, всё равно видит итог презентации одним полем.
+ * Сводка блоков анкеты: `ЗАГОЛОВОК: ответ` построчно, в порядке анкеты.
  * Пустые ответы пропускаются; не ответили ни на один — сводки нет, пустую
  * строку не пишем (она стёрла бы прошлую).
  */
-export const buildFiveKSummary = (
+const buildBlocksSummary = (
+    codes: readonly string[],
     answers: Record<string, CheckPresentationValue>,
     titleByCode: Record<string, string>,
 ): string | null => {
     const lines: string[] = [];
 
-    for (const code of FIVE_K_SUMMARY_CODES) {
+    for (const code of codes) {
         const value = toPortalValue(answers[code] ?? '', undefined, code);
         if (!value || Array.isArray(value)) continue;
         const title = titleByCode[code] ?? code;
@@ -161,3 +160,26 @@ export const buildFiveKSummary = (
 
     return lines.length ? lines.join('\n') : null;
 };
+
+/**
+ * Сводное «Пять К» из ответов анкеты.
+ *
+ * Отдельные op_5k_* живут только на лиде, а сводка — и на сделке: тот, кто
+ * открыл сделку без лида, всё равно видит итог презентации одним полем.
+ */
+export const buildFiveKSummary = (
+    answers: Record<string, CheckPresentationValue>,
+    titleByCode: Record<string, string>,
+): string | null => buildBlocksSummary(FIVE_K_SUMMARY_CODES, answers, titleByCode);
+
+/**
+ * Сводный «Хвост» (`op_presentation_xvost`) из блоков «Хвоста».
+ *
+ * Ручного поля «Хвост» в отчёте больше нет (решение владельца 25.10.2026):
+ * сводку собираем сами — её читают смарты («Хвост (сводно)»), сделка и
+ * AI-разбор презентаций.
+ */
+export const buildXvostSummary = (
+    answers: Record<string, CheckPresentationValue>,
+    titleByCode: Record<string, string>,
+): string | null => buildBlocksSummary(XVOST_SUMMARY_CODES, answers, titleByCode);

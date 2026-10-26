@@ -12,6 +12,7 @@ import { useEventNavigation } from '@/modules/processes/event';
 import { EVENT_ROUTE_PATH, ROUTE_EVENT } from '@/modules/processes/event';
 import { DepartmentMode } from '@/modules/features/Departament';
 import { HeadModeToggle } from '@/modules/features/HeadMode';
+import { TransferWorkButton } from '@/modules/features/TransferWork';
 import { EntityFieldsButton } from '@/modules/features/EntityFieldsDialog';
 import { ResultStatistics } from '@/modules/features/ResultStatistics';
 import {
@@ -50,6 +51,8 @@ export const EntityActions: FC = () => {
         <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1">
             <DepartmentMode />
             <HeadModeToggle />
+            {/* Передать работу по клиенту коллеге — доступно всем. */}
+            <TransferWorkButton />
             <ResultStatistics />
             {/* Все общие ручные pbx-поля клиента — модалкой: на узких
                 экранах карточки этих полей скрыты, вход остаётся здесь. */}

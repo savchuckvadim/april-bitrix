@@ -1,4 +1,6 @@
 import {
+    filterContractsForSupply,
+    filterSuppliesForComplect,
     resolveContractForSupplyChange,
     resolveRefsForComplectChange,
     type Catalog,
@@ -83,6 +85,33 @@ export const rebuildRowWithRefs = (
                 : row.names.alternativeName,
         },
     };
+};
+
+/**
+ * Почему rebuildRowWithRefs вернул null — человеку: пустой каталог (нет
+ * поставок/договоров/цен) раньше выглядел как «кнопка не работает».
+ */
+export const explainRefsRebuildFailure = (
+    catalog: Catalog,
+    context: RowSetContext,
+    row: KRow,
+    next: RowRefsPatch,
+): string => {
+    if (!context.regionCode) return 'Сначала выберите регион';
+    const complectCode = next.complectCode ?? row.refs.complectCode ?? '';
+    const complect = catalog.complects.byCode[complectCode];
+    if (!complect) return `Комплект «${complectCode}» не найден в каталоге`;
+    const title = complect.title;
+    const supplies = filterSuppliesForComplect(catalog.supplies.items, complect.type);
+    if (!supplies.length) {
+        return `${title}: в каталоге нет видов поставки для линейки — каталог на сервере не заполнен`;
+    }
+    const supplyCode = next.supplyCode ?? row.refs.supplyCode;
+    const contracts = filterContractsForSupply(catalog, complect.type, supplyCode);
+    if (!contracts.length) {
+        return `${title}: для поставки «${supplyCode}» нет допустимых договоров в каталоге`;
+    }
+    return `${title}: нет цены для этой поставки и региона в прайсе каталога`;
 };
 
 /** Ключ главной строки general-сета — один на всё приложение. */

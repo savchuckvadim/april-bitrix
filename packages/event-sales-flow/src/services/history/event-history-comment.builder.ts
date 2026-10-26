@@ -1,4 +1,7 @@
-import { toBatchText } from '../../shared/batch/batch-text';
+import {
+    toBatchText,
+    toMultiFieldEntryLines,
+} from '../../shared/batch/batch-text';
 import { BitrixDateTime } from '../../shared/lib/date';
 import {
     eventDonePhrase,
@@ -75,4 +78,19 @@ export const buildEventHistoryParts = (
     }
 
     return parts.map(toBatchText);
+};
+
+/**
+ * Запись «ОП Истории» (op_mhistory) С ПЕРЕНОСАМИ — зеркало бэка (владелец
+ * 26.10.2026): первая строка — когда и что сделано, дальше комментарий
+ * менеджера построчно, последними — чек-лист и план.
+ */
+export const buildEventHistoryEntry = (
+    when: string,
+    src: IEventHistoryCommentSource,
+): string => {
+    const [first, ...rest] = buildEventHistoryParts(src);
+    return toMultiFieldEntryLines(
+        [first ? `${when} — ${first}` : when, ...rest].join('\n'),
+    );
 };

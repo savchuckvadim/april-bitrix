@@ -11,11 +11,12 @@ import {
     NO_COMPANY_ERROR,
     NO_DEAL_ERROR,
 } from '../lib/initialize/app-init/app-init.util';
-import { IS_PROD } from '../consts/app-global';
+import { DEV_PLACEMENT_HINT, IS_PROD } from '../consts/app-global';
 import { store } from '../model/store';
 import { NonAuthScreen } from './NonAuthScreen';
 import { NoCompanyScreen } from './NoCompanyScreen';
 import { NoDealScreen } from './NoDealScreen';
+import { DevPlacementScreen } from './DevPlacementScreen';
 
 declare global {
     interface Window {
@@ -46,7 +47,8 @@ export const App = ({ children }: { children: ReactNode }) => {
     const isNonAuth = errorMessage === NON_AUTH_ERROR;
     const isNoCompany = errorMessage === NO_COMPANY_ERROR;
     const isNoDeal = errorMessage === NO_DEAL_ERROR;
-    const isGate = isNonAuth || isNoCompany || isNoDeal;
+    const isDevHint = errorMessage === DEV_PLACEMENT_HINT;
+    const isGate = isNonAuth || isNoCompany || isNoDeal || isDevHint;
 
     return (
         <>
@@ -56,6 +58,7 @@ export const App = ({ children }: { children: ReactNode }) => {
             {isNonAuth && <NonAuthScreen />}
             {isNoCompany && <NoCompanyScreen />}
             {isNoDeal && <NoDealScreen />}
+            {isDevHint && <DevPlacementScreen />}
             {!isGate && (
                 <>
                     {!isReady && isClient && (

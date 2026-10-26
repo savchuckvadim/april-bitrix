@@ -74,6 +74,21 @@ export const toMultiFieldEntryText = (
         .trim();
 
 /**
+ * Запись множественного UF-поля С ПЕРЕНОСАМИ строк (op_mhistory) — зеркало
+ * бэка (libs/bitrix batch.consts): переносы сохраняются, пробелы внутри
+ * строк схлопываются, пустые строки убираются. Проверено на garant
+ * 26.10.2026: карточка показывает такую запись строками. На провод — только
+ * через {@link toBatchSafeText}.
+ */
+export const toMultiFieldEntryLines = (text: string): string =>
+    text
+        .replace(/%0A/g, '\n')
+        .split(/\r\n|\r|\n/)
+        .map(line => line.replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+        .join('\n');
+
+/**
  * Строгий вариант {@link toBatchText} для БОЛЬШИХ текстов, которые целиком
  * уезжают одним значением batch-команды (DESCRIPTION задачи и т.п.).
  *

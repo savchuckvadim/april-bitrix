@@ -21,4 +21,5 @@ export const InnConflictDtoKind = {
     requisite_foreign: 'requisite_foreign',
     fields_missing: 'fields_missing',
     requisites_denied: 'requisites_denied',
+    current_mismatch: 'current_mismatch',
 } as const;

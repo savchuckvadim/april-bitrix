@@ -33,6 +33,7 @@ const INTERACTIVE_ROUTES: readonly InteractiveRoute[] = [
     { method: 'GET', prefix: '/api/lead-request/card/' },
     { method: 'GET', prefix: '/api/app-settings/' },
     { method: 'GET', prefix: '/api/questionnaires' },
+    { method: 'GET', prefix: '/api/badges' },
 ];
 
 const pathOf = (url: string): string => url.split('?')[0] ?? '';

@@ -6,17 +6,21 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+    AlignInnRequestDto,
     ChooseInnRequestDto,
     HideInnRequestDto,
+    InnAlignResponseDto,
+    InnSetResponseDto,
     InnSnapshotParams,
     InnSnapshotResponseDto,
+    SetInnRequestDto,
 } from '.././model';
 
 import { customAxios } from '../../lib/event-sales-api';
 
 export const getInn = () => {
     /**
-     * Всё, что нужно карточке: текущий ИНН с происхождением, пул кандидатов с источниками и человеческими подписями, реквизиты компании и контактов, расхождения плашками, признаки доступности полей и прав, версия снимка и признак «сделка закрыта — только чтение». Ничего не пишет.
+     * Всё, что нужно карточке: текущий ИНН с происхождением, пул кандидатов с источниками и человеческими подписями, реквизиты компании и контактов, расхождения плашками, признаки доступности полей и прав, версия снимка и признак «сделка закрыта — только чтение». Пустую сторону текущего ИНН (сделка или компания) дописывает из другой, из реквизита компании или заявки — один раз, с записью в таймлайне.
      * @summary Снимок ИНН сделки
      */
     const innSnapshot = (dealId: number, params: InnSnapshotParams) => {
@@ -53,7 +57,34 @@ export const getInn = () => {
             data: hideInnRequestDto,
         });
     };
-    return { innSnapshot, innChoose, innHide };
+    /**
+     * ИНН, введённый руками в шапке. Есть открытая сделка — запись как при «Выбрать» во вкладке «ИНН»: сделка, её пул, компания поверх прежнего, пустые заявки и запись в ленте сделки. Сделки нет или она закрыта — пишется компания, без неё заявка: текущий ИНН поверх прежнего, пул объединением. Пишет сервер, поэтому права сотрудника на компанию не нужны.
+     * @summary Записать ИНН из шапки «Звонков»
+     */
+    const innSet = (setInnRequestDto: SetInnRequestDto) => {
+        return customAxios<InnSetResponseDto>({
+            url: `/api/inn/set`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: setInnRequestDto,
+        });
+    };
+    /**
+     * Фрейм зовёт, когда у сделки с компанией текущий ИНН пуст. Лёгкое чтение (сделка, компания, её реквизиты) и то же правило, что у снимка: пусто в сделке — берётся ИНН компании, иначе ИНН реквизита компании (привязанного к сделке или единственного), и записывается в сделку, её пул и пустое поле компании с записью в таймлайне. Закрытую сделку не трогает.
+     * @summary Выровнять текущий ИНН сделки без вкладки «ИНН»
+     */
+    const innAlign = (
+        dealId: number,
+        alignInnRequestDto: AlignInnRequestDto,
+    ) => {
+        return customAxios<InnAlignResponseDto>({
+            url: `/api/inn/deal/${dealId}/align`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: alignInnRequestDto,
+        });
+    };
+    return { innSnapshot, innChoose, innHide, innSet, innAlign };
 };
 export type InnSnapshotResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getInn>['innSnapshot']>>
@@ -63,4 +94,10 @@ export type InnChooseResult = NonNullable<
 >;
 export type InnHideResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getInn>['innHide']>>
+>;
+export type InnSetResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getInn>['innSet']>>
+>;
+export type InnAlignResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getInn>['innAlign']>>
 >;

@@ -19,6 +19,11 @@ const makeState = (over?: {
     withPostFail?: boolean;
     /** Сущности встройки; по умолчанию — никаких (компании нет). */
     bitrix?: { company?: unknown; deal?: unknown; lead?: unknown };
+    /** Чек-лист презентации применим (портал, опросник, презентация, итог). */
+    withCheckPresentation?: boolean;
+    checklistConfirmed?: boolean;
+    /** Подтверждённые ответы чек-листа — источник текста комментария. */
+    checklistAnswers?: Record<string, string>;
 }): RootState =>
     ({
         eventReport: {
@@ -38,7 +43,26 @@ const makeState = (over?: {
                     : over.planDate,
             type: { items: [], current: over?.planType ?? null },
         },
-        eventItemMenu: { type: 'CURRENT' },
+        eventItemMenu: {
+            type: over?.withCheckPresentation ? 'result' : 'CURRENT',
+        },
+        eventPresentation: {
+            isPresentationDone: !!over?.withCheckPresentation,
+            isUnplannedPresentation: false,
+        },
+        afterPresentation: {
+            initialized: !!over?.withCheckPresentation,
+            isConfirmed: !!over?.checklistConfirmed,
+            checkPresentation: {
+                items: Object.keys(over?.checklistAnswers ?? {}).map(id => ({
+                    id,
+                    title: id,
+                    code: id,
+                    type: 'string',
+                })),
+                committed: over?.checklistAnswers ?? {},
+            },
+        },
         eventPostFail: { postFailDate: null },
         leadRequest: {
             finalSync: { notCaTypeCode: over?.notCaTypeCode ?? null },
@@ -51,6 +75,7 @@ const makeState = (over?: {
             config: {
                 withPostFail: over?.withPostFail ?? false,
                 withColorRequired: false,
+                withCheckPresentation: !!over?.withCheckPresentation,
             },
             bitrix: over?.bitrix ?? { company: null },
         },
@@ -186,5 +211,54 @@ describe('validateSend — продажа только с компанией (в
         expect(sale({ company: null, deal: null, lead: { ID: '9' } })).toBe(
             NEEDS_COMPANY,
         );
+    });
+});
+
+/*
+ * Чек-лист презентации даёт комментарий (решение владельца 27.10.2026).
+ * Валидация идёт раньше, чем отправка открывает чек-лист, поэтому без этого
+ * правила пустой комментарий останавливал менеджера до чек-листа.
+ */
+describe('validateSend — комментарий из чек-листа презентации', () => {
+    const commentError = (state: RootState) =>
+        validateSend(state).result.errors[EV_ERROR_CODE.COMMENT];
+
+    it('чек-листа нет — пустой комментарий требуется, как раньше', () => {
+        expect(commentError(makeState({ comment: '' }))).toBe(
+            'Напишите комментарий',
+        );
+    });
+
+    it('чек-лист применим и ещё не подтверждён — комментарий не требуется', () => {
+        expect(
+            commentError(makeState({ comment: '', withCheckPresentation: true })),
+        ).toBeFalsy();
+    });
+
+    it('подтверждён с ответами — комментарий не требуется', () => {
+        expect(
+            commentError(
+                makeState({
+                    comment: '',
+                    withCheckPresentation: true,
+                    checklistConfirmed: true,
+                    checklistAnswers: { xo_need: 'нужна искра' },
+                }),
+            ),
+        ).toBeFalsy();
+    });
+
+    // Подтвердили пустой чек-лист — текста нет, комментарий снова нужен.
+    it('подтверждён без ответов — комментарий требуется', () => {
+        expect(
+            commentError(
+                makeState({
+                    comment: '',
+                    withCheckPresentation: true,
+                    checklistConfirmed: true,
+                    checklistAnswers: {},
+                }),
+            ),
+        ).toBe('Напишите комментарий');
     });
 });

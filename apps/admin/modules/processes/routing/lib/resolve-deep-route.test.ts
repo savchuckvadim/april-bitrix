@@ -16,6 +16,7 @@ import {
     portalPbxEntities,
     portalProviderEntities,
     portalQuestionnairesEntities,
+    portalBadgesEntities,
     supportEntities,
     logsEntities,
 } from '../consts/routes.consts';
@@ -34,6 +35,7 @@ const PORTAL_SECTIONS = [
     { section: 'ai-settings', entities: portalAiSettingsEntities },
     { section: 'app-settings', entities: portalAppSettingsEntities },
     { section: 'questionnaires', entities: portalQuestionnairesEntities },
+    { section: 'badges', entities: portalBadgesEntities },
     { section: 'provider', entities: portalProviderEntities },
     { section: 'konstructor', entities: portalKonstructorEntities },
     { section: 'hooks', entities: portalHooksEntities },

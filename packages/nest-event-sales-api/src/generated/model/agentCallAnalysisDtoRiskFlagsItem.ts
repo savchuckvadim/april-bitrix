@@ -15,4 +15,5 @@ export const AgentCallAnalysisDtoRiskFlagsItem = {
     conflict: 'conflict',
     compliance: 'compliance',
     client_negative: 'client_negative',
+    door_closed: 'door_closed',
 } as const;

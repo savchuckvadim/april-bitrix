@@ -34,6 +34,7 @@ import { eventHistoryReducer } from '@/modules/entities/EVHistory';
 import { eventCallingRecordReducer } from '@/modules/entities/EventCallingRecord';
 // Прямой путь: барель слайса тянет thunk с транспортом, стору нужен только редьюсер.
 import { questionnaireCatalogReducer } from '@/modules/entities/Questionnaire/model/QuestionnaireCatalogSlice';
+import { badgeCatalogReducer } from '@/modules/entities/BadgeCatalog/model/BadgeCatalogSlice';
 // Прямой путь, как у AppSlice: барель RelatedCrm тянет UI и в store не годится.
 import { bitrixUserReducer } from '@/modules/entities/BitrixUser/model/BitrixUserSlice';
 import { purchaseSignalsReducer } from '@/modules/features/PurchaseSignals/model/PurchaseSignalsSlice';
@@ -153,6 +154,8 @@ const rootReducer = combineReducers({
     // Каталог анкет портала. В reload-reset НЕ входит: состав анкет
     // перезагрузкой карточки не меняется, а сброс дал бы окно без вопросов.
     questionnaireCatalog: questionnaireCatalogReducer,
+    // Бейджики комментария и названия события — набор портала с бэка.
+    badgeCatalog: badgeCatalogReducer,
     taskDeals: taskDealsReducer,
     relatedCrm: relatedCrmReducer,
     bitrixUser: bitrixUserReducer,

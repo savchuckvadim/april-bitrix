@@ -46,12 +46,12 @@ export function RegionList() {
                 <div className="space-y-1">
                     <h1 className="text-3xl font-bold">Регионы</h1>
                     <p className="text-muted-foreground text-sm">
-                        Рабс региона. Много значений сразу удобнее править
-                        таблицей.
+                        Стоимость рабса по регионам правится вместе с ценами —
+                        на листе «regions» книги цен.
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <CatalogTableLink kind="regions" />
+                    <CatalogTableLink kind="prices" />
                     <Button onClick={() => router.push('/regions/new')}>
                         Добавить регион
                     </Button>

@@ -7,6 +7,10 @@ import {
 import { isPlanDeadlineValid } from '@/modules/entities/EventPlan/lib/plan-deadline';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { getChecklistGateError } from './questionnaire-gate';
+import {
+    selectCheckPresentationComment,
+    selectIsCheckPresentationApplicable,
+} from '@/modules/features/AfterPresentation/lib/check-presentation.selectors';
 import { COMMENT_MAX_LENGTH, PLAN_NAME_MAX_LENGTH } from './text-limits';
 import { emptyErrors } from '../model/EventSlice';
 import { EV_ERROR_CODE, SetErrorsPayload } from '../types/event-types';
@@ -20,6 +24,21 @@ export interface SendValidationResult {
 }
 
 const REQUIRED_TEXT = 'Не заполнено обязательное поле';
+
+/**
+ * Комментарий даст чек-лист презентации (решение владельца 27.10.2026):
+ * заполнил чек-лист — писать прозу не нужно, текст соберётся из ответов.
+ *
+ * Без этого правила чек-лист не помогал: валидация идёт РАНЬШЕ, чем
+ * отправка открывает чек-лист (SendThunk), и пустой комментарий
+ * останавливал менеджера до того, как он до чек-листа доходил.
+ * Применим и не подтверждён — его откроют следующим шагом; подтверждён —
+ * текст уже есть, если ответы не пустые.
+ */
+const isCommentCoveredByChecklist = (state: RootState): boolean =>
+    selectIsCheckPresentationApplicable(state) &&
+    (!state.afterPresentation.isConfirmed ||
+        selectCheckPresentationComment(state).trim().length > 0);
 
 /**
  * Валидация отправки отчёта (порт legacy send(), чистая функция):
@@ -49,7 +68,9 @@ export const validateSend = (state: RootState): SendValidationResult => {
     const isPlanActive = plan[EV_PLAN_PROP.IS_ACTIVE];
 
     if (!report[EV_REPORT_PROP.COMMENT]) {
-        result.errors[EV_ERROR_CODE.COMMENT] = 'Напишите комментарий';
+        if (!isCommentCoveredByChecklist(state)) {
+            result.errors[EV_ERROR_CODE.COMMENT] = 'Напишите комментарий';
+        }
     } else if (report[EV_REPORT_PROP.COMMENT].length > COMMENT_MAX_LENGTH) {
         // Страховка на случай значения мимо maxLength (вставка из буфера,
         // черновик из localStorage): раздутый комментарий не записывается.

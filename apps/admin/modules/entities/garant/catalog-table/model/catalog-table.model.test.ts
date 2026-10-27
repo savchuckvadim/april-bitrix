@@ -36,10 +36,35 @@ describe('каталог: описания таблиц', () => {
         );
     });
 
-    it('в таблице цен предупреждаем, что три проксимы с 1 ОД — разные поставки', () => {
+    it('в книге цен объясняем, что цена колонки ОД общая для способов доставки', () => {
         const warnings = catalogTableInfo('prices').warnings ?? [];
+        expect(warnings.join(' ')).toMatch(/Интернет и Проксима/);
         expect(warnings.join(' ')).toMatch(/Локальная/);
-        expect(warnings.join(' ')).toMatch(/Флэш/);
+    });
+
+    it('в книге цен предупреждаем, что универсальной линейке цены не вписывают', () => {
+        const warnings = catalogTableInfo('prices').warnings ?? [];
+        expect(warnings.join(' ')).toMatch(/универсальной линейки/);
+    });
+
+    it('пустой шаблон предусмотрен только у книги цен', () => {
+        expect(catalogTableInfo('prices').canDownloadBlank).toBe(true);
+        expect(catalogTableInfo('supplies').canDownloadBlank).toBeUndefined();
+    });
+
+    it('инструкция книги цен называет все листы рабочего файла', () => {
+        const text = catalogTableInfo('prices').instructions.join(' ');
+        for (const sheet of [
+            'prof-prices-msc',
+            'prof-prices-regions',
+            'regions',
+            'universal-weights',
+            'lt',
+            'star',
+            'consalting',
+        ]) {
+            expect(text).toContain(sheet);
+        }
     });
 
     it('у каждой секции первого наполнения есть пояснение', () => {

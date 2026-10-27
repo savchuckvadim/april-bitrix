@@ -23,6 +23,8 @@ import { fetchAppConfig } from '../../model/thunk/AppConfigThunk';
 import { fetchHeadPerimeter } from '@/modules/features/HeadMode/model/HeadModeThunk';
 // Прямой путь: барель каталога анкет тянет транспорт и данные.
 import { ensureQuestionnaireCatalog } from '@/modules/entities/Questionnaire/model/QuestionnaireCatalogThunk';
+// Прямой путь: барель каталога бейджиков тянет транспорт.
+import { ensureBadgeCatalog } from '@/modules/entities/BadgeCatalog/model/BadgeCatalogThunk';
 import { connectBitrixServerMode } from '@/modules/shared/bitrix-server-mode';
 import { markBootPhase } from '../diagnostics/boot-phases';
 import { armBootMetricsWatchdog } from '../diagnostics/boot-metrics';
@@ -91,6 +93,8 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     dispatch(appActions.setDomain({ domain, user }));
     dispatch(fetchAppConfig(domain));
     dispatch(ensureQuestionnaireCatalog(domain));
+    // Бейджики — та же дисциплина: сверка хэша, лишнего запроса на ⟳ нет.
+    dispatch(ensureBadgeCatalog(domain));
     // Слепок портала: кэш-первым, обновление тихо в фоне (см. PortalService).
     // Не ждём намеренно — со второго запуска слепок приходит из браузерного
     // кэша почти сразу, а первый запуск не должен упираться в сеть: гвард

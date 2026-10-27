@@ -37,6 +37,8 @@ export * from './admin-portal-measures-management/admin-portal-measures-manageme
 export * from './admin-portal-provider/admin-portal-provider';
 export * from './admin-portal-questionnaire-fields/admin-portal-questionnaire-fields';
 export * from './admin-portal-questionnaires/admin-portal-questionnaires';
+// Бейджики комментария и названия события: режим «общие/свои» и свой набор
+export * from './admin-portal-badges/admin-portal-badges';
 export * from './admin-smarts-management/admin-smarts-management';
 export * from './admin-timezones-management/admin-timezones-management';
 export * from './admin-transcription-store/admin-transcription-store';

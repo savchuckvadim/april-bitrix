@@ -112,10 +112,15 @@ export const buildFlowPayload = (
         ? selectCheckPresentationComment(state)
         : '';
     const userComment = reportState.report[EV_REPORT_PROP.COMMENT];
+    // Хвост уже стоит в комментарии (его подставил чек-лист при
+    // подтверждении — startBadgePresentationCommentListener): второй раз не
+    // дописываем, иначе в истории он шёл бы дважды.
+    const tailPart =
+        tailComment && userComment.includes(tailComment) ? '' : tailComment;
     const description = [
         userComment,
         selectChecklistTextComment(state),
-        tailComment,
+        tailPart,
     ]
         .filter(part => Boolean(part))
         .join('\n\n');

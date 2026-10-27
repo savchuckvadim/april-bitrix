@@ -13,6 +13,7 @@ import type { AgentDialogTurnDto } from './agentDialogTurnDto';
 import type { AgentCallAnalysisDtoCompetitorsItem } from './agentCallAnalysisDtoCompetitorsItem';
 import type { AgentCallAnalysisDtoObjectionCategoriesItem } from './agentCallAnalysisDtoObjectionCategoriesItem';
 import type { AgentCallAnalysisDtoRiskFlagsItem } from './agentCallAnalysisDtoRiskFlagsItem';
+import type { AgentRiskEvidenceDto } from './agentRiskEvidenceDto';
 import type { AgentCallAnalysisDtoRefusalCategory } from './agentCallAnalysisDtoRefusalCategory';
 import type { AgentCallAnalysisDtoHvostSteps } from './agentCallAnalysisDtoHvostSteps';
 import type { AgentCallAnalysisDtoFiveKItems } from './agentCallAnalysisDtoFiveKItems';
@@ -23,6 +24,7 @@ import type { AgentRelatedDealsDto } from './agentRelatedDealsDto';
 import type { AgentListItemLinkDto } from './agentListItemLinkDto';
 import type { AgentAnalysisVersionsDto } from './agentAnalysisVersionsDto';
 import type { AgentFlowDraftDto } from './agentFlowDraftDto';
+import type { AgentAnalysisUsageDto } from './agentAnalysisUsageDto';
 import type { AgentCallAnalysisDtoExtra } from './agentCallAnalysisDtoExtra';
 
 export interface AgentCallAnalysisDto {
@@ -59,8 +61,10 @@ export interface AgentCallAnalysisDto {
     competitors?: AgentCallAnalysisDtoCompetitorsItem[];
     /** Категории всех возражений звонка по закрытому справочнику (дублирует objections[].category для фильтров смарта). */
     objectionCategories?: AgentCallAnalysisDtoObjectionCategoriesItem[];
-    /** Риск-флаги для немедленного внимания руководителя: обещание, конфликт, нарушение регламента, сильный негатив клиента. */
+    /** Риск-флаги — сигналы руководителю. Действующие: конфликт / грубость, нарушение регламента, после отказа не оставил дверь открытой. Коды promise и client_negative отменены (решение владельца 19–20.10.2026): принимаются ради старых данных, но при приёме отбрасываются. Каждый флаг обязан иметь доказательство в riskEvidence с непустой цитатой — иначе приём разбора его снимает. Пустой массив — норма. */
     riskFlags?: AgentCallAnalysisDtoRiskFlagsItem[];
+    /** Доказательства риск-флагов: дословная цитата, чья реплика и таймкоды по расшифровке. Флаг без доказательства с непустой цитатой из riskFlags удаляется (решение владельца 19.10.2026). */
+    riskEvidence?: AgentRiskEvidenceDto[];
     /** Категория отказа при провале: рыночная (цена/конкурент/нет решения) или исполнительская (квалификация/исполнение). */
     refusalCategory?: AgentCallAnalysisDtoRefusalCategory;
     /**
@@ -170,6 +174,8 @@ export interface AgentCallAnalysisDto {
     versions?: AgentAnalysisVersionsDto;
     /** Черновик события в кодах event-sales flow (report + plan) — «как агент заполнил бы отчёт менеджера». Сохраняется в ais.report_result для будущей автоотправки в /event-sales/flow; сейчас в endpoint НЕ отправляется. */
     flow?: AgentFlowDraftDto;
+    /** Расход модели на разбор (сумма токенов вызовов и модель провайдера). Приём кладёт токены в ais.tokens_count, стоимость по цене портала llm_price_per_1k — в ais.price. */
+    usage?: AgentAnalysisUsageDto;
     /** Произвольные дополнительные данные анализа (сохраняются в ais.user_result как есть). */
     extra?: AgentCallAnalysisDtoExtra;
 }

@@ -17,6 +17,7 @@ import {
     portalPbxEntities,
     portalProviderEntities,
     portalQuestionnairesEntities,
+    portalBadgesEntities,
     supportEntities,
     logsEntities,
 } from '../consts/routes.consts';
@@ -49,6 +50,7 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
         isPortalAiSettings,
         isPortalAppSettings,
         isPortalQuestionnaires,
+        isPortalBadges,
         isPortalProvider,
         isPortalDetail,
         portalId,
@@ -90,6 +92,9 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
             baseUrl = `/portal/${portalId}`;
         } else if (isPortalQuestionnaires) {
             currentNavItems = portalQuestionnairesEntities;
+            baseUrl = `/portal/${portalId}`;
+        } else if (isPortalBadges) {
+            currentNavItems = portalBadgesEntities;
             baseUrl = `/portal/${portalId}`;
         } else if (isPortalProvider) {
             currentNavItems = portalProviderEntities;

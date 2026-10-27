@@ -16,6 +16,8 @@ import {
 import { FogText } from '@/modules/widgets/EventList/ui/FogText';
 import { COMMENT_ROWS, type ReportDensity } from '../../lib/report-density';
 import { PresentationDoneControl } from '../report/PresentationDoneControl';
+import { CommentBadges } from '@/modules/features/CommentBadges';
+import { selectIsCheckPresentationApplicable } from '@/modules/features/AfterPresentation/lib/check-presentation.selectors';
 
 /**
  * Комментарий отчёта — главный рабочий инструмент менеджера.
@@ -58,6 +60,9 @@ export const CommentSection: FC<CommentSectionProps> = ({
     const planningComment = useAppSelector(
         s => s.eventTask.current?.eventComment ?? null,
     );
+    // Чек-лист презентации даст текст сам — менеджеру это надо сказать,
+    // иначе он пишет прозу, которую потом продублирует чек-лист.
+    const fromChecklist = useAppSelector(selectIsCheckPresentationApplicable);
 
     const remaining = COMMENT_MAX_LENGTH - comment.length;
     const showCounter =
@@ -77,7 +82,11 @@ export const CommentSection: FC<CommentSectionProps> = ({
         >
             <Textarea
                 value={comment}
-                placeholder="Как прошёл разговор?"
+                placeholder={
+                    fromChecklist
+                        ? 'Можно не писать — соберётся из чек-листа презентации'
+                        : 'Как прошёл разговор?'
+                }
                 aria-invalid={!!error}
                 maxLength={COMMENT_MAX_LENGTH}
                 onChange={e => dispatch(setAndSaveComment(e.target.value))}
@@ -89,6 +98,9 @@ export const CommentSection: FC<CommentSectionProps> = ({
                     fill ? 'min-h-40 flex-1' : 'field-sizing-content',
                 )}
             />
+            {/* Готовые ответы под полем: набор по итогу работы, нажатие
+                ставит текст в поле. Начал печатать сам — ряд сворачивается. */}
+            <CommentBadges />
             {showCounter && (
                 <p
                     className={cn(

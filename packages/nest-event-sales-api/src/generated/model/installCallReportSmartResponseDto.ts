@@ -17,4 +17,6 @@ export interface InstallCallReportSmartResponseDto {
     fieldsExisting: string[];
     /** UF-имена полей, которые не удалось создать (см. логи). */
     fieldsFailed: string[];
+    /** Существующие поля-перечисления, которым этим вызовом долиты недостающие значения справочника (например, новый риск-флаг): «UF-имя поля: коды значений». */
+    enumItemsAdded: string[];
 }

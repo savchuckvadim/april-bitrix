@@ -77,22 +77,44 @@ export function CatalogTableCard({ table }: CatalogTableCardProps) {
                 <section className="space-y-3">
                     <div className="space-y-1">
                         <h3 className="text-sm font-medium">
-                            Шаг 1. Скачать текущие данные
+                            Шаг 1. Скачать файл
                         </h3>
                         <p className="text-muted-foreground text-sm">
-                            В файле уже всё, что сейчас в системе — правьте
-                            прямо в нём.
+                            {table.canDownloadBlank
+                                ? 'С текущими данными — правите то, что есть. Пустой — те же строки и колонки, но без значений: удобно вносить новый прайс с нуля.'
+                                : 'В файле уже всё, что сейчас в системе — правьте прямо в нём.'}
                         </p>
                     </div>
-                    <Button
-                        variant="outline"
-                        onClick={() => exportTable.mutate(table.kind)}
-                        disabled={exportTable.isPending}
-                    >
-                        {exportTable.isPending
-                            ? 'Готовим файл…'
-                            : 'Скачать таблицу'}
-                    </Button>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() =>
+                                exportTable.mutate({
+                                    kind: table.kind,
+                                    mode: 'current',
+                                })
+                            }
+                            disabled={exportTable.isPending}
+                        >
+                            {exportTable.isPending
+                                ? 'Готовим файл…'
+                                : 'С текущими данными'}
+                        </Button>
+                        {table.canDownloadBlank && (
+                            <Button
+                                variant="outline"
+                                onClick={() =>
+                                    exportTable.mutate({
+                                        kind: table.kind,
+                                        mode: 'blank',
+                                    })
+                                }
+                                disabled={exportTable.isPending}
+                            >
+                                Пустой файл
+                            </Button>
+                        )}
+                    </div>
                     {exportTable.isError && (
                         <Alert variant="destructive">
                             <AlertDescription>

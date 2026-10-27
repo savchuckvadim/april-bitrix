@@ -16,6 +16,7 @@ export const PortalNavigation = () => {
         isPortalAiSettings,
         isPortalAppSettings,
         isPortalQuestionnaires,
+        isPortalBadges,
         isPortalVendorSuperUsers,
         isPortalProvider,
         portalId,
@@ -46,6 +47,8 @@ export const PortalNavigation = () => {
                 {portalId && <Link href={`/portal/${portalId}/hooks`} className={isPortalHooks ? 'text-primary' : 'text-gray-500'}>{'Хуки'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/questionnaires`} className={isPortalQuestionnaires ? 'text-primary' : 'text-gray-500'}>{'Анкеты'}</Link>}
+
+                {portalId && <Link href={`/portal/${portalId}/badges`} className={isPortalBadges ? 'text-primary' : 'text-gray-500'}>{'Бейджики'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/vendor-super-users`} className={isPortalVendorSuperUsers ? 'text-primary' : 'text-gray-500'}>{'Суперюзеры'}</Link>}
 

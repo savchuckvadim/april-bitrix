@@ -3,6 +3,7 @@ import {
     getAdminGarantCatalogTables,
 } from '@workspace/nest-admin-api';
 import type {
+    CatalogExportMode,
     CatalogSeedSection,
     CatalogTableKind,
     TableImportReportDto,
@@ -13,9 +14,15 @@ export class CatalogTableHelper {
     private readonly tables = getAdminGarantCatalogTables();
     private readonly seedApi = getAdminGarantCatalogSeed();
 
-    /** Файл с текущим состоянием БД */
-    async export(kind: CatalogTableKind): Promise<Blob> {
-        return await this.tables.catalogTableAdminExport(kind);
+    /**
+     * Файл таблицы: mode 'current' — с текущими данными,
+     * 'blank' — пустой шаблон (только строки-ключи).
+     */
+    async export(
+        kind: CatalogTableKind,
+        mode: CatalogExportMode = 'current',
+    ): Promise<Blob> {
+        return await this.tables.catalogTableAdminExport(kind, { mode });
     }
 
     /** Загрузка заполненной таблицы; dryRun — предпросмотр без записи */

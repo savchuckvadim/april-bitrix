@@ -7,6 +7,8 @@ import {
 } from '../../lib/utills/app-config-wait';
 // Прямой путь: барель каталога анкет тянет транспорт и данные.
 import { startQuestionnaireCatalogSettleListener } from '@/modules/entities/Questionnaire/lib/questionnaire-wait';
+import { startBadgeTitleListener } from '@/modules/entities/BadgeCatalog/model/badge-title-listener';
+import { startBadgePresentationCommentListener } from '@/modules/entities/BadgeCatalog/model/badge-presentation-listener';
 import { setInitEventCompany } from '@/modules/entities/EventCompany/model/EventCompanyThunk';
 import {
     collectRelatedContacts,
@@ -421,6 +423,10 @@ export function startStoreListeners(startAppListening: AppStartListening) {
 
     // Подписки, живущие внутри своих слайсов (app/setAppData → инициализация плана).
     startEventPlanAppListener(startAppListening);
+    // Бейджики: выбрал тип события → название подставилось само; подтвердил
+    // чек-лист презентации → комментарий собрался из ответов.
+    startBadgeTitleListener(startAppListening);
+    startBadgePresentationCommentListener(startAppListening);
     // «Не очень» → план перестраивается под перенос текущей задачи.
     startEventPlanRescheduleListener(startAppListening);
     // app/setAppData → автопроверка дублей клиента (быстрый уровень + кэш).

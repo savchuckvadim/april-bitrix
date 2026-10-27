@@ -126,10 +126,13 @@ export function ImportReport({ reports, applied }: ImportReportProps) {
 
 /** Понятные названия листов и секций вместо их кодов */
 const SECTION_TITLES: Record<string, string> = {
-    'prof-regions': 'Цены, регионы',
-    'prof-msk': 'Цены, Москва',
-    services: 'Цены услуг',
-    regions: 'Регионы',
+    'prof-prices-msc': 'Прайс PROF, Москва',
+    'prof-prices-regions': 'Прайс PROF, регионы',
+    'universal-weights': 'Универсальная линейка',
+    regions: 'Стоимость рабса по регионам',
+    lt: 'Пакеты ЛегалТех',
+    star: 'СТАР',
+    consalting: 'Консалтинг',
     supplies: 'Виды поставок',
     complects: 'Комплекты',
     packages: 'Пакеты услуг',

@@ -5,11 +5,20 @@
  * API приложения event-sales
  * OpenAPI spec version: 1.0
  */
+import type { HealthResponseDto } from '.././model';
+
 import { customAxios } from '../../lib/event-sales-api';
 
 export const getHealth = () => {
+    /**
+     * Отвечает «ok», пока процесс жив; это проверяет docker healthcheck. Поле role показывает, рабочий это прод («active») или тёплый резерв на зеркале («standby» — кроны и воркеры очередей остановлены).
+     * @summary Проверка живости приложения
+     */
     const healthHealthCheck = () => {
-        return customAxios<void>({ url: `/api/health`, method: 'GET' });
+        return customAxios<HealthResponseDto>({
+            url: `/api/health`,
+            method: 'GET',
+        });
     };
     return { healthHealthCheck };
 };

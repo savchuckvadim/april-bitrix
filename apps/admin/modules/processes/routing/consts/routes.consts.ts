@@ -528,6 +528,21 @@ export const portalQuestionnairesEntities: Entity[] = [
     },
 ];
 
+export const portalBadgesEntities: Entity[] = [
+    {
+        id: 0,
+        item: {
+            name: 'badges',
+            title: 'Бейджики',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/badges',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
 
 export const portalProviderEntities: Entity[] = [
     {

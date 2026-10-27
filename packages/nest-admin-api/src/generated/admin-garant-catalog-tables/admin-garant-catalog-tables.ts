@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  CatalogTableAdminExportParams,
   CatalogTableAdminImportBody,
   TableImportReportDto
 } from '.././model';
@@ -16,24 +17,26 @@ import { customAxios } from '../../lib/admin-api';
 
   export const getAdminGarantCatalogTables = () => {
 /**
- * Отдаёт xlsx с текущим состоянием БД в том же формате, который читает загрузка: prices — цены (листы prof-regions, prof-msk, services), regions — рабсы регионов, supplies — виды поставок с текстами договоров, complects — карточки комплектов и пакетов.
- * @summary Скачать эталонную таблицу каталога
+ * Отдаёт xlsx в том же формате, который читает загрузка. prices — книга цен (рабсы регионов, веса и АБС универсальной линейки, прайс PROF по числу ОД, пакеты услуг, АБС консалтинга); supplies — виды поставок с текстами договоров; complects — карточки комплектов и пакетов. mode=blank отдаёт тот же файл с пустыми значениями (только строки-ключи).
+ * @summary Скачать таблицу каталога
  */
 const catalogTableAdminExport = (
-    kind: 'prices' | 'regions' | 'supplies' | 'complects',
+    kind: 'prices' | 'supplies' | 'complects',
+    params?: CatalogTableAdminExportParams,
  ) => {
       return customAxios<Blob>(
       {url: `/api/admin/garant/tables/${kind}/export`, method: 'GET',
+        params,
         responseType: 'blob'
     },
       );
     }
   /**
- * Читает лист(ы) по заголовкам колонок и применяет изменения upsert-ом по кодам. Пустая ячейка означает «не менять», строки, которых нет в файле, не удаляются. dryRun=true показывает отчёт без записи.
+ * Читает листы по именам и колонки по заголовкам, применяет изменения по кодам. Пустая ячейка означает «не менять», строки, которых нет в файле, не удаляются. dryRun=true показывает отчёт без записи.
  * @summary Загрузить заполненную таблицу каталога
  */
 const catalogTableAdminImport = (
-    kind: 'prices' | 'regions' | 'supplies' | 'complects',
+    kind: 'prices' | 'supplies' | 'complects',
     catalogTableAdminImportBody: CatalogTableAdminImportBody,
  ) => {const formData = new FormData();
 formData.append(`file`, catalogTableAdminImportBody.file)

@@ -54,8 +54,9 @@ export function CatalogTablesPage() {
                     <ol className="list-decimal space-y-1 pl-5 text-sm">
                         <li>
                             <span className="font-medium">Скачайте файл.</span>{' '}
-                            В нём текущие данные системы — это и есть образец,
-                            отдельный шаблон не нужен.
+                            С текущими данными — чтобы поправить то, что есть.
+                            У цен есть и пустой вариант: те же строки и
+                            колонки, но без значений, для нового прайса.
                         </li>
                         <li>
                             <span className="font-medium">Правьте в нём.</span>{' '}

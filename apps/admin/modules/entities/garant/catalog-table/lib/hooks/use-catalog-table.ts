@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CatalogTableHelper } from '../api/catalog-table.helper';
 import {
+    CatalogExportMode,
     CatalogSeedSection,
     CatalogTableKind,
     TableImportReportDto,
@@ -24,15 +25,24 @@ const AFFECTED_QUERY_KEYS = [
     'packages',
 ];
 
-/** Скачивание эталонной таблицы (файл сохраняется браузером) */
+export interface ExportTableInput {
+    kind: CatalogTableKind;
+    mode: CatalogExportMode;
+}
+
+/** Скачивание таблицы (файл сохраняется браузером) */
 export const useExportCatalogTable = () =>
-    useMutation<Blob, Error, CatalogTableKind>({
-        mutationFn: kind => helper.export(kind),
-        onSuccess: (blob, kind) => {
+    useMutation<Blob, Error, ExportTableInput>({
+        mutationFn: ({ kind, mode }) => helper.export(kind, mode),
+        onSuccess: (blob, { kind, mode }) => {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
+            const info = catalogTableInfo(kind);
             link.href = url;
-            link.download = catalogTableInfo(kind).fileName;
+            link.download =
+                mode === 'blank'
+                    ? info.fileName.replace('.xlsx', '-blank.xlsx')
+                    : info.fileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

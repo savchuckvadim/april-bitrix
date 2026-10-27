@@ -27,6 +27,7 @@ import { ChecklistInlineCard } from '@/modules/features/CallChecklist/ui/Checkli
 import { PLAN_NAME_MAX_LENGTH } from '@/modules/processes/event/lib/text-limits';
 import { PlanTypeRadio } from './PlanTypeRadio';
 import { PlanAssigneeField } from '@/modules/features/HeadMode';
+import { TitleBadgesButton } from '@/modules/features/TitleBadges';
 
 interface PlanColumnProps {
     /** visibility.plan — false при финальных статусах (Продажа/Отказ). */
@@ -163,16 +164,23 @@ export const PlanColumn: FC<PlanColumnProps> = ({ withPlan, planTypeAttr }) => {
                             >
                                 Название
                             </Label>
-                            <Input
-                                id="plan-name"
-                                value={plan[EV_PLAN_PROP.NAME]}
-                                placeholder="О чём договорились"
-                                aria-invalid={!!nameError}
-                                maxLength={PLAN_NAME_MAX_LENGTH}
-                                onChange={e =>
-                                    setProp(EV_PLAN_PROP.NAME)(e.target.value)
-                                }
-                            />
+                            {/* Готовые названия — за кнопкой: на виду тесно,
+                                основной текст типа подставляется сам. */}
+                            <div className="flex items-center gap-1.5">
+                                <Input
+                                    id="plan-name"
+                                    value={plan[EV_PLAN_PROP.NAME]}
+                                    placeholder="О чём договорились"
+                                    aria-invalid={!!nameError}
+                                    maxLength={PLAN_NAME_MAX_LENGTH}
+                                    onChange={e =>
+                                        setProp(EV_PLAN_PROP.NAME)(
+                                            e.target.value,
+                                        )
+                                    }
+                                />
+                                <TitleBadgesButton />
+                            </div>
                         </div>
 
                         <label className="flex cursor-pointer items-center justify-between gap-2">

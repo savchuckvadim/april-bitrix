@@ -20,6 +20,8 @@ export * from './sales-hooks/sales-hooks';
 export * from './event-sales-app-settings/event-sales-app-settings';
 // Портальный каталог анкет (GET /api/questionnaires, /version)
 export * from './event-sales-questionnaires/event-sales-questionnaires';
+// Бейджики комментария и названия события (GET /api/badges, /version)
+export * from './event-sales-badges/event-sales-badges';
 
 // Доступны после generate, подключать по мере необходимости:
 // export * from './bitrix-domain-team/bitrix-domain-team';

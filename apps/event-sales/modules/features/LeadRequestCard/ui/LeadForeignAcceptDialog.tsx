@@ -51,6 +51,7 @@ export const LeadForeignAcceptDialog: FC<LeadForeignAcceptDialogProps> = ({
             onOpenChange={onOpenChange}
             size="sm"
             intensity="soft"
+            cardClassName="gap-4"
         >
             <DialogHeader>
                 <DialogTitle>{LEAD_REQUEST_TEXT.foreignAcceptTitle}</DialogTitle>

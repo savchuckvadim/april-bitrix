@@ -58,6 +58,7 @@ export const ImpersonationButton: FC<ImpersonationButtonProps> = ({
                 }}
                 size="sm"
                 intensity="soft"
+                cardClassName="gap-4"
             >
                 <DialogHeader>
                     <DialogTitle>{TEXT.title}</DialogTitle>

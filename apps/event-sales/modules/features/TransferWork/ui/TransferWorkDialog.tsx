@@ -39,6 +39,7 @@ export const TransferWorkDialog: FC<TransferWorkDialogProps> = ({
             }}
             size="sm"
             intensity="soft"
+            cardClassName="gap-4"
         >
             <DialogHeader>
                 <DialogTitle>{text.title}</DialogTitle>

@@ -48,6 +48,7 @@ export const LeadTransferDialog: FC<LeadTransferDialogProps> = ({
             onOpenChange={onOpenChange}
             size="sm"
             intensity="soft"
+            cardClassName="gap-4"
         >
             <DialogHeader>
                 <DialogTitle>Передать заявку</DialogTitle>

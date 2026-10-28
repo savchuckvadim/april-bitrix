@@ -362,6 +362,7 @@ export * from './healthResponseDtoRole';
 export * from './hideInnRequestDto';
 export * from './historyItemDto';
 export * from './hookAuthDto';
+export * from './impersonatorDto';
 export * from './innAlignResponseDto';
 export * from './innAvailabilityDto';
 export * from './innCandidateDto';

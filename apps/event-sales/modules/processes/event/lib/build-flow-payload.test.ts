@@ -50,6 +50,11 @@ const makeState = (over?: {
     };
     /** идёт быстрый итог («Продажа» / «Отказ») */
     quickOutcome?: boolean;
+    /** «работать как»: суперпользователь за сотрудника */
+    impersonation?: {
+        realUser: { ID: number; NAME?: string; LAST_NAME?: string };
+        target: { ID: number; NAME?: string; LAST_NAME?: string };
+    };
 }): RootState =>
     ({
         app: {
@@ -71,6 +76,11 @@ const makeState = (over?: {
             enabled: over?.head?.enabled ?? true,
             subordinateIds: over?.head?.subordinateIds ?? [],
             isSuperUser: false,
+        },
+        // «Работать как»: по умолчанию выключен.
+        impersonation: over?.impersonation ?? {
+            realUser: null,
+            target: null,
         },
         eventReport: {
             report: {
@@ -484,6 +494,30 @@ describe('payload: ответы опросника презентации', () =
         // Прежнее поведение: старые сборки фрейма его не шлют, и поток
         // обязан работать как раньше.
         expect(surveyOf(makeState())).toBeUndefined();
+    });
+});
+
+describe('payload: «работать как»', () => {
+    const impersonatorOf = (state: RootState) =>
+        (buildFlowPayload(state) as { impersonatedBy?: unknown })
+            .impersonatedBy;
+
+    it('суперпользователь за сотрудника — поле с ним самим', () => {
+        const state = makeState({
+            impersonation: {
+                realUser: { ID: 447, NAME: 'Пётр', LAST_NAME: 'Петров' },
+                target: { ID: 231, NAME: 'Анна', LAST_NAME: 'Сидорова' },
+            },
+        });
+
+        expect(impersonatorOf(state)).toEqual({
+            ID: 447,
+            NAME: 'Петров Пётр',
+        });
+    });
+
+    it('обычный отчёт — поля нет вовсе', () => {
+        expect(impersonatorOf(makeState())).toBeUndefined();
     });
 });
 

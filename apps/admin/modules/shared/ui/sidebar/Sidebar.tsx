@@ -14,7 +14,7 @@ import {
     Activity
 } from 'lucide-react';
 
-import { Entity, useCurrentSideBar } from '@/modules/processes';
+import { useCurrentSideBar } from '@/modules/processes';
 
 const getIconByEntityName = (entityName: string) => {
     switch (entityName) {
@@ -27,11 +27,13 @@ const getIconByEntityName = (entityName: string) => {
     }
 }
 
-const getIsActive = (entity: Entity, pathname: string) => {
-    return entity.item.get.url === '/dashboard'
-        ? pathname === '/dashboard'
-        : pathname?.includes(entity.item.get.url);
-}
+/**
+ * Пункт активен, если путь совпадает с его ссылкой или лежит под ней.
+ * Сравнение по сегменту: подстрока делала `/contract` активным и на
+ * `/contract-template` — «Виды договоров» горели вместе с «Шаблонами договоров».
+ */
+const getIsActive = (href: string, pathname: string | null) =>
+    Boolean(pathname) && (pathname === href || pathname!.startsWith(`${href}/`));
 
 
 export function Sidebar() {
@@ -48,8 +50,8 @@ export function Sidebar() {
             <nav className="flex-1 space-y-1 p-4">
                 {currentNavItems.map((item) => {
                     const Icon = getIconByEntityName(item.item.name);
-                    const isActive = getIsActive(item, pathname);
                     const href = `${baseUrl}${item.item.get.url}`;
+                    const isActive = getIsActive(href, pathname);
                     return (
                         <Link
                             key={href}

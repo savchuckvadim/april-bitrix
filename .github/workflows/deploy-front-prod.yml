@@ -56,7 +56,7 @@ env:
   # → в build-args попадут пустыми и игнорируются.
   APP_CFG: |
     {
-      "admin":         { "app_url": "https://back.april-app.ru",  "in_bitrix": "true",  "chromium": "false", "admin_api_url": "https://api.admin.april-app.ru/", "pbx_install_api_url": "https://api.install.april-app.ru/", "konstructor_api_url": "" },
+      "admin":         { "app_url": "https://back.april-app.ru",  "in_bitrix": "true",  "chromium": "false", "admin_api_url": "https://api.admin.april-app.ru/", "pbx_install_api_url": "https://api.install.april-app.ru/", "konstructor_api_url": "https://api.konstructor.april-app.ru/" },
       "bitrix":        { "app_url": "https://bitrix.april-app.ru", "in_bitrix": "true",  "chromium": "false" },
       "kpi-sales":     { "app_url": "",                            "in_bitrix": "false", "chromium": "false", "kpi_sales_api_url": "https://api.kpi-sales.april-app.ru/" },
       "kpi-service":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "false" },
@@ -170,6 +170,17 @@ jobs:
           KPI_SALES_API_URL: ${{ fromJSON(env.APP_CFG)[matrix.app].kpi_sales_api_url }}
           EVENT_SALES_API_URL: ${{ fromJSON(env.APP_CFG)[matrix.app].event_sales_api_url }}
         run: |
+          # admin инлайнит адреса своих бэков в клиентский бандл: пустое
+          # значение молча превращается в дев-дефолт localhost (так шаблоны
+          # Word КП на проде ходили в localhost:3007) — валим сборку сразу.
+          if [ "${{ matrix.app }}" = "admin" ]; then
+            for name in ADMIN_API_URL PBX_INSTALL_API_URL KONSTRUCTOR_API_URL; do
+              if [ -z "${!name}" ]; then
+                echo "::error::admin: пустой ${name} в APP_CFG"
+                exit 1
+              fi
+            done
+          fi
           {
             echo 'BUILD_ARGS<<__ARGS_EOF__'
             echo "APP=${{ matrix.app }}"

@@ -149,7 +149,10 @@ const dispatch = ((action: { type: string; payload?: unknown }) => {
     return action;
 }) as unknown as AppDispatch;
 
-const getState = (() => ({})) as unknown as AppGetState;
+// Бут читает из стора только режим «работать как»; по умолчанию выключен.
+const NO_IMPERSONATION = { realUser: null, target: null };
+let impersonation: { realUser: unknown; target: unknown } = NO_IMPERSONATION;
+const getState = (() => ({ impersonation })) as unknown as AppGetState;
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -178,6 +181,7 @@ beforeEach(() => {
     h.auth = { domain: 'gsr.bitrix24.ru', user: { ID: 7 }, inFrame: true };
     h.placement = { placement: 'CRM_COMPANY_DETAIL_TAB', options: { ID: 1 } };
     h.display = 'entityCard';
+    impersonation = NO_IMPERSONATION;
     vi.spyOn(console, 'info').mockImplementation(() => {});
 });
 
@@ -295,5 +299,47 @@ describe('appInit — ранний старт независимых цепоч�
         for (const chain of CHAINS) {
             expect(countOf(chain), chain).toBe(1);
         }
+    });
+});
+
+describe('appInit — «работать как»', () => {
+    it('бут идёт под сотрудником, серверный режим — под владельцем фрейма', async () => {
+        const { connectBitrixServerMode } = await import(
+            '@/modules/shared/bitrix-server-mode'
+        );
+        const { getDepartment } = await import(
+            '@/modules/features/Departament/model/DepartmentThunk'
+        );
+        const employee = { ID: 231, NAME: 'Анна' };
+        impersonation = { realUser: { ID: 7 }, target: employee };
+
+        await runInit();
+
+        expect(vi.mocked(getDepartment)).toHaveBeenLastCalledWith(
+            'gsr.bitrix24.ru',
+            employee,
+        );
+        const setDomain = h.actions.find(
+            action => action.type === appActions.setDomain.type,
+        );
+        expect(setDomain?.payload).toMatchObject({ user: employee });
+        expect(vi.mocked(connectBitrixServerMode)).toHaveBeenLastCalledWith(
+            expect.anything(),
+            { domain: 'gsr.bitrix24.ru', userId: '7' },
+        );
+    });
+
+    it('фрейм открыл другой человек — подмены нет', async () => {
+        const { getDepartment } = await import(
+            '@/modules/features/Departament/model/DepartmentThunk'
+        );
+        impersonation = { realUser: { ID: 99 }, target: { ID: 231 } };
+
+        await runInit();
+
+        expect(vi.mocked(getDepartment)).toHaveBeenLastCalledWith(
+            'gsr.bitrix24.ru',
+            { ID: 7 },
+        );
     });
 });

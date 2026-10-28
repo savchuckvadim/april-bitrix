@@ -47,6 +47,7 @@ import { relatedCrmReducer } from '@/modules/entities/RelatedCrm/model/RelatedCr
 import { departmentReducer } from '@/modules/features/Departament';
 // Прямой путь в слайс: барель фичи тянет UI и листенер.
 import { headModeReducer } from '@/modules/features/HeadMode/model/HeadModeSlice';
+import { impersonationReducer } from '@/modules/features/Impersonation/model/ImpersonationSlice';
 import { noCallReducer } from '@/modules/features/NoCall';
 import { returnToTmcReducer } from '@/modules/features/ReturnToTMC';
 import { afterPresentationReducer } from '@/modules/features/AfterPresentation';
@@ -165,6 +166,9 @@ const rootReducer = combineReducers({
     // Режим руководителя. В reload-reset НЕ входит: состав подчинённых
     // перезагрузкой карточки не меняется.
     headMode: headModeReducer,
+    // «Работать как» (суперпользователь April). В reload-reset НЕ входит:
+    // бут перезапускается именно для того, чтобы подхватить сотрудника.
+    impersonation: impersonationReducer,
     noCall: noCallReducer,
     returnToTmc: returnToTmcReducer,
     afterPresentation: afterPresentationReducer,

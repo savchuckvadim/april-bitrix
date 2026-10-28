@@ -55,6 +55,16 @@ const headModeSlice = createSlice({
         ) => {
             state.enabled = action.payload.enabled;
         },
+        /**
+         * Сменился пользователь приложения («работать как»): список
+         * подчинённых — чужой, следующий бут обязан перечитать его.
+         * Выбор тумблера остаётся.
+         */
+        resetPerimeter: (state: HeadModeState) => {
+            state.status = 'idle';
+            state.subordinateIds = [];
+            state.isSuperUser = false;
+        },
     },
 });
 

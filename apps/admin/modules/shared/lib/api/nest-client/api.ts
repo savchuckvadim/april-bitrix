@@ -10,11 +10,21 @@ import {
 import { configureAuthTokenGetter as configurePbxInstallAuthToken } from '@workspace/nest-pbx-install-api';
 import { getAccessToken } from './auth-token-storage';
 
-// prod URL — TBD (домены admin/konstructor-бэков ещё не заведены)
+// Дефолты localhost — только для dev. Прод-адреса задаёт
+// deploy-front-prod.yml (APP_CFG.admin), пустое значение там валит сборку.
 const ADMIN_API_BASE_URL =
     process.env.NEXT_PUBLIC_ADMIN_API_URL || 'http://localhost:3004/';
 const KONSTRUCTOR_API_BASE_URL =
     process.env.NEXT_PUBLIC_KONSTRUCTOR_API_URL || 'http://localhost:3007/';
+if (
+    process.env.NODE_ENV === 'production' &&
+    (!process.env.NEXT_PUBLIC_ADMIN_API_URL ||
+        !process.env.NEXT_PUBLIC_KONSTRUCTOR_API_URL)
+) {
+    console.error(
+        'admin: прод-сборка без NEXT_PUBLIC_ADMIN_API_URL / NEXT_PUBLIC_KONSTRUCTOR_API_URL — запросы уйдут на localhost',
+    );
+}
 configureAdminBaseURL(ADMIN_API_BASE_URL);
 configureKonstructorBaseURL(KONSTRUCTOR_API_BASE_URL);
 

@@ -20,6 +20,7 @@ import type { ReturnToTmcDto } from './returnToTmcDto';
 import type { LeadDto } from './leadDto';
 import type { PresentationDto } from './presentationDto';
 import type { ActingManagerDto } from './actingManagerDto';
+import type { ImpersonatorDto } from './impersonatorDto';
 import type { LeadRequestSyncDto } from './leadRequestSyncDto';
 
 export interface EventSalesFlowDto {
@@ -70,6 +71,8 @@ export interface EventSalesFlowDto {
     presentation: PresentationDto;
     /** Режим руководителя: кто фактически отправил отчёт за сотрудника. Отчёт идёт от имени сотрудника (он в `plan.responsibility`): сделки, задачи и KPI остаются за ним, а руководитель попадает пометкой в историю, таймлайн, задачу и KPI; сотрудник получает уведомление. Поле не передано — обычный отчёт. */
     actingManager?: ActingManagerDto;
+    /** Режим «работать как»: суперпользователь April, который открыл «Звонки» от имени сотрудника. Отчёт идёт как обычный отчёт сотрудника — без пометок на портале и без уведомлений; запись остаётся только в журнале сервера. Роль не подтвердилась — отчёт получает видимую пометку «Отчёт отправил». Поле не передано — обычный отчёт. */
+    impersonatedBy?: ImpersonatorDto;
     /** Синхронизация связанной заявки при финале (отказ/продажа): тип «не ЦА», заметка в историю обработки. */
     leadSync?: LeadRequestSyncDto;
 }

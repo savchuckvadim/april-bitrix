@@ -773,7 +773,7 @@ export const portalStatisticstEntities: Entity[] = [
 
 export const konstructorEntities: Entity[] = [
     {
-        id: 3,
+        id: 2,
         item: {
             name: 'Шаблоны Word КП',
             title: 'Шаблоны Word КП',

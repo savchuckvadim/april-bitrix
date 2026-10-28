@@ -30,6 +30,7 @@ import { selectChecklistSmartAnswers } from '@/modules/features/CallChecklist/li
 import { selectChecklistTextComment } from '@/modules/features/CallChecklist/lib/checklist-text-answers';
 // Прямой путь: барель режима руководителя тянет UI.
 import { selectActingManager } from '@/modules/features/HeadMode/model/selectors';
+import { selectImpersonator } from '@/modules/features/Impersonation/model/selectors';
 // Прямой путь: барель быстрого итога тянет UI.
 import { selectQuickOutcomeSender } from '@/modules/widgets/QuickOutcome/model/selectors';
 import { EvFlowDto } from '../model';
@@ -345,6 +346,10 @@ export const buildFlowPayload = (
         // сюда, чтобы было видно, кто отправил отчёт.
         actingManager:
             selectActingManager(state) ?? selectQuickOutcomeSender(state),
+        // «Работать как»: суперпользователь April за сотрудника. На портал
+        // ничего не пишется — бэк оставляет строку в своём журнале. Вне
+        // режима поля нет вовсе.
+        impersonatedBy: selectImpersonator(state),
         fail: { postFailDate: state.eventPostFail.postFailDate },
         isPostSale,
         returnToTmc: {

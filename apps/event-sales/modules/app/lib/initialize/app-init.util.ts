@@ -26,6 +26,8 @@ import { ensureQuestionnaireCatalog } from '@/modules/entities/Questionnaire/mod
 // Прямой путь: барель каталога бейджиков тянет транспорт.
 import { ensureBadgeCatalog } from '@/modules/entities/BadgeCatalog/model/BadgeCatalogThunk';
 import { connectBitrixServerMode } from '@/modules/shared/bitrix-server-mode';
+// Прямой путь: барель «работать как» тянет UI.
+import { resolveBootUser } from '@/modules/features/Impersonation/lib/impersonation.util';
 import { markBootPhase } from '../diagnostics/boot-phases';
 import { armBootMetricsWatchdog } from '../diagnostics/boot-metrics';
 
@@ -61,7 +63,11 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
         inFrame,
     } = bitrix.api.getInitializedData();
     const domain = authDomain || TESTING_DOMAIN;
-    const user = (authUser ?? TESTING_USER) as unknown as BXUser;
+    const realUser = (authUser ?? TESTING_USER) as unknown as BXUser;
+    // «Работать как»: дальше весь бут идёт под сотрудником — отдел, дела,
+    // подчинённые, конфиг. Владелец фрейма остаётся только в серверном
+    // режиме Битрикса: запросы к порталу идут с его ключом.
+    const user = resolveBootUser(realUser, getState().impersonation);
     const placement = (bitrix.api.getPlacement() ??
         TESTING_PLACEMENT) as Placement;
 
@@ -72,7 +78,7 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
         // сущностей ниже должен уйти на сервер, а не уронить старт.
         connectBitrixServerMode(bitrix.api, {
             domain,
-            userId: String(user?.ID ?? ''),
+            userId: String(realUser?.ID ?? ''),
         });
     }
 

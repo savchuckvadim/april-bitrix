@@ -27,6 +27,7 @@ export * from './admin-garant-region/admin-garant-region';
 export * from './admin-garant-supply/admin-garant-supply';
 export * from './admin-marketplace-moderation/admin-marketplace-moderation';
 export * from './admin-measures-management/admin-measures-management';
+export * from './admin-portal-ai-providers/admin-portal-ai-providers';
 export * from './admin-portal-ai-settings/admin-portal-ai-settings';
 export * from './admin-portal-app-settings/admin-portal-app-settings';
 export * from './admin-portal-contracts-management/admin-portal-contracts-management';

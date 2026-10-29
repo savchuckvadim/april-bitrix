@@ -7,6 +7,8 @@
  */
 import type { PortalAiSettingsResponseDtoPresentationStrictness } from './portalAiSettingsResponseDtoPresentationStrictness';
 import type { PortalAiSettingsResponseDtoWeeklyReportDelivery } from './portalAiSettingsResponseDtoWeeklyReportDelivery';
+import type { PortalAiSettingsResponseDtoLlmProviderOrderItem } from './portalAiSettingsResponseDtoLlmProviderOrderItem';
+import type { PortalAiSettingsResponseDtoTranscriptionMode } from './portalAiSettingsResponseDtoTranscriptionMode';
 
 export interface PortalAiSettingsResponseDto {
   /**
@@ -144,4 +146,29 @@ export interface PortalAiSettingsResponseDto {
    * @nullable
    */
   ownOrgNames: string[] | null;
+  /**
+   * Порядок провайдеров LLM для разборов портала, от основного к запасным: vibecode — VibeCode Битрикса (ключ портала), openai-compatible — свой или запасной OpenAI-совместимый сервис (ключи портала llmKey / llmBaseUrl / llmModelName либо общий запасной приложения), ai-rag — модели контура резюме (GigaChat и др.). Портал со своим ключом первым ставит openai-compatible и платит за токены сам. null — общий порядок приложения.
+   * @nullable
+   */
+  llmProviderOrder: PortalAiSettingsResponseDtoLlmProviderOrderItem[] | null;
+  /**
+   * Транскрибатор портала: auto — по длительности (Яндекс для длинных, VibeCode для коротких), yandex / vibecode / whisper — принудительно. null — режим приложения.
+   * @nullable
+   */
+  transcriptionMode: PortalAiSettingsResponseDtoTranscriptionMode;
+  /**
+   * Адрес Whisper-совместимого сервиса портала (OpenAI-совместимый /audio/transcriptions): свой сервер клиента, наш GPU или облако по ключу (OpenAI, Groq — через исходящий прокси). null — общий сервис приложения.
+   * @nullable
+   */
+  whisperBaseUrl: string | null;
+  /**
+   * Модель Whisper-совместимого сервиса (у OpenAI — whisper-1, у Groq — whisper-large-v3-turbo); null — модель приложения.
+   * @nullable
+   */
+  whisperModel: string | null;
+  /**
+   * Ключ Whisper-совместимого сервиса. В ответе — только маска «••••••», если ключ задан; сам ключ наружу не отдаётся.
+   * @nullable
+   */
+  whisperApiKey: string | null;
 }

@@ -8,6 +8,23 @@ import type { PortalAiSettingsUpdate } from '../../model';
 
 const helper = new AiSettingsHelper();
 const KEY = ['portal-ai-settings'] as const;
+const PROVIDERS_KEY = ['portal-ai-providers-readiness'] as const;
+
+/**
+ * Чек-лист готовности провайдеров AI портала. С `probe` бэк дополнительно
+ * проверяет связь с endpoint'ами — это отдельный ключ кэша, чтобы обычный
+ * показ формы не ждал сетевых проверок.
+ */
+export const usePortalAiProvidersReadiness = (
+    portalId: number | undefined,
+    probe: boolean,
+) =>
+    useQuery({
+        queryKey: [...PROVIDERS_KEY, portalId, probe],
+        queryFn: () => helper.readiness(portalId as number, probe),
+        enabled: !!portalId,
+        staleTime: 30_000,
+    });
 
 /** Настройки AI портала (null в поле = действует глобальная настройка). */
 export const usePortalAiSettings = (portalId?: number) =>
@@ -32,6 +49,10 @@ export const useSavePortalAiSettings = () => {
             qc.setQueryData([...KEY, vars.portalId], data);
             void qc.invalidateQueries({
                 queryKey: [...KEY, vars.portalId],
+            });
+            // Порядок провайдеров и Whisper сменились — чек-лист устарел.
+            void qc.invalidateQueries({
+                queryKey: [...PROVIDERS_KEY, vars.portalId],
             });
         },
         onError: (error) =>

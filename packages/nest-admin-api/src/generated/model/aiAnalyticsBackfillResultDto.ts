@@ -12,7 +12,7 @@ export interface AiAnalyticsBackfillResultDto {
   domain: string;
   /** Месяцы диапазона YYYY-MM, по одной джобе на месяц — это и есть оценка объёма запроса. */
   monthKeys: string[];
-  /** Поставленные джобы догона. Пусто при отказе (см. reason). */
+  /** Джобы догона цепочкой, по одной на месяц: первая уже в очереди, остальные воркер ставит по одной после предыдущей (jobId известны заранее). Пусто при отказе (см. reason). */
   jobs: AiAnalyticsDispatchedJobDto[];
   /**
    * Почему джобы не поставлены: backfill-empty-range — диапазон пуст или перевёрнут, backfill-range-too-wide — больше 24 месяцев за раз. null — всё поставлено.

@@ -23,6 +23,11 @@ interface RelatedLink {
 /** Ссылки «что ещё посмотреть» для настроек конвейера портала. */
 const buildLinks = (portalId: number): RelatedLink[] => [
     {
+        title: 'Ключи портала: VibeCode и свой LLM клиента',
+        href: `/portal/${portalId}/keys`,
+        note: 'vibeKey — VibeCode Битрикса; llmBaseUrl / llmKey / llmModelName — свой OpenAI-совместимый сервис клиента (платит за токены сам). Порядок поставщиков — в карточке «Поставщики AI» ниже.',
+    },
+    {
         title: 'Настройки kpiSales: включение и рассылки',
         href: `/portal/${portalId}/app-settings#group-ai_analytics_main`,
         note: 'Второй рубильник — витрина и рассылки поверх разборов: ai_analytics_enabled, алерты, дайджесты, получатели.',

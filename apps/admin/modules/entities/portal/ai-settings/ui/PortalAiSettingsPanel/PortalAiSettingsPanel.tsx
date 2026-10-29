@@ -33,6 +33,11 @@ import {
     PortalAiSettingsUpdate,
 } from '../../model';
 import { AiSettingsRelatedLinks } from './components/AiSettingsRelatedLinks';
+import {
+    PROVIDER_GLOBAL,
+    ProvidersCard,
+    type ProvidersDraft,
+} from './components/ProvidersCard';
 import { NumberField, TriStateField } from './components/SettingFields';
 
 /** Сентинел селекта моделей: «как глобально» (Radix не принимает ''). */
@@ -47,6 +52,8 @@ interface Draft {
     allowedUserIds: string;
     /** Строгость определения презентации (MODEL_GLOBAL = «как глобально»). */
     presentationStrictness: string;
+    /** Поставщики AI: порядок LLM, транскрибатор, Whisper-совместимый сервис. */
+    providers: ProvidersDraft;
 }
 
 /** Серверные настройки → черновик формы. */
@@ -72,8 +79,19 @@ function toDraft(settings: PortalAiSettings | undefined): Draft {
         deepAnalysisModel: settings?.deepAnalysisModel ?? '',
         allowedUserIds: (settings?.allowedUserIds ?? []).join(', '),
         presentationStrictness: settings?.presentationStrictness ?? MODEL_GLOBAL,
+        providers: {
+            llmProviderOrder: [...(settings?.llmProviderOrder ?? [])],
+            transcriptionMode: settings?.transcriptionMode ?? PROVIDER_GLOBAL,
+            whisperBaseUrl: settings?.whisperBaseUrl ?? '',
+            whisperModel: settings?.whisperModel ?? '',
+            // Сохранённый ключ приходит маской; маска обратно = «не трогать».
+            whisperApiKey: settings?.whisperApiKey ?? '',
+        },
     };
 }
+
+/** Адрес Whisper-сервиса — зеркало проверки бэка (http(s), без пробелов). */
+const WHISPER_URL_RE = /^https?:\/\/\S+$/i;
 
 /**
  * Черновик → полный объект значений. Возвращает текст ошибки вместо
@@ -123,6 +141,23 @@ function toUpdate(draft: Draft): PortalAiSettingsUpdate | string {
         draft.presentationStrictness === MODEL_GLOBAL
             ? null
             : draft.presentationStrictness;
+
+    // Поставщики AI: пусто = «как в приложении» (null).
+    const providers = draft.providers;
+    update.llmProviderOrder = providers.llmProviderOrder.length
+        ? providers.llmProviderOrder
+        : null;
+    update.transcriptionMode =
+        providers.transcriptionMode === PROVIDER_GLOBAL
+            ? null
+            : providers.transcriptionMode;
+    const whisperUrl = providers.whisperBaseUrl.trim();
+    if (whisperUrl && !WHISPER_URL_RE.test(whisperUrl)) {
+        return 'Адрес Whisper-сервиса должен начинаться с http:// или https:// и не содержать пробелов';
+    }
+    update.whisperBaseUrl = whisperUrl || null;
+    update.whisperModel = providers.whisperModel.trim() || null;
+    update.whisperApiKey = providers.whisperApiKey.trim() || null;
 
     const usersRaw = draft.allowedUserIds.trim();
     if (usersRaw === '') {
@@ -508,6 +543,17 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                     </div>
                 </CardContent>
             </Card>
+
+            <ProvidersCard
+                portalId={portalId}
+                draft={draft.providers}
+                onChange={(patch) =>
+                    setDraft((d) => ({
+                        ...d,
+                        providers: { ...d.providers, ...patch },
+                    }))
+                }
+            />
 
             <div className="flex items-center justify-end gap-3">
                 {dirty && (

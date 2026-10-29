@@ -1,4 +1,6 @@
 import type {
+    AiProviderReadinessDto,
+    PortalAiProvidersReadinessDto,
     PortalAiSettingsResponseDto,
     UpdatePortalAiSettingsDto,
 } from '@workspace/nest-admin-api';
@@ -250,5 +252,83 @@ export const AI_MODEL_META = {
         description:
             'Bitrix-ID сотрудников через запятую — анализируются только их звонки (поверх фильтра отдела продаж). Удобно для пилота на 1-2 менеджерах. Пусто — весь отдел продаж портала.',
         globalHint: 'Не задано: весь отдел продаж.',
+    },
+} as const;
+
+/* ----------------------------- Поставщики AI ----------------------------- */
+
+/** Чек-лист готовности провайдеров (GET /api/admin/portal/{portalId}/ai-providers/readiness). */
+export type PortalAiProvidersReadiness = PortalAiProvidersReadinessDto;
+export type AiProviderReadiness = AiProviderReadinessDto;
+
+/**
+ * Провайдеры LLM шлюза разборов — зеркало AI_LLM_PROVIDER_CODES бэка
+ * (@lib/llm-gateway). Порядок в настройке портала = порядок попыток:
+ * первый считает, остальные подхватывают при сбое.
+ */
+export const AI_LLM_PROVIDER_OPTIONS = [
+    {
+        value: 'vibecode',
+        label: 'VibeCode Битрикса',
+        hint: 'Ключ портала vibeKey (страница «Ключи портала»). Сегодня основной: токены Битрикса.',
+    },
+    {
+        value: 'openai-compatible',
+        label: 'OpenAI-совместимый сервис',
+        hint: 'Свой ключ клиента в ключах портала (адрес, ключ, модель — например Cloud.ru или OpenAI) либо запасной ключ приложения. Зарубежные адреса идут через прокси.',
+    },
+    {
+        value: 'ai-rag',
+        label: 'Модели резюме (GigaChat / Cloud.ru)',
+        hint: 'Третий эшелон: схема ответа в промпте, качество ниже — только как последний резерв.',
+    },
+] as const;
+export type AiLlmProviderCode = (typeof AI_LLM_PROVIDER_OPTIONS)[number]['value'];
+
+/** Режимы транскрибации — зеркало AI_TRANSCRIPTION_MODES бэка. */
+export const AI_TRANSCRIPTION_MODE_OPTIONS = [
+    { value: 'auto', label: 'Авто: длинные — Яндекс, короткие — VibeCode' },
+    { value: 'yandex', label: 'Только Яндекс SpeechKit' },
+    { value: 'vibecode', label: 'Только VibeCode Битрикса' },
+    { value: 'whisper', label: 'Только Whisper-совместимый сервис' },
+] as const;
+
+/** Маска сохранённого ключа в ответе API; отправка маски = «оставить прежний». */
+export const AI_SECRET_MASK = '••••••';
+
+/** Тексты полей блока «Поставщики AI» (описания — зеркало DTO бэка). */
+export const AI_PROVIDERS_META = {
+    llmProviderOrder: {
+        label: 'Кто делает разборы (порядок провайдеров LLM)',
+        description:
+            'Первый в списке считает классификацию, глубокий разбор, фокусы и сверки; при его сбое вызов уходит следующему. Чтобы клиент платил за токены сам — заведите его ключ в ключах портала и поставьте «OpenAI-совместимый сервис» первым. Изменение применяется в течение минуты, без выкладки.',
+        globalHint:
+            'Не задано: порядок приложения — VibeCode Битрикса, затем запасной OpenAI-совместимый.',
+    },
+    transcriptionMode: {
+        label: 'Транскрибатор',
+        description:
+            'Кто переводит запись в текст. «Авто» делит по длительности: длинные — Яндекс (надёжнее на больших записях), короткие — VibeCode (дешевле), при сбое одного пробуется другой. Принудительный режим — только выбранный сервис, без запасных.',
+        globalHint: 'Не задано: режим приложения (обычно авто).',
+    },
+    whisperBaseUrl: {
+        label: 'Адрес Whisper-совместимого сервиса',
+        description:
+            'OpenAI-совместимый адрес /audio/transcriptions (обычно оканчивается на /v1): свой сервер клиента, наш сервер или облако по ключу — OpenAI https://api.openai.com/v1, Groq https://api.groq.com/openai/v1. Участвует как последний резерв, либо как единственный при режиме «Только Whisper-совместимый сервис».',
+        globalHint:
+            'Не задано: общий сервис приложения — свой адрес из настроек приложения или облако Groq по ключу приложения; если нет ни того, ни другого, резерва нет.',
+    },
+    whisperModel: {
+        label: 'Модель Whisper-сервиса',
+        description:
+            'Имя модели у выбранного сервиса: OpenAI — whisper-1, Groq — whisper-large-v3-turbo, свой сервер — Systran/faster-whisper-large-v3.',
+        globalHint:
+            'Не задано: для облака — его модель по адресу (Groq — whisper-large-v3-turbo, OpenAI — whisper-1), для своего сервера — модель приложения.',
+    },
+    whisperApiKey: {
+        label: 'Ключ Whisper-сервиса',
+        description:
+            'Хранится зашифрованным; после сохранения в поле показывается маска. Введите новый ключ, чтобы заменить; очистите поле, чтобы убрать ключ (для своего сервера без авторизации).',
+        globalHint: 'Не задано: запросы без ключа.',
     },
 } as const;

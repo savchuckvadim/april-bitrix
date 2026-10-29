@@ -7,6 +7,8 @@
  */
 import type { UpdatePortalAiSettingsDtoPresentationStrictness } from './updatePortalAiSettingsDtoPresentationStrictness';
 import type { UpdatePortalAiSettingsDtoWeeklyReportDelivery } from './updatePortalAiSettingsDtoWeeklyReportDelivery';
+import type { UpdatePortalAiSettingsDtoLlmProviderOrderItem } from './updatePortalAiSettingsDtoLlmProviderOrderItem';
+import type { UpdatePortalAiSettingsDtoTranscriptionMode } from './updatePortalAiSettingsDtoTranscriptionMode';
 
 export interface UpdatePortalAiSettingsDto {
   /**
@@ -153,4 +155,29 @@ export interface UpdatePortalAiSettingsDto {
    * @nullable
    */
   ownOrgNames?: string[] | null;
+  /**
+   * Порядок провайдеров LLM портала от основного к запасным (vibecode, openai-compatible, ai-rag). Пустой список или null — сбросить на общий порядок приложения.
+   * @nullable
+   */
+  llmProviderOrder?: UpdatePortalAiSettingsDtoLlmProviderOrderItem[] | null;
+  /**
+   * Транскрибатор портала: auto, yandex, vibecode или whisper. null — режим приложения.
+   * @nullable
+   */
+  transcriptionMode?: UpdatePortalAiSettingsDtoTranscriptionMode;
+  /**
+   * Адрес Whisper-совместимого сервиса портала (http:// или https://, без пробелов): свой сервер или облако по ключу. Пусто или null — общий сервис приложения.
+   * @nullable
+   */
+  whisperBaseUrl?: string | null;
+  /**
+   * Модель Whisper-совместимого сервиса (OpenAI — whisper-1, Groq — whisper-large-v3-turbo). Пусто или null — модель приложения.
+   * @nullable
+   */
+  whisperModel?: string | null;
+  /**
+   * Ключ Whisper-совместимого сервиса: сохраняется зашифрованным. Маска «••••••» из ответа — оставить прежний ключ; пусто или null — убрать ключ.
+   * @nullable
+   */
+  whisperApiKey?: string | null;
 }

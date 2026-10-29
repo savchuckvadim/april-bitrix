@@ -5,6 +5,7 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { TableImportCreatedRefDto } from './tableImportCreatedRefDto';
 import type { TableImportSkippedRowDto } from './tableImportSkippedRowDto';
 
 export interface TableImportReportDto {
@@ -16,6 +17,8 @@ export interface TableImportReportDto {
   updated: number;
   /** Сколько строк совпало с текущими данными (повторная загрузка того же файла даёт только их). */
   unchanged: number;
+  /** Записи справочников, заведённые попутно: виды поставки, комплекты, пакеты. Считаются отдельно от цен. */
+  createdRefs?: TableImportCreatedRefDto[];
   /** Строки, которые не применены, с причинами. */
   skipped: TableImportSkippedRowDto[];
 }

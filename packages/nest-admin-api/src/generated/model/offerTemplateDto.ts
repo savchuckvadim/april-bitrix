@@ -7,7 +7,6 @@
  */
 import type { OfferTemplatePageDto } from './offerTemplatePageDto';
 import type { OfferTemplateFontDto } from './offerTemplateFontDto';
-import type { OfferTemplateDtoVisibility } from './offerTemplateDtoVisibility';
 import type { OfferTemplateColorsDto } from './offerTemplateColorsDto';
 
 export interface OfferTemplateDto {
@@ -24,7 +23,7 @@ export interface OfferTemplateDto {
   /** The search of the offer template */
   search: string;
   /** The visibility of the offer template */
-  visibility: OfferTemplateDtoVisibility;
+  visibility: string;
   /** The is default of the offer template */
   is_default: boolean;
   /** The type of the offer template */

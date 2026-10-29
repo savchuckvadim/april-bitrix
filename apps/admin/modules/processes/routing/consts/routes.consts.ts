@@ -241,6 +241,22 @@ export const supportEntities: Entity[] = [
     },
 ];
 
+// Раздел «Настройки приложения» (верхний уровень): url — полный путь.
+export const settingsEntities: Entity[] = [
+    {
+        id: 46,
+        item: {
+            name: 'settings',
+            title: 'Прокси и ключи AI',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/settings',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
 
 export const portalEntities: Entity[] = [
 

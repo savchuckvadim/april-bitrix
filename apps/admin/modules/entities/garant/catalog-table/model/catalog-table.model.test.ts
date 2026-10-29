@@ -103,6 +103,7 @@ describe('summarizeReports', () => {
             updated: 3,
             unchanged: 1,
             skipped: 1,
+            createdRefs: 0,
             hasChanges: true,
         });
     });
@@ -114,12 +115,29 @@ describe('summarizeReports', () => {
         expect(summary.unchanged).toBe(10);
     });
 
+    it('заведённые справочники считаются отдельно и значат изменение', () => {
+        // Загрузка могла только завести справочники, не записав ни одной
+        // цены — это тоже изменение, иначе отчёт скажет «файл совпадает»
+        const summary = summarizeReports([
+            report({
+                createdRefs: [
+                    { kind: 'вид поставки', code: 'internet_1', name: '1 ОД' },
+                ],
+            }),
+        ]);
+
+        expect(summary.createdRefs).toBe(1);
+        expect(summary.created).toBe(0);
+        expect(summary.hasChanges).toBe(true);
+    });
+
     it('пустой список отчётов не ломает сводку', () => {
         expect(summarizeReports([])).toEqual({
             created: 0,
             updated: 0,
             unchanged: 0,
             skipped: 0,
+            createdRefs: 0,
             hasChanges: false,
         });
     });

@@ -20,6 +20,7 @@ import {
     portalBadgesEntities,
     supportEntities,
     logsEntities,
+    settingsEntities,
 } from '../consts/routes.consts';
 import type { DeepRoute } from './resolve-deep-route';
 
@@ -62,6 +63,7 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
         isPortalHooks,
         isSupport,
         isLogs,
+        isSettings,
     } = route;
 
     let currentNavItems: ALL_ENTITIES = garantEntities;
@@ -135,6 +137,10 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
     } else if (isLogs) {
         // Журналы: url элементов — полные пути
         currentNavItems = logsEntities;
+        baseUrl = '';
+    } else if (isSettings) {
+        // Настройки приложения: url элементов — полные пути
+        currentNavItems = settingsEntities;
         baseUrl = '';
     } else if (isKonstructor || isPortalKonstructor) {
         currentNavItems = konstructorEntities;

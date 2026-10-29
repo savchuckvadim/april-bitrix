@@ -58,6 +58,8 @@ export interface DeepRoute {
     isSupport: boolean;
     /** Раздел «Журналы» (`/logs`): журналы всех приложений из ClickHouse. */
     isLogs: boolean;
+    /** Раздел «Настройки приложения» (`/settings`): прокси за рубеж и ключи AI. */
+    isSettings: boolean;
 }
 
 /**
@@ -93,6 +95,7 @@ export const resolveDeepRoute = (
     const isHooks = root === 'hooks';
     const isSupport = root === 'support';
     const isLogs = root === 'logs';
+    const isSettings = root === 'settings';
     const isPortalList = isPortal && second === 'list';
 
     const isPortalGarant = isPortal && portalSection === 'garant';
@@ -174,5 +177,6 @@ export const resolveDeepRoute = (
         isPortalHooks,
         isSupport,
         isLogs,
+        isSettings,
     };
 };

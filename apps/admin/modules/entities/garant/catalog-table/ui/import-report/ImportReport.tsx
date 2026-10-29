@@ -34,6 +34,16 @@ export function ImportReport({ reports, applied }: ImportReportProps) {
     const skippedRows = reports.flatMap(report =>
         report.skipped.map(row => ({ section: report.section, ...row })),
     );
+    // Заведённое попутно: «вид поставки: 19» и т.п. — чтобы было видно,
+    // что загрузка не только записала цены, но и создала справочники.
+    const createdRefs = reports.flatMap(report => report.createdRefs ?? []);
+    const refsByKind = createdRefs.reduce<Record<string, string[]>>(
+        (acc, ref) => ({
+            ...acc,
+            [ref.kind]: [...(acc[ref.kind] ?? []), ref.name],
+        }),
+        {},
+    );
 
     return (
         <div className="space-y-3">
@@ -58,6 +68,12 @@ export function ImportReport({ reports, applied }: ImportReportProps) {
                         без изменений: {summary.unchanged}
                     </Badge>
                 )}
+                {summary.createdRefs > 0 && (
+                    <Badge variant="outline">
+                        {applied ? 'заведено в справочниках' : 'будет заведено'}
+                        : {summary.createdRefs}
+                    </Badge>
+                )}
                 {summary.skipped > 0 && (
                     <Badge variant="destructive">
                         не применено: {summary.skipped}
@@ -78,6 +94,24 @@ export function ImportReport({ reports, applied }: ImportReportProps) {
                     )
                     .join(' · ')}
             </div>
+
+            {createdRefs.length > 0 && (
+                <div className="bg-muted/40 space-y-1 rounded-md border p-3 text-xs">
+                    <div className="font-medium">
+                        {applied
+                            ? 'Загрузка попутно завела в каталоге:'
+                            : 'Загрузка попутно заведёт в каталоге:'}
+                    </div>
+                    {Object.entries(refsByKind).map(([kind, names]) => (
+                        <div key={kind} className="text-muted-foreground">
+                            {kind} — {names.length} шт.:{' '}
+                            {names.slice(0, 6).join(', ')}
+                            {names.length > 6 &&
+                                ` и ещё ${names.length - 6}`}
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {skippedRows.length > 0 && (
                 <Accordion type="single" collapsible>

@@ -9,6 +9,10 @@ import type { QuestionnaireFieldsListFieldsEntity } from './questionnaireFieldsL
 
 export type QuestionnaireFieldsListFieldsParams = {
 /**
+ * Носитель полей.
+ */
+entity: QuestionnaireFieldsListFieldsEntity;
+/**
  * Обязателен для носителя «смарт-процесс»: идентификатор строки из `GET /sources` (наша БД, НЕ идентификатор Битрикса).
  */
 smartId?: number;
@@ -16,8 +20,4 @@ smartId?: number;
  * Оставить только поля, которых нет в нашем слепке — заведённые владельцем портала руками.
  */
 onlyManual?: boolean;
-/**
- * Носитель полей.
- */
-entity: QuestionnaireFieldsListFieldsEntity;
 };

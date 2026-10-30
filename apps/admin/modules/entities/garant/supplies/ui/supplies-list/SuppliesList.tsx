@@ -14,6 +14,8 @@ export function SuppliesList() {
     const { data: supplies, isLoading } = useSupplies();
     const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
     const [supplyToDelete, setSupplyToDelete] = React.useState<string | null>(null);
+    /** Узкий вид по умолчанию: 26 колонок за раз читать неудобно */
+    const [showAllColumns, setShowAllColumns] = React.useState(false);
 
     const handleRowClick = (supply: GetSupplyResponseDto) => {
         router.push(`${path}/${supply.id}`);
@@ -48,6 +50,14 @@ export function SuppliesList() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => setShowAllColumns(prev => !prev)}
+                    >
+                        {showAllColumns
+                            ? 'Только основные колонки'
+                            : 'Показать все колонки'}
+                    </Button>
                     <CatalogTableLink kind="supplies" />
                     <Button onClick={() => router.push(`${path}/new`)}>
                         Добавить вид поставки
@@ -61,13 +71,14 @@ export function SuppliesList() {
                 onRowClick={handleRowClick}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                showAllColumns={showAllColumns}
             />
 
             <ConfirmDialog
                 open={deleteDialogOpen}
                 onOpenChange={setDeleteDialogOpen}
                 title="Подтвердите удаление"
-                description="Вы уверены, что хотите удалить этот supply? Это действие нельзя отменить."
+                description="Вы уверены, что хотите удалить этот вид поставки? Это действие нельзя отменить."
                 onConfirm={confirmDelete}
                 confirmLabel="Удалить"
                 variant="destructive"

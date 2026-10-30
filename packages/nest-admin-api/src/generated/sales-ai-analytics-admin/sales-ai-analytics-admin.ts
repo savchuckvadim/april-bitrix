@@ -46,6 +46,10 @@ import type {
   AiAnalyticsRecomputeResultDto,
   AiAnalyticsRetentionResultDto,
   AiAnalyticsRetentionRunDto,
+  AiAnalyticsSmartBackfillAdminStatusParams,
+  AiAnalyticsSmartBackfillRunDto,
+  AiAnalyticsSmartBackfillRunResultDto,
+  AiAnalyticsSmartBackfillStatusDto,
   AiAnalyticsStageHistoryProbeResponseDto,
   AiGuideSectionDto,
   AiGuideSectionItemDto
@@ -307,6 +311,33 @@ const aiAnalyticsReanalyzeAdminStatus = (
       );
     }
   /**
+ * Ставит джобу CALL_REPORT_SMART_BACKFILL (очередь CALL_REPORT, воркер apps/event-sales). Модель не вызывается: разбор берётся из записи ais и раскладывается по полям существующего элемента смарта так же, как при приёме; новые элементы не создаются. Режим period — все карточки периода (по дате записи разбора), pending — только те, у которых запись полей не удалась (их же подбирает ночной крон). Период не задан — последние 30 дней. dryRun — только подсчёт. Квота на часть и бюджет 40 минут: остаток джоба дорабатывает продолжениями сама. Без очереди в сборке — dispatched: false с причиной.
+ * @summary Дописать поля карточек разборов из сохранённых записей
+ */
+const aiAnalyticsSmartBackfillAdminRun = (
+    aiAnalyticsSmartBackfillRunDto: AiAnalyticsSmartBackfillRunDto,
+ ) => {
+      return customAxios<AiAnalyticsSmartBackfillRunResultDto>(
+      {url: `/api/admin/ai-analytics/smart-backfill`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsSmartBackfillRunDto
+    },
+      );
+    }
+  /**
+ * Запись статуса call-report-smart-backfill-run по домену: прогон запрошенного режима и периода (если заданы оба), самый свежий прогон домена и число карточек с элементом, у которых поля разбора ещё не записаны (окно крона).
+ * @summary Статус дописывания полей карточек и число ожидающих
+ */
+const aiAnalyticsSmartBackfillAdminStatus = (
+    params: AiAnalyticsSmartBackfillAdminStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsSmartBackfillStatusDto>(
+      {url: `/api/admin/ai-analytics/smart-backfill-status`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
  * Разделы путеводителя в порядке показа: включение и рассылки, сотрудники и цели, разбор звонков, модель и данные, прогноз, обратная связь и надёжность, запуск после выкладки — коды, названия и счётчики связей. Тексты — GET guide/:code.
  * @summary Путеводитель по AI-аналитике: оглавление разделов
  */
@@ -371,7 +402,7 @@ const aiAnalyticsLaunchAdminStatus = (
     },
       );
     }
-  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus}};
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus}};
 export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
 export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
 export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
@@ -390,6 +421,8 @@ export type AiAnalyticsPhase4AdminRecommendationEffectResult = NonNullable<Await
 export type AiAnalyticsPhase4AdminQualityLinkResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminQualityLink']>>>
 export type AiAnalyticsReanalyzeAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsReanalyzeAdminRun']>>>
 export type AiAnalyticsReanalyzeAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsReanalyzeAdminStatus']>>>
+export type AiAnalyticsSmartBackfillAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsSmartBackfillAdminRun']>>>
+export type AiAnalyticsSmartBackfillAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsSmartBackfillAdminStatus']>>>
 export type AiAnalyticsGuideAdminListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGuideAdminList']>>>
 export type AiAnalyticsGuideAdminEntryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGuideAdminEntry']>>>
 export type AiAnalyticsLaunchAdminResetCacheResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsLaunchAdminResetCache']>>>

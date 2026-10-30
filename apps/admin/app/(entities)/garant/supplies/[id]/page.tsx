@@ -30,7 +30,9 @@ export default function SupplyDetailPage({
         return (
             <div className="container mx-auto py-8">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">Supply не найден</h1>
+                    <h1 className="text-2xl font-bold mb-4">
+                        Вид поставки не найден
+                    </h1>
                     <Button onClick={() => router.push(path)}>
                         Вернуться к списку
                     </Button>
@@ -40,20 +42,18 @@ export default function SupplyDetailPage({
     }
 
     return (
-        <div className="container mx-auto py-8 max-w-2xl">
+        <div className="container mx-auto py-8 max-w-3xl">
             <div className="mb-4">
-                <Button
-                    variant="outline"
-                    onClick={() => router.push(path)}
-                >
+                <Button variant="outline" onClick={() => router.push(path)}>
                     ← Назад к списку
                 </Button>
             </div>
+            {/* detailed — все разделы: договоры, предложение, подстановки */}
             <SuppliesCard
                 item={supply}
+                detailed
                 onEdit={() => router.push(`${path}/${supply.id}/edit`)}
                 onDelete={() => router.push(`${path}/${supply.id}/delete`)}
-                onViewDetails={() => { }}
             />
         </div>
     );

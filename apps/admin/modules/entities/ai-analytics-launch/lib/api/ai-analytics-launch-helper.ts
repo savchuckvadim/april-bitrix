@@ -17,6 +17,8 @@ import type {
     LaunchReanalyzeStatus,
     LaunchStageFlagsResult,
     LaunchStatus,
+    SmartBackfillRunResult,
+    SmartBackfillStatus,
 } from '../../model';
 
 /** Тот же адрес, что у сгенерированного smartInstallAicall (нужен свой таймаут). */
@@ -124,6 +126,34 @@ export class AiAnalyticsLaunchHelper {
     ): Promise<LaunchReanalyzeStatus> {
         return this.api.aiAnalyticsReanalyzeAdminStatus({
             domain,
+            from: period.from,
+            to: period.to,
+        });
+    }
+
+    /** Дописать поля карточек периода из сохранённых разборов (dryRun — подсчёт). */
+    smartBackfill(
+        domain: string,
+        period: LaunchPeriod,
+        dryRun: boolean,
+    ): Promise<SmartBackfillRunResult> {
+        return this.api.aiAnalyticsSmartBackfillAdminRun({
+            domain,
+            mode: 'period',
+            from: period.from,
+            to: period.to,
+            dryRun,
+        });
+    }
+
+    /** Статус прогона периода, последний прогон и число ожидающих карточек. */
+    smartBackfillStatus(
+        domain: string,
+        period: LaunchPeriod,
+    ): Promise<SmartBackfillStatus> {
+        return this.api.aiAnalyticsSmartBackfillAdminStatus({
+            domain,
+            mode: 'period',
             from: period.from,
             to: period.to,
         });

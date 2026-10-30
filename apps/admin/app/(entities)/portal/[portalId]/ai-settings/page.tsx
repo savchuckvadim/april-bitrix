@@ -10,7 +10,10 @@ import {
 } from '@workspace/ui/components/tabs';
 import { PortalAiSettingsPanel } from '@/modules/entities/portal/ai-settings';
 import { PortalKnowledgePanel } from '@/modules/entities/ai-knowledge';
-import { AiLaunchPanel } from '@/modules/entities/ai-analytics-launch';
+import {
+    AiLaunchPanel,
+    AiSmartBackfillCard,
+} from '@/modules/entities/ai-analytics-launch';
 import { usePortal } from '@/modules/entities/portal/hooks';
 
 /** Вкладки страницы; `?tab=knowledge` открывает базу знаний (ссылки путеводителя). */
@@ -48,6 +51,9 @@ function PortalAiSettingsContent() {
     return (
         <div className="space-y-6">
             {portal.data?.domain && <AiLaunchPanel domain={portal.data.domain} />}
+            {portal.data?.domain && (
+                <AiSmartBackfillCard domain={portal.data.domain} />
+            )}
             <Tabs defaultValue={initialTab}>
                 <TabsList>
                     <TabsTrigger value={AI_SETTINGS_TAB.settings}>Настройки AI</TabsTrigger>

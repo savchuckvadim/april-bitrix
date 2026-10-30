@@ -5,18 +5,6 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
-import type { CreateSupplyDtoSaleName1 } from './createSupplyDtoSaleName1';
-import type { CreateSupplyDtoSaleName2 } from './createSupplyDtoSaleName2';
-import type { CreateSupplyDtoSaleName3 } from './createSupplyDtoSaleName3';
-import type { CreateSupplyDtoDescription } from './createSupplyDtoDescription';
-import type { CreateSupplyDtoColor } from './createSupplyDtoColor';
-import type { CreateSupplyDtoContractName } from './createSupplyDtoContractName';
-import type { CreateSupplyDtoContractPropComment } from './createSupplyDtoContractPropComment';
-import type { CreateSupplyDtoContractPropEmail } from './createSupplyDtoContractPropEmail';
-import type { CreateSupplyDtoContractPropLoginsQuantity } from './createSupplyDtoContractPropLoginsQuantity';
-import type { CreateSupplyDtoLcontractName } from './createSupplyDtoLcontractName';
-import type { CreateSupplyDtoLcontractPropComment } from './createSupplyDtoLcontractPropComment';
-import type { CreateSupplyDtoLcontractPropEmail } from './createSupplyDtoLcontractPropEmail';
 
 export interface CreateSupplyDto {
   /** Название поставки */
@@ -25,38 +13,74 @@ export interface CreateSupplyDto {
   fullName: string;
   /** Короткое название поставки */
   shortName: string;
-  /** Название продажи 1 */
-  saleName_1?: CreateSupplyDtoSaleName1;
-  /** Название продажи 2 */
-  saleName_2?: CreateSupplyDtoSaleName2;
-  /** Название продажи 3 */
-  saleName_3?: CreateSupplyDtoSaleName3;
+  /**
+   * Название продажи 1
+   * @nullable
+   */
+  saleName_1?: string | null;
+  /**
+   * Название продажи 2
+   * @nullable
+   */
+  saleName_2?: string | null;
+  /**
+   * Название продажи 3
+   * @nullable
+   */
+  saleName_3?: string | null;
   /** Количество пользователей */
   usersQuantity: number;
-  /** Описание поставки */
-  description?: CreateSupplyDtoDescription;
+  /**
+   * Описание поставки
+   * @nullable
+   */
+  description?: string | null;
   /** Код поставки */
   code: string;
   /** Тип поставки */
   type: string;
-  /** Цвет поставки */
-  color?: CreateSupplyDtoColor;
+  /**
+   * Цвет поставки
+   * @nullable
+   */
+  color?: string | null;
   /** Коэффициент */
   coefficient: number;
-  /** Название контракта */
-  contractName?: CreateSupplyDtoContractName;
-  /** Комментарий к контракту */
-  contractPropComment?: CreateSupplyDtoContractPropComment;
-  /** Email контракта */
-  contractPropEmail?: CreateSupplyDtoContractPropEmail;
-  /** Количество логинов контракта */
-  contractPropLoginsQuantity?: CreateSupplyDtoContractPropLoginsQuantity;
-  /** Название L-контракта */
-  lcontractName?: CreateSupplyDtoLcontractName;
-  /** Комментарий L-контракта */
-  lcontractPropComment?: CreateSupplyDtoLcontractPropComment;
-  /** Email L-контракта */
-  lcontractPropEmail?: CreateSupplyDtoLcontractPropEmail;
+  /**
+   * Название контракта
+   * @nullable
+   */
+  contractName?: string | null;
+  /**
+   * Комментарий к контракту
+   * @nullable
+   */
+  contractPropComment?: string | null;
+  /**
+   * Email контракта
+   * @nullable
+   */
+  contractPropEmail?: string | null;
+  /**
+   * Количество логинов контракта
+   * @nullable
+   */
+  contractPropLoginsQuantity?: string | null;
+  /**
+   * Название L-контракта
+   * @nullable
+   */
+  lcontractName?: string | null;
+  /**
+   * Комментарий L-контракта
+   * @nullable
+   */
+  lcontractPropComment?: string | null;
+  /**
+   * Email L-контракта
+   * @nullable
+   */
+  lcontractPropEmail?: string | null;
   /**
    * Договор услуг: носитель (prop1), шаблон
    * @nullable

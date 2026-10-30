@@ -22,20 +22,32 @@ import { Textarea } from '@workspace/ui/components/textarea';
  * {n}, {words}, {words:gen}, {Words}, {plural:доступ|доступа|доступов}.
  */
 const SUPPLY_TEXT_FIELDS: Array<{ name: keyof CreateSupplyDto; label: string }> = [
-    { name: 'quantityForKp', label: 'КП: подпись поставки (quantityForKp)' },
-    { name: 'contractPropSuppliesQuantity', label: 'Договор: количество поставок ({n} или «Флэш»)' },
+    { name: 'quantityForKp', label: 'Предложение: строка количества' },
+    {
+        name: 'contractPropSuppliesQuantity',
+        label: 'Договор: количество поставок',
+    },
     { name: 'contractName', label: 'Договор услуг: название поставки' },
-    { name: 'contractProp1', label: 'Договор услуг: носитель (prop1)' },
-    { name: 'contractProp2', label: 'Договор услуг: способ доставки (prop2)' },
-    { name: 'contractPropLoginsQuantity', label: 'Договор услуг: количество логинов' },
-    { name: 'contractPropComment', label: 'Договор услуг: комментарий' },
-    { name: 'contractPropEmail', label: 'Договор услуг: e-mail / носитель' },
+    { name: 'contractProp1', label: 'Договор услуг: носитель' },
+    { name: 'contractProp2', label: 'Договор услуг: способ доставки' },
+    {
+        name: 'contractPropLoginsQuantity',
+        label: 'Договор услуг: количество логинов',
+    },
+    { name: 'contractPropComment', label: 'Договор услуг: примечание' },
+    {
+        name: 'contractPropEmail',
+        label: 'Договор услуг: про адрес электронной почты',
+    },
     { name: 'lcontractName', label: 'Лицензионный: название поставки' },
-    { name: 'lcontractProp2', label: 'Лицензионный: prop2' },
-    { name: 'lcontractPropComment', label: 'Лицензионный: комментарий' },
-    { name: 'lcontractPropEmail', label: 'Лицензионный: e-mail' },
-    { name: 'acontractName', label: 'Абонентский: название поставки' },
-    { name: 'acontractPropComment', label: 'Абонентский: комментарий' },
+    { name: 'lcontractProp2', label: 'Лицензионный: способ доставки' },
+    { name: 'lcontractPropComment', label: 'Лицензионный: примечание' },
+    {
+        name: 'lcontractPropEmail',
+        label: 'Лицензионный: про адрес электронной почты',
+    },
+    { name: 'acontractName', label: 'Отчёт о поставке: название' },
+    { name: 'acontractPropComment', label: 'Отчёт о поставке: примечание' },
 ];
 
 interface SuppliesFormProps {
@@ -69,12 +81,14 @@ export function SuppliesForm({
         <Card>
             <CardHeader>
                 <CardTitle>
-                    {mode === 'create' ? 'Создать supply' : 'Редактировать supply'}
+                    {mode === 'create'
+                        ? 'Новый вид поставки'
+                        : 'Изменить вид поставки'}
                 </CardTitle>
                 <CardDescription>
                     {mode === 'create'
-                        ? 'Заполните форму для создания нового supply'
-                        : 'Измените данные supply'}
+                        ? 'Заполните поля нового вида поставки'
+                        : 'Измените поля вида поставки'}
                 </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit(onSubmitForm)}>
@@ -130,12 +144,15 @@ export function SuppliesForm({
                         )}
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="usersQuantity">Количество пользователей</Label>
+                        <Label htmlFor="usersQuantity">
+                            Одновременных доступов
+                        </Label>
                         <Input
                             id="usersQuantity"
                             type="number"
                             {...register('usersQuantity', {
-                                required: 'Количество пользователей обязательно',
+                                required:
+                                    'Укажите число одновременных доступов',
                                 valueAsNumber: true,
                             })}
                         />
@@ -159,11 +176,16 @@ export function SuppliesForm({
                         )}
                     </div>
                     <div className="space-y-2 pt-4 border-t">
-                        <p className="text-sm font-medium">Тексты договоров и КП (шаблоны)</p>
+                        <p className="text-sm font-medium">
+                            Тексты договоров и предложений
+                        </p>
                         <p className="text-xs text-muted-foreground">
-                            Число ОД подставляется на бэке: {'{n}'} — цифрой, {'{words}'} /{' '}
-                            {'{words:gen}'} — прописью (им./род. падеж), {'{plural:доступ|доступа|доступов}'} —
-                            форма слова. Пусто — поле у поставки не задано.
+                            Число доступов подставится само: {'{n}'} — цифрой,{' '}
+                            {'{words}'} — прописью, {'{words:gen}'} — в
+                            родительном падеже,{' '}
+                            {'{plural:доступ|доступа|доступов}'} — нужная форма
+                            слова. Пустое поле значит, что текст у поставки не
+                            задан.
                         </p>
                     </div>
                     {SUPPLY_TEXT_FIELDS.map(field => (

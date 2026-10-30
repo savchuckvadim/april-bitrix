@@ -55,6 +55,32 @@ export const useReanalyzeProgress = (
     });
 
 /**
+ * Статус дописывания полей карточек: опрос раз в 30 секунд, пока идёт
+ * запись (или ждём начатый отсюда подсчёт); иначе — один раз при открытии.
+ */
+export const useSmartBackfillStatus = (
+    domain: string | undefined,
+    period: LaunchPeriod,
+    polling: boolean,
+) =>
+    useQuery({
+        queryKey: [
+            ...AI_ANALYTICS_LAUNCH_KEY,
+            'smart-backfill',
+            domain ?? '',
+            period.from,
+            period.to,
+        ],
+        queryFn: () =>
+            launchHelper.smartBackfillStatus(domain as string, period),
+        enabled: !!domain,
+        refetchInterval: polling ? LAUNCH_POLL_MS : false,
+        refetchIntervalInBackground: false,
+        staleTime: LAUNCH_STATUS_STALE_MS,
+        retry: false,
+    });
+
+/**
  * Нажатие кнопки шага: выполняет действие и переводит ответ в текст;
  * после успеха перечитывает сводку — галочки обновляются сами.
  */

@@ -5,18 +5,6 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
-import type { GetSupplyResponseDtoSaleName1 } from './getSupplyResponseDtoSaleName1';
-import type { GetSupplyResponseDtoSaleName2 } from './getSupplyResponseDtoSaleName2';
-import type { GetSupplyResponseDtoSaleName3 } from './getSupplyResponseDtoSaleName3';
-import type { GetSupplyResponseDtoDescription } from './getSupplyResponseDtoDescription';
-import type { GetSupplyResponseDtoColor } from './getSupplyResponseDtoColor';
-import type { GetSupplyResponseDtoContractName } from './getSupplyResponseDtoContractName';
-import type { GetSupplyResponseDtoContractPropComment } from './getSupplyResponseDtoContractPropComment';
-import type { GetSupplyResponseDtoContractPropEmail } from './getSupplyResponseDtoContractPropEmail';
-import type { GetSupplyResponseDtoContractPropLoginsQuantity } from './getSupplyResponseDtoContractPropLoginsQuantity';
-import type { GetSupplyResponseDtoLcontractName } from './getSupplyResponseDtoLcontractName';
-import type { GetSupplyResponseDtoLcontractPropComment } from './getSupplyResponseDtoLcontractPropComment';
-import type { GetSupplyResponseDtoLcontractPropEmail } from './getSupplyResponseDtoLcontractPropEmail';
 import type { GetSupplyResponseDtoCreatedAt } from './getSupplyResponseDtoCreatedAt';
 import type { GetSupplyResponseDtoUpdatedAt } from './getSupplyResponseDtoUpdatedAt';
 
@@ -29,38 +17,74 @@ export interface GetSupplyResponseDto {
   fullName: string;
   /** Supply short name */
   shortName: string;
-  /** Sale name 1 */
-  saleName_1?: GetSupplyResponseDtoSaleName1;
-  /** Sale name 2 */
-  saleName_2?: GetSupplyResponseDtoSaleName2;
-  /** Sale name 3 */
-  saleName_3?: GetSupplyResponseDtoSaleName3;
+  /**
+   * Sale name 1
+   * @nullable
+   */
+  saleName_1?: string | null;
+  /**
+   * Sale name 2
+   * @nullable
+   */
+  saleName_2?: string | null;
+  /**
+   * Sale name 3
+   * @nullable
+   */
+  saleName_3?: string | null;
   /** Users quantity */
   usersQuantity: number;
-  /** Supply description */
-  description?: GetSupplyResponseDtoDescription;
+  /**
+   * Supply description
+   * @nullable
+   */
+  description?: string | null;
   /** Supply code */
   code: string;
   /** Supply type */
   type: string;
-  /** Supply color */
-  color?: GetSupplyResponseDtoColor;
+  /**
+   * Supply color
+   * @nullable
+   */
+  color?: string | null;
   /** Coefficient */
   coefficient: number;
-  /** Contract name */
-  contractName?: GetSupplyResponseDtoContractName;
-  /** Contract prop comment */
-  contractPropComment?: GetSupplyResponseDtoContractPropComment;
-  /** Contract prop email */
-  contractPropEmail?: GetSupplyResponseDtoContractPropEmail;
-  /** Contract prop logins quantity */
-  contractPropLoginsQuantity?: GetSupplyResponseDtoContractPropLoginsQuantity;
-  /** L contract name */
-  lcontractName?: GetSupplyResponseDtoLcontractName;
-  /** L contract prop comment */
-  lcontractPropComment?: GetSupplyResponseDtoLcontractPropComment;
-  /** L contract prop email */
-  lcontractPropEmail?: GetSupplyResponseDtoLcontractPropEmail;
+  /**
+   * Contract name
+   * @nullable
+   */
+  contractName?: string | null;
+  /**
+   * Contract prop comment
+   * @nullable
+   */
+  contractPropComment?: string | null;
+  /**
+   * Contract prop email
+   * @nullable
+   */
+  contractPropEmail?: string | null;
+  /**
+   * Contract prop logins quantity
+   * @nullable
+   */
+  contractPropLoginsQuantity?: string | null;
+  /**
+   * L contract name
+   * @nullable
+   */
+  lcontractName?: string | null;
+  /**
+   * L contract prop comment
+   * @nullable
+   */
+  lcontractPropComment?: string | null;
+  /**
+   * L contract prop email
+   * @nullable
+   */
+  lcontractPropEmail?: string | null;
   /** Created at */
   created_at?: GetSupplyResponseDtoCreatedAt;
   /** Updated at */

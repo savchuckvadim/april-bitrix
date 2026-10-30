@@ -5,4 +5,5 @@ export {
     useLaunchStatus,
     useReanalyzeProgress,
     useRefreshLaunchStatus,
+    useSmartBackfillStatus,
 } from './use-ai-analytics-launch';

@@ -1,5 +1,5 @@
 /** Публичная поверхность панели «Запуск AI после выкладки». */
-export { AiLaunchPanel } from './ui';
+export { AiLaunchPanel, AiSmartBackfillCard } from './ui';
 export {
     LAUNCH_STEP_CODES,
     LAUNCH_TEXT,

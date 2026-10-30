@@ -10,6 +10,9 @@ import type {
     AiAnalyticsReanalyzeRunResultDto,
     AiAnalyticsReanalyzeStatusDto,
     AiAnalyticsRecomputeResultDto,
+    AiAnalyticsSmartBackfillRunResultDto,
+    AiAnalyticsSmartBackfillRunStatusDto,
+    AiAnalyticsSmartBackfillStatusDto,
     InstallAicallResponseDto,
 } from '@workspace/nest-admin-api';
 import type { LAUNCH_STEP_CODES } from '../consts/ai-analytics-launch.const';
@@ -33,6 +36,10 @@ export type LaunchReanalyzeRunResult = AiAnalyticsReanalyzeRunResultDto;
 export type LaunchReanalyzeStatus = AiAnalyticsReanalyzeStatusDto;
 export type LaunchReanalyzeRunStatus = AiAnalyticsReanalysisRunStatusDto;
 export type LaunchInstallSmartResult = InstallAicallResponseDto;
+/** Дописывание полей карточек из сохранённых разборов (smart-backfill). */
+export type SmartBackfillRunResult = AiAnalyticsSmartBackfillRunResultDto;
+export type SmartBackfillStatus = AiAnalyticsSmartBackfillStatusDto;
+export type SmartBackfillRunStatus = AiAnalyticsSmartBackfillRunStatusDto;
 
 /** Шаг панели по порядку нажатия. */
 export type LaunchStepCode = (typeof LAUNCH_STEP_CODES)[number];

@@ -453,11 +453,7 @@ export const drainOutbox =
                 );
             }
             const targets =
-                options.deps?.targets ??
-                getWiredDeliveryTargets(
-                    dispatch,
-                    getState().app.bitrix?.placement?.placement,
-                );
+                options.deps?.targets ?? getWiredDeliveryTargets(dispatch);
             const checkStatus = targets.find(
                 target => target.checkStatus,
             )?.checkStatus;

@@ -347,45 +347,19 @@ export const selectAllowedTargets = (
         ? targets.filter(target => target.id !== PRIMARY_BACKEND_TARGET_ID)
         : targets;
 
-/**
- * Встройки, где отчёт по умолчанию идёт ПРЯМЫМ путём (канарейка А5.5,
- * решение владельца 31.08).
- *
- * Зачем: обкатать прямой путь на живых людях с минимальным радиусом
- * поражения. Вкладка карточки — самая узкая встройка: там менеджер
- * отчитывается по одному событию, а не ведёт список, и цена сбоя ниже
- * всего. Служебный хвост при живом сервере доезжает секундами позже
- * обычным пасом досылки (А5), так что отчётность не отстаёт.
- *
- * Выключатель — эта константа: пустой список возвращает всем режимам
- * прежний порядок «сервер → прямой путь».
- */
-const DIRECT_FIRST_PLACEMENTS: readonly string[] = ['DETAIL_TAB'];
-
-/** Идёт ли этой встройке прямой путь первым. */
-export const isDirectFirstPlacement = (
-    placement: string | null | undefined,
-): boolean =>
-    Boolean(placement) &&
-    DIRECT_FIRST_PLACEMENTS.some(mode => placement!.includes(mode));
-
 /** Как реестру достучаться до прямого исполнителя (Redux-часть снаружи). */
 export interface DeliveryTargetsContext {
     /** Не передан — цель direct-bitrix числится, но отвечает unavailable. */
     deliverDirect?: DirectEnvelopeRunner;
-    /**
-     * Встройка приложения (`app.bitrix.placement`). Нужна канарейке А5.5:
-     * в узких встройках прямой путь идёт первым.
-     */
-    placement?: string | null;
 }
 
 /**
  * Список адресов: основной бэк, затем прямой исполнитель (А4). Порядок —
- * это приоритет: обычно primary первый, и прямой путь подбирает конверт
- * лишь после исчерпания его сетевых попыток (фолбэк-пас движка). В
- * канареечной встройке (А5.5) порядок обратный: прямой путь первым, сервер
- * — страховкой. Запасной тонкий бэк или зеркало добавятся сюда строкой.
+ * это приоритет, и он один на все встройки: отчёт всегда идёт на сервер, а
+ * прямой путь подбирает конверт лишь после исчерпания его сетевых попыток
+ * (фолбэк-пас движка). Канарейка А5.5 («прямой путь первым во вкладке
+ * карточки») снята решением владельца 30.10.2026. Запасной тонкий бэк или
+ * зеркало добавятся сюда строкой.
  */
 export const getDeliveryTargets = (
     context: DeliveryTargetsContext = {},
@@ -394,7 +368,5 @@ export const getDeliveryTargets = (
         ? createDirectBitrixTarget(context.deliverDirect)
         : directBitrixTarget;
 
-    return isDirectFirstPlacement(context.placement)
-        ? [direct, primaryBackendTarget]
-        : [primaryBackendTarget, direct];
+    return [primaryBackendTarget, direct];
 };

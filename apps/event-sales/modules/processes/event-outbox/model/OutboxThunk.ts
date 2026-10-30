@@ -120,14 +120,9 @@ export const refreshOutboxMirror =
  * на конвейере — lib/delivery-targets остаётся чистой конфигурацией без
  * Redux, а тестовые deps.targets подменяют его целиком.
  */
-export const getWiredDeliveryTargets = (
-    dispatch: AppDispatch,
-    placement?: string | null,
-) =>
+export const getWiredDeliveryTargets = (dispatch: AppDispatch) =>
     getDeliveryTargets({
         deliverDirect: envelope => dispatch(deliverEnvelopeDirect(envelope)),
-        // Канарейка А5.5: во вкладке карточки прямой путь идёт первым.
-        placement,
     });
 
 const phaseFromSummary = (
@@ -206,10 +201,7 @@ export type EnqueueDeliverySummary = OutboxDeliverySummary & {
  */
 export const enqueueAndDeliver =
     (envelope: OutboxEnvelope, options: EnqueueAndDeliverOptions = {}) =>
-    async (
-        dispatch: AppDispatch,
-        getState: AppGetState,
-    ): Promise<EnqueueDeliverySummary> => {
+    async (dispatch: AppDispatch): Promise<EnqueueDeliverySummary> => {
         requestPersistOnFirstEnqueue();
 
         // ОТПРАВКА НАЧАЛАСЬ — единственная точка на оба вида: и отчёт
@@ -264,11 +256,7 @@ export const enqueueAndDeliver =
                 // Продовый реестр — с прямым исполнителем (А4); тестовые
                 // deps.targets имеют приоритет и реестра не строят.
                 targets:
-                    options.deps?.targets ??
-                    getWiredDeliveryTargets(
-                        dispatch,
-                        getState().app.bitrix?.placement?.placement,
-                    ),
+                    options.deps?.targets ?? getWiredDeliveryTargets(dispatch),
                 fallbackEnvelope: merged,
             },
         );

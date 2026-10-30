@@ -580,9 +580,10 @@ export const deliverOutboxEnvelope = async (
                     picked.result.outcome ===
                     OUTBOX_DELIVERY_OUTCOME.executedDirect
                 ) {
-                    // Прямое исполнение (А4) первой же целью — реестр без
-                    // primary (тесты, будущая политика по режиму встройки
-                    // А5.5): хвост deferred решает delivered | partial.
+                    // Прямое исполнение (А4) первой же целью — primary
+                    // вычеркнут из допустимых (конверт с отметкой прямой
+                    // попытки, см. isPrimaryForbidden) или реестр без него
+                    // в тестах: хвост deferred решает delivered | partial.
                     const final = markDirectExecutionOutcome(
                         applyDirectExecution(marked, {
                             targetId: picked.target.id,

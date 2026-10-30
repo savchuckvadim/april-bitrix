@@ -18,7 +18,6 @@ import {
     createDirectBitrixTarget,
     directBitrixTarget,
     getDeliveryTargets,
-    isDirectFirstPlacement,
     primaryBackendTarget,
 } from './delivery-targets';
 import { OUTBOX_DELIVERY_OUTCOME } from './outbox-envelope';
@@ -260,43 +259,5 @@ describe('createDirectBitrixTarget — маппинг исходов испол�
             outcome: OUTBOX_DELIVERY_OUTCOME.networkError,
             detail: 'обязательные команды пишущего батча упали',
         });
-    });
-});
-
-describe('канарейка А5.5: порядок целей по встройке', () => {
-    // Вкладка карточки — самая узкая встройка: там менеджер отчитывается по
-    // одному событию, поэтому прямой путь обкатывается именно на ней.
-    it('вкладка карточки ставит прямой путь первым', () => {
-        const targets = getDeliveryTargets({
-            placement: 'CRM_DEAL_DETAIL_TAB',
-        });
-
-        expect(targets.map(target => target.id)).toEqual([
-            DIRECT_BITRIX_TARGET_ID,
-            PRIMARY_BACKEND_TARGET_ID,
-        ]);
-    });
-
-    it('остальные встройки идут прежним порядком: сервер, затем прямой путь', () => {
-        for (const placement of [
-            'CRM_DEAL_DETAIL_ACTIVITY',
-            'TASK_VIEW_TAB',
-            null,
-            undefined,
-        ]) {
-            const targets = getDeliveryTargets({ placement });
-
-            expect(targets.map(target => target.id)).toEqual([
-                PRIMARY_BACKEND_TARGET_ID,
-                DIRECT_BITRIX_TARGET_ID,
-            ]);
-        }
-    });
-
-    it('признак встройки узнаёт вкладку любой сущности', () => {
-        expect(isDirectFirstPlacement('CRM_COMPANY_DETAIL_TAB')).toBe(true);
-        expect(isDirectFirstPlacement('CRM_LEAD_DETAIL_TAB')).toBe(true);
-        expect(isDirectFirstPlacement('CRM_DEAL_DETAIL_ACTIVITY')).toBe(false);
-        expect(isDirectFirstPlacement(null)).toBe(false);
     });
 });

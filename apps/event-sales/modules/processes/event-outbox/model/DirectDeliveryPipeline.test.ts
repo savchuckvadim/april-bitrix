@@ -89,6 +89,45 @@ afterEach(() => {
     mountKvWindow(null);
 });
 
+describe('сервер всегда первый', () => {
+    it('POST принят — статус не спрашивали, браузер отчёт не исполнял', async () => {
+        sendFlowMock.mockResolvedValue({ status: 'queued' });
+        // Статус-адрес отвечает ошибкой: пока прямой путь стоял первым
+        // (канарейка DETAIL_TAB), такой ответ уводил отчёт в браузер мимо POST.
+        getFlowStatusMock.mockRejectedValue(
+            Object.assign(new Error('HTTP 500'), {
+                isAxiosError: true,
+                response: { status: 500 },
+            }),
+        );
+
+        const { dispatch } = makeThunkHarness();
+        const execute = vi.fn();
+        const targets = getDeliveryTargets({
+            deliverDirect: envelope =>
+                dispatch(
+                    deliverEnvelopeDirect(envelope, {
+                        readTaskComments: async () => [],
+                        execute,
+                        log: () => undefined,
+                    }),
+                ),
+        });
+        const { now, wait } = makeClock();
+
+        const summary = await dispatch(
+            enqueueAndDeliver(makeEnvelope({ payload: payloadWithTask() }), {
+                deps: { targets, now, wait, tabId: 'tab-a', locks: null },
+            }),
+        );
+
+        expect(summary).toMatchObject({ status: 'accepted' });
+        expect(sendFlowMock).toHaveBeenCalledTimes(1);
+        expect(getFlowStatusMock).not.toHaveBeenCalled();
+        expect(execute).not.toHaveBeenCalled();
+    });
+});
+
 describe('врезка А4: primary 3×сеть → direct исполнил ядро → partial + бейдж', () => {
     it('конверт закрыт partial, допуск ходил в статус один раз, бейдж — «ждёт досылки»', async () => {
         // Бэк лежит целиком: и POST /flow, и GET /flow/status — сетевые.

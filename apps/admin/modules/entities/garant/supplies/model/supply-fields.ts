@@ -95,27 +95,39 @@ export const SUPPLY_FIELD_GROUPS: readonly SupplyFieldGroup[] = [
         description:
             'Тексты попадают в договор. Можно использовать подстановки числа доступов.',
         fields: [
-            { key: 'contractName', label: 'Название в договоре', kind: 'long' },
+            {
+                key: 'contractName',
+                label: 'Договор услуг: название',
+                kind: 'long',
+            },
             {
                 key: 'contractPropSuppliesQuantity',
-                label: 'Количество поставок',
+                label: 'Договор услуг: количество поставок',
                 kind: 'long',
             },
             {
                 key: 'contractPropLoginsQuantity',
-                label: 'Количество логинов',
+                label: 'Договор услуг: количество логинов',
                 kind: 'long',
             },
-            { key: 'contractProp1', label: 'Свойство 1', kind: 'long' },
-            { key: 'contractProp2', label: 'Свойство 2', kind: 'long' },
+            {
+                key: 'contractProp1',
+                label: 'Договор услуг: свойство 1',
+                kind: 'long',
+            },
+            {
+                key: 'contractProp2',
+                label: 'Договор услуг: свойство 2',
+                kind: 'long',
+            },
             {
                 key: 'contractPropComment',
-                label: 'Примечание',
+                label: 'Договор услуг: примечание',
                 kind: 'long',
             },
             {
                 key: 'contractPropEmail',
-                label: 'Про адрес электронной почты',
+                label: 'Договор услуг: про адрес электронной почты',
                 kind: 'long',
             },
         ],
@@ -127,18 +139,22 @@ export const SUPPLY_FIELD_GROUPS: readonly SupplyFieldGroup[] = [
         fields: [
             {
                 key: 'lcontractName',
-                label: 'Название в договоре',
+                label: 'Лицензионный договор: название',
                 kind: 'long',
             },
-            { key: 'lcontractProp2', label: 'Свойство 2', kind: 'long' },
+            {
+                key: 'lcontractProp2',
+                label: 'Лицензионный договор: свойство 2',
+                kind: 'long',
+            },
             {
                 key: 'lcontractPropComment',
-                label: 'Примечание',
+                label: 'Лицензионный договор: примечание',
                 kind: 'long',
             },
             {
                 key: 'lcontractPropEmail',
-                label: 'Про адрес электронной почты',
+                label: 'Лицензионный договор: про адрес электронной почты',
                 kind: 'long',
             },
         ],
@@ -147,10 +163,14 @@ export const SUPPLY_FIELD_GROUPS: readonly SupplyFieldGroup[] = [
         id: 'acontract',
         title: 'Отчёт о поставке',
         fields: [
-            { key: 'acontractName', label: 'Название в отчёте', kind: 'long' },
+            {
+                key: 'acontractName',
+                label: 'Отчёт о поставке: название',
+                kind: 'long',
+            },
             {
                 key: 'acontractPropComment',
-                label: 'Примечание',
+                label: 'Отчёт о поставке: примечание',
                 kind: 'long',
             },
         ],
@@ -170,9 +190,21 @@ export const SUPPLY_TABLE_PRIMARY_KEYS: readonly SupplyFieldKey[] = [
     'coefficient',
 ];
 
-/** Сколько текстов договоров заполнено — для столбца «заполненность» */
+/**
+ * Тексты, попадающие в договоры и предложения — для столбца
+ * «заполненность». Описание и названия для продаж в документы не идут,
+ * из-за них знаменатель был завышен (18 вместо 15).
+ */
+const NOT_DOCUMENT_TEXT_KEYS: readonly SupplyFieldKey[] = [
+    'description',
+    'saleName_1',
+    'saleName_2',
+    'saleName_3',
+];
+
 export const SUPPLY_TEXT_KEYS: readonly SupplyFieldKey[] = SUPPLY_FIELDS.filter(
-    field => field.kind === 'long',
+    field =>
+        field.kind === 'long' && !NOT_DOCUMENT_TEXT_KEYS.includes(field.key),
 ).map(field => field.key);
 
 export const countFilledTexts = (item: GetSupplyResponseDto): number =>

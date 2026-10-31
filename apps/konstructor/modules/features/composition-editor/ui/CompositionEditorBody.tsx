@@ -1,44 +1,42 @@
 'use client';
 
+import type { ComponentType } from 'react';
 import type { CompositionEditorState } from '../hooks/use-composition-editor';
-import { toggleSectionItem } from '../lib/composition-sections.util';
-import { CompositionMessages } from './CompositionMessages';
+import type { CompositionViewMode } from '../model/types';
 import { CompositionLtOtherBlock } from './CompositionLtOtherBlock';
-import { CompositionSectionBlock } from './CompositionSectionBlock';
+import { CompositionMessages } from './CompositionMessages';
 import { CompositionServicesBlock } from './CompositionServicesBlock';
+import { CompositionCardsView } from './views/CompositionCardsView';
+import { CompositionDenseView } from './views/CompositionDenseView';
+import { CompositionFlatView } from './views/CompositionFlatView';
+import { CompositionSummaryView } from './views/CompositionSummaryView';
+import type { CompositionViewProps } from './views/types';
 
 export interface CompositionEditorBodyProps {
     editor: CompositionEditorState;
 }
 
+const VIEWS: Record<CompositionViewMode, ComponentType<CompositionViewProps>> = {
+    cards: CompositionCardsView,
+    flat: CompositionFlatView,
+    dense: CompositionDenseView,
+    summary: CompositionSummaryView,
+};
+
 /**
- * Категории наполнения (свёрнутая — только отмеченное), пакеты LT-other и
- * сервисы строки. Одно тело для панели шага «Комплект» и окна товара на «Ценах».
+ * Категории наполнения в выбранном пользователем виде, пакеты LT-other и
+ * сервисы строки. Сообщения правил прижаты к низу области прокрутки: остаются
+ * на виду при длинном списке и, появляясь, не двигают чекбоксы. Одно тело для
+ * панели шага «Комплект» и окна товара на «Ценах».
  */
 export const CompositionEditorBody = ({ editor }: CompositionEditorBodyProps) => {
-    const { composition, sections } = editor;
+    const { composition } = editor;
     if (!composition) return null;
+    const View = VIEWS[editor.view.mode];
 
     return (
         <div className="flex flex-col gap-3">
-            <CompositionMessages result={editor.lastResult} />
-            {sections.sections.map(section => (
-                <CompositionSectionBlock
-                    key={section.code}
-                    title={section.title}
-                    total={section.items.length}
-                    checkedCount={section.checkedCount}
-                    isOpen={section.isOpen}
-                    visibleItems={section.visibleItems}
-                    isChecked={section.isChecked}
-                    onToggleOpen={() => sections.toggleSection(section.code)}
-                    onToggleItem={(code, next) =>
-                        editor.applyComposition(
-                            toggleSectionItem(section.kind, code, next),
-                        )
-                    }
-                />
-            ))}
+            <View editor={editor} />
             <CompositionLtOtherBlock
                 composition={composition}
                 catalog={editor.catalog}
@@ -52,6 +50,7 @@ export const CompositionEditorBody = ({ editor }: CompositionEditorBodyProps) =>
                     onApply={editor.applyComposition}
                 />
             </div>
+            <CompositionMessages {...editor.messages} />
         </div>
     );
 };

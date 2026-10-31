@@ -55,6 +55,7 @@ export default function PortalDetailPage({
                 onEdit={() => router.push(`/portal/${portal.id}/edit`)}
                 onDelete={() => router.push(`/portal/${portal.id}/delete`)}
                 onViewDetails={() => { }}
+                onOpenRegions={() => router.push(`/portal/${portal.id}/garant/regions`)}
             />
         </div>
     );

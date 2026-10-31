@@ -1,17 +1,18 @@
 import type { StepNavItem } from '@workspace/april-ui/navigation';
-import {
-    FLOW_STEPS,
-    KONSTRUCTOR_ROUTE_PATH,
-    type FlowRoute,
-} from './routes';
+import { BITRIX_FLOW_SURFACE, type FlowSurface } from './flow-surface';
+import { KONSTRUCTOR_ROUTE_PATH, type FlowRoute } from './routes';
 
 const isUnder = (pathname: string, path: string): boolean =>
     pathname === path || pathname.startsWith(`${path}/`);
 
 /** Шаг, которому принадлежит адрес (`/document/offer` — шагу «Документ»). */
-export const findCurrentFlowRoute = (pathname: string): FlowRoute | null =>
-    FLOW_STEPS.find(step => isUnder(pathname, KONSTRUCTOR_ROUTE_PATH[step.route]))
-        ?.route ?? null;
+export const findCurrentFlowRoute = (
+    pathname: string,
+    surface: FlowSurface = BITRIX_FLOW_SURFACE,
+): FlowRoute | null =>
+    surface.steps.find(step =>
+        isUnder(pathname, `${surface.basePath}${KONSTRUCTOR_ROUTE_PATH[step.route]}`),
+    )?.route ?? null;
 
 /**
  * Состояния шагов для степпера: до текущего — пройдены, после — впереди.
@@ -21,11 +22,12 @@ export const findCurrentFlowRoute = (pathname: string): FlowRoute | null =>
 export const resolveFlowSteps = (
     pathname: string,
     hasMainRow: boolean,
+    surface: FlowSurface = BITRIX_FLOW_SURFACE,
 ): StepNavItem[] => {
-    const current = findCurrentFlowRoute(pathname);
-    const currentIndex = FLOW_STEPS.findIndex(step => step.route === current);
+    const current = findCurrentFlowRoute(pathname, surface);
+    const currentIndex = surface.steps.findIndex(step => step.route === current);
 
-    return FLOW_STEPS.map((step, index) => ({
+    return surface.steps.map((step, index) => ({
         code: step.route,
         label: step.label,
         state:

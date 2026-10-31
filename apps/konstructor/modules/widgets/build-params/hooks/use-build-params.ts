@@ -89,7 +89,6 @@ export const useBuildParams = () => {
     };
 
     return {
-        regions: catalog.regions.items,
         draft,
         facts,
         setRegion: (regionCode: string) =>

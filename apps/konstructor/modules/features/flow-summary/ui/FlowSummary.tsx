@@ -58,14 +58,16 @@ export const FlowSummary = ({
                             <ArrowRight aria-hidden />
                         </Button>
                     ) : null}
-                    <Button
-                        variant="ghost"
-                        onClick={step.goBack}
-                        className="w-full"
-                    >
-                        <ArrowLeft aria-hidden />
-                        Назад
-                    </Button>
+                    {step.canGoBack ? (
+                        <Button
+                            variant="ghost"
+                            onClick={step.goBack}
+                            className="w-full"
+                        >
+                            <ArrowLeft aria-hidden />
+                            Назад
+                        </Button>
+                    ) : null}
                 </div>
             }
         >

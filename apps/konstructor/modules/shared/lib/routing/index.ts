@@ -13,5 +13,10 @@ export {
     type DocumentKind,
     type DocumentKindInfo,
 } from './document-kinds';
+export {
+    FlowSurfaceProvider,
+    useFlowSurface,
+} from './flow-surface-context';
+export { BITRIX_FLOW_SURFACE, type FlowSurface } from './flow-surface';
 export { findCurrentFlowRoute, resolveFlowSteps } from './flow-steps.util';
 export { useKonstructorNavigation } from './use-konstructor-navigation';

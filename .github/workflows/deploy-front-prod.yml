@@ -60,7 +60,7 @@ env:
       "bitrix":        { "app_url": "https://bitrix.april-app.ru", "in_bitrix": "true",  "chromium": "false" },
       "kpi-sales":     { "app_url": "",                            "in_bitrix": "false", "chromium": "false", "kpi_sales_api_url": "https://api.kpi-sales.april-app.ru/" },
       "kpi-service":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "false" },
-      "konstructor":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  },
+      "konstructor":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "true",  "konstructor_api_url": "https://api.konstructor.april-app.ru/" },
       "event-sales":   { "app_url": "",                            "in_bitrix": "true",  "chromium": "true",  "event_sales_api_url": "https://api.event-sales.april-app.ru/" },
       "event-service": { "app_url": "",                            "in_bitrix": "true",  "chromium": "true"  }
     }

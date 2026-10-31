@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
+import { FieldCombobox, type ComboboxOption } from '@workspace/april-ui/fields';
+import { Button } from '@workspace/ui/components/button';
 import {
     Card,
     CardContent,
@@ -10,91 +10,90 @@ import {
     CardHeader,
     CardTitle,
 } from '@workspace/ui/components/card';
-import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
-import { UpdatePortalRegionDto } from '../../model';
+import { usePortalRegionForm } from '../../lib/hooks/use-portalRegion-form';
+import type { UpdatePortalRegionDto } from '../../model';
 
 interface PortalRegionsFormProps {
     initialData?: UpdatePortalRegionDto;
+    sourceOptions: ComboboxOption[];
     onSubmit: (data: UpdatePortalRegionDto) => void;
     onCancel?: () => void;
     isLoading?: boolean;
-    mode?: 'edit';
 }
 
+/** Своя цена одного региона портала: регион-источник или любое число */
 export function PortalRegionsForm({
     initialData,
+    sourceOptions,
     onSubmit,
     onCancel,
     isLoading = false,
-    mode = 'edit',
 }: PortalRegionsFormProps) {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<UpdatePortalRegionDto>({
-        defaultValues: initialData || {},
-    });
-
-    const onSubmitForm = (data: UpdatePortalRegionDto) => {
-        onSubmit(data);
-    };
+    const form = usePortalRegionForm(initialData);
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>
-                    Редактировать регион
-                </CardTitle>
+                <CardTitle>Своя цена региона</CardTitle>
                 <CardDescription>
-                    Измените данные региона
+                    Укажите регион, у которого брать рабс, или впишите число.
+                    Налог и рабс с налогом считаются сами.
                 </CardDescription>
             </CardHeader>
-            <form onSubmit={handleSubmit(onSubmitForm)}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
                 <CardContent className="space-y-4">
-                    {/* TODO: Добавьте поля формы на основе CreatePortalMeasureDto */}
+                    <div className="flex items-end gap-2">
+                        <FieldCombobox
+                            className="min-w-0 flex-1"
+                            label="Как у региона"
+                            options={sourceOptions}
+                            value={form.sourceValue}
+                            onChange={form.setSource}
+                            placeholder="Выберите регион"
+                            searchPlaceholder="Найти регион"
+                            emptyText="Регион не найден"
+                        />
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={form.clearOwnPrice}
+                        >
+                            Сбросить
+                        </Button>
+                    </div>
                     <div className="space-y-2">
-                        <Label htmlFor="own_abs">Own ABS</Label>
+                        <Label htmlFor="own_abs">Свой рабс</Label>
                         <Input
-                            id="id"
+                            id="own_abs"
                             type="number"
-                            {...register('own_abs')}
-                            required
-                            min={1}
-
+                            step="0.01"
+                            {...form.ownAbsField}
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="own_tax">Own Tax</Label>
+                        <Label htmlFor="own_tax">Налоговый множитель</Label>
+                        <Input id="own_tax" disabled {...form.ownTaxField} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="own_tax_abs">Рабс с налогом</Label>
                         <Input
-                            id="id"
-                            type="number"
-                            {...register('own_tax')}
-
+                            id="own_tax_abs"
+                            disabled
+                            {...form.ownTaxAbsField}
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="own_tax_abs">Own Tax ABS</Label>
+                        <Label htmlFor="regionCode">Код региона</Label>
                         <Input
-                            id="id"
-                            type="number"
-                            {...register('own_tax_abs')}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="own_abs">regionCode</Label>
-                        <Input
-                            id="id"
-                            type="text"
-                            {...register('regionCode')}
-                            disabled={true}
-
+                            id="regionCode"
+                            disabled
+                            {...form.regionCodeField}
                         />
                     </div>
                 </CardContent>
-                <CardFooter className="flex gap-2 justify-end">
+                <CardFooter className="flex justify-end gap-2">
                     {onCancel && (
                         <Button
                             type="button"
@@ -106,9 +105,7 @@ export function PortalRegionsForm({
                         </Button>
                     )}
                     <Button type="submit" disabled={isLoading}>
-                        {isLoading
-                            ? 'Сохранение...'
-                            : 'Сохранить'}
+                        {isLoading ? 'Сохранение...' : 'Сохранить'}
                     </Button>
                 </CardFooter>
             </form>

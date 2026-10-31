@@ -21,6 +21,8 @@ export interface StepNavProps {
     /** Цвет текущего и пройденных шагов. */
     tone?: Tone;
     ariaLabel?: string;
+    /** Шаги на всю ширину контейнера: первый у левого края, последний у правого. */
+    stretch?: boolean;
     className?: string;
 }
 
@@ -37,6 +39,7 @@ export const StepNav = ({
     onSelect,
     tone = 'primary',
     ariaLabel = 'Шаги',
+    stretch = false,
     className,
 }: StepNavProps) => (
     <nav aria-label={ariaLabel} className={cn('min-w-0', className)}>
@@ -47,7 +50,10 @@ export const StepNav = ({
                         <li
                             aria-hidden
                             className={cn(
-                                'h-px w-4 shrink-0 sm:w-6',
+                                'h-px',
+                                stretch
+                                    ? 'min-w-4 flex-1'
+                                    : 'w-4 shrink-0 sm:w-6',
                                 step.state === 'upcoming'
                                     ? 'bg-border'
                                     : 'bg-foreground/30',

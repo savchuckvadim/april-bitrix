@@ -5,6 +5,7 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { OfferTemplateSummaryDtoVisibility } from './offerTemplateSummaryDtoVisibility';
 import type { OfferTemplatePageDto } from './offerTemplatePageDto';
 
 export interface OfferTemplateSummaryDto {
@@ -17,7 +18,7 @@ export interface OfferTemplateSummaryDto {
   /** The search of the offer template */
   search: string;
   /** The visibility of the offer template */
-  visibility: string;
+  visibility: OfferTemplateSummaryDtoVisibility;
   /** The is default of the offer template */
   is_default: boolean;
   /** The type of the offer template */

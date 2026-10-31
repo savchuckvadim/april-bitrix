@@ -1,26 +1,28 @@
 'use client';
 
-import * as React from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
-import type { BulkSetPortalRegionsResultDto } from '@workspace/nest-admin-api';
+import type { BulkSetPortalRegionsResult } from '../../model';
 
 interface PortalRegionsBulkBarProps {
     changesCount: number;
+    /** Строк с неверным рабсом: пока они есть, сохранять нельзя */
+    invalidCount: number;
     isSaving: boolean;
-    result: BulkSetPortalRegionsResultDto | null;
+    result: BulkSetPortalRegionsResult | null;
     error: Error | null;
     onSave: () => void;
     onReset: () => void;
 }
 
 /**
- * Панель несохранённых правок регионов портала: галочки и свои рабсы
+ * Панель несохранённых правок регионов портала: галочки и своя цена
  * копятся, уходят в систему одним нажатием.
  */
 export function PortalRegionsBulkBar({
     changesCount,
+    invalidCount,
     isSaving,
     result,
     error,
@@ -40,15 +42,17 @@ export function PortalRegionsBulkBar({
                             </span>
                             <p className="text-muted-foreground">
                                 Отметьте нужные регионы и при необходимости
-                                задайте свой рабс, затем сохраните — всё уйдёт
+                                задайте свою цену, затем сохраните — всё уйдёт
                                 одним действием.
                             </p>
                         </>
                     ) : (
                         <p className="text-muted-foreground">
                             Отметьте регионы, которые доступны этому порталу.
-                            Свой рабс нужен, когда у портала особая цена —
-                            часто его берут из рабса другого региона.
+                            Своя цена нужна, когда портал работает по особому
+                            рабсу. Выберите регион, у которого его брать: цена
+                            будет следовать за обновлениями этого региона. Или
+                            впишите любое число.
                         </p>
                     )}
                 </div>
@@ -64,12 +68,21 @@ export function PortalRegionsBulkBar({
                     )}
                     <Button
                         onClick={onSave}
-                        disabled={!hasChanges || isSaving}
+                        disabled={!hasChanges || isSaving || invalidCount > 0}
                     >
                         {isSaving ? 'Сохраняем…' : 'Сохранить'}
                     </Button>
                 </div>
             </div>
+
+            {invalidCount > 0 && (
+                <Alert variant="destructive">
+                    <AlertDescription>
+                        Рабс должен быть числом больше нуля. Неверных значений:{' '}
+                        {invalidCount}.
+                    </AlertDescription>
+                </Alert>
+            )}
 
             {error && (
                 <Alert variant="destructive">
@@ -92,7 +105,7 @@ export function PortalRegionsBulkBar({
                     )}
                     {result.updatedOwn > 0 && (
                         <Badge variant="secondary">
-                            свой рабс задан: {result.updatedOwn}
+                            своя цена обновлена: {result.updatedOwn}
                         </Badge>
                     )}
                     {result.skipped.length > 0 && (

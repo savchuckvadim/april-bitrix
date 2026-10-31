@@ -26,6 +26,19 @@ const contractKind = (code: string): ContractKind => {
     return 'service';
 };
 
+/**
+ * Умолчания ЭР комплекта. Бэк до исправления init клал пакеты и в ers (вес
+ * считался дважды), а ersInPacket Офиса отдавал с повторами.
+ */
+const toErDefaults = (dto: InitV2ComplectDto): Pick<KComplect['defaults'], 'ers' | 'erPackets' | 'ersInPacket'> => {
+    const erPackets = dto.codes?.packetsEr ?? [];
+    return {
+        ers: (dto.codes?.ers ?? []).filter(code => !erPackets.includes(code)),
+        erPackets,
+        ersInPacket: [...new Set(dto.codes?.ersInPacket ?? [])],
+    };
+};
+
 const toComplect = (dto: InitV2ComplectDto): KComplect => ({
     code: dto.tag || dto.name,
     order: dto.number,
@@ -44,9 +57,7 @@ const toComplect = (dto: InitV2ComplectDto): KComplect => ({
     isChanging: dto.isChanging,
     defaults: {
         infoblocks: dto.codes?.filling ?? [],
-        ers: dto.codes?.ers ?? [],
-        erPackets: dto.codes?.packetsEr ?? [],
-        ersInPacket: dto.codes?.ersInPacket ?? [],
+        ...toErDefaults(dto),
     },
 });
 
@@ -65,6 +76,20 @@ const toService = (
     productType,
     isPackage: dto.isPackage,
 });
+
+/**
+ * Состав пакетов ЭР. Бэк до исправления присылал children пустыми — тогда он
+ * берётся из комплекта с этим единственным пакетом: там ersInPacket = его ЭР.
+ */
+const fillErPacketChildren = (catalog: Catalog): void => {
+    for (const complect of Object.values(catalog.complects.byCode)) {
+        const { erPackets, ersInPacket } = complect.defaults;
+        const block = catalog.infoblocks[erPackets[0] ?? ''];
+        if (erPackets.length === 1 && block && !block.children.length) {
+            block.children = [...ersInPacket];
+        }
+    }
+};
 
 export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
     const catalog = emptyCatalog();
@@ -109,6 +134,8 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
             infoblockCodes: codes,
         });
     }
+
+    fillErPacketChildren(catalog);
 
     for (const dto of data.supplies ?? []) {
         const supply = {
@@ -161,6 +188,7 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
             taxAbs: dto.tax_abs ?? 0,
             infoblock: dto.infoblock,
             weight: dto.weight ?? 0.5,
+            inPortal: dto.inPortal ?? false,
         };
         catalog.regions.items.push(region);
         catalog.regions.byCode[region.code] = region;

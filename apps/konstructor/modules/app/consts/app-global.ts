@@ -17,7 +17,7 @@ const devEnv = (value: string | undefined): string =>
     IS_PROD ? '' : (value ?? '').trim();
 
 export const TESTING_DOMAIN = devEnv(process.env.NEXT_PUBLIC_DEV_DOMAIN);
-export const TESTING_DEAL_ID = Number(devEnv(process.env.NEXT_PUBLIC_DEV_DEAL_ID)) || 0;
+export const TESTING_DEAL_ID =  Number(devEnv(process.env.NEXT_PUBLIC_DEV_DEAL_ID)) || 0;
 export const TESTING_COMPANY_ID = Number(devEnv(process.env.NEXT_PUBLIC_DEV_COMPANY_ID)) || 0;
 export const DEV_CURRENT_USER_ID = Number(devEnv(process.env.NEXT_PUBLIC_DEV_USER_ID)) || 1;
 

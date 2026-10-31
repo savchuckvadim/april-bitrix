@@ -5,8 +5,6 @@ import '@/style/print.css';
 import '@/style/fonts.css';
 import { ThemeInitScript } from '@workspace/theme';
 import { BootPreloader } from '@workspace/april-ui/feedback';
-import { Providers } from '@/modules/app/providers';
-import { App } from '@/modules/app/ui/App';
 
 const fontSans = Geist({
     subsets: ['latin'],
@@ -19,9 +17,9 @@ const fontMono = Geist_Mono({
 });
 
 /**
- * Корень: тема до гидратации, единый boot-прелоадер, провайдеры и гейт
- * инициализации Bitrix. Каркас экранов — в app/(shell)/layout.tsx.
- * Карта маршрутов — docs/routing.md.
+ * Корень: тема до гидратации и единый boot-прелоадер. Стор и гейт у каждой
+ * поверхности свои: фрейм — app/(shell)/layout.tsx, публичная версия —
+ * app/p/[token]/layout.tsx. Карта маршрутов — docs/routing.md.
  */
 export default function RootLayout({
     children,
@@ -36,9 +34,7 @@ export default function RootLayout({
                 <ThemeInitScript defaultTheme="light" />
                 {/* SSR-прелоадер: виден до загрузки JS, гасится из App */}
                 <BootPreloader />
-                <Providers>
-                    <App>{children}</App>
-                </Providers>
+                {children}
             </body>
         </html>
     );

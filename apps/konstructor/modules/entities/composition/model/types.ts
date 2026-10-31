@@ -151,12 +151,15 @@ export const defaultComposition = (
 });
 
 /**
- * Состав из слепка, записанного до появления поля (v2 без ltOther и т.п.):
- * недостающие списки получают пустое значение, остальное — как есть.
+ * Состав из старого слепка v2: недостающие списки получают пустое значение,
+ * пакеты убираются из отдельных ЭР (раньше init клал их и туда — вес считался
+ * дважды), состав пакетов — без повторов.
  */
 export const normalizeComposition = (
     composition: Composition,
-): Composition =>
-    Array.isArray(composition.ltOther)
-        ? composition
-        : { ...composition, ltOther: [] };
+): Composition => ({
+    ...composition,
+    ltOther: Array.isArray(composition.ltOther) ? composition.ltOther : [],
+    ers: composition.ers.filter(code => !composition.erPackets.includes(code)),
+    ersInPacket: [...new Set(composition.ersInPacket)],
+});

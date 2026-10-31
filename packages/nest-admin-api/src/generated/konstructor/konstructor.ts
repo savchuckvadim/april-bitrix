@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-  OfferDto,
   OfferWordByTemplateGenerateDto,
   OfferWordByTemplateGenerateResponseDto,
   OfferWordEphemeralPdfPollResponseDto,
@@ -88,20 +87,9 @@ const offerWordMultiGenerateGenerateOfferWordMulti = (
     },
       );
     }
-  const offerCreateOffer = (
-    offerDto: OfferDto,
- ) => {
-      return customAxios<void>(
-      {url: `/api/offer/create`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: offerDto
-    },
-      );
-    }
-  return {offerWordGenerateGenerateOfferWord,offerWordPdfPreviewStartPreview,offerWordPdfPreviewGetPreviewStatus,offerWordPdfPreviewStopPreview,offerWordMultiGenerateGenerateOfferWordMulti,offerCreateOffer}};
+  return {offerWordGenerateGenerateOfferWord,offerWordPdfPreviewStartPreview,offerWordPdfPreviewGetPreviewStatus,offerWordPdfPreviewStopPreview,offerWordMultiGenerateGenerateOfferWordMulti}};
 export type OfferWordGenerateGenerateOfferWordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordGenerateGenerateOfferWord']>>>
 export type OfferWordPdfPreviewStartPreviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordPdfPreviewStartPreview']>>>
 export type OfferWordPdfPreviewGetPreviewStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordPdfPreviewGetPreviewStatus']>>>
 export type OfferWordPdfPreviewStopPreviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordPdfPreviewStopPreview']>>>
 export type OfferWordMultiGenerateGenerateOfferWordMultiResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerWordMultiGenerateGenerateOfferWordMulti']>>>
-export type OfferCreateOfferResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerCreateOffer']>>>

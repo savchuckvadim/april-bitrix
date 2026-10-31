@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { GetPortalRegionResponseDto, UpdatePortalRegionDto } from "../../model";
+import type { GetPortalRegionResponseDto, UpdatePortalRegionDto } from "../../model";
 import { PortalRegionsHelper } from "../api/portalRegions-helper";
 
 /**

@@ -5,33 +5,30 @@ import type { Catalog } from '@/modules/entities/catalog';
 import type { Composition } from '@/modules/entities/composition';
 import {
     buildCompositionSections,
-    isSectionItemChecked,
+    describeSection,
 } from '../lib/composition-sections.util';
 
 /**
- * Категории наполнения со сворачиванием. Свёрнутая категория показывает
- * только отмеченное — инфоблоков много, и список не должен уходить на
- * несколько экранов вниз. По умолчанию всё свёрнуто.
+ * Категории наполнения для всех видов: отметки и метки веса, сворачивание
+ * (вид «Карточки»: свёрнутая показывает только отмеченное, по умолчанию всё
+ * свёрнуто) и фильтр «только выбранные» (вид «Плотно»).
  */
 export const useCompositionSections = (
     catalog: Catalog,
     composition: Composition | null,
+    showWeights: boolean,
 ) => {
     const sections = useMemo(() => buildCompositionSections(catalog), [catalog]);
     const [openCodes, setOpenCodes] = useState<string[]>([]);
+    const [onlyChecked, setOnlyChecked] = useState(false);
 
     const view = sections.map(section => {
+        const described = describeSection(section, composition, showWeights);
         const isOpen = openCodes.includes(section.code);
-        const isChecked = (code: string) =>
-            composition !== null &&
-            isSectionItemChecked(composition, section.kind, code);
-        const checked = section.items.filter(item => isChecked(item.code));
         return {
-            ...section,
+            ...described,
             isOpen,
-            checkedCount: checked.length,
-            visibleItems: isOpen ? section.items : checked,
-            isChecked,
+            visibleItems: isOpen ? described.items : described.checkedItems,
         };
     });
 
@@ -40,6 +37,8 @@ export const useCompositionSections = (
     return {
         sections: view,
         isAllOpen,
+        onlyChecked,
+        toggleOnlyChecked: () => setOnlyChecked(prev => !prev),
         toggleSection: (code: string) =>
             setOpenCodes(prev =>
                 prev.includes(code)

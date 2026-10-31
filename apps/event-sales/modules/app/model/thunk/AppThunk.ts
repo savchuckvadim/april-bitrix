@@ -9,7 +9,7 @@ import { expireAppConfigCache } from '../../lib/cache/app-config-cache';
 import { expireStageDictCaches } from '@/modules/entities/RelatedCrm/lib/stage-dict-cache';
 
 /**
- * Тонкий оркестратор boot'а (Alfacentr-паттерн): guard + loading-флаги,
+ * Тонкий оркестратор boot'а: guard + loading-флаги,
  * вся работа — в lib/initialize/app-init.util.ts.
  */
 export const initial =

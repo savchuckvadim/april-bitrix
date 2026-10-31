@@ -8,6 +8,7 @@ import type {
 import { isBlocking } from '../model/types';
 import { addUnique, remove } from './utils';
 import { COMPOSITION_RULES } from './rules/registry';
+import { erRule } from './rules/er-packets';
 import {
     addLtOtherPacket,
     removeLtOtherPacket,
@@ -128,7 +129,10 @@ export const applyAction = (
     ctx: CompositionCtx,
 ): RuleResult => {
     if (composition.mode === 'free') {
-        const next = applyNaive(composition, action);
+        // ЭР и без правил держат структуру: ersInPacket — производное от пакетов
+        const next =
+            erRule.apply?.(composition, action, ctx)?.composition ??
+            applyNaive(composition, action);
         return {
             composition: next,
             violations: validateComposition(next, ctx),

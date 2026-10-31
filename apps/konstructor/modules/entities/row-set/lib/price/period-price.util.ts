@@ -41,7 +41,13 @@ export const calcPeriodPrice = (input: PeriodPriceInput): PeriodPrice => {
     return {
         base,
         current,
-        month: round2(base / contract.durationMonths),
+        // Делитель приходит из справочника (contracts.prepayment). Ноль
+        // или потерянное значение давали NaN, который тёк в сумму строки
+        // и в документы — показываем 0 вместо «не число».
+        month:
+            contract.durationMonths > 0
+                ? round2(base / contract.durationMonths)
+                : 0,
     };
 };
 

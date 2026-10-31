@@ -8,6 +8,15 @@ import { BuildSummary } from '@/modules/features/build-summary';
 import { InvoiceOptions, OfferGenerateButton, RecipientFields } from '@/modules/features/offer-form';
 import { ZakupkiCard } from '@/modules/features/zakupki-offer';
 import {
+    OFFER_DOCUMENT_FORMAT,
+    OfferDocumentFormatSwitch,
+    OfferPdfDocumentProvider,
+    OfferPdfGenerateButton,
+    OfferPdfPreviewPanelLoadable,
+    OfferPdfTemplateCard,
+    useOfferPdfDocument,
+} from '@/modules/entities/offer-pdf';
+import {
     WordTemplateMenu,
     WordTemplatePdfPreviewPanelLoadable,
     WordTemplateSettingsDialog,
@@ -16,8 +25,9 @@ import { Screen, ScreenHeader, ScreenSplit } from '@/modules/shared';
 import { useOfferDocumentScreen } from '../hooks/use-offer-document-screen';
 
 /**
- * КП (Word): шаблон, получатель, поставщик и счёт, PDF-превью; справа —
- * сводка сборки и «Сформировать». Легаси DocumentPage + Options + Recipient.
+ * КП: по Word-шаблону (очередь, счёт, сделка) или PDF из встроенного
+ * шаблона (собирается сразу, превью обновляется само). Справа — сводка
+ * сборки и «Сформировать». Легаси DocumentPage + Options + Recipient.
  */
 export const OfferDocumentScreen = () => {
     const screen = useOfferDocumentScreen();
@@ -36,36 +46,58 @@ export const OfferDocumentScreen = () => {
     }
 
     return (
+        <OfferPdfDocumentProvider>
+            <OfferDocumentScreenBody zakupkiEnabled={screen.zakupkiEnabled} toHub={screen.toHub} />
+        </OfferPdfDocumentProvider>
+    );
+};
+
+const OfferDocumentScreenBody = ({ zakupkiEnabled, toHub }: { zakupkiEnabled: boolean; toHub: () => void }) => {
+    const { format } = useOfferPdfDocument();
+    const isPdf = format === OFFER_DOCUMENT_FORMAT.PDF;
+
+    return (
         <Screen>
             <ScreenHeader
                 title="Коммерческое предложение"
-                description="Word-шаблон, получатель и счёт. Проверьте превью и сформируйте документ в сделку."
+                description={
+                    isPdf
+                        ? 'Встроенный PDF-шаблон, получатель и письмо. Превью обновляется само — проверьте и сформируйте файл.'
+                        : 'Word-шаблон, получатель и счёт. Проверьте превью и сформируйте документ в сделку.'
+                }
                 actions={
-                    <Button variant="ghost" onClick={screen.toHub}>
-                        <ArrowLeft aria-hidden />
-                        К документам
+                    <Button variant="ghost" onClick={toHub}>
+                        <ArrowLeft aria-hidden />К документам
                     </Button>
                 }
             />
             <ScreenSplit
                 aside={
-                    <SectionCard title="Сборка" tone="complect" accent footer={<OfferGenerateButton />}>
+                    <SectionCard
+                        title="Сборка"
+                        tone="complect"
+                        accent
+                        footer={isPdf ? <OfferPdfGenerateButton /> : <OfferGenerateButton />}
+                    >
                         <BuildSummary />
                     </SectionCard>
                 }
             >
-                <WordTemplateMenu isWord />
+                <OfferDocumentFormatSwitch />
+                {isPdf ? <OfferPdfTemplateCard /> : <WordTemplateMenu isWord />}
                 <div className="grid gap-4 xl:grid-cols-2">
                     <RecipientFields />
-                    <InvoiceOptions />
+                    {isPdf ? null : <InvoiceOptions />}
                 </div>
-                {screen.zakupkiEnabled ? <ZakupkiCard /> : null}
+                {zakupkiEnabled && !isPdf ? <ZakupkiCard /> : null}
                 <SectionCard
                     title="Превью PDF"
-                    description="Как КП будет выглядеть по выбранному шаблону."
+                    description={
+                        isPdf ? 'Так будет выглядеть документ. Меняйте настройки — превью пересоберётся.' : 'Как КП будет выглядеть по выбранному шаблону.'
+                    }
                     tone="complect"
                 >
-                    <WordTemplatePdfPreviewPanelLoadable />
+                    {isPdf ? <OfferPdfPreviewPanelLoadable /> : <WordTemplatePdfPreviewPanelLoadable />}
                 </SectionCard>
             </ScreenSplit>
             <WordTemplateSettingsDialog />

@@ -20,7 +20,8 @@ import { customAxios } from '../../lib/admin-api';
 
   export const getAdminPortalGarantRegion = () => {
 /**
- * @summary Получить все регионы
+ * abs/tax/tax_abs — общий рабс региона, own_* — свои настройки портала (ручной рабс или регион-источник), effective_* — действующая цена.
+ * @summary Все регионы справочника с привязкой и своей ценой портала
  */
 const adminPortalGarantRegionList = (
     params: AdminPortalGarantRegionListParams,
@@ -32,7 +33,7 @@ const adminPortalGarantRegionList = (
       );
     }
   /**
- * @summary Создать регион для портала
+ * @summary Привязать регион к порталу
  */
 const adminPortalGarantRegionCreate = (
     createPortalRegionDtoAdminRequest: CreatePortalRegionDtoAdminRequest,
@@ -45,8 +46,8 @@ const adminPortalGarantRegionCreate = (
       );
     }
   /**
- * Включает/выключает регионы портала и ставит собственный рабс (own_abs) одним запросом — под интерфейс с чекбоксами. Достаточно передавать только изменившиеся строки.
- * @summary Массово применить чекбоксы регионов портала
+ * Включает/выключает регионы портала и ставит свою цену одним запросом: ручной рабс (ownAbs) или регион-источник (ownAbsRegionId), чей рабс портал берёт за свой. Достаточно передавать только изменившиеся строки.
+ * @summary Массово применить чекбоксы и свои цены регионов портала
  */
 const adminPortalGarantRegionBulkSet = (
     bulkSetPortalRegionsDto: BulkSetPortalRegionsDto,
@@ -59,7 +60,7 @@ const adminPortalGarantRegionBulkSet = (
       );
     }
   /**
- * @summary Получить регион для портала
+ * @summary Данные формы своей цены региона портала
  */
 const adminPortalGarantRegionGetUpdateInitialData = (
     portalId: number,
@@ -71,7 +72,8 @@ const adminPortalGarantRegionGetUpdateInitialData = (
       );
     }
   /**
- * @summary Обновить регион для портала
+ * Ручной рабс или регион-источник; оба пустые — возврат к общему рабсу.
+ * @summary Обновить свою цену региона портала
  */
 const adminPortalGarantRegionUpdate = (
     portalId: number,
@@ -86,7 +88,7 @@ const adminPortalGarantRegionUpdate = (
       );
     }
   /**
- * @summary Удалить регион для портала
+ * @summary Отвязать регион от портала
  */
 const adminPortalGarantRegionDelete = (
     portalId: number,

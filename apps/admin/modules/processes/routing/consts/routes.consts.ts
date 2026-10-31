@@ -881,6 +881,19 @@ export const konstructorEntities: Entity[] = [
             }
         },
     },
+    {
+        // Отзываемые ссылки на публичный конструктор (без Битрикса и документов).
+        id: 9,
+        item: {
+            name: 'public-link',
+            title: 'Публичные ссылки',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/public-link',
+                method: API_METHOD.GET
+            }
+        },
+    },
 ]
 
 

@@ -1,11 +1,6 @@
-// Из стора барель отдаёт ТОЛЬКО типы: значения потянули бы за собой создание
-// стора и замкнули цикл инициализации. Сам стор — '@/modules/app/model/store'.
+// Поверхность app-слоя для нижних слоёв: хуки стора и типы. Значения стора,
+// App-гейт и Битрикс-инициализация импортируются по прямому пути: через этот
+// баррель они попали бы в публичную версию (modules/public-app).
 export type * from './model/store';
 export * from './lib/hooks/redux';
-export * from './model/AppSlice';
-export * from './model/AppThunk';
-export * from './model/selectors';
 export * from './lib/hooks/is-client-mounted.hook';
-export * from './lib/hooks/auth';
-export * from './ui/App';
-export { Providers } from './providers';

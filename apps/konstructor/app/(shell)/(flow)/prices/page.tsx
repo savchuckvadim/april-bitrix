@@ -3,14 +3,14 @@
 import dynamic from 'next/dynamic';
 import { PriceTableSkeleton } from '@/modules/widgets/price-table';
 
-const PriceTableWidget = dynamic(
+const DealPriceTable = dynamic(
     () =>
-        import('@/modules/widgets/price-table').then(
-            module => module.PriceTableWidget,
+        import('@/modules/widgets/deal-price-table').then(
+            module => module.DealPriceTable,
         ),
     { ssr: false, loading: () => <PriceTableSkeleton /> },
 );
 
 export default function PricesPage() {
-    return <PriceTableWidget />;
+    return <DealPriceTable />;
 }

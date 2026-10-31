@@ -1,16 +1,8 @@
 import type { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import type { Catalog } from '../../catalog';
-import {
-    documentProvidertAC,
-    type DocumentProviderState,
-} from '../../provider';
 import { rowSetActions, type RowSetState } from './RowSetSlice';
 import type { RowSet } from './types';
-import {
-    applySetTaxChange,
-    detectDroppedAcademy,
-    syncSetWithComposition,
-} from '../lib/set';
+import { detectDroppedAcademy, syncSetWithComposition } from '../lib/set';
 
 /**
  * Реакции row-set (регистрируются app-слоем в start-store-listeners).
@@ -20,7 +12,6 @@ import {
 interface WithRowSetDeps {
     rowSet: RowSetState;
     catalog: { catalog: Catalog };
-    documentProvider: DocumentProviderState;
 }
 
 interface ListenerApiLike {
@@ -82,41 +73,6 @@ export function setupRowSetSyncListener(
                 if (synced !== set) {
                     listenerApi.dispatch(rowSetActions.writeSyncedSet(synced));
                 }
-            }
-        },
-    });
-}
-
-/**
- * Смена поставщика → массовый пересчёт налога ×1.05/÷1.05 по всем сетам
- * (легаси changeProviderTax): LIC и бесплатные строки пропускаются,
- * ручные скидки сохраняются, слепки не пересобираются по каталогу.
- */
-export function setupProviderTaxListener(
-    listenerMiddleware: ListenerMiddlewareInstance,
-) {
-    loose(listenerMiddleware)({
-        matcher: (action: { type: string }) =>
-            action.type === documentProvidertAC.setCurrent.type ||
-            action.type === documentProvidertAC.setFetched.type,
-        effect: (_action: unknown, listenerApi: ListenerApiLike) => {
-            const state = listenerApi.getState();
-            const nowTaxed = Boolean(state.documentProvider.current?.withTax);
-            const wasTaxed = state.rowSet.context.withTax;
-            if (nowTaxed === wasTaxed) return;
-
-            const { catalog } = state.catalog;
-            listenerApi.dispatch(rowSetActions.setWithTax(nowTaxed));
-            for (const set of [
-                state.rowSet.general,
-                ...state.rowSet.alternative,
-            ]) {
-                if (!set.rows.length) continue;
-                listenerApi.dispatch(
-                    rowSetActions.writeSyncedSet(
-                        applySetTaxChange(set, catalog, wasTaxed, nowTaxed),
-                    ),
-                );
             }
         },
     });

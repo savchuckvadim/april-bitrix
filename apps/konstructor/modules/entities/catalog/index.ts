@@ -4,6 +4,7 @@ export * from './model/CatalogSlice';
 export * from './model/selectors';
 export * from './lib/compatibility-matrix';
 export * from './lib/custom-od.util';
+export * from './lib/portal-regions.util';
 export * from './lib/complect-theme';
 export * from './lib/complect-rule-flags';
 export * from './lib/legacy-codes';

@@ -12,7 +12,7 @@ export function PortalRegionDetails() {
     const regionId = Number(params.id);
 
     const { region, isLoading } = usePortalRegionDetails(portalId, regionId);
-    const { data: originalRegion, isLoading: isLoadingOriginalRegion, isError: isErrorOriginalRegion, isSuccess: isSuccessOriginalRegion, error: errorOriginalRegion } = useRegion(regionId);
+    const { data: originalRegion, isLoading: isLoadingOriginalRegion, isError: isErrorOriginalRegion, error: errorOriginalRegion } = useRegion(regionId);
     if (isLoading) {
         return <div>Loading...</div>;
     }
@@ -24,10 +24,10 @@ export function PortalRegionDetails() {
         < >
             <PortalRegionsCard item={region} />
 
-            <h2>Измененные данные в регионе</h2>
+            <h2>Своя цена портала</h2>
             <PortalRegionsEdit />
 
-            <h2>Оригинальные данные в регионе</h2>
+            <h2>Регион в общем справочнике</h2>
             {isLoadingOriginalRegion && <div>Loading...</div>}
             {isErrorOriginalRegion && <div>Error: {errorOriginalRegion.message}</div>}
 

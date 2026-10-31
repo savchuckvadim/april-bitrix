@@ -7,6 +7,7 @@
  */
 
 /**
- * Own tax (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend.
+ * Налоговый множитель ручного рабса. Отдаётся формой для показа, на запись не влияет.
+ * @nullable
  */
-export type UpdatePortalRegionDtoAdminOwnTax = string | number;
+export type UpdatePortalRegionDtoAdminOwnTax = string | number | null;

@@ -1,10 +1,8 @@
-import { usePortalRegionsList } from "./use-portalRegionsList";
+import { usePortalRegions } from './use-portalRegions';
 
 export const usePortalRegionDetails = (portalId: number, regionId: number) => {
-
-    const { regions, isLoading } = usePortalRegionsList(portalId);
-
-    const region = regions?.find(region => Number(region.id) === Number(regionId));
+    const { data: regions, isLoading } = usePortalRegions({ portalId });
+    const region = regions?.find(item => Number(item.id) === regionId);
 
     return { region, isLoading };
 };

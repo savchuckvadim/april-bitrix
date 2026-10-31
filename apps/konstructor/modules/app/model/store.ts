@@ -7,8 +7,6 @@ import {
     ThunkAction,
 } from '@reduxjs/toolkit';
 import { appReducer } from './AppSlice';
-import { catalogReducer } from '@/modules/entities/catalog';
-import { rowSetReducer } from '@/modules/entities/row-set';
 import { offerTemplateBlockReducer } from '@/modules/entities/offer-template-block';
 import { offerTemplateReducer } from '@/modules/entities/offer-template';
 import { offerTemplateKonstructorReducer } from '@/modules/entities/offer-template-konstructor';
@@ -28,8 +26,8 @@ import { supplyReportReducer } from '@/modules/entities/supply-report-document';
 import { appSettingsReducer } from '@/modules/entities/app-settings';
 import { zakupkiReducer } from '@/modules/entities/zakupki';
 import { serviceOfferReducer } from '@/modules/entities/service-offer';
-import { complectDescriptionReducer } from '@/modules/entities/complect-description';
 import { dealSendReducer } from '@/modules/features/deal-send';
+import { coreReducers } from './core-reducers';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
 export const listenerMiddleware = createListenerMiddleware();
@@ -39,9 +37,8 @@ const rootReducer = combineReducers({
     bxrq: bxrqReducer,
 
     deal: dealReducer,
-    // ядро конструктора (code-джойны)
-    catalog: catalogReducer,
-    rowSet: rowSetReducer,
+    // ядро конструктора (code-джойны): то же, что в публичной версии
+    ...coreReducers,
     snapshot: snapshotReducer,
     // варианты комплекта: несколько предложений внутри одной сделки
     complectVariant: complectVariantReducer,
@@ -61,7 +58,6 @@ const rootReducer = combineReducers({
     zakupki: zakupkiReducer,
     // сервисный отдел: период «текущий / следующий» (смарт service_offer)
     serviceOffer: serviceOfferReducer,
-    complectDescription: complectDescriptionReducer,
     portal: portalReducer,
 
     documentProvider: documentProviderReducer,

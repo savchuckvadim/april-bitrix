@@ -2,7 +2,6 @@ import { isAnyOf, type ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import type { AppDispatch, RootState } from '../store';
 import {
     setupAcademyDurationListener,
-    setupProviderTaxListener,
     setupRowSetSyncListener,
 } from '@/modules/entities/row-set';
 import { APP_DEP, appActions } from '../AppSlice';
@@ -27,12 +26,20 @@ import { supplyReportActions } from '@/modules/entities/supply-report-document';
 import { fetchAppSettings } from '@/modules/entities/app-settings';
 import { zakupkiActions } from '@/modules/entities/zakupki';
 import { initServiceOffer, serviceOfferActions } from '@/modules/entities/service-offer';
-import { complectDescriptionActions } from '@/modules/entities/complect-description';
+import {
+    ComplectDescriptionHelper,
+    complectDescriptionActions,
+} from '@/modules/entities/complect-description';
 import { rowSetActions } from '@/modules/entities/row-set';
+import { compositionViewActions } from '@/modules/features/composition-editor/model/CompositionViewSlice';
+import { fetchCompositionView } from '@/modules/features/composition-editor/model/CompositionViewThunk';
 import {
     fetchComplectVariants,
     syncOpenComplectVariant,
 } from '@/modules/entities/complect-variant';
+import { setupProviderTaxListener } from './provider-tax.listener';
+
+const complectDescriptionHelper = new ComplectDescriptionHelper();
 
 /** Типизированная регистрация: без `as unknown as` на каждом слушателе. */
 const typed = (listenerMiddleware: ListenerMiddlewareInstance) =>
@@ -57,6 +64,7 @@ export function startStoreListeners(
     setupTemplateIdListener(listenerMiddleware);
     setupOpenVariantSyncListener(listenerMiddleware);
     setupOfferPreviewStaleListener(listenerMiddleware);
+    setupComplectDescriptionListener(listenerMiddleware);
     setupRowSetSyncListener(listenerMiddleware);
     setupProviderTaxListener(listenerMiddleware);
     setupAcademyDurationListener(listenerMiddleware);
@@ -90,6 +98,14 @@ function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
             listenerApi.dispatch(complectDescriptionActions.reset());
             // портальные настройки приложения (swrCache): флаги экранов
             void listenerApi.dispatch(fetchAppSettings(domain));
+            // личная настройка: вид наполнения и видимость весов
+            const bxUserId = Number(user.ID);
+            listenerApi.dispatch(
+                compositionViewActions.setOwner(
+                    domain && bxUserId > 0 ? { domain, bxUserId } : null,
+                ),
+            );
+            void listenerApi.dispatch(fetchCompositionView());
         },
     });
 }
@@ -236,6 +252,35 @@ function setupOfferPreviewStaleListener(listenerMiddleware: ListenerMiddlewareIn
             const preview = listenerApi.getState().wordTemplatePdfPreview;
             if (preview.previewPhase !== 'ready' || preview.needUpdate) return;
             listenerApi.dispatch(wordTemplatePdfPreviewAC.setNeedUpdate(true));
+        },
+    });
+}
+
+/**
+ * Запрошено описание комплекта → файл собирается на бэке и кладётся в хранилище
+ * портала, под кнопкой появляется ссылка на него.
+ */
+function setupComplectDescriptionListener(listenerMiddleware: ListenerMiddlewareInstance) {
+    typed(listenerMiddleware)({
+        actionCreator: complectDescriptionActions.requested,
+        effect: async (action, listenerApi) => {
+            const { domain, bitrix } = listenerApi.getState().app;
+            try {
+                const result = await complectDescriptionHelper.generate({
+                    ...action.payload,
+                    domain,
+                    userId: Number(bitrix.user?.ID) || 0,
+                });
+                listenerApi.dispatch(complectDescriptionActions.done(result));
+            } catch (error) {
+                listenerApi.dispatch(
+                    complectDescriptionActions.failed(
+                        error instanceof Error
+                            ? error.message
+                            : 'описание комплекта не сформировано',
+                    ),
+                );
+            }
         },
     });
 }

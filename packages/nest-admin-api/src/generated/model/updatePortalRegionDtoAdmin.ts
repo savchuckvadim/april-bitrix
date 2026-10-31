@@ -10,14 +10,28 @@ import type { UpdatePortalRegionDtoAdminOwnTax } from './updatePortalRegionDtoAd
 import type { UpdatePortalRegionDtoAdminOwnTaxAbs } from './updatePortalRegionDtoAdminOwnTaxAbs';
 
 export interface UpdatePortalRegionDtoAdmin {
-  /** Domain of the Bitrix24 portal */
+  /** Домен портала Bitrix24. */
   domain: string;
-  /** Code of the region */
+  /** Код региона из справочника. */
   regionCode: string;
-  /** Own AB (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend. */
+  /**
+   * Ручной рабс портала (decimal 8,2; строка или число). Пусто или null — ручного рабса нет. own_tax и own_tax_abs считаются на бэке.
+   * @nullable
+   */
   own_abs?: UpdatePortalRegionDtoAdminOwnAbs;
-  /** Own tax (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend. */
+  /**
+   * Налоговый множитель ручного рабса. Отдаётся формой для показа, на запись не влияет.
+   * @nullable
+   */
   own_tax?: UpdatePortalRegionDtoAdminOwnTax;
-  /** Own tax abs (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend. */
+  /**
+   * Ручной рабс с налогом. Отдаётся формой для показа, на запись не влияет.
+   * @nullable
+   */
   own_tax_abs?: UpdatePortalRegionDtoAdminOwnTaxAbs;
+  /**
+   * ID региона-источника, чей рабс портал берёт за свой. Задаётся вместо ручного рабса; null — ссылки нет.
+   * @nullable
+   */
+  own_abs_region_id?: number | null;
 }

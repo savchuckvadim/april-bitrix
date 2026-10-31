@@ -40,7 +40,6 @@ export const BuildParamsScreen = () => {
                 }
             >
                 <RegionField
-                    regions={params.regions}
                     value={params.draft.regionCode}
                     onChange={params.setRegion}
                 />

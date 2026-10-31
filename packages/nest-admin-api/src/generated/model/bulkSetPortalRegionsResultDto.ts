@@ -12,7 +12,7 @@ export interface BulkSetPortalRegionsResultDto {
   enabled: number;
   /** Сколько регионов выключено. */
   disabled: number;
-  /** Скольким регионам обновлён собственный рабс. */
+  /** Скольким регионам обновлена своя цена: ручной рабс, регион-источник или сброс. */
   updatedOwn: number;
   /** Пропущенные строки с причинами. */
   skipped: BulkPortalRegionSkippedDto[];

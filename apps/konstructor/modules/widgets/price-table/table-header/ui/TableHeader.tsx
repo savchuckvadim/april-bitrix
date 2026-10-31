@@ -1,20 +1,27 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { ChipSelect } from '@workspace/april-ui/fields';
 import { OdSelect } from '@/modules/features/custom-od';
-import { SaveToLibraryButton } from '@/modules/features/save-to-library';
-import { DealSendButton } from '@/modules/features/deal-send';
-import { ServicePeriodSwitch } from '@/modules/features/service-period';
 import { useTableHeader } from '../hooks/use-table-header';
 import { CurrentComplectName } from './CurrentComplectName';
-import { SaveSnapshotButton } from './SaveSnapshotButton';
+
+export interface TableHeaderSlots {
+    /** Рядом с именем комплекта: период сервисного отдела */
+    lead?: ReactNode;
+    /** Поля после региона: поставщик */
+    fields?: ReactNode;
+    /** Кнопки в конце строки: сохранение и отправка */
+    actions?: ReactNode;
+}
 
 /**
  * Шапка таблицы (легаси Total.jsx): имя текущего комплекта + селекты
- * главной строки (комплект / ОД / договор), регион и поставщик (налог).
+ * главной строки (комплект / ОД / договор) и регион. То, что связано со сделкой,
+ * приходит слотами: публичная версия о сделке не знает.
  * Селекты — чипы дизайн-системы: значения меняют редко.
  */
-export const TableHeader = () => {
+export const TableHeader = ({ lead, fields, actions }: TableHeaderSlots) => {
     const header = useTableHeader();
 
     return (
@@ -25,7 +32,7 @@ export const TableHeader = () => {
                 </span>
                 <CurrentComplectName complect={header.mainComplect} />
             </div>
-            <ServicePeriodSwitch />
+            {lead}
 
             {header.mainRow ? (
                 <>
@@ -84,24 +91,8 @@ export const TableHeader = () => {
                 />
             </label>
 
-            {header.providers.length ? (
-                <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                    Поставщик
-                    <ChipSelect
-                        ariaLabel="Поставщик"
-                        value={header.currentProvider?.id ?? ''}
-                        options={header.providers.map(provider => ({
-                            code: provider.id,
-                            name: provider.name,
-                        }))}
-                        onChange={header.setProvider}
-                    />
-                </label>
-            ) : null}
-
-            <SaveToLibraryButton />
-            <SaveSnapshotButton />
-            <DealSendButton navigateAfter />
+            {fields}
+            {actions}
         </div>
     );
 };

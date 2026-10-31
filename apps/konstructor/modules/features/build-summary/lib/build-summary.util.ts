@@ -41,7 +41,11 @@ export const buildSummaryFacts = (
     ];
 
     if (complect && composition) {
-        const weight = checkComplectWeight(composition, { complect, catalog });
+        const weight = checkComplectWeight(composition, {
+            complect,
+            catalog,
+            regionCode: context.regionCode,
+        });
         facts.push({
             label: 'Вес',
             value: `${weight.weight} из ${weight.expected}`,

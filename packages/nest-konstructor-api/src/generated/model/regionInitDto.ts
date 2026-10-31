@@ -25,4 +25,6 @@ export interface RegionInitDto {
     tax: number;
     /** Tax Abs */
     tax_abs: number;
+    /** Регион привязан к порталу (portal_region) */
+    inPortal: boolean;
 }

@@ -27,6 +27,7 @@ export const ComplectDescriptionButton = () => {
             {description.link ? (
                 <a
                     href={description.link}
+                    download={description.documentName ?? undefined}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline"

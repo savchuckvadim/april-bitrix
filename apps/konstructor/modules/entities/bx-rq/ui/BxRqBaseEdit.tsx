@@ -12,7 +12,7 @@ import { BxRqEditModal } from './BxRqEditModal';
 import type { RqItem, RqRecord } from '../model/types';
 import { useBxRq, useBxRqEditBase } from '../lib/hooks/use-bx-rq';
 import { Edit2,  } from 'lucide-react';
-// import { useApp } from '@/modules/app';
+// import { useApp } from '@/modules/app/lib/hooks/app';
 // import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { useApp } from '@/modules/app/lib/hooks/app';

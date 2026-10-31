@@ -1,17 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
-import { APP_DEP } from '@/modules/app/model/AppSlice';
 import { selectCatalog } from '@/modules/entities/catalog';
 import {
     applyAction,
     checkComplectWeight,
+    isBlocking,
+    validateComposition,
     type CompositionAction,
-    type RuleResult,
+    type RuleViolation,
 } from '@/modules/entities/composition';
 import { rowSetActions, type KRow } from '@/modules/entities/row-set';
+import { toggleSectionItem, type SectionKind } from '../lib/composition-sections.util';
 import { useCompositionSections } from './use-composition-sections';
+import { useCompositionView } from './use-composition-view';
 
 /**
  * Редактор наполнения ПЕРЕДАННОЙ строки — любой garant-строки любого сета
@@ -26,16 +29,38 @@ export const useCompositionEditor = (row: KRow | null) => {
     // текущий регион сборки — тумблер «Региональное законодательство» тянет его в состав
     const regionCode = useAppSelector(state => state.rowSet.context.regionCode);
     // сервисному отделу открыт средний пакет LT-other (вес 4)
-    const serviceDepartment = useAppSelector(
-        state => state.app.department === APP_DEP.SERVICE,
+    const serviceDepartment = useAppSelector(state =>
+        Boolean(state.rowSet.context.serviceDepartment),
     );
-    const [lastResult, setLastResult] = useState<RuleResult | null>(null);
-    const sections = useCompositionSections(catalog, row?.composition ?? null);
+    // автоправки последнего действия — до следующего действия или смены строки/комплекта
+    const [autoFixes, setAutoFixes] = useState<string[]>([]);
+    const view = useCompositionView();
+    const sections = useCompositionSections(catalog, row?.composition ?? null, view.showWeights);
 
     const composition = row?.composition ?? null;
     const complect = composition
         ? (catalog.complects.byCode[composition.complectCode] ?? null)
         : null;
+    const rowKey = row?.key ?? null;
+    const complectCode = composition?.complectCode ?? null;
+    useEffect(() => {
+        setAutoFixes([]);
+    }, [rowKey, complectCode]);
+
+    // нарушения — всегда по текущему составу: смена комплекта, восстановленный
+    // слепок и правка из карточки строки подсвечиваются без «залипшего» сообщения
+    const violations: RuleViolation[] = useMemo(
+        () =>
+            composition && complect
+                ? validateComposition(composition, {
+                      complect,
+                      catalog,
+                      regionCode,
+                      serviceDepartment,
+                  })
+                : [],
+        [composition, complect, catalog, regionCode, serviceDepartment],
+    );
 
     const writeComposition = (next: NonNullable<KRow['composition']>) => {
         if (!row) return;
@@ -56,9 +81,16 @@ export const useCompositionEditor = (row: KRow | null) => {
             regionCode,
             serviceDepartment,
         });
-        setLastResult(result);
+        // блокирующее нарушение действия — состав не изменился, но причину показать надо
+        setAutoFixes(result.autoFixes);
+        setBlocked(result.violations.filter(isBlocking));
         writeComposition(result.composition);
     };
+
+    const [blocked, setBlocked] = useState<RuleViolation[]>([]);
+    useEffect(() => {
+        setBlocked([]);
+    }, [rowKey, complectCode]);
 
     const toggleMode = () => {
         if (!composition) return;
@@ -70,7 +102,7 @@ export const useCompositionEditor = (row: KRow | null) => {
 
     const weightCheck =
         composition && complect
-            ? checkComplectWeight(composition, { complect, catalog })
+            ? checkComplectWeight(composition, { complect, catalog, regionCode })
             : null;
 
     return {
@@ -78,10 +110,14 @@ export const useCompositionEditor = (row: KRow | null) => {
         composition,
         catalog,
         sections,
+        view,
         serviceDepartment,
         applyComposition,
+        toggleItem: (kind: SectionKind, code: string, next: boolean) =>
+            applyComposition(toggleSectionItem(kind, code, next)),
         toggleMode,
-        lastResult,
+        /** Что сказать менеджеру: живые нарушения + отказ последнего действия + автоправки */
+        messages: { violations, blocked, autoFixes },
         weightCheck,
     };
 };

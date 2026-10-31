@@ -11,12 +11,13 @@ import { customAxios } from '../../lib/konstructor-api';
 
 export const getTelegram = () => {
     /**
-     * @summary Send message to telegram
+     * Текст с маркером приложения, доменом и пользователем уходит в чат администратора. Ошибка Telegram не возвращается наружу: тревога — не бизнес-операция.
+     * @summary Отправить тревогу в Telegram
      */
     const telegramGetTelegram = (
         telegramSendMessageDto: TelegramSendMessageDto,
     ) => {
-        return customAxios<void>({
+        return customAxios<string>({
             url: `/api/telegram`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -24,12 +25,13 @@ export const getTelegram = () => {
         });
     };
     /**
-     * @summary Send message to telegram
+     * Псевдоним основной ручки: раньше здесь был отдельный сервис прямой отправки, теперь отправитель один.
+     * @summary Отправить тревогу в Telegram (старый адрес)
      */
     const telegramGetTelegramOriginal = (
         telegramSendMessageDto: TelegramSendMessageDto,
     ) => {
-        return customAxios<void>({
+        return customAxios<string>({
             url: `/api/telegram/original`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

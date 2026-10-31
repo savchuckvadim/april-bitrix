@@ -7,6 +7,7 @@
  */
 
 /**
- * Own tax abs (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend.
+ * Ручной рабс с налогом. Отдаётся формой для показа, на запись не влияет.
+ * @nullable
  */
-export type UpdatePortalRegionDtoAdminOwnTaxAbs = string | number;
+export type UpdatePortalRegionDtoAdminOwnTaxAbs = string | number | null;

@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { ComplectDescriptionResponse } from './dto';
+import type { ComplectDescriptionContent, ComplectDescriptionResponse } from './dto';
 
 export type ComplectDescriptionStatus = 'idle' | 'loading' | 'done' | 'error';
 
@@ -20,14 +20,23 @@ const initialState: ComplectDescriptionState = {
     error: null,
 };
 
-/** «Описание комплекта» — состояние генерации DOCX по наполнению главной строки. */
+/**
+ * «Описание комплекта» — состояние генерации DOCX по наполнению главной строки.
+ * Запрос исполняет слушатель слоя приложения: во фрейме файл уходит в хранилище
+ * портала, в публичной версии приходит потоком по токену ссылки.
+ */
 const complectDescriptionSlice = createSlice({
     name: 'complectDescription',
     initialState,
     reducers: {
-        started(state: ComplectDescriptionState) {
-            state.status = 'loading';
-            state.error = null;
+        requested: {
+            reducer(state: ComplectDescriptionState) {
+                state.status = 'loading';
+                state.error = null;
+            },
+            prepare(content: ComplectDescriptionContent) {
+                return { payload: content };
+            },
         },
         done(state: ComplectDescriptionState, action: PayloadAction<ComplectDescriptionResponse>) {
             state.status = 'done';

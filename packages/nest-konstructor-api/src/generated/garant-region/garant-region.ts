@@ -57,15 +57,6 @@ export const getGarantRegion = () => {
         });
     };
     /**
-     * @summary Обновить регионы из Excel файла
-     */
-    const regionUpdateFromExcel = () => {
-        return customAxios<RegionEntity[]>({
-            url: `/api/region/update-from-excel`,
-            method: 'POST',
-        });
-    };
-    /**
      * @summary Получить регионы для портала
      */
     const portalRegionGetPortalRegions = (domain: string) => {
@@ -118,7 +109,6 @@ export const getGarantRegion = () => {
         regionFindAll,
         regionFindOne,
         regionUpdate,
-        regionUpdateFromExcel,
         portalRegionGetPortalRegions,
         portalRegionCreatePortalRegion,
         portalRegionUpdatePortalRegion,
@@ -136,11 +126,6 @@ export type RegionFindOneResult = NonNullable<
 >;
 export type RegionUpdateResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getGarantRegion>['regionUpdate']>>
->;
-export type RegionUpdateFromExcelResult = NonNullable<
-    Awaited<
-        ReturnType<ReturnType<typeof getGarantRegion>['regionUpdateFromExcel']>
-    >
 >;
 export type PortalRegionGetPortalRegionsResult = NonNullable<
     Awaited<

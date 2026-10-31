@@ -1,37 +1,38 @@
 'use client';
 
-import * as React from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-    getAdminPortalGarantRegion,
-    type BulkPortalRegionItemDto,
-    type BulkSetPortalRegionsResultDto,
-    type GetPortalRegionResponseDto,
-} from '@workspace/nest-admin-api';
+import type {
+    BulkPortalRegionItem,
+    BulkSetPortalRegionsResult,
+    PortalRegion,
+} from '../../model';
+import { PortalRegionsHelper } from '../api/portalRegions-helper';
 import {
     applyOwnAbs,
+    applyOwnSource,
     applyToggle,
-    effectiveState,
+    countInvalidOwnAbs,
+    normalizeOwnAbsInput,
+    regionRowState,
     toBulkItems,
     type PendingRegionChange,
+    type RegionRowState,
     type ServerRegionState,
 } from '../region-draft.util';
+import { toSourceOptions } from '../region-view.util';
 
-export type { PendingRegionChange };
+const helper = new PortalRegionsHelper();
 
-const api = getAdminPortalGarantRegion();
-
-/** Отправка накопленных правок одним запросом */
-export const useBulkSetPortalRegions = () => {
+const useBulkSetPortalRegions = () => {
     const queryClient = useQueryClient();
 
     return useMutation<
-        BulkSetPortalRegionsResultDto,
+        BulkSetPortalRegionsResult,
         Error,
-        { portalId: number; items: BulkPortalRegionItemDto[] }
+        { portalId: number; items: BulkPortalRegionItem[] }
     >({
-        mutationFn: ({ portalId, items }) =>
-            api.adminPortalGarantRegionBulkSet({ portalId, items }),
+        mutationFn: ({ portalId, items }) => helper.bulkSet(portalId, items),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['portalRegions'] });
         },
@@ -39,34 +40,54 @@ export const useBulkSetPortalRegions = () => {
 };
 
 /**
- * Черновик правок регионов портала: галочки и свои рабсы копятся
- * локально, в систему уходят одним нажатием. Так видно, что именно
- * меняется, и не летит запрос на каждый щелчок.
+ * Черновик правок регионов портала: галочки, ручной рабс и регион-источник
+ * копятся локально, в систему уходят одним нажатием. Получает весь
+ * справочник: источник можно выбрать и из региона, скрытого фильтром.
  */
 export const usePortalRegionsDraft = (
     portalId: number,
-    regions: GetPortalRegionResponseDto[] | undefined,
+    regions: PortalRegion[] | undefined,
 ) => {
     const bulk = useBulkSetPortalRegions();
-    const [changes, setChanges] = React.useState<
-        Map<number, PendingRegionChange>
-    >(new Map());
-    const [result, setResult] =
-        React.useState<BulkSetPortalRegionsResultDto | null>(null);
+    const [changes, setChanges] = useState<Map<number, PendingRegionChange>>(
+        new Map(),
+    );
+    const [result, setResult] = useState<BulkSetPortalRegionsResult | null>(
+        null,
+    );
 
-    const serverState = React.useMemo(() => {
+    const serverState = useMemo(() => {
         const map = new Map<number, ServerRegionState>();
         for (const region of regions ?? []) {
-            map.set(Number(region.id), { enabled: region.isChecked });
+            map.set(Number(region.id), {
+                enabled: region.isChecked,
+                ownAbs: region.own_abs,
+                ownAbsRegionId: region.own_abs_region_id,
+            });
         }
         return map;
     }, [regions]);
 
-    const effective = React.useCallback(
-        (regionId: number): PendingRegionChange =>
-            effectiveState(changes, serverState, regionId),
-        [changes, serverState],
+    const absByRegionId = useMemo(
+        () =>
+            new Map(
+                (regions ?? []).map(region => [Number(region.id), region.abs]),
+            ),
+        [regions],
     );
+
+    const sourceOptions = useMemo(
+        () => toSourceOptions(regions ?? []),
+        [regions],
+    );
+
+    const rowState = useCallback(
+        (regionId: number): RegionRowState =>
+            regionRowState(changes, serverState, absByRegionId, regionId),
+        [changes, serverState, absByRegionId],
+    );
+
+    const invalidCount = countInvalidOwnAbs(changes);
 
     const toggle = (regionId: number, enabled: boolean): void => {
         setResult(null);
@@ -75,11 +96,22 @@ export const usePortalRegionsDraft = (
         );
     };
 
-    const setOwnAbs = (regionId: number, ownAbs: string | null): void => {
+    const setOwnAbsInput = (regionId: number, raw: string): void => {
         setResult(null);
         setChanges(previous =>
-            applyOwnAbs(previous, regionId, ownAbs),
+            applyOwnAbs(previous, regionId, normalizeOwnAbsInput(raw)),
         );
+    };
+
+    const setOwnSource = (regionId: number, sourceId: number): void => {
+        setResult(null);
+        setChanges(previous => applyOwnSource(previous, regionId, sourceId));
+    };
+
+    /** Возврат к общему рабсу: сервер сбрасывает и ручной рабс, и источник */
+    const resetOwnPrice = (regionId: number): void => {
+        setResult(null);
+        setChanges(previous => applyOwnAbs(previous, regionId, null));
     };
 
     const reset = (): void => {
@@ -88,22 +120,28 @@ export const usePortalRegionsDraft = (
         bulk.reset();
     };
 
-    const save = async (): Promise<void> => {
-        if (changes.size === 0) return;
-        const response = await bulk.mutateAsync({
-            portalId,
-            items: toBulkItems(changes),
-        });
-        setResult(response);
-        setChanges(new Map());
+    const save = (): void => {
+        if (changes.size === 0 || invalidCount > 0) return;
+        bulk.mutate(
+            { portalId, items: toBulkItems(changes) },
+            {
+                onSuccess: response => {
+                    setResult(response);
+                    setChanges(new Map());
+                },
+            },
+        );
     };
 
     return {
-        changes,
         changesCount: changes.size,
-        effective,
+        invalidCount,
+        sourceOptions,
+        rowState,
         toggle,
-        setOwnAbs,
+        setOwnAbsInput,
+        setOwnSource,
+        resetOwnPrice,
         reset,
         save,
         result,
@@ -111,3 +149,5 @@ export const usePortalRegionsDraft = (
         error: bulk.error,
     };
 };
+
+export type PortalRegionsDraft = ReturnType<typeof usePortalRegionsDraft>;

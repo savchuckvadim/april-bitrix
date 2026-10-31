@@ -20,6 +20,10 @@ export default function KonstructorPage() {
                 <Link className="text-primary underline" href="/konstructor/measure">
                     Единицы измерения
                 </Link>
+                <br />
+                <Link className="text-primary underline" href="/konstructor/public-link">
+                    Публичные ссылки
+                </Link>
             </div>
         </div>
     );

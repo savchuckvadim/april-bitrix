@@ -26,6 +26,7 @@ export const SupplyReportCode = {
     contract_result: 'contract_result',
     current_contract: 'current_contract',
     is_invoice_done: 'is_invoice_done',
+    invoice_number: 'invoice_number',
     invoice_result: 'invoice_result',
     current_invoice: 'current_invoice',
 } as const;

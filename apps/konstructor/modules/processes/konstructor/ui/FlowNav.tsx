@@ -3,7 +3,10 @@
 import { StepNav } from '@workspace/april-ui/navigation';
 import { useFlowNav } from '../hooks/use-flow-nav';
 
-/** Степпер шагов сборки: липкий под шапкой приложения. */
+/**
+ * Степпер шагов сборки: липкий под шапкой приложения, на её ширину и с теми же
+ * полями — края не зависят от ширины экрана шага (она у шагов разная).
+ */
 export const FlowNav = () => {
     const flow = useFlowNav();
 
@@ -14,7 +17,7 @@ export const FlowNav = () => {
                 tone={flow.tone}
                 onSelect={flow.select}
                 ariaLabel="Шаги сборки предложения"
-                className="mx-auto max-w-screen-2xl"
+                stretch
             />
         </div>
     );

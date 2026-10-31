@@ -7,7 +7,8 @@ import {
     CreateWordTemplateRequest,
     UpdateWordTemplateRequest,
 } from '../../../types/word-template-types';
-import { useAppSelector, useAuth } from '@/modules/app';
+import { useAuth } from '@/modules/app/lib/hooks/auth';
+import { useAppSelector } from '@/modules/app';
 import { WordTemplateTagsExampleDownloadButton } from '../WordTemplateTagsExampleDownloadButton/WordTemplateTagsExampleDownloadButton';
 import type { WordTemplateServerErrorPayload } from '../../../lib/word-template-api';
 import { Field } from '@workspace/ui/shared';

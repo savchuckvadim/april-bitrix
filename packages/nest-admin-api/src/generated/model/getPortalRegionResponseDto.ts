@@ -29,6 +29,32 @@ export interface GetPortalRegionResponseDto {
   created_at: GetPortalRegionResponseDtoCreatedAt;
   /** Region updated at */
   updated_at: GetPortalRegionResponseDtoUpdatedAt;
-  /** Is checked */
+  /** Регион привязан к порталу (есть связь portal_region). */
   isChecked: boolean;
+  /**
+   * Ручной рабс портала для региона; null — не задан. Задаётся вместо регион-источника, одновременно они не бывают.
+   * @nullable
+   */
+  own_abs: number | null;
+  /**
+   * ID региона-источника, чей рабс портал берёт за свой; null — не задан. Обновление цен источника подхватывается автоматически.
+   * @nullable
+   */
+  own_abs_region_id: number | null;
+  /**
+   * Код региона-источника; null — не задан.
+   * @nullable
+   */
+  own_abs_region_code: string | null;
+  /**
+   * Название региона-источника; null — не задан.
+   * @nullable
+   */
+  own_abs_region_title: string | null;
+  /** Действующий рабс портала по этому региону: источник → ручной → общий. */
+  effective_abs: number;
+  /** Действующий налоговый множитель портала по региону. */
+  effective_tax: number;
+  /** Действующий рабс с налогом портала по региону. */
+  effective_tax_abs: number;
 }

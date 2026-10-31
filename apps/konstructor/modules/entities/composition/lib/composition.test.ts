@@ -61,7 +61,7 @@ describe('правила ЭР', () => {
         expect(result.autoFixes.length).toBeGreaterThan(0);
     });
 
-    it('Офис: нельзя оставить меньше двух пакетов', () => {
+    it('Офис: снятие пакета подставляет оставшийся — всегда два', () => {
         const composition = compositionFor('office', {
             erPackets: ['perbuh', 'perur'],
         });
@@ -70,12 +70,7 @@ describe('правила ЭР', () => {
             { kind: 'toggleErPacket', code: 'perur', checked: false },
             ctxFor('office'),
         );
-        expect(
-            result.violations.some(
-                v => v.code === 'er-packets/office-two-required',
-            ),
-        ).toBe(true);
-        expect(result.composition.erPackets).toEqual(['perbuh', 'perur']);
+        expect(result.composition.erPackets).toEqual(['perbuh', 'pergos']);
     });
 
     it('Офис: третий пакет вытесняет самый старый', () => {

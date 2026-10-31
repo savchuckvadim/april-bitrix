@@ -7,6 +7,8 @@ import type { Composition, CompositionCtx } from '../model/types';
  * Σ весов инфоблоков (кроме «Регионального законодательства» — reg)
  * + Σ весов отдельных ЭР (0.5) + вес активных пакетов ЭР (1)
  * + регионы: каждый ×0.5 + рутовый блок reg ×0.5 (если есть регионы или блок).
+ * Рутовый блок — это и есть текущий регион сборки: когда он же лежит в regions,
+ * второй раз не считается (legacy hasRootInOthers).
  */
 
 const REGION_ROOT_CODE = 'reg';
@@ -39,7 +41,10 @@ export const compositionWeight = (
     const hasRegionRoot =
         composition.infoblocks.includes(REGION_ROOT_CODE) ||
         composition.regions.length > 0;
-    if (hasRegionRoot) {
+    const isRootListed = Boolean(
+        ctx.regionCode && composition.regions.includes(ctx.regionCode),
+    );
+    if (hasRegionRoot && !isRootListed) {
         weight += ctx.catalog.infoblocks[REGION_ROOT_CODE]?.weight ?? 0.5;
     }
 

@@ -1,41 +1,48 @@
-import {  getAdminPortalGarantRegion } from "@workspace/nest-admin-api";
-import {
+import { getAdminPortalGarantRegion } from '@workspace/nest-admin-api';
+import type {
     AdminPortalGarantRegionListParams,
-    CreatePortalRegionDtoAdminRequest,
+    BulkPortalRegionItem,
+    BulkSetPortalRegionsResult,
     GetPortalRegionResponseDto,
     UpdatePortalRegionDto,
-    DeletePortalRegionDto,
-} from "../../model";
+} from '../../model';
 
-
+/** Единственное место, где слайс регионов портала зовёт api-пакет */
 export class PortalRegionsHelper {
     private api: ReturnType<typeof getAdminPortalGarantRegion>;
     constructor() {
         this.api = getAdminPortalGarantRegion();
     }
-   
-    async getPortalRegions(params: AdminPortalGarantRegionListParams): Promise<GetPortalRegionResponseDto[]> {
-        const response = await this.api.adminPortalGarantRegionList(params);
-        return response;
+
+    async getPortalRegions(
+        params: AdminPortalGarantRegionListParams,
+    ): Promise<GetPortalRegionResponseDto[]> {
+        return this.api.adminPortalGarantRegionList(params);
     }
 
-    async createPortalRegion(dto: CreatePortalRegionDtoAdminRequest) {
-        const response = await this.api.adminPortalGarantRegionCreate(dto);
-        return response;
-    }
-    async deletePortalRegion(dto: DeletePortalRegionDto) {
-        const response = await this.api.adminPortalGarantRegionDelete(dto.portalId, dto.regionId);
-        return response;
-    }
-
-    async getUpdateInitialData(portalId: number, regionId: number): Promise<UpdatePortalRegionDto> {
-        const response = await this.api.adminPortalGarantRegionGetUpdateInitialData(portalId, regionId);
-        return response;
+    /** Галочки и своя цена одним запросом; уходят только изменённые строки */
+    async bulkSet(
+        portalId: number,
+        items: BulkPortalRegionItem[],
+    ): Promise<BulkSetPortalRegionsResult> {
+        return this.api.adminPortalGarantRegionBulkSet({ portalId, items });
     }
 
-    async updatePortalRegion(portalId: number, regionId: number, dto: UpdatePortalRegionDto) {
-        const response = await this.api.adminPortalGarantRegionUpdate(portalId, regionId, dto);
-        return response;
+    async getUpdateInitialData(
+        portalId: number,
+        regionId: number,
+    ): Promise<UpdatePortalRegionDto> {
+        return this.api.adminPortalGarantRegionGetUpdateInitialData(
+            portalId,
+            regionId,
+        );
     }
 
+    async updatePortalRegion(
+        portalId: number,
+        regionId: number,
+        dto: UpdatePortalRegionDto,
+    ) {
+        return this.api.adminPortalGarantRegionUpdate(portalId, regionId, dto);
+    }
 }

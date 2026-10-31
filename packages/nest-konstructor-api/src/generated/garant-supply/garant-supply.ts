@@ -20,19 +20,7 @@ export const getGarantSupply = () => {
     const supplyFindById = (id: string) => {
         return customAxios<void>({ url: `/api/supply/${id}`, method: 'GET' });
     };
-    const supplyUpdateAll = () => {
-        return customAxios<void>({
-            url: `/api/supply/update-all`,
-            method: 'GET',
-        });
-    };
-    return {
-        supplyCreate,
-        supplyUpdate,
-        supplyFindMany,
-        supplyFindById,
-        supplyUpdateAll,
-    };
+    return { supplyCreate, supplyUpdate, supplyFindMany, supplyFindById };
 };
 export type SupplyCreateResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getGarantSupply>['supplyCreate']>>
@@ -45,7 +33,4 @@ export type SupplyFindManyResult = NonNullable<
 >;
 export type SupplyFindByIdResult = NonNullable<
     Awaited<ReturnType<ReturnType<typeof getGarantSupply>['supplyFindById']>>
->;
-export type SupplyUpdateAllResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getGarantSupply>['supplyUpdateAll']>>
 >;

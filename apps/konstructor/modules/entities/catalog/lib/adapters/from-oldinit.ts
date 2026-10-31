@@ -242,6 +242,7 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
             taxAbs: 0,
             infoblock: item.infoblock,
             weight: 0.5,
+            inPortal: true,
         };
         catalog.regions.items.push(region);
         catalog.regions.byCode[region.code] = region;

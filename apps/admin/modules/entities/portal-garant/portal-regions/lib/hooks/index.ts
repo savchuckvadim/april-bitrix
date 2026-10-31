@@ -4,4 +4,6 @@ export * from './use-update-portalRegion';
 export * from './use-filteredRegions';
 export * from './use-portalRegionsList';
 export * from './use-portalRegion-details';
+export * from './use-portalRegion-edit';
+export * from './use-portalRegion-form';
 export * from './use-portalRegions-bulk';

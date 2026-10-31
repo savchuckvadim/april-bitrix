@@ -1,82 +1,60 @@
 'use client';
 
-import * as React from 'react';
-import {
-    GetPortalRegionResponseDto
-} from '../../model'
+import Link from 'next/link';
 import {
     Card,
     CardContent,
     CardDescription,
-
     CardHeader,
     CardTitle,
 } from '@workspace/ui/index';
-import Link from 'next/link';
-
+import { ownPriceLabel } from '../../lib/region-view.util';
+import type { PortalRegion } from '../../model';
+import { PortalRegionsCardRow } from './PortalRegionsCardRow';
 
 interface PortalRegionsCardProps {
-    item: GetPortalRegionResponseDto;
-    onEdit?: () => void;
-    onDelete?: () => void;
-    onViewDetails?: () => void;
+    item: PortalRegion;
 }
 
-export function PortalRegionsCard({
-    item,
-    onEdit,
-    onDelete,
-    onViewDetails,
-}: PortalRegionsCardProps) {
+/** Регион глазами портала: общий рабс, своя цена и итоговые значения */
+export function PortalRegionsCard({ item }: PortalRegionsCardProps) {
     return (
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="transition-shadow hover:shadow-md">
             <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div>
-                        <CardTitle className="text-xl">
-                            {/* TODO: Замените на поле с именем/названием */}
-                            <Link href={`/garant/regions/${item.id}`} target="_blank" rel="noopener noreferrer">
-                                {item.title}
-
-                            </Link>
-                        </CardTitle>
-                        <CardDescription className="mt-1">
-                            <p>ID: {item.id}</p>
-                            <p>Code: {item.code}</p>
-                            <p>Инфоблок: {item.infoblock}</p>
-                        </CardDescription>
-                    </div>
-                </div>
+                <CardTitle className="text-xl">
+                    <Link
+                        href={`/garant/regions/${item.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {item.title}
+                    </Link>
+                </CardTitle>
+                <CardDescription className="mt-1">
+                    <span className="block">ID: {item.id}</span>
+                    <span className="block">Код: {item.code}</span>
+                    <span className="block">Инфоблок: {item.infoblock}</span>
+                </CardDescription>
             </CardHeader>
-            <CardContent>
-                <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">ID:</span>
-                        <span className="font-medium">{item.id}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">Title:</span>
-                        <span className="font-medium">{item.title}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">Code:</span>
-                        <span className="font-medium">{item.code}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">Abs:</span>
-                        <span className="font-medium">{item.abs}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">Tax:</span>
-                        <span className="font-medium">{item.tax}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">Tax Abs:</span>
-                        <span className="font-medium">{item.tax_abs}</span>
-                    </div>
-                </div>
+            <CardContent className="space-y-2 text-sm">
+                <PortalRegionsCardRow label="Рабс региона" value={item.abs} />
+                <PortalRegionsCardRow
+                    label="Свой рабс"
+                    value={ownPriceLabel(item)}
+                />
+                <PortalRegionsCardRow
+                    label="Действует: рабс"
+                    value={item.effective_abs}
+                />
+                <PortalRegionsCardRow
+                    label="Действует: налог"
+                    value={item.effective_tax}
+                />
+                <PortalRegionsCardRow
+                    label="Действует: рабс с налогом"
+                    value={item.effective_tax_abs}
+                />
             </CardContent>
-
         </Card>
     );
 }

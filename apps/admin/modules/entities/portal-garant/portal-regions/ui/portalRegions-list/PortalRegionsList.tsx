@@ -1,8 +1,6 @@
 'use client';
 
-import * as React from 'react';
-
-import { usePortalRegionsList } from '../../lib/hooks/';
+import { usePortalRegionsList } from '../../lib/hooks/use-portalRegionsList';
 import { usePortalRegionsDraft } from '../../lib/hooks/use-portalRegions-bulk';
 import { PortalRegionsFilter } from './components/PortalRegionsFilter';
 import { PortalRegionsBulkBar } from '../portalRegions-bulk/PortalRegionsBulkBar';
@@ -10,10 +8,11 @@ import { PortalRegionsBulkTable } from '../portalRegions-bulk/PortalRegionsBulkT
 
 /**
  * Регионы портала: отмечаем галочками, какие доступны, и при
- * необходимости задаём свой рабс. Все правки уходят одним сохранением.
+ * необходимости задаём свою цену. Все правки уходят одним сохранением.
  */
 export function PortalRegionsList({ portalId }: { portalId: number }) {
     const {
+        allRegions,
         regions,
         isLoading,
         search,
@@ -24,7 +23,7 @@ export function PortalRegionsList({ portalId }: { portalId: number }) {
         setIsNotOwnRegionsFilter,
     } = usePortalRegionsList(portalId);
 
-    const draft = usePortalRegionsDraft(portalId, regions);
+    const draft = usePortalRegionsDraft(portalId, allRegions);
 
     return (
         <div className="space-y-4">
@@ -38,10 +37,11 @@ export function PortalRegionsList({ portalId }: { portalId: number }) {
 
             <PortalRegionsBulkBar
                 changesCount={draft.changesCount}
+                invalidCount={draft.invalidCount}
                 isSaving={draft.isSaving}
                 result={draft.result}
                 error={draft.error}
-                onSave={() => void draft.save()}
+                onSave={draft.save}
                 onReset={draft.reset}
             />
 
@@ -55,12 +55,9 @@ export function PortalRegionsList({ portalId }: { portalId: number }) {
             />
 
             <PortalRegionsBulkTable
-                regions={regions ?? []}
+                regions={regions}
                 isLoading={isLoading}
-                effective={draft.effective}
-                changes={draft.changes}
-                onToggle={draft.toggle}
-                onOwnAbsChange={draft.setOwnAbs}
+                draft={draft}
             />
         </div>
     );

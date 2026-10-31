@@ -7,6 +7,7 @@
  */
 
 /**
- * Own AB (decimal value, max 8 digits with 2 decimal places). Can be sent as string or number from frontend.
+ * Ручной рабс портала (decimal 8,2; строка или число). Пусто или null — ручного рабса нет. own_tax и own_tax_abs считаются на бэке.
+ * @nullable
  */
-export type UpdatePortalRegionDtoAdminOwnAbs = string | number;
+export type UpdatePortalRegionDtoAdminOwnAbs = string | number | null;

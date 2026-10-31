@@ -13,6 +13,11 @@ import boundaries from 'eslint-plugin-boundaries';
  * 24.10.2026: оставить, не использовать). Внутри себя он нарушает слои и
  * ходит в монолит; наружу из него импортировать нельзя никому, кроме
  * app-layer (store собирает его редьюсеры).
+ *
+ * `public-app` — публичная версия по ссылке (/p/<token>): свой стор и гейт без
+ * Битрикса. Берёт экраны сборки и core-редьюсеры; импортировать её никому нельзя.
+ * Что она не дотягивается до Битрикса, проверяет тест
+ * modules/public-app/__tests__/no-bitrix.test.ts.
  */
 const LEGACY_SLICES = [
     'modules/entities/offer/**',
@@ -33,6 +38,7 @@ const fsdBoundaries = {
     settings: {
         'boundaries/elements': [
             ...LEGACY_SLICES.map(pattern => ({ type: 'legacy', pattern })),
+            { type: 'public-app', pattern: 'modules/public-app/**' },
             { type: 'app-layer', pattern: 'modules/app/**' },
             { type: 'shared', pattern: 'modules/shared/**' },
             { type: 'entity', pattern: 'modules/entities/*/**', capture: ['slice'] },
@@ -85,6 +91,18 @@ const fsdBoundaries = {
                             'page',
                             'process',
                             'legacy',
+                        ],
+                    },
+                    {
+                        from: 'public-app',
+                        allow: [
+                            'public-app',
+                            'app-layer',
+                            'process',
+                            'widget',
+                            'feature',
+                            'entity',
+                            'shared',
                         ],
                     },
                     { from: 'legacy', allow: ['legacy', 'shared', 'entity', 'app-layer'] },

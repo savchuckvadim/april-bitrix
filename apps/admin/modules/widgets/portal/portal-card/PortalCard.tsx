@@ -17,6 +17,7 @@ interface PortalCardProps {
     onEdit?: () => void;
     onDelete?: () => void;
     onViewDetails?: () => void;
+    onOpenRegions?: () => void;
 }
 
 export function PortalCard({
@@ -24,6 +25,7 @@ export function PortalCard({
     onEdit,
     onDelete,
     onViewDetails,
+    onOpenRegions,
 }: PortalCardProps) {
     return (
         <Card className="hover:shadow-md transition-shadow">
@@ -60,6 +62,11 @@ export function PortalCard({
                 {onViewDetails && (
                     <Button variant="outline" onClick={onViewDetails} className="flex-1">
                         Подробнее
+                    </Button>
+                )}
+                {onOpenRegions && (
+                    <Button variant="outline" onClick={onOpenRegions} className="flex-1">
+                        Регионы
                     </Button>
                 )}
                 {onEdit && (

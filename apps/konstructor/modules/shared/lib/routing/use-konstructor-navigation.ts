@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { KONSTRUCTOR_ROUTE_PATH, type ROUTE_KONSTRUCTOR } from './routes';
+import { useFlowSurface } from './flow-surface-context';
 import { documentPath, type DocumentKind } from './document-kinds';
 
 /**
@@ -10,24 +11,27 @@ import { documentPath, type DocumentKind } from './document-kinds';
  *
  * Паттерн: thunk меняет состояние и возвращает результат, обработчик UI после
  * dispatch'а вызывает `to(...)`. Объект мемоизирован по роутеру — его можно
- * класть в зависимости эффектов.
+ * класть в зависимости эффектов. Адреса строятся от поверхности: у публичной
+ * версии в префиксе токен ссылки.
  */
 export const useKonstructorNavigation = () => {
     const router = useRouter();
+    const { basePath } = useFlowSurface();
 
     return useMemo(
         () => ({
             to: (route: ROUTE_KONSTRUCTOR) =>
-                router.push(KONSTRUCTOR_ROUTE_PATH[route]),
+                router.push(`${basePath}${KONSTRUCTOR_ROUTE_PATH[route]}`),
             replace: (route: ROUTE_KONSTRUCTOR) =>
-                router.replace(KONSTRUCTOR_ROUTE_PATH[route]),
-            toDocument: (kind: DocumentKind) => router.push(documentPath(kind)),
+                router.replace(`${basePath}${KONSTRUCTOR_ROUTE_PATH[route]}`),
+            toDocument: (kind: DocumentKind) =>
+                router.push(`${basePath}${documentPath(kind)}`),
             prefetch: (routes: ROUTE_KONSTRUCTOR[]) =>
                 routes.forEach(route =>
-                    router.prefetch(KONSTRUCTOR_ROUTE_PATH[route]),
+                    router.prefetch(`${basePath}${KONSTRUCTOR_ROUTE_PATH[route]}`),
                 ),
             back: () => router.back(),
         }),
-        [router],
+        [router, basePath],
     );
 };

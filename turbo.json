@@ -8,7 +8,8 @@
         "FRONT_ERROR_BACK_URL",
         "METRICS_DISABLED",
         "METRICS_SCRAPE_TOKEN",
-        "KPI_SALES_API_URL"
+        "KPI_SALES_API_URL",
+        "KONSTRUCTOR_API_URL"
     ],
     "tasks": {
         "build": {

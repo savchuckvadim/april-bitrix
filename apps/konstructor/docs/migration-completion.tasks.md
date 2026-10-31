@@ -303,6 +303,7 @@
       `name` = code; фронт: модалка регионов (`features/regions`) на том же
       списке — отдельного запроса нет.
       ✔ 24.10: регионы — только привязанные к порталу (portal_region) с own_abs/own_tax/own_tax_abs; без привязок — весь справочник; дубль name убран. weight остаётся 0.5 константой: колонки в regions нет (при необходимости — миграция). Модалка регионов на фронте — на том же списке (features/regions, этап 4).
+      ✔ 31.10: init отдаёт весь справочник с признаком `inPortal`; шаг «Параметры» показывает портальные, кнопка «Все регионы» открывает полный список (`features`-уровень: `use-region-field`, `catalog/lib/portal-regions.util.ts`).
 - [x] 2.5 **Меры**: `measures` + `portal_measure.bitrixId` в init (нужны
       productRows и КП).
       ✔ 24.10: init.measures (MeasureInitDto: code, bitrixId из portal_measure, портальные имена) → catalog.measures (KPortalMeasure) на фронте.
@@ -310,6 +311,8 @@
       `garant_package_code` для всех LT, пакетов LT и STAR (msk/regions);
       выяснить `six`/`eleven`/`productId`.
       ◔ не проверено: локальная БД пуста (supplies/prices), покрытие prices по garant_package_code проверяется на наполненной БД вместе с 2.7.
+- [x] 2.6б **ЭР в init**: пакет ЭР лежал в группе с type = er и попадал в `codes.ers` вместе с `packetsEr` — вес считался дважды; `ersInPacket` Офиса шёл с повторами; `children` пакетов пустые (`findMany` без relations).
+      ✔ 31.10: бэк — `getErs` исключает группу `per`, состав без повторов, `findManyWithPackages`; фронт — адаптер init чистит старую форму (`toErDefaults`, `fillErPacketChildren`), `normalizeComposition` чинит слепки v2. Правила ЭР переписаны по легаси (`rules/er-packets.ts`, тесты `__tests__/er-packets.test.ts`): один пакет у обычного комплекта, ровно два у Офиса с подстановкой, развал пакета при снятии ЭР, в Офисе ЭР пакета не снимается. Вес региона: текущий регион в составе = рутовый блок (legacy hasRootInOthers). Проверка на живом init (april-garant): после исправления сходятся ur, expert; остальное — данные БД, владельцу в админке: (1) вес «Большой библиотеки бухгалтера и кадрового работника» (bbb) в БД 0.5, в легаси 1 — из-за этого на 0.5 ниже эталона buh, buhgos, office, glavbuh, glavbuhgos, company, companyPro; (2) у exzak и exjobsec в наполнении лишний «Цифровая охрана труда» (ltdigitjobsec, вес 1); (3) exbuild — наполнение беднее легаси (нет buildspec/sworks/standart), счёт 5.5 при эталоне 6.5.
 - [ ] 2.7 **Наполнить БД** (админка) и доказать: автотест-дифф
       `catalogFromInitV2(live)` ↔ `catalogFromOldInit(oldinit.json)` по
       комплектам, поставкам, договорам, регионам, ценам PROF — расхождения

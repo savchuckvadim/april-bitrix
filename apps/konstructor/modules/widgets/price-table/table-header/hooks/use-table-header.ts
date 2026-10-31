@@ -5,10 +5,9 @@ import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
     filterContractsForSupply,
     filterSuppliesForComplect,
+    selectableRegions,
     selectCatalog,
 } from '@/modules/entities/catalog';
-import { setCurrentProvider } from '@/modules/entities/provider';
-import type { RootState } from '@/modules/app';
 import {
     explainRefsRebuildFailure,
     rebuildRowWithRefs,
@@ -21,19 +20,13 @@ import {
 /**
  * Экранные контролы главной строки (легаси-шапка Total.jsx): комплект,
  * кол-во одновременных доступов (ОД), тип договора — это правки main-строки;
- * плюс регион (пересчёт всех сетов) и поставщик (налог, через listener).
+ * плюс регион (пересчёт всех сетов).
  */
 export const useTableHeader = () => {
     const dispatch = useAppDispatch();
     const catalog = useAppSelector(selectCatalog);
     const context = useAppSelector(selectRowSetContext);
     const mainRow = useAppSelector(selectMainRow);
-    const providers = useAppSelector(
-        (state: RootState) => state.documentProvider.items,
-    );
-    const currentProvider = useAppSelector(
-        (state: RootState) => state.documentProvider.current,
-    );
 
     const mainComplect = mainRow?.refs.complectCode
         ? (catalog.complects.byCode[mainRow.refs.complectCode] ?? null)
@@ -51,8 +44,6 @@ export const useTableHeader = () => {
 
     const setRegion = (regionCode: string) =>
         dispatch(rowSetActions.setContext({ regionCode }));
-
-    const setProvider = (id: string) => dispatch(setCurrentProvider(id));
 
     return {
         catalog,
@@ -77,11 +68,12 @@ export const useTableHeader = () => {
                       mainRow.refs.supplyCode,
                   )
                 : [],
-        regions: catalog.regions.items,
-        providers,
-        currentProvider,
+        // полный список — на шаге «Параметры»; здесь портальные и текущий
+        regions: selectableRegions(catalog.regions.items, {
+            showAll: false,
+            currentCode: context.regionCode,
+        }),
         changeMainRefs,
         setRegion,
-        setProvider,
     };
 };

@@ -18,6 +18,7 @@
 | `supplyReport` | `entities/supply-report-document` | Отчёт о поставке: 15 полей формы (`document-supply-report/form`), файлы договора/счёта (base64), контакты сделки, открытая заявка RPA, статус генерации | `documentContractSupply`, `pbxContact`, `documentContract.isSupplyReport` |
 | `appSettings` | `entities/app-settings` | Портальные настройки приложения (`GET app-settings/konstructor?domain`, swrCache): флаги экранов, сейчас `zakupkiEnabled` | хардкод по домену (`withZoffer`) |
 | `zakupki` | `entities/zakupki` | «3 КП для торгов»: настройки двух поставщиков (свои/портала, `zakupki-settings`), черновик правок, генерация `zakupki-offer/create` | `zoffer` |
+| `compositionView` | `features/composition-editor` | Личная настройка: вид наполнения (`cards / flat / dense / summary`) и видимость весов. При старте — копия из localStorage, затем app-cache (Redis + `app_cache`, ключ `composition-view`) как источник истины | — |
 | `complectDescription` | `entities/complect-description` | «Описание комплекта»: DOCX по группам наполнения главной строки (бэк complect-description/generate), ссылка на файл | `result.description` |
 | `serviceOffer` | `entities/service-offer` | Сервисный отдел: период «текущий» (слепок сделки) / «следующий» (слепок со serviceSmartId, смарт service_offer), smartId; отправка в смарт — через deal-send `target` | `serviceOffer`, `service-department/*` |
 | `portal` | `entities/portal` | pbx PortalModel: **`bitrixfields` — источник UF-id** (решение B4) | `bitrixFields` из init |
@@ -128,7 +129,8 @@ save: SaveSnapshotButton → saveSnapshot thunk → serializeV2 → helper.saveS
 | Задача | Файлы |
 |---|---|
 | Формула/правило цены | `row-set/lib/price/*` (+ тест в `__tests__/pricing.test.ts`) |
-| Правило состава комплекта | `entities/composition/lib/rules/*` (файл на правило) |
+| Правило состава комплекта | `entities/composition/lib/rules/*` (файл на правило); ЭР и пакеты — `er-packets.ts` (вес 0.5 / 1 / 0, один пакет или ровно два у Офиса, развал пакета) |
+| Регионы для выбора | `entities/catalog/lib/portal-regions.util.ts` (`inPortal` из init; «Все регионы» — `widgets/build-params/hooks/use-region-field.ts`) |
 | Реакция «X случилось → Y» | listeners: row-set — `entities/row-set/model/listeners.ts`; app-уровень — `app/model/listeners/start-store-listeners.ts` |
 | Новый блок экрана товаров | под-виджет в `widgets/price-table/<name>/{ui,hooks,index.ts}` (компонент = вёрстка, логика в хуке) |
 | Смена комплекта/ОД/договора строки | `row-set/lib/row/rebuild-row-refs.util.ts` (+ `catalog/lib/compatibility-matrix.ts` — цепочки сброса, `resolveRefsForBuildParams` для шага «Параметры») |

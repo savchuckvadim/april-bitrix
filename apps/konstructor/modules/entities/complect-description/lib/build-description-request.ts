@@ -2,7 +2,7 @@ import type { RootState } from '@/modules/app/model/store';
 import { resolveSupply, selectCatalog } from '../../catalog';
 import { buildComplectGroups } from '../../document-payload';
 import { findMainRow } from '../../row-set';
-import type { ComplectDescriptionGroup, ComplectDescriptionRequest } from '../model/dto';
+import type { ComplectDescriptionContent, ComplectDescriptionGroup } from '../model/dto';
 
 /**
  * Запрос описания из наполнения главной строки: те же группы, что идут в КП
@@ -10,16 +10,17 @@ import type { ComplectDescriptionGroup, ComplectDescriptionRequest } from '../mo
  * каталога (бэк предпочтёт свою БД, фронтовый текст — запас для сервисов).
  */
 
+type DescriptionState = Pick<RootState, 'catalog' | 'rowSet'>;
+
 /** Почему описание сейчас не собрать */
-export const complectDescriptionBlocker = (state: RootState): string | null => {
+export const complectDescriptionBlocker = (state: DescriptionState): string | null => {
     const main = findMainRow(state.rowSet.general);
-    if (!main?.composition) return 'Сначала соберите главный товар';
-    if (!state.app.domain) return 'Нет домена портала';
-    return null;
+    return main?.composition ? null : 'Сначала соберите главный товар';
 };
 
-export const buildComplectDescriptionRequest = (state: RootState): ComplectDescriptionRequest | null => {
-    if (complectDescriptionBlocker(state)) return null;
+export const buildComplectDescriptionContent = (
+    state: DescriptionState,
+): ComplectDescriptionContent | null => {
     const catalog = selectCatalog(state);
     const main = findMainRow(state.rowSet.general);
     if (!main?.composition) return null;
@@ -36,8 +37,6 @@ export const buildComplectDescriptionRequest = (state: RootState): ComplectDescr
     }));
 
     return {
-        domain: state.app.domain,
-        userId: Number(state.app.bitrix.user?.ID) || 0,
         complectName: complect?.fullTitle ?? main.names.name,
         supply: supply?.quantityForKp ?? supply?.name ?? '',
         groups,

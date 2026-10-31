@@ -128,6 +128,8 @@ export interface KRegion {
     infoblock: string;
     /** Вес региона в составе комплекта (0.5) */
     weight: number;
+    /** Привязан к порталу (portal_region) */
+    inPortal: boolean;
 }
 
 export type KServiceProductType = 'lt' | 'consalting' | 'star';

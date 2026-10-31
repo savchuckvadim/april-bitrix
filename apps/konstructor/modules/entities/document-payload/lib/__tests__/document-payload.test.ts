@@ -88,9 +88,9 @@ describe('buildComplectGroups', () => {
         expect(group('free')!.value.map(b => b.code)).toEqual(['praim']);
     });
 
-    it('LT: сервисы + пакет по весу; консалтинг: горячая линия (withConsalting) + платный', () => {
+    it('LT: только сервисы, пакет виден строкой цены; консалтинг: горячая линия (withConsalting) + платный', () => {
         const lt = group('lt')!.value.map(b => b.code);
-        expect(lt).toEqual(['ltsut', 'ltconstructor', 'ltdisk', 'ltconnect', 'ltpackSmall']);
+        expect(lt).toEqual(['ltsut', 'ltconstructor', 'ltdisk', 'ltconnect']);
         expect(group('consulting')!.value.map(b => b.code)).toContain('sovex');
         expect(group('academy')!.value[0]!.code).toBe('academy_3');
     });

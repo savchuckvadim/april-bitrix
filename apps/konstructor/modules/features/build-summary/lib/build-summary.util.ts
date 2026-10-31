@@ -1,5 +1,5 @@
 import { resolveSupply, type Catalog } from '@/modules/entities/catalog';
-import { allLtServiceCodes, checkComplectWeight } from '@/modules/entities/composition';
+import { checkComplectWeight, describeLtPackets, type LtPacketView } from '@/modules/entities/composition';
 import {
     TAX_COEFFICIENT,
     buildTotalRow,
@@ -11,7 +11,25 @@ import {
 export interface SummaryFact {
     label: string;
     value: string;
+    /** Значение требует внимания: например, пакет LT не собран */
+    isWarning?: boolean;
 }
+
+/** Legal Tech строкой: бесплатная часть, платный и доп. пакеты. */
+const ltSummaryValue = (packets: LtPacketView[]): string => {
+    const parts: string[] = [];
+    const extras = packets.filter(packet => packet.kind === 'extra').length;
+    for (const packet of packets) {
+        if (packet.kind === 'included' && packet.services.length) {
+            parts.push(`в комплекте: ${packet.services.length}`);
+        }
+        if (packet.kind === 'paid') {
+            parts.push(`платно: вес ${packet.weight}`);
+        }
+    }
+    if (extras) parts.push(`доп. пакетов: ${extras}`);
+    return parts.join(', ') || 'нет';
+};
 
 export interface SummaryTotal {
     sum: string;
@@ -67,13 +85,15 @@ export const buildSummaryFacts = (
     );
 
     if (composition) {
-        const ltCount = allLtServiceCodes(composition).length;
-        const packets = composition.ltOther.length;
+        const ltPackets = describeLtPackets(composition, {
+            catalog,
+            complect,
+            serviceDepartment: context.serviceDepartment,
+        });
         facts.push({
             label: 'Legal Tech',
-            value: ltCount
-                ? `сервисов: ${ltCount}${packets ? `, доп. пакетов: ${packets}` : ''}`
-                : 'нет',
+            value: ltSummaryValue(ltPackets),
+            isWarning: ltPackets.some(packet => packet.status === 'incomplete' || packet.status === 'locked'),
         });
         facts.push({
             label: 'Консалтинг',

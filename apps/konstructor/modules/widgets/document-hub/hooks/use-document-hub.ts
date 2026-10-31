@@ -1,7 +1,10 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useAppSelector } from '@/modules/app';
-import { selectMainRow } from '@/modules/entities/row-set';
+import { selectCatalog } from '@/modules/entities/catalog';
+import { validateLt, validateLtOther } from '@/modules/entities/composition';
+import { selectMainRow, selectRowSetContext } from '@/modules/entities/row-set';
 import {
     DOCUMENT_KINDS,
     ROUTE_KONSTRUCTOR,
@@ -15,10 +18,23 @@ import {
  */
 export const useDocumentHub = () => {
     const nav = useKonstructorNavigation();
-    const hasMainRow = Boolean(useAppSelector(selectMainRow));
+    const mainRow = useAppSelector(selectMainRow);
+    const catalog = useAppSelector(selectCatalog);
+    const { serviceDepartment, regionCode } = useAppSelector(selectRowSetContext);
+    const hasMainRow = Boolean(mainRow);
+
+    // несобранный пакет LT сборку не останавливает, но сервисы в КП идут списком, а товара за них нет
+    const ltWarnings = useMemo(() => {
+        const composition = mainRow?.composition;
+        const complect = composition ? catalog.complects.byCode[composition.complectCode] : null;
+        if (!composition || !complect) return [];
+        const ctx = { catalog, complect, regionCode, serviceDepartment };
+        return [...validateLt(composition, ctx), ...validateLtOther(composition, ctx)].map(item => item.message);
+    }, [mainRow, catalog, regionCode, serviceDepartment]);
 
     return {
         hasMainRow,
+        ltWarnings,
         documents: DOCUMENT_KINDS,
         toComplect: () => nav.to(ROUTE_KONSTRUCTOR.COMPLECT),
         toPrices: () => nav.to(ROUTE_KONSTRUCTOR.PRICES),

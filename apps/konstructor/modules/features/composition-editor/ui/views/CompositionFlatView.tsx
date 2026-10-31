@@ -2,7 +2,8 @@
 
 import { cn } from '@workspace/ui/lib/utils';
 import { CompositionCheckbox } from '../CompositionCheckbox';
-import { WeightMark } from '../WeightMark';
+import { LtPacketsStrip } from '../LtPacketsStrip';
+import { compositionItemProps } from './composition-item-props';
 import type { CompositionViewProps } from './types';
 
 /**
@@ -26,15 +27,15 @@ export const CompositionFlatView = ({ editor }: CompositionViewProps) => (
                         </span>
                     ) : null}
                 </header>
+                {section.kind === 'lt' ? (
+                    <div className="px-2 pb-1">
+                        <LtPacketsStrip packets={editor.ltPackets} />
+                    </div>
+                ) : null}
                 <div className="grid gap-x-3 sm:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
                     {section.items.map(item => (
                         <div key={item.code} className={cn(!item.checked && 'text-muted-foreground')}>
-                            <CompositionCheckbox
-                                name={item.name}
-                                checked={item.checked}
-                                onToggle={next => editor.toggleItem(section.kind, item.code, next)}
-                                mark={<WeightMark value={item.mark} kind={editor.view.markKind} />}
-                            />
+                            <CompositionCheckbox {...compositionItemProps(editor, section.kind, item)} />
                         </div>
                     ))}
                 </div>

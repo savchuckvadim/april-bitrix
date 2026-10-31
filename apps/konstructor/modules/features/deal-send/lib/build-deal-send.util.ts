@@ -10,7 +10,7 @@ import {
     type KInfoblock,
 } from '@/modules/entities/catalog';
 import { buildProductRows, type KRow, type RowSet } from '@/modules/entities/row-set';
-import { ltPacketWeight, type Composition } from '@/modules/entities/composition';
+import { describeLtPackets, ltPackageName, type Composition } from '@/modules/entities/composition';
 
 /**
  * Чистый маппер «состояние конструктора → DealSendDto» (легаси
@@ -38,6 +38,8 @@ export interface DealSendInput {
     opened?: boolean;
     /** Поставщик документов — в поле сделки document_provider (решение 10) */
     providerName?: string | null;
+    /** Сборка сервисного отдела: ему открыт пакет веса 4 */
+    serviceDepartment?: boolean;
     /** Сервисный отдел, «следующий период»: писать в элемент смарта, не в сделку */
     target?: DealSendRequest['target'];
 }
@@ -64,6 +66,7 @@ const nameOfBlock = (block: KInfoblock | undefined, fallback: string): string =>
 export const buildInfoblockFields = (
     catalog: Catalog,
     composition: Composition,
+    serviceDepartment = false,
 ): DealSendField[] => {
     const groups: Record<'npa' | 'la' | 'c' | 'sp', string[]> = { npa: [], la: [], c: [], sp: [] };
     for (const code of composition.infoblocks) {
@@ -81,9 +84,20 @@ export const buildInfoblockFields = (
     }
 
     const lt = composition.lt.map(code => ltName(catalog, code));
-    const ltInPacket = composition.ltInPacket.map(code => ltName(catalog, code));
-    const packetWeight = ltPacketWeight(composition, catalog);
-    const ltPackage = catalog.services.ltPackages.find(pkg => pkg.weight === packetWeight);
+    // платный и доп. пакеты: поля множественные — по значению на пакет, сервисы без повторов
+    const paidPackets = describeLtPackets(composition, {
+        catalog,
+        complect: catalog.complects.byCode[composition.complectCode] ?? null,
+        serviceDepartment,
+    }).filter(packet => packet.isProduct);
+    const paidPacketNames = paidPackets.flatMap(packet => (packet.package ? [ltPackageName(packet.package)] : []));
+    const ltInPacket = [
+        ...new Set(
+            composition.ltInPacket
+                .concat(paidPackets.flatMap(packet => packet.services.map(service => service.code)))
+                .map(code => ltName(catalog, code)),
+        ),
+    ];
 
     const consalting = consaltingNames(catalog, composition);
 
@@ -96,7 +110,7 @@ export const buildInfoblockFields = (
         { code: 'per', appType: 'update', value: composition.erPackets.map(code => name(catalog, code)) },
         { code: 'erinpac', appType: 'update', value: composition.ersInPacket.map(code => name(catalog, code)) },
         { code: 'lt', appType: 'update', value: lt },
-        { code: 'plt', appType: 'update', value: ltPackage ? [ltPackage.fullName] : [] },
+        { code: 'plt', appType: 'update', value: paidPacketNames },
         { code: 'ltinpac', appType: 'update', value: ltInPacket },
         { code: 'free_blocks', appType: 'update', value: freeBlocks },
         { code: 'consalting', appType: 'update', value: consalting },
@@ -166,7 +180,7 @@ export const buildDealSendRequest = (input: DealSendInput): DealSendRequest => {
         supplyCode: mainRow.refs.supplyCode,
         contractKind,
         fields: [
-            ...(composition ? buildInfoblockFields(catalog, composition) : []),
+            ...(composition ? buildInfoblockFields(catalog, composition, input.serviceDepartment) : []),
             ...buildProductFields(catalog, mainRow),
             ...(input.providerName
                 ? [{ code: 'document_provider' as const, appType: 'document' as const, value: input.providerName }]

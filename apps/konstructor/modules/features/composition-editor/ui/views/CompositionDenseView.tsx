@@ -1,7 +1,8 @@
 'use client';
 
 import { CompositionSwitchRow } from '../CompositionSwitchRow';
-import { WeightMark } from '../WeightMark';
+import { LtPacketsStrip } from '../LtPacketsStrip';
+import { compositionItemProps } from './composition-item-props';
 import type { CompositionViewProps } from './types';
 
 /**
@@ -26,13 +27,15 @@ export const CompositionDenseView = ({ editor }: CompositionViewProps) => {
                                 </span>
                             ) : null}
                         </header>
+                        {section.kind === 'lt' ? (
+                            <div className="px-2 pb-1">
+                                <LtPacketsStrip packets={editor.ltPackets} />
+                            </div>
+                        ) : null}
                         {items.map(item => (
                             <CompositionSwitchRow
                                 key={item.code}
-                                name={item.name}
-                                checked={item.checked}
-                                onToggle={next => editor.toggleItem(section.kind, item.code, next)}
-                                mark={<WeightMark value={item.mark} kind={editor.view.markKind} />}
+                                {...compositionItemProps(editor, section.kind, item)}
                             />
                         ))}
                     </section>

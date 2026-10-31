@@ -6,6 +6,7 @@ import { defaultComposition } from '../model/types';
 import { applyAction } from '../lib/apply';
 import { mergeCompositions } from '../lib/merge';
 import { compositionWeight, pickUniversalComplect } from '../lib/weight';
+import { isBlocking } from '../model/types';
 
 const catalog = catalogFromOldInit(oldInit);
 
@@ -87,7 +88,7 @@ describe('правила ЭР', () => {
 });
 
 describe('правила LT', () => {
-    it('обычный PROF: нельзя опуститься ниже 2 бесплатных', () => {
+    it('обычный PROF: снять бесплатный можно, это предупреждение', () => {
         const composition = compositionFor('buh', {
             lt: ['ltsut', 'ltconstructor'],
         });
@@ -96,10 +97,9 @@ describe('правила LT', () => {
             { kind: 'toggleLt', code: 'ltsut', checked: false },
             ctxFor('buh'),
         );
-        expect(result.violations.some(v => v.code === 'lt/two-required')).toBe(
-            true,
-        );
-        expect(result.composition.lt).toEqual(['ltsut', 'ltconstructor']);
+        expect(result.violations.map(v => v.code)).toContain('lt/free-under-limit');
+        expect(result.violations.some(isBlocking)).toBe(false);
+        expect(result.composition.lt).toEqual(['ltconstructor']);
     });
 
     it('обычный PROF: сверх 2 уходит в платный пакет', () => {

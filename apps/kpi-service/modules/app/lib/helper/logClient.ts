@@ -1,5 +1,6 @@
 import { ILogServerBody } from '@/app/api/admin/logs/route';
 import { LogLevel } from '@/app/lib/log/logServer';
+import { withBasePath } from '@/modules/shared/lib/base-path';
 
 export interface ILogClientPayload {
     title: string;
@@ -11,7 +12,7 @@ export interface ILogClientPayload {
 }
 export async function logClient(info: ILogClientPayload, payload: any) {
     try {
-        await fetch('/api/admin/logs', {
+        await fetch(withBasePath('/api/admin/logs'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

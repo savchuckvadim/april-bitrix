@@ -2,6 +2,7 @@ import { resolveSupply, type Catalog } from '../../catalog';
 import { buildTotalRow, findMainRow, type KRow, type RowSet } from '../../row-set';
 import type { DocVariant, OfferGenerateRequest } from '../model/dto';
 import { buildComplectGroups } from './build-complect-groups';
+import { docComposition } from './doc-composition';
 import { contractTypeOf, toDocContract, toDocSupply } from './build-doc-refs';
 import { toDocRow, toDocRows, toDocRowSets } from './build-doc-rows';
 
@@ -20,7 +21,8 @@ export interface DocBodyInput {
 /** Нечего печатать — null (нет главной строки или её договора/поставки в каталоге). */
 export const buildDocBody = ({ catalog, general, alternative }: DocBodyInput): DocBody | null => {
     const main = findMainRow(general);
-    if (!main?.composition) return null;
+    const composition = main && docComposition(main, general);
+    if (!main || !composition) return null;
     const contract = catalog.contracts.byCode[main.refs.contractCode];
     const supply = resolveSupply(catalog, main.refs.supplyCode);
     if (!contract || !supply) return null;
@@ -29,7 +31,7 @@ export const buildDocBody = ({ catalog, general, alternative }: DocBodyInput): D
 
     return {
         contractType: contractTypeOf(contract),
-        complect: buildComplectGroups(catalog, main.composition),
+        complect: buildComplectGroups(catalog, composition),
         supply: toDocSupply(catalog, supply),
         contract: toDocContract(contract),
         rows: toDocRows(catalog, general, alternative),

@@ -106,3 +106,38 @@ describe('buildProductFields / buildDealSendRequest', () => {
         expect(request.fields.every(f => f.value !== '' && f.value !== null)).toBe(true);
     });
 });
+
+describe('поля сделки: доп. пакеты LT', () => {
+    const small = () => catalog.services.ltPackages.find(pkg => pkg.weight === 2)!.fullName;
+    const big = () => catalog.services.ltPackages.find(pkg => pkg.weight === 5)!.fullName;
+    const nameOf = (code: string) => catalog.services.lt.find(service => service.code === code)!.name;
+
+    it('plt — по значению на пакет; ltinpac — все сервисы без повторов', () => {
+        const fields = buildInfoblockFields(catalog, {
+            ...composition,
+            ltOther: [
+                {
+                    id: 'a',
+                    services: ['ltdisk', 'ltbusiness', 'ltdocmail', 'ltexsog', 'ltpatent'],
+                    alternativeName: 'Своё имя',
+                },
+                { id: 'b', services: ['ltsut'], alternativeName: null },
+            ],
+        });
+        expect(field(fields, 'plt')).toEqual([small(), big()]);
+        expect(field(fields, 'ltinpac')).toEqual(
+            ['ltdisk', 'ltconnect', 'ltbusiness', 'ltdocmail', 'ltexsog', 'ltpatent'].map(nameOf),
+        );
+        // бесплатные — отдельным полем, как раньше
+        expect(field(fields, 'lt')).toEqual(['ltsut', 'ltconstructor'].map(nameOf));
+    });
+
+    it('пакет веса 4 продажам в plt не идёт, сервисному идёт', () => {
+        const four = {
+            ...composition,
+            ltInPacket: ['ltdisk', 'ltconnect', 'ltbusiness', 'ltdocmail'],
+        };
+        expect(field(buildInfoblockFields(catalog, four), 'plt')).toBeUndefined();
+        expect(field(buildInfoblockFields(catalog, four, true), 'plt')).toHaveLength(1);
+    });
+});

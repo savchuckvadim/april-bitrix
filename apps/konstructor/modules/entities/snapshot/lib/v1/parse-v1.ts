@@ -50,6 +50,7 @@ export const parseV1 = (record: V1Record): V1Parsed => {
         errors,
     );
     const ltOther = safeParse<V1Parsed['ltOther']>(record.ltOther, 'ltOther', errors);
+    const iskraConfig = safeParse<V1Parsed['iskraConfig']>(record.iskraConfig, 'iskraConfig', errors);
 
     return {
         dealId: record.dealId ?? null,
@@ -61,6 +62,7 @@ export const parseV1 = (record: V1Record): V1Parsed => {
         regions,
         globalRegion: global?.currentRegion ?? null,
         ltOther: Array.isArray(ltOther) ? ltOther : null,
+        iskraConfig: Array.isArray(iskraConfig) ? iskraConfig : null,
         templateId: record.templateId ?? null,
         parseErrors: errors,
     };

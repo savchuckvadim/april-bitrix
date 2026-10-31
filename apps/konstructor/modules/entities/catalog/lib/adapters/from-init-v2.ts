@@ -13,6 +13,7 @@ import type {
 } from '../../model/types';
 import { emptyCatalog } from '../../model/types';
 import { ACADEMY_PACKAGES } from '../academy-data';
+import { getComplectRuleFlags } from '../complect-rule-flags';
 
 /**
  * Адаптер ответа POST /api/konstructor/init/data (init v2, code-джойны)
@@ -39,6 +40,14 @@ const toErDefaults = (dto: InitV2ComplectDto): Pick<KComplect['defaults'], 'ers'
     };
 };
 
+/** LT по умолчанию: в БД только связь с комплектом, платность — флаг комплекта. */
+const toLtDefaults = (dto: InitV2ComplectDto): Pick<KComplect['defaults'], 'lt' | 'ltInPacket'> => {
+    const codes = dto.codes?.lt ?? [];
+    return getComplectRuleFlags({ code: dto.tag || dto.name }).ltDefaultsPaid
+        ? { lt: [], ltInPacket: codes }
+        : { lt: codes, ltInPacket: [] };
+};
+
 const toComplect = (dto: InitV2ComplectDto): KComplect => ({
     code: dto.tag || dto.name,
     order: dto.number,
@@ -58,6 +67,9 @@ const toComplect = (dto: InitV2ComplectDto): KComplect => ({
     defaults: {
         infoblocks: dto.codes?.filling ?? [],
         ...toErDefaults(dto),
+        ...toLtDefaults(dto),
+        freeBlocks: dto.codes?.freeBlocks ?? [],
+        star: Boolean(dto.codes?.star?.length),
     },
 });
 

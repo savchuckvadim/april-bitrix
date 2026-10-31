@@ -11,10 +11,13 @@ import { COMPOSITION_RULES } from './rules/registry';
 import { erRule } from './rules/er-packets';
 import {
     addLtOtherPacket,
+    distributeLt,
+    moveLtService,
     removeLtOtherPacket,
     renameLtOtherPacket,
+    setLtSubtitle,
     toggleLtOtherService,
-} from './rules/lt-other';
+} from './rules/lt';
 
 /**
  * Применение действия к составу через реестр правил (lib/rules/registry.ts).
@@ -28,6 +31,7 @@ import {
 export const applyNaive = (
     composition: Composition,
     action: CompositionAction,
+    ctx: CompositionCtx,
 ): Composition => {
     switch (action.kind) {
         case 'toggleInfoblock':
@@ -51,16 +55,13 @@ export const applyNaive = (
                     ? addUnique(composition.erPackets, action.code)
                     : remove(composition.erPackets, action.code),
             };
-        case 'toggleLt': {
-            const cleared = {
-                ...composition,
-                lt: remove(composition.lt, action.code),
-                ltInPacket: remove(composition.ltInPacket, action.code),
-            };
-            return action.checked
-                ? { ...cleared, lt: addUnique(cleared.lt, action.code) }
-                : cleared;
-        }
+        // LT и без правил раскладывается по лимиту: иначе платный товар не собрать
+        case 'toggleLt':
+            return distributeLt(composition, action.code, action.checked, ctx).composition;
+        case 'moveLt':
+            return moveLtService(composition, action.code, action.to);
+        case 'setLtSubtitle':
+            return setLtSubtitle(composition, action.code, action.subtitle);
         case 'toggleFreeBlock':
             return {
                 ...composition,
@@ -112,7 +113,7 @@ const applyWithRules = (
         if (result) return result;
     }
     // Действие без правила — применяется как есть
-    return { composition: applyNaive(composition, action), violations: [], autoFixes: [] };
+    return { composition: applyNaive(composition, action, ctx), violations: [], autoFixes: [] };
 };
 
 const mergeViolations = (
@@ -132,7 +133,7 @@ export const applyAction = (
         // ЭР и без правил держат структуру: ersInPacket — производное от пакетов
         const next =
             erRule.apply?.(composition, action, ctx)?.composition ??
-            applyNaive(composition, action);
+            applyNaive(composition, action, ctx);
         return {
             composition: next,
             violations: validateComposition(next, ctx),

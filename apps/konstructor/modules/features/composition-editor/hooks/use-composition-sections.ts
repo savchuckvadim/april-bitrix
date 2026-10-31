@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { Catalog } from '@/modules/entities/catalog';
+import { getComplectRuleFlags, type Catalog } from '@/modules/entities/catalog';
 import type { Composition } from '@/modules/entities/composition';
 import {
     buildCompositionSections,
@@ -22,8 +22,11 @@ export const useCompositionSections = (
     const [openCodes, setOpenCodes] = useState<string[]>([]);
     const [onlyChecked, setOnlyChecked] = useState(false);
 
+    const complect = composition ? catalog.complects.byCode[composition.complectCode] : null;
+    const pinnedLt = complect ? (getComplectRuleFlags(complect).pinnedLt ?? null) : null;
+
     const view = sections.map(section => {
-        const described = describeSection(section, composition, showWeights);
+        const described = describeSection(section, composition, showWeights, pinnedLt);
         const isOpen = openCodes.includes(section.code);
         return {
             ...described,

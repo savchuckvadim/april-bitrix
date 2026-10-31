@@ -13,38 +13,65 @@ const catalog = catalogFromOldInit(oldInit);
 const complect = catalog.complects.byCode['buh']!;
 
 describe('buildContractLt', () => {
-    it('бесплатные LT — сервисы и пакет по их весу; платные — ltInPacket + «другой LT» строк', () => {
-        const composition = {
-            ...defaultComposition(complect),
-            lt: ['ltsut', 'ltconstructor'],
-            ltInPacket: ['ltdisk', 'ltconnect'],
-        };
-        const otherRow = {
-            ...buildGarantRow({
-                catalog,
-                regionCode: 'stv',
-                withTax: false,
-                key: 'o',
-                setId: 'general',
-                role: 'additional' as const,
-                complectCode: 'buh',
-                supplyCode: 'internet_5',
-                contractCode: 'abonYear',
-            })!,
-            productType: 'lt_other' as const,
-            names: { name: 'Экспресс Проверка', shortName: 'ЭП', alternativeName: null },
-        };
-        const lt = buildContractLt(catalog, composition, [otherRow]);
-        const nameOf = (code: string) => catalog.services.lt.find(service => service.code === code)!.name;
+    const nameOf = (code: string) => catalog.services.lt.find(service => service.code === code)!.name;
+    const nameOfPackage = (weight: number) =>
+        catalog.services.ltPackages.find(pkg => pkg.weight === weight)!.fullName;
+    const base = {
+        ...defaultComposition(complect),
+        lt: ['ltsut', 'ltconstructor'],
+    };
+
+    it('бесплатная часть и один платный пакет: состав списком сервисов', () => {
+        const lt = buildContractLt(catalog, { ...base, ltInPacket: ['ltdisk', 'ltconnect'] });
+        expect(lt.freePacket).toBe(nameOfPackage(2));
         expect(lt.freeServices).toEqual([nameOf('ltsut'), nameOf('ltconstructor')]);
-        expect(lt.paidServices.slice(0, 2)).toEqual([nameOf('ltdisk'), nameOf('ltconnect')]);
-        expect(lt.freePacket).not.toBe('');
-        expect(lt.paidServices.slice(-1)).toEqual(['Экспресс Проверка']);
-        expect(lt.paidPacket).not.toBe('');
+        expect(lt.paidPacket).toBe(nameOfPackage(2));
+        expect(lt.paidServices).toEqual([nameOf('ltdisk'), nameOf('ltconnect')]);
+    });
+
+    it('несколько платных: у каждого пакета свой состав, имя каталожное', () => {
+        const lt = buildContractLt(catalog, {
+            ...base,
+            ltInPacket: ['ltdisk', 'ltconnect'],
+            ltOther: [{ id: 'x', services: ['iscra'], alternativeName: 'Своё имя' }],
+        });
+        expect(lt.paidPacket).toBe(`${nameOfPackage(2)}, ${nameOfPackage(2)}`);
+        expect(lt.paidServices).toEqual([
+            `${nameOfPackage(2)}: ${nameOf('ltdisk')}, ${nameOf('ltconnect')}`,
+            `${nameOfPackage(2)}: ${nameOf('iscra')}`,
+        ]);
+    });
+
+    it('несобранные пакеты в договор не идут (легаси пропускал)', () => {
+        const lt = buildContractLt(catalog, {
+            ...base,
+            ltInPacket: ['ltdisk'],
+            ltOther: [{ id: 'x', services: ['ltconnect'], alternativeName: null }],
+        });
+        expect(lt.paidPacket).toBe('');
+        expect(lt.paidServices).toEqual([]);
+    });
+
+    it('доп. пакет без основного платного', () => {
+        const lt = buildContractLt(catalog, {
+            ...base,
+            ltOther: [{ id: 'x', services: ['ltdisk', 'ltconnect'], alternativeName: null }],
+        });
+        expect(lt.paidPacket).toBe(nameOfPackage(2));
+        expect(lt.paidServices).toEqual([nameOf('ltdisk'), nameOf('ltconnect')]);
+    });
+
+    it('пакет веса 4 — только сервисному отделу', () => {
+        const composition = {
+            ...base,
+            ltInPacket: ['ltdisk', 'ltconnect', 'ltbusiness', 'ltdocmail'],
+        };
+        expect(buildContractLt(catalog, composition).paidPacket).toBe('');
+        expect(buildContractLt(catalog, composition, true).paidPacket).not.toBe('');
     });
 
     it('без LT — пусто, платного пакета нет', () => {
-        const lt = buildContractLt(catalog, defaultComposition(complect), []);
+        const lt = buildContractLt(catalog, { ...defaultComposition(complect), lt: [] });
         expect(lt).toEqual({ freePacket: '', freeServices: [], paidPacket: '', paidServices: [] });
     });
 });

@@ -29,6 +29,8 @@ export * from './konstructor-document-supply-report/konstructor-document-supply-
 export * from './konstructor-document-templates/konstructor-document-templates';
 export * from './konstructor-offer-template/konstructor-offer-template';
 export * from './konstructor-offer-template-image/konstructor-offer-template-image';
+export * from './konstructor-public-access/konstructor-public-access';
+export * from './konstructor-public-link/konstructor-public-link';
 export * from './konstructor-supply/konstructor-supply';
 export * from './konstructor-user-selected-template/konstructor-user-selected-template';
 export * from './konstructor-word-template/konstructor-word-template';

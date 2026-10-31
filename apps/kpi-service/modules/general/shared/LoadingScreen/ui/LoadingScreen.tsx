@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { PreloaderScreen } from '@workspace/april-ui';
+import { withBasePath } from '@/modules/shared/lib/base-path';
 import { usePace } from '../hooks/usePace';
 
 /**
@@ -23,7 +24,12 @@ const LoadingScreen = () => {
 
     if (!isVisible) return null;
 
-    return <PreloaderScreen variant="brand" logoSrc="/logo/logo.svg" />;
+    return (
+        <PreloaderScreen
+            variant="brand"
+            logoSrc={withBasePath('/logo/logo.svg')}
+        />
+    );
 };
 
 export default LoadingScreen;

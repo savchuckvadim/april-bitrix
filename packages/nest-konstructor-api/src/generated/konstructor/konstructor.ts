@@ -14,7 +14,9 @@ import type {
     InitSupplyResponseDto,
     InitTaskAccountantDto,
     KonstructorInitDataDto,
-    OfferDto,
+    OfferPdfGenerateDto,
+    OfferPdfGenerateResponseDto,
+    OfferPdfTemplateItemDto,
     OfferWordByTemplateGenerateDto,
     OfferWordByTemplateGenerateResponseDto,
     OfferWordEphemeralPdfPollResponseDto,
@@ -54,14 +56,6 @@ export const getKonstructor = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: contractGenerateDto,
-        });
-    };
-    const offerCreateOffer = (offerDto: OfferDto) => {
-        return customAxios<void>({
-            url: `/api/offer/create`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: offerDto,
         });
     };
     /**
@@ -174,10 +168,44 @@ export const getKonstructor = () => {
             data: offerWordMultiGenerateDto,
         });
     };
+    /**
+     * Встроенные шаблоны (код, название, описание) для выбора в конструкторе.
+     * @summary Список PDF-шаблонов КП
+     */
+    const offerPdfListTemplates = () => {
+        return customAxios<OfferPdfTemplateItemDto[]>({
+            url: `/api/offer-pdf/templates`,
+            method: 'GET',
+        });
+    };
+    /**
+     * Собирает документ и отдаёт PDF в ответе, ничего не сохраняя. Для панели предпросмотра в конструкторе.
+     * @summary Предпросмотр КП в PDF
+     */
+    const offerPdfPreview = (offerPdfGenerateDto: OfferPdfGenerateDto) => {
+        return customAxios<Blob>({
+            url: `/api/offer-pdf/preview`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: offerPdfGenerateDto,
+            responseType: 'blob',
+        });
+    };
+    /**
+     * Сохраняет PDF в хранилище и возвращает публичную ссылку на файл.
+     * @summary Сформировать КП в PDF
+     */
+    const offerPdfGenerate = (offerPdfGenerateDto: OfferPdfGenerateDto) => {
+        return customAxios<OfferPdfGenerateResponseDto>({
+            url: `/api/offer-pdf/generate`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: offerPdfGenerateDto,
+        });
+    };
     return {
         zakupkiOfferCreateZakupkiOffer,
         contractGenerateGenerateContract,
-        offerCreateOffer,
         konstructorInitInit,
         initSupplyInitSupply,
         initDealInitDeal,
@@ -187,6 +215,9 @@ export const getKonstructor = () => {
         offerWordPdfPreviewGetPreviewStatus,
         offerWordPdfPreviewStopPreview,
         offerWordMultiGenerateGenerateOfferWordMulti,
+        offerPdfListTemplates,
+        offerPdfPreview,
+        offerPdfGenerate,
     };
 };
 export type ZakupkiOfferCreateZakupkiOfferResult = NonNullable<
@@ -204,9 +235,6 @@ export type ContractGenerateGenerateContractResult = NonNullable<
             >['contractGenerateGenerateContract']
         >
     >
->;
-export type OfferCreateOfferResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerCreateOffer']>>
 >;
 export type KonstructorInitInitResult = NonNullable<
     Awaited<
@@ -270,4 +298,15 @@ export type OfferWordMultiGenerateGenerateOfferWordMultiResult = NonNullable<
             >['offerWordMultiGenerateGenerateOfferWordMulti']
         >
     >
+>;
+export type OfferPdfListTemplatesResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getKonstructor>['offerPdfListTemplates']>
+    >
+>;
+export type OfferPdfPreviewResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerPdfPreview']>>
+>;
+export type OfferPdfGenerateResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getKonstructor>['offerPdfGenerate']>>
 >;

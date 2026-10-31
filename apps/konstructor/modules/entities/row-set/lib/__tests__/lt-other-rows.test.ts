@@ -67,3 +67,43 @@ describe('строки lt_other из наполнения', () => {
         expect(row?.price.base).toBeGreaterThan(0);
     });
 });
+
+describe('строки LT: основной и альтернативный наборы', () => {
+    const composed = (kind: 'general' | 'alternative', ltInPacket: string[]) =>
+        upsertRow(
+            createSet(kind === 'general' ? 'general' : 'alt_1', kind),
+            buildGarantRow({
+                catalog,
+                regionCode: 'stv',
+                withTax: false,
+                key: 'main',
+                setId: kind === 'general' ? 'general' : 'alt_1',
+                role: kind === 'general' ? 'main' : 'comparison',
+                complectCode: 'buh',
+                supplyCode: 'internet_1',
+                contractCode: 'internet',
+                composition: {
+                    ...defaultComposition(buh),
+                    ltInPacket,
+                    ltOther: [{ id: 'p1', services: ['ltsut', 'ltdisk'], alternativeName: null }],
+                },
+            })!,
+        );
+    const types = (kind: 'general' | 'alternative', ltInPacket: string[]) =>
+        syncSetWithComposition(composed(kind, ltInPacket), catalog, { regionCode: 'stv', withTax: false })
+            .rows.map(row => row.productType)
+            .filter(type => type !== 'garant');
+
+    it('бесплатная часть товаром не идёт, платный и доп. пакет — идут', () => {
+        expect(types('general', ['ltconnect', 'ltbusiness'])).toEqual(['lt', 'lt_other']);
+        expect(types('general', [])).toEqual(['lt_other']);
+    });
+
+    it('несобранный платный пакет строки не даёт', () => {
+        expect(types('general', ['ltconnect'])).toEqual(['lt_other']);
+    });
+
+    it('у альтернативы платный пакет есть, доп. пакетов нет (легаси)', () => {
+        expect(types('alternative', ['ltconnect', 'ltbusiness'])).toEqual(['lt']);
+    });
+});

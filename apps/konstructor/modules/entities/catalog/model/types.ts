@@ -36,6 +36,13 @@ export interface KComplect {
         ers: string[];
         erPackets: string[];
         ersInPacket: string[];
+        /** LT, входящий в комплект бесплатно; сумма весов — лимит бесплатных */
+        lt: string[];
+        /** LT, который ставится по умолчанию, но платно (Охрана труда) */
+        ltInPacket: string[];
+        freeBlocks: string[];
+        /** СТАР встроен в комплект */
+        star: boolean;
     };
 }
 

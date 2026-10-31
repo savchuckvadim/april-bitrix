@@ -1,5 +1,6 @@
 import type { InitV2Data } from '@/modules/entities/catalog';
 import type { ComplectDescriptionContent } from '@/modules/entities/complect-description';
+import { withBasePath } from '@/modules/shared/lib/base-path';
 import type { PublicLinkMeta } from '../../model/types';
 import { parseAttachmentName } from '../attachment-name.util';
 
@@ -54,7 +55,7 @@ export class PublicLinkHelper {
     }
 
     private url(token: string, suffix = ''): string {
-        return `/api/public/${encodeURIComponent(token)}${suffix}`;
+        return withBasePath(`/api/public/${encodeURIComponent(token)}${suffix}`);
     }
 
     private async request(url: string, init?: RequestInit): Promise<Response> {

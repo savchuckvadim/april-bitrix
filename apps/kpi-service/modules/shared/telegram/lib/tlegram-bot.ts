@@ -1,3 +1,4 @@
+import { withBasePath } from '../../lib/base-path';
 import {
     EnumTelegramApp,
     ITelegramBotDto,
@@ -12,7 +13,7 @@ export const telegramSendMessage = async (dto: ITelegramBotDto) => {
             domain: dto.domain,
             userId: dto.userId,
         };
-        const response = await fetch(`/api/telegram`, {
+        const response = await fetch(withBasePath('/api/telegram'), {
             method: 'POST',
             body: JSON.stringify(sendDto),
         });

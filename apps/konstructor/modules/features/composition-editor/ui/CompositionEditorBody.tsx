@@ -37,12 +37,14 @@ export const CompositionEditorBody = ({ editor }: CompositionEditorBodyProps) =>
     return (
         <div className="flex flex-col gap-3">
             <View editor={editor} />
-            <CompositionLtOtherBlock
-                composition={composition}
-                catalog={editor.catalog}
-                serviceDepartment={editor.serviceDepartment}
-                onApply={editor.applyComposition}
-            />
+            {editor.canHaveExtraLt ? (
+                <CompositionLtOtherBlock
+                    composition={composition}
+                    catalog={editor.catalog}
+                    packets={editor.ltPackets}
+                    onApply={editor.applyComposition}
+                />
+            ) : null}
             <div className="grid gap-4 rounded-lg border p-3 sm:grid-cols-2">
                 <CompositionServicesBlock
                     composition={composition}

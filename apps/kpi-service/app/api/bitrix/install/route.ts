@@ -1,5 +1,6 @@
 import { setupBitrixApp } from '@/app/lib/bitrix/setup';
 import { logServer } from '@/app/lib/log/logServer';
+import { withBasePath } from '@/modules/shared/lib/base-path';
 import { BitrixAppPayload } from '@workspace/api';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -125,14 +126,14 @@ export async function POST(req: NextRequest) {
             console.log('endpoint online result');
             console.log(result);
         }
-        const redirectUrl = new URL('/install', req.url);
+        const redirectUrl = new URL(withBasePath('/install'), req.url);
         redirectUrl.searchParams.set('install', installStatus);
 
         return NextResponse.redirect(redirectUrl, 302);
     } catch (error) {
         console.error('[Bitrix Install] error:', error);
 
-        const errorRedirect = new URL('/install', req.url);
+        const errorRedirect = new URL(withBasePath('/install'), req.url);
         errorRedirect.searchParams.set('install', 'fail');
 
         return NextResponse.redirect(errorRedirect, 302);
@@ -234,14 +235,14 @@ export async function GET(req: NextRequest) {
                 }),
             });
         }
-        const redirectUrl = new URL('/install', req.url);
+        const redirectUrl = new URL(withBasePath('/install'), req.url);
         redirectUrl.searchParams.set('install', installStatus);
 
         return NextResponse.redirect(redirectUrl, 302);
     } catch (error) {
         console.error('[Bitrix Install] error:', error);
 
-        const errorRedirect = new URL('/install', req.url);
+        const errorRedirect = new URL(withBasePath('/install'), req.url);
         errorRedirect.searchParams.set('install', 'fail');
 
         return NextResponse.redirect(errorRedirect, 302);

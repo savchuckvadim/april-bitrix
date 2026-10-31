@@ -13,6 +13,7 @@ import { ReportRequest } from '../report-service';
 
 import { reportDateRequestFlow } from '../../lib/date-util';
 import { logClient } from '@/modules/app/lib/helper/logClient';
+import { withBasePath } from '@/modules/shared/lib/base-path';
 
 import { BxDepartmentRequestDtoDomain } from '@workspace/nest-api/';
 import { BXUserDto, OrkKpiFilter, OrkKpiFilterInnerCode, ReportGetFiltersDto } from '@workspace/nest-api';
@@ -265,7 +266,7 @@ export const saveFilter =
             const jsonDates = JSON.stringify(dates, null, '  ');
             const jsonDepartment = JSON.stringify(department, null, '  ');
 
-            await fetch('/api/proxy/save-filter', {
+            await fetch(withBasePath('/api/proxy/save-filter'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', // 💥 обязательно
@@ -288,7 +289,7 @@ export const saveFilter =
     };
 
 export const getFilter = async (domain: string, userId: number) => {
-    const response = await fetch('/api/proxy/filter', {
+    const response = await fetch(withBasePath('/api/proxy/filter'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json', // 💥 обязательно

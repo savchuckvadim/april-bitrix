@@ -23,6 +23,9 @@ export interface LtOtherPacket {
     alternativeName: string | null;
 }
 
+/** Где лежит LT-сервис основного списка: бесплатно в комплекте или в платном пакете */
+export type LtPlacement = 'included' | 'paid';
+
 export interface Composition {
     complectCode: string;
     /** rules — автокоррекции и запреты; free — только подсветка нарушений */
@@ -41,6 +44,8 @@ export interface Composition {
     ltInPacket: string[];
     /** Дополнительные пакеты LT (легаси LT Other) — по строке lt_other на каждый */
     ltOther: LtOtherPacket[];
+    /** Своя подпись сервиса в документах по коду (легаси iskraConfig: Искра) */
+    ltSubtitles?: Record<string, string>;
     /** Бесплатные блоки */
     freeBlocks: string[];
     /** Платный консалтинг: sovex | pkpremium | null (hotline всегда включён) */
@@ -90,6 +95,8 @@ export type CompositionAction =
     | { kind: 'toggleEr'; code: string; checked: boolean }
     | { kind: 'toggleErPacket'; code: string; checked: boolean }
     | { kind: 'toggleLt'; code: string; checked: boolean }
+    | { kind: 'moveLt'; code: string; to: LtPlacement }
+    | { kind: 'setLtSubtitle'; code: string; subtitle: string | null }
     | { kind: 'toggleFreeBlock'; code: string; checked: boolean }
     | { kind: 'setConsalting'; code: string | null }
     | { kind: 'toggleStar'; checked: boolean }
@@ -140,12 +147,12 @@ export const defaultComposition = (
     ers: [...complect.defaults.ers],
     erPackets: [...complect.defaults.erPackets],
     ersInPacket: [...complect.defaults.ersInPacket],
-    lt: [],
-    ltInPacket: [],
+    lt: [...complect.defaults.lt],
+    ltInPacket: [...complect.defaults.ltInPacket],
     ltOther: [],
-    freeBlocks: [],
+    freeBlocks: [...complect.defaults.freeBlocks],
     consalting: null,
-    star: false,
+    star: complect.defaults.star,
     academy: null,
     regions: [],
 });

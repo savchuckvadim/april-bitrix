@@ -15,4 +15,10 @@ export interface ComplectCodesDto {
     packetsEr: string[];
     /** Коды ЭР внутри пакетов */
     ersInPacket: string[];
+    /** Коды сервисов LT, входящих в комплект */
+    lt: string[];
+    /** Коды бесплатных блоков */
+    freeBlocks: string[];
+    /** Коды блоков СТАР; непустой список — СТАР встроен */
+    star: string[];
 }

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { withBasePath } from '@/modules/shared/lib/base-path';
 
 export function PageLoader({ visible }: { visible: boolean }) {
     return (
@@ -21,7 +22,7 @@ export function PageLoader({ visible }: { visible: boolean }) {
                          */}
                         <div className="p-5 rounded-xl bg-white">
                             <Image
-                                src="/logo.svg"
+                                src={withBasePath('/logo.svg')}
                                 alt="Logo"
                                 width={120}
                                 height={85}

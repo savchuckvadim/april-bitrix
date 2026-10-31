@@ -49,6 +49,24 @@ export const infoblockFormFields: FormFieldConfig[] = [
         placeholder: 'Введите вес',
     },
     {
+        name: 'description',
+        label: 'Описание',
+        type: 'textarea',
+        required: false,
+    },
+    {
+        name: 'descriptionForSale',
+        label: 'Описание для продажи',
+        type: 'textarea',
+        required: false,
+    },
+    {
+        name: 'shortDescription',
+        label: 'Короткое описание',
+        type: 'textarea',
+        required: false,
+    },
+    {
         name: 'group_id',
         label: 'Группа инфоблоков',
         type: 'entity-select',

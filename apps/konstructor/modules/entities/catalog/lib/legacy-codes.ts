@@ -159,6 +159,25 @@ export const LT_NUMBER_TO_CODE: Record<number, string> = {
     1001: 'iscra_special', // вес 2
 };
 
+/**
+ * LT комплекта по умолчанию (легаси prof-complects-reducer, `lt`). Только для
+ * фикстуры: в рантайме связи комплект ↔ LT приходят из init.
+ */
+export const LEGACY_COMPLECT_LT: Record<string, readonly string[]> = {
+    buh: ['ltconstructor', 'ltsemi'],
+    buhgos: ['ltconstructor', 'ltsemi'],
+    ur: ['ltsut', 'ltconstructor'],
+    expert: ['ltconstructor', 'ltdisk'],
+    office: ['ltsut', 'ltconstructor', 'ltsemi', 'ltexcontragent', 'ltcheckdoc'],
+    exzak: ['ltexcontragent', 'lttender', 'ltcheckdoc', 'ltsemi', 'ltconstructor'],
+    glavbuh: ['ltconstructor', 'ltsemi'],
+    glavbuhgos: ['ltconstructor', 'ltsemi'],
+    company: ['ltconstructor', 'ltsemi'],
+    companyPro: ['ltconstructor', 'ltsemi'],
+    exbuild: ['ltcheckdocprem'],
+    exjobsec: ['ltsemi', 'ltdigitjobsec'],
+};
+
 /** Вес LT-сервиса по коду (по умолчанию 1) */
 export const LT_CODE_WEIGHT: Record<string, number> = {
     ltcheckdocprem: 2,

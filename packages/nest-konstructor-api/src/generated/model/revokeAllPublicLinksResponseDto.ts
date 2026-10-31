@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface OfferDto {
-    [key: string]: unknown;
+export interface RevokeAllPublicLinksResponseDto {
+    /** Сколько действующих ссылок отозвано */
+    revoked: number;
 }

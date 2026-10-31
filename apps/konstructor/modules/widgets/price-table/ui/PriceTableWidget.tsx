@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { BuildSummary } from '@/modules/features/build-summary';
+import { AddLtPacketButton } from '@/modules/features/composition-editor';
 import { RowBuilderPanel } from '@/modules/features/row-builder';
 import { FlowSummary } from '@/modules/features/flow-summary';
 import { Screen, ScreenSplit } from '@/modules/shared';
@@ -58,6 +59,11 @@ export const PriceTableWidget = ({
                         Основные
                     </h2>
                     <SetBlock set={table.general} label="Основной блок" />
+                    {table.mainRow ? (
+                        <div>
+                            <AddLtPacketButton row={table.mainRow} />
+                        </div>
+                    ) : null}
                     <RowBuilderPanel />
 
                     {table.alternative.length ? (

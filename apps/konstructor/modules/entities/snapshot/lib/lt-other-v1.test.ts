@@ -5,7 +5,7 @@ import { buildGarantRow, createSet, findMainRow, upsertRow } from '../../row-set
 import { defaultComposition, type Composition } from '../../composition';
 import legacyDeal from './__fixtures__/legacy-deal.v1.json';
 import { parseV1 } from './v1/parse-v1';
-import { mapV1, mapV1LtOther } from './v1/map-v1';
+import { mapV1, mapV1LtOther, mapV1LtSubtitles } from './v1/map-v1';
 import type { V1Record } from './v1/types';
 import { restoreV2 } from './v2/serialize';
 import type { SnapshotV2 } from '../model/types';
@@ -41,6 +41,25 @@ describe('ltOther в слепках', () => {
             { id: 'x1', services: ['iscra', 'ltsut'], alternativeName: 'Мой пакет' },
         ]);
         expect(restored.warnings.filter(warning => warning.includes('не найден в каталоге'))).toHaveLength(2);
+    });
+
+    it('v1: своя подпись Искры из iskraConfig переходит в состав, счётчик считается заново', () => {
+        const record = {
+            ...(legacyDeal as unknown as V1Record),
+            iskraConfig: JSON.stringify([
+                { number: 1000, code: 'iscra', subtitle: ' Искра для юристов ', count: 2 },
+                { number: 1001, code: 'iscra_special', count: 1 },
+            ]),
+        } satisfies V1Record;
+        const main = findMainRow(mapV1(parseV1(record), catalog).general);
+        expect(main?.composition?.ltSubtitles).toEqual({ iscra: 'Искра для юристов' });
+    });
+
+    it('v1: подпись по номеру сервиса; битое поле не мешает', () => {
+        expect(mapV1LtSubtitles([{ number: 1001, subtitle: 'Спец' }])).toEqual({ iscra_special: 'Спец' });
+        const parsed = parseV1({ ...(legacyDeal as unknown as V1Record), iskraConfig: '{oops' });
+        expect(parsed.iskraConfig).toBeNull();
+        expect(parsed.parseErrors).toContain('iskraConfig');
     });
 
     it('v1: битое поле ltOther — parseErrors, остальное читается', () => {

@@ -10,8 +10,7 @@ import {
     type KRow,
 } from '@/modules/entities/row-set';
 import {
-    ltOtherPacketWeight,
-    ltPacketWeight,
+    describeLtPackets,
     removeLtOtherPacket,
     renameLtOtherPacket,
 } from '@/modules/entities/composition';
@@ -34,6 +33,9 @@ export const useServiceRow = (row: KRow) => {
             : (state.rowSet.alternative.find(item => item.id === row.setId) ?? null),
     );
     const lead = set ? leadGarantRow(set) : null;
+    const serviceDepartment = useAppSelector((state: RootState) =>
+        Boolean(state.rowSet.context.serviceDepartment),
+    );
     // garant-строка, в наполнении которой лежит пакет LT-other этой строки
     const packetOwner =
         (row.refs.packetId &&
@@ -58,9 +60,19 @@ export const useServiceRow = (row: KRow) => {
         );
     };
 
-    const ltWeight = lead?.composition
-        ? ltPacketWeight(lead.composition, catalog)
-        : 0;
+    // пакет этой строки: состав и вес — из той же модели, что подбирает строку
+    const packetId = row.productType === 'lt_other' ? row.refs.packetId : 'paid';
+    const owner = row.productType === 'lt_other' ? packetOwner : lead;
+    const ltPacket =
+        row.productType === 'lt' || row.productType === 'lt_other'
+            ? (owner?.composition &&
+                  describeLtPackets(owner.composition, {
+                      catalog,
+                      complect: catalog.complects.byCode[owner.composition.complectCode] ?? null,
+                      serviceDepartment,
+                  }).find(item => item.id === packetId)) ||
+              null
+            : null;
 
     const writeOwnerComposition = (
         next: NonNullable<KRow['composition']>,
@@ -84,10 +96,9 @@ export const useServiceRow = (row: KRow) => {
         academyOptions: catalog.academy,
         currentConsalting: lead?.composition?.consalting ?? null,
         currentAcademy: lead?.composition?.academy ?? null,
-        ltWeight,
-        ltOther: packet
-            ? { weight: ltOtherPacketWeight(packet, catalog), servicesCount: packet.services.length }
-            : null,
+        ltPacket,
+        /** Строка, в наполнении которой правится состав этого пакета */
+        ltOwner: owner,
         renameLtOther: (name: string | null) =>
             packetOwner?.composition &&
             packet &&

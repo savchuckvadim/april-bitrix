@@ -60,6 +60,10 @@ export const contractDocumentSlice = createSlice({
             state.specification = action.payload.specification;
             state.formStatus = 'ready';
         },
+        /** Сборка изменилась: спецификация устарела, следующий вход запросит её заново */
+        formStale(state: ContractDocumentState) {
+            if (state.formStatus === 'ready') state.formStatus = 'idle';
+        },
         formFailed(state: ContractDocumentState, action: PayloadAction<string>) {
             state.formStatus = 'error';
             state.formError = action.payload;

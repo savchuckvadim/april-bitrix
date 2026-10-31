@@ -19,7 +19,14 @@ import type { Composition, LtOtherPacket } from '../../../composition';
 import { defaultComposition } from '../../../composition';
 import type { KRow, RowPrice, RowSet } from '../../../row-set';
 import type { RestoredState } from '../../model/types';
-import type { V1CurrentComplect, V1LtOtherPacket, V1Parsed, V1Row, V1RowSet } from './types';
+import type {
+    V1CurrentComplect,
+    V1IskraConfigItem,
+    V1LtOtherPacket,
+    V1Parsed,
+    V1Row,
+    V1RowSet,
+} from './types';
 
 /**
  * Маппер слепка v1 → доменное состояние (code-джойны).
@@ -179,6 +186,17 @@ export const mapV1Composition = (
         academy: academyCodeByIndex(catalog, legacy.academy?.[0]),
         regions: regionCodes,
     };
+};
+
+/** Своя подпись Искры (поле iskraConfig): счётчик не переносим, он считается из состава. */
+export const mapV1LtSubtitles = (config: V1IskraConfigItem[] | null): Record<string, string> => {
+    const subtitles: Record<string, string> = {};
+    for (const item of config ?? []) {
+        const code = item.code || (item.number !== undefined ? LT_NUMBER_TO_CODE[item.number] : undefined);
+        const subtitle = item.subtitle?.trim();
+        if (code && subtitle) subtitles[code] = subtitle;
+    }
+    return subtitles;
 };
 
 /**
@@ -406,7 +424,11 @@ export const mapV1 = (parsed: V1Parsed, catalog: Catalog): RestoredState => {
         : null;
     // пакеты LT Other жили отдельным полем записи — теперь в наполнении главной строки
     const mainComposition: Composition | null = mapped
-        ? { ...mapped, ltOther: mapV1LtOther(parsed.ltOther, catalog, warnings) }
+        ? {
+              ...mapped,
+              ltOther: mapV1LtOther(parsed.ltOther, catalog, warnings),
+              ltSubtitles: mapV1LtSubtitles(parsed.iskraConfig),
+          }
         : null;
 
     const collapsed = parsed.rows?.show === 'set';

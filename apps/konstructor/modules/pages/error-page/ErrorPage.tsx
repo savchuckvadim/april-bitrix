@@ -10,6 +10,7 @@ import {
 } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
 import { Info } from '@/modules/shared';
+import { withBasePath } from '@/modules/shared/lib/base-path';
 
 interface ErrorPageProps {
     error?: Error;
@@ -26,7 +27,7 @@ export const ErrorPage: React.FC<ErrorPageProps> = ({ error, resetError }) => {
     };
 
     const handleGoHome = () => {
-        window.location.href = '/';
+        window.location.href = withBasePath('/');
     };
 
     return (

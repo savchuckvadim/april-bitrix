@@ -1,6 +1,6 @@
 import type { RootState } from '@/modules/app/model/store';
 import { resolveSupply, selectCatalog } from '../../catalog';
-import { buildComplectGroups } from '../../document-payload';
+import { buildComplectGroups, docComposition } from '../../document-payload';
 import { findMainRow } from '../../row-set';
 import type { ComplectDescriptionContent, ComplectDescriptionGroup } from '../model/dto';
 
@@ -23,11 +23,12 @@ export const buildComplectDescriptionContent = (
 ): ComplectDescriptionContent | null => {
     const catalog = selectCatalog(state);
     const main = findMainRow(state.rowSet.general);
-    if (!main?.composition) return null;
+    const composition = main && docComposition(main, state.rowSet.general);
+    if (!main || !composition) return null;
 
     const complect = catalog.complects.byCode[main.refs.complectCode ?? ''];
     const supply = resolveSupply(catalog, main.refs.supplyCode);
-    const groups: ComplectDescriptionGroup[] = buildComplectGroups(catalog, main.composition).map(group => ({
+    const groups: ComplectDescriptionGroup[] = buildComplectGroups(catalog, composition).map(group => ({
         name: group.groupsName,
         infoblocks: group.value.map(block => ({
             code: block.code ?? block.name,

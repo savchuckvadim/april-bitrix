@@ -59,17 +59,26 @@ export const DocumentHubScreen = () => {
                     </FlowSummary>
                 }
             >
-                <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
-                    {hub.documents.map(document => (
-                        <ActionTile
-                            key={document.kind}
-                            icon={document.icon}
-                            tone="complect"
-                            title={document.title}
-                            description={document.description}
-                            onClick={() => hub.openDocument(document.kind)}
-                        />
-                    ))}
+                <div className="flex flex-col gap-4">
+                    {hub.ltWarnings.length ? (
+                        <div className="rounded-md bg-warning/10 px-3 py-2 text-xs text-warning" role="status">
+                            {hub.ltWarnings.map(message => (
+                                <div key={message}>{message}</div>
+                            ))}
+                        </div>
+                    ) : null}
+                    <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
+                        {hub.documents.map(document => (
+                            <ActionTile
+                                key={document.kind}
+                                icon={document.icon}
+                                tone="complect"
+                                title={document.title}
+                                description={document.description}
+                                onClick={() => hub.openDocument(document.kind)}
+                            />
+                        ))}
+                    </div>
                 </div>
             </ScreenSplit>
         </Screen>

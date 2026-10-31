@@ -2,6 +2,7 @@
 
 import { Trash2 } from 'lucide-react';
 import { MicroSelect } from '@workspace/april-ui/fields';
+import { RowCompositionButton } from '@/modules/features/composition-editor';
 import type { KRow } from '@/modules/entities/row-set';
 import { getServiceRefsLabel } from '../../lib/row-display.util';
 import { CommercialInputs } from '../../commercial-inputs';
@@ -100,18 +101,19 @@ export const ServiceRowCard = ({ row, collapsed }: ServiceRowCardProps) => {
                     />
                 ) : null}
 
-                {row.productType === 'lt' ? (
+                {service.ltPacket ? (
                     <span title="Состав пакета меняется в наполнении строки">
-                        пакет по весу LT: {service.ltWeight}
+                        вес {service.ltPacket.weight}:{' '}
+                        {service.ltPacket.services.map(item => item.name).join(', ')}
                     </span>
                 ) : null}
 
-                {row.productType === 'lt_other' && service.ltOther ? (
+                {service.ltOwner && service.ltPacket && !card.isBlurred ? (
+                    <RowCompositionButton row={service.ltOwner} />
+                ) : null}
+
+                {row.productType === 'lt_other' && service.ltPacket ? (
                     <>
-                        <span title="Состав пакета меняется в наполнении строки">
-                            доп. пакет LT: вес {service.ltOther.weight}, сервисов{' '}
-                            {service.ltOther.servicesCount}
-                        </span>
                         <button
                             type="button"
                             onClick={service.removeLtOther}

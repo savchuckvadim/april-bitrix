@@ -12,7 +12,9 @@ export const SummaryFacts = ({ facts }: SummaryFactsProps) => (
         {facts.map(fact => (
             <div key={fact.label} className="flex items-baseline justify-between gap-3">
                 <dt className="shrink-0 text-muted-foreground">{fact.label}</dt>
-                <dd className="min-w-0 text-right font-medium">{fact.value}</dd>
+                <dd className={`min-w-0 text-right font-medium ${fact.isWarning ? 'text-warning' : ''}`}>
+                    {fact.value}
+                </dd>
             </div>
         ))}
     </dl>

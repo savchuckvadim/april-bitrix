@@ -1,11 +1,11 @@
 import type { Catalog } from '../../../catalog';
-import { mergeCompositions, resolveLtOtherPackage } from '../../../composition';
+import { getComplectRuleFlags } from '../../../catalog';
+import { describeLtPackets, mergeCompositions } from '../../../composition';
 import type { KRow, RowSet } from '../../model/types';
 import {
     buildAcademyRow,
     buildGarantRow,
     buildServiceRow,
-    resolveLtPackage,
 } from '../row';
 import { garantRows, leadGarantRow } from './set-ops.util';
 
@@ -88,30 +88,28 @@ export const syncSetWithComposition = (
     } as const;
 
     if (merged) {
-        const ltPackage = resolveLtPackage(catalog, merged);
-        if (ltPackage) {
+        const ltPackets = describeLtPackets(merged, {
+            catalog,
+            complect: leadComplect ?? null,
+            serviceDepartment: context.serviceDepartment,
+        });
+        for (const packet of ltPackets) {
+            // бесплатная часть товаром не идёт; доп. пакеты — только в основном наборе
+            if (!packet.isProduct || !packet.package) continue;
+            if (packet.kind === 'extra' && set.kind !== 'general') continue;
+            const isExtra = packet.kind === 'extra';
             const row = buildServiceRow({
                 ...serviceBase,
-                key: `${set.id}_lt`,
-                productType: 'lt',
-                service: ltPackage,
-            });
-            if (row) serviceRows.push(row);
-        }
-
-        for (const packet of merged.ltOther) {
-            const pkg = resolveLtOtherPackage(catalog, packet, {
-                serviceDepartment: context.serviceDepartment,
-                mode: merged.mode,
-            });
-            if (!pkg) continue;
-            const row = buildServiceRow({
-                ...serviceBase,
-                key: `${set.id}_lt_other_${packet.id}`,
-                productType: 'lt_other',
-                service: pkg,
-                packetId: packet.id,
-                alternativeName: packet.alternativeName,
+                key: isExtra ? `${set.id}_lt_other_${packet.id}` : `${set.id}_lt`,
+                productType: isExtra ? 'lt_other' : 'lt',
+                service: packet.package,
+                ...(isExtra
+                    ? {
+                          packetId: packet.id,
+                          alternativeName:
+                              merged.ltOther.find(item => item.id === packet.id)?.alternativeName ?? null,
+                      }
+                    : {}),
             });
             if (row) serviceRows.push(row);
         }
@@ -139,9 +137,7 @@ export const syncSetWithComposition = (
                     key: `${set.id}_star`,
                     productType: 'star',
                     service,
-                    isFree:
-                        Boolean(leadComplect?.withServices) &&
-                        leadComplect?.code === 'exzak',
+                    isFree: Boolean(leadComplect && getComplectRuleFlags(leadComplect).withStar),
                 });
                 if (row) serviceRows.push(row);
             }

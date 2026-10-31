@@ -47,7 +47,6 @@ row-set/
       commercial-input.util.ts# разбор ввода, подписи («Аванс»), display-значения
     row/            # СТРОКА (сборка по требованию)
       build-garant-row.util.ts / build-service-row.util.ts / build-academy-row.util.ts
-      lt-package.util.ts      # подбор платного LT-пакета по весу
     set/            # СЕТ (набор строк)
       set-ops.util.ts         # create/upsert/remove, findMainRow, leadGarantRow
       set-quantity.util.ts    # единое количество сета
@@ -185,3 +184,18 @@ s.snapshot
 (`scripts/build-generated-index.mjs`) — руками `generated/index.ts` не трогать.
 Импорт пакета — ТОЛЬКО в `lib/api/*-helper.ts` слайсов (catalog-helper, snapshot-helper).
 База URL: `NEXT_PUBLIC_KONSTRUCTOR_API_URL` (пусто = `http://localhost:3007/`).
+
+## Legal Tech
+
+План и решения: `docs/legal-tech.tasks.md`. Код: `entities/composition/lib/rules/lt/`.
+
+- Состав хранит прежние поля `lt`, `ltInPacket`, `ltOther`, поэтому слепки читаются без миграции. Читать их напрямую
+  для подбора пакета нельзя: единая точка — `describeLtPackets(composition, ctx)`, её используют редактор, строки цен,
+  договор, сделка и сводка.
+- Лимит бесплатных — вес LT, привязанного к комплекту в админке (`ltFreeLimit`). В `COMPLECT_RULE_FLAGS` только
+  исключения: `pinnedLt`, `ltDefaultsPaid`.
+- Тесты правил LT идут на `catalog/lib/__fixtures__/init-v2.live.json`, срезе настоящего init. На `oldinit.json`
+  сервисы есть всегда, поэтому он не показывает поломки данных init.
+- В документ доп. пакет идёт, только если у него есть строка в наборе (`docComposition`).
+- Спецификация договора устаревает при изменении сборки (`formStale`): отчёт о поставке перезапросит её при входе,
+  а без изменений сохранит ручные правки менеджера.

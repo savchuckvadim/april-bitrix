@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { withBasePath } from '@/modules/shared/lib/base-path';
 
 interface LogEntry {
     timestamp: string;
@@ -15,13 +16,13 @@ export default function LogsPage() {
     const [textFilter, setTextFilter] = useState<string>('');
 
     async function loadLogs() {
-        const res = await fetch('/api/admin/logs');
+        const res = await fetch(withBasePath('/api/admin/logs'));
         const data = await res.json();
         setLogs(data.reverse()); // последние в начале
     }
 
     async function clearLogs() {
-        await fetch('/api/admin/clear-logs', { method: 'POST' });
+        await fetch(withBasePath('/api/admin/clear-logs'), { method: 'POST' });
         loadLogs();
     }
 

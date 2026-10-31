@@ -1,5 +1,7 @@
 'use client';
 
+import { LtPacketsStrip } from '../LtPacketsStrip';
+import { compositionItemProps } from './composition-item-props';
 import type { CompositionViewProps } from './types';
 import { CompositionSummaryRow } from './CompositionSummaryRow';
 
@@ -10,8 +12,8 @@ export const CompositionSummaryView = ({ editor }: CompositionViewProps) => (
             <CompositionSummaryRow
                 key={section.code}
                 section={section}
-                markKind={editor.view.markKind}
-                onToggleItem={(code, next) => editor.toggleItem(section.kind, code, next)}
+                extra={section.kind === 'lt' ? <LtPacketsStrip packets={editor.ltPackets} /> : null}
+                itemProps={item => compositionItemProps(editor, section.kind, item)}
             />
         ))}
     </div>

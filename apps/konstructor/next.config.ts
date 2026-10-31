@@ -13,10 +13,23 @@ for (const envVar of requiredEnvVars) {
     }
 }
 
+// В проде приложение живёт под префиксом на next.april-app.ru/konstructor
+// (см. deploy/nginx/next.april-app.ru.conf): в корне того же домена стоит
+// kpi-sales, поэтому отрезать префикс на прокси нельзя — Next должен сам
+// знать про basePath и отдавать /konstructor/_next/*.
+//
+// В dev (`next dev`) basePath пустой — localhost работает как раньше,
+// без префикса. Сменить префикс можно через NEXT_PUBLIC_BASE_PATH на сборке;
+// чтобы убрать его совсем (переезд на свой поддомен) — правится DEFAULT_BASE_PATH.
+const DEFAULT_BASE_PATH = process.env.NODE_ENV === 'production' ? '/konstructor' : '';
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || DEFAULT_BASE_PATH;
+
 const nextConfig: NextConfig = {
+    basePath: basePath || undefined,
     env: {
         LOG_FILE_PATH: process.env.LOG_FILE_PATH,
         IN_BITRIX: process.env.IN_BITRIX,
+        NEXT_PUBLIC_BASE_PATH: basePath,
     },
     // Добавляем поддержку TypeScript для конфигурации
     typescript: {

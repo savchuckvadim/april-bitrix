@@ -4,7 +4,6 @@ export * from './lib/merge';
 export * from './lib/weight';
 export * from './lib/rules/registry';
 export * from './lib/rules/lt';
-export * from './lib/rules/lt-other';
 export * from './lib/lt-count';
 export * from './lib/rules/consalting';
 export * from './lib/rules/infoblock-links';

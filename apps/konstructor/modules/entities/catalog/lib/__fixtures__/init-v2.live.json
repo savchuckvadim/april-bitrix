@@ -1,0 +1,2702 @@
+{
+  "_note": "Срез init v2 локальной БД с теми же составами, что на проде (без описаний и цен комплектов): правила LT проверяются на настоящей форме данных, oldinit этого не показывал",
+  "complects": {
+    "prof": [
+      {
+        "id": 1,
+        "name": "buh",
+        "title": "Бухгалтер",
+        "fullTitle": "Гарант-Бухгалтер",
+        "shortTitle": "Бухгалтер",
+        "tag": "buh",
+        "className": "color",
+        "color": "color",
+        "number": 0,
+        "weight": 3.5,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "reg",
+            "bbb",
+            "eforms"
+          ],
+          "ers": [],
+          "packetsEr": [
+            "perbuh"
+          ],
+          "ersInPacket": [
+            "erprov",
+            "erxs",
+            "erwroks",
+            "ertax",
+            "ercontracts"
+          ],
+          "lt": [
+            "ltsemi",
+            "ltconstructor"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "bcaonsalting",
+            "zconsalting",
+            "freesud"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 2,
+        "name": "buhgos",
+        "title": "Бухгалтер госсектора",
+        "fullTitle": "Гарант-Бухгалтер госсектора",
+        "shortTitle": "Бухгалтер госсектора",
+        "tag": "buhgos",
+        "className": "green",
+        "color": "green",
+        "number": 1,
+        "weight": 4,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "reg",
+            "bbb",
+            "eforms"
+          ],
+          "ers": [
+            "erprov"
+          ],
+          "packetsEr": [
+            "pergos"
+          ],
+          "ersInPacket": [
+            "ergos",
+            "erzakupki",
+            "erwroks",
+            "ertax",
+            "ercontracts"
+          ],
+          "lt": [
+            "ltsemi",
+            "ltconstructor"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "bcaonsalting",
+            "zconsalting",
+            "freesud"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 3,
+        "name": "ur",
+        "title": "Юрист",
+        "fullTitle": "Гарант-Юрист",
+        "shortTitle": "Юрист",
+        "tag": "ur",
+        "className": "blue",
+        "color": "blue",
+        "number": 2,
+        "weight": 9,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": true,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "reg",
+            "ot",
+            "lv",
+            "la",
+            "laa",
+            "lgeneral",
+            "lencyc",
+            "bbu",
+            "eforms"
+          ],
+          "ers": [],
+          "packetsEr": [
+            "perur"
+          ],
+          "ersInPacket": [
+            "erprov",
+            "erzakupki",
+            "erwroks",
+            "ercontracts",
+            "ercorp"
+          ],
+          "lt": [
+            "ltconstructor",
+            "ltsut"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "bcaonsalting",
+            "zconsalting",
+            "freesud",
+            "online1",
+            "online2",
+            "freesemi"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 4,
+        "name": "expert",
+        "title": "Эксперт PRO",
+        "fullTitle": "Гарант-Эксперт PRO",
+        "shortTitle": "Эксперт PRO",
+        "tag": "expert",
+        "className": "blue",
+        "color": "blue",
+        "number": 3,
+        "weight": 5,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "ot",
+            "ntss",
+            "sprom"
+          ],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [
+            "ltconstructor",
+            "ltdisk"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "freesud"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 5,
+        "name": "office",
+        "title": "Офис",
+        "fullTitle": "Гарант-Офис",
+        "shortTitle": "Офис",
+        "tag": "office",
+        "className": "blue",
+        "color": "blue",
+        "number": 4,
+        "weight": 11,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": true,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "reg",
+            "ot",
+            "lv",
+            "la",
+            "laa",
+            "lgeneral",
+            "lencyc",
+            "bbu",
+            "bbb",
+            "eforms"
+          ],
+          "ers": [],
+          "packetsEr": [
+            "perbuh",
+            "perur"
+          ],
+          "ersInPacket": [
+            "erprov",
+            "erxs",
+            "erwroks",
+            "ertax",
+            "ercontracts",
+            "erzakupki",
+            "ercorp"
+          ],
+          "lt": [
+            "ltsemi",
+            "ltconstructor",
+            "ltsut",
+            "ltexcontragent",
+            "ltcheckdoc"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "bcaonsalting",
+            "zconsalting",
+            "freesud",
+            "online1",
+            "online2"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 6,
+        "name": "exzak",
+        "title": "Эксперт в Закупках",
+        "fullTitle": "Гарант-Эксперт в Закупках",
+        "shortTitle": "Эксперт в Закупках",
+        "tag": "exzak",
+        "className": "yellow",
+        "color": "yellow",
+        "number": 18,
+        "weight": 6,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": true,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "reg",
+            "fac",
+            "lv",
+            "la",
+            "lencyc",
+            "eforms"
+          ],
+          "ers": [
+            "erzakupki",
+            "ercontracts"
+          ],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [
+            "ltsemi",
+            "ltconstructor",
+            "ltexcontragent",
+            "lttender",
+            "ltcheckdoc"
+          ],
+          "freeBlocks": [],
+          "star": [
+            "starpack",
+            "stcalc",
+            "stsearchpost",
+            "stmonp",
+            "stnmckproduct",
+            "stnmckdrag",
+            "stkzk",
+            "stpaff",
+            "stpokpd",
+            "stasearchfile",
+            "ststandart"
+          ]
+        }
+      },
+      {
+        "id": 7,
+        "name": "glavbuh",
+        "title": "Главный Бухгалтер",
+        "fullTitle": "Гарант-Главный Бухгалтер",
+        "shortTitle": "Гл. Бухгалтер",
+        "tag": "glavbuh",
+        "className": "garant",
+        "color": "garant",
+        "number": 5,
+        "weight": 7,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": true,
+        "productType": "orange",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "reg",
+            "lv",
+            "la",
+            "bbb",
+            "esx",
+            "eforms"
+          ],
+          "ers": [
+            "erzakupki",
+            "ercorp"
+          ],
+          "packetsEr": [
+            "perbuh"
+          ],
+          "ersInPacket": [
+            "erprov",
+            "erxs",
+            "erwroks",
+            "ertax",
+            "ercontracts"
+          ],
+          "lt": [
+            "ltsemi",
+            "ltconstructor"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "bcaonsalting",
+            "zconsalting",
+            "freesud",
+            "online1",
+            "online2"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 8,
+        "name": "glavbuhgos",
+        "title": "Главный Бухгалтер госсектора",
+        "fullTitle": "Гарант-Главный Бухгалтер госсектора",
+        "shortTitle": "Гл. Бухгалтер госсектора",
+        "tag": "glavbuhgos",
+        "className": "orange",
+        "color": "orange",
+        "number": 6,
+        "weight": 8,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": true,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "reg",
+            "ot",
+            "lv",
+            "la",
+            "bbb",
+            "esx",
+            "eforms"
+          ],
+          "ers": [
+            "erprov",
+            "ercorp"
+          ],
+          "packetsEr": [
+            "pergos"
+          ],
+          "ersInPacket": [
+            "ergos",
+            "erzakupki",
+            "erwroks",
+            "ertax",
+            "ercontracts"
+          ],
+          "lt": [
+            "ltsemi",
+            "ltconstructor"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "bcaonsalting",
+            "zconsalting",
+            "freesud",
+            "online1",
+            "online2"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 9,
+        "name": "company",
+        "title": "Предприятие",
+        "fullTitle": "Гарант-Предприятие",
+        "shortTitle": "Предприятие",
+        "tag": "company",
+        "className": "violet",
+        "color": "violet",
+        "number": 7,
+        "weight": 12.5,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": true,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "reg",
+            "ot",
+            "lv",
+            "la",
+            "laa",
+            "lgeneral",
+            "lencyc",
+            "bbu",
+            "bbb",
+            "eforms"
+          ],
+          "ers": [
+            "erprov",
+            "erxs",
+            "erzakupki",
+            "erwroks",
+            "ertax",
+            "ercontracts",
+            "ercorp"
+          ],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [
+            "ltsemi",
+            "ltconstructor"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "bcaonsalting",
+            "zconsalting",
+            "freesud",
+            "online1",
+            "online2"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 10,
+        "name": "companyPro",
+        "title": "Предприятие PRO",
+        "fullTitle": "Гарант-Предприятие PRO",
+        "shortTitle": "Предприятие PRO",
+        "tag": "companyPro",
+        "className": "violet",
+        "color": "violet",
+        "number": 8,
+        "weight": 15.5,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": true,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "reg",
+            "ot",
+            "lv",
+            "la",
+            "laa",
+            "lgeneral",
+            "lencyc",
+            "bbu",
+            "bbb",
+            "eforms",
+            "sprom"
+          ],
+          "ers": [
+            "erprov",
+            "erxs",
+            "erzakupki",
+            "erwroks",
+            "ertax",
+            "ercontracts",
+            "ercorp"
+          ],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [
+            "ltsemi",
+            "ltconstructor"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "bcaonsalting",
+            "zconsalting",
+            "freesud",
+            "online1",
+            "online2",
+            "orallyconsalting"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 11,
+        "name": "exbuild",
+        "title": "Стройэксперт",
+        "fullTitle": "Гарант-Стройэксперт",
+        "shortTitle": "Стройэксперт",
+        "tag": "exbuild",
+        "className": "rose",
+        "color": "rose",
+        "number": 19,
+        "weight": 6.5,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": false,
+        "withDefault": true,
+        "isChanging": true,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "ot",
+            "ntss",
+            "sprom"
+          ],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [
+            "ltcheckdocprem"
+          ],
+          "freeBlocks": [
+            "praim",
+            "bhome",
+            "freesud"
+          ],
+          "star": []
+        }
+      },
+      {
+        "id": 12,
+        "name": "exjobsec",
+        "title": "Эксперт по охране труда",
+        "fullTitle": "Гарант-Эксперт по охране труда",
+        "shortTitle": "Эксперт по охране труда",
+        "tag": "exjobsec",
+        "className": "rose",
+        "color": "rose",
+        "number": 20,
+        "weight": 5,
+        "abs": null,
+        "withConsalting": false,
+        "withABS": false,
+        "withLt": true,
+        "withServices": true,
+        "withDefault": true,
+        "isChanging": true,
+        "productType": "garant",
+        "type": "prof",
+        "codes": {
+          "filling": [
+            "rus",
+            "bkk",
+            "eforms",
+            "sprom"
+          ],
+          "ers": [
+            "erwroks"
+          ],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [
+            "ltsemi",
+            "ltdigitjobsec"
+          ],
+          "freeBlocks": [
+            "praim",
+            "archives",
+            "bhome",
+            "bcaonsalting",
+            "zconsalting",
+            "freesud"
+          ],
+          "star": []
+        }
+      }
+    ],
+    "universal": [
+      {
+        "id": 13,
+        "name": "classic",
+        "title": "Гарант-Классик",
+        "fullTitle": "Гарант-Классик",
+        "shortTitle": "Гарант-Классик",
+        "tag": "classic",
+        "className": "",
+        "color": null,
+        "number": 9,
+        "weight": 1,
+        "abs": 2,
+        "withConsalting": false,
+        "withABS": true,
+        "withLt": false,
+        "withServices": false,
+        "withDefault": false,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "universal",
+        "codes": {
+          "filling": [],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [],
+          "freeBlocks": [],
+          "star": []
+        }
+      },
+      {
+        "id": 14,
+        "name": "classicPlus",
+        "title": "Гарант-Классик+",
+        "fullTitle": "Гарант-Классик+",
+        "shortTitle": "Гарант-Классик+",
+        "tag": "classicPlus",
+        "className": "",
+        "color": null,
+        "number": 10,
+        "weight": 1.5,
+        "abs": 3,
+        "withConsalting": false,
+        "withABS": true,
+        "withLt": false,
+        "withServices": false,
+        "withDefault": false,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "universal",
+        "codes": {
+          "filling": [],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [],
+          "freeBlocks": [],
+          "star": []
+        }
+      },
+      {
+        "id": 15,
+        "name": "universal",
+        "title": "Гарант-Универсал",
+        "fullTitle": "Гарант-Универсал",
+        "shortTitle": "Гарант-Универсал",
+        "tag": "universal",
+        "className": "",
+        "color": null,
+        "number": 11,
+        "weight": 2,
+        "abs": 4,
+        "withConsalting": false,
+        "withABS": true,
+        "withLt": false,
+        "withServices": false,
+        "withDefault": false,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "universal",
+        "codes": {
+          "filling": [],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [],
+          "freeBlocks": [],
+          "star": []
+        }
+      },
+      {
+        "id": 16,
+        "name": "universalPlus",
+        "title": "Гарант-Универсал+",
+        "fullTitle": "Гарант-Универсал+",
+        "shortTitle": "Гарант-Универсал+",
+        "tag": "universalPlus",
+        "className": "",
+        "color": null,
+        "number": 12,
+        "weight": 3,
+        "abs": 4.5,
+        "withConsalting": false,
+        "withABS": true,
+        "withLt": false,
+        "withServices": false,
+        "withDefault": false,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "universal",
+        "codes": {
+          "filling": [],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [],
+          "freeBlocks": [],
+          "star": []
+        }
+      },
+      {
+        "id": 17,
+        "name": "professional",
+        "title": "Гарант-Профессионал",
+        "fullTitle": "Гарант-Профессионал",
+        "shortTitle": "Гарант-Профессионал",
+        "tag": "professional",
+        "className": "",
+        "color": null,
+        "number": 13,
+        "weight": 4,
+        "abs": 5,
+        "withConsalting": false,
+        "withABS": true,
+        "withLt": false,
+        "withServices": false,
+        "withDefault": false,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "universal",
+        "codes": {
+          "filling": [],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [],
+          "freeBlocks": [],
+          "star": []
+        }
+      },
+      {
+        "id": 18,
+        "name": "master",
+        "title": "Гарант-Мастер",
+        "fullTitle": "Гарант-Мастер",
+        "shortTitle": "Гарант-Мастер",
+        "tag": "master",
+        "className": "",
+        "color": null,
+        "number": 14,
+        "weight": 6,
+        "abs": 6,
+        "withConsalting": false,
+        "withABS": true,
+        "withLt": false,
+        "withServices": false,
+        "withDefault": false,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "universal",
+        "codes": {
+          "filling": [],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [],
+          "freeBlocks": [],
+          "star": []
+        }
+      },
+      {
+        "id": 19,
+        "name": "analyst",
+        "title": "Гарант-Аналитик",
+        "fullTitle": "Гарант-Аналитик",
+        "shortTitle": "Гарант-Аналитик",
+        "tag": "analyst",
+        "className": "",
+        "color": null,
+        "number": 15,
+        "weight": 9,
+        "abs": 8,
+        "withConsalting": false,
+        "withABS": true,
+        "withLt": false,
+        "withServices": false,
+        "withDefault": false,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "universal",
+        "codes": {
+          "filling": [],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [],
+          "freeBlocks": [],
+          "star": []
+        }
+      },
+      {
+        "id": 20,
+        "name": "analystPlus",
+        "title": "Гарант-Аналитик+",
+        "fullTitle": "Гарант-Аналитик+",
+        "shortTitle": "Гарант-Аналитик+",
+        "tag": "analystPlus",
+        "className": "",
+        "color": null,
+        "number": 16,
+        "weight": 12,
+        "abs": 10,
+        "withConsalting": false,
+        "withABS": true,
+        "withLt": false,
+        "withServices": false,
+        "withDefault": false,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "universal",
+        "codes": {
+          "filling": [],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [],
+          "freeBlocks": [],
+          "star": []
+        }
+      },
+      {
+        "id": 21,
+        "name": "maximum",
+        "title": "Гарант-Максимум",
+        "fullTitle": "Гарант-Максимум",
+        "shortTitle": "Гарант-Максимум",
+        "tag": "maximum",
+        "className": "",
+        "color": null,
+        "number": 17,
+        "weight": 0,
+        "abs": 14,
+        "withConsalting": false,
+        "withABS": true,
+        "withLt": false,
+        "withServices": false,
+        "withDefault": false,
+        "isChanging": false,
+        "productType": "garant",
+        "type": "universal",
+        "codes": {
+          "filling": [],
+          "ers": [],
+          "packetsEr": [],
+          "ersInPacket": [],
+          "lt": [],
+          "freeBlocks": [],
+          "star": []
+        }
+      }
+    ]
+  },
+  "infoblocks": [
+    {
+      "id": 2,
+      "code": "npa",
+      "groupName": "Нормативно-правовые акты",
+      "type": "infoblocks",
+      "productType": "garant",
+      "value": [
+        {
+          "code": "rus",
+          "name": "Законодательство России",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "reg",
+          "name": "Региональное законодательство",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ot",
+          "name": "Отраслевое законодательство России",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "pr",
+          "name": "Проекты актов органов власти",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "me",
+          "name": "Международное право",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "fac",
+          "name": "Решения Федеральной антимонопольной службы и территориальных органов",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "code": "la",
+      "groupName": "Судебная практика",
+      "type": "infoblocks",
+      "productType": "garant",
+      "value": [
+        {
+          "code": "lv",
+          "name": "Практика высших судебных органов",
+          "weight": 1,
+          "isFree": false,
+          "isLa": true,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "la",
+          "name": "Практика арбитражных судов округов",
+          "weight": 1,
+          "isFree": false,
+          "isLa": true,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "laa",
+          "name": "Практика арбитражных апелляционных судов округов",
+          "weight": 1,
+          "isFree": false,
+          "isLa": true,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "lgeneral",
+          "name": "Практика судов общей юрисдикции",
+          "weight": 1,
+          "isFree": false,
+          "isLa": true,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "lencyc",
+          "name": "Энциклопедия судебной практики. Правовые позиции судов",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": true,
+          "parent": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "code": "c",
+      "groupName": "Консультационные материалы",
+      "type": "infoblocks",
+      "productType": "garant",
+      "value": [
+        {
+          "code": "bbu",
+          "name": "Большая библиотека юриста",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "bbb",
+          "name": "Большая библиотека бухгалтера и кадрового работника",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "bcompany",
+          "name": "Библиотека консультаций. Бухгалтерия предприятия",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "bb",
+          "name": "Библиотека консультаций. Бюджетные организации",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "bkk",
+          "name": "Библиотека консультаций. Кадры",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "code": "sp",
+      "groupName": "Специализированные блоки",
+      "type": "infoblocks",
+      "productType": "garant",
+      "value": [
+        {
+          "code": "tsbp",
+          "name": "Толковый словарь «Бизнес и право»",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "esx",
+          "name": "Энциклопедия. Законодательство в схемах",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "eforms",
+          "name": "Энциклопедия. Формы правовых документов",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "infarm",
+          "name": "ГАРАНТ-Инфарм",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ntss",
+          "name": "Справочник нормативно-технической документации по строительству",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "sprom",
+          "name": "Справочник промышленника",
+          "weight": 3,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "sworks",
+          "name": "Справочник по охране труда",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "standart",
+          "name": "Справочник по техническому регулированию и стандартизации",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "code": "freeBlocks",
+      "groupName": "Без дополнительной оплаты",
+      "type": "free",
+      "productType": "garant",
+      "value": [
+        {
+          "code": "praim",
+          "name": "ПРАЙМ",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "archives",
+          "name": "Архивы ГАРАНТа",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "bhome",
+          "name": "Большая домашняя правовая энциклопедия",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "bcaonsalting",
+          "name": "База знаний службы правового консалтинга",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "zconsalting",
+          "name": "ГАРАНТ Консалтинг: нормативные акты и судебная практика",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "freesud",
+          "name": "Судебная практика: приложение к консультационным блокам",
+          "weight": 0,
+          "isFree": true,
+          "isLa": true,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "online1",
+          "name": "Онлайн-архив практики мировых судей",
+          "weight": 0,
+          "isFree": true,
+          "isLa": true,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "online2",
+          "name": "Онлайн-архив определений арбитражных судов",
+          "weight": 0,
+          "isFree": true,
+          "isLa": true,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "freesemi",
+          "name": "Интернет-семинары",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "twoconsalting",
+          "name": "2 экспертных заключения в месяц",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [
+            "pkpremium"
+          ],
+          "children": []
+        },
+        {
+          "code": "orallyconsalting",
+          "name": "Неограниченное количество устных консультаций",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [
+            "sovex"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "code": "per",
+      "groupName": "Пакет Энциклопедий решений",
+      "type": "er",
+      "productType": "garant",
+      "value": [
+        {
+          "code": "perbuh",
+          "name": "Пакет Энциклопедий решений для бухгалтера",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": [
+            "erprov",
+            "erxs",
+            "erwroks",
+            "ertax",
+            "ercontracts"
+          ]
+        },
+        {
+          "code": "pergos",
+          "name": "Пакет Энциклопедий решений для бухгалтера госсектора",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": [
+            "ergos",
+            "erzakupki",
+            "erwroks",
+            "ertax",
+            "ercontracts"
+          ]
+        },
+        {
+          "code": "perur",
+          "name": "Пакет Энциклопедий решений для юриста",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": [
+            "erprov",
+            "erzakupki",
+            "erwroks",
+            "ercontracts",
+            "ercorp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "code": "er",
+      "groupName": "Энциклопедии решений",
+      "type": "er",
+      "productType": "garant",
+      "value": [
+        {
+          "code": "erprov",
+          "name": "Энциклопедия решений. Проверки организаций и предпринимателей",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [
+            "perbuh",
+            "perur"
+          ],
+          "children": []
+        },
+        {
+          "code": "ergos",
+          "name": "Энциклопедия решений.Госсектор: учет, отчетность, финконтроль",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [
+            "pergos"
+          ],
+          "children": []
+        },
+        {
+          "code": "erxs",
+          "name": "Энциклопедия решений. Хозяйственные ситуации",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [
+            "perbuh"
+          ],
+          "children": []
+        },
+        {
+          "code": "erzakupki",
+          "name": "Энциклопедия решений. Госзакупки",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [
+            "pergos",
+            "perur"
+          ],
+          "children": []
+        },
+        {
+          "code": "erwroks",
+          "name": "Энциклопедия решений. Трудовые отношения, кадры",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [
+            "perbuh",
+            "pergos",
+            "perur"
+          ],
+          "children": []
+        },
+        {
+          "code": "ertax",
+          "name": "Энциклопедия решений. Налоги и взносы",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [
+            "perbuh",
+            "pergos"
+          ],
+          "children": []
+        },
+        {
+          "code": "ercontracts",
+          "name": "Энциклопедия решений. Договоры и иные сделки",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [
+            "perbuh",
+            "pergos",
+            "perur"
+          ],
+          "children": []
+        },
+        {
+          "code": "ercorp",
+          "name": "Энциклопедия решений. Корпоративное право",
+          "weight": 0.5,
+          "isFree": false,
+          "isLa": false,
+          "parent": [
+            "perur"
+          ],
+          "children": []
+        },
+        {
+          "code": "erbankrot",
+          "name": "Энциклопедия решений. Банкротство организации и гражданина",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "erbuh",
+          "name": "Энциклопедия решений. Бухгалтерский учет и отчетность",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "erhomes",
+          "name": "Энциклопедия решений. Управляющие компании в многоквартирных домах",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "code": "consalting",
+      "groupName": "Правовая Поддержка",
+      "type": "consalting",
+      "productType": "consalting",
+      "value": [
+        {
+          "code": "hotline",
+          "name": "Горячая линия",
+          "weight": 0,
+          "isFree": true,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "sovex",
+          "name": "Советы экспертов. Проверки, налоги, право",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": [
+            "orallyconsalting"
+          ]
+        },
+        {
+          "code": "pkpremium",
+          "name": "Правовой консалтинг. Премиум",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": [
+            "twoconsalting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "code": "lt",
+      "groupName": "Legal Tech",
+      "type": "lt",
+      "productType": "lt",
+      "value": [
+        {
+          "code": "ltsemi",
+          "name": "Интернет-семинары",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltconstructor",
+          "name": "Конструктор правовых документов",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltsut",
+          "name": "Аналитическая система «Сутяжник»",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltdisk",
+          "name": "Гарант Диск",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltconnect",
+          "name": "Гарант Коннект",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltdocmail",
+          "name": "Гарант ДокМэйл",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltexcontragent",
+          "name": "Экспресс Проверка контрагентов",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "lttender",
+          "name": "Гарант Тендер",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltexsog",
+          "name": "Экспресс Согласование",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltbusiness",
+          "name": "Бизнес на контроле",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltclassificator",
+          "name": "Эталонный Классификатор",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltpatent",
+          "name": "Онлайн Патент Стандарт",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltcheckdoc",
+          "name": "Гарант ЧекДок",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltcheckdocprem",
+          "name": "Гарант ЧекДок Премиум",
+          "weight": 2,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ltdigitjobsec",
+          "name": "Цифровая охрана труда",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "iscra",
+          "name": "Искра",
+          "weight": 2,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ex_signature",
+          "name": "Экспресс Подпись",
+          "weight": 1,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "iscra_special",
+          "name": "Искра Специальная версия",
+          "weight": 2,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "code": "star",
+      "groupName": "Дополнительные программные продукты",
+      "type": "star",
+      "productType": "star",
+      "value": [
+        {
+          "code": "starpack",
+          "name": "Система торговых аналитических решений.",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "stcalc",
+          "name": "Калькулятор сроков закупки",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "stsearchpost",
+          "name": "Поиск поставщиков",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "stmonp",
+          "name": "Мониторинг цен гос. закупок",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "stnmckproduct",
+          "name": "Обоснование НМЦК для товаров и медицинских изделий",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "stnmckdrag",
+          "name": "Обоснование НМЦК лекарственных средств",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "stkzk",
+          "name": "Квотирование закупок",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "stpaff",
+          "name": "Проверка аффилированности",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "stpokpd",
+          "name": "Проверка ОКПД2 на ограничения и запреты",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "stasearchfile",
+          "name": "Поиск файлов технической документации",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        },
+        {
+          "code": "ststandart",
+          "name": "Стандарты и нормы",
+          "weight": 0,
+          "isFree": false,
+          "isLa": false,
+          "parent": [],
+          "children": []
+        }
+      ]
+    }
+  ],
+  "services": {
+    "lt": [
+      {
+        "id": 53,
+        "code": "ltsemi",
+        "name": "Интернет-семинары",
+        "fullName": "Интернет-семинары",
+        "shortName": "Интернет-семинары",
+        "number": 50,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 54,
+        "code": "ltconstructor",
+        "name": "Конструктор правовых документов",
+        "fullName": "Конструктор правовых документов",
+        "shortName": "Конструктор правовых документов",
+        "number": 51,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 55,
+        "code": "ltsut",
+        "name": "Аналитическая система «Сутяжник»",
+        "fullName": "Аналитическая система «Сутяжник»",
+        "shortName": "Аналитическая система «Сутяжник»",
+        "number": 52,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 56,
+        "code": "ltdisk",
+        "name": "Гарант Диск",
+        "fullName": "Гарант Диск",
+        "shortName": "Гарант Диск",
+        "number": 53,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 57,
+        "code": "ltconnect",
+        "name": "Гарант Коннект",
+        "fullName": "Гарант Коннект",
+        "shortName": "Гарант Коннект",
+        "number": 54,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 58,
+        "code": "ltdocmail",
+        "name": "Гарант ДокМэйл",
+        "fullName": "Гарант ДокМэйл",
+        "shortName": "Гарант ДокМэйл",
+        "number": 55,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 59,
+        "code": "ltexcontragent",
+        "name": "Экспресс Проверка контрагентов",
+        "fullName": "Экспресс Проверка контрагентов",
+        "shortName": "Экспресс Проверка контрагентов",
+        "number": 56,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 60,
+        "code": "lttender",
+        "name": "Гарант Тендер",
+        "fullName": "Гарант Тендер",
+        "shortName": "Гарант Тендер",
+        "number": 57,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 61,
+        "code": "ltexsog",
+        "name": "Экспресс Согласование",
+        "fullName": "Экспресс Согласование",
+        "shortName": "Экспресс Согласование",
+        "number": 58,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 62,
+        "code": "ltbusiness",
+        "name": "Бизнес на контроле",
+        "fullName": "Бизнес на контроле",
+        "shortName": "Бизнес на контроле",
+        "number": 59,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 63,
+        "code": "ltclassificator",
+        "name": "Эталонный Классификатор",
+        "fullName": "Эталонный Классификатор",
+        "shortName": "Эталонный Классификатор",
+        "number": 60,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 64,
+        "code": "ltpatent",
+        "name": "Онлайн Патент Стандарт",
+        "fullName": "Онлайн Патент Стандарт",
+        "shortName": "Онлайн Патент Стандарт",
+        "number": 61,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 65,
+        "code": "ltcheckdoc",
+        "name": "Гарант ЧекДок",
+        "fullName": "Гарант ЧекДок",
+        "shortName": "Гарант ЧекДок",
+        "number": 62,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 77,
+        "code": "ltcheckdocprem",
+        "name": "Гарант ЧекДок Премиум",
+        "fullName": "Гарант ЧекДок Премиум",
+        "shortName": "Гарант ЧекДок Премиум",
+        "number": 301,
+        "weight": 2,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 78,
+        "code": "ltdigitjobsec",
+        "name": "Цифровая охрана труда",
+        "fullName": "Цифровая охрана труда",
+        "shortName": "Цифровая охрана труда",
+        "number": 302,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 80,
+        "code": "iscra",
+        "name": "Искра",
+        "fullName": "Искра",
+        "shortName": "Искра",
+        "number": 1000,
+        "weight": 2,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 83,
+        "code": "iscra_special",
+        "name": "Искра Специальная версия",
+        "fullName": "Искра Специальная версия",
+        "shortName": "Искра Специальная версия",
+        "number": 1001,
+        "weight": 2,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      },
+      {
+        "id": 82,
+        "code": "ex_signature",
+        "name": "Экспресс Подпись",
+        "fullName": "Экспресс Подпись",
+        "shortName": "Экспресс Подпись",
+        "number": 1010,
+        "weight": 1,
+        "abs": null,
+        "color": null,
+        "productType": "lt",
+        "isPackage": false
+      }
+    ],
+    "ltPackages": [
+      {
+        "id": 1,
+        "code": "ltpackSmall",
+        "name": "Гарант-LegalTech. Малый пакет",
+        "fullName": "Гарант-LegalTech. Малый пакет",
+        "shortName": "Гарант-LegalTech. Малый пакет",
+        "number": 13,
+        "weight": 2,
+        "abs": 0,
+        "color": null,
+        "productType": "lt",
+        "isPackage": true
+      },
+      {
+        "id": 2,
+        "code": "ltpackMedium",
+        "name": "Гарант-LegalTech. Средний пакет",
+        "fullName": "Гарант-LegalTech. Средний пакет",
+        "shortName": "Гарант-LegalTech. Средний пакет",
+        "number": 14,
+        "weight": 5,
+        "abs": 0,
+        "color": null,
+        "productType": "lt",
+        "isPackage": true
+      },
+      {
+        "id": 3,
+        "code": "ltpackBig",
+        "name": "Гарант-LegalTech. Большой пакет",
+        "fullName": "Гарант-LegalTech. Большой пакет",
+        "shortName": "Гарант-LegalTech. Большой пакет",
+        "number": 15,
+        "weight": 10,
+        "abs": 0,
+        "color": null,
+        "productType": "lt",
+        "isPackage": true
+      },
+      {
+        "id": 4,
+        "code": "ltpackMediumOld",
+        "name": "Гарант-LegalTech. Средний Устаревший",
+        "fullName": "Гарант-LegalTech. Средний Устаревший",
+        "shortName": "Гарант-LegalTech. Средний Устаревший",
+        "number": 1020,
+        "weight": 4,
+        "abs": 0,
+        "color": null,
+        "productType": "lt",
+        "isPackage": true
+      }
+    ],
+    "consalting": [
+      {
+        "id": 6,
+        "code": "hotline",
+        "name": "Горячая Линия",
+        "fullName": "Горячая Линия",
+        "shortName": "Горячая Линия",
+        "number": 0,
+        "weight": 0,
+        "abs": 0,
+        "color": null,
+        "productType": "consalting",
+        "isPackage": true
+      },
+      {
+        "id": 7,
+        "code": "sovex",
+        "name": "Советы экспертов",
+        "fullName": "Советы экспертов. Проверки, налоги, право",
+        "shortName": "Советы экспертов",
+        "number": 1,
+        "weight": 0,
+        "abs": 1,
+        "color": null,
+        "productType": "consalting",
+        "isPackage": true
+      },
+      {
+        "id": 8,
+        "code": "pkpremium",
+        "name": "Правовой консалтинг",
+        "fullName": "Правовой консалтинг. Премиум",
+        "shortName": "Правовой консалтинг",
+        "number": 2,
+        "weight": 0,
+        "abs": 3,
+        "color": null,
+        "productType": "consalting",
+        "isPackage": true
+      }
+    ],
+    "star": [
+      {
+        "id": 5,
+        "code": "starpack",
+        "name": "СТАР",
+        "fullName": "Система торговых аналитических решений",
+        "shortName": "СТАР",
+        "number": 0,
+        "weight": 10,
+        "abs": 0,
+        "color": null,
+        "productType": "star",
+        "isPackage": true
+      }
+    ]
+  },
+  "prices": [
+    {
+      "code": "ltpackSmall_1",
+      "value": 2000,
+      "discount": null,
+      "region_type": "1",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "ltpackSmall"
+    },
+    {
+      "code": "ltpackSmall_0",
+      "value": 1800,
+      "discount": null,
+      "region_type": "0",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "ltpackSmall"
+    },
+    {
+      "code": "ltpackMedium_1",
+      "value": 4600,
+      "discount": null,
+      "region_type": "1",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "ltpackMedium"
+    },
+    {
+      "code": "ltpackMedium_0",
+      "value": 3800,
+      "discount": null,
+      "region_type": "0",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "ltpackMedium"
+    },
+    {
+      "code": "ltpackBig_1",
+      "value": 6800,
+      "discount": null,
+      "region_type": "1",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "ltpackBig"
+    },
+    {
+      "code": "ltpackBig_0",
+      "value": 5700,
+      "discount": null,
+      "region_type": "0",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "ltpackBig"
+    },
+    {
+      "code": "ltpackMediumOld_1",
+      "value": 4600,
+      "discount": null,
+      "region_type": "1",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "ltpackMediumOld"
+    },
+    {
+      "code": "ltpackMediumOld_0",
+      "value": 3800,
+      "discount": null,
+      "region_type": "0",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "ltpackMediumOld"
+    },
+    {
+      "code": "starpack_1",
+      "value": 4600,
+      "discount": null,
+      "region_type": "1",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "starpack"
+    },
+    {
+      "code": "starpack_0",
+      "value": 3800,
+      "discount": null,
+      "region_type": "0",
+      "supply_type": null,
+      "supply_code": null,
+      "complect_code": null,
+      "garant_package_code": "starpack"
+    }
+  ],
+  "regions": [
+    {
+      "code": "ud",
+      "title": "Алтайский край",
+      "abs": 3027,
+      "tax": 1.2,
+      "tax_abs": 3632.4,
+      "infoblock": "Законодательство Алтайского края",
+      "weight": 0.5,
+      "inPortal": false
+    },
+    {
+      "code": "zgrsk",
+      "title": "Амурская область",
+      "abs": 2933,
+      "tax": 1.2,
+      "tax_abs": 3519.6,
+      "infoblock": "Законодательство Амурской области",
+      "weight": 0.5,
+      "inPortal": false
+    },
+    {
+      "code": "zbk",
+      "title": "Архангельская область",
+      "abs": 3167,
+      "tax": 1.2,
+      "tax_abs": 3800.4,
+      "infoblock": "Законодательство Архангельской области",
+      "weight": 0.5,
+      "inPortal": false
+    }
+  ],
+  "contracts": {
+    "current": [],
+    "items": [
+      {
+        "id": 17,
+        "contract": {
+          "id": 2,
+          "name": "Проксима",
+          "shortName": "мес.",
+          "fullName": "Месяц",
+          "created_at": "2024-07-25T11:33:40.000Z",
+          "updated_at": "2024-07-30T07:25:10.000Z"
+        },
+        "code": "proxima",
+        "shortName": "мес.",
+        "number": 1,
+        "aprilName": "Проксима",
+        "bitrixName": "Проксима",
+        "discount": 1,
+        "itemId": 2529,
+        "prepayment": 1,
+        "order": 1,
+        "portalMeasure": {
+          "id": 1,
+          "measure_id": 2,
+          "portal_id": 1,
+          "bitrixId": "15",
+          "name": "месяц",
+          "shortName": "мес.",
+          "fullName": "Месяц",
+          "created_at": "2024-07-23T07:56:40.000Z",
+          "updated_at": "2024-10-12T14:17:06.000Z",
+          "measure": {
+            "id": 2,
+            "name": "Месяц",
+            "shortName": "мес.",
+            "fullName": "Месяц",
+            "code": "month",
+            "type": "service",
+            "created_at": "2024-07-23T07:40:01.000Z",
+            "updated_at": "2024-10-10T16:02:58.000Z"
+          }
+        },
+        "measureCode": 15,
+        "measureFullName": "Месяц",
+        "measureId": 1,
+        "measureName": "месяц",
+        "measureNumber": 2
+      },
+      {
+        "id": 18,
+        "contract": {
+          "id": 1,
+          "name": "Интернет",
+          "shortName": "мес.",
+          "fullName": "Месяц",
+          "created_at": "2024-07-23T10:33:28.000Z",
+          "updated_at": "2024-08-02T10:41:37.000Z"
+        },
+        "code": "internet",
+        "shortName": "мес.",
+        "number": 0,
+        "aprilName": "Интернет",
+        "bitrixName": "Интернет",
+        "discount": 1,
+        "itemId": 1,
+        "prepayment": 1,
+        "order": 0,
+        "portalMeasure": {
+          "id": 1,
+          "measure_id": 2,
+          "portal_id": 1,
+          "bitrixId": "15",
+          "name": "месяц",
+          "shortName": "мес.",
+          "fullName": "Месяц",
+          "created_at": "2024-07-23T07:56:40.000Z",
+          "updated_at": "2024-10-12T14:17:06.000Z",
+          "measure": {
+            "id": 2,
+            "name": "Месяц",
+            "shortName": "мес.",
+            "fullName": "Месяц",
+            "code": "month",
+            "type": "service",
+            "created_at": "2024-07-23T07:40:01.000Z",
+            "updated_at": "2024-10-10T16:02:58.000Z"
+          }
+        },
+        "measureCode": 15,
+        "measureFullName": "Месяц",
+        "measureId": 1,
+        "measureName": "месяц",
+        "measureNumber": 2
+      },
+      {
+        "id": 19,
+        "contract": {
+          "id": 9,
+          "name": "Абонентский полгода",
+          "shortName": "абон. 6 мес.",
+          "fullName": "Абонемент 6 месяцев",
+          "created_at": "2024-07-25T13:16:38.000Z",
+          "updated_at": "2024-07-30T07:32:38.000Z"
+        },
+        "code": "abonHalf",
+        "shortName": "абон. 6 мес.",
+        "number": 2,
+        "aprilName": "Абонентский полгода",
+        "bitrixName": "Абонентский полгода",
+        "discount": 0.9,
+        "itemId": 2530,
+        "prepayment": 6,
+        "order": 2,
+        "portalMeasure": {
+          "id": 15,
+          "measure_id": 7,
+          "portal_id": 1,
+          "bitrixId": "20",
+          "name": "Абонемент 6 месяцев",
+          "shortName": "абон. 6 мес.",
+          "fullName": "Абонемент 6 месяцев",
+          "created_at": "2024-10-12T14:18:02.000Z",
+          "updated_at": "2024-10-12T14:18:02.000Z",
+          "measure": {
+            "id": 7,
+            "name": "Абонентский полгода",
+            "shortName": "абон. 6 мес.",
+            "fullName": "Абонемент 6 месяцев",
+            "code": "abonHalf",
+            "type": "abon",
+            "created_at": "2024-07-25T13:03:39.000Z",
+            "updated_at": "2024-07-25T13:03:39.000Z"
+          }
+        },
+        "measureCode": 20,
+        "measureFullName": "Абонемент 6 месяцев",
+        "measureId": 15,
+        "measureName": "Абонемент 6 месяцев",
+        "measureNumber": 7
+      },
+      {
+        "id": 20,
+        "contract": {
+          "id": 10,
+          "name": "Абонентский год",
+          "shortName": "абон. 12 мес.",
+          "fullName": "Абонемент 12 месяцев",
+          "created_at": "2024-07-25T13:17:45.000Z",
+          "updated_at": "2024-07-30T07:32:46.000Z"
+        },
+        "code": "abonYear",
+        "shortName": "абон. 12 мес.",
+        "number": 3,
+        "aprilName": "Абонентский год",
+        "bitrixName": "Абонентский год",
+        "discount": 0.8,
+        "itemId": 2530,
+        "prepayment": 12,
+        "order": 3,
+        "portalMeasure": {
+          "id": 16,
+          "measure_id": 8,
+          "portal_id": 1,
+          "bitrixId": "25",
+          "name": "Абонемент 12 месяцев",
+          "shortName": "абон. 12 мес.",
+          "fullName": "Абонемент 12 месяцев",
+          "created_at": "2024-10-12T14:18:45.000Z",
+          "updated_at": "2024-10-12T14:18:45.000Z",
+          "measure": {
+            "id": 8,
+            "name": "Абонентский год",
+            "shortName": "абон. 12 мес.",
+            "fullName": "Абонемент 12 месяцев",
+            "code": "abonYear",
+            "type": "abon",
+            "created_at": "2024-07-25T13:04:12.000Z",
+            "updated_at": "2024-07-25T13:04:12.000Z"
+          }
+        },
+        "measureCode": 25,
+        "measureFullName": "Абонемент 12 месяцев",
+        "measureId": 16,
+        "measureName": "Абонемент 12 месяцев",
+        "measureNumber": 8
+      },
+      {
+        "id": 21,
+        "contract": {
+          "id": 6,
+          "name": "Лицензионный полгода",
+          "shortName": "лиц. 6 мес.",
+          "fullName": "Лицензия 6 месяцев",
+          "created_at": "2024-07-25T13:08:06.000Z",
+          "updated_at": "2024-07-30T07:28:56.000Z"
+        },
+        "code": "licHalf",
+        "shortName": "лиц. 6 мес.",
+        "number": 5,
+        "aprilName": "Лицензионный полгода",
+        "bitrixName": "Лицензионный полгода",
+        "discount": 0.9,
+        "itemId": 2531,
+        "prepayment": 6,
+        "order": 5,
+        "portalMeasure": {
+          "id": 18,
+          "measure_id": 4,
+          "portal_id": 1,
+          "bitrixId": "35",
+          "name": "Лицензия 6 месяцев",
+          "shortName": "лиц. 6 мес.",
+          "fullName": "Лицензия 6 месяцев",
+          "created_at": "2024-10-12T14:20:15.000Z",
+          "updated_at": "2024-10-12T14:20:15.000Z",
+          "measure": {
+            "id": 4,
+            "name": "Лицензия 6 месяцев",
+            "shortName": "лиц. 6 мес.",
+            "fullName": "Лицензия 6 месяцев",
+            "code": "licHalf",
+            "type": "lic",
+            "created_at": "2024-07-25T13:00:53.000Z",
+            "updated_at": "2024-07-25T13:00:53.000Z"
+          }
+        },
+        "measureCode": 35,
+        "measureFullName": "Лицензия 6 месяцев",
+        "measureId": 18,
+        "measureName": "Лицензия 6 месяцев",
+        "measureNumber": 4
+      },
+      {
+        "id": 22,
+        "contract": {
+          "id": 7,
+          "name": "Лицензионный год",
+          "shortName": "лиц. 12 мес.",
+          "fullName": "Лицензия 12 месяцев",
+          "created_at": "2024-07-25T13:08:57.000Z",
+          "updated_at": "2024-07-30T07:30:29.000Z"
+        },
+        "code": "licYear",
+        "shortName": "лиц. 12 мес.",
+        "number": 6,
+        "aprilName": "Лицензионный год",
+        "bitrixName": "Лицензионный год",
+        "discount": 0.8,
+        "itemId": 2531,
+        "prepayment": 12,
+        "order": 6,
+        "portalMeasure": {
+          "id": 19,
+          "measure_id": 5,
+          "portal_id": 1,
+          "bitrixId": "37",
+          "name": "Лицензия 12 месяцев",
+          "shortName": "лиц. 12 мес.",
+          "fullName": "Лицензия 12 месяцев",
+          "created_at": "2024-10-12T14:20:55.000Z",
+          "updated_at": "2024-10-12T14:20:55.000Z",
+          "measure": {
+            "id": 5,
+            "name": "Лицензионный год",
+            "shortName": "лиц. 12 мес.",
+            "fullName": "Лицензия 12 месяцев",
+            "code": "licYear",
+            "type": "lic",
+            "created_at": "2024-07-25T13:01:42.000Z",
+            "updated_at": "2024-07-25T13:01:42.000Z"
+          }
+        },
+        "measureCode": 37,
+        "measureFullName": "Лицензия 12 месяцев",
+        "measureId": 19,
+        "measureName": "Лицензия 12 месяцев",
+        "measureNumber": 5
+      },
+      {
+        "id": 23,
+        "contract": {
+          "id": 8,
+          "name": "Лицензионный 2 года",
+          "shortName": "лиц. 24 мес.",
+          "fullName": "Лицензия 24 месяца",
+          "created_at": "2024-07-25T13:11:13.000Z",
+          "updated_at": "2024-07-30T07:30:51.000Z"
+        },
+        "code": "licTwoYears",
+        "shortName": "лиц. 24 мес.",
+        "number": 7,
+        "aprilName": "Лицензионный 2 года",
+        "bitrixName": "Лицензионный 2 года",
+        "discount": 0.7,
+        "itemId": 2531,
+        "prepayment": 24,
+        "order": 7,
+        "portalMeasure": {
+          "id": 20,
+          "measure_id": 6,
+          "portal_id": 1,
+          "bitrixId": "39",
+          "name": "Лицензия 24 месяца",
+          "shortName": "лиц. 24 мес.",
+          "fullName": "Лицензия 24 месяца",
+          "created_at": "2024-10-12T14:21:59.000Z",
+          "updated_at": "2024-10-12T14:21:59.000Z",
+          "measure": {
+            "id": 6,
+            "name": "Лицензионный 2 года",
+            "shortName": "лиц. 24 мес.",
+            "fullName": "Лицензия 24 месяцев",
+            "code": "licTwoYears",
+            "type": "lic",
+            "created_at": "2024-07-25T13:02:37.000Z",
+            "updated_at": "2024-07-25T13:02:37.000Z"
+          }
+        },
+        "measureCode": 39,
+        "measureFullName": "Лицензия 24 месяца",
+        "measureId": 20,
+        "measureName": "Лицензия 24 месяца",
+        "measureNumber": 6
+      }
+    ]
+  },
+  "supplies": [
+    {
+      "id": 1,
+      "name": "Интернет Стандартная",
+      "fullName": "Интернет Стандартная",
+      "shortName": "Интернет Стандартная",
+      "code": "internet_std",
+      "type": "internet",
+      "usersQuantity": 0,
+      "coefficient": 1,
+      "color": null,
+      "description": null,
+      "saleName_1": null,
+      "saleName_2": null,
+      "saleName_3": null,
+      "quantityForKp": "Интернет версия на 1 доступ к системе",
+      "contractPropSuppliesQuantity": "1"
+    },
+    {
+      "id": 2,
+      "name": "Интернет 1 ОД",
+      "fullName": "Интернет 1 ОД",
+      "shortName": "Интернет 1 ОД",
+      "code": "internet_1",
+      "type": "internet",
+      "usersQuantity": 1,
+      "coefficient": 1.25,
+      "color": null,
+      "description": null,
+      "saleName_1": null,
+      "saleName_2": null,
+      "saleName_3": null,
+      "quantityForKp": "Интернет версия на 1 одновременный доступ к системе",
+      "contractPropSuppliesQuantity": "1"
+    }
+  ],
+  "measures": [
+    {
+      "id": 2,
+      "code": "month",
+      "type": "service",
+      "name": "месяц",
+      "shortName": "мес.",
+      "fullName": "Месяц",
+      "bitrixId": "15",
+      "portalMeasureId": 1
+    },
+    {
+      "id": 3,
+      "code": "piece",
+      "type": "product",
+      "name": "Штука",
+      "shortName": "шт.",
+      "fullName": "штук",
+      "bitrixId": null,
+      "portalMeasureId": null
+    },
+    {
+      "id": 4,
+      "code": "licHalf",
+      "type": "lic",
+      "name": "Лицензия 6 месяцев",
+      "shortName": "лиц. 6 мес.",
+      "fullName": "Лицензия 6 месяцев",
+      "bitrixId": "35",
+      "portalMeasureId": 18
+    }
+  ]
+}

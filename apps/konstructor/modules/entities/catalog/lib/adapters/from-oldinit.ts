@@ -11,6 +11,7 @@ import type {
 } from '../../model/types';
 import { emptyCatalog } from '../../model/types';
 import { ACADEMY_PACKAGES } from '../academy-data';
+import { getComplectRuleFlags } from '../complect-rule-flags';
 import {
     COMPLECT_NUMBER_TO_CODE,
     CONSALTING_INDEX_TO_CODE,
@@ -22,6 +23,7 @@ import {
     INFOBLOCK_GROUP_BY_CODE,
     INFOBLOCK_NAME_TO_CODE,
     INFOBLOCK_WEIGHT_BY_CODE,
+    LEGACY_COMPLECT_LT,
     LT_CODE_WEIGHT,
     LT_NUMBER_TO_CODE,
     LT_PACKAGE_BY_WEIGHT,
@@ -157,7 +159,20 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
             withServices: true,
             withDefault: true,
             isChanging: item.isChanging,
-            defaults: { infoblocks: [], ers: [], erPackets: [], ersInPacket: [] },
+            defaults: {
+                infoblocks: [],
+                ers: [],
+                erPackets: [],
+                ersInPacket: [],
+                lt: getComplectRuleFlags({ code }).ltDefaultsPaid
+                    ? []
+                    : [...(LEGACY_COMPLECT_LT[code] ?? [])],
+                ltInPacket: getComplectRuleFlags({ code }).ltDefaultsPaid
+                    ? [...(LEGACY_COMPLECT_LT[code] ?? [])]
+                    : [],
+                freeBlocks: [],
+                star: false,
+            },
         };
         catalog.complects.byCode[code] = complect;
         if (item.type === 'prof') catalog.complects.prof.push(complect);

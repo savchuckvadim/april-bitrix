@@ -6,7 +6,7 @@ import { defaultComposition, normalizeComposition } from '../../../model/types';
 import { applyAction } from '../../apply';
 import { mergeCompositions } from '../../merge';
 import { allLtServiceCodes, ltServiceCount, ltServiceSubtitle } from '../../lt-count';
-import { ltOtherPacketTitle, resolveLtOtherPackage } from '../lt-other';
+import { describeLtPackets, resolveLtOtherPackage } from '../lt';
 
 /**
  * Этап 9: пакеты LT-other в наполнении (легаси modules/legal-tech-other) и
@@ -65,7 +65,11 @@ describe('пакеты LT-other', () => {
         );
         expect(sales.composition.ltOther[0]!.alternativeName).toBe('Свой пакет');
         expect(sales.violations.map(item => item.message).join()).toContain('только сервисному отделу');
-        expect(ltOtherPacketTitle(sales.composition.ltOther[0]!, null)).toBe('Свой пакет');
+        expect(
+            describeLtPackets(sales.composition, { catalog, complect: ctx().complect }).find(
+                packet => packet.id === 'm',
+            )?.title,
+        ).toBe('Свой пакет');
 
         const service = applyAction(base({ ltOther: [medium] }), { kind: 'renameLtOtherPacket', id: 'm', name: '' }, ctx(true));
         expect(service.composition.ltOther[0]!.alternativeName).toBeNull();

@@ -396,7 +396,7 @@
 | `noChanged` — неотключаемые блоки комплектов 18/19/20 | `fillingInfoblocks` | нет | **добавить**, список — флаг комплекта |
 | `isChanging === false` → предупреждение | `current-complect-reducer` | нет | добавить `violation` уровня warning |
 | ЭР: выключение ЭР разваливает пакет; «Офис» ровно 2 пакета | `fillingEr`, `fillingPketsEr` | `er-packets.ts` | проверить ветку Офиса |
-| LT: Офис/exzak ≥ 5 бесплатно, прочие PROF ровно 2, Эксперт PRO держит один сервис, универсал всё платно, ЧекДок ×2, пакет по весу 2/5/10 | `fillingLt`, `weightLt` | `lt.ts` | проверить все ветки, «нет пакета с таким весом» → violation |
+| LT: лимит бесплатных из админки, сверх — платный пакет по весу 2/5/10, Эксперт PRO держит Диск, ЧекДок Премиум и Искра ×2, доп. пакеты | `fillingLt`, `weightLt`, legal-tech-other | `rules/lt/` | см. `legal-tech.tasks.md` |
 | Консалтинг: эксклюзив, free 8/10 (−9) и 8/9/10 | `fillingConsalting` | `consalting.ts` | есть |
 | STAR: один; бесплатен при `withStar` | `fillingStar` | `star.ts` (free только `exzak`) | флаг комплекта из каталога (решение 11) |
 | Академия: эксклюзив; допустимость `contractLong ∋ quantity × coefficient` | `fillingAcademy`, `academy.hook.ts` | `academy.ts` | проверить |

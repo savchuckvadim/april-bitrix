@@ -1,6 +1,8 @@
 'use client';
 
 import { CompositionSectionBlock } from '../CompositionSectionBlock';
+import { LtPacketsStrip } from '../LtPacketsStrip';
+import { compositionItemProps } from './composition-item-props';
 import type { CompositionViewProps } from './types';
 
 /** «Карточки»: категории сворачиваются, свёрнутая показывает только отмеченное. */
@@ -10,9 +12,9 @@ export const CompositionCardsView = ({ editor }: CompositionViewProps) => (
             <CompositionSectionBlock
                 key={section.code}
                 section={section}
-                markKind={editor.view.markKind}
+                extra={section.kind === 'lt' ? <LtPacketsStrip packets={editor.ltPackets} /> : null}
+                itemProps={item => compositionItemProps(editor, section.kind, item)}
                 onToggleOpen={() => editor.sections.toggleSection(section.code)}
-                onToggleItem={(code, next) => editor.toggleItem(section.kind, code, next)}
             />
         ))}
     </>

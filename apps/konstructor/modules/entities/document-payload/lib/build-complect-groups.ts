@@ -3,7 +3,6 @@ import { STAR_SUBSERVICES } from '../../catalog';
 import type { Composition } from '../../composition';
 import {
     allLtServiceCodes,
-    ltPacketWeight,
     ltServiceCount,
     ltServiceSubtitle,
 } from '../../composition';
@@ -14,9 +13,10 @@ import type { DocComplectGroup, DocGroupType, DocInfoblock } from '../model/dto'
  * выбранные блоки, по группам с легаси-названиями и типами; регионы — в
  * группу НПА блоками `isRegion`; бесплатные isLa-архивы — в судебную
  * практику; ЭР/пакеты/LT/консалтинг/СТАР/академия — своими группами.
- * LT — сервисы наполнения и пакетов LT-other без повторов (легаси
- * handleLtByLtOther), Искра с подписью «(N×20 запросов в день)»; СТАР —
- * пакет и его подсервисы (легаси star.items).
+ * LT — сервисы наполнения и собранных пакетов LT-other без повторов и без
+ * самих пакетов (легаси handleLtByLtOther: пакет виден строкой цены), Искра с
+ * подписью «(N×20 запросов в день)» или своей; СТАР — пакет и его подсервисы
+ * (легаси star.items).
  */
 
 /** Группа каталога (init v2 / фикстура) → легаси-группа документа */
@@ -118,23 +118,8 @@ export const buildComplectGroups = (
             subtitle: ltServiceSubtitle(
                 { code, name: service?.name ?? code },
                 ltServiceCount(composition, code),
+                composition.ltSubtitles?.[code],
             ),
-        });
-    }
-    const packetWeight = ltPacketWeight(composition, catalog);
-    const ltPackage = catalog.services.ltPackages.find(pkg => pkg.weight === packetWeight);
-    if (ltPackage) {
-        push('lt', {
-            name: ltPackage.name,
-            title: ltPackage.fullName,
-            number: 0,
-            code: ltPackage.code,
-            checked: true,
-            weight: ltPackage.weight,
-            description: null,
-            isLa: false,
-            isRegion: false,
-            subtitle: null,
         });
     }
 

@@ -5,6 +5,8 @@ import type { ReactNode } from 'react';
 import { PreloaderScreen } from '@workspace/april-ui';
 import { BootPreloaderGate } from '@workspace/april-ui/feedback';
 
+import { withBasePath } from '@/modules/shared/lib/base-path';
+
 import { useApp } from '../lib/hooks/app';
 import {
     NON_AUTH_ERROR,
@@ -62,7 +64,10 @@ export const App = ({ children }: { children: ReactNode }) => {
             {!isGate && (
                 <>
                     {!isReady && isClient && (
-                        <PreloaderScreen variant="brand" />
+                        <PreloaderScreen
+                            variant="brand"
+                            logoSrc={withBasePath('/logo/logo.svg')}
+                        />
                     )}
                     {isReady ? children : null}
                 </>

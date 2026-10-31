@@ -64,6 +64,7 @@ export function startStoreListeners(
     setupTemplateIdListener(listenerMiddleware);
     setupOpenVariantSyncListener(listenerMiddleware);
     setupOfferPreviewStaleListener(listenerMiddleware);
+    setupContractStaleListener(listenerMiddleware);
     setupComplectDescriptionListener(listenerMiddleware);
     setupRowSetSyncListener(listenerMiddleware);
     setupProviderTaxListener(listenerMiddleware);
@@ -252,6 +253,25 @@ function setupOfferPreviewStaleListener(listenerMiddleware: ListenerMiddlewareIn
             const preview = listenerApi.getState().wordTemplatePdfPreview;
             if (preview.previewPhase !== 'ready' || preview.needUpdate) return;
             listenerApi.dispatch(wordTemplatePdfPreviewAC.setNeedUpdate(true));
+        },
+    });
+}
+
+/**
+ * Сборка изменилась после загруженной спецификации договора → пометить её
+ * устаревшей. Отчёт о поставке берёт состав и суммы оттуда; перезапрашивать на
+ * каждый вход нельзя — сотрёт ручные правки менеджера в спецификации.
+ */
+function setupContractStaleListener(listenerMiddleware: ListenerMiddlewareInstance) {
+    typed(listenerMiddleware)({
+        matcher: isAnyOf(
+            rowSetActions.upsertRow,
+            rowSetActions.editRowCommercial,
+            rowSetActions.editTotalCommercial,
+            rowSetActions.setRowComposition,
+        ),
+        effect: (_action, listenerApi) => {
+            listenerApi.dispatch(contractDocumentActions.formStale());
         },
     });
 }

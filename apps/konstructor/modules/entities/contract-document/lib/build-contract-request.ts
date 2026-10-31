@@ -62,7 +62,7 @@ const contractBody = (state: RootState) => {
 export const buildSpecificationFormRequest = (state: RootState): ContractSpecificationFormRequest | null => {
     const content = contractBody(state);
     if (!content) return null;
-    const { body, catalog, composition, general } = content;
+    const { body, catalog, composition } = content;
     return {
         contractType: body.contractType,
         clientType: clientTypeOf(state),
@@ -70,7 +70,7 @@ export const buildSpecificationFormRequest = (state: RootState): ContractSpecifi
         contract: body.contract,
         rows: body.rows,
         complect: body.complect,
-        lt: buildContractLt(catalog, composition, general.rows),
+        lt: buildContractLt(catalog, composition, Boolean(state.rowSet.context.serviceDepartment)),
     };
 };
 

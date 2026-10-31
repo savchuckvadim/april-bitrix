@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { ToneBadge } from '@workspace/april-ui/badges';
 import { cn } from '@workspace/ui/lib/utils';
@@ -7,18 +8,18 @@ import type {
     CompositionSectionItemView,
     CompositionSectionView,
 } from '../lib/composition-sections.util';
-import type { WeightMarkKind } from '../model/types';
 import { CompositionCheckbox } from './CompositionCheckbox';
-import { WeightMark } from './WeightMark';
+import type { CompositionItemProps } from './views/composition-item-props';
 
 export interface CompositionSectionBlockProps {
     section: CompositionSectionView & {
         isOpen: boolean;
         visibleItems: CompositionSectionItemView[];
     };
-    markKind: WeightMarkKind;
+    /** Над пунктами: полоса пакетов у Legal Tech */
+    extra?: ReactNode;
+    itemProps: (item: CompositionSectionItemView) => CompositionItemProps;
     onToggleOpen: () => void;
-    onToggleItem: (code: string, next: boolean) => void;
 }
 
 /**
@@ -27,9 +28,9 @@ export interface CompositionSectionBlockProps {
  */
 export const CompositionSectionBlock = ({
     section,
-    markKind,
+    extra,
+    itemProps,
     onToggleOpen,
-    onToggleItem,
 }: CompositionSectionBlockProps) => (
     <section className="rounded-lg border">
         <button
@@ -52,16 +53,11 @@ export const CompositionSectionBlock = ({
                 {section.checkedItems.length} из {section.items.length}
             </ToneBadge>
         </button>
+        {extra ? <div className="border-t p-2">{extra}</div> : null}
         {section.visibleItems.length ? (
             <div className="grid gap-x-2 border-t px-1 py-1 sm:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
                 {section.visibleItems.map(item => (
-                    <CompositionCheckbox
-                        key={item.code}
-                        name={item.name}
-                        checked={item.checked}
-                        onToggle={next => onToggleItem(item.code, next)}
-                        mark={<WeightMark value={item.mark} kind={markKind} />}
-                    />
+                    <CompositionCheckbox key={item.code} {...itemProps(item)} />
                 ))}
             </div>
         ) : null}

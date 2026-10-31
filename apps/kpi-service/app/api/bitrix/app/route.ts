@@ -1,5 +1,6 @@
 // import { logServer } from '@/app/lib/log/logServer';
 import { NextRequest, NextResponse } from 'next/server';
+import { withBasePath } from '@/modules/shared/lib/base-path';
 
 //редирект next из post запроса в апп
 export async function POST(req: NextRequest) {
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
         // );
 
         const response = NextResponse.redirect(
-            new URL('/report/kpi', req.url),
+            new URL(withBasePath('/report/kpi'), req.url),
             303,
         );
 

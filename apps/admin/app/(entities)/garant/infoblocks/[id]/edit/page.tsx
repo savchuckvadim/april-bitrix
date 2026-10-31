@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import { useRouter } from 'next/navigation';
-import { useInfoblock, useUpdateInfoblock, InfoblockCreateDto, InfoblockForm, InfoblockRelationsManager, INFOBLOCK_PATH } from '@/modules/entities/garant/infoblock';
+import { useInfoblock, useUpdateInfoblock, InfoblockCreateDto, InfoblockForm, InfoblockRelationsManager, INFOBLOCK_PATH, toInfoblockFormData } from '@/modules/entities/garant/infoblock';
 import { Button } from '@workspace/ui/index';
 
 const path = INFOBLOCK_PATH;
@@ -58,22 +58,7 @@ export default function EditInfoblockPage({
         );
     }
 
-    // Преобразуем InfoblockDetail в InfoblockCreateDto для формы
-    // Поля связей (group_id, packages, packageInfoblocks)
-    // управляются отдельно через InfoblockRelationsManager
-    const initialData: InfoblockCreateDto = {
-        number: infoblock.number,
-        name: infoblock.name,
-        code: infoblock.code,
-        weight: infoblock.weight,
-        group_id: infoblock.group_id?.toString() || infoblock.group?.id || '',
-        isLa: infoblock.isLa,
-        isFree: infoblock.isFree,
-        isShowing: infoblock.isShowing,
-        isSet: infoblock.isSet,
-        isProduct: infoblock.isProduct ?? null,
-        isPackage: infoblock.isPackage ?? null,
-    };
+    const initialData = toInfoblockFormData(infoblock);
 
     const handleRelationsSuccess = () => {
         // Обновляем данные инфоблока после изменения связей

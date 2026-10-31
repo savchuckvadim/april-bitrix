@@ -7,13 +7,14 @@ import type { Catalog } from '@/modules/entities/catalog';
 import type {
     Composition,
     CompositionAction,
+    LtPacketView,
 } from '@/modules/entities/composition';
 import { LtOtherPacketCard } from './LtOtherPacketCard';
 
 interface CompositionLtOtherBlockProps {
     composition: Composition;
     catalog: Catalog;
-    serviceDepartment: boolean;
+    packets: LtPacketView[];
     onApply: (action: CompositionAction) => void;
 }
 
@@ -25,7 +26,7 @@ interface CompositionLtOtherBlockProps {
 export const CompositionLtOtherBlock = ({
     composition,
     catalog,
-    serviceDepartment,
+    packets,
     onApply,
 }: CompositionLtOtherBlockProps) => (
     <section className="rounded-lg border">
@@ -44,17 +45,19 @@ export const CompositionLtOtherBlock = ({
         </div>
         {composition.ltOther.length ? (
             <div className="flex flex-col gap-2 border-t p-2">
-                {composition.ltOther.map((packet, index) => (
-                    <LtOtherPacketCard
-                        key={packet.id}
-                        index={index}
-                        packet={packet}
-                        mode={composition.mode}
-                        catalog={catalog}
-                        serviceDepartment={serviceDepartment}
-                        onApply={onApply}
-                    />
-                ))}
+                {composition.ltOther.map((packet, index) => {
+                    const view = packets.find(item => item.id === packet.id);
+                    return view ? (
+                        <LtOtherPacketCard
+                            key={packet.id}
+                            index={index}
+                            packet={packet}
+                            view={view}
+                            catalog={catalog}
+                            onApply={onApply}
+                        />
+                    ) : null;
+                })}
             </div>
         ) : null}
     </section>

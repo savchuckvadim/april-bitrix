@@ -35,6 +35,7 @@ export const mergeCompositions = (
         ltOther: compositions
             .flatMap(c => c.ltOther ?? [])
             .filter((packet, index, all) => all.findIndex(item => item.id === packet.id) === index),
+        ltSubtitles: Object.assign({}, ...compositions.map(c => c.ltSubtitles)),
         freeBlocks: union(...compositions.map(c => c.freeBlocks)),
         consalting,
         star: compositions.some(c => c.star),

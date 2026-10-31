@@ -108,6 +108,13 @@ export interface V1LtOtherPacket {
     alternativePacketName?: string | null;
 }
 
+export interface V1IskraConfigItem {
+    number?: number;
+    code?: string;
+    subtitle?: string;
+    count?: number;
+}
+
 export interface V1Parsed {
     dealId: number | null;
     domain: string | null;
@@ -123,6 +130,8 @@ export interface V1Parsed {
     globalRegion: V1Region | null;
     /** Пакеты LT Other (поле ltOther записи) */
     ltOther: V1LtOtherPacket[] | null;
+    /** Подписи и счётчик Искры (поле iskraConfig записи) */
+    iskraConfig: V1IskraConfigItem[] | null;
     templateId: number | null;
     /** Поля, которые не удалось разобрать */
     parseErrors: string[];

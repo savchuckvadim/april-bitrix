@@ -44,6 +44,7 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
             general,
             mainRow,
             providerName: state.documentProvider.current?.name ?? null,
+            serviceDepartment: Boolean(state.rowSet.context.serviceDepartment),
             // сервисный отдел, «следующий период» → элемент смарта service_offer
             target: serviceTarget
                 ? { ...serviceTarget, title: buildServiceOfferTitle(selectCatalog(state), mainRow) }

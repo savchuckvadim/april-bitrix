@@ -23,16 +23,19 @@ export const ltServiceCount = (composition: Composition, code: string): number =
 };
 
 /**
- * Подпись сервиса в документе: Искра с несколькими вхождениями —
- * «Искра (40 запросов в день)»; у прочих сервисов подписи нет.
+ * Подпись сервиса в документе: своя, заданная менеджером, важнее. Иначе Искра с
+ * несколькими вхождениями — «Искра (40 запросов в день)»; у прочих подписи нет.
  */
 export const ltServiceSubtitle = (
     service: Pick<KService, 'code' | 'name'>,
     count: number,
-): string | null =>
-    isIskraService(service.code) && count > 1
+    custom?: string | null,
+): string | null => {
+    if (custom) return custom;
+    return isIskraService(service.code) && count > 1
         ? `${service.name} (${count * ISKRA_REQUESTS_PER_UNIT} запросов в день)`
         : null;
+};
 
 /** Все LT-сервисы сборки без повторов: наполнение + пакеты LT-other */
 export const allLtServiceCodes = (composition: Composition): string[] => [

@@ -6,7 +6,7 @@ export const PUBLIC_LINK_LIST_CACHE_KEY = 'konstructor-public-links';
 /** Адрес конструктора, на котором открываются ссылки. В dev переопределяется env. */
 export const KONSTRUCTOR_APP_URL = (
     process.env.NEXT_PUBLIC_KONSTRUCTOR_APP_URL ||
-    'https://konstructor.april-app.ru'
+    'https://next.april-app.ru/konstructor'
 ).replace(/\/$/, '');
 
 export const PUBLIC_LINK_STATUS_LABEL: Record<PublicLinkStatus, string> = {

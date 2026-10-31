@@ -42,10 +42,12 @@ describe('реестр правил', () => {
         expect(COMPOSITION_RULES.some(rule => rule.actions.length === 0 && rule.validate)).toBe(true);
     });
 
-    it('флаги комплектов: дефолт PROF — ровно 2 LT; переопределения по коду', () => {
-        expect(getComplectRuleFlags(complectOf('buh'))).toEqual({ exactFreeLt: 2 });
-        expect(getComplectRuleFlags(complectOf('office'))).toMatchObject({ minFreeLt: 5, erPacketsRequired: 2 });
-        expect(getComplectRuleFlags(complectOf('exzak'))).toMatchObject({ withStar: true, minFreeLt: 5 });
+    it('флаги комплектов: только исключения, лимит LT берётся из данных', () => {
+        expect(getComplectRuleFlags(complectOf('buh'))).toEqual({});
+        expect(getComplectRuleFlags(complectOf('office'))).toEqual({ erPacketsRequired: 2 });
+        expect(getComplectRuleFlags(complectOf('expert'))).toEqual({ pinnedLt: 'ltdisk' });
+        expect(getComplectRuleFlags(complectOf('exjobsec'))).toEqual({ ltDefaultsPaid: true });
+        expect(getComplectRuleFlags(complectOf('exzak'))).toMatchObject({ withStar: true });
         expect(getComplectRuleFlags(complectOf('classic'))).toEqual({});
     });
 });
@@ -167,26 +169,26 @@ describe('LT по флагам', () => {
         expect(result.composition.ltInPacket).toEqual(['ltsut']);
     });
 
-    it('Эксперт PRO: при опустошении остаётся Гарант Диск, снятие последнего не блокируется', () => {
+    it('Эксперт PRO: Гарант Диск не снимается', () => {
         const result = applyAction(
-            compositionFor('expert', { lt: ['ltsut'] }),
-            { kind: 'toggleLt', code: 'ltsut', checked: false },
+            compositionFor('expert', { lt: ['ltconstructor', 'ltdisk'] }),
+            { kind: 'toggleLt', code: 'ltdisk', checked: false },
             ctxFor('expert'),
         );
-        expect(result.composition.lt).toEqual(['ltdisk']);
-        expect(codes(result.violations)).not.toContain('lt/two-required');
+        expect(codes(result.violations)).toContain('lt/pinned');
+        expect(result.composition.lt).toContain('ltdisk');
     });
 
-    it('Эксперт в закупках: минимум 5 — ниже нельзя без платного пакета', () => {
+    it('Эксперт в закупках: ниже лимита — предупреждение, снять можно', () => {
         const result = applyAction(
             compositionFor('exzak', {
-                lt: ['ltsut', 'ltconstructor', 'ltdisk', 'ltconnect', 'ltbusiness'],
+                lt: ['ltexcontragent', 'lttender', 'ltcheckdoc', 'ltsemi', 'ltconstructor'],
             }),
-            { kind: 'toggleLt', code: 'ltsut', checked: false },
+            { kind: 'toggleLt', code: 'ltsemi', checked: false },
             ctxFor('exzak'),
         );
-        expect(codes(result.violations)).toContain('lt/min-five-required');
-        expect(result.composition.lt).toHaveLength(5);
+        expect(codes(result.violations)).toContain('lt/free-under-limit');
+        expect(result.composition.lt).toHaveLength(4);
     });
 });
 

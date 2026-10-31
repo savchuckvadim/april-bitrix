@@ -1,6 +1,7 @@
 import { Bitrix, BitrixService } from "@workspace/bitrix";
 import { TESTING_DOMAIN, TESTING_USER, IS_PROD } from "../../consts/app-global";
 import { BXInitializedDto } from "@workspace/bitrix/src/core/dto/bx-initialized.dto";
+import { withBasePath } from "@/modules/shared/lib/base-path";
 
 export interface IGetBXServiceResult extends BXInitializedDto {
     bitrix: Bitrix;
@@ -14,8 +15,9 @@ export const getBXService = async (): Promise<IGetBXServiceResult | undefined> =
 
     if (!inFrame && IS_PROD) {
         // защита от бесконечной перезагрузки: не редиректим, если уже там
-        if (window.location.pathname !== '/none-auth') {
-            window.location.href = '/none-auth';
+        const noneAuthPath = withBasePath('/none-auth');
+        if (window.location.pathname !== noneAuthPath) {
+            window.location.href = noneAuthPath;
         }
         return;
     }

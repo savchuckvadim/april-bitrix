@@ -6,6 +6,7 @@ import { selectCatalog } from '@/modules/entities/catalog';
 import {
     applyAction,
     checkComplectWeight,
+    describeLtPackets,
     isBlocking,
     validateComposition,
     type CompositionAction,
@@ -62,6 +63,16 @@ export const useCompositionEditor = (row: KRow | null) => {
         [composition, complect, catalog, regionCode, serviceDepartment],
     );
 
+    const ltPackets = useMemo(
+        () =>
+            composition && complect
+                ? describeLtPackets(composition, { catalog, complect, serviceDepartment })
+                : [],
+        [composition, complect, catalog, serviceDepartment],
+    );
+    // доп. пакеты LT — только в основном наборе (легаси: у альтернатив их нет)
+    const canHaveExtraLt = useAppSelector(state => state.rowSet.general.id === row?.setId);
+
     const writeComposition = (next: NonNullable<KRow['composition']>) => {
         if (!row) return;
         dispatch(
@@ -111,7 +122,9 @@ export const useCompositionEditor = (row: KRow | null) => {
         catalog,
         sections,
         view,
-        serviceDepartment,
+        ltPackets,
+        canHaveExtraLt,
+        freeMode: composition?.mode === 'free',
         applyComposition,
         toggleItem: (kind: SectionKind, code: string, next: boolean) =>
             applyComposition(toggleSectionItem(kind, code, next)),

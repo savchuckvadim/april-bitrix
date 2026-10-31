@@ -40,13 +40,14 @@
 | `/variants` | варианты КП сделки | `widgets/variant-picker` |
 | `/params` | шаг 1: регион · линейка · доступ | `widgets/build-params` |
 | `/complect` | шаг 2: комплект + наполнение (инфоблоки, ЭР, LT, доп. пакеты LT-other, консалтинг/СТАР/академия); в итоге — «Описание комплекта» (DOCX) | `widgets/complect-builder`, `features/complect-description` |
-| `/prices` | шаг 3: цены, товары, сравнение | `widgets/price-table` |
+| `/prices` | шаг 3: цены, товары, сравнение | `widgets/deal-price-table` поверх `widgets/price-table` |
 | `/prices` (сервисный отдел) | в шапке — период «Текущий / Следующий»: второй ведёт слепок со смартом service_offer, сохранение пишет поля и строки в элемент смарта (deal-send target) | `features/service-period` |
 | `/document` | шаг 4 / хаб: выбор документа | `widgets/document-hub` |
 | `/document/[kind]` | шаг 5: `offer` → `widgets/offer-document-screen` (КП: шаблон, получатель, счёт, PDF-превью, «Сформировать» → generate-multi → редирект в сделку); `contract` → `widgets/contract-document-screen` (поля сделки, реквизиты, спецификация с бэка, contract/generate); `supply-report` → `widgets/supply-report-screen` (поля сделки и поставки, форма для отдела сервиса, контакты, generate-document + init-supply/RPA) | `widgets/document-screen` |
 | `/settings` | шаблоны документов (Word) | `entities/offer-template-word` |
 | `/requisites` | реквизиты | `pages/bx-rq` |
 | `/offer/**` | не используется, **не удалять** (решение владельца) | как было |
+| `/p/<token>` → `/p/<token>/params` · `complect` · `prices` | публичная версия по ссылке из админки: те же шаги без документов и Битрикса, см. [public-link.md](public-link.md) | `modules/public-app` |
 
 Шапка (`widgets/app-shell`) есть на всех экранах группы `(shell)`; степпер
 шагов, цвет комплекта и саммари шага с переходом «Далее / Назад» — у процесса
@@ -83,15 +84,20 @@
 
 ```
 app/
-  layout.tsx            html · ThemeInitScript · BootPreloader · Providers · App-гейт
+  layout.tsx            html · ThemeInitScript · BootPreloader
   (shell)/
-    layout.tsx          AppShell (шапка: компания · сделка · прогноз · статус · ИНН · действия)
+    layout.tsx          Providers · App-гейт · AppShell (шапка: компания · сделка · прогноз · статус · ИНН · действия)
     page.tsx            /  → EntryGate
     (entry)/            start · favorites · promotions · variants
     (flow)/
       layout.tsx        FlowNav (Параметры · Комплект · Цены · Документ)
       params · complect · prices · document · document/[kind]
     settings · requisites
+  p/[token]/
+    layout.tsx          PublicProviders · PublicApp (свой стор и гейт, noindex)
+    params · complect · prices
+  offer/
+    layout.tsx          Providers · App-гейт (замороженный стек)
   offer/**  dev/**  api/**
 ```
 

@@ -14,7 +14,7 @@ import {
 } from '@/modules/entities/catalog';
 import {
     rowSetReducer,
-    setupAcademyDurationListener,
+    setupAcademyTermListener,
     setupRowSetSyncListener,
 } from '@/modules/entities/row-set';
 import { snapshotReducer } from '../model/SnapshotSlice';
@@ -44,7 +44,7 @@ const makeStore = () => {
     setupRowSetSyncListener(
         listenerMiddleware as ListenerMiddlewareInstance,
     );
-    setupAcademyDurationListener(
+    setupAcademyTermListener(
         listenerMiddleware as ListenerMiddlewareInstance,
     );
     store.dispatch(catalogActions.setCatalog(catalogFromOldInit(oldInit)));

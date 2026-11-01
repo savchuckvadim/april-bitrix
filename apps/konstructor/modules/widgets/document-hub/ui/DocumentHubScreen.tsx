@@ -60,9 +60,9 @@ export const DocumentHubScreen = () => {
                 }
             >
                 <div className="flex flex-col gap-4">
-                    {hub.ltWarnings.length ? (
+                    {hub.compositionWarnings.length ? (
                         <div className="rounded-md bg-warning/10 px-3 py-2 text-xs text-warning" role="status">
-                            {hub.ltWarnings.map(message => (
+                            {hub.compositionWarnings.map(message => (
                                 <div key={message}>{message}</div>
                             ))}
                         </div>

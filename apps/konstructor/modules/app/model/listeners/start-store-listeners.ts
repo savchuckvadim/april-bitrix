@@ -1,7 +1,7 @@
 import { isAnyOf, type ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import type { AppDispatch, RootState } from '../store';
 import {
-    setupAcademyDurationListener,
+    setupAcademyTermListener,
     setupRowSetSyncListener,
 } from '@/modules/entities/row-set';
 import { APP_DEP, appActions } from '../AppSlice';
@@ -68,7 +68,7 @@ export function startStoreListeners(
     setupComplectDescriptionListener(listenerMiddleware);
     setupRowSetSyncListener(listenerMiddleware);
     setupProviderTaxListener(listenerMiddleware);
-    setupAcademyDurationListener(listenerMiddleware);
+    setupAcademyTermListener(listenerMiddleware);
 }
 
 /**

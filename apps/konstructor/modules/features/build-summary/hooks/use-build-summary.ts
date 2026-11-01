@@ -25,12 +25,14 @@ export const useBuildSummary = () => {
     const mainRow = useAppSelector(selectMainRow);
     const comparisonCount = useAppSelector(selectAlternativeSets).length;
 
+    // пакет академии выбран, но под срок сделки не подходит — строки в наборе нет
+    const hasAcademyRow = general.rows.some(row => row.productType === 'academy');
     const facts = useMemo(
         () =>
             mainRow
-                ? buildSummaryFacts(catalog, context, mainRow, comparisonCount)
+                ? buildSummaryFacts(catalog, context, mainRow, comparisonCount, hasAcademyRow)
                 : [],
-        [catalog, context, mainRow, comparisonCount],
+        [catalog, context, mainRow, comparisonCount, hasAcademyRow],
     );
     const total = useMemo(
         () => buildSummaryTotal(general, context.withTax),

@@ -1,10 +1,13 @@
+import { academyFits, termMonthsOf } from '../../../catalog';
 import type { KRow, RowRole } from '../../model/types';
 import { calcPeriodPrice, makeRowPrice } from '../price';
 import type { BuildRowCtx } from './types';
 
 /**
  * Строка Академии: своя формула (цена пакета, деление на monthQuantity,
- * без налога); null при несовместимом сроке договора (contractLong).
+ * без налога). Пакет должен подходить под срок сделки — количество × договор
+ * (легаси useAcademy); иначе строки нет. Пакет «на срок» живёт с количеством
+ * набора, пакет «до конца комплекта» — со своим (легаси isAcademyWithoutDate).
  */
 
 export interface BuildAcademyRowInput extends BuildRowCtx {
@@ -14,6 +17,10 @@ export interface BuildAcademyRowInput extends BuildRowCtx {
     academyCode: string;
     supplyCode: string;
     contractCode: string;
+    /** Количество набора; срок сделки = количество × длительность договора */
+    quantity?: number;
+    /** Своё количество пакета «до конца комплекта», если строка уже была */
+    ownQuantity?: number;
 }
 
 export const buildAcademyRow = (input: BuildAcademyRowInput): KRow | null => {
@@ -22,7 +29,8 @@ export const buildAcademyRow = (input: BuildAcademyRowInput): KRow | null => {
     const contract = catalog.contracts.byCode[input.contractCode];
     if (!pkg || !contract) return null;
 
-    if (!pkg.contractLong.includes(contract.durationMonths)) return null;
+    const quantity = input.quantity ?? 1;
+    if (!academyFits(pkg, termMonthsOf(quantity, contract))) return null;
 
     const period = calcPeriodPrice({
         monthBase: pkg.price,
@@ -30,6 +38,7 @@ export const buildAcademyRow = (input: BuildAcademyRowInput): KRow | null => {
         withTax: input.withTax,
         academyMonthQuantity: pkg.monthQuantity,
     });
+    const quantityLocked = !pkg.monthQuantity;
 
     return {
         key: input.key,
@@ -46,8 +55,7 @@ export const buildAcademyRow = (input: BuildAcademyRowInput): KRow | null => {
             shortName: 'Академия ГАРАНТ',
             alternativeName: null,
         },
-        price: makeRowPrice(period, contract),
-        // Пакет «в часах» (без monthQuantity) живёт со своим количеством
-        quantityLocked: !pkg.monthQuantity,
+        price: makeRowPrice(period, contract, quantityLocked ? (input.ownQuantity ?? 1) : quantity),
+        quantityLocked,
     };
 };

@@ -1,7 +1,7 @@
 import type { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import { complectDescriptionActions } from '@/modules/entities/complect-description';
 import {
-    setupAcademyDurationListener,
+    setupAcademyTermListener,
     setupRowSetSyncListener,
 } from '@/modules/entities/row-set';
 import {
@@ -57,6 +57,6 @@ export function startPublicListeners(
     listenerMiddleware: ListenerMiddlewareInstance,
 ) {
     setupRowSetSyncListener(listenerMiddleware);
-    setupAcademyDurationListener(listenerMiddleware);
+    setupAcademyTermListener(listenerMiddleware);
     setupPublicDescriptionListener(listenerMiddleware);
 }

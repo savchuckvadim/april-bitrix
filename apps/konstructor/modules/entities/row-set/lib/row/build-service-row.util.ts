@@ -28,6 +28,8 @@ export interface BuildServiceRowInput extends BuildRowCtx {
     packetId?: string;
     /** lt_other: своё имя пакета (composition.ltOther[].alternativeName) */
     alternativeName?: string | null;
+    /** Количество набора: сервисные строки живут с общим количеством */
+    quantity?: number;
 }
 
 export const buildServiceRow = (input: BuildServiceRowInput): KRow | null => {
@@ -53,7 +55,7 @@ export const buildServiceRow = (input: BuildServiceRowInput): KRow | null => {
         contract,
         withTax: input.withTax,
     });
-    const price = makeRowPrice(period, contract);
+    const price = makeRowPrice(period, contract, input.quantity ?? 1);
 
     return {
         key: input.key,

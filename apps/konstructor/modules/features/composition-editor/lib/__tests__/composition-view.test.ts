@@ -29,11 +29,18 @@ describe('настройка вида', () => {
         expect(parseCompositionView(null)).toBeNull();
         expect(parseCompositionView('dense')).toBeNull();
         expect(isCompositionViewMode('summary')).toBe(true);
+        expect(DEFAULT_COMPOSITION_VIEW.mode).toBe('classic');
         expect(isCompositionViewMode('tiles')).toBe(false);
     });
 
     it('у каждого вида своя метка веса', () => {
-        expect(WEIGHT_MARK_BY_VIEW).toEqual({ cards: 'tag', flat: 'number', dense: 'dots', summary: 'number' });
+        expect(WEIGHT_MARK_BY_VIEW).toEqual({
+            classic: 'number',
+            cards: 'tag',
+            flat: 'number',
+            dense: 'dots',
+            summary: 'number',
+        });
     });
 });
 

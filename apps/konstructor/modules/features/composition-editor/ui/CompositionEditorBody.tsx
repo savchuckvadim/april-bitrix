@@ -3,10 +3,13 @@
 import type { ComponentType } from 'react';
 import type { CompositionEditorState } from '../hooks/use-composition-editor';
 import type { CompositionViewMode } from '../model/types';
+import { CompositionAcademyBlock } from './CompositionAcademyBlock';
+import { CompositionConsaltingBlock } from './CompositionConsaltingBlock';
 import { CompositionLtOtherBlock } from './CompositionLtOtherBlock';
 import { CompositionMessages } from './CompositionMessages';
-import { CompositionServicesBlock } from './CompositionServicesBlock';
+import { CompositionStarBlock } from './CompositionStarBlock';
 import { CompositionCardsView } from './views/CompositionCardsView';
+import { CompositionClassicView } from './views/CompositionClassicView';
 import { CompositionDenseView } from './views/CompositionDenseView';
 import { CompositionFlatView } from './views/CompositionFlatView';
 import { CompositionSummaryView } from './views/CompositionSummaryView';
@@ -17,6 +20,7 @@ export interface CompositionEditorBodyProps {
 }
 
 const VIEWS: Record<CompositionViewMode, ComponentType<CompositionViewProps>> = {
+    classic: CompositionClassicView,
     cards: CompositionCardsView,
     flat: CompositionFlatView,
     dense: CompositionDenseView,
@@ -24,10 +28,10 @@ const VIEWS: Record<CompositionViewMode, ComponentType<CompositionViewProps>> = 
 };
 
 /**
- * Категории наполнения в выбранном пользователем виде, пакеты LT-other и
- * сервисы строки. Сообщения правил прижаты к низу области прокрутки: остаются
- * на виду при длинном списке и, появляясь, не двигают чекбоксы. Одно тело для
- * панели шага «Комплект» и окна товара на «Ценах».
+ * Категории наполнения в выбранном пользователем виде, пакеты LT-other,
+ * сервисы строки по отдельным блокам. Сообщения правил прижаты к низу области
+ * прокрутки: остаются на виду при длинном списке и, появляясь, не двигают
+ * чекбоксы. Одно тело для панели шага «Комплект» и окна товара на «Ценах».
  */
 export const CompositionEditorBody = ({ editor }: CompositionEditorBodyProps) => {
     const { composition } = editor;
@@ -45,12 +49,19 @@ export const CompositionEditorBody = ({ editor }: CompositionEditorBodyProps) =>
                     onApply={editor.applyComposition}
                 />
             ) : null}
-            <div className="grid gap-4 rounded-lg border p-3 sm:grid-cols-2">
-                <CompositionServicesBlock
+            <div className="grid gap-3 sm:grid-cols-3">
+                <CompositionConsaltingBlock
                     composition={composition}
                     catalog={editor.catalog}
                     onApply={editor.applyComposition}
                 />
+                <CompositionStarBlock
+                    composition={composition}
+                    catalog={editor.catalog}
+                    locked={editor.starLocked}
+                    onApply={editor.applyComposition}
+                />
+                <CompositionAcademyBlock academy={editor.academy} onApply={editor.applyComposition} />
             </div>
             <CompositionMessages {...editor.messages} />
         </div>

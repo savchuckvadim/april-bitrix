@@ -1,12 +1,13 @@
 'use client';
 
 import { useAppDispatch, useAppSelector } from '@/modules/app';
-import { selectCatalog } from '@/modules/entities/catalog';
+import { academyPackagesFor, selectCatalog } from '@/modules/entities/catalog';
 import type { RootState } from '@/modules/app';
 import {
     garantRows,
     leadGarantRow,
     rowSetActions,
+    setTermMonths,
     type KRow,
 } from '@/modules/entities/row-set';
 import {
@@ -20,9 +21,10 @@ import {
  * сервиса ПРЯМО В КАРТОЧКЕ (легаси-селекты «Консалтинг»/«Дополнительно»/
  * «Академия») — это правка composition ведущей garant-строки сета;
  * sync-listener пересоберёт строки сам. LT-пакет напрямую не выбирается —
- * он производен от веса ltInPacket (правится в наполнении). Пакет LT-other
+ * он производен от веса сервисов (правится в наполнении). Пакет LT-other
  * (строка lt_other) переименовывается и удаляется в наполнении той garant-
- * строки, которой принадлежит (refs.packetId).
+ * строки, которой принадлежит (refs.packetId). Академия — только пакеты под
+ * срок сделки набора.
  */
 export const useServiceRow = (row: KRow) => {
     const dispatch = useAppDispatch();
@@ -93,7 +95,7 @@ export const useServiceRow = (row: KRow) => {
         consaltingOptions: catalog.services.consalting.filter(
             service => service.code !== 'hotline',
         ),
-        academyOptions: catalog.academy,
+        academyOptions: academyPackagesFor(catalog, set ? setTermMonths(set, catalog) : null),
         currentConsalting: lead?.composition?.consalting ?? null,
         currentAcademy: lead?.composition?.academy ?? null,
         ltPacket,

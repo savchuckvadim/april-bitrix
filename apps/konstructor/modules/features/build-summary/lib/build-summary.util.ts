@@ -1,4 +1,4 @@
-import { resolveSupply, type Catalog } from '@/modules/entities/catalog';
+import { academyPackageLabel, resolveSupply, type Catalog } from '@/modules/entities/catalog';
 import { checkComplectWeight, describeLtPackets, type LtPacketView } from '@/modules/entities/composition';
 import {
     TAX_COEFFICIENT,
@@ -50,6 +50,7 @@ export const buildSummaryFacts = (
     context: RowSetContext,
     mainRow: KRow,
     comparisonCount: number,
+    hasAcademyRow = true,
 ): SummaryFact[] => {
     const { complectCode, supplyCode, contractCode } = mainRow.refs;
     const complect = catalog.complects.byCode[complectCode ?? ''] ?? null;
@@ -103,6 +104,14 @@ export const buildSummaryFacts = (
                 )?.name ?? 'Горячая линия',
         });
         if (composition.star) facts.push({ label: 'СТАР', value: 'включён' });
+        const academy = catalog.academy.find(pkg => pkg.code === composition.academy);
+        if (academy) {
+            facts.push({
+                label: 'Академия',
+                value: hasAcademyRow ? academyPackageLabel(academy) : `${academyPackageLabel(academy)} — не под срок`,
+                isWarning: !hasAcademyRow,
+            });
+        }
     }
     if (comparisonCount > 0) {
         facts.push({

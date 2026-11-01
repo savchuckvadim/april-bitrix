@@ -9,6 +9,7 @@ export * from './lib/complect-theme';
 export * from './lib/complect-rule-flags';
 export * from './lib/legacy-codes';
 export * from './lib/academy-data';
+export * from './lib/academy.util';
 export * from './lib/star-data';
 export * from './lib/adapters/from-init-v2';
 export * from './lib/adapters/from-oldinit';

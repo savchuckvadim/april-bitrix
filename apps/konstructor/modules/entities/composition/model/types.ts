@@ -71,6 +71,11 @@ export interface CompositionCtx {
      * (вес 4), отделу продаж — нет (легаси getCurrentPacksgeByServices).
      */
     serviceDepartment?: boolean;
+    /**
+     * Срок сделки в месяцах (количество × длительность договора): пакет
+     * академии «на срок» должен совпадать с ним. null/undefined — неизвестен.
+     */
+    termMonths?: number | null;
 }
 
 export type RuleViolationLevel = 'error' | 'warning';

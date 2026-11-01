@@ -7,7 +7,6 @@ import {
     applySetTaxChange,
     buildTotalRow,
     createSet,
-    detectDroppedAcademy,
     leadGarantRow,
     normalizeCollapsed,
     removeRowCascade,
@@ -180,15 +179,3 @@ describe('массовая смена налога', () => {
     });
 });
 
-describe('детект выпавшей академии', () => {
-    it('академия исчезла после sync → true', () => {
-        const academyRow: KRow = {
-            ...garant('ac'),
-            productType: 'academy',
-        };
-        const prev = makeSet(garant('a'), academyRow);
-        const next = makeSet(garant('a'));
-        expect(detectDroppedAcademy(prev, next)).toBe(true);
-        expect(detectDroppedAcademy(next, next)).toBe(false);
-    });
-});

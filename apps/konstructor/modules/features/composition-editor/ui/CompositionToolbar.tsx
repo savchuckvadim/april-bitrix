@@ -40,13 +40,17 @@ export const CompositionToolbar = ({ editor }: CompositionToolbarProps) => {
                     size="md"
                 />
             ) : null}
-            {view.mode === 'cards' ? (
+            {view.mode === 'cards' || view.mode === 'classic' ? (
                 <IconAction
                     icon={sections.isAllOpen ? ChevronsDownUp : ChevronsUpDown}
                     label={
                         sections.isAllOpen
-                            ? 'Свернуть все категории'
-                            : 'Развернуть все категории'
+                            ? view.mode === 'classic'
+                                ? 'Скрыть неотмеченные во всех категориях'
+                                : 'Свернуть все категории'
+                            : view.mode === 'classic'
+                              ? 'Показать все блоки'
+                              : 'Развернуть все категории'
                     }
                     onClick={sections.toggleAll}
                     size="md"

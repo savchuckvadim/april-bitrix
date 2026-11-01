@@ -2,6 +2,7 @@
 
 import { Trash2 } from 'lucide-react';
 import { MicroSelect } from '@workspace/april-ui/fields';
+import { academyPackageLabel } from '@/modules/entities/catalog';
 import { RowCompositionButton } from '@/modules/features/composition-editor';
 import type { KRow } from '@/modules/entities/row-set';
 import { getServiceRefsLabel } from '../../lib/row-display.util';
@@ -92,7 +93,7 @@ export const ServiceRowCard = ({ row, collapsed }: ServiceRowCardProps) => {
                             { value: NONE_OPTION, label: 'Без академии' },
                             ...service.academyOptions.map(pkg => ({
                                 value: pkg.code,
-                                label: `${pkg.totalHours} ч / ${pkg.monthQuantity ?? 'до конца'} мес`,
+                                label: academyPackageLabel(pkg),
                             })),
                         ]}
                         onChange={value =>

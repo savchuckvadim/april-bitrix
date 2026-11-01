@@ -2,12 +2,9 @@ import type { Catalog } from '../../../catalog';
 import { getComplectRuleFlags } from '../../../catalog';
 import { describeLtPackets, mergeCompositions } from '../../../composition';
 import type { KRow, RowSet } from '../../model/types';
-import {
-    buildAcademyRow,
-    buildGarantRow,
-    buildServiceRow,
-} from '../row';
+import { buildGarantRow, buildServiceRow } from '../row';
 import { garantRows, leadGarantRow } from './set-ops.util';
+import { academyRowFor } from './sync-academy.util';
 
 export interface RowSetContext {
     regionCode: string | null;
@@ -22,7 +19,8 @@ export interface RowSetContext {
  * - garant-строки пересчитываются по каталогу (композиция, роль,
  *   количество и пользовательское имя сохраняются);
  * - сервисные строки (LT-пакет, консалтинг, СТАР, академия) выводятся из
- *   ОБЪЕДИНЁННОГО наполнения garant-строк сета (мердж без повторов);
+ *   ОБЪЕДИНЁННОГО наполнения garant-строк сета (мердж без повторов) и
+ *   получают количество набора (легаси: новая строка берёт quantity сета);
  * - пакеты LT-other — по строке lt_other на каждый собранный пакет (ключ —
  *   id пакета); несобранный пакет строки не даёт;
  * - сервисные строки привязаны к ВЕДУЩЕЙ garant-строке (у comparison-сетов
@@ -85,6 +83,7 @@ export const syncSetWithComposition = (
         role: lead.role,
         supplyCode: lead.refs.supplyCode,
         contractCode: lead.refs.contractCode,
+        quantity: lead.price.quantity,
     } as const;
 
     if (merged) {
@@ -142,26 +141,17 @@ export const syncSetWithComposition = (
                 if (row) serviceRows.push(row);
             }
         }
-
-        if (merged.academy) {
-            const row = buildAcademyRow({
-                catalog,
-                regionCode: context.regionCode,
-                withTax: context.withTax,
-                key: `${set.id}_academy`,
-                setId: set.id,
-                role: lead.role,
-                academyCode: merged.academy,
-                supplyCode: lead.refs.supplyCode,
-                contractCode: lead.refs.contractCode,
-            });
-            if (row) serviceRows.push(row);
-        }
     }
 
+    const withGarant: RowSet = { ...set, rows: [...rebuiltGarant, ...serviceRows] };
+    const academy = academyRowFor({ ...withGarant, rows: [...withGarant.rows, ...academyRows(set)] }, catalog, context);
+
     return {
-        ...set,
-        rows: [...rebuiltGarant, ...serviceRows],
+        ...withGarant,
+        rows: academy ? [...withGarant.rows, academy] : withGarant.rows,
         totalPrice: null,
     };
 };
+
+/** Прежняя строка академии: нужна, чтобы пакет «до конца комплекта» сохранил своё количество */
+const academyRows = (set: RowSet): KRow[] => set.rows.filter(row => row.productType === 'academy');

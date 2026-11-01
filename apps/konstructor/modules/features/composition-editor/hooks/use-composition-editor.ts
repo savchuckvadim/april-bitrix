@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
-import { selectCatalog } from '@/modules/entities/catalog';
+import type { RootState } from '@/modules/app';
+import {
+    academyFits,
+    academyPackagesFor,
+    getComplectRuleFlags,
+    selectCatalog,
+} from '@/modules/entities/catalog';
 import {
     applyAction,
     checkComplectWeight,
@@ -10,9 +16,10 @@ import {
     isBlocking,
     validateComposition,
     type CompositionAction,
+    type CompositionCtx,
     type RuleViolation,
 } from '@/modules/entities/composition';
-import { rowSetActions, type KRow } from '@/modules/entities/row-set';
+import { rowSetActions, setTermMonths, type KRow } from '@/modules/entities/row-set';
 import { toggleSectionItem, type SectionKind } from '../lib/composition-sections.util';
 import { useCompositionSections } from './use-composition-sections';
 import { useCompositionView } from './use-composition-view';
@@ -33,10 +40,23 @@ export const useCompositionEditor = (row: KRow | null) => {
     const serviceDepartment = useAppSelector(state =>
         Boolean(state.rowSet.context.serviceDepartment),
     );
+    // набор строки: срок сделки для академии и право на доп. пакеты LT
+    const set = useAppSelector((state: RootState) =>
+        !row
+            ? null
+            : state.rowSet.general.id === row.setId
+              ? state.rowSet.general
+              : (state.rowSet.alternative.find(item => item.id === row.setId) ?? null),
+    );
     // автоправки последнего действия — до следующего действия или смены строки/комплекта
     const [autoFixes, setAutoFixes] = useState<string[]>([]);
     const view = useCompositionView();
-    const sections = useCompositionSections(catalog, row?.composition ?? null, view.showWeights);
+    const sections = useCompositionSections(
+        catalog,
+        row?.composition ?? null,
+        view.showWeights,
+        view.mode === 'classic',
+    );
 
     const composition = row?.composition ?? null;
     const complect = composition
@@ -48,30 +68,42 @@ export const useCompositionEditor = (row: KRow | null) => {
         setAutoFixes([]);
     }, [rowKey, complectCode]);
 
+    const termMonths = set ? setTermMonths(set, catalog) : null;
+    const ctx: CompositionCtx | null = useMemo(
+        () => (complect ? { complect, catalog, regionCode, serviceDepartment, termMonths } : null),
+        [complect, catalog, regionCode, serviceDepartment, termMonths],
+    );
+
     // нарушения — всегда по текущему составу: смена комплекта, восстановленный
     // слепок и правка из карточки строки подсвечиваются без «залипшего» сообщения
     const violations: RuleViolation[] = useMemo(
-        () =>
-            composition && complect
-                ? validateComposition(composition, {
-                      complect,
-                      catalog,
-                      regionCode,
-                      serviceDepartment,
-                  })
-                : [],
-        [composition, complect, catalog, regionCode, serviceDepartment],
+        () => (composition && ctx ? validateComposition(composition, ctx) : []),
+        [composition, ctx],
     );
 
     const ltPackets = useMemo(
-        () =>
-            composition && complect
-                ? describeLtPackets(composition, { catalog, complect, serviceDepartment })
-                : [],
-        [composition, complect, catalog, serviceDepartment],
+        () => (composition && ctx ? describeLtPackets(composition, ctx) : []),
+        [composition, ctx],
     );
     // доп. пакеты LT — только в основном наборе (легаси: у альтернатив их нет)
-    const canHaveExtraLt = useAppSelector(state => state.rowSet.general.id === row?.setId);
+    const canHaveExtraLt = set?.kind === 'general';
+
+    const currentAcademy = composition?.academy
+        ? (catalog.academy.find(pkg => pkg.code === composition.academy) ?? null)
+        : null;
+    const academy = {
+        termMonths,
+        /** Пакеты под срок сделки; текущий остаётся в списке, даже если уже не подходит */
+        options: [
+            ...academyPackagesFor(catalog, termMonths),
+            ...(currentAcademy && termMonths !== null && !academyFits(currentAcademy, termMonths)
+                ? [currentAcademy]
+                : []),
+        ],
+        current: currentAcademy,
+        currentFits:
+            !currentAcademy || termMonths === null || academyFits(currentAcademy, termMonths),
+    };
 
     const writeComposition = (next: NonNullable<KRow['composition']>) => {
         if (!row) return;
@@ -85,13 +117,8 @@ export const useCompositionEditor = (row: KRow | null) => {
     };
 
     const applyComposition = (action: CompositionAction) => {
-        if (!composition || !complect) return;
-        const result = applyAction(composition, action, {
-            complect,
-            catalog,
-            regionCode,
-            serviceDepartment,
-        });
+        if (!composition || !ctx) return;
+        const result = applyAction(composition, action, ctx);
         // блокирующее нарушение действия — состав не изменился, но причину показать надо
         setAutoFixes(result.autoFixes);
         setBlocked(result.violations.filter(isBlocking));
@@ -124,6 +151,9 @@ export const useCompositionEditor = (row: KRow | null) => {
         view,
         ltPackets,
         canHaveExtraLt,
+        academy,
+        /** СТАР встроен в комплект и не переключается */
+        starLocked: Boolean(complect && getComplectRuleFlags(complect).withStar),
         freeMode: composition?.mode === 'free',
         applyComposition,
         toggleItem: (kind: SectionKind, code: string, next: boolean) =>

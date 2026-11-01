@@ -10,32 +10,42 @@ import {
 
 /**
  * Категории наполнения для всех видов: отметки и метки веса, сворачивание
- * (вид «Карточки»: свёрнутая показывает только отмеченное, по умолчанию всё
- * свёрнуто) и фильтр «только выбранные» (вид «Плотно»).
+ * (свёрнутая категория показывает только отмеченное) и фильтр «только
+ * выбранные» (вид «Плотно»). Исходное состояние категорий задаёт вид:
+ * «Карточки» свёрнуты, «Классика» раскрыта; смена вида сбрасывает ручные
+ * переключения — список переключённых хранится вместе с видом, для которого
+ * его делали.
  */
 export const useCompositionSections = (
     catalog: Catalog,
     composition: Composition | null,
     showWeights: boolean,
+    defaultOpen: boolean,
 ) => {
     const sections = useMemo(() => buildCompositionSections(catalog), [catalog]);
-    const [openCodes, setOpenCodes] = useState<string[]>([]);
+    const [toggled, setToggled] = useState<{ base: boolean; codes: string[] }>({
+        base: defaultOpen,
+        codes: [],
+    });
     const [onlyChecked, setOnlyChecked] = useState(false);
+    const toggledCodes = toggled.base === defaultOpen ? toggled.codes : [];
+    const isOpen = (code: string) => defaultOpen !== toggledCodes.includes(code);
 
     const complect = composition ? catalog.complects.byCode[composition.complectCode] : null;
     const pinnedLt = complect ? (getComplectRuleFlags(complect).pinnedLt ?? null) : null;
 
     const view = sections.map(section => {
         const described = describeSection(section, composition, showWeights, pinnedLt);
-        const isOpen = openCodes.includes(section.code);
+        const open = isOpen(section.code);
         return {
             ...described,
-            isOpen,
-            visibleItems: isOpen ? described.items : described.checkedItems,
+            isOpen: open,
+            visibleItems: open ? described.items : described.checkedItems,
         };
     });
 
-    const isAllOpen = sections.length > 0 && openCodes.length === sections.length;
+    const allCodes = sections.map(section => section.code);
+    const isAllOpen = sections.length > 0 && allCodes.every(isOpen);
 
     return {
         sections: view,
@@ -43,14 +53,16 @@ export const useCompositionSections = (
         onlyChecked,
         toggleOnlyChecked: () => setOnlyChecked(prev => !prev),
         toggleSection: (code: string) =>
-            setOpenCodes(prev =>
-                prev.includes(code)
-                    ? prev.filter(item => item !== code)
-                    : [...prev, code],
-            ),
+            setToggled({
+                base: defaultOpen,
+                codes: toggledCodes.includes(code)
+                    ? toggledCodes.filter(item => item !== code)
+                    : [...toggledCodes, code],
+            }),
         toggleAll: () =>
-            setOpenCodes(
-                isAllOpen ? [] : sections.map(section => section.code),
-            ),
+            setToggled({
+                base: defaultOpen,
+                codes: isAllOpen === defaultOpen ? allCodes : [],
+            }),
     };
 };

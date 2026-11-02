@@ -13,6 +13,7 @@ import type { AiTypeTotalsDto } from './aiTypeTotalsDto';
 import type { AiDepartmentTotalsDto } from './aiDepartmentTotalsDto';
 import type { AiObjectionsDto } from './aiObjectionsDto';
 import type { AiOverviewDtoYoy } from './aiOverviewDtoYoy';
+import type { AiOverviewDtoQualityProgress } from './aiOverviewDtoQualityProgress';
 import type { AiOverviewMetaDto } from './aiOverviewMetaDto';
 
 export interface AiOverviewDto {
@@ -39,6 +40,11 @@ export interface AiOverviewDto {
      * @nullable
      */
     yoy?: AiOverviewDtoYoy;
+    /**
+     * Матрица «качество × продвижение» по звонкам с оценкой и продвижением сделки (ядро focus-v3.0): клетки по порогам портала, строки менеджеров периметра и итоги. null — таких разборов за период нет; у старого кэша поля нет.
+     * @nullable
+     */
+    qualityProgress?: AiOverviewDtoQualityProgress;
     /** Служебная сводка. */
     meta: AiOverviewMetaDto;
 }

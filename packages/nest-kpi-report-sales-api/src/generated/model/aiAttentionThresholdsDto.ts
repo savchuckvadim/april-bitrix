@@ -15,4 +15,10 @@ export interface AiAttentionThresholdsDto {
     lowScoreCallMax: number;
     /** Доля неотработанных возражений или шагов без даты у доработки, с которой срабатывает сигнал (weak_followup_share_min); доля 0–1. */
     weakFollowupShareMin: number;
+    /** Оценка звонка 1–10, с которой качество считается достаточным (quality_progress_score_min). */
+    qualityScoreMin: number;
+    /** Продвижение сделки 1–5, с которого сделка считается движущейся (deal_progress_moving_min). */
+    progressMovingMin: number;
+    /** Сколько звонков «купил бы и без менеджера» нужно для сигнала (progress_no_quality_min_calls). */
+    progressNoQualityMinCalls: number;
 }

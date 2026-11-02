@@ -48,6 +48,12 @@ export const AI_SIGNAL: Record<AiAttentionSignal, AiSignalView> = {
         hint: 'За период есть звонки с общей оценкой не выше порога.',
         action: 'Прослушайте худший из них и разберите с менеджером самый слабый раздел',
     },
+    progress_without_quality: {
+        label: 'Купил бы и без менеджера',
+        tone: 'warning',
+        hint: 'Сделки продвигаются при слабых разговорах: у нескольких звонков с продвижением сделки оценка ниже порога качества — клиент готов покупать сам, вклад менеджера мал.',
+        action: 'Прослушайте эти звонки: в них теряются допродажа и лояльность; разберите с менеджером, как вести готового клиента',
+    },
     risk: {
         label: 'Риск',
         tone: 'destructive',
@@ -120,6 +126,8 @@ export const AI_BASIS_LABELS: Record<string, string> = {
     objection_unhandled_share: 'Возражений не отработано',
     next_step_no_date_share: 'Шагов без даты',
     low_score_calls: 'Звонков с низкой оценкой',
+    progress_no_quality_calls: 'Звонков «купил бы и без менеджера»',
+    presentation_spirals_mean: 'Полных спиралей презентации, в среднем',
     risk_calls: 'Риск-звонков',
     analyzed_calls: 'Разобрано звонков',
     calls_total: 'Звонков в телефонии',
@@ -144,6 +152,9 @@ export const AI_BASIS_RATE_CODES = ['share', 'rate', 'pct'];
 
 /** Коды опор, значения которых — средняя оценка раздела 1–10 («4,3 из 10»). */
 export const AI_BASIS_SCORE_CODES = ['section_mean'];
+
+/** Коды опор с дробным счётчиком (среднее число витков): один знак после запятой. */
+export const AI_BASIS_DECIMAL_CODES = ['spirals_mean'];
 
 /** Уровень менеджера: подпись и тон бэйджа. */
 export const AI_LEVEL: Record<AiManagerLevel, { label: string; tone: Tone }> = {
@@ -266,6 +277,8 @@ export const AI_CHECKLIST_LABELS = {
     nextStepDateRatePct: 'Шаг с датой',
     hvostDonePct: '«Хвост»',
     fiveKDonePct: '«5К»',
+    checkpointsDonePct: 'Пункты методики',
+    cappedCallsPct: 'Оценка ограничена',
     handledRatePct: 'Возражения отработаны',
 } as const;
 

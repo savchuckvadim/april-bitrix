@@ -21,6 +21,7 @@ import {
     supportEntities,
     logsEntities,
     settingsEntities,
+    renewalOfferEntities,
 } from '../consts/routes.consts';
 import type { DeepRoute } from './resolve-deep-route';
 
@@ -64,6 +65,7 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
         isSupport,
         isLogs,
         isSettings,
+        isRenewalOffer,
     } = route;
 
     let currentNavItems: ALL_ENTITIES = garantEntities;
@@ -137,6 +139,10 @@ export const resolveSideBar = (route: DeepRoute): SideBarView => {
     } else if (isLogs) {
         // Журналы: url элементов — полные пути
         currentNavItems = logsEntities;
+        baseUrl = '';
+    } else if (isRenewalOffer) {
+        // КП на год: url элементов — полные пути
+        currentNavItems = renewalOfferEntities;
         baseUrl = '';
     } else if (isSettings) {
         // Настройки приложения: url элементов — полные пути

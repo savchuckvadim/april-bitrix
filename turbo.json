@@ -9,7 +9,9 @@
         "METRICS_DISABLED",
         "METRICS_SCRAPE_TOKEN",
         "KPI_SALES_API_URL",
-        "KONSTRUCTOR_API_URL"
+        "KONSTRUCTOR_API_URL",
+        "PBX_API_URL",
+        "NEXT_PUBLIC_BITRIX_APP_URL"
     ],
     "tasks": {
         "build": {

@@ -14,6 +14,10 @@ export interface AiCellChecklistsDto {
     hvostDonePct?: MetricDto;
     /** Доля презентаций с «5К», % (аналогично hvostDonePct). */
     fiveKDonePct?: MetricDto;
+    /** Доля выполненных обязательных пунктов методики, % — суммарно по пунктам звонков ячейки с методикой (focus-v3.0). Отдаётся, когда в ячейке есть разборы с методикой. */
+    checkpointsDonePct?: MetricDto;
+    /** Доля звонков, где ограничитель срезал оценку, % — среди разборов с данными методики (focus-v3.0 и новее). */
+    cappedCallsPct?: MetricDto;
     /** Доля отработанных возражений менеджера по всем типам, % — отдаётся в ячейке типа refine. */
     handledRatePct?: MetricDto;
 }

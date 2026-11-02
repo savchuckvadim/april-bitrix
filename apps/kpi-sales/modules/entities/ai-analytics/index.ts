@@ -76,6 +76,7 @@ export * from './lib/ai-attention.texts';
 export * from './lib/ai-scope.util';
 export * from './lib/ai-dossier-series.util';
 export * from './lib/ai-overview.data';
+export * from './lib/ai-quality-progress.data';
 export * from './lib/ai-metric.util';
 export * from './lib/ai-pulse.util';
 export * from './lib/ai-pulse-list.util';

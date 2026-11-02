@@ -17,8 +17,8 @@
 export const BACKEND_SUPPORT_READY = {
     /** POST `/api/event-sales/deals` и `/new-task/init` (getInitSale). */
     companyDeals: false,
-    /** POST `/api/event-sales/result/count` (fetchResults, NoCall). */
-    resultCount: false,
-    /** POST `/api/event-sales/pres/tmc-deals` (initReturnToTMC). */
-    tmcDeals: false,
+    /** POST `/api/event-sales/result/count` (fetchResults, NoCall) — счётчики по списку «ОП История» (02.11.2026). */
+    resultCount: true,
+    /** POST `/api/event-sales/pres/tmc-deals` (initReturnToTMC) — ТМЦ-сделки по презентационным задачам (02.11.2026). */
+    tmcDeals: true,
 } as const;

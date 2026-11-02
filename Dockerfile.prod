@@ -62,6 +62,9 @@ ARG NEXT_PUBLIC_KPI_SALES_API_URL
 # event-sales: база бэка event-sales (app/components/api-provider.tsx),
 # инлайнится в клиентский бандл на сборке — из runtime env_file уже не подхватится
 ARG NEXT_PUBLIC_EVENT_SALES_API_URL
+# admin: адрес сайта bitrix — из него собираются ссылки на КП на следующий год,
+# которые отправляют клиенту. Инлайнится в клиентский бандл на сборке.
+ARG NEXT_PUBLIC_BITRIX_APP_URL
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
     NEXT_PUBLIC_WS_HOST=${NEXT_PUBLIC_WS_HOST} \
     NEXT_PUBLIC_IN_BITRIX=${NEXT_PUBLIC_IN_BITRIX} \
@@ -75,7 +78,8 @@ ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
     NEXT_PUBLIC_PBX_INSTALL_API_URL=${NEXT_PUBLIC_PBX_INSTALL_API_URL} \
     NEXT_PUBLIC_KONSTRUCTOR_API_URL=${NEXT_PUBLIC_KONSTRUCTOR_API_URL} \
     NEXT_PUBLIC_KPI_SALES_API_URL=${NEXT_PUBLIC_KPI_SALES_API_URL} \
-    NEXT_PUBLIC_EVENT_SALES_API_URL=${NEXT_PUBLIC_EVENT_SALES_API_URL}
+    NEXT_PUBLIC_EVENT_SALES_API_URL=${NEXT_PUBLIC_EVENT_SALES_API_URL} \
+    NEXT_PUBLIC_BITRIX_APP_URL=${NEXT_PUBLIC_BITRIX_APP_URL}
 
 # Сборка через turbo, а НЕ `pnpm --filter ${APP} run build`.
 #

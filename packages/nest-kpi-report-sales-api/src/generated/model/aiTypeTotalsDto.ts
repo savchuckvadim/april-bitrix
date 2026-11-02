@@ -31,6 +31,8 @@ export interface AiTypeTotalsDto {
     versionsMixed: boolean;
     /** Оценка за период: среднее weightedScore/10 при n ≥ 8. */
     score: MetricDto;
+    /** Среднее продвижение сделки по звонку, шкала 1–5 (разборы focus-v3.0 и новее; типы без продвижения не считаются); при n < 8 value null. Нет ни одного звонка с продвижением — поля нет. */
+    dealProgress?: MetricDto;
     /** Разделы рубрики с собственным n (только relevance > 0). */
     sections: AiCellSectionDto[];
     /** Чек-листы типа. */

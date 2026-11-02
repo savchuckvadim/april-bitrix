@@ -1,8 +1,10 @@
 import {
+    getAdminMethodologies,
     getAdminPortalAiProviders,
     getAdminPortalAiSettings,
 } from '@workspace/nest-admin-api';
 import type {
+    MethodologyList,
     PortalAiProvidersReadiness,
     PortalAiSettings,
     PortalAiSettingsUpdate,
@@ -16,6 +18,14 @@ import type {
 export class AiSettingsHelper {
     private api = getAdminPortalAiSettings();
     private providersApi = getAdminPortalAiProviders();
+    private methodologiesApi = getAdminMethodologies();
+
+    /** Методики, доступные порталу (встроенные + таблица); без домена — общие. */
+    methodologyOptions(domain: string | undefined): Promise<MethodologyList> {
+        return this.methodologiesApi.methodologyAdminList(
+            domain ? { domain } : undefined,
+        );
+    }
 
     /** Настройки портала; незаданные поля приходят null (= глобальные). */
     get(portalId: number): Promise<PortalAiSettings> {

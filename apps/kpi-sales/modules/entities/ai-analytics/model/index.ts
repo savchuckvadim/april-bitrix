@@ -147,6 +147,12 @@ import type {
     AiYoyDto,
     AiYoyMetricDto,
     AiYoyMetricDtoMetric,
+    AiQualityProgressCellDto,
+    AiQualityProgressCountsDto,
+    AiQualityProgressDto,
+    AiQualityProgressManagerDto,
+    AiQualityProgressQuadrantDto,
+    AiQualityProgressQuadrantDtoCode,
     ReadinessDtoSigmaLlmSource,
 } from '@workspace/nest-kpi-report-sales-api';
 
@@ -231,6 +237,16 @@ export type AiAttentionItem = AiAttentionItemDto;
 export type AiAttentionSignal = AiAttentionItemDtoSignal;
 export type AiAttentionBasis = AiAttentionBasisDto;
 export type AiAttentionLink = AiAttentionLinkDto;
+
+/* ---------- Матрица «качество × продвижение» ---------- */
+
+export type AiQualityProgress = AiQualityProgressDto;
+export type AiQualityProgressManager = AiQualityProgressManagerDto;
+export type AiQualityProgressCell = AiQualityProgressCellDto;
+export type AiQualityProgressCounts = AiQualityProgressCountsDto;
+export type AiQualityProgressQuadrantView = AiQualityProgressQuadrantDto;
+/** Код клетки: strong | quality_no_progress | progress_no_quality | weak. */
+export type AiQualityProgressQuadrant = AiQualityProgressQuadrantDtoCode;
 
 /* ---------- Срез по типу / возражения ---------- */
 

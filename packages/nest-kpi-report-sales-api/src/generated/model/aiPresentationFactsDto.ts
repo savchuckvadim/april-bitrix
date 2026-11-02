@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { AiSectionMeanDto } from './aiSectionMeanDto';
+import type { AiPresentationSpiralsDto } from './aiPresentationSpiralsDto';
 
 export interface AiPresentationFactsDto {
     /** Звонков-презентаций с разбором за период. */
@@ -14,4 +15,6 @@ export interface AiPresentationFactsDto {
     sections: AiSectionMeanDto[];
     /** Id транскрипций презентаций со слабым разделом (не выше порога). */
     weakCallIds: string[];
+    /** Спирали презентаций (методика со спиралями): среднее полных витков, норма методики и презентации ниже нормы; разборов со спиралями нет — поля нет. */
+    spirals?: AiPresentationSpiralsDto;
 }

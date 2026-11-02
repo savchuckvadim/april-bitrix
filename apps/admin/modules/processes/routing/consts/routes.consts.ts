@@ -187,6 +187,30 @@ export const aiAnalyticsEntities: Entity[] = [
             }
         },
     },
+    {
+        id: 47,
+        item: {
+            name: 'ai-analytics-prompt',
+            title: 'Запрос к модели',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/ai-analytics/prompt',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
+        id: 48,
+        item: {
+            name: 'ai-analytics-methodologies',
+            title: 'Методики продаж',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/ai-analytics/methodologies',
+                method: API_METHOD.GET
+            }
+        },
+    },
 ];
 
 
@@ -235,6 +259,23 @@ export const supportEntities: Entity[] = [
             type: ENTITY_QUANTITY.ENTITY,
             get: {
                 url: '/support',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
+// Раздел «КП на год» (верхний уровень): персональные ссылки действующим
+// клиентам со своими ценами. url — полный путь.
+export const renewalOfferEntities: Entity[] = [
+    {
+        id: 47,
+        item: {
+            name: 'renewal-offer',
+            title: 'Предложения клиентам',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/renewal-offer',
                 method: API_METHOD.GET
             }
         },

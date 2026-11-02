@@ -5,6 +5,7 @@ import type {
 } from '../model';
 import {
     AI_BASIS_LABELS,
+    AI_BASIS_DECIMAL_CODES,
     AI_BASIS_RATE_CODES,
     AI_BASIS_SCORE_CODES,
     aiSignalView,
@@ -20,6 +21,10 @@ export const isAiBasisRate = (code: string): boolean =>
 export const isAiBasisScore = (code: string): boolean =>
     AI_BASIS_SCORE_CODES.some(marker => code.includes(marker));
 
+/** Код опоры с дробным счётчиком (среднее число витков) — один знак после запятой. */
+export const isAiBasisDecimal = (code: string): boolean =>
+    AI_BASIS_DECIMAL_CODES.some(marker => code.includes(marker));
+
 /** Подпись незнакомой опоры — нейтрально, без кода. */
 export const AI_BASIS_UNKNOWN_LABEL = 'показатель';
 
@@ -34,6 +39,9 @@ export const formatAiSectionMean = (value: number): string =>
 const formatBasisValue = (basis: AiAttentionBasis, value: number): string => {
     if (isAiBasisRate(basis.code)) return formatAiRate(value);
     if (isAiBasisScore(basis.code)) return formatAiSectionMean(value);
+    if (isAiBasisDecimal(basis.code)) {
+        return value.toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+    }
     return formatAiCount(value);
 };
 

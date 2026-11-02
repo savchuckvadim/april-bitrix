@@ -18,6 +18,7 @@ import {
     portalQuestionnairesEntities,
     portalBadgesEntities,
     supportEntities,
+    renewalOfferEntities,
     logsEntities,
 } from '../consts/routes.consts';
 
@@ -235,7 +236,29 @@ describe('resolveDeepRoute: раздел «AI-аналитика ОП»', () => 
             '/ai-analytics/audit',
             '/ai-analytics/model',
             '/ai-analytics/guide',
+            '/ai-analytics/prompt',
+            '/ai-analytics/methodologies',
         ]);
+    });
+
+    it('/ai-analytics/prompt («Запрос к модели») остаётся в разделе без флагов других экранов', () => {
+        const route = resolveDeepRoute('/ai-analytics/prompt', '');
+
+        expect(route.isAiAnalytics).toBe(true);
+        expect(route.isAiAnalyticsGuide).toBe(false);
+        expect(route.isAiAnalyticsModel).toBe(false);
+        expect(route.isAiAnalyticsAudit).toBe(false);
+        expect(resolveSideBar(route).currentNavItems).toBe(aiAnalyticsEntities);
+    });
+
+    it('/ai-analytics/methodologies («Методики продаж») остаётся в разделе без флагов других экранов', () => {
+        const route = resolveDeepRoute('/ai-analytics/methodologies', '');
+
+        expect(route.isAiAnalytics).toBe(true);
+        expect(route.isAiAnalyticsGuide).toBe(false);
+        expect(route.isAiAnalyticsModel).toBe(false);
+        expect(route.isAiAnalyticsAudit).toBe(false);
+        expect(resolveSideBar(route).currentNavItems).toBe(aiAnalyticsEntities);
     });
 
     it('/ai-analytics/guide поднимает флаг путеводителя и остаётся в разделе', () => {
@@ -298,5 +321,19 @@ describe('resolveSideBar: боковое меню разделов портал�
 
         expect(view.currentNavItems).toBe(portalEntities);
         expect(view.baseUrl).toBe(`/portal/${PORTAL_ID}`);
+    });
+});
+
+describe('resolveDeepRoute: раздел «КП на год»', () => {
+    it('/renewal-offer — верхний уровень со своим меню', () => {
+        const route = resolveDeepRoute('/renewal-offer', '');
+
+        expect(route.isRenewalOffer).toBe(true);
+        expect(route.isPortal).toBe(false);
+        expect(route.isSettings).toBe(false);
+        expect(resolveSideBar(route)).toEqual({
+            currentNavItems: renewalOfferEntities,
+            baseUrl: '',
+        });
     });
 });

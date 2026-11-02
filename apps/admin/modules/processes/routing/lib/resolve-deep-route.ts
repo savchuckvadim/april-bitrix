@@ -60,6 +60,8 @@ export interface DeepRoute {
     isLogs: boolean;
     /** Раздел «Настройки приложения» (`/settings`): прокси за рубеж и ключи AI. */
     isSettings: boolean;
+    /** Раздел «КП на год» (`/renewal-offer`): персональные ссылки клиентам. */
+    isRenewalOffer: boolean;
 }
 
 /**
@@ -96,6 +98,7 @@ export const resolveDeepRoute = (
     const isSupport = root === 'support';
     const isLogs = root === 'logs';
     const isSettings = root === 'settings';
+    const isRenewalOffer = root === 'renewal-offer';
     const isPortalList = isPortal && second === 'list';
 
     const isPortalGarant = isPortal && portalSection === 'garant';
@@ -178,5 +181,6 @@ export const resolveDeepRoute = (
         isSupport,
         isLogs,
         isSettings,
+        isRenewalOffer,
     };
 };

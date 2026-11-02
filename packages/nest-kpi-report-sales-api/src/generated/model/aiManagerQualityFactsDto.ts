@@ -9,6 +9,7 @@ import type { AiAttentionThresholdsDto } from './aiAttentionThresholdsDto';
 import type { AiPresentationFactsDto } from './aiPresentationFactsDto';
 import type { AiFollowupFactsDto } from './aiFollowupFactsDto';
 import type { AiLowScoreCallDto } from './aiLowScoreCallDto';
+import type { AiProgressFactsDto } from './aiProgressFactsDto';
 
 export interface AiManagerQualityFactsDto {
     /** Пороги, по которым собраны факты. */
@@ -19,4 +20,6 @@ export interface AiManagerQualityFactsDto {
     followup: AiFollowupFactsDto;
     /** Звонки периода с общей оценкой не выше порога. */
     lowScoreCalls: AiLowScoreCallDto[];
+    /** Продвижение сделок: звонки, где сделка продвинулась, и среди них — без качества («купил бы и без менеджера»). Строки старого кэша поля не имеют. */
+    progress?: AiProgressFactsDto;
 }

@@ -3,6 +3,7 @@
 import { AiRopMarkCard } from '../AiRopMarkCard';
 import { AiTypesMatrixBlock } from '../AiTypesMatrixBlock';
 import { AiSectionsMatrixBlock } from '../AiSectionsMatrixBlock';
+import { AiQualityProgressBlock } from '../AiQualityProgressBlock';
 import { AiKpiOnlyNote } from '../components/AiKpiOnlyNote';
 
 interface AiQualityTabProps {
@@ -13,7 +14,8 @@ interface AiQualityTabProps {
 /**
  * Подвкладка «Качество звонков»: три звонка недели для проверки
  * руководителем, матрицы «AI: типы звонков» и «AI: разделы оценки по
- * типу»; разбор по типам открывается из них вторым уровнем.
+ * типу» и матрица «качество × продвижение»; разбор по типам открывается
+ * из матриц вторым уровнем.
  */
 export const AiQualityTab = ({ kpiOnly }: AiQualityTabProps) => {
     if (kpiOnly) return <AiKpiOnlyNote />;
@@ -22,6 +24,7 @@ export const AiQualityTab = ({ kpiOnly }: AiQualityTabProps) => {
             <AiRopMarkCard />
             <AiTypesMatrixBlock />
             <AiSectionsMatrixBlock />
+            <AiQualityProgressBlock />
         </>
     );
 };

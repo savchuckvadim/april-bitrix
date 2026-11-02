@@ -57,7 +57,7 @@ export interface PortalAiSettingsResponseDto {
    */
   staleMinutes: number | null;
   /**
-   * Модель первичного анализа (резюме и рекомендации по звонку).
+   * Модель контура резюме (резюме и рекомендации по звонку — поля RESUME_GIGACHAT / RECOMENDATION_GIGACHAT карточки): none — контур выключен (дефолт с 01.11.2026: глубокий разбор заполняет те же поля лучше), иначе gigachat / cloudru / openai / ollama.
    * @nullable
    */
   llmModel: string | null;
@@ -116,6 +116,11 @@ export interface PortalAiSettingsResponseDto {
    * @nullable
    */
   presentationStrictness: PortalAiSettingsResponseDtoPresentationStrictness;
+  /**
+   * Код методики продаж, по которой разбираются звонки портала: чек-пункты, ограничители оценки и справочники поверх общего ядра (например, polyansky — встроенная методика Полянского; свои методики заводятся в разделе «Методики»). Пусто — методики нет, разбор идёт одним ядром.
+   * @nullable
+   */
+  methodologyCode: string | null;
   /**
    * Недельный Excel-отчёт по звонкам (пятница, 19:00 МСК): полные разборы, транскрипты и сверка с отчётами менеджеров — всё, что физически не помещается в карточку смарта.
    * @nullable

@@ -17,6 +17,7 @@ export const AiAttentionItemDtoSignal = {
     weak_presentation: 'weak_presentation',
     weak_followup: 'weak_followup',
     low_score_calls: 'low_score_calls',
+    progress_without_quality: 'progress_without_quality',
     no_data: 'no_data',
     discipline: 'discipline',
     next_step_drop: 'next_step_drop',

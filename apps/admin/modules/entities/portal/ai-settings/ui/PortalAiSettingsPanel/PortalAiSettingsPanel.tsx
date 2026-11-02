@@ -29,10 +29,12 @@ import {
     AI_PRESENTATION_STRICTNESS_OPTIONS,
     AI_SETTINGS_GROUPS,
     AI_STRICTNESS_META,
+    llmModelLabel,
     PortalAiSettings,
     PortalAiSettingsUpdate,
 } from '../../model';
 import { AiSettingsRelatedLinks } from './components/AiSettingsRelatedLinks';
+import { MethodologyChips } from './components/MethodologyChips';
 import {
     PROVIDER_GLOBAL,
     ProvidersCard,
@@ -52,6 +54,8 @@ interface Draft {
     allowedUserIds: string;
     /** Строгость определения презентации (MODEL_GLOBAL = «как глобально»). */
     presentationStrictness: string;
+    /** Код методики продаж; пусто — без методики. */
+    methodologyCode: string;
     /** Поставщики AI: порядок LLM, транскрибатор, Whisper-совместимый сервис. */
     providers: ProvidersDraft;
 }
@@ -79,6 +83,7 @@ function toDraft(settings: PortalAiSettings | undefined): Draft {
         deepAnalysisModel: settings?.deepAnalysisModel ?? '',
         allowedUserIds: (settings?.allowedUserIds ?? []).join(', '),
         presentationStrictness: settings?.presentationStrictness ?? MODEL_GLOBAL,
+        methodologyCode: settings?.methodologyCode ?? '',
         providers: {
             llmProviderOrder: [...(settings?.llmProviderOrder ?? [])],
             transcriptionMode: settings?.transcriptionMode ?? PROVIDER_GLOBAL,
@@ -141,6 +146,7 @@ function toUpdate(draft: Draft): PortalAiSettingsUpdate | string {
         draft.presentationStrictness === MODEL_GLOBAL
             ? null
             : draft.presentationStrictness;
+    update.methodologyCode = draft.methodologyCode.trim() || null;
 
     // Поставщики AI: пусто = «как в приложении» (null).
     const providers = draft.providers;
@@ -448,7 +454,7 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                                     </SelectItem>
                                     {llmOptions.map((model) => (
                                         <SelectItem key={model} value={model}>
-                                            {model}
+                                            {llmModelLabel(model)}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -518,6 +524,19 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                             <p className="text-xs text-muted-foreground/80">
                                 {AI_STRICTNESS_META.globalHint}
                             </p>
+                        </div>
+
+                        <div className="space-y-1 sm:col-span-2 xl:col-span-3">
+                            <MethodologyChips
+                                domain={portal.data?.domain}
+                                value={draft.methodologyCode}
+                                onChange={(code) =>
+                                    setDraft((d) => ({
+                                        ...d,
+                                        methodologyCode: code,
+                                    }))
+                                }
+                            />
                         </div>
 
                         <div className="space-y-1">

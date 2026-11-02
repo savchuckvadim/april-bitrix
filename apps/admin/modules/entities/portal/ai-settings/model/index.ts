@@ -1,4 +1,6 @@
 import type {
+    MethodologyListDto,
+    MethodologyOptionDto,
     AiProviderReadinessDto,
     PortalAiProvidersReadinessDto,
     PortalAiSettingsResponseDto,
@@ -23,13 +25,22 @@ export type PortalAiSettingsUpdate = UpdatePortalAiSettingsDto;
 /** Редактируемые поля формы (без служебного lastScanAt). */
 export type PortalAiSettingsField = keyof PortalAiSettingsUpdate;
 
-/** Модели первичного анализа (LLM_MODELS бэка, libs/ai-rag). */
+/**
+ * Модели контура резюме (LLM_MODELS бэка, libs/ai-rag) плюс «нет» — контур
+ * выключен (AI_FIRST_PASS_DISABLED бэка; дефолт с 01.11.2026).
+ */
+export const AI_LLM_MODEL_NONE = 'none';
 export const AI_LLM_MODELS = [
+    AI_LLM_MODEL_NONE,
     'gigachat',
     'cloudru',
     'openai',
     'ollama',
 ] as const;
+
+/** Подпись модели в селекте; незнакомые значения из БД показываются как есть. */
+export const llmModelLabel = (model: string): string =>
+    model === AI_LLM_MODEL_NONE ? 'нет — не считать' : model;
 
 /** Описание одного показателя для формы: подробный комментарий обязателен. */
 export interface AiSettingMeta {
@@ -233,13 +244,29 @@ export const AI_STRICTNESS_META = {
     globalHint: 'Не задано: строго.',
 } as const;
 
+/** Методики для бейджей выбора (GET /api/admin/methodologies). */
+export type MethodologyOption = MethodologyOptionDto;
+export type MethodologyList = MethodologyListDto;
+
+/** Поле «Методика продаж» (карточка моделей): выбор бейджем. */
+export const AI_METHODOLOGY_META = {
+    label: 'Методика продаж',
+    description:
+        'Методика, по которой разбираются звонки портала: чек-пункты, ограничители оценки и справочники поверх общего ядра. Встроенная — «Полянский»; свои методики портала появятся здесь после заведения в разделе «Методики». «Без методики» — разбор идёт одним ядром.',
+    globalHint: 'Не задано: без методики.',
+    none: 'Без методики',
+    loading: 'Загружаю список методик…',
+    error: 'Список методик недоступен: сохранить можно, но выбрать новую не выйдет.',
+    unknownHint: 'Код сохранён в настройках, но в списке методик его нет.',
+} as const;
+
 /** Подробные описания моделей и ДЕМО-режима. */
 export const AI_MODEL_META = {
     llmModel: {
-        label: 'Модель первичного анализа',
+        label: 'Контур резюме',
         description:
-            'Модель, которая делает резюме и рекомендации по каждому звонку (RAG по базе знаний портала). GigaChat — основной вариант для РФ.',
-        globalHint: 'Не задано: gigachat.',
+            'Отдельная модель, которая считает резюме и рекомендации по каждому звонку поверх базы знаний портала (поля «Резюме» и «Рекомендации» карточки). С 01.11.2026 по умолчанию выключен: глубокий разбор заполняет те же поля лучше. «нет» — не считать; модель — считать ею.',
+        globalHint: 'Не задано: нет (контур выключен).',
     },
     deepAnalysisModel: {
         label: 'Модель глубокого разбора',

@@ -30,6 +30,12 @@ const quality: NonNullable<AiManagerRow['quality']> = {
         weakSectionGap: 1,
         lowScoreCallMax: 4,
         weakFollowupShareMin: 0.3,
+
+        qualityScoreMin: 6,
+
+        progressMovingMin: 4,
+
+        progressNoQualityMinCalls: 3,
     },
     presentation: { n: 5, sections: [], weakCallIds: [] },
     followup: {

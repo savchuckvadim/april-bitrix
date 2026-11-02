@@ -63,7 +63,7 @@ export interface UpdatePortalAiSettingsDto {
    */
   staleMinutes?: number | null;
   /**
-   * Модель первичного анализа (резюме и рекомендации).
+   * Модель контура резюме: none — выключить (дефолт), иначе gigachat / cloudru / openai / ollama; null — сбросить на дефолт.
    * @nullable
    */
   llmModel?: string | null;
@@ -125,6 +125,12 @@ export interface UpdatePortalAiSettingsDto {
    * @nullable
    */
   presentationStrictness?: UpdatePortalAiSettingsDtoPresentationStrictness;
+  /**
+   * Код методики продаж (латиница, цифры, дефис), например polyansky. null — выключить методику, разбор одним ядром.
+   * @nullable
+   * @pattern ^[a-z][a-z0-9-]{1,63}$
+   */
+  methodologyCode?: string | null;
   /**
    * Недельный Excel-отчёт по звонкам (пятница, 19:00 МСК).
    * @nullable

@@ -234,16 +234,16 @@ export function RenewalLinkCreateDialog({
 
                     <div className="grid gap-3 sm:grid-cols-2">
                         <OfferField
-                            id="renewal-adjustment"
-                            label="Скидка или надбавка"
-                            suffix="₽"
-                            value={fields.adjustment}
-                            onChange={value => set('adjustment', value)}
-                            hint="Со знаком минус — скидка"
+                            id="renewal-discount-percent"
+                            label="Скидка"
+                            suffix="%"
+                            value={fields.discountPercent}
+                            onChange={value => set('discountPercent', value)}
+                            hint="От стоимости услуг, рубли посчитаются сами"
                         />
                         <OfferField
                             id="renewal-adjustment-label"
-                            label="Подпись"
+                            label="Подпись к скидке"
                             type="text"
                             value={fields.adjustmentLabel}
                             onChange={value => set('adjustmentLabel', value)}
@@ -277,6 +277,13 @@ export function RenewalLinkCreateDialog({
                     <div className="flex items-baseline justify-between rounded-lg border border-border bg-muted/40 p-3">
                         <div className="text-sm text-muted-foreground">
                             Клиент увидит
+                            {form.discountAmount > 0 ? (
+                                <span className="block text-xs">
+                                    {formatRub(form.servicesTotal)}, скидка{' '}
+                                    {form.discountPercent}% —{' '}
+                                    {formatRub(form.discountAmount)}
+                                </span>
+                            ) : null}
                             {form.onceTotal !== 0 ? (
                                 <span className="block text-xs">
                                     плюс разово {formatRub(form.onceTotal)}

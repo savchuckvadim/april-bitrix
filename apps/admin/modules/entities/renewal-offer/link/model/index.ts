@@ -36,7 +36,9 @@ export interface RenewalOffer {
     devHours: number;
     devHourPrice: number;
 
-    /** Отрицательная — скидка. */
+    /** Скидка в процентах от стоимости услуг; 0 — без скидки. */
+    discountPercent: number;
+    /** Рубли со знаком: только у ссылок, выданных до процентов. */
     adjustment: number;
     adjustmentLabel: string;
 

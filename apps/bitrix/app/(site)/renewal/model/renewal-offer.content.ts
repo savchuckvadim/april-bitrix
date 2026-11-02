@@ -12,6 +12,10 @@ import {
     type RenewalOffer,
 } from './renewal-offer.model';
 
+/** Вводная под заголовком: одна на страницу и на PDF. */
+export const RENEWAL_LEAD =
+    'Всё, чем вы пользуетесь сейчас, продолжает работать. Ниже — состав услуг, цены и условия на следующий год.';
+
 /** Что входит в пакет приложений по продажам. */
 export const SALES_APP_ITEMS = [
     {
@@ -72,9 +76,6 @@ export function buildTerms(offer: RenewalOffer): readonly string[] {
 
     terms.push('Обновления приложений и исправления ошибок входят в стоимость.');
     terms.push('Поддержка — в рабочее время, через чат Битрикс24.');
-    terms.push(
-        'Стоимость зафиксирована на 12 месяцев с момента продления.',
-    );
 
     return terms;
 }

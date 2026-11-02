@@ -1,19 +1,18 @@
 /**
  * PDF-версия предложения: сухая таблица стоимости, итог, условия.
  *
- * Данные приходят готовыми из renewal-pdf.rows (та же модель, что у
- * страницы), поэтому здесь только вёрстка.
+ * Данные приходят готовыми из той же таблицы, что у страницы, поэтому здесь
+ * только вёрстка.
  */
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { buildTerms } from '../../model/renewal-offer.content';
+import { buildTerms, RENEWAL_LEAD } from '../../model/renewal-offer.content';
 import type { RenewalOffer } from '../../model/renewal-offer.model';
-import { RENEWAL_PDF_FONT } from './renewal-pdf.fonts';
 import {
-    buildRenewalPdfDevNote,
-    buildRenewalPdfRows,
-    type RenewalPdfRow,
-} from './renewal-pdf.rows';
+    buildRenewalPriceTable,
+    type RenewalPriceRow,
+} from '../../model/renewal-offer.rows';
+import { RENEWAL_PDF_FONT } from './renewal-pdf.fonts';
 import { RENEWAL_PDF_THEME } from './renewal-pdf.theme';
 
 const { colors, sizes, page } = RENEWAL_PDF_THEME;
@@ -59,7 +58,16 @@ const styles = StyleSheet.create({
     name: { fontSize: sizes.base, fontWeight: 'bold' },
     note: { fontSize: sizes.xs, color: colors.muted, marginTop: 2 },
     price: { fontSize: sizes.lg, fontWeight: 'bold' },
-    period: { fontSize: sizes.xs, color: colors.muted },
+    included: { fontSize: sizes.base, color: colors.muted },
+    summaryRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 5,
+    },
+    summaryLabel: { fontSize: sizes.base, color: colors.muted },
+    summaryValue: { fontSize: sizes.base, color: colors.muted },
+    discountLabel: { fontSize: sizes.base, fontWeight: 'bold' },
+    discountValue: { fontSize: sizes.base, fontWeight: 'bold' },
     totalBox: {
         marginTop: 14,
         backgroundColor: colors.shade,
@@ -98,15 +106,16 @@ const styles = StyleSheet.create({
     footerText: { fontSize: sizes.xs, color: colors.muted },
 });
 
-const PriceRow: React.FC<{ row: RenewalPdfRow }> = ({ row }) => (
+const PriceRow: React.FC<{ row: RenewalPriceRow }> = ({ row }) => (
     <View style={styles.row} wrap={false}>
         <View style={styles.cellName}>
             <Text style={styles.name}>{row.title}</Text>
             {row.note ? <Text style={styles.note}>{row.note}</Text> : null}
         </View>
         <View style={styles.cellPrice}>
-            <Text style={styles.price}>{row.price}</Text>
-            <Text style={styles.period}>{row.period}</Text>
+            <Text style={row.included ? styles.included : styles.price}>
+                {row.price}
+            </Text>
         </View>
     </View>
 );
@@ -119,8 +128,7 @@ export interface RenewalPdfDocumentProps {
 export const RenewalPdfDocument: React.FC<RenewalPdfDocumentProps> = ({
     offer,
 }) => {
-    const rows = buildRenewalPdfRows(offer);
-    const devNote = buildRenewalPdfDevNote(offer);
+    const rows = buildRenewalPriceTable(offer);
     const terms = buildTerms(offer);
     const title = offer.clientName
         ? `Условия обслуживания для «${offer.clientName}»`
@@ -141,28 +149,47 @@ export const RenewalPdfDocument: React.FC<RenewalPdfDocumentProps> = ({
                     КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ НА СЛЕДУЮЩИЙ ГОД
                 </Text>
                 <Text style={styles.h1}>{title}</Text>
-                <Text style={styles.lead}>
-                    Состав услуг и стоимость на следующий год. Всё, чем вы
-                    пользуетесь сейчас, продолжает работать — ниже зафиксированы
-                    цены и условия.
-                </Text>
+                <Text style={styles.lead}>{RENEWAL_LEAD}</Text>
 
-                <Text style={styles.h2}>Стоимость</Text>
+                <Text style={styles.h2}>Стоимость в месяц</Text>
                 <View style={styles.table}>
                     {rows.monthly.map((row) => (
                         <PriceRow key={row.title} row={row} />
                     ))}
                 </View>
 
+                {rows.servicesTotal ? (
+                    <View style={styles.summaryRow} wrap={false}>
+                        <Text style={styles.summaryLabel}>Стоимость услуг</Text>
+                        <Text style={styles.summaryValue}>
+                            {rows.servicesTotal}
+                        </Text>
+                    </View>
+                ) : null}
+                {rows.discount ? (
+                    <View style={styles.summaryRow} wrap={false}>
+                        <Text style={styles.discountLabel}>
+                            {rows.discount.label} {rows.discount.percent}%
+                        </Text>
+                        <Text style={styles.discountValue}>
+                            {rows.discount.value}
+                        </Text>
+                    </View>
+                ) : null}
+                {rows.surcharge ? (
+                    <View style={styles.summaryRow} wrap={false}>
+                        <Text style={styles.summaryLabel}>
+                            {rows.surcharge.label}
+                        </Text>
+                        <Text style={styles.summaryValue}>
+                            +{rows.surcharge.value}
+                        </Text>
+                    </View>
+                ) : null}
+
                 <View style={styles.totalBox} wrap={false}>
                     <View>
-                        <Text style={styles.totalLabel}>Ежемесячный платёж</Text>
-                        {rows.adjustment ? (
-                            <Text style={styles.totalNote}>
-                                {rows.adjustment.label}: {rows.adjustment.value}{' '}
-                                в месяц — уже учтено в сумме.
-                            </Text>
-                        ) : null}
+                        <Text style={styles.totalLabel}>Итого в месяц</Text>
                         <Text style={styles.totalNote}>
                             Стоимость зафиксирована на 12 месяцев с момента
                             продления.
@@ -196,7 +223,6 @@ export const RenewalPdfDocument: React.FC<RenewalPdfDocumentProps> = ({
                 ))}
 
                 <Text style={styles.footnote}>
-                    {devNote ? `${devNote} ` : ''}
                     Предложение носит информационный характер и не является
                     публичной офертой.
                 </Text>

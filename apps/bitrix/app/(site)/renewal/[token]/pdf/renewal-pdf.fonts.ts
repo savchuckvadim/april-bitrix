@@ -1,7 +1,8 @@
 /**
- * Шрифты PDF-предложения: PT Sans (OFL, см. fonts/OFL.txt) — статические
- * TTF с полной кириллицей. Встроенные шрифты react-pdf кириллицу не
- * покрывают, без регистрации текст вышел бы пустыми квадратами.
+ * Шрифты PDF-предложения: PT Sans (OFL, см. public/fonts/pt-sans/OFL.txt) —
+ * статические TTF с полной кириллицей. Встроенные шрифты react-pdf
+ * кириллицу не покрывают, без регистрации текст вышел бы пустыми
+ * квадратами.
  */
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -14,19 +15,29 @@ const FILES = {
     bold: 'PT_Sans-Web-Bold.ttf',
 } as const;
 
+/** Путь к шрифтам внутри каталога статики. */
+const INSIDE_PUBLIC = join('fonts', 'pt-sans');
+
 /**
- * Где лежат ttf. В dev и в standalone-сборке Next каталог проекта — это
- * `process.cwd()`; файлы рядом с модулем в бандл не попадают, поэтому
- * ищем по пути от корня приложения, а не от `__dirname`.
+ * Где лежат ttf.
+ *
+ * Шрифты живут в `public/`, а не рядом с модулем, потому что это
+ * единственный каталог с файлами, который доезжает до прод-образа:
+ * `Dockerfile.prod` копирует только `.next`, `packages`, `public`,
+ * `package.json` и `next.config` — каталога `app/` в контейнере нет
+ * вообще. Файлы рядом с роутом работали бы в dev и давали 500 на проде.
+ *
+ * Ищем от `process.cwd()`: `__dirname` внутри бандла Next указывает на
+ * служебный путь сборки, а не на корень приложения.
  */
 export function resolveRenewalFontsDir(cwd: string = process.cwd()): string {
-    const relative = join('app', '(site)', 'renewal', '[token]', 'pdf', 'fonts');
     const candidates = [
-        join(cwd, relative),
-        // standalone-сборка кладёт исходники приложения в подкаталог
-        join(cwd, 'apps', 'bitrix', relative),
+        // корень приложения: прод-образ (WORKDIR /app) и next dev/start
+        join(cwd, 'public', INSIDE_PUBLIC),
+        // запуск из корня монорепы
+        join(cwd, 'apps', 'bitrix', 'public', INSIDE_PUBLIC),
     ];
-    const found = candidates.find((dir) => existsSync(join(dir, FILES.regular)));
+    const found = candidates.find(dir => existsSync(join(dir, FILES.regular)));
     if (!found) {
         throw new Error(
             `Шрифты для PDF-предложения не найдены, искали: ${candidates.join('; ')}`,
@@ -52,6 +63,6 @@ export function registerRenewalPdfFonts(): void {
     });
     // Переносы react-pdf считают слова английскими и рвут русские слова
     // где попало. Переносим только по пробелам.
-    Font.registerHyphenationCallback((word) => [word]);
+    Font.registerHyphenationCallback(word => [word]);
     registered = true;
 }

@@ -40,7 +40,8 @@ export interface RenewalOfferFormFields {
     devHours: string;
     devHourPrice: string;
 
-    adjustment: string;
+    /** Скидка в процентах; рубли считаются от стоимости услуг сами. */
+    discountPercent: string;
     adjustmentLabel: string;
 
     extras: RenewalExtraLine[];
@@ -70,7 +71,7 @@ const initialFields = (): RenewalOfferFormFields => ({
     devHours: String(d.devHours),
     devHourPrice: String(d.devHour),
 
-    adjustment: '0',
+    discountPercent: '0',
     adjustmentLabel: 'Скидка',
 
     extras: [],
@@ -95,8 +96,13 @@ export function calcAiPrice(fields: RenewalOfferFormFields): number {
     return num(fields.aiBasePrice, d.aiBase) + extra * num(fields.aiExtraPrice, d.aiExtra);
 }
 
-/** Месячный платёж по форме — для предпросмотра суммы до создания ссылки. */
-export function calcMonthlyTotal(fields: RenewalOfferFormFields): number {
+/** Процент скидки из поля: всё, что вне 0–100, — ошибка ввода, а не скидка. */
+export function discountPercentOf(fields: RenewalOfferFormFields): number {
+    return Math.min(100, Math.max(0, num(fields.discountPercent, 0)));
+}
+
+/** Стоимость услуг в месяц до скидки: от неё считается процент. */
+export function calcServicesMonthly(fields: RenewalOfferFormFields): number {
     let total = 0;
     if (fields.salesIncluded) total += num(fields.salesPrice, d.sales);
     if (fields.aiIncluded) total += calcAiPrice(fields);
@@ -104,8 +110,19 @@ export function calcMonthlyTotal(fields: RenewalOfferFormFields): number {
     for (const line of fields.extras) {
         if (line.period === 'month' && line.title.trim()) total += line.price;
     }
-    total += num(fields.adjustment, 0);
-    return Math.max(0, total);
+    return total;
+}
+
+/** Размер скидки в рублях — так же округляют бэкенд и страница. */
+export function calcDiscountAmount(fields: RenewalOfferFormFields): number {
+    return Math.round(
+        (calcServicesMonthly(fields) * discountPercentOf(fields)) / 100,
+    );
+}
+
+/** Месячный платёж по форме — для предпросмотра суммы до создания ссылки. */
+export function calcMonthlyTotal(fields: RenewalOfferFormFields): number {
+    return calcServicesMonthly(fields) - calcDiscountAmount(fields);
 }
 
 /** Сумма разовых услуг — в месячный платёж не входит. */
@@ -139,7 +156,7 @@ export function fieldsToCreateDto(
         devHours: num(fields.devHours, d.devHours),
         devHourPrice: num(fields.devHourPrice, d.devHour),
 
-        adjustment: num(fields.adjustment, 0),
+        discountPercent: discountPercentOf(fields),
         adjustmentLabel: fields.adjustmentLabel.trim() || 'Скидка',
 
         // Строки без названия на бэк не отправляем: там они всё равно
@@ -214,6 +231,9 @@ export const useRenewalOfferForm = () => {
         updateExtra,
         removeExtra,
         reset,
+        servicesTotal: calcServicesMonthly(fields),
+        discountPercent: discountPercentOf(fields),
+        discountAmount: calcDiscountAmount(fields),
         monthlyTotal: calcMonthlyTotal(fields),
         onceTotal: calcOnceTotal(fields),
         canSubmit: fields.clientName.trim().length > 0,

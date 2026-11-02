@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { RENEWAL_PRICE_DEFAULTS } from '../consts/renewal-link.consts';
 import {
     calcAiPrice,
+    calcDiscountAmount,
     calcMonthlyTotal,
     calcOnceTotal,
+    calcServicesMonthly,
+    discountPercentOf,
     fieldsToCreateDto,
     num,
     type RenewalOfferFormFields,
@@ -30,7 +33,7 @@ const fields = (
     devIncluded: true,
     devHours: String(d.devHours),
     devHourPrice: String(d.devHour),
-    adjustment: '0',
+    discountPercent: '0',
     adjustmentLabel: 'Скидка',
     extras: [],
     ...patch,
@@ -93,16 +96,45 @@ describe('calcMonthlyTotal', () => {
         ).toBe(7500);
     });
 
-    it('скидка уменьшает сумму', () => {
-        expect(calcMonthlyTotal(fields({ adjustment: '-2000' }))).toBe(10_500);
+    it('скидка считается процентом от стоимости услуг', () => {
+        const form = fields({ discountPercent: '20' });
+        // 5000 + 7500 = 12 500, 20% — это 2500.
+        expect(calcServicesMonthly(form)).toBe(12_500);
+        expect(calcDiscountAmount(form)).toBe(2500);
+        expect(calcMonthlyTotal(form)).toBe(10_000);
     });
 
-    it('скидка больше суммы не делает платёж отрицательным', () => {
-        expect(
-            calcMonthlyTotal(
-                fields({ aiIncluded: false, adjustment: '-99000' }),
-            ),
-        ).toBe(0);
+    it('без скидки сумма равна стоимости услуг', () => {
+        expect(calcDiscountAmount(fields())).toBe(0);
+        expect(calcMonthlyTotal(fields())).toBe(12_500);
+    });
+
+    it('скидка 100 процентов даёт ноль, а не минус', () => {
+        expect(calcMonthlyTotal(fields({ discountPercent: '100' }))).toBe(0);
+    });
+
+    it('процент вне 0–100 приводится к границе', () => {
+        // Опечатка в поле не должна давать отрицательный счёт или доплату.
+        expect(discountPercentOf(fields({ discountPercent: '500' }))).toBe(100);
+        expect(discountPercentOf(fields({ discountPercent: '-10' }))).toBe(0);
+    });
+
+    it('стёртое поле скидки — это отсутствие скидки', () => {
+        expect(discountPercentOf(fields({ discountPercent: '' }))).toBe(0);
+    });
+
+    it('разовая услуга в процент не входит', () => {
+        const form = fields({
+            discountPercent: '20',
+            extras: [{ title: 'Обучение', price: 50_000, period: 'once' }],
+        });
+        expect(calcDiscountAmount(form)).toBe(2500);
+    });
+
+    it('на бэк уходит процент, а сумма в рублях из формы не отправляется', () => {
+        const dto = fieldsToCreateDto(fields({ discountPercent: '15' }));
+        expect(dto.offer.discountPercent).toBe(15);
+        expect(dto.offer.adjustment).toBeUndefined();
     });
 
     it('месячная услуга входит в сумму, разовая — нет', () => {

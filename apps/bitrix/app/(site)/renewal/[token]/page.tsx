@@ -58,8 +58,10 @@ export default async function RenewalTokenPage({
         <>
             <RenewalPrintStyles />
             <div className="pt-24">
-                <RenewalDownloadButton token={token} />
-                <RenewalOfferView offer={result.offer} />
+                <RenewalOfferView
+                    offer={result.offer}
+                    actions={<RenewalDownloadButton token={token} />}
+                />
             </div>
         </>
     );

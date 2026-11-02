@@ -104,6 +104,7 @@ export function toRenewalOffer(payload: unknown): RenewalOffer {
         devHours: num(payload.devHours, d.devHours),
         devHourPrice: num(payload.devHourPrice, d.devHourPrice),
 
+        discountPercent: num(payload.discountPercent, d.discountPercent),
         adjustment: num(payload.adjustment, 0),
         adjustmentLabel: text(payload.adjustmentLabel, d.adjustmentLabel),
 
@@ -115,6 +116,9 @@ export function toRenewalOffer(payload: unknown): RenewalOffer {
  * Забирает предложение по токену. Отозванная, истёкшая и неизвестная
  * ссылка приходят как 410 — показываем одно и то же, чтобы перебором
  * нельзя было узнать, какие токены существуют.
+ *
+ * Всё остальное, включая 404, — сбой: ссылка, скорее всего, живая, а ручки
+ * нет на сервере.
  */
 export async function fetchRenewalOffer(
     token: string,
@@ -134,7 +138,10 @@ export async function fetchRenewalOffer(
         return { ok: false, reason: 'error' };
     }
 
-    if (response.status === 410 || response.status === 404) {
+    // Только 410: так ручка отвечает на отозванную, истёкшую и неизвестную
+    // ссылку. 404 здесь означает другое — что ручки нет на сервере (бэк не
+    // выложен или адрес сменился), и живую ссылку уводить на главную нельзя.
+    if (response.status === 410) {
         return { ok: false, reason: 'gone' };
     }
     if (!response.ok) {

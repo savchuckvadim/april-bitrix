@@ -1,9 +1,8 @@
 /**
  * Модель предложения на следующий год для ДЕЙСТВУЮЩЕГО клиента.
  *
- * Здесь только данные и расчёт — ни React, ни разметки. Сейчас источник
- * значений — параметры ссылки, позже на это же место встанет ответ бэка по
- * токену (таблица предложений + админка), и вёрстку менять не придётся.
+ * Здесь только данные и расчёт — ни React, ни разметки. Источник значений —
+ * ответ бэка по токену ссылки (renewal-offer.api).
  *
  * Ключевое правило: у каждого клиента свои цены и свой набор услуг, поэтому
  * ВСЕ суммы живут в объекте предложения, а константы ниже — только значения
@@ -50,6 +49,11 @@ export const LIMITS = {
     hours: { min: 0, max: 1000 },
     /** Сколько «других услуг» максимум принимаем — и из ссылки, и с бэка. */
     extras: { max: 10 },
+    /**
+     * Скидка в процентах. Больше 100 % не бывает: это означало бы доплату
+     * клиенту. Ноль — скидки нет.
+     */
+    discountPercent: { min: 0, max: 100 },
 } as const;
 
 /** Произвольная дополнительная строка предложения — услуга вне прайса. */
@@ -97,8 +101,24 @@ export interface RenewalOffer {
     /** Стоимость часа сверх пакета, ₽. */
     readonly devHourPrice: number;
 
-    /** Скидка/надбавка к месячному итогу, ₽ (отрицательная — скидка). */
+    /**
+     * Скидка в процентах от стоимости услуг, 0 — без скидки.
+     *
+     * Это основной способ задать скидку: сумма в рублях считается от
+     * стоимости услуг, поэтому при изменении цены услуги скидка
+     * пересчитывается сама и не может разойтись с итогом.
+     */
+    readonly discountPercent: number;
+
+    /**
+     * Скидка/надбавка к месячному итогу, ₽ (отрицательная — скидка).
+     *
+     * Остаётся для ссылок, выданных до появления процентов, и для редких
+     * случаев, когда нужна ровная сумма, а не процент. Если задан процент,
+     * это поле не применяется — иначе скидка посчиталась бы дважды.
+     */
     readonly adjustment: number;
+
     /** Подпись к корректировке, например «Скидка за год вперёд». */
     readonly adjustmentLabel: string;
 
@@ -127,6 +147,7 @@ export const DEFAULT_RENEWAL_OFFER: RenewalOffer = {
     devHours: PRICE_DEFAULTS.devHours,
     devHourPrice: PRICE_DEFAULTS.devHour,
 
+    discountPercent: 0,
     adjustment: 0,
     adjustmentLabel: 'Скидка',
 
@@ -173,11 +194,10 @@ export function calcExtrasOnce(offer: RenewalOffer): number {
 }
 
 /**
- * Итого в месяц: включённые услуги, помесячные дополнительные строки и
- * корректировка. Ниже нуля не опускаем — скидка больше суммы услуг означает
- * ошибку в ссылке, а не отрицательный счёт.
+ * Стоимость услуг в месяц ДО скидки: включённые услуги и помесячные
+ * дополнительные строки. От этой суммы считается процент скидки.
  */
-export function calcMonthlyTotal(offer: RenewalOffer): number {
+export function calcServicesMonthly(offer: RenewalOffer): number {
     let total = 0;
     if (offer.salesIncluded) {
         total += offer.salesPrice;
@@ -189,8 +209,84 @@ export function calcMonthlyTotal(offer: RenewalOffer): number {
         total += offer.managerPrice;
     }
     total += calcExtrasMonthly(offer);
-    total += offer.adjustment;
-    return Math.max(0, total);
+    return total;
+}
+
+/**
+ * Размер скидки в рублях за месяц — всегда отрицательное число или ноль.
+ *
+ * Процент имеет приоритет над суммой в рублях: если задан процент, рубли
+ * не применяются, иначе скидка посчиталась бы дважды. Рубли остаются для
+ * ссылок, выданных до появления процентов.
+ *
+ * Округляем до целого рубля: клиенту нельзя показывать копейки в
+ * предложении, а итог должен в точности сходиться с разницей сумм.
+ */
+export function calcDiscountAmount(offer: RenewalOffer): number {
+    const services = calcServicesMonthly(offer);
+
+    if (offer.discountPercent > 0) {
+        const percent = Math.min(
+            LIMITS.discountPercent.max,
+            offer.discountPercent,
+        );
+        // Скидка не может быть больше стоимости услуг.
+        return -Math.min(services, Math.round((services * percent) / 100));
+    }
+
+    // Надбавку (положительный adjustment) скидкой не считаем.
+    if (offer.adjustment < 0) {
+        return Math.max(-services, offer.adjustment);
+    }
+    return 0;
+}
+
+/**
+ * Итого в месяц: стоимость услуг со скидкой (или надбавкой).
+ *
+ * Ниже нуля не опускаем — скидка больше стоимости услуг означает ошибку
+ * в предложении, а не отрицательный счёт.
+ */
+export function calcMonthlyTotal(offer: RenewalOffer): number {
+    const services = calcServicesMonthly(offer);
+
+    // Процент задан — рублёвая корректировка не применяется.
+    if (offer.discountPercent > 0) {
+        return Math.max(0, services + calcDiscountAmount(offer));
+    }
+
+    // Иначе рублёвая корректировка, в том числе надбавка со знаком плюс.
+    return Math.max(0, services + offer.adjustment);
+}
+
+/**
+ * Скидка для показа клиенту: процент и сумма в рублях, либо null, если
+ * скидки нет. Надбавка сюда не попадает — у неё другой смысл.
+ *
+ * Процент считаем от стоимости услуг и для рублёвой скидки тоже: клиент
+ * видит и сумму, и долю, в какой бы форме скидку ни задали.
+ */
+export function calcDiscountView(offer: RenewalOffer): {
+    /** Сумма скидки в месяц, положительное число. */
+    readonly amount: number;
+    /** Доля от стоимости услуг, процентов (целое). */
+    readonly percent: number;
+} | null {
+    const services = calcServicesMonthly(offer);
+    if (services <= 0) return null;
+
+    const amount = -calcDiscountAmount(offer);
+    if (amount <= 0) return null;
+
+    return {
+        amount,
+        // Заданный процент показываем как есть: пересчёт из округлённых
+        // рублей мог бы дать на небольшой сумме другое число.
+        percent:
+            offer.discountPercent > 0
+                ? Math.min(LIMITS.discountPercent.max, offer.discountPercent)
+                : Math.round((amount / services) * 100),
+    };
 }
 
 /** Неразрывный пробел: цена не должна разрываться по строкам при печати. */

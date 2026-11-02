@@ -22,13 +22,11 @@ export const RenewalDownloadButton: React.FC<RenewalDownloadButtonProps> = ({
     token,
 }) => {
     return (
-        <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
-            <Button asChild variant="outline" className="no-print">
-                <a href={buildRenewalPdfPath(token)}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Скачать PDF
-                </a>
-            </Button>
-        </div>
+        <Button asChild variant="outline" className="no-print">
+            <a href={buildRenewalPdfPath(token)}>
+                <Download className="mr-2 h-4 w-4" />
+                Скачать PDF
+            </a>
+        </Button>
     );
 };

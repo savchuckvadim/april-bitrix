@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
     DEFAULT_RENEWAL_OFFER,
     calcAiPrice,
+    calcDiscountAmount,
+    calcDiscountView,
     calcExtrasMonthly,
     calcExtrasOnce,
     calcHeadcountRange,
     calcMonthlyTotal,
+    calcServicesMonthly,
     formatEmployees,
     formatHours,
     formatRub,
@@ -150,5 +153,122 @@ describe('formatHours', () => {
         expect(formatHours(2)).toBe('2 часа');
         expect(formatHours(30)).toBe('30 часов');
         expect(formatHours(11)).toBe('11 часов');
+    });
+});
+
+describe('скидка в процентах', () => {
+    /** Предложение со стоимостью услуг ровно 40 000 ₽/мес. */
+    const base: RenewalOffer = {
+        ...DEFAULT_RENEWAL_OFFER,
+        salesIncluded: true,
+        salesPrice: 30_000,
+        aiIncluded: true,
+        aiEmployees: 3,
+        aiBasePrice: 10_000,
+        managerIncluded: false,
+        extras: [],
+    };
+
+    it('стоимость услуг считается до скидки', () => {
+        expect(calcServicesMonthly(base)).toBe(40_000);
+        expect(calcServicesMonthly({ ...base, discountPercent: 10 })).toBe(
+            40_000,
+        );
+    });
+
+    it('10% от 40 000 — это 4 000, итог 36 000', () => {
+        const offer = { ...base, discountPercent: 10 };
+        expect(calcDiscountAmount(offer)).toBe(-4_000);
+        expect(calcMonthlyTotal(offer)).toBe(36_000);
+    });
+
+    it('итог в точности равен стоимости минус скидка', () => {
+        // Без этого на экране могла бы оказаться сумма, не сходящаяся
+        // с разницей: клиент заметит это первым.
+        const offer = { ...base, salesPrice: 33_333, discountPercent: 17 };
+        const services = calcServicesMonthly(offer);
+        const discount = calcDiscountAmount(offer);
+        expect(calcMonthlyTotal(offer)).toBe(services + discount);
+    });
+
+    it('скидка показывается и процентом, и рублями', () => {
+        expect(calcDiscountView({ ...base, discountPercent: 10 })).toEqual({
+            amount: 4_000,
+            percent: 10,
+        });
+    });
+
+    it('без скидки показывать нечего', () => {
+        expect(calcDiscountView(base)).toBeNull();
+        expect(calcMonthlyTotal(base)).toBe(40_000);
+    });
+
+    it('100% — услуги бесплатно, но не минус', () => {
+        const offer = { ...base, discountPercent: 100 };
+        expect(calcMonthlyTotal(offer)).toBe(0);
+        expect(calcDiscountAmount(offer)).toBe(-40_000);
+    });
+
+    it('процент больше 100 скидку не раздувает', () => {
+        // Опечатка в админке не должна давать отрицательный счёт.
+        const offer = { ...base, discountPercent: 500 };
+        expect(calcMonthlyTotal(offer)).toBe(0);
+        expect(calcDiscountAmount(offer)).toBe(-40_000);
+    });
+
+    it('процент имеет приоритет над суммой в рублях', () => {
+        // Иначе скидка применилась бы дважды.
+        const offer = { ...base, discountPercent: 10, adjustment: -5_000 };
+        expect(calcMonthlyTotal(offer)).toBe(36_000);
+    });
+
+    it('старые ссылки со скидкой в рублях продолжают работать', () => {
+        const offer = { ...base, discountPercent: 0, adjustment: -4_000 };
+        expect(calcMonthlyTotal(offer)).toBe(36_000);
+        // И процент для показа считается сам.
+        expect(calcDiscountView(offer)).toEqual({ amount: 4_000, percent: 10 });
+    });
+
+    it('рублёвая скидка больше стоимости услуг не даёт минус', () => {
+        const offer = { ...base, discountPercent: 0, adjustment: -99_000 };
+        expect(calcMonthlyTotal(offer)).toBe(0);
+    });
+
+    it('надбавка не выдаётся за скидку', () => {
+        const offer = { ...base, discountPercent: 0, adjustment: 5_000 };
+        expect(calcMonthlyTotal(offer)).toBe(45_000);
+        expect(calcDiscountView(offer)).toBeNull();
+    });
+
+    it('разовые услуги в процент скидки не входят', () => {
+        // Скидка месячная, разовая услуга оплачивается отдельно.
+        const offer: RenewalOffer = {
+            ...base,
+            discountPercent: 10,
+            extras: [{ title: 'Настройка', price: 50_000, period: 'once' }],
+        };
+        expect(calcServicesMonthly(offer)).toBe(40_000);
+        expect(calcMonthlyTotal(offer)).toBe(36_000);
+    });
+
+    it('помесячные услуги в процент скидки входят', () => {
+        const offer: RenewalOffer = {
+            ...base,
+            discountPercent: 10,
+            extras: [{ title: 'Телефония', price: 10_000, period: 'month' }],
+        };
+        expect(calcServicesMonthly(offer)).toBe(50_000);
+        expect(calcMonthlyTotal(offer)).toBe(45_000);
+    });
+
+    it('скидка от нулевой стоимости услуг ничего не ломает', () => {
+        const offer: RenewalOffer = {
+            ...base,
+            salesIncluded: false,
+            aiIncluded: false,
+            discountPercent: 10,
+        };
+        expect(calcMonthlyTotal(offer)).toBe(0);
+        expect(calcDiscountView(offer)).toBeNull();
     });
 });

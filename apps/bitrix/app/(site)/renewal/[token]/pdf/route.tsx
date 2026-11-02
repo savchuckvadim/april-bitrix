@@ -58,10 +58,29 @@ export async function GET(
         );
     }
 
-    registerRenewalPdfFonts();
-    const buffer = await renderToBuffer(
-        <RenewalPdfDocument offer={result.offer} />,
-    );
+    // Сборка файла может упасть на стороне сервера (например, не нашлись
+    // шрифты). Без перехвата клиент получил бы пустой 500 без объяснения,
+    // а причина осталась бы только в трейсе Next.
+    let buffer: Buffer;
+    try {
+        registerRenewalPdfFonts();
+        buffer = await renderToBuffer(
+            <RenewalPdfDocument offer={result.offer} />,
+        );
+    } catch (error) {
+        const reason = error instanceof Error ? error.message : 'неизвестно';
+        console.error(`[renewal-pdf] не удалось собрать PDF: ${reason}`);
+        return new Response(
+            'Не удалось собрать файл. Попробуйте через несколько минут.',
+            {
+                status: 500,
+                headers: {
+                    'Content-Type': 'text/plain; charset=utf-8',
+                    'Cache-Control': 'no-store',
+                },
+            },
+        );
+    }
 
     return new Response(new Uint8Array(buffer), {
         status: 200,

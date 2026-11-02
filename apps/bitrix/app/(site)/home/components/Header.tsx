@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { ThemeTogglePanel } from './ThemeTogglePanel';
 import { scrollToSectionWithSource } from '../utils/tracking';
 import { cn } from '@workspace/ui/lib/utils';
+import { isAlwaysVisiblePath } from './header-visibility';
 
 const navigation = [
     { name: 'Виджеты', href: '#documents' },
@@ -35,6 +36,9 @@ export const Header: React.FC = () => {
     // Хедер используется не только на лендинге (/home), но и на /legal/** —
     // там секций нет, навигация должна вести на главную с якорем
     const isHome = pathname === HOME_PATH;
+    // Страницы, где хедер должен быть видно сразу: КП клиенту открывают по
+    // ссылке, и выезжающий при прокрутке хедер там читается как сбой.
+    const keepVisible = isAlwaysVisiblePath(pathname);
 
     // Отслеживание скролла для изменения стиля header
     useEffect(() => {
@@ -146,14 +150,17 @@ export const Header: React.FC = () => {
         }
     };
     // Хедер fixed и не резервирует место в потоке, поэтому на любой странице
-    // он скрыт наверху и появляется только после скролла — иначе перекрывает контент
-    if (!isScrolled) {
+    // он скрыт наверху и появляется только после скролла — иначе перекрывает
+    // контент. Страницы, которые сами оставляют отступ сверху, просят
+    // показывать его всегда: иначе выезжающий при прокрутке хедер выглядит
+    // сбоем вёрстки.
+    if (!isScrolled && !keepVisible) {
         return null;
     }
 
     return (
         <header
-            className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm"
+            className="no-print fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm"
         >
             <nav className="container mx-auto px-2 sm:px-4 lg:px-1">
                 <div className="flex items-center justify-between h-16 lg:h-20">

@@ -68,6 +68,57 @@ describe('итоги нажатий словами', () => {
         expect(failed.text).toContain('Не удалось создать полей: 1');
     });
 
+    // Прод 02.11.2026, gsr: лимит пользовательских полей (на одну сущность).
+    it('смарт: лимит полей — причина словами и что сделать, без «прав вебхука»', () => {
+        const limit = smartOutcome({
+            entityTypeId: 1040,
+            created: false,
+            fieldsAdded: ['UF_CRM_7_METHODOLOGY'],
+            fieldsExisting: [],
+            fieldsFailed: ['UF_CRM_7_DEAL_PROGRESS', 'UF_CRM_7_CAPS_APPLIED'],
+            fieldLimitReached: true,
+            fieldsFailedDetails: [
+                {
+                    fieldName: 'UF_CRM_7_DEAL_PROGRESS',
+                    title: 'Продвижение сделки по звонку (1-5)',
+                    reason: 'field_limit',
+                    message: 'Достигнут лимит пользовательских полей',
+                },
+                {
+                    fieldName: 'UF_CRM_7_CAPS_APPLIED',
+                    title: 'Оценка ограничена (сработавшие ограничители)',
+                    reason: 'field_limit',
+                    message: 'не создавалось: лимит уже достигнут',
+                },
+            ],
+        });
+        expect(limit.ok).toBe(false);
+        expect(limit.text).toContain('лимит пользовательских полей');
+        expect(limit.text).toContain('«Продвижение сделки по звонку (1-5)»');
+        expect(limit.text).toContain('удалите неиспользуемые поля в самом смарте');
+        expect(limit.text).toContain('на одну сущность');
+        expect(limit.text).not.toContain('права вебхука');
+
+        const network = smartOutcome({
+            entityTypeId: 1040,
+            created: false,
+            fieldsAdded: [],
+            fieldsExisting: [],
+            fieldsFailed: ['UF_CRM_7_SPIRALS_FULL'],
+            fieldLimitReached: false,
+            fieldsFailedDetails: [
+                {
+                    fieldName: 'UF_CRM_7_SPIRALS_FULL',
+                    title: 'Полных спиралей презентации',
+                    reason: 'network',
+                    message: 'socket hang up',
+                },
+            ],
+        });
+        expect(network.text).toContain('повторите через минуту');
+        expect(network.text).toContain('«Полных спиралей презентации»');
+    });
+
     it('история: поставленные месяцы и «когда догон закончится»; отказ — причиной словами', () => {
         const ok = historyOutcome({
             domain: 'x',

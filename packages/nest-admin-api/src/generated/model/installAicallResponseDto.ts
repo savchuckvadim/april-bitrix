@@ -5,6 +5,7 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { InstallFieldFailureDto } from './installFieldFailureDto';
 
 export interface InstallAicallResponseDto {
   /** entityTypeId смарта на портале. */
@@ -19,4 +20,8 @@ export interface InstallAicallResponseDto {
   fieldsFailed: string[];
   /** Существующие поля-перечисления, которым долиты недостающие значения справочника (например, новый риск-флаг): «UF-имя поля: коды значений». Только у смарта «AI-анализ звонков»; у остальных const-смартов поля нет. */
   enumItemsAdded?: string[];
+  /** true — портал достиг лимита пользовательских полей Битрикс24: часть полей не создана, остальные после первого отказа не пробовались. */
+  fieldLimitReached?: boolean;
+  /** Причина по каждому несозданному полю — словами. */
+  fieldsFailedDetails?: InstallFieldFailureDto[];
 }

@@ -9,6 +9,7 @@ import { CallResults, noCallActions } from './NoCallSlice';
 // type-only: стирается компилятором, ленивость конвейера отправки не ломает.
 import type { EnqueueDeliverySummary } from '@/modules/processes/event-outbox/model/OutboxThunk';
 import { ResultCountHelper } from '../lib/api/result-count-helper';
+import { findTaskById } from '../lib/find-task-by-id.util';
 import { BACKEND_SUPPORT_READY } from '@/modules/app/consts/backend-support.const';
 
 const resultCountHelper = new ResultCountHelper();
@@ -55,8 +56,9 @@ export const getNoCallMenu =
     (taskId: number | null, status: boolean) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
-        const currentTask =
-            state.eventTask.tasks?.find(task => task.id === taskId) ?? null;
+        // id задачи с портала — строка, с кнопки — число: сравнение «как
+        // есть» теряло задачу, и недозвон уходил без типа события.
+        const currentTask = findTaskById(state.eventTask.tasks, taskId);
 
         dispatch(eventReportActions.clean({ isTmc: false }));
         dispatch(eventTaskActions.setCurrentTask({ task: currentTask }));

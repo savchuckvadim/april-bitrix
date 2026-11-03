@@ -2,6 +2,7 @@
 // тянет React-панель, а этот файл — чистая логика под vitest.
 import { BACKTEST_REASON_LABEL } from '@/modules/entities/ai-analytics-model/consts/ai-analytics-model.labels.const';
 import { LAUNCH_STEP_TEXT } from '../consts/ai-analytics-launch.const';
+import type { InstallFieldFailureDto } from '@workspace/nest-admin-api';
 import type {
     LaunchBackfillResult,
     LaunchBacktest,
@@ -23,6 +24,42 @@ const BACKFILL_REASON_TEXT: Readonly<Record<string, string>> = {
     'backfill-empty-range': 'Период пустой — нечего догонять.',
     'backfill-range-too-wide': 'Больше 24 месяцев за раз ручка не принимает.',
 };
+
+const fieldTitles = (
+    details: readonly InstallFieldFailureDto[],
+    reason: InstallFieldFailureDto['reason'],
+): string =>
+    details
+        .filter(item => item.reason === reason)
+        .map(item => `«${item.title}»`)
+        .join(', ');
+
+/**
+ * Почему поля смарта не создались — словами и с действием. Лимит полей
+ * (прод 02.11.2026, gsr) — не «права вебхука»: Битрикс считает его на одну
+ * сущность (03.11.2026 проверено: пустой смарт того же портала поле
+ * принимает), поэтому место освобождается внутри самого смарта.
+ */
+export function smartFailureText(result: LaunchInstallSmartResult): string {
+    const details = result.fieldsFailedDetails ?? [];
+    if (result.fieldLimitReached) {
+        const network = fieldTitles(details, 'network');
+        return (
+            `Смарт исчерпал лимит пользовательских полей Битрикс24 — не созданы: ${fieldTitles(details, 'field_limit')}. ` +
+            'Разбор звонков это не ломает: сводка методики пишется в таймлайн элемента. ' +
+            'Лимит считается на одну сущность, удаление полей в сделках и других смартах не поможет. ' +
+            'Чтобы поля появились, удалите неиспользуемые поля в самом смарте «AI-анализ звонков» ' +
+            '(CRM → Настройки → Пользовательские поля) или попросите разработчика сократить набор полей, ' +
+            'затем нажмите «Обновить смарт» ещё раз.' +
+            (network ? ` Ещё не созданы из-за обрыва связи: ${network} — повторите через минуту.` : '')
+        );
+    }
+    const network = details.filter(item => item.reason === 'network');
+    if (details.length > 0 && network.length === details.length) {
+        return `Не удалось создать полей: ${details.length} (${fieldTitles(details, 'network')}) — Битрикс оборвал соединение; повторите через минуту.`;
+    }
+    return `Не удалось создать полей: ${result.fieldsFailed.length} — повторите позже; если не помогает, попросите разработчика проверить права вебхука.`;
+}
 
 const months = (count: number): string => {
     const mod10 = count % 10;
@@ -47,11 +84,7 @@ export function smartOutcome(result: LaunchInstallSmartResult): LaunchOutcome {
             : 'Все значения перечислений уже были на месте.',
     );
     const failed = result.fieldsFailed.length > 0;
-    if (failed) {
-        parts.push(
-            `Не удалось создать полей: ${result.fieldsFailed.length} — повторите позже; если не помогает, попросите разработчика проверить права вебхука.`,
-        );
-    }
+    if (failed) parts.push(smartFailureText(result));
     return {
         ok: !failed,
         text: parts.join(' '),

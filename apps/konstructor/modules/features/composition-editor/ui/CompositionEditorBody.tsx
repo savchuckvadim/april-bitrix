@@ -3,7 +3,6 @@
 import type { ComponentType } from 'react';
 import type { CompositionEditorState } from '../hooks/use-composition-editor';
 import type { CompositionViewMode } from '../model/types';
-import { CompositionAcademyBlock } from './CompositionAcademyBlock';
 import { CompositionConsaltingBlock } from './CompositionConsaltingBlock';
 import { CompositionLtOtherBlock } from './CompositionLtOtherBlock';
 import { CompositionMessages } from './CompositionMessages';
@@ -29,7 +28,8 @@ const VIEWS: Record<CompositionViewMode, ComponentType<CompositionViewProps>> = 
 
 /**
  * Категории наполнения в выбранном пользователем виде, пакеты LT-other,
- * сервисы строки по отдельным блокам. Сообщения правил прижаты к низу области
+ * консалтинг и СТАР отдельными блоками. Академия привязана к количеству
+ * товара, поэтому выбирается на шаге цен (features/academy-picker). Сообщения правил прижаты к низу области
  * прокрутки: остаются на виду при длинном списке и, появляясь, не двигают
  * чекбоксы. Одно тело для панели шага «Комплект» и окна товара на «Ценах».
  */
@@ -49,7 +49,7 @@ export const CompositionEditorBody = ({ editor }: CompositionEditorBodyProps) =>
                     onApply={editor.applyComposition}
                 />
             ) : null}
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2">
                 <CompositionConsaltingBlock
                     composition={composition}
                     catalog={editor.catalog}
@@ -61,7 +61,6 @@ export const CompositionEditorBody = ({ editor }: CompositionEditorBodyProps) =>
                     locked={editor.starLocked}
                     onApply={editor.applyComposition}
                 />
-                <CompositionAcademyBlock academy={editor.academy} onApply={editor.applyComposition} />
             </div>
             <CompositionMessages {...editor.messages} />
         </div>

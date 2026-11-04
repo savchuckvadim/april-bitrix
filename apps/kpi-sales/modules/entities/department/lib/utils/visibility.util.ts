@@ -16,12 +16,25 @@ export const VISIBILITY_LABEL: Record<VisibilityLevel, string> = {
 /**
  * Пометка к подписи роли по источнику: structure — роль из структуры
  * Битрикса (без пометки); settings — поднята настройкой портала «Отдел
- * продаж»; superuser — суперпользователь вендора (env BX_SUPER_USER_IDS).
+ * продаж»; superuser — суперпользователь вендора (админка April).
+ * portal_default здесь нет намеренно: его пометка зависит от уровня и
+ * собирается в visibilityLabel.
  */
-export const HEAD_OF_SOURCE_SUFFIX: Record<HeadOfSource, string> = {
+export const HEAD_OF_SOURCE_SUFFIX: Record<
+    Exclude<HeadOfSource, 'portal_default'>,
+    string
+> = {
     structure: '',
     settings: ' (по настройке портала)',
     superuser: ' (суперпользователь)',
+};
+
+/** Периметр уровня в винительном падеже: «видит …». */
+export const PERIMETER_LABEL: Record<VisibilityLevel, string> = {
+    own: 'только себя',
+    group: 'свою группу',
+    department: 'свой отдел',
+    all: 'всю структуру',
 };
 
 /**
@@ -56,6 +69,11 @@ export const resolveVisibility = (
  * Подпись роли для баннера «Смотреть как…»: уровень видимости и пометка
  * источника (настройка портала, суперпользователь вендора). Нет источника
  * (снимки ссылок v: 1, старый бэк) — без пометки.
+ *
+ * Портальный уровень для рядовых (portal_default): роль — по headOf
+ * (рядовой остаётся «менеджером», руководитель группы — «руководителем
+ * группы»), а расширенный периметр — в пометке: «менеджер (видит свою
+ * группу по настройке портала)».
  */
 export const visibilityLabel = (
     currentUser:
@@ -63,8 +81,13 @@ export const visibilityLabel = (
         | null
         | undefined,
 ): string => {
-    const label = VISIBILITY_LABEL[resolveVisibility(currentUser)];
     const source = currentUser?.headOfSource;
+    if (source === 'portal_default') {
+        const role = VISIBILITY_LABEL[visibilityFromHeadOf(currentUser?.headOf)];
+        const perimeter = PERIMETER_LABEL[resolveVisibility(currentUser)];
+        return `${role} (видит ${perimeter} по настройке портала)`;
+    }
+    const label = VISIBILITY_LABEL[resolveVisibility(currentUser)];
     // Неизвестный источник (бэк новее фронта) — тоже без пометки.
     const suffix = source ? (HEAD_OF_SOURCE_SUFFIX[source] ?? '') : '';
     return label + suffix;

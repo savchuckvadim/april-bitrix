@@ -70,6 +70,24 @@ describe('computeDepartmentScope', () => {
         expect(ids(scope.defaultSelected)).toEqual([1, 2]);
     });
 
+    it('portal_default — рядовой (headOf null) с периметром своей группы по настройке портала', () => {
+        const scope = computeDepartmentScope(
+            makeDepartments(),
+            makeCurrentUser({
+                userId: 1,
+                headOf: null,
+                visibility: 'group',
+                headOfDepartmentIds: [11],
+                headOfSource: 'portal_default',
+            }),
+            APP_USER,
+        );
+        expect(ids(scope.users)).toEqual([1, 2]);
+        expect(ids(scope.groups)).toEqual([11]);
+        // выбор коллег в фильтре открыт, фичи руководителя гейтятся по headOf
+        expect(scope.isHeadManager).toBe(true);
+    });
+
     it('own — только сам менеджер из структуры', () => {
         const scope = computeDepartmentScope(
             makeDepartments(),

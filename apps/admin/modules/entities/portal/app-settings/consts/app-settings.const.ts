@@ -19,6 +19,7 @@ export const APP_SETTINGS_TEXT = {
     saving: 'Сохранение…',
     empty: 'У приложения пока нет настроек.',
     defaultHint: 'По умолчанию',
+    foreignOptionHint: '(не из справочника)',
     resetToDefault: 'Сбросить на значение по умолчанию',
     loadError: 'Не удалось загрузить настройки приложений',
     searchPlaceholder: 'Поиск: название, код или описание настройки',

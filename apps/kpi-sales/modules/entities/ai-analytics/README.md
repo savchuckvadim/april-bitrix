@@ -51,7 +51,8 @@ HTTP-ошибки (403 «план дня выключен», 403 «вне пер
 
 - `ai-analytics-thunks.shared.ts` — экземпляр helper, тайминги
   (`AI_POLL_INTERVAL_MS`, `AI_QUEUED_TIMEOUT_MS`, `AI_QUEUED_MAX_ATTEMPTS`),
-  `selectAiRequester`, `selectAiIsLeader` (`department.isHeadManager`);
+  `selectAiRequester`, `selectAiIsLeader` (по `currentUser.headOf`; периметр
+  рядового с `headOfSource=portal_default` руководителем его не делает);
 - `ai-analytics-sync.thunks.ts` — `loadSection` (общий загрузчик: ключ =
   requester + `extra`, гард дублей, опрос при queued), settings / pulse /
   agenda, **`fetchAiDailyPlan({ managerId, date? }, force?)`** (гейт

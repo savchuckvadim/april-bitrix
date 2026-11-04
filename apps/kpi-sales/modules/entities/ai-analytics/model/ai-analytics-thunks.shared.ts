@@ -36,8 +36,10 @@ export const selectAiRequester = (state: RootState): AiRequester | null => {
 
 /**
  * Эффективный пользователь — руководитель (суперюзер или любой headOf по
- * структуре): периметр структуры уже посчитан department-слайсом. Нужен
- * ручкам «только руководителям» (rop-mark/pick), чтобы не ловить 403.
+ * структуре/спискам). Нужен ручкам «только руководителям» (rop-mark/pick),
+ * чтобы не ловить 403. Считается по headOf, не по isHeadManager: периметр
+ * рядового может быть расширен портальной настройкой (portal_default), а
+ * бэк AI-аналитики такого сотрудника по-прежнему считает менеджером.
  */
 export const selectAiIsLeader = (state: RootState): boolean =>
-    state.department.isHeadManager;
+    (state.department.currentUser?.headOf ?? null) !== null;

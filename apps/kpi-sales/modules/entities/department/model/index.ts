@@ -22,7 +22,12 @@ export type DepartmentUserDto = BXUserDto;
 export type DepartmentHeadType = BxCurrentUserDtoHeadOf;
 /** Уровень видимости: own — только себя; group — своя группа; department — свой ОП; all — вся структура. */
 export type VisibilityLevel = BxCurrentUserDtoVisibility;
-/** Источник роли: структура Битрикса, настройка портала «Отдел продаж» или суперпользователь вендора (superuser). */
+/**
+ * Источник роли: структура Битрикса (structure), списки настройки «Отдел
+ * продаж» (settings), портальный уровень для рядовых (portal_default —
+ * периметр шире headOf, рядовой остаётся менеджером) или суперпользователь
+ * вендора (superuser).
+ */
 export type HeadOfSource = BxCurrentUserDtoHeadOfSource;
 /**
  * Текущий пользователь структуры. В снимках публичных ссылок (v: 1) полей

@@ -16,6 +16,7 @@ import type {
     PortalAppSettingDescriptor,
     PortalAppSettingValue,
 } from '../../../model';
+import { AppSettingChoiceField } from './AppSettingChoiceField';
 import { AppSettingListField } from './AppSettingListField';
 import { AppSettingUsage } from './AppSettingRelations';
 
@@ -39,7 +40,8 @@ const toTriState = (value: PortalAppSettingValue | undefined): BoolTriState =>
 
 /**
  * Одно поле настройки: тип берётся из дескриптора бэка (boolean —
- * трёхсостоянный селект, number/string — input с плейсхолдером дефолта).
+ * трёхсостоянный селект, `options` — выбор из справочника (список или одно
+ * значение), number/string — input с плейсхолдером дефолта).
  * Пустой input и «По умолчанию» = null → бэк сбрасывает ключ на дефолт.
  */
 /** Generated-тип value/default шире рантайма — нормализуем к скалярам. */
@@ -107,6 +109,15 @@ export const AppSettingField = ({
                    «ничего не выбрано». */
                 <AppSettingListField
                     options={descriptor.options}
+                    value={effective}
+                    onChange={onChange}
+                />
+            ) : descriptor.options?.length ? (
+                /* Одно значение из справочника: свободный ввод кода здесь
+                   тоже ловушка — потребитель отбросит опечатку как дефолт. */
+                <AppSettingChoiceField
+                    options={descriptor.options}
+                    defaultValue={descriptor.default}
                     value={effective}
                     onChange={onChange}
                 />

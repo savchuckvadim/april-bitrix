@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { BuildSummary } from '@/modules/features/build-summary';
+import { AcademyPickerButton } from '@/modules/features/academy-picker';
 import { AddLtPacketButton } from '@/modules/features/composition-editor';
 import { RowBuilderPanel } from '@/modules/features/row-builder';
 import { FlowSummary } from '@/modules/features/flow-summary';
@@ -23,7 +24,8 @@ export interface PriceTableWidgetProps {
 
 /**
  * Шаг «Цены» (легаси PRODUCTS): шапка (главная строка + регион), основной сет,
- * наборы «Для сравнения», мастер добавления; наполнение — у каждого товара своё,
+ * наборы «Для сравнения», мастер добавления, академия у каждого набора
+ * (она зависит от количества, которое задают здесь); наполнение — у каждого товара своё,
  * окном из карточки. Справа — итог и переход дальше. Всё про сделку приходит
  * пропсами: см. widgets/deal-price-table.
  */
@@ -60,8 +62,9 @@ export const PriceTableWidget = ({
                     </h2>
                     <SetBlock set={table.general} label="Основной блок" />
                     {table.mainRow ? (
-                        <div>
+                        <div className="flex flex-wrap gap-2">
                             <AddLtPacketButton row={table.mainRow} />
+                            <AcademyPickerButton set={table.general} />
                         </div>
                     ) : null}
                     <RowBuilderPanel />
@@ -72,12 +75,12 @@ export const PriceTableWidget = ({
                                 Для сравнения
                             </h2>
                             {table.alternative.map((set, index) => (
-                                <SetBlock
-                                    key={set.id}
-                                    set={set}
-                                    label={`Набор ${index + 1}`}
-                                    removable
-                                />
+                                <div key={set.id} className="flex flex-col gap-2">
+                                    <SetBlock set={set} label={`Набор ${index + 1}`} removable />
+                                    <div>
+                                        <AcademyPickerButton set={set} />
+                                    </div>
+                                </div>
                             ))}
                         </>
                     ) : null}

@@ -111,3 +111,44 @@ describe('selectAccessContext — суперпользователь вендо�
         expect(ctx().isSelf).toBe(false);
     });
 });
+
+describe('selectAccessContext — портальный уровень для рядовых (portal_default)', () => {
+    const lifted = () =>
+        makeStore(
+            currentUser({
+                headOf: null,
+                visibility: 'group',
+                headOfDepartmentIds: [11],
+                headOfSource: 'portal_default',
+            }),
+        );
+
+    it('остаётся рядовым: isSelf, фичи руководителя закрыты', () => {
+        const { ctx } = lifted();
+        expect(ctx().headOf).toBeNull();
+        expect(ctx().isSelf).toBe(true);
+        expect(checkAccess(EAccessFeature.FINANCE_TAB, ctx())).toBe(false);
+        expect(checkAccess(EAccessFeature.AIRTIME_TEAM, ctx())).toBe(false);
+        expect(checkAccess(EAccessFeature.PLANS_VIEW_ALL, ctx())).toBe(false);
+        expect(checkAccess(EAccessFeature.PLANS_CONFIGURE, ctx())).toBe(false);
+        expect(checkAccess(EAccessFeature.AI_VIEW_ALL, ctx())).toBe(false);
+        expect(checkAccess(EAccessFeature.AI_CONFIGURE, ctx())).toBe(false);
+    });
+
+    it('AI_TAB — только в режиме self-view, как у обычного менеджера', () => {
+        const { store, ctx } = lifted();
+        store.dispatch(
+            appActions.setFeatures({
+                aiAnalytics: true,
+                aiAnalyticsPortalEnabled: true,
+                aiAnalyticsSelfViewEnabled: false,
+            }),
+        );
+        expect(checkAccess(EAccessFeature.AI_TAB, ctx())).toBe(false);
+
+        store.dispatch(
+            appActions.setFeatures({ aiAnalyticsSelfViewEnabled: true }),
+        );
+        expect(checkAccess(EAccessFeature.AI_TAB, ctx())).toBe(true);
+    });
+});

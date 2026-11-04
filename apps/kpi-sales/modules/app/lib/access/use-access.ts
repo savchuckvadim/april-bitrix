@@ -6,7 +6,6 @@ import {
     checkAccess,
     EAccessFeature,
 } from '@/modules/shared/access';
-import { resolveVisibility } from '@/modules/entities/department/lib/utils/visibility.util';
 import type { RootState } from '../../model/store';
 import {
     selectIsRealSuperUser,
@@ -38,9 +37,11 @@ export const selectAccessContext = (state: RootState): AccessContext => {
         isRealSuperUser,
         isViewAs,
         isMulti: state.department.isMulti,
-        // Рядовой менеджер структуры: периметр «только себя».
-        isSelf:
-            currentUser !== null && resolveVisibility(currentUser) === 'own',
+        // Рядовой менеджер структуры — не руководитель. Считается по headOf,
+        // не по visibility: портальная настройка для сотрудников
+        // (headOfSource=portal_default) расширяет периметр, оставляя его
+        // менеджером — так AI_TAB в режиме self-view у него сохраняется.
+        isSelf: currentUser !== null && currentUser.headOf === null,
     };
 };
 

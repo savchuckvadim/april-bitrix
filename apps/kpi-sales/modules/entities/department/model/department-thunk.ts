@@ -40,6 +40,10 @@ export const getDepartmentStructure =
                 domain,
                 department: APP_DEP.SALES,
                 userId: Number(user.ID),
+                // Портальный уровень для рядовых (visibility_employee_default)
+                // применяется только по этому флагу — его шлёт один KPI-отчёт,
+                // «Звонки» и прочие потребители структуры его не видят.
+                applyEmployeeDefault: true,
             } as DepartmentStructureRequest);
 
             const departments = normalizeSalesDepartments(structure);

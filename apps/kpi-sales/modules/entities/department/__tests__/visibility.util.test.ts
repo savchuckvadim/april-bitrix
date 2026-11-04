@@ -46,7 +46,30 @@ describe('visibilityLabel — подпись роли в баннере «Смо
         expect(visibilityLabel(future)).toBe('менеджер');
     });
 
-    it('пометка задана для каждого источника', () => {
+    it('портальный уровень для рядовых: роль по headOf, периметр — в пометке', () => {
+        expect(
+            visibilityLabel(
+                makeCurrentUser({
+                    headOf: null,
+                    visibility: 'group',
+                    headOfDepartmentIds: [11],
+                    headOfSource: 'portal_default',
+                }),
+            ),
+        ).toBe('менеджер (видит свою группу по настройке портала)');
+        // руководителю группы дефолт «отдел» расширил периметр, роль прежняя
+        expect(
+            visibilityLabel(
+                makeCurrentUser({
+                    headOf: 'group',
+                    visibility: 'department',
+                    headOfSource: 'portal_default',
+                }),
+            ),
+        ).toBe('руководитель группы (видит свой отдел по настройке портала)');
+    });
+
+    it('пометка задана для каждого источника, кроме portal_default (собирается по уровню)', () => {
         expect(Object.keys(HEAD_OF_SOURCE_SUFFIX).sort()).toEqual([
             'settings',
             'structure',

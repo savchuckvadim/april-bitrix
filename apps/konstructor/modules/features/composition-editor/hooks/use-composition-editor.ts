@@ -3,12 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import type { RootState } from '@/modules/app';
-import {
-    academyFits,
-    academyPackagesFor,
-    getComplectRuleFlags,
-    selectCatalog,
-} from '@/modules/entities/catalog';
+import { getComplectRuleFlags, selectCatalog } from '@/modules/entities/catalog';
 import {
     applyAction,
     checkComplectWeight,
@@ -40,7 +35,7 @@ export const useCompositionEditor = (row: KRow | null) => {
     const serviceDepartment = useAppSelector(state =>
         Boolean(state.rowSet.context.serviceDepartment),
     );
-    // набор строки: срок сделки для академии и право на доп. пакеты LT
+    // набор строки: срок сделки (правило академии) и право на доп. пакеты LT
     const set = useAppSelector((state: RootState) =>
         !row
             ? null
@@ -88,23 +83,6 @@ export const useCompositionEditor = (row: KRow | null) => {
     // доп. пакеты LT — только в основном наборе (легаси: у альтернатив их нет)
     const canHaveExtraLt = set?.kind === 'general';
 
-    const currentAcademy = composition?.academy
-        ? (catalog.academy.find(pkg => pkg.code === composition.academy) ?? null)
-        : null;
-    const academy = {
-        termMonths,
-        /** Пакеты под срок сделки; текущий остаётся в списке, даже если уже не подходит */
-        options: [
-            ...academyPackagesFor(catalog, termMonths),
-            ...(currentAcademy && termMonths !== null && !academyFits(currentAcademy, termMonths)
-                ? [currentAcademy]
-                : []),
-        ],
-        current: currentAcademy,
-        currentFits:
-            !currentAcademy || termMonths === null || academyFits(currentAcademy, termMonths),
-    };
-
     const writeComposition = (next: NonNullable<KRow['composition']>) => {
         if (!row) return;
         dispatch(
@@ -151,7 +129,6 @@ export const useCompositionEditor = (row: KRow | null) => {
         view,
         ltPackets,
         canHaveExtraLt,
-        academy,
         /** СТАР встроен в комплект и не переключается */
         starLocked: Boolean(complect && getComplectRuleFlags(complect).withStar),
         freeMode: composition?.mode === 'free',

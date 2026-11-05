@@ -5,6 +5,7 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
+import type { ContractSpecificationLtPacketDto } from './contractSpecificationLtPacketDto';
 
 export interface ContractSpecificationLtDto {
     /** Бесплатный пакет LT в комплекте (название) */
@@ -15,4 +16,6 @@ export interface ContractSpecificationLtDto {
     paidPacket: string;
     /** Сервисы платного пакета LT */
     paidServices: string[];
+    /** Платные пакеты LT по отдельности: у каждого своя пара строк спецификации. Без поля — один пакет из paidPacket/paidServices (легаси) */
+    paidPackets?: ContractSpecificationLtPacketDto[];
 }

@@ -10,8 +10,9 @@ const titleOf = (packet: LtPacketView): string => (packet.package ? ltPackageNam
  * Legal Tech договора и отчёта о поставке (легаси getPaymentPacketsString):
  * бесплатная часть комплекта и все собранные платные пакеты. Названия пакетов
  * каталожные: своё имя менеджера — для строк цен, в договор идёт имя товара.
- * Один платный пакет — состав списком сервисов; несколько — по строке на пакет,
- * иначе не видно, какой сервис куда входит.
+ * `paidPackets` — каждый платный пакет со своим составом: из них бэк строит по
+ * паре строк спецификации на пакет. `paidPacket`/`paidServices` — прежняя
+ * склейка в одну строку для бэка, который списка ещё не знает.
  */
 export const buildContractLt = (
     catalog: Catalog,
@@ -34,5 +35,6 @@ export const buildContractLt = (
             paid.length > 1
                 ? paid.map(packet => `${titleOf(packet)}: ${namesOf(packet).join(', ')}`)
                 : paid.flatMap(namesOf),
+        paidPackets: paid.map(packet => ({ name: titleOf(packet), services: namesOf(packet) })),
     };
 };

@@ -30,6 +30,8 @@ export interface ClientCard {
     /** null — поля нет на портале (не рисуем). */
     prospect: (ClientChoice & { current: ProspectCode | null }) | null;
     status: (ClientChoice & { currentName: string | null }) | null;
+    /** Тип клиента (op_client_type компании); null — поля нет на портале. */
+    clientType: (ClientChoice & { currentName: string | null }) | null;
     /** undefined — поля нет на портале; null — поле есть, ИНН не заполнен. */
     inn: string | null | undefined;
 }
@@ -58,7 +60,8 @@ const readChoice = (
 
 /**
  * Карточка клиента для шапки — те же данные, что у шапки «Звонков»:
- * компания (ссылка на карточку CRM), сделка, прогноз, статус клиента, ИНН.
+ * компания (ссылка на карточку CRM), сделка, прогноз, статус клиента, тип
+ * клиента, ИНН.
  * Поля резолвятся по pbx-коду через слепок портала (доктрина
  * docs/pbx-fields-system.md); поля нет на портале — блок не показывается.
  */
@@ -71,6 +74,9 @@ export const resolveClientCard = (input: ClientCardInput): ClientCard => {
         : null;
     const status = raw
         ? readChoice(companyFields, raw, CLIENT_CHOICE_CODE.status)
+        : null;
+    const clientType = raw
+        ? readChoice(companyFields, raw, CLIENT_CHOICE_CODE.clientType)
         : null;
     const innValue = raw
         ? readFieldValue(companyFields, raw, CLIENT_INN_CODE)
@@ -99,6 +105,7 @@ export const resolveClientCard = (input: ClientCardInput): ClientCard => {
               }
             : null,
         status,
+        clientType,
         inn: hasInnField
             ? typeof innValue === 'string' && innValue.trim()
                 ? innValue.trim()

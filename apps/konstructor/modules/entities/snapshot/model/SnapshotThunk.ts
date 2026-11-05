@@ -110,6 +110,7 @@ export const restoreSnapshotRecord =
             snapshotActions.restored({
                 warnings: restored.warnings,
                 templateId: restored.templateId,
+                rqId: restored.rqId,
             }),
         );
     };
@@ -136,6 +137,7 @@ export const buildCurrentSnapshotV2 = (
             general,
             alternative,
             templateId: state.snapshot.templateId,
+            rqId: state.snapshot.rqId,
         },
         dealId,
         domain,

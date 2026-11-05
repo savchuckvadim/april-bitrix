@@ -16,8 +16,8 @@ import {
     initPortal,
 } from '@/modules/entities/portal';
 import { restoreSnapshot, snapshotActions } from '@/modules/entities/snapshot';
-import { bxrqActions, fetchBXRQ, RQ_TYPE } from '@/modules/entities/bx-rq';
-import { getDealClientType } from '@/modules/entities/deal';
+import { bxrqActions, fetchBXRQ } from '@/modules/entities/bx-rq';
+import { selectClientTypeOrDefault } from '@/modules/entities/deal';
 import { fetchLibraryRights } from '@/modules/entities/library';
 import { wordTemplateAC, wordTemplatePdfPreviewAC } from '@/modules/entities/offer-template-word';
 import { offerDocumentActions } from '@/modules/entities/offer-document';
@@ -187,8 +187,10 @@ function setupOpenVariantSyncListener(
 
 /**
  * Реквизиты компании: грузятся с нашего бэка, как только известна компания
- * (setAppData); когда реквизиты и портал на месте — выбирается набор по типу
- * клиента из pbx-поля сделки (op_client_type), без него — организация.
+ * (setAppData). Набор по типу клиента (op_client_type компании из шапки,
+ * затем сделки, без него — организация) пересчитывается, когда пришли
+ * реквизиты или портал, сменился тип в шапке или восстановился слепок с
+ * выбранным реквизитом. Выбор реквизита уходит в слепок (rqId).
  */
 function setupRqListener(listenerMiddleware: ListenerMiddlewareInstance) {
     typed(listenerMiddleware)({
@@ -200,16 +202,36 @@ function setupRqListener(listenerMiddleware: ListenerMiddlewareInstance) {
         },
     });
     typed(listenerMiddleware)({
-        matcher: isAnyOf(bxrqActions.setFetched, initPortal.fulfilled),
+        matcher: isAnyOf(
+            bxrqActions.setFetched,
+            initPortal.fulfilled,
+            appActions.patchCompany,
+            snapshotActions.restored,
+        ),
         effect: (_action, listenerApi) => {
             const state = listenerApi.getState();
             if (!state.bxrq.rqs) return;
-            const clientType =
-                getDealClientType(
-                    state.portal.current?.bitrixDeal ?? undefined,
-                    state.app.bitrix.deal ?? undefined,
-                ) ?? RQ_TYPE.ORGANIZATION;
-            listenerApi.dispatch(bxrqActions.setCurrentRqItems({ clientType }));
+            listenerApi.dispatch(
+                bxrqActions.setCurrentRqItems({
+                    clientType: selectClientTypeOrDefault(state),
+                    currentRqId: state.snapshot.rqId ?? undefined,
+                }),
+            );
+        },
+    });
+    typed(listenerMiddleware)({
+        matcher: isAnyOf(
+            bxrqActions.setCurrentRqItems,
+            bxrqActions.setCurrentItem,
+            bxrqActions.saveBaseCreating,
+        ),
+        effect: (_action, listenerApi) => {
+            const state = listenerApi.getState();
+            const id = state.bxrq.current.item?.bx_id ?? 0;
+            const next = id > 0 ? id : null;
+            if (next !== state.snapshot.rqId) {
+                listenerApi.dispatch(snapshotActions.setRqId(next));
+            }
         },
     });
 }

@@ -1,210 +1,85 @@
 'use client';
 
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@workspace/ui/components/card';
+import { Copy, Edit2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
-import { BxRqEditModal } from './BxRqEditModal';
-import { BX_ADDRESS_TYPE, RQ_TYPE, type AddressTypeId } from '../model/types';
-import { isFieldsEmpty } from '../lib/field-items-util';
-import { useBxRqEditAddress } from '../lib/hooks/use-bx-rq';
-import { Edit2, Copy, CheckCircle } from 'lucide-react';
 import { useApp } from '@/modules/app/lib/hooks/app';
 import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
+import { BxRqEditModal } from './BxRqEditModal';
+import { RqFillBadge } from './RqFillBadge';
+import { RqFieldValue } from './RqFieldValue';
+import { BX_ADDRESS_TYPE } from '../model/types';
+import { isFieldsEmpty } from '../lib/field-items-util';
+import { addressTitle } from '../lib/address-util';
+import { useBxRqEditAddress } from '../lib/hooks/use-bx-rq';
 
-interface BxRqAddressEditProps {
-    // addresses: AddressRqItem[]
-    // // currentClientType: RQ_TYPE
-    // onSave: (typeId: BX_ADDRESS_TYPE, fields: RqItem[]) => void
-    // onCopy: (fromTypeId: BX_ADDRESS_TYPE, toTypeId: BX_ADDRESS_TYPE) => void
-    // onCancel: () => void
-    // isLoading?: boolean
-}
+/** Откуда копировать пустой адрес: из другого адреса реквизита. */
+const copySourceOf = (typeId: BX_ADDRESS_TYPE): BX_ADDRESS_TYPE =>
+    typeId === BX_ADDRESS_TYPE.PRIMARY ? BX_ADDRESS_TYPE.REGISTERED : BX_ADDRESS_TYPE.PRIMARY;
 
-export const BxRqAddressEdit = ({}: BxRqAddressEditProps) => {
-    // const [editingTypeId, setEditingTypeId] = useState<BX_ADDRESS_TYPE | null>(null)
-    // const [editedFields, setEditedFields] = useState<Record<BX_ADDRESS_TYPE, RqItem[]>>({} as Record<BX_ADDRESS_TYPE, RqItem[]>)
+/** Адреса текущего реквизита: юридический и фактический, правка и копирование. */
+export const BxRqAddressEdit = () => {
     const { domain, companyId } = useApp();
-    const { clientType } = useClientType();
-    const {
-        addresses,
-        percent,
-        registredPercent,
-        primaryPercent,
-        creating,
-        isCreatingLoading,
-
-        initAddressCreating,
-        cancelAddressCreating,
-        saveAddress,
-        initCopyAddressCreating,
-        setAddressProp,
-    } = useBxRqEditAddress();
-
-    const handleFieldChange = (
-        typeId: BX_ADDRESS_TYPE,
-        code: string,
-        value: string,
-    ) => {
-        setAddressProp(code, value);
-    };
-
-    const handleSave = (typeId: BX_ADDRESS_TYPE) => {
-        // const fields = editedFields[typeId] || addresses.find(addr => addr.type_id === typeId)?.fields || []
-        // onSave(typeId, fields)
-        // setEditingTypeId(null)
-        saveAddress(
-            domain,
-            companyId,
-            clientType as RQ_TYPE,
-            typeId,
-        );
-    };
-
-    const handleCancel = () => {
-        cancelAddressCreating();
-    };
-
-    const handleEdit = (typeId: BX_ADDRESS_TYPE) => {
-        initAddressCreating(typeId);
-    };
-
-    const handleCopy = (toTypeId: AddressTypeId) => {
-        // fromTypeId: BX_ADDRESS_TYPE,
-        initCopyAddressCreating(toTypeId);
-    };
-
-    const getAddressDisplayName = (typeId: BX_ADDRESS_TYPE) => {
-        switch (typeId) {
-            case BX_ADDRESS_TYPE.PRIMARY:
-                return 'Фактический адрес';
-            case BX_ADDRESS_TYPE.REGISTERED:
-                return 'Юридический адрес';
-            case BX_ADDRESS_TYPE.REGISTERED_FIZ:
-                return 'Адрес прописки';
-            default:
-                return 'Адрес';
-        }
-    };
-
-    const getSourceTypeForCopy = (typeId: BX_ADDRESS_TYPE) => {
-        switch (typeId) {
-            case BX_ADDRESS_TYPE.PRIMARY:
-                return BX_ADDRESS_TYPE.REGISTERED;
-            case BX_ADDRESS_TYPE.REGISTERED:
-                return BX_ADDRESS_TYPE.PRIMARY;
-            default:
-                return BX_ADDRESS_TYPE.REGISTERED;
-        }
-    };
+    const { resolved: clientType } = useClientType();
+    const address = useBxRqEditAddress();
 
     return (
         <div className="space-y-4">
-            {addresses.map(address => {
-                const isEmpty = isFieldsEmpty(address.fields);
-
-                const otherIsFull = addresses.some(
-                    otherAddress =>
-                        otherAddress.type_id !== address.type_id &&
-                        !isFieldsEmpty(otherAddress.fields),
+            {address.addresses.map(item => {
+                const isEmpty = isFieldsEmpty(item.fields);
+                const otherIsFull = address.addresses.some(
+                    other => other.type_id !== item.type_id && !isFieldsEmpty(other.fields),
                 );
-                const sourceType = getSourceTypeForCopy(address.type_id);
-                const canCopy = otherIsFull && isEmpty;
-                const addressPercent = //getAddressFillPercent([address]);
-                    address.type_id === BX_ADDRESS_TYPE.REGISTERED
-                        ? registredPercent
-                        : primaryPercent;
+                const percent =
+                    item.type_id === BX_ADDRESS_TYPE.REGISTERED
+                        ? address.registredPercent
+                        : address.primaryPercent;
+                const title = addressTitle(item.type_id, clientType);
                 return (
-                    <Card key={address.type_id}>
+                    <Card key={item.type_id}>
                         <CardHeader>
                             <CardTitle className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span
-                                        className={
-                                            isEmpty ? 'text-red-500' : ''
-                                        }
-                                    >
-                                        {getAddressDisplayName(address.type_id)}
-                                    </span>
-                                    {!isEmpty && (
-                                        <Badge
-                                            variant="secondary"
-                                            className={
-                                                addressPercent > 75
-                                                    ? 'bg-green-500'
-                                                    : addressPercent > 20
-                                                      ? 'bg-yellow-500'
-                                                      : 'bg-red-500'
-                                            }
-                                        >
-                                            Заполнено {addressPercent}%
-                                        </Badge>
-                                    )}
-                                    {isEmpty && (
-                                        <Badge variant="destructive">
-                                            Не заполнено
-                                        </Badge>
+                                    <span className={isEmpty ? 'text-destructive' : ''}>{title}</span>
+                                    {isEmpty ? (
+                                        <Badge variant="destructive">Не заполнено</Badge>
+                                    ) : (
+                                        <RqFillBadge percent={percent} />
                                     )}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    {canCopy && (
+                                    {otherIsFull && isEmpty ? (
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            // onClick={() => handleCopy(sourceType, address.type_id)}
-                                            onClick={() =>
-                                                handleCopy(address.type_id)
-                                            }
-                                            disabled={isCreatingLoading}
-                                            title={`Скопировать из ${getAddressDisplayName(sourceType)}`}
+                                            onClick={() => address.initCopyAddressCreating(item.type_id)}
+                                            disabled={address.isCreatingLoading}
+                                            title={`Скопировать из «${addressTitle(copySourceOf(item.type_id), clientType)}»`}
                                         >
                                             <Copy className="h-4 w-4" />
                                         </Button>
-                                    )}
+                                    ) : null}
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() =>
-                                            handleEdit(address.type_id)
-                                        }
-                                        disabled={isCreatingLoading}
+                                        onClick={() => address.initAddressCreating(item.type_id)}
+                                        disabled={address.isCreatingLoading}
                                     >
-                                        <Edit2 className="h-4 w-4 mr-2" />
+                                        <Edit2 className="mr-2 h-4 w-4" />
                                         {isEmpty ? 'Добавить' : 'Редактировать'}
                                     </Button>
                                 </div>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {!isEmpty ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {address.fields.map(field => (
-                                        <div
-                                            key={field.code}
-                                            className="space-y-1"
-                                        >
-                                            <label className="text-sm text-muted-foreground">
-                                                {field.name}
-                                            </label>
-                                            <div className="text-sm font-medium">
-                                                {(field.value as string) || (
-                                                    <span className="text-muted-foreground">
-                                                        Не заполнено
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                            {isEmpty ? (
+                                <p className="p-6 text-center text-muted-foreground">Адрес не заполнен</p>
                             ) : (
-                                <div className="text-center p-6">
-                                    <p className="text-muted-foreground">
-                                        Адрес не заполнен
-                                    </p>
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    {item.fields.map(field => (
+                                        <RqFieldValue key={field.code} field={field} />
+                                    ))}
                                 </div>
                             )}
                         </CardContent>
@@ -212,20 +87,25 @@ export const BxRqAddressEdit = ({}: BxRqAddressEditProps) => {
                 );
             })}
 
-            {creating && creating.fields && creating.fields.length > 0 && (
+            {address.creating ? (
                 <BxRqEditModal
-                    title={`Редактирование ${getAddressDisplayName(creating.type_id)}`}
-                    fields={creating.fields || []}
-                    isOpen={!!creating.type_id}
-                    isLoading={isCreatingLoading}
-                    onSave={() => handleSave(creating.type_id)}
-                    onCancel={handleCancel}
-                    onFieldChange={(code, value) =>
-                        handleFieldChange(creating.type_id, code, value)
+                    title={`Редактирование: ${addressTitle(address.creating.type_id, clientType)}`}
+                    fields={address.creating.fields}
+                    isOpen
+                    isLoading={address.isCreatingLoading}
+                    onSave={() =>
+                        void address.saveAddress(
+                            domain,
+                            companyId,
+                            clientType,
+                            address.creating!.type_id,
+                        )
                     }
+                    onCancel={address.cancelAddressCreating}
+                    onFieldChange={address.setAddressProp}
                     type="address"
                 />
-            )}
+            ) : null}
         </div>
     );
 };

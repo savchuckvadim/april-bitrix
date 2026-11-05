@@ -15,6 +15,8 @@ export interface RestoredState {
     general: RowSet;
     alternative: RowSet[];
     templateId: number | null;
+    /** Выбранный реквизит клиента (bx_id в Bitrix); v1 его не хранил */
+    rqId: number | null;
     /** Что не удалось смапить (для лога/телеметрии) */
     warnings: string[];
 }
@@ -32,6 +34,8 @@ export interface SnapshotV2 {
     general: RowSet;
     alternative: RowSet[];
     templateId: number | null;
+    /** Выбранный реквизит клиента; записи до 05.11.2026 поля не имеют */
+    rqId?: number | null;
     savedAt: string;
 }
 

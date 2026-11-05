@@ -5,26 +5,30 @@ import {
     getClinetTypeNameByCode,
     getRqFillPercent,
     getRqShowName,
-    RQ_TYPE,
 } from '@/modules/entities/bx-rq';
 import { missingRequisites } from '@/modules/entities/contract-document';
 import { useClientType } from '@/modules/entities/deal';
 import { ROUTE_KONSTRUCTOR, useKonstructorNavigation } from '@/modules/shared/lib/routing';
 
-/** Реквизиты клиента для договора: что выбрано, насколько заполнено, чего не хватает. */
+/**
+ * Реквизиты клиента для договора: что выбрано, насколько заполнено, чего не
+ * хватает. Тип клиента — из шапки (компания), затем сделка.
+ */
 export const useContractRequisites = () => {
     const nav = useKonstructorNavigation();
-    const { clientType } = useClientType();
+    const { clientType, resolved } = useClientType();
     const current = useAppSelector(state => state.bxrq.current.item);
     const isLoading = useAppSelector(state => state.bxrq.isLoading);
-    const type = clientType ?? RQ_TYPE.ORGANIZATION;
+    const isSaved = Boolean(current && current.bx_id > 0);
 
     return {
         isLoading,
         clientTypeName: getClinetTypeNameByCode(clientType),
-        title: current ? getRqShowName(current.fields, type) : null,
-        fill: getRqFillPercent(current, type),
-        missing: missingRequisites(clientType, current),
+        isClientTypeSet: Boolean(clientType),
+        isSaved,
+        title: isSaved && current ? getRqShowName(current.fields, resolved) : null,
+        fill: getRqFillPercent(current, resolved),
+        missing: missingRequisites(clientType, isSaved ? current : null),
         toRequisites: () => nav.to(ROUTE_KONSTRUCTOR.REQUISITES),
     };
 };

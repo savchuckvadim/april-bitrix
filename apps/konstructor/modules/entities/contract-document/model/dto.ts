@@ -18,6 +18,7 @@ export type ContractFormField = FormFieldDto;
 export type ContractSpecificationItem = ContractSpecificationItemDto;
 export type ContractSpecificationFormRequest = ContractSpecificationFormRequestDto;
 export type ContractSpecificationFormResponse = ContractSpecificationFormResponseDto;
+/** Legal Tech договора: бесплатная часть и платные пакеты (paidPackets — по пакету). */
 export type ContractLt = ContractSpecificationFormRequestDto['lt'];
 export type ContractGenerateRequest = ContractGenerateDto;
 export type ContractGenerateResponse = ContractGenerateResponseDto;

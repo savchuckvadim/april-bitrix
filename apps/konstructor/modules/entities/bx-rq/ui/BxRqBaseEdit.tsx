@@ -1,111 +1,17 @@
 'use client';
 
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@workspace/ui/components/card';
+import { Edit2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
-import { Badge } from '@workspace/ui/components/badge';
 import { BxRqEditModal } from './BxRqEditModal';
-import type { RqItem, RqRecord } from '../model/types';
-import { useBxRq, useBxRqEditBase } from '../lib/hooks/use-bx-rq';
-import { Edit2,  } from 'lucide-react';
-// import { useApp } from '@/modules/app/lib/hooks/app';
-// import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
-import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { useApp } from '@/modules/app/lib/hooks/app';
-import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
+import { RqFillBadge } from './RqFillBadge';
+import { RqFieldValue } from './RqFieldValue';
+import { useBaseCard } from '../lib/hooks/use-base-card';
 
-interface BxRqBaseEditProps {
-    rq: RqRecord;
-    fields: RqItem[];
-    isEmpty: boolean;
-    // currentClientType: RQ_TYPE
-    // contractType: CONTRACT_LTYPE
-    // supplyType: SupplyTypesType
-    onSave: (fields: RqItem[]) => void;
-    onCancel: () => void;
-    isLoading?: boolean;
-    percent: number;
-}
-
-export const BxRqBaseEdit = ({
-    // rq,
-    fields,
-    isEmpty,
-    percent,
-    // currentClientType,
-    // contractType,
-    // supplyType,
-    // onSave,
-    // onCancel,
-    // isLoading = false
-}: BxRqBaseEditProps) => {
-
-    const {
-        creating,
-        isCreatingLoading,
-        cancelBaseCreating,
-        initBaseCreating,
-        saveBase,
-        setBaseProp,
-        blurCase,
-        getBankCommentValue,
-    } = useBxRqEditBase();
-    // const [isEditMode, setIsEditMode] = useState(false)
-
-    const { domain, companyId } = useApp();
-    const dispatch = useAppDispatch();
-    const { clientType } = useClientType();
-    const bxrqState = useAppSelector(
-        state =>
-            state.bxrq,
-    );
-    const simpleBankComment = bxrqState.creating?.simpleBankComment ?? '';
-    const isSimpleBankCommentMode =
-        bxrqState.settings?.isSimpleBankCommentMode ?? false;
-    const saveError = bxrqState.errors?.save ?? null;
-
-    const { isLoading, current } = useBxRq();
-    const bankCommentValue = getBankCommentValue(current.item);
-    // const [editedFields, setEditedFields] = useState<RqItem[]>(creating.fields)
-    // const handleFieldChange = (code: string, value: string) => {
-    //   setEditedFields(prev =>
-    //     prev.map(field =>
-    //       field.code === code
-    //         ? { ...field, value: value as any }
-    //         : field
-    //     )
-    //   )
-    // }
-    if (!clientType) return null;
-    const handleSave = () => {
-        saveBase(domain, companyId, clientType);
-
-        //TODO: set current rq to deal
-
-        // setIsEditMode(false)
-    };
-
-    const handleCancel = () => {
-        dispatch({
-            type: 'bxrq/setSimpleBankComment',
-            payload: { value: bankCommentValue },
-        });
-        cancelBaseCreating();
-        // setIsEditMode(false)
-    };
-
-    const handleEdit = () => {
-        // setIsEditMode(true)
-        dispatch({
-            type: 'bxrq/setSimpleBankComment',
-            payload: { value: bankCommentValue },
-        });
-        initBaseCreating(clientType);
-    };
+/** Основные поля текущего реквизита: просмотр и модалка правки. */
+export const BxRqBaseEdit = () => {
+    const card = useBaseCard();
+    const busy = card.isSaving || card.isLoading;
 
     return (
         <>
@@ -114,108 +20,73 @@ export const BxRqBaseEdit = ({
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <span>Основная информация</span>
-                            {!isEmpty && (
-                                <Badge
-                                    variant="secondary"
-                                    className={
-                                        percent > 75
-                                            ? 'bg-green-500'
-                                            : percent > 20
-                                              ? 'bg-yellow-500'
-                                              : 'bg-red-500'
-                                    }
-                                >
-                                    Заполнено {percent}%
-                                </Badge>
-                            )}
+                            {!card.isEmpty ? <RqFillBadge percent={card.percent} /> : null}
                         </div>
-                        {!isEmpty && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleEdit}
-                                disabled={isCreatingLoading}
-                            >
-                                <Edit2 className="h-4 w-4 mr-2" />
+                        {!card.isEmpty ? (
+                            <Button variant="ghost" size="sm" onClick={card.startEdit} disabled={busy}>
+                                <Edit2 className="mr-2 h-4 w-4" />
                                 Редактировать
                             </Button>
-                        )}
+                        ) : null}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {!isEmpty && current.item ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {fields.map(field => (
-                                <div key={field.code} className="space-y-1">
-                                    <label className="text-sm text-muted-foreground">
-                                        {field.name}
-                                    </label>
-                                    <div className="text-sm font-medium">
-                                        {(field.value as string) || (
-                                            <span className="text-muted-foreground">
-                                                Не заполнено
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
+                    {!card.isEmpty ? (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            {card.fields.map(field => (
+                                <RqFieldValue key={field.code} field={field} />
                             ))}
-                            {isSimpleBankCommentMode && (
-                                <div className="space-y-1">
-                                    <label className="text-sm text-muted-foreground">
-                                        Прочие реквизиты
-                                    </label>
-                                    <div className="text-sm font-medium whitespace-pre-wrap break-words">
-                                        {bankCommentValue || (
-                                            <span className="text-muted-foreground">
-                                                Не заполнено
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
+                            {card.isSimpleBankCommentMode ? (
+                                <RqFieldValue
+                                    label="Прочие реквизиты"
+                                    value={card.bankComment}
+                                    multiline
+                                />
+                            ) : null}
                         </div>
                     ) : (
-                        <div className="text-center p-6">
+                        <div className="p-6 text-center">
                             <p className="text-muted-foreground">
-                                Реквизиты отсутствуют
+                                {card.isTemplate
+                                    ? 'Реквизит ещё не создан: заполните поля, и он появится в карточке компании Битрикса.'
+                                    : 'Реквизиты не заполнены'}
                             </p>
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={handleEdit}
+                                onClick={card.startEdit}
                                 className="mt-2"
-                                disabled={isCreatingLoading || isLoading}
+                                disabled={busy}
                             >
-                                <Edit2 className="h-4 w-4 mr-2" />
-                                Добавить реквизиты
+                                <Edit2 className="mr-2 h-4 w-4" />
+                                {card.isTemplate ? 'Заполнить реквизиты' : 'Добавить реквизиты'}
                             </Button>
                         </div>
                     )}
                 </CardContent>
             </Card>
 
-            {creating && creating.fields && creating.fields.length > 0 && (
+            {card.creating ? (
                 <BxRqEditModal
-                    title="Редактирование основной информации"
-                    fields={creating.fields}
-                    isOpen={!!creating}
-                    isLoading={isCreatingLoading}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
-                    onFieldChange={setBaseProp}
-                    onFieldBlur={blurCase}
-                    type="base"
-                    isSimpleBankCommentMode={isSimpleBankCommentMode}
-                    simpleBankCommentValue={simpleBankComment}
-                    onSimpleBankCommentChange={value =>
-                        dispatch({
-                            type: 'bxrq/setSimpleBankComment',
-                            payload: { value },
-                        })
+                    title={
+                        card.creating.bx_id > 0
+                            ? 'Редактирование основной информации'
+                            : 'Новый реквизит'
                     }
-                    submitError={saveError}
+                    fields={card.creating.fields}
+                    isOpen
+                    isLoading={card.isSaving}
+                    onSave={() => void card.save()}
+                    onCancel={card.cancel}
+                    onFieldChange={card.setField}
+                    onFieldBlur={card.blurField}
+                    type="base"
+                    isSimpleBankCommentMode={card.isSimpleBankCommentMode}
+                    simpleBankCommentValue={card.simpleBankComment}
+                    onSimpleBankCommentChange={card.setSimpleBankComment}
+                    submitError={card.saveError}
                 />
-            )}
+            ) : null}
         </>
     );
 };

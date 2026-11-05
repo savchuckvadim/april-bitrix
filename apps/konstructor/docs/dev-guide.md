@@ -74,7 +74,9 @@ listeners (app/model/listeners/start-store-listeners.ts):
   supply.quantityForKp (подпись КП) и contractPropSuppliesQuantity; при генерации бэк дополняет
   payload по supply.code (X-ОД — x_<type>_<n>).
   initPortal.fulfilled | providers.setFetched → applyDealProvider (поставщик из сделки сильнее настройки)
-  bxrq.setFetched | initPortal.fulfilled → setCurrentRqItems по op_client_type сделки
+  bxrq.setFetched | initPortal.fulfilled | app.patchCompany | snapshot.restored → setCurrentRqItems по типу
+  клиента (selectClientTypeOrDefault: компания → сделка → организация) и rqId слепка;
+  bxrq.setCurrentRqItems | setCurrentItem | saveBaseCreating → snapshot.setRqId
   dealId × каталог готов → restoreSnapshot → rowSet.restore
   initPortal.fulfilled × dealId × смарт вариантов → fetchComplectVariants
   initPortal.fulfilled → initServiceOffer (сервисный отдел: слепки периодов; иначе выходит сам)
@@ -98,8 +100,9 @@ save: SaveSnapshotButton → saveSnapshot thunk → serializeV2 → helper.saveS
       offerRequestBlocker(state) — текст, почему КП не собрать (нет сделки/главной строки/шаблона/поставщика).
       Договор: `entities/contract-document` buildSpecificationFormRequest (форма с бэка: общая часть + спецификация,
       тексты поставки резолвит бэк) и buildContractGenerateRequest (bxrq — текущий реквизит bx-rq через toContractBxRq,
-      regions — buildDocRegions, LT — buildContractLt); contractRequestBlocker + contractValidationErrors
-      (обязательные поля сделки contract_start/contract_end/garant_client_assigned_name + validatePushRq).
+      regions — buildDocRegions, LT — buildContractLt c paidPackets); contractRequestBlocker (домен, сделка,
+      главная строка, поставщик) — единственное, что останавливает договор. Без реквизита уходит
+      emptyContractBxRq, пустые места бэк заполняет прочерками (nullGetter docxtemplater).
       Отчёт о поставке: `entities/supply-report-document` buildSupplyFormRequest / buildSupplyReportGenerateRequest /
       buildInitSupplyRequest (bxDealItems и bxCompanyItems — EntityFormFieldDto по pbx-кодам через buildPbxEntityItems;
       видимые поля формы — visibleSupplyItems с зависимыми группами); заявка RPA — rpaStage.listForType + rpaItem.list
@@ -238,3 +241,37 @@ s.snapshot
 - Проверка: `npm run offer-pdf:audit` в `back` — рендер десяти крайних сценариев (`dev/layout-audit.scenarios.ts`)
   и аудит координат (`dev/layout-audit.ts`): наезд на шапку/подвал, выход за поля, заголовок последним на
   странице. PDF-файлы складываются в `--out`, смотреть глазами после правок шаблона.
+
+## Реквизиты клиента (bx-rq)
+
+- Бэк: `back/libs/rq-lib` (общий с `apps/rq`, форма `get_rq`/`store_rq` не менялась). Пресеты портала
+  даёт `RqPresetService`: `bx_rqs` из БД (bitrix_id там строка, в коде всегда число), без зеркала —
+  `crm.requisite.preset.list` по XML_ID, затем по имени; хардкода 1/3/5 нет (на april-garant это 2/4/6).
+  `BxRqService.getRq` возвращает реквизиты компании плюс заготовку (-1) на каждый тип и ничего не пишет
+  в Bitrix; маппер кладёт заготовку в `default` каждой группы, при пустой группе — ещё и в `items`
+  (Альфацентр узнаёт «пусто» по `items[0].bx_id === -1`). `store_rq` с `bx_id: -1` требует `preset_id`
+  портала и собирает реквизит из заготовки этого пресета; пользовательские поля (должность, основание,
+  падежи) пишутся через каталог `crm.requisite.userfield.list`.
+- Фронт `entities/bx-rq`: `startNewRecord({clientType})` — черновик из `rqs[type].default`;
+  `saveBaseCreating` добавляет новый к списку (заготовка вытесняется) и делает его текущим; адаптер при
+  старом бэке без `default` собирает шаблон из любого реквизита типа с очищенными значениями.
+  Хук карточки `lib/hooks/use-base-card.ts`; экран — `widgets/requisites` (`use-requisites`).
+- Тип клиента: `entities/deal` `resolveClientType` / `selectClientType(state)` — компания → сделка;
+  в шапке чип `clientType` (`entities/client-card`, пишет `op_client_type` компании). Все сборщики
+  документов берут тип из `selectClientType`.
+- Текущий реквизит сделки — `snapshot.rqId` (v2; v1 и старые v2 без поля — первый подходящего типа).
+
+## Спецификация договора и платные Legal Tech
+
+- Бэк строит по паре строк на каждый платный пакет: первый — легаси-коды `specification_lt_packet` /
+  `specification_lt_services` (их читают старые шаблоны), второй и дальше — `specification_lt_packet_N` /
+  `specification_lt_services_N`. Код строки в DTO — строка с проверкой `SPECIFICATION_CODE_PATTERN`.
+  Помощники — `back/apps/konstructor/src/document-generate/lib/specification-lt.util.ts` (`readLtPaidPackets`),
+  ими пользуются договор (`legal_techs`), отчёт о поставке (`lt_packet`) и комментарий заявки RPA.
+- Запрос формы: `lt.paidPackets` (имя товара и сервисы на пакет, ContractSpecificationLtPacketDto).
+  `paidPacket`/`paidServices` остаются для легаси-клиентов (`init-form`).
+- Фронт: `selectVisibleSpecification` (сразу видно) и `selectSpecificationDetails` (активные скрытые);
+  разделы и пакеты LT — `features/contract-form/lib/specification-sections.util.ts`, UI —
+  `SpecificationDetails` (Collapsible) и `SpecificationLtPackets`.
+- Адрес клиента в договоре — только юридический (type_id 6), у физлица это прописка; `addressTitle` в
+  `entities/bx-rq/lib/address-util.ts` подписывает его на экране.

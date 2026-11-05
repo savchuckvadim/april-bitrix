@@ -126,6 +126,7 @@ export const bxrqSlice = createSlice({
             state.current.item = exists ? { ...action.payload.item } : state.current.item;
         },
 
+        /** Черновик правки текущего реквизита (или заполнения его шаблона). */
         initBaseCreating(
             state: BXRQState,
             action: PayloadAction<{ currentClientType: RQ_TYPE }>,
@@ -135,7 +136,26 @@ export const bxrqSlice = createSlice({
             base.fields = filterFieldItems(base.fields, action.payload.currentClientType);
             state.creating.base = base;
         },
-        /** Реквизит сохранён на бэке: подставить bx_id/поля и закрыть черновик. */
+        /**
+         * Черновик нового реквизита типа клиента из шаблона бэка, даже если у
+         * компании уже есть реквизиты этого типа.
+         */
+        startNewRecord(state: BXRQState, action: PayloadAction<{ clientType: RQ_TYPE }>) {
+            const type = getResolvedType(action.payload.clientType);
+            const group = state.rqs?.[type];
+            if (!group) return;
+            state.creating.base = {
+                ...group.default,
+                bx_id: -1,
+                type,
+                fields: filterFieldItems(group.default.fields, action.payload.clientType),
+            };
+            state.creating.simpleBankComment = '';
+        },
+        /**
+         * Реквизит сохранён на бэке: новый встаёт в список вместо заготовки,
+         * существующий заменяется; сохранённый становится текущим.
+         */
         saveBaseCreating(
             state: BXRQState,
             action: PayloadAction<{
@@ -144,11 +164,11 @@ export const bxrqSlice = createSlice({
             }>,
         ) {
             const { item, clientType } = action.payload;
+            const exists = state.current.items.some(rq => rq.bx_id === item.bx_id);
+            state.current.items = exists
+                ? state.current.items.map(rq => (rq.bx_id === item.bx_id ? item : rq))
+                : [...state.current.items.filter(rq => rq.bx_id > 0), item];
             state.current.item = item;
-            // новый реквизит (-1) становится созданным
-            state.current.items = state.current.items.map(rq =>
-                rq.bx_id === -1 || rq.bx_id === item.bx_id ? item : rq,
-            );
             if (state.rqs) {
                 state.rqs[getResolvedType(clientType)].items = state.current.items;
             }

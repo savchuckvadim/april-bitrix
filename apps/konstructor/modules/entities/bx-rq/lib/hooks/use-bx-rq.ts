@@ -31,6 +31,8 @@ export const useBxRq = () => {
             dispatch(fetchBXRQ(domain, companyId, currentRqId)),
         initBaseCreating: (currentClientType: RQ_TYPE) =>
             dispatch(bxrqActions.initBaseCreating({ currentClientType })),
+        startNewRecord: (clientType: RQ_TYPE) =>
+            dispatch(bxrqActions.startNewRecord({ clientType })),
         setCurrent: (item: RqRecord) => dispatch(bxrqActions.setCurrentItem({ item })),
         saveBase: (domain: string, companyId: number, currentClientType: RQ_TYPE) =>
             dispatch(saveBXRQ(domain, companyId, currentClientType)),
@@ -53,6 +55,8 @@ export const useBxRqEditBase = () => {
         getBankCommentValue,
         initBaseCreating: (currentClientType: RQ_TYPE) =>
             dispatch(bxrqActions.initBaseCreating({ currentClientType })),
+        startNewRecord: (clientType: RQ_TYPE) =>
+            dispatch(bxrqActions.startNewRecord({ clientType })),
         cancelBaseCreating: () => dispatch(bxrqActions.cancelBaseCreating()),
         setSimpleBankCommentMode: (enabled: boolean) =>
             dispatch(bxrqActions.setSimpleBankCommentMode({ enabled })),

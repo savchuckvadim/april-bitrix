@@ -3,7 +3,7 @@ import type { RootState } from '@/modules/app/model/store';
 import { IS_PROD } from '@/modules/app/consts/app-global';
 import { selectCatalog } from '../../catalog';
 import { selectComposition, selectVariantStageOf } from '../../complect-variant';
-import { getDealClientType } from '../../deal';
+import { selectClientType } from '../../deal';
 import { buildOfferPayload, type OfferGenerateRequest } from '../../document-payload';
 import { findMainRow } from '../../row-set';
 import { toOfferClientType } from './client-type.util';
@@ -33,7 +33,7 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
     if (!dealId || !template || !provider) return null;
 
     const clientType = toOfferClientType(
-        getDealClientType(state.portal.current?.bitrixDeal ?? undefined, bitrix.deal ?? undefined),
+        selectClientType(state),
     );
 
     return buildOfferPayload({

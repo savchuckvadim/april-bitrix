@@ -8,7 +8,6 @@ import {
     buildContractGenerateRequest,
     buildSpecificationFormRequest,
     contractRequestBlocker,
-    contractValidationErrors,
 } from '../lib/build-contract-request';
 import { toBitrixDate } from '../lib/contract-validation';
 import { contractDocumentActions } from './ContractDocumentSlice';
@@ -104,20 +103,16 @@ export const saveContractDealField =
     };
 
 /**
- * «Сформировать договор»: обязательные поля и реквизиты → слепок сделки →
- * contract/generate (DOCX + комментарий в таймлайн). Ссылка — в состоянии;
- * во фрейме экран уводит в сделку.
+ * «Сформировать договор»: слепок сделки → contract/generate (DOCX +
+ * комментарий в таймлайн). Незаполненные поля и реквизиты не останавливают:
+ * на их месте бэк ставит прочерки (решение владельца 05.11.2026).
+ * Ссылка — в состоянии; во фрейме экран уводит в сделку.
  */
 export const generateContract = (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
     const state = getState();
     const blocker = contractRequestBlocker(state);
     if (blocker) {
         dispatch(contractDocumentActions.generateFailed(blocker));
-        return false;
-    }
-    const errors = contractValidationErrors(state);
-    if (errors.length) {
-        dispatch(contractDocumentActions.generateFailed(`Не заполнено: ${errors.join(', ')}`));
         return false;
     }
     const request = buildContractGenerateRequest(state);

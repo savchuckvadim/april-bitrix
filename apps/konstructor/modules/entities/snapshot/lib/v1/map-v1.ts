@@ -484,6 +484,7 @@ export const mapV1 = (parsed: V1Parsed, catalog: Catalog): RestoredState => {
         general,
         alternative,
         templateId: parsed.templateId,
+        rqId: null,
         warnings,
     };
 };

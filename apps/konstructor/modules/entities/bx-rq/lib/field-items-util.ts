@@ -8,6 +8,7 @@ import {
     type RqRecord,
 } from '../model/types';
 import { getResolvedType } from './rq-util';
+import { addressTitle } from './address-util';
 
 /** Активные поля нужного типа клиента (ИНН — всегда), по порядку. */
 export const filterFieldItems = (
@@ -99,13 +100,19 @@ export const validatePushRq = (
             .filter(field => codes.includes(field.code) && !field.value)
             .map(field => field.name);
 
+    // адрес и банк — одной строкой каждый: «Юридический адрес: Город, Улица»
+    const grouped = (title: string, gaps: string[]) =>
+        gaps.length ? [`${title}: ${gaps.join(', ')}`] : [];
+
     return [
         ...missing(
             rq.fields.filter(field => field.includes.includes(resolvedType)),
             PUSH_BASE_CODES,
         ),
-        ...rq.address.items.flatMap(ad => missing(ad.fields, PUSH_ADDRESS_CODES)),
-        ...missing(rq.bank.current?.fields ?? [], PUSH_BANK_CODES),
+        ...rq.address.items.flatMap(ad =>
+            grouped(addressTitle(ad.type_id, currentClientType), missing(ad.fields, PUSH_ADDRESS_CODES)),
+        ),
+        ...grouped('Банк', missing(rq.bank.current?.fields ?? [], PUSH_BANK_CODES)),
     ];
 };
 

@@ -1,14 +1,20 @@
-import { useAppSelector } from '@/modules/app';
-import { usePortal } from '@/modules/entities/portal';
-import { getDealClientType } from '../utils/get-deal-client-type.util';
+'use client';
 
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { DEFAULT_CLIENT_TYPE } from '../utils/get-deal-client-type.util';
+import { selectResolvedClientType } from '../utils/select-client-type.util';
+
+/**
+ * Тип клиента: компания (чип в шапке) → сделка. `clientType` — null, когда
+ * нигде не задан; `resolved` — тот же тип с фолбэком «организация» для
+ * реквизитов и документов.
+ */
 export const useClientType = () => {
-    const { portalDeal } = usePortal();
-    const deal = useAppSelector(state => state.app.bitrix.deal);
-
-    const clientType = getDealClientType(portalDeal ?? undefined, deal ?? undefined);
+    const resolved = useAppSelector(selectResolvedClientType);
 
     return {
-        clientType,
+        clientType: resolved.type,
+        resolved: resolved.type ?? DEFAULT_CLIENT_TYPE,
+        source: resolved.source,
     };
 };

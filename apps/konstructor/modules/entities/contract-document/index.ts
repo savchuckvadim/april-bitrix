@@ -17,7 +17,6 @@ export {
     buildContractGenerateRequest,
     buildSpecificationFormRequest,
     contractRequestBlocker,
-    contractValidationErrors,
 } from './lib/build-contract-request';
 export { buildContractLt } from './lib/contract-lt.util';
 export { buildDocRegions } from './lib/doc-regions.util';

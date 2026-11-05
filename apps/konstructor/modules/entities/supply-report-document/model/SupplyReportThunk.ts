@@ -130,7 +130,7 @@ export const generateSupplyReport = (): AppThunk<Promise<boolean>> => async (dis
     }
     const errors = supplyReportValidationErrors(state);
     if (errors.length) {
-        dispatch(supplyReportActions.generateFailed(`Не заполнено: ${errors.join(', ')}`));
+        dispatch(supplyReportActions.generateFailed(`Не заполнено: ${errors.join('; ')}`));
         return false;
     }
     const request = buildSupplyReportGenerateRequest(state);

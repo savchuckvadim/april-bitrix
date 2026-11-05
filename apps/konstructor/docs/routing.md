@@ -45,7 +45,7 @@
 | `/document` | шаг 4 / хаб: выбор документа | `widgets/document-hub` |
 | `/document/[kind]` | шаг 5: `offer` → `widgets/offer-document-screen` (КП: шаблон, получатель, счёт, PDF-превью, «Сформировать» → generate-multi → редирект в сделку); `contract` → `widgets/contract-document-screen` (поля сделки, реквизиты, спецификация с бэка, contract/generate); `supply-report` → `widgets/supply-report-screen` (поля сделки и поставки, форма для отдела сервиса, контакты, generate-document + init-supply/RPA) | `widgets/document-screen` |
 | `/settings` | шаблоны документов (Word) | `entities/offer-template-word` |
-| `/requisites` | реквизиты | `pages/bx-rq` |
+| `/requisites` | реквизиты клиента: выбор, новый реквизит, основные поля, адреса, банк | `widgets/requisites` (страница `pages/bx-rq` — обёртка) |
 | `/offer/**` | не используется, **не удалять** (решение владельца) | как было |
 | `/p/<token>` → `/p/<token>/params` · `complect` · `prices` | публичная версия по ссылке из админки: те же шаги без документов и Битрикса, см. [public-link.md](public-link.md) | `modules/public-app` |
 

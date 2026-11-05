@@ -25,6 +25,7 @@ export const AppHeader = () => {
                 <ClientStrip
                     prospect={client.prospect}
                     status={client.status}
+                    clientType={client.clientType}
                     inn={client.inn}
                 />
                 <ShellActions />

@@ -41,4 +41,5 @@ export const RqItemCode = {
     docNum: 'docNum',
     issued_by: 'issued_by',
     dep_code: 'dep_code',
+    base_other: 'base_other',
 } as const;

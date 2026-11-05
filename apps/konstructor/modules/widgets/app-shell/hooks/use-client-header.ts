@@ -11,8 +11,9 @@ import {
 
 /**
  * Клиент в шапке — те же блоки, что у шапки «Звонков»: компания и сделка
- * ссылками на CRM, прогноз (шкала), статус клиента (чип), ИНН. Прогноз и
- * статус правятся прямо здесь и пишутся в компанию Битрикса.
+ * ссылками на CRM, прогноз (шкала), статус и тип клиента (чипы), ИНН. Прогноз,
+ * статус и тип правятся прямо здесь и пишутся в компанию Битрикса; по типу
+ * клиента выбираются реквизиты.
  */
 export const useClientHeader = () => {
     const dispatch = useAppDispatch();
@@ -58,6 +59,14 @@ export const useClientHeader = () => {
                   options: card.status.items,
                   isLoading: pending === 'status',
                   select: (code: string) => void update('status', code),
+              }
+            : null,
+        clientType: card.clientType
+            ? {
+                  value: card.clientType.current ?? undefined,
+                  options: card.clientType.items,
+                  isLoading: pending === 'clientType',
+                  select: (code: string) => void update('clientType', code),
               }
             : null,
         inn: card.inn,

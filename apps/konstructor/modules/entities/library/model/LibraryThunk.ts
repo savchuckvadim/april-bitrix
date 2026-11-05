@@ -31,6 +31,8 @@ export const buildLibrarySnapshot = (state: RootState): LibrarySnapshotPayload |
             general,
             alternative,
             templateId: state.snapshot.templateId,
+            // заготовка живёт без сделки, реквизит клиента ей не принадлежит
+            rqId: null,
         },
         dealId: null,
         domain: state.app.domain,

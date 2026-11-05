@@ -77,6 +77,26 @@ export interface SmartDetailsResponse {
     error?: string;
 }
 
+/** Почему поле не создано: лимит полей смарта, обрыв связи, прочее. */
+export const INSTALL_FIELD_FAILURE_REASONS = [
+    'field_limit',
+    'network',
+    'other',
+] as const;
+export type InstallFieldFailureReason =
+    (typeof INSTALL_FIELD_FAILURE_REASONS)[number];
+
+/** Отказ создания одного поля — как отдаёт бэк (`fieldsFailedDetails`). */
+export interface InstallFieldFailure {
+    /** UF-имя поля. */
+    fieldName: string;
+    /** Русское название поля. */
+    title: string;
+    reason: InstallFieldFailureReason;
+    /** Описание причины словами (текст Битрикса или наш). */
+    message: string;
+}
+
 /** Результат `POST /api/admin/pbx/smarts/install-aicall`. */
 export interface InstallAicallResult {
     /** entityTypeId смарта на портале. */
@@ -89,6 +109,10 @@ export interface InstallAicallResult {
     fieldsExisting: string[];
     /** UF-имена полей, которые не удалось создать. */
     fieldsFailed: string[];
+    /** Смарт упёрся в лимит пользовательских полей Битрикс24. */
+    fieldLimitReached?: boolean;
+    /** Причина по каждому несозданному полю. */
+    fieldsFailedDetails?: InstallFieldFailure[];
 }
 
 /** Const-смарт из реестра галереи (`GET /api/admin/pbx/smarts/registry`). */

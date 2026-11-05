@@ -14,6 +14,8 @@ export interface SnapshotState {
     warnings: string[];
     /** Word-шаблон из слепка (легаси читал, но не писал — чиним асимметрию) */
     templateId: number | null;
+    /** Выбранный реквизит клиента из слепка; null — первый подходящего типа */
+    rqId: number | null;
     error: string | null;
     /** Сохранение слепка v2 (POST upsert) */
     saveStatus: SnapshotSaveStatus;
@@ -24,6 +26,7 @@ const initialState: SnapshotState = {
     status: 'idle',
     warnings: [],
     templateId: null,
+    rqId: null,
     error: null,
     saveStatus: 'idle',
     saveError: null,
@@ -42,11 +45,13 @@ const snapshotSlice = createSlice({
             action: PayloadAction<{
                 warnings: string[];
                 templateId: number | null;
+                rqId: number | null;
             }>,
         ) {
             state.status = 'restored';
             state.warnings = action.payload.warnings;
             state.templateId = action.payload.templateId;
+            state.rqId = action.payload.rqId;
         },
         none(state) {
             state.status = 'none';
@@ -74,6 +79,10 @@ const snapshotSlice = createSlice({
         setTemplateId(state, action: PayloadAction<number | null>) {
             state.templateId = action.payload;
         },
+        /** Выбор реквизита клиента → в слепок, чтобы после перезагрузки был тот же */
+        setRqId(state, action: PayloadAction<number | null>) {
+            state.rqId = action.payload;
+        },
         reset() {
             return initialState;
         },
@@ -91,6 +100,7 @@ const {
     saveFailed,
     saveReset,
     setTemplateId,
+    setRqId,
     reset,
 } = snapshotSlice.actions;
 export const snapshotActions = {
@@ -103,6 +113,7 @@ export const snapshotActions = {
     saveFailed,
     saveReset,
     setTemplateId,
+    setRqId,
     reset,
 };
 export const snapshotReducer = snapshotSlice.reducer;
@@ -117,6 +128,7 @@ export const selectSnapshotWarnings = (state: WithSnapshot) =>
     state.snapshot.warnings;
 export const selectSnapshotTemplateId = (state: WithSnapshot) =>
     state.snapshot.templateId;
+export const selectSnapshotRqId = (state: WithSnapshot) => state.snapshot.rqId;
 export const selectSnapshotRestored = (state: WithSnapshot) =>
     state.snapshot.status === 'restored';
 export const selectSnapshotSaveStatus = (state: WithSnapshot) =>

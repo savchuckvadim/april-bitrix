@@ -17,6 +17,14 @@ const fields = [
         bitrixId: 'OP_CLIENT_STATUS',
         items: [{ code: 'active', name: 'Действующий', bitrixId: 21 }],
     },
+    {
+        code: 'op_client_type',
+        bitrixId: 'OP_CLIENT_TYPE',
+        items: [
+            { code: 'commerc', name: 'Коммерческие', bitrixId: 31 },
+            { code: 'ip', name: 'ИП', bitrixId: 32 },
+        ],
+    },
     { code: 'op_inn', bitrixId: 'OP_INN', items: [] },
 ] as unknown as Fields;
 
@@ -27,6 +35,7 @@ const base: ClientCardInput = {
         TITLE: 'ООО Ромашка',
         UF_CRM_OP_PROSPECTS: '12',
         UF_CRM_OP_CLIENT_STATUS: '21',
+        UF_CRM_OP_CLIENT_TYPE: '32',
         UF_CRM_OP_INN: ' 7701234567 ',
     } as unknown as ClientCardInput['company'],
     deal: { ID: 129487 },
@@ -50,6 +59,8 @@ describe('resolveClientCard', () => {
         const card = resolveClientCard(base);
         expect(card.prospect?.current).toBe('green');
         expect(card.status?.currentName).toBe('Действующий');
+        expect(card.clientType?.current).toBe('ip');
+        expect(card.clientType?.items.map(item => item.code)).toEqual(['commerc', 'ip']);
         expect(card.inn).toBe('7701234567');
     });
 
@@ -57,6 +68,7 @@ describe('resolveClientCard', () => {
         const card = resolveClientCard({ ...base, companyFields: [] as Fields });
         expect(card.prospect).toBeNull();
         expect(card.status).toBeNull();
+        expect(card.clientType).toBeNull();
         expect(card.inn).toBeUndefined();
     });
 

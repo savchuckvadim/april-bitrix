@@ -1,7 +1,7 @@
 import type { OfferWordByTemplateGenerateDto } from '@workspace/nest-konstructor-api';
 import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
-import { getDealClientType } from '../../deal';
+import { selectClientType } from '../../deal';
 import { buildOfferPayload } from '../../document-payload';
 import { managerFromBxUser, toOfferClientType } from '../../offer-document';
 import { findMainRow } from '../../row-set';
@@ -84,7 +84,7 @@ export const buildOfferPdfGenerateRequest = (
     if (!dealId || !provider) return null;
 
     const clientType = toOfferClientType(
-        getDealClientType(state.portal.current?.bitrixDeal ?? undefined, bitrix.deal ?? undefined),
+        selectClientType(state),
     );
 
     const payload = buildOfferPayload({

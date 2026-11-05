@@ -39,6 +39,14 @@ const toBank = (item: BankRqItem): ContractBxRq['bank']['current'] => ({
     fields: item.fields.map(field => toField<BxRqBankField>(field, 'bank')),
 });
 
+/** Реквизита нет: форма BxRqDto без полей — бэк печатает прочерки на местах реквизитов клиента. */
+export const emptyContractBxRq = (): ContractBxRq => ({
+    preset_id: 0,
+    fields: [],
+    address: { items: [] },
+    bank: { current: { id: 0, fields: [] }, items: [] },
+});
+
 /**
  * Реквизит клиента для договора: текущий реквизит bx-rq → BxRqDto бэка.
  * Банка может не быть — бэк ждёт объект, отдаём пустой (id 0).

@@ -9,14 +9,15 @@ type ClientHeader = ReturnType<typeof useClientHeader>;
 export interface ClientStripProps {
     prospect: ClientHeader['prospect'];
     status: ClientHeader['status'];
+    clientType: ClientHeader['clientType'];
     inn: ClientHeader['inn'];
 }
 
 /**
- * Полоска клиента как в «Звонках»: прогноз, статус, ИНН. Поля нет на портале
- * — его блок не рисуется.
+ * Полоска клиента как в «Звонках»: прогноз, статус, тип клиента, ИНН. Поля нет
+ * на портале — его блок не рисуется.
  */
-export const ClientStrip = ({ prospect, status, inn }: ClientStripProps) => (
+export const ClientStrip = ({ prospect, status, clientType, inn }: ClientStripProps) => (
     <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
         {prospect ? <ProspectScaleBar {...prospect} /> : null}
         {status ? (
@@ -26,6 +27,16 @@ export const ClientStrip = ({ prospect, status, inn }: ClientStripProps) => (
                 disabled={status.isLoading}
                 onChange={status.select}
                 ariaLabel="Статус клиента"
+            />
+        ) : null}
+        {clientType ? (
+            <ChipSelect
+                value={clientType.value}
+                options={clientType.options}
+                disabled={clientType.isLoading}
+                onChange={clientType.select}
+                placeholder="Тип клиента"
+                ariaLabel="Тип клиента"
             />
         ) : null}
         {inn !== undefined ? <InnChip value={inn} /> : null}

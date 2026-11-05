@@ -9,11 +9,14 @@ import { useContractRequisites } from '../hooks/use-contract-requisites';
 /** Реквизиты клиента для договора: выбранный реквизит, заполненность, чего не хватает. */
 export const ContractRequisitesCard = () => {
     const rq = useContractRequisites();
+    const description = rq.isClientTypeSet
+        ? `Тип клиента: ${rq.clientTypeName} (из шапки).`
+        : `Тип клиента не задан, договор собирается как для организации. Задайте тип в шапке.`;
 
     return (
         <SectionCard
             title="Реквизиты клиента"
-            description={`Тип клиента по сделке: ${rq.clientTypeName}.`}
+            description={description}
             tone="complect"
             actions={
                 <Button variant="outline" size="sm" onClick={rq.toRequisites}>
@@ -22,7 +25,7 @@ export const ContractRequisitesCard = () => {
                 </Button>
             }
             state={rq.missing.length ? 'warning' : undefined}
-            message={rq.missing.length ? `Не заполнено: ${rq.missing.join(', ')}` : null}
+            message={rq.missing.length ? `Не заполнено: ${rq.missing.join('; ')}.` : null}
         >
             {rq.isLoading ? (
                 <p className="text-sm text-muted-foreground">Загружаю реквизиты…</p>
@@ -32,7 +35,7 @@ export const ContractRequisitesCard = () => {
                     <Badge variant="outline">заполнено {rq.fill.full}%</Badge>
                 </div>
             ) : (
-                <p className="text-sm text-muted-foreground">Реквизит не выбран — договор не собрать.</p>
+                <p className="text-sm text-muted-foreground">Реквизит не выбран.</p>
             )}
         </SectionCard>
     );

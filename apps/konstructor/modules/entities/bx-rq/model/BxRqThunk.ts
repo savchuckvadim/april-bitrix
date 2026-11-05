@@ -1,6 +1,7 @@
 import type { AppThunk } from '@/modules/app/model/store';
 import { RqHelper } from '../lib/api/rq-helper';
 import { filterFieldItems, getFullName } from '../lib/field-items-util';
+import { getResolvedType } from '../lib/rq-util';
 import {
     BANK_RQ_ITEM_CODE,
     RQ_ITEM_CODE,
@@ -94,7 +95,11 @@ const buildSimpleCommentBank = (
     return { id: currentBank && currentBank.id > 0 ? currentBank.id : -1, fields };
 };
 
-/** Сохранить черновик базовых полей (+ комментарий банка в простом режиме). */
+/**
+ * Сохранить черновик базовых полей (+ комментарий банка в простом режиме).
+ * Черновик нового реквизита — шаблон бэка с адресами и банком-заготовкой,
+ * поэтому сохранённая запись собирается из него, а не из текущего реквизита.
+ */
 export const saveBXRQ =
     (
         domain: string,
@@ -108,8 +113,7 @@ export const saveBXRQ =
         try {
             const rqsState = getState().bxrq;
             const draft = rqsState.creating.base;
-            const currentItem = rqsState.current.item;
-            if (!rqsState.rqs || !draft || !currentItem) {
+            if (!rqsState.rqs || !draft) {
                 dispatch(setCreatingLoadingStatus(false));
                 return;
             }
@@ -120,7 +124,12 @@ export const saveBXRQ =
             });
             const rqId = storedId && storedId > 0 ? storedId : draft.bx_id;
 
-            let item: RqRecord = { ...currentItem, bx_id: rqId, fields };
+            let item: RqRecord = {
+                ...draft,
+                bx_id: rqId,
+                fields,
+                type: getResolvedType(currentClientType),
+            };
 
             const simpleBankComment = rqsState.creating.simpleBankComment.trim();
             const currentBank = item.bank.current ?? item.bank.items[0] ?? null;

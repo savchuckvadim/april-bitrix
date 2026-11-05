@@ -4,10 +4,9 @@ import { Check, ExternalLink, FileSignature } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { useContractGenerate } from '../hooks/use-contract-generate';
 
-/** «Сформировать договор»: блокер, список незаполненного, результат. */
+/** «Сформировать договор»: блокер, ошибка, ссылка на результат. */
 export const ContractGenerateButton = () => {
     const generate = useContractGenerate();
-    const hint = generate.blocker ?? (generate.missing.length ? `Не заполнено: ${generate.missing.join(', ')}` : null);
 
     return (
         <div className="flex flex-col gap-2">
@@ -19,7 +18,7 @@ export const ContractGenerateButton = () => {
                 {generate.isDone ? <Check className="h-4 w-4" /> : <FileSignature className="h-4 w-4" />}
                 {generate.isGenerating ? 'Формирую…' : 'Сформировать договор'}
             </Button>
-            {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+            {generate.blocker ? <p className="text-xs text-muted-foreground">{generate.blocker}</p> : null}
             {generate.error ? <p className="text-xs text-destructive">{generate.error}</p> : null}
             {generate.isDone && generate.link ? (
                 <a

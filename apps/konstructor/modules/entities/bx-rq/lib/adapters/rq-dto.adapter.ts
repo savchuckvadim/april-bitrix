@@ -185,19 +185,63 @@ export const toRecordDto = (record: RqRecord): RqRecordDto => ({
     },
 });
 
-const EMPTY_RECORD = (type: RQ_TYPE): RqRecord => ({
-    bx_id: -1,
-    preset_id: 1,
-    fields: [],
-    address: { items: [], current: null },
-    bank: { items: [], current: null, fields: [] },
-    type,
-});
+/** Поле без значения: для шаблона нового реквизита. */
+const clearField = (field: RqItem): RqItem => {
+    switch (field.type) {
+        case 'select':
+            return { ...field, value: null };
+        case 'file':
+            return { ...field, file: undefined, value: '' };
+        default:
+            return { ...field, value: '' };
+    }
+};
 
-const fromGroupDto = (dto: RqBundleDto['org'], type: RQ_TYPE): RqGroup => ({
-    items: (dto?.items ?? []).map(item => fromRecordDto(item, type)),
-    default: dto?.default ? fromRecordDto(dto.default, type) : EMPTY_RECORD(type),
-});
+/**
+ * Шаблон нового реквизита, когда бэк его не отдал (старая сборка): любой
+ * реквизит типа с очищенными значениями. Без единого реквизита полей нет —
+ * создать нечего, и UI это говорит.
+ */
+const templateFrom = (items: RqRecord[], type: RQ_TYPE): RqRecord => {
+    const sample = items.find(item => item.bx_id > 0);
+    if (!sample) {
+        return {
+            bx_id: -1,
+            preset_id: 0,
+            fields: [],
+            address: { items: [], current: null },
+            bank: { items: [], current: null, fields: [] },
+            type,
+        };
+    }
+    const bank = sample.bank.current ?? sample.bank.items[0] ?? null;
+    return {
+        ...sample,
+        bx_id: -1,
+        fields: sample.fields.map(clearField),
+        address: {
+            items: sample.address.items.map(address => ({
+                ...address,
+                anchor_id: -1,
+                fields: address.fields.map(clearField),
+            })),
+            current: null,
+        },
+        bank: {
+            items: [],
+            current: bank ? { id: -1, fields: bank.fields.map(clearField) } : null,
+            fields: [],
+        },
+    };
+};
+
+const fromGroupDto = (dto: RqBundleDto['org'], type: RQ_TYPE): RqGroup => {
+    const items = (dto?.items ?? []).map(item => fromRecordDto(item, type));
+    return {
+        items,
+        default: dto?.default ? fromRecordDto(dto.default, type) : templateFrom(items, type),
+    };
+};
 
 export const fromBundleDto = (dto: RqBundleDto): RqBundle => ({
     [RQ_TYPE.ORGANIZATION]: fromGroupDto(dto.org, RQ_TYPE.ORGANIZATION),

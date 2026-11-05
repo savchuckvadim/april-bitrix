@@ -1,39 +1,29 @@
 import type { RootState } from '@/modules/app/model/store';
 import { resolveSupply, selectCatalog } from '../../catalog';
-import { getDealClientType } from '../../deal';
+import { selectClientType } from '../../deal';
 import { buildDocBody, toDocRows } from '../../document-payload';
 import { toOfferClientType } from '../../offer-document';
 import { findMainRow } from '../../row-set';
 import type { ContractGenerateRequest, ContractSpecificationFormRequest } from '../model/dto';
 import { CONTRACT_DEAL_FIELDS } from '../model/types';
 import { buildContractLt } from './contract-lt.util';
-import { missingDealFields, missingRequisites } from './contract-validation';
 import { buildDocRegions } from './doc-regions.util';
-import { toContractBxRq } from './to-contract-bx-rq.util';
+import { emptyContractBxRq, toContractBxRq } from './to-contract-bx-rq.util';
 
-/** Почему договор сейчас не собрать — подпись к заблокированной кнопке; null — можно. */
+/**
+ * Почему договор сейчас не собрать — подпись к заблокированной кнопке; null —
+ * можно. Реквизит клиента и обязательные поля сделки не блокируют: пустые
+ * места договора бэк заполняет прочерками (решение владельца 05.11.2026).
+ */
 export const contractRequestBlocker = (state: RootState): string | null => {
     if (!state.app.domain) return 'Приложение не инициализировано';
     if (!state.app.dealId) return 'Сначала сохраните сделку — договор прикрепляется к ней';
     if (!findMainRow(state.rowSet.general)) return 'Нет главной строки: соберите комплект';
     if (!state.documentProvider.current) return 'Выберите поставщика';
-    if (!state.bxrq.current.item) return 'Выберите реквизиты клиента';
     return null;
 };
 
-const clientTypeOf = (state: RootState) =>
-    toOfferClientType(
-        getDealClientType(state.portal.current?.bitrixDeal ?? undefined, state.app.bitrix.deal ?? undefined),
-    );
-
-/** Чего не хватает для документа: обязательные поля сделки и реквизиты (легаси validatePushRq + pushRequired). */
-export const contractValidationErrors = (state: RootState): string[] => [
-    ...missingDealFields(state.contractDocument.dealFields),
-    ...missingRequisites(
-        getDealClientType(state.portal.current?.bitrixDeal ?? undefined, state.app.bitrix.deal ?? undefined),
-        state.bxrq.current.item,
-    ),
-];
+const clientTypeOf = (state: RootState) => toOfferClientType(selectClientType(state));
 
 /**
  * Содержание договора из текущей сборки: те же легаси-формы, что у КП
@@ -81,7 +71,7 @@ export const buildContractGenerateRequest = (state: RootState): ContractGenerate
     const { domain, dealId, bitrix } = state.app;
     const provider = state.documentProvider.current;
     const rq = state.bxrq.current.item;
-    if (!content || !dealId || !provider || !rq) return null;
+    if (!content || !dealId || !provider) return null;
     const { body, catalog, composition, supply } = content;
     const { dealFields, contractNumber, specification } = state.contractDocument;
 
@@ -118,7 +108,8 @@ export const buildContractGenerateRequest = (state: RootState): ContractGenerate
         ...dealValues,
         contractNumber: contractNumber.trim(),
         clientType: clientTypeOf(state),
-        bxrq: toContractBxRq(rq),
+        // без реквизита бэк ставит прочерки во всех строках клиента
+        bxrq: rq ? toContractBxRq(rq) : emptyContractBxRq(),
         contractSpecificationState: { items: specification },
     };
 };

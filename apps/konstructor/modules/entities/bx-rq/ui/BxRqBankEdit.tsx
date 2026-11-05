@@ -1,186 +1,90 @@
 'use client';
 
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@workspace/ui/components/card';
+import { Edit2, Plus } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
+import { useApp } from '@/modules/app/lib/hooks/app';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
 import { BxRqEditModal } from './BxRqEditModal';
-import { RQ_TYPE, type BankRqItem, type RqItem } from '../model/types';
+import { RqFillBadge } from './RqFillBadge';
+import { RqFieldValue } from './RqFieldValue';
 import { isFieldsEmpty } from '../lib/field-items-util';
 import { useBxRqEditBank } from '../lib/hooks/use-bx-rq';
-import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
-import { Edit2, Plus } from 'lucide-react';
-import { useApp } from '@/modules/app/lib/hooks/app';
 
-interface BxRqBankEditProps {
-    bank: BankRqItem;
-    // onSave: (bankId: number, fields: RqItem[]) => void
-    // onCancel: () => void
-    // isLoading?: boolean
-}
-
-export const BxRqBankEdit = ({
-    bank,
-    // onSave,
-    // onCancel,
-    // isLoading = false
-}: BxRqBankEditProps) => {
-    // const [editingBankId, setEditingBankId] = useState<number | null>(null)
-    // const [editedFields, setEditedFields] = useState<Record<number, RqItem[]>>({})
-
-    // const bankItems = bank.items && bank.items.length ? bank.items : [bank.current]
-
+/** Банковские реквизиты текущего реквизита (один банк, как в легаси). */
+export const BxRqBankEdit = () => {
     const { domain, companyId } = useApp();
-    const { clientType } = useClientType();
-    const {
-        creating,
-        percent,
-        isCreatingLoading,
-        initBankCreating,
-        cancelBankCreating,
-        saveBank,
-        setBankProp,
-    } = useBxRqEditBank();
-    const handleFieldChange = (bankId: number, code: string, value: string) => {
-        setBankProp(code, value);
-    };
-
-    const handleSave = (bankId: number) => {
-        saveBank(domain, companyId, clientType ?? RQ_TYPE.ORGANIZATION);
-    };
-
-    const handleCancel = () => {
-        cancelBankCreating();
-    };
-
-    const handleEdit = (bankId: number) => {
-        initBankCreating();
-    };
-
-    const handleAddNew = () => {
-        initBankCreating();
-    };
-    const isEmpty =
-        bank && bank.fields && bank.fields.length > 0
-            ? isFieldsEmpty(bank.fields)
-            : true;
+    const { resolved: clientType } = useClientType();
+    const bank = useAppSelector(state => state.bxrq.current.item?.bank.current ?? null);
+    const edit = useBxRqEditBank();
+    const hasFields = Boolean(bank && bank.fields.length > 0);
+    const isEmpty = !bank || isFieldsEmpty(bank.fields);
 
     return (
-        <>
-            <div className="space-y-4">
-                {bank && bank.fields && bank.fields.length > 0 && (
-                    <Card key={creating?.id || 'bank-creating-card'}>
-                        <CardHeader>
-                            <CardTitle className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span
-                                        className={
-                                            isEmpty ? 'text-red-500' : ''
-                                        }
-                                    >
-                                        Банковские реквизиты
-                                    </span>
-                                    {!isEmpty && (
-                                        <Badge
-                                            variant="secondary"
-                                            className={
-                                                percent > 75
-                                                    ? 'bg-green-500'
-                                                    : percent > 20
-                                                      ? 'bg-yellow-500'
-                                                      : 'bg-red-500'
-                                            }
-                                        >
-                                            Заполнено {percent}%
-                                        </Badge>
-                                    )}
-                                    {isEmpty && (
-                                        <Badge variant="destructive">
-                                            Не заполнено
-                                        </Badge>
-                                    )}
-                                </div>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                        handleEdit(creating?.id || -1)
-                                    }
-                                    disabled={isCreatingLoading}
-                                >
-                                    <Edit2 className="h-4 w-4 mr-2" />
-                                    {isEmpty ? 'Добавить' : 'Редактировать'}
-                                </Button>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {bank.fields && bank.fields.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {bank.fields.map((field: RqItem) => (
-                                        <div
-                                            key={field.code}
-                                            className="space-y-1"
-                                        >
-                                            <label className="text-sm text-muted-foreground">
-                                                {field.name}
-                                            </label>
-                                            <div className="text-sm font-medium">
-                                                {(field.value as string) || (
-                                                    <span className="text-muted-foreground">
-                                                        Не заполнено
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-center p-6">
-                                    <p className="text-muted-foreground">
-                                        Банковские реквизиты не заполнены
-                                    </p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                )}
-
-                {bank && bank.fields && bank.fields.length === 0 && (
-                    <Card>
-                        <CardContent className="text-center p-6">
-                            <p className="text-muted-foreground mb-4">
-                                Банковские реквизиты отсутствуют
-                            </p>
+        <div className="space-y-4">
+            {hasFields && bank ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className={isEmpty ? 'text-destructive' : ''}>
+                                    Банковские реквизиты
+                                </span>
+                                {isEmpty ? (
+                                    <Badge variant="destructive">Не заполнено</Badge>
+                                ) : (
+                                    <RqFillBadge percent={edit.percent} />
+                                )}
+                            </div>
                             <Button
-                                variant="outline"
-                                onClick={handleAddNew}
-                                disabled={isCreatingLoading}
+                                variant="ghost"
+                                size="sm"
+                                onClick={edit.initBankCreating}
+                                disabled={edit.isCreatingLoading}
                             >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Добавить банковские реквизиты
+                                <Edit2 className="mr-2 h-4 w-4" />
+                                {isEmpty ? 'Добавить' : 'Редактировать'}
                             </Button>
-                        </CardContent>
-                    </Card>
-                )}
-                {creating && (
-                    <BxRqEditModal
-                        title="Редактирование банковских реквизитов"
-                        fields={creating.fields || []}
-                        isOpen={!!creating.id}
-                        isLoading={isCreatingLoading}
-                        onSave={() => handleSave(creating.id)}
-                        onCancel={handleCancel}
-                        onFieldChange={(code, value) =>
-                            handleFieldChange(creating.id, code, value)
-                        }
-                        type="bank"
-                    />
-                )}
-            </div>
-        </>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            {bank.fields.map(field => (
+                                <RqFieldValue key={field.code} field={field} />
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            ) : (
+                <Card>
+                    <CardContent className="p-6 text-center">
+                        <p className="mb-4 text-muted-foreground">Банковские реквизиты отсутствуют</p>
+                        <Button
+                            variant="outline"
+                            onClick={edit.initBankCreating}
+                            disabled={edit.isCreatingLoading || !bank}
+                        >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Добавить банковские реквизиты
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
+
+            {edit.creating ? (
+                <BxRqEditModal
+                    title="Редактирование банковских реквизитов"
+                    fields={edit.creating.fields}
+                    isOpen
+                    isLoading={edit.isCreatingLoading}
+                    onSave={() => void edit.saveBank(domain, companyId, clientType)}
+                    onCancel={edit.cancelBankCreating}
+                    onFieldChange={edit.setBankProp}
+                    type="bank"
+                />
+            ) : null}
+        </div>
     );
 };

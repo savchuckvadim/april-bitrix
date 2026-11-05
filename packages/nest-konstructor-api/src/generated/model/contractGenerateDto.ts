@@ -70,8 +70,8 @@ export interface ContractGenerateDto {
     firstPayDate?: string;
     /** Client type of the contract */
     clientType: ContractGenerateDtoClientType;
-    /** BxRQ of the contract */
-    bxrq: BxRqDto;
+    /** Реквизит клиента; без него договор печатается «рыбой» с прочерками */
+    bxrq?: BxRqDto;
     /** Contract specification state of the contract */
     contractSpecificationState: ContractSpecificationDto;
 }

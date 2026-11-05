@@ -20,6 +20,7 @@ export interface SerializeV2Input {
         | 'general'
         | 'alternative'
         | 'templateId'
+        | 'rqId'
     >;
     dealId: number | null;
     domain: string;
@@ -41,6 +42,7 @@ export const serializeV2 = (input: SerializeV2Input): SnapshotV2 => ({
     general: input.state.general,
     alternative: input.state.alternative,
     templateId: input.state.templateId,
+    rqId: input.state.rqId,
     savedAt: input.savedAt,
 });
 
@@ -53,6 +55,7 @@ export const restoreV2 = (snapshot: SnapshotV2): RestoredState => ({
     general: normalizeSet(snapshot.general),
     alternative: snapshot.alternative.map(normalizeSet),
     templateId: snapshot.templateId,
+    rqId: snapshot.rqId ?? null,
     warnings: [],
 });
 

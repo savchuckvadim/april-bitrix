@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { IS_PROD } from '@/modules/app/consts/app-global';
 import {
     contractRequestBlocker,
-    contractValidationErrors,
     generateContract,
     selectContractGenerate,
 } from '@/modules/entities/contract-document';
@@ -13,13 +12,13 @@ import {
 /**
  * «Сформировать договор»: contract/generate, затем в Битриксе — уход в
  * сделку (документ уже в таймлайне, легаси window.top.location.replace);
- * вне Битрикса — ссылка на DOCX прямо на экране.
+ * вне Битрикса — ссылка на DOCX прямо на экране. Незаполненное не блокирует:
+ * пустые места договора бэк заполняет прочерками.
  */
 export const useContractGenerate = () => {
     const dispatch = useAppDispatch();
     const generate = useAppSelector(selectContractGenerate);
     const blocker = useAppSelector(contractRequestBlocker);
-    const errors = useAppSelector(contractValidationErrors);
     const domain = useAppSelector(state => state.app.domain);
     const dealId = useAppSelector(state => state.app.dealId);
 
@@ -33,8 +32,6 @@ export const useContractGenerate = () => {
 
     return {
         blocker,
-        // подсказка до нажатия: что ещё заполнить
-        missing: errors,
         isGenerating: generate.status === 'generating',
         isDone: generate.status === 'done',
         error: generate.status === 'error' ? generate.error : null,

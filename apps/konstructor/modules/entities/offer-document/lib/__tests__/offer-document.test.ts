@@ -98,6 +98,7 @@ describe('buildVariantsPayload', () => {
                                   general: setOf(`v${id}`, complectCode),
                                   alternative: [],
                                   templateId: null,
+                                  rqId: null,
                               },
                               dealId: 1,
                               domain: 'd',

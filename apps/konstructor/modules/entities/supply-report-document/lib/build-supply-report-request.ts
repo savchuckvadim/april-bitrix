@@ -9,7 +9,7 @@ import {
     missingRequisites,
     toContractBxRq,
 } from '../../contract-document';
-import { getDealClientType } from '../../deal';
+import { selectClientType } from '../../deal';
 import { buildDocBody, toDocRows } from '../../document-payload';
 import { buildVariantsPayload, toOfferClientType } from '../../offer-document';
 import { RQ_TYPE_NAME, RQ_TYPE } from '../../bx-rq/model/types';
@@ -31,7 +31,7 @@ const CLIENT_TYPE_NAME: Record<string, string> = {
 
 const clientTypeOf = (state: RootState) =>
     toOfferClientType(
-        getDealClientType(state.portal.current?.bitrixDeal ?? undefined, state.app.bitrix.deal ?? undefined),
+        selectClientType(state),
     );
 
 /** Содержание отчёта из текущей сборки — та же легаси-форма, что у договора. */
@@ -91,7 +91,7 @@ export const supplyReportValidationErrors = (state: RootState): string[] => {
     return [
         ...missingDealFields(state.contractDocument.dealFields, SUPPLY_REPORT_DEAL_FIELDS),
         ...missingRequisites(
-            getDealClientType(state.portal.current?.bitrixDeal ?? undefined, state.app.bitrix.deal ?? undefined),
+            selectClientType(state),
             state.bxrq.current.item,
         ),
         ...missingSupplyFields(visible, state.supplyReport.files),

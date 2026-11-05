@@ -98,6 +98,7 @@ describe('ltOther в слепках', () => {
             general: upsertRow(createSet('general', 'general'), row),
             alternative: [],
             templateId: null,
+            rqId: null,
             savedAt: new Date().toISOString(),
         };
         const restored = restoreV2(snapshot);

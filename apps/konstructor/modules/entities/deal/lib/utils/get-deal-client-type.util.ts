@@ -1,18 +1,15 @@
-import { RQ_TYPE } from '@/modules/entities/bx-rq';
-import { IBXDeal } from '@bitrix/index';
-import {
-    PBXDeal,
-    PBXField,
-    PBXFieldItem,
-} from '@/modules/entities/portal';
+import { findFieldItemByBitrixId, findPortalField, readFieldValue } from '@workspace/pbx';
+import { RQ_TYPE } from '@/modules/entities/bx-rq/model/types';
+import type { PBXField } from '@/modules/entities/portal';
 
-/** Code of the pbx "Тип Клиента" field (see PBX_SALES_EVENT_FIELDS). */
+/** pbx-код поля «Тип Клиента»: оно есть у лида, компании и сделки. */
 export const CLIENT_TYPE_FIELD_CODE = 'op_client_type';
 
 /**
- * Maps an `op_client_type` enum item code to an RQ type.
- * Item codes: state=Бюджетники, commerc=Коммерческие, ip=ИП, fiz=Физ лицо,
- * layer=Адвокаты. TODO: confirm `layer` (Адвокаты) — assumed FIZ.
+ * Код значения `op_client_type` → тип реквизита. Коды значений стабильны на
+ * всех порталах (bitrixId у каждого свой): state=Бюджетники,
+ * commerc=Коммерческие, ip=ИП, fiz=Физ лицо, layer=Адвокаты (как физлицо,
+ * пока у адвокатов нет своего пресета).
  */
 const ITEM_CODE_TO_RQ_TYPE: Record<string, RQ_TYPE> = {
     state: RQ_TYPE.BUDGET,
@@ -22,68 +19,64 @@ const ITEM_CODE_TO_RQ_TYPE: Record<string, RQ_TYPE> = {
     layer: RQ_TYPE.FIZ,
 };
 
-const findClientTypeField = (portalDeal?: PBXDeal): PBXField | undefined =>
-    portalDeal?.bitrixfields?.find(
-        field => field.code === CLIENT_TYPE_FIELD_CODE,
-    );
+type PortalFields = PBXField[] | null | undefined;
+/** Сделка или компания Bitrix: интерфейсы без индексной сигнатуры тоже подходят. */
+type Entity = object | null | undefined;
 
 /**
- * Resolve the deal's client type from the portal pbx model + the bitrix deal:
- *  1. find the `op_client_type` field in the portal's installed deal fields;
- *  2. read its value off the deal — `deal[field.bitrixId]` is the selected
- *     item's (portal-specific) bitrixId, e.g. `deal["UF_CRM_879989889"] = 1345`;
- *  3. match that bitrixId against `field.items` to get the chosen item;
- *  4. map the item's stable `code` to an RQ type.
+ * Тип клиента из enumeration-поля сущности: значение в сущности — bitrixId
+ * пункта этого портала, пункт даёт стабильный код.
  */
+export const readClientType = (fields: PortalFields, entity: Entity): RQ_TYPE | null => {
+    const field = findPortalField(fields, CLIENT_TYPE_FIELD_CODE);
+    const selected = readFieldValue(
+        fields,
+        entity as Record<string, unknown> | null | undefined,
+        CLIENT_TYPE_FIELD_CODE,
+    );
+    if (!field || selected === undefined || selected === null || selected === '') return null;
+    const item = findFieldItemByBitrixId(field, String(selected));
+    return item ? (ITEM_CODE_TO_RQ_TYPE[item.code] ?? null) : null;
+};
+
+/** Тип клиента из сделки (поля сделки портала + сделка Bitrix). */
 export const getDealClientType = (
-    portalDeal?: PBXDeal,
-    deal?: IBXDeal,
-): RQ_TYPE | null => {
-    const field = findClientTypeField(portalDeal);
-    if (!field || !deal) {
-        return null;
-    }
+    portalDeal: { bitrixfields?: PBXField[] | null } | undefined,
+    deal: Entity,
+): RQ_TYPE | null => readClientType(portalDeal?.bitrixfields, deal);
 
-    const selectedBitrixId = deal[field.bitrixId];
-    if (selectedBitrixId === undefined || selectedBitrixId === null) {
-        return null;
-    }
+/** Тип клиента из компании (поля компании портала + компания Bitrix). */
+export const getCompanyClientType = (
+    portalCompany: { bitrixfields?: PBXField[] | null } | undefined,
+    company: Entity,
+): RQ_TYPE | null => readClientType(portalCompany?.bitrixfields, company);
 
-    const selectedItem = field.items?.find(
-        item => Number(item.bitrixId) === Number(selectedBitrixId),
-    );
-    if (!selectedItem) {
-        return null;
-    }
+export type ClientTypeSource = 'company' | 'deal';
 
-    return ITEM_CODE_TO_RQ_TYPE[selectedItem.code] ?? null;
-};
+export interface ResolvedClientType {
+    /** Тип клиента, если задан хоть где-то. */
+    type: RQ_TYPE | null;
+    source: ClientTypeSource | null;
+}
+
+export interface ClientTypeInput {
+    portalCompany: { bitrixfields?: PBXField[] | null } | undefined;
+    company: Entity;
+    portalDeal: { bitrixfields?: PBXField[] | null } | undefined;
+    deal: Entity;
+}
 
 /**
- * Inverse lookup: the bitrixId to write into the deal's `op_client_type` field
- * for a given RQ type (so the value can be changed). Null if absent on the portal.
+ * Откуда брать тип клиента: компания (её правит шапка, так делал легаси),
+ * затем сделка. Нигде не задан — null, потребители подставляют организацию.
  */
-export const getDealClientTypeBitrixIdByRType = (
-    portalDeal: PBXDeal | undefined,
-    type: RQ_TYPE,
-): number | null => {
-    const field = findClientTypeField(portalDeal);
-    const item = field?.items?.find(
-        listItem => ITEM_CODE_TO_RQ_TYPE[listItem.code] === type,
-    );
-    return item ? Number(item.bitrixId) : null;
+export const resolveClientType = (input: ClientTypeInput): ResolvedClientType => {
+    const fromCompany = getCompanyClientType(input.portalCompany, input.company);
+    if (fromCompany) return { type: fromCompany, source: 'company' };
+    const fromDeal = getDealClientType(input.portalDeal, input.deal);
+    if (fromDeal) return { type: fromDeal, source: 'deal' };
+    return { type: null, source: null };
 };
 
-export const getCurrentListItemByValue = (
-    list: PBXFieldItem[],
-    value: string,
-) => {
-    return list.find(item => item.name === value);
-};
-
-export const getCurrentListItemValueByBitrixId = (
-    list: PBXFieldItem[],
-    value: string | number,
-) => {
-    return list.find(item => Number(item.bitrixId) === Number(value))?.name;
-};
+/** Тип клиента для реквизитов и документов: не задан — организация. */
+export const DEFAULT_CLIENT_TYPE = RQ_TYPE.ORGANIZATION;

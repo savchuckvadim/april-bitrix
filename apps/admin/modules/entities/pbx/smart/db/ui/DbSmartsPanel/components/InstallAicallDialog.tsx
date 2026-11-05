@@ -15,6 +15,7 @@ import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { getApiErrorMessage } from '../../../../../lib/api-error';
 import { useInstallAicall } from '../../../lib/hooks';
+import { installFailureNotes } from '../../../lib/install-result';
 import type { InstallAicallResult } from '../../../model';
 
 /** Строка сводки по полям: счётчик + список UF-имён. */
@@ -42,6 +43,7 @@ function FieldsSummaryLine({
 /** Итог установки: создан ли тип и судьба каждого поля. Экспортирован для
  * реюза в `ConstInstallDialog` галереи (контракт результата тот же). */
 export function InstallResultView({ result }: { result: InstallAicallResult }) {
+    const notes = installFailureNotes(result);
     return (
         <div className="space-y-2 rounded-md border p-3 text-sm">
             <p className="font-medium">
@@ -62,6 +64,16 @@ export function InstallResultView({ result }: { result: InstallAicallResult }) {
                 fields={result.fieldsFailed}
                 tone="destructive"
             />
+            {notes.lines.length > 0 && (
+                <ul className="list-disc space-y-0.5 pl-5 text-xs text-destructive">
+                    {notes.lines.map((line) => (
+                        <li key={line}>{line}</li>
+                    ))}
+                </ul>
+            )}
+            {notes.advice && (
+                <p className="text-muted-foreground">{notes.advice}</p>
+            )}
         </div>
     );
 }

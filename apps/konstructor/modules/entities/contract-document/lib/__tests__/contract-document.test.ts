@@ -7,7 +7,7 @@ import { buildGarantRow } from '../../../row-set';
 import { buildContractLt } from '../contract-lt.util';
 import { missingDealFields, missingRequisites, toBitrixDate } from '../contract-validation';
 import { buildDocRegions } from '../doc-regions.util';
-import { toContractBxRq } from '../to-contract-bx-rq.util';
+import { emptyContractBxRq, toContractBxRq } from '../to-contract-bx-rq.util';
 
 const catalog = catalogFromOldInit(oldInit);
 const complect = catalog.complects.byCode['buh']!;
@@ -42,6 +42,19 @@ describe('buildContractLt', () => {
         ]);
     });
 
+    it('paidPackets: каждый платный пакет отдельно — для своей пары строк спецификации', () => {
+        const lt = buildContractLt(catalog, {
+            ...base,
+            ltInPacket: ['ltdisk', 'ltconnect'],
+            ltOther: [{ id: 'x', services: ['iscra'], alternativeName: 'Своё имя' }],
+        });
+        expect(lt.paidPackets).toEqual([
+            { name: nameOfPackage(2), services: [nameOf('ltdisk'), nameOf('ltconnect')] },
+            { name: nameOfPackage(2), services: [nameOf('iscra')] },
+        ]);
+        expect(buildContractLt(catalog, base).paidPackets).toEqual([]);
+    });
+
     it('несобранные пакеты в договор не идут (легаси пропускал)', () => {
         const lt = buildContractLt(catalog, {
             ...base,
@@ -72,7 +85,7 @@ describe('buildContractLt', () => {
 
     it('без LT — пусто, платного пакета нет', () => {
         const lt = buildContractLt(catalog, { ...defaultComposition(complect), lt: [] });
-        expect(lt).toEqual({ freePacket: '', freeServices: [], paidPacket: '', paidServices: [] });
+        expect(lt).toEqual({ freePacket: '', freeServices: [], paidPacket: '', paidServices: [], paidPackets: [] });
     });
 });
 
@@ -123,6 +136,15 @@ describe('toContractBxRq', () => {
         },
         bank: { items: [], current: null, fields: [] },
     };
+
+    it('без реквизита — пустая форма BxRqDto: бэк печатает прочерки', () => {
+        expect(emptyContractBxRq()).toEqual({
+            preset_id: 0,
+            fields: [],
+            address: { items: [] },
+            bank: { current: { id: 0, fields: [] }, items: [] },
+        });
+    });
 
     it('поля, адреса и банк в форме BxRqDto; банка нет — пустой объект', () => {
         const dto = toContractBxRq(record);

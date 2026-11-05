@@ -5,6 +5,7 @@
  * API приложения kpi-report-sales
  * OpenAPI spec version: 1.0
  */
+import type { AiPulseManagerExamplesDto } from './aiPulseManagerExamplesDto';
 import type { MetricDto } from './metricDto';
 
 export interface AiPulseManagerDto {
@@ -14,4 +15,6 @@ export interface AiPulseManagerDto {
     analyzed: number;
     /** Доля звонков с назначенным шагом и датой. */
     nextStepDateRate: MetricDto;
+    /** Звонки-примеры для «С кем поработать»: без даты — разобрать, с датой — образец. Поля нет — ответ из кэша до обновления. */
+    examples?: AiPulseManagerExamplesDto;
 }

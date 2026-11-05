@@ -1,6 +1,7 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import type { AdminAiFindPageParams, AiAdminPageDto } from '@workspace/nest-admin-api';
 import { AiEntity } from '../../model';
 import { AiHelper } from '../api/ai-helper';
 import { AI_LIST_CACHE_KEY } from '../../consts/ai.consts';
@@ -24,6 +25,20 @@ export const useAi = () => {
         //     updatedAt: new Date(item.updatedAt),
         // })),
 
+    });
+};
+
+/**
+ * Страница AI-записей (свежие первыми) — для списков админки: все записи
+ * разом вешали вкладку браузера (05.11.2026). Прошлая страница держится,
+ * пока грузится следующая.
+ */
+export const useAiPage = (params: AdminAiFindPageParams, enabled = true) => {
+    return useQuery<AiAdminPageDto, Error>({
+        queryKey: [AI_LIST_CACHE_KEY, 'page', params],
+        queryFn: async () => helper.page(params),
+        placeholderData: keepPreviousData,
+        enabled,
     });
 };
 

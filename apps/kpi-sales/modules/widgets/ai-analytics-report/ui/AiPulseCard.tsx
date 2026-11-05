@@ -1,7 +1,7 @@
 'use client';
 
 import { HintTooltip, SectionCard } from '@workspace/april-ui';
-import { useAppSelector } from '@/modules/app';
+import { selectIsRealSuperUser, useAppSelector } from '@/modules/app';
 import {
     AI_FEEDBACK_OBJECT,
     AI_PULSE_TEXT,
@@ -12,8 +12,9 @@ import { useAiSection } from '../hooks/use-ai-section';
 import { AiSectionState } from './components/AiSectionState';
 import { AiFeedbackButtons } from './components/AiFeedbackButtons';
 import { AiTheoryLink } from './components/AiTheoryLink';
+import { AiPulseCoach } from './components/AiPulseCoach';
 import { AiPulseHeadline } from './components/AiPulseHeadline';
-import { AiPulseManagersTable } from './components/AiPulseManagersTable';
+import { AiPulseSummary } from './components/AiPulseSummary';
 import { AiPulseAlertsList } from './components/AiPulseAlertsList';
 
 interface AiPulseCardProps {
@@ -24,15 +25,18 @@ interface AiPulseCardProps {
 const T = AI_PULSE_TEXT;
 
 /**
- * «Пульс» — дисциплина «следующий шаг с датой» за окно 5 рабочих дней
- * (не зависит от периода отчёта): цифра с объёмом и интервалом,
- * стабильность по дням, окно, доля коротких звонков, строки менеджеров и
- * сигналы руководителю (фильтр «Не отработано / Все», свёрнутый список,
- * ссылка на разбор, «что сделать», «Отработано»). Пороги — из ответа.
+ * «Пульс» — договорённости о следующем шаге с датой за окно 5 рабочих дней
+ * (не зависит от периода отчёта). Для всех — итог словами и «неделей
+ * раньше»; руководителю — «С кем поработать» (от слабого к сильному,
+ * звонки без даты и образец) и сигналы («Отработано» — разобрали с
+ * менеджером). Разброс и стабильность по дням — только суперпользователю
+ * вендора (решение владельца 05.11.2026). Пороги — из ответа.
  */
 export const AiPulseCard = ({ canViewAll }: AiPulseCardProps) => {
     const pulse = useAiSection('pulse');
     const minDurationSec = useAppSelector(selectAiMinDurationSec);
+    // Разброс, «коридор» и стабильность — техника, только вендору.
+    const technical = useAppSelector(selectIsRealSuperUser);
 
     return (
         <SectionCard
@@ -56,20 +60,28 @@ export const AiPulseCard = ({ canViewAll }: AiPulseCardProps) => {
             />
             {pulse.status === 'ready' && pulse.data && (
                 <div className="space-y-5">
-                    <AiPulseHeadline
+                    <AiPulseSummary
                         pulse={pulse.data}
                         minDurationSec={minDurationSec}
                     />
+                    {technical && (
+                        <details className="rounded-md border border-dashed border-border/60 p-3">
+                            <summary className="cursor-pointer text-xs text-muted-foreground">
+                                {T.summary.technical}
+                            </summary>
+                            <div className="mt-3">
+                                <AiPulseHeadline
+                                    pulse={pulse.data}
+                                    minDurationSec={minDurationSec}
+                                />
+                            </div>
+                        </details>
+                    )}
                     {canViewAll && (
-                        <section>
-                            <h4 className="mb-2 text-sm font-medium">
-                                {T.managers.title}
-                            </h4>
-                            <AiPulseManagersTable
-                                pulse={pulse.data}
-                                minDurationSec={minDurationSec}
-                            />
-                        </section>
+                        <AiPulseCoach
+                            pulse={pulse.data}
+                            minDurationSec={minDurationSec}
+                        />
                     )}
                     <section>
                         <h4 className="mb-2 text-sm font-medium">

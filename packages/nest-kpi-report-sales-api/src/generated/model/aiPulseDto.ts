@@ -7,6 +7,7 @@
  */
 import type { AiPulseWindowDto } from './aiPulseWindowDto';
 import type { MetricDto } from './metricDto';
+import type { AiPulsePreviousDto } from './aiPulsePreviousDto';
 import type { AiPulseDtoXmr } from './aiPulseDtoXmr';
 import type { AiPulseManagerDto } from './aiPulseManagerDto';
 import type { AiPulseAlertDto } from './aiPulseAlertDto';
@@ -19,14 +20,27 @@ export interface AiPulseDto {
     /** Доля разобранных звонков окна с назначенным шагом и датой. */
     nextStepDateRate: MetricDto;
     /**
+     * Такое же окно перед текущим — для «неделей раньше»; null — разборов в нём нет; поля нет — ответ из кэша до обновления.
+     * @nullable
+     */
+    previous?: AiPulsePreviousDto | null;
+    /**
      * XmR-границы по дневным долям; null — меньше 3 дней с разборами.
      * @nullable
      */
     xmr: AiPulseDtoXmr;
     /** Разобранных звонков в окне. */
     analyzedCalls: number;
-    /** Доля коротких звонков среди всех звонков окна, %: звонок короче порога длительности своего типа (порог портала, см. minDurationSec) AI не разбирает, в долю шага он не входит. */
-    shortCallsSharePct: number;
+    /**
+     * Доля коротких разговоров окна по телефонии Битрикса, %: разговор короче порога (minDurationSec) AI не разбирает, в долю шага он не входит. Считаются сотрудники разбора (пилот и отдел продаж, как у конвейера), недозвоны (длительность 0) не считаются. null — телефония не ответила.
+     * @nullable
+     */
+    shortCallsSharePct: number | null;
+    /**
+     * Состоявшихся разговоров окна по телефонии у сотрудников разбора — знаменатель shortCallsSharePct. null — телефония не ответила; поля нет — ответ из кэша до обновления.
+     * @nullable
+     */
+    connectedCalls?: number | null;
     /** Порог «короткого» звонка портала, секунды: звонки короче в долю шага не входят. Если у портала разные пороги по типам звонков, это порог остальных типов и звонков без типа. Поля нет — ответ из кэша до обновления. */
     minDurationSec?: number;
     /** Сколько разобранных звонков за окно нужно сотруднику, чтобы получить свою строку в byManager (параметр реестра pulse_manager_min_n портала, по умолчанию 8). Поля нет — ответ из кэша до обновления. */

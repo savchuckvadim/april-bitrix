@@ -219,8 +219,17 @@ export const fetchAiPlanFact =
  */
 export const fetchAiFeedbackList =
     (query: AiFeedbackListQuery, force = false) =>
-    async (dispatch: AppDispatch): Promise<void> => {
-        dispatch(aiAnalyticsActions.feedbackListQueried(query));
+    async (dispatch: AppDispatch, getState: AppGetState): Promise<void> => {
+        // Тот же запрос — стор не трогаем: лишняя запись будила подписчиков
+        // страницы сотрудника на каждом рендере подвкладки.
+        const current = getState().aiAnalytics.feedbackListQuery;
+        if (
+            current?.from !== query.from ||
+            current?.to !== query.to ||
+            current?.managerId !== query.managerId
+        ) {
+            dispatch(aiAnalyticsActions.feedbackListQueried(query));
+        }
         await dispatch(
             loadSection(
                 'feedbackList',

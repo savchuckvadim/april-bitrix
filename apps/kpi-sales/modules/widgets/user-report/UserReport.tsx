@@ -300,7 +300,8 @@ export const UserReport = ({ userId }: { userId: number }) => {
             />
 
             <div id="user-report">
-                <div className="flex items-center justify-between mx-4">
+                {/* Отступы сверху и снизу: кнопки «Таблица» / «График» не липнут к фильтрам и таблице (05.11.2026). */}
+                <div className="mx-4 my-4 flex flex-wrap items-center justify-between gap-2">
                     <h2 className="text-xl font-semibold text-primary">
                         История событий
                         {filteredReport.length !== report.length && (

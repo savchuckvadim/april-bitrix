@@ -23,7 +23,14 @@ describe('ai-pulse.texts — пороги из ответа, подписи по
         expect(aiPulseShortWord(300)).toBe('короче 300 сек');
         expect(aiPulseShortWord(null)).toBe('короче порога длительности');
         expect(AI_PULSE_TEXT.short.text(12.4, 300)).toBe(
-            '12 % звонков короче 300 сек — AI их не разбирает',
+            '12 % разговоров короче 300 сек — AI их не разбирает',
+        );
+        // Доля из телефонии: знаменатель в скобках; телефония не ответила — без числа.
+        expect(AI_PULSE_TEXT.short.text(97, 220, 412)).toBe(
+            '97 % разговоров короче 220 сек (из 412) — AI их не разбирает',
+        );
+        expect(AI_PULSE_TEXT.short.text(null, 220, null)).toBe(
+            'телефония не ответила — посчитаем при следующем обновлении',
         );
         expect(AI_PULSE_TEXT.short.hint(300).lines.join(' ')).toContain(
             'сейчас: 300 сек',

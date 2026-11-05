@@ -4,7 +4,7 @@ import { RefreshCw } from 'lucide-react';
 import { SectionCard, ToneBadge } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
-import { useAppSelector } from '@/modules/app';
+import { selectIsRealSuperUser, useAppSelector } from '@/modules/app';
 import { AI_SCOPE_TEXT, selectAiScopeNote } from '@/modules/entities/ai-analytics';
 import { useAiForecast } from '../hooks/use-ai-forecast';
 import { AI_FORECAST_TEXT } from '../lib/ai-forecast.texts';
@@ -26,6 +26,8 @@ export const AiForecastCard = () => {
     const forecast = useAiForecast();
     // Прогноз — по всему отделу продаж; при действующем списке разбора — подпись.
     const scope = useAppSelector(selectAiScopeNote);
+    // Техника проверки прогноза — только суперпользователю вендора.
+    const technical = useAppSelector(selectIsRealSuperUser);
     if (!forecast.isLeader) return null;
 
     const { view } = forecast;
@@ -75,7 +77,9 @@ export const AiForecastCard = () => {
                 loadingText={T.loading}
                 onRetry={forecast.retry}
             />
-            {view?.kind === 'shadow' && <AiForecastShadow view={view} />}
+            {view?.kind === 'shadow' && (
+                <AiForecastShadow view={view} technical={technical} />
+            )}
             {view?.kind === 'published' && (
                 <AiForecastPublished view={view} />
             )}

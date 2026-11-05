@@ -4,11 +4,11 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { AiEntity } from '../../model';
 import {
-    useAi,
-    useAiByDomain,
     useAiByDomainAndUser,
-    useAiFilter
+    useAiFilter,
+    useAiPage,
 } from '../../lib/hooks';
+import { AiPager } from './components/AiPager';
 import { AiTable } from '../ai-table/AiTable';
 import { AiFilter } from './components/AiFilter';
 import { AI_PATH } from '../../consts/ai.consts';
@@ -19,28 +19,28 @@ interface AiListProps {
     basePath?: string; // Базовый путь для навигации (для портала или общей страницы)
 }
 
+/** Записей на странице списка. */
+const AI_LIST_PAGE_SIZE = 50;
+
 export function AiList({ domain, userId, basePath }: AiListProps) {
     const router = useRouter();
+    const [page, setPage] = React.useState(1);
+    const byUser = Boolean(domain && userId);
+    // Другой портал — с первой страницы.
+    React.useEffect(() => setPage(1), [domain]);
 
-    // Используем соответствующий хук в зависимости от параметров
-    const allAi = useAi();
-    const domainAi = useAiByDomain(domain || '');
+    // Все записи и все записи портала — постранично с сервера (выгрузка
+    // целиком вешала вкладку); по сотруднику записей немного — как было.
+    const paged = useAiPage(
+        { page, pageSize: AI_LIST_PAGE_SIZE, ...(domain ? { domain } : {}) },
+        !byUser,
+    );
     const domainAndUserAi = useAiByDomainAndUser(domain || '', userId || '');
 
-    // Определяем, какой источник данных использовать
-    let aiEntities: AiEntity[] | undefined;
-    let isLoading: boolean;
-
-    if (domain && userId) {
-        aiEntities = domainAndUserAi.data;
-        isLoading = domainAndUserAi.isLoading;
-    } else if (domain) {
-        aiEntities = domainAi.data;
-        isLoading = domainAi.isLoading;
-    } else {
-        aiEntities = allAi.data;
-        isLoading = allAi.isLoading;
-    }
+    const aiEntities: AiEntity[] | undefined = byUser
+        ? domainAndUserAi.data
+        : paged.data?.items;
+    const isLoading = byUser ? domainAndUserAi.isLoading : paged.isLoading;
 
     const { filters, setFilters, filteredAiEntities, filterOptions } = useAiFilter(aiEntities);
 
@@ -66,6 +66,16 @@ export function AiList({ domain, userId, basePath }: AiListProps) {
                 onFiltersChange={setFilters}
                 filterOptions={filterOptions}
             />
+
+            {!byUser && paged.data && (
+                <AiPager
+                    page={paged.data.page}
+                    pageSize={paged.data.pageSize}
+                    total={paged.data.total}
+                    loading={paged.isFetching}
+                    onChange={setPage}
+                />
+            )}
 
             <div className="w-full max-w-full min-w-0 overflow-x-auto">
                 <AiTable

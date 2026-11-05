@@ -163,6 +163,20 @@ describe('итоги нажатий словами', () => {
         expect(fail.text).toContain('Не пройдено');
         expect(fail.text).toContain('Факт попадает в вилку реже цели');
         expect(backtestVerdict(null).ok).toBe(false);
+        // Цифры словами; узкая вилка при хорошей середине — совет пересчитать.
+        const narrow = backtestVerdict(
+            backtest({
+                status: 'fail',
+                reasons: ['coverage-below', 'mase-mean3'],
+                coverageShare: 0.52,
+                coverageTarget: 0.8,
+                maseNaive: 0.63,
+                maseMean3: 0.76,
+            }),
+        );
+        expect(narrow.text).toContain('факт попал в вилку в 52 % дней (нужно 80 %)');
+        expect(narrow.text).toContain('на 37 % меньше, чем у «по темпу с начала месяца»');
+        expect(narrow.next).toContain('Восстановить прогноз по истории');
     });
 
     it('переразбор: подсчёт и запуск — разные тексты; не поставлено — причина', () => {

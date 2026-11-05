@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
     aiPlanFactMonthKey,
@@ -60,10 +60,16 @@ export const useAiEmployeeSources = (
 
     const dossier = useAiDossier(managerId, months, active);
     const style = useAiStyle(managerId, undefined, active);
+    // Один объект на пару дат: подвкладки держат его в зависимостях
+    // эффектов, новый объект на каждый рендер перезапускал бы запросы.
+    const period = useMemo(
+        () => (from && to ? { from, to } : null),
+        [from, to],
+    );
 
     return {
         kpiOnly,
-        period: from && to ? { from, to } : null,
+        period,
         monthKey,
         dossier,
         style,

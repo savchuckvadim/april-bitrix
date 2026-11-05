@@ -136,6 +136,34 @@ const reasonsText = (reasons: readonly string[]): string =>
     reasons.map(code => BACKTEST_REASON_LABEL[code] ?? code).join('; ');
 
 /** Вердикт проверки точности словами: пройдено / не пройдено / мало данных. */
+const pctOf = (share: number): number => Math.round(share * 100);
+
+/** «ошибка середины на 37 % меньше, чем у «…»» по отношению ошибок (MASE). */
+const versusText = (value: number | null, label: string): string | null => {
+    if (value === null || !Number.isFinite(value)) return null;
+    const diff = Math.round(Math.abs(1 - value) * 100);
+    if (diff === 0) return `ошибка середины такая же, как у «${label}»`;
+    return value < 1
+        ? `ошибка середины на ${diff} % меньше, чем у «${label}»`
+        : `ошибка середины на ${diff} % больше, чем у «${label}»`;
+};
+
+/** Цифры проверки словами: попадание в вилку и выигрыш середины у простых способов. */
+export const backtestNumbersText = (item: LaunchBacktest): string =>
+    [
+        item.coverageShare === null
+            ? null
+            : `факт попал в вилку в ${pctOf(item.coverageShare)} % дней${
+                  item.coverageTarget === null
+                      ? ''
+                      : ` (нужно ${pctOf(item.coverageTarget)} %)`
+              }`,
+        versusText(item.maseNaive, 'по темпу с начала месяца'),
+        versusText(item.maseMean3, 'среднего за три месяца'),
+    ]
+        .filter((part): part is string => part !== null)
+        .join(', ');
+
 export function backtestVerdict(item: LaunchBacktest | null): LaunchOutcome {
     if (item === null) {
         return {
@@ -159,10 +187,18 @@ export function backtestVerdict(item: LaunchBacktest | null): LaunchOutcome {
             next: 'Догоните историю и восстановите прогноз, потом проверьте ещё раз.',
         };
     }
+    const numbers = backtestNumbersText(item);
+    // Узкая вилка при середине не хуже «по темпу» — не «рано вообще»:
+    // вилку калибрует проверка по истории (05.11.2026).
+    const onlyBand =
+        item.reasons.includes('coverage-below') &&
+        !item.reasons.includes('mase-naive');
     return {
         ok: false,
-        text: `Не пройдено (месяц ${item.monthKey}): ${reasonsText(item.reasons) || 'причина не записана'}.`,
-        next: 'Показывать прогноз пока рано — проверка повторится сама в следующем закрытом месяце.',
+        text: `Не пройдено (месяц ${item.monthKey}): ${reasonsText(item.reasons) || 'причина не записана'}${numbers ? ` — ${numbers}` : ''}.`,
+        next: onlyBand
+            ? 'Середина прогноза уже не хуже простых способов, мешает узкая вилка. Нажмите «Восстановить прогноз по истории» — вилка откалибруется по истории, и проверка пересчитается.'
+            : 'Показывать прогноз пока рано — проверка повторится сама в следующем закрытом месяце.',
     };
 }
 

@@ -249,14 +249,16 @@ describe('менеджеры вне разбора (not-analyzed)', () => {
         ).toBe(AI_NOT_ANALYZED_REASON.BEFORE_PIPELINE);
     });
 
-    it('порог длительности в подписи: «звонки короче 30 сек»', () => {
+    it('порог длительности в подписи: «звонки короче 30 сек или без записи»', () => {
         const item = itemOf(AI_CHECKLIST_ITEM.NOT_ANALYZED, {
             overview: readyOverview([silentRow('3')]),
             settings: settings({
                 callReport: callReport({ minDurationSec: 30 }),
             }),
         });
-        expect(item?.detail).toContain('Менеджер 3 (звонки короче 30 сек)');
+        expect(item?.detail).toContain(
+            'Менеджер 3 (звонки короче 30 сек или без записи)',
+        );
     });
 });
 

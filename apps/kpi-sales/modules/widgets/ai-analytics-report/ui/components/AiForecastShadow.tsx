@@ -9,15 +9,33 @@ const T = AI_FORECAST_TEXT;
 
 interface AiForecastShadowProps {
     view: AiForecastShadowView;
+    /**
+     * Журнал, прогресс и точность на истории — техника для суперпользователя
+     * вендора; руководитель клиента видит одну строку «готовится».
+     */
+    technical: boolean;
 }
 
+/** Руководителю клиента: прогноз готовится, делать ничего не нужно. */
+const AiForecastShadowClient = () => (
+    <div className="space-y-1">
+        <p className="text-sm font-medium">{T.shadow.clientTitle}</p>
+        <p className="text-xs text-muted-foreground">{T.shadow.clientText}</p>
+    </div>
+);
+
 /**
- * Прогноз «в тени»: вилку не показываем — только сколько месяцев
- * сверки с фактом набралось, когда примерно откроется, как прогноз
- * выдержал последнюю проверку на истории и что делать.
+ * Прогноз «в тени»: вилку не показываем. Суперпользователю вендора —
+ * сколько месяцев сверки набралось, когда примерно откроется, как прогноз
+ * выдержал последнюю проверку на истории и что делать; руководителю
+ * клиента — только «готовится» (решение владельца 05.11.2026).
  */
-export const AiForecastShadow = ({ view }: AiForecastShadowProps) => (
+export const AiForecastShadow = ({ view, technical }: AiForecastShadowProps) =>
+    technical ? <AiForecastShadowTechnical view={view} /> : <AiForecastShadowClient />;
+
+const AiForecastShadowTechnical = ({ view }: { view: AiForecastShadowView }) => (
     <div className="space-y-3">
+        <p className="text-xs text-muted-foreground">{T.shadow.technicalNote}</p>
         <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-medium">

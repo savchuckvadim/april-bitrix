@@ -92,7 +92,13 @@ export const AiPulseHeadline = ({
                 />
                 <Value>{pulse.analyzedCalls.toLocaleString('ru-RU')} звонков</Value>
                 <Term label={T.short.label} hint={T.short.hint(minDurationSec)} />
-                <Value>{T.short.text(pulse.shortCallsSharePct, minDurationSec)}</Value>
+                <Value>
+                    {T.short.text(
+                        pulse.shortCallsSharePct,
+                        minDurationSec,
+                        pulse.connectedCalls,
+                    )}
+                </Value>
             </dl>
         </div>
     );

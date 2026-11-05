@@ -6,6 +6,7 @@ import { useAiEmployeeTab } from '../hooks/use-ai-employee-tab';
 import { AiEmployeeProvider } from '../lib/ai-employee.context';
 import { AiEmployeeHeader } from './AiEmployeeHeader';
 import { AiEmployeeTabsBar } from './AiEmployeeTabsBar';
+import { AiEmployeeTabBoundary } from './components/AiEmployeeTabBoundary';
 import { AiEmployeeBriefTab } from './tabs/AiEmployeeBriefTab';
 import { AiEmployeeTargetTab } from './tabs/AiEmployeeTargetTab';
 import { AiEmployeeQualityTab } from './tabs/AiEmployeeQualityTab';
@@ -38,12 +39,14 @@ export const AiEmployeeReport = ({ managerId }: AiEmployeeReportProps) => {
                 ) : (
                     <>
                         <AiEmployeeTabsBar tab={tab} onChange={setTab} />
-                        {tab === 'brief' && <AiEmployeeBriefTab />}
-                        {tab === 'target' && <AiEmployeeTargetTab />}
-                        {tab === 'quality' && <AiEmployeeQualityTab />}
-                        {tab === 'style' && <AiEmployeeStyleTab />}
-                        {tab === 'calls' && <AiEmployeeCallsTab />}
-                        {tab === 'feedback' && <AiEmployeeFeedbackTab />}
+                        <AiEmployeeTabBoundary key={tab} tab={tab}>
+                            {tab === 'brief' && <AiEmployeeBriefTab />}
+                            {tab === 'target' && <AiEmployeeTargetTab />}
+                            {tab === 'quality' && <AiEmployeeQualityTab />}
+                            {tab === 'style' && <AiEmployeeStyleTab />}
+                            {tab === 'calls' && <AiEmployeeCallsTab />}
+                            {tab === 'feedback' && <AiEmployeeFeedbackTab />}
+                        </AiEmployeeTabBoundary>
                     </>
                 )}
             </div>

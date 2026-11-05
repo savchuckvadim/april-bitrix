@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  AdminAiFindPageParams,
+  AiAdminPageDto,
   AiCreateDto,
   AiEntityDto,
   AiUpdateDto
@@ -37,6 +39,19 @@ const adminAiFindAll = (
  ) => {
       return customAxios<AiEntityDto[]>(
       {url: `/api/admin/ai`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Свежие первыми, общее число под фильтром; фильтры — домен портала и тип записи. Для списка админки вместо выгрузки всех записей.
+ * @summary Страница AI-записей
+ */
+const adminAiFindPage = (
+    params?: AdminAiFindPageParams,
+ ) => {
+      return customAxios<AiAdminPageDto>(
+      {url: `/api/admin/ai/page`, method: 'GET',
+        params
     },
       );
     }
@@ -88,9 +103,10 @@ const adminAiUpdate = (
     },
       );
     }
-  return {adminAiCreate,adminAiFindAll,adminAiFindByDomainAndUser,adminAiFindByDomain,adminAiFindOne,adminAiUpdate}};
+  return {adminAiCreate,adminAiFindAll,adminAiFindPage,adminAiFindByDomainAndUser,adminAiFindByDomain,adminAiFindOne,adminAiUpdate}};
 export type AdminAiCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiCreate']>>>
 export type AdminAiFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindAll']>>>
+export type AdminAiFindPageResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindPage']>>>
 export type AdminAiFindByDomainAndUserResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindByDomainAndUser']>>>
 export type AdminAiFindByDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindByDomain']>>>
 export type AdminAiFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindOne']>>>

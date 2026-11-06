@@ -469,6 +469,7 @@ export * from './rqCaseResponseDto';
 export * from './rqClientType';
 export * from './rqEntity';
 export * from './rqEntityQrsItem';
+export * from './rqGrammaticalCase';
 export * from './rqItemCode';
 export * from './rqResponseDto';
 export * from './rqStoreRq200';

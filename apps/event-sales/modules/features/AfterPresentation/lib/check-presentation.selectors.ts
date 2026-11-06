@@ -1,11 +1,13 @@
 import type { RootState } from '@/modules/app/model/store';
 import { PresentationProp } from '@/modules/entities/EventPresentation/model/PresSlice';
 import { EventItemResultType } from '@/modules/widgets/EventItem/model/EventItemSlice';
+import { getIsTmcMode } from '@/modules/app/lib/utills/app-state-util';
 import { buildCheckPresentationCommentPretty } from './check-presentation.format';
 
 /**
  * Применим ли хвост вообще: домен с withCheckPresentation, опросник загружен,
- * презентация проведена (плановая или незапланированная) и событие результативное.
+ * презентация проведена (плановая или незапланированная), событие результативное
+ * и режим — отдел продаж: ТМЦ опросник после презентации не заполняет (легаси).
  */
 export const selectIsCheckPresentationApplicable = (
     state: RootState,
@@ -22,8 +24,16 @@ export const selectIsCheckPresentationApplicable = (
         state.eventItemMenu.type === EventItemResultType.RESULT ||
         state.eventItemMenu.type === EventItemResultType.NEW;
 
+    // ТМЦ презентации не проводит и хвост не заполняет — в его режиме опросник
+    // не показываем (gsr 06.11.2026: анкета ОП всплывала у ТМЦ-менеджера).
+    const isTmc = getIsTmcMode(state);
+
     return Boolean(
-        withCheckPresentation && initialized && isSomePresentation && isResult,
+        withCheckPresentation &&
+            initialized &&
+            isSomePresentation &&
+            isResult &&
+            !isTmc,
     );
 };
 

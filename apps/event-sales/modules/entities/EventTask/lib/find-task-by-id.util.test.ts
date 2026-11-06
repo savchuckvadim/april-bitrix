@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
+import type { EventTask } from '../types/event-task-type';
 import { findTaskById } from './find-task-by-id.util';
 
 /**

@@ -23,3 +23,5 @@ export type RqStoreRequest = StoreRqRequestDto;
 export type RqStoreResponse = RqStoreRq200;
 export type RqCaseRequest = RqCaseRequestDto;
 export type RqCaseKind = NonNullable<RqCaseRequestDto['kind']>;
+/** Падеж: genitive — реквизиты и договор («в лице»), dative — адресат КП («Кому»). */
+export type RqGrammaticalCase = NonNullable<RqCaseRequestDto['grammaticalCase']>;

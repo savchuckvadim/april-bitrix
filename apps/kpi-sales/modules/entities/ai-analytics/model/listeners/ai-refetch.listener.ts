@@ -13,6 +13,7 @@ import {
     fetchAiByType,
     fetchAiOverview,
     fetchAiPulse,
+    fetchAiSettings,
     fetchAiTypesMatrix,
 } from '../ai-analytics-thunks';
 
@@ -54,10 +55,14 @@ export const startAiRefetchListener = (
         },
     });
 
-    // Уровни сохранены: сервер сбросил кэш обзора — перечитываем принудительно.
+    // Настройки сохранены: сервер сбросил кэш обзора и settings/get —
+    // перечитываем принудительно. Без settings форма при новом открытии
+    // предзаполнялась старыми целями, а чек-лист не видел подтверждённый
+    // состав до перезагрузки страницы (жалоба владельца 05.11.2026).
     listener.startListening({
         matcher: isAnyOf(aiAnalyticsActions.levelsSaved),
         effect: async (_action, { dispatch, getState }) => {
+            dispatch(fetchAiSettings(true));
             dispatch(fetchAiOverview({ force: true }));
             dispatch(fetchAiAttention({ force: true }));
             const { byType, typesMatrix } = getState().aiAnalytics;

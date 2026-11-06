@@ -15,9 +15,10 @@ const errorText = (error: unknown, fallback: string): string =>
     error instanceof Error ? error.message : fallback;
 
 /**
- * Падеж для КП («Уважаемому Иванову Ивану Ивановичу», «Генеральному
- * директору»): склоняет бэк (rq/case), фронт только спрашивает по blur.
- * Ошибка склонения — печатаем как есть, КП не блокируем.
+ * Дательный падеж для адресата КП («Генеральному директору», «Иванову Ивану
+ * Ивановичу»; легаси nameCase/wordCase): склоняет бэк (rq/case с
+ * grammaticalCase dative), фронт спрашивает по blur. Ошибка склонения —
+ * печатаем как есть, КП не блокируем.
  */
 export const declineRecipientCase =
     (field: OfferRecipientCaseField): AppThunk<Promise<void>> =>
@@ -29,7 +30,7 @@ export const declineRecipientCase =
         }
         dispatch(offerDocumentActions.setCaseLoading({ field, loading: true }));
         try {
-            const cased = await rqHelper.declineCase(value, field === 'name' ? 'person' : 'word');
+            const cased = await rqHelper.declineCase(value, field === 'name' ? 'person' : 'word', 'dative');
             // пока ждали ответ, поле могли переписать — старый падеж не нужен
             if (getState().offerDocument.recipient[field].trim() !== value) return;
             dispatch(offerDocumentActions.setRecipientCase({ field, value: cased }));

@@ -1,9 +1,8 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { ChoiceChips } from '@workspace/april-ui/fields';
+import { BlurCommitInput, BlurCommitTextarea, ChoiceChips } from '@workspace/april-ui/fields';
 import { SectionCard } from '@workspace/april-ui/surfaces';
-import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import {
     Select,
@@ -13,7 +12,6 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { Switch } from '@workspace/ui/components/switch';
-import { Textarea } from '@workspace/ui/components/textarea';
 import {
     OFFER_PDF_DESCRIPTION_MODE_OPTIONS,
     OFFER_PDF_VIEW_MODE_OPTIONS,
@@ -68,7 +66,7 @@ export const OfferPdfTemplateCard = () => {
         <>
             <SectionCard
                 title="Шаблон и настройки"
-                description="Стиль документа и что в нём печатать. Превью справа обновится само."
+                description="Стиль документа и что в нём печатать. Превью обновится само, текст — после выхода из поля."
                 tone="complect"
             >
                 <div className="flex flex-col gap-4">
@@ -154,20 +152,20 @@ export const OfferPdfTemplateCard = () => {
                     <div className="grid gap-3 sm:grid-cols-2">
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="offer-pdf-sale-phrase">Фраза об акции</Label>
-                            <Input
+                            <BlurCommitInput
                                 id="offer-pdf-sale-phrase"
                                 value={settings.salePhrase}
-                                onChange={event => set('salePhrase', event.target.value)}
+                                onCommit={value => set('salePhrase', value)}
                                 placeholder="Печатается под таблицей цен"
                                 maxLength={500}
                             />
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="offer-pdf-number">Исходящий номер</Label>
-                            <Input
+                            <BlurCommitInput
                                 id="offer-pdf-number"
                                 value={documentNumber}
-                                onChange={event => setDocumentNumber(event.target.value)}
+                                onCommit={setDocumentNumber}
                                 placeholder="Пусто — печатается только дата"
                                 maxLength={50}
                             />
@@ -187,20 +185,20 @@ export const OfferPdfTemplateCard = () => {
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="offer-pdf-appeal">Обращение</Label>
-                        <Input
+                        <BlurCommitInput
                             id="offer-pdf-appeal"
                             value={letter.appeal}
-                            onChange={event => setLetter({ appeal: event.target.value })}
+                            onCommit={appeal => setLetter({ appeal })}
                             placeholder="Уважаемый Иван Иванович!"
                             maxLength={200}
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="offer-pdf-letter">Текст письма</Label>
-                        <Textarea
+                        <BlurCommitTextarea
                             id="offer-pdf-letter"
                             value={letter.text}
-                            onChange={event => setLetter({ text: event.target.value })}
+                            onCommit={text => setLetter({ text })}
                             rows={6}
                             maxLength={5000}
                             placeholder="Абзацы — с новой строки"

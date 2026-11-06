@@ -156,6 +156,14 @@ describe('selectCheckPresentationSurvey', () => {
         ).toBeUndefined();
     });
 
+    it('режим ТМЦ — опросник неприменим: ТМЦ хвост после презентации не заполняет', () => {
+        const state = makeState();
+        (state as unknown as { department: unknown }).department = {
+            mode: { current: { id: 1, code: 'tmc', name: 'Менеджер ТМЦ' } },
+        };
+
+        expect(selectCheckPresentationSurvey(state)).toBeUndefined();
+    });
     it('опросник неприменим к событию — ответы в чужой отчёт не подмешиваются', () => {
         expect(
             selectCheckPresentationSurvey(

@@ -1,5 +1,5 @@
 import { getRq } from '@workspace/nest-konstructor-api';
-import type { RqCaseKind, RqStoreResponse } from '../../model/dto';
+import type { RqCaseKind, RqGrammaticalCase, RqStoreResponse } from '../../model/dto';
 import type {
     AddressRqItem,
     BankRqItem,
@@ -88,9 +88,16 @@ export class RqHelper {
         return typeof response.data === 'number' ? response.data : bank.id;
     }
 
-    /** Родительный падеж (ФИО — kind person, должность/основание — word). */
-    async declineCase(value: string, kind: RqCaseKind): Promise<string> {
-        const response = await this.api.rqDeclineCase({ value, kind });
+    /**
+     * Падеж (ФИО — kind person, должность/основание — word): по умолчанию
+     * родительный для реквизитов, дательный — для адресата КП.
+     */
+    async declineCase(
+        value: string,
+        kind: RqCaseKind,
+        grammaticalCase: RqGrammaticalCase = 'genitive',
+    ): Promise<string> {
+        const response = await this.api.rqDeclineCase({ value, kind, grammaticalCase });
         return response.case || value;
     }
 }

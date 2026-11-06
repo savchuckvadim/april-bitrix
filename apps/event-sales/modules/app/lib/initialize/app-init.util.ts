@@ -82,8 +82,6 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
         });
     }
 
-    dispatch(setDepartmentMode(user, domain));
-
     // РАННИЙ СТАРТ НЕЗАВИСИМЫХ ЦЕПОЧЕК. Порталу, настройкам, каталогу анкет
     // и отделу нужен только домен — он известен сразу после Bitrix.start,
     // и ждать резолва сущностей (1–3 последовательных запроса к Bitrix ниже)
@@ -97,6 +95,10 @@ export const appInit = async (dispatch: AppDispatch, getState: AppGetState) => {
     // решают сами цепочки (swr-кэш у портала и настроек, сверка версии у
     // каталога анкет — см. ensureQuestionnaireCatalog).
     dispatch(appActions.setDomain({ domain, user }));
+    // Режим отдела — строго ПОСЛЕ setDomain: восстановление сохранённого
+    // «ТМЦ» смотрит на withDepartmentModeToggle из конфига, а до setDomain
+    // там дефолт (false) — и режим на каждом старте сбрасывался в ОП.
+    dispatch(setDepartmentMode(user, domain));
     dispatch(fetchAppConfig(domain));
     dispatch(ensureQuestionnaireCatalog(domain));
     // Бейджики — та же дисциплина: сверка хэша, лишнего запроса на ⟳ нет.

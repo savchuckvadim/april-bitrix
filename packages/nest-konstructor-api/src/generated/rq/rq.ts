@@ -56,7 +56,7 @@ export const getRq = () => {
         });
     };
     /**
-     * @summary Родительный падеж (ФИО директора, должность, основание)
+     * @summary Падеж для ФИО, должности, основания: родительный (по умолчанию) или дательный
      */
     const rqDeclineCase = (rqCaseRequestDto: RqCaseRequestDto) => {
         return customAxios<RqCaseResponseDto>({

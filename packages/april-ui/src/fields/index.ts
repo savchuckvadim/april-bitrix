@@ -23,3 +23,10 @@ export type {
     ChoiceChipsBreakpoint,
     ChoiceChipsProps,
 } from './ChoiceChips';
+
+// Текстовые поля с фиксацией по blur: набор не пересобирает зависимое на каждый символ
+export { BlurCommitInput } from './BlurCommitInput';
+export type { BlurCommitInputProps } from './BlurCommitInput';
+export { BlurCommitTextarea } from './BlurCommitTextarea';
+export type { BlurCommitTextareaProps } from './BlurCommitTextarea';
+export { useCommitOnBlur } from './use-commit-on-blur';

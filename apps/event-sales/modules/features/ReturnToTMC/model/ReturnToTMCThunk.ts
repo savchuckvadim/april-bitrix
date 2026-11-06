@@ -16,6 +16,7 @@ import {
 import { DEPARTAMENT_STATE_PROP } from '@/modules/features/Departament/type/department-type';
 import { TmcDealsForReturn, returnToTmcActions } from './ReturnToTMCSlice';
 import { TmcDealsHelper } from '../lib/api/tmc-deals-helper';
+import { findTaskById } from '@/modules/entities/EventTask/lib/find-task-by-id.util';
 import { BACKEND_SUPPORT_READY } from '@/modules/app/consts/backend-support.const';
 
 const tmcDealsHelper = new TmcDealsHelper();
@@ -65,8 +66,9 @@ export const getReturnToTMCMenu =
     (taskId: number | null, status: boolean) =>
     async (dispatch: AppDispatch, getState: AppGetState) => {
         const state = getState();
-        const currentTask =
-            state.eventTask.tasks?.find(task => task.id === taskId) ?? null;
+        // id задачи с портала — строка, с кнопки — число: сравнение «как есть»
+        // теряло задачу, и возврат уходил без ТМЦ-сделки (gsr 06.11.2026).
+        const currentTask = findTaskById(state.eventTask.tasks, taskId);
 
         dispatch(
             eventItemActions.setMenuType({

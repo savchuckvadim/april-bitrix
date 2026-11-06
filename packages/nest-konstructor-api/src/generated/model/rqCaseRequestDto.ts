@@ -6,10 +6,13 @@
  * OpenAPI spec version: 1.0
  */
 import type { RqCaseRequestDtoKind } from './rqCaseRequestDtoKind';
+import type { RqGrammaticalCase } from './rqGrammaticalCase';
 
 export interface RqCaseRequestDto {
     /** Значение в именительном падеже */
     value: string;
     /** person — ФИО (фамилия имя отчество), word — должность/основание. По умолчанию word */
     kind?: RqCaseRequestDtoKind;
+    /** Падеж: genitive (по умолчанию) — «Генерального директора», dative — «Генеральному директору» */
+    grammaticalCase?: RqGrammaticalCase;
 }

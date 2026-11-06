@@ -14,7 +14,7 @@ if (typeof window !== 'undefined') {
 const THUMB_PAGE_WIDTH = 64;
 const MAIN_VIEW_PADDING = 24;
 const MAX_MAIN_PDF_WIDTH = 1720;
-const DEFAULT_MAIN_BOX = { w: 720, h: 1780 };
+const DEFAULT_MAIN_WIDTH = 720;
 
 export interface PdfPreviewViewerProps {
     /** object URL готового PDF; null — ещё ничего не собрано */
@@ -33,8 +33,10 @@ export interface PdfPreviewViewerProps {
 }
 
 /**
- * Просмотр PDF: страница по центру, миниатюры справа, листание. Не
- * экспортировать из общего баррела `@/modules/shared`: react-pdf трогает
+ * Просмотр PDF: страница по центру, миниатюры справа, листание. Область
+ * просмотра постоянной высоты (85% экрана), страница — во всю ширину колонки
+ * с прокруткой внутри: размер не скачет от содержимого и текст читается.
+ * Не экспортировать из общего баррела `@/modules/shared`: react-pdf трогает
  * DOM при импорте, подключать только через `next/dynamic` с `ssr: false`.
  */
 export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
@@ -49,21 +51,15 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
 }) => {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [mainBox, setMainBox] = useState(DEFAULT_MAIN_BOX);
-    const [pageWidthOverHeight, setPageWidthOverHeight] = useState<number | null>(null);
+    const [mainWidth, setMainWidth] = useState(DEFAULT_MAIN_WIDTH);
     const mainViewerRef = useRef<HTMLDivElement>(null);
     const thumbRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
     useEffect(() => {
         setNumPages(null);
         setCurrentPage(1);
-        setPageWidthOverHeight(null);
         thumbRefs.current.clear();
     }, [pdfObjectUrl]);
-
-    useEffect(() => {
-        setPageWidthOverHeight(null);
-    }, [currentPage]);
 
     useEffect(() => {
         if (numPages != null && currentPage > numPages) {
@@ -80,9 +76,7 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
             return;
         }
         const apply = (rect: DOMRectReadOnly) => {
-            const innerW = Math.max(160, Math.floor(rect.width - MAIN_VIEW_PADDING));
-            const innerH = Math.max(200, Math.floor(rect.height - MAIN_VIEW_PADDING));
-            setMainBox({ w: innerW, h: innerH });
+            setMainWidth(Math.max(160, Math.floor(rect.width - MAIN_VIEW_PADDING)));
         };
         apply(el.getBoundingClientRect());
         const ro = new ResizeObserver(entries => {
@@ -100,22 +94,11 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
         node?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     }, [currentPage]);
 
-    const mainPageDisplayWidth = useMemo(() => {
-        const aw = Math.max(120, mainBox.w);
-        const ah = Math.max(120, mainBox.h);
-        const maxW = Math.min(aw, MAX_MAIN_PDF_WIDTH);
-        if (!pageWidthOverHeight || pageWidthOverHeight <= 0) {
-            return Math.floor(maxW);
-        }
-        const ratio = pageWidthOverHeight;
-        let w = maxW;
-        let h = w / ratio;
-        if (h > ah) {
-            h = ah;
-            w = h * ratio;
-        }
-        return Math.max(80, Math.floor(w));
-    }, [mainBox, pageWidthOverHeight]);
+    // страница во всю ширину колонки: читаемо, по высоте — прокрутка внутри области
+    const mainPageDisplayWidth = useMemo(
+        () => Math.floor(Math.min(Math.max(120, mainWidth), MAX_MAIN_PDF_WIDTH)),
+        [mainWidth],
+    );
 
     const canPrev = currentPage > 1;
     const canNext = numPages != null && currentPage < numPages;
@@ -172,7 +155,7 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
                         </Button>
                     </div>
 
-                    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+                    <div className="flex h-[85vh] min-h-[640px] min-w-0 flex-col overflow-hidden">
                         <Document
                             className="word-template-pdf-preview__document flex min-h-0 flex-1 flex-col overflow-hidden"
                             file={pdfObjectUrl}
@@ -195,10 +178,6 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
                                                 <Page
                                                     pageNumber={currentPage}
                                                     width={mainPageDisplayWidth}
-                                                    onLoadSuccess={page => {
-                                                        const vp = page.getViewport({ scale: 1 });
-                                                        setPageWidthOverHeight(vp.width / vp.height);
-                                                    }}
                                                     renderTextLayer={false}
                                                     renderAnnotationLayer={false}
                                                 />
@@ -207,7 +186,7 @@ export const PdfPreviewViewer: React.FC<PdfPreviewViewerProps> = ({
 
                                         <div
                                             className={cn(
-                                                'box-border flex max-h-[1780px] min-h-0 w-[84px] shrink-0 flex-col overflow-y-auto overflow-x-hidden',
+                                                'box-border flex min-h-0 w-[84px] shrink-0 flex-col overflow-y-auto overflow-x-hidden',
                                                 'rounded-md border border-border bg-muted/60 py-2',
                                             )}
                                         >

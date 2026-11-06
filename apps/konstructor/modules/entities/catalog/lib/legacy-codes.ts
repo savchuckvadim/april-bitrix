@@ -126,7 +126,7 @@ export const FREEBLOCK_INDEX_TO_CODE: readonly string[] = [
     'praim', // 0 Прайм
     'archives', // 1 Архивы ГАРАНТа
     'bhome', // 2 Большая домашняя правовая энциклопедия
-    'bcaonsalting_free', // 3 База знаний службы ПК (free-версия; в инфоблоках есть свой bcaonsalting)
+    'bcaonsalting', // 3 База знаний службы правового консалтинга (группа бесплатных блоков)
     'zconsalting', // 4 ГАРАНТ Консалтинг
     'freesud', // 5 Судебная практика: приложение к конс. блокам (isLa)
     'online1', // 6 Онлайн-архив «Практика мировых судей» (isLa)
@@ -134,8 +134,18 @@ export const FREEBLOCK_INDEX_TO_CODE: readonly string[] = [
     'pbcaonsalting', // 8 ПК Премиум: База знаний
     'twoconsalting', // 9 2 экспертных заключения в месяц
     'orallyconsalting', // 10 Неограниченные устные консультации
-    'ltsemi_free', // 11 Интернет-семинары (free-версия; в LT есть свой ltsemi)
+    'ltsemi', // 11 Интернет-семинары (в новом каталоге — инфоблок группы Legal Tech)
 ];
+
+/**
+ * Коды бесплатных блоков, которые раньше давала эта таблица и которых нет в
+ * каталоге: в документ они попадали кодом вместо названия. Слепки, уже
+ * сохранённые с ними, чинит normalizeComposition.
+ */
+export const LEGACY_FREEBLOCK_ALIASES: Readonly<Record<string, string>> = {
+    bcaonsalting_free: 'bcaonsalting',
+    ltsemi_free: 'ltsemi',
+};
 
 /** Легаси-number LT-сервиса → code (числа в lt/ltInPacket — это number, не индекс) */
 export const LT_NUMBER_TO_CODE: Record<number, string> = {

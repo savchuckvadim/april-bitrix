@@ -1,4 +1,6 @@
 import type { Catalog, KComplect } from '../../catalog';
+// файл констант, не баррель: баррель каталога тянет адаптеры
+import { LEGACY_FREEBLOCK_ALIASES } from '../../catalog/lib/legacy-codes';
 
 /**
  * Состав (наполнение) комплекта. В отличие от легаси — НЕ синглтон:
@@ -165,7 +167,8 @@ export const defaultComposition = (
 /**
  * Состав из старого слепка v2: недостающие списки получают пустое значение,
  * пакеты убираются из отдельных ЭР (раньше init клал их и туда — вес считался
- * дважды), состав пакетов — без повторов.
+ * дважды), состав пакетов — без повторов, старые коды бесплатных блоков
+ * (bcaonsalting_free, ltsemi_free) — кодами каталога.
  */
 export const normalizeComposition = (
     composition: Composition,
@@ -174,4 +177,6 @@ export const normalizeComposition = (
     ltOther: Array.isArray(composition.ltOther) ? composition.ltOther : [],
     ers: composition.ers.filter(code => !composition.erPackets.includes(code)),
     ersInPacket: [...new Set(composition.ersInPacket)],
+    // старые коды бесплатных блоков из слепков v1 → коды каталога
+    freeBlocks: [...new Set(composition.freeBlocks.map(code => LEGACY_FREEBLOCK_ALIASES[code] ?? code))],
 });

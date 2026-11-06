@@ -81,4 +81,6 @@ export const getIsWithoutCompany = (state: RootState): boolean =>
 
 /** Режим отдела — ТМЦ? (единственное место чтения кода режима) */
 export const getIsTmcMode = (state: RootState): boolean =>
-    state.department[DEPARTAMENT_STATE_PROP.MODE].current?.code === 'tmc';
+    // Срез отдела может отсутствовать в частичном состоянии (тесты селекторов,
+    // ранний бут) — тогда режим не ТМЦ.
+    state.department?.[DEPARTAMENT_STATE_PROP.MODE]?.current?.code === 'tmc';

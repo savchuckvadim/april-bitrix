@@ -23,16 +23,22 @@ import {
     aiAnalyticsActions,
     aiAnalyticsReducer,
 } from '../model/ai-analytics-slice';
-import { fetchAiBrief, fetchAiOverview } from '../model/ai-analytics-thunks';
+import {
+    fetchAiBrief,
+    fetchAiOverview,
+    fetchAiSettings,
+} from '../model/ai-analytics-thunks';
 import { startAiRefetchListener } from '../model/listeners/ai-refetch.listener';
 import { brief, byType, overview, ready } from './ai-fixtures';
 
-const { getOverview, getAttention, getByType, getBrief } = vi.hoisted(() => ({
-    getOverview: vi.fn(),
-    getAttention: vi.fn(),
-    getByType: vi.fn(),
-    getBrief: vi.fn(),
-}));
+const { getOverview, getAttention, getByType, getBrief, getSettings } =
+    vi.hoisted(() => ({
+        getOverview: vi.fn(),
+        getAttention: vi.fn(),
+        getByType: vi.fn(),
+        getBrief: vi.fn(),
+        getSettings: vi.fn(),
+    }));
 
 vi.mock('../lib/api/ai-analytics-helper', () => ({
     AiAnalyticsHelper: class {
@@ -40,6 +46,7 @@ vi.mock('../lib/api/ai-analytics-helper', () => ({
         getAttention = getAttention;
         getByType = getByType;
         getBrief = getBrief;
+        getSettings = getSettings;
         getPulse = vi.fn();
         getAgenda = vi.fn();
     },
@@ -93,6 +100,7 @@ describe('ai-refetch.listener — обзор', () => {
         getOverview.mockReset().mockResolvedValue(ready(overview()));
         getAttention.mockReset();
         getByType.mockReset().mockResolvedValue(ready(byType()));
+        getSettings.mockReset().mockResolvedValue(ready({}));
     });
 
     it('смена фильтра до открытия вкладки (idle) — запросов нет', async () => {
@@ -138,6 +146,17 @@ describe('ai-refetch.listener — обзор', () => {
         });
         expect(getAttention).toHaveBeenCalledTimes(1);
         expect(getByType).not.toHaveBeenCalled();
+    });
+
+    it('levelsSaved → settings/get перечитывается: цели и состав в форме свежие', async () => {
+        getAttention.mockResolvedValue(ready(overview()));
+        const store = makeStore();
+        await store.dispatch(fetchAiSettings());
+        expect(getSettings).toHaveBeenCalledTimes(1);
+        store.dispatch(aiAnalyticsActions.levelsSaved('2026-11-05T20:30:00Z'));
+        await flush();
+        expect(getSettings).toHaveBeenCalledTimes(2);
+        expect(store.getState().aiAnalytics.settings.status).toBe('ready');
     });
 
     it('резюме периода: смена периметра после загрузки → повторный POST; idle — нет', async () => {

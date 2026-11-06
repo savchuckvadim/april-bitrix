@@ -207,9 +207,14 @@ describe('appInit — ранний старт независимых цепоч�
         expect(h.log.indexOf(appActions.setDomain.type)).toBeLessThan(
             h.log.indexOf('test/fetchAppConfig'),
         );
-        // Режим отдела, как и раньше, выбирается ДО пересборки конфига.
-        expect(h.log.indexOf('test/setDepartmentMode')).toBeLessThan(
+        // Режим отдела — ПОСЛЕ пересборки доменного конфига и до настроек:
+        // восстановление сохранённого «ТМЦ» смотрит на withDepartmentModeToggle,
+        // а до setDomain там дефолт (false) — режим сбрасывался в ОП (06.11).
+        expect(h.log.indexOf('test/setDepartmentMode')).toBeGreaterThan(
             h.log.indexOf(appActions.setDomain.type),
+        );
+        expect(h.log.indexOf('test/setDepartmentMode')).toBeLessThan(
+            h.log.indexOf('test/fetchAppConfig'),
         );
         // Работа через сервер подключена до первого запроса к сущностям:
         // отказ по правам при резолве уже уйдёт на сервер.

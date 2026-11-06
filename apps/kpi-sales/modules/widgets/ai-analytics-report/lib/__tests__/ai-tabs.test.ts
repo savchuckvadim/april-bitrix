@@ -31,11 +31,12 @@ const flatten = (value: unknown): string[] => {
 };
 
 describe('ai-tabs — подвкладки вкладки «AI аналитика»', () => {
-    it('четыре подвкладки в порядке постановки, «Сводка» по умолчанию', () => {
+    it('пять подвкладок в порядке постановки, «Сводка» по умолчанию', () => {
         expect(AI_TABS.map(tab => tab.key)).toEqual([
             'summary',
             'employees',
             'quality',
+            'report',
             'settings',
         ]);
         expect(parseAiTab(null)).toBe('summary');

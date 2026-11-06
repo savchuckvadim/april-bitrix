@@ -45,6 +45,7 @@ export const AI_QUEUED_ERROR_MESSAGES: Record<AiQueuedSection, string> = {
     byType: 'Ошибка расчёта обзора',
     brief: 'Не удалось собрать итоги периода',
     dossier: 'Ошибка сборки досье',
+    ownerReport: 'Не удалось собрать отчёт за период',
     typesMatrix: 'Ошибка среза по типам',
 };
 
@@ -125,6 +126,15 @@ const queuedRequestKey = (
                     'dossier',
                     state.aiAnalytics.dossierQuery?.managerId,
                     state.aiAnalytics.dossierQuery?.months,
+                ],
+            });
+        case 'ownerReport':
+            return buildAiRequestKey({
+                ...scope.requester,
+                extra: [
+                    'owner-report',
+                    state.aiAnalytics.ownerReportQuery?.kind,
+                    state.aiAnalytics.ownerReportQuery?.periodKey ?? 'latest',
                 ],
             });
         case 'byType':

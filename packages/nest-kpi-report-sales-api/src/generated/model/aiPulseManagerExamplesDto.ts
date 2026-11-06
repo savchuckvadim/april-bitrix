@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { AiPulseCallRefDto } from './aiPulseCallRefDto';
+import type { AiPulseManagerExamplesDtoWithDate } from './aiPulseManagerExamplesDtoWithDate';
 
 export interface AiPulseManagerExamplesDto {
     /** Свежие разобранные звонки окна без договорённости с датой (до двух) — их руководитель разбирает с менеджером. */
@@ -14,5 +15,5 @@ export interface AiPulseManagerExamplesDto {
      * Свежий звонок окна с договорённостью и датой — образец; null — таких в окне нет.
      * @nullable
      */
-    withDate: AiPulseCallRefDto | null;
+    withDate: AiPulseManagerExamplesDtoWithDate;
 }

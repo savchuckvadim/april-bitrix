@@ -20,6 +20,8 @@ export const AI_WS_EVENTS = {
     BRIEF_ERROR: 'ai-analytics:brief:error',
     DOSSIER_DONE: 'ai-analytics:dossier:done',
     DOSSIER_ERROR: 'ai-analytics:dossier:error',
+    OWNER_REPORT_DONE: 'ai-analytics:owner-report:done',
+    OWNER_REPORT_ERROR: 'ai-analytics:owner-report:error',
 } as const;
 
 /** Пары done/error: обработка одна на все очереди — различаются ключом. */
@@ -27,6 +29,10 @@ const AI_WS_QUEUES = [
     { done: AI_WS_EVENTS.OVERVIEW_DONE, error: AI_WS_EVENTS.OVERVIEW_ERROR },
     { done: AI_WS_EVENTS.BRIEF_DONE, error: AI_WS_EVENTS.BRIEF_ERROR },
     { done: AI_WS_EVENTS.DOSSIER_DONE, error: AI_WS_EVENTS.DOSSIER_ERROR },
+    {
+        done: AI_WS_EVENTS.OWNER_REPORT_DONE,
+        error: AI_WS_EVENTS.OWNER_REPORT_ERROR,
+    },
 ] as const;
 
 /** Полезная нагрузка done: ключ результата и момент расчёта. */

@@ -30,6 +30,8 @@ import type {
     AiForecastResponseDto,
     AiOverviewRequestDto,
     AiOverviewResponseDto,
+    AiOwnerReportRequestDto,
+    AiOwnerReportResponseDto,
     AiPlanFactRequestDto,
     AiPlanFactResponseDto,
     AiPulseRequestDto,
@@ -352,6 +354,20 @@ export const getSalesAiAnalytics = () => {
             data: aiReviewRequestDto,
         });
     };
+    /**
+     * Управленческий отчёт по отделу продаж за закрытый месяц, квартал, полугодие или год: исходы разговоров, конверсии по типам, недели, где теряем продажи, как управляется отдел, возражения, сбои, метрики контроля, сотрудники, методология. Только руководители cup|op. Ключ результата — sales-ai-analytics:v1:{domain}:owner-report:v1:{kind}:{periodKey}: попадание в кэш или готовый снапшот → ready; расчёт идёт → processing; промах → джоба SALES_AI_ANALYTICS_OWNER_REPORT (jobId = requestKey) → queued, по завершении WS ai-analytics:owner-report:done|error с requestKey — затем повторить POST. forceRefresh пересобирает. Текст резюме, утечек и карточек сотрудников пишет модель поверх шаблона с факт-чеком чисел; без модели приходит шаблон (source = template).
+     * @summary Отчёт собственнику за период (очередь + WS)
+     */
+    const aiAnalyticsOwnerReportGet = (
+        aiOwnerReportRequestDto: AiOwnerReportRequestDto,
+    ) => {
+        return customAxios<AiOwnerReportResponseDto>({
+            url: `/api/ai-analytics/owner-report`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiOwnerReportRequestDto,
+        });
+    };
     return {
         aiAnalyticsGetSettings,
         aiAnalyticsGetPulse,
@@ -375,6 +391,7 @@ export const getSalesAiAnalytics = () => {
         aiAnalyticsStyleGetStyleProfile,
         aiAnalyticsAboutGetAbout,
         aiAnalyticsReviewSubmit,
+        aiAnalyticsOwnerReportGet,
     };
 };
 export type AiAnalyticsGetSettingsResult = NonNullable<
@@ -544,6 +561,13 @@ export type AiAnalyticsReviewSubmitResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsReviewSubmit']
+        >
+    >
+>;
+export type AiAnalyticsOwnerReportGetResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsOwnerReportGet']
         >
     >
 >;

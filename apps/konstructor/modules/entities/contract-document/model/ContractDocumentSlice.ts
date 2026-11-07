@@ -29,6 +29,7 @@ const initialGenerate: ContractGenerateResult = {
     error: null,
     link: null,
     documentName: null,
+    savedToDisk: null,
 };
 
 const initialState: ContractDocumentState = {
@@ -93,7 +94,10 @@ export const contractDocumentSlice = createSlice({
         generateStarted(state: ContractDocumentState) {
             state.generate = { ...initialGenerate, status: 'generating' };
         },
-        generateDone(state: ContractDocumentState, action: PayloadAction<{ link: string; documentName: string }>) {
+        generateDone(
+            state: ContractDocumentState,
+            action: PayloadAction<{ link: string; documentName: string; savedToDisk: boolean }>,
+        ) {
             state.generate = { ...initialGenerate, status: 'done', ...action.payload };
         },
         generateFailed(state: ContractDocumentState, action: PayloadAction<string>) {

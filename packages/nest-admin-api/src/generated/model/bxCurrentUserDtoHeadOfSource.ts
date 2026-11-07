@@ -7,7 +7,7 @@
  */
 
 /**
- * Источник роли: structure — руководитель по структуре Битрикса (HEADS отдела); settings — уровень поднят настройкой портала «Отдел продаж» (visibility_*_user_ids); superuser — суперпользователь вендора, заведённый в админке: видимость all, headOf = cup, headOfDepartmentIds — все ОП, независимо от структуры и настроек.
+ * Источник роли: structure — руководитель по структуре Битрикса (HEADS отдела); settings — уровень поднят настройкой портала «Отдел продаж» (visibility_*_user_ids); portal_default — периметр рядового расширен настройкой kpi-sales visibility_employee_default (только по флагу запроса applyEmployeeDefault; headOf не меняется); superuser — суперпользователь вендора, заведённый в админке: видимость all, headOf = cup, headOfDepartmentIds — все ОП, независимо от структуры и настроек.
  */
 export type BxCurrentUserDtoHeadOfSource = typeof BxCurrentUserDtoHeadOfSource[keyof typeof BxCurrentUserDtoHeadOfSource];
 
@@ -16,5 +16,6 @@ export type BxCurrentUserDtoHeadOfSource = typeof BxCurrentUserDtoHeadOfSource[k
 export const BxCurrentUserDtoHeadOfSource = {
   structure: 'structure',
   settings: 'settings',
+  portal_default: 'portal_default',
   superuser: 'superuser',
 } as const;

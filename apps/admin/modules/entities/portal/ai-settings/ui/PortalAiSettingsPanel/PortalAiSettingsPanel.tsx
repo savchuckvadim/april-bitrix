@@ -3,6 +3,11 @@
 import * as React from 'react';
 import { toast } from 'sonner';
 import { usePortal } from '@/modules/entities/portal/hooks';
+import {
+    EmployeesPicker,
+    formatEmployeeIds,
+    parseEmployeeIds,
+} from '@/modules/entities/portal/employees';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -541,16 +546,15 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
 
                         <div className="space-y-1">
                             <Label>{AI_MODEL_META.allowedUserIds.label}</Label>
-                            <Input
-                                value={draft.allowedUserIds}
-                                placeholder="например: 222, 323"
-                                onChange={(e) =>
+                            <EmployeesPicker
+                                portalId={portalId}
+                                ids={parseEmployeeIds(draft.allowedUserIds)}
+                                onChange={(ids) =>
                                     setDraft((d) => ({
                                         ...d,
-                                        allowedUserIds: e.target.value,
+                                        allowedUserIds: formatEmployeeIds(ids),
                                     }))
                                 }
-                                className="w-56"
                             />
                             <p className="text-sm text-muted-foreground">
                                 {AI_MODEL_META.allowedUserIds.description}

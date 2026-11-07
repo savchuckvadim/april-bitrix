@@ -7,7 +7,7 @@
  */
 
 /**
- * Уровень видимости: own — только себя; group — своя группа; department — свой ОП со всеми группами; all — вся структура. Соответствует headOf: null / group / op / cup.
+ * Уровень видимости: own — только себя; group — своя группа; department — свой ОП со всеми группами; all — вся структура. Соответствует headOf: null / group / op / cup; при headOfSource = portal_default уровень шире headOf.
  */
 export type BxCurrentUserDtoVisibility = typeof BxCurrentUserDtoVisibility[keyof typeof BxCurrentUserDtoVisibility];
 

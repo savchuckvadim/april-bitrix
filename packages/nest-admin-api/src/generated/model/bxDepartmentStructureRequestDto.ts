@@ -17,4 +17,6 @@ export interface BxDepartmentStructureRequestDto {
   userId: number;
   /** Сбросить кэш Redis перед запросом: структура будет заново получена из Битрикс и закэширована. */
   resetCache?: boolean;
+  /** Применить портальный уровень видимости для рядовых сотрудников (настройка kpi-sales visibility_employee_default): рядовой сотрудник отдела продаж получает visibility и subordinateIds по настройке, headOf остаётся null, headOfSource = portal_default. Шлёт только KPI-отчёт. Без флага (режим руководителя и права на дубли в «Звонках», AI-аналитика, конструктор) настройка не читается и роль считается как раньше. Только для группы sales. */
+  applyEmployeeDefault?: boolean;
 }

@@ -2,6 +2,7 @@
 
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
+import { EmployeePicker } from '@/modules/entities/portal/employees';
 import { Label } from '@workspace/ui/components/label';
 import { VENDOR_SUPER_USERS_TEXT as TEXT } from '../../../consts/vendor-super-users.const';
 import { useVendorSuperUserForm } from '../../../lib/hooks/use-vendor-super-user-form';
@@ -28,16 +29,17 @@ export const VendorSuperUserForm = ({
                 <Label htmlFor="vendor-super-user-bitrix-id">
                     {TEXT.bitrixIdLabel}
                 </Label>
-                <Input
-                    id="vendor-super-user-bitrix-id"
-                    className="w-32"
-                    inputMode="numeric"
-                    placeholder={TEXT.bitrixIdPlaceholder}
-                    value={form.bitrixId}
-                    onChange={event => form.setBitrixId(event.target.value)}
-                    onBlur={form.onBlur}
-                    aria-invalid={!!form.error}
-                />
+                <div className="w-80">
+                    <EmployeePicker
+                        inputId="vendor-super-user-bitrix-id"
+                        portalId={portalId}
+                        id={Number(form.bitrixId) || 0}
+                        onChange={id => {
+                            form.setBitrixId(String(id));
+                            form.onBlur();
+                        }}
+                    />
+                </div>
             </div>
             <div className="flex flex-col gap-1">
                 <Label htmlFor="vendor-super-user-comment">

@@ -9,6 +9,7 @@ import type { PortalAppSettingDescriptorDtoType } from './portalAppSettingDescri
 import type { PortalAppSettingDescriptorDtoDefault } from './portalAppSettingDescriptorDtoDefault';
 import type { PortalAppSettingDescriptorDtoValue } from './portalAppSettingDescriptorDtoValue';
 import type { PortalAppSettingOptionDto } from './portalAppSettingOptionDto';
+import type { PortalAppSettingDescriptorDtoPick } from './portalAppSettingDescriptorDtoPick';
 import type { PortalAppSettingHookLinkDto } from './portalAppSettingHookLinkDto';
 import type { PortalAppSettingPbxFieldDto } from './portalAppSettingPbxFieldDto';
 import type { PortalAppSettingStageDto } from './portalAppSettingStageDto';
@@ -35,6 +36,8 @@ export interface PortalAppSettingDescriptorDto {
   options?: PortalAppSettingOptionDto[];
   /** Значение — СПИСОК кодов через запятую (тип при этом string): админка рисует чекбоксы по options. */
   isList?: boolean;
+  /** Значение — сотрудники портала: bitrix-users — Bitrix-id через запятую, bitrix-user — один Bitrix-id (0 — никто). Админка рисует выбор сотрудников по ручке admin/portal/:id/employees. */
+  pick?: PortalAppSettingDescriptorDtoPick;
   /** Код категории настройки (секция в админке); описание категории — в groups блока приложения. */
   group: string;
   /** Хуки каталога, которые читают именно эту настройку. */

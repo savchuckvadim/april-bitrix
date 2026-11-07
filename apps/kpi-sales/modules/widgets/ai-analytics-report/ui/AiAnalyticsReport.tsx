@@ -1,5 +1,6 @@
 'use client';
 
+import { selectIsRealSuperUser, useAppSelector } from '@/modules/app';
 import { useAiAnalyticsReport } from '../hooks/use-ai-analytics-report';
 import { AiTabHeader } from './AiTabHeader';
 import { AiReadinessBanner } from './AiReadinessBanner';
@@ -25,6 +26,9 @@ import { AiShowcaseSettingsTab } from './tabs/AiShowcaseSettingsTab';
  */
 export const AiAnalyticsReport = () => {
     const report = useAiAnalyticsReport();
+    // «Готовность витрины» — служебная: только суперпользователю вендора
+    // (в том числе в режиме «работать как»), свёрнута (решение 07.11.2026).
+    const isRealSuperUser = useAppSelector(selectIsRealSuperUser);
     const onOpenSettings = report.canConfigure
         ? report.openSettings
         : undefined;
@@ -42,7 +46,7 @@ export const AiAnalyticsReport = () => {
                 onRecalc={report.recalc}
                 onOpenSettings={report.openLevels}
             />
-            {report.settings && report.checklist && (
+            {isRealSuperUser && report.settings && report.checklist && (
                 <AiReadinessBanner
                     settings={report.settings}
                     checklist={report.checklist}

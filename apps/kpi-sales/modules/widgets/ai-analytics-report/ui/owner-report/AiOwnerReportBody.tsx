@@ -11,6 +11,10 @@ import { AiOwnerReportManagers } from './AiOwnerReportManagers';
 import { AiOwnerReportMetrics } from './AiOwnerReportMetrics';
 import { AiOwnerReportObjections } from './AiOwnerReportObjections';
 import { AiOwnerReportOverview } from './AiOwnerReportOverview';
+import {
+    AiOwnerReportAttentionBlock,
+    AiOwnerReportGlossary,
+} from './AiOwnerReportReading';
 import { AiOwnerReportSection } from './AiOwnerReportSection';
 import { AiOwnerReportSummary } from './AiOwnerReportSummary';
 import { AiOwnerReportTiles } from './AiOwnerReportTiles';
@@ -29,18 +33,27 @@ export const AiOwnerReportBody = ({ report }: AiOwnerReportBodyProps) => {
             <header className="space-y-1">
                 <h3 className="text-base font-semibold">{text.title}</h3>
                 <p className="text-sm text-muted-foreground">
-                    {text.periodLabel} · {T.generatedAt(aiOwnerReportGeneratedAt(report.generatedAt))}
+                    {text.periodLabel} ·{' '}
+                    {T.generatedAt(
+                        aiOwnerReportGeneratedAt(report.generatedAt),
+                    )}
                     {' · '}
                     {T.source[report.source]}
                 </p>
             </header>
             <AiOwnerReportTiles tiles={text.tiles} />
+            <AiOwnerReportAttentionBlock items={text.attention ?? []} />
             <AiOwnerReportSection title={T.sections.summary}>
                 <AiOwnerReportSummary
                     paragraphs={text.summary}
                     source={text.summarySource}
                 />
             </AiOwnerReportSection>
+            {(text.glossary ?? []).length > 0 && (
+                <AiOwnerReportSection title={T.sections.glossary}>
+                    <AiOwnerReportGlossary items={text.glossary} />
+                </AiOwnerReportSection>
+            )}
             <AiOwnerReportSection title={T.sections.overview}>
                 <AiOwnerReportOverview overview={text.overview} />
             </AiOwnerReportSection>

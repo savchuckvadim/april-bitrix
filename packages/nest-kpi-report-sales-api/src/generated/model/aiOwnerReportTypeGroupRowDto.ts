@@ -21,4 +21,6 @@ export interface AiOwnerReportTypeGroupRowDto {
     refused: number;
     /** Без содержательного контакта. */
     noContact: number;
+    /** Разговоров без размеченного исхода (разбор до новой версии); в доли исходов не входят. */
+    unmarked: number;
 }

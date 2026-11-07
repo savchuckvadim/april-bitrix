@@ -83,3 +83,29 @@ export function monthCount(period: LaunchPeriod): number {
     }
     return count;
 }
+
+/** Последний день месяца 'YYYY-MM' ('YYYY-MM-DD'). */
+const lastDayOf = (monthKey: string): string => {
+    const year = Number(monthKey.slice(0, 4));
+    const month = Number(monthKey.slice(5, 7));
+    const last = new Date(year, month, 0).getDate();
+    return `${monthKey}-${pad(last)}`;
+};
+
+/**
+ * Период переразбора одним месяцем 'YYYY-MM' (просьба владельца 07.11.2026:
+ * переразобрать только октябрь, а не всю историю). Текущий месяц — по сегодня.
+ */
+export function monthPeriod(monthKey: string, now: Date): LaunchPeriod {
+    const from = `${monthKey}-01`;
+    const end = lastDayOf(monthKey);
+    const today = todayKey(now);
+    return { from, to: end > today ? today : end };
+}
+
+/** Последние закрытые месяцы для выбора, новые первыми. */
+export function recentClosedMonths(now: Date, count: number): string[] {
+    return Array.from({ length: count }, (_, index) =>
+        shiftedMonthKey(now, -(index + 1)),
+    );
+}

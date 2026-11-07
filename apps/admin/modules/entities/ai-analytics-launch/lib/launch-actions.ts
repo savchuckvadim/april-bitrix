@@ -44,6 +44,8 @@ export interface LaunchActionContext {
     now: Date;
     /** Только для «Показать прогноз»: в обход проверки (разработчик). */
     force?: boolean;
+    /** Период подсчёта переразбора, выбранный в панели; нет — вся история. */
+    countPeriod?: LaunchPeriod;
 }
 
 /** Период запуска переразбора — тот же, что у последнего подсчёта. */
@@ -91,7 +93,8 @@ export async function runLaunchStep(
             return reanalyzeOutcome(
                 await api.reanalyze(
                     domain,
-                    reanalysisPeriod(status?.reanalysis.analysisSince, now),
+                    context.countPeriod ??
+                        reanalysisPeriod(status?.reanalysis.analysisSince, now),
                     true,
                 ),
             );

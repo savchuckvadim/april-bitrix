@@ -62,3 +62,22 @@ describe('периоды кнопок панели запуска', () => {
         });
     });
 });
+
+describe('переразбор одним месяцем', () => {
+    it('закрытый месяц — целиком, текущий — по сегодня', async () => {
+        const { monthPeriod, recentClosedMonths } = await import(
+            './launch-period'
+        );
+        const NOV_07 = new Date(2026, 10, 7, 12, 0, 0);
+        expect(monthPeriod('2026-10', NOV_07)).toEqual({
+            from: '2026-10-01',
+            to: '2026-10-31',
+        });
+        expect(monthPeriod('2026-02', NOV_07).to).toBe('2026-02-28');
+        expect(monthPeriod('2026-11', NOV_07)).toEqual({
+            from: '2026-11-01',
+            to: '2026-11-07',
+        });
+        expect(recentClosedMonths(NOV_07, 2)).toEqual(['2026-10', '2026-09']);
+    });
+});

@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { AButton } from '@workspace/april-ui';
+import { MicroSelect } from '@workspace/april-ui/fields';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { ConfirmDialog } from '@/modules/shared';
 import { LAUNCH_TEXT } from '../../consts/ai-analytics-launch.const';
 import { describeLaunchError } from '../../lib/launch-error';
+import { reanalysisScopeOptions, REANALYSIS_ALL } from '../../lib/reanalysis-scope';
 import type { LaunchStepView } from '../../lib/launch-steps';
 import { LaunchOutcomeView } from './components/LaunchOutcomeView';
 import { LaunchProgressBar } from './components/LaunchProgressBar';
@@ -32,10 +34,23 @@ export const AiLaunchPanel = ({ domain }: AiLaunchPanelProps) => {
     const extraOf = (step: LaunchStepView) => {
         if (step.code === 'reanalyze-count') {
             return (
-                <p className="text-xs text-muted-foreground">
-                    {LAUNCH_TEXT.periodLabel}: {panel.countPeriod.from} —{' '}
-                    {panel.countPeriod.to}, {LAUNCH_TEXT.pilotDefault}.
-                </p>
+                <div className="space-y-1.5">
+                    <MicroSelect
+                        ariaLabel={LAUNCH_TEXT.reanalysisScope}
+                        value={panel.reanalysisMonth ?? REANALYSIS_ALL}
+                        options={reanalysisScopeOptions(new Date())}
+                        onChange={value =>
+                            panel.setReanalysisMonth(
+                                value === REANALYSIS_ALL ? null : value,
+                            )
+                        }
+                        disabled={panel.busy}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                        {LAUNCH_TEXT.periodLabel}: {panel.countPeriod.from} —{' '}
+                        {panel.countPeriod.to}, {LAUNCH_TEXT.pilotDefault}.
+                    </p>
+                </div>
             );
         }
         if (step.code === 'reanalyze-run' && panel.progressRun) {

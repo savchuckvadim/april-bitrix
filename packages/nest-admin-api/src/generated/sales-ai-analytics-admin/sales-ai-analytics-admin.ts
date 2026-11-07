@@ -30,6 +30,8 @@ import type {
   AiAnalyticsLaunchStageFlagsDto,
   AiAnalyticsLaunchStageFlagsResultDto,
   AiAnalyticsLaunchStatusDto,
+  AiAnalyticsOwnerReportExportAdminFileParams,
+  AiAnalyticsOwnerReportExportAdminStateParams,
   AiAnalyticsPhase4AdminForecastBacktestParams,
   AiAnalyticsPhase4AdminPoolStatusParams,
   AiAnalyticsPhase4AdminQualityLinkParams,
@@ -52,7 +54,10 @@ import type {
   AiAnalyticsSmartBackfillStatusDto,
   AiAnalyticsStageHistoryProbeResponseDto,
   AiGuideSectionDto,
-  AiGuideSectionItemDto
+  AiGuideSectionItemDto,
+  AiOwnerReportExportStartDto,
+  AiOwnerReportExportStateDto,
+  AiOwnerReportExportStatusResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
@@ -402,7 +407,48 @@ const aiAnalyticsLaunchAdminStatus = (
     },
       );
     }
-  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus}};
+  /**
+ * Ставит джобу SALES_AI_ANALYTICS_OWNER_REPORT_EXPORT в очередь SALES_KPI_REPORT (воркер kpi-report-sales): готовый снапшот периода или сборка отчёта (forceRefresh — всегда заново, после переразбора), затем PDF в Redis на сутки. Только закрытые периоды. Идущая выгрузка того же периода не дублируется. Сообщений не шлёт, в Битрикс не пишет.
+ * @summary Сформировать PDF отчёта собственнику за период
+ */
+const aiAnalyticsOwnerReportExportAdminStart = (
+    aiOwnerReportExportStartDto: AiOwnerReportExportStartDto,
+ ) => {
+      return customAxios<AiOwnerReportExportStateDto>(
+      {url: `/api/admin/ai-analytics/owner-report-export`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiOwnerReportExportStartDto
+    },
+      );
+    }
+  /**
+ * queued / processing / ready / error; не запускали или прошли сутки — state = null. Опрашивать, пока не ready или error.
+ * @summary Состояние выгрузки PDF отчёта собственнику
+ */
+const aiAnalyticsOwnerReportExportAdminState = (
+    params: AiAnalyticsOwnerReportExportAdminStateParams,
+ ) => {
+      return customAxios<AiOwnerReportExportStatusResponseDto>(
+      {url: `/api/admin/ai-analytics/owner-report-export`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Файл готовой выгрузки; не готов — 404 с пояснением.
+ * @summary Скачать готовый PDF отчёта собственнику
+ */
+const aiAnalyticsOwnerReportExportAdminFile = (
+    params: AiAnalyticsOwnerReportExportAdminFileParams,
+ ) => {
+      return customAxios<Blob>(
+      {url: `/api/admin/ai-analytics/owner-report-export/pdf`, method: 'GET',
+        params,
+        responseType: 'blob'
+    },
+      );
+    }
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile}};
 export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
 export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
 export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
@@ -428,3 +474,6 @@ export type AiAnalyticsGuideAdminEntryResult = NonNullable<Awaited<ReturnType<Re
 export type AiAnalyticsLaunchAdminResetCacheResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsLaunchAdminResetCache']>>>
 export type AiAnalyticsLaunchAdminSetStageFlagsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsLaunchAdminSetStageFlags']>>>
 export type AiAnalyticsLaunchAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsLaunchAdminStatus']>>>
+export type AiAnalyticsOwnerReportExportAdminStartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsOwnerReportExportAdminStart']>>>
+export type AiAnalyticsOwnerReportExportAdminStateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsOwnerReportExportAdminState']>>>
+export type AiAnalyticsOwnerReportExportAdminFileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsOwnerReportExportAdminFile']>>>

@@ -14,6 +14,7 @@ import {
     AiLaunchPanel,
     AiSmartBackfillCard,
 } from '@/modules/entities/ai-analytics-launch';
+import { OwnerReportExportCard } from '@/modules/entities/owner-report-export';
 import { usePortal } from '@/modules/entities/portal/hooks';
 
 /** Вкладки страницы; `?tab=knowledge` открывает базу знаний (ссылки путеводителя). */
@@ -53,6 +54,9 @@ function PortalAiSettingsContent() {
             {portal.data?.domain && <AiLaunchPanel domain={portal.data.domain} />}
             {portal.data?.domain && (
                 <AiSmartBackfillCard domain={portal.data.domain} />
+            )}
+            {portal.data?.domain && (
+                <OwnerReportExportCard domain={portal.data.domain} />
             )}
             <Tabs defaultValue={initialTab}>
                 <TabsList>

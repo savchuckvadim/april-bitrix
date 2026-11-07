@@ -112,6 +112,21 @@ describe('runLaunchStep — что зовёт кнопка каждого шаг
             true,
         );
 
+        // Выбран один месяц в панели — подсчёт только за него.
+        await runLaunchStep(api as never, 'reanalyze-count', {
+            domain: DOMAIN,
+            status: launchStatus({
+                reanalysis: { analysisSince: '2026-08-01' },
+            }),
+            now: NOW,
+            countPeriod: { from: '2026-09-01', to: '2026-09-30' },
+        });
+        expect(api.reanalyze).toHaveBeenLastCalledWith(
+            DOMAIN,
+            { from: '2026-09-01', to: '2026-09-30' },
+            true,
+        );
+
         const counted = launchStatus({
             reanalysis: {
                 run: launchRun({ from: '2026-07-21', to: '2026-10-20' }),

@@ -144,7 +144,10 @@ export const buildProductFields = (catalog: Catalog, mainRow: KRow): DealSendFie
     const fields: DealSendField[] = [];
     if (complect) fields.push({ code: 'complect_name', appType: 'product', value: complect.fullTitle });
     if (contract) {
-        fields.push({ code: 'contract_type', appType: 'document', value: contract.bitrixItemId });
+        // 0 — пункт «Тип договора» у портала не привязан: не затираем поле сделки
+        if (contract.bitrixItemId) {
+            fields.push({ code: 'contract_type', appType: 'document', value: contract.bitrixItemId });
+        }
         if (contract.durationMonths > 1) {
             fields.push({ code: 'abonement_time', appType: 'product', value: contract.durationMonths });
         }

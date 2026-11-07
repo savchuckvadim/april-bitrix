@@ -11,6 +11,8 @@ import type {
     AiDailyPlan,
     AiDailyPlanQuery,
     AiDossier,
+    AiOwnerReport,
+    AiOwnerReportQuery,
     AiDossierQuery,
     AiFeedbackList,
     AiFeedbackListQuery,
@@ -76,6 +78,7 @@ export type AiDataSection =
     | 'style'
     | 'planFact'
     | 'dossier'
+    | 'ownerReport'
     | 'typesMatrix'
     | 'forecast'
     | 'feedbackList';
@@ -87,6 +90,7 @@ export const AI_QUEUED_SECTIONS = [
     'byType',
     'brief',
     'dossier',
+    'ownerReport',
     'typesMatrix',
 ] as const;
 export type AiQueuedSection = (typeof AI_QUEUED_SECTIONS)[number];
@@ -104,6 +108,7 @@ export type AiSectionData = {
     style: AiStyleCard;
     planFact: AiPlanFact;
     dossier: AiDossier;
+    ownerReport: AiOwnerReport;
     typesMatrix: AiByType;
     forecast: AiForecast;
     feedbackList: AiFeedbackList;
@@ -139,6 +144,10 @@ export interface AiAnalyticsState {
     dossier: AiSection<AiDossier>;
     /** Чьё досье и за какое окно запрошено. */
     dossierQuery: AiDossierQuery | null;
+    /** Отчёт собственнику за период (owner-report, очередь + WS). */
+    ownerReport: AiSection<AiOwnerReport>;
+    /** Какой период запрошен (вид и ключ; null — последний закрытый). */
+    ownerReportQuery: AiOwnerReportQuery | null;
     /** Срез «все типы × wide» для матриц KPI-вида (очередь + WS; ключ обзора + маркер). */
     typesMatrix: AiSection<AiByType>;
     /** Прогноз отдела на месяц (forecast, sync; Фаза 4, только руководителям). */
@@ -194,6 +203,8 @@ const initialState: AiAnalyticsState = {
     planFactQuery: null,
     dossier: emptySection(),
     dossierQuery: null,
+    ownerReport: emptySection(),
+    ownerReportQuery: null,
     typesMatrix: emptySection(),
     forecast: emptySection(),
     feedbackList: emptySection(),
@@ -373,6 +384,13 @@ const aiAnalyticsSlice = createSlice({
         ) => {
             state.dossierQuery = action.payload;
         },
+        /** Запомнить вид и ключ периода отчёта собственнику (до sectionPending). */
+        ownerReportQueried: (
+            state: AiAnalyticsState,
+            action: PayloadAction<AiOwnerReportQuery>,
+        ) => {
+            state.ownerReportQuery = action.payload;
+        },
         /** Запомнить период и менеджера списка обратной связи (до sectionPending). */
         feedbackListQueried: (
             state: AiAnalyticsState,
@@ -507,6 +525,8 @@ const aiAnalyticsSlice = createSlice({
             state.planFactQuery = null;
             state.dossier = emptySection();
             state.dossierQuery = null;
+            state.ownerReport = emptySection();
+            state.ownerReportQuery = null;
             state.typesMatrix = emptySection();
             state.forecast = emptySection();
             state.feedbackList = emptySection();

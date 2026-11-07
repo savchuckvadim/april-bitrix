@@ -31,6 +31,13 @@ export const ContractGenerateButton = () => {
                     {generate.documentName || 'Договор (DOCX)'}
                 </a>
             ) : null}
+            {generate.isDone && generate.savedToDisk === false ? (
+                <p className="text-xs text-warning">
+                    Диск Битрикса недоступен: договор сохранён на сервере, в сделку ушла ссылка на него.
+                </p>
+            ) : generate.isDone && generate.savedToDisk ? (
+                <p className="text-xs text-muted-foreground">На Диске Битрикса: папка сделки / «Договоры».</p>
+            ) : null}
         </div>
     );
 };

@@ -37,6 +37,7 @@ export const useContractGenerate = () => {
         error: generate.status === 'error' ? generate.error : null,
         link: generate.link,
         documentName: generate.documentName,
+        savedToDisk: generate.savedToDisk,
         run,
     };
 };

@@ -31,6 +31,7 @@ export {
     fetchAiByType,
     fetchAiDailyPlan,
     fetchAiDossier,
+    fetchAiOwnerReport,
     fetchAiFeedbackList,
     fetchAiForecast,
     fetchAiOverview,

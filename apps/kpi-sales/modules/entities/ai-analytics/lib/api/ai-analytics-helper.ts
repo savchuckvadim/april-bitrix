@@ -2,6 +2,7 @@ import {
     getSalesAiAnalytics,
     type AiCacheResetResponseDto,
     type AiFeedbackResultDto,
+    customAxios,
 } from '@workspace/nest-kpi-report-sales-api';
 import type {
     AiAbout,
@@ -18,6 +19,8 @@ import type {
     AiDailyPlanQuery,
     AiDossier,
     AiDossierQuery,
+    AiOwnerReport,
+    AiOwnerReportQuery,
     AiEnvelope,
     AiFeedbackInput,
     AiFeedbackList,
@@ -276,6 +279,41 @@ export class AiAnalyticsHelper {
             ...requester,
             ...query,
             ...options,
+        });
+    }
+
+    /** Отчёт собственнику за период (очередь + WS ai-analytics:owner-report:done|error). */
+    async getOwnerReport(
+        requester: AiRequester,
+        query: AiOwnerReportQuery,
+        options: AiQueueOptions = {},
+    ): Promise<AiEnvelope<AiOwnerReport>> {
+        return await this.api.aiAnalyticsOwnerReportGet({
+            ...requester,
+            kind: query.kind,
+            ...(query.periodKey ? { periodKey: query.periodKey } : {}),
+            ...options,
+        });
+    }
+
+    /**
+     * PDF отчёта собственнику (готовый снапшот периода). Через customAxios
+     * напрямую: generated-клиент не проставляет responseType blob.
+     */
+    async downloadOwnerReportPdf(
+        requester: AiRequester,
+        query: AiOwnerReportQuery,
+    ): Promise<Blob> {
+        return await customAxios<Blob>({
+            url: '/api/ai-analytics/owner-report/pdf',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: {
+                ...requester,
+                kind: query.kind,
+                ...(query.periodKey ? { periodKey: query.periodKey } : {}),
+            },
+            responseType: 'blob',
         });
     }
 

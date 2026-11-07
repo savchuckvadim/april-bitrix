@@ -3,6 +3,7 @@ import { selectIsViewAs } from '@/modules/app/model/selectors';
 import { resolveAiByTypeCallType } from '../lib/ai-call-types.data';
 import type {
     AiDossierQuery,
+    AiOwnerReportQuery,
     AiSettingsInput,
     AiSettingsSaveResult,
 } from './index';
@@ -109,6 +110,30 @@ export const fetchAiDossier =
         await dispatch(loadDossierSection(options));
     };
 
+/** Загрузчик отчёта собственнику по запомненному запросу (resume по WS). */
+const loadOwnerReportSection = (options: AiQueuedLoadOptions = {}) =>
+    loadQueuedSection(
+        'ownerReport',
+        (scope, queue, state) => {
+            const query = state.aiAnalytics.ownerReportQuery;
+            if (!query) throw new Error('Отчёт за период: период не выбран');
+            return aiHelper.getOwnerReport(scope.requester, query, queue);
+        },
+        options,
+    );
+
+/**
+ * Отчёт собственнику за период: очередь + WS ai-analytics:owner-report:done;
+ * ключ — requester, вид и ключ периода (период фильтра не участвует).
+ * { force: true } — собрать заново, минуя кэш и снапшот.
+ */
+export const fetchAiOwnerReport =
+    (query: AiOwnerReportQuery, options: AiQueuedLoadOptions = {}) =>
+    async (dispatch: AppDispatch): Promise<void> => {
+        dispatch(aiAnalyticsActions.ownerReportQueried(query));
+        await dispatch(loadOwnerReportSection(options));
+    };
+
 /**
  * WS ai-analytics:overview:done / brief:done — результат в кэше сервера:
  * повторяем POST у всех тяжёлых секций, которые ждали этот ключ
@@ -125,6 +150,7 @@ export const resumeAiQueuedSections =
             byType: fetchAiByType,
             brief: fetchAiBrief,
             dossier: loadDossierSection,
+            ownerReport: loadOwnerReportSection,
             typesMatrix: fetchAiTypesMatrix,
         } as const;
         await Promise.all(

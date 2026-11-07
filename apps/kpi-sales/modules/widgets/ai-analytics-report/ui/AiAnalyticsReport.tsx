@@ -8,6 +8,7 @@ import { AiTypesDrawer } from './AiTypesDrawer';
 import { AiSummaryTab } from './tabs/AiSummaryTab';
 import { AiEmployeesTab } from './tabs/AiEmployeesTab';
 import { AiQualityTab } from './tabs/AiQualityTab';
+import { AiOwnerReportTab } from './tabs/AiOwnerReportTab';
 import { AiShowcaseSettingsTab } from './tabs/AiShowcaseSettingsTab';
 
 /**
@@ -67,6 +68,9 @@ export const AiAnalyticsReport = () => {
             )}
             {report.tab === 'quality' && (
                 <AiQualityTab kpiOnly={report.kpiOnly} />
+            )}
+            {report.tab === 'report' && (
+                <AiOwnerReportTab canConfigure={report.canConfigure} />
             )}
             {report.tab === 'settings' && (
                 <AiShowcaseSettingsTab

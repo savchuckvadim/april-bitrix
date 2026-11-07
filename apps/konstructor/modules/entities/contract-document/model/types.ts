@@ -91,7 +91,9 @@ export type ContractGenerateStatus = 'idle' | 'generating' | 'done' | 'error';
 export interface ContractGenerateResult {
     status: ContractGenerateStatus;
     error: string | null;
-    /** Публичная ссылка на DOCX договора */
+    /** Ссылка на договор: файл на Диске Битрикса, при сбое Диска — на сервере */
     link: string | null;
     documentName: string | null;
+    /** Договор лёг на Диск Битрикса (папка сделки / «Договоры»); null — ещё не формировали */
+    savedToDisk: boolean | null;
 }

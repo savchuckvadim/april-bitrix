@@ -124,7 +124,13 @@ export const generateContract = (): AppThunk<Promise<boolean>> => async (dispatc
     try {
         await dispatch(saveSnapshot());
         const response = await helper.generate(request);
-        dispatch(contractDocumentActions.generateDone({ link: response.link, documentName: response.documentName }));
+        dispatch(
+            contractDocumentActions.generateDone({
+                link: response.link,
+                documentName: response.documentName,
+                savedToDisk: response.savedToDisk,
+            }),
+        );
         return true;
     } catch (error) {
         dispatch(contractDocumentActions.generateFailed(errorText(error, 'договор не сформирован')));

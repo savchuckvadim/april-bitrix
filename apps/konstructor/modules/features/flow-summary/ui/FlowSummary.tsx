@@ -21,7 +21,8 @@ export interface FlowSummaryProps {
 
 /**
  * Саммари шага (легаси ResultContainer): итог сборки и переход на следующий
- * шаг. Стоит в правой колонке ScreenSplit и липнет под степпером.
+ * шаг. Стоит в правой колонке ScreenSplit и липнет под степпером. «Назад» —
+ * над карточкой, как «К документам» на экранах документов.
  */
 export const FlowSummary = ({
     title = 'Итог',
@@ -34,44 +35,40 @@ export const FlowSummary = ({
     const step = useFlowStepActions(onNext);
 
     return (
-        <SectionCard
-            title={title}
-            tone="complect"
-            accent
-            footer={
-                <div className="flex w-full flex-col gap-2">
-                    {hint ? (
-                        <p className="text-xs text-muted-foreground">{hint}</p>
-                    ) : null}
-                    {actions}
-                    {step.nextLabel ? (
-                        <Button
-                            onClick={step.goNext}
-                            disabled={nextDisabled}
-                            className={cn(
-                                'w-full',
-                                step.isComplectTone &&
-                                    'bg-complect-current text-complect-current-foreground hover:bg-complect-current/90',
-                            )}
-                        >
-                            Далее: {step.nextLabel}
-                            <ArrowRight aria-hidden />
-                        </Button>
-                    ) : null}
-                    {step.canGoBack ? (
-                        <Button
-                            variant="ghost"
-                            onClick={step.goBack}
-                            className="w-full"
-                        >
-                            <ArrowLeft aria-hidden />
-                            Назад
-                        </Button>
-                    ) : null}
-                </div>
-            }
-        >
-            {children}
-        </SectionCard>
+        <>
+            {step.canGoBack ? (
+                <Button variant="ghost" onClick={step.goBack} className="self-end">
+                    <ArrowLeft aria-hidden />
+                    Назад
+                </Button>
+            ) : null}
+            <SectionCard
+                title={title}
+                tone="complect"
+                accent
+                footer={
+                    <div className="flex w-full flex-col gap-2">
+                        {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+                        {actions}
+                        {step.nextLabel ? (
+                            <Button
+                                onClick={step.goNext}
+                                disabled={nextDisabled}
+                                className={cn(
+                                    'w-full',
+                                    step.isComplectTone &&
+                                        'bg-complect-current text-complect-current-foreground hover:bg-complect-current/90',
+                                )}
+                            >
+                                Далее: {step.nextLabel}
+                                <ArrowRight aria-hidden />
+                            </Button>
+                        ) : null}
+                    </div>
+                }
+            >
+                {children}
+            </SectionCard>
+        </>
     );
 };

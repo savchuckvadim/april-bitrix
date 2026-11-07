@@ -9,11 +9,18 @@ import type { ContractGenerateResponseDtoData } from './contractGenerateResponse
 import type { ContractGenerateResponseDtoProvider } from './contractGenerateResponseDtoProvider';
 
 export interface ContractGenerateResponseDto {
-    /** Публичная ссылка на DOCX договора */
+    /** Ссылка на договор: файл на Диске Битрикса (папка сделки / «Договоры»), при сбое Диска — файл на сервере */
     link: string;
-    /** Та же ссылка; её читает init-supply */
+    /**
+     * Файл на Диске Битрикса; null — Диск недоступен, в link серверная ссылка
+     * @nullable
+     */
+    bitrixLink: string | null;
+    /** Договор сохранён на Диск Битрикса */
+    savedToDisk: boolean;
+    /** Файл на сервере; его читает init-supply */
     file: string;
-    /** Та же ссылка; под этим именем её ждёт фронт */
+    /** Файл на сервере (легаси-имя поля) */
     document: string;
     /** Имя файла документа */
     documentName: string;

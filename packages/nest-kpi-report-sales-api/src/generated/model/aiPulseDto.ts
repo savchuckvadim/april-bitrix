@@ -7,7 +7,7 @@
  */
 import type { AiPulseWindowDto } from './aiPulseWindowDto';
 import type { MetricDto } from './metricDto';
-import type { AiPulsePreviousDto } from './aiPulsePreviousDto';
+import type { AiPulseDtoPrevious } from './aiPulseDtoPrevious';
 import type { AiPulseDtoXmr } from './aiPulseDtoXmr';
 import type { AiPulseManagerDto } from './aiPulseManagerDto';
 import type { AiPulseAlertDto } from './aiPulseAlertDto';
@@ -23,7 +23,7 @@ export interface AiPulseDto {
      * Такое же окно перед текущим — для «неделей раньше»; null — разборов в нём нет; поля нет — ответ из кэша до обновления.
      * @nullable
      */
-    previous?: AiPulsePreviousDto | null;
+    previous?: AiPulseDtoPrevious;
     /**
      * XmR-границы по дневным долям; null — меньше 3 дней с разборами.
      * @nullable

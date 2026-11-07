@@ -5,8 +5,8 @@
  * API приложения kpi-report-sales
  * OpenAPI spec version: 1.0
  */
-import type { AiPulseManagerExamplesDto } from './aiPulseManagerExamplesDto';
 import type { MetricDto } from './metricDto';
+import type { AiPulseManagerExamplesDto } from './aiPulseManagerExamplesDto';
 
 export interface AiPulseManagerDto {
     /** Bitrix-id менеджера. */

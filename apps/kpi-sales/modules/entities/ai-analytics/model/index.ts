@@ -1,3 +1,13 @@
+import { AiOwnerReportRequestDtoKind } from '@workspace/nest-kpi-report-sales-api';
+import type {
+    AiOwnerReportDto,
+    AiOwnerReportLeakDto,
+    AiOwnerReportManagerDto,
+    AiOwnerReportMetricDto,
+    AiOwnerReportSignDto,
+    AiOwnerReportTextDto,
+    AiOwnerReportTileDto,
+} from '@workspace/nest-kpi-report-sales-api';
 import type {
     AiAbsenceDto,
     AiAbsenceDtoKind,
@@ -322,6 +332,25 @@ export interface AiDailyPlanQuery {
 /* ---------- AI-резюме периода (brief, очередь + WS) ---------- */
 
 export type AiBrief = AiBriefDto;
+
+/* ---------- Отчёт собственнику за период (owner-report, очередь + WS) ---------- */
+
+export type AiOwnerReport = AiOwnerReportDto;
+export type AiOwnerReportText = AiOwnerReportTextDto;
+export type AiOwnerReportTile = AiOwnerReportTileDto;
+export type AiOwnerReportLeak = AiOwnerReportLeakDto;
+export type AiOwnerReportManager = AiOwnerReportManagerDto;
+export type AiOwnerReportMetric = AiOwnerReportMetricDto;
+export type AiOwnerReportSign = AiOwnerReportSignDto;
+/** Вид периода: month | quarter | half_year | year. */
+export type AiOwnerReportKind = AiOwnerReportRequestDtoKind;
+export const AI_OWNER_REPORT_KINDS = AiOwnerReportRequestDtoKind;
+
+/** Запрос отчёта: вид периода и ключ (null — последний закрытый период). */
+export interface AiOwnerReportQuery {
+    kind: AiOwnerReportKind;
+    periodKey: string | null;
+}
 export type AiBriefBullet = AiBriefBulletDto;
 /** Группа пункта: change — что изменилось, focus — на кого смотреть, action — что сделать. */
 export type AiBriefBulletGroup = AiBriefBulletDtoGroup;

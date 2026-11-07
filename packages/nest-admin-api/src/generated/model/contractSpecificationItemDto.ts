@@ -11,7 +11,6 @@ import type { SupplyType } from './supplyType';
 import type { ContractLtype } from './contractLtype';
 import type { ContractRqGroup } from './contractRqGroup';
 import type { ContractSpecificationItemDtoValue } from './contractSpecificationItemDtoValue';
-import type { ContractSpecificationCode } from './contractSpecificationCode';
 
 export interface ContractSpecificationItemDto {
   /** Type of the FormFieldDto */
@@ -43,6 +42,6 @@ export interface ContractSpecificationItemDto {
    * @nullable
    */
   value: ContractSpecificationItemDtoValue;
-  /** Код строки спецификации */
-  code: ContractSpecificationCode;
+  /** Код строки спецификации (ContractSpecificationCodeEnum); второй и следующие платные пакеты Legal Tech — specification_lt_packet_N и specification_lt_services_N */
+  code: string;
 }

@@ -28,4 +28,5 @@ export const AiAnalyticsLaunchCacheResetResultDtoScope = {
   'brief-quota': 'brief-quota',
   'stage-history': 'stage-history',
   calendar: 'calendar',
+  'owner-report': 'owner-report',
 } as const;

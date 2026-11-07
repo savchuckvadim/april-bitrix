@@ -34,6 +34,7 @@ export const AiAnalyticsCostTypeDtoType = {
   'ai-analytics-forecast-log': 'ai-analytics-forecast-log',
   'ai-analytics-forecast-backtest': 'ai-analytics-forecast-backtest',
   'ai-analytics-recommendation-effect': 'ai-analytics-recommendation-effect',
+  'ai-analytics-owner-report': 'ai-analytics-owner-report',
   'agent-analysis': 'agent-analysis',
   'agent-analysis-retest': 'agent-analysis-retest',
 } as const;

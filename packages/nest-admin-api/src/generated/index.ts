@@ -32,6 +32,7 @@ export * from './admin-portal-ai-settings/admin-portal-ai-settings';
 export * from './admin-portal-app-settings/admin-portal-app-settings';
 export * from './admin-portal-contracts-management/admin-portal-contracts-management';
 export * from './admin-portal-garant-region/admin-portal-garant-region';
+export * from './admin-portal-employees/admin-portal-employees';
 export * from './admin-portal-keys/admin-portal-keys';
 export * from './admin-portal-management/admin-portal-management';
 export * from './admin-portal-measures-management/admin-portal-measures-management';

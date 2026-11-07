@@ -17,6 +17,7 @@ import type {
     PortalAppSettingValue,
 } from '../../../model';
 import { AppSettingChoiceField } from './AppSettingChoiceField';
+import { AppSettingEmployeeField } from './AppSettingEmployeeField';
 import { AppSettingListField } from './AppSettingListField';
 import { AppSettingUsage } from './AppSettingRelations';
 
@@ -103,7 +104,16 @@ export const AppSettingField = ({
                 </span>
             </div>
 
-            {descriptor.isList && descriptor.options?.length ? (
+            {descriptor.pick && portalId !== undefined ? (
+                /* Сотрудники портала: выбор из списка с должностью и
+                   отделом вместо Bitrix-id цифрами. */
+                <AppSettingEmployeeField
+                    portalId={portalId}
+                    descriptor={descriptor}
+                    value={effective}
+                    onChange={onChange}
+                />
+            ) : descriptor.isList && descriptor.options?.length ? (
                 /* Настройка-список: коды берутся из справочника бэка, а не
                    набираются руками — опечатка в CSV молча означала бы
                    «ничего не выбрано». */

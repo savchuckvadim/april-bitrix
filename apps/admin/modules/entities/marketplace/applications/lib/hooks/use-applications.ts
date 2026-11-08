@@ -12,6 +12,7 @@ import {
 } from '@workspace/nest-admin-api';
 import { getErrorMessage } from '../../../shared';
 import { ApplicationsHelper } from '../api/applications-helper';
+import type { LivePlacements } from '../../model/live-placements';
 
 const helper = new ApplicationsHelper();
 
@@ -141,3 +142,13 @@ export const usePlacementsRefresh = () => {
         },
     });
 };
+
+/**
+ * «Проверить в Битриксе»: живой список привязок портала (placement.get).
+ * По кнопке, не при открытии страницы — это вызов к порталу клиента.
+ * Ошибку показывает карточка, без тоста.
+ */
+export const useLivePlacementsCheck = () =>
+    useMutation<LivePlacements, Error, number>({
+        mutationFn: (portalId) => helper.livePlacements(portalId),
+    });

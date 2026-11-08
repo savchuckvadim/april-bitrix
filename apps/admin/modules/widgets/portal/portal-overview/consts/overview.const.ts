@@ -20,6 +20,9 @@ export const portalDevUrl = (domain: string): string =>
 /** Часы окна «нагрузка и ошибки». */
 export const LOAD_WINDOW_HOURS = 24;
 
+/** Дней в статистике обращений в поддержку. */
+export const SUPPORT_STATS_DAYS = 30;
+
 export const APPROVAL_TITLE: Record<string, { label: string; tone: 'success' | 'warning' | 'destructive' | 'muted' }> = {
     approved: { label: 'допущен', tone: 'success' },
     pending: { label: 'ждёт одобрения', tone: 'warning' },

@@ -25,7 +25,7 @@ export const PortalOverview = ({ portal }: { portal: AdminPortalResponseDto }) =
             <div className="grid gap-4 lg:grid-cols-2">
                 <ConnectionCard portal={portal} />
                 <WidgetsCard portalId={portal.id} />
-                {domain && <LoadCard domain={domain} />}
+                {domain && <LoadCard portalId={portal.id} domain={domain} />}
                 {domain && <SupportCard domain={domain} />}
                 {domain && <AutomationCard portalId={portal.id} domain={domain} />}
             </div>

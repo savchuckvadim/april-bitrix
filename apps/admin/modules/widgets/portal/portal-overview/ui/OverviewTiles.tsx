@@ -3,8 +3,8 @@
 import { useApplicationComponents } from '@/modules/entities/marketplace/applications';
 import { useLogsSummary } from '@/modules/entities/logs';
 import { useCabinetCard } from '@/modules/entities/portal/cabinet';
-import { useSupportGuide, useSupportOpenDialogs } from '@/modules/entities/support';
-import { LOAD_WINDOW_HOURS } from '../consts/overview.const';
+import { useSupportDialogStats, useSupportGuide, useSupportOpenDialogs } from '@/modules/entities/support';
+import { LOAD_WINDOW_HOURS, SUPPORT_STATS_DAYS } from '../consts/overview.const';
 import { dialogsOfPortal, installedPlacementCount } from '../lib/overview-view';
 import { OverviewTile } from './OverviewTile';
 
@@ -19,6 +19,7 @@ export const OverviewTiles = ({ portalId, domain }: { portalId: number; domain: 
     const logs = useLogsSummary({ hours: LOAD_WINDOW_HOURS, domain }).data;
     const lineDomain = useSupportGuide().data?.lineDomain;
     const support = useSupportOpenDialogs(lineDomain).data;
+    const supportStats = useSupportDialogStats(domain, SUPPORT_STATS_DAYS).data;
 
     const app = card?.app;
     const members = card?.members.filter(member => !member.revoked && member.role !== 'pending') ?? [];
@@ -66,7 +67,11 @@ export const OverviewTiles = ({ portalId, domain }: { portalId: number; domain: 
             <OverviewTile
                 label="Поддержка"
                 value={dialogs === null ? '…' : `${dialogs.length} открытых`}
-                hint="обращения с этого портала"
+                hint={
+                    supportStats?.available
+                        ? `за ${SUPPORT_STATS_DAYS} дн.: ${supportStats.total}`
+                        : "обращения с этого портала"
+                }
                 tone={dialogs?.length ? 'warning' : 'muted'}
                 href="/support"
             />

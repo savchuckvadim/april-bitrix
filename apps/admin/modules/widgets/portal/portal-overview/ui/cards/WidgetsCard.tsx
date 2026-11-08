@@ -6,6 +6,7 @@ import { ToneBadge } from '@workspace/april-ui/badges';
 import { useApplicationComponents } from '@/modules/entities/marketplace/applications';
 import { useCabinetCard, WIDGET_TITLE } from '@/modules/entities/portal/cabinet';
 import { widgetRows, type WidgetState } from '../../lib/overview-view';
+import { LiveWidgetsCheck } from './LiveWidgetsCheck';
 
 const STATE: Record<WidgetState, { label: string; tone: 'success' | 'destructive' | 'muted' }> = {
     installed: { label: 'привязан', tone: 'success' },
@@ -15,8 +16,9 @@ const STATE: Record<WidgetState, { label: string; tone: 'success' | 'destructive
 
 /**
  * Виджеты по списку портала (`app_widgets`) против последней синхронизации
- * привязок: где привязан, что с ошибкой. Ставит и переставляет — вкладка
- * «Кабинет» → «Обновить виджеты».
+ * привязок: где привязан, что с ошибкой; по кнопке — сверка с Битриксом
+ * ({@link LiveWidgetsCheck}). Ставит и переставляет — вкладка «Кабинет» →
+ * «Обновить виджеты».
  */
 export const WidgetsCard = ({ portalId }: { portalId: number }) => {
     const app = useCabinetCard(portalId).data?.app;
@@ -47,6 +49,7 @@ export const WidgetsCard = ({ portalId }: { portalId: number }) => {
                     </li>
                 ))}
             </ul>
+            {app && <LiveWidgetsCheck portalId={portalId} desired={app.widgets} titles={WIDGET_TITLE} />}
             <Link href={`/portal/${portalId}/cabinet`} className="mt-3 inline-block text-sm text-primary hover:underline">
                 Обновить или переустановить — вкладка «Кабинет»
             </Link>

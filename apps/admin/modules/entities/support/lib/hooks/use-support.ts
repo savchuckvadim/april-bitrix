@@ -29,6 +29,19 @@ export const useSupportOpenDialogs = (lineDomain?: string) =>
         retry: false,
     });
 
+/**
+ * Статистика обращений портала-клиента: из истории в БД, Битрикс не
+ * читает. Учёт ведёт крон линии раз в несколько минут — кэш 5 минут.
+ */
+export const useSupportDialogStats = (clientPortal: string, days: number) =>
+    useQuery({
+        queryKey: [...SUPPORT_QUERY_KEY, 'stats', clientPortal, days],
+        queryFn: () => helper.stats(clientPortal, days),
+        enabled: !!clientPortal,
+        staleTime: 300_000,
+        retry: false,
+    });
+
 /** «Проверить линию сейчас»: по кнопке, без кэша. */
 export const useSupportPreview = () =>
     useMutation({

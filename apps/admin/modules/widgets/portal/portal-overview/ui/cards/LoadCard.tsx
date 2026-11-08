@@ -7,16 +7,18 @@ import { ToneBadge } from '@workspace/april-ui/badges';
 import { useLogsSummary } from '@/modules/entities/logs';
 import { grafanaLoadUrl, LOAD_WINDOW_HOURS } from '../../consts/overview.const';
 import { isBitrixLimitError } from '../../lib/overview-view';
+import { BitrixCallsSummary } from './BitrixCallsSummary';
 
 const TOP_ERRORS = 5;
 
 /**
- * Нагрузка и ошибки портала за сутки — по журналам приложений (ClickHouse):
+ * Нагрузка и ошибки портала за сутки: вызовы Битрикса — по метрикам
+ * Prometheus ({@link BitrixCallsSummary}); ошибки — по журналам приложений (ClickHouse):
  * ошибки и предупреждения по приложениям, частые ошибки, отдельно —
  * перегрузка Битрикса (QUERY_LIMIT_EXCEEDED и т.п.). Графики вызовов —
  * в Grafana («Нагрузка на Битрикс»), если задан её адрес.
  */
-export const LoadCard = ({ domain }: { domain: string }) => {
+export const LoadCard = ({ portalId, domain }: { portalId: number; domain: string }) => {
     const { data, isLoading, isError } = useLogsSummary({ hours: LOAD_WINDOW_HOURS, domain });
     const apps = (data?.apps ?? []).filter(item => item.total > 0);
     const top = (data?.topErrors ?? []).slice(0, TOP_ERRORS);
@@ -28,7 +30,7 @@ export const LoadCard = ({ domain }: { domain: string }) => {
     return (
         <SectionCard
             title={`Нагрузка и ошибки за ${LOAD_WINDOW_HOURS} ч`}
-            description="По журналам приложений April для этого портала."
+            description="Вызовы Битрикса — по метрикам, ошибки — по журналам приложений April."
             actions={
                 limitHits > 0 ? (
                     <ToneBadge tone="destructive" size="sm">
@@ -37,6 +39,8 @@ export const LoadCard = ({ domain }: { domain: string }) => {
                 ) : undefined
             }
         >
+            <BitrixCallsSummary portalId={portalId} />
+            <p className="mb-1 mt-4 border-t pt-3 text-xs font-medium text-muted-foreground">Журналы приложений</p>
             {isLoading && <p className="text-sm text-muted-foreground">Загрузка…</p>}
             {isError && <p className="text-sm text-destructive">Журналы не загрузились</p>}
             {data && apps.length === 0 && (

@@ -27,4 +27,14 @@ export interface AdminPortalResponseDto {
   created_at?: string;
   /** Updated at */
   updated_at?: string;
+  /**
+   * member_id портала Битрикс24 — постоянный идентификатор (не меняется при смене домена); появляется после установки приложения.
+   * @nullable
+   */
+  member_id?: string | null;
+  /**
+   * Допуск портала: pending — ждёт одобрения, approved — допущен, blocked — отключён; пусто — действующий клиент (легаси).
+   * @nullable
+   */
+  approval_status?: string | null;
 }

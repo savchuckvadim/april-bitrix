@@ -22,7 +22,6 @@ export const PortalNavigation = () => {
         isPortalProvider,
         portalId,
         isPortalStatistics,
-        isPortalEvent,
         isPortalKonstructor,
         isPortalHooks,
     } = useDeepRouting();
@@ -59,7 +58,6 @@ export const PortalNavigation = () => {
 
                 {portalId && <Link href={`/portal/${portalId}/statistics`} className={isPortalStatistics ? 'text-primary' : 'text-gray-500'}>{'Statistics'}</Link>}
 
-                {portalId && <Link href={`/portal/${portalId}/event`} className={isPortalEvent ? 'text-primary' : 'text-gray-500'}>{'Event'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/konstructor`} className={isPortalKonstructor ? 'text-primary' : 'text-gray-500'}>{'Konstructor'}</Link>}
 

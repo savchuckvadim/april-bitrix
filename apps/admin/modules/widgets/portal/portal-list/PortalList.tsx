@@ -1,19 +1,19 @@
 'use client';
 
-import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { usePortals, useDeletePortal } from '../../../entities/portal/';
+import { usePortals } from '../../../entities/portal/';
 import { PortalTable } from '../portal-table';
 import { Button } from '@workspace/ui/components/button';
-import { ConfirmDialog } from '@/modules/shared/ui/confirm-dialog';
 import { AdminPortalResponseDto } from '@workspace/nest-admin-api';
 
+/**
+ * Список порталов. Удаления здесь нет (решение владельца 08.11.2026):
+ * портал тянет за собой установки, кабинет и настройки — удалять его из
+ * админки одной кнопкой рано.
+ */
 export function PortalList() {
     const router = useRouter();
     const { data: portals, isLoading } = usePortals();
-    const deletePortal = useDeletePortal();
-    const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-    const [portalToDelete, setPortalToDelete] = React.useState<number | null>(null);
 
     const handleRowClick = (portal: AdminPortalResponseDto) => {
         router.push(`/portal/${portal.id}`);
@@ -23,22 +23,6 @@ export function PortalList() {
         router.push(`/portal/${portal.id}/edit`);
     };
 
-    const handleDelete = (portal: AdminPortalResponseDto) => {
-        setPortalToDelete(portal.id);
-        setDeleteDialogOpen(true);
-    };
-
-    const confirmDelete = () => {
-        if (portalToDelete) {
-            deletePortal.mutate(portalToDelete, {
-                onSuccess: () => {
-                    setDeleteDialogOpen(false);
-                    setPortalToDelete(null);
-                },
-            });
-        }
-    };
-    ;
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -53,17 +37,6 @@ export function PortalList() {
                 isLoading={isLoading}
                 onRowClick={handleRowClick}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
-
-            <ConfirmDialog
-                open={deleteDialogOpen}
-                onOpenChange={setDeleteDialogOpen}
-                title="Подтвердите удаление"
-                description="Вы уверены, что хотите удалить этот portal? Это действие нельзя отменить."
-                onConfirm={confirmDelete}
-                confirmLabel="Удалить"
-                variant="destructive"
             />
         </div>
     );

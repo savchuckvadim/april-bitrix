@@ -153,6 +153,14 @@ describe('resolveDeepRoute: карточка портала и её раздел
         expect(route.isPortalAppSettings).toBe(false);
     });
 
+    it('«Кабинет» поднимает свой флаг и не считается карточкой портала', () => {
+        const route = resolveDeepRoute(`/portal/${PORTAL_ID}/cabinet`, PORTAL_ID);
+
+        expect(route.isPortalCabinet).toBe(true);
+        expect(route.isPortalDetail).toBe(false);
+        expect(route.isPortalVendorSuperUsers).toBe(false);
+    });
+
     it('вложенные экраны раздела остаются в своём разделе', () => {
         const route = resolveDeepRoute(
             `/portal/${PORTAL_ID}/questionnaires/some-id`,

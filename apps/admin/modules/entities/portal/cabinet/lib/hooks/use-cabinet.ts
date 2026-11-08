@@ -1,0 +1,101 @@
+'use client';
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/modules/entities/pbx/lib/api-error';
+import { CabinetHelper } from '../api/cabinet-helper';
+import type {
+    CabinetAddMember,
+    CabinetInviteResult,
+    CabinetPasswordLink,
+} from '../../model';
+
+const helper = new CabinetHelper();
+const KEY = ['portal-cabinet'] as const;
+
+/** Кабинет портала: организация, участники, привязки Telegram. */
+export const useCabinetCard = (portalId?: number) =>
+    useQuery({
+        queryKey: [...KEY, portalId],
+        queryFn: () => helper.card(portalId as number),
+        enabled: !!portalId,
+    });
+
+/** Общая обвязка действий: тост, ошибка по-русски, перечитать кабинет. */
+const useCabinetAction = <TVars, TResult>(
+    portalId: number,
+    action: (vars: TVars) => Promise<TResult>,
+    successText: string,
+    onDone?: (result: TResult) => void,
+) => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: action,
+        onSuccess: result => {
+            toast.success(successText);
+            onDone?.(result);
+            void qc.invalidateQueries({ queryKey: [...KEY, portalId] });
+        },
+        onError: error =>
+            toast.error('Не получилось', {
+                description: getApiErrorMessage(error),
+            }),
+    });
+};
+
+export const useAttachCabinetClient = (portalId: number) =>
+    useCabinetAction(
+        portalId,
+        (clientId: number | null) => helper.attachClient(portalId, clientId),
+        'Организация сохранена',
+    );
+
+export const useInviteCabinetMember = (
+    portalId: number,
+    onDone: (result: CabinetInviteResult) => void,
+) =>
+    useCabinetAction(
+        portalId,
+        (payload: CabinetAddMember) => helper.invite(portalId, payload),
+        'Доступ выдан',
+        onDone,
+    );
+
+export const useApproveCabinetMember = (portalId: number) =>
+    useCabinetAction(
+        portalId,
+        (membershipId: string) => helper.approve(portalId, membershipId),
+        'Заявка подтверждена',
+    );
+
+export const useMakeCabinetOwner = (portalId: number) =>
+    useCabinetAction(
+        portalId,
+        (membershipId: string) => helper.makeOwner(portalId, membershipId),
+        'Права владельца переданы',
+    );
+
+export const useCabinetPasswordLink = (
+    portalId: number,
+    onDone: (link: CabinetPasswordLink) => void,
+) =>
+    useCabinetAction(
+        portalId,
+        (membershipId: string) => helper.passwordLink(portalId, membershipId),
+        'Ссылка выпущена',
+        onDone,
+    );
+
+export const useRevokeCabinetMember = (portalId: number) =>
+    useCabinetAction(
+        portalId,
+        (membershipId: string) => helper.revoke(portalId, membershipId),
+        'Доступ снят',
+    );
+
+export const useRevokeCabinetTelegram = (portalId: number) =>
+    useCabinetAction(
+        portalId,
+        (bindingId: string) => helper.revokeTelegram(portalId, bindingId),
+        'Telegram отвязан',
+    );

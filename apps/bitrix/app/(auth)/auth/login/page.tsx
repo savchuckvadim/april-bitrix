@@ -1,13 +1,8 @@
 'use client';
 
-;
-import { AuthWidget } from '@/modules/processes/auth/ui/auth-widget';
+import { LoginForm } from '@/modules/features/client-cabinet';
 
-export default function AuthPage() {
-
-
-    return (
-        <AuthWidget />
-    );
-
+/** Вход в кабинет клиента April с сайта (вне Битрикс24). */
+export default function LoginPage() {
+    return <LoginForm />;
 }

@@ -14,3 +14,4 @@ export { EBXEntity } from './core/domain/consts/bitrix-entities.enum';
 
 export * from './install';
 export * from './marketplace';
+export * from './cabinet';

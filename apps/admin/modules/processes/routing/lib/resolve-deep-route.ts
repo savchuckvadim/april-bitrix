@@ -26,6 +26,8 @@ export interface DeepRoute {
     /** Раздел «Бейджики» карточки портала. */
     isPortalBadges: boolean;
     isPortalVendorSuperUsers: boolean;
+    /** Раздел «Кабинет» карточки портала (кабинет клиента, 07.11.2026). */
+    isPortalCabinet: boolean;
     isPortalProvider: boolean;
     portalId: string;
     /** Карточка портала: портал открыт, но ни один его раздел не выбран. */
@@ -111,6 +113,7 @@ export const resolveDeepRoute = (
     const isPortalBadges = isPortal && portalSection === 'badges';
     const isPortalVendorSuperUsers =
         isPortal && portalSection === 'vendor-super-users';
+    const isPortalCabinet = isPortal && portalSection === 'cabinet';
     const isPortalProvider = isPortal && portalSection === 'provider';
     const isPortalStatistics = isPortal && portalSection === 'statistics';
     const isPortalKonstructor = isPortal && portalSection === 'konstructor';
@@ -130,6 +133,7 @@ export const resolveDeepRoute = (
             !isPortalQuestionnaires &&
             !isPortalBadges &&
             !isPortalVendorSuperUsers &&
+            !isPortalCabinet &&
             !isPortalProvider &&
             !isPortalKonstructor &&
             !isPortalHooks,
@@ -157,6 +161,7 @@ export const resolveDeepRoute = (
         isPortalQuestionnaires,
         isPortalBadges,
         isPortalVendorSuperUsers,
+        isPortalCabinet,
         isPortalProvider,
         portalId,
         isPortalDetail,

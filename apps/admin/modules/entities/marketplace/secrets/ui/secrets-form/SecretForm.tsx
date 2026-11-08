@@ -20,6 +20,26 @@ export interface SecretFormValues extends UpsertAppSecretDto {
     code: string;
 }
 
+/**
+ * Код строки секретов ЛОКАЛЬНОГО приложения портала — конвенция бэка
+ * (`libs/marketplace-core`, `localAppSecretCodeByDomain`): клиент заводит
+ * приложение у себя в Битрикс24, его client_id/secret лежат под кодом
+ * `garant_local:<домен>`; после установки бэк сам копирует их под
+ * постоянный ключ портала (member_id).
+ */
+const LOCAL_APP_SECRET_PREFIX = 'garant_local:';
+
+const normalizeDomain = (domain: string): string =>
+    domain
+        .trim()
+        .toLowerCase()
+        .replace(/^https?:\/\//, '')
+        .replace(/\/+$/, '')
+        .split('/')[0] ?? '';
+
+export const localAppSecretCode = (domain: string): string =>
+    `${LOCAL_APP_SECRET_PREFIX}${normalizeDomain(domain)}`;
+
 interface SecretFormProps {
     mode: 'create' | 'edit';
     initialData?: AppSecretDto;
@@ -37,10 +57,21 @@ export function SecretForm({
     isLoading = false,
 }: SecretFormProps) {
     const [showSecret, setShowSecret] = React.useState(false);
+    // Локальное приложение портала: код строки собирается из домена.
+    const [isLocalApp, setIsLocalApp] = React.useState(
+        mode === 'create' ||
+            (initialData?.code ?? '').startsWith(LOCAL_APP_SECRET_PREFIX),
+    );
+    const [portalDomain, setPortalDomain] = React.useState(
+        (initialData?.code ?? '').startsWith(LOCAL_APP_SECRET_PREFIX)
+            ? (initialData?.code ?? '').slice(LOCAL_APP_SECRET_PREFIX.length)
+            : '',
+    );
 
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
     } = useForm<SecretFormValues>({
         defaultValues: {
@@ -52,9 +83,15 @@ export function SecretForm({
         },
     });
 
+    const handleDomainChange = (value: string) => {
+        setPortalDomain(value);
+        setValue('code', localAppSecretCode(value), { shouldValidate: true });
+    };
+
     const onSubmitForm = (values: SecretFormValues) => {
         onSubmit({
             ...values,
+            code: isLocalApp ? localAppSecretCode(portalDomain) : values.code,
             group: values.group || undefined,
             type: values.type || undefined,
         });
@@ -69,29 +106,79 @@ export function SecretForm({
                         : `Изменить креды «${initialData?.code ?? ''}»`}
                 </CardTitle>
                 <CardDescription>
-                    Код приложения «Менеджер Гарант» — garant_manager; значения
-                    client_id/client_secret — из кабинета вендора Битрикс24.
+                    Локальное приложение портала — ключи из карточки
+                    приложения на портале клиента (Разработчикам → Другое →
+                    Локальное приложение); код строки собирается из домена.
+                    Тиражное приложение — код garant_manager, ключи из
+                    кабинета вендора.
                 </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit(onSubmitForm)}>
                 <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="code">Код приложения</Label>
-                        <Input
-                            id="code"
-                            placeholder="garant_manager"
-                            readOnly={mode === 'edit'}
-                            className={mode === 'edit' ? 'bg-muted' : undefined}
-                            {...register('code', {
-                                required: 'Укажите код приложения',
-                            })}
-                        />
-                        {errors.code && (
-                            <p className="text-sm text-destructive">
-                                {errors.code.message}
+                    {mode === 'create' && (
+                        <label className="flex items-center gap-2 text-sm">
+                            <input
+                                type="checkbox"
+                                checked={isLocalApp}
+                                onChange={(event) =>
+                                    setIsLocalApp(event.target.checked)
+                                }
+                            />
+                            Локальное приложение портала (ключи свои у
+                            каждого портала)
+                        </label>
+                    )}
+
+                    {isLocalApp ? (
+                        <div className="space-y-2">
+                            <Label htmlFor="portalDomain">Домен портала</Label>
+                            <Input
+                                id="portalDomain"
+                                placeholder="client.bitrix24.ru"
+                                value={portalDomain}
+                                readOnly={mode === 'edit'}
+                                className={
+                                    mode === 'edit' ? 'bg-muted' : undefined
+                                }
+                                onChange={(event) =>
+                                    handleDomainChange(event.target.value)
+                                }
+                            />
+                            <p className="text-sm text-muted-foreground">
+                                Код строки:{' '}
+                                <code>
+                                    {portalDomain
+                                        ? localAppSecretCode(portalDomain)
+                                        : `${LOCAL_APP_SECRET_PREFIX}<домен>`}
+                                </code>
                             </p>
-                        )}
-                    </div>
+                            {!normalizeDomain(portalDomain) && (
+                                <p className="text-sm text-destructive">
+                                    Укажите домен портала
+                                </p>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            <Label htmlFor="code">Код приложения</Label>
+                            <Input
+                                id="code"
+                                placeholder="garant_manager"
+                                readOnly={mode === 'edit'}
+                                className={
+                                    mode === 'edit' ? 'bg-muted' : undefined
+                                }
+                                {...register('code', {
+                                    required: 'Укажите код приложения',
+                                })}
+                            />
+                            {errors.code && (
+                                <p className="text-sm text-destructive">
+                                    {errors.code.message}
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         <Label htmlFor="clientId">client_id</Label>
@@ -167,7 +254,13 @@ export function SecretForm({
                             Отмена
                         </Button>
                     )}
-                    <Button type="submit" disabled={isLoading}>
+                    <Button
+                        type="submit"
+                        disabled={
+                            isLoading ||
+                            (isLocalApp && !normalizeDomain(portalDomain))
+                        }
+                    >
                         {isLoading ? 'Сохранение...' : 'Сохранить'}
                     </Button>
                 </CardFooter>

@@ -9,6 +9,13 @@ interface AInputProps<T> {
     handleChange: (type: T, value: string) => void;
     handleOnFocus: (code: T, error: string | null) => void;
     validateInput?: (type: T, value: string) => string | null;
+    /**
+     * Тип поля: `password` — с кнопкой «показать пароль» (её рисует
+     * FieldInput). По умолчанию обычный текст — как было.
+     */
+    type?: 'text' | 'email' | 'password';
+    /** Подсказка менеджеру паролей: `email`, `current-password`, `new-password`. */
+    autoComplete?: string;
 }
 
 const AInput = <T extends string | number>({
@@ -18,6 +25,8 @@ const AInput = <T extends string | number>({
     value,
     handleChange,
     handleOnFocus,
+    type,
+    autoComplete,
 }: AInputProps<T>) => {
     const id = `input-${nameForHandler}`;
     const [localError, setLocalError] = useState<string | null>(errorMessage);
@@ -32,6 +41,8 @@ const AInput = <T extends string | number>({
             label={label ?? undefined}
             error={localError ?? undefined}
             value={value ?? ''}
+            type={type}
+            autoComplete={autoComplete}
             onChange={e => {
                 if (localError) setLocalError('');
                 handleChange(nameForHandler, e.target.value);

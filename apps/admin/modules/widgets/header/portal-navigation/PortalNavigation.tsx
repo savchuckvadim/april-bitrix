@@ -18,6 +18,7 @@ export const PortalNavigation = () => {
         isPortalQuestionnaires,
         isPortalBadges,
         isPortalVendorSuperUsers,
+        isPortalCabinet,
         isPortalProvider,
         portalId,
         isPortalStatistics,
@@ -51,6 +52,8 @@ export const PortalNavigation = () => {
                 {portalId && <Link href={`/portal/${portalId}/badges`} className={isPortalBadges ? 'text-primary' : 'text-gray-500'}>{'Бейджики'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/vendor-super-users`} className={isPortalVendorSuperUsers ? 'text-primary' : 'text-gray-500'}>{'Суперюзеры'}</Link>}
+
+                {portalId && <Link href={`/portal/${portalId}/cabinet`} className={isPortalCabinet ? 'text-primary' : 'text-gray-500'}>{'Кабинет'}</Link>}
 
                 {portalId && <Link href={`/portal/${portalId}/provider`} className={isPortalProvider ? 'text-primary' : 'text-gray-500'}>{'Provider'}</Link>}
 

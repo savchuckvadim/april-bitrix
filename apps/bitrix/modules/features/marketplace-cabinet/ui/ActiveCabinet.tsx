@@ -29,6 +29,7 @@ import {
     type CabinetSummary,
     type PortalSessionUser,
 } from '@workspace/bitrix';
+import { FrameCabinetBlocks } from '@/modules/features/client-cabinet';
 
 /**
  * Полноценный кабинет (state=active). Продукты и статусы компонентов —
@@ -197,12 +198,12 @@ export const ActiveCabinet = ({
                 <div className="mb-8 flex items-start justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">
-                            Менеджер Гарант
+                            April
                         </h1>
                         <p className="mt-1 text-gray-600">
                             {user?.name ? `Здравствуйте, ${user.name}! ` : ''}
-                            Кабинет приложения: продукты, подписки, оплаты и
-                            статус установки
+                            Кабинет портала: подключённые части, статус
+                            установки, доступ с сайта и Telegram
                         </p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
@@ -393,6 +394,9 @@ export const ActiveCabinet = ({
                         </Card>
                     </div>
                 </div>
+
+                {/* Кабинет клиента: доступ с сайта, Telegram, сотрудники */}
+                <FrameCabinetBlocks user={user} />
             </div>
         </div>
     );

@@ -34,20 +34,54 @@ export class PbxApiError extends Error {
 }
 
 export class SessionExpiredError extends Error {
-    constructor() {
-        super(
-            'Сессия истекла — переоткройте приложение из меню Битрикс24',
-        );
+    constructor(
+        message = 'Сессия истекла — переоткройте приложение из меню Битрикс24',
+    ) {
+        super(message);
         this.name = 'SessionExpiredError';
     }
 }
 
+/**
+ * Откуда брать Bearer и что делать на 401. По умолчанию — сессия фрейма
+ * (portal-context из обмена кода); кабинет на сайте подставляет свою
+ * (вход по паролю, access в памяти вкладки).
+ */
+export interface PbxAuthSource {
+    getToken(): Promise<string | null>;
+    /** 401 на авторизованный запрос — сессия больше не действует. */
+    onUnauthorized(): void;
+    /** Текст ошибки для экрана «сессия истекла». */
+    expiredMessage?: string;
+}
+
+/** Сколько ждать окончания bootstrap-а сессии перед авторизованным запросом */
+const SESSION_WAIT_TIMEOUT_MS = 5_000;
+
+/** Сессия фрейма Битрикса (обмен одноразового кода). */
+export const frameAuthSource: PbxAuthSource = {
+    // НЕ гоняемся с bootstrap-ом: ждём исхода обмена кода. Запрос без
+    // Bearer на защищённую ручку = гарантированный 401 и ложное «Сессия
+    // истекла» (живой тест 2026-07-18).
+    getToken: async () =>
+        portalSessionStore.getToken() ??
+        (await portalSessionStore.waitForToken(SESSION_WAIT_TIMEOUT_MS)),
+    onUnauthorized: () => portalSessionStore.markExpired(),
+};
+
 interface RequestOptions {
-    method: 'GET' | 'POST';
+    method: 'GET' | 'POST' | 'DELETE';
     path: string;
     body?: unknown;
     /** Запрос без Bearer (например, session/exchange) */
     anonymous?: boolean;
+    /** Источник Bearer; по умолчанию — сессия фрейма. */
+    authSource?: PbxAuthSource;
+    /**
+     * `include` — отправить cookies (refresh-cookie входа с сайта на ручках
+     * `/api/cabinet/auth`). Во фрейме cookies не используются.
+     */
+    credentials?: RequestCredentials;
 }
 
 function getBaseUrl(): string {
@@ -100,9 +134,6 @@ function unwrapEnvelope<T>(body: unknown): T {
     return body as T;
 }
 
-/** Сколько ждать окончания bootstrap-а сессии перед авторизованным запросом */
-const SESSION_WAIT_TIMEOUT_MS = 5_000;
-
 async function performFetch(options: RequestOptions): Promise<Response> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -111,21 +142,15 @@ async function performFetch(options: RequestOptions): Promise<Response> {
             'Content-Type': 'application/json',
         };
         if (!options.anonymous) {
-            // НЕ гоняемся с bootstrap-ом: ждём исхода обмена кода. Запрос
-            // без Bearer на защищённую ручку = гарантированный 401 и ложное
-            // «Сессия истекла» (живой тест 2026-07-18).
-            const token =
-                portalSessionStore.getToken() ??
-                (await portalSessionStore.waitForToken(
-                    SESSION_WAIT_TIMEOUT_MS,
-                ));
+            const token = await (
+                options.authSource ?? frameAuthSource
+            ).getToken();
             if (token) {
                 headers.Authorization = `Bearer ${token}`;
             } else {
                 // токена так и нет — сессии не будет, 401 неизбежен
-                const { status } = portalSessionStore.getSnapshot();
                 console.warn(
-                    `[pbx-api] авторизованный запрос без сессии: ${options.path} (store status=${status})`,
+                    `[pbx-api] авторизованный запрос без сессии: ${options.path}`,
                 );
             }
         }
@@ -137,6 +162,9 @@ async function performFetch(options: RequestOptions): Promise<Response> {
                     ? JSON.stringify(options.body)
                     : undefined,
             signal: controller.signal,
+            ...(options.credentials
+                ? { credentials: options.credentials }
+                : {}),
         });
     } finally {
         clearTimeout(timer);
@@ -158,8 +186,9 @@ export async function pbxRequest<TResponse>(
             const response = await performFetch(options);
 
             if (response.status === 401 && !options.anonymous) {
-                portalSessionStore.markExpired();
-                throw new SessionExpiredError();
+                const source = options.authSource ?? frameAuthSource;
+                source.onUnauthorized();
+                throw new SessionExpiredError(source.expiredMessage);
             }
             if (response.status >= 500 && retriable) {
                 lastError = new PbxApiError(

@@ -20,6 +20,8 @@ export {
     pbxRequest,
     PbxApiError,
     SessionExpiredError,
+    frameAuthSource,
+    type PbxAuthSource,
 } from './pbx-api.client';
 export {
     initPortalSession,

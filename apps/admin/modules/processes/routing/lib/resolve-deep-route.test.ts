@@ -249,7 +249,7 @@ describe('resolveDeepRoute: раздел «AI-аналитика ОП»', () => 
         expect(route.isPortalDetail).toBe(false);
     });
 
-    it('в меню раздела «Модель и обратная связь» стоит рядом с аудитом', () => {
+    it('в меню раздела «Обновить всё» первым, «Модель и обратная связь» — рядом с аудитом', () => {
         const view = resolveSideBar(resolveDeepRoute('/ai-analytics/model', ''));
 
         expect(view.currentNavItems).toBe(aiAnalyticsEntities);
@@ -258,6 +258,7 @@ describe('resolveDeepRoute: раздел «AI-аналитика ОП»', () => 
                 entity => `${view.baseUrl}${entity.item.get.url}`,
             ),
         ).toEqual([
+            '/ai-analytics/refresh',
             '/ai-analytics/audit',
             '/ai-analytics/model',
             '/ai-analytics/guide',
@@ -278,6 +279,16 @@ describe('resolveDeepRoute: раздел «AI-аналитика ОП»', () => 
 
     it('/ai-analytics/methodologies («Методики продаж») остаётся в разделе без флагов других экранов', () => {
         const route = resolveDeepRoute('/ai-analytics/methodologies', '');
+
+        expect(route.isAiAnalytics).toBe(true);
+        expect(route.isAiAnalyticsGuide).toBe(false);
+        expect(route.isAiAnalyticsModel).toBe(false);
+        expect(route.isAiAnalyticsAudit).toBe(false);
+        expect(resolveSideBar(route).currentNavItems).toBe(aiAnalyticsEntities);
+    });
+
+    it('/ai-analytics/refresh («Обновить всё») остаётся в разделе без флагов других экранов', () => {
+        const route = resolveDeepRoute('/ai-analytics/refresh', '');
 
         expect(route.isAiAnalytics).toBe(true);
         expect(route.isAiAnalyticsGuide).toBe(false);
@@ -311,7 +322,7 @@ describe('resolveDeepRoute: раздел «AI-аналитика ОП»', () => 
         expect(view.baseUrl).toBe('');
         expect(
             `${view.baseUrl}${view.currentNavItems[0]?.item.get.url}`,
-        ).toBe('/ai-analytics/audit');
+        ).toBe('/ai-analytics/refresh');
     });
 });
 

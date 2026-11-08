@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { SectionCard } from '@workspace/april-ui';
+import { CABINET_GUIDE_PATH } from '@/modules/entities/cabinet-guide';
+import { GuideLink } from '@/modules/shared/ui/guide';
 import { CABINET_TEXT as TEXT } from '../../consts/cabinet.const';
 import { useCabinetCard } from '../../lib/hooks/use-cabinet';
 import type { CabinetPasswordLink } from '../../model';
@@ -35,6 +37,7 @@ export const CabinetPanel = ({ portalId }: CabinetPanelProps) => {
     return (
         <SectionCard title={TEXT.title} description={TEXT.description}>
             <div className="flex flex-col gap-6">
+                <GuideLink link={{ title: TEXT.guideLink, href: CABINET_GUIDE_PATH }} />
                 <CabinetClientBlock card={card} />
 
                 <div className="border-t pt-4">

@@ -106,6 +106,18 @@ export const marketplaceEntities: Entity[] = [
         },
     },
     {
+        id: 49,
+        item: {
+            name: 'cabinet-guide',
+            title: 'Кабинет клиента: путеводитель',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/marketplace/cabinet-guide',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
         id: 33,
         item: {
             name: 'marketplace-secrets',

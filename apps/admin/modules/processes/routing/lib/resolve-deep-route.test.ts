@@ -20,6 +20,7 @@ import {
     supportEntities,
     renewalOfferEntities,
     logsEntities,
+    marketplaceEntities,
 } from '../consts/routes.consts';
 
 const PORTAL_ID = '42';
@@ -53,6 +54,22 @@ describe('resolveDeepRoute: раздел «Поддержка клиентов»
             currentNavItems: supportEntities,
             baseUrl: '',
         });
+    });
+});
+
+describe('resolveDeepRoute: путеводитель «Кабинет клиента»', () => {
+    it('/marketplace/cabinet-guide — в разделе «Маркетплейс», пункт есть в его меню', () => {
+        const route = resolveDeepRoute('/marketplace/cabinet-guide', '');
+
+        expect(route.isMarketplace).toBe(true);
+        expect(route.isPortal).toBe(false);
+        expect(resolveSideBar(route)).toEqual({
+            currentNavItems: marketplaceEntities,
+            baseUrl: '',
+        });
+        expect(marketplaceEntities.map(entity => entity.item.get.url)).toContain(
+            '/marketplace/cabinet-guide',
+        );
     });
 });
 

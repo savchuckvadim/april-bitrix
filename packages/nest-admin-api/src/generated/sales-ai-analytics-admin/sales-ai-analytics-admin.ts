@@ -46,6 +46,7 @@ import type {
   AiAnalyticsRecommendationEffectResultDto,
   AiAnalyticsRecomputeDto,
   AiAnalyticsRecomputeResultDto,
+  AiAnalyticsRefreshAdminStateParams,
   AiAnalyticsRetentionResultDto,
   AiAnalyticsRetentionRunDto,
   AiAnalyticsSmartBackfillAdminStatusParams,
@@ -57,7 +58,13 @@ import type {
   AiGuideSectionItemDto,
   AiOwnerReportExportStartDto,
   AiOwnerReportExportStateDto,
-  AiOwnerReportExportStatusResponseDto
+  AiOwnerReportExportStatusResponseDto,
+  AiRefreshPortalStateDto,
+  AiRefreshPortalsDto,
+  AiRefreshStartAllDto,
+  AiRefreshStartAllResultDto,
+  AiRefreshStartDto,
+  AiRefreshStartResultDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
@@ -448,7 +455,60 @@ const aiAnalyticsOwnerReportExportAdminFile = (
     },
       );
     }
-  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile}};
+  /**
+ * Шаги по очереди, каждый — когда закончился предыдущий: переразбор звонков месяца (если заказан: подсчёт без модели, затем запуск, не больше 1500 звонков) → пересчёт месяца заново (витрина, история стадий, журнал прогноза, проверка точности) → сброс кэша витрины → прогноз (проверка пройдена — показ включается, принудительно никогда) → PDF отчёта собственнику за месяц (в Redis на сутки). Состояние — в Redis неделю, тик раз в минуту в очереди AI_ANALYTICS_ADMIN; страницу можно закрыть. Идущий сценарий портала не дублируется. Клиенту ничего не отправляется.
+ * @summary Обновить всё по порядку на портале
+ */
+const aiAnalyticsRefreshAdminStart = (
+    aiRefreshStartDto: AiRefreshStartDto,
+ ) => {
+      return customAxios<AiRefreshStartResultDto>(
+      {url: `/api/admin/ai-analytics/refresh`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiRefreshStartDto
+    },
+      );
+    }
+  /**
+ * Последний сценарий портала со всеми шагами; не запускали или прошла неделя — scenario = null. Только чтение.
+ * @summary Состояние сценария «обновить всё» портала
+ */
+const aiAnalyticsRefreshAdminState = (
+    params: AiAnalyticsRefreshAdminStateParams,
+ ) => {
+      return customAxios<AiRefreshPortalStateDto>(
+      {url: `/api/admin/ai-analytics/refresh`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Порталы с включённой AI-аналитикой (ai_analytics_enabled kpiSales) и их последние сценарии — одна страница вместо обхода порталов. Только чтение.
+ * @summary Сценарии «обновить всё» по всем порталам
+ */
+const aiAnalyticsRefreshAdminPortals = (
+    
+ ) => {
+      return customAxios<AiRefreshPortalsDto>(
+      {url: `/api/admin/ai-analytics/refresh/portals`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Шаги по очереди, каждый — когда закончился предыдущий: переразбор звонков месяца (если заказан: подсчёт без модели, затем запуск, не больше 1500 звонков) → пересчёт месяца заново (витрина, история стадий, журнал прогноза, проверка точности) → сброс кэша витрины → прогноз (проверка пройдена — показ включается, принудительно никогда) → PDF отчёта собственнику за месяц (в Redis на сутки). Состояние — в Redis неделю, тик раз в минуту в очереди AI_ANALYTICS_ADMIN; страницу можно закрыть. Идущий сценарий портала не дублируется. Клиенту ничего не отправляется. Запускается на каждом портале с включённой AI-аналитикой; где сценарий уже идёт — не трогается.
+ * @summary Обновить всё по порядку на всех порталах
+ */
+const aiAnalyticsRefreshAdminStartAll = (
+    aiRefreshStartAllDto: AiRefreshStartAllDto,
+ ) => {
+      return customAxios<AiRefreshStartAllResultDto>(
+      {url: `/api/admin/ai-analytics/refresh/all`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiRefreshStartAllDto
+    },
+      );
+    }
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile,aiAnalyticsRefreshAdminStart,aiAnalyticsRefreshAdminState,aiAnalyticsRefreshAdminPortals,aiAnalyticsRefreshAdminStartAll}};
 export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
 export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
 export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
@@ -477,3 +537,7 @@ export type AiAnalyticsLaunchAdminStatusResult = NonNullable<Awaited<ReturnType<
 export type AiAnalyticsOwnerReportExportAdminStartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsOwnerReportExportAdminStart']>>>
 export type AiAnalyticsOwnerReportExportAdminStateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsOwnerReportExportAdminState']>>>
 export type AiAnalyticsOwnerReportExportAdminFileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsOwnerReportExportAdminFile']>>>
+export type AiAnalyticsRefreshAdminStartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminStart']>>>
+export type AiAnalyticsRefreshAdminStateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminState']>>>
+export type AiAnalyticsRefreshAdminPortalsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminPortals']>>>
+export type AiAnalyticsRefreshAdminStartAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminStartAll']>>>

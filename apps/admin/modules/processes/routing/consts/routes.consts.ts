@@ -164,6 +164,18 @@ export const aiKnowledgeEntities: Entity[] = [
 // Раздел «AI-аналитика ОП»: url — полный путь (baseUrl пустой).
 export const aiAnalyticsEntities: Entity[] = [
     {
+        id: 50,
+        item: {
+            name: 'ai-analytics-refresh',
+            title: 'Обновить всё',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/ai-analytics/refresh',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
         id: 41,
         item: {
             name: 'ai-analytics-audit',

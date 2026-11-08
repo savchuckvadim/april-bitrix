@@ -1,12 +1,15 @@
 import { AiOwnerReportRequestDtoKind } from '@workspace/nest-kpi-report-sales-api';
 import type {
+    AiOwnerReportAttentionDto,
     AiOwnerReportDto,
+    AiOwnerReportGlossaryItemDto,
     AiOwnerReportLeakDto,
     AiOwnerReportManagerDto,
     AiOwnerReportMetricDto,
     AiOwnerReportSignDto,
     AiOwnerReportTextDto,
     AiOwnerReportTileDto,
+    AiOwnerReportTileDtoTone,
 } from '@workspace/nest-kpi-report-sales-api';
 import type {
     AiAbsenceDto,
@@ -338,6 +341,10 @@ export type AiBrief = AiBriefDto;
 export type AiOwnerReport = AiOwnerReportDto;
 export type AiOwnerReportText = AiOwnerReportTextDto;
 export type AiOwnerReportTile = AiOwnerReportTileDto;
+/** Оценка значения для цвета: good | warn | bad | neutral. */
+export type AiOwnerReportTone = AiOwnerReportTileDtoTone;
+export type AiOwnerReportAttention = AiOwnerReportAttentionDto;
+export type AiOwnerReportGlossaryItem = AiOwnerReportGlossaryItemDto;
 export type AiOwnerReportLeak = AiOwnerReportLeakDto;
 export type AiOwnerReportManager = AiOwnerReportManagerDto;
 export type AiOwnerReportMetric = AiOwnerReportMetricDto;

@@ -5,6 +5,7 @@
  * API приложения kpi-report-sales
  * OpenAPI spec version: 1.0
  */
+import type { AiOwnerReportTileDtoTone } from './aiOwnerReportTileDtoTone';
 
 export interface AiOwnerReportTileDto {
     /** Код плитки. */
@@ -18,4 +19,6 @@ export interface AiOwnerReportTileDto {
      * @nullable
      */
     compare?: string | null;
+    /** Цвет плитки по порогам доли: good — хорошо, warn — внимание, bad — плохо, neutral — без оценки. */
+    tone: AiOwnerReportTileDtoTone;
 }

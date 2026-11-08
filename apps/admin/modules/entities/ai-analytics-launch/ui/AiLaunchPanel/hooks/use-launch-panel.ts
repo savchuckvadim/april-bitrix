@@ -6,7 +6,7 @@ import {
     runLaunchStep,
 } from '../../../lib/launch-actions';
 import { describeLaunchError } from '../../../lib/launch-error';
-import { reanalysisPeriod } from '../../../lib/launch-period';
+import { monthPeriod, reanalysisPeriod } from '../../../lib/launch-period';
 import {
     buildLaunchSteps,
     isReanalysisRunning,
@@ -50,7 +50,14 @@ export function useLaunchPanel(domain: string | undefined) {
     >({});
     const [activeCode, setActiveCode] = useState<LaunchStepCode | null>(null);
     const [awaiting, setAwaiting] = useState<Awaiting | null>(null);
+    /** Месяц переразбора 'YYYY-MM'; null — вся история с первых разборов. */
+    const [reanalysisMonth, setReanalysisMonth] = useState<string | null>(
+        null,
+    );
     const now = new Date();
+    const countPeriod = reanalysisMonth
+        ? monthPeriod(reanalysisMonth, now)
+        : reanalysisPeriod(status.data?.reanalysis.analysisSince, now);
 
     // Другой портал — чужие итоги и ожидания не должны висеть.
     useEffect(() => {
@@ -70,7 +77,7 @@ export function useLaunchPanel(domain: string | undefined) {
     const running = isReanalysisRunning(run);
     const progressPeriod =
         awaiting?.mode === 'count'
-            ? reanalysisPeriod(status.data?.reanalysis.analysisSince, now)
+            ? countPeriod
             : reanalysisRunPeriod(status.data, now);
     const polling = !!domain && (running || awaiting !== null);
     const progress = useReanalyzeProgress(domain, progressPeriod, polling);
@@ -102,6 +109,7 @@ export function useLaunchPanel(domain: string | undefined) {
                     status: status.data,
                     now: startedAt,
                     force,
+                    countPeriod,
                 }),
             {
                 onSuccess: outcome => {
@@ -147,9 +155,8 @@ export function useLaunchPanel(domain: string | undefined) {
         runStep,
         refresh,
         progressRun,
-        countPeriod: reanalysisPeriod(
-            status.data?.reanalysis.analysisSince,
-            now,
-        ),
+        countPeriod,
+        reanalysisMonth,
+        setReanalysisMonth,
     };
 }

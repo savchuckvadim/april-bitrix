@@ -38,6 +38,8 @@ export const AI_OWNER_REPORT_TEXT = {
     },
     noScope: 'Отчёт доступен руководителям отдела продаж.',
     sections: {
+        attention: 'На что обратить внимание',
+        glossary: 'Как читать отчёт',
         summary: 'Коротко для собственника',
         overview: 'Общая картина',
         outcomes: 'Чем заканчиваются разговоры',
@@ -61,6 +63,7 @@ export const AI_OWNER_REPORT_TEXT = {
         postponed: 'Отложено без даты',
         refused: 'Отказ',
         noContact: 'Без контакта',
+        unmarked: 'Не размечено',
         week: 'Неделя',
         cold: 'Холодных',
         coldAdvanced: 'Холодные → шаг вперёд',

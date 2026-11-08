@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { AiOwnerReportTileDto } from './aiOwnerReportTileDto';
+import type { AiOwnerReportAttentionDto } from './aiOwnerReportAttentionDto';
 import type { AiOwnerReportTextDtoSummarySource } from './aiOwnerReportTextDtoSummarySource';
 import type { AiOwnerReportOverviewDto } from './aiOwnerReportOverviewDto';
 import type { AiOwnerReportLeakDto } from './aiOwnerReportLeakDto';
@@ -14,6 +15,7 @@ import type { AiOwnerReportObjectionsDto } from './aiOwnerReportObjectionsDto';
 import type { AiOwnerReportIssuesDto } from './aiOwnerReportIssuesDto';
 import type { AiOwnerReportMetricDto } from './aiOwnerReportMetricDto';
 import type { AiOwnerReportManagerDto } from './aiOwnerReportManagerDto';
+import type { AiOwnerReportGlossaryItemDto } from './aiOwnerReportGlossaryItemDto';
 
 export interface AiOwnerReportTextDto {
     /** Заголовок отчёта. */
@@ -22,6 +24,8 @@ export interface AiOwnerReportTextDto {
     periodLabel: string;
     /** Плитки шапки. */
     tiles: AiOwnerReportTileDto[];
+    /** На что обратить внимание: до четырёх пунктов с действием. */
+    attention: AiOwnerReportAttentionDto[];
     /** Резюме для собственника, абзацы. */
     summary: string[];
     /** Кто написал резюме. */
@@ -42,4 +46,6 @@ export interface AiOwnerReportTextDto {
     managers: AiOwnerReportManagerDto[];
     /** Методология и ограничения. */
     methodology: string[];
+    /** Словарь терминов отчёта для читателя, который видит его впервые. */
+    glossary: AiOwnerReportGlossaryItemDto[];
 }

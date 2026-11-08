@@ -32,6 +32,8 @@ import type {
     AiOverviewResponseDto,
     AiOwnerReportRequestDto,
     AiOwnerReportResponseDto,
+    AiOwnerReportSendRequestDto,
+    AiOwnerReportSendResponseDto,
     AiPlanFactRequestDto,
     AiPlanFactResponseDto,
     AiPulseRequestDto,
@@ -355,7 +357,7 @@ export const getSalesAiAnalytics = () => {
         });
     };
     /**
-     * Управленческий отчёт по отделу продаж за закрытый месяц, квартал, полугодие или год: исходы разговоров, конверсии по типам, недели, где теряем продажи, как управляется отдел, возражения, сбои, метрики контроля, сотрудники, методология. Только руководители cup|op. Ключ результата — sales-ai-analytics:v1:{domain}:owner-report:v1:{kind}:{periodKey}: попадание в кэш или готовый снапшот → ready; расчёт идёт → processing; промах → джоба SALES_AI_ANALYTICS_OWNER_REPORT (jobId = requestKey) → queued, по завершении WS ai-analytics:owner-report:done|error с requestKey — затем повторить POST. forceRefresh пересобирает. Текст резюме, утечек и карточек сотрудников пишет модель поверх шаблона с факт-чеком чисел; без модели приходит шаблон (source = template).
+     * Управленческий отчёт по отделу продаж за закрытый месяц, квартал, полугодие или год: исходы разговоров, конверсии по типам, недели, где теряем продажи, как управляется отдел, возражения, сбои, метрики контроля, сотрудники, методология. Только руководители cup|op. Ключ результата — sales-ai-analytics:v1:{domain}:owner-report:v2:{kind}:{periodKey}: попадание в кэш или готовый снапшот → ready; расчёт идёт → processing; промах → джоба SALES_AI_ANALYTICS_OWNER_REPORT (jobId = requestKey) → queued, по завершении WS ai-analytics:owner-report:done|error с requestKey — затем повторить POST. forceRefresh пересобирает. Текст резюме, утечек и карточек сотрудников пишет модель поверх шаблона с факт-чеком чисел; без модели приходит шаблон (source = template).
      * @summary Отчёт собственнику за период (очередь + WS)
      */
     const aiAnalyticsOwnerReportGet = (
@@ -366,6 +368,35 @@ export const getSalesAiAnalytics = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: aiOwnerReportRequestDto,
+        });
+    };
+    /**
+     * Готовый отчёт периода (снапшот) в PDF: те же разделы, что на витрине, шрифты встроены, нумерация страниц. Отчёт должен быть уже собран ручкой owner-report — иначе 404. Только cup|op.
+     * @summary PDF отчёта собственнику за период
+     */
+    const aiAnalyticsOwnerReportPdf = (
+        aiOwnerReportRequestDto: AiOwnerReportRequestDto,
+    ) => {
+        return customAxios<Blob>({
+            url: `/api/ai-analytics/owner-report/pdf`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiOwnerReportRequestDto,
+            responseType: 'blob',
+        });
+    };
+    /**
+     * Тот же код, что у крона 2-го рабочего дня: снапшот периода (или сборка на месте — до пары минут), PDF на Диск портала, личные сообщения получателям. recipients — тест «отправить себе» вместо настроек портала (режим «только считать» на них не действует). Только cup|op.
+     * @summary Выпустить отчёт собственнику сейчас
+     */
+    const aiAnalyticsOwnerReportSend = (
+        aiOwnerReportSendRequestDto: AiOwnerReportSendRequestDto,
+    ) => {
+        return customAxios<AiOwnerReportSendResponseDto>({
+            url: `/api/ai-analytics/owner-report/send`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: aiOwnerReportSendRequestDto,
         });
     };
     return {
@@ -392,6 +423,8 @@ export const getSalesAiAnalytics = () => {
         aiAnalyticsAboutGetAbout,
         aiAnalyticsReviewSubmit,
         aiAnalyticsOwnerReportGet,
+        aiAnalyticsOwnerReportPdf,
+        aiAnalyticsOwnerReportSend,
     };
 };
 export type AiAnalyticsGetSettingsResult = NonNullable<
@@ -568,6 +601,20 @@ export type AiAnalyticsOwnerReportGetResult = NonNullable<
     Awaited<
         ReturnType<
             ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsOwnerReportGet']
+        >
+    >
+>;
+export type AiAnalyticsOwnerReportPdfResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsOwnerReportPdf']
+        >
+    >
+>;
+export type AiAnalyticsOwnerReportSendResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getSalesAiAnalytics>['aiAnalyticsOwnerReportSend']
         >
     >
 >;

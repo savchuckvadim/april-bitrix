@@ -81,6 +81,8 @@ export const AiReadinessBanner = ({
             tone={AI_CHECKLIST_VERDICT_VIEW[checklist.verdict].tone}
             accent
             density="compact"
+            collapsible
+            defaultOpen={false}
             title={banner.title}
             description={banner.hint}
             actions={

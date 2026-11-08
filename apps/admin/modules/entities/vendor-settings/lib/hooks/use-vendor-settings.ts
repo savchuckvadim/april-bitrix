@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getApiErrorMessage } from '@/modules/entities/pbx/lib/api-error';
 import { VendorSettingsHelper } from '../api/vendor-settings-helper';
-import { VENDOR_SETTINGS_TEXT, type VendorSettingKey } from '../../model';
+import {
+    VENDOR_SETTINGS_TEXT,
+    type VendorSettingKey,
+    type VendorTelegramBotKey,
+} from '../../model';
 
 const helper = new VendorSettingsHelper();
 export const VENDOR_SETTINGS_KEY = ['vendor-settings'] as const;
@@ -27,6 +31,16 @@ export const useVendorTelegramBots = () =>
         queryKey: VENDOR_TELEGRAM_BOTS_KEY,
         queryFn: () => helper.telegramBots(),
         staleTime: 60_000,
+    });
+
+/** Тестовое сообщение через бота; итог — в ответе (ok и что случилось). */
+export const useTestTelegramBot = () =>
+    useMutation({
+        mutationFn: (key: VendorTelegramBotKey) => helper.testTelegramBot(key),
+        onError: (error) =>
+            toast.error('Проверка не выполнена', {
+                description: getApiErrorMessage(error),
+            }),
     });
 
 /** Сохранить одну настройку (пусто/null — снять, маска — оставить секрет). */

@@ -2,6 +2,7 @@
 
 import { AButton } from '@workspace/april-ui';
 import { CABINET_TEXT as TEXT } from '../../../consts/cabinet.const';
+import { useCabinetTelegramTest } from '@/modules/entities/cabinet-guide';
 import { useRevokeCabinetTelegram } from '../../../lib/hooks/use-cabinet';
 import type { CabinetTelegramBinding } from '../../../model';
 
@@ -16,6 +17,7 @@ export const CabinetTelegramList = ({
     bindings,
 }: CabinetTelegramListProps) => {
     const revoke = useRevokeCabinetTelegram(portalId);
+    const test = useCabinetTelegramTest(portalId);
 
     return (
         <div className="flex flex-col gap-2">
@@ -45,14 +47,24 @@ export const CabinetTelegramList = ({
                                         : ''}
                                 </span>
                             </span>
-                            <div className="w-28 shrink-0">
-                                <AButton
-                                    title={TEXT.telegramRevoke}
-                                    size="xsmall"
-                                    color="grey"
-                                    isActive={!revoke.isPending}
-                                    clickHendler={() => revoke.mutate(binding.id)}
-                                />
+                            <div className="flex shrink-0 gap-2">
+                                <div className="w-28">
+                                    <AButton
+                                        title={test.isPending ? 'Проверяю…' : 'Проверить'}
+                                        size="xsmall"
+                                        isActive={!test.isPending}
+                                        clickHendler={() => test.mutate(binding.id)}
+                                    />
+                                </div>
+                                <div className="w-28">
+                                    <AButton
+                                        title={TEXT.telegramRevoke}
+                                        size="xsmall"
+                                        color="grey"
+                                        isActive={!revoke.isPending}
+                                        clickHendler={() => revoke.mutate(binding.id)}
+                                    />
+                                </div>
                             </div>
                         </li>
                     ))}

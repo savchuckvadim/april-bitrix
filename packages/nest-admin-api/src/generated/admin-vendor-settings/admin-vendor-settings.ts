@@ -9,6 +9,8 @@ import type {
   UpdateVendorSettingDto,
   VendorSettingDto,
   VendorSettingsResponseDto,
+  VendorTelegramBotTestDto,
+  VendorTelegramBotTestResultDto,
   VendorTelegramBotsResponseDto
 } from '.././model';
 
@@ -42,6 +44,21 @@ const vendorSettingsTelegramBots = (
       );
     }
   /**
+ * Поддержка — в чат поддержки, тревоги — в TELEGRAM_ADMIN_CHAT_ID, либо в указанный chat id. Клиентского бота проверяют у привязанного чата в карточке портала. Не доставлено — причина по-русски.
+ * @summary Тестовое сообщение через бота
+ */
+const vendorSettingsTestTelegramBot = (
+    key: 'SUPPORT_TELEGRAM_BOT_TOKEN' | 'CABINET_TELEGRAM_BOT_TOKEN' | 'TELEGRAM_BOT_TOKEN',
+    vendorTelegramBotTestDto: VendorTelegramBotTestDto,
+ ) => {
+      return customAxios<VendorTelegramBotTestResultDto>(
+      {url: `/api/admin/vendor-settings/telegram-bots/${key}/test`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: vendorTelegramBotTestDto
+    },
+      );
+    }
+  /**
  * Пустое значение снимает настройку из админки — снова действует переменная окружения. Для секрета маска означает «оставить прежнее». Значение проверяется: адрес прокси должен быть полным https-адресом, хосты — именами через запятую.
  * @summary Сохранить настройку
  */
@@ -56,7 +73,8 @@ const vendorSettingsUpdate = (
     },
       );
     }
-  return {vendorSettingsList,vendorSettingsTelegramBots,vendorSettingsUpdate}};
+  return {vendorSettingsList,vendorSettingsTelegramBots,vendorSettingsTestTelegramBot,vendorSettingsUpdate}};
 export type VendorSettingsListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminVendorSettings>['vendorSettingsList']>>>
 export type VendorSettingsTelegramBotsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminVendorSettings>['vendorSettingsTelegramBots']>>>
+export type VendorSettingsTestTelegramBotResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminVendorSettings>['vendorSettingsTestTelegramBot']>>>
 export type VendorSettingsUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminVendorSettings>['vendorSettingsUpdate']>>>

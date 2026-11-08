@@ -7,7 +7,9 @@ import {
     type VendorSettingGroupDto,
     type VendorSettingsResponseDto,
     type VendorTelegramBotDto,
+    type VendorTelegramBotDtoKey,
     type VendorTelegramBotDtoStatus,
+    type VendorTelegramBotTestResultDto,
 } from '@workspace/nest-admin-api';
 
 /**
@@ -57,6 +59,8 @@ export const VENDOR_SETTINGS_TEXT = {
 /** Проверка одного Telegram-бота: какой бот стоит в токене (сам токен не приходит). */
 export type VendorTelegramBot = VendorTelegramBotDto;
 export type VendorTelegramBotStatus = VendorTelegramBotDtoStatus;
+export type VendorTelegramBotKey = VendorTelegramBotDtoKey;
+export type VendorTelegramBotTestResult = VendorTelegramBotTestResultDto;
 
 /** Группа, над полями которой показывается «кто есть кто» среди ботов. */
 export const TELEGRAM_BOTS_GROUP = VendorSettingGroupDtoGroup['telegram-bots'];
@@ -69,6 +73,14 @@ export const TELEGRAM_BOTS_TEXT = {
     placeEnv: 'токен — только в окружении сервера (TELEGRAM_BOT_TOKEN)',
     notSet: 'токен не задан',
     unknownName: 'бот без имени',
+    test: 'Отправить тест',
+    testing: 'Отправляю…',
+    clientTestHint:
+        'Проверка клиентского бота — «Проверить» у привязанного чата на вкладке портала «Кабинет».',
+    webhookOk: (url: string, pending: number): string =>
+        `Сообщения боту доходят: вебхук ${url}${pending ? `, в очереди ${pending}` : ''}.`,
+    webhookMissing: 'Вебхук не установлен — бот не получает сообщения (приложение bot ставит его само; проверьте адрес вебхука в окружении).',
+    webhookError: (error: string): string => `Последняя ошибка доставки: ${error}`,
     sameToken: (others: readonly string[]): string =>
         `Тот же токен, что у: ${others.join(', ')}. Один бот на две задачи — так нельзя: замените токен на нужный.`,
 } as const;

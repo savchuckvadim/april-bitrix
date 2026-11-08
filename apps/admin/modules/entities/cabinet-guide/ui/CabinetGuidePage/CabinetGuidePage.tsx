@@ -18,6 +18,7 @@ import {
 } from '../../consts/cabinet-guide.const';
 import { useCabinetGuide } from '../../lib/hooks/use-cabinet-guide';
 import type { CabinetGuideCounters } from '../../model';
+import { CabinetMailTest } from './CabinetMailTest';
 
 function Counters({ counters }: { counters: CabinetGuideCounters | null }) {
     if (!counters) {
@@ -74,6 +75,8 @@ export const CabinetGuidePage = () => {
                 description={TEXT.checklistDescription}
                 summaryLabel={TEXT.checklistSummary}
             />
+
+            <CabinetMailTest />
 
             <SectionCard title={TEXT.countersTitle}>
                 <Counters counters={data.counters} />

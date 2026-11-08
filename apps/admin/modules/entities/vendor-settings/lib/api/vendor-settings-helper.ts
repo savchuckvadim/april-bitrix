@@ -4,6 +4,8 @@ import type {
     VendorSettingKey,
     VendorSettings,
     VendorTelegramBot,
+    VendorTelegramBotKey,
+    VendorTelegramBotTestResult,
 } from '../../model';
 
 /**
@@ -29,5 +31,13 @@ export class VendorSettingsHelper {
     /** Какой бот на самом деле стоит в каждом токене (спрашивает Telegram). */
     async telegramBots(): Promise<VendorTelegramBot[]> {
         return (await this.api.vendorSettingsTelegramBots()).bots;
+    }
+
+    /** Тестовое сообщение через бота (поддержка, тревоги — в их общий чат). */
+    testTelegramBot(
+        key: VendorTelegramBotKey,
+        chatId?: string,
+    ): Promise<VendorTelegramBotTestResult> {
+        return this.api.vendorSettingsTestTelegramBot(key, chatId ? { chatId } : {});
     }
 }

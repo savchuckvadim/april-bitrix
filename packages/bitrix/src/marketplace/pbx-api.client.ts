@@ -70,7 +70,7 @@ export const frameAuthSource: PbxAuthSource = {
 };
 
 interface RequestOptions {
-    method: 'GET' | 'POST' | 'DELETE';
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE';
     path: string;
     body?: unknown;
     /** Запрос без Bearer (например, session/exchange) */

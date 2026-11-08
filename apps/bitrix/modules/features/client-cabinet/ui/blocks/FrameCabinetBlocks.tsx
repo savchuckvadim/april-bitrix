@@ -2,6 +2,7 @@
 
 import { getCabinetPortal, listCabinetPortals, type PortalSessionUser } from '@workspace/bitrix';
 import { useCabinetLoad } from '../../lib/cabinet-hooks';
+import { BitrixAppBlock } from './BitrixAppBlock';
 import { MembersBlock } from './MembersBlock';
 import { SiteAccessBlock } from './SiteAccessBlock';
 import { TelegramBlock } from './TelegramBlock';
@@ -29,8 +30,9 @@ export const FrameCabinetBlocks = ({ user }: { user?: PortalSessionUser }) => {
             <SiteAccessBlock user={user} />
             <TelegramBlock portalId={portal.data.portalId} />
             {isOwner && (
-                <div className="lg:col-span-2">
+                <div className="flex flex-col gap-6 lg:col-span-2">
                     <MembersBlock portalId={portal.data.portalId} />
+                    <BitrixAppBlock portalId={portal.data.portalId} />
                 </div>
             )}
         </div>

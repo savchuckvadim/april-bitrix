@@ -85,3 +85,41 @@ export interface CabinetAddMember {
     bitrixUserId?: string;
     makeOwner?: boolean;
 }
+
+/** «Подключение Битрикс24» (бэк: admin/cabinet/portals/:id/bitrix-app). */
+export interface CabinetBitrixAppConnection {
+    domain: string;
+    setup: {
+        devSectionUrl: string;
+        handlerUrl: string;
+        installUrl: string;
+        scopes: string[];
+    };
+    keys: { set: boolean; clientId: string | null; updatedAt: string | null };
+    install: {
+        installed: boolean;
+        status: string | null;
+        installedAt: string | null;
+        tokenExpiresAt: string | null;
+    };
+    /** error — ответ Битрикса при неудаче (виден только April). */
+    lastRefresh: { at: string | null; ok: boolean; error: string | null } | null;
+}
+
+export interface CabinetBitrixAppKeys {
+    clientId: string;
+    clientSecret: string;
+}
+
+export type CabinetBitrixAppCheckResult =
+    | 'ok'
+    | 'no_keys'
+    | 'not_installed'
+    | 'keys_invalid'
+    | 'reopen_app'
+    | 'unavailable';
+
+export interface CabinetBitrixAppCheck {
+    result: CabinetBitrixAppCheckResult;
+    message: string;
+}

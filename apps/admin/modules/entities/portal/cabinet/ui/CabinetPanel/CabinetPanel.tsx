@@ -9,6 +9,7 @@ import { useCabinetCard } from '../../lib/hooks/use-cabinet';
 import type { CabinetPasswordLink } from '../../model';
 import { CabinetClientBlock } from './components/CabinetClientBlock';
 import { CabinetAppBlock } from './components/CabinetAppBlock';
+import { CabinetBitrixAppBlock } from './components/CabinetBitrixAppBlock';
 import { CabinetAddMemberForm } from './components/CabinetAddMemberForm';
 import { CabinetMemberRow } from './components/CabinetMemberRow';
 import { CabinetTelegramList } from './components/CabinetTelegramList';
@@ -42,6 +43,10 @@ export const CabinetPanel = ({ portalId }: CabinetPanelProps) => {
 
                 <div className="border-t pt-4">
                     <CabinetAppBlock portalId={portalId} app={card.app} />
+                </div>
+
+                <div className="border-t pt-4">
+                    <CabinetBitrixAppBlock portalId={portalId} />
                 </div>
 
                 {link && (

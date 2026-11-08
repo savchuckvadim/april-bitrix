@@ -4,21 +4,7 @@ import Link from 'next/link';
 import { ABadge, AButton } from '@workspace/april-ui';
 import { useRefreshCabinetWidgets } from '../../../lib/hooks/use-cabinet';
 import type { CabinetAppStatus } from '../../../model';
-
-const AUTH_MODE_TITLE: Record<string, string> = {
-    webhook: 'вебхук портала',
-    app: 'токен приложения',
-    auto: 'автоматически (приложение, если установлено)',
-};
-
-const WIDGET_TITLE: Record<string, string> = {
-    'event-sales': 'Звонки (ОП)',
-    konstructor: 'Конструктор КП',
-    'report-sales': 'Отчёт ОП KPI',
-    'event-service': 'Звонки (сервис)',
-    'konstructor-service': 'Конструктор КП (сервис)',
-    'report-service': 'Отчёт КЦ KPI',
-};
+import { AUTH_MODE_TITLE, WIDGET_TITLE } from '../../../consts/cabinet-app.const';
 
 interface CabinetAppBlockProps {
     portalId: number;

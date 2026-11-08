@@ -69,3 +69,35 @@ export interface SupportMonitorPreview {
     signals: SupportSignalReport[];
     warnings: string[];
 }
+
+/** Обращение портала в истории линии (`GET admin/support-monitor/stats`). */
+export interface SupportDialogHistoryItem {
+    sessionId: number;
+    chatId: number;
+    lineDomain: string;
+    clientName: string | null;
+    operatorName: string | null;
+    firstSeenAt: string | null;
+    /** null — ещё открыт. */
+    closedAt: string | null;
+    maxWaitedMinutes: number;
+    answered: boolean;
+    url: string;
+}
+
+/** Статистика обращений портала-клиента в поддержку за период. */
+export interface SupportDialogStats {
+    /** false — история ещё не ведётся (миграция не применена), причина в reason. */
+    available: boolean;
+    reason: string | null;
+    clientPortal: string;
+    days: number;
+    trackedSince: string | null;
+    total: number;
+    open: number;
+    closedUnanswered: number;
+    avgWaitMinutes: number | null;
+    longestWaitMinutes: number;
+    lastAt: string | null;
+    recent: SupportDialogHistoryItem[];
+}

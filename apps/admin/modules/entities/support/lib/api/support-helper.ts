@@ -1,8 +1,9 @@
 import { customAxios } from '@workspace/nest-admin-api';
-import type { SupportGuide, SupportMonitorPreview } from '../../model';
+import type { SupportDialogStats, SupportGuide, SupportMonitorPreview } from '../../model';
 
 const GUIDE_API = '/api/admin/support/guide';
 const PREVIEW_API = '/api/admin/support-monitor/preview';
+const STATS_API = '/api/admin/support-monitor/stats';
 
 /**
  * Транспорт раздела «Поддержка клиентов» (`SupportGuideAdminController`,
@@ -26,6 +27,15 @@ export class SupportHelper {
             url: PREVIEW_API,
             method: 'POST',
             data: { domain },
+        });
+    }
+
+    /** Статистика обращений портала-клиента по истории монитора линии. */
+    stats(clientPortal: string, days: number): Promise<SupportDialogStats> {
+        return customAxios<SupportDialogStats>({
+            url: STATS_API,
+            method: 'GET',
+            params: { clientPortal, days },
         });
     }
 }

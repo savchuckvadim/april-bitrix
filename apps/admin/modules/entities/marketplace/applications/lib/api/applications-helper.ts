@@ -1,7 +1,9 @@
 import {
     ApprovalActionDto,
+    customAxios,
     getAdminMarketplaceModeration,
 } from '@workspace/nest-admin-api';
+import type { LivePlacements } from '../../model/live-placements';
 
 /** Обёртка над API модерации маркетплейса: заявки, компоненты, продукты, решения. */
 export class ApplicationsHelper {
@@ -35,5 +37,13 @@ export class ApplicationsHelper {
 
     async placementsRefresh(portalId: number) {
         return this.api.marketplaceModerationPlacementsRefresh(portalId);
+    }
+
+    /** Привязки виджетов, как их видит Битрикс сейчас (placement.get) — путь руками. */
+    async livePlacements(portalId: number): Promise<LivePlacements> {
+        return customAxios<LivePlacements>({
+            url: `/api/admin/marketplace/portals/${portalId}/placements/live`,
+            method: 'GET',
+        });
     }
 }

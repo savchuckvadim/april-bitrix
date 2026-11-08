@@ -6,6 +6,9 @@ import {
 import { siteAuthSource, siteSession } from './site-session.store';
 import type {
     CabinetAddMember,
+    CabinetBitrixAppCheck,
+    CabinetBitrixAppConnection,
+    CabinetBitrixAppKeys,
     CabinetFrameAccessStatus,
     CabinetInviteResult,
     CabinetMember,
@@ -40,6 +43,14 @@ const get = <T>(path: string, authSource: PbxAuthSource = auth()) =>
 const post = <T>(path: string, body?: unknown) =>
     pbxRequest<T>({
         method: 'POST',
+        path: `${BASE}${path}`,
+        body,
+        authSource: auth(),
+    });
+
+const put = <T>(path: string, body: unknown) =>
+    pbxRequest<T>({
+        method: 'PUT',
         path: `${BASE}${path}`,
         body,
         authSource: auth(),
@@ -123,3 +134,14 @@ export const listTelegramBindings = (portalId: number) =>
 
 export const revokeTelegramBinding = (portalId: number, bindingId: string) =>
     del<{ ok: boolean }>(`/portals/${portalId}/telegram/bindings/${bindingId}`);
+
+// --- Подключение Битрикс24 (владелец портала) ---
+
+export const getBitrixAppConnection = (portalId: number) =>
+    get<CabinetBitrixAppConnection>(`/portals/${portalId}/bitrix-app`);
+
+export const saveBitrixAppKeys = (portalId: number, keys: CabinetBitrixAppKeys) =>
+    put<CabinetBitrixAppConnection>(`/portals/${portalId}/bitrix-app/keys`, keys);
+
+export const checkBitrixAppKeys = (portalId: number) =>
+    post<CabinetBitrixAppCheck>(`/portals/${portalId}/bitrix-app/check`);

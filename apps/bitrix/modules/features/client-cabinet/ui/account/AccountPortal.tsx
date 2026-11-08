@@ -5,6 +5,7 @@ import { ABadge, SectionCard, Spinner } from '@workspace/april-ui';
 import { getCabinetPortal } from '@workspace/bitrix';
 import { useCabinetLoad } from '../../lib/cabinet-hooks';
 import { PART_TITLE, ROLE_TITLE } from '../../lib/cabinet-texts';
+import { BitrixAppBlock } from '../blocks/BitrixAppBlock';
 import { MembersBlock } from '../blocks/MembersBlock';
 import { TelegramBlock } from '../blocks/TelegramBlock';
 
@@ -54,6 +55,7 @@ export const AccountPortal = ({ portalId }: { portalId: number }) => {
                 <TelegramBlock portalId={data.portalId} />
                 {isOwner && <MembersBlock portalId={data.portalId} />}
             </div>
+            {isOwner && <BitrixAppBlock portalId={data.portalId} />}
         </div>
     );
 };

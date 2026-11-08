@@ -105,3 +105,43 @@ export interface CabinetTelegramBinding {
     createdBy: string | null;
     createdAt: string | null;
 }
+
+/** «Подключение Битрикс24»: что ввести в Битрикс24 при создании локального приложения. */
+export interface CabinetBitrixAppSetup {
+    devSectionUrl: string;
+    handlerUrl: string;
+    installUrl: string;
+    scopes: string[];
+}
+
+/** Подключение портала локальным приложением April. */
+export interface CabinetBitrixAppConnection {
+    domain: string;
+    setup: CabinetBitrixAppSetup;
+    keys: { set: boolean; clientId: string | null; updatedAt: string | null };
+    install: {
+        installed: boolean;
+        status: string | null;
+        installedAt: string | null;
+        tokenExpiresAt: string | null;
+    };
+    lastRefresh: { at: string | null; ok: boolean; error: string | null } | null;
+}
+
+export interface CabinetBitrixAppKeys {
+    clientId: string;
+    clientSecret: string;
+}
+
+export type CabinetBitrixAppCheckResult =
+    | 'ok'
+    | 'no_keys'
+    | 'not_installed'
+    | 'keys_invalid'
+    | 'reopen_app'
+    | 'unavailable';
+
+export interface CabinetBitrixAppCheck {
+    result: CabinetBitrixAppCheckResult;
+    message: string;
+}

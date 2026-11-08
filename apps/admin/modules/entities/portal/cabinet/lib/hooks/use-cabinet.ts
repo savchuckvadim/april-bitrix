@@ -93,6 +93,39 @@ export const useRevokeCabinetMember = (portalId: number) =>
         'Доступ снят',
     );
 
+/** Разбор ответа pbx: «поставлено 4, снято 1». */
+const widgetsSummary = (details?: string): string => {
+    try {
+        const parsed = JSON.parse(details ?? '{}') as {
+            bound?: number;
+            unbound?: number;
+            errors?: number;
+            total?: number;
+        };
+        if (!parsed.total) return 'Список виджетов портала пуст — привязки не трогали';
+        return `Поставлено: ${parsed.bound ?? 0}, снято: ${parsed.unbound ?? 0}, ошибок: ${parsed.errors ?? 0}`;
+    } catch {
+        return details ?? '';
+    }
+};
+
+export const useRefreshCabinetWidgets = (portalId: number) => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (force: boolean) => helper.refreshWidgets(portalId, force),
+        onSuccess: (result, force) => {
+            toast.success(force ? 'Виджеты переустановлены' : 'Виджеты обновлены', {
+                description: widgetsSummary(result.details),
+            });
+            void qc.invalidateQueries({ queryKey: [...KEY, portalId] });
+        },
+        onError: error =>
+            toast.error('Виджеты не обновились', {
+                description: getApiErrorMessage(error),
+            }),
+    });
+};
+
 export const useRevokeCabinetTelegram = (portalId: number) =>
     useCabinetAction(
         portalId,

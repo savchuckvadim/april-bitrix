@@ -6,6 +6,7 @@ import { CABINET_TEXT as TEXT } from '../../consts/cabinet.const';
 import { useCabinetCard } from '../../lib/hooks/use-cabinet';
 import type { CabinetPasswordLink } from '../../model';
 import { CabinetClientBlock } from './components/CabinetClientBlock';
+import { CabinetAppBlock } from './components/CabinetAppBlock';
 import { CabinetAddMemberForm } from './components/CabinetAddMemberForm';
 import { CabinetMemberRow } from './components/CabinetMemberRow';
 import { CabinetTelegramList } from './components/CabinetTelegramList';
@@ -35,6 +36,10 @@ export const CabinetPanel = ({ portalId }: CabinetPanelProps) => {
         <SectionCard title={TEXT.title} description={TEXT.description}>
             <div className="flex flex-col gap-6">
                 <CabinetClientBlock card={card} />
+
+                <div className="border-t pt-4">
+                    <CabinetAppBlock portalId={portalId} app={card.app} />
+                </div>
 
                 {link && (
                     <PasswordLinkNotice link={link} onClose={() => setLink(null)} />

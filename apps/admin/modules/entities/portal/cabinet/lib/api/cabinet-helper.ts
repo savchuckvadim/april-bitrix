@@ -5,6 +5,7 @@ import type {
     CabinetMember,
     CabinetPasswordLink,
     CabinetPortalCard,
+    CabinetWidgetsResult,
 } from '../../model';
 
 /**
@@ -87,6 +88,23 @@ export class CabinetHelper {
         return customAxios<{ ok: boolean }>({
             url: `${this.base(portalId)}/telegram/${bindingId}`,
             method: 'DELETE',
+        });
+    }
+
+    /**
+     * Виджеты портала под его список app_widgets; force — снять все наши
+     * привязки и поставить заново. Ручка модерации маркетплейса (прокси в
+     * pbx), работает и для действующих порталов.
+     */
+    refreshWidgets(
+        portalId: number,
+        force: boolean,
+    ): Promise<CabinetWidgetsResult> {
+        return customAxios<CabinetWidgetsResult>({
+            url: `/api/admin/marketplace/portals/${portalId}/placements-refresh`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: { force },
         });
     }
 }

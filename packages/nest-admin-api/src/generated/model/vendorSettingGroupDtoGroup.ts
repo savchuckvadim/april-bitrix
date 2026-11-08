@@ -17,4 +17,6 @@ export const VendorSettingGroupDtoGroup = {
   'egress-proxy': 'egress-proxy',
   'ai-keys': 'ai-keys',
   support: 'support',
+  'telegram-bots': 'telegram-bots',
+  widgets: 'widgets',
 } as const;

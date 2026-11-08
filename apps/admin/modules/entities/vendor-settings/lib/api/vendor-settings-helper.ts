@@ -1,5 +1,10 @@
 import { getAdminVendorSettings } from '@workspace/nest-admin-api';
-import type { VendorSetting, VendorSettingKey, VendorSettings } from '../../model';
+import type {
+    VendorSetting,
+    VendorSettingKey,
+    VendorSettings,
+    VendorTelegramBot,
+} from '../../model';
 
 /**
  * Единственное место с импортом сгенерированного клиента
@@ -19,5 +24,10 @@ export class VendorSettingsHelper {
      */
     save(key: VendorSettingKey, value: string | null): Promise<VendorSetting> {
         return this.api.vendorSettingsUpdate(key, { value });
+    }
+
+    /** Какой бот на самом деле стоит в каждом токене (спрашивает Telegram). */
+    async telegramBots(): Promise<VendorTelegramBot[]> {
+        return (await this.api.vendorSettingsTelegramBots()).bots;
     }
 }

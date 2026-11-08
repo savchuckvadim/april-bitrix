@@ -10,6 +10,8 @@ const helper = new VendorSettingsHelper();
 export const VENDOR_SETTINGS_KEY = ['vendor-settings'] as const;
 /** Чек-лист «Поставщики AI» зависит от прокси и ключей — после сохранения устаревает. */
 const PROVIDERS_READINESS_KEY = ['portal-ai-providers-readiness'] as const;
+/** «Кто есть кто» среди Telegram-ботов — устаревает после сохранения токена. */
+export const VENDOR_TELEGRAM_BOTS_KEY = ['vendor-settings', 'telegram-bots'] as const;
 
 /** Настройки приложения по группам. */
 export const useVendorSettings = () =>
@@ -17,6 +19,14 @@ export const useVendorSettings = () =>
         queryKey: VENDOR_SETTINGS_KEY,
         queryFn: () => helper.list(),
         staleTime: 30_000,
+    });
+
+/** Какой бот стоит в каждом токене: бэк спрашивает Telegram, поэтому не чаще раза в минуту. */
+export const useVendorTelegramBots = () =>
+    useQuery({
+        queryKey: VENDOR_TELEGRAM_BOTS_KEY,
+        queryFn: () => helper.telegramBots(),
+        staleTime: 60_000,
     });
 
 /** Сохранить одну настройку (пусто/null — снять, маска — оставить секрет). */

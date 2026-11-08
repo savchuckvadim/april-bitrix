@@ -1,10 +1,13 @@
-import type {
-    UpdateVendorSettingDto,
-    VendorSettingDto,
-    VendorSettingDtoKey,
-    VendorSettingDtoSource,
-    VendorSettingGroupDto,
-    VendorSettingsResponseDto,
+import {
+    VendorSettingGroupDtoGroup,
+    type UpdateVendorSettingDto,
+    type VendorSettingDto,
+    type VendorSettingDtoKey,
+    type VendorSettingDtoSource,
+    type VendorSettingGroupDto,
+    type VendorSettingsResponseDto,
+    type VendorTelegramBotDto,
+    type VendorTelegramBotDtoStatus,
 } from '@workspace/nest-admin-api';
 
 /**
@@ -35,7 +38,7 @@ export const VENDOR_SOURCE_LABELS: Readonly<
 export const VENDOR_SETTINGS_TEXT = {
     title: 'Настройки приложения',
     intro:
-        'Общие для всех порталов настройки April: прокси за рубеж и ключи AI-сервисов. Значение отсюда важнее переменной окружения с тем же именем и применяется в течение минуты, без выкладки. Секреты хранятся зашифрованными и обратно не показываются.',
+        'Общие для всех порталов настройки April: прокси за рубеж, ключи AI-сервисов, Telegram-боты и адреса виджетов. Значение отсюда важнее переменной окружения с тем же именем и применяется в течение минуты, без выкладки. Секреты хранятся зашифрованными и обратно не показываются.',
     loading: 'Загружаю настройки…',
     loadError: 'Не удалось загрузить настройки приложения',
     howTo: 'Где взять и как заполнить',
@@ -50,3 +53,31 @@ export const VENDOR_SETTINGS_TEXT = {
     updatedAt: (at: string, by: string | null): string =>
         `Изменено ${new Date(at).toLocaleString('ru-RU')}${by ? `, ${by}` : ''}.`,
 } as const;
+
+/** Проверка одного Telegram-бота: какой бот стоит в токене (сам токен не приходит). */
+export type VendorTelegramBot = VendorTelegramBotDto;
+export type VendorTelegramBotStatus = VendorTelegramBotDtoStatus;
+
+/** Группа, над полями которой показывается «кто есть кто» среди ботов. */
+export const TELEGRAM_BOTS_GROUP = VendorSettingGroupDtoGroup['telegram-bots'];
+
+export const TELEGRAM_BOTS_TEXT = {
+    title: 'Какие боты подключены сейчас',
+    loading: 'Спрашиваю Telegram…',
+    loadError: 'Не удалось проверить ботов',
+    placeAdmin: 'токен — в этих настройках',
+    placeEnv: 'токен — только в окружении сервера (TELEGRAM_BOT_TOKEN)',
+    notSet: 'токен не задан',
+    unknownName: 'бот без имени',
+    sameToken: (others: readonly string[]): string =>
+        `Тот же токен, что у: ${others.join(', ')}. Один бот на две задачи — так нельзя: замените токен на нужный.`,
+} as const;
+
+/** Цвет бэйджа статуса бота — тоны @workspace/april-ui. */
+export const TELEGRAM_BOT_STATUS_TONE: Readonly<
+    Record<VendorTelegramBotStatus, 'success' | 'muted' | 'destructive'>
+> = {
+    ok: 'success',
+    'not-set': 'muted',
+    error: 'destructive',
+};

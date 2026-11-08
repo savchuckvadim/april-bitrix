@@ -7,7 +7,8 @@ import {
     CardHeader,
     CardTitle,
 } from '@workspace/ui/components/card';
-import type { VendorSettingGroup } from '../../model';
+import { TELEGRAM_BOTS_GROUP, type VendorSettingGroup } from '../../model';
+import { TelegramBotsOverview } from './TelegramBotsOverview';
 import { VendorSettingField } from './VendorSettingField';
 
 interface VendorSettingGroupCardProps {
@@ -24,6 +25,7 @@ export function VendorSettingGroupCard({ group, secretMask }: VendorSettingGroup
                 <CardDescription>{group.description}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+                {group.group === TELEGRAM_BOTS_GROUP && <TelegramBotsOverview />}
                 {group.items.map((item) => (
                     <VendorSettingField key={item.key} setting={item} secretMask={secretMask} />
                 ))}

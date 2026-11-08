@@ -36,14 +36,35 @@ export interface CabinetTelegramBinding {
     createdAt: string | null;
 }
 
+/** Приложение April на портале: установка, режим авторизации, виджеты. */
+export interface CabinetAppStatus {
+    installed: boolean;
+    installStatus: string | null;
+    installedAt: string | null;
+    uninstalledAt: string | null;
+    /** webhook | app | auto */
+    bitrixAuthMode: string;
+    enabledParts: string[];
+    /** Коды виджетов из настройки портала app_widgets. */
+    widgets: string[];
+}
+
 export interface CabinetPortalCard {
     portalId: number;
     domain: string | null;
     clientId: number | null;
     organization: string | null;
     approvalStatus: string | null;
+    app: CabinetAppStatus;
     members: CabinetMember[];
     telegram: CabinetTelegramBinding[];
+}
+
+/** Ответ обновления/переустановки виджетов (прокси admin → pbx). */
+export interface CabinetWidgetsResult {
+    ok: boolean;
+    /** JSON pbx: { bound, unbound, errors, total }. */
+    details?: string;
 }
 
 export interface CabinetPasswordLink {

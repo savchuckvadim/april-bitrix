@@ -8,7 +8,8 @@
 import type {
   UpdateVendorSettingDto,
   VendorSettingDto,
-  VendorSettingsResponseDto
+  VendorSettingsResponseDto,
+  VendorTelegramBotsResponseDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
@@ -29,11 +30,23 @@ const vendorSettingsList = (
       );
     }
   /**
+ * Для каждого бота April (клиентский, поддержка, тревоги разработчика) — какой бот на самом деле стоит в токене (имя по ответу Telegram), почему проверка не прошла и не вставлен ли один токен в два места. Токены наружу не отдаются.
+ * @summary Какие Telegram-боты подключены
+ */
+const vendorSettingsTelegramBots = (
+    
+ ) => {
+      return customAxios<VendorTelegramBotsResponseDto>(
+      {url: `/api/admin/vendor-settings/telegram-bots`, method: 'GET'
+    },
+      );
+    }
+  /**
  * Пустое значение снимает настройку из админки — снова действует переменная окружения. Для секрета маска означает «оставить прежнее». Значение проверяется: адрес прокси должен быть полным https-адресом, хосты — именами через запятую.
  * @summary Сохранить настройку
  */
 const vendorSettingsUpdate = (
-    key: 'EGRESS_PROXY_URL' | 'EGRESS_PROXY_TOKEN' | 'EGRESS_PROXY_HOSTS' | 'GROQ_API_KEY' | 'CLOUDRU_API_KEY' | 'ANTHROPIC_API_KEY',
+    key: 'EGRESS_PROXY_URL' | 'EGRESS_PROXY_TOKEN' | 'EGRESS_PROXY_HOSTS' | 'GROQ_API_KEY' | 'CLOUDRU_API_KEY' | 'ANTHROPIC_API_KEY' | 'SUPPORT_TELEGRAM_BOT_TOKEN' | 'SUPPORT_TELEGRAM_CHAT_ID' | 'CABINET_TELEGRAM_BOT_TOKEN' | 'MARKETPLACE_WIDGET_URL_EVENT_SALES' | 'MARKETPLACE_WIDGET_URL_KONSTRUCTOR' | 'MARKETPLACE_WIDGET_URL_REPORT_SALES' | 'MARKETPLACE_WIDGET_URL_EVENT_SERVICE' | 'MARKETPLACE_WIDGET_URL_KONSTRUCTOR_SERVICE' | 'MARKETPLACE_WIDGET_URL_REPORT_SERVICE',
     updateVendorSettingDto: UpdateVendorSettingDto,
  ) => {
       return customAxios<VendorSettingDto>(
@@ -43,6 +56,7 @@ const vendorSettingsUpdate = (
     },
       );
     }
-  return {vendorSettingsList,vendorSettingsUpdate}};
+  return {vendorSettingsList,vendorSettingsTelegramBots,vendorSettingsUpdate}};
 export type VendorSettingsListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminVendorSettings>['vendorSettingsList']>>>
+export type VendorSettingsTelegramBotsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminVendorSettings>['vendorSettingsTelegramBots']>>>
 export type VendorSettingsUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminVendorSettings>['vendorSettingsUpdate']>>>

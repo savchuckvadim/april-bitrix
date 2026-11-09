@@ -2,6 +2,8 @@ import {
     CalibrationSubmitResponse,
     parseSubmission,
 } from './lib/calibration-submission';
+import { siteLeadGate } from '../_site-inbox/site-inbox-gate';
+import { BriefNotDeliveredError } from './lib/send-brief';
 import { RecentSubmissions } from './lib/recent-submissions';
 import { sendCalibrationBrief } from './lib/send-calibration-brief';
 
@@ -42,11 +44,25 @@ export async function POST(request: Request): Promise<Response> {
         );
     }
 
+    // Лимит на посетителя общий с заявками сайта: бэк держит один потолок на чат.
+    if (!siteLeadGate.allowVisitor(request.headers)) {
+        return json(
+            { ok: false, error: 'Слишком много отправок — попробуйте через несколько минут' },
+            429,
+        );
+    }
+
     try {
         const parts = await sendCalibrationBrief(submission);
         recent.remember(submission.protocol);
         return json({ ok: true, parts }, 200);
     } catch (error) {
+        if (error instanceof BriefNotDeliveredError && error.status === 'throttled') {
+            return json(
+                { ok: false, error: 'Сейчас много отправок — попробуйте через минуту' },
+                429,
+            );
+        }
         console.error('Calibration brief send error:', error);
         return json(
             { ok: false, error: 'Не удалось передать бриф — попробуйте ещё раз' },

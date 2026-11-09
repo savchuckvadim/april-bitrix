@@ -8,6 +8,8 @@ import { Textarea } from '@workspace/ui/components/textarea';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Send, CheckCircle2 } from 'lucide-react';
 import { getLeadSource, setLeadSource as saveLeadSource, clearLeadSource } from '../utils/tracking';
+import { VENDOR_PHONE } from '../../legal/constants/vendor';
+import { hasCallablePhone, looksLikeEmail } from '@/app/api/_site-inbox/site-lead-contacts';
 
 export const LeadForm: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -83,13 +85,17 @@ export const LeadForm: React.FC = () => {
         if (!formData.name.trim()) {
             newErrors.name = 'Имя обязательно';
         }
+        // Те же правила, что у сервера и бэка: иначе форма пропустит контакт,
+        // который дальше отклонят, и посетитель увидит ошибку вместо поля.
         if (!formData.email.trim()) {
             newErrors.email = 'Email обязателен';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        } else if (!looksLikeEmail(formData.email)) {
             newErrors.email = 'Некорректный email';
         }
         if (!formData.phone.trim()) {
             newErrors.phone = 'Телефон обязателен';
+        } else if (!hasCallablePhone(formData.phone)) {
+            newErrors.phone = 'Укажите телефон с кодом города — не меньше 10 цифр';
         }
         if (!formData.privacy) {
             newErrors.privacy = 'Необходимо согласие на обработку данных';
@@ -133,7 +139,8 @@ export const LeadForm: React.FC = () => {
             }
 
 
-            // Отправка в Bitrix (заглушка - нужно реализовать API endpoint)
+            // Сервер сайта передаёт заявку в Telegram-чат «April Client»;
+            // «отправлено» — только по ответу сервера, а не по клику.
             const response = await fetch('/api/send', {
                 method: 'POST',
                 headers: {
@@ -141,8 +148,14 @@ export const LeadForm: React.FC = () => {
                 },
                 body: JSON.stringify(payload),
             });
+            if (response.status === 400) {
+                alert('Проверьте телефон и email — заявка не прошла проверку');
+                return;
+            }
+            if (!response.ok) {
+                throw new Error(`Заявка не доставлена: ${response.status}`);
+            }
 
-            // if (response.ok) {
             setIsSubmitted(true);
             setFormData({
                 name: '',
@@ -155,12 +168,9 @@ export const LeadForm: React.FC = () => {
             });
             // Очищаем источник после успешной отправки
             clearLeadSource();
-            // } else {
-            //     throw new Error('Ошибка отправки формы');
-            // }
         } catch (error) {
             console.error('Error submitting form:', error);
-            alert('Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.');
+            alert(`Не получилось отправить заявку. Позвоните нам: ${VENDOR_PHONE}`);
         } finally {
             setIsSubmitting(false);
         }

@@ -11,6 +11,8 @@
         "KPI_SALES_API_URL",
         "KONSTRUCTOR_API_URL",
         "PBX_API_URL",
+        "BOT_API_URL",
+        "SITE_LEAD_API_KEY",
         "NEXT_PUBLIC_BITRIX_APP_URL"
     ],
     "tasks": {

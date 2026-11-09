@@ -2,6 +2,8 @@ import {
     CalibrationSubmitResponse,
     parseSubmission,
 } from '../calibration/lib/calibration-submission';
+import { siteLeadGate } from '../_site-inbox/site-inbox-gate';
+import { BriefNotDeliveredError } from '../calibration/lib/send-brief';
 import { RecentSubmissions } from '../calibration/lib/recent-submissions';
 import { sendCallReviewBrief } from './lib/send-call-review-brief';
 
@@ -47,11 +49,25 @@ export async function POST(request: Request): Promise<Response> {
         );
     }
 
+    // Лимит на посетителя общий с заявками сайта: бэк держит один потолок на чат.
+    if (!siteLeadGate.allowVisitor(request.headers)) {
+        return json(
+            { ok: false, error: 'Слишком много отправок — попробуйте через несколько минут' },
+            429,
+        );
+    }
+
     try {
         const parts = await sendCallReviewBrief(submission);
         recent.remember(submission.protocol);
         return json({ ok: true, parts }, 200);
     } catch (error) {
+        if (error instanceof BriefNotDeliveredError && error.status === 'throttled') {
+            return json(
+                { ok: false, error: 'Сейчас много отправок — попробуйте через минуту' },
+                429,
+            );
+        }
         console.error('Call review brief send error:', error);
         return json(
             {

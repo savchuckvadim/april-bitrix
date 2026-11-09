@@ -13,6 +13,8 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
+import { VENDOR_PHONE } from '../../legal/constants/vendor';
+import { looksLikeEmail } from '@/app/api/_site-inbox/site-lead-contacts';
 
 const proposalPoints = [
     {
@@ -67,23 +69,33 @@ export const CommercialProposal: React.FC = () => {
     };
 
     const handleRequestByEmail = async () => {
+        if (!looksLikeEmail(email)) {
+            alert('Проверьте адрес почты');
+            return;
+        }
         setIsLoading(true);
-        if (!email) {
-            alert('Пожалуйста, введите email');
-            return;
+        // Почты у сайта нет: просьба уходит заявкой в Telegram-чат «April Client»,
+        // КП отправляет менеджер.
+        try {
+            const response = await fetch('/api/mail/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email.trim() }),
+            });
+            if (response.status === 400) {
+                alert('Проверьте адрес почты');
+                return;
+            }
+            if (!response.ok) {
+                alert(`Не получилось отправить запрос. Позвоните нам: ${VENDOR_PHONE}`);
+                return;
+            }
+            setIsDialogOpen(false);
+        } catch {
+            alert(`Не получилось отправить запрос. Позвоните нам: ${VENDOR_PHONE}`);
+        } finally {
+            setIsLoading(false);
         }
-        // Здесь будет отправка запроса на получение КП по email
-
-        const response = await fetch('/api/mail/send', {
-            method: 'POST',
-            body: JSON.stringify({ email }),
-        });
-        if (!response.ok) {
-            alert('Произошла ошибка при отправке запроса');
-            return;
-        }
-        setIsDialogOpen(false);
-        setIsLoading(false);
     };
 
     return (

@@ -1,33 +1,38 @@
 /**
- * Маршрут приёма онлайн-брифа: бэк подменён, проверяем ровно обязанности
- * двери — что уходит в Telegram и с какой темой, части длинного брифа,
- * honeypot, повтор, кривое тело и сбой бэка.
+ * Маршрут приёма брифа калибровки: бэк подменён, проверяем ровно обязанности
+ * двери — что уходит в бэк, ловушка, повтор, лимит на посетителя, кривое
+ * тело и недоставка. Нарезку на части и тему сообщения делает бэк bot —
+ * они проверяются его тестами.
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { TelegramSendMessageDto } from '@workspace/nest-api';
-import { TELEGRAM_PART_MAX_LENGTH } from './lib/split-telegram-text';
+import type {
+    SiteBriefPayload,
+    SiteBriefSendResult,
+} from '../_site-inbox/site-inbox-backend';
 import { POST } from './route';
 
-const { sent, failNext } = vi.hoisted(() => ({
-    sent: [] as TelegramSendMessageDto[],
-    failNext: { value: false },
+const { sent, nextResult } = vi.hoisted(() => ({
+    sent: [] as SiteBriefPayload[],
+    nextResult: { value: null as SiteBriefSendResult | null },
 }));
 
-vi.mock('@workspace/nest-api', () => ({
-    configureBaseURL: () => undefined,
-    getTelegram: () => ({
-        telegramGetTelegram: async (dto: TelegramSendMessageDto) => {
-            if (failNext.value) throw new Error('backend down');
-            sent.push(dto);
-        },
-    }),
+vi.mock('../_site-inbox/site-inbox-backend', () => ({
+    sendSiteLead: async () => 'sent',
+    sendSiteBrief: async (payload: SiteBriefPayload): Promise<SiteBriefSendResult> => {
+        const result = nextResult.value ?? { status: 'sent', parts: 2 };
+        nextResult.value = null;
+        if (result.status === 'sent') sent.push(payload);
+        return result;
+    },
 }));
 
-const post = (body: unknown): Request =>
+/** Каждый запрос со своего адреса, если тест не задал общий: лимит живёт в модуле. */
+let ipSeq = 1;
+const post = (body: unknown, ip = `10.1.0.${ipSeq++}`): Request =>
     new Request('http://localhost/api/calibration', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', 'x-real-ip': ip },
         body: typeof body === 'string' ? body : JSON.stringify(body),
     });
 
@@ -42,45 +47,25 @@ const submission = (protocol: string, extra: Record<string, unknown> = {}) => ({
 
 afterEach(() => {
     sent.length = 0;
-    failNext.value = false;
+    nextResult.value = null;
     vi.restoreAllMocks();
 });
 
 describe('штатная отправка', () => {
-    it('короткий бриф уходит одним сообщением с темой «Бриф калибровки: компания / домен»', async () => {
+    it('бриф уходит в бэк видом «калибровка» с реквизитами, число частей — из ответа бэка', async () => {
         const response = await POST(post(submission('1. Вопрос: ответ')));
         expect(response.status).toBe(200);
-        expect(await response.json()).toEqual({ ok: true, parts: 1 });
-        expect(sent).toHaveLength(1);
-        expect(sent[0]?.text.startsWith('Бриф калибровки: ООО Ромашка / romashka.bitrix24.ru\n\n')).toBe(true);
-        expect(sent[0]?.text).toContain('1. Вопрос: ответ');
-        expect(sent[0]?.domain).toBe('romashka.bitrix24.ru');
-        expect(sent[0]?.userId).toBe('Иванова');
-        expect(sent[0]?.app).toBe('bitrix-site-calibration');
-    });
-
-    it('длинный бриф уходит частями по порядку, каждая в лимите и с номером', async () => {
-        const protocol = Array.from(
-            { length: 200 },
-            (_, index) => `${index + 1}. Вопрос ${index + 1}: ${'ответ '.repeat(10)}`,
-        ).join('\n');
-        const response = await POST(post(submission(protocol)));
-        const body = (await response.json()) as { ok: boolean; parts: number };
-        expect(body.ok).toBe(true);
-        expect(body.parts).toBeGreaterThan(1);
-        expect(sent).toHaveLength(body.parts);
-        sent.forEach((dto, index) => {
-            expect(dto.text.length).toBeLessThanOrEqual(TELEGRAM_PART_MAX_LENGTH);
-            expect(dto.text).toContain(`(часть ${index + 1} из ${body.parts})`);
-        });
-        expect(sent[0]?.text).toContain('1. Вопрос 1:');
-        expect(sent[sent.length - 1]?.text).toContain('200. Вопрос 200:');
-    });
-
-    it('без реквизитов тема честно говорит, что их нет', async () => {
-        await POST(post(submission('x', { company: '', domain: '' })));
-        expect(sent[0]?.text.startsWith('Бриф калибровки: реквизиты не указаны')).toBe(true);
-        expect(sent[0]?.domain).toBe('домен не указан');
+        expect(await response.json()).toEqual({ ok: true, parts: 2 });
+        expect(sent).toEqual([
+            {
+                kind: 'calibration',
+                company: 'ООО Ромашка',
+                respondent: 'Иванова',
+                domain: 'romashka.bitrix24.ru',
+                protocol: '1. Вопрос: ответ',
+                page: '/ai/briefs',
+            },
+        ]);
     });
 });
 
@@ -107,14 +92,28 @@ describe('защита двери', () => {
         expect(sent).toHaveLength(0);
     });
 
-    it('сбой бэка — 502 с ошибкой, чтобы клиент предложил повторить', async () => {
+    it('с одного адреса — не больше трёх брифов за 10 минут', async () => {
+        const ip = '203.0.113.20';
+        for (let i = 0; i < 3; i += 1) {
+            expect((await POST(post(submission(`бриф ${i}`), ip))).status).toBe(200);
+        }
+        expect((await POST(post(submission('бриф 4'), ip))).status).toBe(429);
+        expect(sent).toHaveLength(3);
+    });
+
+    it('бэк перегружен — 429 «попробуйте через минуту»', async () => {
+        nextResult.value = { status: 'throttled', parts: 0 };
+        const response = await POST(post(submission('в час пик')));
+        expect(response.status).toBe(429);
+        expect((await response.json()).ok).toBe(false);
+    });
+
+    it('бэк не доставил — 502, чтобы клиент предложил повторить; повтор после сбоя уходит', async () => {
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
-        failNext.value = true;
+        nextResult.value = { status: 'failed', parts: 0 };
         const response = await POST(post(submission('упадёт')));
         expect(response.status).toBe(502);
         expect((await response.json()).ok).toBe(false);
-        // повтор после сбоя не считается дублем
-        failNext.value = false;
         expect((await POST(post(submission('упадёт')))).status).toBe(200);
     });
 });

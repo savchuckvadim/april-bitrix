@@ -80,7 +80,9 @@ export const TELEGRAM_BOTS_TEXT = {
     webhookOk: (url: string, pending: number): string =>
         `Сообщения боту доходят: вебхук ${url}${pending ? `, в очереди ${pending}` : ''}.`,
     webhookMissing: 'Вебхук не установлен — бот не получает сообщения (приложение bot ставит его само; проверьте адрес вебхука в окружении).',
-    webhookError: (error: string): string => `Последняя ошибка доставки: ${error}`,
+    webhookError: (error: string, at: string | null, stale: boolean): string =>
+        `Последняя ошибка доставки${at ? ` (${at})` : ''}: ${error}` +
+        (stale ? ' — давно, очередь пуста: сейчас сообщения доходят.' : ''),
     sameToken: (others: readonly string[]): string =>
         `Тот же токен, что у: ${others.join(', ')}. Один бот на две задачи — так нельзя: замените токен на нужный.`,
 } as const;

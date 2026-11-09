@@ -7,6 +7,7 @@ import {
     useTestTelegramBot,
     useVendorTelegramBots,
 } from '../../lib/hooks/use-vendor-settings';
+import { webhookErrorView } from '../../lib/view/webhook-error';
 import {
     TELEGRAM_BOT_STATUS_TONE,
     TELEGRAM_BOTS_TEXT,
@@ -24,6 +25,7 @@ function botName(bot: VendorTelegramBot): string {
 function WebhookLine({ bot }: { bot: VendorTelegramBot }) {
     const webhook = bot.webhook;
     if (!webhook) return null;
+    const error = webhookErrorView(webhook.lastErrorAt, webhook.pending);
     return (
         <>
             <p className={webhook.url ? 'text-xs text-muted-foreground' : 'text-xs text-destructive'}>
@@ -32,8 +34,8 @@ function WebhookLine({ bot }: { bot: VendorTelegramBot }) {
                     : TELEGRAM_BOTS_TEXT.webhookMissing}
             </p>
             {webhook.lastError && (
-                <p className="text-xs text-destructive">
-                    {TELEGRAM_BOTS_TEXT.webhookError(webhook.lastError)}
+                <p className={error.stale ? 'text-xs text-muted-foreground' : 'text-xs text-destructive'}>
+                    {TELEGRAM_BOTS_TEXT.webhookError(webhook.lastError, error.at, error.stale)}
                 </p>
             )}
         </>

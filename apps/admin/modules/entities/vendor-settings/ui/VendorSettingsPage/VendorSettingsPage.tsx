@@ -2,6 +2,7 @@
 
 import { getApiErrorMessage } from '@/modules/entities/pbx/lib/api-error';
 import { HookNotice } from '@/modules/entities/hooks/ui/components/HookNotice';
+import { MailCheckCard } from '@/modules/entities/cabinet-guide';
 import { useVendorSettings } from '../../lib/hooks/use-vendor-settings';
 import { VENDOR_SETTINGS_TEXT } from '../../model';
 import { VendorSettingGroupCard } from '../components/VendorSettingGroupCard';
@@ -9,7 +10,9 @@ import { VendorSettingGroupCard } from '../components/VendorSettingGroupCard';
 /**
  * Раздел «Настройки приложения»: прокси за рубеж и ключи AI-сервисов уровня
  * April. Состав, описания и инструкции приходят с бэка — фронт показывает
- * группы и даёт сохранить или очистить каждое значение отдельно.
+ * группы и даёт сохранить или очистить каждое значение отдельно. Почта —
+ * отдельной карточкой: её настройка живёт в окружении сервера, здесь только
+ * состояние и тестовое письмо.
  */
 export const VendorSettingsPage = () => {
     const query = useVendorSettings();
@@ -42,6 +45,7 @@ export const VendorSettingsPage = () => {
                     secretMask={query.data.secretMask}
                 />
             ))}
+            <MailCheckCard />
         </div>
     );
 };

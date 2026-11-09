@@ -56,7 +56,7 @@ describe('ai-dossier-series.util — пометки точки ряда', () => 
         const notes = aiDossierPointNotes(
             point({ nBeforeComparable: 3, versionsMixed: true }),
         );
-        expect(notes.beforeComparable).toBe('+3 до смены версии');
+        expect(notes.beforeComparable).toBe('по прежним правилам: 3');
         expect(notes.versionsMixed).toBe(true);
     });
 

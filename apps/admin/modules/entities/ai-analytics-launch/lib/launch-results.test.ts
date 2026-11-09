@@ -284,4 +284,49 @@ describe('reanalyzeProgress', () => {
             }).share,
         ).toBe(1);
     });
+
+    it('с total и etaMinutes (с 09.11.2026) — точный счёт и «осталось ≈ X мин» в любой части', () => {
+        const view = reanalyzeProgress({
+            part: 3,
+            candidates: 50,
+            done: 300,
+            failed: 2,
+            price: 200,
+            finished: false,
+            total: 400,
+            etaMinutes: 7,
+        });
+        expect(view.share).toBe(0.75);
+        expect(view.countText).toBe('300 из 400');
+        expect(view.text).toBe(
+            'Часть 3: переразобрано 300 из 400, осталось ≈ 7 мин, сбоев 2, потрачено 200 ₽.',
+        );
+        // Готово — «осталось» не пишется.
+        expect(
+            reanalyzeProgress({
+                part: 3,
+                candidates: 0,
+                done: 400,
+                failed: 0,
+                price: 300,
+                finished: true,
+                total: 400,
+                etaMinutes: 0,
+            }).text,
+        ).toBe('Готово: переразобрано 400 из 400, потрачено 300 ₽.');
+        // Остановившийся прогон — «осталось» тоже не пишется: ничего не идёт.
+        expect(
+            reanalyzeProgress({
+                part: 2,
+                candidates: 100,
+                done: 300,
+                failed: 8,
+                price: 200,
+                finished: false,
+                total: 400,
+                etaMinutes: 7,
+                stale: true,
+            }).text,
+        ).toBe('Часть 2: переразобрано 300 из 400, сбоев 8, потрачено 200 ₽.');
+    });
 });

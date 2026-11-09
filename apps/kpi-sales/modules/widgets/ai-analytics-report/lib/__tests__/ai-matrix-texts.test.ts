@@ -23,10 +23,11 @@ const T = AI_MATRIX_BLOCK_TEXT;
 describe('AI_MATRIX_BLOCK_TEXT — словарь блоков-матриц', () => {
     it('легенда: одна строка через точки, хвост с датой и порогом только когда они известны', () => {
         expect(T.legend.text('2026-09-25', 300)).toBe(
-            'Крупно — средняя оценка AI из 10 · мелко — сколько звонков разобрано · цвет — выше/ниже среднего по отделу · «ещё N» — до оценки не хватает разборов · считаются звонки с 25.09 длиннее 300 сек',
+            'Крупно — средняя оценка AI из 10 · мелко — сколько звонков разобрано · цвет — выше/ниже среднего по отделу · «ещё N» — до оценки не хватает разборов · считаются звонки длиннее 300 сек',
         );
         expect(T.legend.text(null, null)).not.toContain('считаются звонки');
-        expect(T.legend.text('2026-09-25', null)).toContain('считаются звонки с 25.09');
+        // Дата сравнимости в хвост не идёт: разборы до неё входят с пометкой.
+        expect(T.legend.text('2026-09-25', null)).not.toContain('считаются звонки');
         expect(T.legend.text(null, 300)).toContain('считаются звонки длиннее 300 сек');
     });
 
@@ -35,9 +36,9 @@ describe('AI_MATRIX_BLOCK_TEXT — словарь блоков-матриц', ()
         const text = legend.hint.lines.join(' ');
         expect(legend.hint.title).toBe('Как читать таблицу');
         expect(text).toContain('появляется от 8 разборов, надёжна от 20');
-        expect(text).toContain('длиннее 300 сек, сделанные с 25.09.2026');
+        expect(text).toContain('Разборы до 25.09.2026 сделаны по прежним правилам — они входят в оценку с пометкой');
         expect(text).toContain('Что сделать');
-        expect(aiMatrixLegend({ comparableFrom: null, minDurationSec: null }).hint.lines.join(' ')).not.toContain('сделанные с');
+        expect(aiMatrixLegend({ comparableFrom: null, minDurationSec: null }).hint.lines.join(' ')).not.toContain('Разборы до');
     });
 
     it('подсказки корзин и разделов есть для каждого кода', () => {
@@ -74,15 +75,15 @@ describe('AI_MATRIX_BLOCK_TEXT — словарь блоков-матриц', ()
             { kind: 'before-comparable', count: 14, comparableFrom: '2026-09-25', canShowFrom: true },
             names,
         );
-        expect(before.text).toContain('За период разобрано 14 звонков, но по прежней версии разбора');
-        expect(before.text).toContain('Сравнимые разборы идут с 25.09.2026');
+        expect(before.text).toContain('За период разобрано 14 звонков по прежним правилам разбора (до 25.09.2026)');
+        expect(before.text).toContain('входят в оценки с пометкой');
         expect(before.action).toEqual({ kind: 'show-from', label: 'Показать с 25.09', date: '2026-09-25' });
         expect(
             aiMatrixEmptyView(
                 { kind: 'before-comparable', count: 1, comparableFrom: '2026-09-25', canShowFrom: false },
                 names,
             ),
-        ).toMatchObject({ action: null, note: 'Что сделать: выберите период после этой даты.' });
+        ).toMatchObject({ action: null, note: 'Что сделать: ничего — пометка исчезнет по мере накопления новых разборов.' });
 
         expect(aiMatrixEmptyView({ kind: 'disabled' }, names).text).toContain('попросите разработчика');
         expect(aiMatrixEmptyView({ kind: 'before-analysis', since: '2026-10-01' }, names).text).toContain(

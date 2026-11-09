@@ -5,6 +5,7 @@ import { aiHelper } from '@/modules/entities/ai-analytics/model/ai-analytics-thu
 import type { MicroSelectOption } from '@workspace/april-ui';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
+    AI_OWNER_REPORT_DELIVERY_STATUSES,
     AI_OWNER_REPORT_KINDS,
     fetchAiOwnerReport,
     selectAiIsLeader,
@@ -15,6 +16,7 @@ import {
     AI_OWNER_REPORT_KIND_LABELS,
     AI_OWNER_REPORT_TEXT,
     aiOwnerReportPeriodLabel,
+    aiOwnerReportSendMessage,
 } from '../lib/ai-owner-report.texts';
 import {
     aiOwnerReportPdfFilename,
@@ -23,6 +25,21 @@ import {
 
 /** Значение селекта «последний закрытый период». */
 export const AI_OWNER_REPORT_LATEST = 'latest';
+
+/** Состояние «Отправить себе»: идёт, итог словами, ссылка на PDF, неудача. */
+export interface AiOwnerReportSendState {
+    loading: boolean;
+    message: string | null;
+    fileUrl: string | null;
+    failed: boolean;
+}
+
+const SEND_IDLE: AiOwnerReportSendState = {
+    loading: false,
+    message: null,
+    fileUrl: null,
+    failed: false,
+};
 
 /**
  * Состояние подвкладки «Отчёт за период»: вид периода и ключ (пусто —
@@ -42,6 +59,7 @@ export const useAiOwnerReport = () => {
         loading: false,
         error: null,
     });
+    const [sendState, setSendState] = useState<AiOwnerReportSendState>(SEND_IDLE);
     const [kind, setKind] = useState<AiOwnerReportKind>(query?.kind ?? 'month');
     const [periodKey, setPeriodKey] = useState<string | null>(query?.periodKey ?? null);
 
@@ -94,6 +112,31 @@ export const useAiOwnerReport = () => {
             setPdfState({ loading: false, error: AI_OWNER_REPORT_TEXT.pdf.error });
         }
     }, [requester, data]);
+    /** Выпуск отчёта себе: личное сообщение и PDF на Диске — проверка доставки. */
+    const sendToSelf = useCallback(async () => {
+        if (!requester || !data) return;
+        setSendState({ ...SEND_IDLE, loading: true });
+        try {
+            const response = await aiHelper.sendOwnerReportToSelf(requester, {
+                kind: data.kind,
+                periodKey: data.periodKey,
+            });
+            const result = response.data;
+            if (!result) throw new Error(response.message);
+            setSendState({
+                loading: false,
+                message: aiOwnerReportSendMessage(result),
+                fileUrl: result.fileUrl,
+                failed: result.status !== AI_OWNER_REPORT_DELIVERY_STATUSES.sent,
+            });
+        } catch {
+            setSendState({
+                ...SEND_IDLE,
+                message: AI_OWNER_REPORT_TEXT.send.error,
+                failed: true,
+            });
+        }
+    }, [requester, data]);
     const rebuild = useCallback(
         () => dispatch(fetchAiOwnerReport({ kind, periodKey }, { force: true })),
         [dispatch, kind, periodKey],
@@ -114,6 +157,8 @@ export const useAiOwnerReport = () => {
         downloadPdf,
         pdfLoading: pdfState.loading,
         pdfError: pdfState.error,
+        sendToSelf,
+        send: sendState,
     };
 };
 

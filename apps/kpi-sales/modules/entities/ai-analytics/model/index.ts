@@ -1,6 +1,11 @@
-import { AiOwnerReportRequestDtoKind } from '@workspace/nest-kpi-report-sales-api';
+import {
+    AiOwnerReportDeliveryResultDtoStatus,
+    AiOwnerReportRequestDtoKind,
+} from '@workspace/nest-kpi-report-sales-api';
 import type {
     AiOwnerReportAttentionDto,
+    AiOwnerReportDeliveryResultDto,
+    AiOwnerReportDeliveryResultDtoReason,
     AiOwnerReportDto,
     AiOwnerReportGlossaryItemDto,
     AiOwnerReportLeakDto,
@@ -358,6 +363,13 @@ export interface AiOwnerReportQuery {
     kind: AiOwnerReportKind;
     periodKey: string | null;
 }
+/** Итог выпуска отчёта («Отправить себе»): статус доставки, причина, ссылка на PDF. */
+export type AiOwnerReportDelivery = AiOwnerReportDeliveryResultDto;
+/** Статус выпуска: sent | dry_run | skipped | failed. */
+export const AI_OWNER_REPORT_DELIVERY_STATUSES =
+    AiOwnerReportDeliveryResultDtoStatus;
+/** Причина пропуска или сбоя выпуска (без null). */
+export type AiOwnerReportDeliveryReason = NonNullable<AiOwnerReportDeliveryResultDtoReason>;
 export type AiBriefBullet = AiBriefBulletDto;
 /** Группа пункта: change — что изменилось, focus — на кого смотреть, action — что сделать. */
 export type AiBriefBulletGroup = AiBriefBulletDtoGroup;

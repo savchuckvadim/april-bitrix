@@ -1,4 +1,9 @@
-import type { AiOwnerReportKind } from '@/modules/entities/ai-analytics';
+import {
+    AI_OWNER_REPORT_DELIVERY_STATUSES,
+    type AiOwnerReportDelivery,
+    type AiOwnerReportDeliveryReason,
+    type AiOwnerReportKind,
+} from '@/modules/entities/ai-analytics';
 
 /*
  * Тексты подвкладки «Отчёт за период» (отчёт собственнику). Сам текст
@@ -25,6 +30,27 @@ export const AI_OWNER_REPORT_TEXT = {
         label: 'Скачать PDF',
         title: 'Скачать отчёт файлом',
         error: 'Не удалось скачать PDF',
+    },
+    send: {
+        label: 'Отправить себе',
+        title: 'Отправить отчёт себе в Битрикс24',
+        lines: [
+            'Личное сообщение с кратким содержанием и PDF придёт вам — так же, как собственнику при рассылке.',
+            'Удобно проверить доставку до того, как включать рассылку.',
+        ],
+        sent: 'Отправлено: проверьте личные сообщения в Битрикс24.',
+        dryRun: 'Режим «только считать»: отчёт собран, сообщение не отправлено.',
+        skipped: {
+            'ai-analytics-disabled':
+                'AI-аналитика на портале выключена — отправлять нечего.',
+            disabled: 'Выпуск отчёта выключен в настройках портала.',
+            'no-recipients': 'Получатель не определён.',
+            'not-delivered': 'Сообщение не доставлено — попробуйте позже.',
+        } satisfies Record<AiOwnerReportDeliveryReason, string>,
+        skippedDefault: 'Отправка пропущена.',
+        failed: 'Сообщение не доставлено — попробуйте позже.',
+        error: 'Не удалось отправить отчёт',
+        openPdf: 'Открыть PDF',
     },
     loading: {
         queued: 'Отчёт поставлен в очередь: собираем разговоры периода…',
@@ -195,4 +221,19 @@ export const aiOwnerReportGeneratedAt = (iso: string): string => {
         hour: '2-digit',
         minute: '2-digit',
     });
+};
+
+/** Итог «Отправить себе» словами: статус доставки и причина пропуска. */
+export const aiOwnerReportSendMessage = (result: AiOwnerReportDelivery): string => {
+    const S = AI_OWNER_REPORT_TEXT.send;
+    switch (result.status) {
+        case AI_OWNER_REPORT_DELIVERY_STATUSES.sent:
+            return S.sent;
+        case AI_OWNER_REPORT_DELIVERY_STATUSES.dry_run:
+            return S.dryRun;
+        case AI_OWNER_REPORT_DELIVERY_STATUSES.skipped:
+            return (result.reason && S.skipped[result.reason]) || S.skippedDefault;
+        default:
+            return S.failed;
+    }
 };

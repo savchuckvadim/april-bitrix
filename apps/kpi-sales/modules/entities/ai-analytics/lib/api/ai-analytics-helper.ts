@@ -20,6 +20,7 @@ import type {
     AiDossier,
     AiDossierQuery,
     AiOwnerReport,
+    AiOwnerReportDelivery,
     AiOwnerReportQuery,
     AiEnvelope,
     AiFeedbackInput,
@@ -314,6 +315,23 @@ export class AiAnalyticsHelper {
                 ...(query.periodKey ? { periodKey: query.periodKey } : {}),
             },
             responseType: 'blob',
+        });
+    }
+
+    /**
+     * «Отправить себе»: выпуск отчёта тем же кодом, что у рассылки 2-го
+     * рабочего дня (PDF на Диск, личное сообщение), но получатель — сам
+     * запрашивающий. Проверка доставки до включения рассылки.
+     */
+    async sendOwnerReportToSelf(
+        requester: AiRequester,
+        query: AiOwnerReportQuery,
+    ): Promise<AiEnvelope<AiOwnerReportDelivery>> {
+        return await this.api.aiAnalyticsOwnerReportSend({
+            ...requester,
+            kind: query.kind,
+            ...(query.periodKey ? { periodKey: query.periodKey } : {}),
+            recipients: [Number(requester.requesterUserId)],
         });
     }
 

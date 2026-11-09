@@ -1,12 +1,11 @@
+import { BITRIX_SITE_URL } from '@/modules/shared/lib/bitrix-site-url';
 import type { RenewalLinkStatus } from '../model';
 
 export const RENEWAL_LINK_API_BASE = '/api/renewal-offer/links';
 export const RENEWAL_LINK_LIST_CACHE_KEY = 'renewal-offer-links';
 
 /** Сайт, на котором открываются предложения. В dev переопределяется env. */
-export const RENEWAL_SITE_URL = (
-    process.env.NEXT_PUBLIC_BITRIX_APP_URL || 'https://bitrix.april-app.ru'
-).replace(/\/$/, '');
+export const RENEWAL_SITE_URL = BITRIX_SITE_URL;
 
 export const RENEWAL_LINK_STATUS_LABEL: Record<RenewalLinkStatus, string> = {
     active: 'Действует',

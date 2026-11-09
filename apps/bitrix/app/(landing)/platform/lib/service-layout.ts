@@ -1,6 +1,10 @@
 import type { PlatformStep } from '../model/types';
+import type { ShotMediaMap } from './platform-media';
 import { isShotVisible } from './shot-visibility';
 
 /** Есть ли у шагов хоть один кадр, который появится на странице. */
-export const hasVisibleStepShots = (items: readonly PlatformStep[]): boolean =>
-    items.some(step => step.shotId !== undefined && isShotVisible(step.shotId));
+export const hasVisibleStepShots = (
+    items: readonly PlatformStep[],
+    media: ShotMediaMap,
+): boolean =>
+    items.some(step => step.shotId !== undefined && isShotVisible(step.shotId, media));

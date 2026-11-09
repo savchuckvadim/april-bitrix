@@ -1,0 +1,16 @@
+{
+    "name": "@workspace/site-media",
+    "version": "1.0.0",
+    "description": "Картинки и видео сайта April: реестр мест кадров лендинга /platform и контракт с бэком — общие для сайта (apps/bitrix) и админки (apps/admin).",
+    "type": "module",
+    "private": true,
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "scripts": {
+        "typecheck": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "@workspace/typescript-config": "workspace:*",
+        "typescript": "^5.7.3"
+    }
+}

@@ -1,5 +1,6 @@
 import { cn } from '@workspace/ui/lib/utils';
 import type { PlatformService } from '../model/types';
+import type { ShotMediaMap } from '../lib/platform-media';
 import { SERVICE_ICONS } from '../lib/service-icons';
 import { isShotVisible } from '../lib/shot-visibility';
 import { DemoButton } from './DemoButton';
@@ -11,13 +12,14 @@ import { ShotFrame } from './ShotFrame';
 
 export interface ServiceHeroProps {
     service: PlatformService;
+    media: ShotMediaMap;
 }
 
 /** Первый экран сервиса: выгода заголовком, кадр справа, если он есть. */
-export function ServiceHero({ service }: ServiceHeroProps) {
+export function ServiceHero({ service, media }: ServiceHeroProps) {
     const Icon = SERVICE_ICONS[service.slug];
     const { shotId } = service.hero;
-    const withShot = shotId !== undefined && isShotVisible(shotId);
+    const withShot = shotId !== undefined && isShotVisible(shotId, media);
 
     return (
         <section className="relative isolate border-b border-border">
@@ -38,7 +40,7 @@ export function ServiceHero({ service }: ServiceHeroProps) {
                         </p>
                         <DemoButton className="self-start" />
                     </div>
-                    {withShot && shotId && <ShotFrame shotId={shotId} priority />}
+                    {withShot && shotId && <ShotFrame shotId={shotId} media={media.get(shotId)} priority />}
                 </div>
             </PlatformContainer>
         </section>

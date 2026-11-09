@@ -36,6 +36,7 @@ const nextConfig: NextConfig = {
         '@workspace/nest-pbx-api',
         '@workspace/nest-pbx-install-api',
         '@workspace/bitrix',
+        '@workspace/site-media',
     ],
 };
 

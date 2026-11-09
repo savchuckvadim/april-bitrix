@@ -10,7 +10,9 @@
  * ходит в другие приложения монорепы: renewal → pbx, rop-review → kpi-sales.
  */
 
-export const BOT_API_URL_DEFAULT = 'https://api.bot.april-app.ru/';
+import { botApiUrl } from '@/lib/bot-api';
+
+export { BOT_API_URL_DEFAULT } from '@/lib/bot-api';
 export const SITE_LEAD_PATH = 'api/site-lead';
 export const SITE_BRIEF_PATH = 'api/site-lead/brief';
 
@@ -65,11 +67,8 @@ export interface SiteBriefSendResult {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === 'object' && value !== null;
 
-/** Адрес ручки: база из окружения (сервер) или прод-дефолт, плюс путь. */
-export const siteInboxUrl = (path: string): string => {
-    const base = process.env.BOT_API_URL || BOT_API_URL_DEFAULT;
-    return `${base.endsWith('/') ? base : `${base}/`}${path}`;
-};
+/** Адрес ручки заявок: база из окружения (сервер) или прод-дефолт, плюс путь. */
+export const siteInboxUrl = (path: string): string => botApiUrl(path);
 
 /** Пустые необязательные поля не шлём: в чате им не место. */
 const compact = <T extends object>(payload: T): Partial<T> =>

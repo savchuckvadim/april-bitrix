@@ -1,6 +1,7 @@
 import { PLATFORM_COPY } from '../model/copy';
 import { getPlatformServices } from '../model/services';
 import type { PlatformService } from '../model/types';
+import type { ShotMediaMap } from '../lib/platform-media';
 import type { ServiceBlock } from '../lib/service-blocks';
 import { visibleShots } from '../lib/shot-visibility';
 import { BenefitCards } from './BenefitCards';
@@ -15,10 +16,11 @@ import { ShotGallery } from './ShotGallery';
 export interface ServiceBlockSectionProps {
     service: PlatformService;
     block: ServiceBlock;
+    media: ShotMediaMap;
 }
 
 /** Одна секция страницы сервиса по её виду из `buildServiceBlocks`. */
-export function ServiceBlockSection({ service, block }: ServiceBlockSectionProps) {
+export function ServiceBlockSection({ service, block, media }: ServiceBlockSectionProps) {
     switch (block.kind) {
         case 'benefits':
             return (
@@ -29,7 +31,7 @@ export function ServiceBlockSection({ service, block }: ServiceBlockSectionProps
         case 'steps':
             return (
                 <PlatformSection title={service.steps.title} tone={block.tone}>
-                    <ServiceSteps items={service.steps.items} />
+                    <ServiceSteps items={service.steps.items} media={media} />
                 </PlatformSection>
             );
         case 'roles':
@@ -47,7 +49,7 @@ export function ServiceBlockSection({ service, block }: ServiceBlockSectionProps
         case 'gallery':
             return (
                 <PlatformSection title={PLATFORM_COPY.galleryTitle} tone={block.tone}>
-                    <ShotGallery shotIds={visibleShots(service.gallery)} />
+                    <ShotGallery shotIds={visibleShots(service.gallery, media)} media={media} />
                 </PlatformSection>
             );
         case 'faq':

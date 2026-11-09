@@ -19,6 +19,7 @@ import {
     portalBadgesEntities,
     supportEntities,
     renewalOfferEntities,
+    siteEntities,
     logsEntities,
     marketplaceEntities,
 } from '../consts/routes.consts';
@@ -357,6 +358,25 @@ describe('resolveSideBar: боковое меню разделов портал�
 
         expect(view.currentNavItems).toBe(portalEntities);
         expect(view.baseUrl).toBe(`/portal/${PORTAL_ID}`);
+    });
+});
+
+describe('resolveDeepRoute: раздел «Сайт»', () => {
+    it('/site/media — верхний уровень со своим меню', () => {
+        const route = resolveDeepRoute('/site/media', '');
+
+        expect(route.isSite).toBe(true);
+        expect(route.isSettings).toBe(false);
+        expect(route.isRenewalOffer).toBe(false);
+        expect(resolveSideBar(route)).toEqual({
+            currentNavItems: siteEntities,
+            baseUrl: '',
+        });
+    });
+
+    it('чужие разделы раздел «Сайт» не включают', () => {
+        expect(resolveDeepRoute('/settings', '').isSite).toBe(false);
+        expect(resolveDeepRoute('/portal/42/site', '42').isSite).toBe(false);
     });
 });
 

@@ -5,11 +5,15 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { buildServiceBlocks } from '../lib/service-blocks';
+import { NO_SHOT_MEDIA } from '../lib/platform-media';
+import { buildServiceBlocks as buildWithMedia } from '../lib/service-blocks';
 import { PLATFORM_SERVICES } from '../model/services';
 import type { PlatformService } from '../model/types';
 
 const BASE = PLATFORM_SERVICES[0] as PlatformService;
+
+/** Раскладка без загруженных кадров: при разработке их места — рамки. */
+const buildServiceBlocks = (service: PlatformService) => buildWithMedia(service, NO_SHOT_MEDIA);
 
 describe('buildServiceBlocks', () => {
     it('без ролей секция ролей выпадает', () => {

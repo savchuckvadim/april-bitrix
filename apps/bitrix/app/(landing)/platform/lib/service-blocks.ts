@@ -1,4 +1,5 @@
 import type { PlatformService } from '../model/types';
+import type { ShotMediaMap } from './platform-media';
 import { visibleShots } from './shot-visibility';
 
 export type ServiceBlockKind =
@@ -24,11 +25,11 @@ export interface ServiceBlock {
  * считаются после отбора: соседние секции всегда разного тона, а последняя
  * перед формой заявки — без подложки (у формы она своя).
  */
-export function buildServiceBlocks(service: PlatformService): ServiceBlock[] {
+export function buildServiceBlocks(service: PlatformService, media: ShotMediaMap): ServiceBlock[] {
     const kinds: ServiceBlockKind[] = ['benefits', 'steps'];
     if (service.roles && service.roles.length > 0) kinds.push('roles');
     kinds.push('features');
-    if (visibleShots(service.gallery).length > 0) kinds.push('gallery');
+    if (visibleShots(service.gallery, media).length > 0) kinds.push('gallery');
     if (service.faq.length > 0) kinds.push('faq');
     if (service.related.length > 0) kinds.push('related');
 

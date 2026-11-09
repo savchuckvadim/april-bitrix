@@ -64,6 +64,8 @@ export interface DeepRoute {
     isSettings: boolean;
     /** Раздел «КП на год» (`/renewal-offer`): персональные ссылки клиентам. */
     isRenewalOffer: boolean;
+    /** Раздел «Сайт» (`/site`): картинки и видео страниц сайта April. */
+    isSite: boolean;
 }
 
 /**
@@ -101,6 +103,7 @@ export const resolveDeepRoute = (
     const isLogs = root === 'logs';
     const isSettings = root === 'settings';
     const isRenewalOffer = root === 'renewal-offer';
+    const isSite = root === 'site';
     const isPortalList = isPortal && second === 'list';
 
     const isPortalGarant = isPortal && portalSection === 'garant';
@@ -187,5 +190,6 @@ export const resolveDeepRoute = (
         isLogs,
         isSettings,
         isRenewalOffer,
+        isSite,
     };
 };

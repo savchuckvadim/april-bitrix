@@ -32,6 +32,7 @@ const nextConfig: NextConfig = {
         '@workspace/ui',
         '@workspace/nest-admin-api',
         '@workspace/nest-konstructor-api',
+        '@workspace/site-media',
     ],
 };
 

@@ -53,6 +53,16 @@ export interface AiAnalyticsLaunchReanalysisRunDto {
    * @nullable
    */
   estimateMessage: string | null;
-  /** Доля сделанного 0..1 (после первой части — оценка снизу). */
+  /** Доля сделанного 0..1 (у записей без total после первой части — оценка снизу). */
   progressShare: number;
+  /**
+   * Всего звонков прогона — знаменатель «переразобрано N из M»; null у прогонов до 09.11.2026.
+   * @nullable
+   */
+  total: number | null;
+  /**
+   * Оценка оставшегося времени, минут (по среднему времени звонка и одновременности); null — ещё нечем оценить.
+   * @nullable
+   */
+  etaMinutes: number | null;
 }

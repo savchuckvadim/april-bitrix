@@ -25,6 +25,8 @@ export const launchRun = (
     estimatedPrice: 1000,
     estimateMessage: null,
     progressShare: 1,
+    total: null,
+    etaMinutes: null,
     ...over,
 });
 

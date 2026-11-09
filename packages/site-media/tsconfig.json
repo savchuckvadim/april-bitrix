@@ -1,0 +1,10 @@
+{
+    "extends": "@workspace/typescript-config/base.json",
+    "compilerOptions": {
+        // Пакет отдаёт исходники: собирают его Next (transpilePackages) и vitest приложений.
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "noEmit": true
+    },
+    "include": ["src/**/*"]
+}

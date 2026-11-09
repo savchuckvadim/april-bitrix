@@ -25,7 +25,14 @@ import {
 } from './model/hub';
 import { PLATFORM_ANCHORS, PLATFORM_ROOT } from './model/navigation';
 import { PLATFORM_SERVICES } from './model/services';
+import { fetchPlatformMedia } from './lib/platform-media';
 import { isShotVisible } from './lib/shot-visibility';
+
+/**
+ * Страница статическая, но раз в минуту сверяет загруженные в админке кадры
+ * (ISR) — как PLATFORM_MEDIA_REVALIDATE_SECONDS; Next требует здесь литерал.
+ */
+export const revalidate = 60;
 
 const TITLE = 'Апрель — встройки в Битрикс24 для отделов продаж партнёров ГАРАНТ';
 const DESCRIPTION =
@@ -39,7 +46,8 @@ export const metadata: Metadata = {
 };
 
 /** Главная продающего раздела: обзор выгод и сервисов, путь к заявке на демо. */
-export default function PlatformPage() {
+export default async function PlatformPage() {
+    const media = await fetchPlatformMedia();
     return (
         <>
             <HubHero />
@@ -49,9 +57,9 @@ export default function PlatformPage() {
             <PlatformSection id={PLATFORM_ANCHORS.services} tone="muted" {...HUB_SERVICES_SECTION}>
                 <ServiceGrid services={PLATFORM_SERVICES} />
             </PlatformSection>
-            {isShotVisible(HUB_OVERVIEW_SHOT) && (
+            {isShotVisible(HUB_OVERVIEW_SHOT, media) && (
                 <PlatformSection {...HUB_OVERVIEW_SECTION}>
-                    <ShotFrame shotId={HUB_OVERVIEW_SHOT} />
+                    <ShotFrame shotId={HUB_OVERVIEW_SHOT} media={media.get(HUB_OVERVIEW_SHOT)} />
                 </PlatformSection>
             )}
             <HubAiSection />

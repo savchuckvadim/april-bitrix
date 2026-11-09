@@ -306,6 +306,23 @@ export const renewalOfferEntities: Entity[] = [
     },
 ];
 
+// Раздел «Сайт» (верхний уровень): картинки и видео страниц сайта April
+// хранятся на сервере, а не в git. url — полный путь.
+export const siteEntities: Entity[] = [
+    {
+        id: 51,
+        item: {
+            name: 'site-media',
+            title: 'Картинки и видео',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/site/media',
+                method: API_METHOD.GET
+            }
+        },
+    },
+];
+
 // Раздел «Настройки приложения» (верхний уровень): url — полный путь.
 export const settingsEntities: Entity[] = [
     {

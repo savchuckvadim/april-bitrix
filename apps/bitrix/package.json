@@ -24,6 +24,7 @@
         "@workspace/bx": "workspace:*",
         "@workspace/nest-api": "workspace:*",
         "@workspace/pbx": "workspace:*",
+        "@workspace/site-media": "workspace:*",
         "@workspace/theme": "workspace:*",
         "@workspace/ui": "workspace:*",
         "@workspace/ws": "workspace:*",

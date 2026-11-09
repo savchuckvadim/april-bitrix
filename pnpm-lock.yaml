@@ -66,6 +66,9 @@ importers:
       '@workspace/pbx':
         specifier: workspace:*
         version: link:../../packages/pbx
+      '@workspace/site-media':
+        specifier: workspace:*
+        version: link:../../packages/site-media
       '@workspace/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -181,6 +184,9 @@ importers:
       '@workspace/pbx':
         specifier: workspace:*
         version: link:../../packages/pbx
+      '@workspace/site-media':
+        specifier: workspace:*
+        version: link:../../packages/site-media
       '@workspace/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -1632,6 +1638,15 @@ importers:
       '@types/node':
         specifier: ^24.0.10
         version: 24.12.4
+
+  packages/site-media:
+    devDependencies:
+      '@workspace/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
 
   packages/skap:
     dependencies:

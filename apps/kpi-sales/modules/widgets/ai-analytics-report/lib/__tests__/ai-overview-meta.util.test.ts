@@ -55,7 +55,7 @@ describe('buildAiOverviewMetaItems — строка над таблицей', ()
         expect(textOf(full, 'other')).toBe('не по продажам: 10 %');
         expect(textOf(full, 'no-manager')).toBe('сотрудник не определён: 20');
         expect(textOf(full, 'before-comparable')).toBe(
-            'разобраны по старым правилам: 5',
+            'по прежним правилам: 5',
         );
         expect(textOf(full, 'disagreements')).toBe('несогласий 2');
 

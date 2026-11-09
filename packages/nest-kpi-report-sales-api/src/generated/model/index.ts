@@ -283,6 +283,8 @@ export * from './aiOwnerReportObjectionsDto';
 export * from './aiOwnerReportOutcomeRowDto';
 export * from './aiOwnerReportOverviewDto';
 export * from './aiOwnerReportPresentationsDto';
+export * from './aiOwnerReportQualityLinkDto';
+export * from './aiOwnerReportQualityLinkDtoStatus';
 export * from './aiOwnerReportRequestDto';
 export * from './aiOwnerReportRequestDtoKind';
 export * from './aiOwnerReportResponseDto';

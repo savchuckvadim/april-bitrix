@@ -145,6 +145,7 @@ export const AI_OWNER_REPORT_TEXT = {
     },
     presentations: {
         comparisonTitle: 'Что работает',
+        qualityLinkTitle: 'Качество показа и продажи',
     },
 } as const;
 

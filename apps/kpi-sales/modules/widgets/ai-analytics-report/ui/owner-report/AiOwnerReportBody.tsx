@@ -74,6 +74,7 @@ export const AiOwnerReportBody = ({ report }: AiOwnerReportBodyProps) => {
                 <AiOwnerReportSection title={T.sections.presentations}>
                     <AiOwnerReportPresentations
                         presentations={text.presentations}
+                        qualityLink={text.qualityLink}
                     />
                 </AiOwnerReportSection>
             )}

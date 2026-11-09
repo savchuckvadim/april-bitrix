@@ -12,6 +12,7 @@ import type { AiOwnerReportOverviewDto } from './aiOwnerReportOverviewDto';
 import type { AiOwnerReportFunnelDto } from './aiOwnerReportFunnelDto';
 import type { AiOwnerReportTextDtoCrmFunnel } from './aiOwnerReportTextDtoCrmFunnel';
 import type { AiOwnerReportPresentationsDto } from './aiOwnerReportPresentationsDto';
+import type { AiOwnerReportQualityLinkDto } from './aiOwnerReportQualityLinkDto';
 import type { AiOwnerReportLeakDto } from './aiOwnerReportLeakDto';
 import type { AiOwnerReportManagementDto } from './aiOwnerReportManagementDto';
 import type { AiOwnerReportObjectionsDto } from './aiOwnerReportObjectionsDto';
@@ -44,6 +45,8 @@ export interface AiOwnerReportTextDto {
     crmFunnel?: AiOwnerReportTextDtoCrmFunnel;
     /** Презентации: качество показов и что из него выходит. */
     presentations: AiOwnerReportPresentationsDto;
+    /** Связь качества показа и продаж: предварительная оценка с диапазоном или сколько показов осталось до первой оценки. */
+    qualityLink: AiOwnerReportQualityLinkDto;
     /** Где теряем продажи. */
     leaks: AiOwnerReportLeakDto[];
     /** Как управляется отдел. */

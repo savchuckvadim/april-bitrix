@@ -15,9 +15,9 @@ export interface AiOwnerReportWeekRowDto {
     cold: number;
     /** Холодные → продвижение. */
     coldAdvanced: string;
-    /** Разговоров с решающим. */
+    /** Разговоров с ЛПР (лицом, принимающим решение). */
     contacted: number;
-    /** С решающим → продвижение. */
+    /** С ЛПР → продвижение. */
     contactedAdvanced: string;
     /**
      * Пометка: неполная неделя, дни без звонков; null — нет.

@@ -45,6 +45,11 @@ export const AI_OWNER_REPORT_TEXT = {
         outcomes: 'Чем заканчиваются разговоры',
         typeGroups: 'По видам разговоров',
         weeks: 'По неделям',
+        funnel: 'Воронка и конверсии',
+        crmFunnel: 'Воронка по CRM',
+        presentations: 'Презентации',
+        presentationRows: 'Что видно в показах',
+        presentationSections: 'Оценки разделов показа',
         leaks: 'Где теряем продажи',
         management: 'Как управляется отдел',
         objections: 'Возражения и где клиенты остывают',
@@ -64,6 +69,11 @@ export const AI_OWNER_REPORT_TEXT = {
         refused: 'Отказ',
         noContact: 'Без контакта',
         unmarked: 'Не размечено',
+        stage: 'Этап',
+        undecided: 'Без решения',
+        invoiceAgreed: 'Согласие на счёт',
+        indicator: 'Показатель',
+        previous: 'Прошлый период',
         week: 'Неделя',
         cold: 'Холодных',
         coldAdvanced: 'Холодные → шаг вперёд',
@@ -103,6 +113,12 @@ export const AI_OWNER_REPORT_TEXT = {
     writtenBy: {
         model: 'написано моделью',
         template: 'шаблон',
+    },
+    funnel: {
+        afterOfferTitle: 'Где застревают деньги',
+    },
+    presentations: {
+        comparisonTitle: 'Что работает',
     },
 } as const;
 

@@ -9,6 +9,10 @@ import type { AiOwnerReportTileDto } from './aiOwnerReportTileDto';
 import type { AiOwnerReportAttentionDto } from './aiOwnerReportAttentionDto';
 import type { AiOwnerReportTextDtoSummarySource } from './aiOwnerReportTextDtoSummarySource';
 import type { AiOwnerReportOverviewDto } from './aiOwnerReportOverviewDto';
+import type { AiOwnerReportFunnelDto } from './aiOwnerReportFunnelDto';
+import type { AiOwnerReportTextDtoCrmFunnel } from './aiOwnerReportTextDtoCrmFunnel';
+import type { AiOwnerReportPresentationsDto } from './aiOwnerReportPresentationsDto';
+import type { AiOwnerReportQualityLinkDto } from './aiOwnerReportQualityLinkDto';
 import type { AiOwnerReportLeakDto } from './aiOwnerReportLeakDto';
 import type { AiOwnerReportManagementDto } from './aiOwnerReportManagementDto';
 import type { AiOwnerReportObjectionsDto } from './aiOwnerReportObjectionsDto';
@@ -32,6 +36,17 @@ export interface AiOwnerReportTextDto {
     summarySource: AiOwnerReportTextDtoSummarySource;
     /** Общая картина. */
     overview: AiOwnerReportOverviewDto;
+    /** Воронка по разговорам: холодный вход → показ → после показа и КП, согласие на счёт. */
+    funnel: AiOwnerReportFunnelDto;
+    /**
+     * Воронка по CRM: показы → счета → договоры; null — данных CRM за период нет.
+     * @nullable
+     */
+    crmFunnel?: AiOwnerReportTextDtoCrmFunnel;
+    /** Презентации: качество показов и что из него выходит. */
+    presentations: AiOwnerReportPresentationsDto;
+    /** Связь качества показа и продаж: предварительная оценка с диапазоном или сколько показов осталось до первой оценки. */
+    qualityLink: AiOwnerReportQualityLinkDto;
     /** Где теряем продажи. */
     leaks: AiOwnerReportLeakDto[];
     /** Как управляется отдел. */

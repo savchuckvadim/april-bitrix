@@ -1,6 +1,6 @@
 'use client';
 
-import { Download, RefreshCw } from 'lucide-react';
+import { Download, RefreshCw, Send } from 'lucide-react';
 import { HintTooltip, MicroSelect } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
@@ -10,16 +10,23 @@ import { AI_OWNER_REPORT_TEXT } from '../../lib/ai-owner-report.texts';
 interface AiOwnerReportToolbarProps {
     report: AiOwnerReportState;
     canRebuild: boolean;
+    /** Показывать «Отправить себе» (руководителю с правами настройки). */
+    canSend: boolean;
 }
 
 const T = AI_OWNER_REPORT_TEXT;
 
-/** Вид периода, ключ периода и «Собрать заново» (руководителю). */
+/**
+ * Вид периода, ключ периода, «Скачать PDF», «Отправить себе» (проверка
+ * доставки) и «Собрать заново» (руководителю); итог отправки — строкой.
+ */
 export const AiOwnerReportToolbar = ({
     report,
     canRebuild,
+    canSend,
 }: AiOwnerReportToolbarProps) => {
     const loading = report.status === 'loading';
+    const { send } = report;
     return (
         <div className="flex flex-wrap items-center gap-2">
             <MicroSelect
@@ -53,6 +60,22 @@ export const AiOwnerReportToolbar = ({
                     {T.pdf.label}
                 </Button>
             )}
+            {canSend && report.data && (
+                <HintTooltip title={T.send.title} lines={[...T.send.lines]}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 gap-1 text-xs"
+                        disabled={loading || send.loading}
+                        onClick={() => void report.sendToSelf()}
+                    >
+                        <Send
+                            className={cn('h-3 w-3', send.loading && 'animate-pulse')}
+                        />
+                        {T.send.label}
+                    </Button>
+                </HintTooltip>
+            )}
             {canRebuild && (
                 <HintTooltip title={T.rebuild.title} lines={[...T.rebuild.lines]}>
                     <Button
@@ -68,6 +91,29 @@ export const AiOwnerReportToolbar = ({
                         {T.rebuild.label}
                     </Button>
                 </HintTooltip>
+            )}
+            {send.message && (
+                <span
+                    className={cn(
+                        'basis-full text-xs',
+                        send.failed ? 'text-destructive' : 'text-muted-foreground',
+                    )}
+                >
+                    {send.message}
+                    {send.fileUrl && (
+                        <>
+                            {' '}
+                            <a
+                                href={send.fileUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="underline"
+                            >
+                                {T.send.openPdf}
+                            </a>
+                        </>
+                    )}
+                </span>
             )}
         </div>
     );

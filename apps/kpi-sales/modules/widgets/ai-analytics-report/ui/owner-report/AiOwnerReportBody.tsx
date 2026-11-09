@@ -5,12 +5,14 @@ import {
     AI_OWNER_REPORT_TEXT,
     aiOwnerReportGeneratedAt,
 } from '../../lib/ai-owner-report.texts';
+import { AiOwnerReportFunnel } from './AiOwnerReportFunnel';
 import { AiOwnerReportLeaks } from './AiOwnerReportLeaks';
 import { AiOwnerReportManagement } from './AiOwnerReportManagement';
 import { AiOwnerReportManagers } from './AiOwnerReportManagers';
 import { AiOwnerReportMetrics } from './AiOwnerReportMetrics';
 import { AiOwnerReportObjections } from './AiOwnerReportObjections';
 import { AiOwnerReportOverview } from './AiOwnerReportOverview';
+import { AiOwnerReportPresentations } from './AiOwnerReportPresentations';
 import {
     AiOwnerReportAttentionBlock,
     AiOwnerReportGlossary,
@@ -57,9 +59,25 @@ export const AiOwnerReportBody = ({ report }: AiOwnerReportBodyProps) => {
             <AiOwnerReportSection title={T.sections.overview}>
                 <AiOwnerReportOverview overview={text.overview} />
             </AiOwnerReportSection>
+            {text.funnel && (
+                <AiOwnerReportSection title={T.sections.funnel}>
+                    <AiOwnerReportFunnel
+                        funnel={text.funnel}
+                        crm={text.crmFunnel ?? null}
+                    />
+                </AiOwnerReportSection>
+            )}
             <AiOwnerReportSection title={T.sections.leaks}>
                 <AiOwnerReportLeaks leaks={text.leaks} />
             </AiOwnerReportSection>
+            {text.presentations && (
+                <AiOwnerReportSection title={T.sections.presentations}>
+                    <AiOwnerReportPresentations
+                        presentations={text.presentations}
+                        qualityLink={text.qualityLink}
+                    />
+                </AiOwnerReportSection>
+            )}
             <AiOwnerReportSection title={T.sections.management}>
                 <AiOwnerReportManagement management={text.management} />
             </AiOwnerReportSection>

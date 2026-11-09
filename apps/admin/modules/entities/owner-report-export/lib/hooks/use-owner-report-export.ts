@@ -13,6 +13,7 @@ const KEY = ['owner-report-export'] as const;
 const keyOf = (target: OwnerReportExportTarget | null) => [
     ...KEY,
     target?.domain ?? '',
+    target?.kind ?? '',
     target?.periodKey ?? '',
 ];
 
@@ -54,7 +55,7 @@ export const useStartOwnerReportExport = () => {
 
 /** Имя файла как у сервера: домен, вид и период. */
 export const ownerReportFileName = (target: OwnerReportExportTarget): string =>
-    `${target.domain}-sales-report-month-${target.periodKey}.pdf`;
+    `${target.domain}-sales-report-${target.kind}-${target.periodKey}.pdf`;
 
 /** Скачать Blob файлом в браузере. */
 export function saveBlob(blob: Blob, filename: string): void {

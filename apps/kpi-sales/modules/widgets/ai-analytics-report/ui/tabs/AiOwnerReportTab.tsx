@@ -38,6 +38,7 @@ export const AiOwnerReportTab = ({ canConfigure }: AiOwnerReportTabProps) => {
                 <AiOwnerReportToolbar
                     report={report}
                     canRebuild={canConfigure && report.isLeader}
+                    canSend={canConfigure && report.isLeader}
                 />
             }
         >

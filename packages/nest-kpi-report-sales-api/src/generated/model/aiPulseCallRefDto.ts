@@ -19,4 +19,9 @@ export interface AiPulseCallRefDto {
      * @nullable
      */
     link: string | null;
+    /**
+     * Общая оценка разбора по шкале 1–10 (одна цифра после запятой); null — оценки нет. Поля нет — ответ из кэша до обновления.
+     * @nullable
+     */
+    score?: number | null;
 }

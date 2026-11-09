@@ -21,7 +21,12 @@ const manager = (managerId: string, value: number | null, analyzed: number): Man
             { transcriptionId: `${managerId}-a`, callStartedAt: null, link: link(`${managerId}1`) },
             { transcriptionId: `${managerId}-b`, callStartedAt: null, link: null },
         ],
-        withDate: { transcriptionId: `${managerId}-d`, callStartedAt: null, link: link(`${managerId}9`) },
+        withDate: {
+            transcriptionId: `${managerId}-d`,
+            callStartedAt: null,
+            link: link(`${managerId}9`),
+            score: 8.4,
+        },
     },
 });
 
@@ -86,7 +91,40 @@ describe('aiPulseCoachRows', () => {
         });
         expect(rows[1]?.tone).toBe('level');
         expect(rows[1]?.noDateLinks).toEqual([]);
-        expect(rows[2]).toMatchObject({ tone: 'best', exampleLink: link('sova9') });
+        expect(rows[2]).toMatchObject({ tone: 'best', exampleLink: link('sova9'), exampleScore: 8.4 });
+    });
+
+    it('«1 из 11» выше отдела — не лучший и без образца: «выше отдела, но мало»', () => {
+        const rows = aiPulseCoachRows({
+            nextStepDateRate: metric(0.05, 40),
+            byManager: [manager('gegel', 1 / 11, 11), manager('b', 0, 12)],
+        });
+
+        expect(rows.map(row => row.managerId)).toEqual(['b', 'gegel']);
+        expect(rows[0]?.tone).toBe('below');
+        expect(rows[1]).toMatchObject({
+            share: '1 из 11 с датой, 9 %',
+            tone: 'level',
+            advice: 'Выше отдела, но договорённостей с датой пока мало — образца нет.',
+            exampleLink: null,
+            exampleScore: null,
+        });
+    });
+
+    it('доля от 25 % — лучший и при двух звонках с датой; бэк образца не нашёл — «звонка-образца пока нет»', () => {
+        const best = manager('a', 0.25, 8);
+        const rows = aiPulseCoachRows({
+            nextStepDateRate: metric(0.1, 40),
+            byManager: [{ ...best, examples: { noDate: [], withDate: null } }, manager('b', 0.1, 10)],
+        });
+
+        expect(rows[1]).toMatchObject({
+            managerId: 'a',
+            tone: 'best',
+            advice: 'Лучший результат в отделе. Звонка-образца пока нет: разговоров с договорённостью и высокой оценкой в окне не было.',
+            exampleLink: null,
+            exampleScore: null,
+        });
     });
 
     it('доля скрыта — в конце, без тона и ссылок; лучший — только заметно выше отдела', () => {

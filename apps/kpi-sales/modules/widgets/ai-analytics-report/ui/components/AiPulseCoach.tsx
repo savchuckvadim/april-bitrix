@@ -75,7 +75,7 @@ export const AiPulseCoach = ({ pulse, minDurationSec }: AiPulseCoachProps) => {
                                     {row.exampleLink && (
                                         <AiCardLink
                                             href={row.exampleLink}
-                                            label={T.coach.exampleLink}
+                                            label={T.coach.exampleLink(row.exampleScore)}
                                             title={T.coach.linkTitle}
                                         />
                                     )}

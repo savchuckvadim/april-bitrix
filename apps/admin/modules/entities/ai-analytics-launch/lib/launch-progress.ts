@@ -20,6 +20,8 @@ export interface LaunchProgressSource {
     total?: number | null;
     /** Оценка оставшегося времени, минут; null или нет — не показываем. */
     etaMinutes?: number | null;
+    /** Прогон остановился (давно не обновлялся или серия сбоев): «осталось» не пишем. */
+    stale?: boolean;
 }
 
 export interface LaunchProgressView {
@@ -52,7 +54,7 @@ export function reanalyzeProgress(
           : 0;
     const countText = `${run.done} из ${!exact && !run.finished ? '≈ ' : ''}${Math.max(total, run.done)}`;
     const eta =
-        !run.finished && typeof run.etaMinutes === 'number'
+        !run.finished && run.stale !== true && typeof run.etaMinutes === 'number'
             ? `, осталось ≈ ${run.etaMinutes} мин`
             : '';
     const failed = run.failed > 0 ? `, сбоев ${run.failed}` : '';

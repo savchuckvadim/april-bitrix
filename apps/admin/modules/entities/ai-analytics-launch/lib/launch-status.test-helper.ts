@@ -27,6 +27,7 @@ export const launchRun = (
     progressShare: 1,
     total: null,
     etaMinutes: null,
+    stopped: false,
     ...over,
 });
 

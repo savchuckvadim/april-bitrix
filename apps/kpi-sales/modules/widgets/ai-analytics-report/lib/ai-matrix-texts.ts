@@ -16,17 +16,14 @@ import { formatAiScore } from '@/modules/entities/ai-analytics/lib/ai-score.util
 const EMPLOYEE_FORMS = ['сотрудник', 'сотрудника', 'сотрудников'] as const;
 const CALL_FORMS = ['звонок', 'звонка', 'звонков'] as const;
 
-/** «с 25.09 длиннее 300 сек» — хвост легенды; без дат и порога — пусто. */
+/**
+ * «длиннее 300 сек» — хвост легенды; без порога — пусто. Дата сравнимости
+ * в хвост не идёт: с 09.11.2026 разборы до неё входят в оценку с пометкой.
+ */
 const callsScopeTail = (
-    comparableFrom: string | null,
+    _comparableFrom: string | null,
     minDurationSec: number | null,
-): string =>
-    [
-        comparableFrom ? `с ${formatAiDay(comparableFrom)}` : null,
-        minDurationSec ? `длиннее ${minDurationSec} сек` : null,
-    ]
-        .filter(Boolean)
-        .join(' ');
+): string => (minDurationSec ? `длиннее ${minDurationSec} сек` : '');
 
 export const AI_MATRIX_BLOCK_TEXT = {
     legend: {
@@ -51,7 +48,7 @@ export const AI_MATRIX_BLOCK_TEXT = {
                 'Крупно — средняя оценка AI из 10 по разобранным звонкам сотрудника, мелко — по скольким звонкам она посчитана.',
                 `Оценка появляется от ${minN} разборов, надёжна от ${okN}: до этого стоит пометка «предварительно». Цвет — выше или ниже среднего по отделу (строка «Итого по отделу»).`,
                 comparableFrom
-                    ? `Учитываются звонки сотрудников в разборе${minDurationSec ? ` длиннее ${minDurationSec} сек` : ''}, сделанные с ${formatAiFullDate(comparableFrom)}: более ранние разобраны старой версией и в оценку не входят.`
+                    ? `Учитываются звонки сотрудников в разборе${minDurationSec ? ` длиннее ${minDurationSec} сек` : ''}. Разборы до ${formatAiFullDate(comparableFrom)} сделаны по прежним правилам — они входят в оценку с пометкой.`
                     : `Учитываются звонки сотрудников в разборе${minDurationSec ? ` длиннее ${minDurationSec} сек` : ''}.`,
                 'Что сделать: смотрите красные ячейки — это темы для разбора с сотрудником; клик по заголовку вида звонка открывает разбор по этому виду.',
             ],
@@ -135,8 +132,9 @@ export const AI_MATRIX_BLOCK_TEXT = {
         pilotWiden:
             'Чтобы разбирать звонки всего отдела, попросите разработчика расширить пилот.',
         beforeComparable: (count: number, comparableFrom: string) =>
-            `За период разобрано ${count} ${pluralRu(count, CALL_FORMS)}, но по прежней версии разбора — в оценки они не входят. Сравнимые разборы идут с ${formatAiFullDate(comparableFrom)}.`,
-        beforeComparableFix: 'Что сделать: выберите период после этой даты.',
+            `За период разобрано ${count} ${pluralRu(count, CALL_FORMS)} по прежним правилам разбора (до ${formatAiFullDate(comparableFrom)}) — они входят в оценки с пометкой.`,
+        beforeComparableFix:
+            'Что сделать: ничего — пометка исчезнет по мере накопления новых разборов.',
         short: (minDurationSec: number | null) =>
             `За период разобраны только звонки короче порога${minDurationSec ? ` (${minDurationSec} сек)` : ''} — в оценки они не входят. Что сделать: выберите период длиннее или попросите разработчика изменить порог.`,
         noType: (count: number) =>

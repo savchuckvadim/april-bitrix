@@ -26,7 +26,7 @@ describe('buildAiOverviewMetaItems — строка над таблицей', ()
         );
         const hint = items.find(item => item.key === 'analyzed')?.hint;
         expect(hint?.lines.join(' ')).toContain('длиннее 300 сек');
-        expect(hint?.lines.join(' ')).toContain('не раньше 25.09.2026');
+        expect(hint?.lines.join(' ')).toContain('Разборы до 25.09.2026 сделаны по прежним правилам');
         // Порога нет — словами, без числа.
         const noSec = buildAiOverviewMetaItems(overview(), { minDurationSec: null });
         expect(

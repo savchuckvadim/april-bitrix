@@ -206,7 +206,7 @@ describe('ai-signal.util — стаж и риск-звонки', () => {
         );
         expect(view.text).toBe('разобрано 3 из 140');
         expect(view.warning).toBe(false);
-        expect(view.hint?.lines.join(' ')).toContain('с 25.09.2026');
+        expect(view.hint?.lines.join(' ')).toContain('до 25.09.2026');
         expect(view.hint?.lines.join(' ')).toContain('Второе — все звонки');
     });
 

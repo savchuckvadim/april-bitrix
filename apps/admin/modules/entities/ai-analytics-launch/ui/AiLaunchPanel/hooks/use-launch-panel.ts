@@ -139,12 +139,16 @@ export function useLaunchPanel(domain: string | undefined) {
         );
     };
 
+    // Остановившийся прогон из сводки важнее кэша опроса: иначе прогресс-бар
+    // показывал бы «осталось ≈ N мин» у прогона, который давно не идёт.
     const progressRun =
-        polledRun && !polledRun.dryRun
-            ? polledRun
-            : run && !run.dryRun
-              ? run
-              : null;
+        run && !run.dryRun && run.stale
+            ? run
+            : polledRun && !polledRun.dryRun
+              ? polledRun
+              : run && !run.dryRun
+                ? run
+                : null;
 
     return {
         status,

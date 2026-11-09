@@ -87,10 +87,10 @@ export const AiExplanationCell = ({ cell }: AiExplanationCellProps) => {
                     ))}
                     {cell.nBeforeComparable > 0 && (
                         <>
-                            <dt>Не в оценке</dt>
+                            <dt>По прежним правилам</dt>
                             <dd className="text-foreground">
-                                {formatAiCalls(cell.nBeforeComparable)} до
-                                начала сравнимой истории
+                                {formatAiCalls(cell.nBeforeComparable)} разобраны
+                                до смены правил — входят в число и в оценку
                             </dd>
                         </>
                     )}

@@ -144,8 +144,9 @@ export const aiNormsPresentationsItem = (
     );
 
 /**
- * Разборы до comparableFrom не входят в оценки (сменилась версия). Срок —
- * когда окно такой же длины целиком уйдёт за дату сопоставимости.
+ * Разборы до comparableFrom с 09.11.2026 входят в оценки с пометкой «по
+ * прежним правилам» — пункт стал справочным («готово»), ждать ему нечего:
+ * оценки уже считаются по всем звонкам периода.
  */
 export const aiComparableItem = (
     ctx: AiChecklistContext,
@@ -154,18 +155,12 @@ export const aiComparableItem = (
     if (!ctx.overview) {
         return aiOverviewUnknownItem(ctx, code, WAIT, T.comparable.checkTitle);
     }
-    const excluded = ctx.overview.meta.excludedBeforeComparable ?? 0;
-    if (excluded <= 0) return null;
+    const marked = ctx.overview.meta.excludedBeforeComparable ?? 0;
+    if (marked <= 0) return null;
     const from = comparableFromOf(ctx);
-    const clears = from ? aiAddDaysIso(from, ctx.overview.period.days) : null;
-    return aiTodoItem(code, WAIT, {
+    return aiDoneItem(code, WAIT, {
         title: T.comparable.title,
-        detail: T.comparable.detail(
-            from ? formatAiDateRu(from) : '—',
-            excluded,
-        ),
-        unlocks: T.comparable.unlocks,
-        eta: aiRoughEta(clears && clears > ctx.today ? clears : null),
+        detail: T.comparable.detail(from ? formatAiDateRu(from) : '—', marked),
     });
 };
 

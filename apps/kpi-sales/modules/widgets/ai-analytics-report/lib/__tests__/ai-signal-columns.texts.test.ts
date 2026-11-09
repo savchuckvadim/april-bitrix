@@ -77,7 +77,7 @@ describe('AI_SIGNAL_COLUMN — у каждой колонки подпись и 
             'AI-разборов нет · в CRM 12 звонков',
         );
         expect(AI_ANALYZED_TEXT.hint('2026-09-25').lines[0]).toContain(
-            'с 25.09.2026',
+            'до 25.09.2026',
         );
         expect(AI_ANALYZED_TEXT.hint(null).lines[0]).not.toContain('с —');
         expect(AI_ANALYZED_TEXT.reason['before-pipeline']('2026-07-21').lines).toEqual([

@@ -37,7 +37,7 @@ describe('AI_MATRIX_TEXT — тексты ячеек матриц', () => {
         const withDate = AI_MATRIX_TEXT.hint.fewData(4, 8, '2026-09-25');
         expect(withDate).toContain('Разобрано 4 звонка этого вида');
         expect(withDate).toContain('Оценку показываем от 8');
-        expect(withDate).toContain('Что сделать: выберите период длиннее (но не раньше 25.09.2026)');
+        expect(withDate).toContain('Что сделать: выберите период длиннее — разборы до 25.09.2026 тоже входят');
         expect(AI_MATRIX_TEXT.hint.fewData(1, 8, null)).toContain(
             'Что сделать: выберите период длиннее.',
         );

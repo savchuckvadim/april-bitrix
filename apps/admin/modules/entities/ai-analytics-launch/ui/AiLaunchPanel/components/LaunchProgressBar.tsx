@@ -23,7 +23,7 @@ export const LaunchProgressBar = ({ run }: { run: LaunchProgressSource }) => {
                 tone={run.failed > 0 ? 'warning' : 'success'}
             />
             <p className="text-xs text-muted-foreground">
-                {view.text} {run.finished ? '' : LAUNCH_TEXT.progressHint}
+                {view.text} {run.finished || run.stale ? '' : LAUNCH_TEXT.progressHint}
             </p>
         </div>
     );

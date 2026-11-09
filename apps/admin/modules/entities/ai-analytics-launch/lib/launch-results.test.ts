@@ -314,5 +314,19 @@ describe('reanalyzeProgress', () => {
                 etaMinutes: 0,
             }).text,
         ).toBe('Готово: переразобрано 400 из 400, потрачено 300 ₽.');
+        // Остановившийся прогон — «осталось» тоже не пишется: ничего не идёт.
+        expect(
+            reanalyzeProgress({
+                part: 2,
+                candidates: 100,
+                done: 300,
+                failed: 8,
+                price: 200,
+                finished: false,
+                total: 400,
+                etaMinutes: 7,
+                stale: true,
+            }).text,
+        ).toBe('Часть 2: переразобрано 300 из 400, сбоев 8, потрачено 200 ₽.');
     });
 });

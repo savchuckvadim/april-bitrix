@@ -6,10 +6,10 @@ import { ToneBadge } from '@workspace/april-ui/badges';
 import { MicroSpinner } from '@workspace/april-ui/feedback';
 import { MicroSegmented, MicroSelect } from '@workspace/april-ui/fields';
 import { SectionCard } from '@workspace/april-ui/surfaces';
+import { useLaunchStatus } from '@/modules/entities/ai-analytics-launch';
 import { describeLaunchError } from '@/modules/entities/ai-analytics-launch/lib/launch-error';
 import {
     OWNER_REPORT_EXPORT_MODES,
-    OWNER_REPORT_EXPORT_MONTHS,
     OWNER_REPORT_EXPORT_TEXT as TEXT,
     type OwnerReportExportMode,
 } from '../consts/owner-report-export.const';
@@ -20,7 +20,15 @@ import {
     useOwnerReportExportState,
     useStartOwnerReportExport,
 } from '../lib/hooks/use-owner-report-export';
-import { closedMonthOptions, fileSizeText } from '../lib/owner-report-periods';
+import {
+    OWNER_REPORT_EXPORT_KIND_LABELS,
+    OWNER_REPORT_EXPORT_KINDS,
+    availableExportKinds,
+    closedPeriodOptions,
+    fileSizeText,
+    isOwnerReportExportKind,
+    type OwnerReportExportKind,
+} from '../lib/owner-report-periods';
 
 interface OwnerReportExportCardProps {
     domain: string | undefined;
@@ -34,26 +42,40 @@ const STATUS_TONE = {
 } as const;
 
 /**
- * Карточка «Отчёт собственнику: PDF»: месяц, «готовый или собрать
- * заново», кнопка. Пока сервер собирает отчёт — статус с опросом; как
- * только PDF готов — скачивается сам (если его запросили отсюда) и
- * остаётся кнопка «Скачать ещё раз» на сутки.
+ * Карточка «Отчёт собственнику: PDF»: вид периода (квартал, полугодие и
+ * год — когда у портала достаточно истории разборов), период, «готовый
+ * или собрать заново», кнопка. Пока сервер собирает отчёт — статус с
+ * опросом; как только PDF готов — скачивается сам (если его запросили
+ * отсюда) и остаётся кнопка «Скачать ещё раз» на сутки.
  */
 export const OwnerReportExportCard = ({ domain }: OwnerReportExportCardProps) => {
-    const months = useMemo(
-        () => closedMonthOptions(new Date(), OWNER_REPORT_EXPORT_MONTHS),
-        [],
+    const now = useMemo(() => new Date(), []);
+    const launch = useLaunchStatus(domain);
+    const analysisSince = launch.data?.reanalysis.analysisSince ?? null;
+    const kinds = useMemo(
+        () => availableExportKinds(analysisSince, now),
+        [analysisSince, now],
     );
-    const [periodKey, setPeriodKey] = useState(months[0]?.value ?? '');
+    const [kind, setKind] = useState<OwnerReportExportKind>(
+        OWNER_REPORT_EXPORT_KINDS.month,
+    );
+    const periods = useMemo(() => closedPeriodOptions(kind, now), [kind, now]);
+    const [periodKey, setPeriodKey] = useState(periods[0]?.value ?? '');
     const [mode, setMode] = useState<OwnerReportExportMode>(
         OWNER_REPORT_EXPORT_MODES.ready,
     );
     const [error, setError] = useState<string | null>(null);
-    const target = domain && periodKey ? { domain, periodKey } : null;
+    const target = domain && periodKey ? { domain, kind, periodKey } : null;
     const state = useOwnerReportExportState(target);
     const start = useStartOwnerReportExport();
     /** Скачать сам, когда станет ready: только то, что запросили здесь. */
     const pendingDownload = useRef<string | null>(null);
+
+    const changeKind = (value: string) => {
+        if (!isOwnerReportExportKind(value)) return;
+        setKind(value);
+        setPeriodKey(closedPeriodOptions(value, now)[0]?.value ?? '');
+    };
 
     const download = async () => {
         if (!target) return;
@@ -67,22 +89,24 @@ export const OwnerReportExportCard = ({ domain }: OwnerReportExportCardProps) =>
     };
 
     const status = state.data?.status;
+    const targetKey = target
+        ? `${target.domain}:${target.kind}:${target.periodKey}`
+        : null;
     useEffect(() => {
-        const key = target ? `${target.domain}:${target.periodKey}` : null;
-        if (status === 'ready' && key && pendingDownload.current === key) {
+        if (status === 'ready' && targetKey && pendingDownload.current === targetKey) {
             pendingDownload.current = null;
             void download();
         }
-        // download замыкает тот же target, что и key
+        // download замыкает тот же target, что и targetKey
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [status, target?.domain, target?.periodKey]);
+    }, [status, targetKey]);
 
     const running = status === 'queued' || status === 'processing';
 
     const onStart = () => {
-        if (!target) return;
+        if (!target || !targetKey) return;
         setError(null);
-        pendingDownload.current = `${target.domain}:${target.periodKey}`;
+        pendingDownload.current = targetKey;
         start.mutate(
             {
                 target,
@@ -109,10 +133,21 @@ export const OwnerReportExportCard = ({ domain }: OwnerReportExportCardProps) =>
             ) : (
                 <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-3">
+                        {kinds.length > 1 && (
+                            <MicroSegmented
+                                ariaLabel={TEXT.kind}
+                                value={kind}
+                                onChange={changeKind}
+                                options={kinds.map(value => ({
+                                    value,
+                                    label: OWNER_REPORT_EXPORT_KIND_LABELS[value],
+                                }))}
+                            />
+                        )}
                         <MicroSelect
                             ariaLabel={TEXT.period}
                             value={periodKey}
-                            options={months}
+                            options={periods}
                             onChange={setPeriodKey}
                             disabled={running}
                         />
@@ -140,7 +175,7 @@ export const OwnerReportExportCard = ({ domain }: OwnerReportExportCardProps) =>
                         />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        {TEXT.modeHint}
+                        {TEXT.modeHint} {TEXT.kindHint}
                     </p>
                     {running && (
                         <p className="inline-flex items-center gap-2 text-sm">

@@ -81,6 +81,32 @@ export const useSmartBackfillStatus = (
     });
 
 /**
+ * Статус догона признаков за месяц: опрос раз в 30 секунд, пока идёт
+ * догон (или ждём начатый отсюда подсчёт); иначе — один раз при открытии.
+ */
+export const useFactsCatchupStatus = (
+    domain: string | undefined,
+    period: LaunchPeriod,
+    polling: boolean,
+) =>
+    useQuery({
+        queryKey: [
+            ...AI_ANALYTICS_LAUNCH_KEY,
+            'facts-catchup',
+            domain ?? '',
+            period.from,
+            period.to,
+        ],
+        queryFn: () =>
+            launchHelper.factsCatchupStatus(domain as string, period),
+        enabled: !!domain,
+        refetchInterval: polling ? LAUNCH_POLL_MS : false,
+        refetchIntervalInBackground: false,
+        staleTime: LAUNCH_STATUS_STALE_MS,
+        retry: false,
+    });
+
+/**
  * Нажатие кнопки шага: выполняет действие и переводит ответ в текст;
  * после успеха перечитывает сводку — галочки обновляются сами.
  */

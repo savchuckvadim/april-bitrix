@@ -53,6 +53,10 @@ import type {
   AiAnalyticsSmartBackfillRunDto,
   AiAnalyticsSmartBackfillRunResultDto,
   AiAnalyticsSmartBackfillStatusDto,
+  AiAnalyticsFactsCatchupAdminStatusParams,
+  AiAnalyticsFactsCatchupRunDto,
+  AiAnalyticsFactsCatchupRunResultDto,
+  AiAnalyticsFactsCatchupStatusDto,
   AiAnalyticsStageHistoryProbeResponseDto,
   AiGuideSectionDto,
   AiGuideSectionItemDto,
@@ -350,6 +354,33 @@ const aiAnalyticsSmartBackfillAdminStatus = (
       );
     }
   /**
+ * Ставит джобу CALL_REPORT_FACTS_CATCHUP (очередь CALL_REPORT, воркер apps/event-sales): один короткий вызов модели по расшифровке за фактами v3.1, факты дописываются в ту же запись разбора, оценки не меняются. dryRun — подсчёт без модели.
+ * @summary Догнать факты v3.1 в старых разборах за период
+ */
+const aiAnalyticsFactsCatchupAdminRun = (
+    aiAnalyticsFactsCatchupRunDto: AiAnalyticsFactsCatchupRunDto,
+ ) => {
+      return customAxios<AiAnalyticsFactsCatchupRunResultDto>(
+      {url: `/api/admin/ai-analytics/facts-catchup`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsFactsCatchupRunDto
+    },
+      );
+    }
+  /**
+ * Запись статуса call-report-facts-catchup-run по домену и периоду: кандидаты, догнано, сбои, пропуски, токены и стоимость, finished, оценка подсчёта.
+ * @summary Статус догона фактов за период
+ */
+const aiAnalyticsFactsCatchupAdminStatus = (
+    params: AiAnalyticsFactsCatchupAdminStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsFactsCatchupStatusDto>(
+      {url: `/api/admin/ai-analytics/facts-catchup-status`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
  * Разделы путеводителя в порядке показа: включение и рассылки, сотрудники и цели, разбор звонков, модель и данные, прогноз, обратная связь и надёжность, запуск после выкладки — коды, названия и счётчики связей. Тексты — GET guide/:code.
  * @summary Путеводитель по AI-аналитике: оглавление разделов
  */
@@ -508,7 +539,7 @@ const aiAnalyticsRefreshAdminStartAll = (
     },
       );
     }
-  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile,aiAnalyticsRefreshAdminStart,aiAnalyticsRefreshAdminState,aiAnalyticsRefreshAdminPortals,aiAnalyticsRefreshAdminStartAll}};
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsFactsCatchupAdminRun,aiAnalyticsFactsCatchupAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile,aiAnalyticsRefreshAdminStart,aiAnalyticsRefreshAdminState,aiAnalyticsRefreshAdminPortals,aiAnalyticsRefreshAdminStartAll}};
 export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
 export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
 export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
@@ -529,6 +560,8 @@ export type AiAnalyticsReanalyzeAdminRunResult = NonNullable<Awaited<ReturnType<
 export type AiAnalyticsReanalyzeAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsReanalyzeAdminStatus']>>>
 export type AiAnalyticsSmartBackfillAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsSmartBackfillAdminRun']>>>
 export type AiAnalyticsSmartBackfillAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsSmartBackfillAdminStatus']>>>
+export type AiAnalyticsFactsCatchupAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsFactsCatchupAdminRun']>>>
+export type AiAnalyticsFactsCatchupAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsFactsCatchupAdminStatus']>>>
 export type AiAnalyticsGuideAdminListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGuideAdminList']>>>
 export type AiAnalyticsGuideAdminEntryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGuideAdminEntry']>>>
 export type AiAnalyticsLaunchAdminResetCacheResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsLaunchAdminResetCache']>>>

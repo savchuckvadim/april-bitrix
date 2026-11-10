@@ -1,6 +1,7 @@
 export {
     AI_ANALYTICS_LAUNCH_KEY,
     launchHelper,
+    useFactsCatchupStatus,
     useLaunchAction,
     useLaunchStatus,
     useReanalyzeProgress,

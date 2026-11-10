@@ -1,5 +1,8 @@
 import type {
     AiAnalyticsBackfillResultDto,
+    AiAnalyticsFactsCatchupRunResultDto,
+    AiAnalyticsFactsCatchupRunStatusDto,
+    AiAnalyticsFactsCatchupStatusDto,
     AiAnalyticsForecastBacktestDto,
     AiAnalyticsForecastBacktestResultDto,
     AiAnalyticsLaunchCacheResetResultDto,
@@ -40,6 +43,10 @@ export type LaunchInstallSmartResult = InstallAicallResponseDto;
 export type SmartBackfillRunResult = AiAnalyticsSmartBackfillRunResultDto;
 export type SmartBackfillStatus = AiAnalyticsSmartBackfillStatusDto;
 export type SmartBackfillRunStatus = AiAnalyticsSmartBackfillRunStatusDto;
+/** Догон признаков v3.1 в старых разборах (facts-catchup, этап B4). */
+export type FactsCatchupRunResult = AiAnalyticsFactsCatchupRunResultDto;
+export type FactsCatchupStatus = AiAnalyticsFactsCatchupStatusDto;
+export type FactsCatchupRunStatus = AiAnalyticsFactsCatchupRunStatusDto;
 
 /** Шаг панели по порядку нажатия. */
 export type LaunchStepCode = (typeof LAUNCH_STEP_CODES)[number];

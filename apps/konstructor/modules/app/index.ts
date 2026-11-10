@@ -4,4 +4,5 @@
 export type * from './model/store';
 export * from './lib/hooks/redux';
 export * from './lib/hooks/is-client-mounted.hook';
-export * from './lib/hooks/use-small-display';
+// use-small-display читает срез app, которого нет в публичном сторе —
+// его берут по прямому пути, не через этот баррель (сторож no-bitrix).

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { buildProspectScaleView } from '@workspace/april-ui/entity';
-import { useAppDispatch, useAppSelector, useSmallDisplay } from '@/modules/app';
+import { useAppDispatch, useAppSelector } from '@/modules/app';
+import { useSmallDisplay } from '@/modules/app/lib/hooks/use-small-display';
 import {
     selectClientCard,
     updateClientChoice,

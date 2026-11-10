@@ -1,8 +1,7 @@
 'use client';
 
-import { getCrmUrl } from '@workspace/bitrix';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { IS_PROD } from '@/modules/app/consts/app-global';
+import { runDocumentToDeal } from '@/modules/app/model/document-run.thunk';
 import {
     generateSupplyReport,
     selectSupplyGenerate,
@@ -24,16 +23,10 @@ export const useSupplyGenerate = () => {
     const errors = useAppSelector(supplyReportValidationErrors);
     const needProcess = useAppSelector(selectSupplyNeedProcess);
     const rpaId = useAppSelector(selectSupplyRpaId);
-    const domain = useAppSelector(state => state.app.domain);
-    const dealId = useAppSelector(state => state.app.dealId);
 
-    const run = async () => {
-        const ok = await dispatch(generateSupplyReport());
-        if (!ok || !IS_PROD) return ok;
-        const url = getCrmUrl(domain, 'deal', dealId);
-        if (url) (window.top ?? window).location.replace(url);
-        return ok;
-    };
+    // экран загрузки на всё время, повторное нажатие не запускает второй документ
+    const run = () =>
+        dispatch(runDocumentToDeal('Формирую отчёт о поставке…', () => dispatch(generateSupplyReport())));
 
     return {
         blocker,

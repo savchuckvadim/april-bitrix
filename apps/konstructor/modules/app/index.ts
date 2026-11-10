@@ -4,3 +4,4 @@
 export type * from './model/store';
 export * from './lib/hooks/redux';
 export * from './lib/hooks/is-client-mounted.hook';
+export * from './lib/hooks/use-small-display';

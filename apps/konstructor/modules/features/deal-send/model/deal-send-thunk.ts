@@ -8,21 +8,24 @@ import {
     selectServiceTarget,
     serviceOfferActions,
 } from '@/modules/entities/service-offer';
-import { saveSnapshot } from '@/modules/entities/snapshot';
+import { saveSnapshot, selectSnapshotSaveError } from '@/modules/entities/snapshot';
 import { DealSendHelper } from '../lib/api/deal-send-helper';
 import { buildDealSendRequest } from '../lib/build-deal-send.util';
+import { contractTypeWarning, toDealSendWarnings } from '../lib/deal-send-warnings.util';
 import { dealSendActions } from './DealSendSlice';
 
 const helper = new DealSendHelper();
 
 /**
- * «Сохранить сделку» (легаси sendDeal): поля и товарные строки → бэк
- * (создаёт сделку, если её нет; запись — очередью), затем слепок v2 сделки
- * (+ открытый вариант — по saveDone-слушателю). Поля, которых нет на портале,
- * бэк возвращает в skipped — показываем предупреждением, не ошибкой.
+ * «Сохранить сделку» (легаси sendDeal) — единственное сохранение: поля и
+ * товарные строки → бэк (создаёт сделку, если её нет; запись — очередью),
+ * затем слепок v2 сделки со всеми наборами (+ открытый вариант — по
+ * saveDone-слушателю). Незаписанные поля — предупреждением с адресом правки.
  */
 export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
     const state = getState();
+    // повторное нажатие, пока идёт отправка, второй запрос не запускает
+    if (state.dealSend.status === 'sending') return false;
     const { domain, dealId, bitrix } = state.app;
     const general = state.rowSet.general;
     const mainRow = findMainRow(general);
@@ -53,15 +56,24 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
         const response = await helper.send(request);
         if (response.created) dispatch(appActions.setDealId(response.dealId));
         if (response.smartId) dispatch(serviceOfferActions.setSmartId(response.smartId));
+        // слепок сделки — после отправки: сделка уже есть, dealId известен
+        const saved = await dispatch(saveSnapshot());
+        if (!saved) {
+            const reason = selectSnapshotSaveError(getState()) ?? 'ошибка сохранения';
+            dispatch(dealSendActions.failed(`Сделка записана, предложение не сохранилось: ${reason}`));
+            return false;
+        }
+        const contractWarning = contractTypeWarning(selectCatalog(state), mainRow);
         dispatch(
             dealSendActions.done({
                 dealId: response.dealId,
                 created: response.created,
-                skipped: response.skipped.map(item => item.code),
+                warnings: [
+                    ...(contractWarning ? [contractWarning] : []),
+                    ...toDealSendWarnings(response.skipped),
+                ],
             }),
         );
-        // слепок сделки — после отправки: сделка уже есть, dealId известен
-        await dispatch(saveSnapshot());
         void dispatch(syncOpenComplectVariant());
         return true;
     } catch (error) {

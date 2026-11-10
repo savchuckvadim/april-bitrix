@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { buildProspectScaleView } from '@workspace/april-ui/entity';
-import { useAppDispatch, useAppSelector } from '@/modules/app';
+import { useAppDispatch, useAppSelector, useSmallDisplay } from '@/modules/app';
 import {
     selectClientCard,
     updateClientChoice,
     type ClientChoiceField,
 } from '@/modules/entities/client-card';
+import { buildClientIdentity } from '../lib/client-identity.util';
 
 /**
  * Клиент в шапке — те же блоки, что у шапки «Звонков»: компания и сделка
@@ -18,6 +19,7 @@ import {
 export const useClientHeader = () => {
     const dispatch = useAppDispatch();
     const card = useAppSelector(selectClientCard);
+    const small = useSmallDisplay();
     const [previewCode, setPreview] = useState<string | null>(null);
     const [pending, setPending] = useState<ClientChoiceField | null>(null);
 
@@ -28,19 +30,7 @@ export const useClientHeader = () => {
     };
 
     return {
-        identity: card.company
-            ? {
-                  title: card.company.title,
-                  href: card.company.href,
-                  kindLabel: 'Компания',
-              }
-            : {
-                  title: card.deal?.label ?? 'Без сделки',
-                  href: card.deal?.href ?? null,
-                  kindLabel: 'Сделка',
-              },
-        // Сделка рядом с компанией; без компании она уже в названии
-        deal: card.company ? card.deal : null,
+        ...buildClientIdentity(card, small),
         prospect: card.prospect
             ? {
                   ...buildProspectScaleView({

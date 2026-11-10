@@ -8,7 +8,7 @@ import { sendDeal } from '../model/deal-send-thunk';
 
 /**
  * Кнопка «Сохранить / Создать сделку»: отправка полей и строк в Bitrix,
- * слепок, переход к документам. skipped — предупреждение (поле не на портале).
+ * слепок, переход к документам. warnings — что не записалось и где поправить.
  */
 export const useDealSend = (options: { navigateAfter?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -17,7 +17,7 @@ export const useDealSend = (options: { navigateAfter?: boolean } = {}) => {
     const hasMainRow = Boolean(useAppSelector(selectMainRow));
     const status = useAppSelector(state => state.dealSend.status);
     const error = useAppSelector(state => state.dealSend.error);
-    const skipped = useAppSelector(state => state.dealSend.skipped);
+    const warnings = useAppSelector(state => state.dealSend.warnings);
     // сервисный отдел после сохранения остаётся на ценах (легаси), продажи — к документам
     const staysOnPrices = useAppSelector(state => state.app.department === APP_DEP.SERVICE);
 
@@ -33,7 +33,7 @@ export const useDealSend = (options: { navigateAfter?: boolean } = {}) => {
         isSending: status === 'sending',
         isDone: status === 'done',
         error: status === 'error' ? error : null,
-        skipped,
+        warnings,
         send,
     };
 };

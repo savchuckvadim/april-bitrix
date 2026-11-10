@@ -90,7 +90,7 @@ row-set listeners (entities/row-set/model/listeners.ts):
   writeSyncedSet → detectDroppedAcademy → чистка composition.academy
   appActions.setDepartment → rowSet.setContext(serviceDepartment) — средний пакет LT-other (вес 4) открыт сервисному отделу
 UI: widgets/price-table (+ features/row-builder, features/composition-editor) → только экшены rowSet
-save: SaveSnapshotButton → saveSnapshot thunk → serializeV2 → helper.saveSnapshot
+save: DealSendButton → sendDeal (deal-send) → saveSnapshot thunk → serializeV2 → helper.saveSnapshot
       (POST upsert; SnapshotV2 сериализован в колонку rows, детект по schemaVersion)
 документы: домен → легаси-payload ТОЛЬКО через `entities/document-payload` (buildDocBody/buildOfferPayload/
       buildDocVariant; code→number — legacy-numbers.util, второе и последнее место после v1-адаптера).

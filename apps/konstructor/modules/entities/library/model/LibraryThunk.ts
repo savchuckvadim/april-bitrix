@@ -73,6 +73,8 @@ export const saveToLibrary =
     (input: { kind: LibraryKind; visibility: LibraryVisibility; title: string }): AppThunk<Promise<boolean>> =>
     async (dispatch, getState) => {
         const state = getState();
+        // повторное нажатие, пока идёт сохранение, вторую заготовку не создаёт
+        if (state.library.actionStatus === 'busy') return false;
         const who = actor(state);
         const snapshot = buildLibrarySnapshot(state);
         if (!who || !snapshot) {

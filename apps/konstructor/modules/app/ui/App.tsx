@@ -8,6 +8,7 @@ import { BootPreloaderGate } from '@workspace/april-ui/feedback';
 import { withBasePath } from '@/modules/shared/lib/base-path';
 
 import { useApp } from '../lib/hooks/app';
+import { useSmallFrameFit } from '../lib/hooks/use-small-frame-fit';
 import {
     NON_AUTH_ERROR,
     NO_COMPANY_ERROR,
@@ -36,6 +37,8 @@ declare global {
  */
 export const App = ({ children }: { children: ReactNode }) => {
     const { app, initialized, isLoading, isClient } = useApp();
+    // вкладка карточки: фрейм с окно браузера, шапка приложения к верху окна
+    useSmallFrameFit();
 
     // Dev-консоль: store.getState() в браузере (рецепты — docs/dev-guide.md §7)
     useEffect(() => {
@@ -70,6 +73,14 @@ export const App = ({ children }: { children: ReactNode }) => {
                         />
                     )}
                     {isReady ? children : null}
+                    {/* долгое действие (документ → сделка): поверх экрана, до ухода в сделку */}
+                    {isReady && app.busy ? (
+                        <PreloaderScreen
+                            variant="brand"
+                            title={app.busy}
+                            logoSrc={withBasePath('/logo/logo.svg')}
+                        />
+                    ) : null}
                 </>
             )}
         </>

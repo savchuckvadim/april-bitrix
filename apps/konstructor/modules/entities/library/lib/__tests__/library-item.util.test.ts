@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LibraryItem } from '../../model/dto';
-import { filterLibraryItems, libraryItemTitle } from '../library-item.util';
+import { filterLibraryItems, libraryItemSource, libraryItemTitle } from '../library-item.util';
 
 const item = (over: Partial<LibraryItem>): LibraryItem => ({
     id: 1,
@@ -22,6 +22,16 @@ describe('library-item.util', () => {
         expect(libraryItemTitle(item({ title: ' Бухгалтер ' }))).toBe('Бухгалтер');
         expect(libraryItemTitle(item({ dealName: 'ООО Ромашка' }))).toBe('ООО Ромашка');
         expect(libraryItemTitle(item({ id: 7 }))).toBe('Заготовка №7');
+    });
+
+    it('легаси-избранное: {"value":""} вместо имени сделки', () => {
+        const legacy = item({ dealName: '{"value":""}', createdAt: '2025-03-12T10:00:00Z' });
+        expect(libraryItemTitle(legacy)).toBe('Без названия · 12.03.2025');
+        expect(libraryItemTitle(item({ dealName: '{"value":"ООО Ромашка"}' }))).toBe('ООО Ромашка');
+        expect(libraryItemSource(item({ title: 'Акция', dealName: '{"value":""}' }))).toBeUndefined();
+        expect(libraryItemSource(item({ title: 'Акция', dealName: 'ООО Ромашка' }))).toBe(
+            'Из сделки: ООО Ромашка',
+        );
     });
 
     it('фильтр: вид и область видимости', () => {

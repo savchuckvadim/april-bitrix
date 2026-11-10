@@ -224,6 +224,7 @@
     --color-air-secondary-foreground: var(--air-secondary-foreground);
     --color-air-secondary-no-accent: var(--air-secondary-no-accent);
     --color-air-link: var(--air-link);
+    --color-air-host-background: var(--air-host-background);
 
     /*
      * Эхо-кольца «зовущей» кнопки (animate-echo-ring): расходящееся кольцо

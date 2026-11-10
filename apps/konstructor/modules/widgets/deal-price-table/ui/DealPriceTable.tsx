@@ -7,12 +7,12 @@ import { ServicePeriodSwitch } from '@/modules/features/service-period';
 import { PriceTableWidget } from '@/modules/widgets/price-table';
 import { useDealPriceTable } from '../hooks/use-deal-price-table';
 import { ProviderField } from './ProviderField';
-import { SaveSnapshotButton } from './SaveSnapshotButton';
 import { SnapshotWarnings } from './SnapshotWarnings';
 
 /**
  * Шаг «Цены» во фрейме сделки: общая таблица плюс всё, что связано со сделкой —
- * вспоминание слепка, варианты КП, поставщик, сохранение и отправка.
+ * вспоминание слепка, варианты КП, поставщик и «Сохранить сделку» (поля,
+ * товары и слепок предложения — одним действием).
  */
 export const DealPriceTable = () => {
     const table = useDealPriceTable();
@@ -28,7 +28,6 @@ export const DealPriceTable = () => {
                 actions: (
                     <>
                         <SaveToLibraryButton />
-                        <SaveSnapshotButton />
                         <DealSendButton navigateAfter />
                     </>
                 ),

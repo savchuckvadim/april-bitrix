@@ -28,13 +28,25 @@ const initialState = {
         message: '' as string,
     },
     isSuperUser: false as boolean,
+    /** Встройка: код placement и карточка, из которой открыт конструктор */
+    placement: null as AppPlacement | null,
+    /** Идёт долгое действие (документ → сделка): экран загрузки поверх приложения */
+    busy: null as string | null,
 };
+
+/** Где открыт конструктор. *_DETAIL_TAB — вкладка карточки, «маленький экран». */
+export interface AppPlacement {
+    code: string;
+    entity: 'deal' | 'company' | null;
+}
+
 export interface InitApp {
     domain: string;
     user: IBXUser;
     deal: IBXDeal | null;
     company: IBXCompany | null;
     dealId: number | null;
+    placement?: AppPlacement | null;
 }
 const appSlice = createSlice({
     name: 'app',
@@ -51,7 +63,13 @@ const appSlice = createSlice({
             state.bitrix.user = payload.user;
             state.bitrix.deal = payload.deal;
             state.bitrix.company = payload.company;
+            state.placement = payload.placement ?? null;
             state.initialized = true;
+        },
+
+        /** Подпись экрана загрузки; null — снять */
+        setBusy: (state: AppState, action: PayloadAction<string | null>) => {
+            state.busy = action.payload;
         },
 
         /** Сделка создана отправкой из конструктора (deal-send без dealId) */

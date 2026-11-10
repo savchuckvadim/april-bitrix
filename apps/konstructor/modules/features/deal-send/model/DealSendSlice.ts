@@ -1,14 +1,15 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { DealSendWarning } from '../lib/deal-send-warnings.util';
 
 export type DealSendStatus = 'idle' | 'sending' | 'done' | 'error';
 
 export interface DealSendState {
     status: DealSendStatus;
     error: string | null;
-    /** Последняя отправка: куда ушло и что бэк не записал */
+    /** Последняя отправка: куда ушло и что не записалось в сделку */
     lastDealId: number | null;
     lastCreated: boolean;
-    skipped: string[];
+    warnings: DealSendWarning[];
 }
 
 const initialState: DealSendState = {
@@ -16,7 +17,7 @@ const initialState: DealSendState = {
     error: null,
     lastDealId: null,
     lastCreated: false,
-    skipped: [],
+    warnings: [],
 };
 
 const dealSendSlice = createSlice({
@@ -26,16 +27,16 @@ const dealSendSlice = createSlice({
         started(state: DealSendState) {
             state.status = 'sending';
             state.error = null;
-            state.skipped = [];
+            state.warnings = [];
         },
         done(
             state: DealSendState,
-            action: PayloadAction<{ dealId: number; created: boolean; skipped: string[] }>,
+            action: PayloadAction<{ dealId: number; created: boolean; warnings: DealSendWarning[] }>,
         ) {
             state.status = 'done';
             state.lastDealId = action.payload.dealId;
             state.lastCreated = action.payload.created;
-            state.skipped = action.payload.skipped;
+            state.warnings = action.payload.warnings;
         },
         failed(state: DealSendState, action: PayloadAction<string>) {
             state.status = 'error';

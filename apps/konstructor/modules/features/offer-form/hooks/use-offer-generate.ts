@@ -1,9 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import { getCrmUrl } from '@workspace/bitrix';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { IS_PROD } from '@/modules/app/consts/app-global';
+import { runDocumentToDeal } from '@/modules/app/model/document-run.thunk';
 import {
     selectComplectVariantState,
     selectParticipants,
@@ -25,8 +24,6 @@ export const useOfferGenerate = () => {
     const dispatch = useAppDispatch();
     const generate = useAppSelector(selectOfferGenerate);
     const blocker = useAppSelector(offerRequestBlocker);
-    const domain = useAppSelector(state => state.app.domain);
-    const dealId = useAppSelector(state => state.app.dealId);
     const variants = useAppSelector(selectComplectVariantState);
     const stageOf = useAppSelector(selectVariantStageOf);
 
@@ -39,14 +36,9 @@ export const useOfferGenerate = () => {
         [variants.records, variants.items, stageOf],
     );
 
-    const run = async () => {
-        const ok = await dispatch(generateOfferDocument());
-        if (!ok || !IS_PROD) return ok;
-        const url = getCrmUrl(domain, 'deal', dealId);
-        // во фрейме плейсмента уводим всё окно Битрикса в сделку
-        if (url) (window.top ?? window).location.replace(url);
-        return ok;
-    };
+    // экран загрузки на всё время, повторное нажатие не запускает второй документ
+    const run = () =>
+        dispatch(runDocumentToDeal('Формирую КП…', () => dispatch(generateOfferDocument())));
 
     return {
         blocker,

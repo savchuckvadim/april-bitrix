@@ -195,6 +195,30 @@ export class BitrixBaseApi {
         return resized.catch((): null => null);
     }
 
+    /**
+     * Фрейм на всю ширину блока и ровно заданной высоты — для приложений со
+     * своим скроллом внутри (шапка закреплена, листается содержимое).
+     *
+     * Ширину выбирает Битрикс: `fitWindow` растягивает фрейм на всю
+     * доступную ширину, и её мы передаём дальше как есть. Своих расчётов от
+     * `window.screen` нет — на них ползла ширина в старом конструкторе.
+     * Высоту ставит `resizeWindow`: в отличие от `fitWindow` он умеет и
+     * уменьшать фрейм.
+     */
+    public async fitToHeight(height: number): Promise<boolean> {
+        if (!this.inFrame || !isFrameMeasurable()) return false;
+        try {
+            await this.bx.parent.fitWindow();
+            const width = document.documentElement.clientWidth;
+            if (!width) return false;
+            await this.bx.parent.resizeWindow(width, Math.round(height));
+            return true;
+        } catch {
+            // фрейм скрыли между замером и ответом родителя — подгоним при показе
+            return false;
+        }
+    }
+
     /** Прокрутка РОДИТЕЛЬСКОЙ страницы: вернуть встройку в поле зрения. */
     public scrollParentTo(scroll = 0) {
         if (this.inFrame) {

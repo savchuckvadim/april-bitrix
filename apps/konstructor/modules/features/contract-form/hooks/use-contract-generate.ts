@@ -1,8 +1,7 @@
 'use client';
 
-import { getCrmUrl } from '@workspace/bitrix';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { IS_PROD } from '@/modules/app/consts/app-global';
+import { runDocumentToDeal } from '@/modules/app/model/document-run.thunk';
 import {
     contractRequestBlocker,
     generateContract,
@@ -19,16 +18,10 @@ export const useContractGenerate = () => {
     const dispatch = useAppDispatch();
     const generate = useAppSelector(selectContractGenerate);
     const blocker = useAppSelector(contractRequestBlocker);
-    const domain = useAppSelector(state => state.app.domain);
-    const dealId = useAppSelector(state => state.app.dealId);
 
-    const run = async () => {
-        const ok = await dispatch(generateContract());
-        if (!ok || !IS_PROD) return ok;
-        const url = getCrmUrl(domain, 'deal', dealId);
-        if (url) (window.top ?? window).location.replace(url);
-        return ok;
-    };
+    // экран загрузки на всё время, повторное нажатие не запускает второй документ
+    const run = () =>
+        dispatch(runDocumentToDeal('Формирую договор…', () => dispatch(generateContract())));
 
     return {
         blocker,

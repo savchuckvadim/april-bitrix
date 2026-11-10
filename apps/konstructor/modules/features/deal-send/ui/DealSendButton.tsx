@@ -3,6 +3,7 @@
 import { Check, Send } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { useDealSend } from '../hooks/use-deal-send';
+import { DealSendWarnings } from './DealSendWarnings';
 
 export interface DealSendButtonProps {
     /** После успешной отправки — на хаб документов (с «Цен»); в хабе не нужно. */
@@ -23,14 +24,7 @@ export const DealSendButton = ({ navigateAfter = false, className }: DealSendBut
                 {deal.isSending ? 'Отправляю…' : deal.label}
             </Button>
             {deal.error ? <span className="text-xs text-destructive">{deal.error}</span> : null}
-            {deal.skipped.length ? (
-                <span
-                    className="text-xs text-warning"
-                    title={`Полей нет на портале: ${deal.skipped.join(', ')}`}
-                >
-                    не записано полей: {deal.skipped.length}
-                </span>
-            ) : null}
+            <DealSendWarnings warnings={deal.warnings} />
         </div>
     );
 };

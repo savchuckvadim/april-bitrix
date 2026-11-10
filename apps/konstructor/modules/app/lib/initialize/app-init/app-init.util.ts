@@ -118,5 +118,14 @@ export const appInit = async (dispatch: AppDispatch) => {
         return;
     }
 
-    dispatch(appActions.setAppData({ domain, user, deal, company, dealId }));
+    dispatch(
+        appActions.setAppData({
+            domain,
+            user,
+            deal,
+            company,
+            dealId,
+            placement: { code: placement.placement, entity: entity?.kind ?? null },
+        }),
+    );
 };

@@ -8,6 +8,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
     LIBRARY_VISIBILITY_TITLE,
+    libraryItemSource,
     libraryItemTitle,
     type LibraryItem,
 } from '@/modules/entities/library';
@@ -65,7 +66,7 @@ export const LibraryItemCard = ({
                     icon={isPromotion ? BadgePercent : Star}
                     tone={isPromotion ? 'info' : 'warning'}
                     title={libraryItemTitle(item)}
-                    description={item.dealName && item.title ? `Из сделки: ${item.dealName}` : undefined}
+                    description={libraryItemSource(item)}
                     disabled={busy}
                     badge={
                         <ToneBadge tone="muted" variant="soft">

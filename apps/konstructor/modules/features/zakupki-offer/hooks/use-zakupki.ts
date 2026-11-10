@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { getCrmUrl } from '@workspace/bitrix';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { IS_PROD } from '@/modules/app/consts/app-global';
+import { runDocumentToDeal } from '@/modules/app/model/document-run.thunk';
 import { CONTRACT_DEAL_FIELDS, initDealDocumentFields } from '@/modules/entities/contract-document';
 import {
     fetchZakupkiSettings,
@@ -33,8 +32,6 @@ export const useZakupki = () => {
     const provider2 = useAppSelector(state => selectZakupkiProviderFields(state, 'provider2'));
     const blocker = useAppSelector(zakupkiRequestBlocker);
     const portalReady = useAppSelector(state => Boolean(state.portal.current));
-    const domain = useAppSelector(state => state.app.domain);
-    const dealId = useAppSelector(state => state.app.dealId);
 
     useEffect(() => {
         if (zakupki.status === 'idle') void dispatch(fetchZakupkiSettings());
@@ -44,13 +41,9 @@ export const useZakupki = () => {
         if (portalReady) dispatch(initDealDocumentFields(ZAKUPKI_DEAL_FIELDS));
     }, [portalReady, dispatch]);
 
-    const run = async () => {
-        const ok = await dispatch(generateZakupkiOffer());
-        if (!ok || !IS_PROD) return ok;
-        const url = getCrmUrl(domain, 'deal', dealId);
-        if (url) (window.top ?? window).location.replace(url);
-        return ok;
-    };
+    // экран загрузки на всё время, повторное нажатие не запускает второй документ
+    const run = () =>
+        dispatch(runDocumentToDeal('Формирую КП для закупок…', () => dispatch(generateZakupkiOffer())));
 
     return {
         isLoading: zakupki.status === 'loading' || zakupki.status === 'idle',

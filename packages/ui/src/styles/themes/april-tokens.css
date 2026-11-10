@@ -61,6 +61,8 @@
     --air-secondary-foreground: #ffffff;
     --air-secondary-no-accent: #828b95;
     --air-link: #2066b0;
+    /* Фон карточки CRM вокруг встройки-вкладки: углы фрейма скругляем на нём */
+    --air-host-background: #eef2f4;
 
     /* Типы событий */
     /*

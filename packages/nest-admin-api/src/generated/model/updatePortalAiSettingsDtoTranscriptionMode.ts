@@ -7,7 +7,7 @@
  */
 
 /**
- * Транскрибатор портала: auto, yandex, vibecode или whisper. null — режим приложения.
+ * Транскрибатор портала: auto, auto-whisper, yandex, vibecode или whisper. null — режим приложения.
  * @nullable
  */
 export type UpdatePortalAiSettingsDtoTranscriptionMode = typeof UpdatePortalAiSettingsDtoTranscriptionMode[keyof typeof UpdatePortalAiSettingsDtoTranscriptionMode] | null;
@@ -16,6 +16,7 @@ export type UpdatePortalAiSettingsDtoTranscriptionMode = typeof UpdatePortalAiSe
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const UpdatePortalAiSettingsDtoTranscriptionMode = {
   auto: 'auto',
+  'auto-whisper': 'auto-whisper',
   yandex: 'yandex',
   vibecode: 'vibecode',
   whisper: 'whisper',

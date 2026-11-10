@@ -7,7 +7,7 @@
  */
 
 /**
- * Транскрибатор портала: auto — по длительности (Яндекс для длинных, VibeCode для коротких), yandex / vibecode / whisper — принудительно. null — режим приложения.
+ * Транскрибатор портала: auto — по длительности (Яндекс для длинных, VibeCode для коротких), auto-whisper — та же развилка, но короткие идут в свой Whisper-совместимый сервис, yandex / vibecode / whisper — принудительно. null — режим приложения.
  * @nullable
  */
 export type PortalAiSettingsResponseDtoTranscriptionMode = typeof PortalAiSettingsResponseDtoTranscriptionMode[keyof typeof PortalAiSettingsResponseDtoTranscriptionMode] | null;
@@ -16,6 +16,7 @@ export type PortalAiSettingsResponseDtoTranscriptionMode = typeof PortalAiSettin
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PortalAiSettingsResponseDtoTranscriptionMode = {
   auto: 'auto',
+  'auto-whisper': 'auto-whisper',
   yandex: 'yandex',
   vibecode: 'vibecode',
   whisper: 'whisper',

@@ -46,6 +46,12 @@ import {
     type ProvidersDraft,
 } from './components/ProvidersCard';
 import { NumberField, TriStateField } from './components/SettingFields';
+import { TranscriptionRouteCard } from './components/TranscriptionRouteCard';
+import {
+    draftToRoute,
+    routeToDraft,
+    type TranscriptionRouteDraft,
+} from '../../lib/transcription-route';
 
 /** Сентинел селекта моделей: «как глобально» (Radix не принимает ''). */
 const MODEL_GLOBAL = '__global__';
@@ -63,6 +69,8 @@ interface Draft {
     methodologyCode: string;
     /** Поставщики AI: порядок LLM, транскрибатор, Whisper-совместимый сервис. */
     providers: ProvidersDraft;
+    /** Кто распознаёт звонки: роли поверх режима транскрибации. */
+    route: TranscriptionRouteDraft;
 }
 
 /** Серверные настройки → черновик формы. */
@@ -87,7 +95,8 @@ function toDraft(settings: PortalAiSettings | undefined): Draft {
         llmModel: settings?.llmModel ?? MODEL_GLOBAL,
         deepAnalysisModel: settings?.deepAnalysisModel ?? '',
         allowedUserIds: (settings?.allowedUserIds ?? []).join(', '),
-        presentationStrictness: settings?.presentationStrictness ?? MODEL_GLOBAL,
+        presentationStrictness:
+            settings?.presentationStrictness ?? MODEL_GLOBAL,
         methodologyCode: settings?.methodologyCode ?? '',
         providers: {
             llmProviderOrder: [...(settings?.llmProviderOrder ?? [])],
@@ -99,6 +108,7 @@ function toDraft(settings: PortalAiSettings | undefined): Draft {
             vibecodeTranscriptionModel:
                 settings?.vibecodeTranscriptionModel ?? '',
         },
+        route: routeToDraft(settings?.transcriptionRoute),
     };
 }
 
@@ -173,6 +183,9 @@ function toUpdate(draft: Draft): PortalAiSettingsUpdate | string {
     update.whisperApiKey = providers.whisperApiKey.trim() || null;
     update.vibecodeTranscriptionModel =
         providers.vibecodeTranscriptionModel.trim() || null;
+    const route = draftToRoute(draft.route);
+    if (typeof route === 'string') return route;
+    update.transcriptionRoute = route;
 
     const usersRaw = draft.allowedUserIds.trim();
     if (usersRaw === '') {
@@ -181,8 +194,8 @@ function toUpdate(draft: Draft): PortalAiSettingsUpdate | string {
         const ids = usersRaw
             .split(/[,\s]+/)
             .filter(Boolean)
-            .map((part) => Number(part));
-        if (ids.some((id) => !Number.isInteger(id) || id <= 0)) {
+            .map(part => Number(part));
+        if (ids.some(id => !Number.isInteger(id) || id <= 0)) {
             return `ДЕМО-сотрудники: ожидаются bitrix-id через запятую, получено «${usersRaw}»`;
         }
         update.allowedUserIds = ids;
@@ -268,7 +281,7 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
         if (!settings.data) return;
         const next = toDraft(settings.data);
         const nextJson = JSON.stringify(next);
-        setDraft((prev) => {
+        setDraft(prev => {
             const wasClean =
                 prevServerJson.current === null ||
                 JSON.stringify(prev) === prevServerJson.current;
@@ -329,7 +342,10 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                     Не удалось загрузить настройки портала — форма недоступна,
                     чтобы случайно не затереть текущие значения.
                 </p>
-                <Button variant="outline" onClick={() => void settings.refetch()}>
+                <Button
+                    variant="outline"
+                    onClick={() => void settings.refetch()}
+                >
                     Повторить загрузку
                 </Button>
             </div>
@@ -340,7 +356,10 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
 
     return (
         <div className="space-y-4">
-            <StatusHeader domain={portal.data?.domain} settings={settings.data} />
+            <StatusHeader
+                domain={portal.data?.domain}
+                settings={settings.data}
+            />
 
             <AiSettingsRelatedLinks portalId={portalId} />
 
@@ -373,8 +392,8 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                             description={AI_MASTER_TOGGLE_META.description}
                             globalHint={AI_MASTER_TOGGLE_META.globalHint}
                             value={masterValue}
-                            onChange={(value) =>
-                                setDraft((d) => ({
+                            onChange={value =>
+                                setDraft(d => ({
                                     ...d,
                                     toggles: {
                                         ...d.toggles,
@@ -387,7 +406,7 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                 </CardContent>
             </Card>
 
-            {AI_SETTINGS_GROUPS.map((group) => (
+            {AI_SETTINGS_GROUPS.map(group => (
                 <Card key={group.title}>
                     <CardHeader>
                         <CardTitle>{group.title}</CardTitle>
@@ -395,15 +414,15 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                     </CardHeader>
                     <CardContent>
                         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                            {group.toggles.map((meta) => (
+                            {group.toggles.map(meta => (
                                 <TriStateField
                                     key={meta.field}
                                     label={meta.label}
                                     description={meta.description}
                                     globalHint={meta.globalHint}
                                     value={draft.toggles[meta.field] ?? null}
-                                    onChange={(value) =>
-                                        setDraft((d) => ({
+                                    onChange={value =>
+                                        setDraft(d => ({
                                             ...d,
                                             toggles: {
                                                 ...d.toggles,
@@ -413,15 +432,15 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                                     }
                                 />
                             ))}
-                            {group.numbers.map((meta) => (
+                            {group.numbers.map(meta => (
                                 <NumberField
                                     key={meta.field}
                                     label={meta.label}
                                     description={meta.description}
                                     globalHint={meta.globalHint}
                                     value={draft.numbers[meta.field] ?? ''}
-                                    onChange={(value) =>
-                                        setDraft((d) => ({
+                                    onChange={value =>
+                                        setDraft(d => ({
                                             ...d,
                                             numbers: {
                                                 ...d.numbers,
@@ -450,8 +469,8 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                             <Label>{AI_MODEL_META.llmModel.label}</Label>
                             <Select
                                 value={draft.llmModel}
-                                onValueChange={(value) =>
-                                    setDraft((d) => ({ ...d, llmModel: value }))
+                                onValueChange={value =>
+                                    setDraft(d => ({ ...d, llmModel: value }))
                                 }
                             >
                                 <SelectTrigger className="w-44">
@@ -461,7 +480,7 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                                     <SelectItem value={MODEL_GLOBAL}>
                                         Как глобально
                                     </SelectItem>
-                                    {llmOptions.map((model) => (
+                                    {llmOptions.map(model => (
                                         <SelectItem key={model} value={model}>
                                             {llmModelLabel(model)}
                                         </SelectItem>
@@ -477,12 +496,14 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                         </div>
 
                         <div className="space-y-1">
-                            <Label>{AI_MODEL_META.deepAnalysisModel.label}</Label>
+                            <Label>
+                                {AI_MODEL_META.deepAnalysisModel.label}
+                            </Label>
                             <Input
                                 value={draft.deepAnalysisModel}
                                 placeholder="bitrix/bitrixgpt-5.5"
-                                onChange={(e) =>
-                                    setDraft((d) => ({
+                                onChange={e =>
+                                    setDraft(d => ({
                                         ...d,
                                         deepAnalysisModel: e.target.value,
                                     }))
@@ -501,8 +522,8 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                             <Label>{AI_STRICTNESS_META.label}</Label>
                             <Select
                                 value={draft.presentationStrictness}
-                                onValueChange={(value) =>
-                                    setDraft((d) => ({
+                                onValueChange={value =>
+                                    setDraft(d => ({
                                         ...d,
                                         presentationStrictness: value,
                                     }))
@@ -516,7 +537,7 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                                         Как глобально
                                     </SelectItem>
                                     {AI_PRESENTATION_STRICTNESS_OPTIONS.map(
-                                        (option) => (
+                                        option => (
                                             <SelectItem
                                                 key={option.value}
                                                 value={option.value}
@@ -539,8 +560,8 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                             <MethodologyChips
                                 domain={portal.data?.domain}
                                 value={draft.methodologyCode}
-                                onChange={(code) =>
-                                    setDraft((d) => ({
+                                onChange={code =>
+                                    setDraft(d => ({
                                         ...d,
                                         methodologyCode: code,
                                     }))
@@ -553,8 +574,8 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
                             <EmployeesPicker
                                 portalId={portalId}
                                 ids={parseEmployeeIds(draft.allowedUserIds)}
-                                onChange={(ids) =>
-                                    setDraft((d) => ({
+                                onChange={ids =>
+                                    setDraft(d => ({
                                         ...d,
                                         allowedUserIds: formatEmployeeIds(ids),
                                     }))
@@ -574,11 +595,18 @@ export function PortalAiSettingsPanel({ portalId }: { portalId: number }) {
             <ProvidersCard
                 portalId={portalId}
                 draft={draft.providers}
-                onChange={(patch) =>
-                    setDraft((d) => ({
+                onChange={patch =>
+                    setDraft(d => ({
                         ...d,
                         providers: { ...d.providers, ...patch },
                     }))
+                }
+            />
+
+            <TranscriptionRouteCard
+                draft={draft.route}
+                onChange={patch =>
+                    setDraft(d => ({ ...d, route: { ...d.route, ...patch } }))
                 }
             />
 

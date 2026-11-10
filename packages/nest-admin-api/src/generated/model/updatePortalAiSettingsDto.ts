@@ -9,6 +9,7 @@ import type { UpdatePortalAiSettingsDtoPresentationStrictness } from './updatePo
 import type { UpdatePortalAiSettingsDtoWeeklyReportDelivery } from './updatePortalAiSettingsDtoWeeklyReportDelivery';
 import type { UpdatePortalAiSettingsDtoLlmProviderOrderItem } from './updatePortalAiSettingsDtoLlmProviderOrderItem';
 import type { UpdatePortalAiSettingsDtoTranscriptionMode } from './updatePortalAiSettingsDtoTranscriptionMode';
+import type { UpdatePortalAiSettingsDtoTranscriptionRoute } from './updatePortalAiSettingsDtoTranscriptionRoute';
 
 export interface UpdatePortalAiSettingsDto {
   /**
@@ -199,4 +200,9 @@ export interface UpdatePortalAiSettingsDto {
    * @nullable
    */
   factsCatchupNightlyBudgetRub?: number | null;
+  /**
+   * Маршрут распознавания портала: кто распознаёт длинные и короткие звонки, кто запасной, кто «для скорости» и «для точности», и что сейчас важнее. Заданная роль важнее режима transcriptionMode. null или маршрут без ролей — сбросить на режим.
+   * @nullable
+   */
+  transcriptionRoute?: UpdatePortalAiSettingsDtoTranscriptionRoute;
 }

@@ -37,6 +37,7 @@ export * from './aiAnalyticsAuditResultDtoSource';
 export * from './aiAnalyticsAuditRunDto';
 export * from './aiAnalyticsBackfillDto';
 export * from './aiAnalyticsBackfillResultDto';
+export * from './aiAnalyticsCostProviderDto';
 export * from './aiAnalyticsCostResultDto';
 export * from './aiAnalyticsCostTypeDto';
 export * from './aiAnalyticsCostTypeDtoType';

@@ -170,7 +170,8 @@ export const GUIDE_ACTIONS: Record<GuideActionCode, GuideActionSpec> = {
     },
     cost: {
         title: 'Расход модели за месяц (cost)',
-        description: 'Токены и стоимость по типам записей.',
+        description:
+            'Токены и стоимость по типам записей и по поставщикам шлюза (кто отвечал).',
         method: 'GET',
         fields: [{ name: 'month', label: 'month (YYYY-MM)', kind: 'month', required: true }],
     },

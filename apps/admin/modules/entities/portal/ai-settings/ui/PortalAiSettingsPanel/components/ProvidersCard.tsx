@@ -34,6 +34,8 @@ export interface ProvidersDraft {
     whisperModel: string;
     /** Новый ключ, маска сохранённого (••••••) или пусто (убрать ключ). */
     whisperApiKey: string;
+    /** Модель транскрибации VibeCode; пусто = модель приложения. */
+    vibecodeTranscriptionModel: string;
 }
 
 interface ProvidersCardProps {
@@ -107,6 +109,14 @@ export function ProvidersCard({ portalId, draft, onChange }: ProvidersCardProps)
                                 {modeMeta.globalHint}
                             </p>
                         </div>
+                        <ProviderTextField
+                            meta={AI_PROVIDERS_META.vibecodeTranscriptionModel}
+                            value={draft.vibecodeTranscriptionModel}
+                            placeholder="bitrix/bitrixgpt-5.6-transcribe"
+                            onChange={(vibecodeTranscriptionModel) =>
+                                onChange({ vibecodeTranscriptionModel })
+                            }
+                        />
 
                         <ProviderTextField
                             meta={AI_PROVIDERS_META.whisperBaseUrl}

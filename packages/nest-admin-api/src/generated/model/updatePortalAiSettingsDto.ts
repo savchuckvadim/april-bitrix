@@ -186,4 +186,17 @@ export interface UpdatePortalAiSettingsDto {
    * @nullable
    */
   whisperApiKey?: string | null;
+  /**
+   * Модель транскрибации VibeCode (поле model запроса к ИИ-роутеру), например bitrix/bitrixgpt-5.6-transcribe. Пусто или null — модель приложения.
+   * @maxLength 120
+   * @nullable
+   */
+  vibecodeTranscriptionModel?: string | null;
+  /**
+   * Лимит в рублях на одну ночь для ночного догона признаков в старых разборах (текущий и прошлый месяц). Пусто, null или 0 — ночной догон выключен; полный переразбор — только кнопкой.
+   * @minimum 0
+   * @maximum 100000
+   * @nullable
+   */
+  factsCatchupNightlyBudgetRub?: number | null;
 }

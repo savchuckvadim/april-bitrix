@@ -7,6 +7,8 @@ import {
     LAUNCH_RECOMPUTE_STEPS,
 } from '../../consts/ai-analytics-launch.const';
 import type {
+    FactsCatchupRunResult,
+    FactsCatchupStatus,
     LaunchBackfillResult,
     LaunchBacktestResult,
     LaunchCacheResetResult,
@@ -154,6 +156,32 @@ export class AiAnalyticsLaunchHelper {
         return this.api.aiAnalyticsSmartBackfillAdminStatus({
             domain,
             mode: 'period',
+            from: period.from,
+            to: period.to,
+        });
+    }
+
+    /** Догнать признаки v3.1 в старых разборах периода (dryRun — подсчёт без модели). */
+    factsCatchup(
+        domain: string,
+        period: LaunchPeriod,
+        dryRun: boolean,
+    ): Promise<FactsCatchupRunResult> {
+        return this.api.aiAnalyticsFactsCatchupAdminRun({
+            domain,
+            from: period.from,
+            to: period.to,
+            dryRun,
+        });
+    }
+
+    /** Статус догона признаков за период. */
+    factsCatchupStatus(
+        domain: string,
+        period: LaunchPeriod,
+    ): Promise<FactsCatchupStatus> {
+        return this.api.aiAnalyticsFactsCatchupAdminStatus({
+            domain,
             from: period.from,
             to: period.to,
         });

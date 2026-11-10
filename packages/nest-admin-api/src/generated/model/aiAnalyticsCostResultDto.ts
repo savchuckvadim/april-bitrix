@@ -5,6 +5,7 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { AiAnalyticsCostProviderDto } from './aiAnalyticsCostProviderDto';
 import type { AiAnalyticsCostTypeDto } from './aiAnalyticsCostTypeDto';
 
 export interface AiAnalyticsCostResultDto {
@@ -29,4 +30,6 @@ export interface AiAnalyticsCostResultDto {
   estimatedPrice: number | null;
   /** Разрез по типам записей (снапшоты AI-аналитики, разбор звонков и его повторы); типы без вызовов опущены. */
   byType: AiAnalyticsCostTypeDto[];
+  /** Разрез по поставщикам шлюза LLM (кто реально отвечал), крупные первыми; записи без сведений — под кодом unknown. */
+  byProvider: AiAnalyticsCostProviderDto[];
 }

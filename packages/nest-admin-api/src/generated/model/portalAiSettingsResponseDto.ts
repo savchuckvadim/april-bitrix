@@ -176,4 +176,14 @@ export interface PortalAiSettingsResponseDto {
    * @nullable
    */
   whisperApiKey: string | null;
+  /**
+   * Модель транскрибации VibeCode (поле model запроса к ИИ-роутеру). С 16.11.2026 Whisper уходит с платформы: запросы без модели идут в bitrix/bitrixgpt-5.6-transcribe; null — модель приложения.
+   * @nullable
+   */
+  vibecodeTranscriptionModel: string | null;
+  /**
+   * Лимит в рублях на одну ночь для ночного догона признаков в старых разборах (текущий и прошлый месяц); null или 0 — ночной догон выключен.
+   * @nullable
+   */
+  factsCatchupNightlyBudgetRub: number | null;
 }

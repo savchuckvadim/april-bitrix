@@ -96,6 +96,8 @@ function toDraft(settings: PortalAiSettings | undefined): Draft {
             whisperModel: settings?.whisperModel ?? '',
             // Сохранённый ключ приходит маской; маска обратно = «не трогать».
             whisperApiKey: settings?.whisperApiKey ?? '',
+            vibecodeTranscriptionModel:
+                settings?.vibecodeTranscriptionModel ?? '',
         },
     };
 }
@@ -169,6 +171,8 @@ function toUpdate(draft: Draft): PortalAiSettingsUpdate | string {
     update.whisperBaseUrl = whisperUrl || null;
     update.whisperModel = providers.whisperModel.trim() || null;
     update.whisperApiKey = providers.whisperApiKey.trim() || null;
+    update.vibecodeTranscriptionModel =
+        providers.vibecodeTranscriptionModel.trim() || null;
 
     const usersRaw = draft.allowedUserIds.trim();
     if (usersRaw === '') {

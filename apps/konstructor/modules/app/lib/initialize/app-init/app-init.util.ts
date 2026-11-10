@@ -11,6 +11,7 @@ import {
 import type { AppDispatch } from '../../../model/store';
 import { appActions } from '../../../model/AppSlice';
 import { bitrixInit } from '../bitrix-init/bitrix-init.util';
+import { bootstrapPortalSession } from '../../portal-session/portal-session';
 import {
     COMPANY_DEAL_SELECT,
     pickCompanyDeal,
@@ -71,6 +72,10 @@ export const appInit = async (dispatch: AppDispatch) => {
         dispatch(appActions.setInitializedError({ errorMessage: DEV_PLACEMENT_HINT }));
         return;
     }
+
+    // Токен сессии портала до первых запросов к бэку: каталог с ценами
+    // отдаётся только ей. Вне фрейма сессии нет — dev ходит без токена.
+    await bootstrapPortalSession(bitrix.api);
 
     const domain = authDomain || TESTING_DOMAIN;
     const user = authUser ?? TESTING_USER;

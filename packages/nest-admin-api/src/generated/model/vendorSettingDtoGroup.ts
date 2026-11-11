@@ -16,6 +16,7 @@ export type VendorSettingDtoGroup = typeof VendorSettingDtoGroup[keyof typeof Ve
 export const VendorSettingDtoGroup = {
   'egress-proxy': 'egress-proxy',
   'ai-keys': 'ai-keys',
+  'llm-gateway': 'llm-gateway',
   support: 'support',
   'telegram-bots': 'telegram-bots',
   widgets: 'widgets',

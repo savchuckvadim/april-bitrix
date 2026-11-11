@@ -24,7 +24,7 @@ export type VendorSettingGroup = VendorSettingGroupDto;
 export type VendorSettings = VendorSettingsResponseDto;
 export type VendorSettingUpdate = UpdateVendorSettingDto;
 
-/** Что действует для настройки: админка, окружение или ничего. */
+/** Что действует для настройки: админка, окружение, значение по умолчанию или ничего. */
 export type VendorSettingSource = VendorSettingDtoSource;
 export type VendorSourceTone = 'ok' | 'muted' | 'warn';
 
@@ -34,8 +34,19 @@ export const VENDOR_SOURCE_LABELS: Readonly<
 > = {
     admin: { label: 'действует значение из админки', tone: 'ok' },
     env: { label: 'действует значение из окружения приложения', tone: 'muted' },
+    default: { label: 'действует значение по умолчанию', tone: 'muted' },
     none: { label: 'не задано нигде', tone: 'warn' },
 };
+
+/** Подпись бейджа: у значения по умолчанию — само значение («…: 180000»). */
+export function vendorSourceLabel(
+    setting: Pick<VendorSetting, 'source' | 'defaultValue'>,
+): string {
+    const { label } = VENDOR_SOURCE_LABELS[setting.source];
+    return setting.source === 'default' && setting.defaultValue
+        ? `${label}: ${setting.defaultValue}`
+        : label;
+}
 
 export const VENDOR_SETTINGS_TEXT = {
     title: 'Настройки приложения',

@@ -7,7 +7,7 @@
  */
 
 /**
- * Вид сигнала: действующий риск-флаг с цитатой (conflict / compliance / door_closed) либо urgent — срочный коучинг.
+ * Вид сигнала — ошибка менеджера: риск-флаг с цитатой (conflict / compliance / door_closed), objection_mishandled — возражение не отработано, presentation_no_needs — презентация без потребностей, presentation_no_ssv — без «свойство — связка — выгода»; urgent — алерт, отправленный до 11.11.2026 по срочному коучингу.
  */
 export type AiRiskCallDtoKind =
     (typeof AiRiskCallDtoKind)[keyof typeof AiRiskCallDtoKind];
@@ -17,5 +17,8 @@ export const AiRiskCallDtoKind = {
     conflict: 'conflict',
     compliance: 'compliance',
     door_closed: 'door_closed',
+    objection_mishandled: 'objection_mishandled',
+    presentation_no_needs: 'presentation_no_needs',
+    presentation_no_ssv: 'presentation_no_ssv',
     urgent: 'urgent',
 } as const;

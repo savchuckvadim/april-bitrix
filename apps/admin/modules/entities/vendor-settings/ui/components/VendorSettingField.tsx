@@ -9,6 +9,7 @@ import { useSaveVendorSetting } from '../../lib/hooks/use-vendor-settings';
 import {
     VENDOR_SETTINGS_TEXT,
     VENDOR_SOURCE_LABELS,
+    vendorSourceLabel,
     type VendorSetting,
     type VendorSourceTone,
 } from '../../model';
@@ -53,7 +54,9 @@ export function VendorSettingField({ setting, secretMask }: VendorSettingFieldPr
                 <Label htmlFor={inputId} className="text-base font-medium">
                     {setting.label}
                 </Label>
-                <Badge variant={BADGE_VARIANT[source.tone]}>{source.label}</Badge>
+                <Badge variant={BADGE_VARIANT[source.tone]}>
+                    {vendorSourceLabel(setting)}
+                </Badge>
             </div>
             <p className="text-sm text-muted-foreground">{setting.description}</p>
             <details className="text-sm">

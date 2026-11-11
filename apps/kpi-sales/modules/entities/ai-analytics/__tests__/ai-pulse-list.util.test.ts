@@ -180,8 +180,14 @@ describe('ссылка на разбор и «что сделать»', () => {
             'conflict',
             'compliance',
             'door_closed',
+            'objection_mishandled',
+            'presentation_no_needs',
+            'presentation_no_ssv',
             'urgent',
         ]);
+        // 11.11.2026: сигнал — ошибка менеджера; цитата клиента только как доказательство.
+        expect(AI_ALERT_KIND.objection_mishandled.label).toBe('Возражение не отработано');
+        expect(AI_ALERT_KIND.objection_mishandled.hint).toContain('Цитата — слова клиента');
         expect(AI_ALERT_KIND.door_closed.label).toBe('Дверь закрыта');
         const legacy = aiAlertKindView('promise');
         expect(legacy).toBe(AI_ALERT_KIND_UNKNOWN);

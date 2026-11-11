@@ -7,7 +7,7 @@
  */
 
 /**
- * Вид сигнала: действующий риск-флаг разбора с цитатой (conflict — конфликт / грубость, compliance — нарушение регламента, door_closed — после отказа не оставил дверь открытой) либо urgent — срочный приоритет коучинга. Отменённые флаги (promise, client_negative) сигналом не считаются даже в старых данных.
+ * Вид сигнала — ошибка менеджера (решение владельца 11.11.2026): риск-флаг разбора с цитатой (conflict — конфликт / грубость, compliance — нарушение регламента, door_closed — после отказа не оставил дверь открытой), objection_mishandled — возражение не отработано (не ответил по существу или клиент ушёл из разговора), presentation_no_needs — презентация без выявленных потребностей, presentation_no_ssv — презентация без «свойство — связка — выгода»; urgent — алерт, отправленный до 11.11 по срочному коучингу. Возражение клиента само по себе сигналом не считается.
  */
 export type AiPulseAlertDtoKind =
     (typeof AiPulseAlertDtoKind)[keyof typeof AiPulseAlertDtoKind];
@@ -17,5 +17,8 @@ export const AiPulseAlertDtoKind = {
     conflict: 'conflict',
     compliance: 'compliance',
     door_closed: 'door_closed',
+    objection_mishandled: 'objection_mishandled',
+    presentation_no_needs: 'presentation_no_needs',
+    presentation_no_ssv: 'presentation_no_ssv',
     urgent: 'urgent',
 } as const;

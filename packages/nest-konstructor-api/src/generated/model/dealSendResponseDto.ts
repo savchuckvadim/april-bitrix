@@ -6,17 +6,25 @@
  * OpenAPI spec version: 1.0
  */
 import type { SkippedDealFieldDto } from './skippedDealFieldDto';
+import type { DealSendResponseDtoWarningsItem } from './dealSendResponseDtoWarningsItem';
 
 export interface DealSendResponseDto {
     /** Сделка, в которую пишем */
     dealId: number;
     /** Сделка была создана этим вызовом */
     created: boolean;
-    /** Поля, значения которых записаны не были: not_on_portal — поля нет в схеме портала, ambiguous_code — коду соответствует несколько полей и не передан appType */
+    /** Поля, значения которых записаны не были: not_on_portal — поля нет в схеме портала, ambiguous_code — коду соответствует несколько полей и не передан appType, inn_protected — поле ИНН, unknown_item — у списочного поля на портале нет такого пункта */
     skipped: SkippedDealFieldDto[];
     /**
      * Элемент смарта, в который записали (target.kind = smart); иначе null
      * @nullable
      */
     smartId?: number | null;
+    /**
+     * Задание записи полей и строк; результат — GET konstructor/deal-send/status/{operationId}. null — писать было нечего или (warnings: write_not_queued) поставить не удалось
+     * @nullable
+     */
+    operationId?: string | null;
+    /** Предупреждения: stage_not_found — нет стадии «Документы», сделка на первой стадии; replayed — повтор по requestKey, вернули уже созданную сделку; write_not_queued — запись не поставлена в очередь, писать через легаси */
+    warnings?: DealSendResponseDtoWarningsItem[];
 }

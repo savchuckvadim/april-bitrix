@@ -8,8 +8,10 @@
 import type { ProductRowDto } from './productRowDto';
 
 export interface ProductRowSetItemDto {
-    garant: ProductRowDto[];
-    lt: ProductRowDto[];
-    consalting: ProductRowDto[];
-    star: ProductRowDto[];
+    garant?: ProductRowDto[];
+    lt?: ProductRowDto[];
+    consalting?: ProductRowDto[];
+    star?: ProductRowDto[];
+    lt_other?: ProductRowDto[];
+    academy?: ProductRowDto[];
 }

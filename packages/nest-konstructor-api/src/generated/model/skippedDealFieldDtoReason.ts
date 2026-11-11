@@ -17,4 +17,5 @@ export const SkippedDealFieldDtoReason = {
     not_on_portal: 'not_on_portal',
     ambiguous_code: 'ambiguous_code',
     inn_protected: 'inn_protected',
+    unknown_item: 'unknown_item',
 } as const;

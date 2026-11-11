@@ -5,13 +5,19 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
-import type { DealSendDto, DealSendResponseDto } from '.././model';
+import type {
+    DealSendDto,
+    DealSendPreflightParams,
+    DealSendPreflightResponseDto,
+    DealSendResponseDto,
+    DealSendStatusResponseDto,
+} from '.././model';
 
 import { customAxios } from '../../lib/konstructor-api';
 
 export const getKonstructorDealSend = () => {
     /**
-     * Создаёт сделку, если dealId не передан, и записывает в неё поля и товарные строки. Поля приходят кодами pbx-канона — идентификаторы полей резолвятся по схеме портала, фронту знать их не нужно. Сделка создаётся синхронно (её id нужен фронту сразу), запись полей и строк уходит в очередь.
+     * Создаёт сделку, если dealId не передан: воронка sales_base, стадия «Документы», компания, ответственный, поставщик. Поля приходят кодами pbx-канона — идентификаторы полей резолвятся по схеме портала. Сделка создаётся синхронно (её id нужен фронту сразу); запись полей и строк уходит в очередь, результат — GET status/{operationId}. Нет воронки или схемы сделок — 422 без создания: фронт создаёт сделку по-старому.
      * @summary Отправить сделку конструктора в Bitrix
      */
     const dealSendSend = (dealSendDto: DealSendDto) => {
@@ -22,10 +28,43 @@ export const getKonstructorDealSend = () => {
             data: dealSendDto,
         });
     };
-    return { dealSendSend };
+    /**
+     * Опрос задания записи полей и строк по operationId из ответа POST. done && ok — записано; done && !ok — не записано (фронт отправляет запись в легаси). Задание хранится сутки после успеха и неделю после отказа.
+     * @summary Статус записи сделки
+     */
+    const dealSendStatus = (operationId: string) => {
+        return customAxios<DealSendStatusResponseDto>({
+            url: `/api/konstructor/deal-send/status/${operationId}`,
+            method: 'GET',
+        });
+    };
+    /**
+     * Только чтение: воронка sales_base, STAGE_ID стадии «Документы», ключевые поля в pbx-схеме сделки. Ничего не создаёт и не пишет.
+     * @summary Готов ли портал к созданию сделки через Nest
+     */
+    const dealSendPreflight = (params: DealSendPreflightParams) => {
+        return customAxios<DealSendPreflightResponseDto>({
+            url: `/api/konstructor/deal-send/preflight`,
+            method: 'GET',
+            params,
+        });
+    };
+    return { dealSendSend, dealSendStatus, dealSendPreflight };
 };
 export type DealSendSendResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getKonstructorDealSend>['dealSendSend']>
+    >
+>;
+export type DealSendStatusResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getKonstructorDealSend>['dealSendStatus']>
+    >
+>;
+export type DealSendPreflightResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getKonstructorDealSend>['dealSendPreflight']
+        >
     >
 >;

@@ -7,7 +7,7 @@
  */
 
 /**
- * Что действует сейчас: admin — значение из админки, env — из окружения, none — не задано нигде.
+ * Что действует сейчас: admin — значение из админки, env — из окружения, default — значение по умолчанию (defaultValue), none — не задано нигде.
  */
 export type VendorSettingDtoSource = typeof VendorSettingDtoSource[keyof typeof VendorSettingDtoSource];
 
@@ -16,5 +16,6 @@ export type VendorSettingDtoSource = typeof VendorSettingDtoSource[keyof typeof 
 export const VendorSettingDtoSource = {
   admin: 'admin',
   env: 'env',
+  default: 'default',
   none: 'none',
 } as const;

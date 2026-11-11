@@ -14,6 +14,7 @@ import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { getEventTypeAttr } from '@/modules/entities/EventTask/lib/event-type-token';
 import { getTaskSummary } from '@/modules/entities/EventTask/lib/task-util';
 import { getTaskLinks } from '@/modules/entities/EventTask/lib/task-links';
+import { TaskLink } from '@/modules/entities/EventTask/ui/TaskLink';
 import { TaskContactChip } from '@/modules/entities/EventContact';
 import { TaskOwnerChip } from '@/modules/features/HeadMode';
 import {
@@ -109,6 +110,9 @@ export const EventCard: FC<EventCardProps> = ({
                         {deadline.prefix}
                         {task.deadline}
                     </span>
+                    {/* Сама задача Битрикса — даже если в сделке её не
+                        видно (дело не создалось). */}
+                    <TaskLink task={task} />
                 </div>
                 {/* Простыни лидогена не раздувают карточку: две строки с
                     многоточием, полное имя — по наведению. */}

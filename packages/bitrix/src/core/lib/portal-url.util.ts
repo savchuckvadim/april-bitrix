@@ -61,27 +61,46 @@ export const getCrmPath = (
     return `/crm/${CRM_PATH[kind]}/details/${entityId}/`;
 };
 
+/** Контекст задачи для ссылки: группа и ответственный (поля задачи как есть). */
+export interface TaskPathOptions {
+    groupId?: number | string | null;
+    userId?: number | string | null;
+}
+
+/** Положительный целый ID из сырого поля Битрикса, иначе null. */
+const positiveId = (value: unknown): number | null => {
+    const id = Number(value);
+    return Number.isInteger(id) && id > 0 ? id : null;
+};
+
 /**
- * Карточка задачи в портале. Группа известна — ссылка в группе (там задача
- * открывается в своём контексте), иначе универсальный путь через
- * ответственного: портал сам разрулит доступ.
+ * ПУТЬ карточки задачи внутри портала (без домена) — для слайдера Битрикса.
+ * Группа известна — путь в группе (там задача открывается в своём
+ * контексте), иначе универсальный путь через ответственного: портал сам
+ * разрулит доступ.
  */
+export const getTaskPath = (
+    taskId: number | string | null | undefined,
+    options: TaskPathOptions = {},
+): string | null => {
+    const id = positiveId(taskId);
+    if (!id) return null;
+
+    const groupId = positiveId(options.groupId);
+    if (groupId) return `/workgroups/group/${groupId}/tasks/task/view/${id}/`;
+    const owner = positiveId(options.userId) ?? 0;
+    return `/company/personal/user/${owner}/tasks/task/view/${id}/`;
+};
+
+/** Карточка задачи в портале — для target="_blank". Правила пути — в {@link getTaskPath}. */
 export const getTaskUrl = (
     domain: string | null | undefined,
     taskId: number | string | null | undefined,
-    options: { groupId?: number | null; userId?: number | null } = {},
+    options: TaskPathOptions = {},
 ): string | null => {
     const host = normalizeDomain(domain);
-    const id = Number(taskId);
-    if (!host || !Number.isFinite(id) || id <= 0) return null;
-
-    const groupId = Number(options.groupId);
-    if (Number.isFinite(groupId) && groupId > 0) {
-        return `https://${host}/workgroups/group/${groupId}/tasks/task/view/${id}/`;
-    }
-    const userId = Number(options.userId);
-    const owner = Number.isFinite(userId) && userId > 0 ? userId : 0;
-    return `https://${host}/company/personal/user/${owner}/tasks/task/view/${id}/`;
+    const path = getTaskPath(taskId, options);
+    return host && path ? `https://${host}${path}` : null;
 };
 
 /**

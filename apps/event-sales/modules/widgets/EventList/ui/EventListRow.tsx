@@ -11,6 +11,7 @@ import { getEventTypeLabel } from '@/modules/entities/EventTask/lib/event-reques
 import { EventTask } from '@/modules/entities/EventTask/types/event-task-type';
 import { EventItemResultType } from '@/modules/widgets/EventItem';
 import { TaskOwnerChip } from '@/modules/features/HeadMode';
+import { TaskLink } from '@/modules/entities/EventTask/ui/TaskLink';
 import { EventListActions } from './EventListActions';
 
 interface EventListRowProps {
@@ -52,6 +53,8 @@ export const EventListRow: FC<EventListRowProps> = ({
                 )}
                 {/* Режим руководителя: дело сотрудника подписано его именем. */}
                 <TaskOwnerChip task={task} className="mt-0.5 flex" />
+                {/* Сама задача Битрикса — даже если в сделке её не видно. */}
+                <TaskLink task={task} className="mt-1 flex w-fit" />
             </TableCell>
             <TableCell>
                 <EventTypeBadge

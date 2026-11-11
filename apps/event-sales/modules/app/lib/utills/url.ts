@@ -6,6 +6,7 @@ export {
     getCrmPath,
     getCrmUrl,
     getSafeExternalUrl,
+    getTaskPath,
     getTaskUrl,
     type CrmEntityKind,
 } from '@workspace/bitrix';

@@ -59,6 +59,7 @@ export const getKonstructor = () => {
         });
     };
     /**
+     * Нужен Bearer сессии портала (POST auth/portal-session), домен сессии должен совпадать с domain тела.
      * @summary Инициализационные данные для констркутора
      */
     const konstructorInitInit = (getInitDataDto: GetInitDataDto) => {

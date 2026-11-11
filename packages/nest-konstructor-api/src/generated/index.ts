@@ -41,6 +41,7 @@ export * from './offer-template-font/offer-template-font';
 export * from './offer-template-page-sticker/offer-template-page-sticker';
 export * from './offer-template-portals/offer-template-portals';
 export * from './portal-konstructor/portal-konstructor';
+export * from './portal-session/portal-session';
 export * from './rq/rq';
 export * from './supply-report-templates/supply-report-templates';
 export * from './telegram/telegram';

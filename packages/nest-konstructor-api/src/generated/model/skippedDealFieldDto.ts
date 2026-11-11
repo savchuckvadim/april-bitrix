@@ -12,4 +12,6 @@ export interface SkippedDealFieldDto {
     code: string;
     /** Причина */
     reason: SkippedDealFieldDtoReason;
+    /** Название поля: из схемы портала, иначе из канона, иначе код */
+    title: string;
 }

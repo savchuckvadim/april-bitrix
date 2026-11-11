@@ -126,7 +126,8 @@ describe('строки и сеты', () => {
         expect(sets.general[0]!.rows.garant).toHaveLength(2);
         expect(sets.general[0]!.total).toHaveLength(1);
         expect(sets.general[0]!.show).toBe(false);
-        expect(sets.general[0]!.rows.garant[1]!.product.supplyNumber).toBe(4);
+        // ключи rows в DTO необязательны (в сете может не быть типа продукта)
+        expect(sets.general[0]!.rows.garant![1]!.product.supplyNumber).toBe(4);
         expect(sets.alternative).toEqual([]);
     });
 });

@@ -26,7 +26,7 @@ export interface ContractDto {
     bitrixName: string;
     /** Discount of the contract */
     discount: number;
-    /** Item ID of the contract */
+    /** ID пункта списка «Тип договора» сделки в Битриксе портала (bitrixfield_items.bitrixId) */
     itemId: number;
     /** Prepayment of the contract */
     prepayment: number;

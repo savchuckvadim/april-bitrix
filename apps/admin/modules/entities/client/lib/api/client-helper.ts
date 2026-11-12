@@ -1,4 +1,5 @@
-import { AdminClientGetAllClientsParams, ClientResponseDto, ClientWithRelationsResponseDto, CreateClientDto, UpdateClientDto, getAdminClientManagement } from "@workspace/nest-admin-api";
+import { AdminClientGetAllClientsParams, ClientResponseDto, ClientWithRelationsResponseDto, CreateClientDto, UpdateClientDto, customAxios, getAdminClientManagement } from "@workspace/nest-admin-api";
+import type { ClientOverview } from "../../model/overview";
 
 export class ClientHelper {
     private api: ReturnType<typeof getAdminClientManagement>;
@@ -24,6 +25,14 @@ export class ClientHelper {
     async deleteClient(id: number) {
         const response = await this.api.adminClientDeleteClient(id);
         return response;
+    }
+
+    /** Сводка организации: порталы, владельцы, люди (бэк: @lib/cabinet). */
+    getOverview(id: number): Promise<ClientOverview> {
+        return customAxios<ClientOverview>({
+            url: `/api/admin/cabinet/clients/${id}`,
+            method: "GET",
+        });
     }
 
     async getClientById(id: number) {

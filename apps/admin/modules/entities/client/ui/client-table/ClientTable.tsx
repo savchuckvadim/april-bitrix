@@ -1,95 +1,87 @@
 'use client';
 
-import * as React from 'react';
 import { ClientResponseDto } from '@workspace/nest-admin-api';
-import { DataTable, Column } from '@/modules/shared/ui/data-table';
 import { Button } from '@workspace/ui/components/button';
+import { DataTable, Column } from '@/modules/shared/ui/data-table';
 
 interface ClientTableProps {
     data: ClientResponseDto[];
+    /** Домены порталов по id клиента. */
+    portalsByClient: ReadonlyMap<number, string[]>;
     isLoading?: boolean;
     onRowClick?: (item: ClientResponseDto) => void;
     onEdit?: (item: ClientResponseDto) => void;
-    onDelete?: (item: ClientResponseDto) => void;
 }
 
-export function ClientTable({
-    data,
-    isLoading,
-    onRowClick,
-    onEdit,
-    onDelete,
-}: ClientTableProps) {
+const formatDate = (value: string | null | undefined): string =>
+    value ? new Date(value).toLocaleDateString('ru-RU') : '—';
+
+/**
+ * Клиенты (организации): название, email, порталы, статус. Удаления нет:
+ * у порталов клиента в БД каскадное удаление.
+ */
+export function ClientTable({ data, portalsByClient, isLoading, onRowClick, onEdit }: ClientTableProps) {
     const columns: Column<ClientResponseDto>[] = [
         {
-            id: 'id',
-            header: 'ID',
-            accessorKey: 'id',
-            className: 'w-20',
-        },
-        {
             id: 'name',
-            header: 'name',
-            accessorKey: 'name',
-            className: 'w-20',
+            header: 'Организация',
+            cell: row => (
+                <div>
+                    <div className="font-medium">{row.name}</div>
+                    <div className="text-xs text-muted-foreground">#{row.id}</div>
+                </div>
+            ),
         },
         {
             id: 'email',
-            header: 'email',
-            accessorKey: 'email',
-            className: 'w-20',
+            header: 'Email',
+            cell: row => row.email ?? <span className="text-muted-foreground">—</span>,
         },
         {
-            id: 'is_active',
-            header: 'is_active',
-            accessorKey: 'is_active',
-            className: 'w-20',
+            id: 'portals',
+            header: 'Порталы',
+            cell: row => {
+                const domains = portalsByClient.get(Number(row.id)) ?? [];
+                return domains.length ? (
+                    <div className="space-y-0.5 text-sm">
+                        {domains.map(domain => (
+                            <div key={domain}>{domain}</div>
+                        ))}
+                    </div>
+                ) : (
+                    <span className="text-sm text-warning">нет портала</span>
+                );
+            },
+        },
+        {
+            id: 'status',
+            header: 'Статус',
+            cell: row => (row.is_active === false ? 'отключён' : (row.status ?? 'действует')),
+            className: 'w-32',
         },
         {
             id: 'created_at',
-            header: 'created_at',
-            accessorKey: 'created_at',
-            className: 'w-20',
+            header: 'Заведён',
+            cell: row => formatDate(row.created_at as string | null | undefined),
+            className: 'w-28',
         },
-        {
-            id: 'updated_at',
-            header: 'updated_at',
-            accessorKey: 'updated_at',
-            className: 'w-20',
-        },
-        // TODO: Добавьте колонки на основе полей ClientResponseDto
         {
             id: 'actions',
-            header: 'Действия',
-            cell: (row) => (
-                <div className="flex gap-2">
-                    {onEdit && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onEdit(row);
-                            }}
-                        >
-                            Изменить
-                        </Button>
-                    )}
-                    {onDelete && (
-                        <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete(row);
-                            }}
-                        >
-                            Удалить
-                        </Button>
-                    )}
-                </div>
-            ),
-            className: 'w-48',
+            header: '',
+            cell: row =>
+                onEdit ? (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={event => {
+                            event.stopPropagation();
+                            onEdit(row);
+                        }}
+                    >
+                        Изменить
+                    </Button>
+                ) : null,
+            className: 'w-28',
         },
     ];
 
@@ -98,7 +90,7 @@ export function ClientTable({
             data={data}
             columns={columns}
             isLoading={isLoading}
-            emptyMessage="clients не найдены"
+            emptyMessage="Клиентов пока нет"
             onRowClick={onRowClick}
         />
     );

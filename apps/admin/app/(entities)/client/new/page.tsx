@@ -1,39 +1,26 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ClientForm } from '@/modules/entities/client/';
-import { useCreateClient } from '@/modules/entities/client/';
 import { CreateClientDto, UpdateClientDto } from '@workspace/nest-admin-api';
-import { Button } from '@workspace/ui';
+import { ClientForm, useCreateClient } from '@/modules/entities/client';
 
+/** Новый клиент → сразу на его страницу: там привязка портала и «Что сделать». */
 export default function NewClientPage() {
     const router = useRouter();
     const createClient = useCreateClient();
-    const handleBack = () => router.back()
+
     const handleSubmit = (data: CreateClientDto | UpdateClientDto) => {
         createClient.mutate(data as CreateClientDto, {
-            onSuccess: () => {
-                router.push('/client');
-            },
+            onSuccess: created => router.push(`/client/${created.id}`),
         });
     };
 
-    const handleCancel = () => {
-        router.push('/client');
-    };
-
     return (
-        <div className="container mx-auto py-8 max-w-2xl">
-            <div className="mb-4 flex flex-row justify-between">
-                <h1 className="text-2xl font-bold">Создание клиента</h1>
-                <Button variant="outline" onClick={handleBack}>
-                    Назад
-                </Button>
-            </div>
+        <div className="max-w-2xl">
             <ClientForm
                 mode="create"
-                onSubmit={(data: CreateClientDto | UpdateClientDto) => handleSubmit(data as CreateClientDto)}
-                onCancel={handleCancel}
+                onSubmit={handleSubmit}
+                onCancel={() => router.push('/client')}
                 isLoading={createClient.isPending}
             />
         </div>

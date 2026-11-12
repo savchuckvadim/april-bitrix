@@ -5,3 +5,10 @@ export type {
     UpdateClientDto,
     AdminClientGetAllClientsParams
 } from '@workspace/nest-admin-api';
+export type {
+    ClientOverview,
+    ClientOverviewOwner,
+    ClientOverviewPerson,
+    ClientOverviewPersonPortal,
+    ClientOverviewPortal,
+} from './overview';

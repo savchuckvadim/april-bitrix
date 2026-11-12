@@ -10,15 +10,16 @@ import { useApp } from '../lib/hooks/app';
 import { useAppSelector } from '../lib/hooks/redux';
 import { useUiDensity } from '../lib/hooks/use-ui-density';
 import { APP_SCROLL_CONTAINER_ID } from '../consts/app-scroll';
+import { AppFrame } from './AppFrame';
 import { AppGuardScreen } from './AppGuardScreen';
 import { store } from '../model/store';
 
 export const App = ({ children }: { children: React.ReactNode }) => {
     const { initialized, isLoading, isClient } = useApp();
     const guard = useAppSelector(s => s.app.guard);
-    // В самоподгоняемых встройках (DETAIL_TAB/TASK) экран течёт по контенту —
-    // каркас не нужен; в остальных он держит общую шапку над скроллом.
-    const { isSelfSized } = useUiDensity();
+    // Вкладка задачи течёт по контенту; остальные — каркас на высоту фрейма
+    // (во вкладке карточки — со скруглённой рамкой, как в конструкторе).
+    const { isSelfSized, isTight } = useUiDensity();
 
     const [isMounted, setIsMounted] = useState(false);
 
@@ -46,11 +47,11 @@ export const App = ({ children }: { children: React.ReactNode }) => {
      *
      * Общая клиентская шапка (EntityHeader) стоит НАД роут-слотом: переходы
      * список ↔ дело меняют только содержимое ниже, шапка не пересоздаётся.
-     * В не-самоподгоняемых встройках каркас flex h-svh: шапка закреплена,
-     * скроллится только контент под ней (страничного скролла нет).
+     * В не-самоподгоняемых встройках каркас на высоту фрейма: шапка
+     * закреплена, скроллится только контент под ней.
      */
     return (
-        <div className={cn(!isSelfSized && 'flex h-svh flex-col')}>
+        <AppFrame selfSized={isSelfSized} framed={isTight}>
             <BootPreloaderGate ready={isReady} />
             {/* Реинициализация ПОСЛЕ первого старта (кнопка ⟳ и любые
                 будущие reloadApp): boot-прелоадер уже удалён из DOM, гасить
@@ -87,7 +88,7 @@ export const App = ({ children }: { children: React.ReactNode }) => {
                     </>
                 )
             ) : null}
-        </div>
+        </AppFrame>
     );
 };
 

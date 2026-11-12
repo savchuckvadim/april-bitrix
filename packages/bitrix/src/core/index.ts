@@ -6,6 +6,7 @@ export * from './base/bitrix-call-observer';
 export * from './base/bitrix-server-mode';
 export * from './lib/batch-result.util';
 export * from './lib/portal-url.util';
+export * from './lib/small-frame.util';
 
 // export * from './domain/consts/bitrix-api.enum';
 // export * from './domain/consts/bitrix-entities.enum';

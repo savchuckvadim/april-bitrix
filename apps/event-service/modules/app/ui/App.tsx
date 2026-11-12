@@ -12,11 +12,15 @@ import { APP_TITLE } from '../consts/app';
 import { useApp } from '../lib/hooks/app';
 import { store } from '../model/store';
 import { DealMiniHeader } from '@/modules/entities/EventDeal';
+import { useSmallFrame } from '../lib/hooks/use-small-frame';
+import { AppFrame } from './AppFrame';
 // import { Preloader } from "@workspace/ui";
 //@ts-ignore
 
 export const App = ({ children }: { children: React.ReactNode }) => {
     const { initialized, isLoading, isClient } = useApp();
+    // вкладка карточки: фрейм с окно браузера, рамка, свой скролл
+    const isSmall = useSmallFrame();
 
     const [isMounted, setIsMounted] = useState(false);
 
@@ -34,17 +38,11 @@ export const App = ({ children }: { children: React.ReactNode }) => {
             }
         }
     }, [isMounted]);
+    const isReady = isClient && initialized && !isLoading;
     return (
-        <div className="h-calc(100vh - 300px)">
-            {isClient && initialized && !isLoading ? (
-                <>
-                    <DealMiniHeader />
-                    {children}
-                </>
-            ) : (
-                <LoadingScreen />
-            )}
-        </div>
+        <AppFrame framed={isSmall} header={isReady ? <DealMiniHeader /> : null}>
+            {isReady ? children : <LoadingScreen />}
+        </AppFrame>
     );
 };
 

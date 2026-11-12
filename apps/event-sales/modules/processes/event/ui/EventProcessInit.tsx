@@ -12,6 +12,7 @@ import { cancelQuickOutcome } from '@/modules/widgets/QuickOutcome/model/QuickOu
 import { initialEventApp } from '../model/EventThunk';
 import { useEventNavigation } from '../lib/use-event-navigation';
 import { useFitWindow } from '../lib/hooks/use-fit-window';
+import { useSmallFrameFit } from '../lib/hooks/use-small-frame-fit';
 import { EVENT_ROUTE_PATH } from '../lib/event-routes';
 import {
     shouldLeaveQuickOutcome,
@@ -35,8 +36,9 @@ export const EventProcessInit = () => {
     const isQuickOutcome = useAppSelector(s => s.quickOutcome.kind !== null);
     const placement = useAppSelector(s => s.app.bitrix.placement);
 
-    // Подгонка высоты фрейма на каждой странице — только для вкладок карточки.
+    // Высота фрейма: вкладка задачи — под контент, вкладка карточки — с окно.
     useFitWindow();
+    useSmallFrameFit();
 
     const didInit = useRef(false);
     useEffect(() => {

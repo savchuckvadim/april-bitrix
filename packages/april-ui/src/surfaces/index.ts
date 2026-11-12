@@ -1,3 +1,6 @@
+export { HostFrame } from './HostFrame/HostFrame';
+export type { HostFrameProps } from './HostFrame/HostFrame';
+
 export { SectionCard } from './SectionCard/SectionCard';
 export type { SectionCardProps } from './SectionCard/SectionCard';
 

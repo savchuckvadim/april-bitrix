@@ -1,15 +1,12 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { cn } from '@workspace/ui/lib/utils';
+import { HostFrame } from '@workspace/april-ui/surfaces';
 
 export interface ShellFrameProps {
     header: ReactNode;
     children: ReactNode;
-    /**
-     * Вкладка карточки CRM: приложение карточкой со скруглёнными углами на
-     * фоне карточки Битрикса — в любой теме, без острых углов фрейма.
-     */
+    /** Вкладка карточки CRM: скруглённые углы на фоне карточки Битрикса. */
     framed?: boolean;
 }
 
@@ -19,17 +16,10 @@ export interface ShellFrameProps {
  * содержимое перерастает высоту окна.
  */
 export const ShellFrame = ({ header, children, framed = false }: ShellFrameProps) => (
-    <div className={cn('h-svh', framed && 'bg-air-host-background')}>
-        <div
-            className={cn(
-                'flex h-full flex-col bg-background',
-                framed && 'overflow-hidden rounded-xl border border-border/60',
-            )}
-        >
-            {header}
-            <main className="flex min-h-0 flex-1 flex-col overflow-y-auto [scrollbar-gutter:stable]">
-                {children}
-            </main>
-        </div>
-    </div>
+    <HostFrame framed={framed} className="flex flex-col">
+        {header}
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto [scrollbar-gutter:stable]">
+            {children}
+        </main>
+    </HostFrame>
 );

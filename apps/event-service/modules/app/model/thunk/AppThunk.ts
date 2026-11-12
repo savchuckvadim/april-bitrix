@@ -9,7 +9,7 @@ import { getDisplayMode, getEntitiesFromPlacement } from '../../lib/utills/place
 import { initAppEntities, initAppTask } from '../../lib/utills/app-setup-util';
 import { portalAPI } from '@workspace/pbx';
 import type { AppDispatch, AppGetState } from '../store';
-import { Bitrix } from '@workspace/bitrix';
+import { Bitrix, isDetailTabPlacement } from '@workspace/bitrix';
 import { BXTask, BXUser, Placement } from '@workspace/bx';
 import { setDepartmentMode, getDepartment } from '@/modules/features/Departament/model/DepartmentThunk';
 
@@ -22,7 +22,10 @@ export const initial = () => async (dispatch: AppDispatch, getState: AppGetState
     try {
         // Boot the Bitrix SDK (domain/user/placement) — non-frame envs fall back to testing data.
         const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
-        await bitrix.api.getFit();
+        // во вкладке карточки высоту держит useSmallFrame (с окно браузера)
+        if (!isDetailTabPlacement(bitrix.api.getPlacement()?.placement)) {
+            await bitrix.api.getFit();
+        }
 
         const auth = bitrix.api.getInitializedData();
         const domain = auth.domain || TESTING_DOMAIN;

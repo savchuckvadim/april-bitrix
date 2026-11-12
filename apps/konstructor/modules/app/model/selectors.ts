@@ -18,7 +18,6 @@ export const selectAppPlacement = (state: RootState) => state.app.placement;
  * под окно, шапка показывает только второго участника, углы скруглены.
  */
 export const selectIsSmallDisplay = (state: RootState): boolean =>
-    isSmallDisplayPlacement(state.app.placement?.code);
-
-export const isSmallDisplayPlacement = (code: string | null | undefined): boolean =>
-    Boolean(code?.endsWith('_DETAIL_TAB'));
+    // та же проверка, что isDetailTabPlacement в @workspace/bitrix: селекторы
+    // читает публичная версия, Битрикс ей не нужен (сторож no-bitrix)
+    Boolean(state.app.placement?.code.endsWith('_DETAIL_TAB'));

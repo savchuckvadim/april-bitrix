@@ -10,6 +10,7 @@ import { IBXTask } from '@workspace/bitrix/src/domain/interfaces/bitrix.interfac
 import {
     Bitrix,
     flattenBatchResults,
+    isDetailTabPlacement,
     type BitrixService,
 } from '@workspace/bitrix';
 import { APP_FROM_ENUM } from '../../model/slice/AppSlice';
@@ -35,28 +36,24 @@ export const getDisplayMode = (
 };
 
 /**
- * Подгонять ли высоту фрейма под контент (`BX24.fitWindow`).
+ * Встройки, где высоту блока задаём МЫ — подгонкой под контент
+ * (`BX24.fitWindow`): вкладка задачи. Приложению дан блок внутри чужой
+ * страницы, и его высоту нужно сообщить наружу, иначе получается скролл
+ * внутри скролла.
  *
- * Только вкладки карточки (`*_DETAIL_TAB`): там приложение живёт в блоке
- * фиксированной высоты и без подгонки получает скролл внутри скролла.
+ * Вкладка карточки CRM (`*_DETAIL_TAB`) с 12.11 устроена как в конструкторе:
+ * фрейм высотой с окно браузера, скролл внутри приложения, скруглённая рамка
+ * (`isSmallFramePlacement`, `useSmallFrameFit`).
  *
- * Встройка таймлайна (`*_DETAIL_ACTIVITY`) сюда НЕ попадает — и это главное:
- * там приложение занимает экран целиком, а fitWindow схлопнул бы его до
- * высоты контента. Проверяем именно `DETAIL_TAB`, а не «DETAIL и не ACTIVITY»:
- * так правило читается однозначно и не сломается о новую встройку с DETAIL
- * в названии.
+ * `*_DETAIL_ACTIVITY` не входит ни туда, ни туда: там приложение занимает
+ * экран целиком, и любая подгонка схлопнула бы его.
  */
-/**
- * Встройки, где высоту блока задаём МЫ — подгонкой под контент.
- *
- * Вкладка карточки CRM и вкладка задачи устроены одинаково: приложению дан
- * блок внутри чужой страницы, и его высоту нужно сообщить наружу, иначе
- * получается скролл внутри скролла.
- *
- * `*_DETAIL_ACTIVITY` сюда НЕ входит: там приложение занимает экран целиком,
- * и подгонка схлопнула бы его до высоты контента.
- */
-const SELF_SIZED_PLACEMENTS = ['DETAIL_TAB', 'TASK'] as const;
+const SELF_SIZED_PLACEMENTS = ['TASK'] as const;
+
+/** Вкладка карточки CRM: фрейм с окно браузера и скруглённая рамка. */
+export const isSmallFramePlacement = (
+    placement: Placement | PlacementCallCard | null | undefined,
+): boolean => isDetailTabPlacement(placement?.placement);
 
 export const shouldFitWindow = (
     placement: Placement | PlacementCallCard | null | undefined,

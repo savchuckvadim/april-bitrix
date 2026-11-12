@@ -1,13 +1,16 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Bitrix } from '@workspace/bitrix';
+import { Bitrix, isDetailTabPlacement } from '@workspace/bitrix';
 import { useAppDispatch, useAppSelector } from './redux';
 import { initial, reloadApp } from '../../model/thunk/AppThunk';
 
 // Resize the Bitrix placement iframe to fit content (no-op outside a Bitrix frame).
+// Во вкладке карточки высоту держит useSmallFrame (с окно браузера) — под контент не тянем.
 const fitApp = async () => {
     try {
-        await Bitrix.getService()?.api.getFit();
+        const api = Bitrix.getService()?.api;
+        if (isDetailTabPlacement(api?.getPlacement()?.placement)) return;
+        await api?.getFit();
     } catch {
         /* not in a Bitrix frame */
     }

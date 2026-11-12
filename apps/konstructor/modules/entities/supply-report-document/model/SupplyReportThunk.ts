@@ -9,7 +9,6 @@ import {
     buildSupplyFormRequest,
     buildSupplyReportGenerateRequest,
     supplyReportBlocker,
-    supplyReportValidationErrors,
 } from '../lib/build-supply-report-request';
 import { fileToBase64, toSupplyContact } from '../lib/supply-contacts.util';
 import { withSelectDefaults } from '../lib/supply-form.util';
@@ -21,6 +20,13 @@ const helper = new SupplyReportHelper();
 
 const errorText = (error: unknown, fallback: string): string =>
     error instanceof Error ? error.message : fallback;
+
+/**
+ * Главную строку не разобрать по каталогу. «Договор» здесь — вид договора
+ * строки (Интернет, Абонемент…), а не созданный ранее документ договора.
+ */
+const SUPPLY_REPORT_NO_CONTENT =
+    'Главная строка не собрана: проверьте её состав, вид договора и поставку.';
 
 /**
  * Вход на экран отчёта: поля сделки по pbx-кодам, спецификация (её читает
@@ -118,7 +124,7 @@ export const pickSupplyFile =
     };
 
 /**
- * «Сформировать отчёт»: проверки → слепок → generate-document → при включённом
+ * «Сформировать отчёт»: блокер → слепок → generate-document → при включённом
  * процессе init-supply (заявка RPA, файлы, таймлайн по участникам).
  */
 export const generateSupplyReport = (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
@@ -128,14 +134,13 @@ export const generateSupplyReport = (): AppThunk<Promise<boolean>> => async (dis
         dispatch(supplyReportActions.generateFailed(blocker));
         return false;
     }
-    const errors = supplyReportValidationErrors(state);
-    if (errors.length) {
-        dispatch(supplyReportActions.generateFailed(`Не заполнено: ${errors.join('; ')}`));
-        return false;
-    }
+    // Незаполненное не блокирует (как у договора): пустые места отчёта бэк
+    // заполняет прочерками, список недостающего виден под кнопкой. Ни реквизит
+    // клиента, ни ранее созданный договор не нужны; null здесь — только если
+    // главную строку не разобрать по каталогу.
     const request = buildSupplyReportGenerateRequest(state);
     if (!request) {
-        dispatch(supplyReportActions.generateFailed('Нет договора или поставки главной строки'));
+        dispatch(supplyReportActions.generateFailed(SUPPLY_REPORT_NO_CONTENT));
         return false;
     }
     dispatch(supplyReportActions.generateStarted());
@@ -150,10 +155,12 @@ export const generateSupplyReport = (): AppThunk<Promise<boolean>> => async (dis
                 base64: file.base64,
             }));
             const initRequest = buildInitSupplyRequest(getState(), result.file, files);
-            if (initRequest) {
-                const response = await helper.initSupply(initRequest);
-                rpaId = response.id_rpa;
+            // раньше шаг молча пропускался: галка стоит, заявки нет, менеджер не знает
+            if (!initRequest) {
+                throw new Error(`Отчёт сформирован, но процесс поставки не запущен. ${SUPPLY_REPORT_NO_CONTENT}`);
             }
+            const response = await helper.initSupply(initRequest);
+            rpaId = response.id_rpa;
         }
         dispatch(supplyReportActions.generateDone({ link: result.link, rpaId }));
         return true;

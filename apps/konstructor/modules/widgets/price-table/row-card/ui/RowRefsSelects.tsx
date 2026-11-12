@@ -16,6 +16,8 @@ interface RowRefsSelectsProps {
     allComplects: KComplect[];
     availableSupplies: KSupply[];
     availableContracts: KContract[];
+    /** Комплект основного набора: выбран на шаге «Комплект», селекта нет */
+    complectLocked: boolean;
     disabled: boolean;
     onChange: (
         next: Partial<{
@@ -33,20 +35,23 @@ export const RowRefsSelects = ({
     allComplects,
     availableSupplies,
     availableContracts,
+    complectLocked,
     disabled,
     onChange,
 }: RowRefsSelectsProps) => (
     <div className="flex flex-wrap gap-2">
-        <MicroSelect
-            ariaLabel="Комплект"
-            value={row.refs.complectCode ?? ''}
-            disabled={disabled}
-            options={allComplects.map(complect => ({
-                value: complect.code,
-                label: complect.title,
-            }))}
-            onChange={complectCode => onChange({ complectCode })}
-        />
+        {complectLocked ? null : (
+            <MicroSelect
+                ariaLabel="Комплект"
+                value={row.refs.complectCode ?? ''}
+                disabled={disabled}
+                options={allComplects.map(complect => ({
+                    value: complect.code,
+                    label: complect.title,
+                }))}
+                onChange={complectCode => onChange({ complectCode })}
+            />
+        )}
         <OdSelect
             variant="micro"
             catalog={catalog}

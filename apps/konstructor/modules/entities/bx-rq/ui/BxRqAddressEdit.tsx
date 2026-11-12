@@ -35,7 +35,7 @@ export const BxRqAddressEdit = () => {
                     item.type_id === BX_ADDRESS_TYPE.REGISTERED
                         ? address.registredPercent
                         : address.primaryPercent;
-                const title = addressTitle(item.type_id, clientType);
+                const title = addressTitle(item.type_id);
                 return (
                     <Card key={item.type_id}>
                         <CardHeader>
@@ -55,7 +55,7 @@ export const BxRqAddressEdit = () => {
                                             size="sm"
                                             onClick={() => address.initCopyAddressCreating(item.type_id)}
                                             disabled={address.isCreatingLoading}
-                                            title={`Скопировать из «${addressTitle(copySourceOf(item.type_id), clientType)}»`}
+                                            title={`Скопировать из «${addressTitle(copySourceOf(item.type_id))}»`}
                                         >
                                             <Copy className="h-4 w-4" />
                                         </Button>
@@ -89,7 +89,7 @@ export const BxRqAddressEdit = () => {
 
             {address.creating ? (
                 <BxRqEditModal
-                    title={`Редактирование: ${addressTitle(address.creating.type_id, clientType)}`}
+                    title={`Редактирование: ${addressTitle(address.creating.type_id)}`}
                     fields={address.creating.fields}
                     isOpen
                     isLoading={address.isCreatingLoading}

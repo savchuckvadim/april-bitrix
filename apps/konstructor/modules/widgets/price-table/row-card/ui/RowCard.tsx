@@ -76,6 +76,7 @@ export const RowCard = ({ row, collapsed }: RowCardProps) => {
                     allComplects={card.allComplects}
                     availableSupplies={card.availableSupplies}
                     availableContracts={card.availableContracts}
+                    complectLocked={card.complectLocked}
                     canEdit={card.canEditRefs}
                     onChange={card.changeRefs}
                 />

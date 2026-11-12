@@ -19,6 +19,8 @@ interface RowRefsLineProps {
     availableSupplies: KSupply[];
     availableContracts: KContract[];
     canEdit: boolean;
+    /** Комплект основного набора: выбран на шаге «Комплект», здесь не меняется */
+    complectLocked: boolean;
     onChange: (
         next: Partial<{
             complectCode: string;
@@ -41,6 +43,7 @@ export const RowRefsLine = ({
     availableSupplies,
     availableContracts,
     canEdit,
+    complectLocked,
     onChange,
 }: RowRefsLineProps) => {
     const [editing, setEditing] = useState(false);
@@ -56,6 +59,7 @@ export const RowRefsLine = ({
                     allComplects={allComplects}
                     availableSupplies={availableSupplies}
                     availableContracts={availableContracts}
+                    complectLocked={complectLocked}
                     disabled={false}
                     onChange={onChange}
                 />

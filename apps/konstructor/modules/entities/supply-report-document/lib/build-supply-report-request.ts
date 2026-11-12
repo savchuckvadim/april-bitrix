@@ -5,6 +5,7 @@ import {
     SUPPLY_REPORT_DEAL_FIELDS,
     buildDocRegions,
     contractRequestBlocker,
+    emptyContractBxRq,
     missingDealFields,
     missingRequisites,
     toContractBxRq,
@@ -118,7 +119,11 @@ const companyItemsOf = (state: RootState) =>
 const supplyItemsOf = (state: RootState, scope: SupplyFormScope) =>
     visibleSupplyItems(state.supplyReport.items, scope);
 
-/** Запрос `document-supply-report/generate-document`; блокер или нет сборки — null. */
+/**
+ * Запрос `document-supply-report/generate-document`; блокер или нет сборки — null.
+ * Реквизит клиента и ранее созданный договор не нужны: без реквизита бэк
+ * печатает прочерки (как у договора, решение владельца 05.11 и 12.11.2026).
+ */
 export const buildSupplyReportGenerateRequest = (state: RootState): SupplyReportGenerateRequest | null => {
     if (supplyReportBlocker(state)) return null;
     const content = reportBody(state);
@@ -126,7 +131,7 @@ export const buildSupplyReportGenerateRequest = (state: RootState): SupplyReport
     const { domain, dealId, bitrix } = state.app;
     const provider = state.documentProvider.current;
     const rq = state.bxrq.current.item;
-    if (!content || !scope || !dealId || !provider || !rq) return null;
+    if (!content || !scope || !dealId || !provider) return null;
     const { body, catalog, composition, supply, region } = content;
     const clientType = clientTypeOf(state);
 
@@ -158,7 +163,7 @@ export const buildSupplyReportGenerateRequest = (state: RootState): SupplyReport
         garantClientEmail: state.contractDocument.dealFields['garant_client_email'] ?? '',
         firstPayDate: state.contractDocument.dealFields['first_pay_date'] ?? '',
         clientType,
-        bxrq: toContractBxRq(rq),
+        bxrq: rq ? toContractBxRq(rq) : emptyContractBxRq(),
         contractSpecificationState: { items: state.contractDocument.specification },
         bxCompanyItems: companyItemsOf(state),
         bxContacts: state.supplyReport.contacts.map(toReportContact),
@@ -182,7 +187,7 @@ export const buildInitSupplyRequest = (
     const { domain, dealId, bitrix } = state.app;
     const provider = state.documentProvider.current;
     const rq = state.bxrq.current.item;
-    if (!content || !scope || !dealId || !provider || !rq) return null;
+    if (!content || !scope || !dealId || !provider) return null;
     const { body, catalog, composition, region } = content;
     const clientType = clientTypeOf(state);
     const variantState = selectComplectVariantState(state);
@@ -214,7 +219,7 @@ export const buildInitSupplyRequest = (
         contractType: body.contractType,
         regions: buildDocRegions(catalog, composition),
         region,
-        bxrq: toContractBxRq(rq),
+        bxrq: rq ? toContractBxRq(rq) : emptyContractBxRq(),
         clientType: { code: clientType, name: CLIENT_TYPE_NAME[clientType] ?? clientType },
         contractSpecificationState: { items: state.contractDocument.specification },
         supplyReport: supplyItemsOf(state, scope),

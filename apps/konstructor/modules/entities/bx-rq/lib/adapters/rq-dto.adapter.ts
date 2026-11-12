@@ -117,9 +117,7 @@ export const toFieldDto = (field: RqItem): RqFieldDto => ({
 });
 
 const toAddressType = (value: number): BX_ADDRESS_TYPE =>
-    value === BX_ADDRESS_TYPE.REGISTERED || value === BX_ADDRESS_TYPE.REGISTERED_FIZ
-        ? value
-        : BX_ADDRESS_TYPE.PRIMARY;
+    value === BX_ADDRESS_TYPE.REGISTERED ? value : BX_ADDRESS_TYPE.PRIMARY;
 
 export const fromAddressItemDto = (dto: RqAddressItemDto): AddressRqItem => ({
     anchor_id: dto.anchor_id,

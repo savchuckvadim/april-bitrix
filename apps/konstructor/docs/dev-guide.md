@@ -273,8 +273,9 @@ s.snapshot
 - Фронт: `selectVisibleSpecification` (сразу видно) и `selectSpecificationDetails` (активные скрытые);
   разделы и пакеты LT — `features/contract-form/lib/specification-sections.util.ts`, UI —
   `SpecificationDetails` (Collapsible) и `SpecificationLtPackets`.
-- Адрес клиента в договоре — только юридический (type_id 6), у физлица это прописка; `addressTitle` в
-  `entities/bx-rq/lib/address-util.ts` подписывает его на экране.
+- Адрес клиента в договоре — только юридический (type_id 6), у физлица тоже. Подпись на экране —
+  «Юридический адрес» для всех типов клиента (`addressTitle` в `entities/bx-rq/lib/address-util.ts`);
+  «Адрес прописки» (тип 4) не используется и не проверяется — решение владельца 12.11.2026.
 
 ## Экран КП: превью, поля, падежи (06.11.2026)
 

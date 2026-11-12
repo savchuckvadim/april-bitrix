@@ -21,4 +21,4 @@ export {
 export { buildContractLt } from './lib/contract-lt.util';
 export { buildDocRegions } from './lib/doc-regions.util';
 export { missingDealFields, missingRequisites, toBitrixDate } from './lib/contract-validation';
-export { toContractBxRq } from './lib/to-contract-bx-rq.util';
+export { emptyContractBxRq, toContractBxRq } from './lib/to-contract-bx-rq.util';

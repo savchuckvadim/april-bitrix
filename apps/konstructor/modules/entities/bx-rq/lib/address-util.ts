@@ -1,7 +1,5 @@
 import {
     addressMap,
-    BX_ADDRESS_TYPE,
-    RQ_TYPE,
     type AddressDetails,
     type AddressRqItem,
     type AddressTypeId,
@@ -11,17 +9,11 @@ export const getAddressDetails = (typeId: AddressTypeId): AddressDetails =>
     addressMap[typeId];
 
 /**
- * Подпись адреса. В конструкторе только юридический и фактический
- * (договорённость с владельцем): у физлица юридический — это адрес прописки,
- * фактический — место оказания услуг в части договоров.
+ * Подпись адреса. В конструкторе только юридический и фактический, у физлица
+ * тоже (решение владельца 12.11.2026; прежняя подпись «Адрес прописки» для
+ * юридического адреса физлица снята).
  */
-export const addressTitle = (
-    typeId: AddressTypeId,
-    clientType: RQ_TYPE | null | undefined,
-): string =>
-    typeId === BX_ADDRESS_TYPE.REGISTERED && clientType === RQ_TYPE.FIZ
-        ? 'Адрес прописки'
-        : addressMap[typeId].name_type;
+export const addressTitle = (typeId: AddressTypeId): string => addressMap[typeId].name_type;
 
 export const getFullAddressString = (address: AddressRqItem): string =>
     address.fields

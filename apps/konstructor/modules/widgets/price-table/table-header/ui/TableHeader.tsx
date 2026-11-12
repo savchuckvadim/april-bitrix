@@ -16,8 +16,9 @@ export interface TableHeaderSlots {
 }
 
 /**
- * Шапка таблицы (легаси Total.jsx): имя текущего комплекта + селекты
- * главной строки (комплект / ОД / договор) и регион. То, что связано со сделкой,
+ * Шапка таблицы (легаси Total.jsx): текущий комплект и регион — текстом (их
+ * выбирают на шагах «Параметры» и «Комплект»), селекты ОД и договора главной
+ * строки. То, что связано со сделкой,
  * приходит слотами: публичная версия о сделке не знает.
  * Селекты — чипы дизайн-системы: значения меняют редко.
  */
@@ -31,25 +32,16 @@ export const TableHeader = ({ lead, fields, actions }: TableHeaderSlots) => {
                     Текущий комплект
                 </span>
                 <CurrentComplectName complect={header.mainComplect} />
+                {header.regionTitle ? (
+                    <span className="text-xs text-muted-foreground">
+                        {header.regionTitle}
+                    </span>
+                ) : null}
             </div>
             {lead}
 
             {header.mainRow ? (
                 <>
-                    <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                        Комплект
-                        <ChipSelect
-                            ariaLabel="Комплект"
-                            value={header.mainRow.refs.complectCode ?? ''}
-                            options={header.allComplects.map(complect => ({
-                                code: complect.code,
-                                name: complect.title,
-                            }))}
-                            onChange={complectCode =>
-                                header.changeMainRefs({ complectCode })
-                            }
-                        />
-                    </label>
                     <label className="flex flex-col gap-1 text-xs text-muted-foreground">
                         Кол-во доступов (ОД)
                         <OdSelect
@@ -77,19 +69,6 @@ export const TableHeader = ({ lead, fields, actions }: TableHeaderSlots) => {
                     </label>
                 </>
             ) : null}
-
-            <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                Регион
-                <ChipSelect
-                    ariaLabel="Регион"
-                    value={header.context.regionCode ?? ''}
-                    options={header.regions.map(region => ({
-                        code: region.code,
-                        name: region.title,
-                    }))}
-                    onChange={header.setRegion}
-                />
-            </label>
 
             {fields}
             {actions}

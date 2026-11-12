@@ -86,11 +86,15 @@ export enum BANK_RQ_ITEM_CODE {
     BANK_ADDRESS = 'bank_address',
 }
 
-/** Типы адресов Bitrix (crm.address): id одинаковы на всех порталах. */
+/**
+ * Типы адресов Bitrix (crm.address): id одинаковы на всех порталах.
+ * Конструктор работает только с фактическим и юридическим, в том числе у
+ * физлица; адрес прописки (тип 4) не используется и не проверяется — модуль
+ * реквизитов бэка (rq-lib, REQUIRED_ADDRESS_TYPES) его и не отдаёт.
+ */
 export enum BX_ADDRESS_TYPE {
     PRIMARY = 1,
     REGISTERED = 6,
-    REGISTERED_FIZ = 4,
 }
 
 export const addressMap = {
@@ -98,10 +102,6 @@ export const addressMap = {
     [BX_ADDRESS_TYPE.REGISTERED]: {
         name_type: 'Юридический адрес',
         code: 'registred',
-    },
-    [BX_ADDRESS_TYPE.REGISTERED_FIZ]: {
-        name_type: 'Адрес прописки',
-        code: 'registred_fiz',
     },
 } as const;
 

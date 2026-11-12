@@ -8,7 +8,12 @@ import { useSupplyGenerate } from '../hooks/use-supply-generate';
 /** «Сформировать отчёт»: процесс поставки по галке, блокер, незаполненное, результат. */
 export const SupplyReportGenerateButton = () => {
     const generate = useSupplyGenerate();
-    const hint = generate.blocker ?? (generate.missing.length ? `Не заполнено: ${generate.missing.join('; ')}` : null);
+    // незаполненное не мешает собрать отчёт — на его месте будут пустые строки
+    const hint =
+        generate.blocker ??
+        (generate.missing.length
+            ? `Не заполнено (в отчёте останутся пустые места): ${generate.missing.join('; ')}`
+            : null);
 
     return (
         <div className="flex flex-col gap-2">

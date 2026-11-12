@@ -29,6 +29,7 @@ export const useRowCard = (row: KRow, collapsed: boolean) => {
     const catalog = useAppSelector(selectCatalog);
     const context = useAppSelector(selectRowSetContext);
     const editingSetId = useAppSelector(selectEditingSetId);
+    const generalSetId = useAppSelector(state => state.rowSet.general.id);
 
     const contract = catalog.contracts.byCode[row.refs.contractCode] ?? null;
     const complect = row.refs.complectCode
@@ -103,6 +104,8 @@ export const useRowCard = (row: KRow, collapsed: boolean) => {
         canDelete: row.role !== 'main' && !rowsLocked && !isBlurred,
         canEditRefs:
             row.productType === 'garant' && !rowsLocked && !isBlurred,
+        // комплект основного набора выбран на шаге «Комплект» — здесь не меняется
+        complectLocked: row.role === 'main' && row.setId === generalSetId,
         commercialDisabled,
         availableSupplies,
         availableContracts,

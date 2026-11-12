@@ -9,6 +9,7 @@ import {
     resolveSupply,
     type Catalog,
     type KSupply,
+    type SupplyKind,
 } from '@/modules/entities/catalog';
 
 const CUSTOM_OPTION = '__custom__';
@@ -22,7 +23,9 @@ interface UseOdSelectArgs {
 
 /**
  * Селект вида поставки с X-ОД: пункт «X-ОД — своё количество…» открывает
- * числовой ввод; коммит собирает синтетический код x_<type>_<n>.
+ * числовой ввод и выбор вида — интернет или Проксима (из тех, что есть у
+ * комплекта; по умолчанию — вид текущей поставки); коммит собирает
+ * синтетический код x_<type>_<n>.
  * Текущий кастомный код добавляется в опции синтетической поставкой.
  */
 export const useOdSelect = ({
@@ -33,8 +36,11 @@ export const useOdSelect = ({
 }: UseOdSelectArgs) => {
     const [customMode, setCustomMode] = useState(false);
     const [customValue, setCustomValue] = useState('');
+    const [customType, setCustomType] = useState<SupplyKind>('internet');
 
     const current = resolveSupply(catalog, value);
+    // виды поставки, доступные комплекту: X-ОД бывает только из них
+    const availableTypes = [...new Set(supplies.map(supply => supply.type))];
     const options: KSupply[] =
         current && isCustomSupplyCode(current.code)
             ? [...supplies, current]
@@ -43,6 +49,7 @@ export const useOdSelect = ({
     const handleSelect = (selected: string) => {
         if (selected === CUSTOM_OPTION) {
             setCustomValue(String(current?.usersQuantity || ''));
+            setCustomType(current?.type ?? availableTypes[0] ?? 'internet');
             setCustomMode(true);
             return;
         }
@@ -60,9 +67,8 @@ export const useOdSelect = ({
             setCustomMode(false);
             return;
         }
-        const type = current?.type ?? supplies[0]?.type ?? 'internet';
         setCustomMode(false);
-        onChange(makeCustomSupplyCode(type, quantity));
+        onChange(makeCustomSupplyCode(customType, quantity));
     };
 
     return {
@@ -71,6 +77,9 @@ export const useOdSelect = ({
         customMode,
         customValue,
         setCustomValue,
+        customType,
+        setCustomType,
+        availableTypes,
         handleSelect,
         commitCustom,
         cancelCustom: () => setCustomMode(false),

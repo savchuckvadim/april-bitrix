@@ -75,11 +75,11 @@ const PUSH_BASE_CODES: string[] = [
     RQ_ITEM_CODE.DOCUMENT_NUMBER,
     RQ_ITEM_CODE.PERSON_NAME,
 ];
+// почтовый индекс в документах не используется — не требуем
 const PUSH_ADDRESS_CODES: string[] = [
     'address_country',
     'address_city',
     'address_1',
-    'address_postal_code',
 ];
 const PUSH_BANK_CODES: string[] = [
     'bank_name',
@@ -110,7 +110,7 @@ export const validatePushRq = (
             PUSH_BASE_CODES,
         ),
         ...rq.address.items.flatMap(ad =>
-            grouped(addressTitle(ad.type_id, currentClientType), missing(ad.fields, PUSH_ADDRESS_CODES)),
+            grouped(addressTitle(ad.type_id), missing(ad.fields, PUSH_ADDRESS_CODES)),
         ),
         ...grouped('Банк', missing(rq.bank.current?.fields ?? [], PUSH_BANK_CODES)),
     ];

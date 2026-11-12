@@ -1,9 +1,11 @@
 'use client';
 
 import { GlassDialog } from '@workspace/april-ui';
-import { DialogHeader, DialogTitle } from '@workspace/ui/components/dialog';
+import { Button } from '@workspace/ui/components/button';
+import { DialogFooter, DialogHeader, DialogTitle } from '@workspace/ui/components/dialog';
 import type { KRow } from '@/modules/entities/row-set';
 import { useCompositionEditor } from '../hooks/use-composition-editor';
+import { useCompositionRevert } from '../hooks/use-composition-revert';
 import { CompositionEditorBody } from './CompositionEditorBody';
 import { CompositionToolbar } from './CompositionToolbar';
 
@@ -15,7 +17,8 @@ export interface CompositionEditorDialogProps {
 
 /**
  * Наполнение одного товара окном (шаг «Цены»): у каждого Гаранта в сете своё
- * наполнение — правится из его карточки, не занимая экран таблицы.
+ * наполнение — правится из его карточки, не занимая экран таблицы. Правки
+ * видны сразу; «Отменить» возвращает состав на момент открытия.
  */
 export const CompositionEditorDialog = ({
     row,
@@ -23,6 +26,7 @@ export const CompositionEditorDialog = ({
     onOpenChange,
 }: CompositionEditorDialogProps) => {
     const editor = useCompositionEditor(row);
+    const revert = useCompositionRevert(row);
 
     return (
         <GlassDialog
@@ -39,6 +43,19 @@ export const CompositionEditorDialog = ({
             <div className="min-h-0 overflow-y-auto pr-1">
                 <CompositionEditorBody editor={editor} />
             </div>
+            <DialogFooter className="gap-2 border-t pt-3">
+                <Button
+                    variant="outline"
+                    disabled={!revert.changed}
+                    onClick={() => {
+                        revert.revert();
+                        onOpenChange(false);
+                    }}
+                >
+                    Отменить изменения
+                </Button>
+                <Button onClick={() => onOpenChange(false)}>Готово</Button>
+            </DialogFooter>
         </GlassDialog>
     );
 };

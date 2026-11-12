@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
     filterContractsForSupply,
     filterSuppliesForComplect,
-    selectableRegions,
     selectCatalog,
 } from '@/modules/entities/catalog';
 import {
@@ -18,9 +17,9 @@ import {
 } from '@/modules/entities/row-set';
 
 /**
- * Экранные контролы главной строки (легаси-шапка Total.jsx): комплект,
- * кол-во одновременных доступов (ОД), тип договора — это правки main-строки;
- * плюс регион (пересчёт всех сетов).
+ * Экранные контролы главной строки (легаси-шапка Total.jsx): кол-во
+ * одновременных доступов (ОД) и тип договора. Комплект и регион выбраны на
+ * шагах «Параметры» и «Комплект» — здесь только показываются.
  */
 export const useTableHeader = () => {
     const dispatch = useAppDispatch();
@@ -42,18 +41,11 @@ export const useTableHeader = () => {
         dispatch(rowSetActions.upsertRow(rebuilt));
     };
 
-    const setRegion = (regionCode: string) =>
-        dispatch(rowSetActions.setContext({ regionCode }));
-
     return {
         catalog,
         context,
         mainRow,
         mainComplect,
-        allComplects: [
-            ...catalog.complects.prof,
-            ...catalog.complects.universal,
-        ],
         availableSupplies: mainComplect
             ? filterSuppliesForComplect(
                   catalog.supplies.items,
@@ -68,12 +60,9 @@ export const useTableHeader = () => {
                       mainRow.refs.supplyCode,
                   )
                 : [],
-        // полный список — на шаге «Параметры»; здесь портальные и текущий
-        regions: selectableRegions(catalog.regions.items, {
-            showAll: false,
-            currentCode: context.regionCode,
-        }),
+        regionTitle:
+            catalog.regions.items.find(region => region.code === context.regionCode)
+                ?.title ?? null,
         changeMainRefs,
-        setRegion,
     };
 };

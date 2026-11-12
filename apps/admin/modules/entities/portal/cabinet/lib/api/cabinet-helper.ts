@@ -3,6 +3,7 @@ import type {
     CabinetAddMember,
     CabinetInviteResult,
     CabinetMember,
+    CabinetNewClient,
     CabinetPasswordLink,
     CabinetPortalCard,
     CabinetWidgetsResult,
@@ -35,6 +36,19 @@ export class CabinetHelper {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             data: { clientId },
+        });
+    }
+
+    /** Завести организацию и сразу привязать к ней портал. */
+    createClient(
+        portalId: number,
+        payload: CabinetNewClient,
+    ): Promise<CabinetPortalCard> {
+        return customAxios<CabinetPortalCard>({
+            url: `${this.base(portalId)}/client`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: payload,
         });
     }
 

@@ -7,6 +7,7 @@ import { CabinetHelper } from '../api/cabinet-helper';
 import type {
     CabinetAddMember,
     CabinetInviteResult,
+    CabinetNewClient,
     CabinetPasswordLink,
 } from '../../model';
 
@@ -49,6 +50,37 @@ export const useAttachCabinetClient = (portalId: number) =>
         (clientId: number | null) => helper.attachClient(portalId, clientId),
         'Организация сохранена',
     );
+
+/** Списки и сводки клиентов, которые меняются вместе с организацией портала. */
+const CLIENT_KEYS: ReadonlyArray<readonly string[]> = [['clients'], ['client-overview']];
+
+/** «Создать организацию» на вкладке «Кабинет»: заводит и сразу привязывает. */
+export const useCreateCabinetClient = (portalId: number) => {
+    const qc = useQueryClient();
+    return useCabinetAction(
+        portalId,
+        (payload: CabinetNewClient) => helper.createClient(portalId, payload),
+        'Организация создана и привязана',
+        () => CLIENT_KEYS.forEach(queryKey => void qc.invalidateQueries({ queryKey })),
+    );
+};
+
+/** Привязать портал к организации со страницы клиента. */
+export const useAttachPortalToClient = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (vars: { portalId: number; clientId: number }) =>
+            helper.attachClient(vars.portalId, vars.clientId),
+        onSuccess: (_card, vars) => {
+            toast.success('Портал привязан');
+            void qc.invalidateQueries({ queryKey: [...KEY, vars.portalId] });
+            void qc.invalidateQueries({ queryKey: ['portals'] });
+            CLIENT_KEYS.forEach(queryKey => void qc.invalidateQueries({ queryKey }));
+        },
+        onError: error =>
+            toast.error('Не получилось', { description: getApiErrorMessage(error) }),
+    });
+};
 
 export const useInviteCabinetMember = (
     portalId: number,

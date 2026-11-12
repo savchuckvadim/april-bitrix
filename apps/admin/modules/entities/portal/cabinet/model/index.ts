@@ -86,6 +86,13 @@ export interface CabinetAddMember {
     makeOwner?: boolean;
 }
 
+/** Новая организация с портала (POST admin/cabinet/portals/:id/client). */
+export interface CabinetNewClient {
+    name: string;
+    /** Пусто — организация без email. */
+    email: string | null;
+}
+
 /** «Подключение Битрикс24» (бэк: admin/cabinet/portals/:id/bitrix-app). */
 export interface CabinetBitrixAppConnection {
     domain: string;

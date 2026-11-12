@@ -9,8 +9,17 @@ import {
     UpdateClientDto
 } from '@workspace/nest-admin-api';
 import { ClientHelper } from '../api/client-helper';
+import type { ClientOverview } from '../../model/overview';
 
 const clientHelper = new ClientHelper();
+
+/** Сводка организации для страницы клиента: порталы, владельцы, люди. */
+export const useClientOverview = (id: number) =>
+    useQuery<ClientOverview, Error>({
+        queryKey: ['client-overview', id],
+        queryFn: () => clientHelper.getOverview(id),
+        enabled: Number.isInteger(id) && id > 0,
+    });
 
 export const useClients = (params: AdminClientGetAllClientsParams) => {
     return useQuery<ClientResponseDto[], Error>({

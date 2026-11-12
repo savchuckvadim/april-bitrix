@@ -108,6 +108,19 @@ export interface DomainFeatureConfig {
      * (8–9 запросов в Битрикс) грузился при каждом открытии.
      */
     withRelationStrips: boolean;
+    /**
+     * Перехват клиента (настройки портала report_takeover_*, 12.11.2026):
+     * отчёт забирает работу ЛЮБОГО сотрудника по клиенту. Решает бэк; фронт
+     * по нему меняет подсказку «открытая сделка коллеги» и задаёт вопрос.
+     */
+    reportTakeoverForce: boolean;
+    /** Перехват — только после «Забрать себе» в окне перед отправкой. */
+    reportTakeoverConfirm: boolean;
+    /**
+     * Боты обзвона (`xo_start_bot_user_ids`, CSV Bitrix ID): их сделку
+     * отчёт забирает всегда — подсказка не пугает «чужой сделкой».
+     */
+    xoStartBotUserIds: string;
     /** Bitrix GROUP_ID группы задач обзвона (legacy EventTaskThunk). */
     taskGroupId: number;
     /** ID руководителя — постановщик планируемых задач (legacy DepartmentSlice). */
@@ -151,6 +164,9 @@ const DEFAULT_CONFIG: DomainFeatureConfig = {
     withKonstructorSlider: false,
     withActionPrompts: false,
     withRelationStrips: false,
+    reportTakeoverForce: false,
+    reportTakeoverConfirm: true,
+    xoStartBotUserIds: '',
     taskGroupId: 1,
     bossId: 1,
 };

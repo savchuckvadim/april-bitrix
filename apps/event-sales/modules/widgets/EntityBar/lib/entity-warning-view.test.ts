@@ -55,6 +55,59 @@ describe('relationNoticeToWarning', () => {
             'У клиента есть открытая сделка другого менеджера',
         );
     });
+
+    /* Перехват клиента (12.11.2026): чужая сделка не повод для тревоги. */
+    describe('перехват клиента', () => {
+        const foreign = (id: number, name: string) => ({
+            kind: 'foreignOpen' as const,
+            deal: deal({ responsible: { id, name } } as Partial<RelatedDeal>),
+        });
+        const rules = (force: boolean, confirm: boolean) => ({
+            force,
+            confirm,
+            botOwnerIds: [643],
+        });
+
+        it('сделка бота — инфо «перейдёт к вам», в любом режиме', () => {
+            const warning = relationNoticeToWarning(
+                foreign(643, 'Бот Манго'),
+                rules(false, true),
+            );
+            expect(warning.tone).toBe('info');
+            expect(entityWarningFullText(warning)).toBe(
+                'Сделка Бот Манго перейдёт к вам при отправке отчёта',
+            );
+        });
+
+        it('перехват с подтверждением — «можно забрать себе»', () => {
+            const warning = relationNoticeToWarning(
+                foreign(39, 'Марина Гончар'),
+                rules(true, true),
+            );
+            expect(warning.tone).toBe('info');
+            expect(entityWarningFullText(warning)).toBe(
+                'Работа менеджера Марина Гончар — при отправке можно забрать себе',
+            );
+        });
+
+        it('перехват без подтверждения — «перейдёт к вам»', () => {
+            const warning = relationNoticeToWarning(
+                foreign(39, 'Марина Гончар'),
+                rules(true, false),
+            );
+            expect(entityWarningFullText(warning)).toBe(
+                'Работа менеджера Марина Гончар перейдёт к вам при отправке отчёта',
+            );
+        });
+
+        it('перехват выключен и не бот — прежнее предупреждение', () => {
+            const warning = relationNoticeToWarning(
+                foreign(39, 'Марина Гончар'),
+                rules(false, true),
+            );
+            expect(warning.tone).toBe('warning');
+        });
+    });
 });
 
 describe('тона предупреждений', () => {

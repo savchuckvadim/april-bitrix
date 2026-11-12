@@ -6,7 +6,12 @@ import {
     useRelationsNotice,
     type RelationsBarNotice,
 } from '@/modules/entities/RelatedCrm';
-import { relationNoticeToWarning } from '../entity-warning-view';
+import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { parseUserIdsCsv } from '@/modules/features/ClientTakeover/lib/parse-user-ids';
+import {
+    relationNoticeToWarning,
+    type RelationTakeoverRules,
+} from '../entity-warning-view';
 import type { EntityWarning } from './use-entity-warnings';
 
 /**
@@ -24,6 +29,14 @@ import type { EntityWarning } from './use-entity-warnings';
 export const useRelationNoticeWarnings = (): EntityWarning[] => {
     const { descriptor } = useCurrentRelations();
     const { notice, isReady } = useRelationsNotice();
+    // Перехват клиента: чужая сделка бота/коллеги — инфо «перейдёт к вам».
+    const force = useAppSelector(s => s.app.config.reportTakeoverForce);
+    const confirm = useAppSelector(s => s.app.config.reportTakeoverConfirm);
+    const botCsv = useAppSelector(s => s.app.config.xoStartBotUserIds);
+    const takeover = useMemo<RelationTakeoverRules>(
+        () => ({ force, confirm, botOwnerIds: parseUserIdsCsv(botCsv) }),
+        [force, confirm, botCsv],
+    );
 
     const clientKey = descriptor
         ? `${descriptor.entityType}:${descriptor.entityId}`
@@ -46,6 +59,6 @@ export const useRelationNoticeWarnings = (): EntityWarning[] => {
             latchRef.current.notice = null;
         }
         const effective = notice ?? latchRef.current.notice;
-        return effective ? [relationNoticeToWarning(effective)] : [];
-    }, [clientKey, notice, isReady]);
+        return effective ? [relationNoticeToWarning(effective, takeover)] : [];
+    }, [clientKey, notice, isReady, takeover]);
 };

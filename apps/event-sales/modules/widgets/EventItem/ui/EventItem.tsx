@@ -98,6 +98,13 @@ const PresentationLeadLinkDialog = dynamic(
     { ssr: false },
 );
 
+// «Забрать работу коллег себе?» — шаг отправки при перехвате клиента;
+// открывается редко, поэтому лениво.
+const ClientTakeoverDialog = dynamic(
+    () => import('@/modules/features/ClientTakeover/ui/ClientTakeoverDialog'),
+    { ssr: false },
+);
+
 // Стадийный чек-лист («Клиент на решении», «Продажа») — шаг отправки,
 // включается настройками портала; открывается редко, поэтому лениво.
 const CallChecklistDialog = dynamic(
@@ -257,6 +264,7 @@ export const EventItem: FC = () => {
             <CheckPresentation />
             <CallChecklistDialog />
             <PresentationLeadLinkDialog />
+            <ClientTakeoverDialog />
         </div>
     );
 };

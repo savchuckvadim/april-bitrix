@@ -37,7 +37,19 @@ export const RELATION_NOTICE_TEXT = {
     /** Кейс «чужая открытая»: переключения не было — warning с именем. */
     foreignPrefix: 'У клиента есть открытая сделка менеджера ',
     foreignNoName: 'У клиента есть открытая сделка другого менеджера',
+    /** Перехват клиента: сделка бота / коллеги перейдёт при отправке. */
+    botTakePrefix: 'Сделка ',
+    takeSuffix: ' перейдёт к вам при отправке отчёта',
+    forceTakePrefix: 'Работа менеджера ',
+    forceAskSuffix: ' — при отправке можно забрать себе',
 } as const;
+
+/** Перехват клиента на портале (настройки report_takeover_*, боты обзвона). */
+export interface RelationTakeoverRules {
+    force: boolean;
+    confirm: boolean;
+    botOwnerIds: readonly number[];
+}
 
 /**
  * Хинт о выборе главной сделки → пилюля всплывашки у названия сущности.
@@ -46,6 +58,7 @@ export const RELATION_NOTICE_TEXT = {
  */
 export const relationNoticeToWarning = (
     notice: RelationsBarNotice,
+    takeover?: RelationTakeoverRules,
 ): EntityWarning => {
     if (notice.kind === 'ownOpenSwitch') {
         return {
@@ -60,6 +73,27 @@ export const relationNoticeToWarning = (
         };
     }
     const responsibleName = notice.deal.responsible?.name?.trim();
+    const ownerId = Number(notice.deal.responsible?.id) || 0;
+    // Перехват клиента: чужая сделка не повод для тревоги — она перейдёт к
+    // менеджеру при отправке (бот — всегда, коллега — в режиме перехвата).
+    const isBot = Boolean(ownerId && takeover?.botOwnerIds.includes(ownerId));
+    if (responsibleName && (isBot || takeover?.force)) {
+        const askFirst = !isBot && takeover?.confirm;
+        return {
+            id: `relation-take-${notice.deal.id}`,
+            text: isBot
+                ? RELATION_NOTICE_TEXT.botTakePrefix
+                : RELATION_NOTICE_TEXT.forceTakePrefix,
+            accent: {
+                text: responsibleName,
+                after: askFirst
+                    ? RELATION_NOTICE_TEXT.forceAskSuffix
+                    : RELATION_NOTICE_TEXT.takeSuffix,
+            },
+            blocking: false,
+            tone: 'info',
+        };
+    }
     return {
         id: `relation-foreign-${notice.deal.id}`,
         ...(responsibleName

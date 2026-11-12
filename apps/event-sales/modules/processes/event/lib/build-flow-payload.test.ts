@@ -146,6 +146,8 @@ const makeState = (over?: {
             selectedLeadId: null,
             siteStatusCode: null,
         },
+        // Перехват клиента не спрашивали — поля в payload нет.
+        clientTakeover: { confirmed: null },
         leadRequest: { finalSync: { notCaTypeCode: null, note: '' } },
         eventLead: { lead: null },
         eventPostFail: { postFailDate: null },

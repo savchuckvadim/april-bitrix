@@ -64,6 +64,7 @@ import { leadMarksReducer } from '@/modules/features/LeadMarks';
 import { leadRequestReducer } from '@/modules/features/LeadRequestCard/model/LeadRequestSlice';
 // Прямой путь по той же причине: барель фичи тянет UI-диалог.
 import { presentationLeadLinkReducer } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
+import { clientTakeoverReducer } from '@/modules/features/ClientTakeover/model/ClientTakeoverSlice';
 import { taskLeadLinksReducer } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksSlice';
 import { eventItemReducer } from '@/modules/widgets/EventItem/model/EventItemSlice';
 import { quickOutcomeReducer } from '@/modules/widgets/QuickOutcome/model/QuickOutcomeSlice';
@@ -181,6 +182,7 @@ const rootReducer = combineReducers({
     leadMarks: leadMarksReducer,
     leadRequest: leadRequestReducer,
     presentationLeadLink: presentationLeadLinkReducer,
+    clientTakeover: clientTakeoverReducer,
     taskLeadLinks: taskLeadLinksReducer,
     purchaseSignals: purchaseSignalsReducer,
     xvostFields: xvostFieldsReducer,

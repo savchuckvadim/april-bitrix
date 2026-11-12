@@ -356,5 +356,8 @@ export const buildFlowPayload = (
             data: searchedTmcItem,
             isActive: returnToTmc.menu.isActive,
         },
+        // Ответ на «Забрать работу коллег себе?»; не спрашивали — поля нет,
+        // и при включённом подтверждении бэк чужое не трогает.
+        takeoverConfirmed: state.clientTakeover.confirmed ?? undefined,
     } as unknown as EvFlowDto;
 };

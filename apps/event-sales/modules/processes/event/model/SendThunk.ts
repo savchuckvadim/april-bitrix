@@ -21,6 +21,12 @@ import {
 import { selectNeedPresentationLeadLink } from '@/modules/features/PresentationLeadLink/lib/presentation-lead-link.selectors';
 import { openPresentationLeadLink } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkThunk';
 import { presentationLeadLinkActions } from '@/modules/features/PresentationLeadLink/model/PresentationLeadLinkSlice';
+import {
+    selectClientTakeoverLoading,
+    selectNeedClientTakeover,
+} from '@/modules/features/ClientTakeover/lib/client-takeover.selectors';
+import { openClientTakeover } from '@/modules/features/ClientTakeover/model/ClientTakeoverThunk';
+import { clientTakeoverActions } from '@/modules/features/ClientTakeover/model/ClientTakeoverSlice';
 import { taskLeadLinksActions } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksSlice';
 import { ensureTaskLeadLinks } from '@/modules/features/TaskLeadLinks/model/TaskLeadLinksThunk';
 // Прямой путь в слайс: барель быстрого итога тянет UI.
@@ -139,6 +145,15 @@ export const send =
         if (nextChecklist) {
             dispatch(callChecklistActions.setPendingSend({ status: true }));
             await dispatch(openCallChecklist(nextChecklist.code));
+            return;
+        }
+
+        // Перехват клиента: «Забрать работу коллег себе?» — последним
+        // вопросом перед отправкой (окно само продолжит её; спрашивать
+        // нечего — закрывается и продолжает мгновенно).
+        if (selectNeedClientTakeover(getState())) {
+            if (selectClientTakeoverLoading(getState())) return;
+            await dispatch(openClientTakeover());
             return;
         }
 
@@ -452,6 +467,7 @@ export const cleanEvent =
         dispatch(eventPresentationActions.clean());
         dispatch(afterPresentationActions.resetForNewEvent());
         dispatch(presentationLeadLinkActions.resetForNewEvent());
+        dispatch(clientTakeoverActions.resetForNewEvent());
         dispatch(taskLeadLinksActions.reset());
         // Черновик ответов стираем ДО сброса и дожидаемся: сброс поднимает
         // восстановление (листенер reload), и недоделанная очистка вернула

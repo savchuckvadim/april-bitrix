@@ -174,6 +174,7 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
             code,
             kind: contractKind(code),
             name: dto.aprilName,
+            productName: dto.contract?.productName ?? '',
             shortName: dto.shortName,
             durationMonths: dto.prepayment,
             discount: dto.discount,

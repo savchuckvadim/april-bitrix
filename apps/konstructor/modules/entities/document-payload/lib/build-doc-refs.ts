@@ -35,7 +35,8 @@ export const toDocContract = (contract: KContract): DocContract => {
             fullName: contract.name,
             created_at: nowIso(),
             updated_at: null,
-            productName: contract.name,
+            // формулировка товара спецификации договора и отчёта о поставке (как в Laravel)
+            productName: contract.productName || contract.name,
         },
         code: contract.code as DocContract['code'],
         shortName: contract.shortName,

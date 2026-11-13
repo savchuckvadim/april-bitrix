@@ -7,6 +7,7 @@ const contract = (durationMonths: number): KContract =>
         code: 'licTwoYears',
         kind: 'lic',
         name: 'Лицензионный 2 года',
+        productName: '',
         shortName: 'мес.',
         durationMonths,
         discount: 1,

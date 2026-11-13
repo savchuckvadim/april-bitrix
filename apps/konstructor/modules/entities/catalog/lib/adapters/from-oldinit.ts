@@ -64,6 +64,8 @@ interface OldInit {
         items: Array<{
             number: number;
             aprilName: string;
+            /** Строка `contracts` целиком (Laravel PortalContractResource). */
+            contract?: { productName?: string | null };
             shortName: string;
             itemId: number;
             measureId: number;
@@ -214,6 +216,7 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
             code: item.shortName,
             kind: contractKind(item.shortName),
             name: item.aprilName,
+            productName: item.contract?.productName ?? '',
             shortName: item.shortName,
             durationMonths: item.prepayment,
             discount: item.discount,

@@ -113,6 +113,11 @@ export interface KContract {
     code: string;
     kind: ContractKind;
     name: string;
+    /**
+     * Формулировка товара для спецификации договора и отчёта о поставке
+     * (`contracts.productName`, «Неисключительная лицензия на …»). Пусто — берётся name.
+     */
+    productName: string;
     shortName: string;
     /** Множитель длительности: 1 / 6 / 12 / 24 месяцев (легаси prepayment) */
     durationMonths: number;

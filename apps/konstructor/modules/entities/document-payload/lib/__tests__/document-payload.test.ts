@@ -107,6 +107,13 @@ describe('строки и сеты', () => {
         expect(supply).toMatchObject({ code: 'internet_5', number: 4, usersQuantity: 5, type: 'internet' });
     });
 
+    it('формулировка товара договора — contracts.productName, без неё — имя договора', () => {
+        const abon = catalog.contracts.byCode['abonYear']!;
+        expect(toDocContract(abon).contract.productName).toBe(abon.name);
+        const wording = 'Передача в собственность Покупателя Абонемента';
+        expect(toDocContract({ ...abon, productName: wording }).contract.productName).toBe(wording);
+    });
+
     it('главная строка — id 0, цены 1:1, product с номерами комплекта/поставки', () => {
         const row = toDocRow(catalog, main, 'general', 0, 0);
         expect(row.id).toBe(0);

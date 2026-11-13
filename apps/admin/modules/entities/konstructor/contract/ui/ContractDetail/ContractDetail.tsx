@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Pencil } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import {
     Card,
@@ -8,39 +9,34 @@ import {
     CardHeader,
     CardTitle,
 } from '@workspace/ui/components/card';
-import {
-    FieldList,
-    formatFieldValue,
-    type FieldRow,
-} from '@/modules/entities/konstructor/lib';
-import { useContract } from '../../lib/hooks';
-import { CONTRACT_FIELD_LABELS } from '../../model';
+import { FieldList } from '@/modules/entities/konstructor/lib';
+import { ContractEditDialog } from '../ContractEditDialog/ContractEditDialog';
+import { useContractDetail } from './hooks/use-contract-detail';
 
-/** Страница деталей глобального вида договора (все поля, read-only). */
+/** Страница глобального вида договора: все поля и правка подписей/текстов. */
 export function ContractDetail({ id }: { id: number }) {
-    const contract = useContract(id);
-
-    const rows: FieldRow[] = contract.data
-        ? CONTRACT_FIELD_LABELS.map((f) => ({
-              label: f.label,
-              value: formatFieldValue(contract.data[f.key]),
-          }))
-        : [];
+    const detail = useContractDetail(id);
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold">
-                        {contract.data?.title || contract.data?.name || `Договор #${id}`}
-                    </h1>
+                    <h1 className="text-2xl font-bold">{detail.heading}</h1>
                     <p className="text-sm text-muted-foreground">
-                        Глобальный вид договора (read-only).
+                        Глобальный вид договора — общий для всех порталов.
                     </p>
                 </div>
-                <Button asChild variant="outline">
-                    <Link href="/konstructor/contract">← К списку</Link>
-                </Button>
+                <div className="flex gap-2">
+                    {detail.contract ? (
+                        <Button onClick={() => detail.setEditing(true)}>
+                            <Pencil aria-hidden />
+                            Редактировать
+                        </Button>
+                    ) : null}
+                    <Button asChild variant="outline">
+                        <Link href="/konstructor/contract">← К списку</Link>
+                    </Button>
+                </div>
             </div>
 
             <Card>
@@ -48,21 +44,25 @@ export function ContractDetail({ id }: { id: number }) {
                     <CardTitle>Все поля</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {contract.isLoading ? (
+                    {detail.isLoading ? (
                         <p className="text-sm text-muted-foreground">Загрузка…</p>
-                    ) : contract.isError ? (
+                    ) : detail.isError ? (
                         <p className="text-sm text-destructive">
                             Не удалось загрузить договор.
                         </p>
                     ) : (
-                        <FieldList rows={rows} />
+                        <FieldList rows={detail.rows} />
                     )}
                 </CardContent>
             </Card>
 
-            <p className="text-xs text-muted-foreground">
-                Редактирование справочника видов договоров выполняется в admin.
-            </p>
+            {detail.contract ? (
+                <ContractEditDialog
+                    contract={detail.contract}
+                    open={detail.editing}
+                    onOpenChange={detail.setEditing}
+                />
+            ) : null}
         </div>
     );
 }

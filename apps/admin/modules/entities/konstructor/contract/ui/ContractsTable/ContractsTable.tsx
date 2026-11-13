@@ -53,7 +53,7 @@ export function ContractsTable() {
             <div>
                 <h1 className="text-2xl font-bold">Виды договоров</h1>
                 <p className="text-sm text-muted-foreground">
-                    Глобальный справочник `contracts` (read-only).
+                    Глобальный справочник `contracts`, общий для всех порталов. Подписи и тексты правятся на странице договора.
                 </p>
             </div>
 

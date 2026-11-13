@@ -43,6 +43,7 @@ export * from './admin-portal-questionnaires/admin-portal-questionnaires';
 export * from './admin-portal-badges/admin-portal-badges';
 export * from './admin-smarts-management/admin-smarts-management';
 export * from './admin-timezones-management/admin-timezones-management';
+export * from './admin-transcription-spend/admin-transcription-spend';
 export * from './admin-transcription-store/admin-transcription-store';
 // Настройки уровня вендора (прокси за рубеж, ключи AI) — страница «Настройки приложения»
 export * from './admin-vendor-settings/admin-vendor-settings';

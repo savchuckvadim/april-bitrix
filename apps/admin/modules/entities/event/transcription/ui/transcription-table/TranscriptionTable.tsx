@@ -2,110 +2,87 @@
 
 import * as React from 'react';
 import { DataTable, Column } from '@/modules/shared/ui/data-table';
-import { TranscriptionEntity } from '../../model';
+import { TranscriptionListItem } from '../../model';
+import {
+    durationLabel,
+    transcriptionProviderLabel,
+    transcriptionStatusLabel,
+} from '../../lib/transcription-labels';
 
 interface TranscriptionTableProps {
-    data: TranscriptionEntity[];
+    data: TranscriptionListItem[];
     isLoading?: boolean;
-    onRowClick?: (item: TranscriptionEntity) => void;
+    /** Список одного портала — колонка портала не нужна. */
+    hideDomain?: boolean;
+    onRowClick?: (item: TranscriptionListItem) => void;
 }
 
+const dateLabel = (value: string | null): string =>
+    value ? new Date(value).toLocaleString('ru-RU') : '—';
+
+/** Строки списка транскрипций — без текста: он открывается в карточке. */
 export function TranscriptionTable({
     data,
     isLoading,
+    hideDomain,
     onRowClick,
 }: TranscriptionTableProps) {
-    const columns: Column<TranscriptionEntity>[] = [
+    const columns: Column<TranscriptionListItem>[] = [
         {
-            id: 'id',
-            header: 'ID',
-            accessorKey: 'id',
-            className: 'w-24',
+            id: 'createdAt',
+            header: 'Распознано',
+            cell: row => dateLabel(row.createdAt),
+            className: 'w-40',
         },
-        {
-            id: 'domain',
-            header: 'Домен',
-            accessorKey: 'domain',
-            className: 'w-32',
-        },
+        ...(hideDomain
+            ? []
+            : [{ id: 'domain', header: 'Портал', accessorKey: 'domain' as const }]),
         {
             id: 'userName',
-            header: 'Пользователь',
-            accessorKey: 'userName',
-            className: 'w-32',
+            header: 'Сотрудник',
+            cell: row => row.userName ?? row.userId ?? '—',
+        },
+        {
+            id: 'entity',
+            header: 'Сделка / клиент',
+            cell: row => (
+                <div className="max-w-xs truncate" title={row.entityName ?? undefined}>
+                    {row.entityName ?? (row.entityId ? `${row.entityType ?? ''} ${row.entityId}` : '—')}
+                </div>
+            ),
         },
         {
             id: 'provider',
-            header: 'Провайдер',
-            accessorKey: 'provider',
-            className: 'w-24',
+            header: 'Распознаватель',
+            cell: row => transcriptionProviderLabel(row.provider),
         },
         {
             id: 'status',
             header: 'Статус',
-            accessorKey: 'status',
-            className: 'w-24',
+            cell: row => transcriptionStatusLabel(row.status),
         },
         {
-            id: 'entityType',
-            header: 'Тип сущности',
-            accessorKey: 'entityType',
-            className: 'w-32',
-        },
-        {
-            id: 'entityName',
-            header: 'Название сущности',
-            accessorKey: 'entityName',
-            className: 'w-40',
-        },
-        {
-            id: 'app',
-            header: 'Приложение',
-            accessorKey: 'app',
-            className: 'w-32',
-        },
-        {
-            id: 'department',
-            header: 'Отдел',
-            accessorKey: 'department',
-            className: 'w-32',
-        },
-        {
-            id: 'text',
-            header: 'Текст',
-            cell: (row) => (
-                <div className="max-w-md truncate" title={row.text}>
-                    {row.text || '—'}
-                </div>
-            ),
-            className: 'w-64',
-        },
-        {
-            id: 'duration',
+            id: 'durationSec',
             header: 'Длительность',
-            accessorKey: 'duration',
-            className: 'w-24',
+            cell: row => durationLabel(row.durationSec),
+            className: 'w-28 text-right',
         },
         {
             id: 'symbolsCount',
             header: 'Символов',
-            accessorKey: 'symbolsCount',
-            className: 'w-24',
+            cell: row => row.symbolsCount?.toLocaleString('ru-RU') ?? '—',
+            className: 'w-24 text-right',
         },
         {
-            id: 'price',
-            header: 'Цена',
-            accessorKey: 'price',
-            className: 'w-24',
+            id: 'app',
+            header: 'Приложение',
+            cell: row => row.app ?? '—',
         },
         {
-            id: 'created_at',
-            header: 'Создано',
-            cell: (row) => {
-                if (!row.created_at) return '—';
-                return new Date(row.created_at).toLocaleString('ru-RU');
-            },
-            className: 'w-40',
+            id: 'id',
+            header: 'ID',
+            accessorKey: 'id',
+            className: 'w-20 text-muted-foreground',
         },
     ];
 
@@ -114,7 +91,7 @@ export function TranscriptionTable({
             data={data}
             columns={columns}
             isLoading={isLoading}
-            emptyMessage="Транскрипции не найдены"
+            emptyMessage="Транскрипций под фильтром нет"
             onRowClick={onRowClick}
         />
     );

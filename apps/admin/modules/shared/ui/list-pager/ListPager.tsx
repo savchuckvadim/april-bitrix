@@ -2,7 +2,7 @@
 
 import { AButton } from '@workspace/april-ui';
 
-interface AiPagerProps {
+interface ListPagerProps {
     page: number;
     pageSize: number;
     total: number;
@@ -11,8 +11,12 @@ interface AiPagerProps {
     onChange: (page: number) => void;
 }
 
-/** Переключатель страниц списка AI-записей: назад, вперёд и «страница N из M». */
-export function AiPager({ page, pageSize, total, loading, onChange }: AiPagerProps) {
+/**
+ * Переключатель страниц серверного списка админки: назад, вперёд и
+ * «страница N из M · всего K». Страницы считает сервер — сюда приходят
+ * только номер, размер и общее число.
+ */
+export function ListPager({ page, pageSize, total, loading, onChange }: ListPagerProps) {
     const pages = Math.max(1, Math.ceil(total / pageSize));
     return (
         <div className="flex flex-wrap items-center gap-3 text-sm">

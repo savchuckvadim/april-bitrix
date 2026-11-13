@@ -1,28 +1,26 @@
-import { getAdminTranscriptionStore } from "@workspace/nest-admin-api";
+import {
+    getAdminTranscriptionStore,
+    type AdminTranscriptionStoreFindPageParams,
+} from "@workspace/nest-admin-api";
 
 export class TranscriptionHelper {
-
     private api: ReturnType<typeof getAdminTranscriptionStore>;
+
     constructor() {
         this.api = getAdminTranscriptionStore();
     }
-    async list() {
-        const response = await this.api.adminTranscriptionStoreFindAll();
-        return response;
+
+    /** Страница списка: фильтры — на сервере, без текста разговора. */
+    async page(params: AdminTranscriptionStoreFindPageParams) {
+        return this.api.adminTranscriptionStoreFindPage(params);
     }
-    async findByDomain(domain: string) {
-        // domain is portal domain
-        const response = await this.api.adminTranscriptionStoreFindByDomain(domain);
-        return response;
-    }
-    async findByDomainAndUser(domain: string, user: string) {
-        // domain is portal domain
-        const response = await this.api.adminTranscriptionStoreFindByDomainAndUser(domain, user);
-        return response;
+
+    /** Значения фильтров с числом записей; с доменом — только по порталу. */
+    async facets(domain?: string) {
+        return this.api.adminTranscriptionStoreFacets(domain ? { domain } : undefined);
     }
 
     async get(id: string) {
-        const response = await this.api.adminTranscriptionStoreFindById(id);
-        return response;
+        return this.api.adminTranscriptionStoreFindById(id);
     }
 }

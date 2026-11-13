@@ -7,31 +7,17 @@ export class AiHelper {
         this.api = getAdminAi();
     }
 
-    async list() {
-        const response = await this.api.adminAiFindAll();
-        return response;
-    }
-
     /** Страница записей: свежие первыми, общее число под фильтром. */
     async page(params: AdminAiFindPageParams) {
-        const response = await this.api.adminAiFindPage(params);
-        return response;
+        return this.api.adminAiFindPage(params);
     }
 
-    async findByDomain(domain: string) {
-        // domain is portal domain
-        const response = await this.api.adminAiFindByDomain(domain);
-        return response;
-    }
-
-    async findByDomainAndUser(domain: string, user: string) {
-        // domain is portal domain
-        const response = await this.api.adminAiFindByDomainAndUser(domain, user);
-        return response;
+    /** Значения фильтров с числом записей; с доменом — только по порталу. */
+    async facets(domain?: string) {
+        return this.api.adminAiFacets(domain ? { domain } : undefined);
     }
 
     async get(id: string) {
-        const response = await this.api.adminAiFindOne(id);
-        return response;
+        return this.api.adminAiFindOne(id);
     }
 }

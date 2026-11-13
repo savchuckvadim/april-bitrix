@@ -2,85 +2,89 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { AiEntity } from '../../model';
-import {
-    useAiByDomainAndUser,
-    useAiFilter,
-    useAiPage,
-} from '../../lib/hooks';
-import { AiPager } from './components/AiPager';
+import { ListPager } from '@/modules/shared/ui/list-pager';
+import { AiEntity, AiListFilters } from '../../model';
+import { useAiFacets, useAiPage } from '../../lib/hooks';
 import { AiTable } from '../ai-table/AiTable';
 import { AiFilter } from './components/AiFilter';
-import { AI_PATH } from '../../consts/ai.consts';
+import { AI_LIST_PAGE_SIZE, AI_PATH } from '../../consts/ai.consts';
 
 interface AiListProps {
+    /** Домен портала: только его записи. */
     domain?: string;
+    /** Id сотрудника: только его записи. */
     userId?: string;
-    basePath?: string; // Базовый путь для навигации (для портала или общей страницы)
+    /** Базовый путь карточки (для портала или общей страницы). */
+    basePath?: string;
 }
 
-/** Записей на странице списка. */
-const AI_LIST_PAGE_SIZE = 50;
-
+/**
+ * Список AI-записей постранично: фильтры и страницы считает сервер, длинные
+ * поля приходят укороченными — запись целиком открывается в карточке.
+ */
 export function AiList({ domain, userId, basePath }: AiListProps) {
     const router = useRouter();
     const [page, setPage] = React.useState(1);
-    const byUser = Boolean(domain && userId);
-    // Другой портал — с первой страницы.
-    React.useEffect(() => setPage(1), [domain]);
+    const [filters, setFilters] = React.useState<AiListFilters>({});
 
-    // Все записи и все записи портала — постранично с сервера (выгрузка
-    // целиком вешала вкладку); по сотруднику записей немного — как было.
-    const paged = useAiPage(
-        { page, pageSize: AI_LIST_PAGE_SIZE, ...(domain ? { domain } : {}) },
-        !byUser,
-    );
-    const domainAndUserAi = useAiByDomainAndUser(domain || '', userId || '');
+    // Другой портал или сотрудник — фильтры и страница сначала.
+    React.useEffect(() => {
+        setFilters({});
+        setPage(1);
+    }, [domain, userId]);
 
-    const aiEntities: AiEntity[] | undefined = byUser
-        ? domainAndUserAi.data
-        : paged.data?.items;
-    const isLoading = byUser ? domainAndUserAi.isLoading : paged.isLoading;
+    const list = useAiPage({
+        ...filters,
+        ...(domain ? { domain } : {}),
+        ...(userId ? { userId } : {}),
+        page,
+        pageSize: AI_LIST_PAGE_SIZE,
+    });
+    const facets = useAiFacets(domain);
 
-    const { filters, setFilters, filteredAiEntities, filterOptions } = useAiFilter(aiEntities);
+    const changeFilters = (next: AiListFilters) => {
+        setFilters(next);
+        setPage(1);
+    };
 
-    // Определяем путь для навигации
     const navigationPath = basePath || AI_PATH;
-
     const handleRowClick = (ai: AiEntity) => {
         router.push(`${navigationPath}/${ai.id}`);
     };
 
     return (
-        <div className="space-y-4 w-full max-w-full min-w-0">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold">
-                    AI записи
-                    {domain && <span className="text-lg text-muted-foreground ml-2">({domain})</span>}
-                    {userId && <span className="text-lg text-muted-foreground ml-2">- {userId}</span>}
-                </h1>
-            </div>
+        <div className="w-full min-w-0 max-w-full space-y-4">
+            <h1 className="text-3xl font-bold">
+                AI-записи
+                {domain && <span className="ml-2 text-lg text-muted-foreground">({domain})</span>}
+                {userId && <span className="ml-2 text-lg text-muted-foreground">— сотрудник {userId}</span>}
+            </h1>
 
             <AiFilter
                 filters={filters}
-                onFiltersChange={setFilters}
-                filterOptions={filterOptions}
+                onFiltersChange={changeFilters}
+                facets={facets.data}
+                hideDomain={Boolean(domain)}
             />
 
-            {!byUser && paged.data && (
-                <AiPager
-                    page={paged.data.page}
-                    pageSize={paged.data.pageSize}
-                    total={paged.data.total}
-                    loading={paged.isFetching}
+            {list.isError && (
+                <p className="text-sm text-destructive">Список не загрузился: {list.error.message}</p>
+            )}
+
+            {list.data && (
+                <ListPager
+                    page={list.data.page}
+                    pageSize={list.data.pageSize}
+                    total={list.data.total}
+                    loading={list.isFetching}
                     onChange={setPage}
                 />
             )}
 
-            <div className="w-full max-w-full min-w-0 overflow-x-auto">
+            <div className="w-full min-w-0 max-w-full overflow-x-auto">
                 <AiTable
-                    data={filteredAiEntities}
-                    isLoading={isLoading}
+                    data={list.data?.items ?? []}
+                    isLoading={list.isLoading}
                     onRowClick={handleRowClick}
                 />
             </div>

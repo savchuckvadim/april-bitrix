@@ -50,8 +50,12 @@ export interface DeepRoute {
     isPortalKonstructor: boolean;
     isStatisticsTranscription: boolean;
     isStatisticsAi: boolean;
+    /** Расход на распознавание по всем порталам (`/statistics/transcription-spend`). */
+    isStatisticsTranscriptionSpend: boolean;
     isPortalStatisticsTranscription: boolean;
     isPortalStatisticsAi: boolean;
+    /** Расход портала на распознавание (`/portal/:id/statistics/transcription-spend`). */
+    isPortalStatisticsTranscriptionSpend: boolean;
     /** Раздел «Хуки и автоматика» верхнего уровня (`/hooks`). */
     isHooks: boolean;
     /** «Хуки и автоматика» карточки портала (`/portal/:id/hooks`). */
@@ -144,11 +148,15 @@ export const resolveDeepRoute = (
 
     const isStatisticsTranscription = isStatistics && second === 'transcription';
     const isStatisticsAi = isStatistics && second === 'ai';
+    const isStatisticsTranscriptionSpend =
+        isStatistics && second === 'transcription-spend';
 
     const isPortalStatisticsTranscription =
         isPortalStatistics && portalSubSection === 'transcription';
     const isPortalStatisticsAi =
         isPortalStatistics && portalSubSection === 'ai';
+    const isPortalStatisticsTranscriptionSpend =
+        isPortalStatistics && portalSubSection === 'transcription-spend';
 
     return {
         isGarant,
@@ -182,8 +190,10 @@ export const resolveDeepRoute = (
         isPortalKonstructor,
         isStatisticsTranscription,
         isStatisticsAi,
+        isStatisticsTranscriptionSpend,
         isPortalStatisticsTranscription,
         isPortalStatisticsAi,
+        isPortalStatisticsTranscriptionSpend,
         isHooks,
         isPortalHooks,
         isSupport,

@@ -1,4 +1,5 @@
 export * from './data-table';
+export * from './list-pager';
 export * from './confirm-dialog';
 export * from './preloader/screen/LoadingScreen';
 export * from './sidebar';

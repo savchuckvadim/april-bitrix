@@ -10,11 +10,12 @@ describe('варианты фильтра серверного списка', ()
             ],
             value => (value === 'yandex' ? 'Яндекс' : value),
         );
-        expect(options[0]).toEqual({ value: FACET_ALL, label: 'Все' });
-        expect(options[1].value).toBe('yandex');
-        expect(options[1].label.replace(/\s/g, ' ')).toBe('Яндекс · 1 412');
-        expect(options[1].keywords).toEqual(['yandex']);
-        expect(options[2].label).toBe('bitrix-vibecode · 3');
+        const [all, yandex, vibecode] = options;
+        expect(all).toEqual({ value: FACET_ALL, label: 'Все' });
+        expect(yandex?.value).toBe('yandex');
+        expect(yandex?.label.replace(/\s/g, ' ')).toBe('Яндекс · 1 412');
+        expect(yandex?.keywords).toEqual(['yandex']);
+        expect(vibecode?.label).toBe('bitrix-vibecode · 3');
     });
 
     it('без значений — только «Все»', () => {

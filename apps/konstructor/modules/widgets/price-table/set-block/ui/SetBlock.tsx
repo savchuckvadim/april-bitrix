@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { Combine, Pencil, RefreshCw, Split, Trash2 } from 'lucide-react';
 import {
     getComplectAttr,
@@ -16,6 +17,8 @@ interface SetBlockProps {
     set: RowSet;
     label: string;
     removable?: boolean;
+    /** Что добавляется в этот набор — на линии его заголовка */
+    actions?: ReactNode;
 }
 
 /**
@@ -23,7 +26,7 @@ interface SetBlockProps {
  * карандаш редактирования свёрнутого сета, пересчёт по текущим ценам.
  * Свёрнут → TotalRowCard, развёрнут → карточки строк.
  */
-export const SetBlock = ({ set, label, removable = false }: SetBlockProps) => {
+export const SetBlock = ({ set, label, removable = false, actions }: SetBlockProps) => {
     const catalog = useAppSelector(selectCatalog);
     const block = useSetBlock(set);
     const lead = leadGarantRow(set);
@@ -41,9 +44,10 @@ export const SetBlock = ({ set, label, removable = false }: SetBlockProps) => {
                 block.isBlurred ? 'opacity-60' : ''
             }`}
         >
-            <div className="mb-2 flex items-center gap-2">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
                 <SetSummary label={label} summary={block.summary} />
-                <div className="ml-auto flex items-center gap-1">
+                <div className="ml-auto flex flex-wrap items-center gap-1">
+                    {actions}
                     <button
                         type="button"
                         onClick={block.resync}

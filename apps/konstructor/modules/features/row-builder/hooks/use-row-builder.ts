@@ -18,31 +18,42 @@ import {
     rowSetActions,
     selectAlternativeSets,
     selectGeneralSet,
+    selectMainRow,
     selectRowSetContext,
 } from '@/modules/entities/row-set';
+import type { RowBuilderTarget } from '../model/types';
+
+/** Стартовый выбор, если главного товара ещё нет */
+const FALLBACK_REFS = { complectCode: 'buh', supplyCode: 'internet_1', contractCode: 'internet' };
 
 /**
- * Мастер добавления строки: главный Гарант, дополнительный Гарант в general
- * (теперь со СВОИМИ поставкой/договором/наполнением — снятие легаси-
- * ограничения) и альтернативный сет «Для сравнения» (лимит 7).
+ * Мастер добавления Гаранта в свой раздел шага цен: «Основные» — главный или
+ * дополнительный Гарант (со своими поставкой/договором/наполнением), «Для
+ * сравнения» — новый набор (лимит 7). Выбор стартует с главного товара:
+ * набор для сравнения обычно собирают похожим на основной.
  */
-export const useRowBuilder = () => {
+export const useRowBuilder = (target: RowBuilderTarget, onDone: () => void) => {
     const dispatch = useAppDispatch();
     const catalog = useAppSelector(selectCatalog);
     const context = useAppSelector(selectRowSetContext);
     const general = useAppSelector(selectGeneralSet);
     const alternative = useAppSelector(selectAlternativeSets);
+    const mainRow = useAppSelector(selectMainRow);
 
-    const [complectCode, setComplect] = useState('buh');
-    const [supplyCode, setSupply] = useState('internet_1');
-    const [contractCode, setContract] = useState('internet');
+    // мастер монтируется открытым — главный товар читаем один раз, на старте
+    const [complectCode, setComplect] = useState(
+        () => mainRow?.refs.complectCode ?? FALLBACK_REFS.complectCode,
+    );
+    const [supplyCode, setSupply] = useState(
+        () => mainRow?.refs.supplyCode ?? FALLBACK_REFS.supplyCode,
+    );
+    const [contractCode, setContract] = useState(
+        () => mainRow?.refs.contractCode ?? FALLBACK_REFS.contractCode,
+    );
 
     const selectedComplect = catalog.complects.byCode[complectCode] ?? null;
     const availableSupplies = selectedComplect
-        ? filterSuppliesForComplect(
-              catalog.supplies.items,
-              selectedComplect.type,
-          )
+        ? filterSuppliesForComplect(catalog.supplies.items, selectedComplect.type)
         : [];
     const availableContracts = selectedComplect
         ? filterContractsForSupply(catalog, selectedComplect.type, supplyCode)
@@ -98,17 +109,18 @@ export const useRowBuilder = () => {
     };
 
     const hasMain = general.rows.some(row => row.role === 'main');
+    const canAddComparison = canAddComparisonSet(alternative);
 
-    const buildMain = () => buildRowInto('general', 'main', MAIN_ROW_KEY);
-
-    const addAdditional = () =>
-        buildRowInto('general', 'additional', `general_add_${nanoid(6)}`);
+    const addToGeneral = () =>
+        hasMain
+            ? buildRowInto('general', 'additional', `general_add_${nanoid(6)}`)
+            : buildRowInto('general', 'main', MAIN_ROW_KEY);
 
     const addComparison = () => {
-        if (!canAddComparisonSet(alternative)) return;
+        if (!canAddComparison) return false;
         const setId = nanoid(8);
         dispatch(rowSetActions.addComparisonSet(setId));
-        buildRowInto(setId, 'comparison', `${setId}_garant`);
+        return buildRowInto(setId, 'comparison', `${setId}_garant`);
     };
 
     return {
@@ -123,10 +135,18 @@ export const useRowBuilder = () => {
         setContractCode: setContract,
         availableSupplies,
         availableContracts,
-        hasMain,
-        canAddComparison: canAddComparisonSet(alternative),
-        buildMain,
-        addAdditional,
-        addComparison,
+        /** Подпись кнопки добавления — по разделу, из которого открыт мастер */
+        submitLabel:
+            target === 'comparison'
+                ? 'Добавить набор'
+                : hasMain
+                  ? 'Добавить к основным'
+                  : 'Добавить главный товар',
+        canSubmit: target === 'comparison' ? canAddComparison : true,
+        /** Добавить в свой раздел; собралась строка — мастер закрывается */
+        submit: () => {
+            const added = target === 'comparison' ? addComparison() : addToGeneral();
+            if (added) onDone();
+        },
     };
 };

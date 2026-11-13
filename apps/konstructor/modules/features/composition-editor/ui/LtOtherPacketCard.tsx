@@ -19,6 +19,8 @@ interface LtOtherPacketCardProps {
     packet: LtOtherPacket;
     view: LtPacketView;
     catalog: Catalog;
+    /** Корзина «Убрать пакет»; в окне пакета её нет — пакет убирается из его строки */
+    removable?: boolean;
     onApply: (action: CompositionAction) => void;
 }
 
@@ -31,6 +33,7 @@ export const LtOtherPacketCard = ({
     packet,
     view,
     catalog,
+    removable = true,
     onApply,
 }: LtOtherPacketCardProps) => {
     const name = useLtPacketName(packet.alternativeName, value =>
@@ -70,11 +73,13 @@ export const LtOtherPacketCard = ({
                 <ToneBadge tone={view.package ? 'complect' : 'warning'} variant="soft">
                     вес {view.weight}
                 </ToneBadge>
-                <IconAction
-                    icon={Trash2}
-                    label="Убрать пакет"
-                    onClick={() => onApply({ kind: 'removeLtOtherPacket', id: packet.id })}
-                />
+                {removable ? (
+                    <IconAction
+                        icon={Trash2}
+                        label="Убрать пакет"
+                        onClick={() => onApply({ kind: 'removeLtOtherPacket', id: packet.id })}
+                    />
+                ) : null}
             </div>
             {needsFix ? <p className="mt-1 px-2 text-xs text-warning">{ltPacketHint(view)}</p> : null}
             <div className="mt-1 grid gap-x-2 sm:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">

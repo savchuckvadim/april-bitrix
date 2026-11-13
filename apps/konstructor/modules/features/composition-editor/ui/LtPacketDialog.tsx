@@ -8,62 +8,56 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@workspace/ui/components/dialog';
-import type { KRow } from '@/modules/entities/row-set';
-import { useCompositionEditor } from '../hooks/use-composition-editor';
+import type { LtPacketDraftState } from '../hooks/use-lt-packet-draft';
 import { CompositionMessages } from './CompositionMessages';
 import { LtOtherPacketCard } from './LtOtherPacketCard';
 
 export interface LtPacketDialogProps {
-    /** Garant-строка, в наполнении которой лежит пакет */
-    row: KRow;
-    packetId: string;
+    /** Пакет в черновике окна */
+    draft: LtPacketDraftState;
     /** Кнопки внизу: добавление или правка */
     footer: ReactNode;
-    /** Закрытие крестиком или кликом мимо окна */
+    /** Крестик, Esc или клик мимо окна — как «Отмена» */
     onClose: () => void;
 }
 
 /**
  * Один пакет Legal Tech окном: его сервисы, вес и пакет каталога. Остальное
- * наполнение товара здесь не показывается — правится только этот пакет.
+ * наполнение товара здесь не показывается. Правки живут в окне, пока их не
+ * сохранили; убрать пакет целиком — кнопкой в его строке.
  */
-export const LtPacketDialog = ({ row, packetId, footer, onClose }: LtPacketDialogProps) => {
-    const editor = useCompositionEditor(row);
-    const index = editor.composition?.ltOther.findIndex(packet => packet.id === packetId) ?? -1;
-    const packet = index >= 0 ? editor.composition?.ltOther[index] : undefined;
-    const view = editor.ltPackets.find(item => item.id === packetId);
-
-    return (
-        <GlassDialog
-            open
-            onOpenChange={next => (next ? undefined : onClose())}
-            size="lg"
-            intensity="soft"
-            cardClassName="max-h-[88vh] gap-4 overflow-hidden"
-        >
-            <DialogHeader>
-                <DialogTitle>Пакет Legal Tech</DialogTitle>
-                <DialogDescription>
-                    Отметьте сервисы — пакет каталога подберётся по их весу.
-                </DialogDescription>
-            </DialogHeader>
-            <div className="min-h-0 overflow-y-auto pr-1">
-                {packet && view ? (
-                    <LtOtherPacketCard
-                        index={index}
-                        packet={packet}
-                        view={view}
-                        catalog={editor.catalog}
-                        onApply={editor.applyComposition}
-                    />
-                ) : null}
-            </div>
-            <CompositionMessages
-                violations={[]}
-                blocked={editor.messages.blocked}
-                autoFixes={editor.messages.autoFixes}
-            />
-            <DialogFooter className="gap-2 border-t pt-3">{footer}</DialogFooter>
-        </GlassDialog>
-    );
-};
+export const LtPacketDialog = ({ draft, footer, onClose }: LtPacketDialogProps) => (
+    <GlassDialog
+        open
+        onOpenChange={next => (next ? undefined : onClose())}
+        size="lg"
+        intensity="soft"
+        cardClassName="max-h-[88vh] gap-4 overflow-hidden"
+    >
+        <DialogHeader>
+            <DialogTitle>Пакет Legal Tech</DialogTitle>
+            <DialogDescription>
+                Отметьте сервисы — пакет каталога подберётся по их весу. В таблицу пакет попадёт
+                после сохранения.
+            </DialogDescription>
+        </DialogHeader>
+        <div className="min-h-0 overflow-y-auto pr-1">
+            {draft.packet && draft.view ? (
+                <LtOtherPacketCard
+                    index={draft.index}
+                    packet={draft.packet}
+                    view={draft.view}
+                    catalog={draft.editor.catalog}
+                    removable={false}
+                    onApply={draft.editor.applyComposition}
+                />
+            ) : null}
+        </div>
+        <CompositionMessages
+            violations={[]}
+            blocked={draft.editor.messages.blocked}
+            autoFixes={draft.editor.messages.autoFixes}
+        />
+        <DialogFooter className="gap-2 border-t pt-3">{footer}</DialogFooter>
+    </GlassDialog>
+);

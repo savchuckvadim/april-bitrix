@@ -103,7 +103,22 @@ describe('строки LT: основной и альтернативный на
         expect(types('general', ['ltconnect'])).toEqual(['lt_other']);
     });
 
-    it('у альтернативы платный пакет есть, доп. пакетов нет (легаси)', () => {
-        expect(types('alternative', ['ltconnect', 'ltbusiness'])).toEqual(['lt']);
+    it('у набора для сравнения — и платный пакет, и доп. пакеты со своим составом', () => {
+        expect(types('alternative', ['ltconnect', 'ltbusiness'])).toEqual(['lt', 'lt_other']);
+        expect(types('alternative', [])).toEqual(['lt_other']);
+    });
+
+    it('строка доп. пакета набора для сравнения — в его наборе, с договором его Гаранта', () => {
+        const synced = syncSetWithComposition(composed('alternative', []), catalog, {
+            regionCode: 'stv',
+            withTax: false,
+        });
+        const row = synced.rows.find(item => item.productType === 'lt_other');
+        expect(row).toMatchObject({
+            key: 'alt_1_lt_other_p1',
+            setId: 'alt_1',
+            role: 'comparison',
+            refs: { packetId: 'p1', serviceCode: 'ltpackSmall', contractCode: 'internet' },
+        });
     });
 });

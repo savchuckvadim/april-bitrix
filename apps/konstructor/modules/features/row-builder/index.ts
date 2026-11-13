@@ -1,2 +1,3 @@
 export { RowBuilderPanel } from './ui/RowBuilderPanel';
-export { useRowBuilder } from './hooks/use-row-builder';
+export type { RowBuilderPanelProps } from './ui/RowBuilderPanel';
+export type { RowBuilderTarget } from './model/types';

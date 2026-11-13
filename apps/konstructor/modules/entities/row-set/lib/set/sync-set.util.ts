@@ -93,9 +93,9 @@ export const syncSetWithComposition = (
             serviceDepartment: context.serviceDepartment,
         });
         for (const packet of ltPackets) {
-            // бесплатная часть товаром не идёт; доп. пакеты — только в основном наборе
+            // бесплатная часть товаром не идёт; доп. пакеты — в любом наборе, каждый
+            // со своим составом (легаси давал альтернативе один пакет без состава)
             if (!packet.isProduct || !packet.package) continue;
-            if (packet.kind === 'extra' && set.kind !== 'general') continue;
             const isExtra = packet.kind === 'extra';
             const row = buildServiceRow({
                 ...serviceBase,

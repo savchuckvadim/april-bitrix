@@ -25,8 +25,14 @@ import { useCompositionView } from './use-composition-view';
  * «Комплект» — главная строка, на «Ценах» — строка из своей карточки.
  * Чекбоксы гоняются через rules-engine (applyAction); в free-режиме правила
  * не принуждают, только подсвечивают.
+ *
+ * `write` — куда писать результат: без него сразу в сборку (панель шага
+ * «Комплект»), с ним — в черновик окна (use-composition-draft).
  */
-export const useCompositionEditor = (row: KRow | null) => {
+export const useCompositionEditor = (
+    row: KRow | null,
+    write?: (next: NonNullable<KRow['composition']>) => void,
+) => {
     const dispatch = useAppDispatch();
     const catalog = useAppSelector(selectCatalog);
     // текущий регион сборки — тумблер «Региональное законодательство» тянет его в состав
@@ -35,7 +41,7 @@ export const useCompositionEditor = (row: KRow | null) => {
     const serviceDepartment = useAppSelector(state =>
         Boolean(state.rowSet.context.serviceDepartment),
     );
-    // набор строки: срок сделки (правило академии) и право на доп. пакеты LT
+    // набор строки: срок сделки (правило академии)
     const set = useAppSelector((state: RootState) =>
         !row
             ? null
@@ -80,11 +86,12 @@ export const useCompositionEditor = (row: KRow | null) => {
         () => (composition && ctx ? describeLtPackets(composition, ctx) : []),
         [composition, ctx],
     );
-    // доп. пакеты LT — только в основном наборе (легаси: у альтернатив их нет)
-    const canHaveExtraLt = set?.kind === 'general';
-
     const writeComposition = (next: NonNullable<KRow['composition']>) => {
         if (!row) return;
+        if (write) {
+            write(next);
+            return;
+        }
         dispatch(
             rowSetActions.setRowComposition({
                 setId: row.setId,
@@ -128,7 +135,6 @@ export const useCompositionEditor = (row: KRow | null) => {
         sections,
         view,
         ltPackets,
-        canHaveExtraLt,
         /** СТАР встроен в комплект и не переключается */
         starLocked: Boolean(complect && getComplectRuleFlags(complect).withStar),
         freeMode: composition?.mode === 'free',

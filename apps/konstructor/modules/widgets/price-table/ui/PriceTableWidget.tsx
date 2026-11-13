@@ -10,6 +10,9 @@ import { Screen, ScreenSplit } from '@/modules/shared';
 import { TableHeader, type TableHeaderSlots } from '../table-header';
 import { SetBlock } from '../set-block';
 import { usePriceTable } from '../hooks/use-price-table';
+import { BuilderToggleButton } from './BuilderToggleButton';
+import { ComparisonSetActions } from './ComparisonSetActions';
+import { PriceSectionHeading } from './PriceSectionHeading';
 import { PriceTableSkeleton } from './PriceTableSkeleton';
 
 export interface PriceTableWidgetProps {
@@ -23,11 +26,13 @@ export interface PriceTableWidgetProps {
 }
 
 /**
- * Шаг «Цены» (легаси PRODUCTS): шапка (главная строка + регион), основной сет,
- * наборы «Для сравнения», мастер добавления, академия у каждого набора
- * (она зависит от количества, которое задают здесь); наполнение — у каждого товара своё,
- * окном из карточки. Справа — итог и переход дальше. Всё про сделку приходит
- * пропсами: см. widgets/deal-price-table.
+ * Шаг «Цены» (легаси PRODUCTS): шапка (главная строка + регион), раздел
+ * «Основные» и раздел «Для сравнения». Всё, что добавляется в раздел, — на
+ * линии его заголовка: Гарант, пакет LT и академия у «Основных», новый набор
+ * у «Для сравнения»; мастер выбора комплекта открывается под тем же
+ * заголовком. Пакеты LT и академия набора для сравнения — в строке заголовка
+ * самого набора. Справа —
+ * итог и переход дальше. Всё про сделку приходит пропсами: см. widgets/deal-price-table.
  */
 export const PriceTableWidget = ({
     isPreparing,
@@ -57,33 +62,60 @@ export const PriceTableWidget = ({
                     <TableHeader {...header} />
                     {beforeSets}
 
-                    <h2 className="mt-1 text-sm font-semibold uppercase text-muted-foreground">
-                        Основные
-                    </h2>
+                    <PriceSectionHeading
+                        title="Основные"
+                        actions={
+                            <>
+                                <BuilderToggleButton
+                                    label="Гарант"
+                                    hint="Добавить Гарант в основной блок"
+                                    active={table.builderTarget === 'general'}
+                                    onClick={() => table.toggleBuilder('general')}
+                                />
+                                {table.mainRow ? <AddLtPacketButton row={table.mainRow} /> : null}
+                                {table.mainRow ? <AcademyPickerButton set={table.general} /> : null}
+                            </>
+                        }
+                    />
+                    {table.builderTarget === 'general' ? (
+                        <RowBuilderPanel target="general" onDone={table.closeBuilder} />
+                    ) : null}
                     <SetBlock set={table.general} label="Основной блок" />
-                    {table.mainRow ? (
-                        <div className="flex flex-wrap gap-2">
-                            <AddLtPacketButton row={table.mainRow} />
-                            <AcademyPickerButton set={table.general} />
-                        </div>
-                    ) : null}
-                    <RowBuilderPanel />
 
-                    {table.alternative.length ? (
-                        <>
-                            <h2 className="mt-2 text-sm font-semibold uppercase text-muted-foreground">
-                                Для сравнения
-                            </h2>
-                            {table.alternative.map((set, index) => (
-                                <div key={set.id} className="flex flex-col gap-2">
-                                    <SetBlock set={set} label={`Набор ${index + 1}`} removable />
-                                    <div>
-                                        <AcademyPickerButton set={set} />
-                                    </div>
-                                </div>
-                            ))}
-                        </>
+                    <PriceSectionHeading
+                        title="Для сравнения"
+                        actions={
+                            <BuilderToggleButton
+                                label="Набор"
+                                hint={
+                                    table.canAddComparison
+                                        ? 'Новый набор для сравнения'
+                                        : 'Наборов для сравнения уже максимум'
+                                }
+                                active={table.builderTarget === 'comparison'}
+                                disabled={!table.canAddComparison}
+                                onClick={() => table.toggleBuilder('comparison')}
+                            />
+                        }
+                    />
+                    {table.builderTarget === 'comparison' ? (
+                        <RowBuilderPanel target="comparison" onDone={table.closeBuilder} />
                     ) : null}
+                    {table.alternative.length ? (
+                        table.alternative.map((set, index) => (
+                            <SetBlock
+                                key={set.id}
+                                set={set}
+                                label={`Набор ${index + 1}`}
+                                removable
+                                actions={<ComparisonSetActions set={set} />}
+                            />
+                        ))
+                    ) : table.builderTarget === 'comparison' ? null : (
+                        <p className="text-sm text-muted-foreground">
+                            Наборов для сравнения пока нет.
+                        </p>
+                    )}
                 </div>
             </ScreenSplit>
         </Screen>

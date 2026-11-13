@@ -46,7 +46,7 @@ export const CompositionEditorBody = ({ editor, showExtraLt = true }: Compositio
     return (
         <div className="flex flex-col gap-3">
             <View editor={editor} />
-            {showExtraLt && editor.canHaveExtraLt ? (
+            {showExtraLt ? (
                 <CompositionLtOtherBlock
                     composition={composition}
                     catalog={editor.catalog}

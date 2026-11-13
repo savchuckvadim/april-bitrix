@@ -1,4 +1,4 @@
-import { FlowLayout } from '@/modules/processes/konstructor';
+import { FrameFlowLayout } from '@/modules/app/ui/FrameFlowLayout';
 
 /** Шаги сборки: степпер и цвет комплекта над экраном шага. */
 export default function FlowGroupLayout({
@@ -6,5 +6,5 @@ export default function FlowGroupLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    return <FlowLayout>{children}</FlowLayout>;
+    return <FrameFlowLayout>{children}</FrameFlowLayout>;
 }

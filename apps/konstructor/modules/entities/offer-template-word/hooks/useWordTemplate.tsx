@@ -260,13 +260,7 @@ export const useWordTemplate = () => {
 
 
 
-    const openSettings = useCallback(() => {
-        dispatch(wordTemplateAC.setSettingsOpen(true));
-    }, [dispatch]);
 
-    const closeSettings = useCallback(() => {
-        dispatch(wordTemplateAC.setSettingsOpen(false));
-    }, [dispatch]);
 
     const download = useCallback(
         async (id: string, templateName?: string) => {
@@ -316,8 +310,6 @@ export const useWordTemplate = () => {
         toggleFavorite,
 
         download,
-        openSettings,
-        closeSettings,
         refresh,
     };
 };

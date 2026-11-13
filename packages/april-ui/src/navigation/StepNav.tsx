@@ -23,6 +23,8 @@ export interface StepNavProps {
     ariaLabel?: string;
     /** Шаги на всю ширину контейнера: первый у левого края, последний у правого. */
     stretch?: boolean;
+    /** compact — тесная встройка (вкладка карточки CRM): мельче кружки и шрифт. */
+    size?: 'default' | 'compact';
     className?: string;
 }
 
@@ -40,6 +42,7 @@ export const StepNav = ({
     tone = 'primary',
     ariaLabel = 'Шаги',
     stretch = false,
+    size = 'default',
     className,
 }: StepNavProps) => (
     <nav aria-label={ariaLabel} className={cn('min-w-0', className)}>
@@ -69,7 +72,10 @@ export const StepNav = ({
                             }
                             onClick={() => onSelect?.(step.code)}
                             className={cn(
-                                'flex cursor-pointer items-center gap-2 rounded-full py-1 pr-3 pl-1 text-sm transition-colors',
+                                'flex cursor-pointer items-center rounded-full transition-colors',
+                                size === 'compact'
+                                    ? 'gap-1.5 py-0.5 pr-2 pl-0.5 text-xs'
+                                    : 'gap-2 py-1 pr-3 pl-1 text-sm',
                                 'hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
                                 'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent',
                                 step.state === 'current'
@@ -79,7 +85,10 @@ export const StepNav = ({
                         >
                             <span
                                 className={cn(
-                                    'flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold [&>svg]:size-3.5',
+                                    'flex shrink-0 items-center justify-center rounded-full font-semibold',
+                                    size === 'compact'
+                                        ? 'size-5 text-[0.625rem] [&>svg]:size-3'
+                                        : 'size-6 text-xs [&>svg]:size-3.5',
                                     step.state === 'current' &&
                                         TONE_SOLID[tone],
                                     step.state === 'done' &&

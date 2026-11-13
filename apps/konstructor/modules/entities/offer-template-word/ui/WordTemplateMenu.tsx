@@ -8,7 +8,8 @@ import { WordTemplateVisibility } from '../types/word-template-types';
 import { ACard } from '@workspace/ui/shared';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
-import { Download, Settings2 } from 'lucide-react';
+import { Download, LayoutGrid } from 'lucide-react';
+import { ROUTE_KONSTRUCTOR, useKonstructorNavigation } from '@/modules/shared/lib/routing';
 import { cn } from '@workspace/ui/lib/utils';
 import { getVisibilityBadgeClassName, getVisibilityBadgeVariant } from './ui-utils/get-by-visibility';
 
@@ -18,15 +19,15 @@ interface WordTemplateMenuProps {
 
 export const WordTemplateMenu: React.FC<WordTemplateMenuProps> = ({ isWord }) => {
     const { selectedTemplate } = useAppSelector((state) => state.offerTemplateWord);
-    const { openSettings, download } = useWordTemplate();
+    const { download } = useWordTemplate();
+    const nav = useKonstructorNavigation();
 
     if (!isWord) {
         return null;
     }
 
-    const handleOpenSettings = () => {
-        openSettings();
-    };
+    // витрина шаблонов — отдельная страница; «Назад» там вернёт к КП
+    const handleOpenSettings = () => nav.to(ROUTE_KONSTRUCTOR.SETTINGS);
 
     const handleDownload = async () => {
         if (selectedTemplate) {
@@ -103,8 +104,8 @@ export const WordTemplateMenu: React.FC<WordTemplateMenuProps> = ({ isWord }) =>
                         </Button>
                     )}
                     <Button type="button" size="sm" onClick={handleOpenSettings}>
-                        <Settings2 className="size-4" />
-                        Настроить
+                        <LayoutGrid className="size-4" />
+                        Выбрать шаблон
                     </Button>
                 </div>
             </div>

@@ -41,7 +41,8 @@ export const CompositionEditorDialog = ({
                 <CompositionToolbar editor={editor} />
             </DialogHeader>
             <div className="min-h-0 overflow-y-auto pr-1">
-                <CompositionEditorBody editor={editor} />
+                {/* доп. пакеты LT на «Ценах» правятся своими окнами (+ Пакет LT, строка пакета) */}
+                <CompositionEditorBody editor={editor} showExtraLt={false} />
             </div>
             <DialogFooter className="gap-2 border-t pt-3">
                 <Button

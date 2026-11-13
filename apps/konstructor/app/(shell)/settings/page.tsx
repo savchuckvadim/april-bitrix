@@ -1,17 +1,8 @@
 'use client';
 
-import { WordTemplateSettingsPage } from '@/modules/entities/offer-template-word';
-import { Screen, ScreenHeader } from '@/modules/shared';
+import { TemplateShopScreen } from '@/modules/widgets/template-shop';
 
-/** Настройки: шаблоны документов (Word). */
+/** Шаблоны КП: витрина Word-шаблонов с превью (бывшее окно настроек). */
 export default function SettingsPage() {
-    return (
-        <Screen>
-            <ScreenHeader
-                title="Шаблоны документов"
-                description="Шаблоны Word для КП и счёта: выбор, создание, превью."
-            />
-            <WordTemplateSettingsPage />
-        </Screen>
-    );
+    return <TemplateShopScreen />;
 }

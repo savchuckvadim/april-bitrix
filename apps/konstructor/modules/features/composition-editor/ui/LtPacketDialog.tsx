@@ -1,7 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { GlassDialog } from '@workspace/april-ui';
-import { Button } from '@workspace/ui/components/button';
 import {
     DialogDescription,
     DialogFooter,
@@ -14,18 +14,20 @@ import { CompositionMessages } from './CompositionMessages';
 import { LtOtherPacketCard } from './LtOtherPacketCard';
 
 export interface LtPacketDialogProps {
+    /** Garant-строка, в наполнении которой лежит пакет */
     row: KRow;
     packetId: string;
-    canConfirm: boolean;
-    onConfirm: () => void;
-    onCancel: () => void;
+    /** Кнопки внизу: добавление или правка */
+    footer: ReactNode;
+    /** Закрытие крестиком или кликом мимо окна */
+    onClose: () => void;
 }
 
 /**
- * Новый пакет Legal Tech с шага цен: в окне только этот пакет — его
- * сервисы, вес и пакет каталога. Остальное наполнение товара здесь не нужно.
+ * Один пакет Legal Tech окном: его сервисы, вес и пакет каталога. Остальное
+ * наполнение товара здесь не показывается — правится только этот пакет.
  */
-export const LtPacketDialog = ({ row, packetId, canConfirm, onConfirm, onCancel }: LtPacketDialogProps) => {
+export const LtPacketDialog = ({ row, packetId, footer, onClose }: LtPacketDialogProps) => {
     const editor = useCompositionEditor(row);
     const index = editor.composition?.ltOther.findIndex(packet => packet.id === packetId) ?? -1;
     const packet = index >= 0 ? editor.composition?.ltOther[index] : undefined;
@@ -34,7 +36,7 @@ export const LtPacketDialog = ({ row, packetId, canConfirm, onConfirm, onCancel 
     return (
         <GlassDialog
             open
-            onOpenChange={next => (next ? undefined : onConfirm())}
+            onOpenChange={next => (next ? undefined : onClose())}
             size="lg"
             intensity="soft"
             cardClassName="max-h-[88vh] gap-4 overflow-hidden"
@@ -61,14 +63,7 @@ export const LtPacketDialog = ({ row, packetId, canConfirm, onConfirm, onCancel 
                 blocked={editor.messages.blocked}
                 autoFixes={editor.messages.autoFixes}
             />
-            <DialogFooter className="gap-2 border-t pt-3">
-                <Button variant="outline" onClick={onCancel}>
-                    Отменить
-                </Button>
-                <Button disabled={!canConfirm} onClick={onConfirm}>
-                    Добавить пакет
-                </Button>
-            </DialogFooter>
+            <DialogFooter className="gap-2 border-t pt-3">{footer}</DialogFooter>
         </GlassDialog>
     );
 };

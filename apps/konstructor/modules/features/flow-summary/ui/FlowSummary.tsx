@@ -16,6 +16,8 @@ export interface FlowSummaryProps {
     hint?: ReactNode;
     /** Кнопки над переходом: «Сохранить», «Комплект», «Цены». */
     actions?: ReactNode;
+    /** «Назад» над карточкой; false — экран ставит её в свой заголовок (FlowBackButton). */
+    showBack?: boolean;
     children: ReactNode;
 }
 
@@ -30,13 +32,14 @@ export const FlowSummary = ({
     nextDisabled,
     hint,
     actions,
+    showBack = true,
     children,
 }: FlowSummaryProps) => {
     const step = useFlowStepActions(onNext);
 
     return (
         <>
-            {step.canGoBack ? (
+            {showBack && step.canGoBack ? (
                 <Button variant="ghost" onClick={step.goBack} className="self-end">
                     <ArrowLeft aria-hidden />
                     Назад

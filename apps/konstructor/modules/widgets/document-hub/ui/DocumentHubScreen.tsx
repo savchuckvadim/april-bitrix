@@ -5,7 +5,7 @@ import { ActionTile } from '@workspace/april-ui/actions';
 import { EmptyState } from '@workspace/april-ui/feedback';
 import { Button } from '@workspace/ui/components/button';
 import { BuildSummary } from '@/modules/features/build-summary';
-import { FlowSummary } from '@/modules/features/flow-summary';
+import { FlowBackButton, FlowSummary } from '@/modules/features/flow-summary';
 import { DealSendButton } from '@/modules/features/deal-send';
 import { ServicePeriodSwitch } from '@/modules/features/service-period';
 import { Screen, ScreenHeader, ScreenSplit } from '@/modules/shared';
@@ -33,12 +33,18 @@ export const DocumentHubScreen = () => {
             <ScreenHeader
                 title="Документ"
                 description="Проверьте сборку и выберите, какой документ сделать."
-                actions={<ServicePeriodSwitch />}
+                actions={
+                    <>
+                        <ServicePeriodSwitch />
+                        <FlowBackButton />
+                    </>
+                }
             />
             <ScreenSplit
                 aside={
                     <FlowSummary
                         title="Сборка"
+                        showBack={false}
                         actions={
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="col-span-2 flex justify-end">

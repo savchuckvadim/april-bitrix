@@ -25,9 +25,17 @@ export const AddLtPacketButton = ({ row }: AddLtPacketButtonProps) => {
                 <LtPacketDialog
                     row={row}
                     packetId={packet.packetId}
-                    canConfirm={packet.canConfirm}
-                    onConfirm={packet.confirm}
-                    onCancel={packet.cancel}
+                    onClose={packet.confirm}
+                    footer={
+                        <>
+                            <Button variant="outline" onClick={packet.cancel}>
+                                Отменить
+                            </Button>
+                            <Button disabled={!packet.canConfirm} onClick={packet.confirm}>
+                                Добавить пакет
+                            </Button>
+                        </>
+                    }
                 />
             ) : null}
         </>

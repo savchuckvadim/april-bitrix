@@ -3,7 +3,7 @@
 import { Trash2 } from 'lucide-react';
 import { MicroSelect } from '@workspace/april-ui/fields';
 import { academyPackageLabel } from '@/modules/entities/catalog';
-import { RowCompositionButton } from '@/modules/features/composition-editor';
+import { LtPacketEditButton, RowCompositionButton } from '@/modules/features/composition-editor';
 import type { KRow } from '@/modules/entities/row-set';
 import { getServiceRefsLabel } from '../../lib/row-display.util';
 import { CommercialInputs } from '../../commercial-inputs';
@@ -110,7 +110,12 @@ export const ServiceRowCard = ({ row, collapsed }: ServiceRowCardProps) => {
                 ) : null}
 
                 {service.ltOwner && service.ltPacket && !card.isBlurred ? (
-                    <RowCompositionButton row={service.ltOwner} />
+                    // доп. пакет — окно только с ним; платный пакет комплекта — наполнение строки
+                    row.productType === 'lt_other' && row.refs.packetId ? (
+                        <LtPacketEditButton row={service.ltOwner} packetId={row.refs.packetId} />
+                    ) : (
+                        <RowCompositionButton row={service.ltOwner} />
+                    )
                 ) : null}
 
                 {row.productType === 'lt_other' && service.ltPacket ? (

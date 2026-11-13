@@ -7,7 +7,7 @@ import { Button } from '@workspace/ui/components/button';
 import { BuildSummary } from '@/modules/features/build-summary';
 import { ComplectDescriptionButton } from '@/modules/features/complect-description';
 import { CompositionEditorPanel } from '@/modules/features/composition-editor';
-import { FlowSummary } from '@/modules/features/flow-summary';
+import { FlowBackButton, FlowSummary } from '@/modules/features/flow-summary';
 import { Screen, ScreenHeader, ScreenSplit } from '@/modules/shared';
 import { useComplectBuilder } from '../hooks/use-complect-builder';
 
@@ -40,6 +40,7 @@ export const ComplectBuilderScreen = () => {
             <ScreenHeader
                 title="Комплект"
                 description="Выберите комплект и настройте наполнение."
+                actions={<FlowBackButton />}
             />
             <ChoiceChips
                 options={builder.complectOptions}
@@ -50,7 +51,11 @@ export const ComplectBuilderScreen = () => {
             />
             <ScreenSplit
                 aside={
-                    <FlowSummary title="Итог" actions={<ComplectDescriptionButton />}>
+                    <FlowSummary
+                        title="Итог"
+                        showBack={false}
+                        actions={<ComplectDescriptionButton />}
+                    >
                         <BuildSummary />
                     </FlowSummary>
                 }

@@ -46,7 +46,6 @@ export const useComplectBuilder = () => {
     }));
 
     const selectComplect = (complectCode: string) => {
-        debugger
         if (!mainRow) return;
         const row = rebuildRowWithRefs(catalog, context, mainRow, {
             complectCode,

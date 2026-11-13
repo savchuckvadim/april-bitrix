@@ -67,6 +67,15 @@ const appSlice = createSlice({
             state.initialized = true;
         },
 
+        /**
+         * Суперпользователь April (заводится в админке, «Суперюзеры»): правит
+         * общедоступные шаблоны. Приходит с правами библиотеки (бэк смотрит
+         * vendor_super_users).
+         */
+        setSuperUser: (state: AppState, action: PayloadAction<boolean>) => {
+            state.isSuperUser = action.payload;
+        },
+
         /** Подпись экрана загрузки; null — снять */
         setBusy: (state: AppState, action: PayloadAction<string | null>) => {
             state.busy = action.payload;

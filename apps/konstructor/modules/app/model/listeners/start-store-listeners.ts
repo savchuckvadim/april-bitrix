@@ -18,7 +18,7 @@ import {
 import { restoreSnapshot, snapshotActions } from '@/modules/entities/snapshot';
 import { bxrqActions, fetchBXRQ } from '@/modules/entities/bx-rq';
 import { selectClientTypeOrDefault } from '@/modules/entities/deal';
-import { fetchLibraryRights } from '@/modules/entities/library';
+import { fetchLibraryRights, libraryActions } from '@/modules/entities/library';
 import { wordTemplateAC, wordTemplatePdfPreviewAC } from '@/modules/entities/offer-template-word';
 import { offerDocumentActions } from '@/modules/entities/offer-document';
 import { contractDocumentActions } from '@/modules/entities/contract-document';
@@ -78,6 +78,14 @@ export function startStoreListeners(
  * стек заморожен (решение владельца 24.10), его страницы грузят своё сами.
  */
 function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
+    typed(listenerMiddleware)({
+        actionCreator: libraryActions.setRights,
+        // признак суперпользователя приходит с правами библиотеки
+        effect: (action, listenerApi) => {
+            listenerApi.dispatch(appActions.setSuperUser(action.payload.isSuperUser));
+        },
+    });
+
     typed(listenerMiddleware)({
         actionCreator: appActions.setAppData,
         effect: (action, listenerApi) => {

@@ -16,6 +16,11 @@ import type { CompositionViewProps } from './views/types';
 
 export interface CompositionEditorBodyProps {
     editor: CompositionEditorState;
+    /**
+     * Блок доп. пакетов LT. На «Ценах» у пакетов свои окна (+ Пакет LT,
+     * строка пакета) — в наполнении Гаранта только его LT-чекбоксы.
+     */
+    showExtraLt?: boolean;
 }
 
 const VIEWS: Record<CompositionViewMode, ComponentType<CompositionViewProps>> = {
@@ -33,7 +38,7 @@ const VIEWS: Record<CompositionViewMode, ComponentType<CompositionViewProps>> = 
  * прокрутки: остаются на виду при длинном списке и, появляясь, не двигают
  * чекбоксы. Одно тело для панели шага «Комплект» и окна товара на «Ценах».
  */
-export const CompositionEditorBody = ({ editor }: CompositionEditorBodyProps) => {
+export const CompositionEditorBody = ({ editor, showExtraLt = true }: CompositionEditorBodyProps) => {
     const { composition } = editor;
     if (!composition) return null;
     const View = VIEWS[editor.view.mode];
@@ -41,7 +46,7 @@ export const CompositionEditorBody = ({ editor }: CompositionEditorBodyProps) =>
     return (
         <div className="flex flex-col gap-3">
             <View editor={editor} />
-            {editor.canHaveExtraLt ? (
+            {showExtraLt && editor.canHaveExtraLt ? (
                 <CompositionLtOtherBlock
                     composition={composition}
                     catalog={editor.catalog}

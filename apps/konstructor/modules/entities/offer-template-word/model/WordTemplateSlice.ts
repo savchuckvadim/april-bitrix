@@ -20,7 +20,6 @@ export type WordTemplateState = {
     isFetched: boolean;
     isInitialized: boolean;
     error: string | null;
-    isSettingsOpen: boolean;
     isDeleting: boolean | string;
 };
 
@@ -37,7 +36,6 @@ const initialState: WordTemplateState = {
     isFetched: false,
     isInitialized: false,
     error: null,
-    isSettingsOpen: false,
     isDeleting: false,
 };
 
@@ -172,9 +170,6 @@ export const wordTemplateSlice = createSlice({
         },
         removeFromFavorites: (state: WordTemplateState, action: PayloadAction<string>) => {
             state.favorites = state.favorites.filter(fid => fid !== action.payload);
-        },
-        setSettingsOpen: (state: WordTemplateState, action: PayloadAction<boolean>) => {
-            state.isSettingsOpen = action.payload;
         },
         clear: () => initialState,
     },

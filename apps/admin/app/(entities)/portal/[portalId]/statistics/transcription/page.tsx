@@ -3,6 +3,8 @@
 import { use } from 'react';
 import { TranscriptionList } from '@/modules/entities/event/transcription';
 import { usePortal } from '@/modules/entities/portal';
+import { portalSpendPath } from '@/modules/entities/transcription-spend';
+import Link from 'next/link';
 
 export default function PortalTranscriptionPage({
     params,
@@ -35,5 +37,15 @@ export default function PortalTranscriptionPage({
     // Используем domain из портала
     const domain = portal.domain || portalId;
 
-    return <TranscriptionList domain={domain} basePath={`/portal/${portalId}/statistics/transcription`} />;
+    return (
+        <TranscriptionList
+            domain={domain}
+            basePath={`/portal/${portalId}/statistics/transcription`}
+            headerAction={
+                <Link className="text-sm text-primary hover:underline" href={portalSpendPath(portalId)}>
+                    Расход на распознавание →
+                </Link>
+            }
+        />
+    );
 }

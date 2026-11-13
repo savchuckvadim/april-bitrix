@@ -8,7 +8,7 @@
 import type { AiEntityDto } from './aiEntityDto';
 
 export interface AiAdminPageDto {
-  /** Записи страницы, свежие первыми (по id). */
+  /** Записи страницы, свежие первыми (по id). Длинные поля укорочены до 300 знаков, user_result не отдаётся — целиком запись открывается по id. */
   items: AiEntityDto[];
   /** Всего записей под фильтром. */
   total: number;

@@ -6,6 +6,10 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  AdminTranscriptionStoreFacetsParams,
+  AdminTranscriptionStoreFindPageParams,
+  TranscriptionAdminFacetsDto,
+  TranscriptionAdminPageDto,
   TranscriptionStoreDto
 } from '.././model';
 
@@ -15,6 +19,32 @@ import { customAxios } from '../../lib/admin-api';
 
   export const getAdminTranscriptionStore = () => {
 /**
+ * Свежие первыми, без текста разговора; все фильтры — на сервере. Список админки ходит сюда, а не в выгрузку всех записей.
+ * @summary Страница транскрипций с фильтрами
+ */
+const adminTranscriptionStoreFindPage = (
+    params?: AdminTranscriptionStoreFindPageParams,
+ ) => {
+      return customAxios<TranscriptionAdminPageDto>(
+      {url: `/api/admin/transcription-store/page`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Порталы, распознаватели, статусы и приложения с числом записей — по всем порталам или по одному.
+ * @summary Значения фильтров списка транскрипций
+ */
+const adminTranscriptionStoreFacets = (
+    params?: AdminTranscriptionStoreFacetsParams,
+ ) => {
+      return customAxios<TranscriptionAdminFacetsDto>(
+      {url: `/api/admin/transcription-store/facets`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
  * @summary Find transcription by ID
  */
 const adminTranscriptionStoreFindById = (
@@ -70,7 +100,9 @@ const adminTranscriptionStoreFindByDomainAndUser = (
     },
       );
     }
-  return {adminTranscriptionStoreFindById,adminTranscriptionStoreDelete,adminTranscriptionStoreFindAll,adminTranscriptionStoreFindByDomain,adminTranscriptionStoreFindByDomainAndUser}};
+  return {adminTranscriptionStoreFindPage,adminTranscriptionStoreFacets,adminTranscriptionStoreFindById,adminTranscriptionStoreDelete,adminTranscriptionStoreFindAll,adminTranscriptionStoreFindByDomain,adminTranscriptionStoreFindByDomainAndUser}};
+export type AdminTranscriptionStoreFindPageResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminTranscriptionStore>['adminTranscriptionStoreFindPage']>>>
+export type AdminTranscriptionStoreFacetsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminTranscriptionStore>['adminTranscriptionStoreFacets']>>>
 export type AdminTranscriptionStoreFindByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminTranscriptionStore>['adminTranscriptionStoreFindById']>>>
 export type AdminTranscriptionStoreDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminTranscriptionStore>['adminTranscriptionStoreDelete']>>>
 export type AdminTranscriptionStoreFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminTranscriptionStore>['adminTranscriptionStoreFindAll']>>>

@@ -6,6 +6,7 @@ import { ConnectionCard } from './cards/ConnectionCard';
 import { LinksCard } from './cards/LinksCard';
 import { LoadCard } from './cards/LoadCard';
 import { SupportCard } from './cards/SupportCard';
+import { TranscriptionSpendCard } from './cards/TranscriptionSpendCard';
 import { WidgetsCard } from './cards/WidgetsCard';
 import { OverviewHeader } from './OverviewHeader';
 import { OverviewTiles } from './OverviewTiles';
@@ -28,6 +29,7 @@ export const PortalOverview = ({ portal }: { portal: AdminPortalResponseDto }) =
                 {domain && <LoadCard portalId={portal.id} domain={domain} />}
                 {domain && <SupportCard domain={domain} />}
                 {domain && <AutomationCard portalId={portal.id} domain={domain} />}
+                {domain && <TranscriptionSpendCard portalId={portal.id} domain={domain} />}
             </div>
             {domain && <LinksCard portalId={portal.id} domain={domain} />}
         </div>

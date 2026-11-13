@@ -6,7 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  AdminAiFacetsParams,
   AdminAiFindPageParams,
+  AiAdminFacetsDto,
   AiAdminPageDto,
   AiCreateDto,
   AiEntityDto,
@@ -43,7 +45,7 @@ const adminAiFindAll = (
       );
     }
   /**
- * Свежие первыми, общее число под фильтром; фильтры — домен портала и тип записи. Для списка админки вместо выгрузки всех записей.
+ * Свежие первыми, общее число под фильтром; все фильтры — на сервере. Длинные поля укорочены. Для списка админки вместо выгрузки всех записей.
  * @summary Страница AI-записей
  */
 const adminAiFindPage = (
@@ -51,6 +53,19 @@ const adminAiFindPage = (
  ) => {
       return customAxios<AiAdminPageDto>(
       {url: `/api/admin/ai/page`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Порталы, типы, поставщики и статусы с числом записей — по всем порталам или по одному.
+ * @summary Значения фильтров списка AI-записей
+ */
+const adminAiFacets = (
+    params?: AdminAiFacetsParams,
+ ) => {
+      return customAxios<AiAdminFacetsDto>(
+      {url: `/api/admin/ai/facets`, method: 'GET',
         params
     },
       );
@@ -103,10 +118,11 @@ const adminAiUpdate = (
     },
       );
     }
-  return {adminAiCreate,adminAiFindAll,adminAiFindPage,adminAiFindByDomainAndUser,adminAiFindByDomain,adminAiFindOne,adminAiUpdate}};
+  return {adminAiCreate,adminAiFindAll,adminAiFindPage,adminAiFacets,adminAiFindByDomainAndUser,adminAiFindByDomain,adminAiFindOne,adminAiUpdate}};
 export type AdminAiCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiCreate']>>>
 export type AdminAiFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindAll']>>>
 export type AdminAiFindPageResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindPage']>>>
+export type AdminAiFacetsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFacets']>>>
 export type AdminAiFindByDomainAndUserResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindByDomainAndUser']>>>
 export type AdminAiFindByDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindByDomain']>>>
 export type AdminAiFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminAi>['adminAiFindOne']>>>

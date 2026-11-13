@@ -393,3 +393,19 @@ describe('resolveDeepRoute: раздел «КП на год»', () => {
         });
     });
 });
+
+describe('resolveDeepRoute: вкладка «Расход на распознавание»', () => {
+    it('общая и портальная вкладки расхода, соседние вкладки не путаются', () => {
+        const common = resolveDeepRoute('/statistics/transcription-spend', '');
+        expect(common.isStatisticsTranscriptionSpend).toBe(true);
+        expect(common.isStatisticsTranscription).toBe(false);
+
+        const portal = resolveDeepRoute(
+            `/portal/${PORTAL_ID}/statistics/transcription-spend`,
+            PORTAL_ID,
+        );
+        expect(portal.isPortalStatisticsTranscriptionSpend).toBe(true);
+        expect(portal.isPortalStatisticsTranscription).toBe(false);
+        expect(portal.isPortalStatistics).toBe(true);
+    });
+});

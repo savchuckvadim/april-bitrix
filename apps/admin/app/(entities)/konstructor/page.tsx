@@ -24,6 +24,10 @@ export default function KonstructorPage() {
                 <Link className="text-primary underline" href="/konstructor/public-link">
                     Публичные ссылки
                 </Link>
+                <br />
+                <Link className="text-primary underline" href="/konstructor/offer-letter">
+                    Письма КП
+                </Link>
             </div>
         </div>
     );

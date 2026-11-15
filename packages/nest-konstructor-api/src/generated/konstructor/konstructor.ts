@@ -170,13 +170,26 @@ export const getKonstructor = () => {
         });
     };
     /**
-     * Встроенные шаблоны (код, название, описание) для выбора в конструкторе.
+     * Встроенные стили: код, название, описание, есть ли титульник и какие настройки стиль задаёт сам.
      * @summary Список PDF-шаблонов КП
      */
     const offerPdfListTemplates = () => {
         return customAxios<OfferPdfTemplateItemDto[]>({
             url: `/api/offer-pdf/templates`,
             method: 'GET',
+        });
+    };
+    /**
+     * Первая страница стиля (титульник или первый лист) на образце «Гарант-Офис» — миниатюра для выбора стиля. Данные вымышленные.
+     * @summary Превью PDF-стиля КП
+     */
+    const offerPdfStylePreview = (
+        code: 'classic' | 'modern' | 'monochrome',
+    ) => {
+        return customAxios<Blob>({
+            url: `/api/offer-pdf/templates/${code}/preview`,
+            method: 'GET',
+            responseType: 'blob',
         });
     };
     /**
@@ -217,6 +230,7 @@ export const getKonstructor = () => {
         offerWordPdfPreviewStopPreview,
         offerWordMultiGenerateGenerateOfferWordMulti,
         offerPdfListTemplates,
+        offerPdfStylePreview,
         offerPdfPreview,
         offerPdfGenerate,
     };
@@ -303,6 +317,11 @@ export type OfferWordMultiGenerateGenerateOfferWordMultiResult = NonNullable<
 export type OfferPdfListTemplatesResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getKonstructor>['offerPdfListTemplates']>
+    >
+>;
+export type OfferPdfStylePreviewResult = NonNullable<
+    Awaited<
+        ReturnType<ReturnType<typeof getKonstructor>['offerPdfStylePreview']>
     >
 >;
 export type OfferPdfPreviewResult = NonNullable<

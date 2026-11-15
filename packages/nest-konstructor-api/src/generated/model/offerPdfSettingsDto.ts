@@ -24,4 +24,6 @@ export interface OfferPdfSettingsDto {
      * @nullable
      */
     salePhrase?: string | null;
+    /** Титульный лист перед письмом. Действует у стилей, где титульник есть; у остальных игнорируется. */
+    withCover?: boolean;
 }

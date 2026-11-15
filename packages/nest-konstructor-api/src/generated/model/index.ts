@@ -579,6 +579,7 @@ export * from './wordTemplateFindAllWordTemplatesVisibility';
 export * from './wordTemplateSummaryDto';
 export * from './wordTemplateSummaryDtoVisibility';
 export * from './wordTemplateTagsUploadDocumentTagsFileBody';
+export * from './wordTemplateUploadPreviewBody';
 export * from './zakupkiFieldInputType';
 export * from './zakupkiFieldType';
 export * from './zakupkiOfferCreateDto';

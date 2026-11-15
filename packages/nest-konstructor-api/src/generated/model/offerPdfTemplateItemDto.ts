@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { OfferPdfTemplateItemDtoCode } from './offerPdfTemplateItemDtoCode';
+import type { OfferPdfSettingsDto } from './offerPdfSettingsDto';
 
 export interface OfferPdfTemplateItemDto {
     /** Код шаблона — передаётся в preview/generate. */
@@ -14,4 +15,8 @@ export interface OfferPdfTemplateItemDto {
     name: string;
     /** Что в шаблоне и чем он отличается. */
     description: string;
+    /** Есть ли у стиля титульный лист: только у таких стилей работает настройка withCover. */
+    hasCover: boolean;
+    /** Настройки, которые стиль задаёт сам: в конструкторе их переключатели неактивны, при генерации они ставятся поверх выбора менеджера. */
+    lockedSettings: OfferPdfSettingsDto;
 }

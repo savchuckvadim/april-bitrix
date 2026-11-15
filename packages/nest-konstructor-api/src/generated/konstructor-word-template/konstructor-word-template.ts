@@ -15,6 +15,7 @@ import type {
     WordTemplateDto,
     WordTemplateFindAllWordTemplatesParams,
     WordTemplateSummaryDto,
+    WordTemplateUploadPreviewBody,
 } from '.././model';
 
 import { customAxios } from '../../lib/konstructor-api';
@@ -170,6 +171,44 @@ export const getKonstructorWordTemplate = () => {
         });
     };
     /**
+     * Своя картинка (PNG/JPEG/WebP), если загружена; иначе PDF первой страницы, собранный по шаблону на образце «Гарант-Офис». Кэш по содержимому файла шаблона: замена файла даёт новое превью.
+     * @summary Превью шаблона для магазина шаблонов
+     */
+    const wordTemplatePreview = (id: string) => {
+        return customAxios<void>({
+            url: `/api/word-templates/${id}/preview`,
+            method: 'GET',
+        });
+    };
+    /**
+     * Картинка PNG, JPEG или WebP — заменяет сгенерированное превью.
+     * @summary Загрузить своё превью шаблона
+     */
+    const wordTemplateUploadPreview = (
+        id: string,
+        wordTemplateUploadPreviewBody: WordTemplateUploadPreviewBody,
+    ) => {
+        const formData = new FormData();
+        formData.append(`file`, wordTemplateUploadPreviewBody.file);
+
+        return customAxios<boolean>({
+            url: `/api/word-templates/${id}/preview`,
+            method: 'PUT',
+            headers: { 'Content-Type': 'multipart/form-data' },
+            data: formData,
+        });
+    };
+    /**
+     * Возвращает сгенерированное превью.
+     * @summary Убрать своё превью шаблона
+     */
+    const wordTemplateRemovePreview = (id: string) => {
+        return customAxios<boolean>({
+            url: `/api/word-templates/${id}/preview`,
+            method: 'DELETE',
+        });
+    };
+    /**
      * @deprecated
      * @summary Архивировать шаблон (GET, легаси)
      */
@@ -253,6 +292,9 @@ export const getKonstructorWordTemplate = () => {
         wordTemplateUpdate,
         wordTemplateRemove,
         wordTemplateDownloadTemplate,
+        wordTemplatePreview,
+        wordTemplateUploadPreview,
+        wordTemplateRemovePreview,
         wordTemplateArchive,
         wordTemplateArchivePatch,
         wordTemplateUnarchive,
@@ -334,6 +376,31 @@ export type WordTemplateDownloadTemplateResult = NonNullable<
             ReturnType<
                 typeof getKonstructorWordTemplate
             >['wordTemplateDownloadTemplate']
+        >
+    >
+>;
+export type WordTemplatePreviewResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getKonstructorWordTemplate>['wordTemplatePreview']
+        >
+    >
+>;
+export type WordTemplateUploadPreviewResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getKonstructorWordTemplate
+            >['wordTemplateUploadPreview']
+        >
+    >
+>;
+export type WordTemplateRemovePreviewResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getKonstructorWordTemplate
+            >['wordTemplateRemovePreview']
         >
     >
 >;

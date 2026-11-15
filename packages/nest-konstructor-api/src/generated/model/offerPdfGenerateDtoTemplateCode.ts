@@ -15,4 +15,6 @@ export type OfferPdfGenerateDtoTemplateCode =
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const OfferPdfGenerateDtoTemplateCode = {
     classic: 'classic',
+    modern: 'modern',
+    monochrome: 'monochrome',
 } as const;

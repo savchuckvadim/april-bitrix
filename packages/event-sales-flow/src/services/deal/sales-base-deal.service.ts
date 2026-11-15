@@ -38,6 +38,7 @@ export class SalesBaseDealService {
             this.logger.warn('sales_base category not configured');
             return null;
         }
+        if (ctx.isNoCall) return this.queueNoCall(ctx);
 
         const targetStage = getSalesBaseTargetStageCode({
             category,
@@ -60,18 +61,8 @@ export class SalesBaseDealService {
             return ctx.currentBaseDeal ? String(ctx.currentBaseDeal.ID) : null;
         }
 
-        const entityFields = new EventReportEntityFieldsModel(
-            this.portal,
-            ctx,
-            EEventReportEntityType.DEAL,
-            {
-                deal: ctx.currentBaseDeal as Record<string, unknown> | null,
-                role: EDealRole.BASE,
-            },
-        ).toFields();
-
         const baseFields: Partial<IBXDeal> = {
-            ...(entityFields as Partial<IBXDeal>),
+            ...this.entityFields(ctx),
             ...ctx.ownerLinkFields,
             ...this.saleFields(ctx),
             ...this.failFields(ctx),
@@ -94,6 +85,34 @@ export class SalesBaseDealService {
         const cmd = 'set_base_deal';
         this.bitrix.batch.deal.set(cmd, baseFields);
         return `$result[${cmd}]`;
+    }
+
+    /**
+     * Недозвон (кнопка «Недозвон», зеркало бэка, решение владельца
+     * 15.11.2026): только запись в карточку ТЕКУЩЕЙ основной сделки — без
+     * стадии, без смены ответственного и без создания новой сделки.
+     */
+    private queueNoCall(ctx: EventReportContext): string | null {
+        const deal = ctx.currentBaseDeal;
+        if (!deal) return null;
+        this.bitrix.batch.deal.update(
+            `update_base_deal_${deal.ID}`,
+            Number(deal.ID),
+            { ...this.entityFields(ctx), ...ctx.ownerLinkFields },
+        );
+        return String(deal.ID);
+    }
+
+    private entityFields(ctx: EventReportContext): Partial<IBXDeal> {
+        return new EventReportEntityFieldsModel(
+            this.portal,
+            ctx,
+            EEventReportEntityType.DEAL,
+            {
+                deal: ctx.currentBaseDeal as Record<string, unknown> | null,
+                role: EDealRole.BASE,
+            },
+        ).toFields() as Partial<IBXDeal>;
     }
 
     /**

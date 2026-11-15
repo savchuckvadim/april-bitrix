@@ -104,8 +104,17 @@ export class SalesPresentationDealService {
             }
         }
 
-        // 2) Создание новой pres-сделки под план
-        if (ctx.planEventType === 'presentation') {
+        /*
+         * 2) Создание новой pres-сделки под план — только под ВКЛЮЧЁННЫЙ план
+         * и не при переносе (зеркало бэка: apps/event-sales …/sales-presentation-
+         * deal.service.ts). Перенос двигает ту же задачу, и новая сделка
+         * оставалась без задачи висеть в «План» (garant 279073, 07–30.10.2026).
+         */
+        if (
+            ctx.planEventType === 'presentation' &&
+            ctx.isPlanned &&
+            !ctx.isExpired
+        ) {
             const stage = getPresentationTargetStageCode({
                 category,
                 eventAction: EVENT_REPORT_ACTION.plan,

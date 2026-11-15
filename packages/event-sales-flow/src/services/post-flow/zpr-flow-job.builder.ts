@@ -31,6 +31,8 @@ export function buildZprFlowJobs(
     input: SideFlowJobBuildInput,
 ): ZprFlowJobData[] {
     const { ctx, questionnaire } = input;
+    // Недозвон смарт не трогает (зеркало бэка, 15.11.2026).
+    if (ctx.isNoCall) return [];
 
     /*
      * Перенос (isExpired) — ОДИН джоб-move: задача та же, элемент тот же.

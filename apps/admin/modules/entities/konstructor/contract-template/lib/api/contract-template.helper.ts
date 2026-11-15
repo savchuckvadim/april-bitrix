@@ -28,6 +28,14 @@ import type {
     IUpdateContractTemplateDto,
 } from '../../model';
 
+/**
+ * У инстанса konstructor-API по умолчанию `Content-Type: application/json`, и
+ * с ним axios сам перекладывает FormData в JSON — файл уезжает как `{}`, бэк
+ * отвечает «File is required». Явный multipart отдаёт FormData как есть,
+ * границу браузер проставит сам (так же у счетов, отчёта о поставке и Word).
+ */
+const MULTIPART_HEADERS = { 'Content-Type': 'multipart/form-data' } as const;
+
 /** Добавляет поле, только если оно задано: `undefined` в multipart стал бы строкой "undefined". */
 const appendIfDefined = (
     formData: FormData,
@@ -170,6 +178,7 @@ export class ContractTemplateHelper {
             url: CONTRACT_TEMPLATE_API_BASE,
             method: 'POST',
             data: buildCreateFormData(dto),
+            headers: MULTIPART_HEADERS,
         });
     }
 
@@ -188,6 +197,7 @@ export class ContractTemplateHelper {
             url: `${CONTRACT_TEMPLATE_API_BASE}/${id}`,
             method: 'PATCH',
             data: hasFiles ? buildUpdateFormData(dto, files ?? {}) : dto,
+            ...(hasFiles ? { headers: MULTIPART_HEADERS } : {}),
         });
     }
 

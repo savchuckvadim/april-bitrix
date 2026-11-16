@@ -124,4 +124,68 @@ describe('restore-флоу слепка', () => {
         expect(store.getState().snapshot.status).toBe('error');
         expect(store.getState().rowSet.general.rows).toHaveLength(0);
     });
+
+    describe('каталог ещё грузится (catalogReady)', () => {
+        const deferred = () => {
+            let resolve!: (ready: boolean) => void;
+            const promise = new Promise<boolean>(done => {
+                resolve = done;
+            });
+            return { promise, resolve };
+        };
+        const flush = () => new Promise(done => setTimeout(done, 0));
+
+        it('запрос слепка уходит сразу, раскладка ждёт каталог', async () => {
+            const getSnapshot = vi
+                .spyOn(SnapshotHelper.prototype, 'getSnapshot')
+                .mockResolvedValue(record);
+            const catalog = deferred();
+            const store = makeStore();
+            const running = store.dispatch(
+                restoreSnapshot({
+                    domain: 'gsr.bitrix24.ru',
+                    dealId: 129487,
+                    catalogReady: catalog.promise,
+                }) as never,
+            ) as unknown as Promise<void>;
+            await flush();
+            // каталог ещё не готов: запрос уже ушёл, строки не разложены
+            expect(getSnapshot).toHaveBeenCalledTimes(1);
+            expect(store.getState().snapshot.status).toBe('loading');
+            expect(store.getState().rowSet.general.rows).toHaveLength(0);
+
+            catalog.resolve(true);
+            await running;
+            expect(store.getState().snapshot.status).toBe('restored');
+            expect(store.getState().rowSet.general.rows.length).toBeGreaterThan(0);
+        });
+
+        it('слепка нет — none сразу, каталог не ждём', async () => {
+            vi.spyOn(SnapshotHelper.prototype, 'getSnapshot').mockResolvedValue(null);
+            const store = makeStore();
+            await store.dispatch(
+                restoreSnapshot({
+                    domain: 'x',
+                    dealId: 1,
+                    // каталог так и не ответит — решение по новой сделке от него не зависит
+                    catalogReady: deferred().promise,
+                }) as never,
+            );
+            expect(store.getState().snapshot.status).toBe('none');
+        });
+
+        it('каталог не загрузился — слепок не раскладываем, статус error', async () => {
+            vi.spyOn(SnapshotHelper.prototype, 'getSnapshot').mockResolvedValue(record);
+            const store = makeStore();
+            await store.dispatch(
+                restoreSnapshot({
+                    domain: 'gsr.bitrix24.ru',
+                    dealId: 129487,
+                    catalogReady: Promise.resolve(false),
+                }) as never,
+            );
+            expect(store.getState().snapshot.status).toBe('error');
+            expect(store.getState().rowSet.general.rows).toHaveLength(0);
+        });
+    });
 });

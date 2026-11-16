@@ -51,9 +51,9 @@ const resolveDealId = async (entity: PlacementEntity): Promise<number | null> =>
 
 /**
  * Boot-последовательность: Bitrix.start (во фрейме — реальные domain/user,
- * вне фрейма — TESTING_*) → placement → dealId → сделка+компания → setAppData.
- * setAppData — единый триггер для listeners (каталог, портал, слепок сделки,
- * реквизиты, поставщики).
+ * вне фрейма — TESTING_*) → [сессия портала ∥ placement → dealId →
+ * сделка+компания] → setAppData. setAppData — единый триггер для listeners
+ * (каталог, портал, слепок сделки, реквизиты, поставщики).
  */
 export const appInit = async (dispatch: AppDispatch) => {
     const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
@@ -73,9 +73,12 @@ export const appInit = async (dispatch: AppDispatch) => {
         return;
     }
 
-    // Токен сессии портала до первых запросов к бэку: каталог с ценами
-    // отдаётся только ей. Вне фрейма сессии нет — dev ходит без токена.
-    await bootstrapPortalSession(bitrix.api);
+    // Токен сессии портала нужен до первых запросов к бэку: каталог с ценами
+    // отдаётся только ей. Сделке и компании из Bitrix REST он не нужен —
+    // обмен идёт параллельно с ними, дожидаемся его перед setAppData
+    // (docs/first-load.tasks.md, шаг 3). Вне фрейма сессии нет — dev ходит
+    // без токена.
+    const sessionReady = bootstrapPortalSession(bitrix.api).catch(() => false);
 
     const domain = authDomain || TESTING_DOMAIN;
     const user = authUser ?? TESTING_USER;
@@ -117,6 +120,9 @@ export const appInit = async (dispatch: AppDispatch) => {
         );
         return;
     }
+
+    // после setAppData уходят запросы к бэку — токен должен быть уже выставлен
+    await sessionReady;
 
     dispatch(
         appActions.setAppData({

@@ -132,22 +132,41 @@ function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
     });
 }
 
+const isCatalogSettled = (state: RootState): boolean =>
+    state.catalog.loading === 'succeeded' || state.catalog.loading === 'failed';
+
 /**
- * Условие-джойн «placement дал dealId» × «каталог готов» → восстановление
- * слепка сделки (restoreSnapshot). Однократно (гард по snapshot.status).
+ * Placement дал dealId → восстановление слепка сделки (restoreSnapshot).
+ * Запрос слепка уходит сразу, рядом с каталогом: ему нужны только домен и
+ * сделка. Раскладка по стейту ждёт каталог (docs/first-load.tasks.md, шаг 1).
+ * Однократно (гард по snapshot.status).
  */
 function setupSnapshotRestoreListener(
     listenerMiddleware: ListenerMiddlewareInstance,
 ) {
     typed(listenerMiddleware)({
-        matcher: isAnyOf(appActions.setAppData, initCatalog.fulfilled),
-        effect: (_action, listenerApi) => {
+        actionCreator: appActions.setAppData,
+        // эффект ждёт thunk: с его завершением слушатель снимает ожидание каталога
+        effect: async (_action, listenerApi) => {
             const state = listenerApi.getState();
             const { dealId, domain } = state.app;
-            const catalogReady = state.catalog.loading === 'succeeded';
-            if (!dealId || !domain || !catalogReady) return; // сойдётся на втором событии
+            if (!dealId || !domain) return;
             if (state.snapshot.status !== 'idle') return; // однократность
-            void listenerApi.dispatch(restoreSnapshot({ domain, dealId }));
+
+            // подписка на каталог — до запроса слепка: ответ каталога не проскочит мимо
+            const catalogReady = (
+                isCatalogSettled(state)
+                    ? Promise.resolve(true)
+                    : listenerApi.condition((_next, current) =>
+                          isCatalogSettled(current),
+                      )
+            )
+                .then(() => listenerApi.getState().catalog.loading === 'succeeded')
+                .catch(() => false);
+
+            await listenerApi.dispatch(
+                restoreSnapshot({ domain, dealId, catalogReady }),
+            );
         },
     });
 }

@@ -21,18 +21,25 @@ const snapshotHelper = new SnapshotHelper();
  *
  * fallbackRecord — dev-фикстура: политика её использования у app-слоя
  * (listener), entity о константах приложения не знает.
+ *
+ * catalogReady — когда каталог ещё грузится: запросу слепка он не нужен
+ * (только домен и сделка), поэтому запрос уходит сразу, а раскладка по стейту
+ * (v1-адаптер, пересчёт строк) ждёт каталог. false — каталог не загрузился.
+ * Не передан — каталог уже в сторе.
  */
 export const restoreSnapshot =
     ({
         domain,
         dealId,
         fallbackRecord = null,
+        catalogReady,
     }: {
         domain: string;
         dealId: number;
         fallbackRecord?: V1Record | null;
+        catalogReady?: Promise<boolean>;
     }): AppThunk<Promise<void>> =>
-    async (dispatch, getState) => {
+    async dispatch => {
         dispatch(snapshotActions.started());
         try {
             let record: V1Record | null;
@@ -52,11 +59,15 @@ export const restoreSnapshot =
             } else {
                 record = fallbackRecord;
             }
+            // слепка нет — каталог ждать незачем: вход уже знает, что сделка новая
             if (!record) {
                 dispatch(snapshotActions.none());
                 return;
             }
 
+            if (catalogReady && !(await catalogReady)) {
+                throw new Error('каталог не загружен — слепок не разложен');
+            }
             await dispatch(restoreSnapshotRecord(record));
         } catch (error) {
             dispatch(

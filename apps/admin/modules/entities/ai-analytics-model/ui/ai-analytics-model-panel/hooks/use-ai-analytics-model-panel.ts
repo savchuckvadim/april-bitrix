@@ -11,6 +11,7 @@ import {
 import {
     useModelFeedback,
     useModelForecastBacktest,
+    useModelForecastBreakdown,
     useModelPoolStatus,
     useModelQualityLink,
     useModelRecommendationEffect,
@@ -38,6 +39,7 @@ export const useAiAnalyticsModelPanel = () => {
         domain,
         AI_ANALYTICS_MODEL_DEFAULTS.backtestMonths,
     );
+    const breakdown = useModelForecastBreakdown(domain);
     const pool = useModelPoolStatus(domain);
     const effect = useModelRecommendationEffect(domain);
 
@@ -53,7 +55,7 @@ export const useAiAnalyticsModelPanel = () => {
             setFrom: (from: string) => setPeriod(prev => ({ ...prev, from })),
             setTo: (to: string) => setPeriod(prev => ({ ...prev, to })),
         },
-        queries: { feedback, qualityLink, backtest, pool, effect },
+        queries: { feedback, qualityLink, backtest, breakdown, pool, effect },
     };
 };
 

@@ -14,6 +14,7 @@ import {
 import type { PortalAppSettingValue } from '../../../model';
 import { AppSettingField } from './AppSettingField';
 import { AppSettingGroupRelations } from './AppSettingRelations';
+import { AppSettingsGroupActions } from './group-actions/AppSettingsGroupActions';
 
 interface AppSettingsGroupSectionProps {
     portalId: number;

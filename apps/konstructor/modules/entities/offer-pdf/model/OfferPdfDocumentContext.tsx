@@ -16,6 +16,7 @@ import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { selectCatalog } from '../../catalog';
 import { offerPdfApi, readOfferPdfError } from '../lib/api/offer-pdf.api';
 import { buildOfferPdfGenerateRequest, offerPdfRequestBlocker } from '../lib/build-offer-pdf-request';
+import { resolvePalette } from '../lib/offer-pdf-palette.util';
 import { loadOfferPdfPrefs, OFFER_PDF_DEFAULT_PREFS, saveOfferPdfPrefs } from '../lib/offer-pdf-storage';
 import {
     OFFER_DOCUMENT_FORMAT,
@@ -55,6 +56,11 @@ export interface OfferPdfDocumentContextValue {
     setFormat: (format: OfferDocumentFormat) => void;
     templateCode: string;
     setTemplateCode: (code: string) => void;
+    /** Выбранный стиль из списка; список ещё не пришёл — null */
+    template: OfferPdfTemplateInfo | null;
+    /** Гамма, которая уйдёт в запрос: выбранная или первая у стиля; без гамм — null */
+    palette: string | null;
+    setPalette: (palette: string) => void;
     templates: OfferPdfTemplateInfo[];
     templatesLoading: boolean;
     templatesError: string | null;
@@ -141,6 +147,13 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
     }, [isPdf]);
 
     // --- запрос: пересобираем, когда меняется то, что в нём печатается ---
+    // --- стиль и гамма ---
+    const template = useMemo(
+        () => templates.find(item => item.code === prefs.templateCode) ?? null,
+        [templates, prefs.templateCode],
+    );
+    const palette = resolvePalette(template, prefs.palette);
+
     const blocker = useAppSelector(offerPdfRequestBlocker);
     const general = useAppSelector(state => state.rowSet.general);
     const alternative = useAppSelector(state => state.rowSet.alternative);
@@ -153,13 +166,14 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
         if (!isPdf || blocker) return null;
         return buildOfferPdfGenerateRequest(store.getState(), {
             templateCode: prefs.templateCode,
+            palette,
             settings: prefs.settings,
             letter: prefs.letter,
             documentNumber: prefs.documentNumber,
         });
         // перечисленные зависимости — всё, из чего собирается запрос
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isPdf, blocker, store, prefs, general, alternative, recipient, provider, dealId, catalog]);
+    }, [isPdf, blocker, store, prefs, palette, general, alternative, recipient, provider, dealId, catalog]);
 
     const requestKey = useMemo(() => (request ? JSON.stringify(request) : null), [request]);
     const requestRef = useRef(request);
@@ -242,7 +256,11 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             format: prefs.format,
             setFormat: format => setPrefs(prev => ({ ...prev, format })),
             templateCode: prefs.templateCode,
-            setTemplateCode: templateCode => setPrefs(prev => ({ ...prev, templateCode })),
+            // новый стиль — его первая гамма
+            setTemplateCode: templateCode => setPrefs(prev => ({ ...prev, templateCode, palette: null })),
+            template,
+            palette,
+            setPalette: next => setPrefs(prev => ({ ...prev, palette: next })),
             templates,
             templatesLoading,
             templatesError,
@@ -259,7 +277,19 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             runGenerate,
             resetGenerate: () => setGenerate(INITIAL_GENERATE),
         }),
-        [prefs, templates, templatesLoading, templatesError, blocker, preview, runPreview, generate, runGenerate],
+        [
+            prefs,
+            template,
+            palette,
+            templates,
+            templatesLoading,
+            templatesError,
+            blocker,
+            preview,
+            runPreview,
+            generate,
+            runGenerate,
+        ],
     );
 
     return <OfferPdfDocumentContext.Provider value={value}>{children}</OfferPdfDocumentContext.Provider>;

@@ -17,6 +17,7 @@ export const OFFER_PDF_PREFS_STORAGE_KEY = 'offerPdfDocumentPrefs';
 export const OFFER_PDF_DEFAULT_PREFS: OfferPdfDocumentPrefs = {
     format: OFFER_DOCUMENT_FORMAT.WORD,
     templateCode: OFFER_PDF_DEFAULT_TEMPLATE_CODE,
+    palette: null,
     settings: OFFER_PDF_DEFAULT_SETTINGS,
     letter: OFFER_PDF_EMPTY_LETTER,
     documentNumber: '',
@@ -30,12 +31,15 @@ const pickString = (value: unknown, fallback: string): string =>
     typeof value === 'string' ? value : fallback;
 const pickBoolean = (value: unknown, fallback: boolean): boolean =>
     typeof value === 'boolean' ? value : fallback;
+const pickNullableString = (value: unknown): string | null =>
+    typeof value === 'string' && value.length > 0 ? value : null;
 const pickEnum = <T extends string>(value: unknown, allowed: Set<string>, fallback: T): T =>
     typeof value === 'string' && allowed.has(value) ? (value as T) : fallback;
 
 type RawPrefs = {
     format?: unknown;
     templateCode?: unknown;
+    palette?: unknown;
     settings?: Record<string, unknown>;
     letter?: Record<string, unknown>;
     documentNumber?: unknown;
@@ -51,6 +55,7 @@ export const normalizeOfferPdfPrefs = (raw: unknown): OfferPdfDocumentPrefs => {
     return {
         format: pickEnum<OfferDocumentFormat>(value.format, FORMATS, OFFER_PDF_DEFAULT_PREFS.format),
         templateCode: pickString(value.templateCode, OFFER_PDF_DEFAULT_TEMPLATE_CODE),
+        palette: pickNullableString(value.palette),
         settings: {
             descriptionMode: pickEnum<OfferPdfDescriptionMode>(
                 settings.descriptionMode,
@@ -62,6 +67,8 @@ export const normalizeOfferPdfPrefs = (raw: unknown): OfferPdfDocumentPrefs => {
             withManager: pickBoolean(settings.withManager, defaults.withManager),
             isPriceFirst: pickBoolean(settings.isPriceFirst, defaults.isPriceFirst),
             salePhrase: pickString(settings.salePhrase, defaults.salePhrase),
+            withCover: pickBoolean(settings.withCover, defaults.withCover),
+            withPromo: pickBoolean(settings.withPromo, defaults.withPromo),
         },
         letter: {
             appeal: pickString(letter.appeal, ''),

@@ -15,6 +15,7 @@ import {
 
 export interface OfferPdfRequestOptions {
     templateCode: string;
+    palette: string | null;
     settings: OfferPdfSettings;
     letter: OfferPdfLetter;
     documentNumber: string;
@@ -57,6 +58,7 @@ export const toOfferPdfRequest = (
     return {
         ...base,
         templateCode: options.templateCode,
+        palette: options.palette ?? undefined,
         settings: {
             descriptionMode: options.settings.descriptionMode,
             viewMode: options.settings.viewMode,
@@ -64,6 +66,8 @@ export const toOfferPdfRequest = (
             withManager: options.settings.withManager,
             isPriceFirst: options.settings.isPriceFirst,
             salePhrase: trimmedOrUndefined(options.settings.salePhrase) ?? null,
+            withCover: options.settings.withCover,
+            withPromo: options.settings.withPromo,
         },
         letter: appeal || text ? { appeal, text } : undefined,
         documentNumber: trimmedOrUndefined(options.documentNumber),

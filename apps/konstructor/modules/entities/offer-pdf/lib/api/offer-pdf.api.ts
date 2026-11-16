@@ -34,6 +34,15 @@ export const offerPdfApi = {
             method: 'POST',
             data: dto,
         }),
+
+    /** Первая страница стиля на образце «Гарант-Офис» — миниатюра для выбора. */
+    stylePreview: (code: string, palette: string | null) =>
+        customAxios<Blob>({
+            url: `/api/offer-pdf/templates/${encodeURIComponent(code)}/preview`,
+            method: 'GET',
+            params: palette ? { palette } : undefined,
+            responseType: 'blob',
+        }),
 };
 
 /**

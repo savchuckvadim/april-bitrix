@@ -45,6 +45,10 @@ export interface OfferPdfSettings {
     withManager: boolean;
     isPriceFirst: boolean;
     salePhrase: string;
+    /** Титульный лист — у стилей, где он есть */
+    withCover: boolean;
+    /** Страница о системе или о сервисе — у стилей, где она есть */
+    withPromo: boolean;
 }
 
 export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
@@ -54,6 +58,8 @@ export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
     withManager: true,
     isPriceFirst: false,
     salePhrase: '',
+    withCover: true,
+    withPromo: true,
 };
 
 /** Письмо: пустые поля — шаблон подставит свои. */
@@ -64,11 +70,26 @@ export interface OfferPdfLetter {
 
 export const OFFER_PDF_EMPTY_LETTER: OfferPdfLetter = { appeal: '', text: '' };
 
-/** Встроенный PDF-шаблон (GET /offer-pdf/templates). */
+/** Гамма стиля: та же вёрстка в другом цвете */
+export interface OfferPdfPaletteInfo {
+    code: string;
+    name: string;
+    /** Цвет кружка в выборе */
+    swatch: string;
+}
+
+/**
+ * Встроенный PDF-стиль (GET /offer-pdf/templates). Титульник, промо и гаммы
+ * бэк отдаёт с выкладки 16.11 — до неё полей нет, отсюда необязательность.
+ */
 export interface OfferPdfTemplateInfo {
     code: string;
     name: string;
     description: string;
+    hasCover?: boolean;
+    hasPromo?: boolean;
+    /** Первая — по умолчанию; пусто — у стиля одна гамма */
+    palettes?: OfferPdfPaletteInfo[];
 }
 
 export const OFFER_PDF_DEFAULT_TEMPLATE_CODE = 'classic';
@@ -106,6 +127,8 @@ export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[nu
  */
 export type OfferPdfGenerateRequest = Omit<OfferWordByTemplateGenerateDto, OfferPdfOmittedWordField> & {
     templateCode: string;
+    /** Гамма стиля; не задана — первая */
+    palette?: string;
     settings: {
         descriptionMode: OfferPdfDescriptionMode;
         viewMode: OfferPdfViewMode;
@@ -113,6 +136,8 @@ export type OfferPdfGenerateRequest = Omit<OfferWordByTemplateGenerateDto, Offer
         withManager: boolean;
         isPriceFirst: boolean;
         salePhrase: string | null;
+        withCover: boolean;
+        withPromo: boolean;
     };
     letter?: { appeal?: string; text?: string };
     documentNumber?: string;
@@ -122,6 +147,8 @@ export type OfferPdfGenerateRequest = Omit<OfferWordByTemplateGenerateDto, Offer
 export interface OfferPdfDocumentPrefs {
     format: OfferDocumentFormat;
     templateCode: string;
+    /** Гамма стиля; null — первая гамма стиля */
+    palette: string | null;
     settings: OfferPdfSettings;
     letter: OfferPdfLetter;
     documentNumber: string;

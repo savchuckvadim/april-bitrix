@@ -108,6 +108,11 @@ export interface OfferPdfGenerateResponse {
     bitrixLink: string | null;
     /** Почему к сделке не прикрепили; пусто — прикреплён */
     dealMessage: string | null;
+    /**
+     * Картинки и логотипы стиля, которых нет на сервере: документ собран без
+     * них. Бэк отдаёт поле с выкладки 16.11 — до неё его нет.
+     */
+    missingAssets?: string[];
 }
 
 /** Поля Word-запроса, которых у PDF-генерации нет. */

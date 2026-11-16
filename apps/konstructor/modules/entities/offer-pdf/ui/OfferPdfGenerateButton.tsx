@@ -34,6 +34,12 @@ export const OfferPdfGenerateButton = () => {
             {generate.result?.dealMessage ? (
                 <p className="text-xs text-warning">{generate.result.dealMessage}</p>
             ) : null}
+            {generate.result?.missingAssets?.length ? (
+                <p className="text-xs text-warning">
+                    Документ собран без оформления стиля: на сервере нет его картинок или логотипа. Сообщите
+                    администратору.
+                </p>
+            ) : null}
         </div>
     );
 };

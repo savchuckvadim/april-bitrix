@@ -18,6 +18,11 @@ export interface TranscriptionSpendPortalDto {
   domain: string;
   /** Цена минуты Яндекса в копейках. */
   kopecksPerMinute: number;
+  /**
+   * Месячный лимит расхода портала на Яндекс, рублей (настройка AI портала); null — лимит не задан.
+   * @nullable
+   */
+  yandexBudgetRub: number | null;
   /** Итог портала за месяц. */
   totals: TranscriptionSpendTotalsDto;
   /** Итог портала за предыдущий месяц — для сравнения. */

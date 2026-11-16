@@ -16,6 +16,11 @@ export interface TranscriptionSpendPortalRowDto {
    * @nullable
    */
   portalId: number | null;
+  /**
+   * Месячный лимит расхода портала на Яндекс, рублей (настройка AI портала); null — лимит не задан.
+   * @nullable
+   */
+  yandexBudgetRub: number | null;
   /** Итог портала за месяц. */
   totals: TranscriptionSpendTotalsDto;
   /** Расход портала по распознавателям. */

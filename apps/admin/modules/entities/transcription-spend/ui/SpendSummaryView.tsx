@@ -5,7 +5,13 @@ import Link from 'next/link';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { portalSpendPath } from '../consts/spend.consts';
 import { useTranscriptionSpendSummary } from '../lib/hooks/use-transcription-spend';
-import { currentMoscowMonth, minutesLabel, rubLabel } from '../lib/spend-format';
+import {
+    budgetLabel,
+    budgetReached,
+    currentMoscowMonth,
+    minutesLabel,
+    rubLabel,
+} from '../lib/spend-format';
 import { SpendMonthSwitcher } from './SpendMonthSwitcher';
 import { SpendTotalsTiles } from './SpendTotalsTiles';
 
@@ -45,6 +51,7 @@ export const SpendSummaryView = () => {
                                     <tr>
                                         <th className={TH}>Портал</th>
                                         <th className={TH_RIGHT}>Яндекс, рублей</th>
+                                        <th className={TH_RIGHT}>Лимит в месяц</th>
                                         <th className={TH_RIGHT}>Минут в Яндексе</th>
                                         <th className={TH_RIGHT}>Звонков в Яндексе</th>
                                         <th className={TH_RIGHT}>Всего звонков</th>
@@ -66,6 +73,15 @@ export const SpendSummaryView = () => {
                                                 )}
                                             </td>
                                             <td className="text-right font-medium">{rubLabel(portal.totals.rub)}</td>
+                                            <td
+                                                className={
+                                                    budgetReached(portal.totals.rub, portal.yandexBudgetRub)
+                                                        ? 'text-right text-destructive'
+                                                        : 'text-right text-muted-foreground'
+                                                }
+                                            >
+                                                {budgetLabel(portal.totals.rub, portal.yandexBudgetRub) ?? '—'}
+                                            </td>
                                             <td className="text-right">{minutesLabel(portal.totals.yandexMinutes)}</td>
                                             <td className="text-right">{portal.totals.yandexCalls.toLocaleString('ru-RU')}</td>
                                             <td className="text-right text-muted-foreground">

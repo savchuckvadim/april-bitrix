@@ -168,7 +168,7 @@ export interface UpdatePortalAiSettingsDto {
    */
   llmProviderOrder?: UpdatePortalAiSettingsDtoLlmProviderOrderItem[] | null;
   /**
-   * Транскрибатор портала: auto, yandex, vibecode или whisper. null — режим приложения.
+   * Транскрибатор портала: auto, auto-whisper, yandex, vibecode или whisper. null — режим приложения.
    * @nullable
    */
   transcriptionMode?: UpdatePortalAiSettingsDtoTranscriptionMode;
@@ -183,13 +183,7 @@ export interface UpdatePortalAiSettingsDto {
    */
   whisperModel?: string | null;
   /**
-   * Ключ Whisper-совместимого сервиса: сохраняется зашифрованным. Маска «••••••» из ответа — оставить прежний ключ; пусто или null — убрать ключ.
-   * @nullable
-   */
-  whisperApiKey?: string | null;
-  /**
    * Модель транскрибации VibeCode (поле model запроса к ИИ-роутеру), например bitrix/bitrixgpt-5.6-transcribe. Пусто или null — модель приложения.
-   * @maxLength 120
    * @nullable
    */
   vibecodeTranscriptionModel?: string | null;
@@ -201,8 +195,27 @@ export interface UpdatePortalAiSettingsDto {
    */
   factsCatchupNightlyBudgetRub?: number | null;
   /**
+   * Лимит ночного догона признаков в звонках за одну ночь: догон останавливается, когда за ночь обработано столько звонков. Действует вместе с рублёвым лимитом или сам по себе. Пусто, null или 0 — лимита в звонках нет.
+   * @minimum 0
+   * @maximum 5000
+   * @nullable
+   */
+  factsCatchupNightlyMaxCalls?: number | null;
+  /**
+   * Месячный лимит расхода на распознавание Яндексом, рублей. Когда портал дошёл до лимита, приходит одно сообщение в телеграм; маршрут распознавания не меняется. Пусто, null или 0 — лимита нет.
+   * @minimum 0
+   * @maximum 1000000
+   * @nullable
+   */
+  yandexMonthlyBudgetRub?: number | null;
+  /**
    * Маршрут распознавания портала: кто распознаёт длинные и короткие звонки, кто запасной, кто «для скорости» и «для точности», и что сейчас важнее. Заданная роль важнее режима transcriptionMode. null или маршрут без ролей — сбросить на режим.
    * @nullable
    */
   transcriptionRoute?: UpdatePortalAiSettingsDtoTranscriptionRoute;
+  /**
+   * Ключ Whisper-совместимого сервиса: сохраняется зашифрованным. Маска «••••••» из ответа — оставить прежний ключ; пусто или null — убрать ключ.
+   * @nullable
+   */
+  whisperApiKey?: string | null;
 }

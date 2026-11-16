@@ -75,6 +75,20 @@ export function changeLabel(current: number, previous: number): string | null {
     return `${percent > 0 ? '+' : '−'}${Math.abs(percent)} %`;
 }
 
+/**
+ * Лимит Яндекса портала рядом с расходом: «лимит 1 500 ₽ · 104 %»; лимит не
+ * задан — null (показывать нечего).
+ */
+export function budgetLabel(spentRub: number, budgetRub: number | null): string | null {
+    if (budgetRub === null || budgetRub <= 0) return null;
+    const percent = Math.round((spentRub / budgetRub) * 100);
+    return `лимит ${rubLabel(budgetRub)} · ${percent} %`;
+}
+
+/** Достигнут ли лимит Яндекса; лимит не задан — нет. */
+export const budgetReached = (spentRub: number, budgetRub: number | null): boolean =>
+    budgetRub !== null && budgetRub > 0 && spentRub >= budgetRub;
+
 /** День по Москве «12.11» из YYYY-MM-DD. */
 export function dayLabel(day: string): string {
     const match = /^\d{4}-(\d{2})-(\d{2})$/.exec(day);

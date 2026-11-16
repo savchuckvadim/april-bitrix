@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { backendBase } from '../../../_lib/backend';
 
 /**
  * Прокси публичного снимка отчёта: браузер видит только наш origin,
@@ -6,12 +7,6 @@ import { NextRequest, NextResponse } from 'next/server';
  * { resultCode, data } и пробрасывает статус (410 — ссылка протухла,
  * фронт уводит на bitrix.april-app.ru).
  */
-const backendBase = () =>
-    (
-        process.env.KPI_SALES_API_URL ||
-        process.env.NEXT_PUBLIC_KPI_SALES_API_URL ||
-        'http://localhost:3000/'
-    ).replace(/\/$/, '');
 
 export async function GET(
     req: NextRequest,

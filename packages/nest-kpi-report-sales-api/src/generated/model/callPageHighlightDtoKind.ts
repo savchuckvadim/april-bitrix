@@ -7,7 +7,7 @@
  */
 
 /**
- * Вид подсветки: signal — ошибка менеджера, objection — возражение, risk — сигнал риска, methodology — пункт методики, issue — сбой не по вине разговора, price — названная цена.
+ * Вид подсветки: signal — ошибка менеджера, objection — возражение, risk — сигнал риска, methodology — пункт методики, issue — сбой не по вине разговора, price — названная цена, moment — момент разговора (начало выяснения потребностей, презентации, договорённость о следующем шаге).
  */
 export type CallPageHighlightDtoKind =
     (typeof CallPageHighlightDtoKind)[keyof typeof CallPageHighlightDtoKind];
@@ -20,4 +20,5 @@ export const CallPageHighlightDtoKind = {
     methodology: 'methodology',
     issue: 'issue',
     price: 'price',
+    moment: 'moment',
 } as const;

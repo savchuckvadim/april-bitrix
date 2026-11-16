@@ -13,6 +13,40 @@ import type {
  * `POST /api/front/portal`. Переименование на бэке правится только здесь.
  */
 export type Portal = FrontPortalDto;
+
+/**
+ * Ответ узкой ручки `POST /api/front/portal/parts` (бэк: FrontPortalPartsDto):
+ * `id` и только запрошенные части, форма каждой — как в полной модели. Описано
+ * руками до `pnpm generate`; после — заменить на сгенерированный тип.
+ */
+export type PortalParts = Pick<Portal, 'id'> &
+    Partial<
+        Pick<
+            Portal,
+            | 'bitrixDeal'
+            | 'company'
+            | 'contact'
+            | 'lead'
+            | 'rpas'
+            | 'smarts'
+            | 'bitrixLists'
+            | 'user'
+            | 'departament'
+            | 'bitrixCallingTasksGroup'
+        >
+    >;
+
+/** Имя части портала в запросе узкой ручки */
+export type PortalPartName = Exclude<keyof PortalParts, 'id'>;
+
+/** Запрос узкой ручки (бэк: FrontPortalPartsRequestDto) без домена */
+export interface PortalPartsQuery {
+    parts: readonly PortalPartName[];
+    /** Только смарты этих типов */
+    smartTypes?: readonly string[];
+    /** Части, от которых нужны только строки сущностей: без полей и воронок */
+    withoutFields?: readonly PortalPartName[];
+}
 export type PBXSmart = SmartDto;
 export type PBXRPA = RpaDto;
 export type PBXCategory = CategoryDto;

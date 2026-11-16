@@ -96,11 +96,25 @@ function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
         },
     });
 
+    // Сессия портала открыта → каталог стартует сразу: ему нужны только домен и
+    // токен. Пользователь, сделка и компания в это время ещё в пути
+    // (docs/first-load.tasks.md, шаг 4).
+    typed(listenerMiddleware)({
+        actionCreator: appActions.portalSessionReady,
+        effect: (action, listenerApi) => {
+            listenerApi.dispatch(initCatalog({ domain: action.payload.domain }));
+        },
+    });
+
     typed(listenerMiddleware)({
         actionCreator: appActions.setAppData,
         effect: (action, listenerApi) => {
             const { domain, deal, user } = action.payload;
-            listenerApi.dispatch(initCatalog({ domain }));
+            // каталог обычно уже запущен по готовности сессии; здесь — если нет или упал
+            const catalogLoading = listenerApi.getState().catalog.loading;
+            if (catalogLoading === 'idle' || catalogLoading === 'failed') {
+                listenerApi.dispatch(initCatalog({ domain }));
+            }
             // Поставщики портала (налог, реквизиты документов)
             void listenerApi.dispatch(initProviders(domain, Number(user.ID)));
             // Портал (pbx): bitrixfields по code — источник UF-id для

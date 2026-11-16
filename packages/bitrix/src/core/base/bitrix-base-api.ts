@@ -32,6 +32,7 @@ import {
 import { CustomPlacement } from '../../domain/interfaces/bitrix-placement.intreface';
 import { BitrixBatchBackApiHelper } from '../inner-api-helper/bitrix-batch-back-api-helper';
 import { BXInitializedDto } from '../dto/bx-initialized.dto';
+import type { BitrixInitOptions } from '../dto/bx-init-options';
 import { BxFrameAuth } from '../dto/bx-frame-auth';
 import { portalHostname, toBxFrameAuth } from '../lib/frame-auth.util';
 import { isFrameMeasurable } from '../lib/frame-size.util';
@@ -47,6 +48,8 @@ export class BitrixBaseApi {
     public domain!: string;
     public user!: IBXUser;
     public authType: BxAuthType = BxAuthType.HOOK;
+    /** Загрузка пользователя фрейма; вне фрейма и до init — уже готова */
+    private userReady: Promise<void> = Promise.resolve();
 
     private cmdBatch: Record<string, any> = {};
 
@@ -93,7 +96,11 @@ export class BitrixBaseApi {
         },
     ) {}
 
-    async init(domain: string, user: IBXUser) {
+    async init(
+        domain: string,
+        user: IBXUser,
+        options: BitrixInitOptions = {},
+    ) {
         // Шаг 1: поднимаем фрейм. Только реальная ошибка инициализации
         // фрейма означает, что мы НЕ в Битриксе (standalone / нет B24).
         //
@@ -112,9 +119,20 @@ export class BitrixBaseApi {
             return;
         }
 
-        // Шаг 2: тянем данные пользователя. Падение REST НЕ должно сбрасывать
-        // inFrame — иначе приложение решает, что оно вне фрейма, и улетает в
-        // бесконечный редирект на /none-auth.
+        // Шаг 2: тянем данные пользователя. Домен при этом выставляется сразу,
+        // без сети: он берётся из auth-данных фрейма.
+        this.userReady = this.loadUser(domain, user);
+        // deferUser: приложение само дождётся пользователя через whenUser()
+        if (!options.deferUser) await this.userReady;
+    }
+
+    /**
+     * Пользователь фрейма. Падение REST НЕ должно сбрасывать inFrame — иначе
+     * приложение решает, что оно вне фрейма, и улетает в бесконечный редирект
+     * на /none-auth. Не отклоняется: при сбое остаются запасные домен и
+     * пользователь из init.
+     */
+    private async loadUser(domain: string, user: IBXUser): Promise<void> {
         try {
             await this.getInitialized();
         } catch (error) {
@@ -122,6 +140,14 @@ export class BitrixBaseApi {
             if (!this.user) this.user = user;
             if (!this.domain) this.domain = domain;
         }
+    }
+
+    /**
+     * Пользователь фрейма, когда он загружен. Без `deferUser` и вне фрейма
+     * отвечает сразу. null — Битрикс пользователя не отдал.
+     */
+    public whenUser(): Promise<IBXUser | null> {
+        return this.userReady.then(() => this.user ?? null);
     }
 
     public getDomain() {

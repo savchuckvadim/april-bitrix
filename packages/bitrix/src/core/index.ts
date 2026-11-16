@@ -11,4 +11,5 @@ export * from './lib/small-frame.util';
 // export * from './domain/consts/bitrix-api.enum';
 // export * from './domain/consts/bitrix-entities.enum';
 export * from './dto/bx-frame-auth';
+export * from './dto/bx-init-options';
 export * from './lib/frame-auth.util';

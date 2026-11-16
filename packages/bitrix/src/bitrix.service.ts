@@ -1,4 +1,5 @@
 import { BitrixBaseApi } from './core/base/bitrix-base-api';
+import type { BitrixInitOptions } from './core/dto/bx-init-options';
 // import { BitrixApiFactoryService } from './core/queue/bitrix-api.factory.service';
 import {
     BxCompanyService,
@@ -97,16 +98,17 @@ export class BitrixService {
         rpaItem: null as unknown as BxRpaItemBatchService,
     };
 
-    public async init(domain: string, user: IBXUser) {
-        console.log('BitrixService init');
-        console.log(domain);
-        console.log(user);
+    public async init(
+        domain: string,
+        user: IBXUser,
+        options?: BitrixInitOptions,
+    ) {
         // this.cloner = new ServiceClonerFactory();
         this.api = new BitrixBaseApi({
             sendMessageAdminError: (message: string) => Promise.resolve(),
         });
 
-        await this.api.init(domain, user);
+        await this.api.init(domain, user, options);
         this.initActivity();
         this.initActivityConfigurable();
         this.initDeal();

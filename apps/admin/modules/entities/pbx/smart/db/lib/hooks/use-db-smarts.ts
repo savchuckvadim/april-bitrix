@@ -49,6 +49,15 @@ export const useInstallAicall = () => {
     });
 };
 
+/**
+ * Проверка полей смарта «AI-анализ звонков» по кнопке: только читает портал,
+ * кэш смартов не трогает.
+ */
+export const useCheckAicall = () =>
+    useMutation({
+        mutationFn: (domain: string) => adminHelper.checkAicall(domain),
+    });
+
 /** Полная установка смарта по эталону (pbx-install): тип + поля + воронки. */
 export const useReinstallSmart = (domain?: string) => {
     const queryClient = useQueryClient();

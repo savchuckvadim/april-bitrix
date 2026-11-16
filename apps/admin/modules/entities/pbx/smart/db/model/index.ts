@@ -1,5 +1,7 @@
 import type { SmartResponseDto } from '@workspace/nest-admin-api';
 
+export * from './aicall-check';
+
 /**
  * Ручные типы новых admin-эндпоинтов смартов
  * (`GET /api/admin/pbx/smarts/{id}/details`,

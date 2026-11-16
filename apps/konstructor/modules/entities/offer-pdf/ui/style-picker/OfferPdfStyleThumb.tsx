@@ -1,10 +1,7 @@
 'use client';
 
-import { Document, Page, pdfjs } from 'react-pdf';
-
-if (typeof window !== 'undefined') {
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.mjs`;
-}
+import { Document, Page } from 'react-pdf';
+import '@/modules/shared/lib/pdf-worker';
 
 export interface OfferPdfStyleThumbProps {
     /** object URL PDF первой страницы стиля */

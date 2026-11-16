@@ -14,7 +14,7 @@ export function setupOfferPdfManagerPrefsListener(listenerMiddleware: ListenerMi
     listenerMiddleware.startListening.withTypes<RootState, AppDispatch>()({
         matcher: isAnyOf(
             offerPdfActions.setFormat,
-            offerPdfActions.setTemplateCode,
+            offerPdfActions.selectStyle,
             offerPdfActions.setPalette,
             offerPdfActions.setSettings,
         ),

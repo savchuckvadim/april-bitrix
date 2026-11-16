@@ -1,11 +1,8 @@
 'use client';
 
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
+import '@/modules/shared/lib/pdf-worker';
 import type { TemplatePreviewFile } from '../../../lib/template-preview-cache';
-
-if (typeof window !== 'undefined') {
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.mjs`;
-}
 
 export interface WordTemplatePreviewThumbProps {
     file: TemplatePreviewFile;

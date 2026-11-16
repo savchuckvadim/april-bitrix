@@ -16,3 +16,13 @@ export const resolvePalette = (
     if (!palettes.length) return null;
     return palettes.some(item => item.code === palette) ? palette : (palettes[0]?.code ?? null);
 };
+
+/** «Искра · Оранжевая» — выбранный стиль одной строкой (в свёрнутой карточке) */
+export const offerPdfStyleSummary = (
+    template: OfferPdfTemplateInfo | null | undefined,
+    palette: string | null,
+): string | null => {
+    if (!template) return null;
+    const paletteName = templatePalettes(template).find(item => item.code === palette)?.name;
+    return paletteName ? `${template.name} · ${paletteName}` : template.name;
+};

@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useStylePreview } from '../../../hooks/use-style-preview';
 
 /**
- * Миниатюра в карточке стиля: грузится, когда карточка показалась на
- * экране, и рисуется по её ширине (ширина меняется вместе с сеткой).
+ * Миниатюра стиля: грузится, когда рамка показалась на экране, и рисуется
+ * по её ширине (ширина меняется вместе с сеткой).
  */
-export const useStyleCard = (code: string, palette: string | null) => {
+export const useStyleThumb = (code: string, palette: string | null) => {
     const ref = useRef<HTMLDivElement | null>(null);
     const [visible, setVisible] = useState(false);
     const [width, setWidth] = useState(0);

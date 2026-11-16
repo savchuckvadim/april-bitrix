@@ -49,8 +49,14 @@ describe('стиль КП: чей выбор сильнее', () => {
     });
 
     it('новый стиль начинается с первой гаммы', () => {
-        const next = run(initial, offerPdfActions.setPalette('claret'), offerPdfActions.setTemplateCode('halo'));
+        const next = run(
+            initial,
+            offerPdfActions.setPalette('claret'),
+            offerPdfActions.selectStyle({ templateCode: 'halo' }),
+        );
         expect(next.prefs.palette).toBeNull();
+        const withPalette = run(next, offerPdfActions.selectStyle({ templateCode: 'facet', palette: 'claret' }));
+        expect(withPalette.prefs).toMatchObject({ templateCode: 'facet', palette: 'claret' });
     });
 
     it('новая сделка: письмо и номер пустые, стиль остаётся', () => {
@@ -70,7 +76,7 @@ describe('стиль КП: чей выбор сильнее', () => {
 describe('стиль КП в слепке', () => {
     const edited = run(
         initial,
-        offerPdfActions.setTemplateCode('iskra'),
+        offerPdfActions.selectStyle({ templateCode: 'iskra' }),
         offerPdfActions.setLetter({ appeal: 'Уважаемый Иван!' }),
         offerPdfActions.setDocumentNumber('17'),
     );
@@ -89,7 +95,7 @@ describe('стиль КП в слепке', () => {
     });
 
     it('заготовка из избранного не трогает письмо и номер сделки', () => {
-        const library = offerPdfForLibrary(run(initial, offerPdfActions.setTemplateCode('halo')));
+        const library = offerPdfForLibrary(run(initial, offerPdfActions.selectStyle({ templateCode: 'halo' })));
         const merged = mergeOfferPdfSnapshot(edited.prefs, library);
         expect(merged.templateCode).toBe('halo');
         expect(merged.letter.appeal).toBe('Уважаемый Иван!');

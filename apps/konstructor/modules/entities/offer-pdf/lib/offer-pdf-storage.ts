@@ -95,3 +95,16 @@ export const loadOfferPdfStyle = (): OfferPdfStylePrefs | null => {
 export const saveOfferPdfStyle = (style: OfferPdfStylePrefs): void => {
     setLocalStorageJson(OFFER_PDF_PREFS_STORAGE_KEY, style);
 };
+
+/** Свёрнута ли карточка стиля и настроек на экране КП — удобство этого браузера */
+const SETTINGS_OPEN_STORAGE_KEY = 'offerPdfSettingsOpen';
+
+/** null — менеджер ещё не сворачивал карточку */
+export const loadOfferPdfSettingsOpen = (): boolean | null => {
+    const raw = getLocalStorageJson<unknown>(SETTINGS_OPEN_STORAGE_KEY);
+    return typeof raw === 'boolean' ? raw : null;
+};
+
+export const saveOfferPdfSettingsOpen = (open: boolean): void => {
+    setLocalStorageJson(SETTINGS_OPEN_STORAGE_KEY, open);
+};

@@ -1,15 +1,12 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
+import '../../lib/pdf-worker';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import { ChevronLeft, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
-
-if (typeof window !== 'undefined') {
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.mjs`;
-}
 
 const THUMB_PAGE_WIDTH = 64;
 const MAIN_VIEW_PADDING = 24;

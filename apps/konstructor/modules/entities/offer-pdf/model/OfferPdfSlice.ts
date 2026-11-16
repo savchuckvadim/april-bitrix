@@ -28,10 +28,10 @@ const offerPdfSlice = createSlice({
             state.prefs.format = action.payload;
             state.origin = 'user';
         },
-        /** Новый стиль — его первая гамма */
-        setTemplateCode(state, action: PayloadAction<string>) {
-            state.prefs.templateCode = action.payload;
-            state.prefs.palette = null;
+        /** Стиль и гамма; гамма не задана — первая гамма стиля */
+        selectStyle(state, action: PayloadAction<{ templateCode: string; palette?: string | null }>) {
+            state.prefs.templateCode = action.payload.templateCode;
+            state.prefs.palette = action.payload.palette ?? null;
             state.origin = 'user';
         },
         setPalette(state, action: PayloadAction<string>) {
@@ -72,7 +72,7 @@ const offerPdfSlice = createSlice({
 // Деструктуризация вместо экспорта slice.actions целиком — обход TS2742
 const {
     setFormat,
-    setTemplateCode,
+    selectStyle,
     setPalette,
     setSettings,
     setLetter,
@@ -83,7 +83,7 @@ const {
 } = offerPdfSlice.actions;
 export const offerPdfActions = {
     setFormat,
-    setTemplateCode,
+    selectStyle,
     setPalette,
     setSettings,
     setLetter,

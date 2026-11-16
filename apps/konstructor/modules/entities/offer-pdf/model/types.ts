@@ -170,3 +170,24 @@ export interface OfferPdfState {
     prefs: OfferPdfDocumentPrefs;
     origin: OfferPdfPrefsOrigin;
 }
+
+export type OfferPdfPreviewPhase = 'idle' | 'loading' | 'ready' | 'failed';
+
+/** Превью документа на экране КП */
+export interface OfferPdfPreviewState {
+    phase: OfferPdfPreviewPhase;
+    objectUrl: string | null;
+    error: string | null;
+    durationMs: number | null;
+    /** Данные изменились после последнего собранного превью */
+    stale: boolean;
+}
+
+export type OfferPdfGenerateStatus = 'idle' | 'generating' | 'done' | 'error';
+
+/** Формирование файла: статус и ответ бэка */
+export interface OfferPdfGenerateState {
+    status: OfferPdfGenerateStatus;
+    result: OfferPdfGenerateResponse | null;
+    error: string | null;
+}

@@ -23,7 +23,7 @@ export const OfferPdfStylePicker = () => {
         <div className="flex flex-col gap-3">
             <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5" aria-label="Стиль КП">
                 {picker.cards.map(card => (
-                    <li key={card.template.code}>
+                    <li key={card.template.code} className="min-w-0">
                         <OfferPdfStyleCard
                             template={card.template}
                             palette={card.palette}

@@ -25,7 +25,7 @@ export const OfferPdfStyleCard = ({ template, palette, selected, onSelect }: Off
             aria-pressed={selected}
             title={template.description}
             className={cn(
-                'group flex flex-col gap-1.5 rounded-md p-1.5 text-left transition-colors',
+                'group flex w-full min-w-0 flex-col gap-1.5 rounded-md p-1.5 text-left transition-colors',
                 selected ? 'bg-primary/10 ring-2 ring-primary' : 'hover:bg-muted/60',
             )}
         >
@@ -33,8 +33,11 @@ export const OfferPdfStyleCard = ({ template, palette, selected, onSelect }: Off
                 ref={card.ref}
                 className="relative aspect-[1/1.414] w-full overflow-hidden rounded-sm border border-border/70 bg-muted/40"
             >
+                {/* холст вне потока: иначе его ширина раздувает колонку сетки, а та — холст */}
                 {card.preview.status === 'ready' && card.width > 0 ? (
-                    <OfferPdfStyleThumbLoadable url={card.preview.url} width={card.width} />
+                    <div className="absolute inset-0">
+                        <OfferPdfStyleThumbLoadable url={card.preview.url} width={card.width} />
+                    </div>
                 ) : null}
                 {card.preview.status === 'loading' ? (
                     <div className="absolute inset-2 animate-pulse rounded bg-muted" aria-label="Превью собирается" />

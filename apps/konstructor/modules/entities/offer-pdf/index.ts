@@ -1,11 +1,8 @@
 export * from './model/types';
 export { OfferPdfDocumentProvider, useOfferPdfDocument } from './model/OfferPdfDocumentContext';
-export { buildOfferPdfGenerateRequest, offerPdfRequestBlocker } from './lib/build-offer-pdf-request';
-export { offerPdfActions, offerPdfReducer } from './model/OfferPdfSlice';
 export { useOfferPdfStyle } from './hooks/use-offer-pdf-style';
 export { resolvePalette, templatePalettes } from './lib/offer-pdf-palette.util';
-export { loadOfferPdfManagerPrefs } from './model/OfferPdfPrefsThunk';
-export { setupOfferPdfManagerPrefsListener } from './model/listeners';
+// редьюсер, экшены и слушатель стор берёт прямыми путями из model/ — так UI слайса не едет в оболочку
 export { OfferDocumentFormatSwitch } from './ui/OfferDocumentFormatSwitch';
 export { OfferPdfTemplateCard } from './ui/OfferPdfTemplateCard';
 export { OfferPdfGenerateButton } from './ui/OfferPdfGenerateButton';

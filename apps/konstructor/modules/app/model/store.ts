@@ -21,7 +21,8 @@ import { snapshotReducer } from '@/modules/entities/snapshot';
 import { complectVariantReducer } from '@/modules/entities/complect-variant';
 import { libraryReducer } from '@/modules/entities/library';
 import { offerDocumentReducer } from '@/modules/entities/offer-document';
-import { offerPdfReducer } from '@/modules/entities/offer-pdf';
+// прямым путём: баррель сущности тянет в бандл оболочки весь её UI (docs/first-load.tasks.md, шаг 8)
+import { offerPdfReducer } from '@/modules/entities/offer-pdf/model/OfferPdfSlice';
 import { contractDocumentReducer } from '@/modules/entities/contract-document';
 import { supplyReportReducer } from '@/modules/entities/supply-report-document';
 import { appSettingsReducer } from '@/modules/entities/app-settings';

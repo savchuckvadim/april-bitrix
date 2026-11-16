@@ -25,11 +25,10 @@ import {
     wordTemplatePdfPreviewAC,
 } from '@/modules/entities/offer-template-word';
 import { offerDocumentActions } from '@/modules/entities/offer-document';
-import {
-    loadOfferPdfManagerPrefs,
-    offerPdfActions,
-    setupOfferPdfManagerPrefsListener,
-} from '@/modules/entities/offer-pdf';
+// прямыми путями, мимо барреля с UI: слушатели попадают в бандл оболочки
+import { setupOfferPdfManagerPrefsListener } from '@/modules/entities/offer-pdf/model/listeners';
+import { loadOfferPdfManagerPrefs } from '@/modules/entities/offer-pdf/model/OfferPdfPrefsThunk';
+import { offerPdfActions } from '@/modules/entities/offer-pdf/model/OfferPdfSlice';
 import { contractDocumentActions } from '@/modules/entities/contract-document';
 import { supplyReportActions } from '@/modules/entities/supply-report-document';
 import { fetchAppSettings } from '@/modules/entities/app-settings';

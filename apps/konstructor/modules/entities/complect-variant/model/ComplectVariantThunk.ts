@@ -26,6 +26,12 @@ const errorText = (error: unknown, fallback: string): string =>
  * Битрикса (ради стадии) и настройки сборки. Заодно восстанавливает, какой
  * вариант был открыт — это хранится в настройках сделки.
  *
+ * Грузится двумя потоками. Слепки и настройки — из нашей базы, быстро: по ним
+ * вход решает, вести ли на экран вариантов. Элементы Битрикса (названия,
+ * стадии) идут рядом и вход не держат — экран показывает их, когда придут.
+ * Сам thunk завершается, когда пришло всё: после правок вызывающий ждёт полное
+ * обновление.
+ *
  * Смарт на портале не установлен — слайс остаётся пустым, конструктор
  * работает как раньше.
  */
@@ -39,15 +45,27 @@ export const fetchComplectVariants =
         if (!dealId || !domain || !entityTypeId) return;
 
         dispatch(complectVariantActions.loading());
+        const itemsLoading = helper.listItems(entityTypeId, dealId).then(
+            items => {
+                dispatch(complectVariantActions.itemsLoaded(items));
+            },
+            (error: unknown) => {
+                dispatch(
+                    complectVariantActions.failed(
+                        errorText(error, 'стадии вариантов не загружены'),
+                    ),
+                );
+            },
+        );
         try {
-            const [records, items, composition] = await Promise.all([
+            const [records, composition] = await Promise.all([
                 helper.listRecords(domain, dealId),
-                helper.listItems(entityTypeId, dealId),
                 helper.getComposition(domain, dealId),
             ]);
-            dispatch(
-                complectVariantActions.loaded({ records, items, composition }),
-            );
+            dispatch(complectVariantActions.loaded({ records, composition }));
+
+            // элементы Битрикса успели отказать — вариантов нет, открывать нечего
+            if (getState().complectVariant.status !== 'ready') return;
 
             const openId = composition?.openVariantSmartId ?? null;
             const isKnown =
@@ -62,6 +80,8 @@ export const fetchComplectVariants =
                     errorText(error, 'варианты не загружены'),
                 ),
             );
+        } finally {
+            await itemsLoading;
         }
     };
 

@@ -6,6 +6,7 @@ import { ToneBadge } from '@workspace/april-ui/badges';
 import { Button } from '@workspace/ui/components/button';
 import { Screen, ScreenHeader } from '@/modules/shared';
 import { useVariantPicker } from '../hooks/use-variant-picker';
+import { VariantTileLoading } from './VariantTileLoading';
 
 /** Варианты КП сделки: с каким работать или начать новый. */
 export const VariantPicker = () => {
@@ -37,22 +38,27 @@ export const VariantPicker = () => {
                 <p className="text-sm text-destructive">{picker.error}</p>
             ) : null}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {picker.items.map(item => (
-                    <ActionTile
-                        key={item.key}
-                        icon={Files}
-                        title={item.title}
-                        description={item.isOpen ? 'Открыт сейчас' : undefined}
-                        selected={item.isOpen}
-                        disabled={picker.isBusy}
-                        badge={
-                            <ToneBadge tone={item.stageTone} variant="soft">
-                                {item.stageTitle}
-                            </ToneBadge>
-                        }
-                        onClick={() => picker.open(item.record)}
-                    />
-                ))}
+                {picker.items.map(item =>
+                    // названия и стадии идут из Битрикса и приходят позже самих вариантов
+                    picker.areDetailsLoading ? (
+                        <VariantTileLoading key={item.key} selected={item.isOpen} />
+                    ) : (
+                        <ActionTile
+                            key={item.key}
+                            icon={Files}
+                            title={item.title}
+                            description={item.isOpen ? 'Открыт сейчас' : undefined}
+                            selected={item.isOpen}
+                            disabled={picker.isBusy}
+                            badge={
+                                <ToneBadge tone={item.stageTone} variant="soft">
+                                    {item.stageTitle}
+                                </ToneBadge>
+                            }
+                            onClick={() => picker.open(item.record)}
+                        />
+                    ),
+                )}
             </div>
         </Screen>
     );

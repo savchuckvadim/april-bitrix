@@ -57,7 +57,13 @@ export const useComplectVariants = () => {
         records: variantState.records,
         openVariantSmartId: variantState.openVariantSmartId,
         composition,
-        isBusy: variantState.isBusy || variantState.status === 'loading',
+        // пока стадии из Битрикса в пути, править варианты рано: стадия на экране ещё не настоящая
+        isBusy:
+            variantState.isBusy ||
+            variantState.status === 'loading' ||
+            variantState.itemsStatus === 'loading',
+        /** Названия и стадии из Битрикса ещё грузятся — карточки показывают загрузку */
+        areDetailsLoading: variantState.itemsStatus === 'loading',
         error: variantState.error,
         stageOf,
         titleOf,

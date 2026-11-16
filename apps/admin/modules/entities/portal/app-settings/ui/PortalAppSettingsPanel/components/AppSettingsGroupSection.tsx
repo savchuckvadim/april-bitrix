@@ -113,6 +113,10 @@ export const AppSettingsGroupSection = ({
                     pbxFields={view.group.pbxFields}
                     stages={view.group.stages}
                 />
+                <AppSettingsGroupActions
+                    groupCode={view.group.code}
+                    portalId={portalId}
+                />
                 {view.settings.map(descriptor => (
                     <AppSettingField
                         key={descriptor.code}

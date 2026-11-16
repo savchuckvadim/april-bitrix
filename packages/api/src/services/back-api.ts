@@ -5,7 +5,6 @@ const prod = `https://back.april-app.ru/api/`;
 // const prod = `http://localhost:3000/api/`;
 // const prod = `https://back.april-dev.ru/api/`;
 const url = prod;
-console.log('url back-api', url);
 export enum EBACK_ENDPOINT {
     DEPARTMENT = 'bitrix/department/sales',
     DOWNLOAD_REPORT = 'kpi-report/download',

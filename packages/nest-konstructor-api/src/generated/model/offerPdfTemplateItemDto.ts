@@ -5,18 +5,23 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
-import type { OfferPdfTemplateItemDtoCode } from './offerPdfTemplateItemDtoCode';
+import type { OfferPdfTemplateCode } from './offerPdfTemplateCode';
 import type { OfferPdfSettingsDto } from './offerPdfSettingsDto';
+import type { OfferPdfPaletteItemDto } from './offerPdfPaletteItemDto';
 
 export interface OfferPdfTemplateItemDto {
     /** Код шаблона — передаётся в preview/generate. */
-    code: OfferPdfTemplateItemDtoCode;
+    code: OfferPdfTemplateCode;
     /** Название для выбора в конструкторе. */
     name: string;
     /** Что в шаблоне и чем он отличается. */
     description: string;
     /** Есть ли у стиля титульный лист: только у таких стилей работает настройка withCover. */
     hasCover: boolean;
+    /** Есть ли у стиля промо-страница (о системе, о сервисе): только у таких стилей работает настройка withPromo. */
+    hasPromo: boolean;
     /** Настройки, которые стиль задаёт сам: в конструкторе их переключатели неактивны, при генерации они ставятся поверх выбора менеджера. */
     lockedSettings: OfferPdfSettingsDto;
+    /** Гаммы стиля; первая — по умолчанию. Пусто — у стиля одна гамма. */
+    palettes: OfferPdfPaletteItemDto[];
 }

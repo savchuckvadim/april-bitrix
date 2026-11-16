@@ -7,12 +7,13 @@ import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
 import { buildOfferPdfGenerateRequest, offerPdfRequestBlocker } from '../lib/build-offer-pdf-request';
 import { selectOfferPdfPrefs } from '../model/OfferPdfSlice';
-import type { OfferPdfGenerateRequest } from '../model/types';
+import type { OfferPdfGenerateRequest, OfferPdfTemplateCode } from '../model/types';
 
 export interface OfferPdfRequestInput {
     /** Формат PDF не выбран — запрос не собираем */
     enabled: boolean;
-    templateCode: string;
+    /** Код стиля из списка стилей; null — список ещё не пришёл, собирать рано */
+    templateCode: OfferPdfTemplateCode | null;
     palette: string | null;
 }
 
@@ -33,7 +34,7 @@ export const useOfferPdfRequest = ({ enabled, templateCode, palette }: OfferPdfR
     const catalog = useAppSelector(selectCatalog);
 
     const request = useMemo<OfferPdfGenerateRequest | null>(() => {
-        if (!enabled || blocker) return null;
+        if (!enabled || blocker || !templateCode) return null;
         return buildOfferPdfGenerateRequest(store.getState(), {
             templateCode,
             palette,

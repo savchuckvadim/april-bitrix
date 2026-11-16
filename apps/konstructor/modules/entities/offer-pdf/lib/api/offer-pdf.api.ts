@@ -1,24 +1,25 @@
-import { customAxios } from '@workspace/nest-konstructor-api';
+import { customAxios, getKonstructor } from '@workspace/nest-konstructor-api';
 import type {
     OfferPdfGenerateRequest,
     OfferPdfGenerateResponse,
+    OfferPdfTemplateCode,
     OfferPdfTemplateInfo,
 } from '../../model/types';
 
+const api = getKonstructor();
+
 /**
- * Ручки offer-pdf бэка konstructor. Написаны руками, а не orval'ом:
- * клиент генерится с живого бэка, а PDF-ручки ещё не выложены. После
- * выкладки и `pnpm generate` в @workspace/nest-konstructor-api — заменить
- * на сгенерированные функции.
+ * Ручки offer-pdf бэка konstructor — единственное место импорта api-пакета в
+ * слайсе. Сгенерированные функции, кроме предпросмотра: см. `preview`.
  */
 export const offerPdfApi = {
-    listTemplates: () =>
-        customAxios<OfferPdfTemplateInfo[]>({
-            url: '/api/offer-pdf/templates',
-            method: 'GET',
-        }),
+    listTemplates: (): Promise<OfferPdfTemplateInfo[]> => api.offerPdfListTemplates(),
 
-    /** PDF целиком — для панели предпросмотра. */
+    /**
+     * PDF целиком — для панели предпросмотра. Запрос написан руками:
+     * сгенерированной функции некуда передать `signal`, а превью отменяет
+     * устаревший запрос, когда менеджер правит дальше.
+     */
     preview: (dto: OfferPdfGenerateRequest, signal?: AbortSignal) =>
         customAxios<Blob>({
             url: '/api/offer-pdf/preview',
@@ -28,21 +29,12 @@ export const offerPdfApi = {
             signal,
         }),
 
-    generate: (dto: OfferPdfGenerateRequest) =>
-        customAxios<OfferPdfGenerateResponse>({
-            url: '/api/offer-pdf/generate',
-            method: 'POST',
-            data: dto,
-        }),
+    generate: (dto: OfferPdfGenerateRequest): Promise<OfferPdfGenerateResponse> =>
+        api.offerPdfGenerate(dto),
 
     /** Первая страница стиля на образце «Гарант-Офис» — миниатюра для выбора. */
-    stylePreview: (code: string, palette: string | null) =>
-        customAxios<Blob>({
-            url: `/api/offer-pdf/templates/${encodeURIComponent(code)}/preview`,
-            method: 'GET',
-            params: palette ? { palette } : undefined,
-            responseType: 'blob',
-        }),
+    stylePreview: (code: OfferPdfTemplateCode, palette: string | null): Promise<Blob> =>
+        api.offerPdfStylePreview(code, palette ? { palette } : undefined),
 };
 
 /**

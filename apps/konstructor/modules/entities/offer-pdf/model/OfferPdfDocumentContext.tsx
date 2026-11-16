@@ -62,7 +62,8 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
     const style = useOfferPdfStyle(isPdf);
     const { request, requestKey, blocker } = useOfferPdfRequest({
         enabled: isPdf,
-        templateCode: style.templateCode,
+        // код берём у стиля из списка бэка: сохранённого стиля там может уже не быть
+        templateCode: style.template?.code ?? null,
         palette: style.palette,
     });
     const { preview, refresh } = useOfferPdfPreview(request, requestKey);

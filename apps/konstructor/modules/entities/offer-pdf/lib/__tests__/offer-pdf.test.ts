@@ -6,6 +6,7 @@ import {
     OFFER_PDF_DEFAULT_SETTINGS,
     OFFER_PDF_DESCRIPTION_MODE,
     OFFER_PDF_VIEW_MODE,
+    type OfferPdfTemplateInfo,
 } from '../../model/types';
 import { offerPdfRequestBlocker, toOfferPdfRequest } from '../build-offer-pdf-request';
 import { resolvePalette } from '../offer-pdf-palette.util';
@@ -28,13 +29,23 @@ const wordPayload = {
     rows: [],
 } as unknown as OfferWordByTemplateGenerateDto;
 
-const options = {
+const options: Parameters<typeof toOfferPdfRequest>[1] = {
     templateCode: 'classic',
     palette: null,
     settings: { ...OFFER_PDF_DEFAULT_SETTINGS, salePhrase: '  до конца месяца  ' },
     letter: { appeal: ' Уважаемый! ', text: '' },
     documentNumber: ' КП-7 ',
 };
+
+/** Стиль из списка бэка: в тесте задаём только то, что проверяем */
+const template = (over: Partial<OfferPdfTemplateInfo> & Pick<OfferPdfTemplateInfo, 'code' | 'name'>): OfferPdfTemplateInfo => ({
+    description: '',
+    hasCover: false,
+    hasPromo: false,
+    lockedSettings: {},
+    palettes: [],
+    ...over,
+});
 
 describe('запрос КП в PDF', () => {
     it('поля Word-шаблона и счёта не уходят, данные документа — уходят', () => {
@@ -50,12 +61,12 @@ describe('запрос КП в PDF', () => {
     it('шаблон, настройки, письмо и номер — обрезаны; пустые — не отправляются', () => {
         const request = toOfferPdfRequest(wordPayload, options);
         expect(request.templateCode).toBe('classic');
-        expect(request.settings.salePhrase).toBe('до конца месяца');
+        expect(request.settings?.salePhrase).toBe('до конца месяца');
         expect(request.letter).toEqual({ appeal: 'Уважаемый!', text: undefined });
         expect(request.documentNumber).toBe('КП-7');
         expect(request.palette).toBeUndefined();
-        expect(request.settings.withCover).toBe(true);
-        expect(request.settings.withPromo).toBe(true);
+        expect(request.settings?.withCover).toBe(true);
+        expect(request.settings?.withPromo).toBe(true);
         expect(toOfferPdfRequest(wordPayload, { ...options, palette: 'claret' }).palette).toBe('claret');
 
         const empty = toOfferPdfRequest(wordPayload, {
@@ -64,7 +75,7 @@ describe('запрос КП в PDF', () => {
             letter: { appeal: '', text: '   ' },
             documentNumber: '',
         });
-        expect(empty.settings.salePhrase).toBeNull();
+        expect(empty.settings?.salePhrase).toBeNull();
         expect(empty.letter).toBeUndefined();
         expect(empty.documentNumber).toBeUndefined();
     });
@@ -123,15 +134,14 @@ describe('сохранённые настройки PDF', () => {
 });
 
 describe('гамма стиля', () => {
-    const facet = {
+    const facet = template({
         code: 'facet',
         name: 'Грань',
-        description: '',
         palettes: [
             { code: 'garant', name: 'Синий Гаранта', swatch: '#1F4E9C' },
             { code: 'claret', name: 'Бордо', swatch: '#9E1F2E' },
         ],
-    };
+    });
 
     it('выбранная у стиля есть — она, нет или не выбрана — первая', () => {
         expect(resolvePalette(facet, 'claret')).toBe('claret');
@@ -139,8 +149,8 @@ describe('гамма стиля', () => {
         expect(resolvePalette(facet, null)).toBe('garant');
     });
 
-    it('у стиля без гамм и до выкладки бэка — без гаммы', () => {
-        expect(resolvePalette({ code: 'classic', name: 'Классический', description: '' }, 'claret')).toBeNull();
+    it('у стиля без гамм и пока список стилей не пришёл — без гаммы', () => {
+        expect(resolvePalette(template({ code: 'classic', name: 'Классический' }), 'claret')).toBeNull();
         expect(resolvePalette(null, 'claret')).toBeNull();
     });
 });
@@ -150,15 +160,20 @@ describe('переключатели страниц', () => {
         visibleOfferPdfToggles(template).map(toggle => toggle.key);
 
     it('титульный и промо — только у стилей, где эти страницы есть', () => {
-        const base = { code: 'iskra', name: 'Искра', description: '' };
-        expect(keys({ ...base, hasCover: true, hasPromo: true })).toEqual([
+        const base = { code: 'iskra', name: 'Искра' } as const;
+        expect(keys(template({ ...base, hasCover: true, hasPromo: true }))).toEqual([
             'withCover',
             'withPromo',
             'withStamps',
             'withManager',
             'isPriceFirst',
         ]);
-        expect(keys({ ...base, hasCover: true })).toEqual(['withCover', 'withStamps', 'withManager', 'isPriceFirst']);
+        expect(keys(template({ ...base, hasCover: true }))).toEqual([
+            'withCover',
+            'withStamps',
+            'withManager',
+            'isPriceFirst',
+        ]);
         expect(keys(null)).toEqual(['withStamps', 'withManager', 'isPriceFirst']);
     });
 });

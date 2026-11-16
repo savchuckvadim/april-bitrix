@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useStylePreview } from '../../../hooks/use-style-preview';
+import type { OfferPdfTemplateCode } from '../../../model/types';
 
 /**
  * Миниатюра стиля: грузится, когда рамка показалась на экране, и рисуется
  * по её ширине (ширина меняется вместе с сеткой).
  */
-export const useStyleThumb = (code: string, palette: string | null) => {
+export const useStyleThumb = (code: OfferPdfTemplateCode, palette: string | null) => {
     const ref = useRef<HTMLDivElement | null>(null);
     const [visible, setVisible] = useState(false);
     const [width, setWidth] = useState(0);

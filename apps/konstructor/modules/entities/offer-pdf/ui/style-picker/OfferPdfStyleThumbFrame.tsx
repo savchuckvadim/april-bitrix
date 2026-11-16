@@ -2,11 +2,12 @@
 
 import { FileWarning } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
+import type { OfferPdfTemplateCode } from '../../model/types';
 import { useStyleThumb } from './hooks/use-style-thumb';
 import { OfferPdfStyleThumbLoadable } from './OfferPdfStyleThumb.loadable';
 
 export interface OfferPdfStyleThumbFrameProps {
-    code: string;
+    code: OfferPdfTemplateCode;
     palette: string | null;
     className?: string;
 }

@@ -1,3 +1,4 @@
+import type { OfferPdfTemplateCode } from '../model/types';
 import { offerPdfApi } from './api/offer-pdf.api';
 
 /**
@@ -6,9 +7,9 @@ import { offerPdfApi } from './api/offer-pdf.api';
  */
 const cache = new Map<string, Promise<string>>();
 
-const keyOf = (code: string, palette: string | null): string => `${code}:${palette ?? ''}`;
+const keyOf = (code: OfferPdfTemplateCode, palette: string | null): string => `${code}:${palette ?? ''}`;
 
-export const getStylePreview = (code: string, palette: string | null): Promise<string> => {
+export const getStylePreview = (code: OfferPdfTemplateCode, palette: string | null): Promise<string> => {
     const key = keyOf(code, palette);
     let entry = cache.get(key);
     if (!entry) {

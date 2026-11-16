@@ -5,7 +5,7 @@
  * API приложения konstructor
  * OpenAPI spec version: 1.0
  */
-import type { OfferPdfGenerateResponseDtoTemplateCode } from './offerPdfGenerateResponseDtoTemplateCode';
+import type { OfferPdfTemplateCode } from './offerPdfTemplateCode';
 
 export interface OfferPdfGenerateResponseDto {
     /** Публичная ссылка на PDF. */
@@ -13,11 +13,13 @@ export interface OfferPdfGenerateResponseDto {
     /** Имя файла в хранилище. */
     fileName: string;
     /** Каким шаблоном собран документ. */
-    templateCode: OfferPdfGenerateResponseDtoTemplateCode;
+    templateCode: OfferPdfTemplateCode;
     /** Время рендера PDF в миллисекундах. */
     durationMs: number;
     /** Размер файла в байтах. */
     size: number;
+    /** Картинки и логотипы стиля, которых нет на сервере (пути внутри storage/app): документ собран без них. Пусто — всё на месте. */
+    missingAssets: string[];
     /** Файл загружен на Диск Битрикса и упомянут в таймлайне сделки. */
     savedToDeal: boolean;
     /**

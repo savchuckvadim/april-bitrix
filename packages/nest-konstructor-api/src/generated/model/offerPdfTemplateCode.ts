@@ -9,12 +9,19 @@
 /**
  * Код шаблона — передаётся в preview/generate.
  */
-export type OfferPdfTemplateItemDtoCode =
-    (typeof OfferPdfTemplateItemDtoCode)[keyof typeof OfferPdfTemplateItemDtoCode];
+export type OfferPdfTemplateCode =
+    (typeof OfferPdfTemplateCode)[keyof typeof OfferPdfTemplateCode];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const OfferPdfTemplateItemDtoCode = {
+export const OfferPdfTemplateCode = {
     classic: 'classic',
-    modern: 'modern',
+    prism: 'prism',
     monochrome: 'monochrome',
+    facet: 'facet',
+    lavender: 'lavender',
+    pearl: 'pearl',
+    moderne: 'moderne',
+    iskra: 'iskra',
+    halo: 'halo',
+    silk: 'silk',
 } as const;

@@ -11,10 +11,12 @@ import {
     type OfferPdfLetter,
     type OfferPdfOmittedWordField,
     type OfferPdfSettings,
+    type OfferPdfTemplateCode,
 } from '../model/types';
 
 export interface OfferPdfRequestOptions {
-    templateCode: string;
+    /** Код стиля из списка стилей бэка */
+    templateCode: OfferPdfTemplateCode;
     palette: string | null;
     settings: OfferPdfSettings;
     letter: OfferPdfLetter;

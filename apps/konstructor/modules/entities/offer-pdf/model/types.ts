@@ -1,4 +1,18 @@
-import type { OfferWordByTemplateGenerateDto } from '@workspace/nest-konstructor-api';
+import type {
+    OfferPdfGenerateDto,
+    OfferPdfGenerateResponseDto,
+    OfferPdfPaletteItemDto,
+    OfferPdfTemplateCode as OfferPdfTemplateCodeDto,
+    OfferPdfTemplateItemDto,
+} from '@workspace/nest-konstructor-api';
+
+/**
+ * Доменные имена generated-DTO offer-pdf: UI и хуки берут типы отсюда —
+ * переименование на бэке правится только в этом файле и в lib/api.
+ */
+
+/** Код встроенного PDF-стиля — как его знает бэк */
+export type OfferPdfTemplateCode = OfferPdfTemplateCodeDto;
 
 /** Формат КП: по Word-шаблону пользователя или PDF из встроенного шаблона. */
 export const OFFER_DOCUMENT_FORMAT = {
@@ -70,50 +84,22 @@ export interface OfferPdfLetter {
 
 export const OFFER_PDF_EMPTY_LETTER: OfferPdfLetter = { appeal: '', text: '' };
 
-/** Гамма стиля: та же вёрстка в другом цвете */
-export interface OfferPdfPaletteInfo {
-    code: string;
-    name: string;
-    /** Цвет кружка в выборе */
-    swatch: string;
-}
+/** Гамма стиля: та же вёрстка в другом цвете; `swatch` — цвет кружка в выборе */
+export type OfferPdfPaletteInfo = OfferPdfPaletteItemDto;
 
 /**
- * Встроенный PDF-стиль (GET /offer-pdf/templates). Титульник, промо и гаммы
- * бэк отдаёт с выкладки 16.11 — до неё полей нет, отсюда необязательность.
+ * Встроенный PDF-стиль (GET /offer-pdf/templates): есть ли титульник и
+ * промо-страница, гаммы (первая — по умолчанию; пусто — гамма одна).
  */
-export interface OfferPdfTemplateInfo {
-    code: string;
-    name: string;
-    description: string;
-    hasCover?: boolean;
-    hasPromo?: boolean;
-    /** Первая — по умолчанию; пусто — у стиля одна гамма */
-    palettes?: OfferPdfPaletteInfo[];
-}
+export type OfferPdfTemplateInfo = OfferPdfTemplateItemDto;
 
 export const OFFER_PDF_DEFAULT_TEMPLATE_CODE = 'classic';
 
-/** Ответ POST /offer-pdf/generate. */
-export interface OfferPdfGenerateResponse {
-    /** Ссылка на файл на нашем сервере */
-    link: string;
-    fileName: string;
-    templateCode: string;
-    durationMs: number;
-    size: number;
-    /** Файл загружен на Диск Битрикса и упомянут в таймлайне сделки */
-    savedToDeal: boolean;
-    /** Ссылка на файл в Битриксе; пусто — загрузка не удалась */
-    bitrixLink: string | null;
-    /** Почему к сделке не прикрепили; пусто — прикреплён */
-    dealMessage: string | null;
-    /**
-     * Картинки и логотипы стиля, которых нет на сервере: документ собран без
-     * них. Бэк отдаёт поле с выкладки 16.11 — до неё его нет.
-     */
-    missingAssets?: string[];
-}
+/**
+ * Ответ POST /offer-pdf/generate: ссылки на файл, прикреплён ли он к сделке и
+ * `missingAssets` — каких картинок и логотипов стиля не нашлось на сервере.
+ */
+export type OfferPdfGenerateResponse = OfferPdfGenerateResponseDto;
 
 /** Поля Word-запроса, которых у PDF-генерации нет. */
 export const OFFER_PDF_OMITTED_WORD_FIELDS = [
@@ -128,25 +114,9 @@ export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[nu
 
 /**
  * Запрос КП в PDF: данные те же, что для Word-шаблона (бэк считает их
- * одним кодом), плюс код шаблона, настройки, письмо и номер.
+ * одним кодом), плюс код стиля, гамма, настройки, письмо и номер.
  */
-export type OfferPdfGenerateRequest = Omit<OfferWordByTemplateGenerateDto, OfferPdfOmittedWordField> & {
-    templateCode: string;
-    /** Гамма стиля; не задана — первая */
-    palette?: string;
-    settings: {
-        descriptionMode: OfferPdfDescriptionMode;
-        viewMode: OfferPdfViewMode;
-        withStamps: boolean;
-        withManager: boolean;
-        isPriceFirst: boolean;
-        salePhrase: string | null;
-        withCover: boolean;
-        withPromo: boolean;
-    };
-    letter?: { appeal?: string; text?: string };
-    documentNumber?: string;
-};
+export type OfferPdfGenerateRequest = OfferPdfGenerateDto;
 
 /** Настройки КП на экране документа; у сделки и варианта уходят в слепок целиком. */
 export interface OfferPdfDocumentPrefs {

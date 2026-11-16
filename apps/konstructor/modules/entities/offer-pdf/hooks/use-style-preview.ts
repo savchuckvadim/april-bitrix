@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getStylePreview } from '../lib/style-preview-cache';
+import type { OfferPdfTemplateCode } from '../model/types';
 
 export type StylePreviewState = { status: 'loading' } | { status: 'ready'; url: string } | { status: 'error' };
 
@@ -9,7 +10,11 @@ export type StylePreviewState = { status: 'loading' } | { status: 'ready'; url: 
  * Миниатюра стиля: грузится, только когда карточка видна (`visible`), —
  * десяток стилей не собирает превью разом.
  */
-export const useStylePreview = (code: string, palette: string | null, visible: boolean): StylePreviewState => {
+export const useStylePreview = (
+    code: OfferPdfTemplateCode,
+    palette: string | null,
+    visible: boolean,
+): StylePreviewState => {
     const [state, setState] = useState<StylePreviewState>({ status: 'loading' });
 
     useEffect(() => {

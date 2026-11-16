@@ -1,3 +1,4 @@
+export * from './knowledge-budget-card';
 export * from './knowledge-list';
 export * from './knowledge-table';
 export * from './document-content-dialog';

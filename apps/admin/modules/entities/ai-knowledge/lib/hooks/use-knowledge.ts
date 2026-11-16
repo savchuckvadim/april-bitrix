@@ -13,6 +13,7 @@ import {
     KnowledgeTextUpsertPayload,
     KnowledgeUploadResponse,
 } from '../types/knowledge.types';
+import type { KnowledgeBudgetReport } from '../types/knowledge-budget.types';
 
 const helper = new KnowledgeHelper();
 
@@ -29,6 +30,18 @@ export const useKnowledgeKinds = () => {
     return useQuery<KnowledgeKindInfo[], Error>({
         queryKey: [KNOWLEDGE_KEY, 'kinds'],
         queryFn: () => helper.listKinds(),
+    });
+};
+
+/**
+ * Сводка бюджетов базы знаний портала. Ключ начинается с общего ключа базы
+ * знаний, поэтому загрузка, правка и удаление документа пересчитывают её.
+ */
+export const useKnowledgeBudget = (domain: string) => {
+    return useQuery<KnowledgeBudgetReport, Error>({
+        queryKey: [KNOWLEDGE_KEY, 'budget', domain],
+        queryFn: () => helper.budget(domain),
+        enabled: domain !== '',
     });
 };
 

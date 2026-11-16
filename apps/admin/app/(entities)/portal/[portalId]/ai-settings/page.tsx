@@ -9,7 +9,10 @@ import {
     TabsTrigger,
 } from '@workspace/ui/components/tabs';
 import { PortalAiSettingsPanel } from '@/modules/entities/portal/ai-settings';
-import { PortalKnowledgePanel } from '@/modules/entities/ai-knowledge';
+import {
+    KnowledgeBudgetCard,
+    PortalKnowledgePanel,
+} from '@/modules/entities/ai-knowledge';
 import {
     AiFactsCatchupCard,
     AiLaunchPanel,
@@ -74,10 +77,13 @@ function PortalAiSettingsContent() {
                 </TabsContent>
                 <TabsContent value={AI_SETTINGS_TAB.knowledge}>
                     {portal.data?.domain ? (
-                        <PortalKnowledgePanel
-                            domain={portal.data.domain}
-                            initialKind={initialKind}
-                        />
+                        <div className="space-y-6">
+                            <KnowledgeBudgetCard domain={portal.data.domain} />
+                            <PortalKnowledgePanel
+                                domain={portal.data.domain}
+                                initialKind={initialKind}
+                            />
+                        </div>
                     ) : (
                         <p className="text-sm text-muted-foreground">Загрузка…</p>
                     )}

@@ -20,6 +20,10 @@ import {
     AI_FORECAST_TEXT,
 } from './ai-forecast.texts';
 import { aiForecastReadyDate } from './ai-forecast-date.util';
+import {
+    buildAiForecastShown,
+    type AiForecastShownView,
+} from './ai-forecast-shown.util';
 
 export { aiForecastReadyDate };
 
@@ -41,6 +45,11 @@ export interface AiForecastProgress {
 
 export interface AiForecastShadowView {
     kind: 'shadow';
+    /**
+     * Число с пометкой (модель, по темпу или среднее за три месяца); null —
+     * числа ещё нет, карточка пишет «готовится».
+     */
+    shown: AiForecastShownView | null;
     /** «Прогноз копится в тени: 4 из 9 месяцев». */
     progressTitle: string;
     progress: AiForecastProgress;
@@ -198,6 +207,7 @@ const buildShadow = (
     const ready = aiForecastReadyDate(today, monthsLogged, minMonths);
     return {
         kind: 'shadow',
+        shown: buildAiForecastShown(forecast),
         progressTitle: T.shadow.progress(
             logged,
             minMonths,
@@ -277,8 +287,10 @@ const buildPublished = (
 };
 
 /**
- * Вид карточки. В тени вилку не показываем вовсе (и простые прогнозы тоже —
- * их легко принять за прогноз). Включён, но вилки нет — честная заглушка.
+ * Вид карточки. В тени вилку не показываем, но число показываем всегда,
+ * когда оно есть: с пометкой, чей это расчёт и насколько ему верить
+ * (`shown`, решение владельца 16.11.2026). Включён, но вилки нет — честная
+ * заглушка.
  */
 export const buildAiForecastView = (
     forecast: AiForecast,

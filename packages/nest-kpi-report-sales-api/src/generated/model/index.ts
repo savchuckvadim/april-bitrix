@@ -718,3 +718,7 @@ export * from './callPageScoreDto';
 export * from './callPageSectionDto';
 export * from './callPageSegmentDto';
 export * from './callPageSegmentDtoSpeaker';
+export * from './aiForecastDtoShown';
+export * from './aiForecastShownDto';
+export * from './aiForecastShownDtoNote';
+export * from './aiForecastShownDtoSource';

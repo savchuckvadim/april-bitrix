@@ -3,6 +3,7 @@
 import { LiquidProgress, ToneBadge } from '@workspace/april-ui';
 import { AI_FORECAST_TEXT } from '../../lib/ai-forecast.texts';
 import type { AiForecastShadowView } from '../../lib/ai-forecast.util';
+import { AiForecastShown } from './AiForecastShown';
 import { AiForecastTodo } from './AiForecastTodo';
 
 const T = AI_FORECAST_TEXT;
@@ -25,13 +26,19 @@ const AiForecastShadowClient = () => (
 );
 
 /**
- * Прогноз «в тени»: вилку не показываем. Суперпользователю вендора —
- * сколько месяцев сверки набралось, когда примерно откроется, как прогноз
- * выдержал последнюю проверку на истории и что делать; руководителю
- * клиента — только «готовится» (решение владельца 05.11.2026).
+ * Прогноз «в тени»: вилку не показываем, но число с пометкой видят все
+ * руководители (решение владельца 16.11.2026). Числа ещё нет — руководителю
+ * клиента «готовится». Суперпользователю вендора дополнительно — сколько
+ * месяцев сверки набралось, когда примерно откроется, как прогноз выдержал
+ * проверку на истории и что делать (решение владельца 05.11.2026).
  */
-export const AiForecastShadow = ({ view, technical }: AiForecastShadowProps) =>
-    technical ? <AiForecastShadowTechnical view={view} /> : <AiForecastShadowClient />;
+export const AiForecastShadow = ({ view, technical }: AiForecastShadowProps) => (
+    <div className="space-y-3">
+        {view.shown && <AiForecastShown view={view.shown} />}
+        {!view.shown && !technical && <AiForecastShadowClient />}
+        {technical && <AiForecastShadowTechnical view={view} />}
+    </div>
+);
 
 const AiForecastShadowTechnical = ({ view }: { view: AiForecastShadowView }) => (
     <div className="space-y-3">

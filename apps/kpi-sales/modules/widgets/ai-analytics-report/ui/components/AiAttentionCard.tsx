@@ -13,6 +13,7 @@ import {
     type AiAttentionItem,
 } from '@/modules/entities/ai-analytics';
 import { useAiCallTypeBadge } from '../../hooks/use-ai-call-type-badge';
+import { AiCallPageLink } from './AiCallPageLink';
 import { AiManagerName } from './AiManagerName';
 import { AiFeedbackButtons } from './AiFeedbackButtons';
 
@@ -115,6 +116,18 @@ export const AiAttentionCard = ({ item, onOpenType }: AiAttentionCardProps) => {
                                 : 'открыть разбор'}
                             <ExternalLink className="h-3 w-3" />
                         </a>
+                    ))}
+                    {callLinks.map((call, index) => (
+                        <AiCallPageLink
+                            key={`page-${call.transcriptionId}`}
+                            transcriptionId={call.transcriptionId}
+                            label={
+                                callLinks.length > 1
+                                    ? `страница ${index + 1}`
+                                    : 'страница разбора'
+                            }
+                            className="inline-flex items-center gap-1 text-primary underline-offset-2 hover:underline"
+                        />
                     ))}
                 </div>
                 <AiFeedbackButtons

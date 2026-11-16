@@ -87,6 +87,21 @@ export const initializeWordTemplates = () => async (dispatch: AppDispatch, getSt
     }
 };
 
+/**
+ * Шаблон из слепка, восстановленного уже после загрузки списка (вариант,
+ * заготовка из избранного): init к этому моменту отработал и сам его не
+ * применит. До загрузки списка ничего не делает — шаблон применит init.
+ */
+export const applyRememberedWordTemplate = () => async (dispatch: AppDispatch, getState: AppGetState) => {
+    const state = getState();
+    const templateId = state.snapshot.templateId;
+    const word = state.offerTemplateWord;
+    if (!templateId || !word.isInitialized || !word.isFetched) return;
+    if (Number(word.currentTemplate?.id) === templateId) return;
+    await applyRememberedTemplate(dispatch, word.templates, templateId);
+    dispatch(requestWordTemplatePdfPreview());
+};
+
 const applyRememberedTemplate = async (
     dispatch: AppDispatch,
     templates: WordTemplateSummary[],

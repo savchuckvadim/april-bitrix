@@ -22,6 +22,7 @@ import {
 } from '@/modules/entities/row-set';
 import { snapshotReducer } from '../model/SnapshotSlice';
 import { serviceOfferReducer } from '../../service-offer/model/ServiceOfferSlice';
+import { offerPdfReducer } from '../../offer-pdf/model/OfferPdfSlice';
 import { restoreSnapshot, saveSnapshot } from '../model/SnapshotThunk';
 import { SnapshotHelper } from './api/snapshot-helper';
 import { isSnapshotV2, type SnapshotV2 } from '../model/types';
@@ -43,6 +44,7 @@ const makeStore = () => {
             rowSet: rowSetReducer,
             snapshot: snapshotReducer,
             serviceOffer: serviceOfferReducer,
+            offerPdf: offerPdfReducer,
         }),
         middleware: getDefault =>
             getDefault().concat(listenerMiddleware.middleware),

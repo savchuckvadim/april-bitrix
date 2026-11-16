@@ -19,8 +19,17 @@ import { restoreSnapshot, snapshotActions } from '@/modules/entities/snapshot';
 import { bxrqActions, fetchBXRQ } from '@/modules/entities/bx-rq';
 import { selectClientTypeOrDefault } from '@/modules/entities/deal';
 import { fetchLibraryRights, libraryActions } from '@/modules/entities/library';
-import { wordTemplateAC, wordTemplatePdfPreviewAC } from '@/modules/entities/offer-template-word';
+import {
+    applyRememberedWordTemplate,
+    wordTemplateAC,
+    wordTemplatePdfPreviewAC,
+} from '@/modules/entities/offer-template-word';
 import { offerDocumentActions } from '@/modules/entities/offer-document';
+import {
+    loadOfferPdfManagerPrefs,
+    offerPdfActions,
+    setupOfferPdfManagerPrefsListener,
+} from '@/modules/entities/offer-pdf';
 import { contractDocumentActions } from '@/modules/entities/contract-document';
 import { supplyReportActions } from '@/modules/entities/supply-report-document';
 import { fetchAppSettings } from '@/modules/entities/app-settings';
@@ -62,6 +71,8 @@ export function startStoreListeners(
     setupDealProviderListener(listenerMiddleware);
     setupRqListener(listenerMiddleware);
     setupTemplateIdListener(listenerMiddleware);
+    setupRememberedDocumentListener(listenerMiddleware);
+    setupOfferPdfManagerPrefsListener(listenerMiddleware);
     setupOpenVariantSyncListener(listenerMiddleware);
     setupOfferPreviewStaleListener(listenerMiddleware);
     setupContractStaleListener(listenerMiddleware);
@@ -100,6 +111,9 @@ function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
             void listenerApi.dispatch(fetchLibraryRights());
             // шапка КП (получатель, счёт) считается от сделки заново
             listenerApi.dispatch(offerDocumentActions.reset());
+            // КП: письмо и номер — от сделки, стиль — последний выбор менеджера
+            listenerApi.dispatch(offerPdfActions.resetDocument());
+            void listenerApi.dispatch(loadOfferPdfManagerPrefs());
             listenerApi.dispatch(contractDocumentActions.reset());
             listenerApi.dispatch(supplyReportActions.reset());
             listenerApi.dispatch(zakupkiActions.reset());
@@ -256,6 +270,22 @@ function setupTemplateIdListener(listenerMiddleware: ListenerMiddlewareInstance)
             listenerApi.dispatch(
                 snapshotActions.setTemplateId(Number.isFinite(id) && id ? id : null),
             );
+        },
+    });
+}
+
+/**
+ * Слепок восстановлен (сделка, вариант, заготовка из избранного) → документ
+ * печатается так же, как в нём: формат и стиль КП, Word-шаблон. Word-шаблон
+ * при первом входе применяет init, здесь — когда список уже загружен.
+ */
+function setupRememberedDocumentListener(listenerMiddleware: ListenerMiddlewareInstance) {
+    typed(listenerMiddleware)({
+        actionCreator: snapshotActions.restored,
+        effect: (action, listenerApi) => {
+            const { pdf } = action.payload;
+            if (pdf) listenerApi.dispatch(offerPdfActions.applySnapshot(pdf));
+            void listenerApi.dispatch(applyRememberedWordTemplate());
         },
     });
 }

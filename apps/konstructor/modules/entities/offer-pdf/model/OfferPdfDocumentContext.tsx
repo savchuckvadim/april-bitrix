@@ -1,6 +1,6 @@
 'use client';
 
-import React, {
+import {
     createContext,
     useCallback,
     useContext,
@@ -12,16 +12,16 @@ import React, {
 } from 'react';
 import { useStore } from 'react-redux';
 import type { RootState } from '@/modules/app/model/store';
-import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { selectCatalog } from '../../catalog';
+import { saveSnapshot } from '../../snapshot';
 import { offerPdfApi, readOfferPdfError } from '../lib/api/offer-pdf.api';
 import { buildOfferPdfGenerateRequest, offerPdfRequestBlocker } from '../lib/build-offer-pdf-request';
 import { resolvePalette } from '../lib/offer-pdf-palette.util';
-import { loadOfferPdfPrefs, OFFER_PDF_DEFAULT_PREFS, saveOfferPdfPrefs } from '../lib/offer-pdf-storage';
+import { offerPdfActions, selectOfferPdfPrefs } from './OfferPdfSlice';
 import {
     OFFER_DOCUMENT_FORMAT,
     type OfferDocumentFormat,
-    type OfferPdfDocumentPrefs,
     type OfferPdfGenerateRequest,
     type OfferPdfGenerateResponse,
     type OfferPdfLetter,
@@ -92,14 +92,14 @@ const INITIAL_PREVIEW: OfferPdfPreviewState = {
 const INITIAL_GENERATE: OfferPdfGenerateState = { status: 'idle', result: null, error: null };
 
 /**
- * Состояние КП в PDF на экране документа: формат, шаблон, настройки,
- * письмо, превью и результат. Живёт в контексте экрана, а не в Redux:
- * нужно только здесь, а выбор менеджера запоминается в браузере.
+ * КП в PDF на экране документа: список стилей, превью и результат живут
+ * здесь; формат, стиль, настройки, письмо и номер — в сторе (offerPdf):
+ * их запоминают слепок сделки и последний выбор менеджера.
  */
 export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) => {
     const store = useStore<RootState>();
-    const [prefs, setPrefs] = useState<OfferPdfDocumentPrefs>(OFFER_PDF_DEFAULT_PREFS);
-    const prefsLoadedRef = useRef(false);
+    const dispatch = useAppDispatch();
+    const prefs = useAppSelector(selectOfferPdfPrefs);
 
     const [templates, setTemplates] = useState<OfferPdfTemplateInfo[]>([]);
     const [templatesLoading, setTemplatesLoading] = useState(false);
@@ -108,16 +108,6 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
 
     const [preview, setPreview] = useState<OfferPdfPreviewState>(INITIAL_PREVIEW);
     const [generate, setGenerate] = useState<OfferPdfGenerateState>(INITIAL_GENERATE);
-
-    // хранилище браузера читаем после монтирования — иначе разойдётся с SSR
-    useEffect(() => {
-        setPrefs(loadOfferPdfPrefs());
-        prefsLoadedRef.current = true;
-    }, []);
-
-    useEffect(() => {
-        if (prefsLoadedRef.current) saveOfferPdfPrefs(prefs);
-    }, [prefs]);
 
     const isPdf = prefs.format === OFFER_DOCUMENT_FORMAT.PDF;
 
@@ -131,13 +121,6 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             .then(list => {
                 setTemplates(list);
                 setTemplatesError(null);
-                // сохранённого кода уже нет — берём первый доступный
-                const first = list[0];
-                setPrefs(prev =>
-                    first && !list.some(item => item.code === prev.templateCode)
-                        ? { ...prev, templateCode: first.code }
-                        : prev,
-                );
             })
             .catch(async error => {
                 templatesRequestedRef.current = false;
@@ -146,14 +129,15 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             .finally(() => setTemplatesLoading(false));
     }, [isPdf]);
 
-    // --- запрос: пересобираем, когда меняется то, что в нём печатается ---
-    // --- стиль и гамма ---
+    // --- стиль и гамма: сохранённого стиля уже нет — первый доступный ---
     const template = useMemo(
-        () => templates.find(item => item.code === prefs.templateCode) ?? null,
+        () => templates.find(item => item.code === prefs.templateCode) ?? templates[0] ?? null,
         [templates, prefs.templateCode],
     );
+    const templateCode = template?.code ?? prefs.templateCode;
     const palette = resolvePalette(template, prefs.palette);
 
+    // --- запрос: пересобираем, когда меняется то, что в нём печатается ---
     const blocker = useAppSelector(offerPdfRequestBlocker);
     const general = useAppSelector(state => state.rowSet.general);
     const alternative = useAppSelector(state => state.rowSet.alternative);
@@ -165,7 +149,7 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
     const request = useMemo<OfferPdfGenerateRequest | null>(() => {
         if (!isPdf || blocker) return null;
         return buildOfferPdfGenerateRequest(store.getState(), {
-            templateCode: prefs.templateCode,
+            templateCode,
             palette,
             settings: prefs.settings,
             letter: prefs.letter,
@@ -173,7 +157,7 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
         });
         // перечисленные зависимости — всё, из чего собирается запрос
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isPdf, blocker, store, prefs, palette, general, alternative, recipient, provider, dealId, catalog]);
+    }, [isPdf, blocker, store, prefs, templateCode, palette, general, alternative, recipient, provider, dealId, catalog]);
 
     const requestKey = useMemo(() => (request ? JSON.stringify(request) : null), [request]);
     const requestRef = useRef(request);
@@ -236,12 +220,13 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
         [],
     );
 
-    // --- формирование ---
+    // --- формирование: сначала слепок сделки, чтобы выбор стиля пережил уход со страницы ---
     const runGenerate = useCallback(async () => {
         const current = requestRef.current;
         if (!current) return false;
         setGenerate({ status: 'generating', result: null, error: null });
         try {
+            await dispatch(saveSnapshot());
             const result = await offerPdfApi.generate(current);
             setGenerate({ status: 'done', result, error: null });
             return true;
@@ -249,27 +234,26 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             setGenerate({ status: 'error', result: null, error: await readOfferPdfError(error) });
             return false;
         }
-    }, []);
+    }, [dispatch]);
 
     const value = useMemo<OfferPdfDocumentContextValue>(
         () => ({
             format: prefs.format,
-            setFormat: format => setPrefs(prev => ({ ...prev, format })),
-            templateCode: prefs.templateCode,
-            // новый стиль — его первая гамма
-            setTemplateCode: templateCode => setPrefs(prev => ({ ...prev, templateCode, palette: null })),
+            setFormat: format => dispatch(offerPdfActions.setFormat(format)),
+            templateCode,
+            setTemplateCode: code => dispatch(offerPdfActions.setTemplateCode(code)),
             template,
             palette,
-            setPalette: next => setPrefs(prev => ({ ...prev, palette: next })),
+            setPalette: next => dispatch(offerPdfActions.setPalette(next)),
             templates,
             templatesLoading,
             templatesError,
             settings: prefs.settings,
-            setSettings: patch => setPrefs(prev => ({ ...prev, settings: { ...prev.settings, ...patch } })),
+            setSettings: patch => dispatch(offerPdfActions.setSettings(patch)),
             letter: prefs.letter,
-            setLetter: patch => setPrefs(prev => ({ ...prev, letter: { ...prev.letter, ...patch } })),
+            setLetter: patch => dispatch(offerPdfActions.setLetter(patch)),
             documentNumber: prefs.documentNumber,
-            setDocumentNumber: documentNumber => setPrefs(prev => ({ ...prev, documentNumber })),
+            setDocumentNumber: value => dispatch(offerPdfActions.setDocumentNumber(value)),
             blocker,
             preview,
             refreshPreview: () => void runPreview(),
@@ -278,7 +262,9 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             resetGenerate: () => setGenerate(INITIAL_GENERATE),
         }),
         [
+            dispatch,
             prefs,
+            templateCode,
             template,
             palette,
             templates,

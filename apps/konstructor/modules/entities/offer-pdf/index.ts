@@ -7,7 +7,9 @@ export {
     type OfferPdfPreviewState,
 } from './model/OfferPdfDocumentContext';
 export { buildOfferPdfGenerateRequest, offerPdfRequestBlocker } from './lib/build-offer-pdf-request';
-export { loadOfferPdfPrefs, normalizeOfferPdfPrefs, saveOfferPdfPrefs } from './lib/offer-pdf-storage';
+export { offerPdfActions, offerPdfReducer } from './model/OfferPdfSlice';
+export { loadOfferPdfManagerPrefs } from './model/OfferPdfPrefsThunk';
+export { setupOfferPdfManagerPrefsListener } from './model/listeners';
 export { OfferDocumentFormatSwitch } from './ui/OfferDocumentFormatSwitch';
 export { OfferPdfTemplateCard } from './ui/OfferPdfTemplateCard';
 export { OfferPdfGenerateButton } from './ui/OfferPdfGenerateButton';

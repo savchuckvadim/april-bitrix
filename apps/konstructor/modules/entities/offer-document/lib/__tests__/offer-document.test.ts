@@ -99,6 +99,7 @@ describe('buildVariantsPayload', () => {
                                   alternative: [],
                                   templateId: null,
                                   rqId: null,
+                                  pdf: null,
                               },
                               dealId: 1,
                               domain: 'd',

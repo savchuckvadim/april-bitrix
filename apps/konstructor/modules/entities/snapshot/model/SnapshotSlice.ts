@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { OfferPdfSnapshot } from '../../offer-pdf/model/types';
 
 /**
  * Состояние восстановления слепка сделки («вспоминание»).
@@ -46,6 +47,8 @@ const snapshotSlice = createSlice({
                 warnings: string[];
                 templateId: number | null;
                 rqId: number | null;
+                /** Стиль КП живёт в своём слайсе (offerPdf) — его забирает слушатель */
+                pdf: OfferPdfSnapshot | null;
             }>,
         ) {
             state.status = 'restored';

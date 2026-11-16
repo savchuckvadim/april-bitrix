@@ -8,6 +8,8 @@ import type { V1Record } from '../lib/v1/types';
 import { SnapshotHelper, hasSnapshotApi } from '../lib/api/snapshot-helper';
 import { snapshotActions } from './SnapshotSlice';
 import { selectServiceSmartId } from '../../service-offer/model/ServiceOfferSlice';
+// утилита напрямую, мимо барреля: offer-pdf сам зовёт saveSnapshot перед генерацией
+import { offerPdfForSnapshot } from '../../offer-pdf/lib/offer-pdf-snapshot.util';
 
 const snapshotHelper = new SnapshotHelper();
 
@@ -111,6 +113,7 @@ export const restoreSnapshotRecord =
                 warnings: restored.warnings,
                 templateId: restored.templateId,
                 rqId: restored.rqId,
+                pdf: restored.pdf,
             }),
         );
     };
@@ -138,6 +141,7 @@ export const buildCurrentSnapshotV2 = (
             alternative,
             templateId: state.snapshot.templateId,
             rqId: state.snapshot.rqId,
+            pdf: offerPdfForSnapshot(state.offerPdf),
         },
         dealId,
         domain,

@@ -143,7 +143,7 @@ export type OfferPdfGenerateRequest = Omit<OfferWordByTemplateGenerateDto, Offer
     documentNumber?: string;
 };
 
-/** Что менеджер выбрал в прошлый раз — хранится в браузере. */
+/** Настройки КП на экране документа; у сделки и варианта уходят в слепок целиком. */
 export interface OfferPdfDocumentPrefs {
     format: OfferDocumentFormat;
     templateCode: string;
@@ -152,4 +152,21 @@ export interface OfferPdfDocumentPrefs {
     settings: OfferPdfSettings;
     letter: OfferPdfLetter;
     documentNumber: string;
+}
+
+/** Стиль без данных сделки — последний выбор менеджера (app_cache, копия в браузере) */
+export type OfferPdfStylePrefs = Pick<OfferPdfDocumentPrefs, 'format' | 'templateCode' | 'palette' | 'settings'>;
+
+/** Поле `pdf` слепка: стиль всегда, письмо и номер — у сделки и варианта (у избранного их нет) */
+export type OfferPdfSnapshot = OfferPdfStylePrefs & Partial<Pick<OfferPdfDocumentPrefs, 'letter' | 'documentNumber'>>;
+
+/**
+ * Откуда настройки на экране. Выбор менеджера ложится только поверх умолчаний
+ * и своего же прошлого; слепок сделки и правка на экране сильнее.
+ */
+export type OfferPdfPrefsOrigin = 'default' | 'manager' | 'snapshot' | 'user';
+
+export interface OfferPdfState {
+    prefs: OfferPdfDocumentPrefs;
+    origin: OfferPdfPrefsOrigin;
 }

@@ -48,6 +48,7 @@ const BADGE_TONE: Record<AiForecastShown['note'], StatusTone> = {
     'simple-better': 'info',
     'history-short': 'info',
     'readiness-below': 'warning',
+    'no-model': 'info',
 };
 
 /** Вид числа прогноза; сервер не прислал `shown` (журнала дня нет) — null. */

@@ -20,4 +20,5 @@ export const AiForecastShownDtoNote = {
     'simple-better': 'simple-better',
     'history-short': 'history-short',
     'readiness-below': 'readiness-below',
+    'no-model': 'no-model',
 } as const;

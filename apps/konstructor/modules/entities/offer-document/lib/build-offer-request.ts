@@ -2,7 +2,11 @@ import type { OfferWordMultiGenerateDto } from '@workspace/nest-konstructor-api'
 import type { RootState } from '@/modules/app/model/store';
 import { IS_PROD } from '@/modules/app/consts/app-global';
 import { selectCatalog } from '../../catalog';
-import { selectComposition, selectVariantStageOf } from '../../complect-variant';
+import {
+    selectComposition,
+    selectVariantStageOf,
+    selectVariantStagesLoading,
+} from '../../complect-variant';
 import { selectClientType } from '../../deal';
 import { buildOfferPayload, type OfferGenerateRequest } from '../../document-payload';
 import { findMainRow } from '../../row-set';
@@ -17,6 +21,8 @@ export const offerRequestBlocker = (state: RootState): string | null => {
     if (!findMainRow(state.rowSet.general)) return 'Нет главной строки: соберите комплект';
     if (!state.offerTemplateWord.selectedTemplate) return 'Выберите шаблон КП';
     if (!state.documentProvider.current) return 'Выберите поставщика';
+    // стадии вариантов ещё в пути — кто участвует в КП, пока неизвестно
+    if (selectVariantStagesLoading(state)) return 'Варианты КП ещё загружаются';
     return null;
 };
 

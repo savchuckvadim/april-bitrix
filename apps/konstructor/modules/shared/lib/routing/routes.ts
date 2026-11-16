@@ -13,6 +13,8 @@ export enum ROUTE_KONSTRUCTOR {
     PRICES = 'prices',
     DOCUMENT = 'document',
     SETTINGS = 'settings',
+    /** Витрина стилей PDF-КП — раздел шаблонов */
+    PDF_STYLES = 'pdf-styles',
     REQUISITES = 'requisites',
 }
 
@@ -27,6 +29,7 @@ export const KONSTRUCTOR_ROUTE_PATH: Record<ROUTE_KONSTRUCTOR, string> = {
     [ROUTE_KONSTRUCTOR.PRICES]: '/prices',
     [ROUTE_KONSTRUCTOR.DOCUMENT]: '/document',
     [ROUTE_KONSTRUCTOR.SETTINGS]: '/settings',
+    [ROUTE_KONSTRUCTOR.PDF_STYLES]: '/settings/pdf',
     [ROUTE_KONSTRUCTOR.REQUISITES]: '/requisites',
 };
 

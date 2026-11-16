@@ -18,7 +18,13 @@ export interface ComplectVariantState {
     openVariantSmartId: number | null;
     /** Настройки сборки. null — сделка ведёт себя как раньше. */
     composition: ComplectComposition | null;
+    /** Слепки и настройки из нашей базы — по ним вход решает, показывать ли варианты */
     status: ComplectVariantStatus;
+    /**
+     * Элементы смарта из Битрикса (названия и стадии) — приходят позже и вход
+     * не держат. Пока грузятся, стадии неизвестны: документы и правки ждут.
+     */
+    itemsStatus: ComplectVariantStatus;
     /** Идёт запись (создание, стадия, настройки) — кнопки заблокированы. */
     isBusy: boolean;
     error: string | null;
@@ -30,6 +36,7 @@ const initialState: ComplectVariantState = {
     openVariantSmartId: null,
     composition: null,
     status: 'idle',
+    itemsStatus: 'idle',
     isBusy: false,
     error: null,
 };
@@ -40,24 +47,37 @@ const complectVariantSlice = createSlice({
     reducers: {
         loading(state) {
             state.status = 'loading';
+            state.itemsStatus = 'loading';
             state.error = null;
         },
+        /** Слепки и настройки пришли; запись закончена, когда пришли и элементы */
         loaded(
             state,
             action: PayloadAction<{
                 records: ComplectVariantRecordDto[];
-                items: ComplectVariantItem[];
                 composition: ComplectComposition | null;
             }>,
         ) {
+            // элементы Битрикса уже отказали — варианты не показываем, как при любом сбое
+            if (state.status === 'error') return;
             state.records = action.payload.records;
-            state.items = action.payload.items;
             state.composition = action.payload.composition;
             state.status = 'ready';
-            state.isBusy = false;
+            if (state.itemsStatus !== 'loading') state.isBusy = false;
         },
+        itemsLoaded(state, action: PayloadAction<ComplectVariantItem[]>) {
+            state.items = action.payload;
+            state.itemsStatus = 'ready';
+            if (state.status !== 'loading') state.isBusy = false;
+        },
+        /**
+         * Сбой любой из загрузок: стадий нет — кто участвует в сделке, неизвестно,
+         * поэтому варианты не показываем вовсе, конструктор работает как без них.
+         */
         failed(state, action: PayloadAction<string>) {
             state.status = 'error';
+            state.itemsStatus = 'error';
+            state.records = [];
             state.isBusy = false;
             state.error = action.payload;
         },
@@ -83,6 +103,7 @@ const complectVariantSlice = createSlice({
 const {
     loading,
     loaded,
+    itemsLoaded,
     failed,
     busy,
     setOpenVariant,
@@ -93,6 +114,7 @@ const {
 export const complectVariantActions = {
     loading,
     loaded,
+    itemsLoaded,
     failed,
     busy,
     setOpenVariant,
@@ -113,6 +135,14 @@ export const selectComposition = (
     state: WithComplectVariant,
 ): ComplectComposition =>
     state.complectVariant.composition ?? DEFAULT_COMPLECT_COMPOSITION;
+
+/**
+ * Варианты есть, а их стадии из Битрикса ещё в пути: кто участвует в сделке,
+ * пока неизвестно — документы по вариантам в этот момент собирать нельзя.
+ */
+export const selectVariantStagesLoading = (state: WithComplectVariant): boolean =>
+    state.complectVariant.records.length > 0 &&
+    state.complectVariant.itemsStatus === 'loading';
 
 /** Стадия варианта по элементу смарта; элемента нет — черновик. */
 export const selectVariantStageOf =

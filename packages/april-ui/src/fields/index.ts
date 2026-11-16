@@ -30,3 +30,9 @@ export type { BlurCommitInputProps } from './BlurCommitInput';
 export { BlurCommitTextarea } from './BlurCommitTextarea';
 export type { BlurCommitTextareaProps } from './BlurCommitTextarea';
 export { useCommitOnBlur } from './use-commit-on-blur';
+
+// Поля формы с подписью: переключатель в рамке и селект
+export { SwitchField } from './SwitchField';
+export type { SwitchFieldProps } from './SwitchField';
+export { SelectField } from './SelectField';
+export type { SelectFieldOption, SelectFieldProps } from './SelectField';

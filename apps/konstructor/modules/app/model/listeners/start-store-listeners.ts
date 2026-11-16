@@ -19,8 +19,16 @@ import { restoreSnapshot, snapshotActions } from '@/modules/entities/snapshot';
 import { bxrqActions, fetchBXRQ } from '@/modules/entities/bx-rq';
 import { selectClientTypeOrDefault } from '@/modules/entities/deal';
 import { fetchLibraryRights, libraryActions } from '@/modules/entities/library';
-import { wordTemplateAC, wordTemplatePdfPreviewAC } from '@/modules/entities/offer-template-word';
+import {
+    applyRememberedWordTemplate,
+    wordTemplateAC,
+    wordTemplatePdfPreviewAC,
+} from '@/modules/entities/offer-template-word';
 import { offerDocumentActions } from '@/modules/entities/offer-document';
+// прямыми путями, мимо барреля с UI: слушатели попадают в бандл оболочки
+import { setupOfferPdfManagerPrefsListener } from '@/modules/entities/offer-pdf/model/listeners';
+import { loadOfferPdfManagerPrefs } from '@/modules/entities/offer-pdf/model/OfferPdfPrefsThunk';
+import { offerPdfActions } from '@/modules/entities/offer-pdf/model/OfferPdfSlice';
 import { contractDocumentActions } from '@/modules/entities/contract-document';
 import { supplyReportActions } from '@/modules/entities/supply-report-document';
 import { fetchAppSettings } from '@/modules/entities/app-settings';
@@ -62,6 +70,8 @@ export function startStoreListeners(
     setupDealProviderListener(listenerMiddleware);
     setupRqListener(listenerMiddleware);
     setupTemplateIdListener(listenerMiddleware);
+    setupRememberedDocumentListener(listenerMiddleware);
+    setupOfferPdfManagerPrefsListener(listenerMiddleware);
     setupOpenVariantSyncListener(listenerMiddleware);
     setupOfferPreviewStaleListener(listenerMiddleware);
     setupContractStaleListener(listenerMiddleware);
@@ -86,11 +96,25 @@ function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
         },
     });
 
+    // Сессия портала открыта → каталог стартует сразу: ему нужны только домен и
+    // токен. Пользователь, сделка и компания в это время ещё в пути
+    // (docs/first-load.tasks.md, шаг 4).
+    typed(listenerMiddleware)({
+        actionCreator: appActions.portalSessionReady,
+        effect: (action, listenerApi) => {
+            listenerApi.dispatch(initCatalog({ domain: action.payload.domain }));
+        },
+    });
+
     typed(listenerMiddleware)({
         actionCreator: appActions.setAppData,
         effect: (action, listenerApi) => {
             const { domain, deal, user } = action.payload;
-            listenerApi.dispatch(initCatalog({ domain }));
+            // каталог обычно уже запущен по готовности сессии; здесь — если нет или упал
+            const catalogLoading = listenerApi.getState().catalog.loading;
+            if (catalogLoading === 'idle' || catalogLoading === 'failed') {
+                listenerApi.dispatch(initCatalog({ domain }));
+            }
             // Поставщики портала (налог, реквизиты документов)
             void listenerApi.dispatch(initProviders(domain, Number(user.ID)));
             // Портал (pbx): bitrixfields по code — источник UF-id для
@@ -100,6 +124,9 @@ function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
             void listenerApi.dispatch(fetchLibraryRights());
             // шапка КП (получатель, счёт) считается от сделки заново
             listenerApi.dispatch(offerDocumentActions.reset());
+            // КП: письмо и номер — от сделки, стиль — последний выбор менеджера
+            listenerApi.dispatch(offerPdfActions.resetDocument());
+            void listenerApi.dispatch(loadOfferPdfManagerPrefs());
             listenerApi.dispatch(contractDocumentActions.reset());
             listenerApi.dispatch(supplyReportActions.reset());
             listenerApi.dispatch(zakupkiActions.reset());
@@ -119,22 +146,41 @@ function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
     });
 }
 
+const isCatalogSettled = (state: RootState): boolean =>
+    state.catalog.loading === 'succeeded' || state.catalog.loading === 'failed';
+
 /**
- * Условие-джойн «placement дал dealId» × «каталог готов» → восстановление
- * слепка сделки (restoreSnapshot). Однократно (гард по snapshot.status).
+ * Placement дал dealId → восстановление слепка сделки (restoreSnapshot).
+ * Запрос слепка уходит сразу, рядом с каталогом: ему нужны только домен и
+ * сделка. Раскладка по стейту ждёт каталог (docs/first-load.tasks.md, шаг 1).
+ * Однократно (гард по snapshot.status).
  */
 function setupSnapshotRestoreListener(
     listenerMiddleware: ListenerMiddlewareInstance,
 ) {
     typed(listenerMiddleware)({
-        matcher: isAnyOf(appActions.setAppData, initCatalog.fulfilled),
-        effect: (_action, listenerApi) => {
+        actionCreator: appActions.setAppData,
+        // эффект ждёт thunk: с его завершением слушатель снимает ожидание каталога
+        effect: async (_action, listenerApi) => {
             const state = listenerApi.getState();
             const { dealId, domain } = state.app;
-            const catalogReady = state.catalog.loading === 'succeeded';
-            if (!dealId || !domain || !catalogReady) return; // сойдётся на втором событии
+            if (!dealId || !domain) return;
             if (state.snapshot.status !== 'idle') return; // однократность
-            void listenerApi.dispatch(restoreSnapshot({ domain, dealId }));
+
+            // подписка на каталог — до запроса слепка: ответ каталога не проскочит мимо
+            const catalogReady = (
+                isCatalogSettled(state)
+                    ? Promise.resolve(true)
+                    : listenerApi.condition((_next, current) =>
+                          isCatalogSettled(current),
+                      )
+            )
+                .then(() => listenerApi.getState().catalog.loading === 'succeeded')
+                .catch(() => false);
+
+            await listenerApi.dispatch(
+                restoreSnapshot({ domain, dealId, catalogReady }),
+            );
         },
     });
 }
@@ -256,6 +302,22 @@ function setupTemplateIdListener(listenerMiddleware: ListenerMiddlewareInstance)
             listenerApi.dispatch(
                 snapshotActions.setTemplateId(Number.isFinite(id) && id ? id : null),
             );
+        },
+    });
+}
+
+/**
+ * Слепок восстановлен (сделка, вариант, заготовка из избранного) → документ
+ * печатается так же, как в нём: формат и стиль КП, Word-шаблон. Word-шаблон
+ * при первом входе применяет init, здесь — когда список уже загружен.
+ */
+function setupRememberedDocumentListener(listenerMiddleware: ListenerMiddlewareInstance) {
+    typed(listenerMiddleware)({
+        actionCreator: snapshotActions.restored,
+        effect: (action, listenerApi) => {
+            const { pdf } = action.payload;
+            if (pdf) listenerApi.dispatch(offerPdfActions.applySnapshot(pdf));
+            void listenerApi.dispatch(applyRememberedWordTemplate());
         },
     });
 }

@@ -1,6 +1,10 @@
 import type { RootState } from '@/modules/app/model/store';
 import { resolveSupply, selectCatalog } from '../../catalog';
-import { selectComplectVariantState, selectVariantStageOf } from '../../complect-variant';
+import {
+    selectComplectVariantState,
+    selectVariantStageOf,
+    selectVariantStagesLoading,
+} from '../../complect-variant';
 import {
     SUPPLY_REPORT_DEAL_FIELDS,
     buildDocRegions,
@@ -83,7 +87,10 @@ export const buildSupplyFormRequest = (state: RootState): SupplyFormRequest | nu
 };
 
 /** Почему отчёт сейчас не собрать — те же условия, что у договора. */
-export const supplyReportBlocker = (state: RootState): string | null => contractRequestBlocker(state);
+export const supplyReportBlocker = (state: RootState): string | null =>
+    contractRequestBlocker(state) ??
+    // стадии вариантов ещё в пути — кто переезжает в отдел сервиса, пока неизвестно
+    (selectVariantStagesLoading(state) ? 'Варианты КП ещё загружаются' : null);
 
 /** Чего не хватает: обязательные поля сделки, реквизиты, обязательные поля формы. */
 export const supplyReportValidationErrors = (state: RootState): string[] => {

@@ -47,6 +47,7 @@ export const useVariantPicker = () => {
     return {
         items,
         isBusy: variants.isBusy,
+        areDetailsLoading: variants.areDetailsLoading,
         error: variants.error,
         hasCurrentBuild,
         open,

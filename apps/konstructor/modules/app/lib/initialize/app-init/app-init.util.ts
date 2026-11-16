@@ -50,18 +50,19 @@ const resolveDealId = async (entity: PlacementEntity): Promise<number | null> =>
 };
 
 /**
- * Boot-последовательность: Bitrix.start (во фрейме — реальные domain/user,
- * вне фрейма — TESTING_*) → placement → dealId → сделка+компания → setAppData.
- * setAppData — единый триггер для listeners (каталог, портал, слепок сделки,
- * реквизиты, поставщики).
+ * Boot-последовательность: Bitrix.start (во фрейме — реальный domain, вне
+ * фрейма — TESTING_*) → [пользователь ∥ сессия портала → каталог ∥
+ * placement → dealId → сделка+компания] → setAppData. Каталог стартует по
+ * готовности сессии (portalSessionReady), остальное — на setAppData: портал,
+ * слепок сделки, реквизиты, поставщики.
  */
 export const appInit = async (dispatch: AppDispatch) => {
-    const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER);
-    const {
-        domain: authDomain,
-        user: authUser,
-        inFrame,
-    } = bitrix.api.getInitializedData();
+    // deferUser: фрейм поднят — домен, placement и auth уже известны;
+    // user.current идёт рядом, его ждёт только setAppData
+    const bitrix = await Bitrix.start(TESTING_DOMAIN, TESTING_USER, {
+        deferUser: true,
+    });
+    const { domain: authDomain, inFrame } = bitrix.api.getInitializedData();
 
     if (!inFrame && IS_PROD) {
         dispatch(appActions.setInitializedError({ errorMessage: NON_AUTH_ERROR }));
@@ -73,12 +74,19 @@ export const appInit = async (dispatch: AppDispatch) => {
         return;
     }
 
-    // Токен сессии портала до первых запросов к бэку: каталог с ценами
-    // отдаётся только ей. Вне фрейма сессии нет — dev ходит без токена.
-    await bootstrapPortalSession(bitrix.api);
-
     const domain = authDomain || TESTING_DOMAIN;
-    const user = authUser ?? TESTING_USER;
+    const userReady = bitrix.api.whenUser();
+
+    // Токен сессии портала нужен до первых запросов к бэку: каталог с ценами
+    // отдаётся только ей. Сделке и компании из Bitrix REST он не нужен —
+    // обмен идёт параллельно с ними (docs/first-load.tasks.md, шаги 3 и 4).
+    // Как только токен выставлен, каталог стартует, не дожидаясь остального.
+    // Вне фрейма сессии нет — dev ходит без токена.
+    const sessionReady = bootstrapPortalSession(bitrix.api)
+        .catch(() => false)
+        .then(() => {
+            dispatch(appActions.portalSessionReady({ domain }));
+        });
     if (!inFrame) {
         console.info(`app-init: вне фрейма Bitrix — dev-режим (${domain})`);
     }
@@ -117,6 +125,11 @@ export const appInit = async (dispatch: AppDispatch) => {
         );
         return;
     }
+
+    // после setAppData уходят запросы к бэку — токен должен быть уже выставлен;
+    // пользователь нужен самому setAppData
+    const [authUser] = await Promise.all([userReady, sessionReady]);
+    const user = authUser ?? TESTING_USER;
 
     dispatch(
         appActions.setAppData({

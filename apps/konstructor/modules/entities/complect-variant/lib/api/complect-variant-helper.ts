@@ -1,6 +1,7 @@
 import { getKonstructorDeal } from '@workspace/nest-konstructor-api';
 import type { IBXItem } from '@bitrix/index';
 import { Bitrix } from '@bitrix/bitrix';
+import { findInnerDeal } from '../../../snapshot/lib/api/inner-deal-find-helper';
 import type { SnapshotV2 } from '../../../snapshot/model/types';
 import type { ComplectComposition, ComplectVariantRecordDto } from '../../model/dto';
 
@@ -37,12 +38,15 @@ export class ComplectVariantHelper {
         return await this.api.innerDealVariants({ domain, dealId });
     }
 
-    /** Настройки сборки — из слепка самой сделки. Слепка нет — настроек нет. */
+    /**
+     * Настройки сборки — из слепка самой сделки. Слепка нет — настроек нет.
+     * На входе тот же запрос уже шлёт восстановление слепка: общий, второй не уходит.
+     */
     async getComposition(
         domain: string,
         dealId: number,
     ): Promise<ComplectComposition | null> {
-        const result = await this.api.innerDealFind({ domain, dealId });
+        const result = await findInnerDeal({ domain, dealId });
         return result.found ? (result.deal?.settings ?? null) : null;
     }
 

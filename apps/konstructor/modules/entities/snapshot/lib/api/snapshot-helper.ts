@@ -2,10 +2,12 @@ import { getKonstructorDeal } from '@workspace/nest-konstructor-api';
 import type { SnapshotRecordDto, SnapshotUpsertDto } from '../../model/dto';
 import type { SnapshotV2 } from '../../model/types';
 import type { V1Record } from '../v1/types';
+import { findInnerDeal } from './inner-deal-find-helper';
 
 /**
- * Слепки bx_document_deals через @workspace/nest-konstructor-api —
- * ЕДИНСТВЕННОЕ место импорта api-пакета для snapshot-слайса.
+ * Слепки bx_document_deals через @workspace/nest-konstructor-api. Поиск
+ * записи сделки — в соседнем inner-deal-find-helper: его делят со слайсом
+ * вариантов, чтобы на входе не уходило два одинаковых запроса.
  * Конверт {resultCode, data} разворачивает customAxios пакета.
  */
 export const hasSnapshotApi = true;
@@ -22,11 +24,7 @@ export class SnapshotHelper {
         dealId: number,
         serviceSmartId?: number,
     ): Promise<V1Record | null> {
-        const result = await this.api.innerDealFind({
-            domain,
-            dealId,
-            serviceSmartId,
-        });
+        const result = await findInnerDeal({ domain, dealId, serviceSmartId });
         return result.found && result.deal ? toV1Record(result.deal) : null;
     }
 

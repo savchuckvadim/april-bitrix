@@ -1,3 +1,4 @@
+import type { OfferPdfSnapshot } from '../../offer-pdf/model/types';
 import type { RowSet } from '../../row-set';
 
 /**
@@ -17,6 +18,8 @@ export interface RestoredState {
     templateId: number | null;
     /** Выбранный реквизит клиента (bx_id в Bitrix); v1 его не хранил */
     rqId: number | null;
+    /** Формат и стиль КП; v1 и записи до 16.11.2026 их не хранят */
+    pdf: OfferPdfSnapshot | null;
     /** Что не удалось смапить (для лога/телеметрии) */
     warnings: string[];
 }
@@ -36,6 +39,8 @@ export interface SnapshotV2 {
     templateId: number | null;
     /** Выбранный реквизит клиента; записи до 05.11.2026 поля не имеют */
     rqId?: number | null;
+    /** Формат и стиль КП (offer-pdf); записи до 16.11.2026 поля не имеют */
+    pdf?: OfferPdfSnapshot | null;
     savedAt: string;
 }
 

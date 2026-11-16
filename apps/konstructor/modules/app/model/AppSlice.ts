@@ -1,6 +1,6 @@
 import { IBXCompany, IBXDeal } from '@bitrix/domain';
 import { IBXUser } from '@bitrix/domain/interfaces/bitrix.interface';
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createAction, createSlice } from '@reduxjs/toolkit';
 
 import type { BXUser } from '@workspace/bx';
 
@@ -136,4 +136,13 @@ const appSlice = createSlice({
 export const appReducer = appSlice.reducer;
 
 // Экспорт actions
-export const appActions = appSlice.actions;
+/**
+ * Событие старта: сессия портала открыта (или её нет — вне фрейма), домен
+ * известен. Состояние не меняет: по нему слушатель запускает каталог, не
+ * дожидаясь пользователя, сделки и компании.
+ */
+const portalSessionReady = createAction<{ domain: string }>(
+    'app/portalSessionReady',
+);
+
+export const appActions = { ...appSlice.actions, portalSessionReady };

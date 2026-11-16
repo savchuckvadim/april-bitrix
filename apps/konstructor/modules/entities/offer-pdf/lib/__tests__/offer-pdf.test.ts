@@ -6,9 +6,12 @@ import {
     OFFER_PDF_DEFAULT_SETTINGS,
     OFFER_PDF_DESCRIPTION_MODE,
     OFFER_PDF_VIEW_MODE,
+    type OfferPdfTemplateInfo,
 } from '../../model/types';
 import { offerPdfRequestBlocker, toOfferPdfRequest } from '../build-offer-pdf-request';
+import { resolvePalette } from '../offer-pdf-palette.util';
 import { normalizeOfferPdfPrefs, OFFER_PDF_DEFAULT_PREFS } from '../offer-pdf-storage';
+import { visibleOfferPdfToggles } from '../offer-pdf-toggles';
 
 const wordPayload = {
     templateId: '12',
@@ -26,12 +29,23 @@ const wordPayload = {
     rows: [],
 } as unknown as OfferWordByTemplateGenerateDto;
 
-const options = {
+const options: Parameters<typeof toOfferPdfRequest>[1] = {
     templateCode: 'classic',
+    palette: null,
     settings: { ...OFFER_PDF_DEFAULT_SETTINGS, salePhrase: '  до конца месяца  ' },
     letter: { appeal: ' Уважаемый! ', text: '' },
     documentNumber: ' КП-7 ',
 };
+
+/** Стиль из списка бэка: в тесте задаём только то, что проверяем */
+const template = (over: Partial<OfferPdfTemplateInfo> & Pick<OfferPdfTemplateInfo, 'code' | 'name'>): OfferPdfTemplateInfo => ({
+    description: '',
+    hasCover: false,
+    hasPromo: false,
+    lockedSettings: {},
+    palettes: [],
+    ...over,
+});
 
 describe('запрос КП в PDF', () => {
     it('поля Word-шаблона и счёта не уходят, данные документа — уходят', () => {
@@ -47,9 +61,13 @@ describe('запрос КП в PDF', () => {
     it('шаблон, настройки, письмо и номер — обрезаны; пустые — не отправляются', () => {
         const request = toOfferPdfRequest(wordPayload, options);
         expect(request.templateCode).toBe('classic');
-        expect(request.settings.salePhrase).toBe('до конца месяца');
+        expect(request.settings?.salePhrase).toBe('до конца месяца');
         expect(request.letter).toEqual({ appeal: 'Уважаемый!', text: undefined });
         expect(request.documentNumber).toBe('КП-7');
+        expect(request.palette).toBeUndefined();
+        expect(request.settings?.withCover).toBe(true);
+        expect(request.settings?.withPromo).toBe(true);
+        expect(toOfferPdfRequest(wordPayload, { ...options, palette: 'claret' }).palette).toBe('claret');
 
         const empty = toOfferPdfRequest(wordPayload, {
             ...options,
@@ -57,7 +75,7 @@ describe('запрос КП в PDF', () => {
             letter: { appeal: '', text: '   ' },
             documentNumber: '',
         });
-        expect(empty.settings.salePhrase).toBeNull();
+        expect(empty.settings?.salePhrase).toBeNull();
         expect(empty.letter).toBeUndefined();
         expect(empty.documentNumber).toBeUndefined();
     });
@@ -87,26 +105,75 @@ describe('сохранённые настройки PDF', () => {
     it('допустимые значения сохраняются', () => {
         const prefs = normalizeOfferPdfPrefs({
             format: OFFER_DOCUMENT_FORMAT.PDF,
-            templateCode: 'modern',
+            templateCode: 'facet',
+            palette: 'claret',
             settings: {
                 descriptionMode: OFFER_PDF_DESCRIPTION_MODE.BIG,
                 viewMode: OFFER_PDF_VIEW_MODE.TABLE,
                 withStamps: false,
                 salePhrase: 'акция',
+                withPromo: false,
             },
             letter: { appeal: 'Привет' },
             documentNumber: '1',
         });
         expect(prefs.format).toBe('pdf');
-        expect(prefs.templateCode).toBe('modern');
+        expect(prefs.templateCode).toBe('facet');
+        expect(prefs.palette).toBe('claret');
         expect(prefs.settings).toEqual({
             ...OFFER_PDF_DEFAULT_SETTINGS,
             descriptionMode: 'big',
             viewMode: 'table',
             withStamps: false,
             salePhrase: 'акция',
+            withPromo: false,
         });
         expect(prefs.letter).toEqual({ appeal: 'Привет', text: '' });
         expect(prefs.documentNumber).toBe('1');
+    });
+});
+
+describe('гамма стиля', () => {
+    const facet = template({
+        code: 'facet',
+        name: 'Грань',
+        palettes: [
+            { code: 'garant', name: 'Синий Гаранта', swatch: '#1F4E9C' },
+            { code: 'claret', name: 'Бордо', swatch: '#9E1F2E' },
+        ],
+    });
+
+    it('выбранная у стиля есть — она, нет или не выбрана — первая', () => {
+        expect(resolvePalette(facet, 'claret')).toBe('claret');
+        expect(resolvePalette(facet, 'mint')).toBe('garant');
+        expect(resolvePalette(facet, null)).toBe('garant');
+    });
+
+    it('у стиля без гамм и пока список стилей не пришёл — без гаммы', () => {
+        expect(resolvePalette(template({ code: 'classic', name: 'Классический' }), 'claret')).toBeNull();
+        expect(resolvePalette(null, 'claret')).toBeNull();
+    });
+});
+
+describe('переключатели страниц', () => {
+    const keys = (template: Parameters<typeof visibleOfferPdfToggles>[0]) =>
+        visibleOfferPdfToggles(template).map(toggle => toggle.key);
+
+    it('титульный и промо — только у стилей, где эти страницы есть', () => {
+        const base = { code: 'iskra', name: 'Искра' } as const;
+        expect(keys(template({ ...base, hasCover: true, hasPromo: true }))).toEqual([
+            'withCover',
+            'withPromo',
+            'withStamps',
+            'withManager',
+            'isPriceFirst',
+        ]);
+        expect(keys(template({ ...base, hasCover: true }))).toEqual([
+            'withCover',
+            'withStamps',
+            'withManager',
+            'isPriceFirst',
+        ]);
+        expect(keys(null)).toEqual(['withStamps', 'withManager', 'isPriceFirst']);
     });
 });

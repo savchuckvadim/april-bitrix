@@ -2,6 +2,7 @@ import type { AppThunk, RootState } from '@/modules/app/model/store';
 import { findMainRow } from '../../row-set';
 import { restoreSnapshotRecord, serializeV2 } from '../../snapshot';
 import type { SnapshotRecordDto } from '../../snapshot/model/dto';
+import { offerPdfForLibrary } from '../../offer-pdf/lib/offer-pdf-snapshot.util';
 import { LibraryHelper } from '../lib/api/library-helper';
 import { toLibraryItem } from '../lib/library-item.util';
 import type { LibraryKind, LibraryVisibility, LibrarySnapshotPayload } from './dto';
@@ -33,6 +34,8 @@ export const buildLibrarySnapshot = (state: RootState): LibrarySnapshotPayload |
             templateId: state.snapshot.templateId,
             // заготовка живёт без сделки, реквизит клиента ей не принадлежит
             rqId: null,
+            // стиль КП — да, письмо и номер — нет
+            pdf: offerPdfForLibrary(state.offerPdf),
         },
         dealId: null,
         domain: state.app.domain,

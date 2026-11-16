@@ -16,6 +16,8 @@ import type {
     KonstructorInitDataDto,
     OfferPdfGenerateDto,
     OfferPdfGenerateResponseDto,
+    OfferPdfStylePreviewParams,
+    OfferPdfTemplateCode,
     OfferPdfTemplateItemDto,
     OfferWordByTemplateGenerateDto,
     OfferWordByTemplateGenerateResponseDto,
@@ -170,7 +172,7 @@ export const getKonstructor = () => {
         });
     };
     /**
-     * Встроенные стили: код, название, описание, есть ли титульник и какие настройки стиль задаёт сам.
+     * Встроенные стили: код, название, описание, есть ли титульник, гаммы и какие настройки стиль задаёт сам.
      * @summary Список PDF-шаблонов КП
      */
     const offerPdfListTemplates = () => {
@@ -184,11 +186,13 @@ export const getKonstructor = () => {
      * @summary Превью PDF-стиля КП
      */
     const offerPdfStylePreview = (
-        code: 'classic' | 'modern' | 'monochrome',
+        code: OfferPdfTemplateCode,
+        params?: OfferPdfStylePreviewParams,
     ) => {
         return customAxios<Blob>({
             url: `/api/offer-pdf/templates/${code}/preview`,
             method: 'GET',
+            params,
             responseType: 'blob',
         });
     };

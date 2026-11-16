@@ -21,6 +21,7 @@ export interface SerializeV2Input {
         | 'alternative'
         | 'templateId'
         | 'rqId'
+        | 'pdf'
     >;
     dealId: number | null;
     domain: string;
@@ -43,6 +44,8 @@ export const serializeV2 = (input: SerializeV2Input): SnapshotV2 => ({
     alternative: input.state.alternative,
     templateId: input.state.templateId,
     rqId: input.state.rqId,
+    // нетронутые умолчания не пишем: сделка пойдёт за выбором менеджера
+    ...(input.state.pdf ? { pdf: input.state.pdf } : {}),
     savedAt: input.savedAt,
 });
 
@@ -56,6 +59,7 @@ export const restoreV2 = (snapshot: SnapshotV2): RestoredState => ({
     alternative: snapshot.alternative.map(normalizeSet),
     templateId: snapshot.templateId,
     rqId: snapshot.rqId ?? null,
+    pdf: snapshot.pdf ?? null,
     warnings: [],
 });
 

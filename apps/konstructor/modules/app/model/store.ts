@@ -21,6 +21,8 @@ import { snapshotReducer } from '@/modules/entities/snapshot';
 import { complectVariantReducer } from '@/modules/entities/complect-variant';
 import { libraryReducer } from '@/modules/entities/library';
 import { offerDocumentReducer } from '@/modules/entities/offer-document';
+// прямым путём: баррель сущности тянет в бандл оболочки весь её UI (docs/first-load.tasks.md, шаг 8)
+import { offerPdfReducer } from '@/modules/entities/offer-pdf/model/OfferPdfSlice';
 import { contractDocumentReducer } from '@/modules/entities/contract-document';
 import { supplyReportReducer } from '@/modules/entities/supply-report-document';
 import { appSettingsReducer } from '@/modules/entities/app-settings';
@@ -48,6 +50,8 @@ const rootReducer = combineReducers({
     dealSend: dealSendReducer,
     // шапка КП (получатель, счёт) и статус генерации — экран документа
     offerDocument: offerDocumentReducer,
+    // КП: формат, стиль PDF, настройки, письмо, номер — пишутся в слепок
+    offerPdf: offerPdfReducer,
     // договор: поля сделки, спецификация с бэка, статус генерации
     contractDocument: contractDocumentReducer,
     // отчёт о поставке: форма для отдела сервиса, файлы, заявка RPA

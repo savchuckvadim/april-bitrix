@@ -8,6 +8,8 @@ import type { V1Record } from '../lib/v1/types';
 import { SnapshotHelper, hasSnapshotApi } from '../lib/api/snapshot-helper';
 import { snapshotActions } from './SnapshotSlice';
 import { selectServiceSmartId } from '../../service-offer/model/ServiceOfferSlice';
+// утилита напрямую, мимо барреля: offer-pdf сам зовёт saveSnapshot перед генерацией
+import { offerPdfForSnapshot } from '../../offer-pdf/lib/offer-pdf-snapshot.util';
 
 const snapshotHelper = new SnapshotHelper();
 
@@ -19,18 +21,25 @@ const snapshotHelper = new SnapshotHelper();
  *
  * fallbackRecord — dev-фикстура: политика её использования у app-слоя
  * (listener), entity о константах приложения не знает.
+ *
+ * catalogReady — когда каталог ещё грузится: запросу слепка он не нужен
+ * (только домен и сделка), поэтому запрос уходит сразу, а раскладка по стейту
+ * (v1-адаптер, пересчёт строк) ждёт каталог. false — каталог не загрузился.
+ * Не передан — каталог уже в сторе.
  */
 export const restoreSnapshot =
     ({
         domain,
         dealId,
         fallbackRecord = null,
+        catalogReady,
     }: {
         domain: string;
         dealId: number;
         fallbackRecord?: V1Record | null;
+        catalogReady?: Promise<boolean>;
     }): AppThunk<Promise<void>> =>
-    async (dispatch, getState) => {
+    async dispatch => {
         dispatch(snapshotActions.started());
         try {
             let record: V1Record | null;
@@ -50,11 +59,15 @@ export const restoreSnapshot =
             } else {
                 record = fallbackRecord;
             }
+            // слепка нет — каталог ждать незачем: вход уже знает, что сделка новая
             if (!record) {
                 dispatch(snapshotActions.none());
                 return;
             }
 
+            if (catalogReady && !(await catalogReady)) {
+                throw new Error('каталог не загружен — слепок не разложен');
+            }
             await dispatch(restoreSnapshotRecord(record));
         } catch (error) {
             dispatch(
@@ -111,6 +124,7 @@ export const restoreSnapshotRecord =
                 warnings: restored.warnings,
                 templateId: restored.templateId,
                 rqId: restored.rqId,
+                pdf: restored.pdf,
             }),
         );
     };
@@ -138,6 +152,7 @@ export const buildCurrentSnapshotV2 = (
             alternative,
             templateId: state.snapshot.templateId,
             rqId: state.snapshot.rqId,
+            pdf: offerPdfForSnapshot(state.offerPdf),
         },
         dealId,
         domain,

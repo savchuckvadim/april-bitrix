@@ -1,4 +1,18 @@
-import type { OfferWordByTemplateGenerateDto } from '@workspace/nest-konstructor-api';
+import type {
+    OfferPdfGenerateDto,
+    OfferPdfGenerateResponseDto,
+    OfferPdfPaletteItemDto,
+    OfferPdfTemplateCode as OfferPdfTemplateCodeDto,
+    OfferPdfTemplateItemDto,
+} from '@workspace/nest-konstructor-api';
+
+/**
+ * Доменные имена generated-DTO offer-pdf: UI и хуки берут типы отсюда —
+ * переименование на бэке правится только в этом файле и в lib/api.
+ */
+
+/** Код встроенного PDF-стиля — как его знает бэк */
+export type OfferPdfTemplateCode = OfferPdfTemplateCodeDto;
 
 /** Формат КП: по Word-шаблону пользователя или PDF из встроенного шаблона. */
 export const OFFER_DOCUMENT_FORMAT = {
@@ -45,6 +59,10 @@ export interface OfferPdfSettings {
     withManager: boolean;
     isPriceFirst: boolean;
     salePhrase: string;
+    /** Титульный лист — у стилей, где он есть */
+    withCover: boolean;
+    /** Страница о системе или о сервисе — у стилей, где она есть */
+    withPromo: boolean;
 }
 
 export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
@@ -54,6 +72,8 @@ export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
     withManager: true,
     isPriceFirst: false,
     salePhrase: '',
+    withCover: true,
+    withPromo: true,
 };
 
 /** Письмо: пустые поля — шаблон подставит свои. */
@@ -64,30 +84,22 @@ export interface OfferPdfLetter {
 
 export const OFFER_PDF_EMPTY_LETTER: OfferPdfLetter = { appeal: '', text: '' };
 
-/** Встроенный PDF-шаблон (GET /offer-pdf/templates). */
-export interface OfferPdfTemplateInfo {
-    code: string;
-    name: string;
-    description: string;
-}
+/** Гамма стиля: та же вёрстка в другом цвете; `swatch` — цвет кружка в выборе */
+export type OfferPdfPaletteInfo = OfferPdfPaletteItemDto;
+
+/**
+ * Встроенный PDF-стиль (GET /offer-pdf/templates): есть ли титульник и
+ * промо-страница, гаммы (первая — по умолчанию; пусто — гамма одна).
+ */
+export type OfferPdfTemplateInfo = OfferPdfTemplateItemDto;
 
 export const OFFER_PDF_DEFAULT_TEMPLATE_CODE = 'classic';
 
-/** Ответ POST /offer-pdf/generate. */
-export interface OfferPdfGenerateResponse {
-    /** Ссылка на файл на нашем сервере */
-    link: string;
-    fileName: string;
-    templateCode: string;
-    durationMs: number;
-    size: number;
-    /** Файл загружен на Диск Битрикса и упомянут в таймлайне сделки */
-    savedToDeal: boolean;
-    /** Ссылка на файл в Битриксе; пусто — загрузка не удалась */
-    bitrixLink: string | null;
-    /** Почему к сделке не прикрепили; пусто — прикреплён */
-    dealMessage: string | null;
-}
+/**
+ * Ответ POST /offer-pdf/generate: ссылки на файл, прикреплён ли он к сделке и
+ * `missingAssets` — каких картинок и логотипов стиля не нашлось на сервере.
+ */
+export type OfferPdfGenerateResponse = OfferPdfGenerateResponseDto;
 
 /** Поля Word-запроса, которых у PDF-генерации нет. */
 export const OFFER_PDF_OMITTED_WORD_FIELDS = [
@@ -102,27 +114,55 @@ export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[nu
 
 /**
  * Запрос КП в PDF: данные те же, что для Word-шаблона (бэк считает их
- * одним кодом), плюс код шаблона, настройки, письмо и номер.
+ * одним кодом), плюс код стиля, гамма, настройки, письмо и номер.
  */
-export type OfferPdfGenerateRequest = Omit<OfferWordByTemplateGenerateDto, OfferPdfOmittedWordField> & {
-    templateCode: string;
-    settings: {
-        descriptionMode: OfferPdfDescriptionMode;
-        viewMode: OfferPdfViewMode;
-        withStamps: boolean;
-        withManager: boolean;
-        isPriceFirst: boolean;
-        salePhrase: string | null;
-    };
-    letter?: { appeal?: string; text?: string };
-    documentNumber?: string;
-};
+export type OfferPdfGenerateRequest = OfferPdfGenerateDto;
 
-/** Что менеджер выбрал в прошлый раз — хранится в браузере. */
+/** Настройки КП на экране документа; у сделки и варианта уходят в слепок целиком. */
 export interface OfferPdfDocumentPrefs {
     format: OfferDocumentFormat;
     templateCode: string;
+    /** Гамма стиля; null — первая гамма стиля */
+    palette: string | null;
     settings: OfferPdfSettings;
     letter: OfferPdfLetter;
     documentNumber: string;
+}
+
+/** Стиль без данных сделки — последний выбор менеджера (app_cache, копия в браузере) */
+export type OfferPdfStylePrefs = Pick<OfferPdfDocumentPrefs, 'format' | 'templateCode' | 'palette' | 'settings'>;
+
+/** Поле `pdf` слепка: стиль всегда, письмо и номер — у сделки и варианта (у избранного их нет) */
+export type OfferPdfSnapshot = OfferPdfStylePrefs & Partial<Pick<OfferPdfDocumentPrefs, 'letter' | 'documentNumber'>>;
+
+/**
+ * Откуда настройки на экране. Выбор менеджера ложится только поверх умолчаний
+ * и своего же прошлого; слепок сделки и правка на экране сильнее.
+ */
+export type OfferPdfPrefsOrigin = 'default' | 'manager' | 'snapshot' | 'user';
+
+export interface OfferPdfState {
+    prefs: OfferPdfDocumentPrefs;
+    origin: OfferPdfPrefsOrigin;
+}
+
+export type OfferPdfPreviewPhase = 'idle' | 'loading' | 'ready' | 'failed';
+
+/** Превью документа на экране КП */
+export interface OfferPdfPreviewState {
+    phase: OfferPdfPreviewPhase;
+    objectUrl: string | null;
+    error: string | null;
+    durationMs: number | null;
+    /** Данные изменились после последнего собранного превью */
+    stale: boolean;
+}
+
+export type OfferPdfGenerateStatus = 'idle' | 'generating' | 'done' | 'error';
+
+/** Формирование файла: статус и ответ бэка */
+export interface OfferPdfGenerateState {
+    status: OfferPdfGenerateStatus;
+    result: OfferPdfGenerateResponse | null;
+    error: string | null;
 }

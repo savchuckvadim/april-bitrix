@@ -14,7 +14,7 @@ import type { ProductRowFullSetsDto } from './productRowFullSetsDto';
 import type { OfferPdfGenerateDtoClientType } from './offerPdfGenerateDtoClientType';
 import type { IOfferWordGenerateRecipientDto } from './iOfferWordGenerateRecipientDto';
 import type { IOfferWordGenerateManagerDto } from './iOfferWordGenerateManagerDto';
-import type { OfferPdfGenerateDtoTemplateCode } from './offerPdfGenerateDtoTemplateCode';
+import type { OfferPdfTemplateCode } from './offerPdfTemplateCode';
 import type { OfferPdfSettingsDto } from './offerPdfSettingsDto';
 import type { OfferPdfLetterDto } from './offerPdfLetterDto';
 
@@ -50,7 +50,9 @@ export interface OfferPdfGenerateDto {
     /** Manager of the contract */
     manager: IOfferWordGenerateManagerDto;
     /** Код встроенного PDF-шаблона (список — GET /offer-pdf/templates). */
-    templateCode?: OfferPdfGenerateDtoTemplateCode;
+    templateCode?: OfferPdfTemplateCode;
+    /** Гамма стиля (коды — в palettes списка стилей). Не задана или неизвестна — первая гамма стиля. */
+    palette?: string;
     /** Настройки документа. */
     settings?: OfferPdfSettingsDto;
     /** Сопроводительное письмо. */

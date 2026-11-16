@@ -4,6 +4,9 @@ import type {
     FieldDto,
     FieldItemDto,
     FrontPortalDto,
+    FrontPortalPartsDto,
+    FrontPortalPartsRequestDto,
+    PortalPartName as PortalPartNameDto,
     RpaDto,
     SmartDto,
 } from '@workspace/nest-konstructor-api';
@@ -13,6 +16,21 @@ import type {
  * `POST /api/front/portal`. Переименование на бэке правится только здесь.
  */
 export type Portal = FrontPortalDto;
+
+/**
+ * Ответ узкой ручки `POST /api/front/portal/parts`: `id` и только запрошенные
+ * части, форма каждой — как в полной модели.
+ */
+export type PortalParts = FrontPortalPartsDto;
+
+/** Имя части портала в запросе узкой ручки */
+export type PortalPartName = PortalPartNameDto;
+
+/**
+ * Запрос узкой ручки без домена: части, типы смартов и части «без полей»
+ * (только строки сущностей).
+ */
+export type PortalPartsQuery = Omit<FrontPortalPartsRequestDto, 'domain'>;
 export type PBXSmart = SmartDto;
 export type PBXRPA = RpaDto;
 export type PBXCategory = CategoryDto;

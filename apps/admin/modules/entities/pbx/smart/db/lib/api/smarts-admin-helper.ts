@@ -4,6 +4,7 @@ import {
     type SmartResponseDto,
 } from '@workspace/nest-admin-api';
 import type {
+    AicallCheckResult,
     InstallAicallResult,
     InstallConstSmartResult,
     SmartDetailsResponse,
@@ -45,6 +46,19 @@ export class SmartsAdminHelper {
             method: 'POST',
             data: { domain },
             timeout: 180_000,
+        });
+    }
+
+    /**
+     * Проверка полей смарта «AI-анализ звонков»: что должно быть и что есть
+     * на портале. Только читает портал; полей много, поэтому таймаут поднят.
+     */
+    checkAicall(domain: string): Promise<AicallCheckResult> {
+        return customAxios<AicallCheckResult>({
+            url: `${SMARTS_URL}/aicall-check`,
+            method: 'GET',
+            params: { domain },
+            timeout: 120_000,
         });
     }
 

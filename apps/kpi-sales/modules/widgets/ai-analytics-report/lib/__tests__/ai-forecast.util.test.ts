@@ -190,10 +190,17 @@ describe('карточка: режим «в тени»', () => {
         expect(view.todo).toContain('попросить разработчика включить показ');
         expect(view.stageReady).toBe(false);
         expect(view.theory).toBe('forecastShadow');
-        // Вилку и простые прогнозы в тени не показываем: их легко принять за прогноз.
+        // Вилку в тени не показываем. Число есть только в блоке `shown` — с
+        // пометкой, чей это расчёт (решение владельца 16.11.2026); в
+        // остальных текстах карточки чисел прогноза нет.
         expect(view).not.toHaveProperty('middle');
         expect(view).not.toHaveProperty('compareLines');
-        expect(JSON.stringify(view)).not.toMatch(/\d+ продаж|≈/);
+        const { shown, ...rest } = view;
+        expect(JSON.stringify(rest)).not.toMatch(/\d+ продаж|≈/);
+        expect(shown).toMatchObject({
+            value: '≈44 продажи',
+            badge: 'простой расчёт',
+        });
     });
 
     it('журнала ещё нет — «начнёт копиться после ночного расчёта», 0 из 9', () => {

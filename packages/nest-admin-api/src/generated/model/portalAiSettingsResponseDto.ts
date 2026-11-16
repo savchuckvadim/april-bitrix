@@ -158,7 +158,7 @@ export interface PortalAiSettingsResponseDto {
    */
   llmProviderOrder: PortalAiSettingsResponseDtoLlmProviderOrderItem[] | null;
   /**
-   * Транскрибатор портала: auto — по длительности (Яндекс для длинных, VibeCode для коротких), yandex / vibecode / whisper — принудительно. null — режим приложения.
+   * Транскрибатор портала: auto — по длительности (Яндекс для длинных, VibeCode для коротких), auto-whisper — та же развилка, но короткие идут в свой Whisper-совместимый сервис, yandex / vibecode / whisper — принудительно. null — режим приложения.
    * @nullable
    */
   transcriptionMode: PortalAiSettingsResponseDtoTranscriptionMode;
@@ -173,23 +173,33 @@ export interface PortalAiSettingsResponseDto {
    */
   whisperModel: string | null;
   /**
-   * Ключ Whisper-совместимого сервиса. В ответе — только маска «••••••», если ключ задан; сам ключ наружу не отдаётся.
-   * @nullable
-   */
-  whisperApiKey: string | null;
-  /**
    * Модель транскрибации VibeCode (поле model запроса к ИИ-роутеру). С 16.11.2026 Whisper уходит с платформы: запросы без модели идут в bitrix/bitrixgpt-5.6-transcribe; null — модель приложения.
    * @nullable
    */
   vibecodeTranscriptionModel: string | null;
   /**
-   * Лимит в рублях на одну ночь для ночного догона признаков в старых разборах (текущий и прошлый месяц); null или 0 — ночной догон выключен.
+   * Лимит в рублях на одну ночь для ночного догона признаков в старых разборах (текущий и прошлый месяц); null или 0 — рублёвого лимита нет. Ночной догон идёт, если задан этот лимит или лимит в звонках.
    * @nullable
    */
   factsCatchupNightlyBudgetRub: number | null;
+  /**
+   * Лимит ночного догона признаков в звонках за одну ночь. Нужен, пока модели бесплатные и рублёвый лимит не срабатывает; null или 0 — лимита в звонках нет.
+   * @nullable
+   */
+  factsCatchupNightlyMaxCalls: number | null;
+  /**
+   * Месячный лимит расхода на распознавание Яндексом, рублей. При достижении приходит сообщение в телеграм, маршрут распознавания не меняется; null или 0 — лимита нет.
+   * @nullable
+   */
+  yandexMonthlyBudgetRub: number | null;
   /**
    * Маршрут распознавания портала: кто распознаёт длинные и короткие звонки, кто запасной, кто «для скорости» и «для точности», и что сейчас важнее. Заданная роль важнее режима transcriptionMode; null — действует режим.
    * @nullable
    */
   transcriptionRoute: PortalAiSettingsResponseDtoTranscriptionRoute;
+  /**
+   * Ключ Whisper-совместимого сервиса. В ответе — только маска «••••••», если ключ задан; сам ключ наружу не отдаётся.
+   * @nullable
+   */
+  whisperApiKey: string | null;
 }

@@ -9,8 +9,10 @@ import {
     KnowledgeTextUpsertPayload,
     KnowledgeUploadResponse,
 } from '../types/knowledge.types';
+import type { KnowledgeBudgetReport } from '../types/knowledge-budget.types';
 
 const KNOWLEDGE_URL = '/api/admin/ai-rag/knowledge';
+const KNOWLEDGE_BUDGET_URL = '/api/admin/call-report/knowledge-budget';
 
 /**
  * Обёртка над админ-API базы знаний AI (RAG). Ходит через customAxios
@@ -79,6 +81,18 @@ export class KnowledgeHelper {
             method: 'POST',
             headers: { 'Content-Type': 'multipart/form-data' },
             data: formData,
+        });
+    }
+
+    /**
+     * Сколько знаков каждого вида попадает в разбор звонка портала и что
+     * обрезается. Только чтение.
+     */
+    async budget(domain: string) {
+        return customAxios<KnowledgeBudgetReport>({
+            url: KNOWLEDGE_BUDGET_URL,
+            method: 'GET',
+            params: { domain },
         });
     }
 

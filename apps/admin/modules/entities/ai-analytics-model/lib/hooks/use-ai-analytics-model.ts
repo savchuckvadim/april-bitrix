@@ -61,6 +61,15 @@ export const useModelForecastBacktest = (
         ...QUERY_OPTIONS,
     });
 
+/** Разложение прогноза отдела на слагаемые за последний день расчёта. */
+export const useModelForecastBreakdown = (domain: string | undefined) =>
+    useQuery({
+        queryKey: [...AI_ANALYTICS_MODEL_KEY, 'breakdown', domain ?? ''],
+        queryFn: () => helper.forecastBreakdown(domain as string),
+        enabled: !!domain,
+        ...QUERY_OPTIONS,
+    });
+
 /** Последний расчёт эффекта советов. */
 export const useModelRecommendationEffect = (domain: string | undefined) =>
     useQuery({

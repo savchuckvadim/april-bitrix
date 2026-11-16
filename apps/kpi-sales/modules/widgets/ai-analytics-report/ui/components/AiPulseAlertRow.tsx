@@ -19,6 +19,7 @@ import {
 } from '@/modules/entities/ai-analytics';
 import { useAiFeedback } from '../../hooks/use-ai-feedback';
 import { useAiManagerName } from '../../hooks/use-ai-manager-name';
+import { AiCallPageLink } from './AiCallPageLink';
 import { AiFeedbackError } from './AiFeedbackError';
 import { AiManagerName } from './AiManagerName';
 import { AiReadOnlyHint } from './AiReadOnlyHint';
@@ -111,7 +112,10 @@ export const AiPulseAlertRow = ({ alert }: AiPulseAlertRowProps) => {
                 <p className="text-xs text-muted-foreground">
                     {aiAlertActionLine(alert.kind)}
                 </p>
-                <AlertLink alert={alert} />
+                <div className="flex flex-wrap items-center gap-3">
+                    <AlertLink alert={alert} />
+                    <AiCallPageLink transcriptionId={alert.transcriptionId} />
+                </div>
             </div>
             <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
                 {alert.handled ? (

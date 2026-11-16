@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { usePortalTranscriptionSpend } from '../lib/hooks/use-transcription-spend';
-import { currentMoscowMonth } from '../lib/spend-format';
+import { budgetLabel, budgetReached, currentMoscowMonth } from '../lib/spend-format';
 import { SpendMonthSwitcher } from './SpendMonthSwitcher';
 import { SpendTotalsTiles } from './SpendTotalsTiles';
 import {
@@ -47,6 +47,21 @@ export const PortalSpendView = ({ portalId, domain }: PortalSpendViewProps) => {
             {data && (
                 <>
                     <SpendTotalsTiles month={data.month} totals={data.totals} previous={data.previousTotals} />
+
+                    {budgetLabel(data.totals.rub, data.yandexBudgetRub) && (
+                        <p
+                            className={
+                                budgetReached(data.totals.rub, data.yandexBudgetRub)
+                                    ? 'text-sm text-destructive'
+                                    : 'text-sm text-muted-foreground'
+                            }
+                        >
+                            Яндекс: {budgetLabel(data.totals.rub, data.yandexBudgetRub)}.
+                            {budgetReached(data.totals.rub, data.yandexBudgetRub)
+                                ? ' Лимит достигнут — сообщение об этом ушло в телеграм, Яндекс продолжает распознавать.'
+                                : ' Когда расход дойдёт до лимита, придёт сообщение в телеграм.'}
+                        </p>
+                    )}
 
                     {data.totals.calls === 0 && (
                         <p className="text-sm text-muted-foreground">За этот месяц звонки портала не распознавались.</p>

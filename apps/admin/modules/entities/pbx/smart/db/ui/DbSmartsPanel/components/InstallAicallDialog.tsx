@@ -17,6 +17,7 @@ import { getApiErrorMessage } from '../../../../../lib/api-error';
 import { useInstallAicall } from '../../../lib/hooks';
 import { installFailureNotes } from '../../../lib/install-result';
 import type { InstallAicallResult } from '../../../model';
+import { AicallFieldsCheck } from './AicallFieldsCheck';
 
 /** Строка сводки по полям: счётчик + список UF-имён. */
 function FieldsSummaryLine({
@@ -144,6 +145,13 @@ export function InstallAicallDialog({
                                 disabled={install.isPending}
                             />
                         </div>
+                    )}
+
+                    {!install.data && (
+                        <AicallFieldsCheck
+                            domain={domain}
+                            disabled={install.isPending}
+                        />
                     )}
 
                     {install.isPending && (

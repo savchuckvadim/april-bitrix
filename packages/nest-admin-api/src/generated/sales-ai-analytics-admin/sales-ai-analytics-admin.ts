@@ -16,10 +16,15 @@ import type {
   AiAnalyticsBackfillResultDto,
   AiAnalyticsCostResultDto,
   AiAnalyticsEtlStatusResultDto,
+  AiAnalyticsFactsCatchupAdminStatusParams,
+  AiAnalyticsFactsCatchupRunDto,
+  AiAnalyticsFactsCatchupRunResultDto,
+  AiAnalyticsFactsCatchupStatusDto,
   AiAnalyticsFeedbackCostAdminCostSummaryParams,
   AiAnalyticsFeedbackCostAdminFeedbackSummaryParams,
   AiAnalyticsFeedbackResultDto,
   AiAnalyticsForecastBacktestResultDto,
+  AiAnalyticsForecastBreakdownAdminForecastBreakdownParams,
   AiAnalyticsGoldenSetAdminListParams,
   AiAnalyticsGoldenSetResultDto,
   AiAnalyticsGoldenSetRunDto,
@@ -53,11 +58,8 @@ import type {
   AiAnalyticsSmartBackfillRunDto,
   AiAnalyticsSmartBackfillRunResultDto,
   AiAnalyticsSmartBackfillStatusDto,
-  AiAnalyticsFactsCatchupAdminStatusParams,
-  AiAnalyticsFactsCatchupRunDto,
-  AiAnalyticsFactsCatchupRunResultDto,
-  AiAnalyticsFactsCatchupStatusDto,
   AiAnalyticsStageHistoryProbeResponseDto,
+  AiForecastBreakdownResultDto,
   AiGuideSectionDto,
   AiGuideSectionItemDto,
   AiOwnerReportExportStartDto,
@@ -300,6 +302,19 @@ const aiAnalyticsPhase4AdminQualityLink = (
       );
     }
   /**
+ * Из чего сложилась середина прогноза: закрытые продажи, ожидание от открытых сделок и ожидание от новых встреч — по отделу (последний день журнала ai-analytics-forecast-log) и по каждому менеджеру за тот же день (ai-analytics-forecast), с входами расчёта и сделками с наибольшим вкладом. Нужна, чтобы найти источник завышенного прогноза: брошенные открытые сделки, завышенный темп или конверсия. Только сохранённые числа ночного расчёта; слагаемые появляются с ночи после выкладки 16.11.2026, у более ранних дней они null.
+ * @summary Разложение прогноза отдела на слагаемые
+ */
+const aiAnalyticsForecastBreakdownAdminForecastBreakdown = (
+    params: AiAnalyticsForecastBreakdownAdminForecastBreakdownParams,
+ ) => {
+      return customAxios<AiForecastBreakdownResultDto>(
+      {url: `/api/admin/ai-analytics/forecast-breakdown`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
  * Ставит джобу CALL_REPORT_REANALYZE (очередь CALL_REPORT, воркер apps/event-sales). Кандидаты — готовые транскрипции периода сотрудников списка (по умолчанию пилот из настроек портала), у которых активный разбор другой серии промпта или без версий; разбор текущей серии и звонки без разбора пропускаются, повтор запуска безопасен. Новая запись agent-analysis копирует ссылки старой (карточка смарта, дело, сущность, владелец), старая помечается superseded; Битрикс не вызывается, алерты не шлются. Квота на часть и бюджет 45 минут: остаток джоба дорабатывает продолжениями сама. dryRun — без модели: кандидаты и оценка стоимости в запись статуса (тоже через джобу). Без очереди в сборке — dispatched: false с причиной.
  * @summary Запустить переразбор истории текущей версией промпта
  */
@@ -327,6 +342,33 @@ const aiAnalyticsReanalyzeAdminStatus = (
       );
     }
   /**
+ * Ставит джобу CALL_REPORT_FACTS_CATCHUP (очередь CALL_REPORT, воркер apps/event-sales). Кандидаты — готовые транскрипции периода, у которых в активном разборе нет фактов для отчётов (исход, вид шага, темы возражений, сбои, цены, допродажа, самопредставление). По каждому — один короткий вызов модели по сохранённой расшифровке; факты дописываются в ту же запись разбора, оценки разделов и версия промпта не меняются, расход ложится отдельной записью agent-analysis-facts. Битрикс не вызывается. Квота на часть и бюджет 45 минут: остаток джоба дорабатывает продолжениями сама; повтор запуска безопасен. dryRun — подсчёт без модели: кандидаты и оценка стоимости в запись статуса. Без очереди в сборке — dispatched: false.
+ * @summary Догнать факты v3.1 в старых разборах за период
+ */
+const aiAnalyticsFactsCatchupAdminRun = (
+    aiAnalyticsFactsCatchupRunDto: AiAnalyticsFactsCatchupRunDto,
+ ) => {
+      return customAxios<AiAnalyticsFactsCatchupRunResultDto>(
+      {url: `/api/admin/ai-analytics/facts-catchup`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsFactsCatchupRunDto
+    },
+      );
+    }
+  /**
+ * Запись статуса call-report-facts-catchup-run по домену и периоду: кандидаты, догнано, сбои, пропуски по причинам, токены и стоимость, finished, оценка подсчёта, «догнано N из M, осталось ≈ X минут». null — прогона по периоду не было.
+ * @summary Статус догона фактов за период
+ */
+const aiAnalyticsFactsCatchupAdminStatus = (
+    params: AiAnalyticsFactsCatchupAdminStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsFactsCatchupStatusDto>(
+      {url: `/api/admin/ai-analytics/facts-catchup-status`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
  * Ставит джобу CALL_REPORT_SMART_BACKFILL (очередь CALL_REPORT, воркер apps/event-sales). Модель не вызывается: разбор берётся из записи ais и раскладывается по полям существующего элемента смарта так же, как при приёме; новые элементы не создаются. Режим period — все карточки периода (по дате записи разбора), pending — только те, у которых запись полей не удалась (их же подбирает ночной крон). Период не задан — последние 30 дней. dryRun — только подсчёт. Квота на часть и бюджет 40 минут: остаток джоба дорабатывает продолжениями сама. Без очереди в сборке — dispatched: false с причиной.
  * @summary Дописать поля карточек разборов из сохранённых записей
  */
@@ -349,33 +391,6 @@ const aiAnalyticsSmartBackfillAdminStatus = (
  ) => {
       return customAxios<AiAnalyticsSmartBackfillStatusDto>(
       {url: `/api/admin/ai-analytics/smart-backfill-status`, method: 'GET',
-        params
-    },
-      );
-    }
-  /**
- * Ставит джобу CALL_REPORT_FACTS_CATCHUP (очередь CALL_REPORT, воркер apps/event-sales): один короткий вызов модели по расшифровке за фактами v3.1, факты дописываются в ту же запись разбора, оценки не меняются. dryRun — подсчёт без модели.
- * @summary Догнать факты v3.1 в старых разборах за период
- */
-const aiAnalyticsFactsCatchupAdminRun = (
-    aiAnalyticsFactsCatchupRunDto: AiAnalyticsFactsCatchupRunDto,
- ) => {
-      return customAxios<AiAnalyticsFactsCatchupRunResultDto>(
-      {url: `/api/admin/ai-analytics/facts-catchup`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: aiAnalyticsFactsCatchupRunDto
-    },
-      );
-    }
-  /**
- * Запись статуса call-report-facts-catchup-run по домену и периоду: кандидаты, догнано, сбои, пропуски, токены и стоимость, finished, оценка подсчёта.
- * @summary Статус догона фактов за период
- */
-const aiAnalyticsFactsCatchupAdminStatus = (
-    params: AiAnalyticsFactsCatchupAdminStatusParams,
- ) => {
-      return customAxios<AiAnalyticsFactsCatchupStatusDto>(
-      {url: `/api/admin/ai-analytics/facts-catchup-status`, method: 'GET',
         params
     },
       );
@@ -539,7 +554,7 @@ const aiAnalyticsRefreshAdminStartAll = (
     },
       );
     }
-  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsFactsCatchupAdminRun,aiAnalyticsFactsCatchupAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile,aiAnalyticsRefreshAdminStart,aiAnalyticsRefreshAdminState,aiAnalyticsRefreshAdminPortals,aiAnalyticsRefreshAdminStartAll}};
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsForecastBreakdownAdminForecastBreakdown,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsFactsCatchupAdminRun,aiAnalyticsFactsCatchupAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile,aiAnalyticsRefreshAdminStart,aiAnalyticsRefreshAdminState,aiAnalyticsRefreshAdminPortals,aiAnalyticsRefreshAdminStartAll}};
 export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
 export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
 export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
@@ -556,12 +571,13 @@ export type AiAnalyticsPhase4AdminPoolStatusResult = NonNullable<Awaited<ReturnT
 export type AiAnalyticsPhase4AdminForecastBacktestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminForecastBacktest']>>>
 export type AiAnalyticsPhase4AdminRecommendationEffectResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminRecommendationEffect']>>>
 export type AiAnalyticsPhase4AdminQualityLinkResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPhase4AdminQualityLink']>>>
+export type AiAnalyticsForecastBreakdownAdminForecastBreakdownResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsForecastBreakdownAdminForecastBreakdown']>>>
 export type AiAnalyticsReanalyzeAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsReanalyzeAdminRun']>>>
 export type AiAnalyticsReanalyzeAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsReanalyzeAdminStatus']>>>
-export type AiAnalyticsSmartBackfillAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsSmartBackfillAdminRun']>>>
-export type AiAnalyticsSmartBackfillAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsSmartBackfillAdminStatus']>>>
 export type AiAnalyticsFactsCatchupAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsFactsCatchupAdminRun']>>>
 export type AiAnalyticsFactsCatchupAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsFactsCatchupAdminStatus']>>>
+export type AiAnalyticsSmartBackfillAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsSmartBackfillAdminRun']>>>
+export type AiAnalyticsSmartBackfillAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsSmartBackfillAdminStatus']>>>
 export type AiAnalyticsGuideAdminListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGuideAdminList']>>>
 export type AiAnalyticsGuideAdminEntryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsGuideAdminEntry']>>>
 export type AiAnalyticsLaunchAdminResetCacheResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsLaunchAdminResetCache']>>>

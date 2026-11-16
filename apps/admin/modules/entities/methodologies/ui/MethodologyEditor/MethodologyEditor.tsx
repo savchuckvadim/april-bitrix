@@ -33,11 +33,15 @@ import {
     type MethodologyDetail,
     type MethodologyValidation,
 } from '../../model';
+import { anchorsOf, knowledgeOf } from '../../lib/methodology-materials.util';
+import { AnchorsEditor } from './components/AnchorsEditor';
 import { AssistantPanel } from './components/AssistantPanel';
 import { CapsEditor } from './components/CapsEditor';
 import { CheckpointsEditor } from './components/CheckpointsEditor';
 import { EditorHeader } from './components/EditorHeader';
 import { JsonEditor } from './components/JsonEditor';
+import { KnowledgeEditor } from './components/KnowledgeEditor';
+import { PreviewPanel } from './components/PreviewPanel';
 import { RulesEditor } from './components/RulesEditor';
 import { ValidationNotice } from './components/ValidationNotice';
 
@@ -149,6 +153,12 @@ export const MethodologyEditor = ({
                                     {texts.tabs.caps} ({state.config.caps.length})
                                 </TabsTrigger>
                                 <TabsTrigger value="rules">{texts.tabs.rules}</TabsTrigger>
+                                <TabsTrigger value="anchors">{texts.tabs.anchors}</TabsTrigger>
+                                <TabsTrigger value="knowledge">
+                                    {texts.tabs.knowledge} (
+                                    {Object.keys(knowledgeOf(state.config.knowledge)).length})
+                                </TabsTrigger>
+                                <TabsTrigger value="preview">{texts.tabs.preview}</TabsTrigger>
                                 <TabsTrigger value="assistant">{texts.tabs.assistant}</TabsTrigger>
                                 <TabsTrigger value="json">{texts.tabs.json}</TabsTrigger>
                             </TabsList>
@@ -177,6 +187,30 @@ export const MethodologyEditor = ({
                                     catalog={catalog}
                                     onPrinciples={principles => form.patchConfig({ principles })}
                                     onSpirals={spirals => form.patchConfig({ spirals })}
+                                />
+                            </TabsContent>
+                            <TabsContent value="anchors" className="pt-3">
+                                <AnchorsEditor
+                                    anchors={anchorsOf(state.config.sectionAnchors)}
+                                    catalog={catalog}
+                                    onChange={sectionAnchors =>
+                                        form.patchConfig({ sectionAnchors })
+                                    }
+                                />
+                            </TabsContent>
+                            <TabsContent value="knowledge" className="pt-3">
+                                <KnowledgeEditor
+                                    knowledge={knowledgeOf(state.config.knowledge)}
+                                    kinds={catalog?.knowledgeKinds ?? []}
+                                    methodologyCode={state.config.code}
+                                    onChange={knowledge => form.patchConfig({ knowledge })}
+                                />
+                            </TabsContent>
+                            <TabsContent value="preview" className="pt-3">
+                                <PreviewPanel
+                                    domain={domain}
+                                    config={state.config}
+                                    catalog={catalog}
                                 />
                             </TabsContent>
                             <TabsContent value="assistant" className="pt-3">

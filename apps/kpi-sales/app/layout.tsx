@@ -17,9 +17,11 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    // Публичная страница /share/[token]: без Bitrix-init (App) и каркаса
-    // отчёта (ReportProvider) — только стор и темы. Данные сидятся снимком.
-    const isPublicShare = pathname?.startsWith('/share');
+    // Публичные страницы /share/[token] (снимок отчёта) и /call/[token]
+    // (разбор звонка): без Bitrix-init (App) и каркаса отчёта
+    // (ReportProvider) — только стор и темы. Данные приходят готовыми.
+    const isPublicShare =
+        pathname?.startsWith('/share') || pathname?.startsWith('/call/');
 
     return (
         <html lang="ru" suppressHydrationWarning>

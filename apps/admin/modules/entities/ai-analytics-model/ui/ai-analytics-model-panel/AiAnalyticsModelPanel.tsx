@@ -5,6 +5,7 @@ import { MODEL_TEXT } from '../../consts/ai-analytics-model.const';
 import {
     FeedbackCard,
     ForecastBacktestCard,
+    ForecastBreakdownCard,
     PoolCard,
     QualityLinkCard,
     RecommendationEffectCard,
@@ -34,6 +35,7 @@ export const AiAnalyticsModelPanel = () => {
             />
             <QualityLinkCard domain={form.domain} query={queries.qualityLink} />
             <ForecastBacktestCard domain={form.domain} query={queries.backtest} />
+            <ForecastBreakdownCard domain={form.domain} query={queries.breakdown} />
             <PoolCard domain={form.domain} query={queries.pool} />
             <RecommendationEffectCard domain={form.domain} query={queries.effect} />
         </div>

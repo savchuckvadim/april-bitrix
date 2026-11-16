@@ -10,6 +10,7 @@ import type {
 import { useAiRopMarkForm } from '../../hooks/use-ai-rop-mark-form';
 import { AI_ROP_MARK_REASON } from '../../lib/ai-rop-mark.util';
 import { AI_ROP_MARK_NO_MARK_TEXT } from '../../lib/ai-rop-mark-access.util';
+import { AiCallPageLink } from './AiCallPageLink';
 import { AiManagerName } from './AiManagerName';
 import { AiRopMarkForm } from './AiRopMarkForm';
 import { AiRopMarkSaved } from './AiRopMarkSaved';
@@ -84,6 +85,10 @@ export const AiRopMarkCallItem = ({
                         разбор ещё не создан
                     </span>
                 )}
+                <AiCallPageLink
+                    transcriptionId={call.transcriptionId}
+                    className="inline-flex items-center gap-1 text-primary hover:underline"
+                />
                 {call.marked && (
                     <ToneBadge tone="success" variant="soft" size="sm">
                         оценено

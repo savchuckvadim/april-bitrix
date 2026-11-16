@@ -21,6 +21,7 @@ export { AiDailyPlanBody } from './ui/components/AiDailyPlanBody';
 export { AiSectionState } from './ui/components/AiSectionState';
 export { AiQueuedState } from './ui/components/AiQueuedState';
 export { AiCardLink } from './ui/components/AiCardLink';
+export { AiCallPageLink } from './ui/components/AiCallPageLink';
 export { AiSignalLeversCell } from './ui/components/AiSignalLeversCell';
 export { AiRopMarkSaved } from './ui/components/AiRopMarkSaved';
 export { AiTheoryLink } from './ui/components/AiTheoryLink';

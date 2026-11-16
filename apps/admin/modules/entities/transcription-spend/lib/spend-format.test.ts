@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+    budgetLabel,
+    budgetReached,
     changeLabel,
     currentMoscowMonth,
     dayLabel,
@@ -48,6 +50,20 @@ describe('форматирование расхода на распознава�
         expect(changeLabel(60, 100)).toBe('−40 %');
         expect(changeLabel(100, 100)).toBe('как в прошлом месяце');
         expect(changeLabel(50, 0)).toBeNull();
+    });
+
+    it('лимит Яндекса: подпись с долей; без лимита подписи нет', () => {
+        expect(plain(budgetLabel(1560, 1500) ?? '')).toBe('лимит 1 500 ₽ · 104 %');
+        expect(plain(budgetLabel(300, 1500) ?? '')).toBe('лимит 1 500 ₽ · 20 %');
+        expect(budgetLabel(300, null)).toBeNull();
+        expect(budgetLabel(300, 0)).toBeNull();
+    });
+
+    it('лимит достигнут с суммы лимита; без лимита — никогда', () => {
+        expect(budgetReached(1500, 1500)).toBe(true);
+        expect(budgetReached(1499.99, 1500)).toBe(false);
+        expect(budgetReached(9999, null)).toBe(false);
+        expect(budgetReached(9999, 0)).toBe(false);
     });
 
     it('день «дд.мм»', () => {

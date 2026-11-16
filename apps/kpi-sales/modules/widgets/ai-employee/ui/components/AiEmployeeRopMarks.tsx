@@ -5,6 +5,7 @@ import type { AiDossierRopMarks } from '@/modules/entities/ai-analytics';
 import {
     AI_RISK_CALL_LINK_LABEL,
     AI_RISK_CALL_LINK_TITLE,
+    AiCallPageLink,
     AiCardLink,
     AiRopMarkSaved,
     AiSectionState,
@@ -63,6 +64,9 @@ export const AiEmployeeRopMarks = ({ managerId, isLeader, enabled, summary }: Ai
                                                     title={AI_RISK_CALL_LINK_TITLE}
                                                 />
                                             )}
+                                            <AiCallPageLink
+                                                transcriptionId={call.transcriptionId}
+                                            />
                                         </div>
                                         {call.mark ? (
                                             <AiRopMarkSaved call={call} mark={call.mark} notes={[]} />

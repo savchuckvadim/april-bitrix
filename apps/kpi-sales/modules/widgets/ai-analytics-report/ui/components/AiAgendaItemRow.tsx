@@ -11,6 +11,7 @@ import {
 } from '@/modules/entities/ai-analytics';
 import { useAiCallTypeBadge } from '../../hooks/use-ai-call-type-badge';
 import { useAiManagerName } from '../../hooks/use-ai-manager-name';
+import { AiCallPageLink } from './AiCallPageLink';
 import { AiFeedbackButtons } from './AiFeedbackButtons';
 import { AiManagerName } from './AiManagerName';
 
@@ -70,19 +71,20 @@ export const AiAgendaItemRow = ({ item, index }: AiAgendaItemRowProps) => {
                 </blockquote>
             )}
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                {item.link ? (
-                    <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                    >
-                        <ExternalLink className="h-3 w-3" />
-                        Открыть разбор
-                    </a>
-                ) : (
-                    <span />
-                )}
+                <div className="flex flex-wrap items-center gap-3">
+                    {item.link && (
+                        <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
+                            <ExternalLink className="h-3 w-3" />
+                            Открыть разбор
+                        </a>
+                    )}
+                    <AiCallPageLink transcriptionId={item.transcriptionId} />
+                </div>
                 <AiFeedbackButtons
                     object={AI_FEEDBACK_OBJECT.call(item.transcriptionId)}
                     managerId={item.managerId}

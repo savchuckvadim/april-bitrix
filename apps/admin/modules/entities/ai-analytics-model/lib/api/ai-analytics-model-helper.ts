@@ -3,6 +3,7 @@ import type {
     ModelFeedbackQuery,
     ModelFeedbackResult,
     ModelForecastBacktestResult,
+    ModelForecastBreakdownResult,
     ModelPoolStatusResult,
     ModelQualityLinkResult,
     ModelRecommendationEffectResult,
@@ -42,6 +43,13 @@ export class AiAnalyticsModelHelper {
         return this.api.aiAnalyticsPhase4AdminForecastBacktest({
             domain,
             months,
+        });
+    }
+
+    /** Разложение прогноза отдела за последний день расчёта. */
+    forecastBreakdown(domain: string): Promise<ModelForecastBreakdownResult> {
+        return this.api.aiAnalyticsForecastBreakdownAdminForecastBreakdown({
+            domain,
         });
     }
 

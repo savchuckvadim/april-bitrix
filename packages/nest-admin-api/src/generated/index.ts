@@ -76,3 +76,4 @@ export * from './portal-outer/portal-outer';
 export * from './sales-ai-analytics-admin/sales-ai-analytics-admin';
 export * from './telegram/telegram';
 export * from './user-selected-template/user-selected-template';
+export * from './admin-call-page/admin-call-page';

@@ -9,6 +9,7 @@ import type { AiForecastDtoMode } from './aiForecastDtoMode';
 import type { AiForecastDtoBand } from './aiForecastDtoBand';
 import type { AiForecastDtoMoney } from './aiForecastDtoMoney';
 import type { AiForecastDtoCheckSource } from './aiForecastDtoCheckSource';
+import type { AiForecastDtoShown } from './aiForecastDtoShown';
 import type { AiForecastShadowDto } from './aiForecastShadowDto';
 
 export interface AiForecastDto {
@@ -56,6 +57,11 @@ export interface AiForecastDto {
      * @nullable
      */
     mean3: number | null;
+    /**
+     * Число для карточки прогноза: показывается всегда, когда есть журнал дня, в том числе в режиме shadow — с пометкой, чей это расчёт и насколько ему верить. null — журнала дня нет (прогноз ещё не считался), показывать нечего.
+     * @nullable
+     */
+    shown: AiForecastDtoShown;
     /** Теневой режим и проверка точности — отдаются всегда, в том числе при published. */
     shadow: AiForecastShadowDto;
     /** Коды причин режима shadow (подписи — на фронте): forecast-shadow-months-below-{N} (теневых месяцев меньше N), forecast-backtest-insufficient, forecast-coverage-outside, forecast-mase-not-below, forecast-log-missing (нет ни проверки, ни журнала — прогноз ещё не начал копиться), forecast-stage-disabled (только когда проверка пройдена, а показ выключен), forecast-readiness-below (проверка пройдена и показ включён, но готовность портала ниже «прогноза»). Пусто — режим published. */

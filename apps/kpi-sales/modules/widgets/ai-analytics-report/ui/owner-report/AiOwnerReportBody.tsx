@@ -42,6 +42,12 @@ export const AiOwnerReportBody = ({ report }: AiOwnerReportBodyProps) => {
                     {' · '}
                     {T.source[report.source]}
                 </p>
+                {/* База отчёта по телефонии; у отчётов до 16.11.2026 поля нет. */}
+                {text.base && (
+                    <p className="text-sm text-muted-foreground">
+                        {text.base}
+                    </p>
+                )}
             </header>
             <AiOwnerReportTiles tiles={text.tiles} />
             <AiOwnerReportAttentionBlock items={text.attention ?? []} />

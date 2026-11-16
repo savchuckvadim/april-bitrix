@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { ToneBadge } from '@workspace/april-ui/badges';
 import {
+    budgetLabel,
+    budgetReached,
     changeLabel,
     minutesLabel,
     monthLabel,
@@ -47,6 +49,20 @@ export const TranscriptionSpendCard = ({ portalId, domain }: { portalId: number;
                         {rubLabel(data.totals.rub)} · {minutesLabel(data.totals.yandexMinutes)} ·{' '}
                         {data.totals.yandexCalls.toLocaleString('ru-RU')} зв.
                     </dd>
+                    {budgetLabel(data.totals.rub, data.yandexBudgetRub) && (
+                        <>
+                            <dt className="text-muted-foreground">Лимит Яндекса</dt>
+                            <dd
+                                className={
+                                    budgetReached(data.totals.rub, data.yandexBudgetRub)
+                                        ? 'text-right text-destructive'
+                                        : 'text-right'
+                                }
+                            >
+                                {budgetLabel(data.totals.rub, data.yandexBudgetRub)}
+                            </dd>
+                        </>
+                    )}
                     <dt className="text-muted-foreground">Бесплатно</dt>
                     <dd className="text-right">{free.toLocaleString('ru-RU')} зв.</dd>
                     <dt className="text-muted-foreground">К прошлому месяцу</dt>

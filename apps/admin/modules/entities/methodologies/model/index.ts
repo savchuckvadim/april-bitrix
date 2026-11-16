@@ -14,6 +14,7 @@ import type {
     MethodologyValidationDto,
     MethodologyValidationSummaryDto,
 } from '@workspace/nest-admin-api';
+import type { CatalogKnowledgeKind } from './methodology-materials';
 
 /**
  * Раздел «Методики»: типы — сгенерированные DTO бэка admin
@@ -27,7 +28,10 @@ export type MethodologyCheckpoint = MethodologyCheckpointDto;
 export type MethodologyCap = MethodologyCapDto;
 export type MethodologyCondition = MethodologyConditionDto;
 export type MethodologySpirals = MethodologySpiralsDto;
-export type MethodologyCatalog = MethodologyCatalogDto;
+/** `knowledgeKinds` — новое поле каталога, в сгенерированном клиенте его ещё нет. */
+export type MethodologyCatalog = MethodologyCatalogDto & {
+    knowledgeKinds?: CatalogKnowledgeKind[];
+};
 export type CatalogEntry = CatalogEntryDto;
 export type CatalogCheckpoint = CatalogCheckpointDto;
 export type MethodologyValidation = MethodologyValidationDto;
@@ -40,6 +44,9 @@ export type MethodologySource = MethodologyListItemDto['source'];
 export type MethodologyConditionOp = MethodologyConditionDto['op'];
 export type MethodologyCapTarget = MethodologyCapDto['target'];
 export type CheckpointEvidence = MethodologyCheckpointDto['evidence'];
+
+export * from './methodology-materials';
+export * from './methodology-preview';
 
 export const METHODOLOGIES_PATH = '/ai-analytics/methodologies';
 /** Значение комбобокса «без портала». */
@@ -109,6 +116,9 @@ export const METHODOLOGIES_TEXT = {
             checkpoints: 'Пункты',
             caps: 'Ограничители',
             rules: 'Правила и спирали',
+            anchors: 'Якоря оценок',
+            knowledge: 'Материалы',
+            preview: 'Проверка на звонке',
             assistant: 'Помощник',
             json: 'JSON',
         },

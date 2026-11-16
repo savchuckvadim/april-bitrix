@@ -14,6 +14,15 @@ export interface AudioPlayerProps {
     onPlayingChange?: (isPlaying: boolean) => void;
     /** внешний стоп: при false проигрывание останавливается */
     playing?: boolean;
+    /**
+     * внешний переход: поставить запись на секунду и играть. `key` меняется
+     * на каждый запрос — иначе повторный переход на ту же секунду не сработает
+     */
+    seekTo?: { time: number; key: number } | null;
+    /** текущая секунда записи (для подсветки реплики расшифровки) */
+    onTimeChange?: (seconds: number) => void;
+    /** запись не загрузилась */
+    onError?: () => void;
 }
 
 const PLAYBACK_RATES = [1, 1.25, 1.5, 2] as const;
@@ -35,6 +44,9 @@ export const AudioPlayer = ({
     className,
     onPlayingChange,
     playing,
+    seekTo,
+    onTimeChange,
+    onError,
 }: AudioPlayerProps) => {
     const audioRef = React.useRef<HTMLAudioElement>(null);
     const [isPlaying, setIsPlaying] = React.useState(false);
@@ -48,6 +60,15 @@ export const AudioPlayer = ({
             audioRef.current.pause();
         }
     }, [playing]);
+
+    // внешний переход на секунду (клик по реплике или подсветке) — и играть
+    React.useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio || !seekTo) return;
+        audio.currentTime = Math.max(0, seekTo.time);
+        setCurrentTime(audio.currentTime);
+        void audio.play().catch(() => undefined);
+    }, [seekTo]);
 
     const toggle = () => {
         const audio = audioRef.current;
@@ -88,7 +109,11 @@ export const AudioPlayer = ({
                 src={src}
                 preload="metadata"
                 onLoadedMetadata={e => setDuration(e.currentTarget.duration)}
-                onTimeUpdate={e => setCurrentTime(e.currentTarget.currentTime)}
+                onTimeUpdate={e => {
+                    setCurrentTime(e.currentTarget.currentTime);
+                    onTimeChange?.(e.currentTarget.currentTime);
+                }}
+                onError={() => onError?.()}
                 onPlay={() => {
                     setIsPlaying(true);
                     onPlayingChange?.(true);

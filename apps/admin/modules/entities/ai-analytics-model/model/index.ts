@@ -7,6 +7,9 @@ import type {
     AiAnalyticsForecastBacktestDto,
     AiAnalyticsForecastBacktestDtoStatus,
     AiAnalyticsForecastBacktestResultDto,
+    AiForecastBreakdownEpisodeDto,
+    AiForecastBreakdownManagerDto,
+    AiForecastBreakdownResultDto,
     AiAnalyticsLeverEffectDto,
     AiAnalyticsLeverEffectDtoLever,
     AiAnalyticsPhase4EstimateDto,
@@ -41,6 +44,11 @@ export type ModelFeedbackKind = AiAnalyticsFeedbackKindDtoKind;
 export type ModelForecastBacktestResult = AiAnalyticsForecastBacktestResultDto;
 export type ModelForecastBacktest = AiAnalyticsForecastBacktestDto;
 export type ModelForecastBacktestStatus = AiAnalyticsForecastBacktestDtoStatus;
+
+/** Разложение прогноза отдела на слагаемые (`forecast-breakdown`). */
+export type ModelForecastBreakdownResult = AiForecastBreakdownResultDto;
+export type ModelForecastBreakdownManager = AiForecastBreakdownManagerDto;
+export type ModelForecastBreakdownEpisode = AiForecastBreakdownEpisodeDto;
 
 export type ModelPoolStatusResult = AiAnalyticsPoolStatusResultDto;
 export type ModelPoolSnapshot = AiAnalyticsPoolSnapshotDto;

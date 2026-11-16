@@ -9,6 +9,7 @@ import {
 import {
     AI_RISK_CALL_LINK_LABEL,
     AI_RISK_CALL_LINK_TITLE,
+    AiCallPageLink,
     AiCallTypeBadge,
     AiCardLink,
 } from '@/modules/widgets/ai-analytics-report';
@@ -51,6 +52,8 @@ export const AiEmployeeRiskCallRow = ({ call }: { call: AiEmployeeRiskCall }) =>
                     </ToneBadge>
                 )}
                 <CallLink link={call.link} />
+        <AiCallPageLink transcriptionId={call.transcriptionId} />
+                <AiCallPageLink transcriptionId={call.transcriptionId} />
             </div>
             {call.quote ? (
                 <blockquote className="border-l-2 border-muted-foreground/40 pl-3 text-sm italic text-muted-foreground">

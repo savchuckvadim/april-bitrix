@@ -12,6 +12,7 @@ import {
     aiRiskCallLink,
     aiRiskCallNoLinkText,
 } from '../../lib/ai-risk-calls.util';
+import { AiCallPageLink } from './AiCallPageLink';
 import { AiCardLink } from './AiCardLink';
 
 interface AiSignalRiskCallRowProps {
@@ -48,6 +49,11 @@ export const AiSignalRiskCallRow = ({ call }: AiSignalRiskCallRowProps) => {
                     <span className="text-muted-foreground">{noLinkText}</span>
                 )
             )}
+            <AiCallPageLink
+                transcriptionId={call.transcriptionId}
+                label="страница"
+                className="inline-flex items-center gap-1 text-primary underline-offset-2 hover:underline"
+            />
         </li>
     );
 };

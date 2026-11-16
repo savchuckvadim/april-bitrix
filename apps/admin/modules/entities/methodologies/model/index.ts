@@ -46,6 +46,7 @@ export type MethodologyCapTarget = MethodologyCapDto['target'];
 export type CheckpointEvidence = MethodologyCheckpointDto['evidence'];
 
 export * from './methodology-materials';
+export * from './methodology-preview';
 
 export const METHODOLOGIES_PATH = '/ai-analytics/methodologies';
 /** Значение комбобокса «без портала». */
@@ -117,6 +118,7 @@ export const METHODOLOGIES_TEXT = {
             rules: 'Правила и спирали',
             anchors: 'Якоря оценок',
             knowledge: 'Материалы',
+            preview: 'Проверка на звонке',
             assistant: 'Помощник',
             json: 'JSON',
         },

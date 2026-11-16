@@ -41,6 +41,7 @@ import { CheckpointsEditor } from './components/CheckpointsEditor';
 import { EditorHeader } from './components/EditorHeader';
 import { JsonEditor } from './components/JsonEditor';
 import { KnowledgeEditor } from './components/KnowledgeEditor';
+import { PreviewPanel } from './components/PreviewPanel';
 import { RulesEditor } from './components/RulesEditor';
 import { ValidationNotice } from './components/ValidationNotice';
 
@@ -157,6 +158,7 @@ export const MethodologyEditor = ({
                                     {texts.tabs.knowledge} (
                                     {Object.keys(knowledgeOf(state.config.knowledge)).length})
                                 </TabsTrigger>
+                                <TabsTrigger value="preview">{texts.tabs.preview}</TabsTrigger>
                                 <TabsTrigger value="assistant">{texts.tabs.assistant}</TabsTrigger>
                                 <TabsTrigger value="json">{texts.tabs.json}</TabsTrigger>
                             </TabsList>
@@ -202,6 +204,13 @@ export const MethodologyEditor = ({
                                     kinds={catalog?.knowledgeKinds ?? []}
                                     methodologyCode={state.config.code}
                                     onChange={knowledge => form.patchConfig({ knowledge })}
+                                />
+                            </TabsContent>
+                            <TabsContent value="preview" className="pt-3">
+                                <PreviewPanel
+                                    domain={domain}
+                                    config={state.config}
+                                    catalog={catalog}
                                 />
                             </TabsContent>
                             <TabsContent value="assistant" className="pt-3">

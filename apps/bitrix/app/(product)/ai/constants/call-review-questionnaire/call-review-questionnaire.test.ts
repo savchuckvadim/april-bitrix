@@ -108,12 +108,15 @@ describe('состав брифа оценки звонка', () => {
         expect(question?.kind ?? 'choice').toBe(kind);
     });
 
-    it('тип звонка выбирается из девяти наших типов', () => {
+    it('тип звонка выбирается из десяти наших типов', () => {
         const options = byId(CALL_REVIEW_QUESTION_ID.callType)?.options ?? [];
         expect(options.map(option => option.value)).toEqual([
             ...CALIBRATION_CALL_TYPES,
         ]);
-        expect(options).toHaveLength(9);
+        expect(options).toHaveLength(10);
+        expect(options.map(option => option.value)).toContain(
+            'Приглашение на мероприятие (форум, семинар, вебинар)',
+        );
     });
 
     it('согласие — единственный вариант: не согласны, значит не отправляем', () => {

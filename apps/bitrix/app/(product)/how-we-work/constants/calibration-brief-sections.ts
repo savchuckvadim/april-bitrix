@@ -24,7 +24,13 @@ export const CALIBRATION_BRIEF_SECTIONS = {
 export type CalibrationBriefSectionTitle =
     (typeof CALIBRATION_BRIEF_SECTIONS)[keyof typeof CALIBRATION_BRIEF_SECTIONS];
 
-/** Наши типы звонков — по каждому клиент отвечает, как он называется у него. */
+/**
+ * Наши типы звонков — по каждому клиент отвечает, как он называется у него.
+ * Список общий у брифа калибровки и брифа оценки звонка. Новый тип
+ * дописывается В КОНЕЦ: вопросы калибровки получают id по позиции
+ * (`call-type-N`), и вставка в середину сдвинула бы ответы, уже сохранённые
+ * в браузерах клиентов.
+ */
 export const CALIBRATION_CALL_TYPES = [
     'Холодный выход на лицо, принимающее решение',
     'Звонок по заявке с сайта',
@@ -35,6 +41,7 @@ export const CALIBRATION_CALL_TYPES = [
     'Разговор по оплате (счёт, договор)',
     'Другое (сопровождение, обучение, оргвопросы)',
     'Не по работе (личное, ошибочный набор)',
+    'Приглашение на мероприятие (форум, семинар, вебинар)',
 ] as const;
 
 export type CalibrationCallType = (typeof CALIBRATION_CALL_TYPES)[number];

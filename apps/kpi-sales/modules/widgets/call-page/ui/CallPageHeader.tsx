@@ -2,6 +2,8 @@ import { ToneBadge } from '@workspace/april-ui/badges';
 import {
     formatCallDate,
     formatDuration,
+    formatScore,
+    scoreTone,
     type CallPageCallDto,
     type CallPageScoreDto,
 } from '@/modules/entities/call-page';
@@ -14,8 +16,9 @@ interface CallPageHeaderProps {
 const LINK = 'text-sm text-primary hover:underline';
 
 /**
- * Шапка страницы: кто, когда, какой звонок, приоритет разбора и ссылки в
- * Битрикс24. Оценки — в сводке под шапкой.
+ * Шапка страницы: кто, когда, какой звонок, приоритет разбора, ссылки в
+ * Битрикс24 и крупно — оценка звонка (видна с первого взгляда, решение
+ * владельца 17.11.2026). Оценки разделов — в сводке под шапкой.
  */
 export const CallPageHeader = ({ call, score }: CallPageHeaderProps) => {
     const details = [
@@ -75,6 +78,19 @@ export const CallPageHeader = ({ call, score }: CallPageHeaderProps) => {
                         )}
                     </div>
                 )}
+            </div>
+
+            <div className="flex shrink-0 items-center gap-4">
+                <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Оценка звонка</p>
+                    <p className="text-xs text-muted-foreground">от 1 до 10</p>
+                </div>
+                <ToneBadge
+                    tone={scoreTone(score.score)}
+                    className="px-3 py-1 text-2xl font-semibold"
+                >
+                    {formatScore(score.score)}
+                </ToneBadge>
             </div>
         </header>
     );

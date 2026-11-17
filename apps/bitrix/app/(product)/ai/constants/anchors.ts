@@ -70,6 +70,13 @@ export const AI_THEORY_ANCHORS = {
         'levels',
         'access',
     ],
+    [chapter('owner-report')]: [
+        'what',
+        'access',
+        'contents',
+        'reading',
+        'not-claimed',
+    ],
     [chapter('plans')]: [
         'goal-cascade',
         'daily-plan',

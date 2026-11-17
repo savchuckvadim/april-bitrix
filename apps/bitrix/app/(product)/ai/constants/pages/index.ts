@@ -19,6 +19,7 @@ import { AI_HISTORY } from './history';
 import { AI_NEEDS } from './needs';
 import { AI_NUMBERS } from './numbers';
 import { AI_OVERVIEW } from './overview';
+import { AI_OWNER_REPORT } from './owner-report';
 import { AI_PLANS } from './plans';
 import { AI_PUSH } from './push';
 import { AI_QUALITY_LINK } from './quality-link';
@@ -35,6 +36,7 @@ export const AI_PAGES: readonly TheoryPageContent[] = [
     AI_CALL_TYPES,
     AI_SMART,
     AI_ANALYTICS,
+    AI_OWNER_REPORT,
     AI_PLANS,
     AI_HISTORY,
     AI_FORECAST,

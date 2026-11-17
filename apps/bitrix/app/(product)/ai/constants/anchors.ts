@@ -35,6 +35,7 @@ export const AI_THEORY_ANCHORS = {
         'type',
         'summary',
         'deep-analysis',
+        'call-page',
         'rubric',
         'checklists',
         'versions',

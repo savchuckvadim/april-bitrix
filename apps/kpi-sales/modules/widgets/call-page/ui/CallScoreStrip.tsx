@@ -35,22 +35,23 @@ const CellContent = ({ cell }: { cell: CallPageScoreCell }) => (
 );
 
 /**
- * Сводка оценок под шапкой: оценка звонка и оценки разделов одной сеткой
- * (от 1 до 10). Нажатие на раздел прокручивает к нему ниже.
+ * Сводка оценок разделов под шапкой одной сеткой (от 1 до 10). Нажатие на
+ * раздел прокручивает к нему ниже. Оценка звонка — крупно в шапке, здесь
+ * не повторяется (решение владельца 17.11.2026).
  */
-export const CallScoreStrip = ({ score, sections }: CallScoreStripProps) => (
-    <nav
-        aria-label="Оценки звонка и разделов"
-        className="rounded-lg border border-border bg-card p-2"
-    >
-        <ul className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-1">
-            {scoreCells(score, sections).map(cell => (
-                <li key={cell.key}>
-                    {cell.anchorId === null ? (
-                        <div className={cn(CELL, 'bg-muted font-medium')}>
-                            <CellContent cell={cell} />
-                        </div>
-                    ) : (
+export const CallScoreStrip = ({ score, sections }: CallScoreStripProps) => {
+    const cells = scoreCells(score, sections).filter(
+        cell => cell.anchorId !== null,
+    );
+    if (cells.length === 0) return null;
+    return (
+        <nav
+            aria-label="Оценки разделов"
+            className="rounded-lg border border-border bg-card p-2"
+        >
+            <ul className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-1">
+                {cells.map(cell => (
+                    <li key={cell.key}>
                         <button
                             type="button"
                             className={cn(CELL, 'cursor-pointer hover:bg-muted')}
@@ -60,9 +61,9 @@ export const CallScoreStrip = ({ score, sections }: CallScoreStripProps) => (
                         >
                             <CellContent cell={cell} />
                         </button>
-                    )}
-                </li>
-            ))}
-        </ul>
-    </nav>
-);
+                    </li>
+                ))}
+            </ul>
+        </nav>
+    );
+};

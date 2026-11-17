@@ -1,5 +1,6 @@
 import { BREAKDOWN_TEXT } from '../consts/ai-analytics-model.const';
 import type {
+    ModelForecastBreakdownDepartment,
     ModelForecastBreakdownEpisode,
     ModelForecastBreakdownManager,
     ModelForecastBreakdownResult,
@@ -14,10 +15,12 @@ import {
 import type { ModelMetricView } from './model-view.types';
 
 /*
- * «Разложение прогноза»: из чего сложилась середина прогноза отдела —
- * закрытые продажи, ожидание от открытых сделок, ожидание от новых встреч.
- * Сервер отдаёт сохранённые числа ночного расчёта; здесь только слова.
- * null ≠ 0: слагаемое не сохранено — прочерк, а не ноль.
+ * «Разложение прогноза»: из чего сложилась середина прогноза отдела.
+ * С 18.11.2026 — закрыто + от проведённых презентаций + от новых, открытые
+ * сделки — справочно; дни до этого — старый расчёт по звонкам (закрыто +
+ * открытые сделки + новые звонки). Старый бэкенд метод не присылает —
+ * читается как старый расчёт. Сервер отдаёт сохранённые числа ночного
+ * расчёта; здесь только слова. null ≠ 0: слагаемое не сохранено — прочерк.
  */
 
 const T = BREAKDOWN_TEXT;
@@ -34,27 +37,41 @@ export interface BreakdownRow {
     newFlow: string;
     naive: string;
     target: string;
-    /** «38 встреч · 3,5 в день · конверсия 6 % · успеет закрыться 55 %». */
+    /** Входы расчёта одной строкой; прочерк — не сохранены. */
     inputs: string;
     /** «27 открытых сделок»; прочерк — число не сохранено. */
     openDeals: string;
+    /** От презентаций: ожидание от сделок справочно; иначе null. */
+    dealsReference: string | null;
     /** Сделки с наибольшим вкладом — строками. */
     deals: string[];
     /** Среди них есть давно открытые с вкладом — прогноз может тянуть «хвост». */
     hasOldDeals: boolean;
 }
 
+/** Подписи столбцов: зависят от метода расчёта дня. */
+export interface BreakdownColumns {
+    pipeline: string;
+    newFlow: string;
+    inputs: string;
+    deals: string;
+}
+
 export interface BreakdownView {
     /** «16.11.2026». */
     day: string;
     department: ModelMetricView[];
+    columns: BreakdownColumns;
     rows: BreakdownRow[];
-    /** Слагаемые ещё не сохранялись (день до выкладки) — пояснение. */
+    /** Пояснение под отделом (старый расчёт, слагаемые не сохранены); null — нет. */
     note: string | null;
 }
 
 const one = (value: number | null | undefined): string =>
     value === null || value === undefined ? NO_VALUE : formatDecimal(value, 1);
+
+const isFlowMethod = (method: string | undefined): boolean =>
+    method === 'presentations-v2';
 
 const dealLine = (deal: ModelForecastBreakdownEpisode): string =>
     T.deal(
@@ -64,7 +81,8 @@ const dealLine = (deal: ModelForecastBreakdownEpisode): string =>
         formatDecimal(deal.expected, 2),
     );
 
-const inputsOf = (manager: ModelForecastBreakdownManager): string => {
+/** Входы старого расчёта: звонки, темп, доля в продажу, зрелость. */
+const legacyInputsOf = (manager: ModelForecastBreakdownManager): string => {
     if (
         manager.entryDone === null ||
         manager.entryRate === null ||
@@ -73,11 +91,30 @@ const inputsOf = (manager: ModelForecastBreakdownManager): string => {
     ) {
         return NO_VALUE;
     }
-    return T.inputs(
+    return T.legacyInputs(
         formatCount(Math.round(manager.entryDone)),
         formatDecimal(manager.entryRate, 1),
         formatShare(manager.conversion, 1),
         formatShare(manager.fBar, 0),
+    );
+};
+
+/** Входы расчёта от презентаций; по своим продажам — средние продажи. */
+const inputsOf = (manager: ModelForecastBreakdownManager): string => {
+    const flow = manager.flow ?? null;
+    if (flow === null) return legacyInputsOf(manager);
+    if (flow.source === 'sales-history') {
+        return T.inputsBySales(
+            one(flow.salesMean),
+            formatShare(flow.remainingShare, 0),
+        );
+    }
+    return T.inputs(
+        formatCount(Math.round(flow.presentationsDone)),
+        formatDecimal(flow.presentationsRate, 1),
+        formatShare(flow.salesPerPresentation, 1),
+        formatShare(flow.sameMonthShare, 0),
+        formatShare(flow.remainingShare, 0),
     );
 };
 
@@ -94,11 +131,107 @@ const rowOf = (manager: ModelForecastBreakdownManager): BreakdownRow => ({
         manager.openEpisodes === null
             ? NO_VALUE
             : formatCount(manager.openEpisodes),
+    dealsReference: isFlowMethod(manager.method)
+        ? T.dealsReference(one(manager.deals))
+        : null,
     deals: manager.topEpisodes.map(dealLine),
     hasOldDeals: manager.topEpisodes.some(
         deal => deal.ageDays > BREAKDOWN_OLD_DEAL_DAYS && deal.expected > 0,
     ),
 });
+
+/** Строка «менеджеров в расчёте» с пометкой о неполных данных. */
+function managersMetric(
+    department: ModelForecastBreakdownDepartment,
+): ModelMetricView {
+    const total = formatCount(department.managers);
+    const bySales = department.flow?.salesHistoryManagers ?? 0;
+    if (isFlowMethod(department.method)) {
+        return bySales > 0
+            ? {
+                  label: T.managers,
+                  value: T.managersBySales(total, formatCount(bySales)),
+                  tone: 'warning',
+              }
+            : { label: T.managers, value: total };
+    }
+    return department.pipelineUnknown > 0
+        ? {
+              label: T.managers,
+              value: T.managersUnknown(
+                  total,
+                  formatCount(department.pipelineUnknown),
+              ),
+              tone: 'warning',
+          }
+        : { label: T.managers, value: total };
+}
+
+/** Подбор от презентаций: доля продаж, задержка, какие презентации. */
+function flowMetrics(
+    department: ModelForecastBreakdownDepartment,
+): ModelMetricView[] {
+    const flow = department.flow ?? null;
+    if (flow === null) return [];
+    if (flow.status === 'not-applicable') {
+        return [
+            {
+                label: T.salesPerPresentation,
+                value: T.notMarked,
+                tone: 'warning',
+            },
+        ];
+    }
+    return [
+        {
+            label: T.salesPerPresentation,
+            value: formatShare(flow.q, 1),
+            hint: T.salesPerPresentationHint,
+        },
+        {
+            label: T.lag,
+            value: flow.lagEstimated ? T.lagEstimated : T.lagDefault,
+        },
+        ...(flow.entry === null
+            ? []
+            : [
+                  {
+                      label: T.entry,
+                      value:
+                          flow.entry === 'presentation'
+                              ? T.entryAll
+                              : T.entryUniq,
+                  },
+              ]),
+    ];
+}
+
+/** Подписи слагаемых и столбцов по методу дня. */
+const columnsOf = (flowMethod: boolean): BreakdownColumns =>
+    flowMethod
+        ? {
+              pipeline: T.pipeline,
+              newFlow: T.newFlow,
+              inputs: T.inputsTitle,
+              deals: T.dealsTitle,
+          }
+        : {
+              pipeline: T.legacyPipeline,
+              newFlow: T.legacyNewFlow,
+              inputs: T.legacyInputsTitle,
+              deals: T.legacyDealsTitle,
+          };
+
+/** Пояснение под отделом: слагаемые не сохранены или старый расчёт. */
+const noteOf = (
+    department: ModelForecastBreakdownDepartment,
+    flowMethod: boolean,
+): string | null => {
+    if (department.pipeline === null || department.newFlow === null) {
+        return T.partsMissing;
+    }
+    return flowMethod ? null : T.legacyNote;
+};
 
 /** Вид карточки; журнала прогноза нет — null (честная заглушка). */
 export function toBreakdownView(
@@ -106,8 +239,8 @@ export function toBreakdownView(
 ): BreakdownView | null {
     const department = data.department;
     if (department === null || data.day === null) return null;
-    const missing =
-        department.pipeline === null || department.newFlow === null;
+    const flowMethod = isFlowMethod(department.method);
+    const columns = columnsOf(flowMethod);
     return {
         day: formatDay(data.day),
         department: [
@@ -122,32 +255,22 @@ export function toBreakdownView(
             },
             { label: T.done, value: formatCount(department.done) },
             {
-                label: T.pipeline,
+                label: columns.pipeline,
                 value: one(department.pipeline),
-                hint: T.pipelineHint,
+                hint: flowMethod ? T.pipelineHint : T.legacyPipelineHint,
             },
             {
-                label: T.newFlow,
+                label: columns.newFlow,
                 value: one(department.newFlow),
-                hint: T.newFlowHint,
+                hint: flowMethod ? T.newFlowHint : T.legacyNewFlowHint,
             },
             { label: T.naive, value: one(department.naive), hint: T.naiveHint },
             { label: T.mean3, value: one(department.mean3) },
-            {
-                label: T.managers,
-                value:
-                    department.pipelineUnknown > 0
-                        ? T.managersUnknown(
-                              formatCount(department.managers),
-                              formatCount(department.pipelineUnknown),
-                          )
-                        : formatCount(department.managers),
-                ...(department.pipelineUnknown > 0
-                    ? { tone: 'warning' as const }
-                    : {}),
-            },
+            managersMetric(department),
+            ...flowMetrics(department),
         ],
+        columns,
         rows: data.managers.map(rowOf),
-        note: missing ? T.partsMissing : null,
+        note: noteOf(department, flowMethod),
     };
 }

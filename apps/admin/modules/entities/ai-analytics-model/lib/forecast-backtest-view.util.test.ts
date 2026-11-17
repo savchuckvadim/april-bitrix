@@ -83,6 +83,33 @@ describe('toBacktestView: точность прогноза по месяцам'
         expect(view.latest?.[3]?.value).toBe('1,23');
     });
 
+    it('метод расчёта: от презентаций, месяцы старого расчёта вне проверки; старый бэкенд — строки нет', () => {
+        const label = (view: ReturnType<typeof toBacktestView>) =>
+            view.latest?.find(item => item.label === 'Расчёт');
+
+        expect(
+            label(
+                toBacktestView([
+                    backtest({ method: 'presentations-v2', otherMethodMonths: 5 }),
+                ]),
+            ),
+        ).toMatchObject({
+            value: 'от презентаций; ещё 5 мес. посчитаны по-старому и в проверку не входят — пересчитайте историю',
+            tone: 'warning',
+        });
+        expect(
+            label(
+                toBacktestView([
+                    backtest({ method: 'presentations-v2', otherMethodMonths: 0 }),
+                ]),
+            )?.value,
+        ).toBe('от презентаций');
+        expect(
+            label(toBacktestView([backtest({ method: 'calls-v1' })]))?.value,
+        ).toBe('старый — по звонкам');
+        expect(label(toBacktestView([backtest()]))).toBeUndefined();
+    });
+
     it('пусто — сводки нет, строк нет', () => {
         expect(toBacktestView([])).toEqual({ latest: null, rows: [] });
     });

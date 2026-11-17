@@ -1,8 +1,10 @@
 import type { StatusTone } from '@workspace/april-ui/tones';
 import {
+    AI_FORECAST_SHOWN_DETAILS,
     formatAiFullDate,
     formatAiMonthLabel,
     type AiForecast,
+    type AiForecastShownDetail,
 } from '@/modules/entities/ai-analytics';
 import { AI_DAILY_PLAN_FORECAST_FORMS } from './ai-daily-plan-activity.data';
 import {
@@ -51,6 +53,40 @@ const BADGE_TONE: Record<AiForecastShown['note'], StatusTone> = {
     'no-model': 'info',
 };
 
+const DETAIL_TONE: Record<AiForecastShownDetail, StatusTone> = {
+    'presentations-missing': 'warning',
+    'method-history-short': 'info',
+};
+
+/**
+ * Уточнение пометки (`shown.detail`, с 18.11.2026): поля нет в клиенте
+ * API — читаем терпимо; старый бэкенд его не присылает, чужое значение —
+ * как будто его нет.
+ */
+function detailOf(shown: AiForecastShown): AiForecastShownDetail | null {
+    const detail: unknown = (shown as { detail?: unknown }).detail;
+    return AI_FORECAST_SHOWN_DETAILS.find(item => item === detail) ?? null;
+}
+
+/** Метка и пояснение: уточнение пометки важнее самой пометки. */
+function noteOf(
+    shown: AiForecastShown,
+): Pick<AiForecastShownView, 'badge' | 'badgeTone' | 'note'> {
+    const detail = detailOf(shown);
+    if (detail !== null) {
+        return {
+            badge: T.detail[detail].badge,
+            badgeTone: DETAIL_TONE[detail],
+            note: T.detail[detail].note,
+        };
+    }
+    return {
+        badge: T.badge[shown.note],
+        badgeTone: BADGE_TONE[shown.note],
+        note: T.note[shown.note],
+    };
+}
+
 /** Вид числа прогноза; сервер не прислал `shown` (журнала дня нет) — null. */
 export function buildAiForecastShown(
     forecast: AiForecast,
@@ -66,9 +102,7 @@ export function buildAiForecastShown(
         value: formatAiDailyForecast(shown.value),
         title: T.source[shown.source],
         hint: T.sourceHint[shown.source],
-        badge: T.badge[shown.note],
-        badgeTone: BADGE_TONE[shown.note],
-        note: T.note[shown.note],
+        ...noteOf(shown),
         done:
             forecast.done === null
                 ? null

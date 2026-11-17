@@ -15,9 +15,10 @@ interface ForecastBreakdownCardProps {
 
 /**
  * «Разложение прогноза»: из чего сложилась середина прогноза отдела за
- * последний день расчёта — закрыто, открытые сделки, новые встречи — и то
- * же по каждому менеджеру, с входами расчёта и сделками с наибольшим
- * вкладом. По ней ищут, какое слагаемое завышает прогноз.
+ * последний день расчёта — закрыто, от проведённых и от новых презентаций
+ * (дни до 18.11.2026 — старый расчёт: открытые сделки и новые звонки) — и
+ * то же по каждому менеджеру, с входами расчёта; открытые сделки —
+ * справочно. По ней ищут, какое слагаемое завышает прогноз.
  */
 export const ForecastBreakdownCard = ({
     domain,
@@ -46,7 +47,7 @@ export const ForecastBreakdownCard = ({
                         </p>
                     )}
                     {view.rows.length > 0 ? (
-                        <BreakdownTable rows={view.rows} />
+                        <BreakdownTable rows={view.rows} columns={view.columns} />
                     ) : (
                         <p className="text-sm text-muted-foreground">
                             {BREAKDOWN_TEXT.noManagers}

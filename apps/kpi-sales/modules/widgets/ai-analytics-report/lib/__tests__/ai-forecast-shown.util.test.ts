@@ -61,6 +61,55 @@ describe('число прогноза с пометкой, пока вилка �
         expect(view?.note).toContain('плашке готовности');
     });
 
+    it('презентации отмечаются не полностью — простой расчёт и что сделать', () => {
+        const view = shownOf({
+            source: 'naive',
+            value: 8,
+            note: 'no-model',
+            detail: 'presentations-missing',
+        } as Shown);
+        expect(view).toMatchObject({
+            title: 'Расчёт по темпу с начала месяца',
+            badge: 'простой расчёт',
+            badgeTone: 'warning',
+        });
+        expect(view?.note).toContain(
+            'Презентации отмечаются не полностью — показан простой расчёт',
+        );
+        expect(view?.note).toContain('отмечать');
+    });
+
+    it('мало истории нового расчёта — простой расчёт, прогноз по-новому ещё не проверен', () => {
+        const view = shownOf({
+            source: 'naive',
+            value: 8,
+            note: 'history-short',
+            detail: 'method-history-short',
+        } as Shown);
+        expect(view?.badge).toBe('простой расчёт');
+        expect(view?.badgeTone).toBe('info');
+        expect(view?.note).toContain('по-новому');
+        expect(view?.note).toContain('от проведённых презентаций');
+    });
+
+    it('старый бэкенд без уточнения или чужое значение — пометка как раньше', () => {
+        const plainView = shownOf({ source: 'naive', value: 8, note: 'no-model' });
+        expect(plainView?.note).toContain('делать ничего не нужно');
+        const strange = shownOf({
+            source: 'naive',
+            value: 8,
+            note: 'history-short',
+            detail: 'что-то новое',
+        } as unknown as Shown);
+        expect(strange?.note).toContain('закрытых месяцев пока мало');
+    });
+
+    it('модель в подсказке — про презентации, не про встречи', () => {
+        const view = shownOf({ source: 'model', value: 7.6, note: 'model-unconfirmed' });
+        expect(view?.hint).toContain('презентаций');
+        expect(view?.hint).not.toContain('встреч');
+    });
+
     it('меньше одной продажи — «<1», без «≈»', () => {
         expect(
             shownOf({ source: 'naive', value: 0.4, note: 'history-short' })?.value,

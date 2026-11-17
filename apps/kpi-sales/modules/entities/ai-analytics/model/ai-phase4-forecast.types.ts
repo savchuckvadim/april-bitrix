@@ -24,3 +24,16 @@ export type AiForecastShadow = AiForecastShadowDto;
 export type AiForecastBacktest = AiForecastBacktestSummaryDto;
 /** Итог проверки: pass | fail | insufficient. */
 export type AiForecastBacktestStatus = AiForecastBacktestSummaryDtoStatus;
+
+/**
+ * Уточнение пометки числа прогноза (`shown.detail`, с 18.11.2026; клиент
+ * API его ещё не знает — orval не перегенерирован): presentations-missing —
+ * презентации отмечаются не полностью, показан простой расчёт;
+ * method-history-short — прогноз считается по-новому, на прошлых месяцах
+ * его ещё не проверили. Старый бэкенд поля не присылает.
+ */
+export const AI_FORECAST_SHOWN_DETAILS = [
+    'presentations-missing',
+    'method-history-short',
+] as const;
+export type AiForecastShownDetail = (typeof AI_FORECAST_SHOWN_DETAILS)[number];

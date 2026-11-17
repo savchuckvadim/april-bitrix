@@ -54,7 +54,7 @@ const result = (
 });
 
 describe('разложение прогноза: вид карточки', () => {
-    it('отдел: прогноз с границами и три слагаемых', () => {
+    it('отдел, старый расчёт (нет метода): прогноз с границами и три слагаемых', () => {
         const view = toBreakdownView(result());
         expect(view?.day).toContain('16.11');
         const metrics = new Map(
@@ -64,10 +64,11 @@ describe('разложение прогноза: вид карточки', () =>
         expect(metrics.get('Прогноз за месяц')).toBe('46,0 (от 38,0 до 55,0)');
         expect(metrics.get('Закрыто')).toBe('21');
         expect(metrics.get('Открытые сделки')).toBe('9,5');
-        expect(metrics.get('Новые встречи')).toBe('15,5');
+        expect(metrics.get('Новые звонки')).toBe('15,5');
         expect(metrics.get('По темпу')).toBe('44,0');
         expect(metrics.get('Менеджеров в расчёте')).toBe('12');
-        expect(view?.note).toBeNull();
+        expect(view?.note).toContain('по-старому');
+        expect(view?.columns.newFlow).toBe('Новые звонки');
     });
 
     it('менеджер: слагаемые, входы расчёта и сделки; давняя сделка с вкладом помечается', () => {
@@ -83,7 +84,7 @@ describe('разложение прогноза: вид карточки', () =>
             hasOldDeals: true,
         });
         expect(plain(row?.inputs ?? '')).toBe(
-            'сделано 38 · 3,5 в день · в продажу 6,0 % · успеет закрыться 55 %',
+            'сделано звонков: 38 · 3,5 в день · в продажу 6,0 % · успеет закрыться 55 %',
         );
         expect(row?.deals.map(plain)).toEqual([
             'deal:1 · открыта 34 дн. · шанс 42 % · вклад 0,18',
@@ -134,7 +135,7 @@ describe('разложение прогноза: вид карточки', () =>
             view?.department.map(item => [item.label, item.value]),
         );
         expect(metrics.get('Открытые сделки')).toBe('—');
-        expect(metrics.get('Новые встречи')).toBe('—');
+        expect(metrics.get('Новые звонки')).toBe('—');
         expect(view?.note).toContain('не сохранены');
         expect(view?.rows[0]).toMatchObject({
             pipeline: '—',
@@ -160,6 +161,123 @@ describe('разложение прогноза: вид карточки', () =>
         );
         expect(managers?.value).toContain('у 3 нет истории стадий');
         expect(managers?.tone).toBe('warning');
+    });
+
+    it('от презентаций: подписи про презентации, строка в сумме — прогноз, сделки справочно', () => {
+        const base = result();
+        const view = toBreakdownView(
+            result({
+                department: base.department && {
+                    ...base.department,
+                    p50: 7.6,
+                    done: 4,
+                    pipeline: 2.7,
+                    newFlow: 0.9,
+                    method: 'presentations-v2',
+                    flow: {
+                        status: 'default-lag',
+                        reason: 'lag-not-identified',
+                        entry: 'presentation-uniq',
+                        q: 0.03,
+                        rho: 0.5,
+                        lagEstimated: false,
+                        salesHistoryManagers: 0,
+                    },
+                },
+                managers: [
+                    manager({
+                        method: 'presentations-v2',
+                        p50: 1.3,
+                        done: 1,
+                        pipeline: 0.22,
+                        newFlow: 0.08,
+                        deals: 0.4,
+                        flow: {
+                            source: 'presentations',
+                            presentationsDone: 10,
+                            presentationsRate: 1,
+                            salesPerPresentation: 0.03,
+                            sameMonthShare: 0.5,
+                            remainingShare: 0.5,
+                            pastPresentations: 9.9,
+                            salesMean: 0.6,
+                        },
+                    }),
+                ],
+            }),
+        );
+        const metrics = new Map(
+            view?.department.map(item => [item.label, plain(item.value)]),
+        );
+        expect(metrics.get('От проведённых презентаций')).toBe('2,7');
+        expect(metrics.get('От новых презентаций')).toBe('0,9');
+        expect(metrics.get('Продаж на презентацию')).toBe('3,0 %');
+        expect(metrics.get('Задержка продажи после презентации')).toContain(
+            'около месяца',
+        );
+        expect(metrics.get('Какие презентации считаем')).toBe('уникальные');
+        expect(view?.note).toBeNull();
+        expect(view?.columns).toMatchObject({
+            pipeline: 'От проведённых презентаций',
+            newFlow: 'От новых презентаций',
+            deals: 'Открытые сделки (справочно)',
+        });
+        const row = view?.rows[0];
+        expect(plain(row?.inputs ?? '')).toBe(
+            'проведено презентаций: 10 · 1,0 в день · в продажу 3,0 % · в этом же месяце 50 % · осталось 50 % месяца',
+        );
+        expect(plain(row?.dealsReference ?? '')).toBe(
+            'ожидание от них 0,4 — в прогноз не входит',
+        );
+        expect(JSON.stringify(view)).not.toContain('встреч');
+    });
+
+    it('от презентаций: презентации не отмечаются, сотрудник по своим продажам', () => {
+        const base = result();
+        const view = toBreakdownView(
+            result({
+                department: base.department && {
+                    ...base.department,
+                    method: 'presentations-v2',
+                    flow: {
+                        status: 'not-applicable',
+                        reason: 'presentations-not-marked',
+                        entry: null,
+                        q: 0,
+                        rho: 0.5,
+                        lagEstimated: false,
+                        salesHistoryManagers: 12,
+                    },
+                },
+                managers: [
+                    manager({
+                        method: 'presentations-v2',
+                        flow: {
+                            source: 'sales-history',
+                            presentationsDone: 0,
+                            presentationsRate: 0,
+                            salesPerPresentation: 0,
+                            sameMonthShare: 0.5,
+                            remainingShare: 0.5,
+                            pastPresentations: 0,
+                            salesMean: 1.3,
+                        },
+                    }),
+                ],
+            }),
+        );
+        const managers = view?.department.find(
+            item => item.label === 'Менеджеров в расчёте',
+        );
+        expect(managers?.tone).toBe('warning');
+        expect(managers?.value).toContain('по своим продажам');
+        const flow = view?.department.find(
+            item => item.label === 'Продаж на презентацию',
+        );
+        expect(flow?.value).toContain('отмечаются не полностью');
+        expect(plain(view?.rows[0]?.inputs ?? '')).toBe(
+            'по своим продажам: 1,3 в месяц · осталось 50 % месяца — презентации не отмечены',
+        );
     });
 
     it('журнала прогноза нет — честная заглушка', () => {

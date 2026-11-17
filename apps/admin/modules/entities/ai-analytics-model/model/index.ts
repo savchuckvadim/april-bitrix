@@ -4,12 +4,9 @@ import type {
     AiAnalyticsFeedbackKindDtoKind,
     AiAnalyticsFeedbackManagerDto,
     AiAnalyticsFeedbackResultDto,
-    AiAnalyticsForecastBacktestDto,
     AiAnalyticsForecastBacktestDtoStatus,
     AiAnalyticsForecastBacktestResultDto,
     AiForecastBreakdownEpisodeDto,
-    AiForecastBreakdownManagerDto,
-    AiForecastBreakdownResultDto,
     AiAnalyticsLeverEffectDto,
     AiAnalyticsLeverEffectDtoLever,
     AiAnalyticsPhase4EstimateDto,
@@ -26,13 +23,15 @@ import type {
     AiAnalyticsRecommendationEffectDtoGateStatus,
     AiAnalyticsRecommendationEffectResultDto,
 } from '@workspace/nest-admin-api';
+import type { ModelForecastBacktest } from './forecast-flow.types';
 
 /**
  * Доменные алиасы generated-типов раздела «AI-аналитика → Модель и
  * обратная связь» (`Sales AI Analytics Admin`: `/api/admin/ai-analytics/
  * feedback`, `pool-status`, `forecast-backtest`, `recommendation-effect`,
- * `quality-link`). Руками ничего не описано: формы ответов целиком
- * приходят из Swagger бэка.
+ * `quality-link`). Формы ответов приходят из Swagger бэка; исключение —
+ * поля прогноза с 18.11.2026 (`forecast-flow.types.ts`), пока клиент не
+ * перегенерирован.
  */
 
 /** Период сводки обратной связи: даты YYYY-MM-DD включительно (UTC). */
@@ -41,14 +40,27 @@ export type ModelFeedbackResult = AiAnalyticsFeedbackResultDto;
 export type ModelFeedbackManager = AiAnalyticsFeedbackManagerDto;
 export type ModelFeedbackKind = AiAnalyticsFeedbackKindDtoKind;
 
-export type ModelForecastBacktestResult = AiAnalyticsForecastBacktestResultDto;
-export type ModelForecastBacktest = AiAnalyticsForecastBacktestDto;
+/** Проверки точности прогноза; пункты — с методом расчёта (с 18.11.2026). */
+export type ModelForecastBacktestResult = Omit<
+    AiAnalyticsForecastBacktestResultDto,
+    'items'
+> & { items: ModelForecastBacktest[] };
 export type ModelForecastBacktestStatus = AiAnalyticsForecastBacktestDtoStatus;
 
 /** Разложение прогноза отдела на слагаемые (`forecast-breakdown`). */
-export type ModelForecastBreakdownResult = AiForecastBreakdownResultDto;
-export type ModelForecastBreakdownManager = AiForecastBreakdownManagerDto;
 export type ModelForecastBreakdownEpisode = AiForecastBreakdownEpisodeDto;
+export type {
+    ModelForecastBacktest,
+    ModelForecastBreakdownDepartment,
+    ModelForecastBreakdownFlow,
+    ModelForecastBreakdownManager,
+    ModelForecastBreakdownManagerFlow,
+    ModelForecastBreakdownResult,
+    ModelForecastFlowSource,
+    ModelForecastFlowStatus,
+    ModelForecastMethod,
+} from './forecast-flow.types';
+export { MODEL_FORECAST_METHODS } from './forecast-flow.types';
 
 export type ModelPoolStatusResult = AiAnalyticsPoolStatusResultDto;
 export type ModelPoolSnapshot = AiAnalyticsPoolSnapshotDto;

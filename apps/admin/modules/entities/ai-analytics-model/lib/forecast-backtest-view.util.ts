@@ -1,3 +1,4 @@
+import { BACKTEST_TEXT } from '../consts/ai-analytics-model.const';
 import {
     BACKTEST_REASON_LABEL,
     BACKTEST_STATUS_LABEL,
@@ -68,6 +69,27 @@ const rowOf = (item: ModelForecastBacktest): BacktestRow => ({
     reasons: reasonViewsOf(BACKTEST_REASON_LABEL, item.reasons),
 });
 
+/**
+ * Каким расчётом проверялись дни: от презентаций (с 18.11.2026; месяцы
+ * старого расчёта — вне проверки) или старым по звонкам. Старый бэкенд
+ * поля не присылает — строки нет.
+ */
+const methodOf = (item: ModelForecastBacktest): ModelMetricView[] => {
+    if (item.method === undefined) return [];
+    if (item.method === 'calls-v1') {
+        return [{ label: BACKTEST_TEXT.method, value: BACKTEST_TEXT.methodCalls }];
+    }
+    const other = item.otherMethodMonths ?? 0;
+    return [
+        {
+            label: BACKTEST_TEXT.method,
+            value: BACKTEST_TEXT.methodPresentations(other),
+            hint: BACKTEST_TEXT.methodHint,
+            ...(other > 0 ? { tone: 'warning' as const } : {}),
+        },
+    ];
+};
+
 /** Проверки точности прогноза (свежие первыми) → сводка и таблица. */
 export const toBacktestView = (
     items: readonly ModelForecastBacktest[],
@@ -84,6 +106,7 @@ export const toBacktestView = (
                 value: `${formatMonthKey(first.monthKey)}: ${status.label.toLowerCase()}`,
                 tone: status.tone,
             },
+            ...methodOf(first),
             {
                 label: 'Теневые месяцы',
                 value: formatOutOf(first.shadowMonths, first.shadowMinMonths),

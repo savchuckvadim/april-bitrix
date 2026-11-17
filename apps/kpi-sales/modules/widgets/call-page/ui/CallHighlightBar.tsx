@@ -22,7 +22,7 @@ interface CallHighlightBarProps {
 }
 
 const CHIP =
-    'rounded-md outline-none transition-opacity focus-visible:ring-2 focus-visible:ring-ring';
+    'cursor-pointer rounded-md outline-none transition-opacity focus-visible:ring-2 focus-visible:ring-ring';
 
 /**
  * Бейджи над расшифровкой: виды мест разбора с количеством. Нажатие на
@@ -68,7 +68,7 @@ export const CallHighlightBar = ({
                 {selection.kind !== null && (
                     <button
                         type="button"
-                        className="text-xs text-muted-foreground hover:underline"
+                        className="cursor-pointer text-xs text-muted-foreground hover:underline"
                         onClick={onClear}
                     >
                         Снять выделение
@@ -92,7 +92,8 @@ export const CallHighlightBar = ({
                                     }
                                     className={cn(
                                         'flex w-full items-baseline gap-2 rounded-md px-2 py-1 text-left text-sm',
-                                        reachable && 'hover:bg-muted',
+                                        reachable &&
+                                            'cursor-pointer hover:bg-muted',
                                         item.id === selection.highlightId &&
                                             'bg-muted',
                                         !reachable && 'cursor-default opacity-60',

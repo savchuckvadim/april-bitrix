@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import {
+    allHighlights,
     groupHighlights,
     playingSegmentIndex,
     segmentLabels,
@@ -34,13 +35,23 @@ export function useCallPageSelection(data: CallPageDto) {
     /** Реплика, к которой нужно прокрутить расшифровку. */
     const [focusIndex, setFocusIndex] = React.useState<number | null>(null);
 
+    /** Бейджевые подсветки и подсветки разделов — для поиска по id. */
+    const highlights = React.useMemo(
+        () =>
+            allHighlights({
+                highlights: data.highlights,
+                sectionHighlights: data.sectionHighlights,
+            }),
+        [data.highlights, data.sectionHighlights],
+    );
+    // Бейджи — только из highlights: разделы группой не выводятся.
     const groups = React.useMemo(
         () => groupHighlights(data.highlights),
         [data.highlights],
     );
     const selected = React.useMemo(
-        () => selectedHighlights(data.highlights, selection),
-        [data.highlights, selection],
+        () => selectedHighlights(highlights, selection),
+        [highlights, selection],
     );
     const tones = React.useMemo(() => segmentTones(selected), [selected]);
     const labels = React.useMemo(() => segmentLabels(selected), [selected]);
@@ -83,10 +94,10 @@ export function useCallPageSelection(data: CallPageDto) {
 
     const openHighlightById = React.useCallback(
         (id: string | null) => {
-            const highlight = data.highlights.find(item => item.id === id);
+            const highlight = highlights.find(item => item.id === id);
             if (highlight) openHighlight(highlight);
         },
-        [data.highlights, openHighlight],
+        [highlights, openHighlight],
     );
 
     /** Нажатие на реплику: слушать с неё. */

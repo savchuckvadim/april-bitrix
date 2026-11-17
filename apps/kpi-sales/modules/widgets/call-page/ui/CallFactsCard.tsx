@@ -1,12 +1,24 @@
+'use client';
+
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { cn } from '@workspace/ui/lib/utils';
 import {
     CALL_PAGE_TEXT_CLASS,
+    highlightIdOf,
     type CallPageFactDto,
 } from '@/modules/entities/call-page';
+import { CallShowInTextButton } from './CallShowInTextButton';
 
-/** Итоги разговора: «показатель — значение», тревожное выделено цветом. */
-export const CallFactsCard = ({ facts }: { facts: CallPageFactDto[] }) => {
+interface CallFactsCardProps {
+    facts: CallPageFactDto[];
+    onOpenHighlight: (id: string | null) => void;
+}
+
+/**
+ * Итоги разговора: «показатель — значение», тревожное выделено цветом. У
+ * потребностей, показа, цены и следующего шага — переход к месту в разговоре.
+ */
+export const CallFactsCard = ({ facts, onOpenHighlight }: CallFactsCardProps) => {
     if (facts.length === 0) return null;
     return (
         <SectionCard title="Итоги разговора">
@@ -14,8 +26,14 @@ export const CallFactsCard = ({ facts }: { facts: CallPageFactDto[] }) => {
                 {facts.map(fact => (
                     <div key={fact.label} className="contents">
                         <dt className="text-muted-foreground">{fact.label}</dt>
-                        <dd className={cn(CALL_PAGE_TEXT_CLASS[fact.tone])}>
-                            {fact.value}
+                        <dd className="space-x-2">
+                            <span className={cn(CALL_PAGE_TEXT_CLASS[fact.tone])}>
+                                {fact.value}
+                            </span>
+                            <CallShowInTextButton
+                                highlightId={highlightIdOf(fact)}
+                                onOpen={onOpenHighlight}
+                            />
                         </dd>
                     </div>
                 ))}

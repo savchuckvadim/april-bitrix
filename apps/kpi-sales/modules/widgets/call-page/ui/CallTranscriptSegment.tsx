@@ -75,7 +75,7 @@ export const CallTranscriptSegment = ({
                     (playable ? (
                         <button
                             type="button"
-                            className="w-10 shrink-0 text-left font-mono text-xs text-primary hover:underline"
+                            className="w-10 shrink-0 cursor-pointer text-left font-mono text-xs text-primary hover:underline"
                             title="Слушать с этого места"
                             onClick={() => onOpen(segment)}
                         >

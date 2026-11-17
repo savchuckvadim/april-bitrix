@@ -1,20 +1,44 @@
 import type {
+    CallPageDto as CallPageResponseDto,
+    CallPageFactDto as CallPageFactResponseDto,
     CallPageHighlightDto,
+    CallPageSectionDto as CallPageSectionResponseDto,
     CallPageSegmentDto,
 } from '@workspace/nest-kpi-report-sales-api';
 
 export type {
     CallPageCallDto,
     CallPageCheckpointDto,
-    CallPageDto,
-    CallPageFactDto,
     CallPageHighlightDto,
     CallPageMethodologyDto,
     CallPageObjectionDto,
     CallPageScoreDto,
-    CallPageSectionDto,
     CallPageSegmentDto,
 } from '@workspace/nest-kpi-report-sales-api';
+
+/**
+ * Ссылка места разбора на подсветку в расшифровке. Поле необязательное:
+ * старый сервер его не отдаёт — тогда кнопки «Показать в разговоре» нет.
+ */
+interface CallPageHighlightLink {
+    highlightId?: string | null;
+}
+
+/** Строка «Итогов разговора»; у потребностей, показа, цены и шага — подсветка. */
+export type CallPageFactDto = CallPageFactResponseDto & CallPageHighlightLink;
+
+/** Раздел разбора; подсветка — найденная в расшифровке цитата «как было». */
+export type CallPageSectionDto = CallPageSectionResponseDto &
+    CallPageHighlightLink;
+
+/** Ответ страницы звонка с полями, которых может не быть у старого сервера. */
+export interface CallPageDto
+    extends Omit<CallPageResponseDto, 'facts' | 'sections'> {
+    facts: CallPageFactDto[];
+    sections: CallPageSectionDto[];
+    /** Подсветки разделов разбора: бейджами над расшифровкой не выводятся. */
+    sectionHighlights?: CallPageHighlightDto[];
+}
 
 /** Окраска значения: good, bad, warn или neutral. */
 export type CallPageTone = CallPageHighlightDto['tone'];
@@ -38,4 +62,13 @@ export interface CallPageHighlightGroup {
 export interface CallPageSelection {
     kind: CallPageHighlightKind | null;
     highlightId: string | null;
+}
+
+/** Ячейка сводки оценок под шапкой: общая оценка или оценка раздела. */
+export interface CallPageScoreCell {
+    key: string;
+    title: string;
+    score: number | null;
+    /** Куда прокрутить по нажатию (id раздела на странице); null — некуда. */
+    anchorId: string | null;
 }

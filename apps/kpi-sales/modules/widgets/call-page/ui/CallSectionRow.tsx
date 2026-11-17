@@ -1,15 +1,36 @@
+'use client';
+
 import { ToneBadge } from '@workspace/april-ui/badges';
 import {
     formatScore,
+    highlightIdOf,
     scoreTone,
     type CallPageSectionDto,
 } from '@/modules/entities/call-page';
+import { CallShowInTextButton } from './CallShowInTextButton';
 
 const LABEL = 'font-medium text-muted-foreground';
 
-/** Один раздел разговора: оценка, разбор, «как было» и «как стоило». */
-export const CallSectionRow = ({ section }: { section: CallPageSectionDto }) => (
-    <li className="space-y-1 border-t border-border pt-3 first:border-t-0 first:pt-0">
+interface CallSectionRowProps {
+    section: CallPageSectionDto;
+    /** id элемента на странице — к нему прокручивает сводка оценок. */
+    anchorId: string;
+    onOpenHighlight: (id: string | null) => void;
+}
+
+/**
+ * Один раздел разговора: оценка, разбор, «как было» и «как стоило». Цитата
+ * «как было» нашлась в расшифровке — есть переход к месту в разговоре.
+ */
+export const CallSectionRow = ({
+    section,
+    anchorId,
+    onOpenHighlight,
+}: CallSectionRowProps) => (
+    <li
+        id={anchorId}
+        className="scroll-mt-4 space-y-1 border-t border-border pt-3 first:border-t-0 first:pt-0"
+    >
         <div className="flex items-center justify-between gap-2">
             <h3 className="font-medium">{section.title}</h3>
             {section.score !== null && (
@@ -44,5 +65,9 @@ export const CallSectionRow = ({ section }: { section: CallPageSectionDto }) => 
                 ))}
             </ul>
         )}
+        <CallShowInTextButton
+            highlightId={highlightIdOf(section)}
+            onOpen={onOpenHighlight}
+        />
     </li>
 );

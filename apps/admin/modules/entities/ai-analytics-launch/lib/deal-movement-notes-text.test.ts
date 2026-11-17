@@ -96,5 +96,11 @@ describe('пометка и фаза записи в ленту', () => {
         expect(
             dealMovementPhaseText(run, new Date('2026-11-17T23:45:00.000Z')),
         ).toBe('Идёт: пишет в ленту сделок');
+        expect(
+            dealMovementPhaseText(
+                { ...run, phase: 'digest' },
+                new Date('2026-11-17T23:45:00.000Z'),
+            ),
+        ).toBe('Идёт: рассылает сводку руководителям');
     });
 });

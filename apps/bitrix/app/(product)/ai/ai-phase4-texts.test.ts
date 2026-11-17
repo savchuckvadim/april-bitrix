@@ -49,13 +49,21 @@ describe('теория Фазы 4 совпадает с продуктом', () 
         expect(text).toContain('Советов с завершённой проверкой пока меньше 20');
     });
 
-    it('гипотезу качества руководитель задаёт сам; вкладок в настройках шесть', () => {
+    it('гипотезу качества руководитель задаёт сам; у вкладки AI пять подвкладок', () => {
         expect(pageText('settings')).toContain(
             'состав, гипотезу качества и согласие на пул порталов руководитель или владелец задаёт сам',
         );
         const analytics = pageText('analytics');
-        expect(analytics).toContain('ещё пять вкладок');
+        expect(analytics).toContain('пять подвкладок');
+        [
+            '**Сводка**',
+            '**Сотрудники**',
+            '**Качество звонков**',
+            '**Отчёт за период**',
+            '**Настройки витрины**',
+        ].forEach(tab => expect(analytics, tab).toContain(tab));
         expect(analytics).toContain('«Гипотеза качества»');
-        expect(analytics).toContain('со всеми шестью вкладками');
+        expect(analytics).not.toContain('диалог «Настройки витрины»');
+        expect(analytics).not.toContain('шестью вкладками');
     });
 });

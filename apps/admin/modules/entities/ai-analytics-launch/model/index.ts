@@ -47,6 +47,18 @@ export type SmartBackfillRunStatus = AiAnalyticsSmartBackfillRunStatusDto;
 export type FactsCatchupRunResult = AiAnalyticsFactsCatchupRunResultDto;
 export type FactsCatchupStatus = AiAnalyticsFactsCatchupStatusDto;
 export type FactsCatchupRunStatus = AiAnalyticsFactsCatchupRunStatusDto;
+/** Движение сделок (этап 7.3): типы ручек описаны руками, см. ./deal-movement. */
+export type {
+    DealMovementChange,
+    DealMovementCounts,
+    DealMovementRunMode,
+    DealMovementRunPhase,
+    DealMovementRunResult,
+    DealMovementRunStatus,
+    DealMovementSnapshot,
+    DealMovementState,
+    DealMovementStatus,
+} from './deal-movement';
 
 /** Шаг панели по порядку нажатия. */
 export type LaunchStepCode = (typeof LAUNCH_STEP_CODES)[number];

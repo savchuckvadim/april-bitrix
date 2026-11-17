@@ -8,3 +8,4 @@ export {
     useRefreshLaunchStatus,
     useSmartBackfillStatus,
 } from './use-ai-analytics-launch';
+export { dealMovementHelper, useDealMovementStatus } from './use-deal-movement';

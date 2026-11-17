@@ -14,6 +14,7 @@ import {
     PortalKnowledgePanel,
 } from '@/modules/entities/ai-knowledge';
 import {
+    AiDealMovementCard,
     AiFactsCatchupCard,
     AiLaunchPanel,
     AiSmartBackfillCard,
@@ -63,6 +64,12 @@ function PortalAiSettingsContent() {
             )}
             {portal.data?.domain && (
                 <AiFactsCatchupCard domain={portal.data.domain} />
+            )}
+            {portal.data?.domain && (
+                <AiDealMovementCard
+                    domain={portal.data.domain}
+                    portalId={portalId}
+                />
             )}
             {portal.data?.domain && (
                 <OwnerReportExportCard domain={portal.data.domain} />

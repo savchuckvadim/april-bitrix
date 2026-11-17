@@ -5,21 +5,23 @@ import { cn } from '@workspace/ui/lib/utils';
 import {
     THEORY_SCREEN_ASPECT_CLASS,
     THEORY_SCREEN_PREFIX,
+    isTheoryScreenShown,
 } from '../../constants/theory-copy';
 import type { TheoryScreen as TheoryScreenContent } from '../../theory-types';
 
 /**
  * Место под скриншот интерфейса.
  *
- * Без `src` — рамка с подписью «СКРИН: …»: владелец снимает по списку, а
- * читатель видит, что здесь будет картинка, а не дыра. С `src` — сама
- * картинка в той же рамке, подпись остаётся под ней.
+ * Без `src` — рамка с подписью «СКРИН: …»: владелец снимает по списку. Её
+ * видно только при разработке; на проде без картинки места нет вовсе. С
+ * `src` — сама картинка в той же рамке, подпись остаётся под ней.
  */
 export const TheoryScreen: FC<TheoryScreenContent> = ({
     label,
     aspect,
     src,
 }) => {
+    if (!isTheoryScreenShown({ src })) return null;
     const caption = `${THEORY_SCREEN_PREFIX}: ${label}`;
 
     return (

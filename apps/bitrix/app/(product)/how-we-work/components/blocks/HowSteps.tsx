@@ -1,5 +1,6 @@
 import React from 'react';
 import { TheoryScreen } from '@/app/(product)/process/_core/components/theory/TheoryScreen';
+import { isTheoryScreenShown } from '@/app/(product)/process/_core/constants/theory-copy';
 import type { TheoryStep } from '@/app/(product)/process/_core/theory-types';
 import { renderInline } from '../../lib/render-inline';
 
@@ -23,7 +24,7 @@ export const HowSteps: React.FC<HowStepsProps> = ({ items }) => (
                     <p className="text-sm text-muted-foreground leading-relaxed">
                         {renderInline(item.text)}
                     </p>
-                    {item.screen && (
+                    {item.screen && isTheoryScreenShown(item.screen) && (
                         <div className="mt-3">
                             <TheoryScreen {...item.screen} />
                         </div>

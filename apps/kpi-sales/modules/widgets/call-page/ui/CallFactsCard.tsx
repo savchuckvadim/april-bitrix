@@ -27,7 +27,13 @@ export const CallFactsCard = ({ facts, onOpenHighlight }: CallFactsCardProps) =>
                     <div key={fact.label} className="contents">
                         <dt className="text-muted-foreground">{fact.label}</dt>
                         <dd className="space-x-2">
-                            <span className={cn(CALL_PAGE_TEXT_CLASS[fact.tone])}>
+                            {/* Чек-листы приходят несколькими строками — переносы сохраняем. */}
+                            <span
+                                className={cn(
+                                    'whitespace-pre-line',
+                                    CALL_PAGE_TEXT_CLASS[fact.tone],
+                                )}
+                            >
                                 {fact.value}
                             </span>
                             <CallShowInTextButton

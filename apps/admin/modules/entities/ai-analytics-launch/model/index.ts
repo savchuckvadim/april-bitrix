@@ -51,6 +51,7 @@ export type FactsCatchupRunStatus = AiAnalyticsFactsCatchupRunStatusDto;
 export type {
     DealMovementChange,
     DealMovementCounts,
+    DealMovementNotesSummary,
     DealMovementRunMode,
     DealMovementRunPhase,
     DealMovementRunResult,

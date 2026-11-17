@@ -9,6 +9,7 @@ import {
 } from '../../../lib/deal-movement-results';
 import type { DealMovementSnapshot } from '../../../model';
 import { DealMovementChangesList } from './DealMovementChangesList';
+import { DealMovementNotesView } from './DealMovementNotesView';
 import { DealMovementWarnings } from './DealMovementWarnings';
 
 interface DealMovementSnapshotViewProps {
@@ -18,8 +19,8 @@ interface DealMovementSnapshotViewProps {
 
 /**
  * Последний сохранённый счёт: день, открыто и оценено, счёт по статусам,
- * смены и впервые увиденные, пометка «точка отсчёта», предупреждения и
- * список смен статуса.
+ * смены и впервые увиденные, записи в ленту, пометка «точка отсчёта»,
+ * предупреждения и список смен статуса.
  */
 export const DealMovementSnapshotView = ({
     domain,
@@ -52,6 +53,10 @@ export const DealMovementSnapshotView = ({
                         changed: snapshot.changesTotal,
                     })}
                 </p>
+                <DealMovementNotesView
+                    notes={snapshot.notes}
+                    mode={snapshot.mode}
+                />
                 {snapshot.baseline && (
                     <p className="text-xs text-muted-foreground">
                         {DEAL_MOVEMENT_TEXT.baselineHint}

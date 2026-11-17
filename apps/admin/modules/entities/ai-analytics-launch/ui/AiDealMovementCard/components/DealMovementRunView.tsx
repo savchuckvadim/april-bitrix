@@ -10,6 +10,7 @@ import {
     isDealMovementRunning,
 } from '../../../lib/deal-movement-results';
 import type { DealMovementRunStatus } from '../../../model';
+import { DealMovementNotesView } from './DealMovementNotesView';
 import { DealMovementWarnings } from './DealMovementWarnings';
 
 interface DealMovementRunViewProps {
@@ -50,6 +51,10 @@ export const DealMovementRunView = ({ run, now }: DealMovementRunViewProps) => {
                             <p className="text-sm text-muted-foreground">
                                 {dealMovementChangesLine(run)}
                             </p>
+                            <DealMovementNotesView
+                                notes={run.notes}
+                                mode={run.mode}
+                            />
                         </>
                     )}
                     <DealMovementWarnings warnings={run.warnings} />

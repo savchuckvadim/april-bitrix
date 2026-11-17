@@ -1,5 +1,6 @@
 'use client';
 
+import { ToneBadge } from '@workspace/april-ui/badges';
 import {
     DEAL_MOVEMENT_TEXT,
     dealMovementDealHref,
@@ -17,7 +18,8 @@ interface DealMovementChangesListProps {
 
 /**
  * Смены статуса последнего счёта: сделка со ссылкой на карточку, было →
- * стало, причины словами, сумма; остаток — «и ещё N».
+ * стало, пометка «записано в ленту», причины словами, сумма; остаток —
+ * «и ещё N».
  */
 export const DealMovementChangesList = ({
     domain,
@@ -54,7 +56,18 @@ export const DealMovementChangesList = ({
                                     </span>
                                 )}
                             </div>
-                            <p>{item.transition}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <p>{item.transition}</p>
+                                {item.notified && (
+                                    <ToneBadge
+                                        tone="success"
+                                        variant="soft"
+                                        size="sm"
+                                    >
+                                        {DEAL_MOVEMENT_TEXT.notifiedBadge}
+                                    </ToneBadge>
+                                )}
+                            </div>
                             {item.reasons && (
                                 <p className="text-xs text-muted-foreground">
                                     {item.reasons}

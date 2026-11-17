@@ -19,6 +19,29 @@ export type DealMovementRunPhase = (typeof DEAL_MOVEMENT_RUN_PHASES)[number];
 /** Сколько сделок в каждом статусе. */
 export type DealMovementCounts = Record<DealMovementStatus, number>;
 
+/**
+ * Записи в ленту сделок за прогон (`AiAnalyticsDealMovementNotesDto`).
+ * Нет у прогонов и снимков до 17.11.2026.
+ */
+export interface DealMovementNotesSummary {
+    enabled: boolean;
+    /** comment | log_message; null — запись выключена. */
+    kind: string | null;
+    /** Ручной счёт: в ленты не пишет, отложенное (`deferredLimit`) ждёт ночи. */
+    heldForNight: boolean;
+    planned: number;
+    written: number;
+    failed: number;
+    /** Отложено лимитом ночи (у ручного счёта — до ночи). */
+    deferredLimit: number;
+    /** Отложено защитой от метаний: писали меньше трёх суток назад. */
+    deferredQuiet: number;
+    /** Подсказок «что сделать» в записях. */
+    texts: number;
+    /** Вызовов модели без годной подсказки. */
+    textsFailed: number;
+}
+
 /** Ход и итог последнего прогона портала (Redis, 14 суток). */
 export interface DealMovementRunStatus {
     domain: string;
@@ -38,6 +61,8 @@ export interface DealMovementRunStatus {
     changed: number;
     /** День сохранённого снимка; null — снимок не писался (подсчёт). */
     snapshotDay: string | null;
+    /** Записи в ленту; у подсчёта — сколько записали бы. */
+    notes?: DealMovementNotesSummary;
     warnings: string[];
     error: string | null;
 }
@@ -52,6 +77,8 @@ export interface DealMovementChange {
     to: DealMovementStatus;
     /** Причины нового статуса словами. */
     reasons: string[];
+    /** Записана ли смена в ленту сделки этим прогоном. */
+    notified?: boolean;
 }
 
 /** Дневной снимок ночного счёта (ais). */
@@ -69,6 +96,7 @@ export interface DealMovementSnapshot {
     /** Не больше тысячи смен; всего — `changesTotal`. */
     changes: DealMovementChange[];
     changesTotal: number;
+    notes?: DealMovementNotesSummary;
     warnings: string[];
 }
 

@@ -89,6 +89,8 @@ export interface DealMovementChangeView {
     reasons: string;
     /** «150 000 ₽»; null — сумма не указана или ноль. */
     amount: string | null;
+    /** Смена записана в ленту сделки (пометка «записано в ленту»). */
+    notified: boolean;
 }
 
 export function dealMovementChangeView(
@@ -105,6 +107,7 @@ export function dealMovementChangeView(
             change.amount !== null && change.amount > 0
                 ? amountLabel(change.amount)
                 : null,
+        notified: change.notified === true,
     };
 }
 

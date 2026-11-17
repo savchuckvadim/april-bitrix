@@ -70,12 +70,23 @@ interface PortalAppSettingRelations {
 export type PortalAppSettingDescriptor = PortalAppSettingDescriptorDto &
     PortalAppSettingRelations;
 /**
+ * Особая пометка категории (бэк отдаёт с 17.11.2026, generated-клиент ещё
+ * не перегенерирован): ярлык рядом с названием и строка пояснения, видная
+ * без раскрытия секции. Первой так помечено «Движение сделок».
+ */
+export interface PortalAppSettingGroupHighlight {
+    label: string;
+    note: string;
+}
+
+/**
  * Категория настроек приложения: секция с названием, пояснением, ссылками,
- * теорией (markdown, «Как это работает») и связями с хуками.
+ * теорией (markdown, «Как это работает»), пометкой и связями с хуками.
  */
 export type PortalAppSettingGroup = PortalAppSettingGroupDto &
     PortalAppSettingRelations & {
         theory?: string;
+        highlight?: PortalAppSettingGroupHighlight;
     };
 export type PortalAppSettingsBlock = Omit<
     PortalAppSettingsBlockDto,

@@ -7,6 +7,7 @@ import {
     buildGroupViews,
     FALLBACK_GROUP,
     groupAnchorId,
+    groupHighlightOf,
     groupRequirementsByEntity,
     isGroupAnchored,
     resolveSettingsLink,
@@ -166,6 +167,34 @@ describe('buildGroupViews', () => {
         expect(views).toHaveLength(1);
         expect(views[0]!.group).toBe(FALLBACK_GROUP);
         expect(views[0]!.settings).toHaveLength(3);
+    });
+});
+
+describe('groupHighlightOf: заметная категория', () => {
+    it('пометка бэка — ярлык и пояснение для секции, без пробелов по краям', () => {
+        expect(
+            groupHighlightOf({
+                highlight: {
+                    label: ' Новое ',
+                    note: 'Пока только подсчёт: в сделки ничего не пишется. ',
+                },
+            }),
+        ).toEqual({
+            label: 'Новое',
+            note: 'Пока только подсчёт: в сделки ничего не пишется.',
+        });
+    });
+
+    it('нет пометки или она пустая — обычная секция', () => {
+        expect(groupHighlightOf({})).toBeNull();
+        expect(groupHighlightOf({ highlight: { label: ' ', note: '' } })).toBeNull();
+    });
+
+    it('пояснение без ярлыка — ярлык по умолчанию, секция всё равно выделена', () => {
+        expect(groupHighlightOf({ highlight: { label: '', note: 'Важно включить' } })).toEqual({
+            label: 'Важно',
+            note: 'Важно включить',
+        });
     });
 });
 

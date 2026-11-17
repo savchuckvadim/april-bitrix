@@ -2,12 +2,15 @@
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { ToneBadge } from '@workspace/april-ui/badges';
+import { cn } from '@workspace/ui/lib/utils';
 import { useLocationHash } from '@/modules/shared/lib';
 import { MarkdownView } from '@/modules/shared/ui/markdown';
 import { APP_SETTINGS_TEXT } from '../../../consts/app-settings.const';
 import type { AppSettingsGroupView } from '../../../lib/settings-view';
 import {
     groupAnchorId,
+    groupHighlightOf,
     isGroupAnchored,
     resolveSettingsLink,
 } from '../../../lib/settings-view';
@@ -26,7 +29,9 @@ interface AppSettingsGroupSectionProps {
 }
 
 /**
- * Секция категории: заголовок со счётчиком «настроено», пояснение,
+ * Секция категории: заголовок со счётчиком «настроено» (у заметной
+ * категории — цветная рамка, ярлык и строка пояснения прямо в заголовке,
+ * видные без раскрытия), пояснение,
  * ссылки на связанные разделы админки, теория «Как это работает»
  * (свёрнута), хуки и PBX-поля категории и сами поля. Без поиска свёрнута —
  * в сотне ключей ориентируются по заголовкам; якорь адреса на категорию
@@ -47,6 +52,7 @@ export const AppSettingsGroupSection = ({
         view.settings.map(setting => setting.code),
     );
     const ref = useRef<HTMLDetailsElement>(null);
+    const highlight = groupHighlightOf(view.group);
 
     useEffect(() => {
         if (!anchored || !ref.current) return;
@@ -63,15 +69,34 @@ export const AppSettingsGroupSection = ({
             ref={ref}
             id={groupAnchorId(view.group.code)}
             open={searching || anchored || undefined}
-            className="group scroll-mt-4 rounded-md border"
+            className={cn(
+                'group scroll-mt-4 rounded-md border',
+                highlight && 'border-2 border-primary/60 bg-primary/5',
+            )}
         >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2">
-                <span className="text-sm font-medium">{view.group.title}</span>
-                <span className="text-xs text-muted-foreground">
-                    {searching
-                        ? `найдено ${view.settings.length}`
-                        : `настроено ${view.customized} из ${view.total}`}
+            <summary className="flex cursor-pointer list-none flex-col gap-1 px-3 py-2">
+                <span className="flex items-center justify-between gap-2">
+                    <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-medium">
+                            {view.group.title}
+                        </span>
+                        {highlight && (
+                            <ToneBadge tone="primary" size="sm">
+                                {highlight.label}
+                            </ToneBadge>
+                        )}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                        {searching
+                            ? `найдено ${view.settings.length}`
+                            : `настроено ${view.customized} из ${view.total}`}
+                    </span>
                 </span>
+                {highlight?.note && (
+                    <span className="text-xs text-primary">
+                        {highlight.note}
+                    </span>
+                )}
             </summary>
             <div className="space-y-4 border-t px-3 py-3">
                 {(view.group.description || view.group.links.length > 0) && (

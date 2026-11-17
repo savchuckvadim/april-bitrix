@@ -1,7 +1,9 @@
+import { APP_SETTING_HIGHLIGHT_FALLBACK_LABEL } from '../consts/app-setting-highlight.const';
 import type {
     PortalAppSettingDescriptor,
     PortalAppSettingEntity,
     PortalAppSettingGroup,
+    PortalAppSettingGroupHighlight,
     PortalAppSettingPbxField,
     PortalAppSettingsBlock,
     PortalAppSettingStage,
@@ -129,6 +131,21 @@ export const buildGroupViews = (
  */
 export const resolveSettingsLink = (href: string, portalId: number): string =>
     href.replace('{portalId}', String(portalId));
+
+/**
+ * Пометка заметной категории для секции: ярлык и пояснение без пробелов
+ * по краям; нет пометки или оба поля пусты — null (обычная секция).
+ * Пустой ярлык заменяется «Важно»: выделенная секция без ярлыка
+ * выглядела бы ошибкой вёрстки.
+ */
+export const groupHighlightOf = (
+    group: Pick<PortalAppSettingGroup, 'highlight'>,
+): PortalAppSettingGroupHighlight | null => {
+    const label = group.highlight?.label.trim() ?? '';
+    const note = group.highlight?.note.trim() ?? '';
+    if (!label && !note) return null;
+    return { label: label || APP_SETTING_HIGHLIGHT_FALLBACK_LABEL, note };
+};
 
 /** Якорь категории на странице настроек: `#group-<код категории>`. */
 export const groupAnchorId = (groupCode: string): string => `group-${groupCode}`;

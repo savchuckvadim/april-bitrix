@@ -16,6 +16,9 @@ export const PROCESSING_DURATION_SEC = 60;
 /** Ключ персиста старта таймера — переживает ремаунт экрана. */
 export const PROCESSING_TIMER_KEY = 'april-report-processing';
 
+/** Картинка «конструируем отчёт» — путь в public приложения. */
+export const PROCESSING_IMAGE_SRC = '/cover/coming-soon.svg';
+
 export const PROCESSING_TEXTS = {
     title: 'Мы конструируем отчёт для Вас',
     subtitle: 'Это может занять до нескольких минут. Подождите пожалуйста',

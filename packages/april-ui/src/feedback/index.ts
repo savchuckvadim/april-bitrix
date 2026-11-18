@@ -27,6 +27,7 @@ export type { ProcessingHeroProps } from './Processing/ProcessingHero';
 export { GradientCountdown } from './Processing/GradientCountdown';
 export type { GradientCountdownProps } from './Processing/GradientCountdown';
 export * from './Processing/processing-fx';
+export { preloadProcessingAssets } from './Processing/processing-preload';
 
 // Пустое состояние: «пусто», «нет доступа», «скоро будет»
 export { EmptyState } from './EmptyState';

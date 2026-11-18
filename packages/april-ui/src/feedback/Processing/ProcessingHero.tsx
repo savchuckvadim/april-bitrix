@@ -3,7 +3,11 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import { PROCESSING_TEXTS, TITLE_GRADIENT } from './processing-fx';
+import {
+    PROCESSING_IMAGE_SRC,
+    PROCESSING_TEXTS,
+    TITLE_GRADIENT,
+} from './processing-fx';
 
 const GradientText = dynamic(
     () => import('@workspace/ui/components/GradientText'),
@@ -32,7 +36,7 @@ export const ProcessingHero = ({
     titleGradient = TITLE_GRADIENT,
     title = PROCESSING_TEXTS.title,
     subtitle = PROCESSING_TEXTS.subtitle,
-    imageSrc = '/cover/coming-soon.svg',
+    imageSrc = PROCESSING_IMAGE_SRC,
     children,
 }: ProcessingHeroProps) => {
     const heading = (

@@ -34,6 +34,10 @@ const formatTime = (seconds: number): string => {
     return `${m}:${String(s).padStart(2, '0')}`;
 };
 
+/** Длина записи, если браузер её знает; неизвестная или бесконечная — 0. */
+const durationOf = (audio: HTMLAudioElement): number =>
+    Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
+
 /**
  * Аудио-плеер (shadcn-стиль, токены тем): play/pause, перемотка, скорость —
  * для прослушивания записей звонков. Без внешних зависимостей (native audio).
@@ -53,6 +57,16 @@ export const AudioPlayer = ({
     const [duration, setDuration] = React.useState(0);
     const [currentTime, setCurrentTime] = React.useState(0);
     const [rateIndex, setRateIndex] = React.useState(0);
+
+    // Начало записи браузер мог прочитать раньше, чем страница ожила: тогда
+    // событие loadedmetadata уже прошло и длина осталась 0 — ползунок
+    // упирался в конец (страница звонка, 18.11.2026). Берём длину у записи.
+    React.useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio || audio.readyState < HTMLMediaElement.HAVE_METADATA) return;
+        setDuration(durationOf(audio));
+        setCurrentTime(audio.currentTime);
+    }, [src]);
 
     // внешний стоп (когда начинает играть другая запись)
     React.useEffect(() => {
@@ -108,7 +122,8 @@ export const AudioPlayer = ({
                 ref={audioRef}
                 src={src}
                 preload="metadata"
-                onLoadedMetadata={e => setDuration(e.currentTarget.duration)}
+                onLoadedMetadata={e => setDuration(durationOf(e.currentTarget))}
+                onDurationChange={e => setDuration(durationOf(e.currentTarget))}
                 onTimeUpdate={e => {
                     setCurrentTime(e.currentTarget.currentTime);
                     onTimeChange?.(e.currentTarget.currentTime);

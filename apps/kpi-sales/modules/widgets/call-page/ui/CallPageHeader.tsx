@@ -1,4 +1,5 @@
 import { ToneBadge } from '@workspace/april-ui/badges';
+import { ThemeTogglePanel } from '@workspace/theme';
 import {
     formatCallDate,
     formatDuration,
@@ -18,7 +19,8 @@ const LINK = 'text-sm text-primary hover:underline';
 /**
  * Шапка страницы: кто, когда, какой звонок, приоритет разбора, ссылки в
  * Битрикс24 и крупно — оценка звонка (видна с первого взгляда, решение
- * владельца 17.11.2026). Оценки разделов — в сводке под шапкой.
+ * владельца 17.11.2026). Оценки разделов — в сводке под шапкой. Справа —
+ * переключатель темы, как на остальных страницах (18.11.2026).
  */
 export const CallPageHeader = ({ call, score }: CallPageHeaderProps) => {
     const details = [
@@ -81,6 +83,7 @@ export const CallPageHeader = ({ call, score }: CallPageHeaderProps) => {
             </div>
 
             <div className="flex shrink-0 items-center gap-4">
+                <ThemeTogglePanel />
                 <div className="text-right">
                     <p className="text-xs text-muted-foreground">Оценка звонка</p>
                     <p className="text-xs text-muted-foreground">от 1 до 10</p>

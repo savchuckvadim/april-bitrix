@@ -20,6 +20,7 @@ import { describeLaunchError } from '../../lib/launch-error';
 import type { LaunchOutcome } from '../../model';
 import { LaunchOutcomeView } from '../AiLaunchPanel/components/LaunchOutcomeView';
 import { DealMovementEnabledNote } from './components/DealMovementEnabledNote';
+import { DealMovementProbeBlock } from './components/DealMovementProbeBlock';
 import { DealMovementRunView } from './components/DealMovementRunView';
 import { DealMovementSnapshotView } from './components/DealMovementSnapshotView';
 
@@ -173,6 +174,7 @@ export const AiDealMovementCard = ({
                     </div>
                 )}
                 <LaunchOutcomeView outcome={outcome} error={error} />
+                {domain && <DealMovementProbeBlock domain={domain} />}
             </div>
             <ConfirmDialog
                 open={confirm !== null}

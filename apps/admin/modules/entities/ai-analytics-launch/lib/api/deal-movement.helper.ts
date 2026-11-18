@@ -1,6 +1,11 @@
 import { customAxios } from '@workspace/nest-admin-api';
 import { DEAL_MOVEMENT_URL } from '../../consts/deal-movement.const';
-import type { DealMovementRunResult, DealMovementState } from '../../model';
+import type {
+    DealMovementProbeRunResult,
+    DealMovementProbeStatus,
+    DealMovementRunResult,
+    DealMovementState,
+} from '../../model';
 
 /**
  * Транспорт карточки «Движение сделок». Руками, пока ручки не попали в
@@ -21,6 +26,24 @@ export class DealMovementHelper {
     status(domain: string): Promise<DealMovementState> {
         return customAxios<DealMovementState>({
             url: DEAL_MOVEMENT_URL.status,
+            method: 'GET',
+            params: { domain },
+        });
+    }
+
+    /** Поставить проверку записи в ленту на одной сделке (пишет в портал). */
+    probe(domain: string, dealId: number): Promise<DealMovementProbeRunResult> {
+        return customAxios<DealMovementProbeRunResult>({
+            url: DEAL_MOVEMENT_URL.probe,
+            method: 'POST',
+            data: { domain, dealId },
+        });
+    }
+
+    /** Идёт ли проверка и итог последней. */
+    probeStatus(domain: string): Promise<DealMovementProbeStatus> {
+        return customAxios<DealMovementProbeStatus>({
+            url: DEAL_MOVEMENT_URL.probe,
             method: 'GET',
             params: { domain },
         });

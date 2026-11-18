@@ -118,3 +118,51 @@ export interface DealMovementRunResult {
     jobId: string | null;
     reason: string | null;
 }
+
+/** Чем закончилась проверка записи в ленту — как в контракте бэка. */
+export type DealMovementProbePhase = 'running' | 'done' | 'refused' | 'failed';
+
+/** «Последняя активность» сделки до и после каждой записи, ISO. */
+export interface DealMovementProbeMoments {
+    before: string | null;
+    afterLogMessage: string | null;
+    afterComment: string | null;
+    logMessageAt: string | null;
+    commentAt: string | null;
+}
+
+/** Итог проверки записи в ленту на одной сделке. */
+export interface DealMovementProbeResult {
+    domain: string;
+    dealId: number;
+    phase: DealMovementProbePhase;
+    startedAt: string;
+    finishedAt: string | null;
+    moments: DealMovementProbeMoments;
+    /** Сдвигает ли служебная запись последнюю активность; null — не дошли. */
+    logMessageShifts: boolean | null;
+    /** Сдвигает ли комментарий последнюю активность; null — не дошли. */
+    commentShifts: boolean | null;
+    /** Выводы словами, по-русски. */
+    conclusions: string[];
+    /** Отказ или сбой словами; null — проверка прошла. */
+    error: string | null;
+}
+
+/** Ответ `POST admin/ai-analytics/deal-movement-probe`. */
+export interface DealMovementProbeRunResult {
+    domain: string;
+    dealId: number;
+    dispatched: boolean;
+    jobId: string | null;
+    reason: string | null;
+}
+
+/** Ответ `GET admin/ai-analytics/deal-movement-probe`. */
+export interface DealMovementProbeStatus {
+    domain: string;
+    /** Проверка ждёт очереди или идёт. */
+    pending: boolean;
+    /** Итог последней проверки; null — не было (или истёк, 14 суток). */
+    result: DealMovementProbeResult | null;
+}

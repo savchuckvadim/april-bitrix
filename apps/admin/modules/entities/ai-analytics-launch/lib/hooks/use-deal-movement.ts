@@ -27,3 +27,21 @@ export const useDealMovementStatus = (
         staleTime: LAUNCH_STATUS_STALE_MS,
         retry: false,
     });
+
+/**
+ * Проверка записи в ленту: опрос раз в 30 секунд, пока проверка идёт
+ * (или ждём начатую отсюда); иначе — один раз при открытии.
+ */
+export const useDealMovementProbeStatus = (
+    domain: string | undefined,
+    polling: boolean,
+) =>
+    useQuery({
+        queryKey: [...AI_ANALYTICS_LAUNCH_KEY, 'deal-movement-probe', domain ?? ''],
+        queryFn: () => dealMovementHelper.probeStatus(domain as string),
+        enabled: !!domain,
+        refetchInterval: polling ? LAUNCH_POLL_MS : false,
+        refetchIntervalInBackground: false,
+        staleTime: LAUNCH_STATUS_STALE_MS,
+        retry: false,
+    });

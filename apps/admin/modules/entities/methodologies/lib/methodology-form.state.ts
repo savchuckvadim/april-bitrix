@@ -94,6 +94,34 @@ export const saveBlocker = (state: MethodologyFormState): string | null => {
     return null;
 };
 
+/** Название и имя для людей загруженной методики; старый бэк имени не присылает. */
+export interface MethodologyNames {
+    title: string;
+    displayTitle?: string;
+}
+
+/**
+ * Заголовок редактора: имя для людей с бэка («Методика Полянского»), пока
+ * название в форме совпадает с загруженным; название правят или имени нет —
+ * по названию из формы, как раньше.
+ */
+export const editorTitleOf = (
+    state: MethodologyFormState,
+    loaded: MethodologyNames | undefined,
+): string => {
+    const texts = METHODOLOGIES_TEXT.editor;
+    if (state.source === 'new') return texts.titleNew;
+    const displayTitle =
+        loaded && loaded.title === state.config.title
+            ? loaded.displayTitle
+            : undefined;
+    return texts.titleEdit(state.config.title, displayTitle);
+};
+
+/** Имя методики для таблицы: с бэка; старый бэк имени не присылает — название. */
+export const methodologyNameOf = (item: MethodologyNames): string =>
+    item.displayTitle || item.title;
+
 /** Дата и автор правки строки для таблицы; у встроенной — прочерк. */
 export const formatUpdated = (
     updatedAt: string | null,

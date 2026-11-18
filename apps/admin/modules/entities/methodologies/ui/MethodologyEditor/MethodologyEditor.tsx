@@ -21,6 +21,7 @@ import {
 import { useMethodologyForm } from '../../lib/hooks/use-methodology-form';
 import {
     canSave,
+    editorTitleOf,
     type EditorSelection,
     formFromDetail,
     initialFormState,
@@ -103,7 +104,7 @@ export const MethodologyEditor = ({
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
                         <CardTitle className="flex flex-wrap items-center gap-2">
-                            {state.source === 'new' ? texts.titleNew : texts.titleEdit(state.config.title)}
+                            {editorTitleOf(state, detail.data)}
                             {state.dirty && <Badge variant="outline">{texts.dirty}</Badge>}
                         </CardTitle>
                         {state.source === 'builtin' && (

@@ -23,11 +23,13 @@ export const KNOWLEDGE_BUDGET_TEXT = {
     useEmpty: (budget: string) => `предел ${budget}`,
     onlyTypes: (types: string) => `только: ${types}`,
     complianceOff: 'выключена на портале',
-    methodologyOn: (title: string, version: string) =>
-        `Методика «${title}» (${version}): её проход получает материалы, ` +
+    /** Имя методики, когда бэк не прислал имя для людей (displayTitle). */
+    methodologyName: (title: string) => `Методика «${title}»`,
+    methodologyOn: (name: string, version: string) =>
+        `${name} (${version}): её проход получает материалы, ` +
         'которые методика объявила своими.',
-    methodologyPlain: (title: string, version: string) =>
-        `Методика «${title}» (${version}) своих материалов не объявила: её ` +
+    methodologyPlain: (name: string, version: string) =>
+        `${name} (${version}) своих материалов не объявила: её ` +
         'проход читает только общий слой разбора.',
     methodologyOff:
         'Методика продаж на портале не выбрана: факты о продукте читает ' +

@@ -31,6 +31,8 @@ export interface KnowledgeBudgetKind {
 
 export interface KnowledgeBudgetMethodology {
     title: string;
+    /** Имя для людей («Методика Полянского»); старый бэк его не присылает. */
+    displayTitle?: string;
     version: string;
     declaresKnowledge: boolean;
 }

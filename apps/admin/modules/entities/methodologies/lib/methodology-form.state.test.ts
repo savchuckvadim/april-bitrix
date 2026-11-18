@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import type { MethodologyDetail } from '../model';
 import {
     canSave,
+    editorTitleOf,
     formFromDetail,
     formatUpdated,
     initialFormState,
+    methodologyNameOf,
     saveBlocker,
     toSaveBody,
 } from './methodology-form.state';
@@ -14,6 +16,7 @@ const detail: MethodologyDetail = {
     id: 'b3f1c4e2-0000-4000-8000-000000000001',
     code: 'polyansky',
     title: 'Методика Полянского',
+    displayTitle: 'Методика Полянского',
     version: '1.2.0',
     scope: 'common',
     portalDomain: null,
@@ -76,6 +79,33 @@ describe('methodology-form.state', () => {
         const portalNoDomain = { ...ok, scope: 'portal' as const, portalDomain: null };
         expect(canSave(portalNoDomain)).toBe(false);
         expect(saveBlocker(portalNoDomain)).toBe('Для своей методики выберите портал над списком.');
+    });
+
+    it('заголовок редактора: имя для людей с бэка, пока название не правили; иначе — как раньше', () => {
+        const builtin = { title: 'Полянский', displayTitle: 'Методика Полянского' };
+        const edit = formFromDetail(
+            { ...detail, ...builtin, config: { ...detail.config, title: 'Полянский' } },
+            'edit',
+            undefined,
+        );
+        expect(editorTitleOf(edit, builtin)).toBe('Методика Полянского');
+        // Название в форме правят — заголовок идёт за ним.
+        const renamed = { ...edit, config: { ...edit.config, title: 'Воронеж' } };
+        expect(editorTitleOf(renamed, builtin)).toBe('Методика «Воронеж»');
+        // Старый бэк без имени для людей — как раньше.
+        expect(editorTitleOf(edit, { title: 'Полянский' })).toBe('Методика «Полянский»');
+        expect(editorTitleOf(edit, undefined)).toBe('Методика «Полянский»');
+        // Новая и копия — «Новая методика».
+        expect(editorTitleOf(formFromDetail(detail, 'copy', undefined), detail)).toBe('Новая методика');
+        expect(editorTitleOf(initialFormState(undefined), undefined)).toBe('Новая методика');
+    });
+
+    it('имя в таблице: с бэка, без него — название', () => {
+        expect(methodologyNameOf({ title: 'Полянский', displayTitle: 'Методика Полянского' })).toBe(
+            'Методика Полянского',
+        );
+        expect(methodologyNameOf({ title: 'Полянский' })).toBe('Полянский');
+        expect(methodologyNameOf({ title: 'Полянский', displayTitle: '' })).toBe('Полянский');
     });
 
     it('дата правки: прочерк у встроенной, автор через запятую, мусор как есть', () => {

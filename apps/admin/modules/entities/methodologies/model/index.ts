@@ -95,7 +95,9 @@ export const METHODOLOGIES_TEXT = {
     copySuffix: ' (копия)',
     editor: {
         titleNew: 'Новая методика',
-        titleEdit: (title: string): string => `Методика «${title}»`,
+        /** Имя для людей с бэка («Методика Полянского»); его нет — по названию, как раньше. */
+        titleEdit: (title: string, displayTitle?: string): string =>
+            displayTitle || `Методика «${title}»`,
         loading: 'Загружаю методику…',
         builtinNote:
             'Встроенная методика хранится в коде: правки сохраняются строкой общего слоя с тем же кодом и перекрывают встроенную.',

@@ -100,7 +100,9 @@ function notesOf(report: KnowledgeBudgetReport): string[] {
         const text = methodology.declaresKnowledge
             ? T.methodologyOn
             : T.methodologyPlain;
-        notes.push(text(methodology.title, methodology.version));
+        const name =
+            methodology.displayTitle || T.methodologyName(methodology.title);
+        notes.push(text(name, methodology.version));
     }
     if (report.complianceEnabled === false) notes.push(T.complianceOffNote);
     if (report.complianceEnabled === null) notes.push(T.complianceUnknown);

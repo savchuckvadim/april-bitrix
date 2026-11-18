@@ -143,8 +143,21 @@ describe('toKnowledgeBudgetView', () => {
             declaresKnowledge: true,
         };
 
+        // Старый бэк не присылает имя для людей — по названию, как раньше.
         expect(toKnowledgeBudgetView(report({ methodology })).notes[0]).toBe(
             'Методика «Полянский» (1.2): её проход получает материалы, которые методика объявила своими.',
+        );
+        expect(
+            toKnowledgeBudgetView(
+                report({
+                    methodology: {
+                        ...methodology,
+                        displayTitle: 'Методика Полянского',
+                    },
+                }),
+            ).notes[0],
+        ).toBe(
+            'Методика Полянского (1.2): её проход получает материалы, которые методика объявила своими.',
         );
         expect(
             toKnowledgeBudgetView(

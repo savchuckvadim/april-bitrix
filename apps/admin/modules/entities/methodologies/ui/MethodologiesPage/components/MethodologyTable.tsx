@@ -11,7 +11,7 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 import { METHODOLOGIES_TEXT, SCOPE_LABELS, type MethodologyItem } from '../../../model';
-import { formatUpdated } from '../../../lib/methodology-form.state';
+import { formatUpdated, methodologyNameOf } from '../../../lib/methodology-form.state';
 import { itemStateLabel } from '../../../lib/methodology-form.util';
 
 interface MethodologyTableProps {
@@ -54,7 +54,7 @@ export const MethodologyTable = ({ items, loading, onOpen, onCopy }: Methodology
                 {items.map(item => (
                     <TableRow key={item.id ?? `builtin:${item.code}`}>
                         <TableCell>
-                            <div className="font-medium">{item.title}</div>
+                            <div className="font-medium">{methodologyNameOf(item)}</div>
                             <div className="text-xs text-muted-foreground">{item.code}</div>
                         </TableCell>
                         <TableCell>

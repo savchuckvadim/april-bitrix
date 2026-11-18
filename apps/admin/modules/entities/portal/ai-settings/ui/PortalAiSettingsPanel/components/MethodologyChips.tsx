@@ -16,6 +16,10 @@ interface MethodologyChipsProps {
 const optionHint = (option: MethodologyOption): string =>
     `${option.code} · ${option.version} · пунктов ${option.checkpoints}`;
 
+/** Имя на бейдже: для людей с бэка; старый бэк его не присылает — название. */
+const optionName = (option: MethodologyOption): string =>
+    option.displayTitle || option.title;
+
 /**
  * Выбор методики продаж бейджами: «Без методики» и доступные порталу
  * методики (встроенные общего слоя и из таблицы). Незнакомый код из БД
@@ -50,7 +54,7 @@ export const MethodologyChips = ({ domain, value, onChange }: MethodologyChipsPr
                         title={optionHint(option)}
                         onClick={() => onChange(option.code)}
                     >
-                        {option.title}
+                        {optionName(option)}
                     </Button>
                 ))}
                 {unknownSelected && (

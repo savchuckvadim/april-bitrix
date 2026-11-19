@@ -11,12 +11,14 @@ export {
 
 export const SIGNAL_KIND_LABEL: Record<SupportSignalKind, string> = {
     new_dialog: 'Новый диалог',
+    client_message: 'Клиент написал',
     waiting: 'Ждёт ответа',
     escalation: 'Ждёт долго',
 };
 
 export const SIGNAL_KIND_TONE: Record<SupportSignalKind, Tone> = {
     new_dialog: 'info',
+    client_message: 'info',
     waiting: 'warning',
     escalation: 'destructive',
 };

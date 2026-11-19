@@ -5,6 +5,11 @@ import {
     restoreSnapshotRecord,
 } from '../../snapshot';
 import { ComplectVariantHelper } from '../lib/api/complect-variant-helper';
+import {
+    isVariantDeletable,
+    readDeleteErrorMessage,
+    type ComplectVariantDeleteResult,
+} from '../lib/delete-variant';
 import { buildVariantStageId, type ComplectVariantStage } from '../lib/stage';
 import {
     complectVariantActions,
@@ -216,6 +221,78 @@ export const syncOpenComplectVariant =
                     errorText(error, 'вариант не обновлён'),
                 ),
             );
+        }
+    };
+
+/**
+ * Удалить вариант насовсем: сначала запись в базе конструктора, при успехе —
+ * элемент смарта в Битриксе, затем список вариантов перечитывается.
+ *
+ * Порядок важен. Запись в базе первая: если сервер отказал, в Битриксе
+ * ничего не тронуто и вариант остаётся целым. Если Битрикс отказал уже
+ * после базы, вариант из конструктора ушёл, элемент остался: итог
+ * `bitrix-failed`, человек удалит его в смарте руками.
+ *
+ * Сбой здесь не пишется в `failed` слайса: оно прячет все варианты, и из-за
+ * неудавшегося удаления скрывать остальные незачем. Итог возвращается
+ * вызывающему, и экран реагирует по нему (уведомление).
+ *
+ * Открытый в редакторе вариант не удаляется: он получает правки сделки.
+ */
+export const deleteComplectVariant =
+    (variantSmartId: number): AppThunk<Promise<ComplectVariantDeleteResult>> =>
+    async (dispatch, getState) => {
+        const state = getState();
+        const { dealId, domain } = state.app;
+        const entityTypeId = getComplectVariantPbxSmartEntityId(
+            state.portal.current,
+        );
+        if (!dealId || !domain || !entityTypeId) {
+            return {
+                status: 'failed',
+                message: 'сделка или смарт «Варианты комплекта» недоступны',
+            };
+        }
+        if (
+            !isVariantDeletable(
+                variantSmartId,
+                state.complectVariant.openVariantSmartId,
+            )
+        ) {
+            return { status: 'blocked' };
+        }
+
+        dispatch(complectVariantActions.busy(true));
+        try {
+            try {
+                await helper.deleteRecord({ domain, dealId, variantSmartId });
+            } catch (error) {
+                return {
+                    status: 'failed',
+                    message: readDeleteErrorMessage(
+                        error,
+                        'сервер не удалил вариант',
+                    ),
+                };
+            }
+
+            let result: ComplectVariantDeleteResult = { status: 'deleted' };
+            try {
+                await helper.deleteItem(entityTypeId, variantSmartId);
+            } catch (error) {
+                result = {
+                    status: 'bitrix-failed',
+                    message: readDeleteErrorMessage(
+                        error,
+                        'Битрикс не удалил элемент',
+                    ),
+                };
+            }
+
+            await dispatch(fetchComplectVariants());
+            return result;
+        } finally {
+            dispatch(complectVariantActions.busy(false));
         }
     };
 

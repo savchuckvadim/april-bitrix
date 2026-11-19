@@ -5,10 +5,13 @@ import { useAppDispatch, useAppSelector } from '@/modules/app';
 import type { RootState } from '@/modules/app/model/store';
 import { getComplectVariantPbxSmartEntityId } from '@/modules/entities/portal';
 import {
+    canMakeVariantCurrent,
     closeComplectVariant,
     createComplectVariant,
+    deleteComplectVariant,
     getVariantContractCode,
     isSingleContractAllowed,
+    isVariantDeletable,
     openComplectVariant,
     saveComplectComposition,
     selectComplectVariantState,
@@ -52,6 +55,13 @@ export const useComplectVariants = () => {
         return item?.title || `Вариант ${record.variantSmartId ?? record.id}`;
     };
 
+    const editingRecord =
+        variantState.records.find(
+            record =>
+                record.variantSmartId !== null &&
+                record.variantSmartId === variantState.openVariantSmartId,
+        ) ?? null;
+
     return {
         hasSmart,
         records: variantState.records,
@@ -65,8 +75,15 @@ export const useComplectVariants = () => {
         /** Названия и стадии из Битрикса ещё грузятся — карточки показывают загрузку */
         areDetailsLoading: variantState.itemsStatus === 'loading',
         error: variantState.error,
+        /** Строка для шапки свёрнутой панели: какой вариант сейчас открыт в редакторе */
+        editingSummary: editingRecord
+            ? `Сейчас редактируется: ${titleOf(editingRecord)}`
+            : null,
         stageOf,
         titleOf,
+        /** «Сделать текущим» меняет состав участников; иначе кнопка не нужна */
+        canMakeCurrent: (variantSmartId: number | null) =>
+            canMakeVariantCurrent(variantState.records, stageOf, variantSmartId),
         singleContractAllowed,
         newTitle,
         setNewTitle,
@@ -81,7 +98,16 @@ export const useComplectVariants = () => {
         close: () => dispatch(closeComplectVariant()),
         setStage: (variantSmartId: number, stage: ComplectVariantStage) =>
             dispatch(setComplectVariantStage(variantSmartId, stage)),
+        /** Открытый в редакторе вариант удалять нельзя: сначала его закрывают */
+        canDelete: (variantSmartId: number | null) =>
+            isVariantDeletable(variantSmartId, variantState.openVariantSmartId),
+        /** Удаление насовсем: база конструктора, затем элемент в Битриксе */
+        remove: (variantSmartId: number) =>
+            dispatch(deleteComplectVariant(variantSmartId)),
         saveComposition: (patch: Partial<ComplectComposition>) =>
             dispatch(saveComplectComposition(patch)),
     };
 };
+
+/** Данные и действия вариантов: то, что хук отдаёт строкам и панели. */
+export type ComplectVariantsState = ReturnType<typeof useComplectVariants>;

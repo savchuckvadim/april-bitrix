@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { ComplectVariantRecordDto } from '../model/dto';
 import { isSingleContractAllowed } from '../model/dto';
-import { getVariantContractCode, selectParticipants } from './participants';
+import {
+    canMakeVariantCurrent,
+    getVariantContractCode,
+    selectParticipants,
+} from './participants';
 import { COMPLECT_VARIANT_STAGE, type ComplectVariantStage } from './stage';
 
 const record = (
@@ -42,6 +46,48 @@ describe('участники сборки', () => {
             withStages({ 2: COMPLECT_VARIANT_STAGE.current }),
         );
         expect(participants.map(item => item.variantSmartId)).toEqual([2]);
+    });
+});
+
+describe('«Сделать текущим»', () => {
+    const withStages =
+        (stages: Record<number, ComplectVariantStage>) =>
+        (id: number | null) =>
+            stages[Number(id)] ?? COMPLECT_VARIANT_STAGE.draft;
+
+    it('единственный вариант уже участвует — действие не нужно', () => {
+        expect(canMakeVariantCurrent([record(1)], withStages({}), 1)).toBe(false);
+    });
+
+    it('единственный отклонённый вариант возвращается в работу', () => {
+        const stages = withStages({ 1: COMPLECT_VARIANT_STAGE.rejected });
+        expect(canMakeVariantCurrent([record(1)], stages, 1)).toBe(true);
+    });
+
+    it('текущий вариант уже текущий', () => {
+        const stages = withStages({ 1: COMPLECT_VARIANT_STAGE.current });
+        expect(canMakeVariantCurrent([record(1), record(2)], stages, 1)).toBe(false);
+    });
+
+    it('несколько вариантов без текущих — выбор сужает состав участников', () => {
+        expect(
+            canMakeVariantCurrent([record(1), record(2)], withStages({}), 1),
+        ).toBe(true);
+    });
+
+    it('остальные отклонены — вариант и так единственный участник', () => {
+        const stages = withStages({ 2: COMPLECT_VARIANT_STAGE.rejected });
+        expect(canMakeVariantCurrent([record(1), record(2)], stages, 1)).toBe(false);
+        expect(canMakeVariantCurrent([record(1), record(2)], stages, 2)).toBe(true);
+    });
+
+    it('при другом текущем вариант попадает в участники', () => {
+        const stages = withStages({ 1: COMPLECT_VARIANT_STAGE.current });
+        expect(canMakeVariantCurrent([record(1), record(2)], stages, 2)).toBe(true);
+    });
+
+    it('у записи без элемента смарта действия нет', () => {
+        expect(canMakeVariantCurrent([record(1)], withStages({}), null)).toBe(false);
     });
 });
 

@@ -57,6 +57,24 @@ export const COMPLECT_OFFER_INFOBLOCKS_TITLE: Record<
 };
 
 /**
+ * Параметры и ответ `DELETE /api/konstructor/deal/variant`. Ручка готова на
+ * бэке, но в orval её ещё нет (`pnpm run generate` в `@workspace/nest-konstructor-api`
+ * не прогнан), поэтому формы описаны здесь руками, а запрос идёт через тот же
+ * транспорт `customAxios`. После генерации достаточно заменить эти два типа
+ * сгенерированными и вызов в helper.
+ */
+export interface ComplectVariantDeleteParams {
+    domain: string;
+    dealId: number;
+    variantSmartId: number;
+}
+
+export interface ComplectVariantDeleteResponse {
+    /** false — строки варианта в базе уже не было; для вызывающего это не сбой. */
+    deleted: boolean;
+}
+
+/**
  * Один договор на несколько наборов возможен, только если тип договора у всех
  * одинаковый. Нечитаемый тип хотя бы у одного набора тоже запрещает
  * объединение — объединять вслепую нельзя, ошибка вскроется на подписании.

@@ -26,6 +26,31 @@ export const selectParticipants = <T extends { variantSmartId: number | null }>(
 };
 
 /**
+ * Имеет ли смысл «Сделать текущим»: действие нужно, только если после него
+ * состав участников меняется. Единственный вариант (и любой, кто и так
+ * участвует, пока других «Текущих» нет) уже идёт в сделку — кнопка пуста.
+ * Отклонённый вариант возвращается в работу, поэтому для него действие
+ * остаётся.
+ */
+export const canMakeVariantCurrent = <T extends { variantSmartId: number | null }>(
+    variants: readonly T[],
+    stageOf: (variantSmartId: number | null) => ComplectVariantStage,
+    variantSmartId: number | null,
+): boolean => {
+    if (variantSmartId === null) return false;
+    if (stageOf(variantSmartId) === COMPLECT_VARIANT_STAGE.current) return false;
+
+    const before = selectParticipants(variants, stageOf);
+    const after = selectParticipants(variants, id =>
+        id === variantSmartId ? COMPLECT_VARIANT_STAGE.current : stageOf(id),
+    );
+    return (
+        before.length !== after.length ||
+        before.some(variant => !after.includes(variant))
+    );
+};
+
+/**
  * Код типа договора варианта из его записи. Слепок v2 хранит `contractCode`
  * в колонке rows, легаси-v1 — договор JSON-строкой в колонке contract.
  * Битую запись не разбираем: вариант остаётся без типа, и «один договор на

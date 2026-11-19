@@ -8,14 +8,16 @@ import { BuildSummary } from '@/modules/features/build-summary';
 import { ComplectDescriptionButton } from '@/modules/features/complect-description';
 import { CompositionEditorPanel } from '@/modules/features/composition-editor';
 import { FlowBackButton, FlowSummary } from '@/modules/features/flow-summary';
-import { Screen, ScreenHeader, ScreenSplit } from '@/modules/shared';
+import { MainSupplySelect } from '@/modules/features/main-supply-select';
+import { Screen, ScreenSplit } from '@/modules/shared';
 import { useComplectBuilder } from '../hooks/use-complect-builder';
 
 /**
- * Шаг 2 (легаси KONSTRUCTOR): комплекты — узкой полосой чипов под заголовком,
- * основное место — наполнению; справа итог, «Описание комплекта» (DOCX по
- * наполнению, решение 9) и переход к ценам. Во всю ширину фрейма: категорий
- * наполнения много.
+ * Шаг 2 (легаси KONSTRUCTOR): без заголовка экрана. В основной колонке сверху
+ * комплекты чипами (шире наполнения под ними они не бывают, лишнее уходит на
+ * вторую строку), ниже наполнение. В правой колонке над итогом — вид поставки
+ * (ОД) главной строки; итог несёт «Описание комплекта» (DOCX по наполнению,
+ * решение 9) и переход к ценам. Во всю ширину фрейма: категорий наполнения много.
  */
 export const ComplectBuilderScreen = () => {
     const builder = useComplectBuilder();
@@ -36,30 +38,32 @@ export const ComplectBuilderScreen = () => {
     }
 
     return (
-        <Screen width="full" className="gap-4">
-            <ScreenHeader
-                title="Комплект"
-                description="Выберите комплект и настройте наполнение."
-                actions={<FlowBackButton />}
-            />
-            <ChoiceChips
-                options={builder.complectOptions}
-                value={builder.currentComplectCode}
-                onChange={builder.selectComplect}
-                ariaLabel="Комплект"
-                collapseBelow="md"
-            />
+        <Screen width="full">
             <ScreenSplit
                 aside={
-                    <FlowSummary
-                        title="Итог"
-                        showBack={false}
-                        actions={<ComplectDescriptionButton />}
-                    >
-                        <BuildSummary />
-                    </FlowSummary>
+                    <>
+                        <MainSupplySelect />
+                        <FlowSummary
+                            title="Итог"
+                            showBack={false}
+                            actions={<ComplectDescriptionButton />}
+                        >
+                            <BuildSummary />
+                        </FlowSummary>
+                    </>
                 }
             >
+                <div className="flex items-start gap-3">
+                    <ChoiceChips
+                        className="flex-1"
+                        options={builder.complectOptions}
+                        value={builder.currentComplectCode}
+                        onChange={builder.selectComplect}
+                        ariaLabel="Комплект"
+                        collapseBelow="md"
+                    />
+                    <FlowBackButton />
+                </div>
                 <CompositionEditorPanel row={builder.mainRow} />
             </ScreenSplit>
         </Screen>

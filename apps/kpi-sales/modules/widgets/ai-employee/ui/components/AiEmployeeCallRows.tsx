@@ -52,7 +52,6 @@ export const AiEmployeeRiskCallRow = ({ call }: { call: AiEmployeeRiskCall }) =>
                     </ToneBadge>
                 )}
                 <CallLink link={call.link} />
-        <AiCallPageLink transcriptionId={call.transcriptionId} />
                 <AiCallPageLink transcriptionId={call.transcriptionId} />
             </div>
             {call.quote ? (

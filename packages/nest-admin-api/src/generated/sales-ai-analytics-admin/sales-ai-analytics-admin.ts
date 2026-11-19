@@ -14,6 +14,7 @@ import type {
   AiAnalyticsAuditRunDto,
   AiAnalyticsBackfillDto,
   AiAnalyticsBackfillResultDto,
+  AiAnalyticsCallReviewsAdminListParams,
   AiAnalyticsCostResultDto,
   AiAnalyticsEtlStatusResultDto,
   AiAnalyticsFactsCatchupAdminStatusParams,
@@ -70,7 +71,8 @@ import type {
   AiRefreshStartAllDto,
   AiRefreshStartAllResultDto,
   AiRefreshStartDto,
-  AiRefreshStartResultDto
+  AiRefreshStartResultDto,
+  CallReviewsAdminPageDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
@@ -554,7 +556,20 @@ const aiAnalyticsRefreshAdminStartAll = (
     },
       );
     }
-  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsForecastBreakdownAdminForecastBreakdown,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsFactsCatchupAdminRun,aiAnalyticsFactsCatchupAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile,aiAnalyticsRefreshAdminStart,aiAnalyticsRefreshAdminState,aiAnalyticsRefreshAdminPortals,aiAnalyticsRefreshAdminStartAll}};
+  /**
+ * Актуальные отзывы руководителей и суперпользователей (вид call_review обратной связи) по порталу за период дней по Москве, свежие первыми: звонок с публичной ссылкой на страницу разбора, менеджер, автор и роль, оценка AI и руководителя, согласие, замечания «не так» и комментарий целиком. Фильтры — согласие (all / yes / no) и вид замечания. Сводка в том же ответе считается по всему периоду без фильтров: число отзывов и несогласий, средние оценки и разница, замечания по видам, топ-10 пунктов. Замещённые (прежние отзывы того же автора по звонку) не считаются.
+ * @summary Отзывы руководителей о разборах звонков за период
+ */
+const aiAnalyticsCallReviewsAdminList = (
+    params: AiAnalyticsCallReviewsAdminListParams,
+ ) => {
+      return customAxios<CallReviewsAdminPageDto>(
+      {url: `/api/admin/ai-analytics/call-reviews`, method: 'GET',
+        params
+    },
+      );
+    }
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsForecastBreakdownAdminForecastBreakdown,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsFactsCatchupAdminRun,aiAnalyticsFactsCatchupAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile,aiAnalyticsRefreshAdminStart,aiAnalyticsRefreshAdminState,aiAnalyticsRefreshAdminPortals,aiAnalyticsRefreshAdminStartAll,aiAnalyticsCallReviewsAdminList}};
 export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
 export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
 export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
@@ -590,3 +605,4 @@ export type AiAnalyticsRefreshAdminStartResult = NonNullable<Awaited<ReturnType<
 export type AiAnalyticsRefreshAdminStateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminState']>>>
 export type AiAnalyticsRefreshAdminPortalsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminPortals']>>>
 export type AiAnalyticsRefreshAdminStartAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminStartAll']>>>
+export type AiAnalyticsCallReviewsAdminListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsCallReviewsAdminList']>>>

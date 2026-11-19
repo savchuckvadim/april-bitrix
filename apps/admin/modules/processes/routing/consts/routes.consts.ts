@@ -200,6 +200,18 @@ export const aiAnalyticsEntities: Entity[] = [
         },
     },
     {
+        id: 56,
+        item: {
+            name: 'ai-analytics-call-reviews',
+            title: 'Отзывы о разборах',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/ai-analytics/call-reviews',
+                method: API_METHOD.GET
+            }
+        },
+    },
+    {
         id: 44,
         item: {
             name: 'ai-analytics-guide',

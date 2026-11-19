@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import type { CallPageDto } from '@/modules/entities/call-page';
 import { useCallPageSelection } from '../model/use-call-page-selection';
 import { CallFactsCard } from './CallFactsCard';
@@ -15,22 +16,38 @@ interface CallPageViewProps {
     data: CallPageDto;
     /** Адрес записи на нашем сайте (прокси), не адрес бэкенда. */
     audioSrc: string;
+    /** Над шапкой: «← К списку разборов». */
+    topBar?: ReactNode;
+    /** Тонкая строка под шапкой (подсказка публичной страницы). */
+    belowHeader?: ReactNode;
+    /** Вверху левой колонки: блок «Оценка руководителя» или строка о ключе. */
+    leftTop?: ReactNode;
 }
 
 /**
  * Страница разбора звонка: шапка, сводка оценок, слева разбор (суть, итоги,
  * разделы, возражения, методика), справа — запись и расшифровка с
  * подсветкой мест разбора. На узком экране колонки идут друг за другом.
+ * Слоты — для личной страницы руководителя и подсказки публичной.
  */
-export const CallPageView = ({ data, audioSrc }: CallPageViewProps) => {
+export const CallPageView = ({
+    data,
+    audioSrc,
+    topBar,
+    belowHeader,
+    leftTop,
+}: CallPageViewProps) => {
     const state = useCallPageSelection(data);
 
     return (
         <div className="mx-auto max-w-[96rem] space-y-4 px-4 py-6">
+            {topBar}
             <CallPageHeader call={data.call} score={data.score} />
+            {belowHeader}
             <CallScoreStrip score={data.score.score} sections={data.sections} />
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] xl:grid-cols-[minmax(0,1fr)_minmax(0,36rem)] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,42rem)]">
                 <div className="space-y-4">
+                    {leftTop}
                     <CallSummaryCard data={data} />
                     <CallFactsCard
                         facts={data.facts}

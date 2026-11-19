@@ -395,8 +395,8 @@ export const AI_PROVIDERS_META = {
     vibecodeTranscriptionModel: {
         label: 'Модель транскрибации VibeCode',
         description:
-            'Имя модели в запросе к ИИ-роутеру Битрикса. С 16 ноября 2026 Whisper уходит с платформы, и запросы без модели автоматически идут в bitrix/bitrixgpt-5.6-transcribe (минута дешевле: 0,19 вайба вместо 0,44). Укажите её заранее, чтобы сравнить качество до отключения.',
+            'Имя модели в запросе к ИИ-роутеру Битрикса. VibeCode распознаёт моделью bitrix/bitrixgpt-5.6-transcribe. Другую модель указывайте, только если она нужна этому порталу.',
         globalHint:
-            'Не задано: модель приложения (Whisper Large v3 Turbo до 16.11.2026, затем BitrixGPT 5.6 Transcribe по решению платформы).',
+            'Не задано: модель приложения (BitrixGPT 5.6 Transcribe).',
     },
 } as const;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AButton } from '@workspace/april-ui';
 import { Input } from '@workspace/ui/components/input';
 import { ConfirmDialog } from '@/modules/shared';
@@ -10,6 +10,8 @@ import {
     dealMovementDealHref,
 } from '../../../consts/deal-movement.const';
 import {
+    isProbeResultArrived,
+    outcomeAfterProbeResult,
     parseProbeDealId,
     probeResultHeadline,
     probeResultLines,
@@ -47,12 +49,16 @@ export const DealMovementProbeBlock = ({
     const pending = status.data?.pending === true;
     const result = status.data?.result ?? null;
     const dealId = parseProbeDealId(input);
+    /** Начало итога, лежавшего до нажатия, — чтобы не принять его за новый. */
+    const startedBefore = useRef<string | null>(null);
 
     useEffect(() => {
-        if (awaiting && status.data && !status.data.pending && result) {
-            setAwaiting(false);
-        }
-    }, [awaiting, status.data, result]);
+        if (!awaiting) return;
+        if (!isProbeResultArrived(status.data, startedBefore.current)) return;
+        setAwaiting(false);
+        // Итог пришёл — плашка «проверка идёт» больше не нужна (отказ остаётся).
+        setOutcome(outcomeAfterProbeResult);
+    }, [awaiting, status.data]);
 
     const canPress = dealId !== null && !action.isPending && !pending;
 
@@ -60,6 +66,7 @@ export const DealMovementProbeBlock = ({
         if (dealId === null) return;
         setError(null);
         setOutcome(null);
+        startedBefore.current = result?.startedAt ?? null;
         action.mutate(
             async () =>
                 probeRunOutcome(await dealMovementHelper.probe(domain, dealId)),

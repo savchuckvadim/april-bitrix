@@ -35,7 +35,8 @@ export interface SupportGuide {
     links: SupportGuideLink[];
 }
 
-export type SupportSignalKind = 'new_dialog' | 'waiting' | 'escalation';
+/** client_message — клиент написал в открытый диалог (только Telegram). */
+export type SupportSignalKind = 'new_dialog' | 'client_message' | 'waiting' | 'escalation';
 
 export interface SupportDialogReport {
     sessionId: number;

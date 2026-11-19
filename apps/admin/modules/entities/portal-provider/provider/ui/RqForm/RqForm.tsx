@@ -1,77 +1,47 @@
 'use client';
 
-import * as React from 'react';
 import { Button } from '@workspace/ui/components/button';
-import { useUpdateRq } from '../../lib/hooks';
-import type { CreateRq, UpdateRq } from '../../model';
-import {
-    RqFields,
-    collectRqPayload,
-    rqToFormValues,
-    type RqFormValues,
-} from '../RqFields';
+import { RqFields } from '../RqFields';
+import { WithTaxField } from '../WithTaxField';
+import { useRqForm } from './hooks/use-rq-form';
 
-/**
- * Форма редактирования реквизитов поставщика (PATCH /provider/rq/{id}).
- * `rqId` — id набора реквизитов, `initial` — слабо типизированные данные с бэка.
- */
-export function RqForm({
-    rqId,
-    domain,
-    initial,
-    onDone,
-}: {
+interface RqFormProps {
+    /** Id набора реквизитов (rqs.id) */
     rqId: number;
     domain: string;
+    /** Слабо типизированные реквизиты с бэка */
     initial: Record<string, unknown>;
+    /** Признак «Работает с НДС» поставщика сейчас */
+    withTax: boolean;
     onDone: () => void;
-}) {
-    const update = useUpdateRq(domain);
+}
 
-    const [type, setType] = React.useState(
-        initial.type == null ? '' : String(initial.type),
-    );
-    const [values, setValues] = React.useState<RqFormValues>(() =>
-        rqToFormValues(initial),
-    );
-    const [error, setError] = React.useState<string | null>(null);
-
-    const onChange = (key: keyof CreateRq, value: string) =>
-        setValues((prev) => ({ ...prev, [key]: value }));
-
-    const submit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        const dto: UpdateRq = { type, ...collectRqPayload(values) };
-        update.mutate(
-            { id: rqId, dto },
-            {
-                onSuccess: () => onDone(),
-                onError: (err) =>
-                    setError(
-                        err instanceof Error ? err.message : 'Ошибка обновления.',
-                    ),
-            },
-        );
-    };
+/**
+ * Форма редактирования реквизитов и признака «Работает с НДС» поставщика
+ * (PATCH /provider/rq/{id}).
+ */
+export function RqForm({ rqId, domain, initial, withTax, onDone }: RqFormProps) {
+    const form = useRqForm({ rqId, domain, initial, initialWithTax: withTax, onDone });
 
     return (
-        <form onSubmit={submit} className="space-y-6">
+        <form onSubmit={form.submit} className="space-y-6">
+            <WithTaxField id="rq-with-tax" checked={form.withTax} onChange={form.setWithTax} />
+
             <RqFields
-                type={type}
-                values={values}
-                onTypeChange={setType}
-                onChange={onChange}
+                type={form.type}
+                values={form.values}
+                onTypeChange={form.setType}
+                onChange={form.onChange}
             />
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {form.error && <p className="text-sm text-destructive">{form.error}</p>}
 
             <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={onDone}>
                     Отмена
                 </Button>
-                <Button type="submit" disabled={update.isPending}>
-                    {update.isPending ? 'Сохранение…' : 'Сохранить'}
+                <Button type="submit" disabled={form.isPending}>
+                    {form.isPending ? 'Сохранение…' : 'Сохранить'}
                 </Button>
             </div>
         </form>

@@ -27,6 +27,7 @@ import {
 import { useDeleteProvider, useProvidersByDomain } from '../../lib/hooks';
 import { PROVIDER_RQ_FIELDS, type Provider } from '../../model';
 import { ProviderForm } from '../ProviderForm';
+import { ProviderTaxBadge } from '../ProviderTaxBadge';
 import { RqForm } from '../RqForm';
 
 /**
@@ -39,6 +40,8 @@ interface NormalizedProvider {
     rqId: number | null;
     rq: Record<string, unknown>;
     title: string;
+    /** Работает с НДС (agents.withTax) */
+    withTax: boolean;
 }
 
 function normalizeProvider(raw: Provider, index: number): NormalizedProvider {
@@ -53,7 +56,9 @@ function normalizeProvider(raw: Provider, index: number): NormalizedProvider {
     const title =
         raw.name || raw.rq?.name || raw.rq?.shortname || `Поставщик ${index + 1}`;
 
-    return { providerId, rqId, rq, title };
+    const withTax = raw.withTax ?? raw.rq?.withTax ?? false;
+
+    return { providerId, rqId, rq, title, withTax };
 }
 
 function ProviderCard({
@@ -65,7 +70,7 @@ function ProviderCard({
     index: number;
     domain: string;
 }) {
-    const { providerId, rqId, rq, title } = normalizeProvider(raw, index);
+    const { providerId, rqId, rq, title, withTax } = normalizeProvider(raw, index);
     const del = useDeleteProvider(domain);
     const [editing, setEditing] = React.useState(false);
     const [confirmDelete, setConfirmDelete] = React.useState(false);
@@ -80,10 +85,11 @@ function ProviderCard({
             <CardHeader className="flex flex-row items-start justify-between gap-2">
                 <div>
                     <CardTitle>{title}</CardTitle>
-                    <CardDescription className="flex gap-2 pt-1">
+                    <CardDescription className="flex items-center gap-2 pt-1">
                         {typeof rq.type === 'string' && (
                             <Badge variant="outline">{rq.type}</Badge>
                         )}
+                        <ProviderTaxBadge withTax={withTax} />
                         {rq.inn != null && rq.inn !== '' && (
                             <span className="text-xs text-muted-foreground">
                                 ИНН: {String(rq.inn)}
@@ -153,7 +159,7 @@ function ProviderCard({
             <Dialog open={editing} onOpenChange={setEditing}>
                 <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Редактирование реквизитов</DialogTitle>
+                        <DialogTitle>Редактирование поставщика</DialogTitle>
                         <DialogDescription>{title}</DialogDescription>
                     </DialogHeader>
                     {rqId != null && (
@@ -161,6 +167,7 @@ function ProviderCard({
                             rqId={rqId}
                             domain={domain}
                             initial={rq}
+                            withTax={withTax}
                             onDone={() => setEditing(false)}
                         />
                     )}

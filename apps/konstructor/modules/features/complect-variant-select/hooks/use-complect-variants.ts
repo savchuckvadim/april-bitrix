@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/modules/app';
 import type { RootState } from '@/modules/app/model/store';
 import { getComplectVariantPbxSmartEntityId } from '@/modules/entities/portal';
 import {
+    canMakeVariantCurrent,
     closeComplectVariant,
     createComplectVariant,
     getVariantContractCode,
@@ -67,6 +68,9 @@ export const useComplectVariants = () => {
         error: variantState.error,
         stageOf,
         titleOf,
+        /** «Сделать текущим» меняет состав участников; иначе кнопка не нужна */
+        canMakeCurrent: (variantSmartId: number | null) =>
+            canMakeVariantCurrent(variantState.records, stageOf, variantSmartId),
         singleContractAllowed,
         newTitle,
         setNewTitle,
@@ -85,3 +89,6 @@ export const useComplectVariants = () => {
             dispatch(saveComplectComposition(patch)),
     };
 };
+
+/** Данные и действия вариантов: то, что хук отдаёт строкам и панели. */
+export type ComplectVariantsState = ReturnType<typeof useComplectVariants>;

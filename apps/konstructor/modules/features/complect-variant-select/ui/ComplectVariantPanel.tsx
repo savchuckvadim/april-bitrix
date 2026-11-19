@@ -16,12 +16,11 @@ import {
     COMPLECT_MODE_TITLE,
     COMPLECT_OFFER_INFOBLOCKS,
     COMPLECT_OFFER_INFOBLOCKS_TITLE,
-    COMPLECT_VARIANT_STAGE,
-    COMPLECT_VARIANT_STAGE_TITLE,
     type ComplectMode,
     type ComplectOfferInfoblocks,
 } from '@/modules/entities/complect-variant';
 import { useComplectVariants } from '../hooks/use-complect-variants';
+import { ComplectVariantRow } from './ComplectVariantRow';
 
 /**
  * Варианты комплекта сделки: собрать несколько предложений, выбрать
@@ -34,15 +33,7 @@ export const ComplectVariantPanel = () => {
 
     if (!variants.hasSmart) return null;
 
-    const {
-        records,
-        openVariantSmartId,
-        composition,
-        isBusy,
-        stageOf,
-        titleOf,
-        singleContractAllowed,
-    } = variants;
+    const { records, composition, isBusy, singleContractAllowed } = variants;
 
     return (
         <div className="flex flex-col gap-2 rounded-lg border bg-card p-3">
@@ -79,80 +70,9 @@ export const ComplectVariantPanel = () => {
                 </span>
             ) : null}
 
-            {records.map(record => {
-                const variantSmartId = record.variantSmartId;
-                const stage = stageOf(variantSmartId);
-                const isOpen =
-                    variantSmartId !== null &&
-                    variantSmartId === openVariantSmartId;
-                const isRejected = stage === COMPLECT_VARIANT_STAGE.rejected;
-
-                return (
-                    <div
-                        key={record.id}
-                        className={`flex flex-wrap items-center gap-2 text-sm ${
-                            isRejected ? 'opacity-50' : ''
-                        }`}
-                    >
-                        <span className={isOpen ? 'font-semibold' : ''}>
-                            {titleOf(record)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                            {COMPLECT_VARIANT_STAGE_TITLE[stage]}
-                        </span>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            disabled={isBusy || isOpen}
-                            onClick={() => void variants.open(record)}
-                        >
-                            {isOpen ? 'Открыт' : 'Открыть'}
-                        </Button>
-                        {isOpen ? (
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                disabled={isBusy}
-                                onClick={() => void variants.close()}
-                            >
-                                Закрыть
-                            </Button>
-                        ) : null}
-                        {variantSmartId !== null &&
-                        stage !== COMPLECT_VARIANT_STAGE.current ? (
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                disabled={isBusy}
-                                onClick={() =>
-                                    void variants.setStage(
-                                        variantSmartId,
-                                        COMPLECT_VARIANT_STAGE.current,
-                                    )
-                                }
-                            >
-                                Сделать текущим
-                            </Button>
-                        ) : null}
-                        {variantSmartId !== null && !isRejected ? (
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-destructive"
-                                disabled={isBusy}
-                                onClick={() =>
-                                    void variants.setStage(
-                                        variantSmartId,
-                                        COMPLECT_VARIANT_STAGE.rejected,
-                                    )
-                                }
-                            >
-                                Отклонить
-                            </Button>
-                        ) : null}
-                    </div>
-                );
-            })}
+            {records.map(record => (
+                <ComplectVariantRow key={record.id} record={record} variants={variants} />
+            ))}
 
             {records.length > 1 ? (
                 <div className="mt-1 flex flex-col gap-2 border-t pt-2">

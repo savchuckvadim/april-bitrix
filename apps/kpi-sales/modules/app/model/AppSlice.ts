@@ -4,6 +4,7 @@ import { Portal } from '../types/portal/portal-type';
 import type { BXUser } from '@workspace/bx';
 import type { AppFeatureFlags } from '@/modules/shared/access';
 import { APP_FEATURES } from '../consts/features';
+import type { AppLayoutKind } from '../lib/layout/app-layout-kind';
 
 export type AppState = typeof initialState;
 export enum APP_DEP {
@@ -56,6 +57,12 @@ const initialState = {
     viewAs: {
         user: null as BXUser | null,
     },
+    /**
+     * Каркас открытой страницы (appLayoutKind): `report` — отчёт, `bare` —
+     * страница без обвязки отчёта («Разборы звонков» /calls). Пишет App при
+     * смене адреса; по нему цепочка загрузки отчёта решает, запускаться ли.
+     */
+    layoutKind: 'report' as AppLayoutKind,
 };
 export interface InitReport {
     domain: string;
@@ -85,7 +92,7 @@ const appSlice = createSlice({
             //   }
         },
 
-        setInitializedSuccess: (state: AppState, action: PayloadAction<{}>) => {
+        setInitializedSuccess: (state: AppState) => {
             state.initialized = true;
         },
         setInitializedError: (
@@ -98,12 +105,7 @@ const appSlice = createSlice({
             state.error.status = true;
             state.error.message = action.payload.errorMessage;
         },
-        setCleanError: (
-            state: AppState,
-            action: PayloadAction<{
-                errorMessage: string;
-            }>,
-        ) => {
+        setCleanError: (state: AppState) => {
             state.error.status = false;
             state.error.message = '';
         },
@@ -115,7 +117,7 @@ const appSlice = createSlice({
         ) => {
             state.portal = action.payload.portal;
         },
-        reload: (state: AppState, action: PayloadAction) => {
+        reload: (state: AppState) => {
             state.initialized = false;
         },
         loading: (
@@ -158,6 +160,10 @@ const appSlice = createSlice({
          */
         setRealSuperUser: (state: AppState, action: PayloadAction<boolean>) => {
             state.bitrix.isSuperUser = action.payload;
+        },
+        /** Каркас открытой страницы сменился (переход /report ↔ /calls). */
+        setLayoutKind: (state: AppState, action: PayloadAction<AppLayoutKind>) => {
+            state.layoutKind = action.payload;
         },
     },
 });

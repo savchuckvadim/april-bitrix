@@ -1,5 +1,13 @@
 export { FieldCombobox } from './FieldCombobox';
 export type { ComboboxOption, FieldComboboxProps } from './FieldCombobox';
+// Выбор нескольких значений с поиском — для строки фильтров
+export { MultiCombobox } from './MultiCombobox';
+export type { MultiComboboxProps } from './MultiCombobox';
+export {
+    multiComboboxLabel,
+    toggleMultiValue,
+} from './multi-combobox.util';
+export type { MultiComboboxOption } from './multi-combobox.util';
 // Микро-контролы «пульта»: один кегль на все отметки отчёта
 export { MicroField } from './MicroField';
 export type { MicroFieldProps } from './MicroField';

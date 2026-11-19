@@ -76,6 +76,14 @@ export const ACCESS_RULES: Record<
     [EAccessFeature.AI_CONFIGURE]: ctx =>
         isAiEnabled(ctx) &&
         (ctx.isSuperUser || ctx.headOf === 'op' || ctx.headOf === 'cup'),
+
+    // «Разборы звонков»: список спрашивается от имени РЕАЛЬНОГО пользователя
+    // (личные ссылки и отзыв — его), поэтому суперпользователь видит раздел
+    // и в режиме «Смотреть как…» (isRealSuperUser), руководитель — по своей
+    // роли. В «Смотреть как…» headOf — чужой, но режим доступен только
+    // суперпользователю, так что правило от этого не меняется.
+    [EAccessFeature.AI_CALL_REVIEWS]: ctx =>
+        isAiEnabled(ctx) && (ctx.isRealSuperUser || ctx.headOf !== null),
 };
 
 /** Проверка доступа — чистая функция, удобна и вне React (thunks/утилы). */

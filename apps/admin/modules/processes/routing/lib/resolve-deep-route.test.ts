@@ -262,6 +262,7 @@ describe('resolveDeepRoute: раздел «AI-аналитика ОП»', () => 
             '/ai-analytics/refresh',
             '/ai-analytics/audit',
             '/ai-analytics/model',
+            '/ai-analytics/call-reviews',
             '/ai-analytics/guide',
             '/ai-analytics/prompt',
             '/ai-analytics/methodologies',
@@ -270,6 +271,16 @@ describe('resolveDeepRoute: раздел «AI-аналитика ОП»', () => 
 
     it('/ai-analytics/prompt («Запрос к модели») остаётся в разделе без флагов других экранов', () => {
         const route = resolveDeepRoute('/ai-analytics/prompt', '');
+
+        expect(route.isAiAnalytics).toBe(true);
+        expect(route.isAiAnalyticsGuide).toBe(false);
+        expect(route.isAiAnalyticsModel).toBe(false);
+        expect(route.isAiAnalyticsAudit).toBe(false);
+        expect(resolveSideBar(route).currentNavItems).toBe(aiAnalyticsEntities);
+    });
+
+    it('/ai-analytics/call-reviews («Отзывы о разборах») остаётся в разделе без флагов других экранов', () => {
+        const route = resolveDeepRoute('/ai-analytics/call-reviews', '');
 
         expect(route.isAiAnalytics).toBe(true);
         expect(route.isAiAnalyticsGuide).toBe(false);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { backendBase } from '../../../../_lib/backend';
+import { PRIVATE_HEADERS, backendBase } from '../../../../_lib/backend';
 
 /** Заголовки записи, которые пересылаем браузеру как есть. */
 const PASS_HEADERS = [
@@ -8,11 +8,6 @@ const PASS_HEADERS = [
     'content-range',
     'accept-ranges',
 ] as const;
-
-const PRIVATE_HEADERS = {
-    'Cache-Control': 'private, no-store',
-    'X-Robots-Tag': 'noindex, nofollow',
-} as const;
 
 /**
  * Запись разговора для страницы звонка: браузер видит только наш origin.

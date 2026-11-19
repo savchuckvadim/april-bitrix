@@ -193,3 +193,47 @@ describe('ACCESS_RULES — AI_VIEW_ALL', () => {
         ).toBe(false);
     });
 });
+
+describe('ACCESS_RULES — AI_CALL_REVIEWS («Разборы звонков»)', () => {
+    it('руководитель любого уровня и суперпользователь видят раздел', () => {
+        for (const headOf of ['group', 'op', 'cup'] as const) {
+            expect(checkAccess(EAccessFeature.AI_CALL_REVIEWS, ctx({ headOf }))).toBe(true);
+        }
+        expect(
+            checkAccess(
+                EAccessFeature.AI_CALL_REVIEWS,
+                ctx({ isSuperUser: true, isRealSuperUser: true }),
+            ),
+        ).toBe(true);
+    });
+
+    it('рядовой менеджер раздела не видит, даже если ему открыта витрина', () => {
+        expect(
+            checkAccess(
+                EAccessFeature.AI_CALL_REVIEWS,
+                ctx({ isSelf: true, features: SELF_VIEW }),
+            ),
+        ).toBe(false);
+    });
+
+    it('суперпользователь в «Смотреть как…» менеджера раздел видит — оценивает от своего имени', () => {
+        expect(
+            checkAccess(
+                EAccessFeature.AI_CALL_REVIEWS,
+                ctx({ isSelf: true, isViewAs: true, isRealSuperUser: true }),
+            ),
+        ).toBe(true);
+    });
+
+    it('AI-аналитика выключена на портале — раздела нет', () => {
+        expect(
+            checkAccess(
+                EAccessFeature.AI_CALL_REVIEWS,
+                ctx({
+                    headOf: 'op',
+                    features: { ...FEATURES, aiAnalyticsPortalEnabled: false },
+                }),
+            ),
+        ).toBe(false);
+    });
+});

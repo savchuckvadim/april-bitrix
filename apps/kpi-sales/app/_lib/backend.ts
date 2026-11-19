@@ -15,3 +15,9 @@ export const unwrapEnvelope = (envelope: unknown): unknown =>
     envelope && typeof envelope === 'object' && 'data' in envelope
         ? (envelope as { data: unknown }).data
         : envelope;
+
+/** Ответы наших прокси с рабочими данными: не кэшировать, не индексировать. */
+export const PRIVATE_HEADERS = {
+    'Cache-Control': 'private, no-store',
+    'X-Robots-Tag': 'noindex, nofollow',
+} as const;

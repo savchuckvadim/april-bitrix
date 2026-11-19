@@ -1,24 +1,13 @@
 'use client';
 
-import { ToneBadge } from '@workspace/april-ui/badges';
 import { SectionCard } from '@workspace/april-ui/surfaces';
-import type { StatusTone } from '@workspace/april-ui/tones';
-import type {
-    CallPageCheckpointDto,
-    CallPageMethodologyDto,
-} from '@/modules/entities/call-page';
-import { CallShowInTextButton } from './CallShowInTextButton';
+import type { CallPageMethodologyDto } from '@/modules/entities/call-page';
+import { CallCheckpointRow } from './CallCheckpointRow';
 
 interface CallMethodologyCardProps {
     methodology: CallPageMethodologyDto | null;
     onOpenHighlight: (id: string | null) => void;
 }
-
-const STATUS_TONE: Record<CallPageCheckpointDto['status'], StatusTone> = {
-    done: 'success',
-    missed: 'destructive',
-    not_applicable: 'muted',
-};
 
 /** Проверка звонка по методике продаж портала: пункты, статусы, цитаты. */
 export const CallMethodologyCard = ({
@@ -39,35 +28,11 @@ export const CallMethodologyCard = ({
                 )}
                 <ul className="space-y-2">
                     {methodology.checkpoints.map((checkpoint, position) => (
-                        <li
+                        <CallCheckpointRow
                             key={`${position}-${checkpoint.title}`}
-                            className="space-y-1"
-                        >
-                            <div className="flex flex-wrap items-center gap-2">
-                                <ToneBadge
-                                    size="sm"
-                                    variant="soft"
-                                    tone={STATUS_TONE[checkpoint.status]}
-                                >
-                                    {checkpoint.statusTitle}
-                                </ToneBadge>
-                                <span>{checkpoint.title}</span>
-                                {checkpoint.mandatory && (
-                                    <span className="text-xs text-muted-foreground">
-                                        обязательный
-                                    </span>
-                                )}
-                            </div>
-                            {checkpoint.quote && (
-                                <p className="text-muted-foreground">
-                                    «{checkpoint.quote}»
-                                </p>
-                            )}
-                            <CallShowInTextButton
-                                highlightId={checkpoint.highlightId}
-                                onOpen={onOpenHighlight}
-                            />
-                        </li>
+                            checkpoint={checkpoint}
+                            onOpenHighlight={onOpenHighlight}
+                        />
                     ))}
                 </ul>
             </div>

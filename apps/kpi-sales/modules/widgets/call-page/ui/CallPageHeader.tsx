@@ -8,6 +8,8 @@ import {
     type CallPageCallDto,
     type CallPageScoreDto,
 } from '@/modules/entities/call-page';
+import { callTypeReviewTarget } from '../lib/call-review-targets';
+import { CallReviewMarkButton } from './review/CallReviewMarkButton';
 
 interface CallPageHeaderProps {
     call: CallPageCallDto;
@@ -20,7 +22,8 @@ const LINK = 'text-sm text-primary hover:underline';
  * Шапка страницы: кто, когда, какой звонок, приоритет разбора, ссылки в
  * Битрикс24 и крупно — оценка звонка (видна с первого взгляда, решение
  * владельца 17.11.2026). Оценки разделов — в сводке под шапкой. Справа —
- * переключатель темы, как на остальных страницах (18.11.2026).
+ * переключатель темы, как на остальных страницах (18.11.2026). В режиме
+ * руководителя у типа звонка — «Не так».
  */
 export const CallPageHeader = ({ call, score }: CallPageHeaderProps) => {
     const details = [
@@ -40,6 +43,7 @@ export const CallPageHeader = ({ call, score }: CallPageHeaderProps) => {
                             {call.callTypeTitle}
                         </ToneBadge>
                     )}
+                    <CallReviewMarkButton target={callTypeReviewTarget(call)} />
                     {score.coachingTitle && (
                         <ToneBadge tone="warning" variant="soft">
                             {score.coachingTitle}

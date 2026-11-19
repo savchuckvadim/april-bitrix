@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import type { DealMovementProbeResult } from '../model';
+import type {
+    DealMovementProbeResult,
+    DealMovementProbeStatus,
+    LaunchOutcome,
+} from '../model';
 import {
+    isProbeResultArrived,
+    outcomeAfterProbeResult,
     parseProbeDealId,
     probeResultHeadline,
     probeResultLines,
@@ -108,5 +114,65 @@ describe('probeRunOutcome', () => {
         expect(outcome.text).toBe(
             'Проверка не поставлена: По этому порталу проверка уже идёт',
         );
+    });
+});
+
+const status = (
+    over: Partial<DealMovementProbeStatus> = {},
+): DealMovementProbeStatus => ({
+    domain: 'april-garant.bitrix24.ru',
+    pending: false,
+    result: result(),
+    ...over,
+});
+
+describe('isProbeResultArrived', () => {
+    const PREVIOUS = '2026-11-10T08:00:00.000Z';
+
+    it('проверка ещё идёт или статуса нет — ждём', () => {
+        expect(isProbeResultArrived(undefined, PREVIOUS)).toBe(false);
+        expect(isProbeResultArrived(status({ pending: true }), PREVIOUS)).toBe(
+            false,
+        );
+    });
+
+    it('в хранилище только прежний итог — ждём, а не считаем его новым', () => {
+        expect(
+            isProbeResultArrived(
+                status({ result: result({ startedAt: PREVIOUS }) }),
+                PREVIOUS,
+            ),
+        ).toBe(false);
+    });
+
+    it('итога не было до нажатия и нет сейчас — ждём', () => {
+        expect(isProbeResultArrived(status({ result: null }), null)).toBe(
+            false,
+        );
+    });
+
+    it('итог другого запуска и проверка не идёт — пришёл', () => {
+        expect(isProbeResultArrived(status(), PREVIOUS)).toBe(true);
+        expect(isProbeResultArrived(status(), null)).toBe(true);
+    });
+});
+
+describe('outcomeAfterProbeResult', () => {
+    const queued: LaunchOutcome = { ok: true, text: 'Проверка идёт' };
+    const refused: LaunchOutcome = {
+        ok: false,
+        text: 'Проверка не поставлена: причина',
+    };
+
+    it('плашка «проверка идёт» убирается, когда пришёл итог', () => {
+        expect(outcomeAfterProbeResult(queued)).toBeNull();
+    });
+
+    it('отказ постановки остаётся как есть', () => {
+        expect(outcomeAfterProbeResult(refused)).toBe(refused);
+    });
+
+    it('пустая плашка остаётся пустой', () => {
+        expect(outcomeAfterProbeResult(null)).toBeNull();
     });
 });

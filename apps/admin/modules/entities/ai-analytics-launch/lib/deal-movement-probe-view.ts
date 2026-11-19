@@ -2,6 +2,7 @@ import { DEAL_MOVEMENT_PROBE_TEXT } from '../consts/deal-movement.const';
 import type {
     DealMovementProbeResult,
     DealMovementProbeRunResult,
+    DealMovementProbeStatus,
     LaunchOutcome,
 } from '../model';
 import { dealMovementMomentLabel } from './deal-movement-results';
@@ -74,4 +75,28 @@ export function probeRunOutcome(run: DealMovementProbeRunResult): LaunchOutcome 
               text: `${DEAL_MOVEMENT_PROBE_TEXT.notStarted}: ${run.reason ?? 'причина не указана'}`,
               raw: run,
           };
+}
+
+/**
+ * Пришёл ли итог проверки, поставленной отсюда: проверка уже не идёт, а в
+ * хранилище лежит итог другого запуска, чем был до нажатия (`startedBefore` —
+ * начало прежнего итога или null, если его не было). Без сравнения старый
+ * итог закончил бы ожидание в тот же миг, как проверку поставили.
+ */
+export function isProbeResultArrived(
+    status: DealMovementProbeStatus | undefined,
+    startedBefore: string | null,
+): boolean {
+    if (!status || status.pending || !status.result) return false;
+    return status.result.startedAt !== startedBefore;
+}
+
+/**
+ * Плашка постановки после прихода итога: «проверка идёт» убирается, отказ
+ * постановки (ok: false) остаётся.
+ */
+export function outcomeAfterProbeResult(
+    outcome: LaunchOutcome | null,
+): LaunchOutcome | null {
+    return outcome !== null && !outcome.ok ? outcome : null;
 }

@@ -3,12 +3,16 @@
 import { useEffect } from 'react';
 import LoadingScreen from './LoadingScreen/LoadingScreen';
 import { useApp } from '../lib/hooks/useApp';
+import { useAppLayoutKindSync } from '../lib/hooks/use-app-layout-kind-sync';
 import { useAppSelector } from '../lib/hooks/redux';
 import { NON_AUTH_ERROR } from '../lib/initialize/app-init.util';
 import { BOOT_PRELOADER_ID, BOOT_PRELOADER_HIDE_CLASS } from '@workspace/april-ui/feedback';
 import { NonAuthScreen } from './NonAuthScreen';
 
 export const App = ({ children }: { children: React.ReactNode }) => {
+    // Каркас страницы — в стор до инициализации: на /calls цепочка отчёта
+    // не запускается (feature/report-flow, report-chain.listener).
+    useAppLayoutKindSync();
     const { initialized, isMounted, isLoading } = useApp();
     const error = useAppSelector(state => state.app.error);
 

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import {
     Filter,
     FilterInnerCode,
@@ -57,6 +57,11 @@ const initialState = {
     isInitialized: false as boolean,
     currentReportItem: 0 as number,
     currentGroup: 0 as number,
+    /**
+     * Цепочка загрузки отложена: структура отделов (или сохранённый фильтр)
+     * пришла на странице без отчёта (/calls). Доведётся при переходе в отчёт.
+     */
+    chainDeferred: false as boolean,
 };
 
 const reportSlice = createSlice({
@@ -210,6 +215,13 @@ const reportSlice = createSlice({
             action: PayloadAction<boolean>,
         ) => {
             state.isFetched = action.payload;
+        },
+        /** Отложить (true) или снять отметку (false) — см. chainDeferred. */
+        setChainDeferred: (
+            state: ReportState,
+            action: PayloadAction<boolean>,
+        ) => {
+            state.chainDeferred = action.payload;
         },
         // setIsLoadingCallings: (state: ReportState, action: PayloadAction<boolean>) => {
         //     state.calling.isLoading = action.payload;

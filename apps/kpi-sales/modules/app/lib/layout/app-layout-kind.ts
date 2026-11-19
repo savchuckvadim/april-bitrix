@@ -23,3 +23,12 @@ export function appLayoutKind(pathname: string | null | undefined): AppLayoutKin
     if (PUBLIC_PREFIXES.some(prefix => pathname.startsWith(prefix))) return 'public';
     return BARE_PATHS.some(path => isUnder(pathname, path)) ? 'bare' : 'report';
 }
+
+/**
+ * Можно ли запускать цепочку загрузки отчёта (сохранённый фильтр → расчёт
+ * отчёта и статистики звонков). Только на страницах отчёта: на «Разборах
+ * звонков» отчёт не нужен, а его расчёт — тяжёлый для сервера. Структура
+ * отделов, сессия и пользователь грузятся всегда — от них права.
+ */
+export const isReportChainAllowed = (kind: AppLayoutKind): boolean =>
+    kind === 'report';

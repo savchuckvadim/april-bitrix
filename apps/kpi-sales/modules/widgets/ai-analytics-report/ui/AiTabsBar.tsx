@@ -7,32 +7,41 @@ import {
     isAiTabKey,
     type AiTabKey,
 } from '../lib/ai-tabs';
+import { AiCallsEntryLink } from './components/AiCallsEntryLink';
 
 interface AiTabsBarProps {
     tab: AiTabKey;
     onChange: (tab: AiTabKey) => void;
+    /** Показать переход в «Разборы звонков» (руководители и суперпользователь). */
+    withCallsEntry?: boolean;
 }
 
-/** Подвкладки вкладки AI (как у дайджеста); подсказка — при наведении. */
-export const AiTabsBar = ({ tab, onChange }: AiTabsBarProps) => (
-    <Tabs
-        value={tab}
-        onValueChange={value => isAiTabKey(value) && onChange(value)}
-    >
-        <TabsList
-            aria-label={AI_TABS_TEXT.ariaLabel}
-            className="h-auto flex-wrap justify-start"
+/**
+ * Подвкладки вкладки AI (как у дайджеста); подсказка — при наведении.
+ * Справа — переход в «Разборы звонков» (отдельная страница, не вкладка).
+ */
+export const AiTabsBar = ({ tab, onChange, withCallsEntry = false }: AiTabsBarProps) => (
+    <div className="flex flex-wrap items-center gap-2">
+        <Tabs
+            value={tab}
+            onValueChange={value => isAiTabKey(value) && onChange(value)}
         >
-            {AI_TABS.map(item => (
-                <TabsTrigger
-                    key={item.key}
-                    value={item.key}
-                    title={item.hint}
-                    className="text-xs"
-                >
-                    {item.label}
-                </TabsTrigger>
-            ))}
-        </TabsList>
-    </Tabs>
+            <TabsList
+                aria-label={AI_TABS_TEXT.ariaLabel}
+                className="h-auto flex-wrap justify-start"
+            >
+                {AI_TABS.map(item => (
+                    <TabsTrigger
+                        key={item.key}
+                        value={item.key}
+                        title={item.hint}
+                        className="text-xs"
+                    >
+                        {item.label}
+                    </TabsTrigger>
+                ))}
+            </TabsList>
+        </Tabs>
+        {withCallsEntry && <AiCallsEntryLink />}
+    </div>
 );

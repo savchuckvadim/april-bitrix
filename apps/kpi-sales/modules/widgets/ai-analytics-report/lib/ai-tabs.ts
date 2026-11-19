@@ -54,6 +54,16 @@ export const AI_TABS_TEXT = {
     ariaLabel: 'Разделы вкладки AI аналитики',
 } as const;
 
+/**
+ * «Разборы звонков» рядом с подвкладками — не вкладка отчёта, а переход на
+ * отдельную страницу на всю ширину (`/calls`). Только руководителям и
+ * суперпользователю (EAccessFeature.AI_CALL_REVIEWS).
+ */
+export const AI_CALLS_ENTRY = {
+    label: 'Разборы звонков',
+    hint: 'Все разборы звонков за период с фильтрами, оценкой AI и отзывами руководителей. Открывается отдельной страницей — здесь же можно оценить звонок.',
+} as const;
+
 const TAB_KEYS = new Set<string>(AI_TABS.map(tab => tab.key));
 
 export const isAiTabKey = (value: unknown): value is AiTabKey =>

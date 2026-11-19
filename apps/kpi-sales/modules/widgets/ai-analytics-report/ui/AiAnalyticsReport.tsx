@@ -1,6 +1,7 @@
 'use client';
 
-import { selectIsRealSuperUser, useAppSelector } from '@/modules/app';
+import { selectIsRealSuperUser, useAccess, useAppSelector } from '@/modules/app';
+import { EAccessFeature } from '@/modules/shared/access';
 import { useAiAnalyticsReport } from '../hooks/use-ai-analytics-report';
 import { AiTabHeader } from './AiTabHeader';
 import { AiReadinessBanner } from './AiReadinessBanner';
@@ -29,6 +30,9 @@ export const AiAnalyticsReport = () => {
     // «Готовность витрины» — служебная: только суперпользователю вендора
     // (в том числе в режиме «работать как»), свёрнута (решение 07.11.2026).
     const isRealSuperUser = useAppSelector(selectIsRealSuperUser);
+    // «Разборы звонков» — отдельная страница, только руководителям и
+    // суперпользователю (решение владельца 18.11.2026).
+    const canOpenCalls = useAccess(EAccessFeature.AI_CALL_REVIEWS);
     const onOpenSettings = report.canConfigure
         ? report.openSettings
         : undefined;
@@ -53,7 +57,11 @@ export const AiAnalyticsReport = () => {
                     onOpenSettings={onOpenSettings}
                 />
             )}
-            <AiTabsBar tab={report.tab} onChange={report.setTab} />
+            <AiTabsBar
+                tab={report.tab}
+                onChange={report.setTab}
+                withCallsEntry={canOpenCalls}
+            />
             {report.tab === 'summary' && (
                 <AiSummaryTab
                     canViewAll={report.canViewAll}

@@ -1,1 +1,1 @@
-export { OfferLettersImport } from './ui/offer-letters-import/OfferLettersImport';
+export { OfferLettersPage } from './ui/offer-letters-page/OfferLettersPage';

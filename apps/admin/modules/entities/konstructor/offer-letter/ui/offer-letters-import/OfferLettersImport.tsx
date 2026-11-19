@@ -6,17 +6,14 @@ import { OfferLetterImportTable } from '../offer-letter-import-table/OfferLetter
 import { useOfferLettersImportView } from './hooks/use-offer-letters-import-view';
 
 /**
- * Письма КП: перенос письма каждого портала из легаси-шаблона `offer` в
- * новую таблицу писем. Временный экран — после переноса уберётся, а здесь
- * появится редактирование писем.
+ * Перенос письма каждого портала из легаси-шаблона `offer` в таблицу писем.
+ * Временная вкладка: после переноса на проде уберётся вместе с ручкой.
  */
 export function OfferLettersImport() {
     const view = useOfferLettersImportView();
 
     return (
         <div className="space-y-4">
-            <h1 className="text-3xl font-bold">Письма КП</h1>
-
             <p className="max-w-3xl text-sm text-muted-foreground">
                 Письмо портала берётся из старого шаблона КП (поле «Текст письма») и
                 становится письмом портала по умолчанию в новом конструкторе. Сначала

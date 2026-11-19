@@ -1,5 +1,5 @@
-import { OfferLettersImport } from '@/modules/entities/konstructor/offer-letter';
+import { OfferLettersPage } from '@/modules/entities/konstructor/offer-letter';
 
 export default function OfferLetterPage() {
-    return <OfferLettersImport />;
+    return <OfferLettersPage />;
 }

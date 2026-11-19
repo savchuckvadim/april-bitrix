@@ -9,6 +9,7 @@ import {
     type ComplectVariantRecordDto,
 } from '@/modules/entities/complect-variant';
 import type { ComplectVariantsState } from '../hooks/use-complect-variants';
+import { ComplectVariantDeleteAction } from './ComplectVariantDeleteAction';
 
 export interface ComplectVariantRowProps {
     record: ComplectVariantRecordDto;
@@ -20,7 +21,8 @@ export interface ComplectVariantRowProps {
  * правки сборки и сохранение сделки идут в него. Остальные открываются в
  * редактор кнопкой «Редактировать». «Сделать текущим» меняет стадию (кто
  * участвует в КП и уезжает в отдел сервиса) и показывается только тогда, когда
- * состав участников от неё меняется.
+ * состав участников от неё меняется. «Удалить» убирает вариант насовсем, с
+ * подтверждением; у открытого варианта оно недоступно.
  */
 export const ComplectVariantRow = ({ record, variants }: ComplectVariantRowProps) => {
     const variantSmartId = record.variantSmartId;
@@ -96,6 +98,7 @@ export const ComplectVariantRow = ({ record, variants }: ComplectVariantRowProps
                     Отклонить
                 </Button>
             ) : null}
+            <ComplectVariantDeleteAction record={record} variants={variants} />
         </div>
     );
 };

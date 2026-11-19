@@ -8,8 +8,10 @@ import {
     canMakeVariantCurrent,
     closeComplectVariant,
     createComplectVariant,
+    deleteComplectVariant,
     getVariantContractCode,
     isSingleContractAllowed,
+    isVariantDeletable,
     openComplectVariant,
     saveComplectComposition,
     selectComplectVariantState,
@@ -96,6 +98,12 @@ export const useComplectVariants = () => {
         close: () => dispatch(closeComplectVariant()),
         setStage: (variantSmartId: number, stage: ComplectVariantStage) =>
             dispatch(setComplectVariantStage(variantSmartId, stage)),
+        /** Открытый в редакторе вариант удалять нельзя: сначала его закрывают */
+        canDelete: (variantSmartId: number | null) =>
+            isVariantDeletable(variantSmartId, variantState.openVariantSmartId),
+        /** Удаление насовсем: база конструктора, затем элемент в Битриксе */
+        remove: (variantSmartId: number) =>
+            dispatch(deleteComplectVariant(variantSmartId)),
         saveComposition: (patch: Partial<ComplectComposition>) =>
             dispatch(saveComplectComposition(patch)),
     };

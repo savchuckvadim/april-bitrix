@@ -1,9 +1,15 @@
-import { getKonstructorDeal } from '@workspace/nest-konstructor-api';
+import { customAxios, getKonstructorDeal } from '@workspace/nest-konstructor-api';
 import type { IBXItem } from '@bitrix/index';
 import { Bitrix } from '@bitrix/bitrix';
 import { findInnerDeal } from '../../../snapshot/lib/api/inner-deal-find-helper';
 import type { SnapshotV2 } from '../../../snapshot/model/types';
-import type { ComplectComposition, ComplectVariantRecordDto } from '../../model/dto';
+import type {
+    ComplectComposition,
+    ComplectVariantDeleteParams,
+    ComplectVariantDeleteResponse,
+    ComplectVariantRecordDto,
+} from '../../model/dto';
+import { isBitrixDeleteConfirmed } from '../delete-variant';
 
 /**
  * Элемент смарта «Варианты комплекта» в Битриксе. Нужен рядом со слепком
@@ -73,6 +79,37 @@ export class ComplectVariantHelper {
             templateId: snapshot.templateId,
             rows: JSON.stringify(snapshot),
         });
+    }
+
+    /**
+     * Удалить слепок варианта из базы конструктора. Запрос написан руками:
+     * ручка появилась после последнего прогона orval. Транспорт тот же
+     * (`customAxios` разворачивает конверт бэка), так что переезд на
+     * сгенерированный клиент сводится к замене этого вызова.
+     */
+    async deleteRecord(
+        params: ComplectVariantDeleteParams,
+    ): Promise<ComplectVariantDeleteResponse> {
+        return await customAxios<ComplectVariantDeleteResponse>({
+            url: '/api/konstructor/deal/variant',
+            method: 'DELETE',
+            params,
+        });
+    }
+
+    /**
+     * Удалить элемент смарта в Битриксе. Сбой (исключение или ответ без
+     * результата) пробрасывается ошибкой: вызывающий отличает его от отказа
+     * нашей базы.
+     */
+    async deleteItem(entityTypeId: number, itemId: number): Promise<void> {
+        const result = await Bitrix.getService().item.delete(
+            itemId,
+            String(entityTypeId),
+        );
+        if (!isBitrixDeleteConfirmed(result)) {
+            throw new Error('Битрикс не подтвердил удаление элемента');
+        }
     }
 
     /** Элементы смарта, привязанные к сделке. */

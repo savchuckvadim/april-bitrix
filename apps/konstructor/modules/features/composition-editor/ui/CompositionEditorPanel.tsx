@@ -22,6 +22,7 @@ export const CompositionEditorPanel = ({ row }: CompositionEditorPanelProps) => 
         <SectionCard
             title={`Наполнение: ${row.names.shortName}`}
             actions={<CompositionToolbar editor={editor} />}
+            wrapActions
         >
             <CompositionEditorBody editor={editor} />
         </SectionCard>

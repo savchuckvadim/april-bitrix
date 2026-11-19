@@ -19,6 +19,12 @@ export interface SectionCardProps {
     /** Правый слот шапки: свитчи, бэйджи, кнопки. */
     actions?: ReactNode;
     /**
+     * Длинный ряд действий на узком экране: ниже md он уходит на свою строку под
+     * заголовком и переносится внутри неё, вместо того чтобы выпирать за
+     * карточку. От md раскладка шапки прежняя.
+     */
+    wrapActions?: boolean;
+    /**
      * Цвет заголовка и акцентной кромки. `event` наследуется от ближайшего
      * контейнера с data-event-type через реактивный токен --event-current,
      * поэтому смена типа события перекрашивает секцию сама.
@@ -92,6 +98,7 @@ export const SectionCard = ({
     title,
     description,
     actions,
+    wrapActions = false,
     tone = 'neutral',
     accent = false,
     state = 'default',
@@ -155,6 +162,7 @@ export const SectionCard = ({
             tone={tone}
             collapsible={collapsible}
             compact={compact}
+            wrapActions={wrapActions}
         />
     ) : null;
 

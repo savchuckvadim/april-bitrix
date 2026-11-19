@@ -22,6 +22,11 @@ export interface SectionCardHeaderProps {
     tone: Tone;
     collapsible: boolean;
     compact: boolean;
+    /**
+     * Узкий экран (ниже md): действия уходят на свою строку под заголовком и
+     * переносятся внутри неё. От md раскладка прежняя.
+     */
+    wrapActions?: boolean;
     className?: string;
 }
 
@@ -33,6 +38,7 @@ export const SectionCardHeader = ({
     tone,
     collapsible,
     compact,
+    wrapActions = false,
     className,
 }: SectionCardHeaderProps) => {
     const heading = (
@@ -59,6 +65,7 @@ export const SectionCardHeader = ({
         <CardHeader
             className={cn(
                 'flex flex-row items-center justify-between gap-2 space-y-0',
+                wrapActions && 'flex-wrap md:flex-nowrap',
                 compact && 'px-3',
                 className,
             )}
@@ -76,7 +83,12 @@ export const SectionCardHeader = ({
             )}
 
             {actions && (
-                <div className="flex shrink-0 items-center gap-2">
+                <div
+                    className={cn(
+                        'flex shrink-0 items-center gap-2',
+                        wrapActions && 'w-full min-w-0 shrink md:w-auto md:shrink-0',
+                    )}
+                >
                     {actions}
                 </div>
             )}

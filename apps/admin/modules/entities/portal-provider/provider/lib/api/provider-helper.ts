@@ -35,7 +35,11 @@ export class ProviderHelper {
         return this.api.providerAdminCreate(dto);
     }
 
-    /** Частично обновить реквизиты поставщика по id rq. */
+    /**
+     * Частично обновить реквизиты поставщика по id rq вместе с признаком
+     * `withTax` («Работает с НДС»). Сгенерированная функция отправляет тело
+     * как есть, поэтому поле, которого ещё нет в типе клиента, доезжает до бэка.
+     */
     updateRq(id: number, dto: UpdateRq): Promise<Rq> {
         return this.api.providerAdminUpdateRq(id, dto);
     }

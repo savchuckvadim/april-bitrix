@@ -18,8 +18,12 @@ export type Rq = RqResponseDto;
 export type CreateProviderWithRq = CreateProviderWithRqDto;
 /** Тело создания реквизитов (полный набор полей). */
 export type CreateRq = CreateRqDto;
-/** Тело частичного обновления реквизитов. */
-export type UpdateRq = UpdateRqDto;
+/**
+ * Тело частичного обновления реквизитов. `withTax` — признак «Работает с НДС»
+ * поставщика: бэк принимает его в `UpdateRqDto`, но в сгенерированном клиенте
+ * поля ещё нет. После `pnpm run generate` расширение можно убрать.
+ */
+export type UpdateRq = UpdateRqDto & { withTax?: boolean };
 /** Справочники select`ов поставщика. */
 export type ProviderEnums = ProviderEnumsResponseDto;
 /** Опция select`а типа поставщика/реквизитов. */
@@ -108,4 +112,12 @@ export const PROVIDER_FIELD_LABELS = {
     name: 'Название поставщика',
     code: 'Бизнес-код',
     number: 'Порядковый номер',
+} as const;
+
+/** Подписи признака «Работает с НДС» (agents.withTax): форма, карточка, список. */
+export const PROVIDER_TAX_TEXT = {
+    label: 'Работает с НДС',
+    hint: 'Цены строк умножаются на 1.05.',
+    withTax: 'С НДС',
+    withoutTax: 'Без НДС',
 } as const;

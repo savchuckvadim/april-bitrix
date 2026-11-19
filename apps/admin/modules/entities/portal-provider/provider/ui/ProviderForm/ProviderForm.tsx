@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Button } from '@workspace/ui/components/button';
-import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { useCreateProvider } from '../../lib/hooks';
@@ -12,6 +11,7 @@ import {
     collectRqPayload,
     type RqFormValues,
 } from '../RqFields';
+import { WithTaxField } from '../WithTaxField';
 
 /**
  * Форма создания поставщика с реквизитами. `domain` приходит из контекста портала
@@ -91,13 +91,12 @@ export function ProviderForm({
                             onChange={(e) => setNumber(e.target.value)}
                         />
                     </div>
-                    <div className="flex items-center gap-2 pt-6">
-                        <Checkbox
+                    <div className="pt-6">
+                        <WithTaxField
                             id="prov-tax"
                             checked={withTax}
-                            onCheckedChange={(v) => setWithTax(v === true)}
+                            onChange={setWithTax}
                         />
-                        <Label htmlFor="prov-tax">Работает с НДС</Label>
                     </div>
                 </div>
             </fieldset>

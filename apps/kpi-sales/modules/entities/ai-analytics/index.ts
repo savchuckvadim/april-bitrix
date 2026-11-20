@@ -107,6 +107,9 @@ export * from './lib/ai-types-matrix-csv.util';
 export * from './lib/ai-period-label.util';
 export * from './lib/ai-pilot.util';
 export * from './lib/ai-employee-tabs.data';
+export * from './lib/ai-deal-movement.data';
+export { AI_ENVELOPE_NOT_READY_TEXT, aiReadyData } from './lib/ai-envelope.util';
+export type { AiRequester } from './lib/api/ai-analytics-helper';
 export {
     AI_ERROR_FORBIDDEN_TEXT,
     AI_ERROR_GENERIC_TEXT,

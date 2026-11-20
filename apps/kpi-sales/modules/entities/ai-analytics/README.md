@@ -169,6 +169,12 @@ queued-ответа, а готовый ответ принимается с лю
   обрезка, нормализация (пустая → `undefined`), подпись счётчика.
 - `ai-metric.util.ts`, `ui/AiMetricValue.tsx` — честное «мало данных»
   (`none` → бэйдж, `low` → пунктир), `kind: rate|score|pct|count`.
+- `ai-deal-movement.data.ts` + `model/ai-deal-movement.types.ts` — витрина
+  «Движение сделок»: коды статусов (подписи — с бэка), пределы, маршруты;
+  ручные типы ответов до перегенерации клиента. Ручки — `api/ai-deal-movement-helper.ts`
+  (`customAxios`, как `api/ai-call-page-links-helper.ts`), данные из конверта —
+  `ai-envelope.util.ts` (`aiReadyData`). В стор не кладутся: состояние живёт в
+  хуках подвкладки `widgets/ai-analytics-report`.
 
 ## Тесты (`__tests__`)
 

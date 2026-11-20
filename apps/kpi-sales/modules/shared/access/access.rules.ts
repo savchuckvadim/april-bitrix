@@ -84,6 +84,12 @@ export const ACCESS_RULES: Record<
     // суперпользователю, так что правило от этого не меняется.
     [EAccessFeature.AI_CALL_REVIEWS]: ctx =>
         isAiEnabled(ctx) && (ctx.isRealSuperUser || ctx.headOf !== null),
+
+    // «Движение сделок»: ручки спрашиваются от эффективного пользователя —
+    // руководитель по своей роли, суперпользователь вне «Смотреть как…».
+    // Менеджеру подвкладка не показывается, даже если витрина ему открыта.
+    [EAccessFeature.AI_DEAL_MOVEMENT]: ctx =>
+        isAiEnabled(ctx) && (ctx.isSuperUser || ctx.headOf !== null),
 };
 
 /** Проверка доступа — чистая функция, удобна и вне React (thunks/утилы). */

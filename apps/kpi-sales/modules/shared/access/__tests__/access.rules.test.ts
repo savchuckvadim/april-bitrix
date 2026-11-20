@@ -237,3 +237,37 @@ describe('ACCESS_RULES — AI_CALL_REVIEWS («Разборы звонков»)',
         ).toBe(false);
     });
 });
+
+describe('ACCESS_RULES — AI_DEAL_MOVEMENT («Движение сделок»)', () => {
+    const can = (overrides: Partial<AccessContext>): boolean =>
+        checkAccess(EAccessFeature.AI_DEAL_MOVEMENT, ctx(overrides));
+
+    it('руководитель любого уровня и суперпользователь видят подвкладку', () => {
+        for (const headOf of ['group', 'op', 'cup'] as const) {
+            expect(can({ headOf })).toBe(true);
+        }
+        expect(can({ isSuperUser: true, isRealSuperUser: true })).toBe(true);
+    });
+
+    it('рядовой менеджер не видит, даже если ему открыта витрина', () => {
+        expect(can({ isSelf: true, features: SELF_VIEW })).toBe(false);
+    });
+
+    it('суперпользователь в «Смотреть как…» менеджера не видит — данные спрашиваются от менеджера', () => {
+        expect(
+            can({ isSelf: true, isViewAs: true, isRealSuperUser: true }),
+        ).toBe(false);
+    });
+
+    it('AI-аналитика выключена в приложении или на портале — подвкладки нет', () => {
+        expect(
+            can({
+                headOf: 'op',
+                features: { ...FEATURES, aiAnalyticsPortalEnabled: false },
+            }),
+        ).toBe(false);
+        expect(
+            can({ headOf: 'op', features: { ...FEATURES, aiAnalytics: false } }),
+        ).toBe(false);
+    });
+});

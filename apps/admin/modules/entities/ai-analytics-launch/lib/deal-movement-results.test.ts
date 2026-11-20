@@ -1,4 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import {
+    DEAL_MOVEMENT_STATUS_ORDER,
+    DEAL_MOVEMENT_STATUS_TITLE,
+    DEAL_MOVEMENT_STATUSES,
+} from '../consts/deal-movement.const';
 import type { DealMovementRunStatus, DealMovementSnapshot } from '../model';
 import {
     dealMovementChangesLine,
@@ -18,7 +23,13 @@ import {
 
 const NOW = new Date('2026-11-18T08:00:00.000Z');
 
-const counts = { moving: 7000, stuck: 1500, rolled_back: 12, at_risk: 500 };
+const counts = {
+    moving: 7000,
+    stuck: 1500,
+    abandoned: 1100,
+    rolled_back: 12,
+    at_risk: 500,
+};
 
 const run = (over: Partial<DealMovementRunStatus> = {}): DealMovementRunStatus => ({
     domain: 'garant.bitrix24.ru',
@@ -68,15 +79,40 @@ const snapshot = (over: Partial<DealMovementSnapshot> = {}): DealMovementSnapsho
 });
 
 /** На экран не попадают коды статусов, фаз и режимов. */
-const CODES = /rolled_back|at_risk|moving|stuck|dry-run|count|nightly|admin|evaluated|history/;
+const CODES = /rolled_back|abandoned|at_risk|moving|stuck|dry-run|count|nightly|admin|evaluated|history/;
 
 describe('счёт словами', () => {
     it('статусы — подписями в порядке от спокойных к тревожным', () => {
         const text = dealMovementCountsText(counts);
         expect(text).toBe(
-            'Движется — 7000 · Застряла — 1500 · Откатилась — 12 · Под риском — 500',
+            'Движется — 7000 · Без продвижения — 1500 · Без внимания — 1100 · ' +
+                'Вернулась назад — 12 · Под риском — 500',
         );
         expect(text).not.toMatch(CODES);
+    });
+
+    it('в строке счёта есть каждый статус по разу, старых подписей нет', () => {
+        expect([...DEAL_MOVEMENT_STATUS_ORDER].sort()).toEqual(
+            [...DEAL_MOVEMENT_STATUSES].sort(),
+        );
+        const titles = DEAL_MOVEMENT_STATUSES.map(
+            status => DEAL_MOVEMENT_STATUS_TITLE[status],
+        );
+        expect(new Set(titles).size).toBe(DEAL_MOVEMENT_STATUSES.length);
+        expect(titles).toContain('Без внимания');
+        expect(titles.join(' ')).not.toMatch(/Застряла|Откатилась/);
+    });
+
+    it('статуса нет в ответе (старая сборка бэка) — 0, а не «undefined»', () => {
+        const old = {
+            moving: counts.moving,
+            stuck: counts.stuck,
+            rolled_back: counts.rolled_back,
+            at_risk: counts.at_risk,
+        };
+        const text = dealMovementCountsText(old);
+        expect(text).toContain('Без внимания — 0');
+        expect(text).not.toMatch(/undefined|NaN/);
     });
 
     it('заголовок снимка: день, открыто и оценено', () => {
@@ -108,6 +144,22 @@ describe('смены статуса', () => {
         expect(view.amount?.replace(/\s/g, ' ')).toBe('150 000 ₽');
         expect(dealMovementChangeView(change(1)).amount).toBeNull();
         expect(`${view.transition} ${view.reasons}`).not.toMatch(CODES);
+    });
+
+    it('смена на «Без внимания» и с него — подписями', () => {
+        const toAbandoned = dealMovementChangeView({
+            ...change(1),
+            from: 'stuck',
+            to: 'abandoned',
+        });
+        expect(toAbandoned.transition).toBe('Без продвижения → Без внимания');
+        expect(toAbandoned.transition).not.toMatch(CODES);
+        const back = dealMovementChangeView({
+            ...change(1),
+            from: 'abandoned',
+            to: 'rolled_back',
+        });
+        expect(back.transition).toBe('Без внимания → Вернулась назад');
     });
 
     it('показываются первые тридцать, остаток — «и ещё N», в том числе не пришедший в снимке', () => {

@@ -43,10 +43,17 @@ export function dealMovementMomentLabel(iso: string): string {
 const amountLabel = (amount: number): string =>
     `${amount.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽`;
 
-/** «Движется — 7000 · Застряла — 1500 · Откатилась — 12 · Под риском — 500». */
-export function dealMovementCountsText(counts: DealMovementCounts): string {
+/**
+ * «Движется — 7000 · Без продвижения — 1500 · Без внимания — 1100 ·
+ * Вернулась назад — 12 · Под риском — 500». Статуса нет в ответе (старая
+ * сборка бэка до «Без внимания») — 0.
+ */
+export function dealMovementCountsText(
+    counts: Partial<DealMovementCounts>,
+): string {
     return DEAL_MOVEMENT_STATUS_ORDER.map(
-        status => `${DEAL_MOVEMENT_STATUS_TITLE[status]} — ${counts[status]}`,
+        status =>
+            `${DEAL_MOVEMENT_STATUS_TITLE[status]} — ${counts[status] ?? 0}`,
     ).join(' · ');
 }
 

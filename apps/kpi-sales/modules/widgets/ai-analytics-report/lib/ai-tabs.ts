@@ -7,7 +7,8 @@ import {
 
 /*
  * Подвкладки вкладки «AI аналитика» (как у дайджеста): «Сводка» по
- * умолчанию, «Сотрудники», «Качество звонков», «Настройки витрины».
+ * умолчанию, «Сотрудники», «Качество звонков», «Движение сделок» (только
+ * руководителям), «Отчёт за период», «Настройки витрины».
  * Подвкладка живёт в URL (`?aiTab=`), секция настроек — в `?aiSection=`,
  * чтобы ссылки «открыть настройки целей» из плана дня и чек-листа вели
  * сразу на нужный блок. Переключение данных не перезапрашивает — секции
@@ -29,6 +30,11 @@ export const AI_TABS = [
         key: 'quality',
         label: 'Качество звонков',
         hint: 'Таблицы по видам звонков и разделам разговора, три звонка недели для проверки руководителем, разбор по типам.',
+    },
+    {
+        key: 'movement',
+        label: 'Движение сделок',
+        hint: 'Какие сделки отдела движутся, стоят или откатились, у кого из менеджеров проблемные сделки, как оценка звонка связана с продвижением сделки и насколько оценкам можно верить.',
     },
     {
         key: 'report',
@@ -72,6 +78,32 @@ export const isAiTabKey = (value: unknown): value is AiTabKey =>
 /** Подвкладка из параметра; пусто или незнакомое — «Сводка». */
 export const parseAiTab = (value: string | null | undefined): AiTabKey =>
     isAiTabKey(value) ? value : AI_TAB_DEFAULT;
+
+export type AiTab = (typeof AI_TABS)[number];
+
+/** Что пользователю можно открыть сверх общих подвкладок. */
+export interface AiTabsAccess {
+    /** «Движение сделок» — руководителям и суперпользователю. */
+    dealMovement: boolean;
+}
+
+/** Подвкладки только для руководителей: без права их нет в ряду. */
+const AI_TAB_ACCESS: Partial<Record<AiTabKey, keyof AiTabsAccess>> = {
+    movement: 'dealMovement',
+};
+
+const isAiTabAllowed = (tab: AiTabKey, access: AiTabsAccess): boolean => {
+    const right = AI_TAB_ACCESS[tab];
+    return right ? access[right] : true;
+};
+
+/** Подвкладки, которые видит пользователь, в порядке показа. */
+export const visibleAiTabs = (access: AiTabsAccess): AiTab[] =>
+    AI_TABS.filter(tab => isAiTabAllowed(tab.key, access));
+
+/** Подвкладка из URL, недоступная пользователю (ссылка руководителя), — «Сводка». */
+export const allowedAiTab = (tab: AiTabKey, access: AiTabsAccess): AiTabKey =>
+    isAiTabAllowed(tab, access) ? tab : AI_TAB_DEFAULT;
 
 /** Секция настроек из параметра; пусто или незнакомое — null. */
 export const parseAiSettingsSection = (

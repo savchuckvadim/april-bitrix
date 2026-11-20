@@ -542,3 +542,5 @@ export interface AiQueueOptions {
 // Фаза 4 (волна C): алиасы новых DTO — в отдельных файлах, барель не растёт.
 export * from './ai-phase4-forecast.types';
 export * from './ai-phase4-about.types';
+// Витрина «Движение сделок»: типы ручек, которых ещё нет в клиенте API.
+export * from './ai-deal-movement.types';

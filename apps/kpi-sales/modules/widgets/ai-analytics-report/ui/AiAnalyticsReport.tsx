@@ -3,6 +3,7 @@
 import { selectIsRealSuperUser, useAccess, useAppSelector } from '@/modules/app';
 import { EAccessFeature } from '@/modules/shared/access';
 import { useAiAnalyticsReport } from '../hooks/use-ai-analytics-report';
+import { allowedAiTab, visibleAiTabs } from '../lib/ai-tabs';
 import { AiTabHeader } from './AiTabHeader';
 import { AiReadinessBanner } from './AiReadinessBanner';
 import { AiTabsBar } from './AiTabsBar';
@@ -10,6 +11,7 @@ import { AiTypesDrawer } from './AiTypesDrawer';
 import { AiSummaryTab } from './tabs/AiSummaryTab';
 import { AiEmployeesTab } from './tabs/AiEmployeesTab';
 import { AiQualityTab } from './tabs/AiQualityTab';
+import { AiDealMovementTab } from './tabs/AiDealMovementTab';
 import { AiOwnerReportTab } from './tabs/AiOwnerReportTab';
 import { AiShowcaseSettingsTab } from './tabs/AiShowcaseSettingsTab';
 
@@ -18,7 +20,9 @@ import { AiShowcaseSettingsTab } from './tabs/AiShowcaseSettingsTab';
  * подвкладками; подвкладки — «Сводка» (пульс, итоги периода, «Внимание»,
  * повестка, план дня, план-факт, прогноз), «Сотрудники» (таблица сигналов
  * и раскрытые настройки по людям), «Качество звонков» (три звонка недели,
- * матрицы типов и разделов), «Настройки витрины» (гипотеза качества, пул
+ * матрицы типов и разделов), «Движение сделок» (только руководителям:
+ * статусы сделок, проблемные сделки, матрица и честность оценок),
+ * «Настройки витрины» (гипотеза качества, пул
  * порталов, «Как считаем»). Подвкладка — в URL (`?aiTab=`), ссылки «Задать
  * цель» и пункты чек-листа ведут на подвкладку и секцию (`?aiSection=`).
  * Разбор по типам (drawer) смонтирован на уровне вкладки: открывается из
@@ -33,6 +37,11 @@ export const AiAnalyticsReport = () => {
     // «Разборы звонков» — отдельная страница, только руководителям и
     // суперпользователю (решение владельца 18.11.2026).
     const canOpenCalls = useAccess(EAccessFeature.AI_CALL_REVIEWS);
+    // «Движение сделок» — подвкладка только руководителям и суперпользователю;
+    // чужая ссылка на неё открывает «Сводку».
+    const canDealMovement = useAccess(EAccessFeature.AI_DEAL_MOVEMENT);
+    const tabsAccess = { dealMovement: canDealMovement };
+    const tab = allowedAiTab(report.tab, tabsAccess);
     const onOpenSettings = report.canConfigure
         ? report.openSettings
         : undefined;
@@ -58,11 +67,12 @@ export const AiAnalyticsReport = () => {
                 />
             )}
             <AiTabsBar
-                tab={report.tab}
+                tab={tab}
+                tabs={visibleAiTabs(tabsAccess)}
                 onChange={report.setTab}
                 withCallsEntry={canOpenCalls}
             />
-            {report.tab === 'summary' && (
+            {tab === 'summary' && (
                 <AiSummaryTab
                     canViewAll={report.canViewAll}
                     kpiOnly={report.kpiOnly}
@@ -71,20 +81,21 @@ export const AiAnalyticsReport = () => {
                     }
                 />
             )}
-            {report.tab === 'employees' && (
+            {tab === 'employees' && (
                 <AiEmployeesTab
                     canConfigure={report.canConfigure}
                     kpiOnly={report.kpiOnly}
                     focusSection={report.section}
                 />
             )}
-            {report.tab === 'quality' && (
+            {tab === 'quality' && (
                 <AiQualityTab kpiOnly={report.kpiOnly} />
             )}
-            {report.tab === 'report' && (
+            {tab === 'movement' && <AiDealMovementTab />}
+            {tab === 'report' && (
                 <AiOwnerReportTab canConfigure={report.canConfigure} />
             )}
-            {report.tab === 'settings' && (
+            {tab === 'settings' && (
                 <AiShowcaseSettingsTab
                     canConfigure={report.canConfigure}
                     focusSection={report.section}

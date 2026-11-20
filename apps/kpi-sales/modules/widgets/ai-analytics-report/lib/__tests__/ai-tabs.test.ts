@@ -8,6 +8,8 @@ import {
     AI_TABS_TEXT,
     aiSettingsSectionId,
     aiTabHref,
+    allowedAiTab,
+    visibleAiTabs,
     aiTabOfSettingsTab,
     parseAiSettingsSection,
     parseAiTab,
@@ -32,17 +34,30 @@ const flatten = (value: unknown): string[] => {
 };
 
 describe('ai-tabs — подвкладки вкладки «AI аналитика»', () => {
-    it('пять подвкладок в порядке постановки, «Сводка» по умолчанию', () => {
+    it('шесть подвкладок в порядке постановки, «Сводка» по умолчанию', () => {
         expect(AI_TABS.map(tab => tab.key)).toEqual([
             'summary',
             'employees',
             'quality',
+            'movement',
             'report',
             'settings',
         ]);
         expect(parseAiTab(null)).toBe('summary');
         expect(parseAiTab('quality')).toBe('quality');
+        expect(parseAiTab('movement')).toBe('movement');
         expect(parseAiTab('nope')).toBe('summary');
+    });
+
+    it('«Движение сделок» — только с правом: иначе её нет в ряду, а ссылка ведёт на «Сводку»', () => {
+        const keys = (dealMovement: boolean) =>
+            visibleAiTabs({ dealMovement }).map(tab => tab.key);
+        expect(keys(true)).toContain('movement');
+        expect(keys(false)).not.toContain('movement');
+        expect(keys(false)).toHaveLength(AI_TABS.length - 1);
+        expect(allowedAiTab('movement', { dealMovement: true })).toBe('movement');
+        expect(allowedAiTab('movement', { dealMovement: false })).toBe('summary');
+        expect(allowedAiTab('quality', { dealMovement: false })).toBe('quality');
     });
 
     it('тексты подвкладок и секций настроек — по-русски и без запрещённых слов', () => {

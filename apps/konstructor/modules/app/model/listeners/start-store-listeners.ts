@@ -227,6 +227,11 @@ function setupDealProviderListener(
  * уходит и в вариант. В оба места намеренно: вариант получает правки без
  * отдельной кнопки, а слепок сделки остаётся актуальным для перезагрузки —
  * даже если смарт вариантов с портала снимут.
+ *
+ * Цикла нет: syncOpenComplectVariant записывает вариант и завершается, saveSnapshot
+ * он не вызывает, поэтому за ним saveDone не следует. Открытие и создание
+ * варианта зовут saveSnapshot сами — слушатель в ответ делает одну запись
+ * варианта тем же состоянием.
  */
 function setupOpenVariantSyncListener(
     listenerMiddleware: ListenerMiddlewareInstance,

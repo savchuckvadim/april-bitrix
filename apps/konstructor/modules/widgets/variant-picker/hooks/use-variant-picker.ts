@@ -38,9 +38,11 @@ export const useVariantPicker = () => {
         if (await variants.open(record)) nav.to(ROUTE_KONSTRUCTOR.DOCUMENT);
     };
 
-    // Новый вариант не должен писаться поверх открытого
+    // Новый вариант не должен писаться поверх открытого. Закрытие не удалось
+    // (правки варианта не записались) — вариант остаётся открытым, на стартовый
+    // экран не уходим: ошибка показана на этом экране.
     const startNew = async () => {
-        if (variants.openVariantSmartId) await variants.close();
+        if (variants.openVariantSmartId && !(await variants.close())) return;
         nav.to(ROUTE_KONSTRUCTOR.START);
     };
 

@@ -84,6 +84,28 @@ const complectVariantSlice = createSlice({
         busy(state, action: PayloadAction<boolean>) {
             state.isBusy = action.payload;
         },
+        /**
+         * Свежая запись, которую сервер вернул на сохранение варианта: заменяет
+         * старую по variantSmartId, новую добавляет в конец. Без этого список
+         * хранит слепки на момент последнего чтения, и повторное открытие
+         * варианта поднимает устаревшие данные.
+         */
+        upsertRecord(state, action: PayloadAction<ComplectVariantRecordDto>) {
+            // после сбоя варианты скрыты (records пуст): добавлять в пустой список
+            // одну запись значило бы показать неполный набор
+            if (state.status === 'error') return;
+            const { variantSmartId } = action.payload;
+            // запись без variantSmartId — слепок самой сделки, в списке вариантов ей нет места
+            if (variantSmartId === null) return;
+            const index = state.records.findIndex(
+                record => record.variantSmartId === variantSmartId,
+            );
+            if (index === -1) {
+                state.records.push(action.payload);
+            } else {
+                state.records[index] = action.payload;
+            }
+        },
         setOpenVariant(state, action: PayloadAction<number | null>) {
             state.openVariantSmartId = action.payload;
         },
@@ -106,6 +128,7 @@ const {
     itemsLoaded,
     failed,
     busy,
+    upsertRecord,
     setOpenVariant,
     setComposition,
     reset,
@@ -117,6 +140,7 @@ export const complectVariantActions = {
     itemsLoaded,
     failed,
     busy,
+    upsertRecord,
     setOpenVariant,
     setComposition,
     reset,

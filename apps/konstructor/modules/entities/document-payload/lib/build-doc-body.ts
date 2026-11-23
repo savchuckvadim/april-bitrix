@@ -1,8 +1,9 @@
 import { resolveSupply, type Catalog } from '../../catalog';
-import { buildTotalRow, findMainRow, type KRow, type RowSet } from '../../row-set';
+import { findMainRow, type RowSet } from '../../row-set';
 import type { DocVariant, OfferGenerateRequest } from '../model/dto';
 import { buildComplectGroups } from './build-complect-groups';
 import { docComposition } from './doc-composition';
+import { docTotalRow } from './doc-total-row';
 import { contractTypeOf, toDocContract, toDocSupply } from './build-doc-refs';
 import { toDocRow, toDocRows, toDocRowSets } from './build-doc-rows';
 
@@ -27,8 +28,6 @@ export const buildDocBody = ({ catalog, general, alternative }: DocBodyInput): D
     const supply = resolveSupply(catalog, main.refs.supplyCode);
     if (!contract || !supply) return null;
 
-    const totalRow: KRow = general.collapsed ? (buildTotalRow(general) ?? main) : main;
-
     return {
         contractType: contractTypeOf(contract),
         complect: buildComplectGroups(catalog, composition),
@@ -36,7 +35,8 @@ export const buildDocBody = ({ catalog, general, alternative }: DocBodyInput): D
         contract: toDocContract(contract),
         rows: toDocRows(catalog, general, alternative),
         sets: toDocRowSets(catalog, general, alternative),
-        total: toDocRow(catalog, totalRow, 'general', 0, 0),
+        // «Итого» — по всему общему набору, свёрнут он или развёрнут
+        total: toDocRow(catalog, docTotalRow(general, main), 'general', 0, 0),
     };
 };
 

@@ -6,6 +6,8 @@ import { cn } from '@workspace/ui/lib/utils';
 import {
     COMPLECT_VARIANT_STAGE,
     COMPLECT_VARIANT_STAGE_TITLE,
+    COMPLECT_VARIANT_STAGE_TONE,
+    isFinalVariantStage,
     type ComplectVariantRecordDto,
 } from '@/modules/entities/complect-variant';
 import type { ComplectVariantsState } from '../hooks/use-complect-variants';
@@ -17,30 +19,33 @@ export interface ComplectVariantRowProps {
 }
 
 /**
- * Строка варианта. Открытый вариант помечен бейджем «Сейчас редактируется»:
- * правки сборки и сохранение сделки идут в него. Остальные открываются в
- * редактор кнопкой «Редактировать». «Сделать текущим» меняет стадию (кто
- * участвует в КП и уезжает в отдел сервиса) и показывается только тогда, когда
- * состав участников от неё меняется. «Удалить» убирает вариант насовсем, с
- * подтверждением; у открытого варианта оно недоступно.
+ * Строка варианта. Бейдж стадии показывает подпись и цвет любой из
+ * одиннадцати стадий; вариант в финальной стадии (Успех, Отклонён, Не
+ * состоялся) приглушён, и «Отклонить» у него скрыто. Открытый вариант помечен
+ * бейджем «Сейчас редактируется»: правки сборки и сохранение сделки идут в
+ * него. Остальные открываются в редактор кнопкой «Редактировать». «Сделать
+ * текущим» меняет стадию (кто участвует в КП и уезжает в отдел сервиса) и
+ * показывается только тогда, когда состав участников от неё меняется.
+ * «Удалить» убирает вариант насовсем, с подтверждением; у открытого варианта
+ * оно недоступно.
  */
 export const ComplectVariantRow = ({ record, variants }: ComplectVariantRowProps) => {
     const variantSmartId = record.variantSmartId;
     const stage = variants.stageOf(variantSmartId);
     const isOpen = variantSmartId !== null && variantSmartId === variants.openVariantSmartId;
-    const isRejected = stage === COMPLECT_VARIANT_STAGE.rejected;
+    const isFinal = isFinalVariantStage(stage);
 
     return (
         <div
             className={cn(
                 'flex flex-wrap items-center gap-2 text-sm',
-                isRejected && 'opacity-50',
+                isFinal && 'opacity-50',
             )}
         >
             <span className={cn(isOpen && 'font-semibold')}>{variants.titleOf(record)}</span>
-            <span className="text-xs text-muted-foreground">
+            <ToneBadge tone={COMPLECT_VARIANT_STAGE_TONE[stage]} variant="soft" size="sm">
                 {COMPLECT_VARIANT_STAGE_TITLE[stage]}
-            </span>
+            </ToneBadge>
             {isOpen ? (
                 <>
                     <ToneBadge
@@ -76,7 +81,7 @@ export const ComplectVariantRow = ({ record, variants }: ComplectVariantRowProps
                 <Button
                     size="sm"
                     variant="ghost"
-                    title="В КП и в отдел сервиса идут только варианты со стадией «Текущий»"
+                    title="В КП и в отдел сервиса идут варианты, отмеченные в работу: «Текущий» и стадии после него"
                     disabled={variants.isBusy}
                     onClick={() =>
                         void variants.setStage(variantSmartId, COMPLECT_VARIANT_STAGE.current)
@@ -85,7 +90,7 @@ export const ComplectVariantRow = ({ record, variants }: ComplectVariantRowProps
                     Сделать текущим
                 </Button>
             ) : null}
-            {variantSmartId !== null && !isRejected ? (
+            {variantSmartId !== null && variants.canReject(variantSmartId) ? (
                 <Button
                     size="sm"
                     variant="ghost"

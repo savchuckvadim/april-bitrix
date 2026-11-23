@@ -1,36 +1,40 @@
 import { isSnapshotV2 } from '../../snapshot/model/types';
 import type { ComplectVariantRecordDto } from '../model/dto';
-import { COMPLECT_VARIANT_STAGE, type ComplectVariantStage } from './stage';
+import {
+    COMPLECT_VARIANT_STAGE,
+    isActiveVariantStage,
+    isFinalVariantStage,
+    type ComplectVariantStage,
+} from './stage';
 
 /**
- * Кто из вариантов участвует в сделке. Правило то же, что на бэке
- * (`selectVariantsToCopy`), иначе экран показывал бы одно, а в отдел сервиса
- * уезжало другое:
- *  1. отклонённые не участвуют;
- *  2. есть помеченные «Текущий» — участвуют только они;
- *  3. стадий никто не трогал — участвуют все.
+ * Кто из вариантов участвует в документах и в сделке сервиса:
+ *  1. варианты в финальных стадиях (Успех, Отклонён, Не состоялся) не
+ *     участвуют никогда;
+ *  2. есть варианты «в работе» (Текущий, КП, Счёт, Договор, Поставка,
+ *     Согласование) — участвуют только они: после первого КП бэк переводит
+ *     участников в стадию «КП», и следующее КП собирается из них же;
+ *  3. таких нет — участвуют все нефинальные (черновики и «В мердже»).
  */
 export const selectParticipants = <T extends { variantSmartId: number | null }>(
     variants: readonly T[],
     stageOf: (variantSmartId: number | null) => ComplectVariantStage,
 ): T[] => {
-    const alive = variants.filter(
-        variant =>
-            stageOf(variant.variantSmartId) !== COMPLECT_VARIANT_STAGE.rejected,
+    const open = variants.filter(
+        variant => !isFinalVariantStage(stageOf(variant.variantSmartId)),
     );
-    const current = alive.filter(
-        variant =>
-            stageOf(variant.variantSmartId) === COMPLECT_VARIANT_STAGE.current,
+    const active = open.filter(variant =>
+        isActiveVariantStage(stageOf(variant.variantSmartId)),
     );
-    return current.length ? current : alive;
+    return active.length ? active : open;
 };
 
 /**
  * Имеет ли смысл «Сделать текущим»: действие нужно, только если после него
  * состав участников меняется. Единственный вариант (и любой, кто и так
- * участвует, пока других «Текущих» нет) уже идёт в сделку — кнопка пуста.
- * Отклонённый вариант возвращается в работу, поэтому для него действие
- * остаётся.
+ * участвует) уже идёт в сделку — кнопка пуста. Вариант «Отклонён» возвращается
+ * в работу, поэтому для него действие остаётся. Варианты в остальных
+ * финальных стадиях (Успех, Не состоялся) закрыты бэком: кнопки у них нет.
  */
 export const canMakeVariantCurrent = <T extends { variantSmartId: number | null }>(
     variants: readonly T[],
@@ -38,7 +42,11 @@ export const canMakeVariantCurrent = <T extends { variantSmartId: number | null 
     variantSmartId: number | null,
 ): boolean => {
     if (variantSmartId === null) return false;
-    if (stageOf(variantSmartId) === COMPLECT_VARIANT_STAGE.current) return false;
+    const stage = stageOf(variantSmartId);
+    if (stage === COMPLECT_VARIANT_STAGE.current) return false;
+    if (isFinalVariantStage(stage) && stage !== COMPLECT_VARIANT_STAGE.rejected) {
+        return false;
+    }
 
     const before = selectParticipants(variants, stageOf);
     const after = selectParticipants(variants, id =>

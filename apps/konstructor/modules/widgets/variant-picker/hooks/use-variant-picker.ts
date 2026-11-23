@@ -3,6 +3,7 @@
 import { useAppSelector } from '@/modules/app';
 import {
     COMPLECT_VARIANT_STAGE_TITLE,
+    COMPLECT_VARIANT_STAGE_TONE,
     type ComplectVariantRecordDto,
 } from '@/modules/entities/complect-variant';
 import { selectSnapshotRestored } from '@/modules/entities/snapshot';
@@ -11,7 +12,6 @@ import {
     ROUTE_KONSTRUCTOR,
     useKonstructorNavigation,
 } from '@/modules/shared/lib/routing';
-import { VARIANT_STAGE_TONE } from '../lib/variant-stage-tone';
 
 /**
  * Выбор варианта КП на входе в сделку: открыть один из вариантов, продолжить
@@ -33,7 +33,7 @@ export const useVariantPicker = () => {
             record,
             title: variants.titleOf(record),
             stageTitle: COMPLECT_VARIANT_STAGE_TITLE[stage],
-            stageTone: VARIANT_STAGE_TONE[stage],
+            stageTone: COMPLECT_VARIANT_STAGE_TONE[stage],
             isOpen,
             note: isOpen
                 ? 'Сейчас редактируется'

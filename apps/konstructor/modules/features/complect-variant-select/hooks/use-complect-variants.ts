@@ -10,6 +10,7 @@ import {
     createComplectVariant,
     deleteComplectVariant,
     getVariantContractCode,
+    isFinalVariantStage,
     isSingleContractAllowed,
     isVariantDeletable,
     openComplectVariant,
@@ -87,6 +88,9 @@ export const useComplectVariants = () => {
         /** «Сделать текущим» меняет состав участников; иначе кнопка не нужна */
         canMakeCurrent: (variantSmartId: number | null) =>
             canMakeVariantCurrent(variantState.records, stageOf, variantSmartId),
+        /** «Отклонить» нужно, пока итог по варианту не подведён (финальной стадии нет) */
+        canReject: (variantSmartId: number | null) =>
+            variantSmartId !== null && !isFinalVariantStage(stageOf(variantSmartId)),
         singleContractAllowed,
         newTitle,
         setNewTitle,

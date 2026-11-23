@@ -4,20 +4,24 @@ import type { ComplectVariantItem } from '../lib/api/complect-variant-helper';
 import {
     complectVariantActions,
     complectVariantReducer,
-    selectVariantParticipants,
+    selectModeVariantParticipants,
+    selectOfferComposition,
+    selectOfferVariantParticipants,
     type ComplectVariantState,
 } from './ComplectVariantSlice';
 import {
     COMPLECT_MODE,
+    COMPLECT_OFFER_INFOBLOCKS,
     DEFAULT_COMPLECT_COMPOSITION,
     type ComplectMode,
     type ComplectVariantRecordDto,
 } from './dto';
 
 /**
- * Селектор участников читает режим сделки, открытый вариант, записи и стадии
- * элементов: смена любого из них пересчитывает участников для КП, PDF,
- * договора, товаров сделки и заявки поставки (все берут его результат).
+ * Два селектора участников. КП (selectOfferVariantParticipants) режим сделки не
+ * читает: участник открытый незакрытый вариант при любом режиме. Договор,
+ * отчёт о поставке, заявка поставки и товары сделки (selectModeVariantParticipants)
+ * следуют режиму, открытому варианту, записям и стадиям элементов.
  */
 
 const record = (variantSmartId: number): ComplectVariantRecordDto =>
@@ -29,7 +33,9 @@ const items: ComplectVariantItem[] = [
     { id: 3, title: 'Третий', stageId: 'DT1:REJECTED' },
 ];
 
-const stateOf = (): { complectVariant: ComplectVariantState } => {
+type State = { complectVariant: ComplectVariantState };
+
+const stateOf = (): State => {
     let complectVariant = complectVariantReducer(undefined, { type: 'init' });
     complectVariant = complectVariantReducer(
         complectVariant,
@@ -39,51 +45,138 @@ const stateOf = (): { complectVariant: ComplectVariantState } => {
     return { complectVariant };
 };
 
-const apply = (
-    state: { complectVariant: ComplectVariantState },
-    action: UnknownAction,
-) => ({ complectVariant: complectVariantReducer(state.complectVariant, action) });
+const apply = (state: State, action: UnknownAction): State => ({
+    complectVariant: complectVariantReducer(state.complectVariant, action),
+});
 
-const withMode = (state: { complectVariant: ComplectVariantState }, mode: ComplectMode) =>
+const withMode = (state: State, mode: ComplectMode): State =>
     apply(state, complectVariantActions.setComposition({ ...DEFAULT_COMPLECT_COMPOSITION, mode }));
 
-const idsOf = (state: { complectVariant: ComplectVariantState }) =>
-    selectVariantParticipants(state).map(item => item.variantSmartId);
+const modeIdsOf = (state: State) => selectModeVariantParticipants(state).map(item => item.variantSmartId);
+const offerIdsOf = (state: State) => selectOfferVariantParticipants(state).map(item => item.variantSmartId);
 
-describe('селектор участников документов', () => {
-    it('настройки сделки не заданы — «по одному», открытого варианта нет: участников нет', () => {
-        expect(idsOf(stateOf())).toEqual([]);
+const ALL_MODES = [COMPLECT_MODE.compare, COMPLECT_MODE.single_contract, COMPLECT_MODE.multi_contract];
+
+describe('участники КП', () => {
+    it('настройки сделки не заданы, открытого варианта нет: участников нет', () => {
+        expect(offerIdsOf(stateOf())).toEqual([]);
     });
 
-    it('«по одному»: участник открытый вариант, смена открытого варианта пересчитывает', () => {
+    it.each(ALL_MODES)('режим %s: участник открытый вариант, смена открытого пересчитывает', mode => {
+        const first = apply(withMode(stateOf(), mode), complectVariantActions.setOpenVariant(1));
+        const second = apply(first, complectVariantActions.setOpenVariant(2));
+
+        expect(offerIdsOf(first)).toEqual([1]);
+        expect(offerIdsOf(second)).toEqual([2]);
+        expect(offerIdsOf(apply(second, complectVariantActions.setOpenVariant(null)))).toEqual([]);
+    });
+
+    it.each(ALL_MODES)('режим %s: открытый вариант в финальной стадии (Отклонён) не участвует', mode => {
+        const state = apply(withMode(stateOf(), mode), complectVariantActions.setOpenVariant(3));
+        expect(offerIdsOf(state)).toEqual([]);
+    });
+
+    it('смена режима не пересчитывает участников: тот же массив', () => {
+        const single = apply(stateOf(), complectVariantActions.setOpenVariant(2));
+        const before = selectOfferVariantParticipants(single);
+
+        for (const mode of ALL_MODES) {
+            expect(selectOfferVariantParticipants(withMode(single, mode))).toBe(before);
+        }
+    });
+
+    it('стадии элементов пришли позже: закрытый вариант выпадает', () => {
+        const open = apply(stateOf(), complectVariantActions.setOpenVariant(2));
+        const closed = apply(
+            open,
+            complectVariantActions.itemsLoaded([
+                { id: 1, title: 'Первый', stageId: 'DT1:NEW' },
+                { id: 2, title: 'Второй', stageId: 'DT1:SUCCESS' },
+                { id: 3, title: 'Третий', stageId: 'DT1:REJECTED' },
+            ]),
+        );
+
+        expect(offerIdsOf(open)).toEqual([2]);
+        expect(offerIdsOf(closed)).toEqual([]);
+    });
+});
+
+describe('настройки сделки для КП', () => {
+    it.each(ALL_MODES)('режим %s: в КП уходит compare, остальное как в сделке', mode => {
+        const state = withMode(stateOf(), mode);
+        expect(selectOfferComposition(state)).toEqual({ ...DEFAULT_COMPLECT_COMPOSITION, mode: COMPLECT_MODE.compare });
+    });
+
+    it('смена режима даёт тот же объект: запрос КП и ключ превью не пересобираются', () => {
+        const base = stateOf();
+        const before = selectOfferComposition(base);
+
+        for (const mode of ALL_MODES) {
+            expect(selectOfferComposition(withMode(base, mode))).toBe(before);
+        }
+    });
+
+    it('смена печати КП или открытого варианта в настройках даёт новый объект', () => {
+        const base = withMode(stateOf(), COMPLECT_MODE.multi_contract);
+        const before = selectOfferComposition(base);
+        const merged = apply(
+            base,
+            complectVariantActions.setComposition({
+                ...DEFAULT_COMPLECT_COMPOSITION,
+                mode: COMPLECT_MODE.multi_contract,
+                offer: { ...DEFAULT_COMPLECT_COMPOSITION.offer, infoblocks: COMPLECT_OFFER_INFOBLOCKS.merged },
+            }),
+        );
+        const reopened = apply(
+            base,
+            complectVariantActions.setComposition({
+                ...DEFAULT_COMPLECT_COMPOSITION,
+                mode: COMPLECT_MODE.multi_contract,
+                openVariantSmartId: 2,
+            }),
+        );
+
+        expect(selectOfferComposition(merged)).not.toBe(before);
+        expect(selectOfferComposition(reopened)).not.toBe(before);
+    });
+});
+
+describe('участники документов по режиму', () => {
+    it('настройки сделки не заданы — «Только открытый вариант», открытого варианта нет: участников нет', () => {
+        expect(modeIdsOf(stateOf())).toEqual([]);
+    });
+
+    it('«Только открытый вариант»: участник открытый вариант, смена открытого пересчитывает', () => {
         const state = stateOf();
         const first = apply(state, complectVariantActions.setOpenVariant(1));
         const second = apply(first, complectVariantActions.setOpenVariant(2));
 
-        expect(idsOf(first)).toEqual([1]);
-        expect(idsOf(second)).toEqual([2]);
-        expect(idsOf(apply(second, complectVariantActions.setOpenVariant(null)))).toEqual([]);
+        expect(modeIdsOf(first)).toEqual([1]);
+        expect(modeIdsOf(second)).toEqual([2]);
+        expect(modeIdsOf(apply(second, complectVariantActions.setOpenVariant(null)))).toEqual([]);
     });
 
-    it('«по одному»: открытый вариант в финальной стадии (Отклонён) не участвует', () => {
+    it('«Только открытый вариант»: открытый вариант в финальной стадии (Отклонён) не участвует', () => {
         const state = apply(stateOf(), complectVariantActions.setOpenVariant(3));
-        expect(idsOf(state)).toEqual([]);
+        expect(modeIdsOf(state)).toEqual([]);
     });
 
     it('смена режима пересчитывает участников при том же открытом варианте', () => {
         const single = apply(stateOf(), complectVariantActions.setOpenVariant(1));
 
-        expect(idsOf(single)).toEqual([1]);
-        expect(idsOf(withMode(single, COMPLECT_MODE.multi_contract))).toEqual([1, 2]);
-        expect(idsOf(withMode(single, COMPLECT_MODE.single_contract))).toEqual([1, 2]);
-        expect(idsOf(withMode(withMode(single, COMPLECT_MODE.multi_contract), COMPLECT_MODE.compare))).toEqual([1]);
+        expect(modeIdsOf(single)).toEqual([1]);
+        expect(modeIdsOf(withMode(single, COMPLECT_MODE.multi_contract))).toEqual([1, 2]);
+        expect(modeIdsOf(withMode(single, COMPLECT_MODE.single_contract))).toEqual([1, 2]);
+        expect(modeIdsOf(withMode(withMode(single, COMPLECT_MODE.multi_contract), COMPLECT_MODE.compare))).toEqual([
+            1,
+        ]);
     });
 
-    it('«вместе»: открытый вариант на состав не влияет', () => {
+    it('«Все варианты»: открытый вариант на состав не влияет', () => {
         const together = withMode(stateOf(), COMPLECT_MODE.multi_contract);
 
-        expect(idsOf(together)).toEqual([1, 2]);
-        expect(idsOf(apply(together, complectVariantActions.setOpenVariant(2)))).toEqual([1, 2]);
+        expect(modeIdsOf(together)).toEqual([1, 2]);
+        expect(modeIdsOf(apply(together, complectVariantActions.setOpenVariant(2)))).toEqual([1, 2]);
     });
 
     it('стадии элементов пришли позже: закрытый вариант выпадает без смены режима', () => {
@@ -97,13 +190,13 @@ describe('селектор участников документов', () => {
             ]),
         );
 
-        expect(idsOf(reopened)).toEqual([2, 3]);
+        expect(modeIdsOf(reopened)).toEqual([2, 3]);
     });
 
     it('кэшируется: чужое изменение слайса отдаёт тот же массив', () => {
         const state = withMode(stateOf(), COMPLECT_MODE.multi_contract);
         const busy = apply(state, complectVariantActions.busy(true));
 
-        expect(selectVariantParticipants(busy)).toBe(selectVariantParticipants(state));
+        expect(selectModeVariantParticipants(busy)).toBe(selectModeVariantParticipants(state));
     });
 });

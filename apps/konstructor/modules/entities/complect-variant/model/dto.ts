@@ -20,11 +20,12 @@ export type ComplectVariantRecordDto = InnerDealSnapshotDto;
 
 /**
  * Настройки сборки комплекта. Хранятся у строки самой сделки и переезжают с
- * ней в отдел сервиса. Режим решает, какие варианты идут в документы: один
- * открытый (`compare`) или все незакрытые вместе (`multi_contract`,
- * `single_contract`). Настройки печати есть только у КП: договор устроен
- * жёстко (на каждый комплект своё Приложение 1, одно Приложение 2 с ценами),
- * счёт следует за договором.
+ * ней в отдел сервиса. Режим решает, какие варианты идут в договор, отчёт о
+ * поставке, заявку на поставку и товары сделки: один открытый (`compare`) или
+ * все незакрытые вместе (`multi_contract`, `single_contract`). КП режим не
+ * читает: оно всегда делается по открытому варианту. Настройки печати есть
+ * только у КП: договор устроен жёстко (на каждый комплект своё Приложение 1,
+ * одно Приложение 2 с ценами), счёт следует за договором.
  *
  * Кто участвует, здесь не хранится: его определяют режим, открытый вариант и
  * закрытые стадии элементов смарта (selectParticipants).
@@ -47,14 +48,14 @@ export const DEFAULT_COMPLECT_COMPOSITION: ComplectComposition = {
 
 /**
  * Значения режима на бэке прежние (`compare` и два `*_contract`), меняется
- * смысл. `compare` — «по одному»: в документы идёт открытый вариант.
- * `multi_contract` и `single_contract` — «вместе»: в документы идут все
- * варианты, кроме отклонённых и закрытых.
+ * смысл. `compare`: в договор и отчёт идёт открытый вариант. `multi_contract`
+ * и `single_contract`: идут все варианты, кроме отклонённых и закрытых.
+ * Подписи те же, что на экранах договора и отчёта о поставке.
  */
 export const COMPLECT_MODE_TITLE: Record<ComplectMode, string> = {
-    [COMPLECT_MODE.compare]: 'По одному: в документы идёт открытый вариант',
-    [COMPLECT_MODE.single_contract]: 'Вместе, одним договором',
-    [COMPLECT_MODE.multi_contract]: 'Вместе, разными договорами',
+    [COMPLECT_MODE.compare]: 'Только открытый вариант',
+    [COMPLECT_MODE.single_contract]: 'Все варианты одним договором',
+    [COMPLECT_MODE.multi_contract]: 'Все варианты, каждому свой договор',
 };
 
 /** Порядок пунктов выбора режима на экране. */
@@ -65,26 +66,14 @@ export const COMPLECT_MODE_ORDER: readonly ComplectMode[] = [
 ];
 
 const TOGETHER_MODE_NOTE =
-    'В документы идут все варианты, кроме отклонённых и закрытых.';
+    'В договор, отчёт о поставке и товары сделки идут все варианты, кроме отклонённых и закрытых.';
 
-/** Строка под выбором режима: что именно уходит в документы. */
+/** Строка под выбором режима: что именно идёт в договор и отчёт. */
 export const COMPLECT_MODE_NOTE: Record<ComplectMode, string> = {
     [COMPLECT_MODE.compare]:
-        'В КП, договор и поставку идёт вариант, который сейчас редактируется.',
+        'В договор, отчёт о поставке и товары сделки идёт вариант, который сейчас редактируется.',
     [COMPLECT_MODE.single_contract]: TOGETHER_MODE_NOTE,
     [COMPLECT_MODE.multi_contract]: TOGETHER_MODE_NOTE,
-};
-
-/** Режимы «вместе»: все незакрытые варианты идут в документы разом. */
-export const isTogetherMode = (mode: ComplectMode): boolean =>
-    mode !== COMPLECT_MODE.compare;
-
-export const COMPLECT_OFFER_INFOBLOCKS_TITLE: Record<
-    ComplectOfferInfoblocks,
-    string
-> = {
-    [COMPLECT_OFFER_INFOBLOCKS.independent]: 'У каждого набора своя страница',
-    [COMPLECT_OFFER_INFOBLOCKS.merged]: 'Единым списком, повторы объединить',
 };
 
 /**

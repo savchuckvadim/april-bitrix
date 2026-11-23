@@ -3,16 +3,16 @@ import type { Catalog } from '../../catalog';
 import type { ComplectVariantItem } from '../../complect-variant/lib/api/complect-variant-helper';
 import type { ComplectVariantRecordDto } from '../../complect-variant/model/dto';
 import { buildDocVariant, type DocVariant } from '../../document-payload';
-import type { OfferPdfSnapshot } from '../../offer-pdf/model/types';
 import type { RowSet } from '../../row-set';
 import { parseSnapshotV2 } from '../../snapshot';
 
 export interface VariantsPayloadInput {
     catalog: Catalog;
     /**
-     * Участники документов: результат selectParticipants. Правило участия
-     * (режим сделки, открытый вариант, закрытые стадии) применяется один раз,
-     * в селекторе selectVariantParticipants, и сюда приходит готовым.
+     * Участники документа: результат selectParticipants. Правило участия
+     * (открытый вариант, закрытые стадии, у документов по режиму ещё и режим
+     * сделки) применяется один раз, в селекторах selectOfferVariantParticipants
+     * и selectModeVariantParticipants, и сюда приходит готовым.
      */
     participants: ComplectVariantRecordDto[];
     /** Элементы смарта: названия участников */
@@ -40,27 +40,21 @@ export interface SkippedVariant {
 export interface VariantsPayload {
     /** Собранные участники — уходят в документ. */
     variants: DocVariant[];
-    /**
-     * Те же участники вместе с данными, из которых они собраны. По ним PDF-КП
-     * берёт у каждого участника его способ печати наполнения (поле `pdf`).
-     */
+    /** Те же участники вместе с данными, из которых они собраны: запись, наборы, признак открытого. */
     entries: VariantEntry[];
     /** Участники без документа: по ним формирование блокируется. */
     skipped: SkippedVariant[];
 }
 
-/** Откуда собран участник: наборы и настройки PDF-КП, сохранённые вместе с ними. */
+/** Откуда собран участник: общий набор и наборы для сравнения. */
 interface VariantSource {
     general: RowSet;
     alternative: RowSet[];
-    pdf: OfferPdfSnapshot | null;
 }
 
 const fromRecord = (record: ComplectVariantRecordDto): VariantSource | null => {
     const snapshot = parseSnapshotV2(record.rows);
-    return snapshot
-        ? { general: snapshot.general, alternative: snapshot.alternative, pdf: snapshot.pdf ?? null }
-        : null;
+    return snapshot ? { general: snapshot.general, alternative: snapshot.alternative } : null;
 };
 
 /**
@@ -88,11 +82,6 @@ export interface VariantEntry {
     isOpen: boolean;
     general: RowSet;
     alternative: RowSet[];
-    /**
-     * Формат и стиль КП из слепка варианта. У открытого варианта null: его
-     * настройки лежат на экране.
-     */
-    pdf: OfferPdfSnapshot | null;
     doc: DocVariant;
 }
 
@@ -104,7 +93,7 @@ export interface VariantEntries {
 }
 
 /**
- * Участники документов (`input.participants`, правило selectParticipants):
+ * Участники документа (`input.participants`, правило selectParticipants):
  * те же варианты, что видит менеджер на экране вариантов. Открытый вариант
  * берётся из текущего row-set — что на экране, то и в документе, даже без
  * сохранения. Варианты только v2 (смарт появился после v2). Участник, которого
@@ -118,7 +107,7 @@ export const buildVariantEntries = (input: VariantsPayloadInput): VariantEntries
         const item = input.items.find(candidate => candidate.id === Number(record.variantSmartId));
         const title = item?.title || `Вариант ${record.variantSmartId ?? record.id}`;
         const isOpen = record.variantSmartId !== null && record.variantSmartId === input.openVariantSmartId;
-        const source = isOpen ? { ...input.live, pdf: null } : fromRecord(record);
+        const source = isOpen ? input.live : fromRecord(record);
         if (!source) {
             skipped.push({ variantSmartId: record.variantSmartId, title, reason: 'snapshotUnreadable' });
             continue;
@@ -138,7 +127,6 @@ export const buildVariantEntries = (input: VariantsPayloadInput): VariantEntries
                 isOpen,
                 general: source.general,
                 alternative: source.alternative,
-                pdf: source.pdf,
                 doc,
             });
         } else {

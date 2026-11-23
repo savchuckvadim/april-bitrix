@@ -69,7 +69,7 @@ describe('сохранение сделки при вариантах компл
         mocks.saveSnapshot.mockImplementation(() => async () => true);
     });
 
-    it('«разными договорами»: в запросе строки живого набора и слепка, sort сквозной', async () => {
+    it('«Все варианты, каждому свой договор»: в запросе строки живого набора и слепка, sort сквозной', async () => {
         const state = stateOf(COMPLECT_MODE.multi_contract, [recordOf(1, OPEN_ID, 'ur'), recordOf(2, OTHER_ID, 'ur')]);
         const store = makeStore(state);
 
@@ -82,7 +82,7 @@ describe('сохранение сделки при вариантах компл
         expect(store.getState().dealSend.status).toBe('done');
     });
 
-    it('режим «по одному»: в запросе только строки живого набора', async () => {
+    it('режим «Только открытый вариант»: в запросе только строки живого набора', async () => {
         const state = stateOf(COMPLECT_MODE.compare, [recordOf(1, OPEN_ID, 'ur'), recordOf(2, OTHER_ID, 'ur')]);
         const store = makeStore(state);
 
@@ -109,7 +109,7 @@ describe('сохранение сделки при вариантах компл
         expect(error).toContain('Вариант «Юристу» нельзя включить в документ: слепок не читается');
     });
 
-    it('режим «по одному»: нечитаемый слепок запись не блокирует', async () => {
+    it('режим «Только открытый вариант»: нечитаемый слепок запись не блокирует', async () => {
         const state = stateOf(COMPLECT_MODE.compare, [
             recordOf(1, OPEN_ID, 'ur'),
             recordOf(2, OTHER_ID, 'ur', '{broken'),

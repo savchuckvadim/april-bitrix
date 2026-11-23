@@ -22,12 +22,12 @@ import { contractGenerateBlocker, selectContractUnits } from '../select-contract
 const titleOf = (complectCode: string) => variantCatalog.complects.byCode[complectCode]!.title;
 
 describe('договорные единицы по режимам', () => {
-    it('режим «по одному»: единиц нет, договор по живому состоянию', () => {
+    it('режим «Только открытый вариант»: единиц нет, договор по живому состоянию', () => {
         const state = stateOf(COMPLECT_MODE.compare, twoRecords());
         expect(selectContractUnits(state)).toEqual({ units: [], skipped: [] });
     });
 
-    it('«разными договорами», два участника: по единице на участника', () => {
+    it('«Все варианты, каждому свой договор», два участника: по единице на участника', () => {
         const state = stateOf(COMPLECT_MODE.multi_contract, twoRecords());
         const { units, skipped } = selectContractUnits(state);
         expect(skipped).toEqual([]);
@@ -59,7 +59,7 @@ describe('договорные единицы по режимам', () => {
         expect(summary.supply).not.toBe('—');
     });
 
-    it('«одним договором»: единицы те же, что при «разными договорами»', () => {
+    it('«Все варианты одним договором»: единицы те же, что при «Все варианты, каждому свой договор»', () => {
         const multi = selectContractUnits(stateOf(COMPLECT_MODE.multi_contract, twoRecords()));
         const single = selectContractUnits(stateOf(COMPLECT_MODE.single_contract, twoRecords()));
         expect(single.units.map(unit => unit.key)).toEqual(multi.units.map(unit => unit.key));
@@ -106,7 +106,7 @@ describe('участник, которого собрать нельзя', () =>
         expect(contractGenerateBlocker(state)).toBe(expected);
     });
 
-    it('режим «по одному»: нечитаемый слепок не мешает договору по живому состоянию', () => {
+    it('режим «Только открытый вариант»: нечитаемый слепок не мешает договору по живому состоянию', () => {
         const state = stateOf(COMPLECT_MODE.compare, brokenRecords());
         expect(contractGenerateBlocker(state)).toBeNull();
     });
@@ -117,13 +117,13 @@ describe('блокер экрана договора', () => {
         expect(contractGenerateBlocker(stateOf(COMPLECT_MODE.multi_contract, twoRecords()))).toBeNull();
     });
 
-    it('стадии вариантов ещё грузятся: в режиме «вместе» блокер ждёт загрузки', () => {
+    it('стадии вариантов ещё грузятся: в режиме «Все варианты» блокер ждёт загрузки', () => {
         const state = stateOf(COMPLECT_MODE.multi_contract, twoRecords());
         const loading: RootState = { ...state, complectVariant: { ...state.complectVariant, itemsStatus: 'loading' } };
         expect(contractGenerateBlocker(loading)).toBe('Варианты ещё загружаются');
     });
 
-    it('стадии грузятся, режим «по одному»: договор по живому состоянию не ждёт', () => {
+    it('стадии грузятся, режим «Только открытый вариант»: договор по живому состоянию не ждёт', () => {
         const state = stateOf(COMPLECT_MODE.compare, twoRecords());
         const loading: RootState = { ...state, complectVariant: { ...state.complectVariant, itemsStatus: 'loading' } };
         expect(contractGenerateBlocker(loading)).toBeNull();
@@ -156,7 +156,7 @@ describe('selectContractUnits кэшируется', () => {
         expect(selectContractUnits(compare).units).toHaveLength(0);
     });
 
-    it('смена режима с «по одному» на «вместе» возвращает единицы', () => {
+    it('смена режима с «Только открытый вариант» на «Все варианты» возвращает единицы', () => {
         const compare = stateOf(COMPLECT_MODE.compare, twoRecords());
         const together: RootState = {
             ...compare,

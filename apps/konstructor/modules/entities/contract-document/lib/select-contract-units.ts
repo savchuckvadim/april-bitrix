@@ -2,7 +2,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '@/modules/app/model/store';
 import { selectComplectMode, selectVariantStagesLoading } from '../../complect-variant';
 import { COMPLECT_MODE } from '../../complect-variant/model/dto';
-import { selectVariantsInput } from '../../offer-document/lib/select-variants-input';
+import { selectModeVariantsInput } from '../../offer-document/lib/select-variants-input';
 import { skippedVariantsBlocker } from '../../offer-document/lib/skipped-variants-blocker';
 import { contractRequestBlocker } from './build-contract-request';
 import { buildContractUnits, type ContractUnitsResult } from './contract-units';
@@ -10,11 +10,11 @@ import { buildContractUnits, type ContractUnitsResult } from './contract-units';
 /**
  * Единицы договора из состояния приложения. Кэшируется: слепки вариантов
  * разбираются JSON.parse, на каждое действие стора это дорого. Пересчёт идёт
- * только при смене входа (selectVariantsInput: каталог, участники, открытый
- * вариант, строки набора) или режима сборки.
+ * только при смене входа (selectModeVariantsInput: каталог, участники по
+ * режиму сделки, открытый вариант, строки набора) или режима сборки.
  */
 export const selectContractUnits = createSelector(
-    [selectVariantsInput, (state: RootState) => selectComplectMode(state)],
+    [selectModeVariantsInput, (state: RootState) => selectComplectMode(state)],
     (input, mode): ContractUnitsResult => buildContractUnits({ ...input, mode }),
 );
 

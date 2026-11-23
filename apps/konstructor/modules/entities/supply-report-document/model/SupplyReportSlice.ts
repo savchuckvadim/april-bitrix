@@ -87,6 +87,16 @@ export const supplyReportSlice = createSlice({
         generateFailed(state: SupplyReportState, action: PayloadAction<string>) {
             state.generate = { ...initialGenerate, status: 'error', error: action.payload };
         },
+        /**
+         * Режим вариантов сменился: готовый отчёт и ошибка прежней проверки
+         * устарели, участники заявки поставки теперь другие. Идущее формирование
+         * не трогаем.
+         */
+        generateStale(state: SupplyReportState) {
+            if (state.generate.status === 'done' || state.generate.status === 'error') {
+                state.generate = initialGenerate;
+            }
+        },
         /** Новая сделка в плейсменте (setAppData-слушатель) — всё заново */
         reset() {
             return initialState;

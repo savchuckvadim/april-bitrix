@@ -5,14 +5,27 @@ import {
     complectVariantReducer,
     selectComposition,
 } from '../../../complect-variant/model/ComplectVariantSlice';
-import { COMPLECT_MODE, DEFAULT_COMPLECT_COMPOSITION } from '../../../complect-variant/model/dto';
+import {
+    COMPLECT_MODE,
+    COMPLECT_OFFER_INFOBLOCKS,
+    DEFAULT_COMPLECT_COMPOSITION,
+    type ComplectMode,
+} from '../../../complect-variant/model/dto';
 import { buildOfferGenerateRequest, offerRequestBlocker } from '../../../offer-document/lib/build-offer-request';
-import { recordOf, variantItems } from '../../../offer-document/lib/__fixtures__/variant-records';
+import { mainSetOf, recordOf, variantItems } from '../../../offer-document/lib/__fixtures__/variant-records';
 import {
     rootStateWithVariants,
     rootStateWithVariantsAndTemplate,
 } from '../../../offer-document/lib/__fixtures__/variants-state';
+import { createSet, upsertRow } from '../../../row-set';
 import { buildWordPreviewRequest } from '../build-word-preview-request';
+
+const ALL_MODES: ComplectMode[] = [COMPLECT_MODE.compare, COMPLECT_MODE.single_contract, COMPLECT_MODE.multi_contract];
+
+const withComposition = (state: RootState, composition: typeof DEFAULT_COMPLECT_COMPOSITION): RootState => ({
+    ...state,
+    complectVariant: complectVariantReducer(state.complectVariant, complectVariantActions.setComposition(composition)),
+});
 
 describe('тело превью Word-КП', () => {
     // адаптер ставит метки времени при каждой сборке: фиксируем часы, чтобы сравнивать тела целиком
@@ -24,7 +37,7 @@ describe('тело превью Word-КП', () => {
         vi.useRealTimers();
     });
 
-    it('участников нет — тело такое же, как у формирования, без variants и composition', () => {
+    it('открытого варианта нет — тело такое же, как у формирования, без variants и composition', () => {
         const state = rootStateWithVariantsAndTemplate([], variantItems);
         const request = buildWordPreviewRequest(state);
         expect(request).not.toBeNull();
@@ -33,16 +46,16 @@ describe('тело превью Word-КП', () => {
         expect(request).not.toHaveProperty('composition');
     });
 
-    it('участники есть — variants и composition на месте, остальное тело прежнее', () => {
+    it.each(ALL_MODES)('режим %s: открытый вариант — variants и composition на месте, остальное тело прежнее', mode => {
         const state = rootStateWithVariantsAndTemplate(
             [recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')],
             variantItems,
             undefined,
-            { mode: COMPLECT_MODE.multi_contract },
+            { mode, openVariantSmartId: 104 },
         );
-        const composition = { ...DEFAULT_COMPLECT_COMPOSITION, mode: COMPLECT_MODE.multi_contract };
+        const composition = { ...DEFAULT_COMPLECT_COMPOSITION, mode: COMPLECT_MODE.compare };
         const request = buildWordPreviewRequest(state);
-        expect(request?.variants?.map(variant => variant.variantSmartId)).toEqual([102, 104]);
+        expect(request?.variants?.map(variant => variant.variantSmartId)).toEqual([104]);
         expect(request?.composition).toEqual(composition);
         expect(request).toEqual({
             ...buildOfferGenerateRequest(state),
@@ -51,24 +64,25 @@ describe('тело превью Word-КП', () => {
         });
     });
 
-    it('по одному с открытым вариантом — в превью один вариант, открытый', () => {
-        const state = rootStateWithVariantsAndTemplate(
-            [recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')],
-            variantItems,
-            undefined,
-            { mode: COMPLECT_MODE.compare, openVariantSmartId: 104 },
-        );
-        const request = buildWordPreviewRequest(state);
-        expect(request?.variants?.map(variant => variant.variantSmartId)).toEqual([104]);
-        expect(request?.composition?.mode).toBe(COMPLECT_MODE.compare);
+    it('тело превью совпадает при всех трёх режимах', () => {
+        const stateOf = (mode: ComplectMode) =>
+            rootStateWithVariantsAndTemplate(
+                [recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')],
+                variantItems,
+                undefined,
+                { mode, openVariantSmartId: 104 },
+            );
+        const baseline = buildWordPreviewRequest(stateOf(COMPLECT_MODE.compare));
+        expect(baseline).not.toBeNull();
+        for (const mode of ALL_MODES) expect(buildWordPreviewRequest(stateOf(mode))).toEqual(baseline);
     });
 
-    it('по одному без открытого варианта — тело без variants и composition', () => {
+    it.each(ALL_MODES)('режим %s: открытого варианта нет — тело без variants и composition', mode => {
         const state = rootStateWithVariantsAndTemplate(
             [recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')],
             variantItems,
             undefined,
-            { mode: COMPLECT_MODE.compare, openVariantSmartId: null },
+            { mode, openVariantSmartId: null },
         );
         const request = buildWordPreviewRequest(state);
         expect(request).not.toBeNull();
@@ -76,23 +90,29 @@ describe('тело превью Word-КП', () => {
         expect(request).not.toHaveProperty('composition');
     });
 
-    it('настройки сделки уходят как есть: режим и печать', () => {
-        const base = rootStateWithVariantsAndTemplate([recordOf(1, 102, 'buh')], variantItems);
-        const composition = { ...DEFAULT_COMPLECT_COMPOSITION, mode: COMPLECT_MODE.multi_contract };
-        const state: RootState = {
-            ...base,
-            complectVariant: complectVariantReducer(
-                base.complectVariant,
-                complectVariantActions.setComposition(composition),
-            ),
+    it('настройки сделки уходят с режимом compare, печать КП как есть', () => {
+        const base = rootStateWithVariantsAndTemplate([recordOf(1, 102, 'buh')], variantItems, undefined, {
+            openVariantSmartId: 102,
+        });
+        const composition = {
+            ...DEFAULT_COMPLECT_COMPOSITION,
+            mode: COMPLECT_MODE.multi_contract,
+            offer: { ...DEFAULT_COMPLECT_COMPOSITION.offer, infoblocks: COMPLECT_OFFER_INFOBLOCKS.merged },
         };
+        const state = withComposition(base, composition);
         expect(selectComposition(state).mode).toBe(COMPLECT_MODE.multi_contract);
-        expect(buildWordPreviewRequest(state)?.composition).toEqual(composition);
+        expect(buildWordPreviewRequest(state)?.composition).toEqual({ ...composition, mode: COMPLECT_MODE.compare });
     });
 
-    it('участник, которого собрать нельзя, блокирует превью тем же блокером, что формирование', () => {
-        const state = rootStateWithVariantsAndTemplate([recordOf(2, 102, 'buh', '{broken')], variantItems, undefined, {
+    it('открытый вариант, который собрать нельзя, блокирует превью тем же блокером, что формирование', () => {
+        const main = mainSetOf('live', 'buh').rows[0]!;
+        const broken = upsertRow(createSet('general', 'general'), {
+            ...main,
+            refs: { ...main.refs, contractCode: 'no-such-contract' },
+        });
+        const state = rootStateWithVariantsAndTemplate([recordOf(2, 102, 'buh')], variantItems, broken, {
             mode: COMPLECT_MODE.multi_contract,
+            openVariantSmartId: 102,
         });
         expect(offerRequestBlocker(state)).toContain('Вариант «Юристу» нельзя включить в документ');
         expect(buildWordPreviewRequest(state)).toBeNull();

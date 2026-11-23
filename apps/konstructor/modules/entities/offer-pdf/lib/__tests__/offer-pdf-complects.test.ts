@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { RootState } from '@/modules/app/model/store';
-import {
-    complectVariantActions,
-    complectVariantReducer,
-} from '../../../complect-variant/model/ComplectVariantSlice';
-import { COMPLECT_MODE } from '../../../complect-variant/model/dto';
+import { COMPLECT_MODE, type ComplectMode } from '../../../complect-variant/model/dto';
 import { resolveSupply } from '../../../catalog';
 import {
     recordOf,
@@ -29,7 +25,7 @@ import { offerPdfRequestKey } from '../offer-pdf-request-key';
 
 /**
  * Наполнение по комплектам в запросе PDF-КП: разделы комплектов и способ
- * печати на верхнем уровне и у каждого участника.
+ * печати на верхнем уровне и у открытого варианта.
  */
 
 const optionsOf = (complectsMode: OfferComplectsMode = OFFER_COMPLECTS_MODE.MERGED): OfferPdfRequestOptions => ({
@@ -45,20 +41,6 @@ const pdfOf = (complectsMode: OfferComplectsMode): OfferPdfSnapshot => ({
     templateCode: 'classic',
     palette: null,
     settings: { ...OFFER_PDF_DEFAULT_SETTINGS, complectsMode },
-});
-
-/** Слепок без поля способа печати: так писали до наполнения по комплектам. */
-const legacyRowsOf = (general: ReturnType<typeof twoGarantGeneral>): string => {
-    const snapshot: Record<string, unknown> = JSON.parse(snapshotRowsOf(general));
-    return JSON.stringify({
-        ...snapshot,
-        pdf: { format: 'pdf', templateCode: 'classic', palette: null, settings: { withPromo: false } },
-    });
-};
-
-const withOpenVariant = (state: RootState, variantSmartId: number): RootState => ({
-    ...state,
-    complectVariant: complectVariantReducer(state.complectVariant, complectVariantActions.setOpenVariant(variantSmartId)),
 });
 
 const requestOf = (state: RootState, options = optionsOf()) => {
@@ -100,82 +82,36 @@ describe('PDF-запрос: наполнение по комплектам на 
     });
 });
 
-describe('PDF-запрос: наполнение по комплектам у участников', () => {
-    /** Режим «вместе»: в запрос идут все незакрытые варианты. */
-    const TOGETHER = { mode: COMPLECT_MODE.multi_contract };
-    const recordWith = (id: number, variantSmartId: number, rows: string) => recordOf(id, variantSmartId, 'buh', rows);
+describe('PDF-запрос: наполнение по комплектам у открытого варианта', () => {
+    const MODES = [COMPLECT_MODE.compare, COMPLECT_MODE.single_contract, COMPLECT_MODE.multi_contract];
+    // слепок открытого варианта устарел: один комплект и объединённое наполнение
+    const staleRecords = () => [
+        recordOf(1, 102, 'buh', snapshotRowsOf(oneGarantGeneral(), pdfOf(OFFER_COMPLECTS_MODE.MERGED))),
+        recordOf(2, 104, 'buh', snapshotRowsOf(twoGarantGeneral(), pdfOf(OFFER_COMPLECTS_MODE.MERGED))),
+    ];
+    const stateOf = (mode: ComplectMode, records = staleRecords()) =>
+        rootStateWithVariants(records, variantItems, twoGarantGeneral(), { mode, openVariantSmartId: 102 });
 
-    it('у каждого участника свои комплекты и свой способ печати из его слепка', () => {
-        const state = rootStateWithVariants(
-            [
-                recordWith(1, 102, snapshotRowsOf(twoGarantGeneral(), pdfOf(OFFER_COMPLECTS_MODE.SEPARATE))),
-                recordWith(2, 104, snapshotRowsOf(twoGarantGeneral(), pdfOf(OFFER_COMPLECTS_MODE.MERGED))),
-                recordWith(3, 106, snapshotRowsOf(oneGarantGeneral(), pdfOf(OFFER_COMPLECTS_MODE.SEPARATE))),
-            ],
-            variantItems,
-            twoGarantGeneral(),
-            TOGETHER,
-        );
-        const request = requestOf(state, optionsOf(OFFER_COMPLECTS_MODE.MERGED));
-        expect(request.variants?.map(variant => variant.variantSmartId)).toEqual([102, 104, 106]);
-        expect(request.variants?.map(variant => variant.complectsMode)).toEqual([
-            OFFER_COMPLECTS_MODE.SEPARATE,
-            OFFER_COMPLECTS_MODE.MERGED,
-            OFFER_COMPLECTS_MODE.SEPARATE,
-        ]);
-        expect(request.variants?.map(variant => variant.complects?.length)).toEqual([2, 2, undefined]);
-        expect(request.complectsMode).toBe(OFFER_COMPLECTS_MODE.MERGED);
-    });
-
-    it('открытый вариант берёт наборы и способ печати из живого состояния', () => {
-        const state = withOpenVariant(
-            rootStateWithVariants(
-                [
-                    // слепок открытого варианта устарел: один комплект и объединённое наполнение
-                    recordWith(1, 102, snapshotRowsOf(oneGarantGeneral(), pdfOf(OFFER_COMPLECTS_MODE.MERGED))),
-                    recordWith(2, 104, snapshotRowsOf(twoGarantGeneral(), pdfOf(OFFER_COMPLECTS_MODE.MERGED))),
-                ],
-                variantItems,
-                twoGarantGeneral(),
-                TOGETHER,
-            ),
-            102,
-        );
-        const request = requestOf(state, optionsOf(OFFER_COMPLECTS_MODE.SEPARATE));
-        const [open, other] = request.variants ?? [];
+    it.each(MODES)('режим %s: открытый вариант берёт наборы и способ печати из живого состояния', mode => {
+        const request = requestOf(stateOf(mode), optionsOf(OFFER_COMPLECTS_MODE.SEPARATE));
+        expect(request.variants?.map(variant => variant.variantSmartId)).toEqual([102]);
+        const [open] = request.variants ?? [];
         expect(open?.complectsMode).toBe(OFFER_COMPLECTS_MODE.SEPARATE);
         expect(open?.complects).toHaveLength(2);
-        // остальные участники живых настроек не получают
-        expect(other?.complectsMode).toBe(OFFER_COMPLECTS_MODE.MERGED);
     });
 
-    it('слепок без настроек PDF и слепок без поля способа печати читаются как объединённое наполнение', () => {
-        const state = rootStateWithVariants(
-            [
-                recordWith(1, 102, snapshotRowsOf(twoGarantGeneral())),
-                recordWith(2, 104, legacyRowsOf(twoGarantGeneral())),
-            ],
-            variantItems,
-            twoGarantGeneral(),
-            TOGETHER,
-        );
-        const request = requestOf(state, optionsOf(OFFER_COMPLECTS_MODE.SEPARATE));
-        expect(request.variants?.map(variant => variant.complectsMode)).toEqual([
-            OFFER_COMPLECTS_MODE.MERGED,
-            OFFER_COMPLECTS_MODE.MERGED,
-        ]);
+    it('другие варианты в запрос не идут, их слепки и настройки PDF на запрос не влияют', () => {
+        const withOther = stateOf(COMPLECT_MODE.multi_contract);
+        const withoutOther = stateOf(COMPLECT_MODE.multi_contract, [staleRecords()[0]!]);
+        const options = optionsOf(OFFER_COMPLECTS_MODE.MERGED);
+        expect(requestOf(withOther, options).variants?.map(variant => variant.variantSmartId)).toEqual([102]);
+        expect(offerPdfRequestKey(requestOf(withOther, options))).toBe(offerPdfRequestKey(requestOf(withoutOther, options)));
     });
 
-    it('смена способа печати в слепке участника меняет запрос и ключ превью', () => {
-        const stateOf = (mode: OfferComplectsMode) =>
-            rootStateWithVariants(
-                [recordWith(1, 102, snapshotRowsOf(twoGarantGeneral(), pdfOf(mode)))],
-                variantItems,
-                twoGarantGeneral(),
-                TOGETHER,
-            );
-        const merged = offerPdfRequestKey(requestOf(stateOf(OFFER_COMPLECTS_MODE.MERGED)));
-        const separate = offerPdfRequestKey(requestOf(stateOf(OFFER_COMPLECTS_MODE.SEPARATE)));
+    it('смена способа печати в настройках экрана меняет запрос и ключ превью', () => {
+        const state = stateOf(COMPLECT_MODE.compare);
+        const merged = offerPdfRequestKey(requestOf(state, optionsOf(OFFER_COMPLECTS_MODE.MERGED)));
+        const separate = offerPdfRequestKey(requestOf(state, optionsOf(OFFER_COMPLECTS_MODE.SEPARATE)));
         expect(separate).not.toBe(merged);
     });
 });

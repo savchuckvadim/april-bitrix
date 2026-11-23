@@ -11,11 +11,11 @@ import {
     supplyReportBlocker,
 } from '../build-supply-report-request';
 
-/** Режим «вместе»: в заявку и в блокер идут все незакрытые варианты. */
+/** Режим «Все варианты»: в заявку и в блокер идут все незакрытые варианты. */
 const together = (records: ComplectVariantRecordDto[]) =>
     rootStateWithVariants(records, variantItems, undefined, { mode: COMPLECT_MODE.multi_contract });
 
-/** Режим «по одному»: участник один, открытый вариант. */
+/** Режим «Только открытый вариант»: участник один, открытый вариант. */
 const oneByOne = (records: ComplectVariantRecordDto[], openVariantSmartId: number | null) =>
     rootStateWithVariants(records, variantItems, undefined, { mode: COMPLECT_MODE.compare, openVariantSmartId });
 
@@ -45,20 +45,20 @@ describe('отчёт о поставке: участники-варианты', 
         expect(request?.variants?.map(variant => variant.variantSmartId)).toEqual([102]);
     });
 
-    it('по одному: в заявку идёт открытый вариант, остальные нет', () => {
+    it('только открытый вариант: в заявку идёт открытый вариант, остальные нет', () => {
         const state = oneByOne([recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')], 104);
         const request = buildInitSupplyRequest(state, 'https://file', []);
         expect(request?.variants?.map(variant => variant.variantSmartId)).toEqual([104]);
     });
 
-    it('по одному без открытого варианта: поле variants не отправляется', () => {
+    it('только открытый вариант, открытого нет: поле variants не отправляется', () => {
         const state = oneByOne([recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')], null);
         const request = buildInitSupplyRequest(state, 'https://file', []);
         expect(request).not.toBeNull();
         expect(request?.variants).toBeUndefined();
     });
 
-    it('по одному: нечитаемый слепок неоткрытого варианта отчёт не блокирует', () => {
+    it('только открытый вариант: нечитаемый слепок неоткрытого варианта отчёт не блокирует', () => {
         const state = oneByOne([recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur', '{broken')], 102);
         expect(supplyReportBlocker(state)).toBeNull();
     });

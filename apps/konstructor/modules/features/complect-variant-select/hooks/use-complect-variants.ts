@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import type { RootState } from '@/modules/app/model/store';
 import { getComplectVariantPbxSmartEntityId } from '@/modules/entities/portal';
@@ -10,27 +10,22 @@ import {
     closeComplectVariant,
     createComplectVariant,
     deleteComplectVariant,
-    getVariantContractCode,
-    isSingleContractAllowed,
-    isTogetherMode,
     isVariantDeletable,
     openComplectVariant,
-    saveComplectComposition,
     selectComplectVariantState,
-    selectComposition,
-    selectUnclosedVariants,
-    selectVariantParticipants,
+    selectVariantsBusy,
     selectVariantStageOf,
     setComplectVariantStage,
-    type ComplectComposition,
     type ComplectVariantRecordDto,
     type ComplectVariantStage,
 } from '@/modules/entities/complect-variant';
 
 /**
- * Данные и действия вариантов комплекта. Список грузит слушатель на входе
- * (start-store-listeners); смарт на портале не установлен — `hasSmart: false`,
- * варианты не показываются, конструктор работает как раньше.
+ * Данные и действия вариантов комплекта: открыть, создать, закрыть, удалить,
+ * отклонить и вернуть. Список грузит слушатель на входе (start-store-listeners);
+ * смарт на портале не установлен — `hasSmart: false`, варианты не показываются,
+ * конструктор работает как раньше. Какие варианты идут в договор и отчёт, решает
+ * режим сделки на этих экранах (feature complect-mode-select).
  */
 export const useComplectVariants = () => {
     const dispatch = useAppDispatch();
@@ -38,23 +33,9 @@ export const useComplectVariants = () => {
         Boolean(getComplectVariantPbxSmartEntityId(state.portal.current)),
     );
     const variantState = useAppSelector(selectComplectVariantState);
-    const composition = useAppSelector(selectComposition);
+    const isBusy = useAppSelector(selectVariantsBusy);
     const stageOf = useAppSelector(selectVariantStageOf);
-    const participants = useAppSelector(selectVariantParticipants);
     const [newTitle, setNewTitle] = useState('');
-
-    const isTogether = isTogetherMode(composition.mode);
-    // «Одним договором» оценивается по всем незакрытым вариантам: именно они
-    // пойдут в документы, как только выбран режим «вместе»
-    const singleContractAllowed = useMemo(
-        () =>
-            isSingleContractAllowed(
-                selectUnclosedVariants(variantState.records, stageOf).map(
-                    getVariantContractCode,
-                ),
-            ),
-        [variantState.records, stageOf],
-    );
 
     const titleOf = (record: ComplectVariantRecordDto): string => {
         const item = variantState.items.find(
@@ -77,12 +58,7 @@ export const useComplectVariants = () => {
         openVariantSmartId: variantState.openVariantSmartId,
         /** Подсказка из настроек сделки: какой вариант открывали в прошлый раз */
         lastOpenVariantSmartId: variantState.lastOpenVariantSmartId,
-        composition,
-        // пока стадии из Битрикса в пути, править варианты рано: стадия на экране ещё не настоящая
-        isBusy:
-            variantState.isBusy ||
-            variantState.status === 'loading' ||
-            variantState.itemsStatus === 'loading',
+        isBusy,
         /** Названия и стадии из Битрикса ещё грузятся — карточки показывают загрузку */
         areDetailsLoading: variantState.itemsStatus === 'loading',
         error: variantState.error,
@@ -92,24 +68,12 @@ export const useComplectVariants = () => {
             : null,
         stageOf,
         titleOf,
-        /** Режим «вместе»: документы собираются по всем участникам сразу */
-        isTogether,
-        /**
-         * Бейдж «В документах»: вариант участвует в документах вместе с
-         * другими. В режиме «по одному» участник один, открытый вариант, и он
-         * уже помечен «Сейчас редактируется».
-         */
-        isInDocuments: (variantSmartId: number | null) =>
-            isTogether &&
-            variantSmartId !== null &&
-            participants.some(record => record.variantSmartId === variantSmartId),
         /** «Отклонить» нужно, пока итог по варианту не подведён (финальной стадии нет) */
         canReject: (variantSmartId: number | null) =>
             variantSmartId !== null && canRejectVariant(stageOf(variantSmartId)),
         /** «Вернуть» есть только у отклонённого варианта */
         canRestore: (variantSmartId: number | null) =>
             variantSmartId !== null && canRestoreVariant(stageOf(variantSmartId)),
-        singleContractAllowed,
         newTitle,
         setNewTitle,
         create: () => {
@@ -129,8 +93,6 @@ export const useComplectVariants = () => {
         /** Удаление насовсем: база конструктора, затем элемент в Битриксе */
         remove: (variantSmartId: number) =>
             dispatch(deleteComplectVariant(variantSmartId)),
-        saveComposition: (patch: Partial<ComplectComposition>) =>
-            dispatch(saveComplectComposition(patch)),
     };
 };
 

@@ -155,7 +155,7 @@ describe('вход на экран договора: формы единиц', (
         expect(Object.keys(store.getState().contractDocument.units)).toEqual(['201', '202']);
     });
 
-    it('единиц нет (режим «по одному»): запрашивается только живая форма', async () => {
+    it('единиц нет (режим «Только открытый вариант»): запрашивается только живая форма', async () => {
         const store = makeStore(contractUnitsState(COMPLECT_MODE.compare, twoVariantRecords()));
 
         await store.dispatch(initContractDocument());

@@ -3,6 +3,7 @@ import type { ComplectVariantRecordDto } from '../model/dto';
 import { COMPLECT_MODE, isSingleContractAllowed } from '../model/dto';
 import {
     getVariantContractCode,
+    selectOfferParticipants,
     selectParticipants,
     selectUnclosedVariants,
 } from './participants';
@@ -37,7 +38,7 @@ const NON_FINAL_STAGES = Object.values(COMPLECT_VARIANT_STAGE).filter(
     stage => !isFinalVariantStage(stage),
 );
 
-describe('участники документов в режиме «по одному»', () => {
+describe('участники документов в режиме «Только открытый вариант»', () => {
     const mode = COMPLECT_MODE.compare;
 
     it('открытый вариант — единственный участник, остальные не участвуют', () => {
@@ -76,7 +77,7 @@ describe('участники документов в режиме «по одн�
 });
 
 describe.each([COMPLECT_MODE.multi_contract, COMPLECT_MODE.single_contract])(
-    'участники документов в режиме «вместе» (%s)',
+    'участники документов в режиме «Все варианты» (%s)',
     mode => {
         it('участвуют все незакрытые варианты, черновики тоже', () => {
             const participants = selectParticipants([record(1), record(2), record(3)], withStages({}), mode, null);
@@ -138,6 +139,35 @@ describe.each([COMPLECT_MODE.multi_contract, COMPLECT_MODE.single_contract])(
         });
     },
 );
+
+describe('участники КП', () => {
+    it('открытый вариант — единственный участник, остальные не участвуют', () => {
+        const participants = selectOfferParticipants(
+            [record(1), record(2), record(3)],
+            withStages({ 1: COMPLECT_VARIANT_STAGE.current, 3: COMPLECT_VARIANT_STAGE.offer }),
+            2,
+        );
+        expect(idsOf(participants)).toEqual([2]);
+    });
+
+    it('открытого варианта нет — участников нет, КП идёт по живому состоянию', () => {
+        expect(selectOfferParticipants([record(1), record(2)], withStages({}), null)).toEqual([]);
+    });
+
+    it.each(COMPLECT_VARIANT_FINAL_STAGES)('открытый вариант закрыт (%s) — участников нет', stage => {
+        expect(selectOfferParticipants([record(1), record(2)], withStages({ 1: stage }), 1)).toEqual([]);
+    });
+
+    it('даёт тот же результат, что режим «Только открытый вариант» у документов по режиму', () => {
+        const variants = [record(1), record(2), record(3)];
+        const stages = withStages({ 3: COMPLECT_VARIANT_STAGE.rejected });
+        for (const open of [null, 1, 3, 99]) {
+            expect(selectOfferParticipants(variants, stages, open)).toEqual(
+                selectParticipants(variants, stages, COMPLECT_MODE.compare, open),
+            );
+        }
+    });
+});
 
 describe('незакрытые варианты', () => {
     it('закрытые выпадают независимо от режима и открытого варианта', () => {

@@ -15,15 +15,17 @@ export const selectUnclosedVariants = <T extends { variantSmartId: number | null
 ): T[] => variants.filter(variant => !isFinalVariantStage(stageOf(variant.variantSmartId)));
 
 /**
- * Кто из вариантов участвует в документах (КП, договор, товары сделки, заявка
- * поставки) и в переезде в сервисный отдел. Решает режим сделки:
- *  - `compare` («по одному») — единственный участник открытый вариант, если он
- *    есть в списке и не закрыт; открытого варианта нет или он закрыт —
- *    участников нет, документы идут по живому состоянию, как у сделки без
- *    вариантов;
- *  - `multi_contract` и `single_contract` («вместе») — все незакрытые варианты,
- *    черновики тоже.
- * Закрытый вариант (финальная стадия) не участвует ни в одном режиме.
+ * Кто из вариантов участвует в документах, которые идут по режиму сделки
+ * (договор, отчёт о поставке, заявка поставки, товары сделки) и в переезде в
+ * сервисный отдел. Решает режим сделки:
+ *  - `compare` («только открытый вариант») — единственный участник открытый
+ *    вариант, если он есть в списке и не закрыт; открытого варианта нет или он
+ *    закрыт — участников нет, документы идут по живому состоянию, как у сделки
+ *    без вариантов;
+ *  - `multi_contract` и `single_contract` («все варианты») — все незакрытые
+ *    варианты, черновики тоже.
+ * Закрытый вариант (финальная стадия) не участвует ни в одном режиме. КП режим
+ * не читает: его участников даёт selectOfferParticipants.
  */
 export const selectParticipants = <T extends { variantSmartId: number | null }>(
     variants: readonly T[],
@@ -36,6 +38,17 @@ export const selectParticipants = <T extends { variantSmartId: number | null }>(
     if (openVariantSmartId === null) return [];
     return unclosed.filter(variant => variant.variantSmartId === openVariantSmartId);
 };
+
+/**
+ * Участники КП (Word, PDF и оба превью). КП делают по одному варианту, поэтому
+ * режим сделки на него не влияет: участник — открытый незакрытый вариант при
+ * любом режиме; при его отсутствии КП идёт по живому состоянию.
+ */
+export const selectOfferParticipants = <T extends { variantSmartId: number | null }>(
+    variants: readonly T[],
+    stageOf: StageOf,
+    openVariantSmartId: number | null,
+): T[] => selectParticipants(variants, stageOf, COMPLECT_MODE.compare, openVariantSmartId);
 
 /**
  * Код типа договора варианта из его записи. Слепок v2 хранит `contractCode`

@@ -40,7 +40,7 @@ const goodRecords = () => [recordOf(1, OPEN_ID, 'ur'), recordOf(2, OTHER_ID, 'ur
 const brokenRecords = () => [recordOf(1, OPEN_ID, 'ur'), recordOf(2, OTHER_ID, 'ur', '{broken')];
 
 describe('строки сделки из состояния', () => {
-    it('«разными договорами», два участника: строки обоих, sort сквозной', () => {
+    it('«Все варианты, каждому свой договор», два участника: строки обоих, sort сквозной', () => {
         const state = stateOf(COMPLECT_MODE.multi_contract, goodRecords());
         const { rows, skipped } = selectDealProductRows(state);
 
@@ -49,7 +49,7 @@ describe('строки сделки из состояния', () => {
         expect(rows.map(row => row.sort)).toEqual(rows.map((_, index) => index));
     });
 
-    it('режим «по одному»: строки живого набора', () => {
+    it('режим «Только открытый вариант»: строки живого набора', () => {
         const state = stateOf(COMPLECT_MODE.compare, goodRecords());
 
         expect(selectDealProductRows(state).rows).toHaveLength(state.rowSet.general.rows.length);
@@ -77,7 +77,7 @@ describe('строки сделки из состояния', () => {
         expect(selectDealProductRows(single).rows).toHaveLength(liveCount);
     });
 
-    it('закрытый вариант в режиме «вместе» не даёт строк: остаётся один участник и живой набор', () => {
+    it('закрытый вариант в режиме «Все варианты» не даёт строк: остаётся один участник и живой набор', () => {
         const base = stateOf(COMPLECT_MODE.multi_contract, goodRecords());
         const closed: RootState = {
             ...base,
@@ -107,24 +107,24 @@ describe('блокер записи сделки', () => {
         expect(dealProductRowsBlocker(state)).toBe(expected);
     });
 
-    it('«одним договором»: нечитаемый слепок блокирует так же', () => {
+    it('«Все варианты одним договором»: нечитаемый слепок блокирует так же', () => {
         const state = stateOf(COMPLECT_MODE.single_contract, brokenRecords());
 
         expect(dealProductRowsBlocker(state)).toContain('Вариант «Юристу» нельзя включить в документ');
     });
 
-    it('режим «по одному»: нечитаемый слепок сделку не блокирует', () => {
+    it('режим «Только открытый вариант»: нечитаемый слепок сделку не блокирует', () => {
         expect(dealProductRowsBlocker(stateOf(COMPLECT_MODE.compare, brokenRecords()))).toBeNull();
     });
 
-    it('стадии вариантов ещё грузятся: в режиме «вместе» запись ждёт', () => {
+    it('стадии вариантов ещё грузятся: в режиме «Все варианты» запись ждёт', () => {
         const state = stateOf(COMPLECT_MODE.multi_contract, goodRecords());
         const loading: RootState = { ...state, complectVariant: { ...state.complectVariant, itemsStatus: 'loading' } };
 
         expect(dealProductRowsBlocker(loading)).toContain('Варианты ещё загружаются');
     });
 
-    it('стадии грузятся, режим «по одному»: запись не ждёт', () => {
+    it('стадии грузятся, режим «Только открытый вариант»: запись не ждёт', () => {
         const state = stateOf(COMPLECT_MODE.compare, goodRecords());
         const loading: RootState = { ...state, complectVariant: { ...state.complectVariant, itemsStatus: 'loading' } };
 

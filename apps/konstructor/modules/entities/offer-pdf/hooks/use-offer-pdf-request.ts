@@ -5,8 +5,8 @@ import { useStore } from 'react-redux';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
-import { selectComposition } from '../../complect-variant';
-import { selectVariantsPayload } from '../../offer-document';
+import { selectOfferComposition } from '../../complect-variant';
+import { selectOfferVariantsPayload } from '../../offer-document';
 import { buildOfferPdfGenerateRequest, offerPdfRequestBlocker } from '../lib/build-offer-pdf-request';
 import { offerPdfRequestKey } from '../lib/offer-pdf-request-key';
 import { selectOfferPdfPrefs } from '../model/OfferPdfSlice';
@@ -35,9 +35,10 @@ export const useOfferPdfRequest = ({ enabled, templateCode, palette }: OfferPdfR
     const provider = useAppSelector(state => state.documentProvider.current);
     const dealId = useAppSelector(state => state.app.dealId);
     const catalog = useAppSelector(selectCatalog);
-    // участники и настройки сделки уходят в запрос: смена любого из них пересобирает его и превью
-    const variants = useAppSelector(selectVariantsPayload);
-    const composition = useAppSelector(selectComposition);
+    // открытый вариант и настройки сделки уходят в запрос: смена любого из них пересобирает его и превью;
+    // режим сделки в запрос не входит, его смена превью не трогает
+    const variants = useAppSelector(selectOfferVariantsPayload);
+    const composition = useAppSelector(selectOfferComposition);
 
     const request = useMemo<OfferPdfGenerateRequest | null>(() => {
         if (!enabled || blocker || !templateCode) return null;

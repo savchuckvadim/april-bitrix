@@ -14,7 +14,7 @@ import {
     offerPdfForSnapshot,
     offerPdfStyleOf,
 } from '../offer-pdf-snapshot.util';
-import { normalizeOfferPdfPrefs, normalizeOfferPdfStyle, offerPdfComplectsModeOf } from '../offer-pdf-storage';
+import { normalizeOfferPdfPrefs, normalizeOfferPdfStyle } from '../offer-pdf-storage';
 
 const initial: OfferPdfState = offerPdfReducer(undefined, { type: '@@init' });
 
@@ -169,10 +169,10 @@ describe('способ печати наполнения комплектов в
             salePhrase: 'акция',
             complectsMode: OFFER_COMPLECTS_MODE.MERGED,
         });
-        expect(offerPdfComplectsModeOf(legacyStyle)).toBe(OFFER_COMPLECTS_MODE.MERGED);
-        expect(offerPdfComplectsModeOf({ settings: { complectsMode: 'всё сразу' } })).toBe(OFFER_COMPLECTS_MODE.MERGED);
-        expect(offerPdfComplectsModeOf(null)).toBe(OFFER_COMPLECTS_MODE.MERGED);
-        expect(offerPdfComplectsModeOf(undefined)).toBe(OFFER_COMPLECTS_MODE.MERGED);
+        const modeOf = (raw: unknown) => normalizeOfferPdfStyle(raw).settings.complectsMode;
+        expect(modeOf({ settings: { complectsMode: 'всё сразу' } })).toBe(OFFER_COMPLECTS_MODE.MERGED);
+        expect(modeOf(null)).toBe(OFFER_COMPLECTS_MODE.MERGED);
+        expect(modeOf(undefined)).toBe(OFFER_COMPLECTS_MODE.MERGED);
     });
 
     it('значение попадает в слепок и возвращается при раскладке', () => {

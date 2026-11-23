@@ -5,10 +5,8 @@ import { runDocumentToDeal } from '@/modules/app/model/document-run.thunk';
 import {
     generateOfferDocument,
     offerDocumentActions,
-    offerParticipantTitles,
     offerRequestBlocker,
     selectOfferGenerate,
-    selectVariantsPayload,
 } from '@/modules/entities/offer-document';
 
 /**
@@ -20,8 +18,6 @@ export const useOfferGenerate = () => {
     const dispatch = useAppDispatch();
     const generate = useAppSelector(selectOfferGenerate);
     const blocker = useAppSelector(offerRequestBlocker);
-    // только собранные варианты: пропущенные в КП не войдут, о них говорит blocker
-    const { variants } = useAppSelector(selectVariantsPayload);
 
     // экран загрузки на всё время, повторное нажатие не запускает второй документ
     const run = () =>
@@ -35,8 +31,6 @@ export const useOfferGenerate = () => {
         error: generate.status === 'error' ? generate.error : null,
         links: generate.links,
         warnings: generate.warnings,
-        // в КП попадёт несколько вариантов — менеджер должен это видеть до кнопки
-        participantTitles: offerParticipantTitles(variants),
         run,
         reset: () => dispatch(offerDocumentActions.generateReset()),
     };

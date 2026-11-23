@@ -182,3 +182,50 @@ describe('договорные единицы: устаревание, чист�
         expect(state.units).toEqual({});
     });
 });
+
+describe('смена режима вариантов: результаты формирования устарели', () => {
+    it('готовый и сбойный результат живого договора и единиц сбрасываются, спецификации остаются', () => {
+        const state = run(
+            initial,
+            contractDocumentActions.generateDone({ link: 'https://doc', documentName: 'Договор', savedToDisk: true }),
+            loadUnit('201'),
+            contractDocumentActions.unitGenerateDone({
+                key: '201',
+                link: 'https://unit',
+                documentName: 'Договор 201',
+                savedToDisk: true,
+            }),
+            contractDocumentActions.unitGenerateFailed({ key: '202', error: 'нет договора' }),
+            contractDocumentActions.generateStale(),
+        );
+        expect(state.generate.status).toBe('idle');
+        expect(state.generate.link).toBeNull();
+        expect(state.units['201']?.generate.status).toBe('idle');
+        expect(state.units['201']?.generate.link).toBeNull();
+        expect(state.units['202']?.generate.status).toBe('idle');
+        expect(state.units['201']?.formStatus).toBe('ready');
+        expect(state.units['201']?.specification.map(item => item.value)).toEqual(['исходное']);
+    });
+
+    it('идущее формирование не трогается', () => {
+        const state = run(
+            initial,
+            contractDocumentActions.generateStarted(),
+            contractDocumentActions.unitGenerateStarted({ key: '201' }),
+            contractDocumentActions.generateStale(),
+        );
+        expect(state.generate.status).toBe('generating');
+        expect(state.units['201']?.generate.status).toBe('generating');
+    });
+
+    it('номера договоров и поля сделки остаются: менеджер их уже вписал', () => {
+        const state = run(
+            initial,
+            contractDocumentActions.setContractNumber('Д-1'),
+            contractDocumentActions.unitContractNumber({ key: '201', value: 'Д-2' }),
+            contractDocumentActions.generateStale(),
+        );
+        expect(state.contractNumber).toBe('Д-1');
+        expect(state.units['201']?.contractNumber).toBe('Д-2');
+    });
+});

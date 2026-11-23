@@ -1,10 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { complectVariantActions } from '@/modules/entities/complect-variant/model/ComplectVariantSlice';
+import {
+    complectVariantActions,
+    complectVariantReducer,
+    type ComplectVariantState,
+} from '@/modules/entities/complect-variant/model/ComplectVariantSlice';
+import {
+    COMPLECT_MODE,
+    COMPLECT_OFFER_INFOBLOCKS,
+    DEFAULT_COMPLECT_COMPOSITION,
+    type ComplectComposition,
+} from '@/modules/entities/complect-variant/model/dto';
 import { offerDocumentActions } from '@/modules/entities/offer-document/model/OfferDocumentSlice';
 import { wordTemplateAC } from '@/modules/entities/offer-template-word/model/WordTemplateSlice';
 import { documentProvidertAC } from '@/modules/entities/provider/model/DocumentProviderSlice';
 import { rowSetActions } from '@/modules/entities/row-set/model/RowSetSlice';
-import { isContractSpecStaleAction, isOfferPreviewStaleAction } from '../stale-actions';
+import {
+    isComplectModeChanged,
+    isContractSpecStaleAction,
+    isOfferPreviewStale,
+    isOfferPreviewStaleAction,
+} from '../stale-actions';
 
 /** Действия набора строк, меняющие содержимое документов, с подписями для менеджера. */
 const ROW_SET_CONTENT: [string, { type: string }][] = [
@@ -50,7 +65,6 @@ describe('матчер устаревания превью Word', () => {
         ['сбой загрузки вариантов (участников не осталось)', complectVariantActions.failed],
         ['запись варианта', complectVariantActions.upsertRecord],
         ['смена открытого варианта', complectVariantActions.setOpenVariant],
-        ['настройки сделки (режим и печать)', complectVariantActions.setComposition],
         ['сброс вариантов', complectVariantActions.reset],
     ])('%s — превью устарело', (_title, creator) => {
         expect(isOfferPreviewStaleAction({ type: creator.type })).toBe(true);
@@ -65,11 +79,85 @@ describe('матчер устаревания превью Word', () => {
         ['загрузка списка шаблонов', wordTemplateAC.setTemplates],
         ['избранное шаблонов', wordTemplateAC.addToFavorites],
         ['начало загрузки вариантов', complectVariantActions.loading],
+        ['настройки сделки (решает isOfferPreviewStale по их содержимому)', complectVariantActions.setComposition],
         ['сбой действия с вариантами', complectVariantActions.actionFailed],
         ['снятие текста ошибки вариантов', complectVariantActions.clearError],
         ['флаг записи вариантов', complectVariantActions.busy],
     ])('%s — превью остаётся как есть', (_title, creator) => {
         expect(isOfferPreviewStaleAction({ type: creator.type })).toBe(false);
+    });
+});
+
+/** Срез состояния вариантов с заданными настройками сделки. */
+const stateWith = (composition: ComplectComposition | null): { complectVariant: ComplectVariantState } => ({
+    complectVariant: complectVariantReducer(
+        undefined,
+        complectVariantActions.loaded({ records: [], composition }),
+    ),
+});
+
+const ALL_MODES = [COMPLECT_MODE.compare, COMPLECT_MODE.single_contract, COMPLECT_MODE.multi_contract];
+
+describe('устаревание превью КП от настроек сделки', () => {
+    const base = { ...DEFAULT_COMPLECT_COMPOSITION, mode: COMPLECT_MODE.compare };
+    const save = (composition: ComplectComposition) => complectVariantActions.setComposition(composition);
+
+    it.each(ALL_MODES.flatMap(from => ALL_MODES.filter(to => to !== from).map(to => [from, to] as const)))(
+        'смена только режима %s → %s превью не устаревает',
+        (from, to) => {
+            const before = stateWith({ ...base, mode: from });
+            const after = stateWith({ ...base, mode: to });
+            expect(isOfferPreviewStale(save({ ...base, mode: to }), after, before)).toBe(false);
+        },
+    );
+
+    it('смена печати КП (инфоблоки) превью устаревает', () => {
+        const merged = {
+            ...base,
+            offer: { ...base.offer, infoblocks: COMPLECT_OFFER_INFOBLOCKS.merged },
+        };
+        expect(isOfferPreviewStale(save(merged), stateWith(merged), stateWith(base))).toBe(true);
+    });
+
+    it('смена открытого варианта в настройках превью устаревает', () => {
+        const reopened = { ...base, openVariantSmartId: 7 };
+        expect(isOfferPreviewStale(save(reopened), stateWith(reopened), stateWith(base))).toBe(true);
+    });
+
+    it('откат настроек после сбоя записи, вернувший прежний режим, превью не трогает', () => {
+        const multi = { ...base, mode: COMPLECT_MODE.multi_contract };
+        expect(isOfferPreviewStale(save(base), stateWith(base), stateWith(multi))).toBe(false);
+    });
+
+    it('остальные действия из списка устаревания решает тип действия, настройки при этом не важны', () => {
+        const state = stateWith(base);
+        expect(isOfferPreviewStale({ type: offerDocumentActions.setRecipientField.type }, state, state)).toBe(true);
+        expect(isOfferPreviewStale({ type: complectVariantActions.setOpenVariant.type }, state, state)).toBe(true);
+        expect(isOfferPreviewStale({ type: complectVariantActions.busy.type }, state, state)).toBe(false);
+    });
+});
+
+describe('смена режима вариантов', () => {
+    it.each(ALL_MODES.flatMap(from => ALL_MODES.filter(to => to !== from).map(to => [from, to] as const)))(
+        '%s → %s: режим стал другим, результаты договора и отчёта устарели',
+        (from, to) => {
+            const before = stateWith({ ...DEFAULT_COMPLECT_COMPOSITION, mode: from });
+            const after = stateWith({ ...DEFAULT_COMPLECT_COMPOSITION, mode: to });
+            expect(isComplectModeChanged(after, before)).toBe(true);
+        },
+    );
+
+    it('тот же режим, правка другой настройки — режим не менялся', () => {
+        const before = stateWith(DEFAULT_COMPLECT_COMPOSITION);
+        const after = stateWith({
+            ...DEFAULT_COMPLECT_COMPOSITION,
+            offer: { ...DEFAULT_COMPLECT_COMPOSITION.offer, infoblocks: COMPLECT_OFFER_INFOBLOCKS.merged },
+        });
+        expect(isComplectModeChanged(after, before)).toBe(false);
+    });
+
+    it('настройки сделки не заданы — режим по умолчанию, смены нет', () => {
+        expect(isComplectModeChanged(stateWith(null), stateWith(DEFAULT_COMPLECT_COMPOSITION))).toBe(false);
     });
 });
 

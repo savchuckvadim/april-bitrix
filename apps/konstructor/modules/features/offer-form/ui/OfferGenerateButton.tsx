@@ -5,17 +5,12 @@ import { Button } from '@workspace/ui/components/button';
 import { DocumentLinks } from '@/modules/shared/ui/DocumentLinks/DocumentLinks';
 import { useOfferGenerate } from '../hooks/use-offer-generate';
 
-/** «Сформировать КП»: блокер, варианты-участники, результат (очередь или ссылки). */
+/** «Сформировать КП»: блокер, результат (очередь или ссылки). */
 export const OfferGenerateButton = () => {
     const generate = useOfferGenerate();
 
     return (
         <div className="flex flex-col gap-2">
-            {generate.participantTitles.length ? (
-                <p className="text-xs text-muted-foreground">
-                    В КП войдут варианты: {generate.participantTitles.join(', ')}
-                </p>
-            ) : null}
             <Button
                 className="w-full"
                 onClick={() => void generate.run()}

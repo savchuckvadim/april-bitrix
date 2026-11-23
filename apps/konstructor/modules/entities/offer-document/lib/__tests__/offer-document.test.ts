@@ -13,7 +13,6 @@ import { toOfferClientType } from '../client-type.util';
 import { resolveInvoiceDefaults, resolveRecipientDefaults, toInputDate } from '../document-defaults.util';
 import { managerFromBxUser } from '../manager.util';
 import { buildVariantsPayload } from '../build-variants-payload';
-import { offerParticipantTitles } from '../participant-titles';
 import {
     mainSetOf,
     recordOf,
@@ -104,7 +103,7 @@ describe('buildVariantsPayload', () => {
         });
     };
 
-    it('вместе: участвуют все незакрытые, открытый вариант печатается из живого состояния, не из слепка', () => {
+    it('все варианты: участвуют все незакрытые, открытый вариант печатается из живого состояния, не из слепка', () => {
         const live = { general: mainSetOf('live', 'ur'), alternative: [] };
         const { variants, skipped } = payloadOf(
             [recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh'), recordOf(3, 103, 'buh')],
@@ -118,7 +117,7 @@ describe('buildVariantsPayload', () => {
         expect(skipped).toEqual([]);
     });
 
-    it('по одному: в документ идёт один вариант, открытый, из живого состояния', () => {
+    it('только открытый вариант: в документ идёт один вариант, открытый, из живого состояния', () => {
         const live = { general: mainSetOf('live', 'ur'), alternative: [] };
         const { variants, entries, skipped } = payloadOf(
             [recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh')],
@@ -140,7 +139,7 @@ describe('buildVariantsPayload', () => {
         expect(skipped).toEqual([]);
     });
 
-    it('по одному: нечитаемый слепок другого варианта документ не блокирует', () => {
+    it('только открытый вариант: нечитаемый слепок другого варианта документ не блокирует', () => {
         const { variants, skipped } = payloadOf(
             [recordOf(1, 102, 'buh'), recordOf(2, 105, 'buh', '{broken')],
             {
@@ -231,16 +230,5 @@ describe('buildVariantsPayload', () => {
         );
         expect(variants.map(v => v.title)).toEqual(['Юристу']);
         expect(skipped).toEqual([]);
-    });
-});
-
-describe('подсказка «В КП войдут варианты»', () => {
-    it('участников больше одного — названия по порядку', () => {
-        expect(offerParticipantTitles([{ title: 'Бухгалтеру' }, { title: 'Юристу' }])).toEqual(['Бухгалтеру', 'Юристу']);
-    });
-
-    it('один участник или ни одного — подсказки нет', () => {
-        expect(offerParticipantTitles([{ title: 'Бухгалтеру' }])).toEqual([]);
-        expect(offerParticipantTitles([])).toEqual([]);
     });
 });

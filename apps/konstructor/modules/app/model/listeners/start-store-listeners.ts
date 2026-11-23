@@ -45,7 +45,11 @@ import {
     fetchComplectVariants,
     syncOpenComplectVariant,
 } from '@/modules/entities/complect-variant';
-import { isContractSpecStaleAction, isOfferPreviewStaleAction } from '../../lib/stale-actions';
+import {
+    isComplectModeChanged,
+    isContractSpecStaleAction,
+    isOfferPreviewStale,
+} from '../../lib/stale-actions';
 import { setupProviderTaxListener } from './provider-tax.listener';
 
 const complectDescriptionHelper = new ComplectDescriptionHelper();
@@ -76,6 +80,7 @@ export function startStoreListeners(
     setupOpenVariantSyncListener(listenerMiddleware);
     setupOfferPreviewStaleListener(listenerMiddleware);
     setupContractStaleListener(listenerMiddleware);
+    setupModeStaleListener(listenerMiddleware);
     setupComplectDescriptionListener(listenerMiddleware);
     setupRowSetSyncListener(listenerMiddleware);
     setupProviderTaxListener(listenerMiddleware);
@@ -330,13 +335,14 @@ function setupRememberedDocumentListener(listenerMiddleware: ListenerMiddlewareI
 
 /**
  * Шапка КП, поставщик, сборка или Word-шаблон изменились после готового
- * PDF-превью → пометить превью устаревшим. Список действий — в
- * isOfferPreviewStaleAction. Само превью не перезапрашиваем: генерация
- * дорогая, менеджер обновляет кнопкой, когда закончил правки.
+ * PDF-превью → пометить превью устаревшим. Что считается правкой — в
+ * isOfferPreviewStale (смена одного режима вариантов превью не трогает).
+ * Само превью не перезапрашиваем: генерация дорогая, менеджер обновляет
+ * кнопкой, когда закончил правки.
  */
 function setupOfferPreviewStaleListener(listenerMiddleware: ListenerMiddlewareInstance) {
     typed(listenerMiddleware)({
-        matcher: isOfferPreviewStaleAction,
+        predicate: isOfferPreviewStale,
         effect: (_action, listenerApi) => {
             const preview = listenerApi.getState().wordTemplatePdfPreview;
             if (preview.previewPhase !== 'ready' || preview.needUpdate) return;
@@ -356,6 +362,22 @@ function setupContractStaleListener(listenerMiddleware: ListenerMiddlewareInstan
         matcher: isContractSpecStaleAction,
         effect: (_action, listenerApi) => {
             listenerApi.dispatch(contractDocumentActions.formStale());
+        },
+    });
+}
+
+/**
+ * Режим вариантов сменился (экран договора или отчёта о поставке) → готовые
+ * результаты договора и отчёта устарели: участники теперь другие. Результат
+ * сбрасывается, чтобы «Сформировано» и прежняя ошибка не относились к новому
+ * составу.
+ */
+function setupModeStaleListener(listenerMiddleware: ListenerMiddlewareInstance) {
+    typed(listenerMiddleware)({
+        predicate: (_action, current, previous) => isComplectModeChanged(current, previous),
+        effect: (_action, listenerApi) => {
+            listenerApi.dispatch(contractDocumentActions.generateStale());
+            listenerApi.dispatch(supplyReportActions.generateStale());
         },
     });
 }

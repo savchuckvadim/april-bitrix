@@ -1,6 +1,7 @@
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { ComplectVariantItem } from '../lib/api/complect-variant-helper';
-import { selectParticipants } from '../lib/participants';
+import { isSameOfferComposition, toOfferComposition } from '../lib/offer-composition';
+import { selectOfferParticipants, selectParticipants } from '../lib/participants';
 import {
     COMPLECT_VARIANT_STAGE,
     resolveVariantStage,
@@ -231,6 +232,16 @@ export const selectVariantStagesLoading = (state: WithComplectVariant): boolean 
     state.complectVariant.itemsStatus === 'loading';
 
 /**
+ * Идёт запись или загрузка вариантов. Пока стадии из Битрикса в пути, править
+ * варианты и режим рано: стадия на экране ещё не настоящая. Кнопки и выбор
+ * режима заблокированы.
+ */
+export const selectVariantsBusy = (state: WithComplectVariant): boolean =>
+    state.complectVariant.isBusy ||
+    state.complectVariant.status === 'loading' ||
+    state.complectVariant.itemsStatus === 'loading';
+
+/**
  * Стадия варианта по элементу смарта; элемента нет — черновик. Функция
  * пересоздаётся только при смене элементов, поэтому подписчикам и зависимым
  * селекторам её можно отдавать как есть.
@@ -248,17 +259,42 @@ export const selectVariantStageOf = createSelector(
         },
 );
 
-/** Режим сделки: «по одному» или «вместе» (с значением по умолчанию). */
+/** Режим сделки: кто из вариантов идёт в договор и отчёт о поставке (со значением по умолчанию). */
 export const selectComplectMode = (state: WithComplectVariant): ComplectMode =>
     selectComposition(state).mode;
 
 /**
- * Участники документов: единственное место, где правило участия собирается из
- * состояния. КП, PDF, договор, товары сделки, заявка поставки и панель
- * вариантов читают этот селектор. Пересчитывается при смене записей, стадий
- * элементов, режима и открытого варианта (см. selectParticipants).
+ * Настройки сделки для КП: режим всегда `compare`, остальное как в сделке.
+ * Смена режима даёт тот же объект, поэтому запрос КП и ключ превью от неё не
+ * пересобираются.
  */
-export const selectVariantParticipants = createSelector(
+export const selectOfferComposition = createSelector(
+    [selectComposition],
+    (composition): ComplectComposition => toOfferComposition(composition),
+    { memoizeOptions: { resultEqualityCheck: isSameOfferComposition } },
+);
+
+/**
+ * Участники КП (Word, PDF, оба превью). КП делают по одному варианту: участник
+ * открытый незакрытый вариант при любом режиме сделки, режим в селектор не
+ * входит (см. selectOfferParticipants).
+ */
+export const selectOfferVariantParticipants = createSelector(
+    [
+        (state: WithComplectVariant) => state.complectVariant.records,
+        selectVariantStageOf,
+        (state: WithComplectVariant) => state.complectVariant.openVariantSmartId,
+    ],
+    (records, stageOf, openVariantSmartId): ComplectVariantRecordDto[] =>
+        selectOfferParticipants(records, stageOf, openVariantSmartId),
+);
+
+/**
+ * Участники документов, которые идут по режиму сделки: договор, отчёт о
+ * поставке, заявка поставки и товары сделки. Пересчитывается при смене
+ * записей, стадий элементов, режима и открытого варианта (см. selectParticipants).
+ */
+export const selectModeVariantParticipants = createSelector(
     [
         (state: WithComplectVariant) => state.complectVariant.records,
         selectVariantStageOf,

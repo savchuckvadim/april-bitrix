@@ -80,10 +80,6 @@ export const normalizeOfferPdfStyle = (raw: unknown): OfferPdfStylePrefs => {
     };
 };
 
-/** Способ печати наполнения из слепка или кэша настроек; записи без поля — объединённое наполнение. */
-export const offerPdfComplectsModeOf = (raw: unknown): OfferComplectsMode =>
-    normalizeOfferPdfStyle(raw).settings.complectsMode;
-
 export const normalizeOfferPdfLetter = (raw: unknown): OfferPdfLetter => {
     const letter = asRecord(raw);
     return { appeal: pickString(letter.appeal, ''), text: pickString(letter.text, '') };

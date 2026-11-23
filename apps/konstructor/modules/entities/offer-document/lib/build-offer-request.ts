@@ -2,7 +2,7 @@ import type { OfferWordMultiGenerateDto } from '@workspace/nest-konstructor-api'
 import type { RootState } from '@/modules/app/model/store';
 import { IS_PROD } from '@/modules/app/consts/app-global';
 import { selectCatalog } from '../../catalog';
-import { selectComposition, selectVariantStagesLoading } from '../../complect-variant';
+import { selectOfferComposition, selectVariantStagesLoading } from '../../complect-variant';
 import { selectClientType } from '../../deal';
 import {
     buildOfferPayload,
@@ -13,7 +13,7 @@ import {
 import { findMainRow } from '../../row-set';
 import { toOfferClientType } from './client-type.util';
 import { managerFromBxUser } from './manager.util';
-import { selectVariantsPayload } from './select-variants-payload';
+import { selectOfferVariantsPayload } from './select-variants-payload';
 import { skippedVariantsBlocker } from './skipped-variants-blocker';
 
 /** Формат КП: Word требует выбранный шаблон, PDF собирается из встроенного стиля. */
@@ -37,19 +37,20 @@ const offerBaseBlocker = (state: RootState, format: OfferBlockerFormat): string 
 
 /**
  * Почему КП в заданном формате сейчас не собрать — подпись к заблокированной
- * кнопке; null — можно. Участник-вариант, которого собрать нельзя, тоже
+ * кнопке; null — можно. Открытый вариант, который собрать нельзя, тоже
  * блокирует: молча он выпал бы из КП, и менеджер узнал бы об этом по готовому
- * документу. Один блокер на Word и PDF, на формирование и превью.
+ * документу. Один блокер на Word и PDF, на формирование и превью. Режим сделки
+ * на КП не влияет: оно всегда идёт по открытому варианту.
  */
 export const offerBlocker = (state: RootState, format: OfferBlockerFormat): string | null =>
-    offerBaseBlocker(state, format) ?? skippedVariantsBlocker(selectVariantsPayload(state).skipped);
+    offerBaseBlocker(state, format) ?? skippedVariantsBlocker(selectOfferVariantsPayload(state).skipped);
 
 /** Блокер КП в Word: формирование и превью. */
 export const offerRequestBlocker = (state: RootState): string | null => offerBlocker(state, 'word');
 
 /**
- * Необязательные поля превью и PDF-КП: участники-варианты и настройки сделки.
- * Форма та же, что у generate-multi; у участников есть разделы по комплектам
+ * Необязательные поля превью и PDF-КП: открытый вариант и настройки сделки.
+ * Форма та же, что у generate-multi; у участника есть разделы по комплектам
  * (`complects`), которых в сгенерированном типе пока нет.
  */
 export type OfferVariantsFields = Partial<Pick<OfferWordMultiGenerateDto, 'composition'>> & {
@@ -57,22 +58,23 @@ export type OfferVariantsFields = Partial<Pick<OfferWordMultiGenerateDto, 'compo
 };
 
 /**
- * Запрос generate-multi с разделами по комплектам: у самого КП и у каждого
- * участника. Способ печати (`complectsMode`) Word-запрос не несёт: Word-шаблоны
+ * Запрос generate-multi с разделами по комплектам: у самого КП и у открытого
+ * варианта. Способ печати (`complectsMode`) Word-запрос не несёт: Word-шаблоны
  * блока «по комплектам» пока не имеют.
  */
 export type OfferMultiGenerateRequest = Omit<OfferWordMultiGenerateDto, 'variants'> &
     DocComplectsFields & { variants: DocVariant[] };
 
 /**
- * Варианты и настройки сделки для тела превью и PDF-КП. Участники есть —
- * `variants` и `composition`; участников нет — пустой объект, тело остаётся
- * таким же, как до вариантов. Пропущенных участников здесь нет: по ним
- * документ блокируется (offerBlocker).
+ * Вариант и настройки сделки для тела превью и PDF-КП. Участник (открытый
+ * вариант) есть — `variants` и `composition` с режимом `compare` при любом
+ * режиме сделки; участника нет — пустой объект, тело остаётся таким же, как до
+ * вариантов. Пропущенного участника здесь нет: по нему документ блокируется
+ * (offerBlocker).
  */
 export const offerVariantsFields = (state: RootState): OfferVariantsFields => {
-    const { variants } = selectVariantsPayload(state);
-    return variants.length ? { variants, composition: selectComposition(state) } : {};
+    const { variants } = selectOfferVariantsPayload(state);
+    return variants.length ? { variants, composition: selectOfferComposition(state) } : {};
 };
 
 /**
@@ -113,17 +115,18 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
 };
 
 /**
- * Запрос generate-multi: КП плюс участники-варианты и настройки сборки.
- * Вариантов нет — бэк печатает одиночное КП (variants: []).
+ * Запрос generate-multi: КП плюс открытый вариант и настройки сборки (режим
+ * `compare` при любом режиме сделки). Открытого варианта нет — бэк печатает
+ * одиночное КП (variants: []).
  */
 export const buildOfferMultiGenerateRequest = (state: RootState): OfferMultiGenerateRequest | null => {
     if (offerRequestBlocker(state)) return null;
     const offer = buildOfferGenerateRequest(state);
     if (!offer) return null;
-    const { variants } = selectVariantsPayload(state);
+    const { variants } = selectOfferVariantsPayload(state);
     return {
         ...offer,
         variants,
-        composition: variants.length ? selectComposition(state) : undefined,
+        composition: variants.length ? selectOfferComposition(state) : undefined,
     };
 };

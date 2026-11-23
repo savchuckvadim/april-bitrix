@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { RootState } from '@/modules/app/model/store';
 import { buildWordPreviewRequest } from '../../../offer-template-word/lib/build-word-preview-request';
 import {
@@ -14,7 +14,7 @@ import {
     type ComplectMode,
     type ComplectVariantRecordDto,
 } from '../../../complect-variant/model/dto';
-import { createSet, type RowSet } from '../../../row-set';
+import { createSet, upsertRow, type RowSet } from '../../../row-set';
 import {
     buildOfferGenerateRequest,
     buildOfferMultiGenerateRequest,
@@ -22,22 +22,28 @@ import {
     offerRequestBlocker,
     offerVariantsFields,
 } from '../build-offer-request';
-import { selectVariantsPayload } from '../select-variants-payload';
+import { selectModeVariantsPayload, selectOfferVariantsPayload } from '../select-variants-payload';
 import { skippedVariantsBlocker } from '../skipped-variants-blocker';
-import { recordOf, snapshotRowsOf, variantItems } from '../__fixtures__/variant-records';
+import { mainSetOf, recordOf, snapshotRowsOf, variantItems } from '../__fixtures__/variant-records';
 import {
     rootStateWithVariants,
     rootStateWithVariantsAndTemplate as stateWith,
     twoGarantGeneral,
 } from '../__fixtures__/variants-state';
 
-/** Режим «вместе»: в документы идут все незакрытые варианты. */
-const together = (records: ComplectVariantRecordDto[], general?: RowSet): RootState =>
-    stateWith(records, variantItems, general, { mode: COMPLECT_MODE.multi_contract });
+/**
+ * КП делают по одному варианту: участник открытый незакрытый вариант при любом
+ * режиме сделки (composition.mode на КП не влияет).
+ */
+const ALL_MODES: ComplectMode[] = [COMPLECT_MODE.compare, COMPLECT_MODE.single_contract, COMPLECT_MODE.multi_contract];
 
-/** Режим «по одному»: в документы идёт открытый вариант. */
-const oneByOne = (records: ComplectVariantRecordDto[], openVariantSmartId: number | null): RootState =>
-    stateWith(records, variantItems, undefined, { mode: COMPLECT_MODE.compare, openVariantSmartId });
+/** Состояние с вариантами, режимом сделки и открытым вариантом. */
+const stateOf = (
+    records: ComplectVariantRecordDto[],
+    openVariantSmartId: number | null,
+    mode: ComplectMode = COMPLECT_MODE.compare,
+    general?: RowSet,
+): RootState => stateWith(records, variantItems, general, { mode, openVariantSmartId });
 
 const withMode = (state: RootState, mode: ComplectMode): RootState => ({
     ...state,
@@ -55,6 +61,18 @@ const withOpenVariant = (state: RootState, openVariantSmartId: number | null): R
     ),
 });
 
+const idsOf = (variants: readonly { variantSmartId: number | null }[] | undefined) =>
+    variants?.map(variant => variant.variantSmartId);
+
+/** Живой набор, у которого договор главной строки вне каталога: открытый вариант собрать нельзя. */
+const brokenLiveGeneral = (): RowSet => {
+    const main = mainSetOf('live', 'buh').rows[0]!;
+    return upsertRow(createSet('general', 'general'), {
+        ...main,
+        refs: { ...main.refs, contractCode: 'no-such-contract' },
+    });
+};
+
 describe('блокер КП по формату', () => {
     it('Word требует выбранный шаблон, PDF обходится без него', () => {
         const state = rootStateWithVariants([recordOf(1, 102, 'buh')], variantItems);
@@ -62,136 +80,131 @@ describe('блокер КП по формату', () => {
         expect(offerBlocker(state, 'pdf')).toBeNull();
     });
 
-    it('пропущенный участник блокирует оба формата одним текстом', () => {
-        const state = together([recordOf(2, 102, 'buh', '{broken')]);
-        expect(offerBlocker(state, 'pdf')).not.toBeNull();
+    it.each(ALL_MODES)('режим %s: открытый вариант, который собрать нельзя, блокирует оба формата одним текстом', mode => {
+        const state = stateOf([recordOf(2, 102, 'buh')], 102, mode, brokenLiveGeneral());
+        expect(offerBlocker(state, 'pdf')).toContain('Вариант «Юристу» нельзя включить в документ');
         expect(offerBlocker(state, 'pdf')).toBe(offerBlocker(state, 'word'));
     });
 });
 
-describe('поля вариантов для превью и PDF', () => {
-    it('участников нет — пустой объект', () => {
-        expect(offerVariantsFields(together([]))).toEqual({});
+describe('КП: кто идёт в запрос при любом режиме', () => {
+    const records = () => [recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh'), recordOf(3, 103, 'buh')];
+
+    // адаптер ставит метки времени при каждой сборке: фиксируем часы, чтобы сравнивать запросы целиком
+    beforeAll(() => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date('2026-11-23T12:00:00.000Z'));
+    });
+    afterAll(() => {
+        vi.useRealTimers();
     });
 
-    it('участники есть — variants и composition', () => {
-        const fields = offerVariantsFields(together([recordOf(1, 102, 'buh')]));
-        expect(fields.variants?.map(variant => variant.variantSmartId)).toEqual([102]);
-        expect(fields.composition?.mode).toBe(COMPLECT_MODE.multi_contract);
+    it.each(ALL_MODES)('режим %s: в запросе один вариант, открытый, настройки с режимом compare', mode => {
+        const request = buildOfferMultiGenerateRequest(stateOf(records(), 102, mode));
+        expect(idsOf(request?.variants)).toEqual([102]);
+        expect(request?.composition).toEqual({ ...DEFAULT_COMPLECT_COMPOSITION, mode: COMPLECT_MODE.compare });
     });
 
-    it('по одному без открытого варианта — пустой объект, хотя варианты в сделке есть', () => {
-        const state = oneByOne([recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh')], null);
+    it('запрос, поля для превью и PDF совпадают при всех трёх режимах', () => {
+        const [first, ...rest] = ALL_MODES.map(mode => stateOf(records(), 102, mode));
+        const baseline = {
+            request: buildOfferMultiGenerateRequest(first!),
+            fields: offerVariantsFields(first!),
+            preview: buildWordPreviewRequest(first!),
+        };
+        expect(baseline.request).not.toBeNull();
+        for (const state of rest) {
+            expect(buildOfferMultiGenerateRequest(state)).toEqual(baseline.request);
+            expect(offerVariantsFields(state)).toEqual(baseline.fields);
+            expect(buildWordPreviewRequest(state)).toEqual(baseline.preview);
+        }
+    });
+
+    it.each(ALL_MODES)('режим %s: открытого варианта нет — вариантов в запросе нет, КП по живому состоянию', mode => {
+        const state = stateOf(records(), null, mode);
+        const request = buildOfferMultiGenerateRequest(state);
+        expect(request?.variants).toEqual([]);
+        expect(request?.composition).toBeUndefined();
         expect(offerVariantsFields(state)).toEqual({});
     });
 
-    it('по одному с открытым вариантом — один участник и настройки сделки', () => {
-        const state = oneByOne([recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh')], 102);
-        const fields = offerVariantsFields(state);
-        expect(fields.variants?.map(variant => variant.variantSmartId)).toEqual([102]);
-        expect(fields.composition?.mode).toBe(COMPLECT_MODE.compare);
-    });
-});
-
-describe('КП: кто идёт в запрос в зависимости от режима', () => {
-    const records = () => [recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh'), recordOf(3, 103, 'buh')];
-
-    it('по одному с открытым вариантом: в запросе один вариант, открытый', () => {
-        const request = buildOfferMultiGenerateRequest(oneByOne(records(), 102));
-        expect(request?.variants.map(variant => variant.variantSmartId)).toEqual([102]);
-        expect(request?.composition?.mode).toBe(COMPLECT_MODE.compare);
-    });
-
-    it('по одному без открытого варианта: вариантов в запросе нет, КП по живому состоянию', () => {
-        const request = buildOfferMultiGenerateRequest(oneByOne(records(), null));
-        expect(request?.variants).toEqual([]);
-        expect(request?.composition).toBeUndefined();
-    });
-
-    it('по одному: открытый вариант закрыт (Отклонён) — вариантов в запросе нет', () => {
-        const request = buildOfferMultiGenerateRequest(oneByOne(records(), 103));
+    it.each(ALL_MODES)('режим %s: открытый вариант закрыт (Отклонён) — вариантов в запросе нет', mode => {
+        const request = buildOfferMultiGenerateRequest(stateOf(records(), 103, mode));
         expect(request?.variants).toEqual([]);
     });
 
-    it('вместе: в запросе все участники, закрытый вариант не входит', () => {
-        const request = buildOfferMultiGenerateRequest(together(records()));
-        expect(request?.variants.map(variant => variant.variantSmartId)).toEqual([101, 102]);
-        expect(request?.composition?.mode).toBe(COMPLECT_MODE.multi_contract);
-    });
+    it('смена режима участников КП не пересчитывает: тот же объект', () => {
+        const single = stateOf(records(), 102);
+        const before = selectOfferVariantsPayload(single);
 
-    it('смена режима пересчитывает участников КП без пересоздания состояния', () => {
-        const single = oneByOne(records(), 102);
-        const both = withMode(single, COMPLECT_MODE.multi_contract);
-
-        expect(selectVariantsPayload(single).variants.map(variant => variant.variantSmartId)).toEqual([102]);
-        expect(selectVariantsPayload(both).variants.map(variant => variant.variantSmartId)).toEqual([101, 102]);
-        expect(
-            selectVariantsPayload(withMode(both, COMPLECT_MODE.compare)).variants.map(
-                variant => variant.variantSmartId,
-            ),
-        ).toEqual([102]);
+        expect(idsOf(before.variants)).toEqual([102]);
+        for (const mode of ALL_MODES) {
+            expect(selectOfferVariantsPayload(withMode(single, mode))).toBe(before);
+        }
     });
 
     it('смена открытого варианта пересчитывает участника КП и источник его строк', () => {
-        const first = oneByOne(records(), 101);
+        const first = stateOf(records(), 101);
         const second = withOpenVariant(first, 102);
 
-        expect(selectVariantsPayload(first).entries.map(entry => [entry.variantSmartId, entry.isOpen])).toEqual([
+        expect(selectOfferVariantsPayload(first).entries.map(entry => [entry.variantSmartId, entry.isOpen])).toEqual([
             [101, true],
         ]);
-        expect(selectVariantsPayload(second).entries.map(entry => [entry.variantSmartId, entry.isOpen])).toEqual([
+        expect(selectOfferVariantsPayload(second).entries.map(entry => [entry.variantSmartId, entry.isOpen])).toEqual([
             [102, true],
         ]);
-        expect(selectVariantsPayload(withOpenVariant(second, null)).entries).toEqual([]);
+        expect(selectOfferVariantsPayload(withOpenVariant(second, null)).entries).toEqual([]);
     });
 
-    it('вместе: открытый вариант идёт из живого состояния, остальные из слепков', () => {
-        const state = withOpenVariant(together(records()), 101);
-        expect(selectVariantsPayload(state).entries.map(entry => [entry.variantSmartId, entry.isOpen])).toEqual([
-            [101, true],
-            [102, false],
-        ]);
+    it('участники по режиму и участники КП расходятся: «Все варианты» дают всех незакрытых, КП одного', () => {
+        const state = stateOf(records(), 102, COMPLECT_MODE.multi_contract);
+        expect(idsOf(selectModeVariantsPayload(state).variants)).toEqual([101, 102]);
+        expect(idsOf(selectOfferVariantsPayload(state).variants)).toEqual([102]);
     });
 });
 
-describe('КП: участники-варианты и блокер', () => {
-    it('все участники собираются — блокера нет, варианты уходят в запрос', () => {
-        const state = together([recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')]);
+describe('КП: открытый вариант и блокер', () => {
+    it.each(ALL_MODES)('режим %s: открытый вариант собирается — блокера нет, вариант уходит в запрос', mode => {
+        const state = stateOf([recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')], 104, mode);
         expect(offerRequestBlocker(state)).toBeNull();
-        const request = buildOfferMultiGenerateRequest(state);
-        expect(request?.variants.map(variant => variant.variantSmartId)).toEqual([102, 104]);
+        expect(idsOf(buildOfferMultiGenerateRequest(state)?.variants)).toEqual([104]);
     });
 
-    it('нечитаемый слепок участника блокирует КП и называет вариант', () => {
-        const state = together([recordOf(2, 102, 'buh', '{broken')]);
+    it.each(ALL_MODES)('режим %s: открытый вариант без договора в каталоге блокирует КП и называет вариант', mode => {
+        const state = stateOf([recordOf(2, 102, 'buh')], 102, mode, brokenLiveGeneral());
         expect(offerRequestBlocker(state)).toBe(
-            'Вариант «Юристу» нельзя включить в документ: слепок не читается. ' +
-                'Откройте вариант и сохраните его заново или отклоните его',
+            'Вариант «Юристу» нельзя включить в документ: ' +
+                'нет главной строки комплекта, её договора или поставки в каталоге. ' +
+                'Откройте вариант и соберите комплект заново или отклоните его',
         );
         expect(buildOfferMultiGenerateRequest(state)).toBeNull();
     });
 
-    it('участник без главной строки блокирует КП с названием варианта', () => {
-        const state = together([recordOf(1, 102, 'buh', snapshotRowsOf(createSet('general', 'general')))]);
-        const blocker = offerRequestBlocker(state);
-        expect(blocker).toContain('Вариант «Юристу» нельзя включить в документ');
-        expect(blocker).toContain('нет главной строки комплекта');
-        expect(buildOfferMultiGenerateRequest(state)).toBeNull();
+    it.each(ALL_MODES)('режим %s: нечитаемый слепок другого варианта КП не блокирует', mode => {
+        const state = stateOf([recordOf(1, 102, 'buh'), recordOf(2, 105, 'buh', '{broken')], 102, mode);
+        expect(offerRequestBlocker(state)).toBeNull();
+        expect(idsOf(buildOfferMultiGenerateRequest(state)?.variants)).toEqual([102]);
     });
 
-    it('одиночное тело КП собирается без проверки участников: варианты в него не входят', () => {
-        const state = together([recordOf(1, 102, 'buh', '{broken')]);
-        expect(offerRequestBlocker(state)).not.toBeNull();
-        expect(buildOfferGenerateRequest(state)).not.toBeNull();
-    });
-
-    it('битый слепок варианта в финальной стадии не блокирует КП', () => {
-        const state = together([recordOf(1, 101, 'buh'), recordOf(3, 103, 'buh', '{broken')]);
+    it.each(ALL_MODES)('режим %s: слепок без главной строки у другого варианта КП не блокирует', mode => {
+        const empty = snapshotRowsOf(createSet('general', 'general'));
+        const state = stateOf([recordOf(1, 102, 'buh'), recordOf(2, 105, 'buh', empty)], 102, mode);
         expect(offerRequestBlocker(state)).toBeNull();
     });
 
+    it('битый слепок варианта в финальной стадии не блокирует КП', () => {
+        const state = stateOf([recordOf(1, 101, 'buh'), recordOf(3, 103, 'buh', '{broken')], 101);
+        expect(offerRequestBlocker(state)).toBeNull();
+    });
+
+    it('одиночное тело КП собирается без проверки участника: вариант в него не входит', () => {
+        const state = stateOf([recordOf(1, 102, 'buh')], 102);
+        expect(buildOfferGenerateRequest(state)).not.toBeNull();
+        expect(buildOfferGenerateRequest(state)).not.toHaveProperty('variants');
+    });
+
     it('пока стадии вариантов грузятся, блокер сообщает о загрузке', () => {
-        const state = together([recordOf(1, 102, 'buh', '{broken')]);
+        const state = stateOf([recordOf(1, 102, 'buh')], 102);
         const loading: RootState = {
             ...state,
             complectVariant: { ...state.complectVariant, itemsStatus: 'loading' },
@@ -199,10 +212,10 @@ describe('КП: участники-варианты и блокер', () => {
         expect(offerRequestBlocker(loading)).toBe('Варианты КП ещё загружаются');
     });
 
-    it('selectVariantsPayload кэшируется: смена чужого среза стора даёт тот же объект', () => {
-        const state = together([recordOf(1, 102, 'buh')]);
+    it('selectOfferVariantsPayload кэшируется: смена чужого среза стора даёт тот же объект', () => {
+        const state = stateOf([recordOf(1, 102, 'buh')], 102);
         const other: RootState = { ...state, app: { ...state.app, dealId: 1 } };
-        expect(selectVariantsPayload(other)).toBe(selectVariantsPayload(state));
+        expect(selectOfferVariantsPayload(other)).toBe(selectOfferVariantsPayload(state));
     });
 });
 
@@ -229,33 +242,33 @@ describe('КП в Word: наполнение по комплектам', () => {
         palette: null,
         settings: { ...OFFER_PDF_DEFAULT_SETTINGS, complectsMode: OFFER_COMPLECTS_MODE.SEPARATE },
     };
-    const stateOfTwoGarants = () =>
-        together(
-            [
-                recordOf(1, 102, 'buh', snapshotRowsOf(twoGarantGeneral(), separatePdf)),
-                recordOf(2, 104, 'buh'),
-            ],
+    // слепок открытого варианта устарел (одна строка с настройками PDF), набор берётся из живого состояния
+    const stateOfTwoGarants = (mode: ComplectMode = COMPLECT_MODE.compare) =>
+        stateOf(
+            [recordOf(1, 102, 'buh', snapshotRowsOf(mainSetOf('v1', 'buh'), separatePdf)), recordOf(2, 104, 'buh')],
+            102,
+            mode,
             twoGarantGeneral(),
         );
 
-    it('формирование несёт complects у КП и у участников, способа печати нет', () => {
-        const request = buildOfferMultiGenerateRequest(stateOfTwoGarants());
+    it.each(ALL_MODES)('режим %s: формирование несёт complects у КП и у открытого варианта, способа печати нет', mode => {
+        const request = buildOfferMultiGenerateRequest(stateOfTwoGarants(mode));
         expect(request?.complects).toHaveLength(2);
         expect(request).not.toHaveProperty('complectsMode');
-        expect(request?.variants.map(variant => variant.complects?.length)).toEqual([2, undefined]);
+        expect(request?.variants.map(variant => variant.complects?.length)).toEqual([2]);
         for (const variant of request?.variants ?? []) expect(variant).not.toHaveProperty('complectsMode');
     });
 
-    it('превью несёт complects у КП и у участников, способа печати нет', () => {
-        const request = buildWordPreviewRequest(stateOfTwoGarants());
+    it.each(ALL_MODES)('режим %s: превью несёт complects у КП и у открытого варианта, способа печати нет', mode => {
+        const request = buildWordPreviewRequest(stateOfTwoGarants(mode));
         expect(request?.complects).toHaveLength(2);
         expect(request).not.toHaveProperty('complectsMode');
-        expect(request?.variants?.map(variant => variant.complects?.length)).toEqual([2, undefined]);
+        expect(request?.variants?.map(variant => variant.complects?.length)).toEqual([2]);
         for (const variant of request?.variants ?? []) expect(variant).not.toHaveProperty('complectsMode');
     });
 
     it('один комплект: поля complects нет ни у формирования, ни у превью', () => {
-        const state = together([recordOf(1, 102, 'buh')]);
+        const state = stateOf([recordOf(1, 102, 'buh')], 102);
         expect(buildOfferMultiGenerateRequest(state)).not.toHaveProperty('complects');
         expect(buildWordPreviewRequest(state)).not.toHaveProperty('complects');
     });

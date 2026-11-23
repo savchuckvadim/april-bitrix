@@ -124,7 +124,7 @@ describe('строки сделки, когда варианты продают�
 describe('строки сделки по живому набору', () => {
     const liveNames = buildProductRows(liveGeneral, variantCatalog).map(row => row.productName);
 
-    it('режим «по одному»: только живой набор, слепки вариантов в сделку не идут', () => {
+    it('режим «Только открытый вариант»: только живой набор, слепки вариантов в сделку не идут', () => {
         const { rows, skipped } = buildDealProductRows(inputOf(COMPLECT_MODE.compare, twoRecords()));
 
         expect(skipped).toEqual([]);
@@ -132,7 +132,7 @@ describe('строки сделки по живому набору', () => {
         expect(rows.map(row => row.sort)).toEqual([0, 1]);
     });
 
-    it('режим «по одному»: нечитаемый слепок строк не меняет и сделку не блокирует', () => {
+    it('режим «Только открытый вариант»: нечитаемый слепок строк не меняет и сделку не блокирует', () => {
         const records = [recordOf(1, OPEN_ID, 'buh'), recordOf(2, OTHER_ID, 'ur', '{broken')];
         const { rows, skipped } = buildDealProductRows(inputOf(COMPLECT_MODE.compare, records));
 

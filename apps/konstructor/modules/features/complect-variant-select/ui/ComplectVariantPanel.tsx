@@ -5,14 +5,14 @@ import { useComplectVariants } from '../hooks/use-complect-variants';
 import { useVariantsPanelOpen } from '../hooks/use-variants-panel-open';
 import { ComplectVariantCreateForm } from './ComplectVariantCreateForm';
 import { ComplectVariantRow } from './ComplectVariantRow';
-import { ComplectVariantSettings } from './ComplectVariantSettings';
 
 /**
- * Варианты комплекта сделки: собрать несколько предложений и задать, какие из
- * них идут в документы: по одному (открытый вариант) или вместе. Мерджа здесь
- * нет — только выбор. Панель свёрнута по умолчанию, чтобы длинный список не
- * занимал место на «Ценах»: в шапке видно число вариантов и тот, что сейчас
- * редактируется, ошибка тоже остаётся на виду.
+ * Варианты комплекта сделки: собрать несколько предложений и переключаться
+ * между ними (открыть, создать, удалить, вернуть отклонённый). КП делается по
+ * открытому варианту; какие варианты идут в договор и отчёт о поставке,
+ * выбирают на экранах договора и отчёта. Панель свёрнута по умолчанию, чтобы
+ * длинный список не занимал место на «Ценах»: в шапке видно число вариантов и
+ * тот, что сейчас редактируется, ошибка тоже остаётся на виду.
  */
 export const ComplectVariantPanel = () => {
     const variants = useComplectVariants();
@@ -49,8 +49,6 @@ export const ComplectVariantPanel = () => {
             {records.map(record => (
                 <ComplectVariantRow key={record.id} record={record} variants={variants} />
             ))}
-
-            {records.length > 1 ? <ComplectVariantSettings variants={variants} /> : null}
         </SectionCard>
     );
 };

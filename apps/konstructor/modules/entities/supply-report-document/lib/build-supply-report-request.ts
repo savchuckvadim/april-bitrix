@@ -12,7 +12,7 @@ import {
 } from '../../contract-document';
 import { selectClientType } from '../../deal';
 import { buildDocBody, setComposition, toDocRows } from '../../document-payload';
-import { selectVariantsPayload, skippedVariantsBlocker, toOfferClientType } from '../../offer-document';
+import { selectModeVariantsPayload, skippedVariantsBlocker, toOfferClientType } from '../../offer-document';
 import { RQ_TYPE_NAME, RQ_TYPE } from '../../bx-rq/model/types';
 import { findMainRow } from '../../row-set';
 import { selectServiceSmartId } from '../../service-offer/model/ServiceOfferSlice';
@@ -95,7 +95,7 @@ export const supplyReportBlocker = (state: RootState): string | null =>
     contractRequestBlocker(state) ??
     // стадии вариантов ещё в пути — кто переезжает в отдел сервиса, пока неизвестно
     (selectVariantStagesLoading(state) ? 'Варианты КП ещё загружаются' : null) ??
-    (state.supplyReport.needProcess ? skippedVariantsBlocker(selectVariantsPayload(state).skipped) : null);
+    (state.supplyReport.needProcess ? skippedVariantsBlocker(selectModeVariantsPayload(state).skipped) : null);
 
 /** Чего не хватает: обязательные поля сделки, реквизиты, обязательные поля формы. */
 export const supplyReportValidationErrors = (state: RootState): string[] => {
@@ -202,7 +202,7 @@ export const buildInitSupplyRequest = (
     if (!content || !scope || !dealId || !provider) return null;
     const { body, catalog, composition, region } = content;
     const clientType = clientTypeOf(state);
-    const { variants } = selectVariantsPayload(state);
+    const { variants } = selectModeVariantsPayload(state);
     const dealFields = state.portal.current?.bitrixDeal?.bitrixfields ?? null;
     const armField = dealFields?.find(field => field.code === RPA_ARM_COMPLECT_CODE);
     const armRaw = armField && bitrix.deal ? bitrix.deal[`UF_CRM_${armField.bitrixId}`] : undefined;
@@ -238,8 +238,8 @@ export const buildInitSupplyRequest = (
         // сервисный отдел — перезаключение, продажи — поставка
         flow: state.app.department === APP_DEP.SERVICE ? 'renewal' : 'supply',
         files,
-        // участники документов (режим «по одному» даёт открытый вариант, «вместе» все
-        // незакрытые): бэк ставит в заявке ссылку на вариант и переводит его в «Поставку»
+        // участники по режиму сделки («только открытый вариант» даёт открытый, «все
+        // варианты» все незакрытые): бэк ставит в заявке ссылку на вариант и переводит его в «Поставку»
         variants: variants.length > 0 ? variants : undefined,
     };
 };

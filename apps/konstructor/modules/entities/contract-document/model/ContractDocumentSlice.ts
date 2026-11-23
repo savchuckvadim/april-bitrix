@@ -47,6 +47,10 @@ const initialState: ContractDocumentState = {
     units: {},
 };
 
+/** Формирование закончилось успехом или ошибкой: результат можно сбросить. */
+const isSettledGenerate = (generate: ContractGenerateResult): boolean =>
+    generate.status === 'done' || generate.status === 'error';
+
 /** Состояние единицы; первое обращение заводит её с пустыми значениями. */
 const unitOf = (state: ContractDocumentState, key: string): ContractUnitState => {
     const existing = state.units[key];
@@ -119,6 +123,17 @@ export const contractDocumentSlice = createSlice({
         },
         generateFailed(state: ContractDocumentState, action: PayloadAction<string>) {
             state.generate = { ...initialContractGenerate(), status: 'error', error: action.payload };
+        },
+        /**
+         * Режим вариантов сменился: готовые результаты формирования (живого
+         * договора и единиц) и ошибки прежних проверок устарели. Идущее
+         * формирование не трогаем.
+         */
+        generateStale(state: ContractDocumentState) {
+            if (isSettledGenerate(state.generate)) state.generate = initialContractGenerate();
+            for (const unit of Object.values(state.units)) {
+                if (isSettledGenerate(unit.generate)) unit.generate = initialContractGenerate();
+            }
         },
         /**
          * Оставить состояние только у единиц, которые ещё есть среди участников

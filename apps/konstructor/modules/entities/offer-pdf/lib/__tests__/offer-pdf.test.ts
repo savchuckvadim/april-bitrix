@@ -176,4 +176,10 @@ describe('переключатели страниц', () => {
         ]);
         expect(keys(null)).toEqual(['withStamps', 'withManager', 'isPriceFirst']);
     });
+
+    it('блок под письмом подписан «Печать и подпись», ключ настройки прежний', () => {
+        const stamps = visibleOfferPdfToggles(null).find(toggle => toggle.key === 'withStamps');
+        expect(stamps?.label).toBe('Печать и подпись');
+        expect(stamps?.hint).toBe('Блок под письмом: должность, подпись и печать поставщика');
+    });
 });

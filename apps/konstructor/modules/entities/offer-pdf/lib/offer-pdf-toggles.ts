@@ -16,7 +16,11 @@ export interface OfferPdfToggle {
 export const OFFER_PDF_TOGGLES: readonly OfferPdfToggle[] = [
     { key: 'withCover', label: 'Титульный лист', hint: 'Первая страница с названием', onlyIf: 'hasCover' },
     { key: 'withPromo', label: 'Промо-страница', hint: 'О продукте, после титульного', onlyIf: 'hasPromo' },
-    { key: 'withStamps', label: 'Подпись руководителя', hint: 'Блок под письмом' },
+    {
+        key: 'withStamps',
+        label: 'Печать и подпись',
+        hint: 'Блок под письмом: должность, подпись и печать поставщика',
+    },
     { key: 'withManager', label: 'Контакты менеджера', hint: 'В подвале каждой страницы' },
     { key: 'isPriceFirst', label: 'Сначала цена', hint: 'Потом наполнение' },
 ];

@@ -105,6 +105,28 @@ describe('buildProductFields / buildDealSendRequest', () => {
         expect(request.fields.some(f => f.code === 'supply_for_contract')).toBe(false);
         expect(request.fields.every(f => f.value !== '' && f.value !== null)).toBe(true);
     });
+
+    it('переданные товарные строки уходят в запрос как есть, поля сделки остаются от общего набора', () => {
+        const productRows = [
+            { productName: 'Первая', price: 10, quantity: 1, sort: 0 },
+            { productName: 'Вторая', price: 20, quantity: 1, sort: 1 },
+        ];
+        const base = {
+            domain: 'gsr.bitrix24.ru',
+            dealId: null,
+            userId: 447,
+            companyId: 95817,
+            dealName: 'Тест',
+            catalog,
+            general,
+            mainRow,
+        };
+
+        const request = buildDealSendRequest({ ...base, productRows });
+
+        expect(request.productRows).toEqual(productRows);
+        expect(request.fields).toEqual(buildDealSendRequest(base).fields);
+    });
 });
 
 describe('поля сделки: доп. пакеты LT', () => {

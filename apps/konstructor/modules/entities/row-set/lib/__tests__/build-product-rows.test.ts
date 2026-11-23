@@ -67,6 +67,11 @@ describe('buildProductRows', () => {
         expect(total.quantity).toBe(garant('r1').price.quantity);
     });
 
+    it('firstSort задаёт номер первой строки, дальше нумерация идёт подряд', () => {
+        expect(buildProductRows(general, catalog, 5).map(row => row.sort)).toEqual([5, 6]);
+        expect(buildProductRows({ ...general, collapsed: true }, catalog, 5).map(row => row.sort)).toEqual([5]);
+    });
+
     it('пустой сет — пустой список', () => {
         expect(buildProductRows(createSet('general', 'general'), catalog)).toEqual([]);
     });

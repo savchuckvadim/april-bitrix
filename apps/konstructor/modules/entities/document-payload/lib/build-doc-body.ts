@@ -19,7 +19,11 @@ export interface DocBodyInput {
     alternative: RowSet[];
 }
 
-/** Нечего печатать — null (нет главной строки или её договора/поставки в каталоге). */
+/**
+ * Нечего печатать — null (нет главной строки, наполнения у строк набора или
+ * договора/поставки главной строки в каталоге). Группы инфоблоков строятся от
+ * объединённого наполнения всего общего набора (docComposition).
+ */
 export const buildDocBody = ({ catalog, general, alternative }: DocBodyInput): DocBody | null => {
     const main = findMainRow(general);
     const composition = main && docComposition(main, general);

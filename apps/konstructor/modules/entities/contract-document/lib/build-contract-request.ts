@@ -1,7 +1,7 @@
 import type { RootState } from '@/modules/app/model/store';
 import { resolveSupply, selectCatalog } from '../../catalog';
 import { selectClientType } from '../../deal';
-import { buildDocBody, toDocRows } from '../../document-payload';
+import { buildDocBody, setComposition, toDocRows } from '../../document-payload';
 import { toOfferClientType } from '../../offer-document';
 import { findMainRow } from '../../row-set';
 import type { ContractGenerateRequest, ContractSpecificationFormRequest } from '../model/dto';
@@ -29,12 +29,15 @@ const clientTypeOf = (state: RootState) => toOfferClientType(selectClientType(st
  * Содержание договора из текущей сборки: те же легаси-формы, что у КП
  * (document-payload). Строки — все строки general-сета, не total: договор
  * печатает каждый товар (легаси getRowsArrayFromSets(sets, false)).
+ * Регионы и Legal Tech строятся от объединённого наполнения общего набора:
+ * в договор идёт наполнение всех комплектов, как у групп инфоблоков.
  */
 const contractBody = (state: RootState) => {
     const catalog = selectCatalog(state);
     const general = state.rowSet.general;
     const main = findMainRow(general);
-    if (!main?.composition) return null;
+    const composition = main && setComposition(general, main);
+    if (!main || !composition) return null;
     const supply = resolveSupply(catalog, main.refs.supplyCode);
     const body = buildDocBody({ catalog, general, alternative: [] });
     if (!body || !supply) return null;
@@ -42,7 +45,7 @@ const contractBody = (state: RootState) => {
         catalog,
         general,
         main,
-        composition: main.composition,
+        composition,
         supply,
         body: { ...body, rows: toDocRows(catalog, { ...general, collapsed: false }, []) },
     };

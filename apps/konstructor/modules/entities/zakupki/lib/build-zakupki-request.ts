@@ -1,7 +1,7 @@
 import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
 import { buildDocRegions } from '../../contract-document';
-import { buildDocBody } from '../../document-payload';
+import { buildDocBody, setComposition } from '../../document-payload';
 import { findMainRow } from '../../row-set';
 import type {
     ZakupkiOfferRequest,
@@ -70,7 +70,8 @@ export const buildZakupkiRequest = (state: RootState): ZakupkiOfferRequest | nul
     const main = findMainRow(general);
     const provider = state.documentProvider.current;
     const { domain, dealId, bitrix } = state.app;
-    if (!main?.composition || !provider || !dealId) return null;
+    const composition = main && setComposition(general, main);
+    if (!composition || !provider || !dealId) return null;
     const body = buildDocBody({ catalog, general, alternative: [] });
     if (!body) return null;
 
@@ -86,7 +87,7 @@ export const buildZakupkiRequest = (state: RootState): ZakupkiOfferRequest | nul
         complect: body.complect,
         supply: body.supply,
         contract: body.contract,
-        regions: buildDocRegions(catalog, main.composition),
+        regions: buildDocRegions(catalog, composition),
         otherProviders: buildOtherProviders(state),
         total: body.total,
     };

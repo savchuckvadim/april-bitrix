@@ -6,6 +6,7 @@ import { useOfferPdfGenerate } from '../hooks/use-offer-pdf-generate';
 import { useOfferPdfPreview } from '../hooks/use-offer-pdf-preview';
 import { useOfferPdfRequest } from '../hooks/use-offer-pdf-request';
 import { useOfferPdfStyle } from '../hooks/use-offer-pdf-style';
+import type { OfferPdfOutcome } from '../lib/offer-pdf-result';
 import { offerPdfActions, selectOfferPdfPrefs } from './OfferPdfSlice';
 import {
     OFFER_DOCUMENT_FORMAT,
@@ -42,6 +43,8 @@ export interface OfferPdfDocumentContextValue {
     preview: OfferPdfPreviewState;
     refreshPreview: () => void;
     generate: OfferPdfGenerateState;
+    /** Ссылки на файлы и предупреждения бэка из ответа генерации; ответа нет — null */
+    outcome: OfferPdfOutcome | null;
     runGenerate: () => Promise<boolean>;
     resetGenerate: () => void;
 }
@@ -67,7 +70,7 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
         palette: style.palette,
     });
     const { preview, refresh } = useOfferPdfPreview(request, requestKey);
-    const { generate, run, reset } = useOfferPdfGenerate(request);
+    const { generate, outcome, run, reset } = useOfferPdfGenerate(request);
 
     const value = useMemo<OfferPdfDocumentContextValue>(
         () => ({
@@ -91,6 +94,7 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             preview,
             refreshPreview: refresh,
             generate,
+            outcome,
             runGenerate: run,
             resetGenerate: reset,
         }),
@@ -109,6 +113,7 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             preview,
             refresh,
             generate,
+            outcome,
             run,
             reset,
         ],

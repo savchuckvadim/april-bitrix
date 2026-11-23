@@ -1,4 +1,5 @@
-import { getKonstructor, OfferWordByTemplateGenerateDto, OfferWordEphemeralPdfPollResponseDto, OfferWordEphemeralPdfStartResponseDto, OfferWordEphemeralPdfStopResponseDto } from '@workspace/nest-konstructor-api';
+import { getKonstructor, OfferWordEphemeralPdfPollResponseDto, OfferWordEphemeralPdfStartResponseDto, OfferWordEphemeralPdfStopResponseDto } from '@workspace/nest-konstructor-api';
+import type { OfferWordPreviewRequest } from '../../model/preview-request';
 
 export class OfferWordPdfPreviewAPI {
     private api: ReturnType<typeof getKonstructor>;
@@ -6,7 +7,7 @@ export class OfferWordPdfPreviewAPI {
         this.api = getKonstructor();
     }
 
-    public async start(request: OfferWordByTemplateGenerateDto): Promise<OfferWordEphemeralPdfStartResponseDto> {
+    public async start(request: OfferWordPreviewRequest): Promise<OfferWordEphemeralPdfStartResponseDto> {
         return await this.api.offerWordPdfPreviewStartPreview(request);
     }
 

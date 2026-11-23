@@ -95,11 +95,15 @@ save: DealSendButton → sendDeal (deal-send) → saveSnapshot thunk → seriali
       (POST upsert; SnapshotV2 сериализован в колонку rows, детект по schemaVersion)
 документы: домен → легаси-payload ТОЛЬКО через `entities/document-payload` (buildDocBody/buildOfferPayload/
       buildDocVariant; code→number — legacy-numbers.util, второе и последнее место после v1-адаптера).
-      КП: `entities/offer-document` buildOfferGenerateRequest(state) (превью PDF и generate) и
+      КП: `entities/offer-document` buildOfferGenerateRequest(state) (одиночное тело) и
       buildOfferMultiGenerateRequest (variants по selectParticipants: открытый вариант — из живого row-set,
       остальные — из слепков v2 через parseSnapshotV2; composition только при вариантах).
-      offerRequestBlocker(state) — текст, почему КП не собрать (нет сделки/главной строки/шаблона/поставщика/
-      участника-варианта, которого собрать нельзя; участники — selectVariantsPayload, кэшированный селектор).
+      Превью Word (offer-template-word: buildWordPreviewRequest) и PDF-КП (offer-pdf: buildOfferPdfGenerateRequest)
+      шлют то же тело плюс необязательные variants и composition (offerVariantsFields) — когда участники есть.
+      offerBlocker(state, 'word' | 'pdf') — общий блокер формирования и превью (offerRequestBlocker — его Word-вариант,
+      offerPdfRequestBlocker — PDF): текст, почему КП не собрать (нет сделки/главной строки/шаблона Word/поставщика/
+      участника-варианта, которого собрать нельзя; стадии вариантов ещё грузятся; участники — selectVariantsPayload,
+      кэшированный селектор). Ключ превью PDF — offerPdfRequestKey (по содержимому, без меток времени адаптера).
       Договор: `entities/contract-document` buildSpecificationFormRequest (форма с бэка: общая часть + спецификация,
       тексты поставки резолвит бэк) и buildContractGenerateRequest (bxrq — текущий реквизит bx-rq через toContractBxRq,
       regions — buildDocRegions, LT — buildContractLt c paidPackets); contractRequestBlocker (домен, сделка,

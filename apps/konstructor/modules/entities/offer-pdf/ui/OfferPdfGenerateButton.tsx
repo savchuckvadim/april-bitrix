@@ -1,12 +1,13 @@
 'use client';
 
-import { Check, ExternalLink, FileText } from 'lucide-react';
+import { Check, FileText } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
+import { DocumentLinks } from '@/modules/shared/ui/DocumentLinks/DocumentLinks';
 import { useOfferPdfDocument } from '../model/OfferPdfDocumentContext';
 
-/** «Сформировать PDF»: блокер, результат — ссылка на файл. */
+/** «Сформировать PDF»: блокер, результат — предупреждения бэка и ссылки на все файлы КП. */
 export const OfferPdfGenerateButton = () => {
-    const { blocker, generate, runGenerate } = useOfferPdfDocument();
+    const { blocker, generate, outcome, runGenerate } = useOfferPdfDocument();
     const isGenerating = generate.status === 'generating';
 
     return (
@@ -17,17 +18,7 @@ export const OfferPdfGenerateButton = () => {
             </Button>
             {blocker ? <p className="text-xs text-muted-foreground">{blocker}</p> : null}
             {generate.error ? <p className="text-xs text-destructive">{generate.error}</p> : null}
-            {generate.result ? (
-                <a
-                    href={generate.result.bitrixLink ?? generate.result.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline"
-                >
-                    <ExternalLink className="h-3 w-3" />
-                    Открыть PDF
-                </a>
-            ) : null}
+            {outcome ? <DocumentLinks warnings={outcome.warnings} links={outcome.links} /> : null}
             {generate.result?.savedToDeal ? (
                 <p className="text-xs text-muted-foreground">Файл прикреплён к сделке и отмечен в её истории.</p>
             ) : null}

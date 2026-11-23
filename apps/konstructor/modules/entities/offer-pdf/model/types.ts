@@ -1,4 +1,6 @@
 import type {
+    ComplectCompositionDto,
+    DocumentVariantDto,
     OfferPdfGenerateDto,
     OfferPdfGenerateResponseDto,
     OfferPdfPaletteItemDto,
@@ -95,11 +97,26 @@ export type OfferPdfTemplateInfo = OfferPdfTemplateItemDto;
 
 export const OFFER_PDF_DEFAULT_TEMPLATE_CODE = 'classic';
 
+/** Файл КП в ответе генерации: ссылка и отображаемое имя. */
+export interface OfferPdfFileLink {
+    link: string;
+    name: string;
+}
+
 /**
  * Ответ POST /offer-pdf/generate: ссылки на файл, прикреплён ли он к сделке и
  * `missingAssets` — каких картинок и логотипов стиля не нашлось на сервере.
+ *
+ * Бэк добавит необязательные `links` (все файлы КП, когда их несколько) и
+ * `warnings` (что не сошлось при слиянии вариантов). В сгенерированном клиенте
+ * этих полей пока нет: после `pnpm run generate` они появятся в
+ * OfferPdfGenerateResponseDto, и расширение ниже можно убрать (форму `links`
+ * сверить с клиентом). Старый бэк их не присылает.
  */
-export type OfferPdfGenerateResponse = OfferPdfGenerateResponseDto;
+export type OfferPdfGenerateResponse = OfferPdfGenerateResponseDto & {
+    links?: OfferPdfFileLink[];
+    warnings?: string[];
+};
 
 /** Поля Word-запроса, которых у PDF-генерации нет. */
 export const OFFER_PDF_OMITTED_WORD_FIELDS = [
@@ -114,9 +131,18 @@ export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[nu
 
 /**
  * Запрос КП в PDF: данные те же, что для Word-шаблона (бэк считает их
- * одним кодом), плюс код стиля, гамма, настройки, письмо и номер.
+ * одним кодом), плюс код стиля, гамма, настройки, письмо и номер. Варианты
+ * комплекта и настройки сделки идут необязательными полями `variants` и
+ * `composition` той же формы, что у generate-multi; участников нет — полей нет.
+ *
+ * Бэк принимает `variants` и `composition` у превью и генерации PDF; в
+ * сгенерированном клиенте этих полей пока нет. После `pnpm run generate` они
+ * появятся в OfferPdfGenerateDto, и расширение ниже можно убрать.
  */
-export type OfferPdfGenerateRequest = OfferPdfGenerateDto;
+export type OfferPdfGenerateRequest = OfferPdfGenerateDto & {
+    variants?: DocumentVariantDto[];
+    composition?: ComplectCompositionDto;
+};
 
 /** Настройки КП на экране документа; у сделки и варианта уходят в слепок целиком. */
 export interface OfferPdfDocumentPrefs {

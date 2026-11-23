@@ -11,12 +11,19 @@ import { managerFromBxUser } from './manager.util';
 import { selectVariantsPayload } from './select-variants-payload';
 import { skippedVariantsBlocker } from './skipped-variants-blocker';
 
-/** Что мешает собрать само КП (шапка, шаблон, поставщик, стадии) — без проверки вариантов. */
-const offerBaseBlocker = (state: RootState): string | null => {
+/** Формат КП: Word требует выбранный шаблон, PDF собирается из встроенного стиля. */
+export type OfferBlockerFormat = 'word' | 'pdf';
+
+/**
+ * Что мешает собрать само КП (шапка, шаблон Word, поставщик, стадии вариантов)
+ * без проверки участников. Проверки общие для Word и PDF; шаблон спрашивается
+ * только у Word.
+ */
+const offerBaseBlocker = (state: RootState, format: OfferBlockerFormat): string | null => {
     if (!state.app.domain) return 'Приложение не инициализировано';
     if (!state.app.dealId) return 'Сначала сохраните сделку — КП прикрепляется к ней';
     if (!findMainRow(state.rowSet.general)) return 'Нет главной строки: соберите комплект';
-    if (!state.offerTemplateWord.selectedTemplate) return 'Выберите шаблон КП';
+    if (format === 'word' && !state.offerTemplateWord.selectedTemplate) return 'Выберите шаблон КП';
     if (!state.documentProvider.current) return 'Выберите поставщика';
     // стадии вариантов ещё в пути — кто участвует в КП, пока неизвестно
     if (selectVariantStagesLoading(state)) return 'Варианты КП ещё загружаются';
@@ -24,21 +31,42 @@ const offerBaseBlocker = (state: RootState): string | null => {
 };
 
 /**
- * Почему КП сейчас не собрать — подпись к заблокированной кнопке; null — можно.
- * Участник-вариант, которого собрать нельзя, тоже блокирует: молча он выпал бы
- * из КП, и менеджер узнал бы об этом по готовому документу.
+ * Почему КП в заданном формате сейчас не собрать — подпись к заблокированной
+ * кнопке; null — можно. Участник-вариант, которого собрать нельзя, тоже
+ * блокирует: молча он выпал бы из КП, и менеджер узнал бы об этом по готовому
+ * документу. Один блокер на Word и PDF, на формирование и превью.
  */
-export const offerRequestBlocker = (state: RootState): string | null =>
-    offerBaseBlocker(state) ?? skippedVariantsBlocker(selectVariantsPayload(state).skipped);
+export const offerBlocker = (state: RootState, format: OfferBlockerFormat): string | null =>
+    offerBaseBlocker(state, format) ?? skippedVariantsBlocker(selectVariantsPayload(state).skipped);
+
+/** Блокер КП в Word: формирование и превью. */
+export const offerRequestBlocker = (state: RootState): string | null => offerBlocker(state, 'word');
 
 /**
- * Запрос КП (generate / превью PDF) из состояния: шапка — offerDocument,
- * содержание — row-set через адаптер document-payload, адрес — app/portal.
- * Нечего печатать (см. offerBaseBlocker) — null. Варианты в этот запрос не входят,
- * поэтому превью PDF не зависит от их слепков.
+ * Необязательные поля превью и PDF-КП: участники-варианты и настройки сделки.
+ * Форма та же, что у generate-multi.
+ */
+export type OfferVariantsFields = Partial<Pick<OfferWordMultiGenerateDto, 'variants' | 'composition'>>;
+
+/**
+ * Варианты и настройки сделки для тела превью и PDF-КП. Участники есть —
+ * `variants` и `composition`; участников нет — пустой объект, тело остаётся
+ * таким же, как до вариантов. Пропущенных участников здесь нет: по ним
+ * документ блокируется (offerBlocker).
+ */
+export const offerVariantsFields = (state: RootState): OfferVariantsFields => {
+    const { variants } = selectVariantsPayload(state);
+    return variants.length ? { variants, composition: selectComposition(state) } : {};
+};
+
+/**
+ * Одиночное тело КП в Word из состояния: шапка — offerDocument, содержание —
+ * row-set через адаптер document-payload, адрес — app/portal. Нечего печатать
+ * (см. offerBaseBlocker) — null. Варианты в это тело не входят: их добавляют
+ * buildOfferMultiGenerateRequest и тело превью.
  */
 export const buildOfferGenerateRequest = (state: RootState): OfferGenerateRequest | null => {
-    if (offerBaseBlocker(state)) return null;
+    if (offerBaseBlocker(state, 'word')) return null;
     const { domain, dealId, bitrix } = state.app;
     const template = state.offerTemplateWord.selectedTemplate;
     const provider = state.documentProvider.current;

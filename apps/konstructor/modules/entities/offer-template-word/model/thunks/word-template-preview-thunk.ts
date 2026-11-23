@@ -1,7 +1,9 @@
 import type { AppDispatch, AppGetState } from '@/modules/app';
 
 import { offerWordPdfPreviewHttp } from '../../lib/api/pdf-preview.api';
-import { buildOfferGenerateRequest } from '../../../offer-document';
+import { buildWordPreviewRequest } from '../../lib/build-word-preview-request';
+import { offerRequestBlocker } from '../../../offer-document';
+import type { OfferWordPreviewRequest } from '../preview-request';
 import { wordTemplatePdfPreviewAC } from '../WordTemplatePdfPreviewSlice';
 import type { OfferWordEphemeralPdfPollResponse } from '../../types/ephemeral-pdf-types';
 import { OfferWordEphemeralPdfStatusEnum } from '../../types/ephemeral-pdf-types';
@@ -86,23 +88,29 @@ export const requestWordTemplatePdfPreview =
         );
         dispatch(wordTemplatePdfPreviewAC.setNeedUpdate(false));
 
-        let dto = null;
-        try {
-            dto = buildOfferGenerateRequest(getState());
-        } catch (e) {
-            dispatch(
-                wordTemplatePdfPreviewAC.setPreviewPatch({
-                    previewPhase: 'failed',
-                    previewError: e instanceof Error ? e.message : 'Ошибка подготовки данных для превью',
-                }),
-            );
-            return;
+        // тот же блокер, что у формирования КП: пропущенный вариант блокирует превью, и его
+        // причина показывается там же, где превью пишет остальные ошибки
+        const blocker = offerRequestBlocker(getState());
+        let dto: OfferWordPreviewRequest | null = null;
+        if (!blocker) {
+            try {
+                dto = buildWordPreviewRequest(getState());
+            } catch (e) {
+                dispatch(
+                    wordTemplatePdfPreviewAC.setPreviewPatch({
+                        previewPhase: 'failed',
+                        previewError: e instanceof Error ? e.message : 'Ошибка подготовки данных для превью',
+                    }),
+                );
+                return;
+            }
         }
         if (!dto) {
             dispatch(
                 wordTemplatePdfPreviewAC.setPreviewPatch({
                     previewPhase: 'failed',
                     previewError:
+                        blocker ??
                         'Недостаточно данных для превью: нужны сохранённая сделка, главная строка, шаблон и поставщик.',
                 }),
             );

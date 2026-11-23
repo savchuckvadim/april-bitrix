@@ -1,29 +1,46 @@
 import { describe, expect, it } from 'vitest';
 import type { RootState } from '@/modules/app/model/store';
-import type { WordTemplateSummary } from '../../../offer-template-word/types/word-template-types';
 import { createSet } from '../../../row-set';
-import { buildOfferGenerateRequest, buildOfferMultiGenerateRequest, offerRequestBlocker } from '../build-offer-request';
+import {
+    buildOfferGenerateRequest,
+    buildOfferMultiGenerateRequest,
+    offerBlocker,
+    offerRequestBlocker,
+    offerVariantsFields,
+} from '../build-offer-request';
 import { selectVariantsPayload } from '../select-variants-payload';
 import { skippedVariantsBlocker } from '../skipped-variants-blocker';
 import { recordOf, snapshotRowsOf, variantItems } from '../__fixtures__/variant-records';
-import { rootStateWithVariants } from '../__fixtures__/variants-state';
+import {
+    rootStateWithVariants,
+    rootStateWithVariantsAndTemplate as stateWith,
+} from '../__fixtures__/variants-state';
 
-const template: WordTemplateSummary = {
-    id: '1',
-    name: 'КП',
-    visibility: 'public',
-    is_default: true,
-    type: 'offer',
-    code: 'offer',
-    is_active: true,
-    counter: 0,
-};
+describe('блокер КП по формату', () => {
+    it('Word требует выбранный шаблон, PDF обходится без него', () => {
+        const state = rootStateWithVariants([recordOf(1, 102, 'buh')], variantItems);
+        expect(offerBlocker(state, 'word')).toBe('Выберите шаблон КП');
+        expect(offerBlocker(state, 'pdf')).toBeNull();
+    });
 
-/** Состояние с выбранным Word-шаблоном: без него КП блокируется раньше проверки вариантов. */
-const stateWith = (...args: Parameters<typeof rootStateWithVariants>): RootState => {
-    const base = rootStateWithVariants(...args);
-    return { ...base, offerTemplateWord: { ...base.offerTemplateWord, selectedTemplate: template } };
-};
+    it('пропущенный участник блокирует оба формата одним текстом', () => {
+        const state = stateWith([recordOf(2, 102, 'buh', '{broken')], variantItems);
+        expect(offerBlocker(state, 'pdf')).not.toBeNull();
+        expect(offerBlocker(state, 'pdf')).toBe(offerBlocker(state, 'word'));
+    });
+});
+
+describe('поля вариантов для превью и PDF', () => {
+    it('участников нет — пустой объект', () => {
+        expect(offerVariantsFields(stateWith([], variantItems))).toEqual({});
+    });
+
+    it('участники есть — variants и composition', () => {
+        const fields = offerVariantsFields(stateWith([recordOf(1, 102, 'buh')], variantItems));
+        expect(fields.variants?.map(variant => variant.variantSmartId)).toEqual([102]);
+        expect(fields.composition?.mode).toBe('compare');
+    });
+});
 
 describe('КП: участники-варианты и блокер', () => {
     it('все участники собираются — блокера нет, варианты уходят в запрос', () => {
@@ -53,7 +70,7 @@ describe('КП: участники-варианты и блокер', () => {
         expect(buildOfferMultiGenerateRequest(state)).toBeNull();
     });
 
-    it('превью PDF собирается без проверки вариантов: в его запрос варианты не входят', () => {
+    it('одиночное тело КП собирается без проверки участников: варианты в него не входят', () => {
         const state = stateWith([recordOf(1, 102, 'buh', '{broken')], variantItems);
         expect(offerRequestBlocker(state)).not.toBeNull();
         expect(buildOfferGenerateRequest(state)).not.toBeNull();

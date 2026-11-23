@@ -15,7 +15,7 @@ import {
     toContractBxRq,
 } from '../../contract-document';
 import { selectClientType } from '../../deal';
-import { buildDocBody, toDocRows } from '../../document-payload';
+import { buildDocBody, setComposition, toDocRows } from '../../document-payload';
 import { buildVariantsPayload, toOfferClientType } from '../../offer-document';
 import { RQ_TYPE_NAME, RQ_TYPE } from '../../bx-rq/model/types';
 import { findMainRow } from '../../row-set';
@@ -39,12 +39,16 @@ const clientTypeOf = (state: RootState) =>
         selectClientType(state),
     );
 
-/** Содержание отчёта из текущей сборки — та же легаси-форма, что у договора. */
+/**
+ * Содержание отчёта из текущей сборки — та же легаси-форма, что у договора;
+ * регионы идут от объединённого наполнения общего набора.
+ */
 const reportBody = (state: RootState) => {
     const catalog = selectCatalog(state);
     const general = state.rowSet.general;
     const main = findMainRow(general);
-    if (!main?.composition) return null;
+    const composition = main && setComposition(general, main);
+    if (!main || !composition) return null;
     const supply = resolveSupply(catalog, main.refs.supplyCode);
     const body = buildDocBody({ catalog, general, alternative: [] });
     if (!body || !supply) return null;
@@ -52,7 +56,7 @@ const reportBody = (state: RootState) => {
     return {
         catalog,
         general,
-        composition: main.composition,
+        composition,
         supply,
         body: { ...body, rows: toDocRows(catalog, { ...general, collapsed: false }, []) },
         region: region

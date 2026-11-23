@@ -1,6 +1,6 @@
 import type { RootState } from '@/modules/app/model/store';
 import { resolveSupply, selectCatalog } from '../../catalog';
-import { buildComplectGroups, docComposition } from '../../document-payload';
+import { buildComplectGroups, mainDocComposition } from '../../document-payload';
 import { findMainRow } from '../../row-set';
 import type { ComplectDescriptionContent, ComplectDescriptionGroup } from '../model/dto';
 
@@ -8,6 +8,8 @@ import type { ComplectDescriptionContent, ComplectDescriptionGroup } from '../mo
  * Запрос описания из наполнения главной строки: те же группы, что идут в КП
  * (buildComplectGroups), блоки — code + имя для документа + описание из
  * каталога (бэк предпочтёт свою БД, фронтовый текст — запас для сервисов).
+ * Состав — mainDocComposition: наполнение одной главной строки, без
+ * дополнительных комплектов общего набора (в КП и договор идёт весь набор).
  */
 
 type DescriptionState = Pick<RootState, 'catalog' | 'rowSet'>;
@@ -23,7 +25,7 @@ export const buildComplectDescriptionContent = (
 ): ComplectDescriptionContent | null => {
     const catalog = selectCatalog(state);
     const main = findMainRow(state.rowSet.general);
-    const composition = main && docComposition(main, state.rowSet.general);
+    const composition = main && mainDocComposition(main, state.rowSet.general);
     if (!main || !composition) return null;
 
     const complect = catalog.complects.byCode[main.refs.complectCode ?? ''];

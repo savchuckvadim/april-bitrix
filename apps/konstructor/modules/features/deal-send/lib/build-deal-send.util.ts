@@ -11,12 +11,14 @@ import {
 } from '@/modules/entities/catalog';
 import { buildProductRows, type KRow, type RowSet } from '@/modules/entities/row-set';
 import { describeLtPackets, ltPackageName, type Composition } from '@/modules/entities/composition';
+import { setComposition } from '@/modules/entities/document-payload';
 
 /**
  * Чистый маппер «состояние конструктора → DealSendDto» (легаси
  * field-reducer + build-deal-send-request): инфоблочные поля сделки — списки
- * НАЗВАНИЙ блоков по группам, продуктовые — комплект/договор/поставка главной
- * строки. Тексты поставки (supply_for_contract, note…, logins_quantity,
+ * НАЗВАНИЙ блоков по группам из объединённого наполнения общего набора (все
+ * комплекты набора, без повторов), продуктовые — комплект/договор/поставка
+ * главной строки. Тексты поставки (supply_for_contract, note…, logins_quantity,
  * contract_supply_prop_q, quantity_for_kp) бэк подставляет сам по
  * `supplyCode` (решение 2) — фронт их не собирает.
  */
@@ -170,7 +172,7 @@ export const buildProductFields = (catalog: Catalog, mainRow: KRow): DealSendFie
 /** Запрос deal-send целиком: поля + товарные строки general-сета + адрес поставки для текстов. */
 export const buildDealSendRequest = (input: DealSendInput): DealSendRequest => {
     const { catalog, mainRow } = input;
-    const composition = mainRow.composition;
+    const composition = setComposition(input.general, mainRow);
     const contract = catalog.contracts.byCode[mainRow.refs.contractCode];
     const contractKind: ContractKind | undefined = contract?.kind;
     return {

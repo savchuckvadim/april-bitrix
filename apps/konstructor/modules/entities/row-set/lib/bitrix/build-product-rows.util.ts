@@ -58,14 +58,17 @@ export const toBitrixProductRow = (
 /**
  * Товарные строки сделки из general-сета: только general (альтернативы в
  * сделку не уходят); свёрнутый сет — одна total-строка, развёрнутый — все.
+ * `firstSort` — номер сортировки первой строки: когда в одну сделку идут
+ * наборы нескольких вариантов, нумерация продолжается сквозь наборы.
  */
 export const buildProductRows = (
     general: RowSet,
     catalog: Catalog,
+    firstSort = 0,
 ): BitrixProductRow[] => {
     if (general.collapsed) {
         const total = buildTotalRow(general);
-        return total ? [toBitrixProductRow(total, catalog, 0)] : [];
+        return total ? [toBitrixProductRow(total, catalog, firstSort)] : [];
     }
-    return general.rows.map((row, index) => toBitrixProductRow(row, catalog, index));
+    return general.rows.map((row, index) => toBitrixProductRow(row, catalog, firstSort + index));
 };

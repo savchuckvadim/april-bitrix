@@ -1,6 +1,7 @@
 import type { AppThunk } from '@/modules/app/model/store';
 import { appActions } from '@/modules/app/model/AppSlice';
 import { selectCatalog } from '@/modules/entities/catalog';
+import { dealProductRowsBlocker, selectDealProductRows } from '@/modules/entities/offer-document';
 import { findMainRow } from '@/modules/entities/row-set';
 import {
     buildServiceOfferTitle,
@@ -20,6 +21,8 @@ const helper = new DealSendHelper();
  * товарные строки → бэк (создаёт сделку, если её нет; запись — очередью),
  * затем слепок v2 сделки со всеми наборами (+ открытый вариант — по
  * saveDone-слушателю). Незаписанные поля — предупреждением с адресом правки.
+ * Когда варианты продаются вместе, в сделку идут строки всех участников;
+ * участник, которого собрать нельзя, блокирует запись текстом ошибки отправки.
  */
 export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
     const state = getState();
@@ -30,6 +33,13 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
     const mainRow = findMainRow(general);
     if (!domain || !mainRow) {
         dispatch(dealSendActions.failed('Нечего отправлять: нет главной строки'));
+        return false;
+    }
+    // варианты продаются вместе: участник, которого собрать нельзя, остановил бы
+    // сделку с неполной суммой, поэтому запись ждёт, пока менеджер его поправит
+    const variantsBlocker = dealProductRowsBlocker(state);
+    if (variantsBlocker) {
+        dispatch(dealSendActions.failed(variantsBlocker));
         return false;
     }
 
@@ -45,6 +55,9 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
             catalog: selectCatalog(state),
             general,
             mainRow,
+            // поля сделки идут от живого состояния; строки собраны по всем участникам,
+            // когда варианты продаются вместе
+            productRows: selectDealProductRows(state).rows,
             providerName: state.documentProvider.current?.name ?? null,
             serviceDepartment: Boolean(state.rowSet.context.serviceDepartment),
             // сервисный отдел, «следующий период» → элемент смарта service_offer

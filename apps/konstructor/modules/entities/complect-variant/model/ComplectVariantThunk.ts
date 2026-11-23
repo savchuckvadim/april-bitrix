@@ -1,9 +1,13 @@
-import type { AppThunk } from '@/modules/app/model/store';
+import type { AppThunk, RootState } from '@/modules/app/model/store';
+import { selectCatalog } from '../../catalog';
 import { getComplectVariantPbxSmartEntityId } from '../../portal';
+// строки набора берутся из файла: баррель row-set тянет слушатели стора
+import { buildProductRows } from '../../row-set/lib/bitrix/build-product-rows.util';
 import {
     buildCurrentSnapshotV2,
     restoreSnapshotRecord,
     saveSnapshot,
+    type SnapshotV2,
 } from '../../snapshot';
 import { ComplectVariantHelper } from '../lib/api/complect-variant-helper';
 import {
@@ -39,6 +43,57 @@ const saveBeforeLeaveFailure = (
     const base = `Вариант не ${action}: правки текущего варианта не сохранились`;
     return reason ? `${base} (${reason})` : base;
 };
+
+/** Название варианта для текстов: заголовок элемента смарта, пока он не загружен — номер. */
+const variantTitle = (state: RootState, variantSmartId: number): string =>
+    state.complectVariant.items.find(item => item.id === variantSmartId)?.title ||
+    `Вариант ${variantSmartId}`;
+
+/**
+ * Товарные строки общего набора варианта → элемент смарта в Битриксе. Бэк
+ * строки в элемент не записывает. Робот переноса в сервисную сделку копирует
+ * строки элемента, поэтому без этой записи вариант переезжает пустым.
+ *
+ * Запись сопровождает сохранение варианта и его не отменяет: сбой уходит
+ * предупреждением в `actionFailed`, список вариантов остаётся на экране.
+ * Смарт на портале не установлен — писать некуда, предупреждения нет.
+ */
+const writeVariantProductRows =
+    (
+        variantSmartId: number,
+        title: string,
+        snapshot: SnapshotV2,
+    ): AppThunk<Promise<void>> =>
+    async (dispatch, getState) => {
+        const state = getState();
+        const entityTypeId = getComplectVariantPbxSmartEntityId(
+            state.portal.current,
+        );
+        if (!entityTypeId) return;
+        try {
+            const rows = buildProductRows(snapshot.general, selectCatalog(state));
+            await helper.writeProductRows(entityTypeId, variantSmartId, rows);
+        } catch (error) {
+            dispatch(
+                complectVariantActions.actionFailed(
+                    `Товары варианта «${title}» не записаны в Битрикс: ${errorText(error, 'причина неизвестна')}`,
+                ),
+            );
+        }
+    };
+
+/**
+ * Предупреждение, которое поставила запись уходящего варианта (товары не
+ * записаны): следующие шаги открытия и закрытия снимают текст ошибки, поэтому
+ * после них оно ставится снова. Если шаги поставили свою ошибку, остаётся она.
+ */
+const keepLeaveWarning =
+    (warning: string | null): AppThunk =>
+    (dispatch, getState) => {
+        if (warning && getState().complectVariant.error === null) {
+            dispatch(complectVariantActions.actionFailed(warning));
+        }
+    };
 
 /**
  * Варианты комплекта текущей сделки: слепки из базы конструктора, элементы из
@@ -140,8 +195,8 @@ export const saveComplectComposition =
  * состояние поднимается из слепка сделки, и оно должно совпасть с открытым
  * вариантом, указатель на который лежит в настройках.
  *
- * Товарные строки в элемент здесь не пишутся: в новом фронте ещё нет
- * маппера строк конструктора в товарные строки Битрикса (фаза 7, deal-send).
+ * Товарные строки общего набора пишутся и в новый элемент смарта (best-effort,
+ * см. writeVariantProductRows): сбой записи вариант не отменяет.
  */
 export const createComplectVariant =
     (title: string): AppThunk<Promise<void>> =>
@@ -170,6 +225,10 @@ export const createComplectVariant =
                 saveComplectComposition({ openVariantSmartId: item.id }),
             );
             await dispatch(fetchComplectVariants());
+            // строки пишутся после перечитывания списка: загрузка списка снимает
+            // текст ошибки, и предупреждение о сбое записи пропало бы с экрана
+            dispatch(complectVariantActions.busy(true));
+            await dispatch(writeVariantProductRows(item.id, title, snapshot));
         } catch (error) {
             dispatch(
                 complectVariantActions.actionFailed(
@@ -221,6 +280,7 @@ export const openComplectVariant =
 
         dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
+        let leaveWarning: string | null = null;
         try {
             if (openVariantSmartId !== null) {
                 const isLeavingSaved = await dispatch(
@@ -237,6 +297,7 @@ export const openComplectVariant =
                     );
                     return false;
                 }
+                leaveWarning = getState().complectVariant.error;
             }
 
             const fresh =
@@ -251,6 +312,7 @@ export const openComplectVariant =
             // слепок сделки повторяет открытый вариант: так перезагрузка
             // страницы поднимает то же состояние, на которое указывает настройка
             await dispatch(saveSnapshot());
+            dispatch(keepLeaveWarning(leaveWarning));
             return true;
         } catch (error) {
             dispatch(
@@ -286,10 +348,12 @@ export const closeComplectVariant =
                 );
                 return false;
             }
+            const leaveWarning = getState().complectVariant.error;
             dispatch(complectVariantActions.setOpenVariant(null));
             await dispatch(
                 saveComplectComposition({ openVariantSmartId: null }),
             );
+            dispatch(keepLeaveWarning(leaveWarning));
             return true;
         } finally {
             dispatch(complectVariantActions.busy(false));
@@ -303,6 +367,10 @@ export const closeComplectVariant =
  *
  * Запись, которую вернул сервер, попадает в список вариантов: повторное
  * открытие и КП по неоткрытым вариантам берут слепки из него.
+ *
+ * Следом за слепком в элемент смарта варианта пишутся товарные строки его
+ * общего набора. Это best-effort: сбой записи строк ставит предупреждение
+ * «Товары варианта «…» не записаны в Битрикс: причина» и на результат не влияет.
  *
  * Возвращает true, когда терять нечего: вариант записан либо писать некуда
  * (вариант не открыт) или нечего (в конструкторе ещё нет строк). false —
@@ -318,7 +386,6 @@ export const syncOpenComplectVariant =
         try {
             const saved = await helper.saveRecord(snapshot, variantSmartId);
             dispatch(complectVariantActions.upsertRecord(saved));
-            return true;
         } catch (error) {
             dispatch(
                 complectVariantActions.actionFailed(
@@ -327,6 +394,16 @@ export const syncOpenComplectVariant =
             );
             return false;
         }
+        // слепок записан: вариант сохранён. Строки в элемент смарта идут следом
+        // и результат не меняют, их сбой остаётся предупреждением
+        await dispatch(
+            writeVariantProductRows(
+                variantSmartId,
+                variantTitle(getState(), variantSmartId),
+                snapshot,
+            ),
+        );
+        return true;
     };
 
 /**

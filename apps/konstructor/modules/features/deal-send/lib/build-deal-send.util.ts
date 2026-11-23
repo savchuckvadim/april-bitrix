@@ -9,7 +9,7 @@ import {
     type ContractKind,
     type KInfoblock,
 } from '@/modules/entities/catalog';
-import { buildProductRows, type KRow, type RowSet } from '@/modules/entities/row-set';
+import { buildProductRows, type BitrixProductRow, type KRow, type RowSet } from '@/modules/entities/row-set';
 import { describeLtPackets, ltPackageName, type Composition } from '@/modules/entities/composition';
 import { setComposition } from '@/modules/entities/document-payload';
 
@@ -36,6 +36,11 @@ export interface DealSendInput {
     catalog: Catalog;
     general: RowSet;
     mainRow: KRow;
+    /**
+     * Товарные строки сделки. Не заданы: строки живого общего набора. Когда
+     * варианты продаются вместе, вызывающий передаёт строки всех участников.
+     */
+    productRows?: BitrixProductRow[];
     /** Открыта сделка для всех (легаси OPENED: Y) */
     opened?: boolean;
     /** Поставщик документов — в поле сделки document_provider (решение 10) */
@@ -169,7 +174,10 @@ export const buildProductFields = (catalog: Catalog, mainRow: KRow): DealSendFie
     return fields;
 };
 
-/** Запрос deal-send целиком: поля + товарные строки general-сета + адрес поставки для текстов. */
+/**
+ * Запрос deal-send целиком: поля + товарные строки (по умолчанию general-сета;
+ * при продаже вариантов вместе строки всех участников) + адрес поставки для текстов.
+ */
 export const buildDealSendRequest = (input: DealSendInput): DealSendRequest => {
     const { catalog, mainRow } = input;
     const composition = setComposition(input.general, mainRow);
@@ -191,7 +199,7 @@ export const buildDealSendRequest = (input: DealSendInput): DealSendRequest => {
                 ? [{ code: 'document_provider' as const, appType: 'document' as const, value: input.providerName }]
                 : []),
         ],
-        productRows: buildProductRows(input.general, catalog),
+        productRows: input.productRows ?? buildProductRows(input.general, catalog),
         ...(input.target ? { target: input.target } : {}),
     };
 };

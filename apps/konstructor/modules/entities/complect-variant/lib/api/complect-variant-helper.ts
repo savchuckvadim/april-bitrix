@@ -1,6 +1,7 @@
 import { customAxios, getKonstructorDeal } from '@workspace/nest-konstructor-api';
 import type { IBXItem } from '@bitrix/index';
 import { Bitrix } from '@bitrix/bitrix';
+import type { BitrixProductRow } from '../../../row-set';
 import { findInnerDeal } from '../../../snapshot/lib/api/inner-deal-find-helper';
 import type { SnapshotV2 } from '../../../snapshot/model/types';
 import type {
@@ -10,6 +11,7 @@ import type {
     ComplectVariantRecordDto,
 } from '../../model/dto';
 import { isBitrixDeleteConfirmed } from '../delete-variant';
+import { buildVariantProductRowsRequest } from '../variant-product-rows';
 
 /**
  * Элемент смарта «Варианты комплекта» в Битриксе. Нужен рядом со слепком
@@ -142,6 +144,25 @@ export class ComplectVariantHelper {
             { title, parentId2: dealId },
         );
         return response?.item ? toItem(response.item) : null;
+    }
+
+    /**
+     * Товарные строки элемента смарта варианта: общий набор варианта в формате
+     * Битрикса (`crm.item.productrow.set`, владелец — `T…` по id типа смарта).
+     * Запрос заменяет все строки элемента, поэтому повторная запись того же
+     * набора безопасна. Ответ без результата считается отказом Битрикса.
+     */
+    async writeProductRows(
+        entityTypeId: number,
+        variantSmartId: number,
+        rows: readonly BitrixProductRow[],
+    ): Promise<void> {
+        const response = await Bitrix.getService().productRow.set(
+            buildVariantProductRowsRequest(entityTypeId, variantSmartId, rows),
+        );
+        if (!response?.result) {
+            throw new Error('Битрикс не подтвердил запись товарных строк');
+        }
     }
 
     /** Перевод элемента на другую стадию. */

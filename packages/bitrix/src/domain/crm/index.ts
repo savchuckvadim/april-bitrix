@@ -29,6 +29,7 @@ export * from './contact/services/bx-contact.service';
 
 //crm.product-row
 export * from './product-row/interface/bx-product-row.interface';
+export * from './product-row/lib/smart-owner-type.util';
 export * from './product-row/schema/bx-product-row.schema';
 export * from './product-row/services/bx-product-row.batch.service';
 export * from './product-row/services/bx-product-row.service';

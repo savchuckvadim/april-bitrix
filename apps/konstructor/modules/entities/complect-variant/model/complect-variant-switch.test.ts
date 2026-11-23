@@ -1,6 +1,8 @@
 import { configureStore, type UnknownAction } from '@reduxjs/toolkit';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RootState, AppThunk } from '@/modules/app/model/store';
+import { emptyCatalog } from '../../catalog/model/types';
+import type { BitrixProductRow } from '../../row-set';
 import type { SnapshotV2 } from '../../snapshot/model/types';
 import type { ComplectVariantItem } from '../lib/api/complect-variant-helper';
 import {
@@ -67,6 +69,14 @@ const mocks = vi.hoisted(() => ({
         vi.fn<
             (entityTypeId: number, itemId: number, stageId: string) => Promise<void>
         >(),
+    writeProductRows:
+        vi.fn<
+            (
+                entityTypeId: number,
+                variantSmartId: number,
+                rows: readonly BitrixProductRow[],
+            ) => Promise<void>
+        >(),
     buildCurrentSnapshotV2: vi.fn<(state: RootState) => SnapshotV2 | null>(),
     restoreSnapshotRecord:
         vi.fn<(record: ComplectVariantRecordDto) => AppThunk<Promise<void>>>(),
@@ -82,6 +92,7 @@ vi.mock('../lib/api/complect-variant-helper', () => ({
         getComposition = mocks.getComposition;
         saveComposition = mocks.saveComposition;
         updateItemStage = mocks.updateItemStage;
+        writeProductRows = mocks.writeProductRows;
     },
 }));
 vi.mock('../../snapshot', () => ({
@@ -146,15 +157,18 @@ const app: Pick<RootState['app'], 'dealId' | 'domain'> = {
     domain: DOMAIN,
 };
 const portal: Pick<RootState['portal'], 'current'> = { current: null };
+const catalog: RootState['catalog'] = { catalog: emptyCatalog(), loading: 'idle', error: null };
 
 /**
  * Стор с настоящим слайсом вариантов. Остальным слайсам хватает того, что
- * читают thunks: домен, сделка и портал. Единственное сужение типа — здесь.
+ * читают thunks: домен, сделка, портал и каталог (для товарных строк варианта).
+ * Единственное сужение типа — здесь.
  */
 const makeStore = () => {
     const initial = {
         app,
         portal,
+        catalog,
         complectVariant: complectVariantReducer(undefined, { type: '@@init' }),
     } as RootState;
     return configureStore({
@@ -215,6 +229,7 @@ describe('варианты: правки не пропадают при пере
             makeRecord(variantSmartId, `сохранено: ${snapshot.savedAt}`),
         );
         mocks.saveComposition.mockResolvedValue(undefined);
+        mocks.writeProductRows.mockResolvedValue(undefined);
         mocks.restoreSnapshotRecord.mockImplementation(() => async () => undefined);
         mocks.saveSnapshot.mockImplementation(() => async () => true);
     });

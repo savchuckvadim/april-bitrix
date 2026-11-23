@@ -6,6 +6,7 @@ import { SectionCard } from '@workspace/april-ui/surfaces';
 import { Button } from '@workspace/ui/components/button';
 import { SUPPLY_REPORT_DEAL_FIELDS } from '@/modules/entities/contract-document';
 import { BuildSummary } from '@/modules/features/build-summary';
+import { ComplectModeSelect } from '@/modules/features/complect-mode-select';
 import {
     ContractDealFieldsCard,
     ContractRequisitesCard,
@@ -23,7 +24,9 @@ import { useSupplyReportScreen } from '../hooks/use-supply-report-screen';
 /**
  * Отчёт о поставке: поля сделки и поставки, реквизиты, форма для отдела
  * сервиса, контакты, спецификация; справа — сборка, поставщик, «Сформировать»
- * (+ процесс поставки RPA). Легаси DocumentSupplyReport.
+ * (+ процесс поставки RPA). Легаси DocumentSupplyReport. Вверху стоит выбор,
+ * какие варианты комплекта идут в отчёт и заявку (при двух и более незакрытых
+ * вариантах): та же настройка сделки, что на экране договора.
  */
 export const SupplyReportScreen = () => {
     const screen = useSupplyReportScreen();
@@ -70,6 +73,7 @@ export const SupplyReportScreen = () => {
                     </SectionCard>
                 }
             >
+                <ComplectModeSelect />
                 <div className="grid gap-4 xl:grid-cols-2">
                     <ContractDealFieldsCard
                         fields={SUPPLY_REPORT_DEAL_FIELDS}

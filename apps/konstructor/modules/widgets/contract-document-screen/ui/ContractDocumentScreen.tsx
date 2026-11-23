@@ -3,6 +3,7 @@
 import { ArrowLeft, PackageOpen } from 'lucide-react';
 import { EmptyState } from '@workspace/april-ui/feedback';
 import { Button } from '@workspace/ui/components/button';
+import { ComplectModeSelect } from '@/modules/features/complect-mode-select';
 import {
     ContractDealFieldsCard,
     ContractRequisitesCard,
@@ -19,6 +20,8 @@ import { ContractUnitsAside } from './ContractUnitsAside';
  * сборки, поставщик и «Сформировать». Легаси DocumentContract + Options.
  * Когда варианты комплекта продаются вместе, номер, спецификация и кнопка
  * переезжают в карточки договоров по вариантам, общие блоки остаются одни.
+ * Над договорами стоит выбор, какие варианты в них идут (при двух и более
+ * незакрытых вариантах): та же настройка сделки, что на экране отчёта о поставке.
  */
 export const ContractDocumentScreen = () => {
     const screen = useContractDocumentScreen();
@@ -55,6 +58,7 @@ export const ContractDocumentScreen = () => {
                     <ContractDealFieldsCard withContractNumber={!screen.hasUnits} />
                     <ContractRequisitesCard />
                 </div>
+                <ComplectModeSelect />
                 {screen.hasUnits ? <ContractUnitsSection /> : <ContractSpecificationCard />}
             </ScreenSplit>
         </Screen>

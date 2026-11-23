@@ -6,7 +6,7 @@ import { Button } from '@workspace/ui/components/button';
 import { useContractUnits } from '../hooks/use-contract-units';
 
 /**
- * Над списком договоров: пояснение режима «одним договором», «Сформировать все
+ * Над списком договоров: пояснение режима «Все варианты одним договором», «Сформировать все
  * договоры», блокер и счётчик готовых.
  */
 export const ContractUnitsToolbar = () => {

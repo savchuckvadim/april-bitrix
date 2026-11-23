@@ -275,12 +275,31 @@ s.snapshot
   ими пользуются договор (`legal_techs`), отчёт о поставке (`lt_packet`) и комментарий заявки RPA.
 - Запрос формы: `lt.paidPackets` (имя товара и сервисы на пакет, ContractSpecificationLtPacketDto).
   `paidPacket`/`paidServices` остаются для легаси-клиентов (`init-form`).
-- Фронт: `selectVisibleSpecification` (сразу видно) и `selectSpecificationDetails` (активные скрытые);
+- Фронт: `visibleSpecification` (сразу видно) и `specificationDetails` (активные скрытые) из `entities/contract-document`;
   разделы и пакеты LT — `features/contract-form/lib/specification-sections.util.ts`, UI —
   `SpecificationDetails` (Collapsible) и `SpecificationLtPackets`.
 - Адрес клиента в договоре — только юридический (type_id 6), у физлица тоже. Подпись на экране —
   «Юридический адрес» для всех типов клиента (`addressTitle` в `entities/bx-rq/lib/address-util.ts`);
   «Адрес прописки» (тип 4) не используется и не проверяется — решение владельца 12.11.2026.
+
+## Договоры по вариантам комплекта (23.11.2026)
+
+- Договорная единица — один договор одного варианта. Когда варианты продаются вместе (режим сборки `multi_contract`
+  или `single_contract`) и участников документов два и больше, `selectContractUnits(state)` отдаёт по единице на
+  участника (`key` — строка от `variantSmartId`, набор строк `general`, шапка `summary`). Открытый вариант берётся из
+  живого состояния, остальные из слепков; участники те же, что у КП (`buildVariantEntries`), а нельзя собрать —
+  `skipped` и блокер тем же текстом (`contractGenerateBlocker`). Режим `compare`, один участник и отсутствие вариантов
+  единиц не дают: экран работает по живому состоянию.
+- Запросы собирает ядро без стора (`lib/build-contract-core.ts`: каталог, набор строк, значения единицы, общие данные);
+  `buildSpecificationFormRequest` и `buildContractGenerateRequest` — обёртки над ним для живого состояния.
+- Состояние единиц — `contractDocument.units[key]` (форма, спецификация, номер, результат). `formStale` устаревает и их,
+  `unitsRetained` на входе на экран удаляет вышедшие из участников. Вход: `initContractDocument` грузит живую форму, затем
+  формы единиц по одной; `generateContractUnit(key)` и `generateContractUnits()` (по очереди, сбой одной не останавливает
+  остальные) сохраняют слепок и пишут результат в состояние единицы. Поля сделки, реквизит и поставщик общие.
+- Режим `single_contract`: общий договор на все наборы бэк пока не собирает, экран показывает единицы как при
+  `multi_contract` и пояснение (`SINGLE_CONTRACT_NOTE`).
+- Экран: `features/contract-form` (`ContractUnitsSection`, карточка единицы, `SpecificationEditor` общий с живым договором),
+  выбор между списком и одиночным блоком — `widgets/contract-document-screen`.
 
 ## Экран КП: превью, поля, падежи (06.11.2026)
 

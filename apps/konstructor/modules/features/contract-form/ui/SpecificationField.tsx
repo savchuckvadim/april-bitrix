@@ -9,11 +9,13 @@ import { specificationRows, specificationText } from '../lib/specification-secti
 export interface SpecificationFieldProps {
     item: ContractSpecificationItem;
     onChange: (code: string, value: string) => void;
+    /** Префикс id поля: у каждой договорной единицы свой, иначе подписи ссылаются на чужие поля */
+    idPrefix?: string;
 }
 
 /** Строка спецификации: подпись и поле; серые (isDisable) собирает бэк. */
-export const SpecificationField = ({ item, onChange }: SpecificationFieldProps) => {
-    const id = `spec-${item.code}`;
+export const SpecificationField = ({ item, onChange, idPrefix = 'spec' }: SpecificationFieldProps) => {
+    const id = `${idPrefix}-${item.code}`;
     const value = specificationText(item);
 
     return (

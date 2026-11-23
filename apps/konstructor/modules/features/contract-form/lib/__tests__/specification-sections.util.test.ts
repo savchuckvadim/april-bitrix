@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import type { ContractSpecificationItem } from '@/modules/entities/contract-document';
+import type { ContractFormField, ContractSpecificationItem } from '@/modules/entities/contract-document';
 import {
     groupSpecificationDetails,
     ltPacketsOf,
     specificationRows,
+    specificationSums,
 } from '../specification-sections.util';
 
 const row = (code: string, name: string, value: string): ContractSpecificationItem =>
@@ -76,5 +77,39 @@ describe('подробности спецификации', () => {
         expect(specificationRows('a')).toBe(2);
         expect(specificationRows('a\nb\nc')).toBe(3);
         expect(specificationRows('1\n2\n3\n4\n5\n6\n7\n8')).toBe(6);
+    });
+});
+
+describe('суммы общей формы договора', () => {
+    const base: ContractFormField = {
+        type: 'string',
+        name: '',
+        isRequired: false,
+        includes: [],
+        group: 'contract',
+        isActive: true,
+        isDisable: true,
+        order: 0,
+        value: null,
+    };
+    const field = (code: string, name: string, value: ContractFormField['value']) => ({ ...base, code, name, value });
+
+    it('суммы идут в порядке показа, прочие поля формы пропускаются', () => {
+        const form = [
+            field('period_sum', 'Сумма за период', '120 000'),
+            field('contract_start', 'Действие договора с', '2026-11-01'),
+            field('month_sum', 'Сумма в месяц', '10 000'),
+        ];
+        expect(specificationSums(form)).toEqual([
+            { code: 'month_sum', label: 'Сумма в месяц', value: '10 000' },
+            { code: 'period_sum', label: 'Сумма за период', value: '120 000' },
+        ]);
+    });
+
+    it('пустое значение даёт пустую строку, формы без сумм — пустой список', () => {
+        expect(specificationSums([field('prepayment_sum', 'Предоплата', null)])).toEqual([
+            { code: 'prepayment_sum', label: 'Предоплата', value: '' },
+        ]);
+        expect(specificationSums([])).toEqual([]);
     });
 });

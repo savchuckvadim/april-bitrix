@@ -3,7 +3,7 @@
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { runDocumentToDeal } from '@/modules/app/model/document-run.thunk';
 import {
-    contractRequestBlocker,
+    contractGenerateBlocker,
     generateContract,
     selectContractGenerate,
 } from '@/modules/entities/contract-document';
@@ -17,7 +17,7 @@ import {
 export const useContractGenerate = () => {
     const dispatch = useAppDispatch();
     const generate = useAppSelector(selectContractGenerate);
-    const blocker = useAppSelector(contractRequestBlocker);
+    const blocker = useAppSelector(contractGenerateBlocker);
 
     // экран загрузки на всё время, повторное нажатие не запускает второй документ
     const run = () =>

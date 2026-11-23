@@ -167,6 +167,8 @@ describe('buildOfferPayload', () => {
         expect(payload.complect.length).toBeGreaterThan(5);
         expect(payload.rows).toHaveLength(2);
         expect(payload.total.id).toBe(0);
+        // развёрнутый набор: «Итого» — сумма обеих garant-строк
+        expect(payload.total.price.sum).toBeCloseTo(main.price.sum + second.price.sum, 2);
         expect(payload.supply.code).toBe('internet_5');
         expect(payload.withoutQueue).toBe(false);
         expect(

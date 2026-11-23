@@ -5,6 +5,7 @@ import { selectParticipants } from '../../complect-variant/lib/participants';
 import type { ComplectVariantStage } from '../../complect-variant/lib/stage';
 import type { ComplectVariantRecordDto } from '../../complect-variant/model/dto';
 import { buildDocVariant, type DocVariant } from '../../document-payload';
+import type { OfferPdfSnapshot } from '../../offer-pdf/model/types';
 import type { RowSet } from '../../row-set';
 import { parseSnapshotV2 } from '../../snapshot';
 
@@ -36,13 +37,27 @@ export interface SkippedVariant {
 export interface VariantsPayload {
     /** Собранные участники — уходят в документ. */
     variants: DocVariant[];
+    /**
+     * Те же участники вместе с данными, из которых они собраны. По ним PDF-КП
+     * берёт у каждого участника его способ печати наполнения (поле `pdf`).
+     */
+    entries: VariantEntry[];
     /** Участники без документа: по ним формирование блокируется. */
     skipped: SkippedVariant[];
 }
 
-const fromRecord = (record: ComplectVariantRecordDto): VariantsPayloadInput['live'] | null => {
+/** Откуда собран участник: наборы и настройки PDF-КП, сохранённые вместе с ними. */
+interface VariantSource {
+    general: RowSet;
+    alternative: RowSet[];
+    pdf: OfferPdfSnapshot | null;
+}
+
+const fromRecord = (record: ComplectVariantRecordDto): VariantSource | null => {
     const snapshot = parseSnapshotV2(record.rows);
-    return snapshot ? { general: snapshot.general, alternative: snapshot.alternative } : null;
+    return snapshot
+        ? { general: snapshot.general, alternative: snapshot.alternative, pdf: snapshot.pdf ?? null }
+        : null;
 };
 
 /**
@@ -70,6 +85,11 @@ export interface VariantEntry {
     isOpen: boolean;
     general: RowSet;
     alternative: RowSet[];
+    /**
+     * Формат и стиль КП из слепка варианта. У открытого варианта null: его
+     * настройки лежат на экране.
+     */
+    pdf: OfferPdfSnapshot | null;
     doc: DocVariant;
 }
 
@@ -95,7 +115,7 @@ export const buildVariantEntries = (input: VariantsPayloadInput): VariantEntries
         const item = input.items.find(candidate => candidate.id === Number(record.variantSmartId));
         const title = item?.title || `Вариант ${record.variantSmartId ?? record.id}`;
         const isOpen = record.variantSmartId !== null && record.variantSmartId === input.openVariantSmartId;
-        const source = isOpen ? input.live : fromRecord(record);
+        const source = isOpen ? { ...input.live, pdf: null } : fromRecord(record);
         if (!source) {
             skipped.push({ variantSmartId: record.variantSmartId, title, reason: 'snapshotUnreadable' });
             continue;
@@ -104,7 +124,8 @@ export const buildVariantEntries = (input: VariantsPayloadInput): VariantEntries
             catalog: input.catalog,
             variantSmartId: record.variantSmartId,
             title,
-            ...source,
+            general: source.general,
+            alternative: source.alternative,
         });
         if (doc) {
             entries.push({
@@ -114,6 +135,7 @@ export const buildVariantEntries = (input: VariantsPayloadInput): VariantEntries
                 isOpen,
                 general: source.general,
                 alternative: source.alternative,
+                pdf: source.pdf,
                 doc,
             });
         } else {
@@ -130,5 +152,5 @@ export const buildVariantEntries = (input: VariantsPayloadInput): VariantEntries
  */
 export const buildVariantsPayload = (input: VariantsPayloadInput): VariantsPayload => {
     const { entries, skipped } = buildVariantEntries(input);
-    return { variants: entries.map(entry => entry.doc), skipped };
+    return { variants: entries.map(entry => entry.doc), entries, skipped };
 };

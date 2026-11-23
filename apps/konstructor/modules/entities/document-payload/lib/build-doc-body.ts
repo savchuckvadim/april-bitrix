@@ -2,6 +2,7 @@ import { resolveSupply, type Catalog } from '../../catalog';
 import { findMainRow, type RowSet } from '../../row-set';
 import type { DocVariant, OfferGenerateRequest } from '../model/dto';
 import { buildComplectGroups } from './build-complect-groups';
+import { buildComplectSections } from './build-complect-sections';
 import { docComposition } from './doc-composition';
 import { docTotalRow } from './doc-total-row';
 import { contractTypeOf, toDocContract, toDocSupply } from './build-doc-refs';
@@ -10,7 +11,7 @@ import { toDocRow, toDocRows, toDocRowSets } from './build-doc-rows';
 /** Содержательная часть документа — одна и та же у КП и у варианта КП. */
 export type DocBody = Pick<
     OfferGenerateRequest,
-    'contractType' | 'complect' | 'supply' | 'contract' | 'rows' | 'sets' | 'total'
+    'contractType' | 'complect' | 'complects' | 'supply' | 'contract' | 'rows' | 'sets' | 'total'
 >;
 
 export interface DocBodyInput {
@@ -22,7 +23,9 @@ export interface DocBodyInput {
 /**
  * Нечего печатать — null (нет главной строки, наполнения у строк набора или
  * договора/поставки главной строки в каталоге). Группы инфоблоков строятся от
- * объединённого наполнения всего общего набора (docComposition).
+ * объединённого наполнения всего общего набора (docComposition). Когда в
+ * наборе два и больше комплекта с наполнением, к ним добавляются разделы
+ * по комплектам (`complects`); у набора с одним комплектом поля нет.
  */
 export const buildDocBody = ({ catalog, general, alternative }: DocBodyInput): DocBody | null => {
     const main = findMainRow(general);
@@ -31,10 +34,12 @@ export const buildDocBody = ({ catalog, general, alternative }: DocBodyInput): D
     const contract = catalog.contracts.byCode[main.refs.contractCode];
     const supply = resolveSupply(catalog, main.refs.supplyCode);
     if (!contract || !supply) return null;
+    const complects = buildComplectSections(catalog, general, main);
 
     return {
         contractType: contractTypeOf(contract),
         complect: buildComplectGroups(catalog, composition),
+        ...(complects ? { complects } : {}),
         supply: toDocSupply(catalog, supply),
         contract: toDocContract(contract),
         rows: toDocRows(catalog, general, alternative),

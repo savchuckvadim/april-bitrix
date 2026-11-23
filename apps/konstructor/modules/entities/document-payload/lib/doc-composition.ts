@@ -32,8 +32,15 @@ export const docComposition = (main: KRow, set: RowSet): Composition | null => {
 };
 
 /**
+ * Состав одной garant-строки для документов: её наполнение с теми же двумя
+ * отсевами, что у объединённого состава. По строке печатается раздел
+ * «по комплектам»; у строки без наполнения — null.
+ */
+export const rowDocComposition = (row: KRow, set: RowSet): Composition | null =>
+    row.composition ? withProductRowsOnly(row.composition, set) : null;
+
+/**
  * Состав одной главной строки для документов, которым весь набор не нужен
  * (описание комплекта): наполнение главной строки с теми же двумя отсевами.
  */
-export const mainDocComposition = (main: KRow, set: RowSet): Composition | null =>
-    main.composition ? withProductRowsOnly(main.composition, set) : null;
+export const mainDocComposition = (main: KRow, set: RowSet): Composition | null => rowDocComposition(main, set);

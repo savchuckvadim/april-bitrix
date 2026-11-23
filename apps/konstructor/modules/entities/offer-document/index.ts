@@ -8,6 +8,7 @@ export {
     offerBlocker,
     offerRequestBlocker,
     offerVariantsFields,
+    type OfferMultiGenerateRequest,
     type OfferBlockerFormat,
     type OfferVariantsFields,
 } from './lib/build-offer-request';

@@ -1,12 +1,12 @@
 import type {
     ComplectCompositionDto,
-    DocumentVariantDto,
     OfferPdfGenerateDto,
     OfferPdfGenerateResponseDto,
     OfferPdfPaletteItemDto,
     OfferPdfTemplateCode as OfferPdfTemplateCodeDto,
     OfferPdfTemplateItemDto,
 } from '@workspace/nest-konstructor-api';
+import type { DocComplectsFields, DocVariant } from '../../document-payload/model/dto';
 
 /**
  * Доменные имена generated-DTO offer-pdf: UI и хуки берут типы отсюда —
@@ -41,6 +41,21 @@ export const OFFER_PDF_VIEW_MODE = {
 } as const;
 export type OfferPdfViewMode = (typeof OFFER_PDF_VIEW_MODE)[keyof typeof OFFER_PDF_VIEW_MODE];
 
+/**
+ * Как печатать наполнение общего набора с несколькими комплектами:
+ * объединённым списком без повторов или разделами по комплектам.
+ */
+export const OFFER_COMPLECTS_MODE = {
+    MERGED: 'merged',
+    SEPARATE: 'separate',
+} as const;
+export type OfferComplectsMode = (typeof OFFER_COMPLECTS_MODE)[keyof typeof OFFER_COMPLECTS_MODE];
+
+export const OFFER_COMPLECTS_MODE_OPTIONS: Array<{ value: OfferComplectsMode; label: string }> = [
+    { value: OFFER_COMPLECTS_MODE.MERGED, label: 'Объединённо' },
+    { value: OFFER_COMPLECTS_MODE.SEPARATE, label: 'По комплектам' },
+];
+
 export const OFFER_PDF_DESCRIPTION_MODE_OPTIONS: Array<{ value: OfferPdfDescriptionMode; label: string }> = [
     { value: OFFER_PDF_DESCRIPTION_MODE.NO, label: 'Нет — только названия' },
     { value: OFFER_PDF_DESCRIPTION_MODE.SMALL, label: 'Мало' },
@@ -65,6 +80,12 @@ export interface OfferPdfSettings {
     withCover: boolean;
     /** Страница о системе или о сервисе — у стилей, где она есть */
     withPromo: boolean;
+    /**
+     * Способ печати наполнения комплектов. Уходит в запрос полем верхнего
+     * уровня `complectsMode` (в `settings` бэка его нет); записи без поля
+     * читаются как объединённое наполнение.
+     */
+    complectsMode: OfferComplectsMode;
 }
 
 export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
@@ -76,6 +97,7 @@ export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
     salePhrase: '',
     withCover: true,
     withPromo: true,
+    complectsMode: OFFER_COMPLECTS_MODE.MERGED,
 };
 
 /** Письмо: пустые поля — шаблон подставит свои. */
@@ -147,14 +169,21 @@ export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[nu
  * комплекта и настройки сделки идут необязательными полями `variants` и
  * `composition` той же формы, что у generate-multi; участников нет — полей нет.
  *
- * Бэк принимает `variants` и `composition` у превью и генерации PDF; в
- * сгенерированном клиенте этих полей пока нет. После `pnpm run generate` они
- * появятся в OfferPdfGenerateDto, и расширение ниже можно убрать.
+ * Бэк принимает `variants` и `composition` у превью и генерации PDF, а также
+ * `complects` и `complectsMode` (наполнение по комплектам) на верхнем уровне и
+ * в каждом участнике; в сгенерированном клиенте этих полей пока нет. После
+ * `pnpm run generate` они появятся в OfferPdfGenerateDto и DocumentVariantDto,
+ * и расширение ниже можно убрать.
  */
-export type OfferPdfGenerateRequest = OfferPdfGenerateDto & {
-    variants?: DocumentVariantDto[];
-    composition?: ComplectCompositionDto;
-};
+export type OfferPdfGenerateRequest = OfferPdfGenerateDto &
+    DocComplectsFields & {
+        variants?: OfferPdfVariant[];
+        composition?: ComplectCompositionDto;
+        complectsMode?: OfferComplectsMode;
+    };
+
+/** Участник PDF-КП: форма участника Word-КП плюс способ печати его наполнения. */
+export type OfferPdfVariant = DocVariant & { complectsMode?: OfferComplectsMode };
 
 /** Настройки КП на экране документа; у сделки и варианта уходят в слепок целиком. */
 export interface OfferPdfDocumentPrefs {

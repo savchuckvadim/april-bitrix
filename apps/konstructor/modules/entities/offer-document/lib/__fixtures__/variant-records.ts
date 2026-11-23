@@ -3,6 +3,7 @@ import { catalogFromOldInit } from '../../../catalog';
 import type { ComplectVariantItem } from '../../../complect-variant/lib/api/complect-variant-helper';
 import type { ComplectVariantRecordDto } from '../../../complect-variant/model/dto';
 import { defaultComposition } from '../../../composition';
+import type { OfferPdfSnapshot } from '../../../offer-pdf/model/types';
 import { buildGarantRow, createSet, upsertRow, type RowSet } from '../../../row-set';
 import { serializeV2 } from '../../../snapshot';
 
@@ -28,8 +29,8 @@ const mainRowFor = (key: string, complectCode: string) => ({
 export const mainSetOf = (key: string, complectCode: string): RowSet =>
     upsertRow(createSet('general', 'general'), mainRowFor(key, complectCode));
 
-/** Колонка rows записи варианта: слепок v2 с данным общим набором. */
-export const snapshotRowsOf = (general: RowSet): string =>
+/** Колонка rows записи варианта: слепок v2 с данным общим набором и настройками PDF-КП (по умолчанию без них). */
+export const snapshotRowsOf = (general: RowSet, pdf: OfferPdfSnapshot | null = null): string =>
     JSON.stringify(
         serializeV2({
             state: {
@@ -40,7 +41,7 @@ export const snapshotRowsOf = (general: RowSet): string =>
                 alternative: [],
                 templateId: null,
                 rqId: null,
-                pdf: null,
+                pdf,
             },
             dealId: 1,
             domain: 'd',

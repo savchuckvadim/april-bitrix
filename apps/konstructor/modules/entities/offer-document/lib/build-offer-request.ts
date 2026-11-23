@@ -4,7 +4,12 @@ import { IS_PROD } from '@/modules/app/consts/app-global';
 import { selectCatalog } from '../../catalog';
 import { selectComposition, selectVariantStagesLoading } from '../../complect-variant';
 import { selectClientType } from '../../deal';
-import { buildOfferPayload, type OfferGenerateRequest } from '../../document-payload';
+import {
+    buildOfferPayload,
+    type DocComplectsFields,
+    type DocVariant,
+    type OfferGenerateRequest,
+} from '../../document-payload';
 import { findMainRow } from '../../row-set';
 import { toOfferClientType } from './client-type.util';
 import { managerFromBxUser } from './manager.util';
@@ -44,9 +49,20 @@ export const offerRequestBlocker = (state: RootState): string | null => offerBlo
 
 /**
  * Необязательные поля превью и PDF-КП: участники-варианты и настройки сделки.
- * Форма та же, что у generate-multi.
+ * Форма та же, что у generate-multi; у участников есть разделы по комплектам
+ * (`complects`), которых в сгенерированном типе пока нет.
  */
-export type OfferVariantsFields = Partial<Pick<OfferWordMultiGenerateDto, 'variants' | 'composition'>>;
+export type OfferVariantsFields = Partial<Pick<OfferWordMultiGenerateDto, 'composition'>> & {
+    variants?: DocVariant[];
+};
+
+/**
+ * Запрос generate-multi с разделами по комплектам: у самого КП и у каждого
+ * участника. Способ печати (`complectsMode`) Word-запрос не несёт: Word-шаблоны
+ * блока «по комплектам» пока не имеют.
+ */
+export type OfferMultiGenerateRequest = Omit<OfferWordMultiGenerateDto, 'variants'> &
+    DocComplectsFields & { variants: DocVariant[] };
 
 /**
  * Варианты и настройки сделки для тела превью и PDF-КП. Участники есть —
@@ -100,7 +116,7 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
  * Запрос generate-multi: КП плюс участники-варианты и настройки сборки.
  * Вариантов нет — бэк печатает одиночное КП (variants: []).
  */
-export const buildOfferMultiGenerateRequest = (state: RootState): OfferWordMultiGenerateDto | null => {
+export const buildOfferMultiGenerateRequest = (state: RootState): OfferMultiGenerateRequest | null => {
     if (offerRequestBlocker(state)) return null;
     const offer = buildOfferGenerateRequest(state);
     if (!offer) return null;

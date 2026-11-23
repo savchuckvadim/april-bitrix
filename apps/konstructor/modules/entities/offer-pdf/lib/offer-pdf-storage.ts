@@ -1,11 +1,13 @@
 import { getLocalStorageJson, setLocalStorageJson } from '@workspace/api';
 import {
+    OFFER_COMPLECTS_MODE,
     OFFER_DOCUMENT_FORMAT,
     OFFER_PDF_DEFAULT_SETTINGS,
     OFFER_PDF_DEFAULT_TEMPLATE_CODE,
     OFFER_PDF_DESCRIPTION_MODE,
     OFFER_PDF_EMPTY_LETTER,
     OFFER_PDF_VIEW_MODE,
+    type OfferComplectsMode,
     type OfferDocumentFormat,
     type OfferPdfDescriptionMode,
     type OfferPdfDocumentPrefs,
@@ -29,6 +31,7 @@ export const OFFER_PDF_DEFAULT_PREFS: OfferPdfDocumentPrefs = {
 const FORMATS = new Set<string>(Object.values(OFFER_DOCUMENT_FORMAT));
 const DESCRIPTION_MODES = new Set<string>(Object.values(OFFER_PDF_DESCRIPTION_MODE));
 const VIEW_MODES = new Set<string>(Object.values(OFFER_PDF_VIEW_MODE));
+const COMPLECTS_MODES = new Set<string>(Object.values(OFFER_COMPLECTS_MODE));
 
 const pickString = (value: unknown, fallback: string): string =>
     typeof value === 'string' ? value : fallback;
@@ -67,9 +70,19 @@ export const normalizeOfferPdfStyle = (raw: unknown): OfferPdfStylePrefs => {
             salePhrase: pickString(settings.salePhrase, defaults.salePhrase),
             withCover: pickBoolean(settings.withCover, defaults.withCover),
             withPromo: pickBoolean(settings.withPromo, defaults.withPromo),
+            // слепки и записи кэша до наполнения по комплектам поля не имеют: там объединённое
+            complectsMode: pickEnum<OfferComplectsMode>(
+                settings.complectsMode,
+                COMPLECTS_MODES,
+                defaults.complectsMode,
+            ),
         },
     };
 };
+
+/** Способ печати наполнения из слепка или кэша настроек; записи без поля — объединённое наполнение. */
+export const offerPdfComplectsModeOf = (raw: unknown): OfferComplectsMode =>
+    normalizeOfferPdfStyle(raw).settings.complectsMode;
 
 export const normalizeOfferPdfLetter = (raw: unknown): OfferPdfLetter => {
     const letter = asRecord(raw);

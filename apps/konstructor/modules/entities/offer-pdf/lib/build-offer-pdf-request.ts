@@ -1,9 +1,8 @@
-import type { OfferWordByTemplateGenerateDto } from '@workspace/nest-konstructor-api';
 import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
 import { selectClientType } from '../../deal';
-import { buildOfferPayload } from '../../document-payload';
-import { managerFromBxUser, offerBlocker, offerVariantsFields, toOfferClientType } from '../../offer-document';
+import { buildOfferPayload, type OfferGenerateRequest } from '../../document-payload';
+import { managerFromBxUser, offerBlocker, toOfferClientType } from '../../offer-document';
 import {
     OFFER_PDF_OMITTED_WORD_FIELDS,
     type OfferPdfGenerateRequest,
@@ -12,6 +11,7 @@ import {
     type OfferPdfSettings,
     type OfferPdfTemplateCode,
 } from '../model/types';
+import { offerPdfVariantsFields } from './offer-pdf-variants';
 
 export interface OfferPdfRequestOptions {
     /** Код стиля из списка стилей бэка */
@@ -37,16 +37,18 @@ const trimmedOrUndefined = (value: string): string | undefined => {
 
 /**
  * Word-запрос → PDF-запрос: убираем поля Word-шаблона и счёта, добавляем
- * шаблон, настройки, письмо и номер. Пустые строки не отправляем —
- * бэк подставит свои умолчания.
+ * шаблон, настройки, письмо, номер и способ печати наполнения комплектов
+ * (`complectsMode` — полем верхнего уровня, в `settings` бэка его нет).
+ * Разделы по комплектам (`complects`) приходят из Word-запроса. Пустые
+ * строки не отправляем — бэк подставит свои умолчания.
  */
 export const toOfferPdfRequest = (
-    payload: OfferWordByTemplateGenerateDto,
+    payload: OfferGenerateRequest,
     options: OfferPdfRequestOptions,
 ): OfferPdfGenerateRequest => {
     const omitted = new Set<string>(OFFER_PDF_OMITTED_WORD_FIELDS);
     const base = Object.fromEntries(Object.entries(payload).filter(([key]) => !omitted.has(key))) as Omit<
-        OfferWordByTemplateGenerateDto,
+        OfferGenerateRequest,
         OfferPdfOmittedWordField
     >;
     const appeal = trimmedOrUndefined(options.letter.appeal);
@@ -66,6 +68,7 @@ export const toOfferPdfRequest = (
             withCover: options.settings.withCover,
             withPromo: options.settings.withPromo,
         },
+        complectsMode: options.settings.complectsMode,
         letter: appeal || text ? { appeal, text } : undefined,
         documentNumber: trimmedOrUndefined(options.documentNumber),
     };
@@ -75,7 +78,8 @@ export const toOfferPdfRequest = (
  * Запрос КП в PDF из состояния: содержание — тем же адаптером, что и для
  * Word (document-payload), сверху — шаблон, настройки и письмо. Участники-варианты
  * и настройки сделки уходят полями `variants` и `composition`, когда участники
- * есть. Нечего печатать или участника собрать нельзя — null.
+ * есть; у каждого участника свой способ печати наполнения (offerPdfVariantsFields).
+ * Нечего печатать или участника собрать нельзя — null.
  */
 export const buildOfferPdfGenerateRequest = (
     state: RootState,
@@ -105,5 +109,5 @@ export const buildOfferPdfGenerateRequest = (
         manager: managerFromBxUser(bitrix.user),
         invoice: state.offerDocument.invoice,
     });
-    return payload ? { ...toOfferPdfRequest(payload, options), ...offerVariantsFields(state) } : null;
+    return payload ? { ...toOfferPdfRequest(payload, options), ...offerPdfVariantsFields(state, options.settings.complectsMode) } : null;
 };

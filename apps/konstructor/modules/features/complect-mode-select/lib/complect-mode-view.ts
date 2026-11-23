@@ -76,7 +76,7 @@ type VariantsState = Pick<RootState, 'complectVariant'>;
  * «Одним договором» оценивается по всем незакрытым вариантам: именно они пойдут
  * в договор и отчёт, как только выбран режим «Все варианты».
  */
-export const selectComplectModeView = createSelector(
+export const selectComplectModeView: (state: VariantsState) => ComplectModeView = createSelector(
     [
         (state: VariantsState) => state.complectVariant.records,
         selectVariantStageOf,

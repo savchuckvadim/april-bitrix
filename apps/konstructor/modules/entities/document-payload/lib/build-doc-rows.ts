@@ -3,14 +3,15 @@ import { buildTotalRow, type KRow, type RowSet } from '../../row-set';
 import type { DocProduct, DocRow, DocRowPrice, DocRowSet, DocRowSets } from '../model/dto';
 import { complectNumberOf, contractNumberOf } from './legacy-numbers.util';
 import { toDocContract, toDocSupply } from './build-doc-refs';
+import { GENERAL_SET_NUMBER, alternativeSetNumber } from './doc-set-numbers';
 
 /**
  * Строки и сеты в легаси-форме payload (ProductRowDto / ProductRowSetDto):
  * бэк рендерит таблицы цен КП и спецификации по ним. Номера — из таблиц
  * legacy-codes (единственное место, где number живёт вне v1-адаптера).
+ * Номер набора в `setId` строк — из doc-set-numbers, тот же, что у наполнения
+ * наборов для сравнения.
  */
-
-const SET_ID = { general: 0 } as const;
 
 const toDocPrice = (row: KRow, contractNumber: number): DocRowPrice => ({
     default: row.price.base,
@@ -126,18 +127,21 @@ export const toDocRowSets = (
     general: RowSet,
     alternative: RowSet[],
 ): DocRowSets => ({
-    general: [toDocRowSet(catalog, general, SET_ID.general)],
-    alternative: alternative.map((set, index) => toDocRowSet(catalog, set, index + 1)),
+    general: [toDocRowSet(catalog, general, GENERAL_SET_NUMBER)],
+    alternative: alternative.map((set, index) => toDocRowSet(catalog, set, alternativeSetNumber(index))),
 });
 
 /** Все строки документа (легаси getAllRowsFromSets): свёрнутый сет — его total */
 export const toDocRows = (catalog: Catalog, general: RowSet, alternative: RowSet[]): DocRow[] => {
-    const sets = [general, ...alternative];
-    return sets.flatMap((set, setIndex) => {
+    const numbered = [
+        { set: general, number: GENERAL_SET_NUMBER },
+        ...alternative.map((set, index) => ({ set, number: alternativeSetNumber(index) })),
+    ];
+    return numbered.flatMap(({ set, number }) => {
         if (set.collapsed) {
             const total = buildTotalRow(set);
-            return total ? [toDocRow(catalog, total, set.kind, setIndex, 0)] : [];
+            return total ? [toDocRow(catalog, total, set.kind, number, 0)] : [];
         }
-        return set.rows.map((row, index) => toDocRow(catalog, row, set.kind, setIndex, index));
+        return set.rows.map((row, index) => toDocRow(catalog, row, set.kind, number, index));
     });
 };

@@ -41,14 +41,34 @@ export interface DocComplectSection {
 }
 
 /**
- * Разделы по комплектам в теле КП и участника-варианта. Бэк принимает поле
- * `complects` у формирования, превью и PDF КП, но в сгенерированном клиенте
- * его пока нет. После `pnpm run generate` оно появится в OfferWordByTemplateGenerateDto
- * и DocumentVariantDto, и это расширение можно убрать.
+ * Наполнение одного набора для сравнения (OfferAlternativeSetComplectsDto
+ * бэка). `setNumber` и `title` совпадают с номером и заголовком набора в
+ * таблице цен (`setId` его строк и «Набор N»); бэк их со строками цен не
+ * сверяет, соответствие обеспечивает сборка (doc-set-numbers).
+ */
+export interface DocAlternativeSetComplects {
+    /** Целое от 1: номер набора для сравнения, нулевой или дробный даёт 400 на весь запрос */
+    setNumber: number;
+    title: string;
+    complects: DocComplectSection[];
+}
+
+/**
+ * Разделы по комплектам и наполнение наборов для сравнения в теле КП и
+ * участника-варианта. Бэк принимает поля `complects` и `alternativeComplects` у
+ * формирования, превью и PDF КП, но в сгенерированном клиенте их пока нет.
+ * После `pnpm run generate` они появятся в OfferWordByTemplateGenerateDto и
+ * DocumentVariantDto, и это расширение можно убрать.
  */
 export interface DocComplectsFields {
     /** Есть, когда в общем наборе два и больше комплекта с наполнением */
     complects?: DocComplectSection[];
+    /**
+     * Наполнение наборов для сравнения: есть, когда менеджер включил показ и
+     * хотя бы у одного набора есть комплект с наполнением. Без поля или с
+     * пустым массивом бэк печатает КП как раньше.
+     */
+    alternativeComplects?: DocAlternativeSetComplects[];
 }
 
 export type OfferGenerateRequest = OfferWordByTemplateGenerateDto & DocComplectsFields;

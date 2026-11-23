@@ -56,3 +56,18 @@ export const bareGeneral = (rows: KRow[]): RowSet => {
 /** Набор из строк с пересчётом: сервисные строки выведены из объединённого наполнения. */
 export const syncedGeneral = (rows: KRow[]): RowSet =>
     syncSetWithComposition(bareGeneral(rows), catalog, { regionCode: REGION_CODE, withTax: false });
+
+/** Комплект набора для сравнения: строка роли comparison, её набор — `setId`. */
+export const comparisonRowOf = (
+    key: string,
+    setId: string,
+    complectCode: string,
+    composition: Composition | undefined,
+): KRow => ({ ...garantRowOf(key, 'comparison', complectCode, composition), setId });
+
+/** Набор для сравнения из строк с пересчётом: сервисные строки выведены из объединённого наполнения. */
+export const syncedAlternative = (setId: string, rows: KRow[]): RowSet => {
+    let set = createSet(setId, 'alternative');
+    for (const row of rows) set = upsertRow(set, row);
+    return syncSetWithComposition(set, catalog, { regionCode: REGION_CODE, withTax: false });
+};

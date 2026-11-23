@@ -2,6 +2,8 @@ export * from './model/dto';
 export * from './lib/legacy-numbers.util';
 export * from './lib/build-complect-groups';
 export * from './lib/build-complect-sections';
+export * from './lib/doc-set-numbers';
+export * from './lib/build-alternative-complects';
 export * from './lib/set-composition';
 export * from './lib/doc-composition';
 export * from './lib/doc-total-row';

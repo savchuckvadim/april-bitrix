@@ -28,9 +28,3 @@ export const visibleSpecification = (items: readonly ContractSpecificationItem[]
  */
 export const specificationDetails = (items: readonly ContractSpecificationItem[]): ContractSpecificationItem[] =>
     items.filter(item => item.isActive && item.isHidden);
-
-export const selectVisibleSpecification = (state: WithContractDocument) =>
-    visibleSpecification(state.contractDocument.specification);
-
-export const selectSpecificationDetails = (state: WithContractDocument) =>
-    specificationDetails(state.contractDocument.specification);

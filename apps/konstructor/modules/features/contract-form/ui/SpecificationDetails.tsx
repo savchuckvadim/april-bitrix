@@ -16,13 +16,14 @@ export interface SpecificationDetailsProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onChange: (code: string, value: string) => void;
+    idPrefix?: string;
 }
 
 /**
  * Состав комплекта в спецификации (легаси «Развернуть»): инфоблоки,
  * энциклопедии решений, Legal Tech, консалтинг, поставка — по разделам.
  */
-export const SpecificationDetails = ({ sections, open, onOpenChange, onChange }: SpecificationDetailsProps) =>
+export const SpecificationDetails = ({ sections, open, onOpenChange, onChange, idPrefix }: SpecificationDetailsProps) =>
     sections.length ? (
         <Collapsible open={open} onOpenChange={onOpenChange} className="flex flex-col gap-3">
             <CollapsibleTrigger asChild>
@@ -39,7 +40,7 @@ export const SpecificationDetails = ({ sections, open, onOpenChange, onChange }:
                             <SpecificationLtPackets items={section.items} />
                         ) : (
                             section.items.map(item => (
-                                <SpecificationField key={item.code} item={item} onChange={onChange} />
+                                <SpecificationField key={item.code} item={item} onChange={onChange} idPrefix={idPrefix} />
                             ))
                         )}
                     </section>

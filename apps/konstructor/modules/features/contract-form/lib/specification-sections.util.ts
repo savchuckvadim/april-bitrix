@@ -1,4 +1,4 @@
-import type { ContractSpecificationItem } from '@/modules/entities/contract-document';
+import type { ContractFormField, ContractSpecificationItem } from '@/modules/entities/contract-document';
 
 /** Раздел подробностей спецификации (легаси «Развернуть»). */
 export interface SpecificationSection {
@@ -95,3 +95,19 @@ export const ltPacketsOf = (items: ContractSpecificationItem[]): LtPacketView[] 
     }
     return packets.filter(packet => packet.name || packet.services.length);
 };
+
+/** Суммы общей формы договора, которые показываются над спецификацией. */
+const SPECIFICATION_SUM_CODES = ['month_sum', 'prepayment_sum', 'period_sum'] as const;
+
+export interface SpecificationSum {
+    code: string;
+    label: string;
+    value: string;
+}
+
+/** Суммы из общей формы договора в порядке показа; нет поля в форме — суммы нет. */
+export const specificationSums = (contractForm: readonly ContractFormField[]): SpecificationSum[] =>
+    SPECIFICATION_SUM_CODES.flatMap(code => {
+        const field = contractForm.find(item => 'code' in item && item.code === code);
+        return field ? [{ code, label: field.name, value: typeof field.value === 'string' ? field.value : '' }] : [];
+    });

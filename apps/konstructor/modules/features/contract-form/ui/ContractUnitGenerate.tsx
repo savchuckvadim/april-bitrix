@@ -12,8 +12,9 @@ export interface ContractUnitGenerateProps {
 
 /**
  * «Сформировать» договор одного варианта: ошибка и ссылка на результат под
- * кнопкой. Причина блокировки общая для всех договоров и написана над списком,
- * здесь она в подсказке кнопки.
+ * кнопкой. Кнопка вторичная и по ширине содержимого: главная на экране одна,
+ * «Сформировать все договоры». Причина блокировки общая для всех договоров и
+ * написана над списком, здесь она в подсказке кнопки.
  */
 export const ContractUnitGenerate = ({ unit }: ContractUnitGenerateProps) => {
     const contract = useContractUnit(unit);
@@ -21,7 +22,8 @@ export const ContractUnitGenerate = ({ unit }: ContractUnitGenerateProps) => {
     return (
         <div className="flex w-full flex-col gap-2">
             <Button
-                className="w-full"
+                variant="outline"
+                className="self-start"
                 onClick={contract.run}
                 disabled={contract.isDisabled}
                 title={contract.blocker ?? undefined}

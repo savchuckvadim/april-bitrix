@@ -1,9 +1,10 @@
 import type { Catalog } from '../../../catalog';
 import { getComplectRuleFlags } from '../../../catalog';
-import { describeLtPackets, mergeCompositions } from '../../../composition';
+import { describeLtPackets } from '../../../composition';
 import type { KRow, RowSet } from '../../model/types';
 import { buildGarantRow, buildServiceRow } from '../row';
 import { garantRows, leadGarantRow } from './set-ops.util';
+import { mergeRowCompositions } from './set-services.util';
 import { academyRowFor } from './sync-academy.util';
 
 export interface RowSetContext {
@@ -65,11 +66,7 @@ export const syncSetWithComposition = (
         }
     }
 
-    const merged = mergeCompositions(
-        rebuiltGarant
-            .map(row => row.composition)
-            .filter((c): c is NonNullable<typeof c> => Boolean(c)),
-    );
+    const merged = mergeRowCompositions(rebuiltGarant);
 
     const serviceRows: KRow[] = [];
     const leadComplect = lead.refs.complectCode

@@ -45,6 +45,7 @@ import {
     fetchComplectVariants,
     syncOpenComplectVariant,
 } from '@/modules/entities/complect-variant';
+import { isContractSpecStaleAction, isOfferPreviewStaleAction } from '../../lib/stale-actions';
 import { setupProviderTaxListener } from './provider-tax.listener';
 
 const complectDescriptionHelper = new ComplectDescriptionHelper();
@@ -328,24 +329,14 @@ function setupRememberedDocumentListener(listenerMiddleware: ListenerMiddlewareI
 }
 
 /**
- * Шапка КП, поставщик или сборка изменились после готового PDF-превью →
- * пометить превью устаревшим. Само превью не перезапрашиваем: генерация
+ * Шапка КП, поставщик, сборка или Word-шаблон изменились после готового
+ * PDF-превью → пометить превью устаревшим. Список действий — в
+ * isOfferPreviewStaleAction. Само превью не перезапрашиваем: генерация
  * дорогая, менеджер обновляет кнопкой, когда закончил правки.
  */
 function setupOfferPreviewStaleListener(listenerMiddleware: ListenerMiddlewareInstance) {
     typed(listenerMiddleware)({
-        matcher: isAnyOf(
-            offerDocumentActions.setRecipientField,
-            offerDocumentActions.setRecipientCase,
-            offerDocumentActions.setInvoiceAnswer,
-            offerDocumentActions.setInvoiceDate,
-            offerDocumentActions.setInvoiceNumber,
-            documentProvidertAC.setCurrent,
-            rowSetActions.upsertRow,
-            rowSetActions.editRowCommercial,
-            rowSetActions.editTotalCommercial,
-            rowSetActions.setRowComposition,
-        ),
+        matcher: isOfferPreviewStaleAction,
         effect: (_action, listenerApi) => {
             const preview = listenerApi.getState().wordTemplatePdfPreview;
             if (preview.previewPhase !== 'ready' || preview.needUpdate) return;
@@ -356,17 +347,13 @@ function setupOfferPreviewStaleListener(listenerMiddleware: ListenerMiddlewareIn
 
 /**
  * Сборка изменилась после загруженной спецификации договора → пометить её
- * устаревшей. Отчёт о поставке берёт состав и суммы оттуда; перезапрашивать на
+ * устаревшей (список действий — в isContractSpecStaleAction, там же раскладка
+ * слепка). Отчёт о поставке берёт состав и суммы оттуда; перезапрашивать на
  * каждый вход нельзя — сотрёт ручные правки менеджера в спецификации.
  */
 function setupContractStaleListener(listenerMiddleware: ListenerMiddlewareInstance) {
     typed(listenerMiddleware)({
-        matcher: isAnyOf(
-            rowSetActions.upsertRow,
-            rowSetActions.editRowCommercial,
-            rowSetActions.editTotalCommercial,
-            rowSetActions.setRowComposition,
-        ),
+        matcher: isContractSpecStaleAction,
         effect: (_action, listenerApi) => {
             listenerApi.dispatch(contractDocumentActions.formStale());
         },

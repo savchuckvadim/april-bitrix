@@ -80,7 +80,8 @@ listeners (app/model/listeners/start-store-listeners.ts):
   dealId × каталог готов → restoreSnapshot → rowSet.restore
   initPortal.fulfilled × dealId × смарт вариантов → fetchComplectVariants
   initPortal.fulfilled → initServiceOffer (сервисный отдел: слепки периодов; иначе выходит сам)
-  offerDocument.* | documentProvider.setCurrent | rowSet.upsertRow/edit*/setRowComposition → PDF-превью КП
+  offerDocument.* | documentProvider.setCurrent | любое действие набора строк (isRowSetContentAction: правки строк,
+  сворачивание, наборы для сравнения, раскладка слепка) | выбор Word-шаблона (app/lib/stale-actions) → PDF-превью КП
   помечается устаревшим (needUpdate), само не перезапрашивается
 вход `/` (processes/konstructor EntryGate): resolveEntryTarget → /start | /variants | /document
   (маршруты и сценарии — docs/routing.md)
@@ -97,7 +98,8 @@ save: DealSendButton → sendDeal (deal-send) → saveSnapshot thunk → seriali
       КП: `entities/offer-document` buildOfferGenerateRequest(state) (превью PDF и generate) и
       buildOfferMultiGenerateRequest (variants по selectParticipants: открытый вариант — из живого row-set,
       остальные — из слепков v2 через parseSnapshotV2; composition только при вариантах).
-      offerRequestBlocker(state) — текст, почему КП не собрать (нет сделки/главной строки/шаблона/поставщика).
+      offerRequestBlocker(state) — текст, почему КП не собрать (нет сделки/главной строки/шаблона/поставщика/
+      участника-варианта, которого собрать нельзя; участники — selectVariantsPayload, кэшированный селектор).
       Договор: `entities/contract-document` buildSpecificationFormRequest (форма с бэка: общая часть + спецификация,
       тексты поставки резолвит бэк) и buildContractGenerateRequest (bxrq — текущий реквизит bx-rq через toContractBxRq,
       regions — buildDocRegions, LT — buildContractLt c paidPackets); contractRequestBlocker (домен, сделка,
@@ -200,8 +202,11 @@ s.snapshot
 - Тесты правил LT идут на `catalog/lib/__fixtures__/init-v2.live.json`, срезе настоящего init. На `oldinit.json`
   сервисы есть всегда, поэтому он не показывает поломки данных init.
 - В документ доп. пакет идёт, только если у него есть строка в наборе (`docComposition`).
-- Спецификация договора устаревает при изменении сборки (`formStale`): отчёт о поставке перезапросит её при входе,
-  а без изменений сохранит ручные правки менеджера.
+- Спецификация договора устаревает при изменении сборки (`formStale`, те же действия набора строк, что у превью,
+  включая раскладку слепка): отчёт о поставке перезапросит её при входе, а без изменений сохранит ручные правки менеджера.
+- Участник документа, которого собрать нельзя (слепок не читается, нет главной строки, договора или поставки),
+  не выпадает молча: `buildVariantsPayload` возвращает его в `skipped`, `offerRequestBlocker` и `supplyReportBlocker`
+  (при включённой заявке) блокируют формирование и называют вариант. Заявка поставки шлёт `variants` уже с одним участником.
 
 ## Академия
 

@@ -1,10 +1,6 @@
 import type { RootState } from '@/modules/app/model/store';
 import { resolveSupply, selectCatalog } from '../../catalog';
-import {
-    selectComplectVariantState,
-    selectVariantStageOf,
-    selectVariantStagesLoading,
-} from '../../complect-variant';
+import { selectVariantStagesLoading } from '../../complect-variant';
 import {
     SUPPLY_REPORT_DEAL_FIELDS,
     buildDocRegions,
@@ -16,7 +12,7 @@ import {
 } from '../../contract-document';
 import { selectClientType } from '../../deal';
 import { buildDocBody, setComposition, toDocRows } from '../../document-payload';
-import { buildVariantsPayload, toOfferClientType } from '../../offer-document';
+import { selectVariantsPayload, skippedVariantsBlocker, toOfferClientType } from '../../offer-document';
 import { RQ_TYPE_NAME, RQ_TYPE } from '../../bx-rq/model/types';
 import { findMainRow } from '../../row-set';
 import { selectServiceSmartId } from '../../service-offer/model/ServiceOfferSlice';
@@ -90,11 +86,16 @@ export const buildSupplyFormRequest = (state: RootState): SupplyFormRequest | nu
     };
 };
 
-/** Почему отчёт сейчас не собрать — те же условия, что у договора. */
+/**
+ * Почему отчёт сейчас не собрать — те же условия, что у договора. С заявкой
+ * (процесс поставки включён) отчёт ещё и отправляет участников-вариантов в
+ * сервисный отдел: участник, которого собрать нельзя, блокирует формирование.
+ */
 export const supplyReportBlocker = (state: RootState): string | null =>
     contractRequestBlocker(state) ??
     // стадии вариантов ещё в пути — кто переезжает в отдел сервиса, пока неизвестно
-    (selectVariantStagesLoading(state) ? 'Варианты КП ещё загружаются' : null);
+    (selectVariantStagesLoading(state) ? 'Варианты КП ещё загружаются' : null) ??
+    (state.supplyReport.needProcess ? skippedVariantsBlocker(selectVariantsPayload(state).skipped) : null);
 
 /** Чего не хватает: обязательные поля сделки, реквизиты, обязательные поля формы. */
 export const supplyReportValidationErrors = (state: RootState): string[] => {
@@ -201,15 +202,7 @@ export const buildInitSupplyRequest = (
     if (!content || !scope || !dealId || !provider) return null;
     const { body, catalog, composition, region } = content;
     const clientType = clientTypeOf(state);
-    const variantState = selectComplectVariantState(state);
-    const variants = buildVariantsPayload({
-        catalog,
-        records: variantState.records,
-        items: variantState.items,
-        stageOf: selectVariantStageOf(state),
-        openVariantSmartId: variantState.openVariantSmartId,
-        live: { general: state.rowSet.general, alternative: state.rowSet.alternative },
-    });
+    const { variants } = selectVariantsPayload(state);
     const dealFields = state.portal.current?.bitrixDeal?.bitrixfields ?? null;
     const armField = dealFields?.find(field => field.code === RPA_ARM_COMPLECT_CODE);
     const armRaw = armField && bitrix.deal ? bitrix.deal[`UF_CRM_${armField.bitrixId}`] : undefined;
@@ -245,6 +238,7 @@ export const buildInitSupplyRequest = (
         // сервисный отдел — перезаключение, продажи — поставка
         flow: state.app.department === APP_DEP.SERVICE ? 'renewal' : 'supply',
         files,
-        variants: variants.length > 1 ? variants : undefined,
+        // уже один участник: бэк ставит в заявке ссылку на вариант и переводит его в «Поставку»
+        variants: variants.length > 0 ? variants : undefined,
     };
 };

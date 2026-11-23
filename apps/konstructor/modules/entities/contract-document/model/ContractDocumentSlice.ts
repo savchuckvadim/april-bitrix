@@ -1,9 +1,12 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { ContractFormField, ContractSpecificationItem } from './dto';
-import type {
-    ContractDealFieldValues,
-    ContractFormStatus,
-    ContractGenerateResult,
+import {
+    initialContractGenerate,
+    initialContractUnitState,
+    type ContractDealFieldValues,
+    type ContractFormStatus,
+    type ContractGenerateResult,
+    type ContractUnitState,
 } from './types';
 
 export interface ContractDocumentState {
@@ -22,15 +25,13 @@ export interface ContractDocumentState {
     /** Номер договора: поля в pbx-каноне нет — живёт на экране и уходит в payload */
     contractNumber: string;
     generate: ContractGenerateResult;
+    /**
+     * Договорные единицы (договор на каждый вариант комплекта, когда варианты
+     * продаются вместе) по ключу единицы. Пусто, пока единиц нет: тогда экран
+     * работает по полям выше.
+     */
+    units: Record<string, ContractUnitState>;
 }
-
-const initialGenerate: ContractGenerateResult = {
-    status: 'idle',
-    error: null,
-    link: null,
-    documentName: null,
-    savedToDisk: null,
-};
 
 const initialState: ContractDocumentState = {
     formStatus: 'idle',
@@ -42,7 +43,17 @@ const initialState: ContractDocumentState = {
     savingField: null,
     saveError: null,
     contractNumber: '',
-    generate: initialGenerate,
+    generate: initialContractGenerate(),
+    units: {},
+};
+
+/** Состояние единицы; первое обращение заводит её с пустыми значениями. */
+const unitOf = (state: ContractDocumentState, key: string): ContractUnitState => {
+    const existing = state.units[key];
+    if (existing) return existing;
+    const created = initialContractUnitState();
+    state.units[key] = created;
+    return created;
 };
 
 export const contractDocumentSlice = createSlice({
@@ -61,9 +72,15 @@ export const contractDocumentSlice = createSlice({
             state.specification = action.payload.specification;
             state.formStatus = 'ready';
         },
-        /** Сборка изменилась: спецификация устарела, следующий вход запросит её заново */
+        /**
+         * Сборка изменилась: спецификация устарела (живая и всех единиц),
+         * следующий вход запросит её заново
+         */
         formStale(state: ContractDocumentState) {
             if (state.formStatus === 'ready') state.formStatus = 'idle';
+            for (const unit of Object.values(state.units)) {
+                if (unit.formStatus === 'ready') unit.formStatus = 'idle';
+            }
         },
         formFailed(state: ContractDocumentState, action: PayloadAction<string>) {
             state.formStatus = 'error';
@@ -92,18 +109,80 @@ export const contractDocumentSlice = createSlice({
             state.contractNumber = action.payload;
         },
         generateStarted(state: ContractDocumentState) {
-            state.generate = { ...initialGenerate, status: 'generating' };
+            state.generate = { ...initialContractGenerate(), status: 'generating' };
         },
         generateDone(
             state: ContractDocumentState,
             action: PayloadAction<{ link: string; documentName: string; savedToDisk: boolean }>,
         ) {
-            state.generate = { ...initialGenerate, status: 'done', ...action.payload };
+            state.generate = { ...initialContractGenerate(), status: 'done', ...action.payload };
         },
         generateFailed(state: ContractDocumentState, action: PayloadAction<string>) {
-            state.generate = { ...initialGenerate, status: 'error', error: action.payload };
+            state.generate = { ...initialContractGenerate(), status: 'error', error: action.payload };
         },
-        /** Новая сделка в плейсменте (setAppData-слушатель) — всё заново */
+        /**
+         * Оставить состояние только у единиц, которые ещё есть среди участников
+         * документов: вышедшие из сделки варианты не копят номера и спецификации.
+         */
+        unitsRetained(state: ContractDocumentState, action: PayloadAction<string[]>) {
+            const keep = new Set(action.payload);
+            for (const key of Object.keys(state.units)) {
+                if (!keep.has(key)) delete state.units[key];
+            }
+        },
+        unitFormLoading(state: ContractDocumentState, action: PayloadAction<{ key: string }>) {
+            const unit = unitOf(state, action.payload.key);
+            unit.formStatus = 'loading';
+            unit.formError = null;
+        },
+        unitFormLoaded(
+            state: ContractDocumentState,
+            action: PayloadAction<{
+                key: string;
+                contractForm: ContractFormField[];
+                specification: ContractSpecificationItem[];
+            }>,
+        ) {
+            const unit = unitOf(state, action.payload.key);
+            unit.contractForm = action.payload.contractForm;
+            unit.specification = action.payload.specification;
+            unit.formStatus = 'ready';
+        },
+        unitFormFailed(state: ContractDocumentState, action: PayloadAction<{ key: string; error: string }>) {
+            const unit = unitOf(state, action.payload.key);
+            unit.formStatus = 'error';
+            unit.formError = action.payload.error;
+        },
+        unitSpecificationValue(
+            state: ContractDocumentState,
+            action: PayloadAction<{ key: string; code: string; value: string }>,
+        ) {
+            const item = state.units[action.payload.key]?.specification.find(
+                entry => entry.code === action.payload.code,
+            );
+            if (item) item.value = action.payload.value;
+        },
+        unitContractNumber(state: ContractDocumentState, action: PayloadAction<{ key: string; value: string }>) {
+            unitOf(state, action.payload.key).contractNumber = action.payload.value;
+        },
+        unitGenerateStarted(state: ContractDocumentState, action: PayloadAction<{ key: string }>) {
+            unitOf(state, action.payload.key).generate = { ...initialContractGenerate(), status: 'generating' };
+        },
+        unitGenerateDone(
+            state: ContractDocumentState,
+            action: PayloadAction<{ key: string; link: string; documentName: string; savedToDisk: boolean }>,
+        ) {
+            const { key, ...result } = action.payload;
+            unitOf(state, key).generate = { ...initialContractGenerate(), status: 'done', ...result };
+        },
+        unitGenerateFailed(state: ContractDocumentState, action: PayloadAction<{ key: string; error: string }>) {
+            unitOf(state, action.payload.key).generate = {
+                ...initialContractGenerate(),
+                status: 'error',
+                error: action.payload.error,
+            };
+        },
+        /** Новая сделка в плейсменте (setAppData-слушатель) — всё заново, единицы тоже */
         reset() {
             return initialState;
         },

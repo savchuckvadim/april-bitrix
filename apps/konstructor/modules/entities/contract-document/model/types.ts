@@ -1,5 +1,6 @@
 // Глубокие импорты файлов-констант: баррель pbx-data тянет class-энтити
 import { PBX_SALES_KONSTRUCTOR_FIELD_CODES } from '@workspace/pbx-data/entities/field/type/sales/konstructor/pbx-sales-konstructor-field.type';
+import type { ContractFormField, ContractSpecificationItem } from './dto';
 
 /**
  * Договор: поля сделки Bitrix, которые печатаются в документе и правятся с
@@ -97,3 +98,36 @@ export interface ContractGenerateResult {
     /** Договор лёг на Диск Битрикса (папка сделки / «Договоры»); null — ещё не формировали */
     savedToDisk: boolean | null;
 }
+
+/**
+ * Состояние одной договорной единицы (один договор варианта комплекта):
+ * то же, что у живого договора, но свои форма, спецификация, номер и результат.
+ * Поля сделки, реквизит и поставщик у единиц общие.
+ */
+export interface ContractUnitState {
+    formStatus: ContractFormStatus;
+    formError: string | null;
+    /** Общая форма с бэка: из неё берутся суммы над спецификацией */
+    contractForm: ContractFormField[];
+    /** Спецификация единицы — менеджер правит значения строк */
+    specification: ContractSpecificationItem[];
+    contractNumber: string;
+    generate: ContractGenerateResult;
+}
+
+export const initialContractGenerate = (): ContractGenerateResult => ({
+    status: 'idle',
+    error: null,
+    link: null,
+    documentName: null,
+    savedToDisk: null,
+});
+
+export const initialContractUnitState = (): ContractUnitState => ({
+    formStatus: 'idle',
+    formError: null,
+    contractForm: [],
+    specification: [],
+    contractNumber: '',
+    generate: initialContractGenerate(),
+});

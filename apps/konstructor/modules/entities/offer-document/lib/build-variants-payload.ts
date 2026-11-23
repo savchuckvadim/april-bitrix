@@ -58,39 +58,77 @@ const tryBuildDocVariant = (input: Parameters<typeof buildDocVariant>[0]): DocVa
 };
 
 /**
- * Участники КП (DocumentVariantDto[]) по правилу selectParticipants: те же
- * варианты, что видит менеджер на экране вариантов. Открытый вариант берётся
- * из текущего row-set — что на экране, то и в документе, даже без сохранения.
- * Варианты только v2 (смарт появился после v2). Участник, которого собрать
- * нельзя, попадает в `skipped` с причиной: вызывающий блокирует документ, и
- * менеджер видит, какой вариант и почему не вошёл.
- * Пустой список вариантов — бэк печатает одиночное КП из полей самого запроса.
+ * Участник, которого удалось собрать: запись варианта, наборы, из которых он
+ * собран, и готовый участник КП. Наборы нужны документам, которым участник КП
+ * не годится (договор собирает свой запрос по общему набору варианта).
  */
-export const buildVariantsPayload = (input: VariantsPayloadInput): VariantsPayload => {
-    const variants: DocVariant[] = [];
+export interface VariantEntry {
+    record: ComplectVariantRecordDto;
+    variantSmartId: number | null;
+    title: string;
+    /** Вариант открыт в конструкторе: наборы взяты из живого состояния, не из слепка. */
+    isOpen: boolean;
+    general: RowSet;
+    alternative: RowSet[];
+    doc: DocVariant;
+}
+
+export interface VariantEntries {
+    /** Собранные участники в порядке записей. */
+    entries: VariantEntry[];
+    /** Участники без документа: по ним формирование блокируется. */
+    skipped: SkippedVariant[];
+}
+
+/**
+ * Участники документов по правилу selectParticipants: те же варианты, что
+ * видит менеджер на экране вариантов. Открытый вариант берётся из текущего
+ * row-set — что на экране, то и в документе, даже без сохранения. Варианты
+ * только v2 (смарт появился после v2). Участник, которого собрать нельзя,
+ * попадает в `skipped` с причиной: вызывающий блокирует документ, и менеджер
+ * видит, какой вариант и почему не вошёл.
+ */
+export const buildVariantEntries = (input: VariantsPayloadInput): VariantEntries => {
+    const entries: VariantEntry[] = [];
     const skipped: SkippedVariant[] = [];
     for (const record of selectParticipants(input.records, input.stageOf)) {
         const item = input.items.find(candidate => candidate.id === Number(record.variantSmartId));
         const title = item?.title || `Вариант ${record.variantSmartId ?? record.id}`;
-        const source =
-            record.variantSmartId !== null && record.variantSmartId === input.openVariantSmartId
-                ? input.live
-                : fromRecord(record);
+        const isOpen = record.variantSmartId !== null && record.variantSmartId === input.openVariantSmartId;
+        const source = isOpen ? input.live : fromRecord(record);
         if (!source) {
             skipped.push({ variantSmartId: record.variantSmartId, title, reason: 'snapshotUnreadable' });
             continue;
         }
-        const variant = tryBuildDocVariant({
+        const doc = tryBuildDocVariant({
             catalog: input.catalog,
             variantSmartId: record.variantSmartId,
             title,
             ...source,
         });
-        if (variant) {
-            variants.push(variant);
+        if (doc) {
+            entries.push({
+                record,
+                variantSmartId: record.variantSmartId,
+                title,
+                isOpen,
+                general: source.general,
+                alternative: source.alternative,
+                doc,
+            });
         } else {
             skipped.push({ variantSmartId: record.variantSmartId, title, reason: 'noMainRow' });
         }
     }
-    return { variants, skipped };
+    return { entries, skipped };
+};
+
+/**
+ * Участники КП (DocumentVariantDto[]) из buildVariantEntries: собранные уходят
+ * в документ, пропущенные возвращаются с причиной.
+ * Пустой список вариантов — бэк печатает одиночное КП из полей самого запроса.
+ */
+export const buildVariantsPayload = (input: VariantsPayloadInput): VariantsPayload => {
+    const { entries, skipped } = buildVariantEntries(input);
+    return { variants: entries.map(entry => entry.doc), skipped };
 };

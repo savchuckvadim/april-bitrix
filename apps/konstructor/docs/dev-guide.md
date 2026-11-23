@@ -300,6 +300,38 @@ s.snapshot
   и аудит координат (`dev/layout-audit.ts`): наезд на шапку/подвал, выход за поля, заголовок последним на
   странице. PDF-файлы складываются в `--out`, смотреть глазами после правок шаблона.
 
+## PDF-КП: наполнение наборов для сравнения (23.11.2026)
+
+Бэк печатает у наборов для сравнения только цены, наполнение берёт общее. Настройка «Наполнение наборов для
+сравнения» добавляет блок с наполнением каждого набора: бэк принимает необязательное поле `alternativeComplects`
+(массив `{ setNumber, title, complects }`) у КП и у участника-варианта.
+
+- Настройка — `prefs.settings.alternativeComplects` (`entities/offer-pdf`), по умолчанию выключена. Хранится
+  как остальные настройки PDF: слепок сделки и варианта, избранное, последний выбор менеджера (браузер и app_cache);
+  разбор — `normalizeOfferPdfStyle`, записи без поля читаются как выключенное. Переключатель
+  `OfferPdfAlternativeComplects` виден, когда в сделке есть набор для сравнения с наполнением
+  (`hasAlternativeComplects(rowSet.alternative)`); иначе скрыт и поле в запрос не идёт.
+- Данные: `buildAlternativeComplects(catalog, alternative)` (`entities/document-payload`) даёт запись на набор с
+  наполнением. Разделы комплектов набора строит `buildSetComplectSections`, та же функция, что разделы общего
+  набора (`buildComplectSections` добавляет к ней порог «два комплекта и больше»; у набора для сравнения порога
+  нет, раздел есть и у одного комплекта). Набор без комплекта с наполнением в массив не попадает.
+- Номер и заголовок. Бэк связывает строки таблицы цен и наполнение набора по номеру и со строками их не сверяет.
+  `setNumber` равен позиции набора в `rowSet.alternative` плюс один (`alternativeSetNumber`, `doc-set-numbers.ts`).
+  Та же формула даёт `setId` строк в `toDocRows` и `toDocRowSets`. `title` равен «Набор N»
+  (`alternativeSetTitle`): так бэк подписывает набор в таблице цен по `setId`. Пропущенный набор номера других
+  не сдвигает.
+- Запрос: `buildOfferPdfGenerateRequest` кладёт поле на верхний уровень и участнику-варианту (бэк берёт у участника
+  только его собственное наполнение, `withVariant`). Наборы живые: открытый вариант собран из живого состояния
+  (`entry.alternative`), как остальное тело документа. Выключено или наполнения нет — поля нет. Ключ превью
+  (`offerPdfRequestKey`) включает поле, поэтому переключатель пересобирает превью.
+- Word. Word-шаблоны блок не печатают (бэк отдаёт `AlternativeComplectSections` и `IsAlternativeComplects`, а
+  docx-шаблоны правит владелец). Выбор формата — одна точка, `ALTERNATIVE_COMPLECTS_FORMATS`
+  (`entities/offer-document/lib/offer-alternative-complects.ts`): `{ word: false, pdf: true }`. Word-запросы уже
+  собирают поле через `alternativeComplectsFields` и берут настройку из настроек PDF-КП, поэтому включение Word
+  сводится к `word: true`.
+- Тип поля описан руками в `document-payload/model/dto.ts` (`DocComplectsFields`); после `pnpm run generate` это
+  расширение убирается.
+
 ## Реквизиты клиента (bx-rq)
 
 - Бэк: `back/libs/rq-lib` (общий с `apps/rq`, форма `get_rq`/`store_rq` не менялась). Пресеты портала

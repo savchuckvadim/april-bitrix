@@ -15,9 +15,9 @@ const fileLink = (file: Pick<OfferPdfResponseFile, 'link' | 'bitrixLink'>): stri
 /**
  * Ответ генерации → ссылки и предупреждения для экрана. Файлов несколько
  * (варианты отдельными документами) — показываем все, каждый под своим именем.
- * Файл один, либо бэк прежний и поля  нет, — одна ссылка «Открыть PDF».
+ * Файл один, либо бэк прежний и поля links нет, — одна ссылка «Открыть PDF».
  * Ссылка ведёт на Диск Битрикса, при его отсутствии на файл на сервере.
- *  нет — пустой список.
+ * Поля warnings нет — пустой список.
  */
 export const readOfferPdfResult = (response: OfferPdfGenerateResponse): OfferPdfOutcome => {
     const files = response.links ?? [];

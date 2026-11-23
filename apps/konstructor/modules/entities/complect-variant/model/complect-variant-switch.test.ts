@@ -10,9 +10,12 @@ import {
 import {
     closeComplectVariant,
     createComplectVariant,
+    fetchComplectVariants,
     openComplectVariant,
+    setComplectVariantStage,
     syncOpenComplectVariant,
 } from './ComplectVariantThunk';
+import { COMPLECT_VARIANT_STAGE } from '../lib/stage';
 import {
     DEFAULT_COMPLECT_COMPOSITION,
     type ComplectComposition,
@@ -60,6 +63,10 @@ const mocks = vi.hoisted(() => ({
                 settings: ComplectComposition | null,
             ) => Promise<void>
         >(),
+    updateItemStage:
+        vi.fn<
+            (entityTypeId: number, itemId: number, stageId: string) => Promise<void>
+        >(),
     buildCurrentSnapshotV2: vi.fn<(state: RootState) => SnapshotV2 | null>(),
     restoreSnapshotRecord:
         vi.fn<(record: ComplectVariantRecordDto) => AppThunk<Promise<void>>>(),
@@ -74,6 +81,7 @@ vi.mock('../lib/api/complect-variant-helper', () => ({
         listItems = mocks.listItems;
         getComposition = mocks.getComposition;
         saveComposition = mocks.saveComposition;
+        updateItemStage = mocks.updateItemStage;
     },
 }));
 vi.mock('../../snapshot', () => ({
@@ -168,6 +176,25 @@ const makeOpenedStore = (
     return store;
 };
 
+/**
+ * Вход в сделку: список читается с сервера, подсказка берётся из настроек
+ * сделки. Активный указатель при этом пуст.
+ */
+const enterDeal = async (
+    records: ComplectVariantRecordDto[],
+    hint: number | null,
+) => {
+    mocks.listRecords.mockResolvedValue(records);
+    mocks.listItems.mockResolvedValue([]);
+    mocks.getComposition.mockResolvedValue({
+        ...DEFAULT_COMPLECT_COMPOSITION,
+        openVariantSmartId: hint,
+    });
+    const store = makeStore();
+    await store.dispatch(fetchComplectVariants());
+    return store;
+};
+
 /** Порядковый номер первого вызова мока: по нему сверяется очерёдность вызовов. */
 const callOrder = (mock: { mock: { invocationCallOrder: number[] } }): number => {
     const [first] = mock.mock.invocationCallOrder;
@@ -210,14 +237,17 @@ describe('варианты: правки не пропадают при пере
             expect(store.getState().complectVariant.isBusy).toBe(false);
         });
 
-        it('сохранение уходящего варианта упало: Б не открыт, указатель прежний, в слайсе ошибка', async () => {
+        it('сохранение уходящего варианта упало: Б не открыт, список на месте, в слайсе текст ошибки', async () => {
             mocks.saveRecord.mockRejectedValue(new Error('сеть недоступна'));
             const store = makeOpenedStore([recordA, recordB]);
 
             const opened = await store.dispatch(openComplectVariant(recordB));
 
-            const { openVariantSmartId, error, isBusy } = store.getState().complectVariant;
+            const { openVariantSmartId, error, isBusy, records, status } =
+                store.getState().complectVariant;
             expect(opened).toBe(false);
+            expect(records).toEqual([recordA, recordB]);
+            expect(status).toBe('ready');
             expect(mocks.restoreSnapshotRecord).not.toHaveBeenCalled();
             expect(mocks.saveComposition).not.toHaveBeenCalled();
             expect(mocks.saveSnapshot).not.toHaveBeenCalled();
@@ -310,6 +340,99 @@ describe('варианты: правки не пропадают при пере
             expect(mocks.saveSnapshot).not.toHaveBeenCalled();
             expect(store.getState().complectVariant.openVariantSmartId).toBe(VARIANT_A);
             expect(store.getState().complectVariant.error).toBe('запись повреждена');
+            // уходящий вариант записан до сбоя раскладки, список по-прежнему полный
+            const { records, status } = store.getState().complectVariant;
+            expect(records.map(record => record.variantSmartId)).toEqual([
+                VARIANT_A,
+                VARIANT_B,
+            ]);
+            expect(status).toBe('ready');
+        });
+
+        it('следующее успешное действие снимает текст прошлой ошибки', async () => {
+            mocks.saveRecord.mockRejectedValueOnce(new Error('сеть недоступна'));
+            const store = makeOpenedStore([recordA, recordB]);
+
+            await store.dispatch(openComplectVariant(recordB));
+            expect(store.getState().complectVariant.error).not.toBeNull();
+
+            const opened = await store.dispatch(openComplectVariant(recordB));
+
+            expect(opened).toBe(true);
+            expect(store.getState().complectVariant.error).toBeNull();
+        });
+    });
+
+    describe('открытие после входа: подсказка из настроек', () => {
+        it('на первом входе активный указатель пуст, подсказка заполнена', async () => {
+            const store = await enterDeal([recordA, recordB], VARIANT_B);
+
+            const state = store.getState().complectVariant;
+            expect(state.openVariantSmartId).toBeNull();
+            expect(state.lastOpenVariantSmartId).toBe(VARIANT_B);
+            expect(state.status).toBe('ready');
+        });
+
+        it('подсказка указывает на удалённый вариант: она пуста', async () => {
+            const store = await enterDeal([recordA], VARIANT_B);
+
+            expect(store.getState().complectVariant.lastOpenVariantSmartId).toBeNull();
+        });
+
+        it('в настройках варианта нет: подсказка пуста', async () => {
+            const store = await enterDeal([recordA, recordB], null);
+
+            expect(store.getState().complectVariant.lastOpenVariantSmartId).toBeNull();
+        });
+
+        it('открытие варианта из подсказки раскладывает его запись как обычное открытие', async () => {
+            const store = await enterDeal([recordA, recordB], VARIANT_B);
+
+            const opened = await store.dispatch(openComplectVariant(recordB));
+
+            expect(opened).toBe(true);
+            // активного варианта не было: уходящему писать нечего
+            expect(mocks.saveRecord).not.toHaveBeenCalled();
+            expect(mocks.restoreSnapshotRecord).toHaveBeenCalledWith(recordB);
+            expect(mocks.saveComposition).toHaveBeenCalledWith(
+                DOMAIN,
+                DEAL_ID,
+                expect.objectContaining({ openVariantSmartId: VARIANT_B }),
+            );
+            expect(mocks.saveSnapshot).toHaveBeenCalledTimes(1);
+            expect(store.getState().complectVariant.openVariantSmartId).toBe(VARIANT_B);
+        });
+
+        it('пока вариант не открыт в этой сессии, запись в него не идёт даже при подсказке', async () => {
+            const store = await enterDeal([recordA, recordB], VARIANT_A);
+
+            const saved = await store.dispatch(syncOpenComplectVariant());
+
+            expect(saved).toBe(true);
+            expect(mocks.saveRecord).not.toHaveBeenCalled();
+            expect(store.getState().complectVariant.records).toEqual([recordA, recordB]);
+        });
+
+        it('повторное чтение списка в сессии сохраняет активный указатель', async () => {
+            const store = await enterDeal([recordA, recordB], VARIANT_A);
+            await store.dispatch(openComplectVariant(recordB));
+
+            await store.dispatch(fetchComplectVariants());
+
+            const state = store.getState().complectVariant;
+            expect(state.openVariantSmartId).toBe(VARIANT_B);
+            // подсказку задают настройки сделки; сервер в этом тесте отдаёт прежние
+            expect(state.lastOpenVariantSmartId).toBe(VARIANT_A);
+        });
+
+        it('запись активного варианта пропала из списка: указатель сброшен', async () => {
+            const store = await enterDeal([recordA, recordB], VARIANT_A);
+            await store.dispatch(openComplectVariant(recordB));
+            mocks.listRecords.mockResolvedValue([recordA]);
+
+            await store.dispatch(fetchComplectVariants());
+
+            expect(store.getState().complectVariant.openVariantSmartId).toBeNull();
         });
     });
 
@@ -346,6 +469,8 @@ describe('варианты: правки не пропадают при пере
             expect(error).toContain('Вариант не закрыт');
             expect(error).toContain('сеть недоступна');
             expect(isBusy).toBe(false);
+            expect(store.getState().complectVariant.records).toEqual([recordA, recordB]);
+            expect(store.getState().complectVariant.status).toBe('ready');
         });
     });
 
@@ -394,14 +519,17 @@ describe('варианты: правки не пропадают при пере
             expect(mocks.saveRecord).not.toHaveBeenCalled();
         });
 
-        it('сервер отказал: ответ false, ошибка в слайсе', async () => {
+        it('сервер отказал: ответ false, текст ошибки в слайсе, список на месте', async () => {
             mocks.saveRecord.mockRejectedValue(new Error('сервер отказал'));
-            const store = makeOpenedStore([recordA]);
+            const store = makeOpenedStore([recordA, recordB]);
 
             const saved = await store.dispatch(syncOpenComplectVariant());
 
+            const state = store.getState().complectVariant;
             expect(saved).toBe(false);
-            expect(store.getState().complectVariant.error).toBe('сервер отказал');
+            expect(state.error).toBe('сервер отказал');
+            expect(state.records).toEqual([recordA, recordB]);
+            expect(state.status).toBe('ready');
         });
     });
 
@@ -439,10 +567,60 @@ describe('варианты: правки не пропадают при пере
 
             await store.dispatch(createComplectVariant('В'));
 
+            const state = store.getState().complectVariant;
             expect(mocks.saveSnapshot).not.toHaveBeenCalled();
-            expect(store.getState().complectVariant.error).toBe(
-                'Битрикс не создал элемент варианта',
+            expect(state.error).toBe('Битрикс не создал элемент варианта');
+            expect(state.records).toEqual([recordA]);
+            expect(state.status).toBe('ready');
+            expect(state.isBusy).toBe(false);
+        });
+    });
+
+    describe('настройки и стадия: сбой оставляет список на экране', () => {
+        it('настройки не записались: прежние настройки возвращены, список на месте', async () => {
+            mocks.saveComposition.mockRejectedValue(new Error('сеть недоступна'));
+            const store = makeOpenedStore([recordA, recordB]);
+
+            await store.dispatch(openComplectVariant(recordB));
+
+            const state = store.getState().complectVariant;
+            expect(state.error).toBe('сеть недоступна');
+            expect(state.composition).toBeNull();
+            expect(state.records.map(record => record.variantSmartId)).toEqual([VARIANT_A, VARIANT_B]);
+            expect(state.status).toBe('ready');
+        });
+
+        it('стадия не изменилась: текст ошибки, список на месте, кнопки свободны', async () => {
+            mocks.updateItemStage.mockRejectedValue(new Error('Битрикс недоступен'));
+            const store = makeOpenedStore([recordA, recordB]);
+            store.dispatch(
+                complectVariantActions.itemsLoaded([
+                    { id: VARIANT_A, title: 'А', stageId: 'DT5_1:NEW' },
+                ]),
             );
+
+            await store.dispatch(
+                setComplectVariantStage(VARIANT_A, COMPLECT_VARIANT_STAGE.rejected),
+            );
+
+            const state = store.getState().complectVariant;
+            expect(state.error).toBe('Битрикс недоступен');
+            expect(state.records).toEqual([recordA, recordB]);
+            expect(state.status).toBe('ready');
+            expect(state.isBusy).toBe(false);
+        });
+
+        it('стадию построить нельзя: текст ошибки, список на месте', async () => {
+            const store = makeOpenedStore([recordA, recordB]);
+
+            await store.dispatch(
+                setComplectVariantStage(VARIANT_A, COMPLECT_VARIANT_STAGE.rejected),
+            );
+
+            const state = store.getState().complectVariant;
+            expect(state.error).toBe('стадия варианта не построена');
+            expect(state.records).toEqual([recordA, recordB]);
+            expect(mocks.updateItemStage).not.toHaveBeenCalled();
         });
     });
 });
@@ -477,6 +655,68 @@ describe('варианты: слепок из ответа сервера в с�
         ].reduce(complectVariantReducer, initial);
 
         expect(state.records).toEqual([recordA]);
+    });
+
+    it('сбой действия меняет только текст ошибки: список и статус остаются', () => {
+        const state = [
+            complectVariantActions.loaded({ records: [recordA, recordB], composition: null }),
+            complectVariantActions.actionFailed('вариант не открыт'),
+        ].reduce(complectVariantReducer, initial);
+
+        expect(state.error).toBe('вариант не открыт');
+        expect(state.records).toEqual([recordA, recordB]);
+        expect(state.status).toBe('ready');
+        expect(state.itemsStatus).toBe('idle');
+    });
+
+    it('сбой загрузки по-прежнему скрывает варианты', () => {
+        const state = [
+            complectVariantActions.loaded({ records: [recordA], composition: null }),
+            complectVariantActions.failed('варианты не загружены'),
+        ].reduce(complectVariantReducer, initial);
+
+        expect(state.status).toBe('error');
+        expect(state.records).toEqual([]);
+    });
+
+    it('новый список снимает текст ошибки действия', () => {
+        const state = [
+            complectVariantActions.actionFailed('вариант не открыт'),
+            complectVariantActions.loaded({ records: [recordA], composition: null }),
+        ].reduce(complectVariantReducer, initial);
+
+        expect(state.error).toBeNull();
+    });
+
+    it('начало нового действия снимает прежний текст ошибки', () => {
+        const state = [
+            complectVariantActions.actionFailed('вариант не открыт'),
+            complectVariantActions.clearError(),
+        ].reduce(complectVariantReducer, initial);
+
+        expect(state.error).toBeNull();
+    });
+
+    it('новый список сводит указатели: подсказка из настроек, активный остаётся, пока запись есть', () => {
+        const composition: ComplectComposition = {
+            ...DEFAULT_COMPLECT_COMPOSITION,
+            openVariantSmartId: VARIANT_B,
+        };
+        const withActive = [
+            complectVariantActions.loaded({ records: [recordA, recordB], composition: null }),
+            complectVariantActions.setOpenVariant(VARIANT_A),
+            complectVariantActions.loaded({ records: [recordA, recordB], composition }),
+        ].reduce(complectVariantReducer, initial);
+
+        expect(withActive.openVariantSmartId).toBe(VARIANT_A);
+        expect(withActive.lastOpenVariantSmartId).toBe(VARIANT_B);
+
+        const withoutActive = complectVariantReducer(
+            withActive,
+            complectVariantActions.loaded({ records: [recordB], composition }),
+        );
+        expect(withoutActive.openVariantSmartId).toBeNull();
+        expect(withoutActive.lastOpenVariantSmartId).toBe(VARIANT_B);
     });
 
     it('после сбоя варианты скрыты: одна запись не превращает пустой список в неполный', () => {

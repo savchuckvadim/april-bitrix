@@ -24,13 +24,22 @@ export const useVariantPicker = () => {
 
     const items = variants.records.map(record => {
         const stage = variants.stageOf(record.variantSmartId);
+        const isOpen = record.variantSmartId === variants.openVariantSmartId;
+        // подсказка из настроек сделки помечает плитку, пока вариант не активен
+        const isLastOpened =
+            !isOpen && record.variantSmartId === variants.lastOpenVariantSmartId;
         return {
             key: String(record.id),
             record,
             title: variants.titleOf(record),
             stageTitle: COMPLECT_VARIANT_STAGE_TITLE[stage],
             stageTone: VARIANT_STAGE_TONE[stage],
-            isOpen: record.variantSmartId === variants.openVariantSmartId,
+            isOpen,
+            note: isOpen
+                ? 'Сейчас редактируется'
+                : isLastOpened
+                  ? 'Открывали в прошлый раз'
+                  : undefined,
         };
     });
 

@@ -14,8 +14,20 @@ export interface ComplectVariantState {
     records: ComplectVariantRecordDto[];
     /** Элементы смарта в Битриксе: заголовок и стадия (признак участия). */
     items: ComplectVariantItem[];
-    /** Вариант, открытый в конструкторе прямо сейчас. */
+    /**
+     * Активный указатель: вариант, которым прямо сейчас является живое
+     * состояние конструктора. Ставится только действиями этой сессии: вариант
+     * открыли, создали или сохранили. Его читают запись варианта, документы,
+     * запрет удаления и бейдж «Сейчас редактируется».
+     */
     openVariantSmartId: number | null;
+    /**
+     * Подсказка из настроек сделки: какой вариант открывали в прошлый раз.
+     * Живое состояние после входа поднято из слепка сделки и этому варианту
+     * равно не обязано, поэтому подсказка ничего не пишет и ничего не решает:
+     * по ней экран выбора помечает плитку.
+     */
+    lastOpenVariantSmartId: number | null;
     /** Настройки сборки. null — сделка ведёт себя как раньше. */
     composition: ComplectComposition | null;
     /** Слепки и настройки из нашей базы — по ним вход решает, показывать ли варианты */
@@ -27,13 +39,26 @@ export interface ComplectVariantState {
     itemsStatus: ComplectVariantStatus;
     /** Идёт запись (создание, стадия, настройки) — кнопки заблокированы. */
     isBusy: boolean;
+    /**
+     * Текст последней ошибки. Его ставят сбой загрузки (`failed`, список
+     * скрыт) и сбой действия (`actionFailed`, список остаётся на экране).
+     */
     error: string | null;
 }
+
+/** Вариант с таким variantSmartId есть в списке. */
+const hasVariant = (
+    records: ComplectVariantRecordDto[],
+    variantSmartId: number | null,
+): variantSmartId is number =>
+    variantSmartId !== null &&
+    records.some(record => record.variantSmartId === variantSmartId);
 
 const initialState: ComplectVariantState = {
     records: [],
     items: [],
     openVariantSmartId: null,
+    lastOpenVariantSmartId: null,
     composition: null,
     status: 'idle',
     itemsStatus: 'idle',
@@ -50,7 +75,12 @@ const complectVariantSlice = createSlice({
             state.itemsStatus = 'loading';
             state.error = null;
         },
-        /** Слепки и настройки пришли; запись закончена, когда пришли и элементы */
+        /**
+         * Слепки и настройки пришли; запись закончена, когда пришли и элементы.
+         * Заодно сводятся указатели. Подсказка берётся из настроек сделки, если
+         * такой вариант есть в списке. Активный указатель остаётся прежним, пока
+         * его запись в списке, иначе сбрасывается; на первом входе он пуст.
+         */
         loaded(
             state,
             action: PayloadAction<{
@@ -60,8 +90,15 @@ const complectVariantSlice = createSlice({
         ) {
             // элементы Битрикса уже отказали — варианты не показываем, как при любом сбое
             if (state.status === 'error') return;
-            state.records = action.payload.records;
-            state.composition = action.payload.composition;
+            const { records, composition } = action.payload;
+            state.records = records;
+            state.composition = composition;
+            const hint = composition?.openVariantSmartId ?? null;
+            state.lastOpenVariantSmartId = hasVariant(records, hint) ? hint : null;
+            if (!hasVariant(records, state.openVariantSmartId)) {
+                state.openVariantSmartId = null;
+            }
+            state.error = null;
             state.status = 'ready';
             if (state.itemsStatus !== 'loading') state.isBusy = false;
         },
@@ -71,8 +108,10 @@ const complectVariantSlice = createSlice({
             if (state.status !== 'loading') state.isBusy = false;
         },
         /**
-         * Сбой любой из загрузок: стадий нет — кто участвует в сделке, неизвестно,
-         * поэтому варианты не показываем вовсе, конструктор работает как без них.
+         * Сбой любой из загрузок списка: стадий нет — кто участвует в сделке,
+         * неизвестно, поэтому варианты не показываем вовсе, конструктор работает
+         * как без них. Сбой действия над вариантами сюда не пишется: для него
+         * есть `actionFailed`.
          */
         failed(state, action: PayloadAction<string>) {
             state.status = 'error';
@@ -80,6 +119,19 @@ const complectVariantSlice = createSlice({
             state.records = [];
             state.isBusy = false;
             state.error = action.payload;
+        },
+        /**
+         * Сбой действия с вариантами (открытие, закрытие, создание, стадия,
+         * настройки, запись открытого варианта): меняется только текст ошибки.
+         * Список и статус остаются как были, иначе отказ сети убрал бы с экрана
+         * варианты, с которыми работает менеджер.
+         */
+        actionFailed(state, action: PayloadAction<string>) {
+            state.error = action.payload;
+        },
+        /** Начинается новое действие с вариантами: прежний текст ошибки снимается. */
+        clearError(state) {
+            state.error = null;
         },
         busy(state, action: PayloadAction<boolean>) {
             state.isBusy = action.payload;
@@ -127,6 +179,8 @@ const {
     loaded,
     itemsLoaded,
     failed,
+    actionFailed,
+    clearError,
     busy,
     upsertRecord,
     setOpenVariant,
@@ -139,6 +193,8 @@ export const complectVariantActions = {
     loaded,
     itemsLoaded,
     failed,
+    actionFailed,
+    clearError,
     busy,
     upsertRecord,
     setOpenVariant,

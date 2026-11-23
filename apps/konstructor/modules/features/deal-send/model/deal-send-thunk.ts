@@ -1,7 +1,6 @@
 import type { AppThunk } from '@/modules/app/model/store';
 import { appActions } from '@/modules/app/model/AppSlice';
 import { selectCatalog } from '@/modules/entities/catalog';
-import { syncOpenComplectVariant } from '@/modules/entities/complect-variant';
 import { findMainRow } from '@/modules/entities/row-set';
 import {
     buildServiceOfferTitle,
@@ -74,7 +73,6 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
                 ],
             }),
         );
-        void dispatch(syncOpenComplectVariant());
         return true;
     } catch (error) {
         dispatch(

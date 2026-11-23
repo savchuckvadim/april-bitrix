@@ -47,7 +47,7 @@ export const VariantPicker = () => {
                             key={item.key}
                             icon={Files}
                             title={item.title}
-                            description={item.isOpen ? 'Сейчас редактируется' : undefined}
+                            description={item.note}
                             selected={item.isOpen}
                             disabled={picker.isBusy}
                             badge={

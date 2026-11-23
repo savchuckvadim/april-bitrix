@@ -51,6 +51,12 @@ const saveBeforeLeaveFailure = (
  * Сам thunk завершается, когда пришло всё: после правок вызывающий ждёт полное
  * обновление.
  *
+ * Указатели сводит редьюсер `loaded`. Вариант из настроек сделки становится
+ * подсказкой `lastOpenVariantSmartId` («открывали в прошлый раз»). Активный
+ * указатель `openVariantSmartId` на входе пуст: живое состояние поднято из
+ * слепка сделки и варианту равно не обязано. Его ставят только действия
+ * сессии, а повторное чтение списка его сохраняет.
+ *
  * Смарт на портале не установлен — слайс остаётся пустым, конструктор
  * работает как раньше.
  */
@@ -82,17 +88,6 @@ export const fetchComplectVariants =
                 helper.getComposition(domain, dealId),
             ]);
             dispatch(complectVariantActions.loaded({ records, composition }));
-
-            // элементы Битрикса успели отказать — вариантов нет, открывать нечего
-            if (getState().complectVariant.status !== 'ready') return;
-
-            const openId = composition?.openVariantSmartId ?? null;
-            const isKnown =
-                openId !== null &&
-                records.some(record => record.variantSmartId === openId);
-            dispatch(
-                complectVariantActions.setOpenVariant(isKnown ? openId : null),
-            );
         } catch (error) {
             dispatch(
                 complectVariantActions.failed(
@@ -121,6 +116,7 @@ export const saveComplectComposition =
             offer: { ...current.offer, ...(patch.offer ?? {}) },
         };
 
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.setComposition(composition));
         try {
             await helper.saveComposition(domain, dealId, composition);
@@ -129,7 +125,7 @@ export const saveComplectComposition =
             // выбор, которого нет в базе
             dispatch(complectVariantActions.setComposition(previous));
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'настройки сборки не сохранены'),
                 ),
             );
@@ -159,10 +155,11 @@ export const createComplectVariant =
 
         const snapshot = buildCurrentSnapshotV2(state);
         if (!snapshot) {
-            dispatch(complectVariantActions.failed('Нечего сохранять'));
+            dispatch(complectVariantActions.actionFailed('Нечего сохранять'));
             return;
         }
 
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
         try {
             const item = await helper.createItem(entityTypeId, dealId, title);
@@ -175,10 +172,11 @@ export const createComplectVariant =
             await dispatch(fetchComplectVariants());
         } catch (error) {
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'вариант не создан'),
                 ),
             );
+            dispatch(complectVariantActions.busy(false));
             return;
         }
 
@@ -199,8 +197,10 @@ export const createComplectVariant =
  * сделки повторяет его на момент открытия и каждого сохранения.
  *
  * Порядок:
- * 1. Запрошен уже открытый вариант — состояние остаётся как есть: живое
- *    состояние новее любой записи в списке.
+ * 1. Запрошен вариант с активным указателем — состояние остаётся как есть:
+ *    живое состояние новее любой записи в списке. Вариант из подсказки
+ *    «открывали в прошлый раз» (lastOpenVariantSmartId) активным не считается
+ *    и открывается обычным путём, из записи.
  * 2. Открыт другой вариант — его правки сначала уходят на сервер. Сохранение
  *    не удалось — переключения нет, иначе правки пропали бы.
  * 3. Раскладывается свежая запись из списка (после шага 2 в нём лежит всё,
@@ -219,6 +219,7 @@ export const openComplectVariant =
             return true;
         }
 
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
         try {
             if (openVariantSmartId !== null) {
@@ -227,7 +228,7 @@ export const openComplectVariant =
                 );
                 if (!isLeavingSaved) {
                     dispatch(
-                        complectVariantActions.failed(
+                        complectVariantActions.actionFailed(
                             saveBeforeLeaveFailure(
                                 'открыт',
                                 getState().complectVariant.error,
@@ -253,7 +254,7 @@ export const openComplectVariant =
             return true;
         } catch (error) {
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'вариант не открыт'),
                 ),
             );
@@ -270,12 +271,13 @@ export const openComplectVariant =
  */
 export const closeComplectVariant =
     (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
         try {
             const isSaved = await dispatch(syncOpenComplectVariant());
             if (!isSaved) {
                 dispatch(
-                    complectVariantActions.failed(
+                    complectVariantActions.actionFailed(
                         saveBeforeLeaveFailure(
                             'закрыт',
                             getState().complectVariant.error,
@@ -319,7 +321,7 @@ export const syncOpenComplectVariant =
             return true;
         } catch (error) {
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'вариант не обновлён'),
                 ),
             );
@@ -336,9 +338,9 @@ export const syncOpenComplectVariant =
  * после базы, вариант из конструктора ушёл, элемент остался: итог
  * `bitrix-failed`, человек удалит его в смарте руками.
  *
- * Сбой здесь не пишется в `failed` слайса: оно прячет все варианты, и из-за
- * неудавшегося удаления скрывать остальные незачем. Итог возвращается
- * вызывающему, и экран реагирует по нему (уведомление).
+ * Сбой здесь не пишется в `error` слайса: итог возвращается вызывающему, и
+ * экран реагирует по нему (уведомление). Список вариантов при сбое остаётся
+ * на экране.
  *
  * Открытый в редакторе вариант не удаляется: он получает правки сделки.
  */
@@ -365,6 +367,7 @@ export const deleteComplectVariant =
             return { status: 'blocked' };
         }
 
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
         try {
             try {
@@ -416,19 +419,23 @@ export const setComplectVariantStage =
         );
         const stageId = buildVariantStageId(item?.stageId, stage);
         if (!entityTypeId || !stageId) {
-            dispatch(complectVariantActions.failed('стадия варианта не построена'));
+            dispatch(
+                complectVariantActions.actionFailed('стадия варианта не построена'),
+            );
             return;
         }
 
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
         try {
             await helper.updateItemStage(entityTypeId, variantSmartId, stageId);
             await dispatch(fetchComplectVariants());
         } catch (error) {
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'стадия варианта не изменена'),
                 ),
             );
+            dispatch(complectVariantActions.busy(false));
         }
     };

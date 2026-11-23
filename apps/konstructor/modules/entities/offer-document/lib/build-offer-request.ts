@@ -13,6 +13,11 @@ import {
 import { findMainRow } from '../../row-set';
 import { toOfferClientType } from './client-type.util';
 import { managerFromBxUser } from './manager.util';
+import {
+    alternativeComplectsFields,
+    selectAlternativeComplectsEnabled,
+    withAlternativeComplects,
+} from './offer-alternative-complects';
 import { selectOfferVariantsPayload } from './select-variants-payload';
 import { skippedVariantsBlocker } from './skipped-variants-blocker';
 
@@ -66,6 +71,20 @@ export type OfferMultiGenerateRequest = Omit<OfferWordMultiGenerateDto, 'variant
     DocComplectsFields & { variants: DocVariant[] };
 
 /**
+ * Участники Word-КП: открытый вариант вместе с наполнением его наборов для
+ * сравнения, когда Word его печатает (ALTERNATIVE_COMPLECTS_FORMATS). Наборы
+ * берутся из участника: открытый вариант собран из живого состояния.
+ */
+const wordVariants = (state: RootState): DocVariant[] => {
+    const { entries } = selectOfferVariantsPayload(state);
+    const enabled = selectAlternativeComplectsEnabled(state);
+    const catalog = selectCatalog(state);
+    return entries.map(entry =>
+        withAlternativeComplects(entry.doc, alternativeComplectsFields('word', enabled, catalog, entry.alternative)),
+    );
+};
+
+/**
  * Вариант и настройки сделки для тела превью и PDF-КП. Участник (открытый
  * вариант) есть — `variants` и `composition` с режимом `compare` при любом
  * режиме сделки; участника нет — пустой объект, тело остаётся таким же, как до
@@ -73,7 +92,7 @@ export type OfferMultiGenerateRequest = Omit<OfferWordMultiGenerateDto, 'variant
  * (offerBlocker).
  */
 export const offerVariantsFields = (state: RootState): OfferVariantsFields => {
-    const { variants } = selectOfferVariantsPayload(state);
+    const variants = wordVariants(state);
     return variants.length ? { variants, composition: selectOfferComposition(state) } : {};
 };
 
@@ -94,7 +113,8 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
         selectClientType(state),
     );
 
-    return buildOfferPayload({
+    const catalog = selectCatalog(state);
+    const payload = buildOfferPayload({
         domain,
         dealId,
         companyId: Number(bitrix.company?.ID) || 0,
@@ -102,7 +122,7 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
         providerId: Number(provider.id) || 0,
         templateId: String(template.id),
         clientType,
-        catalog: selectCatalog(state),
+        catalog,
         general: state.rowSet.general,
         alternative: state.rowSet.alternative,
         recipient: state.offerDocument.recipient,
@@ -112,6 +132,11 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
         // вне Битрикса очередь не нужна: ссылки сразу в ответе (легаси withoutQueue: !IS_PROD)
         withoutQueue: !IS_PROD,
     });
+    if (!payload) return null;
+    return {
+        ...payload,
+        ...alternativeComplectsFields('word', selectAlternativeComplectsEnabled(state), catalog, state.rowSet.alternative),
+    };
 };
 
 /**
@@ -123,7 +148,7 @@ export const buildOfferMultiGenerateRequest = (state: RootState): OfferMultiGene
     if (offerRequestBlocker(state)) return null;
     const offer = buildOfferGenerateRequest(state);
     if (!offer) return null;
-    const { variants } = selectOfferVariantsPayload(state);
+    const variants = wordVariants(state);
     return {
         ...offer,
         variants,

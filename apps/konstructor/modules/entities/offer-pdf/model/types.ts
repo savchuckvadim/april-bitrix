@@ -86,6 +86,15 @@ export interface OfferPdfSettings {
      * читаются как объединённое наполнение.
      */
     complectsMode: OfferComplectsMode;
+    /**
+     * Печатать наполнение каждого набора для сравнения. Выключено: у наборов
+     * для сравнения печатаются только цены, наполнение одно, общего набора.
+     * Включено: после наполнения общего набора идёт блок «Наполнение наборов
+     * для сравнения». Уходит в запрос полем верхнего уровня
+     * `alternativeComplects` с данными наборов (в `settings` бэка его нет);
+     * записи без поля читаются как выключенное.
+     */
+    alternativeComplects: boolean;
 }
 
 export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
@@ -98,6 +107,7 @@ export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
     withCover: true,
     withPromo: true,
     complectsMode: OFFER_COMPLECTS_MODE.MERGED,
+    alternativeComplects: false,
 };
 
 /** Письмо: пустые поля — шаблон подставит свои. */
@@ -170,8 +180,9 @@ export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[nu
  * `composition` той же формы, что у generate-multi; участников нет — полей нет.
  *
  * Бэк принимает `variants` и `composition` у превью и генерации PDF, а также
- * `complects` и `complectsMode` (наполнение по комплектам) на верхнем уровне и
- * в каждом участнике; в сгенерированном клиенте этих полей пока нет. После
+ * `complects`, `complectsMode` (наполнение по комплектам) и `alternativeComplects`
+ * (наполнение наборов для сравнения) на верхнем уровне и в каждом участнике;
+ * в сгенерированном клиенте этих полей пока нет. После
  * `pnpm run generate` они появятся в OfferPdfGenerateDto и DocumentVariantDto,
  * и расширение ниже можно убрать.
  */

@@ -2,7 +2,7 @@ import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
 import { selectClientType } from '../../deal';
 import { buildOfferPayload, type OfferGenerateRequest } from '../../document-payload';
-import { managerFromBxUser, offerBlocker, toOfferClientType } from '../../offer-document';
+import { alternativeComplectsFields, managerFromBxUser, offerBlocker, toOfferClientType } from '../../offer-document';
 import {
     OFFER_PDF_OMITTED_WORD_FIELDS,
     type OfferPdfGenerateRequest,
@@ -79,7 +79,9 @@ export const toOfferPdfRequest = (
  * Word (document-payload), сверху — шаблон, настройки и письмо. Участники-варианты
  * и настройки сделки уходят полями `variants` и `composition`, когда участники
  * есть; у каждого участника свой способ печати наполнения (offerPdfVariantsFields).
- * Нечего печатать или участника собрать нельзя — null.
+ * Настройка «Наполнение наборов для сравнения» включена и у наборов есть
+ * наполнение — к запросу и к каждому участнику добавляется `alternativeComplects`;
+ * иначе поля нет. Нечего печатать или участника собрать нельзя — null.
  */
 export const buildOfferPdfGenerateRequest = (
     state: RootState,
@@ -94,6 +96,7 @@ export const buildOfferPdfGenerateRequest = (
         selectClientType(state),
     );
 
+    const catalog = selectCatalog(state);
     const payload = buildOfferPayload({
         domain,
         dealId,
@@ -102,12 +105,18 @@ export const buildOfferPdfGenerateRequest = (
         providerId: Number(provider.id) || 0,
         templateId: '',
         clientType,
-        catalog: selectCatalog(state),
+        catalog,
         general: state.rowSet.general,
         alternative: state.rowSet.alternative,
         recipient: state.offerDocument.recipient,
         manager: managerFromBxUser(bitrix.user),
         invoice: state.offerDocument.invoice,
     });
-    return payload ? { ...toOfferPdfRequest(payload, options), ...offerPdfVariantsFields(state, options.settings.complectsMode) } : null;
+    if (!payload) return null;
+    return {
+        ...toOfferPdfRequest(payload, options),
+        // наполнение наборов для сравнения: настройка экрана, наборы — живые, как и тело запроса
+        ...alternativeComplectsFields('pdf', options.settings.alternativeComplects, catalog, state.rowSet.alternative),
+        ...offerPdfVariantsFields(state, options.settings),
+    };
 };

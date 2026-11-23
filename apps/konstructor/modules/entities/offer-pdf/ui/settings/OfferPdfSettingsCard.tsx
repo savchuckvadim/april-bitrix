@@ -3,6 +3,7 @@
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { OfferPdfCurrentStyle } from '../style-picker/OfferPdfCurrentStyle';
 import { useSettingsCard } from './hooks/use-settings-card';
+import { OfferPdfAlternativeComplects } from './OfferPdfAlternativeComplects';
 import { OfferPdfComplectsMode } from './OfferPdfComplectsMode';
 import { OfferPdfContentModes } from './OfferPdfContentModes';
 import { OfferPdfTextFields } from './OfferPdfTextFields';
@@ -24,6 +25,7 @@ export const OfferPdfSettingsCard = () => {
                 <OfferPdfCurrentStyle />
                 <OfferPdfContentModes />
                 <OfferPdfComplectsMode />
+                <OfferPdfAlternativeComplects />
                 <OfferPdfToggles />
                 <OfferPdfTextFields />
             </div>

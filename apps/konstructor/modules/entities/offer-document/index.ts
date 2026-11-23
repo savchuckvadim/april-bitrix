@@ -12,6 +12,7 @@ export {
     type OfferBlockerFormat,
     type OfferVariantsFields,
 } from './lib/build-offer-request';
+export { alternativeComplectsFields, withAlternativeComplects } from './lib/offer-alternative-complects';
 export {
     buildVariantsPayload,
     type SkippedVariant,

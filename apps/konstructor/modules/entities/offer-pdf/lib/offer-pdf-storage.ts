@@ -76,6 +76,8 @@ export const normalizeOfferPdfStyle = (raw: unknown): OfferPdfStylePrefs => {
                 COMPLECTS_MODES,
                 defaults.complectsMode,
             ),
+            // записи до наполнения наборов для сравнения поля не имеют: там выключено
+            alternativeComplects: pickBoolean(settings.alternativeComplects, defaults.alternativeComplects),
         },
     };
 };

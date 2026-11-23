@@ -6,3 +6,5 @@ export * from './sync-set.util';
 export * from './set-tax.util';
 export * from './set-term.util';
 export * from './sync-academy.util';
+export * from './set-services.util';
+export * from './set-service-writes.util';

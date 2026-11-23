@@ -6,9 +6,15 @@ import type { RootState } from '@/modules/app';
 import {
     garantRows,
     leadGarantRow,
+    paidLtOwner,
+    paidLtPacket,
+    planServiceFieldWrite,
+    planStarRemoval,
     rowSetActions,
+    setServiceValues,
     setTermMonths,
     type KRow,
+    type RowCompositionWrite,
 } from '@/modules/entities/row-set';
 import {
     describeLtPackets,
@@ -17,14 +23,16 @@ import {
 } from '@/modules/entities/composition';
 
 /**
- * Сервисная строка выводится из наполнения garant-строк, поэтому смена
- * сервиса ПРЯМО В КАРТОЧКЕ (легаси-селекты «Консалтинг»/«Дополнительно»/
- * «Академия») — это правка composition ведущей garant-строки сета;
- * sync-listener пересоберёт строки сам. LT-пакет напрямую не выбирается —
- * он производен от веса сервисов (правится в наполнении). Пакет LT-other
- * (строка lt_other) переименовывается и удаляется в наполнении той garant-
- * строки, которой принадлежит (refs.packetId). Академия — только пакеты под
- * срок сделки набора.
+ * Значение сервисной строки (консалтинг, академия, СТАР, платный LT) одно на
+ * набор и равно значению в ОБЪЕДИНЁННОМ наполнении всех garant-строк, поэтому
+ * карточка читает его оттуда. Смена сервиса ПРЯМО В КАРТОЧКЕ (легаси-селекты
+ * «Консалтинг»/«Дополнительно»/«Академия») пишется планом из entities/row-set:
+ * новое значение получает ведущая garant-строка, у остальных поле
+ * сбрасывается; sync-listener пересоберёт строки сам. LT-пакет напрямую не
+ * выбирается — он производен от веса сервисов (правится в наполнении). Пакет
+ * LT-other (строка lt_other) переименовывается и удаляется в наполнении той
+ * garant-строки, которой принадлежит (refs.packetId). Академия — только
+ * пакеты под срок сделки набора.
  */
 export const useServiceRow = (row: KRow) => {
     const dispatch = useAppDispatch();
@@ -38,6 +46,7 @@ export const useServiceRow = (row: KRow) => {
     const serviceDepartment = useAppSelector((state: RootState) =>
         Boolean(state.rowSet.context.serviceDepartment),
     );
+    const values = set ? setServiceValues(set) : null;
     // garant-строка, в наполнении которой лежит пакет LT-other этой строки
     const packetOwner =
         (row.refs.packetId &&
@@ -49,32 +58,24 @@ export const useServiceRow = (row: KRow) => {
     const packet =
         packetOwner?.composition?.ltOther.find(item => item.id === row.refs.packetId) ?? null;
 
-    const patchLeadComposition = (
-        patch: Partial<NonNullable<KRow['composition']>>,
-    ) => {
-        if (!lead?.composition) return;
-        dispatch(
-            rowSetActions.setRowComposition({
-                setId: lead.setId,
-                key: lead.key,
-                composition: { ...lead.composition, ...patch },
-            }),
-        );
+    const writeCompositions = (plan: RowCompositionWrite[]) => {
+        for (const write of plan) dispatch(rowSetActions.setRowComposition(write));
     };
 
-    // пакет этой строки: состав и вес — из той же модели, что подбирает строку
-    const packetId = row.productType === 'lt_other' ? row.refs.packetId : 'paid';
-    const owner = row.productType === 'lt_other' ? packetOwner : lead;
-    const ltPacket =
-        row.productType === 'lt' || row.productType === 'lt_other'
-            ? (owner?.composition &&
-                  describeLtPackets(owner.composition, {
-                      catalog,
-                      complect: catalog.complects.byCode[owner.composition.complectCode] ?? null,
-                      serviceDepartment,
-                  }).find(item => item.id === packetId)) ||
-              null
+    // пакет этой строки: состав и вес — из той же модели, что подбирает строку;
+    // платный LT собирается из объединённого наполнения набора
+    const ltOtherPacket =
+        row.productType === 'lt_other' && packetOwner?.composition
+            ? (describeLtPackets(packetOwner.composition, {
+                  catalog,
+                  complect: catalog.complects.byCode[packetOwner.composition.complectCode] ?? null,
+                  serviceDepartment,
+              }).find(item => item.id === row.refs.packetId) ?? null)
             : null;
+    const paidPacket =
+        row.productType === 'lt' && set ? paidLtPacket(set, { catalog, serviceDepartment }) : null;
+    const ltPacket = ltOtherPacket ?? paidPacket;
+    const owner = row.productType === 'lt_other' ? packetOwner : set && paidLtOwner(set);
 
     const writeOwnerComposition = (
         next: NonNullable<KRow['composition']>,
@@ -96,8 +97,8 @@ export const useServiceRow = (row: KRow) => {
             service => service.code !== 'hotline',
         ),
         academyOptions: academyPackagesFor(catalog, set ? setTermMonths(set, catalog) : null),
-        currentConsalting: lead?.composition?.consalting ?? null,
-        currentAcademy: lead?.composition?.academy ?? null,
+        currentConsalting: values?.consalting ?? null,
+        currentAcademy: values?.academy ?? null,
         ltPacket,
         /** Строка, в наполнении которой правится состав этого пакета */
         ltOwner: owner,
@@ -109,10 +110,14 @@ export const useServiceRow = (row: KRow) => {
             packetOwner?.composition &&
             packet &&
             writeOwnerComposition(removeLtOtherPacket(packetOwner.composition, packet.id)),
-        setConsalting: (code: string | null) =>
-            patchLeadComposition({ consalting: code }),
-        setAcademy: (code: string | null) =>
-            patchLeadComposition({ academy: code }),
-        removeStar: () => patchLeadComposition({ star: false }),
+        setConsalting: (code: string | null) => {
+            if (set) writeCompositions(planServiceFieldWrite(set, 'consalting', code));
+        },
+        setAcademy: (code: string | null) => {
+            if (set) writeCompositions(planServiceFieldWrite(set, 'academy', code));
+        },
+        removeStar: () => {
+            if (set) writeCompositions(planStarRemoval(set));
+        },
     };
 };

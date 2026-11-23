@@ -8,8 +8,19 @@
 
 import { BitrixOwnerType } from '../../../enums/bitrix-constants.enum';
 
+/**
+ * Код владельца товарных строк, когда владелец — элемент смарт-процесса:
+ * `T` и шестнадцатеричный id типа (entityTypeId), например `T8c`. Шаблонный
+ * литеральный тип пропускает только такие коды; собирает их
+ * `buildSmartOwnerType`.
+ */
+export type BitrixSmartOwnerType = `T${string}`;
+
+/** Владелец товарных строк: сделка, лид, компания, контакт или элемент смарта. */
+export type BitrixProductRowOwnerType = BitrixOwnerType | BitrixSmartOwnerType;
+
 export interface IBXProductRow {
-    ownerType: BitrixOwnerType;
+    ownerType: BitrixProductRowOwnerType;
     ownerId: string | number;
     productRows: IBXProductRowRow[];
 }

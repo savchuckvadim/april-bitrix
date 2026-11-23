@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { COMPLECT_VARIANT_STAGE } from '../../../complect-variant/lib/stage';
+import { selectParticipants } from '../../../complect-variant/lib/participants';
+import { COMPLECT_VARIANT_STAGE, type ComplectVariantStage } from '../../../complect-variant/lib/stage';
 import { COMPLECT_MODE, type ComplectMode, type ComplectVariantRecordDto } from '../../../complect-variant/model/dto';
 import { buildGarantRow, buildProductRows, type RowSet, upsertRow } from '../../../row-set';
 import { buildDealProductRows, type DealProductRowsInput } from '../build-deal-product-rows';
@@ -32,17 +33,19 @@ const twoRowSet = (key: string, mainCode: string, extraCode: string): RowSet =>
 
 const liveGeneral = twoRowSet('live', 'buh', 'expert');
 
+/** Оба варианта черновики: участвуют все нефинальные. */
+const draftsOnly = () => COMPLECT_VARIANT_STAGE.draft;
+
 const inputOf = (
     mode: ComplectMode,
     records: ComplectVariantRecordDto[],
     openVariantSmartId: number | null = OPEN_ID,
+    stageOf: (variantSmartId: number | null) => ComplectVariantStage = draftsOnly,
 ): DealProductRowsInput => ({
     catalog: variantCatalog,
     mode,
-    records,
+    participants: selectParticipants(records, stageOf, mode, openVariantSmartId),
     items: [],
-    // оба варианта черновики: участвуют все нефинальные
-    stageOf: () => COMPLECT_VARIANT_STAGE.draft,
     openVariantSmartId,
     live: { general: liveGeneral, alternative: [] },
 });
@@ -121,7 +124,7 @@ describe('строки сделки, когда варианты продают�
 describe('строки сделки по живому набору', () => {
     const liveNames = buildProductRows(liveGeneral, variantCatalog).map(row => row.productName);
 
-    it('режим «для сравнения»: только живой набор, слепки вариантов в сделку не идут', () => {
+    it('режим «по одному»: только живой набор, слепки вариантов в сделку не идут', () => {
         const { rows, skipped } = buildDealProductRows(inputOf(COMPLECT_MODE.compare, twoRecords()));
 
         expect(skipped).toEqual([]);
@@ -129,7 +132,7 @@ describe('строки сделки по живому набору', () => {
         expect(rows.map(row => row.sort)).toEqual([0, 1]);
     });
 
-    it('режим «для сравнения»: нечитаемый слепок строк не меняет и сделку не блокирует', () => {
+    it('режим «по одному»: нечитаемый слепок строк не меняет и сделку не блокирует', () => {
         const records = [recordOf(1, OPEN_ID, 'buh'), recordOf(2, OTHER_ID, 'ur', '{broken')];
         const { rows, skipped } = buildDealProductRows(inputOf(COMPLECT_MODE.compare, records));
 
@@ -154,10 +157,11 @@ describe('строки сделки по живому набору', () => {
     });
 
     it('вариант в финальной стадии участником не считается: остаётся живой набор', () => {
-        const input = inputOf(COMPLECT_MODE.multi_contract, twoRecords());
         const rejectedOther = (variantSmartId: number | null) =>
             variantSmartId === OTHER_ID ? COMPLECT_VARIANT_STAGE.rejected : COMPLECT_VARIANT_STAGE.draft;
-        const { rows } = buildDealProductRows({ ...input, stageOf: rejectedOther });
+        const { rows } = buildDealProductRows(
+            inputOf(COMPLECT_MODE.multi_contract, twoRecords(), OPEN_ID, rejectedOther),
+        );
 
         expect(rows.map(row => row.productName)).toEqual(liveNames);
     });

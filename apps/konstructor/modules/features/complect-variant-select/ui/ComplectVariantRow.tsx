@@ -23,11 +23,12 @@ export interface ComplectVariantRowProps {
  * одиннадцати стадий; вариант в финальной стадии (Успех, Отклонён, Не
  * состоялся) приглушён, и «Отклонить» у него скрыто. Открытый вариант помечен
  * бейджем «Сейчас редактируется»: правки сборки и сохранение сделки идут в
- * него. Остальные открываются в редактор кнопкой «Редактировать». «Сделать
- * текущим» меняет стадию (кто участвует в КП и уезжает в отдел сервиса) и
- * показывается только тогда, когда состав участников от неё меняется.
- * «Удалить» убирает вариант насовсем, с подтверждением; у открытого варианта
- * оно недоступно.
+ * него. Остальные открываются в редактор кнопкой «Редактировать». В режимах
+ * «вместе» каждый участник документов помечен бейджем «В документах»; в режиме
+ * «по одному» участник один, открытый вариант, и отдельная пометка ему не
+ * нужна. «Отклонить» ставит стадию «Отклонён» (вариант выходит из документов),
+ * «Вернуть» у отклонённого варианта ставит «Черновик». «Удалить» убирает
+ * вариант насовсем, с подтверждением; у открытого варианта оно недоступно.
  */
 export const ComplectVariantRow = ({ record, variants }: ComplectVariantRowProps) => {
     const variantSmartId = record.variantSmartId;
@@ -46,6 +47,16 @@ export const ComplectVariantRow = ({ record, variants }: ComplectVariantRowProps
             <ToneBadge tone={COMPLECT_VARIANT_STAGE_TONE[stage]} variant="soft" size="sm">
                 {COMPLECT_VARIANT_STAGE_TITLE[stage]}
             </ToneBadge>
+            {variants.isInDocuments(variantSmartId) ? (
+                <ToneBadge
+                    tone="success"
+                    variant="soft"
+                    size="sm"
+                    title="Вариант идёт в КП, договор и поставку вместе с остальными"
+                >
+                    В документах
+                </ToneBadge>
+            ) : null}
             {isOpen ? (
                 <>
                     <ToneBadge
@@ -77,30 +88,31 @@ export const ComplectVariantRow = ({ record, variants }: ComplectVariantRowProps
                     Редактировать
                 </Button>
             )}
-            {variantSmartId !== null && variants.canMakeCurrent(variantSmartId) ? (
-                <Button
-                    size="sm"
-                    variant="ghost"
-                    title="В КП и в отдел сервиса идут варианты, отмеченные в работу: «Текущий» и стадии после него"
-                    disabled={variants.isBusy}
-                    onClick={() =>
-                        void variants.setStage(variantSmartId, COMPLECT_VARIANT_STAGE.current)
-                    }
-                >
-                    Сделать текущим
-                </Button>
-            ) : null}
             {variantSmartId !== null && variants.canReject(variantSmartId) ? (
                 <Button
                     size="sm"
                     variant="ghost"
                     className="text-destructive"
+                    title="Вариант выйдет из КП, договора и поставки"
                     disabled={variants.isBusy}
                     onClick={() =>
                         void variants.setStage(variantSmartId, COMPLECT_VARIANT_STAGE.rejected)
                     }
                 >
                     Отклонить
+                </Button>
+            ) : null}
+            {variantSmartId !== null && variants.canRestore(variantSmartId) ? (
+                <Button
+                    size="sm"
+                    variant="ghost"
+                    title="Вернуть вариант в работу: стадия «Черновик»"
+                    disabled={variants.isBusy}
+                    onClick={() =>
+                        void variants.setStage(variantSmartId, COMPLECT_VARIANT_STAGE.draft)
+                    }
+                >
+                    Вернуть
                 </Button>
             ) : null}
             <ComplectVariantDeleteAction record={record} variants={variants} />

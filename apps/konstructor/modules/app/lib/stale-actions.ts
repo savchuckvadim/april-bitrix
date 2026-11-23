@@ -13,8 +13,9 @@ import { isRowSetContentAction } from '@/modules/entities/row-set/lib/content-ac
  * загрузке выбора пользователя и при правке или удалении самого шаблона: в
  * запрос уходит selectedTemplate, а currentTemplate запоминает слепок.
  * Состав вариантов меняют записи вариантов (загрузка, запись открытого
- * варианта), их стадии (кто участвует), открытый вариант, сброс и настройки
- * сделки (режим и печать): всё это уходит в запрос полями variants и composition.
+ * варианта), их стадии (закрытый вариант выпадает из документов), открытый
+ * вариант, сброс и настройки сделки (режим и печать): всё это уходит в запрос
+ * полями variants и composition.
  */
 export const isOfferPreviewStaleAction = isAnyOf(
     offerDocumentActions.setRecipientField,

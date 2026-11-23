@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import type { ComplectVariantRecordDto } from '../model/dto';
-import { isSingleContractAllowed } from '../model/dto';
+import { COMPLECT_MODE, isSingleContractAllowed } from '../model/dto';
 import {
-    canMakeVariantCurrent,
     getVariantContractCode,
     selectParticipants,
+    selectUnclosedVariants,
 } from './participants';
-import { COMPLECT_VARIANT_STAGE, type ComplectVariantStage } from './stage';
+import {
+    COMPLECT_VARIANT_FINAL_STAGES,
+    COMPLECT_VARIANT_STAGE,
+    isFinalVariantStage,
+    type ComplectVariantStage,
+} from './stage';
 
 const record = (
     variantSmartId: number,
@@ -28,170 +33,116 @@ const withStages =
 const idsOf = (items: ReadonlyArray<{ variantSmartId: number | null }>) =>
     items.map(item => item.variantSmartId);
 
-describe('участники сборки', () => {
-    it('стадий никто не трогал — участвуют все', () => {
-        expect(
-            selectParticipants([record(1), record(2)], withStages({})),
-        ).toHaveLength(2);
-    });
+const NON_FINAL_STAGES = Object.values(COMPLECT_VARIANT_STAGE).filter(
+    stage => !isFinalVariantStage(stage),
+);
 
-    it('отклонённые не участвуют', () => {
-        const participants = selectParticipants(
-            [record(1), record(2)],
-            withStages({ 2: COMPLECT_VARIANT_STAGE.rejected }),
-        );
-        expect(idsOf(participants)).toEqual([1]);
-    });
+describe('участники документов в режиме «по одному»', () => {
+    const mode = COMPLECT_MODE.compare;
 
-    it('есть текущие — участвуют только они', () => {
+    it('открытый вариант — единственный участник, остальные не участвуют', () => {
         const participants = selectParticipants(
             [record(1), record(2), record(3)],
-            withStages({ 2: COMPLECT_VARIANT_STAGE.current }),
+            withStages({ 1: COMPLECT_VARIANT_STAGE.current, 3: COMPLECT_VARIANT_STAGE.offer }),
+            mode,
+            2,
         );
         expect(idsOf(participants)).toEqual([2]);
     });
 
-    it('черновик рядом с вариантом в стадии «КП» — участвует только «КП»', () => {
+    it('открытого варианта нет — участников нет, документы идут по живому состоянию', () => {
         const participants = selectParticipants(
             [record(1), record(2)],
-            withStages({ 2: COMPLECT_VARIANT_STAGE.offer }),
-        );
-        expect(idsOf(participants)).toEqual([2]);
-    });
-
-    it('«Текущий» и «Поставка» участвуют вместе, черновик остаётся за бортом', () => {
-        const participants = selectParticipants(
-            [record(1), record(2), record(3)],
-            withStages({
-                1: COMPLECT_VARIANT_STAGE.current,
-                2: COMPLECT_VARIANT_STAGE.supply,
-            }),
-        );
-        expect(idsOf(participants)).toEqual([1, 2]);
-    });
-
-    it.each([
-        COMPLECT_VARIANT_STAGE.current,
-        COMPLECT_VARIANT_STAGE.offer,
-        COMPLECT_VARIANT_STAGE.invoice,
-        COMPLECT_VARIANT_STAGE.contract,
-        COMPLECT_VARIANT_STAGE.supply,
-        COMPLECT_VARIANT_STAGE.approval,
-    ])('стадия %s отмечает вариант в работу', stage => {
-        const participants = selectParticipants(
-            [record(1), record(2)],
-            withStages({ 1: stage }),
-        );
-        expect(idsOf(participants)).toEqual([1]);
-    });
-
-    it('«Успех» и «Не состоялся» не участвуют', () => {
-        const participants = selectParticipants(
-            [record(1), record(2), record(3)],
-            withStages({
-                1: COMPLECT_VARIANT_STAGE.success,
-                2: COMPLECT_VARIANT_STAGE.failed,
-            }),
-        );
-        expect(idsOf(participants)).toEqual([3]);
-    });
-
-    it('закрытый вариант выпадает и рядом с вариантом в работе', () => {
-        const participants = selectParticipants(
-            [record(1), record(2), record(3)],
-            withStages({
-                1: COMPLECT_VARIANT_STAGE.success,
-                2: COMPLECT_VARIANT_STAGE.offer,
-            }),
-        );
-        expect(idsOf(participants)).toEqual([2]);
-    });
-
-    it('одни черновики и «В мердже» — участвуют все', () => {
-        const participants = selectParticipants(
-            [record(1), record(2), record(3)],
-            withStages({ 3: COMPLECT_VARIANT_STAGE.merged }),
-        );
-        expect(idsOf(participants)).toEqual([1, 2, 3]);
-    });
-
-    it('все варианты закрыты — участников нет', () => {
-        const participants = selectParticipants(
-            [record(1), record(2), record(3)],
-            withStages({
-                1: COMPLECT_VARIANT_STAGE.success,
-                2: COMPLECT_VARIANT_STAGE.rejected,
-                3: COMPLECT_VARIANT_STAGE.failed,
-            }),
+            withStages({ 1: COMPLECT_VARIANT_STAGE.current }),
+            mode,
+            null,
         );
         expect(participants).toEqual([]);
     });
+
+    it.each(COMPLECT_VARIANT_FINAL_STAGES)('открытый вариант закрыт (%s) — участников нет', stage => {
+        const participants = selectParticipants([record(1), record(2)], withStages({ 1: stage }), mode, 1);
+        expect(participants).toEqual([]);
+    });
+
+    it.each(NON_FINAL_STAGES)('служебная стадия %s участию открытого варианта не мешает', stage => {
+        const participants = selectParticipants([record(1), record(2)], withStages({ 1: stage }), mode, 1);
+        expect(idsOf(participants)).toEqual([1]);
+    });
+
+    it('указатель на вариант, которого нет в списке, участников не даёт', () => {
+        expect(selectParticipants([record(1), record(2)], withStages({}), mode, 99)).toEqual([]);
+    });
 });
 
-describe('«Сделать текущим»', () => {
-    it('единственный вариант уже участвует — действие не нужно', () => {
-        expect(canMakeVariantCurrent([record(1)], withStages({}), 1)).toBe(false);
-    });
-
-    it('единственный отклонённый вариант возвращается в работу', () => {
-        const stages = withStages({ 1: COMPLECT_VARIANT_STAGE.rejected });
-        expect(canMakeVariantCurrent([record(1)], stages, 1)).toBe(true);
-    });
-
-    it('текущий вариант уже текущий', () => {
-        const stages = withStages({ 1: COMPLECT_VARIANT_STAGE.current });
-        expect(canMakeVariantCurrent([record(1), record(2)], stages, 1)).toBe(false);
-    });
-
-    it('несколько вариантов без текущих — выбор сужает состав участников', () => {
-        expect(
-            canMakeVariantCurrent([record(1), record(2)], withStages({}), 1),
-        ).toBe(true);
-    });
-
-    it('остальные отклонены — вариант и так единственный участник', () => {
-        const stages = withStages({ 2: COMPLECT_VARIANT_STAGE.rejected });
-        expect(canMakeVariantCurrent([record(1), record(2)], stages, 1)).toBe(false);
-        expect(canMakeVariantCurrent([record(1), record(2)], stages, 2)).toBe(true);
-    });
-
-    it('при другом текущем вариант попадает в участники', () => {
-        const stages = withStages({ 1: COMPLECT_VARIANT_STAGE.current });
-        expect(canMakeVariantCurrent([record(1), record(2)], stages, 2)).toBe(true);
-    });
-
-    it('черновик рядом с вариантом в стадии «КП» можно сделать текущим', () => {
-        const stages = withStages({ 2: COMPLECT_VARIANT_STAGE.offer });
-        expect(canMakeVariantCurrent([record(1), record(2)], stages, 1)).toBe(true);
-    });
-
-    it('вариант в стадии «КП» уже участвует — действие не нужно', () => {
-        const stages = withStages({ 2: COMPLECT_VARIANT_STAGE.offer });
-        expect(canMakeVariantCurrent([record(1), record(2)], stages, 2)).toBe(false);
-    });
-
-    it('вариант в стадии «Успех» закрыт бэком — действия нет', () => {
-        const stages = withStages({ 1: COMPLECT_VARIANT_STAGE.success });
-        expect(canMakeVariantCurrent([record(1), record(2)], stages, 1)).toBe(false);
-        expect(canMakeVariantCurrent([record(1)], stages, 1)).toBe(false);
-    });
-
-    it('вариант в стадии «Не состоялся» закрыт бэком — действия нет', () => {
-        const stages = withStages({ 1: COMPLECT_VARIANT_STAGE.failed });
-        expect(canMakeVariantCurrent([record(1), record(2)], stages, 1)).toBe(false);
-        expect(canMakeVariantCurrent([record(1)], stages, 1)).toBe(false);
-    });
-
-    it('отклонённый вариант рядом с вариантом в работе возвращается в участники', () => {
-        const stages = withStages({
-            1: COMPLECT_VARIANT_STAGE.rejected,
-            2: COMPLECT_VARIANT_STAGE.offer,
+describe.each([COMPLECT_MODE.multi_contract, COMPLECT_MODE.single_contract])(
+    'участники документов в режиме «вместе» (%s)',
+    mode => {
+        it('участвуют все незакрытые варианты, черновики тоже', () => {
+            const participants = selectParticipants([record(1), record(2), record(3)], withStages({}), mode, null);
+            expect(idsOf(participants)).toEqual([1, 2, 3]);
         });
-        expect(canMakeVariantCurrent([record(1), record(2)], stages, 1)).toBe(true);
-    });
 
-    it('у записи без элемента смарта действия нет', () => {
-        expect(canMakeVariantCurrent([record(1)], withStages({}), null)).toBe(false);
+        it.each(NON_FINAL_STAGES)('стадия %s состав не сужает', stage => {
+            const participants = selectParticipants(
+                [record(1), record(2), record(3)],
+                withStages({ 2: stage }),
+                mode,
+                null,
+            );
+            expect(idsOf(participants)).toEqual([1, 2, 3]);
+        });
+
+        it.each(COMPLECT_VARIANT_FINAL_STAGES)('вариант в стадии %s не участвует', stage => {
+            const participants = selectParticipants(
+                [record(1), record(2), record(3)],
+                withStages({ 2: stage }),
+                mode,
+                null,
+            );
+            expect(idsOf(participants)).toEqual([1, 3]);
+        });
+
+        it('закрытые выпадают, остальные остаются в порядке записей', () => {
+            const participants = selectParticipants(
+                [record(1), record(2), record(3), record(4)],
+                withStages({
+                    1: COMPLECT_VARIANT_STAGE.success,
+                    2: COMPLECT_VARIANT_STAGE.offer,
+                    4: COMPLECT_VARIANT_STAGE.failed,
+                }),
+                mode,
+                null,
+            );
+            expect(idsOf(participants)).toEqual([2, 3]);
+        });
+
+        it('открытый вариант на состав не влияет', () => {
+            const variants = [record(1), record(2)];
+            expect(idsOf(selectParticipants(variants, withStages({}), mode, 1))).toEqual([1, 2]);
+            expect(idsOf(selectParticipants(variants, withStages({}), mode, null))).toEqual([1, 2]);
+        });
+
+        it('все варианты закрыты — участников нет', () => {
+            const participants = selectParticipants(
+                [record(1), record(2), record(3)],
+                withStages({
+                    1: COMPLECT_VARIANT_STAGE.success,
+                    2: COMPLECT_VARIANT_STAGE.rejected,
+                    3: COMPLECT_VARIANT_STAGE.failed,
+                }),
+                mode,
+                null,
+            );
+            expect(participants).toEqual([]);
+        });
+    },
+);
+
+describe('незакрытые варианты', () => {
+    it('закрытые выпадают независимо от режима и открытого варианта', () => {
+        const stages = withStages({ 2: COMPLECT_VARIANT_STAGE.rejected });
+        expect(idsOf(selectUnclosedVariants([record(1), record(2), record(3)], stages))).toEqual([1, 3]);
     });
 });
 

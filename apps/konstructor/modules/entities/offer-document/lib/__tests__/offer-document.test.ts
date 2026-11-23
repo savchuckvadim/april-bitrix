@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { COMPLECT_VARIANT_STAGE } from '../../../complect-variant/lib/stage';
+import { selectParticipants } from '../../../complect-variant/lib/participants';
+import { COMPLECT_VARIANT_STAGE, type ComplectVariantStage } from '../../../complect-variant/lib/stage';
+import {
+    COMPLECT_MODE,
+    type ComplectMode,
+    type ComplectVariantRecordDto,
+} from '../../../complect-variant/model/dto';
 import { RQ_TYPE } from '../../../bx-rq/model/types';
 import type { PBXField } from '../../../portal';
-import { buildGarantRow, createSet, upsertRow } from '../../../row-set';
+import { buildGarantRow, createSet, upsertRow, type RowSet } from '../../../row-set';
 import { toOfferClientType } from '../client-type.util';
 import { resolveInvoiceDefaults, resolveRecipientDefaults, toInputDate } from '../document-defaults.util';
 import { managerFromBxUser } from '../manager.util';
 import { buildVariantsPayload } from '../build-variants-payload';
+import { offerParticipantTitles } from '../participant-titles';
 import {
     mainSetOf,
     recordOf,
@@ -77,32 +84,77 @@ describe('buildVariantsPayload', () => {
     const draftsOnly = () => COMPLECT_VARIANT_STAGE.draft;
     const emptyLive = { general: createSet('general', 'general'), alternative: [] };
 
-    it('участники по стадиям; открытый вариант — из живого состояния, не из слепка', () => {
-        const live = { general: mainSetOf('live', 'ur'), alternative: [] };
-        const { variants, skipped } = buildVariantsPayload({
+    /** Сборка участников: правило участия применяет selectParticipants, как это делает селектор. */
+    const payloadOf = (
+        records: ComplectVariantRecordDto[],
+        options: {
+            stages?: (id: number | null) => ComplectVariantStage;
+            mode?: ComplectMode;
+            openVariantSmartId?: number | null;
+            live?: { general: RowSet; alternative: RowSet[] };
+        } = {},
+    ) => {
+        const { stages = draftsOnly, mode = COMPLECT_MODE.multi_contract, openVariantSmartId = null } = options;
+        return buildVariantsPayload({
             catalog,
-            records: [recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh'), recordOf(3, 103, 'buh')],
+            participants: selectParticipants(records, stages, mode, openVariantSmartId),
             items,
-            stageOf,
-            openVariantSmartId: 101,
-            live,
+            openVariantSmartId,
+            live: options.live ?? emptyLive,
         });
-        // помечен «Текущий» только 101 — участвует он один, и печатается из live (комплект ur)
-        expect(variants.map(v => v.title)).toEqual(['Бухгалтеру']);
+    };
+
+    it('вместе: участвуют все незакрытые, открытый вариант печатается из живого состояния, не из слепка', () => {
+        const live = { general: mainSetOf('live', 'ur'), alternative: [] };
+        const { variants, skipped } = payloadOf(
+            [recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh'), recordOf(3, 103, 'buh')],
+            { stages: stageOf, openVariantSmartId: 101, live },
+        );
+        // 103 отклонён и не участвует; 101 открыт и печатается из live (комплект ur), 102 из слепка
+        expect(variants.map(v => v.title)).toEqual(['Бухгалтеру', 'Юристу']);
         expect(variants[0]!.variantSmartId).toBe(101);
         expect(variants[0]!.rows[0]!.product.name).toBe(catalog.complects.byCode['ur']!.fullTitle);
+        expect(variants[1]!.rows[0]!.product.name).toBe(catalog.complects.byCode['buh']!.fullTitle);
+        expect(skipped).toEqual([]);
+    });
+
+    it('по одному: в документ идёт один вариант, открытый, из живого состояния', () => {
+        const live = { general: mainSetOf('live', 'ur'), alternative: [] };
+        const { variants, entries, skipped } = payloadOf(
+            [recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh')],
+            { mode: COMPLECT_MODE.compare, stages: stageOf, openVariantSmartId: 101, live },
+        );
+        expect(variants.map(v => v.title)).toEqual(['Бухгалтеру']);
+        expect(variants[0]!.rows[0]!.product.name).toBe(catalog.complects.byCode['ur']!.fullTitle);
+        expect(entries.map(entry => entry.isOpen)).toEqual([true]);
+        expect(skipped).toEqual([]);
+    });
+
+    it('по одному без открытого варианта: вариантов в документе нет', () => {
+        const { variants, entries, skipped } = payloadOf(
+            [recordOf(1, 101, 'buh'), recordOf(2, 102, 'buh')],
+            { mode: COMPLECT_MODE.compare, stages: stageOf },
+        );
+        expect(variants).toEqual([]);
+        expect(entries).toEqual([]);
+        expect(skipped).toEqual([]);
+    });
+
+    it('по одному: нечитаемый слепок другого варианта документ не блокирует', () => {
+        const { variants, skipped } = payloadOf(
+            [recordOf(1, 102, 'buh'), recordOf(2, 105, 'buh', '{broken')],
+            {
+                mode: COMPLECT_MODE.compare,
+                openVariantSmartId: 102,
+                live: { general: mainSetOf('live', 'buh'), alternative: [] },
+            },
+        );
+        expect(variants.map(v => v.title)).toEqual(['Юристу']);
         expect(skipped).toEqual([]);
     });
 
     it('стадий никто не трогал — читаемые слепки собираются как раньше', () => {
-        const { variants, skipped } = buildVariantsPayload({
-            catalog,
-            records: [recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')],
-            items,
-            stageOf: draftsOnly,
-            openVariantSmartId: null,
-            live: emptyLive,
-        });
+        const { variants, skipped } = payloadOf([recordOf(1, 102, 'buh'), recordOf(2, 104, 'ur')]);
         expect(variants.map(v => v.title)).toEqual(['Юристу', 'Вариант 104']);
         expect(variants[1]!.contractType).toBe('abon');
         expect(variants[1]!.sets.general[0]!.rows.garant).toHaveLength(1);
@@ -110,14 +162,11 @@ describe('buildVariantsPayload', () => {
     });
 
     it('нечитаемый слепок попадает в skipped с причиной, читаемые варианты остаются', () => {
-        const { variants, skipped } = buildVariantsPayload({
-            catalog,
-            records: [recordOf(1, 102, 'buh'), recordOf(3, 105, 'buh', '{broken'), recordOf(4, 106, 'buh', null)],
-            items,
-            stageOf: draftsOnly,
-            openVariantSmartId: null,
-            live: emptyLive,
-        });
+        const { variants, skipped } = payloadOf([
+            recordOf(1, 102, 'buh'),
+            recordOf(3, 105, 'buh', '{broken'),
+            recordOf(4, 106, 'buh', null),
+        ]);
         expect(variants.map(v => v.title)).toEqual(['Юристу']);
         expect(skipped).toEqual([
             { variantSmartId: 105, title: 'Вариант 105', reason: 'snapshotUnreadable' },
@@ -126,14 +175,9 @@ describe('buildVariantsPayload', () => {
     });
 
     it('слепок без главной строки попадает в skipped с причиной noMainRow и названием из смарта', () => {
-        const { variants, skipped } = buildVariantsPayload({
-            catalog,
-            records: [recordOf(1, 102, 'buh', snapshotRowsOf(createSet('general', 'general')))],
-            items,
-            stageOf: draftsOnly,
-            openVariantSmartId: null,
-            live: emptyLive,
-        });
+        const { variants, skipped } = payloadOf([
+            recordOf(1, 102, 'buh', snapshotRowsOf(createSet('general', 'general'))),
+        ]);
         expect(variants).toEqual([]);
         expect(skipped).toEqual([{ variantSmartId: 102, title: 'Юристу', reason: 'noMainRow' }]);
     });
@@ -144,14 +188,7 @@ describe('buildVariantsPayload', () => {
             ...main,
             refs: { ...main.refs, contractCode: 'no-such-contract' },
         });
-        const { variants, skipped } = buildVariantsPayload({
-            catalog,
-            records: [recordOf(1, 102, 'buh', snapshotRowsOf(broken))],
-            items,
-            stageOf: draftsOnly,
-            openVariantSmartId: null,
-            live: emptyLive,
-        });
+        const { variants, skipped } = payloadOf([recordOf(1, 102, 'buh', snapshotRowsOf(broken))]);
         expect(variants).toEqual([]);
         expect(skipped.map(entry => entry.reason)).toEqual(['noMainRow']);
     });
@@ -173,41 +210,37 @@ describe('buildVariantsPayload', () => {
             upsertRow(createSet('general', 'general'), main),
             { ...extra, refs: { ...extra.refs, contractCode: 'no-such-contract' } },
         );
-        const { variants, skipped } = buildVariantsPayload({
-            catalog,
-            records: [recordOf(1, 102, 'buh', snapshotRowsOf(general))],
-            items,
-            stageOf: draftsOnly,
-            openVariantSmartId: null,
-            live: emptyLive,
-        });
+        const { variants, skipped } = payloadOf([recordOf(1, 102, 'buh', snapshotRowsOf(general))]);
         expect(variants).toEqual([]);
         expect(skipped).toEqual([{ variantSmartId: 102, title: 'Юристу', reason: 'noMainRow' }]);
     });
 
     it('открытый вариант с пустым живым набором идёт в skipped даже при читаемом слепке записи', () => {
-        const { variants, skipped } = buildVariantsPayload({
-            catalog,
-            records: [recordOf(1, 101, 'buh')],
-            items,
-            stageOf,
+        const { variants, skipped } = payloadOf([recordOf(1, 101, 'buh')], {
+            stages: stageOf,
             openVariantSmartId: 101,
-            live: emptyLive,
         });
         expect(variants).toEqual([]);
         expect(skipped).toEqual([{ variantSmartId: 101, title: 'Бухгалтеру', reason: 'noMainRow' }]);
     });
 
     it('вариант в финальной стадии не участвует: битый слепок отклонённого варианта не попадает в skipped', () => {
-        const { variants, skipped } = buildVariantsPayload({
-            catalog,
-            records: [recordOf(1, 101, 'buh'), recordOf(3, 103, 'buh', '{broken')],
-            items,
-            stageOf,
-            openVariantSmartId: null,
-            live: emptyLive,
-        });
-        expect(variants.map(v => v.title)).toEqual(['Бухгалтеру']);
+        const { variants, skipped } = payloadOf(
+            [recordOf(1, 102, 'buh'), recordOf(3, 103, 'buh', '{broken')],
+            { stages: stageOf },
+        );
+        expect(variants.map(v => v.title)).toEqual(['Юристу']);
         expect(skipped).toEqual([]);
+    });
+});
+
+describe('подсказка «В КП войдут варианты»', () => {
+    it('участников больше одного — названия по порядку', () => {
+        expect(offerParticipantTitles([{ title: 'Бухгалтеру' }, { title: 'Юристу' }])).toEqual(['Бухгалтеру', 'Юристу']);
+    });
+
+    it('один участник или ни одного — подсказки нет', () => {
+        expect(offerParticipantTitles([{ title: 'Бухгалтеру' }])).toEqual([]);
+        expect(offerParticipantTitles([])).toEqual([]);
     });
 });

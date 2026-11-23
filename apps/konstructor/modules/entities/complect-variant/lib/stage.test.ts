@@ -3,7 +3,8 @@ import {
     buildVariantStageId,
     COMPLECT_VARIANT_STAGE,
     COMPLECT_VARIANT_STAGE_TITLE,
-    isActiveVariantStage,
+    canRejectVariant,
+    canRestoreVariant,
     isFinalVariantStage,
     resolveVariantStage,
     type ComplectVariantStage,
@@ -11,8 +12,8 @@ import {
 import { COMPLECT_VARIANT_STAGE_TONE } from './stage-tone';
 
 /**
- * Стадия элемента — единственный след выбора менеджера. Формат STATUS_ID
- * задаёт установщик смарта на бэке: `DT{entityTypeId}_{catId}:{SUFFIX}`.
+ * Стадия элемента — служебная пометка хода работы над вариантом. Формат
+ * STATUS_ID задаёт установщик смарта на бэке: `DT{entityTypeId}_{catId}:{SUFFIX}`.
  */
 const ALL_STAGES: ReadonlyArray<{
     suffix: string;
@@ -116,19 +117,11 @@ describe('подписи и тона стадий', () => {
     });
 });
 
-describe('финальные стадии и «в работе»', () => {
+describe('финальные стадии', () => {
     const finals = [
         COMPLECT_VARIANT_STAGE.success,
         COMPLECT_VARIANT_STAGE.rejected,
         COMPLECT_VARIANT_STAGE.failed,
-    ];
-    const actives = [
-        COMPLECT_VARIANT_STAGE.current,
-        COMPLECT_VARIANT_STAGE.offer,
-        COMPLECT_VARIANT_STAGE.invoice,
-        COMPLECT_VARIANT_STAGE.contract,
-        COMPLECT_VARIANT_STAGE.supply,
-        COMPLECT_VARIANT_STAGE.approval,
     ];
 
     it('финальные: Успех, Отклонён, Не состоялся', () => {
@@ -136,18 +129,28 @@ describe('финальные стадии и «в работе»', () => {
         expect(found.sort()).toEqual([...finals].sort());
     });
 
-    it('в работе: Текущий, КП, Счёт, Договор, Поставка, Согласование', () => {
-        const found = ALL_STAGES.map(item => item.stage).filter(isActiveVariantStage);
-        expect(found.sort()).toEqual([...actives].sort());
+    it('остальные восемь стадий не закрывают вариант', () => {
+        const unclosed = ALL_STAGES.map(item => item.stage).filter(stage => !isFinalVariantStage(stage));
+        expect(unclosed).toHaveLength(8);
+    });
+});
+
+describe('кнопки «Отклонить» и «Вернуть»', () => {
+    it('«Отклонить» есть у любого незакрытого варианта', () => {
+        const rejectable = ALL_STAGES.map(item => item.stage).filter(canRejectVariant);
+        expect(rejectable).toHaveLength(8);
+        expect(rejectable).not.toContain(COMPLECT_VARIANT_STAGE.rejected);
     });
 
-    it('черновик и «В мердже» относятся к открытым без отметки в работу', () => {
-        for (const stage of [
-            COMPLECT_VARIANT_STAGE.draft,
-            COMPLECT_VARIANT_STAGE.merged,
-        ]) {
-            expect(isFinalVariantStage(stage)).toBe(false);
-            expect(isActiveVariantStage(stage)).toBe(false);
+    it('«Вернуть» есть только у отклонённого варианта', () => {
+        const restorable = ALL_STAGES.map(item => item.stage).filter(canRestoreVariant);
+        expect(restorable).toEqual([COMPLECT_VARIANT_STAGE.rejected]);
+    });
+
+    it('закрытые Успех и «Не состоялся» не отклоняются и не возвращаются', () => {
+        for (const stage of [COMPLECT_VARIANT_STAGE.success, COMPLECT_VARIANT_STAGE.failed]) {
+            expect(canRejectVariant(stage)).toBe(false);
+            expect(canRestoreVariant(stage)).toBe(false);
         }
     });
 });

@@ -5,6 +5,7 @@ import { runDocumentToDeal } from '@/modules/app/model/document-run.thunk';
 import {
     generateOfferDocument,
     offerDocumentActions,
+    offerParticipantTitles,
     offerRequestBlocker,
     selectOfferGenerate,
     selectVariantsPayload,
@@ -35,7 +36,7 @@ export const useOfferGenerate = () => {
         links: generate.links,
         warnings: generate.warnings,
         // в КП попадёт несколько вариантов — менеджер должен это видеть до кнопки
-        participantTitles: variants.length > 1 ? variants.map(variant => variant.title) : [],
+        participantTitles: offerParticipantTitles(variants),
         run,
         reset: () => dispatch(offerDocumentActions.generateReset()),
     };

@@ -4,6 +4,7 @@ import {
     complectVariantActions,
     complectVariantReducer,
 } from '../../../complect-variant/model/ComplectVariantSlice';
+import { COMPLECT_MODE } from '../../../complect-variant/model/dto';
 import { resolveSupply } from '../../../catalog';
 import {
     recordOf,
@@ -100,6 +101,8 @@ describe('PDF-запрос: наполнение по комплектам на 
 });
 
 describe('PDF-запрос: наполнение по комплектам у участников', () => {
+    /** Режим «вместе»: в запрос идут все незакрытые варианты. */
+    const TOGETHER = { mode: COMPLECT_MODE.multi_contract };
     const recordWith = (id: number, variantSmartId: number, rows: string) => recordOf(id, variantSmartId, 'buh', rows);
 
     it('у каждого участника свои комплекты и свой способ печати из его слепка', () => {
@@ -111,6 +114,7 @@ describe('PDF-запрос: наполнение по комплектам у у
             ],
             variantItems,
             twoGarantGeneral(),
+            TOGETHER,
         );
         const request = requestOf(state, optionsOf(OFFER_COMPLECTS_MODE.MERGED));
         expect(request.variants?.map(variant => variant.variantSmartId)).toEqual([102, 104, 106]);
@@ -133,6 +137,7 @@ describe('PDF-запрос: наполнение по комплектам у у
                 ],
                 variantItems,
                 twoGarantGeneral(),
+                TOGETHER,
             ),
             102,
         );
@@ -152,6 +157,7 @@ describe('PDF-запрос: наполнение по комплектам у у
             ],
             variantItems,
             twoGarantGeneral(),
+            TOGETHER,
         );
         const request = requestOf(state, optionsOf(OFFER_COMPLECTS_MODE.SEPARATE));
         expect(request.variants?.map(variant => variant.complectsMode)).toEqual([
@@ -166,6 +172,7 @@ describe('PDF-запрос: наполнение по комплектам у у
                 [recordWith(1, 102, snapshotRowsOf(twoGarantGeneral(), pdfOf(mode)))],
                 variantItems,
                 twoGarantGeneral(),
+                TOGETHER,
             );
         const merged = offerPdfRequestKey(requestOf(stateOf(OFFER_COMPLECTS_MODE.MERGED)));
         const separate = offerPdfRequestKey(requestOf(stateOf(OFFER_COMPLECTS_MODE.SEPARATE)));

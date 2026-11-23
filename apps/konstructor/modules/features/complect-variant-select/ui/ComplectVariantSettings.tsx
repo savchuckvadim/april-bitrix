@@ -1,7 +1,5 @@
 'use client';
 
-import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Label } from '@workspace/ui/components/label';
 import {
     Select,
     SelectContent,
@@ -11,6 +9,8 @@ import {
 } from '@workspace/ui/components/select';
 import {
     COMPLECT_MODE,
+    COMPLECT_MODE_NOTE,
+    COMPLECT_MODE_ORDER,
     COMPLECT_MODE_TITLE,
     COMPLECT_OFFER_INFOBLOCKS,
     COMPLECT_OFFER_INFOBLOCKS_TITLE,
@@ -24,18 +24,18 @@ export interface ComplectVariantSettingsProps {
 }
 
 /**
- * Как варианты лягут в КП: режим наборов, инфоблоки, наборы для сравнения.
- * Панель показывает блок, когда вариантов больше одного. Документы
- * мультикомплектом пока не печатаются: настройки сохраняются и переезжают в
- * отдел сервиса.
+ * Какие варианты идут в документы: по одному (открытый вариант) или вместе
+ * (одним договором либо разными), плюс инфоблоки КП для режимов «вместе».
+ * Панель показывает блок, когда вариантов больше одного. Под выбором одна
+ * строка о том, что уходит в документы в выбранном режиме.
  */
 export const ComplectVariantSettings = ({ variants }: ComplectVariantSettingsProps) => {
-    const { composition, isBusy, singleContractAllowed } = variants;
+    const { composition, isBusy, isTogether, singleContractAllowed } = variants;
 
     return (
         <div className="mt-1 flex flex-col gap-2 border-t pt-2">
             <label className="flex flex-wrap items-center gap-2 text-sm">
-                Наборы идут:
+                Варианты в документах:
                 <Select
                     value={composition.mode}
                     disabled={isBusy}
@@ -45,11 +45,11 @@ export const ComplectVariantSettings = ({ variants }: ComplectVariantSettingsPro
                         })
                     }
                 >
-                    <SelectTrigger size="sm" className="w-56" aria-label="Режим наборов">
+                    <SelectTrigger size="sm" className="w-80 max-w-full" aria-label="Варианты в документах">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                        {Object.values(COMPLECT_MODE).map(mode => (
+                        {COMPLECT_MODE_ORDER.map(mode => (
                             <SelectItem
                                 key={mode}
                                 value={mode}
@@ -80,7 +80,7 @@ export const ComplectVariantSettings = ({ variants }: ComplectVariantSettingsPro
                 </span>
             ) : null}
 
-            {composition.mode !== COMPLECT_MODE.compare ? (
+            {isTogether ? (
                 <label className="flex flex-wrap items-center gap-2 text-sm">
                     Инфоблоки в КП:
                     <Select
@@ -109,26 +109,8 @@ export const ComplectVariantSettings = ({ variants }: ComplectVariantSettingsPro
                 </label>
             ) : null}
 
-            <Label className="flex items-center gap-2 text-sm font-normal">
-                <Checkbox
-                    checked={composition.offer.showAlternatives}
-                    disabled={isBusy}
-                    onCheckedChange={checked =>
-                        void variants.saveComposition({
-                            offer: {
-                                ...composition.offer,
-                                showAlternatives: checked === true,
-                            },
-                        })
-                    }
-                />
-                Показать в КП наборы для сравнения
-            </Label>
-
             <span className="text-xs text-muted-foreground">
-                Документы пока собираются по одному набору: настройки
-                сохраняются и переезжают в отдел сервиса, но КП, счёт
-                и договор мультикомплектом ещё не печатаются.
+                {COMPLECT_MODE_NOTE[composition.mode]}
             </span>
         </div>
     );

@@ -1,61 +1,40 @@
 import { isSnapshotV2 } from '../../snapshot/model/types';
-import type { ComplectVariantRecordDto } from '../model/dto';
-import {
-    COMPLECT_VARIANT_STAGE,
-    isActiveVariantStage,
-    isFinalVariantStage,
-    type ComplectVariantStage,
-} from './stage';
+import { COMPLECT_MODE, type ComplectMode, type ComplectVariantRecordDto } from '../model/dto';
+import { isFinalVariantStage, type ComplectVariantStage } from './stage';
+
+type StageOf = (variantSmartId: number | null) => ComplectVariantStage;
 
 /**
- * Кто из вариантов участвует в документах и в сделке сервиса:
- *  1. варианты в финальных стадиях (Успех, Отклонён, Не состоялся) не
- *     участвуют никогда;
- *  2. есть варианты «в работе» (Текущий, КП, Счёт, Договор, Поставка,
- *     Согласование) — участвуют только они: после первого КП бэк переводит
- *     участников в стадию «КП», и следующее КП собирается из них же;
- *  3. таких нет — участвуют все нефинальные (черновики и «В мердже»).
+ * Незакрытые варианты: стадия не финальная (Успех, Отклонён, Не состоялся).
+ * Остальные стадии (Черновик, Текущий, В мердже, КП, Счёт, Договор, Поставка,
+ * Согласование) служебные пометки хода работы, на участие они не влияют.
+ */
+export const selectUnclosedVariants = <T extends { variantSmartId: number | null }>(
+    variants: readonly T[],
+    stageOf: StageOf,
+): T[] => variants.filter(variant => !isFinalVariantStage(stageOf(variant.variantSmartId)));
+
+/**
+ * Кто из вариантов участвует в документах (КП, договор, товары сделки, заявка
+ * поставки) и в переезде в сервисный отдел. Решает режим сделки:
+ *  - `compare` («по одному») — единственный участник открытый вариант, если он
+ *    есть в списке и не закрыт; открытого варианта нет или он закрыт —
+ *    участников нет, документы идут по живому состоянию, как у сделки без
+ *    вариантов;
+ *  - `multi_contract` и `single_contract` («вместе») — все незакрытые варианты,
+ *    черновики тоже.
+ * Закрытый вариант (финальная стадия) не участвует ни в одном режиме.
  */
 export const selectParticipants = <T extends { variantSmartId: number | null }>(
     variants: readonly T[],
-    stageOf: (variantSmartId: number | null) => ComplectVariantStage,
+    stageOf: StageOf,
+    mode: ComplectMode,
+    openVariantSmartId: number | null,
 ): T[] => {
-    const open = variants.filter(
-        variant => !isFinalVariantStage(stageOf(variant.variantSmartId)),
-    );
-    const active = open.filter(variant =>
-        isActiveVariantStage(stageOf(variant.variantSmartId)),
-    );
-    return active.length ? active : open;
-};
-
-/**
- * Имеет ли смысл «Сделать текущим»: действие нужно, только если после него
- * состав участников меняется. Единственный вариант (и любой, кто и так
- * участвует) уже идёт в сделку — кнопка пуста. Вариант «Отклонён» возвращается
- * в работу, поэтому для него действие остаётся. Варианты в остальных
- * финальных стадиях (Успех, Не состоялся) закрыты бэком: кнопки у них нет.
- */
-export const canMakeVariantCurrent = <T extends { variantSmartId: number | null }>(
-    variants: readonly T[],
-    stageOf: (variantSmartId: number | null) => ComplectVariantStage,
-    variantSmartId: number | null,
-): boolean => {
-    if (variantSmartId === null) return false;
-    const stage = stageOf(variantSmartId);
-    if (stage === COMPLECT_VARIANT_STAGE.current) return false;
-    if (isFinalVariantStage(stage) && stage !== COMPLECT_VARIANT_STAGE.rejected) {
-        return false;
-    }
-
-    const before = selectParticipants(variants, stageOf);
-    const after = selectParticipants(variants, id =>
-        id === variantSmartId ? COMPLECT_VARIANT_STAGE.current : stageOf(id),
-    );
-    return (
-        before.length !== after.length ||
-        before.some(variant => !after.includes(variant))
-    );
+    const unclosed = selectUnclosedVariants(variants, stageOf);
+    if (mode !== COMPLECT_MODE.compare) return unclosed;
+    if (openVariantSmartId === null) return [];
+    return unclosed.filter(variant => variant.variantSmartId === openVariantSmartId);
 };
 
 /**

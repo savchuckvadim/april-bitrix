@@ -5,19 +5,21 @@ import { useAppDispatch, useAppSelector } from '@/modules/app';
 import type { RootState } from '@/modules/app/model/store';
 import { getComplectVariantPbxSmartEntityId } from '@/modules/entities/portal';
 import {
-    canMakeVariantCurrent,
+    canRejectVariant,
+    canRestoreVariant,
     closeComplectVariant,
     createComplectVariant,
     deleteComplectVariant,
     getVariantContractCode,
-    isFinalVariantStage,
     isSingleContractAllowed,
+    isTogetherMode,
     isVariantDeletable,
     openComplectVariant,
     saveComplectComposition,
     selectComplectVariantState,
     selectComposition,
-    selectParticipants,
+    selectUnclosedVariants,
+    selectVariantParticipants,
     selectVariantStageOf,
     setComplectVariantStage,
     type ComplectComposition,
@@ -38,15 +40,20 @@ export const useComplectVariants = () => {
     const variantState = useAppSelector(selectComplectVariantState);
     const composition = useAppSelector(selectComposition);
     const stageOf = useAppSelector(selectVariantStageOf);
+    const participants = useAppSelector(selectVariantParticipants);
     const [newTitle, setNewTitle] = useState('');
 
-    const participants = useMemo(
-        () => selectParticipants(variantState.records, stageOf),
-        [variantState.records, stageOf],
-    );
+    const isTogether = isTogetherMode(composition.mode);
+    // «Одним договором» оценивается по всем незакрытым вариантам: именно они
+    // пойдут в документы, как только выбран режим «вместе»
     const singleContractAllowed = useMemo(
-        () => isSingleContractAllowed(participants.map(getVariantContractCode)),
-        [participants],
+        () =>
+            isSingleContractAllowed(
+                selectUnclosedVariants(variantState.records, stageOf).map(
+                    getVariantContractCode,
+                ),
+            ),
+        [variantState.records, stageOf],
     );
 
     const titleOf = (record: ComplectVariantRecordDto): string => {
@@ -85,12 +92,23 @@ export const useComplectVariants = () => {
             : null,
         stageOf,
         titleOf,
-        /** «Сделать текущим» меняет состав участников; иначе кнопка не нужна */
-        canMakeCurrent: (variantSmartId: number | null) =>
-            canMakeVariantCurrent(variantState.records, stageOf, variantSmartId),
+        /** Режим «вместе»: документы собираются по всем участникам сразу */
+        isTogether,
+        /**
+         * Бейдж «В документах»: вариант участвует в документах вместе с
+         * другими. В режиме «по одному» участник один, открытый вариант, и он
+         * уже помечен «Сейчас редактируется».
+         */
+        isInDocuments: (variantSmartId: number | null) =>
+            isTogether &&
+            variantSmartId !== null &&
+            participants.some(record => record.variantSmartId === variantSmartId),
         /** «Отклонить» нужно, пока итог по варианту не подведён (финальной стадии нет) */
         canReject: (variantSmartId: number | null) =>
-            variantSmartId !== null && !isFinalVariantStage(stageOf(variantSmartId)),
+            variantSmartId !== null && canRejectVariant(stageOf(variantSmartId)),
+        /** «Вернуть» есть только у отклонённого варианта */
+        canRestore: (variantSmartId: number | null) =>
+            variantSmartId !== null && canRestoreVariant(stageOf(variantSmartId)),
         singleContractAllowed,
         newTitle,
         setNewTitle,

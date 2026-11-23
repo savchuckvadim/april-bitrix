@@ -15,15 +15,15 @@ import {
     readDeleteErrorMessage,
     type ComplectVariantDeleteResult,
 } from '../lib/delete-variant';
+import { mergeComposition } from '../lib/merge-composition';
 import { buildVariantStageId, type ComplectVariantStage } from '../lib/stage';
 import {
     complectVariantActions,
     selectComposition,
 } from './ComplectVariantSlice';
-import {
-    DEFAULT_COMPLECT_COMPOSITION,
-    type ComplectComposition,
-    type ComplectVariantRecordDto,
+import type {
+    ComplectComposition,
+    ComplectVariantRecordDto,
 } from './dto';
 
 const helper = new ComplectVariantHelper();
@@ -164,12 +164,7 @@ export const saveComplectComposition =
 
         const previous = state.complectVariant.composition;
         const current = selectComposition(state);
-        const composition: ComplectComposition = {
-            ...DEFAULT_COMPLECT_COMPOSITION,
-            ...current,
-            ...patch,
-            offer: { ...current.offer, ...(patch.offer ?? {}) },
-        };
+        const composition = mergeComposition(current, patch);
 
         dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.setComposition(composition));
@@ -480,10 +475,10 @@ export const deleteComplectVariant =
     };
 
 /**
- * Стадия варианта: «Текущий» отмечает вариант в работу, «Отклонён» выводит его
- * из документов и из переезда в отдел сервиса; кнопками менеджер ставит только
- * эти две, остальные стадии выставляет бэк. Стадию считаем от текущего stageId
- * элемента: категорию смарта угадывать нельзя.
+ * Стадия варианта: «Отклонён» выводит его из документов и из переезда в отдел
+ * сервиса, «Черновик» возвращает отклонённый вариант. Кнопками менеджер ставит
+ * только эти две, остальные стадии выставляет бэк или менеджер в Битриксе. Стадию
+ * считаем от текущего stageId элемента: категорию смарта угадывать нельзя.
  */
 export const setComplectVariantStage =
     (variantSmartId: number, stage: ComplectVariantStage): AppThunk<Promise<void>> =>

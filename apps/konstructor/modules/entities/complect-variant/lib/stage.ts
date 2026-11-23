@@ -1,11 +1,16 @@
 /**
- * Стадия элемента смарта — признак участия варианта в сделке.
+ * Стадия элемента смарта — служебная пометка хода работы над вариантом.
  *
- * Почему стадия, а не поле: её видно колонкой канбана прямо в Битриксе,
- * менеджер двигает карточку мышкой, она переживает перезагрузку конструктора и
- * переезжает вместе с вариантом в сервисную сделку. Коды и суффиксы совпадают
- * с бэком (`libs/portal-lib/pbx/pbx-complect-variant-smart`): STATUS_ID
- * элемента имеет вид `DT{entityTypeId}_{categoryId}:{SUFFIX}`.
+ * Менеджер двигает карточку в Битриксе свободно. На участие в документах
+ * стадия не влияет, кроме финальных (Успех, Отклонён, Не состоялся): закрытый
+ * вариант ни в одном документе не участвует. Кто участвует, решают режим сделки
+ * и открытый вариант (selectParticipants).
+ *
+ * Пометка живёт в самом элементе смарта: её видно колонкой канбана прямо в
+ * Битриксе, она переживает перезагрузку конструктора и переезжает вместе с
+ * вариантом в сервисную сделку. Коды и суффиксы совпадают с бэком
+ * (`libs/portal-lib/pbx/pbx-complect-variant-smart`): STATUS_ID элемента имеет
+ * вид `DT{entityTypeId}_{categoryId}:{SUFFIX}`.
  *
  * Порядок ключей — порядок стадий по sort на бэке. Часть стадий бэк ставит сам
  * (КП после формирования КП, Поставка после заявки поставки, Успех и «Не
@@ -56,26 +61,21 @@ export const COMPLECT_VARIANT_FINAL_STAGES: readonly ComplectVariantStage[] = [
     COMPLECT_VARIANT_STAGE.failed,
 ];
 
-/**
- * Стадии «отмечен в работу»: менеджер выбрал вариант (Текущий) или документ по
- * нему уже сформирован (КП, Счёт, Договор, Поставка, Согласование).
- */
-export const COMPLECT_VARIANT_ACTIVE_STAGES: readonly ComplectVariantStage[] = [
-    COMPLECT_VARIANT_STAGE.current,
-    COMPLECT_VARIANT_STAGE.offer,
-    COMPLECT_VARIANT_STAGE.invoice,
-    COMPLECT_VARIANT_STAGE.contract,
-    COMPLECT_VARIANT_STAGE.supply,
-    COMPLECT_VARIANT_STAGE.approval,
-];
-
 /** Итог подведён: стадия Успех, Отклонён или Не состоялся. */
 export const isFinalVariantStage = (stage: ComplectVariantStage): boolean =>
     COMPLECT_VARIANT_FINAL_STAGES.includes(stage);
 
-/** Вариант отмечен в работу: Текущий или любая стадия документа по нему. */
-export const isActiveVariantStage = (stage: ComplectVariantStage): boolean =>
-    COMPLECT_VARIANT_ACTIVE_STAGES.includes(stage);
+/** «Отклонить» доступно любому незакрытому варианту. */
+export const canRejectVariant = (stage: ComplectVariantStage): boolean =>
+    !isFinalVariantStage(stage);
+
+/**
+ * «Вернуть» (стадия «Черновик») доступно только отклонённому варианту. Успех и
+ * «Не состоялся» закрыты бэком при переносе в сервисную сделку: возвращать их
+ * нельзя.
+ */
+export const canRestoreVariant = (stage: ComplectVariantStage): boolean =>
+    stage === COMPLECT_VARIANT_STAGE.rejected;
 
 /** Суффикс STATUS_ID: `cvar_current` → `CURRENT`. */
 const stageSuffix = (stage: ComplectVariantStage): string =>

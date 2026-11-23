@@ -1,9 +1,15 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { ComplectVariantItem } from '../lib/api/complect-variant-helper';
-import { COMPLECT_VARIANT_STAGE, resolveVariantStage } from '../lib/stage';
+import { selectParticipants } from '../lib/participants';
+import {
+    COMPLECT_VARIANT_STAGE,
+    resolveVariantStage,
+    type ComplectVariantStage,
+} from '../lib/stage';
 import {
     DEFAULT_COMPLECT_COMPOSITION,
     type ComplectComposition,
+    type ComplectMode,
     type ComplectVariantRecordDto,
 } from './dto';
 
@@ -12,7 +18,7 @@ export type ComplectVariantStatus = 'idle' | 'loading' | 'ready' | 'error';
 export interface ComplectVariantState {
     /** Слепки вариантов сделки, в порядке создания. */
     records: ComplectVariantRecordDto[];
-    /** Элементы смарта в Битриксе: заголовок и стадия (признак участия). */
+    /** Элементы смарта в Битриксе: заголовок и стадия (закрытая стадия выводит вариант из документов). */
     items: ComplectVariantItem[];
     /**
      * Активный указатель: вариант, которым прямо сейчас является живое
@@ -224,11 +230,41 @@ export const selectVariantStagesLoading = (state: WithComplectVariant): boolean 
     state.complectVariant.records.length > 0 &&
     state.complectVariant.itemsStatus === 'loading';
 
-/** Стадия варианта по элементу смарта; элемента нет — черновик. */
-export const selectVariantStageOf =
-    (state: WithComplectVariant) => (variantSmartId: number | null) => {
-        const item = state.complectVariant.items.find(
-            candidate => candidate.id === Number(variantSmartId),
-        );
-        return item ? resolveVariantStage(item.stageId) : COMPLECT_VARIANT_STAGE.draft;
-    };
+/**
+ * Стадия варианта по элементу смарта; элемента нет — черновик. Функция
+ * пересоздаётся только при смене элементов, поэтому подписчикам и зависимым
+ * селекторам её можно отдавать как есть.
+ */
+export const selectVariantStageOf = createSelector(
+    [(state: WithComplectVariant) => state.complectVariant.items],
+    items =>
+        (variantSmartId: number | null): ComplectVariantStage => {
+            const item = items.find(
+                candidate => candidate.id === Number(variantSmartId),
+            );
+            return item
+                ? resolveVariantStage(item.stageId)
+                : COMPLECT_VARIANT_STAGE.draft;
+        },
+);
+
+/** Режим сделки: «по одному» или «вместе» (с значением по умолчанию). */
+export const selectComplectMode = (state: WithComplectVariant): ComplectMode =>
+    selectComposition(state).mode;
+
+/**
+ * Участники документов: единственное место, где правило участия собирается из
+ * состояния. КП, PDF, договор, товары сделки, заявка поставки и панель
+ * вариантов читают этот селектор. Пересчитывается при смене записей, стадий
+ * элементов, режима и открытого варианта (см. selectParticipants).
+ */
+export const selectVariantParticipants = createSelector(
+    [
+        (state: WithComplectVariant) => state.complectVariant.records,
+        selectVariantStageOf,
+        selectComplectMode,
+        (state: WithComplectVariant) => state.complectVariant.openVariantSmartId,
+    ],
+    (records, stageOf, mode, openVariantSmartId): ComplectVariantRecordDto[] =>
+        selectParticipants(records, stageOf, mode, openVariantSmartId),
+);

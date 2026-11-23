@@ -1,8 +1,6 @@
 import type { Catalog } from '../../catalog';
 // чистые модули complect-variant, не баррель: баррель тянет thunk → portal → app
 import type { ComplectVariantItem } from '../../complect-variant/lib/api/complect-variant-helper';
-import { selectParticipants } from '../../complect-variant/lib/participants';
-import type { ComplectVariantStage } from '../../complect-variant/lib/stage';
 import type { ComplectVariantRecordDto } from '../../complect-variant/model/dto';
 import { buildDocVariant, type DocVariant } from '../../document-payload';
 import type { OfferPdfSnapshot } from '../../offer-pdf/model/types';
@@ -11,9 +9,14 @@ import { parseSnapshotV2 } from '../../snapshot';
 
 export interface VariantsPayloadInput {
     catalog: Catalog;
-    records: ComplectVariantRecordDto[];
+    /**
+     * Участники документов: результат selectParticipants. Правило участия
+     * (режим сделки, открытый вариант, закрытые стадии) применяется один раз,
+     * в селекторе selectVariantParticipants, и сюда приходит готовым.
+     */
+    participants: ComplectVariantRecordDto[];
+    /** Элементы смарта: названия участников */
     items: ComplectVariantItem[];
-    stageOf: (variantSmartId: number | null) => ComplectVariantStage;
     /** Вариант, открытый в конструкторе: печатается из живого состояния, не из слепка */
     openVariantSmartId: number | null;
     live: { general: RowSet; alternative: RowSet[] };
@@ -101,17 +104,17 @@ export interface VariantEntries {
 }
 
 /**
- * Участники документов по правилу selectParticipants: те же варианты, что
- * видит менеджер на экране вариантов. Открытый вариант берётся из текущего
- * row-set — что на экране, то и в документе, даже без сохранения. Варианты
- * только v2 (смарт появился после v2). Участник, которого собрать нельзя,
- * попадает в `skipped` с причиной: вызывающий блокирует документ, и менеджер
- * видит, какой вариант и почему не вошёл.
+ * Участники документов (`input.participants`, правило selectParticipants):
+ * те же варианты, что видит менеджер на экране вариантов. Открытый вариант
+ * берётся из текущего row-set — что на экране, то и в документе, даже без
+ * сохранения. Варианты только v2 (смарт появился после v2). Участник, которого
+ * собрать нельзя, попадает в `skipped` с причиной: вызывающий блокирует
+ * документ, и менеджер видит, какой вариант и почему не вошёл.
  */
 export const buildVariantEntries = (input: VariantsPayloadInput): VariantEntries => {
     const entries: VariantEntry[] = [];
     const skipped: SkippedVariant[] = [];
-    for (const record of selectParticipants(input.records, input.stageOf)) {
+    for (const record of input.participants) {
         const item = input.items.find(candidate => candidate.id === Number(record.variantSmartId));
         const title = item?.title || `Вариант ${record.variantSmartId ?? record.id}`;
         const isOpen = record.variantSmartId !== null && record.variantSmartId === input.openVariantSmartId;

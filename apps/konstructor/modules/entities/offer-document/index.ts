@@ -19,6 +19,7 @@ export {
     type VariantsPayload,
 } from './lib/build-variants-payload';
 export { selectVariantsPayload } from './lib/select-variants-payload';
+export { offerParticipantTitles } from './lib/participant-titles';
 export { buildDealProductRows, type DealProductRowsInput, type DealProductRowsResult } from './lib/build-deal-product-rows';
 export { dealProductRowsBlocker, selectDealProductRows } from './lib/select-deal-product-rows';
 export { skippedVariantsBlocker } from './lib/skipped-variants-blocker';

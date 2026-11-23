@@ -49,7 +49,7 @@ describe('строки сделки из состояния', () => {
         expect(rows.map(row => row.sort)).toEqual(rows.map((_, index) => index));
     });
 
-    it('режим «для сравнения»: строки живого набора', () => {
+    it('режим «по одному»: строки живого набора', () => {
         const state = stateOf(COMPLECT_MODE.compare, goodRecords());
 
         expect(selectDealProductRows(state).rows).toHaveLength(state.rowSet.general.rows.length);
@@ -60,6 +60,37 @@ describe('строки сделки из состояния', () => {
         const other: RootState = { ...state, app: { ...state.app, dealId: 1 } };
 
         expect(selectDealProductRows(other)).toBe(selectDealProductRows(state));
+    });
+
+    it('смена режима пересчитывает строки сделки без пересоздания состояния', () => {
+        const together = stateOf(COMPLECT_MODE.multi_contract, goodRecords());
+        const single: RootState = {
+            ...together,
+            complectVariant: complectVariantReducer(
+                together.complectVariant,
+                complectVariantActions.setComposition({ ...DEFAULT_COMPLECT_COMPOSITION, mode: COMPLECT_MODE.compare }),
+            ),
+        };
+        const liveCount = together.rowSet.general.rows.length;
+
+        expect(selectDealProductRows(together).rows).toHaveLength(liveCount + 1);
+        expect(selectDealProductRows(single).rows).toHaveLength(liveCount);
+    });
+
+    it('закрытый вариант в режиме «вместе» не даёт строк: остаётся один участник и живой набор', () => {
+        const base = stateOf(COMPLECT_MODE.multi_contract, goodRecords());
+        const closed: RootState = {
+            ...base,
+            complectVariant: complectVariantReducer(
+                base.complectVariant,
+                complectVariantActions.itemsLoaded([
+                    { id: OPEN_ID, title: 'Бухгалтеру', stageId: 'DT1:NEW' },
+                    { id: OTHER_ID, title: 'Юристу', stageId: 'DT1:SUCCESS' },
+                ]),
+            ),
+        };
+
+        expect(selectDealProductRows(closed).rows).toHaveLength(base.rowSet.general.rows.length);
     });
 });
 
@@ -82,7 +113,7 @@ describe('блокер записи сделки', () => {
         expect(dealProductRowsBlocker(state)).toContain('Вариант «Юристу» нельзя включить в документ');
     });
 
-    it('режим «для сравнения»: нечитаемый слепок сделку не блокирует', () => {
+    it('режим «по одному»: нечитаемый слепок сделку не блокирует', () => {
         expect(dealProductRowsBlocker(stateOf(COMPLECT_MODE.compare, brokenRecords()))).toBeNull();
     });
 
@@ -93,7 +124,7 @@ describe('блокер записи сделки', () => {
         expect(dealProductRowsBlocker(loading)).toContain('Варианты ещё загружаются');
     });
 
-    it('стадии грузятся, режим «для сравнения»: запись не ждёт', () => {
+    it('стадии грузятся, режим «по одному»: запись не ждёт', () => {
         const state = stateOf(COMPLECT_MODE.compare, goodRecords());
         const loading: RootState = { ...state, complectVariant: { ...state.complectVariant, itemsStatus: 'loading' } };
 

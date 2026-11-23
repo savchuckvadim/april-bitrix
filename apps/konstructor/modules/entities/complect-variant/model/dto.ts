@@ -20,11 +20,14 @@ export type ComplectVariantRecordDto = InnerDealSnapshotDto;
 
 /**
  * Настройки сборки комплекта. Хранятся у строки самой сделки и переезжают с
- * ней в отдел сервиса. Настройки есть только у КП: договор устроен жёстко
- * (на каждый комплект своё Приложение 1, одно Приложение 2 с ценами), счёт
- * следует за договором.
+ * ней в отдел сервиса. Режим решает, какие варианты идут в документы: один
+ * открытый (`compare`) или все незакрытые вместе (`multi_contract`,
+ * `single_contract`). Настройки печати есть только у КП: договор устроен
+ * жёстко (на каждый комплект своё Приложение 1, одно Приложение 2 с ценами),
+ * счёт следует за договором.
  *
- * Кто участвует, здесь НЕ хранится — участие это стадия элемента смарта.
+ * Кто участвует, здесь не хранится: его определяют режим, открытый вариант и
+ * закрытые стадии элементов смарта (selectParticipants).
  */
 export type ComplectComposition = ComplectCompositionDto;
 export type ComplectOfferSettings = ComplectOfferSettingsDto;
@@ -42,11 +45,39 @@ export const DEFAULT_COMPLECT_COMPOSITION: ComplectComposition = {
     openVariantSmartId: null,
 };
 
+/**
+ * Значения режима на бэке прежние (`compare` и два `*_contract`), меняется
+ * смысл. `compare` — «по одному»: в документы идёт открытый вариант.
+ * `multi_contract` и `single_contract` — «вместе»: в документы идут все
+ * варианты, кроме отклонённых и закрытых.
+ */
 export const COMPLECT_MODE_TITLE: Record<ComplectMode, string> = {
-    [COMPLECT_MODE.compare]: 'Для сравнения — клиент выбирает один',
-    [COMPLECT_MODE.multi_contract]: 'Вместе, разными договорами',
+    [COMPLECT_MODE.compare]: 'По одному: в документы идёт открытый вариант',
     [COMPLECT_MODE.single_contract]: 'Вместе, одним договором',
+    [COMPLECT_MODE.multi_contract]: 'Вместе, разными договорами',
 };
+
+/** Порядок пунктов выбора режима на экране. */
+export const COMPLECT_MODE_ORDER: readonly ComplectMode[] = [
+    COMPLECT_MODE.compare,
+    COMPLECT_MODE.single_contract,
+    COMPLECT_MODE.multi_contract,
+];
+
+const TOGETHER_MODE_NOTE =
+    'В документы идут все варианты, кроме отклонённых и закрытых.';
+
+/** Строка под выбором режима: что именно уходит в документы. */
+export const COMPLECT_MODE_NOTE: Record<ComplectMode, string> = {
+    [COMPLECT_MODE.compare]:
+        'В КП, договор и поставку идёт вариант, который сейчас редактируется.',
+    [COMPLECT_MODE.single_contract]: TOGETHER_MODE_NOTE,
+    [COMPLECT_MODE.multi_contract]: TOGETHER_MODE_NOTE,
+};
+
+/** Режимы «вместе»: все незакрытые варианты идут в документы разом. */
+export const isTogetherMode = (mode: ComplectMode): boolean =>
+    mode !== COMPLECT_MODE.compare;
 
 export const COMPLECT_OFFER_INFOBLOCKS_TITLE: Record<
     ComplectOfferInfoblocks,

@@ -22,7 +22,7 @@ import { contractGenerateBlocker, selectContractUnits } from '../select-contract
 const titleOf = (complectCode: string) => variantCatalog.complects.byCode[complectCode]!.title;
 
 describe('договорные единицы по режимам', () => {
-    it('режим «для сравнения»: единиц нет, договор по живому состоянию', () => {
+    it('режим «по одному»: единиц нет, договор по живому состоянию', () => {
         const state = stateOf(COMPLECT_MODE.compare, twoRecords());
         expect(selectContractUnits(state)).toEqual({ units: [], skipped: [] });
     });
@@ -106,7 +106,7 @@ describe('участник, которого собрать нельзя', () =>
         expect(contractGenerateBlocker(state)).toBe(expected);
     });
 
-    it('режим «для сравнения»: нечитаемый слепок не мешает договору по живому состоянию', () => {
+    it('режим «по одному»: нечитаемый слепок не мешает договору по живому состоянию', () => {
         const state = stateOf(COMPLECT_MODE.compare, brokenRecords());
         expect(contractGenerateBlocker(state)).toBeNull();
     });
@@ -123,7 +123,7 @@ describe('блокер экрана договора', () => {
         expect(contractGenerateBlocker(loading)).toBe('Варианты ещё загружаются');
     });
 
-    it('стадии грузятся, режим «для сравнения»: договор по живому состоянию не ждёт', () => {
+    it('стадии грузятся, режим «по одному»: договор по живому состоянию не ждёт', () => {
         const state = stateOf(COMPLECT_MODE.compare, twoRecords());
         const loading: RootState = { ...state, complectVariant: { ...state.complectVariant, itemsStatus: 'loading' } };
         expect(contractGenerateBlocker(loading)).toBeNull();
@@ -154,5 +154,35 @@ describe('selectContractUnits кэшируется', () => {
         };
         expect(selectContractUnits(multi).units).toHaveLength(2);
         expect(selectContractUnits(compare).units).toHaveLength(0);
+    });
+
+    it('смена режима с «по одному» на «вместе» возвращает единицы', () => {
+        const compare = stateOf(COMPLECT_MODE.compare, twoRecords());
+        const together: RootState = {
+            ...compare,
+            complectVariant: complectVariantReducer(
+                compare.complectVariant,
+                complectVariantActions.setComposition({
+                    ...DEFAULT_COMPLECT_COMPOSITION,
+                    mode: COMPLECT_MODE.single_contract,
+                }),
+            ),
+        };
+        expect(selectContractUnits(compare).units).toHaveLength(0);
+        expect(selectContractUnits(together).units.map(unit => unit.key)).toEqual(['201', '202']);
+    });
+
+    it('смена открытого варианта перекладывает источник набора единицы', () => {
+        const first = stateOf(COMPLECT_MODE.multi_contract, twoRecords());
+        const second: RootState = {
+            ...first,
+            complectVariant: complectVariantReducer(
+                first.complectVariant,
+                complectVariantActions.setOpenVariant(OTHER_ID),
+            ),
+        };
+        expect(selectContractUnits(first).units.map(unit => unit.isOpen)).toEqual([true, false]);
+        expect(selectContractUnits(second).units.map(unit => unit.isOpen)).toEqual([false, true]);
+        expect(selectContractUnits(second).units[1]?.general).toBe(second.rowSet.general);
     });
 });

@@ -28,9 +28,32 @@ export type DocRow = ProductRowDto;
 export type DocRowPrice = RowPriceDto;
 export type DocRowSet = ProductRowSetDto;
 export type DocRowSets = ProductRowFullSetsDto;
-export type OfferGenerateRequest = OfferWordByTemplateGenerateDto;
+
+/**
+ * Комплект общего набора со своим наполнением (OfferComplectSectionDto бэка):
+ * по нему КП печатает раздел «по комплектам». `title` — название строки в
+ * таблице цен, `supplyName` — её поставка.
+ */
+export interface DocComplectSection {
+    title: string;
+    supplyName?: string;
+    complect: DocComplectGroup[];
+}
+
+/**
+ * Разделы по комплектам в теле КП и участника-варианта. Бэк принимает поле
+ * `complects` у формирования, превью и PDF КП, но в сгенерированном клиенте
+ * его пока нет. После `pnpm run generate` оно появится в OfferWordByTemplateGenerateDto
+ * и DocumentVariantDto, и это расширение можно убрать.
+ */
+export interface DocComplectsFields {
+    /** Есть, когда в общем наборе два и больше комплекта с наполнением */
+    complects?: DocComplectSection[];
+}
+
+export type OfferGenerateRequest = OfferWordByTemplateGenerateDto & DocComplectsFields;
 /** Участник КП с несколькими вариантами комплекта (generate-multi) */
-export type DocVariant = DocumentVariantDto;
+export type DocVariant = DocumentVariantDto & DocComplectsFields;
 export type OfferClientType = OfferWordByTemplateGenerateDto['clientType'];
 export type OfferContractType = OfferWordByTemplateGenerateDto['contractType'];
 export type OfferRecipient = OfferWordByTemplateGenerateDto['recipient'];

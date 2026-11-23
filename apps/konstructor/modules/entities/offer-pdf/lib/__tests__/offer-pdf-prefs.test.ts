@@ -2,12 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { restoreV2, serializeV2 } from '../../../snapshot/lib/v2/serialize';
 import { offerPdfActions, offerPdfReducer } from '../../model/OfferPdfSlice';
 import {
+    OFFER_COMPLECTS_MODE,
     OFFER_DOCUMENT_FORMAT,
     OFFER_PDF_DEFAULT_SETTINGS,
     type OfferPdfState,
     type OfferPdfStylePrefs,
 } from '../../model/types';
-import { mergeOfferPdfSnapshot, offerPdfForLibrary, offerPdfForSnapshot } from '../offer-pdf-snapshot.util';
+import {
+    mergeOfferPdfSnapshot,
+    offerPdfForLibrary,
+    offerPdfForSnapshot,
+    offerPdfStyleOf,
+} from '../offer-pdf-snapshot.util';
+import { normalizeOfferPdfPrefs, normalizeOfferPdfStyle, offerPdfComplectsModeOf } from '../offer-pdf-storage';
 
 const initial: OfferPdfState = offerPdfReducer(undefined, { type: '@@init' });
 
@@ -128,5 +135,90 @@ describe('стиль КП в слепке', () => {
         const without = write(null);
         expect(without).not.toHaveProperty('pdf');
         expect(restoreV2(without).pdf).toBeNull();
+    });
+});
+
+describe('способ печати наполнения комплектов в настройках PDF', () => {
+    const separate = run(initial, offerPdfActions.setSettings({ complectsMode: OFFER_COMPLECTS_MODE.SEPARATE }));
+
+    /** Запись до наполнения по комплектам: полей способа печати нет. */
+    const legacyStyle = {
+        format: 'pdf',
+        templateCode: 'iskra',
+        palette: null,
+        settings: { withPromo: false, salePhrase: 'акция' },
+    };
+
+    it('по умолчанию объединённо', () => {
+        expect(OFFER_PDF_DEFAULT_SETTINGS.complectsMode).toBe(OFFER_COMPLECTS_MODE.MERGED);
+        expect(initial.prefs.settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.MERGED);
+        expect(normalizeOfferPdfPrefs(undefined).settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.MERGED);
+    });
+
+    it('правка на экране меняет способ печати и оставляет остальные настройки', () => {
+        expect(separate.origin).toBe('user');
+        expect(separate.prefs.settings).toEqual({
+            ...OFFER_PDF_DEFAULT_SETTINGS,
+            complectsMode: OFFER_COMPLECTS_MODE.SEPARATE,
+        });
+    });
+
+    it('запись без поля и значение вне списка читаются как объединённое наполнение', () => {
+        expect(normalizeOfferPdfStyle(legacyStyle).settings).toMatchObject({
+            withPromo: false,
+            salePhrase: 'акция',
+            complectsMode: OFFER_COMPLECTS_MODE.MERGED,
+        });
+        expect(offerPdfComplectsModeOf(legacyStyle)).toBe(OFFER_COMPLECTS_MODE.MERGED);
+        expect(offerPdfComplectsModeOf({ settings: { complectsMode: 'всё сразу' } })).toBe(OFFER_COMPLECTS_MODE.MERGED);
+        expect(offerPdfComplectsModeOf(null)).toBe(OFFER_COMPLECTS_MODE.MERGED);
+        expect(offerPdfComplectsModeOf(undefined)).toBe(OFFER_COMPLECTS_MODE.MERGED);
+    });
+
+    it('значение попадает в слепок и возвращается при раскладке', () => {
+        const pdf = offerPdfForSnapshot(separate);
+        expect(pdf?.settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.SEPARATE);
+
+        const general = { id: 'general', kind: 'general' as const, rows: [], collapsed: false };
+        const written = serializeV2({
+            state: {
+                regionCode: null,
+                contractCode: null,
+                supplyCode: null,
+                general,
+                alternative: [],
+                templateId: null,
+                rqId: null,
+                pdf,
+            },
+            dealId: 1,
+            domain: 'd',
+            userId: 1,
+            savedAt: '2026-11-23T00:00:00.000Z',
+        });
+        const restored = restoreV2(JSON.parse(JSON.stringify(written))).pdf;
+        expect(restored?.settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.SEPARATE);
+
+        const laidOut = run(initial, offerPdfActions.applySnapshot(restored!));
+        expect(laidOut.origin).toBe('snapshot');
+        expect(laidOut.prefs.settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.SEPARATE);
+    });
+
+    it('слепок без поля при раскладке даёт объединённое наполнение и сохраняет письмо с номером', () => {
+        const edited = run(separate, offerPdfActions.setDocumentNumber('17'));
+        const merged = mergeOfferPdfSnapshot(edited.prefs, legacyStyle);
+        expect(merged.settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.MERGED);
+        expect(merged.templateCode).toBe('iskra');
+        expect(merged.documentNumber).toBe('17');
+    });
+
+    it('запоминается так же, как стиль: уходит в выбор менеджера и в избранное', () => {
+        expect(offerPdfStyleOf(separate.prefs).settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.SEPARATE);
+        expect(offerPdfForLibrary(separate)?.settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.SEPARATE);
+        // выбор менеджера возвращается из кэша тем же разбором, что слепок
+        const cached = normalizeOfferPdfStyle(JSON.parse(JSON.stringify(offerPdfStyleOf(separate.prefs))));
+        expect(cached.settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.SEPARATE);
+        const manager = run(initial, offerPdfActions.applyManager(cached));
+        expect(manager.prefs.settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.SEPARATE);
     });
 });

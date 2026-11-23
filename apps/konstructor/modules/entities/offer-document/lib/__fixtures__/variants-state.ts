@@ -8,19 +8,31 @@ import {
 import type { ComplectVariantRecordDto } from '../../../complect-variant/model/dto';
 import { rootStateWith } from '../../../document-payload/lib/__fixtures__/root-state';
 import { compositionOf, garantRowOf, syncedGeneral } from '../../../document-payload/lib/__fixtures__/two-garant-set';
+import type { RowSet } from '../../../row-set';
+
+/** Общий набор из одной главной строки комплекта «Бухгалтер». */
+export const oneGarantGeneral = (): RowSet =>
+    syncedGeneral([garantRowOf('general_main', 'main', 'buh', compositionOf('buh'))]);
+
+/** Общий набор из двух комплектов с наполнением: главный «Бухгалтер» и дополнительный «Юрист». */
+export const twoGarantGeneral = (): RowSet =>
+    syncedGeneral([
+        garantRowOf('general_main', 'main', 'buh', compositionOf('buh')),
+        garantRowOf('general_additional', 'additional', 'ur', compositionOf('ur')),
+    ]);
 
 /**
  * Состояние приложения с вариантами сделки: слепки и элементы смарта загружены,
- * общий набор из главной строки комплекта «Бухгалтер». Стадии берутся из `stageId` элементов.
+ * общий набор из главной строки комплекта «Бухгалтер» (или заданный третьим
+ * аргументом). Стадии берутся из `stageId` элементов.
  * Файл тянет весь стор, поэтому подключается только тестами, которым нужен RootState.
  */
 export const rootStateWithVariants = (
     records: ComplectVariantRecordDto[],
     items: ComplectVariantItem[],
+    general: RowSet = oneGarantGeneral(),
 ): RootState => {
-    const base = rootStateWith(
-        syncedGeneral([garantRowOf('general_main', 'main', 'buh', compositionOf('buh'))]),
-    );
+    const base = rootStateWith(general);
     const loaded = complectVariantReducer(
         base.complectVariant,
         complectVariantActions.loaded({ records, composition: null }),

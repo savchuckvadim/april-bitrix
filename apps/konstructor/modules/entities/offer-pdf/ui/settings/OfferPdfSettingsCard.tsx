@@ -3,6 +3,7 @@
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { OfferPdfCurrentStyle } from '../style-picker/OfferPdfCurrentStyle';
 import { useSettingsCard } from './hooks/use-settings-card';
+import { OfferPdfComplectsMode } from './OfferPdfComplectsMode';
 import { OfferPdfContentModes } from './OfferPdfContentModes';
 import { OfferPdfTextFields } from './OfferPdfTextFields';
 import { OfferPdfToggles } from './OfferPdfToggles';
@@ -22,6 +23,7 @@ export const OfferPdfSettingsCard = () => {
             <div className="flex flex-col gap-5">
                 <OfferPdfCurrentStyle />
                 <OfferPdfContentModes />
+                <OfferPdfComplectsMode />
                 <OfferPdfToggles />
                 <OfferPdfTextFields />
             </div>

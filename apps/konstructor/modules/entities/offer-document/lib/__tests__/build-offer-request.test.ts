@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { RootState } from '@/modules/app/model/store';
+import { buildWordPreviewRequest } from '../../../offer-template-word/lib/build-word-preview-request';
+import {
+    OFFER_COMPLECTS_MODE,
+    OFFER_DOCUMENT_FORMAT,
+    OFFER_PDF_DEFAULT_SETTINGS,
+    type OfferPdfSnapshot,
+} from '../../../offer-pdf/model/types';
 import { createSet } from '../../../row-set';
 import {
     buildOfferGenerateRequest,
@@ -14,6 +21,7 @@ import { recordOf, snapshotRowsOf, variantItems } from '../__fixtures__/variant-
 import {
     rootStateWithVariants,
     rootStateWithVariantsAndTemplate as stateWith,
+    twoGarantGeneral,
 } from '../__fixtures__/variants-state';
 
 describe('блокер КП по формату', () => {
@@ -109,5 +117,46 @@ describe('skippedVariantsBlocker', () => {
         ]);
         expect(text).toContain('Вариант «А» нельзя включить в документ: слепок не читается');
         expect(text).toContain('Вариант «Б» нельзя включить в документ: нет главной строки комплекта');
+    });
+});
+
+describe('КП в Word: наполнение по комплектам', () => {
+    /** Менеджер выбрал «по комплектам» в PDF; Word-запросам этот выбор не нужен. */
+    const separatePdf: OfferPdfSnapshot = {
+        format: OFFER_DOCUMENT_FORMAT.PDF,
+        templateCode: 'classic',
+        palette: null,
+        settings: { ...OFFER_PDF_DEFAULT_SETTINGS, complectsMode: OFFER_COMPLECTS_MODE.SEPARATE },
+    };
+    const stateOfTwoGarants = () =>
+        stateWith(
+            [
+                recordOf(1, 102, 'buh', snapshotRowsOf(twoGarantGeneral(), separatePdf)),
+                recordOf(2, 104, 'buh'),
+            ],
+            variantItems,
+            twoGarantGeneral(),
+        );
+
+    it('формирование несёт complects у КП и у участников, способа печати нет', () => {
+        const request = buildOfferMultiGenerateRequest(stateOfTwoGarants());
+        expect(request?.complects).toHaveLength(2);
+        expect(request).not.toHaveProperty('complectsMode');
+        expect(request?.variants.map(variant => variant.complects?.length)).toEqual([2, undefined]);
+        for (const variant of request?.variants ?? []) expect(variant).not.toHaveProperty('complectsMode');
+    });
+
+    it('превью несёт complects у КП и у участников, способа печати нет', () => {
+        const request = buildWordPreviewRequest(stateOfTwoGarants());
+        expect(request?.complects).toHaveLength(2);
+        expect(request).not.toHaveProperty('complectsMode');
+        expect(request?.variants?.map(variant => variant.complects?.length)).toEqual([2, undefined]);
+        for (const variant of request?.variants ?? []) expect(variant).not.toHaveProperty('complectsMode');
+    });
+
+    it('один комплект: поля complects нет ни у формирования, ни у превью', () => {
+        const state = stateWith([recordOf(1, 102, 'buh')], variantItems);
+        expect(buildOfferMultiGenerateRequest(state)).not.toHaveProperty('complects');
+        expect(buildWordPreviewRequest(state)).not.toHaveProperty('complects');
     });
 });

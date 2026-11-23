@@ -68,10 +68,16 @@ export class ComplectVariantHelper {
         await this.api.innerDealUpdateSettings({ domain, dealId, settings });
     }
 
-    /** Слепок v2 под конкретный вариант — тот же upsert, что у сделки. */
-    async saveRecord(snapshot: SnapshotV2, variantSmartId: number): Promise<void> {
+    /**
+     * Слепок v2 под конкретный вариант — тот же upsert, что у сделки. Сервер
+     * отвечает сохранённой записью: по ней слайс обновляет свой список.
+     */
+    async saveRecord(
+        snapshot: SnapshotV2,
+        variantSmartId: number,
+    ): Promise<ComplectVariantRecordDto> {
         if (!snapshot.dealId) throw new Error('saveRecord: нет dealId');
-        await this.api.innerDealUpsert({
+        return await this.api.innerDealUpsert({
             domain: snapshot.domain,
             dealId: snapshot.dealId,
             userId: snapshot.userId,

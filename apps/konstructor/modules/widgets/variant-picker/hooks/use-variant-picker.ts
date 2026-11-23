@@ -24,13 +24,22 @@ export const useVariantPicker = () => {
 
     const items = variants.records.map(record => {
         const stage = variants.stageOf(record.variantSmartId);
+        const isOpen = record.variantSmartId === variants.openVariantSmartId;
+        // подсказка из настроек сделки помечает плитку, пока вариант не активен
+        const isLastOpened =
+            !isOpen && record.variantSmartId === variants.lastOpenVariantSmartId;
         return {
             key: String(record.id),
             record,
             title: variants.titleOf(record),
             stageTitle: COMPLECT_VARIANT_STAGE_TITLE[stage],
             stageTone: VARIANT_STAGE_TONE[stage],
-            isOpen: record.variantSmartId === variants.openVariantSmartId,
+            isOpen,
+            note: isOpen
+                ? 'Сейчас редактируется'
+                : isLastOpened
+                  ? 'Открывали в прошлый раз'
+                  : undefined,
         };
     });
 
@@ -38,9 +47,11 @@ export const useVariantPicker = () => {
         if (await variants.open(record)) nav.to(ROUTE_KONSTRUCTOR.DOCUMENT);
     };
 
-    // Новый вариант не должен писаться поверх открытого
+    // Новый вариант не должен писаться поверх открытого. Закрытие не удалось
+    // (правки варианта не записались) — вариант остаётся открытым, на стартовый
+    // экран не уходим: ошибка показана на этом экране.
     const startNew = async () => {
-        if (variants.openVariantSmartId) await variants.close();
+        if (variants.openVariantSmartId && !(await variants.close())) return;
         nav.to(ROUTE_KONSTRUCTOR.START);
     };
 

@@ -65,7 +65,10 @@ export const useComplectVariants = () => {
     return {
         hasSmart,
         records: variantState.records,
+        /** Активный указатель: живое состояние точно этот вариант */
         openVariantSmartId: variantState.openVariantSmartId,
+        /** Подсказка из настроек сделки: какой вариант открывали в прошлый раз */
+        lastOpenVariantSmartId: variantState.lastOpenVariantSmartId,
         composition,
         // пока стадии из Битрикса в пути, править варианты рано: стадия на экране ещё не настоящая
         isBusy:

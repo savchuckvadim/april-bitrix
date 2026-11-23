@@ -3,6 +3,7 @@ import { getComplectVariantPbxSmartEntityId } from '../../portal';
 import {
     buildCurrentSnapshotV2,
     restoreSnapshotRecord,
+    saveSnapshot,
 } from '../../snapshot';
 import { ComplectVariantHelper } from '../lib/api/complect-variant-helper';
 import {
@@ -27,6 +28,19 @@ const errorText = (error: unknown, fallback: string): string =>
     error instanceof Error ? error.message : fallback;
 
 /**
+ * Текст отказа, когда правки уходящего варианта не записались: причину
+ * (она уже лежит в слайсе от syncOpenComplectVariant) ставим в скобки после
+ * названия действия.
+ */
+const saveBeforeLeaveFailure = (
+    action: 'открыт' | 'закрыт',
+    reason: string | null,
+): string => {
+    const base = `Вариант не ${action}: правки текущего варианта не сохранились`;
+    return reason ? `${base} (${reason})` : base;
+};
+
+/**
  * Варианты комплекта текущей сделки: слепки из базы конструктора, элементы из
  * Битрикса (ради стадии) и настройки сборки. Заодно восстанавливает, какой
  * вариант был открыт — это хранится в настройках сделки.
@@ -36,6 +50,12 @@ const errorText = (error: unknown, fallback: string): string =>
  * стадии) идут рядом и вход не держат — экран показывает их, когда придут.
  * Сам thunk завершается, когда пришло всё: после правок вызывающий ждёт полное
  * обновление.
+ *
+ * Указатели сводит редьюсер `loaded`. Вариант из настроек сделки становится
+ * подсказкой `lastOpenVariantSmartId` («открывали в прошлый раз»). Активный
+ * указатель `openVariantSmartId` на входе пуст: живое состояние поднято из
+ * слепка сделки и варианту равно не обязано. Его ставят только действия
+ * сессии, а повторное чтение списка его сохраняет.
  *
  * Смарт на портале не установлен — слайс остаётся пустым, конструктор
  * работает как раньше.
@@ -68,17 +88,6 @@ export const fetchComplectVariants =
                 helper.getComposition(domain, dealId),
             ]);
             dispatch(complectVariantActions.loaded({ records, composition }));
-
-            // элементы Битрикса успели отказать — вариантов нет, открывать нечего
-            if (getState().complectVariant.status !== 'ready') return;
-
-            const openId = composition?.openVariantSmartId ?? null;
-            const isKnown =
-                openId !== null &&
-                records.some(record => record.variantSmartId === openId);
-            dispatch(
-                complectVariantActions.setOpenVariant(isKnown ? openId : null),
-            );
         } catch (error) {
             dispatch(
                 complectVariantActions.failed(
@@ -107,6 +116,7 @@ export const saveComplectComposition =
             offer: { ...current.offer, ...(patch.offer ?? {}) },
         };
 
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.setComposition(composition));
         try {
             await helper.saveComposition(domain, dealId, composition);
@@ -115,7 +125,7 @@ export const saveComplectComposition =
             // выбор, которого нет в базе
             dispatch(complectVariantActions.setComposition(previous));
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'настройки сборки не сохранены'),
                 ),
             );
@@ -125,7 +135,10 @@ export const saveComplectComposition =
 /**
  * Новый вариант из текущего состояния: элемент смарта плюс слепок v2.
  * Состояние сделки не трогается — в том и смысл вариантов. Созданный вариант
- * сразу становится открытым: дальше правки идут в него.
+ * сразу становится открытым: дальше правки идут в него. Слепок сделки в конце
+ * повторяет состояние нового варианта: после перезагрузки страницы живое
+ * состояние поднимается из слепка сделки, и оно должно совпасть с открытым
+ * вариантом, указатель на который лежит в настройках.
  *
  * Товарные строки в элемент здесь не пишутся: в новом фронте ещё нет
  * маппера строк конструктора в товарные строки Битрикса (фаза 7, deal-send).
@@ -142,10 +155,11 @@ export const createComplectVariant =
 
         const snapshot = buildCurrentSnapshotV2(state);
         if (!snapshot) {
-            dispatch(complectVariantActions.failed('Нечего сохранять'));
+            dispatch(complectVariantActions.actionFailed('Нечего сохранять'));
             return;
         }
 
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
         try {
             const item = await helper.createItem(entityTypeId, dealId, title);
@@ -158,34 +172,89 @@ export const createComplectVariant =
             await dispatch(fetchComplectVariants());
         } catch (error) {
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'вариант не создан'),
                 ),
             );
+            dispatch(complectVariantActions.busy(false));
+            return;
+        }
+
+        // Слепок сделки сохраняется последним: к этому моменту указатель уже
+        // стоит на новом варианте, и слушатель saveDone пишет текущее состояние
+        // именно в него. Итог сохранения лежит в слайсе слепка (saveStatus).
+        dispatch(complectVariantActions.busy(true));
+        try {
+            await dispatch(saveSnapshot());
+        } finally {
+            dispatch(complectVariantActions.busy(false));
         }
     };
 
 /**
  * Открыть вариант: его запись раскладывается по стейту тем же путём, что и
- * слепок сделки. Пока вариант открыт, сохранение сделки пишет и в него.
+ * слепок сделки. Пока вариант открыт, живое состояние — это он, а слепок
+ * сделки повторяет его на момент открытия и каждого сохранения.
+ *
+ * Порядок:
+ * 1. Запрошен вариант с активным указателем — состояние остаётся как есть:
+ *    живое состояние новее любой записи в списке. Вариант из подсказки
+ *    «открывали в прошлый раз» (lastOpenVariantSmartId) активным не считается
+ *    и открывается обычным путём, из записи.
+ * 2. Открыт другой вариант — его правки сначала уходят на сервер. Сохранение
+ *    не удалось — переключения нет, иначе правки пропали бы.
+ * 3. Раскладывается свежая запись из списка (после шага 2 в нём лежит всё,
+ *    что вариант получил за сеанс); переданная запись служит запасной.
+ * 4. Указатель открытого варианта и настройки сохраняются, затем слепок
+ *    сделки перезаписывается состоянием открытого варианта.
+ *
  * Возвращает, открылся ли вариант, — переход экрана делается по факту.
  */
 export const openComplectVariant =
     (record: ComplectVariantRecordDto): AppThunk<Promise<boolean>> =>
-    async dispatch => {
+    async (dispatch, getState) => {
+        const { variantSmartId } = record;
+        const { openVariantSmartId } = getState().complectVariant;
+        if (variantSmartId !== null && variantSmartId === openVariantSmartId) {
+            return true;
+        }
+
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
         try {
-            await dispatch(restoreSnapshotRecord(record));
-            dispatch(complectVariantActions.setOpenVariant(record.variantSmartId));
+            if (openVariantSmartId !== null) {
+                const isLeavingSaved = await dispatch(
+                    syncOpenComplectVariant(),
+                );
+                if (!isLeavingSaved) {
+                    dispatch(
+                        complectVariantActions.actionFailed(
+                            saveBeforeLeaveFailure(
+                                'открыт',
+                                getState().complectVariant.error,
+                            ),
+                        ),
+                    );
+                    return false;
+                }
+            }
+
+            const fresh =
+                getState().complectVariant.records.find(
+                    candidate => candidate.variantSmartId === variantSmartId,
+                ) ?? record;
+            await dispatch(restoreSnapshotRecord(fresh));
+            dispatch(complectVariantActions.setOpenVariant(variantSmartId));
             await dispatch(
-                saveComplectComposition({
-                    openVariantSmartId: record.variantSmartId,
-                }),
+                saveComplectComposition({ openVariantSmartId: variantSmartId }),
             );
+            // слепок сделки повторяет открытый вариант: так перезагрузка
+            // страницы поднимает то же состояние, на которое указывает настройка
+            await dispatch(saveSnapshot());
             return true;
         } catch (error) {
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'вариант не открыт'),
                 ),
             );
@@ -195,32 +264,68 @@ export const openComplectVariant =
         }
     };
 
-/** Закрыть вариант: дальше сохранение идёт только в саму сделку. */
+/**
+ * Закрыть вариант: дальше сохранение идёт только в саму сделку. Правки
+ * варианта записываются до закрытия; не удалось — вариант остаётся открытым,
+ * ошибка показана. Возвращает, закрылся ли вариант.
+ */
 export const closeComplectVariant =
-    (): AppThunk<Promise<void>> => async dispatch => {
-        dispatch(complectVariantActions.setOpenVariant(null));
-        await dispatch(saveComplectComposition({ openVariantSmartId: null }));
+    (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
+        dispatch(complectVariantActions.clearError());
+        dispatch(complectVariantActions.busy(true));
+        try {
+            const isSaved = await dispatch(syncOpenComplectVariant());
+            if (!isSaved) {
+                dispatch(
+                    complectVariantActions.actionFailed(
+                        saveBeforeLeaveFailure(
+                            'закрыт',
+                            getState().complectVariant.error,
+                        ),
+                    ),
+                );
+                return false;
+            }
+            dispatch(complectVariantActions.setOpenVariant(null));
+            await dispatch(
+                saveComplectComposition({ openVariantSmartId: null }),
+            );
+            return true;
+        } finally {
+            dispatch(complectVariantActions.busy(false));
+        }
     };
 
 /**
  * Сохранение сделки при открытом варианте пишет и в вариант — менеджеру не
- * нужна отдельная кнопка. Вызывается слушателем после saveSnapshot.
+ * нужна отдельная кнопка. Вызывается слушателем после saveSnapshot и перед
+ * уходом из варианта (переключение, закрытие).
+ *
+ * Запись, которую вернул сервер, попадает в список вариантов: повторное
+ * открытие и КП по неоткрытым вариантам берут слепки из него.
+ *
+ * Возвращает true, когда терять нечего: вариант записан либо писать некуда
+ * (вариант не открыт) или нечего (в конструкторе ещё нет строк). false —
+ * сервер отказал, правки остались только в памяти; ошибка уже в слайсе.
  */
 export const syncOpenComplectVariant =
-    (): AppThunk<Promise<void>> => async (dispatch, getState) => {
+    (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
         const state = getState();
         const variantSmartId = state.complectVariant.openVariantSmartId;
-        if (!variantSmartId) return;
+        if (!variantSmartId) return true;
         const snapshot = buildCurrentSnapshotV2(state);
-        if (!snapshot) return;
+        if (!snapshot) return true;
         try {
-            await helper.saveRecord(snapshot, variantSmartId);
+            const saved = await helper.saveRecord(snapshot, variantSmartId);
+            dispatch(complectVariantActions.upsertRecord(saved));
+            return true;
         } catch (error) {
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'вариант не обновлён'),
                 ),
             );
+            return false;
         }
     };
 
@@ -233,9 +338,9 @@ export const syncOpenComplectVariant =
  * после базы, вариант из конструктора ушёл, элемент остался: итог
  * `bitrix-failed`, человек удалит его в смарте руками.
  *
- * Сбой здесь не пишется в `failed` слайса: оно прячет все варианты, и из-за
- * неудавшегося удаления скрывать остальные незачем. Итог возвращается
- * вызывающему, и экран реагирует по нему (уведомление).
+ * Сбой здесь не пишется в `error` слайса: итог возвращается вызывающему, и
+ * экран реагирует по нему (уведомление). Список вариантов при сбое остаётся
+ * на экране.
  *
  * Открытый в редакторе вариант не удаляется: он получает правки сделки.
  */
@@ -262,6 +367,7 @@ export const deleteComplectVariant =
             return { status: 'blocked' };
         }
 
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
         try {
             try {
@@ -313,19 +419,23 @@ export const setComplectVariantStage =
         );
         const stageId = buildVariantStageId(item?.stageId, stage);
         if (!entityTypeId || !stageId) {
-            dispatch(complectVariantActions.failed('стадия варианта не построена'));
+            dispatch(
+                complectVariantActions.actionFailed('стадия варианта не построена'),
+            );
             return;
         }
 
+        dispatch(complectVariantActions.clearError());
         dispatch(complectVariantActions.busy(true));
         try {
             await helper.updateItemStage(entityTypeId, variantSmartId, stageId);
             await dispatch(fetchComplectVariants());
         } catch (error) {
             dispatch(
-                complectVariantActions.failed(
+                complectVariantActions.actionFailed(
                     errorText(error, 'стадия варианта не изменена'),
                 ),
             );
+            dispatch(complectVariantActions.busy(false));
         }
     };

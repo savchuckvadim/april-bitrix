@@ -97,10 +97,22 @@ export type OfferPdfTemplateInfo = OfferPdfTemplateItemDto;
 
 export const OFFER_PDF_DEFAULT_TEMPLATE_CODE = 'classic';
 
-/** Файл КП в ответе генерации: ссылка и отображаемое имя. */
+/** Файл КП на экране: ссылка и отображаемое имя. */
 export interface OfferPdfFileLink {
     link: string;
     name: string;
+}
+
+/**
+ * Файл КП в ответе генерации (поле links): ссылка на сервере, ссылка на Диске
+ * Битрикса (null — файл на Диск не попал) и имя документа.
+ */
+export interface OfferPdfResponseFile {
+    link: string;
+    name: string;
+    bitrixLink?: string | null;
+    fileName?: string;
+    size?: number;
 }
 
 /**
@@ -114,7 +126,7 @@ export interface OfferPdfFileLink {
  * сверить с клиентом). Старый бэк их не присылает.
  */
 export type OfferPdfGenerateResponse = OfferPdfGenerateResponseDto & {
-    links?: OfferPdfFileLink[];
+    links?: OfferPdfResponseFile[];
     warnings?: string[];
 };
 

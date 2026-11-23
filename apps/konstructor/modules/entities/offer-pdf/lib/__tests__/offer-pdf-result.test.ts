@@ -32,12 +32,17 @@ describe('разбор ответа генерации PDF-КП', () => {
         const outcome = readOfferPdfResult({
             ...oldResponse,
             links: [
-                { link: 'https://portal.test/disk/kp-buh.pdf', name: 'КП: Бухгалтеру' },
-                { link: 'https://portal.test/disk/kp-ur.pdf', name: 'КП: Юристу' },
+                { link: 'https://server.test/kp-buh.pdf', bitrixLink: 'https://portal.test/disk/kp-buh.pdf', name: 'КП: Бухгалтеру' },
+                { link: 'https://server.test/kp-ur.pdf', bitrixLink: null, name: 'КП: Юристу' },
             ],
             warnings: ['Сроки вариантов различаются', 'Скидки вариантов различаются'],
         });
         expect(outcome.links.map(item => item.name)).toEqual(['КП: Бухгалтеру', 'КП: Юристу']);
+        // файл на Диске — ссылка на Диск, файла на Диске нет — ссылка на сервер
+        expect(outcome.links.map(item => item.link)).toEqual([
+            'https://portal.test/disk/kp-buh.pdf',
+            'https://server.test/kp-ur.pdf',
+        ]);
         expect(outcome.warnings).toEqual(['Сроки вариантов различаются', 'Скидки вариантов различаются']);
     });
 
@@ -45,6 +50,15 @@ describe('разбор ответа генерации PDF-КП', () => {
         const outcome = readOfferPdfResult({ ...oldResponse, links: [], warnings: [] });
         expect(outcome.links).toEqual([{ link: 'https://portal.test/disk/kp.pdf', name: OFFER_PDF_SINGLE_LINK_NAME }]);
         expect(outcome.warnings).toEqual([]);
+    });
+
+    it('новый бэк с одним файлом в links — та же одна ссылка «Открыть PDF» на Диск', () => {
+        const outcome = readOfferPdfResult({
+            ...oldResponse,
+            links: [{ link: 'https://server.test/kp.pdf', bitrixLink: 'https://portal.test/disk/kp.pdf', name: 'КП Гарант' }],
+            warnings: [],
+        });
+        expect(outcome.links).toEqual([{ link: 'https://portal.test/disk/kp.pdf', name: OFFER_PDF_SINGLE_LINK_NAME }]);
     });
 
     it('только warnings — ссылка на файл остаётся, предупреждения добавляются', () => {

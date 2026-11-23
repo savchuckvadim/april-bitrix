@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
 import { saveSnapshot } from '../../snapshot';
 import { offerPdfApi, readOfferPdfError } from '../lib/api/offer-pdf.api';
+import { readOfferPdfResult } from '../lib/offer-pdf-result';
 import type { OfferPdfGenerateRequest, OfferPdfGenerateState } from '../model/types';
 
 const INITIAL_GENERATE: OfferPdfGenerateState = { status: 'idle', result: null, error: null };
@@ -36,5 +37,8 @@ export const useOfferPdfGenerate = (request: OfferPdfGenerateRequest | null) => 
 
     const reset = useCallback(() => setGenerate(INITIAL_GENERATE), []);
 
-    return { generate, run, reset };
+    // ссылки и предупреждения для экрана; пока ответа нет — null
+    const outcome = useMemo(() => (generate.result ? readOfferPdfResult(generate.result) : null), [generate.result]);
+
+    return { generate, outcome, run, reset };
 };

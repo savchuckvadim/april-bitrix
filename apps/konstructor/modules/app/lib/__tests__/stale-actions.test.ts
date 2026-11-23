@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { complectVariantActions } from '@/modules/entities/complect-variant/model/ComplectVariantSlice';
 import { offerDocumentActions } from '@/modules/entities/offer-document/model/OfferDocumentSlice';
 import { wordTemplateAC } from '@/modules/entities/offer-template-word/model/WordTemplateSlice';
 import { documentProvidertAC } from '@/modules/entities/provider/model/DocumentProviderSlice';
@@ -44,6 +45,18 @@ describe('матчер устаревания превью Word', () => {
     });
 
     it.each([
+        ['загрузка записей вариантов и настроек сделки', complectVariantActions.loaded],
+        ['загрузка стадий вариантов (кто участвует)', complectVariantActions.itemsLoaded],
+        ['сбой загрузки вариантов (участников не осталось)', complectVariantActions.failed],
+        ['запись варианта', complectVariantActions.upsertRecord],
+        ['смена открытого варианта', complectVariantActions.setOpenVariant],
+        ['настройки сделки (режим и печать)', complectVariantActions.setComposition],
+        ['сброс вариантов', complectVariantActions.reset],
+    ])('%s — превью устарело', (_title, creator) => {
+        expect(isOfferPreviewStaleAction({ type: creator.type })).toBe(true);
+    });
+
+    it.each([
         ['выбор строки', rowSetActions.selectRow],
         ['режим редактирования набора', rowSetActions.startSetEditing],
         ['конец редактирования набора', rowSetActions.stopSetEditing],
@@ -51,6 +64,10 @@ describe('матчер устаревания превью Word', () => {
         ['контекст сборки', rowSetActions.setContext],
         ['загрузка списка шаблонов', wordTemplateAC.setTemplates],
         ['избранное шаблонов', wordTemplateAC.addToFavorites],
+        ['начало загрузки вариантов', complectVariantActions.loading],
+        ['сбой действия с вариантами', complectVariantActions.actionFailed],
+        ['снятие текста ошибки вариантов', complectVariantActions.clearError],
+        ['флаг записи вариантов', complectVariantActions.busy],
     ])('%s — превью остаётся как есть', (_title, creator) => {
         expect(isOfferPreviewStaleAction({ type: creator.type })).toBe(false);
     });

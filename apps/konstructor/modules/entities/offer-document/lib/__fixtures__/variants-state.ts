@@ -1,5 +1,6 @@
 import type { RootState } from '@/modules/app/model/store';
 import type { ComplectVariantItem } from '../../../complect-variant/lib/api/complect-variant-helper';
+import type { WordTemplateSummary } from '../../../offer-template-word/types/word-template-types';
 import {
     complectVariantActions,
     complectVariantReducer,
@@ -28,4 +29,24 @@ export const rootStateWithVariants = (
         ...base,
         complectVariant: complectVariantReducer(loaded, complectVariantActions.itemsLoaded(items)),
     };
+};
+
+/** Выбранный Word-шаблон КП: без него КП в Word блокируется раньше проверки вариантов. */
+export const offerWordTemplate: WordTemplateSummary = {
+    id: '1',
+    name: 'КП',
+    visibility: 'public',
+    is_default: true,
+    type: 'offer',
+    code: 'offer',
+    is_active: true,
+    counter: 0,
+};
+
+/** Состояние с вариантами и выбранным Word-шаблоном. */
+export const rootStateWithVariantsAndTemplate = (
+    ...args: Parameters<typeof rootStateWithVariants>
+): RootState => {
+    const base = rootStateWithVariants(...args);
+    return { ...base, offerTemplateWord: { ...base.offerTemplateWord, selectedTemplate: offerWordTemplate } };
 };

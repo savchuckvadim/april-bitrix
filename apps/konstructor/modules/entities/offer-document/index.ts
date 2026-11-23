@@ -5,7 +5,11 @@ export { declineRecipientCase, generateOfferDocument, initOfferDocument } from '
 export {
     buildOfferGenerateRequest,
     buildOfferMultiGenerateRequest,
+    offerBlocker,
     offerRequestBlocker,
+    offerVariantsFields,
+    type OfferBlockerFormat,
+    type OfferVariantsFields,
 } from './lib/build-offer-request';
 export {
     buildVariantsPayload,

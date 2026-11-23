@@ -3,8 +3,7 @@ import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
 import { selectClientType } from '../../deal';
 import { buildOfferPayload } from '../../document-payload';
-import { managerFromBxUser, toOfferClientType } from '../../offer-document';
-import { findMainRow } from '../../row-set';
+import { managerFromBxUser, offerBlocker, offerVariantsFields, toOfferClientType } from '../../offer-document';
 import {
     OFFER_PDF_OMITTED_WORD_FIELDS,
     type OfferPdfGenerateRequest,
@@ -24,16 +23,12 @@ export interface OfferPdfRequestOptions {
 }
 
 /**
- * Почему PDF сейчас не собрать — подпись к кнопке; null — можно.
- * В отличие от Word-потока, выбранный Word-шаблон не нужен.
+ * Почему PDF сейчас не собрать — подпись к кнопке; null — можно. Проверки
+ * общие с Word-потоком (offerBlocker): сделка, главная строка, поставщик,
+ * стадии вариантов, участники, которых собрать нельзя. Word-шаблон PDF
+ * не требуется.
  */
-export const offerPdfRequestBlocker = (state: RootState): string | null => {
-    if (!state.app.domain) return 'Приложение не инициализировано';
-    if (!state.app.dealId) return 'Сначала сохраните сделку — КП прикрепляется к ней';
-    if (!findMainRow(state.rowSet.general)) return 'Нет главной строки: соберите комплект';
-    if (!state.documentProvider.current) return 'Выберите поставщика';
-    return null;
-};
+export const offerPdfRequestBlocker = (state: RootState): string | null => offerBlocker(state, 'pdf');
 
 const trimmedOrUndefined = (value: string): string | undefined => {
     const trimmed = value.trim();
@@ -78,7 +73,9 @@ export const toOfferPdfRequest = (
 
 /**
  * Запрос КП в PDF из состояния: содержание — тем же адаптером, что и для
- * Word (document-payload), сверху — шаблон, настройки и письмо.
+ * Word (document-payload), сверху — шаблон, настройки и письмо. Участники-варианты
+ * и настройки сделки уходят полями `variants` и `composition`, когда участники
+ * есть. Нечего печатать или участника собрать нельзя — null.
  */
 export const buildOfferPdfGenerateRequest = (
     state: RootState,
@@ -108,5 +105,5 @@ export const buildOfferPdfGenerateRequest = (
         manager: managerFromBxUser(bitrix.user),
         invoice: state.offerDocument.invoice,
     });
-    return payload ? toOfferPdfRequest(payload, options) : null;
+    return payload ? { ...toOfferPdfRequest(payload, options), ...offerVariantsFields(state) } : null;
 };

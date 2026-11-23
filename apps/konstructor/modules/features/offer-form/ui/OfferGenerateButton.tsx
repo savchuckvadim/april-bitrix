@@ -1,7 +1,8 @@
 'use client';
 
-import { Check, ExternalLink, FileText } from 'lucide-react';
+import { Check, FileText } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
+import { DocumentLinks } from '@/modules/shared/ui/DocumentLinks/DocumentLinks';
 import { useOfferGenerate } from '../hooks/use-offer-generate';
 
 /** «Сформировать КП»: блокер, варианты-участники, результат (очередь или ссылки). */
@@ -30,28 +31,7 @@ export const OfferGenerateButton = () => {
                     КП формируется и появится в сделке вместе со счётом.
                 </p>
             ) : null}
-            {generate.warnings.map(warning => (
-                <p key={warning} className="text-xs text-warning">
-                    {warning}
-                </p>
-            ))}
-            {generate.links.length ? (
-                <ul className="flex flex-col gap-1">
-                    {generate.links.map(link => (
-                        <li key={link.link}>
-                            <a
-                                href={link.link}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline"
-                            >
-                                <ExternalLink className="h-3 w-3" />
-                                {link.name}
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            ) : null}
+            <DocumentLinks warnings={generate.warnings} links={generate.links} />
         </div>
     );
 };

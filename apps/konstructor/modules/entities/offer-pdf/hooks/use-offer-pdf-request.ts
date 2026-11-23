@@ -5,7 +5,10 @@ import { useStore } from 'react-redux';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
+import { selectComposition } from '../../complect-variant';
+import { selectVariantsPayload } from '../../offer-document';
 import { buildOfferPdfGenerateRequest, offerPdfRequestBlocker } from '../lib/build-offer-pdf-request';
+import { offerPdfRequestKey } from '../lib/offer-pdf-request-key';
 import { selectOfferPdfPrefs } from '../model/OfferPdfSlice';
 import type { OfferPdfGenerateRequest, OfferPdfTemplateCode } from '../model/types';
 
@@ -32,6 +35,9 @@ export const useOfferPdfRequest = ({ enabled, templateCode, palette }: OfferPdfR
     const provider = useAppSelector(state => state.documentProvider.current);
     const dealId = useAppSelector(state => state.app.dealId);
     const catalog = useAppSelector(selectCatalog);
+    // участники и настройки сделки уходят в запрос: смена любого из них пересобирает его и превью
+    const variants = useAppSelector(selectVariantsPayload);
+    const composition = useAppSelector(selectComposition);
 
     const request = useMemo<OfferPdfGenerateRequest | null>(() => {
         if (!enabled || blocker || !templateCode) return null;
@@ -44,9 +50,25 @@ export const useOfferPdfRequest = ({ enabled, templateCode, palette }: OfferPdfR
         });
         // перечисленные зависимости — всё, из чего собирается запрос
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [enabled, blocker, store, prefs, templateCode, palette, general, alternative, recipient, provider, dealId, catalog]);
+    }, [
+        enabled,
+        blocker,
+        store,
+        prefs,
+        templateCode,
+        palette,
+        general,
+        alternative,
+        recipient,
+        provider,
+        dealId,
+        catalog,
+        variants,
+        composition,
+    ]);
 
-    const requestKey = useMemo(() => (request ? JSON.stringify(request) : null), [request]);
+    // ключ по содержимому: пересборка запроса с теми же данными не запускает превью заново
+    const requestKey = useMemo(() => (request ? offerPdfRequestKey(request) : null), [request]);
 
     return { request, requestKey, blocker };
 };

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { usePortal } from '@/modules/entities/portal/hooks';
+import { ProviderImagesSection } from '@/modules/entities/portal-provider/provider-image';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -131,7 +132,7 @@ function ProviderCard({
                     )}
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
                 {filled.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
                         Реквизиты не заполнены.
@@ -154,6 +155,7 @@ function ProviderCard({
                         </Table>
                     </div>
                 )}
+                {rqId != null && <ProviderImagesSection rqId={rqId} />}
             </CardContent>
 
             <Dialog open={editing} onOpenChange={setEditing}>

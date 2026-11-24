@@ -1,5 +1,6 @@
 import type {
     InitV2ComplectDto,
+    InitV2ContractDto,
     InitV2Data,
     InitV2ServiceDto,
 } from '../../model/dto';
@@ -25,6 +26,21 @@ const contractKind = (code: string): ContractKind => {
     if (code.startsWith('lic')) return 'lic';
     if (code === 'key') return 'key';
     return 'service';
+};
+
+/**
+ * Единица договора для документов — короткое имя меры, как в легаси-init
+ * Laravel (`measures.shortName`): «мес.», «лиц. 6 мес.». В `measureName`
+ * Nest кладёт `portal_measure.name` («Лицензия 6 месяцев», «месяц»), поэтому
+ * имя берётся из меры договора: копия меры портала, затем общая мера.
+ */
+const contractMeasureName = (dto: InitV2ContractDto): string => {
+    const globalShortName = dto.portalMeasure?.measure?.['shortName'];
+    return (
+        dto.portalMeasure?.shortName ||
+        (typeof globalShortName === 'string' ? globalShortName : '') ||
+        dto.measureName
+    );
 };
 
 /**
@@ -182,7 +198,7 @@ export const catalogFromInitV2 = (data: InitV2Data): Catalog => {
             measure: {
                 id: dto.measureId,
                 code: dto.measureCode,
-                name: dto.measureName,
+                name: contractMeasureName(dto),
                 fullName: dto.measureFullName,
             },
             order: dto.order,

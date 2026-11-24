@@ -92,6 +92,7 @@ export interface KSupply {
 export interface KMeasure {
     id: number;
     code: number;
+    /** Короткое имя для колонки «Ед.» документов: «мес.», «лиц. 6 мес.» */
     name: string;
     fullName: string;
 }

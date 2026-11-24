@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Settings2 } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import { resolveSupply, type Catalog } from '@/modules/entities/catalog';
-import type { KRow } from '@/modules/entities/row-set';
+import { measureNameOf, type KRow } from '@/modules/entities/row-set';
 import type {
     KComplect,
     KContract,
@@ -77,7 +77,11 @@ export const RowRefsLine = ({
     return (
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <span>
-                {[supply?.name, contract?.name, row.price.measure.name]
+                {[
+                    supply?.name,
+                    contract?.name,
+                    measureNameOf(row.price, contract),
+                ]
                     .filter(Boolean)
                     .join(' • ')}
             </span>

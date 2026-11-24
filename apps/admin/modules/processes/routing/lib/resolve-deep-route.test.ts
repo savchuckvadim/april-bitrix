@@ -362,6 +362,25 @@ describe('resolveSideBar: боковое меню разделов портал�
         ).toBe(`/portal/${PORTAL_ID}/questionnaires`);
     });
 
+    it('«Печати, подписи и логотипы» остаются в разделе поставщиков и имеют свой пункт меню', () => {
+        const route = resolveDeepRoute(
+            `/portal/${PORTAL_ID}/provider/images`,
+            PORTAL_ID,
+        );
+        const view = resolveSideBar(route);
+        const links = view.currentNavItems.map(
+            (entity) => `${view.baseUrl}${entity.item.get.url}`,
+        );
+
+        expect(route.isPortalProvider).toBe(true);
+        expect(route.isPortalDetail).toBe(false);
+        expect(view.currentNavItems).toBe(portalProviderEntities);
+        expect(links).toEqual([
+            `/portal/${PORTAL_ID}/provider`,
+            `/portal/${PORTAL_ID}/provider/images`,
+        ]);
+    });
+
     it('карточка портала по-прежнему показывает меню портала', () => {
         const view = resolveSideBar(
             resolveDeepRoute(`/portal/${PORTAL_ID}`, PORTAL_ID),

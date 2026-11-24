@@ -667,6 +667,19 @@ export const portalProviderEntities: Entity[] = [
             }
         },
     },
+    // Картинки реквизитов всех поставщиков портала + перенос из легаси.
+    {
+        id: 1,
+        item: {
+            name: 'provider-images',
+            title: 'Печати, подписи и логотипы',
+            type: ENTITY_QUANTITY.ENTITY,
+            get: {
+                url: '/provider/images',
+                method: API_METHOD.GET
+            }
+        },
+    },
 ];
 
 

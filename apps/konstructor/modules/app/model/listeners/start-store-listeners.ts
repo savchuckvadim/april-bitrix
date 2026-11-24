@@ -50,6 +50,7 @@ import {
     isContractSpecStaleAction,
     isOfferPreviewStale,
 } from '../../lib/stale-actions';
+import { setupInvoicePeekListener } from './invoice-peek.listener';
 import { setupProviderTaxListener } from './provider-tax.listener';
 
 const complectDescriptionHelper = new ComplectDescriptionHelper();
@@ -84,6 +85,7 @@ export function startStoreListeners(
     setupComplectDescriptionListener(listenerMiddleware);
     setupRowSetSyncListener(listenerMiddleware);
     setupProviderTaxListener(listenerMiddleware);
+    setupInvoicePeekListener(listenerMiddleware);
     setupAcademyTermListener(listenerMiddleware);
 }
 

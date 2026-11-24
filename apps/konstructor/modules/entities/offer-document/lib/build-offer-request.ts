@@ -11,7 +11,8 @@ import {
     type OfferGenerateRequest,
 } from '../../document-payload';
 import { findMainRow } from '../../row-set';
-import { toOfferClientType } from './client-type.util';
+import { clientTypeBlocker, toOfferClientType } from './client-type.util';
+import { selectOfferRequestInvoice } from './select-invoice';
 import { managerFromBxUser } from './manager.util';
 import {
     alternativeComplectsFields,
@@ -52,6 +53,18 @@ export const offerBlocker = (state: RootState, format: OfferBlockerFormat): stri
 
 /** Блокер КП в Word: формирование и превью. */
 export const offerRequestBlocker = (state: RootState): string | null => offerBlocker(state, 'word');
+
+/**
+ * Почему КП в заданном формате нельзя сформировать — подпись к кнопке
+ * «Сформировать»; null — можно. К блокерам offerBlocker добавляется тип клиента:
+ * он обязателен, по нему бэк подбирает шаблон счёта. Превью этим блокером не
+ * закрывается: оно собирается по offerBlocker.
+ */
+export const offerGenerateBlocker = (state: RootState, format: OfferBlockerFormat): string | null =>
+    offerBlocker(state, format) ?? clientTypeBlocker(selectClientType(state));
+
+/** Блокер формирования КП в Word (кнопка и thunk). */
+export const offerWordGenerateBlocker = (state: RootState): string | null => offerGenerateBlocker(state, 'word');
 
 /**
  * Необязательные поля превью и PDF-КП: открытый вариант и настройки сделки.
@@ -109,9 +122,8 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
     const provider = state.documentProvider.current;
     if (!dealId || !template || !provider) return null;
 
-    const clientType = toOfferClientType(
-        selectClientType(state),
-    );
+    // тип клиента из шапки; формирование без него заблокировано (offerGenerateBlocker)
+    const clientType = toOfferClientType(selectClientType(state));
 
     const catalog = selectCatalog(state);
     const payload = buildOfferPayload({
@@ -127,7 +139,8 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
         alternative: state.rowSet.alternative,
         recipient: state.offerDocument.recipient,
         manager: managerFromBxUser(bitrix.user),
-        invoice: state.offerDocument.invoice,
+        // счёт с нормализацией: без наборов для сравнения «все товары» уходит false, оба «нет» — пустой счёт
+        invoice: selectOfferRequestInvoice(state),
         isWord: true,
         // вне Битрикса очередь не нужна: ссылки сразу в ответе (легаси withoutQueue: !IS_PROD)
         withoutQueue: !IS_PROD,

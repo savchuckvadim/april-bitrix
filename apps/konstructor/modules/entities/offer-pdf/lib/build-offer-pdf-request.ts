@@ -1,8 +1,14 @@
 import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
 import { selectClientType } from '../../deal';
-import { buildOfferPayload, type OfferGenerateRequest } from '../../document-payload';
-import { alternativeComplectsFields, managerFromBxUser, offerBlocker, toOfferClientType } from '../../offer-document';
+import { buildOfferPayload, type OfferGenerateRequest, type OfferInvoice } from '../../document-payload';
+import {
+    alternativeComplectsFields,
+    managerFromBxUser,
+    offerBlocker,
+    offerGenerateBlocker,
+    toOfferClientType,
+} from '../../offer-document';
 import {
     OFFER_PDF_OMITTED_WORD_FIELDS,
     type OfferPdfGenerateRequest,
@@ -26,9 +32,28 @@ export interface OfferPdfRequestOptions {
  * Почему PDF сейчас не собрать — подпись к кнопке; null — можно. Проверки
  * общие с Word-потоком (offerBlocker): сделка, главная строка, поставщик,
  * стадии вариантов, участники, которых собрать нельзя. Word-шаблон PDF
- * не требуется.
+ * не требуется. Блокер превью и сборки запроса: тип клиента он не проверяет.
  */
 export const offerPdfRequestBlocker = (state: RootState): string | null => offerBlocker(state, 'pdf');
+
+/**
+ * Почему PDF нельзя сформировать — подпись к кнопке «Сформировать PDF»; null —
+ * можно. К блокерам превью добавляется обязательный тип клиента (по нему бэк
+ * подбирает шаблон счёта), тем же текстом, что у Word.
+ */
+export const offerPdfGenerateBlocker = (state: RootState): string | null => offerGenerateBlocker(state, 'pdf');
+
+/**
+ * Запрос формирования PDF: запрос превью плюс счёт. Превью счёта не рисует,
+ * поэтому в его запросе и ключе `invoice` нет (OFFER_PDF_OMITTED_WORD_FIELDS), и
+ * правка счёта превью не пересобирает. Шаблон счёта бэк подбирает сам:
+ * `invoiceTemplateId` пустой.
+ */
+export const withOfferPdfInvoice = (request: OfferPdfGenerateRequest, invoice: OfferInvoice): OfferPdfGenerateRequest => ({
+    ...request,
+    invoice,
+    invoiceTemplateId: '',
+});
 
 const trimmedOrUndefined = (value: string): string | undefined => {
     const trimmed = value.trim();
@@ -36,7 +61,8 @@ const trimmedOrUndefined = (value: string): string | undefined => {
 };
 
 /**
- * Word-запрос → PDF-запрос: убираем поля Word-шаблона и счёта, добавляем
+ * Word-запрос → PDF-запрос превью: убираем поля Word-шаблона и счёта (счёт
+ * возвращает withOfferPdfInvoice в запросе формирования), добавляем
  * шаблон, настройки, письмо, номер и способ печати наполнения комплектов
  * (`complectsMode` — полем верхнего уровня, в `settings` бэка его нет).
  * Разделы по комплектам (`complects`) приходят из Word-запроса. Пустые
@@ -92,9 +118,8 @@ export const buildOfferPdfGenerateRequest = (
     const provider = state.documentProvider.current;
     if (!dealId || !provider) return null;
 
-    const clientType = toOfferClientType(
-        selectClientType(state),
-    );
+    // тип клиента из шапки; формирование без него заблокировано (offerPdfGenerateBlocker), превью печатается как для организации
+    const clientType = toOfferClientType(selectClientType(state));
 
     const catalog = selectCatalog(state);
     const payload = buildOfferPayload({

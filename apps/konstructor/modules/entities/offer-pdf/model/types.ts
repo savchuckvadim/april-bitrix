@@ -6,7 +6,7 @@ import type {
     OfferPdfTemplateCode as OfferPdfTemplateCodeDto,
     OfferPdfTemplateItemDto,
 } from '@workspace/nest-konstructor-api';
-import type { DocComplectsFields, DocVariant } from '../../document-payload/model/dto';
+import type { DocComplectsFields, DocVariant, OfferInvoice } from '../../document-payload/model/dto';
 
 /**
  * Доменные имена generated-DTO offer-pdf: UI и хуки берут типы отсюда —
@@ -151,18 +151,26 @@ export interface OfferPdfResponseFile {
  * Ответ POST /offer-pdf/generate: ссылки на файл, прикреплён ли он к сделке и
  * `missingAssets` — каких картинок и логотипов стиля не нашлось на сервере.
  *
- * Бэк добавит необязательные `links` (все файлы КП, когда их несколько) и
- * `warnings` (что не сошлось при слиянии вариантов). В сгенерированном клиенте
- * этих полей пока нет: после `pnpm run generate` они появятся в
- * OfferPdfGenerateResponseDto, и расширение ниже можно убрать (форму `links`
- * сверить с клиентом). Старый бэк их не присылает.
+ * Бэк добавит необязательные `links` (все файлы КП, когда их несколько),
+ * `invoiceLinks` (файлы счетов той же формы, что элементы `links`, есть, когда
+ * счёт запрашивали) и `warnings` (что не сошлось при слиянии вариантов, в том
+ * числе «Счёт не сформирован: …»). В сгенерированном клиенте этих полей пока
+ * нет: после `pnpm run generate` они появятся в OfferPdfGenerateResponseDto, и
+ * расширение ниже можно убрать (форму `links` сверить с клиентом). Старый бэк
+ * их не присылает.
  */
 export type OfferPdfGenerateResponse = OfferPdfGenerateResponseDto & {
     links?: OfferPdfResponseFile[];
+    invoiceLinks?: OfferPdfResponseFile[];
     warnings?: string[];
 };
 
-/** Поля Word-запроса, которых у PDF-генерации нет. */
+/**
+ * Поля Word-запроса, которых у PDF-запроса превью нет. Список общий для превью
+ * и ключа превью: правка счёта не должна пересобирать превью, поэтому `invoice`
+ * и `invoiceTemplateId` в них не входят. В запрос формирования они добавляются
+ * отдельно (withOfferPdfInvoice).
+ */
 export const OFFER_PDF_OMITTED_WORD_FIELDS = [
     'templateId',
     'invoiceTemplateId',
@@ -185,12 +193,18 @@ export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[nu
  * в сгенерированном клиенте этих полей пока нет. После
  * `pnpm run generate` они появятся в OfferPdfGenerateDto и DocumentVariantDto,
  * и расширение ниже можно убрать.
+ *
+ * Запрос формирования принимает ещё необязательные `invoice` (та же форма, что у
+ * Word) и `invoiceTemplateId` (пустая строка: шаблон счёта бэк подбирает сам).
+ * Запрос превью их не несёт.
  */
 export type OfferPdfGenerateRequest = OfferPdfGenerateDto &
     DocComplectsFields & {
         variants?: OfferPdfVariant[];
         composition?: ComplectCompositionDto;
         complectsMode?: OfferComplectsMode;
+        invoice?: OfferInvoice;
+        invoiceTemplateId?: string;
     };
 
 /** Участник PDF-КП: форма участника Word-КП плюс способ печати его наполнения. */

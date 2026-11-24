@@ -13,7 +13,7 @@
 | `snapshot` | `entities/snapshot` | Статус вспоминания (`idle→loading→restored\|none\|error`), warnings, templateId | `remember` |
 | `app` | `modules/app` | domain/user/**dealId**/deal/company, init-флаги | `app` |
 | `documentProvider` | `entities/provider` | Поставщик → налог | `documentProvider` |
-| `offerDocument` | `entities/offer-document` | Шапка КП: получатель (pbx op_inn/op_name/op_position, падежи с бэка), счёт (3 вопроса + дата/номер), статус генерации | `document.current.recipient`, `documentInvoice` |
+| `offerDocument` | `entities/offer-document` | Шапка КП: получатель (pbx op_inn/op_name/op_position, падежи с бэка), счёт (2 вопроса, оба «Нет» по умолчанию; дата `first_pay_date` и номер `invoice_number` пишутся в сделку по blur; пустой номер перед формированием берётся у нумератора, `takeInvoiceNumber`), статус генерации | `document.current.recipient`, `documentInvoice` |
 | `contractDocument` | `entities/contract-document` | Договор: поля сделки (pbx-коды, запись в Bitrix по blur), спецификация с бэка (`contract/specification-form`), статус генерации | `documentContract`, `documentContractBase`, `documentContractSpecification`, `pbxDeal` |
 | `supplyReport` | `entities/supply-report-document` | Отчёт о поставке: 15 полей формы (`document-supply-report/form`), файлы договора/счёта (base64), контакты сделки, открытая заявка RPA, статус генерации | `documentContractSupply`, `pbxContact`, `documentContract.isSupplyReport` |
 | `appSettings` | `entities/app-settings` | Портальные настройки приложения (`GET app-settings/konstructor?domain`, swrCache): флаги экранов, сейчас `zakupkiEnabled` | хардкод по домену (`withZoffer`) |

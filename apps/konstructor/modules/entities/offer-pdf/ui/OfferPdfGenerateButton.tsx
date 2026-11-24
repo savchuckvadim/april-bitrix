@@ -5,18 +5,25 @@ import { Button } from '@workspace/ui/components/button';
 import { DocumentLinks } from '@/modules/shared/ui/DocumentLinks/DocumentLinks';
 import { useOfferPdfDocument } from '../model/OfferPdfDocumentContext';
 
-/** «Сформировать PDF»: блокер, результат — предупреждения бэка и ссылки на все файлы КП. */
+/**
+ * «Сформировать PDF»: блокер формирования (в том числе обязательный тип
+ * клиента), результат — предупреждения бэка и ссылки на все файлы КП и счетов.
+ */
 export const OfferPdfGenerateButton = () => {
-    const { blocker, generate, outcome, runGenerate } = useOfferPdfDocument();
+    const { generateBlocker, generate, outcome, runGenerate } = useOfferPdfDocument();
     const isGenerating = generate.status === 'generating';
 
     return (
         <div className="flex flex-col gap-2">
-            <Button className="w-full" onClick={() => void runGenerate()} disabled={Boolean(blocker) || isGenerating}>
+            <Button
+                className="w-full"
+                onClick={() => void runGenerate()}
+                disabled={Boolean(generateBlocker) || isGenerating}
+            >
                 {generate.status === 'done' ? <Check className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
                 {isGenerating ? 'Формирую…' : 'Сформировать PDF'}
             </Button>
-            {blocker ? <p className="text-xs text-muted-foreground">{blocker}</p> : null}
+            {generateBlocker ? <p className="text-xs text-muted-foreground">{generateBlocker}</p> : null}
             {generate.error ? <p className="text-xs text-destructive">{generate.error}</p> : null}
             {outcome ? <DocumentLinks warnings={outcome.warnings} links={outcome.links} /> : null}
             {generate.result?.savedToDeal ? (

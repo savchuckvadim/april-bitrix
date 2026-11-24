@@ -17,7 +17,7 @@ type VariantsState = Pick<RootState, 'complectVariant'>;
 
 /**
  * Действия, после которых готовое PDF-превью Word устарело: шапка КП
- * (получатель, счёт), поставщик, любое изменение набора строк, выбор
+ * (получатель), поставщик, любое изменение набора строк, выбор
  * Word-шаблона и состав вариантов. Шаблон считается сменённым при выборе, при
  * загрузке выбора пользователя и при правке или удалении самого шаблона: в
  * запрос уходит selectedTemplate, а currentTemplate запоминает слепок.
@@ -26,14 +26,12 @@ type VariantsState = Pick<RootState, 'complectVariant'>;
  * вариант и сброс: всё это уходит в запрос полями variants и composition.
  * Настройки сделки (setComposition) в список не входят: КП идёт по открытому
  * варианту при любом режиме, и устаревание от них решает isOfferPreviewStale
- * по тому, что изменилось в настройках.
+ * по тому, что изменилось в настройках. Правки счёта (ответы, дата, номер) в
+ * список не входят: превью счёт не рисует.
  */
 export const isOfferPreviewStaleAction = isAnyOf(
     offerDocumentActions.setRecipientField,
     offerDocumentActions.setRecipientCase,
-    offerDocumentActions.setInvoiceAnswer,
-    offerDocumentActions.setInvoiceDate,
-    offerDocumentActions.setInvoiceNumber,
     documentProvidertAC.setCurrent,
     complectVariantActions.loaded,
     complectVariantActions.itemsLoaded,

@@ -38,8 +38,10 @@ export interface OfferPdfDocumentContextValue {
     setLetter: (patch: Partial<OfferPdfLetter>) => void;
     documentNumber: string;
     setDocumentNumber: (value: string) => void;
-    /** Почему PDF сейчас не собрать; null — можно */
+    /** Почему PDF сейчас не собрать (превью); null — можно */
     blocker: string | null;
+    /** Почему PDF нельзя сформировать: блокер превью плюс обязательный тип клиента; null — можно */
+    generateBlocker: string | null;
     preview: OfferPdfPreviewState;
     refreshPreview: () => void;
     generate: OfferPdfGenerateState;
@@ -63,14 +65,14 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
 
     // список стилей грузится, только когда выбран PDF
     const style = useOfferPdfStyle(isPdf);
-    const { request, requestKey, blocker } = useOfferPdfRequest({
+    const { request, requestKey, blocker, generateBlocker } = useOfferPdfRequest({
         enabled: isPdf,
         // код берём у стиля из списка бэка: сохранённого стиля там может уже не быть
         templateCode: style.template?.code ?? null,
         palette: style.palette,
     });
     const { preview, refresh } = useOfferPdfPreview(request, requestKey);
-    const { generate, outcome, run, reset } = useOfferPdfGenerate(request);
+    const { generate, outcome, run, reset } = useOfferPdfGenerate(request, generateBlocker);
 
     const value = useMemo<OfferPdfDocumentContextValue>(
         () => ({
@@ -91,6 +93,7 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             documentNumber: prefs.documentNumber,
             setDocumentNumber: number => dispatch(offerPdfActions.setDocumentNumber(number)),
             blocker,
+            generateBlocker,
             preview,
             refreshPreview: refresh,
             generate,
@@ -110,6 +113,7 @@ export const OfferPdfDocumentProvider = ({ children }: { children: ReactNode }) 
             style.select,
             style.setPalette,
             blocker,
+            generateBlocker,
             preview,
             refresh,
             generate,

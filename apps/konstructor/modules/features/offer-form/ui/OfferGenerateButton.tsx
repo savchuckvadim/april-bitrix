@@ -23,7 +23,7 @@ export const OfferGenerateButton = () => {
             {generate.error ? <p className="text-xs text-destructive">{generate.error}</p> : null}
             {generate.isQueued ? (
                 <p className="text-xs text-muted-foreground">
-                    КП формируется и появится в сделке вместе со счётом.
+                    КП формируется и появится в сделке, счёт придёт вместе с ним, если вы его запросили.
                 </p>
             ) : null}
             <DocumentLinks warnings={generate.warnings} links={generate.links} />

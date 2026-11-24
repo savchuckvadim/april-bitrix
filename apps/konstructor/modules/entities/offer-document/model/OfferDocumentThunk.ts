@@ -3,8 +3,9 @@ import { RqHelper } from '../../bx-rq';
 import { initializeWordTemplates } from '../../offer-template-word';
 import { saveSnapshot } from '../../snapshot';
 import { OfferDocumentHelper } from '../lib/api/offer-document-helper';
-import { buildOfferMultiGenerateRequest, offerRequestBlocker } from '../lib/build-offer-request';
+import { buildOfferMultiGenerateRequest, offerWordGenerateBlocker } from '../lib/build-offer-request';
 import { resolveInvoiceDefaults, resolveRecipientDefaults } from '../lib/document-defaults.util';
+import { peekInvoiceNumber, takeInvoiceNumber } from './InvoiceNumberThunk';
 import { offerDocumentActions } from './OfferDocumentSlice';
 import type { OfferRecipientCaseField } from './types';
 
@@ -45,11 +46,13 @@ export const declineRecipientCase =
 /**
  * Вход на экран КП: дефолты получателя и счёта из сделки/компании (один раз
  * на сделку), падежи, Word-шаблоны пользователя. Повторный вход ничего не
- * перетирает — менеджер мог уже править шапку.
+ * перетирает — менеджер мог уже править шапку. Значение нумератора счёта
+ * спрашивается на каждом входе: счётчик мог сдвинуться.
  */
 export const initOfferDocument = (): AppThunk<Promise<void>> => async (dispatch, getState) => {
     const state = getState();
     void dispatch(initializeWordTemplates());
+    void dispatch(peekInvoiceNumber({ force: true }));
     if (state.offerDocument.initialized) return;
 
     const portal = state.portal.current;
@@ -70,12 +73,14 @@ export const initOfferDocument = (): AppThunk<Promise<void>> => async (dispatch,
 
 /**
  * «Сформировать КП»: слепок сделки (чтобы шаблон и сборка пережили уход со
- * страницы) → generate-multi. В Битриксе ответ — operationId: документы
- * придут в сделку очередью, экран уводит в сделку. Вне Битрикса — ссылки.
+ * страницы) → номер счёта у нумератора, если счёт просят и номер пуст →
+ * generate-multi. Тип клиента обязателен (offerGenerateBlocker). В Битриксе
+ * ответ — operationId: документы придут в сделку очередью, экран уводит в
+ * сделку. Вне Битрикса — ссылки.
  */
 export const generateOfferDocument = (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
     const state = getState();
-    const blocker = offerRequestBlocker(state);
+    const blocker = offerWordGenerateBlocker(state);
     const request = blocker ? null : buildOfferMultiGenerateRequest(state);
     if (!request) {
         dispatch(offerDocumentActions.generateFailed(blocker ?? 'Нет договора или поставки главной строки'));
@@ -84,7 +89,13 @@ export const generateOfferDocument = (): AppThunk<Promise<boolean>> => async (di
     dispatch(offerDocumentActions.generateStarted());
     try {
         await dispatch(saveSnapshot());
-        const response = await helper.generate(request);
+        // номер берём перед самым запросом: сорвавшийся слепок не должен жечь номер нумератора
+        const taken = await dispatch(takeInvoiceNumber());
+        if (taken.error) {
+            dispatch(offerDocumentActions.generateFailed(taken.error));
+            return false;
+        }
+        const response = await helper.generate({ ...request, invoice: taken.invoice });
         const result = response.result;
         dispatch(
             offerDocumentActions.generateDone({

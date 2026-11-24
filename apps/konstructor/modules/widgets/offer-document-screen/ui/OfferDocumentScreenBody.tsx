@@ -55,7 +55,7 @@ export const OfferDocumentScreenBody = ({
                 title="Коммерческое предложение"
                 description={
                     isPdf
-                        ? 'Встроенный PDF-шаблон, получатель и письмо. Превью обновляется само — проверьте и сформируйте файл.'
+                        ? 'Встроенный PDF-шаблон, получатель, письмо и счёт. Превью обновляется само — проверьте и сформируйте файл.'
                         : 'Word-шаблон, получатель и счёт. Проверьте превью и сформируйте документ в сделку.'
                 }
                 actions={
@@ -113,7 +113,7 @@ export const OfferDocumentScreenBody = ({
                             )}
                             <div className="grid gap-4 xl:grid-cols-2">
                                 <RecipientFields />
-                                {isPdf ? null : <InvoiceOptions />}
+                                <InvoiceOptions />
                             </div>
                             {zakupkiEnabled && !isPdf ? <ZakupkiCard /> : null}
                         </TabsContent>

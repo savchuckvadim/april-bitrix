@@ -3,6 +3,7 @@ import { PBX_SALES_KONSTRUCTOR_FIELD_CODES } from '@workspace/pbx-data/entities/
 import { readFieldValue } from '@workspace/pbx';
 import type { PBXField } from '../../portal';
 import { EMPTY_RECIPIENT, type OfferInvoiceForm, type OfferRecipientForm } from '../model/types';
+import { INVOICE_DEAL_FIELD_CODE } from './invoice-deal-field.util';
 
 /**
  * Дефолты шапки КП из сделки и компании по pbx-кодам (доктрина
@@ -15,12 +16,6 @@ const RECIPIENT_CODE = {
     inn: PBX_SALES_KONSTRUCTOR_FIELD_CODES.op_inn,
     name: PBX_SALES_KONSTRUCTOR_FIELD_CODES.op_name,
     position: PBX_SALES_KONSTRUCTOR_FIELD_CODES.op_position,
-} as const;
-
-const INVOICE_CODE = {
-    date: PBX_SALES_KONSTRUCTOR_FIELD_CODES.first_pay_date,
-    /** Номера счёта в каноне konstructor нет — читается по легаси-коду, если портал его завёл */
-    number: 'invoice_number',
 } as const;
 
 type Entity = Record<string, unknown> | null | undefined;
@@ -65,6 +60,6 @@ export const toInputDate = (value: unknown): string => {
 export const resolveInvoiceDefaults = (
     input: Pick<DocumentDefaultsInput, 'deal' | 'dealFields'>,
 ): Pick<OfferInvoiceForm, 'invoiceDate' | 'invoiceNumber'> => ({
-    invoiceDate: toInputDate(readFieldValue(input.dealFields, input.deal, INVOICE_CODE.date)),
-    invoiceNumber: text(readFieldValue(input.dealFields, input.deal, INVOICE_CODE.number)),
+    invoiceDate: toInputDate(readFieldValue(input.dealFields, input.deal, INVOICE_DEAL_FIELD_CODE.invoiceDate)),
+    invoiceNumber: text(readFieldValue(input.dealFields, input.deal, INVOICE_DEAL_FIELD_CODE.invoiceNumber)),
 });

@@ -11,10 +11,11 @@ export type OfferInvoiceForm = OfferInvoice;
 export type OfferRecipientField = keyof OfferRecipientForm;
 /** Поля, у которых есть падёжная пара (`nameCase`, `positionCase`) */
 export type OfferRecipientCaseField = 'name' | 'position';
-export type OfferInvoiceAnswer = Extract<
-    keyof OfferInvoiceForm,
-    'needGeneralInvoice' | 'needManyInvoices' | 'isByPresentationInvoices'
->;
+/**
+ * Вопросы о счёте на экране. Вопрос о презентации (`isByPresentationInvoices`)
+ * с экрана убран: бэк его не читает, в запрос он всегда уходит `false`.
+ */
+export type OfferInvoiceAnswer = Extract<keyof OfferInvoiceForm, 'needGeneralInvoice' | 'needManyInvoices'>;
 
 export type OfferGenerateStatus = 'idle' | 'generating' | 'done' | 'error';
 
@@ -49,10 +50,10 @@ export const EMPTY_RECIPIENT: OfferRecipientForm = {
     positionCase: '',
 };
 
-/** Легаси INVOICE_QUESTION: счёт — да, на все товары — да, после презентации — нет */
+/** Умолчания по решению владельца: «Сделать счёт?» — нет, «Сделать счета для всех товаров?» — нет */
 export const DEFAULT_INVOICE: OfferInvoiceForm = {
-    needGeneralInvoice: true,
-    needManyInvoices: true,
+    needGeneralInvoice: false,
+    needManyInvoices: false,
     isByPresentationInvoices: false,
     invoiceDate: '',
     invoiceNumber: '',
@@ -60,6 +61,20 @@ export const DEFAULT_INVOICE: OfferInvoiceForm = {
 
 export const INVOICE_ANSWER_TITLE: Record<OfferInvoiceAnswer, string> = {
     needGeneralInvoice: 'Сделать счёт',
-    needManyInvoices: 'Счета на все товары',
-    isByPresentationInvoices: 'Документы в продолжение презентации',
+    needManyInvoices: 'Сделать счета для всех товаров',
 };
+
+/**
+ * Что нумератор сейчас хранит для счёта поставщика (peek, счётчик не растёт).
+ * `rqId` — набор реквизитов, для которого спросили: ответ другого поставщика
+ * отбрасывается. `loading` без `rqId` — ждём, пока загрузится поставщик.
+ */
+export type InvoicePeekStatus = 'idle' | 'loading' | 'ready' | 'failed';
+
+export interface OfferInvoicePeek {
+    status: InvoicePeekStatus;
+    rqId: number | null;
+    value: string | null;
+}
+
+export const INITIAL_INVOICE_PEEK: OfferInvoicePeek = { status: 'idle', rqId: null, value: null };

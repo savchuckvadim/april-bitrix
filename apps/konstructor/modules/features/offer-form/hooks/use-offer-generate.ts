@@ -5,19 +5,20 @@ import { runDocumentToDeal } from '@/modules/app/model/document-run.thunk';
 import {
     generateOfferDocument,
     offerDocumentActions,
-    offerRequestBlocker,
+    offerWordGenerateBlocker,
     selectOfferGenerate,
 } from '@/modules/entities/offer-document';
 
 /**
  * «Сформировать КП»: generate-multi, затем в Битриксе — уход в сделку
  * (документы придут в неё очередью, легаси window.top.location.replace);
- * вне Битрикса — ссылки на готовые файлы прямо на экране.
+ * вне Битрикса — ссылки на готовые файлы прямо на экране. Блокер формирования
+ * включает обязательный тип клиента.
  */
 export const useOfferGenerate = () => {
     const dispatch = useAppDispatch();
     const generate = useAppSelector(selectOfferGenerate);
-    const blocker = useAppSelector(offerRequestBlocker);
+    const blocker = useAppSelector(offerWordGenerateBlocker);
 
     // экран загрузки на всё время, повторное нажатие не запускает второй документ
     const run = () =>

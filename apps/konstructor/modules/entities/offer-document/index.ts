@@ -3,10 +3,18 @@ export { offerDocumentActions, offerDocumentReducer, type OfferDocumentState } f
 export * from './model/selectors';
 export { declineRecipientCase, generateOfferDocument, initOfferDocument } from './model/OfferDocumentThunk';
 export {
+    peekInvoiceNumber,
+    saveOfferInvoiceField,
+    takeInvoiceNumber,
+    type InvoiceTaken,
+} from './model/InvoiceNumberThunk';
+export {
     buildOfferGenerateRequest,
     buildOfferMultiGenerateRequest,
     offerBlocker,
+    offerGenerateBlocker,
     offerRequestBlocker,
+    offerWordGenerateBlocker,
     offerVariantsFields,
     type OfferMultiGenerateRequest,
     type OfferBlockerFormat,
@@ -24,5 +32,8 @@ export { buildDealProductRows, type DealProductRowsInput, type DealProductRowsRe
 export { dealProductRowsBlocker, selectDealProductRows } from './lib/select-deal-product-rows';
 export { skippedVariantsBlocker } from './lib/skipped-variants-blocker';
 export { managerFromBxUser } from './lib/manager.util';
-export { toOfferClientType } from './lib/client-type.util';
+export { CLIENT_TYPE_REQUIRED_BLOCKER, clientTypeBlocker, toOfferClientType } from './lib/client-type.util';
+export { selectHasComparisonSets, selectInvoiceRequested, selectOfferRequestInvoice } from './lib/select-invoice';
+export { invoiceNumberHint } from './lib/invoice-number.util';
+export { visibleInvoiceAnswers } from './lib/invoice-request.util';
 export { resolveInvoiceDefaults, resolveRecipientDefaults, toInputDate } from './lib/document-defaults.util';

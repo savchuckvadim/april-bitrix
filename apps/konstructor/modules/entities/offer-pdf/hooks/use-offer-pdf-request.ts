@@ -6,8 +6,13 @@ import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
 import { selectOfferComposition } from '../../complect-variant';
+import { selectClientType } from '../../deal';
 import { selectOfferVariantsPayload } from '../../offer-document';
-import { buildOfferPdfGenerateRequest, offerPdfRequestBlocker } from '../lib/build-offer-pdf-request';
+import {
+    buildOfferPdfGenerateRequest,
+    offerPdfGenerateBlocker,
+    offerPdfRequestBlocker,
+} from '../lib/build-offer-pdf-request';
 import { offerPdfRequestKey } from '../lib/offer-pdf-request-key';
 import { selectOfferPdfPrefs } from '../model/OfferPdfSlice';
 import type { OfferPdfGenerateRequest, OfferPdfTemplateCode } from '../model/types';
@@ -23,17 +28,22 @@ export interface OfferPdfRequestInput {
 /**
  * Запрос КП в PDF из стора и выбранного стиля. Пересобирается, когда меняется
  * то, что в нём печатается; `requestKey` — чтобы превью не собиралось дважды
- * на один и тот же запрос.
+ * на один и тот же запрос. Это запрос превью: счёта в нём и в ключе нет, правка
+ * счёта превью не пересобирает. `blocker` закрывает превью и сборку запроса,
+ * `generateBlocker` — кнопку «Сформировать PDF» (к блокеру добавляется тип клиента).
  */
 export const useOfferPdfRequest = ({ enabled, templateCode, palette }: OfferPdfRequestInput) => {
     const store = useStore<RootState>();
     const prefs = useAppSelector(selectOfferPdfPrefs);
     const blocker = useAppSelector(offerPdfRequestBlocker);
+    const generateBlocker = useAppSelector(offerPdfGenerateBlocker);
     const general = useAppSelector(state => state.rowSet.general);
     const alternative = useAppSelector(state => state.rowSet.alternative);
     const recipient = useAppSelector(state => state.offerDocument.recipient);
     const provider = useAppSelector(state => state.documentProvider.current);
     const dealId = useAppSelector(state => state.app.dealId);
+    // тип клиента меняют чипами в шапке: без него в зависимостях запрос уходил бы с прежним типом
+    const clientType = useAppSelector(selectClientType);
     const catalog = useAppSelector(selectCatalog);
     // открытый вариант и настройки сделки уходят в запрос: смена любого из них пересобирает его и превью;
     // режим сделки в запрос не входит, его смена превью не трогает
@@ -63,6 +73,7 @@ export const useOfferPdfRequest = ({ enabled, templateCode, palette }: OfferPdfR
         recipient,
         provider,
         dealId,
+        clientType,
         catalog,
         variants,
         composition,
@@ -71,5 +82,5 @@ export const useOfferPdfRequest = ({ enabled, templateCode, palette }: OfferPdfR
     // ключ по содержимому: пересборка запроса с теми же данными не запускает превью заново
     const requestKey = useMemo(() => (request ? offerPdfRequestKey(request) : null), [request]);
 
-    return { request, requestKey, blocker };
+    return { request, requestKey, blocker, generateBlocker };
 };

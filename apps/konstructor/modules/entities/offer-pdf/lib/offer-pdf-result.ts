@@ -3,8 +3,9 @@ import type { OfferPdfFileLink, OfferPdfGenerateResponse, OfferPdfResponseFile }
 /** Подпись ссылки на единственный файл КП — так её видели до списка файлов. */
 export const OFFER_PDF_SINGLE_LINK_NAME = 'Открыть PDF';
 
-/** Что показать под кнопкой после формирования: файлы КП и предупреждения бэка. */
+/** Что показать под кнопкой после формирования: файлы КП, файлы счетов и предупреждения бэка. */
 export interface OfferPdfOutcome {
+    /** Файлы КП, затем файлы счетов */
     links: OfferPdfFileLink[];
     warnings: string[];
 }
@@ -13,18 +14,23 @@ export interface OfferPdfOutcome {
 const fileLink = (file: Pick<OfferPdfResponseFile, 'link' | 'bitrixLink'>): string => file.bitrixLink ?? file.link;
 
 /**
- * Ответ генерации → ссылки и предупреждения для экрана. Файлов несколько
+ * Ответ генерации → ссылки и предупреждения для экрана. Файлов КП несколько
  * (варианты отдельными документами) — показываем все, каждый под своим именем.
  * Файл один, либо бэк прежний и поля links нет, — одна ссылка «Открыть PDF».
- * Ссылка ведёт на Диск Битрикса, при его отсутствии на файл на сервере.
- * Поля warnings нет — пустой список.
+ * Ссылка ведёт на Диск Битрикса, при его отсутствии на файл на сервере. После
+ * файлов КП идут файлы счетов (`invoiceLinks`), каждый под своим именем.
+ * Полей warnings и invoiceLinks нет — пустые списки.
  */
 export const readOfferPdfResult = (response: OfferPdfGenerateResponse): OfferPdfOutcome => {
     const files = response.links ?? [];
     const [single] = files;
-    const links: OfferPdfFileLink[] =
+    const offerLinks: OfferPdfFileLink[] =
         files.length > 1
             ? files.map(file => ({ link: fileLink(file), name: file.name }))
             : [{ link: fileLink(single ?? response), name: OFFER_PDF_SINGLE_LINK_NAME }];
-    return { links, warnings: response.warnings ?? [] };
+    const invoiceLinks: OfferPdfFileLink[] = (response.invoiceLinks ?? []).map(file => ({
+        link: fileLink(file),
+        name: file.name,
+    }));
+    return { links: [...offerLinks, ...invoiceLinks], warnings: response.warnings ?? [] };
 };

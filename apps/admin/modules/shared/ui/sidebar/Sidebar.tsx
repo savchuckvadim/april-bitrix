@@ -5,16 +5,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@workspace/ui/lib/utils';
 import {
-    LayoutDashboard,
     Users,
     Settings,
     Home,
     ChevronRight,
-    Link2,
     Activity
 } from 'lucide-react';
 
 import { useCurrentSideBar } from '@/modules/processes';
+import { resolveActiveSidebarHref } from './lib/sidebar-active.util';
 
 const getIconByEntityName = (entityName: string) => {
     switch (entityName) {
@@ -27,18 +26,15 @@ const getIconByEntityName = (entityName: string) => {
     }
 }
 
-/**
- * Пункт активен, если путь совпадает с его ссылкой или лежит под ней.
- * Сравнение по сегменту: подстрока делала `/contract` активным и на
- * `/contract-template` — «Виды договоров» горели вместе с «Шаблонами договоров».
- */
-const getIsActive = (href: string, pathname: string | null) =>
-    Boolean(pathname) && (pathname === href || pathname!.startsWith(`${href}/`));
-
 
 export function Sidebar() {
     const pathname = usePathname();
     const {currentNavItems, baseUrl} = useCurrentSideBar();
+    // Горит один пункт: самый конкретный из подходящих по адресу.
+    const activeHref = resolveActiveSidebarHref(
+        currentNavItems.map((item) => `${baseUrl}${item.item.get.url}`),
+        pathname,
+    );
     return (
         <div className="flex h-screen w-[200px] flex-col ">
             <div className="flex h-16 items-center  px-6">
@@ -51,7 +47,7 @@ export function Sidebar() {
                 {currentNavItems.map((item) => {
                     const Icon = getIconByEntityName(item.item.name);
                     const href = `${baseUrl}${item.item.get.url}`;
-                    const isActive = getIsActive(href, pathname);
+                    const isActive = href === activeHref;
                     return (
                         <Link
                             key={href}

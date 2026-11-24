@@ -40,17 +40,21 @@ describe('detectClientTypeByRqTypes', () => {
         expect(detectClientTypeByRqTypes([])).toBeNull();
     });
 
-    it('один тип, хоть сколько реквизитов — он и есть тип клиента', () => {
+    it('один однозначный тип, хоть сколько реквизитов — он и есть тип клиента', () => {
         expect(detectClientTypeByRqTypes([RQ_TYPE.IP])).toBe(RQ_TYPE.IP);
         expect(detectClientTypeByRqTypes([RQ_TYPE.FIZ, RQ_TYPE.FIZ])).toBe(
             RQ_TYPE.FIZ,
         );
+    });
+
+    it('только организации — тип неизвестен: коммерческие и бюджетники лежат в одном пресете', () => {
+        expect(detectClientTypeByRqTypes([RQ_TYPE.ORGANIZATION])).toBeNull();
         expect(
             detectClientTypeByRqTypes([
                 RQ_TYPE.ORGANIZATION,
                 RQ_TYPE.ORGANIZATION,
             ]),
-        ).toBe(RQ_TYPE.ORGANIZATION);
+        ).toBeNull();
     });
 
     it('типы разные — тип неизвестен', () => {
@@ -108,12 +112,15 @@ describe('detectClientTypeByBundle', () => {
         expect(detectClientTypeByBundle(null)).toBeNull();
     });
 
-    it('реквизиты одного типа — тип клиента', () => {
+    it('реквизиты одного однозначного типа — тип клиента', () => {
         expect(
             detectClientTypeByBundle(
                 bundleOf({ [RQ_TYPE.IP]: [record(11, RQ_TYPE.IP)] }),
             ),
         ).toBe(RQ_TYPE.IP);
+    });
+
+    it('реквизиты только организации — null: тип выбирает менеджер', () => {
         expect(
             detectClientTypeByBundle(
                 bundleOf({
@@ -123,7 +130,7 @@ describe('detectClientTypeByBundle', () => {
                     ],
                 }),
             ),
-        ).toBe(RQ_TYPE.ORGANIZATION);
+        ).toBeNull();
     });
 
     it('реквизиты разных типов — null', () => {

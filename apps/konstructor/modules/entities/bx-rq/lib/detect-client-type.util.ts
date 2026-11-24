@@ -20,15 +20,26 @@ export const collectExistingRqTypes = (
 };
 
 /**
- * Тип клиента по типам реквизитов компании: все реквизиты одного типа — это
- * и есть тип клиента. Реквизитов нет или типы разные — null: угадывать нечего.
+ * Тип реквизитов, по которому тип клиента не определить: бюджетники хранятся
+ * в пресете организаций, поэтому «организация» бывает и коммерческой, и
+ * бюджетной. Ошибка здесь меняет договор и шаблон счёта — такой тип менеджер
+ * выбирает сам в окне «Укажите тип клиента».
+ */
+const AMBIGUOUS_RQ_TYPES: ReadonlySet<RQ_TYPE> = new Set([RQ_TYPE.ORGANIZATION]);
+
+/**
+ * Тип клиента по типам реквизитов компании: все реквизиты одного однозначного
+ * типа (ИП, физлицо, бюджет) — это и есть тип клиента. Реквизитов нет, типы
+ * разные или тип неоднозначен (организация) — null: решает менеджер.
  */
 export const detectClientTypeByRqTypes = (
     types: readonly RQ_TYPE[],
 ): RQ_TYPE | null => {
     const distinct = new Set(types);
     if (distinct.size !== 1) return null;
-    return types[0] ?? null;
+    const [type] = types;
+    if (type === undefined || AMBIGUOUS_RQ_TYPES.has(type)) return null;
+    return type;
 };
 
 /** Тип клиента по загруженному пакету реквизитов компании. */

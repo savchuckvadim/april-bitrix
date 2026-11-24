@@ -55,8 +55,15 @@ beforeEach(() => {
 });
 
 describe('автоопределение типа клиента по реквизитам', () => {
+    it('реквизиты только организации — тип не пишется: выбор за менеджером в окне', async () => {
+        const store = makeStore();
+        await loadAll(store, [RQ_TYPE.ORGANIZATION]);
+
+        expect(bitrix.update).not.toHaveBeenCalled();
+        expect(selectClientType(store.getState())).toBeNull();
+    });
+
     it.each([
-        [RQ_TYPE.ORGANIZATION, 'commerc'],
         [RQ_TYPE.BUDGET, 'state'],
         [RQ_TYPE.IP, 'ip'],
         [RQ_TYPE.FIZ, 'fiz'],

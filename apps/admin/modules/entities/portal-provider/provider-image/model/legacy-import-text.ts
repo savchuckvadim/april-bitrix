@@ -7,8 +7,10 @@ export const PROVIDER_IMAGE_LEGACY_TEXT = {
     pickFolder: 'Выбрать папку',
     repickFolder: 'Выбрать другую папку',
     noFolder: 'Папка не выбрана',
-    pickedFiles: (folder: string, count: number) =>
-        `Папка «${folder}», картинок PNG и JPG: ${count}`,
+    pickedFiles: (folder: string | null, count: number) =>
+        folder
+            ? `Папка «${folder}», картинок PNG и JPG: ${count}`
+            : `Картинок PNG и JPG: ${count}`,
     skippedFiles: (count: number) =>
         `Остальные файлы папки (${count}) пропущены: переносятся только PNG и JPG`,
     tooMany: (count: number, limit: number) =>
@@ -34,6 +36,8 @@ export const PROVIDER_IMAGE_LEGACY_TEXT = {
         status: 'Статус',
         message: 'Пояснение',
     },
+    rqNumber: (rqId: number) => `№${rqId}`,
+    legacyFileNumber: (fileId: number) => `файл легаси №${fileId}`,
     unknownPortal: '—',
     unknownRole: '—',
     unnamedRq: 'без названия',

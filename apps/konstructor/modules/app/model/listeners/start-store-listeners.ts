@@ -50,6 +50,7 @@ import {
     isContractSpecStaleAction,
     isOfferPreviewStale,
 } from '../../lib/stale-actions';
+import { setupClientTypeDetectListener } from './client-type-detect.listener';
 import { setupInvoicePeekListener } from './invoice-peek.listener';
 import { setupProviderTaxListener } from './provider-tax.listener';
 
@@ -62,7 +63,8 @@ const typed = (listenerMiddleware: ListenerMiddlewareInstance) =>
 /**
  * Единая точка регистрации реакций «X случилось → сделать Y»
  * (правило монорепы: listeners вместо вложенных thunk'ов).
- * Порядок: данные приложения → restore слепка → варианты → поставщик → row-set.
+ * Порядок: данные приложения → restore слепка → варианты → поставщик → row-set;
+ * тип клиента по реквизитам определяется после загрузки реквизитов и портала.
  * Все данные — только с нашего бэка: фикстур в рантайме нет.
  */
 export function startStoreListeners(
@@ -75,6 +77,7 @@ export function startStoreListeners(
     setupDepartmentContextListener(listenerMiddleware);
     setupDealProviderListener(listenerMiddleware);
     setupRqListener(listenerMiddleware);
+    setupClientTypeDetectListener(listenerMiddleware);
     setupTemplateIdListener(listenerMiddleware);
     setupRememberedDocumentListener(listenerMiddleware);
     setupOfferPdfManagerPrefsListener(listenerMiddleware);

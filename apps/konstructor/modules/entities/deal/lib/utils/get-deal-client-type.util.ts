@@ -19,6 +19,21 @@ const ITEM_CODE_TO_RQ_TYPE: Record<string, RQ_TYPE> = {
     layer: RQ_TYPE.FIZ,
 };
 
+/**
+ * Тип реквизита → код значения `op_client_type`: для записи типа клиента,
+ * определённого по реквизитам. Физлицо пишется кодом `fiz`; адвокатов
+ * (`layer`) выбирают вручную.
+ */
+const RQ_TYPE_TO_ITEM_CODE: Record<RQ_TYPE, string> = {
+    [RQ_TYPE.ORGANIZATION]: 'commerc',
+    [RQ_TYPE.BUDGET]: 'state',
+    [RQ_TYPE.IP]: 'ip',
+    [RQ_TYPE.FIZ]: 'fiz',
+};
+
+/** Код значения `op_client_type` для типа реквизита. */
+export const getClientTypeItemCode = (type: RQ_TYPE): string => RQ_TYPE_TO_ITEM_CODE[type];
+
 type PortalFields = PBXField[] | null | undefined;
 /** Сделка или компания Bitrix: интерфейсы без индексной сигнатуры тоже подходят. */
 type Entity = object | null | undefined;

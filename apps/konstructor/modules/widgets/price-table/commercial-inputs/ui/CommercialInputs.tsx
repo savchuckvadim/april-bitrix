@@ -2,6 +2,7 @@
 
 import {
     discountDisplayValue,
+    measureNameOf,
     quantityFieldLabel,
     type CommercialEdit,
     type RowPrice,
@@ -59,7 +60,7 @@ export const CommercialInputs = ({
             displayValue={price.quantity}
             disabled={disabled.quantity}
             onCommit={onCommit}
-            hint={price.measure.name || undefined}
+            hint={measureNameOf(price, contract) || undefined}
         />
         <CommercialNumberInput
             field="discount"

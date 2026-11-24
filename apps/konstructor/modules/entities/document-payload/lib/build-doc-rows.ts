@@ -1,5 +1,5 @@
 import { resolveSupply, type Catalog } from '../../catalog';
-import { buildTotalRow, type KRow, type RowSet } from '../../row-set';
+import { buildTotalRow, measureNameOf, type KRow, type RowSet } from '../../row-set';
 import type { DocProduct, DocRow, DocRowPrice, DocRowSet, DocRowSets } from '../model/dto';
 import { complectNumberOf, contractNumberOf } from './legacy-numbers.util';
 import { toDocContract, toDocSupply } from './build-doc-refs';
@@ -13,14 +13,14 @@ import { GENERAL_SET_NUMBER, alternativeSetNumber } from './doc-set-numbers';
  * наборов для сравнения.
  */
 
-const toDocPrice = (row: KRow, contractNumber: number): DocRowPrice => ({
+const toDocPrice = (catalog: Catalog, row: KRow, contractNumber: number): DocRowPrice => ({
     default: row.price.base,
     current: row.price.current,
     measure: {
         id: row.price.measure.id,
         code: row.price.measure.code,
         type: row.price.measure.type,
-        name: row.price.measure.name,
+        name: measureNameOf(row.price, catalog.contracts.byCode[row.refs.contractCode]),
         contractNumber,
     },
     month: row.price.month,
@@ -93,7 +93,7 @@ export const toDocRow = (
                   type: docSupply.type,
               }
             : undefined,
-        price: toDocPrice(row, contractNumber),
+        price: toDocPrice(catalog, row, contractNumber),
         product: toDocProduct(catalog, row),
         currentSupply:
             docSupply ??

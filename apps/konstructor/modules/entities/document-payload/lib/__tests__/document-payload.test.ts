@@ -127,6 +127,16 @@ describe('строки и сеты', () => {
         expect(row.supply?.forkp).toBe(catalog.supplies.byCode['internet_5']!.quantityForKp);
     });
 
+    it('единица строки — из справочника: сохранённое полное имя заменяется коротким', () => {
+        const savedLong = {
+            ...main,
+            price: { ...main.price, measure: { ...main.price.measure, name: 'Абонемент 12 месяцев' } },
+        };
+        const row = toDocRow(catalog, savedLong, 'general', 0, 0);
+        expect(row.price.measure.name).toBe(catalog.contracts.byCode['abonYear']!.measure.name);
+        expect(row.price.measure.name).toBe('абон. 12 мес.');
+    });
+
     it('сеты: general с total, развёрнутый/свёрнутый флаг, X-ОД второй строки без падения', () => {
         const sets = toDocRowSets(catalog, general, []);
         expect(sets.general).toHaveLength(1);

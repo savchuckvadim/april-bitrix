@@ -8,6 +8,7 @@
 import type { CatalogEntryDto } from './catalogEntryDto';
 import type { CatalogCheckpointDto } from './catalogCheckpointDto';
 import type { MethodologyCapDto } from './methodologyCapDto';
+import type { CatalogKnowledgeKindDto } from './catalogKnowledgeKindDto';
 
 export interface MethodologyCatalogDto {
   /** Типы звонков. */
@@ -30,4 +31,6 @@ export interface MethodologyCatalogDto {
   checkpoints: CatalogCheckpointDto[];
   /** Ограничители ядра — действуют всегда, в форме для справки. */
   coreCaps: MethodologyCapDto[];
+  /** Виды базы знаний, которые методика может объявить своими: проход методики получает их вдобавок к общему слою разбора. */
+  knowledgeKinds: CatalogKnowledgeKindDto[];
 }

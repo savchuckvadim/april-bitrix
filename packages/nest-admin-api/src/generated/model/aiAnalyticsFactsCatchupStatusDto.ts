@@ -26,6 +26,6 @@ export interface AiAnalyticsFactsCatchupStatusDto {
   runRecordId: string | null;
   /** Очередь подключена — запуск возможен. */
   runAvailable: boolean;
-  /** Подсказка по порядку действий. */
+  /** Подсказка по порядку действий владельца после прогона. */
   hint: string;
 }

@@ -12,7 +12,8 @@ import type {
   OfferWordEphemeralPdfStartResponseDto,
   OfferWordEphemeralPdfStopResponseDto,
   OfferWordMultiGenerateDto,
-  OfferWordMultiGenerateResponseDto
+  OfferWordMultiGenerateResponseDto,
+  OfferWordPdfPreviewRequestDto
 } from '.././model';
 
 import { customAxios } from '../../lib/admin-api';
@@ -36,16 +37,16 @@ const offerWordGenerateGenerateOfferWord = (
       );
     }
   /**
- * Всегда PDF (isWord в теле игнорируется). Возвращает operationId для polling и отмены.
+ * Всегда PDF (isWord в теле игнорируется). Участники комплекта (variants) и настройки сборки (composition) необязательны: превью печатает тот же документ, что формирование КП (compare, merged, independent), всегда одним PDF-файлом. Без них печатаются верхние поля запроса. Счёт не строится, документы никуда не сохраняются. Возвращает operationId для polling и отмены.
  * @summary Превью: запуск генерации PDF в очередь
  */
 const offerWordPdfPreviewStartPreview = (
-    offerWordByTemplateGenerateDto: OfferWordByTemplateGenerateDto,
+    offerWordPdfPreviewRequestDto: OfferWordPdfPreviewRequestDto,
  ) => {
       return customAxios<OfferWordEphemeralPdfStartResponseDto>(
       {url: `/api/offer-word-pdf-preview`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: offerWordByTemplateGenerateDto
+      data: offerWordPdfPreviewRequestDto
     },
       );
     }

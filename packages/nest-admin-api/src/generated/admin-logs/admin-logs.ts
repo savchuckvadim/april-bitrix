@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  BitrixFailuresAdminJournalParams,
+  BitrixFailuresResponseDto,
   LogsAdminRowsParams,
   LogsAdminSummaryParams,
   LogsRowsResponseDto,
@@ -43,6 +45,20 @@ const logsAdminRows = (
     },
       );
     }
-  return {logsAdminSummary,logsAdminRows}};
+  /**
+ * Окончательные сбои обращений в Битрикс за окно: сколько сбоев записи и чтения, по приложениям и операциям, и последние строки (время, приложение, операция, карточка, сотрудник, что не записалось, ошибка). Фильтр по порталу, приложению и «только запись»; промежуточные неудачные попытки сюда не попадают.
+ * @summary Сбои Битрикса: сводка и последние строки
+ */
+const bitrixFailuresAdminJournal = (
+    params?: BitrixFailuresAdminJournalParams,
+ ) => {
+      return customAxios<BitrixFailuresResponseDto>(
+      {url: `/api/admin/logs/bitrix-failures`, method: 'GET',
+        params
+    },
+      );
+    }
+  return {logsAdminSummary,logsAdminRows,bitrixFailuresAdminJournal}};
 export type LogsAdminSummaryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminLogs>['logsAdminSummary']>>>
 export type LogsAdminRowsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminLogs>['logsAdminRows']>>>
+export type BitrixFailuresAdminJournalResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminLogs>['bitrixFailuresAdminJournal']>>>

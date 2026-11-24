@@ -15,6 +15,9 @@ import type {
   MethodologyEditorAdminItemsParams,
   MethodologyItemsDto,
   MethodologyListDto,
+  MethodologyPreviewStartDto,
+  MethodologyPreviewStateDto,
+  MethodologyPreviewStatusParams,
   MethodologySaveDto,
   MethodologyValidateDto,
   MethodologyValidationDto
@@ -134,7 +137,34 @@ if(methodologyAssistAssistBody.title !== undefined) {
     },
       );
     }
-  return {methodologyAdminList,methodologyEditorAdminItems,methodologyEditorAdminDetail,methodologyEditorAdminCatalog,methodologyEditorAdminValidate,methodologyEditorAdminSave,methodologyAssistAssist}};
+  /**
+ * Ставит задание: один проход методики по черновику на уже разобранном звонке портала, с теми же материалами и паспортом звонка, что у штатного разбора. Итог — пункты с цитатами, спирали, сработавшие ограничители и итоговая оценка «сейчас → с черновиком». Ничего не сохраняет: методика, разбор звонка и карточка в Битрикс24 не меняются. Отвечает сразу состоянием «в очереди»; итог читается опросом.
+ * @summary Проверить черновик методики на одном звонке
+ */
+const methodologyPreviewStart = (
+    methodologyPreviewStartDto: MethodologyPreviewStartDto,
+ ) => {
+      return customAxios<MethodologyPreviewStateDto>(
+      {url: `/api/admin/methodologies/preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: methodologyPreviewStartDto
+    },
+      );
+    }
+  /**
+ * Состояние и, когда готово, итог проверки по номеру из ответа на запуск. Хранится час; только чтение.
+ * @summary Состояние проверки черновика методики
+ */
+const methodologyPreviewStatus = (
+    params: MethodologyPreviewStatusParams,
+ ) => {
+      return customAxios<MethodologyPreviewStateDto>(
+      {url: `/api/admin/methodologies/preview`, method: 'GET',
+        params
+    },
+      );
+    }
+  return {methodologyAdminList,methodologyEditorAdminItems,methodologyEditorAdminDetail,methodologyEditorAdminCatalog,methodologyEditorAdminValidate,methodologyEditorAdminSave,methodologyAssistAssist,methodologyPreviewStart,methodologyPreviewStatus}};
 export type MethodologyAdminListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMethodologies>['methodologyAdminList']>>>
 export type MethodologyEditorAdminItemsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMethodologies>['methodologyEditorAdminItems']>>>
 export type MethodologyEditorAdminDetailResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMethodologies>['methodologyEditorAdminDetail']>>>
@@ -142,3 +172,5 @@ export type MethodologyEditorAdminCatalogResult = NonNullable<Awaited<ReturnType
 export type MethodologyEditorAdminValidateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMethodologies>['methodologyEditorAdminValidate']>>>
 export type MethodologyEditorAdminSaveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMethodologies>['methodologyEditorAdminSave']>>>
 export type MethodologyAssistAssistResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMethodologies>['methodologyAssistAssist']>>>
+export type MethodologyPreviewStartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMethodologies>['methodologyPreviewStart']>>>
+export type MethodologyPreviewStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMethodologies>['methodologyPreviewStatus']>>>

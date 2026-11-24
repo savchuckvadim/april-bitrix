@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  OfferLettersImportDto,
+  OfferLettersImportResponseDto,
   TimestampsBackfillDto,
   TimestampsBackfillResponseDto
 } from '.././model';
@@ -29,5 +31,20 @@ const timestampsBackfillBackfill = (
     },
       );
     }
-  return {timestampsBackfillBackfill}};
+  /**
+ * Временная ручка. Берёт письмо каждого портала из легаси-шаблона `offer` (поле `letter`) и создаёт письмо портала в `offer_letters`. По умолчанию запуск «сухой»: только показывает, что будет перенесено. Чтобы записать, передать dryRun: false. Повторный запуск безопасен — перенесённое не дублируется.
+ * @summary Перенести письма КП порталов из легаси-шаблонов
+ */
+const offerLettersImportImportLegacy = (
+    offerLettersImportDto: OfferLettersImportDto,
+ ) => {
+      return customAxios<OfferLettersImportResponseDto>(
+      {url: `/api/admin/maintenance/offer-letters/import-legacy`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: offerLettersImportDto
+    },
+      );
+    }
+  return {timestampsBackfillBackfill,offerLettersImportImportLegacy}};
 export type TimestampsBackfillBackfillResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMaintenance>['timestampsBackfillBackfill']>>>
+export type OfferLettersImportImportLegacyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMaintenance>['offerLettersImportImportLegacy']>>>

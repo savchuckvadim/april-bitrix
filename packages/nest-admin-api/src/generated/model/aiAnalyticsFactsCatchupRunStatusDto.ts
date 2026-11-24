@@ -49,7 +49,7 @@ export interface AiAnalyticsFactsCatchupRunStatusDto {
   /** Часть упёрлась в бюджет времени. */
   timeBudgetHit: boolean;
   /**
-   * jobId поставленного продолжения; null — продолжение не нужно.
+   * Идентификатор джобы поставленного продолжения; null — продолжение не нужно.
    * @nullable
    */
   continuedWith: string | null;

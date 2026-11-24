@@ -16,6 +16,14 @@ import type {
   AiAnalyticsBackfillResultDto,
   AiAnalyticsCallReviewsAdminListParams,
   AiAnalyticsCostResultDto,
+  AiAnalyticsDealMovementAdminProbeStatusParams,
+  AiAnalyticsDealMovementAdminStatusParams,
+  AiAnalyticsDealMovementProbeDto,
+  AiAnalyticsDealMovementProbeRunResultDto,
+  AiAnalyticsDealMovementProbeStatusDto,
+  AiAnalyticsDealMovementRunDto,
+  AiAnalyticsDealMovementRunResultDto,
+  AiAnalyticsDealMovementStatusDto,
   AiAnalyticsEtlStatusResultDto,
   AiAnalyticsFactsCatchupAdminStatusParams,
   AiAnalyticsFactsCatchupRunDto,
@@ -38,6 +46,10 @@ import type {
   AiAnalyticsLaunchStatusDto,
   AiAnalyticsOwnerReportExportAdminFileParams,
   AiAnalyticsOwnerReportExportAdminStateParams,
+  AiAnalyticsPeriodDigestAdminStatusParams,
+  AiAnalyticsPeriodDigestRunDto,
+  AiAnalyticsPeriodDigestRunResultDto,
+  AiAnalyticsPeriodDigestStatusDto,
   AiAnalyticsPhase4AdminForecastBacktestParams,
   AiAnalyticsPhase4AdminPoolStatusParams,
   AiAnalyticsPhase4AdminQualityLinkParams,
@@ -304,7 +316,7 @@ const aiAnalyticsPhase4AdminQualityLink = (
       );
     }
   /**
- * Из чего сложилась середина прогноза: закрытые продажи, ожидание от открытых сделок и ожидание от новых встреч — по отделу (последний день журнала ai-analytics-forecast-log) и по каждому менеджеру за тот же день (ai-analytics-forecast), с входами расчёта и сделками с наибольшим вкладом. Нужна, чтобы найти источник завышенного прогноза: брошенные открытые сделки, завышенный темп или конверсия. Только сохранённые числа ночного расчёта; слагаемые появляются с ночи после выкладки 16.11.2026, у более ранних дней они null.
+ * Из чего сложилась середина прогноза: закрытые продажи, ожидание от проведённых и от новых презентаций (открытые сделки — справочно, вне суммы; у дней до 18.11.2026 — сделки и новые встречи по звонкам) — по отделу (последний день журнала ai-analytics-forecast-log) и по каждому менеджеру за тот же день (ai-analytics-forecast), с входами расчёта и сделками с наибольшим вкладом. Нужна, чтобы найти источник завышенного прогноза: брошенные открытые сделки, завышенный темп или конверсия. Только сохранённые числа ночного расчёта; слагаемые появляются с ночи после выкладки 16.11.2026, у более ранних дней они null.
  * @summary Разложение прогноза отдела на слагаемые
  */
 const aiAnalyticsForecastBreakdownAdminForecastBreakdown = (
@@ -557,6 +569,87 @@ const aiAnalyticsRefreshAdminStartAll = (
       );
     }
   /**
+ * Ставит прогон в очередь event-sales: статусы всех открытых сделок «ОП Основная» (вернулась назад, без внимания, без продвижения, под риском, движется) по стадиям, звонкам и делам по сделке. dryRun: true — подсчёт без сохранения и без записи, итог (и сколько записей ушло бы в ленту) в состоянии прогона; dryRun: false — внеочередной счёт: состояние и снимок дня сохраняются. В ленты сделок ручной счёт не пишет: записи делает только ночной счёт, расхождения ждут ночи (их число — в итоге прогона). Пока прогон портала того же режима ждёт или идёт, второй не ставится.
+ * @summary Посчитать движение сделок портала
+ */
+const aiAnalyticsDealMovementAdminRun = (
+    aiAnalyticsDealMovementRunDto: AiAnalyticsDealMovementRunDto,
+ ) => {
+      return customAxios<AiAnalyticsDealMovementRunResultDto>(
+      {url: `/api/admin/ai-analytics/deal-movement`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsDealMovementRunDto
+    },
+      );
+    }
+  /**
+ * Включён ли ночной счёт, ход и итог последнего прогона (сколько открыто и оценено, счёт по статусам, смены за ночь, записи в ленту, предупреждения) и последний сохранённый снимок дня со сменами статуса словами.
+ * @summary Состояние движения сделок портала
+ */
+const aiAnalyticsDealMovementAdminStatus = (
+    params: AiAnalyticsDealMovementAdminStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsDealMovementStatusDto>(
+      {url: `/api/admin/ai-analytics/deal-movement-status`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * ПИШЕТ В ЖИВОЙ ПОРТАЛ: в открытую сделку «ОП Основная» уходят служебная запись журнала и комментарий «Проверка записи в ленту — служебная, можно удалить». До и после каждой записи читается «последняя активность» сделки; итог с выводами — в GET этой же ручки. Сделка не подходит — отказ без записей. Пока проверка портала ждёт или идёт, вторая не ставится.
+ * @summary Проверить запись в ленту на одной сделке
+ */
+const aiAnalyticsDealMovementAdminProbe = (
+    aiAnalyticsDealMovementProbeDto: AiAnalyticsDealMovementProbeDto,
+ ) => {
+      return customAxios<AiAnalyticsDealMovementProbeRunResultDto>(
+      {url: `/api/admin/ai-analytics/deal-movement-probe`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsDealMovementProbeDto
+    },
+      );
+    }
+  /**
+ * Идёт ли проверка и итог последней: «последняя активность» сделки до и после служебной записи и комментария и выводы словами — сдвигает ли каждая запись активность.
+ * @summary Итог проверки записи в ленту
+ */
+const aiAnalyticsDealMovementAdminProbeStatus = (
+    params: AiAnalyticsDealMovementAdminProbeStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsDealMovementProbeStatusDto>(
+      {url: `/api/admin/ai-analytics/deal-movement-probe`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * Ставит подсчёт в очередь event-sales: карточка на каждого менеджера отдела продаж за неделю или месяц — метрики, сравнение с прошлым периодом и отделом словами, рекомендации с целями — сохраняется снимком, итог приходит в Telegram команды. Задачи руководителям не ставятся (подключаются следующим этапом). Без ключа периода — последняя закрытая неделя или месяц. Идёт вне расписания и независимо от «включено»; пока подсчёт того же вида ждёт или идёт, второй не ставится.
+ * @summary Посчитать итоги периода по менеджерам портала
+ */
+const aiAnalyticsPeriodDigestAdminRun = (
+    aiAnalyticsPeriodDigestRunDto: AiAnalyticsPeriodDigestRunDto,
+ ) => {
+      return customAxios<AiAnalyticsPeriodDigestRunResultDto>(
+      {url: `/api/admin/ai-analytics/period-digest`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: aiAnalyticsPeriodDigestRunDto
+    },
+      );
+    }
+  /**
+ * Включены ли итоги, «только считать», отмеченные виды периодов и итог последнего прогона по неделе и месяцу: период, момент, строки итога, предупреждения или причина сбоя.
+ * @summary Состояние итогов периода портала
+ */
+const aiAnalyticsPeriodDigestAdminStatus = (
+    params: AiAnalyticsPeriodDigestAdminStatusParams,
+ ) => {
+      return customAxios<AiAnalyticsPeriodDigestStatusDto>(
+      {url: `/api/admin/ai-analytics/period-digest-status`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
  * Актуальные отзывы руководителей и суперпользователей (вид call_review обратной связи) по порталу за период дней по Москве, свежие первыми: звонок с публичной ссылкой на страницу разбора, менеджер, автор и роль, оценка AI и руководителя, согласие, замечания «не так» и комментарий целиком. Фильтры — согласие (all / yes / no) и вид замечания. Сводка в том же ответе считается по всему периоду без фильтров: число отзывов и несогласий, средние оценки и разница, замечания по видам, топ-10 пунктов. Замещённые (прежние отзывы того же автора по звонку) не считаются.
  * @summary Отзывы руководителей о разборах звонков за период
  */
@@ -569,7 +662,7 @@ const aiAnalyticsCallReviewsAdminList = (
     },
       );
     }
-  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsForecastBreakdownAdminForecastBreakdown,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsFactsCatchupAdminRun,aiAnalyticsFactsCatchupAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile,aiAnalyticsRefreshAdminStart,aiAnalyticsRefreshAdminState,aiAnalyticsRefreshAdminPortals,aiAnalyticsRefreshAdminStartAll,aiAnalyticsCallReviewsAdminList}};
+  return {aiAnalyticsAuditAdminRun,aiAnalyticsAuditAdminLatest,aiAnalyticsAuditAdminAbout,aiAnalyticsAuditAdminProbeStageHistory,aiAnalyticsPipelineAdminRecompute,aiAnalyticsPipelineAdminBackfill,aiAnalyticsPipelineAdminStatus,aiAnalyticsRetentionAdminRun,aiAnalyticsFeedbackCostAdminFeedbackSummary,aiAnalyticsFeedbackCostAdminCostSummary,aiAnalyticsGoldenSetAdminList,aiAnalyticsGoldenSetAdminRun,aiAnalyticsPhase4AdminPoolStatus,aiAnalyticsPhase4AdminForecastBacktest,aiAnalyticsPhase4AdminRecommendationEffect,aiAnalyticsPhase4AdminQualityLink,aiAnalyticsForecastBreakdownAdminForecastBreakdown,aiAnalyticsReanalyzeAdminRun,aiAnalyticsReanalyzeAdminStatus,aiAnalyticsFactsCatchupAdminRun,aiAnalyticsFactsCatchupAdminStatus,aiAnalyticsSmartBackfillAdminRun,aiAnalyticsSmartBackfillAdminStatus,aiAnalyticsGuideAdminList,aiAnalyticsGuideAdminEntry,aiAnalyticsLaunchAdminResetCache,aiAnalyticsLaunchAdminSetStageFlags,aiAnalyticsLaunchAdminStatus,aiAnalyticsOwnerReportExportAdminStart,aiAnalyticsOwnerReportExportAdminState,aiAnalyticsOwnerReportExportAdminFile,aiAnalyticsRefreshAdminStart,aiAnalyticsRefreshAdminState,aiAnalyticsRefreshAdminPortals,aiAnalyticsRefreshAdminStartAll,aiAnalyticsDealMovementAdminRun,aiAnalyticsDealMovementAdminStatus,aiAnalyticsDealMovementAdminProbe,aiAnalyticsDealMovementAdminProbeStatus,aiAnalyticsPeriodDigestAdminRun,aiAnalyticsPeriodDigestAdminStatus,aiAnalyticsCallReviewsAdminList}};
 export type AiAnalyticsAuditAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminRun']>>>
 export type AiAnalyticsAuditAdminLatestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminLatest']>>>
 export type AiAnalyticsAuditAdminAboutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsAuditAdminAbout']>>>
@@ -605,4 +698,10 @@ export type AiAnalyticsRefreshAdminStartResult = NonNullable<Awaited<ReturnType<
 export type AiAnalyticsRefreshAdminStateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminState']>>>
 export type AiAnalyticsRefreshAdminPortalsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminPortals']>>>
 export type AiAnalyticsRefreshAdminStartAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsRefreshAdminStartAll']>>>
+export type AiAnalyticsDealMovementAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsDealMovementAdminRun']>>>
+export type AiAnalyticsDealMovementAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsDealMovementAdminStatus']>>>
+export type AiAnalyticsDealMovementAdminProbeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsDealMovementAdminProbe']>>>
+export type AiAnalyticsDealMovementAdminProbeStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsDealMovementAdminProbeStatus']>>>
+export type AiAnalyticsPeriodDigestAdminRunResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPeriodDigestAdminRun']>>>
+export type AiAnalyticsPeriodDigestAdminStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsPeriodDigestAdminStatus']>>>
 export type AiAnalyticsCallReviewsAdminListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSalesAiAnalyticsAdmin>['aiAnalyticsCallReviewsAdminList']>>>

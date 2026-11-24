@@ -35,4 +35,8 @@ export const AiAnalyticsRetentionVictimDtoType = {
   'ai-analytics-forecast-backtest': 'ai-analytics-forecast-backtest',
   'ai-analytics-recommendation-effect': 'ai-analytics-recommendation-effect',
   'ai-analytics-owner-report': 'ai-analytics-owner-report',
+  'ai-analytics-deal-movement': 'ai-analytics-deal-movement',
+  'ai-analytics-deal-movement-deals': 'ai-analytics-deal-movement-deals',
+  'ai-analytics-manager-week-digest': 'ai-analytics-manager-week-digest',
+  'ai-analytics-manager-month-digest': 'ai-analytics-manager-month-digest',
 } as const;

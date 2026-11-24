@@ -5,8 +5,12 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { AiForecastBreakdownDepartmentDtoMethod } from './aiForecastBreakdownDepartmentDtoMethod';
+import type { AiForecastBreakdownDepartmentDtoFlow } from './aiForecastBreakdownDepartmentDtoFlow';
 
 export interface AiForecastBreakdownDepartmentDto {
+  /** Метод расчёта: presentations-v2 — от отмеченных презентаций (с 18.11.2026); calls-v1 — старый расчёт по звонкам. */
+  method: AiForecastBreakdownDepartmentDtoMethod;
   /** День журнала, за который показано разложение. */
   day: string;
   /** Месяц прогноза (YYYY-MM). */
@@ -20,12 +24,12 @@ export interface AiForecastBreakdownDepartmentDto {
   /** Закрытых продаж с начала месяца. */
   done: number;
   /**
-   * Ожидаемых продаж от открытых сделок до конца месяца; null — слагаемое не сохранено (запись до 16.11.2026) или истории стадий нет.
+   * Ожидаемых продаж до конца месяца от уже сделанного: presentations-v2 — от проведённых презентаций; calls-v1 — от открытых сделок. null — слагаемое не сохранено (запись до 16.11.2026) или истории стадий нет.
    * @nullable
    */
   pipeline: number | null;
   /**
-   * Ожидаемых продаж от новых встреч до конца месяца; null — слагаемое не сохранено (запись до 16.11.2026).
+   * Ожидаемых продаж до конца месяца от новой активности: presentations-v2 — от новых презентаций; calls-v1 — от новых встреч (звонков). null — не сохранено (запись до 16.11.2026).
    * @nullable
    */
   newFlow: number | null;
@@ -40,4 +44,9 @@ export interface AiForecastBreakdownDepartmentDto {
   managers: number;
   /** У скольких из них нет истории стадий: ожидание от открытых сделок у них не считалось. */
   pipelineUnknown: number;
+  /**
+   * Подбор прогноза от презентаций; null — старый расчёт.
+   * @nullable
+   */
+  flow: AiForecastBreakdownDepartmentDtoFlow;
 }

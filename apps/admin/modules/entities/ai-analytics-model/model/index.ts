@@ -23,15 +23,13 @@ import type {
     AiAnalyticsRecommendationEffectDtoGateStatus,
     AiAnalyticsRecommendationEffectResultDto,
 } from '@workspace/nest-admin-api';
-import type { ModelForecastBacktest } from './forecast-flow.types';
 
 /**
  * Доменные алиасы generated-типов раздела «AI-аналитика → Модель и
  * обратная связь» (`Sales AI Analytics Admin`: `/api/admin/ai-analytics/
  * feedback`, `pool-status`, `forecast-backtest`, `recommendation-effect`,
- * `quality-link`). Формы ответов приходят из Swagger бэка; исключение —
- * поля прогноза с 18.11.2026 (`forecast-flow.types.ts`), пока клиент не
- * перегенерирован.
+ * `quality-link`). Формы ответов приходят из Swagger бэка; алиасы прогноза
+ * с 18.11.2026 — в `forecast-flow.types.ts`.
  */
 
 /** Период сводки обратной связи: даты YYYY-MM-DD включительно (UTC). */
@@ -41,10 +39,7 @@ export type ModelFeedbackManager = AiAnalyticsFeedbackManagerDto;
 export type ModelFeedbackKind = AiAnalyticsFeedbackKindDtoKind;
 
 /** Проверки точности прогноза; пункты — с методом расчёта (с 18.11.2026). */
-export type ModelForecastBacktestResult = Omit<
-    AiAnalyticsForecastBacktestResultDto,
-    'items'
-> & { items: ModelForecastBacktest[] };
+export type ModelForecastBacktestResult = AiAnalyticsForecastBacktestResultDto;
 export type ModelForecastBacktestStatus = AiAnalyticsForecastBacktestDtoStatus;
 
 /** Разложение прогноза отдела на слагаемые (`forecast-breakdown`). */
@@ -60,7 +55,6 @@ export type {
     ModelForecastFlowStatus,
     ModelForecastMethod,
 } from './forecast-flow.types';
-export { MODEL_FORECAST_METHODS } from './forecast-flow.types';
 
 export type ModelPoolStatusResult = AiAnalyticsPoolStatusResultDto;
 export type ModelPoolSnapshot = AiAnalyticsPoolSnapshotDto;

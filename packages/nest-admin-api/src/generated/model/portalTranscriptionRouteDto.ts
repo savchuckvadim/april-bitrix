@@ -5,16 +5,13 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
-import type { AiTranscriptionSlotDto } from './aiTranscriptionSlotDto';
 import type { PortalTranscriptionRouteDtoLong } from './portalTranscriptionRouteDtoLong';
 import type { PortalTranscriptionRouteDtoShort } from './portalTranscriptionRouteDtoShort';
+import type { AiTranscriptionSlotDto } from './aiTranscriptionSlotDto';
 import type { PortalTranscriptionRouteDtoFast } from './portalTranscriptionRouteDtoFast';
 import type { PortalTranscriptionRouteDtoPrecise } from './portalTranscriptionRouteDtoPrecise';
 import type { PortalTranscriptionRouteDtoPriority } from './portalTranscriptionRouteDtoPriority';
 
-/**
- * Маршрут распознавания портала: кто распознаёт длинные и короткие звонки, кто запасной, кто «для скорости» и «для точности». Пустая роль — действует режим транскрибации портала или приложения.
- */
 export interface PortalTranscriptionRouteDto {
   /**
    * С какой длительности звонок считается длинным, секунд; null — порог приложения (обычно 600 секунд).
@@ -34,6 +31,11 @@ export interface PortalTranscriptionRouteDto {
    */
   short?: PortalTranscriptionRouteDtoShort;
   /**
+   * Запасные по порядку: подхватывают звонок, когда основной не ответил (не больше 3). null — запасные режима транскрибации; пустой список — без запасных.
+   * @nullable
+   */
+  fallbacks?: AiTranscriptionSlotDto[] | null;
+  /**
    * Кто распознаёт все звонки, когда выбран приоритет «скорость»; null — приоритет «скорость» ничего не меняет.
    * @nullable
    */
@@ -43,11 +45,6 @@ export interface PortalTranscriptionRouteDto {
    * @nullable
    */
   precise?: PortalTranscriptionRouteDtoPrecise;
-  /**
-   * Запасные по порядку: подхватывают звонок, когда основной не ответил (не больше 3). null — запасные режима транскрибации; пустой список — без запасных.
-   * @nullable
-   */
-  fallbacks?: AiTranscriptionSlotDto[] | null;
   /**
    * Что сейчас важнее: normal — по длительности (длинные и короткие), fast — роль «для скорости» на все звонки, precise — роль «для точности» на все звонки. null — normal.
    * @nullable

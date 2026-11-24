@@ -71,15 +71,13 @@ const rowOf = (item: ModelForecastBacktest): BacktestRow => ({
 
 /**
  * Каким расчётом проверялись дни: от презентаций (с 18.11.2026; месяцы
- * старого расчёта — вне проверки) или старым по звонкам. Старый бэкенд
- * поля не присылает — строки нет.
+ * старого расчёта — вне проверки) или старым по звонкам.
  */
 const methodOf = (item: ModelForecastBacktest): ModelMetricView[] => {
-    if (item.method === undefined) return [];
     if (item.method === 'calls-v1') {
         return [{ label: BACKTEST_TEXT.method, value: BACKTEST_TEXT.methodCalls }];
     }
-    const other = item.otherMethodMonths ?? 0;
+    const other = item.otherMethodMonths;
     return [
         {
             label: BACKTEST_TEXT.method,

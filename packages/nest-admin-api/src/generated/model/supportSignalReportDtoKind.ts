@@ -7,7 +7,7 @@
  */
 
 /**
- * Вид оповещения: new_dialog — новый диалог, waiting — клиент ждёт ответа (напоминание), escalation — ждёт долго (срочный повтор).
+ * Вид оповещения: new_dialog — новый диалог, client_message — клиент написал в открытый диалог (только Telegram), waiting — клиент ждёт ответа (напоминание), escalation — ждёт долго (срочный повтор).
  */
 export type SupportSignalReportDtoKind = typeof SupportSignalReportDtoKind[keyof typeof SupportSignalReportDtoKind];
 
@@ -15,6 +15,7 @@ export type SupportSignalReportDtoKind = typeof SupportSignalReportDtoKind[keyof
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const SupportSignalReportDtoKind = {
   new_dialog: 'new_dialog',
+  client_message: 'client_message',
   waiting: 'waiting',
   escalation: 'escalation',
 } as const;

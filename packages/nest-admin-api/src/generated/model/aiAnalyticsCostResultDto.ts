@@ -5,8 +5,8 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
-import type { AiAnalyticsCostProviderDto } from './aiAnalyticsCostProviderDto';
 import type { AiAnalyticsCostTypeDto } from './aiAnalyticsCostTypeDto';
+import type { AiAnalyticsCostProviderDto } from './aiAnalyticsCostProviderDto';
 
 export interface AiAnalyticsCostResultDto {
   /** Домен портала. */

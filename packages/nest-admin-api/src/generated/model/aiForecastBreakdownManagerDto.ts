@@ -5,9 +5,13 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
+import type { AiForecastBreakdownManagerDtoMethod } from './aiForecastBreakdownManagerDtoMethod';
 import type { AiForecastBreakdownEpisodeDto } from './aiForecastBreakdownEpisodeDto';
+import type { AiForecastBreakdownManagerDtoFlow } from './aiForecastBreakdownManagerDtoFlow';
 
 export interface AiForecastBreakdownManagerDto {
+  /** Метод расчёта: presentations-v2 — от отмеченных презентаций (с 18.11.2026); calls-v1 — старый расчёт по звонкам. */
+  method: AiForecastBreakdownManagerDtoMethod;
   /** Id сотрудника в Битрикс24. */
   managerId: string;
   /** Середина прогноза продаж менеджера за месяц. */
@@ -15,12 +19,12 @@ export interface AiForecastBreakdownManagerDto {
   /** Закрытых продаж менеджера с начала месяца. */
   done: number;
   /**
-   * Ожидаемых продаж от открытых сделок до конца месяца; null — слагаемое не сохранено (запись до 16.11.2026) или истории стадий нет.
+   * Ожидаемых продаж до конца месяца от уже сделанного: presentations-v2 — от проведённых презентаций; calls-v1 — от открытых сделок. null — слагаемое не сохранено (запись до 16.11.2026) или истории стадий нет.
    * @nullable
    */
   pipeline: number | null;
   /**
-   * Ожидаемых продаж от новых встреч до конца месяца; null — слагаемое не сохранено (запись до 16.11.2026).
+   * Ожидаемых продаж до конца месяца от новой активности: presentations-v2 — от новых презентаций; calls-v1 — от новых встреч (звонков). null — не сохранено (запись до 16.11.2026).
    * @nullable
    */
   newFlow: number | null;
@@ -32,7 +36,7 @@ export interface AiForecastBreakdownManagerDto {
    */
   target: number | null;
   /**
-   * Сделано входной активности с начала месяца; null — запись до 16.11.2026, входы расчёта не сохранялись.
+   * Сделано входной активности с начала месяца (presentations-v2 — презентаций, calls-v1 — звонков); null — запись до 16.11.2026.
    * @nullable
    */
   entryDone: number | null;
@@ -42,7 +46,7 @@ export interface AiForecastBreakdownManagerDto {
    */
   entryRate: number | null;
   /**
-   * Конверсия входной активности в продажу (0–1) по нормам портала и менеджера.
+   * Продаж на единицу входной активности (0–1): presentations-v2 — на презентацию; calls-v1 — на звонок по нормам рёбер.
    * @nullable
    */
   conversion: number | null;
@@ -52,10 +56,20 @@ export interface AiForecastBreakdownManagerDto {
    */
   fBar: number | null;
   /**
-   * Открытых сделок менеджера в расчёте ожидания.
+   * Открытых сделок менеджера (presentations-v2 — справочно).
    * @nullable
    */
   openEpisodes: number | null;
   /** До пяти открытых сделок с наибольшим вкладом в ожидание, крупные первыми; пусто — истории стадий нет или запись старая. */
   topEpisodes: AiForecastBreakdownEpisodeDto[];
+  /**
+   * Ожидание от открытых сделок — справочно, в середину не входит (presentations-v2); null — старый расчёт или истории стадий нет.
+   * @nullable
+   */
+  deals: number | null;
+  /**
+   * Входы прогноза от презентаций; null — старый расчёт.
+   * @nullable
+   */
+  flow: AiForecastBreakdownManagerDtoFlow;
 }

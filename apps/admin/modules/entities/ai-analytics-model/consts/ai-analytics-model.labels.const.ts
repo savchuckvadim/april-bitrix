@@ -37,6 +37,7 @@ export const FEEDBACK_KIND_LABEL: Record<ModelFeedbackKind, string> = {
     rop_mark: 'Слепая оценка руководителя',
     recommendation_issued: 'Выдан совет',
     recommendation_done: 'Совет выполнен',
+    call_review: 'Отзыв руководителя о разборе звонка',
 };
 
 /** Итог проверки точности прогноза (гейт ступени «прогноз»). */

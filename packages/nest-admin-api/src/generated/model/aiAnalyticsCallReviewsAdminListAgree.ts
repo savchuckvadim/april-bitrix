@@ -6,9 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-/**
- * Согласие руководителя с оценкой AI: all — все отзывы, yes — только согласные, no — только несогласные.
- */
 export type AiAnalyticsCallReviewsAdminListAgree = typeof AiAnalyticsCallReviewsAdminListAgree[keyof typeof AiAnalyticsCallReviewsAdminListAgree];
 
 

@@ -6,10 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  CallReportSmartCheckDto,
   CreateSmartDto,
   InstallAicallDto,
   InstallAicallResponseDto,
   InstallConstSmartDto,
+  SmartCheckAicallParams,
   SmartDetailsResponseDto,
   SmartGetAllSmartsParams,
   SmartRegistryResponseDto,
@@ -31,6 +33,19 @@ const smartGetRegistry = (
  ) => {
       return customAxios<SmartRegistryResponseDto>(
       {url: `/api/admin/pbx/smarts/registry`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Сравнивает поля смарта на портале с конфигом: каких полей нет (отдельно — поля сводки методики продаж), в каких списках не хватает значений и какие поля лишние и занимают место в лимите полей. Только чтение: ничего не создаёт и не правит — в отличие от установки, безопасна на портале с исчерпанным лимитом полей.
+ * @summary Проверить поля смарта «AI-анализ звонков»
+ */
+const smartCheckAicall = (
+    params: SmartCheckAicallParams,
+ ) => {
+      return customAxios<CallReportSmartCheckDto>(
+      {url: `/api/admin/pbx/smarts/aicall-check`, method: 'GET',
+        params
     },
       );
     }
@@ -135,8 +150,9 @@ const smartDeleteSmart = (
     },
       );
     }
-  return {smartGetRegistry,smartInstallConst,smartInstallAicall,smartGetSmartDetails,smartCreateSmart,smartGetAllSmarts,smartGetSmartById,smartUpdateSmart,smartDeleteSmart}};
+  return {smartGetRegistry,smartCheckAicall,smartInstallConst,smartInstallAicall,smartGetSmartDetails,smartCreateSmart,smartGetAllSmarts,smartGetSmartById,smartUpdateSmart,smartDeleteSmart}};
 export type SmartGetRegistryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartGetRegistry']>>>
+export type SmartCheckAicallResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartCheckAicall']>>>
 export type SmartInstallConstResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartInstallConst']>>>
 export type SmartInstallAicallResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartInstallAicall']>>>
 export type SmartGetSmartDetailsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSmartsManagement>['smartGetSmartDetails']>>>

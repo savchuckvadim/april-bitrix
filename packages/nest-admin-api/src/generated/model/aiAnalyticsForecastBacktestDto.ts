@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { AiAnalyticsForecastBacktestDtoStatus } from './aiAnalyticsForecastBacktestDtoStatus';
+import type { AiAnalyticsForecastBacktestDtoMethod } from './aiAnalyticsForecastBacktestDtoMethod';
 
 export interface AiAnalyticsForecastBacktestDto {
   /** Закрытый месяц проверки (YYYY-MM). */
@@ -22,6 +23,10 @@ export interface AiAnalyticsForecastBacktestDto {
   shadowMinMonths: number;
   /** Из теневых месяцев восстановлено по истории шагом forecast-log-replay (хотя бы один день журнала воспроизведён задним числом); 0 — все месяцы записаны ночным прогоном или запись старее воспроизведения. */
   replayedMonths: number;
+  /** Метод, дни которого проверялись: presentations-v2 — прогноз от презентаций (с 18.11.2026; дней старого расчёта в выборке нет); calls-v1 — проверка до 18.11.2026 по старому расчёту. */
+  method: AiAnalyticsForecastBacktestDtoMethod;
+  /** Закрытых месяцев только со старым расчётом — вне проверки, пока историю не пересчитали догоном месяца. */
+  otherMethodMonths: number;
   /** Месяцев в проверке; 0 — журналов с фактом нет. */
   months: number;
   /** Дней-прогнозов в проверке. */

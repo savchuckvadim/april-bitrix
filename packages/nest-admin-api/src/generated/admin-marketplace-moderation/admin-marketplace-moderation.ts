@@ -16,11 +16,13 @@ import type {
   InviteDto,
   IssueInviteDto,
   IssuedInviteDto,
+  LivePlacementsDto,
   MarketplaceModerationGetApplicationsParams,
   MarketplaceModerationGetEventsParams,
   MarketplaceModerationGetInstallsParams,
   MarketplaceModerationGetInvitesParams,
   PbxActionResultDto,
+  PlacementsRefreshDto,
   PortalProductDto,
   ReissueInviteDto
 } from '.././model';
@@ -133,14 +135,29 @@ const marketplaceModerationProvisionRefresh = (
       );
     }
   /**
- * Прокси в pbx: diff-синхронизация placement.bind портала с эталоном-манифестом (после изменения состава виджетов/мест).
- * @summary Синхронизировать привязки виджетов портала
+ * Прокси в pbx: привязки placement.bind портала выравниваются под список виджетов портала (настройка app_widgets): недостающие ставятся, лишние наши снимаются. force=true — снять все наши привязки и поставить заново. Пустой список — ничего не делает. Работает на любом портале с установленным приложением April (и действующем, и новом).
+ * @summary Обновить или переустановить виджеты портала
  */
 const marketplaceModerationPlacementsRefresh = (
     id: number,
+    placementsRefreshDto?: PlacementsRefreshDto,
  ) => {
       return customAxios<PbxActionResultDto>(
-      {url: `/api/admin/marketplace/portals/${id}/placements-refresh`, method: 'POST'
+      {url: `/api/admin/marketplace/portals/${id}/placements-refresh`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: placementsRefreshDto
+    },
+      );
+    }
+  /**
+ * Прокси в pbx: живой список из Битрикса (placement.get) — наши и чужие привязки. Только чтение. Нужна установленная на портале April (токен приложения).
+ * @summary Привязки виджетов на портале сейчас
+ */
+const marketplaceModerationLivePlacements = (
+    id: number,
+ ) => {
+      return customAxios<LivePlacementsDto>(
+      {url: `/api/admin/marketplace/portals/${id}/placements/live`, method: 'GET'
     },
       );
     }
@@ -210,7 +227,7 @@ const marketplaceModerationReissueInvite = (
     },
       );
     }
-  return {marketplaceModerationGetApplications,marketplaceModerationDecide,marketplaceModerationGetComponents,marketplaceModerationGetInstalls,marketplaceModerationGetInstall,marketplaceModerationGetEvents,marketplaceModerationGetPortalProducts,marketplaceModerationProvisionRefresh,marketplaceModerationPlacementsRefresh,marketplaceModerationGetInvites,marketplaceModerationIssueInvite,marketplaceModerationRevokeInvite,marketplaceModerationDeleteInvite,marketplaceModerationReissueInvite}};
+  return {marketplaceModerationGetApplications,marketplaceModerationDecide,marketplaceModerationGetComponents,marketplaceModerationGetInstalls,marketplaceModerationGetInstall,marketplaceModerationGetEvents,marketplaceModerationGetPortalProducts,marketplaceModerationProvisionRefresh,marketplaceModerationPlacementsRefresh,marketplaceModerationLivePlacements,marketplaceModerationGetInvites,marketplaceModerationIssueInvite,marketplaceModerationRevokeInvite,marketplaceModerationDeleteInvite,marketplaceModerationReissueInvite}};
 export type MarketplaceModerationGetApplicationsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetApplications']>>>
 export type MarketplaceModerationDecideResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationDecide']>>>
 export type MarketplaceModerationGetComponentsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetComponents']>>>
@@ -220,6 +237,7 @@ export type MarketplaceModerationGetEventsResult = NonNullable<Awaited<ReturnTyp
 export type MarketplaceModerationGetPortalProductsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetPortalProducts']>>>
 export type MarketplaceModerationProvisionRefreshResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationProvisionRefresh']>>>
 export type MarketplaceModerationPlacementsRefreshResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationPlacementsRefresh']>>>
+export type MarketplaceModerationLivePlacementsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationLivePlacements']>>>
 export type MarketplaceModerationGetInvitesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationGetInvites']>>>
 export type MarketplaceModerationIssueInviteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationIssueInvite']>>>
 export type MarketplaceModerationRevokeInviteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminMarketplaceModeration>['marketplaceModerationRevokeInvite']>>>

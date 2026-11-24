@@ -8,7 +8,7 @@
 import type { PlacementDto } from './placementDto';
 import type { DocumentSupplyReportGenerateDtoContractType } from './documentSupplyReportGenerateDtoContractType';
 import type { ComplectDto } from './complectDto';
-import type { ProductRowSupplyDto } from './productRowSupplyDto';
+import type { SupplyReportSupplyDto } from './supplyReportSupplyDto';
 import type { PriceDto } from './priceDto';
 import type { ContractDto } from './contractDto';
 import type { RegionsDto } from './regionsDto';
@@ -52,8 +52,8 @@ export interface DocumentSupplyReportGenerateDto {
     contractType: DocumentSupplyReportGenerateDtoContractType;
     /** Complect of the contract */
     complect: ComplectDto[];
-    /** Supply of the contract */
-    supply: ProductRowSupplyDto;
+    /** Поставка отчёта. Читается только type (шаблон и данные отчёта). */
+    supply: SupplyReportSupplyDto;
     /** Цены оффера. Легаси-конструктор это поле не шлёт, поэтому обязательным его делать нельзя — иначе весь запрос отвалится с 400 ещё до сервиса. */
     price?: PriceDto;
     /** Contract of the contract */

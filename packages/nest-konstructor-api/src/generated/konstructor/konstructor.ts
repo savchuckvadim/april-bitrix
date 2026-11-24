@@ -26,6 +26,7 @@ import type {
     OfferWordEphemeralPdfStopResponseDto,
     OfferWordMultiGenerateDto,
     OfferWordMultiGenerateResponseDto,
+    OfferWordPdfPreviewRequestDto,
     ZakupkiOfferCreateDto,
 } from '.././model';
 
@@ -85,30 +86,6 @@ export const getKonstructor = () => {
         });
     };
     /**
-     * @summary Init deal
-     */
-    const initDealInitDeal = (initDealDto: InitDealDto) => {
-        return customAxios<void>({
-            url: `/api/supply/init-deal`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: initDealDto,
-        });
-    };
-    /**
-     * @summary Задача бухгалтеру по заявке на поставку (вебхук робота RPA)
-     */
-    const initTaskAccountantInitTaskAccountant = (
-        initTaskAccountantDto: InitTaskAccountantDto,
-    ) => {
-        return customAxios<void>({
-            url: `/api/supply/init-task-accountant`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: initTaskAccountantDto,
-        });
-    };
-    /**
      * Ответ: operationId джобы (строка) либо при withoutQueue — результат генерации. Новый фронт использует generate-multi.
      * @deprecated
      * @summary Generate offer word by template (легаси)
@@ -124,17 +101,17 @@ export const getKonstructor = () => {
         });
     };
     /**
-     * Всегда PDF (isWord в теле игнорируется). Возвращает operationId для polling и отмены.
+     * Всегда PDF (isWord в теле игнорируется). Участники комплекта (variants) и настройки сборки (composition) необязательны: превью печатает тот же документ, что формирование КП (compare, merged, independent), всегда одним PDF-файлом. Без них печатаются верхние поля запроса. Счёт не строится, документы никуда не сохраняются. Возвращает operationId для polling и отмены.
      * @summary Превью: запуск генерации PDF в очередь
      */
     const offerWordPdfPreviewStartPreview = (
-        offerWordByTemplateGenerateDto: OfferWordByTemplateGenerateDto,
+        offerWordPdfPreviewRequestDto: OfferWordPdfPreviewRequestDto,
     ) => {
         return customAxios<OfferWordEphemeralPdfStartResponseDto>({
             url: `/api/offer-word-pdf-preview`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            data: offerWordByTemplateGenerateDto,
+            data: offerWordPdfPreviewRequestDto,
         });
     };
     /**
@@ -172,6 +149,30 @@ export const getKonstructor = () => {
         });
     };
     /**
+     * @summary Init deal
+     */
+    const initDealInitDeal = (initDealDto: InitDealDto) => {
+        return customAxios<void>({
+            url: `/api/supply/init-deal`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: initDealDto,
+        });
+    };
+    /**
+     * @summary Задача бухгалтеру по заявке на поставку (вебхук робота RPA)
+     */
+    const initTaskAccountantInitTaskAccountant = (
+        initTaskAccountantDto: InitTaskAccountantDto,
+    ) => {
+        return customAxios<void>({
+            url: `/api/supply/init-task-accountant`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: initTaskAccountantDto,
+        });
+    };
+    /**
      * Встроенные стили: код, название, описание, есть ли титульник, гаммы и какие настройки стиль задаёт сам.
      * @summary Список PDF-шаблонов КП
      */
@@ -197,7 +198,7 @@ export const getKonstructor = () => {
         });
     };
     /**
-     * Собирает документ и отдаёт PDF в ответе, ничего не сохраняя. Для панели предпросмотра в конструкторе.
+     * Собирает документ и отдаёт PDF в ответе, ничего не сохраняя. Для панели предпросмотра в конструкторе. Если у каждого варианта своя страница (режим independent), отдаёт склейку всех вариантов, в том числе при separateDocuments: предпросмотр показывает всё, что будет напечатано. Стадию «КП» варианты от предпросмотра не получают.
      * @summary Предпросмотр КП в PDF
      */
     const offerPdfPreview = (offerPdfGenerateDto: OfferPdfGenerateDto) => {
@@ -210,7 +211,7 @@ export const getKonstructor = () => {
         });
     };
     /**
-     * Сохраняет PDF в хранилище и возвращает публичную ссылку на файл.
+     * Сохраняет PDF в хранилище и возвращает публичную ссылку на файл. У нескольких вариантов с отдельными страницами (independent) варианты склеиваются в один файл, а при separateDocuments или сбое склейки сохраняются файлом на вариант: все файлы перечислены в links. После генерации варианты переводятся в стадию «КП». Если в запросе есть invoice с включённым needGeneralInvoice или needManyInvoices, следом собираются счета тем же сервисом и тем же шаблоном счёта, что у Word-КП (шаблон подбирается по порталу, поставщику, типу клиента и виду поставки), переводятся в PDF (при сбое остаётся DOCX), прикрепляются к сделке с типом счёта и добавляются в тот же комментарий таймлайна; ссылки на них — в invoiceLinks. Если счёт собрать не удалось, КП всё равно отдаётся, а причина приходит в warnings.
      * @summary Сформировать КП в PDF
      */
     const offerPdfGenerate = (offerPdfGenerateDto: OfferPdfGenerateDto) => {
@@ -226,13 +227,13 @@ export const getKonstructor = () => {
         contractGenerateGenerateContract,
         konstructorInitInit,
         initSupplyInitSupply,
-        initDealInitDeal,
-        initTaskAccountantInitTaskAccountant,
         offerWordGenerateGenerateOfferWord,
         offerWordPdfPreviewStartPreview,
         offerWordPdfPreviewGetPreviewStatus,
         offerWordPdfPreviewStopPreview,
         offerWordMultiGenerateGenerateOfferWordMulti,
+        initDealInitDeal,
+        initTaskAccountantInitTaskAccountant,
         offerPdfListTemplates,
         offerPdfStylePreview,
         offerPdfPreview,
@@ -263,18 +264,6 @@ export type KonstructorInitInitResult = NonNullable<
 export type InitSupplyInitSupplyResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getKonstructor>['initSupplyInitSupply']>
-    >
->;
-export type InitDealInitDealResult = NonNullable<
-    Awaited<ReturnType<ReturnType<typeof getKonstructor>['initDealInitDeal']>>
->;
-export type InitTaskAccountantInitTaskAccountantResult = NonNullable<
-    Awaited<
-        ReturnType<
-            ReturnType<
-                typeof getKonstructor
-            >['initTaskAccountantInitTaskAccountant']
-        >
     >
 >;
 export type OfferWordGenerateGenerateOfferWordResult = NonNullable<
@@ -315,6 +304,18 @@ export type OfferWordMultiGenerateGenerateOfferWordMultiResult = NonNullable<
             ReturnType<
                 typeof getKonstructor
             >['offerWordMultiGenerateGenerateOfferWordMulti']
+        >
+    >
+>;
+export type InitDealInitDealResult = NonNullable<
+    Awaited<ReturnType<ReturnType<typeof getKonstructor>['initDealInitDeal']>>
+>;
+export type InitTaskAccountantInitTaskAccountantResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<
+                typeof getKonstructor
+            >['initTaskAccountantInitTaskAccountant']
         >
     >
 >;

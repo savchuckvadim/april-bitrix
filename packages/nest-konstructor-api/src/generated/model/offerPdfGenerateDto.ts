@@ -7,6 +7,9 @@
  */
 import type { OfferPdfGenerateDtoContractType } from './offerPdfGenerateDtoContractType';
 import type { ComplectDto } from './complectDto';
+import type { OfferComplectSectionDto } from './offerComplectSectionDto';
+import type { OfferComplectsMode } from './offerComplectsMode';
+import type { OfferAlternativeSetComplectsDto } from './offerAlternativeSetComplectsDto';
 import type { SupplyDto } from './supplyDto';
 import type { ContractDto } from './contractDto';
 import type { ProductRowDto } from './productRowDto';
@@ -14,9 +17,12 @@ import type { ProductRowFullSetsDto } from './productRowFullSetsDto';
 import type { OfferPdfGenerateDtoClientType } from './offerPdfGenerateDtoClientType';
 import type { IOfferWordGenerateRecipientDto } from './iOfferWordGenerateRecipientDto';
 import type { IOfferWordGenerateManagerDto } from './iOfferWordGenerateManagerDto';
+import type { InvoiceDataDto } from './invoiceDataDto';
 import type { OfferPdfTemplateCode } from './offerPdfTemplateCode';
 import type { OfferPdfSettingsDto } from './offerPdfSettingsDto';
 import type { OfferPdfLetterDto } from './offerPdfLetterDto';
+import type { DocumentVariantDto } from './documentVariantDto';
+import type { ComplectCompositionDto } from './complectCompositionDto';
 
 export interface OfferPdfGenerateDto {
     /** Domain of the company */
@@ -33,6 +39,12 @@ export interface OfferPdfGenerateDto {
     contractType: OfferPdfGenerateDtoContractType;
     /** Complect of the contract */
     complect: ComplectDto[];
+    /** Комплекты общего набора со своим наполнением: название, подпись поставки и группы инфоблоков каждого комплекта. По ним КП печатает наполнение по комплектам (complectsMode: separate); Word-шаблон получает их в данных ComplectSections. Без поля КП печатается как раньше: одно объединённое наполнение из `complect` */
+    complects?: OfferComplectSectionDto[];
+    /** Как печатать наполнение общего набора: merged — объединённое наполнение одним списком без повторов (поле `complect`); separate — по комплектам, у каждого свой раздел со своим заголовком (поле `complects`, нужно два комплекта и больше). Без поля действует merged. Настройка одинакова для Word и PDF */
+    complectsMode?: OfferComplectsMode;
+    /** Наполнение наборов для сравнения: по разделу на набор — номер и заголовок набора из таблицы цен и наполнение его комплектов. Поле есть и не пусто — после наполнения общего набора КП печатает блок «Наполнение наборов для сравнения»; Word-шаблон получает его в данных AlternativeComplectSections и флаге IsAlternativeComplects. Без поля или с пустым списком КП печатается как раньше. Настройка одинакова для Word и PDF */
+    alternativeComplects?: OfferAlternativeSetComplectsDto[];
     /** Supply of the contract */
     supply: SupplyDto;
     /** Contract of the contract */
@@ -49,6 +61,10 @@ export interface OfferPdfGenerateDto {
     recipient: IOfferWordGenerateRecipientDto;
     /** Manager of the contract */
     manager: IOfferWordGenerateManagerDto;
+    /** Данные счёта: нужен ли общий счёт и счета по наборам для сравнения, дата оплаты, номер. Нужен хотя бы один из флагов needGeneralInvoice и needManyInvoices: тогда после КП собираются счета тем же шаблоном, что у Word-КП (шаблон подбирается по порталу, поставщику, типу клиента и виду поставки), и переводятся в PDF. Без поля счёт не делается. Превью (preview) счёт не собирает никогда. */
+    invoice?: InvoiceDataDto;
+    /** Идентификатор шаблона счёта. Пустой или не передан — шаблон подбирается сам по порталу, поставщику, типу клиента и виду поставки. */
+    invoiceTemplateId?: string;
     /** Код встроенного PDF-шаблона (список — GET /offer-pdf/templates). */
     templateCode?: OfferPdfTemplateCode;
     /** Гамма стиля (коды — в palettes списка стилей). Не задана или неизвестна — первая гамма стиля. */
@@ -61,4 +77,8 @@ export interface OfferPdfGenerateDto {
     documentNumber?: string;
     /** Загрузить файл на Диск Битрикса и написать в таймлайн сделки. По умолчанию — да; false — только файл и ссылка на сервере. */
     saveToDeal?: boolean;
+    /** Варианты комплекта — по одному payload на каждый, как у Word-КП (generate-multi). Без них или с одним вариантом КП печатается из полей запроса. Настройки PDF (settings, letter, documentNumber, стиль, гамма) общие для всех вариантов. */
+    variants?: DocumentVariantDto[];
+    /** Настройки сборки нескольких вариантов: режим (compare, multi_contract, single_contract) и настройки КП. Без них несколько вариантов печатаются как compare: открывается первый, остальные показываются наборами «для сравнения», если включён showAlternatives. */
+    composition?: ComplectCompositionDto;
 }

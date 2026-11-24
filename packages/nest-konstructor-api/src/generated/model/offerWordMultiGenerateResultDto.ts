@@ -22,6 +22,6 @@ export interface OfferWordMultiGenerateResultDto {
     renderData: OfferWordMultiGenerateResultDtoRenderData;
     /** Папка сделки на Bitrix Disk, 0 — не создана */
     portalFolderId: number;
-    /** Что не сошлось при слиянии участников (сроки, скидки) — для показа менеджеру */
+    /** Что не сошлось при слиянии участников (сроки, скидки) и почему не собран счёт (нет шаблона, сбой сборки) — для показа менеджеру */
     warnings: string[];
 }

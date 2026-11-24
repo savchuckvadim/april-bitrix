@@ -11,9 +11,11 @@ import type {
     InnerDealFindParams,
     InnerDealFindResponseDto,
     InnerDealListParams,
+    InnerDealRemoveVariantParams,
     InnerDealSettingsDto,
     InnerDealSnapshotDto,
     InnerDealUpsertDto,
+    InnerDealVariantDeleteResponseDto,
     InnerDealVariantParams,
     InnerDealVariantsParams,
 } from '.././model';
@@ -75,6 +77,17 @@ export const getKonstructorDeal = () => {
         });
     };
     /**
+     * Удаляет слепок варианта (строки с этим variantSmartId у сделки). Строка самой сделки не затрагивается. Если в настройках сделки этот вариант отмечен открытым в конструкторе, отметка снимается. Элемент смарта в Битриксе удаляет фронт отдельным вызовом. Пустой или нулевой variantSmartId даёт 400.
+     * @summary Удалить вариант комплекта сделки
+     */
+    const innerDealRemoveVariant = (params: InnerDealRemoveVariantParams) => {
+        return customAxios<InnerDealVariantDeleteResponseDto>({
+            url: `/api/konstructor/deal/variant`,
+            method: 'DELETE',
+            params,
+        });
+    };
+    /**
      * Режим (сравнение / вместе разными договорами / вместе одним договором), участники и настройки КП. Пишет только колонку настроек — слепок конструктора не трогает. settings:null возвращает сделку к поведению «один набор, одно КП».
      * @summary Сохранить настройки сборки комплекта
      */
@@ -106,6 +119,7 @@ export const getKonstructorDeal = () => {
         innerDealList,
         innerDealVariants,
         innerDealVariant,
+        innerDealRemoveVariant,
         innerDealUpdateSettings,
         innerDealCopy,
     };
@@ -129,6 +143,13 @@ export type InnerDealVariantsResult = NonNullable<
 export type InnerDealVariantResult = NonNullable<
     Awaited<
         ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealVariant']>
+    >
+>;
+export type InnerDealRemoveVariantResult = NonNullable<
+    Awaited<
+        ReturnType<
+            ReturnType<typeof getKonstructorDeal>['innerDealRemoveVariant']
+        >
     >
 >;
 export type InnerDealUpdateSettingsResult = NonNullable<

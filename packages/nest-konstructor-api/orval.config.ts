@@ -1,7 +1,8 @@
 // packages/nest-konstructor-api/orval.config.ts
 // Бэкенд: back/apps/konstructor (defaultPort 3007, swagger UI /docs/api, JSON /docs/api-json).
 // Для генерации бэкенд должен быть запущен: `pnpm dev:konstructor` в back/.
-const baseurl = `http://localhost:3007/docs/api-json`;
+// Прод (живой сервер с выложенным кодом): ORVAL_INPUT=https://api.konstructor.april-app.ru/docs/api-json pnpm generate
+const baseurl = process.env.ORVAL_INPUT ?? `http://localhost:3007/docs/api-json`;
 // const baseurl = `https://api.konstructor.april-app.ru/docs/api-json`; // прод (живой), генерить с него, если локальный бэк отстаёт
 export default {
     api: {

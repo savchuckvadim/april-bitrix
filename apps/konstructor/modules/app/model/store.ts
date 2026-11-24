@@ -29,6 +29,8 @@ import { appSettingsReducer } from '@/modules/entities/app-settings';
 import { zakupkiReducer } from '@/modules/entities/zakupki';
 import { serviceOfferReducer } from '@/modules/entities/service-offer';
 import { dealSendReducer } from '@/modules/features/deal-send';
+// прямым путём: стору нужен только редьюсер, окно фичи в его бандл не входит
+import { clientTypePromptReducer } from '@/modules/features/client-type-prompt/model/ClientTypePromptSlice';
 import { coreReducers } from './core-reducers';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
@@ -48,6 +50,8 @@ const rootReducer = combineReducers({
     library: libraryReducer,
     // отправка сделки в Bitrix (статус/skipped) — фича deal-send
     dealSend: dealSendReducer,
+    // тип клиента: автоопределение по реквизитам и окно «Укажите тип клиента»
+    clientTypePrompt: clientTypePromptReducer,
     // шапка КП (получатель, счёт) и статус генерации — экран документа
     offerDocument: offerDocumentReducer,
     // КП: формат, стиль PDF, настройки, письмо, номер — пишутся в слепок

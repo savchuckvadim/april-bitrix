@@ -349,6 +349,14 @@ s.snapshot
 - Тип клиента: `entities/deal` `resolveClientType` / `selectClientType(state)` — компания → сделка;
   в шапке чип `clientType` (`entities/client-card`, пишет `op_client_type` компании). Все сборщики
   документов берут тип из `selectClientType`.
+- Тип клиента известен до работы с документами: фича `features/client-type-prompt`. Когда загружены
+  компания, портал и реквизиты, слушатель `app/model/listeners/client-type-detect.listener.ts` один раз
+  за загрузку сделки смотрит на тип клиента. Поле пустое и все реквизиты компании одного типа
+  (`detectClientTypeByBundle`, `entities/bx-rq`) — тип пишется в `op_client_type` компании тем же thunk'ом
+  `updateClientChoice`, что и чип шапки (код пункта — `getClientTypeItemCode`). Реквизитов нет или типы
+  разные — запись не идёт. Затем, пока тип неизвестен, окно «Укажите тип клиента» (`ClientTypePromptDialog`
+  в `widgets/app-shell`) открывается поверх любого экрана. «Позже» скрывает его до перезагрузки страницы
+  (флаг в сторе, без localStorage); поля нет на портале — окна нет.
 - Текущий реквизит сделки — `snapshot.rqId` (v2; v1 и старые v2 без поля — первый подходящего типа).
 
 ## Спецификация договора и платные Legal Tech

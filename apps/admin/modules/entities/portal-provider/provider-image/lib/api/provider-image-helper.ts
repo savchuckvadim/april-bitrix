@@ -1,10 +1,13 @@
 import { customAxios } from '@workspace/nest-admin-api';
 import { PROVIDER_IMAGES_API_BASE } from '../provider-image.consts';
 import {
+    PROVIDER_IMAGE_LEGACY_TIMEOUT_MS,
     PROVIDER_IMAGE_UPLOAD_TIMEOUT_MS,
     type ProviderImage,
+    type ProviderImageLegacyImportReport,
     type ProviderImageRole,
 } from '../../model';
+import { buildLegacyImportForm } from '../provider-image-legacy-import.util';
 
 /** Доля отправленного, 0–100. */
 export type ProviderImageUploadProgress = (percent: number) => void;
@@ -50,6 +53,25 @@ export class ProviderImageHelper {
                     onProgress(Math.round((event.loaded / event.total) * 100));
                 }
             },
+        });
+    }
+
+    /**
+     * Перенос картинок реквизитов из легаси по выбранной папке (ручка общая для
+     * всех порталов). `dryRun` только проверяет и ничего не пишет; отчёт по
+     * строкам приходит в обоих режимах.
+     */
+    legacyImport(
+        files: readonly File[],
+        dryRun: boolean,
+    ): Promise<ProviderImageLegacyImportReport> {
+        return customAxios<ProviderImageLegacyImportReport>({
+            url: `${PROVIDER_IMAGES_API_BASE}/images/legacy-import`,
+            method: 'POST',
+            params: { dryRun },
+            data: buildLegacyImportForm(files),
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: PROVIDER_IMAGE_LEGACY_TIMEOUT_MS,
         });
     }
 

@@ -151,15 +151,16 @@ export interface OfferPdfResponseFile {
  * Ответ POST /offer-pdf/generate: ссылки на файл, прикреплён ли он к сделке и
  * `missingAssets` — каких картинок и логотипов стиля не нашлось на сервере.
  *
- * Бэк добавит необязательные `links` (все файлы КП, когда их несколько),
- * `invoiceLinks` (файлы счетов той же формы, что элементы `links`, есть, когда
- * счёт запрашивали) и `warnings` (что не сошлось при слиянии вариантов, в том
- * числе «Счёт не сформирован: …»). В сгенерированном клиенте этих полей пока
- * нет: после `pnpm run generate` они появятся в OfferPdfGenerateResponseDto, и
- * расширение ниже можно убрать (форму `links` сверить с клиентом). Старый бэк
- * их не присылает.
+ * `links` (все файлы КП), `invoiceLinks` (файлы счетов) и `warnings` (в том
+ * числе «Счёт не сформирован: …») сгенерированный клиент описывает с 24.11, где
+ * `invoiceLinks` обязателен. Здесь все три поля необязательны, а файл — в
+ * мягкой форме `OfferPdfResponseFile`: ответ прежнего бэка (до выкладки или во
+ * время неё) их не содержит, и экран читает его так же.
  */
-export type OfferPdfGenerateResponse = OfferPdfGenerateResponseDto & {
+export type OfferPdfGenerateResponse = Omit<
+    OfferPdfGenerateResponseDto,
+    'links' | 'invoiceLinks' | 'warnings'
+> & {
     links?: OfferPdfResponseFile[];
     invoiceLinks?: OfferPdfResponseFile[];
     warnings?: string[];

@@ -35,9 +35,10 @@ export const MergedSectionTable = ({
     const isPublic = useAppSelector(selectIsPublic);
 
     const merged = useMemo(() => {
-        if (!report.length || !report[0]?.kpi || !callingsReport.length) {
-            return null;
-        }
+        // Сотрудник из одного источника остаётся строкой с нулями по другому,
+        // поэтому секция пуста, только когда пусты оба источника.
+        if (!report.length && !callingsReport.length) return null;
+        if (report.length && !report[0]?.kpi) return null;
         return getMergedReportsData(
             getReportTableData(report),
             getCallingStatisticsTableData(callingsReport),

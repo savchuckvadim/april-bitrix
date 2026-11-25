@@ -31,18 +31,20 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
     const isPublic = useAppSelector(selectIsPublic);
     // Вычисляем данные (всегда, даже если нет данных)
     const tableKpiData = useMemo(() => {
-        
-        if (!report || !report.length || !report[0]?.kpi) return null;
+        if (!report || (report.length && !report[0]?.kpi)) return null;
         return getReportTableData(report);
     }, [report]);
 
     const tableCallingsData = useMemo(() => {
-        if (!callingsReport || !callingsReport.length) return null;
+        if (!callingsReport) return null;
         return getCallingStatisticsTableData(callingsReport);
     }, [callingsReport]);
 
+    // Сотрудник из одного источника остаётся строкой с нулями по другому,
+    // поэтому «нет данных» — только когда пусты оба источника.
     const mergedReportsData = useMemo(() => {
         if (!tableKpiData || !tableCallingsData) return null;
+        if (!tableKpiData.data.length && !tableCallingsData.data.length) return null;
         return getMergedReportsData(tableKpiData, tableCallingsData);
     }, [tableKpiData, tableCallingsData]);
 
@@ -83,7 +85,7 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
     }, [mergedReportsData, selectedUsers, selectedActions]);
 
     // Ранний return ПОСЛЕ всех хуков
-    if (!report || !report.length || !report[0]?.kpi || !callingsReport || !callingsReport.length || !mergedReportsData) {
+    if (!mergedReportsData) {
         return <div>Нет данных для отображения</div>;
     }
 

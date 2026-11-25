@@ -100,48 +100,73 @@ export const buildCallingRatingDataset = (
 /**
  * Объединённый отчёт: фактические звонки + KPI-события без «План»,
  * «Результативные» и звонковых действий (та же компоновка, что в таблице).
+ *
+ * Состав сотрудников — как в объединённой таблице (merge-core.util): все
+ * из обоих источников, сначала в порядке звонков, затем те, кто есть только
+ * в событиях. У каждого сотрудника заполнены все показатели: чего у него
+ * нет (звонков или событий) — ноль. Показатель события с названием, уже
+ * занятым показателем звонков, не дублируется.
  */
 export const buildMergedRatingDataset = (
     report: ReportData[],
     callings: ReportCallingData[],
 ): RatingDataset => {
     const callingDataset = buildCallingRatingDataset(callings);
-    if (!callingDataset.rows.length) return callingDataset;
 
-    const kpiActions = (report[0]?.kpi ?? []).filter(kpi =>
-        getIsFiltredKpiReportForMergedReport(kpi.action.name || ''),
+    const isMergedKpi = (kpi: ReportData['kpi'][number]): boolean =>
+        getIsFiltredKpiReportForMergedReport(kpi.action.name || '');
+    const callingNames = new Set(
+        callingDataset.actions.map(action => action.name),
     );
-    const kpiValuesByUser = new Map<number, Record<string, number>>(
-        report.map(row => [
-            reportRowUserId(row),
-            Object.fromEntries(
+    const kpiActions = (report[0]?.kpi ?? [])
+        .filter(isMergedKpi)
+        .map(kpi => ({
+            code: kpi.action.innerCode,
+            name: kpi.action.name || kpi.action.innerCode,
+            filterAction: kpi.action,
+        }))
+        .filter(action => !callingNames.has(action.name));
+    const kpiCodes = new Set(kpiActions.map(action => action.code));
+
+    const kpiRowByUser = new Map<number, RatingDatasetRow>();
+    report.forEach(row => {
+        const userId = reportRowUserId(row);
+        if (kpiRowByUser.has(userId)) return;
+        kpiRowByUser.set(userId, {
+            userId,
+            name: reportRowName(row),
+            values: Object.fromEntries(
                 row.kpi
-                    .filter(kpi =>
-                        getIsFiltredKpiReportForMergedReport(
-                            kpi.action.name || '',
-                        ),
-                    )
+                    .filter(kpi => kpiCodes.has(kpi.action.innerCode))
                     .map(kpi => [kpi.action.innerCode, kpi.count || 0]),
             ),
-        ]),
-    );
+        });
+    });
 
+    const actions = [...callingDataset.actions, ...kpiActions];
+    /** Значения по всем показателям отчёта: отсутствующее — ноль. */
+    const withAllActions = (
+        values: Record<string, number>,
+    ): Record<string, number> =>
+        Object.fromEntries(
+            actions.map(action => [action.code, values[action.code] ?? 0]),
+        );
+
+    const callingUserIds = new Set(callingDataset.rows.map(row => row.userId));
     return {
-        actions: [
-            ...callingDataset.actions,
-            ...kpiActions.map(kpi => ({
-                code: kpi.action.innerCode,
-                name: kpi.action.name || kpi.action.innerCode,
-                filterAction: kpi.action,
+        actions,
+        rows: [
+            ...callingDataset.rows.map(row => ({
+                ...row,
+                values: withAllActions({
+                    ...row.values,
+                    ...(kpiRowByUser.get(row.userId)?.values ?? {}),
+                }),
             })),
+            ...[...kpiRowByUser.values()]
+                .filter(row => !callingUserIds.has(row.userId))
+                .map(row => ({ ...row, values: withAllActions(row.values) })),
         ],
-        rows: callingDataset.rows.map(row => ({
-            ...row,
-            values: {
-                ...row.values,
-                ...(kpiValuesByUser.get(row.userId) ?? {}),
-            },
-        })),
     };
 };
 

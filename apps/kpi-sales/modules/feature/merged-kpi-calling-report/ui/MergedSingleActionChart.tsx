@@ -51,7 +51,9 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
 
     // Объединяем данные (с учётом выбранных сотрудников)
     const mergedData = useMemo(() => {
-        if (!report || !report.length || !callingsReport || !callingsReport.length) {
+        // Пусты оба источника — объединять нечего; сотрудник из одного
+        // источника остаётся с нулями по другому.
+        if (!report || !callingsReport || (!report.length && !callingsReport.length)) {
             return null;
         }
         const tableKpiData = getReportTableData(report);

@@ -57,7 +57,14 @@ export const MergedReportBlock = ({
         buildMergedRatingDataset(report, callingsReport ?? []),
         mergedSelection,
     );
-    const presentUserIds = report.map(row => Number(row.user?.ID ?? row.id));
+    // Состав объединённого отчёта — сотрудники и из событий, и из звонков
+    // (иначе сотрудник только со звонками выпадает из вкладок отделов/групп).
+    const presentUserIds = [
+        ...new Set([
+            ...report.map(row => Number(row.user?.ID ?? row.id)),
+            ...(callingsReport ?? []).map(callingRowUserId),
+        ]),
+    ];
     // План-аннотации: kpi + звонковые показатели (объединённая таблица).
     const planAnnotations = usePlanAnnotations(
         ['kpi', 'calling'],

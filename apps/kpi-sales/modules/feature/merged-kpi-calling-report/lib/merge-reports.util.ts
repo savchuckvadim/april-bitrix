@@ -1,62 +1,45 @@
-import { ReportCallingData } from "@/modules/entities/calling-statistics";
-import { getIsFiltredKpiReportForMergedReport } from "@/modules/shared/lib/merged-actions.util";
+import type { RTableAction, RTableRow } from '@workspace/april-ui';
+import type { ReportCallingData } from "@/modules/entities/calling-statistics";
+import type { ReportData } from "@/modules/entities/report/model/types/report/report-type";
+import type { RTableProps } from "@/modules/shared";
+import type { DownloadKpiReportItemDto, DownloadReportKpiItemDto } from "@workspace/nest-kpi-report-sales-api";
+import {
+    isMergedSelected,
+    mergeRowsByUser,
+    type MergedRowAdapter,
+} from "./merge-core.util";
 
-import { ReportData } from "@/modules/entities/report/model/types/report/report-type";
-import { RTableProps } from "@/modules/shared";
-import { DownloadKpiReportItemDto, DownloadReportKpiItemDto } from "@workspace/nest-kpi-report-sales-api";
+/** Строки таблицы экрана: показатели — RTableAction, ключ колонки — название. */
+const TABLE_ROW_ADAPTER: MergedRowAdapter<RTableRow, RTableAction> = {
+    idOf: row => row.id,
+    cellsOf: row => row.actions,
+    nameOf: action => action.name,
+    zeroOf: ({ name, code }) =>
+        code === undefined ? { name, value: 0 } : { name, code, value: 0 },
+};
 
+/** Строки Excel для сервера: показатели — DownloadReportKpiItemDto, ключ колонки — action. */
+const EXCEL_ROW_ADAPTER: MergedRowAdapter<DownloadKpiReportItemDto, DownloadReportKpiItemDto> = {
+    idOf: row => row.id,
+    cellsOf: row => row.kpi,
+    nameOf: kpi => kpi.action,
+    zeroOf: ({ id, action }) => ({ id, action, count: 0 }),
+};
+
+/**
+ * Объединённая таблица: сотрудники из обоих источников (сначала в порядке
+ * звонков, затем те, кто есть только в событиях), у всех строк одинаковые
+ * колонки — показатели звонков, затем показатели событий; отсутствующее
+ * значение — ноль. Исходные таблицы не изменяются.
+ */
 export const getMergedReportsData = (report: RTableProps, callingsReport: RTableProps): RTableProps => {
-    const data: RTableProps['data'] = [];
-
-
-    callingsReport.data.forEach(callingUserReport => {
-        const result: RTableProps['data'][0] = {
-            ...callingUserReport,
-        };
-
-        report.data.forEach(kpiUserReport => {
-
-            if (Number(kpiUserReport.id) === Number(callingUserReport.id)) {
-
-                result.actions.push(...kpiUserReport.actions.filter(action =>
-                    getIsFiltredKpiReportForMergedReport(action.name) &&
-                    !result.actions.some(a => a.name === action.name)
-
-                ));
-
-            }
-        });
-        data.push(result);
-    });
-
-
-
-    //TODO привести все оттчет сгруппированные по юзерам к одному набору actions - по самому длинному
-    const longestReport = data.reduce((prev, curr) => {
-        return (curr.actions?.length || 0) > (prev?.actions?.length || 0) ? curr : prev;
-    }, data[0]);
-    const preparedData = data.map(item => {
-        const actions = longestReport?.actions.map(action => {
-            const searchedCurrentAction = item.actions.find(item => item.name === action.name);
-            if (searchedCurrentAction) {
-                return searchedCurrentAction;
-            }
-            return {
-                ...action,
-                value: 0,
-                count: 0,
-            };
-        }) || [];
-        return {
-            ...item,
-            actions,
-        };
-    });
+    const data = mergeRowsByUser(callingsReport.data, report.data, TABLE_ROW_ADAPTER, 'calling')
+        .map(({ row, cells }) => ({ ...row, actions: cells }));
 
     return {
         code: report.code,
         firstCellName: report.firstCellName,
-        data: preparedData,
+        data,
     };
 }
 
@@ -69,51 +52,24 @@ export const getKpidReportsExcelData = (reportData: ReportData[],): DownloadKpiR
     return result;
 }
 
+/**
+ * Excel объединённого отчёта: тот же состав сотрудников и колонок, что у
+ * getMergedReportsData, затем локальный фильтр (пустой выбор — без
+ * ограничения, как на экране). В строке сначала показатели звонков, потом
+ * события; шапка (id, имя) — из событий, если сотрудник есть в них.
+ */
 export const getMergedReportsExcelData = (reportData: ReportData[], callingsReportData: ReportCallingData[], selectedUsers: number[], selectedActions: string[]): DownloadKpiReportItemDto[] => {
-
-    //todo selected actions
-    // const report = getReportTableData(reportData);
-    // const callingsReport = getCallingStatisticsTableData(callingsReportData);
-    const reportDataFiltredByUsers = reportData.filter(user => selectedUsers.includes(user.id));
-    const reportDataFiltredByActions = reportDataFiltredByUsers.map(user => ({
-        ...user,
-        kpi: user.kpi.filter(kpi => selectedActions.includes(kpi.action?.name || '')),
-    }));
-    const callingsReportDataFiltredByUsers = callingsReportData.filter(user => selectedUsers.includes(Number(user?.user?.ID || 0)));
-    const callingsReportDataFiltredByActions = callingsReportDataFiltredByUsers.map(user => ({
-        ...user,
-        callings: user.callings.filter(calling => selectedActions.includes(calling.action as string)),
-    }));
-
-
-    const result: DownloadKpiReportItemDto[] = reportDataFiltredByActions.map(userKpiReport => (
-        getDownloadReportFromKpiReport(userKpiReport)
-    ));
-    const filtredKpiResult: DownloadKpiReportItemDto[] = result.map(item => {
-        return {
-            ...item,
-            kpi: item.kpi.filter(kpi => getIsFiltredKpiReportForMergedReport(kpi.action)),
-        } as DownloadKpiReportItemDto;
-    }) as DownloadKpiReportItemDto[];
-
-
-
-    callingsReportDataFiltredByActions.forEach(callingUserReport => {
-
-        filtredKpiResult.forEach(item => {
-            const callingReportItem = getDownloadReportFromCallingReport(callingUserReport);
-
-            if (Number(item.id) === Number(callingReportItem.id)) {
-
-                item.kpi.unshift(...callingReportItem.kpi);
-
-            }
-        });
-    });
-    return filtredKpiResult;
-
-
-    // return getMergedReportsData(report, callingsReport);
+    return mergeRowsByUser(
+        callingsReportData.map(getDownloadReportFromCallingReport),
+        reportData.map(getDownloadReportFromKpiReport),
+        EXCEL_ROW_ADAPTER,
+        'kpi',
+    )
+        .filter(({ row }) => isMergedSelected(selectedUsers, row.id))
+        .map(({ row, cells }) => ({
+            ...row,
+            kpi: cells.filter(kpi => isMergedSelected(selectedActions, kpi.action)),
+        }));
 }
 
 
@@ -133,7 +89,7 @@ const getDownloadReportFromKpiReport = (kpiReport: ReportData): DownloadKpiRepor
 
 const getDownloadReportFromCallingReport = (callingReport: ReportCallingData): DownloadKpiReportItemDto => {
     return {
-        id: Number(callingReport.user.ID),
+        id: Number(callingReport.user?.ID ?? callingReport.userId),
         userName: callingReport.userName || '',
         kpi: callingReport.callings.map(calling => {
             return {

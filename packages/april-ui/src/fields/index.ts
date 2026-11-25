@@ -32,6 +32,10 @@ export type {
     ChoiceChipsProps,
 } from './ChoiceChips';
 
+// Чипы-переключатели для фильтров с выбором нескольких значений
+export { FilterChips } from './FilterChips';
+export type { FilterChipItem, FilterChipsProps } from './FilterChips';
+
 // Текстовые поля с фиксацией по blur: набор не пересобирает зависимое на каждый символ
 export { BlurCommitInput } from './BlurCommitInput';
 export type { BlurCommitInputProps } from './BlurCommitInput';

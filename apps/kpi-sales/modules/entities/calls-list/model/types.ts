@@ -26,6 +26,20 @@ export type CallsListSort = (typeof CALLS_LIST_SORTS)[number];
 export const CALLS_LIST_PAGE_SIZES = [25, 50, 100] as const;
 export type CallsListPageSize = (typeof CALLS_LIST_PAGE_SIZES)[number];
 
+/** Состояние пункта методики в фильтре: исполнен или не исполнен в звонке. */
+export const CALLS_LIST_POINT_STATES = ['done', 'missed'] as const;
+export type CallsListPointState = (typeof CALLS_LIST_POINT_STATES)[number];
+
+/** Фильтр по пункту методики: код пункта и нужное состояние. */
+export interface CallsListPointFilter {
+    code: string;
+    state: CallsListPointState;
+}
+
+/** Окраска бейджа с бэка: проблема, предупреждение, нейтральный, хороший. */
+export const CALLS_LIST_BADGE_TONES = ['bad', 'warn', 'neutral', 'good'] as const;
+export type CallsListBadgeTone = (typeof CALLS_LIST_BADGE_TONES)[number];
+
 /** Фильтры, порядок и страница — то, что живёт в адресе страницы. */
 export interface CallsListQuery {
     /** Начало периода, YYYY-MM-DD, включительно. */
@@ -34,6 +48,10 @@ export interface CallsListQuery {
     to: string;
     managerIds: string[];
     callTypes: string[];
+    /** Общие бейджи (id); пусто — без фильтра. */
+    badges: string[];
+    /** Пункты методики с нужным состоянием; пусто — без фильтра. */
+    points: CallsListPointFilter[];
     /** Оценка AI от (1–10); null — без нижней границы. */
     scoreMin: number | null;
     /** Оценка AI до (1–10); null — без верхней границы. */
@@ -57,6 +75,8 @@ export interface CallsListRequest extends CallsListRequester {
     to: string;
     managerIds?: string[];
     callTypes?: string[];
+    badges?: string[];
+    points?: CallsListPointFilter[];
     scoreMin?: number;
     scoreMax?: number;
     review: CallsListReviewFilter;
@@ -80,6 +100,13 @@ export interface CallsListReviews {
     lastAt: string | null;
 }
 
+/** Бейдж-проблема звонка в строке списка. */
+export interface CallsListItemBadge {
+    id: string;
+    title: string;
+    tone: CallsListBadgeTone;
+}
+
 /** Строка списка разборов. */
 export interface CallsListItem {
     transcriptionId: string;
@@ -94,6 +121,8 @@ export interface CallsListItem {
     aiScore: number | null;
     client: string | null;
     reviews: CallsListReviews;
+    /** Бейджи-проблемы звонка; старый бэк поля не присылает — считаем пустым. */
+    badges?: CallsListItemBadge[];
     /** Страница разбора (личная ссылка руководителя); null — ссылки нет. */
     url: string | null;
 }
@@ -110,9 +139,50 @@ export interface CallsListCallTypeFacet {
     count: number;
 }
 
+/** Общий бейдж в панели: сколько разборов останется, если его добавить к выбору. */
+export interface CallsListBadgeFacet {
+    id: string;
+    title: string;
+    /** Пояснение при наведении. */
+    hint: string;
+    tone: CallsListBadgeTone;
+    /** Бейджи одной семьи — альтернативы («или» на сервере); null — без семьи. */
+    family: string | null;
+    /** Показывать в панели по умолчанию. */
+    main: boolean;
+    /** С какой даты (YYYY-MM-DD) в разборах есть этот факт; null — всегда. */
+    since: string | null;
+    count: number;
+}
+
+/** Пункт методики в панели: сколько разборов с каждым состоянием. */
+export interface CallsListPointFacet {
+    code: string;
+    /** Короткая подпись чипа. */
+    label: string;
+    /** Полное название пункта. */
+    title: string;
+    /** Типы звонка, к которым относится пункт. */
+    callTypes: string[];
+    main: boolean;
+    done: number;
+    missed: number;
+}
+
+/** Методика, по пунктам которой фильтруем. */
+export interface CallsListMethodology {
+    code: string;
+    title: string;
+}
+
 export interface CallsListFacets {
     managers: CallsListManagerFacet[];
     callTypes: CallsListCallTypeFacet[];
+    /** Общие бейджи; старый бэк поля не присылает — считаем пустым. */
+    badges?: CallsListBadgeFacet[];
+    /** Пункты методики; старый бэк поля не присылает — считаем пустым. */
+    points?: CallsListPointFacet[];
+    methodology?: CallsListMethodology | null;
 }
 
 /** Страница списка разборов. */
@@ -123,6 +193,11 @@ export interface CallsListResponse {
     page: number;
     pageSize: number;
     facets: CallsListFacets;
+    /**
+     * Типы звонка, к которым относятся выбранные бейджи методики; null или
+     * нет поля — без ограничения.
+     */
+    callTypesLock?: string[] | null;
 }
 
 /** Что не так с периодом: даты битые, начало позже конца или слишком длинный. */

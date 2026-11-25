@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+    CALLS_LIST_BADGES_MAX,
+    CALLS_LIST_POINTS_MAX,
     buildCallsListSearch,
     callsListOverflowPage,
     callsListRequestOf,
@@ -26,6 +28,8 @@ describe('calls-list-query — фильтры списка разборов в �
             to: '2026-11-19',
             managerIds: [],
             callTypes: [],
+            badges: [],
+            points: [],
             scoreMin: null,
             scoreMax: null,
             review: 'any',
@@ -46,6 +50,11 @@ describe('calls-list-query — фильтры списка разборов в �
             to: '2026-11-15',
             managerIds: ['447', '512'],
             callTypes: ['cold', 'presentation'],
+            badges: ['no_price', 'second_call'],
+            points: [
+                { code: 'greeting', state: 'missed' },
+                { code: 'need.budget', state: 'done' },
+            ],
             scoreMin: 3,
             scoreMax: 6.5,
             review: 'disagreed',
@@ -56,6 +65,7 @@ describe('calls-list-query — фильтры списка разборов в �
         const search = buildCallsListSearch(full, TODAY);
         expect(search).toBe(
             '?from=2026-09-01&to=2026-11-15&managers=447%2C512&types=cold%2Cpresentation' +
+                '&badges=no_price%2Csecond_call&points=greeting%3Amissed%2Cneed.budget%3Adone' +
                 '&scoreMin=3&scoreMax=6.5&review=disagreed&sort=score_asc&page=3&size=50',
         );
         expect(parseCallsListQuery(search, TODAY)).toEqual(full);
@@ -127,5 +137,115 @@ describe('calls-list-query — фильтры списка разборов в �
         expect(callsListOverflowPage({ page: 2, pageSize: 25 }, { total: 60, itemsCount: 25 })).toBeNull();
         expect(callsListOverflowPage({ page: 3, pageSize: 25 }, { total: 0, itemsCount: 0 })).toBeNull();
         expect(callsListOverflowPage({ page: 1, pageSize: 25 }, { total: 10, itemsCount: 0 })).toBeNull();
+    });
+});
+
+describe('calls-list-query — бейджи и пункты методики', () => {
+    const many = (count: number, make: (index: number) => string): string =>
+        Array.from({ length: count }, (_, index) => make(index)).join(',');
+
+    it('по умолчанию бейджей и пунктов нет, в адрес они не попадают', () => {
+        const parsed = parseCallsListQuery('', TODAY);
+        expect(parsed.badges).toEqual([]);
+        expect(parsed.points).toEqual([]);
+        expect(buildCallsListSearch(query({ badges: [], points: [] }), TODAY)).toBe('');
+    });
+
+    it('бейджи: адрес собирается и разбирается обратно без потерь', () => {
+        const withBadges = query({ badges: ['no_price', 'second_call', 'x1'] });
+        const search = buildCallsListSearch(withBadges, TODAY);
+        expect(search).toBe('?badges=no_price%2Csecond_call%2Cx1');
+        expect(parseCallsListQuery(search, TODAY)).toEqual(withBadges);
+    });
+
+    it('бейджи: кривые id и повторы пропускаются', () => {
+        const parsed = parseCallsListQuery(
+            '?badges=no_price,No_Price,1abc,a-b,,a b,no_price,ok_2',
+            TODAY,
+        );
+        expect(parsed.badges).toEqual(['no_price', 'ok_2']);
+    });
+
+    it('бейджи: больше предела отбрасываются с конца', () => {
+        const parsed = parseCallsListQuery(`?badges=${many(40, index => `b${index}`)}`, TODAY);
+        expect(parsed.badges).toHaveLength(CALLS_LIST_BADGES_MAX);
+        expect(parsed.badges[0]).toBe('b0');
+        expect(parsed.badges[CALLS_LIST_BADGES_MAX - 1]).toBe(`b${CALLS_LIST_BADGES_MAX - 1}`);
+    });
+
+    it('пункты: адрес собирается и разбирается обратно, порядок сохраняется', () => {
+        const withPoints = query({
+            points: [
+                { code: 'need.budget', state: 'done' },
+                { code: 'greeting', state: 'missed' },
+                { code: 'price-offer', state: 'missed' },
+                { code: 'a_b', state: 'done' },
+            ],
+        });
+        const search = buildCallsListSearch(withPoints, TODAY);
+        expect(search).toBe(
+            '?points=need.budget%3Adone%2Cgreeting%3Amissed%2Cprice-offer%3Amissed%2Ca_b%3Adone',
+        );
+        expect(parseCallsListQuery(search, TODAY)).toEqual(withPoints);
+    });
+
+    it('пункты: на один код одно состояние — побеждает последнее', () => {
+        const parsed = parseCallsListQuery(
+            '?points=greeting:missed,need:done,greeting:done',
+            TODAY,
+        );
+        expect(parsed.points).toEqual([
+            { code: 'greeting', state: 'done' },
+            { code: 'need', state: 'done' },
+        ]);
+    });
+
+    it('пункты: кривые коды, состояния и записи пропускаются', () => {
+        const parsed = parseCallsListQuery(
+            '?points=greeting:wrong,:done,Bad:done,1a:done,a..b:done,a.:done,x:y:done,' +
+                'nocolon,greeting:,ok.1-b:missed,,',
+            TODAY,
+        );
+        expect(parsed.points).toEqual([{ code: 'ok.1-b', state: 'missed' }]);
+    });
+
+    it('пункты: больше предела отбрасываются с конца', () => {
+        const parsed = parseCallsListQuery(
+            `?points=${many(30, index => `p${index}:missed`)}`,
+            TODAY,
+        );
+        expect(parsed.points).toHaveLength(CALLS_LIST_POINTS_MAX);
+        expect(parsed.points[0]).toEqual({ code: 'p0', state: 'missed' });
+    });
+
+    it('смена бейджей или пунктов возвращает на первую страницу', () => {
+        const onThird = query({ page: 3 });
+        expect(patchCallsListQuery(onThird, { badges: ['no_price'] }).page).toBe(1);
+        expect(
+            patchCallsListQuery(onThird, { points: [{ code: 'greeting', state: 'done' }] }).page,
+        ).toBe(1);
+    });
+
+    it('бейджи и пункты — это «фильтры заданы»; сброс их снимает', () => {
+        const busy = query({ badges: ['no_price'], pageSize: 50 });
+        expect(isCallsListFiltered(busy, TODAY)).toBe(true);
+        expect(isCallsListFiltered(query({ points: [{ code: 'g', state: 'done' }] }), TODAY)).toBe(
+            true,
+        );
+        expect(resetCallsListFilters(busy, TODAY)).toEqual(query({ pageSize: 50 }));
+    });
+
+    it('тело запроса несёт бейджи и пункты только когда они есть', () => {
+        expect(callsListRequestOf(query(), REQUESTER)).not.toHaveProperty('badges');
+        expect(callsListRequestOf(query(), REQUESTER)).not.toHaveProperty('points');
+        expect(
+            callsListRequestOf(
+                query({ badges: ['no_price'], points: [{ code: 'greeting', state: 'missed' }] }),
+                REQUESTER,
+            ),
+        ).toMatchObject({
+            badges: ['no_price'],
+            points: [{ code: 'greeting', state: 'missed' }],
+        });
     });
 });

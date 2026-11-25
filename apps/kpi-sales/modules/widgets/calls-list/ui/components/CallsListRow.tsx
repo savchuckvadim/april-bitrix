@@ -10,13 +10,15 @@ import {
 } from '@/modules/entities/calls-list';
 import { CallsListCellLink } from './CallsListCellLink';
 import { CallsListReviewsCell } from './CallsListReviewsCell';
+import { CallsListRowBadges } from './CallsListRowBadges';
 
 const T = CALLS_LIST_TEXT.table;
 
 /**
- * Строка списка: дата и время, сотрудник, клиент, тип, длительность,
- * оценка AI (цвет как на витрине), отзывы руководителей, «Открыть». Каждая
- * ячейка — ссылка на разбор (личная ссылка руководителя с `?from=calls`).
+ * Строка списка: дата и время, сотрудник, клиент (под ним бейджи звонка),
+ * тип, длительность, оценка AI (цвет как на витрине), отзывы руководителей,
+ * «Открыть». Каждая ячейка — ссылка на разбор (личная ссылка руководителя с
+ * `?from=calls`).
  */
 export const CallsListRow = ({ item }: { item: CallsListItem }) => {
     const href = callsListRowHref(item.url);
@@ -35,6 +37,7 @@ export const CallsListRow = ({ item }: { item: CallsListItem }) => {
             <TableCell className="min-w-48 max-w-80">
                 <CallsListCellLink href={href}>
                     <span className="line-clamp-2">{item.client ?? T.noValue}</span>
+                    <CallsListRowBadges badges={item.badges} />
                 </CallsListCellLink>
             </TableCell>
             <TableCell>

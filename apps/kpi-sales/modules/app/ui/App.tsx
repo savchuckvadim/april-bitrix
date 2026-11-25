@@ -37,7 +37,7 @@ export const App = ({ children }: { children: React.ReactNode }) => {
     }
 
     return (
-        <div className="h-calc(100vh - 300px) p-4">
+        <div className="p-4">
             {isMounted && initialized && !isLoading ? (
                 children
             ) : (

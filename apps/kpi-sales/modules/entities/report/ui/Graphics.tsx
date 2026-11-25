@@ -2,8 +2,6 @@ import React from 'react';
 
 import GraphicBoard from './charts/GraphicBoard';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import KPITotal from './Dashboards/KPITotalBoard';
-import { useReport } from '../model/useReport';
 import { ReportData } from '../model/types/report/report-type';
 
 interface GraphicsProps {
@@ -12,9 +10,6 @@ interface GraphicsProps {
 const Graphics: React.FC<GraphicsProps> = ({ report }) => {
     const isLoading = useAppSelector(state => state.report.isLoading);
     const isFetched = useAppSelector(state => state.report.isFetched);
-    // const report = useAppSelector(state => state.report.report)
-
-    // const { isNoReportData } = useReport()
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -30,10 +25,6 @@ const Graphics: React.FC<GraphicsProps> = ({ report }) => {
     return (
         <div className="grid grid-cols-1 gap-4">
             <GraphicBoard report={report} />
-            {/* <KPITotal /> */}
-            {/* VoximplantBoard */}
-            {/* KPIReportTable */}
-            {/* CallingReportTable */}
         </div>
     );
 };

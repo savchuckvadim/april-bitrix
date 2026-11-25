@@ -3,7 +3,12 @@ import { Suspense, type ReactNode } from 'react';
 import { GlassAmbient } from '@workspace/april-ui';
 import { cn } from '@workspace/ui/lib/utils';
 import { NoreportData } from '@/modules/entities/report';
-import { Preloader, Processing } from '@/modules/shared';
+import {
+    PAGE_BODY_CLASS,
+    PAGE_HEADER_PAD_CLASS,
+    Preloader,
+    Processing,
+} from '@/modules/shared';
 import { ViewAsBanner } from '@/modules/feature/view-as';
 // Прямой путь (не барель вкладок): каркас стоит в корневом layout.
 import { ReportTypeUrlSync } from '@/modules/feature/report-widget-type/ui/ReportTypeUrlSync';
@@ -90,7 +95,7 @@ export const ReportProvider = ({ children }: { children: ReactNode }) => {
                             : 'bg-background/50 backdrop-blur-sm',
                     )}
                 >
-                    <div className="shrink-0 px-7 py-2">
+                    <div className={cn('shrink-0', PAGE_HEADER_PAD_CLASS)}>
                         <ReportHeader
                             isFilterOpen={isFilterOpen}
                             setIsFilterOpen={setIsFilterOpen}
@@ -101,7 +106,7 @@ export const ReportProvider = ({ children }: { children: ReactNode }) => {
                     <ReportFilter isOpen={isFilterOpen} />
                 </header>
 
-                <div className="px-7 pb-7">
+                <div className={PAGE_BODY_CLASS}>
                     {hasReportData ? (
                         <div>{children}</div>
                     ) : isReportPending ? (

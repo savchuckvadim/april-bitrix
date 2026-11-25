@@ -27,6 +27,12 @@ export type { HeaderActionProps } from './ui/HeaderAction';
 export { PageFrame } from './ui/PageFrame';
 export { PageHeader } from './ui/PageHeader';
 export type { PageHeaderProps } from './ui/PageHeader';
+export {
+    PAGE_HEADER_PAD_CLASS,
+    PAGE_HEADER_ROW_CLASS,
+    PAGE_BODY_CLASS,
+    PAGE_TABS_ROW_CLASS,
+} from './ui/page-layout.classes';
 
 export * from './telegram/type/telegram.type';
 export * from './telegram/lib/tlegram-bot';

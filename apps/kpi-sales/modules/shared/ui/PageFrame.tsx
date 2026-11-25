@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { PageHeader, type PageHeaderProps } from './PageHeader';
+import { PAGE_BODY_CLASS, PAGE_TABS_ROW_CLASS } from './page-layout.classes';
 
 interface PageFrameProps extends PageHeaderProps {
     /** Ряд вкладок под шапкой — на том же месте, что в отчёте. */
@@ -18,11 +19,9 @@ interface PageFrameProps extends PageHeaderProps {
 export const PageFrame = ({ tabs, children, ...header }: PageFrameProps) => (
     <div>
         <PageHeader {...header} />
-        <div className="px-7 pb-7">
+        <div className={PAGE_BODY_CLASS}>
             {tabs !== undefined && (
-                <div className="mt-6 mb-4 flex min-h-10 w-full items-center justify-between rounded-md p-0">
-                    {tabs}
-                </div>
+                <div className={PAGE_TABS_ROW_CLASS}>{tabs}</div>
             )}
             {children}
         </div>

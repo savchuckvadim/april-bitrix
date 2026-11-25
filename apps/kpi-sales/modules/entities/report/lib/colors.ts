@@ -1,6 +1,4 @@
-import { format } from 'date-fns';
 import { FilterInnerCode } from '../model/types/report/report-type';
-import { ru } from 'date-fns/locale';
 
 export const getChartColorsArray = (colors: string) => {
     const parsedColors = JSON.parse(colors);
@@ -91,11 +89,4 @@ export const getColors = (report: any[] | undefined) => {
     return (Object.keys(reportColors) as FilterInnerCode[]).map(code =>
         resolveActionColor(code, reportColors[code]),
     );
-};
-
-export const formatPeriod = (from: string, to: string) => {
-    const fromDate = new Date(from);
-    const toDate = new Date(to);
-
-    return `${format(fromDate, 'd MMMM yyyy', { locale: ru })} – ${format(toDate, 'd MMMM yyyy', { locale: ru })}`;
 };

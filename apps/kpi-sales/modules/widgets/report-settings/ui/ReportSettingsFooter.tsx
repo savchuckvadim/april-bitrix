@@ -36,7 +36,7 @@ export const ReportSettingsFooter = ({
     onSave,
 }: ReportSettingsFooterProps) => (
     <>
-        <div className="sticky bottom-0 z-[5] flex flex-wrap items-center gap-3 border-t bg-background/80 py-3 backdrop-blur-sm">
+        <div className="sticky bottom-0 z-[5] flex flex-wrap items-center gap-3 border-t bg-background/95 py-3 backdrop-blur-sm">
             <Button onClick={onSave} disabled={!dirty || saving}>
                 {saving ? T.saving : T.save}
             </Button>

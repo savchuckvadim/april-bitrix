@@ -15,6 +15,20 @@ import {
     type Filter,
     type FilterInnerCode,
 } from '@/modules/entities/report/model/types/report/report-type';
+import { EReportType } from '@/modules/feature/report-widget-type/consts/report-type.consts';
+import {
+    reportTypeActions,
+    reportTypeReducer,
+} from '@/modules/feature/report-widget-type/model/ReportTypeSlice';
+import {
+    addReportDataDemand,
+    resetReportDataDemands,
+} from '../../report-data-demand';
+import {
+    isLoadedKey,
+    markLoadedKey,
+    resetReportFlowMemory,
+} from '../../report-queue.util';
 import {
     reportFilterDraftActions as draftActions,
     reportFilterDraftReducer,
@@ -24,6 +38,9 @@ import {
     closeFilterDraft,
     openFilterDraft,
 } from '../report-filter-draft.thunks';
+
+/** Ключ запроса, для которого источники «уже загружены» (прежний фильтр). */
+const OLD_KEY = '2026-11-01|2026-11-20|1_2';
 
 /*
  * Запросы отчёта — метки: проверяем, что они запущены и какое состояние
@@ -67,15 +84,20 @@ const ITEMS = [
     action('presentation_plan'),
 ];
 
-/** Отчёт и структура загружены: выбраны сотрудники 1–2, все действия, ноябрь. */
-const makeStore = (): TestStore => {
+/**
+ * Отчёт и структура загружены: выбраны сотрудники 1–2, все действия, ноябрь;
+ * открыта вкладка «Все» (если не сказано иное).
+ */
+const makeStore = (tab: EReportType = EReportType.All): TestStore => {
     const store = configureStore({
         reducer: combineReducers({
             report: reportReducer,
             department: departmentReducer,
+            reportType: reportTypeReducer,
             reportFilterDraft: reportFilterDraftReducer,
         }),
     });
+    store.dispatch(reportTypeActions.setCurrentReportType(tab));
     store.dispatch(
         departmentActions.setStructure({
             isMulti: false,
@@ -109,6 +131,8 @@ const activeIds = (store: TestStore): number[] =>
 
 beforeEach(() => {
     requests.length = 0;
+    resetReportFlowMemory();
+    resetReportDataDemands();
     // Фиксированный «сегодня»: режим «Сегодня» считается по часам
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 10, 25, 12, 0, 0));
@@ -299,5 +323,131 @@ describe('applyFilterDraft — «Применить»', () => {
 
         expect(activeIds(store)).toEqual([1, 2]);
         expect(requests).toHaveLength(2);
+    });
+});
+
+describe('applyFilterDraft — запросы только для своей вкладки', () => {
+    const STANDALONE_TABS = [
+        EReportType.DIGEST,
+        EReportType.FINANCE,
+        EReportType.AI,
+    ];
+    const REPORT_TABS = [
+        EReportType.All,
+        EReportType.EVENTS,
+        EReportType.CALLINGS,
+        EReportType.MERGED,
+    ];
+
+    it.each(STANDALONE_TABS)(
+        'вкладка «%s» без нужд: фильтр действует, события и звонки не запрашиваются',
+        tab => {
+            const store = makeStore(tab);
+            store.dispatch(openFilterDraft());
+            store.dispatch(draftActions.usersChanged([3]));
+            store.dispatch(
+                draftActions.dateChanged({
+                    typeOfDate: ReportDateType.TO,
+                    value: '2026-11-25',
+                }),
+            );
+            store.dispatch(applyFilterDraft());
+
+            expect(activeIds(store)).toEqual([3]);
+            expect(store.getState().report.date.to).toBe('2026-11-25');
+            expect(store.getState().reportFilterDraft.isOpen).toBe(false);
+            expect(requests).toEqual([]);
+        },
+    );
+
+    it.each(STANDALONE_TABS)(
+        'вкладка «%s»: отметки «загружено» остаются от старого ключа',
+        tab => {
+            markLoadedKey('report', OLD_KEY);
+            markLoadedKey('calling', OLD_KEY);
+            const store = makeStore(tab);
+            store.dispatch(openFilterDraft());
+            store.dispatch(draftActions.usersChanged([3]));
+            store.dispatch(applyFilterDraft());
+
+            expect(isLoadedKey('report', OLD_KEY)).toBe(true);
+            expect(isLoadedKey('calling', OLD_KEY)).toBe(true);
+        },
+    );
+
+    it.each(REPORT_TABS)(
+        'вкладка отчёта «%s»: запрашиваются события и звонки',
+        tab => {
+            const store = makeStore(tab);
+            store.dispatch(openFilterDraft());
+            store.dispatch(applyFilterDraft());
+
+            expect(requests.map(call => call.kind).sort()).toEqual([
+                'calling',
+                'report',
+            ]);
+        },
+    );
+
+    it('повторное «Применить» с тем же фильтром на вкладке отчёта запрос отправляет', () => {
+        const store = makeStore(EReportType.EVENTS);
+        store.dispatch(openFilterDraft());
+        store.dispatch(applyFilterDraft());
+        store.dispatch(openFilterDraft());
+        store.dispatch(applyFilterDraft());
+
+        expect(requests).toHaveLength(4);
+    });
+
+    it('панель не открыта на вкладке без нужд: запросов тоже нет', () => {
+        const store = makeStore(EReportType.DIGEST);
+        store.dispatch(applyFilterDraft());
+
+        expect(requests).toEqual([]);
+    });
+});
+
+describe('applyFilterDraft — заявка на данные вне вкладки', () => {
+    it('события заявлены (страница сотрудника): на вкладке без нужд запрашиваются только они', () => {
+        const store = makeStore(EReportType.AI);
+        addReportDataDemand('report');
+        store.dispatch(openFilterDraft());
+        store.dispatch(applyFilterDraft());
+
+        expect(requests.map(call => call.kind)).toEqual(['report']);
+    });
+
+    it('заявка снята — на вкладке без нужд снова ничего не запрашивается', () => {
+        const store = makeStore(EReportType.AI);
+        const release = addReportDataDemand('report');
+        release();
+        store.dispatch(openFilterDraft());
+        store.dispatch(applyFilterDraft());
+
+        expect(requests).toEqual([]);
+    });
+});
+
+describe('applyFilterDraft — список действий не загружен', () => {
+    /** События ещё не приходили: списка действий нет, выбор — из сохранённого. */
+    const makeStoreWithoutActions = (): TestStore => {
+        const store = makeStore(EReportType.DIGEST);
+        store.dispatch(
+            reportActions.setFetchedActions({ actions: [], currentFilter: null }),
+        );
+        return store;
+    };
+
+    it('действующий выбор действий не трогается, остальной фильтр переносится', () => {
+        const store = makeStoreWithoutActions();
+        const filterBefore = store.getState().report.filter;
+        store.dispatch(openFilterDraft());
+        store.dispatch(draftActions.usersChanged([3]));
+        store.dispatch(draftActions.actionToggled('call_plan'));
+        store.dispatch(applyFilterDraft());
+
+        expect(activeIds(store)).toEqual([3]);
+        expect(store.getState().report.filter).toBe(filterBefore);
+        expect(store.getState().reportFilterDraft.isOpen).toBe(false);
     });
 });

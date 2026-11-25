@@ -17,8 +17,22 @@ const user = (id: number): BXUser => ({ ID: id }) as unknown as BXUser;
 
 type SaveState = Pick<RootState, 'report' | 'department' | 'reportFilterDraft'>;
 
-/** Действующий фильтр: 1–20 ноября, сотрудники 1 и 2, одно действие. */
-const makeState = (draft: Partial<SaveState['reportFilterDraft']> = {}): SaveState =>
+/** Список действий загружен (события приходили): из него выбирает панель. */
+const ACTION_ITEMS = [{ innerCode: 'call_plan' }, { innerCode: 'call_done' }];
+
+/**
+ * Действующий фильтр: 1–20 ноября, сотрудники 1 и 2, одно действие. По
+ * умолчанию список действий загружен; `report` позволяет его убрать и
+ * задать сохранённый выбор.
+ */
+const makeState = (
+    draft: Partial<SaveState['reportFilterDraft']> = {},
+    report: Partial<{
+        filter: FilterInnerCode[];
+        savedFilter: FilterInnerCode[] | null;
+        actionItems: Array<{ innerCode: string }>;
+    }> = {},
+): SaveState =>
     ({
         report: {
             date: {
@@ -27,7 +41,9 @@ const makeState = (draft: Partial<SaveState['reportFilterDraft']> = {}): SaveSta
                 inProcess: false,
                 mode: EReportDateMode.RANGE,
             },
-            filter: ['call_plan'] as FilterInnerCode[],
+            filter: report.filter ?? (['call_plan'] as FilterInnerCode[]),
+            savedFilter: report.savedFilter ?? null,
+            actions: { items: report.actionItems ?? ACTION_ITEMS, current: [] },
         },
         department: {
             items: [user(1), user(2), user(3)],
@@ -120,6 +136,35 @@ describe('selectFilterValuesToSave — что сохраняет «Сохран�
             makeState({ isOpen: true, userIds: [2, 99] }),
         );
         expect(values.userIds).toEqual([2]);
+    });
+
+    it('панель открыта, список действий не загружен — остаётся уже сохранённый выбор', () => {
+        const values = selectFilterValuesToSave(
+            makeState(
+                { isOpen: true, userIds: [3], actionCodes: [] },
+                {
+                    filter: [],
+                    savedFilter: ['call_done'] as FilterInnerCode[],
+                    actionItems: [],
+                },
+            ),
+        );
+        expect(values.userIds).toEqual([3]);
+        expect(values.actionCodes).toEqual(['call_done']);
+    });
+
+    it('панель открыта, список действий не загружен, сохранённого выбора нет — действующий', () => {
+        const values = selectFilterValuesToSave(
+            makeState(
+                { isOpen: true, actionCodes: [] },
+                {
+                    filter: ['call_plan'] as FilterInnerCode[],
+                    savedFilter: null,
+                    actionItems: [],
+                },
+            ),
+        );
+        expect(values.actionCodes).toEqual(['call_plan']);
     });
 });
 

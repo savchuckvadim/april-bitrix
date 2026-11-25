@@ -87,7 +87,10 @@ export const ReportFilter = ({ isOpen }: ReportFilterProps) => {
                         </div>
                     </CardContent>
 
-                    {!isUserReport && (
+                    {/* Список действий приходит с событиями: пока он не загружен
+                        (вкладка без событий), выбирать не из чего — раздел
+                        не показываем, действующий выбор остаётся как был. */}
+                    {!isUserReport && draft.actionItems.length > 0 && (
                         <CardContent>
                             <ActionsFilter
                                 items={draft.actionItems}

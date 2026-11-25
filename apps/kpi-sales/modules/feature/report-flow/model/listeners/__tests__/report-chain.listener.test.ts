@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
     combineReducers,
     configureStore,
@@ -19,18 +19,28 @@ import departmentReducer, {
     departmentActions,
 } from '@/modules/entities/department/model/department-slice';
 import type { CurrentUserInfo } from '@/modules/entities/department/model';
+import {
+    isSavedFilterApplied,
+    resetReportFlowMemory,
+} from '../../report-queue.util';
 import { startReportChainListeners } from '../report-chain.listener';
 
-/* Шаги цепочки — метки вместо сетевых thunks: проверяем только, что запущено. */
+/*
+ * Шаги цепочки — метки вместо сетевых thunks: проверяем только, что запущено.
+ * Какие источники запрашивает ensureReportData — в её собственных тестах.
+ */
 vi.mock('../../report-flow-thunks', () => ({
     loadSavedFilter: () => ({ type: 'chain/loadSavedFilter' }),
-    getReportData: () => ({ type: 'chain/getReportData' }),
 }));
-vi.mock('../../calling-statistics-flow-thunk', () => ({
-    getCallingStatistics: () => ({ type: 'chain/getCallingStatistics' }),
+vi.mock('../../ensure-report-data.thunk', () => ({
+    ensureReportData: () => ({ type: 'chain/ensureReportData' }),
 }));
 
 const CHAIN = /^chain\//;
+
+beforeEach(() => {
+    resetReportFlowMemory();
+});
 
 const LEADER: CurrentUserInfo = {
     userId: 42,
@@ -92,14 +102,26 @@ const makeStore = () => {
 const flush = () => new Promise<void>(resolve => setTimeout(resolve, 0));
 
 describe('report-chain.listener — цепочка загрузки отчёта', () => {
-    it('в отчёте: структура → сохранённый фильтр → отчёт и звонки', async () => {
+    it('в отчёте: структура → сохранённый фильтр → загрузка по нуждам вкладки', async () => {
         const { store, steps } = makeStore();
         store.dispatch(appActions.setLayoutKind('report'));
         store.dispatch(STRUCTURE);
         store.dispatch(reportActions.setSavedFilter(null));
         await flush();
-        expect(steps).toEqual(['loadSavedFilter', 'getReportData', 'getCallingStatistics']);
+        expect(steps).toEqual(['loadSavedFilter', 'ensureReportData']);
         expect(store.getState().report.chainDeferred).toBe(false);
+    });
+
+    it('сохранённый фильтр применён — запросы по необходимости разрешены, раньше — нет', async () => {
+        const { store } = makeStore();
+        store.dispatch(appActions.setLayoutKind('report'));
+        store.dispatch(STRUCTURE);
+        await flush();
+        expect(isSavedFilterApplied()).toBe(false);
+
+        store.dispatch(reportActions.setSavedFilter(null));
+        await flush();
+        expect(isSavedFilterApplied()).toBe(true);
     });
 
     it('на «Разборах звонков»: ни фильтра, ни расчёта отчёта — цепочка отложена', async () => {
@@ -119,6 +141,8 @@ describe('report-chain.listener — цепочка загрузки отчёта
         await flush();
         expect(steps).toEqual([]);
         expect(store.getState().report.chainDeferred).toBe(true);
+        // Фильтр так и не применён к отчёту: запросы по необходимости закрыты.
+        expect(isSavedFilterApplied()).toBe(false);
     });
 
     it('переход в отчёт доводит отложенную цепочку один раз', async () => {

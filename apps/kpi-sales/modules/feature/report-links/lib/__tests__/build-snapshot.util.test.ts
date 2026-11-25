@@ -112,3 +112,33 @@ describe('buildShareFilterSnapshot — роль в снимке', () => {
         expect(snapshot.financeFilters).toMatchObject({ assignedIds: [1, 2] });
     });
 });
+
+describe('buildShareFilterSnapshot — выбор действий', () => {
+    /** Стор с заданным действующим и сохранённым выбором действий. */
+    const withActions = (
+        filter: string[],
+        savedFilter: string[] | null,
+    ): RootState => {
+        const state = makeState(SUPER_USER);
+        return {
+            ...state,
+            report: { ...state.report, filter, savedFilter },
+        } as unknown as RootState;
+    };
+
+    it('действующий выбор есть — в снимок идёт он', () => {
+        expect(
+            uiOf(withActions(['call_done'], ['call_plan'])).reportFilter,
+        ).toEqual(['call_done']);
+    });
+
+    it('события не загружались (выбор пуст) — в снимок идёт сохранённый', () => {
+        expect(uiOf(withActions([], ['call_plan'])).reportFilter).toEqual([
+            'call_plan',
+        ]);
+    });
+
+    it('нет ни действующего, ни сохранённого — пусто, страница покажет все', () => {
+        expect(uiOf(withActions([], null)).reportFilter).toEqual([]);
+    });
+});

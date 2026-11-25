@@ -32,6 +32,11 @@ export const toSavedDates = (
  * при открытой панели, поэтому пока открыт черновик — сохраняется он (с тем же
  * правилом «никто не выбран = все видимые», что и при «Применить»), иначе —
  * действующий фильтр.
+ *
+ * Действия берутся из черновика, только когда их список загружен. Список
+ * приходит с событиями: на вкладке без событий панель действий не показывает,
+ * и в черновике их нет. Тогда сохраняется прежний выбор — уже сохранённый,
+ * а если его не было — действующий; пустой набор стёр бы выбор пользователя.
  */
 export const selectFilterValuesToSave = (
     state: Pick<RootState, 'report' | 'department' | 'reportFilterDraft'>,
@@ -45,7 +50,9 @@ export const selectFilterValuesToSave = (
         userIds: resolveDraftUsers(draft.userIds, department.items).map(user =>
             Number(user.ID),
         ),
-        actionCodes: draft.actionCodes,
+        actionCodes: report.actions.items.length
+            ? draft.actionCodes
+            : [...(report.savedFilter ?? report.filter)],
     };
 };
 

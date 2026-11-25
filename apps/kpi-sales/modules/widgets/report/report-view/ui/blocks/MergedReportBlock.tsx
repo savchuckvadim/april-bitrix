@@ -26,13 +26,17 @@ import { ConversionTableSettings } from '@/modules/feature/report-conversions/ui
 import { useTableConversionAnnotations } from '@/modules/feature/report-conversions/hooks/use-conversions.hook';
 import { usePlanAnnotations } from '@/modules/feature/plans';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { ChartsGate } from '@/modules/shared';
+import { ChartsGate, Preloader } from '@/modules/shared';
 import { RatingFooter } from './RatingFooter';
 
 /**
  * Объединённый отчёт KPI + звонки: вкладки разбивки с рейтингами
  * (датасет дополнительно режется локальным фильтром таблицы из
  * mergedReport-слайса). wrapped — в сворачиваемом блоке с CSV-экспортом.
+ *
+ * Пока статистика звонков загружается, объединять не с чем (страницу
+ * блокируют события, звонки идут следом) — вместо пустого блока
+ * показывается индикатор загрузки.
  */
 export const MergedReportBlock = ({
     wrapped = false,
@@ -40,7 +44,12 @@ export const MergedReportBlock = ({
     wrapped?: boolean;
 }) => {
     const { report } = useReport();
-    const { data: callingsReport } = useCallingStatistics();
+    const {
+        data: callingsReport,
+        isLoading: isCallingsLoading,
+        isFetched: isCallingsFetched,
+    } = useCallingStatistics();
+    const isCallingsPending = isCallingsLoading || !isCallingsFetched;
     const mergedSelection = useAppSelector(state => state.mergedReport);
     const annotations = useTableConversionAnnotations('merged');
 
@@ -109,7 +118,15 @@ export const MergedReportBlock = ({
         />
     );
 
+    const callingsLoading = (
+        <div className="flex flex-col items-center gap-3 py-10 text-muted-foreground">
+            <Preloader />
+            <p className="text-sm">Загружаем статистику звонков…</p>
+        </div>
+    );
+
     if (!wrapped) {
+        if (isCallingsPending) return callingsLoading;
         // Отдельная вкладка «Объединённый» ждёт оба датасета.
         if (!report || !callingsReport) return null;
         return tabs;
@@ -129,7 +146,7 @@ export const MergedReportBlock = ({
                 }
             }}
         >
-            {tabs}
+            {isCallingsPending ? callingsLoading : tabs}
         </ReportBlockWrapper>
     );
 };

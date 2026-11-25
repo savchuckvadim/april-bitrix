@@ -23,6 +23,7 @@ import { safeSocketId } from '@/modules/entities/airtime';
 import {
     buildReportFlowRequestKey,
     isCurrentKey,
+    markLoadedKey,
     schedulePoll,
     setCurrentKey,
 } from './report-queue.util';
@@ -262,6 +263,9 @@ export const getReportData =
                     (envelope.data ?? []) as unknown as ReportData[],
                 ),
             );
+            // Отчёт получен — загружен для этого ключа (ошибка расчёта и
+            // сбой запроса сюда не доходят и отметку не ставят).
+            markLoadedKey('report', requestKey);
         } catch (error) {
             if (isCurrentKey('report', requestKey)) {
                 dispatch(reportActions.setLoadingReportStatus(false));

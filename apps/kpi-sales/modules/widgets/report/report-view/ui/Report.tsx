@@ -1,9 +1,8 @@
 'use client';
-import { Suspense } from 'react';
 import { ReportType } from '@/modules/feature';
 import { useAccess } from '@/modules/app';
 import { EAccessFeature } from '@/modules/shared/access';
-import { ReportTypeUrlSync, useReportType } from '@/modules/feature/report-widget-type';
+import { useReportType } from '@/modules/feature/report-widget-type';
 import { EReportType } from '@/modules/feature/report-widget-type/consts/report-type.consts';
 import { KpiReportBlock } from './blocks/KpiReportBlock';
 import { CallingsReportBlock } from './blocks/CallingsReportBlock';
@@ -20,7 +19,9 @@ import {
 /**
  * Тело отчёта: переключатель типа + композиция блоков.
  * Данные и разбивки живут внутри блоков (blocks/*Block), здесь —
- * только какой набор блоков показывает каждый тип отчёта.
+ * только какой набор блоков показывает каждый тип отчёта. Ссылка `?tab=`
+ * применяется каркасом страницы (widgets/report/report-provider): он
+ * виден и под заставкой, а тело отчёта — нет.
  */
 export const Report = () => {
     const { current: reportType } = useReportType();
@@ -36,10 +37,6 @@ export const Report = () => {
 
     return (
         <div>
-            {/* `?tab=` — ссылка сразу на вкладку отчёта (напр. дайджест). */}
-            <Suspense fallback={null}>
-                <ReportTypeUrlSync />
-            </Suspense>
             <div className="mt-6 mb-4 flex min-h-10 w-full items-center justify-between rounded-md p-0">
                 <ReportType />
             </div>

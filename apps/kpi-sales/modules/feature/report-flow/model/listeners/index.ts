@@ -7,10 +7,12 @@ import type {
 import { startDepartmentAppListener } from './department-app.listener';
 import { startReportChainListeners } from './report-chain.listener';
 import { startReportQueueWsListener } from './report-queue-ws.listener';
+import { startReportTabListener } from './report-tab.listener';
 
 /**
  * Listeners всего flow отчёта:
- * setAppData → структура отделов → сохранённый фильтр → отчёт + звонки;
+ * setAppData → структура отделов → сохранённый фильтр → отчёт и/или звонки
+ * (то, что нужно текущей вкладке); смена вкладки → догрузка недостающего;
  * плюс WS-доставка готовых queue-расчётов (kpi-report:done и др.).
  */
 export const startReportFlowListeners = (
@@ -22,5 +24,6 @@ export const startReportFlowListeners = (
 ) => {
     startDepartmentAppListener(listenerMiddleware);
     startReportChainListeners(listenerMiddleware);
+    startReportTabListener(listenerMiddleware);
     startReportQueueWsListener(listenerMiddleware);
 };

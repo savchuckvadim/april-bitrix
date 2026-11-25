@@ -13,6 +13,13 @@ export interface HeadlineAirtime {
 }
 
 /**
+ * Берётся ли заглавный показатель из командного отчёта по событиям. Тогда
+ * странице сотрудника нужны события, с какой бы вкладки на неё ни пришли.
+ */
+export const headlineUsesTeamReport = (reportType: EReportType): boolean =>
+    reportType !== EReportType.MERGED && reportType !== EReportType.CALLINGS;
+
+/**
  * «Заглавный» показатель статистики вместо «Всего событий»:
  * — merged → исходящие звонки (эфирное время),
  * — callings → всего звонков,

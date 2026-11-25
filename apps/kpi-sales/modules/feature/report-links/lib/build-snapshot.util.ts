@@ -71,7 +71,13 @@ export const buildShareFilterSnapshot = (
     const ui: ShareUiBlob = {
         v: 1,
         reportType: state.reportType.current,
-        reportFilter: report.filter,
+        // Выбор действий приходит с событиями. Ссылку можно создать и с
+        // вкладки, где события не загружались («Дайджест», «AI аналитика»):
+        // действующий выбор тогда пуст, и в снимок идёт сохранённый —
+        // иначе публичная страница показала бы все действия.
+        reportFilter: report.filter.length
+            ? report.filter
+            : (report.savedFilter ?? []),
         date: {
             from: report.date[ReportDateType.FROM],
             to: report.date[ReportDateType.TO],

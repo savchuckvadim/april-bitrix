@@ -11,6 +11,7 @@ import { safeSocketId } from '@/modules/entities/airtime';
 import {
     buildReportFlowRequestKey,
     isCurrentKey,
+    markLoadedKey,
     schedulePoll,
     setCurrentKey,
 } from './report-queue.util';
@@ -108,6 +109,9 @@ export const getCallingStatistics =
                 ),
             );
             dispatch(callingStatisticsActions.setLoading(false));
+            // Статистика получена — загружена для этого ключа (ошибка
+            // расчёта и сбой запроса сюда не доходят и отметку не ставят).
+            markLoadedKey('calling', requestKey);
         } catch (error) {
             if (!isCurrentKey('calling', requestKey)) return;
             console.error('calling statistics error:', error);

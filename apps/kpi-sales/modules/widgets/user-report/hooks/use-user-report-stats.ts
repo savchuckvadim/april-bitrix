@@ -3,8 +3,11 @@
 import { useMemo } from 'react';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import type { IUserReportItem } from '@/modules/entities/user-report/type/user-report.type';
+// Прямой путь (не барель фичи): нужен один хук.
+import { useReportDataDemand } from '@/modules/feature/report-flow/hooks/use-report-data-demand';
 import {
     HeadlineStat,
+    headlineUsesTeamReport,
     pickHeadlineStat,
 } from '../lib/headline-stat.util';
 
@@ -27,6 +30,10 @@ export const useUserReportStats = (
     const reportType = useAppSelector(state => state.reportType.current);
     const teamReport = useAppSelector(state => state.report.report);
     const airtimeData = useAppSelector(state => state.airtime.user.data);
+    // «Результативные» берутся из командного отчёта по событиям. На страницу
+    // сотрудника можно прийти с вкладки, где события не загружались
+    // («Дайджест», «AI аналитика»), — заявляем их, иначе показатель был бы 0.
+    useReportDataDemand('report', headlineUsesTeamReport(reportType));
 
     const eventStats = useMemo(() => {
         const presentations = report.filter(

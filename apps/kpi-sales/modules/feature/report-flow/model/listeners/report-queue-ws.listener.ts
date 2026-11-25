@@ -12,7 +12,7 @@ import type { ReportCallingData } from '@/modules/entities/calling-statistics';
 import { reportActions } from '@/modules/entities/report/model/report-slice';
 import type { ReportData } from '@/modules/entities/report/model/types/report/report-type';
 import { applyReportData } from '../report-flow-thunks';
-import { clearPoll, isCurrentKey } from '../report-queue.util';
+import { clearPoll, isCurrentKey, markLoadedKey } from '../report-queue.util';
 
 /** WS-события queue-флоу отчёта (зеркало KPI_REPORT_WS_EVENTS бэка). */
 export const REPORT_QUEUE_WS_EVENTS = {
@@ -69,6 +69,7 @@ export const startReportQueueWsListener = (
                     if (!isCurrentKey('report', payload.requestKey)) return;
                     clearPoll('report');
                     dispatch(applyReportData(payload.data ?? []));
+                    markLoadedKey('report', payload.requestKey);
                 },
             );
             wsClient.on(
@@ -96,6 +97,7 @@ export const startReportQueueWsListener = (
                         ),
                     );
                     dispatch(callingStatisticsActions.setLoading(false));
+                    markLoadedKey('calling', payload.requestKey);
                 },
             );
             wsClient.on(

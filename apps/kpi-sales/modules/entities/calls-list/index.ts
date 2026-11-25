@@ -6,6 +6,7 @@ export * from './lib/calls-list.const';
 export * from './lib/calls-list.texts';
 export * from './lib/calls-list-period';
 export * from './lib/calls-list-query';
+export * from './lib/calls-list-url-sync';
 export * from './lib/calls-list-badges';
 export * from './lib/calls-list-timing';
 export * from './lib/calls-list-format';

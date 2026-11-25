@@ -1,7 +1,7 @@
 'use client';
 
 import { Phone } from 'lucide-react';
-import { Button } from '@workspace/ui/components/button';
+import { HeaderAction } from '@/modules/shared';
 import { PORTAL_VIEW_TEXT } from '../consts/portal-view.texts';
 import { useSupportUrl } from '../hooks/use-portal-view';
 
@@ -13,22 +13,13 @@ export const SupportChatLink = () => {
     const supportUrl = useSupportUrl();
     if (!supportUrl) return null;
 
-    const label = PORTAL_VIEW_TEXT.supportLink;
     return (
-        <Button
-            asChild
-            variant="outline"
-            className="h-8 cursor-pointer px-3"
-            title={label}
-        >
-            <a
-                href={supportUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-            >
-                <Phone />
-            </a>
-        </Button>
+        <HeaderAction
+            icon={Phone}
+            label={PORTAL_VIEW_TEXT.supportLink}
+            hint={PORTAL_VIEW_TEXT.supportHint}
+            href={supportUrl}
+            external
+        />
     );
 };

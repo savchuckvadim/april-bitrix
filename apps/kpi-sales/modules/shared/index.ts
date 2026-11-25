@@ -20,6 +20,9 @@ export {
 export type { CompanyPerspectiveColor } from './ui/CompanyColorBadge';
 export { GlassActionStatus } from './ui/GlassActionStatus';
 export type { GlassActionStatusKind } from './ui/GlassActionStatus';
+// Кнопка шапки отчёта: иконка в рамке, название — в подсказке
+export { HeaderAction } from './ui/HeaderAction';
+export type { HeaderActionProps } from './ui/HeaderAction';
 
 export * from './telegram/type/telegram.type';
 export * from './telegram/lib/tlegram-bot';

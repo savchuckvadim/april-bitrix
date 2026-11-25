@@ -41,6 +41,8 @@ export const REPORT_SETTINGS_TEXT = {
         // Название приходит с сервера уже для людей («Методика Полянского»).
         methodology: (title: string) => title,
         methodologyFallback: 'Методика',
+        /** Подзаголовок бейджей, которые относятся ко всем типам звонков методики. */
+        allCallTypes: 'Все типы звонков методики',
         visibleNow: 'виден сразу',
         callTypes: (types: string) => `Типы звонков: ${types}`,
         resetToDefault: 'Вернуть набор по умолчанию',

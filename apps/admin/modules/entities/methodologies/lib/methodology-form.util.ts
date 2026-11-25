@@ -1,4 +1,5 @@
 import {
+    CHECKPOINT_BADGE_MAX_LENGTH,
     CHECKPOINT_CODE_PATTERN,
     METHODOLOGY_CODE_PATTERN,
     type CatalogCheckpoint,
@@ -198,3 +199,10 @@ export const fromCatalogCheckpoint = (
     ...(item.product !== undefined ? { product: item.product } : {}),
     ...(item.rule !== undefined ? { rule: item.rule } : {}),
 });
+
+/** Название бейджа из поля ввода: без пробелов по краям, не длиннее предела; пусто — undefined (поле в конфиг не пишется). */
+export const badgeFromInput = (value: string): string | undefined => {
+    const text = value.trim();
+    if (text === '') return undefined;
+    return text.slice(0, CHECKPOINT_BADGE_MAX_LENGTH).trimEnd();
+};

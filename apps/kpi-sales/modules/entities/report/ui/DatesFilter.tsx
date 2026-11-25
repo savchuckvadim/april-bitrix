@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-    endOfMonth,
-    endOfWeek,
-    format,
-    startOfMonth,
-    startOfWeek,
-} from 'date-fns';
+import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Label } from '@workspace/ui/components/label';
 import { Calendar } from '@workspace/ui/components/calendar';
@@ -17,22 +11,37 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 import { CalendarIcon } from 'lucide-react';
-import { useReport } from '../model/useReport';
 import {
     EReportDateMode,
     ReportDateType,
+    ReportPeriod,
 } from '../model/types/report/report-type';
+import { DATE_MODE_OPTIONS, parseDateMode } from '../lib/date-mode-options';
 import {
     RadioGroup,
     RadioGroupItem,
 } from '@workspace/ui/components/radio-group';
 
-const DatesFilter: React.FC = () => {
+interface DatesFilterProps {
+    /** Показываемый период: режим и обе даты (yyyy-MM-dd). */
+    date: ReportPeriod;
+    /** Дата выбрана в календаре (значение — ISO-строка или пустая, если сброшена). */
+    onDateChange: (type: ReportDateType, value: string) => void;
+    /** Выбран режим периода (диапазон, сегодня, неделя, месяц). */
+    onModeChange: (mode: EReportDateMode) => void;
+}
+
+/**
+ * Период отчёта: режим и календари. Компонент управляемый — значения и
+ * обработчики приходят снаружи, в состояние отчёта он не пишет.
+ */
+const DatesFilter: React.FC<DatesFilterProps> = ({
+    date,
+    onDateChange,
+    onModeChange,
+}) => {
     const [mounted, setMounted] = React.useState(false);
-    const { date, handleDateChange, handleDateModeChange } = useReport();
-    const [showDateRange, setShowDateRange] = React.useState(
-        date.mode === EReportDateMode.RANGE,
-    );
+    const isRange = date.mode === EReportDateMode.RANGE;
 
     const dateFrom = date[ReportDateType.FROM]
         ? new Date(date[ReportDateType.FROM])
@@ -44,36 +53,26 @@ const DatesFilter: React.FC = () => {
         setMounted(true);
     }, []);
 
-    const getFormattedDate = (date: Date) => {
+    const getFormattedDate = (value: Date) => {
         if (!mounted) return '';
-        return format(date, 'd MMMM yyyy г.', { locale: ru });
+        return format(value, 'd MMMM yyyy г.', { locale: ru });
     };
 
-    const handleLocalDateChange = (
+    const handleCalendarSelect = (
         type: ReportDateType,
-        date: Date | undefined,
+        value: Date | undefined,
     ) => {
-        if (type === ReportDateType.FROM) {
-            // setDateFrom(date);
-            handleDateChange(ReportDateType.FROM, date?.toISOString() || '');
-        } else {
-            // setDateTo(date);
-            handleDateChange(ReportDateType.TO, date?.toISOString() || '');
-        }
+        onDateChange(type, value?.toISOString() || '');
     };
 
-    const handleQuickSelect = (type: EReportDateMode) => {
-        handleDateModeChange(type);
-        setShowDateRange(false);
+    const handleModeValueChange = (value: string) => {
+        const mode = parseDateMode(value);
+        if (mode) onModeChange(mode);
     };
 
     if (!mounted) {
         return null;
     }
-    const setDiapasonRangeMode = () => {
-        handleDateModeChange(EReportDateMode.RANGE);
-        setShowDateRange(true);
-    };
 
     return (
         <div className="mb-5">
@@ -81,51 +80,23 @@ const DatesFilter: React.FC = () => {
             <Label className="mb-2">Период</Label>
             <div className="min-h-[60px] mt-5 flex flex-col xl:flex-row gap-2">
                 <RadioGroup
-                    defaultValue={date.mode}
+                    value={date.mode}
+                    onValueChange={handleModeValueChange}
                     className={`order-2 xl:order-1 flex flex-col flex-wrap  gap-2`}
                 >
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                            className="cursor-pointer"
-                            value={EReportDateMode.RANGE}
-                            id={EReportDateMode.RANGE}
-                            onClick={() => setDiapasonRangeMode()}
-                        />
-                        <Label htmlFor={EReportDateMode.RANGE}>Диапазон</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                            className="cursor-pointer"
-                            value={EReportDateMode.TODAY}
-                            id={EReportDateMode.TODAY}
-                            onClick={() =>
-                                handleQuickSelect(EReportDateMode.TODAY)
-                            }
-                        />
-                        <Label htmlFor={EReportDateMode.TODAY}>Сегодня</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                            className="cursor-pointer"
-                            value={EReportDateMode.WEEK}
-                            id={EReportDateMode.WEEK}
-                            onClick={() =>
-                                handleQuickSelect(EReportDateMode.WEEK)
-                            }
-                        />
-                        <Label htmlFor={EReportDateMode.WEEK}>Hеделя</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                            className="cursor-pointer"
-                            value={EReportDateMode.MONTH}
-                            id={EReportDateMode.MONTH}
-                            onClick={() =>
-                                handleQuickSelect(EReportDateMode.MONTH)
-                            }
-                        />
-                        <Label htmlFor={EReportDateMode.MONTH}>Месяц</Label>
-                    </div>
+                    {DATE_MODE_OPTIONS.map(option => (
+                        <div
+                            key={option.mode}
+                            className="flex items-center space-x-2"
+                        >
+                            <RadioGroupItem
+                                className="cursor-pointer"
+                                value={option.mode}
+                                id={option.mode}
+                            />
+                            <Label htmlFor={option.mode}>{option.label}</Label>
+                        </div>
+                    ))}
                 </RadioGroup>
 
                 <div className="order-1 xl:order-2  w-full mt-3 xl:mt-0 xl:ml-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-2 mb-2">
@@ -133,7 +104,7 @@ const DatesFilter: React.FC = () => {
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
-                                disabled={!showDateRange}
+                                disabled={!isRange}
                                 className={cn(
                                     'w-full justify-start text-left font-normal text-sm cursor-pointer',
                                     !dateFrom && 'text-muted-foreground',
@@ -150,10 +121,10 @@ const DatesFilter: React.FC = () => {
                                 selected={dateFrom}
                                 // Открываться на месяце выбранной даты, а не на сегодняшнем
                                 defaultMonth={dateFrom}
-                                onSelect={date =>
-                                    handleLocalDateChange(
+                                onSelect={value =>
+                                    handleCalendarSelect(
                                         ReportDateType.FROM,
-                                        date,
+                                        value,
                                     )
                                 }
                                 initialFocus
@@ -165,7 +136,7 @@ const DatesFilter: React.FC = () => {
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
-                                disabled={!showDateRange}
+                                disabled={!isRange}
                                 className={cn(
                                     'w-full justify-start text-left font-normal text-sm cursor-pointer',
                                     !dateTo && 'text-muted-foreground',
@@ -183,10 +154,10 @@ const DatesFilter: React.FC = () => {
                                 selected={dateTo}
                                 // Открываться на месяце выбранной даты, а не на сегодняшнем
                                 defaultMonth={dateTo}
-                                onSelect={date =>
-                                    handleLocalDateChange(
+                                onSelect={value =>
+                                    handleCalendarSelect(
                                         ReportDateType.TO,
-                                        date,
+                                        value,
                                     )
                                 }
                                 initialFocus

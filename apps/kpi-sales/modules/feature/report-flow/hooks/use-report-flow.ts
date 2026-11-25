@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getReportData } from '../model/report-flow-thunks';
-import { getCallingStatistics } from '../model/calling-statistics-flow-thunk';
+import { applyFilterDraft } from '../model/filter-draft/report-filter-draft.thunks';
 
 /**
- * Flow-операции отчёта для виджетов: обновление отчёта (сохранение
+ * Flow-операции отчёта для виджетов: применение фильтра (сохранение
  * фильтра — в useSaveFilter). Также страхует загрузку: если отчёт
  * сброшен (isFetched=false) — перезапрашивает (первичную загрузку
  * делает listener-цепочка).
@@ -22,16 +22,15 @@ export const useReportFlow = () => {
         }
     }, [dispatch, isFetched, isLoading]);
 
-    return {
-        /**
-         * Кнопка «Применить»: перезапрашивает ОБА отчёта. Исторический баг:
-         * здесь дёргался только KPI — статистика звонков обновлялась лишь
-         * маунт-цепочкой сохранённого фильтра, поэтому смена периода
-         * «применялась» к звонкам только после сохранения+перезагрузки.
-         */
-        refreshReport: () => {
-            void dispatch(getReportData());
-            void dispatch(getCallingStatistics());
-        },
-    };
+    /**
+     * Кнопка «Применить»: черновик фильтра переходит в действующий фильтр,
+     * панель закрывается, перезапрашиваются ОБА отчёта — KPI и статистика
+     * звонков (исторический баг: раньше дёргался только KPI, и звонки
+     * «применялись» лишь после сохранения фильтра и перезагрузки).
+     */
+    const applyFilter = useCallback(() => {
+        dispatch(applyFilterDraft());
+    }, [dispatch]);
+
+    return { applyFilter };
 };

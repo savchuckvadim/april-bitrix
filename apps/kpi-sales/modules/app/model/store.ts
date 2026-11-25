@@ -25,6 +25,7 @@ import { plansReducer } from '@/modules/feature/plans/model/plans-slice';
 import { aiAnalyticsReducer } from '@/modules/entities/ai-analytics/model/ai-analytics-slice';
 import { digestReducer } from '@/modules/entities/digest/model/digest-slice';
 import { portalViewReducer } from '@/modules/feature/portal-view/model/portal-view-slice';
+import { reportFilterDraftReducer } from '@/modules/feature/report-flow/model/filter-draft/report-filter-draft.slice';
 import { getWSClient } from './ws-client';
 import { startStoreListeners } from './listeners/start-store-listeners';
 
@@ -56,6 +57,7 @@ const rootReducer = combineReducers({
     aiAnalytics: aiAnalyticsReducer,
     digest: digestReducer,
     portalView: portalViewReducer,
+    reportFilterDraft: reportFilterDraftReducer,
 });
 
 export const setupStore = () =>

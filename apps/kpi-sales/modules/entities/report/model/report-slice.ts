@@ -9,8 +9,9 @@ import {
     EReportDateMode,
     ReportDateType,
     ReportDetalization,
+    ReportPeriod,
 } from './types/report/report-type';
-import { getDatesByMode, normalizeToISO } from '../lib/date-util';
+import { writePeriodDate, writePeriodMode } from '../lib/date-util';
 
 export type ReportState = typeof initialState;
 
@@ -172,16 +173,11 @@ const reportSlice = createSlice({
                 value: string;
             }>,
         ) => {
-            // const formatted = dayjs(action.payload.value).format('YYYY-MM-DD');
-
-            // const parseDate = parseISO(action.payload.value);
-            //
-            // const date = format(parseDate, "dd.MM.yyyy");
-            const date = normalizeToISO(action.payload.value);
-
-            if (date) {
-                state.date[action.payload.typeOfDate] = date;
-            }
+            writePeriodDate(
+                state.date,
+                action.payload.typeOfDate,
+                action.payload.value,
+            );
         },
         setChangedDateMode: (
             state: ReportState,
@@ -189,20 +185,48 @@ const reportSlice = createSlice({
                 mode: EReportDateMode;
             }>,
         ) => {
-            // const today = new Date();
-
-            const mode = action.payload.mode;
-
-            const { from, to } = getDatesByMode(mode);
-            state.date[ReportDateType.FROM] = from;
-            state.date[ReportDateType.TO] = to;
-            state.date.mode = mode;
+            writePeriodMode(state.date, action.payload.mode);
+        },
+        /**
+         * Период целиком одним действием (перенос из черновика фильтра).
+         * Диапазон — обе даты как после setChangedDate; быстрые режимы
+         * (сегодня/неделя/месяц) — даты считаются по режиму, как в
+         * setChangedDateMode, значения from/to из payload игнорируются.
+         */
+        setPeriod: (
+            state: ReportState,
+            action: PayloadAction<ReportPeriod>,
+        ) => {
+            const { mode, from, to } = action.payload;
+            if (mode === EReportDateMode.RANGE) {
+                writePeriodDate(state.date, ReportDateType.FROM, from);
+                writePeriodDate(state.date, ReportDateType.TO, to);
+                state.date.mode = mode;
+                return;
+            }
+            writePeriodMode(state.date, mode);
         },
         setCurrentActions: (
             state: ReportState,
             action: PayloadAction<Array<Filter>>,
         ) => {
             state.actions.current = action.payload;
+        },
+        /**
+         * Набор действий целиком одним действием (перенос из черновика
+         * фильтра): filter и actions.current согласованы — результат тот же,
+         * что дала бы серия переключений thunk'ом setCurrentActions. Коды без
+         * соответствующего действия в actions.items остаются только в filter.
+         */
+        setActionsSelection: (
+            state: ReportState,
+            action: PayloadAction<Array<FilterInnerCode>>,
+        ) => {
+            const codes = [...new Set(action.payload)];
+            state.filter = codes;
+            state.actions.current = codes.flatMap(code =>
+                state.actions.items.filter(item => item.innerCode === code),
+            );
         },
         setLoadingReportStatus: (
             state: ReportState,

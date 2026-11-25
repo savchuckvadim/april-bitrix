@@ -158,6 +158,12 @@ export interface ReportDate {
     inProcess: boolean;
     mode: EReportDateMode;
 }
+/** Период отчёта без служебных полей: режим и обе даты (yyyy-MM-dd). */
+export interface ReportPeriod {
+    [ReportDateType.FROM]: string;
+    [ReportDateType.TO]: string;
+    mode: EReportDateMode;
+}
 export enum EReportDateMode {
     TODAY = 'today',
     WEEK = 'week',

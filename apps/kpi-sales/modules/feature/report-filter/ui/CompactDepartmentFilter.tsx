@@ -7,6 +7,7 @@ import { Label } from '@workspace/ui/components/label';
 import { useDepartmentTree } from '../lib/hooks/use-department-tree';
 import { GroupChips } from './components/GroupChips';
 import { EmployeeChips } from './components/EmployeeChips';
+import { EmptySelectionHint } from './components/EmptySelectionHint';
 import { DepartmentFilterDialog } from './DepartmentFilterDialog';
 
 /** Больше сотрудников — чипы по умолчанию свёрнуты. */
@@ -23,6 +24,7 @@ export const CompactDepartmentFilter = () => {
         showDepartmentLevel,
         selectedCount,
         totalCount,
+        showEmptySelectionHint,
         toggleUser,
         toggleGroup,
         toggleDepartment,
@@ -47,6 +49,7 @@ export const CompactDepartmentFilter = () => {
                     <span className="ml-2 text-xs font-normal text-muted-foreground">
                         {selectedCount}/{totalCount}
                     </span>
+                    {showEmptySelectionHint && <EmptySelectionHint />}
                 </Label>
                 <div className="flex gap-1">
                     <Button

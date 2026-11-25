@@ -99,9 +99,11 @@ export const startMergedFilterListeners = (
     });
 
     // Синк локального выбора ПОКАЗАТЕЛЕЙ с главным фильтром действий.
+    // setActionsSelection — перенос действий из черновика по «Применить».
     listener.startListening({
         matcher: isAnyOf(
             reportActions.setCurrentActions,
+            reportActions.setActionsSelection,
             reportActions.setFetchedActions,
         ),
         effect: async (_action, api) => {

@@ -18,7 +18,9 @@ interface ReportHeaderActionsProps {
 
 /**
  * Правая группа кнопок хедера: при открытых фильтрах —
- * «Сохранить»/«Применить», иначе «Поделиться»/«Скачать»/«Настройки отчёта»
+ * «Сохранить»/«Применить» (панель правит черновик: «Применить» переносит его
+ * в действующий фильтр и перезапрашивает отчёт, «Скрыть фильтры» черновик
+ * выбрасывает), иначе «Поделиться»/«Скачать»/«Настройки отчёта»
  * (кроме страницы сотрудника) и «Поддержка» (есть и на странице сотрудника,
  * если ссылка настроена); переключатель фильтров — всегда.
  *
@@ -30,18 +32,13 @@ export const ReportHeaderActions = ({
     isFilterOpen,
     setIsFilterOpen,
 }: ReportHeaderActionsProps) => {
-    const { refreshReport } = useReportFlow();
+    const { applyFilter } = useReportFlow();
     const isUserReport = useIsUserReport();
     // viewAs: сохранение фильтра и публичные ссылки скрыты — нельзя писать
     // от имени просматриваемого пользователя (гарды в thunks — вторая линия)
     const isViewAs = useAppSelector(selectIsViewAs);
     // Публичные ссылки — только руководителям/superuser (централизованное право)
     const canShareLinks = useAccess(EAccessFeature.SHARE_LINKS);
-
-    const applyFilters = () => {
-        refreshReport();
-        setIsFilterOpen(false);
-    };
 
     return (
         <div className="flex flex-row items-center gap-2">
@@ -51,7 +48,7 @@ export const ReportHeaderActions = ({
                     <Button
                         variant="default"
                         className="h-8 cursor-pointer"
-                        onClick={applyFilters}
+                        onClick={applyFilter}
                     >
                         Применить
                     </Button>

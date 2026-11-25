@@ -1,13 +1,11 @@
 import {
     ReportGetRequestDto,
-    ReportFilterSaveRequestDto,
     SavedReportFilterDto,
 } from '@workspace/nest-kpi-report-sales-api';
 import type { AppDispatch, RootState } from '@/modules/app/model/store';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 import {
     departmentActions,
-    buildSelectionV2,
     resolveSavedSelection,
 } from '@/modules/entities/department';
 import { reportActions } from '@/modules/entities/report/model/report-slice';
@@ -28,6 +26,10 @@ import {
     schedulePoll,
     setCurrentKey,
 } from './report-queue.util';
+import {
+    buildSaveFilterDto,
+    selectFilterValuesToSave,
+} from '../lib/save-filter.util';
 
 const reportHelper = new ReportHelper();
 const filterHelper = new ReportFilterHelper();
@@ -42,18 +44,6 @@ interface ReportFetchOptions {
 /** v2-режим дат ↔ фронтовый EReportDateMode (custom ↔ range). */
 const toReportDateMode = (mode: string): EReportDateMode =>
     mode === 'custom' ? EReportDateMode.RANGE : (mode as EReportDateMode);
-
-const toSavedDates = (state: RootState): SavedReportFilterDto['dates'] => {
-    const date = state.report.date;
-    if (date.mode === EReportDateMode.RANGE) {
-        return {
-            mode: 'custom',
-            from: date[ReportDateType.FROM],
-            to: date[ReportDateType.TO],
-        };
-    }
-    return { mode: date.mode as SavedReportFilterDto['dates']['mode'] };
-};
 
 /**
  * Применение сохранённого фильтра (даты + выбор сотрудников).
@@ -292,8 +282,10 @@ export const getReportData =
 
 /**
  * Сохранение фильтра в формате v2 (structural selection) на новый бэк.
- * legacyUserIds заполняется всегда — бэк зеркалирует старые колонки,
- * поэтому legacy online-флоу остаётся рабочим (путь отката).
+ * Кнопка видна только при открытой панели, поэтому при открытом черновике
+ * сохраняются его значения (период, сотрудники, действия), иначе —
+ * действующий фильтр (см. selectFilterValuesToSave). Формат запроса — в
+ * buildSaveFilterDto (legacyUserIds заполняется всегда).
  * Возвращает true при успешном сохранении — UI показывает «Сохранено»
  * только по факту, а не по клику.
  */
@@ -309,23 +301,11 @@ export const saveFilter =
 
         dispatch(reportActions.setFilterLoadingStatus(true));
         try {
-            const selectedIds = new Set(
-                department.current.map(u => Number(u.ID)),
+            const dto = buildSaveFilterDto(
+                { domain: app.domain, userId: Number(user.ID) },
+                selectFilterValuesToSave(state),
+                department.departments,
             );
-            const dto: ReportFilterSaveRequestDto = {
-                domain: app.domain,
-                userId: Number(user.ID),
-                filter: {
-                    version: 2,
-                    actions: report.filter,
-                    dates: toSavedDates(state),
-                    selection: buildSelectionV2(
-                        department.departments,
-                        selectedIds,
-                    ),
-                    legacyUserIds: [...selectedIds],
-                },
-            };
             await filterHelper.save(dto);
             return true;
         } catch (error) {

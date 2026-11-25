@@ -18,7 +18,15 @@ interface ReportSettingsFooterProps {
     onSave: () => void;
 }
 
-/** Низ страницы: «Сохранить», итог сохранения, для кого действуют изменения и кто менял последним. */
+/**
+ * Низ страницы. Строка сохранения прилипает к низу окна: список бейджей
+ * длинный, а «Сохранить» должна быть под рукой на любой прокрутке. В строке —
+ * кнопка и итог сохранения, а пока итога нет — для кого действуют изменения.
+ * Ниже, уже в потоке страницы, — кто менял последним.
+ *
+ * Корня-обёртки нет намеренно: прилипание работает в пределах родителя, и
+ * строка должна быть прямым потомком колонки формы.
+ */
 export const ReportSettingsFooter = ({
     dirty,
     saving,
@@ -27,8 +35,8 @@ export const ReportSettingsFooter = ({
     lastChange,
     onSave,
 }: ReportSettingsFooterProps) => (
-    <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-3">
+    <>
+        <div className="sticky bottom-0 z-[5] flex flex-wrap items-center gap-3 border-t bg-background/80 py-3 backdrop-blur-sm">
             <Button onClick={onSave} disabled={!dirty || saving}>
                 {saving ? T.saving : T.save}
             </Button>
@@ -36,16 +44,14 @@ export const ReportSettingsFooter = ({
                 <span role="alert" className="text-sm text-destructive">
                     {error}
                 </span>
+            ) : saved && !dirty ? (
+                <span role="status" className="text-sm text-success">
+                    {T.saved}
+                </span>
             ) : (
-                saved &&
-                !dirty && (
-                    <span role="status" className="text-sm text-success">
-                        {T.saved}
-                    </span>
-                )
+                <span className="text-xs text-muted-foreground">{T.audience}</span>
             )}
         </div>
-        <p className="text-xs text-muted-foreground">{T.audience}</p>
         {lastChange && <p className="text-xs text-muted-foreground">{lastChange}</p>}
-    </div>
+    </>
 );

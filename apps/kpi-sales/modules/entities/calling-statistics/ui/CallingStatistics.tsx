@@ -1,6 +1,6 @@
 import CallingTable from './components/CallingTable';
 import { useCallingStatistics } from '../lib/hooks/useCallingStatistics';
-import { Preloader } from '@/modules/shared';
+import { ChartsGate, Preloader } from '@/modules/shared';
 import CallingDashboard from './components/CallingDashboard';
 import { ReportCallingData } from '../type/calling-type';
 import type { RTableAnnotation } from '@workspace/april-ui';
@@ -39,7 +39,9 @@ const CallingStatistics: React.FC<CallingStatisticsProps> = ({
                 annotations={annotations}
                 planAnnotations={planAnnotations}
             />
-            <CallingDashboard report={callingsReport} />
+            <ChartsGate>
+                <CallingDashboard report={callingsReport} />
+            </ChartsGate>
         </div>
     );
 };

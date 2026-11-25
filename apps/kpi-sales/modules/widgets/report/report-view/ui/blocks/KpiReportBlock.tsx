@@ -15,6 +15,7 @@ import { buildKpiRatingDataset } from '@/modules/feature/report-rating';
 import { ConversionTableSettings } from '@/modules/feature/report-conversions/ui/ConversionTableSettings';
 import { useTableConversionAnnotations } from '@/modules/feature/report-conversions/hooks/use-conversions.hook';
 import { usePlanAnnotations } from '@/modules/feature/plans';
+import { ChartsGate } from '@/modules/shared';
 import { RatingFooter } from './RatingFooter';
 
 /**
@@ -40,14 +41,18 @@ export const KpiReportBlock = ({ wrapped = false }: { wrapped?: boolean }) => {
                 annotations={annotations}
                 planAnnotations={planAnnotations}
             />
-            <div className="mt-3">
-                <Graphics report={report} />
-            </div>
+            <ChartsGate>
+                <div className="mt-3">
+                    <Graphics report={report} />
+                </div>
+            </ChartsGate>
             <KPIReportTotalTable report={report} />
-            <KPIReportTotalChart report={report} />
-            <div className="mt-3">
-                <KPISingleActionChart report={report} />
-            </div>
+            <ChartsGate>
+                <KPIReportTotalChart report={report} />
+                <div className="mt-3">
+                    <KPISingleActionChart report={report} />
+                </div>
+            </ChartsGate>
         </>
     );
 

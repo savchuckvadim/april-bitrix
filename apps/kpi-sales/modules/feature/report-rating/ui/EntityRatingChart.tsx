@@ -27,7 +27,7 @@ import {
 } from '@workspace/ui/components/select';
 import { getColors } from '@/modules/entities/report';
 import type { StructureSection } from '@/modules/feature/report-tabs';
-import { usePersistedSelection } from '@/modules/shared';
+import { useChartsVisible, usePersistedSelection } from '@/modules/shared';
 import {
     buildSectionRating,
     buildUserRating,
@@ -61,6 +61,8 @@ export const EntityRatingChart: React.FC<EntityRatingChartProps> = ({
     dataset,
     sections,
 }) => {
+    // Графики скрыты (настройка портала или телефон) — карточки нет совсем.
+    const chartsVisible = useChartsVisible();
     // Память выбранного показателя per-виджет (localStorage, next-safe)
     const [selectedActionCode, setSelectedActionCode] = usePersistedSelection(
         `kpi-rating-action-${title}`,
@@ -100,7 +102,7 @@ export const EntityRatingChart: React.FC<EntityRatingChartProps> = ({
     }, [rating, selectedAction]);
 
     const entityCount = sections ? sections.length : dataset.rows.length;
-    if (!dataset.actions.length || entityCount < 2) {
+    if (!chartsVisible || !dataset.actions.length || entityCount < 2) {
         return null;
     }
 

@@ -2,6 +2,7 @@
 
 import { SectionCard } from '@workspace/april-ui';
 import { formatAiDossierReason } from '@/modules/entities/ai-analytics';
+import { ChartsGate } from '@/modules/shared';
 import {
     AiDossierSeries,
     AiDossierToolbar,
@@ -75,20 +76,23 @@ export const AiEmployeeQualityTab = () => {
                 </div>
             </SectionCard>
 
-            <AiQueuedState
-                status={profile.section.status}
-                jobStatus={profile.section.jobStatus}
-                error={profile.section.error}
-                loadingText={T.profile.loading}
-                skeletonRows={2}
-                onRetry={profile.section.retry}
-            />
-            {profile.isReady && (
-                <>
-                    <AiEmployeeProfileChart profile={profile.types} />
-                    <AiEmployeeProfileChart profile={profile.sections} />
-                </>
-            )}
+            {/* Профиль нужен только графикам: без них ни загрузка, ни ошибка не показываются. */}
+            <ChartsGate>
+                <AiQueuedState
+                    status={profile.section.status}
+                    jobStatus={profile.section.jobStatus}
+                    error={profile.section.error}
+                    loadingText={T.profile.loading}
+                    skeletonRows={2}
+                    onRetry={profile.section.retry}
+                />
+                {profile.isReady && (
+                    <>
+                        <AiEmployeeProfileChart profile={profile.types} />
+                        <AiEmployeeProfileChart profile={profile.sections} />
+                    </>
+                )}
+            </ChartsGate>
 
             <SectionCard surface="glass" title={T.trends.title} actions={<AiTheoryLink topic="trends" variant="icon" />}>
                 {trends ? (

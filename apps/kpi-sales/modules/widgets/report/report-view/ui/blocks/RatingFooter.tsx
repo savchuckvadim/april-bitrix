@@ -5,6 +5,7 @@ import {
     RatingDataset,
 } from '@/modules/feature/report-rating';
 import { StructureSection } from '@/modules/feature/report-tabs';
+import { ChartsGate } from '@/modules/shared';
 
 interface RatingFooterProps {
     dataset: RatingDataset;
@@ -22,17 +23,19 @@ export const RatingFooter = ({
     sections,
     managersWidget,
 }: RatingFooterProps) => (
-    <div className="mt-6 space-y-4">
-        <EntityRatingChart
-            title={`Победители — ${entityLabel}`}
-            dataset={dataset}
-            sections={sections}
-        />
-        {managersWidget ?? (
+    <ChartsGate>
+        <div className="mt-6 space-y-4">
             <EntityRatingChart
-                title="Победители — сотрудники"
+                title={`Победители — ${entityLabel}`}
                 dataset={dataset}
+                sections={sections}
             />
-        )}
-    </div>
+            {managersWidget ?? (
+                <EntityRatingChart
+                    title="Победители — сотрудники"
+                    dataset={dataset}
+                />
+            )}
+        </div>
+    </ChartsGate>
 );

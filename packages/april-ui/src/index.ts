@@ -7,6 +7,9 @@ export * from './lib/tones';
 // Легаси-слой имён цветов поверх тонов (@deprecated, см. lib/intents.ts)
 export * from './lib/intents';
 
+// Экран телефона (< 768px), следит за поворотом и размером окна
+export * from './lib/use-is-mobile';
+
 // Ported event component library (legacy @packages/ui)
 export { default as Page } from './shared/ui/Page/Page';
 export { default as ASelect } from './shared/ui/Inputs/Select/ASelect';

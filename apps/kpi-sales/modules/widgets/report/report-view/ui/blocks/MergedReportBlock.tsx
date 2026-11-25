@@ -26,6 +26,7 @@ import { ConversionTableSettings } from '@/modules/feature/report-conversions/ui
 import { useTableConversionAnnotations } from '@/modules/feature/report-conversions/hooks/use-conversions.hook';
 import { usePlanAnnotations } from '@/modules/feature/plans';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
+import { ChartsGate } from '@/modules/shared';
 import { RatingFooter } from './RatingFooter';
 
 /**
@@ -63,12 +64,14 @@ export const MergedReportBlock = ({
                 annotations={annotations}
                 planAnnotations={planAnnotations}
             />
-            <div className="mt-3">
-                <MergedSingleActionChart
-                    report={report}
-                    callingsReport={callingsReport as ReportCallingData[]}
-                />
-            </div>
+            <ChartsGate>
+                <div className="mt-3">
+                    <MergedSingleActionChart
+                        report={report}
+                        callingsReport={callingsReport as ReportCallingData[]}
+                    />
+                </div>
+            </ChartsGate>
         </>
     );
 

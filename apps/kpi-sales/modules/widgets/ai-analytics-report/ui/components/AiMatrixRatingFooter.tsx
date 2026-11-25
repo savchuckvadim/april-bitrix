@@ -6,6 +6,7 @@ import type {
 } from '@/modules/entities/ai-analytics';
 import { EntityRatingChart } from '@/modules/feature/report-rating';
 import type { StructureSection } from '@/modules/feature/report-tabs';
+import { ChartsGate } from '@/modules/shared';
 import { AI_MATRIX_BLOCK_TEXT } from '../../lib/ai-matrix-texts';
 import type { AiScoreIndicator } from '../../lib/ai-types-matrix-view.util';
 import { AiScoreRatingChart } from './AiScoreRatingChart';
@@ -47,30 +48,32 @@ export const AiMatrixRatingFooter = ({
     norms,
     storagePrefix,
 }: AiMatrixRatingFooterProps) => (
-    <div className="mt-6 space-y-4">
-        <EntityRatingChart
-            title={`${T.mostReviews(entityLabel)} (${blockLabel})`}
-            dataset={dataset}
-            sections={sections}
-        />
-        <AiScoreRatingChart
-            entityLabel={entityLabel}
-            points={points}
-            indicators={indicators}
-            norms={norms}
-            sections={sections}
-            storageKey={`${storagePrefix}-${entityLabel}`}
-        />
-        <EntityRatingChart
-            title={`${T.mostReviews(T.employees)} (${blockLabel})`}
-            dataset={dataset}
-        />
-        <AiScoreRatingChart
-            entityLabel={T.employees}
-            points={points}
-            indicators={indicators}
-            norms={norms}
-            storageKey={`${storagePrefix}-users`}
-        />
-    </div>
+    <ChartsGate>
+        <div className="mt-6 space-y-4">
+            <EntityRatingChart
+                title={`${T.mostReviews(entityLabel)} (${blockLabel})`}
+                dataset={dataset}
+                sections={sections}
+            />
+            <AiScoreRatingChart
+                entityLabel={entityLabel}
+                points={points}
+                indicators={indicators}
+                norms={norms}
+                sections={sections}
+                storageKey={`${storagePrefix}-${entityLabel}`}
+            />
+            <EntityRatingChart
+                title={`${T.mostReviews(T.employees)} (${blockLabel})`}
+                dataset={dataset}
+            />
+            <AiScoreRatingChart
+                entityLabel={T.employees}
+                points={points}
+                indicators={indicators}
+                norms={norms}
+                storageKey={`${storagePrefix}-users`}
+            />
+        </div>
+    </ChartsGate>
 );

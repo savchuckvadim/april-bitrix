@@ -25,3 +25,10 @@ export * from './telegram/type/telegram.type';
 export * from './telegram/lib/tlegram-bot';
 export * from './lib/hooks/use-persisted-selection';
 export * from './lib/merged-actions.util';
+// Графики: показ только когда портал разрешил и экран не телефон
+export { chartsVisible, effectiveChartView } from './lib/charts-visibility/charts-visibility';
+export {
+    ChartsVisibilityProvider,
+    useChartsVisible,
+} from './lib/charts-visibility/charts-visibility.context';
+export { ChartsGate } from './ui/ChartsGate';

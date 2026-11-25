@@ -6,6 +6,7 @@ import { selectIsPublic } from '@/modules/app';
 import { ReportBlockWrapper, useReport } from '@/modules/entities/report';
 import { ReportGroupTabs, StructureSection } from '@/modules/feature/report-tabs';
 import { EntityRatingChart } from '@/modules/feature/report-rating';
+import { ChartsGate } from '@/modules/shared';
 import {
     aggregateCells,
     buildPlanRatingDataset,
@@ -107,12 +108,14 @@ export const PlansBlock: React.FC = () => {
     };
 
     const ratingFooter = () => (_sections: StructureSection[]) => (
-        <div className="mt-6">
-            <EntityRatingChart
-                title="Победители — выполнение плана (%)"
-                dataset={ratingDataset}
-            />
-        </div>
+        <ChartsGate>
+            <div className="mt-6">
+                <EntityRatingChart
+                    title="Победители — выполнение плана (%)"
+                    dataset={ratingDataset}
+                />
+            </div>
+        </ChartsGate>
     );
 
     return (

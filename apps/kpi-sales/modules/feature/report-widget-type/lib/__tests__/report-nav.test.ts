@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { EReportType, REPORT_TYPE_LABELS } from '../../consts/report-type.consts';
 import {
     REPORT_NAV_CALL_REVIEWS,
+    isCallReviewsTabHidden,
     reportNavItems,
     reportTypeHref,
     type ReportNavItem,
@@ -60,6 +61,34 @@ describe('reportNavItems', () => {
     it('подпись раздела — по-русски, без кодов', () => {
         const calls = reportNavItems(ALL_TYPES, true).find(item => item.kind === 'calls');
         expect(calls?.label).toBe('Разборы звонков');
+    });
+
+    it('скрытый порталом раздел в ряд не попадает — ни после «AI аналитики», ни в конец', () => {
+        const hidden = [REPORT_NAV_CALL_REVIEWS.code];
+        expect(shape(reportNavItems(ALL_TYPES, true, hidden))).toEqual(ALL_TYPES);
+        expect(shape(reportNavItems(WITHOUT_AI, true, hidden))).toEqual(WITHOUT_AI);
+        expect(reportNavItems([], true, hidden)).toEqual([]);
+    });
+
+    it('скрытые коды других вкладок раздел не трогают', () => {
+        const items = reportNavItems(ALL_TYPES, true, ['events', 'finance']);
+        expect(items.some(item => item.kind === 'calls')).toBe(true);
+    });
+
+    it('без третьего аргумента ничего не скрыто', () => {
+        expect(reportNavItems(ALL_TYPES, true)).toEqual(reportNavItems(ALL_TYPES, true, []));
+    });
+});
+
+describe('isCallReviewsTabHidden', () => {
+    it('скрыт по коду call_reviews', () => {
+        expect(isCallReviewsTabHidden(['call_reviews'])).toBe(true);
+        expect(isCallReviewsTabHidden(['ai', 'call_reviews'])).toBe(true);
+    });
+
+    it('иначе виден', () => {
+        expect(isCallReviewsTabHidden([])).toBe(false);
+        expect(isCallReviewsTabHidden(['ai'])).toBe(false);
     });
 });
 

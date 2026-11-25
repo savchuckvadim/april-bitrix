@@ -11,7 +11,7 @@ const TAB_CLASS = 'text-xs h-6 px-2';
 
 interface ReportNavTabProps {
     item: ReportNavItem;
-    /** Где показан ряд: в отчёте или на странице «Разборов звонков». */
+    /** Где показан ряд: в отчёте, на странице «Разборов звонков» или настроек. */
     page: ReportNavPage;
     /** Открытая вкладка отчёта (на странице разборов активна не она). */
     current: EReportType;
@@ -22,7 +22,8 @@ interface ReportNavTabProps {
  * Одна вкладка ряда. В отчёте типы переключаются кнопками, «Разборы звонков» —
  * ссылка на страницу. На странице разборов наоборот: «Разборы звонков» —
  * активная кнопка, типы отчёта — ссылки в отчёт на нужную вкладку (клиентский
- * переход: сессия портала и стор остаются).
+ * переход: сессия портала и стор остаются). На странице настроек активной
+ * вкладки нет: и типы отчёта, и «Разборы звонков» — ссылки.
  */
 export const ReportNavTab = ({ item, page, current, onSelectType }: ReportNavTabProps) => {
     if (item.kind === 'calls') {
@@ -38,7 +39,7 @@ export const ReportNavTab = ({ item, page, current, onSelectType }: ReportNavTab
     }
 
     const { type, label } = item;
-    if (page === 'calls') {
+    if (page !== 'report') {
         return (
             <Button asChild variant="outline" className={TAB_CLASS}>
                 <Link href={reportTypeHref(type)} onClick={() => onSelectType(type)}>

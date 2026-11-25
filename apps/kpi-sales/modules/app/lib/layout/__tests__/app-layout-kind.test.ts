@@ -13,10 +13,16 @@ describe('appLayoutKind — каркас страницы по адресу', ()
         expect(appLayoutKind('/calls/')).toBe('bare');
     });
 
+    it('«Настройки отчёта» — тоже приложение без обвязки отчёта', () => {
+        expect(appLayoutKind('/settings')).toBe('bare');
+        expect(appLayoutKind('/settings/')).toBe('bare');
+    });
+
     it('остальное — отчёт; похожие адреса не путаются', () => {
         expect(appLayoutKind('/report')).toBe('report');
         expect(appLayoutKind('/report/user')).toBe('report');
         expect(appLayoutKind('/callsx')).toBe('report');
+        expect(appLayoutKind('/settingsx')).toBe('report');
         expect(appLayoutKind('/')).toBe('report');
         expect(appLayoutKind(null)).toBe('report');
     });
@@ -28,8 +34,9 @@ describe('isReportChainAllowed — запускать ли цепочку заг
         expect(isReportChainAllowed(appLayoutKind('/report/user'))).toBe(true);
     });
 
-    it('на «Разборах звонков» и публичных страницах — нет', () => {
+    it('на «Разборах звонков», «Настройках отчёта» и публичных страницах — нет', () => {
         expect(isReportChainAllowed(appLayoutKind('/calls'))).toBe(false);
+        expect(isReportChainAllowed(appLayoutKind('/settings'))).toBe(false);
         expect(isReportChainAllowed(appLayoutKind('/call/abc'))).toBe(false);
     });
 });

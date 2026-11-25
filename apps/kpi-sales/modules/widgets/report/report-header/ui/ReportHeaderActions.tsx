@@ -7,6 +7,7 @@ import { DownLoad } from '@/modules/feature';
 import { ShareLinksControl } from '@/modules/feature/report-links';
 import { ViewAsControl } from '@/modules/feature/view-as';
 import { PlansSettingsControl } from '@/modules/feature/plans';
+import { ReportSettingsLink, SupportChatLink } from '@/modules/feature/portal-view';
 import { useIsUserReport } from '../../lib/use-is-user-report';
 import SaveFilter from './SaveFilter';
 
@@ -17,8 +18,9 @@ interface ReportHeaderActionsProps {
 
 /**
  * Правая группа кнопок хедера: при открытых фильтрах —
- * «Сохранить»/«Применить», иначе «Поделиться»/«Скачать»
- * (кроме страницы сотрудника); переключатель фильтров — всегда.
+ * «Сохранить»/«Применить», иначе «Поделиться»/«Скачать»/«Настройки отчёта»
+ * (кроме страницы сотрудника) и «Поддержка» (есть и на странице сотрудника,
+ * если ссылка настроена); переключатель фильтров — всегда.
  */
 export const ReportHeaderActions = ({
     isFilterOpen,
@@ -51,15 +53,21 @@ export const ReportHeaderActions = ({
                     </Button>
                 </>
             ) : (
-                !isUserReport && (
-                    <>
-                        <ViewAsControl />
-                        {/* Настройка планов — руководители (гейт внутри) */}
-                        {!isViewAs && <PlansSettingsControl />}
-                        {!isViewAs && canShareLinks && <ShareLinksControl />}
-                        <DownLoad />
-                    </>
-                )
+                <>
+                    {!isUserReport && (
+                        <>
+                            <ViewAsControl />
+                            {/* Настройка планов — руководители (гейт внутри) */}
+                            {!isViewAs && <PlansSettingsControl />}
+                            {!isViewAs && canShareLinks && <ShareLinksControl />}
+                            <DownLoad />
+                            {/* Настройки отчёта — руководитель группы и выше (гейт внутри) */}
+                            {!isViewAs && <ReportSettingsLink />}
+                        </>
+                    )}
+                    {/* Чат поддержки — виден, когда ссылка настроена на портале */}
+                    <SupportChatLink />
+                </>
             )}
             <Button
                 variant="outline"

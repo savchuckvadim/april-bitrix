@@ -11,8 +11,16 @@ export const REPORT_NAV_CALL_REVIEWS = {
     label: 'Разборы звонков',
 } as const;
 
-/** Где показан ряд вкладок: в отчёте или на странице «Разборов звонков». */
-export type ReportNavPage = 'report' | 'calls';
+/** «Разборы звонков» скрыты настройками портала (в списке скрытых — её код). */
+export function isCallReviewsTabHidden(hiddenTabs: readonly string[]): boolean {
+    return hiddenTabs.includes(REPORT_NAV_CALL_REVIEWS.code);
+}
+
+/**
+ * Где показан ряд вкладок: в отчёте, на странице «Разборов звонков» или на
+ * странице настроек отчёта (там ни одна вкладка не активна — все ведут по ссылке).
+ */
+export type ReportNavPage = 'report' | 'calls' | 'settings';
 
 export type ReportNavItem =
     | { kind: 'type'; type: EReportType; label: string }
@@ -20,18 +28,22 @@ export type ReportNavItem =
 
 /**
  * Ряд вкладок: типы отчёта по порядку; «Разборы звонков» — сразу после
- * «AI аналитики», а без неё — в конце. Без права — раздела нет.
+ * «AI аналитики», а без неё — в конце. Без права — раздела нет; скрытый
+ * настройками портала (`hiddenTabs` содержит его код) — тоже. Типы отчёта
+ * сюда приходят уже без скрытых (см. withoutHiddenReportTypes).
  */
 export function reportNavItems(
     available: readonly EReportType[],
     canCallReviews: boolean,
+    hiddenTabs: readonly string[] = [],
 ): ReportNavItem[] {
+    const showCalls = canCallReviews && !isCallReviewsTabHidden(hiddenTabs);
     const calls: ReportNavItem = { kind: 'calls', label: REPORT_NAV_CALL_REVIEWS.label };
     const items = available.flatMap((type): ReportNavItem[] => {
         const tab: ReportNavItem = { kind: 'type', type, label: REPORT_TYPE_LABELS[type] };
-        return canCallReviews && type === EReportType.AI ? [tab, calls] : [tab];
+        return showCalls && type === EReportType.AI ? [tab, calls] : [tab];
     });
-    if (canCallReviews && !available.includes(EReportType.AI)) items.push(calls);
+    if (showCalls && !available.includes(EReportType.AI)) items.push(calls);
     return items;
 }
 

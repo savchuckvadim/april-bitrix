@@ -1,4 +1,6 @@
 import { CALLS_LIST_PATH } from '@/modules/entities/calls-list/lib/calls-list.const';
+// Прямой путь к константе: барель фичи тянет UI и стор.
+import { REPORT_SETTINGS_PATH } from '@/modules/feature/portal-view/consts/portal-view.consts';
 
 /**
  * Каркас страницы по адресу:
@@ -6,14 +8,15 @@ import { CALLS_LIST_PATH } from '@/modules/entities/calls-list/lib/calls-list.co
  *   разбор звонка): без Bitrix-инициализации и каркаса отчёта, данные
  *   приходят готовыми;
  * - `bare` — страницы приложения на всю ширину без обвязки отчёта
- *   («Разборы звонков» `/calls`): инициализация приложения (сессия портала,
- *   пользователь) есть, шапки, фильтров и вкладок отчёта нет;
+ *   («Разборы звонков» `/calls`, «Настройки отчёта» `/settings`): инициализация
+ *   приложения (сессия портала, пользователь) есть, шапки, фильтров и вкладок
+ *   отчёта нет;
  * - `report` — всё остальное: приложение и каркас отчёта.
  */
 export type AppLayoutKind = 'public' | 'bare' | 'report';
 
 const PUBLIC_PREFIXES = ['/share', '/call/'] as const;
-const BARE_PATHS = [CALLS_LIST_PATH] as const;
+const BARE_PATHS = [CALLS_LIST_PATH, REPORT_SETTINGS_PATH] as const;
 
 const isUnder = (pathname: string, path: string): boolean =>
     pathname === path || pathname.startsWith(`${path}/`);

@@ -17,6 +17,8 @@ const isAiEnabled = (ctx: AccessContext): boolean =>
  *   при isMulti) — это уже обеспечивает computeDepartmentScope.
  * - VIEW_AS: только реальный суперюзер (кнопка не исчезает в самом
  *   режиме viewAs — иначе из него не выйти).
+ * - REPORT_RECALCULATE: суперюзер ИЛИ любой руководитель (группы, отдела,
+ *   вышестоящий) — как AIRTIME_TEAM.
  *
  * Задел: когда настройки прав станут пер-портальными (санка с бэка,
  * appActions.setFeatures), правила останутся прежними — поменяется
@@ -90,6 +92,12 @@ export const ACCESS_RULES: Record<
     // Менеджеру подвкладка не показывается, даже если витрина ему открыта.
     [EAccessFeature.AI_DEAL_MOVEMENT]: ctx =>
         isAiEnabled(ctx) && (ctx.isSuperUser || ctx.headOf !== null),
+
+    // «Пересчитать» отчёт: тяжёлый расчёт на сервере — любой руководитель
+    // (group/op/cup) или суперюзер, как командное эфирное время; рядовой
+    // менеджер кнопку не видит.
+    [EAccessFeature.REPORT_RECALCULATE]: ctx =>
+        ctx.isSuperUser || ctx.headOf !== null,
 };
 
 /** Проверка доступа — чистая функция, удобна и вне React (thunks/утилы). */

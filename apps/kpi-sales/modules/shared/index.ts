@@ -35,3 +35,5 @@ export {
     useChartsVisible,
 } from './lib/charts-visibility/charts-visibility.context';
 export { ChartsGate } from './ui/ChartsGate';
+// Сведения о расчёте отчёта (дата расчёта, период закрыт) из ответа сервера
+export * from './lib/calculation-info/calculation-info';

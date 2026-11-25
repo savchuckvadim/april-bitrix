@@ -10,6 +10,7 @@ import { PlansSettingsControl } from '@/modules/feature/plans';
 import { ReportSettingsLink, SupportChatLink } from '@/modules/feature/portal-view';
 import { useIsUserReport } from '../../lib/use-is-user-report';
 import SaveFilter from './SaveFilter';
+import { RecalculateAction } from './RecalculateAction';
 
 interface ReportHeaderActionsProps {
     isFilterOpen: boolean;
@@ -20,7 +21,7 @@ interface ReportHeaderActionsProps {
  * Правая группа кнопок хедера: при открытых фильтрах —
  * «Сохранить»/«Применить» (панель правит черновик: «Применить» переносит его
  * в действующий фильтр и перезапрашивает отчёт, «Скрыть фильтры» черновик
- * выбрасывает), иначе «Поделиться»/«Скачать»/«Настройки отчёта»
+ * выбрасывает), иначе «Поделиться»/«Пересчитать»/«Скачать»/«Настройки отчёта»
  * (кроме страницы сотрудника) и «Поддержка» (есть и на странице сотрудника,
  * если ссылка настроена); переключатель фильтров — всегда.
  *
@@ -61,6 +62,8 @@ export const ReportHeaderActions = ({
                             {/* Настройка планов — руководители (гейт внутри) */}
                             {!isViewAs && <PlansSettingsControl />}
                             {!isViewAs && canShareLinks && <ShareLinksControl />}
+                            {/* Пересчёт сохранённого расчёта — руководители (гейт внутри) */}
+                            <RecalculateAction />
                             <DownLoad />
                             {/* Настройки отчёта — руководитель группы и выше (гейт внутри) */}
                             {!isViewAs && <ReportSettingsLink />}

@@ -45,11 +45,16 @@ type TestListener = ListenerMiddlewareInstance<
     ThunkExtraArgument
 >;
 
-/** Конверт запроса: ответ бэка с данными, в очереди или ошибка расчёта. */
+/**
+ * Конверт запроса: ответ бэка с данными, в очереди или ошибка расчёта. Со
+ * сведениями о расчёте (generatedAt, closedPeriod) — как новый сервер.
+ */
 export interface Envelope {
     status: 'ready' | 'queued' | 'error';
     data?: unknown[];
     message?: string;
+    generatedAt?: string;
+    closedPeriod?: boolean;
 }
 
 export const READY: Envelope = { status: 'ready', data: [] };

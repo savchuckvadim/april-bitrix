@@ -11,6 +11,7 @@ import {
     ReportDetalization,
     ReportPeriod,
 } from './types/report/report-type';
+import type { CalculationInfo } from '@/modules/shared/lib/calculation-info/calculation-info';
 import { writePeriodDate, writePeriodMode } from '../lib/date-util';
 
 export type ReportState = typeof initialState;
@@ -49,6 +50,11 @@ const initialState = {
         mode: 'range' as EReportDateMode,
     } as ReportDate,
     report: [] as Array<ReportData>,
+    /**
+     * Сведения о расчёте событий (когда рассчитаны, период закрыт). null —
+     * сервер их не прислал: период открытый или сервер старый.
+     */
+    calculation: null as CalculationInfo | null,
     detalization: {
         report: null as ReportData | null,
         action: null as KPIAction | null,
@@ -75,10 +81,16 @@ const reportSlice = createSlice({
                 report: Array<ReportData>;
                 dateFieldId: string;
                 actionFieldId: string;
+                /**
+                 * Сведения о расчёте из ответа. Не переданы — прежние
+                 * очищаются: они относились к другим данным.
+                 */
+                calculation?: CalculationInfo | null;
             }>,
         ) => {
 
             state.report = action.payload.report;
+            state.calculation = action.payload.calculation ?? null;
 
             state.isFetched = true;
             state.isLoading = false;

@@ -75,6 +75,7 @@ vi.mock(
 
 const KEY = '2026-11-01|2026-11-20|1_2';
 const OLD_KEY = '2026-10-01|2026-10-31|1_2';
+const GENERATED_AT = '2026-11-12T07:40:00.000Z';
 
 let store: { getState: () => RootState };
 
@@ -133,6 +134,56 @@ describe('WS-событие готовности отчёта', () => {
         expect(store.getState().report.isFetched).toBe(true);
     });
 
+    it('событие со сведениями о расчёте: записаны вместе с данными', () => {
+        setCurrentKey('report', KEY);
+        handler(REPORT_QUEUE_WS_EVENTS.REPORT_DONE)({
+            requestKey: KEY,
+            data: [],
+            generatedAt: GENERATED_AT,
+            closedPeriod: true,
+        });
+
+        expect(store.getState().report.calculation).toEqual({
+            generatedAt: GENERATED_AT,
+            closedPeriod: true,
+        });
+    });
+
+    it('событие без сведений (открытый период, старый сервер): прежние очищены', () => {
+        setCurrentKey('report', KEY);
+        handler(REPORT_QUEUE_WS_EVENTS.REPORT_DONE)({
+            requestKey: KEY,
+            data: [],
+            generatedAt: GENERATED_AT,
+            closedPeriod: true,
+        });
+        handler(REPORT_QUEUE_WS_EVENTS.REPORT_DONE)({
+            requestKey: KEY,
+            data: [],
+        });
+
+        expect(store.getState().report.calculation).toBeNull();
+    });
+
+    it('событие устаревшего ключа сведений не меняет', () => {
+        setCurrentKey('report', KEY);
+        handler(REPORT_QUEUE_WS_EVENTS.REPORT_DONE)({
+            requestKey: KEY,
+            data: [],
+            generatedAt: GENERATED_AT,
+            closedPeriod: true,
+        });
+        handler(REPORT_QUEUE_WS_EVENTS.REPORT_DONE)({
+            requestKey: OLD_KEY,
+            data: [],
+        });
+
+        expect(store.getState().report.calculation).toEqual({
+            generatedAt: GENERATED_AT,
+            closedPeriod: true,
+        });
+    });
+
     it('устаревший ключ: событие отброшено, отметки нет', () => {
         setCurrentKey('report', KEY);
         handler(REPORT_QUEUE_WS_EVENTS.REPORT_DONE)({
@@ -169,6 +220,55 @@ describe('WS-событие готовности статистики звонк
         expect(store.getState().callingStatistics.isFetched).toBe(true);
         // Отметка звонков не задевает события.
         expect(isLoadedKey('report', KEY)).toBe(false);
+    });
+
+    it('событие со сведениями о расчёте: записаны вместе с данными', () => {
+        setCurrentKey('calling', KEY);
+        handler(REPORT_QUEUE_WS_EVENTS.CALLING_DONE)({
+            requestKey: KEY,
+            data: [],
+            generatedAt: GENERATED_AT,
+            closedPeriod: true,
+        });
+
+        expect(store.getState().callingStatistics.calculation).toEqual({
+            generatedAt: GENERATED_AT,
+            closedPeriod: true,
+        });
+    });
+
+    it('событие без сведений (открытый период, старый сервер): прежние очищены', () => {
+        setCurrentKey('calling', KEY);
+        handler(REPORT_QUEUE_WS_EVENTS.CALLING_DONE)({
+            requestKey: KEY,
+            data: [],
+            generatedAt: GENERATED_AT,
+            closedPeriod: true,
+        });
+        handler(REPORT_QUEUE_WS_EVENTS.CALLING_DONE)({
+            requestKey: KEY,
+            data: [],
+        });
+
+        expect(store.getState().callingStatistics.calculation).toBeNull();
+    });
+
+    it('сведения звонков не задевают сведения событий', () => {
+        setCurrentKey('report', KEY);
+        setCurrentKey('calling', KEY);
+        handler(REPORT_QUEUE_WS_EVENTS.REPORT_DONE)({
+            requestKey: KEY,
+            data: [],
+        });
+        handler(REPORT_QUEUE_WS_EVENTS.CALLING_DONE)({
+            requestKey: KEY,
+            data: [],
+            generatedAt: GENERATED_AT,
+            closedPeriod: true,
+        });
+
+        expect(store.getState().report.calculation).toBeNull();
+        expect(store.getState().callingStatistics.calculation).not.toBeNull();
     });
 
     it('устаревший ключ: событие отброшено, отметки нет', () => {

@@ -1,7 +1,13 @@
 import {
+    KpiReportGetResponseDto,
     ReportGetRequestDto,
     SavedReportFilterDto,
 } from '@workspace/nest-kpi-report-sales-api';
+import {
+    pickCalculationInfo,
+    type CalculationInfo,
+    type WithCalculationInfo,
+} from '@/modules/shared/lib/calculation-info/calculation-info';
 import type { AppDispatch, RootState } from '@/modules/app/model/store';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 import {
@@ -124,10 +130,11 @@ export const loadSavedFilter =
 
 /**
  * Применение готовых данных KPI-отчёта к слайсам (общая точка для ответа
- * поллинга и WS-события kpi-report:done).
+ * поллинга и WS-события kpi-report:done). Сведения о расчёте (дата, период
+ * закрыт) пишутся вместе с данными; не переданы — прежние очищаются.
  */
 export const applyReportData =
-    (data: ReportData[]) =>
+    (data: ReportData[], calculation: CalculationInfo | null = null) =>
     (dispatch: AppDispatch, getState: () => RootState) => {
         const report = getState().report;
         dispatch(
@@ -135,6 +142,7 @@ export const applyReportData =
                 report: data,
                 dateFieldId: '',
                 actionFieldId: '',
+                calculation,
             }),
         );
 
@@ -232,7 +240,9 @@ export const getReportData =
         } as unknown as ReportGetRequestDto;
 
         try {
-            const envelope = await reportHelper.getReport(reportRequest);
+            // Сгенерированный клиент о сведениях расчёта ещё не знает.
+            const envelope: WithCalculationInfo<KpiReportGetResponseDto> =
+                await reportHelper.getReport(reportRequest);
             // Фильтр сменился, пока летел ответ — он устарел.
             if (!isCurrentKey('report', requestKey)) return;
 
@@ -261,6 +271,7 @@ export const getReportData =
             dispatch(
                 applyReportData(
                     (envelope.data ?? []) as unknown as ReportData[],
+                    pickCalculationInfo(envelope),
                 ),
             );
             // Отчёт получен — загружен для этого ключа (ошибка расчёта и

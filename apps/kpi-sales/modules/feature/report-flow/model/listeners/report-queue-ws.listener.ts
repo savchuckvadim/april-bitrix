@@ -7,6 +7,10 @@ import type {
     ThunkExtraArgument,
 } from '@/modules/app/model/store';
 import { getWSClient } from '@/modules/app/model/ws-client';
+import {
+    pickCalculationInfo,
+    type CalculationInfo,
+} from '@/modules/shared/lib/calculation-info/calculation-info';
 import { callingStatisticsActions } from '@/modules/entities/calling-statistics';
 import type { ReportCallingData } from '@/modules/entities/calling-statistics';
 import { reportActions } from '@/modules/entities/report/model/report-slice';
@@ -22,7 +26,8 @@ export const REPORT_QUEUE_WS_EVENTS = {
     CALLING_ERROR: 'kpi-report:calling-statistic:error',
 } as const;
 
-interface DonePayload<T> {
+/** Готовность расчёта: данные и сведения о расчёте (старый сервер их не шлёт). */
+interface DonePayload<T> extends CalculationInfo {
     requestKey: string;
     data: T;
 }
@@ -68,7 +73,12 @@ export const startReportQueueWsListener = (
                     if (!payload?.requestKey) return;
                     if (!isCurrentKey('report', payload.requestKey)) return;
                     clearPoll('report');
-                    dispatch(applyReportData(payload.data ?? []));
+                    dispatch(
+                        applyReportData(
+                            payload.data ?? [],
+                            pickCalculationInfo(payload),
+                        ),
+                    );
                     markLoadedKey('report', payload.requestKey);
                 },
             );
@@ -94,6 +104,7 @@ export const startReportQueueWsListener = (
                     dispatch(
                         callingStatisticsActions.setFetched(
                             payload.data ?? [],
+                            pickCalculationInfo(payload),
                         ),
                     );
                     dispatch(callingStatisticsActions.setLoading(false));

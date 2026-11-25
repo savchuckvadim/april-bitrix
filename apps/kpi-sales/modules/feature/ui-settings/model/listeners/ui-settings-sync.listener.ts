@@ -10,6 +10,10 @@ import { aiAnalyticsActions } from '@/modules/entities/ai-analytics/model/ai-ana
 import { UiSettingsHelper } from '../../lib/api/ui-settings-helper';
 import type { UiSettingsBlob } from '../../lib/ui-settings.types';
 import {
+    applyStoredMergedFilter,
+    toStoredMergedFilter,
+} from '../../lib/ui-settings-merged-filter.util';
+import {
     applyBlobToLocalStores,
     collectBlockStates,
     collectChartSelections,
@@ -48,10 +52,7 @@ const buildBlob = (state: RootState): UiSettingsBlob => {
         updatedAt: new Date().toISOString(),
         conversions,
         blocks: collectBlockStates(),
-        mergedFilter: {
-            selectedUsers: state.mergedReport.selectedUsers,
-            selectedActions: state.mergedReport.selectedActions,
-        },
+        mergedFilter: toStoredMergedFilter(state.mergedReport),
         reportType: state.reportType.current,
         chartSelections: collectChartSelections(),
         finance: {
@@ -72,22 +73,7 @@ const buildBlob = (state: RootState): UiSettingsBlob => {
 const applyBlob = (blob: UiSettingsBlob, dispatch: AppDispatch): void => {
     applyBlobToLocalStores(blob);
     dispatch(conversionsActions.hydrate(blob.conversions ?? null));
-    if (blob.mergedFilter) {
-        if (blob.mergedFilter.selectedUsers.length) {
-            dispatch(
-                mergedReportActions.setSelectedUsers(
-                    blob.mergedFilter.selectedUsers,
-                ),
-            );
-        }
-        if (blob.mergedFilter.selectedActions.length) {
-            dispatch(
-                mergedReportActions.setSelectedActions(
-                    blob.mergedFilter.selectedActions,
-                ),
-            );
-        }
-    }
+    applyStoredMergedFilter(blob.mergedFilter, dispatch);
     if (blob.reportType) {
         dispatch(reportTypeActions.setCurrentReportType(blob.reportType));
     }
@@ -196,7 +182,6 @@ export const startUiSettingsSyncListeners = (
             conversionsActions.setTableConfig,
             conversionsActions.setWidgetConfig,
             conversionsActions.setTabConfig,
-            mergedReportActions.setSelectedUsers,
             mergedReportActions.setSelectedActions,
             reportTypeActions.setCurrentReportType,
             financeActions.setComparisonMode,

@@ -1,13 +1,17 @@
 import {
+    KpiReportGetResponseDto,
     ReportGetRequestDto,
-    ReportFilterSaveRequestDto,
     SavedReportFilterDto,
 } from '@workspace/nest-kpi-report-sales-api';
+import {
+    pickCalculationInfo,
+    type CalculationInfo,
+    type WithCalculationInfo,
+} from '@/modules/shared/lib/calculation-info/calculation-info';
 import type { AppDispatch, RootState } from '@/modules/app/model/store';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 import {
     departmentActions,
-    buildSelectionV2,
     resolveSavedSelection,
 } from '@/modules/entities/department';
 import { reportActions } from '@/modules/entities/report/model/report-slice';
@@ -25,9 +29,14 @@ import { safeSocketId } from '@/modules/entities/airtime';
 import {
     buildReportFlowRequestKey,
     isCurrentKey,
+    markLoadedKey,
     schedulePoll,
     setCurrentKey,
 } from './report-queue.util';
+import {
+    buildSaveFilterDto,
+    selectFilterValuesToSave,
+} from '../lib/save-filter.util';
 
 const reportHelper = new ReportHelper();
 const filterHelper = new ReportFilterHelper();
@@ -42,18 +51,6 @@ interface ReportFetchOptions {
 /** v2-режим дат ↔ фронтовый EReportDateMode (custom ↔ range). */
 const toReportDateMode = (mode: string): EReportDateMode =>
     mode === 'custom' ? EReportDateMode.RANGE : (mode as EReportDateMode);
-
-const toSavedDates = (state: RootState): SavedReportFilterDto['dates'] => {
-    const date = state.report.date;
-    if (date.mode === EReportDateMode.RANGE) {
-        return {
-            mode: 'custom',
-            from: date[ReportDateType.FROM],
-            to: date[ReportDateType.TO],
-        };
-    }
-    return { mode: date.mode as SavedReportFilterDto['dates']['mode'] };
-};
 
 /**
  * Применение сохранённого фильтра (даты + выбор сотрудников).
@@ -133,10 +130,11 @@ export const loadSavedFilter =
 
 /**
  * Применение готовых данных KPI-отчёта к слайсам (общая точка для ответа
- * поллинга и WS-события kpi-report:done).
+ * поллинга и WS-события kpi-report:done). Сведения о расчёте (дата, период
+ * закрыт) пишутся вместе с данными; не переданы — прежние очищаются.
  */
 export const applyReportData =
-    (data: ReportData[]) =>
+    (data: ReportData[], calculation: CalculationInfo | null = null) =>
     (dispatch: AppDispatch, getState: () => RootState) => {
         const report = getState().report;
         dispatch(
@@ -144,6 +142,7 @@ export const applyReportData =
                 report: data,
                 dateFieldId: '',
                 actionFieldId: '',
+                calculation,
             }),
         );
 
@@ -241,7 +240,9 @@ export const getReportData =
         } as unknown as ReportGetRequestDto;
 
         try {
-            const envelope = await reportHelper.getReport(reportRequest);
+            // Сгенерированный клиент о сведениях расчёта ещё не знает.
+            const envelope: WithCalculationInfo<KpiReportGetResponseDto> =
+                await reportHelper.getReport(reportRequest);
             // Фильтр сменился, пока летел ответ — он устарел.
             if (!isCurrentKey('report', requestKey)) return;
 
@@ -270,8 +271,12 @@ export const getReportData =
             dispatch(
                 applyReportData(
                     (envelope.data ?? []) as unknown as ReportData[],
+                    pickCalculationInfo(envelope),
                 ),
             );
+            // Отчёт получен — загружен для этого ключа (ошибка расчёта и
+            // сбой запроса сюда не доходят и отметку не ставят).
+            markLoadedKey('report', requestKey);
         } catch (error) {
             if (isCurrentKey('report', requestKey)) {
                 dispatch(reportActions.setLoadingReportStatus(false));
@@ -292,8 +297,10 @@ export const getReportData =
 
 /**
  * Сохранение фильтра в формате v2 (structural selection) на новый бэк.
- * legacyUserIds заполняется всегда — бэк зеркалирует старые колонки,
- * поэтому legacy online-флоу остаётся рабочим (путь отката).
+ * Кнопка видна только при открытой панели, поэтому при открытом черновике
+ * сохраняются его значения (период, сотрудники, действия), иначе —
+ * действующий фильтр (см. selectFilterValuesToSave). Формат запроса — в
+ * buildSaveFilterDto (legacyUserIds заполняется всегда).
  * Возвращает true при успешном сохранении — UI показывает «Сохранено»
  * только по факту, а не по клику.
  */
@@ -309,23 +316,11 @@ export const saveFilter =
 
         dispatch(reportActions.setFilterLoadingStatus(true));
         try {
-            const selectedIds = new Set(
-                department.current.map(u => Number(u.ID)),
+            const dto = buildSaveFilterDto(
+                { domain: app.domain, userId: Number(user.ID) },
+                selectFilterValuesToSave(state),
+                department.departments,
             );
-            const dto: ReportFilterSaveRequestDto = {
-                domain: app.domain,
-                userId: Number(user.ID),
-                filter: {
-                    version: 2,
-                    actions: report.filter,
-                    dates: toSavedDates(state),
-                    selection: buildSelectionV2(
-                        department.departments,
-                        selectedIds,
-                    ),
-                    legacyUserIds: [...selectedIds],
-                },
-            };
             await filterHelper.save(dto);
             return true;
         } catch (error) {

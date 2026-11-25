@@ -1,5 +1,4 @@
 import type { BlockState } from '@/modules/entities/report/lib/localStorage-util';
-import type { StoredMergedFilter } from '@/modules/feature/merged-kpi-calling-report/lib/merged-filter-storage.util';
 import type { PersistedConversions } from '@/modules/feature/report-conversions';
 import type { EReportType } from '@/modules/feature/report-widget-type/consts/report-type.consts';
 import type {
@@ -8,6 +7,20 @@ import type {
 } from '@/modules/entities/finance';
 import type { AiCallTypeSelection } from '@/modules/entities/ai-analytics/lib/ai-call-types.data';
 import type { AiByTypeLayout } from '@/modules/entities/ai-analytics/model';
+
+/**
+ * Выбор объединённого отчёта в блобе. Форма — как у блобов, уже лежащих на
+ * сервере: поле selectedUsers осталось, но не используется.
+ */
+export interface StoredMergedFilter {
+    /**
+     * Устарело: сотрудников выбирает главный фильтр отчёта. В старых блобах
+     * значение есть — при чтении игнорируется, при записи пишется пустым.
+     */
+    selectedUsers: number[];
+    /** Показатели (колонки) объединённой таблицы; пусто — все. */
+    selectedActions: string[];
+}
 
 /**
  * Единый блоб UI-настроек kpi-sales: localStorage — кэш, бэк
@@ -22,7 +35,7 @@ export interface UiSettingsBlob {
     conversions?: PersistedConversions;
     /** Видимость блоков отчёта (ReportBlockWrapper). */
     blocks?: Record<string, BlockState>;
-    /** Локальный фильтр объединённого отчёта. */
+    /** Показатели объединённого отчёта (единственное место их хранения). */
     mergedFilter?: StoredMergedFilter;
     /** Выбранный тип отчёта (вкладка). */
     reportType?: EReportType;

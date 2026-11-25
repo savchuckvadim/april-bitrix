@@ -7,6 +7,7 @@ import { Label } from '@workspace/ui/components/label';
 import { useDepartmentTree } from '../lib/hooks/use-department-tree';
 import { filterTreeBySearch } from '../lib/build-tree.util';
 import { DepartmentNode } from './components/DepartmentNode';
+import { EmptySelectionHint } from './components/EmptySelectionHint';
 
 interface DepartmentTreeFilterProps {
     /** Ограничение высоты списка (в модалке — выше). */
@@ -26,6 +27,7 @@ export const DepartmentTreeFilter = ({
         showDepartmentLevel,
         selectedCount,
         totalCount,
+        showEmptySelectionHint,
         toggleUser,
         toggleGroup,
         toggleDepartment,
@@ -49,6 +51,7 @@ export const DepartmentTreeFilter = ({
                     <span className="ml-2 text-xs font-normal text-muted-foreground">
                         {selectedCount}/{totalCount}
                     </span>
+                    {showEmptySelectionHint && <EmptySelectionHint />}
                 </Label>
                 <div className="flex gap-1">
                     <Button

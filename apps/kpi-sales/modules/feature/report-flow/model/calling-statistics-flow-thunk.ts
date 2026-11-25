@@ -1,5 +1,12 @@
-import { GetCallingStatisticDto } from '@workspace/nest-kpi-report-sales-api';
+import {
+    CallingStatisticResponseDto,
+    GetCallingStatisticDto,
+} from '@workspace/nest-kpi-report-sales-api';
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
+import {
+    pickCalculationInfo,
+    type WithCalculationInfo,
+} from '@/modules/shared/lib/calculation-info/calculation-info';
 import {
     modifyDateToReportRequest,
     ReportDateType,
@@ -11,6 +18,7 @@ import { safeSocketId } from '@/modules/entities/airtime';
 import {
     buildReportFlowRequestKey,
     isCurrentKey,
+    markLoadedKey,
     schedulePoll,
     setCurrentKey,
 } from './report-queue.util';
@@ -71,18 +79,22 @@ export const getCallingStatistics =
         // 2026-07-30: ISO ломал списковые фильтры дат).
         const bitrixDates = modifyDateToReportRequest(from, to);
 
+        const request = {
+            domain: app.domain,
+            filters: {
+                dateFrom: bitrixDates.from,
+                dateTo: bitrixDates.to,
+                departament: users,
+            },
+            mode: 'queue',
+            socketId: safeSocketId(),
+            forceRefresh: options.poll ? undefined : options.forceRefresh,
+        } as unknown as GetCallingStatisticDto;
+
         try {
-            const envelope = await callingStatisticsHelper.getStatistics({
-                domain: app.domain,
-                filters: {
-                    dateFrom: bitrixDates.from,
-                    dateTo: bitrixDates.to,
-                    departament: users,
-                },
-                mode: 'queue',
-                socketId: safeSocketId(),
-                forceRefresh: options.poll ? undefined : options.forceRefresh,
-            } as unknown as GetCallingStatisticDto);
+            // Сгенерированный клиент о сведениях расчёта ещё не знает.
+            const envelope: WithCalculationInfo<CallingStatisticResponseDto> =
+                await callingStatisticsHelper.getStatistics(request);
 
             // Фильтр сменился, пока летел ответ — он устарел.
             if (!isCurrentKey('calling', requestKey)) return;
@@ -105,9 +117,13 @@ export const getCallingStatistics =
             dispatch(
                 callingStatisticsActions.setFetched(
                     (envelope.data ?? []) as unknown as ReportCallingData[],
+                    pickCalculationInfo(envelope),
                 ),
             );
             dispatch(callingStatisticsActions.setLoading(false));
+            // Статистика получена — загружена для этого ключа (ошибка
+            // расчёта и сбой запроса сюда не доходят и отметку не ставят).
+            markLoadedKey('calling', requestKey);
         } catch (error) {
             if (!isCurrentKey('calling', requestKey)) return;
             console.error('calling statistics error:', error);

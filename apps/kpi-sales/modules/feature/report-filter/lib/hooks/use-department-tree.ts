@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { departmentActions } from '@/modules/entities/department';
 import {
@@ -8,23 +8,33 @@ import {
     TreeDepartment,
     TreeGroup,
 } from '../build-tree.util';
+import { DepartmentSelectionContext } from '../department-selection.context';
 
 /**
  * Дерево «отдел → группа → сотрудник» поверх department-слайса.
- * Источник истины выбора — department.current (BXUser[]); тогглы
+ * Источник выбора — поставщик DepartmentSelectionProvider (панель фильтров
+ * правит черновик); без поставщика — department.current (BXUser[]): тогглы
  * пересобирают его и диспатчат setDepartmentCurrent.
  */
 export const useDepartmentTree = () => {
     const dispatch = useAppDispatch();
     const department = useAppSelector(state => state.department);
+    const selection = useContext(DepartmentSelectionContext);
+    // Отдельной переменной: eslint react-hooks не принимает `.current` в deps.
+    const currentUsers = department.current;
 
-    const selectedIds = useMemo(
-        () => new Set(department.current.map(u => Number(u.ID))),
-        [department.current],
-    );
     const visibleIds = useMemo(
         () => new Set(department.items.map(u => Number(u.ID))),
         [department.items],
+    );
+    const selectedIds = useMemo(
+        () =>
+            selection
+                ? new Set(
+                      selection.selectedIds.filter(id => visibleIds.has(id)),
+                  )
+                : new Set(currentUsers.map(u => Number(u.ID))),
+        [selection, currentUsers, visibleIds],
     );
 
     const tree: TreeDepartment[] = useMemo(
@@ -34,12 +44,16 @@ export const useDepartmentTree = () => {
 
     const applySelection = useCallback(
         (ids: Set<number>) => {
+            if (selection) {
+                selection.onChange([...ids]);
+                return;
+            }
             const users = department.items.filter(u =>
                 ids.has(Number(u.ID)),
             );
             dispatch(departmentActions.setDepartmentCurrent(users));
         },
-        [department.items, dispatch],
+        [selection, department.items, dispatch],
     );
 
     const toggleUser = useCallback(
@@ -107,6 +121,12 @@ export const useDepartmentTree = () => {
         isHeadManager: department.isHeadManager,
         selectedCount: selectedIds.size,
         totalCount: visibleIds.size,
+        /**
+         * Выбор правит черновик, и в нём никого нет: при «Применить» это
+         * «все видимые» — показываем подсказку рядом со счётчиком.
+         */
+        showEmptySelectionHint:
+            selection !== null && selectedIds.size === 0 && visibleIds.size > 0,
         toggleUser,
         toggleGroup,
         toggleDepartment,

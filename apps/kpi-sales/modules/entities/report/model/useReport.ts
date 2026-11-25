@@ -1,12 +1,5 @@
 'use client';
 import { useMemo } from 'react';
-import { changeDate } from './report-thunks';
-import {
-    ReportDateType,
-    Filter,
-    EReportDateMode,
-    ReportData,
-} from './types/report/report-type';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { reportActions } from './report-slice';
 import { getFiltredrReport, getMediumData, getTotalData } from '../lib/report';
@@ -18,14 +11,9 @@ export const useReport = () => {
 
 
     // Загрузка/сохранение отчёта — в feature/report-flow (useReportFlow);
-    // здесь только состояние сущности и её чистые операции.
-    const handleDateChange = (type: ReportDateType, date: string) => {
-        dispatch(changeDate(type, date));
-    };
-    const handleDateModeChange = (mode: EReportDateMode) => {
-        dispatch(reportActions.setChangedDateMode({ mode }));
-    };
-
+    // правка фильтра (период, сотрудники, действия) — через черновик в
+    // feature/report-flow (useReportFilterDraft). Здесь только состояние
+    // сущности и её чистые операции.
     const handleSetCurrentReportItem = (userId: number) => {
         dispatch(reportActions.setCurrentReportItem(userId));
     };
@@ -61,8 +49,6 @@ export const useReport = () => {
         date: reportState.date,
         actions: reportState.actions,
         isFilterLoading: reportState.isFilterLoading,
-        handleDateChange,
-        handleDateModeChange,
         handleSetCurrentReportItem,
     };
 };

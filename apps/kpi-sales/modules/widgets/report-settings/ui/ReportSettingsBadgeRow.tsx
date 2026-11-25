@@ -13,21 +13,28 @@ interface ReportSettingsBadgeRowProps {
     checked: boolean;
     /** Выключить нельзя: после этого не останется ни одного видимого бейджа. */
     locked: boolean;
+    /**
+     * Показывать типы звонков под названием. В подгруппе с подзаголовком типов
+     * они уже названы — строка остаётся в одну линию.
+     */
+    showCallTypes?: boolean;
     onChange: (checked: boolean) => void;
 }
 
 /**
  * Строка бейджа: название (пояснение — в подсказке), у бейджей методики мелким
- * текстом типы звонков, справа переключатель «виден сразу».
+ * текстом типы звонков (если они не вынесены в подзаголовок подгруппы), справа
+ * переключатель «виден сразу».
  */
 export const ReportSettingsBadgeRow = ({
     badge,
     checked,
     locked,
+    showCallTypes = true,
     onChange,
 }: ReportSettingsBadgeRowProps) => {
     const id = `report-settings-badge-${badge.id}`;
-    const callTypes = badgeCallTypesText(badge);
+    const callTypes = showCallTypes ? badgeCallTypesText(badge) : null;
     return (
         <div className="flex items-start justify-between gap-3 py-1.5">
             <div className="min-w-0">

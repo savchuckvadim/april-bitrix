@@ -1,5 +1,4 @@
 import CallingTable from './components/CallingTable';
-import { useCallingStatistics } from '../lib/hooks/useCallingStatistics';
 import { ChartsGate, Preloader } from '@/modules/shared';
 import CallingDashboard from './components/CallingDashboard';
 import { ReportCallingData } from '../type/calling-type';

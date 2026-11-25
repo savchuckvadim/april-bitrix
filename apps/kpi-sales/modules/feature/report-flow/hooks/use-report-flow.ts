@@ -1,37 +1,35 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { getReportData } from '../model/report-flow-thunks';
-import { getCallingStatistics } from '../model/calling-statistics-flow-thunk';
+import { useCallback, useEffect } from 'react';
+import { useAppDispatch } from '@/modules/app/lib/hooks/redux';
+import { ensureReportData } from '../model/ensure-report-data.thunk';
+import { applyFilterDraft } from '../model/filter-draft/report-filter-draft.thunks';
 
 /**
- * Flow-операции отчёта для виджетов: обновление отчёта (сохранение
- * фильтра — в useSaveFilter). Также страхует загрузку: если отчёт
- * сброшен (isFetched=false) — перезапрашивает (первичную загрузку
- * делает listener-цепочка).
+ * Flow-операции отчёта для виджетов: применение фильтра (сохранение
+ * фильтра — в useSaveFilter). Также страхует загрузку: при появлении шапки
+ * отчёта докачивает то, что текущей вкладке нужно и ещё не загружено
+ * (первичную загрузку делает listener-цепочка, смену вкладки — listener
+ * вкладки). Страховка срабатывает один раз на маунт: после сбоя расчёта
+ * она не повторяет запрос по кругу — пользователь нажимает «Применить».
  */
 export const useReportFlow = () => {
     const dispatch = useAppDispatch();
-    const isFetched = useAppSelector(state => state.report.isFetched);
-    const isLoading = useAppSelector(state => state.report.isLoading);
 
     useEffect(() => {
-        if (!isFetched && !isLoading) {
-            dispatch(getReportData());
-        }
-    }, [dispatch, isFetched, isLoading]);
+        dispatch(ensureReportData());
+    }, [dispatch]);
 
-    return {
-        /**
-         * Кнопка «Применить»: перезапрашивает ОБА отчёта. Исторический баг:
-         * здесь дёргался только KPI — статистика звонков обновлялась лишь
-         * маунт-цепочкой сохранённого фильтра, поэтому смена периода
-         * «применялась» к звонкам только после сохранения+перезагрузки.
-         */
-        refreshReport: () => {
-            void dispatch(getReportData());
-            void dispatch(getCallingStatistics());
-        },
-    };
+    /**
+     * Кнопка «Применить»: черновик фильтра переходит в действующий фильтр,
+     * панель закрывается, перезапрашиваются события и звонки — те из них,
+     * что нужны текущей вкладке (исторический баг: раньше дёргался только
+     * KPI, и звонки «применялись» лишь после сохранения фильтра и
+     * перезагрузки).
+     */
+    const applyFilter = useCallback(() => {
+        dispatch(applyFilterDraft());
+    }, [dispatch]);
+
+    return { applyFilter };
 };

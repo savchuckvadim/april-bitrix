@@ -14,6 +14,7 @@ import {
     EReportDateMode,
     ReportDateType,
     ReportDate,
+    ReportPeriod,
 } from '../model/types/report/report-type';
 import type { AppDispatch } from '@/modules/app/model/store';
 // Прямой путь до слайса, а не барель `../model`: барель исполняется как
@@ -52,6 +53,38 @@ export const getDatesByMode = (
         to: toFormatted,
     };
 };
+
+/**
+ * Записать одну дату периода (мутирует `target` — для immer-редьюсеров):
+ * значение нормализуется в yyyy-MM-dd, пустая или нераспознанная дата
+ * игнорируется (прежняя остаётся). Режим периода не меняется.
+ */
+export const writePeriodDate = (
+    target: ReportPeriod,
+    typeOfDate: ReportDateType,
+    value: string,
+): void => {
+    const date = normalizeToISO(value);
+
+    if (date) {
+        target[typeOfDate] = date;
+    }
+};
+
+/**
+ * Записать режим периода (мутирует `target` — для immer-редьюсеров): обе
+ * даты пересчитываются по режиму (см. getDatesByMode).
+ */
+export const writePeriodMode = (
+    target: ReportPeriod,
+    mode: EReportDateMode,
+): void => {
+    const { from, to } = getDatesByMode(mode);
+    target[ReportDateType.FROM] = from;
+    target[ReportDateType.TO] = to;
+    target.mode = mode;
+};
+
 export const getDatesByRememberFilter = (
     filter: IFilterResponse,
 ): {

@@ -2,6 +2,10 @@
 
 import type { ReactNode } from 'react';
 import { ThemeTogglePanel } from '@workspace/theme';
+import {
+    PAGE_HEADER_PAD_CLASS,
+    PAGE_HEADER_ROW_CLASS,
+} from './page-layout.classes';
 
 export interface PageHeaderProps {
     /** Название страницы. */
@@ -25,8 +29,8 @@ export interface PageHeaderProps {
  */
 export const PageHeader = ({ title, note, back, actions }: PageHeaderProps) => (
     <header className="sticky top-0 z-10 bg-background/50 backdrop-blur-sm">
-        <div className="px-7 py-2">
-            <div className="flex h-12 w-full items-center justify-between gap-2">
+        <div className={PAGE_HEADER_PAD_CLASS}>
+            <div className={PAGE_HEADER_ROW_CLASS}>
                 <div className="flex min-w-0 flex-row items-center">
                     <ThemeTogglePanel align="start" />
                     {back}

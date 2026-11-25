@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -17,6 +17,7 @@ import { ReportCallingData } from '@/modules/entities/calling-statistics';
 import { getCallingStatisticsTableData } from '@/modules/entities/calling-statistics';
 import { getReportTableData } from '@/modules/entities/report';
 import { getMergedReportsData } from '../lib/merge-reports.util';
+import { isMergedUserSelected } from '../lib/merged-table-selection.util';
 import { useMergedReport } from '../hooks/merged-report.hook';
 import { usePersistedSelection } from '@/modules/shared';
 
@@ -46,12 +47,14 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
     report,
     callingsReport,
 }) => {
-    // Локальный фильтр объединённого отчёта — применяем и к этому виджету.
+    // Выбор показателей объединённого отчёта — применяем и к этому виджету.
     const { selectedUsers, selectedActions } = useMergedReport();
 
     // Объединяем данные (с учётом выбранных сотрудников)
     const mergedData = useMemo(() => {
-        if (!report || !report.length || !callingsReport || !callingsReport.length) {
+        // Пусты оба источника — объединять нечего; сотрудник из одного
+        // источника остаётся с нулями по другому.
+        if (!report || !callingsReport || (!report.length && !callingsReport.length)) {
             return null;
         }
         const tableKpiData = getReportTableData(report);
@@ -60,15 +63,13 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
         if (!selectedUsers.length) return merged;
         return {
             ...merged,
-            data: merged.data.filter(
-                user =>
-                    user.id !== undefined &&
-                    selectedUsers.includes(Number(user.id)),
+            data: merged.data.filter(user =>
+                isMergedUserSelected(selectedUsers, user.id),
             ),
         };
     }, [report, callingsReport, selectedUsers]);
 
-    // Доступные действия: из данных, обрезанные локальным фильтром действий
+    // Доступные действия: из данных, обрезанные выбором показателей
     const availableActions = useMemo(() => {
         if (!mergedData || !mergedData.data || mergedData.data.length === 0) {
             return [];

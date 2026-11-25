@@ -3,14 +3,18 @@ import type { AppDispatch, RootState, ThunkExtraArgument } from '@/modules/app/m
 import { appActions } from '@/modules/app/model/AppSlice';
 import { isReportChainAllowed } from '@/modules/app/lib/layout/app-layout-kind';
 import { departmentActions } from '@/modules/entities/department/model/department-slice';
-import { getCallingStatistics } from '../calling-statistics-flow-thunk';
 import { reportActions } from '@/modules/entities/report/model/report-slice';
-import { getReportData, loadSavedFilter } from '../report-flow-thunks';
+import { ensureReportData } from '../ensure-report-data.thunk';
+import { loadSavedFilter } from '../report-flow-thunks';
+import { markSavedFilterApplied } from '../report-queue.util';
 
 /**
  * Цепочка загрузки отчёта:
  *   структура отделов готова → применяем сохранённый фильтр;
- *   фильтр применён (кнопка «Применить»/маунт) → отчёт + статистика звонков.
+ *   сохранённый фильтр применён → отчёт и/или статистика звонков — только те
+ *   источники, что нужны текущей вкладке (ensureReportData; «Дайджесту»,
+ *   «Финансам» и «AI аналитике» события и звонки не нужны, их данные
+ *   догрузятся при переходе на вкладку отчёта, см. report-tab.listener).
  *
  * НАМЕРЕННО без авто-перезапроса на смену даты/состава: пользователь
  * меняет несколько параметров пачкой и запускает запрос ЯВНО кнопкой —
@@ -50,8 +54,10 @@ export const startReportChainListeners = (
                 dispatch(reportActions.setChainDeferred(true));
                 return;
             }
-            dispatch(getReportData());
-            dispatch(getCallingStatistics());
+            // С этого момента фильтр установился: запросы «по необходимости»
+            // (в том числе по смене вкладки) уже не мусорные.
+            markSavedFilterApplied();
+            dispatch(ensureReportData());
         },
     });
 

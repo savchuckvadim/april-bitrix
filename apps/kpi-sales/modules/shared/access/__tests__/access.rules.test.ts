@@ -271,3 +271,50 @@ describe('ACCESS_RULES — AI_DEAL_MOVEMENT («Движение сделок»)'
         ).toBe(false);
     });
 });
+
+describe('ACCESS_RULES — REPORT_RECALCULATE («Пересчитать» отчёт)', () => {
+    const can = (overrides: Partial<AccessContext>): boolean =>
+        checkAccess(EAccessFeature.REPORT_RECALCULATE, ctx(overrides));
+
+    it('рядовой менеджер кнопку не видит', () => {
+        expect(can({ isSelf: true })).toBe(false);
+        expect(can({})).toBe(false);
+    });
+
+    it('рядовой менеджер не видит, даже если ему открыта витрина AI', () => {
+        expect(can({ isSelf: true, features: SELF_VIEW })).toBe(false);
+    });
+
+    it('руководитель группы видит', () => {
+        expect(can({ headOf: 'group' })).toBe(true);
+    });
+
+    it('руководитель отдела и вышестоящий видят', () => {
+        expect(can({ headOf: 'op' })).toBe(true);
+        expect(can({ headOf: 'cup' })).toBe(true);
+    });
+
+    it('суперпользователь видит без роли в структуре', () => {
+        expect(can({ isSuperUser: true, isRealSuperUser: true })).toBe(true);
+    });
+
+    it('суперпользователь в «Смотреть как…» менеджера не видит — права просматриваемого', () => {
+        expect(
+            can({ isSelf: true, isViewAs: true, isRealSuperUser: true }),
+        ).toBe(false);
+    });
+
+    it('не зависит от флагов приложения: AI и финансы выключены — руководитель видит', () => {
+        expect(
+            can({
+                headOf: 'group',
+                features: {
+                    ...FEATURES,
+                    aiAnalytics: false,
+                    financeTab: false,
+                    plans: false,
+                },
+            }),
+        ).toBe(true);
+    });
+});

@@ -1,8 +1,12 @@
 'use client';
 import { ThemeTogglePanel } from '@workspace/theme';
 import { useReportPeriod } from '../hooks/use-report-header';
+import { CalculatedAtNote } from './CalculatedAtNote';
 
-/** Левая часть хедера: переключатель темы + «KPI» с периодом отчёта. */
+/**
+ * Левая часть хедера: переключатель темы + «KPI» с периодом отчёта и, если
+ * отчёт взят из сохранённого расчёта, строка о времени расчёта.
+ */
 export const ReportTitle = () => {
     const period = useReportPeriod();
 
@@ -15,6 +19,7 @@ export const ReportTitle = () => {
                     {period}
                 </span>
             </h1>
+            <CalculatedAtNote />
         </div>
     );
 };

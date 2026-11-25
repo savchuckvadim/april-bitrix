@@ -1,4 +1,5 @@
 'use client';
+import { PAGE_HEADER_ROW_CLASS } from '@/modules/shared';
 import { ReportTitle } from './ReportTitle';
 import { ReportHeaderActions } from './ReportHeaderActions';
 
@@ -12,7 +13,7 @@ export const ReportHeader = ({
     isFilterOpen,
     setIsFilterOpen,
 }: ReportHeaderProps) => (
-    <div className="flex h-12 w-full items-center justify-between">
+    <div className={PAGE_HEADER_ROW_CLASS}>
         <ReportTitle />
         <ReportHeaderActions
             isFilterOpen={isFilterOpen}

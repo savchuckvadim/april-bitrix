@@ -1,13 +1,12 @@
 'use client';
 
-import { SectionCard } from '@workspace/april-ui';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 import type { PortalViewOptions } from '@/modules/feature/portal-view';
 import { REPORT_SETTINGS_TEXT } from '../consts/report-settings.texts';
 import { groupBadges } from '../lib/report-settings-badges';
-import { isBadgeMain, type ReportSettingsForm } from '../lib/report-settings-form';
-import { ReportSettingsBadgeRow } from './ReportSettingsBadgeRow';
+import type { ReportSettingsForm } from '../lib/report-settings-form';
+import { ReportSettingsBadgeGroupCard } from './ReportSettingsBadgeGroupCard';
 import { ReportSettingsSectionHead } from './ReportSettingsSectionHead';
 
 const T = REPORT_SETTINGS_TEXT.badges;
@@ -23,8 +22,9 @@ interface ReportSettingsBadgesSectionProps {
 
 /**
  * Раздел «Бейджи разборов»: общие бейджи и бейджи методики портала — двумя
- * карточками рядом на широком экране. У каждого бейджа переключатель «виден
- * сразу»; «Вернуть набор по умолчанию» сбрасывает выбор портала.
+ * карточками рядом на широком экране. Бейджи методики внутри карточки разбиты
+ * по типам звонков. У каждого бейджа переключатель «виден сразу»; «Вернуть
+ * набор по умолчанию» сбрасывает выбор портала.
  */
 export const ReportSettingsBadgesSection = ({
     options,
@@ -57,19 +57,13 @@ export const ReportSettingsBadgesSection = ({
                 )}
             >
                 {groups.map(group => (
-                    <SectionCard key={group.key} title={group.title} density="compact">
-                        <div>
-                            {group.badges.map(badge => (
-                                <ReportSettingsBadgeRow
-                                    key={badge.id}
-                                    badge={badge}
-                                    checked={isBadgeMain(form, badge)}
-                                    locked={!canTurnOff(badge.id)}
-                                    onChange={on => onChange(badge.id, on)}
-                                />
-                            ))}
-                        </div>
-                    </SectionCard>
+                    <ReportSettingsBadgeGroupCard
+                        key={group.key}
+                        group={group}
+                        form={form}
+                        canTurnOff={canTurnOff}
+                        onChange={onChange}
+                    />
                 ))}
             </div>
             <p className="text-xs text-muted-foreground">{T.keepOne}</p>

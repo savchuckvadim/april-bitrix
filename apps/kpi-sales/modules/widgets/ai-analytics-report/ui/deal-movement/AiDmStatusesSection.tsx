@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { SectionCard, ToneBadge } from '@workspace/april-ui';
 import type { AiDealMovementStatuses } from '@/modules/entities/ai-analytics';
+import { ChartsGate } from '@/modules/shared';
 import { AI_DEAL_MOVEMENT_TEXT } from '../../lib/deal-movement/ai-deal-movement.texts';
 import { aiDmAsOf } from '../../lib/deal-movement/ai-deal-movement-format.util';
 import {
@@ -59,7 +60,9 @@ export const AiDmStatusesSection = ({ statuses }: AiDmStatusesSectionProps) => {
                         <p className="text-sm text-muted-foreground">{T.noSnapshot}</p>
                     )}
                     {statuses.day && (
-                        <AiDmNightsChart nights={statuses.nights} titles={titles} />
+                        <ChartsGate>
+                            <AiDmNightsChart nights={statuses.nights} titles={titles} />
+                        </ChartsGate>
                     )}
                     <AiDmNotes notes={statuses.notes} />
                 </div>

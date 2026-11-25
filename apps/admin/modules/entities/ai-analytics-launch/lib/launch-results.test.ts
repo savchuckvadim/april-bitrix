@@ -33,6 +33,8 @@ const backtest = (over: Partial<LaunchBacktest> = {}): LaunchBacktest => ({
     maseMean3Ci90: [0.75, 0.95],
     maseMax: 1,
     pinballMean: 1.2,
+    method: 'presentations-v2',
+    otherMethodMonths: 0,
     ...over,
 });
 

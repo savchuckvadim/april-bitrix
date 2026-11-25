@@ -2,6 +2,7 @@
 
 import { MicroSegmented } from '@workspace/april-ui';
 import { ReportGroupTabs } from '@/modules/feature/report-tabs';
+import { ChartsGate, effectiveChartView, useChartsVisible } from '@/modules/shared';
 import { DigestSection, DigestTile } from '../../digest-section';
 import { useDigestPresentations } from '../hooks/use-digest-presentations';
 import { PresComplectChart } from './PresComplectChart';
@@ -22,6 +23,9 @@ const VIEW_OPTIONS = [
  */
 export const DigestPresentations = () => {
     const pres = useDigestPresentations();
+    const chartsVisible = useChartsVisible();
+    // Графики скрыты — история всегда таблицей, переключателя нет.
+    const view = effectiveChartView(pres.view, 'table', chartsVisible);
 
     return (
         <DigestSection
@@ -65,7 +69,8 @@ export const DigestPresentations = () => {
                         />
                     </div>
 
-                    <div className="grid gap-4 xl:grid-cols-2">
+                    {/* Без графика комплектов рейтинг занимает всю ширину. */}
+                    <div className={chartsVisible ? 'grid gap-4 xl:grid-cols-2' : 'grid gap-4'}>
                         <div className="space-y-2">
                             <h4 className="text-sm font-semibold">Рейтинг</h4>
                             <div className="grid gap-3 md:grid-cols-2">
@@ -74,24 +79,28 @@ export const DigestPresentations = () => {
                                 ))}
                             </div>
                         </div>
-                        <div className="space-y-2">
-                            <h4 className="text-sm font-semibold">Комплекты проведённых презентаций</h4>
-                            <PresComplectChart stats={pres.complects} />
-                        </div>
+                        <ChartsGate>
+                            <div className="space-y-2">
+                                <h4 className="text-sm font-semibold">Комплекты проведённых презентаций</h4>
+                                <PresComplectChart stats={pres.complects} />
+                            </div>
+                        </ChartsGate>
                     </div>
 
                     <div className="space-y-2">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <h4 className="text-sm font-semibold">История презентаций ({pres.items.length})</h4>
-                            <MicroSegmented
-                                ariaLabel="Вид истории"
-                                size="xs"
-                                options={VIEW_OPTIONS}
-                                value={pres.view}
-                                onChange={pres.setView}
-                            />
+                            <ChartsGate>
+                                <MicroSegmented
+                                    ariaLabel="Вид истории"
+                                    size="xs"
+                                    options={VIEW_OPTIONS}
+                                    value={pres.view}
+                                    onChange={pres.setView}
+                                />
+                            </ChartsGate>
                         </div>
-                        {pres.view === 'chart' ? (
+                        {view === 'chart' ? (
                             <PresHourlyChart
                                 buckets={pres.hourly.buckets}
                                 itemsByHour={pres.hourly.itemsByHour}

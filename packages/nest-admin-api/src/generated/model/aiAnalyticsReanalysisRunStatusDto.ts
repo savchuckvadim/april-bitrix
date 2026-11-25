@@ -68,4 +68,17 @@ export interface AiAnalyticsReanalysisRunStatusDto {
    * @nullable
    */
   estimate: AiAnalyticsReanalysisRunStatusDtoEstimate;
+  /** Всего звонков прогона: сделано с начала плюс остаток на старте последней части; нет у записей до 09.11.2026. */
+  total?: number;
+  /** Чистое время обработки звонков с начала прогона, мс. */
+  processingMs?: number;
+  /**
+   * Оценка оставшегося времени, минут; null — ещё нечем оценить.
+   * @nullable
+   */
+  etaMinutes?: number | null;
+  /** Сколько звонков разбирается одновременно: 3, после серии сбоев — 1. */
+  concurrency?: number;
+  /** Последняя часть остановлена серией сбоев подряд: прогон не закончен, нужен повторный запуск. */
+  stopped?: boolean;
 }

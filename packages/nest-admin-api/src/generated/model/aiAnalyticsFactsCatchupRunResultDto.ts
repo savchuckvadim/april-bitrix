@@ -18,7 +18,7 @@ export interface AiAnalyticsFactsCatchupRunResultDto {
   /** Поставлена ли джоба CALL_REPORT_FACTS_CATCHUP в очередь CALL_REPORT. */
   dispatched: boolean;
   /**
-   * jobId поставленной джобы; null — не поставлена.
+   * Идентификатор джобы первой части (домен, период, режим); null — не поставлена.
    * @nullable
    */
   jobId: string | null;

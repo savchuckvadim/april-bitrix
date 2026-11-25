@@ -24,7 +24,7 @@ import { UserReportFilters } from "./UserReportFilters";
 import { UserReportChart } from "./UserReportChart";
 import { ArrowBack } from "./ArrowBack";
 import { UserReportSection } from "./components/UserReportSection";
-import { Preloader } from "@/modules/shared";
+import { ChartsGate, Preloader, effectiveChartView, useChartsVisible } from "@/modules/shared";
 import { AiEmployeeSection } from "@/modules/widgets/ai-employee";
 
 
@@ -51,6 +51,9 @@ export const UserReport = ({ userId }: { userId: number }) => {
     }>({});
     const [groupByCompany, setGroupByCompany] = useState(false);
     const [viewMode, setViewMode] = useState<'table' | 'chart'>('table');
+    const chartsVisible = useChartsVisible();
+    // Графики скрыты — история событий всегда таблицей, переключателя нет.
+    const effectiveViewMode = effectiveChartView(viewMode, 'table', chartsVisible);
     const [sortBy, setSortBy] = useState<'default' | 'plan_date_asc' | 'plan_date_desc'>('default');
 
     // загрузка при маунте
@@ -310,50 +313,52 @@ export const UserReport = ({ userId }: { userId: number }) => {
                             </span>
                         )}
                     </h2>
-                    <div className="flex items-center gap-2">
-                        {/* <Button
-                            variant={sortBy === 'default' ? "outline" : sortBy === 'plan_date_asc' ? "default" : "default"}
-                            size="sm"
-                            onClick={() => {
-                                if (sortBy === 'default') {
-                                    setSortBy('plan_date_asc');
-                                } else if (sortBy === 'plan_date_asc') {
-                                    setSortBy('plan_date_desc');
-                                } else {
-                                    setSortBy('default');
-                                }
-                            }}
-                            className="flex items-center gap-2"
-                        >
-                            {sortBy === 'default' && <ArrowUpDown className="w-4 h-4" />}
-                            {sortBy === 'plan_date_asc' && <ArrowUp className="w-4 h-4" />}
-                            {sortBy === 'plan_date_desc' && <ArrowDown className="w-4 h-4" />}
-                            {sortBy === 'default' && 'Сортировка по дате'}
-                            {sortBy === 'plan_date_asc' && 'По дате (↑)'}
-                            {sortBy === 'plan_date_desc' && 'По дате (↓)'}
-                        </Button> */}
-                        <Button
-                            variant={viewMode === 'table' ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setViewMode('table')}
-                            className="flex items-center gap-2"
-                        >
-                            <Table className="w-4 h-4" />
-                            Таблица
-                        </Button>
-                        <Button
-                            variant={viewMode === 'chart' ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setViewMode('chart')}
-                            className="flex items-center gap-2"
-                        >
-                            <BarChart3 className="w-4 h-4" />
-                            График
-                        </Button>
-                    </div>
+                    <ChartsGate>
+                        <div className="flex items-center gap-2">
+                            {/* <Button
+                                variant={sortBy === 'default' ? "outline" : sortBy === 'plan_date_asc' ? "default" : "default"}
+                                size="sm"
+                                onClick={() => {
+                                    if (sortBy === 'default') {
+                                        setSortBy('plan_date_asc');
+                                    } else if (sortBy === 'plan_date_asc') {
+                                        setSortBy('plan_date_desc');
+                                    } else {
+                                        setSortBy('default');
+                                    }
+                                }}
+                                className="flex items-center gap-2"
+                            >
+                                {sortBy === 'default' && <ArrowUpDown className="w-4 h-4" />}
+                                {sortBy === 'plan_date_asc' && <ArrowUp className="w-4 h-4" />}
+                                {sortBy === 'plan_date_desc' && <ArrowDown className="w-4 h-4" />}
+                                {sortBy === 'default' && 'Сортировка по дате'}
+                                {sortBy === 'plan_date_asc' && 'По дате (↑)'}
+                                {sortBy === 'plan_date_desc' && 'По дате (↓)'}
+                            </Button> */}
+                            <Button
+                                variant={viewMode === 'table' ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setViewMode('table')}
+                                className="flex items-center gap-2"
+                            >
+                                <Table className="w-4 h-4" />
+                                Таблица
+                            </Button>
+                            <Button
+                                variant={viewMode === 'chart' ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setViewMode('chart')}
+                                className="flex items-center gap-2"
+                            >
+                                <BarChart3 className="w-4 h-4" />
+                                График
+                            </Button>
+                        </div>
+                    </ChartsGate>
                 </div>
 
-                {viewMode === 'table' ? (
+                {effectiveViewMode === 'table' ? (
                     <UserReportEventTable
                         visibleItems={visibleItems}
                         allItems={groupByCompany ? filteredGroupedReport : filteredReport}

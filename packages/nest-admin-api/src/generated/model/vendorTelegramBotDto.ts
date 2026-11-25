@@ -8,7 +8,7 @@
 import type { VendorTelegramBotDtoKey } from './vendorTelegramBotDtoKey';
 import type { VendorTelegramBotDtoPlace } from './vendorTelegramBotDtoPlace';
 import type { VendorTelegramBotDtoStatus } from './vendorTelegramBotDtoStatus';
-import type { VendorTelegramBotWebhookDto } from './vendorTelegramBotWebhookDto';
+import type { VendorTelegramBotDtoWebhook } from './vendorTelegramBotDtoWebhook';
 
 export interface VendorTelegramBotDto {
   /** Имя настройки или переменной окружения с токеном бота (сам токен не отдаётся). */
@@ -35,7 +35,7 @@ export interface VendorTelegramBotDto {
    * Вебхук по ответу Telegram: доходят ли до нас сообщения боту. null — бот только отправляет (тревоги) или Telegram не ответил.
    * @nullable
    */
-  webhook: VendorTelegramBotWebhookDto | null;
+  webhook: VendorTelegramBotDtoWebhook;
   /** Есть общий чат для тестового сообщения (поддержка — чат поддержки, тревоги — чат админа). У клиентского бота — нет. */
   canTest: boolean;
 }

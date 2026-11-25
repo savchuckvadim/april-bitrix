@@ -30,8 +30,15 @@ interface ReportFilterProps {
 }
 
 /**
- * Карточка фильтров отчёта: даты + отделы + события; на странице
+ * Панель фильтров отчёта: даты + отделы + события; на странице
  * сотрудника — только даты.
+ *
+ * Рендерится ВНУТРИ sticky-хедера (ReportProvider), прямо под строкой кнопок:
+ * открытая, она видна при любой прокрутке страницы. Высоту ограничивает
+ * хедер (колонка не выше окна), панель берёт остаток и прокручивается сама;
+ * фон непрозрачный — контент страницы сквозь неё не просвечивает. Поповеры
+ * внутри (календарь периода) и диалог дерева отделов рисуются порталом в
+ * body, поэтому прокрутка панели их не обрезает.
  */
 export const ReportFilter = ({ isOpen }: ReportFilterProps) => {
     const isUserReport = useIsUserReport();
@@ -39,27 +46,33 @@ export const ReportFilter = ({ isOpen }: ReportFilterProps) => {
     if (!isOpen) return null;
 
     return (
-        <Card className="mb-4">
-            <CardHeader>
-                <CardTitle>Фильтры</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-4">
-                        <DatesFilter />
-                    </div>
-
-                    <div className="space-y-4">
-                        {!isUserReport && <CompactDepartmentFilter />}
-                    </div>
-                </div>
-            </CardContent>
-
-            {!isUserReport && (
+        <div
+            role="region"
+            aria-label="Фильтры отчёта"
+            className="min-h-0 overflow-y-auto overscroll-contain bg-background px-7 pb-3"
+        >
+            <Card>
+                <CardHeader>
+                    <CardTitle>Фильтры</CardTitle>
+                </CardHeader>
                 <CardContent>
-                    <ActionsFilter />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-4">
+                            <DatesFilter />
+                        </div>
+
+                        <div className="space-y-4">
+                            {!isUserReport && <CompactDepartmentFilter />}
+                        </div>
+                    </div>
                 </CardContent>
-            )}
-        </Card>
+
+                {!isUserReport && (
+                    <CardContent>
+                        <ActionsFilter />
+                    </CardContent>
+                )}
+            </Card>
+        </div>
     );
 };

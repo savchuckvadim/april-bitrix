@@ -62,6 +62,9 @@ const buildBlob = (state: RootState): UiSettingsBlob => {
             selectedCallType: state.aiAnalytics.selectedCallType,
             typesLayout: state.aiAnalytics.typesLayout,
         },
+        callsList: {
+            extraBadges: state.uiSettings.callsListExtraBadges,
+        },
     };
 };
 
@@ -98,6 +101,9 @@ const applyBlob = (blob: UiSettingsBlob, dispatch: AppDispatch): void => {
     }
     if (blob.ai) {
         dispatch(aiAnalyticsActions.hydrateSettings(blob.ai));
+    }
+    if (blob.callsList) {
+        dispatch(uiSettingsActions.hydrateCallsListSettings(blob.callsList));
     }
 };
 
@@ -197,6 +203,7 @@ export const startUiSettingsSyncListeners = (
             financeActions.setHotThreshold,
             aiAnalyticsActions.setSelectedCallType,
             aiAnalyticsActions.setTypesLayout,
+            uiSettingsActions.setCallsListExtraBadges,
             uiSettingsActions.touched,
         ),
         effect: async (_action, listenerApi) => {

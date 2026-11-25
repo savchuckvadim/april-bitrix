@@ -7,6 +7,9 @@
  */
 import type { OfferWordMultiGenerateDtoContractType } from './offerWordMultiGenerateDtoContractType';
 import type { ComplectDto } from './complectDto';
+import type { OfferComplectSectionDto } from './offerComplectSectionDto';
+import type { OfferComplectsMode } from './offerComplectsMode';
+import type { OfferAlternativeSetComplectsDto } from './offerAlternativeSetComplectsDto';
 import type { SupplyDto } from './supplyDto';
 import type { ContractDto } from './contractDto';
 import type { ProductRowDto } from './productRowDto';
@@ -37,6 +40,12 @@ export interface OfferWordMultiGenerateDto {
   contractType: OfferWordMultiGenerateDtoContractType;
   /** Complect of the contract */
   complect: ComplectDto[];
+  /** Комплекты общего набора со своим наполнением: название, подпись поставки и группы инфоблоков каждого комплекта. По ним КП печатает наполнение по комплектам (complectsMode: separate); Word-шаблон получает их в данных ComplectSections. Без поля КП печатается как раньше: одно объединённое наполнение из `complect` */
+  complects?: OfferComplectSectionDto[];
+  /** Как печатать наполнение общего набора: merged — объединённое наполнение одним списком без повторов (поле `complect`); separate — по комплектам, у каждого свой раздел со своим заголовком (поле `complects`, нужно два комплекта и больше). Без поля действует merged. Настройка одинакова для Word и PDF */
+  complectsMode?: OfferComplectsMode;
+  /** Наполнение наборов для сравнения: по разделу на набор — номер и заголовок набора из таблицы цен и наполнение его комплектов. Поле есть и не пусто — после наполнения общего набора КП печатает блок «Наполнение наборов для сравнения»; Word-шаблон получает его в данных AlternativeComplectSections и флаге IsAlternativeComplects. Без поля или с пустым списком КП печатается как раньше. Настройка одинакова для Word и PDF */
+  alternativeComplects?: OfferAlternativeSetComplectsDto[];
   /** Supply of the contract */
   supply: SupplyDto;
   /** Contract of the contract */
@@ -49,7 +58,7 @@ export interface OfferWordMultiGenerateDto {
   total: ProductRowDto;
   /** Client type of the contract */
   clientType: OfferWordMultiGenerateDtoClientType;
-  /** true — в ответе link ведёт на PDF (DOCX сохраняется и конвертируется); false или не передавать — link на DOCX */
+  /** true — документы отдаются в DOCX; false или не передавать — DOCX конвертируется в PDF (при сбое конвертации остаётся DOCX) */
   isWord?: boolean;
   /** Recipient of the contract */
   recipient: IOfferWordGenerateRecipientDto;

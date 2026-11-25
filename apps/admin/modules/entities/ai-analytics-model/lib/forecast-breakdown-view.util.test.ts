@@ -27,6 +27,9 @@ const manager = (
         { id: 'deal:1', ageDays: 34, theta: 0.42, expected: 0.18 },
         { id: null, ageDays: 210, theta: 0.3, expected: 0.05 },
     ],
+    method: 'calls-v1',
+    deals: null,
+    flow: null,
     ...fields,
 });
 
@@ -48,13 +51,15 @@ const result = (
         mean3: 41.3,
         managers: 12,
         pipelineUnknown: 0,
+        method: 'calls-v1',
+        flow: null,
     },
     managers: [manager()],
     ...fields,
 });
 
 describe('разложение прогноза: вид карточки', () => {
-    it('отдел, старый расчёт (нет метода): прогноз с границами и три слагаемых', () => {
+    it('отдел, старый расчёт: прогноз с границами и три слагаемых', () => {
         const view = toBreakdownView(result());
         expect(view?.day).toContain('16.11');
         const metrics = new Map(

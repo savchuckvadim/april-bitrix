@@ -24,7 +24,11 @@ import type { CatalogKnowledgeKind } from './methodology-materials';
 export type MethodologyItem = MethodologyListItemDto;
 export type MethodologyDetail = MethodologyDetailDto;
 export type MethodologyConfig = MethodologyConfigDto;
-export type MethodologyCheckpoint = MethodologyCheckpointDto;
+/** `badge`, `badgeMain` — поля пункта для фильтров разбора, в сгенерированном клиенте их ещё нет. */
+export type MethodologyCheckpoint = MethodologyCheckpointDto & {
+    badge?: string;
+    badgeMain?: boolean;
+};
 export type MethodologyCap = MethodologyCapDto;
 export type MethodologyCondition = MethodologyConditionDto;
 export type MethodologySpirals = MethodologySpiralsDto;
@@ -55,6 +59,8 @@ export const METHODOLOGIES_NO_PORTAL = '__common__';
 /** Шаблон кода методики и пункта — зеркало валидатора бэка. */
 export const METHODOLOGY_CODE_PATTERN = /^[a-z][a-z0-9-]{1,63}$/;
 export const CHECKPOINT_CODE_PATTERN = /^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/;
+/** Предел длины бейджа пункта в фильтрах списка разборов. */
+export const CHECKPOINT_BADGE_MAX_LENGTH = 28;
 
 export const SCOPE_LABELS: Readonly<Record<MethodologyScope, string>> = {
     common: 'Общая методика April',
@@ -153,6 +159,12 @@ export const METHODOLOGIES_TEXT = {
         evidence: 'Подтверждение',
         mandatory: 'Обязательный',
         hint: 'Подсказка модели',
+        badgeLabel: 'Бейдж в фильтрах',
+        badgePlaceholder: 'Например: Три спирали',
+        badgeHint:
+            'Короткое название пункта в фильтрах списка разборов, до 28 знаков. Пусто — показывается формулировка пункта.',
+        badgeMain: 'Основной бейдж',
+        badgeMainHint: 'Виден в строке фильтров сразу; остальные добавляются из списка.',
         remove: 'Удалить',
         already: 'уже в методике',
         pick: 'Добавить выбранные',

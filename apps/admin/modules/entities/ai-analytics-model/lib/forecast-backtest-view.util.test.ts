@@ -22,6 +22,8 @@ const backtest = (patch: Partial<ModelForecastBacktest> = {}): ModelForecastBack
     maseMean3Ci90: null,
     maseMax: 1,
     pinballMean: 1.234,
+    method: 'calls-v1',
+    otherMethodMonths: 0,
     ...patch,
 });
 
@@ -80,10 +82,13 @@ describe('toBacktestView: точность прогноза по месяцам'
             value: 'август 2026: проверка пройдена',
             tone: 'success',
         });
-        expect(view.latest?.[3]?.value).toBe('1,23');
+        expect(
+            view.latest?.find(item => item.label === 'Средняя потеря по границам вилки')
+                ?.value,
+        ).toBe('1,23');
     });
 
-    it('метод расчёта: от презентаций, месяцы старого расчёта вне проверки; старый бэкенд — строки нет', () => {
+    it('метод расчёта: от презентаций, месяцы старого расчёта вне проверки; старый — по звонкам', () => {
         const label = (view: ReturnType<typeof toBacktestView>) =>
             view.latest?.find(item => item.label === 'Расчёт');
 
@@ -107,7 +112,6 @@ describe('toBacktestView: точность прогноза по месяцам'
         expect(
             label(toBacktestView([backtest({ method: 'calls-v1' })]))?.value,
         ).toBe('старый — по звонкам');
-        expect(label(toBacktestView([backtest()]))).toBeUndefined();
     });
 
     it('пусто — сводки нет, строк нет', () => {

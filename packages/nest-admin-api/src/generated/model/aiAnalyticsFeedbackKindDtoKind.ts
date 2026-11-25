@@ -25,4 +25,5 @@ export const AiAnalyticsFeedbackKindDtoKind = {
   rop_mark: 'rop_mark',
   recommendation_issued: 'recommendation_issued',
   recommendation_done: 'recommendation_done',
+  call_review: 'call_review',
 } as const;

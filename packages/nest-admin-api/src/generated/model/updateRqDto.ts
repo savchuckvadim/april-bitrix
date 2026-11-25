@@ -75,4 +75,6 @@ export interface UpdateRqDto {
   bankAdress?: string;
   /** Прочая информация о банке. */
   bankOther?: string;
+  /** Признак «Работает с НДС» поставщика, которому принадлежат реквизиты (agents.withTax): цены строк умножаются на 1.05. Не передан — признак не меняется. */
+  withTax?: boolean;
 }

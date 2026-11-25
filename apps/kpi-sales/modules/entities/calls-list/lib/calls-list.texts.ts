@@ -10,8 +10,6 @@ import { CALLS_LIST_MAX_DAYS } from './calls-list.const';
 
 export const CALLS_LIST_TEXT = {
     title: 'Разборы звонков',
-    back: '← AI-аналитика',
-    backTitle: 'Вернуться в отчёт на вкладку AI-аналитики',
     filters: {
         ariaLabel: 'Фильтры разборов',
         period: 'Период',
@@ -24,6 +22,7 @@ export const CALLS_LIST_TEXT = {
         types: 'Тип звонка',
         typesAll: 'Все типы',
         typesMany: (count: number) => `Типов: ${count}`,
+        typesLocked: 'Типы звонка сужены бейджами методики',
         score: 'Оценка AI',
         scoreFrom: 'Оценка AI от',
         scoreTo: 'Оценка AI до',
@@ -71,6 +70,23 @@ export const CALLS_LIST_TEXT = {
             count === 1 ? 'есть несогласие' : `несогласны: ${count}`,
         disagreeTitle: 'Руководители, не согласные с оценкой AI',
         average: 'средняя оценка руководителей',
+    },
+    badges: {
+        ariaLabel: 'Бейджи разборов',
+        general: 'Общие',
+        generalAria: 'Общие бейджи',
+        points: 'Пункты методики',
+        // Название приходит с сервера уже для людей («Методика Полянского»).
+        methodology: (title: string) => title,
+        pointsAria: (title: string) => `Пункты: ${title}`,
+        pointMissed: (label: string) => `${label}: не исполнено`,
+        pointDone: (label: string) => `${label}: исполнено`,
+        pointCycleHint: 'Нажатия по кругу: не исполнено, исполнено, без фильтра.',
+        since: (date: string) => `Считается с ${date}.`,
+        addFilter: 'Добавить фильтр',
+        addFilterAria: 'Добавить фильтр по бейджу',
+        addFilterMany: (count: number) => `Добавлено: ${count}`,
+        rowMore: (count: number) => `+${count}`,
     },
 } as const;
 

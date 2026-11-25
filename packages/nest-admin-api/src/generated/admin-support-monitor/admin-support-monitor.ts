@@ -6,8 +6,10 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  SupportDialogStatsResponseDto,
   SupportGuideAdminGetParams,
   SupportGuideResponseDto,
+  SupportHistoryAdminStatsParams,
   SupportMonitorPreviewRequestDto,
   SupportMonitorPreviewResponseDto
 } from '.././model';
@@ -32,6 +34,19 @@ const supportMonitorAdminPreview = (
       );
     }
   /**
+ * Сколько раз портал писал в линию поддержки за период, сколько открыто, как долго ждали ответа и последние обращения. Учёт ведёт крон монитора линии с момента применения миграции support_dialogs; диалоги короче одного такта крона не видны.
+ * @summary Статистика обращений портала в поддержку
+ */
+const supportHistoryAdminStats = (
+    params: SupportHistoryAdminStatsParams,
+ ) => {
+      return customAxios<SupportDialogStatsResponseDto>(
+      {url: `/api/admin/support-monitor/stats`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
  * Тексты раздела «Поддержка» админки и чек-лист «что осталось, чтобы заработало» по настройкам портала линии. Только чтение.
  * @summary Путеводитель по поддержке клиентов
  */
@@ -44,6 +59,7 @@ const supportGuideAdminGet = (
     },
       );
     }
-  return {supportMonitorAdminPreview,supportGuideAdminGet}};
+  return {supportMonitorAdminPreview,supportHistoryAdminStats,supportGuideAdminGet}};
 export type SupportMonitorAdminPreviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSupportMonitor>['supportMonitorAdminPreview']>>>
+export type SupportHistoryAdminStatsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSupportMonitor>['supportHistoryAdminStats']>>>
 export type SupportGuideAdminGetResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminSupportMonitor>['supportGuideAdminGet']>>>

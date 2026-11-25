@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  FrontPortalPartsDto,
+  FrontPortalPartsRequestDto,
   FrontPortalRequestDto,
   FrontPortalResponseDto
 } from '.././model';
@@ -29,5 +31,20 @@ const frontPortalGetPortal = (
     },
       );
     }
-  return {frontPortalGetPortal}};
+  /**
+ * Узкая ручка рядом с полной моделью: отдаёт только названные части (поля сделки, компании, контакта, RPA, смарты по типам и т. д.) и читает из БД только их. Форма каждой части та же, что в POST front/portal, поэтому из частей собирается тот же объект. Полная модель весит около мегабайта — экрану обычно нужны две-три части.
+ * @summary Получить части портала по списку
+ */
+const frontPortalGetPortalParts = (
+    frontPortalPartsRequestDto: FrontPortalPartsRequestDto,
+ ) => {
+      return customAxios<FrontPortalPartsDto>(
+      {url: `/api/front/portal/parts`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: frontPortalPartsRequestDto
+    },
+      );
+    }
+  return {frontPortalGetPortal,frontPortalGetPortalParts}};
 export type FrontPortalGetPortalResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFrontPortal>['frontPortalGetPortal']>>>
+export type FrontPortalGetPortalPartsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFrontPortal>['frontPortalGetPortalParts']>>>

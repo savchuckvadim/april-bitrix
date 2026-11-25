@@ -29,4 +29,5 @@ export const AiAnalyticsLaunchCacheResetResultDtoScope = {
   'stage-history': 'stage-history',
   calendar: 'calendar',
   'owner-report': 'owner-report',
+  'call-list': 'call-list',
 } as const;

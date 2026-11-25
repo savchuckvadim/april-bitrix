@@ -6,9 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-/**
- * Вид замечания «не так»: section — раздел, objection — возражение, methodology — пункт методики, fact — факт, call_type — тип звонка.
- */
 export type AiAnalyticsCallReviewsAdminListItemKind = typeof AiAnalyticsCallReviewsAdminListItemKind[keyof typeof AiAnalyticsCallReviewsAdminListItemKind];
 
 

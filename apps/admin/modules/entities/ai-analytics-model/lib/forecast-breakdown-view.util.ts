@@ -4,6 +4,7 @@ import type {
     ModelForecastBreakdownEpisode,
     ModelForecastBreakdownManager,
     ModelForecastBreakdownResult,
+    ModelForecastMethod,
 } from '../model';
 import {
     NO_VALUE,
@@ -18,8 +19,7 @@ import type { ModelMetricView } from './model-view.types';
  * «Разложение прогноза»: из чего сложилась середина прогноза отдела.
  * С 18.11.2026 — закрыто + от проведённых презентаций + от новых, открытые
  * сделки — справочно; дни до этого — старый расчёт по звонкам (закрыто +
- * открытые сделки + новые звонки). Старый бэкенд метод не присылает —
- * читается как старый расчёт. Сервер отдаёт сохранённые числа ночного
+ * открытые сделки + новые звонки). Сервер отдаёт сохранённые числа ночного
  * расчёта; здесь только слова. null ≠ 0: слагаемое не сохранено — прочерк.
  */
 
@@ -70,7 +70,7 @@ export interface BreakdownView {
 const one = (value: number | null | undefined): string =>
     value === null || value === undefined ? NO_VALUE : formatDecimal(value, 1);
 
-const isFlowMethod = (method: string | undefined): boolean =>
+const isFlowMethod = (method: ModelForecastMethod): boolean =>
     method === 'presentations-v2';
 
 const dealLine = (deal: ModelForecastBreakdownEpisode): string =>
@@ -101,7 +101,7 @@ const legacyInputsOf = (manager: ModelForecastBreakdownManager): string => {
 
 /** Входы расчёта от презентаций; по своим продажам — средние продажи. */
 const inputsOf = (manager: ModelForecastBreakdownManager): string => {
-    const flow = manager.flow ?? null;
+    const flow = manager.flow;
     if (flow === null) return legacyInputsOf(manager);
     if (flow.source === 'sales-history') {
         return T.inputsBySales(
@@ -171,7 +171,7 @@ function managersMetric(
 function flowMetrics(
     department: ModelForecastBreakdownDepartment,
 ): ModelMetricView[] {
-    const flow = department.flow ?? null;
+    const flow = department.flow;
     if (flow === null) return [];
     if (flow.status === 'not-applicable') {
         return [

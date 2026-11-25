@@ -5,7 +5,7 @@ import { Button } from '@workspace/ui/components/button';
 import { RefreshCw } from 'lucide-react';
 import { ReportBlockWrapper } from '@/modules/entities/report';
 import { exportTableToCSV } from '@/modules/entities/report';
-import { Preloader } from '@/modules/shared';
+import { ChartsGate, Preloader } from '@/modules/shared';
 import { ReportGroupTabs, StructureSection } from '@/modules/feature/report-tabs';
 import { EntityRatingChart } from '@/modules/feature/report-rating';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
@@ -79,14 +79,16 @@ export const FinanceReport: React.FC = () => {
                 comparisonTotals={comparisonReport?.totals}
                 comparisonLabel={comparisonLabel}
             />
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                <FinanceMonthlyLineChart
-                    report={data}
-                    comparisonReport={comparisonReport}
-                    comparisonLabel={comparisonLabel}
-                />
-                <FinanceStructureDonut report={data} />
-            </div>
+            <ChartsGate>
+                <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                    <FinanceMonthlyLineChart
+                        report={data}
+                        comparisonReport={comparisonReport}
+                        comparisonLabel={comparisonLabel}
+                    />
+                    <FinanceStructureDonut report={data} />
+                </div>
+            </ChartsGate>
             <FinanceEmployeeTable employees={data.employees} />
         </>
     );
@@ -115,13 +117,15 @@ export const FinanceReport: React.FC = () => {
     const ratingFooter =
         (data: FinanceClosedReport, label: string) =>
         (sections: StructureSection[]) => (
-            <div className="mt-6">
-                <EntityRatingChart
-                    title={`Победители — ${label} (финансы)`}
-                    dataset={buildFinanceRatingDataset(data, departmentItems)}
-                    sections={sections}
-                />
-            </div>
+            <ChartsGate>
+                <div className="mt-6">
+                    <EntityRatingChart
+                        title={`Победители — ${label} (финансы)`}
+                        dataset={buildFinanceRatingDataset(data, departmentItems)}
+                        sections={sections}
+                    />
+                </div>
+            </ChartsGate>
         );
 
     return (

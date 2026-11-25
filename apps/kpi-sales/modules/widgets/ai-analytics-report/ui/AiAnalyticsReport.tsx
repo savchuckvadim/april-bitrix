@@ -34,9 +34,6 @@ export const AiAnalyticsReport = () => {
     // «Готовность витрины» — служебная: только суперпользователю вендора
     // (в том числе в режиме «работать как»), свёрнута (решение 07.11.2026).
     const isRealSuperUser = useAppSelector(selectIsRealSuperUser);
-    // «Разборы звонков» — отдельная страница, только руководителям и
-    // суперпользователю (решение владельца 18.11.2026).
-    const canOpenCalls = useAccess(EAccessFeature.AI_CALL_REVIEWS);
     // «Движение сделок» — подвкладка только руководителям и суперпользователю;
     // чужая ссылка на неё открывает «Сводку».
     const canDealMovement = useAccess(EAccessFeature.AI_DEAL_MOVEMENT);
@@ -70,7 +67,6 @@ export const AiAnalyticsReport = () => {
                 tab={tab}
                 tabs={visibleAiTabs(tabsAccess)}
                 onChange={report.setTab}
-                withCallsEntry={canOpenCalls}
             />
             {tab === 'summary' && (
                 <AiSummaryTab

@@ -13,6 +13,7 @@ import {
     CALLS_LIST_TEXT,
     callsListManagerOptions,
     callsListTypeOptions,
+    lockCallsListTypeFacets,
     type CallsListFacets,
     type CallsListPatch,
     type CallsListPeriodProblem,
@@ -34,6 +35,8 @@ interface CallsListFiltersProps {
     query: CallsListQuery;
     /** Варианты сотрудников и типов за период; ещё не пришли — null. */
     facets: CallsListFacets | null;
+    /** Типы звонка, на которые бейджи методики сузили выбор; нет ограничения — null. */
+    callTypesLock: readonly string[] | null;
     periodProblem: CallsListPeriodProblem | null;
     filtered: boolean;
     onChange: (patch: CallsListPatch) => void;
@@ -43,11 +46,13 @@ interface CallsListFiltersProps {
 /**
  * Фильтры одной строкой (на узком экране переносятся): период, сотрудники,
  * тип звонка, оценка AI от–до, отзывы, порядок, сброс. Под строкой —
- * что не так с периодом.
+ * что не так с периодом. Бейджи методики сужают типы звонка: в списке только
+ * подходящие, рядом пометка.
  */
 export const CallsListFilters = ({
     query,
     facets,
+    callTypesLock,
     periodProblem,
     filtered,
     onChange,
@@ -84,7 +89,9 @@ export const CallsListFilters = ({
                     ariaLabel={T.types}
                     allLabel={T.typesAll}
                     manyLabel={T.typesMany}
-                    options={callsListTypeOptions(facets?.callTypes ?? [])}
+                    options={callsListTypeOptions(
+                        lockCallsListTypeFacets(facets?.callTypes ?? [], callTypesLock),
+                    )}
                     value={query.callTypes}
                     disabled={facets === null}
                     searchPlaceholder={T.search}
@@ -92,6 +99,11 @@ export const CallsListFilters = ({
                     className={COMBO}
                     onChange={callTypes => onChange({ callTypes })}
                 />
+                {callTypesLock && (
+                    <span className="max-w-44 text-[0.65rem] leading-tight text-muted-foreground">
+                        {T.typesLocked}
+                    </span>
+                )}
             </MicroField>
             <CallsListScoreFilter
                 scoreMin={query.scoreMin}

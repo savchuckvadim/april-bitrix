@@ -11,9 +11,11 @@ import type {
   InnerDealFindParams,
   InnerDealFindResponseDto,
   InnerDealListParams,
+  InnerDealRemoveVariantParams,
   InnerDealSettingsDto,
   InnerDealSnapshotDto,
   InnerDealUpsertDto,
+  InnerDealVariantDeleteResponseDto,
   InnerDealVariantParams,
   InnerDealVariantsParams
 } from '.././model';
@@ -87,6 +89,19 @@ const innerDealVariant = (
       );
     }
   /**
+ * Удаляет слепок варианта (строки с этим variantSmartId у сделки). Строка самой сделки не затрагивается. Если в настройках сделки этот вариант отмечен открытым в конструкторе, отметка снимается. Элемент смарта в Битриксе удаляет фронт отдельным вызовом. Пустой или нулевой variantSmartId даёт 400.
+ * @summary Удалить вариант комплекта сделки
+ */
+const innerDealRemoveVariant = (
+    params: InnerDealRemoveVariantParams,
+ ) => {
+      return customAxios<InnerDealVariantDeleteResponseDto>(
+      {url: `/api/konstructor/deal/variant`, method: 'DELETE',
+        params
+    },
+      );
+    }
+  /**
  * Режим (сравнение / вместе разными договорами / вместе одним договором), участники и настройки КП. Пишет только колонку настроек — слепок конструктора не трогает. settings:null возвращает сделку к поведению «один набор, одно КП».
  * @summary Сохранить настройки сборки комплекта
  */
@@ -114,11 +129,12 @@ const innerDealCopy = (
     },
       );
     }
-  return {innerDealFind,innerDealUpsert,innerDealList,innerDealVariants,innerDealVariant,innerDealUpdateSettings,innerDealCopy}};
+  return {innerDealFind,innerDealUpsert,innerDealList,innerDealVariants,innerDealVariant,innerDealRemoveVariant,innerDealUpdateSettings,innerDealCopy}};
 export type InnerDealFindResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealFind']>>>
 export type InnerDealUpsertResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealUpsert']>>>
 export type InnerDealListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealList']>>>
 export type InnerDealVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealVariants']>>>
 export type InnerDealVariantResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealVariant']>>>
+export type InnerDealRemoveVariantResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealRemoveVariant']>>>
 export type InnerDealUpdateSettingsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealUpdateSettings']>>>
 export type InnerDealCopyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getKonstructorDeal>['innerDealCopy']>>>

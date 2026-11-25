@@ -5,8 +5,8 @@
  * API приложения admin
  * OpenAPI spec version: 1.0
  */
-import type { CallReviewAdminItemDto } from './callReviewAdminItemDto';
 import type { CallReviewAdminRowDtoAuthorRole } from './callReviewAdminRowDtoAuthorRole';
+import type { CallReviewAdminItemDto } from './callReviewAdminItemDto';
 
 export interface CallReviewAdminRowDto {
   /** Id записи отзыва в таблице ais. */

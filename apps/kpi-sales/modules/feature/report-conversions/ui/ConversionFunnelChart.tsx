@@ -18,6 +18,7 @@ import {
     CardTitle,
 } from '@workspace/ui/components/card';
 import type { RatingDataset } from '@/modules/feature/report-rating';
+import { useChartsVisible } from '@/modules/shared';
 import type { ConversionMethod } from '../model/conversion.types';
 import { buildStepDefs, formatPercent } from '../lib/conversion-calc.util';
 import { resolveConversionColor } from '../lib/conversion-colors.util';
@@ -50,6 +51,8 @@ export const ConversionFunnelChart: React.FC<ConversionFunnelChartProps> = ({
     method,
     title = 'Воронка конверсии',
 }) => {
+    // Графики скрыты (настройка портала или телефон) — карточки нет совсем.
+    const chartsVisible = useChartsVisible();
     const funnel = useMemo(() => {
         const known = codes.filter(code =>
             dataset.actions.some(action => action.code === code),
@@ -80,7 +83,7 @@ export const ConversionFunnelChart: React.FC<ConversionFunnelChartProps> = ({
         return { labels, totals, known };
     }, [dataset, codes, method]);
 
-    if (funnel.totals.length < 2) return null;
+    if (!chartsVisible || funnel.totals.length < 2) return null;
 
     const chartData = {
         labels: funnel.labels,

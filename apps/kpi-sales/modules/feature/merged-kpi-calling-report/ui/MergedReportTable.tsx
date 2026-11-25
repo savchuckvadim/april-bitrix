@@ -4,7 +4,7 @@ import { ReportCallingData } from "@/modules/entities/calling-statistics";
 import { getCallingStatisticsTableData } from "@/modules/entities/calling-statistics/lib/ui-util";
 import { getReportTableData } from "@/modules/entities/report/lib/ui-util";
 import { ReportData } from "@/modules/entities/report/model/types/report/report-type";
-import { RTable, RTableAnnotation } from "@/modules/shared";
+import { ChartsGate, RTable, RTableAnnotation } from "@/modules/shared";
 import { getMergedReportsData } from "../lib/merge-reports.util";
 import { MergedReportFilters } from "./MergedReportFilters";
 import { MergedReportChart } from "./MergedReportChart";
@@ -151,20 +151,24 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
                     planAnnotations={planAnnotations}
                 />
             )}
-            <MergedReportChart
-                data={filteredData}
-                selectedActions={selectedActions}
-            />
+            <ChartsGate>
+                <MergedReportChart
+                    data={filteredData}
+                    selectedActions={selectedActions}
+                />
+            </ChartsGate>
 
             <MergedReportTotalTable
                 data={filteredData}
                 selectedActions={selectedActions}
             />
 
-            <MergedReportTotalChart
-                data={filteredData}
-                selectedActions={selectedActions}
-            />
+            <ChartsGate>
+                <MergedReportTotalChart
+                    data={filteredData}
+                    selectedActions={selectedActions}
+                />
+            </ChartsGate>
 
 
             {/* <ManagersRating

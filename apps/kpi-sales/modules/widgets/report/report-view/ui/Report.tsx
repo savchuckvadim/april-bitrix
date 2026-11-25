@@ -40,7 +40,7 @@ export const Report = () => {
             <Suspense fallback={null}>
                 <ReportTypeUrlSync />
             </Suspense>
-            <div className="mt-6 mb-4 flex h-10 w-full items-center justify-between rounded-md p-0">
+            <div className="mt-6 mb-4 flex min-h-10 w-full items-center justify-between rounded-md p-0">
                 <ReportType />
             </div>
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { MethodologyCatalog, MethodologyCheckpoint } from '../model';
 import {
+    badgeFromInput,
     bumpVersion,
     capText,
     conditionText,
@@ -118,5 +119,25 @@ describe('fromCatalogCheckpoint', () => {
             rule: [{ op: 'is', field: 'needsFound', value: true }],
         });
         expect('byRule' in own).toBe(false);
+    });
+});
+
+describe('badgeFromInput', () => {
+    it('убирает пробелы по краям', () => {
+        expect(badgeFromInput('  Три спирали ')).toBe('Три спирали');
+    });
+
+    it('пусто и одни пробелы — undefined', () => {
+        expect(badgeFromInput('')).toBeUndefined();
+        expect(badgeFromInput('   ')).toBeUndefined();
+    });
+
+    it('28 знаков сохраняются целиком', () => {
+        const value = 'a'.repeat(28);
+        expect(badgeFromInput(value)).toBe(value);
+    });
+
+    it('40 знаков обрезаются до 28', () => {
+        expect(badgeFromInput('a'.repeat(40))).toBe('a'.repeat(28));
     });
 });

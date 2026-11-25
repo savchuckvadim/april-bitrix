@@ -2,10 +2,9 @@
 import { Download } from 'lucide-react';
 import React from 'react';
 
-import { Button } from '@workspace/ui/components/button';
 import useDownload from '../model/useDownload';
 import { EDownloadType } from '../model/download-thunk';
-import { Preloader } from '@/modules/shared';
+import { HeaderAction, Preloader } from '@/modules/shared';
 
 export default function DownLoad() {
     const { handleDownload, isDownloading, downloadType } = useDownload();
@@ -20,14 +19,11 @@ export default function DownLoad() {
                     <Preloader />
                 </div>
             ) : (
-                <Button
+                <HeaderAction
+                    icon={Download}
+                    label="Скачать в Excel"
                     onClick={() => handleDownload(EDownloadType.EXCEL)}
-                    className="h-8 cursor-pointer icon"
-                    variant="outline"
-                    style={{ cursor: 'pointer' }}
-                >
-                    <Download />
-                </Button>
+                />
             )}
         </div>
     );

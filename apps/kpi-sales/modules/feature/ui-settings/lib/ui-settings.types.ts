@@ -40,4 +40,9 @@ export interface UiSettingsBlob {
         /** Раскладка среза по типу (wide | long). */
         typesLayout?: AiByTypeLayout;
     };
+    /** Настройки страницы «Разборы звонков». */
+    callsList?: {
+        /** Бейджи и пункты методики, добавленные в панель вручную (id). */
+        extraBadges: string[];
+    };
 }

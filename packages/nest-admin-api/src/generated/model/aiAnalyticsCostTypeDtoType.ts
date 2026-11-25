@@ -35,6 +35,11 @@ export const AiAnalyticsCostTypeDtoType = {
   'ai-analytics-forecast-backtest': 'ai-analytics-forecast-backtest',
   'ai-analytics-recommendation-effect': 'ai-analytics-recommendation-effect',
   'ai-analytics-owner-report': 'ai-analytics-owner-report',
+  'ai-analytics-deal-movement': 'ai-analytics-deal-movement',
+  'ai-analytics-deal-movement-deals': 'ai-analytics-deal-movement-deals',
+  'ai-analytics-manager-week-digest': 'ai-analytics-manager-week-digest',
+  'ai-analytics-manager-month-digest': 'ai-analytics-manager-month-digest',
   'agent-analysis': 'agent-analysis',
   'agent-analysis-retest': 'agent-analysis-retest',
+  'agent-analysis-facts': 'agent-analysis-facts',
 } as const;

@@ -15,12 +15,14 @@ import {
 } from '@workspace/ui/components/select';
 import { Switch } from '@workspace/ui/components/switch';
 import {
+    CHECKPOINT_BADGE_MAX_LENGTH,
     METHODOLOGIES_TEXT,
     type CheckpointEvidence,
     type MethodologyCatalog,
     type MethodologyCheckpoint,
 } from '../../../model';
 import {
+    badgeFromInput,
     fromCatalogCheckpoint,
     isValidCheckpointCode,
     newCheckpoint,
@@ -118,6 +120,30 @@ export const CheckpointsEditor = ({
                                 onCheckedChange={mandatory => update(index, { mandatory })}
                             />
                             {texts.mandatory}
+                        </label>
+                        <div className="w-44 space-y-1">
+                            <Label>{texts.badgeLabel}</Label>
+                            <Input
+                                value={checkpoint.badge ?? ''}
+                                maxLength={CHECKPOINT_BADGE_MAX_LENGTH}
+                                placeholder={texts.badgePlaceholder}
+                                title={texts.badgeHint}
+                                onChange={event =>
+                                    update(index, { badge: event.target.value || undefined })
+                                }
+                                onBlur={() =>
+                                    update(index, { badge: badgeFromInput(checkpoint.badge ?? '') })
+                                }
+                            />
+                        </div>
+                        <label className="flex items-center gap-2 pb-2 text-sm" title={texts.badgeMainHint}>
+                            <Switch
+                                checked={checkpoint.badgeMain === true}
+                                onCheckedChange={checked =>
+                                    update(index, { badgeMain: checked ? true : undefined })
+                                }
+                            />
+                            {texts.badgeMain}
                         </label>
                         <div className="min-w-64 flex-1 space-y-1">
                             <Label>{texts.hint}</Label>

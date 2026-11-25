@@ -15,6 +15,7 @@ export type PortalAiProvidersReadinessDtoTranscriptionMode = typeof PortalAiProv
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PortalAiProvidersReadinessDtoTranscriptionMode = {
   auto: 'auto',
+  'auto-whisper': 'auto-whisper',
   yandex: 'yandex',
   vibecode: 'vibecode',
   whisper: 'whisper',

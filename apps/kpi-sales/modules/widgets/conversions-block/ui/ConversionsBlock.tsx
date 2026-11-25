@@ -5,6 +5,7 @@ import { Button } from '@workspace/ui/components/button';
 import { Settings2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { selectIsPublic } from '@/modules/app';
+import { ChartsGate } from '@/modules/shared';
 import { exportTableToCSV, ReportBlockWrapper } from '@/modules/entities/report';
 import { ReportGroupTabs, StructureSection } from '@/modules/feature/report-tabs';
 import { EntityRatingChart } from '@/modules/feature/report-rating';
@@ -93,17 +94,19 @@ export const ConversionsBlock: React.FC<ConversionsBlockProps> = ({
 
     const ratingFooter =
         (entityLabel: string) => (sections: StructureSection[]) => (
-            <div className="mt-6 space-y-4">
-                <ConversionSectionRatingChart
-                    title={`Победители — ${entityLabel} (конверсия)`}
-                    result={result}
-                    sections={sections}
-                />
-                <EntityRatingChart
-                    title="Победители — сотрудники (конверсия)"
-                    dataset={conversionRatingDataset}
-                />
-            </div>
+            <ChartsGate>
+                <div className="mt-6 space-y-4">
+                    <ConversionSectionRatingChart
+                        title={`Победители — ${entityLabel} (конверсия)`}
+                        result={result}
+                        sections={sections}
+                    />
+                    <EntityRatingChart
+                        title="Победители — сотрудники (конверсия)"
+                        dataset={conversionRatingDataset}
+                    />
+                </div>
+            </ChartsGate>
         );
 
     return (

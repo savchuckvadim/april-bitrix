@@ -1,15 +1,18 @@
 /**
  * Фильтры списка разборов в адресе страницы (`?from=&to=&managers=&types=
- * &scoreMin=&scoreMax=&review=&sort=&page=&size=`): разбор адреса, сборка
- * адреса, правки фильтров и тело запроса. Значения по умолчанию в адрес не
- * пишутся; кривое значение в адресе заменяется умолчанием. «Сегодня»
- * приходит снаружи — функции чистые.
+ * &badges=&points=&scoreMin=&scoreMax=&review=&sort=&page=&size=`): разбор
+ * адреса, сборка адреса, правки фильтров и тело запроса. Значения по
+ * умолчанию в адрес не пишутся; кривое значение в адресе заменяется
+ * умолчанием. «Сегодня» приходит снаружи — функции чистые.
  */
 import {
     CALLS_LIST_PAGE_SIZES,
+    CALLS_LIST_POINT_STATES,
     CALLS_LIST_REVIEW_FILTERS,
     CALLS_LIST_SORTS,
     type CallsListPageSize,
+    type CallsListPointFilter,
+    type CallsListPointState,
     type CallsListQuery,
     type CallsListRequest,
     type CallsListRequester,
@@ -17,9 +20,11 @@ import {
     type CallsListSort,
 } from '../model/types';
 import {
+    CALLS_LIST_BADGES_MAX,
     CALLS_LIST_DEFAULT_PAGE_SIZE,
     CALLS_LIST_FILTER_MAX_ITEMS,
     CALLS_LIST_PARAMS as P,
+    CALLS_LIST_POINTS_MAX,
     CALLS_LIST_SCORE_RANGE,
 } from './calls-list.const';
 import { defaultCallsListPeriod, parseIsoDay } from './calls-list-period';
@@ -32,6 +37,11 @@ export type CallsListPatch = Partial<Omit<CallsListQuery, 'page'>> & {
 const USER_ID = /^\d{1,12}$/;
 const TYPE_CODE_MAX = 64;
 const LIST_SEPARATOR = ',';
+/** Id общего бейджа: «no_price», «second_call». */
+const BADGE_ID = /^[a-z][a-z0-9_]*$/;
+/** Код пункта методики: «greeting», «need.budget», «price-offer». */
+const POINT_CODE = /^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/;
+const POINT_SEPARATOR = ':';
 
 const isOneOf = <T extends string>(
     values: readonly T[],
@@ -44,6 +54,8 @@ export function defaultCallsListQuery(today: Date): CallsListQuery {
         ...defaultCallsListPeriod(today),
         managerIds: [],
         callTypes: [],
+        badges: [],
+        points: [],
         scoreMin: null,
         scoreMax: null,
         review: 'any',
@@ -53,7 +65,11 @@ export function defaultCallsListQuery(today: Date): CallsListQuery {
     };
 }
 
-const uniqueList = (raw: string | null, valid: (item: string) => boolean): string[] =>
+const uniqueList = (
+    raw: string | null,
+    valid: (item: string) => boolean,
+    max = CALLS_LIST_FILTER_MAX_ITEMS,
+): string[] =>
     [
         ...new Set(
             (raw ?? '')
@@ -61,7 +77,30 @@ const uniqueList = (raw: string | null, valid: (item: string) => boolean): strin
                 .map(item => item.trim())
                 .filter(valid),
         ),
-    ].slice(0, CALLS_LIST_FILTER_MAX_ITEMS);
+    ].slice(0, max);
+
+const isPointState = (value: string): value is CallsListPointState =>
+    (CALLS_LIST_POINT_STATES as readonly string[]).includes(value);
+
+/**
+ * Пункты методики из «код:состояние, …»: кривые пропускаются, на один код —
+ * одно состояние (побеждает последнее), не больше предела.
+ */
+const parsePoints = (raw: string | null): CallsListPointFilter[] => {
+    const byCode = new Map<string, CallsListPointState>();
+    for (const item of (raw ?? '').split(LIST_SEPARATOR)) {
+        const [code = '', state = '', ...rest] = item.trim().split(POINT_SEPARATOR);
+        if (rest.length === 0 && POINT_CODE.test(code) && isPointState(state)) {
+            byCode.set(code, state);
+        }
+    }
+    return [...byCode]
+        .slice(0, CALLS_LIST_POINTS_MAX)
+        .map(([code, state]) => ({ code, state }));
+};
+
+const pointsToText = (points: readonly CallsListPointFilter[]): string =>
+    points.map(point => `${point.code}${POINT_SEPARATOR}${point.state}`).join(LIST_SEPARATOR);
 
 /** Оценка 1–10 (можно с одним знаком); иначе null. */
 const parseScore = (raw: string | null): number | null => {
@@ -114,6 +153,12 @@ export function parseCallsListQuery(
             params.get(P.types),
             item => item.length > 0 && item.length <= TYPE_CODE_MAX,
         ),
+        badges: uniqueList(
+            params.get(P.badges),
+            item => BADGE_ID.test(item),
+            CALLS_LIST_BADGES_MAX,
+        ),
+        points: parsePoints(params.get(P.points)),
         ...orderedScoreRange(
             parseScore(params.get(P.scoreMin)),
             parseScore(params.get(P.scoreMax)),
@@ -138,6 +183,8 @@ export function buildCallsListSearch(query: CallsListQuery, today: Date): string
     put(P.to, query.to, defaults.to);
     put(P.managers, query.managerIds.join(LIST_SEPARATOR), '');
     put(P.types, query.callTypes.join(LIST_SEPARATOR), '');
+    put(P.badges, query.badges.join(LIST_SEPARATOR), '');
+    put(P.points, pointsToText(query.points), '');
     put(P.scoreMin, query.scoreMin === null ? '' : String(query.scoreMin), '');
     put(P.scoreMax, query.scoreMax === null ? '' : String(query.scoreMax), '');
     put(P.review, query.review, defaults.review);
@@ -188,6 +235,8 @@ export function callsListRequestOf(
         to: query.to,
         ...(query.managerIds.length > 0 && { managerIds: query.managerIds }),
         ...(query.callTypes.length > 0 && { callTypes: query.callTypes }),
+        ...(query.badges.length > 0 && { badges: query.badges }),
+        ...(query.points.length > 0 && { points: query.points }),
         ...(query.scoreMin !== null && { scoreMin: query.scoreMin }),
         ...(query.scoreMax !== null && { scoreMax: query.scoreMax }),
         review: query.review,

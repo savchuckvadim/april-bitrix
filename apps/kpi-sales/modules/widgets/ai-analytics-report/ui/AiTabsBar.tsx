@@ -8,27 +8,18 @@ import {
     type AiTab,
     type AiTabKey,
 } from '../lib/ai-tabs';
-import { AiCallsEntryLink } from './components/AiCallsEntryLink';
 
 interface AiTabsBarProps {
     tab: AiTabKey;
     onChange: (tab: AiTabKey) => void;
     /** Подвкладки, которые видит пользователь (по умолчанию — все). */
     tabs?: readonly AiTab[];
-    /** Показать переход в «Разборы звонков» (руководители и суперпользователь). */
-    withCallsEntry?: boolean;
 }
 
 /**
  * Подвкладки вкладки AI (как у дайджеста); подсказка — при наведении.
- * Справа — переход в «Разборы звонков» (отдельная страница, не вкладка).
  */
-export const AiTabsBar = ({
-    tab,
-    onChange,
-    tabs = AI_TABS,
-    withCallsEntry = false,
-}: AiTabsBarProps) => (
+export const AiTabsBar = ({ tab, onChange, tabs = AI_TABS }: AiTabsBarProps) => (
     <div className="flex flex-wrap items-center gap-2">
         <Tabs
             value={tab}
@@ -50,6 +41,5 @@ export const AiTabsBar = ({
                 ))}
             </TabsList>
         </Tabs>
-        {withCallsEntry && <AiCallsEntryLink />}
     </div>
 );

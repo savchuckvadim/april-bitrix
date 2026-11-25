@@ -8,6 +8,12 @@
 import type {
   CreateProviderWithRqDto,
   ProviderEnumsResponseDto,
+  ProviderImageLegacyImportAdminLegacyImportImagesParams,
+  ProviderImageLegacyImportReportDto,
+  ProviderImageLegacyImportUploadDto,
+  ProviderImageResponseDto,
+  ProviderImageRole,
+  ProviderImageUploadDto,
   ProviderWithRqResponseDto,
   RqResponseDto,
   UpdateRqDto
@@ -93,7 +99,7 @@ const providerAdminRemove = (
       );
     }
   /**
- * Частично обновляет реквизиты (rqs) по id. Обновляются только переданные поля. Если запись не найдена — 404.
+ * Частично обновляет реквизиты (rqs) по id и, если передан `withTax`, признак «Работает с НДС» их поставщика (agents) — одной транзакцией. Обновляются только переданные поля. Если запись не найдена — 404.
  * @summary Обновить реквизиты
  */
 const providerAdminUpdateRq = (
@@ -107,7 +113,82 @@ const providerAdminUpdateRq = (
     },
       );
     }
-  return {providerAdminGetEnums,providerAdminGetAll,providerAdminCreate,providerAdminGetByDomain,providerAdminGetOne,providerAdminRemove,providerAdminUpdateRq}};
+  /**
+ * Печать, подписи и логотип реквизитов: по одной записи на роль, по порядку ролей. Роль без картинки в списке не появляется.
+ * @summary Картинки реквизитов поставщика
+ */
+const providerImageAdminListImages = (
+    rqId: number,
+ ) => {
+      return customAxios<ProviderImageResponseDto[]>(
+      {url: `/api/admin/portal/provider/rq/${rqId}/images`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * Кладёт картинку на роль: PNG или JPG до 2 МБ (формат определяется по содержимому, не больше 6000 пикселей по стороне). Перед записью картинка перекодируется в простой вид, который рисует PDF: PNG — 8 бит на канал, RGBA, без чересстрочности; JPEG — sRGB, не прогрессивный. Формат, размеры и размер файла в ответе — у перекодированного файла. Прежняя картинка роли заменяется: сначала записывается новый файл, затем удаляется старый.
+ * @summary Загрузить или заменить картинку реквизитов
+ */
+const providerImageAdminUploadImage = (
+    rqId: number,
+    role: ProviderImageRole,
+    providerImageUploadDto: ProviderImageUploadDto,
+ ) => {const formData = new FormData();
+formData.append(`file`, providerImageUploadDto.file)
+
+      return customAxios<ProviderImageResponseDto>(
+      {url: `/api/admin/portal/provider/rq/${rqId}/images/${role}`, method: 'PUT',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData
+    },
+      );
+    }
+  /**
+ * Удаляет запись и файл картинки. Документы после этого печатаются без неё. Если картинки нет — 404.
+ * @summary Удалить картинку реквизитов
+ */
+const providerImageAdminRemoveImage = (
+    rqId: number,
+    role: ProviderImageRole,
+ ) => {
+      return customAxios<void>(
+      {url: `/api/admin/portal/provider/rq/${rqId}/images/${role}`, method: 'DELETE'
+    },
+      );
+    }
+  /**
+ * Отдаёт сам файл для превью в админке. Ответ не кэшируется: после замены превью показывает новую картинку.
+ * @summary Файл картинки реквизитов
+ */
+const providerImageAdminGetImageFile = (
+    rqId: number,
+    role: ProviderImageRole,
+ ) => {
+      return customAxios<Blob>(
+      {url: `/api/admin/portal/provider/rq/${rqId}/images/${role}/file`, method: 'GET',
+        responseType: 'blob'
+    },
+      );
+    }
+  /**
+ * Временная ручка. Принимает файлы из копии папки clients легаси (в имени файла относительный путь) и сопоставляет их с записями `files` реквизитов по точному пути (имя без корня `clients/` ищется по хвосту пути и принимается, если подходит ровно одна запись, иначе файл попадает в отчёт как `skipped`). Из записей реквизитов выбирается «текущая» картинка каждой роли по правилам легаси: логотип и печать с наименьшим id, подписи руководителя и главного бухгалтера с наибольшим id. Картинка записывается тем же сервисом, что и загрузка из админки (перекодирование и лимиты те же). Уже существующие картинки не перезаписываются, повторный запуск копий не плодит. В режиме проверки (`dryRun=true`) ничего не записывается. Ответ — отчёт по всем записям `files` затронутых реквизитов и по файлам без записи.
+ * @summary Перенести картинки реквизитов из легаси
+ */
+const providerImageLegacyImportAdminLegacyImportImages = (
+    providerImageLegacyImportUploadDto: ProviderImageLegacyImportUploadDto,
+    params?: ProviderImageLegacyImportAdminLegacyImportImagesParams,
+ ) => {const formData = new FormData();
+providerImageLegacyImportUploadDto.files.forEach(value => formData.append(`files`, value));
+
+      return customAxios<ProviderImageLegacyImportReportDto>(
+      {url: `/api/admin/portal/provider/images/legacy-import`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData,
+        params
+    },
+      );
+    }
+  return {providerAdminGetEnums,providerAdminGetAll,providerAdminCreate,providerAdminGetByDomain,providerAdminGetOne,providerAdminRemove,providerAdminUpdateRq,providerImageAdminListImages,providerImageAdminUploadImage,providerImageAdminRemoveImage,providerImageAdminGetImageFile,providerImageLegacyImportAdminLegacyImportImages}};
 export type ProviderAdminGetEnumsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerAdminGetEnums']>>>
 export type ProviderAdminGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerAdminGetAll']>>>
 export type ProviderAdminCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerAdminCreate']>>>
@@ -115,3 +196,8 @@ export type ProviderAdminGetByDomainResult = NonNullable<Awaited<ReturnType<Retu
 export type ProviderAdminGetOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerAdminGetOne']>>>
 export type ProviderAdminRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerAdminRemove']>>>
 export type ProviderAdminUpdateRqResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerAdminUpdateRq']>>>
+export type ProviderImageAdminListImagesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerImageAdminListImages']>>>
+export type ProviderImageAdminUploadImageResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerImageAdminUploadImage']>>>
+export type ProviderImageAdminRemoveImageResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerImageAdminRemoveImage']>>>
+export type ProviderImageAdminGetImageFileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerImageAdminGetImageFile']>>>
+export type ProviderImageLegacyImportAdminLegacyImportImagesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdminPortalProvider>['providerImageLegacyImportAdminLegacyImportImages']>>>

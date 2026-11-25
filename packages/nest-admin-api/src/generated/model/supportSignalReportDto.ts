@@ -8,7 +8,7 @@
 import type { SupportSignalReportDtoKind } from './supportSignalReportDtoKind';
 
 export interface SupportSignalReportDto {
-  /** Вид оповещения: new_dialog — новый диалог, waiting — клиент ждёт ответа (напоминание), escalation — ждёт долго (срочный повтор). */
+  /** Вид оповещения: new_dialog — новый диалог, client_message — клиент написал в открытый диалог (только Telegram), waiting — клиент ждёт ответа (напоминание), escalation — ждёт долго (срочный повтор). */
   kind: SupportSignalReportDtoKind;
   /** Номер сессии (диалога) линии. */
   sessionId: number;

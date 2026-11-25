@@ -7,7 +7,7 @@
  */
 
 /**
- * Вид замечания «не так»: section — раздел, objection — возражение, methodology — пункт методики, fact — факт, call_type — тип звонка.
+ * Вид замечания (код).
  */
 export type CallReviewsAdminTopItemDtoKind = typeof CallReviewsAdminTopItemDtoKind[keyof typeof CallReviewsAdminTopItemDtoKind];
 

@@ -1,6 +1,7 @@
 'use client';
 import type { ReactNode } from 'react';
 import { GlassAmbient } from '@workspace/april-ui';
+import { cn } from '@workspace/ui/lib/utils';
 import { NoreportData } from '@/modules/entities/report';
 import { Preloader, Processing } from '@/modules/shared';
 import { ViewAsBanner } from '@/modules/feature/view-as';
@@ -10,8 +11,15 @@ import { useReportProvider } from '../hooks/use-report-provider';
 
 /**
  * Каркас страниц отчёта: sticky-хедер (не перекрывает контент, в отличие
- * от fixed — контент всегда начинается под ним), фильтры в потоке страницы
- * и состояния загрузки/пустых данных.
+ * от fixed — контент всегда начинается под ним), панель фильтров ВНУТРИ
+ * хедера под его строкой и состояния загрузки/пустых данных.
+ *
+ * Панель фильтров лежит в sticky-хедере, а не в потоке страницы: «Показать
+ * фильтры» после прокрутки вниз раскрывает её прямо под строкой хедера, в
+ * видимой части окна (внутри iframe Битрикса прокрутка к панели ненадёжна).
+ * Хедер — колонка не выше окна: строка кнопок остаётся целиком, а панель
+ * занимает остаток и прокручивается сама. Пока панель открыта, хедер
+ * непрозрачный; закрытая — прежнее полупрозрачное стекло.
  *
  * Полноэкранный Processing ограничен капом (~50с): дальше страница
  * оживает — фильтры доступны (можно сузить период и переотправить),
@@ -49,8 +57,15 @@ export const ReportProvider = ({ children }: { children: ReactNode }) => {
             {/* Цветовые пятна под стеклом: без них blur-поверхностям нечего размывать */}
             <GlassAmbient />
 
-            <header className="sticky top-0 z-10 bg-background/50 backdrop-blur-sm">
-                <div className="px-7 py-2">
+            <header
+                className={cn(
+                    'sticky top-0 z-10 flex max-h-dvh flex-col',
+                    isFilterOpen
+                        ? 'bg-background shadow-md'
+                        : 'bg-background/50 backdrop-blur-sm',
+                )}
+            >
+                <div className="shrink-0 px-7 py-2">
                     <ReportHeader
                         isFilterOpen={isFilterOpen}
                         setIsFilterOpen={setIsFilterOpen}
@@ -58,10 +73,10 @@ export const ReportProvider = ({ children }: { children: ReactNode }) => {
                     {/* Плашка режима «Смотреть как…» (superuser) */}
                     <ViewAsBanner />
                 </div>
+                <ReportFilter isOpen={isFilterOpen} />
             </header>
 
             <div className="px-7 pb-7">
-                <ReportFilter isOpen={isFilterOpen} />
                 {hasReportData ? (
                     <div>{children}</div>
                 ) : isReportPending ? (

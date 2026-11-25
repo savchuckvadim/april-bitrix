@@ -7,6 +7,7 @@ import type {
     AiScoreRatingPoint,
 } from '@/modules/entities/ai-analytics';
 import { EntityRatingChart } from '@/modules/feature/report-rating';
+import { ChartsGate } from '@/modules/shared';
 import { AI_MATRIX_BLOCK_TEXT } from '../../lib/ai-matrix-texts';
 import type { AiScoreIndicator } from '../../lib/ai-types-matrix-view.util';
 import { aiMatrixNorms } from '../../lib/ai-matrix-view.util';
@@ -70,22 +71,24 @@ export const AiMatrixSummary = ({
                 showHidden={showHidden}
                 onToggle={onToggleHidden}
             />
-            <AiMatrixProfileChart
-                matrix={matrix}
-                columnsLabel={profileColumnsLabel}
-                storageKey={`${storagePrefix}-profile`}
-            />
-            <AiScoreRatingChart
-                entityLabel={T.employees}
-                points={points}
-                indicators={indicators}
-                norms={norms}
-                storageKey={`${storagePrefix}-summary-users`}
-            />
-            <EntityRatingChart
-                title={`${T.mostReviews(T.employees)} (${blockLabel})`}
-                dataset={countDataset}
-            />
+            <ChartsGate>
+                <AiMatrixProfileChart
+                    matrix={matrix}
+                    columnsLabel={profileColumnsLabel}
+                    storageKey={`${storagePrefix}-profile`}
+                />
+                <AiScoreRatingChart
+                    entityLabel={T.employees}
+                    points={points}
+                    indicators={indicators}
+                    norms={norms}
+                    storageKey={`${storagePrefix}-summary-users`}
+                />
+                <EntityRatingChart
+                    title={`${T.mostReviews(T.employees)} (${blockLabel})`}
+                    dataset={countDataset}
+                />
+            </ChartsGate>
         </div>
     );
 };

@@ -35,8 +35,8 @@ interface ReportFilterProps {
 }
 
 /**
- * Панель фильтров отчёта: даты + отделы + события; на странице
- * сотрудника — только даты.
+ * Панель фильтров отчёта: даты + отделы + действия (последние — только на
+ * вкладках, где они работают); на странице сотрудника — только даты.
  *
  * Панель правит ЧЕРНОВИК фильтра, а не действующий: данные отчёта меняются
  * только по «Применить» (в шапке), закрытие панели без «Применить»
@@ -56,6 +56,11 @@ export const ReportFilter = ({ isOpen }: ReportFilterProps) => {
     const draft = useReportFilterDraft();
 
     if (!isOpen) return null;
+
+    const showActions =
+        !isUserReport &&
+        draft.isActionsVisibleOnTab &&
+        draft.actionItems.length > 0;
 
     return (
         <div
@@ -87,10 +92,12 @@ export const ReportFilter = ({ isOpen }: ReportFilterProps) => {
                         </div>
                     </CardContent>
 
-                    {/* Список действий приходит с событиями: пока он не загружен
-                        (вкладка без событий), выбирать не из чего — раздел
-                        не показываем, действующий выбор остаётся как был. */}
-                    {!isUserReport && draft.actionItems.length > 0 && (
+                    {/* Раздел только на вкладках, где выбор действий работает
+                        («Все», «События», «Объединённый»). Список действий
+                        приходит с событиями: пока он не загружен, выбирать не
+                        из чего. Скрытый раздел черновик не меняет — действующий
+                        выбор остаётся как был. */}
+                    {showActions && (
                         <CardContent>
                             <ActionsFilter
                                 items={draft.actionItems}

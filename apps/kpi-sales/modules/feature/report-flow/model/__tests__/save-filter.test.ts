@@ -152,6 +152,20 @@ describe('saveFilter', () => {
         });
     });
 
+    it('раздел «Действия» скрыт (вкладка без него): правится остальное, действия уходят прежние', async () => {
+        const store = makeStore();
+        store.dispatch(reportActions.setActionsSelection(['call_done']));
+        // Раздела нет — действия в черновике не трогают, меняются сотрудники.
+        store.dispatch(openFilterDraft());
+        store.dispatch(draftActions.usersChanged([3]));
+        await store.dispatch(saveFilter());
+
+        expect(sentFilter()).toMatchObject({
+            actions: ['call_done'],
+            legacyUserIds: [3],
+        });
+    });
+
     it('панель открыта, быстрый режим — уходит только режим', async () => {
         const store = makeStore();
         store.dispatch(openFilterDraft());

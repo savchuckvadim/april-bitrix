@@ -27,7 +27,7 @@ export interface ConversionsComputation {
 
 /**
  * Датасет scope поверх текущих (уже отфильтрованных) данных стора.
- * merged учитывает локальный фильтр объединённого отчёта.
+ * merged учитывает выбор показателей объединённого отчёта (и сотрудников из снимка ссылки).
  */
 export const useConversionDataset = (
     scope: ConversionScope,

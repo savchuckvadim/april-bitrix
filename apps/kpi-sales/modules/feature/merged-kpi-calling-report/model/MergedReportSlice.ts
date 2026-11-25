@@ -1,7 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface MergedReportState {
+    /**
+     * Сотрудники объединённого отчёта. Во фрейме портала поле пустое —
+     * сотрудников выбирает главный фильтр отчёта. Заполняется только на
+     * публичной странице из снимка ссылки (старые снимки несут выбор).
+     * Пусто = без ограничения.
+     */
     selectedUsers: number[];
+    /** Показатели (колонки) объединённой таблицы. Пусто = все. */
     selectedActions: string[];
 }
 const initialState: MergedReportState = {

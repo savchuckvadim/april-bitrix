@@ -326,6 +326,42 @@ describe('applyFilterDraft — «Применить»', () => {
     });
 });
 
+describe('applyFilterDraft — вкладка со скрытым разделом «Действия»', () => {
+    // На этих вкладках раздел скрыт, но список действий мог загрузиться
+    // раньше (с вкладки событий): выбор действий «Применить» не трогает.
+    it.each([
+        EReportType.CALLINGS,
+        EReportType.DIGEST,
+        EReportType.FINANCE,
+        EReportType.AI,
+    ])(
+        'вкладка «%s»: сотрудники и период переносятся, выбор действий остаётся прежним',
+        tab => {
+            const store = makeStore(tab);
+            store.dispatch(
+                reportActions.setActionsSelection(['call_plan', 'call_done']),
+            );
+            const before = store.getState().report;
+
+            store.dispatch(openFilterDraft());
+            store.dispatch(draftActions.usersChanged([3]));
+            store.dispatch(
+                draftActions.dateChanged({
+                    typeOfDate: ReportDateType.TO,
+                    value: '2026-11-25',
+                }),
+            );
+            store.dispatch(applyFilterDraft());
+
+            const { report } = store.getState();
+            expect(activeIds(store)).toEqual([3]);
+            expect(report.date.to).toBe('2026-11-25');
+            expect(report.filter).toEqual(before.filter);
+            expect(report.actions.current).toEqual(before.actions.current);
+        },
+    );
+});
+
 describe('applyFilterDraft — запросы только для своей вкладки', () => {
     const STANDALONE_TABS = [
         EReportType.DIGEST,

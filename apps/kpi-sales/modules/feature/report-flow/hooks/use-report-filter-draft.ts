@@ -7,6 +7,7 @@ import type {
     FilterInnerCode,
     ReportDateType,
 } from '@/modules/entities/report/model/types/report/report-type';
+import { isActionsFilterVisibleOnTab } from '../lib/report-filter-sections.util';
 import { reportFilterDraftActions } from '../model/filter-draft/report-filter-draft.slice';
 
 /**
@@ -19,6 +20,9 @@ export const useReportFilterDraft = () => {
     const dispatch = useAppDispatch();
     const draft = useAppSelector(state => state.reportFilterDraft);
     const actionItems = useAppSelector(state => state.report.actions.items);
+    const isActionsVisibleOnTab = useAppSelector(state =>
+        isActionsFilterVisibleOnTab(state.reportType.current),
+    );
 
     const changeDate = useCallback(
         (typeOfDate: ReportDateType, value: string) => {
@@ -51,6 +55,13 @@ export const useReportFilterDraft = () => {
         actionCodes: draft.actionCodes,
         /** Все действия, из которых можно выбирать (их даёт отчёт). */
         actionItems,
+        /**
+         * Показывается ли раздел «Действия» на текущей вкладке: на «Звонках»,
+         * «Дайджесте», «Финансах» и «AI аналитике» выбор действий ни на что не
+         * влияет. Скрытый раздел черновик не меняет — выбор при «Применить»
+         * и «Сохранить фильтр» остаётся прежним.
+         */
+        isActionsVisibleOnTab,
         changeDate,
         changeDateMode,
         changeUsers,

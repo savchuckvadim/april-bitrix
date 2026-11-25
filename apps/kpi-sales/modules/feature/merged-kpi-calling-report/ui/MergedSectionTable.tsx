@@ -7,6 +7,7 @@ import { getReportTableData } from '@/modules/entities/report';
 import { ReportData } from '@/modules/entities/report';
 import { RTable, RTableAnnotation } from '@/modules/shared';
 import { getMergedReportsData } from '../lib/merge-reports.util';
+import { selectMergedTableRows } from '../lib/merged-table-selection.util';
 import { MergedReportTotalTable } from './MergedReportTotalTable';
 import { useMergedReport } from '../hooks/merged-report.hook';
 import { useAppSelector, selectIsPublic } from '@/modules/app';
@@ -22,8 +23,8 @@ interface MergedSectionTableProps {
 
 /**
  * Лёгкая merged-таблица для секции разбивки (отдел/группа): без своих
- * фильтров и графиков — только таблица и итоги. Локальный фильтр
- * объединённого отчёта (mergedReport-слайс) применяется и здесь.
+ * фильтров и графиков — только таблица и итоги. Выбор показателей и
+ * сотрудников объединённого отчёта (mergedReport-слайс) применяется и здесь.
  */
 export const MergedSectionTable = ({
     report,
@@ -45,24 +46,14 @@ export const MergedSectionTable = ({
         );
     }, [report, callingsReport]);
 
-    const filteredData = useMemo(() => {
-        if (!merged) return [];
-        return merged.data
-            .filter(
-                user =>
-                    !selectedUsers.length ||
-                    (user.id !== undefined &&
-                        selectedUsers.includes(Number(user.id))),
-            )
-            .map(user => ({
-                ...user,
-                actions: user.actions.filter(
-                    action =>
-                        !selectedActions.length ||
-                        selectedActions.includes(action.name),
-                ),
-            }));
-    }, [merged, selectedUsers, selectedActions]);
+    const filteredData = useMemo(
+        () =>
+            selectMergedTableRows(merged?.data ?? [], {
+                selectedUsers,
+                selectedActions,
+            }),
+        [merged, selectedUsers, selectedActions],
+    );
 
     if (!merged || !filteredData.length) {
         return (

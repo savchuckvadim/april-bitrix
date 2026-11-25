@@ -12,6 +12,7 @@ export * from './model/ensure-report-data.thunk';
 export * from './model/recalculate-report-data.thunk';
 export { getReportDataNeeds } from './lib/report-data-needs.util';
 export type { ReportDataNeeds } from './lib/report-data-needs.util';
+export { isActionsFilterVisibleOnTab } from './lib/report-filter-sections.util';
 export { resolveCalculatedAt } from './lib/calculation-notice.util';
 export type { CalculationSources } from './lib/calculation-notice.util';
 export * from './model/listeners';

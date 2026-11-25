@@ -147,7 +147,7 @@ export const mergeRowsByUser = <TRow, TCell>(
     );
 };
 
-/** Выбран ли элемент локальным фильтром: пустой выбор — без ограничения. */
+/** Выбран ли элемент выбором объединённого отчёта: пустой выбор — без ограничения. */
 export const isMergedSelected = <T>(
     selected: readonly T[],
     value: T,

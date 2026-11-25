@@ -63,7 +63,7 @@ const normalizeView = (raw: unknown): PortalViewSettings => {
 const normalizeTab = (raw: UnknownRecord): PortalViewTabOption | null => {
     const code = nonEmptyString(raw.code);
     const name = nonEmptyString(raw.name);
-    return code && name ? { code, name } : null;
+    return code && name ? { code, name, common: raw.common === true } : null;
 };
 
 const normalizeBadge = (raw: UnknownRecord): PortalViewBadgeOption | null => {

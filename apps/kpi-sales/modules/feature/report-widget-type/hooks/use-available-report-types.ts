@@ -6,7 +6,10 @@ import { EAccessFeature } from '@/modules/shared/access';
 // Прямой путь, не index фичи: нужен один хук настроек (без UI-кнопок шапки).
 import { useHiddenTabs } from '@/modules/feature/portal-view/hooks/use-portal-view';
 import { EReportType } from '../consts/report-type.consts';
-import { withoutHiddenReportTypes } from '../lib/report-tabs-visibility';
+import {
+    fallbackReportType,
+    withoutHiddenReportTypes,
+} from '../lib/report-tabs-visibility';
 import { useReportType } from './report-type.hook';
 
 /**
@@ -14,7 +17,7 @@ import { useReportType } from './report-type.hook';
  * Видимость «Финансов» и «AI аналитики» решает центральная таблица прав
  * (shared/access/access.rules.ts — FINANCE_TAB / AI_TAB). «AI аналитика» и
  * «Дайджест» скрыты на публичной странице /share (снимка их данных нет).
- * Поверх прав портал может скрыть вкладки настройками отчёта (кроме «Все»).
+ * Поверх прав портал может скрыть вкладки настройками отчёта, «Все» тоже.
  * Новые ограничения вкладок добавлять по тому же образцу: ключ в
  * EAccessFeature + правило + фильтр здесь.
  */
@@ -41,16 +44,18 @@ export const useAvailableReportTypes = (): EReportType[] => {
 
 /**
  * Страховка: если текущая вкладка стала недоступной (сохранённый
- * reportType, вход в viewAs, смена прав) — тихо уводим на «Все».
+ * reportType, вход в viewAs, смена прав, вкладку скрыл портал) — тихо
+ * уводим на первую доступную. Раньше запасной была «Все», но её тоже
+ * можно скрыть.
  */
 export const useEnsureAvailableReportType = (): EReportType[] => {
     const available = useAvailableReportTypes();
     const { current, setCurrentReportType } = useReportType();
 
     useEffect(() => {
-        if (!available.includes(current)) {
-            setCurrentReportType(EReportType.All);
-        }
+        if (available.includes(current)) return;
+        const fallback = fallbackReportType(available);
+        if (fallback !== null) setCurrentReportType(fallback);
         // setCurrentReportType стабилен (bound action creator)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [available, current]);

@@ -16,8 +16,8 @@ const FULL = {
     supportUrl: 'https://t.me/support',
     options: {
         tabs: [
-            { code: 'events', name: 'События' },
-            { code: 'call_reviews', name: 'Разборы звонков' },
+            { code: 'events', name: 'События', common: true },
+            { code: 'call_reviews', name: 'Разборы звонков', common: false },
         ],
         badges: [
             {
@@ -88,6 +88,23 @@ describe('normalizePortalViewResponse — значения по умолчани
         expect(result.view).toEqual({ ...defaults.view, tabsHidden: ['ai'] });
     });
 
+    it('у вкладки нет признака common (старый бэк) или он не булев — false', () => {
+        const result = normalizePortalViewResponse({
+            options: {
+                tabs: [
+                    { code: 'events', name: 'События' },
+                    { code: 'merged', name: 'Объединённый отчёт', common: 'yes' },
+                    { code: 'all', name: 'Все', common: true },
+                ],
+            },
+        });
+        expect(result.options.tabs).toEqual([
+            { code: 'events', name: 'События', common: false },
+            { code: 'merged', name: 'Объединённый отчёт', common: false },
+            { code: 'all', name: 'Все', common: true },
+        ]);
+    });
+
     it('chartsEnabled не булево — графики включены', () => {
         const result = normalizePortalViewResponse({ view: { chartsEnabled: 'no' } });
         expect(result.view.chartsEnabled).toBe(true);
@@ -133,7 +150,9 @@ describe('normalizePortalViewResponse — справочники', () => {
                 ],
             },
         });
-        expect(result.options.tabs).toEqual([{ code: 'events', name: 'События' }]);
+        expect(result.options.tabs).toEqual([
+            { code: 'events', name: 'События', common: false },
+        ]);
     });
 
     it('бейдж без id или названия отбрасывается, остальное добирается значениями по умолчанию', () => {

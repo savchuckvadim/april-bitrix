@@ -45,7 +45,7 @@ const RESPONSE: PortalViewResponse = {
     canEdit: true,
     supportUrl: 'https://t.me/support',
     options: {
-        tabs: [{ code: 'digest', name: 'Дайджест' }],
+        tabs: [{ code: 'digest', name: 'Дайджест', common: true }],
         badges: [
             {
                 id: 'b1',

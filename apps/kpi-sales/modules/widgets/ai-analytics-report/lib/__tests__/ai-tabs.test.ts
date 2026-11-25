@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AI_SETTINGS_TABS } from '../ai-settings-form.util';
 import {
-    AI_CALLS_ENTRY,
     AI_EMPLOYEE_SETTINGS_SECTIONS,
     AI_SHOWCASE_SETTINGS_SECTIONS,
     AI_TABS,
@@ -64,7 +63,6 @@ describe('ai-tabs — подвкладки вкладки «AI аналитик�
         for (const text of [
             ...flatten(AI_TABS),
             ...flatten(AI_TABS_TEXT),
-            ...flatten(AI_CALLS_ENTRY),
             ...flatten(AI_SETTINGS_SECTION_TEXT),
             ...flatten(AI_SETTINGS_INLINE_TEXT),
             AI_SETTINGS_INLINE_TEXT.footer.willSave(['уровни', 'цели']),

@@ -20,3 +20,9 @@ export const REPORT_TYPE_LABELS = {
     [EReportType.AI]: 'AI аналитика',
     [EReportType.All]: 'Все',
 } as const;
+
+/** Параметр URL вкладки отчёта: `?tab=digest` открывает «Дайджест». */
+export const REPORT_TYPE_PARAM = 'tab';
+
+/** Страница отчёта: вкладки отчёта открываются на ней по `?tab=`. */
+export const REPORT_PAGE_PATH = '/report';

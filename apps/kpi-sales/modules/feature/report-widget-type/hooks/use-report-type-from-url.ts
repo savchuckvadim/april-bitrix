@@ -2,11 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { EReportType } from '../consts/report-type.consts';
+import { EReportType, REPORT_TYPE_PARAM } from '../consts/report-type.consts';
 import { useReportType } from './report-type.hook';
 
-/** Параметр URL вкладки отчёта: `?tab=digest` открывает «Дайджест». */
-export const REPORT_TYPE_PARAM = 'tab';
+// Константа живёт в consts (нужна и ссылкам вкладок без хука); экспорт отсюда сохранён.
+export { REPORT_TYPE_PARAM };
 
 const REPORT_TYPES = new Set<string>(Object.values(EReportType));
 

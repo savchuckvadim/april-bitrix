@@ -10,8 +10,6 @@ import { CALLS_LIST_MAX_DAYS } from './calls-list.const';
 
 export const CALLS_LIST_TEXT = {
     title: 'Разборы звонков',
-    back: '← AI-аналитика',
-    backTitle: 'Вернуться в отчёт на вкладку AI-аналитики',
     filters: {
         ariaLabel: 'Фильтры разборов',
         period: 'Период',

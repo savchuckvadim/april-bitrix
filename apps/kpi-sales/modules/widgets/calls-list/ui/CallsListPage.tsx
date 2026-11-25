@@ -9,16 +9,16 @@ import { hasCallsListBadgeBar } from '../lib/calls-list-badges-view';
 import { CallsListBadges } from './CallsListBadges';
 import { CallsListContent } from './CallsListContent';
 import { CallsListFilters } from './CallsListFilters';
-import { CallsListTopBar } from './CallsListTopBar';
+import { CallsListFrame } from './CallsListFrame';
 
 /**
  * Раздел «Разборы звонков» — отдельная страница приложения на всю ширину,
- * без обвязки отчёта: ряд вкладок отчёта («Разборы звонков» среди них
- * активна), заголовок, фильтры одной строкой, панель бейджей (если сервер её
- * прислал), таблица и страницы (считает сервер). Фильтры, бейджи и страница —
- * в адресе; открыть разбор — ссылкой строки. Только руководителям и
- * суперпользователю (иначе бэк отвечает 403 — «Раздел доступен
- * руководителям»).
+ * без обвязки отчёта: облегчённая шапка с названием и числом разборов, ряд
+ * вкладок отчёта («Разборы звонков» среди них активна), фильтры одной строкой,
+ * панель бейджей (если сервер её прислал), таблица и страницы (считает
+ * сервер). Фильтры, бейджи и страница — в адресе; открыть разбор — ссылкой
+ * строки. Только руководителям и суперпользователю (иначе бэк отвечает 403 —
+ * «Раздел доступен руководителям»).
  */
 export const CallsListPage = () => {
     const list = useCallsListQuery();
@@ -41,36 +41,37 @@ export const CallsListPage = () => {
     }, [loading, data, query, update]);
 
     return (
-        <div className="space-y-3">
-            <CallsListTopBar total={data && !periodInvalid ? data.total : null} />
-            <CallsListFilters
-                query={query}
-                facets={data?.facets ?? null}
-                callTypesLock={callTypesLock}
-                periodProblem={list.periodProblem}
-                filtered={list.filtered}
-                onChange={update}
-                onReset={list.reset}
-            />
-            {data && !periodInvalid && hasCallsListBadgeBar(data.facets) && (
-                <CallsListBadges
-                    facets={data.facets}
+        <CallsListFrame total={data && !periodInvalid ? data.total : null}>
+            <div className="space-y-3">
+                <CallsListFilters
                     query={query}
-                    loading={loading}
+                    facets={data?.facets ?? null}
+                    callTypesLock={callTypesLock}
+                    periodProblem={list.periodProblem}
+                    filtered={list.filtered}
                     onChange={update}
+                    onReset={list.reset}
                 />
-            )}
-            <CallsListContent
-                query={query}
-                data={data}
-                loading={loading}
-                error={result.error}
-                periodInvalid={periodInvalid}
-                filtered={list.filtered}
-                onChange={update}
-                onReset={list.reset}
-                onRetry={result.retry}
-            />
-        </div>
+                {data && !periodInvalid && hasCallsListBadgeBar(data.facets) && (
+                    <CallsListBadges
+                        facets={data.facets}
+                        query={query}
+                        loading={loading}
+                        onChange={update}
+                    />
+                )}
+                <CallsListContent
+                    query={query}
+                    data={data}
+                    loading={loading}
+                    error={result.error}
+                    periodInvalid={periodInvalid}
+                    filtered={list.filtered}
+                    onChange={update}
+                    onReset={list.reset}
+                    onRetry={result.retry}
+                />
+            </div>
+        </CallsListFrame>
     );
 };

@@ -23,6 +23,10 @@ export type { GlassActionStatusKind } from './ui/GlassActionStatus';
 // Кнопка шапки отчёта: иконка в рамке, название — в подсказке
 export { HeaderAction } from './ui/HeaderAction';
 export type { HeaderActionProps } from './ui/HeaderAction';
+// Каркас страниц без обвязки отчёта: облегчённая шапка и ряд вкладок под ней
+export { PageFrame } from './ui/PageFrame';
+export { PageHeader } from './ui/PageHeader';
+export type { PageHeaderProps } from './ui/PageHeader';
 
 export * from './telegram/type/telegram.type';
 export * from './telegram/lib/tlegram-bot';

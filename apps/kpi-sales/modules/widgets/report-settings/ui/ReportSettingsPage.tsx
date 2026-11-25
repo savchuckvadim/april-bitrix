@@ -5,17 +5,18 @@ import { lastChangeText } from '../lib/report-settings-format';
 import { ReportSettingsBadgesSection } from './ReportSettingsBadgesSection';
 import { ReportSettingsChartsSection } from './ReportSettingsChartsSection';
 import { ReportSettingsFooter } from './ReportSettingsFooter';
+import { ReportSettingsFrame } from './ReportSettingsFrame';
 import { ReportSettingsNotice } from './ReportSettingsNotice';
 import { ReportSettingsSkeleton } from './ReportSettingsSkeleton';
 import { ReportSettingsTabsSection } from './ReportSettingsTabsSection';
-import { ReportSettingsTopBar } from './ReportSettingsTopBar';
 
 /**
  * «Настройки отчёта» — отдельная страница приложения на всю ширину, без
  * обвязки отчёта: вкладки отчёта, графики и бейджи списка разборов для ВСЕХ
- * сотрудников портала. Менять может руководитель группы и выше; остальным —
- * пояснение вместо формы. Пока настройки грузятся — скелет; не загрузились —
- * сообщение с повтором.
+ * сотрудников портала. Сверху облегчённая шапка со стрелкой «назад» и ряд
+ * вкладок (ReportSettingsFrame). Менять может руководитель группы и выше;
+ * остальным — пояснение вместо формы. Пока настройки грузятся — скелет; не
+ * загрузились — сообщение с повтором.
  */
 export const ReportSettingsPage = () => {
     const settings = useReportSettingsForm();
@@ -58,10 +59,5 @@ export const ReportSettingsPage = () => {
         );
     })();
 
-    return (
-        <div className="space-y-3">
-            <ReportSettingsTopBar />
-            {body}
-        </div>
-    );
+    return <ReportSettingsFrame>{body}</ReportSettingsFrame>;
 };

@@ -18,6 +18,13 @@ export { portalViewActions } from './model/portal-view-slice';
 export { REPORT_SETTINGS_PATH } from './consts/portal-view.consts';
 export { PORTAL_VIEW_TEXT } from './consts/portal-view.texts';
 export {
+    REPORT_SETTINGS_FROM,
+    REPORT_SETTINGS_FROM_PARAM,
+    parseReportSettingsFrom,
+    reportSettingsHref,
+} from './lib/report-settings-nav';
+export type { ReportSettingsFrom } from './lib/report-settings-nav';
+export {
     useCanEditPortalView,
     useChartsEnabledSetting,
     useHiddenTabs,

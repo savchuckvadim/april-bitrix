@@ -8,6 +8,7 @@ export {
     columnLabelKey,
     eventLabelKey,
     isCallingBucketId,
+    planCodeOfLabelKey,
     planLabelKey,
 } from './indicator-label-keys';
 export type { CallingBucketId } from './indicator-label-keys';

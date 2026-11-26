@@ -8,6 +8,7 @@ import {
     eventLabelKey,
     isCallingBucketId,
     normalizeIndicatorName,
+    planCodeOfLabelKey,
     planLabelKey,
 } from '..';
 
@@ -27,6 +28,16 @@ describe('ключи своих названий', () => {
 
     it('колонка плана — plan: и код', () => {
         expect(planLabelKey('calls_over_30s')).toBe('plan:calls_over_30s');
+    });
+
+    it('код плана из ключа колонки плана; чужой ключ — null', () => {
+        expect(planCodeOfLabelKey('plan:calls_over_30s')).toBe('calls_over_30s');
+        expect(planCodeOfLabelKey(planLabelKey('presentations_done'))).toBe(
+            'presentations_done',
+        );
+        expect(planCodeOfLabelKey('ev:presentation_done')).toBeNull();
+        expect(planCodeOfLabelKey('call:30')).toBeNull();
+        expect(planCodeOfLabelKey('plan:')).toBeNull();
     });
 
     it('бакеты звонков — шесть длительностей', () => {

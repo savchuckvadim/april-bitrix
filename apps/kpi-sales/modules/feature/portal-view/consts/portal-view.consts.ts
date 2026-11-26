@@ -13,6 +13,9 @@ export const REPORT_SETTINGS_PATH = '/settings';
  */
 export const PORTAL_VIEW_INDICATOR_GROUPS = ['events', 'callings', 'plans'] as const;
 
+/** Предел длины своего названия показателя (после обрезки пробелов; тот же у бэка). */
+export const PORTAL_VIEW_LABEL_MAX_LENGTH = 60;
+
 /**
  * Безопасные значения до ответа бэка и при его сбое: ничего не скрыто,
  * графики есть, своих названий нет, колонки планов выключены.

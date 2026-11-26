@@ -20,7 +20,10 @@ export { loadPortalView, savePortalView } from './model/portal-view-thunks';
 export { portalViewActions } from './model/portal-view-slice';
 export { selectIndicatorLabeler } from './model/portal-view.selectors';
 export { publicViewLabels } from './lib/portal-view-labels-normalize';
-export { REPORT_SETTINGS_PATH } from './consts/portal-view.consts';
+export {
+    PORTAL_VIEW_LABEL_MAX_LENGTH,
+    REPORT_SETTINGS_PATH,
+} from './consts/portal-view.consts';
 export { PORTAL_VIEW_TEXT } from './consts/portal-view.texts';
 export {
     REPORT_SETTINGS_FROM,

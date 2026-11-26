@@ -139,6 +139,13 @@ const factDisplayName = (
 ): string => labelOf(spec.factLabelKey, factName);
 
 /**
+ * Подпись колонки плана по умолчанию: «План: <название факта для показа>».
+ * Её же страница настроек показывает подсказкой в поле названия колонки.
+ */
+export const defaultPlanColumnLabel = (factDisplayName: string): string =>
+    `${PLAN_COLUMN_LABEL_PREFIX}${factDisplayName}`;
+
+/**
  * Подпись колонки плана: своё название по `plan:<код>`, иначе
  * «План: <название факта>» (с учётом своего названия факта).
  */
@@ -149,7 +156,7 @@ export const planColumnLabel = (
 ): string =>
     labelOf(
         spec.labelKey,
-        `${PLAN_COLUMN_LABEL_PREFIX}${factDisplayName(spec, factName, labelOf)}`,
+        defaultPlanColumnLabel(factDisplayName(spec, factName, labelOf)),
     );
 
 /** Подсказка к шапке колонки плана (в Excel — заметка к шапке). */

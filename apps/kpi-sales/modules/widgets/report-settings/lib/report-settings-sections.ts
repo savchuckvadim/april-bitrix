@@ -6,7 +6,7 @@ import { REPORT_SETTINGS_TEXT } from '../consts/report-settings.texts';
  * страницы, а не адрес: форма одна на все разделы, «Сохранить» сохраняет всё.
  * Новый раздел добавляется сюда и в тексты (`REPORT_SETTINGS_TEXT.sections`).
  */
-export const REPORT_SETTINGS_SECTIONS = ['report', 'calls'] as const;
+export const REPORT_SETTINGS_SECTIONS = ['report', 'calls', 'indicators'] as const;
 export type ReportSettingsSection = (typeof REPORT_SETTINGS_SECTIONS)[number];
 
 /** Раздел, открытый при входе на страницу. */

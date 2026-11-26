@@ -18,6 +18,10 @@ describe('разделы настроек', () => {
         expect(REPORT_SETTINGS_DEFAULT_SECTION).toBe(REPORT_SETTINGS_SECTIONS[0]);
     });
 
+    it('«Показатели» — третьим, после вкладок и бейджей', () => {
+        expect([...REPORT_SETTINGS_SECTIONS]).toEqual(['report', 'calls', 'indicators']);
+    });
+
     it('разделы не повторяются', () => {
         expect(new Set(REPORT_SETTINGS_SECTIONS).size).toBe(
             REPORT_SETTINGS_SECTIONS.length,

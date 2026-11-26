@@ -9,6 +9,7 @@ import type {
     PlanIndicatorMeta,
     PlanTargetsByCode,
 } from '../model';
+import type { PlansLoadStatus } from '../model/plans-slice';
 import { expectedShare, planForRange } from './plan-period.util';
 import { PlanFactSources, planFact } from './plan-fact.util';
 
@@ -52,6 +53,20 @@ export const enabledIndicators = (
                 },
             ];
         });
+
+/**
+ * Коды включённых показателей, когда данные планов загружены. Не
+ * загружены (ещё не грузили, грузятся, ошибка) — null: «неизвестно»,
+ * а не «ничего не включено».
+ */
+export const loadedEnabledPlanCodes = (
+    status: PlansLoadStatus,
+    catalog: PlanIndicatorMeta[],
+    configs: PlanIndicatorConfig[],
+): ReadonlySet<string> | null =>
+    status === 'ready'
+        ? new Set(enabledIndicators(catalog, configs).map(item => item.code))
+        : null;
 
 /** Достижение одного сотрудника по включённым показателям. */
 export const buildUserAchievementCells = (

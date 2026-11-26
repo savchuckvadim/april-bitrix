@@ -15,6 +15,7 @@ import {
     setBadgeMain,
     setChartsEnabled,
     setTabVisible,
+    type ReportSettingsCatalog,
 } from '../report-settings-form';
 
 const badge = (id: string, mainByDefault: boolean): PortalViewBadgeOption => ({
@@ -28,6 +29,9 @@ const badge = (id: string, mainByDefault: boolean): PortalViewBadgeOption => ({
 
 /** a, b — по умолчанию видны сразу; c, d — нет. */
 const BADGES = [badge('a', true), badge('b', true), badge('c', false), badge('d', false)];
+
+/** Справочники формы: бейджи; каталог показателей — в тестах раздела «Показатели». */
+const CATALOG: ReportSettingsCatalog = { badges: BADGES, indicators: [] };
 
 const view = (patch: Partial<PortalViewSettings> = {}): PortalViewSettings => ({
     tabsHidden: [],
@@ -48,11 +52,32 @@ const mainIds = (form: ReturnType<typeof formFromView>) =>
 
 describe('formFromView — начальное состояние формы', () => {
     it('копирует настройки портала', () => {
-        const source = view({ tabsHidden: ['ai'], chartsEnabled: false, badgesMain: ['c'] });
+        const source = view({
+            tabsHidden: ['ai'],
+            chartsEnabled: false,
+            badgesMain: ['c'],
+            labels: { 'ev:presentation_plan': 'Назначенная презентация' },
+            plansEvents: true,
+            plansCallings: true,
+            planColumnsHidden: ['calls_done'],
+        });
         const form = formFromView(source);
-        expect(form).toEqual({ hiddenTabs: ['ai'], chartsEnabled: false, badgesMain: ['c'] });
+        expect(form).toEqual({
+            hiddenTabs: ['ai'],
+            chartsEnabled: false,
+            badgesMain: ['c'],
+            labels: { 'ev:presentation_plan': 'Назначенная презентация' },
+            plansEvents: true,
+            plansMerged: false,
+            plansCallings: true,
+            planColumnsHidden: ['calls_done'],
+        });
         form.hiddenTabs.push('x');
+        form.labels['call:30'] = 'Дозвоны';
+        form.planColumnsHidden.push('offers_sent');
         expect(source.tabsHidden).toEqual(['ai']);
+        expect(source.labels).toEqual({ 'ev:presentation_plan': 'Назначенная презентация' });
+        expect(source.planColumnsHidden).toEqual(['calls_done']);
     });
 
     it('бейджи: пустой badgesMain — набор по умолчанию', () => {
@@ -152,26 +177,26 @@ describe('бейджи — переключение', () => {
 describe('isFormDirty — есть что сохранять', () => {
     it('нетронутая форма не изменена', () => {
         const current = view({ tabsHidden: ['ai'], badgesMain: ['c'] });
-        expect(isFormDirty(current, formFromView(current), BADGES)).toBe(false);
+        expect(isFormDirty(current, formFromView(current), CATALOG)).toBe(false);
     });
 
     it('вкладки: сравнение без учёта порядка', () => {
         const current = view({ tabsHidden: ['ai', 'digest'] });
         const sameSet = { ...formFromView(current), hiddenTabs: ['digest', 'ai'] };
-        expect(isFormDirty(current, sameSet, BADGES)).toBe(false);
-        expect(isFormDirty(current, setTabVisible(sameSet, 'ai', true), BADGES)).toBe(true);
+        expect(isFormDirty(current, sameSet, CATALOG)).toBe(false);
+        expect(isFormDirty(current, setTabVisible(sameSet, 'ai', true), CATALOG)).toBe(true);
     });
 
     it('графики', () => {
         const current = view();
-        expect(isFormDirty(current, setChartsEnabled(formFromView(current), false), BADGES)).toBe(
+        expect(isFormDirty(current, setChartsEnabled(formFromView(current), false), CATALOG)).toBe(
             true,
         );
     });
 
     it('бейджи: изменение набора', () => {
         const current = view();
-        expect(isFormDirty(current, setBadgeMain(formFromView(current), BADGES, 'c', true), BADGES)).toBe(
+        expect(isFormDirty(current, setBadgeMain(formFromView(current), BADGES, 'c', true), CATALOG)).toBe(
             true,
         );
     });
@@ -186,15 +211,15 @@ describe('isFormDirty — есть что сохранять', () => {
         );
         // Явный список [b, a] равен набору по умолчанию по смыслу.
         expect(toggled.badgesMain).toEqual(['b', 'a']);
-        expect(isFormDirty(current, toggled, BADGES)).toBe(false);
+        expect(isFormDirty(current, toggled, CATALOG)).toBe(false);
     });
 
     it('бейджи: сброс при выбранном портале — изменение, при наборе по умолчанию — нет', () => {
         const chosen = view({ badgesMain: ['c', 'd'] });
-        expect(isFormDirty(chosen, resetBadgesToDefault(formFromView(chosen)), BADGES)).toBe(true);
+        expect(isFormDirty(chosen, resetBadgesToDefault(formFromView(chosen)), CATALOG)).toBe(true);
         const byDefault = view();
         expect(
-            isFormDirty(byDefault, resetBadgesToDefault(formFromView(byDefault)), BADGES),
+            isFormDirty(byDefault, resetBadgesToDefault(formFromView(byDefault)), CATALOG),
         ).toBe(false);
     });
 });
@@ -202,37 +227,37 @@ describe('isFormDirty — есть что сохранять', () => {
 describe('buildSaveBody — тело сохранения', () => {
     it('без изменений тело пустое', () => {
         const current = view({ tabsHidden: ['ai'] });
-        expect(buildSaveBody(current, formFromView(current), BADGES)).toEqual({});
+        expect(buildSaveBody(current, formFromView(current), CATALOG)).toEqual({});
     });
 
     it('уходят только изменённые поля', () => {
         const current = view();
         const form = setChartsEnabled(formFromView(current), false);
-        expect(buildSaveBody(current, form, BADGES)).toEqual({ chartsEnabled: false });
+        expect(buildSaveBody(current, form, CATALOG)).toEqual({ chartsEnabled: false });
     });
 
     it('вкладки: список скрытых кодов', () => {
         const current = view();
         const form = setTabVisible(setTabVisible(formFromView(current), 'digest', false), 'ai', false);
-        expect(buildSaveBody(current, form, BADGES)).toEqual({ tabsHidden: ['digest', 'ai'] });
+        expect(buildSaveBody(current, form, CATALOG)).toEqual({ tabsHidden: ['digest', 'ai'] });
     });
 
     it('вкладки: показали все — пустой список скрытых', () => {
         const current = view({ tabsHidden: ['digest'] });
         const form = setTabVisible(formFromView(current), 'digest', true);
-        expect(buildSaveBody(current, form, BADGES)).toEqual({ tabsHidden: [] });
+        expect(buildSaveBody(current, form, CATALOG)).toEqual({ tabsHidden: [] });
     });
 
     it('бейджи: явный набор в порядке показа', () => {
         const current = view();
         const form = setBadgeMain(formFromView(current), BADGES, 'd', true);
-        expect(buildSaveBody(current, form, BADGES)).toEqual({ badgesMain: ['a', 'b', 'd'] });
+        expect(buildSaveBody(current, form, CATALOG)).toEqual({ badgesMain: ['a', 'b', 'd'] });
     });
 
     it('бейджи: сброс на умолчание отправляет пустой список', () => {
         const current = view({ badgesMain: ['c', 'd'] });
         const form = resetBadgesToDefault(formFromView(current));
-        expect(buildSaveBody(current, form, BADGES)).toEqual({ badgesMain: [] });
+        expect(buildSaveBody(current, form, CATALOG)).toEqual({ badgesMain: [] });
     });
 
     it('всё сразу', () => {
@@ -241,7 +266,7 @@ describe('buildSaveBody — тело сохранения', () => {
         form = setTabVisible(form, 'finance', false);
         form = setChartsEnabled(form, false);
         form = setBadgeMain(form, BADGES, 'd', true);
-        expect(buildSaveBody(current, form, BADGES)).toEqual({
+        expect(buildSaveBody(current, form, CATALOG)).toEqual({
             tabsHidden: ['finance'],
             chartsEnabled: false,
             badgesMain: ['c', 'd'],
@@ -251,7 +276,7 @@ describe('buildSaveBody — тело сохранения', () => {
     it('тело не делит массивы с формой', () => {
         const current = view();
         const form = setTabVisible(formFromView(current), 'ai', false);
-        const body = buildSaveBody(current, form, BADGES);
+        const body = buildSaveBody(current, form, CATALOG);
         body.tabsHidden?.push('x');
         expect(form.hiddenTabs).toEqual(['ai']);
     });

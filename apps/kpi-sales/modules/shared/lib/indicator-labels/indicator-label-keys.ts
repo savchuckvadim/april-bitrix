@@ -37,6 +37,13 @@ export const callingLabelKey = (id: string | number): string =>
 export const planLabelKey = (code: string): string =>
     `${INDICATOR_LABEL_PREFIX.plan}${code}`;
 
+/** Код планового показателя из ключа колонки плана (`plan:<код>`); не ключ плана — null. */
+export const planCodeOfLabelKey = (key: string): string | null =>
+    key.startsWith(INDICATOR_LABEL_PREFIX.plan) &&
+    key.length > INDICATOR_LABEL_PREFIX.plan.length
+        ? key.slice(INDICATOR_LABEL_PREFIX.plan.length)
+        : null;
+
 /**
  * Ключ колонки, у которой код бывает и innerCode события, и id бакета
  * звонков (объединённый отчёт, строки Excel): id бакета — `call:`, иначе `ev:`.

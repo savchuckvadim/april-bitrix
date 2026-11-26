@@ -4,6 +4,7 @@ import {
     defaultIndicatorLabeler,
 } from '@/modules/shared/lib/indicator-labels';
 import {
+    defaultPlanColumnLabel,
     insertPlanColumns,
     planCellValue,
     planColumnHint,
@@ -216,6 +217,13 @@ describe('подпись и подсказка колонки плана', () =>
         });
         expect(planColumnLabel(presentations, 'Презентация проведена', labelOf)).toBe(
             'План',
+        );
+    });
+
+    it('подпись по умолчанию — та же, что у колонки без своего названия', () => {
+        expect(defaultPlanColumnLabel('Встреча')).toBe('План: Встреча');
+        expect(planColumnLabel(presentations, 'Встреча', defaultIndicatorLabeler)).toBe(
+            defaultPlanColumnLabel('Встреча'),
         );
     });
 

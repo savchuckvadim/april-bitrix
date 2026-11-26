@@ -1,6 +1,8 @@
 export { plansReducer } from './model/plans-slice';
 export { loadPlansData } from './model/plans-thunks';
 export { usePlansData } from './hooks/use-plans-data';
+// Включённые показатели планов без запуска загрузки (страница настроек отчёта)
+export { useLoadedEnabledPlanCodes } from './hooks/use-loaded-enabled-plan-codes';
 export { usePlanAchievement } from './hooks/use-plan-achievement';
 export { useHasUserPlans } from './hooks/use-has-user-plans';
 export { PlansSettingsControl } from './ui/PlansSettingsControl';
@@ -24,6 +26,7 @@ export { usePlanColumns } from './hooks/use-plan-columns';
 export type { PlanColumns } from './hooks/use-plan-columns';
 export {
     achievementByUser,
+    defaultPlanColumnLabel,
     insertPlanColumns,
     planCellValue,
     planColumnHint,

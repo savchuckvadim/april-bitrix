@@ -9,7 +9,10 @@ export interface StartAction {
     description: string;
     icon: ComponentType<{ className?: string }>;
     tone: Tone;
-    /** Экран ещё ждёт API — плитка ведёт на честное «скоро». */
+    /**
+     * Вход закрыт: плитка неактивна, с подписью «скоро», перехода нет.
+     * Сам экран по прямому адресу открывается как раньше.
+     */
     soon: boolean;
 }
 
@@ -31,7 +34,7 @@ export const START_ACTIONS: StartAction[] = [
             'Предложения по действующим акциям: комплект и цены уже собраны.',
         icon: BadgePercent,
         tone: 'info',
-        soon: false,
+        soon: true,
     },
     {
         route: ROUTE_KONSTRUCTOR.PARAMS,
@@ -42,3 +45,7 @@ export const START_ACTIONS: StartAction[] = [
         soon: false,
     },
 ];
+
+/** Куда ведёт плитка; у закрытой («скоро») перехода нет. */
+export const startActionRoute = (action: StartAction): ROUTE_KONSTRUCTOR | null =>
+    action.soon ? null : action.route;

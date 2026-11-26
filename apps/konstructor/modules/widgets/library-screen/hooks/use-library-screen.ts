@@ -1,15 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import {
     fetchLibrary,
+    fetchLibraryAuthors,
     filterLibraryItems,
+    foreignAuthorIds,
+    libraryItemAuthorLabel,
     loadFromLibrary,
     patchLibraryItem,
     removeLibraryItem,
+    selectLibraryAuthorNames,
     selectLibraryItems,
     selectLibraryStatus,
+    type LibraryItem,
     type LibraryKind,
     type LibraryScopeFilter,
     type LibraryVisibility,
@@ -25,6 +30,7 @@ export const useLibraryScreen = (kind: LibraryKind) => {
     const nav = useKonstructorNavigation();
     const items = useAppSelector(selectLibraryItems);
     const status = useAppSelector(selectLibraryStatus);
+    const authorNames = useAppSelector(selectLibraryAuthorNames);
     const error = useAppSelector(state => state.library.error);
     const loadingId = useAppSelector(state => state.library.loadingId);
     const userId = useAppSelector(state => Number(state.app.bitrix.user?.ID) || null);
@@ -34,6 +40,16 @@ export const useLibraryScreen = (kind: LibraryKind) => {
     useEffect(() => {
         if (status === 'idle') void dispatch(fetchLibrary());
     }, [status, dispatch]);
+
+    // имена авторов чужих заготовок спрашиваем одним запросом на весь экран
+    const authorIds = useMemo(
+        () => foreignAuthorIds(items.filter(item => item.kind === kind), userId),
+        [items, kind, userId],
+    );
+
+    useEffect(() => {
+        if (status === 'ready' && authorIds.length) void dispatch(fetchLibraryAuthors(authorIds));
+    }, [status, authorIds, dispatch]);
 
     const visible = filterLibraryItems(items, kind, scope, userId);
 
@@ -51,6 +67,7 @@ export const useLibraryScreen = (kind: LibraryKind) => {
         scope,
         setScope,
         loadingId,
+        authorLabel: (item: LibraryItem) => libraryItemAuthorLabel(item, userId, authorNames),
         load,
         rename: (id: number, title: string) => dispatch(patchLibraryItem(id, { title })),
         setVisibility: (id: number, visibility: LibraryVisibility) =>

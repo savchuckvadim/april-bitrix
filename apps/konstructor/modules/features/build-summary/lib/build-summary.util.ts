@@ -7,6 +7,7 @@ import {
     type RowSet,
     type RowSetContext,
 } from '@/modules/entities/row-set';
+import { formatRub } from '@/modules/shared/lib/money';
 
 export interface SummaryFact {
     label: string;
@@ -37,9 +38,6 @@ export interface SummaryTotal {
     note: string | null;
     itemsCount: number;
 }
-
-export const formatRub = (value: number): string =>
-    `${value.toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ₽`;
 
 /**
  * Сводка главной строки (легаси ResultContainer): комплект, вес, доступы,

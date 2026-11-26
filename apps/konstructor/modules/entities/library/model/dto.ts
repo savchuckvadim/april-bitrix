@@ -12,7 +12,29 @@ import type {
  * Библиотека заготовок (избранное + акции) — алиасы generated DTO
  * (паттерн CLAUDE.md): UI/thunks используют только их.
  */
-export type LibraryItem = InnerDealLibraryItemDto;
+
+/**
+ * Состав заготовки для карточки. Бэк присылает его в каждом элементе списка;
+ * сгенерированный клиент поля ещё не знает, поэтому форма описана здесь по
+ * образцу репо (после `pnpm run generate` останется сменить импорт).
+ * Старый бэк поля не отдаёт — везде работаем с `undefined`.
+ */
+export interface LibraryItemSummary {
+    /** Комплект: «Гарант-Юрист» */
+    complect: string | null;
+    /** Поставка: «Интернет 1 ОД» */
+    supply: string | null;
+    /** Договор: «Лицензионный полгода» */
+    contract: string | null;
+    /** Итог общего набора, ₽ */
+    sum: number | null;
+    /** Строк в общем наборе */
+    rowsCount: number;
+}
+
+export type LibraryItem = InnerDealLibraryItemDto & {
+    summary?: LibraryItemSummary | null;
+};
 export type LibraryKind = InnerDealLibraryItemDtoKind;
 export type LibraryVisibility = InnerDealLibraryItemDtoVisibility;
 export type LibraryRights = InnerDealLibraryRightsDto;

@@ -8,13 +8,16 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
     LIBRARY_VISIBILITY_TITLE,
-    libraryItemSource,
+    libraryItemMetaLines,
     libraryItemTitle,
     type LibraryItem,
 } from '@/modules/entities/library';
+import { LibraryItemMeta } from './LibraryItemMeta';
 
 interface LibraryItemCardProps {
     item: LibraryItem;
+    /** «Автор: Имя Фамилия» — только на чужих заготовках, когда имя известно */
+    authorLabel?: string;
     busy: boolean;
     onLoad: () => void;
     onRename: (title: string) => void;
@@ -25,6 +28,7 @@ interface LibraryItemCardProps {
 /** Плитка заготовки: клик — в конструктор; свои — переименовать/архив/удалить. */
 export const LibraryItemCard = ({
     item,
+    authorLabel,
     busy,
     onLoad,
     onRename,
@@ -34,6 +38,7 @@ export const LibraryItemCard = ({
     const [editing, setEditing] = useState(false);
     const [draft, setDraft] = useState(libraryItemTitle(item));
     const isPromotion = item.kind === 'promotion';
+    const metaLines = libraryItemMetaLines(item, authorLabel);
 
     const commit = () => {
         if (draft.trim()) onRename(draft.trim());
@@ -66,7 +71,7 @@ export const LibraryItemCard = ({
                     icon={isPromotion ? BadgePercent : Star}
                     tone={isPromotion ? 'info' : 'warning'}
                     title={libraryItemTitle(item)}
-                    description={libraryItemSource(item)}
+                    description={metaLines.length ? <LibraryItemMeta lines={metaLines} /> : undefined}
                     disabled={busy}
                     badge={
                         <ToneBadge tone="muted" variant="soft">

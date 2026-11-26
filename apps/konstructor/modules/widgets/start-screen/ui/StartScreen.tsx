@@ -30,7 +30,8 @@ export const StartScreen = () => {
                                 </ToneBadge>
                             ) : null
                         }
-                        onClick={() => start.open(action.route)}
+                        disabled={action.soon}
+                        onClick={() => start.open(action)}
                     />
                 ))}
             </div>

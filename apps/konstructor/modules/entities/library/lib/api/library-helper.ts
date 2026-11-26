@@ -16,6 +16,7 @@ import type {
 export class LibraryHelper {
     private api = getKonstructorDealLibrary();
 
+    /** Элементы приходят с составом (summary) — типы клиента его ещё не описывают, см. LibraryItem. */
     async list(domain: string, userId: number, kind?: LibraryKind): Promise<LibraryItem[]> {
         return this.api.innerDealLibraryList({ domain, userId, kind });
     }

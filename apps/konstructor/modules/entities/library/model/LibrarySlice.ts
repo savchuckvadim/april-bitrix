@@ -16,6 +16,10 @@ export interface LibraryState {
     actionError: string | null;
     /** Загрузка заготовки в конструктор (id в работе) */
     loadingId: number | null;
+    /** Имена авторов чужих заготовок: id Битрикса → «Имя Фамилия» */
+    authorNames: Record<number, string>;
+    /** Чьи имена уже спрашивали у портала (повторно не просим) */
+    authorsRequested: number[];
 }
 
 const initialState: LibraryState = {
@@ -26,6 +30,8 @@ const initialState: LibraryState = {
     actionStatus: 'idle',
     actionError: null,
     loadingId: null,
+    authorNames: {},
+    authorsRequested: [],
 };
 
 const librarySlice = createSlice({
@@ -73,6 +79,16 @@ const librarySlice = createSlice({
         loadingItem(state: LibraryState, action: PayloadAction<number | null>) {
             state.loadingId = action.payload;
         },
+        authorsRequested(state: LibraryState, action: PayloadAction<number[]>) {
+            state.authorsRequested.push(...action.payload);
+        },
+        authorsLoaded(state: LibraryState, action: PayloadAction<Record<number, string>>) {
+            Object.assign(state.authorNames, action.payload);
+        },
+        /** Запрос имён не удался: id снова можно спросить при следующем заходе на экран */
+        authorsReleased(state: LibraryState, action: PayloadAction<number[]>) {
+            state.authorsRequested = state.authorsRequested.filter(id => !action.payload.includes(id));
+        },
     },
 });
 
@@ -86,3 +102,4 @@ interface WithLibrary {
 export const selectLibraryItems = (state: WithLibrary) => state.library.items;
 export const selectLibraryStatus = (state: WithLibrary) => state.library.status;
 export const selectLibraryRights = (state: WithLibrary) => state.library.rights;
+export const selectLibraryAuthorNames = (state: WithLibrary) => state.library.authorNames;

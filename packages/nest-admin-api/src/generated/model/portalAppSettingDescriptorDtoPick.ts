@@ -7,7 +7,7 @@
  */
 
 /**
- * Значение — сотрудники портала: bitrix-users — Bitrix-id через запятую, bitrix-user — один Bitrix-id (0 — никто). Админка рисует выбор сотрудников по ручке admin/portal/:id/employees.
+ * Чем заполняется значение. bitrix-users — Bitrix-id сотрудников через запятую, bitrix-user — один Bitrix-id (0 — никто): админка рисует выбор сотрудников по ручке admin/portal/:id/employees. bitrix-deal-fields / bitrix-company-fields / bitrix-lead-fields — имена полей сущности портала (UF_CRM_…) через запятую: выбор из живых полей по ручке admin/portal/:id/questionnaire-fields.
  */
 export type PortalAppSettingDescriptorDtoPick = typeof PortalAppSettingDescriptorDtoPick[keyof typeof PortalAppSettingDescriptorDtoPick];
 
@@ -16,4 +16,7 @@ export type PortalAppSettingDescriptorDtoPick = typeof PortalAppSettingDescripto
 export const PortalAppSettingDescriptorDtoPick = {
   'bitrix-users': 'bitrix-users',
   'bitrix-user': 'bitrix-user',
+  'bitrix-deal-fields': 'bitrix-deal-fields',
+  'bitrix-company-fields': 'bitrix-company-fields',
+  'bitrix-lead-fields': 'bitrix-lead-fields',
 } as const;

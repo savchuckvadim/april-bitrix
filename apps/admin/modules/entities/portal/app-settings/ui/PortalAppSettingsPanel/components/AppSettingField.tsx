@@ -16,6 +16,8 @@ import type {
     PortalAppSettingDescriptor,
     PortalAppSettingValue,
 } from '../../../model';
+import { bitrixFieldEntityOf } from '../../../lib/setting-bitrix-fields';
+import { AppSettingBitrixFieldsField } from './AppSettingBitrixFieldsField';
 import { AppSettingChoiceField } from './AppSettingChoiceField';
 import { AppSettingEmployeeField } from './AppSettingEmployeeField';
 import { AppSettingListField } from './AppSettingListField';
@@ -81,6 +83,8 @@ export const AppSettingField = ({
         draft !== undefined
             ? draft !== null
             : (descriptor.stored ?? descriptor.value !== null);
+    // Выбор полей портала (`bitrix-*-fields`) — свой виджет, не сотрудники.
+    const fieldEntity = bitrixFieldEntityOf(descriptor.pick);
 
     return (
         // id — якорь `#setting-<код>` для ссылок путеводителя и хуков.
@@ -104,7 +108,16 @@ export const AppSettingField = ({
                 </span>
             </div>
 
-            {descriptor.pick && portalId !== undefined ? (
+            {fieldEntity && portalId !== undefined ? (
+                /* Поля портала: выбор из живых полей сущности вместо
+                   UF-имён руками. */
+                <AppSettingBitrixFieldsField
+                    portalId={portalId}
+                    entity={fieldEntity}
+                    value={effective}
+                    onChange={onChange}
+                />
+            ) : descriptor.pick && portalId !== undefined ? (
                 /* Сотрудники портала: выбор из списка с должностью и
                    отделом вместо Bitrix-id цифрами. */
                 <AppSettingEmployeeField

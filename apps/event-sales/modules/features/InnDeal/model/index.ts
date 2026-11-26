@@ -20,6 +20,8 @@ export type InnSourceKind =
     | 'contact_requisite'
     | 'manual'
     | 'deal_field'
+    /** Свои (старые) поля ИНН сделки — из настройки портала. */
+    | 'deal_card'
     | 'deal_pool'
     | 'company_field'
     | 'lead_field'

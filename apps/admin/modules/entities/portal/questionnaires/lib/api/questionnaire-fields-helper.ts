@@ -13,6 +13,7 @@ import type {
     QuestionnaireFieldsQuery,
     QuestionnaireFieldsResponse,
 } from '../../model';
+import { buildFieldsListParams } from '../fields-list-params';
 
 /**
  * Сколько ждём создание поля.
@@ -61,17 +62,20 @@ export class QuestionnaireFieldsHelper {
      *
      * Пустые параметры собираются, а не передаются как есть: `onlyManual`
      * бэк читает как флаг, и `onlyManual=false` в строке запроса означал бы
-     * то же самое, что его отсутствие, — но плодил бы второй ключ кэша.
+     * то же самое, что его отсутствие, — но плодил бы второй ключ кэша
+     * (см. `buildFieldsListParams`).
      */
     getFields(
         portalId: number,
         query: QuestionnaireFieldsQuery,
     ): Promise<QuestionnaireFieldsResponse> {
-        return this.fieldsApi.questionnaireFieldsListFields(portalId, {
-            entity: query.entity,
-            ...(query.smartId ? { smartId: query.smartId } : {}),
-            ...(query.onlyManual ? { onlyManual: true } : {}),
-        });
+        // Не литерал в вызове: `withItems` нет в generated-параметрах (см.
+        // QuestionnaireFieldsQuery), а axios отдаёт объект в строку запроса
+        // целиком.
+        return this.fieldsApi.questionnaireFieldsListFields(
+            portalId,
+            buildFieldsListParams(query),
+        );
     }
 
     /**

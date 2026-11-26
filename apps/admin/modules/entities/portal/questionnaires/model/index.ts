@@ -139,8 +139,16 @@ export type QuestionnaireFieldsResponse = QuestionnaireFieldsResponseDto;
  * `smartId` здесь НЕ nullable, в отличие от `QuestionnaireFieldSource.smartId`
  * из `/sources`: у штатной сущности идентификатора смарта нет, и в query он
  * не уходит вовсе. Вызывающий обязан отдать `undefined`, а не `null`.
+ *
+ * `withItems` дописан руками: флаг появился на бэке после последнего
+ * прогона orval, а общий пакет ради одного поля не трогаем (его правка
+ * пересобирает все приложения). После `pnpm run generate` поле придёт в
+ * `QuestionnaireFieldsListFieldsParams`, и пересечение станет лишним.
  */
-export type QuestionnaireFieldsQuery = QuestionnaireFieldsListFieldsParams;
+export type QuestionnaireFieldsQuery = QuestionnaireFieldsListFieldsParams & {
+    /** false — без элементов полей-списков: секунды вместо минут на старом портале. */
+    withItems?: boolean;
+};
 
 // ------------------------------------------------------------------
 // Создание поля в носителе (POST /questionnaire-fields)

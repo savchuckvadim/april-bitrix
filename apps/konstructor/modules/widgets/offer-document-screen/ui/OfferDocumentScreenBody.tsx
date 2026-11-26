@@ -11,9 +11,9 @@ import {
 } from '@workspace/ui/components/tabs';
 import { BuildSummary } from '@/modules/features/build-summary';
 import {
-    InvoiceOptions,
     OfferGenerateButton,
-    RecipientFields,
+    OfferParties,
+    OfferPartiesSummary,
 } from '@/modules/features/offer-form';
 import { ZakupkiCard } from '@/modules/features/zakupki-offer';
 import {
@@ -38,8 +38,10 @@ export interface OfferDocumentScreenBodyProps {
 
 /**
  * Экран КП: сверху — как собрать КП (Word-шаблон или встроенный PDF), под ним
- * вкладки «Настройка» (шаблон, получатель, счёт) и «Превью» — превью
- * собирается при открытии вкладки. Справа — сводка сборки и «Сформировать».
+ * «Кому» и «От кого и счёт» (видны на обеих вкладках), ниже вкладки
+ * «Настройка» (оформление: шаблон, стиль, письмо) и «Превью» — превью
+ * собирается при открытии вкладки. Справа — сводка сборки, короткая сводка
+ * «Кому / От кого / Счёт» и «Сформировать».
  */
 export const OfferDocumentScreenBody = ({
     zakupkiEnabled,
@@ -55,8 +57,8 @@ export const OfferDocumentScreenBody = ({
                 title="Коммерческое предложение"
                 description={
                     isPdf
-                        ? 'Встроенный PDF-шаблон, получатель, письмо и счёт. Превью обновляется само — проверьте и сформируйте файл.'
-                        : 'Word-шаблон, получатель и счёт. Проверьте превью и сформируйте документ в сделку.'
+                        ? 'Кому и от кого идёт КП и нужен ли счёт — наверху. Стиль и письмо — во вкладке «Настройка». Превью обновляется само: проверьте и сформируйте файл.'
+                        : 'Кому и от кого идёт КП и нужен ли счёт — наверху. Word-шаблон — во вкладке «Настройка». Проверьте превью и сформируйте документ в сделку.'
                 }
                 actions={
                     <Button variant="ghost" onClick={toHub}>
@@ -79,12 +81,15 @@ export const OfferDocumentScreenBody = ({
                         }
                     >
                         <BuildSummary />
+                        <OfferPartiesSummary />
                     </SectionCard>
                 }
             >
                 <div className="flex flex-col gap-4">
                     {/* способ сборки решает, что вообще настраивать и что превьюить, — над вкладками */}
                     <OfferDocumentFormatSwitch />
+                    {/* кому, от кого и счёт важнее оформления: сразу под переключателем, на обеих вкладках */}
+                    <OfferParties />
                     <Tabs
                         value={tabs.tab}
                         onValueChange={tabs.select}
@@ -111,10 +116,6 @@ export const OfferDocumentScreenBody = ({
                             ) : (
                                 <WordTemplateMenu isWord />
                             )}
-                            <div className="grid gap-4 xl:grid-cols-2">
-                                <RecipientFields />
-                                <InvoiceOptions />
-                            </div>
                             {zakupkiEnabled && !isPdf ? <ZakupkiCard /> : null}
                         </TabsContent>
                         <TabsContent value="preview">
@@ -123,7 +124,7 @@ export const OfferDocumentScreenBody = ({
                                 description={
                                     isPdf
                                         ? 'Так будет выглядеть документ. Меняйте настройки — превью пересоберётся.'
-                                        : 'Как КП будет выглядеть по выбранному шаблону. После правок на «Настройке» соберётся заново.'
+                                        : 'Как КП будет выглядеть по выбранному шаблону. После правок в шаблоне, получателе или счёте соберётся заново.'
                                 }
                                 tone="complect"
                             >

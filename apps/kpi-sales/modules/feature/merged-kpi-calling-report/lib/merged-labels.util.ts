@@ -29,6 +29,8 @@ export const getMergedColumnLabels = (
 
 /** Колонка итога объединённой таблицы. */
 export interface MergedTotalColumn {
+    /** Код колонки (innerCode события или id бакета) — к нему цепляется итог плана. */
+    code?: string;
     /** Выводимое название. */
     name: string;
     value: number;
@@ -46,6 +48,7 @@ export const getMergedTotalColumns = (
     (rows[0]?.actions ?? [])
         .filter(action => isMergedSelected(selectedActions, action.name))
         .map(action => ({
+            code: action.code,
             name: indicatorColumnLabel(action, labelOf),
             value: rows.reduce(
                 (sum, row) =>

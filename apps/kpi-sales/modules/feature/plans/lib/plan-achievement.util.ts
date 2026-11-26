@@ -114,6 +114,19 @@ export const planExpectedShare = (fromISO: string, toISO: string): number =>
     expectedShare(fromISO, toISO);
 
 /**
+ * Чьи планы видны: с PLANS_VIEW_ALL — все сотрудники отчёта, рядовому —
+ * только его собственная строка.
+ */
+export const planScopeUserIds = (
+    visibleUserIds: readonly number[],
+    canViewAll: boolean,
+    currentUserId: number,
+): number[] =>
+    canViewAll
+        ? [...visibleUserIds]
+        : visibleUserIds.filter(id => id === currentUserId);
+
+/**
  * Только сотрудники, у которых задан хотя бы один план: остальные в
  * отчёте планов не участвуют (ни в таблицах, ни в Excel).
  */

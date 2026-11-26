@@ -14,10 +14,28 @@ export {
     buildUserAchievementCells,
     enabledIndicators,
     planExpectedShare,
+    planScopeUserIds,
     rowsWithAnyPlan,
 } from './lib/plan-achievement.util';
 export type { PlanFactSources } from './lib/plan-fact.util';
 export { usePlanAnnotations } from './hooks/use-plan-annotations';
+// Колонки планов слева от факта: таблицы вкладок, итоги, строки Excel
+export { usePlanColumns } from './hooks/use-plan-columns';
+export type { PlanColumns } from './hooks/use-plan-columns';
+export {
+    achievementByUser,
+    insertPlanColumns,
+    planCellValue,
+    planColumnHint,
+    planColumnLabel,
+    tablePlanColumnSpecs,
+} from './lib/plan-columns.util';
+export type {
+    PlanColumnSpec,
+    PlanColumnsGate,
+    PlanColumnValue,
+} from './lib/plan-columns.util';
+export type { PlanColumnsTab } from './lib/plan-columns.consts';
 export { usePlansVisibility } from './hooks/use-plans-visibility';
 export { PLANS_BLOCK_ID } from './lib/plans.data';
 export type {

@@ -4,7 +4,8 @@
  * данных таблиц: `${userId}:${innerCode}` (kpi/merged) и
  * `${userId}:${bucketId}` (звонки). Строятся только для показателей
  * соответствующего источника и только по видимым пользователям
- * (рядовой — только своя строка).
+ * (рядовой — только своя строка). У показателя с колонкой плана на этой
+ * вкладке план уже виден колонкой — подстрока только «⌖ %».
  */
 import type { RTableAnnotation } from '@workspace/april-ui';
 import type { PlanFactSource } from '../model';
@@ -28,22 +29,28 @@ const TONE_TEXT_CLASS: Record<string, string> = {
 
 /**
  * Карта план-аннотаций для источника (kpi → основные таблицы событий/
- * объединённого; calling → таблица звонков).
+ * объединённого; calling → таблица звонков). planColumnCodes — коды
+ * плановых показателей, у которых на вкладке есть колонка плана: их
+ * подстрока — только процент, подсказка — полная.
  */
 export const buildPlanAnnotations = (
     source: PlanFactSource,
     indicators: EnabledPlanIndicator[],
     rows: PlanAchievementRow[],
     expected: number,
+    planColumnCodes: ReadonlySet<string> = new Set(),
 ): Map<string, RTableAnnotation> => {
     const annotations = new Map<string, RTableAnnotation>();
     indicators.forEach((indicator, index) => {
         if (indicator.factSource !== source) return;
+        const withColumn = planColumnCodes.has(indicator.code);
         rows.forEach(row => {
             const cell = row.cells[index];
             if (!cell || cell.plan === null) return;
             annotations.set(`${row.userId}:${indicator.factKey}`, {
-                text: `⌖ ${formatPlanValue(cell.plan, indicator.unit)} · ${formatPlanPercent(cell.percent)}`,
+                text: withColumn
+                    ? `⌖ ${formatPlanPercent(cell.percent)}`
+                    : `⌖ ${formatPlanValue(cell.plan, indicator.unit)} · ${formatPlanPercent(cell.percent)}`,
                 className:
                     TONE_TEXT_CLASS[planTone(cell.percent, expected)] ??
                     'text-muted-foreground',

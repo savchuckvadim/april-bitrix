@@ -1,18 +1,11 @@
 'use client'
 import React, { useMemo } from 'react';
+import type { RTableAction } from '@workspace/april-ui';
 import {
-    Table as ShadcnTable,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@workspace/ui/components/table';
-import { Card } from '@workspace/ui/components/card';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@workspace/ui/components/tooltip';
-import { RTABLE_HEADER_TEXT_CLASS } from '@workspace/april-ui';
-import { cn } from '@workspace/ui/lib/utils';
-import { RTableProps } from '@/modules/shared';
+    ReportTotalTable,
+    type RTableProps,
+    type TableTotalsDecorator,
+} from '@/modules/shared';
 import type { IndicatorLabeler } from '@/modules/shared/lib/indicator-labels';
 import { getMergedTotalColumns } from '../lib/merged-labels.util';
 
@@ -23,68 +16,28 @@ interface MergedReportTotalTableProps {
     selectedActions: string[];
     /** Выводимые названия колонок. */
     labelOf: IndicatorLabeler;
+    /** Дополнение итога колонками (итог плана слева от итога факта); нет — как есть. */
+    withPlanTotals?: TableTotalsDecorator;
 }
 
 export const MergedReportTotalTable: React.FC<MergedReportTotalTableProps> = ({
     data,
     selectedActions,
     labelOf,
+    withPlanTotals,
 }) => {
-    // Общие суммы по каждому показателю (название — выводимое)
-    const totals = useMemo(
-        () => getMergedTotalColumns(data ?? [], selectedActions, labelOf),
-        [data, selectedActions, labelOf],
-    );
+    // Общие суммы по каждому показателю (название — выводимое; + итог плана)
+    const columns = useMemo(() => {
+        const rows = data ?? [];
+        const totals: RTableAction[] = getMergedTotalColumns(
+            rows,
+            selectedActions,
+            labelOf,
+        );
+        if (!withPlanTotals) return totals;
+        const userIds = rows.flatMap(row => (row.id === undefined ? [] : [row.id]));
+        return withPlanTotals(totals, userIds);
+    }, [data, selectedActions, labelOf, withPlanTotals]);
 
-    if (totals.length === 0) {
-        return null;
-    }
-
-    return (
-        <Card className="my-4 p-4 bg-popover text-primary">
-            <ShadcnTable className="bg-popover text-primary">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[190px] bg-popover text-primary font-bold">
-                            Показатель
-                        </TableHead>
-                        {totals.map((action, i) => (
-                            <Tooltip
-                                key={`tooltip-total-head-${i}`}
-                            >
-                                <TooltipTrigger asChild>
-                                    <TableHead
-                                        key={`head-total-${i}`}
-                                        className="text-right bg-popover text-primary font-bold"
-                                    >
-                                        <span className={cn('ml-auto', RTABLE_HEADER_TEXT_CLASS)}>
-                                            {action.name}
-                                        </span>
-                                    </TableHead>
-                                </TooltipTrigger>
-                                <TooltipContent className="text-xs">
-                                    {action.name}
-                                </TooltipContent>
-                            </Tooltip>
-                        ))}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <TableRow className="bg-muted/50">
-                        <TableCell className="font-bold text-lg">
-                            Итого
-                        </TableCell>
-                        {totals.map((action, index) => (
-                            <TableCell
-                                key={`cell-total-${index}`}
-                                className="text-right font-bold text-lg"
-                            >
-                                {action.value}
-                            </TableCell>
-                        ))}
-                    </TableRow>
-                </TableBody>
-            </ShadcnTable>
-        </Card>
-    );
+    return <ReportTotalTable columns={columns} />;
 };

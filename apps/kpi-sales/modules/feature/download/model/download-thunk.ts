@@ -14,18 +14,19 @@ import {
     EReportType,
     REPORT_TYPE_LABELS,
 } from '../../report-widget-type/consts/report-type.consts';
-import { checkAccess, EAccessFeature } from '@/modules/shared/access';
-import { selectAccessContext } from '@/modules/app/lib/access/use-access';
-import { financeEmployeeName } from '@/modules/entities/finance';
 import {
+    achievementByUser,
     buildPlansExcelPayload,
-    buildUserAchievementCells,
-    enabledIndicators,
     PLANS_BLOCK_ID,
     rowsWithAnyPlan,
-    type PlanFactSources,
 } from '../../plans';
 import { DownloadHelper } from '../lib/api/download-helper';
+import {
+    hasExcelPlanColumns,
+    withExcelPlanColumns,
+} from '../lib/excel-plan-columns.util';
+import { selectExcelPlanColumnSpecs, selectExcelPlansContext } from './excel-plans';
+import type { ExcelReportRequest } from './excel-report.types';
 import { buildReportStructure } from '../lib/build-report-structure.util';
 import { buildFinanceExcelPayload } from '../lib/finance-excel.util';
 import { buildConversionResult } from '../../report-conversions/lib/conversion-calc.util';
@@ -182,75 +183,56 @@ export const getDownload =
                           )
                         : undefined;
 
-                // ПЛАНЫ (зеркало UI): только при доступе PLANS_VIEW, настроенных
-                // показателях и видимом блоке «Планы» (его тумблер = настройка
-                // «показать/скрыть» рядового); рядовой — только своя строка.
-                const accessCtx = selectAccessContext(state);
-                const plansVisible =
-                    checkAccess(EAccessFeature.PLANS_VIEW, accessCtx) &&
-                    getBlockState(PLANS_BLOCK_ID).isVisible;
-                const planIndicators = enabledIndicators(
-                    state.plans.catalog,
-                    state.plans.indicators,
+                // ПЛАНЫ (зеркало UI): доступ PLANS_VIEW, настроенные показатели;
+                // рядовой — только своя строка.
+                const planContext = selectExcelPlansContext(
+                    state,
+                    report,
+                    callingsReport ?? [],
+                    reportRows.map(row => Number(row.id)),
                 );
+                // Последние шаги строк: свои названия, затем колонки планов
+                // (по флагу таблицы в настройках портала; вкладка «Звонки»
+                // выгружает таблицу событий — флаг «Все»/«События»).
+                const excelRows = withExcelPlanColumns(
+                    labelExcelRows(reportRows, labelOf),
+                    selectExcelPlanColumnSpecs(
+                        state,
+                        isMerged ? 'merged' : 'events',
+                        planContext,
+                    ),
+                    achievementByUser(planContext.rows),
+                    labelOf,
+                );
+                // Лист «Планы» — при видимом блоке «Планы» (его тумблер =
+                // настройка «показать/скрыть» рядового). Строки «— план» под
+                // сотрудниками — только если план не стоит колонками.
                 let plans: DownLoadKpiReportDto['plans'];
-                if (plansVisible && planIndicators.length) {
-                    const canViewAll = checkAccess(
-                        EAccessFeature.PLANS_VIEW_ALL,
-                        accessCtx,
-                    );
-                    const currentUserId = Number(
-                        state.department.currentUser?.userId ?? 0,
-                    );
-                    const visibleIds = reportRows.map(row => Number(row.id));
-                    const scopedIds = canViewAll
-                        ? visibleIds
-                        : visibleIds.filter(id => id === currentUserId);
-                    const factSources: PlanFactSources = {
-                        report,
-                        callings: callingsReport ?? [],
-                        airtime: state.airtime.team.data,
-                        financeEmployees:
-                            state.finance.closed.report?.employees ?? [],
-                    };
+                if (
+                    planContext.canView &&
+                    planContext.indicators.length &&
+                    getBlockState(PLANS_BLOCK_ID).isVisible
+                ) {
                     // Сотрудники без единого плана в лист «Планы» не попадают.
-                    const planRows = rowsWithAnyPlan(
-                        scopedIds.map(userId => ({
-                            userId,
-                            userName: financeEmployeeName(
-                                state.department.items,
-                                userId,
-                            ),
-                            cells: buildUserAchievementCells(
-                                planIndicators,
-                                state.plans.targetsByUser[userId],
-                                factSources,
-                                userId,
-                                date.from,
-                                date.to,
-                            ),
-                        })),
-                    );
                     plans = (buildPlansExcelPayload(
-                        planIndicators,
-                        planRows,
+                        planContext.indicators,
+                        rowsWithAnyPlan(planContext.rows),
                         buildConversionSectionSources(
                             state.department.departments,
                             state.department.isMulti,
                         ),
-                        true,
+                        !hasExcelPlanColumns(excelRows),
                     ) ?? undefined) as DownLoadKpiReportDto['plans'];
                 }
 
                 const data = {
-                    // Последний шаг: заголовки колонок — свои названия
-                    report: labelExcelRows(reportRows, labelOf),
+                    report: excelRows,
                     type,
                     date,
                     structure,
                     conversions,
                     plans,
-                } as DownLoadKpiReportDto;
+                } as ExcelReportRequest;
 
 
 

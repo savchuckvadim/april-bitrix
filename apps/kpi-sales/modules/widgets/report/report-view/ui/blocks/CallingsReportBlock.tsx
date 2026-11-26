@@ -19,7 +19,7 @@ import { useIndicatorLabeler } from '@/modules/feature/portal-view';
 import { labelTableData } from '@/modules/shared';
 import { ConversionTableSettings } from '@/modules/feature/report-conversions/ui/ConversionTableSettings';
 import { useTableConversionAnnotations } from '@/modules/feature/report-conversions/hooks/use-conversions.hook';
-import { usePlanAnnotations } from '@/modules/feature/plans';
+import { usePlanAnnotations, usePlanColumns } from '@/modules/feature/plans';
 import { RatingFooter } from './RatingFooter';
 
 /**
@@ -41,8 +41,16 @@ export const CallingsReportBlock = ({
     );
     // У звонков id лежит в user.ID (callingRowUserId), не в userId!
     const presentUserIds = (callingsReport ?? []).map(callingRowUserId);
-    // План-аннотации по звонковым показателям (бакеты >30с/>60с).
-    const planAnnotations = usePlanAnnotations(['calling'], presentUserIds);
+    // Колонки планов слева от бакета (настройка портала «Звонки»;
+    // undefined — выключены).
+    const planColumns = usePlanColumns('callings', presentUserIds);
+    // План-аннотации по звонковым показателям (бакеты >30с/>60с); у
+    // показателя с колонкой плана — только «⌖ %».
+    const planAnnotations = usePlanAnnotations(
+        ['calling'],
+        presentUserIds,
+        planColumns?.planCodes,
+    );
 
     const renderSummary = () => (
         <>
@@ -53,6 +61,7 @@ export const CallingsReportBlock = ({
                 annotations={annotations}
                 planAnnotations={planAnnotations}
                 labelOf={labelOf}
+                withPlanColumns={planColumns?.applyToRows}
             />
         </>
     );
@@ -75,6 +84,7 @@ export const CallingsReportBlock = ({
                 annotations={annotations}
                 planAnnotations={planAnnotations}
                 labelOf={labelOf}
+                withPlanColumns={planColumns?.applyToRows}
             />
         );
     };

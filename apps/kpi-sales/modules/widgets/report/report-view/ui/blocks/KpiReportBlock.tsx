@@ -18,7 +18,7 @@ import {
 import { useIndicatorLabeler } from '@/modules/feature/portal-view';
 import { ConversionTableSettings } from '@/modules/feature/report-conversions/ui/ConversionTableSettings';
 import { useTableConversionAnnotations } from '@/modules/feature/report-conversions/hooks/use-conversions.hook';
-import { usePlanAnnotations } from '@/modules/feature/plans';
+import { usePlanAnnotations, usePlanColumns } from '@/modules/feature/plans';
 import { ChartsGate, labelTableData } from '@/modules/shared';
 import { RatingFooter } from './RatingFooter';
 
@@ -39,8 +39,16 @@ export const KpiReportBlock = ({ wrapped = false }: { wrapped?: boolean }) => {
     );
     // ID сотрудников в данных — для скрытия пустых секций разбивки.
     const presentUserIds = report.map(row => Number(row.user?.ID ?? row.id));
-    // План-аннотации «⌖ план · %» (undefined — планы скрыты/не настроены).
-    const planAnnotations = usePlanAnnotations(['kpi'], presentUserIds);
+    // Колонки планов слева от факта (настройка портала «Все»/«События»;
+    // undefined — выключены) и итог плана в итоговых таблицах.
+    const planColumns = usePlanColumns('events', presentUserIds);
+    // План-аннотации «⌖ план · %» (undefined — планы скрыты/не настроены);
+    // у показателя с колонкой плана — только «⌖ %».
+    const planAnnotations = usePlanAnnotations(
+        ['kpi'],
+        presentUserIds,
+        planColumns?.planCodes,
+    );
 
     const renderSummary = () => (
         <>
@@ -50,13 +58,18 @@ export const KpiReportBlock = ({ wrapped = false }: { wrapped?: boolean }) => {
                 annotations={annotations}
                 planAnnotations={planAnnotations}
                 labelOf={labelOf}
+                withPlanColumns={planColumns?.applyToRows}
             />
             <ChartsGate>
                 <div className="mt-3">
                     <Graphics report={report} labelOf={labelOf} />
                 </div>
             </ChartsGate>
-            <KPIReportTotalTable report={report} labelOf={labelOf} />
+            <KPIReportTotalTable
+                report={report}
+                labelOf={labelOf}
+                withPlanTotals={planColumns?.applyToTotals}
+            />
             <ChartsGate>
                 <KPIReportTotalChart report={report} labelOf={labelOf} />
                 <div className="mt-3">
@@ -77,8 +90,13 @@ export const KpiReportBlock = ({ wrapped = false }: { wrapped?: boolean }) => {
                     annotations={annotations}
                     planAnnotations={planAnnotations}
                     labelOf={labelOf}
+                    withPlanColumns={planColumns?.applyToRows}
                 />
-                <KPIReportTotalTable report={sectionReport} labelOf={labelOf} />
+                <KPIReportTotalTable
+                    report={sectionReport}
+                    labelOf={labelOf}
+                    withPlanTotals={planColumns?.applyToTotals}
+                />
             </>
         );
     };

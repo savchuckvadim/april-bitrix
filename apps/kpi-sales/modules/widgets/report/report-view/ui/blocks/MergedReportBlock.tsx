@@ -26,7 +26,7 @@ import {
 import { useIndicatorLabeler } from '@/modules/feature/portal-view';
 import { ConversionTableSettings } from '@/modules/feature/report-conversions/ui/ConversionTableSettings';
 import { useTableConversionAnnotations } from '@/modules/feature/report-conversions/hooks/use-conversions.hook';
-import { usePlanAnnotations } from '@/modules/feature/plans';
+import { usePlanAnnotations, usePlanColumns } from '@/modules/feature/plans';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { ChartsGate, Preloader, labelTableData } from '@/modules/shared';
 import { RatingFooter } from './RatingFooter';
@@ -75,10 +75,15 @@ export const MergedReportBlock = ({
             ...(callingsReport ?? []).map(callingRowUserId),
         ]),
     ];
-    // План-аннотации: kpi + звонковые показатели (объединённая таблица).
+    // Колонки планов слева от факта (настройка портала «Объединённый»;
+    // undefined — выключены): после отбора «Колонок» план уходит с фактом.
+    const planColumns = usePlanColumns('merged', presentUserIds);
+    // План-аннотации: kpi + звонковые показатели (объединённая таблица);
+    // у показателя с колонкой плана — только «⌖ %».
     const planAnnotations = usePlanAnnotations(
         ['kpi', 'calling'],
         presentUserIds,
+        planColumns?.planCodes,
     );
 
     const renderSummary = () => (
@@ -89,6 +94,8 @@ export const MergedReportBlock = ({
                 callingsReport={callingsReport as ReportCallingData[]}
                 annotations={annotations}
                 planAnnotations={planAnnotations}
+                withPlanColumns={planColumns?.applyToRows}
+                withPlanTotals={planColumns?.applyToTotals}
             />
             <ChartsGate>
                 <div className="mt-3">
@@ -112,6 +119,8 @@ export const MergedReportBlock = ({
             )}
             annotations={annotations}
             planAnnotations={planAnnotations}
+            withPlanColumns={planColumns?.applyToRows}
+            withPlanTotals={planColumns?.applyToTotals}
         />
     );
 

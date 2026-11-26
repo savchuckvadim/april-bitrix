@@ -4,7 +4,13 @@ import { ReportCallingData } from "@/modules/entities/calling-statistics";
 import { getCallingStatisticsTableData } from "@/modules/entities/calling-statistics/lib/ui-util";
 import { getReportTableData } from "@/modules/entities/report/lib/ui-util";
 import { ReportData } from "@/modules/entities/report/model/types/report/report-type";
-import { ChartsGate, RTable, RTableAnnotation } from "@/modules/shared";
+import {
+    ChartsGate,
+    RTable,
+    RTableAnnotation,
+    type TableRowsDecorator,
+    type TableTotalsDecorator,
+} from "@/modules/shared";
 import { labelTableRows } from "@/modules/shared/lib/indicator-labels";
 import { useIndicatorLabeler } from "@/modules/feature/portal-view";
 import { getMergedReportsData } from "../lib/merge-reports.util";
@@ -28,6 +34,10 @@ interface MergedReportTableProps {
     annotations?: Map<string, RTableAnnotation>;
     /** План-аннотации («⌖ план · %») — отдельная подстрока. */
     planAnnotations?: Map<string, RTableAnnotation>;
+    /** Колонки планов слева от факта — после отбора «Колонок» (план уходит с фактом). */
+    withPlanColumns?: TableRowsDecorator;
+    /** Итог плана слева от итога факта. */
+    withPlanTotals?: TableTotalsDecorator;
 }
 
 
@@ -40,7 +50,14 @@ interface MergedReportTableProps {
  * Свои названия портала — только в выводе (шапка, «Колонки», графики,
  * итог): объединение и выбор колонок идут по исходным названиям.
  */
-export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, callingsReport, annotations, planAnnotations }) => {
+export const MergedReportTable: React.FC<MergedReportTableProps> = ({
+    report,
+    callingsReport,
+    annotations,
+    planAnnotations,
+    withPlanColumns,
+    withPlanTotals,
+}) => {
     const { selectedUsers, selectedActions, setSelectedActions } = useMergedReport();
     const isPublic = useAppSelector(selectIsPublic);
     const labelOf = useIndicatorLabeler();
@@ -78,15 +95,16 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
         [mergedReportsData, selectedUsers, selectedActions],
     );
 
-    // Для показа: подписи «Колонок» и строки таблицы со своими названиями
+    // Для показа: подписи «Колонок» и строки таблицы со своими названиями,
+    // затем колонки планов (после отбора — план уходит вместе с фактом)
     const columnLabels = useMemo(
         () => getMergedColumnLabels(mergedReportsData?.data ?? [], labelOf),
         [mergedReportsData, labelOf],
     );
-    const displayRows = useMemo(
-        () => labelTableRows(filteredData, labelOf),
-        [filteredData, labelOf],
-    );
+    const displayRows = useMemo(() => {
+        const labeled = labelTableRows(filteredData, labelOf);
+        return withPlanColumns ? withPlanColumns(labeled) : labeled;
+    }, [filteredData, labelOf, withPlanColumns]);
 
     // Ранний return ПОСЛЕ всех хуков
     if (!mergedReportsData) {
@@ -124,6 +142,7 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
                 data={filteredData}
                 selectedActions={selectedActions}
                 labelOf={labelOf}
+                withPlanTotals={withPlanTotals}
             />
 
             <ChartsGate>

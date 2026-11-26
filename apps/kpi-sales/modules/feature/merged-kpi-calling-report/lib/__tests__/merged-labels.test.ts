@@ -108,8 +108,8 @@ describe('выбор «Колонки» по исходным названиям
             selectedActions: saved,
         });
         expect(getMergedTotalColumns(rows, saved, labelOf)).toEqual([
-            { name: 'Дозвоны', value: 25 + 18 + 5 },
-            { name: 'Встреча', value: 3 + 5 + 0 },
+            { code: '30', name: 'Дозвоны', value: 25 + 18 + 5 },
+            { code: 'presentation_done', name: 'Встреча', value: 3 + 5 + 0 },
         ]);
     });
 });

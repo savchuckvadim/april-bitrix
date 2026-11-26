@@ -1,4 +1,5 @@
 import { BXUser } from "@workspace/bx";
+import type { CallingBucketId } from '@/modules/shared/lib/indicator-labels';
 
 export interface ReportCallingData {
     userId: number;
@@ -21,6 +22,18 @@ enum CALL_DURATION {
     FIVE_MINUTE = 300,
     PRESENTATION = 600,
 }
+
+/**
+ * Бакеты в ключах своих названий (`call:<id>`) — CALLING_BUCKET_IDS в
+ * shared/lib/indicator-labels. Набор обязан совпадать с CALL_DURATION:
+ * новый бакет без записи там (или лишняя запись) — ошибка компиляции.
+ */
+type CallingBucketIdsMatch = [`${CALL_DURATION}`] extends [CallingBucketId]
+    ? [CallingBucketId] extends [`${CALL_DURATION}`]
+        ? true
+        : false
+    : false;
+export const CALLING_BUCKET_IDS_MATCH: CallingBucketIdsMatch = true;
 
 enum CALL_DURATION_NAME {
     ALL = 'Наборов номера',

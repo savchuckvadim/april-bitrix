@@ -1,13 +1,14 @@
 import type { AppDispatch, AppGetState } from '@/modules/app/model/store';
-import {
-    getBlockState,
-    ReportData,
-    ReportDateType,
-} from '@/modules/entities/report';
+import { getBlockState, ReportData } from '@/modules/entities/report';
 import { setDownloadStatus } from './download-slice';
 import { logClient } from '@/modules/app/lib/helper/logClient';
 import { sendDownloadingReport } from '@/modules/app/model/AppThunk';
-import { getKpidReportsExcelData, getMergedReportsExcelData } from '../../merged-kpi-calling-report/lib/merge-reports.util';
+import {
+    getKpidReportsExcelData,
+    getMergedReportsExcelData,
+    labelExcelRows,
+} from '../../merged-kpi-calling-report/lib/merge-reports.util';
+import { selectIndicatorLabeler } from '../../portal-view/model/portal-view.selectors';
 import { DownLoadKpiReportDto } from '@workspace/nest-kpi-report-sales-api';
 import {
     EReportType,
@@ -41,14 +42,6 @@ const downloadHelper = new DownloadHelper();
 export enum EDownloadType {
     EXCEL = 'excel',
     PDF = 'pdf',
-}
-interface IGetDownload {
-    type: EDownloadType;
-    report: IExcelReport[];
-    date: {
-        [ReportDateType.FROM]: string;
-        [ReportDateType.TO]: string;
-    };
 }
 export interface IExcelReport {
 
@@ -93,6 +86,9 @@ export const getDownload =
             } else {
                 const state = getState();
                 const { selectedUsers, selectedActions } = state.mergedReport;
+                // Свои названия показателей — только в выводе (заголовки
+                // колонок, шаги конверсий); отбор колонок — по исходным.
+                const labelOf = selectIndicatorLabeler(state);
 
 
 
@@ -159,6 +155,7 @@ export const getDownload =
                     conversionScope === 'merged'
                         ? { selectedUsers, selectedActions }
                         : undefined,
+                    labelOf,
                 );
                 const conversionsResult = buildConversionResult(
                     conversionsDataset,
@@ -246,7 +243,8 @@ export const getDownload =
                 }
 
                 const data = {
-                    report: reportRows,
+                    // Последний шаг: заголовки колонок — свои названия
+                    report: labelExcelRows(reportRows, labelOf),
                     type,
                     date,
                     structure,

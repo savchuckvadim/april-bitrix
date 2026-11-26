@@ -21,12 +21,14 @@ import {
     applyMergedSelection,
     buildMergedRatingDataset,
     callingRowUserId,
+    labelRatingDataset,
 } from '@/modules/feature/report-rating';
+import { useIndicatorLabeler } from '@/modules/feature/portal-view';
 import { ConversionTableSettings } from '@/modules/feature/report-conversions/ui/ConversionTableSettings';
 import { useTableConversionAnnotations } from '@/modules/feature/report-conversions/hooks/use-conversions.hook';
 import { usePlanAnnotations } from '@/modules/feature/plans';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { ChartsGate, Preloader } from '@/modules/shared';
+import { ChartsGate, Preloader, labelTableData } from '@/modules/shared';
 import { RatingFooter } from './RatingFooter';
 
 /**
@@ -37,6 +39,9 @@ import { RatingFooter } from './RatingFooter';
  * Пока статистика звонков загружается, объединять не с чем (страницу
  * блокируют события, звонки идут следом) — вместо пустого блока
  * показывается индикатор загрузки.
+ *
+ * Свои названия показателей — только в выводе (рейтинги, CSV): состав и
+ * выбор колонок объединённого отчёта — по исходным названиям.
  */
 export const MergedReportBlock = ({
     wrapped = false,
@@ -52,10 +57,15 @@ export const MergedReportBlock = ({
     const isCallingsPending = isCallingsLoading || !isCallingsFetched;
     const mergedSelection = useAppSelector(state => state.mergedReport);
     const annotations = useTableConversionAnnotations('merged');
+    const labelOf = useIndicatorLabeler();
 
-    const ratingDataset = applyMergedSelection(
-        buildMergedRatingDataset(report, callingsReport ?? []),
-        mergedSelection,
+    // Выбор — по исходным названиям, свои названия — после него
+    const ratingDataset = labelRatingDataset(
+        applyMergedSelection(
+            buildMergedRatingDataset(report, callingsReport ?? []),
+            mergedSelection,
+        ),
+        labelOf,
     );
     // Состав объединённого отчёта — сотрудники и из событий, и из звонков
     // (иначе сотрудник только со звонками выпадает из вкладок отделов/групп).
@@ -149,7 +159,10 @@ export const MergedReportBlock = ({
                         getReportTableData(report),
                         getCallingStatisticsTableData(callingsReport),
                     );
-                    exportTableToCSV(mergedData, 'merged-report.csv');
+                    exportTableToCSV(
+                        labelTableData(mergedData, labelOf),
+                        'merged-report.csv',
+                    );
                 }
             }}
         >

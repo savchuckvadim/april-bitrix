@@ -10,49 +10,32 @@ import {
 } from '@workspace/ui/components/table';
 import { Card } from '@workspace/ui/components/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@workspace/ui/components/tooltip';
+import { RTABLE_HEADER_TEXT_CLASS } from '@workspace/april-ui';
+import { cn } from '@workspace/ui/lib/utils';
+import {
+    defaultIndicatorLabeler,
+    type IndicatorLabeler,
+} from '@/modules/shared/lib/indicator-labels';
 import { ReportData } from '../../model/types/report/report-type';
+import { getReportTotalColumns } from '../../lib/report-totals.util';
 
 interface KPIReportTotalTableProps {
     report: ReportData[];
+    /** Выводимые названия показателей; по умолчанию — исходные без лишних пробелов. */
+    labelOf?: IndicatorLabeler;
 }
 
 export const KPIReportTotalTable: React.FC<KPIReportTotalTableProps> = ({
     report,
+    labelOf = defaultIndicatorLabeler,
 }) => {
-    // Вычисляем общие суммы по каждому показателю
-    const totalData = useMemo(() => {
-        if (!report || report.length === 0 || !report[0]?.kpi) {
-            return { actions: [] };
-        }
+    // Общие суммы по каждому показателю
+    const totals = useMemo(
+        () => getReportTotalColumns(report ?? [], labelOf),
+        [report, labelOf],
+    );
 
-        // Получаем все уникальные действия из первого отчета
-        const allActions = report[0].kpi.map(kpi => ({
-            name: kpi.action.name || 'Unknown',
-            innerCode: kpi.action.innerCode,
-        }));
-
-        // Суммируем значения по каждому действию
-        const totals = allActions.map(action => {
-            const total = report.reduce((sum, userReport) => {
-                const kpi = userReport.kpi.find(
-                    k => k.action.innerCode === action.innerCode
-                );
-                return sum + (kpi?.count || 0);
-            }, 0);
-
-            return {
-                name: action.name,
-                value: total,
-            };
-        });
-
-        return {
-            name: 'Итого',
-            actions: totals,
-        };
-    }, [report]);
-
-    if (!totalData.actions || totalData.actions.length === 0) {
+    if (totals.length === 0) {
         return null;
     }
 
@@ -64,7 +47,7 @@ export const KPIReportTotalTable: React.FC<KPIReportTotalTableProps> = ({
                         <TableHead className="w-[190px] bg-popover text-primary font-bold">
                             Показатель
                         </TableHead>
-                        {totalData.actions.map((action, i) => (
+                        {totals.map((action, i) => (
                             <Tooltip
                                 key={`tooltip-total-head-${i}`}
                             >
@@ -73,7 +56,9 @@ export const KPIReportTotalTable: React.FC<KPIReportTotalTableProps> = ({
                                         key={`head-total-${i}`}
                                         className="text-right bg-popover text-primary font-bold"
                                     >
-                                        {action.name}
+                                        <span className={cn('ml-auto', RTABLE_HEADER_TEXT_CLASS)}>
+                                            {action.name}
+                                        </span>
                                     </TableHead>
                                 </TooltipTrigger>
                                 <TooltipContent className="text-xs">
@@ -86,9 +71,9 @@ export const KPIReportTotalTable: React.FC<KPIReportTotalTableProps> = ({
                 <TableBody>
                     <TableRow className="bg-muted/50">
                         <TableCell className="font-bold text-lg">
-                            {totalData.name}
+                            Итого
                         </TableCell>
-                        {totalData.actions.map((action, index) => (
+                        {totals.map((action, index) => (
                             <TableCell
                                 key={`cell-total-${index}`}
                                 className="text-right font-bold text-lg"
@@ -102,4 +87,3 @@ export const KPIReportTotalTable: React.FC<KPIReportTotalTableProps> = ({
         </Card>
     );
 };
-

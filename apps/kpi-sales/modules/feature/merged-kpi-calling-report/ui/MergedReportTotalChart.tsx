@@ -12,6 +12,8 @@ import {
 } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { RTableProps } from '@/modules/shared';
+import type { IndicatorLabeler } from '@/modules/shared/lib/indicator-labels';
+import { getMergedTotalColumns } from '../lib/merged-labels.util';
 
 ChartJS.register(
     CategoryScale,
@@ -23,38 +25,25 @@ ChartJS.register(
 );
 
 interface MergedReportTotalChartProps {
+    /** Строки объединённой таблицы с ИСХОДНЫМИ названиями колонок. */
     data: RTableProps['data'];
+    /** Выбор колонок по исходным названиям; пусто — все. */
     selectedActions: string[];
+    /** Выводимые названия колонок (подписи наборов). */
+    labelOf: IndicatorLabeler;
 }
 
 export const MergedReportTotalChart: React.FC<MergedReportTotalChartProps> = ({
     data,
     selectedActions,
+    labelOf,
 }) => {
-    // Вычисляем общие суммы по каждому показателю
     const chartData = useMemo(() => {
-        if (!data || data.length === 0) {
+        // Суммы по выбранным колонкам (название — выводимое)
+        const totals = getMergedTotalColumns(data ?? [], selectedActions, labelOf);
+        if (!totals.length) {
             return { labels: [], datasets: [] };
         }
-
-        // Получаем все уникальные действия
-        const allActions = data[0]?.actions.map(action => action.name) || [];
-        const actionsToShow = selectedActions.length > 0
-            ? allActions.filter(action => selectedActions.includes(action))
-            : allActions;
-
-        // Суммируем значения по каждому действию
-        const totals = actionsToShow.map(actionName => {
-            const total = data.reduce((sum, user) => {
-                const action = user.actions.find(a => a.name === actionName);
-                return sum + (action?.value || 0);
-            }, 0);
-
-            return {
-                name: actionName,
-                value: total,
-            };
-        });
 
         // Генерируем цвета для каждого действия
         const colors = [
@@ -78,7 +67,7 @@ export const MergedReportTotalChart: React.FC<MergedReportTotalChartProps> = ({
                 borderWidth: 1,
             })),
         };
-    }, [data, selectedActions]);
+    }, [data, selectedActions, labelOf]);
 
     if (!chartData.labels.length || !chartData.datasets.length) {
         return null;

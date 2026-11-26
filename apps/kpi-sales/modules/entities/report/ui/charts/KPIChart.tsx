@@ -15,13 +15,16 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { getColors } from '../../lib/colors';
 import ReportInfo from '../widget/ReportInfo';
 import { EyeClosed, Eye } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
-import { useReport } from '../../model';
 import { ReportData } from '../../model/types/report/report-type';
+import {
+    defaultIndicatorLabeler,
+    eventLabelKey,
+    type IndicatorLabeler,
+} from '@/modules/shared/lib/indicator-labels';
 
 ChartJS.register(
     CategoryScale,
@@ -34,13 +37,17 @@ ChartJS.register(
 
 interface KPIChartProps {
     report: ReportData[];
+    /** Выводимые названия показателей; по умолчанию — исходные без лишних пробелов. */
+    labelOf?: IndicatorLabeler;
 }
 
-const KPIChart: React.FC<KPIChartProps> = ({ report }) => {
-    // const report = useAppSelector(state => state.report.report);
-    // const actions = useAppSelector(state => state.report.actions.current);
-    // const { report } = useReport()
+const KPIChart: React.FC<KPIChartProps> = ({
+    report,
+    labelOf = defaultIndicatorLabeler,
+}) => {
     const [isMobile, setIsMobile] = useState(false);
+    // Хуки — до раннего выхода (раньше useState стоял после него)
+    const [infoShow, setInfoShow] = useState(false);
 
     useEffect(() => {
         const update = () => setIsMobile(window.innerWidth < 640); // или 768, если хочешь md и меньше
@@ -53,7 +60,7 @@ const KPIChart: React.FC<KPIChartProps> = ({ report }) => {
         return null;
     }
 
-    const labels = report.map((item: any) => item.userName) as string[];
+    const labels = report.map(item => item.userName ?? '');
 
     const datasets = report?.[0]?.kpi?.map(kpi => {
         const data = report.map(userReport => {
@@ -63,7 +70,10 @@ const KPIChart: React.FC<KPIChartProps> = ({ report }) => {
             return searchedKpi?.count || 0;
         });
         return {
-            label: kpi.action.name as string,
+            label: labelOf(
+                eventLabelKey(kpi.action.innerCode),
+                kpi.action.name ?? '',
+            ),
             data,
             backgroundColor: getColors([{ action: kpi.action }])[0] as string,
         };
@@ -92,7 +102,6 @@ const KPIChart: React.FC<KPIChartProps> = ({ report }) => {
             },
         },
     };
-    const [infoShow, setInfoShow] = useState(false);
     return (
         <Card className={cn('bg-card text-primary', isMobile && 'p-1')}>
             {!isMobile && (
@@ -114,7 +123,7 @@ const KPIChart: React.FC<KPIChartProps> = ({ report }) => {
                         />
                     )}
                 </div>
-                {infoShow && <ReportInfo />}
+                {infoShow && <ReportInfo labelOf={labelOf} />}
 
                 <Bar options={options} data={data} />
             </CardContent>

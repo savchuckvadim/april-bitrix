@@ -2,8 +2,20 @@ import React, { FC } from 'react';
 import { KPI } from '../../model/types/report/report-type';
 import { getColors } from '../../lib/colors';
 import { useReport } from '../../model/useReport';
+import {
+    defaultIndicatorLabeler,
+    eventLabelKey,
+    type IndicatorLabeler,
+} from '@/modules/shared/lib/indicator-labels';
 
-const ReportInfo: FC = () => {
+interface ReportInfoProps {
+    /** Выводимые названия показателей; по умолчанию — исходные без лишних пробелов. */
+    labelOf?: IndicatorLabeler;
+}
+
+const ReportInfo: FC<ReportInfoProps> = ({
+    labelOf = defaultIndicatorLabeler,
+}) => {
     const { totalKPI, mediumKPI } = useReport();
     const colors = getColors(totalKPI);
 
@@ -18,6 +30,7 @@ const ReportInfo: FC = () => {
                             action={action}
                             color={colors[i] || ''}
                             i={i}
+                            labelOf={labelOf}
                         />
                     ))}
                 </div>
@@ -30,6 +43,7 @@ const ReportInfo: FC = () => {
                             action={action}
                             color={colors[i] || ''}
                             i={i}
+                            labelOf={labelOf}
                         />
                     ))}
                 </div>
@@ -38,11 +52,12 @@ const ReportInfo: FC = () => {
     );
 };
 
-const ReportInfoItem: FC<{ action: KPI; color: string; i: number }> = ({
-    action,
-    color,
-    i,
-}) => {
+const ReportInfoItem: FC<{
+    action: KPI;
+    color: string;
+    i: number;
+    labelOf: IndicatorLabeler;
+}> = ({ action, color, i, labelOf }) => {
     return (
         <div key={i} className="flex items-center text-sm text-foreground">
             <div
@@ -50,7 +65,12 @@ const ReportInfoItem: FC<{ action: KPI; color: string; i: number }> = ({
                 style={{ backgroundColor: color }}
             />
             <p>
-                – {action.action.name} {action.count}
+                –{' '}
+                {labelOf(
+                    eventLabelKey(action.action.innerCode),
+                    action.action.name ?? '',
+                )}{' '}
+                {action.count}
             </p>
         </div>
     );

@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import type { RTableAnnotation } from '@workspace/april-ui';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import type { RatingDataset } from '@/modules/feature/report-rating';
+import { useIndicatorLabeler } from '@/modules/feature/portal-view';
 import type {
     ConversionMethod,
     ConversionScope,
@@ -28,6 +29,7 @@ export interface ConversionsComputation {
 /**
  * Датасет scope поверх текущих (уже отфильтрованных) данных стора.
  * merged учитывает выбор показателей объединённого отчёта (и сотрудников из снимка ссылки).
+ * Названия показателей — свои названия портала (после отбора по исходным).
  */
 export const useConversionDataset = (
     scope: ConversionScope,
@@ -35,14 +37,21 @@ export const useConversionDataset = (
     const report = useAppSelector(state => state.report.report);
     const callings = useAppSelector(state => state.callingStatistics.items);
     const mergedSelection = useAppSelector(state => state.mergedReport);
+    const labelOf = useIndicatorLabeler();
 
     return useMemo(
         () =>
-            getDatasetForScope(scope, report, callings ?? [], {
-                selectedUsers: mergedSelection.selectedUsers,
-                selectedActions: mergedSelection.selectedActions,
-            }),
-        [scope, report, callings, mergedSelection],
+            getDatasetForScope(
+                scope,
+                report,
+                callings ?? [],
+                {
+                    selectedUsers: mergedSelection.selectedUsers,
+                    selectedActions: mergedSelection.selectedActions,
+                },
+                labelOf,
+            ),
+        [scope, report, callings, mergedSelection, labelOf],
     );
 };
 

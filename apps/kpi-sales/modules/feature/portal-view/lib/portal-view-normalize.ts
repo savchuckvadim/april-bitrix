@@ -7,31 +7,29 @@ import type {
     PortalViewSettings,
     PortalViewTabOption,
 } from '../model/types';
+import {
+    isRecord,
+    nonEmptyString,
+    recordList,
+    stringList,
+    type UnknownRecord,
+} from './portal-view-guards';
+import {
+    normalizeIndicatorLabels,
+    normalizeIndicators,
+} from './portal-view-labels-normalize';
 
 /**
  * Ответ бэка → безопасный `PortalViewResponse`. Ручки новые и могут отвечать
  * не всеми полями (или вовсе не быть выложены) — отсутствующее и неверного
  * типа заменяется значением по умолчанию: ничего не скрыто, графики есть,
- * набор бейджей по умолчанию, права на правку нет.
+ * набор бейджей по умолчанию, своих названий нет, колонки планов выключены,
+ * права на правку нет.
  */
 
-type UnknownRecord = Record<string, unknown>;
-
-const isRecord = (value: unknown): value is UnknownRecord =>
-    typeof value === 'object' && value !== null && !Array.isArray(value);
-
-const nonEmptyString = (value: unknown): string | null =>
-    typeof value === 'string' && value.trim() ? value : null;
-
-const stringList = (value: unknown): string[] =>
-    Array.isArray(value)
-        ? value.filter(
-              (item): item is string => typeof item === 'string' && item !== '',
-          )
-        : [];
-
-const recordList = (value: unknown): UnknownRecord[] =>
-    Array.isArray(value) ? value.filter(isRecord) : [];
+/** Флаг — только настоящий boolean, иначе значение по умолчанию. */
+const booleanOr = (value: unknown, fallback: boolean): boolean =>
+    typeof value === 'boolean' ? value : fallback;
 
 /** Ссылка поддержки уходит в href: пропускаем только http(s), иначе — «не настроена». */
 export const safeSupportUrl = (value: unknown): string | null => {
@@ -50,11 +48,13 @@ const normalizeView = (raw: unknown): PortalViewSettings => {
     if (!isRecord(raw)) return defaults;
     return {
         tabsHidden: stringList(raw.tabsHidden),
-        chartsEnabled:
-            typeof raw.chartsEnabled === 'boolean'
-                ? raw.chartsEnabled
-                : defaults.chartsEnabled,
+        chartsEnabled: booleanOr(raw.chartsEnabled, defaults.chartsEnabled),
         badgesMain: stringList(raw.badgesMain),
+        labels: normalizeIndicatorLabels(raw.labels),
+        plansEvents: booleanOr(raw.plansEvents, defaults.plansEvents),
+        plansMerged: booleanOr(raw.plansMerged, defaults.plansMerged),
+        plansCallings: booleanOr(raw.plansCallings, defaults.plansCallings),
+        planColumnsHidden: stringList(raw.planColumnsHidden),
         updatedBy: nonEmptyString(raw.updatedBy),
         updatedAt: nonEmptyString(raw.updatedAt),
     };
@@ -88,7 +88,9 @@ const normalizeMethodology = (raw: unknown): PortalViewMethodology | null => {
 };
 
 const normalizeOptions = (raw: unknown): PortalViewOptions => {
-    if (!isRecord(raw)) return { tabs: [], badges: [], methodology: null };
+    if (!isRecord(raw)) {
+        return { tabs: [], badges: [], methodology: null, indicators: [] };
+    }
     return {
         tabs: recordList(raw.tabs)
             .map(normalizeTab)
@@ -97,6 +99,7 @@ const normalizeOptions = (raw: unknown): PortalViewOptions => {
             .map(normalizeBadge)
             .filter((badge): badge is PortalViewBadgeOption => badge !== null),
         methodology: normalizeMethodology(raw.methodology),
+        indicators: normalizeIndicators(raw.indicators),
     };
 };
 

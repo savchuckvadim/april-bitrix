@@ -5,7 +5,9 @@ import { EDownloadType } from '@/modules/feature/download/model/download-thunk';
 import {
     getKpidReportsExcelData,
     getMergedReportsExcelData,
+    labelExcelRows,
 } from '@/modules/feature/merged-kpi-calling-report/lib/merge-reports.util';
+import { selectIndicatorLabeler } from '@/modules/feature/portal-view/model/portal-view.selectors';
 import { buildReportStructure } from '@/modules/feature/download/lib/build-report-structure.util';
 import { getBlockState } from '@/modules/entities/report';
 import { buildConversionResult } from '@/modules/feature/report-conversions/lib/conversion-calc.util';
@@ -74,6 +76,9 @@ export const getShareDownload =
             const report = state.report.report;
             const callingsReport = state.callingStatistics.items;
             const { selectedUsers, selectedActions } = state.mergedReport;
+            // Свои названия портала (из ответа ссылки) — только в выводе;
+            // отбор колонок — по исходным названиям.
+            const labelOf = selectIndicatorLabeler(state);
             const isMerged =
                 state.reportType.current === EReportType.MERGED;
 
@@ -113,6 +118,7 @@ export const getShareDownload =
                 conversionScope === 'merged'
                     ? { selectedUsers, selectedActions }
                     : undefined,
+                labelOf,
             );
             const conversionsResult = buildConversionResult(
                 conversionsDataset,
@@ -140,7 +146,8 @@ export const getShareDownload =
                     : undefined;
 
             const data = {
-                report: reportRows,
+                // Последний шаг: заголовки колонок — свои названия
+                report: labelExcelRows(reportRows, labelOf),
                 type: EDownloadType.EXCEL,
                 date: state.report.date,
                 structure,

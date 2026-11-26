@@ -6,6 +6,8 @@ import { getCallingStatisticsTableData } from '@/modules/entities/calling-statis
 import { getReportTableData } from '@/modules/entities/report';
 import { ReportData } from '@/modules/entities/report';
 import { RTable, RTableAnnotation } from '@/modules/shared';
+import { labelTableRows } from '@/modules/shared/lib/indicator-labels';
+import { useIndicatorLabeler } from '@/modules/feature/portal-view';
 import { getMergedReportsData } from '../lib/merge-reports.util';
 import { selectMergedTableRows } from '../lib/merged-table-selection.util';
 import { MergedReportTotalTable } from './MergedReportTotalTable';
@@ -34,6 +36,7 @@ export const MergedSectionTable = ({
 }: MergedSectionTableProps) => {
     const { selectedUsers, selectedActions } = useMergedReport();
     const isPublic = useAppSelector(selectIsPublic);
+    const labelOf = useIndicatorLabeler();
 
     const merged = useMemo(() => {
         // Сотрудник из одного источника остаётся строкой с нулями по другому,
@@ -54,6 +57,11 @@ export const MergedSectionTable = ({
             }),
         [merged, selectedUsers, selectedActions],
     );
+    // Для показа: свои названия в шапке (отбор выше — по исходным)
+    const displayRows = useMemo(
+        () => labelTableRows(filteredData, labelOf),
+        [filteredData, labelOf],
+    );
 
     if (!merged || !filteredData.length) {
         return (
@@ -71,7 +79,7 @@ export const MergedSectionTable = ({
             <RTable
                 code={merged.code}
                 firstCellName={merged.firstCellName}
-                data={filteredData}
+                data={displayRows}
                 withLink={!isPublic}
                 annotations={annotations}
                 planAnnotations={planAnnotations}
@@ -79,6 +87,7 @@ export const MergedSectionTable = ({
             <MergedReportTotalTable
                 data={filteredData}
                 selectedActions={visibleActions}
+                labelOf={labelOf}
             />
         </div>
     );

@@ -2,9 +2,14 @@
  * Типы «вида отчёта» портала. Ручки новые — клиент не сгенерирован, типы
  * написаны по контракту бэка (kpi-report `portal-view/get|save`) вручную.
  */
+import type { PORTAL_VIEW_INDICATOR_GROUPS } from '../consts/portal-view.consts';
 
 /** Группа бейджа в списке разборов: общие или из методики портала. */
 export type PortalViewBadgeGroup = 'general' | 'methodology';
+
+/** Группа показателя на странице настроек (коды — PORTAL_VIEW_INDICATOR_GROUPS). */
+export type PortalViewIndicatorGroup =
+    (typeof PORTAL_VIEW_INDICATOR_GROUPS)[number];
 
 /** Портальные настройки вида отчёта. */
 export interface PortalViewSettings {
@@ -14,6 +19,20 @@ export interface PortalViewSettings {
     chartsEnabled: boolean;
     /** Бейджи, видимые сразу, в порядке показа; пусто — набор по умолчанию. */
     badgesMain: string[];
+    /**
+     * Свои названия показателей: ключ `ev:<innerCode>`, `call:<id бакета>`,
+     * `plan:<код плана>`; значение — непустое название для показа. Данные
+     * отчёта не меняются: название подставляется только при выводе.
+     */
+    labels: Record<string, string>;
+    /** Колонки планов на вкладках «Все» и «События». */
+    plansEvents: boolean;
+    /** Колонки планов в «Объединённом отчёте». */
+    plansMerged: boolean;
+    /** Колонки планов на вкладке «Звонки» (только интерфейс, не Excel). */
+    plansCallings: boolean;
+    /** Коды плановых показателей, чью колонку не выводить; пусто — все. */
+    planColumnsHidden: string[];
     /** Кто менял последним. */
     updatedBy: string | null;
     /** Когда менял последний раз (ISO). */
@@ -51,11 +70,24 @@ export interface PortalViewMethodology {
     title: string;
 }
 
+/** Показатель отчёта, которому можно задать своё название (каталог портала). */
+export interface PortalViewIndicator {
+    /** Ключ своего названия: `ev:…`, `call:…` или `plan:…`. */
+    key: string;
+    group: PortalViewIndicatorGroup;
+    /** Исходное название показателя (у колонки плана — название по умолчанию). */
+    name: string;
+    /** У колонки плана — ключ показателя-факта, перед которым она стоит; иначе null. */
+    factKey: string | null;
+}
+
 /** Справочники для формы настроек. */
 export interface PortalViewOptions {
     tabs: PortalViewTabOption[];
     badges: PortalViewBadgeOption[];
     methodology: PortalViewMethodology | null;
+    /** Каталог показателей: события в порядке отчёта, бакеты звонков, колонки планов. */
+    indicators: PortalViewIndicator[];
 }
 
 /** Ответ обеих ручек (get и save). */
@@ -79,6 +111,12 @@ export interface PortalViewSaveBody {
     tabsHidden?: string[];
     chartsEnabled?: boolean;
     badgesMain?: string[];
+    /** Свои названия целиком; пустое название — «как было». */
+    labels?: Record<string, string>;
+    plansEvents?: boolean;
+    plansMerged?: boolean;
+    plansCallings?: boolean;
+    planColumnsHidden?: string[];
 }
 
 export type PortalViewSaveRequest = PortalViewRequest & PortalViewSaveBody;

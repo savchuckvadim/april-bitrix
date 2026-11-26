@@ -10,49 +10,33 @@ import {
 } from '@workspace/ui/components/table';
 import { Card } from '@workspace/ui/components/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@workspace/ui/components/tooltip';
+import { RTABLE_HEADER_TEXT_CLASS } from '@workspace/april-ui';
+import { cn } from '@workspace/ui/lib/utils';
 import { RTableProps } from '@/modules/shared';
+import type { IndicatorLabeler } from '@/modules/shared/lib/indicator-labels';
+import { getMergedTotalColumns } from '../lib/merged-labels.util';
 
 interface MergedReportTotalTableProps {
+    /** Строки объединённой таблицы с ИСХОДНЫМИ названиями колонок. */
     data: RTableProps['data'];
+    /** Выбор колонок по исходным названиям; пусто — все. */
     selectedActions: string[];
+    /** Выводимые названия колонок. */
+    labelOf: IndicatorLabeler;
 }
 
 export const MergedReportTotalTable: React.FC<MergedReportTotalTableProps> = ({
     data,
     selectedActions,
+    labelOf,
 }) => {
-    // Вычисляем общие суммы по каждому показателю
-    const totalData = useMemo(() => {
-        if (!data || data.length === 0) {
-            return { actions: [] };
-        }
+    // Общие суммы по каждому показателю (название — выводимое)
+    const totals = useMemo(
+        () => getMergedTotalColumns(data ?? [], selectedActions, labelOf),
+        [data, selectedActions, labelOf],
+    );
 
-        // Получаем все уникальные действия
-        const allActions = data[0]?.actions.map(action => action.name) || [];
-        const actionsToShow = selectedActions.length > 0
-            ? allActions.filter(action => selectedActions.includes(action))
-            : allActions;
-
-        // Суммируем значения по каждому действию
-        const totals = actionsToShow.map(actionName => {
-            const total = data.reduce((sum, user) => {
-                const action = user.actions.find(a => a.name === actionName);
-                return sum + (action?.value || 0);
-            }, 0);
-
-            return {
-                name: actionName,
-                value: total,
-            };
-        });
-
-        return {
-            name: 'Итого',
-            actions: totals,
-        };
-    }, [data, selectedActions]);
-
-    if (!totalData.actions || totalData.actions.length === 0) {
+    if (totals.length === 0) {
         return null;
     }
 
@@ -64,7 +48,7 @@ export const MergedReportTotalTable: React.FC<MergedReportTotalTableProps> = ({
                         <TableHead className="w-[190px] bg-popover text-primary font-bold">
                             Показатель
                         </TableHead>
-                        {totalData.actions.map((action, i) => (
+                        {totals.map((action, i) => (
                             <Tooltip
                                 key={`tooltip-total-head-${i}`}
                             >
@@ -73,7 +57,9 @@ export const MergedReportTotalTable: React.FC<MergedReportTotalTableProps> = ({
                                         key={`head-total-${i}`}
                                         className="text-right bg-popover text-primary font-bold"
                                     >
-                                        {action.name}
+                                        <span className={cn('ml-auto', RTABLE_HEADER_TEXT_CLASS)}>
+                                            {action.name}
+                                        </span>
                                     </TableHead>
                                 </TooltipTrigger>
                                 <TooltipContent className="text-xs">
@@ -86,9 +72,9 @@ export const MergedReportTotalTable: React.FC<MergedReportTotalTableProps> = ({
                 <TableBody>
                     <TableRow className="bg-muted/50">
                         <TableCell className="font-bold text-lg">
-                            {totalData.name}
+                            Итого
                         </TableCell>
-                        {totalData.actions.map((action, index) => (
+                        {totals.map((action, index) => (
                             <TableCell
                                 key={`cell-total-${index}`}
                                 className="text-right font-bold text-lg"
@@ -102,4 +88,3 @@ export const MergedReportTotalTable: React.FC<MergedReportTotalTableProps> = ({
         </Card>
     );
 };
-

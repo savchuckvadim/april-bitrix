@@ -24,6 +24,8 @@ import type {
 import { airtimeActions } from '@/modules/entities/airtime/model/airtime-slice';
 import type { AirtimeReport } from '@/modules/entities/airtime/model';
 import type { ShareUiBlob } from '@/modules/feature/report-links';
+import { portalViewActions } from '@/modules/feature/portal-view/model/portal-view-slice';
+import { publicViewLabels } from '@/modules/feature/portal-view/lib/portal-view-labels-normalize';
 import { appActions } from '@/modules/app/model/AppSlice';
 
 export interface HydrateShareOptions {
@@ -58,6 +60,11 @@ export const hydrateFromShareSnapshot =
         if (!dataOnly) {
             dispatch(appActions.setPublicMode(true));
         }
+
+        // Свои названия показателей портала — из ответа ссылки (читаются
+        // бэком в момент открытия, не из снимка). Поллинг их тоже обновляет:
+        // это настройка портала, а не выбор зрителя.
+        dispatch(portalViewActions.publicLabelsApplied(publicViewLabels(payload)));
 
         // 1. Тип отчёта и локальные настройки виджетов — до данных,
         //    чтобы первый рендер сразу был в нужном виде. При dataOnly

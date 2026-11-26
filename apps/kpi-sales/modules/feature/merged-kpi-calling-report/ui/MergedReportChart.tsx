@@ -12,6 +12,8 @@ import {
 } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { RTableProps } from '@/modules/shared';
+import type { IndicatorLabeler } from '@/modules/shared/lib/indicator-labels';
+import { getMergedColumnLabels } from '../lib/merged-labels.util';
 
 ChartJS.register(
     CategoryScale,
@@ -23,17 +25,25 @@ ChartJS.register(
 );
 
 interface MergedReportChartProps {
+    /** Строки объединённой таблицы с ИСХОДНЫМИ названиями колонок. */
     data: RTableProps['data'];
+    /** Выбор колонок по исходным названиям; пусто — все. */
     selectedActions: string[];
+    /** Выводимые названия колонок (подписи наборов). */
+    labelOf: IndicatorLabeler;
 }
 
 export const MergedReportChart: React.FC<MergedReportChartProps> = ({
     data,
-    selectedActions
+    selectedActions,
+    labelOf,
 }) => {
     if (!data || data.length === 0) {
         return null;
     }
+
+    // Подписи наборов: своё название колонки по её коду
+    const columnLabels = getMergedColumnLabels(data, labelOf);
 
     // Получаем все уникальные действия из данных
     const allActions = data[0]?.actions.map(action => action.name) || [];
@@ -69,7 +79,7 @@ export const MergedReportChart: React.FC<MergedReportChartProps> = ({
         ];
 
         return {
-            label: actionName,
+            label: columnLabels.get(actionName) ?? actionName,
             data: dataValues,
             backgroundColor: colors[index % colors.length],
             borderColor: colors[index % colors.length]?.replace('0.8', '1') || 'rgb(0, 0, 0)',

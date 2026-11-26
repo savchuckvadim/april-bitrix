@@ -6,9 +6,14 @@ import {
     buildCallingRatingDataset,
     buildKpiRatingDataset,
     buildMergedRatingDataset,
+    labelRatingDataset,
     RatingDataset,
     RatingRow,
 } from '@/modules/feature/report-rating';
+import {
+    defaultIndicatorLabeler,
+    type IndicatorLabeler,
+} from '@/modules/shared/lib/indicator-labels';
 import type { ConversionScope } from '../model/conversion.types';
 import type { ConversionResult } from './conversion-calc.util';
 
@@ -17,11 +22,8 @@ export interface MergedSelection {
     selectedActions: string[];
 }
 
-/**
- * Датасет показателей для scope поверх уже отфильтрованных данных.
- * merged дополнительно режется выбором объединённого отчёта (показатели; сотрудники — только из снимка ссылки).
- */
-export const getDatasetForScope = (
+/** Датасет scope с исходными названиями показателей. */
+const buildScopeDataset = (
     scope: ConversionScope,
     report: ReportData[],
     callings: ReportCallingData[],
@@ -40,6 +42,24 @@ export const getDatasetForScope = (
         }
     }
 };
+
+/**
+ * Датасет показателей для scope поверх уже отфильтрованных данных.
+ * merged дополнительно режется выбором объединённого отчёта (показатели; сотрудники — только из снимка ссылки).
+ * Названия показателей — выводимые (labelOf), ставятся последним шагом,
+ * после отбора по исходным названиям; шаги конверсий берут их отсюда.
+ */
+export const getDatasetForScope = (
+    scope: ConversionScope,
+    report: ReportData[],
+    callings: ReportCallingData[],
+    mergedSelection?: MergedSelection,
+    labelOf: IndicatorLabeler = defaultIndicatorLabeler,
+): RatingDataset =>
+    labelRatingDataset(
+        buildScopeDataset(scope, report, callings, mergedSelection),
+        labelOf,
+    );
 
 /**
  * Конверсии как RatingDataset (actions = шаги «A → B», values = %) —

@@ -5,11 +5,14 @@ import { getCallingStatisticsTableData } from "@/modules/entities/calling-statis
 import { getReportTableData } from "@/modules/entities/report/lib/ui-util";
 import { ReportData } from "@/modules/entities/report/model/types/report/report-type";
 import { ChartsGate, RTable, RTableAnnotation } from "@/modules/shared";
+import { labelTableRows } from "@/modules/shared/lib/indicator-labels";
+import { useIndicatorLabeler } from "@/modules/feature/portal-view";
 import { getMergedReportsData } from "../lib/merge-reports.util";
 import {
     getMergedColumnNames,
     selectMergedTableRows,
 } from "../lib/merged-table-selection.util";
+import { getMergedColumnLabels } from "../lib/merged-labels.util";
 import { MergedColumnsSelect } from "./MergedColumnsSelect";
 import { MergedReportChart } from "./MergedReportChart";
 import { MergedReportTotalTable } from "./MergedReportTotalTable";
@@ -33,10 +36,14 @@ interface MergedReportTableProps {
  * отчёта (в таблице все, кто в нём); колонки настраиваются списком
  * «Колонки» над таблицей. На публичной странице выбор сотрудников
  * приходит из снимка ссылки, а колонки зритель меняет у себя.
+ *
+ * Свои названия портала — только в выводе (шапка, «Колонки», графики,
+ * итог): объединение и выбор колонок идут по исходным названиям.
  */
 export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, callingsReport, annotations, planAnnotations }) => {
     const { selectedUsers, selectedActions, setSelectedActions } = useMergedReport();
     const isPublic = useAppSelector(selectIsPublic);
+    const labelOf = useIndicatorLabeler();
     // Вычисляем данные (всегда, даже если нет данных)
     const tableKpiData = useMemo(() => {
         if (!report || (report.length && !report[0]?.kpi)) return null;
@@ -71,6 +78,16 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
         [mergedReportsData, selectedUsers, selectedActions],
     );
 
+    // Для показа: подписи «Колонок» и строки таблицы со своими названиями
+    const columnLabels = useMemo(
+        () => getMergedColumnLabels(mergedReportsData?.data ?? [], labelOf),
+        [mergedReportsData, labelOf],
+    );
+    const displayRows = useMemo(
+        () => labelTableRows(filteredData, labelOf),
+        [filteredData, labelOf],
+    );
+
     // Ранний return ПОСЛЕ всех хуков
     if (!mergedReportsData) {
         return <div>Нет данных для отображения</div>;
@@ -82,13 +99,14 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
                 columns={columns}
                 selectedActions={selectedActions}
                 onChange={setSelectedActions}
+                columnLabels={columnLabels}
             />
 
             {tableKpiData && (
                 <RTable
                     code={tableKpiData.code}
                     firstCellName={tableKpiData.firstCellName}
-                    data={filteredData}
+                    data={displayRows}
                     withLink={!isPublic}
                     annotations={annotations}
                     planAnnotations={planAnnotations}
@@ -98,18 +116,21 @@ export const MergedReportTable: React.FC<MergedReportTableProps> = ({ report, ca
                 <MergedReportChart
                     data={filteredData}
                     selectedActions={selectedActions}
+                    labelOf={labelOf}
                 />
             </ChartsGate>
 
             <MergedReportTotalTable
                 data={filteredData}
                 selectedActions={selectedActions}
+                labelOf={labelOf}
             />
 
             <ChartsGate>
                 <MergedReportTotalChart
                     data={filteredData}
                     selectedActions={selectedActions}
+                    labelOf={labelOf}
                 />
             </ChartsGate>
         </div>

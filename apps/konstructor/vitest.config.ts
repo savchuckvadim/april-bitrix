@@ -2,6 +2,8 @@ import { defineConfig } from 'vitest/config';
 import path from 'node:path';
 
 export default defineConfig({
+    // экраны с JSX рендерятся в тестах без `import React` (как в Next)
+    esbuild: { jsx: 'automatic' },
     resolve: {
         alias: {
             '@bitrix': path.resolve(__dirname, '../../packages/bitrix/src'),

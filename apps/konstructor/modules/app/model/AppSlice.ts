@@ -85,6 +85,15 @@ const appSlice = createSlice({
         setDealId: (state: AppState, action: PayloadAction<number>) => {
             state.dealId = action.payload;
         },
+
+        /**
+         * Созданная из конструктора сделка прочитана из Битрикса: в компании без
+         * сделки приложение получает её так же, как при старте внутри сделки.
+         */
+        setDeal: (state: AppState, action: PayloadAction<IBXDeal>) => {
+            state.bitrix.deal = action.payload;
+            state.dealId = Number(action.payload.ID);
+        },
         setInitializedSuccess: (state: AppState, action: PayloadAction<{}>) => {
             state.initialized = true;
         },

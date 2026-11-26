@@ -59,6 +59,14 @@ const snapshotSlice = createSlice({
         none(state) {
             state.status = 'none';
         },
+        /**
+         * Сделка создана из конструктора, и слепок её сборки уже записан: сборка
+         * в сторе и есть слепок сделки. Статус «восстановлен» без раскладки, чтобы
+         * вход `/` не ждал слепка, который никто не запрашивал.
+         */
+        adopted(state) {
+            state.status = 'restored';
+        },
         failed(state, action: PayloadAction<string>) {
             state.status = 'error';
             state.error = action.payload;
@@ -97,6 +105,7 @@ const {
     started,
     restored,
     none,
+    adopted,
     failed,
     saveStarted,
     saveDone,
@@ -110,6 +119,7 @@ export const snapshotActions = {
     started,
     restored,
     none,
+    adopted,
     failed,
     saveStarted,
     saveDone,

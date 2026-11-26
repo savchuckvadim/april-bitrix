@@ -1,3 +1,4 @@
+import type { IBXCompany, IBXDeal } from '@bitrix/index';
 import { Bitrix } from '@workspace/bitrix';
 import { Placement } from '@workspace/bx';
 import {
@@ -12,12 +13,9 @@ import type { AppDispatch } from '../../../model/store';
 import { appActions } from '../../../model/AppSlice';
 import { bitrixInit } from '../bitrix-init/bitrix-init.util';
 import { bootstrapPortalSession } from '../../portal-session/portal-session';
-import {
-    COMPANY_DEAL_SELECT,
-    pickCompanyDeal,
-    resolvePlacementEntity,
-    type PlacementEntity,
-} from './placement-entity.util';
+import { readCompany } from '../../services/bx-company-entry.service';
+import { resolveCompanyDealId } from './company-entry.util';
+import { resolvePlacementEntity } from './placement-entity.util';
 
 /** Код ошибки инициализации «не во фрейме Bitrix в PROD». */
 export const NON_AUTH_ERROR = 'nonauth';
@@ -25,29 +23,11 @@ export const NON_AUTH_ERROR = 'nonauth';
 /** Код ошибки инициализации «в сделке не указана компания». */
 export const NO_COMPANY_ERROR = 'nocompany';
 
-/** Код ошибки инициализации «открыто из компании, а сделок у неё нет». */
-export const NO_DEAL_ERROR = 'nodeal';
+/** Код ошибки инициализации «открыто не из сделки и не из компании» (лид и прочее). */
+export const NO_ENTITY_ERROR = 'noentity';
 
-/**
- * dealId по сущности placement: из сделки — её ID; из компании — её сделка
- * (открытая и самая свежая) через crm.deal.list по COMPANY_ID (решение 5).
- * null — компания без сделок (или REST недоступен).
- */
-const resolveDealId = async (entity: PlacementEntity): Promise<number | null> => {
-    if (!entity) return null;
-    if (entity.kind === 'deal') return entity.id;
-    try {
-        const response = await Bitrix.getService().deal.getList(
-            { COMPANY_ID: String(entity.id) },
-            COMPANY_DEAL_SELECT,
-            { DATE_CREATE: 'DESC' },
-        );
-        return pickCompanyDeal(response?.result ?? [])?.ID ?? null;
-    } catch (error) {
-        console.warn('app-init: сделки компании недоступны', error);
-        return null;
-    }
-};
+/** Код ошибки инициализации «компания из placement не прочиталась». */
+export const COMPANY_UNAVAILABLE_ERROR = 'companyunavailable';
 
 /**
  * Boot-последовательность: Bitrix.start (во фрейме — реальный domain, вне
@@ -55,6 +35,10 @@ const resolveDealId = async (entity: PlacementEntity): Promise<number | null> =>
  * placement → dealId → сделка+компания] → setAppData. Каталог стартует по
  * готовности сессии (portalSessionReady), остальное — на setAppData: портал,
  * слепок сделки, реквизиты, поставщики.
+ *
+ * Из карточки компании dealId — её открытая сделка «ОП Основная»; нет такой —
+ * конструктор работает на компании без сделки (dealId и deal пустые), сделку
+ * создаёт кнопка «Создать сделку».
  */
 export const appInit = async (dispatch: AppDispatch) => {
     // deferUser: фрейм поднят — домен, placement и auth уже известны;
@@ -94,18 +78,23 @@ export const appInit = async (dispatch: AppDispatch) => {
     const placement =
         bitrix.api.getPlacement() || (TESTING_PLACEMENT as Placement);
     const entity = resolvePlacementEntity(placement);
-    const dealId = await resolveDealId(entity);
 
-    // Из карточки компании без единой сделки конструктору нечего открывать.
-    if (entity?.kind === 'company' && !dealId) {
-        dispatch(appActions.setInitializedError({ errorMessage: NO_DEAL_ERROR }));
+    // Конструктор открывается из сделки или компании; лид и прочие карточки —
+    // отдельный экран, без падения.
+    if (!entity) {
+        dispatch(appActions.setInitializedError({ errorMessage: NO_ENTITY_ERROR }));
         return;
     }
 
+    let dealId =
+        entity.kind === 'deal'
+            ? entity.id
+            : await resolveCompanyDealId(entity.id, domain, sessionReady);
+
     // Сделка+компания из Bitrix REST — best-effort: в dev против чужого
     // портала REST может быть недоступен, init не должен падать.
-    let deal = null;
-    let company = null;
+    let deal: IBXDeal | null = null;
+    let company: IBXCompany | null = null;
     if (dealId) {
         try {
             const bxResult = await bitrixInit(dealId);
@@ -113,6 +102,21 @@ export const appInit = async (dispatch: AppDispatch) => {
             company = bxResult?.company ?? null;
         } catch (error) {
             console.warn('app-init: bitrix deal/company недоступны', error);
+        }
+    }
+
+    if (entity.kind === 'company') {
+        // сделка компании не прочиталась — работаем на самой компании
+        if (!deal) dealId = null;
+        company = company ?? (await readCompany(entity.id));
+        // Компания — основа конструктора: без неё нет ни реквизитов, ни документов.
+        if (!company) {
+            dispatch(
+                appActions.setInitializedError({
+                    errorMessage: COMPANY_UNAVAILABLE_ERROR,
+                }),
+            );
+            return;
         }
     }
 
@@ -138,7 +142,7 @@ export const appInit = async (dispatch: AppDispatch) => {
             deal,
             company,
             dealId,
-            placement: { code: placement.placement, entity: entity?.kind ?? null },
+            placement: { code: placement.placement, entity: entity.kind },
         }),
     );
 };

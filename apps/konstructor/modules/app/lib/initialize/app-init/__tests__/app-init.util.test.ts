@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
     start: vi.fn(),
     bitrixInit: vi.fn(),
     bootstrapPortalSession: vi.fn(),
+    resolveCompanyDealId: vi.fn(),
+    readCompany: vi.fn(),
 }));
 
 vi.mock('@workspace/bitrix', () => ({
@@ -24,6 +26,12 @@ vi.mock('../../bitrix-init/bitrix-init.util', () => ({
 vi.mock('../../../portal-session/portal-session', () => ({
     bootstrapPortalSession: mocks.bootstrapPortalSession,
 }));
+vi.mock('../company-entry.util', () => ({
+    resolveCompanyDealId: mocks.resolveCompanyDealId,
+}));
+vi.mock('../../../services/bx-company-entry.service', () => ({
+    readCompany: mocks.readCompany,
+}));
 vi.mock('../../../../consts/app-global', () => ({
     IS_PROD: false,
     HAS_DEV_PLACEMENT: true,
@@ -34,17 +42,28 @@ vi.mock('../../../../consts/app-global', () => ({
 }));
 
 import { appActions } from '../../../../model/AppSlice';
-import { appInit } from '../app-init.util';
+import {
+    appInit,
+    COMPANY_UNAVAILABLE_ERROR,
+    NO_ENTITY_ERROR,
+} from '../app-init.util';
 
 const flush = () => new Promise(resolve => setTimeout(resolve, 0));
 const DEAL = { deal: { ID: 42 }, company: { ID: 9 } };
 
+const DEAL_PLACEMENT = { placement: 'CRM_DEAL_DETAIL_TAB', options: { ID: 42 } };
+const COMPANY_PLACEMENT = { placement: 'CRM_COMPANY_DETAIL_TAB', options: { ID: 9 } };
+const LEAD_PLACEMENT = { placement: 'CRM_LEAD_DETAIL_TAB', options: { ID: 3 } };
+
 /** Фрейм поднят: домен и placement известны, пользователь — когда ответит Битрикс */
-const startInFrame = (user: Promise<{ ID: number } | null>) =>
+const startInFrame = (
+    user: Promise<{ ID: number } | null>,
+    placement: { placement: string; options: { ID: number } } = DEAL_PLACEMENT,
+) =>
     mocks.start.mockResolvedValue({
         api: {
             getInitializedData: () => ({ domain: 'portal.bitrix24.ru', inFrame: true }),
-            getPlacement: () => ({ placement: 'CRM_DEAL_DETAIL_TAB', options: { ID: 42 } }),
+            getPlacement: () => placement,
             whenUser: () => user,
         },
     });
@@ -143,5 +162,127 @@ describe('старт приложения: пользователь, сесси�
             appActions.setAppData.type,
         ]);
         expect(dispatch.mock.calls[1]?.[0]).toMatchObject({ payload: { user: { ID: 1 } } });
+    });
+});
+
+describe('старт из карточки компании', () => {
+    const COMPANY = { ID: 9, TITLE: 'ООО Ромашка' };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        startInFrame(Promise.resolve({ ID: 5 }), COMPANY_PLACEMENT);
+        mocks.bootstrapPortalSession.mockResolvedValue(true);
+    });
+
+    it('открытая сделка «ОП Основная» есть: грузится она вместе с компанией', async () => {
+        mocks.resolveCompanyDealId.mockResolvedValue(501);
+        mocks.bitrixInit.mockResolvedValue({ deal: { ID: 501 }, company: COMPANY });
+        const dispatch = vi.fn();
+
+        await appInit(dispatch);
+
+        expect(mocks.resolveCompanyDealId).toHaveBeenCalledWith(
+            9,
+            'portal.bitrix24.ru',
+            expect.any(Promise),
+        );
+        expect(mocks.bitrixInit).toHaveBeenCalledWith(501);
+        expect(mocks.readCompany).not.toHaveBeenCalled();
+        expect(dispatch.mock.calls.at(-1)?.[0]).toMatchObject({
+            type: appActions.setAppData.type,
+            payload: {
+                dealId: 501,
+                deal: { ID: 501 },
+                company: COMPANY,
+                placement: { code: 'CRM_COMPANY_DETAIL_TAB', entity: 'company' },
+            },
+        });
+    });
+
+    it('подходящей сделки нет: ошибки нет, компания загружена по ID из placement, сделки нет', async () => {
+        mocks.resolveCompanyDealId.mockResolvedValue(null);
+        mocks.readCompany.mockResolvedValue(COMPANY);
+        const dispatch = vi.fn();
+
+        await appInit(dispatch);
+
+        expect(mocks.bitrixInit).not.toHaveBeenCalled();
+        expect(mocks.readCompany).toHaveBeenCalledWith(9);
+        expect(typesOf(dispatch)).toEqual([
+            appActions.portalSessionReady.type,
+            appActions.setAppData.type,
+        ]);
+        expect(dispatch.mock.calls[1]?.[0]).toMatchObject({
+            payload: {
+                domain: 'portal.bitrix24.ru',
+                user: { ID: 5 },
+                dealId: null,
+                deal: null,
+                company: COMPANY,
+                placement: { code: 'CRM_COMPANY_DETAIL_TAB', entity: 'company' },
+            },
+        });
+    });
+
+    it('сделка найдена, но не прочиталась: работаем на самой компании', async () => {
+        mocks.resolveCompanyDealId.mockResolvedValue(501);
+        mocks.bitrixInit.mockResolvedValue(null);
+        mocks.readCompany.mockResolvedValue(COMPANY);
+        const dispatch = vi.fn();
+
+        await appInit(dispatch);
+
+        expect(dispatch.mock.calls.at(-1)?.[0]).toMatchObject({
+            payload: { dealId: null, deal: null, company: COMPANY },
+        });
+    });
+
+    it('компания не прочиталась: экран «компания недоступна», приложение не стартует', async () => {
+        mocks.resolveCompanyDealId.mockResolvedValue(null);
+        mocks.readCompany.mockResolvedValue(null);
+        const dispatch = vi.fn();
+
+        await appInit(dispatch);
+
+        expect(typesOf(dispatch)).not.toContain(appActions.setAppData.type);
+        expect(dispatch).toHaveBeenCalledWith(
+            appActions.setInitializedError({ errorMessage: COMPANY_UNAVAILABLE_ERROR }),
+        );
+    });
+});
+
+describe('старт из лида и неизвестной карточки', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mocks.bootstrapPortalSession.mockResolvedValue(true);
+    });
+
+    it('лид: экран «работает из сделки или компании», запросов к сделкам нет', async () => {
+        startInFrame(Promise.resolve({ ID: 5 }), LEAD_PLACEMENT);
+        const dispatch = vi.fn();
+
+        await appInit(dispatch);
+
+        expect(dispatch).toHaveBeenCalledWith(
+            appActions.setInitializedError({ errorMessage: NO_ENTITY_ERROR }),
+        );
+        expect(typesOf(dispatch)).not.toContain(appActions.setAppData.type);
+        expect(mocks.resolveCompanyDealId).not.toHaveBeenCalled();
+        expect(mocks.bitrixInit).not.toHaveBeenCalled();
+        expect(mocks.readCompany).not.toHaveBeenCalled();
+    });
+
+    it('placement без ID карточки — тот же экран', async () => {
+        startInFrame(Promise.resolve({ ID: 5 }), {
+            placement: 'DEFAULT',
+            options: { ID: 0 },
+        });
+        const dispatch = vi.fn();
+
+        await appInit(dispatch);
+
+        expect(dispatch).toHaveBeenCalledWith(
+            appActions.setInitializedError({ errorMessage: NO_ENTITY_ERROR }),
+        );
     });
 });

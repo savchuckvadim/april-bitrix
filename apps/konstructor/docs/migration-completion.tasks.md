@@ -262,7 +262,7 @@
 - [x] 1.7 **Сделка компании** (решение 5): `bitrix.deal.list({ COMPANY_ID })`
       — метод дописать в `@workspace/bitrix` по образцу соседей; выбор сделки
       (открытая, свежая) — чистая функция в `entry-route.util` с тестом.
-      ✔ 24.10: resolvePlacementEntity + pickCompanyDeal (app/lib/initialize/app-init/placement-entity.util.ts, тесты) → deal.getList({COMPANY_ID}); компания без сделок — NoDealScreen.
+      ✔ 24.10: resolvePlacementEntity + pickCompanyDeal (app/lib/initialize/app-init/placement-entity.util.ts, тесты) → deal.getList({COMPANY_ID}); компания без сделок — NoDealScreen. 26.11: NoDealScreen снят, из компании берётся открытая сделка sales_base, иначе режим компании без сделки (dev-guide §3).
 - [ ] 1.8 **Потоки документов** (решение 7): в конструкторе остаётся отметка
       презентации при КП; событие «документ сформирован» публикует бэк
       konstructor (контракт — вопрос C). hookAPI на фронте не появляется.

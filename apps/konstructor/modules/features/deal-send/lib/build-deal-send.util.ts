@@ -49,6 +49,11 @@ export interface DealSendInput {
     serviceDepartment?: boolean;
     /** Сервисный отдел, «следующий период»: писать в элемент смарта, не в сделку */
     target?: DealSendRequest['target'];
+    /**
+     * Ключ попытки создать сделку (dealId нет): повтор той же попытки с тем же
+     * ключом не заводит вторую сделку. У существующей сделки ключ не нужен.
+     */
+    requestKey?: string | null;
 }
 
 /** Группы инфоблоков init v2 / фикстуры → поля сделки (легаси groupsName). */
@@ -201,5 +206,6 @@ export const buildDealSendRequest = (input: DealSendInput): DealSendRequest => {
         ],
         productRows: input.productRows ?? buildProductRows(input.general, catalog),
         ...(input.target ? { target: input.target } : {}),
+        ...(input.requestKey && !input.dealId ? { requestKey: input.requestKey } : {}),
     };
 };

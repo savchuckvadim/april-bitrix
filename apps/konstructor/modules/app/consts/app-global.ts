@@ -1,5 +1,6 @@
 import { IBXUser } from '@workspace/bitrix/src/domain/interfaces/bitrix.interface';
 import { Placement } from '@workspace/bx';
+import { buildDevPlacement } from './dev-placement.util';
 
 /**
  * true = сборка для фрейма Bitrix (NEXT_PUBLIC_IN_BITRIX инлайнится на билде).
@@ -20,13 +21,22 @@ export const TESTING_DOMAIN = devEnv(process.env.NEXT_PUBLIC_DEV_DOMAIN);
 export const TESTING_DEAL_ID =  Number(devEnv(process.env.NEXT_PUBLIC_DEV_DEAL_ID)) || 0;
 export const TESTING_COMPANY_ID = Number(devEnv(process.env.NEXT_PUBLIC_DEV_COMPANY_ID)) || 0;
 export const DEV_CURRENT_USER_ID = Number(devEnv(process.env.NEXT_PUBLIC_DEV_USER_ID)) || 1;
+/** Какую карточку имитирует dev: `deal` (по умолчанию) или `company` */
+export const TESTING_PLACEMENT_KIND = devEnv(process.env.NEXT_PUBLIC_DEV_PLACEMENT).toLowerCase();
 
-/** Dev-режим настроен: есть тестовый портал и сделка */
-export const HAS_DEV_PLACEMENT = Boolean(TESTING_DOMAIN && TESTING_DEAL_ID);
+const DEV_PLACEMENT = buildDevPlacement({
+    dealId: TESTING_DEAL_ID,
+    companyId: TESTING_COMPANY_ID,
+    kind: TESTING_PLACEMENT_KIND,
+});
+
+/** Dev-режим настроен: есть тестовый портал и ID карточки (сделки или компании) */
+export const HAS_DEV_PLACEMENT = Boolean(TESTING_DOMAIN && DEV_PLACEMENT);
 
 export const DEV_PLACEMENT_HINT =
     'Dev-режим вне фрейма Bitrix: задайте NEXT_PUBLIC_DEV_DOMAIN и NEXT_PUBLIC_DEV_DEAL_ID ' +
-    'в apps/konstructor/.env — только тестовый портал и тестовая сделка.';
+    '(или NEXT_PUBLIC_DEV_COMPANY_ID вместе с NEXT_PUBLIC_DEV_PLACEMENT=company) ' +
+    'в apps/konstructor/.env — только тестовый портал и тестовая сделка или компания.';
 
 export const TESTING_USER = {
     ID: DEV_CURRENT_USER_ID,
@@ -56,15 +66,11 @@ export const TESTING_USER = {
     WORK_POSITION: 'Оператор ТМЦ',
 } as IBXUser;
 
-export const TESTING_PLACEMENT = {
+/**
+ * Placement dev-режима: вкладка сделки или компании (NEXT_PUBLIC_DEV_PLACEMENT).
+ * Env не настроен — вкладка сделки без ID, app-init до неё не доходит.
+ */
+export const TESTING_PLACEMENT = (DEV_PLACEMENT ?? {
     placement: 'CRM_DEAL_DETAIL_TAB',
-    options: {
-        ID: TESTING_DEAL_ID,
-    },
-} as Placement;
-
-// COMPANY-вариант (восстановление сделки по компании отложено — см. docs):
-// export const TESTING_PLACEMENT = {
-//     placement: 'CRM_COMPANY_DETAIL_TAB',
-//     options: { ID: TESTING_COMPANY_ID },
-// } as Placement;
+    options: { ID: TESTING_DEAL_ID },
+}) as Placement;

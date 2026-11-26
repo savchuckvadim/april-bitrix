@@ -54,5 +54,29 @@ export const PBX_DEAL_CATEGORY = {
     PRESENTATION: 'sales_presentation',
 } as const;
 
+/**
+ * Финальные стадии воронки sales_base: успех, провал, «Не состоялась»
+ * (APOLOGY) и «Не ЦА». Лестница стадий лежит в
+ * packages/event-sales-flow/src/types/pbx-deal-sales-base-stages.const.ts
+ * (всё, что от sales_success и выше). Сделка на такой стадии закрыта.
+ */
+export const PBX_SALES_BASE_FINAL_STAGE_CODES: ReadonlySet<string> = new Set([
+    'sales_success',
+    'sales_fail',
+    'sales_double',
+    'sales_not_ca',
+]);
+
+/**
+ * Воронка продаж портала в числах Битрикса: по ней из карточки компании
+ * находится открытая сделка конструктора.
+ */
+export interface SalesFunnelScope {
+    /** CATEGORY_ID воронки sales_base */
+    categoryId: number;
+    /** STAGE_ID финальных стадий этой воронки */
+    finalStageIds: ReadonlySet<string>;
+}
+
 /** Код RPA-процесса поставки. */
 export const PBX_RPA_SUPPLY = 'supply';

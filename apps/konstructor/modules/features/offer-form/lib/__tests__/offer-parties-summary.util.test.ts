@@ -5,6 +5,7 @@ import {
     OFFER_PARTY_INVOICE_AUTO_NUMBER,
     OFFER_PARTY_INVOICE_DATE_EMPTY,
     OFFER_PARTY_INVOICE_NONE,
+    OFFER_PARTY_PRESENTATION_EMPTY,
     OFFER_PARTY_PROVIDER_EMPTY,
     buildOfferPartyFacts,
     formatInvoiceDate,
@@ -17,6 +18,7 @@ const input = (patch: Partial<OfferPartiesInput> = {}): OfferPartiesInput => ({
     recipient: { companyName: 'ООО «Ромашка»', inn: '7701234567' },
     providerName: 'ООО «Гарант-Офис»',
     invoice: { needGeneralInvoice: false, needManyInvoices: false, invoiceDate: '', invoiceNumber: '' },
+    presentation: null,
     ...patch,
 });
 
@@ -168,6 +170,34 @@ describe('Счёт', () => {
     it('номер из пробелов — номера нет', () => {
         const invoice = fact('invoice', requested({ invoiceNumber: '   ', invoiceDate: '2026-12-15' }));
         expect(invoice.value).toBe(`${OFFER_PARTY_INVOICE_AUTO_NUMBER} до 15.12.2026`);
+    });
+});
+
+describe('Презентация', () => {
+    it('ответ «Нет» или вопроса нет — строки в сводке нет', () => {
+        expect(buildOfferPartyFacts(input({ presentation: null })).map(item => item.id)).not.toContain('presentation');
+    });
+
+    it('«Да» — последняя строка с названием выбранной презентации', () => {
+        const facts = buildOfferPartyFacts(input({ presentation: { title: 'Презентация «Гарант»' } }));
+        expect(facts.map(item => item.id)).toEqual(['recipient', 'provider', 'invoice', 'presentation']);
+        expect(fact('presentation', { presentation: { title: 'Презентация «Гарант»' } })).toMatchObject({
+            label: 'Презентация',
+            value: 'Презентация «Гарант»',
+            isValueWarning: false,
+            note: null,
+            anchor: 'sender',
+        });
+    });
+
+    it('«Да», но презентация ещё не выбрана — пометка с предупреждением', () => {
+        const presentation = fact('presentation', { presentation: { title: null } });
+        expect(presentation.value).toBe(OFFER_PARTY_PRESENTATION_EMPTY);
+        expect(presentation.isValueWarning).toBe(true);
+    });
+
+    it('название из пробелов считается пустым', () => {
+        expect(fact('presentation', { presentation: { title: '   ' } }).isValueWarning).toBe(true);
     });
 });
 

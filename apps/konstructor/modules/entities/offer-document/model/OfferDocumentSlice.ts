@@ -4,14 +4,17 @@ import {
     DEFAULT_INVOICE,
     EMPTY_RECIPIENT,
     INITIAL_INVOICE_PEEK,
+    INITIAL_PRESENTATION,
     type OfferGeneratedLink,
     type OfferGenerateResult,
     type OfferInvoiceAnswer,
     type OfferInvoiceForm,
     type OfferInvoicePeek,
+    type OfferPresentationState,
     type OfferRecipientCaseField,
     type OfferRecipientField,
     type OfferRecipientForm,
+    type PresentationDeal,
 } from './types';
 
 export interface OfferDocumentState {
@@ -25,6 +28,8 @@ export interface OfferDocumentState {
     invoicePeek: OfferInvoicePeek;
     /** Дата или номер счёта не записались в сделку; null — записалось или писать нечего */
     invoiceSaveError: string | null;
+    /** Презентации сделки и ответ «Документы в продолжение презентации?» */
+    presentation: OfferPresentationState;
     generate: OfferGenerateResult;
 }
 
@@ -43,6 +48,7 @@ const initialState: OfferDocumentState = {
     invoice: DEFAULT_INVOICE,
     invoicePeek: INITIAL_INVOICE_PEEK,
     invoiceSaveError: null,
+    presentation: INITIAL_PRESENTATION,
     generate: initialGenerate,
 };
 
@@ -100,6 +106,27 @@ export const offerDocumentSlice = createSlice({
         },
         setInvoiceSaveError(state: OfferDocumentState, action: PayloadAction<string | null>) {
             state.invoiceSaveError = action.payload;
+        },
+        presentationLoading(state: OfferDocumentState) {
+            state.presentation.status = 'loading';
+        },
+        presentationLoaded(state: OfferDocumentState, action: PayloadAction<PresentationDeal[]>) {
+            const { presentation } = state;
+            presentation.status = 'ready';
+            presentation.items = action.payload;
+            // выбранной презентации в списке больше нет — выбор снимается
+            if (presentation.dealId !== null && !action.payload.some(item => item.id === presentation.dealId)) {
+                presentation.dealId = null;
+            }
+        },
+        presentationFailed(state: OfferDocumentState) {
+            state.presentation.status = 'failed';
+        },
+        setPresentationAnswer(state: OfferDocumentState, action: PayloadAction<boolean>) {
+            state.presentation.answer = action.payload;
+        },
+        setPresentationDeal(state: OfferDocumentState, action: PayloadAction<number | null>) {
+            state.presentation.dealId = action.payload;
         },
         generateStarted(state: OfferDocumentState) {
             state.generate = { ...initialGenerate, status: 'generating' };

@@ -148,7 +148,7 @@ describe('ядро сборки договора и обёртки живого 
         expect(withoutTimestamps(request)).toEqual(withoutTimestamps(buildSpecificationFormCore(coreInput)));
     });
 
-    it('generate: обёртка равна ядру на тех же данных', () => {
+    it('generate: обёртка равна ядру на тех же данных плюс признак потока продаж', () => {
         const request = buildContractGenerateRequest(state);
         expect(request).not.toBeNull();
         const viaCore = buildContractGenerateCore({
@@ -165,7 +165,8 @@ describe('ядро сборки договора и обёртки живого 
             },
             values: { contractNumber: ' 12/3 ', specification: [specificationItem] },
         });
-        expect(withoutTimestamps(request)).toEqual(withoutTimestamps(viaCore));
+        // отдел продаж по умолчанию: обёртка добавляет к ядру только salesFlow
+        expect(withoutTimestamps(request)).toEqual(withoutTimestamps({ ...viaCore, salesFlow: true }));
     });
 
     it('generate: номер без пробелов, поля сделки, спецификация и реквизит из состояния', () => {

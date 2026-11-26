@@ -3,11 +3,11 @@ import {
     getKonstructorDocumentSupplyReport,
     type DocumentSupplyReportGenerateDto,
     type DocumentSupplyReportGenerateResponseDto,
-    type InitSupplyDto,
     type InitSupplyResponseDto,
     type SupplyReportFormRequestDto,
     type SupplyReportFormResponseDto,
 } from '@workspace/nest-konstructor-api';
+import type { InitSupplyRequest } from '../../model/dto';
 
 /** Единственное место со сгенерированным клиентом отчёта о поставке и init-supply. */
 export class SupplyReportHelper {
@@ -25,7 +25,7 @@ export class SupplyReportHelper {
     }
 
     /** Заявка RPA «Поставка»: создать или обновить, файлы в сделку, таймлайн по участникам */
-    async initSupply(request: InitSupplyDto): Promise<InitSupplyResponseDto> {
+    async initSupply(request: InitSupplyRequest): Promise<InitSupplyResponseDto> {
         return this.konstructor.initSupplyInitSupply(request);
     }
 }

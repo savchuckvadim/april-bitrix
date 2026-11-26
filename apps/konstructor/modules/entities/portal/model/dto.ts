@@ -50,6 +50,8 @@ export const PBX_SMART_TYPE = {
 export const PBX_DEAL_CATEGORY = {
     SALES: 'sales_base',
     SERVICE: 'service_base',
+    /** Воронка «ОП Презентации»: сделки презентаций ссылаются на основную полем to_base_sales */
+    PRESENTATION: 'sales_presentation',
 } as const;
 
 /** Код RPA-процесса поставки. */

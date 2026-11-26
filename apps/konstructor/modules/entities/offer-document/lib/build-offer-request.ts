@@ -11,8 +11,11 @@ import {
     type OfferGenerateRequest,
 } from '../../document-payload';
 import { findMainRow } from '../../row-set';
+import type { OfferSalesFlowFields } from '../model/types';
 import { clientTypeBlocker, toOfferClientType } from './client-type.util';
+import { presentationBlocker } from './presentation-choice.util';
 import { selectOfferRequestInvoice } from './select-invoice';
+import { selectOfferSalesFlowFields } from './select-sales-flow';
 import { managerFromBxUser } from './manager.util';
 import {
     alternativeComplectsFields,
@@ -56,12 +59,15 @@ export const offerRequestBlocker = (state: RootState): string | null => offerBlo
 
 /**
  * Почему КП в заданном формате нельзя сформировать — подпись к кнопке
- * «Сформировать»; null — можно. К блокерам offerBlocker добавляется тип клиента:
- * он обязателен, по нему бэк подбирает шаблон счёта. Превью этим блокером не
- * закрывается: оно собирается по offerBlocker.
+ * «Сформировать»; null — можно. К блокерам offerBlocker добавляются тип клиента
+ * (он обязателен, по нему бэк подбирает шаблон счёта) и выбор презентации: на
+ * «Да» при нескольких презентациях КП без выбора не уходит. Превью этими
+ * блокерами не закрывается: оно собирается по offerBlocker.
  */
 export const offerGenerateBlocker = (state: RootState, format: OfferBlockerFormat): string | null =>
-    offerBlocker(state, format) ?? clientTypeBlocker(selectClientType(state));
+    offerBlocker(state, format) ??
+    clientTypeBlocker(selectClientType(state)) ??
+    presentationBlocker(state.offerDocument.presentation);
 
 /** Блокер формирования КП в Word (кнопка и thunk). */
 export const offerWordGenerateBlocker = (state: RootState): string | null => offerGenerateBlocker(state, 'word');
@@ -78,10 +84,13 @@ export type OfferVariantsFields = Partial<Pick<OfferWordMultiGenerateDto, 'compo
 /**
  * Запрос generate-multi с разделами по комплектам: у самого КП и у открытого
  * варианта. Способ печати (`complectsMode`) Word-запрос не несёт: Word-шаблоны
- * блока «по комплектам» пока не имеют.
+ * блока «по комплектам» пока не имеют. Поля потока продаж (`salesFlow`,
+ * `presentation`) бэк принимает необязательными, в сгенерированном клиенте их
+ * пока нет; после `pnpm run generate` расширение можно убрать.
  */
 export type OfferMultiGenerateRequest = Omit<OfferWordMultiGenerateDto, 'variants'> &
-    DocComplectsFields & { variants: DocVariant[] };
+    DocComplectsFields &
+    OfferSalesFlowFields & { variants: DocVariant[] };
 
 /**
  * Участники Word-КП: открытый вариант вместе с наполнением его наборов для
@@ -155,7 +164,8 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
 /**
  * Запрос generate-multi: КП плюс открытый вариант и настройки сборки (режим
  * `compare` при любом режиме сделки). Открытого варианта нет — бэк печатает
- * одиночное КП (variants: []).
+ * одиночное КП (variants: []). Запрос формирования несёт поля потока продаж:
+ * `salesFlow` у отдела продаж и `presentation` с выбранной презентацией.
  */
 export const buildOfferMultiGenerateRequest = (state: RootState): OfferMultiGenerateRequest | null => {
     if (offerRequestBlocker(state)) return null;
@@ -166,5 +176,6 @@ export const buildOfferMultiGenerateRequest = (state: RootState): OfferMultiGene
         ...offer,
         variants,
         composition: variants.length ? selectOfferComposition(state) : undefined,
+        ...selectOfferSalesFlowFields(state),
     };
 };

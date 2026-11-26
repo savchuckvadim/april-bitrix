@@ -1,3 +1,4 @@
+import type { SalesFlowFields } from '@/modules/app/lib/sales-flow.util';
 import type { OfferInvoice, OfferRecipient } from '../../document-payload';
 
 /**
@@ -78,3 +79,56 @@ export interface OfferInvoicePeek {
 }
 
 export const INITIAL_INVOICE_PEEK: OfferInvoicePeek = { status: 'idle', rqId: null, value: null };
+
+/**
+ * Сделка презентации: сделка воронки «ОП Презентации» той же компании,
+ * которая ссылается на основную полем `to_base_sales`. Менеджер выбирает ту,
+ * после которой отправляется КП.
+ */
+export interface PresentationDeal {
+    id: number;
+    title: string;
+    /** Дата создания как отдаёт Битрикс (ISO с зоной); нет — пустая строка */
+    createdAt: string;
+    stageId: string;
+}
+
+export type PresentationLoadStatus = 'idle' | 'loading' | 'ready' | 'failed';
+
+/**
+ * Вопрос «Документы в продолжение презентации?»: загруженные сделки презентации
+ * и ответ менеджера. Вопрос виден, только когда сделки есть. «Да» с одной
+ * сделкой выбирает её сама; с несколькими нужен явный выбор (`dealId`), пока его
+ * нет, КП не формируется.
+ */
+export interface OfferPresentationState {
+    status: PresentationLoadStatus;
+    /** Сделки презентации, свежие первыми */
+    items: PresentationDeal[];
+    answer: boolean;
+    /** Выбранная презентация при нескольких сделках */
+    dealId: number | null;
+}
+
+export const INITIAL_PRESENTATION: OfferPresentationState = {
+    status: 'idle',
+    items: [],
+    answer: false,
+    dealId: null,
+};
+
+/** Поле `presentation` запроса КП: после какой презентации отправляется документ. */
+export interface OfferPresentationRef {
+    dealId: number;
+}
+
+/**
+ * Необязательное поле КП в Word и PDF. Сгенерированный клиент его пока не
+ * знает; после `pnpm run generate` расширение можно убрать.
+ */
+export interface OfferPresentationFields {
+    presentation?: OfferPresentationRef;
+}
+
+/** Поля потока продаж запросов КП: признак отдела и презентация. */
+export type OfferSalesFlowFields = SalesFlowFields & OfferPresentationFields;

@@ -7,6 +7,7 @@ import type {
     OfferPdfTemplateItemDto,
 } from '@workspace/nest-konstructor-api';
 import type { DocComplectsFields, DocVariant, OfferInvoice } from '../../document-payload/model/dto';
+import type { OfferSalesFlowFields } from '../../offer-document/model/types';
 
 /**
  * Доменные имена generated-DTO offer-pdf: UI и хуки берут типы отсюда —
@@ -196,11 +197,13 @@ export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[nu
  * и расширение ниже можно убрать.
  *
  * Запрос формирования принимает ещё необязательные `invoice` (та же форма, что у
- * Word) и `invoiceTemplateId` (пустая строка: шаблон счёта бэк подбирает сам).
+ * Word) и `invoiceTemplateId` (пустая строка: шаблон счёта бэк подбирает сам), а
+ * также поля потока продаж `salesFlow` и `presentation` (withOfferPdfSalesFlow).
  * Запрос превью их не несёт.
  */
 export type OfferPdfGenerateRequest = OfferPdfGenerateDto &
-    DocComplectsFields & {
+    DocComplectsFields &
+    OfferSalesFlowFields & {
         variants?: OfferPdfVariant[];
         composition?: ComplectCompositionDto;
         complectsMode?: OfferComplectsMode;

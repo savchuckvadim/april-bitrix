@@ -11,3 +11,4 @@ export const selectOfferInvoicePeek = (state: WithOfferDocument) => state.offerD
 export const selectOfferInvoiceSaveError = (state: WithOfferDocument) => state.offerDocument.invoiceSaveError;
 export const selectOfferGenerate =(state: WithOfferDocument) => state.offerDocument.generate;
 export const selectOfferInitialized = (state: WithOfferDocument) => state.offerDocument.initialized;
+export const selectOfferPresentation = (state: WithOfferDocument) => state.offerDocument.presentation;

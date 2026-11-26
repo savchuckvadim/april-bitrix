@@ -6,19 +6,22 @@ import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 import { ProviderChoice } from '@/modules/features/provider-select';
 import { useOfferInvoice } from '../hooks/use-offer-invoice';
+import { PartyHint } from './PartyHint';
 
 /**
- * Поставщик и счёт к КП (Word и PDF): «Сделать счёт?», «Сделать счета для всех
- * товаров?» (при наборах для сравнения), «Оплатить счёт до», номер счёта.
+ * «От кого и счёт» (Word и PDF): поставщик, «Сделать счёт?», «Сделать счета для
+ * всех товаров?» (при наборах для сравнения), «Оплатить счёт до» и номер счёта.
+ * Вопросы стоят в одну строку, дата и номер — в другую; подсказка нумератора
+ * спрятана за значком.
  */
 export const InvoiceOptions = () => {
     const invoice = useOfferInvoice();
 
     return (
-        <SectionCard title="Поставщик и счёт" tone="complect">
-            <div className="flex flex-col gap-4">
+        <SectionCard title="От кого и счёт" tone="complect" density="compact" contentClassName="px-3">
+            <div className="flex flex-col gap-3">
                 <ProviderChoice />
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap gap-x-5 gap-y-2">
                     {invoice.answers.map(item => (
                         <label key={item.answer} className="flex items-center gap-2 text-sm">
                             <Checkbox
@@ -30,7 +33,7 @@ export const InvoiceOptions = () => {
                     ))}
                 </div>
                 {invoice.detailsVisible ? (
-                    <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="grid gap-x-3 gap-y-2 sm:grid-cols-2">
                         <div className="flex flex-col gap-1">
                             <Label htmlFor="offer-invoice-date">Оплатить счёт до</Label>
                             <Input
@@ -42,16 +45,17 @@ export const InvoiceOptions = () => {
                             />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <Label htmlFor="offer-invoice-number">Номер счёта</Label>
+                            <div className="flex items-center gap-1.5">
+                                <Label htmlFor="offer-invoice-number">Номер счёта</Label>
+                                {invoice.numberHint ? <PartyHint label="Номер счёта" text={invoice.numberHint} /> : null}
+                            </div>
                             <Input
                                 id="offer-invoice-number"
                                 value={invoice.invoiceNumber}
+                                placeholder="присвоит нумератор"
                                 onChange={event => invoice.setNumber(event.target.value)}
                                 onBlur={invoice.saveNumber}
                             />
-                            {invoice.numberHint ? (
-                                <p className="text-xs text-muted-foreground">{invoice.numberHint}</p>
-                            ) : null}
                         </div>
                         {invoice.saveError ? (
                             <p className="text-xs text-muted-foreground sm:col-span-2">{invoice.saveError}</p>

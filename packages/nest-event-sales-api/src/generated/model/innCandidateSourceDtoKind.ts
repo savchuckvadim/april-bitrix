@@ -18,6 +18,7 @@ export const InnCandidateSourceDtoKind = {
     contact_requisite: 'contact_requisite',
     manual: 'manual',
     deal_field: 'deal_field',
+    deal_card: 'deal_card',
     deal_pool: 'deal_pool',
     company_field: 'company_field',
     lead_field: 'lead_field',

@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/modules/app/lib/hooks/redux';
 import { APP_DEP } from '@/modules/app/model/AppSlice';
 import { selectMainRow } from '@/modules/entities/row-set';
 import { ROUTE_KONSTRUCTOR, useKonstructorNavigation } from '@/modules/shared/lib/routing';
+import { dealSendLabel } from '../lib/deal-send-label.util';
 import { sendDeal } from '../model/deal-send-thunk';
 
 /**
@@ -16,6 +17,7 @@ export const useDealSend = (options: { navigateAfter?: boolean } = {}) => {
     const dealId = useAppSelector(state => state.app.dealId);
     const hasMainRow = Boolean(useAppSelector(selectMainRow));
     const status = useAppSelector(state => state.dealSend.status);
+    const phase = useAppSelector(state => state.dealSend.phase);
     const error = useAppSelector(state => state.dealSend.error);
     const warnings = useAppSelector(state => state.dealSend.warnings);
     // сервисный отдел после сохранения остаётся на ценах (легаси), продажи — к документам
@@ -27,10 +29,11 @@ export const useDealSend = (options: { navigateAfter?: boolean } = {}) => {
         return ok;
     };
 
+    const isSending = status === 'sending';
     return {
         canSend: hasMainRow,
-        label: dealId ? 'Сохранить сделку' : 'Создать сделку',
-        isSending: status === 'sending',
+        label: dealSendLabel({ hasDeal: Boolean(dealId), isSending, phase }),
+        isSending,
         isDone: status === 'done',
         error: status === 'error' ? error : null,
         warnings,

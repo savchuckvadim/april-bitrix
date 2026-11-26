@@ -1,6 +1,7 @@
 import type { AppThunk } from '@/modules/app/model/store';
 import { appActions } from '@/modules/app/model/AppSlice';
 import { selectCatalog } from '@/modules/entities/catalog';
+import { readDeal } from '@/modules/entities/deal';
 import { dealProductRowsBlocker, selectDealProductRows } from '@/modules/entities/offer-document';
 import { findMainRow } from '@/modules/entities/row-set';
 import {
@@ -11,10 +12,36 @@ import {
 import { saveSnapshot, selectSnapshotSaveError } from '@/modules/entities/snapshot';
 import { DealSendHelper } from '../lib/api/deal-send-helper';
 import { buildDealSendRequest } from '../lib/build-deal-send.util';
-import { contractTypeWarning, toDealSendWarnings } from '../lib/deal-send-warnings.util';
+import {
+    contractTypeWarning,
+    dealWriteError,
+    dealWriteWarning,
+    toDealSendWarnings,
+    type DealSendWarning,
+} from '../lib/deal-send-warnings.util';
+import { waitForDealWrite, type DealWriteOutcome } from '../lib/deal-write-status.util';
+import { resolveRequestKey } from '../lib/request-key.util';
 import { dealSendActions } from './DealSendSlice';
 
 const helper = new DealSendHelper();
+
+/**
+ * Дожидается записи полей и строк: бэк ставит её в очередь и отдаёт operationId.
+ * Нет operationId и нет отметки «не поставлено» — писать было нечего.
+ */
+const awaitWrite = async (
+    response: Awaited<ReturnType<DealSendHelper['send']>>,
+    onWriting: () => void,
+): Promise<DealWriteOutcome> => {
+    if (response.operationId) {
+        onWriting();
+        return waitForDealWrite(response.operationId, id => helper.status(id));
+    }
+    if (response.warnings?.includes('write_not_queued')) {
+        return { kind: 'failed', reason: 'запись не поставлена в очередь' };
+    }
+    return { kind: 'written' };
+};
 
 /**
  * «Сохранить сделку» (легаси sendDeal) — единственное сохранение: поля и
@@ -23,6 +50,11 @@ const helper = new DealSendHelper();
  * saveDone-слушателю). Незаписанные поля — предупреждением с адресом правки.
  * Когда варианты продаются вместе, в сделку идут строки всех участников;
  * участник, которого собрать нельзя, блокирует запись текстом ошибки отправки.
+ *
+ * Из компании без сделки отправка создаёт её: попытка идёт с requestKey (после
+ * сбоя повтор берёт тот же ключ), созданная сделка читается из Битрикса и
+ * кладётся в приложение — дальше оно работает как внутри этой сделки. Итог
+ * записи полей ждём по operationId: «готово» означает, что поля легли в сделку.
  */
 export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
     const state = getState();
@@ -44,7 +76,8 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
     }
 
     const serviceTarget = selectServiceTarget(state);
-    dispatch(dealSendActions.started());
+    const requestKey = resolveRequestKey(dealId, state.dealSend.requestKey);
+    dispatch(dealSendActions.started({ requestKey }));
     try {
         const request = buildDealSendRequest({
             domain,
@@ -52,6 +85,7 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
             userId: Number(bitrix.user?.ID) || null,
             companyId: Number(bitrix.company?.ID) || null,
             dealName: bitrix.deal?.TITLE || bitrix.company?.TITLE || 'Сделка из конструктора',
+            requestKey,
             catalog: selectCatalog(state),
             general,
             mainRow,
@@ -66,16 +100,36 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
                 : undefined,
         });
         const response = await helper.send(request);
-        if (response.created) dispatch(appActions.setDealId(response.dealId));
+        if (response.created) {
+            // слепок ниже пишется уже с новым dealId; ключ попытки отработал
+            dispatch(appActions.setDealId(response.dealId));
+            dispatch(dealSendActions.dealCreated());
+        }
         if (response.smartId) dispatch(serviceOfferActions.setSmartId(response.smartId));
         // слепок сделки — после отправки: сделка уже есть, dealId известен
         const saved = await dispatch(saveSnapshot());
+        const write = await awaitWrite(response, () => dispatch(dealSendActions.writing()));
+        // созданную сделку читаем после записи полей: в ней уже лежит всё, что ушло.
+        // Не прочиталась — приложение работает по одному dealId, как раньше.
+        if (response.created) {
+            const deal = await readDeal(response.dealId);
+            if (deal) dispatch(appActions.setDeal(deal));
+        }
+
         if (!saved) {
             const reason = selectSnapshotSaveError(getState()) ?? 'ошибка сохранения';
             dispatch(dealSendActions.failed(`Сделка записана, предложение не сохранилось: ${reason}`));
             return false;
         }
+        if (write.kind === 'failed') {
+            dispatch(
+                dealSendActions.failed(dealWriteError(write.reason, response.dealId, response.created)),
+            );
+            return false;
+        }
         const contractWarning = contractTypeWarning(selectCatalog(state), mainRow);
+        const writeWarning: DealSendWarning[] =
+            write.kind === 'pending' || write.kind === 'unknown' ? [dealWriteWarning(write.kind)] : [];
         dispatch(
             dealSendActions.done({
                 dealId: response.dealId,
@@ -83,6 +137,7 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
                 warnings: [
                     ...(contractWarning ? [contractWarning] : []),
                     ...toDealSendWarnings(response.skipped),
+                    ...writeWarning,
                 ],
             }),
         );

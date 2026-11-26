@@ -49,6 +49,32 @@ export const toDealSendWarnings = (skipped: readonly SkippedField[]): DealSendWa
         ...(REASONS[item.reason] ?? { problem: item.reason, fix: PBX_DEAL_FIELDS }),
     }));
 
+const WRITE_RETRY_FIX =
+    'Проверьте поля сделки через минуту; если они пусты, нажмите «Сохранить сделку» ещё раз';
+
+/**
+ * Запись полей и строк не подтверждена: задание ещё идёт (`pending`) или его
+ * статус узнать не вышло (`unknown`). Сделка при этом создана и сохранена.
+ */
+export const dealWriteWarning = (kind: 'pending' | 'unknown'): DealSendWarning => ({
+    field: 'Запись в сделку',
+    problem:
+        kind === 'pending'
+            ? 'ещё не завершилась'
+            : 'не удалось узнать, записались ли поля и товары',
+    fix: WRITE_RETRY_FIX,
+});
+
+/** Запись полей и строк упала: что случилось и что нажать. */
+export const dealWriteError = (
+    reason: string | null,
+    dealId: number,
+    created: boolean,
+): string => {
+    const subject = created ? `Сделка ${dealId} создана, но поля и товары` : 'Поля и товары';
+    return `${subject} не записались в Битрикс: ${reason || 'причина не названа'}. Нажмите «Сохранить сделку» ещё раз.`;
+};
+
 /**
  * Договор без пункта «Тип договора» (bitrixItemId = 0): фронт поле не шлёт,
  * чтобы не стереть значение в сделке, и говорит, где пункт привязать.

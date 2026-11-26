@@ -21,7 +21,7 @@ export const DealSendButton = ({ navigateAfter = false, className }: DealSendBut
         <div className="flex flex-col items-end gap-1">
             <Button size="sm" className={className} onClick={() => void deal.send()} disabled={deal.isSending}>
                 {deal.isDone ? <Check className="h-4 w-4" /> : <Send className="h-4 w-4" />}
-                {deal.isSending ? 'Отправляю…' : deal.label}
+                {deal.label}
             </Button>
             {deal.error ? <span className="text-xs text-destructive">{deal.error}</span> : null}
             <DealSendWarnings warnings={deal.warnings} />

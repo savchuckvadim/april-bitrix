@@ -9,6 +9,7 @@ import type {
     PlanIndicatorMeta,
     PlanTargetsByCode,
 } from '../model';
+import type { PlansLoadStatus } from '../model/plans-slice';
 import { expectedShare, planForRange } from './plan-period.util';
 import { PlanFactSources, planFact } from './plan-fact.util';
 
@@ -52,6 +53,20 @@ export const enabledIndicators = (
                 },
             ];
         });
+
+/**
+ * Коды включённых показателей, когда данные планов загружены. Не
+ * загружены (ещё не грузили, грузятся, ошибка) — null: «неизвестно»,
+ * а не «ничего не включено».
+ */
+export const loadedEnabledPlanCodes = (
+    status: PlansLoadStatus,
+    catalog: PlanIndicatorMeta[],
+    configs: PlanIndicatorConfig[],
+): ReadonlySet<string> | null =>
+    status === 'ready'
+        ? new Set(enabledIndicators(catalog, configs).map(item => item.code))
+        : null;
 
 /** Достижение одного сотрудника по включённым показателям. */
 export const buildUserAchievementCells = (
@@ -112,6 +127,19 @@ export const aggregateCells = (
 /** Ожидаемая доля выполнения к «сейчас» для выбранного периода отчёта. */
 export const planExpectedShare = (fromISO: string, toISO: string): number =>
     expectedShare(fromISO, toISO);
+
+/**
+ * Чьи планы видны: с PLANS_VIEW_ALL — все сотрудники отчёта, рядовому —
+ * только его собственная строка.
+ */
+export const planScopeUserIds = (
+    visibleUserIds: readonly number[],
+    canViewAll: boolean,
+    currentUserId: number,
+): number[] =>
+    canViewAll
+        ? [...visibleUserIds]
+        : visibleUserIds.filter(id => id === currentUserId);
 
 /**
  * Только сотрудники, у которых задан хотя бы один план: остальные в

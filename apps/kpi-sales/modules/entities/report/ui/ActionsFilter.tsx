@@ -1,6 +1,11 @@
 import React from 'react';
 import { Label } from '@workspace/ui/components/label';
 import { Badge } from '@workspace/ui/components/badge';
+import {
+    defaultIndicatorLabeler,
+    eventLabelKey,
+    type IndicatorLabeler,
+} from '@/modules/shared/lib/indicator-labels';
 import { Filter, FilterInnerCode } from '../model/types/report/report-type';
 
 interface ActionsFilterProps {
@@ -10,16 +15,20 @@ interface ActionsFilterProps {
     currentCodes: ReadonlyArray<FilterInnerCode>;
     /** Действие нажато: включить, если было выключено, и наоборот. */
     onToggle: (code: FilterInnerCode) => void;
+    /** Подписи плашек; по умолчанию — исходные названия без лишних пробелов. */
+    labelOf?: IndicatorLabeler;
 }
 
 /**
  * Действия отчёта (плашки-переключатели). Компонент управляемый — выбор
- * приходит снаружи, в состояние отчёта он не пишет.
+ * приходит снаружи, в состояние отчёта он не пишет. Выбор — по коду,
+ * подпись — выводимое название.
  */
 const ActionsFilter: React.FC<ActionsFilterProps> = ({
     items,
     currentCodes,
     onToggle,
+    labelOf = defaultIndicatorLabeler,
 }) => (
     <div className="mt-4">
         <Label>Действия</Label>
@@ -33,7 +42,7 @@ const ActionsFilter: React.FC<ActionsFilterProps> = ({
                         className="cursor-pointer"
                         onClick={() => onToggle(action.innerCode)}
                     >
-                        {action.name}
+                        {labelOf(eventLabelKey(action.innerCode), action.name ?? '')}
                     </Badge>
                 );
             })}

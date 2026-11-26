@@ -6,6 +6,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@workspace/ui/components/tooltip';
+import { cn } from '@workspace/ui/lib/utils';
 import { AnnotationNote } from './AnnotationNote';
 import { RTableAction, RTableAnnotation } from './rtable.types';
 
@@ -21,7 +22,8 @@ interface RTableValueCellProps {
 /**
  * Ячейка значения показателя с подстроками конверсии и плана. Если у
  * значения есть display — показывается он (число остаётся в данных для
- * рейтингов и CSV); tooltip оборачивает всю ячейку.
+ * рейтингов и CSV); tooltip оборачивает всю ячейку, cellClassName —
+ * класс самой ячейки (подсветка колонки).
  */
 export const RTableValueCell: FC<RTableValueCellProps> = ({
     action,
@@ -39,7 +41,7 @@ export const RTableValueCell: FC<RTableValueCellProps> = ({
     );
 
     return (
-        <TableCell className="text-right">
+        <TableCell className={cn('text-right', action.cellClassName)}>
             {action.tooltip ? (
                 <Tooltip>
                     <TooltipTrigger asChild>{body}</TooltipTrigger>

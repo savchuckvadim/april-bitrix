@@ -13,15 +13,19 @@ import { ReportGroupTabs } from '@/modules/feature/report-tabs';
 import {
     buildCallingRatingDataset,
     callingRowUserId,
+    labelRatingDataset,
 } from '@/modules/feature/report-rating';
+import { useIndicatorLabeler } from '@/modules/feature/portal-view';
+import { labelTableData } from '@/modules/shared';
 import { ConversionTableSettings } from '@/modules/feature/report-conversions/ui/ConversionTableSettings';
 import { useTableConversionAnnotations } from '@/modules/feature/report-conversions/hooks/use-conversions.hook';
-import { usePlanAnnotations } from '@/modules/feature/plans';
+import { usePlanAnnotations, usePlanColumns } from '@/modules/feature/plans';
 import { RatingFooter } from './RatingFooter';
 
 /**
  * Статистика фактических звонков: вкладки разбивки с рейтингами.
  * wrapped — в сворачиваемом блоке с CSV-экспортом (режим «Все отчеты»).
+ * Свои названия бакетов — в таблице, графике, рейтингах и CSV.
  */
 export const CallingsReportBlock = ({
     wrapped = false,
@@ -30,11 +34,23 @@ export const CallingsReportBlock = ({
 }) => {
     const { isLoading, data: callingsReport } = useCallingStatistics();
     const annotations = useTableConversionAnnotations('callings');
-    const ratingDataset = buildCallingRatingDataset(callingsReport ?? []);
+    const labelOf = useIndicatorLabeler();
+    const ratingDataset = labelRatingDataset(
+        buildCallingRatingDataset(callingsReport ?? []),
+        labelOf,
+    );
     // У звонков id лежит в user.ID (callingRowUserId), не в userId!
     const presentUserIds = (callingsReport ?? []).map(callingRowUserId);
-    // План-аннотации по звонковым показателям (бакеты >30с/>60с).
-    const planAnnotations = usePlanAnnotations(['calling'], presentUserIds);
+    // Колонки планов слева от бакета (настройка портала «Звонки»;
+    // undefined — выключены).
+    const planColumns = usePlanColumns('callings', presentUserIds);
+    // План-аннотации по звонковым показателям (бакеты >30с/>60с); у
+    // показателя с колонкой плана — только «⌖ %».
+    const planAnnotations = usePlanAnnotations(
+        ['calling'],
+        presentUserIds,
+        planColumns?.planCodes,
+    );
 
     const renderSummary = () => (
         <>
@@ -44,6 +60,8 @@ export const CallingsReportBlock = ({
                 isLoading={isLoading}
                 annotations={annotations}
                 planAnnotations={planAnnotations}
+                labelOf={labelOf}
+                withPlanColumns={planColumns?.applyToRows}
             />
         </>
     );
@@ -65,6 +83,8 @@ export const CallingsReportBlock = ({
                 data={sectionCallings}
                 annotations={annotations}
                 planAnnotations={planAnnotations}
+                labelOf={labelOf}
+                withPlanColumns={planColumns?.applyToRows}
             />
         );
     };
@@ -98,7 +118,10 @@ export const CallingsReportBlock = ({
             onDownload={() => {
                 if (callingsReport && callingsReport.length > 0) {
                     exportTableToCSV(
-                        getCallingStatisticsTableData(callingsReport),
+                        labelTableData(
+                            getCallingStatisticsTableData(callingsReport),
+                            labelOf,
+                        ),
                         'calling-statistics.csv',
                     );
                 }

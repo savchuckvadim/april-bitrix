@@ -14,6 +14,7 @@ import {
 } from '../lib/report-settings-sections';
 import { ReportSettingsBadgesSection } from './ReportSettingsBadgesSection';
 import { ReportSettingsFooter } from './ReportSettingsFooter';
+import { ReportSettingsIndicatorsSection } from './ReportSettingsIndicatorsSection';
 import { ReportSettingsReportSection } from './ReportSettingsReportSection';
 
 const NAV_ITEMS = reportSettingsNavItems();
@@ -51,7 +52,7 @@ export const ReportSettingsForm = ({ settings, options }: ReportSettingsFormProp
                 className="md:sticky md:top-20 md:w-60 md:shrink-0 md:self-start"
             />
             <div className="min-w-0 flex-1 space-y-4">
-                {section === 'report' ? (
+                {section === 'report' && (
                     <ReportSettingsReportSection
                         tabs={options.tabs}
                         hiddenTabs={form.hiddenTabs}
@@ -59,13 +60,24 @@ export const ReportSettingsForm = ({ settings, options }: ReportSettingsFormProp
                         onTabChange={settings.setTabVisible}
                         onChartsChange={settings.setChartsEnabled}
                     />
-                ) : (
+                )}
+                {section === 'calls' && (
                     <ReportSettingsBadgesSection
                         options={options}
                         form={form}
                         canTurnOff={settings.canTurnBadgeOff}
                         onChange={settings.setBadgeMain}
                         onReset={settings.resetBadges}
+                    />
+                )}
+                {section === 'indicators' && (
+                    <ReportSettingsIndicatorsSection
+                        indicators={options.indicators}
+                        form={form}
+                        onLabelChange={settings.setLabel}
+                        onLabelReset={settings.resetLabel}
+                        onSwitchChange={settings.setPlanColumnsSwitch}
+                        onPlanColumnShown={settings.setPlanColumnShown}
                     />
                 )}
                 <ReportSettingsFooter

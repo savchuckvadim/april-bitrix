@@ -7,6 +7,7 @@ import {
     TooltipTrigger,
 } from '@workspace/ui/components/tooltip';
 import { cn } from '@workspace/ui/lib/utils';
+import { RTABLE_HEADER_TEXT_CLASS } from './rtable.classes';
 import { RTableRow } from './rtable.types';
 
 interface RTableHeaderRowProps {
@@ -24,9 +25,12 @@ interface RTableHeaderRowProps {
 const HINT_MARK = '*';
 
 /**
- * Шапка таблицы: первая колонка + показатели (полное имя — в тултипе).
+ * Шапка таблицы: первая колонка + показатели. Длинное название колонки
+ * обрезается «…» (RTABLE_HEADER_TEXT_CLASS), полное — в тултипе.
  * Колонка с подсказкой помечена звёздочкой, подсказка — второй строкой
- * тултипа. С onColumnClick заголовок — кнопка.
+ * тултипа; headerHint показателя — тоже второй строкой, но без звёздочки.
+ * С onColumnClick заголовок — кнопка; headerClassName показателя первой
+ * строки — класс ячейки шапки.
  */
 export const RTableHeaderRow: FC<RTableHeaderRowProps> = ({
     code,
@@ -50,6 +54,7 @@ export const RTableHeaderRow: FC<RTableHeaderRowProps> = ({
                                 'text-right bg-popover text-primary',
                                 onColumnClick &&
                                     'cursor-pointer hover:underline',
+                                action.headerClassName,
                             )}
                             role={onColumnClick ? 'button' : undefined}
                             onClick={
@@ -58,12 +63,19 @@ export const RTableHeaderRow: FC<RTableHeaderRowProps> = ({
                                     : undefined
                             }
                         >
-                            {action.name}
-                            {hint && <span aria-hidden>{HINT_MARK}</span>}
+                            <span className="flex justify-end">
+                                <span className={RTABLE_HEADER_TEXT_CLASS}>
+                                    {action.name}
+                                </span>
+                                {hint && <span aria-hidden>{HINT_MARK}</span>}
+                            </span>
                         </TableHead>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[320px] whitespace-pre-line text-xs">
                         <div>{action.name}</div>
+                        {action.headerHint && (
+                            <div className="opacity-80">{action.headerHint}</div>
+                        )}
                         {hint && <div className="opacity-80">{hint}</div>}
                     </TooltipContent>
                 </Tooltip>

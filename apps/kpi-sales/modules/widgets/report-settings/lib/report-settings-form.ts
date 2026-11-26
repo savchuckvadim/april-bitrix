@@ -1,27 +1,35 @@
 // Только типы фичи: утилита чистая, UI и стор фичи ей не нужны.
 import type {
     PortalViewBadgeOption,
+    PortalViewOptions,
     PortalViewSaveBody,
     PortalViewSettings,
 } from '@/modules/feature/portal-view';
+import { sameSet } from './report-settings-compare';
+import {
+    indicatorsChanges,
+    indicatorsFormFromView,
+    type ReportSettingsIndicatorsForm,
+} from './report-settings-indicators';
 
 /**
  * Состояние формы настроек отчёта. Повторяет модель бэка: `badgesMain`
  * пуст — действует набор бейджей по умолчанию (`mainByDefault`), непуст —
- * выбор портала.
+ * выбор портала. Свои названия и колонки планов — раздел «Показатели»
+ * (report-settings-indicators).
  */
-export interface ReportSettingsForm {
+export interface ReportSettingsForm extends ReportSettingsIndicatorsForm {
     /** Коды скрытых вкладок (переключатель «виден» = кода в списке нет). */
     hiddenTabs: string[];
     chartsEnabled: boolean;
     badgesMain: string[];
 }
 
-const sameSet = (a: readonly string[], b: readonly string[]): boolean => {
-    const left = new Set(a);
-    const right = new Set(b);
-    return left.size === right.size && [...left].every(item => right.has(item));
-};
+/**
+ * Справочники, без которых не сравнить форму с сохранённым: бейджи (набор
+ * по умолчанию) и каталог показателей (какие свои названия сохранять).
+ */
+export type ReportSettingsCatalog = Pick<PortalViewOptions, 'badges' | 'indicators'>;
 
 /** Идентификаторы бейджей «виден сразу» по умолчанию. */
 export const defaultMainBadgeIds = (badges: readonly PortalViewBadgeOption[]): string[] =>
@@ -38,6 +46,7 @@ export const formFromView = (view: PortalViewSettings): ReportSettingsForm => ({
     hiddenTabs: [...view.tabsHidden],
     chartsEnabled: view.chartsEnabled,
     badgesMain: [...view.badgesMain],
+    ...indicatorsFormFromView(view),
 });
 
 export const isTabVisible = (form: ReportSettingsForm, code: string): boolean =>
@@ -122,14 +131,6 @@ const badgesChanged = (
         effectiveMainIds(form.badgesMain, badges),
     );
 
-/** Есть что сохранять: форма отличается от сохранённых настроек. */
-export const isFormDirty = (
-    view: PortalViewSettings,
-    form: ReportSettingsForm,
-    badges: readonly PortalViewBadgeOption[],
-): boolean =>
-    tabsChanged(view, form) || chartsChanged(view, form) || badgesChanged(view, form, badges);
-
 /**
  * Тело сохранения — только изменённые поля (остальные бэк не трогает, и чужая
  * недавняя правка не затирается устаревшим значением формы).
@@ -137,11 +138,18 @@ export const isFormDirty = (
 export const buildSaveBody = (
     view: PortalViewSettings,
     form: ReportSettingsForm,
-    badges: readonly PortalViewBadgeOption[],
+    catalog: ReportSettingsCatalog,
 ): PortalViewSaveBody => {
     const body: PortalViewSaveBody = {};
     if (tabsChanged(view, form)) body.tabsHidden = [...form.hiddenTabs];
     if (chartsChanged(view, form)) body.chartsEnabled = form.chartsEnabled;
-    if (badgesChanged(view, form, badges)) body.badgesMain = [...form.badgesMain];
-    return body;
+    if (badgesChanged(view, form, catalog.badges)) body.badgesMain = [...form.badgesMain];
+    return { ...body, ...indicatorsChanges(view, form, catalog.indicators) };
 };
+
+/** Есть что сохранять: форма отличается от сохранённых настроек. */
+export const isFormDirty = (
+    view: PortalViewSettings,
+    form: ReportSettingsForm,
+    catalog: ReportSettingsCatalog,
+): boolean => Object.keys(buildSaveBody(view, form, catalog)).length > 0;

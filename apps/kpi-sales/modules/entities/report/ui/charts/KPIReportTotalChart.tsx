@@ -11,8 +11,13 @@ import {
     Legend,
 } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
+import {
+    defaultIndicatorLabeler,
+    type IndicatorLabeler,
+} from '@/modules/shared/lib/indicator-labels';
 import { ReportData } from '../../model/types/report/report-type';
 import { getColors } from '../../lib/colors';
+import { getReportTotalColumns } from '../../lib/report-totals.util';
 
 ChartJS.register(
     CategoryScale,
@@ -25,39 +30,20 @@ ChartJS.register(
 
 interface KPIReportTotalChartProps {
     report: ReportData[];
+    /** Выводимые названия показателей; по умолчанию — исходные без лишних пробелов. */
+    labelOf?: IndicatorLabeler;
 }
 
 export const KPIReportTotalChart: React.FC<KPIReportTotalChartProps> = ({
     report,
+    labelOf = defaultIndicatorLabeler,
 }) => {
-    // Вычисляем общие суммы по каждому показателю
     const chartData = useMemo(() => {
-        if (!report || report.length === 0 || !report[0]?.kpi) {
+        // Суммы по каждому показателю (название — выводимое)
+        const totals = getReportTotalColumns(report ?? [], labelOf);
+        if (!totals.length) {
             return { labels: [], datasets: [] };
         }
-
-        // Получаем все уникальные действия из первого отчета
-        const allActions = report[0].kpi.map(kpi => ({
-            name: kpi.action.name || 'Unknown',
-            innerCode: kpi.action.innerCode,
-            action: kpi.action,
-        }));
-
-        // Суммируем значения по каждому действию
-        const totals = allActions.map(action => {
-            const total = report.reduce((sum, userReport) => {
-                const kpi = userReport.kpi.find(
-                    k => k.action.innerCode === action.innerCode
-                );
-                return sum + (kpi?.count || 0);
-            }, 0);
-
-            return {
-                name: action.name,
-                value: total,
-                action: action.action,
-            };
-        });
 
         // Получаем цвета для каждого действия
         const colors = getColors(totals.map(t => ({ action: t.action })));
@@ -81,7 +67,7 @@ export const KPIReportTotalChart: React.FC<KPIReportTotalChartProps> = ({
                 };
             }),
         };
-    }, [report]);
+    }, [report, labelOf]);
 
     if (!chartData.labels.length || !chartData.datasets.length) {
         return null;

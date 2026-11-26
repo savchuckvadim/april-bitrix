@@ -2,9 +2,20 @@ import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import getChartColorsArray from '../../../calling-statistics/lib/color-util';
 import { Chart, registerables } from 'chart.js';
+import {
+    callingLabelKey,
+    defaultIndicatorLabeler,
+} from '@/modules/shared/lib/indicator-labels';
 Chart.register(...registerables);
 
-const BitrixCallingsChart = ({ dataColors, report, part }) => {
+// Бакеты сопоставляются по исходному названию (call.action), подпись
+// набора — выводимое название (labelOf по id бакета).
+const BitrixCallingsChart = ({
+    dataColors,
+    report,
+    part,
+    labelOf = defaultIndicatorLabeler,
+}) => {
     var barChartColor = getChartColorsArray(dataColors);
 
     const dataSets = [];
@@ -33,7 +44,7 @@ const BitrixCallingsChart = ({ dataColors, report, part }) => {
 
         if (total) {
             dataSets.push({
-                label: basecall.action,
+                label: labelOf(callingLabelKey(basecall.id), basecall.action),
                 backgroundColor: barChartColor[i],
                 borderColor: barChartColor[i],
                 borderWidth: 1,

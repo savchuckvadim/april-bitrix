@@ -20,6 +20,8 @@ import { getMergedReportsData } from '../lib/merge-reports.util';
 import { isMergedUserSelected } from '../lib/merged-table-selection.util';
 import { useMergedReport } from '../hooks/merged-report.hook';
 import { usePersistedSelection } from '@/modules/shared';
+import { indicatorColumnLabel } from '@/modules/shared/lib/indicator-labels';
+import { useIndicatorLabeler } from '@/modules/feature/portal-view';
 
 import {
     Select,
@@ -49,6 +51,8 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
 }) => {
     // Выбор показателей объединённого отчёта — применяем и к этому виджету.
     const { selectedUsers, selectedActions } = useMergedReport();
+    // Свои названия — только в подписях; выбор и подбор — по исходным.
+    const labelOf = useIndicatorLabeler();
 
     // Объединяем данные (с учётом выбранных сотрудников)
     const mergedData = useMemo(() => {
@@ -86,9 +90,10 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
             )
             .map(action => ({
                 name: action.name,
+                label: indicatorColumnLabel(action, labelOf),
                 value: action.value,
             }));
-    }, [mergedData, selectedActions]);
+    }, [mergedData, selectedActions, labelOf]);
 
     // Выбираем первое действие по умолчанию (или "Презентация проведена" если есть, или звонки > минуты)
     const defaultAction = useMemo(() => {
@@ -157,7 +162,7 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
         return {
             labels,
             datasets: [{
-                label: selectedAction.name,
+                label: selectedAction.label,
                 data,
                 backgroundColor,
                 borderColor,
@@ -179,7 +184,7 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
             },
             title: {
                 display: true,
-                text: selectedAction?.name || 'Выберите действие',
+                text: selectedAction?.label || 'Выберите действие',
             },
         },
         scales: {
@@ -208,7 +213,7 @@ export const MergedSingleActionChart: React.FC<MergedSingleActionChartProps> = (
                             <SelectContent>
                                 {availableActions.map(action => (
                                     <SelectItem key={action.name} value={action.name}>
-                                        {action.name}
+                                        {action.label}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

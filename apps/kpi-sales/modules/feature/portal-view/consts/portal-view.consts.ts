@@ -7,11 +7,28 @@ export const PORTAL_VIEW_SAVE_URL = '/api/kpi-report/portal-view/save';
 /** Страница настроек отчёта (без обвязки отчёта, как «Разборы звонков»). */
 export const REPORT_SETTINGS_PATH = '/settings';
 
-/** Безопасные значения до ответа бэка и при его сбое: ничего не скрыто, графики есть. */
+/**
+ * Группы каталога показателей: events — колонки таблицы событий,
+ * callings — бакеты звонков, plans — колонки планов.
+ */
+export const PORTAL_VIEW_INDICATOR_GROUPS = ['events', 'callings', 'plans'] as const;
+
+/** Предел длины своего названия показателя (после обрезки пробелов; тот же у бэка). */
+export const PORTAL_VIEW_LABEL_MAX_LENGTH = 60;
+
+/**
+ * Безопасные значения до ответа бэка и при его сбое: ничего не скрыто,
+ * графики есть, своих названий нет, колонки планов выключены.
+ */
 export const defaultPortalViewSettings = (): PortalViewSettings => ({
     tabsHidden: [],
     chartsEnabled: true,
     badgesMain: [],
+    labels: {},
+    plansEvents: false,
+    plansMerged: false,
+    plansCallings: false,
+    planColumnsHidden: [],
     updatedBy: null,
     updatedAt: null,
 });

@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { DatesFilter } from '@/modules/entities/report';
 import { ActionsFilter } from '@/modules/entities/report';
 import { useReportFilterDraft } from '@/modules/feature/report-flow';
+import { useIndicatorLabeler } from '@/modules/feature/portal-view';
 // Поставщик выбора сотрудников — прямой путь: он лёгкий и должен стоять в
 // основном чанке выше лениво грузимого дерева отделов (барель потянул бы
 // дерево целиком в основной чанк).
@@ -54,6 +55,8 @@ interface ReportFilterProps {
 export const ReportFilter = ({ isOpen }: ReportFilterProps) => {
     const isUserReport = useIsUserReport();
     const draft = useReportFilterDraft();
+    // Подписи плашек «Действия» — свои названия портала (выбор — по коду)
+    const labelOf = useIndicatorLabeler();
 
     if (!isOpen) return null;
 
@@ -103,6 +106,7 @@ export const ReportFilter = ({ isOpen }: ReportFilterProps) => {
                                 items={draft.actionItems}
                                 currentCodes={draft.actionCodes}
                                 onToggle={draft.toggleAction}
+                                labelOf={labelOf}
                             />
                         </CardContent>
                     )}

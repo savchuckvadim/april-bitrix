@@ -8,7 +8,6 @@ import {
     savePortalView,
     useCanEditPortalView,
     usePortalView,
-    type PortalViewBadgeOption,
 } from '@/modules/feature/portal-view';
 import {
     buildSaveBody,
@@ -19,10 +18,18 @@ import {
     setBadgeMain,
     setChartsEnabled,
     setTabVisible,
+    type ReportSettingsCatalog,
     type ReportSettingsForm,
 } from '../lib/report-settings-form';
+import {
+    resetLabel,
+    setLabel,
+    setPlanColumnShown,
+    setPlanColumnsSwitch,
+    type PlanColumnsSwitch,
+} from '../lib/report-settings-indicators';
 
-const NO_BADGES: readonly PortalViewBadgeOption[] = [];
+const NO_CATALOG: ReportSettingsCatalog = { badges: [], indicators: [] };
 
 /**
  * Состояние страницы настроек: форма поверх сохранённых настроек портала,
@@ -34,7 +41,8 @@ export const useReportSettingsForm = () => {
     const dispatch = useAppDispatch();
     const portal = usePortalView();
     const canEdit = useCanEditPortalView();
-    const badges = portal.options?.badges ?? NO_BADGES;
+    const catalog: ReportSettingsCatalog = portal.options ?? NO_CATALOG;
+    const { badges } = catalog;
 
     const [form, setForm] = useState<ReportSettingsForm>(() => formFromView(portal.view));
     const [syncedView, setSyncedView] = useState(portal.view);
@@ -52,7 +60,7 @@ export const useReportSettingsForm = () => {
     };
 
     const save = async () => {
-        const ok = await dispatch(savePortalView(buildSaveBody(portal.view, form, badges)));
+        const ok = await dispatch(savePortalView(buildSaveBody(portal.view, form, catalog)));
         setSaved(ok);
     };
 
@@ -61,13 +69,19 @@ export const useReportSettingsForm = () => {
         canEdit,
         form,
         saved,
-        dirty: isFormDirty(portal.view, form, badges),
+        dirty: isFormDirty(portal.view, form, catalog),
         setTabVisible: (code: string, visible: boolean) =>
             change(setTabVisible(form, code, visible)),
         setChartsEnabled: (enabled: boolean) => change(setChartsEnabled(form, enabled)),
         setBadgeMain: (id: string, on: boolean) => change(setBadgeMain(form, badges, id, on)),
         canTurnBadgeOff: (id: string) => canTurnBadgeOff(form, badges, id),
         resetBadges: () => change(resetBadgesToDefault(form)),
+        setLabel: (key: string, value: string) => change(setLabel(form, key, value)),
+        resetLabel: (key: string) => change(resetLabel(form, key)),
+        setPlanColumnsSwitch: (flag: PlanColumnsSwitch, on: boolean) =>
+            change(setPlanColumnsSwitch(form, flag, on)),
+        setPlanColumnShown: (code: string, shown: boolean) =>
+            change(setPlanColumnShown(form, code, shown)),
         save,
         retryLoad: () => dispatch(loadPortalView()),
     };

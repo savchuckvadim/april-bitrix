@@ -4,6 +4,10 @@ import type { ReportData } from "@/modules/entities/report/model/types/report/re
 import type { RTableProps } from "@/modules/shared";
 import type { DownloadKpiReportItemDto, DownloadReportKpiItemDto } from "@workspace/nest-kpi-report-sales-api";
 import {
+    columnLabelKey,
+    type IndicatorLabeler,
+} from "@/modules/shared/lib/indicator-labels";
+import {
     isMergedSelected,
     mergeRowsByUser,
     type MergedRowAdapter,
@@ -71,6 +75,26 @@ export const getMergedReportsExcelData = (reportData: ReportData[], callingsRepo
             kpi: cells.filter(kpi => isMergedSelected(selectedActions, kpi.action)),
         }));
 }
+
+
+/**
+ * Строки Excel с выводимыми названиями колонок: `action` — своё название
+ * портала по коду колонки (`kpi.id` — innerCode события или id бакета
+ * звонков), иначе исходное без лишних пробелов. Только ПОСЛЕДНИМ шагом,
+ * после отбора колонок по названию (выбор «Колонки» хранит исходные
+ * названия); id, значения и порядок не меняются, входные строки — тоже.
+ */
+export const labelExcelRows = (
+    rows: readonly DownloadKpiReportItemDto[],
+    labelOf: IndicatorLabeler,
+): DownloadKpiReportItemDto[] =>
+    rows.map(row => ({
+        ...row,
+        kpi: row.kpi.map(kpi => ({
+            ...kpi,
+            action: labelOf(columnLabelKey(kpi.id), kpi.action),
+        })),
+    }));
 
 
 const getDownloadReportFromKpiReport = (kpiReport: ReportData): DownloadKpiReportItemDto => {

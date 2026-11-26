@@ -9,6 +9,14 @@ const FULL = {
         tabsHidden: ['digest', 'finance'],
         chartsEnabled: false,
         badgesMain: ['b1', 'm1'],
+        labels: {
+            'ev:presentation_plan': 'Назначенная презентация',
+            'plan:calls_over_30s': 'План',
+        },
+        plansEvents: true,
+        plansMerged: false,
+        plansCallings: true,
+        planColumnsHidden: ['sales_count'],
         updatedBy: 'Иванов Иван',
         updatedAt: '2026-11-20T09:30:00.000Z',
     },
@@ -38,6 +46,21 @@ const FULL = {
             },
         ],
         methodology: { code: 'polyansky', title: 'Полянский' },
+        indicators: [
+            {
+                key: 'ev:presentation_plan',
+                group: 'events',
+                name: 'План Презентация',
+                factKey: null,
+            },
+            { key: 'call:30', group: 'callings', name: 'Звонки > 30 сек', factKey: null },
+            {
+                key: 'plan:calls_over_30s',
+                group: 'plans',
+                name: 'План: Звонки > 30 сек',
+                factKey: 'call:30',
+            },
+        ],
     },
 };
 
@@ -53,12 +76,17 @@ describe('normalizePortalViewResponse — значения по умолчани
             tabsHidden: [],
             chartsEnabled: true,
             badgesMain: [],
+            labels: {},
+            plansEvents: false,
+            plansMerged: false,
+            plansCallings: false,
+            planColumnsHidden: [],
             updatedBy: null,
             updatedAt: null,
         },
         canEdit: false,
         supportUrl: null,
-        options: { tabs: [], badges: [], methodology: null },
+        options: { tabs: [], badges: [], methodology: null, indicators: [] },
     };
 
     it.each([

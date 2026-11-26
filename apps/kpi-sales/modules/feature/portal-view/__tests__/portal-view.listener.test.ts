@@ -39,6 +39,11 @@ const RESPONSE: PortalViewResponse = {
         tabsHidden: ['digest'],
         chartsEnabled: false,
         badgesMain: ['b1'],
+        labels: { 'ev:presentation_plan': 'Назначенная презентация' },
+        plansEvents: false,
+        plansMerged: false,
+        plansCallings: false,
+        planColumnsHidden: [],
         updatedBy: 'Иванов Иван',
         updatedAt: '2026-11-20T09:30:00.000Z',
     },
@@ -57,6 +62,7 @@ const RESPONSE: PortalViewResponse = {
             },
         ],
         methodology: null,
+        indicators: [],
     },
 };
 

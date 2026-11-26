@@ -47,3 +47,12 @@ export {
 export { ChartsGate } from './ui/ChartsGate';
 // Сведения о расчёте отчёта (дата расчёта, период закрыт) из ответа сервера
 export * from './lib/calculation-info/calculation-info';
+// Свои названия показателей при показе (ключи ev:/call:/plan:, функция названий)
+export * from './lib/indicator-labels';
+// Дополнение строк и итогов таблиц колонками (колонки планов)
+export type {
+    TableRowsDecorator,
+    TableTotalsDecorator,
+} from './lib/table-decorators';
+// Итоговая таблица показателей (сумма по колонкам)
+export { ReportTotalTable } from './ui/ReportTotalTable';

@@ -5,6 +5,7 @@ import {
     CardTitle,
 } from '@workspace/ui/components/card';
 import { ReportCallingData } from '../../type/calling-type';
+import type { IndicatorLabeler } from '@/modules/shared/lib/indicator-labels';
 
 import {
     Chart as ChartJS,
@@ -26,8 +27,10 @@ ChartJS.register(
 );
 interface CallingDashBoardProps {
     report: ReportCallingData[];
+    /** Выводимые названия бакетов (подписи графика). */
+    labelOf?: IndicatorLabeler;
 }
-const CallingDashBoard: React.FC<CallingDashBoardProps> = ({ report }) => {
+const CallingDashBoard: React.FC<CallingDashBoardProps> = ({ report, labelOf }) => {
     if (!report || !report.length) return null;
     return (
         <Card className="bg-card text-primary">
@@ -50,6 +53,7 @@ const CallingDashBoard: React.FC<CallingDashBoardProps> = ({ report }) => {
                             "rgba(14, 201, 111, 0.8)"]'
                     report={report}
                     part={1}
+                    labelOf={labelOf}
                 />
             </CardContent>
         </Card>

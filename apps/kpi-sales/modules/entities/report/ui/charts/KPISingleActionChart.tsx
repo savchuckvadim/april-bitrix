@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -22,6 +22,11 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { usePersistedSelection } from '@/modules/shared';
+import {
+    defaultIndicatorLabeler,
+    eventLabelKey,
+    type IndicatorLabeler,
+} from '@/modules/shared/lib/indicator-labels';
 
 ChartJS.register(
     CategoryScale,
@@ -34,22 +39,30 @@ ChartJS.register(
 
 interface KPISingleActionChartProps {
     report: ReportData[];
+    /** Выводимые названия показателей; по умолчанию — исходные без лишних пробелов. */
+    labelOf?: IndicatorLabeler;
 }
 
 export const KPISingleActionChart: React.FC<KPISingleActionChartProps> = ({
     report,
+    labelOf = defaultIndicatorLabeler,
 }) => {
     // Получаем все доступные действия из первого отчета
     const availableActions = useMemo(() => {
         if (!report || report.length === 0 || !report[0]?.kpi) {
             return [];
         }
+        // name — исходное (по нему выбор по умолчанию), label — для показа
         return report[0].kpi.map(kpi => ({
             innerCode: kpi.action.innerCode,
             name: kpi.action.name || 'Unknown',
+            label: labelOf(
+                eventLabelKey(kpi.action.innerCode),
+                kpi.action.name || 'Unknown',
+            ),
             action: kpi.action,
         }));
-    }, [report]);
+    }, [report, labelOf]);
 
     // Выбираем первое действие по умолчанию (или "Презентация проведена" если есть)
     const defaultAction = useMemo(() => {
@@ -93,7 +106,7 @@ export const KPISingleActionChart: React.FC<KPISingleActionChartProps> = ({
         return {
             labels,
             datasets: [{
-                label: selectedAction.name,
+                label: selectedAction.label,
                 data,
                 backgroundColor,
                 borderColor,
@@ -115,7 +128,7 @@ export const KPISingleActionChart: React.FC<KPISingleActionChartProps> = ({
             },
             title: {
                 display: true,
-                text: selectedAction?.name || 'Выберите действие',
+                text: selectedAction?.label || 'Выберите действие',
             },
         },
         scales: {
@@ -144,7 +157,7 @@ export const KPISingleActionChart: React.FC<KPISingleActionChartProps> = ({
                             <SelectContent>
                                 {availableActions.map(action => (
                                     <SelectItem key={action.innerCode} value={action.innerCode}>
-                                        {action.name}
+                                        {action.label}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

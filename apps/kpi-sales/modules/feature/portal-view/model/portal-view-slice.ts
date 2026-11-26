@@ -85,6 +85,16 @@ const portalViewSlice = createSlice({
         clearError: (state: PortalViewState) => {
             state.error = null;
         },
+        /**
+         * Публичная страница: свои названия показателей портала из ответа
+         * ссылки (настройки вида там не грузятся). Остальное не трогается.
+         */
+        publicLabelsApplied: (
+            state: PortalViewState,
+            action: PayloadAction<Record<string, string>>,
+        ) => {
+            state.view.labels = action.payload;
+        },
     },
 });
 

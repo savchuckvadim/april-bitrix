@@ -1,10 +1,13 @@
 // Портальные настройки вида отчёта: скрытые вкладки, графики, главные бейджи,
-// ссылка на поддержку. Загрузка — listener на setAppData; форма настроек —
-// widgets/report-settings; графики прячет отдельная задача через
-// useChartsEnabledSetting. Слайс и listener подключает стор прямыми путями.
+// свои названия показателей, колонки планов, ссылка на поддержку. Загрузка —
+// listener на setAppData (на /share — только названия из ответа ссылки);
+// форма настроек — widgets/report-settings; графики прячет отдельная задача
+// через useChartsEnabledSetting. Слайс и listener подключает стор прямыми путями.
 export type {
     PortalViewBadgeGroup,
     PortalViewBadgeOption,
+    PortalViewIndicator,
+    PortalViewIndicatorGroup,
     PortalViewMethodology,
     PortalViewOptions,
     PortalViewResponse,
@@ -15,7 +18,12 @@ export type {
 export type { PortalViewState } from './model/portal-view-slice';
 export { loadPortalView, savePortalView } from './model/portal-view-thunks';
 export { portalViewActions } from './model/portal-view-slice';
-export { REPORT_SETTINGS_PATH } from './consts/portal-view.consts';
+export { selectIndicatorLabeler } from './model/portal-view.selectors';
+export { publicViewLabels } from './lib/portal-view-labels-normalize';
+export {
+    PORTAL_VIEW_LABEL_MAX_LENGTH,
+    REPORT_SETTINGS_PATH,
+} from './consts/portal-view.consts';
 export { PORTAL_VIEW_TEXT } from './consts/portal-view.texts';
 export {
     REPORT_SETTINGS_FROM,
@@ -28,6 +36,7 @@ export {
     useCanEditPortalView,
     useChartsEnabledSetting,
     useHiddenTabs,
+    useIndicatorLabeler,
     usePortalView,
     useSupportUrl,
 } from './hooks/use-portal-view';

@@ -3,6 +3,8 @@ import { ChartsGate, Preloader } from '@/modules/shared';
 import CallingDashboard from './components/CallingDashboard';
 import { ReportCallingData } from '../type/calling-type';
 import type { RTableAnnotation } from '@workspace/april-ui';
+import type { IndicatorLabeler } from '@/modules/shared/lib/indicator-labels';
+import type { TableRowsDecorator } from '@/modules/shared/lib/table-decorators';
 
 interface CallingStatisticsProps {
     callingsReport: ReportCallingData[] | null | undefined;
@@ -11,12 +13,18 @@ interface CallingStatisticsProps {
     annotations?: Map<string, RTableAnnotation>;
     /** План-аннотации («⌖ план · %») — отдельная подстрока. */
     planAnnotations?: Map<string, RTableAnnotation>;
+    /** Выводимые названия бакетов (таблица и график). */
+    labelOf?: IndicatorLabeler;
+    /** Дополнение строк таблицы колонками (колонки планов слева от факта). */
+    withPlanColumns?: TableRowsDecorator;
 }
 const CallingStatistics: React.FC<CallingStatisticsProps> = ({
     callingsReport,
     isLoading,
     annotations,
     planAnnotations,
+    labelOf,
+    withPlanColumns,
 }) => {
     if (isLoading)
         return (
@@ -37,9 +45,11 @@ const CallingStatistics: React.FC<CallingStatisticsProps> = ({
                 data={callingsReport}
                 annotations={annotations}
                 planAnnotations={planAnnotations}
+                labelOf={labelOf}
+                withPlanColumns={withPlanColumns}
             />
             <ChartsGate>
-                <CallingDashboard report={callingsReport} />
+                <CallingDashboard report={callingsReport} labelOf={labelOf} />
             </ChartsGate>
         </div>
     );

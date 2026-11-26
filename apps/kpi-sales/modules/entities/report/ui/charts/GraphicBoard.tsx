@@ -1,23 +1,22 @@
 import React from 'react';
-import { useAppSelector } from '@/modules/app/lib/hooks/redux';
 import KPIChart from './KPIChart';
 import { ReportData } from '../../model/types/report/report-type';
+import type { IndicatorLabeler } from '@/modules/shared/lib/indicator-labels';
 
 interface GraphicBoardeProps {
     report: ReportData[];
+    /** Выводимые названия показателей (подписи графика и легенды). */
+    labelOf?: IndicatorLabeler;
 }
 
-const GraphicBoard: React.FC<GraphicBoardeProps> = ({ report }) => {
-    // const isLoading = useAppSelector(state => state.report.isLoading);
-    // const isFetched = useAppSelector(state => state.report.isFetched);
-
+const GraphicBoard: React.FC<GraphicBoardeProps> = ({ report, labelOf }) => {
     if (!report || !report.length || !report[0]?.kpi) {
         return null;
     }
 
     return (
         <div className="space-y-4">
-            <KPIChart report={report} />
+            <KPIChart report={report} labelOf={labelOf} />
         </div>
     );
 };

@@ -8,6 +8,7 @@ import type { PlanFactSource } from '../model';
 import { usePlansData } from './use-plans-data';
 import { usePlanAchievement } from './use-plan-achievement';
 import { usePlansVisibility } from './use-plans-visibility';
+import { planScopeUserIds } from '../lib/plan-achievement.util';
 import {
     buildPlanAnnotations,
     mergePlanAnnotations,
@@ -17,11 +18,13 @@ import {
  * План-аннотации для таблиц отчётов: kpi — события, calling — звонки,
  * оба — объединённый. Гейты: фича/доступ, планы настроены, блок «Планы»
  * не скрыт тумблером, не публичная страница; рядовой (без PLANS_VIEW_ALL)
- * получает аннотации только своей строки.
+ * получает аннотации только своей строки. planColumnCodes — показатели с
+ * колонкой плана на вкладке (usePlanColumns): под фактом только «⌖ %».
  */
 export const usePlanAnnotations = (
     sources: PlanFactSource[],
     visibleUserIds: number[],
+    planColumnCodes?: ReadonlySet<string>,
 ): Map<string, RTableAnnotation> | undefined => {
     const isPublic = useAppSelector(selectIsPublic);
     const plansVisible = usePlansVisibility();
@@ -29,9 +32,11 @@ export const usePlanAnnotations = (
 
     const scopedUserIds = useMemo(
         () =>
-            plans.canViewAll
-                ? visibleUserIds
-                : visibleUserIds.filter(id => id === plans.currentUserId),
+            planScopeUserIds(
+                visibleUserIds,
+                plans.canViewAll,
+                plans.currentUserId,
+            ),
         [visibleUserIds, plans.canViewAll, plans.currentUserId],
     );
 
@@ -53,6 +58,7 @@ export const usePlanAnnotations = (
                 plans.indicators,
                 achievement.rows,
                 achievement.expected,
+                planColumnCodes,
             ),
         );
         const merged = mergePlanAnnotations(...maps);
@@ -65,5 +71,6 @@ export const usePlanAnnotations = (
         plans.indicators,
         achievement,
         sources,
+        planColumnCodes,
     ]);
 };

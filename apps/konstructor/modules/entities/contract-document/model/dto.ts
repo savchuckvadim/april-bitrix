@@ -9,6 +9,7 @@ import type {
     RegionDto,
     RegionsDto,
 } from '@workspace/nest-konstructor-api';
+import type { SalesFlowFields } from '@/modules/app/lib/sales-flow.util';
 
 /**
  * Алиасы generated DTO (паттерн CLAUDE.md): слайс, thunk и UI знают только
@@ -20,7 +21,12 @@ export type ContractSpecificationFormRequest = ContractSpecificationFormRequestD
 export type ContractSpecificationFormResponse = ContractSpecificationFormResponseDto;
 /** Legal Tech договора: бесплатная часть и платные пакеты (paidPackets — по пакету). */
 export type ContractLt = ContractSpecificationFormRequestDto['lt'];
-export type ContractGenerateRequest = ContractGenerateDto;
+/**
+ * Запрос `contract/generate`. Необязательное поле `salesFlow` (сообщить о
+ * договоре в поток продаж) сгенерированный клиент пока не знает; после
+ * `pnpm run generate` расширение можно убрать.
+ */
+export type ContractGenerateRequest = ContractGenerateDto & SalesFlowFields;
 export type ContractGenerateResponse = ContractGenerateResponseDto;
 export type ContractBxRq = BxRqDto;
 export type DocRegion = RegionDto;

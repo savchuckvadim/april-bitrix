@@ -34,6 +34,10 @@ export const getSalesCategoryId = (portal: Portal | null): number | null =>
 export const getServiceCategoryId = (portal: Portal | null): number | null =>
     findDealCategoryId(portal, PBX_DEAL_CATEGORY.SERVICE);
 
+/** Воронка «ОП Презентации» (код sales_presentation); нет на портале — null. */
+export const getPresentationCategoryId = (portal: Portal | null): number | null =>
+    findDealCategoryId(portal, PBX_DEAL_CATEGORY.PRESENTATION);
+
 /** Сделка в сервисной воронке — конструктор работает в режиме отдела сервиса. */
 export const getIsServiceDepartment = (
     portal: Portal | null,

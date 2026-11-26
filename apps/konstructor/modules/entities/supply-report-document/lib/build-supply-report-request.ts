@@ -1,3 +1,4 @@
+import { salesFlowFields } from '@/modules/app/lib/sales-flow.util';
 import type { RootState } from '@/modules/app/model/store';
 import { resolveSupply, selectCatalog } from '../../catalog';
 import { selectVariantStagesLoading } from '../../complect-variant';
@@ -188,7 +189,11 @@ export const buildSupplyReportGenerateRequest = (state: RootState): SupplyReport
     };
 };
 
-/** Запрос `konstructor/init-supply` после отчёта: заявка RPA, файлы в сделку, таймлайн по участникам. */
+/**
+ * Запрос `konstructor/init-supply` после отчёта: заявка RPA, файлы в сделку,
+ * таймлайн по участникам. Несёт `salesFlow` у отдела продаж: запуск поставки
+ * бэк сообщает в поток продаж.
+ */
 export const buildInitSupplyRequest = (
     state: RootState,
     fileLink: string,
@@ -241,5 +246,6 @@ export const buildInitSupplyRequest = (
         // участники по режиму сделки («только открытый вариант» даёт открытый, «все
         // варианты» все незакрытые): бэк ставит в заявке ссылку на вариант и переводит его в «Поставку»
         variants: variants.length > 0 ? variants : undefined,
+        ...salesFlowFields(state.app.department),
     };
 };

@@ -7,12 +7,14 @@ import { Label } from '@workspace/ui/components/label';
 import { ProviderChoice } from '@/modules/features/provider-select';
 import { useOfferInvoice } from '../hooks/use-offer-invoice';
 import { PartyHint } from './PartyHint';
+import { PresentationQuestion } from './PresentationQuestion';
 
 /**
  * «От кого и счёт» (Word и PDF): поставщик, «Сделать счёт?», «Сделать счета для
- * всех товаров?» (при наборах для сравнения), «Оплатить счёт до» и номер счёта.
- * Вопросы стоят в одну строку, дата и номер — в другую; подсказка нумератора
- * спрятана за значком.
+ * всех товаров?» (при наборах для сравнения), «Оплатить счёт до» и номер счёта,
+ * а в конце «Документы в продолжение презентации?» (когда у сделки есть
+ * презентации). Вопросы о счёте стоят в одну строку, дата и номер — в другую;
+ * подсказка нумератора спрятана за значком.
  */
 export const InvoiceOptions = () => {
     const invoice = useOfferInvoice();
@@ -62,6 +64,7 @@ export const InvoiceOptions = () => {
                         ) : null}
                     </div>
                 ) : null}
+                <PresentationQuestion />
             </div>
         </SectionCard>
     );

@@ -8,6 +8,7 @@ import {
     offerBlocker,
     offerGenerateBlocker,
     toOfferClientType,
+    type OfferSalesFlowFields,
 } from '../../offer-document';
 import {
     OFFER_PDF_OMITTED_WORD_FIELDS,
@@ -54,6 +55,17 @@ export const withOfferPdfInvoice = (request: OfferPdfGenerateRequest, invoice: O
     invoice,
     invoiceTemplateId: '',
 });
+
+/**
+ * Запрос формирования PDF: поля потока продаж поверх запроса. `salesFlow` и
+ * `presentation` приходят из состояния (selectOfferSalesFlowFields) и есть
+ * только у запроса формирования: в запросе и ключе превью их нет, ответ о
+ * презентации превью не пересобирает.
+ */
+export const withOfferPdfSalesFlow = (
+    request: OfferPdfGenerateRequest,
+    fields: OfferSalesFlowFields,
+): OfferPdfGenerateRequest => ({ ...request, ...fields });
 
 const trimmedOrUndefined = (value: string): string | undefined => {
     const trimmed = value.trim();

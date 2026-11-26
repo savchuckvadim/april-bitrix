@@ -2,6 +2,7 @@ export * from './model/types';
 export { offerDocumentActions, offerDocumentReducer, type OfferDocumentState } from './model/OfferDocumentSlice';
 export * from './model/selectors';
 export { declineRecipientCase, generateOfferDocument, initOfferDocument } from './model/OfferDocumentThunk';
+export { loadPresentationDeals } from './model/PresentationDealsThunk';
 export {
     peekInvoiceNumber,
     saveOfferInvoiceField,
@@ -36,4 +37,16 @@ export { CLIENT_TYPE_REQUIRED_BLOCKER, clientTypeBlocker, toOfferClientType } fr
 export { selectHasComparisonSets, selectInvoiceRequested, selectOfferRequestInvoice } from './lib/select-invoice';
 export { invoiceNumberHint } from './lib/invoice-number.util';
 export { visibleInvoiceAnswers } from './lib/invoice-request.util';
+export { selectOfferSalesFlowFields } from './lib/select-sales-flow';
+export {
+    PRESENTATION_REQUIRED_BLOCKER,
+    isPresentationAnswered,
+    isPresentationQuestionVisible,
+    presentationBlocker,
+    presentationRequestFields,
+    presentationSummary,
+    selectedPresentation,
+    type PresentationSummaryInput,
+} from './lib/presentation-choice.util';
+export { formatPresentationDate, presentationLabel } from './lib/presentation-deals.util';
 export { resolveInvoiceDefaults, resolveRecipientDefaults, toInputDate } from './lib/document-defaults.util';

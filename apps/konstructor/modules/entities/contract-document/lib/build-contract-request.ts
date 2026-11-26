@@ -1,3 +1,4 @@
+import { salesFlowFields } from '@/modules/app/lib/sales-flow.util';
 import type { RootState } from '@/modules/app/model/store';
 import { selectCatalog } from '../../catalog';
 import { selectClientType } from '../../deal';
@@ -65,17 +66,27 @@ const sharedDataOf = (state: RootState): ContractSharedData | null => {
 export const buildSpecificationFormRequest = (state: RootState): ContractSpecificationFormRequest | null =>
     buildSpecificationFormCore(coreInputOf(state, state.rowSet.general));
 
-/** Запрос `contract/generate` по живому состоянию; блокер (см. contractRequestBlocker) или нет сборки — null. */
+/** Запрос с признаком потока продаж: `salesFlow` только у отдела продаж. */
+const withSalesFlow = (state: RootState, request: ContractGenerateRequest | null): ContractGenerateRequest | null =>
+    request && { ...request, ...salesFlowFields(state.app.department) };
+
+/**
+ * Запрос `contract/generate` по живому состоянию; блокер (см.
+ * contractRequestBlocker) или нет сборки — null. Несёт `salesFlow` у отдела продаж.
+ */
 export const buildContractGenerateRequest = (state: RootState): ContractGenerateRequest | null => {
     if (contractRequestBlocker(state)) return null;
     const shared = sharedDataOf(state);
     if (!shared) return null;
     const { contractNumber, specification } = state.contractDocument;
-    return buildContractGenerateCore({
-        ...coreInputOf(state, state.rowSet.general),
-        shared,
-        values: { contractNumber, specification },
-    });
+    return withSalesFlow(
+        state,
+        buildContractGenerateCore({
+            ...coreInputOf(state, state.rowSet.general),
+            shared,
+            values: { contractNumber, specification },
+        }),
+    );
 };
 
 /** Запрос формы договора одной единицы (набор строк варианта); нет сборки — null. */
@@ -88,6 +99,7 @@ export const buildUnitSpecificationFormRequest = (
  * Запрос `contract/generate` одной единицы: набор строк варианта, общие данные
  * экрана и значения единицы (спецификация, номер). Блокер экрана проверяет
  * вызывающий (contractGenerateBlocker); нет сборки или общих данных — null.
+ * Несёт `salesFlow` у отдела продаж.
  */
 export const buildUnitContractGenerateRequest = (
     state: RootState,
@@ -96,5 +108,5 @@ export const buildUnitContractGenerateRequest = (
 ): ContractGenerateRequest | null => {
     const shared = sharedDataOf(state);
     if (!shared) return null;
-    return buildContractGenerateCore({ ...coreInputOf(state, unit.general), shared, values });
+    return withSalesFlow(state, buildContractGenerateCore({ ...coreInputOf(state, unit.general), shared, values }));
 };

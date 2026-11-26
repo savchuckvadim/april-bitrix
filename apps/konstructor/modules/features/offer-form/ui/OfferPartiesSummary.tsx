@@ -11,7 +11,7 @@ export const OfferPartiesSummary = () => {
     const summary = useOfferPartiesSummary();
 
     return (
-        <ul aria-label="Кому, от кого и счёт" className="flex flex-col gap-0.5 border-t pt-3">
+        <ul aria-label="Кому, от кого, счёт и презентация" className="flex flex-col gap-0.5 border-t pt-3">
             {summary.facts.map(fact => (
                 <OfferPartyRow key={fact.id} fact={fact} onSelect={summary.goTo} />
             ))}

@@ -14,6 +14,7 @@ export {
     getComplectVariantPbxSmart,
     getComplectVariantPbxSmartEntityId,
     getIsServiceDepartment,
+    getPresentationCategoryId,
     getRpaFieldId,
     getRpaSupplyTypeId,
     getSalesCategoryId,

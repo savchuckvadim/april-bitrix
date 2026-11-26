@@ -74,12 +74,25 @@ export const questionnaireFieldsKey = (
         query?.entity,
         query?.smartId ?? null,
         query?.onlyManual ?? false,
+        query?.withItems ?? true,
     ] as const;
+
+/** Когда и как часто ходить за полями. */
+export interface QuestionnaireFieldsLoadOptions {
+    /** false — не грузить вовсе (например, пока владелец не открыл выбор). */
+    enabled?: boolean;
+    /**
+     * Повторять ли упавший запрос. Каждый повтор — новый обход полей
+     * портала на бэке, даже если браузер уже бросил прошлый.
+     */
+    retry?: boolean;
+}
 
 export const useQuestionnaireFields = (
     portalId?: number,
     query?: QuestionnaireFieldsQuery,
     domain?: string,
+    options: QuestionnaireFieldsLoadOptions = {},
 ) =>
     useQuery({
         queryKey: questionnaireFieldsKey(portalId, domain, query),
@@ -88,8 +101,13 @@ export const useQuestionnaireFields = (
                 portalId as number,
                 query as QuestionnaireFieldsQuery,
             ),
-        enabled: !!portalId && !!domain && !!query?.entity,
+        enabled:
+            (options.enabled ?? true) &&
+            !!portalId &&
+            !!domain &&
+            !!query?.entity,
         staleTime: FIELDS_STALE_MS,
+        ...(options.retry === undefined ? {} : { retry: options.retry }),
     });
 
 /** Что и как сверяем. */

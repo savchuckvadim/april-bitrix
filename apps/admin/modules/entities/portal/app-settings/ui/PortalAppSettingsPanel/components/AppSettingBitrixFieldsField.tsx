@@ -13,6 +13,7 @@ import {
 } from '../../../lib/setting-bitrix-fields';
 import { formatSettingList } from '../../../lib/setting-list';
 import type { PortalAppSettingValue } from '../../../model';
+import { AppSettingBitrixFieldsStatus } from './AppSettingBitrixFieldsStatus';
 
 interface AppSettingBitrixFieldsFieldProps {
     portalId: number;
@@ -30,6 +31,13 @@ const LIST_LIMIT = 40;
  * Настройка-поля портала: выбор из живых полей сущности (ручка анкет
  * `questionnaire-fields`), а не ввод UF-имён руками — опечатка в имени
  * молча означала бы «поле не читается».
+ *
+ * Список полей — поход в Битрикс портала, поэтому он:
+ *  - грузится только после клика в поиск, а не при открытии страницы
+ *    настроек (группы свёрнуты, но компоненты в них смонтированы);
+ *  - читается без элементов полей-списков: у старого портала их сотни, и
+ *    полное чтение занимало общий лимит запросов к порталу на минуты;
+ *  - не повторяется сам: повтор — ещё один обход полей на бэке.
  */
 export const AppSettingBitrixFieldsField = ({
     portalId,
@@ -38,11 +46,13 @@ export const AppSettingBitrixFieldsField = ({
     onChange,
 }: AppSettingBitrixFieldsFieldProps) => {
     const [query, setQuery] = useState('');
+    const [requested, setRequested] = useState(false);
     const portal = usePortal(portalId);
     const fields = useQuestionnaireFields(
         portalId,
-        { entity },
+        { entity, withItems: false },
         portal.data?.domain,
+        { enabled: requested, retry: false },
     );
 
     const selected = parseFieldNames(value);
@@ -65,21 +75,23 @@ export const AppSettingBitrixFieldsField = ({
             <Input
                 placeholder="Поиск поля по названию или UF-имени"
                 value={query}
+                onFocus={() => setRequested(true)}
                 onChange={event => setQuery(event.target.value)}
             />
-            {fields.isLoading || portal.isLoading ? (
-                <p className="text-sm text-muted-foreground">
-                    Загружаю поля портала…
-                </p>
-            ) : fields.isError ? (
-                <p className="text-sm text-destructive">
-                    Не удалось загрузить поля портала.
-                </p>
-            ) : fields.data?.degraded ? (
-                <p className="text-sm text-amber-600">
-                    {fields.data.error ?? 'Портал не ответил — поля не прочитаны.'}
-                </p>
-            ) : null}
+            <AppSettingBitrixFieldsStatus
+                requested={requested}
+                loading={fields.isLoading || portal.isLoading}
+                failed={fields.isError}
+                degradedText={
+                    fields.data?.degraded
+                        ? (fields.data.error ??
+                          'Портал не ответил — поля не прочитаны.')
+                        : null
+                }
+                selected={selected}
+                onRetry={() => void fields.refetch()}
+            />
+
 
             {shown.length > 0 && (
                 <div className="max-h-64 space-y-1 overflow-y-auto rounded border p-2">

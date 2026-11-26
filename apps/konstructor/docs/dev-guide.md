@@ -63,7 +63,10 @@ row-set/
 
 ```
 boot: AppThunk.initial → app-init.util (Bitrix.start → placement DEAL|COMPANY → dealId
-      (из компании — deal.getList по COMPANY_ID, pickCompanyDeal) → сделка+компания) → setAppData
+      (из компании — открытая сделка sales_base: слепок портала → воронка и финальные стадии →
+      deal.getList по COMPANY_ID + CATEGORY_ID + CLOSED=N → pickCompanyDeal, самая свежая;
+      такой нет — dealId=null, компания читается company.get, работа идёт на компании без сделки;
+      лид и прочие карточки — экран NoEntityScreen) → сделка+компания) → setAppData
 listeners (app/model/listeners/start-store-listeners.ts):
   setAppData → initCatalog + initProviders + initPortal + fetchBXRQ (реквизиты по компании)
   setAppData → fetchAppSettings (портальные флаги через swrCache) + сброс шапок документов (offerDocument/contractDocument/supplyReport/zakupki)
@@ -78,6 +81,9 @@ listeners (app/model/listeners/start-store-listeners.ts):
   клиента (selectClientTypeOrDefault: компания → сделка → организация) и rqId слепка;
   bxrq.setCurrentRqItems | setCurrentItem | saveBaseCreating → snapshot.setRqId
   dealId × каталог готов → restoreSnapshot → rowSet.restore
+  «Создать сделку» в компании без сделки (features/deal-send): deal-send с requestKey → setDealId → saveSnapshot →
+  опрос status/{operationId} → deal.get → setDeal → initPortal со сделкой (отдел, поставщик, варианты);
+  saveDone без восстановления → snapshot.adopted (вход `/` не ждёт слепка)
   initPortal.fulfilled × dealId × смарт вариантов → fetchComplectVariants
   initPortal.fulfilled → initServiceOffer (сервисный отдел: слепки периодов; иначе выходит сам)
   offerDocument.* | documentProvider.setCurrent | любое действие набора строк (isRowSetContentAction: правки строк,

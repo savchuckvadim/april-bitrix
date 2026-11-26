@@ -1,4 +1,5 @@
 import type { IBXDeal } from '@bitrix/index';
+import type { SalesFunnelScope } from '@/modules/entities/portal';
 
 /** Структурный минимум placement (Placement | CustomPlacement из @workspace/bx). */
 export interface PlacementLike {
@@ -21,7 +22,7 @@ const readId = (options: Record<string, unknown>): number | null => {
 
 /**
  * Сущность placement: сделка (CRM_DEAL_*) или компания (CRM_COMPANY_*).
- * Из компании конструктор сам находит её сделку (решение владельца 5).
+ * Лид и всё остальное — null: из них конструктор не открывается.
  */
 export const resolvePlacementEntity = (
     placement: PlacementLike | null,
@@ -40,25 +41,30 @@ const createdAt = (deal: IBXDeal): number => {
     return Number.isFinite(time) ? time : 0;
 };
 
-const isOpen = (deal: IBXDeal): boolean => deal.CLOSED !== 'Y';
+/**
+ * Открытая сделка «ОП Основная»: воронка sales_base, не закрыта (успех, провал,
+ * «Не состоялась» и «Не ЦА» закрывают сделку), семантика стадии «в работе» и
+ * стадия не из финальных. Ответственный не важен.
+ */
+const isOpenSalesDeal = (deal: IBXDeal, funnel: SalesFunnelScope): boolean =>
+    Number(deal.CATEGORY_ID ?? 0) === funnel.categoryId &&
+    deal.CLOSED !== 'Y' &&
+    String(deal.STAGE_SEMANTIC_ID ?? 'P') === 'P' &&
+    !funnel.finalStageIds.has(String(deal.STAGE_ID));
 
 /**
- * Сделка компании для входа из карточки компании: открытая и самая свежая;
- * открытых нет — самая свежая из закрытых; сделок нет — null.
+ * Сделка компании для входа из её карточки: открытая сделка воронки sales_base,
+ * из нескольких — самая свежая. Подходящей нет (или воронка портала неизвестна) —
+ * null: конструктор работает на компании без сделки.
  */
-export const pickCompanyDeal = (deals: IBXDeal[]): IBXDeal | null => {
-    if (!deals.length) return null;
-    const byFreshness = [...deals].sort((a, b) => createdAt(b) - createdAt(a));
-    return byFreshness.find(isOpen) ?? byFreshness[0] ?? null;
+export const pickCompanyDeal = (
+    deals: IBXDeal[],
+    funnel: SalesFunnelScope | null,
+): IBXDeal | null => {
+    if (!funnel) return null;
+    return (
+        deals
+            .filter(deal => isOpenSalesDeal(deal, funnel))
+            .sort((a, b) => createdAt(b) - createdAt(a))[0] ?? null
+    );
 };
-
-/** Поля сделки, которых достаточно для выбора (список по COMPANY_ID). */
-export const COMPANY_DEAL_SELECT = [
-    'ID',
-    'TITLE',
-    'CLOSED',
-    'DATE_CREATE',
-    'COMPANY_ID',
-    'CATEGORY_ID',
-    'STAGE_ID',
-];

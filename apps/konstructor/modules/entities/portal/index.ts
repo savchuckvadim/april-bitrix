@@ -9,6 +9,7 @@ export {
     type PBXRPA,
     type PBXSmart,
     type Portal,
+    type SalesFunnelScope,
 } from './model/dto';
 export {
     getComplectVariantPbxSmart,
@@ -17,12 +18,14 @@ export {
     getRpaFieldId,
     getRpaSupplyTypeId,
     getSalesCategoryId,
+    getSalesFunnelScope,
     getServiceCategoryId,
     getServiceOfferPbxSmart,
     getServiceOfferPbxSmartEntityId,
 } from './lib/portal-util';
 export { portalReducer, portalSlice, resetPortal, setPortal } from './model/PortalSlice';
 export type { PortalState } from './model/PortalSlice';
+export { loadPortalSnapshot } from './lib/portal-snapshot.util';
 export { initPortal } from './model/PortalThunk';
 export type { InitPortalArgs } from './model/PortalThunk';
 export { usePortal } from './hooks/portal.hooks';

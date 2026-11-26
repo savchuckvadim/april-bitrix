@@ -72,6 +72,7 @@ export function startStoreListeners(
 ) {
     setupAppDataListener(listenerMiddleware);
     setupSnapshotRestoreListener(listenerMiddleware);
+    setupSnapshotAdoptListener(listenerMiddleware);
     setupComplectVariantsListener(listenerMiddleware);
     setupServiceOfferListener(listenerMiddleware);
     setupDepartmentContextListener(listenerMiddleware);
@@ -155,6 +156,21 @@ function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
             void listenerApi.dispatch(fetchCompositionView());
         },
     });
+
+    // Сделка создана из компании без сделки и прочитана из Битрикса: то, что
+    // зависит от сделки, считается заново теми же путями, что и на старте внутри
+    // сделки. Портал с новой сделкой даёт отдел, поставщика сделки и варианты
+    // комплекта (слушатели на initPortal.fulfilled). Слепок пишет сама отправка;
+    // каталог, поставщики, реквизиты и настройки от сделки не зависят. Шапки
+    // документов не сбрасываются: пересчитывать в новой сделке нечего, и сброс
+    // стёр бы введённое менеджером.
+    typed(listenerMiddleware)({
+        actionCreator: appActions.setDeal,
+        effect: (action, listenerApi) => {
+            const { domain } = listenerApi.getState().app;
+            listenerApi.dispatch(initPortal({ domain, deal: action.payload }));
+        },
+    });
 }
 
 const isCatalogSettled = (state: RootState): boolean =>
@@ -192,6 +208,24 @@ function setupSnapshotRestoreListener(
             await listenerApi.dispatch(
                 restoreSnapshot({ domain, dealId, catalogReady }),
             );
+        },
+    });
+}
+
+/**
+ * Слепок записан, а восстановление не запускалось (сделку создал сам
+ * конструктор из компании): сборка в сторе и есть слепок сделки. Без этой
+ * отметки вход `/` ждал бы слепка, который никто не запрашивал.
+ */
+function setupSnapshotAdoptListener(
+    listenerMiddleware: ListenerMiddlewareInstance,
+) {
+    typed(listenerMiddleware)({
+        actionCreator: snapshotActions.saveDone,
+        effect: (_action, listenerApi) => {
+            const { snapshot, app } = listenerApi.getState();
+            if (!app.dealId || snapshot.status !== 'idle') return;
+            listenerApi.dispatch(snapshotActions.adopted());
         },
     });
 }

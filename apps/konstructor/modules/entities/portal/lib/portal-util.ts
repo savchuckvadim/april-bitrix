@@ -2,9 +2,11 @@ import type { IBXDeal } from '@bitrix/domain';
 import {
     PBX_DEAL_CATEGORY,
     PBX_RPA_SUPPLY,
+    PBX_SALES_BASE_FINAL_STAGE_CODES,
     PBX_SMART_TYPE,
     type PBXSmart,
     type Portal,
+    type SalesFunnelScope,
 } from '../model/dto';
 
 /** bitrixId категории приходит строкой («34») — наружу отдаём число. */
@@ -33,6 +35,27 @@ export const getSalesCategoryId = (portal: Portal | null): number | null =>
 
 export const getServiceCategoryId = (portal: Portal | null): number | null =>
     findDealCategoryId(portal, PBX_DEAL_CATEGORY.SERVICE);
+
+/**
+ * Воронка «ОП Основная» (sales_base) в числах Битрикса и её финальные стадии.
+ * Нет слепка или воронки на портале — null. Номер 0 допустим: это общая воронка.
+ */
+export const getSalesFunnelScope = (
+    portal: Portal | null,
+): SalesFunnelScope | null => {
+    const category = portal?.bitrixDeal?.categories.find(
+        item => item.code === PBX_DEAL_CATEGORY.SALES,
+    );
+    if (!category?.bitrixId?.trim()) return null;
+    const categoryId = Number(category.bitrixId);
+    if (!Number.isFinite(categoryId) || categoryId < 0) return null;
+    const finalStageIds = new Set(
+        category.stages
+            .filter(stage => PBX_SALES_BASE_FINAL_STAGE_CODES.has(stage.code))
+            .map(stage => String(stage.bitrixId)),
+    );
+    return { categoryId, finalStageIds };
+};
 
 /** Сделка в сервисной воронке — конструктор работает в режиме отдела сервиса. */
 export const getIsServiceDepartment = (

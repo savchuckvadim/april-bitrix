@@ -80,6 +80,7 @@ export const LibraryScreen = ({ kind }: LibraryScreenProps) => {
                         <LibraryItemCard
                             key={item.id}
                             item={item}
+                            authorLabel={screen.authorLabel(item)}
                             busy={screen.loadingId === item.id}
                             onLoad={() => void screen.load(item.id)}
                             onRename={title => void screen.rename(item.id, title)}

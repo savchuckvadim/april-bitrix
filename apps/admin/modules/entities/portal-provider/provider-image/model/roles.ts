@@ -25,4 +25,9 @@ export const PROVIDER_IMAGE_ROLES: readonly ProviderImageRoleMeta[] = [
         label: 'Логотип',
         hint: 'PDF-КП: шапка в стилях «Классический» и «Призма», обложка «Призмы». Печатается всегда.',
     },
+    {
+        role: PROVIDER_IMAGE_ROLE.QR,
+        label: 'QR для оплаты',
+        hint: 'PDF-счёт: печатается справа от банковской шапки.',
+    },
 ];

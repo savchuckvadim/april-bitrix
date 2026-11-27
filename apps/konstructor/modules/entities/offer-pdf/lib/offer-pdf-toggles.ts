@@ -29,6 +29,11 @@ export const OFFER_PDF_TOGGLES: readonly OfferPdfToggle[] = [
     },
     { key: 'withManager', label: 'Контакты менеджера', hint: 'В подвале каждой страницы' },
     { key: 'isPriceFirst', label: 'Сначала цена', hint: 'Потом наполнение' },
+    {
+        key: 'showDiscount',
+        label: 'Показывать скидку',
+        hint: 'Колонка «Скидка» в таблице цен; выключена: цена уже со скидкой',
+    },
 ];
 
 /** Переключатель закрыт: блок стоит под письмом, а письмо выключено */

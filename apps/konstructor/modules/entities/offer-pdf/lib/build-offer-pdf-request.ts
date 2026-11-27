@@ -105,6 +105,7 @@ export const toOfferPdfRequest = (
             withStamps: options.settings.withStamps,
             withManager: options.settings.withManager,
             isPriceFirst: options.settings.isPriceFirst,
+            showDiscount: options.settings.showDiscount,
             salePhrase: trimmedOrUndefined(options.settings.salePhrase) ?? null,
             withCover: options.settings.withCover,
             withPromo: options.settings.withPromo,

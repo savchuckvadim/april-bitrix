@@ -10,6 +10,7 @@ import {
 } from '../../model/types';
 import { offerPdfRequestBlocker, toOfferPdfRequest } from '../build-offer-pdf-request';
 import { resolvePalette } from '../offer-pdf-palette.util';
+import { offerPdfRequestKey } from '../offer-pdf-request-key';
 import { normalizeOfferPdfPrefs, OFFER_PDF_DEFAULT_PREFS } from '../offer-pdf-storage';
 import { isOfferPdfToggleDisabled, OFFER_PDF_TOGGLES, visibleOfferPdfToggles } from '../offer-pdf-toggles';
 
@@ -104,6 +105,26 @@ describe('запрос КП в PDF', () => {
         expect(request).not.toHaveProperty('withLetter');
     });
 
+    it('скидка: по умолчанию settings.showDiscount = true, выключенная уходит как false', () => {
+        expect(OFFER_PDF_DEFAULT_SETTINGS.showDiscount).toBe(true);
+        expect(toOfferPdfRequest(wordPayload, options).settings?.showDiscount).toBe(true);
+        const hidden = toOfferPdfRequest(wordPayload, {
+            ...options,
+            settings: { ...OFFER_PDF_DEFAULT_SETTINGS, showDiscount: false },
+        });
+        expect(hidden.settings?.showDiscount).toBe(false);
+    });
+
+    it('скидка меняет ключ превью, а остальной запрос остаётся прежним', () => {
+        const shown = toOfferPdfRequest(wordPayload, options);
+        const hidden = toOfferPdfRequest(wordPayload, {
+            ...options,
+            settings: { ...options.settings, showDiscount: false },
+        });
+        expect(offerPdfRequestKey(hidden)).not.toBe(offerPdfRequestKey(shown));
+        expect({ ...hidden, settings: { ...hidden.settings, showDiscount: true } }).toEqual(shown);
+    });
+
     it('блокер не требует Word-шаблона, но требует сделку, строку и поставщика', () => {
         const state = {
             app: { domain: 'test.bitrix24.ru', dealId: 100 },
@@ -167,6 +188,24 @@ describe('сохранённые настройки PDF', () => {
         expect(OFFER_PDF_DEFAULT_PREFS.settings.withLetter).toBe(true);
     });
 
+    it('слепок и запись кэша без поля showDiscount читаются как «показывать скидку»', () => {
+        const old = normalizeOfferPdfPrefs({
+            format: OFFER_DOCUMENT_FORMAT.PDF,
+            templateCode: 'classic',
+            settings: { withStamps: false, withLetter: false },
+        });
+        expect(old.settings.showDiscount).toBe(true);
+        expect(old.settings.withLetter).toBe(false);
+        expect(OFFER_PDF_DEFAULT_PREFS.settings.showDiscount).toBe(true);
+        expect(normalizeOfferPdfPrefs(null).settings.showDiscount).toBe(true);
+    });
+
+    it('выключенная скидка сохраняется, мусор в поле читается как «показывать»', () => {
+        expect(normalizeOfferPdfPrefs({ settings: { showDiscount: false } }).settings.showDiscount).toBe(false);
+        expect(normalizeOfferPdfPrefs({ settings: { showDiscount: true } }).settings.showDiscount).toBe(true);
+        expect(normalizeOfferPdfPrefs({ settings: { showDiscount: 'нет' } }).settings.showDiscount).toBe(true);
+    });
+
     it('выключенное письмо сохраняется, мусор в поле читается как «с письмом»', () => {
         expect(normalizeOfferPdfPrefs({ settings: { withLetter: false } }).settings.withLetter).toBe(false);
         expect(normalizeOfferPdfPrefs({ settings: { withLetter: true } }).settings.withLetter).toBe(true);
@@ -208,14 +247,24 @@ describe('переключатели страниц', () => {
             'withStamps',
             'withManager',
             'isPriceFirst',
+            'showDiscount',
         ]);
         expect(keys(template({ ...base, hasCover: true }))).toEqual([
             'withCover',
             'withStamps',
             'withManager',
             'isPriceFirst',
+            'showDiscount',
         ]);
-        expect(keys(null)).toEqual(['withStamps', 'withManager', 'isPriceFirst']);
+        expect(keys(null)).toEqual(['withStamps', 'withManager', 'isPriceFirst', 'showDiscount']);
+    });
+
+    it('«Показывать скидку» есть у любого стиля, подписан и не закрыт выключенным письмом', () => {
+        const discount = visibleOfferPdfToggles(null).find(toggle => toggle.key === 'showDiscount');
+        expect(discount?.label).toBe('Показывать скидку');
+        expect(discount?.onlyIf).toBeUndefined();
+        expect(discount?.needsLetter).toBeUndefined();
+        expect(discount && isOfferPdfToggleDisabled(discount, { withLetter: false })).toBe(false);
     });
 
     it('блок под письмом подписан «Печать и подпись», ключ настройки прежний', () => {

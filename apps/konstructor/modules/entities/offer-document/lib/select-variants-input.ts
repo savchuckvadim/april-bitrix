@@ -12,13 +12,18 @@ const toVariantsInput = (
     openVariantSmartId: number | null,
     general: VariantsPayloadInput['live']['general'],
     alternative: VariantsPayloadInput['live']['alternative'],
+    serviceDepartment: boolean,
 ): VariantsPayloadInput => ({
     catalog,
     participants,
     items,
     openVariantSmartId,
     live: { general, alternative },
+    serviceDepartment,
 });
+
+/** Сервисный отдел из контекста набора: от него зависит, какие пакеты LT собраны. */
+const selectServiceDepartment = (state: RootState): boolean => Boolean(state.rowSet.context.serviceDepartment);
 
 /**
  * Вход сборки участников КП (Word, PDF, оба превью) из состояния приложения.
@@ -34,6 +39,7 @@ export const selectOfferVariantsInput = createSelector(
         (state: RootState) => state.complectVariant.openVariantSmartId,
         (state: RootState) => state.rowSet.general,
         (state: RootState) => state.rowSet.alternative,
+        selectServiceDepartment,
     ],
     toVariantsInput,
 );
@@ -53,6 +59,7 @@ export const selectModeVariantsInput = createSelector(
         (state: RootState) => state.complectVariant.openVariantSmartId,
         (state: RootState) => state.rowSet.general,
         (state: RootState) => state.rowSet.alternative,
+        selectServiceDepartment,
     ],
     toVariantsInput,
 );

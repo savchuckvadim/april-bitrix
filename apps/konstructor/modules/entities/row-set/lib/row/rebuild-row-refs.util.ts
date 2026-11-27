@@ -5,7 +5,7 @@ import {
     resolveRefsForComplectChange,
     type Catalog,
 } from '../../../catalog';
-import { defaultComposition } from '../../../composition';
+import { defaultCompositionFor } from '../../../composition';
 import type { KRow } from '../../model/types';
 import type { RowSetContext } from '../set';
 import { buildGarantRow } from './build-garant-row.util';
@@ -70,7 +70,7 @@ export const rebuildRowWithRefs = (
         supplyCode,
         contractCode,
         composition: isComplectChange
-            ? defaultComposition(targetComplect)
+            ? defaultCompositionFor(targetComplect, context.regionCode)
             : row.composition,
         quantity: row.price.quantity,
     });
@@ -139,6 +139,6 @@ export const buildMainRowWithRefs = (
         setId: 'general',
         role: 'main',
         ...refs,
-        composition: defaultComposition(complect),
+        composition: defaultCompositionFor(complect, context.regionCode),
     });
 };

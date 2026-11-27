@@ -1,15 +1,26 @@
-import { normalizeComposition } from '../../../composition';
+import { normalizeComposition, withClientRegion } from '../../../composition';
 import type { RowSet } from '../../../row-set';
 import type { RestoredState, SnapshotV2 } from '../../model/types';
 import { isSnapshotV2 } from '../../model/types';
 
-/** Составы строк из записи до появления новых полей — с дефолтами */
-const normalizeSet = (set: RowSet): RowSet => ({
-    ...set,
-    rows: set.rows.map(row =>
-        row.composition ? { ...row, composition: normalizeComposition(row.composition) } : row,
-    ),
-});
+/**
+ * Составы строк из записи до появления новых полей — с дефолтами. Слепок,
+ * где блок «Региональное законодательство» включён без регионов (запись до
+ * модели регионов), получает регион клиента: вес считается по регионам.
+ */
+const normalizeSet =
+    (regionCode: string | null) =>
+    (set: RowSet): RowSet => ({
+        ...set,
+        rows: set.rows.map(row =>
+            row.composition
+                ? {
+                      ...row,
+                      composition: withClientRegion(normalizeComposition(row.composition), regionCode),
+                  }
+                : row,
+        ),
+    });
 
 export interface SerializeV2Input {
     state: Pick<
@@ -55,8 +66,8 @@ export const restoreV2 = (snapshot: SnapshotV2): RestoredState => ({
     regionCode: snapshot.regionCode,
     contractCode: snapshot.contractCode,
     supplyCode: snapshot.supplyCode,
-    general: normalizeSet(snapshot.general),
-    alternative: snapshot.alternative.map(normalizeSet),
+    general: normalizeSet(snapshot.regionCode)(snapshot.general),
+    alternative: snapshot.alternative.map(normalizeSet(snapshot.regionCode)),
     templateId: snapshot.templateId,
     rqId: snapshot.rqId ?? null,
     pdf: snapshot.pdf ?? null,

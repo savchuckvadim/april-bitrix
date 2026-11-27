@@ -215,11 +215,11 @@ describe('free-режим', () => {
 describe('вес и подбор универсала', () => {
     it('считает вес состава', () => {
         const composition = compositionFor('classic', {
-            infoblocks: ['rus'],
+            infoblocks: ['rus', 'reg'],
             regions: ['msk'],
         });
-        // rus 0.5 + регион 0.5 + рутовый блок 0.5
-        expect(compositionWeight(composition, ctxFor('classic'))).toBe(1.5);
+        // rus 0.5 + регион 0.5; рутовый блок веса не добавляет
+        expect(compositionWeight(composition, ctxFor('classic'))).toBe(1);
     });
 
     it('подбирает универсальный комплект по весу', () => {

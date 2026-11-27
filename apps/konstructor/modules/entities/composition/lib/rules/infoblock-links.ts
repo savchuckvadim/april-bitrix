@@ -125,17 +125,23 @@ export const applyInfoblockToggle = (
         }
     }
 
-    // Рутовый региональный блок ⇄ текущий регион сборки
-    if (code === REGION_ROOT_CODE && ctx.regionCode) {
-        const region = ctx.catalog.regions.byCode[ctx.regionCode];
-        const inRegions = next.regions.includes(ctx.regionCode);
-        if (checked && !inRegions) {
-            next = { ...next, regions: addUnique(next.regions, ctx.regionCode) };
-            autoFixes.push(`Регион «${region?.title ?? ctx.regionCode}» добавлен в состав`);
+    // Рутовый региональный блок ⇄ регионы состава: включили — в состав встаёт
+    // регион клиента (считает вес), выключили — регионов не остаётся совсем
+    if (code === REGION_ROOT_CODE) {
+        const hadRegions = next.regions.length > 0 || next.regionsUnweighted.length > 0;
+        if (checked && ctx.regionCode) {
+            const region = ctx.catalog.regions.byCode[ctx.regionCode];
+            const inLists =
+                next.regions.includes(ctx.regionCode) ||
+                next.regionsUnweighted.includes(ctx.regionCode);
+            if (!inLists) {
+                next = { ...next, regions: addUnique(next.regions, ctx.regionCode) };
+                autoFixes.push(`Регион «${region?.title ?? ctx.regionCode}» добавлен в состав`);
+            }
         }
-        if (!checked && inRegions) {
-            next = { ...next, regions: remove(next.regions, ctx.regionCode) };
-            autoFixes.push(`Регион «${region?.title ?? ctx.regionCode}» снят`);
+        if (!checked && hadRegions) {
+            next = { ...next, regions: [], regionsUnweighted: [] };
+            autoFixes.push('Регионы сняты вместе с блоком');
         }
     }
 

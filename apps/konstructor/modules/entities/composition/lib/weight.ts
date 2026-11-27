@@ -1,17 +1,18 @@
 import type { KComplect } from '../../catalog';
 import { getComplectRuleFlags } from '../../catalog';
 import type { Composition, CompositionCtx } from '../model/types';
+import { REGION_ROOT_CODE } from './rules/infoblock-links';
 
 /**
  * Вес состава (перенос legacy weight.js + region-util.ts):
  * Σ весов инфоблоков (кроме «Регионального законодательства» — reg)
  * + Σ весов отдельных ЭР (0.5) + вес активных пакетов ЭР (1)
- * + регионы: каждый ×0.5 + рутовый блок reg ×0.5 (если есть регионы или блок).
- * Рутовый блок — это и есть текущий регион сборки: когда он же лежит в regions,
- * второй раз не считается (legacy hasRootInOthers).
+ * + регионы «считать вес»: вес каждого из каталога (KRegion.weight: Москва 1,
+ * остальные 0.5; регион без записи в каталоге — 0). Регионы «не считать» и
+ * сам рутовый блок reg веса не дают: блок следует за регионами и «весит» ровно
+ * столько, сколько его регионы.
  */
 
-const REGION_ROOT_CODE = 'reg';
 export const WEIGHT_TOLERANCE = 0.01;
 
 export const compositionWeight = (
@@ -36,16 +37,7 @@ export const compositionWeight = (
     // ersInPacket весят 0
 
     for (const code of composition.regions) {
-        weight += ctx.catalog.regions.byCode[code]?.weight ?? 0.5;
-    }
-    const hasRegionRoot =
-        composition.infoblocks.includes(REGION_ROOT_CODE) ||
-        composition.regions.length > 0;
-    const isRootListed = Boolean(
-        ctx.regionCode && composition.regions.includes(ctx.regionCode),
-    );
-    if (hasRegionRoot && !isRootListed) {
-        weight += ctx.catalog.infoblocks[REGION_ROOT_CODE]?.weight ?? 0.5;
+        weight += ctx.catalog.regions.byCode[code]?.weight ?? 0;
     }
 
     return Math.round(weight * 100) / 100;

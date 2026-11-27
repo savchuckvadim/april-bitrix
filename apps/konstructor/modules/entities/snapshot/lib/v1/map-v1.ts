@@ -111,7 +111,7 @@ const academyCodeByIndex = (
 export const mapV1Composition = (
     legacy: V1CurrentComplect,
     catalog: Catalog,
-    regionCodes: string[],
+    regionLists: { counted: string[]; unweighted: string[] },
     warnings: string[],
 ): Composition | null => {
     const complectCode = complectCodeByNumber(catalog, legacy.number);
@@ -184,7 +184,8 @@ export const mapV1Composition = (
                 : null,
         star: (legacy.star?.length ?? 0) > 0,
         academy: academyCodeByIndex(catalog, legacy.academy?.[0]),
-        regions: regionCodes,
+        regions: regionLists.counted,
+        regionsUnweighted: regionLists.unweighted,
     };
 };
 
@@ -331,6 +332,7 @@ const mapV1Row = (
             composition = {
                 ...defaultComposition(complect),
                 regions: mainComposition?.regions ?? [],
+                regionsUnweighted: mainComposition?.regionsUnweighted ?? [],
             };
         }
     }
@@ -410,15 +412,19 @@ const mapV1Set = (
 export const mapV1 = (parsed: V1Parsed, catalog: Catalog): RestoredState => {
     const warnings = [...parsed.parseErrors.map(field => `Битое поле: ${field}`)];
 
-    const regionCodes = (parsed.regions?.inComplect ?? [])
-        .map(region => region.name)
-        .filter(Boolean);
+    // легаси: inComplect считает вес, noWidth не считает (favorite в состав не входит)
+    const regionNames = (regions: { name: string }[] | undefined): string[] =>
+        (regions ?? []).map(region => region.name).filter(Boolean);
+    const regionLists = {
+        counted: regionNames(parsed.regions?.inComplect),
+        unweighted: regionNames(parsed.regions?.noWidth),
+    };
 
     const mapped = parsed.currentComplect
         ? mapV1Composition(
               parsed.currentComplect,
               catalog,
-              regionCodes,
+              regionLists,
               warnings,
           )
         : null;
@@ -478,7 +484,7 @@ export const mapV1 = (parsed: V1Parsed, catalog: Catalog): RestoredState => {
     return {
         schemaVersion: 1,
         regionCode:
-            parsed.globalRegion?.name ?? regionCodes[0] ?? null,
+            parsed.globalRegion?.name ?? regionLists.counted[0] ?? null,
         contractCode: contractCodeOf(catalog, parsed.contract),
         supplyCode: supplyCodeByNumber(catalog, parsed.odNumber ?? undefined),
         general,

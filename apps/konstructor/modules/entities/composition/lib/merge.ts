@@ -26,6 +26,9 @@ export const mergeCompositions = (
             consaltingPriority(code) > consaltingPriority(best) ? code : best,
         );
 
+    // регион, считающий вес хотя бы в одной строке, считает его и в общем составе
+    const regions = union(...compositions.map(c => c.regions));
+
     return {
         complectCode: first.complectCode,
         mode: first.mode,
@@ -46,6 +49,9 @@ export const mergeCompositions = (
         academy:
             compositions.map(c => c.academy).find(code => code !== null) ??
             null,
-        regions: union(...compositions.map(c => c.regions)),
+        regions,
+        regionsUnweighted: union(...compositions.map(c => c.regionsUnweighted ?? [])).filter(
+            code => !regions.includes(code),
+        ),
     };
 };

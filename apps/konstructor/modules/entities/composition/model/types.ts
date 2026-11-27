@@ -55,8 +55,18 @@ export interface Composition {
     star: boolean;
     /** Код пакета академии или null */
     academy: string | null;
-    /** Регионы в составе (codes, каждый +0.5 веса) */
+    /**
+     * Регионы в составе, которые считают вес (codes): вес берётся из каталога
+     * (KRegion.weight). Рутовый блок «Региональное законодательство» (reg)
+     * включён, пока в этом или в соседнем списке есть хоть один регион.
+     */
     regions: string[];
+    /**
+     * Регионы в составе, которые вес не считают (легаси noWidth): блок есть в
+     * документах, но комплект от него не растёт. Код живёт только в одном из
+     * двух списков.
+     */
+    regionsUnweighted: string[];
 }
 
 export interface CompositionCtx {
@@ -109,6 +119,11 @@ export type CompositionAction =
     | { kind: 'toggleStar'; checked: boolean }
     | { kind: 'setAcademy'; code: string | null }
     | { kind: 'toggleRegion'; code: string; checked: boolean }
+    /** Регионы целиком: считающие вес и не считающие (окно «Регионы») */
+    | { kind: 'setRegions'; counted: string[]; unweighted: string[] }
+    /** Перевод региона между «считать вес» и «не считать» */
+    | { kind: 'toggleRegionWeight'; code: string; counted: boolean }
+    | { kind: 'removeRegion'; code: string }
     | { kind: 'addLtOtherPacket'; id: string }
     | { kind: 'removeLtOtherPacket'; id: string }
     | { kind: 'toggleLtOtherService'; id: string; code: string; checked: boolean }
@@ -162,7 +177,20 @@ export const defaultComposition = (
     star: complect.defaults.star,
     academy: null,
     regions: [],
+    regionsUnweighted: [],
 });
+
+/** Списки регионов из слепка: без второго списка (старые записи), без повторов, код только в одном списке */
+const normalizeRegionLists = (
+    composition: Partial<Pick<Composition, 'regions' | 'regionsUnweighted'>>,
+): Pick<Composition, 'regions' | 'regionsUnweighted'> => {
+    const regions = [...new Set(Array.isArray(composition.regions) ? composition.regions : [])];
+    const unweighted = Array.isArray(composition.regionsUnweighted) ? composition.regionsUnweighted : [];
+    return {
+        regions,
+        regionsUnweighted: [...new Set(unweighted)].filter(code => !regions.includes(code)),
+    };
+};
 
 /**
  * Состав из старого слепка v2: недостающие списки получают пустое значение,
@@ -179,4 +207,5 @@ export const normalizeComposition = (
     ersInPacket: [...new Set(composition.ersInPacket)],
     // старые коды бесплатных блоков из слепков v1 → коды каталога
     freeBlocks: [...new Set(composition.freeBlocks.map(code => LEGACY_FREEBLOCK_ALIASES[code] ?? code))],
+    ...normalizeRegionLists(composition),
 });

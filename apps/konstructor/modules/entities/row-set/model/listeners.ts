@@ -1,7 +1,11 @@
 import type { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import type { Catalog } from '../../catalog';
 import { rowSetActions, type RowSetState } from './RowSetSlice';
-import { syncAcademyRow, syncSetWithComposition } from '../lib/set';
+import {
+    replaceClientRegionInSet,
+    syncAcademyRow,
+    syncSetWithComposition,
+} from '../lib/set';
 
 /**
  * Реакции row-set (регистрируются app-слоем в start-store-listeners).
@@ -37,6 +41,11 @@ const setOf = (state: WithRowSetDeps, setId: string) =>
  * через setWithTax + provider-tax listener (без пересборки по каталогу,
  * чтобы не убить денормализованные цены восстановленного слепка).
  * restore НЕ матчится — сохранённые цены слепка не пересчитываются.
+ * Смена региона клиента (setContext) заодно переносит его в составы: во всех
+ * наборах, общем и для сравнения, прежний регион клиента заменяется новым
+ * в том же списке («считать вес» или «не считать»), прочие регионы остаются.
+ * Замена и пересборка идут в одном эффекте, чтобы цены считались по уже
+ * обновлённому составу.
  */
 export function setupRowSetSyncListener(
     listenerMiddleware: ListenerMiddlewareInstance,
@@ -60,18 +69,26 @@ export function setupRowSetSyncListener(
             const { context, general, alternative } = state.rowSet;
             if (!context.regionCode) return;
 
-            const targetSetIds =
-                action.type === rowSetActions.setContext.type
-                    ? [general.id, ...alternative.map(set => set.id)]
-                    : action.payload?.setId
-                      ? [action.payload.setId]
-                      : [];
+            const isRegionChange = action.type === rowSetActions.setContext.type;
+            const targetSetIds = isRegionChange
+                ? [general.id, ...alternative.map(set => set.id)]
+                : action.payload?.setId
+                  ? [action.payload.setId]
+                  : [];
+            // прежний регион клиента: из состояния до этого setContext
+            const previousRegion = isRegionChange
+                ? listenerApi.getOriginalState().rowSet.context.regionCode
+                : null;
 
             for (const setId of targetSetIds) {
-                const set = setOf(state, setId);
-                if (!set) continue;
+                const current = setOf(state, setId);
+                if (!current) continue;
+                const set =
+                    previousRegion && previousRegion !== context.regionCode
+                        ? replaceClientRegionInSet(current, previousRegion, context.regionCode)
+                        : current;
                 const synced = syncSetWithComposition(set, catalog, context);
-                if (synced !== set) {
+                if (synced !== current) {
                     listenerApi.dispatch(rowSetActions.writeSyncedSet(synced));
                 }
             }

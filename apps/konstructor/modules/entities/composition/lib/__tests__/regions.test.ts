@@ -11,7 +11,11 @@ import {
     replaceClientRegion,
     withClientRegion,
 } from '../regions-edit';
-import { compositionWeight } from '../weight';
+import {
+    checkComplectWeight,
+    compositionWeight,
+    regionWeightSurplus,
+} from '../weight';
 
 /**
  * Регионы состава: два списка («считать вес» и «не считать»), вес из каталога,
@@ -23,7 +27,9 @@ const base = catalogFromOldInit(oldInit);
 const catalog: Catalog = {
     ...base,
     regions: {
-        items: base.regions.items.map(region => (region.code === 'msk' ? { ...region, weight: 1 } : region)),
+        items: base.regions.items.map(region =>
+            region.code === 'msk' ? { ...region, weight: 1 } : region,
+        ),
         byCode: {
             ...base.regions.byCode,
             msk: { ...base.regions.byCode['msk']!, weight: 1 },
@@ -41,7 +47,10 @@ const ctxFor = (code: string, regionCode?: string): CompositionCtx => ({
     catalog,
     regionCode,
 });
-const compositionFor = (code: string, overrides: Partial<Composition> = {}): Composition => ({
+const compositionFor = (
+    code: string,
+    overrides: Partial<Composition> = {},
+): Composition => ({
     ...defaultComposition(complectOf(code)),
     ...overrides,
 });
@@ -51,7 +60,10 @@ describe('вес регионов', () => {
 
     it('Москва весит 1, остальные 0.5, регион без записи в каталоге 0', () => {
         const only = (regions: string[]) =>
-            compositionWeight(compositionFor('classic', { infoblocks: [], regions }), ctx);
+            compositionWeight(
+                compositionFor('classic', { infoblocks: [], regions }),
+                ctx,
+            );
         expect(only(['msk'])).toBe(1);
         expect(only(['stv'])).toBe(0.5);
         expect(only(['msk', 'stv', 'spb'])).toBe(2);
@@ -66,8 +78,75 @@ describe('вес регионов', () => {
         });
         expect(compositionWeight(composition, ctx)).toBe(0.5);
         expect(
-            compositionWeight(compositionFor('classic', { infoblocks: ['reg'], regions: [] }), ctx),
+            compositionWeight(
+                compositionFor('classic', { infoblocks: ['reg'], regions: [] }),
+                ctx,
+            ),
         ).toBe(0);
+    });
+});
+
+describe('вес комплекта с тяжёлым региональным блоком (Москва)', () => {
+    /** Состав из одних регионов: вес состава равен весу регионов */
+    const regionsOnly = (regions: string[], regionsUnweighted: string[] = []) =>
+        compositionFor('classic', {
+            infoblocks: ['reg'],
+            ers: [],
+            erPackets: [],
+            regions,
+            regionsUnweighted,
+        });
+    const complect = (type: 'prof' | 'universal', weight: number) => ({
+        ...complectOf('classic'),
+        type,
+        weight,
+    });
+    const matches = (
+        type: 'prof' | 'universal',
+        expected: number,
+        regions: string[],
+        unweighted: string[] = [],
+    ) =>
+        checkComplectWeight(regionsOnly(regions, unweighted), {
+            complect: complect(type, expected),
+            catalog,
+            regionCode: regions[0],
+        }).matches;
+
+    it('надбавка — вес регионов «считать вес» сверх 0.5 каждый: Москва +0.5, остальные 0', () => {
+        expect(regionWeightSurplus(['msk'], catalog)).toBe(0.5);
+        expect(regionWeightSurplus(['stv', 'spb'], catalog)).toBe(0);
+        expect(regionWeightSurplus(['msk', 'stv'], catalog)).toBe(0.5);
+        expect(regionWeightSurplus(['nowhere'], catalog)).toBe(0);
+    });
+
+    it('ПРОФ с Москвой: вес больше эталона на надбавку блока — не ошибка', () => {
+        expect(matches('prof', 0.5, ['msk'])).toBe(true);
+        expect(matches('prof', 1, ['msk', 'stv'])).toBe(true);
+    });
+
+    it('ПРОФ с Москвой: вес равен эталону — тоже не ошибка', () => {
+        expect(matches('prof', 1, ['msk'])).toBe(true);
+    });
+
+    it('ПРОФ: вес выше эталона больше надбавки или ниже эталона — ошибка', () => {
+        expect(matches('prof', 0.5, ['msk', 'stv'])).toBe(false);
+        expect(matches('prof', 1.5, ['msk'])).toBe(false);
+    });
+
+    it('ПРОФ без Москвы: вес только точный', () => {
+        expect(matches('prof', 0.5, ['stv'])).toBe(true);
+        expect(matches('prof', 0.5, ['stv', 'spb'])).toBe(false);
+    });
+
+    it('Москва «не считать» надбавки не даёт', () => {
+        expect(matches('prof', 0.5, ['stv'], ['msk'])).toBe(true);
+        expect(regionWeightSurplus([], catalog)).toBe(0);
+    });
+
+    it('Универсал: Москва идёт в общий вес, расхождение с комплектом остаётся (подсказка перейти)', () => {
+        expect(matches('universal', 0.5, ['msk'])).toBe(false);
+        expect(matches('universal', 1, ['msk'])).toBe(true);
     });
 });
 
@@ -78,7 +157,11 @@ describe('действия над регионами', () => {
     it('setRegions задаёт оба списка целиком и включает рутовый блок', () => {
         const result = applyAction(
             start,
-            { kind: 'setRegions', counted: ['stv', 'spb'], unweighted: ['msk'] },
+            {
+                kind: 'setRegions',
+                counted: ['stv', 'spb'],
+                unweighted: ['msk'],
+            },
             ctx,
         );
         expect(result.composition.regions).toEqual(['stv', 'spb']);
@@ -89,7 +172,11 @@ describe('действия над регионами', () => {
     it('код живёт в одном списке: «считать вес» побеждает', () => {
         const result = applyAction(
             start,
-            { kind: 'setRegions', counted: ['stv'], unweighted: ['stv', 'msk'] },
+            {
+                kind: 'setRegions',
+                counted: ['stv'],
+                unweighted: ['stv', 'msk'],
+            },
             ctx,
         );
         expect(result.composition.regions).toEqual(['stv']);
@@ -102,7 +189,11 @@ describe('действия над регионами', () => {
             { kind: 'setRegions', counted: ['stv', 'spb'], unweighted: [] },
             ctx,
         ).composition;
-        const off = applyAction(withTwo, { kind: 'toggleRegionWeight', code: 'spb', counted: false }, ctx);
+        const off = applyAction(
+            withTwo,
+            { kind: 'toggleRegionWeight', code: 'spb', counted: false },
+            ctx,
+        );
         expect(off.composition.regions).toEqual(['stv']);
         expect(off.composition.regionsUnweighted).toEqual(['spb']);
         const on = applyAction(
@@ -120,17 +211,29 @@ describe('действия над регионами', () => {
             { kind: 'setRegions', counted: ['stv'], unweighted: ['msk'] },
             ctx,
         ).composition;
-        const first = applyAction(composition, { kind: 'removeRegion', code: 'stv' }, ctx);
+        const first = applyAction(
+            composition,
+            { kind: 'removeRegion', code: 'stv' },
+            ctx,
+        );
         expect(first.composition.regions).toEqual([]);
         expect(first.composition.regionsUnweighted).toEqual(['msk']);
         expect(first.composition.infoblocks).toContain('reg');
-        const last = applyAction(first.composition, { kind: 'removeRegion', code: 'msk' }, ctx);
+        const last = applyAction(
+            first.composition,
+            { kind: 'removeRegion', code: 'msk' },
+            ctx,
+        );
         expect(compositionRegionCodes(last.composition)).toEqual([]);
         expect(last.composition.infoblocks).not.toContain('reg');
     });
 
     it('добавленный регион по умолчанию считает вес', () => {
-        const result = applyAction(start, { kind: 'toggleRegion', code: 'spb', checked: true }, ctx);
+        const result = applyAction(
+            start,
+            { kind: 'toggleRegion', code: 'spb', checked: true },
+            ctx,
+        );
         expect(result.composition.regions).toEqual(['spb']);
     });
 
@@ -153,7 +256,10 @@ describe('действия над регионами', () => {
 describe('состав по умолчанию с регионом клиента', () => {
     it('блок региона в умолчаниях комплекта → регион клиента считает вес', () => {
         const complect = { ...complectOf('classic') };
-        complect.defaults = { ...complect.defaults, infoblocks: ['rus', 'reg'] };
+        complect.defaults = {
+            ...complect.defaults,
+            infoblocks: ['rus', 'reg'],
+        };
         const composition = defaultCompositionFor(complect, 'stv');
         expect(composition.regions).toEqual(['stv']);
         expect(composition.regionsUnweighted).toEqual([]);
@@ -166,7 +272,10 @@ describe('состав по умолчанию с регионом клиент�
     });
 
     it('withClientRegion не трогает состав, где регионы уже есть', () => {
-        const composition = compositionFor('classic', { infoblocks: ['reg'], regionsUnweighted: ['msk'] });
+        const composition = compositionFor('classic', {
+            infoblocks: ['reg'],
+            regionsUnweighted: ['msk'],
+        });
         expect(withClientRegion(composition, 'stv')).toBe(composition);
     });
 });
@@ -176,7 +285,11 @@ describe('смена региона клиента', () => {
         compositionFor('classic', { infoblocks: ['reg'], ...overrides });
 
     it('старый регион клиента заменяется новым в том же списке', () => {
-        const counted = replaceClientRegion(stateWith({ regions: ['stv', 'spb'] }), 'stv', 'msk');
+        const counted = replaceClientRegion(
+            stateWith({ regions: ['stv', 'spb'] }),
+            'stv',
+            'msk',
+        );
         expect(counted.regions).toEqual(['msk', 'spb']);
         const unweighted = replaceClientRegion(
             stateWith({ regions: ['spb'], regionsUnweighted: ['stv'] }),
@@ -205,13 +318,19 @@ describe('смена региона клиента', () => {
     });
 
     it('регион клиента уже был среди прочих — дубль не появляется', () => {
-        const result = replaceClientRegion(stateWith({ regions: ['stv', 'msk'] }), 'stv', 'msk');
+        const result = replaceClientRegion(
+            stateWith({ regions: ['stv', 'msk'] }),
+            'stv',
+            'msk',
+        );
         expect(result.regions).toEqual(['msk']);
     });
 
     it('без старого региона в составе состав не меняется', () => {
         const composition = stateWith({ regions: ['spb'] });
-        expect(replaceClientRegion(composition, 'stv', 'msk')).toBe(composition);
+        expect(replaceClientRegion(composition, 'stv', 'msk')).toBe(
+            composition,
+        );
     });
 
     it('блок региона включён, регионов нет (старый слепок) — встаёт новый регион клиента', () => {
@@ -222,7 +341,9 @@ describe('смена региона клиента', () => {
 
 describe('слепки и объединение', () => {
     it('старый слепок без списка «не считать» читается', () => {
-        const legacy = { ...compositionFor('classic', { regions: ['stv', 'stv'] }) } as Partial<Composition>;
+        const legacy = {
+            ...compositionFor('classic', { regions: ['stv', 'stv'] }),
+        } as Partial<Composition>;
         delete legacy.regionsUnweighted;
         const normalized = normalizeComposition(legacy as Composition);
         expect(normalized.regions).toEqual(['stv']);
@@ -230,8 +351,14 @@ describe('слепки и объединение', () => {
     });
 
     it('мердж объединяет оба списка без повторов; считающий вес побеждает', () => {
-        const first = compositionFor('classic', { regions: ['stv'], regionsUnweighted: ['msk'] });
-        const second = compositionFor('classic', { regions: ['msk', 'spb'], regionsUnweighted: ['stv', 'kali'] });
+        const first = compositionFor('classic', {
+            regions: ['stv'],
+            regionsUnweighted: ['msk'],
+        });
+        const second = compositionFor('classic', {
+            regions: ['msk', 'spb'],
+            regionsUnweighted: ['stv', 'kali'],
+        });
         const merged = mergeCompositions([first, second]);
         expect(merged?.regions).toEqual(['stv', 'msk', 'spb']);
         expect(merged?.regionsUnweighted).toEqual(['kali']);

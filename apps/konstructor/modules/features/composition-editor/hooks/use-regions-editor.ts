@@ -2,7 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import { hasPortalRegions } from '@/modules/entities/catalog';
-import { isWeightMatching, regionCodesWeight } from '@/modules/entities/composition';
+import {
+    isWeightMatching,
+    regionCodesWeight,
+    regionWeightSurplus,
+} from '@/modules/entities/composition';
 import type { CompositionEditorState } from './use-composition-editor';
 import {
     buildPickerRows,
@@ -25,11 +29,18 @@ import {
  * их отбрасывают. Окно монтируется открытым, поэтому исходный выбор берётся при
  * монтировании. Добавленный регион по умолчанию считает вес.
  */
-export const useRegionsEditor = (editor: CompositionEditorState, onClose: () => void) => {
+export const useRegionsEditor = (
+    editor: CompositionEditorState,
+    onClose: () => void,
+) => {
     const { catalog, composition, clientRegionCode, weightCheck } = editor;
-    const complect = composition ? (catalog.complects.byCode[composition.complectCode] ?? null) : null;
+    const complect = composition
+        ? (catalog.complects.byCode[composition.complectCode] ?? null)
+        : null;
     const [initial] = useState(() =>
-        composition ? draftFromComposition(composition) : { counted: [], unweighted: [] },
+        composition
+            ? draftFromComposition(composition)
+            : { counted: [], unweighted: [] },
     );
     const [draft, setDraft] = useState(initial);
     const [query, setQuery] = useState('');
@@ -54,10 +65,16 @@ export const useRegionsEditor = (editor: CompositionEditorState, onClose: () => 
     const counts = filterCounts(draft);
 
     // Вес состава после сохранения: вес без регионов + вес регионов черновика
-    const baseWeight = weightCheck && composition
-        ? weightCheck.weight - regionCodesWeight(composition.regions, catalog)
-        : null;
-    const weightAfter = baseWeight === null ? null : Math.round((baseWeight + draftWeight(draft, catalog)) * 100) / 100;
+    const baseWeight =
+        weightCheck && composition
+            ? weightCheck.weight -
+              regionCodesWeight(composition.regions, catalog)
+            : null;
+    const weightAfter =
+        baseWeight === null
+            ? null
+            : Math.round((baseWeight + draftWeight(draft, catalog)) * 100) /
+              100;
 
     return {
         rows,
@@ -80,10 +97,19 @@ export const useRegionsEditor = (editor: CompositionEditorState, onClose: () => 
         /** Вес состава после сохранения против эталона комплекта; null — состав не открыт */
         complectWeight:
             weightAfter !== null && weightCheck && complect
-                ? { weight: weightAfter, expected: weightCheck.expected, fits: isWeightMatching(weightAfter, complect) }
+                ? {
+                      weight: weightAfter,
+                      expected: weightCheck.expected,
+                      fits: isWeightMatching(
+                          weightAfter,
+                          complect,
+                          regionWeightSurplus(draft.counted, catalog),
+                      ),
+                  }
                 : null,
         changed: isDraftChanged(draft, initial),
-        toggleRegion: (code: string) => setDraft(prev => toggleDraftRegion(prev, code)),
+        toggleRegion: (code: string) =>
+            setDraft(prev => toggleDraftRegion(prev, code)),
         setCounted: (code: string, counted: boolean) =>
             setDraft(prev => setDraftRegionCounted(prev, code, counted)),
         /** Блокирующее нарушение правил оставляет окно открытым: причина в messages.blocked */

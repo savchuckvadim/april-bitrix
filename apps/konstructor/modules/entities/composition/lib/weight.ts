@@ -43,7 +43,12 @@ export const compositionWeight = (
 
 /** Вес регионов «считать вес» по каталогу (KRegion.weight); регион без записи в каталоге — 0 */
 export const regionCodesWeight = (codes: string[], catalog: Catalog): number =>
-    Math.round(codes.reduce((sum, code) => sum + (catalog.regions.byCode[code]?.weight ?? 0), 0) * 100) / 100;
+    Math.round(
+        codes.reduce(
+            (sum, code) => sum + (catalog.regions.byCode[code]?.weight ?? 0),
+            0,
+        ) * 100,
+    ) / 100;
 
 export interface WeightCheck {
     weight: number;
@@ -52,11 +57,52 @@ export interface WeightCheck {
     difference: number;
 }
 
-/** Вес сходится с эталоном комплекта; флаг weightAtLeast (Максимум): допустим вес ≥ эталона */
-export const isWeightMatching = (weight: number, complect: KComplect): boolean =>
-    getComplectRuleFlags(complect).weightAtLeast
-        ? weight >= complect.weight - WEIGHT_TOLERANCE
-        : Math.abs(weight - complect.weight) <= WEIGHT_TOLERANCE;
+/** Вес обычного регионального блока: на него рассчитаны эталонные веса комплектов ПРОФ */
+export const BASE_REGION_WEIGHT = 0.5;
+
+/**
+ * Надбавка регионального блока: сколько регионы «считать вес» весят сверх
+ * обычных 0.5 каждый. Москва (вес 1) даёт +0.5, остальные регионы — 0.
+ */
+export const regionWeightSurplus = (
+    codes: string[],
+    catalog: Catalog,
+): number =>
+    Math.round(
+        codes.reduce(
+            (sum, code) =>
+                sum +
+                Math.max(
+                    0,
+                    (catalog.regions.byCode[code]?.weight ?? 0) -
+                        BASE_REGION_WEIGHT,
+                ),
+            0,
+        ) * 100,
+    ) / 100;
+
+/**
+ * Вес сходится с эталоном комплекта. Флаг weightAtLeast (Максимум): допустим
+ * вес не меньше эталона. ПРОФ с тяжёлым региональным блоком (Москва): вес
+ * может быть больше эталона на надбавку блока, ошибкой это не считается
+ * (решение владельца 27.11.2026: эталоны ПРОФ рассчитаны с блоком 0.5, в легаси
+ * вес Москвы 1 не учитывался). У Универсала надбавка входит в общий вес:
+ * комплект линейки назван по весу, и подсказка предлагает следующий.
+ */
+export const isWeightMatching = (
+    weight: number,
+    complect: KComplect,
+    regionSurplus = 0,
+): boolean => {
+    if (getComplectRuleFlags(complect).weightAtLeast) {
+        return weight >= complect.weight - WEIGHT_TOLERANCE;
+    }
+    const allowedAbove = complect.type === 'prof' ? regionSurplus : 0;
+    return (
+        weight >= complect.weight - WEIGHT_TOLERANCE &&
+        weight <= complect.weight + allowedAbove + WEIGHT_TOLERANCE
+    );
+};
 
 export const checkComplectWeight = (
     composition: Composition,
@@ -64,11 +110,12 @@ export const checkComplectWeight = (
 ): WeightCheck => {
     const weight = compositionWeight(composition, ctx);
     const expected = ctx.complect.weight;
+    const surplus = regionWeightSurplus(composition.regions, ctx.catalog);
 
     return {
         weight,
         expected,
-        matches: isWeightMatching(weight, ctx.complect),
+        matches: isWeightMatching(weight, ctx.complect, surplus),
         difference: Math.round((weight - expected) * 100) / 100,
     };
 };

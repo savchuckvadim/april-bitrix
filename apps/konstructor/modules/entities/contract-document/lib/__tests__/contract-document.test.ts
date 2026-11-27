@@ -91,10 +91,42 @@ describe('buildContractLt', () => {
 
 describe('buildDocRegions', () => {
     it('регионы комплекта → inComplect с названием инфоблока; неизвестный код пропускается', () => {
-        const regions = buildDocRegions(catalog, { ...defaultComposition(complect), regions: ['stv', 'nope'] });
+        const regions = buildDocRegions(catalog, {
+            ...defaultComposition(complect),
+            infoblocks: ['rus', 'reg'],
+            regions: ['stv', 'nope'],
+        });
         expect(regions.inComplect).toHaveLength(1);
-        expect(regions.inComplect[0]).toMatchObject({ name: 'stv', infoblock: catalog.regions.byCode['stv']!.title });
+        // бэк печатает полное название законодательства, не название региона
+        expect(regions.inComplect[0]).toMatchObject({
+            name: 'stv',
+            title: catalog.regions.byCode['stv']!.title,
+            infoblock: catalog.regions.byCode['stv']!.infoblock,
+        });
         expect(regions.favorite).toEqual([]);
+    });
+
+    it('считающие вес — inComplect, не считающие — noWidth, как в легаси', () => {
+        const regions = buildDocRegions(catalog, {
+            ...defaultComposition(complect),
+            infoblocks: ['rus', 'reg'],
+            regions: ['stv', 'spb'],
+            regionsUnweighted: ['msk'],
+        });
+        expect(regions.inComplect.map(region => region.name)).toEqual(['stv', 'spb']);
+        expect(regions.noWidth.map(region => region.name)).toEqual(['msk']);
+        expect(regions.noWidth[0]!.infoblock).toBe(catalog.regions.byCode['msk']!.infoblock);
+        expect(regions.favorite).toEqual([]);
+    });
+
+    it('рутовый блок снят — регионов нет, как у легаси: иначе бэк напечатал бы их отдельным списком', () => {
+        const regions = buildDocRegions(catalog, {
+            ...defaultComposition(complect),
+            infoblocks: ['rus'],
+            regions: ['stv'],
+            regionsUnweighted: ['msk'],
+        });
+        expect(regions).toEqual({ inComplect: [], favorite: [], noWidth: [] });
     });
 });
 

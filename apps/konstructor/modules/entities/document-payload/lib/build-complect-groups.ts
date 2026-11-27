@@ -1,10 +1,11 @@
-import type { Catalog, KInfoblock } from '../../catalog';
+import type { Catalog, KInfoblock, KRegion } from '../../catalog';
 import { STAR_SUBSERVICES } from '../../catalog';
 import type { Composition } from '../../composition';
 import {
     allLtServiceCodes,
     ltServiceCount,
     ltServiceSubtitle,
+    REGION_ROOT_CODE,
 } from '../../composition';
 import type { DocComplectGroup, DocGroupType, DocInfoblock } from '../model/dto';
 
@@ -63,6 +64,63 @@ const toDocInfoblock = (
     ...overrides,
 });
 
+/** Вес региона в документе (легаси): считающий вес — 0.5, остальные — 0; вес Москвы из каталога сюда не идёт */
+const REGION_DOC_WEIGHT = 0.5;
+
+interface DocRegionEntry {
+    code: string;
+    region: KRegion | undefined;
+    weight: number;
+}
+
+/** Регионы наполнения: сначала считающие вес, затем без веса; каждый код один раз */
+const docRegionEntries = (catalog: Catalog, composition: Composition): DocRegionEntry[] => {
+    const entries = [
+        ...composition.regions.map(code => ({ code, weight: REGION_DOC_WEIGHT })),
+        ...composition.regionsUnweighted.map(code => ({ code, weight: 0 })),
+    ];
+    return entries
+        .filter((entry, index) => entries.findIndex(item => item.code === entry.code) === index)
+        .map(entry => ({ ...entry, region: catalog.regions.byCode[entry.code] }));
+};
+
+/** Законодательство региона: полное название блока, иначе название региона */
+const legislationOf = ({ region, code }: DocRegionEntry): string => region?.infoblock || region?.title || code;
+
+/**
+ * Региональное законодательство в форме легаси (document-infoblocks-utils):
+ * рутовый блок reg несёт законодательство первого региона наполнения (регион
+ * клиента, пока он в составе), остальные регионы идут блоками isRegion со
+ * своим законодательством в title и без повторов. Блок региона, чьё название
+ * совпало с рутовым, не дублируется: бэк тоже отсекает такой дубль.
+ */
+const buildRegionBlocks = (
+    catalog: Catalog,
+    composition: Composition,
+): { root: Partial<DocInfoblock>; regions: DocInfoblock[] } => {
+    const entries = docRegionEntries(catalog, composition);
+    const hasRoot = composition.infoblocks.includes(REGION_ROOT_CODE);
+    const primary = hasRoot ? entries[0] : undefined;
+    const rootTitle = primary ? legislationOf(primary) : null;
+    const regions = entries
+        .filter(entry => legislationOf(entry) !== rootTitle)
+        .map(
+            (entry): DocInfoblock => ({
+                name: entry.region?.title ?? entry.code,
+                title: legislationOf(entry),
+                number: 0,
+                code: entry.code,
+                checked: true,
+                weight: entry.weight,
+                description: entry.region?.infoblock ?? null,
+                isLa: false,
+                isRegion: true,
+                subtitle: null,
+            }),
+        );
+    return { root: rootTitle ? { title: rootTitle } : {}, regions };
+};
+
 export const buildComplectGroups = (
     catalog: Catalog,
     composition: Composition,
@@ -74,27 +132,14 @@ export const buildComplectGroups = (
         groups.set(type, list);
     };
 
+    const regionBlocks = buildRegionBlocks(catalog, composition);
     for (const code of composition.infoblocks) {
         const block = catalog.infoblocks[code];
         const type = block ? (GROUP_BY_CODE[block.groupCode]?.type ?? 'sp') : 'sp';
-        push(type, toDocInfoblock(block, code));
+        push(type, toDocInfoblock(block, code, code === REGION_ROOT_CODE ? regionBlocks.root : {}));
     }
-    // регионы — рядом с «Региональным законодательством» в НПА (вес 0.5 каждый)
-    for (const code of composition.regions) {
-        const region = catalog.regions.byCode[code];
-        push('npa', {
-            name: region?.title ?? code,
-            title: region?.infoblock ?? region?.title ?? code,
-            number: 0,
-            code,
-            checked: true,
-            weight: region?.weight ?? 0.5,
-            description: region?.infoblock ?? null,
-            isLa: false,
-            isRegion: true,
-            subtitle: null,
-        });
-    }
+    // остальные регионы — рядом с «Региональным законодательством» в НПА
+    for (const block of regionBlocks.regions) push('npa', block);
     for (const code of composition.freeBlocks) {
         const block = catalog.infoblocks[code];
         push(block?.isLa ? 'la' : 'free', toDocInfoblock(block, code));

@@ -41,7 +41,7 @@ const codesOf = (general: RowSet): string[] =>
 describe('описание комплекта: наполнение главной строки', () => {
     it('в запросе блоки главной строки, дополнительные комплекты набора не добавляются', () => {
         const codes = codesOf(syncedGeneral([main, additional]));
-        expect(codes).toEqual(expect.arrayContaining(['rus', 'reg', 'bbu', 'stv', 'ltsut']));
+        expect(codes).toEqual(expect.arrayContaining(['rus', 'reg', 'bbu', 'ltsut']));
         expect(codes).not.toContain('la');
         expect(codes).not.toContain('ntss');
         expect(codes).not.toContain('spb');

@@ -21,14 +21,14 @@ const main = garantRowOf(
     'general_main',
     'main',
     'buh',
-    compositionOf('buh', { infoblocks: ['rus'], lt: ['ltsut'], regions: ['stv'] }),
+    compositionOf('buh', { infoblocks: ['rus', 'reg'], lt: ['ltsut'], regions: ['stv'] }),
 );
 const additional = garantRowOf(
     'general_additional',
     'additional',
     'ur',
     compositionOf('ur', {
-        infoblocks: ['la'],
+        infoblocks: ['la', 'reg'],
         lt: ['ltconstructor'],
         regions: ['spb'],
         ltOther: [{ id: 'extra', services: ['ltdisk', 'ltconnect'], alternativeName: null }],
@@ -53,7 +53,8 @@ describe('договор: наполнение общего набора', () =>
 
     it('группы инфоблоков договора включают блоки обеих строк', () => {
         const codes = buildContractGenerateRequest(state)?.complect.flatMap(group => group.value.map(item => item.code));
-        expect(codes).toEqual(expect.arrayContaining(['rus', 'la', 'stv', 'spb']));
+        // регион главной строки идёт в рутовом блоке, регион второй — блоком рядом
+        expect(codes).toEqual(expect.arrayContaining(['rus', 'la', 'reg', 'spb']));
     });
 
     it('набор с одной строкой Гаранта: регионы только её', () => {

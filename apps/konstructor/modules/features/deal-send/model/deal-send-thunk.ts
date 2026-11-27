@@ -2,6 +2,7 @@ import type { AppThunk } from '@/modules/app/model/store';
 import { appActions } from '@/modules/app/model/AppSlice';
 import { selectCatalog } from '@/modules/entities/catalog';
 import { readDeal } from '@/modules/entities/deal';
+import { isPortalFieldMultiple } from '@/modules/entities/portal';
 import { dealProductRowsBlocker, selectDealProductRows } from '@/modules/entities/offer-document';
 import { findMainRow } from '@/modules/entities/row-set';
 import {
@@ -94,6 +95,9 @@ export const sendDeal = (): AppThunk<Promise<boolean>> => async (dispatch, getSt
             productRows: selectDealProductRows(state).rows,
             providerName: state.documentProvider.current?.name ?? null,
             serviceDepartment: Boolean(state.rowSet.context.serviceDepartment),
+            // НПА: законодательство региона клиента; в множественное поле — всех регионов состава
+            clientRegionCode: state.rowSet.context.regionCode,
+            npaMultiple: isPortalFieldMultiple(state.portal.current, 'npa', serviceTarget ? 'service_offer' : 'deal'),
             // сервисный отдел, «следующий период» → элемент смарта service_offer
             target: serviceTarget
                 ? { ...serviceTarget, title: buildServiceOfferTitle(selectCatalog(state), mainRow) }

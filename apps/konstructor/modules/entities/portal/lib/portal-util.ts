@@ -105,3 +105,23 @@ export const getRpaFieldId = (
         rpa?.bitrixfields.find(field => field.code === fieldCode)?.bitrixId ?? '';
     return `UF_RPA_${rpaBxEntityTypeId}_${fieldId}`;
 };
+
+/** Чьё поле смотрим: сделки или элемента смарта «Предложение на будущий период» */
+export type PortalFieldOwner = 'deal' | 'service_offer';
+
+/**
+ * Поле множественное: установка pbx заводит такие поля типом `multiple` (строка
+ * со многими значениями), других признаков слепок портала не несёт. Нет поля
+ * или слепка — false, и значение пишется как у обычного поля.
+ */
+export const isPortalFieldMultiple = (
+    portal: Portal | null,
+    fieldCode: string,
+    owner: PortalFieldOwner = 'deal',
+): boolean => {
+    const fields =
+        owner === 'deal'
+            ? portal?.bitrixDeal?.bitrixfields
+            : findSmart(portal, PBX_SMART_TYPE.SERVICE_OFFER)?.bitrixfields;
+    return fields?.some(field => field.code === fieldCode && field.type === 'multiple') ?? false;
+};

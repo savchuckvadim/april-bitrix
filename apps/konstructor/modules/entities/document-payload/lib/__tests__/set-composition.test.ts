@@ -125,8 +125,8 @@ describe('документ по общему набору с дополните�
         const codes = allCodes(complect);
         for (const code of ['rus', 'reg', 'bbu', 'la', 'ntss']) expect(codes).toContain(code);
         expect(new Set(codes).size).toBe(codes.length);
-        // группы: НПА — общий «rus» один раз, регионы обеих строк рядом
-        expect(codesOf(complect, 'npa')).toEqual(['rus', 'reg', 'stv', 'spb']);
+        // группы: НПА — общий «rus» один раз, регион первой строки в рутовом блоке, второй — рядом
+        expect(codesOf(complect, 'npa')).toEqual(['rus', 'reg', 'spb']);
         expect(codesOf(complect, 'cons')).toEqual(['bbu']);
         expect(codesOf(complect, 'sp')).toEqual(['ntss']);
         expect(codesOf(complect, 'la')).toEqual(['la']);
@@ -184,7 +184,7 @@ describe('документ по общему набору с дополните�
         const only = mainOf();
         const set = syncedGeneral([only]);
         const body = buildDocBody({ catalog, general: set, alternative: [] });
-        expect(codesOf(body?.complect ?? [], 'npa')).toEqual(['rus', 'reg', 'stv']);
+        expect(codesOf(body?.complect ?? [], 'npa')).toEqual(['rus', 'reg']);
         expect(codesOf(body?.complect ?? [], 'cons')).toEqual(['bbu']);
         expect(codesOf(body?.complect ?? [], 'lt')).toEqual(['ltsut']);
     });

@@ -68,3 +68,20 @@
     background: var(--primary);
     animation: april-preloader-bar-slide 1.4s ease-in-out infinite;
 }
+
+/*
+ * Знак инлайн-разметкой: размер и цвет те же, что у .boot-logo в
+ * feedback/BootPreloader.tsx (тема там ещё не загружена, поэтому у цвета
+ * фолбэк). Правишь одно — синхронизируй второе.
+ */
+.april-preloader-logo--inline {
+    display: flex;
+    width: 96px;
+    height: 96px;
+    color: var(--boot-logo-color, #aec3d6);
+}
+
+.april-preloader-logo--inline svg {
+    width: 100%;
+    height: 100%;
+}

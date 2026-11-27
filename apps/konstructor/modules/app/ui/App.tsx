@@ -2,15 +2,13 @@
 
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { PreloaderScreen } from '@workspace/april-ui';
 import { BootPreloaderGate } from '@workspace/april-ui/feedback';
-
-import { withBasePath } from '@/modules/shared/lib/base-path';
 
 import { useApp } from '../lib/hooks/app';
 import { useSmallFrameFit } from '../lib/hooks/use-small-frame-fit';
 import { IS_PROD } from '../consts/app-global';
 import { store } from '../model/store';
+import { AppPreloader } from './AppPreloader';
 import { GATE_SCREENS } from './gate-screens';
 
 declare global {
@@ -24,8 +22,9 @@ declare global {
  * Гейт приложения: инициализация Bitrix → готовый экран.
  *
  * Экран загрузки один — SSR boot-прелоадер из корневого layout; гасится по
- * готовности приложения, а не по гидратации. PreloaderScreen — только на
- * повторную инициализацию (⟳), когда boot-прелоадера в DOM уже нет.
+ * готовности приложения, а не по гидратации. AppPreloader (тот же знак) — на
+ * повторную инициализацию (⟳) и долгое действие «документ → сделка», когда
+ * boot-прелоадера в DOM уже нет.
  */
 export const App = ({ children }: { children: ReactNode }) => {
     const { app, initialized, isLoading, isClient } = useApp();
@@ -52,21 +51,10 @@ export const App = ({ children }: { children: ReactNode }) => {
             {GateScreen ? <GateScreen /> : null}
             {!isGate && (
                 <>
-                    {!isReady && isClient && (
-                        <PreloaderScreen
-                            variant="brand"
-                            logoSrc={withBasePath('/logo/logo.svg')}
-                        />
-                    )}
+                    {!isReady && isClient && <AppPreloader />}
                     {isReady ? children : null}
                     {/* долгое действие (документ → сделка): поверх экрана, до ухода в сделку */}
-                    {isReady && app.busy ? (
-                        <PreloaderScreen
-                            variant="brand"
-                            title={app.busy}
-                            logoSrc={withBasePath('/logo/logo.svg')}
-                        />
-                    ) : null}
+                    {isReady && app.busy ? <AppPreloader title={app.busy} /> : null}
                 </>
             )}
         </>

@@ -221,12 +221,36 @@ describe('buildUpdateInvoiceTemplatePayload', () => {
         ]);
     });
 
-    it('пустые критерии опускаются — на бэке это NULL, «подходит любому»', () => {
+    // РЕГРЕССИЯ: пустой список раньше опускался, и ограничение по типам
+    // клиента или поставки нельзя было снять обратно в «любой».
+    it('пустые критерии ОСТАЮТСЯ в DTO как [] — это сброс в «любой»', () => {
         const result = buildUpdateInvoiceTemplatePayload(baseValues());
 
         expect(result.ok).toBe(true);
         if (!result.ok) return;
-        expect('client_types' in result.dto).toBe(false);
+        expect(result.dto.client_types).toEqual([]);
+        expect(result.dto.supply_types).toEqual([]);
+    });
+
+    it('снятие одного ограничения не трогает второе', () => {
+        const result = buildUpdateInvoiceTemplatePayload(
+            baseValues({ client_types: [], supply_types: ['proxima'] }),
+        );
+
+        expect(result.ok).toBe(true);
+        if (!result.ok) return;
+        expect(result.dto.client_types).toEqual([]);
+        expect(result.dto.supply_types).toEqual(['proxima']);
+    });
+
+    it('выбранные критерии попадают в DTO обновления без повторов', () => {
+        const result = buildUpdateInvoiceTemplatePayload(
+            baseValues({ client_types: ['ip', 'ip', 'org'] }),
+        );
+
+        expect(result.ok).toBe(true);
+        if (!result.ok) return;
+        expect(result.dto.client_types).toEqual(['ip', 'org']);
     });
 });
 

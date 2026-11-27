@@ -2,9 +2,13 @@
  * Нормализация полезной нагрузки шаблона счёта: значения формы → DTO бэкенда.
  *
  * Правила домена, которые здесь закреплены (и покрыты тестами рядом):
- *   1. Пустой список критериев НЕ отправляется. На бэке «подходит любому» —
- *      это NULL, а `[]` в multipart приехало бы пустой строкой и прошло бы
- *      валидацию как «ограничение из нуля значений». Поле опускается.
+ *   1. Пустой список критериев значит «подходит любому» (на бэке NULL), но
+ *      создание и обновление читают его по-разному:
+ *        - создание: поле опускается, отсутствие = «любой»;
+ *        - обновление: пустой список ОСТАЁТСЯ в DTO (`[]`), а при сборке
+ *          multipart уходит строкой `"[]"`. Опустить его нельзя: отсутствие
+ *          поля в PUT значит «не менять», и ограничение по типам клиента или
+ *          поставки не снялось бы никогда.
  *   2. Пустая строка в необязательном поле — это «не задано», а не значение:
  *      такие поля тоже опускаются, иначе `portal_id=''` уйдёт на бэк.
  *   3. ID остаются СТРОКАМИ. Никакого Number()/parseInt.
@@ -188,15 +192,10 @@ export const buildUpdateInvoiceTemplatePayload = (
         dto.description = description;
     }
 
-    const clientTypes = normalizeCriteriaList(values.client_types);
-    if (clientTypes) {
-        dto.client_types = clientTypes;
-    }
-
-    const supplyTypes = normalizeCriteriaList(values.supply_types);
-    if (supplyTypes) {
-        dto.supply_types = supplyTypes;
-    }
+    // Форма хранит полное состояние критериев: пустой список здесь значит
+    // «снять ограничение», поэтому он остаётся в DTO и уходит как "[]".
+    dto.client_types = normalizeCriteriaList(values.client_types) ?? [];
+    dto.supply_types = normalizeCriteriaList(values.supply_types) ?? [];
 
     if (values.file) {
         dto.file = values.file;

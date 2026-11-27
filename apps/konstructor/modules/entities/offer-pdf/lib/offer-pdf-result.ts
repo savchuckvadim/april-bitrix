@@ -34,3 +34,11 @@ export const readOfferPdfResult = (response: OfferPdfGenerateResponse): OfferPdf
     }));
     return { links: [...offerLinks, ...invoiceLinks], warnings: response.warnings ?? [] };
 };
+
+/**
+ * Можно ли уходить в сделку после формирования: файлы лежат в ней. Не
+ * прикрепились (причина в `dealMessage`) — экран остаётся, иначе менеджер
+ * потеряет ссылки на файлы и сообщение. Поля нет (прежний бэк) — остаёмся.
+ */
+export const isOfferPdfSavedToDeal = (response: Pick<OfferPdfGenerateResponse, 'savedToDeal'>): boolean =>
+    response.savedToDeal === true;

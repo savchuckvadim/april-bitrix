@@ -47,6 +47,7 @@ export interface OfferPdfDocumentContextValue {
     generate: OfferPdfGenerateState;
     /** Ссылки на файлы и предупреждения бэка из ответа генерации; ответа нет — null */
     outcome: OfferPdfOutcome | null;
+    /** Формирование с экраном загрузки и уходом в сделку; true — файлы сформированы и лежат в сделке */
     runGenerate: () => Promise<boolean>;
     resetGenerate: () => void;
 }

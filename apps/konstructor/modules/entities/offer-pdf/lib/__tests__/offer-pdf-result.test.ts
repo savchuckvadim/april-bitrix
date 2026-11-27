@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { OfferPdfGenerateResponse } from '../../model/types';
-import { OFFER_PDF_SINGLE_LINK_NAME, readOfferPdfResult } from '../offer-pdf-result';
+import { OFFER_PDF_SINGLE_LINK_NAME, isOfferPdfSavedToDeal, readOfferPdfResult } from '../offer-pdf-result';
 
 /** Ответ прежнего бэка: один файл, без links и warnings. */
 const oldResponse: OfferPdfGenerateResponse = {
@@ -99,5 +99,20 @@ describe('разбор ответа генерации PDF-КП', () => {
         const outcome = readOfferPdfResult({ ...oldResponse, warnings: ['Сроки вариантов различаются'] });
         expect(outcome.links).toHaveLength(1);
         expect(outcome.warnings).toEqual(['Сроки вариантов различаются']);
+    });
+});
+
+describe('уход в сделку после формирования PDF-КП', () => {
+    it('файлы прикреплены к сделке — можно уходить', () => {
+        expect(isOfferPdfSavedToDeal(oldResponse)).toBe(true);
+    });
+
+    it('файлы не прикрепились — остаёмся, чтобы увидеть ссылки и причину', () => {
+        expect(isOfferPdfSavedToDeal({ ...oldResponse, savedToDeal: false, dealMessage: 'нет доступа' })).toBe(false);
+    });
+
+    it('прежний бэк без поля savedToDeal — остаёмся', () => {
+        const { savedToDeal: _omitted, ...legacy } = oldResponse;
+        expect(isOfferPdfSavedToDeal(legacy as OfferPdfGenerateResponse)).toBe(false);
     });
 });

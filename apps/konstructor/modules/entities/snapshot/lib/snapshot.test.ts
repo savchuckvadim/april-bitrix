@@ -111,3 +111,59 @@ describe('v2: сериализация и восстановление', () => {
         ]);
     });
 });
+
+describe('регионы в слепках', () => {
+    const regionsRecord = (regions: object): V1Record => ({ ...record, regions: JSON.stringify(regions) });
+    const mainOf = (restored: ReturnType<typeof mapV1>) =>
+        restored.general.rows.find(row => row.role === 'main')!;
+
+    it('v1: inComplect считает вес, noWidth не считает', () => {
+        const restored = mapV1(
+            parseV1(
+                regionsRecord({
+                    inComplect: [{ number: 27, name: 'spb', title: 'Санкт-Петербург, Ленинградская область' }],
+                    favorite: [{ number: 5, name: 'nov', title: 'Новгородская область' }],
+                    noWidth: [{ number: 3, name: 'msk', title: 'Москва' }],
+                }),
+            ),
+            catalog,
+        );
+        const composition = mainOf(restored).composition!;
+        expect(composition.regions).toEqual(['spb']);
+        expect(composition.regionsUnweighted).toEqual(['msk']);
+    });
+
+    it('v2: слепок без списка «не считать» читается пустым списком', () => {
+        const restored = mapV1(parseV1(record), catalog);
+        const snapshot = serializeV2({
+            state: restored,
+            dealId: 1,
+            domain: 'gsr.bitrix24.ru',
+            userId: 1,
+            savedAt: '2026-07-27T00:00:00.000Z',
+        });
+        for (const row of snapshot.general.rows) {
+            const composition = row.composition as Partial<NonNullable<typeof row.composition>> | undefined;
+            if (composition) delete composition.regionsUnweighted;
+        }
+        const roundTrip = restoreV2(snapshot);
+        expect(roundTrip.general.rows[0]!.composition?.regionsUnweighted).toEqual([]);
+        expect(roundTrip.general.rows[0]!.composition?.regions).toEqual(['spb']);
+    });
+
+    it('v2: блок региона включён, регионов нет — регион клиента встаёт в состав', () => {
+        const restored = mapV1(parseV1(record), catalog);
+        const snapshot = serializeV2({
+            state: restored,
+            dealId: 1,
+            domain: 'gsr.bitrix24.ru',
+            userId: 1,
+            savedAt: '2026-07-27T00:00:00.000Z',
+        });
+        const composition = snapshot.general.rows[0]!.composition!;
+        composition.infoblocks = ['ot', 'reg'];
+        composition.regions = [];
+        const roundTrip = restoreV2(snapshot);
+        expect(roundTrip.general.rows[0]!.composition?.regions).toEqual([snapshot.regionCode]);
+    });
+});

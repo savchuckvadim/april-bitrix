@@ -34,6 +34,7 @@ describe('реестр правил', () => {
         const kinds = [
             'toggleInfoblock', 'toggleEr', 'toggleErPacket', 'toggleLt', 'toggleFreeBlock',
             'setConsalting', 'toggleStar', 'setAcademy', 'toggleRegion',
+            'setRegions', 'toggleRegionWeight', 'removeRegion',
             'addLtOtherPacket', 'removeLtOtherPacket', 'toggleLtOtherService', 'renameLtOtherPacket',
         ] as const;
         for (const kind of kinds) {
@@ -126,35 +127,64 @@ describe('noChanged и неизменяемый комплект', () => {
 });
 
 describe('регионы', () => {
-    it('тумблер рутового блока тянет текущий регион сборки', () => {
+    it('тумблер рутового блока кладёт регион клиента в «считать вес»', () => {
         const on = applyAction(
             compositionFor('classic', { infoblocks: ['rus'] }),
             { kind: 'toggleInfoblock', code: 'reg', checked: true },
             ctxFor('classic', 'stv'),
         );
         expect(on.composition.regions).toEqual(['stv']);
+        expect(on.composition.regionsUnweighted).toEqual([]);
+    });
+
+    it('выключение рутового блока снимает регионы из обоих списков', () => {
         const off = applyAction(
-            on.composition,
+            compositionFor('classic', {
+                infoblocks: ['rus', 'reg'],
+                regions: ['stv', 'spb'],
+                regionsUnweighted: ['msk'],
+            }),
             { kind: 'toggleInfoblock', code: 'reg', checked: false },
             ctxFor('classic', 'stv'),
         );
         expect(off.composition.regions).toEqual([]);
+        expect(off.composition.regionsUnweighted).toEqual([]);
+        expect(off.composition.infoblocks).not.toContain('reg');
     });
 
-    it('добавление региона включает рутовый блок; снятие региона блок не трогает', () => {
+    it('добавление региона включает рутовый блок, снятие последнего региона выключает', () => {
         const on = applyAction(
             compositionFor('classic', { infoblocks: ['rus'] }),
             { kind: 'toggleRegion', code: 'stv', checked: true },
             ctxFor('classic'),
         );
         expect(on.composition.infoblocks).toContain('reg');
+        expect(on.composition.regions).toEqual(['stv']);
         const off = applyAction(
             on.composition,
             { kind: 'toggleRegion', code: 'stv', checked: false },
             ctxFor('classic'),
         );
         expect(off.composition.regions).toEqual([]);
-        expect(off.composition.infoblocks).toContain('reg');
+        expect(off.composition.infoblocks).not.toContain('reg');
+    });
+
+    it('блок региона, который комплект не даёт снять, держит последний регион', () => {
+        const composition = compositionFor('exzak', { infoblocks: ['rus', 'reg', 'fac'], regions: ['stv'] });
+        const result = applyAction(
+            composition,
+            { kind: 'removeRegion', code: 'stv' },
+            ctxFor('exzak'),
+        );
+        expect(codes(result.violations)).toContain('regions/root-locked');
+        expect(result.composition.regions).toEqual(['stv']);
+        // замена целиком проходит: регионы не кончаются
+        const replaced = applyAction(
+            composition,
+            { kind: 'setRegions', counted: ['spb'], unweighted: [] },
+            ctxFor('exzak'),
+        );
+        expect(replaced.composition.regions).toEqual(['spb']);
     });
 });
 

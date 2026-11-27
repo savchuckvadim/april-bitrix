@@ -1,6 +1,7 @@
 export * from './model/types';
 export * from './lib/apply';
 export * from './lib/merge';
+export * from './lib/regions-edit';
 export * from './lib/weight';
 export * from './lib/rules/registry';
 export * from './lib/rules/lt';

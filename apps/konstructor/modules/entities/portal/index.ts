@@ -20,9 +20,11 @@ export {
     getRpaSupplyTypeId,
     getSalesCategoryId,
     getSalesFunnelScope,
+    isPortalFieldMultiple,
     getServiceCategoryId,
     getServiceOfferPbxSmart,
     getServiceOfferPbxSmartEntityId,
+    type PortalFieldOwner,
 } from './lib/portal-util';
 export { portalReducer, portalSlice, resetPortal, setPortal } from './model/PortalSlice';
 export type { PortalState } from './model/PortalSlice';

@@ -10,7 +10,7 @@ import type { BuildRowCtx } from './types';
 
 /**
  * Сервисная строка (LT-пакет, консалтинг, СТАР): консалтинг —
- * abs × region.abs; пакеты — цена из прайса по packageCode.
+ * abs × рабс региона с НДС (region.taxAbs); пакеты — цена из прайса по packageCode.
  * isFree (СТАР при withStar) — обнуление продажной цены.
  */
 
@@ -40,7 +40,7 @@ export const buildServiceRow = (input: BuildServiceRowInput): KRow | null => {
 
     let monthBase: number | null = null;
     if (service.productType === 'consalting') {
-        monthBase = service.abs !== null ? service.abs * region.abs : null;
+        monthBase = service.abs !== null && region.taxAbs > 0 ? service.abs * region.taxAbs : null;
     } else {
         monthBase = findPackagePrice(
             catalog,

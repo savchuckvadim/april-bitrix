@@ -39,7 +39,7 @@ describe('buildDocBody: наполнение по комплектам', () => {
         expect(sections).toHaveLength(2);
 
         const [first, second] = sections as [DocComplectSection, DocComplectSection];
-        expect(codesOf(first.complect, 'npa')).toEqual(['rus', 'reg', 'stv']);
+        expect(codesOf(first.complect, 'npa')).toEqual(['rus', 'reg']);
         expect(codesOf(first.complect, 'cons')).toEqual(['bbu']);
         expect(codesOf(first.complect, 'lt')).toEqual(['ltsut']);
         expect(codesOf(first.complect, 'sp')).toEqual([]);
@@ -109,7 +109,7 @@ describe('buildDocBody: наполнение по комплектам', () => {
 
     it('объединённое наполнение остаётся прежним и идёт рядом с разделами', () => {
         const body = buildDocBody({ catalog, general: syncedGeneral([mainOf(), additionalOf()]), alternative: [] });
-        expect(codesOf(body?.complect ?? [], 'npa')).toEqual(['rus', 'reg', 'stv', 'spb']);
+        expect(codesOf(body?.complect ?? [], 'npa')).toEqual(['rus', 'reg', 'spb']);
         expect(body?.complects).toHaveLength(2);
     });
 

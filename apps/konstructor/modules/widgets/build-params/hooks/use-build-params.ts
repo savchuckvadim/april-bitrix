@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
     resolveRefsForBuildParams,
@@ -11,7 +12,11 @@ import {
 } from '@/modules/entities/catalog';
 import {
     buildMainRowWithRefs,
+    countRowsWithRegion,
+    replaceClientRegionInRow,
     rowSetActions,
+    selectAlternativeSets,
+    selectGeneralSet,
     selectMainRow,
     selectRowSetContext,
 } from '@/modules/entities/row-set';
@@ -20,6 +25,7 @@ import {
     COMPLECT_TYPE_OPTIONS,
     SUPPLY_KIND_OPTIONS,
 } from '../lib/build-params-options';
+import { buildRegionChangeNotice } from '../lib/region-change-notice.util';
 
 interface ParamsDraft {
     regionCode: string | null;
@@ -38,6 +44,8 @@ export const useBuildParams = () => {
     const catalog = useAppSelector(selectCatalog);
     const context = useAppSelector(selectRowSetContext);
     const mainRow = useAppSelector(selectMainRow);
+    const general = useAppSelector(selectGeneralSet);
+    const alternative = useAppSelector(selectAlternativeSets);
 
     const [draft, setDraft] = useState<ParamsDraft>(() => ({
         regionCode: context.regionCode,
@@ -80,11 +88,26 @@ export const useBuildParams = () => {
     const apply = (): boolean => {
         if (!draft.regionCode || !refs) return false;
         const nextContext = { ...context, regionCode: draft.regionCode };
-        const row = buildMainRowWithRefs(catalog, nextContext, mainRow, refs);
+        const previousRegion = context.regionCode;
+        const isRegionChanged = Boolean(previousRegion && previousRegion !== draft.regionCode);
+        // главная строка собирается до setContext: состав уже на новом регионе клиента,
+        // иначе upsertRow ниже вернул бы в состав прежний регион
+        const base =
+            mainRow && previousRegion
+                ? replaceClientRegionInRow(mainRow, previousRegion, draft.regionCode)
+                : mainRow;
+        const row = buildMainRowWithRefs(catalog, nextContext, base, refs);
         if (!row) return false;
+        const affectedRows =
+            previousRegion && isRegionChanged
+                ? countRowsWithRegion([general, ...alternative], previousRegion)
+                : 0;
         dispatch(rowSetActions.setContext({ regionCode: draft.regionCode }));
         dispatch(rowSetActions.upsertRow(row));
         dispatch(rowSetActions.selectRow(row.key));
+        if (previousRegion && affectedRows > 0) {
+            toast.info(buildRegionChangeNotice(catalog, previousRegion, draft.regionCode));
+        }
         return true;
     };
 

@@ -7,6 +7,7 @@ import type {
 } from '../model/types';
 import { isBlocking } from '../model/types';
 import { addUnique, remove } from './utils';
+import { applyRegionsEdit } from './regions-edit';
 import { COMPOSITION_RULES } from './rules/registry';
 import { erRule } from './rules/er-packets';
 import {
@@ -75,13 +76,12 @@ export const applyNaive = (
             return { ...composition, star: action.checked };
         case 'setAcademy':
             return { ...composition, academy: action.code };
+        // регионы: и без правил рутовый блок следует за ними
         case 'toggleRegion':
-            return {
-                ...composition,
-                regions: action.checked
-                    ? addUnique(composition.regions, action.code)
-                    : remove(composition.regions, action.code),
-            };
+        case 'setRegions':
+        case 'toggleRegionWeight':
+        case 'removeRegion':
+            return applyRegionsEdit(composition, action);
         // пакеты LT-other: без правил сборка та же, разница — в подборе пакета
         case 'addLtOtherPacket':
             return addLtOtherPacket(composition, action.id);

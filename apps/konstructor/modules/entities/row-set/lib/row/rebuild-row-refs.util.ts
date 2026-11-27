@@ -5,7 +5,7 @@ import {
     resolveRefsForComplectChange,
     type Catalog,
 } from '../../../catalog';
-import { defaultComposition } from '../../../composition';
+import { defaultCompositionFor } from '../../../composition';
 import type { KRow } from '../../model/types';
 import type { RowSetContext } from '../set';
 import { buildGarantRow } from './build-garant-row.util';
@@ -22,12 +22,16 @@ export interface RowRefsPatch {
  * changeCurrentProductAndPrice). Смена комплекта даёт новое дефолтное
  * наполнение и сбрасывает пользовательское имя; количество сохраняется.
  * null = комбинация без цены (правку не применять).
+ * keepComposition: при смене комплекта наполнение остаётся прежним (меняется
+ * только его комплект): так менеджер переходит на комплект, под вес которого
+ * уже собрал наполнение (подсказка Универсала).
  */
 export const rebuildRowWithRefs = (
     catalog: Catalog,
     context: RowSetContext,
     row: KRow,
     next: RowRefsPatch,
+    options: { keepComposition?: boolean } = {},
 ): KRow | null => {
     if (!context.regionCode) return null;
     const complectCode = next.complectCode ?? row.refs.complectCode ?? '';
@@ -70,7 +74,9 @@ export const rebuildRowWithRefs = (
         supplyCode,
         contractCode,
         composition: isComplectChange
-            ? defaultComposition(targetComplect)
+            ? options.keepComposition && row.composition
+                ? { ...row.composition, complectCode: targetComplect.code }
+                : defaultCompositionFor(targetComplect, context.regionCode)
             : row.composition,
         quantity: row.price.quantity,
     });
@@ -139,6 +145,6 @@ export const buildMainRowWithRefs = (
         setId: 'general',
         role: 'main',
         ...refs,
-        composition: defaultComposition(complect),
+        composition: defaultCompositionFor(complect, context.regionCode),
     });
 };

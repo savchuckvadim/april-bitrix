@@ -83,7 +83,7 @@ describe('buildAlternativeComplects', () => {
         ]);
         const firstGroups = requireItem(items, 0).complects[0]!.complect;
         const secondGroups = requireItem(items, 1).complects[0]!.complect;
-        expect(codesOf(firstGroups, 'npa')).toEqual(['rus', 'reg', 'stv']);
+        expect(codesOf(firstGroups, 'npa')).toEqual(['rus', 'reg']);
         expect(codesOf(firstGroups, 'lt')).toEqual(['ltsut']);
         expect(codesOf(secondGroups, 'npa')).toEqual(['rus', 'spb']);
         expect(codesOf(secondGroups, 'la')).toEqual(['la']);

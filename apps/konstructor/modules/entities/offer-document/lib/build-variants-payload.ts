@@ -4,7 +4,7 @@ import type { ComplectVariantItem } from '../../complect-variant/lib/api/complec
 import type { ComplectVariantRecordDto } from '../../complect-variant/model/dto';
 import { buildDocVariant, type DocVariant } from '../../document-payload';
 import type { RowSet } from '../../row-set';
-import { parseSnapshotV2 } from '../../snapshot';
+import { parseSnapshotV2, restoreV2 } from '../../snapshot';
 
 export interface VariantsPayloadInput {
     catalog: Catalog;
@@ -54,7 +54,10 @@ interface VariantSource {
 
 const fromRecord = (record: ComplectVariantRecordDto): VariantSource | null => {
     const snapshot = parseSnapshotV2(record.rows);
-    return snapshot ? { general: snapshot.general, alternative: snapshot.alternative } : null;
+    if (!snapshot) return null;
+    // наполнения слепка приводятся к текущей форме: слепок мог быть записан до новых полей
+    const restored = restoreV2(snapshot);
+    return { general: restored.general, alternative: restored.alternative };
 };
 
 /**

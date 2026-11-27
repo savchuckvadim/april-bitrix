@@ -75,6 +75,73 @@ describe('buildInfoblockFields', () => {
     });
 });
 
+describe('поле НПА: региональное законодательство', () => {
+    const legislation = (code: string) => catalog.regions.byCode[code]!.infoblock;
+    const withRegions = { ...composition, regions: ['stv', 'spb'], regionsUnweighted: ['kali'] };
+    const npaOf = (value: typeof withRegions, options: { clientRegionCode: string | null; npaMultiple: boolean }) =>
+        field(buildInfoblockFields(catalog, value, false, options), 'npa');
+
+    it('обычное поле: законодательство только региона клиента', () => {
+        expect(npaOf(withRegions, { clientRegionCode: 'stv', npaMultiple: false })).toEqual([
+            'Законодательство России',
+            legislation('stv'),
+        ]);
+    });
+
+    it('множественное поле: законодательства всех регионов состава, и считающих вес, и нет', () => {
+        expect(npaOf(withRegions, { clientRegionCode: 'stv', npaMultiple: true })).toEqual([
+            'Законодательство России',
+            legislation('stv'),
+            legislation('spb'),
+            legislation('kali'),
+        ]);
+    });
+
+    it('в обычное поле идёт регион клиента, даже если в составе другие регионы', () => {
+        const replaced = { ...composition, regions: ['spb'], regionsUnweighted: [] };
+        expect(npaOf(replaced, { clientRegionCode: 'stv', npaMultiple: false })).toEqual([
+            'Законодательство России',
+            legislation('stv'),
+        ]);
+    });
+
+    it('множественное поле без регионов в составе: законодательство региона клиента', () => {
+        const none = { ...composition, regions: [], regionsUnweighted: [] };
+        expect(npaOf(none, { clientRegionCode: 'stv', npaMultiple: true })).toEqual([
+            'Законодательство России',
+            legislation('stv'),
+        ]);
+    });
+
+    it('региона нигде нет: остаётся название блока', () => {
+        expect(npaOf(withRegions, { clientRegionCode: null, npaMultiple: false })).toEqual([
+            'Законодательство России',
+            'Региональное законодательство',
+        ]);
+    });
+
+    it('запрос целиком берёт регион клиента и множественность поля из входа', () => {
+        const request = buildDealSendRequest({
+            domain: 'gsr.bitrix24.ru',
+            dealId: 1,
+            userId: 2,
+            companyId: 3,
+            dealName: 'Сделка',
+            catalog,
+            general: upsertRow(createSet('general', 'general'), { ...mainRow, composition: withRegions }),
+            mainRow: { ...mainRow, composition: withRegions },
+            clientRegionCode: 'stv',
+            npaMultiple: true,
+        });
+        expect(field(request.fields, 'npa')).toEqual([
+            'Законодательство России',
+            legislation('stv'),
+            legislation('spb'),
+            legislation('kali'),
+        ]);
+    });
+});
+
 describe('buildProductFields / buildDealSendRequest', () => {
     it('продуктовые поля главной строки: комплект, тип договора, срок, поставка', () => {
         const fields = buildProductFields(catalog, mainRow);

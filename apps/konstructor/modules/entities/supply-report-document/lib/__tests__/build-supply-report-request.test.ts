@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { rootStateWith } from '../../../document-payload/lib/__fixtures__/root-state';
-import { compositionOf, garantRowOf, syncedGeneral } from '../../../document-payload/lib/__fixtures__/two-garant-set';
+import { catalog, compositionOf, garantRowOf, syncedGeneral } from '../../../document-payload/lib/__fixtures__/two-garant-set';
 import { COMPLECT_MODE, type ComplectVariantRecordDto } from '../../../complect-variant/model/dto';
 import { createSet } from '../../../row-set';
 import { recordOf, snapshotRowsOf, variantItems } from '../../../offer-document/lib/__fixtures__/variant-records';
@@ -21,12 +21,12 @@ const oneByOne = (records: ComplectVariantRecordDto[], openVariantSmartId: numbe
 
 /** Отчёт о поставке по общему набору: регионы и группы инфоблоков — по наполнению всех комплектов. */
 describe('отчёт о поставке: наполнение общего набора', () => {
-    const main = garantRowOf('general_main', 'main', 'buh', compositionOf('buh', { infoblocks: ['rus'], regions: ['stv'] }));
+    const main = garantRowOf('general_main', 'main', 'buh', compositionOf('buh', { infoblocks: ['rus', 'reg'], regions: ['stv'] }));
     const additional = garantRowOf(
         'general_additional',
         'additional',
         'ur',
-        compositionOf('ur', { infoblocks: ['rus', 'la'], regions: ['spb'] }),
+        compositionOf('ur', { infoblocks: ['rus', 'la', 'reg'], regions: ['spb'] }),
     );
 
     it('регионы главной и дополнительной строк, инфоблоки без повторов', () => {
@@ -35,6 +35,24 @@ describe('отчёт о поставке: наполнение общего на
         const codes = request?.complect.flatMap(group => group.value.map(item => item.code)) ?? [];
         expect(codes.filter(code => code === 'rus')).toHaveLength(1);
         expect(codes).toContain('la');
+    });
+
+    it('регион клиента несёт полное название законодательства, не название региона', () => {
+        const request = buildSupplyReportGenerateRequest(rootStateWith(syncedGeneral([main])));
+        expect(request?.region).toMatchObject({ name: 'stv', title: catalog.regions.byCode['stv']!.title });
+        expect(request?.region.infoblock).toBe(catalog.regions.byCode['stv']!.infoblock);
+    });
+
+    it('регионы без веса уходят в noWidth, регион клиента считает вес', () => {
+        const row = garantRowOf(
+            'general_main',
+            'main',
+            'buh',
+            compositionOf('buh', { infoblocks: ['rus', 'reg'], regions: ['stv'], regionsUnweighted: ['spb'] }),
+        );
+        const request = buildSupplyReportGenerateRequest(rootStateWith(syncedGeneral([row])));
+        expect(request?.regions.inComplect.map(region => region.name)).toEqual(['stv']);
+        expect(request?.regions.noWidth.map(region => region.name)).toEqual(['spb']);
     });
 });
 

@@ -57,7 +57,14 @@ const reportBody = (state: RootState) => {
         supply,
         body: { ...body, rows: toDocRows(catalog, { ...general, collapsed: false }, []) },
         region: region
-            ? { number: 0, abs: region.abs, name: region.code, title: region.title, infoblock: region.title }
+            ? {
+                  number: 0,
+                  abs: region.abs,
+                  name: region.code,
+                  title: region.title,
+                  // полное название законодательства региона, как у регионов состава
+                  infoblock: region.infoblock || region.title,
+              }
             : { number: 0, abs: 1, name: '', title: '', infoblock: '' },
     };
 };

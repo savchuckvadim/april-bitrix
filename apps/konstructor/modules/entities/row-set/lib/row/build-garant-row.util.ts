@@ -12,7 +12,8 @@ import type { BuildRowCtx } from './types';
 /**
  * Garant-строка по требованию (замена легаси-предгенерации матрицы
  * продуктов): PROF — цена из прайс-таблицы; universal —
- * abs × region.abs × коэффициент поставки. null = комбинации нет цены.
+ * abs × рабс региона с НДС (region.taxAbs) × коэффициент поставки. null = комбинации
+ * нет цены; у региона без рабса с НДС цена Универсала не считается и нулевой строки не появляется.
  */
 
 export interface BuildGarantRowInput extends BuildRowCtx {
@@ -39,8 +40,8 @@ export const buildGarantRow = (input: BuildGarantRowInput): KRow | null => {
     let monthBase: number | null;
     if (complect.type === 'universal') {
         monthBase =
-            complect.abs !== null
-                ? complect.abs * region.abs * supply.coefficient
+            complect.abs !== null && region.taxAbs > 0
+                ? complect.abs * region.taxAbs * supply.coefficient
                 : null;
     } else {
         monthBase = findProfBasePriceForSupply(

@@ -221,16 +221,16 @@ describe('слепок v2 с прежними умолчаниями init', () =
 describe('вес регионов', () => {
     const regional = (regions: string[]) => bare('buh', { infoblocks: ['reg'], regions });
 
-    it('рутовый блок без регионов — 0.5', () => {
-        expect(compositionWeight(regional([]), ctxFor('buh', 'rstv'))).toBe(0.5);
+    it('рутовый блок без регионов веса не имеет', () => {
+        expect(compositionWeight(regional([]), ctxFor('buh', 'rstv'))).toBe(0);
     });
 
-    it('текущий регион в составе не считается дважды', () => {
+    it('регион клиента в составе весит один раз', () => {
         expect(compositionWeight(regional(['rstv']), ctxFor('buh', 'rstv'))).toBe(0.5);
     });
 
-    it('чужой регион — плюс 0.5 к рутовому', () => {
-        expect(compositionWeight(regional(['msk']), ctxFor('buh', 'rstv'))).toBe(1);
+    it('каждый следующий регион добавляет свой вес', () => {
+        expect(compositionWeight(regional(['rstv', 'msk']), ctxFor('buh', 'rstv'))).toBe(1);
     });
 
     it('тумблер рутового блока не меняет вес сверх него', () => {

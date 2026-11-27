@@ -125,7 +125,7 @@ describe('X-ОД: цены и совместимость', () => {
             supplyCode: 'x_internet_4',
             contractCode: 'internet',
         })!;
-        // abs × region.abs × коэффициент справочной поставки-источника
+        // abs × рабс региона с НДС × коэффициент справочной поставки-источника
         expect(universal.price.base).toBeCloseTo(
             Math.round(2 * 3975.6 * internet(3).coefficient * 100) / 100,
             2,

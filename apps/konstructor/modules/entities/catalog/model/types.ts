@@ -21,7 +21,7 @@ export interface KComplect {
     fullTitle: string;
     shortTitle: string;
     weight: number;
-    /** База абонентского обслуживания: цена universal = abs × region.abs × supply.coefficient */
+    /** База абонентского обслуживания: цена universal = abs × region.taxAbs × supply.coefficient */
     abs: number | null;
     color: string | null;
     withConsalting: boolean;
@@ -133,13 +133,15 @@ export interface KContract {
 export interface KRegion {
     code: string;
     title: string;
-    /** Ставка абонентского обслуживания региона */
+    /** Рабс региона без НДС; в цены Универсала и консалтинга не входит, они считаются от taxAbs */
     abs: number;
+    /** Коэффициент НДС рабса (бэк берёт его из настроек вендора) */
     tax: number;
+    /** Рабс региона с НДС: цена Универсала и консалтинга = abs комплекта (сервиса) × taxAbs × коэффициенты; 0 — рабса у региона нет, цена не считается */
     taxAbs: number;
     /** Название рег. инфоблока («Законодательство города Москвы») */
     infoblock: string;
-    /** Вес региона в составе комплекта (0.5) */
+    /** Вес региона в составе комплекта: Москва 1, остальные 0.5 (значение отдаёт бэк) */
     weight: number;
     /** Привязан к порталу (portal_region) */
     inPortal: boolean;

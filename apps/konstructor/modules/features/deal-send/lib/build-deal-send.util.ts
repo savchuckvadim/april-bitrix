@@ -10,7 +10,13 @@ import {
     type KInfoblock,
 } from '@/modules/entities/catalog';
 import { buildProductRows, type BitrixProductRow, type KRow, type RowSet } from '@/modules/entities/row-set';
-import { describeLtPackets, ltPackageName, type Composition } from '@/modules/entities/composition';
+import {
+    compositionRegionCodes,
+    describeLtPackets,
+    ltPackageName,
+    REGION_ROOT_CODE,
+    type Composition,
+} from '@/modules/entities/composition';
 import { setComposition } from '@/modules/entities/document-payload';
 
 /**
@@ -49,6 +55,10 @@ export interface DealSendInput {
     serviceDepartment?: boolean;
     /** Сервисный отдел, «следующий период»: писать в элемент смарта, не в сделку */
     target?: DealSendRequest['target'];
+    /** Регион клиента: его законодательство идёт в поле НПА вместо общего названия блока */
+    clientRegionCode?: string | null;
+    /** Поле НПА на портале множественное: в него идут законодательства всех регионов состава */
+    npaMultiple?: boolean;
     /**
      * Ключ попытки создать сделку (dealId нет): повтор той же попытки с тем же
      * ключом не заводит вторую сделку. У существующей сделки ключ не нужен.
@@ -74,17 +84,52 @@ const name = (catalog: Catalog, code: string): string =>
 const nameOfBlock = (block: KInfoblock | undefined, fallback: string): string =>
     block?.name ?? fallback;
 
+/** Откуда брать региональное законодательство для поля НПА */
+export interface DealRegionOptions {
+    clientRegionCode: string | null;
+    /** Поле НПА множественное */
+    npaMultiple: boolean;
+}
+
+const NO_REGION_OPTIONS: DealRegionOptions = { clientRegionCode: null, npaMultiple: false };
+
+/**
+ * Что писать в поле НПА вместо блока «Региональное законодательство»:
+ * множественное поле — законодательства всех регионов состава, обычное —
+ * законодательство региона клиента (легаси писал title рутового блока). Нет
+ * данных региона — пусто, и в поле остаётся общее название блока.
+ */
+const regionLegislationNames = (
+    catalog: Catalog,
+    composition: Composition,
+    options: DealRegionOptions,
+): string[] => {
+    const legislationOf = (code: string | null): string[] => {
+        const region = code ? catalog.regions.byCode[code] : undefined;
+        return region ? [region.infoblock || region.title] : [];
+    };
+    if (!options.npaMultiple) return legislationOf(options.clientRegionCode);
+    const names = compositionRegionCodes(composition).flatMap(code => legislationOf(code));
+    return names.length ? [...new Set(names)] : legislationOf(options.clientRegionCode);
+};
+
 /** Инфоблочные поля сделки: названия выбранных блоков по группам. */
 export const buildInfoblockFields = (
     catalog: Catalog,
     composition: Composition,
     serviceDepartment = false,
+    regions: DealRegionOptions = NO_REGION_OPTIONS,
 ): DealSendField[] => {
     const groups: Record<'npa' | 'la' | 'c' | 'sp', string[]> = { npa: [], la: [], c: [], sp: [] };
     for (const code of composition.infoblocks) {
         const block = catalog.infoblocks[code];
         if (!block) continue;
         const field = GROUP_FIELD[block.groupCode] ?? 'sp';
+        if (code === REGION_ROOT_CODE) {
+            const legislation = regionLegislationNames(catalog, composition, regions);
+            groups[field].push(...(legislation.length ? legislation : [block.name]));
+            continue;
+        }
         groups[field].push(block.name);
     }
     // бесплатные блоки судебной практики (isLa) идут в «Судебная практика», остальные — в free_blocks
@@ -198,7 +243,12 @@ export const buildDealSendRequest = (input: DealSendInput): DealSendRequest => {
         supplyCode: mainRow.refs.supplyCode,
         contractKind,
         fields: [
-            ...(composition ? buildInfoblockFields(catalog, composition, input.serviceDepartment) : []),
+            ...(composition
+                ? buildInfoblockFields(catalog, composition, input.serviceDepartment, {
+                      clientRegionCode: input.clientRegionCode ?? null,
+                      npaMultiple: input.npaMultiple ?? false,
+                  })
+                : []),
             ...buildProductFields(catalog, mainRow),
             ...(input.providerName
                 ? [{ code: 'document_provider' as const, appType: 'document' as const, value: input.providerName }]

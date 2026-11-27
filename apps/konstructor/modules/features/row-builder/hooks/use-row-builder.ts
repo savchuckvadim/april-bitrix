@@ -10,7 +10,7 @@ import {
     resolveRefsForComplectChange,
     selectCatalog,
 } from '@/modules/entities/catalog';
-import { defaultComposition } from '@/modules/entities/composition';
+import { defaultCompositionFor } from '@/modules/entities/composition';
 import {
     buildGarantRow,
     canAddComparisonSet,
@@ -100,7 +100,7 @@ export const useRowBuilder = (target: RowBuilderTarget, onDone: () => void) => {
             complectCode,
             supplyCode,
             contractCode,
-            composition: defaultComposition(selectedComplect),
+            composition: defaultCompositionFor(selectedComplect, context.regionCode),
         });
         if (!row) return false;
         dispatch(rowSetActions.upsertRow(row));

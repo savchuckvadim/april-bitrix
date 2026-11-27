@@ -11,7 +11,8 @@ import { useCompositionEditor } from './use-composition-editor';
  */
 export const useRowCompositionDraft = (row: KRow, onDone: () => void) => {
     const draft = useCompositionDraft(row);
-    const editor = useCompositionEditor(draft.row, draft.write);
+    // переход на другой комплект Универсала записывает черновик в строку — окно закрывается
+    const editor = useCompositionEditor(draft.row, draft.write, onDone);
 
     return {
         editor,

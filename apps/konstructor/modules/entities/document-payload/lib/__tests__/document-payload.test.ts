@@ -79,11 +79,11 @@ describe('buildComplectGroups', () => {
         expect(groups.every(g => g.value.every(block => block.checked))).toBe(true);
     });
 
-    it('регион — блок isRegion в НПА; isLa-бесплатный — в судебной практике', () => {
+    it('регион клиента — в рутовом блоке НПА; isLa-бесплатный — в судебной практике', () => {
         const npa = group('npa')!.value;
-        expect(npa.map(b => b.code)).toEqual(['rus', 'reg', 'stv']);
-        expect(npa.find(b => b.code === 'stv')?.isRegion).toBe(true);
-        expect(npa.find(b => b.code === 'stv')?.weight).toBe(0.5);
+        // регион клиента — в самом рутовом блоке: его законодательство в title, отдельного блока нет
+        expect(npa.map(b => b.code)).toEqual(['rus', 'reg']);
+        expect(npa.find(b => b.code === 'reg')?.title).toBe(catalog.regions.byCode['stv']!.infoblock);
         expect(group('la')!.value.map(b => b.code)).toEqual(['la', 'online2']);
         expect(group('free')!.value.map(b => b.code)).toEqual(['praim']);
     });

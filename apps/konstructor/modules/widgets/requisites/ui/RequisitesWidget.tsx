@@ -4,13 +4,18 @@ import { Plus } from 'lucide-react';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
+import { BxRqDraftModals } from '@/modules/entities/bx-rq';
 import { PagePreloader } from '@/modules/shared';
 import { useRequisites } from '../hooks/use-requisites';
 import { RequisiteSelect } from './RequisiteSelect';
 import { RequisitesNotice } from './RequisitesNotice';
 import { RequisitesTabs } from './RequisitesTabs';
 
-/** Реквизиты клиента: выбор, новый реквизит, основные поля, адреса, банк. */
+/**
+ * Реквизиты клиента: выбор, новый реквизит, основные поля, адреса, банк. Окна
+ * правки (новый реквизит, основные поля, адрес, банк) открываются здесь, на
+ * уровне экрана, поверх любой вкладки.
+ */
 export const RequisitesWidget = () => {
     const rq = useRequisites();
 
@@ -59,7 +64,9 @@ export const RequisitesWidget = () => {
                 </div>
             </SectionCard>
 
-            <RequisitesTabs detailsEnabled={rq.isSaved} />
+            <RequisitesTabs detailsEnabled={rq.isSaved} tab={rq.tab} onTabChange={rq.setTab} />
+
+            <BxRqDraftModals />
         </div>
     );
 };

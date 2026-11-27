@@ -4,9 +4,6 @@ import { Copy, Edit2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
-import { useApp } from '@/modules/app/lib/hooks/app';
-import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
-import { BxRqEditModal } from './BxRqEditModal';
 import { RqFillBadge } from './RqFillBadge';
 import { RqFieldValue } from './RqFieldValue';
 import { BX_ADDRESS_TYPE } from '../model/types';
@@ -18,10 +15,8 @@ import { useBxRqEditAddress } from '../lib/hooks/use-bx-rq';
 const copySourceOf = (typeId: BX_ADDRESS_TYPE): BX_ADDRESS_TYPE =>
     typeId === BX_ADDRESS_TYPE.PRIMARY ? BX_ADDRESS_TYPE.REGISTERED : BX_ADDRESS_TYPE.PRIMARY;
 
-/** Адреса текущего реквизита: юридический и фактический, правка и копирование. */
+/** Адреса текущего реквизита: юридический и фактический; окно правки открывает BxRqDraftModals. */
 export const BxRqAddressEdit = () => {
-    const { domain, companyId } = useApp();
-    const { resolved: clientType } = useClientType();
     const address = useBxRqEditAddress();
 
     return (
@@ -86,26 +81,6 @@ export const BxRqAddressEdit = () => {
                     </Card>
                 );
             })}
-
-            {address.creating ? (
-                <BxRqEditModal
-                    title={`Редактирование: ${addressTitle(address.creating.type_id)}`}
-                    fields={address.creating.fields}
-                    isOpen
-                    isLoading={address.isCreatingLoading}
-                    onSave={() =>
-                        void address.saveAddress(
-                            domain,
-                            companyId,
-                            clientType,
-                            address.creating!.type_id,
-                        )
-                    }
-                    onCancel={address.cancelAddressCreating}
-                    onFieldChange={address.setAddressProp}
-                    type="address"
-                />
-            ) : null}
         </div>
     );
 };

@@ -7,6 +7,7 @@ import {
     selectComposition,
 } from '@/modules/entities/complect-variant/model/ComplectVariantSlice';
 import { offerDocumentActions } from '@/modules/entities/offer-document/model/OfferDocumentSlice';
+import { offerPdfActions } from '@/modules/entities/offer-pdf/model/OfferPdfSlice';
 import { documentProvidertAC } from '@/modules/entities/provider/model/DocumentProviderSlice';
 import { wordTemplateAC } from '@/modules/entities/offer-template-word/model/WordTemplateSlice';
 import { isRowSetContentAction } from '@/modules/entities/row-set/lib/content-actions';
@@ -48,10 +49,19 @@ export const isOfferPreviewStaleAction = isAnyOf(
 );
 
 /**
+ * Включили или выключили сопроводительное письмо: флаг уходит в Word-запрос
+ * (`withLetter`) и меняет готовое превью. Остальные настройки PDF (описание,
+ * вид, печати и прочее) в Word-запрос не входят и его превью не трогают.
+ */
+export const isOfferLetterToggleAction = (action: UnknownAction): boolean =>
+    offerPdfActions.setSettings.match(action) && 'withLetter' in action.payload;
+
+/**
  * Превью КП после действия устарело. Кроме действий из
- * isOfferPreviewStaleAction, это запись настроек сделки, в которой изменилось
- * то, что уходит в КП (открытый вариант, печать). Смена одного режима (кто идёт
- * в договор и отчёт) превью не устаревает: в запрос КП режим не входит.
+ * isOfferPreviewStaleAction, это переключатель письма и запись настроек
+ * сделки, в которой изменилось то, что уходит в КП (открытый вариант, печать).
+ * Смена одного режима (кто идёт в договор и отчёт) превью не устаревает: в
+ * запрос КП режим не входит.
  */
 export const isOfferPreviewStale = (
     action: UnknownAction,
@@ -59,6 +69,7 @@ export const isOfferPreviewStale = (
     previous: VariantsState,
 ): boolean =>
     isOfferPreviewStaleAction(action) ||
+    isOfferLetterToggleAction(action) ||
     (complectVariantActions.setComposition.match(action) &&
         !isSameOfferComposition(selectComposition(current), selectComposition(previous)));
 

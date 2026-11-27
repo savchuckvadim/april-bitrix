@@ -338,6 +338,26 @@ s.snapshot
 - Тип поля описан руками в `document-payload/model/dto.ts` (`DocComplectsFields`); после `pnpm run generate` это
   расширение убирается.
 
+## КП без сопроводительного письма (27.11.2026)
+
+Менеджер может отключить письмо совсем. Решение владельца: без письма печать и подпись поставщика, что стоят
+под ним, тоже пропадают.
+
+- Флаг — `prefs.settings.withLetter` (`entities/offer-pdf`), по умолчанию включён. Хранится как остальные настройки
+  PDF: слепок сделки и варианта, избранное, последний выбор менеджера; разбор — `normalizeOfferPdfStyle`, записи
+  без поля читаются как «с письмом».
+- PDF-запрос: `settings.withLetter`. Выключено: письма и подписи в документе нет, текст письма в запрос не уходит
+  (в состоянии он остаётся до включения). У стиля, где письмо стоит на промо-странице (`moderne`), страница не печатается.
+  Бэк: `offerDocumentPages`, `offerSectionOrder` (`templates/kit/document/document.util.ts`).
+- Word-запрос (одиночный, generate-multi, превью): поле верхнего уровня `withLetter`, оно есть только при `false`
+  (`offerLetterFields`, `entities/offer-document/lib/offer-letter.ts`). Тип поля описан руками (`OfferLetterFields`),
+  после `pnpm run generate` расширение убирается. Бэк отдаёт Word-шаблону метку `WithLetter` (всегда, по умолчанию
+  `true`): письмо и подпись исчезают у шаблонов, где они обёрнуты условным блоком `{#WithLetter}…{/WithLetter}`.
+  Текст письма и подпись лежат в самом .docx, поэтому шаблон без такого блока печатает их при любом значении.
+- Превью Word устаревает от переключателя (`isOfferLetterToggleAction`, `app/lib/stale-actions.ts`).
+- UI: `OfferLetterToggle` в шапке карточки письма (PDF) и в `OfferWordLetterCard` (Word); у выключенного письма
+  карточка свёрнута, переключатель «Печать и подпись» закрыт.
+
 ## Реквизиты клиента (bx-rq)
 
 - Бэк: `back/libs/rq-lib` (общий с `apps/rq`, форма `get_rq`/`store_rq` не менялась). Пресеты портала

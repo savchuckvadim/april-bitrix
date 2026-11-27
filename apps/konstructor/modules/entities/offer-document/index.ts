@@ -18,9 +18,11 @@ export {
     offerWordGenerateBlocker,
     offerVariantsFields,
     type OfferMultiGenerateRequest,
+    type OfferWordRequest,
     type OfferBlockerFormat,
     type OfferVariantsFields,
 } from './lib/build-offer-request';
+export { offerLetterFields, selectOfferWithLetter } from './lib/offer-letter';
 export { alternativeComplectsFields, withAlternativeComplects } from './lib/offer-alternative-complects';
 export {
     buildVariantsPayload,

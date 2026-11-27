@@ -22,6 +22,7 @@ import {
     OfferPdfGenerateButton,
     OfferPdfPreviewPanelLoadable,
     OfferPdfTemplateCard,
+    OfferWordLetterCard,
     useOfferPdfDocument,
 } from '@/modules/entities/offer-pdf';
 import {
@@ -114,7 +115,10 @@ export const OfferDocumentScreenBody = ({
                             {isPdf ? (
                                 <OfferPdfTemplateCard />
                             ) : (
-                                <WordTemplateMenu isWord />
+                                <>
+                                    <WordTemplateMenu isWord />
+                                    <OfferWordLetterCard />
+                                </>
                             )}
                             {zakupkiEnabled && !isPdf ? <ZakupkiCard /> : null}
                         </TabsContent>

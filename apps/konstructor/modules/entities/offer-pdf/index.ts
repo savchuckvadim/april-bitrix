@@ -5,6 +5,7 @@ export { resolvePalette, templatePalettes } from './lib/offer-pdf-palette.util';
 // редьюсер, экшены и слушатель стор берёт прямыми путями из model/ — так UI слайса не едет в оболочку
 export { OfferDocumentFormatSwitch } from './ui/OfferDocumentFormatSwitch';
 export { OfferPdfTemplateCard } from './ui/OfferPdfTemplateCard';
+export { OfferWordLetterCard } from './ui/letter/OfferWordLetterCard';
 export { OfferPdfGenerateButton } from './ui/OfferPdfGenerateButton';
 export { OfferPdfStyleCard } from './ui/style-picker/OfferPdfStyleCard';
 export { OfferPdfPaletteSwatches } from './ui/style-picker/OfferPdfPaletteSwatches';

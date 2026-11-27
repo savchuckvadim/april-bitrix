@@ -89,8 +89,10 @@ export const toOfferPdfRequest = (
         OfferGenerateRequest,
         OfferPdfOmittedWordField
     >;
-    const appeal = trimmedOrUndefined(options.letter.appeal);
-    const text = trimmedOrUndefined(options.letter.text);
+    // письма в КП нет — набранный текст в запрос не идёт (в состоянии он остаётся до включения)
+    const { withLetter } = options.settings;
+    const appeal = withLetter ? trimmedOrUndefined(options.letter.appeal) : undefined;
+    const text = withLetter ? trimmedOrUndefined(options.letter.text) : undefined;
 
     return {
         ...base,
@@ -99,6 +101,7 @@ export const toOfferPdfRequest = (
         settings: {
             descriptionMode: options.settings.descriptionMode,
             viewMode: options.settings.viewMode,
+            withLetter,
             withStamps: options.settings.withStamps,
             withManager: options.settings.withManager,
             isPriceFirst: options.settings.isPriceFirst,

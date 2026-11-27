@@ -11,6 +11,7 @@ import {
     type ComplectComposition,
 } from '@/modules/entities/complect-variant/model/dto';
 import { offerDocumentActions } from '@/modules/entities/offer-document/model/OfferDocumentSlice';
+import { offerPdfActions } from '@/modules/entities/offer-pdf/model/OfferPdfSlice';
 import { wordTemplateAC } from '@/modules/entities/offer-template-word/model/WordTemplateSlice';
 import { documentProvidertAC } from '@/modules/entities/provider/model/DocumentProviderSlice';
 import { rowSetActions } from '@/modules/entities/row-set/model/RowSetSlice';
@@ -131,6 +132,14 @@ describe('устаревание превью КП от настроек сде�
     it('откат настроек после сбоя записи, вернувший прежний режим, превью не трогает', () => {
         const multi = { ...base, mode: COMPLECT_MODE.multi_contract };
         expect(isOfferPreviewStale(save(base), stateWith(base), stateWith(multi))).toBe(false);
+    });
+
+    it('переключатель сопроводительного письма превью устаревает, прочие настройки PDF — нет', () => {
+        const state = stateWith(base);
+        expect(isOfferPreviewStale(offerPdfActions.setSettings({ withLetter: false }), state, state)).toBe(true);
+        expect(isOfferPreviewStale(offerPdfActions.setSettings({ withLetter: true }), state, state)).toBe(true);
+        expect(isOfferPreviewStale(offerPdfActions.setSettings({ withStamps: false }), state, state)).toBe(false);
+        expect(isOfferPreviewStale(offerPdfActions.setLetter({ text: 'Текст' }), state, state)).toBe(false);
     });
 
     it('остальные действия из списка устаревания решает тип действия, настройки при этом не важны', () => {

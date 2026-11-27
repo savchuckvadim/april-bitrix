@@ -3,19 +3,27 @@
 import { BlurCommitInput, BlurCommitTextarea } from '@workspace/april-ui/fields';
 import { SectionCard } from '@workspace/april-ui/surfaces';
 import { Label } from '@workspace/ui/components/label';
-import { useOfferPdfDocument } from '../../model/OfferPdfDocumentContext';
+import { LETTER_CARD_TITLE } from '../../lib/offer-letter-texts';
+import { useLetterCard } from './hooks/use-letter-card';
+import { OfferLetterToggle } from './OfferLetterToggle';
 
-/** Сопроводительное письмо; пустые поля заполнит шаблон */
+/**
+ * Сопроводительное письмо; пустые поля заполнит шаблон. Переключатель в шапке
+ * отключает письмо совсем: карточка сворачивается, письма и подписи под ним
+ * в КП нет.
+ */
 export const OfferPdfLetterCard = () => {
-    const { letter, setLetter } = useOfferPdfDocument();
+    const { letter, setLetter, description, open, setOpen } = useLetterCard();
     return (
         <SectionCard
-            title="Сопроводительное письмо"
-            description="Пустые поля шаблон заполнит сам: обращение — по имени получателя, текст — письмом портала, а если его нет, стандартным."
+            title={LETTER_CARD_TITLE}
+            description={description}
             tone="complect"
             density="compact"
             collapsible
-            defaultOpen={Boolean(letter.appeal || letter.text)}
+            open={open}
+            onOpenChange={setOpen}
+            actions={<OfferLetterToggle />}
         >
             <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1.5">

@@ -11,8 +11,9 @@ import {
     type OfferGenerateRequest,
 } from '../../document-payload';
 import { findMainRow } from '../../row-set';
-import type { OfferSalesFlowFields } from '../model/types';
+import type { OfferLetterFields, OfferSalesFlowFields } from '../model/types';
 import { clientTypeBlocker, toOfferClientType } from './client-type.util';
+import { offerLetterFields, selectOfferWithLetter } from './offer-letter';
 import { presentationBlocker } from './presentation-choice.util';
 import { selectOfferRequestInvoice } from './select-invoice';
 import { selectOfferSalesFlowFields } from './select-sales-flow';
@@ -85,12 +86,17 @@ export type OfferVariantsFields = Partial<Pick<OfferWordMultiGenerateDto, 'compo
  * Запрос generate-multi с разделами по комплектам: у самого КП и у открытого
  * варианта. Способ печати (`complectsMode`) Word-запрос не несёт: Word-шаблоны
  * блока «по комплектам» пока не имеют. Поля потока продаж (`salesFlow`,
- * `presentation`) бэк принимает необязательными, в сгенерированном клиенте их
- * пока нет; после `pnpm run generate` расширение можно убрать.
+ * `presentation`) и флаг письма (`withLetter`) бэк принимает необязательными,
+ * в сгенерированном клиенте их пока нет; после `pnpm run generate`
+ * расширение можно убрать.
  */
 export type OfferMultiGenerateRequest = Omit<OfferWordMultiGenerateDto, 'variants'> &
     DocComplectsFields &
-    OfferSalesFlowFields & { variants: DocVariant[] };
+    OfferSalesFlowFields &
+    OfferLetterFields & { variants: DocVariant[] };
+
+/** Одиночное тело КП в Word: запрос document-payload и флаг письма */
+export type OfferWordRequest = OfferGenerateRequest & OfferLetterFields;
 
 /**
  * Участники Word-КП: открытый вариант вместе с наполнением его наборов для
@@ -120,11 +126,12 @@ export const offerVariantsFields = (state: RootState): OfferVariantsFields => {
 
 /**
  * Одиночное тело КП в Word из состояния: шапка — offerDocument, содержание —
- * row-set через адаптер document-payload, адрес — app/portal. Нечего печатать
- * (см. offerBaseBlocker) — null. Варианты в это тело не входят: их добавляют
- * buildOfferMultiGenerateRequest и тело превью.
+ * row-set через адаптер document-payload, адрес — app/portal. Письмо выключено
+ * (настройки КП) — к телу добавляется `withLetter: false`, иначе поля нет.
+ * Нечего печатать (см. offerBaseBlocker) — null. Варианты в это тело не входят:
+ * их добавляют buildOfferMultiGenerateRequest и тело превью.
  */
-export const buildOfferGenerateRequest = (state: RootState): OfferGenerateRequest | null => {
+export const buildOfferGenerateRequest = (state: RootState): OfferWordRequest | null => {
     if (offerBaseBlocker(state, 'word')) return null;
     const { domain, dealId, bitrix } = state.app;
     const template = state.offerTemplateWord.selectedTemplate;
@@ -158,6 +165,7 @@ export const buildOfferGenerateRequest = (state: RootState): OfferGenerateReques
     return {
         ...payload,
         ...alternativeComplectsFields('word', selectAlternativeComplectsEnabled(state), catalog, state.rowSet.alternative),
+        ...offerLetterFields(selectOfferWithLetter(state)),
     };
 };
 

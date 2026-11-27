@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
     filterContractsForSupply,
     filterSuppliesForComplect,
+    filterSuppliesForCurrentKind,
     selectCatalog,
 } from '@/modules/entities/catalog';
 import {
@@ -89,9 +90,15 @@ export const useRowCard = (row: KRow, collapsed: boolean) => {
         dispatch(rowSetActions.upsertRow(rebuilt));
     };
 
-    const availableSupplies = complect
-        ? filterSuppliesForComplect(catalog.supplies.items, complect.type)
-        : [];
+    // комплект основного набора выбран на шаге «Комплект»: главный товар
+    const isMainProduct = row.role === 'main' && row.setId === generalSetId;
+    // у главного товара — только вид доступа, выбранный на старте; у остальных
+    // строк (дополнительные, наборы для сравнения) вид свободный
+    const availableSupplies = !complect
+        ? []
+        : isMainProduct
+          ? filterSuppliesForCurrentKind(catalog, complect.type, row.refs.supplyCode)
+          : filterSuppliesForComplect(catalog.supplies.items, complect.type);
     const availableContracts = complect
         ? filterContractsForSupply(catalog, complect.type, row.refs.supplyCode)
         : [];
@@ -105,7 +112,7 @@ export const useRowCard = (row: KRow, collapsed: boolean) => {
         canEditRefs:
             row.productType === 'garant' && !rowsLocked && !isBlurred,
         // комплект основного набора выбран на шаге «Комплект» — здесь не меняется
-        complectLocked: row.role === 'main' && row.setId === generalSetId,
+        complectLocked: isMainProduct,
         commercialDisabled,
         availableSupplies,
         availableContracts,

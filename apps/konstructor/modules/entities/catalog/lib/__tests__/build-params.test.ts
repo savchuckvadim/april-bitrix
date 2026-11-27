@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import oldInit from '../__fixtures__/oldinit.json';
 import { catalogFromOldInit } from '../adapters/from-oldinit';
-import { resolveRefsForBuildParams } from '../compatibility-matrix';
+import { filterSuppliesForCurrentKind, resolveRefsForBuildParams } from '../compatibility-matrix';
 import { makeCustomSupplyCode, resolveSupply } from '../custom-od.util';
 
 const catalog = catalogFromOldInit(oldInit);
@@ -54,5 +54,23 @@ describe('resolveRefsForBuildParams', () => {
             { supplyCode: custom },
         );
         expect(next?.supplyCode).toBe(custom);
+    });
+
+    it('вид на старте сменили, поставка прежнего вида — первая подходящая нового', () => {
+        const toProxima = resolveRefsForBuildParams(
+            catalog,
+            { complectType: 'prof', supplyKind: 'proxima' },
+            { supplyCode: 'internet_5' },
+        );
+        const firstProxima = filterSuppliesForCurrentKind(catalog, 'prof', 'proxima_5')[0]!;
+        expect(toProxima?.supplyCode).toBe(firstProxima.code);
+
+        const toInternet = resolveRefsForBuildParams(
+            catalog,
+            { complectType: 'prof', supplyKind: 'internet' },
+            { supplyCode: 'proxima_5' },
+        );
+        const firstInternet = filterSuppliesForCurrentKind(catalog, 'prof', 'internet_5')[0]!;
+        expect(toInternet?.supplyCode).toBe(firstInternet.code);
     });
 });

@@ -29,6 +29,12 @@ interface PreloaderScreenProps {
     title?: string;
     /** null — без лого. */
     logoSrc?: string | null;
+    /**
+     * Инлайн-SVG знака (цвет currentColor) вместо картинки; только у brand.
+     * Контурный знак boot-прелоадера — APRIL_BOOT_LOGO_SVG из feedback: экран
+     * загрузки после старта выглядит так же, как стартовый.
+     */
+    logoMarkup?: string | null;
     /** Градиент заголовка (fx-акцент; при null — обычный text-foreground). */
     gradientColors?: string[] | null;
 }
@@ -52,6 +58,7 @@ export const PreloaderScreen = ({
     variant = 'minimal',
     title = 'Апрель',
     logoSrc = '/logo/logo.svg',
+    logoMarkup = null,
     gradientColors = DEFAULT_GRADIENT,
 }: PreloaderScreenProps) => {
     const titleNode = (
@@ -64,7 +71,11 @@ export const PreloaderScreen = ({
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-background">
                 {BACKGROUNDS[variant]()}
-                <PreloaderBrandContent title={title} logoSrc={logoSrc} />
+                <PreloaderBrandContent
+                    title={title}
+                    logoSrc={logoSrc}
+                    logoMarkup={logoMarkup}
+                />
             </div>
         );
     }

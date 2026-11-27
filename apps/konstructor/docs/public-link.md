@@ -18,7 +18,6 @@
 | Общее ядро стора | `modules/app/model/core-reducers.ts` | то же |
 | Адреса и шаги | `BITRIX_FLOW_SURFACE` | `publicFlowSurface(token)` |
 | Шаг «Цены» | `widgets/deal-price-table` | `widgets/price-table` |
-| Описание комплекта | слушатель в `start-store-listeners`, файл в хранилище портала | слушатель в `public-listeners`, файл потоком |
 | Настройка вида | браузер и сервер | только браузер |
 | Запросы | сгенерированный клиент | свой прокси `app/api/public/[token]`, адрес бэка браузеру не нужен |
 

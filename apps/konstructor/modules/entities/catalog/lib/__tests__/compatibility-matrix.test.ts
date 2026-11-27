@@ -5,10 +5,12 @@ import {
     allowedContractCodes,
     filterContractsForSupply,
     filterSuppliesForComplect,
+    filterSuppliesForCurrentKind,
     isCompatible,
     resolveContractForSupplyChange,
     resolveRefsForComplectChange,
 } from '../compatibility-matrix';
+import { makeCustomSupplyCode } from '../custom-od.util';
 import { SUPPLY_CODE_FLASH, SUPPLY_CODE_LOCAL, SUPPLY_CODE_STD } from '../legacy-codes';
 
 /**
@@ -108,5 +110,49 @@ describe('compatibility-matrix: цепочка сброса', () => {
         expect(
             resolveContractForSupplyChange(catalog, 'prof', SUPPLY_CODE_FLASH, 'abonYear'),
         ).toBe('proxima');
+    });
+});
+
+describe('compatibility-matrix: поставки выбранного вида доступа', () => {
+    const kinds = (supplyCode: string, complectType: 'prof' | 'universal') =>
+        new Set(
+            filterSuppliesForCurrentKind(catalog, complectType, supplyCode).map(
+                supply => supply.type,
+            ),
+        );
+
+    it('интернет: в списке только интернет-поставки, Проксимы нет', () => {
+        expect(kinds('internet_5', 'prof')).toEqual(new Set(['internet']));
+        expect(kinds('internet_5', 'universal')).toEqual(new Set(['internet']));
+    });
+
+    it('Проксима: в списке только Проксима, без Интернета', () => {
+        expect(kinds('proxima_5', 'prof')).toEqual(new Set(['proxima']));
+        expect(kinds('proxima_5', 'universal')).toEqual(new Set(['proxima']));
+    });
+
+    it('правила линейки сохраняются: PROF — без Локальной, универсал — с ней', () => {
+        const prof = codes(filterSuppliesForCurrentKind(catalog, 'prof', 'proxima_5'));
+        const universal = codes(filterSuppliesForCurrentKind(catalog, 'universal', 'proxima_5'));
+        expect(prof).not.toContain(SUPPLY_CODE_LOCAL);
+        expect(universal).toContain(SUPPLY_CODE_LOCAL);
+        expect(codes(filterSuppliesForCurrentKind(catalog, 'prof', 'internet_5'))).not.toContain(
+            SUPPLY_CODE_STD,
+        );
+    });
+
+    it('X-ОД определяет вид по своему коду', () => {
+        const custom = makeCustomSupplyCode('proxima', 37);
+        expect(kinds(custom, 'universal')).toEqual(new Set(['proxima']));
+    });
+
+    it('вид текущей поставки не распознан — вся линейка', () => {
+        expect(filterSuppliesForCurrentKind(catalog, 'universal', 'nope')).toHaveLength(19);
+    });
+
+    it('текущая поставка всегда есть в своём списке', () => {
+        for (const code of ['internet_5', 'proxima_5', SUPPLY_CODE_FLASH]) {
+            expect(codes(filterSuppliesForCurrentKind(catalog, 'prof', code))).toContain(code);
+        }
     });
 });

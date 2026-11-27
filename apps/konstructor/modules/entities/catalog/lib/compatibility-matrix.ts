@@ -26,6 +26,26 @@ export const filterSuppliesForComplect = (
     );
 };
 
+/**
+ * Поставки для селекта ОД главного товара: линейка комплекта × вид доступа,
+ * выбранный на старте (его несёт текущая поставка главной строки: шаг
+ * «Параметры» применяет вид к строке). Поставка другого вида в списке — ловушка:
+ * для комбинации нет цены или договора. Вид текущей поставки не распознан —
+ * вся линейка.
+ */
+export const filterSuppliesForCurrentKind = (
+    catalog: Catalog,
+    complectType: ComplectType,
+    currentSupplyCode: string,
+): KSupply[] => {
+    const supplies = filterSuppliesForComplect(
+        catalog.supplies.items,
+        complectType,
+    );
+    const kind = resolveSupply(catalog, currentSupplyCode)?.type;
+    return kind ? supplies.filter(supply => supply.type === kind) : supplies;
+};
+
 /** Коды договоров, допустимые для комбинации линейка × поставка */
 export const allowedContractCodes = (
     complectType: ComplectType,

@@ -19,7 +19,6 @@
 | `appSettings` | `entities/app-settings` | Портальные настройки приложения (`GET app-settings/konstructor?domain`, swrCache): флаги экранов, сейчас `zakupkiEnabled` | хардкод по домену (`withZoffer`) |
 | `zakupki` | `entities/zakupki` | «3 КП для торгов»: настройки двух поставщиков (свои/портала, `zakupki-settings`), черновик правок, генерация `zakupki-offer/create` | `zoffer` |
 | `compositionView` | `features/composition-editor` | Личная настройка: вид наполнения (`cards / flat / dense / summary`) и видимость весов. При старте — копия из localStorage, затем app-cache (Redis + `app_cache`, ключ `composition-view`) как источник истины | — |
-| `complectDescription` | `entities/complect-description` | «Описание комплекта»: DOCX по группам наполнения главной строки (бэк complect-description/generate), ссылка на файл | `result.description` |
 | `serviceOffer` | `entities/service-offer` | Сервисный отдел: период «текущий» (слепок сделки) / «следующий» (слепок со serviceSmartId, смарт service_offer), smartId; отправка в смарт — через deal-send `target` | `serviceOffer`, `service-department/*` |
 | `portal` | `entities/portal` | pbx PortalModel: **`bitrixfields` — источник UF-id** (решение B4) | `bitrixFields` из init |
 | остальное | offer-/base-template, deal, bxrq | документы/шаблоны (перенесены ранее) | — |

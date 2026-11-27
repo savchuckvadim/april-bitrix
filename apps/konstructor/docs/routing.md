@@ -39,7 +39,7 @@
 | `/promotions` | акции портала и April, загрузить → `/document` | `widgets/library-screen` (`entities/library`) |
 | `/variants` | варианты КП сделки | `widgets/variant-picker` |
 | `/params` | шаг 1: регион · линейка · доступ | `widgets/build-params` |
-| `/complect` | шаг 2: комплект + наполнение (инфоблоки, ЭР, LT, доп. пакеты LT-other, консалтинг/СТАР/академия); в итоге — «Описание комплекта» (DOCX) | `widgets/complect-builder`, `features/complect-description` |
+| `/complect` | шаг 2: комплект + наполнение (инфоблоки, ЭР, LT, доп. пакеты LT-other, консалтинг/СТАР/академия); справа — селект ОД и итог | `widgets/complect-builder`, `features/main-supply-select` |
 | `/prices` | шаг 3: цены, товары, сравнение | `widgets/deal-price-table` поверх `widgets/price-table` |
 | `/prices` (сервисный отдел) | в шапке — период «Текущий / Следующий»: второй ведёт слепок со смартом service_offer, сохранение пишет поля и строки в элемент смарта (deal-send target) | `features/service-period` |
 | `/document` | шаг 4 / хаб: выбор документа | `widgets/document-hub` |

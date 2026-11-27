@@ -3,7 +3,7 @@
 import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
-    filterSuppliesForComplect,
+    filterSuppliesForCurrentKind,
     selectCatalog,
 } from '@/modules/entities/catalog';
 import {
@@ -16,7 +16,8 @@ import {
 
 /**
  * Вид поставки (ОД) главной строки. Правила те же, что у шапки цен: допустимые
- * поставки — по линейке комплекта, смена идёт через rebuildRowWithRefs
+ * поставки — по линейке комплекта и виду доступа, выбранному на старте (другого
+ * вида в списке нет), смена идёт через rebuildRowWithRefs
  * (матрица совместимости комплект × поставка × договор, цена из каталога).
  * Договор на этом шаге не виден, поэтому его автоматическую замену под новую
  * поставку озвучиваем сообщением.
@@ -52,9 +53,14 @@ export const useMainSupplySelect = () => {
     return {
         hasMainRow: Boolean(mainRow),
         catalog,
-        supplies: complect
-            ? filterSuppliesForComplect(catalog.supplies.items, complect.type)
-            : [],
+        supplies:
+            complect && mainRow
+                ? filterSuppliesForCurrentKind(
+                      catalog,
+                      complect.type,
+                      mainRow.refs.supplyCode,
+                  )
+                : [],
         supplyCode: mainRow?.refs.supplyCode ?? '',
         changeSupply,
     };

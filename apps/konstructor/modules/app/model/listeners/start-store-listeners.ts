@@ -34,10 +34,6 @@ import { supplyReportActions } from '@/modules/entities/supply-report-document';
 import { fetchAppSettings } from '@/modules/entities/app-settings';
 import { zakupkiActions } from '@/modules/entities/zakupki';
 import { initServiceOffer, serviceOfferActions } from '@/modules/entities/service-offer';
-import {
-    ComplectDescriptionHelper,
-    complectDescriptionActions,
-} from '@/modules/entities/complect-description';
 import { rowSetActions } from '@/modules/entities/row-set';
 import { compositionViewActions } from '@/modules/features/composition-editor/model/CompositionViewSlice';
 import { fetchCompositionView } from '@/modules/features/composition-editor/model/CompositionViewThunk';
@@ -53,8 +49,6 @@ import {
 import { setupClientTypeDetectListener } from './client-type-detect.listener';
 import { setupInvoicePeekListener } from './invoice-peek.listener';
 import { setupProviderTaxListener } from './provider-tax.listener';
-
-const complectDescriptionHelper = new ComplectDescriptionHelper();
 
 /** Типизированная регистрация: без `as unknown as` на каждом слушателе. */
 const typed = (listenerMiddleware: ListenerMiddlewareInstance) =>
@@ -86,7 +80,6 @@ export function startStoreListeners(
     setupOfferPreviewStaleListener(listenerMiddleware);
     setupContractStaleListener(listenerMiddleware);
     setupModeStaleListener(listenerMiddleware);
-    setupComplectDescriptionListener(listenerMiddleware);
     setupRowSetSyncListener(listenerMiddleware);
     setupProviderTaxListener(listenerMiddleware);
     setupInvoicePeekListener(listenerMiddleware);
@@ -143,7 +136,6 @@ function setupAppDataListener(listenerMiddleware: ListenerMiddlewareInstance) {
             listenerApi.dispatch(supplyReportActions.reset());
             listenerApi.dispatch(zakupkiActions.reset());
             listenerApi.dispatch(serviceOfferActions.reset());
-            listenerApi.dispatch(complectDescriptionActions.reset());
             // портальные настройки приложения (swrCache): флаги экранов
             void listenerApi.dispatch(fetchAppSettings(domain));
             // личная настройка: вид наполнения и видимость весов
@@ -417,35 +409,6 @@ function setupModeStaleListener(listenerMiddleware: ListenerMiddlewareInstance) 
         effect: (_action, listenerApi) => {
             listenerApi.dispatch(contractDocumentActions.generateStale());
             listenerApi.dispatch(supplyReportActions.generateStale());
-        },
-    });
-}
-
-/**
- * Запрошено описание комплекта → файл собирается на бэке и кладётся в хранилище
- * портала, под кнопкой появляется ссылка на него.
- */
-function setupComplectDescriptionListener(listenerMiddleware: ListenerMiddlewareInstance) {
-    typed(listenerMiddleware)({
-        actionCreator: complectDescriptionActions.requested,
-        effect: async (action, listenerApi) => {
-            const { domain, bitrix } = listenerApi.getState().app;
-            try {
-                const result = await complectDescriptionHelper.generate({
-                    ...action.payload,
-                    domain,
-                    userId: Number(bitrix.user?.ID) || 0,
-                });
-                listenerApi.dispatch(complectDescriptionActions.done(result));
-            } catch (error) {
-                listenerApi.dispatch(
-                    complectDescriptionActions.failed(
-                        error instanceof Error
-                            ? error.message
-                            : 'описание комплекта не сформировано',
-                    ),
-                );
-            }
         },
     });
 }

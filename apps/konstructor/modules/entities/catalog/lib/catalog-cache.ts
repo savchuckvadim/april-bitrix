@@ -1,8 +1,12 @@
 import { resolveSwrCache, SWR_DAY_MS, writeSwrCache } from '@workspace/api';
 import type { InitV2Data } from '../model/dto';
 
-/** Поднять при смене формы ответа init/data: записи старой версии не читаются */
-const CATALOG_CACHE_VERSION = 1;
+/**
+ * Поднять при смене формы или смысла ответа init/data: записи старой версии не
+ * читаются. Версия 2: цены Универсала и консалтинга считаются от рабса с НДС
+ * (tax_abs), в кэше лежал каталог со старым значением.
+ */
+export const CATALOG_CACHE_VERSION = 2;
 /** Каталог старше недели из браузера не берём: ждём сеть */
 const CATALOG_MAX_AGE_MS = 7 * SWR_DAY_MS;
 

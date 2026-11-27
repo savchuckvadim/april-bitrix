@@ -67,7 +67,7 @@ describe('паритет цен: PROF', () => {
 });
 
 describe('паритет цен: универсальная линейка', () => {
-    it('Классик = abs × region.abs × coefficient', () => {
+    it('Классик = abs × рабс региона с НДС × coefficient', () => {
         const row = garant({
             complectCode: 'classic',
             regionCode: 'stv',
@@ -79,7 +79,7 @@ describe('паритет цен: универсальная линейка', () 
 });
 
 describe('паритет цен: сервисы', () => {
-    it('консалтинг: abs × region.abs (без коэффициента), × срок', () => {
+    it('консалтинг: abs × рабс региона с НДС (без коэффициента), × срок', () => {
         const sovex = catalog.services.consalting.find(s => s.code === 'sovex');
         const row = buildServiceRow({
             catalog,

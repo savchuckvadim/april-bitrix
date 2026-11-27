@@ -257,7 +257,8 @@ export const catalogFromOldInit = (raw: unknown): Catalog => {
             title: item.title,
             abs: item.abs,
             tax: 0,
-            taxAbs: 0,
+            // легаси-рабс уже с НДС: цены считаются от taxAbs, и старые слепки и тесты дают прежние суммы
+            taxAbs: item.abs,
             infoblock: item.infoblock,
             weight: 0.5,
             inPortal: true,

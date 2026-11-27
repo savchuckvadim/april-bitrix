@@ -88,7 +88,7 @@ describe('вес категории', () => {
         expect(describeSection(sectionOf('lt'), buh, true).weight).toBeNull();
     });
 
-    it('региональный блок весит как его регионы, а не как блок каталога', () => {
+    it('региональный блок весит ровно столько, сколько его регионы', () => {
         const composition = { ...buh, infoblocks: ['rus', 'reg'], regions: ['stv', 'spb'], regionsUnweighted: ['msk'] };
         const npa = describeSection(sectionOf('npa'), composition, true, null, 1);
         expect(npa.items.find(item => item.code === 'reg')?.mark).toBe(1);

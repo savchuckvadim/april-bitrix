@@ -12,7 +12,7 @@ vi.mock('@workspace/api', () => ({
     SWR_DAY_MS: 86_400_000,
 }));
 
-import { loadCatalogData, refreshCatalogData } from '../catalog-cache';
+import { CATALOG_CACHE_VERSION, loadCatalogData, refreshCatalogData } from '../catalog-cache';
 
 /** Каталог с ценой: по ней тест отличает сохранённый от свежего */
 const catalogWith = (price: number) =>
@@ -109,7 +109,7 @@ describe('каталог из браузера', () => {
         expect(data).toEqual(catalogWith(150));
         expect(swr.resolveSwrCache).not.toHaveBeenCalled();
         expect(swr.writeSwrCache).toHaveBeenCalledWith(
-            { name: 'catalog', domain: 'portal.ru', version: 1 },
+            { name: 'catalog', domain: 'portal.ru', version: CATALOG_CACHE_VERSION },
             catalogWith(150),
             expect.objectContaining({ startedAt: expect.any(Number) as number }),
         );

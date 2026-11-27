@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/modules/app';
 import {
     filterContractsForSupply,
-    filterSuppliesForComplect,
+    filterSuppliesForCurrentKind,
     selectCatalog,
 } from '@/modules/entities/catalog';
 import {
@@ -46,12 +46,15 @@ export const useTableHeader = () => {
         context,
         mainRow,
         mainComplect,
-        availableSupplies: mainComplect
-            ? filterSuppliesForComplect(
-                  catalog.supplies.items,
-                  mainComplect.type,
-              )
-            : [],
+        // линейка комплекта × вид доступа, выбранный на старте
+        availableSupplies:
+            mainComplect && mainRow
+                ? filterSuppliesForCurrentKind(
+                      catalog,
+                      mainComplect.type,
+                      mainRow.refs.supplyCode,
+                  )
+                : [],
         availableContracts:
             mainComplect && mainRow
                 ? filterContractsForSupply(

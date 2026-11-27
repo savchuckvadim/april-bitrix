@@ -15,7 +15,7 @@ interface OdSelectProps {
     disabled?: boolean;
     /**
      * chip — шапка цен (ChipSelect), micro — карточка строки (MicroSelect),
-     * field — крупный селект во всю ширину колонки (шаг «Комплект»)
+     * field — селект во всю ширину колонки (шаг «Комплект»)
      */
     variant?: OdSelectVariant;
     className?: string;
@@ -33,14 +33,14 @@ const TYPE_LABEL: Record<SupplyKind, string> = {
 const CUSTOM_INPUT_CLASS: Record<OdSelectVariant, string> = {
     micro: 'h-6 w-20 px-2 py-0 text-[0.6875rem]',
     chip: 'h-7 w-28 px-2 text-xs',
-    field: 'h-10 min-w-0 flex-1 px-3 text-sm',
+    field: 'h-9 min-w-0 flex-1 px-3 text-sm',
 };
 
 /**
- * Триггер крупного селекта. Базовый триггер задаёт высоту через data-атрибут
- * размера, поэтому высота продублирована под него.
+ * Триггер селекта шага «Комплект». Базовый триггер задаёт высоту через data-атрибут
+ * размера, поэтому высота продублирована под него; 36px, как у соседних кнопок.
  */
-const FIELD_TRIGGER_CLASS = 'h-10 w-full border-solid px-3 text-sm data-[size=sm]:h-10';
+const FIELD_TRIGGER_CLASS = 'h-9 w-full border-solid px-3 text-sm data-[size=sm]:h-9';
 
 /**
  * Вид поставки (ОД) с пунктом «X-ОД — своё количество…» на селектах

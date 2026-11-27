@@ -37,6 +37,14 @@ describe('набор реквизитов поставщика для нумер
         expect(providerRqId({ rqId: '15' })).toBe(15);
     });
 
+    it('реквизиты берутся из rq.id: в списке поставщиков портала rqId пуст или «0»', () => {
+        expect(providerRqId({ rq: { id: 3 } })).toBe(3);
+        expect(providerRqId({ rqId: '0', rq: { id: 3 } })).toBe(3);
+        expect(providerRqId({ rqId: '7', rq: { id: 3 } })).toBe(3);
+        expect(providerRqId({ rqId: '7', rq: { id: 0 } })).toBe(7);
+        expect(providerRqId({ rqId: '0', rq: null })).toBeNull();
+    });
+
     it('нет поставщика, не число, ноль, дробь — null', () => {
         expect(providerRqId(null)).toBeNull();
         expect(providerRqId(undefined)).toBeNull();

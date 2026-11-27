@@ -10,6 +10,7 @@ export const PROVIDER_IMAGE_ROLE = {
     SIGNATURE_DIRECTOR: 'signature_director',
     SIGNATURE_ACCOUNTANT: 'signature_accountant',
     LOGO: 'logo',
+    QR: 'qr',
 } as const;
 
 export type ProviderImageRole =

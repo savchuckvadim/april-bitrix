@@ -11,7 +11,7 @@ interface ProviderImagesSectionProps {
     rqId: number;
 }
 
-/** Раздел «Печать, подписи и логотип» карточки поставщика: четыре слота по ролям. */
+/** Раздел «Печать, подписи, логотип и QR» карточки поставщика: по слоту на роль. */
 export function ProviderImagesSection({ rqId }: ProviderImagesSectionProps) {
     const section = useProviderImagesSection(rqId);
 

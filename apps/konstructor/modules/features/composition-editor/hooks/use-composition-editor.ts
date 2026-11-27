@@ -16,8 +16,10 @@ import {
 } from '@/modules/entities/composition';
 import { rowSetActions, setTermMonths, type KRow } from '@/modules/entities/row-set';
 import { toggleSectionItem, type SectionKind } from '../lib/composition-sections.util';
+import { useCompositionRegions } from './use-composition-regions';
 import { useCompositionSections } from './use-composition-sections';
 import { useCompositionView } from './use-composition-view';
+import { useUniversalComplectHint } from './use-universal-complect-hint';
 
 /**
  * Редактор наполнения ПЕРЕДАННОЙ строки — любой garant-строки любого сета
@@ -28,10 +30,13 @@ import { useCompositionView } from './use-composition-view';
  *
  * `write` — куда писать результат: без него сразу в сборку (панель шага
  * «Комплект»), с ним — в черновик окна (use-composition-draft).
+ * `onComplectSwitched` — после перехода на другой комплект Универсала (окно
+ * наполнения закрывается: переход записал черновик в строку).
  */
 export const useCompositionEditor = (
     row: KRow | null,
     write?: (next: NonNullable<KRow['composition']>) => void,
+    onComplectSwitched?: () => void,
 ) => {
     const dispatch = useAppDispatch();
     const catalog = useAppSelector(selectCatalog);
@@ -101,13 +106,16 @@ export const useCompositionEditor = (
         );
     };
 
-    const applyComposition = (action: CompositionAction) => {
-        if (!composition || !ctx) return;
+    /** false — действие отклонено блокирующим нарушением: состав прежний, причина в messages.blocked */
+    const applyComposition = (action: CompositionAction): boolean => {
+        if (!composition || !ctx) return false;
         const result = applyAction(composition, action, ctx);
         // блокирующее нарушение действия — состав не изменился, но причину показать надо
+        const blockingViolations = result.violations.filter(isBlocking);
         setAutoFixes(result.autoFixes);
-        setBlocked(result.violations.filter(isBlocking));
+        setBlocked(blockingViolations);
         writeComposition(result.composition);
+        return blockingViolations.length === 0;
     };
 
     const [blocked, setBlocked] = useState<RuleViolation[]>([]);
@@ -127,11 +135,17 @@ export const useCompositionEditor = (
         composition && complect
             ? checkComplectWeight(composition, { complect, catalog, regionCode })
             : null;
+    const regions = useCompositionRegions(catalog, composition, regionCode);
+    const universal = useUniversalComplectHint(row, composition, ctx, onComplectSwitched);
 
     return {
         row,
         composition,
         catalog,
+        /** Регион клиента: носитель регионального блока по умолчанию */
+        clientRegionCode: regionCode,
+        regions,
+        universal,
         sections,
         view,
         ltPackets,

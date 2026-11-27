@@ -7,6 +7,8 @@ import { CompositionConsaltingBlock } from './CompositionConsaltingBlock';
 import { CompositionLtOtherBlock } from './CompositionLtOtherBlock';
 import { CompositionMessages } from './CompositionMessages';
 import { CompositionStarBlock } from './CompositionStarBlock';
+import { RegionsDialog } from './RegionsDialog';
+import { UniversalComplectHint } from './UniversalComplectHint';
 import { CompositionCardsView } from './views/CompositionCardsView';
 import { CompositionClassicView } from './views/CompositionClassicView';
 import { CompositionDenseView } from './views/CompositionDenseView';
@@ -46,6 +48,7 @@ export const CompositionEditorBody = ({ editor, showExtraLt = true }: Compositio
     return (
         <div className="flex flex-col gap-3">
             <View editor={editor} />
+            <UniversalComplectHint editor={editor} />
             {showExtraLt ? (
                 <CompositionLtOtherBlock
                     composition={composition}
@@ -68,6 +71,7 @@ export const CompositionEditorBody = ({ editor, showExtraLt = true }: Compositio
                 />
             </div>
             <CompositionMessages {...editor.messages} />
+            {editor.regions.open ? <RegionsDialog editor={editor} /> : null}
         </div>
     );
 };

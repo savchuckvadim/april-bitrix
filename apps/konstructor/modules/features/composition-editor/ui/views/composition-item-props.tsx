@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
+import { REGION_ROOT_CODE } from '@/modules/entities/composition';
 import type { CompositionEditorState } from '../../hooks/use-composition-editor';
 import type { CompositionSectionItemView, SectionKind } from '../../lib/composition-sections.util';
 import { LtItemControls } from '../LtItemControls';
+import { RegionsButton } from '../RegionsButton';
+import { RegionsSummaryLine } from '../RegionsSummaryLine';
 import { WeightMark } from '../WeightMark';
 
 export interface CompositionItemProps {
@@ -11,7 +14,21 @@ export interface CompositionItemProps {
     onToggle: (next: boolean) => void;
     mark: ReactNode;
     trailing: ReactNode;
+    footer: ReactNode;
 }
+
+/** Региональный блок: название по региону клиента, кнопка «Регионы», строка с весом под блоком. */
+const regionRootProps = (
+    editor: CompositionEditorState,
+    item: CompositionSectionItemView,
+): Pick<CompositionItemProps, 'name' | 'trailing' | 'footer'> => {
+    const { summary } = editor.regions;
+    return {
+        name: summary?.title ?? item.name,
+        trailing: <RegionsButton onClick={editor.regions.openDialog} />,
+        footer: summary && item.checked ? <RegionsSummaryLine summary={summary} /> : null,
+    };
+};
 
 /** Пропсы пункта наполнения: одинаковы для чекбокса и тумблера во всех видах. */
 export const compositionItemProps = (
@@ -35,4 +52,6 @@ export const compositionItemProps = (
             onSubtitle={(code, subtitle) => editor.applyComposition({ kind: 'setLtSubtitle', code, subtitle })}
         />
     ) : null,
+    footer: null,
+    ...(kind === 'infoblock' && item.code === REGION_ROOT_CODE ? regionRootProps(editor, item) : {}),
 });

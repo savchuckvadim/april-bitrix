@@ -1,4 +1,4 @@
-import type { KComplect } from '../../catalog';
+import type { Catalog, KComplect } from '../../catalog';
 import { getComplectRuleFlags } from '../../catalog';
 import type { Composition, CompositionCtx } from '../model/types';
 import { REGION_ROOT_CODE } from './rules/infoblock-links';
@@ -36,12 +36,14 @@ export const compositionWeight = (
     }
     // ersInPacket весят 0
 
-    for (const code of composition.regions) {
-        weight += ctx.catalog.regions.byCode[code]?.weight ?? 0;
-    }
+    weight += regionCodesWeight(composition.regions, ctx.catalog);
 
     return Math.round(weight * 100) / 100;
 };
+
+/** Вес регионов «считать вес» по каталогу (KRegion.weight); регион без записи в каталоге — 0 */
+export const regionCodesWeight = (codes: string[], catalog: Catalog): number =>
+    Math.round(codes.reduce((sum, code) => sum + (catalog.regions.byCode[code]?.weight ?? 0), 0) * 100) / 100;
 
 export interface WeightCheck {
     weight: number;
@@ -50,6 +52,12 @@ export interface WeightCheck {
     difference: number;
 }
 
+/** Вес сходится с эталоном комплекта; флаг weightAtLeast (Максимум): допустим вес ≥ эталона */
+export const isWeightMatching = (weight: number, complect: KComplect): boolean =>
+    getComplectRuleFlags(complect).weightAtLeast
+        ? weight >= complect.weight - WEIGHT_TOLERANCE
+        : Math.abs(weight - complect.weight) <= WEIGHT_TOLERANCE;
+
 export const checkComplectWeight = (
     composition: Composition,
     ctx: CompositionCtx,
@@ -57,15 +65,10 @@ export const checkComplectWeight = (
     const weight = compositionWeight(composition, ctx);
     const expected = ctx.complect.weight;
 
-    // флаг weightAtLeast (Максимум): допустим вес ≥ эталона
-    const matches = getComplectRuleFlags(ctx.complect).weightAtLeast
-            ? weight >= expected - WEIGHT_TOLERANCE
-            : Math.abs(weight - expected) <= WEIGHT_TOLERANCE;
-
     return {
         weight,
         expected,
-        matches,
+        matches: isWeightMatching(weight, ctx.complect),
         difference: Math.round((weight - expected) * 100) / 100,
     };
 };

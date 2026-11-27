@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { getComplectRuleFlags, type Catalog } from '@/modules/entities/catalog';
-import type { Composition } from '@/modules/entities/composition';
+import { regionCodesWeight, type Composition } from '@/modules/entities/composition';
 import {
     buildCompositionSections,
     describeSection,
@@ -34,8 +34,10 @@ export const useCompositionSections = (
     const complect = composition ? catalog.complects.byCode[composition.complectCode] : null;
     const pinnedLt = complect ? (getComplectRuleFlags(complect).pinnedLt ?? null) : null;
 
+    const regionsWeight = composition ? regionCodesWeight(composition.regions, catalog) : null;
+
     const view = sections.map(section => {
-        const described = describeSection(section, composition, showWeights, pinnedLt);
+        const described = describeSection(section, composition, showWeights, pinnedLt, regionsWeight);
         const open = isOpen(section.code);
         return {
             ...described,

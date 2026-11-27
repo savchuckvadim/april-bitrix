@@ -2,6 +2,7 @@ import type { Catalog, KInfogroup } from '@/modules/entities/catalog';
 import {
     isIskraService,
     ltServiceCount,
+    REGION_ROOT_CODE,
     type Composition,
     type CompositionAction,
     type LtPlacement,
@@ -157,15 +158,23 @@ const describeLtItem = (
         : null,
 });
 
-/** Категория для отрисовки: отметки, метки с учётом настройки, вес отмеченного */
+/**
+ * Категория для отрисовки: отметки, метки с учётом настройки, вес отмеченного.
+ * regionsWeight — вес регионов состава: региональный блок весит ровно столько
+ * (в каталоге у блока свой вес, но в вес комплекта он не входит).
+ */
 export const describeSection = (
     section: CompositionSection,
     composition: Composition | null,
     showWeights: boolean,
     pinnedLt: string | null = null,
+    regionsWeight: number | null = null,
 ): CompositionSectionView => {
     const items = section.items.map(item => {
-        const mark = itemWeightMark(composition, section.kind, item);
+        const mark =
+            section.kind === 'infoblock' && item.code === REGION_ROOT_CODE && regionsWeight !== null
+                ? regionsWeight
+                : itemWeightMark(composition, section.kind, item);
         const lt = section.kind === 'lt' ? describeLtItem(composition, item, pinnedLt) : null;
         return {
             ...item,

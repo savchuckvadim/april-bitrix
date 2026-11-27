@@ -87,4 +87,14 @@ describe('вес категории', () => {
     it('LT в вес комплекта не входит — суммы нет', () => {
         expect(describeSection(sectionOf('lt'), buh, true).weight).toBeNull();
     });
+
+    it('региональный блок весит как его регионы, а не как блок каталога', () => {
+        const composition = { ...buh, infoblocks: ['rus', 'reg'], regions: ['stv', 'spb'], regionsUnweighted: ['msk'] };
+        const npa = describeSection(sectionOf('npa'), composition, true, null, 1);
+        expect(npa.items.find(item => item.code === 'reg')?.mark).toBe(1);
+        expect(npa.items.find(item => item.code === 'rus')?.mark).toBe(catalog.infoblocks['rus']!.weight);
+        // без веса регионов метка берётся из каталога, как раньше
+        const plain = describeSection(sectionOf('npa'), composition, true);
+        expect(plain.items.find(item => item.code === 'reg')?.mark).toBe(catalog.infoblocks['reg']!.weight);
+    });
 });

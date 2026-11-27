@@ -73,6 +73,13 @@ export const OFFER_PDF_VIEW_MODE_OPTIONS: Array<{ value: OfferPdfViewMode; label
 export interface OfferPdfSettings {
     descriptionMode: OfferPdfDescriptionMode;
     viewMode: OfferPdfViewMode;
+    /**
+     * Сопроводительное письмо в КП. Выключено: КП без письма, печать и подпись
+     * поставщика под ним тоже не печатаются. Уходит и в PDF-запрос (поле
+     * `settings.withLetter`), и в Word-запрос (поле верхнего уровня
+     * `withLetter`); записи без поля читаются как «с письмом».
+     */
+    withLetter: boolean;
     withStamps: boolean;
     withManager: boolean;
     isPriceFirst: boolean;
@@ -101,6 +108,7 @@ export interface OfferPdfSettings {
 export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
     descriptionMode: OFFER_PDF_DESCRIPTION_MODE.SMALL,
     viewMode: OFFER_PDF_VIEW_MODE.LIST,
+    withLetter: true,
     withStamps: true,
     withManager: true,
     isPriceFirst: false,
@@ -180,8 +188,17 @@ export const OFFER_PDF_OMITTED_WORD_FIELDS = [
     'isWord',
     'withoutQueue',
     'onlyBitrixSave',
+    // у PDF-запроса флаг письма лежит в settings.withLetter
+    'withLetter',
 ] as const;
 export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[number];
+
+/**
+ * Настройки документа в PDF-запросе. Поле `withLetter` бэк принимает, в
+ * сгенерированном клиенте его пока нет. После `pnpm run generate` оно появится
+ * в OfferPdfSettingsDto, и расширение можно убрать.
+ */
+export type OfferPdfRequestSettings = NonNullable<OfferPdfGenerateDto['settings']> & { withLetter?: boolean };
 
 /**
  * Запрос КП в PDF: данные те же, что для Word-шаблона (бэк считает их
@@ -201,9 +218,10 @@ export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[nu
  * также поля потока продаж `salesFlow` и `presentation` (withOfferPdfSalesFlow).
  * Запрос превью их не несёт.
  */
-export type OfferPdfGenerateRequest = OfferPdfGenerateDto &
+export type OfferPdfGenerateRequest = Omit<OfferPdfGenerateDto, 'settings'> &
     DocComplectsFields &
     OfferSalesFlowFields & {
+        settings?: OfferPdfRequestSettings;
         variants?: OfferPdfVariant[];
         composition?: ComplectCompositionDto;
         complectsMode?: OfferComplectsMode;

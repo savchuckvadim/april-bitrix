@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { APP_DEP } from '@/modules/app/model/AppSlice';
 import type { RootState } from '@/modules/app/model/store';
 import {
@@ -99,13 +99,21 @@ describe('PDF-КП: запрос формирования', () => {
     });
 
     it('остальное в запросе то же, что у превью со счётом', () => {
-        const state = stateOf(APP_DEP.SALES, { items: ONE_PRESENTATION, answer: true });
-        const preview = buildOfferPdfGenerateRequest(state, options)!;
-        const withInvoice = withOfferPdfInvoice(preview, { ...state.offerDocument.invoice });
-        const { salesFlow, presentation, ...rest } = generateRequestOf(state);
-        expect(salesFlow).toBe(true);
-        expect(presentation).toEqual({ dealId: 601 });
-        expect(rest).toEqual(withInvoice);
+        // запрос собирается дважды, а в строках есть created_at от текущего
+        // времени: между сборками проходила миллисекунда, и тест падал
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date('2026-11-27T12:00:00Z'));
+        try {
+            const state = stateOf(APP_DEP.SALES, { items: ONE_PRESENTATION, answer: true });
+            const preview = buildOfferPdfGenerateRequest(state, options)!;
+            const withInvoice = withOfferPdfInvoice(preview, { ...state.offerDocument.invoice });
+            const { salesFlow, presentation, ...rest } = generateRequestOf(state);
+            expect(salesFlow).toBe(true);
+            expect(presentation).toEqual({ dealId: 601 });
+            expect(rest).toEqual(withInvoice);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 });
 

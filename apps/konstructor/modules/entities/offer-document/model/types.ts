@@ -132,3 +132,12 @@ export interface OfferPresentationFields {
 
 /** Поля потока продаж запросов КП: признак отдела и презентация. */
 export type OfferSalesFlowFields = SalesFlowFields & OfferPresentationFields;
+
+/**
+ * Поле `withLetter` Word-запроса: КП без сопроводительного письма. Есть только
+ * при `false`; без него бэк печатает письмо, как раньше. Сгенерированный
+ * клиент поле пока не знает; после `pnpm run generate` расширение можно убрать.
+ */
+export interface OfferLetterFields {
+    withLetter?: boolean;
+}

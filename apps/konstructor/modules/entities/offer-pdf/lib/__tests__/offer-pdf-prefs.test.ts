@@ -222,3 +222,84 @@ describe('способ печати наполнения комплектов в
         expect(manager.prefs.settings.complectsMode).toBe(OFFER_COMPLECTS_MODE.SEPARATE);
     });
 });
+
+describe('сопроводительное письмо в настройках PDF', () => {
+    const noLetter = run(initial, offerPdfActions.setSettings({ withLetter: false }));
+
+    /** Запись до отключаемого письма: поля withLetter нет. */
+    const legacyStyle = {
+        format: 'pdf',
+        templateCode: 'iskra',
+        palette: null,
+        settings: { withPromo: false, salePhrase: 'акция' },
+    };
+
+    it('по умолчанию письмо есть', () => {
+        expect(OFFER_PDF_DEFAULT_SETTINGS.withLetter).toBe(true);
+        expect(initial.prefs.settings.withLetter).toBe(true);
+        expect(normalizeOfferPdfPrefs(undefined).settings.withLetter).toBe(true);
+    });
+
+    it('правка на экране выключает письмо и оставляет остальные настройки', () => {
+        expect(noLetter.origin).toBe('user');
+        expect(noLetter.prefs.settings).toEqual({ ...OFFER_PDF_DEFAULT_SETTINGS, withLetter: false });
+    });
+
+    it('набранный текст письма остаётся в состоянии, пока письмо выключено', () => {
+        const typed = run(
+            initial,
+            offerPdfActions.setLetter({ text: 'Свой текст' }),
+            offerPdfActions.setSettings({ withLetter: false }),
+        );
+        const back = run(typed, offerPdfActions.setSettings({ withLetter: true }));
+        expect(back.prefs.letter.text).toBe('Свой текст');
+    });
+
+    it('запись без поля читается как «с письмом»', () => {
+        expect(normalizeOfferPdfStyle(legacyStyle).settings.withLetter).toBe(true);
+        expect(normalizeOfferPdfStyle(null).settings.withLetter).toBe(true);
+    });
+
+    it('попадает в слепок и возвращается при раскладке', () => {
+        const pdf = offerPdfForSnapshot(noLetter);
+        expect(pdf?.settings.withLetter).toBe(false);
+
+        const general = { id: 'general', kind: 'general' as const, rows: [], collapsed: false };
+        const written = serializeV2({
+            state: {
+                regionCode: null,
+                contractCode: null,
+                supplyCode: null,
+                general,
+                alternative: [],
+                templateId: null,
+                rqId: null,
+                pdf,
+            },
+            dealId: 1,
+            domain: 'd',
+            userId: 1,
+            savedAt: '2026-11-27T00:00:00.000Z',
+        });
+        const restored = restoreV2(JSON.parse(JSON.stringify(written))).pdf;
+        expect(restored?.settings.withLetter).toBe(false);
+
+        const laidOut = run(initial, offerPdfActions.applySnapshot(restored!));
+        expect(laidOut.origin).toBe('snapshot');
+        expect(laidOut.prefs.settings.withLetter).toBe(false);
+    });
+
+    it('слепок без поля при раскладке возвращает письмо', () => {
+        const merged = mergeOfferPdfSnapshot(noLetter.prefs, legacyStyle);
+        expect(merged.settings.withLetter).toBe(true);
+    });
+
+    it('запоминается так же, как стиль: уходит в выбор менеджера и в избранное', () => {
+        expect(offerPdfStyleOf(noLetter.prefs).settings.withLetter).toBe(false);
+        expect(offerPdfForLibrary(noLetter)?.settings.withLetter).toBe(false);
+        const cached = normalizeOfferPdfStyle(JSON.parse(JSON.stringify(offerPdfStyleOf(noLetter.prefs))));
+        expect(cached.settings.withLetter).toBe(false);
+        const manager = run(initial, offerPdfActions.applyManager(cached));
+        expect(manager.prefs.settings.withLetter).toBe(false);
+    });
+});

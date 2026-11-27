@@ -11,7 +11,7 @@ import {
 import { offerPdfRequestBlocker, toOfferPdfRequest } from '../build-offer-pdf-request';
 import { resolvePalette } from '../offer-pdf-palette.util';
 import { normalizeOfferPdfPrefs, OFFER_PDF_DEFAULT_PREFS } from '../offer-pdf-storage';
-import { visibleOfferPdfToggles } from '../offer-pdf-toggles';
+import { isOfferPdfToggleDisabled, OFFER_PDF_TOGGLES, visibleOfferPdfToggles } from '../offer-pdf-toggles';
 
 const wordPayload = {
     templateId: '12',
@@ -80,6 +80,30 @@ describe('запрос КП в PDF', () => {
         expect(empty.documentNumber).toBeUndefined();
     });
 
+    it('письмо включено: settings.withLetter = true, текст письма уходит в запрос', () => {
+        const request = toOfferPdfRequest(wordPayload, {
+            ...options,
+            letter: { appeal: 'Уважаемый!', text: 'Свой текст' },
+        });
+        expect(request.settings?.withLetter).toBe(true);
+        expect(request.letter).toEqual({ appeal: 'Уважаемый!', text: 'Свой текст' });
+    });
+
+    it('письмо выключено: settings.withLetter = false, набранный текст письма в запрос не идёт', () => {
+        const request = toOfferPdfRequest(wordPayload, {
+            ...options,
+            settings: { ...OFFER_PDF_DEFAULT_SETTINGS, withLetter: false },
+            letter: { appeal: 'Уважаемый!', text: 'Свой текст' },
+        });
+        expect(request.settings?.withLetter).toBe(false);
+        expect(request.letter).toBeUndefined();
+    });
+
+    it('флаг письма Word-запроса в PDF-запрос не попадает: у PDF он в settings', () => {
+        const request = toOfferPdfRequest({ ...wordPayload, withLetter: false } as OfferWordByTemplateGenerateDto, options);
+        expect(request).not.toHaveProperty('withLetter');
+    });
+
     it('блокер не требует Word-шаблона, но требует сделку, строку и поставщика', () => {
         const state = {
             app: { domain: 'test.bitrix24.ru', dealId: 100 },
@@ -131,6 +155,23 @@ describe('сохранённые настройки PDF', () => {
         expect(prefs.letter).toEqual({ appeal: 'Привет', text: '' });
         expect(prefs.documentNumber).toBe('1');
     });
+
+    it('слепок и запись кэша без поля withLetter читаются как «с письмом»', () => {
+        const old = normalizeOfferPdfPrefs({
+            format: OFFER_DOCUMENT_FORMAT.PDF,
+            templateCode: 'classic',
+            settings: { withStamps: false, withCover: false },
+        });
+        expect(old.settings.withLetter).toBe(true);
+        expect(old.settings.withStamps).toBe(false);
+        expect(OFFER_PDF_DEFAULT_PREFS.settings.withLetter).toBe(true);
+    });
+
+    it('выключенное письмо сохраняется, мусор в поле читается как «с письмом»', () => {
+        expect(normalizeOfferPdfPrefs({ settings: { withLetter: false } }).settings.withLetter).toBe(false);
+        expect(normalizeOfferPdfPrefs({ settings: { withLetter: true } }).settings.withLetter).toBe(true);
+        expect(normalizeOfferPdfPrefs({ settings: { withLetter: 'нет' } }).settings.withLetter).toBe(true);
+    });
 });
 
 describe('гамма стиля', () => {
@@ -181,5 +222,18 @@ describe('переключатели страниц', () => {
         const stamps = visibleOfferPdfToggles(null).find(toggle => toggle.key === 'withStamps');
         expect(stamps?.label).toBe('Печать и подпись');
         expect(stamps?.hint).toBe('Блок под письмом: должность, подпись и печать поставщика');
+    });
+
+    it('переключателя письма среди страниц нет: он стоит у карточки письма', () => {
+        expect(OFFER_PDF_TOGGLES.map(toggle => toggle.key)).not.toContain('withLetter');
+    });
+
+    it('печать и подпись закрыты, когда письма нет; остальные переключатели открыты', () => {
+        const withLetter = { withLetter: true };
+        const noLetter = { withLetter: false };
+        for (const toggle of OFFER_PDF_TOGGLES) {
+            expect(isOfferPdfToggleDisabled(toggle, withLetter)).toBe(false);
+            expect(isOfferPdfToggleDisabled(toggle, noLetter)).toBe(toggle.key === 'withStamps');
+        }
     });
 });

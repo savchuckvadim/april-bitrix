@@ -64,6 +64,8 @@ export const normalizeOfferPdfStyle = (raw: unknown): OfferPdfStylePrefs => {
                 defaults.descriptionMode,
             ),
             viewMode: pickEnum<OfferPdfViewMode>(settings.viewMode, VIEW_MODES, defaults.viewMode),
+            // слепки и записи кэша до отключаемого письма поля не имеют: там письмо есть
+            withLetter: pickBoolean(settings.withLetter, defaults.withLetter),
             withStamps: pickBoolean(settings.withStamps, defaults.withStamps),
             withManager: pickBoolean(settings.withManager, defaults.withManager),
             isPriceFirst: pickBoolean(settings.isPriceFirst, defaults.isPriceFirst),

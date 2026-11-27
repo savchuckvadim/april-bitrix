@@ -75,6 +75,34 @@ const syncCurrentItem = (state: BXRQState, clientType: RQ_TYPE) => {
     }
 };
 
+/**
+ * Черновики привязаны к реквизиту, на котором их открыли. Текущий реквизит
+ * сменился (тип клиента, выбор, слепок): чужой черновик не доживает до
+ * сохранения, иначе адрес и банк записались бы в другой реквизит, а новый
+ * реквизит ушёл бы с полями другого типа.
+ */
+const dropStaleDrafts = (
+    state: BXRQState,
+    previousId: number | undefined,
+    type: RQ_TYPE | undefined,
+) => {
+    const nextId = state.current.item?.bx_id;
+    if (previousId !== nextId) {
+        state.creating.address = null;
+        state.creating.bank = null;
+    }
+    const base = state.creating.base;
+    if (!base) return;
+    const isStale =
+        base.bx_id > 0
+            ? base.bx_id !== nextId
+            : type !== undefined && base.type !== getResolvedType(type);
+    if (isStale) {
+        state.creating.base = null;
+        state.creating.simpleBankComment = '';
+    }
+};
+
 export const bxrqSlice = createSlice({
     name: 'bxrq',
     initialState,
@@ -116,14 +144,18 @@ export const bxrqSlice = createSlice({
                 ? getCurrentRqByType(items, action.payload.currentRqId)
                 : null;
 
+            const previousId = state.current.item?.bx_id;
             state.current.items = items;
             state.current.item = wanted ?? items[0] ?? rqData.default;
+            dropStaleDrafts(state, previousId, action.payload.clientType);
         },
         setCurrentItem(state: BXRQState, action: PayloadAction<{ item: RqRecord }>) {
             const exists = state.current.items.some(
                 item => item.bx_id === action.payload.item.bx_id,
             );
+            const previousId = state.current.item?.bx_id;
             state.current.item = exists ? { ...action.payload.item } : state.current.item;
+            dropStaleDrafts(state, previousId, state.current.item?.type);
         },
 
         /** Черновик правки текущего реквизита (или заполнения его шаблона). */

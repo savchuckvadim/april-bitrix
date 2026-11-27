@@ -126,6 +126,15 @@ const appSlice = createSlice({
             Object.assign(state.bitrix.company, action.payload);
         },
 
+        /** Точечная правка полей сделки после записи на бэке (текущий ИНН и пул). */
+        patchDeal: (
+            state: AppState,
+            action: PayloadAction<Record<string, unknown>>,
+        ) => {
+            if (!state.bitrix.deal) return;
+            Object.assign(state.bitrix.deal, action.payload);
+        },
+
         reload: (state: AppState, action: PayloadAction) => {
             state.initialized = false;
         },

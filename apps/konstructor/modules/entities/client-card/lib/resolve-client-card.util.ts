@@ -6,6 +6,7 @@ import {
     ufKey,
 } from '@workspace/pbx';
 import type { ProspectCode, ProspectItem } from '@workspace/april-ui/entity';
+import { resolveCurrentInn } from '@/modules/entities/client-inn/lib/resolve-current-inn.util';
 import { CLIENT_CHOICE_CODE, CLIENT_INN_CODE } from './client-card-fields';
 
 type PortalFields = Parameters<typeof findPortalField>[0];
@@ -17,6 +18,8 @@ export interface ClientCardInput {
     dealId: number | null;
     /** Поля компании из слепка портала (portal.company.bitrixfields). */
     companyFields: PortalFields;
+    /** ИНН текущего реквизита (client-inn); нет реквизита или ИНН пуст — null. */
+    requisiteInn?: string | null;
 }
 
 export interface ClientChoice {
@@ -32,7 +35,11 @@ export interface ClientCard {
     status: (ClientChoice & { currentName: string | null }) | null;
     /** Тип клиента (op_client_type компании); null — поля нет на портале. */
     clientType: (ClientChoice & { currentName: string | null }) | null;
-    /** undefined — поля нет на портале; null — поле есть, ИНН не заполнен. */
+    /**
+     * Текущий ИНН: ИНН текущего реквизита, без него op_inn компании.
+     * undefined — ИНН негде показать (поля нет на портале, реквизит без ИНН);
+     * null — поле есть, ИНН не заполнен.
+     */
     inn: string | null | undefined;
 }
 
@@ -66,7 +73,7 @@ const readChoice = (
  * docs/pbx-fields-system.md); поля нет на портале — блок не показывается.
  */
 export const resolveClientCard = (input: ClientCardInput): ClientCard => {
-    const { domain, company, deal, dealId, companyFields } = input;
+    const { domain, company, deal, dealId, companyFields, requisiteInn = null } = input;
     const raw = (company ?? null) as Record<string, unknown> | null;
 
     const prospect = raw
@@ -106,10 +113,10 @@ export const resolveClientCard = (input: ClientCardInput): ClientCard => {
             : null,
         status,
         clientType,
-        inn: hasInnField
-            ? typeof innValue === 'string' && innValue.trim()
-                ? innValue.trim()
-                : null
-            : undefined,
+        inn: resolveCurrentInn({
+            requisiteInn,
+            companyInn: typeof innValue === 'string' ? innValue.trim() || null : null,
+            hasInnField,
+        }).value,
     };
 };

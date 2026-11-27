@@ -4,19 +4,14 @@ import { Edit2, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
-import { useApp } from '@/modules/app/lib/hooks/app';
 import { useAppSelector } from '@/modules/app/lib/hooks/redux';
-import { useClientType } from '@/modules/entities/deal/lib/hooks/use-client-type';
-import { BxRqEditModal } from './BxRqEditModal';
 import { RqFillBadge } from './RqFillBadge';
 import { RqFieldValue } from './RqFieldValue';
 import { isFieldsEmpty } from '../lib/field-items-util';
 import { useBxRqEditBank } from '../lib/hooks/use-bx-rq';
 
-/** Банковские реквизиты текущего реквизита (один банк, как в легаси). */
+/** Банковские реквизиты текущего реквизита (один банк, как в легаси); окно правки открывает BxRqDraftModals. */
 export const BxRqBankEdit = () => {
-    const { domain, companyId } = useApp();
-    const { resolved: clientType } = useClientType();
     const bank = useAppSelector(state => state.bxrq.current.item?.bank.current ?? null);
     const edit = useBxRqEditBank();
     const hasFields = Boolean(bank && bank.fields.length > 0);
@@ -72,19 +67,6 @@ export const BxRqBankEdit = () => {
                     </CardContent>
                 </Card>
             )}
-
-            {edit.creating ? (
-                <BxRqEditModal
-                    title="Редактирование банковских реквизитов"
-                    fields={edit.creating.fields}
-                    isOpen
-                    isLoading={edit.isCreatingLoading}
-                    onSave={() => void edit.saveBank(domain, companyId, clientType)}
-                    onCancel={edit.cancelBankCreating}
-                    onFieldChange={edit.setBankProp}
-                    type="bank"
-                />
-            ) : null}
         </div>
     );
 };

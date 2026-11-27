@@ -44,6 +44,7 @@ export function setupClientTypeDetectListener(
                     updateClientChoice(
                         'clientType',
                         getClientTypeItemCode(detected),
+                        { syncInn: false },
                     ),
                 );
             } finally {

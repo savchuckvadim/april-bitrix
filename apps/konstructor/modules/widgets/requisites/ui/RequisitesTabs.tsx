@@ -2,15 +2,22 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { BxRqAddressEdit, BxRqBankEdit, BxRqBaseEdit } from '@/modules/entities/bx-rq';
+import type { RequisitesTab } from '../lib/requisites-tab.util';
 
 export interface RequisitesTabsProps {
     /** Адреса и банк есть только у сохранённого реквизита. */
     detailsEnabled: boolean;
+    tab: RequisitesTab;
+    onTabChange: (tab: string) => void;
 }
 
-/** Основные поля, адреса и банк текущего реквизита. */
-export const RequisitesTabs = ({ detailsEnabled }: RequisitesTabsProps) => (
-    <Tabs defaultValue="base" className="space-y-4">
+/**
+ * Основные поля, адреса и банк текущего реквизита. Окна правки сюда не
+ * входят: вкладка снимается с экрана целиком, и окно, открытое из другого
+ * места, исчезло бы вместе с ней (их рисует BxRqDraftModals у экрана).
+ */
+export const RequisitesTabs = ({ detailsEnabled, tab, onTabChange }: RequisitesTabsProps) => (
+    <Tabs value={tab} onValueChange={onTabChange} className="space-y-4">
         <TabsList>
             <TabsTrigger value="base">Основные</TabsTrigger>
             <TabsTrigger value="addresses" disabled={!detailsEnabled}>

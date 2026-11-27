@@ -91,6 +91,7 @@ describe('buildVariantsPayload', () => {
             mode?: ComplectMode;
             openVariantSmartId?: number | null;
             live?: { general: RowSet; alternative: RowSet[] };
+            serviceDepartment?: boolean;
         } = {},
     ) => {
         const { stages = draftsOnly, mode = COMPLECT_MODE.multi_contract, openVariantSmartId = null } = options;
@@ -100,8 +101,36 @@ describe('buildVariantsPayload', () => {
             items,
             openVariantSmartId,
             live: options.live ?? emptyLive,
+            serviceDepartment: options.serviceDepartment,
         });
     };
+
+    /** Общий набор с главной строкой, у которой платный пакет LT веса 4 (его собирает только сервисный отдел). */
+    const setWithPaidLt = () => {
+        const set = mainSetOf('live', 'buh');
+        const main = set.rows[0]!;
+        const composition = { ...main.composition!, ltInPacket: ['ltdisk', 'ltconnect', 'ltbusiness', 'ltdocmail'] };
+        return upsertRow(set, { ...main, composition });
+    };
+
+    it('участники несут lt: платный Legal Tech, пакет веса 4 — по отделу', () => {
+        const live = { general: setWithPaidLt(), alternative: [] };
+        const records = [recordOf(1, 101, 'buh')];
+        const base = { stages: stageOf, openVariantSmartId: 101, live };
+
+        const regular = payloadOf(records, base).variants[0]!;
+        expect(regular.lt).toBeDefined();
+        expect(regular.lt?.paidPackets).toEqual([]);
+
+        const service = payloadOf(records, { ...base, serviceDepartment: true }).variants[0]!;
+        expect(service.lt?.paidPackets).toHaveLength(1);
+        expect(service.lt?.paidPackets?.[0]?.services).toHaveLength(4);
+    });
+
+    it('участник из слепка тоже несёт lt, даже без платных пакетов', () => {
+        const { variants } = payloadOf([recordOf(1, 102, 'buh')]);
+        expect(variants[0]!.lt).toMatchObject({ paidPacket: '', paidServices: [], paidPackets: [] });
+    });
 
     it('все варианты: участвуют все незакрытые, открытый вариант печатается из живого состояния, не из слепка', () => {
         const live = { general: mainSetOf('live', 'ur'), alternative: [] };

@@ -20,6 +20,8 @@ export interface VariantsPayloadInput {
     /** Вариант, открытый в конструкторе: печатается из живого состояния, не из слепка */
     openVariantSmartId: number | null;
     live: { general: RowSet; alternative: RowSet[] };
+    /** Сервисный отдел: пакет LT веса 4 открыт только ему; участникам уходит в `lt` */
+    serviceDepartment?: boolean;
 }
 
 /**
@@ -121,6 +123,7 @@ export const buildVariantEntries = (input: VariantsPayloadInput): VariantEntries
             title,
             general: source.general,
             alternative: source.alternative,
+            serviceDepartment: input.serviceDepartment,
         });
         if (doc) {
             entries.push({

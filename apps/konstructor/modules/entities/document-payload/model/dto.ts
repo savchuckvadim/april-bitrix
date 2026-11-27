@@ -2,6 +2,7 @@ import type {
     ComplectDto,
     ComplectInfoblockValueDto,
     ContractDto,
+    ContractSpecificationFormRequestDto,
     DocumentVariantDto,
     InfoblockGroupType,
     OfferWordByTemplateGenerateDto,
@@ -71,9 +72,20 @@ export interface DocComplectsFields {
     alternativeComplects?: DocAlternativeSetComplects[];
 }
 
+/**
+ * Платный Legal Tech участника КП: поле `lt` варианта документа — тот же
+ * объект, что `lt` формы договора (бесплатная часть и платные пакеты, у
+ * каждого пакета свой состав). Бэк принимает его у участника, в
+ * сгенерированном клиенте поля пока нет. После `pnpm run generate` оно
+ * появится в DocumentVariantDto, и это расширение можно убрать.
+ */
+export interface DocVariantLtFields {
+    lt?: ContractSpecificationFormRequestDto['lt'];
+}
+
 export type OfferGenerateRequest = OfferWordByTemplateGenerateDto & DocComplectsFields;
 /** Участник КП с несколькими вариантами комплекта (generate-multi) */
-export type DocVariant = DocumentVariantDto & DocComplectsFields;
+export type DocVariant = DocumentVariantDto & DocComplectsFields & DocVariantLtFields;
 export type OfferClientType = OfferWordByTemplateGenerateDto['clientType'];
 export type OfferContractType = OfferWordByTemplateGenerateDto['contractType'];
 export type OfferRecipient = OfferWordByTemplateGenerateDto['recipient'];

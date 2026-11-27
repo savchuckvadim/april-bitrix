@@ -6,19 +6,19 @@
  *
  * Два исключения, и оба вынужденные:
  *
- *   1. CREATE / UPDATE собирают multipart ЗДЕСЬ. Сгенерированный
- *      `invoiceTemplateCreate`/`invoiceTemplateUpdate` строит FormData по
- *      снимку swagger, снятому ДО добавления `client_types`/`supply_types`
- *      на бэке, поэтому эти поля он бы молча выбросил. Форма их показывает —
- *      значит они должны доехать. Сборка повторяет генератор поле в поле,
- *      плюс два списка критериев.
+ *   1. CREATE / UPDATE собирают multipart в `buildCreateInvoiceTemplateFormData`
+ *      и `buildUpdateInvoiceTemplateFormData`. Сгенерированные
+ *      `invoiceTemplateCreate`/`invoiceTemplateUpdate` кладут список критериев
+ *      повторяющимися полями, а на пустом списке не шлют ничего: ограничение
+ *      по типам клиента и поставки нельзя было бы снять обратно в «любой».
+ *      Ручная сборка отправляет пустой список как `"[]"` (правило — в шапке
+ *      `invoice-template-form-data.util.ts`).
  *   2. DOWNLOAD запрашивается через `customAxios` с `responseType: 'blob'`.
  *      Сгенерированный `invoiceTemplateDownload` типизирован как `void` и
  *      не просит blob, то есть файл не сохранить.
  *
- * ПОСЛЕ РЕГЕНЕРАЦИИ (нужен поднятый бэк): если сгенерированные DTO уже несут
- * критерии — заменить `create`/`update` на вызовы клиента и удалить сборку
- * FormData. Остальные методы уже на клиенте и правки не требуют.
+ * ПОСЛЕ ИСПРАВЛЕНИЯ ГЕНЕРАТОРА (пустой список в multipart) `create`/`update`
+ * можно заменить вызовами клиента. Остальные методы уже на клиенте.
  */
 import {
     customAxios,
@@ -31,38 +31,10 @@ import type {
     IInvoiceTemplateFindAllParams,
     IUpdateInvoiceTemplateDto,
 } from '../../model';
-
-/** Добавляет поле в FormData, только если значение задано. */
-const appendOptional = (
-    form: FormData,
-    key: string,
-    value: string | number | boolean | undefined | null,
-): void => {
-    if (value === undefined || value === null || value === '') {
-        return;
-    }
-    form.append(key, String(value));
-};
-
-/**
- * Список критериев в multipart.
- *
- * Повторяющийся ключ — та же форма, которую бэк разбирает
- * `@Transform(parseMultipartList)`. Пустой список здесь не окажется: его
- * отбрасывает нормализация в `lib/utils` (пусто = «любому» = NULL).
- */
-const appendList = (
-    form: FormData,
-    key: string,
-    values: readonly string[] | undefined | null,
-): void => {
-    if (!values || values.length === 0) {
-        return;
-    }
-    for (const value of values) {
-        form.append(key, value);
-    }
-};
+import {
+    buildCreateInvoiceTemplateFormData,
+    buildUpdateInvoiceTemplateFormData,
+} from '../utils/invoice-template-form-data.util';
 
 export class InvoiceTemplateHelper {
     private api: ReturnType<typeof getInvoiceTemplates>;
@@ -97,29 +69,11 @@ export class InvoiceTemplateHelper {
     }
 
     async create(dto: ICreateInvoiceTemplateDto): Promise<IInvoiceTemplate> {
-        const form = new FormData();
-        form.append('name', dto.name);
-        appendOptional(form, 'visibility', dto.visibility);
-        appendOptional(form, 'portal_id', dto.portal_id);
-        appendOptional(form, 'agent_id', dto.agent_id);
-        appendOptional(form, 'description', dto.description);
-        appendOptional(form, 'type', dto.type);
-        appendOptional(form, 'is_default', dto.is_default);
-        appendOptional(form, 'is_active', dto.is_active);
-        appendOptional(
-            form,
-            'creator_bitrix_user_id',
-            dto.creator_bitrix_user_id,
-        );
-        appendList(form, 'client_types', dto.client_types);
-        appendList(form, 'supply_types', dto.supply_types);
-        form.append('file', dto.file);
-
         return await customAxios<IInvoiceTemplate>({
             url: INVOICE_TEMPLATE_API_PATH,
             method: 'POST',
             headers: { 'Content-Type': 'multipart/form-data' },
-            data: form,
+            data: buildCreateInvoiceTemplateFormData(dto),
         });
     }
 
@@ -127,27 +81,12 @@ export class InvoiceTemplateHelper {
         id: string,
         dto: IUpdateInvoiceTemplateDto,
     ): Promise<IInvoiceTemplate> {
-        const form = new FormData();
-        appendOptional(form, 'name', dto.name);
-        appendOptional(form, 'visibility', dto.visibility);
-        appendOptional(form, 'portal_id', dto.portal_id);
-        appendOptional(form, 'agent_id', dto.agent_id);
-        appendOptional(form, 'description', dto.description);
-        appendOptional(form, 'type', dto.type);
-        appendOptional(form, 'is_default', dto.is_default);
-        appendOptional(form, 'is_active', dto.is_active);
-        appendList(form, 'client_types', dto.client_types);
-        appendList(form, 'supply_types', dto.supply_types);
-        if (dto.file) {
-            form.append('file', dto.file);
-        }
-
         // PUT — так эндпоинт объявлен в сгенерированном клиенте.
         return await customAxios<IInvoiceTemplate>({
             url: `${INVOICE_TEMPLATE_API_PATH}/${id}`,
             method: 'PUT',
             headers: { 'Content-Type': 'multipart/form-data' },
-            data: form,
+            data: buildUpdateInvoiceTemplateFormData(dto),
         });
     }
 

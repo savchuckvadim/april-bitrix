@@ -1,8 +1,8 @@
 'use client';
 
-import { TemplateShopScreen } from '@/modules/widgets/template-shop';
+import { TemplateSettingsScreen } from '@/modules/widgets/template-settings';
 
-/** Шаблоны КП: витрина Word-шаблонов с превью (бывшее окно настроек). */
+/** Настройки шаблонов: витрина шаблонов КП и управление шаблонами счетов. */
 export default function SettingsPage() {
-    return <TemplateShopScreen />;
+    return <TemplateSettingsScreen />;
 }

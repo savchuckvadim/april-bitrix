@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { ArrowLeft, FileText, Plus } from 'lucide-react';
 import { EmptyState } from '@workspace/april-ui/feedback';
 import { Button } from '@workspace/ui/components/button';
@@ -14,12 +15,17 @@ import { TemplatePreviewDialog } from './TemplatePreviewDialog';
 import { TemplateShopCard } from './TemplateShopCard';
 import { TemplateShopToolbar } from './TemplateShopToolbar';
 
+export interface TemplateShopScreenProps {
+    /** Переключатель разделов настроек над заголовком. */
+    tabs?: ReactNode;
+}
+
 /**
  * Витрина шаблонов КП: превью первой страницы на примере «Гарант-Офис»,
  * вкладки и поиск, выбор шаблона для КП, избранное. Загрузка и правка —
  * окном; своё превью и правка общедоступных — суперпользователю April.
  */
-export const TemplateShopScreen = () => {
+export const TemplateShopScreen = ({ tabs }: TemplateShopScreenProps) => {
     const shop = useTemplateShop();
     const previews = usePreviewVersions();
     const form = useTemplateForm(previews.bump);
@@ -27,6 +33,7 @@ export const TemplateShopScreen = () => {
 
     return (
         <Screen width="full" className="gap-4">
+            {tabs}
             <ScreenHeader
                 title="Шаблоны КП"
                 description="Выберите Word-шаблон коммерческого предложения. Превью собрано на примере комплекта «Гарант-Офис»."

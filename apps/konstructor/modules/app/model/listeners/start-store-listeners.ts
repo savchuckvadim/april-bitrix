@@ -51,6 +51,7 @@ import {
     isOfferPreviewStale,
 } from '../../lib/stale-actions';
 import { setupClientTypeDetectListener } from './client-type-detect.listener';
+import { setupInnSyncListener } from './inn-sync.listener';
 import { setupInvoicePeekListener } from './invoice-peek.listener';
 import { setupProviderTaxListener } from './provider-tax.listener';
 
@@ -79,6 +80,7 @@ export function startStoreListeners(
     setupDealProviderListener(listenerMiddleware);
     setupRqListener(listenerMiddleware);
     setupClientTypeDetectListener(listenerMiddleware);
+    setupInnSyncListener(listenerMiddleware);
     setupTemplateIdListener(listenerMiddleware);
     setupRememberedDocumentListener(listenerMiddleware);
     setupOfferPdfManagerPrefsListener(listenerMiddleware);

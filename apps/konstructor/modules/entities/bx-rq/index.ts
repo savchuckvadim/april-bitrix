@@ -12,6 +12,7 @@ export * from './lib/rq-util';
 export * from './lib/field-items-util';
 export * from './lib/address-util';
 export * from './lib/current-rq-util';
+export * from './lib/rq-inn.util';
 export * from './lib/detect-client-type.util';
 export * from './lib/get-bank-comment-value-util';
 export * from './lib/hooks/use-bx-rq';

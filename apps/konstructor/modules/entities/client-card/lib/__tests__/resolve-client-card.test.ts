@@ -72,6 +72,24 @@ describe('resolveClientCard', () => {
         expect(card.inn).toBeUndefined();
     });
 
+    it('ИНН текущего реквизита ведёт: ИНН из компании уступает ему место в шапке', () => {
+        const card = resolveClientCard({ ...base, requisiteInn: '5001007329' });
+        expect(card.inn).toBe('5001007329');
+    });
+
+    it('у реквизита нет ИНН: шапка показывает ИНН компании', () => {
+        expect(resolveClientCard({ ...base, requisiteInn: null }).inn).toBe('7701234567');
+    });
+
+    it('ИНН нигде нет: поле на портале есть — «не заполнен», поля нет — блока нет', () => {
+        const empty = {
+            ...base,
+            company: { ID: 7, TITLE: 'ООО Ромашка' } as unknown as ClientCardInput['company'],
+        };
+        expect(resolveClientCard(empty).inn).toBeNull();
+        expect(resolveClientCard({ ...empty, companyFields: [] as Fields }).inn).toBeUndefined();
+    });
+
     it('без домена ссылок нет (dev вне фрейма), текст остаётся', () => {
         const card = resolveClientCard({ ...base, domain: null });
         expect(card.company?.href).toBeNull();

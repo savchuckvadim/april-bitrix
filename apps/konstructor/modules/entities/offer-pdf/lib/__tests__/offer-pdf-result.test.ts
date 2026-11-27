@@ -113,6 +113,6 @@ describe('уход в сделку после формирования PDF-КП'
 
     it('прежний бэк без поля savedToDeal — остаёмся', () => {
         const { savedToDeal: _omitted, ...legacy } = oldResponse;
-        expect(isOfferPdfSavedToDeal(legacy as OfferPdfGenerateResponse)).toBe(false);
+        expect(isOfferPdfSavedToDeal(legacy)).toBe(false);
     });
 });

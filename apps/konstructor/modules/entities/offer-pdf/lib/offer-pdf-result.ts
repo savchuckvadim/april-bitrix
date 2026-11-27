@@ -40,5 +40,5 @@ export const readOfferPdfResult = (response: OfferPdfGenerateResponse): OfferPdf
  * прикрепились (причина в `dealMessage`) — экран остаётся, иначе менеджер
  * потеряет ссылки на файлы и сообщение. Поля нет (прежний бэк) — остаёмся.
  */
-export const isOfferPdfSavedToDeal = (response: Pick<OfferPdfGenerateResponse, 'savedToDeal'>): boolean =>
+export const isOfferPdfSavedToDeal = (response: Partial<OfferPdfGenerateResponse>): boolean =>
     response.savedToDeal === true;

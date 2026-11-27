@@ -69,6 +69,8 @@ export const normalizeOfferPdfStyle = (raw: unknown): OfferPdfStylePrefs => {
             withStamps: pickBoolean(settings.withStamps, defaults.withStamps),
             withManager: pickBoolean(settings.withManager, defaults.withManager),
             isPriceFirst: pickBoolean(settings.isPriceFirst, defaults.isPriceFirst),
+            // записи до настройки скидки поля не имеют: там скидка показывается
+            showDiscount: pickBoolean(settings.showDiscount, defaults.showDiscount),
             salePhrase: pickString(settings.salePhrase, defaults.salePhrase),
             withCover: pickBoolean(settings.withCover, defaults.withCover),
             withPromo: pickBoolean(settings.withPromo, defaults.withPromo),

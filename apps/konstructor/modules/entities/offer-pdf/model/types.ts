@@ -83,6 +83,13 @@ export interface OfferPdfSettings {
     withStamps: boolean;
     withManager: boolean;
     isPriceFirst: boolean;
+    /**
+     * Колонка «Скидка» в таблице цен КП. Выключено: колонки нет, цена
+     * показывается уже со скидкой. Уходит в PDF-запрос полем
+     * `settings.showDiscount`; на счёт не влияет. Записи без поля читаются
+     * как «показывать».
+     */
+    showDiscount: boolean;
     salePhrase: string;
     /** Титульный лист — у стилей, где он есть */
     withCover: boolean;
@@ -112,6 +119,7 @@ export const OFFER_PDF_DEFAULT_SETTINGS: OfferPdfSettings = {
     withStamps: true,
     withManager: true,
     isPriceFirst: false,
+    showDiscount: true,
     salePhrase: '',
     withCover: true,
     withPromo: true,
@@ -194,11 +202,14 @@ export const OFFER_PDF_OMITTED_WORD_FIELDS = [
 export type OfferPdfOmittedWordField = (typeof OFFER_PDF_OMITTED_WORD_FIELDS)[number];
 
 /**
- * Настройки документа в PDF-запросе. Поле `withLetter` бэк принимает, в
- * сгенерированном клиенте его пока нет. После `pnpm run generate` оно появится
- * в OfferPdfSettingsDto, и расширение можно убрать.
+ * Настройки документа в PDF-запросе. Поля `withLetter` и `showDiscount` бэк
+ * принимает, в сгенерированном клиенте их пока нет. После `pnpm run generate`
+ * они появятся в OfferPdfSettingsDto, и расширение можно убрать.
  */
-export type OfferPdfRequestSettings = NonNullable<OfferPdfGenerateDto['settings']> & { withLetter?: boolean };
+export type OfferPdfRequestSettings = NonNullable<OfferPdfGenerateDto['settings']> & {
+    withLetter?: boolean;
+    showDiscount?: boolean;
+};
 
 /**
  * Запрос КП в PDF: данные те же, что для Word-шаблона (бэк считает их

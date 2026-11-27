@@ -1,5 +1,6 @@
 export { DealSendButton } from './ui/DealSendButton';
 export { useDealSend } from './hooks/use-deal-send';
+export { useDealSummaryActions } from './hooks/use-deal-summary-actions';
 export { sendDeal } from './model/deal-send-thunk';
 export { dealSendActions, dealSendReducer, type DealSendState } from './model/DealSendSlice';
 export {

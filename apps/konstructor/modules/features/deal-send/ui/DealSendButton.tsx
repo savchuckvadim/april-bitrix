@@ -1,25 +1,37 @@
 'use client';
 
+import type { ComponentProps } from 'react';
 import { Check, Send } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { useDealSend } from '../hooks/use-deal-send';
 import { DealSendWarnings } from './DealSendWarnings';
 
-export interface DealSendButtonProps {
+export interface DealSendButtonProps extends Pick<ComponentProps<typeof Button>, 'variant' | 'size'> {
     /** После успешной отправки — на хаб документов (с «Цен»); в хабе не нужно. */
     navigateAfter?: boolean;
     className?: string;
 }
 
 /** «Создать / Сохранить сделку» — поля и товарные строки в Bitrix + слепок. */
-export const DealSendButton = ({ navigateAfter = false, className }: DealSendButtonProps) => {
+export const DealSendButton = ({
+    navigateAfter = false,
+    variant,
+    size = 'sm',
+    className,
+}: DealSendButtonProps) => {
     const deal = useDealSend({ navigateAfter });
 
     if (!deal.canSend) return null;
 
     return (
         <div className="flex flex-col items-end gap-1">
-            <Button size="sm" className={className} onClick={() => void deal.send()} disabled={deal.isSending}>
+            <Button
+                variant={variant}
+                size={size}
+                className={className}
+                onClick={() => void deal.send()}
+                disabled={deal.isSending}
+            >
                 {deal.isDone ? <Check className="h-4 w-4" /> : <Send className="h-4 w-4" />}
                 {deal.label}
             </Button>

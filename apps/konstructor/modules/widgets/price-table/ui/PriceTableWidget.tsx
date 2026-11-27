@@ -5,7 +5,7 @@ import { BuildSummary } from '@/modules/features/build-summary';
 import { AcademyPickerButton } from '@/modules/features/academy-picker';
 import { AddLtPacketButton } from '@/modules/features/composition-editor';
 import { RowBuilderPanel } from '@/modules/features/row-builder';
-import { FlowSummary } from '@/modules/features/flow-summary';
+import { FlowSummary, type FlowSummaryProps } from '@/modules/features/flow-summary';
 import { Screen, ScreenSplit } from '@/modules/shared';
 import { TableHeader, type TableHeaderSlots } from '../table-header';
 import { SetBlock } from '../set-block';
@@ -23,6 +23,8 @@ export interface PriceTableWidgetProps {
     /** Между шапкой и наборами: варианты комплекта */
     beforeSets?: ReactNode;
     header?: TableHeaderSlots;
+    /** Карточка «Итог»: кнопки под суммой и показ «Далее» (по умолчанию — только «Далее») */
+    summary?: Pick<FlowSummaryProps, 'actions' | 'showNext'>;
 }
 
 /**
@@ -39,6 +41,7 @@ export const PriceTableWidget = ({
     notice,
     beforeSets,
     header,
+    summary,
 }: PriceTableWidgetProps) => {
     const table = usePriceTable();
 
@@ -51,7 +54,7 @@ export const PriceTableWidget = ({
             <ScreenSplit
                 mainWidth="content"
                 aside={
-                    <FlowSummary title="Итог">
+                    <FlowSummary title="Итог" {...summary}>
                         <BuildSummary />
                     </FlowSummary>
                 }

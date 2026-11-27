@@ -18,6 +18,8 @@ export interface FlowSummaryProps {
     actions?: ReactNode;
     /** «Назад» над карточкой; false — экран ставит её в свой заголовок (FlowBackButton). */
     showBack?: boolean;
+    /** «Далее»; false — экран сам предлагает действие вместо перехода (шаг «Цены» без сделки). */
+    showNext?: boolean;
     children: ReactNode;
 }
 
@@ -33,6 +35,7 @@ export const FlowSummary = ({
     hint,
     actions,
     showBack = true,
+    showNext = true,
     children,
 }: FlowSummaryProps) => {
     const step = useFlowStepActions(onNext);
@@ -53,7 +56,7 @@ export const FlowSummary = ({
                     <div className="flex w-full flex-col gap-2">
                         {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
                         {actions}
-                        {step.nextLabel ? (
+                        {showNext && step.nextLabel ? (
                             <Button
                                 onClick={step.goNext}
                                 disabled={nextDisabled}
